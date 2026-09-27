@@ -287,8 +287,6 @@ def _load_rgba(path: str):
                 return None
             size = renderer.defaultSize().scaled(
                 MAX_WORK_SIZE, MAX_WORK_SIZE, Qt.KeepAspectRatio)
-            if size.isEmpty():
-                return None
             image = QImage(size, QImage.Format_RGBA8888)
             image.fill(0)
             painter = QPainter(image)
@@ -538,8 +536,7 @@ def _themed_array(stamp, theme: str):
     if rgba is None:
         return None
     inked = reink(rgba, theme)
-    if inked is not None:
-        _write_cached_icon(path, inked)
+    _write_cached_icon(path, inked)
     return inked
 
 

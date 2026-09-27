@@ -1125,6 +1125,9 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('ultrack_n_workers', 1)
     settings.setdefault('timeflows_model', None)
     settings.setdefault('timelapse_objects', ['cell'])
+    settings.setdefault('timelapse_lineage', False)
+    settings.setdefault('timelapse_lineage_color_by', 'generation_time')
+    settings.setdefault('timelapse_lineage_max_distance', 30.0)
 
     settings.setdefault('save_original_images', True)
     settings.setdefault('keep_intermediate', False)
@@ -1723,6 +1726,10 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('wound_window', 15)
     settings.setdefault('wound_hours_per_frame', None)
     settings.setdefault('wound_conditions', {})
+    settings.setdefault('intensity_calibration', False)
+    settings.setdefault('intensity_calibration_wells', None)
+    settings.setdefault('intensity_calibration_statistic', 'foreground')
+    settings.setdefault('intensity_calibration_offset', 0)
     settings.setdefault('time_to_event', False)
     settings.setdefault('time_to_event_object', 'cell')
     settings.setdefault('time_to_event_mode', 'track_end')
@@ -3266,6 +3273,7 @@ expected_types = {
     "illumination_max_fields": int,
     "illumination_estimator": str,
     "illumination_model": str,
+    "illumination_vendor_profile": str,
     "illumination_on_missing": str,
     "dst": str,
     "db_path": str,
@@ -3340,6 +3348,9 @@ expected_types = {
     "ultrack_n_workers": int,
     "timeflows_model": (str, type(None)),
     "timelapse_objects": list,
+    "timelapse_lineage": bool,
+    "timelapse_lineage_color_by": str,
+    "timelapse_lineage_max_distance": (int, float),
     "fps": int,
     "lower_percentile": (int, float),
     "merge_pathogens": bool,
@@ -3547,6 +3558,10 @@ expected_types = {
     "wound_window": int,
     "wound_hours_per_frame": (float, int, type(None)),
     "wound_conditions": dict,
+    "intensity_calibration": bool,
+    "intensity_calibration_wells": (list, str, type(None)),
+    "intensity_calibration_statistic": str,
+    "intensity_calibration_offset": (float, int),
     "time_to_event": bool,
     "time_to_event_object": str,
     "time_to_event_mode": str,
@@ -4792,6 +4807,10 @@ tooltips = {
     "cell_cycle_labels": "(str) - A png_list column holding Annotate labels the xgboost and torch methods learn from: 1 to 4 for G1, S, G2 and M, or the phase names. Labels are matched to nuclei through their cell. Blank trains on the confident gate calls instead, which teaches the learned methods what the gates already say; annotate prophase and anaphase nuclei to teach them more. Default blank.",
     "cell_cycle_model": "(str) - A torch model this step trained earlier, with its cell_cycle_phases.json beside it, applied to the nucleus crops instead of training a new one. Use it to call a second plate with the model trained on the first. Ignored unless cell_cycle_method is torch or all. Default blank.",
     "cell_cycle_epochs": "(int) - Training epochs of the torch phase classifier. It is a ResNet-18 trained from scratch on crops as small as 32 pixels, so each epoch is quick on a GPU and slow on a busy CPU. Ignored when cell_cycle_model names a trained model. Default 20.",
+    "intensity_calibration": "(bool) - Calibrate intensities across imaging sessions before measuring: each plate is one session, the beads or reference wells imaged on every plate are measured, and every plate's intensity channels are scaled so its reference wells match the first plate's. This corrects exposure, lamp and detector drift between days at the image level, unlike batch correction of tables. The gains are recorded in measurements.db:intensity_rescale. Default False.",
+    "intensity_calibration_wells": "(list or None) - The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
+    "intensity_calibration_statistic": "(str) - How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
+    "intensity_calibration_offset": "(float) - The camera's dark offset, in the intensity units Measure works in, removed before the reference statistic and kept when scaling: a pixel becomes offset + (value - offset) x gain. Read it from a dark frame; 100 is common on sCMOS cameras. Leave 0 when images are already offset-corrected. Default 0.",
     "time_to_event": "(bool) - After measuring a timelapse, follow every tracked object to an event (death, lysis, egress, division, first detection) or to the end of its track, and compare conditions: Kaplan-Meier curves with 95% bands, median time to event per condition and well, log-rank tests and a Cox model. Writes measurements.db:time_to_event and four summary tables, and the curves and hazard ratios under results/time_to_event. Needs tracked objects measured with timelapse on. Default False.",
     "time_to_event_object": "(str) - The measured object table whose tracks are followed: cell, nucleus, pathogen or cytoplasm. Each object label in a field is one track, since the timelapse module relabels tracked objects with their track ID. Follow host cells for host death or lysis, pathogens for egress or division. Default cell.",
     "time_to_event_mode": "(str) - What counts as the event. track_end: the object disappears before the movie ends (lysis, egress, detachment, and tracking loss too). annotated: time_to_event_column turns non-zero, or equals the threshold. above or below: the column reaches time_to_event_threshold, such as a death dye. fold_change: the column reaches threshold times its first value, such as a doubled parasite count. Tracks without the event are censored at their last frame. Default track_end.",
@@ -4919,6 +4938,9 @@ tooltips = {
     "ultrack_n_workers": "(int) - How many worker processes Ultrack runs during its candidate-segmentation and linking passes; they all write into the same temporary sqlite store, so extra workers cut wall-clock on long movies but add database contention and memory. Leave it at one for short batches or a busy machine. Only consulted when timelapse_mode='ultrack'. Default 1.",
     "timelapse_frame_limits": "(list) - Slice of frame indices [start, end] kept from each batch before tracking, e.g. [0,10] to work on the first ten frames while tuning settings. The list is ignored unless it has at least two elements, which is why the shipped default [5,] has no effect. Default [5,].",
     "timelapse_objects": "(list) - Which segmented objects are tracked across frames and relabelled with track IDs: any subset of ['cell', 'nucleus', 'pathogen']; any other value aborts the run with a message. Each extra entry costs a full additional tracking pass. Tracking nuclei is often more stable than cells when cells touch. Default ['cell'].",
+    "timelapse_lineage": "(bool) - After tracking each field, build lineage trees from the tracker's division links: a tree figure coloured by timelapse_lineage_color_by, Newick trees, a per-cell segment table and per-lineage statistics (generation time in frames, sibling correlation), written to tracks/lineage. Trackastra division links are used as reported; for other trackers a division is inferred where new tracks start beside a mother. Default False.",
+    "timelapse_lineage_color_by": "(str) - What colours each cell in the lineage trees: generation_time, generation, start_frame or n_frames, or the name of a numeric column of the tracks table, averaged over the cell's frames. An unknown name falls back to generation_time with a message. Ignored unless timelapse_lineage. Default generation_time.",
+    "timelapse_lineage_max_distance": "(float) - Largest distance in pixels between a mother's last position and a new track's first position for the new track to count as her daughter when divisions are inferred. Raise it for large cells or long frame intervals, lower it when neighbours are wrongly joined. Not used for division links the tracker reports. Ignored unless timelapse_lineage. Default 30.0.",
     "timelapse_remove_transient": "(bool) - After linking, drop every track not present in all frames (trackpy filter_stubs over the full stack length), keeping only objects tracked from first frame to last. Enable for clean per-object time courses; expect to lose cells that divide, enter or leave the field, so object counts fall. Default False.",
     "timelapse": "(bool) - Treat each well/field as a time series instead of independent images: files are grouped into time stacks, randomization is switched off, per-channel movies are written, objects in timelapse_objects are tracked across frames, a timeID column is added to the measurement tables, and measure_crop stops writing single-object PNGs. Only enable when filenames carry a time index. Default False.",
     "pathogen_min_size": "(int) - (Deprecated) Minimum pathogen object area in pixels squared, applied during measurement: any label with fewer pixels than this is erased from the pathogen mask before features are extracted. 0, the default, disables it. Superseded by an 'area' row for pathogen in object_filters, which filters at segmentation time instead.",
@@ -5246,7 +5268,7 @@ def _name_the_family_in_every_estimator_tooltip():
 
 _name_the_family_in_every_estimator_tooltip()
 
-timelapse_settings = ['fps', 'timelapse_mode', 'trackastra_model', 'trackastra_linking', 'ultrack_max_distance', 'ultrack_division_weight', 'ultrack_contour_sigma', 'ultrack_n_workers', 'timeflows_model', 'timelapse_displacement', 'timelapse_memory', 'timelapse_frame_limits', 'timelapse_remove_transient', 'timelapse_objects']
+timelapse_settings = ['fps', 'timelapse_mode', 'trackastra_model', 'trackastra_linking', 'ultrack_max_distance', 'ultrack_division_weight', 'ultrack_contour_sigma', 'ultrack_n_workers', 'timeflows_model', 'timelapse_displacement', 'timelapse_memory', 'timelapse_frame_limits', 'timelapse_remove_transient', 'timelapse_objects', 'timelapse_lineage', 'timelapse_lineage_color_by', 'timelapse_lineage_max_distance']
 
 motility_settings = ['motility_analysis','tracked_object', 'infection_intensity_strategy', 'seconds_per_frame', 'pixels_per_um', 'motility_ylim', 'motility_xlim', 'infection_intensity_qc_scope']
 
@@ -5342,7 +5364,7 @@ categories = {
 
     "Measurements": ["save_measurements", "calculate_correlation", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
 
-    "Illumination Correction": ["illumination_correction", "illumination_model", "illumination_estimator", "illumination_degree", "illumination_dark", "illumination_per_plate", "illumination_max_fields", "illumination_qc", "illumination_on_missing"],
+    "Illumination Correction": ["illumination_correction", "illumination_model", "illumination_estimator", "illumination_degree", "illumination_dark", "illumination_per_plate", "illumination_max_fields", "illumination_qc", "illumination_on_missing", "illumination_vendor_profile"],
 
     "Object Crops": ["save_png", "crop_mode", "png_size", "png_channel_mapping", "png_dims", "dialate_pngs", "dialate_png_ratios", "use_bounding_box", "normalize_by", "save_arrays"],
 
@@ -5485,6 +5507,11 @@ categories = {
     "Wound Closure (Alpha)": [
         "wound_closure", "wound_source", "wound_channel", "wound_window",
         "wound_hours_per_frame", "wound_conditions",
+    ],
+
+    "Intensity Calibration (Alpha)": [
+        "intensity_calibration", "intensity_calibration_wells",
+        "intensity_calibration_statistic", "intensity_calibration_offset",
     ],
 
     "Time To Event (Alpha)": [
@@ -7111,6 +7138,9 @@ ALPHA_FEATURES = {
         'widgets': ('MakeMasksPromptCategory',),
         'models': ('microsam_v1',),
     },
+    565: {
+        'widgets': ('AnnotateFindSimilar',),
+    },
     570: {
         'widgets': ('ControlChartHitPanel', 'ControlChartHitsSection',
                     'ControlChartExportHits'),
@@ -7124,8 +7154,16 @@ ALPHA_FEATURES = {
                      'time_to_event_conditions', 'time_to_event_reference',
                      'time_to_event_covariates'),
     },
+    572: {
+        'widgets': ('FigureIntegrityCheck',),
+    },
     573: {
         'widgets': ('AnalysisLockButton',),
+    },
+    580: {
+        'settings': ('intensity_calibration', 'intensity_calibration_wells',
+                     'intensity_calibration_statistic',
+                     'intensity_calibration_offset'),
     },
     577: {
         'widgets': ('NotifyTabHelp', 'NotifyRunsEnabled', 'NotifyRunsWhen',
@@ -7142,6 +7180,13 @@ ALPHA_FEATURES = {
     },
     538: {
         'settings': ('unmix', 'unmix_controls', 'unmix_background_percentile'),
+    },
+    537: {
+        'settings': ('timelapse_lineage', 'timelapse_lineage_color_by',
+                     'timelapse_lineage_max_distance'),
+    },
+    543: {
+        'settings': ('illumination_vendor_profile',),
     },
 }
 

@@ -124,7 +124,10 @@ def test_the_preferences_dialog_loads_and_saves_the_switch(qtbot, prefs,
 def test_every_registration_names_a_known_kind_and_a_real_thing():
     """A registration that names nothing would hide nothing and pass."""
     from spacr.qt.app import APPS
+    from spacr.qt.screens.settings_model import resolve_default_settings
 
+    for host in EXTRA_SETTINGS_HOSTS:
+        resolve_default_settings(host)
     source = "\n".join(path.read_text(encoding="utf-8", errors="ignore")
                        for path in (ROOT / "spacr").rglob("*.py")
                        if "i18n_catalogs" not in path.parts)

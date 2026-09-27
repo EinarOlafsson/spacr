@@ -309,6 +309,7 @@ def convert_settings_dict_for_gui(settings):
         'profiling_normalization': ('combo', ['mad_robustize', 'standardize', 'robustize', 'none'], 'mad_robustize'),
         'cell_cycle_method': ('combo', ['measurements', 'xgboost', 'torch', 'all'], 'measurements'),
         'wound_source': ('combo', ['texture', 'intensity', 'masks'], 'texture'),
+        'intensity_calibration_statistic': ('combo', ['foreground', 'median'], 'foreground'),
         'time_to_event_mode': ('combo', ['track_end', 'annotated', 'above', 'below', 'fold_change'], 'track_end'),
         'time_to_event_origin': ('combo', ['track', 'movie'], 'track'),
         'time_to_event_object': ('combo', ['cell', 'nucleus', 'pathogen', 'cytoplasm'], 'cell'),

@@ -906,14 +906,56 @@ class SaveFigureDialog(QDialog):
         if target is None:
             self._say(f"{SAVE_FAILED} there is no figure to write.")
             return ""
+        stamp, report = self._integrity_stamp(target, chosen, suffix)
         try:
             target.savefig(chosen, dpi=int(self.dpi.value()),
                            bbox_inches="tight",
                            facecolor=target.patch.get_facecolor(),
-                           transparent=not self._colour_of(self.background))
+                           transparent=not self._colour_of(self.background),
+                           **stamp)
         except Exception as exc:                             # noqa: BLE001
             LOG.debug("could not save the figure", exc_info=True)
             self._say(f"{SAVE_FAILED} {self._why(exc)}")
             return ""
+        if report is not None:
+            try:
+                from ...plot import _finish_integrity
+
+                _finish_integrity(report, chosen)
+            except Exception:
+                LOG.debug("could not write the provenance", exc_info=True)
         self.accept()
         return chosen
+
+    def _integrity_stamp(self, figure, chosen: str, suffix: str):
+        """Check ``figure`` and build its provenance stamp, when switched on.
+
+        The same check :func:`spacr.plot.save_figure` runs, so a figure
+        saved from this dialog is held to the rule a pipeline figure is.
+
+        Returns
+        -------
+        tuple
+            ``(savefig keyword arguments, report)``; both empty when the
+            check is off, finds no image panel, or cannot run.
+        """
+        import os
+
+        try:
+            from ...plot import (_figure_integrity_enabled,
+                                 _integrity_metadata, _integrity_report)
+
+            if not _figure_integrity_enabled():
+                return {}, None
+            written = (os.path.splitext(chosen)[1].lstrip(".").lower()
+                       or suffix)
+            report = _integrity_report(figure, fmt=written,
+                                       dpi=int(self.dpi.value()))
+            if report is None:
+                return {}, None
+            stamp = _integrity_metadata(report, written)
+            return ({"metadata": stamp} if stamp else {}), report
+        except Exception:
+            LOG.debug("the figure integrity check could not run",
+                      exc_info=True)
+            return {}, None

@@ -111,7 +111,10 @@ from .measure_hooks import (
 )
 from .object_roles import ORGANELLE_ROLES, SEGMENTED_ROLES
 from .intensity_rescale import (
+    CALIBRATION_SETTINGS_KEY,
     PLAN_SETTINGS_KEY,
+    _apply_calibration as _apply_intensity_calibration,
+    _build_calibration_plan as _build_intensity_calibration_plan,
     build_plate_plan,
     mask_planes as _intensity_mask_planes,
     needs_warning as _intensity_scale_needs_warning,
@@ -1151,17 +1154,16 @@ def _morphological_measurements(
                 found[name] = mask
         return found
 
-    def _with_distances(frame, mask, name):
+    def _with_distances(frame, name):
         """Merge the object-distance block onto a props frame.
 
         Props on the LEFT for the reason `_with_spatial` gives: 'label' has
-        to keep column position 0.
+        to keep column position 0. A non-empty frame means ``name``'s mask
+        holds labels, so `_all_masks` already carries it.
         """
         if not distances_on or len(frame) == 0:
             return frame
         masks = _all_masks()
-        if name not in masks:
-            masks = dict(masks, **{name: mask})
         try:
             from .object_distances import object_distances
 
@@ -1258,7 +1260,7 @@ def _morphological_measurements(
         cell_to_nucleus, cell_to_pathogen = get_components(cell_mask, nucleus_mask, pathogen_mask)
         cell_props = _props(cell_mask)
         cell_props = _with_spatial(cell_props, cell_mask)
-        cell_props = _with_distances(cell_props, cell_mask, 'cell')
+        cell_props = _with_distances(cell_props, 'cell')
         cell_props = _with_bystanders(cell_props, cell_mask, cell_to_pathogen)
         if zernike:
             cell_props = _calculate_zernike(
@@ -1272,7 +1274,7 @@ def _morphological_measurements(
     if settings['nucleus_mask_dim'] is not None:
         nucleus_props = _props(nucleus_mask)
         nucleus_props = _with_spatial(nucleus_props, nucleus_mask)
-        nucleus_props = _with_distances(nucleus_props, nucleus_mask, 'nucleus')
+        nucleus_props = _with_distances(nucleus_props, 'nucleus')
         if zernike:
             nucleus_props = _calculate_zernike(
                 nucleus_mask, nucleus_props, degree=degree)
@@ -1295,7 +1297,7 @@ def _morphological_measurements(
     if settings['pathogen_mask_dim'] is not None:
         pathogen_props = _props(pathogen_mask)
         pathogen_props = _with_spatial(pathogen_props, pathogen_mask)
-        pathogen_props = _with_distances(pathogen_props, pathogen_mask, 'pathogen')
+        pathogen_props = _with_distances(pathogen_props, 'pathogen')
         if zernike:
             pathogen_props = _calculate_zernike(
                 pathogen_mask, pathogen_props, degree=degree)
@@ -2676,6 +2678,8 @@ def _write_intensity_rescale_record(source_folder, file_name, settings,
 
     ``target_dtype`` describes the standard rescaling stage. The separate PSF
     provenance records the final float dtype, kernel and quantitative source.
+    ``intensity_calibration`` holds the cross-plate calibration applied to the
+    field (gains, reference plate, statistic and offset) as JSON, or NULL.
     Older tables gain nullable signature/details and an original-source default.
     """
     from . import schema
@@ -2699,6 +2703,10 @@ def _write_intensity_rescale_record(source_folder, file_name, settings,
         'psf_measurement_source': (psf_record or {}).get('source', 'original'),
         'psf_signature': settings.get('_psf_measurement_signature'),
         'psf_provenance': json.dumps(psf_record, sort_keys=True, allow_nan=False),
+        'intensity_calibration': (
+            json.dumps(record['intensity_calibration'], sort_keys=True,
+                       allow_nan=False)
+            if record.get('intensity_calibration') else None),
     }
     columns = (
         'plateID', 'rowID', 'columnID', 'fieldID', 'timeID', 'prc', 'prcf',
@@ -2706,6 +2714,7 @@ def _write_intensity_rescale_record(source_folder, file_name, settings,
         'rescale_factor', 'rescale_scope', 'plate_intensity_max',
         'comparable_within_plate', 'target_dtype',
         'psf_measurement_source', 'psf_signature', 'psf_provenance',
+        'intensity_calibration',
     )
     db_path = os.path.join(source_folder, 'measurements', 'measurements.db')
     conn = connect(db_path, timeout=30)
@@ -2734,7 +2743,8 @@ def _write_intensity_rescale_record(source_folder, file_name, settings,
                 'PRAGMA table_info(intensity_rescale)')}
             for column, declaration in (
                     ('psf_measurement_source', "TEXT NOT NULL DEFAULT 'original'"),
-                    ('psf_signature', 'TEXT'), ('psf_provenance', 'TEXT')):
+                    ('psf_signature', 'TEXT'), ('psf_provenance', 'TEXT'),
+                    ('intensity_calibration', 'TEXT')):
                 if column not in existing:
                     conn.execute(f'ALTER TABLE intensity_rescale ADD COLUMN {column} {declaration}')
             placeholders = ', '.join('?' for _ in columns)
@@ -6836,6 +6846,20 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                 scale = '' if factor == 1.0 else f' (intensity x{factor:g})'
                 print(f'Converted data from {data_type_before} to {data_type}{scale}')
 
+        data, calibration_record = _apply_intensity_calibration(
+            data, file, settings)
+        if calibration_record is not None:
+            data_type = data.dtype
+            rescale_record = {**rescale_record,
+                              'intensity_calibration': calibration_record}
+            clipped = {plane: share for plane, share in
+                       calibration_record['clipped_fraction'].items() if share}
+            if clipped:
+                print(f"WARNING: {file_name} intensity calibration clipped "
+                      f"pixels at the {data_type} ceiling (fraction per "
+                      f"plane: {clipped}); those intensities are "
+                      f"underestimated.")
+
         if data.ndim == 4 and data.shape[0] == 1:
             data = data[0]
         volumetric = data.ndim == 4
@@ -7614,6 +7638,18 @@ def measure_crop(settings):
                         f"can be loaded by its worker, it will use a per-field "
                         f"fallback and measurements.db:intensity_rescale will "
                         f"mark it non-comparable.")
+                settings.pop(CALIBRATION_SETTINGS_KEY, None)
+                if settings.get('intensity_calibration'):
+                    calibration = _build_intensity_calibration_plan(
+                        settings['src'], files, settings)
+                    settings[CALIBRATION_SETTINGS_KEY] = calibration
+                    print(f"Intensity calibration against plate "
+                          f"{calibration['reference_plate']}: " + '; '.join(
+                              f"{plate} x" + ','.join(
+                                  f"{gain:.3g}" for gain in
+                                  entry['gain'].values())
+                              for plate, entry in
+                              calibration['plates'].items()))
                 if resume_plan is not None:
                     files = resume_plan.filter_files(files)
                 n_jobs = settings['n_jobs']

@@ -593,9 +593,10 @@ def organelle_number(role: str) -> int:
             offset = 0
             for length in range(2, len(suffix)):
                 offset += 26 ** length
+            value = 0
             for char in suffix:
-                offset = offset * 26 + (ord(char) - ord("a"))
-            return offset + 27
+                value = value * 26 + (ord(char) - ord("a"))
+            return offset + value + 27
     raise ValueError(
         f"{role!r} is not an organelle role; expected 'organelle', "
         "'organelleb'..'organellez', then 'organelleaa' onward")
@@ -622,9 +623,7 @@ def organelle_role_of(key: str) -> Optional[str]:
     text = str(key)
     if not text.startswith("organelle"):
         return None
-    head, separator, _rest = text.partition("_")
-    if not separator and head != text:
-        return None
+    head = text.partition("_")[0]
     try:
         organelle_number(head)
     except ValueError:
@@ -714,10 +713,7 @@ def _count_implied_by_the_slots(settings: Mapping[str, object]) -> int:
         role = organelle_role_of(key)
         if role is None:
             continue
-        try:
-            highest = max(highest, organelle_number(role))
-        except ValueError:            # pragma: no cover - role_of validated it
-            continue
+        highest = max(highest, organelle_number(role))
     return min(highest, MAX_ORGANELLES)
 
 
