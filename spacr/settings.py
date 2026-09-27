@@ -7212,6 +7212,9 @@ ALPHA_FEATURES = {
     543: {
         'settings': ('illumination_vendor_profile',),
     },
+    585: {
+        'widgets': ('PowerArrayedPlanner',),
+    },
 }
 
 

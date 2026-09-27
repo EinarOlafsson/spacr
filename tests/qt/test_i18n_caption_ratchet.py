@@ -1156,6 +1156,34 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 572, 2026-09-26: the figure integrity toggle on the Preferences Figures
 # tab and its tooltip (alpha).
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    # 585, 2026-09-27: the Power screen's alpha arrayed-assay planner.
+    'Analyse replicates as pairs, so replicate-to-replicate variation cancels. Default off.',
+    'Arrayed-assay planner',
+    'Both conditions on every replicate',
+    'Cheapest design: {replicates} replicates, {wells} wells per condition, {fields} fields per well; power {power:.2f}, {simulated:.2f} in 500 simulated experiments.',
+    'Column naming each well, unique across plates. Default prc.',
+    'Column naming the biological replicate, such as plateID when each plate is one; leave empty when the pilot has one replicate and the replicate variance cannot be estimated. Default empty.',
+    'Column naming the field within its well. Default fieldID.',
+    'Cost',
+    'Could not read the pilot: {error}',
+    'Database table',
+    "Difference between the two condition means to detect, in the measurement's units. Default 0.",
+    'Effect to detect',
+    'Field column',
+    'Mean {mean:.4g}; variance between replicates {rep}, wells {well:.4g}, fields {field:.4g}, cells {cell:.4g}; {cells:.0f} cells per field.',
+    'No design within 12 replicates, 12 wells and 25 fields reaches the target power.',
+    'Per-cell column the experiment will compare. Default empty.',
+    'Per-cell measurements from a pilot plate: a CSV, Parquet, Excel or spaCR measurement database. Default empty.',
+    'Pilot table',
+    'Plan the design',
+    'Power',
+    'Probability of a significant result the design must reach. Default 0.8.',
+    'Replicate column',
+    'Table to read when the pilot is a database. Default cell.',
+    'Target power',
+    'Two-sided significance level of the t-test on replicate means. Default 0.05.',
+    'Well column',
+    'not estimated (taken as 0)',
     # 575, 2026-09-27: Run History's alpha Export workflow button, its
     # menu, folder dialog and status lines.
     "Export workflow…",
