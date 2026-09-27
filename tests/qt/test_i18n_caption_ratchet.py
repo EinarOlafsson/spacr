@@ -1158,6 +1158,13 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 574, 2026-09-27: the Report screen's Archive package button and form.
 # 579, 2026-09-27: the Report screen's Deposit on Zenodo button and form.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    # 463: the published synthetic example now carries Cellpose-SAM masks.
+    'Download about {size} MB of SYNTHETIC test data: two-colour images drawn '
+    'by spaCR, segmented by Mask with Cellpose-SAM, then measured by Measure. '
+    'No real cells were imaged. A staining-control column and two conditions '
+    'have a known share of invaded parasites; ground truth records the drawn '
+    'objects, not the segmented masks. Settings are filled in, so Run is the '
+    'next step. Cached after the first download.',
     # 566, 2026-09-27: the GPU Measurement (Alpha) category help on Measure.
     'Per-object intensity statistics, GLCM homogeneity and Zernike moments computed for all objects of a field at once on a CUDA GPU, matching the CPU values within float tolerance. Without a GPU the CPU path runs.',
     # 562, 2026-09-27: the Embeddings screen's Learn from well labels
