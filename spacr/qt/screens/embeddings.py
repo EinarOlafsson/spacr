@@ -374,6 +374,7 @@ class EmbeddingsScreen(QWidget):
         self._run.setToolTip("Load crops first")
         self._run.clicked.connect(self.embed)
         controls.addWidget(self._run)
+        self._add_well_mil_button(controls)
         outer.addLayout(controls)
 
         self._table = install_sorting(QTableWidget(0, 0, self))
@@ -437,6 +438,69 @@ class EmbeddingsScreen(QWidget):
         controls.addWidget(self._foundation)
         _apply_alpha_widgets(label)
         _apply_alpha_widgets(self._foundation)
+
+    def _add_well_mil_button(self, controls) -> None:
+        """The alpha button that learns which cells carry a well label."""
+        from ..preferences import _apply_alpha_widgets
+
+        self._well_mil = QPushButton(tr("Learn from well labels…"), self)
+        self._well_mil.setObjectName("EmbeddingsWellMilButton")
+        self._well_mil.setToolTip(tr(
+            "Choose a per-cell table with a 'well' column, a 'well_label' "
+            "column (1 for treated or knockout wells, 0 for controls) and "
+            "embedding or numeric feature columns. An attention model learns "
+            "from the well labels alone which cells carry the phenotype. "
+            "Two tables are written beside the input: each cell's attention "
+            "and each well's probability. Runs on the CPU. Default 4-fold "
+            "cross-validation over wells."))
+        self._well_mil.clicked.connect(lambda: self._learn_from_well_labels())
+        controls.addWidget(self._well_mil)
+        _apply_alpha_widgets(self._well_mil)
+
+    def _learn_from_well_labels(self, path: str = "") -> str:
+        """Train the well-label attention model on a per-cell table.
+
+        The table is read, the model is cross-validated and then fitted on
+        every well in the background, and ``<name>_mil_cells.csv`` and
+        ``<name>_mil_wells.csv`` are written beside it. The status line gives
+        the held-out well AUROC against a mean-feature baseline.
+
+        :param path: the table; asks for one when empty.
+        :returns: the table used, or ``''`` when the dialog was dismissed.
+        """
+        if not path:
+            path, _filter = QFileDialog.getOpenFileName(
+                self, tr("Choose a per-cell table with well labels"), "",
+                tr("Tables (*.csv *.tsv *.parquet *.feather *.xlsx)"))
+        if not path:
+            return ""
+        path = str(path)
+        self._status.setText(tr("Learning from well labels…"))
+
+        def work():
+            """Read, score and fit off the GUI thread."""
+            from ...embeddings import _mil_from_table
+            from ...tabular import read_table, write_table
+
+            frame = read_table(path, report=None)
+            cells, wells, card = _mil_from_table(frame)
+            stem = os.path.splitext(path)[0]
+            write_table(cells, stem + "_mil_cells.csv")
+            write_table(wells, stem + "_mil_wells.csv")
+            return card
+
+        self._jobs.submit(work, self._on_well_mil_done)
+        return path
+
+    def _on_well_mil_done(self, card) -> None:
+        """Say how the attention model did against the mean baseline."""
+        self._mil_card = dict(card)
+        self._status.setText(tr(
+            "Well-label model: held-out well AUROC {mil:.2f} (mean-feature "
+            "baseline {mean:.2f}) over {wells} wells. Cell attention and "
+            "well probabilities were written beside the table.").format(
+                mil=card["mil_auroc"], mean=card["mean_auroc"],
+                wells=int(card["wells"])))
 
     def _fill_backbones(self) -> None:
         """Offer the engine's default first, and never an empty list."""

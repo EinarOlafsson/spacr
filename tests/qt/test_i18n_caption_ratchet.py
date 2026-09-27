@@ -1158,6 +1158,14 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 574, 2026-09-27: the Report screen's Archive package button and form.
 # 579, 2026-09-27: the Report screen's Deposit on Zenodo button and form.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    # 562, 2026-09-27: the Embeddings screen's Learn from well labels
+    # button (alpha).
+    'Learn from well labels…',
+    "Choose a per-cell table with a 'well' column, a 'well_label' column (1 for treated or knockout wells, 0 for controls) and embedding or numeric feature columns. An attention model learns from the well labels alone which cells carry the phenotype. Two tables are written beside the input: each cell's attention and each well's probability. Runs on the CPU. Default 4-fold cross-validation over wells.",
+    'Choose a per-cell table with well labels',
+    'Tables (*.csv *.tsv *.parquet *.feather *.xlsx)',
+    'Learning from well labels…',
+    'Well-label model: held-out well AUROC {mil:.2f} (mean-feature baseline {mean:.2f}) over {wells} wells. Cell attention and well probabilities were written beside the table.',
     # 560, 2026-09-27: the Embeddings screen's Foundation model picker
     # (alpha).
     'Foundation model:',

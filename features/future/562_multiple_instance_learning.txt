@@ -1,6 +1,6 @@
 WEAKLY SUPERVISED MULTIPLE-INSTANCE LEARNING: WELL LABELS -> WHICH CELLS RESPOND
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED AS ALPHA 2026-09-27
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -21,3 +21,63 @@ DONE WHEN
     On a screen with known responder fractions, attention ranks true
     responders above non-responders (AUROC) and well-level prediction beats
     mean-feature baselines.
+
+ALPHA: 2026-09-27 -- the Embeddings screen's "Learn from well labels..."
+    button (ALPHA_FEATURES[562], widget EmbeddingsWellMilButton), hidden
+    until Preferences -> Show alpha features is on. The action still runs on
+    a table given while the button is hidden.
+
+WHAT WAS BUILT (2026-09-27)
+    spacr/embeddings.py (private helpers, no new module, no new dependency;
+    torch + scikit-learn):
+      _mil_bags        per-cell table -> one bag per well (wellID, or well;
+                       well_label 0/1 or a named positive label; features =
+                       emb_* columns, else every numeric column)
+      _mil_fit         gated-attention MIL (Ilse et al. 2018): one 32-wide
+                       cell layer, gated attention, linear well head; CPU,
+                       60 epochs, Adam 5e-3, features standardised on the
+                       training cells
+      _mil_predict     well probability; per-cell attention (weight x cells
+                       in the well, 1 = equal share) and per-cell evidence
+                       (the linear head on the cell alone; the well score is
+                       the attention-weighted sum of evidence)
+      _mil_scorecard   stratified k-fold over wells: MIL well AUROC vs L2
+                       logistic regression on the well mean and on mean+SD;
+                       with known responders, held-out attention and
+                       evidence AUROC over the cells of positive wells
+      _synthetic_mil_bags  Gaussian wells, per-well offsets, responders
+                       planted along one direction in positive wells
+      _mil_from_table  scorecard + fit on all wells -> cells table
+                       (mil_attention, mil_evidence) and wells table
+                       (mil_probability)
+    The screen button reads any table spacr.tabular reads and writes
+    <name>_mil_cells.csv and <name>_mil_wells.csv beside it.
+
+MEASURED (CPU only; the GPU was held for days)
+    Synthetic (tests/test_multiple_instance_learning.py; 32 wells x 50
+    cells, 8 dims, 10% planted responders): attention and evidence AUROC
+    > 0.85, MIL well AUROC > 0.8 and above the mean baseline.
+    Real embeddings reused from item 560: OpenPhenom (project, 384 dims) on
+    1,530 plate1 single-nucleus crops. Responders = multiple_pathogens
+    crops planted into positive wells; background = uninfected +
+    single_pathogen. 34 wells x 32 cells, 4-fold CV, 3 partitions each.
+    Scripts: /mnt/firecuda2/codex/scratch-docs/562/embed.py, bench.py
+    (+ bench.csv).
+      responders   MIL well  mean  mean+SD  attention  evidence  s/run
+      10%          0.720    0.649  0.615    0.657      0.780     3.2
+      25%          0.982    0.977  0.939    0.691      0.878     2.8
+      5-30% mixed  0.912    0.858  0.897    0.701      0.880     2.3
+    Reading: MIL beats the mean-feature baseline where it matters (low and
+    mixed responder fractions) and ties it at 25%. Responders are ranked
+    above non-responders in every setting; the signed evidence ranks them
+    well (0.78-0.88), raw attention only moderately (0.66-0.70) at 34 wells.
+
+WHAT IS LEFT
+    - A real arrayed screen with known responder fractions (e.g. a titrated
+      infection or a spike-in plate) and hundreds of wells; GPU runs.
+    - A form for choosing the well, label and feature columns instead of
+      the fixed wellID/well_label names; show the scorecard and a
+      top-attention crop montage on the screen.
+    - Feed embeddings straight from the screen's result (needs object ids
+      and wells carried through crop loading).
+
