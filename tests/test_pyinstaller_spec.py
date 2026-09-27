@@ -79,6 +79,30 @@ def test_dynamic_desktop_backends_are_explicit() -> None:
     }
 
 
+def test_import_time_distribution_metadata_reaches_bundle_analysis() -> None:
+    """ImageIO's version lookup failed in both genuine native Measure runs."""
+    tree = _tree()
+    collected = set()
+    for node in tree.body:
+        if (isinstance(node, ast.Assign)
+                and isinstance(node.value, ast.Call)
+                and isinstance(node.value.func, ast.Name)
+                and node.value.func.id == "Analysis"):
+            data_arg = next(k.value for k in node.value.keywords if k.arg == "datas")
+            assert isinstance(data_arg, ast.Name) and data_arg.id == "datas"
+            break
+        if (isinstance(node, ast.AugAssign)
+                and isinstance(node.target, ast.Name) and node.target.id == "datas"
+                and isinstance(node.op, ast.Add)
+                and isinstance(node.value, ast.Call)
+                and isinstance(node.value.func, ast.Name)
+                and node.value.func.id == "copy_metadata"):
+            collected.add(ast.literal_eval(node.value.args[0]))
+    else:
+        raise AssertionError("No bundle Analysis consumes the collected data")
+    assert {"spacr", "imageio"} <= collected
+
+
 def test_non_core_packages_cannot_leak_from_the_build_environment() -> None:
     assignment = next(
         node

@@ -105,6 +105,9 @@ datas = []
 datas += collect_data_files("spacr", includes=["resources/**/*", "fonts/**/*"])
 datas += collect_data_files("cellpose", includes=["*.txt", "*.md"])
 datas += copy_metadata("spacr")
+# ImageIO reads its distribution version at import time. Its data hook does
+# not retain dist-info, so otherwise a frozen Measure run fails on spacr.io.
+datas += copy_metadata("imageio")
 
 
 # ------------------------------------------------------------------

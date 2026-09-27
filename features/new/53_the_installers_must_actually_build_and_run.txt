@@ -248,3 +248,18 @@ matrix. Debian stopped before package construction because Git rejected the
 container checkout ownership. The build step now trusts only its exact
 GITHUB_WORKSPACE path. Workflow structure checks pass; the native repair is
 not yet verified. Receipt: features/data/53_debian_checkout_ownership_2026-09-27.json.
+
+STATUS 2026-09-27 (Codex, native launch now exercised; dependency failure)
+Run36342374345 built both macOS and Windows native artifacts successfully.
+Fresh hosts installed and launched the produced binaries from empty working
+directories. Native Qt, installed import origins/resources, actual Measure
+construction and its real Run action all passed. Both scientific pipelines
+then failed because ImageIO's import-time version lookup could not find its
+distribution metadata. The shared spec now collects that metadata explicitly;
+no runtime/API source or scientific acceptance is changed. Original failed
+smoke receipts are retained in
+features/data/53_native_imageio_failure_2026-09-27/.
+Local packaging validation passed7tests in0.82s (spec and native workflow).
+The repaired native rebuild remains pending.
+No completed native analysis or uninstall preservation is claimed. Item53
+remains OPEN, including its separate update/backend/account/consent tail.
