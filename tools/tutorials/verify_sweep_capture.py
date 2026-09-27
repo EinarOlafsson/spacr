@@ -6,7 +6,8 @@ import json
 from pathlib import Path
 
 from build_evaluation_example import sha
-from sweep_evidence import check_display,check_result_family,count_result_rows
+from sweep_evidence import (check_display,check_result_family,count_result_rows,
+                            check_trial_set,check_fitted_support)
 
 
 def verify(capture):
@@ -19,22 +20,44 @@ def verify(capture):
         if sha(name)!=digest or sha(work/'inputs'/Path(name).name)!=digest:
             raise ValueError('Original or private example input changed')
     rows=list(csv.DictReader((work/'trials/sweep_results.csv').open()))
+    trial_set=check_trial_set(rows)
+    if len({Path(row['folder']).resolve() for row in rows}) != 2:
+        raise ValueError('Trials share the same resolved output folder')
     report=dict(lesson='73_parameter_sweep',source_commit=provenance['commit'],
         capture=str(capture),accepted=False,scope='saved execution and display consistency only',
         inference_validated=False,published=False,new_fits_requested=proof['new_sweep_requested'],
-        display=check_display(proof['displayed_headers'],proof['displayed_rows'],rows),trials=[])
+        display=check_display(proof['displayed_headers'],proof['displayed_rows'],rows),
+        trial_set=trial_set,trials=[])
     for row in rows:
         folder=Path(row['folder']);path=folder/'results/ridge/results.csv'
         result=list(csv.DictReader(path.open()))
         actual=json.loads((folder/'settings/regression.json').read_text())
         requested=json.loads((folder/'_trial_settings.json').read_text())['settings']
+        prepared_path=path.with_name('regression_data.csv')
+        prepared=list(csv.DictReader(prepared_path.open()))
+        qc={}
+        qc_hashes={}
+        for level in ('grna','gene'):
+            qc_path=path.parent/level/'regression_qc/regression_qc_numbers.json'
+            if qc_path.exists():
+                qc[level]=json.loads(qc_path.read_text())
+                qc_hashes[level]=sha(qc_path)
+        fitted_path=path.with_name('regression_fit_designs.json')
+        fit_designs=json.loads(fitted_path.read_text())
+        if not isinstance(fit_designs,dict):
+            raise ValueError('Missing measured fit records')
+        support=check_fitted_support(prepared,row,actual,requested,qc,fit_designs)
         counts=count_result_rows(result)
         if any(counts[k]!=int(row[k]) for k in counts):raise ValueError('Sweep summary count differs')
         if float(actual['alpha'])!=float(row['alpha']) or float(requested['alpha'])!=float(row['alpha']):
             raise ValueError('Requested and actual ridge penalties differ')
         report['trials'].append(dict(trial_id=row['trial_id'],alpha=float(row['alpha']),
             results_sha256=sha(path),counts=counts,qc_inference=row['qc_inference'],
-            qc_verdict=row['qc_verdict']))
+            qc_verdict=row['qc_verdict'],fitted_support=support,
+            prepared_data_sha256=sha(prepared_path),qc_sha256=qc_hashes,
+            fit_designs_sha256=sha(fitted_path),
+            actual_settings_sha256=sha(folder/'settings/regression.json'),
+            requested_settings_sha256=sha(folder/'_trial_settings.json')))
     first=list(csv.DictReader((Path(rows[0]['folder'])/'results/ridge/results.csv').open()))
     report['family_checks']={name:check_result_family(snapshot,first,snapshot['level'])
         for name,snapshot in proof['result_snapshots'].items()}

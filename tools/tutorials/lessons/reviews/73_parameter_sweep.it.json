@@ -1,13 +1,14 @@
 {
   "lesson": "73_parameter_sweep",
-  "english_sha256": "8f164d56e7d6d48b866022bb05940e29cf343154681c65517a51ce2676825346",
+  "english_sha256": "44292936fb6b522935dc2402151ddb2bba49786333975d2b8a683e271411e2a4",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 original translations retained; Codex translated and technically reviewed the corrected fitted-support scene.",
+    "date": "2026-09-27",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Only scene8 narration changed. The remaining nine scenes, metadata, scene IDs and statistical caveats are preserved."
   },
   "language": "it",
   "title": "Parameter Sweep: confrontare le prove di Regression salvate",
@@ -27,7 +28,7 @@
     "Esamina le righe completate, poi apri sweep_results.csv e i file di impostazioni e di controllo qualità di ogni prova. Entrambe le prove illustrate completano il calcolo ma non superano i controlli di inferenza, quindi uno stato di esecuzione ok da solo non basta per scegliere un modello.",
     "Seleziona la prima riga e fai clic su Show figures for selected row. Esamina i risultati per guida e le etichette degli assi. Il grafico omette l’intercetta dalla tabella dei coefficienti.",
     "Porta Level su Gene per esaminare separatamente la famiglia dei geni. Controlla righe, effetti e risultati del controllo qualità prima di confrontarla con la vista per guida.",
-    "Torna a Guide. Leggi il supporto campionario nei file di input e di diagnostica: nell’esempio, il riepilogo delle righe adattate conta le righe dei coefficienti in output, non i pozzetti.",
+    "Torna a Guide. Confronta le righe usate per l’adattamento del modello e i pozzetti distinti nel riepilogo della prova. I conteggi sono registrati separatamente per gli adattamenti a livello di guida e a livello di gene. Questi conteggi descrivono i dati a sostegno dell’adattamento, non la qualità dell’inferenza.",
     "Conserva le impostazioni, il riepilogo e i file di controllo qualità di ogni prova insieme alle sue figure. Usa Regression Diagnostics per un esame più approfondito, oppure SweepSpace e run_sweep da Python per un confronto tramite script."
   ]
 }

@@ -1,13 +1,14 @@
 {
   "lesson": "73_parameter_sweep",
-  "english_sha256": "8f164d56e7d6d48b866022bb05940e29cf343154681c65517a51ce2676825346",
+  "english_sha256": "44292936fb6b522935dc2402151ddb2bba49786333975d2b8a683e271411e2a4",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 original translations retained; Codex translated and technically reviewed the corrected fitted-support scene.",
+    "date": "2026-09-27",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Only scene8 narration changed. The remaining nine scenes, metadata, scene IDs and statistical caveats are preserved."
   },
   "language": "is",
   "title": "Parameter Sweep: berðu saman vistaðar Regression-keyrslur",
@@ -27,7 +28,7 @@
     "Skoðaðu fullgerðu línurnar og opnaðu svo sweep_results.csv og stillinga- og gæðaeftirlitsskrár hverrar keyrslu. Báðar sýndu keyrslurnar ljúka útreikningi en standast ekki ályktunarathuganir, svo keyrslustaðan ok ein og sér dugar ekki til að velja líkan.",
     "Veldu fyrstu línuna og smelltu á Show figures for selected row. Skoðaðu niðurstöður leiðara og merki ásanna. Grafið sleppir skurðpunktinum úr stuðlatöflunni.",
     "Skiptu Level yfir í Gene til að skoða genafjölskylduna sérstaklega. Athugaðu línur hennar, áhrif og niðurstöður gæðaeftirlits áður en þú berð hana saman við leiðarasýnina.",
-    "Skiptu aftur í Guide. Lestu stuðning úrtaks úr inntaks- og greiningarskrám: samantekt aðlagaðra lína í dæminu telur úttakslínur stuðla, ekki brunna.",
+    "Skiptu aftur yfir í Guide. Berðu saman fjölda raða sem voru notaðar við aðlögun líkansins og fjölda einstakra brunna í samantekt keyrslunnar. Fjöldatölurnar eru skráðar sérstaklega fyrir aðlögun líkans á gRNA-stigi og á genastigi. Þessar tölur lýsa gagnamagninu sem styður aðlögunina, ekki gæðum tölfræðilegrar ályktunar.",
     "Geymdu stillingar, samantekt og gæðaeftirlitsskrár hverrar keyrslu með myndum hennar. Notaðu Regression Diagnostics til frekari skoðunar, eða SweepSpace og run_sweep í Python fyrir samanburð með skriftu."
   ]
 }

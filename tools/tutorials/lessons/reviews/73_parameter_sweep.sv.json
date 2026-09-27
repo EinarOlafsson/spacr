@@ -1,13 +1,14 @@
 {
   "lesson": "73_parameter_sweep",
-  "english_sha256": "8f164d56e7d6d48b866022bb05940e29cf343154681c65517a51ce2676825346",
+  "english_sha256": "44292936fb6b522935dc2402151ddb2bba49786333975d2b8a683e271411e2a4",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 original translations retained; Codex translated and technically reviewed the corrected fitted-support scene.",
+    "date": "2026-09-27",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Only scene8 narration changed. The remaining nine scenes, metadata, scene IDs and statistical caveats are preserved."
   },
   "language": "sv",
   "title": "Parameter Sweep: jämför sparade Regression-körningar",
@@ -27,7 +28,7 @@
     "Granska de färdiga raderna och öppna sedan sweep_results.csv och varje körnings inställnings- och kvalitetskontrollfiler. Båda visade körningarna slutför beräkningen men klarar inte inferenskontrollerna, så statusen ok räcker inte ensam för att välja modell.",
     "Markera den första raden och klicka på Show figures for selected row. Granska guideresultaten och axeletiketterna. Diagrammet utelämnar interceptet från koefficienttabellen.",
     "Byt Level till Gene för att granska genfamiljen separat. Kontrollera dess rader, effekter och kvalitetskontrollresultat innan du jämför den med guidevyn.",
-    "Byt tillbaka till Guide. Läs urvalsstödet i indata- och diagnostikfilerna: exemplets sammanfattning av anpassade rader räknar utdatarader för koefficienter, inte brunnar.",
+    "Växla tillbaka till Guide. Jämför antalet rader som användes vid modellanpassningen och antalet unika brunnar i sammanfattningen av körningen. Antalen registreras separat för modellanpassningen på guide-nivå och på gennivå. Dessa antal beskriver dataunderlaget, inte kvaliteten på den statistiska inferensen.",
     "Behåll varje körnings inställningar, sammanfattning och kvalitetskontrollfiler tillsammans med dess figurer. Använd Regression Diagnostics för vidare granskning, eller SweepSpace och run_sweep i Python för en skriptad jämförelse."
   ]
 }
