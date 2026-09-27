@@ -1,6 +1,7 @@
 APPTAINER / SINGULARITY IMAGES FOR HPC CLUSTERS
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED 2026-09-27 (packaging only, no GUI or settings, so the
+        alpha registry does not apply). Built and CPU-proven; --nv run pending.
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -17,3 +18,43 @@ WHAT TO BUILD
 DONE WHEN
     The images build and run a small Mask + Measure job under Apptainer with
     GPU (--nv) and CPU.
+
+IMPLEMENTATION NOTE (2026-09-27, branch item-586-work)
+    Built on the item 425 Docker images, not beside them.
+
+    packaging/apptainer/spacr.def   one definition for both variants:
+        Bootstrap/From are build args (default the published ghcr cpu tag;
+        BOOTSTRAP=docker-daemon for a locally built image). Copies the
+        entrypoint and smoke script, runs the entrypoint without tini, and
+        its %test is the Docker smoke test.
+    packaging/apptainer/spacr_slurm.sh   Slurm array job, one plate per
+        task, Mask then Measure, n_jobs capped at SLURM_CPUS_PER_TASK.
+    packaging/apptainer/README.md    the HPC recipe: build, run, --nv,
+        what differs from Docker, models, batch runs.
+    packaging/docker/entrypoint.sh   under Apptainer/Singularity it no
+        longer links ~/.cellpose/models and ~/.spacr/models (HOME is the
+        user's real home there) and sets CELLPOSE_LOCAL_MODELS_PATH only
+        when /models is actually bound.
+    packaging/docker/smoke_pipeline.py   --mask: spacr-run mask (Cellpose-SAM)
+        then spacr-run measure on a synthetic 3-cell field; all 3 cells and
+        nuclei must be found. Prints the accelerator used.
+    tests/test_the_apptainer_image_is_the_docker_image.py   static contract.
+    features/data/586_apptainer_images_workflow.yml   PROPOSED release
+        workflow (build from the pushed Docker tags, %test, Mask+Measure,
+        push as oras://ghcr.io/<owner>/spacr-sif). Not in .github.
+
+    Checked locally, without root: Apptainer 1.5.4 from the official .deb,
+    unpacked in user space. CPU SIF (1.5 GB) and CUDA SIF (5.6 GB) both
+    built from local Docker images, %test 7/7; Mask + Measure 10/10 on the
+    CPU SIF and on the CUDA SIF without --nv. Three real problems surfaced
+    and are fixed (fakeroot %post vs glibc, read-only HOME in %test, links
+    into the real home). Receipt:
+    features/data/586_apptainer_smoke_2026-09-27.json.
+
+WHAT IS LEFT
+    * The --nv Mask + Measure run: queued via tools/gpu_turn.sh while the
+      GPU was held by another session; see the receipt for its outcome.
+    * Publishing: adopt features/data/586_apptainer_images_workflow.yml into
+      .github (maintainer), then flip the spacr-sif GHCR package public.
+    * Not tried: SingularityCE, and a real Slurm cluster.
+
