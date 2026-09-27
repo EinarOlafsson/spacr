@@ -1997,3 +1997,12 @@ Regenerated the bundled GUI tutorial index (75modules), including the four
 organism guides and current lesson titles; publication now maintains it.
 Receipt:data/411_overview_release_readiness_2026-09-24.json. This is local
 build evidence, not a claim that the latest nightly deployment is already live.
+
+STATUS 2026-09-27 (Codex, strict HTML deployment): CI36338455327 built
+main/nightly HTML with -W -E and all API languages, then deployed Pages.
+The live nightly publication identifies4044d70de and all nine API/runtime
+locales report source-compatible with zero issues. Receipt:
+features/data/411_live_strict_html_2026-09-27.json. This proves that deployed
+snapshot; the new regression and packaged-smoke helper work still requires
+another English inventory and translation delta after its source freezes.
+No native-speaker or human listening signoff is claimed.
