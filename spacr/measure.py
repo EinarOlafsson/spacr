@@ -111,7 +111,10 @@ from .measure_hooks import (
 )
 from .object_roles import ORGANELLE_ROLES, SEGMENTED_ROLES
 from .intensity_rescale import (
+    CALIBRATION_SETTINGS_KEY,
     PLAN_SETTINGS_KEY,
+    _apply_calibration as _apply_intensity_calibration,
+    _build_calibration_plan as _build_intensity_calibration_plan,
     build_plate_plan,
     mask_planes as _intensity_mask_planes,
     needs_warning as _intensity_scale_needs_warning,
@@ -2676,6 +2679,8 @@ def _write_intensity_rescale_record(source_folder, file_name, settings,
 
     ``target_dtype`` describes the standard rescaling stage. The separate PSF
     provenance records the final float dtype, kernel and quantitative source.
+    ``intensity_calibration`` holds the cross-plate calibration applied to the
+    field (gains, reference plate, statistic and offset) as JSON, or NULL.
     Older tables gain nullable signature/details and an original-source default.
     """
     from . import schema
@@ -2699,6 +2704,10 @@ def _write_intensity_rescale_record(source_folder, file_name, settings,
         'psf_measurement_source': (psf_record or {}).get('source', 'original'),
         'psf_signature': settings.get('_psf_measurement_signature'),
         'psf_provenance': json.dumps(psf_record, sort_keys=True, allow_nan=False),
+        'intensity_calibration': (
+            json.dumps(record['intensity_calibration'], sort_keys=True,
+                       allow_nan=False)
+            if record.get('intensity_calibration') else None),
     }
     columns = (
         'plateID', 'rowID', 'columnID', 'fieldID', 'timeID', 'prc', 'prcf',
@@ -2706,6 +2715,7 @@ def _write_intensity_rescale_record(source_folder, file_name, settings,
         'rescale_factor', 'rescale_scope', 'plate_intensity_max',
         'comparable_within_plate', 'target_dtype',
         'psf_measurement_source', 'psf_signature', 'psf_provenance',
+        'intensity_calibration',
     )
     db_path = os.path.join(source_folder, 'measurements', 'measurements.db')
     conn = connect(db_path, timeout=30)
@@ -2734,7 +2744,8 @@ def _write_intensity_rescale_record(source_folder, file_name, settings,
                 'PRAGMA table_info(intensity_rescale)')}
             for column, declaration in (
                     ('psf_measurement_source', "TEXT NOT NULL DEFAULT 'original'"),
-                    ('psf_signature', 'TEXT'), ('psf_provenance', 'TEXT')):
+                    ('psf_signature', 'TEXT'), ('psf_provenance', 'TEXT'),
+                    ('intensity_calibration', 'TEXT')):
                 if column not in existing:
                     conn.execute(f'ALTER TABLE intensity_rescale ADD COLUMN {column} {declaration}')
             placeholders = ', '.join('?' for _ in columns)
@@ -5697,6 +5708,20 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                 scale = '' if factor == 1.0 else f' (intensity x{factor:g})'
                 print(f'Converted data from {data_type_before} to {data_type}{scale}')
 
+        data, calibration_record = _apply_intensity_calibration(
+            data, file, settings)
+        if calibration_record is not None:
+            data_type = data.dtype
+            rescale_record = {**rescale_record,
+                              'intensity_calibration': calibration_record}
+            clipped = {plane: share for plane, share in
+                       calibration_record['clipped_fraction'].items() if share}
+            if clipped:
+                print(f"WARNING: {file_name} intensity calibration clipped "
+                      f"pixels at the {data_type} ceiling (fraction per "
+                      f"plane: {clipped}); those intensities are "
+                      f"underestimated.")
+
         if data.ndim == 4 and data.shape[0] == 1:
             data = data[0]
         volumetric = data.ndim == 4
@@ -6471,6 +6496,18 @@ def measure_crop(settings):
                         f"can be loaded by its worker, it will use a per-field "
                         f"fallback and measurements.db:intensity_rescale will "
                         f"mark it non-comparable.")
+                settings.pop(CALIBRATION_SETTINGS_KEY, None)
+                if settings.get('intensity_calibration'):
+                    calibration = _build_intensity_calibration_plan(
+                        settings['src'], files, settings)
+                    settings[CALIBRATION_SETTINGS_KEY] = calibration
+                    print(f"Intensity calibration against plate "
+                          f"{calibration['reference_plate']}: " + '; '.join(
+                              f"{plate} x" + ','.join(
+                                  f"{gain:.3g}" for gain in
+                                  entry['gain'].values())
+                              for plate, entry in
+                              calibration['plates'].items()))
                 if resume_plan is not None:
                     files = resume_plan.filter_files(files)
                 n_jobs = settings['n_jobs']

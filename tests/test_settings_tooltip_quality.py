@@ -845,7 +845,17 @@ def test_real_default_claims_have_no_unrecorded_drift():
                             "time_to_event_persist",
                             "time_to_event_min_frames")}
     assert item_571 <= compared_pairs
-    assert comparisons == 824
+    # 824 -> 830 on 2026-09-27, +6/-0 (item 580): intensity_calibration
+    # (False), intensity_calibration_wells (None) and
+    # intensity_calibration_offset (0), each resolved by Measure and by
+    # External Masks. intensity_calibration_statistic says "Default
+    # foreground.", which is not a literal and so is not compared.
+    item_580 = {(app, key) for app in ("measure", "external_masks")
+                for key in ("intensity_calibration",
+                            "intensity_calibration_wells",
+                            "intensity_calibration_offset")}
+    assert item_580 <= compared_pairs
+    assert comparisons == 830
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
@@ -857,10 +867,11 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # + 12: item 547's six profiling claims in two apps, pinned above.
     # + 10: item 536's five wound-closure claims in two apps, pinned above.
     # + 18: item 571's nine time-to-event claims in two apps, pinned above.
+    # + 6: item 580's three calibration claims in two apps, pinned above.
     assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2
             + len(item_541) + len(item_548) + len(item_550)
             + len(item_535) + len(item_547) + len(item_536)
-            + len(item_571) == comparisons)
+            + len(item_571) + len(item_580) == comparisons)
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs
     assert len(census_508['added_pairs']) == 19

@@ -1294,6 +1294,14 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "measurements, or an image classifier on nucleus crops. Each writes the "
     "same phase column to measurements.db, with the phase fractions per well "
     "among infected and uninfected cells.",
+    # 580, 2026-09-27: the Intensity Calibration (Alpha) category help on
+    # Measure.
+    "Scale every imaging session to the same intensities before "
+    "measuring, from fluorescent beads or reference wells imaged "
+    "on every plate: each plate's intensity channels are "
+    "multiplied by the gain that makes its reference wells match "
+    "the first plate's, and the gains are recorded in "
+    "measurements.db.",
     # 571, 2026-09-26: the Time To Event (Alpha) category help on Measure.
     "How long each tracked object of a timelapse lasts until an event such "
     "as death, lysis, egress, division or first detection, with objects "
