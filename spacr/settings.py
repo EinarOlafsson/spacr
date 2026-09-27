@@ -1730,6 +1730,10 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('intensity_calibration_wells', None)
     settings.setdefault('intensity_calibration_statistic', 'foreground')
     settings.setdefault('intensity_calibration_offset', 0)
+    settings.setdefault('plate_barcode_source', '')
+    settings.setdefault('plate_barcodes', None)
+    settings.setdefault('plate_barcode_column', 'barcode')
+    settings.setdefault('plate_barcode_token_env', 'SPACR_LIMS_TOKEN')
     settings.setdefault('time_to_event', False)
     settings.setdefault('time_to_event_object', 'cell')
     settings.setdefault('time_to_event_mode', 'track_end')
@@ -1750,6 +1754,7 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('viability_negative_wells', None)
     settings.setdefault('viability_positive_wells', None)
     settings.setdefault('viability_plate_map', '')
+    settings.setdefault('cellprofiler_pipeline', '')
     settings.setdefault('object_distances', True)
     settings.setdefault('object_distance_maxima', True)
     settings.setdefault('object_distance_intensity', True)
@@ -3561,6 +3566,10 @@ expected_types = {
     "intensity_calibration_wells": (list, str, type(None)),
     "intensity_calibration_statistic": str,
     "intensity_calibration_offset": (float, int),
+    "plate_barcode_source": str,
+    "plate_barcodes": (dict, str, type(None)),
+    "plate_barcode_column": str,
+    "plate_barcode_token_env": str,
     "time_to_event": bool,
     "time_to_event_object": str,
     "time_to_event_mode": str,
@@ -3581,6 +3590,7 @@ expected_types = {
     "viability_negative_wells": (list, str, type(None)),
     "viability_positive_wells": (list, str, type(None)),
     "viability_plate_map": str,
+    "cellprofiler_pipeline": str,
     "spatial_measurements": bool,
     "spatial_neighbor_radius": int,
     "calculate_correlation": bool,
@@ -4809,6 +4819,10 @@ tooltips = {
     "intensity_calibration_wells": "(list or None) - The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
     "intensity_calibration_statistic": "(str) - How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
     "intensity_calibration_offset": "(float) - The camera's dark offset, in the intensity units Measure works in, removed before the reference statistic and kept when scaling: a pixel becomes offset + (value - offset) x gain. Read it from a dark frame; 100 is common on sCMOS cameras. Leave 0 when images are already offset-corrected. Default 0.",
+    "plate_barcode_source": "(str) - Sample records to fill the plate map from, by plate barcode: a CSV, TSV, Excel or Parquet table with a barcode column, a well column (well such as A01, or rowID and columnID) and metadata such as strain, compound, concentration, passage and operator; or the http(s) address of a LIMS service that answers JSON well records for ?barcode=, or for {barcode} in the address. The filled map and a list of mismatches go to measurements. Blank links nothing. Default blank.",
+    "plate_barcodes": "(dict or None) - The barcode each plate was imported with, such as {'plate1': 'BC000123'}. A plate not named here takes the barcode in a barcode.txt file in its plate folder, or else its own plate name. Two plates given one barcode are reported as a mismatch. Default None.",
+    "plate_barcode_column": "(str) - The column of the sample records that holds the plate barcode. Blank looks for barcode, plate_barcode or plate barcode. The other columns, apart from the well position, are copied into the plate map as they are. Default barcode.",
+    "plate_barcode_token_env": "(str) - The name of the environment variable holding the LIMS access token, sent as a bearer token with each request. The token itself is never written to settings or results; set the variable before starting spaCR. Ignored for a table. Default SPACR_LIMS_TOKEN.",
     "time_to_event": "(bool) - After measuring a timelapse, follow every tracked object to an event (death, lysis, egress, division, first detection) or to the end of its track, and compare conditions: Kaplan-Meier curves with 95% bands, median time to event per condition and well, log-rank tests and a Cox model. Writes measurements.db:time_to_event and four summary tables, and the curves and hazard ratios under results/time_to_event. Needs tracked objects measured with timelapse on. Default False.",
     "time_to_event_object": "(str) - The measured object table whose tracks are followed: cell, nucleus, pathogen or cytoplasm. Each object label in a field is one track, since the timelapse module relabels tracked objects with their track ID. Follow host cells for host death or lysis, pathogens for egress or division. Default cell.",
     "time_to_event_mode": "(str) - What counts as the event. track_end: the object disappears before the movie ends (lysis, egress, detachment, and tracking loss too). annotated: time_to_event_column turns non-zero, or equals the threshold. above or below: the column reaches time_to_event_threshold, such as a death dye. fold_change: the column reaches threshold times its first value, such as a doubled parasite count. Tracks without the event are censored at their last frame. Default track_end.",
@@ -4829,6 +4843,7 @@ tooltips = {
     "viability_negative_wells": "(list or str) - Untreated or vehicle wells, e.g. ['c1']; rows (r1), columns (c1) and wells (A01) all read. Their mean live-cell count is each plate's reference for the live-cell index, they read 0 on the cytotoxicity index and they are one side of its Z'. Blank leaves the index as the percentage of cells not live. Default None.",
     "viability_positive_wells": "(list or str) - Wells given a cytotoxic control (for example digitonin, saponin or staurosporine), e.g. ['c12'], in the same notation as viability_negative_wells. They read 100 on the cytotoxicity index and, with the negative wells, give each plate's Z' in viability_qc; a Z' of 0.5 or more is a working assay. Blank scales the index to the negative wells alone. Default None.",
     "viability_plate_map": "(str) - A table (CSV or Excel) of each well's compound and concentration: a well column (well such as A01, rowID and columnID, or prc), compound or treatment, concentration or dose, and optionally plateID. With it, viability, the cytotoxicity index and the infection of live cells are fitted against concentration per compound, and the host CC50 over the parasite EC50 is written as a selectivity index. Blank skips dose-response. Default blank.",
+    "cellprofiler_pipeline": "(str) - A CellProfiler pipeline (.cppipe) to run headless after measuring, in CellProfiler's own environment from the Model Zoo. Each field's channels are handed to it as <field>_ch<N>.tif, N from 0, and its masks as <field>_<object>_mask.tif; load the masks in NamesAndTypes as objects, and measure each object's Location. Its per-object measurements go to measurements.db:cellprofiler_<object>, matched to spaCR objects by prcfo. Blank skips it. Default blank.",
     "bystander_measurements": "(bool) - Split uninfected cells into bystanders and distal cells. A bystander is an uninfected cell within the reach set by bystander_reach_in_diameters of an infected one; everything else uninfected is distal. Without this the two are the same row, so a bystander phenotype cannot be found and the uninfected control is a mixture of two populations whose variance hides the effect being looked for. Adds three columns per cell and costs one distance transform and one KD-tree per field. Default False.",
     "bystander_reach_in_diameters": "(float) - How close an uninfected cell must be to an infected one to count as a bystander, expressed in measured cell diameters rather than pixels or micrometres, so it means the same thing at 20x and 63x. The diameter is the median of the cells in the field, ignoring those clipped by its edge. Zero or less makes every uninfected cell distal, which turns the split off without a second setting. Ignored unless bystander_measurements is enabled. Default 1.0.",
     "spatial_measurements": "(bool) - Measure each object's neighbourhood: the number of neighbours within a radius, first and second nearest-neighbour distances, and the fraction of its border contacting another object. These measurements can be used to model density-associated variation in morphology and intensity. They are not produced for cytoplasm, which is defined as one object per cell. Computation requires one KD-tree and one boundary pass per field. Default True.",
@@ -5511,6 +5526,11 @@ categories = {
         "intensity_calibration_statistic", "intensity_calibration_offset",
     ],
 
+    "Plate Barcode Linkage (Alpha)": [
+        "plate_barcode_source", "plate_barcodes", "plate_barcode_column",
+        "plate_barcode_token_env",
+    ],
+
     "Time To Event (Alpha)": [
         "time_to_event", "time_to_event_object", "time_to_event_mode",
         "time_to_event_column", "time_to_event_threshold",
@@ -5524,6 +5544,10 @@ categories = {
         "viability", "viability_dead_channel", "viability_live_channel",
         "viability_thresholds", "viability_negative_wells",
         "viability_positive_wells", "viability_plate_map",
+    ],
+
+    "CellProfiler (Alpha)": [
+        "cellprofiler_pipeline",
     ],
 
     "Motility (beta)": motility_settings,
@@ -7109,6 +7133,10 @@ ALPHA_FEATURES = {
                      'cloud_level', 'cloud_results'),
         'widgets': ('CloudSourceBrowse',),
     },
+    546: {
+        'settings': ('cellprofiler_pipeline',),
+        'models': ('cellprofiler_v1',),
+    },
     551: {
         'models': ('stardist_v1', 'stardist_2D_versatile_fluo',
                    'stardist_2D_versatile_he', 'stardist_2D_paper_dsb2018'),
@@ -7170,15 +7198,25 @@ ALPHA_FEATURES = {
     538: {
         'settings': ('unmix', 'unmix_controls', 'unmix_background_percentile'),
     },
+    575: {
+        'widgets': ('RunHistoryExportWorkflow',),
+    },
     537: {
         'settings': ('timelapse_lineage', 'timelapse_lineage_color_by',
                      'timelapse_lineage_max_distance'),
+    },
+    583: {
+        'settings': ('plate_barcode_source', 'plate_barcodes',
+                     'plate_barcode_column', 'plate_barcode_token_env'),
     },
     543: {
         'settings': ('illumination_vendor_profile',),
     },
     584: {
         'widgets': ('ControlChartChemistry', 'ControlChartChemistrySection'),
+    },
+    585: {
+        'widgets': ('PowerArrayedPlanner',),
     },
 }
 

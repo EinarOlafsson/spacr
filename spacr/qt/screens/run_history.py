@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
     QAbstractItemView,
     QApplication,
     QComboBox,
+    QFileDialog,
     QHBoxLayout,
     QHeaderView,
     QLabel,
@@ -34,6 +35,7 @@ from PySide6.QtWidgets import (
 
 from ...run_journal import search_runs
 from ..bridge import make_thread
+from ..i18n import tr
 from ..iconset import icon
 from ..theme import (SPACING, active_palette, page_tabs_qss,
                      register_widget_qss)
@@ -252,11 +254,29 @@ class RunHistoryScreen(QWidget):
         self._load_settings = QPushButton("Load settings in module", detail)
         self._load_settings.setObjectName("PrimaryButton")
         self._load_settings.clicked.connect(self._load_selected_settings)
+        self._export_workflow = QPushButton(tr("Export workflow…"), detail)
+        self._export_workflow.setObjectName("RunHistoryExportWorkflow")
+        self._export_workflow.setToolTip(tr(
+            "Write this run as a Snakemake or Nextflow workflow that runs the "
+            "same module with the same settings once per plate, with "
+            "spacr-run on this machine, a cluster, or the spaCR container "
+            "image."))
+        workflow_menu = QMenu(self._export_workflow)
+        for engine, label in (("snakemake", tr("Snakemake…")),
+                              ("nextflow", tr("Nextflow…"))):
+            workflow_menu.addAction(label).triggered.connect(
+                lambda _checked=False, e=engine:
+                self._export_selected_workflow(e))
+        self._export_workflow.setMenu(workflow_menu)
         action_row.addWidget(self._selection_label, 1)
         action_row.addWidget(self._open_folder)
         action_row.addWidget(self._copy_path)
         action_row.addWidget(self._load_settings)
+        action_row.addWidget(self._export_workflow)
         detail_layout.addLayout(action_row)
+        from ..preferences import _apply_alpha_widgets
+
+        _apply_alpha_widgets(self._export_workflow)
 
         self._tabs = QTabWidget(detail)
         self._tabs.setObjectName(TABS_NAME)
@@ -556,6 +576,7 @@ class RunHistoryScreen(QWidget):
         enabled = Path(record["dir"]).is_dir()
         self._open_folder.setEnabled(enabled)
         self._copy_path.setEnabled(enabled)
+        self._export_workflow.setEnabled(enabled)
         self._load_settings.setEnabled(
             bool(record.get("settings"))
             and str(record.get("app_key") or "") not in ("", "unknown")
@@ -571,6 +592,7 @@ class RunHistoryScreen(QWidget):
             widget.clear()
         self._open_folder.setEnabled(False)
         self._copy_path.setEnabled(False)
+        self._export_workflow.setEnabled(False)
         self._load_settings.setEnabled(False)
 
     def _open_selected_folder(self) -> None:
@@ -679,6 +701,37 @@ class RunHistoryScreen(QWidget):
         if record is not None:
             QApplication.clipboard().setText(str(record["dir"]))
             self._set_status("Run-folder path copied.")
+
+    def _export_selected_workflow(self, engine: str,
+                                  folder: Optional[str] = None) -> Optional[Path]:
+        """Write the selected run as a workflow into a folder the user picks.
+
+        The workflow goes into ``<folder>/<run id>_<engine>``, and the
+        status line names its main file or says why it could not be written.
+
+        :param engine: ``"snakemake"`` or ``"nextflow"``.
+        :param folder: destination; asked for with a folder dialog when None.
+        :returns: the workflow's main file, or None when nothing was written.
+        """
+        from ...cli_repro import _export_workflow
+
+        record = self._selected_record()
+        if record is None:
+            return None
+        if folder is None:
+            folder = QFileDialog.getExistingDirectory(
+                self, tr("Export workflow into folder"))
+        if not folder:
+            return None
+        target = Path(folder) / f"{Path(record['dir']).name}_{engine}"
+        try:
+            main = _export_workflow(record["dir"], target, engine)
+        except (OSError, ValueError) as exc:
+            self._set_status(tr("Could not export the workflow: {error}",
+                                error=exc), error=True)
+            return None
+        self._set_status(tr("Workflow written: {path}", path=main))
+        return main
 
     def _load_selected_settings(self) -> None:
         """Ask MainWindow to open the run's module with its exact settings."""
