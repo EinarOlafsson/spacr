@@ -538,13 +538,6 @@
     },
     {
       "table": "ui",
-      "key": "Equalise the histogram inside each tile rather than over the whole field, with a limit on how much any one level may be stretched. It is what brings out objects in a dim corner without blowing out the bright middle. It also amplifies noise in empty tiles, which is what the clip limit is for.",
-      "source": "Equalise the histogram inside each tile rather than over the whole field, with a limit on how much any one level may be stretched. It is what brings out objects in a dim corner without blowing out the bright middle. It also amplifies noise in empty tiles, which is what the clip limit is for.",
-      "source_sha256": "4d90cb622f7b5cb3f16195794f79550e39b97dea772275f26cd280e005d9923a",
-      "translation": "시야 전체가 아니라 각 타일 안에서 히스토그램을 평활화하며, 한 수준이 늘어날 수 있는 양에 한도를 둡니다. 밝은 가운데를 날려 버리지 않고 어두운 구석의 객체를 드러냅니다. 빈 타일에서는 잡음도 증폭하므로 클립 한도가 필요합니다."
-    },
-    {
-      "table": "ui",
       "key": "Estimate and apply flat-field correction at configured stages. Keep corrected display values distinct from raw measurements and record the applied policy.",
       "source": "Estimate and apply flat-field correction at configured stages. Keep corrected display values distinct from raw measurements and record the applied policy.",
       "source_sha256": "55fe876cb0804a390ac56a7666124f4b040f4c05a6e930938cc92b938103e7d6",
