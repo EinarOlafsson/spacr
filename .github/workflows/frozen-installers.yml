@@ -209,6 +209,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p acceptance
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git rev-parse HEAD > acceptance/source-commit.txt
           PATH=/usr/bin:/bin packaging/build_debian.sh 2>&1 | tee acceptance/debian-build.log
           dpkg-deb -I dist/*.deb > acceptance/debian-control.txt

@@ -242,3 +242,9 @@ Together the two batches establish40unique passing checks. This is explicitly
 source-level integration, not a native-artifact receipt. The initial failure
 and two Linux fork warnings are retained. Evidence:
 features/data/53_legacy_native_preparation_2026-09-27.json.
+
+STATUS 2026-09-27 (Codex, first native CI): run36342374345 reached its native
+matrix. Debian stopped before package construction because Git rejected the
+container checkout ownership. The build step now trusts only its exact
+GITHUB_WORKSPACE path. Workflow structure checks pass; the native repair is
+not yet verified. Receipt: features/data/53_debian_checkout_ownership_2026-09-27.json.
