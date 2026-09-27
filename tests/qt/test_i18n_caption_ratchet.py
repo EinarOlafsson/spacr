@@ -1154,6 +1154,18 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # and Measure, and its browser dialog (alpha).
 # 577, 2026-09-26: the Preferences Notifications tab (alpha).
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    # 575, 2026-09-27: Run History's alpha Export workflow button, its
+    # menu, folder dialog and status lines.
+    "Export workflow…",
+    "Write this run as a Snakemake or Nextflow workflow that runs the "
+    "same module with the same settings once per plate, with "
+    "spacr-run on this machine, a cluster, or the spaCR container "
+    "image.",
+    "Snakemake…",
+    "Nextflow…",
+    "Export workflow into folder",
+    "Could not export the workflow: {error}",
+    "Workflow written: {path}",
     # 555, 2026-09-26: the Segment by prompt category (micro-SAM), an alpha
     # feature: its caption, controls, tooltips and console lines.
     # 540, 2026-09-26: the Viability (Alpha) category help on Measure.

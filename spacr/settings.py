@@ -7157,6 +7157,9 @@ ALPHA_FEATURES = {
     538: {
         'settings': ('unmix', 'unmix_controls', 'unmix_background_percentile'),
     },
+    575: {
+        'widgets': ('RunHistoryExportWorkflow',),
+    },
 }
 
 
