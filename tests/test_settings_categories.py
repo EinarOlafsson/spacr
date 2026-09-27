@@ -782,6 +782,12 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # stop beside it in Mask's Workflow & Test Run group.
     "watch_folder", "watch_pipeline", "watch_measure_settings",
     "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes",
+    # A NEW SETTING GROUP, not a regrouping: `src` of Make Masks and Measure
+    # may name cloud storage. Where credentials come from, the cache folder,
+    # the OME-Zarr wells, fields and level to fetch, and where results are
+    # copied back sit beside `src` in Input & Metadata / Input & Experiment.
+    "cloud_anonymous", "cloud_profile", "cloud_endpoint", "cloud_cache",
+    "cloud_wells", "cloud_fields", "cloud_level", "cloud_results",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six

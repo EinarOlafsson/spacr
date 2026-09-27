@@ -420,5 +420,310 @@
     "spacr.timeflows_model.ctc_pairs failed the whole-document literal contract in all nine locales because the numpydoc-declaration protector read \":raises ValueError: sequence\" as a declaration. Fixed after this receipt: (?<!:raises ) added in tools/build_i18n_catalogs.py with test_raises_field_is_not_read_as_a_type_declaration.",
     "README audit failures (code/link/RST roles, link targets) are pre-existing and outside the API catalogs.",
     "After the rebase onto origin/nightly 745025fd4 (11816 symbols) the catalogs lack or carry stale text for the symbols added/changed there; a delta round is prepared in /mnt/firecuda2/codex/scratch-docs/work-api-delta."
-  ]
+  ],
+  "delta_round_2026_09_26": {
+    "scope": "After rebasing docs/i18n-api onto nightly 745025fd4 (11816 API symbols): 384 unique blocks per locale (97 added, 40 changed, 20 re-blocked symbols) translated in /mnt/firecuda2/codex/scratch-docs/work-api-delta, then every catalog rewritten by tools/build_documentation_i18n.py --repair-api-blocks with an empty model root.",
+    "source_commit": "a3e66db2a28f9057faa56cf727bbf818353f230e",
+    "english_manifest": {
+      "symbols": 11816,
+      "identical_to_nightly": "745025fd4"
+    },
+    "api_source_history": "pruned to 0 records (a3e66db2a): every catalog is source-current",
+    "scoped_audit_artifact": {
+      "seen_in": [
+        "es",
+        "pt"
+      ],
+      "block": "spacr.qt.widgets.plaque_preview.check_the_src#2 = \"the Plaque Assay screen.\"",
+      "cause": "The reviewed record for this English block is labelled PlaqueDropHandler.apply#2 (one record serves all seven symbols with that block). verify.py audited only the 146 delta symbols, and the loader skips records whose label symbol is outside the docs it is given, so the reviewed \"la pantalla de Plaque Assay.\" / \"a tela do Plaque Assay.\" looked unreviewed and the contextualizer demanded the screening sense (\"cribado\" / \"triagem\"), which would be the mistranslation.",
+      "fix": "Scoping, not wording: verify.py now loads reviewed records against all docs during the scoped audit, as the builder's full audit does. es and pt then PASS, and the full builder audit after --write-catalog reports no API failure in any locale."
+    },
+    "languages": [
+      {
+        "language": "sv",
+        "delta_records_commit": "ea4db2bf1",
+        "delta_blocks": 384,
+        "catalog_commit": "b1fce0b91",
+        "before": {
+          "symbols": 11721,
+          "source_current_symbols": 11679,
+          "symbols_identical_to_english": 8
+        },
+        "after": {
+          "symbols": 11816,
+          "source_current_symbols": 11816,
+          "symbols_identical_to_english": 8,
+          "compatibility_issues": 0,
+          "source_compatible": true
+        },
+        "builder_repair": {
+          "reused_blocks": 45774,
+          "historical_reused_blocks": 196,
+          "generated_blocks": 0,
+          "unresolved_blocks": 0,
+          "review_recovered_blocks": 485
+        },
+        "full_builder_audit_failures": [
+          "sv/README: code/link/RST roles changed",
+          "sv/README: RST link targets changed"
+        ]
+      },
+      {
+        "language": "de",
+        "delta_records_commit": "875626cfd",
+        "delta_blocks": 384,
+        "catalog_commit": "d8a671abf",
+        "before": {
+          "symbols": 11721,
+          "source_current_symbols": 11679,
+          "symbols_identical_to_english": 8
+        },
+        "after": {
+          "symbols": 11816,
+          "source_current_symbols": 11816,
+          "symbols_identical_to_english": 8,
+          "compatibility_issues": 0,
+          "source_compatible": true
+        },
+        "builder_repair": {
+          "reused_blocks": 45801,
+          "historical_reused_blocks": 196,
+          "generated_blocks": 0,
+          "unresolved_blocks": 0,
+          "review_recovered_blocks": 458
+        },
+        "full_builder_audit_failures": [
+          "de/README: code/link/RST roles changed",
+          "de/README: RST link targets changed"
+        ]
+      },
+      {
+        "language": "es",
+        "delta_records_commit": "4b5f7a43e",
+        "delta_blocks": 384,
+        "catalog_commit": "999e659a1",
+        "before": {
+          "symbols": 11721,
+          "source_current_symbols": 11679,
+          "symbols_identical_to_english": 8
+        },
+        "after": {
+          "symbols": 11816,
+          "source_current_symbols": 11816,
+          "symbols_identical_to_english": 8,
+          "compatibility_issues": 0,
+          "source_compatible": true
+        },
+        "builder_repair": {
+          "reused_blocks": 45808,
+          "historical_reused_blocks": 196,
+          "generated_blocks": 0,
+          "unresolved_blocks": 0,
+          "review_recovered_blocks": 451
+        },
+        "full_builder_audit_failures": [
+          "es/README: code/link/RST roles changed",
+          "es/README: RST link targets changed"
+        ]
+      },
+      {
+        "language": "zh_CN",
+        "delta_records_commit": "da4d37821",
+        "delta_blocks": 384,
+        "catalog_commit": "5a862af5e",
+        "before": {
+          "symbols": 11721,
+          "source_current_symbols": 11679,
+          "symbols_identical_to_english": 8
+        },
+        "after": {
+          "symbols": 11816,
+          "source_current_symbols": 11816,
+          "symbols_identical_to_english": 8,
+          "compatibility_issues": 0,
+          "source_compatible": true
+        },
+        "builder_repair": {
+          "reused_blocks": 45819,
+          "historical_reused_blocks": 199,
+          "generated_blocks": 0,
+          "unresolved_blocks": 0,
+          "review_recovered_blocks": 438
+        },
+        "full_builder_audit_failures": [
+          "zh_CN/README: code/link/RST roles changed",
+          "zh_CN/README: RST link targets changed"
+        ]
+      },
+      {
+        "language": "pt",
+        "delta_records_commit": "7b1e1553f",
+        "delta_blocks": 384,
+        "catalog_commit": "ddf98eedf",
+        "before": {
+          "symbols": 11721,
+          "source_current_symbols": 11679,
+          "symbols_identical_to_english": 8
+        },
+        "after": {
+          "symbols": 11816,
+          "source_current_symbols": 11816,
+          "symbols_identical_to_english": 8,
+          "compatibility_issues": 0,
+          "source_compatible": true
+        },
+        "builder_repair": {
+          "reused_blocks": 45783,
+          "historical_reused_blocks": 196,
+          "generated_blocks": 0,
+          "unresolved_blocks": 0,
+          "review_recovered_blocks": 476
+        },
+        "full_builder_audit_failures": [
+          "pt/README: code/link/RST roles changed",
+          "pt/README: RST link targets changed"
+        ]
+      },
+      {
+        "language": "hi",
+        "delta_records_commit": "77fa63760",
+        "delta_blocks": 384,
+        "catalog_commit": "b70c1c438",
+        "before": {
+          "symbols": 11721,
+          "source_current_symbols": 11679,
+          "symbols_identical_to_english": 8
+        },
+        "after": {
+          "symbols": 11816,
+          "source_current_symbols": 11816,
+          "symbols_identical_to_english": 8,
+          "compatibility_issues": 0,
+          "source_compatible": true
+        },
+        "builder_repair": {
+          "reused_blocks": 45793,
+          "historical_reused_blocks": 199,
+          "generated_blocks": 0,
+          "unresolved_blocks": 0,
+          "review_recovered_blocks": 464
+        },
+        "full_builder_audit_failures": [
+          "hi/README: code/link/RST roles changed",
+          "hi/README: RST link targets changed"
+        ]
+      },
+      {
+        "language": "ko",
+        "delta_records_commit": "4878f3ea1",
+        "delta_blocks": 384,
+        "catalog_commit": "cde4368d7",
+        "before": {
+          "symbols": 11721,
+          "source_current_symbols": 11679,
+          "symbols_identical_to_english": 8
+        },
+        "after": {
+          "symbols": 11816,
+          "source_current_symbols": 11816,
+          "symbols_identical_to_english": 8,
+          "compatibility_issues": 0,
+          "source_compatible": true
+        },
+        "builder_repair": {
+          "reused_blocks": 45803,
+          "historical_reused_blocks": 199,
+          "generated_blocks": 0,
+          "unresolved_blocks": 0,
+          "review_recovered_blocks": 454
+        },
+        "full_builder_audit_failures": [
+          "ko/README: code/link/RST roles changed",
+          "ko/README: RST link targets changed"
+        ]
+      },
+      {
+        "language": "is",
+        "delta_records_commit": "7a9d36ba3",
+        "delta_blocks": 384,
+        "catalog_commit": "b90e05427",
+        "before": {
+          "symbols": 11721,
+          "source_current_symbols": 11679,
+          "symbols_identical_to_english": 8
+        },
+        "after": {
+          "symbols": 11816,
+          "source_current_symbols": 11816,
+          "symbols_identical_to_english": 8,
+          "compatibility_issues": 0,
+          "source_compatible": true
+        },
+        "builder_repair": {
+          "reused_blocks": 45795,
+          "historical_reused_blocks": 196,
+          "generated_blocks": 0,
+          "unresolved_blocks": 0,
+          "review_recovered_blocks": 464
+        },
+        "full_builder_audit_failures": [
+          "is/README: code/link/RST roles changed",
+          "is/README: RST link targets changed"
+        ]
+      },
+      {
+        "language": "fr",
+        "delta_records_commit": "a168a3776",
+        "delta_blocks": 384,
+        "catalog_commit": "bcadb01af",
+        "before": {
+          "symbols": 11721,
+          "source_current_symbols": 11679,
+          "symbols_identical_to_english": 8
+        },
+        "after": {
+          "symbols": 11816,
+          "source_current_symbols": 11816,
+          "symbols_identical_to_english": 8,
+          "compatibility_issues": 0,
+          "source_compatible": true
+        },
+        "builder_repair": {
+          "reused_blocks": 45764,
+          "historical_reused_blocks": 196,
+          "generated_blocks": 0,
+          "unresolved_blocks": 0,
+          "review_recovered_blocks": 494
+        },
+        "full_builder_audit_failures": [
+          "fr/README: code/link/RST roles changed",
+          "fr/README: RST link targets changed"
+        ]
+      }
+    ],
+    "compatibility_report": {
+      "command": "tools/report_translation_compatibility.py --english-required",
+      "incompatible_api_locales": 0,
+      "english_api": "compatible",
+      "english_runtime": "incompatible",
+      "english_runtime_diagnostics": "en/SETTING_LABELS: canonical source catalog is stale\nen/SETTING_TOOLTIPS: canonical source catalog is stale\nen/UI_SOURCES: canonical source catalog is stale\nen/SOURCE_HASHES: canonical source catalog is stale",
+      "exit_code": 1,
+      "exit_reason": "English runtime source catalog stale (runtime lane, nightly settings changes), not API"
+    },
+    "tests": {
+      "files": [
+        "tests/test_api_i18n_extractor.py",
+        "tests/test_api_i18n_frontend.py",
+        "tests/test_documentation_i18n.py"
+      ],
+      "passed": 177,
+      "failed": 1,
+      "xfailed": 4,
+      "failures": [
+        "test_api_i18n_frontend.py::test_popstate_restores_prior_successful_language: headless Chrome subprocess.TimeoutExpired (60 s wall) on a machine at load 50-80; synthetic catalogs, and no frontend file differs from nightly. It passed on the same branch earlier on 2026-09-26; on reruns both Chrome harness tests timed out."
+      ],
+      "xfail_reasons": "the four localized README tests (pre-existing README incompatibilities); every per-locale API inventory test and the real-catalog browser test now pass"
+    },
+    "after_merge_note": "origin/nightly has since moved to a95c435e8 with REAL_SYMBOL_COUNT 11_865 (+49 symbols: items 545, 570, 588, 544/573). After the merge those symbols are missing from the nine catalogs until another delta round."
+  }
 }
