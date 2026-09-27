@@ -1979,7 +1979,9 @@ def _correct_v1_segmentation_batch(
             channels=list(channels),
             settings=settings,
         )
-        selected = stack[index][..., list(channels)]
+        field = (psf_session.unmix(stack[index]) if psf_session is not None
+                 else stack[index])
+        selected = field[..., list(channels)]
         corrected = (illumination_session.correct(field_id, selected, context)
                      if illumination_session is not None else selected)
         if psf_session is not None:
@@ -2007,9 +2009,10 @@ def _concatenate_and_normalize_impl(
     :param illumination_session: optional segmentation-only illumination
         session. It corrects private copies of the selected channels before
         normalisation and records completion only after each NPZ is durable.
-    :param psf_session: optional PSF session captured for this run. Applies
-        the PSF, or the whole enhancement chain when one is on, after
-        illumination on each field before padding or normalization;
+    :param psf_session: optional PSF session captured for this run. Unmixes
+        each whole raw field first when unmixing is on, then applies the PSF,
+        or the whole enhancement chain when one is on, after illumination on
+        each field before padding or normalization;
         preserves floating point intensities and records archive identities.
     :param only_fields: when given, the field stems to normalise; every other
         ``.npy`` in ``src`` is left out. Used, without a timelapse, to rebuild
@@ -3492,7 +3495,8 @@ def preprocess_img_data(settings):
         )
 
     from .psf_pipeline import _prepare_segmentation_psf
-    psf_session = _prepare_segmentation_psf(settings, src, mask_channels)
+    psf_session = _prepare_segmentation_psf(settings, src, mask_channels,
+                                            stack_dir=stack_path)
 
     concatenate_and_normalize(src=stack_path,
                               channels=mask_channels,
