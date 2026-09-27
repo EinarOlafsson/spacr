@@ -1,0 +1,400 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third and fourth passes 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Add object",
+      "source": "Add object",
+      "source_sha256": "3f472fcdccd4225b1f991eab54cbbf720307c14233fe36c3be407e658e562eb1",
+      "translation": "Objekt hinzufügen"
+    },
+    {
+      "table": "ui",
+      "key": "Analysis locked: {sha} at {time}.",
+      "source": "Analysis locked: {sha} at {time}.",
+      "source_sha256": "2df0a6e2e60b45cd322c0668722e1b78bc9398b64d0a7edbc88507250c947ebb",
+      "translation": "Analyse gesperrt: {sha} am {time}."
+    },
+    {
+      "table": "ui",
+      "key": "Blind",
+      "source": "Blind",
+      "source_sha256": "64c82aaed1b4155efc23d5cfcea6ec22f8ee5826dd26f5f1274e44fe905d4fb1",
+      "translation": "Verblindet"
+    },
+    {
+      "table": "ui",
+      "key": "Blinded {count} crops under key {key}.",
+      "source": "Blinded {count} crops under key {key}.",
+      "source_sha256": "ebfd34cddcad9c58429b81ad1eecab5b86c21bc83cfdb2ac17b18d86aa6d71a4",
+      "translation": "{count} Ausschnitte unter Schlüssel {key} verblindet."
+    },
+    {
+      "table": "ui",
+      "key": "Blinded · {page}",
+      "source": "Blinded · {page}",
+      "source_sha256": "5eb6847ac2611977fc7518b0d757407b365494c890cc50236cb590802f7649ea",
+      "translation": "Verblindet · {page}"
+    },
+    {
+      "table": "ui",
+      "key": "COCO JSON (*.json)",
+      "source": "COCO JSON (*.json)",
+      "source_sha256": "ef53bd99edeff54142de3b00795e12ab3e5a75d4aed4d787eae46840119dc229",
+      "translation": "COCO-JSON-Datei (*.json)"
+    },
+    {
+      "table": "ui",
+      "key": "Call hits by",
+      "source": "Call hits by",
+      "source_sha256": "f559d5a42e39785b9ee0a9abfe612809553973e1e4ede15f1b97f017d3d846b1",
+      "translation": "Treffer bestimmen nach"
+    },
+    {
+      "table": "ui",
+      "key": "Confluency (Alpha)",
+      "source": "Confluency (Alpha)",
+      "source_sha256": "7323ff17a90c34a08e58eba9992bdd5849c5c1ae5135ac28fb30ca9ee61c4843",
+      "translation": "Konfluenz (Alpha)"
+    },
+    {
+      "table": "ui",
+      "key": "Confluency failed: {error}",
+      "source": "Confluency failed: {error}",
+      "source_sha256": "41c6332ef89a38ae04fbf2dd5dc14a403523eb14181dece3debbf480488b5aae",
+      "translation": "Konfluenz fehlgeschlagen: {error}"
+    },
+    {
+      "table": "ui",
+      "key": "Export ROIs",
+      "source": "Export ROIs",
+      "source_sha256": "030ee08822846f69462b0b31e605673b40607ab23344d8ec133d11020451edd1",
+      "translation": "ROIs exportieren"
+    },
+    {
+      "table": "ui",
+      "key": "Export every field as ImageJ RoiSets…",
+      "source": "Export every field as ImageJ RoiSets…",
+      "source_sha256": "5ab2ea0ce0825ad73958d07583a4ec8c2ae65f5b9bf82dfee8df329158faf5e2",
+      "translation": "Jedes Bildfeld als ImageJ-RoiSets exportieren…"
+    },
+    {
+      "table": "ui",
+      "key": "Export every field as QuPath GeoJSON…",
+      "source": "Export every field as QuPath GeoJSON…",
+      "source_sha256": "315580ecd80292b1c5fcfc1a185ef9531ad2d48ebdd878793979830d3c4726d5",
+      "translation": "Jedes Bildfeld als QuPath-GeoJSON exportieren…"
+    },
+    {
+      "table": "ui",
+      "key": "Export every field as one COCO JSON…",
+      "source": "Export every field as one COCO JSON…",
+      "source_sha256": "2ce59ec2558cfd52e81f86061aa6988c69fc5a47a560dcd3bad99ed1394aa85a",
+      "translation": "Jedes Bildfeld als eine COCO JSON exportieren…"
+    },
+    {
+      "table": "ui",
+      "key": "Export hits…",
+      "source": "Export hits…",
+      "source_sha256": "d58f3bd0c625dc28353f7b5b968849ae48eca3a87018c28f7718af489efbb93a",
+      "translation": "Treffer exportieren…"
+    },
+    {
+      "table": "ui",
+      "key": "Export this field as COCO JSON…",
+      "source": "Export this field as COCO JSON…",
+      "source_sha256": "6aeda44d39e4b5016c5d05ee318361852ccf2b5d6dc6fa0b057c18882233cfd4",
+      "translation": "Dieses Bildfeld als COCO JSON exportieren…"
+    },
+    {
+      "table": "ui",
+      "key": "Export this field as QuPath GeoJSON…",
+      "source": "Export this field as QuPath GeoJSON…",
+      "source_sha256": "fdf6542b50637846b072e6c6ee24915190e9121482b116ce4321841c1bfb52ad",
+      "translation": "Dieses Bildfeld als QuPath-GeoJSON exportieren…"
+    },
+    {
+      "table": "ui",
+      "key": "Export this field as an ImageJ RoiSet…",
+      "source": "Export this field as an ImageJ RoiSet…",
+      "source_sha256": "23a3b2099bbc15d395bf7538e3b4de1c2be6daa043dff1e9af924b4ef034a738",
+      "translation": "Dieses Bildfeld als ImageJ-RoiSet exportieren…"
+    },
+    {
+      "table": "ui",
+      "key": "Folder for the ROI files",
+      "source": "Folder for the ROI files",
+      "source_sha256": "401c8f3ab419c5b50dc8d084ba13ed07dea840ab61514d198615bda60194f919",
+      "translation": "Ordner für die ROI-Dateien"
+    },
+    {
+      "table": "ui",
+      "key": "Folder of ROI files",
+      "source": "Folder of ROI files",
+      "source_sha256": "56c71c81cc38fa9294c628ba3fc294078ee4d471394c682286b7404a42772a6a",
+      "translation": "Ordner mit ROI-Dateien"
+    },
+    {
+      "table": "ui",
+      "key": "Hit threshold",
+      "source": "Hit threshold",
+      "source_sha256": "7b76773e2bbc97187e62e19bd53db7bf1d64836a0feb59e50a8c384f254b8b45",
+      "translation": "Trefferschwelle"
+    },
+    {
+      "table": "ui",
+      "key": "Hypotheses",
+      "source": "Hypotheses",
+      "source_sha256": "b4c36ce1b1c3e95ff8fe5517a0930e788980edc08997cc2633fc3ed941e3ff32",
+      "translation": "Hypothesen"
+    },
+    {
+      "table": "ui",
+      "key": "ImageJ RoiSet (*.zip)",
+      "source": "ImageJ RoiSet (*.zip)",
+      "source_sha256": "a8910c47084f594e1bda29f988c2311c85be648f9f83f34c00085c62fadfff43",
+      "translation": "ImageJ-RoiSet (*.zip)"
+    },
+    {
+      "table": "ui",
+      "key": "Import COCO JSON for every field…",
+      "source": "Import COCO JSON for every field…",
+      "source_sha256": "28a6667c4b21e97e732ab7b394a247bf6cbb878fbb289d44e35f9d1e6131739e",
+      "translation": "COCO JSON für jedes Bildfeld importieren…"
+    },
+    {
+      "table": "ui",
+      "key": "Import ImageJ RoiSets for every field…",
+      "source": "Import ImageJ RoiSets for every field…",
+      "source_sha256": "5350732b7531a226e08a3488c6584936b63bd78dd9f3d25a7d7da76464a54b52",
+      "translation": "ImageJ-RoiSets für jedes Bildfeld importieren…"
+    },
+    {
+      "table": "ui",
+      "key": "Import QuPath GeoJSON for every field…",
+      "source": "Import QuPath GeoJSON for every field…",
+      "source_sha256": "35274a7d979cd0650576d6954e1d9ce619c29280421963f62133b52fd28566df",
+      "translation": "QuPath-GeoJSON für jedes Bildfeld importieren…"
+    },
+    {
+      "table": "ui",
+      "key": "Import ROIs",
+      "source": "Import ROIs",
+      "source_sha256": "f7e32ed68ea39cb4db12c24089cce75ecb691eef37125345f67c84df6e68daa4",
+      "translation": "ROIs importieren"
+    },
+    {
+      "table": "ui",
+      "key": "Import ROIs into this field…",
+      "source": "Import ROIs into this field…",
+      "source_sha256": "9da7039316193b77b3dea6979748a6b4d2c1e706217bb833e84d6cedb7f9981b",
+      "translation": "ROIs in dieses Bildfeld importieren…"
+    },
+    {
+      "table": "ui",
+      "key": "Lock",
+      "source": "Lock",
+      "source_sha256": "db44b8db4f05d720ef1a57abadeed0c164d47b17416c7dd7d136d8f10fba91c9",
+      "translation": "Sperren"
+    },
+    {
+      "table": "ui",
+      "key": "Lock analysis",
+      "source": "Lock analysis",
+      "source_sha256": "1f7de528bf0e17dae2d79b2cce5ff31b7c0bb71379329b3e13d329ee866e4a4d",
+      "translation": "Analyse sperren"
+    },
+    {
+      "table": "ui",
+      "key": "Lock analysis…",
+      "source": "Lock analysis…",
+      "source_sha256": "213ea6641fc01d02589c46a151aa48ea07fbfc2928b674d461cca705577d51a3",
+      "translation": "Analyse sperren…"
+    },
+    {
+      "table": "ui",
+      "key": "Nothing scored yet.",
+      "source": "Nothing scored yet.",
+      "source_sha256": "bc15b86e28a296f1b77e07958a492bee5a6ca3b268d9a4b57165b42612f7767d",
+      "translation": "Noch nichts bewertet."
+    },
+    {
+      "table": "ui",
+      "key": "Prompt with micro-SAM",
+      "source": "Prompt with micro-SAM",
+      "source_sha256": "34ce76429e3888281725b20526faf5b240dc98e398368b9d159186d22ecbc3d6",
+      "translation": "Prompt mit micro-SAM"
+    },
+    {
+      "table": "ui",
+      "key": "QuPath GeoJSON (*.geojson)",
+      "source": "QuPath GeoJSON (*.geojson)",
+      "source_sha256": "3acdac431a36d677f5036bd0d2538efcd27113fbd6d52f4c8a110a9298c186e9",
+      "translation": "QuPath-GeoJSON (*.geojson)"
+    },
+    {
+      "table": "ui",
+      "key": "ROI files (*.geojson *.json *.zip *.roi)",
+      "source": "ROI files (*.geojson *.json *.zip *.roi)",
+      "source_sha256": "ba5a237f23f3325aa16363e36db1ecd5220cd933007bc3e21230a86657b52351",
+      "translation": "ROI-Dateien (*.geojson *.json *.zip *.roi)"
+    },
+    {
+      "table": "ui",
+      "key": "ROIs exported → {path}",
+      "source": "ROIs exported → {path}",
+      "source_sha256": "f05f56eb939dae3cb216fed425eb33362eb0fac240fba471d523e4ece4d7e180",
+      "translation": "ROIs exportiert → {path}"
+    },
+    {
+      "table": "ui",
+      "key": "ROIs imported for {n} field(s)",
+      "source": "ROIs imported for {n} field(s)",
+      "source_sha256": "18b087fab144d1c2e82854c5cdf580f84dad6a07835e6320973c68163fbd3d71",
+      "translation": "ROIs für {n} Bildfeld(er) importiert"
+    },
+    {
+      "table": "ui",
+      "key": "Reference",
+      "source": "Reference",
+      "source_sha256": "71bf90935fc231d20126e2087eeb583c6aa419fc3dd1b6847bfe376b9200eaa0",
+      "translation": "Bezug"
+    },
+    {
+      "table": "ui",
+      "key": "SSMD estimator",
+      "source": "SSMD estimator",
+      "source_sha256": "4bfe660c713d1c1f1e7a608f2f08ab6db7868364a540ac5977d27a221ec0e103",
+      "translation": "SSMD-Schätzer"
+    },
+    {
+      "table": "ui",
+      "key": "Score hits (SSMD, robust z, B-score)",
+      "source": "Score hits (SSMD, robust z, B-score)",
+      "source_sha256": "bfa932a75cf0c84fd32609350365627f813eb8aa0b06627eec1dd825d555c41d",
+      "translation": "Treffer bewerten (SSMD, robustes z, B-Score)"
+    },
+    {
+      "table": "ui",
+      "key": "Segment by prompt",
+      "source": "Segment by prompt",
+      "source_sha256": "ecb326c72a180a469c9cd986a52cac5dfb512b5b771a8c7588fa53294847feba",
+      "translation": "Segmentierung per Prompt"
+    },
+    {
+      "table": "ui",
+      "key": "Show alpha features",
+      "source": "Show alpha features",
+      "source_sha256": "82cad201bb414606ec515a8c0433409e5011c89685bfb6f95bdd9ad6d2dee685",
+      "translation": "Alpha-Funktionen anzeigen"
+    },
+    {
+      "table": "ui",
+      "key": "Thresholds and gates",
+      "source": "Thresholds and gates",
+      "source_sha256": "bf75758eeed2a3edd030c0aee7da285a1de91711df21e7d224c42c1dc66c04e3",
+      "translation": "Schwellen und Gates"
+    },
+    {
+      "table": "ui",
+      "key": "Treatment",
+      "source": "Treatment",
+      "source_sha256": "0d331d85875437ba5d3f2faba1c5f89111dcad1017baf284f24fcb22e4d512e8",
+      "translation": "Behandlung"
+    },
+    {
+      "table": "ui",
+      "key": "Unblind?",
+      "source": "Unblind?",
+      "source_sha256": "7838debce778a61d28178e9dc1a80b5707616d656c4c07d121b05ad885cdad7f",
+      "translation": "Entblinden?"
+    },
+    {
+      "table": "ui",
+      "key": "Write the hit report into",
+      "source": "Write the hit report into",
+      "source_sha256": "960d74ee9a66b35f00b3a2be97f8333aba280b035b5b1598e27082e02a70bd75",
+      "translation": "Trefferbericht schreiben in"
+    },
+    {
+      "table": "ui",
+      "key": "below the monolayer QC threshold",
+      "source": "below the monolayer QC threshold",
+      "source_sha256": "5369713a3a7d5590a1ce773d02181af6f051f4166c0bf4792aadc174b66d1e86",
+      "translation": "unter der Monolayer-QC-Schwelle"
+    },
+    {
+      "table": "ui",
+      "key": "done",
+      "source": "done",
+      "source_sha256": "a4c3ed04a95a3da14a9d235c83d868bed7c0f45cf7f3faa751ee8f50598d2211",
+      "translation": "fertig"
+    },
+    {
+      "table": "ui",
+      "key": "hit report written to {folder}",
+      "source": "hit report written to {folder}",
+      "source_sha256": "c96c826abb74fcf729443eba085d84ff17dc2a07de5f0dbe89e768f52cf1c6ae",
+      "translation": "Trefferbericht geschrieben nach {folder}"
+    },
+    {
+      "table": "ui",
+      "key": "micro-SAM could not segment: {error}",
+      "source": "micro-SAM could not segment: {error}",
+      "source_sha256": "d1bbdcddea80b2b8edeb4b905c12dd57389b0b90de1e9bf23506259963078892",
+      "translation": "micro-SAM konnte nicht segmentieren: {error}"
+    },
+    {
+      "table": "ui",
+      "key": "monolayer QC passed",
+      "source": "monolayer QC passed",
+      "source_sha256": "5830fb4847ffd3eaf7e99f51ad13a6d8779fd757308cb91494f4a46c7848a151",
+      "translation": "Monolayer-QC bestanden"
+    },
+    {
+      "table": "ui",
+      "key": "needs the {backend} backend",
+      "source": "needs the {backend} backend",
+      "source_sha256": "a5dfa5da996f7eb6fb24538b26c834d04efad9b2a8acfa61dde53df492f609a0",
+      "translation": "benötigt das Backend {backend}"
+    },
+    {
+      "table": "ui",
+      "key": "running",
+      "source": "running",
+      "source_sha256": "c071cf5f5ed6f884cc70155b6f05f755fd46a302d05e4261b7e92ce878bbfed8",
+      "translation": "läuft"
+    },
+    {
+      "table": "ui",
+      "key": "starting",
+      "source": "starting",
+      "source_sha256": "59dbf36d9930a99bfc1e13a10518cd5cf42d29ef9b21993c424b4146a81aa30e",
+      "translation": "startet"
+    },
+    {
+      "table": "ui",
+      "key": "stopped",
+      "source": "stopped",
+      "source_sha256": "8322e87d24582952e5c996da182de0eca66dd2bf58fba5ec56a325c656f21b38",
+      "translation": "gestoppt"
+    },
+    {
+      "table": "ui",
+      "key": "uncoded field",
+      "source": "uncoded field",
+      "source_sha256": "27e78891604e7c56145e64c3666fdab4f5f415f7b610d3927450db69b2543e0c",
+      "translation": "unkodiertes Bildfeld"
+    },
+    {
+      "table": "ui",
+      "key": "{n} ROI file(s) written → {path}",
+      "source": "{n} ROI file(s) written → {path}",
+      "source_sha256": "e2a7fa500b3644b437e05279325bcdcb3eee9093a1d092f90f66b1f5d141c6d3",
+      "translation": "{n} ROI-Datei(en) geschrieben → {path}"
+    }
+  ]
+}
