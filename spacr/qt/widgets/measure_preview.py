@@ -375,6 +375,47 @@ def _compute_confluency_preview(data: np.ndarray,
     }
 
 
+_WOUND_SETTING_KEYS = (
+    "wound_source", "wound_channel", "wound_window", "voxel_size_xy_um",
+)
+
+
+def _compute_wound_preview(data: np.ndarray,
+                           settings: Dict[str, Any]) -> Dict[str, Any]:
+    """The open wound of one merged field, with its edge drawn. Worker-safe.
+
+    Runs what a Measure run with ``wound_closure`` on runs for the first
+    frame of a field, :func:`spacr.measure._measure_field_wound`, so the
+    edge shown is the one the run would start from.
+
+    :param data: merged ``(H, W, C)`` array.
+    :param settings: ``channels``, ``cell_mask_dim`` and the ``wound_*``
+        settings.
+    :returns: ``{overlay, open_fraction, mean_width, min_width, unit,
+        status, error}``; a failure is returned as ``error`` rather than
+        raised.
+    """
+    from spacr.measure import _measure_field_wound, _wound_overlay
+
+    try:
+        row, plane, wound, status = _measure_field_wound(data, settings)
+    except Exception as exc:
+        return {"overlay": None, "open_fraction": None, "status": "",
+                "error": str(exc)}
+    in_um = row.get("mean_width_um") == row.get("mean_width_um") and (
+        row.get("mean_width_um") is not None)
+    unit = "um" if in_um else "px"
+    return {
+        "overlay": _wound_overlay(plane, wound),
+        "open_fraction": float(row["open_fraction"]),
+        "mean_width": row[f"mean_width_{unit}"],
+        "min_width": row[f"min_width_{unit}"],
+        "unit": "µm" if in_um else "px",
+        "status": status,
+        "error": "",
+    }
+
+
 def _rounded_pixmap(pm: QPixmap, radius: int = 8) -> QPixmap:
     """``pm`` with its corners rounded, at the density it was drawn at.
 
@@ -565,6 +606,8 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._loading_fov = False
         self._confluency_settings: Dict[str, Any] = {}
         self._confluency_token = 0
+        self._wound_settings: Dict[str, Any] = {}
+        self._wound_token = 0
         self._sampler = ImageSetSampler(DEFAULT_MAX_SETS)
         self._build_controls()
         self._build_ui()
@@ -816,6 +859,16 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             "cells, using the Confluency settings of the run."))
         self._confluency_btn.toggled.connect(self._on_confluency_toggled)
         actions.addWidget(self._confluency_btn)
+        self._wound_btn = QPushButton(tr("Wound"))
+        self._wound_btn.setObjectName("MeasureWoundToggle")
+        self._wound_btn.setCheckable(True)
+        self._wound_btn.setProperty("maturity", "alpha")
+        self._wound_btn.setToolTip(tr(
+            "Show the open wound Measure would start a wound-closure series "
+            "from if this field were its first frame, using the Wound "
+            "Closure settings of the run."))
+        self._wound_btn.toggled.connect(self._on_wound_toggled)
+        actions.addWidget(self._wound_btn)
         actions.addWidget(self._status, 1)
         from .preview_scale import install_preview_scale
         self._scale_control = install_preview_scale(self, "measure", actions)
@@ -831,6 +884,11 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._confluency_view.setAlignment(Qt.AlignCenter)
         self._confluency_view.hide()
         root.addWidget(self._confluency_view)
+        self._wound_view = QLabel(self)
+        self._wound_view.setObjectName("MeasureWoundOverlay")
+        self._wound_view.setAlignment(Qt.AlignCenter)
+        self._wound_view.hide()
+        root.addWidget(self._wound_view)
         self._refresh_alpha_visibility()
 
         self._grid_scroll = QScrollArea()
@@ -1304,9 +1362,11 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self.refresh()
         if self._confluency_btn.isChecked():
             self._refresh_confluency()
+        if self._wound_btn.isChecked():
+            self._refresh_wound()
 
     def _refresh_alpha_visibility(self) -> None:
-        """Show the confluency preview only when alpha features are shown.
+        """Show the confluency and wound previews only with alpha features.
 
         Item 541 registers the toggle and its overlay in
         ``spacr.settings.ALPHA_FEATURES``; this asks the same gate the rest
@@ -1320,6 +1380,11 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         if not visible and self._confluency_btn.isChecked():
             self._confluency_btn.setChecked(False)
         self._confluency_btn.setVisible(visible)
+        wound_visible = _is_alpha_visible(
+            "widgets", self._wound_btn.objectName())
+        if not wound_visible and self._wound_btn.isChecked():
+            self._wound_btn.setChecked(False)
+        self._wound_btn.setVisible(wound_visible)
 
     def _confluency_preview_settings(self) -> Dict[str, Any]:
         """The settings the confluency preview runs with.
@@ -1383,8 +1448,8 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             return
         pixmap = numpy_to_qpixmap(result["overlay"])
         side = max(160, self._thumb_px * 3)
-        self._confluency_view.setPixmap(pixmap.scaled(
-            side, side, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        self._confluency_view.setPixmap(
+            scaled_for(pixmap, self._confluency_view, side))
         self._confluency_view.show()
         verdict = (tr("monolayer QC passed") if result.get("monolayer_ok")
                    else tr("below the monolayer QC threshold"))
@@ -1392,6 +1457,84 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             "Confluency {percent} ({source}), {verdict}",
             percent=f"{100.0 * float(result['confluency']):.1f} %",
             source=result.get("source", ""), verdict=verdict))
+
+    def _wound_preview_settings(self) -> Dict[str, Any]:
+        """The settings the wound preview runs with.
+
+        :returns: the run's ``wound_*`` values over the defaults, with this
+            panel's channels and cell mask slice.
+        """
+        from spacr.settings import get_measure_crop_settings
+
+        defaults = get_measure_crop_settings({})
+        settings = {key: defaults[key] for key in _WOUND_SETTING_KEYS}
+        settings.update(self._wound_settings)
+        settings["channels"] = (
+            _parse_channels(self._measurement_channels.text()) or [0])
+        settings["cell_mask_dim"] = _optional_spin_value(
+            self._mask_dims["cell"])
+        return settings
+
+    def _on_wound_toggled(self, on: bool) -> None:
+        """Draw or clear the wound-edge overlay.
+
+        :param on: whether the overlay is wanted.
+        """
+        if on:
+            self._refresh_wound()
+            return
+        self._wound_token += 1
+        self._wound_view.clear()
+        self._wound_view.hide()
+
+    def _refresh_wound(self) -> None:
+        """Find the loaded field's wound on a worker and draw its edge."""
+        if self._data is None:
+            self.set_preview_status(self.PREVIEW_SOURCE_HINT)
+            return
+        data = self._data
+        settings = self._wound_preview_settings()
+        self._wound_token += 1
+        token = self._wound_token
+        self._jobs.submit(
+            lambda: _compute_wound_preview(data, settings),
+            lambda result, _t=token: self._on_wound_ready(_t, result))
+
+    def _on_wound_ready(self, token: int, result) -> None:
+        """Show the wound overlay, its open area and widths. GUI thread only.
+
+        :param token: which request this answers; stale ones are dropped.
+        :param result: the dict from :func:`_compute_wound_preview`.
+        """
+        from ..i18n import tr
+        from .live_preview import numpy_to_qpixmap
+
+        if token != self._wound_token or not isinstance(result, dict):
+            return
+        if not self._wound_btn.isChecked():
+            return
+        if result.get("error"):
+            self._status.setText(tr("Wound failed: {error}",
+                                    error=result["error"]))
+            self._wound_view.hide()
+            return
+        pixmap = numpy_to_qpixmap(result["overlay"])
+        side = max(160, self._thumb_px * 3)
+        self._wound_view.setPixmap(scaled_for(pixmap, self._wound_view, side))
+        self._wound_view.show()
+        if result.get("status") != "ok":
+            self._status.setText(tr(
+                "No scratch found: the largest open area is {percent} of "
+                "the field", percent=(
+                    f"{100.0 * float(result['open_fraction']):.1f} %")))
+            return
+        self._status.setText(tr(
+            "Wound {percent} open, mean width {mean} {unit}, "
+            "narrowest {narrowest} {unit}",
+            percent=f"{100.0 * float(result['open_fraction']):.1f} %",
+            mean=f"{float(result['mean_width']):.0f}",
+            narrowest=f"{float(result['min_width']):.0f}",
+            unit=result.get("unit", "px")))
 
     def shutdown(self) -> None:
         """Abandon anything in flight and leave no QThread behind."""
@@ -1643,9 +1786,14 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         for key in _CONFLUENCY_SETTING_KEYS:
             if key in settings:
                 self._confluency_settings[key] = settings[key]
+        for key in _WOUND_SETTING_KEYS:
+            if key in settings:
+                self._wound_settings[key] = settings[key]
         self._refresh_alpha_visibility()
         if self._confluency_btn.isChecked():
             self._refresh_confluency()
+        if self._wound_btn.isChecked():
+            self._refresh_wound()
 
         if settings.get("src"):
             self._auto_load_from_src(settings["src"])
