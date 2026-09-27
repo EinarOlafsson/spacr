@@ -2320,3 +2320,23 @@ in the documentation phase, replay remaining CI failures, and obtain an
 actually completed green nightly run. These receipts are CPU-only, with
 named files, private settings and memory caps; they are not full-suite or
 GPU acceptance. Scratch logs: /mnt/wd4tb/scratch/spacr-completion/.
+
+2026-09-27 — CPU MULTICLASS FIT AND MEASUREMENT WORKER LIFETIME
+The XGBoost issue narrows to unused per-iteration multiclass metrics: both
+3.3.0 and 3.4.1 request CUDA when initializing those metrics on a CPU fit.
+A standalone four-class fit passes when default training metrics are
+explicitly disabled; requesting mlogloss or merror restores the failure.
+The phase classifier now disables those unused metrics and retains its
+own held-out-field accuracy/F1 scoring. No dependency downgrade or scientific
+classification algorithm change was needed. All three previously failing
+cell-cycle tests pass with the installed 3.4.1, CUDA hidden (31.15s),
+including the small CPU neural-network training/reuse integration test.
+
+Separately, a real measurement-panel progress/delete race raised TypeError
+at the first cycle, outside the old RuntimeError guard. Progress, fit-start
+and fit-result updates now travel through the existing process-lifetime
+relay, with weak panel references checked on the GUI thread. The same
+stress passes 1,000 cycles/100,000 emissions after the fix; 83 focused
+panel tests pass, including six live/deleted destination and thread tests.
+Outliers plus its immediate serial predecessors also pass (52 tests).
+This proves the measurement relay fix, not the cause of the old 61% abort.

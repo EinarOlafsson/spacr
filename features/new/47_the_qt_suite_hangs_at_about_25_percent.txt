@@ -1299,3 +1299,14 @@ Qt deferred deletes and the application's threshold-driven GC tick remain.
 Focused ownership/GC/fold/import checks: 73 passed in 40.59s, CPU-only under
 8G. This does not establish that the 61% abort is fixed. A serial replay
 with memory and crash evidence is still required before closing this item.
+
+2026-09-27 — MEASUREMENT RELAY RACE REPRODUCED AND FIXED
+The remaining worker-to-panel signals identified in item43's handoff had
+an unsafe emission: concurrent progress and GUI deletion raised TypeError
+at stress cycle zero. Three updates now use the surviving process relay,
+checking weak panel references only on the GUI thread. 1,000 stress cycles
+with 100,000 emissions complete without errors; 83 focused tests pass.
+Outliers and the neighboring files pass all52 tests in serial order; the
+old failing Outliers test uses threaded=False and creates no QThread.
+The 61% abort is therefore still not attributed or declared fixed. Keep
+this item OPEN until the serial acceptance run reaches its summary.

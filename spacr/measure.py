@@ -4455,6 +4455,8 @@ def _phases_by_xgboost(features, labels, groups, *, seed=0, n_jobs=1):
     Trained on the labelled nuclei and applied to all of them. Whole fields
     are first held out to score the classifier on nuclei it never saw; the
     model that calls every nucleus is then refitted on all the labels.
+    Scores are calculated on the held-out fields below; fitting does not
+    request XGBoost's separate per-iteration training metrics.
 
     :param features: the frame from :func:`_phase_features`.
     :param labels: phase or None per row.
@@ -4485,7 +4487,8 @@ def _phases_by_xgboost(features, labels, groups, *, seed=0, n_jobs=1):
         return XGBClassifier(
             n_estimators=300, max_depth=4, learning_rate=0.1,
             subsample=0.9, colsample_bytree=0.8, tree_method='hist',
-            random_state=seed, n_jobs=n_jobs, device='cpu', eval_metric='mlogloss')
+            random_state=seed, n_jobs=n_jobs, device='cpu',
+            disable_default_eval_metric=True)
 
     report = {'classes': classes,
               'counts': {p: int((labels == p).sum()) for p in classes}}
