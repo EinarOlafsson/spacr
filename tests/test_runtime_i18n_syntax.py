@@ -166,6 +166,14 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     newest = {record["source"] for record in fourth}
     assert len(fourth) == len(newest) and not newest & sources
     sources |= newest
+    # The fifth pass (2026-09-26) is one more slice: items 536, 550, 577 and
+    # the profiling and cell-cycle settings that reached nightly after the
+    # fourth. Every source was pending, so it overlaps no earlier pass.
+    fifth = [record for path in sorted(folder.glob("2026-09-26-runtime-debt-fifth-pass-*.json"))
+             for record in json.loads(path.read_text())["records"]]
+    latest5 = {record["source"] for record in fifth}
+    assert len(fifth) == len(latest5) and not latest5 & sources
+    sources |= latest5
     assert sources <= reviewed.keys()
     return sources
 

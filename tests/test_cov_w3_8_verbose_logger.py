@@ -532,7 +532,12 @@ def test_log_call_hides_self_only_for_a_real_method(vlog, caplog):
 
 def test_log_call_forwards_untouched_when_verbose_is_off(vlog, caplog):
     """With verbose off the wrapper is one attribute check and a forward."""
+    # 2026-09-26 (item 43): is_verbose() reads _verbose, not the handler, and
+    # the preference now defaults on, so any earlier test that ran
+    # apply_preferences_to_app leaves it True. Turn it off explicitly; the
+    # fixture restores it.
     vlog._handler = None
+    vlog._verbose = False
     wrapped = vlog.log_call(free)
 
     with caplog.at_level(logging.DEBUG, logger="spacr.trace"):

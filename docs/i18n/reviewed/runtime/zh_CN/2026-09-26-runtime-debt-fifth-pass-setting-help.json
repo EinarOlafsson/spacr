@@ -1,0 +1,246 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "anndata_format",
+      "source": "What the export writes. 'h5ad' writes the AnnData file; 'parquet' writes tidy Parquet tables (objects, features, wells, embeddings, provenance) that pandas, arrow and R read with their types kept; 'r' adds load_spacr_export.R, which builds a SingleCellExperiment in R, and .rds data frames when pyreadr is installed; 'all' writes every one. The tables need pyarrow. Default 'h5ad'.",
+      "source_sha256": "4641d38c6c850d298ed14d3d291e57537a3c02eeb243d37b587f5f5c16364c77",
+      "translation": "导出写入的内容。'h5ad' 写入 AnnData 文件；'parquet' 写入整洁的 Parquet 表格（对象、特征、孔、嵌入、来源信息），pandas、arrow 和 R 读取时保留其类型；'r' 额外添加 load_spacr_export.R，它在 R 中构建 SingleCellExperiment，并在安装了 pyreadr 时写入 .rds 数据框；'all' 写入全部。这些表格需要 pyarrow。默认值 'h5ad'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "anndata_tidy_dir",
+      "source": "Folder for the Parquet tables and the R loader when anndata_format is 'parquet', 'r' or 'all'. Files of the same names in it are replaced. Default <src>/results/<project>_tables.",
+      "source_sha256": "b59da2c719e1798af8902855880a4dba01fa863898d0132f0fa58b0e71d2b86d",
+      "translation": "当 anndata_format 为 'parquet'、'r' 或 'all' 时，存放 Parquet 表格和 R 加载脚本的文件夹。其中同名文件会被替换。默认值 <src>/results/<project>_tables。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle",
+      "source": "Call the cell-cycle phase of every nucleus after measuring, from the DNA stain: G1, S, G2 or M, plus subG1 and >4N outside the peaks. Writes one row per nucleus to measurements.db:cell_cycle with the call in cell_cycle_phase, the phase fractions per well, overall and in infected and uninfected cells, to cell_cycle_well, and with plot on each plate's fitted DNA histogram. Needs measured nuclei. Default False.",
+      "source_sha256": "6d6487cfab9dc5ffb7e1aca80d26a799cecf46e1de0b4518cf69968d41fd46d8",
+      "translation": "在测量后根据 DNA 染色判定每个细胞核的细胞周期时相：G1、S、G2 或 M，另有峰外的 subG1 和 >4N。每个细胞核向 measurements.db:cell_cycle 写入一行，判定结果在 cell_cycle_phase 中；每个孔的时相比例（总体以及感染和未感染细胞中）写入 cell_cycle_well；开启 plot 时还输出每块板拟合的 DNA 直方图。需要已测量的细胞核。默认值 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_channel",
+      "source": "The merged-array channel holding the DNA stain (DAPI or Hoechst) the phase is read from, counted as in channels; it must be one of the measured channels. Blank uses nucleus_channel, then the first entry of channels. Default None.",
+      "source_sha256": "f69273cbbc964f59d582e2bda4e2301f2e60fc6ddc37bbdcd582354051d5cd98",
+      "translation": "读取时相所用的 DNA 染色（DAPI 或 Hoechst）所在的合并数组通道，编号方式与 channels 相同；它必须是已测量的通道之一。留空则使用 nucleus_channel，其次为 channels 的第一项。默认值 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_epochs",
+      "source": "Training epochs of the torch phase classifier. It is a ResNet-18 trained from scratch on crops as small as 32 pixels, so each epoch is quick on a GPU and slow on a busy CPU. Ignored when cell_cycle_model names a trained model. Default 20.",
+      "source_sha256": "35d3320524bc0ee7a51857bc33eeef9eb72fbca702f55d66c96b5fa57e327196",
+      "translation": "torch 时相分类器的训练轮数。它是在小至 32 像素的裁剪图上从头训练的 ResNet-18，因此每轮在 GPU 上很快，在繁忙的 CPU 上很慢。当 cell_cycle_model 指定了已训练的模型时忽略此项。默认值 20。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_fucci_channels",
+      "source": "Two merged-array channels of a FUCCI reporter, the G1 reporter (Cdt1) then the S/G2/M reporter (Geminin), both measured. Each is split into positive and negative per plate, and every nucleus gets a fucci_state: early G1, G1, G1/S or S/G2/M. The xgboost method also uses their intensities. Blank skips FUCCI. Default None.",
+      "source_sha256": "38238a35dd7ebf60815b22b017d307e05bdd1684d6d8ad1d99a70d2e701642bb",
+      "translation": "FUCCI 报告系统的两个合并数组通道，先是 G1 报告基因（Cdt1），再是 S/G2/M 报告基因（Geminin），两者均需测量。每个通道按板分为阳性和阴性，每个细胞核获得一个 fucci_state：早 G1、G1、G1/S 或 S/G2/M。xgboost 方法也使用它们的强度。留空则跳过 FUCCI。默认值 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_gates",
+      "source": "Fixed gates [G1/S, S/G2] in DNA content units, where the G1 peak is 2 and the G2 peak 4, for example [2.5, 3.5]. They replace the crossings fitted per plate; the peaks are still fitted to place the units. Read the fitted gates off the saved histogram before editing them. Blank uses the fitted gates. Default None.",
+      "source_sha256": "583b0ebfac84fe91331bba4d835ff43218bd719bfad5381f1a15bd26a77b3c1e",
+      "translation": "以 DNA 含量单位表示的固定门控 [G1/S, S/G2]，其中 G1 峰为 2，G2 峰为 4，例如 [2.5, 3.5]。它们取代按板拟合的交叉点；峰仍会拟合以确定单位。编辑前请先从保存的直方图读取拟合门控。留空则使用拟合门控。默认值 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_labels",
+      "source": "A png_list column holding Annotate labels the xgboost and torch methods learn from: 1 to 4 for G1, S, G2 and M, or the phase names. Labels are matched to nuclei through their cell. Blank trains on the confident gate calls instead, which teaches the learned methods what the gates already say; annotate prophase and anaphase nuclei to teach them more. Default blank.",
+      "source_sha256": "f98dafb5c5d492479e5eb27075b2e0af9e344df46c9f8cf3cd38d36d4339459c",
+      "translation": "一个 png_list 列，包含 xgboost 和 torch 方法用于学习的 Annotate 标签：1 到 4 分别表示 G1、S、G2 和 M，或直接用时相名称。标签通过所属细胞与细胞核匹配。留空则改用门控的可靠判定进行训练，这只会让学习方法学到门控已给出的结果；标注前期和后期的细胞核可让它们学到更多。默认值为空。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_method",
+      "source": "How phases are called. measurements gates each plate's DNA-content histogram, fitted as G1 and G2 peaks with S between, and calls condensed 4N nuclei M. xgboost trains a boosted classifier on nucleus features, torch trains an image classifier on nucleus crops with Classify's training; both learn from cell_cycle_labels. all runs the three and keeps their majority. Default measurements.",
+      "source_sha256": "cc9645da4e6a8379362200ef6bd0caf53a0a153688df35474d7b437b234de187",
+      "translation": "时相的判定方式。measurements 对每块板的 DNA 含量直方图设门控，按 G1 和 G2 峰（其间为 S）拟合，并将凝缩的 4N 细胞核判为 M。xgboost 基于细胞核特征训练提升分类器，torch 使用 Classify 的训练流程基于细胞核裁剪图训练图像分类器；两者都从 cell_cycle_labels 学习。all 运行全部三种并取多数结果。默认值 measurements。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_mitotic_ratio",
+      "source": "A nucleus past the G1/S gate is called M when its background-subtracted mean DNA intensity is at least this many times the median of the plate's G2 nuclei: condensed mitotic chromatin is brighter. Lower catches more prophase and more bright G2 nuclei. Blank never calls M from intensity and leaves mitotic nuclei in G2. Default 1.8.",
+      "source_sha256": "57e0ad8c755fb15cfa2e762d5366d23f87ff6417b196f72ed3841290a3c21878",
+      "translation": "越过 G1/S 门控的细胞核，当其扣除背景后的平均 DNA 强度至少为该板 G2 细胞核中位数的这么多倍时，判定为 M：凝缩的有丝分裂染色质更亮。值越低，捕获的前期细胞核和明亮 G2 细胞核越多。留空则从不依据强度判定 M，有丝分裂细胞核留在 G2。默认值 1.8。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_model",
+      "source": "A torch model this step trained earlier, with its cell_cycle_phases.json beside it, applied to the nucleus crops instead of training a new one. Use it to call a second plate with the model trained on the first. Ignored unless cell_cycle_method is torch or all. Default blank.",
+      "source_sha256": "da89a9ff9d1c8ab65ed0d04144e650d5cdefc70b24ec4fc2ec41f88eab7b20c2",
+      "translation": "此步骤之前训练的 torch 模型，旁边附有其 cell_cycle_phases.json，直接用于细胞核裁剪图而不训练新模型。可用它以第一块板训练的模型判定第二块板。除非 cell_cycle_method 为 torch 或 all，否则忽略。默认值为空。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_anonymous",
+      "source": "Read cloud sources without credentials, for public data such as IDR or the Cell Painting Gallery. When off, s3:// sources use the AWS credentials in the AWS_* environment variables, ~/.aws or AWS_PROFILE, and are read anonymously only when none are found; gs:// and az:// use their own default credentials. spaCR never stores or prints credentials. Default False.",
+      "source_sha256": "3ccc2e53b2a0bd32e404e0a5fbd47ad151bf7bb045f21b1f4daa56a3fe979801",
+      "translation": "无需凭据读取云端来源，适用于 IDR 或 Cell Painting Gallery 等公开数据。关闭时，s3:// 来源使用 AWS_* 环境变量、~/.aws 或 AWS_PROFILE 中的 AWS 凭据，只有找不到时才匿名读取；gs:// 和 az:// 使用各自的默认凭据。spaCR 从不存储或打印凭据。默认值 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_cache",
+      "source": "Folder where cloud sources are fetched to and analysed in. Each src address gets its own subfolder, so a repeated run reuses what was fetched and Measure finds what Make Masks wrote. Blank uses ~/.cache/spacr/cloud. Default blank.",
+      "source_sha256": "d767cee6467247005aca5ce003cdf66798f2a80d49dec1000207ce043c56b6f1",
+      "translation": "云端来源的下载和分析所在文件夹。每个 src 地址有自己的子文件夹，因此重复运行会复用已下载的内容，Measure 也能找到 Make Masks 写出的结果。留空则使用 ~/.cache/spacr/cloud。默认值为空。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_endpoint",
+      "source": "Address of the S3-compatible service holding s3:// sources, such as a MinIO or Ceph server, or https://uk1s3.embassy.ebi.ac.uk for IDR. Blank uses Amazon S3. Default blank.",
+      "source_sha256": "e06c15c5cd11032deea8d3a46b61b09473840a024b81b9876c243739d3a71265",
+      "translation": "托管 s3:// 来源的 S3 兼容服务地址，例如 MinIO 或 Ceph 服务器，IDR 则为 https://uk1s3.embassy.ebi.ac.uk 。留空则使用 Amazon S3。默认值为空。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_fields",
+      "source": "Fields per well of a cloud OME-Zarr plate to fetch, counted from the first. 0 fetches every field. Default 0.",
+      "source_sha256": "3066d6c5eb3e1e0ac8fbad0fe421e7c7b2d9b088ede4d178be155ad8826ea449",
+      "translation": "要获取的云端 OME-Zarr 板中每个孔的视野数，从第一个开始计。0 表示获取所有视野。默认值 0。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_level",
+      "source": "Resolution level of a cloud OME-Zarr to fetch. 0 is full resolution; each level above usually halves width and height, so set diameters and size limits for the smaller images. Default 0.",
+      "source_sha256": "d6be4a3a8a1dd13a9cd68a1dbacefebc7e77c751ba9369aa57b55f9e4ecf72fe",
+      "translation": "要获取的云端 OME-Zarr 的分辨率级别。0 为全分辨率；每升高一级通常宽高各减半，因此请按较小的图像设置直径和大小限制。默认值 0。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_profile",
+      "source": "Named AWS profile from ~/.aws/config used for s3:// sources, for example lab-readonly. Only the name is kept; the keys stay in ~/.aws. Blank uses the default AWS credential chain. Default blank.",
+      "source_sha256": "44be8d15ddc98b7363b0631865739886f35ed69d0c6cee26444aef78da9a75ff",
+      "translation": "~/.aws/config 中用于 s3:// 来源的命名 AWS 配置文件，例如 lab-readonly。只保存名称；密钥仍留在 ~/.aws 中。留空则使用默认的 AWS 凭据链。默认值为空。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_results",
+      "source": "Cloud folder (s3://, gs:// or az://) the run's measurements folder is copied to when it finishes, in one subfolder per src. Blank keeps results in the local folder only. Default blank.",
+      "source_sha256": "d127ccb46519062f25da8fc973d433df0aaa28a51c17cfe7c95f625996261467",
+      "translation": "运行结束时将其测量结果文件夹复制到的云文件夹（s3://、gs:// 或 az://），每个 src 一个子文件夹。留空则结果仅保留在本地文件夹中。默认值为空。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_wells",
+      "source": "Wells of a cloud OME-Zarr plate to fetch, such as A1, B03; only these are downloaded, a channel at a time, with z maximum projected. Blank fetches every well, which for a large plate can be many gigabytes. Default blank.",
+      "source_sha256": "208e69ac99c36e9abf30fb8dfbe93944ada1ddd10aabdc4da513e16e2b036115",
+      "translation": "要获取的云端 OME-Zarr 板中的孔，例如 A1、B03；只下载这些孔，每次一个通道，并沿 z 做最大值投影。留空则获取所有孔，对于大板可能达到许多 GB。默认值为空。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling",
+      "source": "After Measure finishes, build image-based profiles from its tables: aggregate each object table to one median profile per well, add the plate map in profiling_metadata, normalise each plate against its negative-control wells, remove uninformative and redundant features, build one consensus profile per treatment and score replicate reproducibility as mean average precision (mAP) and percent replicating. Results go to measurements/profiles as CSV, Parquet and GCT with plots. Default False.",
+      "source_sha256": "dc2c206509ac345fe621dcdbca17d43684e5d44a47097c0a3fa7a1b2f961b0a1",
+      "translation": "Measure 完成后，从其表格构建基于图像的特征谱：将每个对象表聚合为每孔一个中位数特征谱，加入 profiling_metadata 中的板布局图，按板相对阴性对照孔归一化，去除无信息和冗余的特征，按处理构建一个共识特征谱，并以平均精度均值（mAP）和重复一致百分比评估重复的可重现性。结果以 CSV、Parquet 和 GCT 格式连同图表写入 measurements/profiles。默认值 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_correlation_threshold",
+      "source": "Pearson correlation above which two features count as redundant in the correlation_threshold selection step. Of each such pair the feature more correlated with all others is removed. Lower values keep fewer, less redundant features. Default 0.9.",
+      "source_sha256": "497bdc5698c78a73118ded35f579bb1f32b2f0aeaa8e24dfee723506b1018606",
+      "translation": "在 correlation_threshold 选择步骤中，两个特征被视为冗余的 Pearson 相关性下限。每对这样的特征中，与其他所有特征相关性更高的那个会被移除。值越低，保留的特征越少、冗余越低。默认值 0.9。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_databases",
+      "source": "Further measurements.db files to profile together with this run's, one per plate, so replicates on different plates are compared while each plate is still normalised on its own. Every plate needs a distinct plateID. Default [].",
+      "source_sha256": "56018344866daa7a080606f5c8d83379a37824a27a241798cbaba7e11a4f5ebf",
+      "translation": "与本次运行一起进行特征谱分析的其他 measurements.db 文件，每块板一个，以便比较不同板上的重复，同时每块板仍各自归一化。每块板都需要不同的 plateID。默认值 []。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_feature_selection",
+      "source": "Feature-selection steps, run in order after normalisation: variance_threshold drops near-zero variance, frequency_threshold near-constant values, correlation_threshold the more redundant of each pair correlated above profiling_correlation_threshold, drop_na_columns features missing in over 5 % of wells, and drop_outliers any feature with an absolute value above 500. An empty list keeps every feature. Default all five.",
+      "source_sha256": "c375f4802bb5f45ccd30e6ed7fc14055161904447001c6046ffc4e6a76d6b159",
+      "translation": "特征选择步骤，在归一化后依次运行：variance_threshold 去除方差近零的特征，frequency_threshold 去除近乎恒定的值，correlation_threshold 在每对相关性高于 profiling_correlation_threshold 的特征中去除更冗余的一个，drop_na_columns 去除在超过 5 % 的孔中缺失的特征，drop_outliers 去除绝对值超过 500 的任何特征。空列表保留所有特征。默认值为全部五项。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_metadata",
+      "source": "Plate map for profiling: a CSV, TSV, Excel or Parquet table with one row per well position, located by rowID and columnID or by a well column such as A01, plus annotation columns such as treatment, dose, gene or a phenotype label. With a plateID column the map is matched plate by plate; without one it applies to every plate. Blank profiles the wells by position only. Default blank.",
+      "source_sha256": "86856a2ea0e293442885356576249f7b0a3cfd4942736157e94e0ced6a2b2fd5",
+      "translation": "用于特征谱分析的板布局图：一个 CSV、TSV、Excel 或 Parquet 表格，每个孔位一行，通过 rowID 和 columnID 或 A01 这样的孔列定位，另加 treatment、dose、gene 或表型标签等注释列。有 plateID 列时逐板匹配；没有时应用于所有板。留空则仅按位置对孔进行特征谱分析。默认值为空。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_negative_control",
+      "source": "Value or values of the first profiling_treatment_column that mark negative-control wells, for example DMSO or c1. Each plate is normalised against its own controls, and every treatment is scored for phenotypic activity, how well its replicates find each other among the controls. Blank normalises against all wells of a plate and skips the activity score. Default blank.",
+      "source_sha256": "5b9244226a4a20eaff91e744e604528103e9c9c02dae76a19ff5d28c285d200e",
+      "translation": "第一个 profiling_treatment_column 中标记阴性对照孔的一个或多个值，例如 DMSO 或 c1。每块板相对其自身的对照归一化，每种处理按表型活性评分：其重复在对照中相互检索的程度。留空则相对板上所有孔归一化，并跳过活性评分。默认值为空。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_normalization",
+      "source": "How each feature is put on a common scale, plate by plate. mad_robustize subtracts the reference median and divides by 1.4826 times the reference MAD, which tolerates outlier wells; standardize uses the mean and standard deviation; robustize uses the median and interquartile range; none keeps the aggregated values. The reference is the negative control, or every well when none is named. Default mad_robustize.",
+      "source_sha256": "fc28fbaa7f0105f424fa80a3a28ba72aa673f5bf020a603645a19521d8180aa9",
+      "translation": "每个特征如何逐板变换到共同尺度。mad_robustize 减去参照中位数并除以参照 MAD 的 1.4826 倍，可容忍离群孔；standardize 使用均值和标准差；robustize 使用中位数和四分位距；none 保留聚合值。参照为阴性对照，未指定时为所有孔。默认值 mad_robustize。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_phenotype_column",
+      "source": "Optional plate-map column holding a phenotype label that different treatments share, such as a mechanism of action, pathway or target gene. When set, consensus profiles are also scored for phenotypic consistency: how well treatments with the same label retrieve each other, as mAP per label. Default blank.",
+      "source_sha256": "f8e3e2dcbfe8dedb8e157d488101b59cf37fa32baeb237e4b4e574f0d95159a5",
+      "translation": "可选的板布局图列，包含不同处理共享的表型标签，例如作用机制、通路或靶基因。设置后，共识特征谱还会按表型一致性评分：具有相同标签的处理能多好地相互检索，以每个标签的 mAP 表示。默认值为空。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_treatment_column",
+      "source": "The annotation column, or columns, naming what each well received. Wells that share them are replicates and are collapsed into one consensus profile. Use a plate-map column such as treatment, treatment and dose together, or columnID when each plate column holds one condition. Default columnID.",
+      "source_sha256": "3584e01563f0ca89421355f5e7199774c3d66704a5052d0b7d61c97d6c20b139",
+      "translation": "指明每个孔所接受处理的一个或多个注释列。共享这些列的孔为重复，会合并为一个共识特征谱。请使用板布局图中的列，如 treatment、treatment 与 dose 组合，或当每个板列对应一种条件时使用 columnID。默认值 columnID。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_channel",
+      "source": "The merged-array channel the texture and intensity wound sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, the stain for intensity. Ignored by the masks source. Default None.",
+      "source_sha256": "878751f07ce559f6af253b2de378896e916d4dc76a17fcb452c9a4f7606b3d36",
+      "translation": "纹理和强度两种伤口来源所读取的合并数组通道，编号方式与 channels 相同。留空则使用 channels 的第一项。纹理请选择明场或相差平面，强度请选择染色。掩膜来源会忽略此项。默认值 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_closure",
+      "source": "Measure a scratch or wound-healing assay: find the open wound in every frame of every field, then write its area, mean and minimum width, the closure rate and the half-closure time per field, per well and per condition to measurements.db and results/wound_closure, with closure curves and a plate map. Frames are grouped by plate, well and field and ordered by timepoint; the first frame decides where the scratch is. Default False.",
+      "source_sha256": "687295b08c859fb5e592d4744cc09f573d4ce6eaab466c8520026db0a10c46db",
+      "translation": "测量划痕或伤口愈合实验：在每个视野的每一帧中找到开放的伤口，然后将其面积、平均宽度和最小宽度、闭合速率和半闭合时间按视野、按孔和按条件写入 measurements.db 和 results/wound_closure，并附闭合曲线和板布局图。帧按板、孔和视野分组并按时间点排序；第一帧决定划痕的位置。默认值 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_conditions",
+      "source": "Conditions to pool wells into for the closure curves and half-closure times, as {name: wells}, the wells as rows (r2), columns (c3) or single wells (B03), for example {'control': 'c1, c2', 'drug': 'c3, c4'}. A well in no condition is reported under its own name. A well may belong to one condition only. Default {}.",
+      "source_sha256": "f25b175e0514c3929471612ababb846f817fdb67e07920ee6c24ae03604210e0",
+      "translation": "为闭合曲线和半闭合时间合并孔所用的条件，格式为 {name: wells}，孔可写为行（r2）、列（c3）或单个孔（B03），例如 {'control': 'c1, c2', 'drug': 'c3, c4'}。不属于任何条件的孔以其自身名称报告。一个孔只能属于一个条件。默认值 {}。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_hours_per_frame",
+      "source": "Hours between consecutive timepoints, so closure rates are per hour and half-closure times are in hours. Blank counts time in frames. With voxel_size_xy_um set, widths and front speeds are also reported in micrometres. Default None.",
+      "source_sha256": "bbbb7144e62af423a91b852f41d94db2a3026927d31878b9543731bfd22afdff",
+      "translation": "相邻时间点之间的小时数，使闭合速率以每小时计、半闭合时间以小时计。留空则以帧计时。设置 voxel_size_xy_um 后，宽度和前沿速度还会以微米报告。默认值 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_source",
+      "source": "How the open wound is told apart from the monolayer. texture reads the local variation of wound_channel, for brightfield and phase. intensity thresholds wound_channel, for a fluorescent cytoplasm or membrane stain. masks takes every pixel outside the segmented cells as open. The cut is decided on each field's first frame and kept for its later frames. Default texture.",
+      "source_sha256": "5d1d9d2af4bbead4c5b9bd4af1aae313cbd282ac7019a0374c2a06e8cd261ac2",
+      "translation": "如何区分开放伤口与单层。texture 读取 wound_channel 的局部变化，适用于明场和相差。intensity 对 wound_channel 取阈值，适用于荧光细胞质或细胞膜染色。masks 将分割细胞之外的每个像素视为开放。分界在每个视野的第一帧中确定，并沿用到其后续帧。默认值 texture。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_window",
+      "source": "Side of the square window, in pixels, over which the texture wound source measures local variation. About the diameter of one cell at the imaging resolution: smaller follows the wound edge more closely but can open holes in smooth parts of the monolayer, larger bridges narrow gaps. Also sets the smallest gap kept in later frames. Default 15.",
+      "source_sha256": "146bdc2d95eeec0de57e7b983923816b003936584578a24d2ebc0439d6bf55f5",
+      "translation": "纹理伤口来源测量局部变化所用正方形窗口的边长（像素）。大约为成像分辨率下一个细胞的直径：较小时更贴合伤口边缘，但可能在单层的平滑区域打开孔洞；较大时可跨过狭窄间隙。它也决定后续帧中保留的最小间隙。默认值 15。"
+    }
+  ]
+}

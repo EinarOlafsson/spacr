@@ -3693,13 +3693,14 @@ def _cell_cycle_channel(settings):
     return int(channels[0])
 
 
-def _measured_channel_column(settings, channel):
+def _measured_channel_column(settings, channel, setting='cell_cycle_channel'):
     """The ``channel_<i>`` index Measure wrote a merged channel under.
 
     Measure numbers intensity columns by position in ``channels``.
 
     :param settings: Measure settings.
     :param channel: a merged-array channel.
+    :param setting: the setting that named the channel, for the message.
     :returns: the position of ``channel`` in ``channels``.
     :raises ValueError: the channel was not measured.
     """
@@ -3709,7 +3710,7 @@ def _measured_channel_column(settings, channel):
     if int(channel) not in measured:
         raise ValueError(
             f"Channel {channel} was not measured (channels is {measured}); "
-            f"add it to channels or pick a measured cell_cycle_channel.")
+            f"add it to channels or pick a measured {setting}.")
     return measured.index(int(channel))
 
 
@@ -5639,6 +5640,1141 @@ def _run_wound_closure(merged_dir, settings):
     return summary
 
 
+_VIABILITY_TABLE = 'viability'
+_VIABILITY_WELL_TABLE = 'viability_well'
+_VIABILITY_QC_TABLE = 'viability_qc'
+_VIABILITY_DOSE_TABLE = 'viability_dose_response'
+_VIABILITY_SELECTIVITY_TABLE = 'viability_selectivity'
+_VIABILITY_STATES = ('live', 'dead', 'unstained')
+_VIABILITY_MIN_SEPARATION = 2.0
+_VIABILITY_MIN_MINOR = 3
+_VIABILITY_MIN_FIT = 20
+_VIABILITY_ROBUST_MADS = 5.0
+_VIABILITY_ZPRIME_PASS = 0.5
+_VIABILITY_LAYOUT = 1536
+_VIABILITY_COMPOUND_COLUMNS = ('compound', 'treatment', 'drug', 'condition')
+_VIABILITY_DOSE_COLUMNS = ('concentration', 'dose', 'conc')
+_VIABILITY_ROLES = ('negative', 'positive', 'sample')
+
+
+@dataclass
+class _PopulationCut:
+    """Where one plate's stain signal is split into negative and positive.
+
+    ``threshold`` is in the units the signal was measured in (background-
+    subtracted mean intensity, or the condensation ratio for morphology);
+    ``source`` says how it was found: ``mixture`` (two fitted populations,
+    cut where they cross), ``single`` (one population, cut
+    :data:`_VIABILITY_ROBUST_MADS` robust SDs from its median), ``pooled``
+    (a plate too small to fit, cut with every plate's objects together),
+    ``manual`` (the user's number) or ``none`` (no signal).
+    ``separation`` is Ashman's D between the two fitted populations and
+    ``positive_fraction`` the share of objects above the cut.
+    """
+
+    threshold: float
+    source: str
+    separation: float
+    positive_fraction: float
+    n: int
+
+
+def _two_population_fit(values, *, max_iter=300, tol=1e-8):
+    """Fit two Gaussian populations to 1-D values and cut where they cross.
+
+    Starts from Otsu's split and refines both populations by expectation
+    maximisation, so a small positive population (a few dead cells among
+    many live ones) is not dragged towards the large one as Otsu's cut is.
+    The two are taken as real only when Ashman's D is at least
+    :data:`_VIABILITY_MIN_SEPARATION`, the smaller holds at least
+    :data:`_VIABILITY_MIN_MINOR` objects, and both the fitted density and
+    the data dip between them: fewer values lie near the cut than half as
+    many as near the smaller population's centre. A skewed or flat-topped
+    single population fails the dip.
+
+    :param values: 1-D values, already on a scale where each population is
+        roughly Gaussian.
+    :returns: a dict with ``cut``, ``separation``, ``bimodal``, ``means``,
+        ``sds``, ``weights`` and ``n``.
+    """
+    from scipy.stats import norm
+    from skimage.filters import threshold_otsu
+
+    x = np.asarray(values, dtype=float)
+    x = x[np.isfinite(x)]
+    n = int(x.size)
+    empty = {'cut': np.nan, 'separation': 0.0, 'bimodal': False,
+             'means': (np.nan, np.nan), 'sds': (np.nan, np.nan),
+             'weights': (np.nan, np.nan), 'n': n}
+    if n < 10 or np.ptp(x) == 0:
+        return empty
+    start = float(threshold_otsu(x))
+    low, high = x[x <= start], x[x > start]
+    if low.size < 2 or high.size < 2:
+        return empty
+    floor = max(1e-3 * float(np.ptp(x)), 1e-12)
+    w = np.array([low.size / n, high.size / n])
+    m = np.array([low.mean(), high.mean()])
+    s = np.maximum(np.array([low.std(), high.std()]), floor)
+    previous = -np.inf
+    for _ in range(max_iter):
+        dens = np.column_stack([w[k] * norm.pdf(x, m[k], s[k])
+                                for k in (0, 1)])
+        total = np.maximum(dens.sum(axis=1), 1e-300)
+        loglik = float(np.log(total).sum())
+        resp = dens / total[:, None]
+        mass = np.maximum(resp.sum(axis=0), 1e-12)
+        w = mass / n
+        m = (resp * x[:, None]).sum(axis=0) / mass
+        s = np.maximum(np.sqrt((resp * (x[:, None] - m) ** 2).sum(axis=0)
+                               / mass), floor)
+        if abs(loglik - previous) < tol * max(1.0, abs(loglik)):
+            break
+        previous = loglik
+    order = np.argsort(m)
+    w, m, s = w[order], m[order], s[order]
+    separation = float(sqrt(2.0) * (m[1] - m[0]) / sqrt(s[0] ** 2 + s[1] ** 2))
+    grid = np.linspace(m[0], m[1], 512)
+    log_ratio = ((np.log(max(w[0], 1e-300)) + norm.logpdf(grid, m[0], s[0]))
+                 - (np.log(max(w[1], 1e-300)) + norm.logpdf(grid, m[1], s[1])))
+    crossing = np.nonzero(np.diff(np.sign(log_ratio)))[0]
+    if crossing.size:
+        i = int(crossing[0])
+        a, b = log_ratio[i], log_ratio[i + 1]
+        cut = float(grid[i] + (grid[i + 1] - grid[i]) * a / (a - b)
+                    if a != b else grid[i])
+    else:
+        cut = start
+
+    def _mixture(v):
+        """The fitted two-population density at ``v``."""
+        return float(w[0] * norm.pdf(v, m[0], s[0])
+                     + w[1] * norm.pdf(v, m[1], s[1]))
+
+    reach = 0.5 * float(s.min())
+    minor = int(np.argmin(w))
+
+    def _near(v):
+        """How many values lie within ``reach`` of ``v``."""
+        return int(np.sum(np.abs(x - v) <= reach))
+
+    dip = (_mixture(cut) < min(_mixture(m[0]), _mixture(m[1]))
+           and _near(cut) < 0.5 * _near(m[minor]))
+    bimodal = bool(separation >= _VIABILITY_MIN_SEPARATION
+                   and float(w.min()) * n >= _VIABILITY_MIN_MINOR
+                   and crossing.size > 0 and dip)
+    return {'cut': cut, 'separation': separation, 'bimodal': bimodal,
+            'means': tuple(float(v) for v in m),
+            'sds': tuple(float(v) for v in s),
+            'weights': tuple(float(v) for v in w), 'n': n}
+
+
+def _robust_spread(values):
+    """The median and the MAD scaled to a standard deviation.
+
+    :param values: 1-D finite values.
+    :returns: ``(median, 1.4826 * MAD)``.
+    """
+    values = np.asarray(values, dtype=float)
+    median = float(np.median(values))
+    return median, float(1.4826 * np.median(np.abs(values - median)))
+
+
+def _stain_scale(values):
+    """The cofactor of the arcsinh scale a stain signal is split on.
+
+    Background-subtracted means sit around zero for unstained cells, with
+    negative values, so a logarithm cannot be taken; ``arcsinh(v / c)`` is
+    linear within ``c`` of zero and logarithmic beyond it. ``c`` is three
+    times the signal's robust spread, so the noise of the larger population
+    stays on the linear stretch and keeps its Gaussian shape.
+
+    :param values: 1-D finite values.
+    :returns: the cofactor, always positive.
+    """
+    values = np.asarray(values, dtype=float)
+    if not values.size:
+        return 1.0
+    _median, spread = _robust_spread(values)
+    top = float(np.max(np.abs(values))) if values.size else 1.0
+    return max(3.0 * spread, 1e-6 * max(top, 1.0), 1e-12)
+
+
+def _stain_cut(values, *, single_is_positive, log_scale=False, manual=None):
+    """Split one plate's stain (or condensation) signal into two.
+
+    With ``manual`` the user's threshold is used as given. Otherwise two
+    populations are fitted (:func:`_two_population_fit`) on an arcsinh
+    scale, or a log scale for a ratio, and the cut is where they cross.
+    When the plate holds one population only, it is cut
+    :data:`_VIABILITY_ROBUST_MADS` robust SDs from its median: above it for
+    a dead stain (the one population is unstained), below it for a live
+    stain (the one population is live).
+
+    :param values: 1-D signal of one plate.
+    :param single_is_positive: whether a single population is stain-positive.
+    :param log_scale: split on ``log`` instead of ``arcsinh``; for ratios.
+    :param manual: a threshold in signal units, or None.
+    :returns: a :class:`_PopulationCut`.
+    """
+    x = np.asarray(values, dtype=float)
+    x = x[np.isfinite(x)]
+    n = int(x.size)
+
+    def _share(threshold):
+        """Share of the plate's objects above ``threshold``."""
+        return float((x > threshold).mean()) if n else np.nan
+
+    if manual is not None:
+        return _PopulationCut(float(manual), 'manual', np.nan,
+                              _share(float(manual)), n)
+    if n < 2 or np.ptp(x) == 0:
+        return _PopulationCut(np.nan, 'none', 0.0, np.nan, n)
+    if log_scale:
+        x = x[x > 0]
+        n = int(x.size)
+        if n < 2 or np.ptp(x) == 0:
+            return _PopulationCut(np.nan, 'none', 0.0, np.nan, n)
+        scaled = np.log(x)
+        fit = _two_population_fit(scaled)
+        if fit['bimodal']:
+            threshold = float(np.exp(fit['cut']))
+            source = 'mixture'
+        else:
+            median, spread = _robust_spread(scaled)
+            sign = -1.0 if single_is_positive else 1.0
+            threshold = float(np.exp(median + sign * _VIABILITY_ROBUST_MADS
+                                     * spread))
+            source = 'single'
+        return _PopulationCut(threshold, source, fit['separation'],
+                              _share(threshold), n)
+    cofactor = _stain_scale(x)
+    fit = _two_population_fit(np.arcsinh(x / cofactor))
+    if fit['bimodal']:
+        threshold = float(np.sinh(fit['cut']) * cofactor)
+        source = 'mixture'
+    else:
+        median, spread = _robust_spread(x)
+        sign = -1.0 if single_is_positive else 1.0
+        threshold = float(median + sign * _VIABILITY_ROBUST_MADS * spread)
+        source = 'single'
+    return _PopulationCut(threshold, source, fit['separation'],
+                          _share(threshold), n)
+
+
+def _object_signal(objects, object_type, column):
+    """Background-subtracted mean intensity of one channel per object.
+
+    The background is the median of the ring Measure samples just outside
+    each object, when that column exists.
+
+    :param objects: a ``nucleus`` or ``cell`` table.
+    :param object_type: its object name, the prefix of its columns.
+    :param column: the ``channel_<i>`` index of the stain.
+    :returns: a float Series.
+    :raises ValueError: the table has no mean intensity for the channel.
+    """
+    prefix = f'{object_type}_channel_{column}_'
+    name = prefix + 'mean_intensity'
+    if name not in objects.columns:
+        raise ValueError(
+            f"The {object_type} table has no {name} column; add the stain's "
+            f"channel to channels so Measure measures it.")
+    mean = pd.to_numeric(objects[name], errors='coerce').astype(float)
+    for ring in (prefix + 'outside_percentile_50', prefix + 'outside_mean'):
+        if ring in objects.columns:
+            background = pd.to_numeric(objects[ring], errors='coerce')
+            return mean - background.fillna(background.median())
+    return mean
+
+
+def _condensation_score(nuclei, column):
+    """How condensed each nucleus is against its plate's typical nucleus.
+
+    ``(mean DNA intensity / plate median) / (area / plate median area)``:
+    about 1 for an interphase nucleus, several times that for a pyknotic
+    (shrunken, bright) nucleus of a dying cell. A nucleus no brighter than
+    the ring around it has no score (NaN) and is not called dead.
+
+    :param nuclei: the ``nucleus`` table.
+    :param column: the ``channel_<i>`` index of the DNA stain.
+    :returns: a float Series.
+    """
+    mean = _object_signal(nuclei, 'nucleus', column)
+    area = pd.to_numeric(nuclei.get('nucleus_area'), errors='coerce')
+    if area is None or not area.notna().any():
+        raise ValueError(
+            "The nucleus table has no nucleus_area; morphology calls need "
+            "the nucleus morphology Measure writes.")
+    score = pd.Series(np.nan, index=nuclei.index, dtype=float)
+    for _name, index in _plate_groups(nuclei):
+        m = mean.loc[index]
+        a = area.loc[index].astype(float)
+        usable = (m > 0) & (a > 0)
+        if not usable.any():
+            continue
+        m_ref = float(np.nanmedian(m[usable]))
+        a_ref = float(np.nanmedian(a[usable]))
+        score.loc[index] = ((m / m_ref) / (a / a_ref)).where(usable)
+    return score
+
+
+def _viability_manual(value):
+    """The ``viability_thresholds`` setting as ``(dead, live)``.
+
+    :param value: None, or a list of one or two numbers or blanks.
+    :returns: ``(dead, live)``, each a float or None (automatic).
+    :raises ValueError: anything else.
+    """
+    if value in (None, '', []):
+        return None, None
+    if isinstance(value, str):
+        value = [v.strip() for v in value.strip('[]').split(',')]
+    if not isinstance(value, (list, tuple)) or not 1 <= len(value) <= 2:
+        raise ValueError(
+            f"Setting: viability_thresholds must be [dead, live] with a "
+            f"number or None for each; got {value!r}.")
+    out = []
+    for item in list(value) + [None] * (2 - len(value)):
+        if item in (None, '', 'None', 'none', 'auto'):
+            out.append(None)
+            continue
+        try:
+            out.append(float(item))
+        except (TypeError, ValueError):
+            raise ValueError(
+                f"Setting: viability_thresholds entries must be numbers or "
+                f"None; got {item!r}.") from None
+    return out[0], out[1]
+
+
+def _viability_wells(spec):
+    """A well specification setting as a set of ``(row, column)`` pairs.
+
+    :param spec: None, a string or a list in the notation of
+        :mod:`spacr.well_spec` (``r1``, ``c1``, ``A01``).
+    :returns: the set of 1-based ``(row, column)`` positions.
+    """
+    from . import well_spec
+
+    if spec in (None, '', []):
+        return set()
+    return well_spec.parse(spec, _VIABILITY_LAYOUT)
+
+
+def _well_roles(frame, settings):
+    """Negative, positive or sample for each row of a table of wells.
+
+    :param frame: rows carrying ``rowID`` and ``columnID``.
+    :param settings: reads ``viability_negative_wells`` and
+        ``viability_positive_wells``.
+    :returns: a Series of roles.
+    :raises ValueError: a well named as both controls.
+    """
+    from . import plate_qc
+
+    negative = _viability_wells(settings.get('viability_negative_wells'))
+    positive = _viability_wells(settings.get('viability_positive_wells'))
+    both = negative & positive
+    if both:
+        raise ValueError(
+            f"{len(both)} well(s) are named both viability_negative_wells "
+            f"and viability_positive_wells.")
+    rows = frame['rowID'].map(plate_qc.parse_row_label)
+    cols = frame['columnID'].map(plate_qc.parse_column_label)
+    roles = []
+    for r, c in zip(rows, cols):
+        cell = (int(r), int(c)) if pd.notna(r) and pd.notna(c) else None
+        roles.append('negative' if cell in negative else
+                     'positive' if cell in positive else 'sample')
+    return pd.Series(roles, index=frame.index, dtype=object)
+
+
+def _viability_states(dead_positive, live_positive, *, dead, live):
+    """Live, dead or unstained for each object from its stain calls.
+
+    A dead stain (propidium iodide, SYTOX, DAPI on unfixed cells) enters
+    only cells whose membrane has failed, so its positives are dead. A live
+    stain (calcein) is retained only by live cells. With both, a cell
+    positive for neither is ``unstained``: esterase activity gone, membrane
+    not yet open. It is not counted live.
+
+    :param dead_positive: boolean array, or None without a dead stain.
+    :param live_positive: boolean array, or None without a live stain.
+    :param dead: whether a dead stain was read.
+    :param live: whether a live stain was read.
+    :returns: an object array of states.
+    """
+    if dead and live:
+        return np.where(dead_positive, 'dead',
+                        np.where(live_positive, 'live', 'unstained'))
+    if dead:
+        return np.where(dead_positive, 'dead', 'live')
+    return np.where(live_positive, 'live', 'dead')
+
+
+def _split_by_plate(objects, signal, *, single_is_positive, log_scale=False,
+                    manual=None):
+    """Cut a signal per plate (and time point) and say where.
+
+    A plate with fewer than :data:`_VIABILITY_MIN_FIT` objects borrows the
+    cut fitted on every plate together.
+
+    :param objects: the object table (for the plate columns).
+    :param signal: the per-object signal.
+    :param single_is_positive: see :func:`_stain_cut`.
+    :param log_scale: see :func:`_stain_cut`.
+    :param manual: a user threshold, or None.
+    :returns: ``(positive, thresholds, cuts)``: a boolean array, the
+        per-object threshold and ``{plate: _PopulationCut}``.
+    """
+    values = signal.to_numpy(dtype=float)
+    positive = np.zeros(len(objects), dtype=bool)
+    thresholds = np.full(len(objects), np.nan)
+    pooled = None
+    cuts = {}
+    for name, index in _plate_groups(objects):
+        where = objects.index.get_indexer(index)
+        block = values[where]
+        if manual is None and np.isfinite(block).sum() < _VIABILITY_MIN_FIT:
+            if pooled is None:
+                pooled = _stain_cut(values, single_is_positive=single_is_positive,
+                                    log_scale=log_scale)
+            cut = _PopulationCut(pooled.threshold, 'pooled', pooled.separation,
+                                 float((block[np.isfinite(block)]
+                                        > pooled.threshold).mean())
+                                 if np.isfinite(block).any() else np.nan,
+                                 int(np.isfinite(block).sum()))
+        else:
+            cut = _stain_cut(block, single_is_positive=single_is_positive,
+                             log_scale=log_scale, manual=manual)
+        cuts[name] = cut
+        thresholds[where] = cut.threshold
+        with np.errstate(invalid='ignore'):
+            positive[where] = np.isfinite(block) & (block > cut.threshold)
+    return positive, thresholds, cuts
+
+
+def _object_infection(db_path, objects, object_type):
+    """Whether each nucleus's or cell's host cell holds a pathogen.
+
+    :param db_path: the ``measurements.db``.
+    :param objects: the ``nucleus`` or ``cell`` table.
+    :param object_type: ``nucleus`` or ``cell``.
+    :returns: a float Series, 1 infected, 0 not, NaN unknown.
+    """
+    if object_type == 'cell':
+        as_nuclei = objects.copy()
+        as_nuclei['cell_id'] = as_nuclei['object_label']
+        return _nucleus_infection(db_path, as_nuclei)
+    return _nucleus_infection(db_path, objects)
+
+
+def _viability_well_keys(table):
+    """The columns a well is keyed by: plate, row, column and time if any.
+
+    :param table: a per-object or per-well frame.
+    :returns: a list of column names.
+    """
+    keys = ['plateID', 'rowID', 'columnID']
+    if 'timeID' in table.columns and table['timeID'].notna().any():
+        keys.append('timeID')
+    return keys
+
+
+def _measured_fields(settings):
+    """The fields a Measure run was given, from its source folder.
+
+    :param settings: Measure settings; reads ``src`` and ``timelapse``.
+    :returns: a frame of ``plateID``, ``rowID``, ``columnID`` and ``timeID``
+        per field, empty when the folder cannot be listed.
+    """
+    from . import schema
+
+    src = settings.get('src')
+    if not src or not os.path.isdir(str(src)):
+        return pd.DataFrame()
+    rows = []
+    for name in sorted(os.listdir(str(src))):
+        if not name.endswith('.npy'):
+            continue
+        try:
+            field = schema.parse_field_stem(
+                name[:-4], timelapse=bool(settings.get('timelapse', False)))
+        except ValueError:
+            continue
+        rows.append({'plateID': field.plateID, 'rowID': field.rowID,
+                     'columnID': field.columnID, 'timeID': field.timeID})
+    return pd.DataFrame(rows)
+
+
+def _plate_key(frame):
+    """One label per plate and time point, for per-plate normalisation.
+
+    :param frame: rows with ``plateID`` and maybe ``timeID``.
+    :returns: a Series of strings.
+    """
+    plate = frame['plateID'].astype(str)
+    if 'timeID' in frame.columns and frame['timeID'].notna().any():
+        return plate + '_' + frame['timeID'].astype(str)
+    return plate
+
+
+def _cytotoxicity_index(wells):
+    """The cytotoxicity index of every well, and how it was scaled.
+
+    The live-cell index is a well's live objects over the mean of its
+    plate's negative-control wells, so detached and lysed cells, which the
+    image no longer holds, count against viability. The cytotoxicity index
+    is that index scaled so the plate's negative controls read 0 and its
+    positive (cytotoxic) controls read 100, by
+    :func:`spacr.qt.widgets.dose_response.normalise_to_controls`. A plate
+    with negative controls only reads ``100 * (1 - live-cell index)``; a
+    plate without controls reads the percentage of objects not live.
+
+    :param wells: the per-well frame with ``plate_key``, ``role``,
+        ``n_live`` and ``viability``.
+    :returns: the frame with ``live_cell_index``, ``cytotoxicity_index`` and
+        ``cytotoxicity_basis``.
+    """
+    from .qt.widgets.dose_response import (DoseResponseError, PlateSpec,
+                                           normalise_to_controls)
+
+    wells = wells.copy()
+    wells['live_cell_index'] = np.nan
+    for _plate, block in wells.groupby('plate_key', sort=False):
+        negatives = block.loc[block['role'] == 'negative', 'n_live']
+        reference = float(negatives.mean()) if len(negatives) else np.nan
+        if np.isfinite(reference) and reference > 0:
+            wells.loc[block.index, 'live_cell_index'] = (
+                block['n_live'].astype(float) / reference)
+    wells['cytotoxicity_index'] = np.nan
+    wells['cytotoxicity_basis'] = 'dead fraction'
+    has = wells.groupby('plate_key')['role'].agg(set)
+    both = [p for p, roles in has.items()
+            if {'negative', 'positive'} <= roles]
+    if both:
+        block = wells[wells['plate_key'].isin(both)]
+        try:
+            scaled, _reports = normalise_to_controls(
+                block, PlateSpec(plate='plate_key', control='role',
+                                 positive=('positive',),
+                                 negative=('negative',)),
+                response='live_cell_index', out='cytotoxicity_index')
+        except DoseResponseError:
+            scaled = None
+        if scaled is not None:
+            done = scaled['cytotoxicity_index'].notna()
+            wells.loc[scaled.index[done], 'cytotoxicity_index'] = (
+                scaled.loc[done, 'cytotoxicity_index'])
+            wells.loc[scaled.index[done], 'cytotoxicity_basis'] = 'controls'
+    rest = wells['cytotoxicity_index'].isna() & wells['live_cell_index'].notna()
+    wells.loc[rest, 'cytotoxicity_index'] = 100.0 * (
+        1.0 - wells.loc[rest, 'live_cell_index'])
+    wells.loc[rest, 'cytotoxicity_basis'] = 'negative control'
+    rest = wells['cytotoxicity_index'].isna()
+    wells.loc[rest, 'cytotoxicity_index'] = 100.0 * (
+        1.0 - wells.loc[rest, 'viability'])
+    return wells
+
+
+def _viability_by_well(table, settings, fields=None):
+    """Viability, dead fraction, live-cell and cytotoxicity index per well.
+
+    :param table: the per-object ``viability`` frame.
+    :param settings: Measure settings (control wells).
+    :param fields: optional frame of every measured field, so a well whose
+        cells were all lost is reported with no objects instead of missing.
+    :returns: one row per well (and time point).
+    """
+    from . import schema
+
+    keys = _viability_well_keys(table)
+    frame = table.copy()
+    frame['_live'] = frame['viability_state'] == 'live'
+    frame['_dead'] = frame['viability_state'] == 'dead'
+    frame['_unstained'] = frame['viability_state'] == 'unstained'
+    infected = pd.to_numeric(frame.get('infected'), errors='coerce')
+    frame['_known'] = frame['_live'] & infected.notna()
+    frame['_infected_live'] = frame['_live'] & (infected == 1)
+    frame['_known_all'] = infected.notna()
+    frame['_infected_all'] = infected == 1
+    for key in keys:
+        frame[key] = frame[key].astype(str)
+    grouped = frame.groupby(keys, sort=True, dropna=False)
+    wells = pd.DataFrame({
+        'n_objects': grouped.size(),
+        'n_live': grouped['_live'].sum(),
+        'n_dead': grouped['_dead'].sum(),
+        'n_unstained': grouped['_unstained'].sum(),
+        'n_live_known': grouped['_known'].sum(),
+        'n_infected_live': grouped['_infected_live'].sum(),
+        'n_known': grouped['_known_all'].sum(),
+        'n_infected': grouped['_infected_all'].sum(),
+    }).reset_index()
+    if fields is not None and len(fields):
+        extra = fields.copy()
+        for key in keys:
+            if key not in extra.columns:
+                extra[key] = None
+            extra[key] = extra[key].astype(str)
+        extra = extra[keys].drop_duplicates()
+        extra = extra[extra['plateID'].isin(set(wells['plateID']))]
+        wells = wells.merge(extra, how='outer', on=keys)
+        counts = [c for c in wells.columns if c.startswith('n_')]
+        wells[counts] = wells[counts].fillna(0)
+    for column in [c for c in wells.columns if c.startswith('n_')]:
+        wells[column] = wells[column].astype(int)
+    n = wells['n_objects'].where(wells['n_objects'] > 0)
+    wells['viability'] = wells['n_live'] / n
+    wells['dead_fraction'] = wells['n_dead'] / n
+    wells['unstained_fraction'] = wells['n_unstained'] / n
+    wells['infection_live'] = (wells['n_infected_live']
+                               / wells['n_live_known'].where(
+                                   wells['n_live_known'] > 0))
+    wells['infection'] = (wells['n_infected']
+                          / wells['n_known'].where(wells['n_known'] > 0))
+    wells['prc'] = [schema.compose_prc(p, r, c) for p, r, c in
+                    zip(wells['plateID'], wells['rowID'], wells['columnID'])]
+    wells['role'] = _well_roles(wells, settings)
+    wells['plate_key'] = _plate_key(wells)
+    return _cytotoxicity_index(wells)
+
+
+def _viability_qc(wells, cuts):
+    """Per plate: the thresholds used and the Z' of each readout.
+
+    Z' is taken from
+    :func:`spacr.qt.widgets.dose_response.plate_reports`, which asks the
+    control-chart screen's ``zprime_frame``, so the plate's Z' here is the
+    number those screens show. ``assay_ok`` is 1 when viability and the
+    cytotoxicity index both separate the controls with Z' of at least
+    :data:`_VIABILITY_ZPRIME_PASS`.
+
+    :param wells: the per-well frame.
+    :param cuts: ``{'dead'|'live': {plate: _PopulationCut}}``.
+    :returns: one row per plate (and time point).
+    """
+    from .qt.widgets.dose_response import (DoseResponseError, PlateSpec,
+                                           plate_reports)
+
+    spec = PlateSpec(plate='plate_key', control='role',
+                     positive=('positive',), negative=('negative',))
+    zprimes = {}
+    for readout in ('viability', 'live_cell_index', 'cytotoxicity_index'):
+        try:
+            reports = plate_reports(wells, spec, response=readout)
+        except DoseResponseError:
+            reports = ()
+        zprimes[readout] = {r.plate: r.zprime for r in reports}
+    rows = []
+    for plate, block in wells.groupby('plate_key', sort=True):
+        first = block.iloc[0]
+        row = {'plateID': first['plateID'], 'plate_key': plate}
+        if 'timeID' in block.columns:
+            row['timeID'] = first['timeID']
+        for role in ('negative', 'positive'):
+            part = block[block['role'] == role]
+            row[f'n_{role}'] = int(len(part))
+            for readout in ('viability', 'cytotoxicity_index'):
+                values = part[readout].astype(float)
+                row[f'{role}_{readout}_mean'] = (
+                    float(values.mean()) if len(values) else np.nan)
+                row[f'{role}_{readout}_sd'] = (
+                    float(values.std(ddof=1)) if len(values) > 1 else np.nan)
+        for readout, by_plate in zprimes.items():
+            value = by_plate.get(plate)
+            row[f'zprime_{readout}'] = np.nan if value is None else value
+        found = [z for z in (row['zprime_viability'],
+                             row['zprime_cytotoxicity_index'])
+                 if not np.isnan(z)]
+        row['assay_ok'] = (int(min(found) >= _VIABILITY_ZPRIME_PASS)
+                           if found else np.nan)
+        for stain, by_plate in cuts.items():
+            cut = _lookup_cut(by_plate, first)
+            if cut is None:
+                continue
+            row[f'{stain}_threshold'] = cut.threshold
+            row[f'{stain}_threshold_source'] = cut.source
+            row[f'{stain}_separation'] = cut.separation
+            row[f'{stain}_positive_fraction'] = cut.positive_fraction
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def _lookup_cut(by_plate, well):
+    """The plate cut that applies to a well row.
+
+    :param by_plate: ``{plate group name: _PopulationCut}``.
+    :param well: a row with ``plateID`` and maybe ``timeID``.
+    :returns: the cut, or None.
+    """
+    for name, cut in by_plate.items():
+        name = name if isinstance(name, tuple) else (name,)
+        if name == ('all',) or str(name[0]) == str(well['plateID']):
+            if len(name) < 2 or str(name[1]) == str(well.get('timeID')):
+                return cut
+    return None
+
+
+def _read_plate_map(path, wells):
+    """Join a plate map's compound and concentration onto the wells.
+
+    :param path: a table (CSV, Excel, ...) with a well column (``well``
+        such as ``A01``, ``rowID`` and ``columnID``, or ``prc``), a compound
+        column (``compound``, ``treatment``, ``drug`` or ``condition``), a
+        concentration column (``concentration``, ``dose`` or ``conc``) and
+        optionally ``plateID``; without a plate column it applies to every
+        plate.
+    :param wells: the per-well frame.
+    :returns: the wells with ``compound`` and ``concentration``.
+    :raises ValueError: a column the map must have is missing.
+    """
+    from . import plate_qc
+    from .tabular import read_table
+
+    plate_map = read_table(path, report=None)
+    if 'wellID' in plate_map.columns and 'well' not in plate_map.columns:
+        plate_map = plate_map.rename(columns={'wellID': 'well'})
+    lower = {str(c).lower(): c for c in plate_map.columns}
+    compound = next((lower[c] for c in _VIABILITY_COMPOUND_COLUMNS
+                     if c in lower), None)
+    dose = next((lower[c] for c in _VIABILITY_DOSE_COLUMNS if c in lower),
+                None)
+    if compound is None or dose is None:
+        raise ValueError(
+            f"The plate map {path} needs a compound column (one of "
+            f"{list(_VIABILITY_COMPOUND_COLUMNS)}) and a concentration column "
+            f"(one of {list(_VIABILITY_DOSE_COLUMNS)}); it has "
+            f"{list(plate_map.columns)}.")
+    has_plate = any(c in plate_map.columns for c in
+                    ('plateID', 'plate_name', 'plate', 'prc'))
+    located, _notes = plate_qc._identify_wells(plate_map)
+    located['_row'] = located['rowID'].map(plate_qc.parse_row_label)
+    located['_col'] = located['columnID'].map(plate_qc.parse_column_label)
+    located = located.dropna(subset=['_row', '_col'])
+    located['_row'] = located['_row'].astype(int)
+    located['_col'] = located['_col'].astype(int)
+    located['compound'] = located[compound].astype(str)
+    located['concentration'] = pd.to_numeric(located[dose], errors='coerce')
+    on = ['_row', '_col'] + (['plateID'] if has_plate else [])
+    located = located[on + ['compound', 'concentration']].drop_duplicates(on)
+    out = wells.drop(columns=[c for c in ('compound', 'concentration')
+                              if c in wells.columns]).copy()
+    out['_row'] = out['rowID'].map(plate_qc.parse_row_label).astype(int)
+    out['_col'] = out['columnID'].map(plate_qc.parse_column_label).astype(int)
+    if has_plate:
+        located['plateID'] = located['plateID'].astype(str)
+    out = out.merge(located, how='left', on=on)
+    return out.drop(columns=['_row', '_col'])
+
+
+def _viability_dose_response(wells):
+    """Fit viability, cytotoxicity and infection against concentration.
+
+    One curve per compound and readout with
+    :func:`spacr.qt.widgets.dose_response.fit_frame`, which refuses a curve
+    it cannot support rather than fitting it: ``viability`` (percent of
+    objects live), ``cytotoxicity_index`` (whose EC50 is the host CC50) and,
+    when pathogens were segmented, ``infection`` (percent of live host
+    cells infected). The selectivity index is the host CC50 over the
+    parasite EC50, with its interval, from
+    :func:`spacr.qt.widgets.dose_response.selectivity_index`.
+
+    :param wells: the per-well frame with ``compound`` and ``concentration``.
+    :returns: ``(curves, selectivity, fits)``: one row per compound and
+        readout, one row per compound, and ``{readout: DoseResponseSet}``.
+    """
+    from .qt.widgets.dose_response import (DoseResponseSpec, fit_frame,
+                                           selectivity_index)
+
+    frame = wells[wells['compound'].notna()
+                  & (wells['compound'].astype(str) != 'nan')].copy()
+    dosed = frame.groupby('compound')['concentration'].apply(
+        lambda c: bool((pd.to_numeric(c, errors='coerce') > 0).any()))
+    frame = frame[frame['compound'].isin(dosed[dosed].index)]
+    frame['viability_pct'] = 100.0 * frame['viability']
+    frame['infection_pct'] = 100.0 * frame['infection_live']
+    readouts = {'viability': 'viability_pct',
+                'cytotoxicity_index': 'cytotoxicity_index'}
+    if frame['infection_pct'].notna().any():
+        readouts['infection'] = 'infection_pct'
+    curves, fits = [], {}
+    if frame.empty:
+        return pd.DataFrame(), pd.DataFrame(), fits
+    for readout, column in readouts.items():
+        part = frame[frame[column].notna()]
+        if part.empty:
+            continue
+        spec = DoseResponseSpec(concentration='concentration',
+                                response=column, group='compound')
+        fitted = fit_frame(part, spec)
+        fits[readout] = fitted
+        for group_fit in fitted.fits:
+            curves.append({'readout': readout, **group_fit.summary_row()})
+    selectivity = []
+    if 'infection' in fits and 'cytotoxicity_index' in fits:
+        host = {f.group: f.result for f in fits['cytotoxicity_index'].fits}
+        parasite = {f.group: f.result for f in fits['infection'].fits}
+        for compound in sorted(set(host) | set(parasite)):
+            index = selectivity_index(parasite.get(compound),
+                                      host.get(compound))
+            selectivity.append({'compound': compound, **index.summary_row()})
+    return pd.DataFrame(curves), pd.DataFrame(selectivity), fits
+
+
+def _viability_threshold_figure(table, cuts, name, label):
+    """One plate's stain signals with the cuts that split them.
+
+    :param table: the per-object frame.
+    :param cuts: ``{'dead'|'live': {plate: _PopulationCut}}``.
+    :param name: the plate group name.
+    :param label: the figure title.
+    :returns: the figure.
+    """
+    stains = [s for s in ('dead', 'live') if name in cuts.get(s, {})]
+    with figure_style(theme_target()):
+        panels = len(stains) + (1 if len(stains) == 2 else 0)
+        fig, axes = plt.subplots(1, max(panels, 1),
+                                 figsize=(4.2 * max(panels, 1), 3.6))
+        axes = np.atleast_1d(axes)
+        plate = table
+        key = name if isinstance(name, tuple) else (name,)
+        if key != ('all',):
+            plate = table[table['plateID'].astype(str) == str(key[0])]
+            if len(key) > 1 and 'timeID' in table.columns:
+                plate = plate[plate['timeID'].astype(str) == str(key[1])]
+        for ax, stain in zip(axes, stains):
+            values = plate[f'{stain}_signal'].to_numpy(dtype=float)
+            values = values[np.isfinite(values)]
+            cut = cuts[stain][name]
+            morphology = stain == 'dead' and (
+                plate.get('viability_method') == 'morphology').any()
+            if morphology:
+                shown = np.log10(np.clip(values, 1e-6, None))
+                line = np.log10(max(cut.threshold, 1e-6))
+                ax.set_xlabel('log10 condensation (intensity/area vs plate)')
+            else:
+                scale = _stain_scale(values)
+                shown = np.arcsinh(values / scale)
+                line = float(np.arcsinh(cut.threshold / scale))
+                ax.set_xlabel(f'{stain} stain, arcsinh(intensity / {scale:.3g})')
+            ax.hist(shown, bins=80, color='0.6')
+            ax.axvline(line, color='k', ls='--', lw=1)
+            ax.set_ylabel('objects')
+            ax.set_title(f'{stain}: cut {cut.threshold:.4g} ({cut.source}), '
+                         f'{cut.positive_fraction:.0%} above', fontsize=9)
+        if len(stains) == 2:
+            ax = axes[-1]
+            dead = plate['dead_signal'].to_numpy(dtype=float)
+            live = plate['live_signal'].to_numpy(dtype=float)
+            d_scale, l_scale = _stain_scale(dead[np.isfinite(dead)]), \
+                _stain_scale(live[np.isfinite(live)])
+            for state in _VIABILITY_STATES:
+                pick = (plate['viability_state'] == state).to_numpy()
+                if pick.any():
+                    ax.scatter(np.arcsinh(live[pick] / l_scale),
+                               np.arcsinh(dead[pick] / d_scale), s=4,
+                               label=f'{state} ({int(pick.sum())})')
+            ax.axvline(np.arcsinh(cuts['live'][name].threshold / l_scale),
+                       color='k', ls='--', lw=1)
+            ax.axhline(np.arcsinh(cuts['dead'][name].threshold / d_scale),
+                       color='k', ls='--', lw=1)
+            ax.set_xlabel('live stain (arcsinh)')
+            ax.set_ylabel('dead stain (arcsinh)')
+            ax.legend(frameon=False, fontsize=7)
+        fig.suptitle(label)
+        fig.tight_layout()
+    return fig
+
+
+def _viability_controls_figure(wells, qc):
+    """Control and sample wells of every plate, with each plate's Z'.
+
+    :param wells: the per-well frame.
+    :param qc: the per-plate QC frame.
+    :returns: the figure.
+    """
+    plates = list(dict.fromkeys(wells['plate_key']))
+    with figure_style(theme_target()):
+        fig, axes = plt.subplots(len(plates), 2,
+                                 figsize=(8, 3.2 * len(plates)), squeeze=False)
+        rng = np.random.default_rng(0)
+        for row, plate in enumerate(plates):
+            block = wells[wells['plate_key'] == plate]
+            q = qc[qc['plate_key'] == plate]
+            for col, readout in enumerate(('viability', 'cytotoxicity_index')):
+                ax = axes[row, col]
+                for x, role in enumerate(_VIABILITY_ROLES):
+                    values = block.loc[block['role'] == role,
+                                       readout].astype(float)
+                    ax.scatter(x + rng.uniform(-0.15, 0.15, len(values)),
+                               values, s=10)
+                ax.set_xticks(range(len(_VIABILITY_ROLES)))
+                ax.set_xticklabels(_VIABILITY_ROLES)
+                z = (q[f'zprime_{readout}'].iloc[0] if len(q)
+                     and f'zprime_{readout}' in q else np.nan)
+                shown = f"Z' {z:.2f}" if np.isfinite(z) else "no Z'"
+                ax.set_title(f'{plate}: {readout} ({shown})', fontsize=9)
+        fig.tight_layout()
+    return fig
+
+
+def _viability_dose_figure(fits):
+    """Host viability, cytotoxicity and infection curves per compound.
+
+    :param fits: ``{readout: DoseResponseSet}``.
+    :returns: the figure, or None when nothing was fitted.
+    """
+    compounds = sorted({f.group for s in fits.values() for f in s.fits})
+    if not compounds:
+        return None
+    readouts = list(fits)
+    with figure_style(theme_target()):
+        fig, axes = plt.subplots(len(compounds), len(readouts),
+                                 figsize=(3.6 * len(readouts),
+                                          3.0 * len(compounds)),
+                                 squeeze=False)
+        for i, compound in enumerate(compounds):
+            for j, readout in enumerate(readouts):
+                ax = axes[i, j]
+                group = next((f for f in fits[readout].fits
+                              if f.group == compound), None)
+                ax.set_xscale('log')
+                ax.set_title(f'{compound}: {readout}', fontsize=9)
+                if group is None or group.result is None:
+                    ax.text(0.5, 0.5, 'refused', ha='center', va='center',
+                            transform=ax.transAxes)
+                    continue
+                result = group.result
+                ax.scatter(result.dose, result.response, s=10)
+                x, y = result.curve()
+                ax.plot(x, y, color='k', lw=1)
+                ec50 = result.ec50
+                if ec50 is not None:
+                    ax.axvline(ec50, color='k', ls=':', lw=1)
+                    ax.set_title(f'{compound}: {readout}, EC50 {ec50:.3g}',
+                                 fontsize=9)
+        fig.tight_layout()
+    return fig
+
+
+def _classify_viability(db_path, settings, *, plot=None):
+    """Call every cell live or dead and report viability per well.
+
+    Reads the ``nucleus`` table Measure wrote (the ``cell`` table when
+    there are no nuclei). With ``viability_dead_channel`` and/or
+    ``viability_live_channel`` each object's background-subtracted mean
+    intensity of the stain is cut per plate (and time point) into
+    positive and negative: two fitted populations split where they cross,
+    or the user's ``viability_thresholds``. A dead stain positive is dead,
+    a live stain positive is live, and with both a cell positive for
+    neither is unstained. Without stain channels, nuclei are called dead
+    from their morphology: a pyknotic nucleus is small and bright, and its
+    condensation (intensity per area against the plate's typical nucleus)
+    is cut the same way.
+
+    Writes to ``measurements.db``: ``viability`` (one row per object, its
+    signals, thresholds, ``viability_state`` and ``live``);
+    ``viability_well`` (per well the counts, ``viability``,
+    ``dead_fraction``, ``live_cell_index``, ``cytotoxicity_index``, the
+    infection of live cells when pathogens were segmented, and the well's
+    ``role`` from ``viability_negative_wells`` and
+    ``viability_positive_wells``); ``viability_qc`` (per plate the
+    thresholds, how they were found, and the Z' of each readout). With a
+    ``viability_plate_map``, ``viability_dose_response`` holds one
+    dose-response fit per compound and readout and
+    ``viability_selectivity`` the host CC50 over the parasite EC50. With
+    ``plot``, figures go to ``results/viability``.
+
+    :param db_path: a ``measurements.db``.
+    :param settings: Measure settings.
+    :param plot: save figures; defaults to ``settings['plot']``.
+    :returns: ``(table, report)``: the per-object frame written and a dict
+        with the per-well, QC and dose-response frames.
+    :raises ValueError: no nucleus or cell table, or unusable settings.
+    """
+    from .tabular import database_tables, read_table, write_database
+
+    tables = database_tables(db_path)
+    if 'nucleus' in tables:
+        unit = 'nucleus'
+    elif 'cell' in tables:
+        unit = 'cell'
+    else:
+        raise ValueError(
+            f"{db_path} has no nucleus or cell table; live/dead calls are "
+            f"made on measured nuclei or cells.")
+    objects = read_table(db_path, table=unit, report=None)
+    objects = objects.reset_index(drop=True)
+    dead_channel = settings.get('viability_dead_channel')
+    live_channel = settings.get('viability_live_channel')
+    dead_channel = None if dead_channel in (None, '') else int(dead_channel)
+    live_channel = None if live_channel in (None, '') else int(live_channel)
+    manual_dead, manual_live = _viability_manual(
+        settings.get('viability_thresholds'))
+    method = ('stain' if dead_channel is not None or live_channel is not None
+              else 'morphology')
+    table = objects[[k for k in (*_CELL_CYCLE_KEYS, 'timeID', 'prcf',
+                                 'object_label', 'cell_id', 'file_name')
+                     if k in objects.columns]].copy()
+    table['object_type'] = unit
+    if 'prcf' in objects.columns or all(k in objects.columns
+                                        for k in _CELL_CYCLE_KEYS):
+        table['prcfo'] = _nucleus_prcfo(objects, by_cell=False)
+    table['viability_method'] = method
+    cuts = {}
+    dead_positive = live_positive = None
+    if method == 'morphology':
+        if unit != 'nucleus':
+            raise ValueError(
+                "Without viability_dead_channel or viability_live_channel, "
+                "live and dead are called from nucleus morphology, which "
+                "needs measured nuclei; set nucleus_mask_dim or name a "
+                "viability stain channel.")
+        channel = settings.get('nucleus_channel')
+        if channel in (None, ''):
+            channel = (settings.get('channels') or [0])[0]
+        column = _measured_channel_column(settings, int(channel),
+                                          setting='nucleus_channel')
+        signal = _condensation_score(objects, column)
+        dead_positive, thresholds, cuts['dead'] = _split_by_plate(
+            objects, signal, single_is_positive=False, log_scale=True,
+            manual=manual_dead)
+        table['dead_signal'] = signal
+        table['dead_threshold'] = thresholds
+    else:
+        if dead_channel is not None:
+            column = _measured_channel_column(
+                settings, dead_channel, setting='viability_dead_channel')
+            signal = _object_signal(objects, unit, column)
+            dead_positive, thresholds, cuts['dead'] = _split_by_plate(
+                objects, signal, single_is_positive=False,
+                manual=manual_dead)
+            table['dead_signal'] = signal
+            table['dead_threshold'] = thresholds
+        if live_channel is not None:
+            column = _measured_channel_column(
+                settings, live_channel, setting='viability_live_channel')
+            signal = _object_signal(objects, unit, column)
+            live_positive, thresholds, cuts['live'] = _split_by_plate(
+                objects, signal, single_is_positive=True,
+                manual=manual_live)
+            table['live_signal'] = signal
+            table['live_threshold'] = thresholds
+    states = _viability_states(dead_positive, live_positive,
+                               dead='dead' in cuts, live='live' in cuts)
+    table['viability_state'] = states
+    table['live'] = (states == 'live').astype(int)
+    table['infected'] = _object_infection(db_path, objects, unit)
+    table['role'] = _well_roles(table, settings)
+    write_database(table, db_path, _VIABILITY_TABLE, if_exists='replace',
+                   canonicalise=False)
+    wells = _viability_by_well(table, settings, _measured_fields(settings))
+    qc = _viability_qc(wells, cuts)
+    curves = selectivity = pd.DataFrame()
+    fits = {}
+    plate_map = str(settings.get('viability_plate_map') or '').strip()
+    if plate_map:
+        wells = _read_plate_map(plate_map, wells)
+        curves, selectivity, fits = _viability_dose_response(wells)
+    write_database(wells, db_path, _VIABILITY_WELL_TABLE, if_exists='replace',
+                   canonicalise=False)
+    if not qc.empty:
+        write_database(qc, db_path, _VIABILITY_QC_TABLE, if_exists='replace',
+                       canonicalise=False)
+    if not curves.empty:
+        write_database(curves, db_path, _VIABILITY_DOSE_TABLE,
+                       if_exists='replace', canonicalise=False)
+    if not selectivity.empty:
+        write_database(selectivity, db_path, _VIABILITY_SELECTIVITY_TABLE,
+                       if_exists='replace', canonicalise=False)
+    report = {'method': method, 'object_type': unit, 'wells': wells,
+              'qc': qc, 'dose_response': curves, 'selectivity': selectivity,
+              'cuts': cuts, 'figures': []}
+    if settings.get('plot') if plot is None else plot:
+        report['figures'] = _save_viability_figures(
+            db_path, table, wells, qc, cuts, fits)
+    return table, report
+
+
+def _save_viability_figures(db_path, table, wells, qc, cuts, fits):
+    """Write the threshold, plate, control and dose-response figures.
+
+    :param db_path: the ``measurements.db``; figures go to
+        ``results/viability`` beside its folder.
+    :param table: the per-object frame.
+    :param wells: the per-well frame.
+    :param qc: the per-plate QC frame.
+    :param cuts: the per-plate cuts.
+    :param fits: the dose-response fits.
+    :returns: the paths written.
+    """
+    from .figures.plates import build_plates
+    from .plot import save_figure
+
+    root = os.path.dirname(os.path.dirname(os.path.abspath(db_path)))
+    folder = os.path.join(root, 'results', 'viability')
+    written = []
+
+    def _keep(fig, name):
+        """Save one figure under the viability results folder."""
+        path = save_figure(fig, os.path.join(folder, name), close=True)
+        written.append(path or os.path.join(folder, name))
+
+    names = sorted({n for by_plate in cuts.values() for n in by_plate},
+                   key=str)
+    for name in names:
+        label = '_'.join(str(v) for v in name) if isinstance(
+            name, tuple) else str(name)
+        _keep(_viability_threshold_figure(table, cuts, name, label),
+              f'viability_thresholds_{label}.pdf')
+    for readout in ('viability', 'cytotoxicity_index'):
+        fig, panel = build_plates(wells, readout, grouping='mean')
+        if getattr(panel, 'drawn', True):
+            _keep(fig, f'viability_plate_{readout}.pdf')
+        else:
+            plt.close(fig)
+    _keep(_viability_controls_figure(wells, qc), 'viability_controls.pdf')
+    if fits:
+        fig = _viability_dose_figure(fits)
+        if fig is not None:
+            _keep(fig, 'viability_dose_response.pdf')
+    return written
+
+
+def _run_viability_step(db_path, settings):
+    """Call live and dead at the end of a Measure run and say where.
+
+    A failure is reported and does not fail the run: the measurements are
+    already in the database, and viability can be called again from it.
+
+    :param db_path: the ``measurements.db`` the run produced.
+    :param settings: Measure settings.
+    :returns: the per-object table, or None when the step failed.
+    """
+    try:
+        table, report = _classify_viability(db_path, settings)
+    except Exception as exc:
+        print(f"Live/dead viability could not be called: {exc}")
+        return None
+    shares = table['viability_state'].value_counts(normalize=True)
+    print(f"Viability ({report['method']}): {len(table)} "
+          f"{report['object_type']} objects in "
+          f"measurements.db:{_VIABILITY_TABLE}; "
+          + ', '.join(f'{s} {shares.get(s, 0):.0%}' for s in _VIABILITY_STATES
+                      if s in shares.index)
+          + f"; {len(report['wells'])} well(s) in {_VIABILITY_WELL_TABLE}.")
+    qc = report['qc']
+    if not qc.empty and qc['zprime_cytotoxicity_index'].notna().any():
+        for _, row in qc.iterrows():
+            z = row['zprime_cytotoxicity_index']
+            if np.isfinite(z):
+                print(f"Viability controls, plate {row['plate_key']}: "
+                      f"Z' {z:.2f} on the cytotoxicity index.")
+    return table
+
+
 def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel=None):
 
     """Measure one field using selected standard or PSF-processed intensities.
@@ -5648,6 +6784,8 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
     :param file: merged NPY filename below ``settings['src']``.
     :param settings: Measure configuration; original PSF intensity choice is
         the default. Label planes and exported crops keep their source pixels.
+        With an unmixing record from the parent, the measured channels are
+        unmixed before any preprocessing hook.
     :param psf_plan: immutable plan captured by the parent. When omitted for
         a direct processed call, the worker prepares one from its settings.
     :param psf_cancel: optional process-safe cancellation event.
@@ -5661,6 +6799,7 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
     from .cancellation import PipelineCancelled
     from .psf_measurement import (prepare_measurement_psf, measurement_psf_record,
                                   measurement_psf_signature, SIGNATURE_KEY)
+    from .psf_pipeline import _UNMIX_RECORD_KEY, _apply_recorded_unmixing
 
     figs = {}
     grid = []
@@ -5717,6 +6856,8 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
             figs[f'{file_name}__before_filtration'] = fig
 
         channel_arrays = data[..., settings['channels']].astype(data_type)
+        if settings.get(_UNMIX_RECORD_KEY):
+            channel_arrays = _apply_recorded_unmixing(channel_arrays, settings)
 
         if preprocessing_hooks():
             channel_arrays = apply_preprocessing_hooks(
@@ -6378,6 +7519,8 @@ def measure_crop(settings):
                     settings, os.path.join(_measurements_dir, 'measurements.db'), psf_plan)
                 validate_measurement_illumination_inputs(settings)
                 prepare_illumination_correction(settings)
+                from .psf_pipeline import _prepare_measure_unmixing
+                _prepare_measure_unmixing(settings)
 
                 if settings['cell_mask_dim'] is None:
                     settings['uninfected'] = True
@@ -6629,6 +7772,17 @@ def measure_crop(settings):
                 if settings.get('wound_closure'):
                     _run_wound_closure(settings['src'], settings)
 
+                if (settings['timelapse']
+                        and settings.get('bleach_correction', 'none') != 'none'
+                        and os.path.isfile(db_path)):
+                    _run_bleach_correction_step(db_path, settings)
+
+                if settings.get('time_to_event') and os.path.isfile(db_path):
+                    _run_time_to_event_step(db_path, settings)
+
+                if settings.get('viability') and os.path.isfile(db_path):
+                    _run_viability_step(db_path, settings)
+
                 if settings['timelapse']:
                     if settings['timelapse_objects'] == 'nucleus':
                         folder_path = settings['src']
@@ -6643,6 +7797,32 @@ def measure_crop(settings):
                     print("Successfully completed run")
 
             run.register_outputs(settings=settings, roots=source_folders)
+
+def _run_bleach_correction_step(db_path, settings):
+    """Correct a timelapse run's intensities for photobleaching and say where.
+
+    Runs :func:`spacr.timelapse._correct_timelapse_bleaching` with the
+    ``bleach_correction`` method. A failure is reported and does not fail
+    the run: the measured tables are already written and are not changed.
+
+    :param db_path: the ``measurements.db`` the run produced.
+    :param settings: Measure settings.
+    :returns: the per-field, per-channel fits, or None when the step failed.
+    """
+    from .timelapse import _correct_timelapse_bleaching
+
+    method = settings.get('bleach_correction')
+    try:
+        fits = _correct_timelapse_bleaching(db_path, method, plot=True)
+    except Exception as exc:
+        print(f"Bleach correction could not be applied: {exc}")
+        return None
+    tables = sorted(fits['object_type'].unique())
+    print(f"Bleach correction ({method}): {len(fits)} field-channel series in "
+          f"{', '.join(f'{t}_bleach_corrected' for t in tables)}; fits in "
+          f"measurements.db:bleach_correction")
+    return fits
+
 
 def _run_cell_cycle_step(db_path, settings):
     """Call cell-cycle phases at the end of a Measure run and say where.
@@ -6665,6 +7845,690 @@ def _run_cell_cycle_step(db_path, settings):
           + ', '.join(f'{p} {shares.get(p, 0):.0%}'
                       for p in _CELL_CYCLE_PHASES))
     return table
+
+
+_TTE_TABLE = 'time_to_event'
+_TTE_CURVES_TABLE = 'time_to_event_curves'
+_TTE_SUMMARY_TABLE = 'time_to_event_summary'
+_TTE_TESTS_TABLE = 'time_to_event_tests'
+_TTE_COX_TABLE = 'time_to_event_cox'
+_TTE_MODES = ('track_end', 'annotated', 'above', 'below', 'fold_change')
+_TTE_ORIGINS = ('track', 'movie')
+_TTE_FIELD_KEYS = ('plateID', 'rowID', 'columnID', 'fieldID')
+_TTE_TRACK_KEYS = _TTE_FIELD_KEYS + ('object_label',)
+_TTE_OBJECT_TABLES = ('cell', 'nucleus', 'pathogen', 'cytoplasm')
+_TTE_GROUP_WORDS = ('well', 'plate', 'row', 'column', 'field')
+_TTE_FIGURE_GROUPS = 12
+
+
+def _tte_list(value):
+    """A list setting that may arrive as a list, a string or nothing.
+
+    :param value: the stored value.
+    :returns: a list of non-empty stripped strings.
+    """
+    if value is None:
+        return []
+    if isinstance(value, str):
+        value = value.split(',')
+    return [str(item).strip() for item in value if str(item).strip()]
+
+
+def _tte_frame_numbers(values):
+    """Frame numbers from ``timeID`` values such as ``t4``, ``t04`` or ``4``.
+
+    :param values: the ``timeID`` column.
+    :returns: a float array, NaN where no number ends the value.
+    """
+    text = pd.Series(list(values), dtype=object).astype(str).str.extract(
+        r'(-?\d+(?:\.\d+)?)\s*$')[0]
+    return pd.to_numeric(text, errors='coerce').to_numpy(dtype=float)
+
+
+def _tte_settings(settings):
+    """The time-to-event settings, validated and in the types they are used.
+
+    :param settings: Measure settings.
+    :returns: the twelve ``time_to_event_*`` settings other than the
+        switch, blanks resolved, numbers typed and lists split.
+    :raises ValueError: an unknown mode or origin, or a mode used without
+        the column or threshold it reads.
+    """
+    mode = str(settings.get('time_to_event_mode') or 'track_end')
+    origin = str(settings.get('time_to_event_origin') or 'track')
+    if mode not in _TTE_MODES:
+        raise ValueError(f"Setting: time_to_event_mode is {mode!r}; choose "
+                         f"one of {', '.join(_TTE_MODES)}.")
+    if origin not in _TTE_ORIGINS:
+        raise ValueError(f"Setting: time_to_event_origin is {origin!r}; "
+                         f"choose track or movie.")
+    column = str(settings.get('time_to_event_column') or '').strip()
+    threshold = settings.get('time_to_event_threshold')
+    threshold = None if threshold in (None, '') else float(threshold)
+    if mode != 'track_end' and not column:
+        raise ValueError(f"Setting: time_to_event_mode {mode} reads a "
+                         f"measurement; name it in time_to_event_column.")
+    if mode in ('above', 'below', 'fold_change') and threshold is None:
+        raise ValueError(f"Setting: time_to_event_mode {mode} needs "
+                         f"time_to_event_threshold.")
+    hours = settings.get('time_to_event_hours_per_frame')
+    hours = None if hours in (None, '') else float(hours)
+    if hours is not None and not hours > 0:
+        raise ValueError("Setting: time_to_event_hours_per_frame must be "
+                         "positive, or blank to count frames.")
+    return {
+        'time_to_event_object': str(settings.get('time_to_event_object')
+                                    or 'cell'),
+        'time_to_event_mode': mode, 'time_to_event_column': column,
+        'time_to_event_threshold': threshold,
+        'time_to_event_persist': max(
+            1, int(settings.get('time_to_event_persist') or 1)),
+        'time_to_event_origin': origin,
+        'time_to_event_min_frames': max(
+            1, int(settings.get('time_to_event_min_frames') or 1)),
+        'time_to_event_hours_per_frame': hours,
+        'time_to_event_group': str(settings.get('time_to_event_group')
+                                   or 'well').strip(),
+        'time_to_event_conditions': _tte_list(
+            settings.get('time_to_event_conditions')),
+        'time_to_event_reference': str(settings.get(
+            'time_to_event_reference') or '').strip(),
+        'time_to_event_covariates': _tte_list(
+            settings.get('time_to_event_covariates')),
+    }
+
+
+def _read_time_to_event_inputs(db_path, config):
+    """The tracked objects and each field's frames, read from the database.
+
+    Only the columns the analysis uses are read. A ``time_to_event_column``
+    that is not on the object table is looked up on ``png_list``, where
+    Annotate keeps its labels, and joined to each object in each frame
+    through its ``prcfo``. A field's frames are every frame any object table
+    has a row for, so a movie whose last frames lost every object of one
+    kind still ends where it ends.
+
+    :param db_path: the ``measurements.db``.
+    :param config: from :func:`_tte_settings`.
+    :returns: ``(frame, movies)``: the object rows, and a dict from field key
+        to the sorted array of its frame numbers.
+    :raises ValueError: a missing table or column, or a table measured
+        without time.
+    """
+    from . import schema
+    from .database_concurrency import connect
+    from .tabular import (_quote_identifier, _read_query, database_tables,
+                          table_columns)
+
+    table = config['time_to_event_object']
+    tables = database_tables(db_path)
+    if table not in tables:
+        raise ValueError(
+            f"{db_path} has no {table} table; set time_to_event_object to "
+            f"one of {', '.join(t for t in _TTE_OBJECT_TABLES if t in tables)}.")
+    columns = set(table_columns(db_path, table=table, canonicalise=False))
+    missing = [key for key in (*_TTE_TRACK_KEYS, 'timeID')
+               if key not in columns]
+    if missing:
+        raise ValueError(
+            f"measurements.db:{table} has no {', '.join(missing)}; time to "
+            f"event reads tracked objects over time, so measure a timelapse "
+            f"with timelapse on.")
+    wanted = [*_TTE_TRACK_KEYS, 'timeID']
+    wanted += [c for c in ('prcf',) if c in columns]
+    extra = list(config['time_to_event_covariates'])
+    if config['time_to_event_group'] not in _TTE_GROUP_WORDS and not config['time_to_event_conditions']:
+        extra.append(config['time_to_event_group'])
+    for name in extra:
+        if name not in columns:
+            raise ValueError(f"measurements.db:{table} has no column "
+                             f"{name!r} to group or adjust by.")
+    column = config['time_to_event_column']
+    from_crops = bool(column) and column not in columns
+    if column and not from_crops:
+        extra.append(column)
+    wanted += [c for c in dict.fromkeys(extra) if c not in wanted]
+    conn = connect(db_path, readonly=True)
+    try:
+        frame = _read_query(conn, "SELECT {} FROM {}".format(
+            ', '.join(_quote_identifier(c) for c in wanted),
+            _quote_identifier(table)), report=None)
+        if from_crops:
+            crop_columns = (table_columns(db_path, table='png_list',
+                                          canonicalise=False)
+                            if 'png_list' in tables else ())
+            if column not in crop_columns or 'prcf' not in frame.columns:
+                raise ValueError(
+                    f"Setting: time_to_event_column names {column!r}, which "
+                    f"is neither a column of measurements.db:{table} nor an "
+                    f"Annotate column of png_list.")
+            crops = _read_query(conn, "SELECT prcfo, {} FROM png_list".format(
+                _quote_identifier(column)), report=None)
+            labels = dict(zip(crops['prcfo'].astype(str), crops[column]))
+            keys = [f"{p}_{schema.object_id(int(o))}"
+                    for p, o in zip(frame['prcf'], frame['object_label'])]
+            frame[column] = [labels.get(k) for k in keys]
+        pieces = []
+        for name in dict.fromkeys((table, *_TTE_OBJECT_TABLES)):
+            if name in tables and {*_TTE_FIELD_KEYS, 'timeID'} <= set(
+                    table_columns(db_path, table=name, canonicalise=False)):
+                pieces.append(_read_query(
+                    conn, "SELECT DISTINCT {} FROM {}".format(
+                        ', '.join(_quote_identifier(c) for c in
+                                  (*_TTE_FIELD_KEYS, 'timeID')),
+                        _quote_identifier(name)), report=None))
+    finally:
+        conn.close()
+    fields = pd.concat(pieces, ignore_index=True)
+    fields['frame'] = _tte_frame_numbers(fields['timeID'])
+    movies = {tuple(str(v) for v in key): np.unique(
+        group['frame'].dropna().to_numpy())
+        for key, group in fields.groupby(list(_TTE_FIELD_KEYS))}
+    return frame, movies
+
+
+def _tte_flags(values, mode, threshold, baseline=None):
+    """Which frames of one track show the event.
+
+    :param values: the track's ``time_to_event_column``, frame by frame.
+    :param mode: ``annotated``, ``above``, ``below`` or ``fold_change``.
+    :param threshold: the cut; for ``annotated`` the label value that marks
+        the event, or None for any non-zero label.
+    :param baseline: the track's first value, for ``fold_change``.
+    :returns: a boolean array.
+    """
+    raw = pd.Series(list(values), dtype=object)
+    numbers = pd.to_numeric(raw, errors='coerce')
+    if mode == 'annotated':
+        if threshold is not None:
+            return (numbers == threshold).to_numpy()
+        text = raw.astype(str).str.strip().str.lower()
+        empty = raw.isna() | text.isin(('', '0', '0.0', 'false', 'none',
+                                        'nan'))
+        return (~empty).to_numpy()
+    if mode == 'above':
+        return (numbers >= threshold).to_numpy()
+    if mode == 'below':
+        return (numbers <= threshold).to_numpy()
+    return (numbers >= threshold * baseline).to_numpy()
+
+
+def _tte_first_run(flags, persist):
+    """The row where ``persist`` flagged rows in a row first begin.
+
+    :param flags: one boolean per observed frame of a track.
+    :param persist: how many consecutive rows the event must hold for.
+    :returns: the row index, or None when no run is long enough.
+    """
+    count = 0
+    for index, flag in enumerate(flags):
+        count = count + 1 if flag else 0
+        if count >= persist:
+            return index - persist + 1
+    return None
+
+
+def _time_to_event_objects(frame, config, movies=None):
+    """One row per tracked object: its time to the event or to censoring.
+
+    A track is the rows of one ``object_label`` in one field, ordered by
+    frame. The event is the first frame the track shows it for
+    ``time_to_event_persist`` consecutive observed frames, by
+    ``time_to_event_mode``: ``annotated`` a non-zero label (or the label
+    equal to the threshold), ``above`` and ``below`` the measurement at or
+    past the threshold, ``fold_change`` the measurement at least the
+    threshold times its value in the track's first frame, and
+    ``track_end`` the object disappearing: the event is the first frame of
+    the movie after the track's last one. A track without the event is
+    right-censored at its last frame, which is the end of the movie or the
+    point the tracker lost it.
+
+    Time runs from the track's first frame when ``time_to_event_origin`` is
+    ``track``, or from the first frame of the movie when it is ``movie``,
+    which keeps only the objects present in that first frame. An object
+    that already shows the event in its first frame has no time to it and
+    is left out, as are tracks shorter than ``time_to_event_min_frames``
+    and, for ``fold_change``, tracks without a positive first value. The
+    first-frame value of every covariate is kept, measured before anything
+    could happen.
+
+    :param frame: object rows with the track keys, ``timeID`` and the
+        columns ``config`` names.
+    :param config: from :func:`_tte_settings`.
+    :param movies: field key to its frame numbers; taken from ``frame``
+        when None.
+    :returns: ``(objects, dropped)``: the per-object frame and a dict
+        counting the tracks left out, by reason.
+    """
+    frame = frame.copy()
+    frame['frame'] = _tte_frame_numbers(frame['timeID'])
+    frame = frame[np.isfinite(frame['frame'])]
+    for key in _TTE_FIELD_KEYS:
+        frame[key] = frame[key].astype(str)
+    frame = frame.sort_values([*_TTE_TRACK_KEYS, 'frame'], kind='stable')
+    if movies is None:
+        movies = {key: np.unique(group['frame'].to_numpy())
+                  for key, group in frame.groupby(list(_TTE_FIELD_KEYS))}
+    mode = config['time_to_event_mode']
+    column = config['time_to_event_column']
+    threshold = config['time_to_event_threshold']
+    kept = list(config['time_to_event_covariates'])
+    if config['time_to_event_group'] not in _TTE_GROUP_WORDS and not config['time_to_event_conditions']:
+        kept.append(config['time_to_event_group'])
+    kept = list(dict.fromkeys(kept))
+    dropped = {'short': 0, 'late': 0, 'at_first_frame': 0, 'no_baseline': 0}
+    rows = []
+    for key, track in frame.groupby(list(_TTE_TRACK_KEYS), sort=False):
+        frames = track['frame'].to_numpy(dtype=float)
+        movie = np.asarray(movies.get(tuple(str(v) for v in key[:4]), frames),
+                           dtype=float)
+        start, end = float(min(movie.min(), frames[0])), float(
+            max(movie.max(), frames[-1]))
+        if frames.size < config['time_to_event_min_frames']:
+            dropped['short'] += 1
+            continue
+        if config['time_to_event_origin'] == 'movie' and frames[0] > start:
+            dropped['late'] += 1
+            continue
+        origin = frames[0] if config['time_to_event_origin'] == 'track' else start
+        event_frame = None
+        if mode == 'track_end':
+            later = movie[movie > frames[-1]]
+            if later.size:
+                event_frame = float(later.min())
+        else:
+            values = track[column].to_numpy()
+            baseline = None
+            if mode == 'fold_change':
+                baseline = pd.to_numeric(pd.Series([values[0]]),
+                                         errors='coerce').iloc[0]
+                if not (np.isfinite(baseline) and baseline > 0):
+                    dropped['no_baseline'] += 1
+                    continue
+            run = _tte_first_run(
+                _tte_flags(values, mode, threshold, baseline),
+                config['time_to_event_persist'])
+            if run == 0:
+                dropped['at_first_frame'] += 1
+                continue
+            if run is not None:
+                event_frame = float(frames[run])
+        observed = event_frame is not None
+        stop = event_frame if observed else float(frames[-1])
+        row = dict(zip(_TTE_TRACK_KEYS, key))
+        row.update({
+            'first_frame': float(frames[0]), 'last_frame': float(frames[-1]),
+            'n_frames': int(frames.size), 'origin_frame': float(origin),
+            'event': int(observed),
+            'event_frame': event_frame if observed else np.nan,
+            'duration_frames': stop - float(origin),
+            'censored_at': ('' if observed else
+                            'movie_end' if frames[-1] >= end
+                            else 'track_lost')})
+        for name in kept:
+            row[name] = track[name].iloc[0]
+        rows.append(row)
+    objects = pd.DataFrame(rows)
+    if objects.empty:
+        return objects, dropped
+    hours = config['time_to_event_hours_per_frame']
+    objects['duration'] = objects['duration_frames'] * (hours or 1.0)
+    objects['time_unit'] = 'h' if hours else 'frames'
+    objects['event_mode'] = mode
+    return objects, dropped
+
+
+def _tte_wells(objects):
+    """The composed well key of each object.
+
+    :param objects: rows with ``plateID``, ``rowID`` and ``columnID``.
+    :returns: a Series of well keys.
+    """
+    from . import schema
+
+    return pd.Series(list(schema.compose_prc_column(objects)),
+                     index=objects.index, dtype=object)
+
+
+def _time_to_event_groups(objects, config):
+    """Assign each object the condition it is compared in.
+
+    ``time_to_event_conditions`` entries ``name=wells`` name the wells of
+    each condition in the plate-map notation (``c1,c2``, ``r1``, ``A01``);
+    objects in wells no condition names are left out. Without them, objects
+    are grouped by ``time_to_event_group``: ``well``, ``plate``, ``row``,
+    ``column``, ``field``, or a column of the object table read at the
+    track's first frame.
+
+    :param objects: from :func:`_time_to_event_objects`.
+    :param config: from :func:`_tte_settings`.
+    :returns: ``(objects, order)``: the objects with ``condition`` and
+        ``well`` columns, and the conditions with the reference first.
+    :raises ValueError: a malformed condition, or a reference that is not
+        one of the conditions.
+    """
+    from . import well_spec
+
+    objects = objects.copy()
+    objects['well'] = _tte_wells(objects)
+    group = config['time_to_event_group']
+    if config['time_to_event_conditions']:
+        rows = pd.to_numeric(objects['rowID'].astype(str).str.extract(
+            r'(\d+)\s*$')[0], errors='coerce')
+        cols = pd.to_numeric(objects['columnID'].astype(str).str.extract(
+            r'(\d+)\s*$')[0], errors='coerce')
+        condition = pd.Series(None, index=objects.index, dtype=object)
+        order = []
+        for entry in config['time_to_event_conditions']:
+            name, sep, spec = entry.partition('=')
+            if not sep or not name.strip() or not spec.strip():
+                raise ValueError(
+                    f"Setting: time_to_event_conditions entry {entry!r} is "
+                    f"not name=wells, for example control=c1,c2.")
+            wells = well_spec.parse(spec, layout=1536)
+            hit = [(r, c) in wells if pd.notna(r) and pd.notna(c) else False
+                   for r, c in zip(rows, cols)]
+            condition = condition.where(
+                condition.notna() | ~pd.Series(hit, index=objects.index),
+                name.strip())
+            order.append(name.strip())
+        objects['condition'] = condition
+        objects = objects[objects['condition'].notna()].copy()
+    elif group == 'well':
+        objects['condition'] = objects['well']
+    elif group == 'plate':
+        objects['condition'] = objects['plateID'].astype(str)
+    elif group == 'row':
+        objects['condition'] = objects['rowID'].astype(str)
+    elif group == 'column':
+        objects['condition'] = objects['columnID'].astype(str)
+    elif group == 'field':
+        objects['condition'] = (objects['well'] + '_'
+                                + objects['fieldID'].astype(str))
+    else:
+        objects['condition'] = objects[group].astype(str)
+    present = [str(c) for c in pd.unique(objects['condition'])]
+    if config['time_to_event_conditions']:
+        order = [c for c in dict.fromkeys(order) if c in present]
+    else:
+        order = sorted(present)
+    reference = config['time_to_event_reference']
+    if reference:
+        if reference not in order:
+            raise ValueError(
+                f"Setting: time_to_event_reference {reference!r} is not one "
+                f"of the conditions ({', '.join(order)}).")
+        order = [reference] + [c for c in order if c != reference]
+    return objects, order
+
+
+def _time_to_event_statistics(objects, order, config, *, engine=None):
+    """Kaplan-Meier curves, medians, log-rank tests and a Cox model.
+
+    :param objects: from :func:`_time_to_event_groups`.
+    :param order: the conditions, reference first.
+    :param config: from :func:`_tte_settings`.
+    :param engine: see :func:`spacr.sp_stats._survival_engine`.
+    :returns: a dict of frames: ``curves`` (one Kaplan-Meier curve per
+        condition), ``summary`` (events, censoring and the median with its
+        interval per condition and per well), ``tests`` (the log-rank test
+        across every condition and each condition against the reference,
+        Benjamini-Hochberg adjusted) and ``cox`` (hazard ratios of each
+        condition against the reference and per unit of each covariate),
+        plus ``engine`` and ``cox_error``, why no Cox model was fitted.
+    """
+    from .multiple_testing import adjust_p_values
+    from .sp_stats import (_cox_regression, _kaplan_meier, _logrank,
+                           _median_survival, _survival_engine)
+
+    engine = _survival_engine(engine)
+    unit = str(objects['time_unit'].iloc[0])
+    curves, summary = [], []
+    for level, key in (('condition', 'condition'), ('well', 'well')):
+        for name, group in objects.groupby(key, sort=False):
+            curve = _kaplan_meier(group['duration'], group['event'],
+                                  engine=engine)
+            median, low, high = _median_survival(curve)
+            record = {'level': level, 'group': str(name),
+                      'condition': (str(name) if level == 'condition' else
+                                    '|'.join(sorted(map(str, pd.unique(
+                                        group['condition']))))),
+                      'n': int(len(group)),
+                      'events': int(group['event'].sum()),
+                      'censored': int((group['event'] == 0).sum()),
+                      'median': median, 'median_lower': low,
+                      'median_upper': high,
+                      'median_reached': int(np.isfinite(median)),
+                      'time_unit': unit, 'engine': engine}
+            summary.append(record)
+            if level == 'condition':
+                curves.append(curve.assign(condition=str(name),
+                                           time_unit=unit, engine=engine))
+    order_index = {name: i for i, name in enumerate(order)}
+    curves = sorted(curves, key=lambda c: order_index.get(
+        c['condition'].iloc[0], len(order)))
+    curves = pd.concat(curves, ignore_index=True)
+    summary = pd.DataFrame(summary)
+    tests = []
+    if len(order) > 1:
+        overall = _logrank(objects['duration'], objects['event'],
+                           objects['condition'], engine=engine)
+        tests.append({'comparison': 'all conditions', 'condition': 'all',
+                      'reference': '', 'statistic': overall['statistic'],
+                      'df': overall['df'], 'p_value': overall['p_value'],
+                      'n': int(len(objects))})
+        pairs = []
+        for name in order[1:]:
+            both = objects[objects['condition'].isin([order[0], name])]
+            result = _logrank(both['duration'], both['event'],
+                              both['condition'], engine=engine)
+            pairs.append({'comparison': f'{name} vs {order[0]}',
+                          'condition': name, 'reference': order[0],
+                          'statistic': result['statistic'],
+                          'df': result['df'], 'p_value': result['p_value'],
+                          'n': int(len(both))})
+        adjusted, _ = adjust_p_values([p['p_value'] for p in pairs],
+                                      method='fdr_bh')
+        for pair, value in zip(pairs, adjusted):
+            pair['p_adjusted'] = float(value)
+        tests.extend(pairs)
+    tests = pd.DataFrame(tests)
+    if not tests.empty:
+        tests['test'] = 'log-rank'
+        tests['engine'] = engine
+    cox, cox_error = pd.DataFrame(), ''
+    indicators = [f'condition={name}' for name in order[1:]]
+    covariates = indicators + list(config['time_to_event_covariates'])
+    if covariates:
+        data = objects[['duration', 'event']].copy()
+        for name, column in zip(order[1:], indicators):
+            data[column] = (objects['condition'] == name).astype(float)
+        for name in config['time_to_event_covariates']:
+            data[name] = pd.to_numeric(objects[name], errors='coerce')
+        data = data[np.isfinite(data.to_numpy(dtype=float)).all(axis=1)]
+        try:
+            cox, model = _cox_regression(data, 'duration', 'event',
+                                         covariates, engine=engine)
+        except Exception as exc:
+            cox_error = f"{type(exc).__name__}: {exc}"
+            cox = pd.DataFrame()
+        else:
+            cox['reference'] = [order[0] if c in indicators else ''
+                                for c in covariates]
+            for key, value in model.items():
+                cox[key] = value
+            cox['time_unit'] = unit
+    return {'curves': curves, 'summary': summary, 'tests': tests,
+            'cox': cox, 'engine': engine, 'cox_error': cox_error}
+
+
+def _time_to_event_figure(curves, summary, tests, title):
+    """Kaplan-Meier curves with their confidence bands and censoring ticks.
+
+    :param curves: the ``curves`` frame of
+        :func:`_time_to_event_statistics`, conditions in legend order.
+    :param summary: its ``summary`` frame, for the legend counts.
+    :param tests: its ``tests`` frame, for the log-rank p in the title.
+    :param title: the figure title.
+    :returns: the figure.
+    """
+    names = list(pd.unique(curves['condition']))
+    shown = names[:_TTE_FIGURE_GROUPS]
+    counts = summary[summary['level'] == 'condition'].set_index('group')
+    unit = str(curves['time_unit'].iloc[0])
+    with figure_style(theme_target()):
+        fig, ax = plt.subplots(figsize=(7, 4.5))
+        for name in shown:
+            curve = curves[curves['condition'] == name]
+            row = counts.loc[name]
+            line, = ax.step(curve['time'], curve['survival'], where='post',
+                            label=f"{name} (n={int(row['n'])}, "
+                                  f"events={int(row['events'])})")
+            ax.fill_between(curve['time'], curve['ci_lower'],
+                            curve['ci_upper'], step='post', alpha=0.18,
+                            color=line.get_color(), linewidth=0)
+            ticks = curve[curve['censored'] > 0]
+            ax.plot(ticks['time'], ticks['survival'], linestyle='none',
+                    marker='|', markersize=7, color=line.get_color())
+        ax.set_ylim(0, 1.03)
+        ax.set_xlim(left=0)
+        ax.set_xlabel(f'time ({unit})')
+        ax.set_ylabel('fraction without the event')
+        if not tests.empty:
+            overall = tests.iloc[0]
+            title = (f"{title}; log-rank p = {overall['p_value']:.3g} "
+                     f"({len(names)} conditions)")
+        if len(shown) < len(names):
+            title += f"; first {len(shown)} shown"
+        ax.set_title(title)
+        ax.legend(frameon=False, fontsize=8)
+        fig.tight_layout()
+    return fig
+
+
+def _hazard_ratio_figure(cox, title):
+    """Hazard ratios with their intervals, on a log axis.
+
+    :param cox: the ``cox`` frame of :func:`_time_to_event_statistics`.
+    :param title: the figure title.
+    :returns: the figure.
+    """
+    from matplotlib.ticker import FuncFormatter
+
+    ordered = cox.iloc[::-1]
+    y = np.arange(len(ordered))
+    with figure_style(theme_target()):
+        fig, ax = plt.subplots(figsize=(6, 1.6 + 0.45 * len(ordered)))
+        ratio = ordered['hazard_ratio'].to_numpy()
+        ax.errorbar(ratio, y, xerr=[ratio - ordered['hr_lower'].to_numpy(),
+                                    ordered['hr_upper'].to_numpy() - ratio],
+                    fmt='o', capsize=3)
+        ax.axvline(1.0, linestyle='--', linewidth=1)
+        ax.set_xscale('log')
+        plain = FuncFormatter(lambda value, _position: f'{value:g}')
+        ax.xaxis.set_major_formatter(plain)
+        ax.xaxis.set_minor_formatter(plain)
+        ax.set_yticks(y)
+        ax.set_yticklabels(list(ordered['covariate']))
+        ax.set_ylim(-0.6, len(ordered) - 0.4)
+        ax.set_xlabel('hazard ratio (95% interval)')
+        ax.set_title(title)
+        fig.tight_layout()
+    return fig
+
+
+def _time_to_event(db_path, settings, *, plot=True, engine=None):
+    """Time to an event for every tracked object, compared across conditions.
+
+    Reads the tracked objects Measure wrote for a timelapse, finds each
+    one's event as :func:`_time_to_event_objects` describes, and writes to
+    the database ``time_to_event`` (one row per object: its duration, event
+    flag, censoring reason, condition and first-frame covariates),
+    ``time_to_event_curves`` (the Kaplan-Meier curve of each condition with
+    its 95% band), ``time_to_event_summary`` (events and the median time to
+    event with its interval, per condition and per well),
+    ``time_to_event_tests`` (log-rank tests) and ``time_to_event_cox``
+    (hazard ratios of each condition against the reference and per unit of
+    each covariate, from one Cox model). Objects of one well share that
+    well's conditions, so the tests treat objects as independent and are
+    optimistic when wells differ; compare medians across wells in the
+    summary before trusting a small p.
+
+    :param db_path: the ``measurements.db``.
+    :param settings: Measure settings with the ``time_to_event_*`` keys.
+    :param plot: save the Kaplan-Meier and hazard-ratio figures under
+        ``results/time_to_event``.
+    :param engine: see :func:`spacr.sp_stats._survival_engine`.
+    :returns: a dict with the frames written (``objects``, ``curves``,
+        ``summary``, ``tests``, ``cox``), ``dropped`` counts, ``engine``,
+        ``cox_error`` and the ``figures`` saved.
+    :raises ValueError: unusable settings, or no object left to analyse.
+    """
+    from .tabular import write_database
+
+    config = _tte_settings(settings)
+    frame, movies = _read_time_to_event_inputs(db_path, config)
+    objects, dropped = _time_to_event_objects(frame, config, movies)
+    if objects.empty:
+        raise ValueError(
+            f"no tracked {config['time_to_event_object']} could be followed to an event "
+            f"or to censoring; left out: "
+            + ', '.join(f'{k} {v}' for k, v in dropped.items()))
+    objects, order = _time_to_event_groups(objects, config)
+    if objects.empty:
+        raise ValueError("no tracked object is in a well that "
+                         "time_to_event_conditions names.")
+    result = _time_to_event_statistics(objects, order, config, engine=engine)
+    objects = objects.assign(engine=result['engine'])
+    write_database(objects, db_path, _TTE_TABLE, if_exists='replace',
+                   canonicalise=False)
+    for key, name in (('curves', _TTE_CURVES_TABLE),
+                      ('summary', _TTE_SUMMARY_TABLE),
+                      ('tests', _TTE_TESTS_TABLE), ('cox', _TTE_COX_TABLE)):
+        if not result[key].empty:
+            write_database(result[key], db_path, name, if_exists='replace',
+                           canonicalise=False)
+    figures = []
+    if plot:
+        from .plot import save_figure
+
+        root = os.path.dirname(os.path.dirname(os.path.abspath(db_path)))
+        folder = os.path.join(root, 'results', 'time_to_event')
+        label = f"{config['time_to_event_object']}: {config['time_to_event_mode']}"
+        figures.append(save_figure(
+            _time_to_event_figure(result['curves'], result['summary'],
+                                  result['tests'], label),
+            os.path.join(folder, 'kaplan_meier.pdf'), close=True))
+        if not result['cox'].empty:
+            figures.append(save_figure(
+                _hazard_ratio_figure(result['cox'], label),
+                os.path.join(folder, 'hazard_ratios.pdf'), close=True))
+    return dict(result, objects=objects, dropped=dropped, figures=figures)
+
+
+def _run_time_to_event_step(db_path, settings):
+    """Run the time-to-event analysis at the end of a Measure run.
+
+    A failure is reported and does not fail the run: the measurements are
+    already in the database.
+
+    :param db_path: the ``measurements.db`` the run produced.
+    :param settings: Measure settings.
+    :returns: the result of :func:`_time_to_event`, or None when it failed.
+    """
+    try:
+        result = _time_to_event(db_path, settings)
+    except Exception as exc:
+        print(f"Time to event could not be analysed: {exc}")
+        return None
+    objects = result['objects']
+    print(f"Time to event ({result['engine']}): {len(objects)} tracked "
+          f"objects, {int(objects['event'].sum())} events, in "
+          f"measurements.db:{_TTE_TABLE}, {_TTE_SUMMARY_TABLE}, "
+          f"{_TTE_TESTS_TABLE} and {_TTE_COX_TABLE}.")
+    if result['cox_error']:
+        print(f"Time to event: no Cox model ({result['cox_error']}).")
+    return result
 
 
 def _emit_infection_report(db_path):

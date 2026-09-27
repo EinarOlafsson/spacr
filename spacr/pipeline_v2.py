@@ -564,9 +564,9 @@ def stream_masks_from_stack(
         normalisation/Cellpose; persisted intensity planes and scratch NPZs
         remain raw, and completion is recorded only after the combined stack
         has been atomically replaced.
-    :param psf_session: optional captured PSF session. Processes selected
-        intensities after illumination and before normalization, padding or
-        Cellpose. Stored image channels stay raw; only the appended labels
+    :param psf_session: optional captured PSF session. Unmixes each whole
+        field first when unmixing is on, then processes selected intensities
+        after illumination and before normalization, padding or Cellpose. Stored image channels stay raw; only the appended labels
         depend on PSF processing.
     :returns: the same list, with each :class:`StackFile.shape` /
         ``.channels`` updated to reflect the appended mask channel.
@@ -645,7 +645,9 @@ def stream_masks_from_stack(
                 channels_for_cellpose, arr.shape[-1])
             if filter_by_raw_intensity:
                 raw_intensity_per_field.append(arr[..., indices[0]])
-            selected = arr[..., list(indices)]
+            source = (psf_session.unmix(arr) if psf_session is not None
+                      else arr)
+            selected = source[..., list(indices)]
             if illumination_session is not None:
                 from .measure_hooks import PreprocessingContext
                 context = PreprocessingContext(
@@ -939,7 +941,8 @@ def run_v2(
     psf_session = _prepare_segmentation_psf(
         postprocess_settings or {}, src,
         _cellpose_channel_indices(channels_for_cellpose, len(stacks[0].channels)),
-        pipeline_style="v2")
+        pipeline_style="v2", stack_dir=stacks[0].path.parent,
+        load=lambda path: _as_hwc(np.load(path)))
     stream_masks_from_stack(
         stacks, model_name=model_name,
         channels_for_cellpose=channels_for_cellpose,
