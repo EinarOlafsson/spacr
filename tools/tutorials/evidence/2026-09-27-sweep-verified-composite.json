@@ -1,0 +1,547 @@
+{
+  "item": "07/447",
+  "date": "2026-09-27",
+  "lesson": "73_parameter_sweep",
+  "accepted": true,
+  "scope": "Verified native execution/replay visuals staged with current reviewed narration. Rendered-media and publication acceptance remain open.",
+  "english_sha256": "44292936fb6b522935dc2402151ddb2bba49786333975d2b8a683e271411e2a4",
+  "canonical_source_unchanged": true,
+  "translation_reviews_unchanged": true,
+  "reviewed_languages": 13,
+  "capture_provenance": {
+    "completed_capture": true,
+    "module": "parameter_sweep",
+    "composite": true,
+    "app_source_modified": false,
+    "scope": "Nine frames from actual CPU execution; one later saved-result replay frame exposing measured support counts. No new fits during replay.",
+    "captures": {
+      "execution": {
+        "commit": "85fdd27f2e094652c1b12fb1ebfd4b1bb5dd29cd",
+        "version": "1.5.1.0",
+        "module": "parameter_sweep",
+        "download_requested": false,
+        "dataset_cache": "/tmp/spacr-tutorials/example_data",
+        "app_source_modified": false,
+        "cache_isolated_with_bind_mount": true,
+        "completed_capture": true
+      },
+      "replay": {
+        "commit": "683e35639392c6b06bb0551bce526efe08f22a5d",
+        "version": "1.5.1.0",
+        "module": "parameter_sweep",
+        "download_requested": false,
+        "dataset_cache": "/tmp/spacr-tutorials/example_data",
+        "app_source_modified": false,
+        "cache_isolated_with_bind_mount": true,
+        "completed_capture": true
+      }
+    },
+    "scene_sources": {
+      "01_regression_with_four_existing_pairs": {
+        "kind": "execution",
+        "capture": "/mnt/firecuda2/codex/scratch-docs/t447/stage73/captures/parameter_sweep_neutral_20260927",
+        "image": "01_regression_with_four_existing_pairs.png",
+        "sha256": "b2773ba720024d3df38375987b1e83dd38f78377807d26481e3dbadc4486fc62",
+        "source_commit": "85fdd27f2e094652c1b12fb1ebfd4b1bb5dd29cd"
+      },
+      "03_count_file_picker": {
+        "kind": "execution",
+        "capture": "/mnt/firecuda2/codex/scratch-docs/t447/stage73/captures/parameter_sweep_neutral_20260927",
+        "image": "03_count_file_picker.png",
+        "sha256": "934100adad2fd821d26b48699629d6137e4e1174bf49953559271538b2eb3a27",
+        "source_commit": "85fdd27f2e094652c1b12fb1ebfd4b1bb5dd29cd"
+      },
+      "05_two_trials_one_worker_budget": {
+        "kind": "execution",
+        "capture": "/mnt/firecuda2/codex/scratch-docs/t447/stage73/captures/parameter_sweep_neutral_20260927",
+        "image": "05_two_trials_one_worker_budget.png",
+        "sha256": "45d050d679eb8a3ad987e5b58819a7b615014a8b2901204b640b8c958188c335",
+        "source_commit": "85fdd27f2e094652c1b12fb1ebfd4b1bb5dd29cd"
+      },
+      "06_actual_estimate": {
+        "kind": "execution",
+        "capture": "/mnt/firecuda2/codex/scratch-docs/t447/stage73/captures/parameter_sweep_neutral_20260927",
+        "image": "06_actual_estimate.png",
+        "sha256": "c9ade35f7375c0335f18ac8193202732b503b32dd9c9d6bc60c761607f988013",
+        "source_commit": "85fdd27f2e094652c1b12fb1ebfd4b1bb5dd29cd"
+      },
+      "07_actual_sweep_running": {
+        "kind": "execution",
+        "capture": "/mnt/firecuda2/codex/scratch-docs/t447/stage73/captures/parameter_sweep_neutral_20260927",
+        "image": "07_actual_sweep_running.png",
+        "sha256": "ea00d1752a77cf918273a45c4f8bbf53467c8d859765cc90e1359d68d66ebd18",
+        "source_commit": "85fdd27f2e094652c1b12fb1ebfd4b1bb5dd29cd"
+      },
+      "08_actual_sweep_finished": {
+        "kind": "execution",
+        "capture": "/mnt/firecuda2/codex/scratch-docs/t447/stage73/captures/parameter_sweep_neutral_20260927",
+        "image": "08_actual_sweep_finished.png",
+        "sha256": "c337e0a9402417556e8f7670fc8a319f2e8b936db37e13c360fbfc17a935da66",
+        "source_commit": "85fdd27f2e094652c1b12fb1ebfd4b1bb5dd29cd"
+      },
+      "10_saved_guide_family": {
+        "kind": "execution",
+        "capture": "/mnt/firecuda2/codex/scratch-docs/t447/stage73/captures/parameter_sweep_neutral_20260927",
+        "image": "10_saved_guide_family.png",
+        "sha256": "39d8ae4994cea605614f20bc71f5059b8d8831138f4c6914ab298297cacc8940",
+        "source_commit": "85fdd27f2e094652c1b12fb1ebfd4b1bb5dd29cd"
+      },
+      "11_saved_gene_family": {
+        "kind": "execution",
+        "capture": "/mnt/firecuda2/codex/scratch-docs/t447/stage73/captures/parameter_sweep_neutral_20260927",
+        "image": "11_saved_gene_family.png",
+        "sha256": "566153f707251ee510c5814bfcbe84d36dce7c82b76f37077d7602c7bf7745f4",
+        "source_commit": "85fdd27f2e094652c1b12fb1ebfd4b1bb5dd29cd"
+      },
+      "12_saved_guide_family_restored": {
+        "kind": "replay",
+        "capture": "/mnt/firecuda2/codex/scratch-docs/t447/stage73/captures/parameter_sweep_support_replay_20260927",
+        "image": "12_saved_guide_family_restored.png",
+        "sha256": "aa772dccc2e9cdfbbb7ca05451def4daf2e8edd39cd514dfa89860d9d95128df",
+        "source_commit": "683e35639392c6b06bb0551bce526efe08f22a5d"
+      },
+      "13_actual_saved_model_summary": {
+        "kind": "execution",
+        "capture": "/mnt/firecuda2/codex/scratch-docs/t447/stage73/captures/parameter_sweep_neutral_20260927",
+        "image": "13_actual_saved_model_summary.png",
+        "sha256": "9b4047c13f340fe866481d4c0823ac19fd80884bef37d18c29ba6fb99554fb87",
+        "source_commit": "85fdd27f2e094652c1b12fb1ebfd4b1bb5dd29cd"
+      }
+    },
+    "inference_validated": false,
+    "published": false
+  },
+  "execution_verification": {
+    "lesson": "73_parameter_sweep",
+    "source_commit": "85fdd27f2e094652c1b12fb1ebfd4b1bb5dd29cd",
+    "capture": "/tmp/spacr-tutorials/captures/parameter_sweep_neutral_20260927",
+    "accepted": true,
+    "scope": "saved execution and display consistency only",
+    "inference_validated": false,
+    "published": false,
+    "new_fits_requested": true,
+    "display": {
+      "rows": 2,
+      "columns": 18,
+      "cells": 36,
+      "passed": true
+    },
+    "trial_set": {
+      "passed": true,
+      "trials": 2,
+      "penalties": [
+        0.01,
+        0.1
+      ]
+    },
+    "trials": [
+      {
+        "trial_id": "1",
+        "alpha": 0.01,
+        "results_sha256": "bb5b9c3eaa3ce190bf891d9ce590d14927bcafe030195b33a07dc79957f2e51e",
+        "counts": {
+          "n_results": 1174,
+          "n_below_alpha": 10
+        },
+        "qc_inference": "fail",
+        "qc_verdict": "fail",
+        "fitted_support": {
+          "passed": true,
+          "prepared": {
+            "n_rows_fitted": 2955,
+            "n_wells": 620,
+            "n_guides": 791,
+            "n_genes": 381
+          },
+          "fitted": {
+            "grna": {
+              "n_rows_fitted": 2955,
+              "n_wells": 620,
+              "n_guides": 791,
+              "n_genes": 381,
+              "n_design_columns": 792
+            },
+            "gene": {
+              "n_rows_fitted": 2955,
+              "n_wells": 620,
+              "n_guides": 791,
+              "n_genes": 381,
+              "n_design_columns": 382
+            }
+          },
+          "qc_levels": [],
+          "saved_fit_records_checked": true,
+          "inference_validated": false
+        },
+        "prepared_data_sha256": "2f28496019f31071836798de1b363ee9357bdd200bf10620e2d31e1ba2c0d0ce",
+        "qc_sha256": {},
+        "fit_designs_sha256": "160813f7bcb082a0b0176f234753d7dcac9c4467d0e55e0908905f5fdf93a7c9",
+        "actual_settings_sha256": "0c2afea4edc6592f793cb315719a0f2dded1a22d353cb8e4e548a07b67c712cd",
+        "requested_settings_sha256": "b22c9c82ba5fc78fb9c3448deede6ccc70c680a0d94531c29f5664dde4539fc2"
+      },
+      {
+        "trial_id": "2",
+        "alpha": 0.1,
+        "results_sha256": "f9c8a29f1d522a37af60d42df7442a562c1e9dd99e28916537b589f342b07595",
+        "counts": {
+          "n_results": 1174,
+          "n_below_alpha": 5
+        },
+        "qc_inference": "fail",
+        "qc_verdict": "fail",
+        "fitted_support": {
+          "passed": true,
+          "prepared": {
+            "n_rows_fitted": 2955,
+            "n_wells": 620,
+            "n_guides": 791,
+            "n_genes": 381
+          },
+          "fitted": {
+            "grna": {
+              "n_rows_fitted": 2955,
+              "n_wells": 620,
+              "n_guides": 791,
+              "n_genes": 381,
+              "n_design_columns": 792
+            },
+            "gene": {
+              "n_rows_fitted": 2955,
+              "n_wells": 620,
+              "n_guides": 791,
+              "n_genes": 381,
+              "n_design_columns": 382
+            }
+          },
+          "qc_levels": [],
+          "saved_fit_records_checked": true,
+          "inference_validated": false
+        },
+        "prepared_data_sha256": "2f28496019f31071836798de1b363ee9357bdd200bf10620e2d31e1ba2c0d0ce",
+        "qc_sha256": {},
+        "fit_designs_sha256": "160813f7bcb082a0b0176f234753d7dcac9c4467d0e55e0908905f5fdf93a7c9",
+        "actual_settings_sha256": "12eef2c1e310ae9f668db1fe4e666668776d2d51135eee0752ac3c6af57eb537",
+        "requested_settings_sha256": "ba9e4da82af61492fe099fac9536461a852399fa1cfee14139005bc404d51cfd"
+      }
+    ],
+    "family_checks": {
+      "10_saved_guide_family": {
+        "passed": true,
+        "level": "grna",
+        "table": {
+          "rows": 792,
+          "columns": 11,
+          "cells": 8712,
+          "passed": true
+        },
+        "plotted_points": 791,
+        "maximum_coordinate_error": 1.7275070263167436e-13,
+        "inference_validated": false
+      },
+      "11_saved_gene_family": {
+        "passed": true,
+        "level": "gene",
+        "table": {
+          "rows": 382,
+          "columns": 11,
+          "cells": 4202,
+          "passed": true
+        },
+        "plotted_points": 381,
+        "maximum_coordinate_error": 1.98507876802978e-13,
+        "inference_validated": false
+      },
+      "12_saved_guide_family_restored": {
+        "passed": true,
+        "level": "grna",
+        "table": {
+          "rows": 792,
+          "columns": 11,
+          "cells": 8712,
+          "passed": true
+        },
+        "plotted_points": 791,
+        "maximum_coordinate_error": 1.7275070263167436e-13,
+        "inference_validated": false
+      }
+    },
+    "original_inputs_preserved": true,
+    "trial_table_geometry": {
+      "height": 181,
+      "viewport_height": 127,
+      "row_height": 31,
+      "both_rows_visible": true
+    },
+    "checked_result_cells": 21626,
+    "checked_plot_points": 1963
+  },
+  "replay_verification": {
+    "lesson": "73_parameter_sweep",
+    "source_commit": "683e35639392c6b06bb0551bce526efe08f22a5d",
+    "capture": "/tmp/spacr-tutorials/captures/parameter_sweep_support_replay_20260927",
+    "accepted": true,
+    "scope": "saved execution and display consistency only",
+    "inference_validated": false,
+    "published": false,
+    "new_fits_requested": false,
+    "display": {
+      "rows": 2,
+      "columns": 26,
+      "cells": 52,
+      "passed": true
+    },
+    "trial_set": {
+      "passed": true,
+      "trials": 2,
+      "penalties": [
+        0.01,
+        0.1
+      ]
+    },
+    "trials": [
+      {
+        "trial_id": "1",
+        "alpha": 0.01,
+        "results_sha256": "bb5b9c3eaa3ce190bf891d9ce590d14927bcafe030195b33a07dc79957f2e51e",
+        "counts": {
+          "n_results": 1174,
+          "n_below_alpha": 10
+        },
+        "qc_inference": "fail",
+        "qc_verdict": "fail",
+        "fitted_support": {
+          "passed": true,
+          "prepared": {
+            "n_rows_fitted": 2955,
+            "n_wells": 620,
+            "n_guides": 791,
+            "n_genes": 381
+          },
+          "fitted": {
+            "grna": {
+              "n_rows_fitted": 2955,
+              "n_wells": 620,
+              "n_guides": 791,
+              "n_genes": 381,
+              "n_design_columns": 792
+            },
+            "gene": {
+              "n_rows_fitted": 2955,
+              "n_wells": 620,
+              "n_guides": 791,
+              "n_genes": 381,
+              "n_design_columns": 382
+            }
+          },
+          "qc_levels": [],
+          "saved_fit_records_checked": true,
+          "inference_validated": false
+        },
+        "prepared_data_sha256": "2f28496019f31071836798de1b363ee9357bdd200bf10620e2d31e1ba2c0d0ce",
+        "qc_sha256": {},
+        "fit_designs_sha256": "160813f7bcb082a0b0176f234753d7dcac9c4467d0e55e0908905f5fdf93a7c9",
+        "actual_settings_sha256": "0c2afea4edc6592f793cb315719a0f2dded1a22d353cb8e4e548a07b67c712cd",
+        "requested_settings_sha256": "b22c9c82ba5fc78fb9c3448deede6ccc70c680a0d94531c29f5664dde4539fc2"
+      },
+      {
+        "trial_id": "2",
+        "alpha": 0.1,
+        "results_sha256": "f9c8a29f1d522a37af60d42df7442a562c1e9dd99e28916537b589f342b07595",
+        "counts": {
+          "n_results": 1174,
+          "n_below_alpha": 5
+        },
+        "qc_inference": "fail",
+        "qc_verdict": "fail",
+        "fitted_support": {
+          "passed": true,
+          "prepared": {
+            "n_rows_fitted": 2955,
+            "n_wells": 620,
+            "n_guides": 791,
+            "n_genes": 381
+          },
+          "fitted": {
+            "grna": {
+              "n_rows_fitted": 2955,
+              "n_wells": 620,
+              "n_guides": 791,
+              "n_genes": 381,
+              "n_design_columns": 792
+            },
+            "gene": {
+              "n_rows_fitted": 2955,
+              "n_wells": 620,
+              "n_guides": 791,
+              "n_genes": 381,
+              "n_design_columns": 382
+            }
+          },
+          "qc_levels": [],
+          "saved_fit_records_checked": true,
+          "inference_validated": false
+        },
+        "prepared_data_sha256": "2f28496019f31071836798de1b363ee9357bdd200bf10620e2d31e1ba2c0d0ce",
+        "qc_sha256": {},
+        "fit_designs_sha256": "160813f7bcb082a0b0176f234753d7dcac9c4467d0e55e0908905f5fdf93a7c9",
+        "actual_settings_sha256": "12eef2c1e310ae9f668db1fe4e666668776d2d51135eee0752ac3c6af57eb537",
+        "requested_settings_sha256": "ba9e4da82af61492fe099fac9536461a852399fa1cfee14139005bc404d51cfd"
+      }
+    ],
+    "family_checks": {
+      "10_saved_guide_family": {
+        "passed": true,
+        "level": "grna",
+        "table": {
+          "rows": 792,
+          "columns": 11,
+          "cells": 8712,
+          "passed": true
+        },
+        "plotted_points": 791,
+        "maximum_coordinate_error": 1.7275070263167436e-13,
+        "inference_validated": false
+      },
+      "11_saved_gene_family": {
+        "passed": true,
+        "level": "gene",
+        "table": {
+          "rows": 382,
+          "columns": 11,
+          "cells": 4202,
+          "passed": true
+        },
+        "plotted_points": 381,
+        "maximum_coordinate_error": 1.98507876802978e-13,
+        "inference_validated": false
+      },
+      "12_saved_guide_family_restored": {
+        "passed": true,
+        "level": "grna",
+        "table": {
+          "rows": 792,
+          "columns": 11,
+          "cells": 8712,
+          "passed": true
+        },
+        "plotted_points": 791,
+        "maximum_coordinate_error": 1.7275070263167436e-13,
+        "inference_validated": false
+      }
+    },
+    "original_inputs_preserved": true,
+    "trial_table_geometry": {
+      "height": 272,
+      "viewport_height": 218,
+      "row_height": 31,
+      "both_rows_visible": true
+    },
+    "visible_fitted_support": {
+      "passed": true,
+      "trials": 2,
+      "columns": 4,
+      "cells": 8,
+      "frame": "12_saved_guide_family_restored",
+      "bounds": [
+        1841,
+        341,
+        863,
+        103
+      ]
+    },
+    "checked_result_cells": 21626,
+    "checked_plot_points": 1963
+  },
+  "focus_map_sha256": "af2b4b6d5a6738af39d6c7185007835812d7b7a841e18fd5e40fd0359299b12e",
+  "visual_sha256": "617f1038ebdff6b4d2987369e4adf0456c43d152ae4c62cde3e99ee62e99f223",
+  "historical_media_backup": "/mnt/firecuda2/codex/scratch-docs/t447/backup-73-before-fit-support",
+  "historical_audio_and_cues_sha256": {
+    "audio/en/af_heart.json": "319ab71f7db468ea1aec7ff585f347665e2d5edb114f4d0e0822ec972cfd156c",
+    "audio/en/af_heart.m4a": "bee0b8db8227f8bd25881419192c3d8d6c6abde426a917d03637f7a96af07efb",
+    "audio/es/ef_dora.json": "ae6557861b0cf6a884c388230edfeb6fa3923e47b985b7f501aa28eeaa2fce45",
+    "audio/es/ef_dora.m4a": "47ab712ee6713108621bd307b461eecb30198866884a2afc29e68aa25c3094d6",
+    "audio/es/em_alex.json": "228c8f6e85ea8031c6033d6ae7219d60e7e7948ac03661de68d261a64e71c148",
+    "audio/es/em_alex.m4a": "918c8dc50c2ec8d3649544d0f97c3b45813bfd5d2201f20a2b828cd48dd39541",
+    "audio/es/em_santa.json": "8958994edc1b5df7c2e01d37429a2f68d579a09f2be1c04a5287561c68992fd8",
+    "audio/es/em_santa.m4a": "8c7896264b48ce120e83c4a91e959f2bdd2535675645d8f9565e20650e07e1b9",
+    "audio/fr/ff_siwis.json": "6fb7eb2d8ea5522f2e40a672bf3c733cd19bfb624bc6da12f827f2ae8faaa46a",
+    "audio/fr/ff_siwis.m4a": "c1b608c38773ce7dbd85107bf7e2a31389adb9d20930d0f7e87b2275f71d8d2e",
+    "audio/hi/hf_alpha.json": "ffb6791d29fba5d7e800f67f131f265d3b79684ec41adac707f0bada1616b3a5",
+    "audio/hi/hf_alpha.m4a": "f233b61a63bdd38c8cc1180e484124a8f50bfbfcd92870c7cea1ab42ce0dc38f",
+    "audio/hi/hf_beta.json": "5d44ef400245d2d4a27036f94b1860352d89bd2262b63f784a8d0e7927d58272",
+    "audio/hi/hf_beta.m4a": "5c494f414ca7c745245ac7c25b9fa4e9ee73ae19e57fe0f95dcc8f072d7cbe2b",
+    "audio/hi/hm_omega.json": "af7a2b568776c1285b38ba7f12884daa17e81c78a8b181c4555285349d702af4",
+    "audio/hi/hm_omega.m4a": "759b5e6c9133f25c12ed066dbe98057564be83b0cc82a4cd807964ba41cd149f",
+    "audio/hi/hm_psi.json": "0b759ead15318a45815c8c524eb9ef933eb7509cee12ffad9f7a454338138cd1",
+    "audio/hi/hm_psi.m4a": "4773a51f4231f7214b4f393b65b1beda84d4859e534d151dd2b22f0e27d7edc8",
+    "audio/it/if_sara.json": "c661d1b0830decfdcbe556a66ede8bcba6f05eb11afbd94c9d1b2fc73eaa3ba8",
+    "audio/it/if_sara.m4a": "454bc50a03c94acd714170d404b5c8e95534a125d817431762369f1613779ff8",
+    "audio/it/im_nicola.json": "9639d91b5fd43c03997b45446ccc51ab55e38754a34147b37cbfd09d3f25656c",
+    "audio/it/im_nicola.m4a": "7ac6ab269e76c8dd210c603da2134cb482e900572f1d2f82423d8a59698630e2",
+    "audio/ja/jf_alpha.json": "2261c2e83507cd7c5f44cfbf7278b122432ee3b475623cc2b6716f2a88501c42",
+    "audio/ja/jf_alpha.m4a": "f04b38f285c4b628f90e72971a2857c067344bedb9e3123d0f8ce3dedde53438",
+    "audio/ja/jf_gongitsune.json": "abaae1e7505af7707dc26c67df508d361460e8439bc321c3c92d4f93741c72b8",
+    "audio/ja/jf_gongitsune.m4a": "767bf632b0be0120764927379c20e8ae80b9b010c9d323b8d3d86d353e06f5b3",
+    "audio/ja/jf_nezumi.json": "b8e7cb0a9f7c556f3ac99bb1f1e149dc18fe8e3560adbc35d96402f4b5cebd04",
+    "audio/ja/jf_nezumi.m4a": "be69ce2c62b669f734c07d3fbb2bc9cb7016b1f2a900365ad74b14cdfcbd3f18",
+    "audio/ja/jf_tebukuro.json": "f864a0059d8a5d3524c1fbfb2040621263082d28d837384e80f5afe46288315e",
+    "audio/ja/jf_tebukuro.m4a": "20875c1595730c4a97e709c1aa9b07dc8b1724e28fc4580fe8237e45ad53dcb7",
+    "audio/ja/jm_kumo.json": "3889a0229027ae7fc939b5f35a26f2a58f4a1388e2ed71a58df2c5b5ea8a1f27",
+    "audio/ja/jm_kumo.m4a": "e70e8d2a26c03fd955e184cb7ae3beef15ab84cf2e99836ff49d2718133246f5",
+    "audio/pt-BR/pf_dora.json": "c66dca747a7e84dea1c3ca95926848b312488cd39270f4bea9a00a222020ada9",
+    "audio/pt-BR/pf_dora.m4a": "04712f501f22d859cddb12ad68c5f4327519a4834ed14cb0dcb3380fc04833e7",
+    "audio/pt-BR/pm_alex.json": "8736a8bca6c4841683f75f1deca96721a9d41206ca1d32fd836be116b4c49b4c",
+    "audio/pt-BR/pm_alex.m4a": "59eeb09a6c3d2094d2c794e00583018276fc561a0dc4a8816f4216ec9a9ea135",
+    "audio/pt-BR/pm_santa.json": "73728a5766edc9e3ed2ee42a78795a60e9ceef1a18b305bd7285845bb778eadc",
+    "audio/pt-BR/pm_santa.m4a": "b8b7fdc550c89a0c029fa3e500613764dfed1f051fbfdb6c485d558773a34600",
+    "audio/zh-CN/zf_xiaobei.json": "acc682e6d6f558ae6bd49f69b855a4bce76298ee2f68d88e0cb107e835d2af58",
+    "audio/zh-CN/zf_xiaobei.m4a": "47e8d8f7bc2e1eac269334db3ca883d96a900aa5467e4c2e7a46585a545e9b44",
+    "audio/zh-CN/zf_xiaoni.json": "bcb30446ec3e2fbbcabb2573ce578dd54989480a732845a9e4314c3d1a9d6caa",
+    "audio/zh-CN/zf_xiaoni.m4a": "703f2750c672a5e1c923f22af8c3aefd7fb5ef5059ad44ac7408369d4ba0c01a",
+    "audio/zh-CN/zf_xiaoxiao.json": "5136a5e84178060df7f257aa208456b37a47b57034a69514629c5634d35cda3f",
+    "audio/zh-CN/zf_xiaoxiao.m4a": "d9ce2bd4f30292f81425d058763e90b2a9d22993cc03629162c13545005e0a7a",
+    "audio/zh-CN/zf_xiaoyi.json": "726a68bc70f04e5d09c242ea23d72a887d1a93c9c8f198701140dac6076fc6ad",
+    "audio/zh-CN/zf_xiaoyi.m4a": "4fe0fd468355472d7f0420cbe656a8e8ae75c5235c2c00dcedfb67d3d4f0b6ec",
+    "audio/zh-CN/zm_yunjian.json": "491e305d375d42c64dd8f3369fc3e11e1f27c5c53540938005aee9fe07c26c0a",
+    "audio/zh-CN/zm_yunjian.m4a": "b1cc8431835dd7422b861b81998aeefcb57b4d140c4021c5936c76c0459f719f",
+    "audio/zh-CN/zm_yunxi.json": "2c29b5f879f70cb46e94aff33a4a82cee9483f85dabe7aaa20e04eb68742b0a4",
+    "audio/zh-CN/zm_yunxi.m4a": "c9332bae7f0d772895bea22ba11615a1bb7fe4fda6a34aa1ec982b19a16f55bb",
+    "audio/zh-CN/zm_yunxia.json": "f92144b43eae536b9c14ed44eec6f69e5ff6bde1209cd9559bc1266233749fd4",
+    "audio/zh-CN/zm_yunxia.m4a": "06b18141d2c1ad351c6b4d57a36695ff9eb79eb239aa0266f9d5e3f49f929489",
+    "audio/zh-CN/zm_yunyang.json": "11e09d59162257e9964f3d6b76ebad85b1f07ea3c78cb4eba341c63500f754ca",
+    "audio/zh-CN/zm_yunyang.m4a": "9ba9ea1bc774489ad5c6f41215655ca26f72ccc29bfa8b96f0bd6ee835db2551",
+    "captions/en/af_heart.vtt": "5a1c3d535d45e689e5c6215134152f4e9e8673a92d22d9aadc8a62a6d7454483",
+    "captions/es/ef_dora.vtt": "6418cf44b8a7627a69bd22584d668a368bb2b6f098b42e0f5571adf452798d47",
+    "captions/es/em_alex.vtt": "08554c93a7055e9b9e155280e71034956e0ba4b7f52c639c50dbf5b43626e4d5",
+    "captions/es/em_santa.vtt": "8047892f01a72d8af4d5457971b99b0ac4b73969665a070ad3dbba8889b89f7c",
+    "captions/fr/ff_siwis.vtt": "11aefeb5780742e4ff7f9c13a13142dce6bfc2762ab49c6ea87b42a6e9060b29",
+    "captions/hi/hf_alpha.vtt": "1ee5b2da1dad7b4892ddc121582c5b8cf4bf7d8bf317dde1df637cf98b6f16c8",
+    "captions/hi/hf_beta.vtt": "fe8c328da9b4900132c19a55ab6f143a1fae52135b25e1517cf1754422a3f064",
+    "captions/hi/hm_omega.vtt": "f524928bb549825413e009193a6a7adb65cdd22cc6031e26ffac5f30efbd6af4",
+    "captions/hi/hm_psi.vtt": "2be3fcadd8e6d2307b16f8bd543b7774eb4d394165b14f60b0aa4ef889281dc0",
+    "captions/it/if_sara.vtt": "f101f69b15707af8c77cd5f69aeead38cf45feb0f81c45f35b789be38daff13e",
+    "captions/it/im_nicola.vtt": "7b5e8acbfb83e06654b3515110f85811b9bb1d5aa547bef25148e03d24a566ad",
+    "captions/ja/jf_alpha.vtt": "717bf6c6f1af7cc7b2749c4e1a818cb8758f86a05fb9d4da1fc8a8ee5f2bf152",
+    "captions/ja/jf_gongitsune.vtt": "dfaab6e078da0c6c2f94bb9f6d0574b367fec3b50b98f59d1f1f4c0427e4b761",
+    "captions/ja/jf_nezumi.vtt": "3a7df25f08f8e2cdfeb615de7603666c5c97ccd7f6a0dd949b9f3095eb501d51",
+    "captions/ja/jf_tebukuro.vtt": "0b54818db9882bcdca2b0b96d338579626d28393a8d43482f93b9ef31daa3649",
+    "captions/ja/jm_kumo.vtt": "84bcd15b33cfc645abae3ab58f2cfcd468cfb2fdabb294eca026ae519c2ec0d9",
+    "captions/pt-BR/pf_dora.vtt": "2471cf5519867205c9c29d6716b33970ecb48db55e79c94c62b69f8484e48aff",
+    "captions/pt-BR/pm_alex.vtt": "e04388fa33915c1e1ddc8041ac457fa8491daf2999ec2786fbc20cb9200ac365",
+    "captions/pt-BR/pm_santa.vtt": "cdcf7889e2a4e1d5d9e4e0c0d26148e27b338274d3fa70c215f673f2575569ef",
+    "captions/zh-CN/zf_xiaobei.vtt": "777a317052a374fdce8768a6439d3a67221506b9d4f677674c8cddbbef0dff4e",
+    "captions/zh-CN/zf_xiaoni.vtt": "c346a0541a7b78be8addfbcfa888548100cabeec6bb7255d9d954657a905b10c",
+    "captions/zh-CN/zf_xiaoxiao.vtt": "bcf2e55feb5d6e94d615636c32aa410102bb758b488d08065cb8a71acc5ff8a8",
+    "captions/zh-CN/zf_xiaoyi.vtt": "6fec7cb5ea530cfd685251ad4e1a9b9b392b69b9e30d5e7ca303f7dfa7d82bb9",
+    "captions/zh-CN/zm_yunjian.vtt": "9ae7c5c85161ca87810a7542206595f22d3e083cb3fa019a7bd6e040acde7b15",
+    "captions/zh-CN/zm_yunxi.vtt": "c0704bffc79f7f6ff578ca5e1eac972acaf444d86d9ac6d9894271f49dbec0db",
+    "captions/zh-CN/zm_yunxia.vtt": "a90983ddefd4b4fccef90aa3cf5e27fb5877f65f3cd3d222b4b818cc7084c688",
+    "captions/zh-CN/zm_yunyang.vtt": "15be818f3aa49471400057b657b8007999b7b97f6666ffc8687e852c068fc501"
+  },
+  "historical_audio_retained_pending_regeneration": true,
+  "inference_validated": false,
+  "media_rendered": false,
+  "published": false,
+  "review_kind": "AI technical review (Codex), no native-speaker signoff",
+  "human_listening_signoff": false
+}

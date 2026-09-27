@@ -614,3 +614,21 @@ Eleven of13 batch2 lessons now have verified refreshed media; lessons56 and73
 remain. The ready manifest contains12 lessons including75. Publication and
 live verification remain open; this is not overall447 closure or listening
 or native-speaker signoff.
+
+STATUS 2026-09-27 — Sweep execution and fitted-support replay staged
+Lesson73 now stages nine neutral-root frames from two actual CPU trials and
+one later saved-result replay frame exposing the measured per-level counts.
+The original Start sweep/running frame remains from genuine execution;
+the replay requested no new fits. Independent verification compared21626
+result cells and1963 plot points, with2955 fitted rows and620 unique wells
+at both guide and gene levels. The two trials still fail inference checks;
+computational/display acceptance is not statistical or biological validation.
+
+The source-bound recapture spotlight includes all four fitted-support columns
+and eight cells. Canonical English, all13 source-bound reviews, prior audio
+and captions, unrelated catalog entries and the active narration batch's
+frozen JSON inputs are unchanged. The corrected narration was already
+committed; all27 lesson73 voice tracks still require regeneration, followed
+by rendering, playback/path checks, publication and live verification.
+Receipt: tools/tutorials/evidence/2026-09-27-sweep-verified-composite.json.
+This is staging acceptance only, with no native-speaker or listening signoff.
