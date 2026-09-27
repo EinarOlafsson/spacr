@@ -3384,3 +3384,484 @@ def _validate_archive_package(pkg: Any, *, verify_checksums: bool = True
             if not path.is_file() or _archive_md5(path) != digest:
                 problems.append(f"checksums: {rel} does not match")
     return problems
+
+
+_ZENODO_API = {"sandbox": "https://sandbox.zenodo.org/api",
+               "zenodo": "https://zenodo.org/api"}
+"""The Zenodo REST API root for the sandbox and for the real archive."""
+
+_ZENODO_KEYRING_SERVICE = "spacr-zenodo"
+"""Service name the Zenodo tokens use in the OS keyring."""
+
+_ZENODO_TIMEOUT_S = 120.0
+"""Seconds one Zenodo request may take before it is abandoned."""
+
+_ZENODO_TABLE_SUFFIXES = (".csv", ".tsv", ".parquet", ".xlsx") + DB_SUFFIXES
+"""Suffixes of the result tables a deposit carries."""
+
+
+def _zenodo_token_path() -> Path:
+    """Return ``~/.spacr/zenodo_token.json``, the keyring fallback."""
+    from .run_journal import _notify_secrets_path
+
+    return _notify_secrets_path().with_name("zenodo_token.json")
+
+
+def _zenodo_token_name(sandbox: bool) -> str:
+    """The key a Zenodo token is kept under: one for the sandbox, one not."""
+    return "sandbox_token" if sandbox else "token"
+
+
+def _store_zenodo_token(value: str, sandbox: bool = True) -> str:
+    """Keep a Zenodo personal access token, in the OS keyring when there is one.
+
+    Without a usable keyring the token goes to ``~/.spacr/zenodo_token.json``,
+    mode 600. An empty value forgets the token in both places. The token is
+    never logged.
+
+    :param value: the token.
+    :param sandbox: the sandbox token rather than the real Zenodo one.
+    :returns: ``"keyring"``, ``"file"`` or ``"forgotten"``.
+    """
+    from .run_journal import (_notify_keyring, _read_notify_secret_file,
+                              _write_notify_secret_file)
+
+    name = _zenodo_token_name(sandbox)
+    path = _zenodo_token_path()
+    value = str(value or "").strip()
+    stored = _read_notify_secret_file(path)
+    ring = _notify_keyring()
+    if not value:
+        if stored.pop(name, None) is not None:
+            _write_notify_secret_file(stored, path)
+        if ring is not None:
+            try:
+                ring.delete_password(_ZENODO_KEYRING_SERVICE, name)
+            except Exception:
+                LOG.debug("no keyring entry to forget")
+        return "forgotten"
+    if ring is not None:
+        try:
+            ring.set_password(_ZENODO_KEYRING_SERVICE, name, value)
+            if stored.pop(name, None) is not None:
+                _write_notify_secret_file(stored, path)
+            return "keyring"
+        except Exception as exc:
+            LOG.info("the OS keyring refused the Zenodo token (%s); keeping "
+                     "it in %s", type(exc).__name__, path)
+    stored[name] = value
+    _write_notify_secret_file(stored, path)
+    return "file"
+
+
+def _load_zenodo_token(sandbox: bool = True) -> str:
+    """Read the stored Zenodo token: the OS keyring first, then the file.
+
+    :param sandbox: the sandbox token rather than the real Zenodo one.
+    :returns: the token, or an empty string when none is stored.
+    """
+    from .run_journal import _notify_keyring, _read_notify_secret_file
+
+    name = _zenodo_token_name(sandbox)
+    ring = _notify_keyring()
+    if ring is not None:
+        try:
+            value = ring.get_password(_ZENODO_KEYRING_SERVICE, name)
+            if value:
+                return str(value)
+        except Exception:
+            LOG.debug("the OS keyring could not be read")
+    return _read_notify_secret_file(_zenodo_token_path()).get(name, "")
+
+
+def _zenodo_license(text: str) -> str:
+    """The Zenodo license id of a license as the archive form writes it.
+
+    ``CC BY 4.0`` becomes ``cc-by-4.0`` and ``CC0`` becomes ``cc0-1.0``;
+    an empty value is ``cc-by-4.0``.
+    """
+    import re
+
+    slug = re.sub(r"[^a-z0-9.]+", "-", str(text or "").lower()).strip("-")
+    if not slug:
+        return "cc-by-4.0"
+    if slug in ("cc0", "cc-zero", "cc0-1.0", "cc-0"):
+        return "cc0-1.0"
+    return slug
+
+
+def _zenodo_metadata(form: Dict[str, Any], src: Path,
+                     runs: Sequence[Dict[str, Any]] = ()) -> Dict[str, Any]:
+    """Zenodo deposition metadata from the archive form of a run.
+
+    A dataset with the form's title, description, authors (``Last First``
+    becomes ``Last, First``) and affiliation, keywords, license and release
+    date as its publication date, open access, and a note naming the spaCR
+    version, the run folder and the journalled runs it holds.
+
+    :param form: the archive form values.
+    :param src: the run folder.
+    :param runs: journalled runs, as :func:`_load_journal_runs` returns them.
+    :returns: the ``metadata`` object of a Zenodo deposition.
+    """
+    affiliation = str(form.get("affiliation", "")).strip()
+    creators = []
+    for last, first in _archive_authors(str(form.get("authors", ""))):
+        creator = {"name": f"{last}, {first}" if first else last}
+        if affiliation:
+            creator["affiliation"] = affiliation
+        creators.append(creator)
+    keywords = [k.strip() for k in str(form.get("keywords", "")).split(";")
+                if k.strip()]
+    description = str(form.get("description", "")).strip() or str(
+        form.get("title", ""))
+    try:
+        from . import __version__ as version
+    except Exception:
+        version = "unknown"
+    run_notes = [f"{r.get('app_key', '?')} {r.get('start_utc', '')}".strip()
+                 for r in runs]
+    notes = (f"Deposited with spaCR {version} from the run folder "
+             f"{src.name}." + (" Runs: " + "; ".join(run_notes) + "."
+                               if run_notes else ""))
+    metadata: Dict[str, Any] = {
+        "upload_type": "dataset",
+        "title": str(form.get("title", "")).strip() or src.name,
+        "description": _html.escape(description),
+        "creators": creators,
+        "access_right": "open",
+        "license": _zenodo_license(str(form.get("license", ""))),
+        "notes": notes,
+    }
+    if keywords:
+        metadata["keywords"] = keywords
+    date = str(form.get("release_date", "")).strip()
+    if date:
+        metadata["publication_date"] = date
+    return metadata
+
+
+def _zenodo_zip(target: Path, entries: Sequence[Tuple[Path, str]]) -> Optional[Path]:
+    """Zip ``(path, name in the zip)`` pairs into ``target``.
+
+    :returns: ``target``, or ``None`` when there is nothing to zip.
+    """
+    import zipfile
+
+    if not entries:
+        return None
+    with zipfile.ZipFile(target, "w", zipfile.ZIP_DEFLATED) as archive:
+        for path, arcname in entries:
+            archive.write(path, arcname)
+    return target
+
+
+def _zenodo_tree(root: Path, prefix: str) -> List[Tuple[Path, str]]:
+    """Every file under ``root``, named ``prefix/<relative path>``."""
+    if not root.is_dir():
+        return []
+    return [(p, f"{prefix}/{p.relative_to(root).as_posix()}")
+            for p in sorted(root.rglob("*")) if p.is_file()]
+
+
+def _zenodo_mask_dirs(src: Path) -> List[Path]:
+    """The mask folders of a run: ``masks`` and every ``*_mask_stack``."""
+    found = []
+    for parent in (src, src / "masks"):
+        if not parent.is_dir():
+            continue
+        for child in sorted(parent.iterdir()):
+            if child.is_dir() and child.name.endswith("_mask_stack"):
+                found.append(child)
+    masks = src / "masks"
+    if masks.is_dir() and not found:
+        found.append(masks)
+    return found
+
+
+def _zenodo_stage(src: Any, out: Any, form: Dict[str, Any], *,
+                  include_masks: bool = False,
+                  run_dirs: Optional[Sequence[Any]] = None,
+                  search_journal: bool = True,
+                  progress: Optional[Any] = None
+                  ) -> Tuple[Path, List[Path], Dict[str, Any]]:
+    """Gather the files and metadata of a Zenodo deposit for a finished run.
+
+    Writes into ``out/<title>-zenodo``: the archive package (the IDR,
+    BioStudies and MIHCSME metadata with checksums, images not copied) as
+    ``<title>-archive.zip`` when the run holds images, ``settings.zip``,
+    the journalled runs of this folder as ``run_journal.zip``, the HTML
+    report as ``report.html``, the result tables as ``results.zip`` and,
+    with ``include_masks``, the mask folders as ``masks.zip``. The run
+    folder is not written to.
+
+    :param src: the run folder.
+    :param out: the folder the staging folder is created in.
+    :param form: the archive form values.
+    :param include_masks: also deposit the masks.
+    :param run_dirs: journalled run folders to use instead of searching
+        the journal.
+    :param search_journal: search ``~/.spacr/runs`` for this folder's runs.
+    :param progress: called with a short text now and then, or ``None``.
+    :returns: ``(staging folder, files to upload, metadata)``.
+    :raises ValueError: when ``src`` is not a folder.
+    """
+    say = progress or (lambda _text: None)
+    src = Path(str(src)).expanduser().resolve()
+    if not src.is_dir():
+        raise ValueError(f"Not a folder: {src}")
+    values = dict(_archive_form_defaults(src))
+    values.update({k: str(v).strip() for k, v in (form or {}).items()
+                   if v is not None})
+    slug = _archive_slug(values["title"])
+    stage = Path(str(out)).expanduser().resolve() / f"{slug}-zenodo"
+    stage.mkdir(parents=True, exist_ok=True)
+    for old in stage.iterdir():
+        if old.is_file():
+            old.unlink()
+    files: List[Path] = []
+
+    if _archive_images(src):
+        say("Writing the archive package")
+        pkg = _write_archive_package(src, stage / "package", values)
+        zipped = _zenodo_zip(stage / f"{slug}-archive.zip",
+                             _zenodo_tree(pkg, slug))
+        files.append(zipped)
+
+    zipped = _zenodo_zip(stage / "settings.zip",
+                         _zenodo_tree(src / "settings", "settings"))
+    if zipped:
+        files.append(zipped)
+
+    runs, _problems = _load_journal_runs(src, run_dirs, search_journal,
+                                         DEFAULT_JOURNAL_LIMIT)
+    journal = []
+    for run in runs:
+        journal += _zenodo_tree(Path(run["dir"]), Path(run["dir"]).name)
+    zipped = _zenodo_zip(stage / "run_journal.zip", journal)
+    if zipped:
+        files.append(zipped)
+
+    say("Writing the report")
+    report = stage / "report.html"
+    build_report(src, report, fmt="html",
+                 run_dirs=[r["dir"] for r in runs] if runs else [],
+                 search_journal=False)
+    files.append(report)
+
+    found = _find_artifacts(src)
+    tables = sorted({p for key in ("databases", "result_csv", "qc_csv",
+                                   "layout_csv", "qc_flags")
+                     for p in found[key]
+                     if p.suffix.lower() in _ZENODO_TABLE_SUFFIXES + (".json",)
+                     and p.parent.name != "settings"})
+    zipped = _zenodo_zip(stage / "results.zip",
+                         [(p, p.relative_to(src).as_posix()) for p in tables])
+    if zipped:
+        files.append(zipped)
+
+    if include_masks:
+        say("Zipping the masks")
+        masks = []
+        for folder in _zenodo_mask_dirs(src):
+            masks += _zenodo_tree(folder, folder.relative_to(src).as_posix())
+        zipped = _zenodo_zip(stage / "masks.zip", masks)
+        if zipped:
+            files.append(zipped)
+
+    return stage, files, _zenodo_metadata(values, src, runs)
+
+
+def _zenodo_opener() -> Any:
+    """A URL opener that refuses redirects, so the token never moves host."""
+    import urllib.request
+
+    class _NoRedirect(urllib.request.HTTPRedirectHandler):
+        """Answer every redirect as an error."""
+
+        def redirect_request(self, req, fp, code, msg, headers, newurl):
+            """Return ``None``: the redirect is not followed."""
+            return None
+
+    return urllib.request.build_opener(_NoRedirect)
+
+
+def _zenodo_request(method: str, url: str, token: str, *,
+                    payload: Optional[Dict[str, Any]] = None,
+                    path: Optional[Path] = None) -> Dict[str, Any]:
+    """One authorised Zenodo API call; its JSON answer.
+
+    The token travels in the ``Authorization`` header only, never in the
+    URL, and appears in no message. Plain ``http`` is refused except to
+    this machine, and redirects are refused.
+
+    :param method: the HTTP method.
+    :param url: the full URL.
+    :param token: the personal access token.
+    :param payload: a JSON body, or ``None``.
+    :param path: a file to send as the body, or ``None``.
+    :returns: the decoded answer; an empty dict when the answer is empty.
+    :raises RuntimeError: when Zenodo cannot be reached or refuses.
+    """
+    import urllib.error
+    import urllib.parse
+    import urllib.request
+
+    parts = urllib.parse.urlsplit(url)
+    local = parts.hostname in ("127.0.0.1", "localhost", "::1")
+    if parts.scheme != "https" and not (parts.scheme == "http" and local):
+        raise RuntimeError(f"Refusing to send the Zenodo token over "
+                           f"{parts.scheme or 'no scheme'} to {parts.hostname}")
+    headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
+    handle = None
+    data: Any = None
+    if payload is not None:
+        data = json.dumps(payload).encode("utf-8")
+        headers["Content-Type"] = "application/json"
+    elif path is not None:
+        handle = open(path, "rb")
+        data = handle
+        headers["Content-Type"] = "application/octet-stream"
+        headers["Content-Length"] = str(path.stat().st_size)
+    request = urllib.request.Request(url, data=data, method=method,
+                                     headers=headers)
+    opener = _zenodo_opener()
+    where = f"{method} {parts.path}"
+    try:
+        with opener.open(request, timeout=_ZENODO_TIMEOUT_S) as answer:
+            raw = answer.read()
+    except urllib.error.HTTPError as exc:
+        try:
+            body = json.loads(exc.read() or b"{}")
+            detail = body.get("message", "") if isinstance(body, dict) else ""
+        except Exception:
+            detail = ""
+        raise RuntimeError(f"Zenodo refused {where}: HTTP {exc.code}"
+                           + (f" ({detail})" if detail else "")) from None
+    except (urllib.error.URLError, OSError) as exc:
+        reason = getattr(exc, "reason", exc)
+        raise RuntimeError(f"Could not reach Zenodo at {parts.hostname}: "
+                           f"{reason}") from None
+    finally:
+        if handle is not None:
+            handle.close()
+    if not raw:
+        return {}
+    try:
+        decoded = json.loads(raw)
+    except ValueError:
+        raise RuntimeError(f"Zenodo answered {where} with no JSON") from None
+    return decoded if isinstance(decoded, dict) else {"items": decoded}
+
+
+def _zenodo_deposit(files: Sequence[Path], metadata: Dict[str, Any], token: str,
+                    *, sandbox: bool = True, publish: bool = False,
+                    api: Optional[str] = None,
+                    progress: Optional[Any] = None) -> Dict[str, Any]:
+    """Create a Zenodo deposition, upload ``files``, set its metadata.
+
+    Uses the deposition API: a new deposition, each file sent to its
+    bucket and checked against the MD5 Zenodo reports, then the metadata;
+    with ``publish`` the deposition is published and its DOI becomes
+    permanent. A draft keeps the DOI Zenodo reserved for it. A failure
+    after the deposition was made leaves the draft on Zenodo, to finish or
+    delete there.
+
+    :param files: the files to upload.
+    :param metadata: the deposition metadata, as :func:`_zenodo_metadata`.
+    :param token: a Zenodo personal access token with ``deposit:write``.
+    :param sandbox: deposit on ``sandbox.zenodo.org`` rather than Zenodo.
+    :param publish: publish the deposition.
+    :param api: an API root to use instead of Zenodo's.
+    :param progress: called with a short text now and then, or ``None``.
+    :returns: ``id``, ``doi``, ``url``, ``sandbox``, ``published``,
+        ``files`` (name, size, md5) and ``metadata``.
+    :raises ValueError: without a token.
+    :raises RuntimeError: when Zenodo refuses or a checksum differs.
+    """
+    import urllib.parse
+
+    say = progress or (lambda _text: None)
+    token = str(token or "").strip()
+    if not token:
+        raise ValueError("A Zenodo personal access token is needed.")
+    root = (api or _ZENODO_API["sandbox" if sandbox else "zenodo"]).rstrip("/")
+    deposition = _zenodo_request("POST", f"{root}/deposit/depositions", token,
+                                 payload={})
+    ident = deposition.get("id")
+    bucket = (deposition.get("links") or {}).get("bucket")
+    if ident is None or not bucket:
+        raise RuntimeError("Zenodo made no deposition with a file bucket.")
+    sent = []
+    for path in files:
+        path = Path(path)
+        say(f"Uploading {path.name}")
+        answer = _zenodo_request(
+            "PUT", f"{bucket}/{urllib.parse.quote(path.name)}", token,
+            path=path)
+        local = _archive_md5(path)
+        remote = str(answer.get("checksum", "")).split(":")[-1]
+        if remote and remote != local:
+            raise RuntimeError(f"Zenodo holds a different {path.name} "
+                               f"(md5 {remote}, sent {local}).")
+        sent.append({"name": path.name, "size": path.stat().st_size,
+                     "md5": local})
+    say("Setting the metadata")
+    deposition = _zenodo_request("PUT", f"{root}/deposit/depositions/{ident}",
+                                 token, payload={"metadata": metadata})
+    if publish:
+        say("Publishing")
+        deposition = _zenodo_request(
+            "POST", f"{root}/deposit/depositions/{ident}/actions/publish",
+            token)
+    doi = deposition.get("doi") or (
+        (deposition.get("metadata") or {}).get("prereserve_doi") or {}
+    ).get("doi", "")
+    links = deposition.get("links") or {}
+    return {"id": ident, "doi": doi,
+            "url": links.get("record_html") or links.get("html", ""),
+            "sandbox": bool(sandbox), "published": bool(publish),
+            "files": sent, "metadata": metadata}
+
+
+def _zenodo_archive_run(src: Any, out: Any, form: Dict[str, Any], *,
+                        token: Optional[str] = None, sandbox: bool = True,
+                        publish: bool = False, include_masks: bool = False,
+                        api: Optional[str] = None,
+                        run_dirs: Optional[Sequence[Any]] = None,
+                        search_journal: bool = True,
+                        progress: Optional[Any] = None) -> Dict[str, Any]:
+    """Deposit a finished run on Zenodo, so the analysis gets a DOI.
+
+    Stages the run's archive package, settings, run journal, report,
+    result tables and, optionally, masks with :func:`_zenodo_stage`,
+    uploads them with :func:`_zenodo_deposit` and writes the answer to
+    ``zenodo_deposit.json`` in the staging folder.
+
+    :param src: the run folder.
+    :param out: the folder the staging folder is created in.
+    :param form: the archive form values.
+    :param token: the personal access token; the stored one when ``None``.
+    :param sandbox: deposit on ``sandbox.zenodo.org``.
+    :param publish: publish, making the DOI permanent.
+    :param include_masks: also deposit the masks.
+    :param api: an API root to use instead of Zenodo's.
+    :param run_dirs: journalled run folders to use instead of searching.
+    :param search_journal: search ``~/.spacr/runs`` for this folder's runs.
+    :param progress: called with a short text now and then, or ``None``.
+    :returns: the deposit record, with ``stage`` the staging folder.
+    :raises ValueError: without a token or a run folder.
+    :raises RuntimeError: when Zenodo refuses.
+    """
+    token = token if token else _load_zenodo_token(sandbox)
+    if not token:
+        raise ValueError("A Zenodo personal access token is needed.")
+    stage, files, metadata = _zenodo_stage(
+        src, out, form, include_masks=include_masks, run_dirs=run_dirs,
+        search_journal=search_journal, progress=progress)
+    record = _zenodo_deposit(files, metadata, token, sandbox=sandbox,
+                             publish=publish, api=api, progress=progress)
+    record["stage"] = str(stage)
+    _archive_write_text(stage / "zenodo_deposit.json",
+                        json.dumps(record, indent=2))
+    return record

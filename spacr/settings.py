@@ -7237,6 +7237,9 @@ ALPHA_FEATURES = {
     574: {
         'widgets': ('ReportArchivePackage',),
     },
+    579: {
+        'widgets': ('ReportZenodoDeposit',),
+    },
     575: {
         'widgets': ('RunHistoryExportWorkflow',),
     },
