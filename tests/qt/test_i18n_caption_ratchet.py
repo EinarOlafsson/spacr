@@ -1157,13 +1157,6 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     # 555, 2026-09-26: the Segment by prompt category (micro-SAM), an alpha
     # feature: its caption, controls, tooltips and console lines.
     # 535, 2026-09-26: the Cell Cycle (Alpha) category help on Measure.
-<<<<<<< HEAD
-    "The cell-cycle phase of every nucleus, called after measuring from the "
-    "DNA stain in one of three interchangeable ways: gates on each plate's "
-    "fitted DNA-content histogram, a boosted classifier on the nucleus "
-    "measurements, or an image classifier on nucleus crops. Each writes the "
-    "same phase column to measurements.db, with the phase fractions per well "
-    "among infected and uninfected cells.",
     # 580, 2026-09-27: the Intensity Calibration (Alpha) category help on
     # Measure.
     "Scale every imaging session to the same intensities before "
@@ -1172,8 +1165,6 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "multiplied by the gain that makes its reference wells match "
     "the first plate's, and the gains are recorded in "
     "measurements.db.",
-=======
->>>>>>> nightly
     # 571, 2026-09-26: the Time To Event (Alpha) category help on Measure.
     "How long each tracked object of a timelapse lasts until an event such "
     "as death, lysis, egress, division or first detection, with objects "

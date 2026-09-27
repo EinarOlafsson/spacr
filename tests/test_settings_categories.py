@@ -1512,19 +1512,15 @@ def _rendered_sections(app_key):
         # same reason: that is the order the run executes them in.
         ("measure", [
             "Input & Experiment", "Mask & Channel Mapping",
-<<<<<<< HEAD
-            "Illumination Correction", "Point Spread Function",
-            # Item 580, 2026-09-27: cross-plate intensity calibration
-            # rescales the pixels the features are computed from, so it
-            # follows the other image corrections, as an Alpha heading.
-            "Intensity Calibration (Alpha)",
-=======
             "Illumination Correction",
             # Item 538, 2026-09-26: the measured channels are unmixed
             # before the PSF and the features.
             "Spectral Unmixing (Alpha)",
             "Point Spread Function",
->>>>>>> nightly
+            # Item 580, 2026-09-27: cross-plate intensity calibration
+            # rescales the pixels the features are computed from, so it
+            # follows the other image corrections, as an Alpha heading.
+            "Intensity Calibration (Alpha)",
             "Measurement Features",
             # Item 541, 2026-09-26: confluency sits after the features it
             # is measured beside, as an Alpha heading of its own.
