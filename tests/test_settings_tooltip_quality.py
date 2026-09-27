@@ -953,6 +953,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # + 4: item 583's two barcode-linkage claims in two apps, pinned above.
     # + 0: item 537's three lineage-tree settings belong to the Timelapse
     # category, which no compared app resolves, so none is compared.
+    # + 0: item 567's six event-detection settings, likewise in Timelapse.
     # + 3: item 543's vendor flat-field profile in three apps, pinned above.
     # + 2: item 546's CellProfiler pipeline in two apps, pinned above.
     # + 7: item 542's colony-counting claims in Plaque Assay, pinned above.

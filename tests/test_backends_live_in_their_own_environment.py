@@ -499,6 +499,8 @@ def test_every_module_an_adapter_imports_is_in_its_self_test():
         "omnipose": (SB._OmniposeAdapter, SB._omnipose_shape),
         "careamics": (SB._worker_n2v_train, SB._N2VLosses,
                       SB._worker_n2v_denoise),
+        "spotiflow": (SB._SpotiflowAdapter, SB._spotiflow_network,
+                      SB._worker_spotiflow_spots),
         "cellprofiler": (SB._cellprofiler_started,
                          SB._worker_run_cellprofiler),
     }

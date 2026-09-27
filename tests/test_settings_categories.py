@@ -811,6 +811,12 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # category and shown under "Lineage Trees (Alpha)" on the Timelapse app.
     "timelapse_lineage", "timelapse_lineage_color_by",
     "timelapse_lineage_max_distance",
+    # A NEW SETTING GROUP, not a regrouping (item 567, 2026-09-27): event
+    # detection on tracks, appended to the Timelapse category and shown under
+    # "Event Detection (Alpha)" on the Timelapse app.
+    "timelapse_events", "timelapse_events_annotations",
+    "timelapse_events_model", "timelapse_events_window",
+    "timelapse_events_threshold", "timelapse_events_conditions",
     # NEW SETTINGS, not a regrouping (item 536, 2026-09-26): Measure's
     # scratch-wound closure switch, its source, channel, texture window,
     # frame interval and well-to-condition map, under their own "Wound
@@ -1643,6 +1649,8 @@ def _rendered_sections(app_key):
             # Item 537, 2026-09-27: lineage trees are built from the tracks
             # the backends above produce.
             "Lineage Trees (Alpha)",
+            # Item 567, 2026-09-27: events are detected on the same tracks.
+            "Event Detection (Alpha)",
             "Visualization & Diagnostics", "Output & Storage",
             "Runtime & Reliability",
         ]),

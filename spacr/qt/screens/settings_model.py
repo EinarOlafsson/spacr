@@ -1376,6 +1376,11 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "timelapse_lineage", "timelapse_lineage_color_by",
             "timelapse_lineage_max_distance",
         )),
+        ("Event Detection (Alpha)", (
+            "timelapse_events", "timelapse_events_annotations",
+            "timelapse_events_model", "timelapse_events_window",
+            "timelapse_events_threshold", "timelapse_events_conditions",
+        )),
         ("Visualization & Diagnostics", (
             "plot", "cmap", "figuresize", "examples_to_plot",
         )),
@@ -2688,6 +2693,11 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "Lineage trees drawn from the tracker's division links after each "
         "field is tracked, coloured by a measurement, with Newick and CSV "
         "export and per-lineage generation times and sibling correlation.",
+    "EVENT DETECTION (ALPHA)":
+        "Mitosis, egress, invasion and host death detected on tracks by a "
+        "small network trained on annotated events, with held-out precision "
+        "and recall, division links re-made from mitoses and time to each "
+        "event per condition.",
     "BLEACH CORRECTION (ALPHA)":
         "Photobleaching correction for timelapse intensities, per field and "
         "channel: a simple ratio to the first timepoint, a fitted exponential "

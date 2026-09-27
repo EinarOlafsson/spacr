@@ -91,6 +91,7 @@ from PySide6.QtWidgets import (
 from ...crop_loader import (CROP_SOURCE_DATABASE, CROP_SOURCES,
                             DEFAULT_CROP_LIMIT, DEFAULT_PAGE_SIZE)
 from ..app_catalog import declared_app
+from ..i18n import tr
 from ..job_runner import JobRunner
 from ..theme import SPACING
 from ..widgets.collapsible_splitter import FoldSection
@@ -354,6 +355,7 @@ class EmbeddingsScreen(QWidget):
             "are the same number and not the same thing unless the backbone, "
             "the weights and the channel policy all match.")
         controls.addWidget(self._backbone)
+        self._add_foundation_picker(controls)
 
         controls.addWidget(QLabel("Batch:", self))
         self._batch = QSpinBox(self)
@@ -372,6 +374,7 @@ class EmbeddingsScreen(QWidget):
         self._run.setToolTip("Load crops first")
         self._run.clicked.connect(self.embed)
         controls.addWidget(self._run)
+        self._add_well_mil_button(controls)
         outer.addLayout(controls)
 
         self._table = install_sorting(QTableWidget(0, 0, self))
@@ -407,6 +410,97 @@ class EmbeddingsScreen(QWidget):
 
         retarget_field_tooltips(self)
 
+
+    def _add_foundation_picker(self, controls) -> None:
+        """The Foundation model picker, alpha-gated, beside the backbone.
+
+        A single-cell foundation model chosen here replaces the backbone for
+        the run, whether the picker is shown or not; None keeps the backbone.
+        """
+        from ...embeddings import _FOUNDATION_MODELS
+        from ..preferences import _apply_alpha_widgets
+
+        label = QLabel(tr("Foundation model:"), self)
+        label.setObjectName("EmbeddingsFoundationLabel")
+        controls.addWidget(label)
+        self._foundation = QComboBox(self)
+        self._foundation.setObjectName("EmbeddingsFoundationPicker")
+        self._foundation.addItem(tr("None (use the backbone)"), "")
+        for name, info in _FOUNDATION_MODELS.items():
+            self._foundation.addItem(tr(info["label"]), name)
+        self._foundation.setToolTip(tr(
+            "A model trained on microscopy rather than photographs. "
+            "OpenPhenom and ChAda-ViT take any number of stains; SubCell "
+            "takes two, DNA then the stain of interest, in the order the "
+            "channels are encoded. Weights download once. Cell-DINO's "
+            "weights are not published yet. Default None (use the "
+            "backbone)."))
+        controls.addWidget(self._foundation)
+        _apply_alpha_widgets(label)
+        _apply_alpha_widgets(self._foundation)
+
+    def _add_well_mil_button(self, controls) -> None:
+        """The alpha button that learns which cells carry a well label."""
+        from ..preferences import _apply_alpha_widgets
+
+        self._well_mil = QPushButton(tr("Learn from well labels…"), self)
+        self._well_mil.setObjectName("EmbeddingsWellMilButton")
+        self._well_mil.setToolTip(tr(
+            "Choose a per-cell table with a 'well' column, a 'well_label' "
+            "column (1 for treated or knockout wells, 0 for controls) and "
+            "embedding or numeric feature columns. An attention model learns "
+            "from the well labels alone which cells carry the phenotype. "
+            "Two tables are written beside the input: each cell's attention "
+            "and each well's probability. Runs on the CPU. Default 4-fold "
+            "cross-validation over wells."))
+        self._well_mil.clicked.connect(lambda: self._learn_from_well_labels())
+        controls.addWidget(self._well_mil)
+        _apply_alpha_widgets(self._well_mil)
+
+    def _learn_from_well_labels(self, path: str = "") -> str:
+        """Train the well-label attention model on a per-cell table.
+
+        The table is read, the model is cross-validated and then fitted on
+        every well in the background, and ``<name>_mil_cells.csv`` and
+        ``<name>_mil_wells.csv`` are written beside it. The status line gives
+        the held-out well AUROC against a mean-feature baseline.
+
+        :param path: the table; asks for one when empty.
+        :returns: the table used, or ``''`` when the dialog was dismissed.
+        """
+        if not path:
+            path, _filter = QFileDialog.getOpenFileName(
+                self, tr("Choose a per-cell table with well labels"), "",
+                tr("Tables (*.csv *.tsv *.parquet *.feather *.xlsx)"))
+        if not path:
+            return ""
+        path = str(path)
+        self._status.setText(tr("Learning from well labels…"))
+
+        def work():
+            """Read, score and fit off the GUI thread."""
+            from ...embeddings import _mil_from_table
+            from ...tabular import read_table, write_table
+
+            frame = read_table(path, report=None)
+            cells, wells, card = _mil_from_table(frame)
+            stem = os.path.splitext(path)[0]
+            write_table(cells, stem + "_mil_cells.csv")
+            write_table(wells, stem + "_mil_wells.csv")
+            return card
+
+        self._jobs.submit(work, self._on_well_mil_done)
+        return path
+
+    def _on_well_mil_done(self, card) -> None:
+        """Say how the attention model did against the mean baseline."""
+        self._mil_card = dict(card)
+        self._status.setText(tr(
+            "Well-label model: held-out well AUROC {mil:.2f} (mean-feature "
+            "baseline {mean:.2f}) over {wells} wells. Cell attention and "
+            "well probabilities were written beside the table.").format(
+                mil=card["mil_auroc"], mean=card["mean_auroc"],
+                wells=int(card["wells"])))
 
     def _fill_backbones(self) -> None:
         """Offer the engine's default first, and never an empty list."""
@@ -796,8 +890,9 @@ class EmbeddingsScreen(QWidget):
         """The :class:`spacr.embeddings.EmbeddingSpec` the controls describe."""
         from ...embeddings import EmbeddingSpec
 
+        foundation = str(self._foundation.currentData() or "")
         return EmbeddingSpec(
-            backbone=str(self._backbone.currentText()).strip(),
+            backbone=foundation or str(self._backbone.currentText()).strip(),
             channel_policy=str(self._policy.currentData()),
             batch_size=int(self._batch.value()),
         )

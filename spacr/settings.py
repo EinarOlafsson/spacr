@@ -1144,6 +1144,12 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('timelapse_lineage', False)
     settings.setdefault('timelapse_lineage_color_by', 'generation_time')
     settings.setdefault('timelapse_lineage_max_distance', 30.0)
+    settings.setdefault('timelapse_events', False)
+    settings.setdefault('timelapse_events_annotations', None)
+    settings.setdefault('timelapse_events_model', None)
+    settings.setdefault('timelapse_events_window', 9)
+    settings.setdefault('timelapse_events_threshold', 0.5)
+    settings.setdefault('timelapse_events_conditions', None)
 
     settings.setdefault('save_original_images', True)
     settings.setdefault('keep_intermediate', False)
@@ -3390,6 +3396,12 @@ expected_types = {
     "timelapse_lineage": bool,
     "timelapse_lineage_color_by": str,
     "timelapse_lineage_max_distance": (int, float),
+    "timelapse_events": bool,
+    "timelapse_events_annotations": (str, type(None)),
+    "timelapse_events_model": (str, type(None)),
+    "timelapse_events_window": int,
+    "timelapse_events_threshold": (int, float),
+    "timelapse_events_conditions": (list, type(None)),
     "fps": int,
     "lower_percentile": (int, float),
     "merge_pathogens": bool,
@@ -5035,6 +5047,12 @@ tooltips = {
     "timelapse_lineage": "(bool) - After tracking each field, build lineage trees from the tracker's division links: a tree figure coloured by timelapse_lineage_color_by, Newick trees, a per-cell segment table and per-lineage statistics (generation time in frames, sibling correlation), written to tracks/lineage. Trackastra division links are used as reported; for other trackers a division is inferred where new tracks start beside a mother. Default False.",
     "timelapse_lineage_color_by": "(str) - What colours each cell in the lineage trees: generation_time, generation, start_frame or n_frames, or the name of a numeric column of the tracks table, averaged over the cell's frames. An unknown name falls back to generation_time with a message. Ignored unless timelapse_lineage. Default generation_time.",
     "timelapse_lineage_max_distance": "(float) - Largest distance in pixels between a mother's last position and a new track's first position for the new track to count as her daughter when divisions are inferred. Raise it for large cells or long frame intervals, lower it when neighbours are wrongly joined. Not used for division links the tracker reports. Ignored unless timelapse_lineage. Default 30.0.",
+    "timelapse_events": "(bool) - After the run, detect events on every tracked object with a small neural network that reads short windows of each track (shape, intensity, movement, tracks starting or ending nearby, and image crops): mitosis, egress, invasion, host death or whatever classes timelapse_events_annotations names. Writes time-stamped events, lineage trees re-linked from detected mitoses and Kaplan-Meier time to each event per condition to tracks/events. Runs on the CPU. Default False.",
+    "timelapse_events_annotations": "(str or None) - Table of hand-annotated events with columns field (the tracks file's field name), track_id, frame and event, plus an optional object column. Every event of an annotated field must be listed. The detector is scored on held-out annotated fields (precision, recall and timing error in frames, matched within 2 frames), trained on all of them and saved as tracks/events/event_model.pt. Blank uses timelapse_events_model. Default None.",
+    "timelapse_events_model": "(str or None) - A trained event model (event_model.pt from an earlier run) to apply when timelapse_events_annotations is blank. It is read as tensors only. Default None.",
+    "timelapse_events_window": "(int) - Frames the detector sees around each frame of a track, centred on it; an even number is raised by one. Longer windows see slower changes but blur events close together. Only read when training. Default 9.",
+    "timelapse_events_threshold": "(float) - Smallest class probability, from 0 to 1, at which a frame is called an event; each event keeps the most probable frame within 2 frames. Raise it for fewer false events, lower it to miss fewer. Default 0.5.",
+    "timelapse_events_conditions": "(list or None) - Conditions compared in the event timing, as name=wells entries in the plate-map notation, such as ['mock=c1,c2', 'drug=c3,c4']; fields in wells no entry names are left out. Blank compares wells. Default None.",
     "timelapse_remove_transient": "(bool) - After linking, drop every track not present in all frames (trackpy filter_stubs over the full stack length), keeping only objects tracked from first frame to last. Enable for clean per-object time courses; expect to lose cells that divide, enter or leave the field, so object counts fall. Default False.",
     "timelapse": "(bool) - Treat each well/field as a time series instead of independent images: files are grouped into time stacks, randomization is switched off, per-channel movies are written, objects in timelapse_objects are tracked across frames, a timeID column is added to the measurement tables, and measure_crop stops writing single-object PNGs. Only enable when filenames carry a time index. Default False.",
     "pathogen_min_size": "(int) - (Deprecated) Minimum pathogen object area in pixels squared, applied during measurement: any label with fewer pixels than this is erased from the pathogen mask before features are extracted. 0, the default, disables it. Superseded by an 'area' row for pathogen in object_filters, which filters at segmentation time instead.",
@@ -5362,7 +5380,7 @@ def _name_the_family_in_every_estimator_tooltip():
 
 _name_the_family_in_every_estimator_tooltip()
 
-timelapse_settings = ['fps', 'timelapse_mode', 'trackastra_model', 'trackastra_linking', 'ultrack_max_distance', 'ultrack_division_weight', 'ultrack_contour_sigma', 'ultrack_n_workers', 'timeflows_model', 'timelapse_displacement', 'timelapse_memory', 'timelapse_frame_limits', 'timelapse_remove_transient', 'timelapse_objects', 'timelapse_lineage', 'timelapse_lineage_color_by', 'timelapse_lineage_max_distance']
+timelapse_settings = ['fps', 'timelapse_mode', 'trackastra_model', 'trackastra_linking', 'ultrack_max_distance', 'ultrack_division_weight', 'ultrack_contour_sigma', 'ultrack_n_workers', 'timeflows_model', 'timelapse_displacement', 'timelapse_memory', 'timelapse_frame_limits', 'timelapse_remove_transient', 'timelapse_objects', 'timelapse_lineage', 'timelapse_lineage_color_by', 'timelapse_lineage_max_distance', 'timelapse_events', 'timelapse_events_annotations', 'timelapse_events_model', 'timelapse_events_window', 'timelapse_events_threshold', 'timelapse_events_conditions']
 
 motility_settings = ['motility_analysis','tracked_object', 'infection_intensity_strategy', 'seconds_per_frame', 'pixels_per_um', 'motility_ylim', 'motility_xlim', 'infection_intensity_qc_scope']
 
@@ -7269,12 +7287,23 @@ ALPHA_FEATURES = {
                    'omnipose_worm_bact_omni', 'omnipose_worm_high_res_omni',
                    'omnipose_cyto2_omni'),
     },
+    554: {
+        'choices': {'ops_spot_detector': ('spotiflow',)},
+        'models': ('spotiflow_v1', 'spotiflow_general', 'spotiflow_hybiss',
+                   'spotiflow_synth_complex', 'spotiflow_fluo_live'),
+    },
     555: {
         'widgets': ('MakeMasksPromptCategory',),
         'models': ('microsam_v1',),
     },
     565: {
         'widgets': ('AnnotateFindSimilar',),
+    },
+    560: {
+        'widgets': ('EmbeddingsFoundationLabel', 'EmbeddingsFoundationPicker'),
+    },
+    562: {
+        'widgets': ('EmbeddingsWellMilButton',),
     },
     570: {
         'widgets': ('ControlChartHitPanel', 'ControlChartHitsSection',
@@ -7333,6 +7362,12 @@ ALPHA_FEATURES = {
         'settings': ('timelapse_lineage', 'timelapse_lineage_color_by',
                      'timelapse_lineage_max_distance'),
     },
+    567: {
+        'settings': ('timelapse_events', 'timelapse_events_annotations',
+                     'timelapse_events_model', 'timelapse_events_window',
+                     'timelapse_events_threshold',
+                     'timelapse_events_conditions'),
+    },
     583: {
         'settings': ('plate_barcode_source', 'plate_barcodes',
                      'plate_barcode_column', 'plate_barcode_token_env'),
@@ -7348,6 +7383,9 @@ ALPHA_FEATURES = {
     },    563: {
         'widgets': ('ControlChartAnomaly', 'ControlChartAnomalySection'),
     },
+    568: {
+        'widgets': ('MakeMasksUncertaintyButton',),
+    },
     578: {
         'settings': ('robustness_report', 'robustness_fields',
                      'robustness_crop', 'robustness_diameter_factors',
@@ -7360,6 +7398,9 @@ ALPHA_FEATURES = {
                     'PluginCatalogueLoad', 'PluginCatalogueTable',
                     'PluginCatalogueInstall', 'PluginCatalogueUninstall',
                     'PluginCatalogueStatus'),
+    },
+    534: {
+        'widgets': ('MapBarcodesSpatialToggle', 'MapBarcodesSpatialCard'),
     },
 }
 

@@ -30,6 +30,14 @@ PLATFORMS = (
     ("macOS 11+ (Intel and Apple silicon)", "macOS-Universal-Online.pkg"),
     ("64-bit Linux", "Linux-x86_64-Online.run"),
 )
+#: Offline (air-gapped) bundles, by the platform key the bundle builder takes.
+#: Built on request by packaging/offline/build_offline_bundle.py and never
+#: linked from the README: the online installers stay the default download.
+OFFLINE_PLATFORMS = {
+    "linux-x86_64": "Linux-x86_64",
+    "windows-x86_64": "Windows-x86_64",
+    "macos-arm64": "macOS-arm64",
+}
 RELEASE_DOWNLOAD_ROOT = "https://github.com/EinarOlafsson/spacr/releases/download"
 LOCALIZED_README_CODES = (
     "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr",
@@ -375,6 +383,20 @@ def restamp_info_deck(root: Path, version: str) -> str | None:
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module.stamp_title(deck, version)
+
+
+def offline_bundle_name(version: str, platform: str, torch_backend: str) -> str:
+    """Folder (and ``.tar``) name of one offline bundle.
+
+    The PyTorch wheel line is part of the name because an offline machine
+    cannot switch it after the fact: a CPU bundle and a CUDA 12.6 bundle of
+    the same release are different downloads.
+    """
+    if platform not in OFFLINE_PLATFORMS:
+        raise ValueError(f"unknown offline platform {platform!r}")
+    if not re.fullmatch(r"[a-z0-9]+", torch_backend):
+        raise ValueError(f"invalid PyTorch backend {torch_backend!r}")
+    return f"spaCR-{version}-{OFFLINE_PLATFORMS[platform]}-Offline-{torch_backend}"
 
 
 def _installer_paths(source: Path, version: str) -> list[tuple[str, Path]]:

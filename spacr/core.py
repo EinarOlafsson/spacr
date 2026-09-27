@@ -624,6 +624,11 @@ def preprocess_generate_masks(settings):
                             automated_motility_assay(dict(
                                 settings, src=src, reuse_existing_measurements=False))
 
+                        if settings['timelapse'] and settings.get('timelapse_events'):
+                            cancellation_checkpoint()
+                            from .timelapse import _run_event_detection_step
+                            _run_event_detection_step(src, settings)
+
                         if settings['plot']:
                             if not settings['timelapse']:
                                 if settings['test_mode'] == True:

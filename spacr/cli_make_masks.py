@@ -136,7 +136,9 @@ def build_parser() -> argparse.ArgumentParser:
              f"prob read <folder>/{SCORES_FILENAME}, or "
              f"<folder>{EXTERNAL_SCORES_SUFFIX} beside it (a stem column and "
              f"a prob column); without either they sort by value and say "
-             f"so.")
+             f"so. uncertain: the most uncertain segmentation first, read "
+             f"from <folder>/curate_uncertainty.csv, which Make Masks' "
+             f"Uncertainty ranking writes.")
     parser.add_argument(
         "--limit", type=int, default=None, metavar="N",
         help="end the session after N fields. Applied AFTER ordering, so it "

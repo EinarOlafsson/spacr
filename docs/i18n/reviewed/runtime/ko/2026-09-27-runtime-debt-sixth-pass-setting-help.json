@@ -1,0 +1,323 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26, sixth pass 2026-09-27: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "bleach_correction",
+      "source": "Photobleaching correction for a timelapse run, applied after measuring and per field and channel. ratio rescales each timepoint so the median object mean intensity equals the first timepoint's; exponential does the same with a fitted a*exp(-b*t)+c decay; histogram maps each timepoint's intensities onto the first timepoint's distribution. Writes <object>_bleach_corrected and the fits to measurements.db and plots the decay; the measured tables stay unchanged. Ignored unless timelapse. Default none.",
+      "source_sha256": "ee24d880108dc988e0e6b54d3c32337a59bfb4a801f0f952880ee3111aff76a3",
+      "translation": "타임랩스 실행의 광표백 보정으로, 측정 후 시야와 채널별로 적용합니다. ratio는 객체 평균 강도의 중앙값이 첫 시점과 같도록 각 시점을 조정하고, exponential은 적합한 a*exp(-b*t)+c 감쇠로 같은 작업을 하며, histogram은 각 시점의 강도를 첫 시점의 분포에 맞춥니다. <object>_bleach_corrected 값과 적합 결과를 measurements.db 파일에 기록하고 감쇠를 그리며, 측정된 표는 바뀌지 않습니다. timelapse가 아니면 무시됩니다. 기본값 none."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cellprofiler_pipeline",
+      "source": "A CellProfiler pipeline (.cppipe) to run headless after measuring, in CellProfiler's own environment from the Model Zoo. Each field's channels are handed to it as <field>_ch<N>.tif, N from 0, and its masks as <field>_<object>_mask.tif; load the masks in NamesAndTypes as objects, and measure each object's Location. Its per-object measurements go to measurements.db:cellprofiler_<object>, matched to spaCR objects by prcfo. Blank skips it. Default blank.",
+      "source_sha256": "52880d7c9375453fd26121e2b585b283313f6076a705b62762303ff5f6e20bf1",
+      "translation": "측정 후 모델 라이브러리의 CellProfiler 전용 환경에서 화면 없이 실행할 CellProfiler 파이프라인(.cppipe)입니다. 각 시야의 채널은 <field>_ch<N>.tif(N은 0부터)로, 마스크는 <field>_<object>_mask.tif 형식으로 전달됩니다. NamesAndTypes에서 마스크를 객체로 불러오고 각 객체의 Location을 측정하세요. 객체별 측정값은 measurements.db:cellprofiler_<object> 표로 가며 prcfo로 spaCR 객체와 짝지어집니다. 비워 두면 건너뜁니다. 기본값은 비어 있음."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_counting",
+      "source": "Count bacterial or fungal colonies on plate or dish photos instead of segmenting plaques. Each image is one plate, or one well per detected well when well_detection is on; the dish is found by its outline otherwise. Colonies are thresholded against the agar, touching ones are split, and the count, CFU/mL, colony areas and diameters go to colonies/colonies.db in src. No plaque model is loaded. Plaque mode only: Figure mode ignores it. Default False.",
+      "source_sha256": "7eb545a6acae426afeb9fa65161b482b2f8a1ce773d5a29e3fda38ee567d5236",
+      "translation": "플라크를 분할하는 대신 평판이나 페트리 디시 사진에서 세균 또는 진균 집락을 셉니다. 각 이미지는 평판 하나이며, well_detection 설정이 켜져 있으면 검출된 웰마다 하나입니다. 그렇지 않으면 윤곽으로 디시를 찾습니다. 한천에 대해 집락에 임계값을 적용하고 맞닿은 집락을 나누며, 계수, CFU/mL, 집락 면적과 직경은 src 안의 colonies/colonies.db 파일로 갑니다. 플라크 모델은 불러오지 않습니다. 플라크 모드 전용이며 그림 모드는 이를 무시합니다. 기본값 False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_dilution",
+      "source": "Dilution factor of the suspension that was plated, 10000 for a 10^-4 dilution; a fraction such as 0.0001 is read as the dilution and inverted. CFU/mL = colonies x dilution factor / plated volume. A dict from file name or stem to factor sets it per plate; a plate it does not name gets no CFU/mL. Default 1.",
+      "source_sha256": "eed70e28de941f15b8644d10b2edc4a594e7cd12b47ee95e3b99007cd45a7bf7",
+      "translation": "도말한 현탁액의 희석 배수로, 10^-4 희석이면 10000입니다. 0.0001 같은 분수는 희석도로 읽고 역수를 취합니다. CFU/mL = 집락 수 x 희석 배수 / 도말 부피. 파일 이름이나 어간을 배수에 대응시키는 dict로 평판별로 정할 수 있으며, 이름이 없는 평판은 CFU/mL를 받지 않습니다. 기본값 1."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_min_area_px",
+      "source": "Smallest colony counted, in pixels of the original photo. Raise it to ignore dust, bubbles and pinpoint artefacts; lower it for pinpoint colonies. Blank uses 0.4 % of the dish diameter, squared: about 36 pixels for a dish 1500 pixels across. Default None.",
+      "source_sha256": "d74b218d0b7c2a73174a52bc828bb0facfcab5c738269b1fd1b216e632131ba6",
+      "translation": "세는 가장 작은 집락으로, 원본 사진의 픽셀 단위입니다. 먼지, 기포, 점 모양 인공물을 무시하려면 높이고, 점 모양 집락을 세려면 낮추세요. 비워 두면 디시 직경의 0.4 %를 제곱한 값을 씁니다. 직경 1500픽셀 디시에서는 약 36픽셀입니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_plated_volume_ul",
+      "source": "Volume of the dilution spread on each plate, in microlitres, the denominator of CFU/mL. Change it with the plating protocol: 100 for a standard spread plate, 1000 for a pour plate of 1 mL. Default 100.",
+      "source_sha256": "1ad6dd774beedbf675d241fbd2ff5dc0a28318793a6bc87b37a01154853c0c4c",
+      "translation": "각 평판에 도말한 희석액 부피(마이크로리터)로, CFU/mL의 분모입니다. 도말 프로토콜에 맞게 바꾸세요. 표준 도말 평판은 100, 1 mL 주입 평판은 1000입니다. 기본값 100."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_polarity",
+      "source": "Whether colonies are brighter than the agar (bright: white or cream colonies on blood, chocolate or dark agar, or any plate photographed on a dark background) or darker (dark: on a light box or on pale agar). auto tries both and keeps the one whose round objects stand further above the agar. Set it when auto picks the wrong one on a sparse plate. Default auto.",
+      "source_sha256": "79af59ccc6b16e25c2001ae561fed0708ba4b0598f0fbb3053207a5bb439ec1f",
+      "translation": "집락이 한천보다 밝은지(bright: 혈액, 초콜릿 또는 어두운 한천 위의 흰색이나 크림색 집락, 또는 어두운 배경에서 찍은 평판) 어두운지(dark: 라이트 박스 위나 옅은 한천 위)입니다. auto는 둘 다 시도하여 둥근 객체가 한천 위로 더 두드러지는 쪽을 남깁니다. 드문 평판에서 auto가 잘못 고르면 설정하세요. 기본값 auto."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_threshold",
+      "source": "How far above the agar a pixel must be to count as colony, in multiples of the agar's own noise. Lower finds faint, small or translucent colonies but also picks up agar texture, bubbles and glare; higher keeps only clear colonies. Default 4.0.",
+      "source_sha256": "fde2849693f9735f4b0c4b338a35977fabfc9d6b4bb4c620fe7a5d7734f97ddb",
+      "translation": "픽셀이 집락으로 세어지려면 한천보다 얼마나 높아야 하는지를 한천 자체 노이즈의 배수로 나타냅니다. 낮을수록 흐리거나 작거나 반투명한 집락을 찾지만 한천 질감, 기포, 반사도 잡고, 높을수록 뚜렷한 집락만 남깁니다. 기본값 4.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_too_few",
+      "source": "Plates with fewer colonies than this are flagged 'too few to count' (TFTC) in per_plate: so few colonies carry a sampling error too large for the CFU/mL they imply. Their CFU/mL is still written, so filter on the flag. Blank turns the check off. Default 30.",
+      "source_sha256": "22a1f27046cc47225e5c8d368d898e7f4c5ca59df16551cdb82209a8b7e5f9b6",
+      "translation": "집락이 이보다 적은 평판은 per_plate에서 'too few to count'(TFTC)로 표시됩니다. 집락이 이렇게 적으면 그로부터 계산한 CFU/mL의 표본 오차가 너무 큽니다. CFU/mL는 그래도 기록되므로 플래그로 필터링하세요. 비워 두면 검사를 끕니다. 기본값 30."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_too_many",
+      "source": "Plates with more colonies than this are flagged 'too many to count' (TNTC) in per_plate: neighbouring colonies merge and compete, so the count underestimates what was plated. Their CFU/mL is still written, so filter on the flag. Blank turns the check off. Default 300.",
+      "source_sha256": "240e0ace8fb64a9df61e39f397d69ddd0c83e7ecab187b8979ef92e8d1cecf93",
+      "translation": "집락이 이보다 많은 평판은 per_plate에서 'too many to count'(TNTC)로 표시됩니다. 이웃 집락이 합쳐지고 경쟁하므로 계수가 도말한 양을 과소평가합니다. CFU/mL는 그래도 기록되므로 플래그로 필터링하세요. 비워 두면 검사를 끕니다. 기본값 300."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "illumination_vendor_profile",
+      "source": "Path to the flat-field correction the microscope software saved, used instead of estimating one from the fields: a Harmony Index.idx.xml or FFC profile (Operetta, Opera Phenix), or a shading reference image (.tif, .czi, .npy) from ZEN, Nikon or Olympus. Harmony profiles are applied at Harmony's own scale, so the corrected pixels match Harmony's corrected export. Empty means estimate. Default empty.",
+      "source_sha256": "528d4bc1e5926704a3a2daa88776d4b49742699aec7bf6d47b867183406b9aab",
+      "translation": "현미경 소프트웨어가 저장한 평탄 필드 보정 경로로, 시야에서 추정하는 대신 사용합니다. Harmony의 Index.idx.xml 파일이나 FFC 프로필(Operetta, Opera Phenix), 또는 ZEN, Nikon, Olympus의 음영 기준 이미지(.tif, .czi, .npy)입니다. Harmony 프로필은 Harmony 자체 척도로 적용되므로 보정된 픽셀이 Harmony의 보정 내보내기와 일치합니다. 비워 두면 추정합니다. 기본값은 비어 있음."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration",
+      "source": "Calibrate intensities across imaging sessions before measuring: each plate is one session, the beads or reference wells imaged on every plate are measured, and every plate's intensity channels are scaled so its reference wells match the first plate's. This corrects exposure, lamp and detector drift between days at the image level, unlike batch correction of tables. The gains are recorded in measurements.db:intensity_rescale. Default False.",
+      "source_sha256": "2a0bb710f1b278e5440c1034f00e07fff92f82d110e722ad0b3f2f249a23f6df",
+      "translation": "측정 전에 촬영 세션 간 강도를 보정합니다. 각 플레이트가 한 세션이며, 모든 플레이트에서 촬영한 비드나 기준 웰을 측정하고, 기준 웰이 첫 번째 플레이트와 같아지도록 각 플레이트의 강도 채널을 조정합니다. 표의 배치 보정과 달리 이미지 수준에서 날짜 간 노출, 광원, 검출기 드리프트를 보정합니다. 이득은 measurements.db:intensity_rescale에 기록됩니다. 기본값 False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_offset",
+      "source": "The camera's dark offset, in the intensity units Measure works in, removed before the reference statistic and kept when scaling: a pixel becomes offset + (value - offset) x gain. Read it from a dark frame; 100 is common on sCMOS cameras. Leave 0 when images are already offset-corrected. Default 0.",
+      "source_sha256": "44817c7b242d1370f93d13777898ede908aa1f06f89d26cc2c9ae0e839e7ddf3",
+      "translation": "카메라의 암전류 오프셋으로, Measure가 쓰는 강도 단위이며 기준 통계량 전에 빼고 척도 조정 시 유지합니다. 픽셀은 오프셋 + (값 - 오프셋) x 이득이 됩니다. 암 프레임에서 읽으세요. sCMOS 카메라에서는 100이 흔합니다. 이미지가 이미 오프셋 보정되어 있으면 0으로 두세요. 기본값 0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_statistic",
+      "source": "How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
+      "source_sha256": "18898b95481b93445deb13c8b4ed3fd3b873d79d2e872f90a228810591cd6410",
+      "translation": "intensity_calibration_offset 값을 뺀 뒤 각 기준 시야의 강도를 요약하는 방식입니다. foreground: 어두운 배경의 드문 비드용으로, Otsu 임계값 위 픽셀의 중앙값입니다. median: 균일하게 염색된 기준 웰용으로, 모든 픽셀의 중앙값입니다. 각 플레이트는 기준 시야들의 중앙값을 씁니다. 기본값 foreground."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_wells",
+      "source": "The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
+      "source_sha256": "7b5a101a3b0932d0cae21d7a63b7360ff2b381787ec937ce269a9b0d77df6c19",
+      "translation": "보정 시료가 있는 웰로, 모든 플레이트에서 같은 시료로 촬영합니다. 형광 비드나 기준 염색이며, 예: ['A01'] 또는 ['A01', 'P24']. 모든 플레이트는 이 웰에 시야가 하나 이상 있어야 하며, 없으면 실행이 멈춥니다. 다른 웰처럼 측정되고 보정됩니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plate_barcode_column",
+      "source": "The column of the sample records that holds the plate barcode. Blank looks for barcode, plate_barcode or plate barcode. The other columns, apart from the well position, are copied into the plate map as they are. Default barcode.",
+      "source_sha256": "471f62de63882fb6b3c34f6fdc983a33a35cf68722e163376705ff9d177f7a9f",
+      "translation": "시료 기록에서 플레이트 바코드가 있는 열입니다. 비워 두면 barcode, plate_barcode 또는 plate barcode를 찾습니다. 웰 위치를 제외한 나머지 열은 그대로 플레이트 맵에 복사됩니다. 기본값 barcode."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plate_barcode_source",
+      "source": "Sample records to fill the plate map from, by plate barcode: a CSV, TSV, Excel or Parquet table with a barcode column, a well column (well such as A01, or rowID and columnID) and metadata such as strain, compound, concentration, passage and operator; or the http(s) address of a LIMS service that answers JSON well records for ?barcode=, or for {barcode} in the address. The filled map and a list of mismatches go to measurements. Blank links nothing. Default blank.",
+      "source_sha256": "ebfb4012bda5d4c5bfb88ab9d406d44da153312474eb67c12393ea93cde34748",
+      "translation": "플레이트 바코드로 플레이트 맵을 채울 시료 기록입니다. 바코드 열, 웰 열(A01 같은 well, 또는 rowID와 columnID), 균주, 화합물, 농도, 계대 수, 작업자 같은 메타데이터가 있는 CSV, TSV, Excel 또는 Parquet 표이거나, ?barcode= 또는 주소 안의 {barcode}에 대해 JSON 웰 기록을 돌려주는 LIMS 서비스의 http(s) 주소입니다. 채워진 맵과 불일치 목록은 measurements 폴더로 갑니다. 비워 두면 아무것도 연결하지 않습니다. 기본값은 비어 있음."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plate_barcode_token_env",
+      "source": "The name of the environment variable holding the LIMS access token, sent as a bearer token with each request. The token itself is never written to settings or results; set the variable before starting spaCR. Ignored for a table. Default SPACR_LIMS_TOKEN.",
+      "source_sha256": "5cc8b06777ea053507bd0bf3dbd36dc8de0a53417faaa0fa3c5cab7d02c904f9",
+      "translation": "LIMS 액세스 토큰이 담긴 환경 변수 이름으로, 요청마다 bearer 토큰으로 전송됩니다. 토큰 자체는 설정이나 결과에 기록되지 않습니다. spaCR을 시작하기 전에 변수를 설정하세요. 표에는 무시됩니다. 기본값 SPACR_LIMS_TOKEN."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plate_barcodes",
+      "source": "The barcode each plate was imported with, such as {'plate1': 'BC000123'}. A plate not named here takes the barcode in a barcode.txt file in its plate folder, or else its own plate name. Two plates given one barcode are reported as a mismatch. Default None.",
+      "source_sha256": "64d772f43f4d334469fe42cc4ad9a558ec63b4ab4d392cc2d1f6b17f51b8870a",
+      "translation": "각 플레이트를 가져올 때 쓴 바코드로, 예: {'plate1': 'BC000123'}. 여기에 없는 플레이트는 플레이트 폴더의 barcode.txt 파일에 있는 바코드를, 없으면 자기 플레이트 이름을 씁니다. 두 플레이트에 같은 바코드가 주어지면 불일치로 보고됩니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event",
+      "source": "After measuring a timelapse, follow every tracked object to an event (death, lysis, egress, division, first detection) or to the end of its track, and compare conditions: Kaplan-Meier curves with 95% bands, median time to event per condition and well, log-rank tests and a Cox model. Writes measurements.db:time_to_event and four summary tables, and the curves and hazard ratios under results/time_to_event. Needs tracked objects measured with timelapse on. Default False.",
+      "source_sha256": "8b6a065f010e6e7dda83f77034b051fb0932bacd852b852b45507543eb2fa12e",
+      "translation": "타임랩스를 측정한 뒤 추적된 모든 객체를 사건(사멸, 용해, 탈출, 분열, 첫 검출)이나 궤적 끝까지 따라가 조건을 비교합니다. 95 % 신뢰대가 있는 Kaplan-Meier 곡선, 조건과 웰별 사건 발생까지의 중앙값 시간, log-rank 검정, Cox 모델을 씁니다. measurements.db:time_to_event와 요약 표 네 개를 기록하고, 곡선과 위험비는 results/time_to_event 폴더에 둡니다. timelapse 설정을 켜고 측정한 추적 객체가 필요합니다. 기본값 False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_column",
+      "source": "The measurement the event is read from, a column of the object table such as cell_channel_2_mean_intensity, or an Annotate column of png_list holding labels for each object in each frame. Ignored by track_end. Default blank.",
+      "source_sha256": "a016ac65f42ed190e979bdeddeb84f3ab8434e1cdcbf82ed1fc20a58b4bb7a9e",
+      "translation": "사건을 읽는 측정값으로, cell_channel_2_mean_intensity 같은 객체 표의 열이나, 각 프레임의 객체마다 라벨을 담은 png_list의 Annotate 열입니다. track_end는 이 값을 무시합니다. 기본값은 비어 있음."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_conditions",
+      "source": "Conditions named by their wells, as name=wells entries in the plate-map notation, such as ['mock=c1,c2', 'drug=c3,c4']. Objects in wells no entry names are left out. It replaces time_to_event_group. Blank uses time_to_event_group. Default None.",
+      "source_sha256": "a835639252dbabfec3dd8301fbee1061d5fc2a033e712d6f8046c6249de32d6f",
+      "translation": "웰로 이름 붙인 조건으로, 플레이트 맵 표기법의 name=wells 항목입니다(예: ['mock=c1,c2', 'drug=c3,c4']). 어느 항목에도 없는 웰의 객체는 제외됩니다. time_to_event_group 설정을 대체합니다. 비워 두면 time_to_event_group 설정을 사용합니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_covariates",
+      "source": "Columns of the object table adjusted for in the Cox model, each read at the track's first frame so it is measured before the event, such as ['cell_area']. Their hazard ratios are per unit of the column. Tracks missing a value are left out of the model only. Blank fits the conditions alone. Default None.",
+      "source_sha256": "a4f783f45f44932ba161fadc09f1d4f3aac828b34d581f1491927f2d41e0907f",
+      "translation": "Cox 모델에서 보정할 객체 표의 열로, 사건 전에 측정되도록 각각 궤적의 첫 프레임에서 읽습니다(예: ['cell_area']). 위험비는 열의 단위당 값입니다. 값이 없는 궤적은 모델에서만 제외됩니다. 비워 두면 조건만 적합합니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_group",
+      "source": "How objects are grouped into the conditions compared, when time_to_event_conditions is blank: well, plate, row, column, field, or a column of the object table read at each track's first frame. Default well.",
+      "source_sha256": "f65babfedce03b0f57c3b06681cbb7665eeb8df76a94b2fc62b8a03f3f8e9c21",
+      "translation": "time_to_event_conditions 설정이 비어 있을 때 객체를 비교 조건으로 묶는 방식입니다. well, plate, row, column, field 또는 각 궤적의 첫 프레임에서 읽는 객체 표의 열 중 하나입니다. 기본값 well."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_hours_per_frame",
+      "source": "Hours between consecutive frames, used to report times in hours; 0.25 for a frame every 15 minutes. It rescales the times and medians but not the tests or hazard ratios of conditions. Blank reports times in frames. Default None.",
+      "source_sha256": "219c85a7f69472939063efad197122693dd5c0605dd0a878a6de7ca1abb22eaf",
+      "translation": "연속 프레임 사이의 시간(시)으로, 시간을 시 단위로 보고하는 데 씁니다. 15분마다 한 프레임이면 0.25입니다. 시간과 중앙값의 척도만 바꾸며 검정이나 조건의 위험비는 바꾸지 않습니다. 비워 두면 시간을 프레임 단위로 보고합니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_min_frames",
+      "source": "Tracks with fewer observed frames are left out: a track seen once or twice is more often a segmentation or tracking fragment than an object, and with track_end every short fragment would be an event. Default 3.",
+      "source_sha256": "59c074223b17d55abbf82bd4bdbcc70f62c8a000f67d87bcaaf3f12a96c2bb38",
+      "translation": "관찰된 프레임이 이보다 적은 궤적은 제외합니다. 한두 번 보인 궤적은 객체라기보다 분할이나 추적 조각인 경우가 많고, track_end에서는 짧은 조각마다 사건으로 셀 것이기 때문입니다. 기본값 3."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_mode",
+      "source": "What counts as the event. track_end: the object disappears before the movie ends (lysis, egress, detachment, and tracking loss too). annotated: time_to_event_column turns non-zero, or equals the threshold. above or below: the column reaches time_to_event_threshold, such as a death dye. fold_change: the column reaches threshold times its first value, such as a doubled parasite count. Tracks without the event are censored at their last frame. Default track_end.",
+      "source_sha256": "8ace74fb6d3786f222cdfc3ac3da12718d2fbf2831f66774e40d51aff633fe44",
+      "translation": "사건으로 셀 기준입니다. track_end: 영상이 끝나기 전에 객체가 사라짐(용해, 탈출, 분리, 그리고 추적 손실도 포함). annotated: time_to_event_column 값이 0이 아니게 되거나 임계값과 같아짐. above 또는 below: 사멸 염료처럼 열이 time_to_event_threshold 값에 도달함. fold_change: 기생충 수가 두 배가 되듯 열이 첫 값에 임계값을 곱한 값에 도달함. 사건이 없는 궤적은 마지막 프레임에서 중도 절단됩니다. 기본값 track_end."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_object",
+      "source": "The measured object table whose tracks are followed: cell, nucleus, pathogen or cytoplasm. Each object label in a field is one track, since the timelapse module relabels tracked objects with their track ID. Follow host cells for host death or lysis, pathogens for egress or division. Default cell.",
+      "source_sha256": "7af4d875b43de8c77138afefd1820f2df203833398c95ddac749f40f1098c330",
+      "translation": "궤적을 따라갈 측정된 객체 표로, cell, nucleus, pathogen 또는 cytoplasm입니다. 타임랩스 모듈이 추적된 객체에 궤적 ID로 다시 라벨을 붙이므로, 시야의 각 객체 라벨이 궤적 하나입니다. 숙주 사멸이나 용해는 숙주 세포를, 탈출이나 분열은 병원체를 따라가세요. 기본값 cell."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_origin",
+      "source": "Where each object's clock starts. track: at the object's own first frame, so objects that appear later (daughters, cells moving in) count from when they are first seen. movie: at the movie's first frame, keeping only the objects present then, the cohort to use when time since infection or treatment matters. Default track.",
+      "source_sha256": "7bc99e166339c26e816a7554a21bad91791ae8229bce091a9da48e450ce224c1",
+      "translation": "각 객체의 시계가 시작되는 지점입니다. track: 객체 자신의 첫 프레임부터이므로, 나중에 나타나는 객체(딸세포, 들어오는 세포)는 처음 보인 때부터 셉니다. movie: 영상의 첫 프레임부터이며 그때 있던 객체만 유지하므로, 감염이나 처리 후 경과 시간이 중요할 때 쓰는 코호트입니다. 기본값 track."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_persist",
+      "source": "Consecutive observed frames the event must hold before it counts; it is dated to the first of them. Raise it to 2 or 3 when a noisy measurement crosses the threshold for one frame and back. Objects already showing the event in their first frame are left out. Default 1.",
+      "source_sha256": "6315cfe37944e195d17b6a5c5440970fd26bcb02168cacc677c2247823e6aea0",
+      "translation": "사건으로 세려면 사건이 유지되어야 하는 연속 관찰 프레임 수이며, 사건 시점은 그중 첫 프레임입니다. 잡음이 많은 측정값이 한 프레임 동안 임계값을 넘었다 돌아오면 2나 3으로 높이세요. 첫 프레임에 이미 사건을 보이는 객체는 제외됩니다. 기본값 1."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_reference",
+      "source": "The condition the others are compared with: every log-rank pair and every hazard ratio is against it. It must be one of the conditions. Blank uses the first entry of time_to_event_conditions, or the first condition in sorted order. Default blank.",
+      "source_sha256": "c038dcb9424a340d0cd0a5226506ae24f06b0ecf8a8d8b1ba1dae254e235ceb7",
+      "translation": "다른 조건과 비교하는 기준 조건입니다. 모든 log-rank 쌍과 위험비는 이 조건을 기준으로 합니다. 조건 중 하나여야 합니다. 비워 두면 time_to_event_conditions 설정의 첫 항목이나 정렬 순서상 첫 조건을 사용합니다. 기본값은 비어 있음."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_threshold",
+      "source": "The cut the event is read at. For above and below it is in the column's units; for fold_change it is a ratio to the track's first value, 2 for a doubling; for annotated it is the label that marks the event, blank for any non-zero label. Read it off a histogram of the column before trusting the curves. Default None.",
+      "source_sha256": "50a274bc3a5f1f08997dae718431df6ba897ce8f44931f242b007612f9666d36",
+      "translation": "사건을 읽는 절단값입니다. above와 below는 열의 단위, fold_change는 궤적 첫 값에 대한 비율(두 배면 2), annotated는 사건을 표시하는 라벨이며 비워 두면 0이 아닌 모든 라벨입니다. 곡선을 믿기 전에 열의 히스토그램에서 읽으세요. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage",
+      "source": "After tracking each field, build lineage trees from the tracker's division links: a tree figure coloured by timelapse_lineage_color_by, Newick trees, a per-cell segment table and per-lineage statistics (generation time in frames, sibling correlation), written to tracks/lineage. Trackastra division links are used as reported; for other trackers a division is inferred where new tracks start beside a mother. Default False.",
+      "source_sha256": "ecb6c75371a4125fba3524b9c4b45ef62a1890c24473960e4c1f8fd65b2a9f72",
+      "translation": "각 시야를 추적한 뒤 추적기의 분열 연결로 계보 트리를 만듭니다. timelapse_lineage_color_by 설정으로 색을 입힌 트리 그림, Newick 트리, 세포별 구간 표, 계보별 통계(프레임 단위 세대 시간, 자매 세포 상관)를 tracks/lineage 폴더에 기록합니다. Trackastra의 분열 연결은 보고된 대로 쓰고, 다른 추적기에서는 어미 세포 옆에서 새 궤적이 시작되는 곳을 분열로 추론합니다. 기본값 False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage_color_by",
+      "source": "What colours each cell in the lineage trees: generation_time, generation, start_frame or n_frames, or the name of a numeric column of the tracks table, averaged over the cell's frames. An unknown name falls back to generation_time with a message. Ignored unless timelapse_lineage. Default generation_time.",
+      "source_sha256": "1bd4fa595b703657f0c044f166dd656279e0d28a4be5c12f52cdd50f67eeb132",
+      "translation": "계보 트리에서 각 세포의 색을 정하는 값입니다. generation_time, generation, start_frame, n_frames 또는 세포의 프레임에 걸쳐 평균한 궤적 표의 숫자 열 이름입니다. 알 수 없는 이름은 메시지와 함께 generation_time으로 대체됩니다. timelapse_lineage 설정이 켜져 있지 않으면 무시됩니다. 기본값 generation_time."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage_max_distance",
+      "source": "Largest distance in pixels between a mother's last position and a new track's first position for the new track to count as her daughter when divisions are inferred. Raise it for large cells or long frame intervals, lower it when neighbours are wrongly joined. Not used for division links the tracker reports. Ignored unless timelapse_lineage. Default 30.0.",
+      "source_sha256": "59c13199dd02b34939ee1f04d722456a8c870637d80fbe93bfbcfda67838906c",
+      "translation": "분열을 추론할 때 새 궤적이 딸세포로 인정되기 위한 어미 세포의 마지막 위치와 새 궤적의 첫 위치 사이의 최대 거리(픽셀)입니다. 큰 세포나 긴 프레임 간격에는 높이고, 이웃이 잘못 연결되면 낮추세요. 추적기가 보고한 분열 연결에는 쓰지 않습니다. timelapse_lineage 설정이 켜져 있지 않으면 무시됩니다. 기본값 30.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "unmix",
+      "source": "Spectral unmixing: estimate how much of each dye bleeds into the other channels from single-stain control wells, then unmix every field before it is segmented or measured. Make Masks unmixes each raw field across all its channels before illumination correction, the PSF and the enhancement chain; Measure unmixes the measured channels before its preprocessing. The matrix is printed and recorded with the run. Needs unmix_controls. Default False.",
+      "source_sha256": "b5df53b511ab7bfa389f4fca518c0f4593c4d5076e282d83744cb58dbe961a94",
+      "translation": "스펙트럼 분리: 단일 염색 대조군 웰로 각 염료가 다른 채널로 얼마나 번지는지 추정한 뒤, 분할이나 측정 전에 모든 시야를 분리합니다. Make Masks는 조명 보정, PSF, 향상 체인 전에 각 원시 시야의 모든 채널을 분리하고, Measure는 전처리 전에 측정 채널을 분리합니다. 행렬은 출력되고 실행과 함께 기록됩니다. unmix_controls 설정이 필요합니다. 기본값 False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "unmix_background_percentile",
+      "source": "Percentile of each channel's pixels taken as its background, from 0 up to but not including 100. It is set aside before each field is unmixed and added back after, so a channel with no dye stays at its own background level rather than being pulled below it. Keep it below the fraction of the field that is empty. Default 5.0.",
+      "source_sha256": "5f256dcc6e472acdf48c3f12b8a068ee16be78f7ea721f9e536b8991df6dcb1a",
+      "translation": "각 채널 픽셀 중 배경으로 볼 백분위수로, 0부터 100 미만까지입니다. 각 시야를 분리하기 전에 빼 두었다가 뒤에 다시 더하므로, 염료가 없는 채널은 배경 아래로 끌려 내려가지 않고 자기 배경 수준에 머뭅니다. 시야의 빈 부분 비율보다 낮게 유지하세요. 기본값 5.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "unmix_controls",
+      "source": "The single-stain control wells, as channel:well[,well] entries separated by semicolons, for example 0:A01,A02; 1:B01. The channel is the dye's own channel, counted as in the stack or merged array; its wells hold that dye alone. Channels without controls are taken to bleed into nothing. Up to 24 fields per dye are read. Ignored unless unmix is on. Default blank.",
+      "source_sha256": "542c4c682db640c5a385fd68fedb5968bd6b8f5907b72afb2ba1051f738639a6",
+      "translation": "단일 염색 대조군 웰로, 세미콜론으로 구분한 채널:웰[,웰] 항목입니다(예: 0:A01,A02; 1:B01). 채널은 염료 자신의 채널로, 스택이나 병합 배열과 같은 방식으로 셉니다. 그 웰에는 해당 염료만 있습니다. 대조군이 없는 채널은 어디에도 번지지 않는 것으로 봅니다. 염료당 최대 24개 시야를 읽습니다. unmix 설정이 켜져 있지 않으면 무시됩니다. 기본값은 비어 있음."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "viability",
+      "source": "Call every cell live or dead after measuring, from a dead stain (propidium iodide, SYTOX, DAPI on unfixed cells), a live stain (calcein), both, or without either from nuclear morphology (pyknotic nuclei). Writes one row per nucleus to measurements.db:viability, per-well viability, live-cell and cytotoxicity index to viability_well, each plate's thresholds and control Z' to viability_qc, and with plot the threshold, plate, control and dose-response figures. Default False.",
+      "source_sha256": "bcacab601679bfb2b56cd37ff9d46294319dff9862f31c016f18e6a20a473ed5",
+      "translation": "측정 후 사멸 염색(propidium iodide, SYTOX, 고정하지 않은 세포의 DAPI), 생존 염색(calcein), 둘 다, 또는 둘 다 없으면 핵 형태(농축핵)로 모든 세포를 생존 또는 사멸로 판정합니다. 핵마다 한 행을 measurements.db:viability에 기록하고, 웰별 생존율, 생존 세포 지수, 세포독성 지수를 viability_well에, 각 플레이트의 임계값과 대조군 Z'를 viability_qc에 기록하며, plot 설정이 켜져 있으면 임계값, 플레이트, 대조군, 용량–반응 그림도 그립니다. 기본값 False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "viability_dead_channel",
+      "source": "The merged-array channel of the dead stain (propidium iodide, SYTOX, or DAPI added to unfixed cells), counted as in channels; it must be one of the measured channels. Each nucleus's background-subtracted mean intensity is split per plate into two populations, and above the cut is dead. Blank reads no dead stain; with neither stain channel set, dead cells are called from nuclear morphology instead. Default None.",
+      "source_sha256": "62393707b6e232560cf6bef6be5c650f45f06f608b454d1400fa94d734ced7c1",
+      "translation": "사멸 염색(propidium iodide, SYTOX 또는 고정하지 않은 세포에 넣은 DAPI)이 있는 병합 배열 채널로, channels 설정과 같은 방식으로 셉니다. 측정된 채널 중 하나여야 합니다. 각 핵의 배경을 뺀 평균 강도를 플레이트별로 두 집단으로 나누며, 절단값 위는 사멸입니다. 비워 두면 사멸 염색을 읽지 않으며, 두 염색 채널이 모두 없으면 대신 핵 형태로 사멸 세포를 판정합니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "viability_live_channel",
+      "source": "The merged-array channel of the live stain (calcein-AM), counted as in channels; it must be one of the measured channels. It is read on the nucleus, which calcein fills, split per plate, and above the cut is live. With a dead stain as well, a cell positive for neither is counted unstained, not live. Blank reads no live stain. Default None.",
+      "source_sha256": "c224b11929e887b35672ae0e9b435bdc6f2295162c5dddbd68134bd8e4eec25d",
+      "translation": "생존 염색(calcein-AM)이 있는 병합 배열 채널로, channels 설정과 같은 방식으로 셉니다. 측정된 채널 중 하나여야 합니다. calcein이 채우는 핵에서 읽고 플레이트별로 나누며, 절단값 위는 생존입니다. 사멸 염색도 있으면 둘 다 음성인 세포는 생존이 아니라 비염색으로 셉니다. 비워 두면 생존 염색을 읽지 않습니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "viability_negative_wells",
+      "source": "Untreated or vehicle wells, e.g. ['c1']; rows (r1), columns (c1) and wells (A01) all read. Their mean live-cell count is each plate's reference for the live-cell index, they read 0 on the cytotoxicity index and they are one side of its Z'. Blank leaves the index as the percentage of cells not live. Default None.",
+      "source_sha256": "e00531954697bd52eb43ed6b5346cde97470c3144bb3dcad0f203ff10a7ea006",
+      "translation": "무처리 또는 용매 대조 웰로, 예: ['c1']. 행(r1), 열(c1), 웰(A01)을 모두 읽습니다. 이들의 평균 생존 세포 수가 각 플레이트의 생존 세포 지수 기준이며, 세포독성 지수에서 0이고 Z'의 한쪽입니다. 비워 두면 지수는 생존하지 않은 세포의 백분율로 남습니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "viability_plate_map",
+      "source": "A table (CSV or Excel) of each well's compound and concentration: a well column (well such as A01, rowID and columnID, or prc), compound or treatment, concentration or dose, and optionally plateID. With it, viability, the cytotoxicity index and the infection of live cells are fitted against concentration per compound, and the host CC50 over the parasite EC50 is written as a selectivity index. Blank skips dose-response. Default blank.",
+      "source_sha256": "62170bfb7aaab4d2c8b671e99a3e9c74098a18f34c6d59ce52689e917199b47e",
+      "translation": "각 웰의 화합물과 농도를 담은 표(CSV 또는 Excel)입니다. 웰 열(A01 같은 well, rowID와 columnID, 또는 prc), compound 또는 treatment, concentration 또는 dose, 선택적으로 plateID가 들어갑니다. 이 표가 있으면 생존율, 세포독성 지수, 생존 세포의 감염을 화합물별로 농도에 대해 적합하고, 숙주 CC50을 기생충 EC50으로 나눈 값을 선택성 지수로 기록합니다. 비워 두면 용량–반응을 건너뜁니다. 기본값은 비어 있음."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "viability_positive_wells",
+      "source": "Wells given a cytotoxic control (for example digitonin, saponin or staurosporine), e.g. ['c12'], in the same notation as viability_negative_wells. They read 100 on the cytotoxicity index and, with the negative wells, give each plate's Z' in viability_qc; a Z' of 0.5 or more is a working assay. Blank scales the index to the negative wells alone. Default None.",
+      "source_sha256": "5e48d79fa76331495fd1dbbf6f324d93f0368b91a32e5ee77a243dc0cf3bdd51",
+      "translation": "세포독성 대조(예: digitonin, saponin, staurosporine)를 준 웰로, 예: ['c12'], viability_negative_wells 설정과 같은 표기법입니다. 세포독성 지수에서 100이고, 음성 웰과 함께 viability_qc에서 각 플레이트의 Z'를 줍니다. Z'가 0.5 이상이면 작동하는 분석입니다. 비워 두면 지수를 음성 웰에만 맞춥니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "viability_thresholds",
+      "source": "Manual cuts [dead, live] in background-subtracted mean intensity, for example [150, None], each replacing the automatic per-plate cut of its stain; None keeps that one automatic. Without stain channels the dead entry is the condensation ratio (intensity per area against the plate's typical nucleus, about 3) above which a nucleus is pyknotic. Read the automatic cuts in viability_qc or the threshold figures first. Default None.",
+      "source_sha256": "c7e8987839e53b5d232705c4f4aa9f017e8a437072ad0a260e340bc28bc26f47",
+      "translation": "배경을 뺀 평균 강도로 나타낸 수동 절단값 [dead, live]로, 예: [150, None]. 각각 해당 염색의 플레이트별 자동 절단값을 대체하며, None은 자동을 유지합니다. 염색 채널이 없으면 dead 항목은 응축 비율(플레이트의 전형적인 핵에 대한 면적당 강도, 약 3)이며 그 위의 핵은 농축핵입니다. 먼저 viability_qc의 자동 절단값이나 임계값 그림을 보세요. 기본값 None."
+    }
+  ]
+}

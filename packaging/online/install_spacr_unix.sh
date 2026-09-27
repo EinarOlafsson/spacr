@@ -51,6 +51,11 @@ CONSENT_COLLECTED=0
 SHARE_DIAGNOSTICS=0
 REPORT_ISSUES=0
 SIGN_IN_NOW=0
+# An offline bundle (packaging/offline/build_offline_bundle.py) carries uv,
+# the private Python, every wheel, Cellpose weights and Mask test data, so
+# nothing is downloaded. Without it the installer is the online one.
+OFFLINE_BUNDLE="${SPACR_OFFLINE_BUNDLE:-}"
+CHECK_MASK=0
 
 usage() {
     spacr_say usage
@@ -68,6 +73,8 @@ usage() {
     printf '  --report-issues         Show the public GitHub report action.\n'
     printf '  --sign-in-now           Open account setup on first launch.\n'
     printf '  --consent-collected     Record that these choices were reviewed.\n'
+    printf '  --offline-bundle PATH   Install from an offline bundle, with no network.\n'
+    printf '  --check-mask            After an offline install, run Mask on its test data.\n'
     printf '  -h, --help              %s\n' "$(spacr_say help_help)"
 }
 
@@ -137,6 +144,15 @@ while (($#)); do
             CONSENT_COLLECTED=1
             shift
             ;;
+        --offline-bundle)
+            require_option_value "$1" "${2:-}"
+            OFFLINE_BUNDLE="$2"
+            shift 2
+            ;;
+        --check-mask)
+            CHECK_MASK=1
+            shift
+            ;;
         -h|--help)
             usage
             exit 0
@@ -181,6 +197,19 @@ else
 fi
 if [[ -z "$TORCH_BACKEND" ]]; then
     TORCH_BACKEND="auto"
+fi
+
+# An offline bundle was locked for one PyTorch wheel line when it was built,
+# and no package manager can reach its mirrors, so both come from the bundle.
+if [[ -n "$OFFLINE_BUNDLE" ]]; then
+    if [[ ! -f "$OFFLINE_BUNDLE/bundle.json" ]]; then
+        printf 'Not an offline bundle (no bundle.json): %s\n' "$OFFLINE_BUNDLE" >&2
+        exit 2
+    fi
+    OFFLINE_BUNDLE="$(CDPATH= cd -- "$OFFLINE_BUNDLE" && pwd)"
+    TORCH_BACKEND="$(sed -n 's/.*"torch_backend": *"\([a-z0-9]*\)".*/\1/p' "$OFFLINE_BUNDLE/bundle.json")"
+    PACKAGE_SPEC="$(sed -n 's/.*"package_spec": *"\([^"]*\)".*/\1/p' "$OFFLINE_BUNDLE/bundle.json")"
+    SKIP_SYSTEM_DEPS=1
 fi
 
 # llvmlite 0.46+ no longer publishes Intel macOS wheels. Without this
@@ -275,9 +304,15 @@ printf '  %s: %s\n' "$(spacr_say pytorch_backend)" "$TORCH_BACKEND"
 printf '  GPU benchmark: RTX 3090 measured 13x faster Cellpose segmentation and 20x faster ResNet classification than CPU; hardware varies.\n'
 printf '  %s: %s\n' "$(spacr_say resolver_guards)" "${RESOLVER_GUARDS[*]}"
 
+if [[ -n "$OFFLINE_BUNDLE" ]]; then
+    printf '  Offline bundle: %s\n' "$OFFLINE_BUNDLE"
+fi
+
 if [[ "$DRY_RUN" == "1" ]]; then
     spacr_say dry_remove_old
-    spacr_say dry_download "$UV_INSTALL_URL"
+    if [[ -z "$OFFLINE_BUNDLE" ]]; then
+        spacr_say dry_download "$UV_INSTALL_URL"
+    fi
     spacr_say dry_create "$VENV_DIR"
     if [[ "$NO_COMMAND_LAUNCHER" == "0" ]]; then
         spacr_say dry_launcher "$LAUNCHER"
@@ -292,7 +327,9 @@ require_command() {
     fi
 }
 
-require_command curl
+if [[ -z "$OFFLINE_BUNDLE" ]]; then
+    require_command curl
+fi
 require_command sh
 require_command tee
 
@@ -379,13 +416,28 @@ trap cleanup EXIT
 # missed by the other. It never runs an old version's own uninstaller, keeps
 # preferences and user data, and lists environments the user made without
 # touching them.
-spacr_say downloading_uv
-curl --proto '=https' --tlsv1.2 --fail --silent --show-error --location \
-    --retry 3 --retry-all-errors \
-    "$UV_INSTALL_URL" --output "$installer_tmp"
-UV_UNMANAGED_INSTALL="$work_dir/bootstrap" UV_NO_MODIFY_PATH=1 \
-    sh "$installer_tmp"
 work_uv="$work_dir/bootstrap/uv"
+if [[ -n "$OFFLINE_BUNDLE" ]]; then
+    # Every file is checked against the bundle's SHA256SUMS before any of it
+    # is run: a bundle carried on a USB stick has no TLS to vouch for it.
+    printf 'Verifying the offline bundle...\n'
+    if command -v sha256sum >/dev/null 2>&1; then
+        (cd "$OFFLINE_BUNDLE" && sha256sum --check --quiet SHA256SUMS)
+    else
+        (cd "$OFFLINE_BUNDLE" && shasum -a 256 --check --quiet SHA256SUMS)
+    fi
+    mkdir -p "$work_dir/bootstrap"
+    cp "$OFFLINE_BUNDLE/uv/uv" "$work_uv"
+    chmod 755 "$work_uv"
+    export UV_PYTHON_INSTALL_MIRROR="file://$OFFLINE_BUNDLE/python"
+else
+    spacr_say downloading_uv
+    curl --proto '=https' --tlsv1.2 --fail --silent --show-error --location \
+        --retry 3 --retry-all-errors \
+        "$UV_INSTALL_URL" --output "$installer_tmp"
+    UV_UNMANAGED_INSTALL="$work_dir/bootstrap" UV_NO_MODIFY_PATH=1 \
+        sh "$installer_tmp"
+fi
 if [[ ! -x "$work_uv" ]]; then
     spacr_say uv_missing "$work_uv" >&2
     exit 5
@@ -439,11 +491,19 @@ rm -rf "$stage_venv"
 stage_python="$stage_venv/bin/python"
 
 spacr_say downloading_dependencies
-"$UV_BIN" pip install \
-    --python "$stage_python" \
-    --torch-backend "$TORCH_BACKEND" \
-    "$PACKAGE_SPEC" \
-    "${RESOLVER_GUARDS[@]}"
+if [[ -n "$OFFLINE_BUNDLE" ]]; then
+    "$UV_BIN" pip install \
+        --python "$stage_python" \
+        --offline --no-index \
+        --find-links "$OFFLINE_BUNDLE/wheels" \
+        -r "$OFFLINE_BUNDLE/requirements.txt"
+else
+    "$UV_BIN" pip install \
+        --python "$stage_python" \
+        --torch-backend "$TORCH_BACKEND" \
+        "$PACKAGE_SPEC" \
+        "${RESOLVER_GUARDS[@]}"
+fi
 
 spacr_say validating_install
 "$UV_BIN" pip check --python "$stage_python"
@@ -474,6 +534,31 @@ fi
 mv "$stage_venv" "$VENV_DIR"
 rm -rf "$old_venv"
 mv "$stage_profile" "$INSTALL_ROOT/install-profile.json"
+
+if [[ -n "$OFFLINE_BUNDLE" ]]; then
+    # Cellpose looks for its weights here before it would download them.
+    # Weights already present are left as they are.
+    cellpose_dir="${CELLPOSE_LOCAL_MODELS_PATH:-$HOME/.cellpose/models}"
+    if [[ -d "$OFFLINE_BUNDLE/models/cellpose" ]]; then
+        mkdir -p "$cellpose_dir"
+        for weights in "$OFFLINE_BUNDLE/models/cellpose"/*; do
+            [[ -e "$cellpose_dir/$(basename "$weights")" ]] || cp "$weights" "$cellpose_dir/"
+        done
+        printf 'Cellpose models: %s\n' "$cellpose_dir"
+    fi
+    if [[ -d "$OFFLINE_BUNDLE/test_data" ]]; then
+        rm -rf "$INSTALL_ROOT/test_data"
+        cp -R "$OFFLINE_BUNDLE/test_data" "$INSTALL_ROOT/test_data"
+        printf 'Mask test data: %s\n' "$INSTALL_ROOT/test_data/plate1"
+    fi
+    cp "$OFFLINE_BUNDLE/offline_mask_check.py" "$INSTALL_ROOT/offline_mask_check.py"
+    cp "$OFFLINE_BUNDLE/bundle.json" "$INSTALL_ROOT/offline-bundle.json"
+    if [[ "$CHECK_MASK" == "1" ]]; then
+        printf 'Running Mask on the bundled test data...\n'
+        "$VENV_DIR/bin/python" -I "$INSTALL_ROOT/offline_mask_check.py" \
+            --data "$INSTALL_ROOT/test_data/plate1"
+    fi
+fi
 
 if [[ "$NO_COMMAND_LAUNCHER" == "0" ]]; then
     mkdir -p "$USER_BIN_DIR"
