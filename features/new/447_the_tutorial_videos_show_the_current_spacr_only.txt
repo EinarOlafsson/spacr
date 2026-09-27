@@ -581,3 +581,16 @@ scan errors. Receipt:
 tools/tutorials/evidence/2026-09-27-gate-console-neutral-recapture.json.
 This closes the staged media work for 8 of 13 batch-two lessons, not publication
 or the final live sweep. Item 447 remains open.
+
+2026-09-27 — METHODS EXPORT PICKER AND REDACTED MEDIA VERIFIED
+Lesson49 now combines its genuine neutral-root export-picker capture with
+8 verified path-only redactions of the existing recording. This mixed
+provenance is explicit; historical Methods prose and scientific caveats are
+preserved. The draft is not marked scientifically approved. All original
+and private inputs were unchanged by the capture, with no provider contact.
+English scene text and all81 audio/caption files are byte-identical.
+Master and web playback checks pass;22 sampled frames have no personal-path
+offenders or OCR errors. Master/web hashes independently match the receipt:
+tools/tutorials/evidence/2026-09-27-methods-picker-neutral-recapture.json.
+Ten of13 batch2 lessons now have verified refreshed media. Lessons44,56 and73
+and batch publication/live verification remain; this is not overall closure.
