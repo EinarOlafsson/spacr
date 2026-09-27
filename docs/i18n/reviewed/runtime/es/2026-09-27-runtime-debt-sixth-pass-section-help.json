@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26, sixth pass 2026-09-27: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "categories",
+      "key": "Bleed-through correction: how much of each dye is read in the other channels is estimated from single-stain control wells, and every field is unmixed with that matrix before it is segmented or measured. The matrix is printed and recorded with the run.",
+      "source": "Bleed-through correction: how much of each dye is read in the other channels is estimated from single-stain control wells, and every field is unmixed with that matrix before it is segmented or measured. The matrix is printed and recorded with the run.",
+      "source_sha256": "f5e7e48285987029493179a04179a0c023793048e6295e2e4c11204263108e38",
+      "translation": "Corrección de la contaminación espectral: cuánto de cada colorante se lee en los demás canales se estima a partir de pocillos de control con una sola tinción, y cada campo se desmezcla con esa matriz antes de segmentarlo o medirlo. La matriz se imprime y se registra con la ejecución."
+    },
+    {
+      "table": "categories",
+      "key": "Count bacterial or fungal colonies on plate or dish photos instead of plaques: the dish is found, colonies are thresholded against the agar and touching ones split, and each plate gets a count, CFU/mL from the dilution and plated volume, a too-many or too-few flag, and colony areas and diameters, in millimetres when Scale & Time says how large the dish is.",
+      "source": "Count bacterial or fungal colonies on plate or dish photos instead of plaques: the dish is found, colonies are thresholded against the agar and touching ones split, and each plate gets a count, CFU/mL from the dilution and plated volume, a too-many or too-few flag, and colony areas and diameters, in millimetres when Scale & Time says how large the dish is.",
+      "source_sha256": "76eb8b2793a9f91cb04ba1b04eb907cf3bb8b0c9b6a8e9e9ff0c07d98b4136a4",
+      "translation": "Cuenta colonias bacterianas o fúngicas en fotos de placas o placas de Petri en lugar de placas de lisis: se localiza la placa, las colonias se umbralizan frente al agar y se separan las que se tocan, y cada placa recibe un recuento, UFC/mL a partir de la dilución y el volumen sembrado, un indicador de demasiadas o demasiado pocas, y áreas y diámetros de colonia, en milímetros cuando Escala y tiempo indica el tamaño de la placa."
+    },
+    {
+      "table": "categories",
+      "key": "Fill the plate map from sample records by plate barcode: each imaged plate is looked up by its barcode in a table or a LIMS service, its wells get the strain, compound, concentration, passage and operator recorded there, and every mismatch between the records and the images is listed.",
+      "source": "Fill the plate map from sample records by plate barcode: each imaged plate is looked up by its barcode in a table or a LIMS service, its wells get the strain, compound, concentration, passage and operator recorded there, and every mismatch between the records and the images is listed.",
+      "source_sha256": "4232c929e0899a6d43296819fd16fc01bf88d09e5120b49e9ea5c2cf3501dd2a",
+      "translation": "Rellena el mapa de placa a partir de registros de muestras por código de barras de placa: cada placa fotografiada se busca por su código de barras en una tabla o un servicio LIMS, sus pocillos reciben la cepa, el compuesto, la concentración, el pase y el operador registrados allí, y se enumera cada discrepancia entre los registros y las imágenes."
+    },
+    {
+      "table": "categories",
+      "key": "How long each tracked object of a timelapse lasts until an event such as death, lysis, egress, division or first detection, with objects still waiting at the end of their track censored there. Conditions are compared with Kaplan-Meier curves, median times, log-rank tests and a Cox model, written to measurements.db and drawn under results/time_to_event.",
+      "source": "How long each tracked object of a timelapse lasts until an event such as death, lysis, egress, division or first detection, with objects still waiting at the end of their track censored there. Conditions are compared with Kaplan-Meier curves, median times, log-rank tests and a Cox model, written to measurements.db and drawn under results/time_to_event.",
+      "source_sha256": "aa277bc2e420b64be5bc3a24e1fac3f6ab09c5d6a9516412f531eb73e3c66a48",
+      "translation": "Cuánto dura cada objeto seguido de una serie temporal hasta un evento como muerte, lisis, egreso, división o primera detección; los objetos que siguen esperando al final de su trayectoria se censuran allí. Las condiciones se comparan con curvas de Kaplan-Meier, tiempos medianos, pruebas log-rank y un modelo de Cox, escritos en measurements.db y representados en results/time_to_event."
+    },
+    {
+      "table": "categories",
+      "key": "Lineage trees drawn from the tracker's division links after each field is tracked, coloured by a measurement, with Newick and CSV export and per-lineage generation times and sibling correlation.",
+      "source": "Lineage trees drawn from the tracker's division links after each field is tracked, coloured by a measurement, with Newick and CSV export and per-lineage generation times and sibling correlation.",
+      "source_sha256": "9c33e6c38d5c971aa4059f3acceee0967e9b313887cf38fec2e76d74dfe591d7",
+      "translation": "Árboles de linaje trazados a partir de los enlaces de división del seguimiento después de seguir cada campo, coloreados según una medición, con exportación Newick y CSV y tiempos de generación y correlación entre hermanas por linaje."
+    },
+    {
+      "table": "categories",
+      "key": "Live and dead cells, called after measuring from a dead stain, a live stain, both, or nuclear morphology, with thresholds fitted per plate or set by hand. Writes per-well viability, a live-cell index and a cytotoxicity index scaled to the control wells, each plate's Z', and with a plate map the dose-response of viability beside that of infection, so parasite killing can be told from host toxicity.",
+      "source": "Live and dead cells, called after measuring from a dead stain, a live stain, both, or nuclear morphology, with thresholds fitted per plate or set by hand. Writes per-well viability, a live-cell index and a cytotoxicity index scaled to the control wells, each plate's Z', and with a plate map the dose-response of viability beside that of infection, so parasite killing can be told from host toxicity.",
+      "source_sha256": "4988e2697695151faeaec691a5c2667f117954ec9446e3762e84457b5aa73255",
+      "translation": "Células vivas y muertas, asignadas tras la medición a partir de una tinción de células muertas, una de células vivas, ambas o la morfología nuclear, con umbrales ajustados por placa o fijados a mano. Escribe la viabilidad por pocillo, un índice de células vivas y un índice de citotoxicidad escalado a los pocillos de control, el Z' de cada placa y, con un mapa de placa, la dosis-respuesta de la viabilidad junto a la de la infección, para distinguir la eliminación del parásito de la toxicidad para el hospedador."
+    },
+    {
+      "table": "categories",
+      "key": "Photobleaching correction for timelapse intensities, per field and channel: a simple ratio to the first timepoint, a fitted exponential decay, or histogram matching. Corrected intensities are written beside the measured ones with the method, and the fitted decay is plotted.",
+      "source": "Photobleaching correction for timelapse intensities, per field and channel: a simple ratio to the first timepoint, a fitted exponential decay, or histogram matching. Corrected intensities are written beside the measured ones with the method, and the fitted decay is plotted.",
+      "source_sha256": "b183cae1c7dbf185cb1e89b3d086ef73c073c220755143c226df5da2aada3e17",
+      "translation": "Corrección del fotoblanqueo para intensidades de series temporales, por campo y canal: una razón simple respecto al primer punto temporal, un decaimiento exponencial ajustado o la igualación de histogramas. Las intensidades corregidas se escriben junto a las medidas con el método, y se representa el decaimiento ajustado."
+    },
+    {
+      "table": "categories",
+      "key": "Runs a lab's own CellProfiler pipeline on this run's fields after measuring, headless in CellProfiler's own environment from the Model Zoo, and writes its per-object measurements beside spaCR's, matched to spaCR's objects, so existing pipelines keep working.",
+      "source": "Runs a lab's own CellProfiler pipeline on this run's fields after measuring, headless in CellProfiler's own environment from the Model Zoo, and writes its per-object measurements beside spaCR's, matched to spaCR's objects, so existing pipelines keep working.",
+      "source_sha256": "ca161d26ab03972b7aa57bc1771b5a98cbc49568b949dbc42b47c77c0847f7b4",
+      "translation": "Ejecuta tras la medición una canalización de CellProfiler propia del laboratorio sobre los campos de esta ejecución, sin interfaz, en el entorno propio de CellProfiler de la Biblioteca de modelos, y escribe sus mediciones por objeto junto a las de spaCR, asignadas a los objetos de spaCR, para que las canalizaciones existentes sigan funcionando."
+    },
+    {
+      "table": "categories",
+      "key": "Scale every imaging session to the same intensities before measuring, from fluorescent beads or reference wells imaged on every plate: each plate's intensity channels are multiplied by the gain that makes its reference wells match the first plate's, and the gains are recorded in measurements.db.",
+      "source": "Scale every imaging session to the same intensities before measuring, from fluorescent beads or reference wells imaged on every plate: each plate's intensity channels are multiplied by the gain that makes its reference wells match the first plate's, and the gains are recorded in measurements.db.",
+      "source_sha256": "c678642b44dfcad096bb609026e20e69d01592d4029527e92be265d31c0ab761",
+      "translation": "Escala cada sesión de adquisición a las mismas intensidades antes de medir, a partir de microesferas fluorescentes o pocillos de referencia fotografiados en cada placa: los canales de intensidad de cada placa se multiplican por la ganancia que iguala sus pocillos de referencia con los de la primera placa, y las ganancias se registran en measurements.db."
+    }
+  ]
+}

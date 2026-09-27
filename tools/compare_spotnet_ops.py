@@ -1,24 +1,27 @@
-"""Compare SpotNet with spaCR's native spot detector on real OPS fields.
+"""Compare SpotNet and Spotiflow with spaCR's native spot detector on real
+OPS fields.
 
-Item 475. Each named field of a well is decoded twice by the shipped
+Items 475 and 554. Each named field of a well is decoded twice by the shipped
 ``spacr.ops_engine._decode_field`` -- once with ``spot_detector='native'``,
-once with ``'spotnet'`` -- against the objects and placements an earlier
+once with each of ``--detectors`` (``spotnet``, ``spotiflow``) -- against the objects and placements an earlier
 plate run stored in its measurements.db, so everything but the detector is
 the same code on the same pixels. Reported per detector: spots found, reads
 owned by a nucleus, objects given a barcode, the share of those barcodes in
 the library, and seconds; and between them the share of each detector's
-owned reads with the other's within 2 px.
+owned reads with native's within 2 px, and native's within 2 px of it.
 
 SpotNet needs its environment (Model Zoo) and a DeepCell token in
 DEEPCELL_ACCESS_TOKEN or ~/.spacr/deepcell_token; without them only the
 native half runs and the report says why. The token is never printed.
+Spotiflow needs only its environment (Model Zoo).
 
     python tools/compare_spotnet_ops.py \\
         --tiles /mnt/wd4tb/spacr_testdata/ops/raw/ops/sequencing \\
         --db /mnt/wd4tb/spacr_testdata/ops_plate_run/measurements.db \\
         --plate 20200202_6W-LaC024A --well A1 --sites 331 332 \\
         --library /mnt/wd4tb/spacr_testdata/ops_plate_run/library/pool10_prefixes.csv \\
-        --out features/data/475_spotnet_vs_native.json
+        --detectors spotnet spotiflow \\
+        --out features/data/554_spotiflow_vs_spotnet_vs_native.json
 """
 from __future__ import annotations
 
@@ -33,7 +36,8 @@ import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from spacr import ops_engine  # noqa: E402
-from spacr._segmentation_backends import _spotnet_readiness  # noqa: E402
+from spacr._segmentation_backends import (  # noqa: E402
+    _detect_spots, _spotiflow_readiness, _spotiflow_spots, _spotnet_readiness)
 from spacr.ops_sbs import assign_reads_to_objects  # noqa: E402
 
 
@@ -134,12 +138,14 @@ def main(argv=None):
     parser.add_argument("--out", default=None)
     parser.add_argument("--gpu", action="store_true",
                         help="let the native alignment and peaks use the card")
+    parser.add_argument("--detectors", nargs="+", default=["spotnet"],
+                        choices=["spotnet", "spotiflow"])
     args = parser.parse_args(argv)
 
     library = ops_engine._load_library(args.library) if args.library else []
     tasks = _tasks(args.tiles, args.db, args.plate, args.well.upper(),
                    args.sites, args.reference, gpu=args.gpu)
-    report = {"item": 475, "gpu": bool(args.gpu), "plate": args.plate,
+    report = {"item": 475 if args.detectors == ["spotnet"] else 554, "gpu": bool(args.gpu), "plate": args.plate,
               "well": args.well.upper(),
               "sites": args.sites, "library_size": len(library),
               "match_radius_px": 2.0, "note": (
@@ -147,23 +153,25 @@ def main(argv=None):
                   "each detector's field gave to a nucleus it owns.")}
     native, native_at = _run(tasks, "native", library)
     report["native"] = native
-    ready, reason = _spotnet_readiness()
-    if not ready:
-        report["spotnet"] = {"not_run": reason}
-    else:
-        from spacr._segmentation_backends import _detect_spots
-
+    checks = {"spotnet": (_spotnet_readiness, _detect_spots, 0.95),
+              "spotiflow": (_spotiflow_readiness, _spotiflow_spots, None)}
+    for detector in args.detectors:
+        readiness, detect, threshold = checks[detector]
+        ready, reason = readiness()
+        if not ready:
+            report[detector] = {"not_run": reason}
+            continue
         started = time.perf_counter()
-        _detect_spots(np.zeros((64, 64), np.float32))
-        report["spotnet_startup_seconds"] = round(
+        detect(np.zeros((64, 64), np.float32), threshold=threshold)
+        report[f"{detector}_startup_seconds"] = round(
             time.perf_counter() - started, 1)
-        spotnet, spotnet_at = _run(tasks, "spotnet", library)
-        report["spotnet"] = spotnet
-        both = [s for s in native_at if s in spotnet_at]
+        found, found_at = _run(tasks, detector, library)
+        report[detector] = found
+        both = [s for s in native_at if s in found_at]
         a = np.concatenate([native_at[s] for s in both]) if both else []
-        b = np.concatenate([spotnet_at[s] for s in both]) if both else []
-        report["native_reads_matched_by_spotnet"] = _matched(a, b)
-        report["spotnet_reads_matched_by_native"] = _matched(b, a)
+        b = np.concatenate([found_at[s] for s in both]) if both else []
+        report[f"native_reads_matched_by_{detector}"] = _matched(a, b)
+        report[f"{detector}_reads_matched_by_native"] = _matched(b, a)
     text = json.dumps(report, indent=2, default=str)
     print(text)
     if args.out:
