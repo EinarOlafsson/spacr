@@ -19,12 +19,22 @@ def check_recorded_seed(declared, digest, methods):
         raise ValueError(f'Draft seed {actual} contradicts recorded permutation seed {declared} or its prose')
 
 
-def record_methods(app, window, stage, captures, capture, settle, write_json, timeout, *, review_export=False):
+def record_methods(app, window, stage, captures, capture, settle, write_json, timeout, *, review_export=False, export_picker_only=False):
     from PySide6.QtCore import Qt, QTimer
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QAbstractButton, QFileDialog, QLineEdit, QDialogButtonBox
     from spacr.qt.widgets.fold_strip import FoldButton
     from spacr.qt.screens.methods_export import MethodsExportScreen
+
+    if export_picker_only and not review_export:
+        raise ValueError('Picker-only capture requires unchanged draft export verification')
+    native_capture = capture
+    recorded_frames = []
+
+    def capture(name, **kwargs):
+        if not export_picker_only or name == '08_export_unreviewed_markdown_picker':
+            native_capture(name, **kwargs)
+            recorded_frames.append(name)
 
     stage = Path(stage)
     sources = dict(project=stage/'regression_runs/example-9wut6lcv',
@@ -47,7 +57,8 @@ def record_methods(app, window, stage, captures, capture, settle, write_json, ti
     proof = dict(lesson='49_methods_results', accepted=False, source_files=originals,
                  private_folder=str(work), private_input_hashes=copies,
                  declared_permutation_seed=declared, provider_contacted=False,
-                 app_source_modified=False, published=False)
+                 app_source_modified=False, published=False,
+                 export_picker_only=export_picker_only, recorded_frames=recorded_frames)
     deadline = time.monotonic()+timeout; screen = None
 
     def click(widget):
