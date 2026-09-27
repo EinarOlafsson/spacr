@@ -742,6 +742,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "anndata_tables", "anndata_dtype", "anndata_row_limit",
     "anndata_compute_umap", "anndata_compression",
     "anndata_register_artifact",
+    # 581, alpha: what the export writes (h5ad, Parquet tables, R loader)
+    # and the folder the tables go to.
+    "anndata_format", "anndata_tidy_dir",
     # The robust and regularised regression fits: knobs that belong to one
     # estimator rather than to all of them.
     "l1_ratio", "quantile", "huber_t",
