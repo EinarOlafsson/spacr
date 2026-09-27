@@ -885,7 +885,15 @@ def test_real_default_claims_have_no_unrecorded_drift():
     item_546 = {(app, "cellprofiler_pipeline")
                 for app in ("measure", "external_masks")}
     assert item_546 <= compared_pairs
-    # 858 -> 865 on 2026-09-27, +7/-0 (item 542): seven colony-counting
+    # 858 -> 862 on 2026-09-27, +4/-0 (item 583): plate_barcode_source
+    # (blank) and plate_barcodes (None), each resolved by Measure and by
+    # External Masks. plate_barcode_column and plate_barcode_token_env say
+    # "Default barcode." and "Default SPACR_LIMS_TOKEN.", which are not
+    # literals and so are not compared.
+    item_583 = {(app, key) for app in ("measure", "external_masks")
+                for key in ("plate_barcode_source", "plate_barcodes")}
+    assert item_583 <= compared_pairs
+    # 862 -> 869 on 2026-09-27, +7/-0 (item 542): seven colony-counting
     # claims -- colony_counting (False), colony_dilution (1),
     # colony_plated_volume_ul (100), colony_too_many (300), colony_too_few
     # (30), colony_threshold (4.0) and colony_min_area_px (None) -- each
@@ -896,7 +904,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
         "colony_too_many", "colony_too_few", "colony_threshold",
         "colony_min_area_px")}
     assert item_542 <= compared_pairs
-    assert comparisons == 865
+    assert comparisons == 869
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
@@ -913,6 +921,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # + 9: item 538's three unmixing claims in three apps, pinned above.
     # + 14: item 540's seven live/dead claims in two apps, pinned above.
     # + 6: item 580's three calibration claims in two apps, pinned above.
+    # + 4: item 583's two barcode-linkage claims in two apps, pinned above.
     # + 0: item 537's three lineage-tree settings belong to the Timelapse
     # category, which no compared app resolves, so none is compared.
     # + 3: item 543's vendor flat-field profile in three apps, pinned above.
@@ -923,7 +932,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
             + len(item_535) + len(item_547) + len(item_536)
             + len(item_571) + len(item_538) + len(item_540)
             + len(item_580) + len(item_543) + len(item_546)
-            + len(item_542) == comparisons)
+            + len(item_583) + len(item_542) == comparisons)
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs
     assert len(census_508['added_pairs']) == 19

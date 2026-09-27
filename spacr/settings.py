@@ -1730,6 +1730,10 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('intensity_calibration_wells', None)
     settings.setdefault('intensity_calibration_statistic', 'foreground')
     settings.setdefault('intensity_calibration_offset', 0)
+    settings.setdefault('plate_barcode_source', '')
+    settings.setdefault('plate_barcodes', None)
+    settings.setdefault('plate_barcode_column', 'barcode')
+    settings.setdefault('plate_barcode_token_env', 'SPACR_LIMS_TOKEN')
     settings.setdefault('time_to_event', False)
     settings.setdefault('time_to_event_object', 'cell')
     settings.setdefault('time_to_event_mode', 'track_end')
@@ -3570,6 +3574,10 @@ expected_types = {
     "intensity_calibration_wells": (list, str, type(None)),
     "intensity_calibration_statistic": str,
     "intensity_calibration_offset": (float, int),
+    "plate_barcode_source": str,
+    "plate_barcodes": (dict, str, type(None)),
+    "plate_barcode_column": str,
+    "plate_barcode_token_env": str,
     "time_to_event": bool,
     "time_to_event_object": str,
     "time_to_event_mode": str,
@@ -4827,6 +4835,10 @@ tooltips = {
     "intensity_calibration_wells": "(list or None) - The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
     "intensity_calibration_statistic": "(str) - How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
     "intensity_calibration_offset": "(float) - The camera's dark offset, in the intensity units Measure works in, removed before the reference statistic and kept when scaling: a pixel becomes offset + (value - offset) x gain. Read it from a dark frame; 100 is common on sCMOS cameras. Leave 0 when images are already offset-corrected. Default 0.",
+    "plate_barcode_source": "(str) - Sample records to fill the plate map from, by plate barcode: a CSV, TSV, Excel or Parquet table with a barcode column, a well column (well such as A01, or rowID and columnID) and metadata such as strain, compound, concentration, passage and operator; or the http(s) address of a LIMS service that answers JSON well records for ?barcode=, or for {barcode} in the address. The filled map and a list of mismatches go to measurements. Blank links nothing. Default blank.",
+    "plate_barcodes": "(dict or None) - The barcode each plate was imported with, such as {'plate1': 'BC000123'}. A plate not named here takes the barcode in a barcode.txt file in its plate folder, or else its own plate name. Two plates given one barcode are reported as a mismatch. Default None.",
+    "plate_barcode_column": "(str) - The column of the sample records that holds the plate barcode. Blank looks for barcode, plate_barcode or plate barcode. The other columns, apart from the well position, are copied into the plate map as they are. Default barcode.",
+    "plate_barcode_token_env": "(str) - The name of the environment variable holding the LIMS access token, sent as a bearer token with each request. The token itself is never written to settings or results; set the variable before starting spaCR. Ignored for a table. Default SPACR_LIMS_TOKEN.",
     "time_to_event": "(bool) - After measuring a timelapse, follow every tracked object to an event (death, lysis, egress, division, first detection) or to the end of its track, and compare conditions: Kaplan-Meier curves with 95% bands, median time to event per condition and well, log-rank tests and a Cox model. Writes measurements.db:time_to_event and four summary tables, and the curves and hazard ratios under results/time_to_event. Needs tracked objects measured with timelapse on. Default False.",
     "time_to_event_object": "(str) - The measured object table whose tracks are followed: cell, nucleus, pathogen or cytoplasm. Each object label in a field is one track, since the timelapse module relabels tracked objects with their track ID. Follow host cells for host death or lysis, pathogens for egress or division. Default cell.",
     "time_to_event_mode": "(str) - What counts as the event. track_end: the object disappears before the movie ends (lysis, egress, detachment, and tracking loss too). annotated: time_to_event_column turns non-zero, or equals the threshold. above or below: the column reaches time_to_event_threshold, such as a death dye. fold_change: the column reaches threshold times its first value, such as a doubled parasite count. Tracks without the event are censored at their last frame. Default track_end.",
@@ -5534,6 +5546,11 @@ categories = {
     "Intensity Calibration (Alpha)": [
         "intensity_calibration", "intensity_calibration_wells",
         "intensity_calibration_statistic", "intensity_calibration_offset",
+    ],
+
+    "Plate Barcode Linkage (Alpha)": [
+        "plate_barcode_source", "plate_barcodes", "plate_barcode_column",
+        "plate_barcode_token_env",
     ],
 
     "Time To Event (Alpha)": [
@@ -7224,8 +7241,15 @@ ALPHA_FEATURES = {
         'settings': ('timelapse_lineage', 'timelapse_lineage_color_by',
                      'timelapse_lineage_max_distance'),
     },
+    583: {
+        'settings': ('plate_barcode_source', 'plate_barcodes',
+                     'plate_barcode_column', 'plate_barcode_token_env'),
+    },
     543: {
         'settings': ('illumination_vendor_profile',),
+    },
+    585: {
+        'widgets': ('PowerArrayedPlanner',),
     },
 }
 
