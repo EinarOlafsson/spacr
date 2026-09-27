@@ -215,7 +215,8 @@ def test_a_waiting_heading_starts_the_idle_wait(idle):
     screen, prebuild = idle(["Advanced"])
     prebuild.resume()
     assert prebuild._timer.isActive()
-    assert prebuild._timer.remainingTime() <= prebuild.IDLE_MS
+    assert prebuild._timer.isSingleShot()
+    assert prebuild._timer.interval() == prebuild.IDLE_MS
 
 
 def test_a_key_waits_and_keeps_watching_a_click_waits_unwatched(idle):
