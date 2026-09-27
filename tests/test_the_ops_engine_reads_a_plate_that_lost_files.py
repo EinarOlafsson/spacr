@@ -66,18 +66,28 @@ def test_an_unreadable_file_is_an_outcome_with_its_reason(tmp_path):
     assert reasons[2] == "has no plane 5"
 
 
-def test_a_zero_byte_tiff_raises_an_error_that_is_not_value_error(tmp_path):
+def test_a_zero_byte_tiff_is_recorded_whatever_class_tifffile_raises(tmp_path):
     """372, 2026-09-26: well B3 died on c4/10X_c4_B3_CY3_Site-59.tif, 0 bytes.
 
-    tifffile's TiffFileError derives from Exception alone, so the ValueError
-    rule that covers a truncated file does not cover an empty one.
+    tifffile's TiffFileError derived from Exception alone in the version this
+    was measured on, so the ValueError rule that covers a truncated file did
+    not cover an empty one. 2026-09-26 (item 43): CI's newer tifffile makes
+    TiffFileError a ValueError subclass, and the old assertion that it is NOT
+    one failed there. Which class tifffile uses is tifffile's business; what
+    this pins is that the engine records the file as unreadable either way.
     """
     path = tmp_path / "10X_c4_B3_CY3_Site-59.tif"
     path.write_bytes(b"")
     with pytest.raises(Exception) as caught:
         tifffile.TiffFile(str(path))
     assert "not a TIFF file" in str(caught.value)
-    assert not isinstance(caught.value, (ValueError, OSError, IndexError))
+
+    unreadable = []
+    assert ops_engine._read_plane((str(path), None), unreadable) is None
+    assert len(unreadable) == 1
+    recorded_path, reason = unreadable[0]
+    assert recorded_path == str(path)
+    assert reason.startswith(f"{type(caught.value).__name__}: not a TIFF file")
 
 
 def test_a_zero_byte_or_non_tiff_file_is_unreadable_with_its_reason(tmp_path):

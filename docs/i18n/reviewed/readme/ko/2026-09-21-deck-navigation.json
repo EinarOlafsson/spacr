@@ -5,9 +5,9 @@
   "records": [
     {
       "label": "deck-navigation-row",
-      "source": "`← Back <docs/source/_static/deck/pages/51.md>`_   `Next → <docs/source/_static/deck/pages/02.md>`_",
-      "source_sha256": "f0414f1820781dfeb11bf36bea1c1b18e8f9c0ae9ac8bf1cc98bf4407887ed2e",
-      "translation": "`← 이전 <docs/source/_static/deck/pages/51.md>`_   `다음 → <docs/source/_static/deck/pages/02.md>`_"
+      "source": "`← Back <docs/source/_static/deck/pages/55.md>`_   `Next → <docs/source/_static/deck/pages/02.md>`_",
+      "source_sha256": "08ab71fc8cf96509eedc6557145dabe5de029d44153201e2e70abc63175fc279",
+      "translation": "`← 이전 <docs/source/_static/deck/pages/55.md>`_   `다음 → <docs/source/_static/deck/pages/02.md>`_"
     },
     {
       "label": "deck-back-link",

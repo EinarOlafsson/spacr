@@ -1687,6 +1687,17 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('confluency_channel', None)
     settings.setdefault('confluency_window', 15)
     settings.setdefault('confluency_qc_threshold', 0.8)
+    settings.setdefault('profiling', False)
+    settings.setdefault('profiling_metadata', '')
+    settings.setdefault('profiling_treatment_column', 'columnID')
+    settings.setdefault('profiling_negative_control', '')
+    settings.setdefault('profiling_normalization', 'mad_robustize')
+    settings.setdefault('profiling_feature_selection', [
+        'variance_threshold', 'frequency_threshold', 'correlation_threshold',
+        'drop_na_columns', 'drop_outliers'])
+    settings.setdefault('profiling_correlation_threshold', 0.9)
+    settings.setdefault('profiling_phenotype_column', '')
+    settings.setdefault('profiling_databases', [])
     settings.setdefault('cell_cycle', False)
     settings.setdefault('cell_cycle_method', 'measurements')
     settings.setdefault('cell_cycle_channel', None)
@@ -1696,6 +1707,12 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('cell_cycle_labels', '')
     settings.setdefault('cell_cycle_model', '')
     settings.setdefault('cell_cycle_epochs', 20)
+    settings.setdefault('wound_closure', False)
+    settings.setdefault('wound_source', 'texture')
+    settings.setdefault('wound_channel', None)
+    settings.setdefault('wound_window', 15)
+    settings.setdefault('wound_hours_per_frame', None)
+    settings.setdefault('wound_conditions', {})
     settings.setdefault('viability', False)
     settings.setdefault('viability_dead_channel', None)
     settings.setdefault('viability_live_channel', None)
@@ -3479,6 +3496,15 @@ expected_types = {
     "confluency_channel": (int, type(None)),
     "confluency_window": int,
     "confluency_qc_threshold": (float, int, type(None)),
+    "profiling": bool,
+    "profiling_metadata": str,
+    "profiling_treatment_column": (str, list),
+    "profiling_negative_control": (str, list),
+    "profiling_normalization": str,
+    "profiling_feature_selection": list,
+    "profiling_correlation_threshold": (float, int),
+    "profiling_phenotype_column": str,
+    "profiling_databases": list,
     "cell_cycle": bool,
     "cell_cycle_method": str,
     "cell_cycle_channel": (int, type(None)),
@@ -3488,6 +3514,12 @@ expected_types = {
     "cell_cycle_labels": str,
     "cell_cycle_model": str,
     "cell_cycle_epochs": int,
+    "wound_closure": bool,
+    "wound_source": str,
+    "wound_channel": (int, type(None)),
+    "wound_window": int,
+    "wound_hours_per_frame": (float, int, type(None)),
+    "wound_conditions": dict,
     "viability": bool,
     "viability_dead_channel": (int, type(None)),
     "viability_live_channel": (int, type(None)),
@@ -4690,7 +4722,22 @@ tooltips = {
     "confluency_source": "(str) - How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold, for brightfield and phase. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.",
     "confluency_channel": "(int or None) - The merged-array channel that the texture and intensity confluency sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, or the cytoplasm or membrane stain for intensity. Ignored when confluency_source resolves to masks. Default None.",
     "confluency_window": "(int) - Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. Ignored by the masks and intensity sources. Default 15.",
+    "wound_closure": "(bool) - Measure a scratch or wound-healing assay: find the open wound in every frame of every field, then write its area, mean and minimum width, the closure rate and the half-closure time per field, per well and per condition to measurements.db and results/wound_closure, with closure curves and a plate map. Frames are grouped by plate, well and field and ordered by timepoint; the first frame decides where the scratch is. Default False.",
+    "wound_source": "(str) - How the open wound is told apart from the monolayer. texture reads the local variation of wound_channel, for brightfield and phase. intensity thresholds wound_channel, for a fluorescent cytoplasm or membrane stain. masks takes every pixel outside the segmented cells as open. The cut is decided on each field's first frame and kept for its later frames. Default texture.",
+    "wound_channel": "(int or None) - The merged-array channel the texture and intensity wound sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, the stain for intensity. Ignored by the masks source. Default None.",
+    "wound_window": "(int) - Side of the square window, in pixels, over which the texture wound source measures local variation. About the diameter of one cell at the imaging resolution: smaller follows the wound edge more closely but can open holes in smooth parts of the monolayer, larger bridges narrow gaps. Also sets the smallest gap kept in later frames. Default 15.",
+    "wound_hours_per_frame": "(float or None) - Hours between consecutive timepoints, so closure rates are per hour and half-closure times are in hours. Blank counts time in frames. With voxel_size_xy_um set, widths and front speeds are also reported in micrometres. Default None.",
+    "wound_conditions": "(dict) - Conditions to pool wells into for the closure curves and half-closure times, as {name: wells}, the wells as rows (r2), columns (c3) or single wells (B03), for example {'control': 'c1, c2', 'drug': 'c3, c4'}. A well in no condition is reported under its own name. A well may belong to one condition only. Default {}.",
     "confluency_qc_threshold": "(float or None) - Lowest covered fraction, from 0 to 1, at which a field or well passes monolayer QC. Fields and wells below it get monolayer_ok 0 in measurements.db, so plaque and infection results from a thin or torn monolayer can be dropped or divided by the covered fraction. Blank passes every well. Default 0.8.",
+    "profiling": "(bool) - After Measure finishes, build image-based profiles from its tables: aggregate each object table to one median profile per well, add the plate map in profiling_metadata, normalise each plate against its negative-control wells, remove uninformative and redundant features, build one consensus profile per treatment and score replicate reproducibility as mean average precision (mAP) and percent replicating. Results go to measurements/profiles as CSV, Parquet and GCT with plots. Default False.",
+    "profiling_metadata": "(str) - Plate map for profiling: a CSV, TSV, Excel or Parquet table with one row per well position, located by rowID and columnID or by a well column such as A01, plus annotation columns such as treatment, dose, gene or a phenotype label. With a plateID column the map is matched plate by plate; without one it applies to every plate. Blank profiles the wells by position only. Default blank.",
+    "profiling_treatment_column": "(str or list) - The annotation column, or columns, naming what each well received. Wells that share them are replicates and are collapsed into one consensus profile. Use a plate-map column such as treatment, treatment and dose together, or columnID when each plate column holds one condition. Default columnID.",
+    "profiling_negative_control": "(str or list) - Value or values of the first profiling_treatment_column that mark negative-control wells, for example DMSO or c1. Each plate is normalised against its own controls, and every treatment is scored for phenotypic activity, how well its replicates find each other among the controls. Blank normalises against all wells of a plate and skips the activity score. Default blank.",
+    "profiling_normalization": "(str) - How each feature is put on a common scale, plate by plate. mad_robustize subtracts the reference median and divides by 1.4826 times the reference MAD, which tolerates outlier wells; standardize uses the mean and standard deviation; robustize uses the median and interquartile range; none keeps the aggregated values. The reference is the negative control, or every well when none is named. Default mad_robustize.",
+    "profiling_feature_selection": "(list) - Feature-selection steps, run in order after normalisation: variance_threshold drops near-zero variance, frequency_threshold near-constant values, correlation_threshold the more redundant of each pair correlated above profiling_correlation_threshold, drop_na_columns features missing in over 5 % of wells, and drop_outliers any feature with an absolute value above 500. An empty list keeps every feature. Default all five.",
+    "profiling_correlation_threshold": "(float) - Pearson correlation above which two features count as redundant in the correlation_threshold selection step. Of each such pair the feature more correlated with all others is removed. Lower values keep fewer, less redundant features. Default 0.9.",
+    "profiling_phenotype_column": "(str) - Optional plate-map column holding a phenotype label that different treatments share, such as a mechanism of action, pathway or target gene. When set, consensus profiles are also scored for phenotypic consistency: how well treatments with the same label retrieve each other, as mAP per label. Default blank.",
+    "profiling_databases": "(list) - Further measurements.db files to profile together with this run's, one per plate, so replicates on different plates are compared while each plate is still normalised on its own. Every plate needs a distinct plateID. Default [].",
     "cell_cycle": "(bool) - Call the cell-cycle phase of every nucleus after measuring, from the DNA stain: G1, S, G2 or M, plus subG1 and >4N outside the peaks. Writes one row per nucleus to measurements.db:cell_cycle with the call in cell_cycle_phase, the phase fractions per well, overall and in infected and uninfected cells, to cell_cycle_well, and with plot on each plate's fitted DNA histogram. Needs measured nuclei. Default False.",
     "cell_cycle_method": "(str) - How phases are called. measurements gates each plate's DNA-content histogram, fitted as G1 and G2 peaks with S between, and calls condensed 4N nuclei M. xgboost trains a boosted classifier on nucleus features, torch trains an image classifier on nucleus crops with Classify's training; both learn from cell_cycle_labels. all runs the three and keeps their majority. Default measurements.",
     "cell_cycle_channel": "(int or None) - The merged-array channel holding the DNA stain (DAPI or Hoechst) the phase is read from, counted as in channels; it must be one of the measured channels. Blank uses nucleus_channel, then the first entry of channels. Default None.",
@@ -5355,11 +5402,23 @@ categories = {
         "confluency_window", "confluency_qc_threshold",
     ],
 
+    "Profiling (Alpha)": [
+        "profiling", "profiling_metadata", "profiling_treatment_column",
+        "profiling_negative_control", "profiling_normalization",
+        "profiling_feature_selection", "profiling_correlation_threshold",
+        "profiling_phenotype_column", "profiling_databases",
+    ],
+
     "Cell Cycle (Alpha)": [
         "cell_cycle", "cell_cycle_method", "cell_cycle_channel",
         "cell_cycle_gates", "cell_cycle_mitotic_ratio",
         "cell_cycle_fucci_channels", "cell_cycle_labels", "cell_cycle_model",
         "cell_cycle_epochs",
+    ],
+
+    "Wound Closure (Alpha)": [
+        "wound_closure", "wound_source", "wound_channel", "wound_window",
+        "wound_hours_per_frame", "wound_conditions",
     ],
 
     "Viability (Alpha)": [
@@ -6916,11 +6975,25 @@ ALPHA_FEATURES = {
                      'confluency_window', 'confluency_qc_threshold'),
         'widgets': ('MeasureConfluencyToggle',),
     },
+    536: {
+        'settings': ('wound_closure', 'wound_source', 'wound_channel',
+                     'wound_window', 'wound_hours_per_frame',
+                     'wound_conditions'),
+        'widgets': ('MeasureWoundToggle',),
+    },
     544: {
         'widgets': ('AnnotateBlindToggle', 'MakeMasksBlindToggle'),
     },
     545: {
         'widgets': ('MakeMasksRoisButton',),
+    },
+    547: {
+        'settings': ('profiling', 'profiling_metadata',
+                     'profiling_treatment_column',
+                     'profiling_negative_control', 'profiling_normalization',
+                     'profiling_feature_selection',
+                     'profiling_correlation_threshold',
+                     'profiling_phenotype_column', 'profiling_databases'),
     },
     548: {
         'settings': ('watch_folder', 'watch_pipeline', 'watch_measure_settings',
@@ -6968,6 +7041,9 @@ ALPHA_FEATURES = {
                     'NotifyNtfy', 'NotifyNtfyServer', 'NotifyNtfyTopic',
                     'NotifyNtfyToken', 'NotifySendTest', 'NotifyForgetSecrets',
                     'NotifyTestResult'),
+    },
+    581: {
+        'settings': ('anndata_format', 'anndata_tidy_dir'),
     },
 }
 

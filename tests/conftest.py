@@ -681,17 +681,33 @@ def _the_widget_tree_does_not_outgrow_the_session(_isolated_qsettings_store):
     yield
 
 
-def _application_policies():
+def _application_policies(app=None):
     """The application-wide spaCR policies on the running QApplication.
 
+    :param app: the application to read, when the caller already holds it.
+        Otherwise it is asked of whatever ``sys.modules`` holds as
+        ``PySide6.QtWidgets``.
     :returns: ``(app, {"glass": ..., "tooltips": ..., "cursor": ...})``, or
-        ``None`` when no Qt application is running. Nothing is imported: a
-        policy whose module was never loaded cannot be on.
+        ``None`` when no Qt application is running or none can be asked
+        for. Nothing is imported: a policy whose module was never loaded
+        cannot be on.
+
+    Asking can raise. This runs at teardown, and a test that monkeypatches
+    ``sys.modules["PySide6.QtWidgets"]`` with a stand-in whose
+    ``QApplication.instance()`` raises (``test_cov_r5_resource_cleanup``
+    does, on purpose) still has it patched here whenever an earlier autouse
+    fixture instantiated the shared ``monkeypatch``, since that is undone
+    after this fixture's teardown. 2026-09-26: that raise surfaced as a
+    teardown ERROR in CI run 36276973443.
     """
-    module = sys.modules.get("PySide6.QtWidgets")
-    if module is None:
-        return None
-    app = module.QApplication.instance()
+    if app is None:
+        module = sys.modules.get("PySide6.QtWidgets")
+        if module is None:
+            return None
+        try:
+            app = module.QApplication.instance()
+        except Exception:                                        # noqa: BLE001
+            return None
     if app is None:
         return None
     glass = sys.modules.get("spacr.qt.widgets.glass")
@@ -709,6 +725,11 @@ def _take_off_the_policies_put_on_since(before) -> None:
     :param before: what :func:`_application_policies` said at setup.
     """
     now = _application_policies()
+    if now is None and before is not None:
+        try:
+            now = _application_policies(before[0])
+        except RuntimeError:
+            return
     if now is None:
         return
     app, after = now

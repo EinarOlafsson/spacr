@@ -1,0 +1,477 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third and fourth passes 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "A well is a hit when its score reaches this value. SSMD 3 is a strong effect; 3 for robust z and B-score is three robust standard deviations.",
+      "source": "A well is a hit when its score reaches this value. SSMD 3 is a strong effect; 3 for robust z and B-score is three robust standard deviations.",
+      "source_sha256": "401fa75c58a4d23de5cc5931ffe8536ad53c2106c67c21d03e535f4152445833",
+      "translation": "孔的得分达到此值即为命中。SSMD 3 表示强效应；对于稳健 z 和 B 分数，3 表示三个稳健标准差。"
+    },
+    {
+      "table": "ui",
+      "key": "Add the outline micro-SAM drew as one new object: one edit, undone by one Ctrl+Z, written by Save mask and recorded in the field's curation ledger with the prompt, the model and the micro-SAM version. Enter on the image does the same. Default unavailable until an outline is shown.",
+      "source": "Add the outline micro-SAM drew as one new object: one edit, undone by one Ctrl+Z, written by Save mask and recorded in the field's curation ledger with the prompt, the model and the micro-SAM version. Enter on the image does the same. Default unavailable until an outline is shown.",
+      "source_sha256": "337d5873347835d0e147c2729f77d18cff16d56cdef00609a703d413b82f9e57",
+      "translation": "将 micro-SAM 绘制的轮廓添加为一个新对象：一次编辑，按一次 Ctrl+Z 即可撤销，由“保存掩膜”写出，并连同提示、模型和 micro-SAM 版本记录在该视野的校正记录中。在图像上按 Enter 效果相同。默认在显示轮廓之前不可用。"
+    },
+    {
+      "table": "ui",
+      "key": "Blinded: the source, plates, wells, conditions and file names are hidden, and the crops are in a shuffled order.",
+      "source": "Blinded: the source, plates, wells, conditions and file names are hidden, and the crops are in a shuffled order.",
+      "source_sha256": "329aca3de14d6f075a905a7a2c0771d6522ef38bf0382a1e8f5a2182ac2c470e",
+      "translation": "盲法：来源、板、孔、条件和文件名均已隐藏，裁剪图按随机顺序显示。"
+    },
+    {
+      "table": "ui",
+      "key": "Blinded: {count} fields, named by code and in a shuffled order.",
+      "source": "Blinded: {count} fields, named by code and in a shuffled order.",
+      "source_sha256": "61f9e7d9a09ceb7f61ddca4cd65aaecfd978ed29a6b51af9e86ff2912d4c7b10",
+      "translation": "盲法：{count} 个视野，以代码命名并按随机顺序排列。"
+    },
+    {
+      "table": "ui",
+      "key": "Click on one object, or drag a box round it, and micro-SAM outlines it. Right-click marks what is not the object. Enter adds the outline as a new object.",
+      "source": "Click on one object, or drag a box round it, and micro-SAM outlines it. Right-click marks what is not the object. Enter adds the outline as a new object.",
+      "source_sha256": "968152b0ab2b0029660cd1beba5966c9db7eff98381f70f06cc8a33e3ba5d0b6",
+      "translation": "单击一个对象，或在其周围拖出一个框，micro-SAM 就会勾勒出它。右键单击标记不属于对象的部分。按 Enter 将轮廓添加为新对象。"
+    },
+    {
+      "table": "ui",
+      "key": "Confluency {percent} ({source}), {verdict}",
+      "source": "Confluency {percent} ({source}), {verdict}",
+      "source_sha256": "09e8aeac996e66bd6226359e2d0e01eb8b8a5bf40e6bd7c72666da09a82b027b",
+      "translation": "汇合度 {percent}（{source}），{verdict}"
+    },
+    {
+      "table": "ui",
+      "key": "Curate blind: name every field by a code instead of its file name and folder, and show the fields in a shuffled order. The key is kept beside the run journal, outside the data folder. Turning it off unblinds, and the journal records who unblinded and when. Default off.",
+      "source": "Curate blind: name every field by a code instead of its file name and folder, and show the fields in a shuffled order. The key is kept beside the run journal, outside the data folder. Turning it off unblinds, and the journal records who unblinded and when. Default off.",
+      "source_sha256": "1b8ebfbea06a4a9afc49ef87652d85ba4df0c9e9639327520410c83bddeb0be7",
+      "translation": "盲法校正：用代码代替文件名和文件夹为每个视野命名，并按随机顺序显示视野。盲法编码表保存在运行日志旁、数据文件夹之外。关闭即解除盲法，日志会记录解除盲法的人和时间。默认关闭。"
+    },
+    {
+      "table": "ui",
+      "key": "Equalise the histogram inside each tile rather than over the whole field, with a limit on how much any one level may be stretched. It is what brings out objects in a dim corner without saturating the bright middle. It also amplifies noise in empty tiles, which is what the clip limit is for.",
+      "source": "Equalise the histogram inside each tile rather than over the whole field, with a limit on how much any one level may be stretched. It is what brings out objects in a dim corner without saturating the bright middle. It also amplifies noise in empty tiles, which is what the clip limit is for.",
+      "source_sha256": "4eeb0ba99c39c2cc5c919e81068bf30f27651405500997c516e1a13f9f93a8ac",
+      "translation": "在每个图块内而不是在整个视野上均衡直方图，并限制任一灰度级可被拉伸的程度。正是这样才能突出暗角中的对象而不使明亮的中央饱和。它也会放大空图块中的噪声，而裁剪限制正是为此而设。"
+    },
+    {
+      "table": "ui",
+      "key": "Export the masks as QuPath GeoJSON, an ImageJ RoiSet or COCO JSON, one outline per object with its id and class, or import one of those files back as masks.",
+      "source": "Export the masks as QuPath GeoJSON, an ImageJ RoiSet or COCO JSON, one outline per object with its id and class, or import one of those files back as masks.",
+      "source_sha256": "0c04724e3d12c9b15e2c1742ebf70638899cb73c59c56b29bf07647aed96afa4",
+      "translation": "将掩膜导出为 QuPath GeoJSON、ImageJ RoiSet 或 COCO JSON，每个对象一个轮廓并带有其 ID 和类别，或将这些文件之一重新导入为掩膜。"
+    },
+    {
+      "table": "ui",
+      "key": "InstanSeg (instanseg-torch 0.1.1) is Apache-2.0, and so are its fluorescence_nuclei_and_cells and brightfield_nuclei models, which InstanSeg downloads itself from the instanseg/instanseg GitHub release (instanseg_models_v0.1.1) into the backend's own folder. spaCR ships none of it.",
+      "source": "InstanSeg (instanseg-torch 0.1.1) is Apache-2.0, and so are its fluorescence_nuclei_and_cells and brightfield_nuclei models, which InstanSeg downloads itself from the instanseg/instanseg GitHub release (instanseg_models_v0.1.1) into the backend's own folder. spaCR ships none of it.",
+      "source_sha256": "926aa6d08aaeea6b8056537522a89a2af76e890f17e1d9178535b0d2f3c32f47",
+      "translation": "InstanSeg (instanseg-torch 0.1.1) 采用 Apache-2.0 许可，其 fluorescence_nuclei_and_cells 和 brightfield_nuclei 模型也是如此，这些模型由 InstanSeg 自行从 GitHub 上的 instanseg/instanseg 发布版本 (instanseg_models_v0.1.1) 下载到后端自己的文件夹。spaCR 不附带其中任何内容。"
+    },
+    {
+      "table": "ui",
+      "key": "InstanSeg, embedding-based segmentation of nuclei and cells that reads any number of fluorescence channels, with its fluorescence_nuclei_and_cells and brightfield_nuclei models or an InstanSeg TorchScript file. A nucleus object keeps its nuclei, every other object its cells. It runs in an environment of its own.",
+      "source": "InstanSeg, embedding-based segmentation of nuclei and cells that reads any number of fluorescence channels, with its fluorescence_nuclei_and_cells and brightfield_nuclei models or an InstanSeg TorchScript file. A nucleus object keeps its nuclei, every other object its cells. It runs in an environment of its own.",
+      "source_sha256": "8fec57417a44e515fa6ab0ac9a06d44cdc98aeee3931f66ee4ad30ccb5f5d99d",
+      "translation": "InstanSeg，基于嵌入的细胞核和细胞分割，可读取任意数量的荧光通道，带有其 fluorescence_nuclei_and_cells 和 brightfield_nuclei 模型，也可使用 InstanSeg TorchScript 文件。细胞核对象保留其细胞核，其他对象保留其细胞。它在独立环境中运行。"
+    },
+    {
+      "table": "ui",
+      "key": "Locked {sha} at {time}. Runs of these settings on this source are checked against it.",
+      "source": "Locked {sha} at {time}. Runs of these settings on this source are checked against it.",
+      "source_sha256": "978ca78705bc8d6c8f2459a8f0bdcaee4648ee4fdb37ccb3bdc0d2e23c92e6ff",
+      "translation": "已锁定 {sha}，时间 {time}。此来源上使用这些设置的运行都将与之核对。"
+    },
+    {
+      "table": "ui",
+      "key": "Mask generation: segment batches on every GPU allocated to the job",
+      "source": "Mask generation: segment batches on every GPU allocated to the job",
+      "source_sha256": "77f3126d15e1ca031d38464f627369554d8d9e38ee22ada4aa44b7e59452ea37",
+      "translation": "掩膜生成：在分配给作业的每个 GPU 上分割批次"
+    },
+    {
+      "table": "ui",
+      "key": "Needs the {backend} backend, which runs in an environment of its own and is not installed — press Install to install it.",
+      "source": "Needs the {backend} backend, which runs in an environment of its own and is not installed — press Install to install it.",
+      "source_sha256": "ee311881085955e3f1e9f12fccd6655431da7551d63bf00b9b658ae40fbfe997",
+      "translation": "需要 {backend} 后端，它在独立环境中运行且尚未安装 — 请按“安装”进行安装。"
+    },
+    {
+      "table": "ui",
+      "key": "Needs two or more compatible CUDA or ROCm GPUs; {count} found on this computer. Cluster Distribution runs use the GPUs allocated to the job.",
+      "source": "Needs two or more compatible CUDA or ROCm GPUs; {count} found on this computer. Cluster Distribution runs use the GPUs allocated to the job.",
+      "source_sha256": "e8dd29b3978be9196421e56782500493597705f00af301342cbde7f2e5be1361",
+      "translation": "需要两个或以上兼容的 CUDA 或 ROCm GPUs；此计算机上找到 {count} 个。集群分发运行使用分配给作业的 GPUs。"
+    },
+    {
+      "table": "ui",
+      "key": "No analysis lock applies to these settings yet.",
+      "source": "No analysis lock applies to these settings yet.",
+      "source_sha256": "d1d9e63cba9e007908e79b6f42abc3b485b3e2309417eea413f8df0f44765a13",
+      "translation": "这些设置尚未应用任何分析锁定。"
+    },
+    {
+      "table": "ui",
+      "key": "Nothing was added: under the Overlap rule the outline leaves nothing that is not already an object.",
+      "source": "Nothing was added: under the Overlap rule the outline leaves nothing that is not already an object.",
+      "source_sha256": "ba91b4c2ec904a1d9c535518f08e36495bc2bcc64e80444db75cf2482ef924c1",
+      "translation": "未添加任何内容：按重叠规则，该轮廓除已有对象外不剩任何部分。"
+    },
+    {
+      "table": "ui",
+      "key": "Omnipose is NOT open source: omnipose 1.1.4 carries the Omnipose NonCommercial License (Copyright 2021 University of Washington), which permits use, modification and redistribution for noncommercial purposes only; commercial use needs a licence from UW CoMotion (license@uw.edu). That is not the licence spaCR carries. Its models are downloaded by Omnipose itself from the kevinjohncutler/omnipose-models GitHub repository, which names no licence of its own, into the backend's own folder. spaCR ships none of it. Read the licence before using Omnipose for anything commercial.",
+      "source": "Omnipose is NOT open source: omnipose 1.1.4 carries the Omnipose NonCommercial License (Copyright 2021 University of Washington), which permits use, modification and redistribution for noncommercial purposes only; commercial use needs a licence from UW CoMotion (license@uw.edu). That is not the licence spaCR carries. Its models are downloaded by Omnipose itself from the kevinjohncutler/omnipose-models GitHub repository, which names no licence of its own, into the backend's own folder. spaCR ships none of it. Read the licence before using Omnipose for anything commercial.",
+      "source_sha256": "ca37f0259747894318ffc184a9706fe22ab27bd89065e10c021da8cde6469e5c",
+      "translation": "Omnipose 不是开源软件：omnipose 1.1.4 采用 Omnipose NonCommercial License（Copyright 2021 University of Washington），仅允许出于非商业目的使用、修改和再分发；商业使用需要从 UW CoMotion (license@uw.edu) 获得许可。这不是 spaCR 所采用的许可。其模型由 Omnipose 自行从 GitHub 仓库 kevinjohncutler/omnipose-models（该仓库未声明自己的许可）下载到后端自己的文件夹。spaCR 不附带其中任何内容。将 Omnipose 用于任何商业用途之前，请阅读其许可。"
+    },
+    {
+      "table": "ui",
+      "key": "Omnipose, for bacteria and other elongated or filamentous cells, with its bact_phase_omni, bact_fluor_omni, worm and cyto2_omni models or an Omnipose checkpoint. It runs in an environment of its own; its masks, flows and distance field come back in Cellpose-SAM's shapes. Noncommercial use only.",
+      "source": "Omnipose, for bacteria and other elongated or filamentous cells, with its bact_phase_omni, bact_fluor_omni, worm and cyto2_omni models or an Omnipose checkpoint. It runs in an environment of its own; its masks, flows and distance field come back in Cellpose-SAM's shapes. Noncommercial use only.",
+      "source_sha256": "3db1c9a1007da103846b0612638a7f708ce7366ec77c783d6b5aeab97956d762",
+      "translation": "Omnipose，适用于细菌及其他细长或丝状细胞，带有其 bact_phase_omni、bact_fluor_omni、worm 和 cyto2_omni 模型，也可使用 Omnipose 检查点。它在独立环境中运行；其掩膜、流场和距离场以 Cellpose-SAM 的形状返回。仅限非商业用途。"
+    },
+    {
+      "table": "ui",
+      "key": "Open a folder of images before curating it blind.",
+      "source": "Open a folder of images before curating it blind.",
+      "source_sha256": "75bad3e0aaa0f6b07ea951f6b36e9366e7501c3609a776eaa5de3b828a96adc1",
+      "translation": "请先打开图像文件夹，再以盲法校正。"
+    },
+    {
+      "table": "ui",
+      "key": "Open an experiment source before scoring it blind.",
+      "source": "Open an experiment source before scoring it blind.",
+      "source_sha256": "ac57528f1870d1b7b157ddbed789c12136d25c943543bee5da513c2172316969",
+      "translation": "请先打开实验来源，再以盲法评分。"
+    },
+    {
+      "table": "ui",
+      "key": "Pick the control column and the negative control to score hits against.",
+      "source": "Pick the control column and the negative control to score hits against.",
+      "source_sha256": "3f067cdf6c2965d8d2dbee2eb66516995bdd01988dfd9f6eb8a36967090b0616",
+      "translation": "请选择对照列以及用于命中评分的阴性对照。"
+    },
+    {
+      "table": "ui",
+      "key": "Preregister the analysis: freeze these settings, your hypotheses and thresholds, and the model and gate files they name, with a hash and a timestamp, before the results are seen. Every later run on the same source is checked against the lock, and a change is flagged in its manifest, the report and the methods text, as post-hoc once the blinding key has been opened. Default no lock.",
+      "source": "Preregister the analysis: freeze these settings, your hypotheses and thresholds, and the model and gate files they name, with a hash and a timestamp, before the results are seen. Every later run on the same source is checked against the lock, and a change is flagged in its manifest, the report and the methods text, as post-hoc once the blinding key has been opened. Default no lock.",
+      "source_sha256": "1eced7b62f9ed561d2ca3f839d4dfb08712e5278ff79ac4e6dee7e926eabf28f",
+      "translation": "预注册分析：在看到结果之前，用哈希和时间戳冻结这些设置、您的假设和阈值，以及其中引用的模型和门控文件。之后在同一来源上的每次运行都会与锁定核对，任何更改都会在其清单、报告和方法文本中标出，若盲法编码表已被打开，则标为事后更改。默认不锁定。"
+    },
+    {
+      "table": "ui",
+      "key": "Prompt-based segmentation runs micro-SAM, which is not installed yet.",
+      "source": "Prompt-based segmentation runs micro-SAM, which is not installed yet.",
+      "source_sha256": "7b9c39c31e6f795f296339fbc8d17131aef0a762a99851479a57168294549275",
+      "translation": "按提示分割需要运行 micro-SAM，但尚未安装。"
+    },
+    {
+      "table": "ui",
+      "key": "Prompting needs micro-SAM, which is not installed.",
+      "source": "Prompting needs micro-SAM, which is not installed.",
+      "source_sha256": "c51a9ef201df1a1732e031d41f9575a79351c72ef66e44f13f2af298f9bc643d",
+      "translation": "提示功能需要 micro-SAM，但尚未安装。"
+    },
+    {
+      "table": "ui",
+      "key": "Prompting off. The objects it added stay in the mask.",
+      "source": "Prompting off. The objects it added stay in the mask.",
+      "source_sha256": "d1ed91a4b9353882a616c22679ae75fe42ce64f1f91e83294ab1b84c034aade6",
+      "translation": "提示已关闭。已添加的对象保留在掩膜中。"
+    },
+    {
+      "table": "ui",
+      "key": "Prompting on: click the object, right-click what is not it, or drag a box round it; Enter adds the outline.",
+      "source": "Prompting on: click the object, right-click what is not it, or drag a box round it; Enter adds the outline.",
+      "source_sha256": "8414bae120e6ce3dc65f80c3d17e54894ccb5b11b8a3f062c28f8e629379ed89",
+      "translation": "提示已开启：单击对象，右键单击不属于对象的部分，或在其周围拖出一个框；按 Enter 添加轮廓。"
+    },
+    {
+      "table": "ui",
+      "key": "Published results: Archit et al., 'Segment Anything for Microscopy', Nature Methods 2025 (doi:10.1038/s41592-024-02580-4). spaCR has not scored this backend on its own data.",
+      "source": "Published results: Archit et al., 'Segment Anything for Microscopy', Nature Methods 2025 (doi:10.1038/s41592-024-02580-4). spaCR has not scored this backend on its own data.",
+      "source_sha256": "389cd341c4987e6d9379a0005224613c0af8b1082d0aeafbc81cac3577d968f1",
+      "translation": "已发表结果：Archit et al., 'Segment Anything for Microscopy', Nature Methods 2025 (doi:10.1038/s41592-024-02580-4)。spaCR 尚未在自己的数据上为此后端评分。"
+    },
+    {
+      "table": "ui",
+      "key": "Published results: Cutler et al., 'Omnipose: a high-precision morphology-independent solution for bacterial cell segmentation', Nature Methods 2022 (doi:10.1038/s41592-022-01639-4). spaCR has not scored it against those results; item 553 scores it on Omnipose's own bacteria test images.",
+      "source": "Published results: Cutler et al., 'Omnipose: a high-precision morphology-independent solution for bacterial cell segmentation', Nature Methods 2022 (doi:10.1038/s41592-022-01639-4). spaCR has not scored it against those results; item 553 scores it on Omnipose's own bacteria test images.",
+      "source_sha256": "99244f9cfe706c99d3c5afcdcd20756ee5828184383dcabfa8aec48f1f256568",
+      "translation": "已发表结果：Cutler et al., 'Omnipose: a high-precision morphology-independent solution for bacterial cell segmentation', Nature Methods 2022 (doi:10.1038/s41592-022-01639-4)。spaCR 尚未与这些结果进行比较；条目 553 在 Omnipose 自带的细菌测试图像上为其评分。"
+    },
+    {
+      "table": "ui",
+      "key": "Published results: Goldsborough et al., 'InstanSeg: an embedding-based instance segmentation algorithm optimized for accurate, efficient and portable cell segmentation', arXiv 2024 (arXiv:2408.15954). spaCR has not scored it against those results; item 532 scores it on spaCR's own fields.",
+      "source": "Published results: Goldsborough et al., 'InstanSeg: an embedding-based instance segmentation algorithm optimized for accurate, efficient and portable cell segmentation', arXiv 2024 (arXiv:2408.15954). spaCR has not scored it against those results; item 532 scores it on spaCR's own fields.",
+      "source_sha256": "be634dceea747274cf66f3927ea86a704232f0e60dc46e7b99f2e8421386c366",
+      "translation": "已发表结果：Goldsborough et al., 'InstanSeg: an embedding-based instance segmentation algorithm optimized for accurate, efficient and portable cell segmentation', arXiv 2024 (arXiv:2408.15954)。spaCR 尚未与这些结果进行比较；条目 532 在 spaCR 自己的视野上为其评分。"
+    },
+    {
+      "table": "ui",
+      "key": "Published results: Schmidt, Weigert, Broaddus and Myers, 'Cell Detection with Star-convex Polygons', MICCAI 2018 (arXiv:1806.03535). The README publishes no results table. spaCR has not scored it against those results; item 532 scores it on spaCR's own fields.",
+      "source": "Published results: Schmidt, Weigert, Broaddus and Myers, 'Cell Detection with Star-convex Polygons', MICCAI 2018 (arXiv:1806.03535). The README publishes no results table. spaCR has not scored it against those results; item 532 scores it on spaCR's own fields.",
+      "source_sha256": "7fc99652bb392d27199e227552322607ee41413d853a6a3c2f751b3b3782ac4d",
+      "translation": "已发表结果：Schmidt, Weigert, Broaddus and Myers, 'Cell Detection with Star-convex Polygons', MICCAI 2018 (arXiv:1806.03535)。其 README 未发布结果表。spaCR 尚未与这些结果进行比较；条目 532 在 spaCR 自己的视野上为其评分。"
+    },
+    {
+      "table": "ui",
+      "key": "Put a point on the object, or drag a box round it, before points off it.",
+      "source": "Put a point on the object, or drag a box round it, before points off it.",
+      "source_sha256": "9ba05372c5445e640330fc9c21739f065f560427a5fe1e9a65b839b221db7aa8",
+      "translation": "请先在对象上放一个点，或在其周围拖出一个框，然后再在对象外放点。"
+    },
+    {
+      "table": "ui",
+      "key": "Recrop is off while blinded, because the new fields are named after the field they are cut from.",
+      "source": "Recrop is off while blinded, because the new fields are named after the field they are cut from.",
+      "source_sha256": "1b5f1a5a3feb93be7093b2c8dfe98bf4291e59fb74f15771e7738f07e3e7a829",
+      "translation": "盲法期间重新裁剪已关闭，因为新视野会以其所裁自的视野命名。"
+    },
+    {
+      "table": "ui",
+      "key": "Replace the saved mask of every field that has ROIs in {path}?",
+      "source": "Replace the saved mask of every field that has ROIs in {path}?",
+      "source_sha256": "aa320b9852d1947f091821b8d5e76fbbb4a8385f48d34b7daf99de06b1b36fa8",
+      "translation": "替换 {path} 中具有 ROIs 的每个视野已保存的掩膜吗？"
+    },
+    {
+      "table": "ui",
+      "key": "Runs through the {backend} backend, which is installed. Use this model writes {prefix}{model} into the object's model setting, which runs that object through {backend} with its usual Mask generation settings.",
+      "source": "Runs through the {backend} backend, which is installed. Use this model writes {prefix}{model} into the object's model setting, which runs that object through {backend} with its usual Mask generation settings.",
+      "source_sha256": "32dfaa06ee3482e809fdeedf0cfe7600f5a36ed02b5517d0564b40db2b876486",
+      "translation": "通过已安装的 {backend} 后端运行。“使用此模型”会将 {prefix}{model} 写入该对象的模型设置，从而让该对象以其常规掩膜生成设置经由 {backend} 运行。"
+    },
+    {
+      "table": "ui",
+      "key": "Score blind: hide the source, plates, wells, conditions and file names, and show the crops in a shuffled order. The key is kept beside the run journal, outside the data folder. Turning it off unblinds, and the journal records who unblinded and when. Default off.",
+      "source": "Score blind: hide the source, plates, wells, conditions and file names, and show the crops in a shuffled order. The key is kept beside the run journal, outside the data folder. Turning it off unblinds, and the journal records who unblinded and when. Default off.",
+      "source_sha256": "1521a8a9175beae2ab88ed62a990fa3b1ea570af4e691be507451b1313a43a91",
+      "translation": "盲法评分：隐藏来源、板、孔、条件和文件名，并按随机顺序显示裁剪图。盲法编码表保存在运行日志旁、数据文件夹之外。关闭即解除盲法，日志会记录解除盲法的人和时间。默认关闭。"
+    },
+    {
+      "table": "ui",
+      "key": "Score every well against the negative control and call hits. Needs the negative control picked above and well positions in the table (prc, rowID and columnID, or well).",
+      "source": "Score every well against the negative control and call hits. Needs the negative control picked above and well positions in the table (prc, rowID and columnID, or well).",
+      "source_sha256": "d57777f368bb44242a2e617a852e98dec0ad3cd2bcdd8b4aa4b2f1760e7b888d",
+      "translation": "将每个孔与阴性对照比较评分并判定命中。需要上方选定的阴性对照，以及表中的孔位置（prc、rowID 和 columnID，或 well）。"
+    },
+    {
+      "table": "ui",
+      "key": "Show the area of this field Measure would count as covered by cells, using the Confluency settings of the run.",
+      "source": "Show the area of this field Measure would count as covered by cells, using the Confluency settings of the run.",
+      "source_sha256": "cb56b45f239096f960f6475e606e7f49b963a8a173f5b54602443126c72c2853",
+      "translation": "显示此视野中 Measure 会按本次运行的汇合度设置计为细胞覆盖的区域。"
+    },
+    {
+      "table": "ui",
+      "key": "Show the settings, controls, screens and models built from the future-features list that are not yet released. Off hides them; saved values still reach every run.",
+      "source": "Show the settings, controls, screens and models built from the future-features list that are not yet released. Off hides them; saved values still reach every run.",
+      "source_sha256": "0a5207c15cb912a8cb2e60c80ed04f09ee0f8444d0fabdde8aae99f4020a5802",
+      "translation": "显示根据未来功能列表构建、尚未发布的设置、控件、界面和模型。关闭则隐藏它们；已保存的值仍会作用于每次运行。"
+    },
+    {
+      "table": "ui",
+      "key": "StarDist 0.9.2 is BSD-3-Clause (Copyright 2018-2025 Uwe Schmidt, Martin Weigert), CSBDeep 0.8.2 BSD-3-Clause and TensorFlow 2.21 Apache-2.0. The pretrained models are downloaded by StarDist itself from the stardist/stardist-models GitHub release (BSD-3-Clause), checked against the digest StarDist pins, into the backend's own folder. spaCR ships none of it.",
+      "source": "StarDist 0.9.2 is BSD-3-Clause (Copyright 2018-2025 Uwe Schmidt, Martin Weigert), CSBDeep 0.8.2 BSD-3-Clause and TensorFlow 2.21 Apache-2.0. The pretrained models are downloaded by StarDist itself from the stardist/stardist-models GitHub release (BSD-3-Clause), checked against the digest StarDist pins, into the backend's own folder. spaCR ships none of it.",
+      "source_sha256": "aa6874b2b0be9c78f3ad0f1042901d78226e1c032777b4e0a34d276ff412ed59",
+      "translation": "StarDist 0.9.2 采用 BSD-3-Clause 许可（Copyright 2018-2025 Uwe Schmidt, Martin Weigert），CSBDeep 0.8.2 采用 BSD-3-Clause，TensorFlow 2.21 采用 Apache-2.0。预训练模型由 StarDist 自行从 GitHub 上的 stardist/stardist-models 发布版本（BSD-3-Clause）下载到后端自己的文件夹，并按 StarDist 固定的摘要进行校验。spaCR 不附带其中任何内容。"
+    },
+    {
+      "table": "ui",
+      "key": "StarDist, star-convex polygons for nuclei, with its 2D_versatile_fluo, 2D_versatile_he and 2D_paper_dsb2018 models or a StarDist model folder of your own. It runs on TensorFlow in an environment of its own; its masks and object probability come back in Cellpose-SAM's shapes.",
+      "source": "StarDist, star-convex polygons for nuclei, with its 2D_versatile_fluo, 2D_versatile_he and 2D_paper_dsb2018 models or a StarDist model folder of your own. It runs on TensorFlow in an environment of its own; its masks and object probability come back in Cellpose-SAM's shapes.",
+      "source_sha256": "b330c86cf6302094d7bc97e56a76141f2d7f6cc53757455bacee11b71a442c87",
+      "translation": "StarDist，用星凸多边形分割细胞核，带有其 2D_versatile_fluo、2D_versatile_he 和 2D_paper_dsb2018 模型，也可使用您自己的 StarDist 模型文件夹。它在独立环境中基于 TensorFlow 运行；其掩膜和对象概率以 Cellpose-SAM 的形状返回。"
+    },
+    {
+      "table": "ui",
+      "key": "Submits mask_parallel on with a blank mask_gpu_indices, so the job uses exactly the GPUs its scheduler allocates, one model per GPU. Request them in the execution profile, for example --gres=gpu:2. A job given one GPU runs on that one.",
+      "source": "Submits mask_parallel on with a blank mask_gpu_indices, so the job uses exactly the GPUs its scheduler allocates, one model per GPU. Request them in the execution profile, for example --gres=gpu:2. A job given one GPU runs on that one.",
+      "source_sha256": "ce4c267a272320e3ab5fc540941d81b9986abe94d0584b4f231e0ee55480aa36",
+      "translation": "以开启的 mask_parallel 和留空的 mask_gpu_indices 提交，使作业正好使用其调度器分配的 GPUs，每个 GPU 一个模型。请在执行配置中申请，例如 --gres=gpu:2。只分配到一个 GPU 的作业就在该设备上运行。"
+    },
+    {
+      "table": "ui",
+      "key": "The column naming what is in each well. Wells sharing a treatment are replicates and get one replicate SSMD in the export. Leave empty for a screen without replicates.",
+      "source": "The column naming what is in each well. Wells sharing a treatment are replicates and get one replicate SSMD in the export. Leave empty for a screen without replicates.",
+      "source_sha256": "1a841a1c7cef631850684f84647d850b5b9223e21448d619a9198bfebddaef28",
+      "translation": "指明每个孔中内容的列。具有相同处理的孔为重复，在导出中得到一个重复 SSMD。没有重复时留空。"
+    },
+    {
+      "table": "ui",
+      "key": "The file holds several object types. Which one goes on this field?",
+      "source": "The file holds several object types. Which one goes on this field?",
+      "source_sha256": "613b74b3255b2f83c77a909b8310e57816cb75723832a7bee4e25bea36411d42",
+      "translation": "该文件包含多种对象类型。哪一种用于此视野？"
+    },
+    {
+      "table": "ui",
+      "key": "The thresholds and gates that decide a call, one per line.",
+      "source": "The thresholds and gates that decide a call, one per line.",
+      "source_sha256": "d64400543cb7584b1d42f7a2fc2ae3ab5e7e00abf6ce56c32602aad4a0d418b6",
+      "translation": "决定判定结果的阈值和门控，每行一个。"
+    },
+    {
+      "table": "ui",
+      "key": "Throw away the points, the box and the outline, and start again on another object. Nothing had been added to the mask. Escape on the image does the same. Default unavailable until there is a prompt.",
+      "source": "Throw away the points, the box and the outline, and start again on another object. Nothing had been added to the mask. Escape on the image does the same. Default unavailable until there is a prompt.",
+      "source_sha256": "63d4c47f205007041780ea1e400124700b47d7acde4ab6d2089bf7ff0464ce8b",
+      "translation": "丢弃这些点、框和轮廓，重新从另一个对象开始。掩膜中尚未添加任何内容。在图像上按 Escape 效果相同。默认在有提示之前不可用。"
+    },
+    {
+      "table": "ui",
+      "key": "Turn on hit scoring and name the negative control.",
+      "source": "Turn on hit scoring and name the negative control.",
+      "source_sha256": "69d33f06cc2a5c7aa9c38d7d28aee46acee4e71807e86bdb8264ca1144ffac35",
+      "translation": "请开启命中评分并指定阴性对照。"
+    },
+    {
+      "table": "ui",
+      "key": "Unblinded key {key}; the journal recorded who and when.",
+      "source": "Unblinded key {key}; the journal recorded who and when.",
+      "source_sha256": "8912db6c7b325d65a561e3e88b5e0600262a35fc69157b957e3267e68a70d10c",
+      "translation": "已解除编码表 {key} 的盲法；日志已记录操作人和时间。"
+    },
+    {
+      "table": "ui",
+      "key": "Unblinding shows every field's file name and folder again, and the run journal records who unblinded and when. An analysis lock on this folder treats any later change as post-hoc. Unblind now?",
+      "source": "Unblinding shows every field's file name and folder again, and the run journal records who unblinded and when. An analysis lock on this folder treats any later change as post-hoc. Unblind now?",
+      "source_sha256": "a1a435f1421170e12eca88e3675d4c8c4d52194a84d1343a07268a7911a9879e",
+      "translation": "解除盲法后会再次显示每个视野的文件名和文件夹，运行日志会记录解除盲法的人和时间。此文件夹上的分析锁定会将之后的任何更改视为事后更改。现在解除盲法吗？"
+    },
+    {
+      "table": "ui",
+      "key": "Unblinding shows where every crop is from again, and the run journal records who unblinded and when. An analysis lock on this folder treats any later change as post-hoc. Unblind now?",
+      "source": "Unblinding shows where every crop is from again, and the run journal records who unblinded and when. An analysis lock on this folder treats any later change as post-hoc. Unblind now?",
+      "source_sha256": "a6a804c2b19b9c59f4d4a29565bde1a68f283c386c25caf51d64b9e2fad6ccc1",
+      "translation": "解除盲法后会再次显示每个裁剪图的来源，运行日志会记录解除盲法的人和时间。此文件夹上的分析锁定会将之后的任何更改视为事后更改。现在解除盲法吗？"
+    },
+    {
+      "table": "ui",
+      "key": "Used only when mask_parallel is on. {count} GPUs found.",
+      "source": "Used only when mask_parallel is on. {count} GPUs found.",
+      "source_sha256": "d1a41589e776d5a72d3607bee932331ef6a3603dee585e109f6bdc5516a089f7",
+      "translation": "仅在 mask_parallel 开启时使用。找到 {count} 个 GPUs。"
+    },
+    {
+      "table": "ui",
+      "key": "Watching: {done} analysed, {waiting} waiting, {failed} failed",
+      "source": "Watching: {done} analysed, {waiting} waiting, {failed} failed",
+      "source_sha256": "aed1e826e0bb6b95f9dac9681f739695f60396be51031f83a9126a843bfa198b",
+      "translation": "监视中：已分析 {done}，等待 {waiting}，失败 {failed}"
+    },
+    {
+      "table": "ui",
+      "key": "What the accepted object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip adds nothing if it touches an existing object. Replace lets it take every pixel it covers, which is how an object a model split into pieces is made one again. Default Clip.",
+      "source": "What the accepted object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip adds nothing if it touches an existing object. Replace lets it take every pixel it covers, which is how an object a model split into pieces is made one again. Default Clip.",
+      "source_sha256": "1883b188e30f96df78e5b801d55849606f92a7e4e3db859ce721e863d8fe78e1",
+      "translation": "在掩膜已有对象的位置，被接受的对象如何处理。Clip 只保留其未标记的像素，因此现有对象不会失去任何像素。Skip 在其接触现有对象时不添加任何内容。Replace 让它占据其覆盖的每个像素，这样就能把被模型拆成碎片的对象重新合为一个。默认值 Clip。"
+    },
+    {
+      "table": "ui",
+      "key": "What you expect to find, and what would count against it.",
+      "source": "What you expect to find, and what would count against it.",
+      "source_sha256": "ee2ce3dad74d7ba2cb892bd6d253b5eb8623857cc035309473f7e522d5001b2b",
+      "translation": "您预期发现什么，以及什么会构成反证。"
+    },
+    {
+      "table": "ui",
+      "key": "While on, a left click on the image marks the object, a right click marks what is not the object and a left drag draws a box round it. micro-SAM runs in an environment of its own; the first click on a field waits while it embeds the field, and later clicks reuse that embedding. If micro-SAM is not installed, turning this on offers to install it. The Live magnifier is turned off while this is on. Default off.",
+      "source": "While on, a left click on the image marks the object, a right click marks what is not the object and a left drag draws a box round it. micro-SAM runs in an environment of its own; the first click on a field waits while it embeds the field, and later clicks reuse that embedding. If micro-SAM is not installed, turning this on offers to install it. The Live magnifier is turned off while this is on. Default off.",
+      "source_sha256": "691080197211efbdfb1e8b9da3eaf0af0d9ccc940f11122d0c234e91a46fe60d",
+      "translation": "开启时，在图像上左键单击标记对象，右键单击标记不属于对象的部分，左键拖动在其周围画框。micro-SAM 在独立环境中运行；视野上的第一次单击需等待它嵌入该视野，之后的单击会复用该嵌入。如果未安装 micro-SAM，开启此项时会提示安装。开启期间实时放大镜会关闭。默认关闭。"
+    },
+    {
+      "table": "ui",
+      "key": "Write the ranked hit table, every well's scores and the plate summary as CSV, and one plate heatmap per statistic, into a folder",
+      "source": "Write the ranked hit table, every well's scores and the plate summary as CSV, and one plate heatmap per statistic, into a folder",
+      "source_sha256": "497f627c14bc30e0171d51535ae5125e0d1b248ab5d10906e43b2e2d0284a25d",
+      "translation": "将排序后的命中表、每个孔的得分和板汇总以 CSV 格式，并为每个统计量各生成一张板热图，写入一个文件夹"
+    },
+    {
+      "table": "ui",
+      "key": "micro-SAM 1.8.14 is MIT (computational-cell-analytics). It builds on Meta's Segment Anything, Apache-2.0. Its light-microscopy model, vit_b_lm ('SAM LM Generalist (ViT-B)', 375 MB), is CC-BY-4.0 on bioimage.io and is downloaded into the backend's own folder the first time a field is prompted. micro-SAM itself is installed without its declared dependencies -- napari, PyQt6, bioimageio.core and trackastra, whose tracking solver pulls in the proprietary gurobipy -- because the prompt path spaCR runs imports none of them.",
+      "source": "micro-SAM 1.8.14 is MIT (computational-cell-analytics). It builds on Meta's Segment Anything, Apache-2.0. Its light-microscopy model, vit_b_lm ('SAM LM Generalist (ViT-B)', 375 MB), is CC-BY-4.0 on bioimage.io and is downloaded into the backend's own folder the first time a field is prompted. micro-SAM itself is installed without its declared dependencies -- napari, PyQt6, bioimageio.core and trackastra, whose tracking solver pulls in the proprietary gurobipy -- because the prompt path spaCR runs imports none of them.",
+      "source_sha256": "39944710d7eff853f590d45c58658ad48e02bfc7f85ecd4cb1c6c04f08aaecf8",
+      "translation": "micro-SAM 1.8.14 采用 MIT 许可（computational-cell-analytics）。它基于 Meta 的 Segment Anything，采用 Apache-2.0。其光学显微镜模型 vit_b_lm（'SAM LM Generalist (ViT-B)'，375 MB）在 bioimage.io 上采用 CC-BY-4.0，并在首次对某个视野使用提示时下载到后端自己的文件夹。micro-SAM 本身安装时不带其声明的依赖项 -- napari、PyQt6、bioimageio.core 和 trackastra，后者的跟踪求解器会引入专有的 gurobipy -- 因为 spaCR 运行的提示路径不会导入其中任何一个。"
+    },
+    {
+      "table": "ui",
+      "key": "micro-SAM added object {ids} — Ctrl+Z to undo",
+      "source": "micro-SAM added object {ids} — Ctrl+Z to undo",
+      "source_sha256": "10d0a82b49f4e091163dac6aa665248bfacbc2a6d6f2e979cccd8fa796a41982",
+      "translation": "micro-SAM 已添加对象 {ids} — 按 Ctrl+Z 撤销"
+    },
+    {
+      "table": "ui",
+      "key": "micro-SAM embedded this field in {embed:.1f} s on {device}; the prompt then took {prompt:.2f} s.",
+      "source": "micro-SAM embedded this field in {embed:.1f} s on {device}; the prompt then took {prompt:.2f} s.",
+      "source_sha256": "51f02b2e16c3025a82df4e49538695b81ea16e52520fe27c5d081d757d0578ca",
+      "translation": "micro-SAM 用 {embed:.1f} 秒在 {device} 上嵌入了此视野；随后提示耗时 {prompt:.2f} 秒。"
+    },
+    {
+      "table": "ui",
+      "key": "micro-SAM is embedding this field; the first prompt on a field waits for it…",
+      "source": "micro-SAM is embedding this field; the first prompt on a field waits for it…",
+      "source_sha256": "bd9e4c5bdd02ec3802f22f1e53a52135b85bbfedbbe19d318bf512561f558763",
+      "translation": "micro-SAM 正在嵌入此视野；视野上的第一次提示需等待嵌入完成…"
+    },
+    {
+      "table": "ui",
+      "key": "micro-SAM is starting in its own environment…",
+      "source": "micro-SAM is starting in its own environment…",
+      "source_sha256": "a2ce231b1c5aaab8bb9f4041bdaf4a6d3018bdb892db2d895d07010446d6ff30",
+      "translation": "micro-SAM 正在其独立环境中启动…"
+    },
+    {
+      "table": "ui",
+      "key": "micro-SAM outlined nothing; add a point or draw a box.",
+      "source": "micro-SAM outlined nothing; add a point or draw a box.",
+      "source_sha256": "697f2c847129b4125e32967dad14a8bf76c525d2a74563a0acfe19dcc0721636",
+      "translation": "micro-SAM 未勾勒出任何内容；请添加一个点或画一个框。"
+    },
+    {
+      "table": "ui",
+      "key": "micro-SAM outlined {pixels} px in {seconds:.2f} s. Enter adds it, Backspace takes the last prompt back, Escape discards it.",
+      "source": "micro-SAM outlined {pixels} px in {seconds:.2f} s. Enter adds it, Backspace takes the last prompt back, Escape discards it.",
+      "source_sha256": "d0061366b2d7f71eae5c4b27c1f8ea622b06e864a74e32ae388f93ce18c6427d",
+      "translation": "micro-SAM 勾勒出 {pixels} px，用时 {seconds:.2f} 秒。按 Enter 添加，Backspace 撤回上一个提示，Escape 放弃。"
+    },
+    {
+      "table": "ui",
+      "key": "micro-SAM, Segment Anything fine-tuned for microscopy, for prompt-based segmentation in Make Masks: click points on one object, or drag a box round it, and it returns that object's mask. Each field is embedded once and every later click on it is answered from the cached embedding.",
+      "source": "micro-SAM, Segment Anything fine-tuned for microscopy, for prompt-based segmentation in Make Masks: click points on one object, or drag a box round it, and it returns that object's mask. Each field is embedded once and every later click on it is answered from the cached embedding.",
+      "source_sha256": "7d4bec14dc55fa002b4716d0c19b12a24b1b167453b1e9f00e53f5ad133c29e3",
+      "translation": "micro-SAM，即针对显微镜微调的 Segment Anything，用于 Make Masks 中的按提示分割：在一个对象上单击若干点，或在其周围拖出一个框，它就会返回该对象的掩膜。每个视野只嵌入一次，之后在其上的每次单击都从缓存的嵌入中得到响应。"
+    },
+    {
+      "table": "ui",
+      "key": "{done}/{total} {role} batches done, {failed} failed",
+      "source": "{done}/{total} {role} batches done, {failed} failed",
+      "source_sha256": "148067c5f3f5e2e1179ec7042ebe39b910444e0c11283b8ab59ea8f63bdf19f0",
+      "translation": "{done}/{total} 个 {role} 批次完成，{failed} 个失败"
+    },
+    {
+      "table": "ui",
+      "key": "{name} is a backend, not a checkpoint file. Install it here, then choose one of its models listed with it and press Use this model, which writes {prefix}<model> into the object's model setting.",
+      "source": "{name} is a backend, not a checkpoint file. Install it here, then choose one of its models listed with it and press Use this model, which writes {prefix}<model> into the object's model setting.",
+      "source_sha256": "ffb9088a78d4f4e3e527a7777d16d9397aa252ba65c83181cbd1487cdaa81dfa",
+      "translation": "{name} 是一个后端，而不是检查点文件。请在此安装它，然后选择与其一同列出的某个模型并按“使用此模型”，这会将 {prefix}<model> 写入该对象的模型设置。"
+    },
+    {
+      "table": "ui",
+      "key": "{n} object(s) imported from {path}; save to keep them",
+      "source": "{n} object(s) imported from {path}; save to keep them",
+      "source_sha256": "5c202f013b0a4fd82ae8f828b81b1e27e3244e2bc7a18cf14dc1248003fa71cb",
+      "translation": "{n} 个对象已从 {path} 导入；请保存以保留它们"
+    }
+  ]
+}

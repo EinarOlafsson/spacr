@@ -1315,6 +1315,22 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'using the Confluency settings of the run.',
     'below the monolayer QC threshold',
     'monolayer QC passed',
+    # 536, 2026-09-26: the Measure preview's Alpha wound toggle, its status
+    # lines, and the Wound Closure (Alpha) category help.
+    'Wound',
+    'Wound failed: {error}',
+    'Show the open wound Measure would start a wound-closure series from if '
+    'this field were its first frame, using the Wound Closure settings of '
+    'the run.',
+    'No scratch found: the largest open area is {percent} of the field',
+    'Wound {percent} open, mean width {mean} {unit}, narrowest {narrowest} '
+    '{unit}',
+    'A scratch or wound-healing assay measured over a time-lapse: the open '
+    'wound in every frame, from the texture of a brightfield or phase '
+    'channel, a fluorescent stain or the cell masks; its area, mean and '
+    'minimum width; and per well and per condition the closure curve, '
+    'closure rate and half-closure time, written to measurements.db with '
+    'figures and a plate map.',
     # 544 and 573, 2026-09-26: the Blind switches of Annotate and Make
     # Masks, their notices and questions, and the Lock analysis button and
     # dialog (all alpha).
@@ -1363,6 +1379,13 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'What you expect to find, and what would count against it.',
     'uncoded field',
     'Watching: {done} analysed, {waiting} waiting, {failed} failed',
+    # 547, 2026-09-26: the Profiling (Alpha) category help on Measure.
+    'Image-based profiling after Measure: one profile per well from the '
+    'object tables, annotated from a plate map, normalised per plate against '
+    'the negative controls, feature-selected, collapsed into one consensus '
+    'profile per treatment and scored for replicate reproducibility as mean '
+    'average precision and percent replicating. Written as CSV, Parquet and '
+    'GCT files that pycytominer, copairs and Morpheus read.',
     'Browse cloud storage',
     'Browse cloud storage…',
     'Open',
