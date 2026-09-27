@@ -9,8 +9,36 @@ import time
 from build_evaluation_example import sha
 
 
-def prepare(stage,existing=None):
+def prepare(stage,existing=None,*,input_root=None):
+    stage=Path(stage).resolve()
     settings=json.loads((stage/'captures/regression_release/batch_settings.json').read_text())
+    if len(settings['paired_data'])!=4:
+        raise ValueError('Expected the four already-verified Regression input pairs')
+    names=set();sources={}
+    if input_root is not None:
+        input_root=Path(input_root).resolve()
+        if not input_root.is_dir() or not input_root.is_relative_to(stage):
+            raise ValueError('Sweep input root must be inside the private stage')
+        original_run=Path(settings['src'])
+        if not original_run.is_absolute() or original_run.parent.name!='regression_runs':
+            raise ValueError('The original settings do not identify their Regression workspace')
+        original_root=original_run.parent.parent.resolve()
+    for row in settings['paired_data']:
+        for key in ('score','count'):
+            source=Path(row[key])
+            if source.name in names:
+                raise ValueError('Sweep input filenames collide; every source needs its own private copy')
+            names.add(source.name)
+            copied_source=source
+            if input_root is not None:
+                if not source.is_absolute() or not source.resolve().is_relative_to(original_root):
+                    raise ValueError('Sweep input source leaves the original workspace')
+                copied_source=(input_root/source.resolve().relative_to(original_root)).resolve()
+                if not copied_source.is_relative_to(input_root) or not copied_source.is_file():
+                    raise ValueError('Sweep input copy is missing or leaves the private input root')
+                if sha(copied_source)!=sha(source):
+                    raise ValueError('Relocated sweep input differs from its original source')
+            sources[str(source)]=copied_source
     parent=stage/'sweep_runs';parent.mkdir(exist_ok=True)
     work=Path(existing).resolve() if existing else Path(tempfile.mkdtemp(prefix='REAL-two-ridge-trials-',dir=parent))
     if existing and (work.parent!=parent.resolve() or not (work/'trials/sweep_results.csv').is_file()):
@@ -23,7 +51,7 @@ def prepare(stage,existing=None):
         for key in ('score','count'):
             source=Path(row[key]);originals[str(source)]=sha(source)
             copied=inputs/source.name
-            if not existing:shutil.copy2(source,copied)
+            if not existing:shutil.copy2(sources[str(source)],copied)
             if sha(copied)!=originals[str(source)]:raise ValueError('Private sweep input differs')
             pair[key]=str(copied)
         pairs.append(pair)
@@ -32,16 +60,19 @@ def prepare(stage,existing=None):
     return work,settings,originals
 
 
-def record_sweep(app,window,stage,captures,capture,settle,write_json,timeout,*,existing=None):
+def record_sweep(app,window,stage,captures,capture,settle,write_json,timeout,*,existing=None,input_root=None):
     from PySide6.QtCore import Qt,QTimer
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QAbstractButton,QScrollArea,QFileDialog,QLineEdit,QDialogButtonBox
 
-    stage=Path(stage);work,settings,originals=prepare(stage,existing)
+    stage=Path(stage);work,settings,originals=prepare(stage,existing,input_root=input_root)
     proof=dict(lesson='73_parameter_sweep',accepted=False,private_folder=str(work),
         original_inputs=originals,published=False,synthetic=False,app_source_modified=False,
         maximum_trials=2,requested_workers=1,biological_hits_validated=False)
     proof['new_sweep_requested']=existing is None
+    proof['retained_input_root']=str(Path(input_root).resolve()) if input_root else None
+    proof['settings_manifest_sha256']=sha(stage/'captures/regression_release/batch_settings.json')
+    proof['settings_manifest_rewritten']=False
     write_json(captures/'scientific_acceptance.json',proof)
 
     def reveal(widget):
