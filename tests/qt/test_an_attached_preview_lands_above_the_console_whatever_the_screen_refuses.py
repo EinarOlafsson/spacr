@@ -134,3 +134,26 @@ def test_a_late_panel_whose_translation_fails_is_left_as_it_is(qapp):
     pr._dress_a_late_panel(
         types.SimpleNamespace(_translate_a_late_part=_boom), panel)
     assert panel.text() == "Preview"
+
+
+def test_a_screen_with_no_translation_hook_still_gets_its_built_panel(
+        qapp, qtbot):
+    """A plain screen has no late-part hook; reading the panel still builds
+    it once, into its card, and hands it back untranslated."""
+    screen = QWidget()
+    qtbot.addWidget(screen)
+    card = QWidget(screen)
+    built = []
+
+    def fill(on_screen, into):
+        built.append(on_screen)
+        return QLabel("Preview", into)
+
+    host = pr._PreviewHost(screen, pr.PreviewSpec(builder="x:y"), None,
+                           card, fill=fill)
+
+    panel = host.panel
+
+    assert built == [screen]
+    assert panel.text() == "Preview" and panel.parent() is card
+    assert host.panel is panel and built == [screen]
