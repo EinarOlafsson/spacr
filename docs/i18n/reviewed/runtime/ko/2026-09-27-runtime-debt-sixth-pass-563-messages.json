@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26, sixth pass 2026-09-27: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "An object is an outlier when it scores beyond this quantile of the control objects, so this share of controls is normal by construction. Wells are ranked by their share of outliers. Default 0.99.",
+      "source": "An object is an outlier when it scores beyond this quantile of the control objects, so this share of controls is normal by construction. Wells are ranked by their share of outliers. Default 0.99.",
+      "source_sha256": "359b2331bf33d304486fd930e9edbe819d82b168ed5f34e5e1dc9a79c26eed3c",
+      "translation": "객체 점수가 대조군 객체의 이 분위수를 넘으면 이상치입니다. 따라서 대조군의 이 비율은 정의상 정상입니다. 웰은 이상치 비율로 순위가 매겨집니다. 기본값 0.99."
+    },
+    {
+      "table": "ui",
+      "key": "How unlike the controls an object is: robust Mahalanobis distance, mean distance to the nearest control objects, an isolation forest, or low density under a Gaussian mixture. All run on the CPU. Default Robust Mahalanobis.",
+      "source": "How unlike the controls an object is: robust Mahalanobis distance, mean distance to the nearest control objects, an isolation forest, or low density under a Gaussian mixture. All run on the CPU. Default Robust Mahalanobis.",
+      "source_sha256": "b5e7b7f4fba304a07fa7e00a0518f23de2c5cf945fcdae550c0a73180e8bc157",
+      "translation": "객체가 대조군과 얼마나 다른지를 나타내는 방식입니다. 강건 마할라노비스 거리, 가장 가까운 대조군 객체까지의 평균 거리, 격리 숲, 또는 가우스 혼합 모델에서의 낮은 밀도입니다. 모두 CPU에서 실행됩니다. 기본값 Robust Mahalanobis."
+    },
+    {
+      "table": "ui",
+      "key": "Model the negative-control objects as normal and score every object and well for how unlike them it is, over every numeric feature (or the emb_ embedding columns when present). Needs a per-object table, the negative control picked above and well positions. Default off.",
+      "source": "Model the negative-control objects as normal and score every object and well for how unlike them it is, over every numeric feature (or the emb_ embedding columns when present). Needs a per-object table, the negative control picked above and well positions. Default off.",
+      "source_sha256": "ba71d351bd2ebefb0f24b62e3abb60e02e0547396ffaa7ff22714640875b1635",
+      "translation": "음성 대조군 객체를 정상으로 모델링하고, 모든 숫자 특징(있으면 emb_ 임베딩 열)에 걸쳐 각 객체와 웰이 그와 얼마나 다른지 점수를 매깁니다. 객체별 표, 위에서 고른 음성 대조군, 웰 위치가 필요합니다. 기본값 꺼짐."
+    },
+    {
+      "table": "ui",
+      "key": "Pick the control column and the negative control to score anomalies against.",
+      "source": "Pick the control column and the negative control to score anomalies against.",
+      "source_sha256": "27c4bf39f456613c55b5a32ae036688bb36822f72a223954638aa3b2015f8f85",
+      "translation": "이상치 점수를 계산할 대조군 열과 음성 대조군을 고르세요."
+    },
+    {
+      "table": "ui",
+      "key": "Score anomalies against the negative control",
+      "source": "Score anomalies against the negative control",
+      "source_sha256": "7e9de04bbee97f24ce0311a895f10dafe5b37304a3c778e0c5e1d88338eee257",
+      "translation": "음성 대조군에 대해 이상치 점수 계산"
+    },
+    {
+      "table": "ui",
+      "key": "Turn on anomaly scoring and name the negative control.",
+      "source": "Turn on anomaly scoring and name the negative control.",
+      "source_sha256": "aa4bfc88a6b38a2be33b74967e598f9973a39485c8798db18cbea60d8582896c",
+      "translation": "이상치 점수 계산을 켜고 음성 대조군을 지정하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Wells (A01), plate wells (prc) or treatment names that are known hits, separated by commas. With the positive control they give the AUROC of the ranking against the negative control. Default empty.",
+      "source": "Wells (A01), plate wells (prc) or treatment names that are known hits, separated by commas. With the positive control they give the AUROC of the ranking against the negative control. Default empty.",
+      "source_sha256": "4294eaa8e152a4d7862f95f1be47a6987567ed8f31419ed16f80851b53ed0537",
+      "translation": "알려진 히트인 웰(A01), 플레이트 웰(prc) 또는 처리 이름으로, 쉼표로 구분합니다. 양성 대조군과 함께 음성 대조군 대비 순위의 AUROC를 제공합니다. 기본값은 비어 있음."
+    },
+    {
+      "table": "ui",
+      "key": "Write the ranked wells, every object's score, the top outliers and the review figure into a folder.",
+      "source": "Write the ranked wells, every object's score, the top outliers and the review figure into a folder.",
+      "source_sha256": "daa5eb71b5812c9d808c3937b40253c108dad1884ac9b908dbd4f2bd9a01ecae",
+      "translation": "순위를 매긴 웰, 각 객체의 점수, 상위 이상치, 검토 그림을 폴더에 기록합니다."
+    }
+  ]
+}

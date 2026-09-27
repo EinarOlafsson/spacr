@@ -282,6 +282,8 @@ _IDENTITY_TEXT = {
     # 316, 2026-09-26: the notification services named alone as Preferences
     # rows (item 577).
     "ntfy", "Slack",
+    # 316, 2026-09-27: backend and workflow-engine names shown alone.
+    "CellProfiler", "CellProfiler (Alpha)", "Nextflow…", "Snakemake…",
     "PNG", "QC", "RGB",
     "RNA", "ROI", "SAM", "SHAP", "SQL", "TIFF", "UMAP", "ViT", "X",
     "XGBoost", "Y",

@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26, sixth pass 2026-09-27: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "categories",
+      "key": "Bleed-through correction: how much of each dye is read in the other channels is estimated from single-stain control wells, and every field is unmixed with that matrix before it is segmented or measured. The matrix is printed and recorded with the run.",
+      "source": "Bleed-through correction: how much of each dye is read in the other channels is estimated from single-stain control wells, and every field is unmixed with that matrix before it is segmented or measured. The matrix is printed and recorded with the run.",
+      "source_sha256": "f5e7e48285987029493179a04179a0c023793048e6295e2e4c11204263108e38",
+      "translation": "रिसाव सुधार: हर डाई दूसरे चैनलों में कितनी पढ़ी जाती है, इसका अनुमान एकल-स्टेन नियंत्रण वेल से लगाया जाता है, और सेगमेंट या मापे जाने से पहले हर छवि क्षेत्र को उस मैट्रिक्स से पृथक किया जाता है। मैट्रिक्स प्रिंट होता है और रन के साथ दर्ज होता है।"
+    },
+    {
+      "table": "categories",
+      "key": "Count bacterial or fungal colonies on plate or dish photos instead of plaques: the dish is found, colonies are thresholded against the agar and touching ones split, and each plate gets a count, CFU/mL from the dilution and plated volume, a too-many or too-few flag, and colony areas and diameters, in millimetres when Scale & Time says how large the dish is.",
+      "source": "Count bacterial or fungal colonies on plate or dish photos instead of plaques: the dish is found, colonies are thresholded against the agar and touching ones split, and each plate gets a count, CFU/mL from the dilution and plated volume, a too-many or too-few flag, and colony areas and diameters, in millimetres when Scale & Time says how large the dish is.",
+      "source_sha256": "76eb8b2793a9f91cb04ba1b04eb907cf3bb8b0c9b6a8e9e9ff0c07d98b4136a4",
+      "translation": "प्लाक के बजाय प्लेट या डिश की तस्वीरों पर जीवाणु या कवक कॉलोनियाँ गिनें: डिश खोजी जाती है, कॉलोनियों पर अगार के विरुद्ध सीमा लगाई जाती है और छूने वाली कॉलोनियाँ अलग की जाती हैं, और हर प्लेट को गिनती, तनुकरण व फैलाए गए आयतन से CFU/mL, बहुत अधिक या बहुत कम का फ़्लैग, और कॉलोनी क्षेत्रफल व व्यास मिलते हैं, मिलीमीटर में जब पैमाना और समय डिश का आकार बताता है।"
+    },
+    {
+      "table": "categories",
+      "key": "Fill the plate map from sample records by plate barcode: each imaged plate is looked up by its barcode in a table or a LIMS service, its wells get the strain, compound, concentration, passage and operator recorded there, and every mismatch between the records and the images is listed.",
+      "source": "Fill the plate map from sample records by plate barcode: each imaged plate is looked up by its barcode in a table or a LIMS service, its wells get the strain, compound, concentration, passage and operator recorded there, and every mismatch between the records and the images is listed.",
+      "source_sha256": "4232c929e0899a6d43296819fd16fc01bf88d09e5120b49e9ea5c2cf3501dd2a",
+      "translation": "प्लेट बारकोड से नमूना अभिलेखों के आधार पर प्लेट मैप भरें: हर इमेज की गई प्लेट को उसके बारकोड से किसी तालिका या LIMS सेवा में खोजा जाता है, उसके वेल को वहाँ दर्ज स्ट्रेन, यौगिक, सांद्रता, पैसेज और संचालक मिलते हैं, और अभिलेखों व छवियों के बीच हर असंगति सूचीबद्ध होती है।"
+    },
+    {
+      "table": "categories",
+      "key": "How long each tracked object of a timelapse lasts until an event such as death, lysis, egress, division or first detection, with objects still waiting at the end of their track censored there. Conditions are compared with Kaplan-Meier curves, median times, log-rank tests and a Cox model, written to measurements.db and drawn under results/time_to_event.",
+      "source": "How long each tracked object of a timelapse lasts until an event such as death, lysis, egress, division or first detection, with objects still waiting at the end of their track censored there. Conditions are compared with Kaplan-Meier curves, median times, log-rank tests and a Cox model, written to measurements.db and drawn under results/time_to_event.",
+      "source_sha256": "aa277bc2e420b64be5bc3a24e1fac3f6ab09c5d6a9516412f531eb73e3c66a48",
+      "translation": "टाइमलैप्स का हर ट्रैक किया गया ऑब्जेक्ट मृत्यु, लयन, निकास, विभाजन या पहली पहचान जैसी किसी घटना तक कितनी देर रहता है; जो ऑब्जेक्ट अपने ट्रैक के अंत तक प्रतीक्षा में रहते हैं वे वहीं सेंसर किए जाते हैं। स्थितियों की तुलना Kaplan-Meier वक्रों, माध्यिका समयों, log-rank परीक्षणों और Cox मॉडल से होती है, जो measurements.db में लिखे जाते हैं और results/time_to_event में बनाए जाते हैं।"
+    },
+    {
+      "table": "categories",
+      "key": "Lineage trees drawn from the tracker's division links after each field is tracked, coloured by a measurement, with Newick and CSV export and per-lineage generation times and sibling correlation.",
+      "source": "Lineage trees drawn from the tracker's division links after each field is tracked, coloured by a measurement, with Newick and CSV export and per-lineage generation times and sibling correlation.",
+      "source_sha256": "9c33e6c38d5c971aa4059f3acceee0967e9b313887cf38fec2e76d74dfe591d7",
+      "translation": "हर छवि क्षेत्र की ट्रैकिंग के बाद ट्रैकर के विभाजन लिंक से बनाए गए वंशावली वृक्ष, किसी माप के अनुसार रंगे हुए, Newick और CSV निर्यात तथा हर वंशावली के पीढ़ी समय और सहोदर सहसंबंध के साथ।"
+    },
+    {
+      "table": "categories",
+      "key": "Live and dead cells, called after measuring from a dead stain, a live stain, both, or nuclear morphology, with thresholds fitted per plate or set by hand. Writes per-well viability, a live-cell index and a cytotoxicity index scaled to the control wells, each plate's Z', and with a plate map the dose-response of viability beside that of infection, so parasite killing can be told from host toxicity.",
+      "source": "Live and dead cells, called after measuring from a dead stain, a live stain, both, or nuclear morphology, with thresholds fitted per plate or set by hand. Writes per-well viability, a live-cell index and a cytotoxicity index scaled to the control wells, each plate's Z', and with a plate map the dose-response of viability beside that of infection, so parasite killing can be told from host toxicity.",
+      "source_sha256": "4988e2697695151faeaec691a5c2667f117954ec9446e3762e84457b5aa73255",
+      "translation": "मापन के बाद मृत-कोशिका स्टेन, जीवित-कोशिका स्टेन, दोनों या नाभिकीय आकृति से तय की गई जीवित और मृत कोशिकाएँ, प्रति प्लेट फ़िट की गई या हाथ से तय की गई सीमाओं के साथ। हर वेल की जीवनक्षमता, एक जीवित-कोशिका सूचकांक और नियंत्रण वेल के अनुसार स्केल किया गया कोशिकाविषाक्तता सूचकांक, हर प्लेट का Z', और प्लेट मैप होने पर संक्रमण की खुराक–प्रतिक्रिया के बगल में जीवनक्षमता की खुराक–प्रतिक्रिया लिखता है, ताकि परजीवी के मारे जाने को मेज़बान विषाक्तता से अलग पहचाना जा सके।"
+    },
+    {
+      "table": "categories",
+      "key": "Photobleaching correction for timelapse intensities, per field and channel: a simple ratio to the first timepoint, a fitted exponential decay, or histogram matching. Corrected intensities are written beside the measured ones with the method, and the fitted decay is plotted.",
+      "source": "Photobleaching correction for timelapse intensities, per field and channel: a simple ratio to the first timepoint, a fitted exponential decay, or histogram matching. Corrected intensities are written beside the measured ones with the method, and the fitted decay is plotted.",
+      "source_sha256": "b183cae1c7dbf185cb1e89b3d086ef73c073c220755143c226df5da2aada3e17",
+      "translation": "टाइमलैप्स तीव्रताओं के लिए फ़ोटोब्लीचिंग सुधार, हर छवि क्षेत्र और चैनल के लिए: पहले समय बिंदु से एक सरल अनुपात, फ़िट किया गया घातांकी क्षय, या हिस्टोग्राम मिलान। सुधारी गई तीव्रताएँ विधि के साथ मापी गई तीव्रताओं के बगल में लिखी जाती हैं, और फ़िट किया गया क्षय प्लॉट होता है।"
+    },
+    {
+      "table": "categories",
+      "key": "Runs a lab's own CellProfiler pipeline on this run's fields after measuring, headless in CellProfiler's own environment from the Model Zoo, and writes its per-object measurements beside spaCR's, matched to spaCR's objects, so existing pipelines keep working.",
+      "source": "Runs a lab's own CellProfiler pipeline on this run's fields after measuring, headless in CellProfiler's own environment from the Model Zoo, and writes its per-object measurements beside spaCR's, matched to spaCR's objects, so existing pipelines keep working.",
+      "source_sha256": "ca161d26ab03972b7aa57bc1771b5a98cbc49568b949dbc42b47c77c0847f7b4",
+      "translation": "मापन के बाद इस रन के छवि क्षेत्रों पर प्रयोगशाला की अपनी CellProfiler पाइपलाइन चलाता है, बिना इंटरफ़ेस के, मॉडल संग्रह से मिले CellProfiler के अपने वातावरण में, और उसके प्रति-ऑब्जेक्ट माप spaCR के मापों के बगल में, spaCR के ऑब्जेक्ट से मिलाकर लिखता है, ताकि मौजूदा पाइपलाइनें काम करती रहें।"
+    },
+    {
+      "table": "categories",
+      "key": "Scale every imaging session to the same intensities before measuring, from fluorescent beads or reference wells imaged on every plate: each plate's intensity channels are multiplied by the gain that makes its reference wells match the first plate's, and the gains are recorded in measurements.db.",
+      "source": "Scale every imaging session to the same intensities before measuring, from fluorescent beads or reference wells imaged on every plate: each plate's intensity channels are multiplied by the gain that makes its reference wells match the first plate's, and the gains are recorded in measurements.db.",
+      "source_sha256": "c678642b44dfcad096bb609026e20e69d01592d4029527e92be265d31c0ab761",
+      "translation": "मापन से पहले हर इमेजिंग सत्र को समान तीव्रताओं पर लाएँ, हर प्लेट पर इमेज किए गए फ़्लोरोसेंट बीड या संदर्भ वेल से: हर प्लेट के तीव्रता चैनल उस गेन से गुणा किए जाते हैं जो उसके संदर्भ वेल को पहली प्लेट के वेल के बराबर करता है, और गेन measurements.db में दर्ज होते हैं।"
+    }
+  ]
+}

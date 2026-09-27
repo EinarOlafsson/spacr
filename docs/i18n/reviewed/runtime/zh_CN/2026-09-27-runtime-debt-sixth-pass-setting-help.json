@@ -1,0 +1,323 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26, sixth pass 2026-09-27: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "bleach_correction",
+      "source": "Photobleaching correction for a timelapse run, applied after measuring and per field and channel. ratio rescales each timepoint so the median object mean intensity equals the first timepoint's; exponential does the same with a fitted a*exp(-b*t)+c decay; histogram maps each timepoint's intensities onto the first timepoint's distribution. Writes <object>_bleach_corrected and the fits to measurements.db and plots the decay; the measured tables stay unchanged. Ignored unless timelapse. Default none.",
+      "source_sha256": "ee24d880108dc988e0e6b54d3c32337a59bfb4a801f0f952880ee3111aff76a3",
+      "translation": "延时运行的光漂白校正，在测量后按视野和通道应用。ratio 重新缩放每个时间点，使对象平均强度的中位数等于第一个时间点；exponential 以拟合的 a*exp(-b*t)+c 衰减做同样的处理；histogram 将每个时间点的强度映射到第一个时间点的分布上。将 <object>_bleach_corrected 和拟合结果写入 measurements.db 并绘制衰减曲线；已测量的表保持不变。除非开启 timelapse，否则忽略。默认值 none。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cellprofiler_pipeline",
+      "source": "A CellProfiler pipeline (.cppipe) to run headless after measuring, in CellProfiler's own environment from the Model Zoo. Each field's channels are handed to it as <field>_ch<N>.tif, N from 0, and its masks as <field>_<object>_mask.tif; load the masks in NamesAndTypes as objects, and measure each object's Location. Its per-object measurements go to measurements.db:cellprofiler_<object>, matched to spaCR objects by prcfo. Blank skips it. Default blank.",
+      "source_sha256": "52880d7c9375453fd26121e2b585b283313f6076a705b62762303ff5f6e20bf1",
+      "translation": "测量后以无界面方式运行的 CellProfiler 流程（.cppipe），运行在模型库提供的 CellProfiler 独立环境中。每个视野的通道以 <field>_ch<N>.tif（N 从 0 开始）交给它，掩膜以 <field>_<object>_mask.tif 交给它；请在 NamesAndTypes 中将掩膜作为对象载入，并测量每个对象的 Location。其逐对象测量写入 measurements.db:cellprofiler_<object>，通过 prcfo 与 spaCR 对象匹配。留空则跳过。默认值为空。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_counting",
+      "source": "Count bacterial or fungal colonies on plate or dish photos instead of segmenting plaques. Each image is one plate, or one well per detected well when well_detection is on; the dish is found by its outline otherwise. Colonies are thresholded against the agar, touching ones are split, and the count, CFU/mL, colony areas and diameters go to colonies/colonies.db in src. No plaque model is loaded. Plaque mode only: Figure mode ignores it. Default False.",
+      "source_sha256": "7eb545a6acae426afeb9fa65161b482b2f8a1ce773d5a29e3fda38ee567d5236",
+      "translation": "在平板或培养皿照片上计数细菌或真菌菌落，而不是分割空斑。每张图像是一块平板，开启 well_detection 时则每个检测到的孔为一个；否则通过轮廓找到培养皿。相对琼脂对菌落取阈值，拆分相互接触的菌落，计数、CFU/mL、菌落面积和直径写入 src 中的 colonies/colonies.db。不会加载空斑模型。仅限空斑模式：图模式会忽略此项。默认值 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_dilution",
+      "source": "Dilution factor of the suspension that was plated, 10000 for a 10^-4 dilution; a fraction such as 0.0001 is read as the dilution and inverted. CFU/mL = colonies x dilution factor / plated volume. A dict from file name or stem to factor sets it per plate; a plate it does not name gets no CFU/mL. Default 1.",
+      "source_sha256": "eed70e28de941f15b8644d10b2edc4a594e7cd12b47ee95e3b99007cd45a7bf7",
+      "translation": "所涂布悬液的稀释倍数，10^-4 稀释为 10000；像 0.0001 这样的小数会被视为稀释度并取倒数。CFU/mL = 菌落数 x 稀释倍数 / 涂布体积。从文件名或文件名主干到倍数的字典可按板设置；未被提及的板不计算 CFU/mL。默认值 1。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_min_area_px",
+      "source": "Smallest colony counted, in pixels of the original photo. Raise it to ignore dust, bubbles and pinpoint artefacts; lower it for pinpoint colonies. Blank uses 0.4 % of the dish diameter, squared: about 36 pixels for a dish 1500 pixels across. Default None.",
+      "source_sha256": "d74b218d0b7c2a73174a52bc828bb0facfcab5c738269b1fd1b216e632131ba6",
+      "translation": "计数的最小菌落，以原始照片的像素计。调高可忽略灰尘、气泡和针尖状伪影；调低可计入针尖状菌落。留空则使用培养皿直径 0.4 % 的平方：直径 1500 像素的培养皿约为 36 像素。默认值 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_plated_volume_ul",
+      "source": "Volume of the dilution spread on each plate, in microlitres, the denominator of CFU/mL. Change it with the plating protocol: 100 for a standard spread plate, 1000 for a pour plate of 1 mL. Default 100.",
+      "source_sha256": "1ad6dd774beedbf675d241fbd2ff5dc0a28318793a6bc87b37a01154853c0c4c",
+      "translation": "每块平板上涂布的稀释液体积（微升），即 CFU/mL 的分母。请按涂布方案修改：标准涂布平板为 100，1 mL 倾注平板为 1000。默认值 100。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_polarity",
+      "source": "Whether colonies are brighter than the agar (bright: white or cream colonies on blood, chocolate or dark agar, or any plate photographed on a dark background) or darker (dark: on a light box or on pale agar). auto tries both and keeps the one whose round objects stand further above the agar. Set it when auto picks the wrong one on a sparse plate. Default auto.",
+      "source_sha256": "79af59ccc6b16e25c2001ae561fed0708ba4b0598f0fbb3053207a5bb439ec1f",
+      "translation": "菌落比琼脂亮（bright：血平板、巧克力平板或深色琼脂上的白色或奶油色菌落，或在深色背景上拍摄的任何平板）还是比琼脂暗（dark：在灯箱上或浅色琼脂上）。auto 会两者都试，保留圆形对象在琼脂上更突出的一种。当 auto 在稀疏平板上选错时请设置此项。默认值 auto。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_threshold",
+      "source": "How far above the agar a pixel must be to count as colony, in multiples of the agar's own noise. Lower finds faint, small or translucent colonies but also picks up agar texture, bubbles and glare; higher keeps only clear colonies. Default 4.0.",
+      "source_sha256": "fde2849693f9735f4b0c4b338a35977fabfc9d6b4bb4c620fe7a5d7734f97ddb",
+      "translation": "像素必须比琼脂高出多少才算作菌落，以琼脂自身噪声的倍数表示。值越低越能找到暗淡、微小或半透明的菌落，但也会捕获琼脂纹理、气泡和反光；值越高只保留清晰的菌落。默认值 4.0。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_too_few",
+      "source": "Plates with fewer colonies than this are flagged 'too few to count' (TFTC) in per_plate: so few colonies carry a sampling error too large for the CFU/mL they imply. Their CFU/mL is still written, so filter on the flag. Blank turns the check off. Default 30.",
+      "source_sha256": "22a1f27046cc47225e5c8d368d898e7f4c5ca59df16551cdb82209a8b7e5f9b6",
+      "translation": "菌落数少于此值的平板在 per_plate 中标记为 'too few to count'（TFTC）：菌落这么少，其对应的 CFU/mL 抽样误差过大。其 CFU/mL 仍会写入，请按该标记过滤。留空则关闭此检查。默认值 30。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_too_many",
+      "source": "Plates with more colonies than this are flagged 'too many to count' (TNTC) in per_plate: neighbouring colonies merge and compete, so the count underestimates what was plated. Their CFU/mL is still written, so filter on the flag. Blank turns the check off. Default 300.",
+      "source_sha256": "240e0ace8fb64a9df61e39f397d69ddd0c83e7ecab187b8979ef92e8d1cecf93",
+      "translation": "菌落数多于此值的平板在 per_plate 中标记为 'too many to count'（TNTC）：相邻菌落会融合并相互竞争，因此计数会低估涂布量。其 CFU/mL 仍会写入，请按该标记过滤。留空则关闭此检查。默认值 300。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "illumination_vendor_profile",
+      "source": "Path to the flat-field correction the microscope software saved, used instead of estimating one from the fields: a Harmony Index.idx.xml or FFC profile (Operetta, Opera Phenix), or a shading reference image (.tif, .czi, .npy) from ZEN, Nikon or Olympus. Harmony profiles are applied at Harmony's own scale, so the corrected pixels match Harmony's corrected export. Empty means estimate. Default empty.",
+      "source_sha256": "528d4bc1e5926704a3a2daa88776d4b49742699aec7bf6d47b867183406b9aab",
+      "translation": "显微镜软件保存的平场校正文件路径，用来代替从视野估计：Harmony 的 Index.idx.xml 或 FFC 配置文件（Operetta、Opera Phenix），或来自 ZEN、Nikon 或 Olympus 的阴影参照图像（.tif、.czi、.npy）。Harmony 配置文件按 Harmony 自身的比例应用，使校正后的像素与 Harmony 的校正导出一致。留空表示进行估计。默认值为空。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration",
+      "source": "Calibrate intensities across imaging sessions before measuring: each plate is one session, the beads or reference wells imaged on every plate are measured, and every plate's intensity channels are scaled so its reference wells match the first plate's. This corrects exposure, lamp and detector drift between days at the image level, unlike batch correction of tables. The gains are recorded in measurements.db:intensity_rescale. Default False.",
+      "source_sha256": "2a0bb710f1b278e5440c1034f00e07fff92f82d110e722ad0b3f2f249a23f6df",
+      "translation": "测量前在成像会话之间校准强度：每块板为一个会话，测量每块板上成像的微球或参照孔，并缩放每块板的强度通道，使其参照孔与第一块板一致。这会在图像层面校正不同日期之间的曝光、光源和检测器漂移，不同于对表格进行批次校正。增益记录在 measurements.db:intensity_rescale 中。默认值 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_offset",
+      "source": "The camera's dark offset, in the intensity units Measure works in, removed before the reference statistic and kept when scaling: a pixel becomes offset + (value - offset) x gain. Read it from a dark frame; 100 is common on sCMOS cameras. Leave 0 when images are already offset-corrected. Default 0.",
+      "source_sha256": "44817c7b242d1370f93d13777898ede908aa1f06f89d26cc2c9ae0e839e7ddf3",
+      "translation": "相机的暗偏移，以 Measure 使用的强度单位表示，在计算参照统计量之前减去，并在缩放时保留：像素变为 偏移 + (值 - 偏移) x 增益。请从暗帧读取；sCMOS 相机通常为 100。图像已做过偏移校正时保持 0。默认值 0。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_statistic",
+      "source": "How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
+      "source_sha256": "18898b95481b93445deb13c8b4ed3fd3b873d79d2e872f90a228810591cd6410",
+      "translation": "扣除 intensity_calibration_offset 后，每个参照视野强度的汇总方式。foreground：高于 Otsu 阈值的像素的中位数，适用于暗背景上稀疏的微球。median：所有像素的中位数，适用于均匀染色的参照孔。每块板使用其参照视野的中位数。默认值 foreground。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_wells",
+      "source": "The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
+      "source_sha256": "7b5a101a3b0932d0cae21d7a63b7360ff2b381787ec937ce269a9b0d77df6c19",
+      "translation": "放置校准样本的孔，每块板上用同一样本成像：荧光微球或参照染色，例如 ['A01'] 或 ['A01', 'P24']。每块板在这些孔中必须至少有一个视野，否则运行会停止。它们与其他孔一样被测量和校准。默认值 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plate_barcode_column",
+      "source": "The column of the sample records that holds the plate barcode. Blank looks for barcode, plate_barcode or plate barcode. The other columns, apart from the well position, are copied into the plate map as they are. Default barcode.",
+      "source_sha256": "471f62de63882fb6b3c34f6fdc983a33a35cf68722e163376705ff9d177f7a9f",
+      "translation": "样本记录中存放板条形码的列。留空则查找 barcode、plate_barcode 或 plate barcode。除孔位置外，其他列会原样复制到板布局图中。默认值 barcode。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plate_barcode_source",
+      "source": "Sample records to fill the plate map from, by plate barcode: a CSV, TSV, Excel or Parquet table with a barcode column, a well column (well such as A01, or rowID and columnID) and metadata such as strain, compound, concentration, passage and operator; or the http(s) address of a LIMS service that answers JSON well records for ?barcode=, or for {barcode} in the address. The filled map and a list of mismatches go to measurements. Blank links nothing. Default blank.",
+      "source_sha256": "ebfb4012bda5d4c5bfb88ab9d406d44da153312474eb67c12393ea93cde34748",
+      "translation": "按板条形码填充板布局图所用的样本记录：一个 CSV、TSV、Excel 或 Parquet 表，包含条形码列、孔列（well 如 A01，或 rowID 和 columnID）以及菌株、化合物、浓度、传代数和操作人员等元数据；或一个 LIMS 服务的 http(s) 地址，它对 ?barcode= 或地址中的 {barcode} 以 JSON 返回孔记录。填好的布局图和不一致列表写入 measurements。留空则不关联任何内容。默认值为空。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plate_barcode_token_env",
+      "source": "The name of the environment variable holding the LIMS access token, sent as a bearer token with each request. The token itself is never written to settings or results; set the variable before starting spaCR. Ignored for a table. Default SPACR_LIMS_TOKEN.",
+      "source_sha256": "5cc8b06777ea053507bd0bf3dbd36dc8de0a53417faaa0fa3c5cab7d02c904f9",
+      "translation": "保存 LIMS 访问令牌的环境变量名称，每次请求时以 bearer 令牌发送。令牌本身绝不会写入设置或结果；请在启动 spaCR 前设置该变量。对于表格会忽略此项。默认值 SPACR_LIMS_TOKEN。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plate_barcodes",
+      "source": "The barcode each plate was imported with, such as {'plate1': 'BC000123'}. A plate not named here takes the barcode in a barcode.txt file in its plate folder, or else its own plate name. Two plates given one barcode are reported as a mismatch. Default None.",
+      "source_sha256": "64d772f43f4d334469fe42cc4ad9a558ec63b4ab4d392cc2d1f6b17f51b8870a",
+      "translation": "每块板导入时所用的条形码，例如 {'plate1': 'BC000123'}。此处未指定的板使用其板文件夹中 barcode.txt 文件里的条形码，否则使用其自身的板名。两块板使用同一条形码时会报告为不一致。默认值 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event",
+      "source": "After measuring a timelapse, follow every tracked object to an event (death, lysis, egress, division, first detection) or to the end of its track, and compare conditions: Kaplan-Meier curves with 95% bands, median time to event per condition and well, log-rank tests and a Cox model. Writes measurements.db:time_to_event and four summary tables, and the curves and hazard ratios under results/time_to_event. Needs tracked objects measured with timelapse on. Default False.",
+      "source_sha256": "8b6a065f010e6e7dda83f77034b051fb0932bacd852b852b45507543eb2fa12e",
+      "translation": "测量延时序列后，跟随每个被跟踪对象直到事件发生（死亡、裂解、逸出、分裂、首次检测）或其轨迹结束，并比较各条件：带 95 % 置信带的 Kaplan-Meier 曲线、每个条件和孔的事件中位时间、log-rank 检验和 Cox 模型。写入 measurements.db:time_to_event 和四张汇总表，曲线和风险比保存在 results/time_to_event 下。需要在开启 timelapse 时测量的被跟踪对象。默认值 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_column",
+      "source": "The measurement the event is read from, a column of the object table such as cell_channel_2_mean_intensity, or an Annotate column of png_list holding labels for each object in each frame. Ignored by track_end. Default blank.",
+      "source_sha256": "a016ac65f42ed190e979bdeddeb84f3ab8434e1cdcbf82ed1fc20a58b4bb7a9e",
+      "translation": "读取事件所用的测量，可以是对象表中的一列，如 cell_channel_2_mean_intensity，也可以是 png_list 中为每帧每个对象保存标签的 Annotate 列。track_end 会忽略此项。默认值为空。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_conditions",
+      "source": "Conditions named by their wells, as name=wells entries in the plate-map notation, such as ['mock=c1,c2', 'drug=c3,c4']. Objects in wells no entry names are left out. It replaces time_to_event_group. Blank uses time_to_event_group. Default None.",
+      "source_sha256": "a835639252dbabfec3dd8301fbee1061d5fc2a033e712d6f8046c6249de32d6f",
+      "translation": "以孔命名的条件，采用板布局图记法的 name=wells 条目，例如 ['mock=c1,c2', 'drug=c3,c4']。未被任何条目提及的孔中的对象会被排除。它会取代 time_to_event_group。留空则使用 time_to_event_group。默认值 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_covariates",
+      "source": "Columns of the object table adjusted for in the Cox model, each read at the track's first frame so it is measured before the event, such as ['cell_area']. Their hazard ratios are per unit of the column. Tracks missing a value are left out of the model only. Blank fits the conditions alone. Default None.",
+      "source_sha256": "a4f783f45f44932ba161fadc09f1d4f3aac828b34d581f1491927f2d41e0907f",
+      "translation": "Cox 模型中进行校正的对象表列，每列在轨迹第一帧读取，以确保在事件之前测得，例如 ['cell_area']。其风险比以该列每单位计。缺少该值的轨迹仅从模型中排除。留空则只拟合条件。默认值 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_group",
+      "source": "How objects are grouped into the conditions compared, when time_to_event_conditions is blank: well, plate, row, column, field, or a column of the object table read at each track's first frame. Default well.",
+      "source_sha256": "f65babfedce03b0f57c3b06681cbb7665eeb8df76a94b2fc62b8a03f3f8e9c21",
+      "translation": "当 time_to_event_conditions 为空时，对象如何分组到被比较的条件中：well、plate、row、column、field，或在每条轨迹第一帧读取的对象表中的一列。默认值 well。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_hours_per_frame",
+      "source": "Hours between consecutive frames, used to report times in hours; 0.25 for a frame every 15 minutes. It rescales the times and medians but not the tests or hazard ratios of conditions. Blank reports times in frames. Default None.",
+      "source_sha256": "219c85a7f69472939063efad197122693dd5c0605dd0a878a6de7ca1abb22eaf",
+      "translation": "相邻帧之间的小时数，用于以小时报告时间；每 15 分钟一帧即为 0.25。它会重新缩放时间和中位数，但不影响检验或各条件的风险比。留空则以帧报告时间。默认值 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_min_frames",
+      "source": "Tracks with fewer observed frames are left out: a track seen once or twice is more often a segmentation or tracking fragment than an object, and with track_end every short fragment would be an event. Default 3.",
+      "source_sha256": "59c074223b17d55abbf82bd4bdbcc70f62c8a000f67d87bcaaf3f12a96c2bb38",
+      "translation": "观察帧数少于此值的轨迹会被排除：只出现一两次的轨迹更常是分割或跟踪碎片而非对象，并且在 track_end 下每个短碎片都会被算作事件。默认值 3。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_mode",
+      "source": "What counts as the event. track_end: the object disappears before the movie ends (lysis, egress, detachment, and tracking loss too). annotated: time_to_event_column turns non-zero, or equals the threshold. above or below: the column reaches time_to_event_threshold, such as a death dye. fold_change: the column reaches threshold times its first value, such as a doubled parasite count. Tracks without the event are censored at their last frame. Default track_end.",
+      "source_sha256": "8ace74fb6d3786f222cdfc3ac3da12718d2fbf2831f66774e40d51aff633fe44",
+      "translation": "什么算作事件。track_end：对象在影片结束前消失（裂解、逸出、脱落，也包括跟踪丢失）。annotated：time_to_event_column 变为非零，或等于阈值。above 或 below：该列达到 time_to_event_threshold，例如死亡染料。fold_change：该列达到阈值乘以其第一个值，例如寄生虫数量翻倍。没有发生事件的轨迹在其最后一帧删失。默认值 track_end。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_object",
+      "source": "The measured object table whose tracks are followed: cell, nucleus, pathogen or cytoplasm. Each object label in a field is one track, since the timelapse module relabels tracked objects with their track ID. Follow host cells for host death or lysis, pathogens for egress or division. Default cell.",
+      "source_sha256": "7af4d875b43de8c77138afefd1820f2df203833398c95ddac749f40f1098c330",
+      "translation": "跟踪其轨迹的已测量对象表：cell、nucleus、pathogen 或 cytoplasm。视野中的每个对象标签就是一条轨迹，因为延时模块会用轨迹 ID 重新标记被跟踪的对象。跟踪宿主细胞以研究宿主死亡或裂解，跟踪病原体以研究逸出或分裂。默认值 cell。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_origin",
+      "source": "Where each object's clock starts. track: at the object's own first frame, so objects that appear later (daughters, cells moving in) count from when they are first seen. movie: at the movie's first frame, keeping only the objects present then, the cohort to use when time since infection or treatment matters. Default track.",
+      "source_sha256": "7bc99e166339c26e816a7554a21bad91791ae8229bce091a9da48e450ce224c1",
+      "translation": "每个对象的计时起点。track：从对象自身的第一帧开始，因此后来出现的对象（子细胞、迁入的细胞）从首次被看到时开始计时。movie：从影片第一帧开始，只保留当时存在的对象，适用于感染或处理后的时间很重要时的队列。默认值 track。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_persist",
+      "source": "Consecutive observed frames the event must hold before it counts; it is dated to the first of them. Raise it to 2 or 3 when a noisy measurement crosses the threshold for one frame and back. Objects already showing the event in their first frame are left out. Default 1.",
+      "source_sha256": "6315cfe37944e195d17b6a5c5440970fd26bcb02168cacc677c2247823e6aea0",
+      "translation": "事件必须持续的连续观察帧数，达到后才计数；事件日期记为其中第一帧。当噪声较大的测量值在一帧内越过阈值又回落时，请调高到 2 或 3。在第一帧就已出现事件的对象会被排除。默认值 1。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_reference",
+      "source": "The condition the others are compared with: every log-rank pair and every hazard ratio is against it. It must be one of the conditions. Blank uses the first entry of time_to_event_conditions, or the first condition in sorted order. Default blank.",
+      "source_sha256": "c038dcb9424a340d0cd0a5226506ae24f06b0ecf8a8d8b1ba1dae254e235ceb7",
+      "translation": "其他条件与之比较的条件：每个 log-rank 配对和每个风险比都相对于它。它必须是条件之一。留空则使用 time_to_event_conditions 的第一项，或排序后的第一个条件。默认值为空。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_threshold",
+      "source": "The cut the event is read at. For above and below it is in the column's units; for fold_change it is a ratio to the track's first value, 2 for a doubling; for annotated it is the label that marks the event, blank for any non-zero label. Read it off a histogram of the column before trusting the curves. Default None.",
+      "source_sha256": "50a274bc3a5f1f08997dae718431df6ba897ce8f44931f242b007612f9666d36",
+      "translation": "读取事件所用的切点。对于 above 和 below，以该列单位表示；对于 fold_change，是相对轨迹第一个值的比值，翻倍即为 2；对于 annotated，是标记事件的标签，留空表示任何非零标签。在信任曲线之前，请先从该列的直方图读取。默认值 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage",
+      "source": "After tracking each field, build lineage trees from the tracker's division links: a tree figure coloured by timelapse_lineage_color_by, Newick trees, a per-cell segment table and per-lineage statistics (generation time in frames, sibling correlation), written to tracks/lineage. Trackastra division links are used as reported; for other trackers a division is inferred where new tracks start beside a mother. Default False.",
+      "source_sha256": "ecb6c75371a4125fba3524b9c4b45ef62a1890c24473960e4c1f8fd65b2a9f72",
+      "translation": "在每个视野跟踪后，根据跟踪器的分裂链接构建谱系树：按 timelapse_lineage_color_by 着色的树图、Newick 树、每个细胞的片段表和每个谱系的统计量（以帧计的世代时间、姐妹细胞相关性），写入 tracks/lineage。Trackastra 的分裂链接按报告使用；对于其他跟踪器，在新轨迹于母细胞旁开始处推断分裂。默认值 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage_color_by",
+      "source": "What colours each cell in the lineage trees: generation_time, generation, start_frame or n_frames, or the name of a numeric column of the tracks table, averaged over the cell's frames. An unknown name falls back to generation_time with a message. Ignored unless timelapse_lineage. Default generation_time.",
+      "source_sha256": "1bd4fa595b703657f0c044f166dd656279e0d28a4be5c12f52cdd50f67eeb132",
+      "translation": "谱系树中每个细胞的着色依据：generation_time、generation、start_frame 或 n_frames，或轨迹表中某个数值列的名称（在该细胞的各帧上取平均）。未知名称会回退到 generation_time 并给出提示。除非开启 timelapse_lineage，否则忽略。默认值 generation_time。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage_max_distance",
+      "source": "Largest distance in pixels between a mother's last position and a new track's first position for the new track to count as her daughter when divisions are inferred. Raise it for large cells or long frame intervals, lower it when neighbours are wrongly joined. Not used for division links the tracker reports. Ignored unless timelapse_lineage. Default 30.0.",
+      "source_sha256": "59c13199dd02b34939ee1f04d722456a8c870637d80fbe93bfbcfda67838906c",
+      "translation": "推断分裂时，母细胞最后位置与新轨迹首个位置之间的最大像素距离，在此范围内新轨迹才算作其子细胞。对于大细胞或较长帧间隔请调高，邻近细胞被错误连接时请调低。跟踪器报告的分裂链接不使用此项。除非开启 timelapse_lineage，否则忽略。默认值 30.0。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "unmix",
+      "source": "Spectral unmixing: estimate how much of each dye bleeds into the other channels from single-stain control wells, then unmix every field before it is segmented or measured. Make Masks unmixes each raw field across all its channels before illumination correction, the PSF and the enhancement chain; Measure unmixes the measured channels before its preprocessing. The matrix is printed and recorded with the run. Needs unmix_controls. Default False.",
+      "source_sha256": "b5df53b511ab7bfa389f4fca518c0f4593c4d5076e282d83744cb58dbe961a94",
+      "translation": "光谱拆分：根据单染对照孔估计每种染料向其他通道串色的程度，然后在分割或测量之前对每个视野进行拆分。Make Masks 在照明校正、PSF 和增强流程之前对每个原始视野的所有通道进行拆分；Measure 在预处理之前对测量通道进行拆分。该矩阵会打印出来并随运行记录。需要 unmix_controls。默认值 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "unmix_background_percentile",
+      "source": "Percentile of each channel's pixels taken as its background, from 0 up to but not including 100. It is set aside before each field is unmixed and added back after, so a channel with no dye stays at its own background level rather than being pulled below it. Keep it below the fraction of the field that is empty. Default 5.0.",
+      "source_sha256": "5f256dcc6e472acdf48c3f12b8a068ee16be78f7ea721f9e536b8991df6dcb1a",
+      "translation": "作为背景的每个通道像素百分位数，范围 0 到 100（不含 100）。在每个视野光谱拆分前先扣除，之后再加回，这样没有染料的通道会保持在自身背景水平，而不会被压到其下。请保持低于视野中空白部分的比例。默认值 5.0。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "unmix_controls",
+      "source": "The single-stain control wells, as channel:well[,well] entries separated by semicolons, for example 0:A01,A02; 1:B01. The channel is the dye's own channel, counted as in the stack or merged array; its wells hold that dye alone. Channels without controls are taken to bleed into nothing. Up to 24 fields per dye are read. Ignored unless unmix is on. Default blank.",
+      "source_sha256": "542c4c682db640c5a385fd68fedb5968bd6b8f5907b72afb2ba1051f738639a6",
+      "translation": "单染对照孔，以分号分隔的 通道:孔[,孔] 条目表示，例如 0:A01,A02; 1:B01。通道是该染料自身的通道，编号方式与图像栈或合并数组相同；其孔中只含该染料。没有对照的通道视为不向任何通道串色。每种染料最多读取 24 个视野。除非开启 unmix，否则忽略。默认值为空。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "viability",
+      "source": "Call every cell live or dead after measuring, from a dead stain (propidium iodide, SYTOX, DAPI on unfixed cells), a live stain (calcein), both, or without either from nuclear morphology (pyknotic nuclei). Writes one row per nucleus to measurements.db:viability, per-well viability, live-cell and cytotoxicity index to viability_well, each plate's thresholds and control Z' to viability_qc, and with plot the threshold, plate, control and dose-response figures. Default False.",
+      "source_sha256": "bcacab601679bfb2b56cd37ff9d46294319dff9862f31c016f18e6a20a473ed5",
+      "translation": "测量后判定每个细胞是活是死，依据死细胞染色（碘化丙啶、SYTOX、未固定细胞上的 DAPI）、活细胞染色（钙黄绿素）、两者，或在两者都没有时依据细胞核形态（固缩细胞核）。每个细胞核向 measurements.db:viability 写入一行，将每孔活力、活细胞指数和细胞毒性指数写入 viability_well，将每块板的阈值和对照 Z' 写入 viability_qc，开启 plot 时还输出阈值图、板图、对照图和剂量–反应图。默认值 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "viability_dead_channel",
+      "source": "The merged-array channel of the dead stain (propidium iodide, SYTOX, or DAPI added to unfixed cells), counted as in channels; it must be one of the measured channels. Each nucleus's background-subtracted mean intensity is split per plate into two populations, and above the cut is dead. Blank reads no dead stain; with neither stain channel set, dead cells are called from nuclear morphology instead. Default None.",
+      "source_sha256": "62393707b6e232560cf6bef6be5c650f45f06f608b454d1400fa94d734ced7c1",
+      "translation": "死细胞染色（碘化丙啶、SYTOX，或加入未固定细胞的 DAPI）所在的合并数组通道，编号方式与 channels 相同；它必须是已测量的通道之一。每个细胞核扣除背景后的平均强度按板分为两个群体，高于切点即为死细胞。留空则不读取死细胞染色；若两种染色通道都未设置，则改用细胞核形态判定死细胞。默认值 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "viability_live_channel",
+      "source": "The merged-array channel of the live stain (calcein-AM), counted as in channels; it must be one of the measured channels. It is read on the nucleus, which calcein fills, split per plate, and above the cut is live. With a dead stain as well, a cell positive for neither is counted unstained, not live. Blank reads no live stain. Default None.",
+      "source_sha256": "c224b11929e887b35672ae0e9b435bdc6f2295162c5dddbd68134bd8e4eec25d",
+      "translation": "活细胞染色（钙黄绿素-AM）所在的合并数组通道，编号方式与 channels 相同；它必须是已测量的通道之一。在被钙黄绿素充满的细胞核上读取，按板划分，高于切点即为活细胞。若同时有死细胞染色，两者均阴性的细胞计为未染色，而非活细胞。留空则不读取活细胞染色。默认值 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "viability_negative_wells",
+      "source": "Untreated or vehicle wells, e.g. ['c1']; rows (r1), columns (c1) and wells (A01) all read. Their mean live-cell count is each plate's reference for the live-cell index, they read 0 on the cytotoxicity index and they are one side of its Z'. Blank leaves the index as the percentage of cells not live. Default None.",
+      "source_sha256": "e00531954697bd52eb43ed6b5346cde97470c3144bb3dcad0f203ff10a7ea006",
+      "translation": "未处理或溶剂对照孔，例如 ['c1']；行（r1）、列（c1）和孔（A01）均可读取。它们的平均活细胞数是每块板活细胞指数的参照，在细胞毒性指数上记为 0，并构成其 Z' 的一侧。留空则指数为非活细胞百分比。默认值 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "viability_plate_map",
+      "source": "A table (CSV or Excel) of each well's compound and concentration: a well column (well such as A01, rowID and columnID, or prc), compound or treatment, concentration or dose, and optionally plateID. With it, viability, the cytotoxicity index and the infection of live cells are fitted against concentration per compound, and the host CC50 over the parasite EC50 is written as a selectivity index. Blank skips dose-response. Default blank.",
+      "source_sha256": "62170bfb7aaab4d2c8b671e99a3e9c74098a18f34c6d59ce52689e917199b47e",
+      "translation": "包含每个孔化合物和浓度的表格（CSV 或 Excel）：孔列（well 如 A01、rowID 和 columnID 或 prc）、compound 或 treatment、concentration 或 dose，以及可选的 plateID。有了它，活力、细胞毒性指数和活细胞感染会按化合物对浓度拟合，宿主 CC50 与寄生虫 EC50 之比写为选择性指数。留空则跳过剂量–反应分析。默认值为空。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "viability_positive_wells",
+      "source": "Wells given a cytotoxic control (for example digitonin, saponin or staurosporine), e.g. ['c12'], in the same notation as viability_negative_wells. They read 100 on the cytotoxicity index and, with the negative wells, give each plate's Z' in viability_qc; a Z' of 0.5 or more is a working assay. Blank scales the index to the negative wells alone. Default None.",
+      "source_sha256": "5e48d79fa76331495fd1dbbf6f324d93f0368b91a32e5ee77a243dc0cf3bdd51",
+      "translation": "加入细胞毒性对照（例如洋地黄皂苷、皂苷或星形孢菌素）的孔，例如 ['c12']，记法与 viability_negative_wells 相同。它们在细胞毒性指数上记为 100，并与阴性孔一起给出 viability_qc 中每块板的 Z'；Z' 达到 0.5 或以上即为可用的实验。留空则仅按阴性孔缩放指数。默认值 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "viability_thresholds",
+      "source": "Manual cuts [dead, live] in background-subtracted mean intensity, for example [150, None], each replacing the automatic per-plate cut of its stain; None keeps that one automatic. Without stain channels the dead entry is the condensation ratio (intensity per area against the plate's typical nucleus, about 3) above which a nucleus is pyknotic. Read the automatic cuts in viability_qc or the threshold figures first. Default None.",
+      "source_sha256": "c7e8987839e53b5d232705c4f4aa9f017e8a437072ad0a260e340bc28bc26f47",
+      "translation": "以扣除背景后平均强度表示的手动切点 [dead, live]，例如 [150, None]，各自取代对应染色按板自动得到的切点；None 保持该切点自动。没有染色通道时，dead 项是凝缩比（单位面积强度相对该板典型细胞核的比值，约为 3），高于它的细胞核判为固缩。请先查看 viability_qc 中的自动切点或阈值图。默认值 None。"
+    }
+  ]
+}

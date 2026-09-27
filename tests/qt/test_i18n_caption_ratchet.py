@@ -1158,123 +1158,27 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 574, 2026-09-27: the Report screen's Archive package button and form.
 # 579, 2026-09-27: the Report screen's Deposit on Zenodo button and form.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    # 554, 2026-09-27: the Spotiflow row of the OPS spot detector box
+    # (alpha).
+    'Spotiflow',
+    "Spotiflow's general model, run in its own environment; its spots go through the same base calls and nucleus assignment.",
     # 579, 2026-09-27: the Report screen's Deposit on Zenodo button and its
     # form (alpha).
-    'Deposit on Zenodo…',
-    'Deposit this run on Zenodo so the analysis gets a citable DOI: the archive package, settings, run journal, report, result tables and, if asked, the masks, with the archive form as its metadata. Uses your own Zenodo token, kept in the system keyring or a private file. The sandbox, for trying it out, is on until you turn it off; a draft is left to publish on Zenodo unless you publish here. Default not deposited.',
-    'Deposit on Zenodo',
-    'Stage the files in',
-    'Use the Zenodo sandbox (a test deposit, no real DOI)',
-    'A token is kept; type one to replace it',
-    'Personal access token with deposit:write',
-    'Zenodo token',
-    'Remember the token',
-    'Include the masks',
-    'Publish now (the DOI becomes permanent)',
-    'A Zenodo token is needed.',
-    'Depositing on Zenodo…',
-    'The Zenodo deposit failed: {error}',
-    'Published {count} files on Zenodo: DOI {doi}, {url}',
-    'Deposited {count} files as a Zenodo draft at {url}; its reserved DOI is {doi}. Publish it there.',
     # 582, 2026-09-27: the Preferences Plugins tab, a plugin and recipe
     # catalogue browser (alpha).
-    'Author',
-    'Browse a catalogue of community plugins and assay recipes. A plugin is installed into its own folder with the libraries it needs, so it never replaces a package spaCR uses; a recipe is saved as a settings file you can load into its module.',
-    'Catalogue',
-    'Catalogue file, folder or address',
-    'Could not read the catalogue: {error}',
-    'Install or update',
-    'Installed',
-    'Installed {name} {version}.',
-    'Its settings are in {path}.',
-    'Licence',
-    'List',
-    'Plugin',
-    'Recipe',
-    'Uninstalled {name}.',
-    'Where the catalogue is: a catalogue.json file, the folder holding one, or an http(s) address. It is remembered for next time. Default the SPACR_PLUGIN_CATALOGUE variable, else empty.',
-    'available',
-    'incompatible',
-    'update available',
-    '{count} entries in the catalogue.',
-    '{name} failed: {error}',
     # 585, 2026-09-27: the Power screen's alpha arrayed-assay planner.
-    'Analyse replicates as pairs, so replicate-to-replicate variation cancels. Default off.',
-    'Arrayed-assay planner',
-    'Both conditions on every replicate',
-    'Cheapest design: {replicates} replicates, {wells} wells per condition, {fields} fields per well; power {power:.2f}, {simulated:.2f} in 500 simulated experiments.',
-    'Column naming each well, unique across plates. Default prc.',
-    'Column naming the biological replicate, such as plateID when each plate is one; leave empty when the pilot has one replicate and the replicate variance cannot be estimated. Default empty.',
-    'Column naming the field within its well. Default fieldID.',
-    'Cost',
-    'Could not read the pilot: {error}',
-    'Database table',
-    "Difference between the two condition means to detect, in the measurement's units. Default 0.",
-    'Effect to detect',
-    'Field column',
-    'Mean {mean:.4g}; variance between replicates {rep}, wells {well:.4g}, fields {field:.4g}, cells {cell:.4g}; {cells:.0f} cells per field.',
-    'No design within 12 replicates, 12 wells and 25 fields reaches the target power.',
-    'Per-cell column the experiment will compare. Default empty.',
-    'Per-cell measurements from a pilot plate: a CSV, Parquet, Excel or spaCR measurement database. Default empty.',
-    'Pilot table',
-    'Plan the design',
-    'Power',
-    'Probability of a significant result the design must reach. Default 0.8.',
-    'Replicate column',
-    'Table to read when the pilot is a database. Default cell.',
-    'Target power',
-    'Two-sided significance level of the t-test on replicate means. Default 0.05.',
-    'Well column',
-    'not estimated (taken as 0)',
     # 575, 2026-09-27: Run History's alpha Export workflow button, its
     # menu, folder dialog and status lines.
-    "Export workflow…",
-    "Write this run as a Snakemake or Nextflow workflow that runs the "
-    "same module with the same settings once per plate, with "
-    "spacr-run on this machine, a cluster, or the spaCR container "
-    "image.",
-    "Snakemake…",
-    "Nextflow…",
-    "Export workflow into folder",
-    "Could not export the workflow: {error}",
-    "Workflow written: {path}",
     # 555, 2026-09-26: the Segment by prompt category (micro-SAM), an alpha
     # feature: its caption, controls, tooltips and console lines.
     # 546, 2026-09-27: the CellProfiler (Alpha) category help on Measure.
-    "Runs a lab's own CellProfiler pipeline on this run's fields after "
-    "measuring, headless in CellProfiler's own environment from the Model "
-    "Zoo, and writes its per-object measurements beside spaCR's, matched to "
-    "spaCR's objects, so existing pipelines keep working.",
     # 540, 2026-09-26: the Viability (Alpha) category help on Measure.
-    "Live and dead cells, called after measuring from a dead stain, a live "
-    "stain, both, or nuclear morphology, with thresholds fitted per plate or "
-    "set by hand. Writes per-well viability, a live-cell index and a "
-    "cytotoxicity index scaled to the control wells, each plate's Z', and "
-    "with a plate map the dose-response of viability beside that of "
-    "infection, so parasite killing can be told from host toxicity.",
     # 535, 2026-09-26: the Cell Cycle (Alpha) category help on Measure.
     # 580, 2026-09-27: the Intensity Calibration (Alpha) category help on
     # Measure.
-    "Scale every imaging session to the same intensities before "
-    "measuring, from fluorescent beads or reference wells imaged "
-    "on every plate: each plate's intensity channels are "
-    "multiplied by the gain that makes its reference wells match "
-    "the first plate's, and the gains are recorded in "
-    "measurements.db.",
     # 583, 2026-09-27: the Plate Barcode Linkage (Alpha) category help on
     # Measure.
-    "Fill the plate map from sample records by plate barcode: each "
-    "imaged plate is looked up by its barcode in a table or a LIMS "
-    "service, its wells get the strain, compound, concentration, "
-    "passage and operator recorded there, and every mismatch between "
-    "the records and the images is listed.",
     # 571, 2026-09-26: the Time To Event (Alpha) category help on Measure.
-    "How long each tracked object of a timelapse lasts until an event such "
-    "as death, lysis, egress, division or first detection, with objects "
-    "still waiting at the end of their track censored there. Conditions are "
-    "compared with Kaplan-Meier curves, median times, log-rank tests and a "
-    "Cox model, written to measurements.db and drawn under "
-    "results/time_to_event.",
     # 541, 2026-09-26: the Measure preview's Alpha confluency toggle, its
     # status lines, and the Confluency (Alpha) category help.
     # 536, 2026-09-26: the Measure preview's Alpha wound toggle, its status
@@ -1288,111 +1192,25 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'recall, division links re-made from mitoses and time to each event per '
     'condition.',
     # 537, 2026-09-27: the Lineage Trees (Alpha) category help on Timelapse.
-    "Lineage trees drawn from the tracker's division links after each field "
-    'is tracked, coloured by a measurement, with Newick and CSV export and '
-    'per-lineage generation times and sibling correlation.',
     # 539, 2026-09-26: the Bleach Correction (Alpha) category help on Measure.
-    'Photobleaching correction for timelapse intensities, per field and '
-    'channel: a simple ratio to the first timepoint, a fitted exponential '
-    'decay, or histogram matching. Corrected intensities are written beside '
-    'the measured ones with the method, and the fitted decay is plotted.',
     # 547, 2026-09-26: the Profiling (Alpha) category help on Measure.
     'Open',
     's3://bucket/folder, gs://, az:// or https://',
     # 565: Annotate's Like this similarity search.
-    'Could not search for similar crops: {msg}',
-    'Finding crops like this one…',
-    'Like this',
-    'No crop is selected to match.',
-    'Open an experiment source before searching it.',
-    'Reading the measurements to compare crops by…',
-    'Searched {n} crops in {ms} ms.',
-    'Show the 100 crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run.',
-    '{name} and the {n} crops most like it, most similar first',
     # 538, 2026-09-27: the Spectral Unmixing (Alpha) category help.
-    'Bleed-through correction: how much of each dye is read in the other '
-    'channels is estimated from single-stain control wells, and every field '
-    'is unmixed with that matrix before it is segmented or measured. The '
-    'matrix is printed and recorded with the run.',
     # 578, 2026-09-27: the Segmentation Robustness (Alpha) category help.
     'Re-segments a few sampled fields with the diameter, the thresholds and '
     'contrast enhancement each moved a little, and reports how much object '
     'counts, areas and intensities change, flagging the settings the results '
     'are fragile to.',
-    'Check figure integrity on export',
-    "When an image figure or montage is saved, warn if panels meant for comparison use different display ranges, if pixels are saturated or clipped, if a panel is repeated, or if a lossy format was chosen. Also writes the source files, display settings, processing steps and spaCR version into the file's metadata and a .provenance.json file beside it. Default off.",
     # 574, 2026-09-27: the Report screen's Archive package button and its
     # form (alpha).
-    'Affiliation',
-    'Archive package',
-    'Archive package…',
-    'Assemble a submission package for the Image Data Resource or the BioImage Archive: MIHCSME and REMBI metadata taken from the settings spaCR saved, the images and a plate map, plus a short form for what spaCR cannot know, with the IDR study and library files, a BioStudies study and file list, and MD5 checksums. Nothing is uploaded and the run folder is not written to. Default not made.',
-    'Authors (Last First; …)',
-    'Cell line',
-    'Choose a run folder first.',
-    'Contact email',
-    'Copy the images into the package',
-    'Description',
-    'Growth protocol',
-    'Imaging method',
-    'Keywords (; between several)',
-    'License',
-    'Microscope',
-    'Organism (; between several)',
-    'Plate map (optional)',
-    'Public release date',
-    'Sample preparation',
-    'Screen technology',
-    'Screen type',
-    'Treatment protocol',
-    'Write the package into',
-    'Writing the archive package…',
-    'Wrote {path}, but it does not pass: {problems}',
-    'Wrote {path}. It passes the IDR, BioStudies and MIHCSME checks; nothing was uploaded.',
     # 542, 2026-09-27: the Colony Counting (Alpha) category help on Plaque
     # Assay.
-    'Count bacterial or fungal colonies on plate or dish photos instead of '
-    'plaques: the dish is found, colonies are thresholded against the agar '
-    'and touching ones split, and each plate gets a count, CFU/mL from the '
-    'dilution and plated volume, a too-many or too-few flag, and colony '
-    'areas and diameters, in millimetres when Scale & Time says how large '
-    'the dish is.',
     # 584, 2026-09-27: the compound option of the Control Charts hit
     # scoring -- structures, clusters and SAR tables (alpha).
-    'A CSV or Excel table with a SMILES column and a compound name, and a '
-    'well column (with a plate column when plates differ) or names matching '
-    'the Treatment column. Hits are then drawn with their structures, '
-    'clustered by similarity and exported as SAR tables. Clustering needs '
-    'RDKit (pip install rdkit).',
-    'Cluster similarity',
-    'Compound table with SMILES',
-    'Compounds…',
-    "Load a compound table to draw the hits' structures.",
-    'Structures and SAR',
-    'Tables (*.csv *.tsv *.txt *.xlsx *.xls *.parquet)',
-    "The Tanimoto similarity of Morgan fingerprints (radius 2) a hit needs "
-    "to a cluster's centre to join it; other compounds join the cluster of "
-    "their most similar hit at the same similarity. Default 0.6.",
-    'no compound table',
-    'table',
-    'yes',
-    '{name}: {count} compound(s)',
     # 563, 2026-09-27: the anomaly option of Control Charts -- objects
     # scored against the negative control (alpha).
-    'An object is an outlier when it scores beyond this quantile of the control objects, so this share of controls is normal by construction. Wells are ranked by their share of outliers. Default 0.99.',
-    'Anomalies',
-    'Export anomalies…',
-    'How unlike the controls an object is: robust Mahalanobis distance, mean distance to the nearest control objects, an isolation forest, or low density under a Gaussian mixture. All run on the CPU. Default Robust Mahalanobis.',
-    'Known hits',
-    'Model the negative-control objects as normal and score every object and well for how unlike them it is, over every numeric feature (or the emb_ embedding columns when present). Needs a per-object table, the negative control picked above and well positions. Default off.',
-    'Outlier quantile',
-    'Pick the control column and the negative control to score anomalies against.',
-    'Score anomalies against the negative control',
-    'Turn on anomaly scoring and name the negative control.',
-    'Wells (A01), plate wells (prc) or treatment names that are known hits, separated by commas. With the positive control they give the AUROC of the ranking against the negative control. Default empty.',
-    'Write the anomaly report into',
-    "Write the ranked wells, every object's score, the top outliers and the review figure into a folder.",
-    'anomaly report written to {folder}',
 })
 
 
