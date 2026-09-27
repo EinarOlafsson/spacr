@@ -52,8 +52,12 @@ IMPLEMENTATION NOTE (2026-09-27, branch item-586-work)
     features/data/586_apptainer_smoke_2026-09-27.json.
 
 WHAT IS LEFT
-    * The --nv Mask + Measure run: queued via tools/gpu_turn.sh while the
-      GPU was held by another session; see the receipt for its outcome.
+    * The --nv Mask + Measure run (the GPU half of DONE WHEN). Not run: the
+      GPU was held by a live_cell training job (~40 min/epoch of 100). It is
+      queued in tools/gpu_turn.sh as 586-apptainer-nv and logs to
+      /mnt/wd4tb/scratch/586/logs/gpu_mask_measure.log. By hand:
+        apptainer run --nv --bind <dir> spacr-cuda.sif \
+            python /opt/spacr/smoke_pipeline.py --mask --workspace <dir>/gpu
     * Publishing: adopt features/data/586_apptainer_images_workflow.yml into
       .github (maintainer), then flip the spacr-sif GHCR package public.
     * Not tried: SingularityCE, and a real Slurm cluster.
