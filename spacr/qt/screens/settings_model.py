@@ -1195,6 +1195,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_max_fields", "illumination_qc",
             "illumination_on_missing",
         )),
+        ("Spectral Unmixing (Alpha)", ("@Spectral Unmixing (Alpha)",)),
         ("Point Spread Function", ("@Point Spread Function",)),
         ("Image Enhancement", ("@Image Enhancement",)),
         ("Cell Segmentation", ("@Cell",)),
@@ -1246,6 +1247,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_per_plate", "illumination_max_fields",
             "illumination_qc", "illumination_on_missing",
         )),
+        ("Spectral Unmixing (Alpha)", ("@Spectral Unmixing (Alpha)",)),
         ("Point Spread Function", ("@Point Spread Function",)),
         ("Measurement Features", (
             "save_measurements", "calculate_correlation",
@@ -1318,6 +1320,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_max_fields", "illumination_qc",
             "illumination_on_missing",
         )),
+        ("Spectral Unmixing (Alpha)", ("@Spectral Unmixing (Alpha)",)),
         ("Point Spread Function", ("@Point Spread Function",)),
         ("Image Enhancement", ("@Image Enhancement",)),
         ("Cell Segmentation", ("@Cell",)),
@@ -2678,6 +2681,11 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "nucleus measurements, or an image classifier on nucleus crops. Each "
         "writes the same phase column to measurements.db, with the phase "
         "fractions per well among infected and uninfected cells.",
+    "SPECTRAL UNMIXING (ALPHA)":
+        "Bleed-through correction: how much of each dye is read in the other "
+        "channels is estimated from single-stain control wells, and every "
+        "field is unmixed with that matrix before it is segmented or "
+        "measured. The matrix is printed and recorded with the run.",
     "VIABILITY (ALPHA)":
         "Live and dead cells, called after measuring from a dead stain, a "
         "live stain, both, or nuclear morphology, with thresholds fitted "
