@@ -2527,8 +2527,11 @@ def _st_write_counts(db: str, object_type: str, prcf: str, labels, genes,
     Two tables keyed by ``prcfo``, the key of the measurement tables:
     ``<object>_expression``, one row per object with an ``expr_<gene>``
     column per gene (the most-counted genes when the panel has more than
-    SQLite's column limit allows) and ``expr_total``; and
+    SQLite's column limit allows) and ``expr_total``; and, for Xenium,
     ``<object>_expression_long``, one row per object and detected gene.
+    Visium counts shared out from spots touch nearly every gene of every
+    object, so their long form is left to the spot coverage table and the
+    platform's own matrix rather than written row by row.
 
     :param db: the measurement database; created if absent.
     :param object_type: ``cell``, ``nucleus``, ``pathogen`` or ``vacuole``.
@@ -2553,18 +2556,20 @@ def _st_write_counts(db: str, object_type: str, prcf: str, labels, genes,
     wide.insert(0, "expr_platform", platform)
     wide.insert(0, "object_label", np.asarray(labels, dtype=np.int64))
     wide.insert(0, "prcfo", keys)
-    coo = matrix.tocoo()
-    long = pd.DataFrame({
-        "prcfo": np.asarray(keys, dtype=object)[coo.row],
-        "object_label": np.asarray(labels, dtype=np.int64)[coo.row],
-        "gene": np.asarray(genes, dtype=object)[coo.col],
-        "count": coo.data,
-    })
     wide_table = f"{object_type}_expression"
-    long_table = f"{object_type}_expression_long"
     _st_replace_image_rows(db, wide_table, wide, prcf)
-    _st_replace_image_rows(db, long_table, long, prcf)
-    return {"tables": (wide_table, long_table), "objects": int(len(keys)),
+    tables = (wide_table,)
+    if platform == "xenium":
+        coo = matrix.tocoo()
+        long = pd.DataFrame({
+            "prcfo": np.asarray(keys, dtype=object)[coo.row],
+            "object_label": np.asarray(labels, dtype=np.int64)[coo.row],
+            "gene": np.asarray(genes, dtype=object)[coo.col],
+            "count": coo.data,
+        })
+        tables += (f"{object_type}_expression_long",)
+        _st_replace_image_rows(db, tables[1], long, prcf)
+    return {"tables": tables, "objects": int(len(keys)),
             "genes": int(len(genes)), "wide_genes": int(len(wide_genes))}
 
 
@@ -2845,10 +2850,15 @@ def _st_draw_overlay(figure, image, xy, values=None, *, radius: float = 0.0,
     else:
         values = np.asarray(values, dtype=float)
         if radius:
-            order = np.argsort(values)
-            points = axis.scatter(xy[order, 0], xy[order, 1], s=size,
-                                  c=np.log1p(values[order]), cmap="viridis",
-                                  linewidths=0, alpha=0.8)
+            from matplotlib.collections import EllipseCollection
+
+            width = 2.0 * radius / step
+            points = EllipseCollection(
+                width, width, 0.0, units="xy", offsets=xy,
+                offset_transform=axis.transData, cmap="viridis",
+                linewidths=0, alpha=0.55)
+            points.set_array(np.log1p(values))
+            axis.add_collection(points)
             figure.colorbar(points, ax=axis, fraction=0.035,
                             label="log1p(count)")
         else:
