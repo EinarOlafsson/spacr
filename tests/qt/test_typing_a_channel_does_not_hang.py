@@ -25,6 +25,7 @@ def mask(qapp):
     qapp.processEvents()
     yield win._screens["mask"]
     win.close()
+    win.deleteLater()
 
 
 def _type_into(widget, text: str) -> None:

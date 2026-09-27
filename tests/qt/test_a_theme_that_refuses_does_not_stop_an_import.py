@@ -113,16 +113,27 @@ def test_a_working_theme_registers_the_sheet(module_name, constant,
 
 @pytest.fixture(autouse=True)
 def _leave_the_modules_as_they_were():
-    """Reload each module cleanly afterwards.
+    """Put each module back exactly as it was, the SAME objects included.
 
-    These tests reload with a stubbed theme, so without this the rest of
-    the session runs against modules whose stylesheet never registered.
+    These tests reload with a stubbed theme. Reloading once more afterwards
+    -- what this fixture used to do -- re-registers the stylesheet, but it
+    also mints a new class for every class in the module, and every module
+    that had already done ``from .settings_model import _ScalarEdit`` keeps
+    the old one. For the rest of the process the two disagree:
+    ``isinstance(widget, _ScalarEdit)`` is False for a widget the screen
+    built, and a test that monkeypatches the module patches objects the
+    screen no longer calls. A serial ``pytest tests/qt`` failed four tests
+    in ``test_cov_app_screen.py`` that way (features/new/47).
+
+    So the namespace is restored rather than re-executed. The stylesheets
+    need nothing: both stubs stand in for ``register_widget_qss``, so the
+    real registry still holds what the original import put there.
     """
-    yield
-    import spacr.qt.theme                                    # noqa: F401
-
+    saved = {}
     for module_name, _constant in REGISTERING_MODULES:
-        try:
-            importlib.reload(importlib.import_module(module_name))
-        except Exception:                                    # noqa: BLE001
-            pass
+        module = importlib.import_module(module_name)
+        saved[module_name] = (module, dict(vars(module)))
+    yield
+    for module, namespace in saved.values():
+        vars(module).clear()
+        vars(module).update(namespace)

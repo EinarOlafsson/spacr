@@ -28,7 +28,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import pandas as pd
-from PySide6.QtCore import QEvent, Qt, Signal
+from PySide6.QtCore import QEvent, QObject, Qt, Signal
 from PySide6.QtWidgets import (
     QAbstractItemView, QCheckBox, QComboBox, QSplitter, QHBoxLayout, QHeaderView, QLabel,
     QLineEdit, QListWidget, QListWidgetItem, QPlainTextEdit, QPushButton,
@@ -174,6 +174,78 @@ class _ReadFailed:
     def __init__(self, error: BaseException) -> None:
         """:param error: what the read raised, kept to be re-raised."""
         self.error = error
+
+
+class _ReadRelay(QObject):
+    """Carries "a read has landed" from a reader thread to the GUI thread.
+
+    A CHILD of the panel rather than the panel itself, so a reader thread
+    never holds the panel. A thread that did -- ``target=self._run_read``
+    -- could be the last owner of the panel's Python wrapper, and then
+    dropping it at the end of the read destroyed the widget ON THE READER
+    THREAD: a segfault in the next event the GUI thread delivered. A
+    child's wrapper is safe to drop anywhere, because its parent owns the
+    C++ half; once the panel is gone, emitting raises ``RuntimeError``,
+    which the reader ignores.
+    """
+
+    landed = Signal()
+
+
+def _file_answer(lock, reads, shown, key, value) -> None:
+    """File one read's answer. WORKER THREAD; touches no widget.
+
+    :param lock: guards the three dicts.
+    :param reads: answers keyed by ``(generation, question)``.
+    :param shown: newest answer per question, as ``(generation, answer)``.
+    :param key: ``(generation, question)``.
+    :param value: the answer, or a :class:`_ReadFailed`.
+    """
+    with lock:
+        reads[key] = value
+        seen = shown.get(key[1])
+        if seen is None or seen[0] <= key[0]:
+            shown[key[1]] = (key[0], value)
+
+
+def _run_read(lock, reads, reading, shown, relay, key, work,
+              waiting) -> None:
+    """Perform one database read. WORKER THREAD; holds no widget.
+
+    :param lock: the panel's read lock.
+    :param reads: the panel's answers, keyed by ``(generation, question)``.
+    :param reading: the reads still out, keyed the same way.
+    :param shown: the panel's newest answer per question.
+    :param relay: the panel's :class:`_ReadRelay`, told when this lands.
+    :param key: ``(generation, question)``, what the answer is filed
+        under.
+    :param work: the callable to run.
+    :param waiting: set once the answer is filed, so a GUI-thread wait
+        still inside its budget picks the answer up without a redraw.
+
+    Everything it needs is passed in, and none of it is the panel -- see
+    :class:`_ReadRelay` for the crash a reader holding the panel caused.
+
+    The filing is in a ``finally``. A read that ends any other way --
+    the interpreter shutting down under it, a C-level error `work` does
+    not raise as an `Exception` -- must still release the question, or
+    the cell that said "reading…" says it for the life of the panel and
+    no later paint ever asks again.
+    """
+    try:
+        try:
+            value = work()
+        except Exception as error:               # noqa: BLE001 - carried back
+            value = _ReadFailed(error)
+        _file_answer(lock, reads, shown, key, value)
+    finally:
+        with lock:
+            reading.pop(key, None)
+        waiting.set()
+        try:
+            relay.landed.emit()
+        except RuntimeError:
+            pass
 
 
 def _screen_key(screens) -> Optional[Tuple[Tuple[str, str], ...]]:
@@ -1414,12 +1486,6 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
     #: re-derived.
     _progress_relayed = Signal(str, int, int)
 
-    #: Internal relay: a database read has landed. Emitted from the reader
-    #: thread for the same reason `_progress_relayed` is, and received on the
-    #: GUI thread by `_on_read_landed`, which redraws whatever was drawn as
-    #: "reading…" while the read was still out.
-    _read_landed = Signal()
-
     #: The list columns, in reading order.
     COLUMNS = ("Plate", "Database", "Screen", "Tables", "Plates in it",
                "Rows", "Status")
@@ -1505,7 +1571,8 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
         #: every run in the queue is fitted on the same numbers.
         self._artefact = ""
         self._progress_relayed.connect(self._on_progress)
-        self._read_landed.connect(self._on_read_landed)
+        self._read_relay = _ReadRelay(self)
+        self._read_relay.landed.connect(self._on_read_landed)
 
         from ..preferences import scaled_px
         from .height_grip import HeightGrip
@@ -1735,8 +1802,11 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
                 waiting = start = threading.Event()
                 self._reading[key] = waiting
         if start is not None:
-            threading.Thread(target=self._run_read,
-                             args=(key, work, start), daemon=True,
+            threading.Thread(target=_run_read,
+                             args=(self._read_lock, self._reads,
+                                   self._reading, self._shown,
+                                   self._read_relay, key, work, start),
+                             daemon=True,
                              name="spacr-merge-read").start()
         budget = self._deadline - time.monotonic()
         if budget > 0:
@@ -1763,36 +1833,6 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
             raise value.error
         return value
 
-    def _run_read(self, key, work, waiting) -> None:
-        """Perform one database read. WORKER THREAD; touches no widget.
-
-        :param key: ``(generation, question)``, what the answer is filed
-            under.
-        :param work: the callable to run.
-        :param waiting: set once the answer is filed, so a GUI-thread wait
-            still inside its budget picks the answer up without a redraw.
-
-        The filing is in a ``finally``. A read that ends any other way --
-        the interpreter shutting down under it, a C-level error `work` does
-        not raise as an `Exception` -- must still release the question, or
-        the cell that said "reading…" says it for the life of the panel and
-        no later paint ever asks again.
-        """
-        try:
-            try:
-                value = work()
-            except Exception as error:           # noqa: BLE001 - carried back
-                value = _ReadFailed(error)
-            self._file_read(key, value)
-        finally:
-            with self._read_lock:
-                self._reading.pop(key, None)
-            waiting.set()
-            try:
-                self._read_landed.emit()
-            except RuntimeError:
-                pass
-
     def _file_read(self, key, value) -> None:
         """File one answer. WORKER THREAD.
 
@@ -1812,11 +1852,7 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
         way; only `_shown`, which is keyed by the question alone, needs the
         comparison.
         """
-        with self._read_lock:
-            self._reads[key] = value
-            seen = self._shown.get(key[1])
-            if seen is None or seen[0] <= key[0]:
-                self._shown[key[1]] = (key[0], value)
+        _file_answer(self._read_lock, self._reads, self._shown, key, value)
 
     def _on_read_landed(self) -> None:
         """Redraw what was drawn provisionally, now the answer is in.
@@ -1883,7 +1919,18 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
         Held in an attribute and guarded rather than connected as a bound
         method: `probes` is process-wide and outlives this panel, and
         reaching a destroyed C++ half is a crash rather than an exception.
+
+        The slot holds the panel only WEAKLY and is disconnected when the
+        panel is destroyed. `closeEvent` unfollows too, but a panel inside a
+        screen is never closed itself -- Qt deletes it with the screen -- so
+        a slot closing over ``self`` stayed connected for good and kept the
+        whole screen's Python wrapper tree alive: about six MB for every
+        regression screen a serial ``pytest tests/qt`` built.
         """
+        import weakref
+
+        owner = weakref.ref(self)
+
         def corrected(path: str, _answer: bool) -> None:
             """Redraw when ``path`` is one of ours, ignore every other.
 
@@ -1891,14 +1938,35 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
             :param _answer: what it changed to; the rows are drawn from
                 `paths()`, which reads the probe's cache itself.
             """
+            panel = owner()
+            if panel is None:
+                return
             try:
-                if any(entry.path == path for entry in self._databases):
-                    self._recount()
+                if any(entry.path == path for entry in panel._databases):
+                    panel._recount()
             except RuntimeError:
                 pass
 
+        def let_go(*_args) -> None:
+            """Drop the probe connection as the panel is destroyed.
+
+            Only while still connected: `closeEvent` may have unfollowed
+            already, and disconnecting twice warns.
+
+            :param _args: whatever ``destroyed`` sends; unused.
+            """
+            if not corrected.following:
+                return
+            corrected.following = False
+            try:
+                path_probe.probes.answered.disconnect(corrected)
+            except (RuntimeError, TypeError):
+                pass
+
+        corrected.following = True
         self._probe_redraw = corrected
         path_probe.probes.answered.connect(corrected)
+        self.destroyed.connect(let_go)
 
     def _unfollow_path_probes(self) -> None:
         """Stop following the probes, before the C++ half goes."""
@@ -1906,6 +1974,9 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
         if redraw is None:
             return
         self._probe_redraw = None
+        if not getattr(redraw, "following", True):
+            return
+        redraw.following = False
         try:
             path_probe.probes.answered.disconnect(redraw)
         except (RuntimeError, TypeError):

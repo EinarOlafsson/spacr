@@ -21,7 +21,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [DatabaseMergePanel._read_budget](#databasemergepanel_read_budget) (1 entry)
 - [DatabaseMergePanel._new_generation](#databasemergepanel_new_generation) (1 entry)
 - [DatabaseMergePanel._read_off_thread](#databasemergepanel_read_off_thread) (2 entries)
-- [DatabaseMergePanel._run_read](#databasemergepanel_run_read) (1 entry)
+- [_run_read](#_run_read) (1 entry)
 - [DatabaseMergePanel._on_read_landed](#databasemergepanel_on_read_landed) (2 entries)
 - [DatabaseMergePanel._settle_paths](#databasemergepanel_settle_paths) (1 entry)
 - [DatabaseMergePanel._follow_path_probes.corrected](#databasemergepanel_follow_path_probescorrected) (1 entry)
@@ -371,7 +371,7 @@ Never the one the rules dialog is parked on. That read was asked for by a CLICK,
 ### lines 1889-1890
 
 ```python
-threading.Thread(target=self._run_read,
+threading.Thread(target=_run_read,
 ```
 
 Outside the lock: starting a thread is not something to hold a lock the reader threads need across.
@@ -384,7 +384,7 @@ self._painted_pending = True
 
 Whatever is drawn now is provisional, so say so: `_on_read_landed` draws it again for real.
 
-## DatabaseMergePanel._run_read
+## _run_read
 
 ### lines 1949-1950  _(unsure)_
 

@@ -1150,6 +1150,8 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 569, 2026-09-26: the Show alpha features switch and its tooltip.
 # 548, 2026-09-26: the folder-watch progress line on Make Masks.
 # 570, 2026-09-26: the Control Charts hit-scoring option (alpha).
+# 550, 2026-09-26: the cloud-storage button on the src field of Make Masks
+# and Measure, and its browser dialog (alpha).
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'Show alpha features',
     'Show the settings, controls, screens and models built from the '
@@ -1239,6 +1241,13 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "Write the ranked hit table, every well's scores and the plate summary "
     "as CSV, and one plate heatmap per statistic, into a folder",
     'hit report written to {folder}',
+    # 535, 2026-09-26: the Cell Cycle (Alpha) category help on Measure.
+    "The cell-cycle phase of every nucleus, called after measuring from the "
+    "DNA stain in one of three interchangeable ways: gates on each plate's "
+    "fitted DNA-content histogram, a boosted classifier on the nucleus "
+    "measurements, or an image classifier on nucleus crops. Each writes the "
+    "same phase column to measurements.db, with the phase fractions per well "
+    "among infected and uninfected cells.",
     # 541, 2026-09-26: the Measure preview's Alpha confluency toggle, its
     # status lines, and the Confluency (Alpha) category help.
     'Confluency',
@@ -1301,6 +1310,14 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'What you expect to find, and what would count against it.',
     'uncoded field',
     'Watching: {done} analysed, {waiting} waiting, {failed} failed',
+    'Browse cloud storage',
+    'Browse cloud storage…',
+    'Open',
+    'Public data (no credentials)',
+    'Reading…',
+    'S3-compatible endpoint (blank for Amazon S3)',
+    'Use this location',
+    's3://bucket/folder, gs://, az:// or https://',
 })
 
 

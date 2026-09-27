@@ -304,6 +304,7 @@ def convert_settings_dict_for_gui(settings):
         'seg_qc': ('combo', ['off', 'report', 'flag', 'stop'], 'report'),
         'psf_measurement_source': ('combo', ['original', 'processed'], 'original'),
         'confluency_source': ('combo', ['auto', 'masks', 'texture', 'intensity'], 'auto'),
+        'cell_cycle_method': ('combo', ['measurements', 'xgboost', 'torch', 'all'], 'measurements'),
         'psf_operation': ('combo', ['none', 'convolve', 'deconvolve'], 'none'),
         'psf_source': ('combo', ['gaussian', 'measured'], 'gaussian'),
         'psf_objective': ('combo', ['auto', '10x/0.30 air', '10x/0.45 air', '20x/0.45 air',
