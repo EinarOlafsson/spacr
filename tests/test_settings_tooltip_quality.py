@@ -827,7 +827,25 @@ def test_real_default_claims_have_no_unrecorded_drift():
                 for key in ("wound_closure", "wound_channel", "wound_window",
                             "wound_hours_per_frame", "wound_conditions")}
     assert item_536 <= compared_pairs
-    assert comparisons == 806
+    # 806 -> 824 on 2026-09-26, +18/-0 (item 571): nine time-to-event
+    # claims -- time_to_event (False), time_to_event_column and
+    # time_to_event_reference (blank), time_to_event_threshold,
+    # time_to_event_hours_per_frame, time_to_event_conditions and
+    # time_to_event_covariates (None), time_to_event_persist (1) and
+    # time_to_event_min_frames (3) -- each resolved by Measure and by
+    # External Masks. The object, mode, origin and group settings say
+    # "Default cell.", "track_end.", "track." and "well.", not literals.
+    item_571 = {(app, key) for app in ("measure", "external_masks")
+                for key in ("time_to_event", "time_to_event_column",
+                            "time_to_event_reference",
+                            "time_to_event_threshold",
+                            "time_to_event_hours_per_frame",
+                            "time_to_event_conditions",
+                            "time_to_event_covariates",
+                            "time_to_event_persist",
+                            "time_to_event_min_frames")}
+    assert item_571 <= compared_pairs
+    assert comparisons == 824
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
@@ -840,9 +858,11 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # + 0: item 539's bleach_correction says "Default none.", a combo
     # choice rather than a literal, and so is not compared.
     # + 10: item 536's five wound-closure claims in two apps, pinned above.
+    # + 18: item 571's nine time-to-event claims in two apps, pinned above.
     assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2
             + len(item_541) + len(item_548) + len(item_550)
-            + len(item_535) + len(item_547) + len(item_536) == comparisons)
+            + len(item_535) + len(item_547) + len(item_536)
+            + len(item_571) == comparisons)
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs
     assert len(census_508['added_pairs']) == 19
