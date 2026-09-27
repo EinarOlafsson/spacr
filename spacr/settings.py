@@ -1687,6 +1687,26 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('confluency_channel', None)
     settings.setdefault('confluency_window', 15)
     settings.setdefault('confluency_qc_threshold', 0.8)
+    settings.setdefault('profiling', False)
+    settings.setdefault('profiling_metadata', '')
+    settings.setdefault('profiling_treatment_column', 'columnID')
+    settings.setdefault('profiling_negative_control', '')
+    settings.setdefault('profiling_normalization', 'mad_robustize')
+    settings.setdefault('profiling_feature_selection', [
+        'variance_threshold', 'frequency_threshold', 'correlation_threshold',
+        'drop_na_columns', 'drop_outliers'])
+    settings.setdefault('profiling_correlation_threshold', 0.9)
+    settings.setdefault('profiling_phenotype_column', '')
+    settings.setdefault('profiling_databases', [])
+    settings.setdefault('cell_cycle', False)
+    settings.setdefault('cell_cycle_method', 'measurements')
+    settings.setdefault('cell_cycle_channel', None)
+    settings.setdefault('cell_cycle_gates', None)
+    settings.setdefault('cell_cycle_mitotic_ratio', 1.8)
+    settings.setdefault('cell_cycle_fucci_channels', None)
+    settings.setdefault('cell_cycle_labels', '')
+    settings.setdefault('cell_cycle_model', '')
+    settings.setdefault('cell_cycle_epochs', 20)
     settings.setdefault('wound_closure', False)
     settings.setdefault('wound_source', 'texture')
     settings.setdefault('wound_channel', None)
@@ -3469,6 +3489,24 @@ expected_types = {
     "confluency_channel": (int, type(None)),
     "confluency_window": int,
     "confluency_qc_threshold": (float, int, type(None)),
+    "profiling": bool,
+    "profiling_metadata": str,
+    "profiling_treatment_column": (str, list),
+    "profiling_negative_control": (str, list),
+    "profiling_normalization": str,
+    "profiling_feature_selection": list,
+    "profiling_correlation_threshold": (float, int),
+    "profiling_phenotype_column": str,
+    "profiling_databases": list,
+    "cell_cycle": bool,
+    "cell_cycle_method": str,
+    "cell_cycle_channel": (int, type(None)),
+    "cell_cycle_gates": (list, type(None)),
+    "cell_cycle_mitotic_ratio": (float, int, type(None)),
+    "cell_cycle_fucci_channels": (list, type(None)),
+    "cell_cycle_labels": str,
+    "cell_cycle_model": str,
+    "cell_cycle_epochs": int,
     "wound_closure": bool,
     "wound_source": str,
     "wound_channel": (int, type(None)),
@@ -4677,6 +4715,24 @@ tooltips = {
     "wound_hours_per_frame": "(float or None) - Hours between consecutive timepoints, so closure rates are per hour and half-closure times are in hours. Blank counts time in frames. With voxel_size_xy_um set, widths and front speeds are also reported in micrometres. Default None.",
     "wound_conditions": "(dict) - Conditions to pool wells into for the closure curves and half-closure times, as {name: wells}, the wells as rows (r2), columns (c3) or single wells (B03), for example {'control': 'c1, c2', 'drug': 'c3, c4'}. A well in no condition is reported under its own name. A well may belong to one condition only. Default {}.",
     "confluency_qc_threshold": "(float or None) - Lowest covered fraction, from 0 to 1, at which a field or well passes monolayer QC. Fields and wells below it get monolayer_ok 0 in measurements.db, so plaque and infection results from a thin or torn monolayer can be dropped or divided by the covered fraction. Blank passes every well. Default 0.8.",
+    "profiling": "(bool) - After Measure finishes, build image-based profiles from its tables: aggregate each object table to one median profile per well, add the plate map in profiling_metadata, normalise each plate against its negative-control wells, remove uninformative and redundant features, build one consensus profile per treatment and score replicate reproducibility as mean average precision (mAP) and percent replicating. Results go to measurements/profiles as CSV, Parquet and GCT with plots. Default False.",
+    "profiling_metadata": "(str) - Plate map for profiling: a CSV, TSV, Excel or Parquet table with one row per well position, located by rowID and columnID or by a well column such as A01, plus annotation columns such as treatment, dose, gene or a phenotype label. With a plateID column the map is matched plate by plate; without one it applies to every plate. Blank profiles the wells by position only. Default blank.",
+    "profiling_treatment_column": "(str or list) - The annotation column, or columns, naming what each well received. Wells that share them are replicates and are collapsed into one consensus profile. Use a plate-map column such as treatment, treatment and dose together, or columnID when each plate column holds one condition. Default columnID.",
+    "profiling_negative_control": "(str or list) - Value or values of the first profiling_treatment_column that mark negative-control wells, for example DMSO or c1. Each plate is normalised against its own controls, and every treatment is scored for phenotypic activity, how well its replicates find each other among the controls. Blank normalises against all wells of a plate and skips the activity score. Default blank.",
+    "profiling_normalization": "(str) - How each feature is put on a common scale, plate by plate. mad_robustize subtracts the reference median and divides by 1.4826 times the reference MAD, which tolerates outlier wells; standardize uses the mean and standard deviation; robustize uses the median and interquartile range; none keeps the aggregated values. The reference is the negative control, or every well when none is named. Default mad_robustize.",
+    "profiling_feature_selection": "(list) - Feature-selection steps, run in order after normalisation: variance_threshold drops near-zero variance, frequency_threshold near-constant values, correlation_threshold the more redundant of each pair correlated above profiling_correlation_threshold, drop_na_columns features missing in over 5 % of wells, and drop_outliers any feature with an absolute value above 500. An empty list keeps every feature. Default all five.",
+    "profiling_correlation_threshold": "(float) - Pearson correlation above which two features count as redundant in the correlation_threshold selection step. Of each such pair the feature more correlated with all others is removed. Lower values keep fewer, less redundant features. Default 0.9.",
+    "profiling_phenotype_column": "(str) - Optional plate-map column holding a phenotype label that different treatments share, such as a mechanism of action, pathway or target gene. When set, consensus profiles are also scored for phenotypic consistency: how well treatments with the same label retrieve each other, as mAP per label. Default blank.",
+    "profiling_databases": "(list) - Further measurements.db files to profile together with this run's, one per plate, so replicates on different plates are compared while each plate is still normalised on its own. Every plate needs a distinct plateID. Default [].",
+    "cell_cycle": "(bool) - Call the cell-cycle phase of every nucleus after measuring, from the DNA stain: G1, S, G2 or M, plus subG1 and >4N outside the peaks. Writes one row per nucleus to measurements.db:cell_cycle with the call in cell_cycle_phase, the phase fractions per well, overall and in infected and uninfected cells, to cell_cycle_well, and with plot on each plate's fitted DNA histogram. Needs measured nuclei. Default False.",
+    "cell_cycle_method": "(str) - How phases are called. measurements gates each plate's DNA-content histogram, fitted as G1 and G2 peaks with S between, and calls condensed 4N nuclei M. xgboost trains a boosted classifier on nucleus features, torch trains an image classifier on nucleus crops with Classify's training; both learn from cell_cycle_labels. all runs the three and keeps their majority. Default measurements.",
+    "cell_cycle_channel": "(int or None) - The merged-array channel holding the DNA stain (DAPI or Hoechst) the phase is read from, counted as in channels; it must be one of the measured channels. Blank uses nucleus_channel, then the first entry of channels. Default None.",
+    "cell_cycle_gates": "(list or None) - Fixed gates [G1/S, S/G2] in DNA content units, where the G1 peak is 2 and the G2 peak 4, for example [2.5, 3.5]. They replace the crossings fitted per plate; the peaks are still fitted to place the units. Read the fitted gates off the saved histogram before editing them. Blank uses the fitted gates. Default None.",
+    "cell_cycle_mitotic_ratio": "(float or None) - A nucleus past the G1/S gate is called M when its background-subtracted mean DNA intensity is at least this many times the median of the plate's G2 nuclei: condensed mitotic chromatin is brighter. Lower catches more prophase and more bright G2 nuclei. Blank never calls M from intensity and leaves mitotic nuclei in G2. Default 1.8.",
+    "cell_cycle_fucci_channels": "(list or None) - Two merged-array channels of a FUCCI reporter, the G1 reporter (Cdt1) then the S/G2/M reporter (Geminin), both measured. Each is split into positive and negative per plate, and every nucleus gets a fucci_state: early G1, G1, G1/S or S/G2/M. The xgboost method also uses their intensities. Blank skips FUCCI. Default None.",
+    "cell_cycle_labels": "(str) - A png_list column holding Annotate labels the xgboost and torch methods learn from: 1 to 4 for G1, S, G2 and M, or the phase names. Labels are matched to nuclei through their cell. Blank trains on the confident gate calls instead, which teaches the learned methods what the gates already say; annotate prophase and anaphase nuclei to teach them more. Default blank.",
+    "cell_cycle_model": "(str) - A torch model this step trained earlier, with its cell_cycle_phases.json beside it, applied to the nucleus crops instead of training a new one. Use it to call a second plate with the model trained on the first. Ignored unless cell_cycle_method is torch or all. Default blank.",
+    "cell_cycle_epochs": "(int) - Training epochs of the torch phase classifier. It is a ResNet-18 trained from scratch on crops as small as 32 pixels, so each epoch is quick on a GPU and slow on a busy CPU. Ignored when cell_cycle_model names a trained model. Default 20.",
     "bystander_measurements": "(bool) - Split uninfected cells into bystanders and distal cells. A bystander is an uninfected cell within the reach set by bystander_reach_in_diameters of an infected one; everything else uninfected is distal. Without this the two are the same row, so a bystander phenotype cannot be found and the uninfected control is a mixture of two populations whose variance hides the effect being looked for. Adds three columns per cell and costs one distance transform and one KD-tree per field. Default False.",
     "bystander_reach_in_diameters": "(float) - How close an uninfected cell must be to an infected one to count as a bystander, expressed in measured cell diameters rather than pixels or micrometres, so it means the same thing at 20x and 63x. The diameter is the median of the cells in the field, ignoring those clipped by its edge. Zero or less makes every uninfected cell distal, which turns the split off without a second setting. Ignored unless bystander_measurements is enabled. Default 1.0.",
     "spatial_measurements": "(bool) - Measure each object's neighbourhood: the number of neighbours within a radius, first and second nearest-neighbour distances, and the fraction of its border contacting another object. These measurements can be used to model density-associated variation in morphology and intensity. They are not produced for cytoplasm, which is defined as one object per cell. Computation requires one KD-tree and one boundary pass per field. Default True.",
@@ -5323,6 +5379,20 @@ categories = {
     "Confluency (Alpha)": [
         "confluency", "confluency_source", "confluency_channel",
         "confluency_window", "confluency_qc_threshold",
+    ],
+
+    "Profiling (Alpha)": [
+        "profiling", "profiling_metadata", "profiling_treatment_column",
+        "profiling_negative_control", "profiling_normalization",
+        "profiling_feature_selection", "profiling_correlation_threshold",
+        "profiling_phenotype_column", "profiling_databases",
+    ],
+
+    "Cell Cycle (Alpha)": [
+        "cell_cycle", "cell_cycle_method", "cell_cycle_channel",
+        "cell_cycle_gates", "cell_cycle_mitotic_ratio",
+        "cell_cycle_fucci_channels", "cell_cycle_labels", "cell_cycle_model",
+        "cell_cycle_epochs",
     ],
 
     "Wound Closure (Alpha)": [
@@ -6861,6 +6931,12 @@ ALPHA_FEATURES = {
         'settings': ('mask_parallel', 'mask_gpu_indices'),
         'widgets': ('DistributedAllocatedGpus', 'MaskGpuProgress'),
     },
+    535: {
+        'settings': ('cell_cycle', 'cell_cycle_method', 'cell_cycle_channel',
+                     'cell_cycle_gates', 'cell_cycle_mitotic_ratio',
+                     'cell_cycle_fucci_channels', 'cell_cycle_labels',
+                     'cell_cycle_model', 'cell_cycle_epochs'),
+    },
     541: {
         'settings': ('confluency', 'confluency_source', 'confluency_channel',
                      'confluency_window', 'confluency_qc_threshold'),
@@ -6877,6 +6953,14 @@ ALPHA_FEATURES = {
     },
     545: {
         'widgets': ('MakeMasksRoisButton',),
+    },
+    547: {
+        'settings': ('profiling', 'profiling_metadata',
+                     'profiling_treatment_column',
+                     'profiling_negative_control', 'profiling_normalization',
+                     'profiling_feature_selection',
+                     'profiling_correlation_threshold',
+                     'profiling_phenotype_column', 'profiling_databases'),
     },
     548: {
         'settings': ('watch_folder', 'watch_pipeline', 'watch_measure_settings',
@@ -6915,6 +6999,19 @@ ALPHA_FEATURES = {
     573: {
         'widgets': ('AnalysisLockButton',),
     },
+    577: {
+        'widgets': ('NotifyTabHelp', 'NotifyRunsEnabled', 'NotifyRunsWhen',
+                    'NotifyRunsMinMinutes', 'NotifyDesktop', 'NotifyEmail',
+                    'NotifySmtpHost', 'NotifySmtpPort', 'NotifySmtpSecurity',
+                    'NotifySmtpUser', 'NotifySmtpPassword', 'NotifyEmailFrom',
+                    'NotifyEmailTo', 'NotifySlack', 'NotifySlackWebhook',
+                    'NotifyNtfy', 'NotifyNtfyServer', 'NotifyNtfyTopic',
+                    'NotifyNtfyToken', 'NotifySendTest', 'NotifyForgetSecrets',
+                    'NotifyTestResult'),
+    },
+    581: {
+        'settings': ('anndata_format', 'anndata_tidy_dir'),
+    },
 }
 
 
@@ -6935,7 +7032,9 @@ def _alpha_names(kind):
 
     Hiding is a display decision only: a saved or typed alpha setting still
     reaches the run, and headless and command-line runs never consult the
-    registry.
+    registry. The one exception is run-finished notifications, which are
+    configured only in Preferences and are sent, from the app or the command
+    line, only while the gate shows them.
 
     :param kind: one of ``ALPHA_KINDS``.
     :returns: a frozenset of names; for ``choices`` the settings keys that

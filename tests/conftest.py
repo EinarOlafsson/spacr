@@ -581,6 +581,12 @@ def qapp(qapp):
     gc_policy.uninstall()
 
 
+#: How many Qt test boundaries pass between full GUI-thread collections.
+#: See `_the_widget_tree_does_not_outgrow_the_session`.
+_FULL_COLLECTION_EVERY = 20
+_BOUNDARIES_SINCE_A_FULL_COLLECTION = 0
+
+
 @pytest.fixture(autouse=True)
 def _the_widget_tree_does_not_outgrow_the_session(_isolated_qsettings_store):
     """Deliver owner-requested Qt deletions for every Qt test boundary.
@@ -611,11 +617,36 @@ def _the_widget_tree_does_not_outgrow_the_session(_isolated_qsettings_store):
 
     Nothing is reached across. ``sendPostedEvents`` delivers only deletions
     their owners already requested, at SETUP where the previous test's
-    teardown is complete. Do not run Python's cycle collector here: a wrapper
+    teardown is complete. Do not run a FULL ``gc.collect`` here: a wrapper
     can be unreachable while its C++ QThread is still running, and CI proved
     that collecting such a live Qt heap can segfault inside ``gc.collect``.
     Qt objects must instead be registered with ``qtbot`` or explicitly call
     ``deleteLater``; this boundary only completes that ownership protocol.
+
+    WHAT IT DOES RUN is one tick of :func:`spacr.qt.gc_policy.collect_once`
+    -- the GUI-thread collector the application runs every second, with
+    CPython's own thresholds, at most one generation per tick. The
+    ``qapp`` fixture installs that policy, and installing it turns
+    automatic collection OFF; the application's event loop then ticks it
+    once a second, but a test suite spins its loop for milliseconds at a
+    time, so in a serial ``pytest tests/qt`` the tick almost never came and
+    no reference cycle was ever freed. A parentless widget owned by its
+    Python wrapper lives exactly as long as that wrapper, so every settings
+    editor, menu and frame caught in a cycle stayed a LIVE top-level
+    window: 460 of them, 9,162 widgets, by a third of the way through the
+    suite, every one restyled by each theme change and each preferences
+    save. That is what took the serial run past its memory ceiling
+    (features/new/47). One tick per test boundary is the application's
+    own cadence, measured in tests instead of seconds.
+
+    AND EVERY :data:`_FULL_COLLECTION_EVERY` BOUNDARIES, A FULL ONE, still on
+    the GUI thread. A tick collects the oldest generation only once every
+    ~120 ticks -- two minutes in the application, but a hundred tests here
+    -- and the orphaned editors are old by the time their screen goes: 146
+    of them survived all 113 tests of ``test_cov_qt_app.py`` on the ticks
+    alone. A full sweep is what the application's own policy runs every two
+    minutes; this runs it at a cadence that keeps the tree down to what the
+    last few tests built.
 
     Ordered behind the QSettings sandbox, and depending on it by name rather
     than by where it sits in this file, because destroying a widget can run
@@ -634,6 +665,17 @@ def _the_widget_tree_does_not_outgrow_the_session(_isolated_qsettings_store):
                 gc_policy.install(app)
                 module.QApplication.sendPostedEvents(
                     None, QEvent.DeferredDelete)
+                if gc_policy.is_installed():
+                    global _BOUNDARIES_SINCE_A_FULL_COLLECTION
+                    _BOUNDARIES_SINCE_A_FULL_COLLECTION += 1
+                    if (_BOUNDARIES_SINCE_A_FULL_COLLECTION
+                            >= _FULL_COLLECTION_EVERY):
+                        _BOUNDARIES_SINCE_A_FULL_COLLECTION = 0
+                        import gc
+
+                        gc.collect()
+                    else:
+                        gc_policy.collect_once()
         except Exception:                                        # noqa: BLE001
             pass
     yield
@@ -841,6 +883,14 @@ def _isolated_dot_spacr_store(monkeypatch):
         monkeypatch.setattr(run_journal, "unsandboxed_runs_root",
                             run_journal.runs_root, raising=False)
         monkeypatch.setattr(run_journal, "runs_root", lambda: root,
+                            raising=False)
+        # Run-finished notification secrets: never the real OS keyring, and
+        # never the real ~/.spacr file.
+        monkeypatch.setattr(
+            run_journal, "_notify_secrets_path",
+            lambda: _DOT_SPACR_SANDBOX / "notification_secrets.json",
+            raising=False)
+        monkeypatch.setattr(run_journal, "_notify_keyring", lambda: None,
                             raising=False)
     try:
         from spacr.qt import plate_queue

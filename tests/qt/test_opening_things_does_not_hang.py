@@ -52,6 +52,7 @@ def window(qapp_module_scope=None):
     application.processEvents()
     yield made
     made.close()
+    made.deleteLater()
 
 
 @pytest.mark.parametrize("key", MODULES)

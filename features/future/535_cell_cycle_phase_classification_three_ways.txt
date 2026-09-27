@@ -1,6 +1,11 @@
 CELL-CYCLE PHASE CLASSIFICATION: A TORCH, AN XGBOOST AND A MEASUREMENTS VERSION
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED AS ALPHA 2026-09-26. Measure calls G1, S, G2 or M for
+every nucleus three interchangeable ways -- DNA-content gates, xgboost on the
+nucleus measurements, torch on nucleus crops through Classify's training --
+into one cell_cycle_phase column, with per-well phase fractions among
+infected and uninfected cells. Scored on synthetic nuclei of known phase;
+hand-labelled real nuclei are still to come. Hidden with Alpha features.
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 
@@ -32,3 +37,164 @@ DONE WHEN
     All three versions label the same test set; each is scored against hand-
     labelled nuclei (accuracy / per-phase F1) and the phase fractions per
     well agree between versions within stated tolerances.
+
+2026-09-26 -- Implemented as Alpha
+    Measure gains a "Cell Cycle (Alpha)" heading. With `cell_cycle` on, the
+    end of a run reads the nucleus table it wrote and calls each nucleus's
+    phase by `cell_cycle_method`; a failure is printed and does not fail the
+    run. Code: spacr/measure.py only, no new module. The helpers are
+    underscored, as 541's are, so the API catalogs stay the docs lane's:
+    _classify_cell_cycle is the entry (it takes any measurements.db),
+    _run_cell_cycle_step the Measure hook.
+
+    measurements -- per plate (and time point) the background-subtracted
+    integrated DNA intensity (integrated minus the median of Measure's ring
+    just outside the nucleus times its area) is fitted by EM as a
+    Dean-Jett-Fox style mixture (_fit_dna_content): Gaussian G1 and G2 peaks
+    with one shared CV (at most 15 %), G2 held at 1.6-2.4x G1, a uniform S
+    between them and a flat debris component (at most 15 %); nuclei below
+    0.35x or above 3.2x the G1 seed are left out of the fit. The gates are
+    the fitted G1/S and S/G2 crossings, or `cell_cycle_gates` [G1/S, S/G2]
+    in C units (G1 peak = 2) to set them by hand. Content more than 4 peak
+    widths below G1 is subG1, above G2 is >4N. A nucleus past the G1/S gate
+    whose mean DNA intensity is at least `cell_cycle_mitotic_ratio` (1.8)
+    times the plate's G2 median is M (condensed chromatin). Each nucleus
+    keeps its fitted posteriors, and the per-well table also carries
+    posterior-summed fractions (fit_fraction_*), the way a flow histogram is
+    read when the peaks are wide. With plot on,
+    results/cell_cycle/dna_content_<plate> shows the histogram, the fitted
+    components and the gates. `cell_cycle_fucci_channels` [G1 reporter,
+    S/G2/M reporter] adds fucci_state (early G1, G1, G1/S, S/G2/M) from a
+    per-plate Otsu cut of each reporter.
+
+    xgboost -- a gradient-boosted classifier on the nucleus morphology and
+    DNA-channel intensity and texture columns (position, neighbour and
+    distance columns left out), trained on the Annotate labels in the
+    png_list column named by `cell_cycle_labels` (1-4 = G1, S, G2, M, or the
+    names; joined through the nucleus's cell), or, when that is blank, on the
+    gate calls whose posterior is at least 0.6 plus every M (weak labels).
+    Whole fields are held out first for a held-out score; the booster is
+    saved as measurements/cell_cycle_xgboost.json.
+
+    torch -- one fixed-size crop per nucleus (twice the 95th-percentile
+    major axis, 32-128 px, never resampled; DNA on R and G scaled per plate
+    so brightness keeps DNA content, the nucleus's own mask on B), a
+    train/<phase> and test/<phase> dataset split by field, then
+    spacr.deep_spacr.train_test_model (ResNet-18 from scratch,
+    `cell_cycle_epochs`, weighted loss) and apply_model: Classify's own
+    training, leakage audit and model card. The phase order is written
+    beside the model as cell_cycle_phases.json; `cell_cycle_model` applies a
+    model trained earlier (on another plate) instead of training one.
+
+    all -- runs the three; cell_cycle_phase is their majority, the
+    measurement call on a tie. The learned methods take subG1 and >4N from
+    DNA content, so every method reports the same out-of-peak nuclei.
+
+    Database: measurements.db:cell_cycle, one row per nucleus (prcfo, DNA
+    content, C value, condensation, gates, posteriors, phase_<method> and
+    confidence_<method>, fucci_state, infected from its cell's pathogen
+    count, cell_cycle_phase, cell_cycle_method); cell_cycle_well, per well
+    and method (n and the fraction in each phase and in G2M, and the same
+    among infected and uninfected cells); cell_cycle_agreement, per well the
+    largest phase-fraction difference between the methods, on the nuclei
+    they all called.
+
+    Validation (scripts in /mnt/firecuda2/codex/scratch-docs/535): two
+    synthetic plates, each 4 wells x 4 fields of 512 px and 1120 nuclei,
+    with Poisson noise and a blurred PSF, run through Measure itself. Nuclei
+    are drawn with a known phase: G1 at 2C; S uniform over 2.2-3.8C and
+    growing; G2 at 4C with 1.6x the G1 area; M at 4C as a compact bright
+    bar. Plate B draws half of its M nuclei as prophase instead: G2-sized,
+    4C, with condensing threads but no extra brightness -- the morphology
+    gates cannot see. Well fractions differ (G1 25-65 %, M 4-18 %). Labels
+    are the gates (weak) or 25 % of the nuclei annotated with their true
+    phase, scored on the other 75 %. torch trained 30 epochs on the GPU.
+    Accuracy % / macro F1 / M F1:
+        plate A, gate labels      measurements 97.6 / .976 / 1.00
+                                  xgboost      97.9 / .979 / 1.00
+                                  torch        97.7 / .976 / 1.00
+                                  consensus    97.9 / .979 / 1.00
+        plate A, 25 % annotated   measurements 97.7 / .978 / 1.00
+                                  xgboost      98.1 / .982 / 1.00
+                                  torch        94.8 / .947 / 1.00
+                                  consensus    98.0 / .980 / 1.00
+        plate B, gate labels      measurements 94.2 / .888 / .72
+                                  xgboost      95.5 / .900 / .72
+                                  torch        94.0 / .886 / .72
+                                  consensus    94.8 / .893 / .72
+        plate B, 25 % annotated   measurements 94.5 / .893 / .73
+                                  xgboost      98.5 / .979 / .97
+                                  torch        90.7 / .889 / .90
+                                  consensus    96.3 / .942 / .88
+    The gates alone are 94-98 % right. Trained on the gates, the learned
+    methods can only agree with them (prophase stays G2). Trained on a
+    quarter of the nuclei labelled, xgboost finds prophase (M F1 .72 ->
+    .97), and torch, from scratch on 277 crops, finds most of it (.90) but
+    loses S accuracy: it needs more labels or epochs. Per-well fractions
+    against the truth (gate-label runs): within 1.4 points for
+    measurements, xgboost and the consensus and 2.9 for torch on plate A;
+    5.0, 3.9, 4.3 and 5.4 on plate B, where prophase counted as G2 is most
+    of the error. Between methods, the largest per-well phase-fraction
+    difference is 2.5 points (A) and 3.2 (B) with gate labels, and 6.4 and
+    8.6 with the 25 % annotation, all of it torch's S. Stated tolerance:
+    the methods agree within 5 points per phase per well when trained on
+    the gates; the annotated torch route does not meet it yet.
+
+    Real data, the plate1 example (2682 Hoechst nuclei, no phase labels):
+    G2 at 1.98x G1, one CV of 15 % (the cap; widefield nuclei), fitted
+    weights G1 55 %, S 29 %, G2 11 %, debris 5 %. Gated calls are G1 54 %,
+    S 6 %, G2 21 %, M 0.7 % and subG1 18 % (fragments and edge-cut nuclei):
+    with peaks this wide the gates hand most of S to G1 and G2, which is why
+    the per-well table also carries the posterior fractions (S 30-32 % per
+    well). All three methods on gate labels (torch 30 epochs on the GPU,
+    128 px crops, on the 726 nuclei of the 16 fields whose arrays are in the
+    example download): per nucleus, gates and xgboost agree on 91 %, gates
+    and torch on 83 %, xgboost and torch on 87 %. Per well, on the nuclei
+    all three called, the phase fractions differ by 10-12 points, and gates
+    against xgboost alone by 8-9 points, nearly all of it S against G2: the
+    learned methods call 11-14 % S where the hard gates call 6 % (and the
+    posteriors 30 %). So on real widefield nuclei the 5-point tolerance the
+    synthetic plates meet is not met; the S/G2 split of broad peaks is where
+    the methods disagree, and hand labels are what would settle which is
+    right. In every well infected cells are more often in G2/M than uninfected ones
+    (gated 25-31 % against 15-18 %), in line with the host G2 arrest
+    Toxoplasma is reported to cause.
+
+    Tests: tests/test_cell_cycle_phase_three_ways.py (the fit, user gates,
+    subG1 and >4N, the four-phase measurement call per plate and the pooled
+    fallback, FUCCI, annotation values, xgboost, Annotate and weak labels,
+    per-well fractions with infection and the consensus, methods compared
+    on the nuclei they all called, the method setting, Measure end to end writing both tables, the figure and the
+    booster, a failed step not failing the run, the torch route training
+    one CPU epoch and reusing its model, a model without its phase order
+    refused, the settings, and the real plate1 nuclei when downloaded) and
+    tests/qt/test_cell_cycle_alpha_gate.py (hidden and shown with the
+    switch, values kept while hidden).
+ALPHA: settings cell_cycle, cell_cycle_method, cell_cycle_channel,
+cell_cycle_gates, cell_cycle_mitotic_ratio, cell_cycle_fucci_channels,
+cell_cycle_labels, cell_cycle_model and cell_cycle_epochs (Measure category
+"Cell Cycle (Alpha)"), registered as ALPHA_FEATURES[535] in
+spacr/settings.py. No widgets, apps, dropdown choices or zoo rows are added.
+A category made only of alpha settings now hides with its rows
+(AppScreen._alpha_hidden_sections), so the empty "Cell Cycle (Alpha)" and
+"Confluency (Alpha)" headings no longer show while the switch is off.
+    Ratchets moved: tooltip default claims 744 -> 760 (eight cell-cycle
+    claims in Measure and External Masks); nine keys in
+    KEYS_ADDED_BY_REGROUP; the Measure category order; one category-help
+    caption held in _AWAITING_CATALOG_REBUILD. Regenerated: the
+    settings-flow page and index, the setting consumer map and API targets,
+    and the 02_measure_and_crop notebook's settings list.
+
+    Not done: hand-labelled real nuclei, which DONE WHEN asks for -- the
+    example data has no labelled cell-cycle set, so the accuracy above rests
+    on synthetic plates; next is about 300 plate1 nuclei annotated 1-4 in
+    Annotate and scored through cell_cycle_labels. Gates are edited by
+    number in cell_cycle_gates, not by dragging them on the histogram in the
+    GUI. M is one class: prophase, metaphase and anaphase are not separate,
+    and an anaphase whose two chromatin masses are segmented as two nuclei
+    becomes two G1-like objects. FUCCI is not validated on FUCCI images and
+    is reported beside the phase rather than folded into it. The torch
+    backbone is fixed (ResNet-18 from scratch) and slow on a busy CPU.
+    Phases are called at the end of a Measure run; calling them on an
+    existing database without re-measuring has no button (the helper takes a
+    db path). No Model Zoo entry for a trained cell-cycle model.

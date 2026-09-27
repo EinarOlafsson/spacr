@@ -742,6 +742,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "anndata_tables", "anndata_dtype", "anndata_row_limit",
     "anndata_compute_umap", "anndata_compression",
     "anndata_register_artifact",
+    # 581, alpha: what the export writes (h5ad, Parquet tables, R loader)
+    # and the folder the tables go to.
+    "anndata_format", "anndata_tidy_dir",
     # The robust and regularised regression fits: knobs that belong to one
     # estimator rather than to all of them.
     "l1_ratio", "quantile", "huber_t",
@@ -770,6 +773,23 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # QC cut, under their own "Confluency (Alpha)" heading.
     "confluency", "confluency_source", "confluency_channel",
     "confluency_window", "confluency_qc_threshold",
+    # NEW SETTINGS, not a regrouping (item 547, 2026-09-26): image-based
+    # profiling at the end of Measure -- the switch, plate map, treatment
+    # and control, normalisation, feature selection and its correlation
+    # cut, phenotype label and further plates -- under their own
+    # "Profiling (Alpha)" heading.
+    "profiling", "profiling_metadata", "profiling_treatment_column",
+    "profiling_negative_control", "profiling_normalization",
+    "profiling_feature_selection", "profiling_correlation_threshold",
+    "profiling_phenotype_column", "profiling_databases",
+    # NEW SETTINGS, not a regrouping (item 535, 2026-09-26): Measure's
+    # cell-cycle phase call -- the switch, the method, the DNA channel, the
+    # gates, the mitotic cut, FUCCI, the training labels, a trained model
+    # and the torch epochs -- under their own "Cell Cycle (Alpha)" heading.
+    "cell_cycle", "cell_cycle_method", "cell_cycle_channel",
+    "cell_cycle_gates", "cell_cycle_mitotic_ratio",
+    "cell_cycle_fucci_channels", "cell_cycle_labels", "cell_cycle_model",
+    "cell_cycle_epochs",
     # NEW SETTINGS, not a regrouping (item 536, 2026-09-26): Measure's
     # scratch-wound closure switch, its source, channel, texture window,
     # frame interval and well-to-condition map, under their own "Wound
@@ -1466,10 +1486,16 @@ def _rendered_sections(app_key):
             # Item 541, 2026-09-26: confluency sits after the features it
             # is measured beside, as an Alpha heading of its own.
             "Confluency (Alpha)",
+            # Item 535, 2026-09-26: the cell-cycle phase call follows, read
+            # from the nuclei the features above measured.
+            "Cell Cycle (Alpha)",
             # Item 536, 2026-09-26: wound closure follows confluency, whose
             # texture and intensity methods it builds on.
             "Wound Closure (Alpha)",
             "Object Filtering", "Crop Output",
+            # Item 547, 2026-09-26: profiling runs on the finished tables,
+            # so its Alpha heading follows the outputs it reads.
+            "Profiling (Alpha)",
             "Preview & Diagnostics", "3D Calibration (Beta)",
             "Runtime & Reliability",
         ]),

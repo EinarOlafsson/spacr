@@ -1259,6 +1259,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "summarize_organelles_by",
         )),
         ("Confluency (Alpha)", ("@Confluency (Alpha)",)),
+        ("Cell Cycle (Alpha)", ("@Cell Cycle (Alpha)",)),
         ("Wound Closure (Alpha)", ("@Wound Closure (Alpha)",)),
         ("Object Filtering", (
             "uninfected", "cell_min_size", "cell_max_size",
@@ -1274,6 +1275,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "dialate_pngs", "dialate_png_ratios", "use_bounding_box",
             "normalize", "normalize_by",
         )),
+        ("Profiling (Alpha)", ("@Profiling (Alpha)",)),
         ("Preview & Diagnostics", ("plot", "test_mode", "test_nr")),
         ("3D Calibration (Beta)", (
             "anisotropy", "voxel_size_z_um", "voxel_size_xy_um",
@@ -1630,7 +1632,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Input Tables", ("src", "anndata_tables")),
         ("Output File", (
             "anndata_out", "anndata_single_table", "anndata_compression",
-            "anndata_dtype",
+            "anndata_dtype", "anndata_format", "anndata_tidy_dir",
         )),
         ("Rows & Missing Values", (
             "anndata_row_limit", "anndata_nan_policy",
@@ -2645,6 +2647,21 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "out, the interval between frames, which backend links objects, and "
         "how far one may move between frames. For data that is both a "
         "z-stack and a time series.",
+    "PROFILING (ALPHA)":
+        "Image-based profiling after Measure: one profile per well from the "
+        "object tables, annotated from a plate map, normalised per plate "
+        "against the negative controls, feature-selected, collapsed into one "
+        "consensus profile per treatment and scored for replicate "
+        "reproducibility as mean average precision and percent replicating. "
+        "Written as CSV, Parquet and GCT files that pycytominer, copairs and "
+        "Morpheus read.",
+    "CELL CYCLE (ALPHA)":
+        "The cell-cycle phase of every nucleus, called after measuring from "
+        "the DNA stain in one of three interchangeable ways: gates on each "
+        "plate's fitted DNA-content histogram, a boosted classifier on the "
+        "nucleus measurements, or an image classifier on nucleus crops. Each "
+        "writes the same phase column to measurements.db, with the phase "
+        "fractions per well among infected and uninfected cells.",
     "CONFLUENCY (ALPHA)":
         "How much of each field is covered by cells, measured per field and "
         "per well into measurements.db with a monolayer QC flag: from the "

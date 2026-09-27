@@ -1457,12 +1457,20 @@ class FilePathListWidget(QWidget):
         that optimism is that a genuinely missing path is drawn as present
         until the probe lands, so this is the half that corrects it.
 
-        Connected with a weak-ish guard rather than a bound method held
-        forever: the signal source is process-wide and outlives any one
-        widget, and a destroyed C++ object behind a live Python wrapper is
-        what turns a redraw into a hard crash.
+        Connected through a WEAK reference, and disconnected when the widget
+        is destroyed: the signal source is process-wide and outlives any one
+        widget. A closure over ``self`` connected for good kept every file
+        list ever built -- its whole Python wrapper tree -- alive for the
+        rest of the process, one more receiver on every probe answer each
+        time; a serial ``pytest tests/qt`` builds thousands. A destroyed C++
+        object behind a live Python wrapper is also what turns a redraw
+        into a hard crash, hence the ``RuntimeError`` guard.
         """
+        import weakref
+
         from .. import path_probe as _probe
+
+        owner = weakref.ref(self)
 
         def redraw(_path: str, _answer: bool) -> None:
             """Refresh the hint once a probe has an answer.
@@ -1473,13 +1481,27 @@ class FilePathListWidget(QWidget):
             :param _path: the path that was probed; unused.
             :param _answer: what the probe found; unused.
             """
+            widget = owner()
+            if widget is None:
+                return
             try:
-                self._refresh_hint()
+                widget._refresh_hint()
             except RuntimeError:
+                pass
+
+        def let_go(*_args) -> None:
+            """Drop the probe connection as the widget is destroyed.
+
+            :param _args: whatever ``destroyed`` sends; unused.
+            """
+            try:
+                _probe.probes.answered.disconnect(redraw)
+            except (RuntimeError, TypeError):
                 pass
 
         self._path_probe_redraw = redraw
         _probe.probes.answered.connect(redraw)
+        self.destroyed.connect(let_go)
 
     def _refresh_hint(self) -> None:
         """Show or hide the empty hint as the list changes.

@@ -27,13 +27,14 @@ def test_desktop_entry_matches_qt_application_id():
     assert ast.literal_eval(calls[0].args[0]) == APP_ID
 
 
-def test_main_window_and_loading_cover_are_opaque(qapp, monkeypatch):
+def test_main_window_and_loading_cover_are_opaque(qapp, qtbot, monkeypatch):
     import spacr.qt.app as app_module
     from spacr.qt.widgets.loading_screen import LoadingScreen
 
     monkeypatch.setattr(app_module.MainWindow, "_install_loading_screen",
                         lambda self: None)
     window = app_module.MainWindow()
+    qtbot.addWidget(window)
     # `autoFillBackground` ALONE, NOT `WA_OpaquePaintEvent`. That attribute
     # is a PROMISE that the widget paints every pixel of its own rect, and
     # `MainWindow` does not keep it: applying the stylesheet clears

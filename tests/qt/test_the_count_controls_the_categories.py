@@ -29,6 +29,7 @@ def mask(qapp):
     qapp.processEvents()
     yield win._screens["mask"]
     win.close()
+    win.deleteLater()
 
 
 def _categories(screen):
@@ -283,6 +284,7 @@ def test_a_committed_channel_brings_its_settings_back(qapp):
         assert shown == ["nucleus_channel"], shown
     finally:
         win.close()
+        win.deleteLater()
         forget_disclosure("mask")
 
 
@@ -312,6 +314,7 @@ def test_a_raised_count_brings_the_organelle_rows_and_categories(qapp):
         assert len(channels) == 2, channels
     finally:
         win.close()
+        win.deleteLater()
 
 
 def test_two_rebuilds_keep_what_the_first_one_set(qapp):
@@ -343,6 +346,7 @@ def test_two_rebuilds_keep_what_the_first_one_set(qapp):
                     if k.startswith("nucleus_")]) >= NUCLEUS_ROWS
     finally:
         win.close()
+        win.deleteLater()
 
 
 def test_the_rebuild_never_shows_the_home_screen(qapp):
@@ -373,6 +377,7 @@ def test_the_rebuild_never_shows_the_home_screen(qapp):
         assert type(stack.currentWidget()).__name__ == "AppScreen"
     finally:
         win.close()
+        win.deleteLater()
 
 
 def test_the_rebuild_reports_no_error(qapp, caplog):
@@ -395,3 +400,4 @@ def test_the_rebuild_reports_no_error(qapp, caplog):
         assert bad == [], [r.getMessage() for r in bad]
     finally:
         win.close()
+        win.deleteLater()

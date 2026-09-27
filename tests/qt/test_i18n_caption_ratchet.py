@@ -1152,7 +1152,53 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 570, 2026-09-26: the Control Charts hit-scoring option (alpha).
 # 550, 2026-09-26: the cloud-storage button on the src field of Make Masks
 # and Measure, and its browser dialog (alpha).
+# 577, 2026-09-26: the Preferences Notifications tab (alpha).
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    'Announce every run that finishes or fails, by the ways switched on below, with its name, duration, outcome, a short QC summary and where its output is. Runs from the app and from the command line are both announced. A run you cancel is not. Default off.',
+    'Could not forget the saved secrets.',
+    "Delete the saved mail password, Slack webhook and ntfy topic and token from the keyring and from spaCR's own file, at once. Default kept.",
+    'Desktop',
+    'Email',
+    'Encryption',
+    'Forget saved secrets',
+    'From',
+    'How the connection to the mail server is encrypted. None sends the password in the clear and is only for a server on your own network. Default STARTTLS.',
+    'If you can read this, spaCR can tell you when a run finishes or fails.',
+    'Not sent: {channels}',
+    'Notify me',
+    'Only runs that took at least this long are announced, so a quick run you are watching does not send anything. 0 announces every run. Default 5 min.',
+    'Only when a run fails',
+    'Post to a Slack channel through an incoming webhook. Default off.',
+    'Publish to an ntfy topic, which the ntfy phone app or web page shows as a push notification. Default off.',
+    'Runs longer than',
+    'SMTP password',
+    'SMTP port',
+    'SMTP server',
+    'SMTP user name',
+    'Saved secrets',
+    'Saved secrets forgotten.',
+    'Saved; type to replace',
+    'Send a test',
+    'Send a test message now by every way switched on above, using what is typed here, and say which got through. Nothing is saved. Default not sent.',
+    "Send an email through the SMTP server below. Your institution's or mail provider's server works; many need an app password rather than your usual one. Default off.",
+    'Sending…',
+    'Sent: {channels}',
+    "Show a notification on this computer, from the system tray while the app is open, or through the desktop's own notifications for a command-line run. Default on.",
+    'Slack',
+    'Slack webhook',
+    'Switch on at least one way to be told first.',
+    "The server's port: usually 587 with STARTTLS, 465 with SSL. Default 587.",
+    'To',
+    'Try it',
+    'When',
+    'When a run finishes or fails',
+    'Which runs are announced: every run that ends, or only the ones that fail. Default when a run finishes or fails.',
+    'ntfy',
+    'ntfy access token',
+    'ntfy server',
+    'ntfy topic',
+    "spaCR can tell you when a long run finishes or fails: on this computer's desktop, by email, in Slack or through ntfy. Nothing is sent until you switch it on here. Passwords and addresses that work like passwords are kept in the system keyring.",
+    'spaCR test notification',
     'Show alpha features',
     'Show the settings, controls, screens and models built from the '
     'future-features list that are not yet released. Off hides them; saved '
@@ -1241,6 +1287,13 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "Write the ranked hit table, every well's scores and the plate summary "
     "as CSV, and one plate heatmap per statistic, into a folder",
     'hit report written to {folder}',
+    # 535, 2026-09-26: the Cell Cycle (Alpha) category help on Measure.
+    "The cell-cycle phase of every nucleus, called after measuring from the "
+    "DNA stain in one of three interchangeable ways: gates on each plate's "
+    "fitted DNA-content histogram, a boosted classifier on the nucleus "
+    "measurements, or an image classifier on nucleus crops. Each writes the "
+    "same phase column to measurements.db, with the phase fractions per well "
+    "among infected and uninfected cells.",
     # 541, 2026-09-26: the Measure preview's Alpha confluency toggle, its
     # status lines, and the Confluency (Alpha) category help.
     'Confluency',
@@ -1319,6 +1372,13 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'What you expect to find, and what would count against it.',
     'uncoded field',
     'Watching: {done} analysed, {waiting} waiting, {failed} failed',
+    # 547, 2026-09-26: the Profiling (Alpha) category help on Measure.
+    'Image-based profiling after Measure: one profile per well from the '
+    'object tables, annotated from a plate map, normalised per plate against '
+    'the negative controls, feature-selected, collapsed into one consensus '
+    'profile per treatment and scored for replicate reproducibility as mean '
+    'average precision and percent replicating. Written as CSV, Parquet and '
+    'GCT files that pycytominer, copairs and Morpheus read.',
     'Browse cloud storage',
     'Browse cloud storage…',
     'Open',
