@@ -1353,3 +1353,29 @@ and both finish at zero live widgets. Their transient runner warning remains
 in the receipt. The whole prefix was not rerun after these final corrections,
 and full serial acceptance remains OPEN. No collector or limit was raised.
 Receipt: features/data/47_ordered_prefix_memory_comparison_2026-09-27.json.
+
+STATUS 2026-09-27 — host reboot interrupted the second frozen acceptance run
+The frozen928498503 run reached17,198 terminal test outcomes (63.2186%):
+17,165 passed,16 skipped,10 xfailed and7 FAILED. The host reboot interrupted
+one further test;10,005 had never started. There is no terminal pytest summary
+or exit status, so this run is INTERRUPTED, not accepted. The unfinished suffix
+contains10,006 exact node IDs. All seven failures remain open, including the
+Mask smoke case whose separate isolated pass did not reproduce the original
+order-dependent failure.
+
+Recovery recollected the original1,445 named files from the unchanged frozen
+checkout without executing tests:27,204 node IDs. Every observed original node
+and its complete order match the recollected prefix exactly. Completed,
+interrupted and never-started sets are exhaustive and disjoint. The remaining
+IDs and failures are preserved separately under
+/mnt/wd4tb/scratch/spacr-completion/item47-recovery-20260927/.
+No automatic restart or whole-suite repeat was performed. A future suffix run
+would use a fresh process and cannot establish completion of the interrupted
+continuous memory-acceptance run or erase its seven failures.
+
+The previous boot journal ended18:08:25; current boot began18:09:40–45 EDT.
+The last serial memory sample at18:08:20 was10,003,124KiB (about9.54GiB), below
+the unchanged guard. No previous-boot kernel entries were available after18:00;
+the reboot's cause is unknown. The test named at interruption is not evidence
+that it caused the reboot. Receipt:
+features/data/47_qt_reboot_recovery_2026-09-27.json.
