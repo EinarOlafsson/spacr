@@ -1260,7 +1260,9 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Confluency (Alpha)", ("@Confluency (Alpha)",)),
         ("Cell Cycle (Alpha)", ("@Cell Cycle (Alpha)",)),
+        ("Bleach Correction (Alpha)", ("@Bleach Correction (Alpha)",)),
         ("Wound Closure (Alpha)", ("@Wound Closure (Alpha)",)),
+        ("Time To Event (Alpha)", ("@Time To Event (Alpha)",)),
         ("Viability (Alpha)", ("@Viability (Alpha)",)),
         ("Object Filtering", (
             "uninfected", "cell_min_size", "cell_max_size",
@@ -2648,6 +2650,12 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "out, the interval between frames, which backend links objects, and "
         "how far one may move between frames. For data that is both a "
         "z-stack and a time series.",
+    "BLEACH CORRECTION (ALPHA)":
+        "Photobleaching correction for timelapse intensities, per field and "
+        "channel: a simple ratio to the first timepoint, a fitted exponential "
+        "decay, or histogram matching. Corrected intensities are written "
+        "beside the measured ones with the method, and the fitted decay is "
+        "plotted.",
     "PROFILING (ALPHA)":
         "Image-based profiling after Measure: one profile per well from the "
         "object tables, annotated from a plate map, normalised per plate "
@@ -2656,6 +2664,13 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "reproducibility as mean average precision and percent replicating. "
         "Written as CSV, Parquet and GCT files that pycytominer, copairs and "
         "Morpheus read.",
+    "TIME TO EVENT (ALPHA)":
+        "How long each tracked object of a timelapse lasts until an event "
+        "such as death, lysis, egress, division or first detection, with "
+        "objects still waiting at the end of their track censored there. "
+        "Conditions are compared with Kaplan-Meier curves, median times, "
+        "log-rank tests and a Cox model, written to measurements.db and "
+        "drawn under results/time_to_event.",
     "CELL CYCLE (ALPHA)":
         "The cell-cycle phase of every nucleus, called after measuring from "
         "the DNA stain in one of three interchangeable ways: gates on each "

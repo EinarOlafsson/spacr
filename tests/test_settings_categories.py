@@ -790,12 +790,28 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "cell_cycle_gates", "cell_cycle_mitotic_ratio",
     "cell_cycle_fucci_channels", "cell_cycle_labels", "cell_cycle_model",
     "cell_cycle_epochs",
+    # A NEW SETTING, not a regrouping (item 539, 2026-09-26): photobleaching
+    # correction of a timelapse run's intensities, under its own
+    # "Bleach Correction (Alpha)" heading.
+    "bleach_correction",
     # NEW SETTINGS, not a regrouping (item 536, 2026-09-26): Measure's
     # scratch-wound closure switch, its source, channel, texture window,
     # frame interval and well-to-condition map, under their own "Wound
     # Closure (Alpha)" heading.
     "wound_closure", "wound_source", "wound_channel", "wound_window",
     "wound_hours_per_frame", "wound_conditions",
+    # NEW SETTINGS, not a regrouping (item 571, 2026-09-26): Measure's
+    # time-to-event analysis of tracked objects -- the switch, the object
+    # table, the event mode, its column, threshold and persistence, the
+    # clock's origin, the shortest track, the frame interval, the grouping,
+    # the named conditions, the reference and the Cox covariates -- under
+    # their own "Time To Event (Alpha)" heading.
+    "time_to_event", "time_to_event_object", "time_to_event_mode",
+    "time_to_event_column", "time_to_event_threshold",
+    "time_to_event_persist", "time_to_event_origin",
+    "time_to_event_min_frames", "time_to_event_hours_per_frame",
+    "time_to_event_group", "time_to_event_conditions",
+    "time_to_event_reference", "time_to_event_covariates",
     # NEW SETTINGS, not a regrouping (item 540, 2026-09-26): Measure's
     # live/dead call -- the switch, the dead and live stain channels, manual
     # thresholds, the negative and positive control wells and a plate map
@@ -1496,9 +1512,15 @@ def _rendered_sections(app_key):
             # Item 535, 2026-09-26: the cell-cycle phase call follows, read
             # from the nuclei the features above measured.
             "Cell Cycle (Alpha)",
+            # Item 539, 2026-09-26: bleach correction rescales the
+            # intensities the features above measured.
+            "Bleach Correction (Alpha)",
             # Item 536, 2026-09-26: wound closure follows confluency, whose
             # texture and intensity methods it builds on.
             "Wound Closure (Alpha)",
+            # Item 571, 2026-09-26: time to event follows, read from the
+            # tracked objects measured above, after the run.
+            "Time To Event (Alpha)",
             # Item 540, 2026-09-26: live/dead viability, read from the same
             # measured nuclei, after the cell-cycle call.
             "Viability (Alpha)",
