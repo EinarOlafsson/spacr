@@ -73,6 +73,15 @@ def test_account_name_outside_public_urls_is_flagged(text):
     assert 'maintainer_account' in {k for k, _ in sweep.path_hits([text])}
 
 
+def test_generic_home_misread_by_ocr_is_still_generic():
+    for text in ('saved at /home/user.cache/spacr', 'manifest: /home/user', 'at/home/user/cachie'):
+        hits = [{'kind': k, 'text': t} for k, t in sweep.path_hits([text])]
+        assert sweep.offending(hits) == [], text
+    for text in ('/home/username/x', '/home/users/x'):
+        hits = [{'kind': k, 'text': t} for k, t in sweep.path_hits([text])]
+        assert sweep.offending(hits), text
+
+
 def test_generic_sandbox_home_is_reported_apart_from_offenders():
     hits = [{'kind': k, 'text': t} for k, t in sweep.path_hits(['Launcher:/home/user/.local/bin/spacr'])]
     assert [h['kind'] for h in hits] == ['generic_home'] and sweep.offending(hits) == []

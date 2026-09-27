@@ -63,7 +63,9 @@ PUBLIC_URL = re.compile(r'olafsson\.g[il1]thub\.io|g[il1]thub\.com/einarolafsson
 # The author's full name (PyPI author field, commit author) is public attribution;
 # a bare account name (file-dialog sidebar, /home/<account>) is local.
 LOCAL_ACCOUNT = re.compile(r'(?<!einar)(?<!birnir)olafsson')
-GENERIC_HOME = re.compile(r'/home/user/')
+# OCR often reads the slash after it as a dot or drops it at a line end, so
+# "/home/user" counts as generic whatever non-alphanumeric character follows.
+GENERIC_HOME = re.compile(r'/home/user(?![a-z0-9_])')
 NEUTRAL_KINDS = {'generic_home'}
 
 
