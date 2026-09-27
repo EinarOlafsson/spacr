@@ -89,9 +89,14 @@ class TestTheDenseChannelMap:
                 OBJ.generate_cellpose_masks):
             source = inspect.getsource(function)
             assert "if _raw in _dense:" not in source
-            assert source.count(
-                "settings[f'cellpose_{_role}_channel'] = _dense[_raw]"
-            ) == 1
+            assert source.count("_fill_cellpose_channel_positions(settings)") == 1
+        # 2026-09-26 (item 43): item 493 moved this loop into the shared
+        # _fill_cellpose_channel_positions, so each generator now calls it once
+        # and the direct lookup lives in that one helper.
+        helper = inspect.getsource(
+            OBJ._fill_cellpose_channel_positions)
+        assert "if raw in dense:" not in helper
+        assert helper.count("settings[f'cellpose_{role}_channel'] = dense[raw]") == 1
 
 
 # ---------------------------------------------------------------------------

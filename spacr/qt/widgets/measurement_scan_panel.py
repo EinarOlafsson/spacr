@@ -22,13 +22,14 @@ import logging
 import re
 import threading
 import time
+import weakref
 from collections.abc import Mapping as _Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import pandas as pd
-from PySide6.QtCore import QEvent, QObject, Qt, Signal
+from PySide6.QtCore import QEvent, QObject, Qt, Signal, Slot
 from PySide6.QtWidgets import (
     QAbstractItemView, QCheckBox, QComboBox, QSplitter, QHBoxLayout, QHeaderView, QLabel,
     QLineEdit, QListWidget, QListWidgetItem, QPlainTextEdit, QPushButton,
@@ -179,17 +180,56 @@ class _ReadFailed:
 class _ReadRelay(QObject):
     """Carries "a read has landed" from a reader thread to the GUI thread.
 
-    A CHILD of the panel rather than the panel itself, so a reader thread
-    never holds the panel. A thread that did -- ``target=self._run_read``
-    -- could be the last owner of the panel's Python wrapper, and then
-    dropping it at the end of the read destroyed the widget ON THE READER
-    THREAD: a segfault in the next event the GUI thread delivered. A
-    child's wrapper is safe to drop anywhere, because its parent owns the
-    C++ half; once the panel is gone, emitting raises ``RuntimeError``,
-    which the reader ignores.
+    ONE RELAY FOR THE PROCESS, never a child of a panel. A reader thread
+    emitting on a panel's child raced the GUI thread destroying that panel:
+    ``emit`` could run on a QObject whose C++ half was being freed, which
+    segfaulted at the emit or corrupted the heap for a later, unrelated
+    Qt call. The shared relay lives as long as the application, so the
+    reader always emits on a live object, and carries only a weak
+    reference to the panel it is for. Delivery runs on the GUI thread and
+    skips a panel that is gone.
     """
 
-    landed = Signal()
+    landed = Signal(object)
+
+    def __init__(self) -> None:
+        """Connect the relay to its own GUI-thread delivery."""
+        super().__init__()
+        self.landed.connect(self._deliver)
+
+    @Slot(object)
+    def _deliver(self, panel_ref) -> None:
+        """Hand the landing to the panel, if it is still there.
+
+        :param panel_ref: a weak reference to the panel whose read landed.
+        """
+        import shiboken6
+
+        panel = panel_ref()
+        if panel is None or not shiboken6.isValid(panel):
+            return
+        panel._on_read_landed()
+
+
+_READ_RELAY: Optional[_ReadRelay] = None
+
+
+def _read_relay() -> _ReadRelay:
+    """The process's one :class:`_ReadRelay`.
+
+    Called from a panel's constructor, so it is built on the GUI thread. A
+    relay left over from an application that has since been replaced is
+    rebuilt, so delivery always runs on the current GUI thread.
+    """
+    global _READ_RELAY
+    from PySide6.QtCore import QCoreApplication
+
+    app = QCoreApplication.instance()
+    relay = _READ_RELAY
+    if relay is None or (app is not None and relay.thread() != app.thread()):
+        relay = _ReadRelay()
+        _READ_RELAY = relay
+    return relay
 
 
 def _file_answer(lock, reads, shown, key, value) -> None:
@@ -216,7 +256,8 @@ def _run_read(lock, reads, reading, shown, relay, key, work,
     :param reads: the panel's answers, keyed by ``(generation, question)``.
     :param reading: the reads still out, keyed the same way.
     :param shown: the panel's newest answer per question.
-    :param relay: the panel's :class:`_ReadRelay`, told when this lands.
+    :param relay: ``(relay, panel_ref)``: the shared :class:`_ReadRelay`
+        and a weak reference to the panel, told when this lands.
     :param key: ``(generation, question)``, what the answer is filed
         under.
     :param work: the callable to run.
@@ -242,8 +283,9 @@ def _run_read(lock, reads, reading, shown, relay, key, work,
         with lock:
             reading.pop(key, None)
         waiting.set()
+        shared, panel_ref = relay
         try:
-            relay.landed.emit()
+            shared.landed.emit(panel_ref)
         except RuntimeError:
             pass
 
@@ -1571,8 +1613,7 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
         #: every run in the queue is fitted on the same numbers.
         self._artefact = ""
         self._progress_relayed.connect(self._on_progress)
-        self._read_relay = _ReadRelay(self)
-        self._read_relay.landed.connect(self._on_read_landed)
+        self._read_relay = (_read_relay(), weakref.ref(self))
 
         from ..preferences import scaled_px
         from .height_grip import HeightGrip

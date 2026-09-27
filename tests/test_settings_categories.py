@@ -773,6 +773,11 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # QC cut, under their own "Confluency (Alpha)" heading.
     "confluency", "confluency_source", "confluency_channel",
     "confluency_window", "confluency_qc_threshold",
+    # NEW SETTINGS, not a regrouping (item 538, 2026-09-26): spectral
+    # unmixing's switch, its single-stain control wells and background
+    # percentile, under a "Spectral Unmixing (Alpha)" heading in Mask,
+    # Timelapse and Measure.
+    "unmix", "unmix_controls", "unmix_background_percentile",
     # NEW SETTINGS, not a regrouping (item 547, 2026-09-26): image-based
     # profiling at the end of Measure -- the switch, plate map, treatment
     # and control, normalisation, feature selection and its correlation
@@ -794,12 +799,23 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # correction of a timelapse run's intensities, under its own
     # "Bleach Correction (Alpha)" heading.
     "bleach_correction",
+    # A NEW SETTING GROUP, not a regrouping (item 537, 2026-09-27): lineage
+    # trees from the tracker's division links, appended to the Timelapse
+    # category and shown under "Lineage Trees (Alpha)" on the Timelapse app.
+    "timelapse_lineage", "timelapse_lineage_color_by",
+    "timelapse_lineage_max_distance",
     # NEW SETTINGS, not a regrouping (item 536, 2026-09-26): Measure's
     # scratch-wound closure switch, its source, channel, texture window,
     # frame interval and well-to-condition map, under their own "Wound
     # Closure (Alpha)" heading.
     "wound_closure", "wound_source", "wound_channel", "wound_window",
     "wound_hours_per_frame", "wound_conditions",
+    # NEW SETTINGS, not a regrouping (item 580, 2026-09-27): Measure's
+    # cross-plate intensity calibration from beads or reference wells -- the
+    # switch, the reference wells, the statistic and the camera offset --
+    # under their own "Intensity Calibration (Alpha)" heading.
+    "intensity_calibration", "intensity_calibration_wells",
+    "intensity_calibration_statistic", "intensity_calibration_offset",
     # NEW SETTINGS, not a regrouping (item 571, 2026-09-26): Measure's
     # time-to-event analysis of tracked objects -- the switch, the object
     # table, the event mode, its column, threshold and persistence, the
@@ -812,6 +828,13 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "time_to_event_min_frames", "time_to_event_hours_per_frame",
     "time_to_event_group", "time_to_event_conditions",
     "time_to_event_reference", "time_to_event_covariates",
+    # NEW SETTINGS, not a regrouping (item 540, 2026-09-26): Measure's
+    # live/dead call -- the switch, the dead and live stain channels, manual
+    # thresholds, the negative and positive control wells and a plate map
+    # for dose-response -- under their own "Viability (Alpha)" heading.
+    "viability", "viability_dead_channel", "viability_live_channel",
+    "viability_thresholds", "viability_negative_wells",
+    "viability_positive_wells", "viability_plate_map",
     # A NEW SETTING GROUP, not a regrouping: Make Masks can keep watching
     # `src` and analyse each field as it arrives (`watch_folder`), with the
     # pipeline, Measure settings file, settle time, poll interval and idle
@@ -1469,7 +1492,11 @@ def _rendered_sections(app_key):
             ("mask", [
                 "Input & Metadata", "Workflow & Test Run", "Image Preprocessing",
                 'Image Quality',
-                "Illumination Correction", "Point Spread Function",
+                "Illumination Correction",
+                # Item 538, 2026-09-26: unmixing runs on the raw field
+                # before the PSF and the chain, so its heading comes first.
+                "Spectral Unmixing (Alpha)",
+                "Point Spread Function",
                 "Image Enhancement",
                 "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
@@ -1497,7 +1524,15 @@ def _rendered_sections(app_key):
         # same reason: that is the order the run executes them in.
         ("measure", [
             "Input & Experiment", "Mask & Channel Mapping",
-            "Illumination Correction", "Point Spread Function",
+            "Illumination Correction",
+            # Item 538, 2026-09-26: the measured channels are unmixed
+            # before the PSF and the features.
+            "Spectral Unmixing (Alpha)",
+            "Point Spread Function",
+            # Item 580, 2026-09-27: cross-plate intensity calibration
+            # rescales the pixels the features are computed from, so it
+            # follows the other image corrections, as an Alpha heading.
+            "Intensity Calibration (Alpha)",
             "Measurement Features",
             # Item 541, 2026-09-26: confluency sits after the features it
             # is measured beside, as an Alpha heading of its own.
@@ -1514,6 +1549,9 @@ def _rendered_sections(app_key):
             # Item 571, 2026-09-26: time to event follows, read from the
             # tracked objects measured above, after the run.
             "Time To Event (Alpha)",
+            # Item 540, 2026-09-26: live/dead viability, read from the same
+            # measured nuclei, after the cell-cycle call.
+            "Viability (Alpha)",
             "Object Filtering", "Crop Output",
             # Item 547, 2026-09-26: profiling runs on the finished tables,
             # so its Alpha heading follows the outputs it reads.
@@ -1524,7 +1562,11 @@ def _rendered_sections(app_key):
             ("timelapse", [
                 "Input & Metadata", "Acquisition & Axes", "Image Preprocessing",
                 'Image Quality',
-                "Illumination Correction", "Point Spread Function",
+                "Illumination Correction",
+                # Item 538, 2026-09-26: unmixing runs on the raw field
+                # before the PSF and the chain, so its heading comes first.
+                "Spectral Unmixing (Alpha)",
+                "Point Spread Function",
                 "Image Enhancement",
                 "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
@@ -1539,6 +1581,9 @@ def _rendered_sections(app_key):
             "Image Preprocessing (per object)",
             "Object Filtration (all objects)",
             "Quality Control", "Tracking Setup", "Tracking Backends",
+            # Item 537, 2026-09-27: lineage trees are built from the tracks
+            # the backends above produce.
+            "Lineage Trees (Alpha)",
             "Visualization & Diagnostics", "Output & Storage",
             "Runtime & Reliability",
         ]),

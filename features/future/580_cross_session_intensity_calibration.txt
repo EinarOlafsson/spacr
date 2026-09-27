@@ -1,6 +1,6 @@
 CROSS-SESSION INTENSITY CALIBRATION FROM BEADS OR REFERENCE WELLS
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED AS ALPHA 2026-09-27
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -18,3 +18,33 @@ WHAT TO BUILD
 DONE WHEN
     On two sessions of the same reference sample with different exposure,
     calibrated intensities agree within a stated tolerance.
+
+ALPHA: 2026-09-27
+    Measure setting intensity_calibration (heading "Intensity Calibration
+    (Alpha)", ALPHA_FEATURES[580]) with intensity_calibration_wells,
+    intensity_calibration_statistic (foreground = median above Otsu, for
+    beads; median = whole field, for a uniform reference well) and
+    intensity_calibration_offset (camera dark offset). Each plate is one
+    session. Before workers start, Measure takes the statistic of each
+    intensity plane in every reference field (in its uint16 working units),
+    the median over a plate's fields, and gives each plate the gain that
+    matches the first plate by name. Every field's intensity planes become
+    offset + (value - offset) x gain (label planes untouched; uint8 widened
+    to uint16; clipping at the ceiling warned and recorded). The per-field
+    record is JSON in measurements.db:intensity_rescale.intensity_calibration.
+    A plate without a reference field stops the run.
+    Code: spacr/intensity_rescale.py (_build_calibration_plan,
+    _apply_calibration), wired in spacr/measure.py.
+
+    Done-when check (CPU, tests/test_intensity_calibration.py): two plates
+    of the same bead well and cell sample, the second at 2.5x exposure, both
+    over offset 100 with Poisson noise, measured end to end by measure_crop.
+    Uncalibrated, cell mean intensities (above offset) differ 2.5-fold;
+    calibrated against the beads they agree within the stated 2% tolerance
+    (gains 1/2.5 within 2%). The median statistic on a uniform well gives the
+    same gain.
+
+    LEFT: sessions are plates only (no separate session column or bead
+    folder outside the plate); a changed calibration does not invalidate
+    resumed fields; no GUI preview of the gains; the reference plate is
+    always the first by name.
