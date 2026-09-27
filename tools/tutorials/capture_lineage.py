@@ -165,7 +165,7 @@ def record_lineage(app,window,stage,captures,capture,settle,write_json,timeout):
         QTest.mouseMove(header.viewport(),end,delay=150)
         QTest.mouseRelease(header.viewport(),Qt.LeftButton,pos=end);settle(.3)
         if header.sectionSize(0)<250:raise ValueError('Actual Object header remains too narrow to read')
-        splitter=screen.tree.parentWidget().parentWidget();handle=splitter.handle(1)
+        splitter=screen._body;handle=splitter.handle(1)
         start=handle.rect().center();end=start+QPoint(2900-handle.mapTo(window,start).x(),0)
         QTest.mousePress(handle,Qt.LeftButton,pos=start);QTest.mouseMove(handle,end,delay=150)
         QTest.mouseRelease(handle,Qt.LeftButton,pos=end);settle(.3)
