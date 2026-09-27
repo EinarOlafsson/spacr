@@ -280,7 +280,7 @@ def _known_setting_keys() -> frozenset:
     if _KNOWN_KEYS_CACHE is not None:
         return _KNOWN_KEYS_CACHE
 
-    keys = set()
+    keys = {"hash_inputs"}
     from . import settings as _settings
 
     keys.update(getattr(_settings, "expected_types", {}))
