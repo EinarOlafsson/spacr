@@ -6187,6 +6187,12 @@ def launch(argv: Optional[list[str]] = None) -> int:
 
     from .preferences import apply_preferences_to_app
     apply_preferences_to_app(app)
+    try:
+        from .preferences import _install_run_notifier
+
+        _install_run_notifier(app)
+    except Exception:
+        LOG.debug("could not install the run notifier", exc_info=True)
     from .i18n import install_qt_translations
     install_qt_translations(app)
 

@@ -204,6 +204,15 @@ def preprocess_generate_masks(settings):
           ``watch_poll_seconds`` and ``watch_idle_minutes``. Results gather
           in ``src/spacr_watch``, and a record there lets a restarted watch
           skip the fields already analysed.
+        - ``src`` may also be a cloud address (``s3://``, ``gs://``,
+          ``az://``, ``https://``). An OME-Zarr plate there has only the
+          wells, fields and pyramid level named by ``cloud_wells``,
+          ``cloud_fields`` and ``cloud_level`` fetched, as TIFFs, into a
+          folder under ``cloud_cache``, and the run analyses that folder; a
+          cloud folder of images is mirrored there instead. Credentials come
+          from the standard places, chosen with ``cloud_anonymous``,
+          ``cloud_profile`` and ``cloud_endpoint``, and ``cloud_results``
+          copies the measurements folder back to cloud storage.
         - ``save``, ``plot``, ``verbose``, ``test_mode``, ``n_jobs``.
 
     :returns: ``None`` on a normal run, having written masks, overlays,
@@ -256,6 +265,10 @@ def preprocess_generate_masks(settings):
         raise ValueError('src is a required parameter')
 
     settings['src'] = normalize_src_path(settings['src'])
+
+    from .ome_zarr import _needs_cloud_run, _run_with_cloud_sources
+    if _needs_cloud_run(settings):
+        return _run_with_cloud_sources(preprocess_generate_masks, settings, 'mask')
 
     if _watch_truthy(settings.get('watch_folder', False)):
         return _watch_folder_and_analyse(settings)

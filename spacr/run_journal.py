@@ -596,6 +596,26 @@ class Run:
         default_factory=dict, repr=False,
     )
     _start_cpu_s: float = field(default_factory=time.process_time, repr=False)
+    _ledgers: List[Dict[str, Any]] = field(default_factory=list, repr=False)
+
+    def _note_ledger(self, ledger: Any) -> None:
+        """Remember a finished item ledger's counts for the run's summary.
+
+        Called when a :class:`spacr.errors.RunLedger` is finalized while this
+        run is open; the counts feed the run-finished notification. Never
+        raises: a summary line must not replace a result.
+
+        :param ledger: the finalized ledger.
+        """
+        try:
+            self._ledgers.append({
+                "name": str(getattr(ledger, "name", "run")),
+                "attempted": int(ledger.n_attempted),
+                "succeeded": int(ledger.n_succeeded),
+                "failed": int(ledger.n_failed),
+            })
+        except Exception:
+            LOG.debug("could not note an item ledger", exc_info=True)
 
     def record_model(self, name: str, checkpoint_path: Any) -> None:
         """Fingerprint ``checkpoint_path`` and remember it under ``name``.
@@ -1133,8 +1153,534 @@ def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
         finish_recording(macro, status=run.status, settings=run.settings)
         LOG.info("run closed [%s] in %.1fs → %s",
                   run.status, run.end_ts - run.start_ts, run.dir)
+        _notify_run_finished(run)
 
 
+
+_NOTIFY_KEYRING_SERVICE = "spacr-notifications"
+"""Service name the run-finished notification secrets use in the OS keyring."""
+
+_NOTIFY_SECRET_NAMES = ("smtp_password", "slack_webhook", "ntfy_topic",
+                        "ntfy_token")
+"""The notification settings that are secrets and never leave the store."""
+
+_NOTIFY_TIMEOUT_S = 10.0
+"""Seconds any one notification channel may take before it is abandoned."""
+
+_DESKTOP_NOTIFIER: List[Any] = [None]
+"""The desktop sender the Qt app installs: ``fn(title, body, failed)``."""
+
+
+def _notify_secrets_path() -> Path:
+    """Return ``~/.spacr/notification_secrets.json``, the keyring fallback."""
+    return Path.home() / ".spacr" / "notification_secrets.json"
+
+
+def _notify_keyring() -> Any:
+    """The ``keyring`` module when a working OS keyring backs it, else None.
+
+    The fail and null backends, which keyring picks when the system has no
+    secret service, count as no keyring.
+    """
+    try:
+        import keyring
+
+        backend = keyring.get_keyring()
+        if float(getattr(backend, "priority", 1) or 0) <= 0:
+            return None
+        if type(backend).__module__.endswith((".fail", ".null")):
+            return None
+        return keyring
+    except Exception:
+        return None
+
+
+def _read_notify_secret_file() -> Dict[str, str]:
+    """The secrets in the fallback file, or an empty dict."""
+    try:
+        path = _notify_secrets_path()
+        if not path.is_file():
+            return {}
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(data, dict):
+            return {}
+        return {str(k): str(v) for k, v in data.items() if v}
+    except Exception:
+        LOG.debug("could not read the notification secret file")
+        return {}
+
+
+def _write_notify_secret_file(values: Dict[str, str]) -> None:
+    """Write the fallback secret file readable by its owner only (mode 600).
+
+    The file is created with mode 600 before anything is written to it and
+    replaces the old one in one step; with nothing left to keep it is
+    removed.
+
+    :param values: secret name to value.
+    """
+    path = _notify_secrets_path()
+    kept = {k: v for k, v in values.items() if v}
+    if not kept:
+        try:
+            path.unlink()
+        except FileNotFoundError:
+            pass
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(f".{path.name}.{uuid.uuid4().hex[:8]}")
+    descriptor = os.open(str(temporary),
+                         os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+            json.dump(kept, handle)
+        os.chmod(temporary, 0o600)
+        os.replace(temporary, path)
+    except BaseException:
+        try:
+            temporary.unlink()
+        except OSError:
+            pass
+        raise
+
+
+def _store_notify_secret(name: str, value: str) -> str:
+    """Keep one notification secret, in the OS keyring when there is one.
+
+    Without a usable keyring the secret goes to
+    ``~/.spacr/notification_secrets.json``, mode 600. An empty value forgets
+    the secret in both places. The value is never logged.
+
+    :param name: one of ``_NOTIFY_SECRET_NAMES``.
+    :param value: the secret.
+    :returns: ``"keyring"``, ``"file"`` or ``"forgotten"``.
+    :raises ValueError: for a name that is not a notification secret.
+    """
+    if name not in _NOTIFY_SECRET_NAMES:
+        raise ValueError(f"unknown notification secret {name!r}")
+    value = str(value or "")
+    stored = _read_notify_secret_file()
+    ring = _notify_keyring()
+    if not value:
+        if stored.pop(name, None) is not None:
+            _write_notify_secret_file(stored)
+        if ring is not None:
+            try:
+                ring.delete_password(_NOTIFY_KEYRING_SERVICE, name)
+            except Exception:
+                LOG.debug("no keyring entry to forget")
+        return "forgotten"
+    if ring is not None:
+        try:
+            ring.set_password(_NOTIFY_KEYRING_SERVICE, name, value)
+            if stored.pop(name, None) is not None:
+                _write_notify_secret_file(stored)
+            return "keyring"
+        except Exception as exc:
+            LOG.info("the OS keyring refused a notification secret (%s); "
+                     "keeping it in %s", type(exc).__name__,
+                     _notify_secrets_path())
+    stored[name] = value
+    _write_notify_secret_file(stored)
+    return "file"
+
+
+def _load_notify_secret(name: str) -> str:
+    """Read one notification secret: the OS keyring first, then the file.
+
+    :param name: one of ``_NOTIFY_SECRET_NAMES``.
+    :returns: the secret, or an empty string when none is stored.
+    """
+    ring = _notify_keyring()
+    if ring is not None:
+        try:
+            value = ring.get_password(_NOTIFY_KEYRING_SERVICE, name)
+            if value:
+                return str(value)
+        except Exception:
+            LOG.debug("the OS keyring could not be read")
+    return _read_notify_secret_file().get(name, "")
+
+
+def _notification_config() -> Optional[Dict[str, Any]]:
+    """The run-finished notification settings from Preferences, or None.
+
+    None when notifications are off, when no channel is ready, when the
+    Show alpha features gate hides them, and when this install cannot read
+    Preferences at all.
+    """
+    try:
+        from .qt.preferences import _run_notification_config
+    except Exception:
+        LOG.debug("no Preferences to read notification settings from")
+        return None
+    try:
+        return _run_notification_config()
+    except Exception:
+        LOG.debug("could not read the notification settings", exc_info=True)
+        return None
+
+
+def _notify_duration(seconds: float) -> str:
+    """Say a run's wall time the way a person would, e.g. ``1 h 02 min``."""
+    seconds = max(0.0, float(seconds or 0.0))
+    if seconds < 60:
+        return f"{seconds:.0f} s"
+    minutes, secs = divmod(int(round(seconds)), 60)
+    if minutes < 60:
+        return f"{minutes} min {secs:02d} s"
+    hours, minutes = divmod(minutes, 60)
+    return f"{hours} h {minutes:02d} min"
+
+
+def _notify_output_pointer(run: "Run") -> str:
+    """Where the run's results are: its report, destination or source."""
+    settings = run.settings or {}
+    for key in ("report_path", "dst", "src"):
+        value = settings.get(key)
+        if isinstance(value, (list, tuple)):
+            value = value[0] if value else None
+        if value not in (None, ""):
+            return str(value)
+    return ""
+
+
+def _run_qc_summary(run: "Run") -> List[str]:
+    """Short QC lines for a run: items processed, failures and key numbers.
+
+    Read from what the run recorded -- finalized item ledgers, stage states
+    and numeric stage metrics, warnings and hashed outputs; nothing is
+    recomputed.
+
+    :param run: the finished run.
+    :returns: lines of text, possibly none.
+    """
+    lines: List[str] = []
+    for ledger in run._ledgers[:6]:
+        lines.append(
+            f"{ledger['name']}: {ledger['succeeded']} of "
+            f"{ledger['attempted']} items processed, "
+            f"{ledger['failed']} failed")
+    if run.stages:
+        states: Dict[str, int] = {}
+        for stage in run.stages:
+            state = str(stage.get("state") or "pending")
+            states[state] = states.get(state, 0) + 1
+        lines.append("Stages: " + ", ".join(
+            f"{count} {state}" for state, count in sorted(states.items())))
+        numbers = []
+        for stage in run.stages:
+            for name, value in (stage.get("metrics") or {}).items():
+                if isinstance(value, bool) or not isinstance(
+                        value, (int, float)):
+                    continue
+                label = stage.get("label") or stage.get("id")
+                shown = (f"{value:g}" if isinstance(value, float)
+                         else str(value))
+                numbers.append(f"{label} {name}: {shown}")
+        lines.extend(numbers[:6])
+    if run.run_warnings:
+        lines.append(f"Warnings: {len(run.run_warnings)}")
+    if run.output_hashes:
+        lines.append(f"Output files recorded: {len(run.output_hashes)}")
+    return lines
+
+
+def _run_notification_message(run: "Run") -> Dict[str, Any]:
+    """The title and body a finished or failed run is announced with.
+
+    :param run: the closed run.
+    :returns: ``{"title", "body", "failed"}``.
+    """
+    failed = run.status == "failed"
+    outcome = "failed" if failed else "finished"
+    name = run.app_key or "run"
+    elapsed = (run.end_ts or time.time()) - run.start_ts
+    lines = [
+        f"Run: {name} ({run.dir.name})",
+        f"Outcome: {outcome}",
+        f"Duration: {_notify_duration(elapsed)}",
+    ]
+    if failed:
+        error = [line.strip() for line in
+                 (run.error_traceback or "").splitlines() if line.strip()]
+        if error:
+            lines.append(f"Error: {error[-1][:300]}")
+    lines.extend(_run_qc_summary(run))
+    output = _notify_output_pointer(run)
+    if output:
+        lines.append(f"Output: {output}")
+    lines.append(f"Run record: {run.dir}")
+    return {"title": f"spaCR run {outcome}: {name}",
+            "body": "\n".join(lines), "failed": failed}
+
+
+def _notify_scrub(text: Any, secrets: Iterable[str]) -> str:
+    """``text`` with every secret replaced by ``***``, for a log line."""
+    out = str(text)
+    for secret in secrets:
+        if secret and len(secret) >= 3:
+            out = out.replace(secret, "***")
+    return out
+
+
+def _notify_http_post(url: str, data: bytes,
+                      headers: Dict[str, str]) -> int:
+    """POST ``data`` to an http(s) ``url`` and return the status code.
+
+    :raises ValueError: for any other scheme.
+    :raises RuntimeError: for a response outside 2xx.
+    """
+    import urllib.request
+    from urllib.parse import urlparse
+
+    if urlparse(url).scheme not in ("http", "https"):
+        raise ValueError("the address must start with http:// or https://")
+    request = urllib.request.Request(url, data=data, headers=headers,
+                                     method="POST")
+    with urllib.request.urlopen(request, timeout=_NOTIFY_TIMEOUT_S) as reply:
+        status = int(getattr(reply, "status", 200) or 200)
+    if not 200 <= status < 300:
+        raise RuntimeError(f"the server answered {status}")
+    return status
+
+
+def _notify_by_email(message: Dict[str, Any], notify: Dict[str, Any],
+                     password: str) -> None:
+    """Send the message over SMTP (STARTTLS, SSL or plain, as configured)."""
+    import smtplib
+    import ssl
+    from email.message import EmailMessage
+
+    host = str(notify.get("smtp_host") or "").strip()
+    recipients = [part.strip() for part in
+                  re.split(r"[,;\s]+", str(notify.get("email_to") or ""))
+                  if part.strip()]
+    if not host or not recipients:
+        raise ValueError("an SMTP server and a recipient are needed")
+    port = int(notify.get("smtp_port") or 587)
+    security = str(notify.get("smtp_security") or "starttls")
+    user = str(notify.get("smtp_user") or "").strip()
+    sender = (str(notify.get("email_from") or "").strip() or user
+              or recipients[0])
+    mail = EmailMessage()
+    mail["Subject"] = message["title"]
+    mail["From"] = sender
+    mail["To"] = ", ".join(recipients)
+    mail.set_content(message["body"])
+    context = ssl.create_default_context()
+    if security == "ssl":
+        server = smtplib.SMTP_SSL(host, port, timeout=_NOTIFY_TIMEOUT_S,
+                                  context=context)
+    else:
+        server = smtplib.SMTP(host, port, timeout=_NOTIFY_TIMEOUT_S)
+    with server:
+        if security == "starttls":
+            server.starttls(context=context)
+        if user and password:
+            server.login(user, password)
+        server.send_message(mail)
+
+
+def _notify_by_slack(message: Dict[str, Any], webhook: str) -> None:
+    """Post the message to a Slack incoming webhook."""
+    if not webhook:
+        raise ValueError("no Slack webhook address is saved")
+    payload = {"text": f"*{message['title']}*\n{message['body']}"}
+    _notify_http_post(webhook, json.dumps(payload).encode("utf-8"),
+                      {"Content-Type": "application/json"})
+
+
+def _notify_by_ntfy(message: Dict[str, Any], notify: Dict[str, Any],
+                    topic: str, token: str) -> None:
+    """Publish the message to an ntfy topic."""
+    from email.header import Header
+    from urllib.parse import quote
+
+    if not topic:
+        raise ValueError("no ntfy topic is saved")
+    server = str(notify.get("ntfy_server") or "https://ntfy.sh").rstrip("/")
+    title = message["title"]
+    if not title.isascii():
+        title = Header(title, "utf-8").encode()
+    headers = {
+        "Title": title,
+        "Tags": "x" if message["failed"] else "white_check_mark",
+        "Priority": "high" if message["failed"] else "default",
+        "Content-Type": "text/plain; charset=utf-8",
+    }
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    _notify_http_post(f"{server}/{quote(topic, safe='')}",
+                      message["body"].encode("utf-8"), headers)
+
+
+def _desktop_os_notify(title: str, body: str) -> None:
+    """Show a desktop notification without Qt: notify-send or osascript.
+
+    :raises RuntimeError: when this system offers neither.
+    """
+    if sys.platform.startswith("linux"):
+        program = shutil.which("notify-send")
+        if program:
+            subprocess.run([program, "--app-name=spaCR", title, body],
+                           stdin=subprocess.DEVNULL, capture_output=True,
+                           timeout=_NOTIFY_TIMEOUT_S, check=False)
+            return
+    if sys.platform == "darwin":
+        def quoted(text: str) -> str:
+            """``text`` as an AppleScript string literal on one line."""
+            text = text.replace("\\", "\\\\").replace('"', '\\"')
+            return '"' + " ".join(text.splitlines()) + '"'
+
+        subprocess.run(
+            ["osascript", "-e",
+             f"display notification {quoted(body)} with title {quoted(title)}"],
+            stdin=subprocess.DEVNULL, capture_output=True,
+            timeout=_NOTIFY_TIMEOUT_S, check=False)
+        return
+    raise RuntimeError("no desktop notification service on this system")
+
+
+def _notify_by_desktop(message: Dict[str, Any]) -> None:
+    """Show the message on this computer's desktop.
+
+    In the app, the notifier it installed shows it from the tray; elsewhere
+    the operating system's own notification command is used.
+    """
+    notifier = _DESKTOP_NOTIFIER[0]
+    if notifier is not None:
+        notifier(message["title"], message["body"], bool(message["failed"]))
+        return
+    _desktop_os_notify(message["title"], message["body"])
+
+
+def _send_notification(message: Dict[str, Any],
+                       notify: Dict[str, Any]) -> Dict[str, str]:
+    """Send one message by every channel ``notify`` switches on.
+
+    Every channel is tried whatever happened to the ones before it. A
+    failure is logged with every secret masked, and is returned rather than
+    raised.
+
+    :param message: ``{"title", "body", "failed"}``.
+    :param notify: the notification settings, as
+        :func:`_notification_config` returns them; an optional ``secrets``
+        dict supplies secrets to try instead of the stored ones.
+    :returns: channel name to ``"sent"`` or a short failure reason.
+    """
+    secrets: Dict[str, str] = {}
+    results: Dict[str, str] = {}
+
+    def secret(name: str) -> str:
+        """The secret supplied to try, else the stored one."""
+        if name not in secrets:
+            given = (notify.get("secrets") or {}).get(name)
+            secrets[name] = str(given) if given else _load_notify_secret(name)
+        return secrets[name]
+
+    channels = []
+    if notify.get("desktop"):
+        channels.append(("desktop", lambda: _notify_by_desktop(message)))
+    if notify.get("email"):
+        channels.append(("email", lambda: _notify_by_email(
+            message, notify, secret("smtp_password"))))
+    if notify.get("slack"):
+        channels.append(("slack", lambda: _notify_by_slack(
+            message, secret("slack_webhook"))))
+    if notify.get("ntfy"):
+        channels.append(("ntfy", lambda: _notify_by_ntfy(
+            message, notify, secret("ntfy_topic"), secret("ntfy_token"))))
+    for name, send in channels:
+        try:
+            send()
+            results[name] = "sent"
+        except Exception as exc:
+            reason = _notify_scrub(f"{type(exc).__name__}: {exc}",
+                                   secrets.values())
+            results[name] = reason
+            LOG.warning("run notification by %s failed: %s", name, reason)
+    return results
+
+
+def _dispatch_notification(message: Dict[str, Any],
+                           notify: Dict[str, Any]) -> threading.Thread:
+    """Send ``message`` on a thread of its own and return that thread.
+
+    Not a daemon thread: a command-line run that has just finished waits
+    for its notification, each channel for at most ``_NOTIFY_TIMEOUT_S``,
+    rather than exiting before it is sent. The results land on the
+    thread's ``results`` dict.
+
+    :param message: ``{"title", "body", "failed"}``.
+    :param notify: the notification settings.
+    :returns: the started thread.
+    """
+    results: Dict[str, str] = {}
+
+    def work() -> None:
+        """Send, and keep what happened."""
+        try:
+            results.update(_send_notification(message, notify))
+        except Exception:
+            LOG.debug("the notification thread failed", exc_info=True)
+
+    thread = threading.Thread(target=work, name="spacr-run-notification")
+    thread.results = results
+    thread.start()
+    return thread
+
+
+def _notify_run_finished(run: "Run") -> Optional[threading.Thread]:
+    """Announce a finished or failed run, if Preferences asks for it.
+
+    A cancelled run is not announced: the person who stopped it knows. A
+    run shorter than the configured minimum is not either, and neither is
+    a finished run when only failures are asked for. Nothing here raises
+    or waits for the network: the sending happens on its own thread.
+
+    :param run: the run :func:`open_run` has just closed.
+    :returns: the sending thread, or None when nothing is sent.
+    """
+    try:
+        if run.status not in ("success", "failed"):
+            return None
+        notify = _notification_config()
+        if not notify:
+            return None
+        if run.status == "success" and notify.get("when") == "failed":
+            return None
+        elapsed = (run.end_ts or time.time()) - run.start_ts
+        if elapsed < float(notify.get("min_minutes") or 0) * 60.0:
+            return None
+        return _dispatch_notification(_run_notification_message(run),
+                                      notify)
+    except Exception:
+        LOG.debug("could not send the run-finished notification",
+                  exc_info=True)
+        return None
+
+
+
+def _note_ledger_on_the_open_run(ledger: Any) -> None:
+    """Hand a finalized item ledger to the run open on this thread, if any."""
+    run = current_run()
+    if run is not None:
+        run._note_ledger(ledger)
+
+
+def _listen_for_ledgers() -> None:
+    """Have every finalized :class:`spacr.errors.RunLedger` reach the run."""
+    try:
+        from .errors import _FINALIZE_LISTENERS
+
+        if _note_ledger_on_the_open_run not in _FINALIZE_LISTENERS:
+            _FINALIZE_LISTENERS.append(_note_ledger_on_the_open_run)
+    except Exception:
+        LOG.debug("could not listen for item ledgers", exc_info=True)
+
+
+_listen_for_ledgers()
 
 def _run_dir_names(root: Path) -> List[str]:
     """Every run-folder name under ``root``, from ONE directory read.

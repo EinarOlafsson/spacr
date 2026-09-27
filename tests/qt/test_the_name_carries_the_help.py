@@ -14,6 +14,7 @@ def window(qapp):
     win.show()
     yield win
     win.close()
+    win.deleteLater()
 
 
 def _survey(screen):

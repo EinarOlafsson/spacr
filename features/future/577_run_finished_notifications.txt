@@ -1,6 +1,8 @@
 RUN-FINISHED NOTIFICATIONS: EMAIL, SLACK, NTFY
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED AS ALPHA 2026-09-26 (see the note of that date). Desktop,
+email (SMTP), Slack webhook and ntfy notifications for finished and failed
+runs, configured in Preferences -> Notifications, off until configured.
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -18,3 +20,105 @@ WHAT TO BUILD
 DONE WHEN
     A finished and a failed run each send one notification with the summary
     (tested against a local mock server).
+
+NOTE 2026-09-26 -- BUILT, AS AN ALPHA FEATURE
+
+What was built
+    One hook: spacr/run_journal.py open_run, as it closes a run, calls
+      _notify_run_finished(run). GUI runs (spacr/qt/bridge.py), CLI runs
+      (spacr/cli.py, so batch/queue jobs that go through it) and spacr repro
+      all close through open_run, so all of them notify. No new module.
+    What is sent: title "spaCR run finished: <app>" / "spaCR run failed:
+      <app>"; body with the run name and run folder name, outcome, duration,
+      the error's last line for a failure, a QC summary (each RunLedger
+      finalized during the run: "N of M items processed, K failed"; stage
+      states and up to six numeric stage metrics; warning count; hashed
+      output count), the output pointer (report_path, else dst, else src)
+      and the run record folder. RunLedger.finalize now calls the listeners
+      in spacr.errors._FINALIZE_LISTENERS, where run_journal registers one
+      that notes the counts on the open run (Run._note_ledger); errors.py
+      still imports only the stdlib and database_concurrency, and the
+      manifest is unchanged.
+    When: finished and failed runs; not cancelled ones. "Only when a run
+      fails" and "Runs longer than N min" (default 5) filter further.
+    Channels (spacr/run_journal.py, private helpers):
+      desktop -- in the app a relay (_install_run_notifier, called from
+        spacr.qt.app.launch) carries the message to the GUI thread and shows
+        it from a QSystemTrayIcon; without a tray, and for CLI runs,
+        notify-send (Linux) or osascript (macOS).
+      email -- smtplib; STARTTLS (default, port 587), SSL or none; optional
+        login; several recipients.
+      Slack -- incoming webhook, JSON {"text": ...}.
+      ntfy -- POST to <server>/<topic> with Title, Tags, Priority (high for
+        a failure) and an optional Bearer token.
+    Never blocks or crashes a run: everything in the hook is inside
+      try/except; sending runs on its own (non-daemon) thread, each channel
+      with a 10 s timeout, every channel tried whatever the others did, a
+      failure logged as a warning with every secret masked.
+    Secrets (SMTP password, Slack webhook, ntfy topic and token): OS keyring
+      (service "spacr-notifications") when a real backend exists, else
+      ~/.spacr/notification_secrets.json created mode 600 and replaced
+      atomically. QSettings keeps only which ones are saved. The dialog never
+      reads a secret back: the field says "Saved; type to replace" or "Not
+      saved"; "Forget saved secrets" deletes them all.
+    Preferences: a Notifications tab (spacr/qt/preferences.py,
+      _NotificationsPage) with the master switch, when, minimum minutes,
+      desktop, email (server, port, encryption, user, password, from, to),
+      Slack (webhook), ntfy (server, topic, token), "Send a test" (sends with
+      what is typed, off the GUI thread, and reports per channel) and
+      "Forget saved secrets". Save, Reset and the lazy page machinery of
+      item 284 treat it like any other page.
+
+DONE WHEN, checked
+    A finished and a failed run each send one notification with the summary,
+    tested against local mock servers: tests/test_run_finished_notifications.py
+    test_a_finished_run_sends_one_notification_with_its_summary and
+    test_a_failed_run_sends_one_notification_and_still_raises (a fake SMTP
+    server and an HTTP server on 127.0.0.1; one mail, one Slack post, one
+    ntfy post and one desktop message each). The email sender was also
+    checked by hand against aiosmtpd 1.4.6 in a scratch venv (MAIL, RCPT,
+    DATA accepted). No real message was sent.
+
+Tests
+    tests/test_run_finished_notifications.py (finished, failed, quiet runs,
+    a broken channel failing alone with no secret in the log, a slow channel
+    not holding the run, a broken config not failing the run, the mode-600
+    file, the keyring path, message helpers).
+    tests/qt/test_run_finished_notifications_preferences.py (off on a fresh
+    install; hidden: no tab and nothing fires; shown: every control, Save
+    stores preferences and the secret outside the preference file, the run
+    is announced, and turning the gate off stops it; reopen and Reset keep
+    the secret, Forget removes it; Send a test reports; the desktop relay
+    reaches the GUI thread).
+    tests/conftest.py now points the secret file at the ~/.spacr sandbox and
+    turns the OS keyring off for every test.
+
+Not done
+    Microsoft Teams: current Teams workflow webhooks want an Adaptive Card,
+    not Slack's {"text"}; not built. Generic webhooks likewise.
+    The notification text is English; it is not passed through tr() (it is
+    built in the headless run journal, and mail goes to other people).
+    The QC summary uses what the run recorded; pipelines that do not use
+    RunLedger or FlowView stages give only outcome, duration and pointers.
+    No link to an HTML report: spacr.report is not run automatically, so the
+    pointer is the output path and the run record folder.
+    Windows without the app has no desktop fallback (no notify-send); the
+    GUI tray path covers Windows. STARTTLS/SSL were not tested against a
+    TLS server (only plain SMTP and AUTH PLAIN against the fakes).
+    The CLI reads the configuration from the same Preferences store
+    (QSettings) and needs PySide6 importable; without it nothing is sent.
+    The new captions are in tests/qt/test_i18n_caption_ratchet.py's
+    _AWAITING_CATALOG_REBUILD; the UI catalogs were not regenerated.
+
+ALPHA: widgets NotifyTabHelp, NotifyRunsEnabled, NotifyRunsWhen,
+NotifyRunsMinMinutes, NotifyDesktop, NotifyEmail, NotifySmtpHost,
+NotifySmtpPort, NotifySmtpSecurity, NotifySmtpUser, NotifySmtpPassword,
+NotifyEmailFrom, NotifyEmailTo, NotifySlack, NotifySlackWebhook, NotifyNtfy,
+NotifyNtfyServer, NotifyNtfyTopic, NotifyNtfyToken, NotifySendTest,
+NotifyForgetSecrets, NotifyTestResult -- the whole Preferences ->
+Notifications tab; no settings keys, choices, apps or models. Registered as
+ALPHA_FEATURES[577]['widgets'] in spacr/settings.py. With Show alpha
+features off the tab is not built at all, and unlike other alpha features
+the configuration is also not acted on: _run_notification_config returns
+None, so neither app nor CLI runs send anything for a configuration the gate
+hides (the ALPHA_FEATURES docstring names this exception).
