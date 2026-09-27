@@ -66,13 +66,6 @@
       "source": "Path to a trained Timeflows checkpoint, spaCR's experimental temporal Cellpose that predicts where each object's centre moves in the next frame and links masks from those predictions. Only consulted when timelapse_mode='timeflows', which is never the default: on held-out movies measured so far it does not beat overlap linking ('iou'). No checkpoint is downloaded; leave empty unless you trained one. Default None.",
       "source_sha256": "88edfe30ad6d529a1bc4f650979f9110137ca67279a8b4fe9a29d29d5507af94",
       "translation": "已训练的 Timeflows 检查点路径。Timeflows 是 spaCR 的实验性时序 Cellpose，可预测每个对象的中心在下一帧中移动到何处，并据此链接掩膜。仅在 timelapse_mode='timeflows' 时使用，而这从来不是默认值：在迄今测量的留出影片上，它并不优于基于重叠的链接（'iou'）。不会下载任何检查点；除非您自己训练过一个，否则请留空。默认值 None。"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "timelapse_mode",
-      "source": "Tracking backend used to link objects between frames. 'trackastra' is a pretrained transformer with division-aware linking; 'ultrack' jointly optimizes segmentation and linking and supports dense or three-dimensional data at increased computational cost; 'trackpy' uses a configurable search radius and frame memory; 'btrack' uses a motion model; and 'iou' links masks by overlap and may fail when inter-frame displacement is large; 'timeflows' is spaCR's experimental temporal Cellpose, needs a trained checkpoint in timeflows_model and has not yet beaten 'iou' on held-out movies. Default 'trackastra'.",
-      "source_sha256": "387d42e3a0d187c4f6aac5d9a20a96854693853b5515de01e3f24d2b903436a2",
-      "translation": "用于在帧间链接对象的跟踪后端。'trackastra' 是预训练的 Transformer，支持感知分裂的链接；'ultrack' 联合优化分割与链接，支持密集或三维数据，但计算成本更高；'trackpy' 使用可配置的搜索半径和帧记忆；'btrack' 使用运动模型；'iou' 按重叠链接掩膜，帧间位移较大时可能失败；'timeflows' 是 spaCR 的实验性时序 Cellpose，需要在 timeflows_model 中提供已训练的检查点，且在留出影片上尚未超过 'iou'。默认值 'trackastra'。"
     }
   ]
 }
