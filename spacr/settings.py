@@ -6980,6 +6980,9 @@ ALPHA_FEATURES = {
                     'NotifyNtfyToken', 'NotifySendTest', 'NotifyForgetSecrets',
                     'NotifyTestResult'),
     },
+    581: {
+        'settings': ('anndata_format', 'anndata_tidy_dir'),
+    },
 }
 
 

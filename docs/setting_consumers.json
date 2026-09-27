@@ -1120,7 +1120,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "anndata_compression",
-    "line": 1695,
+    "line": 2458,
     "module": "spacr.anndata_export.__init__",
     "nested": false,
     "qualname": "anndata_export_settings"
@@ -1129,7 +1129,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "anndata_compression",
-    "line": 1781,
+    "line": 2561,
     "module": "spacr.anndata_export.__init__",
     "nested": false,
     "qualname": "run_anndata_export"
@@ -1140,7 +1140,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "anndata_compute_umap",
-    "line": 1694,
+    "line": 2457,
     "module": "spacr.anndata_export.__init__",
     "nested": false,
     "qualname": "anndata_export_settings"
@@ -1149,7 +1149,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "anndata_compute_umap",
-    "line": 1793,
+    "line": 2577,
     "module": "spacr.anndata_export.__init__",
     "nested": false,
     "qualname": "run_anndata_export"
@@ -1160,7 +1160,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "anndata_dtype",
-    "line": 1692,
+    "line": 2455,
     "module": "spacr.anndata_export.__init__",
     "nested": false,
     "qualname": "anndata_export_settings"
@@ -1169,7 +1169,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "anndata_dtype",
-    "line": 1792,
+    "line": 2595,
     "module": "spacr.anndata_export.__init__",
     "nested": false,
     "qualname": "run_anndata_export"
@@ -1180,7 +1180,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "anndata_nan_policy",
-    "line": 1691,
+    "line": 2454,
     "module": "spacr.anndata_export.__init__",
     "nested": false,
     "qualname": "anndata_export_settings"
@@ -1189,7 +1189,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "anndata_nan_policy",
-    "line": 1791,
+    "line": 2576,
     "module": "spacr.anndata_export.__init__",
     "nested": false,
     "qualname": "run_anndata_export"
@@ -1200,7 +1200,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "anndata_out",
-    "line": 1688,
+    "line": 2451,
     "module": "spacr.anndata_export.__init__",
     "nested": false,
     "qualname": "anndata_export_settings"
@@ -1209,7 +1209,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "anndata_out",
-    "line": 1772,
+    "line": 2552,
     "module": "spacr.anndata_export.__init__",
     "nested": false,
     "qualname": "run_anndata_export"
@@ -1220,7 +1220,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "anndata_register_artifact",
-    "line": 1696,
+    "line": 2459,
     "module": "spacr.anndata_export.__init__",
     "nested": false,
     "qualname": "anndata_export_settings"
@@ -1229,7 +1229,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "anndata_register_artifact",
-    "line": 1786,
+    "line": 2571,
     "module": "spacr.anndata_export.__init__",
     "nested": false,
     "qualname": "run_anndata_export"
@@ -1240,7 +1240,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "anndata_row_limit",
-    "line": 1693,
+    "line": 2456,
     "module": "spacr.anndata_export.__init__",
     "nested": false,
     "qualname": "anndata_export_settings"
@@ -1249,7 +1249,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "anndata_row_limit",
-    "line": 1780,
+    "line": 2560,
     "module": "spacr.anndata_export.__init__",
     "nested": false,
     "qualname": "run_anndata_export"
@@ -1260,7 +1260,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "anndata_single_table",
-    "line": 1690,
+    "line": 2453,
     "module": "spacr.anndata_export.__init__",
     "nested": false,
     "qualname": "anndata_export_settings"
@@ -1269,7 +1269,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "anndata_single_table",
-    "line": 1771,
+    "line": 2551,
     "module": "spacr.anndata_export.__init__",
     "nested": false,
     "qualname": "run_anndata_export"
@@ -1280,7 +1280,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "anndata_tables",
-    "line": 1689,
+    "line": 2452,
     "module": "spacr.anndata_export.__init__",
     "nested": false,
     "qualname": "anndata_export_settings"
@@ -1289,7 +1289,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "anndata_tables",
-    "line": 1776,
+    "line": 2556,
     "module": "spacr.anndata_export.__init__",
     "nested": false,
     "qualname": "run_anndata_export"
@@ -44134,7 +44134,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 1687,
+    "line": 2450,
     "module": "spacr.anndata_export.__init__",
     "nested": false,
     "qualname": "anndata_export_settings"
@@ -44143,7 +44143,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 1764,
+    "line": 2544,
     "module": "spacr.anndata_export.__init__",
     "nested": false,
     "qualname": "run_anndata_export"
@@ -45781,7 +45781,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 2270,
+    "line": 2816,
     "module": "spacr.run_journal",
     "nested": false,
     "qualname": "lock_analysis"
@@ -45790,7 +45790,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 2370,
+    "line": 2916,
     "module": "spacr.run_journal",
     "nested": false,
     "qualname": "check_analysis_lock"
@@ -47125,7 +47125,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "strict_errors",
-    "line": 784,
+    "line": 793,
     "module": "spacr.errors",
     "nested": false,
     "qualname": "strict_errors"
@@ -47134,7 +47134,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "strict_errors",
-    "line": 785,
+    "line": 794,
     "module": "spacr.errors",
     "nested": false,
     "qualname": "strict_errors"

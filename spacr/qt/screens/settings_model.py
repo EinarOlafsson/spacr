@@ -1631,7 +1631,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Input Tables", ("src", "anndata_tables")),
         ("Output File", (
             "anndata_out", "anndata_single_table", "anndata_compression",
-            "anndata_dtype",
+            "anndata_dtype", "anndata_format", "anndata_tidy_dir",
         )),
         ("Rows & Missing Values", (
             "anndata_row_limit", "anndata_nan_policy",
