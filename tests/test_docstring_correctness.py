@@ -2613,7 +2613,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # `integrity`; no new callable, and the required sum does not move.
     # 19,538 -> 19,539 with item 543: the IlluminationField dataclass
     # constructor gained the optional `darkfield` field (none required).
-    assert sum(len(item.parameters) for item in callables) == 19_539
+    # 19,539 -> 19,540 with item 554: SpotDetectorCombo's optional
+    # `spotiflow_readiness` keyword; no new callable.
+    assert sum(len(item.parameters) for item in callables) == 19_540
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2799,7 +2801,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # gained the optional keyword-only `integrity`.
     # Moved 2026-09-27 for item 543 on top of 572 (was 18d2977b...): the
     # IlluminationField dataclass constructor gained the optional darkfield.
-) == "305e0422977d84f1a61eba0ebdddb0f745ec59f4231a5fba3323eaad206e0312"
+    # Moved 2026-09-27 for item 554 (was 305e0422...): SpotDetectorCombo
+    # gained the optional `spotiflow_readiness` keyword.
+) == "6cb99554618362fc8b00c996c185ade574adaf08f5f1a806718d64ca6a3b1096"
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing

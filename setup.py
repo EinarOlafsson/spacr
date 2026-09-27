@@ -251,6 +251,13 @@ setup(
 
         'zarr': ['zarr>=2.16,<4', 'numcodecs>=0.12,<1'],
         'omero': ['omero-py>=5.17,<6'],
+        'cloud': ['fsspec>=2023.1', 's3fs>=2023.1', 'gcsfs>=2023.1',
+                  'adlfs>=2023.1', 'aiohttp>=3.8,<4', 'botocore>=1.29,<2'],
+        'survival': ['lifelines>=0.27,<1'],
+        'search': ['faiss-cpu>=1.7.4,<2'],
+        'notify': ['keyring>=23.0,<27'],
+        'chem': ['rdkit>=2023.3'],
+        'microscope': ['pycromanager>=0.28,<1'],
 
         'all': [
             'PySide6>=6.6,<7',

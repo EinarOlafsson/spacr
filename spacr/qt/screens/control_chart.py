@@ -45,7 +45,8 @@ import pandas as pd
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QAbstractItemView, QComboBox, QDoubleSpinBox, QFileDialog, QFormLayout,
-    QHBoxLayout, QHeaderView, QLabel, QListWidget, QListWidgetItem,
+    QHBoxLayout, QHeaderView, QLabel, QLineEdit, QListWidget,
+    QListWidgetItem,
     QPlainTextEdit, QPushButton, QSpinBox, QTableWidget,
     QTableWidgetItem, QVBoxLayout, QWidget,
 )
@@ -129,6 +130,25 @@ _CHEMISTRY_PANEL_OBJECT = "ControlChartChemistry"
 _CHEMISTRY_SECTION_OBJECT = "ControlChartChemistrySection"
 _CHEMISTRY_ALPHA_WIDGETS = (_CHEMISTRY_PANEL_OBJECT,
                             _CHEMISTRY_SECTION_OBJECT)
+
+#: Object names of the anomaly option: the controls that score every object
+#: against the negative control, and the output section with the ranked
+#: wells and the outlier review. Both are registered with the alpha gate.
+_ANOMALY_PANEL_OBJECT = "ControlChartAnomaly"
+_ANOMALY_SECTION_OBJECT = "ControlChartAnomalySection"
+
+#: The anomaly detectors offered, as ``(value, English label)``.
+_ANOMALY_METHOD_CHOICES = (
+    ("mahalanobis", "Robust Mahalanobis"), ("knn", "k-nearest neighbours"),
+    ("iforest", "Isolation forest"), ("gmm", "Gaussian mixture density"))
+
+#: The ranked-well table's columns on screen: field and header.
+_ANOMALY_COLUMNS = (
+    ("rank", "Rank"), ("plateID", "Plate"), ("well", "Well"),
+    ("treatment", "Treatment"), ("n", "Objects"),
+    ("outlier_fraction", "Outliers"), ("enrichment", "Enrichment"),
+    ("median_score", "Median score"), ("known_hit", "Known hit"),
+)
 
 #: The structure-activity table's columns on screen: field and header.
 _SAR_COLUMNS = (
@@ -361,6 +381,10 @@ class ControlChartScreen(QWidget):
         self._chemistry = None
         self._chem_jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
         self._chem_jobs.job_failed.connect(self._on_chemistry_failed)
+        self._anomaly = None
+        self._anomaly_jobs = JobRunner(self, threaded=threaded,
+                                       app_key=APP_KEY)
+        self._anomaly_jobs.job_failed.connect(self._on_anomaly_failed)
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["md"], SPACING["md"],
@@ -481,6 +505,10 @@ class ControlChartScreen(QWidget):
             self._build_chemistry_output(lower), "Structures and SAR",
             persist_key="control_chart/Structures and SAR")
         self._chem_section.setObjectName("ControlChartChemistrySection")
+        self._anomaly_section = outputs.add_section(
+            self._build_anomaly_output(lower), "Anomalies",
+            persist_key="control_chart/Anomalies")
+        self._anomaly_section.setObjectName("ControlChartAnomalySection")
         lower_layout.addWidget(outputs, 1)
         right.add_pane(lower, "Output", stretch=2)
 
@@ -619,6 +647,7 @@ class ControlChartScreen(QWidget):
         self._negative.currentTextChanged.connect(self._on_control_changed)
         form.addRow("Negative control", self._negative)
         form.addRow(self._build_hit_panel(panel))
+        form.addRow(self._build_anomaly_panel(panel))
         return panel
 
     def _build_hit_panel(self, parent: QWidget) -> QWidget:
@@ -932,6 +961,7 @@ class ControlChartScreen(QWidget):
         if frame is None:
             return
         self.rescore_hits()
+        self._rescore_anomalies()
         try:
             spec = self.spec()
         except ControlChartError as exc:
@@ -1082,6 +1112,240 @@ class ControlChartScreen(QWidget):
 
             written.update(_write_sar_report(self._chemistry, folder))
         self._source.setText(tr("hit report written to {folder}",
+                                folder=os.path.basename(folder) or folder))
+        return written
+
+    def _build_anomaly_panel(self, parent: QWidget) -> QWidget:
+        """The anomaly option: every object scored against the negative
+        control, to find phenotypes nobody named.
+
+        Uses the control column, the negative and positive controls and the
+        treatment column picked above; scoring is
+        :func:`spacr.sp_stats._score_anomalies`. One container, so the alpha
+        gate hides the whole option by one name.
+
+        :param parent: the controls column.
+        :returns: the container.
+        """
+        box = QWidget(parent)
+        box.setObjectName("ControlChartAnomaly")
+        form = QFormLayout(box)
+        form.setContentsMargins(0, SPACING["sm"], 0, 0)
+        form.setSpacing(SPACING["xs"])
+        self._anomaly_score = Toggle(
+            tr("Score anomalies against the negative control"), box)
+        self._anomaly_score.setObjectName("ControlChartAnomalyScore")
+        self._anomaly_score.setToolTip(tr(
+            "Model the negative-control objects as normal and score every "
+            "object and well for how unlike them it is, over every numeric "
+            "feature (or the emb_ embedding columns when present). Needs a "
+            "per-object table, the negative control picked above and well "
+            "positions. Default off."))
+        self._anomaly_score.toggled.connect(self._on_anomaly_changed)
+        form.addRow("", self._anomaly_score)
+        self._anomaly_method = QComboBox(box)
+        self._anomaly_method.setObjectName("ControlChartAnomalyMethod")
+        for value, label in _ANOMALY_METHOD_CHOICES:
+            self._anomaly_method.addItem(tr(label), value)
+        self._anomaly_method.setToolTip(tr(
+            "How unlike the controls an object is: robust Mahalanobis "
+            "distance, mean distance to the nearest control objects, an "
+            "isolation forest, or low density under a Gaussian mixture. All "
+            "run on the CPU. Default Robust Mahalanobis."))
+        self._anomaly_method.currentIndexChanged.connect(
+            self._on_anomaly_changed)
+        form.addRow(tr("Detector"), self._anomaly_method)
+        self._anomaly_quantile = QDoubleSpinBox(box)
+        self._anomaly_quantile.setObjectName("ControlChartAnomalyQuantile")
+        self._anomaly_quantile.setDecimals(3)
+        self._anomaly_quantile.setRange(0.5, 0.999)
+        self._anomaly_quantile.setSingleStep(0.005)
+        self._anomaly_quantile.setValue(0.99)
+        self._anomaly_quantile.setToolTip(tr(
+            "An object is an outlier when it scores beyond this quantile of "
+            "the control objects, so this share of controls is normal by "
+            "construction. Wells are ranked by their share of outliers. "
+            "Default 0.99."))
+        self._anomaly_quantile.valueChanged.connect(self._on_anomaly_changed)
+        form.addRow(tr("Outlier quantile"), self._anomaly_quantile)
+        self._anomaly_hits = QLineEdit(box)
+        self._anomaly_hits.setObjectName("ControlChartAnomalyKnownHits")
+        self._anomaly_hits.setToolTip(tr(
+            "Wells (A01), plate wells (prc) or treatment names that are known "
+            "hits, separated by commas. With the positive control they give "
+            "the AUROC of the ranking against the negative control. Default "
+            "empty."))
+        self._anomaly_hits.editingFinished.connect(self._on_anomaly_changed)
+        form.addRow(tr("Known hits"), self._anomaly_hits)
+        export = QPushButton(tr("Export anomalies…"), box)
+        export.setObjectName("ControlChartExportAnomalies")
+        export.setToolTip(tr(
+            "Write the ranked wells, every object's score, the top outliers "
+            "and the review figure into a folder."))
+        export.clicked.connect(self._choose_anomaly_export)
+        form.addRow("", export)
+        return box
+
+    def _build_anomaly_output(self, parent: QWidget) -> QWidget:
+        """The ranked wells and the top outlier objects for review.
+
+        :param parent: the output column.
+        :returns: the section body.
+        """
+        from matplotlib.figure import Figure
+
+        body = QWidget(parent)
+        layout = QVBoxLayout(body)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(SPACING["xs"])
+        self.anomaly_summary = QLabel(tr(
+            "Turn on anomaly scoring and name the negative control."), body)
+        self.anomaly_summary.setObjectName("ControlChartAnomalySummary")
+        self.anomaly_summary.setWordWrap(True)
+        layout.addWidget(self.anomaly_summary)
+        self.anomaly_table = QTableWidget(0, len(_ANOMALY_COLUMNS), body)
+        install_sorting(self.anomaly_table)
+        self.anomaly_table.setObjectName("ControlChartAnomalyTable")
+        self.anomaly_table.setHorizontalHeaderLabels(
+            [tr(label) for _key, label in _ANOMALY_COLUMNS])
+        self.anomaly_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.anomaly_table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.anomaly_table.verticalHeader().setVisible(False)
+        self.anomaly_table.setMinimumHeight(90)
+        layout.addWidget(self.anomaly_table, 1)
+        self.anomaly_figure = Figure(figsize=(8.0, 3.5))
+        self.anomaly_canvas = _canvas_class()(self.anomaly_figure)
+        self.anomaly_canvas.setObjectName("ControlChartAnomalyReview")
+        self.anomaly_canvas.setMinimumHeight(200)
+        layout.addWidget(self.anomaly_canvas, 2)
+        return body
+
+    def _on_anomaly_changed(self, *_args) -> None:
+        """Rescore the anomalies after an anomaly option changed.
+
+        :param _args: whatever the emitting signal passes; ignored.
+        """
+        if not self._loading:
+            self._rescore_anomalies()
+
+    def _anomaly_options(self) -> Dict[str, object]:
+        """The keyword arguments the form gives
+        :func:`spacr.sp_stats._score_anomalies`."""
+        negative = self._negative.currentText()
+        positive = self._positive.currentText()
+        hits = [part.strip() for part in self._anomaly_hits.text().split(",")
+                if part.strip()]
+        return {
+            "control_column": self._control_column.currentText() or None,
+            "negative_levels": (negative,) if negative else (),
+            "positive_levels": (positive,) if positive else (),
+            "known_hits": tuple(hits),
+            "plate_column": self._plate.currentText() or None,
+            "treatment_column": self._hit_treatment.currentText() or None,
+            "method": self._anomaly_method.currentData() or "mahalanobis",
+            "quantile": float(self._anomaly_quantile.value()),
+        }
+
+    def _rescore_anomalies(self) -> None:
+        """Score the anomalies from the form, off the GUI thread, when on."""
+        frame = self._frame
+        if frame is None or not self._anomaly_score.isChecked():
+            self._show_anomaly(None, tr(
+                "Turn on anomaly scoring and name the negative control."))
+            return
+        options = self._anomaly_options()
+        if not options["control_column"] or not options["negative_levels"]:
+            self._show_anomaly(None, tr(
+                "Pick the control column and the negative control to score "
+                "anomalies against."))
+            return
+        from ...sp_stats import _score_anomalies
+
+        self._anomaly_jobs.cancel()
+        self._anomaly_jobs.submit(
+            lambda f=frame, o=options: _score_anomalies(f, **o),
+            self._on_anomaly_result)
+
+    def _on_anomaly_result(self, result) -> None:
+        """Show a worker-computed anomaly scoring. GUI thread only.
+
+        :param result: the ``_AnomalyResult``.
+        """
+        self._show_anomaly(result, result.report())
+
+    def _on_anomaly_failed(self, message: str) -> None:
+        """Log and show a refused anomaly scoring.
+
+        :param message: the refusal text from the job runner.
+        """
+        LOG.info("anomaly scoring refused: %s", message)
+        self._show_anomaly(None, message)
+
+    def _show_anomaly(self, result, message: str) -> None:
+        """Fill the ranked wells and draw the outlier review, or say why not.
+
+        :param result: the ``_AnomalyResult``, or ``None``.
+        :param message: the summary text.
+        """
+        from ...sp_stats import _draw_anomaly_review
+
+        self._anomaly = result
+        self.anomaly_summary.setText(message)
+        self.anomaly_table.setSortingEnabled(False)
+        self.anomaly_figure.patch.set_alpha(0.0)
+        if result is None:
+            self.anomaly_table.setRowCount(0)
+            self.anomaly_figure.clear()
+            self.anomaly_canvas.draw_idle()
+            return
+        shown = result.ranked_wells().head(_MAX_HIT_ROWS)
+        self.anomaly_table.setRowCount(len(shown))
+        for row, (_index, record) in enumerate(shown.iterrows()):
+            for column, (key, _label) in enumerate(_ANOMALY_COLUMNS):
+                value = record.get(key, None)
+                if value is None or (not isinstance(value, str)
+                                     and pd.isna(value)):
+                    text = ""
+                elif isinstance(value, (bool, np.bool_)):
+                    text = tr("yes") if value else ""
+                elif key == "rank":
+                    text = str(int(value))
+                elif key == "outlier_fraction":
+                    text = f"{100 * float(value):.1f}%"
+                elif isinstance(value, (float, np.floating)):
+                    text = f"{value:.3g}"
+                else:
+                    text = str(value)
+                self.anomaly_table.setItem(row, column, table_item(text))
+        self.anomaly_table.setSortingEnabled(True)
+        self.anomaly_table.resizeColumnsToContents()
+        _draw_anomaly_review(self.anomaly_figure, result)
+        self.anomaly_canvas.draw_idle()
+
+    def _choose_anomaly_export(self) -> None:
+        """Ask for a folder and write the anomaly report into it."""
+        if self._anomaly is None:
+            self._source.setText(tr("Nothing scored yet."))
+            return
+        folder = QFileDialog.getExistingDirectory(
+            self, tr("Write the anomaly report into"))
+        if folder:
+            self._export_anomalies(folder)
+
+    def _export_anomalies(self, folder: str) -> Optional[Dict[str, str]]:
+        """Write the ranked wells, object scores and the review figure.
+
+        :param folder: the folder, created if absent.
+        :returns: ``{name: path}`` of what was written, or ``None`` when
+            nothing has been scored.
+        """
+        if self._anomaly is None:
+            self._source.setText(tr("Nothing scored yet."))
+            return None
+        from ...sp_stats import _write_anomaly_report
+
+        written = _write_anomaly_report(self._anomaly, folder)
+        self._source.setText(tr("anomaly report written to {folder}",
                                 folder=os.path.basename(folder) or folder))
         return written
 
@@ -1327,11 +1591,13 @@ class ControlChartScreen(QWidget):
 
     def active_jobs(self) -> int:
         """How many worker threads are still winding down."""
-        return self._jobs.active_jobs() + self._hit_jobs.active_jobs()
+        return (self._jobs.active_jobs() + self._hit_jobs.active_jobs()
+                + self._anomaly_jobs.active_jobs())
 
     def is_busy(self) -> bool:
         """True while a read, a chart or a hit scoring is in flight."""
-        return self._jobs.is_busy() or self._hit_jobs.is_busy()
+        return (self._jobs.is_busy() or self._hit_jobs.is_busy()
+                or self._anomaly_jobs.is_busy())
 
     def choose_export(self) -> None:
         """Ask where to write the per-plate table and write it."""
@@ -1363,6 +1629,7 @@ class ControlChartScreen(QWidget):
         self._jobs.shutdown()
         self._hit_jobs.shutdown()
         self._chem_jobs.shutdown()
+        self._anomaly_jobs.shutdown()
         self.canvas.close()
         super().closeEvent(event)
 

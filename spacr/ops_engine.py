@@ -198,8 +198,13 @@ _ANCHOR_TARGET_POINTS = 3000
 
 #: The detectors ``ops_spot_detector`` may name. ``native`` is spaCR's own
 #: Laplacian-of-Gaussian score; ``spotnet`` is DeepCell's SpotNet, run in its
-#: own environment, NON-COMMERCIAL ACADEMIC USE ONLY, and opt-in.
-_SPOT_DETECTORS = ("native", "spotnet")
+#: own environment, NON-COMMERCIAL ACADEMIC USE ONLY, and opt-in;
+#: ``spotiflow`` is Spotiflow's general model, run in its own environment.
+_SPOT_DETECTORS = ("native", "spotnet", "spotiflow")
+
+#: The detectors that run in a backend worker of their own, one field at a
+#: time.
+_BACKEND_SPOT_DETECTORS = ("spotnet", "spotiflow")
 
 #: SpotNet's detection probability. deepcell-spots' own default.
 _SPOTNET_THRESHOLD = 0.95
@@ -1265,8 +1270,8 @@ def _spot_detector(settings: Mapping[str, Any]) -> str:
     """The sequencing-spot detector ``settings`` choose, checked it can run.
 
     :param settings: read for ``ops_spot_detector``; empty means native.
-    :returns: ``native`` or ``spotnet``.
-    :raises ValueError: for an unknown name, or SpotNet when it cannot run
+    :returns: ``native``, ``spotnet`` or ``spotiflow``.
+    :raises ValueError: for an unknown name, or a backend when it cannot run
         here, with the reason -- never a silent fall back to native, which
         would give a run that asked for one detector the other's reads.
     """
@@ -1280,11 +1285,21 @@ def _spot_detector(settings: Mapping[str, Any]) -> str:
         ready, reason = _spotnet_readiness()
         if not ready:
             raise ValueError(f"ops_spot_detector='spotnet' cannot run: {reason}")
+    if name == "spotiflow":
+        from ._segmentation_backends import _spotiflow_readiness
+
+        ready, reason = _spotiflow_readiness()
+        if not ready:
+            raise ValueError(
+                f"ops_spot_detector='spotiflow' cannot run: {reason}")
     return name
 
 
-def _spotnet_peaks(stack: np.ndarray, detect=None) -> np.ndarray:
-    """SpotNet's read positions for one aligned field, as whole pixels.
+def _spotnet_peaks(stack: np.ndarray, detect=None,
+                   threshold: Optional[float] = _SPOTNET_THRESHOLD
+                   ) -> np.ndarray:
+    """SpotNet's (or Spotiflow's) read positions for one aligned field, as
+    whole pixels.
 
     SpotNet sees one image: each cycle's brightest base channel, scaled by
     its own 99.9th percentile so no cycle outweighs the rest, averaged over
@@ -1293,8 +1308,11 @@ def _spotnet_peaks(stack: np.ndarray, detect=None) -> np.ndarray:
     for across the stack.
 
     :param stack: ``cycles x channels x H x W``, aligned.
-    :param detect: :func:`spacr._segmentation_backends._detect_spots`, or a
+    :param detect: :func:`spacr._segmentation_backends._detect_spots`,
+        :func:`spacr._segmentation_backends._spotiflow_spots`, or a
         stand-in for tests.
+    :param threshold: the detector's own probability threshold; None keeps
+        Spotiflow's optimised one.
     :returns: ``N x 2`` integer ``(y, x)``, unique and inside the field.
     """
     if detect is None:
@@ -1303,7 +1321,7 @@ def _spotnet_peaks(stack: np.ndarray, detect=None) -> np.ndarray:
     scale = np.percentile(brightest.reshape(len(brightest), -1), 99.9, axis=1)
     scale[~(scale > 0)] = 1.0
     image = (brightest / scale[:, None, None]).mean(axis=0)
-    spots = np.asarray(detect(image, threshold=_SPOTNET_THRESHOLD), float)
+    spots = np.asarray(detect(image, threshold=threshold), float)
     spots = spots.reshape(-1, 2)
     if not len(spots):
         return np.zeros((0, 2), dtype=np.int64)
@@ -1330,10 +1348,10 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         this tile's frame -- ``centroids``, ``areas``, ``ids`` and ``owned``,
         whether each object's nearest tile is this one -- plus ``gpu``,
         ``threshold``, ``footprint``, ``store_reads`` and
-        ``spot_detector`` (``native`` or ``spotnet``; SpotNet's positions
-        replace the native score's peaks and its threshold, and everything
-        after them -- the margin, the bases, the calls and the attribution
-        -- is the same code either way).
+        ``spot_detector`` (``native``, ``spotnet`` or ``spotiflow``; a
+        backend's positions replace the native score's peaks and its
+        threshold, and everything after them -- the margin, the bases, the
+        calls and the attribution -- is the same code either way).
     :returns: the field's reads attributed to the objects it owns, and its
         counts. With ``store_reads`` it also returns each owned read's
         position in this tile's frame, its per-cycle margin and the
@@ -1386,7 +1404,14 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
     tick = time.perf_counter()
     stack = field.stack
     detector = str(task.get("spot_detector") or "native")
-    spotnet = _spotnet_peaks(stack) if detector == "spotnet" else None
+    spotnet = None
+    if detector == "spotnet":
+        spotnet = _spotnet_peaks(stack)
+    elif detector == "spotiflow":
+        from ._segmentation_backends import _spotiflow_spots
+
+        spotnet = _spotnet_peaks(stack, detect=_spotiflow_spots,
+                                 threshold=None)
     filtered = np.empty_like(stack)
     for c in range(stack.shape[0]):
         for k in range(stack.shape[1]):
@@ -1643,8 +1668,8 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
     library_set = frozenset(library)
     workers = max(1, min(int(settings.get("n_workers") or 1),
                          _DECODE_WORKERS_CAP, len(tasks)))
-    if detector == "spotnet" and workers > 1:
-        _say(f"{well} decode: SpotNet runs in one worker of its own, so the "
+    if detector in _BACKEND_SPOT_DETECTORS and workers > 1:
+        _say(f"{well} decode: {detector} runs in one worker of its own, so the "
              f"fields decode one at a time rather than {workers} at once")
         workers = 1
     results = []

@@ -2522,7 +2522,9 @@
       "source_sha256": "716705a006c51ba98d09012dcb5466281e85fb7d21cc6002817996f7141e970f",
       "context": "WHY (item 502). The theme draws every ``QProgressBar`` as an 8 px track (``height: 8px; max-height: 8px`` in :mod:`spacr.qt.theme`). A bar that also paints its own text -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" -- draws a 13 px caption into those 8 px, so only the top half of each glyph reaches the application view, and at 50 % GUI scale the track is 4 px and almost nothing does. The maintainer's report was \"the text e.g. step 1 of 3 or 10% is cut off\".",
       "translation": "POURQUOI (point 502). Le thème dessine chaque ``QProgressBar`` comme une piste de 8 px (``height: 8px; max-height: 8px`` dans :mod:`spacr.qt.theme`). Une barre qui peint aussi son propre texte -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" -- dessine une légende de 13 px dans ces 8 px, si bien que seule la moitié supérieure de chaque glyphe atteint l’écran, et à une échelle de GUI de 50 % la piste fait 4 px et presque rien ne passe. Le signalement du mainteneur était \"the text e.g. step 1 of 3 or 10% is cut off\".",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-27: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding#4",
@@ -2530,7 +2532,9 @@
       "source_sha256": "7ab46fd9cca517c17f57de9c2ba6f927b48c48da68c442fa7074bb01eda156ce",
       "context": "The design the maintainer chose is \"thin bar + label\":",
       "translation": "LA CONCEPTION retenue par le mainteneur est \"thin bar + label\" :",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-27: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding#5",

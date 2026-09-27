@@ -195,6 +195,11 @@ def preprocess_generate_masks(settings):
         - ``motility_analysis`` — when timelapse is enabled, analyze the
           completed merged frames once per plate, rebuilding measurements
           from the current masks rather than reusing an older assay table.
+        - ``robustness_report`` — after the masks exist, re-segment a few
+          sampled fields over a small grid of diameters, thresholds and
+          contrast enhancement and write a stability report per object to
+          ``qc/segmentation_robustness_<object>.csv``, flagging the settings
+          the results are fragile to.
         - ``dry_run`` — validate only: inspect the input folders, print the
           preflight report and plan and return, without writing anything or
           loading a model.
@@ -204,6 +209,12 @@ def preprocess_generate_masks(settings):
           ``watch_poll_seconds`` and ``watch_idle_minutes``. Results gather
           in ``src/spacr_watch``, and a record there lets a restarted watch
           skip the fields already analysed.
+        - ``microscope_feedback`` — during a ``watch_folder`` run with
+          ``watch_pipeline='mask_measure'``, send the objects matching
+          ``microscope_event_query`` back to the microscope named by
+          ``microscope_driver`` to be imaged again, at stage positions
+          worked out from ``microscope_positions`` and
+          ``microscope_stage_transform``.
         - ``src`` may also be a cloud address (``s3://``, ``gs://``,
           ``az://``, ``https://``). An OME-Zarr plate there has only the
           wells, fields and pyramid level named by ``cloud_wells``,
@@ -551,6 +562,13 @@ def preprocess_generate_masks(settings):
                                     n_jobs=1, time_ls=time_ls,
                                     batch_size=None,
                                     operation_type=f'{organelle_role}_mask_gen')
+
+                        if settings.get('robustness_report'):
+                            from .object import _run_robustness_report
+                            for robust_role in ('cell', 'nucleus', 'pathogen'):
+                                if settings.get(f'{robust_role}_channel') is not None:
+                                    cancellation_checkpoint()
+                                    _run_robustness_report(mask_src, settings, robust_role)
 
                         adjusted_cells = None
                         if settings['adjust_cells']:
@@ -1153,6 +1171,15 @@ def _watch_check_settings(settings):
     settle = _watch_number(settings, 'watch_settle_seconds', 10.0)
     poll = _watch_number(settings, 'watch_poll_seconds', 5.0, minimum=0.01)
     idle = _watch_number(settings, 'watch_idle_minutes', 0.0) * 60.0
+    if _watch_truthy(settings.get('microscope_feedback', False)):
+        if pipeline != 'mask_measure':
+            raise ValueError("microscope_feedback picks events from the "
+                             "measurements; set watch_pipeline to "
+                             "'mask_measure'.")
+        for key, default in (('microscope_max_events', 10.0),
+                             ('microscope_timepoints', 1.0),
+                             ('microscope_interval_seconds', 0.0)):
+            _watch_number(settings, key, default)
     return src, pipeline, settle, poll, idle
 
 
@@ -1207,6 +1234,8 @@ def _watch_run_field(key, members, signature, context):
     _watch_save_ledger(context['ledger_path'], ledger)
     print(f'watch_folder: analysed {key} in {entry["seconds"]:.1f} s, taken '
           f'{entry["waited"]:.1f} s after its last file stopped changing.')
+    if context.get('microscope') is not None:
+        _microscope_feedback(key, field_dir, context)
 
 
 def _watch_ready_fields(context, now):
@@ -1290,6 +1319,460 @@ def _watch_observe(context, now):
     return changed
 
 
+_MICROSCOPE_DRIVERS = ('simulated', 'pycromanager')
+_MICROSCOPE_REIMAGED = 'reimaged'
+
+
+def _microscope_matrix(settings):
+    """The 2x2 matrix that turns a pixel offset into a stage offset.
+
+    :param settings: the run settings; ``microscope_stage_transform`` holds
+        ``[a, b, c, d]``, a list or its text, so that a pixel offset of
+        ``dx`` columns and ``dy`` rows moves the stage by
+        ``(a*dx + b*dy, c*dx + d*dy)`` micrometres.
+    :returns: a float array of shape (2, 2).
+    :raises ValueError: when the value is not four numbers or the matrix
+        cannot be inverted.
+    """
+    import ast
+
+    value = settings.get('microscope_stage_transform', [1.0, 0.0, 0.0, 1.0])
+    if isinstance(value, str):
+        try:
+            value = ast.literal_eval(value)
+        except (ValueError, SyntaxError):
+            value = None
+    try:
+        matrix = np.asarray(value, dtype=float).reshape(2, 2)
+    except (TypeError, ValueError):
+        raise ValueError('microscope_stage_transform must be four numbers '
+                         f'[a, b, c, d], not {value!r}.') from None
+    if not np.all(np.isfinite(matrix)) or abs(np.linalg.det(matrix)) < 1e-12:
+        raise ValueError('microscope_stage_transform must be an invertible '
+                         f'matrix, not {value!r}.')
+    return matrix
+
+
+def _microscope_stage_position(pixel, shape, centre, matrix):
+    """Where the stage must go to centre the camera on one pixel of a field.
+
+    :param pixel: ``(row, column)`` of the point in the field image.
+    :param shape: ``(height, width)`` of the field image.
+    :param centre: ``(x, y)`` stage position, in micrometres, at which the
+        field was acquired, which is where the image centre lies.
+    :param matrix: the matrix of :func:`_microscope_matrix`.
+    :returns: ``(x, y)`` stage position in micrometres.
+    """
+    offset = np.array([float(pixel[1]) - (shape[1] - 1) / 2.0,
+                       float(pixel[0]) - (shape[0] - 1) / 2.0])
+    stage = np.asarray(centre[:2], dtype=float) + matrix @ offset
+    return float(stage[0]), float(stage[1])
+
+
+def _microscope_positions(settings):
+    """The stage position each field was acquired at.
+
+    :param settings: the run settings; ``microscope_positions`` names a table
+        with the columns ``field`` (the field key the watch uses), ``x`` and
+        ``y`` in micrometres, and optionally ``z``.
+    :returns: ``{field key: (x, y) or (x, y, z)}``.
+    :raises ValueError: when the file is not set or lacks a column.
+    """
+    from .tabular import read_table
+
+    path = str(settings.get('microscope_positions') or '').strip()
+    if not path:
+        raise ValueError('microscope_feedback needs microscope_positions: a '
+                         'table of the stage x and y (and optionally z) of '
+                         'every field.')
+    frame = read_table(path, canonicalise=False)
+    missing = [column for column in ('field', 'x', 'y')
+               if column not in frame.columns]
+    if missing:
+        raise ValueError(f'microscope_positions {path} lacks the column(s) '
+                         f'{", ".join(missing)}.')
+    has_z = 'z' in frame.columns
+    positions = {}
+    for row in frame.itertuples(index=False):
+        values = [float(row.x), float(row.y)]
+        if has_z and pd.notna(row.z):
+            values.append(float(row.z))
+        positions[str(row.field)] = tuple(values)
+    return positions
+
+
+class _SimulatedMicroscope:
+    """A stand-in microscope that acquires from a folder of field images.
+
+    It answers the calls the feedback loop makes on a pycro-manager ``Core``
+    (``get_xy_stage_device``, ``set_xy_position``, ``get_x_position``,
+    ``get_y_position``, ``get_focus_device``, ``set_position``,
+    ``get_position``, ``wait_for_device``, ``snap_image``, ``get_image``,
+    ``get_image_width`` and ``get_image_height``), so the loop runs
+    unchanged against it. Each field image is laid on the stage centred on
+    its entry in the positions table and oriented by the stage transform. A
+    snap returns an image of the field's size centred on the current stage
+    position, cut from the nearest field and padded with zeros where it runs
+    off that field. Every call is appended to ``log``.
+    """
+
+    def __init__(self, folder, positions, matrix, settings):
+        """Lay the fields of ``folder`` out on the stage.
+
+        :param folder: the folder of field images.
+        :param positions: the table of :func:`_microscope_positions`.
+        :param matrix: the matrix of :func:`_microscope_matrix`.
+        :param settings: the run settings, for the filename pattern; the
+            file with the lowest channel of each field is used. The folder
+            is read at every snap, so fields may still be arriving.
+        """
+        self.log, self._matrix = [], matrix
+        self._folder, self._positions = folder, positions
+        self._settings, self._patterns = settings, {}
+        self._x = self._y = self._z = 0.0
+        self._image = self._width = self._height = None
+        self._cache = {}
+
+    def _layout(self):
+        """Place every field image now in the folder at its stage position.
+
+        :returns: ``(centre, path)`` pairs, one per field.
+        :raises ValueError: when no image belongs to a listed field.
+        """
+        chosen = {}
+        for name in _watch_images(self._folder):
+            key, channel = _watch_field_of(name, self._settings,
+                                           self._patterns)
+            if key in self._positions:
+                rank = (channel is not None, str(channel), name)
+                if key not in chosen or rank < chosen[key][0]:
+                    chosen[key] = (rank, os.path.join(self._folder, name))
+        if not chosen:
+            raise ValueError(f'The simulated microscope found no image in '
+                             f'{self._folder} whose field is in '
+                             f'microscope_positions.')
+        return [(self._positions[key][:2], path)
+                for key, (_rank, path) in sorted(chosen.items())]
+
+    def _field(self, path):
+        """Read one field image once, as a 2-D array."""
+        if path not in self._cache:
+            import tifffile
+            from skimage.io import imread
+
+            image = (tifffile.imread(path)
+                     if path.lower().endswith(('.tif', '.tiff'))
+                     else imread(path))
+            image = np.asarray(image)
+            while image.ndim > 2:
+                image = image[0]
+            self._cache[path] = image
+        return self._cache[path]
+
+    def get_xy_stage_device(self):
+        """The stage device name."""
+        return 'SimulatedXYStage'
+
+    def get_focus_device(self):
+        """The focus device name."""
+        return 'SimulatedZStage'
+
+    def set_xy_position(self, x, y):
+        """Move the stage to ``(x, y)`` micrometres."""
+        self._x, self._y = float(x), float(y)
+        self.log.append(('set_xy_position', self._x, self._y))
+
+    def get_x_position(self):
+        """The stage x in micrometres."""
+        return self._x
+
+    def get_y_position(self):
+        """The stage y in micrometres."""
+        return self._y
+
+    def set_position(self, z):
+        """Move the focus to ``z`` micrometres."""
+        self._z = float(z)
+        self.log.append(('set_position', self._z))
+
+    def get_position(self):
+        """The focus position in micrometres."""
+        return self._z
+
+    def wait_for_device(self, name):
+        """Return at once: the simulated stage arrives instantly."""
+        self.log.append(('wait_for_device', name))
+
+    def snap_image(self):
+        """Acquire the view centred on the current stage position."""
+        here = np.array([self._x, self._y])
+        centre, path = min(self._layout(), key=lambda field: float(
+            np.hypot(*(np.asarray(field[0]) - here))))
+        field = self._field(path)
+        height, width = field.shape
+        column, row = np.linalg.solve(self._matrix,
+                                      here - np.asarray(centre, float))
+        row, column = int(round(row)), int(round(column))
+        view = np.zeros_like(field)
+        top, left = max(row, 0), max(column, 0)
+        bottom, right = min(row + height, height), min(column + width, width)
+        if top < bottom and left < right:
+            view[top - row:bottom - row, left - column:right - column] = \
+                field[top:bottom, left:right]
+        self._image, self._height, self._width = view, height, width
+        self.log.append(('snap_image', self._x, self._y))
+
+    def get_image(self):
+        """The last snapped image, flattened as Micro-Manager returns it."""
+        if self._image is None:
+            raise RuntimeError('snap_image was not called.')
+        return self._image.ravel()
+
+    def get_image_width(self):
+        """The width of the last snapped image."""
+        return self._width
+
+    def get_image_height(self):
+        """The height of the last snapped image."""
+        return self._height
+
+
+def _microscope_open(settings, src):
+    """Connect to the microscope named by ``microscope_driver``.
+
+    ``'simulated'`` builds a :class:`_SimulatedMicroscope` on
+    ``microscope_simulated_folder`` (blank means ``src``); ``'pycromanager'``
+    connects to a running Micro-Manager through pycro-manager's ``Core``.
+
+    :param settings: the run settings.
+    :param src: the watched folder.
+    :returns: an object with the pycro-manager ``Core`` calls the feedback
+        loop uses.
+    :raises ValueError: for an unknown driver.
+    :raises ImportError: when pycro-manager is not installed.
+    """
+    driver = str(settings.get('microscope_driver') or 'simulated')
+    if driver not in _MICROSCOPE_DRIVERS:
+        raise ValueError(f'microscope_driver must be one of '
+                         f'{_MICROSCOPE_DRIVERS}, not {driver!r}.')
+    if driver == 'pycromanager':
+        try:
+            from pycromanager import Core
+        except ImportError as exc:
+            raise ImportError(
+                "microscope_driver 'pycromanager' needs the pycromanager "
+                "package: pip install pycromanager. Start Micro-Manager and "
+                "tick Tools > Options > Run server on port 4827 before the "
+                "run.") from exc
+        return Core()
+    folder = str(settings.get('microscope_simulated_folder') or '').strip()
+    return _SimulatedMicroscope(folder or src, _microscope_positions(settings),
+                                _microscope_matrix(settings), settings)
+
+
+def _microscope_events(field_dir, settings):
+    """The objects of one analysed field that should be imaged again.
+
+    The ``microscope_event_table`` table of the field's measurements is
+    filtered by ``microscope_event_query`` (a pandas query; blank keeps
+    every object), and at most ``microscope_max_events`` rows are kept in
+    table order. Each event is placed at the object's intensity-weighted
+    centroid in the lowest measured channel.
+
+    :param field_dir: the analysed field folder.
+    :param settings: the run settings.
+    :returns: ``(events, shape)``: a list of dicts with ``object`` and
+        ``pixel`` ``[row, column]``, and the field's ``(height, width)``.
+    :raises ValueError: when the field has no measurements, the table lacks
+        centroids or the query fails.
+    """
+    import re
+
+    from .tabular import database_tables, read_table
+
+    db = os.path.join(field_dir, 'measurements', 'measurements.db')
+    if not os.path.exists(db):
+        raise ValueError('microscope_feedback needs measurements: set '
+                         "watch_pipeline to 'mask_measure'.")
+    table = str(settings.get('microscope_event_table') or 'cell')
+    merged = os.path.join(field_dir, 'merged')
+    stacks = sorted(name for name in os.listdir(merged)
+                    if name.endswith('.npy')) if os.path.isdir(merged) else []
+    if not stacks:
+        raise ValueError('The field has no merged stack to size events by.')
+    shape = tuple(np.load(os.path.join(merged, stacks[0]),
+                          mmap_mode='r').shape[:2])
+    if table not in database_tables(db):
+        return [], shape
+    frame = read_table(db, table=table)
+    query = str(settings.get('microscope_event_query') or '').strip()
+    if query and not frame.empty:
+        try:
+            frame = frame.query(query)
+        except Exception as exc:
+            raise ValueError(f'microscope_event_query {query!r} failed on '
+                             f'the {table} table: {exc}') from None
+    limit = int(_watch_number(settings, 'microscope_max_events', 10.0))
+    frame = frame.head(limit)
+    found = sorted((int(match.group(1)), column) for column in frame.columns
+                   for match in [re.search(r'channel_(\d+)_centroid_weighted-0$',
+                                           column)] if match)
+    if found:
+        row_column = found[0][1]
+    elif 'centroid-0' in frame.columns:
+        row_column = 'centroid-0'
+    else:
+        raise ValueError(f'The {table} table has no centroid columns.')
+    column_column = row_column[:-1] + '1'
+    label = next((name for name in ('object_label', 'label', f'{table}_label')
+                  if name in frame.columns), None)
+    names = frame[label].tolist() if label else frame.index.tolist()
+    events = []
+    for name, row, column in zip(names, frame[row_column].tolist(),
+                                 frame[column_column].tolist()):
+        if pd.isna(row) or pd.isna(column):
+            continue
+        events.append({'object': str(name),
+                       'pixel': [float(row), float(column)]})
+    return events, shape
+
+
+def _microscope_queue(key, field_dir, context):
+    """Turn a field's events into stage positions and queue them.
+
+    :param key: the field key.
+    :param field_dir: the analysed field folder.
+    :param context: the watch state; its ledger entry for ``key`` gains an
+        ``events`` list whose items carry ``object``, ``pixel``, ``stage``
+        and ``status`` (``'queued'``, or ``'no_position'`` when the field is
+        not in ``microscope_positions``).
+    :returns: the number of events queued.
+    """
+    settings = context['settings']
+    events, shape = _microscope_events(field_dir, settings)
+    centre = context['positions'].get(key)
+    for number, event in enumerate(events):
+        event['id'] = f'{key}_e{number:03d}'
+        if centre is None:
+            event.update(stage=None, status='no_position')
+            continue
+        x, y = _microscope_stage_position(event['pixel'], shape, centre,
+                                          context['matrix'])
+        event['stage'] = [x, y] + list(centre[2:])
+        event['status'] = 'queued'
+    context['ledger']['fields'][key]['events'] = events
+    _watch_save_ledger(context['ledger_path'], context['ledger'])
+    if events and centre is None:
+        print(f'watch_folder: {key} has {len(events)} event(s) but no entry '
+              f'in microscope_positions; they are not imaged.')
+    return sum(event['status'] == 'queued' for event in events)
+
+
+def _microscope_acquire(event, context):
+    """Move to one queued event and image it.
+
+    ``microscope_timepoints`` images are taken ``microscope_interval_seconds``
+    apart and written as TIFFs to ``src/spacr_watch/reimaged``.
+
+    :param event: a queued event of :func:`_microscope_queue`.
+    :param context: the watch state, with the open ``microscope``.
+    :returns: the written file names.
+    """
+    import tifffile
+
+    from .cancellation import checkpoint
+
+    core, settings = context['microscope'], context['settings']
+    frames = max(1, int(_watch_number(settings, 'microscope_timepoints', 1.0)))
+    interval = _watch_number(settings, 'microscope_interval_seconds', 0.0)
+    out = os.path.join(context['work'], _MICROSCOPE_REIMAGED)
+    os.makedirs(out, exist_ok=True)
+    x, y = event['stage'][:2]
+    core.set_xy_position(x, y)
+    core.wait_for_device(core.get_xy_stage_device())
+    if len(event['stage']) > 2:
+        core.set_position(event['stage'][2])
+        core.wait_for_device(core.get_focus_device())
+    names = []
+    for frame in range(frames):
+        if frame:
+            deadline = time.time() + interval
+            while time.time() < deadline:
+                checkpoint()
+                time.sleep(min(0.25, max(0.0, deadline - time.time())))
+        core.snap_image()
+        pixels = np.asarray(core.get_image()).reshape(
+            int(core.get_image_height()), int(core.get_image_width()))
+        name = f"{event['id']}_t{frame:03d}.tif"
+        tifffile.imwrite(os.path.join(out, name), pixels,
+                         metadata={'stage_x_um': x, 'stage_y_um': y})
+        names.append(name)
+    return names
+
+
+def _microscope_drain(context):
+    """Image every queued event in the watch record, oldest field first.
+
+    Events whose acquisition fails are marked ``'failed'`` with the error and
+    are not retried within the session.
+
+    :param context: the watch state, with the open ``microscope``.
+    :returns: how many events were imaged.
+    """
+    from .cancellation import PipelineCancelled
+
+    ledger, imaged = context['ledger'], 0
+    order = sorted(ledger['fields'].items(),
+                   key=lambda item: item[1].get('finished') or 0)
+    for key, entry in order:
+        for event in entry.get('events') or ():
+            if event.get('status') != 'queued':
+                continue
+            try:
+                event['files'] = _microscope_acquire(event, context)
+            except PipelineCancelled:
+                raise
+            except Exception as exc:
+                event.update(status='failed',
+                             error=f'{type(exc).__name__}: {exc}')
+                print(f"watch_folder: ERROR imaging {event['id']} failed: "
+                      f"{event['error']}")
+            else:
+                event['status'] = 'acquired'
+                event['acquired'] = time.time()
+                imaged += 1
+                x, y = event['stage'][:2]
+                print(f"watch_folder: imaged {event['id']} at stage "
+                      f"({x:.1f}, {y:.1f}) um.")
+            _watch_save_ledger(context['ledger_path'], ledger)
+    return imaged
+
+
+def _microscope_feedback(key, field_dir, context):
+    """Send one analysed field's events to the microscope.
+
+    :param key: the field key.
+    :param field_dir: the analysed field folder.
+    :param context: the watch state, with the open ``microscope``.
+    """
+    from .cancellation import PipelineCancelled
+
+    try:
+        queued = _microscope_queue(key, field_dir, context)
+        if queued:
+            print(f'watch_folder: {queued} event(s) of {key} queued for '
+                  f're-imaging.')
+        _microscope_drain(context)
+    except PipelineCancelled:
+        raise
+    except Exception as exc:
+        context['ledger']['fields'][key]['feedback_error'] = (
+            f'{type(exc).__name__}: {exc}')
+        _watch_save_ledger(context['ledger_path'], context['ledger'])
+        print(f'watch_folder: ERROR microscope feedback for {key} failed: '
+              f'{type(exc).__name__}: {exc}')
+
+
 def _watch_folder_and_analyse(settings, analyse=None):
     """Watch an acquisition folder and analyse each field as it arrives.
 
@@ -1321,6 +1804,16 @@ def _watch_folder_and_analyse(settings, analyse=None):
     folder for ``watch_idle_minutes`` when that is above 0. Stop takes effect
     between fields and while waiting.
 
+    With ``microscope_feedback`` on, the objects of each measured field that
+    match ``microscope_event_query`` in ``microscope_event_table`` become
+    events. Each event's centroid is turned into a stage position from the
+    field's entry in ``microscope_positions`` and the
+    ``microscope_stage_transform`` matrix, queued in the field's record and
+    imaged by the ``microscope_driver`` microscope, ``microscope_timepoints``
+    times ``microscope_interval_seconds`` apart, into
+    ``src/spacr_watch/reimaged``. Events still queued when a watch ends are
+    imaged when the next one starts.
+
     :param settings: Make Masks settings with ``src`` naming one folder, plus
         the ``watch_*`` keys.
     :param analyse: the callable run on each field folder as
@@ -1347,7 +1840,16 @@ def _watch_folder_and_analyse(settings, analyse=None):
                'ledger_path': ledger_path, 'settings': settings,
                'analyse': analyse or _watch_analyse_field, 'settle': settle,
                'expected': _watch_expected_channels(settings), 'seen': {},
-               'patterns': {}, 'tried': set(), 'warned': set()}
+               'patterns': {}, 'tried': set(), 'warned': set(),
+               'microscope': None}
+    if _watch_truthy(settings.get('microscope_feedback', False)):
+        context.update(positions=_microscope_positions(settings),
+                       matrix=_microscope_matrix(settings))
+        context['microscope'] = _microscope_open(settings, src)
+        print(f"watch_folder: events are sent to the "
+              f"{settings.get('microscope_driver') or 'simulated'} "
+              f"microscope for re-imaging.")
+        _microscope_drain(context)
     before = sum(1 for entry in ledger['fields'].values()
                  if entry.get('status') == 'done')
     print(f'watch_folder: watching {src} with pipeline {pipeline}; a file is '

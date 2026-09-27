@@ -273,6 +273,7 @@ def convert_settings_dict_for_gui(settings):
         'metadata_type': ('combo', _metadata_type_choices(), 'cellvoyager'),
         'plaque_mode': ('combo', ['plaque', 'figure'], 'plaque'),
         'watch_pipeline': ('combo', ['mask', 'mask_measure'], 'mask'),
+        'microscope_driver': ('combo', ['simulated', 'pycromanager'], 'simulated'),
         'anndata_format': ('combo', ['h5ad', 'parquet', 'r', 'all'], 'h5ad'),
         'channels': ('combo', chan_list, '[0,1,2,3]'),
         'train_channels': ('combo', ["['r','g','b']", "['r','g']", "['r','b']", "['g','b']", "['r']", "['g']", "['b']"], "['r','g','b']"),

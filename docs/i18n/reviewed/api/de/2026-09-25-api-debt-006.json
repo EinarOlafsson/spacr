@@ -1498,7 +1498,9 @@
       "source_sha256": "716705a006c51ba98d09012dcb5466281e85fb7d21cc6002817996f7141e970f",
       "context": "WHY (item 502). The theme draws every ``QProgressBar`` as an 8 px track (``height: 8px; max-height: 8px`` in :mod:`spacr.qt.theme`). A bar that also paints its own text -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" -- draws a 13 px caption into those 8 px, so only the top half of each glyph reaches the application view, and at 50 % GUI scale the track is 4 px and almost nothing does. The maintainer's report was \"the text e.g. step 1 of 3 or 10% is cut off\".",
       "translation": "WARUM (Eintrag 502). Das Theme zeichnet jede ``QProgressBar`` als 8 px hohe Spur (``height: 8px; max-height: 8px`` in :mod:`spacr.qt.theme`). Ein Balken, der zusätzlich seinen eigenen Text zeichnet -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" --, zeichnet eine 13 px hohe Beschriftung in diese 8 px, sodass nur die obere Hälfte jedes Zeichens auf dem Bildschirm ankommt, und bei 50 % GUI-Skalierung ist die Spur 4 px hoch, und fast nichts kommt an. Der Bericht des Maintainers lautete \"der Text, z. B. step 1 of 3 oder 10%, wird abgeschnitten\".",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-27: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding#4",
@@ -1506,7 +1508,9 @@
       "source_sha256": "7ab46fd9cca517c17f57de9c2ba6f927b48c48da68c442fa7074bb01eda156ce",
       "context": "The design the maintainer chose is \"thin bar + label\":",
       "translation": "DAS DESIGN, das der Maintainer gewählt hat, ist \"dünner Balken + Beschriftung\":",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-27: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding#5",

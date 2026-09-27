@@ -314,7 +314,12 @@ NON_FIELD_TABLES = frozenset({
 COSMETIC_SETTINGS = frozenset({
     'src', 'resume', 'n_jobs', 'mask_parallel', 'mask_gpu_indices',
     'watch_folder', 'watch_pipeline', 'watch_measure_settings',
-    'watch_settle_seconds', 'watch_poll_seconds', 'watch_idle_minutes', 'plot', 'verbose', 'progress', 'update_gui',
+    'watch_settle_seconds', 'watch_poll_seconds', 'watch_idle_minutes',
+    'microscope_feedback', 'microscope_driver', 'microscope_simulated_folder',
+    'microscope_positions', 'microscope_stage_transform',
+    'microscope_event_table', 'microscope_event_query',
+    'microscope_max_events', 'microscope_timepoints',
+    'microscope_interval_seconds', 'plot', 'verbose', 'progress', 'update_gui',
     'cloud_anonymous', 'cloud_profile', 'cloud_endpoint', 'cloud_cache',
     'cloud_results',
     'profiling', 'profiling_metadata', 'profiling_treatment_column',

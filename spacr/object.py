@@ -498,6 +498,165 @@ def _run_seg_qc(src, settings, object_type, *, mask_folder=None):
     return result
 
 
+def _robustness_sample(src, settings, object_type):
+    """The fields the robustness report re-segments, cut from the ``.npz`` batches.
+
+    ``robustness_fields`` fields are drawn at random (seeded by
+    ``random_seed``) from every batch under ``src``, keeping the channels
+    ``object_type`` is segmented from, scaled to 0..1 as the generator scales
+    them, and centre-cropped to ``robustness_crop`` pixels a side when that is
+    set, so the grid stays fast.
+
+    :returns: ``(name, image)`` pairs, ``image`` ``(Y, X, C)`` float32.
+    """
+    from .utils import _get_cellpose_channels, prepare_batch_for_segmentation
+
+    _fill_cellpose_channel_positions(settings)
+    _, cellpose_channels = _get_cellpose_channels(settings)
+    channels = cellpose_channels.get(object_type, [])
+    if not channels:
+        return []
+    paths = sorted(os.path.join(src, f) for f in os.listdir(src) if f.endswith('.npz'))
+    rng = np.random.default_rng(int(settings.get('random_seed') or 0))
+    wanted = max(1, int(settings.get('robustness_fields') or 4))
+    crop = int(settings.get('robustness_crop') or 0)
+    chosen = []
+    for path in rng.permutation(paths) if paths else []:
+        with np.load(path) as data:
+            stack, names = data['data'], data['filenames']
+            for index in rng.permutation(len(stack)):
+                if len(chosen) >= wanted:
+                    break
+                field = stack[index]
+                if field.ndim != 3:
+                    continue
+                field = field[..., [0]] if field.shape[-1] == 1 else field[..., channels]
+                if crop > 0:
+                    y0 = max(0, (field.shape[0] - crop) // 2)
+                    x0 = max(0, (field.shape[1] - crop) // 2)
+                    field = field[y0:y0 + crop, x0:x0 + crop]
+                image = prepare_batch_for_segmentation(np.array(field[None]))[0]
+                chosen.append((str(names[index]), image))
+        if len(chosen) >= wanted:
+            break
+    return chosen
+
+
+def _robustness_segmenter(settings, object_type):
+    """A ``segment(image, point)`` that runs the run's Cellpose model at one grid point.
+
+    Loads the model the generator would load for ``object_type`` (stock
+    Cellpose-SAM or the checkpoint its model setting names) once, and calls
+    it as the generator does, with the grid point's diameter, thresholds and,
+    when ``point['enhance']``, CLAHE applied to each channel first.
+
+    :raises ValueError: for a model served by another backend, whose
+        environment the report does not start.
+    """
+    from .settings import _get_object_settings
+    from .utils import _resolve_cellpose_pretrained
+    from ._segmentation_backends import (_backend_name, _cellpose3_choice,
+                                         _cellpose_dino_choice, _prefixed_backend)
+
+    object_settings = _get_object_settings(object_type, settings)
+    model_name = object_settings['model_name']
+    if object_type == 'pathogen' and settings.get('pathogen_model') is not None:
+        model_name = settings['pathogen_model']
+    if (_backend_name(settings.get('segmentation_backend', 'cellpose')) != 'cellpose'
+            or _cellpose3_choice(model_name) is not None
+            or _cellpose_dino_choice(model_name) is not None
+            or _prefixed_backend(model_name) is not None):
+        raise ValueError(f"the robustness report runs Cellpose-SAM models only, "
+                         f"not {model_name!r}")
+    model = cp_models.CellposeModel(
+        pretrained_model=_resolve_cellpose_pretrained(model_name, object_type=object_type),
+        **accelerator.cellpose_kwargs())
+    return partial(_robustness_segment, model, object_settings, object_type)
+
+
+def _robustness_segment(model, object_settings, object_type, image, point):
+    """Segment one field at one robustness grid point with a loaded Cellpose model.
+
+    With ``point['enhance']`` each channel is contrast-enhanced (CLAHE)
+    first; the diameter and thresholds are the grid point's.
+
+    :returns: the label mask.
+    """
+    from .qt.detect_chain import Chain, prepare
+    from .spacr_cellpose import parse_cellpose4_output
+
+    if point.get('enhance'):
+        clahe = Chain(clahe=True)
+        image = np.stack([prepare(image[..., c], clahe) for c in range(image.shape[-1])],
+                         axis=-1).astype(np.float32)
+    output = model.eval(
+        x=[image], batch_size=1, normalize=False, channel_axis=-1,
+        min_size=object_settings['min_size'], progress=False,
+        diameter=_eval_diameter(point.get('diameter'), object_type),
+        flow_threshold=point['flow_threshold'],
+        cellprob_threshold=point['cellprob_threshold'],
+        resample=object_settings['resample'])
+    return np.asarray(parse_cellpose4_output(output)[0][0])
+
+
+def _run_robustness_report(src, settings, object_type, *, segment=None):
+    """Re-segment a sample of fields over a small parameter grid and report how stable the results are.
+
+    Runs only with ``robustness_report`` on. A few fields
+    (:func:`_robustness_sample`) are segmented again at the run's own
+    settings and with the diameter, the flow and cell-probability thresholds
+    and contrast enhancement each moved alone
+    (:func:`spacr.seg_qc._robustness_grid`); object count, median area, mean
+    object intensity and the fraction of the run's objects found again are
+    compared, and a grid point whose median change exceeds
+    ``robustness_tolerance`` is flagged fragile. Writes
+    ``<plate>/qc/segmentation_robustness_<object_type>.csv`` (one row per
+    grid point), ``..._fields.csv`` (one row per field and grid point) and a
+    heatmap, and prints the summary. Two-dimensional fields only.
+
+    :param src: the mask source folder holding the ``.npz`` batches.
+    :param settings: the mask-generation settings.
+    :param object_type: the object whose segmentation is tested.
+    :param segment: ``segment(image, point)`` -> labels, instead of the run's
+        Cellpose model.
+    :returns: the per-grid-point summary DataFrame, or None when the report is
+        off, has nothing to sample or failed. Never raises into the run.
+    """
+    if not settings.get('robustness_report'):
+        return None
+    try:
+        from .seg_qc import (CARD_DIR, _format_robustness, _robustness_figure,
+                             _robustness_grid, _score_robustness)
+        from .plot import save_figure
+        from .tabular import write_table
+
+        if _z_stack_plan(settings) is not None or _t_stack_plan(settings) is not None:
+            print(f"Segmentation robustness skipped for {object_type}: "
+                  f"it re-segments two-dimensional fields only.")
+            return None
+        fields = _robustness_sample(src, settings, object_type)
+        if not fields:
+            print(f"Segmentation robustness found no {object_type} fields to sample in {src}.")
+            return None
+        tolerance = float(settings.get('robustness_tolerance') or 0.2)
+        grid = _robustness_grid(settings, object_type)
+        if segment is None:
+            segment = _robustness_segmenter(settings, object_type)
+        per_field, summary = _score_robustness(fields, segment, grid, tolerance)
+        out_dir = os.path.join(os.path.dirname(os.fspath(src)) or os.fspath(src), CARD_DIR)
+        stem = os.path.join(out_dir, f'segmentation_robustness_{object_type}')
+        write_table(summary, stem + '.csv')
+        write_table(per_field, stem + '_fields.csv')
+        save_figure(_robustness_figure(summary, tolerance, object_type), stem + '.pdf',
+                    close=True)
+        print(_format_robustness(summary, object_type, tolerance))
+        print(f"Segmentation robustness written to {stem}.csv")
+        return summary
+    except Exception as exc:
+        print(f"Segmentation robustness skipped for {object_type}: {type(exc).__name__}: {exc}")
+        return None
+
+
 
 def _z_stack_plan(settings):
     """Return the :class:`spacr.zstack.ZStackSpec` for this run, or None.

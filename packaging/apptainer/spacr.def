@@ -1,0 +1,99 @@
+# spaCR for Apptainer / SingularityCE: the Docker image, repackaged as one
+# read-only .sif file that a cluster user can run without root and without a
+# Docker daemon.
+#
+# BUILD FROM THE REPOSITORY ROOT (the %files paths are relative to it):
+#
+#   # the published CPU or CUDA image
+#   apptainer build spacr-cpu.sif  packaging/apptainer/spacr.def
+#   apptainer build --build-arg IMAGE=ghcr.io/einarolafsson/spacr:cuda \
+#                   spacr-cuda.sif packaging/apptainer/spacr.def
+#
+#   # an image built locally with packaging/docker/Dockerfile.*
+#   apptainer build --build-arg BOOTSTRAP=docker-daemon \
+#                   --build-arg IMAGE=spacr:cpu spacr-cpu.sif \
+#                   packaging/apptainer/spacr.def
+#
+# Neither needs root: Apptainer 1.1 and later build unprivileged through user
+# namespaces. `--build-arg` needs Apptainer 1.2 or SingularityCE 4.0.
+#
+# ONE DEFINITION FOR BOTH VARIANTS, and that is the point of building on the
+# Docker images rather than beside them. Which torch, which CUDA runtime, the
+# non-root user and the two-stage venv are all decided once, in
+# packaging/docker/, and tested there. This file only changes what differs
+# when the same image runs under Apptainer:
+#
+#   * The runscript calls the entrypoint directly, without tini. Apptainer
+#     does not give the container its own PID namespace, so tini would not
+#     be PID 1 and would only warn about it.
+#   * The entrypoint and the smoke script are copied from the checkout over
+#     the ones in the base image, so a SIF built on an older tag still gets
+#     the Apptainer-safe model-folder handling (see entrypoint.sh, part 3).
+#   * There is no %post, on purpose. %files keeps the executable bit the
+#     files have in git, and an unprivileged build runs %post under
+#     Apptainer's own fakeroot library, which needs a newer glibc than the
+#     CUDA image's Ubuntu 22.04 has: the first build here failed on exactly
+#     that ("GLIBC_2.38 not found ... libfakeroot.so") before running a line.
+#   * %test goes through the entrypoint like the runscript. The build runs
+#     it as a mapped root whose HOME, /root, is on the read-only image, and a
+#     run that cannot create ~/.spacr/runs stops before measuring anything;
+#     the entrypoint's writable-HOME fallback is what lets it through. The
+#     same holds for `apptainer run --no-home`, which is why `run` is the
+#     documented way in and `exec` the exception.
+#   * %environment repeats the one piece of that handling `apptainer exec`
+#     needs, because exec never runs the runscript.
+#
+# GPU: `apptainer run --nv spacr-cuda.sif ...`. --nv binds the host driver
+# into the container, which is the Apptainer counterpart of `--gpus all`; the
+# host driver floor of the CUDA image (550 or newer) is unchanged.
+#
+# Models and data are never baked in, exactly as in the Docker images. Nothing
+# in this file downloads a checkpoint.
+
+Bootstrap: {{ BOOTSTRAP }}
+From: {{ IMAGE }}
+
+%arguments
+    BOOTSTRAP=docker
+    IMAGE=ghcr.io/einarolafsson/spacr:cpu
+
+%files
+    packaging/docker/entrypoint.sh /opt/spacr/entrypoint.sh
+    packaging/docker/smoke_pipeline.py /opt/spacr/smoke_pipeline.py
+
+%environment
+    export MPLBACKEND="${MPLBACKEND:-Agg}"
+    unset PYTHONHOME
+    if [ -z "${CELLPOSE_LOCAL_MODELS_PATH:-}" ] \
+       && grep -qs ' /models ' /proc/self/mountinfo; then
+        export CELLPOSE_LOCAL_MODELS_PATH=/models
+    fi
+
+%runscript
+    if [ "$#" -eq 0 ]; then
+        set -- spacr-run --list
+    fi
+    exec /opt/spacr/entrypoint.sh "$@"
+
+%test
+    /opt/spacr/entrypoint.sh spacr-run --list > /dev/null
+    /opt/spacr/entrypoint.sh python /opt/spacr/smoke_pipeline.py
+
+%labels
+    org.opencontainers.image.title spaCR
+    org.opencontainers.image.source https://github.com/EinarOlafsson/spacr
+    org.opencontainers.image.licenses MIT
+    org.spacr.apptainer.base {{ IMAGE }}
+
+%help
+    spaCR headless pipelines (spacr-run) for HPC clusters.
+
+      apptainer run spacr.sif                      list the runnable modules
+      apptainer run spacr.sif spacr-run mask -s mask.csv
+      apptainer run --nv spacr-cuda.sif spacr-doctor
+      apptainer exec spacr.sif python /opt/spacr/smoke_pipeline.py --mask
+
+    Your home directory is mounted, so ~/.cellpose/models is where models are
+    found and downloaded. Bind a shared read-only model folder with
+    --bind /shared/models:/models:ro to have Cellpose load from it instead.
+    Batch recipe: packaging/apptainer/README.md in the spaCR repository.

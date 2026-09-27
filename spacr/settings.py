@@ -1069,6 +1069,14 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('cellpose3_percentile_high', 99.0)
 
     settings.setdefault('seg_qc', 'report')
+    settings.setdefault('robustness_report', False)
+    settings.setdefault('robustness_fields', 4)
+    settings.setdefault('robustness_crop', 512)
+    settings.setdefault('robustness_diameter_factors', [0.75, 1.25])
+    settings.setdefault('robustness_flow_thresholds', [0.2, 0.6])
+    settings.setdefault('robustness_cellprob_thresholds', [-2.0, 2.0])
+    settings.setdefault('robustness_enhancement', True)
+    settings.setdefault('robustness_tolerance', 0.2)
     settings.setdefault('seg_qc_min_objects', 10)
     settings.setdefault('seg_qc_count_ratio', 0.25)
     settings.setdefault('seg_qc_size_ratio', 1.4)
@@ -1141,6 +1149,16 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('watch_settle_seconds', 10.0)
     settings.setdefault('watch_poll_seconds', 5.0)
     settings.setdefault('watch_idle_minutes', 0.0)
+    settings.setdefault('microscope_feedback', False)
+    settings.setdefault('microscope_driver', 'simulated')
+    settings.setdefault('microscope_simulated_folder', '')
+    settings.setdefault('microscope_positions', '')
+    settings.setdefault('microscope_stage_transform', [1.0, 0.0, 0.0, 1.0])
+    settings.setdefault('microscope_event_table', 'cell')
+    settings.setdefault('microscope_event_query', '')
+    settings.setdefault('microscope_max_events', 10)
+    settings.setdefault('microscope_timepoints', 1)
+    settings.setdefault('microscope_interval_seconds', 0.0)
     settings.setdefault('cloud_anonymous', False)
     settings.setdefault('cloud_profile', '')
     settings.setdefault('cloud_endpoint', '')
@@ -3394,6 +3412,16 @@ expected_types = {
     "watch_settle_seconds": float,
     "watch_poll_seconds": float,
     "watch_idle_minutes": float,
+    "microscope_feedback": bool,
+    "microscope_driver": str,
+    "microscope_simulated_folder": str,
+    "microscope_positions": str,
+    "microscope_stage_transform": list,
+    "microscope_event_table": str,
+    "microscope_event_query": str,
+    "microscope_max_events": int,
+    "microscope_timepoints": int,
+    "microscope_interval_seconds": float,
     "cloud_anonymous": bool,
     "cloud_profile": str,
     "cloud_endpoint": str,
@@ -3889,6 +3917,14 @@ expected_types = {
     'image_qc_saturation_level':dict,
     'image_qc_max_nonfinite':float,
     "seg_qc_min_objects":int,
+    "robustness_report": bool,
+    "robustness_fields": int,
+    "robustness_crop": (int, type(None)),
+    "robustness_diameter_factors": (list, str),
+    "robustness_flow_thresholds": (list, str),
+    "robustness_cellprob_thresholds": (list, str),
+    "robustness_enhancement": bool,
+    "robustness_tolerance": (float, int),
     "seg_qc_count_ratio":float,
     "seg_qc_size_ratio":float,
     "seg_qc_border_fraction":float,
@@ -4479,6 +4515,14 @@ tooltips = {
     'image_qc_saturation_level': '(dict) - Acquisition saturation level by channel, for example {0: 4095, 2: 65535}. Set 4095 for a 12-bit detector stored in uint16. Missing integer levels use the dtype ceiling; floating images require an explicit level if saturation exclusion is enabled. Default {}.',
     'image_qc_max_nonfinite': '(float) - Maximum fraction of NaN or infinite pixels allowed per screened channel. Exceeding it flags the field; exclusion occurs only in exclude mode. Range 0-1; default 0.',
     "seg_qc": "(str) - Segmentation quality control performed when masks are written, before measurement. 'off' skips scoring; 'report' scores every field, writes qc/segmentation_qc_<object>.csv, and displays detected quality issues; 'flag' also writes per-field JSON for downstream processing; 'stop' raises when the plate verdict is 'fail', after writing the scorecard. No mode deletes or omits a field, and 'stop' does not raise for a 'warn' verdict. Default 'report'.",
+    "robustness_report": "(bool) - After the masks are made, re-segment a few sampled fields with the diameter, the flow and cell-probability thresholds and contrast enhancement each moved a little, and report how much the object count, median area, mean object intensity and the objects themselves change. Settings whose results move more than robustness_tolerance are flagged fragile. Writes qc/segmentation_robustness_<object>.csv and a heatmap. Two-dimensional Cellpose-SAM runs only. Default False.",
+    "robustness_fields": "(int) - How many fields the robustness report samples at random (seeded by random_seed) and re-segments at every grid point. More fields give a steadier verdict; each field costs one segmentation per grid point. Default 4.",
+    "robustness_crop": "(int or None) - Side in pixels of the centre crop the robustness report cuts from each sampled field, to keep the grid fast, on a CPU especially. Blank or 0 re-segments whole fields. Default 512.",
+    "robustness_diameter_factors": "(list) - Multiples of the object diameter the robustness report tries, one at a time; a blank diameter counts as Cellpose's nominal 30 pixels. Default [0.75, 1.25].",
+    "robustness_flow_thresholds": "(list) - Flow thresholds the robustness report tries in place of the run's own, one at a time. Higher keeps objects whose flows are less consistent. Default [0.2, 0.6].",
+    "robustness_cellprob_thresholds": "(list) - Cell-probability thresholds the robustness report tries in place of the run's own, one at a time. Lower grows objects and finds faint ones; higher shrinks or drops them. Default [-2.0, 2.0].",
+    "robustness_enhancement": "(bool) - Also re-segment each sampled field after contrast-limited adaptive histogram equalisation (CLAHE), to see whether contrast enhancement changes what the model finds. Default True.",
+    "robustness_tolerance": "(float) - Largest median relative change in object count, median area or mean intensity, or share of the run's objects not found again, that still counts as stable. A grid point beyond it is flagged fragile. Default 0.2.",
     "seg_qc_min_objects": "(int) - Fields with fewer objects than this are classified as near-empty, and robust per-field size statistics are suppressed because the median absolute deviation is unstable for very small samples. Increase the value for confluent cell plates expected to contain hundreds of objects per field; reduce it to 3-5 for low-multiplicity pathogen assays in which few objects per field are expected. Default 10.",
     "seg_qc_count_ratio": "(float) - Permitted ratio between a field's object count and the plate median before the field is flagged. A value of 0.25 flags counts below one quarter of the median or above its reciprocal, four times the median. Calibrate this threshold with representative control plates when expected object density varies by assay. Default 0.25.",
     "seg_qc_size_ratio": "(float) - Fold change in a field's median object diameter, measured against the plate median, that marks it as fused or fragmented when its object count has moved in the opposite direction. Merging two equal objects into one increases equivalent diameter by a factor of approximately 1.41, while dividing one object into two produces the reciprocal change; the default therefore reflects the expected geometric ratio. Default 1.4.",
@@ -4621,6 +4665,16 @@ tooltips = {
     "watch_settle_seconds": "(float) - How long an image must keep the same size and modification time before watch_folder reads it, so a file the microscope is still writing is not taken half-written. Raise it for slow network shares. Default 10.",
     "watch_poll_seconds": "(float) - How often watch_folder looks in src for new or changed images. A field is picked up about watch_settle_seconds plus this long after its last file stops changing, once the fields before it are done. Default 5.",
     "watch_idle_minutes": "(float) - Stop watching once nothing in src has changed for this many minutes, and list the fields that never became complete. 0 watches until Stop is pressed. Default 0.",
+    "microscope_feedback": "(bool) - While watch_folder runs with watch_pipeline 'mask_measure', send the objects of each measured field that match microscope_event_query back to the microscope to be imaged again, for example at higher resolution or as a short timelapse. Stage positions come from microscope_positions and microscope_stage_transform; every event and its images are recorded in watch_ledger.json and the images saved in src/spacr_watch/reimaged. Default False.",
+    "microscope_driver": "(str) - The microscope microscope_feedback drives. 'simulated' acquires from the images in microscope_simulated_folder laid out at microscope_positions, for trying the loop without a microscope. 'pycromanager' drives a running Micro-Manager through pycro-manager (pip install pycromanager, and turn on Micro-Manager's server under Tools > Options). Default 'simulated'.",
+    "microscope_simulated_folder": "(str) - The folder of field images the simulated microscope acquires from, named as the watched images are and placed on the stage by microscope_positions. Blank uses src. Default blank.",
+    "microscope_positions": "(str) - A table (.csv, .xlsx or .parquet) of the stage position each field was acquired at, with the columns field (the field name the watch prints, such as plate1_A01_0001_001), x and y in micrometres at the image centre, and optionally z. Events in a field missing from it are recorded but not imaged. Default blank.",
+    "microscope_stage_transform": "(list) - Four numbers [a, b, c, d] turning a pixel offset from the image centre (dx columns, dy rows) into a stage move of (a*dx + b*dy, c*dx + d*dy) micrometres. For a pixel size p with camera and stage axes aligned use [p, 0, 0, p]; negate a term for a flipped axis and swap them for a camera turned 90 degrees. Default [1.0, 0.0, 0.0, 1.0].",
+    "microscope_event_table": "(str) - The measurement table whose objects can become events, such as cell, nucleus or pathogen. Each event is placed at the object's intensity-weighted centroid. Default 'cell'.",
+    "microscope_event_query": "(str) - A pandas query on microscope_event_table choosing which objects are events, for example pathogen_area > 200 or cell_channel_1_mean_intensity > 900. Blank makes every object an event, up to microscope_max_events per field. Default blank.",
+    "microscope_max_events": "(int) - The most events one field sends to the microscope, taken in table order, so a field full of matches does not hold up the plate. Default 10.",
+    "microscope_timepoints": "(int) - How many images the microscope takes at each event: 1 is a single snapshot, more makes a timelapse spaced microscope_interval_seconds apart. The microscope keeps its current channel, objective and exposure. Default 1.",
+    "microscope_interval_seconds": "(float) - Seconds between the timelapse images of one event when microscope_timepoints is above 1. The watch waits at the event meanwhile, so long timelapses delay later fields. Default 0.",
     "cloud_anonymous": "(bool) - Read cloud sources without credentials, for public data such as IDR or the Cell Painting Gallery. When off, s3:// sources use the AWS credentials in the AWS_* environment variables, ~/.aws or AWS_PROFILE, and are read anonymously only when none are found; gs:// and az:// use their own default credentials. spaCR never stores or prints credentials. Default False.",
     "cloud_profile": "(str) - Named AWS profile from ~/.aws/config used for s3:// sources, for example lab-readonly. Only the name is kept; the keys stay in ~/.aws. Blank uses the default AWS credential chain. Default blank.",
     "cloud_endpoint": "(str) - Address of the S3-compatible service holding s3:// sources, such as a MinIO or Ceph server, or https://uk1s3.embassy.ebi.ac.uk for IDR. Blank uses Amazon S3. Default blank.",
@@ -5388,6 +5442,12 @@ categories = {
 
     "Segmentation QC": ["seg_qc", "seg_qc_min_objects", "seg_qc_count_ratio", "seg_qc_size_ratio", "seg_qc_border_fraction", "seg_qc_outlier_mad", "seg_qc_outlier_fraction", "seg_qc_foreground_fraction", "seg_qc_split_ratio", "seg_qc_min_diameter", "seg_qc_tiny_fraction", "seg_qc_max_object_fraction", "seg_qc_plate_fail_fraction"],
 
+    "Segmentation Robustness (Alpha)": ["robustness_report", "robustness_fields",
+                                        "robustness_crop", "robustness_diameter_factors",
+                                        "robustness_flow_thresholds",
+                                        "robustness_cellprob_thresholds",
+                                        "robustness_enhancement", "robustness_tolerance"],
+
     "Timelapse": timelapse_settings,
 
     "Measurements": ["save_measurements", "calculate_correlation", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
@@ -5496,7 +5556,7 @@ categories = {
         "qc_plot_max_panels",
     ],
 
-    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "watch_folder", "watch_pipeline", "watch_measure_settings", "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes", "cloud_anonymous", "cloud_profile", "cloud_endpoint", "cloud_cache", "cloud_wells", "cloud_fields", "cloud_level", "cloud_results", "verbose", "n_jobs", "gpu", "mask_parallel", "mask_gpu_indices", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "consolidate", ],
+    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "watch_folder", "watch_pipeline", "watch_measure_settings", "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes", "microscope_feedback", "microscope_driver", "microscope_simulated_folder", "microscope_positions", "microscope_stage_transform", "microscope_event_table", "microscope_event_query", "microscope_max_events", "microscope_timepoints", "microscope_interval_seconds", "cloud_anonymous", "cloud_profile", "cloud_endpoint", "cloud_cache", "cloud_wells", "cloud_fields", "cloud_level", "cloud_results", "verbose", "n_jobs", "gpu", "mask_parallel", "mask_gpu_indices", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "consolidate", ],
 
     "3D Settings (Beta)": [
         "z_stack", "z_segmentation_mode", "z_axis", "z_projection",
@@ -7163,6 +7223,13 @@ ALPHA_FEATURES = {
                      'watch_idle_minutes'),
         'widgets': ('WatchFolderProgress',),
     },
+    549: {
+        'settings': ('microscope_feedback', 'microscope_driver',
+                     'microscope_simulated_folder', 'microscope_positions',
+                     'microscope_stage_transform', 'microscope_event_table',
+                     'microscope_event_query', 'microscope_max_events',
+                     'microscope_timepoints', 'microscope_interval_seconds'),
+    },
     550: {
         'settings': ('cloud_anonymous', 'cloud_profile', 'cloud_endpoint',
                      'cloud_cache', 'cloud_wells', 'cloud_fields',
@@ -7186,6 +7253,11 @@ ALPHA_FEATURES = {
                    'omnipose_bact_fluor_omni', 'omnipose_worm_omni',
                    'omnipose_worm_bact_omni', 'omnipose_worm_high_res_omni',
                    'omnipose_cyto2_omni'),
+    },
+    554: {
+        'choices': {'ops_spot_detector': ('spotiflow',)},
+        'models': ('spotiflow_v1', 'spotiflow_general', 'spotiflow_hybiss',
+                   'spotiflow_synth_complex', 'spotiflow_fluo_live'),
     },
     555: {
         'widgets': ('MakeMasksPromptCategory',),
@@ -7237,6 +7309,9 @@ ALPHA_FEATURES = {
     574: {
         'widgets': ('ReportArchivePackage',),
     },
+    579: {
+        'widgets': ('ReportZenodoDeposit',),
+    },
     575: {
         'widgets': ('RunHistoryExportWorkflow',),
     },
@@ -7256,6 +7331,21 @@ ALPHA_FEATURES = {
     },
     585: {
         'widgets': ('PowerArrayedPlanner',),
+    },    563: {
+        'widgets': ('ControlChartAnomaly', 'ControlChartAnomalySection'),
+    },
+    578: {
+        'settings': ('robustness_report', 'robustness_fields',
+                     'robustness_crop', 'robustness_diameter_factors',
+                     'robustness_flow_thresholds',
+                     'robustness_cellprob_thresholds',
+                     'robustness_enhancement', 'robustness_tolerance'),
+    },
+    582: {
+        'widgets': ('PluginCatalogueHelp', 'PluginCatalogueSource',
+                    'PluginCatalogueLoad', 'PluginCatalogueTable',
+                    'PluginCatalogueInstall', 'PluginCatalogueUninstall',
+                    'PluginCatalogueStatus'),
     },
     534: {
         'widgets': ('MapBarcodesSpatialToggle', 'MapBarcodesSpatialCard'),
