@@ -1,5 +1,5 @@
-"""Items 551-553: StarDist, InstanSeg and Omnipose, each in an environment
-of its own and chosen by a model-setting prefix.
+"""Items 551-554: StarDist, InstanSeg, Omnipose and Spotiflow, each in an
+environment of its own and chosen by a model-setting prefix.
 
 The maintainer, 2026-09-26: "(in its own env like cellpose 3)". What is
 pinned here, for each backend:
@@ -38,7 +38,7 @@ _base_settings = _wiring._base_settings
 _write_npz = _wiring._write_npz
 _artifacts = _wiring._artifacts
 
-PREFIXED = ("stardist", "instanseg", "omnipose")
+PREFIXED = ("stardist", "instanseg", "omnipose", "spotiflow")
 
 
 @pytest.fixture(autouse=True)
@@ -694,3 +694,121 @@ def test_omnipose_reads_a_checkpoints_shape_and_refuses_a_missing_file(
     with pytest.raises(FileNotFoundError, match="no Omnipose model"):
         SB._OmniposeAdapter(str(tmp_path / "gone"), "cpu",
                             models_module=_fake_omni())
+
+
+# ===========================================================================
+# Spotiflow (item 554)
+# ===========================================================================
+
+def test_spotiflow_pins_its_package_and_names_its_2d_models():
+    spec = SB._SPECS["spotiflow"]
+    assert spec.requirements == ("spotiflow==0.6.5",)
+    assert spec.torch == ("torch", "torchvision")
+    assert spec.models == ("general", "hybiss", "synth_complex", "fluo_live")
+    assert spec.default_model == "general" and spec.prefix == "spotiflow:"
+    assert spec.licence == "BSD-3-Clause" and spec.alpha
+    assert "weigertlab/spotiflow-models" in spec.licence_note
+
+
+def test_spotiflow_keeps_its_downloads_inside_its_environment(tmp_path):
+    env = str(tmp_path / "env")
+    assert SB._worker_env("spotiflow", env)["SPOTIFLOW_CACHE_DIR"] == (
+        os.path.join(env, "models"))
+
+
+class _FakeSpotiflow:
+    """``spotiflow.model.Spotiflow`` as far as the adapter sees it."""
+
+    built = []
+    points = [[5.2, 6.4], [15.0, 20.0], [5.0, 7.0], [-3.0, 2.0]]
+
+    def __init__(self, how, where, **kwargs):
+        self.how, self.where, self.kwargs = how, where, kwargs
+        self.calls = []
+        type(self).built.append(self)
+
+    @classmethod
+    def from_pretrained(cls, name, **kwargs):
+        return cls("pretrained", name, **kwargs)
+
+    @classmethod
+    def from_folder(cls, folder, **kwargs):
+        return cls("folder", folder, **kwargs)
+
+    def predict(self, image, **kwargs):
+        self.calls.append(dict(kwargs, shape=np.shape(image)))
+        heatmap = np.full(np.shape(image), 0.25, np.float32)
+        return (np.asarray(self.points, float),
+                types.SimpleNamespace(prob=np.full(len(self.points), 0.9),
+                                      heatmap=heatmap))
+
+
+def _fake_spotiflow():
+    _FakeSpotiflow.built = []
+    return _FakeSpotiflow
+
+
+def test_spotiflow_answers_in_cellpose_sams_shapes():
+    adapter = SB._SpotiflowAdapter("hybiss", "cpu",
+                                   spotiflow_class=_fake_spotiflow())
+    built = _FakeSpotiflow.built[0]
+    assert (built.how, built.where) == ("pretrained", "hybiss")
+    assert built.kwargs["map_location"] == "cpu"
+    masks, flows, styles = adapter.eval(
+        [np.ones((24, 30, 2), np.float32)], channel_axis=-1,
+        normalize=False, min_size=0, flow_threshold=0.6,
+        cellprob_threshold=0.0, resample=False, batch_size=1)
+    assert styles is None
+    labels = masks[0]
+    assert labels.shape == (24, 30)
+    assert int(labels.max()) == 3, "the spot outside the field is dropped"
+    assert labels[5, 6] == 1 and labels[15, 20] == 2 and labels[5, 7] == 3
+    assert (labels == 2).sum() == 13, "a disc of radius 2"
+    rgb, d_p, heatmap, last = flows[0]
+    assert rgb is None and d_p is None and last is None
+    assert heatmap.shape == (24, 30)
+    [call] = built.calls
+    assert call["shape"] == (24, 30), "the object's own plane"
+    assert call["prob_thresh"] is None, "0 keeps the model's own threshold"
+    assert call["normalizer"] == "auto"
+    assert adapter.ignored == {"flow_threshold", "resample"}
+    assert any("normalize=False" in t for t in adapter.translated)
+
+
+def test_spotiflow_turns_a_logit_and_a_diameter_into_its_own_terms():
+    adapter = SB._SpotiflowAdapter("general", "cpu",
+                                   spotiflow_class=_fake_spotiflow())
+    masks, _flows, _ = adapter.eval(
+        [np.ones((24, 30), np.float32)], cellprob_threshold=2.0,
+        diameter=8.0)
+    [call] = _FakeSpotiflow.built[0].calls
+    assert call["prob_thresh"] == pytest.approx(1 / (1 + np.exp(-2.0)))
+    assert (masks[0] == 2).sum() == 49, "a disc of radius 4"
+    assert any("radius" in t for t in adapter.translated)
+
+
+def test_spotiflow_loads_a_folder_and_refuses_a_missing_one(tmp_path):
+    SB._SpotiflowAdapter(str(tmp_path), "cpu",
+                         spotiflow_class=_fake_spotiflow())
+    assert (_FakeSpotiflow.built[0].how,
+            _FakeSpotiflow.built[0].where) == ("folder", str(tmp_path))
+    with pytest.raises(FileNotFoundError, match="no Spotiflow model"):
+        SB._SpotiflowAdapter(str(tmp_path / "gone"), "cpu",
+                             spotiflow_class=_fake_spotiflow())
+
+
+def test_spot_labels_give_every_spot_inside_the_field_one_object():
+    labels = SB._spot_labels([[0, 0], [0, 1], [9, 9], [20, 20]], (10, 10), 1)
+    assert labels.dtype == np.uint16
+    assert sorted(np.unique(labels)) == [0, 1, 2, 3]
+    assert labels[0, 1] == 2, "a touching spot keeps its own pixel"
+    assert (labels == 3).sum() == 3, "a disc cut by the border"
+    assert SB._spot_labels(np.zeros((0, 2)), (4, 4), 2).max() == 0
+
+
+def test_spotiflow_refuses_a_threshold_outside_0_to_1():
+    network = _fake_spotiflow()("pretrained", "general")
+    with pytest.raises(ValueError, match="between 0 and 1"):
+        SB._spotiflow_predict(network, np.ones((4, 4)), 1.5)
+    with pytest.raises(ValueError, match="finite"):
+        SB._spotiflow_predict(network, np.full((4, 4), np.nan))
