@@ -72,7 +72,7 @@ def record_lineage(app,window,stage,captures,capture,settle,write_json,timeout):
     def database_route(name):
         actions=[a for a in window.menuBar().actions() if a.text().replace('&','')=='Help']
         if len(actions)!=1:raise ValueError('No actual Help menu')
-        menu=actions[0].menu();choices=[a for a in menu.actions() if a.text().replace('&','')=='Database browser']
+        menu=actions[0].menu();choices=[a for a in menu.actions() if a.text().replace('&','').casefold()=='database browser']
         if len(choices)!=1:raise ValueError('No actual Database browser route')
         QTest.mouseClick(window.menuBar(),Qt.LeftButton,pos=window.menuBar().actionGeometry(actions[0]).center())
         settle(.2);capture(name)
