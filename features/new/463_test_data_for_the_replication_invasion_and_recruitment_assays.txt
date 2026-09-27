@@ -2,13 +2,13 @@
 TEST DATA FOR THE REPLICATION, INVASION AND RECRUITMENT ASSAYS
 ================================================================================
 
-Status:    PUBLISHED AND VERIFIED 2026-09-27. All three examples are built
+Status:    DONE 2026-09-27. All three examples are built
            and published. Invasion's images remain SYNTHETIC; its masks now
            come from Mask's Cellpose-SAM segmentation and its measurements
            from Measure. Immutable publication readback and a real empty-cache
            CLI download pass. The earlier drawn-mask cache is preserved.
-           Remaining: the changed runtime caption and API translations in
-           the phase2 documentation lane; see the final receipt below.
+           Runtime and API translation tails are now source-current in all
+           nine locales; see the dated closure evidence below.
 
 Requested: 2026-09-21 -- the maintainer's decision, as the orchestrating
            session holds it: "Replication / Invasion / Recruitment" should get
@@ -343,4 +343,35 @@ API/publication work remains tracked separately under 411/358.
 
 Receipt: features/data/316_runtime_codex_delta_2026-09-27.json.
 Review: docs/i18n/2026-09-27-runtime-codex-delta.md.
+AI technical review (Codex), no native-speaker signoff.
+
+2026-09-27 -- ITEM CLOSED AGAINST IMPLEMENTATION AND CURRENT TRANSLATIONS
+--------------------------------------------------------------------------------
+The original request was three published small example datasets and a
+Load test data button in each assay. The earlier Replication/Recruitment
+notes record real repository downloads, live GUI button/cache reuse and
+CPU execution with shipped settings. Invasion's durable publication receipt
+features/data/463_segmented_publication_2026-09-27.json records the atomic
+tar/card upload at revision 152e109f8b312724eadfc1cbf33f1b9e99728c72,
+immutable readback, an actual empty-cache canonical CLI download, preservation
+of the earlier cache, resolved relative paths and 76 offline regression tests.
+The current ExampleSet uses invasion_segmented_v1 and explicitly distinguishes
+synthetic images, Mask segmentation and Measure measurements.
+
+The publication receipt's remaining translation entry is now historical:
+features/data/316_runtime_codex_delta_2026-09-27.json records accepted canonical
+runtime audits in all nine locales and 54 strict runtime checks with the
+advisory plugin disabled. The current segmented Invasion tooltip's source
+hash c922848a8b7e2cd03b6ceb261c77b466aae137a3eec9912cc503873eed825c75
+is present in all nine runtime catalogs.
+
+All 17 public API entries under spacr.qt.assay_examples and
+spacr.example_archives have matching current English symbol and block hashes
+in all nine API catalogs. Commit 7d38d35d1 and
+features/data/411_api_delta3_2026-09-27.json record 207 passing API checks and
+zero API audit failures. Its separate README failures belong to the shared
+documentation lane, not this dataset requirement. Historical receipts and
+review records are preserved. No new segmentation, biological efficacy
+measurement or GPU execution is claimed by this closure.
+
 AI technical review (Codex), no native-speaker signoff.
