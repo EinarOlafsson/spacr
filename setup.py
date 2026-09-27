@@ -32,6 +32,7 @@ it is declared here too so a developer install from git gets wheels as well.
 """
 import sys
 import re
+from html import unescape
 
 from setuptools import setup, find_packages
 
@@ -41,6 +42,8 @@ def pypi_readme(source):
     PyPI serves package metadata without the repository's files. Use the
     public nightly tree, which also carries images not yet promoted to main.
     No network access or spaCR imports are needed during isolated builds.
+    GitHub's aligned raw-HTML tile substitutions become ordinary RST image
+    substitutions here because PyPI's renderer disables raw HTML.
     """
     def absolute(value, image=False):
         if re.match(r"[a-zA-Z][a-zA-Z0-9+.-]*:", value) or value.startswith(("//", "#")):
@@ -49,6 +52,18 @@ def pypi_readme(source):
                 if image else "https://github.com/EinarOlafsson/spacr/blob/nightly/")
         return base + value.removeprefix("./")
 
+    source = re.sub(
+        r'(?m)^\.\. \|(?P<name>Module_[^|\n]+)\| raw:: html\n\n'
+        r'   <a href="(?P<target>[^"]+)"><img src="(?P<image>[^"]+)" '
+        r'width="(?P<width>[^"]+)" align="middle" alt="(?P<alt>[^"]+)"></a>\n',
+        lambda match: (
+            f".. |{match['name']}| image:: {unescape(match['image'])}\n"
+            f"   :width: {match['width']}\n"
+            f"   :alt: {unescape(match['alt'])}\n"
+            f"   :target: {unescape(match['target'])}\n"
+            "   :align: middle\n"
+        ), source,
+    )
     source = re.sub(
         r"(?m)^(\s*\.\. (?:\|[^|]+\| )?(?:image|figure)::\s+)(\S+)",
         lambda match: match[1] + absolute(match[2], image=True), source)

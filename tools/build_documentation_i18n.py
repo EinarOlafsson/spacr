@@ -6823,6 +6823,9 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
                 " image:: ../../../spacr/resources/",
                 " image:: spacr/resources/",
             ).replace(
+                'src="../../../spacr/resources/',
+                'src="spacr/resources/',
+            ).replace(
                 "<../../source/", "<docs/source/",
             ).replace(
                 ":target: ../../source/", ":target: docs/source/",
@@ -6849,6 +6852,12 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
                 f"{language}/README",
                 readme_protected_pattern,
             )
+            source_images = re.findall(r'<(?:a|img)\b[^>]*>', readme_source)
+            target_images = re.findall(r'<(?:a|img)\b[^>]*>', contract_readme)
+            if [re.sub(r'\s+alt="[^"]*"', '', tag) for tag in source_images] != [
+                re.sub(r'\s+alt="[^"]*"', '', tag) for tag in target_images
+            ]:
+                failures.append(f"{language}/README: HTML image/link attributes changed")
             # THE WAY BACK TO ENGLISH, AS 361 LEFT IT. This gate used to
             # require the localized README to name ../../../README.rst
             # directly. 361 replaced the row of per-language links with a
@@ -7022,6 +7031,9 @@ def main() -> int:
             ).replace(
                 " image:: spacr/resources/",
                 " image:: ../../../spacr/resources/",
+            ).replace(
+                'src="spacr/resources/',
+                'src="../../../spacr/resources/',
             ).replace(
                 " image:: docs/source/", " image:: ../../source/",
             ).replace(

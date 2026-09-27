@@ -14,6 +14,7 @@ Run::
 from __future__ import annotations
 
 import argparse
+from html import escape
 import os
 import re
 import sys
@@ -1268,12 +1269,12 @@ def _grid_lines(names: "list[str]") -> "list[str]":
     stacked on top of the same tile padding, and nothing in this repository
     sets it.
 
-    A line block removes the paragraph entirely. Each row becomes one line
-    inside a single block, so what separates two rows is the line box rather
-    than a margin, and the only space left between them is the transparent
-    padding the tiles already carry -- which is the same padding that makes
-    the horizontal gap. The two gutters are then the same measurement rather
-    than two numbers that happen to be close.
+    A line block removes the paragraph margin, but inline images must also
+    retain middle alignment. The live GitHub measurement on 2026-09-27 found
+    six extra CSS pixels below baseline-aligned images. GitHub strips the
+    class emitted by docutils for ``:align: middle``; the README therefore
+    uses the supported HTML ``align`` attribute through raw substitutions.
+    The Sphinx surface retains ordinary image substitutions and their CSS.
 
     SIX PER ROW STAYS EXPLICIT. The other way to drop the margins is to let
     one flowing paragraph wrap, and then the row length is the browser's
@@ -1298,6 +1299,7 @@ def _grid_markup(
     image_prefix: str,
     *,
     alt_template: str = "Open the {module} API",
+    github_alignment: bool = False,
 ) -> str:
     """The module grid, grouped by section, for ONE surface.
 
@@ -1317,6 +1319,10 @@ def _grid_markup(
         for Sphinx, which copies the same PNGs.
     :param alt_template: accessibility text; localized per language for
         the translated READMEs.
+    :param github_alignment: emit raw HTML image substitutions whose middle
+        alignment survives GitHub sanitization. GitHub's ``rest2html`` enables
+        raw HTML and HTMLPipeline allows the ``align`` attribute. No inline
+        style or CSS class is needed.
 
     The heading underline is :data:`SECTION_HEADING_CHAR` on BOTH surfaces,
     which is not cosmetic. RST assigns heading levels by order of first
@@ -1348,6 +1354,17 @@ def _grid_markup(
         ])
         lines.extend(_grid_lines([f"|{names[key]}|" for key, _l, _p in tiles]))
         for key, label, image in tiles:
+            if github_alignment:
+                definitions.extend([
+                    f".. |{names[key]}| raw:: html",
+                    "",
+                    f'   <a href="{escape(urls[key], quote=True)}">'
+                    f'<img src="{escape(f"{image_prefix}/{image}", quote=True)}" '
+                    f'width="{TILE_DISPLAY_WIDTH}" align="middle" '
+                    f'alt="{escape(alt_template.format(module=label), quote=True)}"></a>',
+                    "",
+                ])
+                continue
             definitions.extend([
                 f".. |{names[key]}| image:: {image_prefix}/{image}",
                 f"   :width: {TILE_DISPLAY_WIDTH}",
@@ -1383,7 +1400,8 @@ def _readme_workflow(
     section headings inside it come from Home through
     :func:`_grid_sections`.
     """
-    return _grid_markup("Module", icon_prefix, alt_template=alt_template)
+    return _grid_markup("Module", icon_prefix, alt_template=alt_template,
+                        github_alignment=True)
 
 
 def _documentation_workflow() -> str:

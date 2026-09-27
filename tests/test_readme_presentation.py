@@ -486,12 +486,9 @@ def test_every_module_is_one_tile_of_one_size_in_one_grid():
         assert f"{section}\n{underline * len(section)}\n" in block, (
             f"the grid does not head its {section!r} band")
 
-    # A LINE BLOCK, so every row starts "| ". Measured on the real GitHub
-    # page on 2026-09-02: with each row as its own PARAGRAPH the gap between
-    # rows was 2.5 to 3 times the gap between columns, because the horizontal
-    # gutter is two tile canvases meeting and the vertical one was GitHub's
-    # paragraph margin stacked on top of the same padding. A line block has
-    # no paragraph margin, so both gutters become the same measurement.
+    # A line block fixes the row length and removes paragraph margins.
+    # Middle alignment must also survive GitHub sanitization: baseline
+    # images left a measured six-pixel vertical surplus on 2026-09-27.
     rows = [line for line in text.splitlines()
             if line.startswith("| |Module_")]
     assert rows, "the grid emitted no rows"
@@ -534,6 +531,41 @@ def test_every_module_is_one_tile_of_one_size_in_one_grid():
     visible_gap = generator.BUTTON_SIZE - generator.TILE_SIZE
     assert visible_gap == 2 * generator.TILE_PADDING
     assert visible_gap > 0
+
+    # GitHub retains the align attribute but strips docutils' alignment
+    # class. Parse the generated raw substitutions with the same HTML4
+    # writer family GitHub uses, then verify actual image/link attributes.
+    from html.parser import HTMLParser
+    from docutils.core import publish_parts
+
+    class Tiles(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.images = []
+            self.links = []
+
+        def handle_starttag(self, tag, attrs):
+            if tag == "img":
+                self.images.append(dict(attrs))
+            elif tag == "a" and "href" in dict(attrs):
+                self.links.append(dict(attrs)["href"])
+
+    parsed = Tiles()
+    parsed.feed(publish_parts(
+        block, writer_name="html4css1",
+        settings_overrides={"raw_enabled": True, "halt_level": 2},
+    )["fragment"])
+    assert len(parsed.images) == len(grid)
+    assert parsed.links == [generator._api_urls()[key] for key, _, _ in grid]
+    for attrs, (_key, label, image) in zip(parsed.images, grid):
+        assert attrs == {
+            "src": f"spacr/resources/icons/{image}",
+            "width": generator.TILE_DISPLAY_WIDTH,
+            "align": "middle", "alt": f"Open the {label} API",
+        }
+    sphinx = generator._documentation_workflow()
+    assert "raw:: html" not in sphinx
+    assert sphinx.count(":align: middle") == len(grid)
 
     # No leftover artwork for a module that is no longer tiled, and none
     # of the old two-sizes machinery still around to be picked back up.

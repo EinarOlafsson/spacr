@@ -5,6 +5,7 @@ from __future__ import annotations
 # accounted separately in features/data/411_object_helpers_2026-09-22.json.
 
 import hashlib
+from html import unescape
 import json
 import os
 import re
@@ -2087,7 +2088,7 @@ def test_github_summary_has_reviewed_domain_translations():
         assert (
             is_document_block
             or (source == "Make Masks" and canonical_normalized.count(source) == 2
-                and ":alt: Open the Make Masks API" in canonical
+                and 'alt="Open the Make Masks API"' in canonical
                 and "Import, Make Masks, Annotate" in canonical)
             or canonical_normalized.count(source) == 1
         ), source
@@ -2127,7 +2128,10 @@ def test_github_summary_has_reviewed_domain_translations():
     assert "criblages CRISPR" in joined["fr"]
     assert "CRISPR 스크리닝" in joined["ko"]
     assert "CRISPR-skim" in joined["is"]
-    assert len(REVIEWED_README_HEADINGS) == 16
+    # The reviewed "Try spaCR" heading was added by the
+    # 2026-09-27 source-current README pass.
+    assert len(REVIEWED_README_HEADINGS) == 17
+    assert "Try spaCR" in REVIEWED_README_HEADINGS
     for reviewed in REVIEWED_README_HEADINGS.values():
         assert set(reviewed) == {
             "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr",
@@ -4070,7 +4074,8 @@ def test_localized_readme_images_have_reviewed_accessible_text():
     canonical_workflow = canonical.partition(
         ".. spacr-workflow-begin"
     )[2].partition(".. spacr-workflow-end")[0]
-    canonical_alt = re.findall(r"(?m)^   :alt: (.+)$", canonical_workflow)
+    canonical_alt = [unescape(value) for value in re.findall(
+        r'\balt="([^"]+)"', canonical_workflow)]
     module_names = [
         match.group(1)
         for alt in canonical_alt
@@ -4091,15 +4096,18 @@ def test_localized_readme_images_have_reviewed_accessible_text():
             encoding="utf-8"
         )
         alt_text = re.findall(r"(?m)^   :alt: (.+)$", text)
+        alt_text += [unescape(value) for value in re.findall(r'\balt="([^"]+)"', text)]
         workflow = text.partition(
             ".. spacr-workflow-begin"
         )[2].partition(".. spacr-workflow-end")[0]
-        workflow_alt = re.findall(r"(?m)^   :alt: (.+)$", workflow)
+        workflow_alt = [unescape(value) for value in re.findall(
+            r'\balt="([^"]+)"', workflow)]
         assert len(workflow_alt) == len(module_names)
         # Every canonical badge, Home tile, installer and resource image
         # must also have an accessible label in each translated README.
         assert len(alt_text) == len(
-            re.findall(r"(?m)^   :alt: (.+)$", canonical)) == (
+            re.findall(r"(?m)^   :alt: (.+)$", canonical)
+        ) + len(canonical_alt) == (
                 20 + len(module_names) + 4 + 5)
         assert ".. image:: ../../source/_static/deck/slides/slide_01.jpg" in text
         assert "logo_spacr_readme.png" not in text
@@ -4136,7 +4144,7 @@ def test_localized_readme_images_have_reviewed_accessible_text():
         assert not any(alt.startswith("Download spaCR") for alt in installers), (
             f"{language} kept the canonical English download alt text")
 
-        resources = alt_text[-5:]
+        resources = _readme_substitution_alt_text(text, README_RESOURCE_SUBSTITUTIONS)
         assert all(any(name in alt for name in (
             "BioStudies", "Hugging Face", "NCBI", "spaCRPower", "bioRxiv"
         )) for alt in resources)
@@ -4160,6 +4168,9 @@ def test_visual_regeneration_preserves_localized_workflow_markup(monkeypatch):
         *(f"**{section}**" for section in WORKFLOW_SECTION_LABELS["de"]),
         ".. |App_map| image:: icons/map.png\n"
         "   :alt: Open the Map Barcodes API",
+        '.. |Module_align| raw:: html\n\n'
+        '   <img src="icons/align.png" align="middle" '
+        'alt="Open the Align &amp; Stitch API">',
     ])
     monkeypatch.setattr(generator, "_readme_workflow", lambda _prefix: sample)
 
@@ -4180,6 +4191,10 @@ def test_visual_regeneration_preserves_localized_workflow_markup(monkeypatch):
             ) in localized
         )
         assert "Open the Map Barcodes API" not in localized
+        assert WORKFLOW_MODULE_ALT_TEMPLATES[language].format(
+            module="Align & Stitch"
+        ) in unescape(localized)
+        assert 'src="icons/align.png" align="middle"' in localized
 
 
 def test_localized_readme_inline_markup_is_balanced_and_tight():

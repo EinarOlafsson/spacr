@@ -2,8 +2,28 @@
 EQUAL GUTTERS, NO PER-MODULE PROSE IN THE README, AND REAL API PAGES
 ================================================================================
 
-Status:    OPEN 2026-09-27: implementation and translation tails complete;
-           live GitHub numerical equal-gutter acceptance remains unverified.
+Status:    OPEN 2026-09-27: live GitHub measured a 6 CSS pixel vertical surplus.
+           A middle-alignment repair passes local numerical preview; published
+           live acceptance remains pending. Translation tails are complete.
+
+2026-09-27 measured correction:
+  - The actual nightly page at 90fb0c63f2393b8ab5301e8483b877d5c82ff6e8
+    failed the unchanged 1 CSS pixel criterion at both 1440 and 1024 widths.
+    Evidence: features/data/366_live_gutters_2026-09-27/.
+  - GitHub strips docutils' middle-alignment class. The canonical README
+    generator now emits the supported HTML align attribute, retaining all
+    21 tile images, links, widths, translated alternative text and row breaks.
+    Sphinx keeps image directives; PyPI converts the raw tile substitutions
+    back to RST because its renderer disables raw HTML.
+  - Local HTML4/GitHub-CSS preview gives equal horizontal/vertical gaps at
+    both widths, with zero spread. This is not live acceptance. All nine
+    canonical README audits pass, 34 focused README contracts pass, and the
+    three real PyPI rendering/conversion checks pass in the existing docs
+    environment. The latter resolves the missing-renderer skip in the
+    application environment. Coverage retains 8,726 runtime entries and
+    11,865 API symbols in every locale; only README byte counts change.
+    Evidence: features/data/366_gutter_alignment_2026-09-27/.
+  - Publish and repeat the unmodified live measurement before marking DONE.
 
 Prior status (historical): 2026-09-25: DONE here; remaining: docs lane only -- the
            quiet_crop_paths docstring in the reviewed API packs other than
