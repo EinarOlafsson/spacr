@@ -3650,7 +3650,9 @@
       "source_sha256": "716705a006c51ba98d09012dcb5466281e85fb7d21cc6002817996f7141e970f",
       "context": "WHY (item 502). The theme draws every ``QProgressBar`` as an 8 px track (``height: 8px; max-height: 8px`` in :mod:`spacr.qt.theme`). A bar that also paints its own text -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" -- draws a 13 px caption into those 8 px, so only the top half of each glyph reaches the application view, and at 50 % GUI scale the track is 4 px and almost nothing does. The maintainer's report was \"the text e.g. step 1 of 3 or 10% is cut off\".",
       "translation": "POR QUÉ (elemento 502). El tema dibuja cada ``QProgressBar`` como una pista de 8 px (``height: 8px; max-height: 8px`` en :mod:`spacr.qt.theme`). Una barra que además pinta su propio texto -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" -- dibuja un texto de 13 px dentro de esos 8 px, así que solo la mitad superior de cada glifo llega a la pantalla, y con la escala de la GUI al 50 % la pista mide 4 px y no llega casi nada. El informe del responsable era \"the text e.g. step 1 of 3 or 10% is cut off\".",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-27: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding#4",
@@ -3658,7 +3660,9 @@
       "source_sha256": "7ab46fd9cca517c17f57de9c2ba6f927b48c48da68c442fa7074bb01eda156ce",
       "context": "The design the maintainer chose is \"thin bar + label\":",
       "translation": "EL DISEÑO que eligió el responsable es \"barra delgada + etiqueta\":",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-27: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding#5",

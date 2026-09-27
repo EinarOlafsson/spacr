@@ -1730,6 +1730,10 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('intensity_calibration_wells', None)
     settings.setdefault('intensity_calibration_statistic', 'foreground')
     settings.setdefault('intensity_calibration_offset', 0)
+    settings.setdefault('plate_barcode_source', '')
+    settings.setdefault('plate_barcodes', None)
+    settings.setdefault('plate_barcode_column', 'barcode')
+    settings.setdefault('plate_barcode_token_env', 'SPACR_LIMS_TOKEN')
     settings.setdefault('time_to_event', False)
     settings.setdefault('time_to_event_object', 'cell')
     settings.setdefault('time_to_event_mode', 'track_end')
@@ -3315,6 +3319,14 @@ expected_types = {
     "plaque_growth_reference_hours": (float, int),
     "plaque_pixels_per_um": (float, int, type(None)),
     "plaque_formation_hours": (float, int, type(None)),
+    "colony_counting": bool,
+    "colony_dilution": (float, int, dict),
+    "colony_plated_volume_ul": (float, int),
+    "colony_too_many": (int, float, type(None)),
+    "colony_too_few": (int, float, type(None)),
+    "colony_polarity": str,
+    "colony_threshold": (float, int),
+    "colony_min_area_px": (float, int, type(None)),
     "nucleus_channel": (int, type(None)),
     "nucleus_background": int,
     "nucleus_signal_to_noise": float,
@@ -3562,6 +3574,10 @@ expected_types = {
     "intensity_calibration_wells": (list, str, type(None)),
     "intensity_calibration_statistic": str,
     "intensity_calibration_offset": (float, int),
+    "plate_barcode_source": str,
+    "plate_barcodes": (dict, str, type(None)),
+    "plate_barcode_column": str,
+    "plate_barcode_token_env": str,
     "time_to_event": bool,
     "time_to_event_object": str,
     "time_to_event_mode": str,
@@ -4546,6 +4562,14 @@ tooltips = {
     "plaque_growth_reference_hours": "(float) - Positive formation time in hours corresponding to the growth reference diameter. Default 168 (seven days). Linear diameter growth through zero is assumed; this is not a fitted temporal growth curve.",
     "plaque_pixels_per_um": "(float, int or None) - Known pixels per micrometer in the analyzed image. Positive values override detected rulers. Leave blank for automatic scale-bar or well-diameter calibration. Per-well values entered in Figure preview take precedence. Default None.",
     "plaque_formation_hours": "(float, int or None) - Elapsed plaque formation time in hours, recorded as experimental metadata. Zero is permitted; blank means unknown. Figure preview allows per-well overrides. Default None.",
+    "colony_counting": "(bool) - Count bacterial or fungal colonies on plate or dish photos instead of segmenting plaques. Each image is one plate, or one well per detected well when well_detection is on; the dish is found by its outline otherwise. Colonies are thresholded against the agar, touching ones are split, and the count, CFU/mL, colony areas and diameters go to colonies/colonies.db in src. No plaque model is loaded. Plaque mode only: Figure mode ignores it. Default False.",
+    "colony_dilution": "(float, int or dict) - Dilution factor of the suspension that was plated, 10000 for a 10^-4 dilution; a fraction such as 0.0001 is read as the dilution and inverted. CFU/mL = colonies x dilution factor / plated volume. A dict from file name or stem to factor sets it per plate; a plate it does not name gets no CFU/mL. Default 1.",
+    "colony_plated_volume_ul": "(float) - Volume of the dilution spread on each plate, in microlitres, the denominator of CFU/mL. Change it with the plating protocol: 100 for a standard spread plate, 1000 for a pour plate of 1 mL. Default 100.",
+    "colony_too_many": "(int or None) - Plates with more colonies than this are flagged 'too many to count' (TNTC) in per_plate: neighbouring colonies merge and compete, so the count underestimates what was plated. Their CFU/mL is still written, so filter on the flag. Blank turns the check off. Default 300.",
+    "colony_too_few": "(int or None) - Plates with fewer colonies than this are flagged 'too few to count' (TFTC) in per_plate: so few colonies carry a sampling error too large for the CFU/mL they imply. Their CFU/mL is still written, so filter on the flag. Blank turns the check off. Default 30.",
+    "colony_polarity": "(str) - Whether colonies are brighter than the agar (bright: white or cream colonies on blood, chocolate or dark agar, or any plate photographed on a dark background) or darker (dark: on a light box or on pale agar). auto tries both and keeps the one whose round objects stand further above the agar. Set it when auto picks the wrong one on a sparse plate. Default auto.",
+    "colony_threshold": "(float) - How far above the agar a pixel must be to count as colony, in multiples of the agar's own noise. Lower finds faint, small or translucent colonies but also picks up agar texture, bubbles and glare; higher keeps only clear colonies. Default 4.0.",
+    "colony_min_area_px": "(float, int or None) - Smallest colony counted, in pixels of the original photo. Raise it to ignore dust, bubbles and pinpoint artefacts; lower it for pinpoint colonies. Blank uses 0.4 % of the dish diameter, squared: about 36 pixels for a dish 1500 pixels across. Default None.",
     "well_diameter_mm": "(float, int or None) - Known interior diameter of a detected well in millimetres, overriding plate_format when both are set. It converts the detected pixel diameter into pixels per millimetre and therefore rescales every physical plaque area; use None when the diameter is unknown. Default None.",
     "metadata_type": "(str) - Raw-image filename convention, grouped by microscope vendor. Default 'cellvoyager' (Yokogawa CV7000/CV8000). 'custom' uses custom_regex; 'auto' first renames files to Yokogawa naming, using custom_regex when supplied or automatic detection. Provisional conventions come from public-dataset filenames, not vendor documentation. A wrong choice can misassign plate, well, field or channel IDs and channel folders. Use Test on my folder before running.",
     "n_jobs": "(int) - CPU workers for parallel stages: measurement, mask adjustment, DataLoader loading, and the sklearn/UMAP calls where -1 means every core. Raise it to shorten CPU-bound steps until RAM or disk I/O saturates. Note the measure-and-crop pipeline overrides your value with cpu_count()-4. Defaults vary by pipeline: cpu_count()-4, -1, or None.",
@@ -4811,6 +4835,10 @@ tooltips = {
     "intensity_calibration_wells": "(list or None) - The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
     "intensity_calibration_statistic": "(str) - How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
     "intensity_calibration_offset": "(float) - The camera's dark offset, in the intensity units Measure works in, removed before the reference statistic and kept when scaling: a pixel becomes offset + (value - offset) x gain. Read it from a dark frame; 100 is common on sCMOS cameras. Leave 0 when images are already offset-corrected. Default 0.",
+    "plate_barcode_source": "(str) - Sample records to fill the plate map from, by plate barcode: a CSV, TSV, Excel or Parquet table with a barcode column, a well column (well such as A01, or rowID and columnID) and metadata such as strain, compound, concentration, passage and operator; or the http(s) address of a LIMS service that answers JSON well records for ?barcode=, or for {barcode} in the address. The filled map and a list of mismatches go to measurements. Blank links nothing. Default blank.",
+    "plate_barcodes": "(dict or None) - The barcode each plate was imported with, such as {'plate1': 'BC000123'}. A plate not named here takes the barcode in a barcode.txt file in its plate folder, or else its own plate name. Two plates given one barcode are reported as a mismatch. Default None.",
+    "plate_barcode_column": "(str) - The column of the sample records that holds the plate barcode. Blank looks for barcode, plate_barcode or plate barcode. The other columns, apart from the well position, are copied into the plate map as they are. Default barcode.",
+    "plate_barcode_token_env": "(str) - The name of the environment variable holding the LIMS access token, sent as a bearer token with each request. The token itself is never written to settings or results; set the variable before starting spaCR. Ignored for a table. Default SPACR_LIMS_TOKEN.",
     "time_to_event": "(bool) - After measuring a timelapse, follow every tracked object to an event (death, lysis, egress, division, first detection) or to the end of its track, and compare conditions: Kaplan-Meier curves with 95% bands, median time to event per condition and well, log-rank tests and a Cox model. Writes measurements.db:time_to_event and four summary tables, and the curves and hazard ratios under results/time_to_event. Needs tracked objects measured with timelapse on. Default False.",
     "time_to_event_object": "(str) - The measured object table whose tracks are followed: cell, nucleus, pathogen or cytoplasm. Each object label in a field is one track, since the timelapse module relabels tracked objects with their track ID. Follow host cells for host death or lysis, pathogens for egress or division. Default cell.",
     "time_to_event_mode": "(str) - What counts as the event. track_end: the object disappears before the movie ends (lysis, egress, detachment, and tracking loss too). annotated: time_to_event_column turns non-zero, or equals the threshold. above or below: the column reaches time_to_event_threshold, such as a death dye. fold_change: the column reaches threshold times its first value, such as a doubled parasite count. Tracks without the event are censored at their last frame. Default track_end.",
@@ -5486,6 +5514,12 @@ categories = {
         "confluency_window", "confluency_qc_threshold",
     ],
 
+    "Colony Counting (Alpha)": [
+        "colony_counting", "colony_dilution", "colony_plated_volume_ul",
+        "colony_too_many", "colony_too_few", "colony_polarity",
+        "colony_threshold", "colony_min_area_px",
+    ],
+
     "Bleach Correction (Alpha)": [
         "bleach_correction",
     ],
@@ -5512,6 +5546,11 @@ categories = {
     "Intensity Calibration (Alpha)": [
         "intensity_calibration", "intensity_calibration_wells",
         "intensity_calibration_statistic", "intensity_calibration_offset",
+    ],
+
+    "Plate Barcode Linkage (Alpha)": [
+        "plate_barcode_source", "plate_barcodes", "plate_barcode_column",
+        "plate_barcode_token_env",
     ],
 
     "Time To Event (Alpha)": [
@@ -6503,6 +6542,14 @@ def get_analyze_plaque_settings(settings):
     settings.setdefault('plaque_estimate_growth', False)
     settings.setdefault('plaque_growth_reference_um', 893.8178699548309)
     settings.setdefault('plaque_growth_reference_hours', 168.0)
+    settings.setdefault('colony_counting', False)
+    settings.setdefault('colony_dilution', 1)
+    settings.setdefault('colony_plated_volume_ul', 100)
+    settings.setdefault('colony_too_many', 300)
+    settings.setdefault('colony_too_few', 30)
+    settings.setdefault('colony_polarity', 'auto')
+    settings.setdefault('colony_threshold', 4.0)
+    settings.setdefault('colony_min_area_px', None)
     settings.setdefault('background', 200)
     settings.setdefault('Signal_to_noise', 10)
     settings.setdefault('CP_prob', 0)
@@ -7084,6 +7131,12 @@ ALPHA_FEATURES = {
                      'confluency_window', 'confluency_qc_threshold'),
         'widgets': ('MeasureConfluencyToggle',),
     },
+    542: {
+        'settings': ('colony_counting', 'colony_dilution',
+                     'colony_plated_volume_ul', 'colony_too_many',
+                     'colony_too_few', 'colony_polarity', 'colony_threshold',
+                     'colony_min_area_px'),
+    },
     536: {
         'settings': ('wound_closure', 'wound_source', 'wound_channel',
                      'wound_window', 'wound_hours_per_frame',
@@ -7181,6 +7234,12 @@ ALPHA_FEATURES = {
     538: {
         'settings': ('unmix', 'unmix_controls', 'unmix_background_percentile'),
     },
+    574: {
+        'widgets': ('ReportArchivePackage',),
+    },
+    579: {
+        'widgets': ('ReportZenodoDeposit',),
+    },
     575: {
         'widgets': ('RunHistoryExportWorkflow',),
     },
@@ -7188,8 +7247,26 @@ ALPHA_FEATURES = {
         'settings': ('timelapse_lineage', 'timelapse_lineage_color_by',
                      'timelapse_lineage_max_distance'),
     },
+    583: {
+        'settings': ('plate_barcode_source', 'plate_barcodes',
+                     'plate_barcode_column', 'plate_barcode_token_env'),
+    },
     543: {
         'settings': ('illumination_vendor_profile',),
+    },
+    584: {
+        'widgets': ('ControlChartChemistry', 'ControlChartChemistrySection'),
+    },
+    585: {
+        'widgets': ('PowerArrayedPlanner',),
+    },    563: {
+        'widgets': ('ControlChartAnomaly', 'ControlChartAnomalySection'),
+    },
+    582: {
+        'widgets': ('PluginCatalogueHelp', 'PluginCatalogueSource',
+                    'PluginCatalogueLoad', 'PluginCatalogueTable',
+                    'PluginCatalogueInstall', 'PluginCatalogueUninstall',
+                    'PluginCatalogueStatus'),
     },
 }
 

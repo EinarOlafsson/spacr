@@ -305,6 +305,7 @@ def convert_settings_dict_for_gui(settings):
         'seg_qc': ('combo', ['off', 'report', 'flag', 'stop'], 'report'),
         'psf_measurement_source': ('combo', ['original', 'processed'], 'original'),
         'confluency_source': ('combo', ['auto', 'masks', 'texture', 'intensity'], 'auto'),
+        'colony_polarity': ('combo', ['auto', 'bright', 'dark'], 'auto'),
         'bleach_correction': ('combo', ['none', 'ratio', 'exponential', 'histogram'], 'none'),
         'profiling_normalization': ('combo', ['mad_robustize', 'standardize', 'robustize', 'none'], 'mad_robustize'),
         'cell_cycle_method': ('combo', ['measurements', 'xgboost', 'torch', 'all'], 'measurements'),

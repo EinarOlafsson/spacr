@@ -7794,6 +7794,9 @@ def measure_crop(settings):
                     ledger.finalize(
                         artifact=db_path if os.path.isfile(db_path) else None)
 
+                if str(settings.get('plate_barcode_source') or '').strip():
+                    _run_plate_barcode_step(settings)
+
                 if settings.get('confluency') and os.path.isfile(db_path):
                     wells = _aggregate_confluency_by_well(
                         db_path, settings.get('confluency_qc_threshold'))
@@ -7837,6 +7840,61 @@ def measure_crop(settings):
                     print("Successfully completed run")
 
             run.register_outputs(settings=settings, roots=source_folders)
+
+def _run_plate_barcode_step(settings, fetch=None):
+    """Fill the plate map from sample records by plate barcode and say where.
+
+    Runs :func:`spacr.plate_qc._link_plate_barcodes` on the run's merged
+    arrays with the ``plate_barcode_*`` settings and writes the filled map
+    to ``measurements/plate_map_lims.csv`` and every mismatch to
+    ``measurements/plate_barcode_mismatches.csv``, printing each mismatch.
+    A blank ``profiling_metadata`` is pointed at the filled map, and so is a
+    blank ``viability_plate_map`` when the records carry a compound and a
+    concentration; a plate map the user gave is only checked against the
+    records. A failure is reported and does not fail the run.
+
+    :param settings: Measure settings; the plate-map settings may be filled.
+    :param fetch: passed to :func:`spacr.plate_qc._lims_records`.
+    :returns: ``(plate_map, mismatches)``, or None when the step failed.
+    """
+    from .plate_qc import _link_plate_barcodes
+    from .tabular import write_table
+
+    existing = [str(settings.get(key)).strip() for key in
+                ('profiling_metadata', 'viability_plate_map')
+                if str(settings.get(key) or '').strip()]
+    try:
+        plate_map, mismatches = _link_plate_barcodes(
+            settings['src'], settings['plate_barcode_source'],
+            barcodes=settings.get('plate_barcodes'),
+            barcode_column=str(settings.get('plate_barcode_column')
+                               or '').strip() or None,
+            token_env=settings.get('plate_barcode_token_env'),
+            existing_maps=list(dict.fromkeys(existing)),
+            timelapse=bool(settings.get('timelapse')), fetch=fetch)
+    except (OSError, ValueError, KeyError) as exc:
+        print(f"Plate barcode linkage could not be made: {exc}")
+        return None
+    out_dir = os.path.join(os.path.dirname(settings['src']), 'measurements')
+    map_path = write_table(plate_map, os.path.join(out_dir,
+                                                   'plate_map_lims.csv'))
+    write_table(mismatches, os.path.join(out_dir,
+                                         'plate_barcode_mismatches.csv'))
+    print(f"Plate barcode linkage: {len(plate_map)} well(s) filled from "
+          f"{settings['plate_barcode_source']} into {map_path}; "
+          f"{len(mismatches)} mismatch(es).")
+    for row in mismatches.itertuples(index=False):
+        print(f"MISMATCH {row.kind}: plate {row.plateID} (barcode "
+              f"{row.barcode}) {row.well} {row.detail}".replace('  ', ' '))
+    if not str(settings.get('profiling_metadata') or '').strip():
+        settings['profiling_metadata'] = map_path
+    lower = {str(c).lower() for c in plate_map.columns}
+    if (not str(settings.get('viability_plate_map') or '').strip()
+            and lower & set(_VIABILITY_COMPOUND_COLUMNS)
+            and lower & set(_VIABILITY_DOSE_COLUMNS)):
+        settings['viability_plate_map'] = map_path
+    return plate_map, mismatches
+
 
 #: Tables the CellProfiler step writes are named this plus the lowercased
 #: CellProfiler object name, e.g. ``cellprofiler_nuclei``.

@@ -819,6 +819,13 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # under their own "Intensity Calibration (Alpha)" heading.
     "intensity_calibration", "intensity_calibration_wells",
     "intensity_calibration_statistic", "intensity_calibration_offset",
+    # NEW SETTINGS, not a regrouping (item 583, 2026-09-27): Measure's
+    # plate map filled from sample records by plate barcode -- the records
+    # table or LIMS address, the plate barcodes, the barcode column and the
+    # token's environment variable -- under their own "Plate Barcode
+    # Linkage (Alpha)" heading.
+    "plate_barcode_source", "plate_barcodes", "plate_barcode_column",
+    "plate_barcode_token_env",
     # NEW SETTINGS, not a regrouping (item 571, 2026-09-26): Measure's
     # time-to-event analysis of tracked objects -- the switch, the object
     # table, the event mode, its column, threshold and persistence, the
@@ -853,6 +860,14 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # copied back sit beside `src` in Input & Metadata / Input & Experiment.
     "cloud_anonymous", "cloud_profile", "cloud_endpoint", "cloud_cache",
     "cloud_wells", "cloud_fields", "cloud_level", "cloud_results",
+    # NEW SETTINGS, not a regrouping (item 542, 2026-09-27): Plaque Assay's
+    # colony-counting switch, the dilution and plated volume that turn a
+    # count into CFU/mL, the too-many and too-few flags, and the polarity,
+    # threshold and minimum area of the colony segmentation, under their own
+    # "Colony Counting (Alpha)" heading.
+    "colony_counting", "colony_dilution", "colony_plated_volume_ul",
+    "colony_too_many", "colony_too_few", "colony_polarity",
+    "colony_threshold", "colony_min_area_px",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six
@@ -1555,6 +1570,9 @@ def _rendered_sections(app_key):
             # Item 571, 2026-09-26: time to event follows, read from the
             # tracked objects measured above, after the run.
             "Time To Event (Alpha)",
+            # Item 583, 2026-09-27: the plate map filled by plate barcode
+            # feeds the viability and profiling steps, so it comes first.
+            "Plate Barcode Linkage (Alpha)",
             # Item 540, 2026-09-26: live/dead viability, read from the same
             # measured nuclei, after the cell-cycle call.
             "Viability (Alpha)",

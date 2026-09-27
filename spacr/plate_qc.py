@@ -1637,3 +1637,420 @@ def format_edge_report(report: EdgeEffectReport) -> str:
         for note in report.notes:
             lines.append(f"  - {note}")
     return "\n".join(lines)
+
+
+#: Column names a LIMS export may give the plate barcode, lower-cased.
+_BARCODE_COLUMNS: Tuple[str, ...] = (
+    "barcode", "plate_barcode", "platebarcode", "plate barcode")
+
+#: Columns that locate a record rather than describe the sample in it.
+_LIMS_LOCATOR_COLUMNS = frozenset({
+    "prc", "prcf", "plateID", "plate", "plate_name", "rowID", "row",
+    "row_name", "columnID", "column", "column_name", "well", "wellID",
+    "fieldID", "_row", "_col"})
+
+#: File in a plate folder that holds the barcode the plate was imported with.
+_BARCODE_FILE = "barcode.txt"
+
+#: The columns of the mismatch report, in order.
+_BARCODE_MISMATCH_COLUMNS = ("plateID", "barcode", "well", "kind", "detail")
+
+
+def _parse_barcode_assignments(value: Any) -> Dict[str, str]:
+    """Plate-to-barcode assignments from a dict or ``plate=code`` text.
+
+    :param value: ``{plateID: barcode}``, text such as
+        ``'plate1=BC001; plate2=BC002'`` (commas, semicolons or new lines
+        between pairs), or None.
+    :returns: ``{plateID: barcode}`` with both sides stripped.
+    :raises ValueError: a text pair without ``=``.
+    """
+    if value is None:
+        return {}
+    if isinstance(value, dict):
+        return {str(k).strip(): str(v).strip() for k, v in value.items()
+                if str(k).strip() and str(v).strip()}
+    pairs = {}
+    for part in re.split(r"[;,\n]", str(value)):
+        if not part.strip():
+            continue
+        if "=" not in part:
+            raise ValueError(
+                f"Setting: plate_barcodes has {part.strip()!r}; write each "
+                f"plate as plateID=barcode, such as plate1=BC000123.")
+        plate, code = part.split("=", 1)
+        if plate.strip() and code.strip():
+            pairs[plate.strip()] = code.strip()
+    return pairs
+
+
+def _imaged_wells(src: str, *, timelapse: bool = False) -> pd.DataFrame:
+    """The plate wells that have a merged field array in ``src``.
+
+    :param src: folder of merged ``plate_row_column_field.npy`` arrays.
+    :param timelapse: whether the names carry a timepoint.
+    :returns: one row per imaged well: ``plateID``, ``_row``, ``_col``.
+    """
+    rows = []
+    names = sorted(os.listdir(src)) if os.path.isdir(src) else []
+    for name in names:
+        if not name.endswith(".npy"):
+            continue
+        try:
+            field_id = schema.parse_field_stem(name, timelapse=timelapse)
+        except (schema.SchemaError, ValueError):
+            continue
+        r = parse_row_label(field_id.rowID)
+        c = parse_column_label(field_id.columnID)
+        if r is not None and c is not None:
+            rows.append((str(field_id.plateID), int(r), int(c)))
+    return (pd.DataFrame(rows, columns=["plateID", "_row", "_col"])
+            .drop_duplicates().reset_index(drop=True))
+
+
+def _plate_barcodes(src: str, plates: Sequence[str],
+                    assigned: Any = None) -> Dict[str, str]:
+    """The barcode each imaged plate was imported with.
+
+    In order of precedence: the plate's entry in ``assigned``; a
+    ``barcode.txt`` in the plate folder (the parent of ``src``) or in
+    ``src``, holding one barcode for a folder of one plate or
+    ``plateID=barcode`` lines; otherwise the plate name itself.
+
+    :param src: folder of merged arrays.
+    :param plates: the imaged plate names.
+    :param assigned: the ``plate_barcodes`` setting.
+    :returns: ``{plateID: barcode}``.
+    """
+    explicit = _parse_barcode_assignments(assigned)
+    from_file: Dict[str, str] = {}
+    for folder in (os.path.dirname(os.path.abspath(src)), src):
+        path = os.path.join(folder, _BARCODE_FILE)
+        if not os.path.isfile(path):
+            continue
+        with open(path, encoding="utf-8") as handle:
+            text = handle.read().strip()
+        if "=" in text:
+            from_file = _parse_barcode_assignments(text)
+        elif text and len(plates) == 1:
+            from_file = {str(plates[0]): text.splitlines()[0].strip()}
+        break
+    return {str(p): explicit.get(str(p)) or from_file.get(str(p)) or str(p)
+            for p in plates}
+
+
+def _default_lims_fetch(url: str, headers: Dict[str, str]) -> bytes:
+    """GET ``url`` with ``headers`` and return the body.
+
+    :raises OSError: when the service cannot be reached or answers an error.
+    """
+    from urllib.request import Request, urlopen
+
+    with urlopen(Request(url, headers=headers), timeout=30) as reply:
+        return reply.read()
+
+
+def _lims_url(source: str, barcode: str) -> str:
+    """The LIMS address that returns the records of one plate barcode.
+
+    ``{barcode}`` in ``source`` is replaced by the barcode; otherwise it
+    is added as the ``barcode`` query parameter.
+    """
+    code = _urlquote(str(barcode), safe="")
+    if "{barcode}" in source:
+        return source.replace("{barcode}", code)
+    return f"{source}{'&' if '?' in source else '?'}barcode={code}"
+
+
+def _lims_payload_records(payload: Any, barcode: str,
+                          barcode_column: str) -> List[Dict[str, Any]]:
+    """Well records of one plate from a LIMS JSON answer.
+
+    Accepts a list of well records, or an object whose ``wells``,
+    ``records``, ``results``, ``data`` or ``items`` list holds them; the
+    object's own plain fields (strain, operator, passage ...) are copied
+    onto every well that does not set them.
+    """
+    shared: Dict[str, Any] = {}
+    records = payload
+    if isinstance(payload, dict):
+        key = next((k for k in ("wells", "records", "results", "data",
+                                "items") if isinstance(payload.get(k), list)),
+                   None)
+        if key is None:
+            raise ValueError(
+                f"The LIMS answer for barcode {barcode!r} has no list of "
+                f"well records (wells, records, results, data or items).")
+        shared = {k: v for k, v in payload.items()
+                  if not isinstance(v, (list, dict))}
+        records = payload[key]
+    if not isinstance(records, list):
+        raise ValueError(
+            f"The LIMS answer for barcode {barcode!r} is not a list of "
+            f"well records.")
+    out = []
+    for record in records:
+        if isinstance(record, dict):
+            merged = {**shared, **record}
+            merged.setdefault(barcode_column, barcode)
+            out.append(merged)
+    return out
+
+
+def _lims_records(source: str, barcodes: Sequence[str], *,
+                  barcode_column: str = "barcode",
+                  token_env: Optional[str] = None,
+                  fetch=None) -> pd.DataFrame:
+    """Sample records for ``barcodes`` from a table or a LIMS web service.
+
+    A path is read as a table (CSV, TSV, Excel, Parquet) holding every
+    plate. An ``http://`` or ``https://`` address is asked once per
+    barcode for JSON, with ``Authorization: Bearer <token>`` when the
+    environment variable ``token_env`` is set; the token is never stored.
+
+    :param source: the table path or LIMS address.
+    :param barcodes: the barcodes to look up.
+    :param barcode_column: the records' barcode column.
+    :param token_env: the environment variable holding the LIMS token.
+    :param fetch: ``fetch(url, headers) -> bytes``; the standard library
+        HTTP client when None.
+    :returns: the records, one row per well.
+    :raises OSError: the service could not be reached.
+    :raises ValueError: an answer that is not JSON well records.
+    """
+    import json
+
+    source = str(source).strip()
+    if not re.match(r"https?://", source, re.IGNORECASE):
+        from .tabular import read_table
+        return read_table(source, report=None)
+    fetch = fetch or _default_lims_fetch
+    headers = {"Accept": "application/json"}
+    token = os.environ.get(str(token_env or "").strip()) if token_env else None
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    records: List[Dict[str, Any]] = []
+    for barcode in dict.fromkeys(str(b) for b in barcodes):
+        body = fetch(_lims_url(source, barcode), dict(headers))
+        if isinstance(body, bytes):
+            body = body.decode("utf-8")
+        try:
+            payload = json.loads(body) if str(body).strip() else []
+        except json.JSONDecodeError as exc:
+            raise ValueError(
+                f"The LIMS answer for barcode {barcode!r} is not JSON: "
+                f"{exc}.") from None
+        records.extend(_lims_payload_records(payload, barcode,
+                                             barcode_column))
+    return pd.DataFrame(records)
+
+
+def _locate_records(frame: pd.DataFrame) -> Tuple[pd.DataFrame, pd.Series]:
+    """``frame`` with integer ``_row``/``_col`` and a mask of located rows.
+
+    :raises ValueError: when nothing in the frame locates a well.
+    """
+    frame = frame.copy()
+    if "wellID" in frame.columns and "well" not in frame.columns:
+        frame = frame.rename(columns={"wellID": "well"})
+    located, _ = _identify_wells(frame)
+
+    def whole(value):
+        if isinstance(value, float) and value.is_integer():
+            return int(value)
+        return value
+
+    rows = located["rowID"].map(lambda v: parse_row_label(whole(v)))
+    cols = located["columnID"].map(lambda v: parse_column_label(whole(v)))
+    ok = rows.notna() & cols.notna()
+    located["_row"] = rows.where(ok, 0).astype(int)
+    located["_col"] = cols.where(ok, 0).astype(int)
+    return located, ok
+
+
+def _same_value(a: Any, b: Any) -> bool:
+    """Whether two plate-map values agree, numbers to a relative 1e-6."""
+    a_blank = a is None or (isinstance(a, float) and math.isnan(a)) \
+        or str(a).strip() == ""
+    b_blank = b is None or (isinstance(b, float) and math.isnan(b)) \
+        or str(b).strip() == ""
+    if a_blank or b_blank:
+        return a_blank and b_blank
+    try:
+        return math.isclose(float(a), float(b), rel_tol=1e-6, abs_tol=1e-12)
+    except (TypeError, ValueError):
+        return str(a).strip() == str(b).strip()
+
+
+def _link_plate_barcodes(src: str, source: str, *, barcodes: Any = None,
+                         barcode_column: Optional[str] = None,
+                         token_env: Optional[str] = None,
+                         existing_maps: Sequence[str] = (),
+                         timelapse: bool = False,
+                         fetch=None) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Fill a plate map from sample records by plate barcode and check it.
+
+    Every plate imaged in ``src`` is looked up by the barcode it was
+    imported with (:func:`_plate_barcodes`) in the records of ``source``
+    (:func:`_lims_records`), and each imaged well gets that record's sample
+    metadata: strain, compound, concentration, passage, operator or any
+    other column. Mismatches are listed rather than raised: a barcode the
+    records do not know, a barcode given to two plates, an imaged well
+    without a record, a record for a well that was not imaged, a record
+    whose well cannot be read, two different records for one well, and a
+    value in one of ``existing_maps`` that disagrees with the records.
+
+    :param src: folder of merged field arrays.
+    :param source: the records table or LIMS address.
+    :param barcodes: the ``plate_barcodes`` setting.
+    :param barcode_column: the records' barcode column; blank finds one of
+        ``barcode``, ``plate_barcode`` or ``plate barcode``.
+    :param token_env: environment variable holding the LIMS token.
+    :param existing_maps: plate maps the user gave, checked against the
+        records and never changed.
+    :param timelapse: whether the field names carry a timepoint.
+    :param fetch: passed to :func:`_lims_records`.
+    :returns: ``(plate_map, mismatches)``: one row per imaged well with a
+        record (``plateID``, ``rowID``, ``columnID``, ``plate_barcode`` and
+        the metadata), and one row per mismatch (``plateID``, ``barcode``,
+        ``well``, ``kind``, ``detail``).
+    :raises ValueError: no imaged plate, or records without a barcode or
+        well column.
+    """
+    imaged = _imaged_wells(src, timelapse=timelapse)
+    if imaged.empty:
+        raise ValueError(f"No merged field arrays to link in {src}.")
+    plates = sorted(imaged["plateID"].unique())
+    plate_codes = _plate_barcodes(src, plates, barcodes)
+    wanted = barcode_column or "barcode"
+    records = _lims_records(source, list(plate_codes.values()),
+                            barcode_column=wanted, token_env=token_env,
+                            fetch=fetch)
+    lower = {str(c).lower(): c for c in records.columns}
+    if barcode_column:
+        column = barcode_column if barcode_column in records.columns \
+            else lower.get(str(barcode_column).lower())
+    else:
+        column = next((lower[c] for c in _BARCODE_COLUMNS if c in lower), None)
+    if column is None:
+        raise ValueError(
+            f"The sample records have no {barcode_column or 'barcode'} "
+            f"column; they have {list(records.columns)}.")
+    mismatches: List[Tuple[str, str, str, str, str]] = []
+    by_code: Dict[str, List[str]] = {}
+    for plate, code in plate_codes.items():
+        by_code.setdefault(code, []).append(plate)
+    for code, owners in by_code.items():
+        if len(owners) > 1:
+            for plate in owners:
+                mismatches.append((plate, code, "", "barcode_shared",
+                                   f"barcode also given to "
+                                   f"{', '.join(p for p in owners if p != plate)}"))
+    records = records.copy()
+    records["_barcode"] = records[column].astype(str).str.strip()
+    records = records[records["_barcode"].isin(set(plate_codes.values()))]
+    annotations = [c for c in records.columns
+                   if c not in _LIMS_LOCATOR_COLUMNS and c != column
+                   and c != "_barcode"]
+    rows = []
+    if not records.empty:
+        located, ok = _locate_records(records.drop(
+            columns=[c for c in ("plateID", "plate", "plate_name")
+                     if c in records.columns]))
+        for index in located.index[~ok]:
+            mismatches.append((
+                ", ".join(by_code[located.at[index, "_barcode"]]),
+                located.at[index, "_barcode"],
+                str(located.at[index, "well"]) if "well" in located.columns
+                else f"{located.at[index, 'rowID']}/"
+                     f"{located.at[index, 'columnID']}",
+                "unreadable_well", "the record's well cannot be read"))
+        located = located[ok]
+        for (code, r, c), group in located.groupby(
+                ["_barcode", "_row", "_col"], sort=True):
+            first = group.iloc[0]
+            if len(group) > 1 and any(
+                    not _same_value(first[a], other[a])
+                    for _, other in group.iloc[1:].iterrows()
+                    for a in annotations):
+                for plate in by_code[code]:
+                    mismatches.append((plate, code, well_id(r, c),
+                                       "conflicting_records",
+                                       f"{len(group)} different records; "
+                                       f"the first is used"))
+            for plate in by_code[code]:
+                rows.append({"plateID": plate, "_row": int(r), "_col": int(c),
+                             "plate_barcode": code,
+                             **{a: first[a] for a in annotations}})
+    linked = pd.DataFrame(rows, columns=["plateID", "_row", "_col",
+                                         "plate_barcode", *annotations])
+    known = set(records["_barcode"])
+    for plate, code in plate_codes.items():
+        if code not in known:
+            mismatches.append((plate, code, "", "barcode_not_found",
+                               "no sample record has this barcode"))
+    both = imaged.merge(linked[["plateID", "_row", "_col"]], how="outer",
+                        on=["plateID", "_row", "_col"], indicator=True)
+    for _, row in both.iterrows():
+        code = plate_codes.get(row["plateID"], "")
+        if code not in known:
+            continue
+        where = well_id(row["_row"], row["_col"])
+        if row["_merge"] == "left_only":
+            mismatches.append((row["plateID"], code, where, "well_not_in_lims",
+                               "imaged, but no sample record"))
+        elif row["_merge"] == "right_only":
+            mismatches.append((row["plateID"], code, where, "well_not_imaged",
+                               "a sample record, but no image"))
+    linked = linked.merge(imaged, how="inner", on=["plateID", "_row", "_col"])
+    for path in existing_maps:
+        mismatches.extend(_plate_map_differences(linked, path, annotations,
+                                                 plate_codes))
+    linked.insert(1, "rowID", [f"r{r}" for r in linked["_row"]])
+    linked.insert(2, "columnID", [f"c{c}" for c in linked["_col"]])
+    linked = (linked.drop(columns=["_row", "_col"])
+              .sort_values(["plateID", "rowID", "columnID"],
+                           key=lambda s: s.map(
+                               lambda v: (len(str(v)), str(v))))
+              .reset_index(drop=True))
+    report = pd.DataFrame(mismatches, columns=list(_BARCODE_MISMATCH_COLUMNS))
+    return linked, report
+
+
+def _plate_map_differences(linked: pd.DataFrame, path: str,
+                           annotations: Sequence[str],
+                           plate_codes: Dict[str, str]) -> List[tuple]:
+    """Where a user's plate map disagrees with the linked sample records.
+
+    :param linked: the linked map with ``plateID``, ``_row`` and ``_col``.
+    :param path: the user's plate map.
+    :param annotations: the records' metadata columns.
+    :param plate_codes: ``{plateID: barcode}``.
+    :returns: ``plate_map_differs`` mismatch rows.
+    """
+    from .tabular import read_table
+
+    theirs = read_table(path, report=None)
+    has_plate = any(c in theirs.columns for c in ("plateID", "plate_name",
+                                                  "plate"))
+    located, ok = _locate_records(theirs)
+    located = located[ok]
+    shared = [c for c in annotations if c in located.columns]
+    if not shared or located.empty:
+        return []
+    on = ["plateID", "_row", "_col"] if has_plate else ["_row", "_col"]
+    located = located.assign(plateID=located["plateID"].astype(str))
+    joined = linked.merge(located[on + shared].drop_duplicates(on), on=on,
+                          how="inner", suffixes=("", "__theirs"))
+    out = []
+    for _, row in joined.iterrows():
+        for name in shared:
+            if not _same_value(row[name], row[f"{name}__theirs"]):
+                out.append((row["plateID"],
+                            plate_codes.get(row["plateID"], ""),
+                            well_id(row["_row"], row["_col"]),
+                            "plate_map_differs",
+                            f"{name}: {row[f'{name}__theirs']!r} in "
+                            f"{os.path.basename(str(path))}, "
+                            f"{row[name]!r} in the sample records"))
+    return out

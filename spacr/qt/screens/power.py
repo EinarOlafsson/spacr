@@ -70,13 +70,16 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QColor, QFontMetrics, QPainter, QPainterPath, QPen
 from PySide6.QtWidgets import (
     QAbstractItemView,
+    QCheckBox,
     QComboBox,
     QDoubleSpinBox,
+    QFileDialog,
     QFormLayout,
     QGroupBox,
     QHBoxLayout,
     QHeaderView,
     QLabel,
+    QLineEdit,
     QPushButton,
     QScrollArea,
     QSizePolicy,
@@ -87,6 +90,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..app_catalog import declared_app, register_declared
+from ..i18n import tr
 from ..theme import (
     SPACING,
     active_palette,
@@ -788,6 +792,7 @@ class PowerScreen(QWidget):
         buttons.addWidget(self._btn_run)
         buttons.addWidget(self._btn_stop)
         layout.addLayout(buttons)
+        layout.addWidget(self._build_arrayed_planner(inner))
         layout.addStretch(1)
 
         for widget in (self._genes, self._grnas, self._plates, self._reads,
@@ -856,6 +861,196 @@ class PowerScreen(QWidget):
         results.add_section(self._table, "Power table",
                             persist_key="power/Power table")
         return panel
+
+    def _build_arrayed_planner(self, parent: QWidget) -> QGroupBox:
+        """Build the arrayed-assay planner: pilot table in, designs out.
+
+        The planner reads a per-cell pilot table, splits its variance into
+        replicate, well, field and cell components and lists the cheapest
+        replicate, well and field counts that reach the target power for a
+        two-condition comparison, with the top design checked by simulation.
+
+        :param parent: the form the box sits in, so hiding it sticks.
+        :returns: the planner group box.
+        """
+        box = QGroupBox(tr("Arrayed-assay planner"), parent)
+        box.setObjectName("PowerArrayedPlanner")
+        form = QFormLayout(box)
+        path_row = QHBoxLayout()
+        self._pilot_path = QLineEdit()
+        self._pilot_path.setToolTip(tr(
+            "Per-cell measurements from a pilot plate: a CSV, Parquet, Excel "
+            "or spaCR measurement database. Default empty."))
+        self._pilot_path.editingFinished.connect(self._refresh_pilot_columns)
+        browse = QPushButton(tr("Browse…"))
+        browse.clicked.connect(self._browse_pilot)
+        path_row.addWidget(self._pilot_path, 1)
+        path_row.addWidget(browse)
+        form.addRow(tr("Pilot table"), path_row)
+        self._pilot_table = QLineEdit("cell")
+        self._pilot_table.setToolTip(tr(
+            "Table to read when the pilot is a database. Default cell."))
+        form.addRow(tr("Database table"), self._pilot_table)
+        self._pilot_columns: Dict[str, QComboBox] = {}
+        for key, label, default, tip in (
+                ("value", tr("Measurement"), "",
+                 tr("Per-cell column the experiment will compare. "
+                    "Default empty.")),
+                ("well", tr("Well column"), "prc",
+                 tr("Column naming each well, unique across plates. "
+                    "Default prc.")),
+                ("field", tr("Field column"), "fieldID",
+                 tr("Column naming the field within its well. "
+                    "Default fieldID.")),
+                ("replicate", tr("Replicate column"), "",
+                 tr("Column naming the biological replicate, such as "
+                    "plateID when each plate is one; leave empty when the "
+                    "pilot has one replicate and the replicate variance "
+                    "cannot be estimated. Default empty."))):
+            combo = QComboBox()
+            combo.setEditable(True)
+            combo.setEditText(default)
+            combo.setToolTip(tip)
+            self._pilot_columns[key] = combo
+            form.addRow(label, combo)
+        self._plan_effect = self._float_box(0.0, 1e12, 0.0, decimals=4)
+        self._plan_effect.setToolTip(tr(
+            "Difference between the two condition means to detect, in the "
+            "measurement's units. Default 0."))
+        form.addRow(tr("Effect to detect"), self._plan_effect)
+        self._plan_power = self._float_box(0.5, 0.99, 0.8, step=0.05)
+        self._plan_power.setToolTip(tr(
+            "Probability of a significant result the design must reach. "
+            "Default 0.8."))
+        form.addRow(tr("Target power"), self._plan_power)
+        self._plan_alpha = self._float_box(0.001, 0.2, 0.05, decimals=3,
+                                           step=0.01)
+        self._plan_alpha.setToolTip(tr(
+            "Two-sided significance level of the t-test on replicate means. "
+            "Default 0.05."))
+        form.addRow(tr("Significance level"), self._plan_alpha)
+        self._plan_paired = QCheckBox(tr("Both conditions on every replicate"))
+        self._plan_paired.setToolTip(tr(
+            "Analyse replicates as pairs, so replicate-to-replicate "
+            "variation cancels. Default off."))
+        form.addRow(self._plan_paired)
+        plan = QPushButton(tr("Plan the design"))
+        plan.clicked.connect(self._plan_from_pilot)
+        form.addRow(plan)
+        self._plan_summary = QLabel("")
+        self._plan_summary.setWordWrap(True)
+        self._plan_summary.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        form.addRow(self._plan_summary)
+        headers = [tr("Replicates"), tr("Wells"), tr("Fields"), tr("Power"),
+                   tr("Cost")]
+        self._plan_table = QTableWidget(0, len(headers))
+        self._plan_table.setHorizontalHeaderLabels(headers)
+        self._plan_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self._plan_table.verticalHeader().setVisible(False)
+        self._plan_table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.ResizeToContents)
+        self._plan_table.setMinimumHeight(120)
+        form.addRow(self._plan_table)
+        from ..preferences import _apply_alpha_widgets
+
+        _apply_alpha_widgets(box)
+        self._arrayed_planner = box
+        return box
+
+    def _browse_pilot(self) -> None:
+        """Ask for the pilot table and list its columns."""
+        path, _ = QFileDialog.getOpenFileName(self, tr("Pilot table"))
+        if path:
+            self._pilot_path.setText(path)
+            self._refresh_pilot_columns()
+
+    def _refresh_pilot_columns(self) -> None:
+        """Offer the pilot table's columns in the column pickers."""
+        from ...tabular import table_columns
+
+        path = self._pilot_path.text().strip()
+        if not path:
+            return
+        try:
+            columns = table_columns(path,
+                                    table=self._pilot_table.text().strip())
+        except Exception:
+            return
+        for key, combo in self._pilot_columns.items():
+            current = combo.currentText()
+            combo.clear()
+            if key == "replicate":
+                combo.addItem("")
+            combo.addItems(list(columns))
+            combo.setEditText(current)
+
+    def _plan_from_pilot(self):
+        """Estimate the pilot's variance components and list reachable designs.
+
+        :returns: the design table, cheapest first, or None when the pilot
+            could not be read; the summary line says why.
+        """
+        from ...sp_stats import (_nested_variance_components,
+                                 _plan_arrayed_design,
+                                 _simulate_arrayed_power)
+        from ...tabular import read_table
+
+        column = {k: c.currentText().strip()
+                  for k, c in self._pilot_columns.items()}
+        try:
+            pilot = read_table(self._pilot_path.text().strip(),
+                               table=self._pilot_table.text().strip(),
+                               report=None)
+            components = _nested_variance_components(
+                pilot, column["value"], well=column["well"],
+                field=column["field"],
+                replicate=column["replicate"] or None)
+        except Exception as exc:
+            self._plan_summary.setText(
+                tr("Could not read the pilot: {error}", error=exc))
+            self._plan_table.setRowCount(0)
+            return None
+        effect = self._plan_effect.value()
+        paired = self._plan_paired.isChecked()
+        alpha = self._plan_alpha.value()
+        designs = _plan_arrayed_design(
+            components, effect, power=self._plan_power.value(), alpha=alpha,
+            paired=paired)
+        variances = tr(
+            "Mean {mean:.4g}; variance between replicates {rep}, wells "
+            "{well:.4g}, fields {field:.4g}, cells {cell:.4g}; "
+            "{cells:.0f} cells per field.",
+            mean=components["mean"],
+            rep=(f"{components['replicate']:.4g}"
+                 if components["estimated"]["replicate"]
+                 else tr("not estimated (taken as 0)")),
+            well=components["well"], field=components["field"],
+            cell=components["cell"], cells=components["cells_per_field"])
+        self._plan_table.setRowCount(min(10, len(designs)))
+        for row, design in enumerate(designs.head(10).itertuples()):
+            for col, text in enumerate((
+                    str(design.replicates), str(design.wells),
+                    str(design.fields), f"{design.power:.3f}",
+                    f"{design.cost:.4g}")):
+                self._plan_table.setItem(row, col, table_item(text))
+        if designs.empty:
+            self._plan_summary.setText(variances + " " + tr(
+                "No design within 12 replicates, 12 wells and 25 fields "
+                "reaches the target power."))
+            return designs
+        best = designs.iloc[0]
+        simulated = _simulate_arrayed_power(
+            components, effect, replicates=int(best.replicates),
+            wells=int(best.wells), fields=int(best.fields), alpha=alpha,
+            paired=paired, n_sim=500)
+        self._plan_summary.setText(variances + " " + tr(
+            "Cheapest design: {replicates} replicates, {wells} wells per "
+            "condition, {fields} fields per well; power {power:.2f}, "
+            "{simulated:.2f} in 500 simulated experiments.",
+            replicates=int(best.replicates), wells=int(best.wells),
+            fields=int(best.fields), power=best.power,
+            simulated=simulated))
+        return designs
 
     @staticmethod
     def _int_box(low: int, high: int, value: int) -> QSpinBox:

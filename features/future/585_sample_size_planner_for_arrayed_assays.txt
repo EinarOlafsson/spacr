@@ -1,6 +1,6 @@
 A SAMPLE-SIZE PLANNER FOR ARRAYED ASSAYS
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED AS ALPHA 2026-09-27.
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -18,3 +18,33 @@ WHAT TO BUILD
 DONE WHEN
     On a pilot plate, the planner's recommendations match a simulation of
     the same design.
+
+ALPHA: 2026-09-27 -- implemented as alpha (widget PowerArrayedPlanner in
+    ALPHA_FEATURES[585]). Hidden unless Preferences -> Show alpha features.
+
+    Engine (spacr/sp_stats.py, private helpers):
+      _nested_variance_components  method-of-moments split of a per-cell
+          pilot table into replicate / well / field / cell variances (pooled
+          within an optional condition column; replicate left NaN and
+          flagged when the pilot has one replicate).
+      _arrayed_power  two-sided t-test on replicate means (unpaired, df
+          2n-2, or paired with the replicate component cancelling, df n-1),
+          noncentral t.
+      _plan_arrayed_design  per (wells, fields) the fewest replicates that
+          reach the target power, sorted by a simple replicate/well/field
+          cost (defaults 20 / 1 / 0.1).
+      _simulate_arrayed_power  cell-level simulation of whole experiments.
+    GUI: an "Arrayed-assay planner" box under the Power screen's form: pilot
+    table (via spacr.tabular), column pickers, effect, power, alpha, paired;
+    lists the ten cheapest designs and checks the top one by 500 simulations.
+
+    Validation (tests/test_arrayed_sample_size_planner.py): analytic power
+    equals statsmodels TTestIndPower / TTestPower to 1e-6 for the same
+    replicate-mean variance; simulation agrees within 0.03 (3000 sims); on a
+    simulated 5-plate pilot the estimated components recover the truth
+    (unbiased over 40 seeds) and the recommended design's simulated power
+    matches its planned power within 0.03 -- the DONE WHEN.
+
+    Left: cost weights and search limits are fixed in the GUI (engine takes
+    them); normal-theory only (no count or proportion readouts, no
+    replicate-by-condition interaction term); the plan is not saved to disk.

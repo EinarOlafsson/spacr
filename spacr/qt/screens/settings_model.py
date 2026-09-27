@@ -1268,6 +1268,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Bleach Correction (Alpha)", ("@Bleach Correction (Alpha)",)),
         ("Wound Closure (Alpha)", ("@Wound Closure (Alpha)",)),
         ("Time To Event (Alpha)", ("@Time To Event (Alpha)",)),
+        ("Plate Barcode Linkage (Alpha)", ("@Plate Barcode Linkage (Alpha)",)),
         ("Viability (Alpha)", ("@Viability (Alpha)",)),
         ("CellProfiler (Alpha)", ("@CellProfiler (Alpha)",)),
         ("Object Filtering", (
@@ -1573,6 +1574,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
     "analyze_plaques": (
         ("Input & Channels", ("src", "masks")),
         ("Scale & Time", ("plate_format", "well_diameter_mm", "plaque_pixels_per_um", "plaque_formation_hours")),
+        ("Colony Counting (Alpha)", ("@Colony Counting (Alpha)",)),
         ("Experimental Growth Estimates", ("plaque_estimate_growth", "plaque_growth_reference_um", "plaque_growth_reference_hours")),
         ("Model", ("diameter",)),
         ("Detection Thresholds", (
@@ -2681,6 +2683,12 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "reproducibility as mean average precision and percent replicating. "
         "Written as CSV, Parquet and GCT files that pycytominer, copairs and "
         "Morpheus read.",
+    "PLATE BARCODE LINKAGE (ALPHA)":
+        "Fill the plate map from sample records by plate barcode: each "
+        "imaged plate is looked up by its barcode in a table or a LIMS "
+        "service, its wells get the strain, compound, concentration, "
+        "passage and operator recorded there, and every mismatch between "
+        "the records and the images is listed.",
     "INTENSITY CALIBRATION (ALPHA)":
         "Scale every imaging session to the same intensities before "
         "measuring, from fluorescent beads or reference wells imaged "
@@ -2702,6 +2710,13 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "nucleus measurements, or an image classifier on nucleus crops. Each "
         "writes the same phase column to measurements.db, with the phase "
         "fractions per well among infected and uninfected cells.",
+    "COLONY COUNTING (ALPHA)":
+        "Count bacterial or fungal colonies on plate or dish photos instead "
+        "of plaques: the dish is found, colonies are thresholded against the "
+        "agar and touching ones split, and each plate gets a count, CFU/mL "
+        "from the dilution and plated volume, a too-many or too-few flag, "
+        "and colony areas and diameters, in millimetres when Scale & Time "
+        "says how large the dish is.",
     "SPECTRAL UNMIXING (ALPHA)":
         "Bleed-through correction: how much of each dye is read in the other "
         "channels is estimated from single-stain control wells, and every "

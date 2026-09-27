@@ -1195,10 +1195,13 @@ def _notify_keyring() -> Any:
         return None
 
 
-def _read_notify_secret_file() -> Dict[str, str]:
-    """The secrets in the fallback file, or an empty dict."""
+def _read_notify_secret_file(path: Optional[Path] = None) -> Dict[str, str]:
+    """The secrets in a mode-600 secret file, or an empty dict.
+
+    :param path: the file; the notification secret file when ``None``.
+    """
     try:
-        path = _notify_secrets_path()
+        path = Path(path) if path is not None else _notify_secrets_path()
         if not path.is_file():
             return {}
         data = json.loads(path.read_text(encoding="utf-8"))
@@ -1210,16 +1213,18 @@ def _read_notify_secret_file() -> Dict[str, str]:
         return {}
 
 
-def _write_notify_secret_file(values: Dict[str, str]) -> None:
-    """Write the fallback secret file readable by its owner only (mode 600).
+def _write_notify_secret_file(values: Dict[str, str],
+                              path: Optional[Path] = None) -> None:
+    """Write a secret file readable by its owner only (mode 600).
 
     The file is created with mode 600 before anything is written to it and
     replaces the old one in one step; with nothing left to keep it is
     removed.
 
     :param values: secret name to value.
+    :param path: the file; the notification secret file when ``None``.
     """
-    path = _notify_secrets_path()
+    path = Path(path) if path is not None else _notify_secrets_path()
     kept = {k: v for k, v in values.items() if v}
     if not kept:
         try:
