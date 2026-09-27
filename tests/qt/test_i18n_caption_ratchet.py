@@ -1364,6 +1364,14 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'S3-compatible endpoint (blank for Amazon S3)',
     'Use this location',
     's3://bucket/folder, gs://, az:// or https://',
+    # 542, 2026-09-27: the Colony Counting (Alpha) category help on Plaque
+    # Assay.
+    'Count bacterial or fungal colonies on plate or dish photos instead of '
+    'plaques: the dish is found, colonies are thresholded against the agar '
+    'and touching ones split, and each plate gets a count, CFU/mL from the '
+    'dilution and plated volume, a too-many or too-few flag, and colony '
+    'areas and diameters, in millimetres when Scale & Time says how large '
+    'the dish is.',
 })
 
 

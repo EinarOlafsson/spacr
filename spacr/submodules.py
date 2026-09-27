@@ -1497,8 +1497,13 @@ def analyze_plaques(settings):
           preview makes too.
         - ``plaque_mode`` -- ``'figure'`` hands the folder to
           :func:`spacr.plaque_papers.measure_figure_folder` instead.
+        - ``colony_counting`` -- in plaque mode, counts bacterial or fungal
+          colonies on plate photos instead of segmenting plaques
+          (:func:`_analyze_colony_plates`), writing
+          ``<src>/colonies/colonies.db``.
 
-    :returns: None. Writes ``<src>/masks/plaques_analysis.db``.
+    :returns: None. Writes ``<src>/masks/plaques_analysis.db``. With
+        ``colony_counting`` it returns the per-plate colony table instead.
 
     Example:
         .. code-block:: python
@@ -1513,6 +1518,12 @@ def analyze_plaques(settings):
     from .settings import get_analyze_plaque_settings
     from .utils import save_settings, download_models
     spacr_path = os.path.join(os.path.dirname(__file__), '__init__.py')
+
+    if settings.get('colony_counting') and str(
+            settings.get('plaque_mode') or 'plaque') != 'figure':
+        settings = get_analyze_plaque_settings(settings)
+        save_settings(settings, name='analyze_colonies', show=True)
+        return _analyze_colony_plates(settings)
 
     model_path = _resolve_plaque_model(settings)
     settings['custom_model'] = model_path
@@ -1695,6 +1706,81 @@ def _segment_plaque_folder(settings, model_path):
         print(f"segmented {index}/{len(names)}: {name}, "
               f"{int(np.asarray(labels).max())} plaque(s)")
     return len(names)
+
+
+def _analyze_colony_plates(settings):
+    """Plaque Assay's colony counting: CFU per plate from plate photos.
+
+    Every image under ``src`` is one plate, or a multi-well plate when
+    ``well_detection`` names a detector. Each dish or well is found (the
+    detector, else :func:`spacr.plaque._find_dish`), its colonies are counted
+    and measured by :func:`spacr.plaque._count_colony_plate`, and the count
+    becomes CFU/mL with ``colony_dilution`` and ``colony_plated_volume_ul``
+    and is flagged against ``colony_too_many`` and ``colony_too_few``.
+
+    :param settings: the plaque settings dict, defaults applied.
+    :returns: the per-plate table as a DataFrame.
+
+    Writes ``<src>/colonies/colonies.db`` with a ``per_plate`` table (one row
+    per dish or well: count, flag, CFU/mL, the dish and its scale, colony
+    size summaries) and a ``per_colony`` table (area and diameter in pixels
+    and, with a scale, mm), the per-plate table again as
+    ``colonies/per_plate.csv``, and, when ``save`` is on, one outlined
+    overlay per plate and a colony-size histogram in ``colonies/``.
+    """
+    from .plaque import (_colony_overlay_figure, _colony_size_figure,
+                         _count_colony_plate, detect_wells)
+    from .tabular import write_table
+
+    src = settings['src']
+    out_dir = os.path.join(src, 'colonies')
+    os.makedirs(out_dir, exist_ok=True)
+    weights = _resolve_well_detector(settings)
+    names = [f for f in sorted(os.listdir(src))
+             if os.path.isfile(os.path.join(src, f))
+             and f.lower().endswith(('.tif', '.tiff', '.png', '.jpg', '.jpeg'))]
+    per_plate, per_colony = [], []
+    save = bool(settings.get('save', True))
+    for name in names:
+        image = cellpose.io.imread(os.path.join(src, name))
+        wells = []
+        if weights:
+            try:
+                wells = detect_wells(image, weights, confidence=float(
+                    settings.get('well_confidence', 0.25)))
+            except ImportError as exc:
+                LOG_PLAQUE.warning("%s; finding the dish in %s by its outline "
+                                   "instead", exc, name)
+        targets = wells or [None]
+        stem = os.path.splitext(name)[0]
+        for index, well in enumerate(targets, start=1):
+            result = _count_colony_plate(image, name=name, well=well,
+                                         settings=settings)
+            row = dict(file=name, well=index if well is not None else None,
+                       **result['summary'])
+            per_plate.append(row)
+            for colony in result['colonies']:
+                per_colony.append(dict(file=name, well=row['well'], **colony))
+            print(f"{name}{f' well {index}' if well is not None else ''}: "
+                  f"{row['colony_count']} colonies ({row['count_flag']})"
+                  + (f", {row['cfu_per_ml']:.3g} CFU/mL"
+                     if row['cfu_per_ml'] is not None else ''))
+            if save:
+                label = stem if well is None else f"{stem}_well{index:02d}"
+                figure = _colony_overlay_figure(result, title=label)
+                save_figure(figure, os.path.join(out_dir, f"{label}_colonies.pdf"),
+                            close=True)
+    plates = pd.DataFrame(per_plate)
+    colonies = pd.DataFrame(per_colony)
+    db_name = os.path.join(out_dir, 'colonies.db')
+    write_database(plates, db_name, 'per_plate', if_exists='replace')
+    write_database(colonies, db_name, 'per_colony', if_exists='replace')
+    write_table(plates, os.path.join(out_dir, 'per_plate.csv'))
+    if save and per_colony:
+        save_figure(_colony_size_figure(per_colony),
+                    os.path.join(out_dir, 'colony_sizes.pdf'), close=True)
+    print(f"Colony counts saved to '{db_name}'.")
+    return plates
 
 
 def _add_figure_summaries(total, part):

@@ -3257,6 +3257,14 @@ expected_types = {
     "plaque_growth_reference_hours": (float, int),
     "plaque_pixels_per_um": (float, int, type(None)),
     "plaque_formation_hours": (float, int, type(None)),
+    "colony_counting": bool,
+    "colony_dilution": (float, int, dict),
+    "colony_plated_volume_ul": (float, int),
+    "colony_too_many": (int, float, type(None)),
+    "colony_too_few": (int, float, type(None)),
+    "colony_polarity": str,
+    "colony_threshold": (float, int),
+    "colony_min_area_px": (float, int, type(None)),
     "nucleus_channel": (int, type(None)),
     "nucleus_background": int,
     "nucleus_signal_to_noise": float,
@@ -4441,6 +4449,14 @@ tooltips = {
     "plaque_growth_reference_hours": "(float) - Positive formation time in hours corresponding to the growth reference diameter. Default 168 (seven days). Linear diameter growth through zero is assumed; this is not a fitted temporal growth curve.",
     "plaque_pixels_per_um": "(float, int or None) - Known pixels per micrometer in the analyzed image. Positive values override detected rulers. Leave blank for automatic scale-bar or well-diameter calibration. Per-well values entered in Figure preview take precedence. Default None.",
     "plaque_formation_hours": "(float, int or None) - Elapsed plaque formation time in hours, recorded as experimental metadata. Zero is permitted; blank means unknown. Figure preview allows per-well overrides. Default None.",
+    "colony_counting": "(bool) - Count bacterial or fungal colonies on plate or dish photos instead of segmenting plaques. Each image is one plate, or one well per detected well when well_detection is on; the dish is found by its outline otherwise. Colonies are thresholded against the agar, touching ones are split, and the count, CFU/mL, colony areas and diameters go to colonies/colonies.db in src. No plaque model is loaded. Plaque mode only: Figure mode ignores it. Default False.",
+    "colony_dilution": "(float, int or dict) - Dilution factor of the suspension that was plated, 10000 for a 10^-4 dilution; a fraction such as 0.0001 is read as the dilution and inverted. CFU/mL = colonies x dilution factor / plated volume. A dict from file name or stem to factor sets it per plate; a plate it does not name gets no CFU/mL. Default 1.",
+    "colony_plated_volume_ul": "(float) - Volume of the dilution spread on each plate, in microlitres, the denominator of CFU/mL. Change it with the plating protocol: 100 for a standard spread plate, 1000 for a pour plate of 1 mL. Default 100.",
+    "colony_too_many": "(int or None) - Plates with more colonies than this are flagged 'too many to count' (TNTC) in per_plate: neighbouring colonies merge and compete, so the count underestimates what was plated. Their CFU/mL is still written, so filter on the flag. Blank turns the check off. Default 300.",
+    "colony_too_few": "(int or None) - Plates with fewer colonies than this are flagged 'too few to count' (TFTC) in per_plate: so few colonies carry a sampling error too large for the CFU/mL they imply. Their CFU/mL is still written, so filter on the flag. Blank turns the check off. Default 30.",
+    "colony_polarity": "(str) - Whether colonies are brighter than the agar (bright: white or cream colonies on blood, chocolate or dark agar, or any plate photographed on a dark background) or darker (dark: on a light box or on pale agar). auto tries both and keeps the one whose round objects stand further above the agar. Set it when auto picks the wrong one on a sparse plate. Default auto.",
+    "colony_threshold": "(float) - How far above the agar a pixel must be to count as colony, in multiples of the agar's own noise. Lower finds faint, small or translucent colonies but also picks up agar texture, bubbles and glare; higher keeps only clear colonies. Default 4.0.",
+    "colony_min_area_px": "(float, int or None) - Smallest colony counted, in pixels of the original photo. Raise it to ignore dust, bubbles and pinpoint artefacts; lower it for pinpoint colonies. Blank uses 0.4 % of the dish diameter, squared: about 36 pixels for a dish 1500 pixels across. Default None.",
     "well_diameter_mm": "(float, int or None) - Known interior diameter of a detected well in millimetres, overriding plate_format when both are set. It converts the detected pixel diameter into pixels per millimetre and therefore rescales every physical plaque area; use None when the diameter is unknown. Default None.",
     "metadata_type": "(str) - Raw-image filename convention, grouped by microscope vendor. Default 'cellvoyager' (Yokogawa CV7000/CV8000). 'custom' uses custom_regex; 'auto' first renames files to Yokogawa naming, using custom_regex when supplied or automatic detection. Provisional conventions come from public-dataset filenames, not vendor documentation. A wrong choice can misassign plate, well, field or channel IDs and channel folders. Use Test on my folder before running.",
     "n_jobs": "(int) - CPU workers for parallel stages: measurement, mask adjustment, DataLoader loading, and the sklearn/UMAP calls where -1 means every core. Raise it to shorten CPU-bound steps until RAM or disk I/O saturates. Note the measure-and-crop pipeline overrides your value with cpu_count()-4. Defaults vary by pipeline: cpu_count()-4, -1, or None.",
@@ -5332,6 +5348,12 @@ categories = {
     "Confluency (Alpha)": [
         "confluency", "confluency_source", "confluency_channel",
         "confluency_window", "confluency_qc_threshold",
+    ],
+
+    "Colony Counting (Alpha)": [
+        "colony_counting", "colony_dilution", "colony_plated_volume_ul",
+        "colony_too_many", "colony_too_few", "colony_polarity",
+        "colony_threshold", "colony_min_area_px",
     ],
 
     "Cell Cycle (Alpha)": [
@@ -6311,6 +6333,14 @@ def get_analyze_plaque_settings(settings):
     settings.setdefault('plaque_estimate_growth', False)
     settings.setdefault('plaque_growth_reference_um', 893.8178699548309)
     settings.setdefault('plaque_growth_reference_hours', 168.0)
+    settings.setdefault('colony_counting', False)
+    settings.setdefault('colony_dilution', 1)
+    settings.setdefault('colony_plated_volume_ul', 100)
+    settings.setdefault('colony_too_many', 300)
+    settings.setdefault('colony_too_few', 30)
+    settings.setdefault('colony_polarity', 'auto')
+    settings.setdefault('colony_threshold', 4.0)
+    settings.setdefault('colony_min_area_px', None)
     settings.setdefault('background', 200)
     settings.setdefault('Signal_to_noise', 10)
     settings.setdefault('CP_prob', 0)
@@ -6926,7 +6956,13 @@ ALPHA_FEATURES = {
     573: {
         'widgets': ('AnalysisLockButton',),
     },
-    577: {
+    542: {
+        'settings': ('colony_counting', 'colony_dilution',
+                     'colony_plated_volume_ul', 'colony_too_many',
+                     'colony_too_few', 'colony_polarity', 'colony_threshold',
+                     'colony_min_area_px'),
+    },
+        577: {
         'widgets': ('NotifyTabHelp', 'NotifyRunsEnabled', 'NotifyRunsWhen',
                     'NotifyRunsMinMinutes', 'NotifyDesktop', 'NotifyEmail',
                     'NotifySmtpHost', 'NotifySmtpPort', 'NotifySmtpSecurity',

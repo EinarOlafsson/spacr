@@ -803,7 +803,18 @@ def test_real_default_claims_have_no_unrecorded_drift():
                             "cell_cycle_mitotic_ratio", "cell_cycle_labels",
                             "cell_cycle_model", "cell_cycle_epochs")}
     assert item_535 <= compared_pairs
-    assert comparisons == 784
+    # 784 -> 791 on 2026-09-27, +7/-0 (item 542): seven colony-counting
+    # claims -- colony_counting (False), colony_dilution (1),
+    # colony_plated_volume_ul (100), colony_too_many (300), colony_too_few
+    # (30), colony_threshold (4.0) and colony_min_area_px (None) -- each
+    # resolved by Plaque Assay only. colony_polarity says "Default auto.",
+    # which is not a literal and so is not compared.
+    item_542 = {("analyze_plaques", key) for key in (
+        "colony_counting", "colony_dilution", "colony_plated_volume_ul",
+        "colony_too_many", "colony_too_few", "colony_threshold",
+        "colony_min_area_px")}
+    assert item_542 <= compared_pairs
+    assert comparisons == 791
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
@@ -812,9 +823,10 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # + 6: item 548's folder-watch settings, pinned above;
     # + 18: item 550's cloud-source settings, pinned above.
     # + 16: item 535's eight cell-cycle claims in two apps, pinned above.
+    # + 7: item 542's colony-counting claims in Plaque Assay, pinned above.
     assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2
             + len(item_541) + len(item_548) + len(item_550)
-            + len(item_535) == comparisons)
+            + len(item_535) + len(item_542) == comparisons)
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs
     assert len(census_508['added_pairs']) == 19
