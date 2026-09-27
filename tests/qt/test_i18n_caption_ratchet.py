@@ -1372,6 +1372,22 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'table',
     'yes',
     '{name}: {count} compound(s)',
+    # 563, 2026-09-27: the anomaly option of Control Charts -- objects
+    # scored against the negative control (alpha).
+    'An object is an outlier when it scores beyond this quantile of the control objects, so this share of controls is normal by construction. Wells are ranked by their share of outliers. Default 0.99.',
+    'Anomalies',
+    'Export anomalies…',
+    'How unlike the controls an object is: robust Mahalanobis distance, mean distance to the nearest control objects, an isolation forest, or low density under a Gaussian mixture. All run on the CPU. Default Robust Mahalanobis.',
+    'Known hits',
+    'Model the negative-control objects as normal and score every object and well for how unlike them it is, over every numeric feature (or the emb_ embedding columns when present). Needs a per-object table, the negative control picked above and well positions. Default off.',
+    'Outlier quantile',
+    'Pick the control column and the negative control to score anomalies against.',
+    'Score anomalies against the negative control',
+    'Turn on anomaly scoring and name the negative control.',
+    'Wells (A01), plate wells (prc) or treatment names that are known hits, separated by commas. With the positive control they give the AUROC of the ranking against the negative control. Default empty.',
+    'Write the anomaly report into',
+    "Write the ranked wells, every object's score, the top outliers and the review figure into a folder.",
+    'anomaly report written to {folder}',
 })
 
 

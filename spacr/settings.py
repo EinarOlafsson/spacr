@@ -7289,6 +7289,8 @@ ALPHA_FEATURES = {
     },
     585: {
         'widgets': ('PowerArrayedPlanner',),
+    },    563: {
+        'widgets': ('ControlChartAnomaly', 'ControlChartAnomalySection'),
     },
     578: {
         'settings': ('robustness_report', 'robustness_fields',

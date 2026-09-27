@@ -4066,3 +4066,534 @@ def _simulate_arrayed_power(components: Dict[str, Any], effect: float, *,
         hits += int(np.count_nonzero(p < alpha))
         done += n
     return hits / float(n_sim)
+
+
+_ANOMALY_METHODS = ("mahalanobis", "knn", "iforest", "gmm")
+_ANOMALY_METHOD_LABELS = {
+    "mahalanobis": "Robust Mahalanobis",
+    "knn": "k-nearest-neighbour distance",
+    "iforest": "Isolation forest",
+    "gmm": "Gaussian mixture density",
+}
+_ANOMALY_ID_COLUMNS = ("prcfo", "prcf", "object_label", "cell_id", "objectID",
+                       "label", "png_path")
+_ANOMALY_MIN_CONTROLS = 20
+_ANOMALY_REVIEW_LIMIT = 24
+
+
+@dataclass
+class _AnomalyResult:
+    """Every object and every well scored for how unlike the negative
+    control it is.
+
+    ``cells`` has one row per object: ``plateID``, ``well``, ``role``,
+    ``score`` (larger is less like the controls), ``control_percentile``
+    (the share of control objects scoring lower), ``outlier`` (beyond the
+    controls' ``quantile``), ``pc1``/``pc2`` (the first two principal
+    components of the control population) and ``source_row`` (the row of
+    the input table), plus whichever identity columns the input carried.
+    ``wells`` has one row per well: ``n``, ``median_score``,
+    ``outlier_fraction``, ``enrichment`` (outlier fraction over the rate
+    expected in controls), ``anomaly_z`` (robust z of the median score
+    against the control wells), ``known_hit`` and ``rank`` (non-control
+    wells, most unlike the controls first).
+    """
+
+    cells: pd.DataFrame
+    wells: pd.DataFrame
+    method: str
+    features: Tuple[str, ...]
+    quantile: float
+    threshold: float
+    n_reference: int
+    auroc: Optional[float] = None
+    cell_auroc: Optional[float] = None
+
+    def ranked_wells(self) -> pd.DataFrame:
+        """The non-control wells, most unlike the controls first."""
+        ranked = self.wells[self.wells["rank"].notna()]
+        return ranked.sort_values("rank").reset_index(drop=True)
+
+    def top_outliers(self, n: int = _ANOMALY_REVIEW_LIMIT) -> pd.DataFrame:
+        """The ``n`` highest-scoring objects outside the negative control."""
+        others = self.cells[self.cells["role"] != ROLE_NEGATIVE]
+        return (others.sort_values("score", ascending=False)
+                .head(int(n)).reset_index(drop=True))
+
+    def report(self) -> str:
+        """A few plain sentences: reference, threshold, top well, AUROC."""
+        label = _ANOMALY_METHOD_LABELS.get(self.method, self.method)
+        lines = [
+            f"{label} on {len(self.features)} feature(s), with "
+            f"{self.n_reference} negative-control object(s) as reference; "
+            f"{len(self.cells)} object(s) in {len(self.wells)} well(s).",
+            f"An object is an outlier beyond the controls' "
+            f"{self.quantile:.3g} quantile (score {self.threshold:.3g}), so "
+            f"about {100 * (1 - self.quantile):.2g}% of control objects are "
+            f"outliers by construction.",
+        ]
+        ranked = self.ranked_wells()
+        if len(ranked):
+            top = ranked.iloc[0]
+            lines.append(
+                f"Most unlike the controls: {top['plateID']} {top['well']}, "
+                f"{100 * top['outlier_fraction']:.1f}% outliers "
+                f"({top['enrichment']:.2g}x the control rate).")
+        if self.auroc is not None:
+            hits = int(self.wells["known_hit"].sum())
+            lines.append(
+                f"Known hits against controls: well AUROC {self.auroc:.3f} "
+                f"over {hits} hit well(s); object AUROC "
+                f"{self.cell_auroc:.3f}.")
+        return "\n".join(lines)
+
+
+def _anomaly_features(frame: pd.DataFrame, exclude: Sequence[str]
+                      ) -> List[str]:
+    """Embedding columns when the table has them, else measurement features.
+
+    :param frame: the per-object table.
+    :param exclude: columns never used as features.
+    :returns: the feature column names.
+    """
+    from .embeddings import EMBEDDING_PREFIX
+
+    embedded = [str(c) for c in frame.columns
+                if str(c).startswith(EMBEDDING_PREFIX)
+                and pd.api.types.is_numeric_dtype(frame[c])]
+    if embedded:
+        return embedded
+    return _profile_features(frame, exclude=exclude)
+
+
+def _anomaly_detector(method: str, reference: np.ndarray, *,
+                      neighbours: int, seed: int):
+    """Fit a detector on control objects; return a scoring function.
+
+    Every score is larger for an object less like the reference.
+
+    :param method: one of ``_ANOMALY_METHODS``.
+    :param reference: the control objects, one row each.
+    :param neighbours: ``k`` of the k-nearest-neighbour distance.
+    :param seed: random state of the randomised detectors.
+    :returns: ``score(points) -> 1-D array``.
+    """
+    if method == "mahalanobis":
+        from sklearn.covariance import MinCovDet
+
+        with _warnings.catch_warnings():
+            _warnings.simplefilter("ignore", RuntimeWarning)
+            model = MinCovDet(random_state=seed).fit(reference)
+        return lambda points: np.sqrt(np.maximum(
+            model.mahalanobis(points), 0.0))
+    if method == "knn":
+        from sklearn.neighbors import NearestNeighbors
+
+        k = max(1, min(int(neighbours), len(reference) - 1))
+        model = NearestNeighbors(n_neighbors=k).fit(reference)
+        return lambda points: model.kneighbors(points)[0].mean(axis=1)
+    if method == "iforest":
+        from sklearn.ensemble import IsolationForest
+
+        model = IsolationForest(n_estimators=200, random_state=seed)
+        model.fit(reference)
+        return lambda points: -model.score_samples(points)
+    from sklearn.mixture import GaussianMixture
+
+    parts = int(max(1, min(4, len(reference) // 100)))
+    model = GaussianMixture(n_components=parts, covariance_type="full",
+                            reg_covar=1e-3, random_state=seed)
+    model.fit(reference)
+    return lambda points: -model.score_samples(points)
+
+
+def _auroc(positive: np.ndarray, negative: np.ndarray) -> Optional[float]:
+    """Area under the ROC curve of ``positive`` scored above ``negative``.
+
+    :returns: the AUROC, or ``None`` when either group is empty.
+    """
+    positive = np.asarray(positive, dtype=float)
+    negative = np.asarray(negative, dtype=float)
+    positive = positive[np.isfinite(positive)]
+    negative = negative[np.isfinite(negative)]
+    if not len(positive) or not len(negative):
+        return None
+    from scipy.stats import rankdata
+
+    ranks = rankdata(np.concatenate([positive, negative]))
+    total = ranks[:len(positive)].sum()
+    n_pos, n_neg = len(positive), len(negative)
+    return float((total - n_pos * (n_pos + 1) / 2.0) / (n_pos * n_neg))
+
+
+def _score_anomalies(frame: pd.DataFrame, *,
+                     control_column: Optional[str] = None,
+                     negative_levels=(), positive_levels=(),
+                     negative_wells=None, known_hits=(),
+                     plate_column: Optional[str] = None,
+                     treatment_column: Optional[str] = None,
+                     method: str = "mahalanobis",
+                     features: Optional[Sequence[str]] = None,
+                     quantile: float = 0.99, neighbours: int = 10,
+                     components: int = 20, max_reference: int = 20000,
+                     seed: int = 0) -> _AnomalyResult:
+    """Score every object and well for how unlike the negative control it is.
+
+    The negative-control objects are the model of normal. Features are
+    centred on each plate's own controls (when a plate has enough of them)
+    and scaled by the controls' median absolute deviation, so plate offsets
+    are not mistaken for phenotypes; principal components fitted on the
+    controls then set the space the detector works in. Embedding columns
+    (``emb_...``) are used when the table has them, measurement features
+    otherwise.
+
+    The control objects are scored cross-fitted: the controls are split in
+    two, a detector is fitted on each half and each half is scored by the
+    other half's detector, so a control is never scored by a model that saw
+    it. Every other object gets the mean of the two detectors' scores. The
+    outlier threshold is the ``quantile`` of the cross-fitted control
+    scores, which makes the control outlier rate ``1 - quantile`` by
+    construction and every well's ``enrichment`` a ratio to that rate.
+
+    Wells are ranked by outlier fraction, then by median score. Known hits
+    (positive-control wells, and wells whose well name, ``prc``, treatment
+    or control label is in ``known_hits``) give the AUROC of the ranking
+    against the negative-control wells.
+
+    All detectors are classical and run on the CPU: ``mahalanobis`` (a
+    minimum-covariance-determinant robust Mahalanobis distance), ``knn``
+    (mean distance to the ``neighbours`` nearest control objects),
+    ``iforest`` (isolation forest) and ``gmm`` (negative log density under a
+    Gaussian mixture).
+
+    :param frame: per-object table with well positions (``prc``, a
+        rowID/columnID pair or a ``well`` column).
+    :param control_column: column holding the control labels.
+    :param negative_levels: level(s) of ``control_column`` that are the
+        negative control.
+    :param positive_levels: level(s) that are the positive control; their
+        wells count as known hits.
+    :param negative_wells: well spec of the negative-control wells.
+    :param known_hits: well names, ``prc`` values or labels of known hits.
+    :param plate_column: column naming the plate; default the reader's.
+    :param treatment_column: column naming what is in each well.
+    :param method: one of ``mahalanobis``, ``knn``, ``iforest``, ``gmm``.
+    :param features: feature columns; default embeddings or measurements.
+    :param quantile: control quantile beyond which an object is an outlier.
+    :param neighbours: ``k`` of the ``knn`` detector.
+    :param components: most principal components kept.
+    :param max_reference: most control objects the detectors are fitted on.
+    :param seed: random state of subsampling and randomised detectors.
+    :returns: the :class:`_AnomalyResult`.
+    :raises HitScoringError: when the table cannot be scored.
+    """
+    from sklearn.decomposition import PCA
+
+    from . import plate_qc, schema, well_spec
+
+    if method not in _ANOMALY_METHODS:
+        raise HitScoringError(
+            f"method must be one of {', '.join(_ANOMALY_METHODS)}, "
+            f"not {method!r}")
+    if not 0.5 <= float(quantile) < 1.0:
+        raise HitScoringError("quantile must be at least 0.5 and below 1")
+    if frame is None or not len(frame):
+        raise HitScoringError("the table is empty")
+    for label, column in (("control", control_column),
+                          ("treatment", treatment_column),
+                          ("plate", plate_column)):
+        if column and column not in frame.columns:
+            raise HitScoringError(
+                f"the {label} column {column!r} is not in the table")
+    negative_levels = _levels(negative_levels)
+    positive_levels = _levels(positive_levels)
+    if (negative_levels or positive_levels) and not control_column:
+        raise HitScoringError(
+            "control levels are named but no control column to find them in")
+    if not negative_levels and not negative_wells:
+        raise HitScoringError("name the negative control to score against")
+    try:
+        located, _notes = plate_qc._identify_wells(frame)
+    except ValueError as exc:
+        raise HitScoringError(str(exc)) from exc
+    if plate_column:
+        located["plateID"] = frame[plate_column].astype(str).to_numpy()
+    located["__source_row__"] = np.arange(len(located))
+    rows = located["rowID"].map(plate_qc.parse_row_label)
+    cols = located["columnID"].map(plate_qc.parse_column_label)
+    keep = rows.notna() & cols.notna()
+    located = located[keep.to_numpy()]
+    if not len(located):
+        raise HitScoringError("no row of the table sits in a readable well")
+    rows = rows[keep].astype(int).to_numpy()
+    cols = cols[keep].astype(int).to_numpy()
+    plates = located["plateID"].astype(str).to_numpy()
+
+    exclude = [c for c in (control_column, treatment_column, plate_column,
+                           "rowID", "columnID", "row_index", "column_index")
+               if c]
+    names = (list(features) if features is not None
+             else _anomaly_features(frame, exclude))
+    missing = [c for c in names if c not in located.columns]
+    if missing:
+        raise HitScoringError(
+            f"the table has no feature column {missing[0]!r}")
+    if not names:
+        raise HitScoringError("the table has no numeric feature to score")
+    values = located[names].apply(pd.to_numeric, errors="coerce")
+    values = values.to_numpy(dtype=float)
+
+    negative = np.zeros(len(located), dtype=bool)
+    positive = np.zeros(len(located), dtype=bool)
+    if control_column:
+        labels = located[control_column].astype(str).to_numpy()
+        negative |= np.isin(labels, list(negative_levels))
+        positive |= np.isin(labels, list(positive_levels))
+    if negative_wells:
+        layout = _layout_for(int(rows.max()), int(cols.max()))
+        try:
+            cells_spec = well_spec.parse(negative_wells, layout)
+        except well_spec.WellSpecError as exc:
+            raise HitScoringError(str(exc)) from exc
+        negative |= np.asarray([(r, c) in cells_spec
+                                for r, c in zip(rows, cols)], dtype=bool)
+    positive &= ~negative
+    if int(negative.sum()) < _ANOMALY_MIN_CONTROLS:
+        raise HitScoringError(
+            f"{int(negative.sum())} negative-control object(s); at least "
+            f"{_ANOMALY_MIN_CONTROLS} are needed as the reference")
+
+    control_values = values[negative]
+    usable = np.isfinite(control_values).mean(axis=0) >= 0.5
+    values, control_values = values[:, usable], control_values[:, usable]
+    names = [n for n, ok in zip(names, usable) if ok]
+    fill = np.nanmedian(control_values, axis=0)
+    values = np.where(np.isfinite(values), values, fill[None, :])
+    centred = values - fill[None, :]
+    for plate in np.unique(plates):
+        on_plate = plates == plate
+        plate_controls = on_plate & negative
+        if int(plate_controls.sum()) >= _ANOMALY_MIN_CONTROLS:
+            centred[on_plate] = (values[on_plate]
+                                 - np.median(values[plate_controls], axis=0))
+    spread = 1.4826 * np.median(np.abs(centred[negative]), axis=0)
+    fallback = centred[negative].std(axis=0)
+    spread = np.where(spread > 0, spread, fallback)
+    informative = spread > 0
+    if not informative.any():
+        raise HitScoringError(
+            "every feature is constant across the negative control")
+    names = [n for n, ok in zip(names, informative) if ok]
+    scaled = centred[:, informative] / spread[informative][None, :]
+
+    rng = np.random.default_rng(seed)
+    control_index = np.flatnonzero(negative)
+    if len(control_index) > int(max_reference):
+        control_index = np.sort(rng.choice(control_index, int(max_reference),
+                                           replace=False))
+    n_keep = int(max(1, min(int(components), scaled.shape[1],
+                            len(control_index) // 2 - 1)))
+    pca = PCA(n_components=n_keep, random_state=seed)
+    pca.fit(scaled[control_index])
+    embedded = pca.transform(scaled)
+
+    shuffled = rng.permutation(control_index)
+    halves = (np.sort(shuffled[: len(shuffled) // 2]),
+              np.sort(shuffled[len(shuffled) // 2:]))
+    detectors = [_anomaly_detector(method, embedded[half],
+                                   neighbours=neighbours, seed=seed)
+                 for half in halves]
+    scores = 0.5 * (detectors[0](embedded) + detectors[1](embedded))
+    scores[halves[1]] = detectors[0](embedded[halves[1]])
+    scores[halves[0]] = detectors[1](embedded[halves[0]])
+    reference_scores = np.sort(scores[control_index])
+    threshold = float(np.quantile(reference_scores, float(quantile)))
+    percentile = (np.searchsorted(reference_scores, scores, side="left")
+                  / float(len(reference_scores)))
+
+    role = np.full(len(located), ROLE_SAMPLE, dtype=object)
+    role[negative] = ROLE_NEGATIVE
+    role[positive] = ROLE_POSITIVE
+    wells_named = np.asarray([plate_qc.well_id(r, c)
+                              for r, c in zip(rows, cols)], dtype=object)
+    cells = pd.DataFrame({
+        "plateID": plates, "well": wells_named, "role": role,
+        "score": scores, "control_percentile": percentile,
+        "outlier": scores > threshold,
+        "pc1": embedded[:, 0],
+        "pc2": embedded[:, 1] if embedded.shape[1] > 1 else 0.0,
+        "source_row": located["__source_row__"].to_numpy(),
+    })
+    cells["prc"] = [schema.compose_prc(p, int(r), int(c))
+                    for p, r, c in zip(plates, rows, cols)]
+    if treatment_column:
+        cells["treatment"] = located[treatment_column].astype(str).to_numpy()
+    if control_column:
+        cells["control"] = located[control_column].astype(str).to_numpy()
+    for column in _ANOMALY_ID_COLUMNS:
+        if column in located.columns and column not in cells.columns:
+            cells[column] = located[column].to_numpy()
+
+    grouped = cells.groupby(["plateID", "well"], sort=True)
+    wells = pd.DataFrame({
+        "prc": grouped["prc"].first(),
+        "n": grouped.size(),
+        "role": grouped["role"].agg(_well_mode),
+        "median_score": grouped["score"].median(),
+        "outlier_fraction": grouped["outlier"].mean(),
+    })
+    if treatment_column:
+        wells["treatment"] = grouped["treatment"].agg(_well_mode)
+    if control_column:
+        wells["control"] = grouped["control"].agg(_well_mode)
+    wells = wells.reset_index()
+    wells["enrichment"] = wells["outlier_fraction"] / (1.0 - float(quantile))
+    is_negative = (wells["role"] == ROLE_NEGATIVE).to_numpy()
+    control_medians = wells.loc[is_negative, "median_score"].to_numpy()
+    if len(control_medians):
+        centre = float(np.median(control_medians))
+        scale = 1.4826 * float(np.median(np.abs(control_medians - centre)))
+        if not scale > 0:
+            scale = float(np.std(control_medians)) or 1.0
+        wells["anomaly_z"] = (wells["median_score"] - centre) / scale
+    else:
+        wells["anomaly_z"] = np.nan
+    wanted = {str(v) for v in (known_hits or ())}
+    known = (wells["role"] == ROLE_POSITIVE).to_numpy()
+    if wanted:
+        for column in ("well", "prc", "treatment", "control"):
+            if column in wells.columns:
+                known |= wells[column].astype(str).isin(wanted).to_numpy()
+    wells["known_hit"] = known & ~is_negative
+    order = (wells[~is_negative]
+             .sort_values(["outlier_fraction", "median_score"],
+                          ascending=False).index)
+    wells["rank"] = np.nan
+    wells.loc[order, "rank"] = np.arange(1, len(order) + 1, dtype=float)
+
+    well_key = wells["outlier_fraction"] + 1e-9 * wells["median_score"].rank()
+    auroc = _auroc(well_key[wells["known_hit"]], well_key[is_negative])
+    cell_auroc = None
+    if auroc is not None:
+        hit_prc = set(wells.loc[wells["known_hit"], "prc"])
+        in_hit = cells["prc"].isin(hit_prc).to_numpy()
+        cell_auroc = _auroc(scores[in_hit], scores[negative])
+    cells.attrs = {"method": method, "quantile": float(quantile)}
+    return _AnomalyResult(
+        cells=cells, wells=wells, method=method, features=tuple(names),
+        quantile=float(quantile), threshold=threshold,
+        n_reference=int(len(control_index)), auroc=auroc,
+        cell_auroc=cell_auroc)
+
+
+def _review_crop(path) -> Optional[np.ndarray]:
+    """An object's image crop read for review, or ``None`` when unreadable."""
+    if not isinstance(path, str) or not path:
+        return None
+    import os
+
+    if not os.path.isfile(path):
+        return None
+    try:
+        from PIL import Image
+
+        with Image.open(path) as image:
+            return np.asarray(image.convert("RGB"))
+    except (OSError, ValueError):
+        return None
+
+
+def _draw_anomaly_review(figure, result: _AnomalyResult, *,
+                         limit: int = _ANOMALY_REVIEW_LIMIT,
+                         target: str = "screen") -> int:
+    """Draw the top outlier objects of ``result`` for review.
+
+    With image crops (a ``png_path`` column pointing at readable files) one
+    tile per outlier, labelled with plate, well and score. Without them the
+    outliers are marked by rank on the controls' first two principal
+    components, over the control objects in grey and every other object.
+
+    :param figure: a matplotlib figure; it is cleared first.
+    :param result: the scored table.
+    :param limit: the most outliers drawn.
+    :param target: ``'screen'`` or ``'print'``, for the label ink.
+    :returns: how many outliers were drawn.
+    """
+    from .figures.style import resolve_ink
+
+    figure.clear()
+    ink = resolve_ink(target)
+    top = result.top_outliers(limit)
+    crops = ([_review_crop(p) for p in top["png_path"]]
+             if "png_path" in top.columns else [])
+    if crops and any(c is not None for c in crops):
+        shown = [(row, crop) for (_i, row), crop
+                 in zip(top.iterrows(), crops) if crop is not None]
+        ncols = min(6, len(shown))
+        nrows = int(np.ceil(len(shown) / ncols))
+        for slot, (row, crop) in enumerate(shown):
+            ax = figure.add_subplot(nrows, ncols, slot + 1)
+            ax.imshow(crop)
+            ax.set_xticks([])
+            ax.set_yticks([])
+            ax.set_title(f"{row['plateID']} {row['well']}", fontsize=7,
+                         color=ink)
+            ax.set_xlabel(f"score {row['score']:.3g}", fontsize=7, color=ink)
+        figure.tight_layout(pad=0.6)
+        return len(shown)
+    ax = figure.add_subplot(111)
+    cells = result.cells
+    control = (cells["role"] == ROLE_NEGATIVE).to_numpy()
+    ax.scatter(cells.loc[~control, "pc1"], cells.loc[~control, "pc2"], s=4,
+               color="#4c78a8", alpha=0.35, linewidths=0, label="Other")
+    ax.scatter(cells.loc[control, "pc1"], cells.loc[control, "pc2"], s=4,
+               color="#9d9d9d", alpha=0.5, linewidths=0,
+               label="Negative control")
+    ax.scatter(top["pc1"], top["pc2"], s=26, facecolors="none",
+               edgecolors="#e45756", linewidths=1.2, label="Top outlier")
+    for rank, (_i, row) in enumerate(top.head(12).iterrows(), start=1):
+        ax.annotate(f"{rank}", (row["pc1"], row["pc2"]), fontsize=7,
+                    color=ink, xytext=(3, 3), textcoords="offset points")
+    ax.set_xlabel("Control PC 1", color=ink)
+    ax.set_ylabel("Control PC 2", color=ink)
+    ax.tick_params(colors=ink, labelsize=7)
+    ax.legend(fontsize=7, frameon=False, labelcolor=ink)
+    figure.tight_layout(pad=0.6)
+    return int(len(top))
+
+
+def _write_anomaly_report(result: _AnomalyResult, out_dir, *,
+                          target: Optional[str] = None) -> Dict[str, str]:
+    """Write the anomaly scores and the outlier review sheet.
+
+    :param result: the scored table.
+    :param out_dir: folder to write into; created if absent.
+    :param target: ``'screen'`` or ``'print'``; default the preference.
+    :returns: ``{name: path}``: ``anomaly_wells`` (ranked wells),
+        ``anomaly_cells`` (every object), ``anomaly_top_outliers`` and
+        ``anomaly_review`` (the figure).
+    """
+    import os
+
+    from matplotlib.figure import Figure
+
+    from .figures.style import theme_target
+    from .plot import save_figure
+    from .tabular import write_table
+
+    os.makedirs(out_dir, exist_ok=True)
+    written: Dict[str, str] = {}
+    wells = result.wells.sort_values("rank", na_position="last")
+    tables = {"anomaly_wells": wells, "anomaly_cells": result.cells,
+              "anomaly_top_outliers": result.top_outliers()}
+    for name, table in tables.items():
+        path = os.path.join(str(out_dir), f"{name}.csv")
+        write_table(table, path, canonicalise=False)
+        written[name] = path
+    figure = Figure(figsize=(9.0, 6.0))
+    if _draw_anomaly_review(figure, result,
+                            target=target or theme_target()):
+        written["anomaly_review"] = save_figure(
+            figure, os.path.join(str(out_dir), "anomaly_review.png"),
+            close=True, announce_colours=False)
+    return written

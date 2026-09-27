@@ -2,7 +2,8 @@
 OBJECT CROPS FROM THE CROSS-CHANNEL GROUND TRUTH, TO JUDGE EVERY LABEL
 ================================================================================
 
-Status:    FILED 2026-09-21. Not started.
+Status:    CROPS CUT AND TESTED 2026-09-27 (tooling only, no GUI or settings,
+           so no alpha keys). Annotation, classifiers and cleanup remain.
 
 Requested: 2026-09-21, verbatim -- "ok i need you to take the ground truth
            cell hoechst and toxoplasma masks and cut out for each objec:
@@ -28,7 +29,7 @@ Requested: 2026-09-21, verbatim -- "ok i need you to take the ground truth
            this is a large task, se file it as a future feature. include all
            the information i have given and anything else you can thing of."
 
-Owner:     Claude (not started).
+Owner:     Claude.
 
 --------------------------------------------------------------------------------
 WHAT IT IS FOR, TWO USES OF ONE ANNOTATION
@@ -221,3 +222,36 @@ Settings set the annotation column to `real` (1 = real, 2 = not real); the
 keys 1 and 2 label and advance. Verified offscreen: the PV sample opens on
 page 1 of 1,000 with the crops drawn. Rerunning the tool with a larger
 --per-type adds crops and keeps every judgement already made.
+
+--------------------------------------------------------------------------------
+2026-09-27 -- TESTED ON A SYNTHETIC PROJECT; COUNTS PER DATASET
+--------------------------------------------------------------------------------
+
+tests/test_every_ground_truth_label_gets_one_crop.py runs the three tools end
+to end on a two-field synthetic project (CPU, ~10 s): one crop per label per
+type, png_list's <type>_id equal to the mask's own (non-contiguous) label id
+and file_name carrying plate_well_field, so a "not real" call maps back to
+"remove label N from field F"; a mask a field's datasets did not draw gives no
+crops; a missing parasite channel skips the field rather than blanking it;
+THP1 acquisitions sharing a plate name get distinct names; reruns keep stacks
+and sample judgements.
+
+Counts, recomputed read-only from each plate's png_list and fields.csv (every
+crop's field found in fields.csv):
+
+    object    dataset                     crops
+    PV        toxoplasma_from_hoechst    37,753  (one shared set: every PV
+    PV        toxoplasma_from_cellmask   37,753   field is in both datasets)
+    cell      cell_from_hoechst         283,055
+    nucleus   nuclei_from_cellmask      264,503
+
+Annotation has begun: 272 PV crops carry a `real` call (268 real, 4 not).
+
+NO ALPHA KEYS: the item so far adds tools under tools/ only, no GUI or setting.
+The classifier option in Mask generation, when it is built, is alpha.
+
+LEFT: finish the annotation (sample or all); train one real/not-real
+classifier per type (Classify, three channels, split by well), score on
+held-out wells, publish to the Model Zoo and add the alpha option to drop
+objects after detection; remove the labels called not real, republish the
+datasets as a new version, retrain and rescore the cross-channel models.
