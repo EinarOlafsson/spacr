@@ -1,0 +1,575 @@
+{
+  "item": "07/447",
+  "date": "2026-09-27",
+  "lesson": "56_lineage",
+  "scope": "Fourteen native scenes from the corrected application; prerequisite and family-crop narration updated in all thirteen reviewed languages.",
+  "capture_provenance": {
+    "commit": "688c3de7e69f8050df58ec47d6c242321c723bb7",
+    "version": "1.5.1.0",
+    "module": "lineage",
+    "download_requested": false,
+    "dataset_cache": "/tmp/spacr-tutorials/lineage_runs/real-containment-up1x1joa/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "workflow_acceptance": {
+    "lesson": "56_lineage",
+    "accepted": true,
+    "source": {
+      "source": "/tmp/spacr-tutorials/annotate_fresh/example_data/plate1/measurements/measurements.db",
+      "database": "/tmp/spacr-tutorials/lineage_runs/real-containment-up1x1joa/example_data/plate1/measurements/measurements.db",
+      "source_bundle": {
+        "/tmp/spacr-tutorials/annotate_fresh/example_data/plate1/measurements/measurements.db": {
+          "sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+          "signature": [
+            66306,
+            80498007,
+            30629888,
+            1788972666110587305,
+            1790517338806238771
+          ]
+        }
+      },
+      "database_sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+      "copy_is_byte_identical": true,
+      "source_opened_in_gui": false
+    },
+    "private_cache": "/tmp/spacr-tutorials/lineage_runs/real-containment-up1x1joa/example_data",
+    "synthetic_measurements": false,
+    "app_source_modified": false,
+    "published": false,
+    "checks": {
+      "05_full_counts_capped_tree_and_zero_orphans": {
+        "source_counts": {
+          "cell": 2341,
+          "nucleus": 2682,
+          "pathogen": 2178
+        },
+        "full_nodes": 7201,
+        "attached_counts": {
+          "nucleus": 2682,
+          "pathogen": 2178
+        },
+        "roots": 2341,
+        "orphans": 0,
+        "childless": 0,
+        "no_pathogens": 1168,
+        "displayed_roots": 2000,
+        "displayed_nodes": 6087,
+        "omitted_roots": 341,
+        "all_displayed_item_identities_and_parent_edges_checked": true,
+        "summary": "2341 cell(s) holding 2682 nucleus, 2178 pathogen. 0 of them (0%) have nothing inside.",
+        "status": "2000 of 2341 parent object(s) in the tree · every child has a parent",
+        "key_column_hidden": true
+      },
+      "06_one_nucleus_no_pathogen": {
+        "source_counts": {
+          "cell": 2341,
+          "nucleus": 2682,
+          "pathogen": 2178
+        },
+        "full_nodes": 7201,
+        "attached_counts": {
+          "nucleus": 2682,
+          "pathogen": 2178
+        },
+        "roots": 2341,
+        "orphans": 0,
+        "childless": 0,
+        "no_pathogens": 1168,
+        "displayed_roots": 2000,
+        "displayed_nodes": 6087,
+        "omitted_roots": 341,
+        "all_displayed_item_identities_and_parent_edges_checked": true,
+        "summary": "2341 cell(s) holding 2682 nucleus, 2178 pathogen. 0 of them (0%) have nothing inside.",
+        "status": "2000 of 2341 parent object(s) in the tree · every child has a parent",
+        "key_column_hidden": true
+      },
+      "07_cell_with_nucleus_and_pathogen": {
+        "source_counts": {
+          "cell": 2341,
+          "nucleus": 2682,
+          "pathogen": 2178
+        },
+        "full_nodes": 7201,
+        "attached_counts": {
+          "nucleus": 2682,
+          "pathogen": 2178
+        },
+        "roots": 2341,
+        "orphans": 0,
+        "childless": 0,
+        "no_pathogens": 1168,
+        "displayed_roots": 2000,
+        "displayed_nodes": 6087,
+        "omitted_roots": 341,
+        "all_displayed_item_identities_and_parent_edges_checked": true,
+        "summary": "2341 cell(s) holding 2682 nucleus, 2178 pathogen. 0 of them (0%) have nothing inside.",
+        "status": "2000 of 2341 parent object(s) in the tree · every child has a parent",
+        "key_column_hidden": true
+      },
+      "08_one_child_is_not_its_family": {
+        "source_counts": {
+          "cell": 2341,
+          "nucleus": 2682,
+          "pathogen": 2178
+        },
+        "full_nodes": 7201,
+        "attached_counts": {
+          "nucleus": 2682,
+          "pathogen": 2178
+        },
+        "roots": 2341,
+        "orphans": 0,
+        "childless": 0,
+        "no_pathogens": 1168,
+        "displayed_roots": 2000,
+        "displayed_nodes": 6087,
+        "omitted_roots": 341,
+        "all_displayed_item_identities_and_parent_edges_checked": true,
+        "summary": "2341 cell(s) holding 2682 nucleus, 2178 pathogen. 0 of them (0%) have nothing inside.",
+        "status": "2000 of 2341 parent object(s) in the tree · every child has a parent",
+        "key_column_hidden": true
+      },
+      "09_publish_three_typed_objects": {
+        "source_counts": {
+          "cell": 2341,
+          "nucleus": 2682,
+          "pathogen": 2178
+        },
+        "full_nodes": 7201,
+        "attached_counts": {
+          "nucleus": 2682,
+          "pathogen": 2178
+        },
+        "roots": 2341,
+        "orphans": 0,
+        "childless": 0,
+        "no_pathogens": 1168,
+        "displayed_roots": 2000,
+        "displayed_nodes": 6087,
+        "omitted_roots": 341,
+        "all_displayed_item_identities_and_parent_edges_checked": true,
+        "summary": "2341 cell(s) holding 2682 nucleus, 2178 pathogen. 0 of them (0%) have nothing inside.",
+        "status": "2000 of 2341 parent object(s) in the tree · every child has a parent",
+        "key_column_hidden": true
+      },
+      "10_parent_plus_child_no_duplicate": {
+        "source_counts": {
+          "cell": 2341,
+          "nucleus": 2682,
+          "pathogen": 2178
+        },
+        "full_nodes": 7201,
+        "attached_counts": {
+          "nucleus": 2682,
+          "pathogen": 2178
+        },
+        "roots": 2341,
+        "orphans": 0,
+        "childless": 0,
+        "no_pathogens": 1168,
+        "displayed_roots": 2000,
+        "displayed_nodes": 6087,
+        "omitted_roots": 341,
+        "all_displayed_item_identities_and_parent_edges_checked": true,
+        "summary": "2341 cell(s) holding 2682 nucleus, 2178 pathogen. 0 of them (0%) have nothing inside.",
+        "status": "2000 of 2341 parent object(s) in the tree · every child has a parent",
+        "key_column_hidden": true
+      },
+      "11_large_family_not_biological_validation": {
+        "source_counts": {
+          "cell": 2341,
+          "nucleus": 2682,
+          "pathogen": 2178
+        },
+        "full_nodes": 7201,
+        "attached_counts": {
+          "nucleus": 2682,
+          "pathogen": 2178
+        },
+        "roots": 2341,
+        "orphans": 0,
+        "childless": 0,
+        "no_pathogens": 1168,
+        "displayed_roots": 2000,
+        "displayed_nodes": 6087,
+        "omitted_roots": 341,
+        "all_displayed_item_identities_and_parent_edges_checked": true,
+        "summary": "2341 cell(s) holding 2682 nucleus, 2178 pathogen. 0 of them (0%) have nothing inside.",
+        "status": "2000 of 2341 parent object(s) in the tree · every child has a parent",
+        "key_column_hidden": true
+      },
+      "12_actual_header_sort_preserves_containment": {
+        "source_counts": {
+          "cell": 2341,
+          "nucleus": 2682,
+          "pathogen": 2178
+        },
+        "full_nodes": 7201,
+        "attached_counts": {
+          "nucleus": 2682,
+          "pathogen": 2178
+        },
+        "roots": 2341,
+        "orphans": 0,
+        "childless": 0,
+        "no_pathogens": 1168,
+        "displayed_roots": 2000,
+        "displayed_nodes": 6087,
+        "omitted_roots": 341,
+        "all_displayed_item_identities_and_parent_edges_checked": true,
+        "summary": "2341 cell(s) holding 2682 nucleus, 2178 pathogen. 0 of them (0%) have nothing inside.",
+        "status": "2000 of 2341 parent object(s) in the tree · every child has a parent",
+        "key_column_hidden": true
+      },
+      "24_rebuild_preserves_full_containment": {
+        "source_counts": {
+          "cell": 2341,
+          "nucleus": 2682,
+          "pathogen": 2178
+        },
+        "full_nodes": 7201,
+        "attached_counts": {
+          "nucleus": 2682,
+          "pathogen": 2178
+        },
+        "roots": 2341,
+        "orphans": 0,
+        "childless": 0,
+        "no_pathogens": 1168,
+        "displayed_roots": 2000,
+        "displayed_nodes": 6087,
+        "omitted_roots": 341,
+        "all_displayed_item_identities_and_parent_edges_checked": true,
+        "summary": "2341 cell(s) holding 2682 nucleus, 2178 pathogen. 0 of them (0%) have nothing inside.",
+        "status": "2000 of 2341 parent object(s) in the tree · every child has a parent",
+        "key_column_hidden": true
+      }
+    },
+    "family_selection": [
+      "plate1_r12_c1_f1_cell3",
+      "plate1_r12_c1_f1_nucleus5",
+      "plate1_r12_c1_f1_pathogen1"
+    ],
+    "deduplicated_family_selection": [
+      "plate1_r12_c1_f1_cell3",
+      "plate1_r12_c1_f1_nucleus5",
+      "plate1_r12_c1_f1_pathogen1"
+    ],
+    "largest_family": {
+      "key": "plate1_r12_c2_f13_cell32",
+      "keys": [
+        "plate1_r12_c2_f13_cell32",
+        "plate1_r12_c2_f13_nucleus27",
+        "plate1_r12_c2_f13_nucleus28",
+        "plate1_r12_c2_f13_nucleus29",
+        "plate1_r12_c2_f13_nucleus30",
+        "plate1_r12_c2_f13_nucleus31",
+        "plate1_r12_c2_f13_nucleus32",
+        "plate1_r12_c2_f13_nucleus33",
+        "plate1_r12_c2_f13_nucleus34",
+        "plate1_r12_c2_f13_nucleus35",
+        "plate1_r12_c2_f13_nucleus36",
+        "plate1_r12_c2_f13_nucleus37",
+        "plate1_r12_c2_f13_nucleus38",
+        "plate1_r12_c2_f13_nucleus39",
+        "plate1_r12_c2_f13_nucleus40",
+        "plate1_r12_c2_f13_nucleus41",
+        "plate1_r12_c2_f13_nucleus42",
+        "plate1_r12_c2_f13_nucleus43",
+        "plate1_r12_c2_f13_nucleus44",
+        "plate1_r12_c2_f13_nucleus45",
+        "plate1_r12_c2_f13_nucleus46",
+        "plate1_r12_c2_f13_nucleus47",
+        "plate1_r12_c2_f13_nucleus48",
+        "plate1_r12_c2_f13_nucleus49",
+        "plate1_r12_c2_f13_nucleus51",
+        "plate1_r12_c2_f13_nucleus52",
+        "plate1_r12_c2_f13_nucleus53",
+        "plate1_r12_c2_f13_nucleus54",
+        "plate1_r12_c2_f13_nucleus55",
+        "plate1_r12_c2_f13_nucleus56",
+        "plate1_r12_c2_f13_nucleus57",
+        "plate1_r12_c2_f13_pathogen25",
+        "plate1_r12_c2_f13_pathogen26"
+      ]
+    },
+    "crop_precondition": {
+      "opener_present": false,
+      "status": "Open the Annotate screen first — it is what shows crops.",
+      "crop_opened": false
+    },
+    "observed_crop_request": {
+      "keys": [
+        "plate1_r12_c1_f1_cell3",
+        "plate1_r12_c1_f1_nucleus5",
+        "plate1_r12_c1_f1_pathogen1"
+      ],
+      "total": 1,
+      "rows": 1,
+      "paths": [
+        [
+          "/home/olafsson/.cache/spacr/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L01/cell_png/plate1_L01_1_1_3.png",
+          null
+        ]
+      ],
+      "note": "3 objects · selected in the lineage tree, parents first (from lineage) · 2 of them are not in this database"
+    },
+    "family_crop_handoff": {
+      "requested": [
+        "plate1_r12_c1_f1_cell3",
+        "plate1_r12_c1_f1_nucleus5",
+        "plate1_r12_c1_f1_pathogen1"
+      ],
+      "shown_paths": [
+        "/home/olafsson/.cache/spacr/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L01/cell_png/plate1_L01_1_1_3.png"
+      ],
+      "source_object_types": [
+        "cell"
+      ],
+      "source_labels": [
+        3
+      ],
+      "note": "3 objects · selected in the lineage tree, parents first (from lineage) · 2 of them are not in this database",
+      "matching_crops": 1,
+      "missing_crops": 2,
+      "unrelated_crops_substituted": false,
+      "child_crops_in_source": false,
+      "labels_edited": false
+    },
+    "crop_handoff": {
+      "requested": [
+        "plate1_r12_c1_f1_cell3"
+      ],
+      "shown_paths": [
+        [
+          "/home/olafsson/.cache/spacr/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L01/cell_png/plate1_L01_1_1_3.png",
+          null
+        ]
+      ],
+      "actual_crop_sha256": "38ade14a457846f6f428207d7e4c44dfb8107c1f5b942b9c8e420239f680c35d",
+      "note": "1 object · double-clicked in the lineage tree (from lineage)",
+      "shown": 1,
+      "missing": 0,
+      "cell_crop_loaded": true,
+      "child_crops_in_source": false,
+      "labels_edited": false,
+      "gesture": "double-click parent only"
+    },
+    "crop_zoom": {
+      "native_shift_click": true,
+      "slot": 0,
+      "same_thumbnail_preserved": true,
+      "escape_restored_grid": true,
+      "new_image_resolution_created": false
+    },
+    "api_export": {
+      "path": "/tmp/spacr-tutorials/lineage_runs/real-containment-up1x1joa/lineage_api_export.csv",
+      "sha256": "73b2635998b1eee8451ad9c4f8293a5bcf167170e2145e85829e772f5a5ed6a8",
+      "rows": 7201,
+      "function": "spacr.lineage.lineage_frame",
+      "written_by_gui": false,
+      "all_rows_independently_checked": true
+    },
+    "selection_events": [
+      {
+        "source": "lineage",
+        "keys": [
+          "plate1_r12_c1_f1_cell1"
+        ]
+      },
+      {
+        "source": "lineage",
+        "keys": [
+          "plate1_r12_c1_f1_cell3"
+        ]
+      },
+      {
+        "source": "lineage",
+        "keys": [
+          "plate1_r12_c1_f1_nucleus5"
+        ]
+      },
+      {
+        "source": "lineage",
+        "keys": [
+          "plate1_r12_c1_f1_cell3"
+        ]
+      },
+      {
+        "source": "lineage",
+        "keys": [
+          "plate1_r12_c1_f1_cell3",
+          "plate1_r12_c1_f1_nucleus5",
+          "plate1_r12_c1_f1_pathogen1"
+        ]
+      },
+      {
+        "source": "lineage",
+        "keys": [
+          "plate1_r12_c1_f1_cell3",
+          "plate1_r12_c1_f1_nucleus5"
+        ]
+      },
+      {
+        "source": "lineage",
+        "keys": [
+          "plate1_r12_c1_f1_cell3",
+          "plate1_r12_c1_f1_nucleus5",
+          "plate1_r12_c1_f1_pathogen1"
+        ]
+      },
+      {
+        "source": "lineage",
+        "keys": [
+          "plate1_r12_c2_f13_cell32"
+        ]
+      },
+      {
+        "source": "lineage",
+        "keys": [
+          "plate1_r12_c1_f1_cell3"
+        ]
+      },
+      {
+        "source": "lineage",
+        "keys": [
+          "plate1_r12_c1_f1_cell3"
+        ]
+      }
+    ],
+    "pipeline_run_requested": false,
+    "preservation": {
+      "original_database_and_sidecars_unchanged": true,
+      "all_original_and_private_crops_unchanged": true,
+      "crop_count": 2341,
+      "crop_bytes": 259627196,
+      "private_database_bytes_unchanged": true
+    },
+    "remaining_lineage_workers": 0
+  },
+  "english_sha256": "495593daa307987beb6a264dc2850109813057ef21e2a025eaf0a00bba2964ed",
+  "visual_sha256": "e4c1e8f7ff8837b94e3d56bdffecfa034df0a4d71f080bab60cbe6548c86f7de",
+  "adopted_frames": {
+    "02_database_host": "468426c5247199e32f1659ca6bfc4a54c23e6589bb10b06e231039f4fe714f69",
+    "04_choose_real_measurements": "0aef63b2ec5c0b5a91ef2e51e103c184e5d7af495f7c9f3ee1c9df48c123aed5",
+    "05_full_counts_capped_tree_and_zero_orphans": "0e49ffa4ded2caa46b57b888244d9acfdd3714380b342c7b7b7ad67202e5a99e",
+    "06_one_nucleus_no_pathogen": "ca2ccbf29c29555911f4810f2597ff9076c0f920b8afab2bc6c7ef385ce32249",
+    "07_cell_with_nucleus_and_pathogen": "64239f27d4297f68c0e5738e07df0778bab151d1dfd0b38ab2519110733dee24",
+    "09_publish_three_typed_objects": "e041b16db5a0b4f5c4149dca7650adb12d3da3e84445e599c5d888c0afa9ff9e",
+    "11_large_family_not_biological_validation": "dcc2ce88e2eb6d0579600a8f2143b60c91f74adc5cd96fb7973d3d1f8e8e3cba",
+    "12_actual_header_sort_preserves_containment": "996621abeeec612edf58acda43914b0906e141e64efb9b69c26d098b20815aa3",
+    "13_real_open_annotate_prerequisite": "56e6cba503ded4539e556a015a9691c32cde2942ea3d43707ffd5596f061d4d3",
+    "16_real_downloaded_cell_crops": "634b892ff9bd8031b319a650037709afc816774564e5c488cfed6e0cc1823007",
+    "20_family_crop_identity_preserved": "3920c9dc0b918d6b29ada6c26246e61d981bfe5bb784e5d5c72b22ca405c9a3e",
+    "22_verified_parent_only_real_cell_crop": "8d4a30ac903f9db2ffe083aeb40473fe2d526af5acdf292167d62cbba818af9b",
+    "22a_zoom_parent_without_labelling": "c1bf9a51ababe4a12b23fb6584cebb8c4e4ba6c64b7caf5ba1bc62aeccd7dcdd",
+    "24_rebuild_preserves_full_containment": "952e6d08e6a8fb07238024468d8dbb0e86416eedfd923f63b65c7dd0727a50b5"
+  },
+  "historical_audio_and_cues_sha256": {
+    "audio/en/af_heart.json": "8f9b0de995778b4b39ea298ff9ddfe46778d17a1e0ced24a7b98a8570dbc2a64",
+    "audio/en/af_heart.m4a": "ba80efd43bfc41e198a5ce4023c406d09ac7f3ba033614cdbef96bec061113ab",
+    "audio/es/ef_dora.json": "606441d8c46059433d034fda901a45288b4d7aeccd8bef4f0c4716962ab14bc4",
+    "audio/es/ef_dora.m4a": "dbfd94db7eaec8cf109872f7a760cee4af2b3c2e9c3c3bdec39bdf3635daed01",
+    "audio/es/em_alex.json": "c246eae762d0a10af35c95ca56e7254b0404939963d3c0ce38badf869042162c",
+    "audio/es/em_alex.m4a": "da9ab387740a7b480453f5f1d4eed451c8be9da7bdea57194e0ebbc4b1300297",
+    "audio/es/em_santa.json": "4bdfdff88d124f2801d895da2506f8aa5bad684de9b77c72af08c094b471279c",
+    "audio/es/em_santa.m4a": "776f16cf0d2f17bd5ceeea68f6c7e2fe4cebc992988243405e55150da57705eb",
+    "audio/fr/ff_siwis.json": "c7a59ab873ccd5ff46e3bc9033fb2dcafef26527fca0ca38d63cd849f9b0b10f",
+    "audio/fr/ff_siwis.m4a": "ac4ddd84be2e9d241204e7360370f7890d173be2fb9423e5adc85963cdaf0276",
+    "audio/hi/hf_alpha.json": "a2802bf815b6a8cd451a529bfe3a6d3a31abf531fa44dd174d02c8b274cfdf02",
+    "audio/hi/hf_alpha.m4a": "03ad5f14ceebefc747f5cb10a422d25c8133bede3961e4f6b370ebcdd1e9f41b",
+    "audio/hi/hf_beta.json": "24a41d785790dc0baaa65882c1a4ad2ae8ada223a2ac3c65b22fe12454862d30",
+    "audio/hi/hf_beta.m4a": "5ea5e2e1c0e62f29ad16365cfa93721ea982871506e9f3f841e3c7b32df64420",
+    "audio/hi/hm_omega.json": "22d95c836c72439e256475b68c42298c561369f116017cf652e99819ede85ffd",
+    "audio/hi/hm_omega.m4a": "02d9a5235a8ccb07f60b2ea592d5396b3a9f6adaa7c6e48a513c24f1fe7c7ba2",
+    "audio/hi/hm_psi.json": "648ad1db496d116c9334f331e378dd7e02e2c720fd2a36f03a68ea7ec9f9a514",
+    "audio/hi/hm_psi.m4a": "74a3663f69df93f06df2814f5f506514771c96033316a003978f4b639c99f026",
+    "audio/it/if_sara.json": "39686943ab99431c10c697ee97b4b51a85b8eb98ff13569333a1ec98c6fd158d",
+    "audio/it/if_sara.m4a": "56a32fbacf8824d8deb0cc51fa2755342fa6e25966a6f98845da9449d3cf70bb",
+    "audio/it/im_nicola.json": "5382ce11e446b99f0e8b656b0c6791b1e288d636ea7b09c427db0907b04e2325",
+    "audio/it/im_nicola.m4a": "db3476a07294724c8bd6b03fe1db1eb852410fe15f00098b74a67e89a0caf638",
+    "audio/ja/jf_alpha.json": "cdc00857f2b387fddae4574add11bcbac817dbaece527f88b9abf2e92ce45906",
+    "audio/ja/jf_alpha.m4a": "5280c1605419174cda7c7c438a37035881185ce624449e47d511401ee5696956",
+    "audio/ja/jf_gongitsune.json": "d006f45cec47990884f5b6e83553edc85c6ff845166222769f3bb75ec7da2e4d",
+    "audio/ja/jf_gongitsune.m4a": "f688952cdcb0623f1a5e89529f916e94ffa8da41cc7f2391403f29c8f5076b3e",
+    "audio/ja/jf_nezumi.json": "62d9d1105b9bed73e7dd83e5dd0d869740da2be9c3683f66ba774800c50a6210",
+    "audio/ja/jf_nezumi.m4a": "d999440cf6ae95dca7442c710a11255e61592a619c43d3e88485c1ccf127a46b",
+    "audio/ja/jf_tebukuro.json": "13c1822e37a7cc10521e249c1a80d990ce1517bd951147937fa6255d41f0b94e",
+    "audio/ja/jf_tebukuro.m4a": "86a5e86d77110cce1ade6e410eb04467a3c9d514263677747ea5d276bd9d093a",
+    "audio/ja/jm_kumo.json": "249e75c1fab65af4731a6af661622a7f3b1f3d091d1c3a6103f07bc0f818814d",
+    "audio/ja/jm_kumo.m4a": "d3007d30b005286ecee6272d695d7896ac6e6fe3e9db83fd4b4b96276bee74d0",
+    "audio/pt-BR/pf_dora.json": "21a154422046b936c8789e10e18ed82096ad6434665032e11a7a10f07353f491",
+    "audio/pt-BR/pf_dora.m4a": "0da98a78a7c68f1710f3a55ed8930db5b92cd3f2d6a44165e6a01fafae5a921b",
+    "audio/pt-BR/pm_alex.json": "0ce6162743e1914fcfe6a1cc32b507dac41828213a8aae3f27f07c6ab1d1488f",
+    "audio/pt-BR/pm_alex.m4a": "4db339063d71b5ce9925126b459bfa1f7073e080019b84daf4aba4c3288d5485",
+    "audio/pt-BR/pm_santa.json": "b8ac359fce227a31221349e8b8534c0ec912ee54845abeaabd55bfec4862a4d4",
+    "audio/pt-BR/pm_santa.m4a": "cd582a9607349ecd081993612c4f09cbfa1b46c4b2563bde525b7db2cb60e429",
+    "audio/zh-CN/zf_xiaobei.json": "d7e5c1964150a1b296940c845ec00e49498b38cc416a2ab85ca4f4436c4f41d0",
+    "audio/zh-CN/zf_xiaobei.m4a": "8340a3f3a73a24c3f9e3418703d8a5faeb28cc37fbac49d9795f8b9a37e4da63",
+    "audio/zh-CN/zf_xiaoni.json": "321ae7efb7d0d5deac2023dd5b1e0e757e42bc29818a399fd8c26a11571adfdd",
+    "audio/zh-CN/zf_xiaoni.m4a": "105f0d841c951924a882744b9a03e6f5f904a50916be98ab3c9f3a22d783e6ba",
+    "audio/zh-CN/zf_xiaoxiao.json": "e0c4b4d251297f6388e76bf1bb631b57131e2de92e9998b952c0d40b232f4308",
+    "audio/zh-CN/zf_xiaoxiao.m4a": "5160891d5b44791a532a7d4612c490a0d1b13b7e949e2d558398dc70f3a96d56",
+    "audio/zh-CN/zf_xiaoyi.json": "75c20c9439f0b19581f1bdfb706c677dbc6d88ed5525a27db349eb4c921370dd",
+    "audio/zh-CN/zf_xiaoyi.m4a": "65a62a676f8794566bb56a33c5df2e0406b20820bb6cd70ba6d40e85d0ff66c7",
+    "audio/zh-CN/zm_yunjian.json": "3ba7e49a22a3ccdf26b4b456f1ebe66f26337d43712e6808bc182bce8a73298c",
+    "audio/zh-CN/zm_yunjian.m4a": "4bd8aa677497d07a4ebf386acb96452d053bd44eaf374a47d3b8c49cfed8bf1e",
+    "audio/zh-CN/zm_yunxi.json": "0cd7607135cb20d4460f6480b084d1b2d06b53ea884b8b83b7323d794b62ccae",
+    "audio/zh-CN/zm_yunxi.m4a": "d8a4e1b20a6d11f2dcaa1230bb455182206465412ddb409e209ee94253414004",
+    "audio/zh-CN/zm_yunxia.json": "bbef612cff2682505696dee70f616b2e52718115ed4c623fda369f3a0901d6da",
+    "audio/zh-CN/zm_yunxia.m4a": "005595e0c8039f4e828df547cb5bdfe7164c4335bc56332a28cf8690f6a56f79",
+    "audio/zh-CN/zm_yunyang.json": "80f74f2730363be3060f1a7a735e6790d1f5d58570a540e3974aee582bca142d",
+    "audio/zh-CN/zm_yunyang.m4a": "7d7729ef4c12f1de94f1efa7fbb98010a95e0985c8ff0a41122a57933a964d72",
+    "captions/en/af_heart.vtt": "2c2637fae55cd0f2c810d0f72e924703c38ae20650bb85ddd5ba8237cc8cc95b",
+    "captions/es/ef_dora.vtt": "b8f1d4a882d02c2fc9d823d721a48879872bdc794aa48f6aa1527c9b48b32d2b",
+    "captions/es/em_alex.vtt": "4394603516593bde72841f62b97349d2dd065130f0bcc1af546b53784de6cced",
+    "captions/es/em_santa.vtt": "6608e7336d8a5571f9700bcba4d75f6decdb3ca7e9b1accb0f1ee0edf9d3efc3",
+    "captions/fr/ff_siwis.vtt": "22c89b4ea04458e46989e322c4f450c43ad0a17276d22a6b9fc7a524eecef58c",
+    "captions/hi/hf_alpha.vtt": "15138a1a3c160d633f8234b2b1782c9fed31fa8cbf7d5c5aa5bca0b6d2be8087",
+    "captions/hi/hf_beta.vtt": "3c97c3f63454f13a5791f08e397f98e11922c3a9aad1b49e629057caad9ffb44",
+    "captions/hi/hm_omega.vtt": "b66cc3f164c4e15f28a74946f0958c31ecab1935d023ef37a0cc35facff9a1b1",
+    "captions/hi/hm_psi.vtt": "f8b4d8e82308fae6933882c2ba6bd81e4e941345d319a36547769b0da3a00b0a",
+    "captions/it/if_sara.vtt": "e69f94382cdad1fb529cd29ec2afbff53c08447eb9f7e4c7519a8549f2e28460",
+    "captions/it/im_nicola.vtt": "8d1aaf8fbb0bb1be8da658c434aec3bc2002fca3344b3d2a7174ba6914e81a05",
+    "captions/ja/jf_alpha.vtt": "6044ce34e38137aa6a20ccc8759148823fe004388806e59e685ec4d336c3e0e4",
+    "captions/ja/jf_gongitsune.vtt": "46ee6553a3d84fb22d25e3ade3bf0ab1e9cb936326f26db659663760a2c5e8e0",
+    "captions/ja/jf_nezumi.vtt": "aa6607defda2507d8a90143b800bb430df16ed207b9835262a83008ec1ace782",
+    "captions/ja/jf_tebukuro.vtt": "9ca79207fcfc2f1c51adfc0859880af69e8a4e2de88b93ee518c643771b05eb5",
+    "captions/ja/jm_kumo.vtt": "fb065aec1543779c32436489cc8994ec6b12e3ce04707065a156a46a6adac18c",
+    "captions/pt-BR/pf_dora.vtt": "3118a7749318629494b9d97ef590f9021bfdf4168fb55831e62168806d846f62",
+    "captions/pt-BR/pm_alex.vtt": "2118abb18dcd8c55e024b3ae66415d3891423c8a4e223143cec8bd07b6fe12ea",
+    "captions/pt-BR/pm_santa.vtt": "acbafa8cc106916286c20eb230a316c8d82da2e5958545b454f7ee8607d53b8d",
+    "captions/zh-CN/zf_xiaobei.vtt": "cd9ac1483720cac51a2d8ae024f21fa5a60195adf1bfb75556d81cf8d237b136",
+    "captions/zh-CN/zf_xiaoni.vtt": "90493e9af349e504c2dc2974be61c6a0b70c99acbd7ff4c38dbe3a39ad6ee540",
+    "captions/zh-CN/zf_xiaoxiao.vtt": "af2c9c3c50ea34c09532732d957d86280f6bf08b1a8b229eda2f51092291f0a1",
+    "captions/zh-CN/zf_xiaoyi.vtt": "ad88c81c07159539d53584a3fa3ef0bd407a5612ed70cc54cd9064650c897725",
+    "captions/zh-CN/zm_yunjian.vtt": "e9076ce8a831441a3a9a495b86a46070af0bbd9c7afcf722830f0652485ef721",
+    "captions/zh-CN/zm_yunxi.vtt": "e0930e4bf01ea2b0a7794029b0b71fdac733a44f272216a20fbc5767fdccd403",
+    "captions/zh-CN/zm_yunxia.vtt": "5f5cd0166017cf5b9b787ef8be3452264b6a90c8f52070d1bf2d672cc8666f51",
+    "captions/zh-CN/zm_yunyang.vtt": "bea2d4d48e1eff4506449dd09219ced7835adb09c7088a447500faf62f3b1aab"
+  },
+  "historical_media_backup": "/mnt/firecuda2/codex/scratch-docs/t447/backup-56-before-neutral",
+  "historical_audio_retained_pending_regeneration": true,
+  "translation_reviews": {
+    "da": "495593daa307987beb6a264dc2850109813057ef21e2a025eaf0a00bba2964ed",
+    "de": "495593daa307987beb6a264dc2850109813057ef21e2a025eaf0a00bba2964ed",
+    "es": "495593daa307987beb6a264dc2850109813057ef21e2a025eaf0a00bba2964ed",
+    "fr": "495593daa307987beb6a264dc2850109813057ef21e2a025eaf0a00bba2964ed",
+    "hi": "495593daa307987beb6a264dc2850109813057ef21e2a025eaf0a00bba2964ed",
+    "is": "495593daa307987beb6a264dc2850109813057ef21e2a025eaf0a00bba2964ed",
+    "it": "495593daa307987beb6a264dc2850109813057ef21e2a025eaf0a00bba2964ed",
+    "ja": "495593daa307987beb6a264dc2850109813057ef21e2a025eaf0a00bba2964ed",
+    "ko": "495593daa307987beb6a264dc2850109813057ef21e2a025eaf0a00bba2964ed",
+    "nb": "495593daa307987beb6a264dc2850109813057ef21e2a025eaf0a00bba2964ed",
+    "pt-BR": "495593daa307987beb6a264dc2850109813057ef21e2a025eaf0a00bba2964ed",
+    "sv": "495593daa307987beb6a264dc2850109813057ef21e2a025eaf0a00bba2964ed",
+    "zh-CN": "495593daa307987beb6a264dc2850109813057ef21e2a025eaf0a00bba2964ed"
+  },
+  "review_kind": "AI technical review (Codex), no native-speaker signoff",
+  "human_listening_signoff": false,
+  "media_rendered": false,
+  "published": false
+}
