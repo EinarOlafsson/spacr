@@ -35125,10 +35125,11 @@
         "2a7fd576ab7b59557ffbe2364c244953f75480298685169c67c069f0f4e6658f",
         "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
         "18cc3d05f1388e86a5a9b30a181ef22c17b155c14da1e8e7a6e07b7e8fd36e59",
-        "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a"
+        "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
+        "ac8db0fb3865ad7b09ce2fa0bc2b1ecda3f645b092b98f6623d80963934af31d"
       ],
-      "source_sha256": "3157e28e88bdc8cbc0125c7b0cadec61ba7b120372060045fc4f4f3f57264271",
-      "text": "Lämna över borttagning och installation till en process som lever vidare efter spaCR.\n\nAnvänds när den körande spaCR själv är en kopia som ett installationsprogram har skapat, vilken i Windows inte kan ta bort sig själv medan den körs. Hjälpprocessen väntar på att den här processen avslutas, laddar ner det nya installationsprogrammet, tar bort varje äldre kopia inklusive den som kördes, kör installationsprogrammet och startar den nya versionen. Om någon kopia som ett installationsprogram har skapat inte kan tas bort installeras ingenting, och orsaken skrivs till uppdateringsloggen.\n\n:param records: installationer från :func:`find_old_installs`.\n:param version: versionen som ska installeras.\n:param ticked: rotkatalogerna för de miljöer som användaren har markerat.\n:param pid: processen att vänta på; den här processen när värdet är ``None``.\n:param workdir: hjälpprocessens mapp; en ny tillfällig mapp när värdet är ``None``.\n:param system: datorn; ``None`` betyder den här datorn.\n:param spawn: ersätter funktionen som startar den fristående processen.\n:returns: planen så som den skrevs till ``plan.json``. ``plan[\"command\"]`` är hjälpprocessens kommando, eller ``None`` med ``plan[\"error\"]`` som anger varför ingenting startades.",
+      "source_sha256": "5fcd94805bfd42f9aa865e23fe110df8eb83d9d1cf1844536d874299d6107fd6",
+      "text": "Lämna över borttagning och installation till en process som lever vidare efter spaCR.\n\nAnvänds när den körande spaCR själv är en kopia som ett installationsprogram har skapat, vilken i Windows inte kan ta bort sig själv medan den körs. Hjälpprocessen väntar på att den här processen avslutas, laddar ner det nya installationsprogrammet, tar bort varje äldre kopia inklusive den som kördes, kör installationsprogrammet och startar den nya versionen. Om någon kopia som ett installationsprogram har skapat inte kan tas bort installeras ingenting, och orsaken skrivs till uppdateringsloggen.\n\n:param records: installationer från :func:`find_old_installs`.\n:param version: versionen som ska installeras.\n:param ticked: rotkatalogerna för de miljöer som användaren har markerat.\n:param pid: processen att vänta på; den här processen när värdet är ``None``.\n:param workdir: hjälpprocessens mapp; en ny tillfällig mapp när värdet är ``None``.\n:param system: datorn; ``None`` betyder den här datorn.\n:param spawn: ersätter funktionen som startar den fristående processen.\n:returns: planen så som den skrevs till ``plan.json``. ``plan[\"command\"]`` är hjälpprocessens kommando, eller ``None`` med ``plan[\"error\"]`` som anger varför ingenting startades.\n\nApplikationsfamiljer som paketerats som fristående program returnerar för närvarande ett fel innan någon process startas eller något tas bort: deras verifierade ersättningsadaptrar, som bevarar respektive installationsfamilj, är ännu inte implementerade. Det medföljande fristående hjälpprogrammet möjliggör inte någon reservlösning med ett onlineinstallationsprogram för dessa applikationer.",
       "translation_source_blocks_sha256": [
         "53a4372d5ee733dcea5beb653cc2903c614acadd319e859a11ad2dcabec09aeb",
         "75241705d164afdde641d643f08af75ae9a1020b7547b8499a23e2e6edda6ecb",
@@ -35139,7 +35140,8 @@
         "2a7fd576ab7b59557ffbe2364c244953f75480298685169c67c069f0f4e6658f",
         "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
         "18cc3d05f1388e86a5a9b30a181ef22c17b155c14da1e8e7a6e07b7e8fd36e59",
-        "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a"
+        "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
+        "ac8db0fb3865ad7b09ce2fa0bc2b1ecda3f645b092b98f6623d80963934af31d"
       ]
     },
     "spacr.install_profile": {
