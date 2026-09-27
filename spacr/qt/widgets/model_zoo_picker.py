@@ -466,8 +466,8 @@ def _human_bytes_local(size: float) -> str:
     second.
     """
     value = float(size)
-    for unit in ("B", "kB", "MB", "GB"):
-        if value < 1024 or unit == "GB":
+    for unit in ("B", "kB", "MB"):
+        if value < 1024:
             return f"{value:.1f} {unit}" if unit != "B" else f"{int(value)} B"
         value /= 1024.0
     return f"{value:.1f} GB"
@@ -475,8 +475,8 @@ def _human_bytes_local(size: float) -> str:
 
 def _human_rate(bytes_per_second: float) -> str:
     """A transfer rate a person can read."""
-    for unit in ("B/s", "kB/s", "MB/s", "GB/s"):
-        if bytes_per_second < 1024 or unit == "GB/s":
+    for unit in ("B/s", "kB/s", "MB/s"):
+        if bytes_per_second < 1024:
             return f"{bytes_per_second:.1f} {unit}"
         bytes_per_second /= 1024.0
     return f"{bytes_per_second:.1f} GB/s"
