@@ -4014,7 +4014,11 @@ def measure_crop(settings):
         :func:`spacr.settings.get_measure_crop_settings`. Key entries the
         function reads:
 
-        - ``src`` (str or list) — one or more ``…/merged`` folders.
+        - ``src`` (str or list) — one or more ``…/merged`` folders. A
+          cloud address Make Masks has analysed is measured from the local
+          folder Make Masks staged it in; a cloud folder of merged stacks is
+          mirrored under ``cloud_cache`` first. ``cloud_results`` copies the
+          measurements folder back to cloud storage.
         - ``psf_measurement_source`` — original (default) uses the normal
           rescaled/preprocessed intensities; processed adds an explicitly
           calibrated PSF before quantitative features. The immutable kernel
@@ -4090,6 +4094,10 @@ def measure_crop(settings):
     
     settings = dict(settings)
     settings['src'] = normalize_src_path(settings['src'])
+
+    from .ome_zarr import _needs_cloud_run, _run_with_cloud_sources
+    if _needs_cloud_run(settings):
+        return _run_with_cloud_sources(measure_crop, settings, 'measure')
     
     if isinstance(settings['src'], str):
         settings['src'] = [settings['src']]

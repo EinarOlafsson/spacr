@@ -29,6 +29,7 @@ from PySide6.QtWidgets import (
     QBoxLayout,
     QCheckBox,
     QComboBox,
+    QDialog,
     QFormLayout,
     QFrame,
     QGridLayout,
@@ -280,7 +281,9 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
     "timelapse": {"timelapse", "mask_parallel", "mask_gpu_indices",
                   "watch_folder", "watch_pipeline", "watch_measure_settings",
                   "watch_settle_seconds", "watch_poll_seconds",
-                  "watch_idle_minutes"},
+                  "watch_idle_minutes", "cloud_anonymous", "cloud_profile",
+                  "cloud_endpoint", "cloud_cache", "cloud_wells",
+                  "cloud_fields", "cloud_level", "cloud_results"},
     "classify": {
         "png_type", "crop_source", "file_metadata", "file_type",
         "path_string", "extract_channels", "coordinate_columns",
@@ -1162,7 +1165,10 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
     ),
     "mask": (
         ("Input & Metadata", (
-            "src", "cell_channel", "nucleus_channel", "pathogen_channel",
+            "src", "cloud_anonymous", "cloud_profile", "cloud_endpoint",
+            "cloud_cache", "cloud_wells", "cloud_fields", "cloud_level",
+            "cloud_results",
+            "cell_channel", "nucleus_channel", "pathogen_channel",
             NUMBER_OF_ORGANELLES,
             "organelle_channel",
             *(f"{role}_channel" for role in ALL_ORGANELLE_ROLES[1:]),
@@ -1219,7 +1225,10 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
     ),
     "measure": (
-        ("Input & Experiment", ("src", "experiment")),
+        ("Input & Experiment", (
+            "src", "cloud_anonymous", "cloud_profile", "cloud_endpoint",
+            "cloud_cache", "cloud_results", "experiment",
+        )),
         ("Mask & Channel Mapping", (
             "channels", "cell_mask_dim", "nucleus_mask_dim",
             "pathogen_mask_dim",
@@ -6434,6 +6443,207 @@ class _TrainingFolderEdit(_ScalarEdit):
         action.triggered.connect(browse)
 
 
+class _CloudListingSignals(QObject):
+    """Carries a cloud listing from its worker thread to the dialog."""
+
+    done = Signal(object, object, object)
+
+
+class _CloudBrowserDialog(QDialog):
+    """Browse a cloud store and pick a location for ``src``.
+
+    Listing and reading metadata run on a worker thread, so a slow network
+    never freezes the window. A folder is opened by double-clicking it; an
+    OME-Zarr, or any location typed into the address box, is described from
+    its metadata without fetching image data. Credentials are never asked
+    for: the public-data box reads anonymously, and otherwise the standard
+    places are used.
+
+    :param address: the address to open first.
+    :param anonymous: the starting state of the public-data box.
+    :param endpoint: the starting S3-compatible endpoint.
+    :param parent: the parent widget.
+    """
+
+    def __init__(self, address: str = "", anonymous: bool = False,
+                 endpoint: str = "", parent: Optional[QWidget] = None) -> None:
+        """Build the address row, the listing and the description."""
+        super().__init__(parent)
+        from PySide6.QtWidgets import (QCheckBox, QDialogButtonBox,
+                                       QListWidget, QPlainTextEdit)
+        from ..i18n import tr
+
+        self.setObjectName("CloudBrowserDialog")
+        self.setWindowTitle(tr("Browse cloud storage"))
+        self._signals = _CloudListingSignals(self)
+        self._signals.done.connect(self._show_listing)
+        self._request = 0
+        layout = QVBoxLayout(self)
+        row = QHBoxLayout()
+        self.address = QLineEdit(address or "s3://", self)
+        self.address.setPlaceholderText(
+            tr("s3://bucket/folder, gs://, az:// or https://"))
+        self.address.returnPressed.connect(self.open_address)
+        row.addWidget(self.address, 1)
+        up = QPushButton(tr("Up"), self)
+        up.clicked.connect(self.go_up)
+        row.addWidget(up)
+        go = QPushButton(tr("Open"), self)
+        go.clicked.connect(self.open_address)
+        row.addWidget(go)
+        layout.addLayout(row)
+        self.anonymous = QCheckBox(tr("Public data (no credentials)"), self)
+        self.anonymous.setChecked(bool(anonymous))
+        layout.addWidget(self.anonymous)
+        self.endpoint = QLineEdit(endpoint or "", self)
+        self.endpoint.setPlaceholderText(
+            tr("S3-compatible endpoint (blank for Amazon S3)"))
+        layout.addWidget(self.endpoint)
+        self.entries = QListWidget(self)
+        self.entries.itemDoubleClicked.connect(self._enter)
+        layout.addWidget(self.entries, 1)
+        self.details = QPlainTextEdit(self)
+        self.details.setReadOnly(True)
+        layout.addWidget(self.details)
+        buttons = QDialogButtonBox(QDialogButtonBox.Cancel, parent=self)
+        use = buttons.addButton(tr("Use this location"),
+                                QDialogButtonBox.AcceptRole)
+        use.setObjectName("CloudBrowserUse")
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        layout.addWidget(buttons)
+        if address:
+            self.open_address()
+
+    def options(self) -> Dict[str, Any]:
+        """The credential settings chosen in the dialog, as settings values."""
+        return {"cloud_anonymous": self.anonymous.isChecked(),
+                "cloud_endpoint": self.endpoint.text().strip()}
+
+    def location(self) -> str:
+        """The address the dialog points at now."""
+        return self.address.text().strip()
+
+    def go_up(self) -> None:
+        """Open the folder above the current address."""
+        text = self.location().rstrip("/")
+        head, sep, _tail = text.rpartition("/")
+        if sep and not head.endswith(":/"):
+            self.address.setText(head)
+            self.open_address()
+
+    def _enter(self, item) -> None:
+        """Open the double-clicked entry below the current address."""
+        name = item.data(Qt.UserRole)
+        if name:
+            self.address.setText(f"{self.location().rstrip('/')}/{name}")
+            self.open_address()
+
+    def open_address(self) -> None:
+        """List and describe the typed address on a worker thread."""
+        import threading
+
+        from ..i18n import tr
+
+        self._request += 1
+        request = self._request
+        address = self.location()
+        options = self.options()
+        self.entries.clear()
+        self.details.setPlainText(tr("Reading…"))
+        signals = self._signals
+
+        def work() -> None:
+            """Read the listing and the description, never raising."""
+            from ...ome_zarr import (_CloudOptions, _cloud_listing,
+                                     _cloud_path, _cloud_source_kind,
+                                     _describe_cloud_source)
+
+            entries, text = [], ""
+            try:
+                path = _cloud_path(address, _CloudOptions._from_settings(
+                    options))
+                kind = _cloud_source_kind(path)
+                if kind == "folder":
+                    entries = _cloud_listing(path)
+                else:
+                    text = _describe_cloud_source(path)
+            except Exception as exc:
+                text = f"{type(exc).__name__}: {exc}"
+            try:
+                signals.done.emit(request, entries, text)
+            except RuntimeError:
+                return
+
+        threading.Thread(target=work, daemon=True,
+                         name="spacr-cloud-listing").start()
+
+    def _show_listing(self, request, entries, text) -> None:
+        """Show a finished listing, unless a newer one was asked for."""
+        from PySide6.QtWidgets import QListWidgetItem
+
+        if request != self._request:
+            return
+        self.entries.clear()
+        for name, kind, size in entries:
+            label = f"{name}/" if kind == "folder" else f"{name}  ({size} B)"
+            item = QListWidgetItem(label)
+            item.setData(Qt.UserRole, name)
+            self.entries.addItem(item)
+        self.details.setPlainText(str(text or ""))
+
+
+def _browse_cloud_into(edit: QLineEdit, model: Any = None) -> bool:
+    """Open the cloud browser and put the chosen address into ``edit``.
+
+    :param edit: the ``src`` field.
+    :param model: the settings form, whose ``cloud_anonymous`` and
+        ``cloud_endpoint`` start the dialog and receive its choices.
+    :returns: True when a location was chosen.
+    """
+    current = getattr(model, "_current_setting", None)
+    anonymous = current("cloud_anonymous") if callable(current) else False
+    endpoint = current("cloud_endpoint") if callable(current) else ""
+    text = edit.text().strip()
+    from ...ome_zarr import _is_cloud_url
+
+    dialog = _CloudBrowserDialog(text if _is_cloud_url(text) else "",
+                                 bool(anonymous), str(endpoint or ""), edit)
+    if dialog.exec() != QDialog.Accepted or not dialog.location():
+        return False
+    edit.setText(dialog.location())
+    edit.editingFinished.emit()
+    setter = getattr(model, "set_value_for_key", None)
+    if callable(setter):
+        for key, value in dialog.options().items():
+            setter(key, value)
+    return True
+
+
+def _add_cloud_browse_action(edit: QLineEdit, model: Any = None) -> Any:
+    """Give a ``src`` field a trailing button that browses cloud storage.
+
+    The button is an alpha feature, shown only while Show alpha features is
+    on.
+
+    :param edit: the ``src`` field.
+    :param model: the settings form, passed to :func:`_browse_cloud_into`.
+    :returns: the button's action.
+    """
+    from PySide6.QtWidgets import QStyle
+
+    from ..i18n import tr
+    from ..preferences import _apply_alpha_widgets
+
+    action = edit.addAction(edit.style().standardIcon(QStyle.SP_DriveNetIcon),
+                            QLineEdit.TrailingPosition)
+    action.setObjectName("CloudSourceBrowse")
+    action.setToolTip(tr("Browse cloud storage…"))
+    action.triggered.connect(lambda: _browse_cloud_into(edit, model))
+    _apply_alpha_widgets(edit)
+    return action
+
+
 class _CsvColumnField(QWidget):
     """A column-name box with a CSV button that offers the columns that exist.
 
@@ -8698,6 +8908,7 @@ class SettingsWidgets:
                     if plan is None:
                         continue
                     widget = self._build_plain(plan)
+                    self._add_source_actions(key, widget)
                     attach_api_tooltip(widget, self.app_key, key,
                                        _descriptions=self._tooltips)
                     self._widgets.settle(key, widget)
@@ -9178,8 +9389,20 @@ class SettingsWidgets:
         if route == "special":
             return what()
         if route == "plain":
-            return self._build_plain(what)
+            widget = self._build_plain(what)
+            self._add_source_actions(key, widget)
+            return widget
         return None
+
+    def _add_source_actions(self, key: str, widget: QWidget) -> None:
+        """Give the ``src`` field of Make Masks and Measure a cloud browser.
+
+        :param key: the setting the plain control edits.
+        :param widget: the control just built.
+        """
+        if (key == "src" and self.app_key in ("mask", "measure")
+                and isinstance(widget, QLineEdit)):
+            _add_cloud_browse_action(widget, self)
 
     @staticmethod
     def _build_plain(plan) -> QWidget:

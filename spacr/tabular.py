@@ -121,6 +121,25 @@ def resolve_path(path: Any) -> str:
     return path
 
 
+def _fetched(source: Any) -> Any:
+    """A local copy of a table stored in the cloud, or ``source`` unchanged.
+
+    An ``s3://``, ``gs://``, ``az://`` or ``https://`` address is fetched
+    once into spaCR's cloud cache and read from there, and fetched again
+    only when the stored object changes. Credentials come from the
+    standard places (see :class:`spacr.ome_zarr._CloudOptions`). Anything
+    else is returned as given, without importing the cloud code.
+
+    :param source: a path, an address, or an open connection.
+    :returns: a local path for an address, ``source`` otherwise.
+    """
+    if isinstance(source, str) and '://' in source:
+        from .ome_zarr import _cloud_local_copy, _is_cloud_url
+        if _is_cloud_url(source):
+            return _cloud_local_copy(source)
+    return source
+
+
 def table_format(path: Any) -> str:
     """Which reader a path needs: ``'csv'``, ``'sqlite'``, ``'parquet'``,
     ``'feather'`` or ``'excel'``.
@@ -208,7 +227,9 @@ def read_table(source: Any, *, table: Optional[str] = None,
     CSV, TSV, SQLite, Parquet, Feather and Excel, chosen by suffix. A SQLite
     path needs ``table``; every other format ignores it.
 
-    :param source: path to the file. ``~`` and ``$VARS`` are expanded.
+    :param source: path to the file. ``~`` and ``$VARS`` are expanded. A
+        cloud address (``s3://``, ``gs://``, ``az://``, ``https://``) is read
+        from a cached local copy.
     :param table: the table name, for a database.
     :param canonicalise: apply the vocabulary. **There is no reason to turn
         this off on the ordinary path** -- it is what makes the picker and
@@ -223,6 +244,7 @@ def read_table(source: Any, *, table: Optional[str] = None,
     :returns: a :class:`pandas.DataFrame`.
     """
     kind = table_format(source)
+    source = _fetched(source)
     path = resolve_path(source)
     if kind == 'sqlite':
         if table is None:
@@ -333,6 +355,7 @@ def database_tables(db: Any, *, migrate: bool = False) -> Tuple[str, ...]:
         listing what is there must not rewrite it.
     :returns: the table names.
     """
+    db = _fetched(db)
     with _connect(db, migrate=migrate) as conn:
         rows = conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table'").fetchall()
@@ -359,6 +382,7 @@ def table_columns(source: Any, *, table: Optional[str] = None,
     :returns: the column names, in order.
     """
     kind = table_format(source)
+    source = _fetched(source)
     if kind == 'sqlite':
         if table is None:
             raise ValueError(
@@ -413,6 +437,7 @@ def read_database(db: Any, tables: Any, *, canonicalise: bool = True,
     names = [tables] if isinstance(tables, str) else list(tables)
     for name in names:
         _quote_identifier(name)
+    db = _fetched(db)
     frames: List[pd.DataFrame] = []
     with _connect(db, migrate=migrate, read_only=read_only) as conn:
         present = {row[0] for row in conn.execute(

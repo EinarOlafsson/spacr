@@ -153,12 +153,14 @@ import json
 import lzma
 import math
 import os
+import re
 import shutil
 import zlib
 from dataclasses import dataclass, field
 from pathlib import Path
 from types import MappingProxyType
-from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple, Union
+from typing import (Any, Callable, Dict, Iterable, List, Mapping, Optional,
+                    Sequence, Tuple, Union)
 
 import numpy as np
 
@@ -984,12 +986,14 @@ def _read_chunk_bytes(path: Path) -> Optional[bytes]:
     chunks touched. ``tests/test_ome_zarr.py`` does exactly that, and asserts
     that a small region does not touch the whole grid.
 
-    :param path: the chunk's file path.
+    :param path: the chunk's file path, or its address in a cloud store.
     :returns: the stored bytes, or ``None`` when the chunk does not exist —
         which in zarr means "entirely fill_value", the normal representation
         of empty space, and costs no decode.
     """
     try:
+        if isinstance(path, _CloudPath):
+            return path.read_bytes()
         with open(path, "rb") as handle:
             return handle.read()
     except FileNotFoundError:
@@ -1340,8 +1344,11 @@ def _resolve_decoder(name: str, config: Mapping[str, Any]
 def _read_json(path: Path) -> Dict[str, Any]:
     """Read one small JSON metadata file, or say which one was unreadable."""
     try:
-        with open(path, "r", encoding="utf-8") as handle:
-            data = json.load(handle)
+        if isinstance(path, _CloudPath):
+            data = json.loads(path.read_bytes().decode("utf-8"))
+        else:
+            with open(path, "r", encoding="utf-8") as handle:
+                data = json.load(handle)
     except FileNotFoundError as exc:
         raise OmeZarrError(f"{path} does not exist") from exc
     except json.JSONDecodeError as exc:
@@ -1377,6 +1384,10 @@ class OmeZarrImage:
         because it said pixels. Never quietly upgraded to micrometers.
     :param multiscale: the raw ``multiscales`` entry, for anything here does
         not model.
+
+    An image opened from cloud storage also keeps the opened location, with
+    the credentials it was opened with, so that :meth:`read` reaches the
+    chunks the same way.
     """
 
     path: str
@@ -1388,6 +1399,7 @@ class OmeZarrImage:
     omero: Mapping[str, Any] = field(default_factory=dict)
     units_declared: bool = True
     multiscale: Mapping[str, Any] = field(default_factory=dict)
+    _store: Any = field(default=None, repr=False, compare=False)
 
     def __post_init__(self) -> None:
         """Freeze the image's members and check the levels against the axes.
@@ -1672,8 +1684,10 @@ class OmeZarrImage:
         """
         lvl = self.level(level)
         box = self.resolve_region(level, region, world_region)
-        store = Path(self.path) / lvl.path
-        if prefer_zarr and _zarr_is_installed():
+        root = self._store if self._store is not None else Path(self.path)
+        store = root / lvl.path
+        if (prefer_zarr and _zarr_is_installed()
+                and not isinstance(store, _CloudPath)):
             return _read_with_zarr(store, box)
         return _ZarrArray.open(store).read_region(box)
 
@@ -1840,7 +1854,9 @@ def read_ome_zarr(path: Union[str, os.PathLike], *,
     costs a few kilobytes, which is the property the whole format exists for.
 
     :param path: the group directory — the one holding ``multiscales``. For a
-        plate that is ``<plate>.zarr/<row>/<column>/<field>``.
+        plate that is ``<plate>.zarr/<row>/<column>/<field>``. An
+        ``s3://``, ``gs://``, ``az://`` or ``https://`` address is read from
+        cloud storage, fetching only the metadata files.
     :param multiscale_index: which ``multiscales`` entry to read. NGFF permits
         several; spaCR reads the first by default and says so here rather than
         pretending there can only be one.
@@ -1849,7 +1865,25 @@ def read_ome_zarr(path: Union[str, os.PathLike], *,
         ``multiscales``, declares a zarr format spaCR does not read, or
         carries axis units spaCR will not translate.
     """
-    root = Path(path)
+    return _open_ome_zarr(path, multiscale_index=multiscale_index)
+
+
+def _open_ome_zarr(path: Any, *, multiscale_index: int = 0,
+                   check_units: bool = True) -> OmeZarrImage:
+    """Open an OME-Zarr group, optionally without refusing mixed space units.
+
+    :func:`read_ome_zarr` refuses space axes in different units. Files
+    written by other tools often give y and x a unit and z none; a reader
+    that projects z away before anything is measured passes
+    ``check_units=False`` and still gets the refusal later if it asks
+    :attr:`OmeZarrImage.spacing` for the full spacing.
+
+    :param path: the group, local or cloud.
+    :param multiscale_index: which ``multiscales`` entry to read.
+    :param check_units: refuse space axes that disagree on their unit.
+    :returns: the opened :class:`OmeZarrImage`.
+    """
+    root = _as_store_path(path)
     if not root.exists():
         raise OmeZarrError(f"{root} does not exist")
     if not root.is_dir():
@@ -1930,7 +1964,8 @@ def read_ome_zarr(path: Union[str, os.PathLike], *,
     base = levels[0]
     axes = [Axis(name=a.name, type=a.type, unit=a.unit, scale=base.scale[i],
                  translate=base.translation[i]) for i, a in enumerate(axes)]
-    spacing_from_axes(axes)
+    if check_units:
+        spacing_from_axes(axes)
 
     omero = attrs.get("omero") or ome.get("omero") or {}
     if not isinstance(omero, Mapping):
@@ -1946,7 +1981,8 @@ def read_ome_zarr(path: Union[str, os.PathLike], *,
     return OmeZarrImage(path=str(root), axes=tuple(axes), levels=tuple(levels),
                         ngff_version=version, name=str(entry.get("name") or ""),
                         channel_names=channel_names, omero=dict(omero),
-                        units_declared=bool(declared), multiscale=dict(entry))
+                        units_declared=bool(declared), multiscale=dict(entry),
+                        _store=root if isinstance(root, _CloudPath) else None)
 
 
 def read_ome_zarr_array(path: Union[str, os.PathLike],
@@ -2433,3 +2469,1024 @@ def _omero_block(data: np.ndarray, axes: Sequence[Axis],
         })
     return {"version": "0.4", "name": name, "channels": channels,
             "rdefs": {"model": "color" if n > 1 else "greyscale"}}
+
+
+
+_CLOUD_PROTOCOLS: Mapping[str, Tuple[str, str]] = MappingProxyType({
+    "s3": ("s3fs", "s3fs"),
+    "gs": ("gcsfs", "gcsfs"),
+    "gcs": ("gcsfs", "gcsfs"),
+    "az": ("adlfs", "adlfs"),
+    "abfs": ("adlfs", "adlfs"),
+    "abfss": ("adlfs", "adlfs"),
+    "http": ("aiohttp", "aiohttp"),
+    "https": ("aiohttp", "aiohttp"),
+    "memory": ("fsspec", "fsspec"),
+})
+
+_CLOUD_URL = re.compile(r"^([A-Za-z][A-Za-z0-9+.-]*)://")
+
+_CLOUD_LIBRARY_MESSAGE = """\
+Reading {protocol}:// addresses needs the optional `{module}` library, which
+is not installed in this environment.
+
+Install it with:
+
+    python -m pip install {packages}
+
+spaCR imports it only when a cloud address is used, so local folders work
+without it.\
+"""
+
+_CLOUD_MANIFEST = "spacr_cloud_source.json"
+
+_CLOUD_SYNC_SUFFIXES = (
+    ".tif", ".tiff", ".png", ".jpg", ".jpeg", ".bmp", ".czi", ".nd2", ".lif",
+    ".npy", ".npz", ".csv", ".tsv", ".txt", ".db", ".sqlite", ".parquet",
+    ".feather", ".xlsx", ".json",
+)
+
+_ZARR_MARKERS = (".zgroup", ".zattrs", "zarr.json", ".zarray")
+
+
+class _CloudLibraryMissing(ImportError):
+    """The library that reads this kind of cloud address is not installed.
+
+    The message names the library and the one ``pip install`` line that adds
+    it; nothing is imported for a cloud address until one is used.
+    """
+
+
+class _CloudStorageError(OSError):
+    """A cloud location that cannot be read the way it was asked for.
+
+    Raised for an address that cannot be listed (plain HTTP has no
+    directory listing), for a location holding nothing spaCR reads, and for
+    a Measure run whose cloud source has not been through Make Masks.
+    """
+
+
+def _cloud_protocol(value: Any) -> str:
+    """The storage protocol ``value`` names, or ``""`` for a local path.
+
+    :param value: a path or an address such as ``s3://bucket/plate.zarr``.
+    :returns: ``"s3"``, ``"gs"``, ``"gcs"``, ``"az"``, ``"abfs"``,
+        ``"abfss"``, ``"http"``, ``"https"`` or ``"memory"``; ``""`` for
+        anything else, including ``file://`` and Windows drive paths.
+    """
+    if isinstance(value, _CloudPath):
+        return value.protocol
+    if not isinstance(value, str):
+        return ""
+    match = _CLOUD_URL.match(value.strip())
+    if not match:
+        return ""
+    protocol = match.group(1).lower()
+    return protocol if protocol in _CLOUD_PROTOCOLS else ""
+
+
+def _is_cloud_url(value: Any) -> bool:
+    """Whether ``value`` is an address in a cloud store rather than a path.
+
+    :param value: anything a ``src`` setting may hold.
+    :returns: True for the protocols in the cloud protocol table.
+    """
+    return bool(_cloud_protocol(value))
+
+
+def _redact_url(url: Any) -> str:
+    """``url`` without a user name, password, query string or fragment.
+
+    Signed addresses carry their signature in the query string and HTTP
+    addresses may carry a password before the host, so every address
+    spaCR prints or writes to a file goes through this first.
+
+    :param url: an address.
+    :returns: the address with those parts removed.
+    """
+    text = str(url)
+    match = _CLOUD_URL.match(text)
+    if not match:
+        return text
+    rest = text[match.end():]
+    rest = rest.split("#", 1)[0].split("?", 1)[0]
+    host, sep, tail = rest.partition("/")
+    if "@" in host:
+        host = host.rsplit("@", 1)[1]
+    return f"{match.group(1)}://{host}{sep}{tail}"
+
+
+@dataclass(frozen=True)
+class _CloudOptions:
+    """Where the credentials for a cloud read come from, never the credentials.
+
+    spaCR holds no keys. With every field at its default an S3 read uses
+    the standard AWS chain (the ``AWS_*`` environment variables,
+    ``~/.aws/credentials`` and ``~/.aws/config``, ``AWS_PROFILE``, instance
+    roles) and reads anonymously when that chain finds nothing; Google
+    Cloud Storage uses its application-default credentials and Azure its
+    ``AZURE_STORAGE_*`` variables.
+
+    :param anonymous: read without credentials, for public data.
+    :param profile: a named AWS profile from ``~/.aws/config``.
+    :param endpoint: the address of an S3-compatible service.
+    """
+
+    anonymous: bool = False
+    profile: str = ""
+    endpoint: str = ""
+
+    @classmethod
+    def _from_settings(cls, settings: Optional[Mapping[str, Any]]
+                      ) -> "_CloudOptions":
+        """Read the three credential settings of a run.
+
+        :param settings: a run's settings; missing keys take their defaults.
+        :returns: the options.
+        """
+        settings = settings or {}
+        anonymous = settings.get("cloud_anonymous", False)
+        if isinstance(anonymous, str):
+            anonymous = anonymous.strip().lower() in ("1", "true", "yes", "on")
+        return cls(anonymous=bool(anonymous),
+                   profile=str(settings.get("cloud_profile") or "").strip(),
+                   endpoint=str(settings.get("cloud_endpoint") or "").strip())
+
+    def describe(self, protocol: str) -> str:
+        """Say which credentials a read uses, without showing any.
+
+        :param protocol: the address's protocol.
+        :returns: a short phrase such as ``"anonymously"``.
+        """
+        if protocol in ("http", "https", "memory"):
+            return "over plain requests"
+        if self.anonymous:
+            return "anonymously"
+        if protocol == "s3" and self.profile:
+            return f"with AWS profile {self.profile!r}"
+        if protocol == "s3" and not _aws_credentials_found():
+            return "anonymously, as no AWS credentials were found"
+        return "with the credentials configured on this computer"
+
+
+_AWS_CREDENTIALS_FOUND: Dict[str, bool] = {}
+
+
+def _aws_credentials_found() -> bool:
+    """Whether the standard AWS credential chain finds anything at all.
+
+    The answer is looked up once per process and only the yes or no is
+    kept; the credentials themselves are never read into spaCR.
+
+    :returns: False when :mod:`botocore` is missing or finds no credentials.
+    """
+    cached = _AWS_CREDENTIALS_FOUND.get("found")
+    if cached is not None:
+        return cached
+    try:
+        import botocore.session
+        found = botocore.session.get_session().get_credentials() is not None
+    except Exception:
+        found = False
+    _AWS_CREDENTIALS_FOUND["found"] = found
+    return found
+
+
+def _storage_options(protocol: str, options: _CloudOptions) -> Dict[str, Any]:
+    """The fsspec keyword arguments for ``protocol`` under ``options``.
+
+    Only the choice of credential source is passed: anonymous, a profile
+    name, or nothing, which leaves the library to find credentials in its
+    usual places.
+
+    :param protocol: the address's protocol.
+    :param options: the run's credential settings.
+    :returns: keyword arguments for :func:`fsspec.filesystem`.
+    """
+    if protocol == "s3":
+        storage: Dict[str, Any] = {}
+        if options.endpoint:
+            storage["client_kwargs"] = {"endpoint_url": options.endpoint}
+        if options.anonymous:
+            storage["anon"] = True
+        elif options.profile:
+            storage["profile"] = options.profile
+        elif not _aws_credentials_found():
+            storage["anon"] = True
+        return storage
+    if protocol in ("gs", "gcs"):
+        return {"token": "anon"} if options.anonymous else {}
+    if protocol in ("az", "abfs", "abfss"):
+        return {"anon": True} if options.anonymous else {}
+    return {}
+
+
+def _cloud_filesystem(protocol: str, options: _CloudOptions):
+    """Open the fsspec filesystem for ``protocol``, importing it only now.
+
+    :param protocol: a key of the cloud protocol table.
+    :param options: the run's credential settings.
+    :returns: an :class:`fsspec.AbstractFileSystem`.
+    :raises _CloudLibraryMissing: naming the library and its install line.
+    """
+    import importlib.util
+
+    module, package = _CLOUD_PROTOCOLS[protocol]
+    packages = " ".join(dict.fromkeys(("fsspec", package)))
+    for needed in dict.fromkeys(("fsspec", module)):
+        if importlib.util.find_spec(needed) is None:
+            raise _CloudLibraryMissing(_CLOUD_LIBRARY_MESSAGE.format(
+                protocol=protocol, module=needed, packages=packages))
+    import fsspec
+
+    try:
+        return fsspec.filesystem(protocol, **_storage_options(protocol,
+                                                              options))
+    except ImportError as exc:
+        raise _CloudLibraryMissing(_CLOUD_LIBRARY_MESSAGE.format(
+            protocol=protocol, module=getattr(exc, "name", None) or module,
+            packages=packages)) from exc
+
+
+class _CloudPath:
+    """A location in a cloud store, answering the questions a path answers.
+
+    Joining, naming, reading bytes and asking whether something is a file
+    are what the OME-Zarr reader needs, so a remote group opens through the
+    same code as a local one and every chunk still passes through
+    :func:`_read_chunk_bytes`. ``str()`` gives the address with any secret
+    removed (see :func:`_redact_url`).
+
+    :param fs: the fsspec filesystem.
+    :param protocol: the address's protocol.
+    :param key: the location as the filesystem names it.
+    """
+
+    __slots__ = ("fs", "protocol", "key")
+
+    def __init__(self, fs: Any, protocol: str, key: str) -> None:
+        """Hold the filesystem and the location in it."""
+        self.fs = fs
+        self.protocol = protocol
+        self.key = key
+
+    @property
+    def url(self) -> str:
+        """The full address, secrets included, for the filesystem only."""
+        if self.protocol in ("http", "https"):
+            return self.key
+        return f"{self.protocol}://{self.key.lstrip('/')}"
+
+    def __str__(self) -> str:
+        """The address with credentials and signatures removed."""
+        return _redact_url(self.url)
+
+    def __repr__(self) -> str:
+        """``_CloudPath('s3://bucket/key')``, secrets removed."""
+        return f"_CloudPath({str(self)!r})"
+
+    def joinpath(self, *parts: Any) -> "_CloudPath":
+        """The location ``parts`` below this one.
+
+        :param parts: path components; empty ones are skipped.
+        :returns: the joined location.
+        """
+        key = self.key.rstrip("/")
+        for part in parts:
+            text = str(part).strip("/")
+            if text:
+                key = f"{key}/{text}"
+        return _CloudPath(self.fs, self.protocol, key)
+
+    def __truediv__(self, other: Any) -> "_CloudPath":
+        """``location / "name"``, as with :class:`pathlib.Path`."""
+        return self.joinpath(other)
+
+    @property
+    def name(self) -> str:
+        """The last component of the location."""
+        return self.key.rstrip("/").rsplit("/", 1)[-1]
+
+    @property
+    def parent(self) -> "_CloudPath":
+        """The location one level up."""
+        head = self.key.rstrip("/").rsplit("/", 1)[0]
+        return _CloudPath(self.fs, self.protocol, head)
+
+    def read_bytes(self) -> bytes:
+        """Fetch the whole object.
+
+        :raises FileNotFoundError: when nothing is stored there.
+        """
+        return bytes(self.fs.cat_file(self.key))
+
+    def is_file(self) -> bool:
+        """Whether an object is stored at exactly this location."""
+        try:
+            return bool(self.fs.isfile(self.key))
+        except (FileNotFoundError, PermissionError):
+            return False
+
+    def _holds_zarr_metadata(self) -> bool:
+        """Whether a zarr metadata file is stored directly below."""
+        return any((self / marker).is_file() for marker in _ZARR_MARKERS)
+
+    def exists(self) -> bool:
+        """Whether anything is stored at or below this location.
+
+        An HTTP server cannot answer that for a directory, so a zarr group
+        counts as existing when one of its metadata files does.
+        """
+        if self._holds_zarr_metadata() or self.is_file():
+            return True
+        try:
+            return bool(self.fs.exists(self.key))
+        except (FileNotFoundError, PermissionError):
+            return False
+
+    def is_dir(self) -> bool:
+        """Whether this is a directory-like location rather than an object.
+
+        A location holding zarr metadata is a directory even when an HTTP
+        server also answers its bare address with an index page.
+        """
+        if self._holds_zarr_metadata():
+            return True
+        return not self.is_file() and self.exists()
+
+
+def _cloud_path(url: Any, options: Optional[_CloudOptions] = None
+                ) -> _CloudPath:
+    """Open ``url`` as a :class:`_CloudPath`.
+
+    :param url: a cloud address, or a :class:`_CloudPath` returned as is.
+    :param options: where credentials come from; defaults to the standard
+        places.
+    :returns: the location.
+    :raises ValueError: when ``url`` is not a cloud address.
+    :raises _CloudLibraryMissing: when the protocol's library is missing.
+    """
+    if isinstance(url, _CloudPath):
+        return url
+    protocol = _cloud_protocol(url)
+    if not protocol:
+        raise ValueError(f"{url!r} is not a cloud address "
+                         f"({', '.join(sorted(_CLOUD_PROTOCOLS))}://)")
+    fs = _cloud_filesystem(protocol, options or _CloudOptions())
+    text = str(url).strip()
+    if protocol in ("http", "https"):
+        key = text.split("#", 1)[0].split("?", 1)[0]
+    else:
+        key = fs._strip_protocol(text)
+    return _CloudPath(fs, protocol, key.rstrip("/") or key)
+
+
+def _as_store_path(path: Any) -> Any:
+    """A :class:`pathlib.Path` for a local path, a :class:`_CloudPath` otherwise.
+
+    :param path: a path, an address, or an opened cloud location.
+    :returns: the location the OME-Zarr reader walks.
+    """
+    if isinstance(path, _CloudPath):
+        return path
+    if _is_cloud_url(path):
+        return _cloud_path(path)
+    return Path(path)
+
+
+def _cloud_cache_root(value: Any = "") -> Path:
+    """The folder cloud sources are cached in.
+
+    :param value: the ``cloud_cache`` setting; blank means
+        ``$XDG_CACHE_HOME/spacr/cloud``, which is ``~/.cache/spacr/cloud``
+        when that variable is unset.
+    :returns: the folder (not created).
+    """
+    text = str(value or "").strip()
+    if text:
+        return Path(os.path.expanduser(os.path.expandvars(text)))
+    base = (os.environ.get("XDG_CACHE_HOME")
+            or os.path.join(os.path.expanduser("~"), ".cache"))
+    return Path(base) / "spacr" / "cloud"
+
+
+def _cloud_source_folder(url: Any, cache: Any = "") -> Path:
+    """The local folder one cloud source is staged in and analysed from.
+
+    The same address always gives the same folder, so a second run finds
+    what the first fetched, and Measure finds what Make Masks wrote.
+
+    :param url: the source address.
+    :param cache: the ``cloud_cache`` setting.
+    :returns: ``<cache>/<name>-<hash of the address>``.
+    """
+    import hashlib
+
+    clean = _redact_url(str(url)).rstrip("/")
+    digest = hashlib.sha1(clean.encode("utf-8")).hexdigest()[:12]
+    stem = re.sub(r"[^A-Za-z0-9.-]+", "-", clean.rsplit("/", 1)[-1])
+    stem = stem.strip("-.")[:40] or "source"
+    return _cloud_cache_root(cache) / f"{stem}-{digest}"
+
+
+def _read_cloud_manifest(folder: Path) -> Dict[str, Any]:
+    """The record of what has been fetched into ``folder``, or ``{}``."""
+    path = Path(folder) / _CLOUD_MANIFEST
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def _write_cloud_manifest(folder: Path, manifest: Mapping[str, Any]) -> None:
+    """Replace ``folder``'s fetch record in one step.
+
+    The record holds addresses with secrets removed, sizes and checksums;
+    never a credential or a profile name.
+    """
+    path = Path(folder) / _CLOUD_MANIFEST
+    temporary = path.with_name(path.name + ".tmp")
+    temporary.write_text(json.dumps(manifest, indent=2, sort_keys=True),
+                         encoding="utf-8")
+    os.replace(temporary, path)
+
+
+def _ome_block(attrs: Mapping[str, Any]) -> Mapping[str, Any]:
+    """The ``ome`` attribute block of an NGFF 0.5 group, or ``{}``."""
+    ome = attrs.get("ome")
+    return ome if isinstance(ome, Mapping) else {}
+
+
+def _cloud_source_kind(path: Any) -> str:
+    """What a location holds, read from metadata alone.
+
+    :param path: a local path or cloud location.
+    :returns: ``"plate"``, ``"well"`` or ``"image"`` for OME-Zarr,
+        ``"group"`` for another zarr group, ``"file"`` for a single object,
+        ``"folder"`` otherwise.
+    """
+    root = _as_store_path(path)
+    try:
+        attrs, _ = _group_attributes(root)
+    except OmeZarrError:
+        attrs = None
+    if attrs is not None:
+        ome = _ome_block(attrs)
+        for kind in ("plate", "well", "multiscales"):
+            if attrs.get(kind) or ome.get(kind):
+                return "image" if kind == "multiscales" else kind
+        return "group"
+    return "file" if root.is_file() else "folder"
+
+
+def _well_from_path(path: str) -> str:
+    """The canonical well name of a plate-relative path such as ``B/3``."""
+    from .convert import normalise_well
+
+    parts = [p for p in str(path).replace("\\", "/").split("/") if p]
+    well = normalise_well("".join(parts[-2:])) if parts else None
+    return well or "A01"
+
+
+def _plate_layout(root: Any) -> Tuple[str, List[Tuple[str, str]]]:
+    """A plate's name and its wells, from the plate metadata only.
+
+    :param root: the plate group.
+    :returns: ``(name, [(well name, well path), ...])`` in the file's order.
+    :raises OmeZarrError: when the group carries no ``plate`` block.
+    """
+    from . import schema
+
+    attrs, _ = _group_attributes(root)
+    plate = attrs.get("plate") or _ome_block(attrs).get("plate")
+    if not isinstance(plate, Mapping):
+        raise OmeZarrError(f"{root} carries no `plate` metadata")
+    wells: List[Tuple[str, str]] = []
+    for entry in plate.get("wells") or ():
+        if not isinstance(entry, Mapping) or not entry.get("path"):
+            continue
+        path = str(entry["path"])
+        row, column = entry.get("rowIndex"), entry.get("columnIndex")
+        if isinstance(row, int) and isinstance(column, int):
+            well = schema.well_id(row + 1, column + 1)
+        else:
+            well = _well_from_path(path)
+        wells.append((well, path))
+    name = str(plate.get("name") or "").strip()
+    return name, wells
+
+
+def _well_fields(well: Any) -> List[str]:
+    """The field image paths of one well group, from its metadata only."""
+    attrs, _ = _group_attributes(well)
+    block = attrs.get("well") or _ome_block(attrs).get("well") or {}
+    images = block.get("images") if isinstance(block, Mapping) else None
+    return [str(entry["path"]) for entry in images or ()
+            if isinstance(entry, Mapping) and entry.get("path") is not None]
+
+
+def _parse_wells(value: Any) -> Tuple[str, ...]:
+    """The canonical well names a ``cloud_wells`` setting lists.
+
+    :param value: ``"A1, B03"``, a list of names, or blank for every well.
+    :returns: canonical names such as ``("A01", "B03")``; empty for all.
+    :raises ValueError: naming an entry that is not a well address.
+    """
+    from .convert import normalise_well
+
+    if value is None:
+        return ()
+    items = value if isinstance(value, (list, tuple)) else re.split(
+        r"[,;\s]+", str(value))
+    wells = []
+    for item in items:
+        text = str(item).strip().strip("'\"[]")
+        if not text:
+            continue
+        well = normalise_well(text)
+        if well is None:
+            raise ValueError(f"cloud_wells: {text!r} is not a well address "
+                             f"such as A01 or B3")
+        wells.append(well)
+    return tuple(dict.fromkeys(wells))
+
+
+def _field_planes(image: OmeZarrImage, level: int
+                  ) -> Iterable[Tuple[int, int, np.ndarray, bool]]:
+    """Yield one 2-D plane per timepoint and channel of one level.
+
+    Each ``(t, c)`` is read as one region, so only its chunks are fetched,
+    and extra space axes (z) are reduced by maximum projection.
+
+    :param image: the opened field image.
+    :param level: the pyramid level to read.
+    :returns: ``(t, c, plane, projected)`` tuples, ``projected`` True when a
+        z axis longer than one was reduced.
+    """
+    names = image.axis_names
+    shape = image.level(level).shape
+    t_name = image.time_axis.name if image.time_axis else None
+    c_name = image.channel_axis.name if image.channel_axis else None
+    n_t = shape[names.index(t_name)] if t_name else 1
+    n_c = shape[names.index(c_name)] if c_name else 1
+    drop = sorted((names.index(n) for n in (t_name, c_name) if n),
+                  reverse=True)
+    for t in range(n_t):
+        for c in range(n_c):
+            region: Dict[str, int] = {}
+            if t_name:
+                region[t_name] = t
+            if c_name:
+                region[c_name] = c
+            data = image.read(level, region or None, prefer_zarr=False)
+            for axis in drop:
+                data = np.take(data, 0, axis=axis)
+            projected = False
+            while data.ndim > 2:
+                projected = projected or data.shape[0] > 1
+                data = data.max(axis=0)
+            yield t, c, np.ascontiguousarray(data), projected
+
+
+def _plane_spacing(image: OmeZarrImage, level: int) -> str:
+    """The pixel size of a staged plane: the last two space axes of a level.
+
+    :param image: the opened field image.
+    :param level: the pyramid level fetched.
+    :returns: such as ``"y 0.2154 micrometer, x 0.2154 micrometer"``; an
+        axis without a unit says ``(no unit)``.
+    """
+    scale = image.level(level).scale
+    parts = []
+    for index, axis in enumerate(image.axes):
+        if axis.is_space:
+            parts.append(f"{axis.name} {scale[index]:g} "
+                         f"{axis.unit or '(no unit)'}")
+    return ", ".join(parts[-2:])
+
+
+def _stage_ome_zarr(root: Any, dest: Union[str, os.PathLike], *,
+                    wells: Any = (), fields: int = 0, level: int = 0,
+                    report: Optional[Callable[[str], None]] = print
+                    ) -> Dict[str, Any]:
+    """Fetch chosen fields of an OME-Zarr into a folder Make Masks reads.
+
+    Only the selected wells and fields are read, one channel at a time, and
+    only the chunks of the chosen pyramid level; the rest of the plate is
+    never fetched. Each plane is written as a Yokogawa-named TIFF
+    (``plate_A01_T0001F001L01A01Z01C01.tif``), which ``metadata_type
+    'cellvoyager'`` parses. A z axis is maximum projected. Fields already
+    recorded in the folder's fetch record at the same level are skipped,
+    even when Make Masks has since moved their TIFFs away.
+
+    :param root: an OME-Zarr plate, well or image group, local or cloud.
+    :param dest: the folder to write into.
+    :param wells: well names to fetch; empty fetches every well.
+    :param fields: fields per well to fetch; 0 fetches every field.
+    :param level: the pyramid level; 0 is full resolution.
+    :param report: called with one progress line per field.
+    :returns: counts of fields fetched and reused, TIFFs written, and the
+        wells and channel names found.
+    :raises OmeZarrError: when a listed well is not in the plate or the
+        level does not exist.
+    """
+    from .convert import _sanitise, target_name
+    from .tiff_io import write_tiff
+
+    say = report or (lambda _line: None)
+    root = _as_store_path(root)
+    dest = Path(dest)
+    dest.mkdir(parents=True, exist_ok=True)
+    kind = _cloud_source_kind(root)
+    stem = root.name[:-5] if root.name.lower().endswith(".zarr") else root.name
+    if kind == "plate":
+        name, layout = _plate_layout(root)
+        plate_token = _sanitise(name or stem)
+        targets = [(well, root / path) for well, path in layout]
+    elif kind == "well":
+        plate_name = root.parent.parent.name
+        if plate_name.lower().endswith(".zarr"):
+            plate_name = plate_name[:-5]
+        plate_token = _sanitise(plate_name or "plate")
+        targets = [(_well_from_path(f"{root.parent.name}/{root.name}"), root)]
+    elif kind == "image":
+        plate_token = _sanitise(stem)
+        targets = [("A01", root)]
+    else:
+        raise OmeZarrError(
+            f"{root} is not an OME-Zarr plate, well or image, so there are no "
+            f"fields to fetch from it.")
+
+    chosen = _parse_wells(wells)
+    if chosen:
+        known = {well for well, _ in targets}
+        missing = [well for well in chosen if well not in known]
+        if missing:
+            sample = ", ".join(sorted(known)[:12])
+            raise OmeZarrError(
+                f"{root} has no well {', '.join(missing)}; it has "
+                f"{len(known)} wells ({sample}"
+                f"{', ...' if len(known) > 12 else ''}).")
+        targets = [(well, path) for well, path in targets if well in chosen]
+
+    manifest = _read_cloud_manifest(dest)
+    manifest.update({"source": str(root), "kind": kind, "plate": plate_token})
+    done = manifest.setdefault("fields", {})
+    fetched = reused = written = 0
+    channel_names: Tuple[str, ...] = tuple(manifest.get("channel_names") or ())
+    for well, well_root in targets:
+        field_paths = [""] if kind == "image" else _well_fields(well_root)
+        if int(fields or 0) > 0:
+            field_paths = field_paths[:int(fields)]
+        for index, field_path in enumerate(field_paths, start=1):
+            record_key = f"{well}/F{index:03d}"
+            record = done.get(record_key)
+            if isinstance(record, Mapping) and record.get("level") == level:
+                reused += 1
+                say(f"cloud: {well} field {index} already fetched")
+                continue
+            image = _open_ome_zarr(well_root / field_path if field_path
+                                   else well_root, check_units=False)
+            if not 0 <= int(level) < len(image.levels):
+                raise OmeZarrError(
+                    f"{image.path} has levels 0-{len(image.levels) - 1}; "
+                    f"cloud_level {level} is not one of them.")
+            channel_names = channel_names or image.channel_names
+            files, projected = [], False
+            for t, c, plane, was_projected in _field_planes(image, int(level)):
+                projected = projected or was_projected
+                name = target_name(plate_token, well, index, c + 1, t=t + 1)
+                write_tiff(dest / name, plane)
+                files.append(name)
+            written += len(files)
+            fetched += 1
+            done[record_key] = {
+                "source": str(image.path), "level": int(level),
+                "files": files, "z_projected": projected,
+                "shape": list(image.level(int(level)).shape),
+                "spacing": _plane_spacing(image, int(level)),
+            }
+            manifest["channel_names"] = list(channel_names)
+            _write_cloud_manifest(dest, manifest)
+            say(f"cloud: {well} field {index} fetched, {len(files)} images")
+    _write_cloud_manifest(dest, manifest)
+    return {"fetched": fetched, "reused": reused, "written": written,
+            "wells": [well for well, _ in targets],
+            "channel_names": list(channel_names)}
+
+
+def _object_signature(info: Mapping[str, Any]) -> str:
+    """A string that changes when a stored object changes."""
+    tag = (info.get("ETag") or info.get("etag") or info.get("md5Hash")
+           or info.get("LastModified") or info.get("last_modified")
+           or info.get("mtime") or info.get("updated")
+           or info.get("created") or "")
+    return f"{info.get('size')}:{tag}"
+
+
+def _sync_cloud_folder(root: Any, dest: Union[str, os.PathLike], *,
+                       suffixes: Sequence[str] = _CLOUD_SYNC_SUFFIXES,
+                       report: Optional[Callable[[str], None]] = print
+                       ) -> Dict[str, Any]:
+    """Mirror the images and tables under a cloud folder into ``dest``.
+
+    An object whose size and checksum match the folder's fetch record is
+    not downloaded again, even if a run has since moved it.
+
+    :param root: the cloud folder.
+    :param dest: the local folder.
+    :param suffixes: the file types fetched.
+    :param report: called with a summary line.
+    :returns: ``{"downloaded", "reused", "files"}``.
+    :raises _CloudStorageError: for an HTTP address, which cannot be
+        listed, and for a folder holding no file of those types.
+    """
+    say = report or (lambda _line: None)
+    root = _as_store_path(root)
+    if root.protocol in ("http", "https"):
+        raise _CloudStorageError(
+            f"{root} cannot be listed: plain HTTP has no folders. Point src "
+            f"at an OME-Zarr, or use the store's s3:// address.")
+    dest = Path(dest)
+    dest.mkdir(parents=True, exist_ok=True)
+    manifest = _read_cloud_manifest(dest)
+    manifest.update({"source": str(root), "kind": "folder"})
+    record = manifest.setdefault("files", {})
+    wanted = tuple(s.lower() for s in suffixes)
+    prefix = root.key.rstrip("/") + "/"
+    downloaded = reused = 0
+    files = []
+    for key, info in sorted(root.fs.find(root.key, detail=True).items()):
+        if info.get("type") == "directory" or not key.startswith(prefix):
+            continue
+        rel = key[len(prefix):]
+        parts = Path(rel).parts
+        if (not parts or ".." in parts or any(p.startswith(".") for p in parts)
+                or not rel.lower().endswith(wanted)
+                or rel == _CLOUD_MANIFEST):
+            continue
+        files.append(rel)
+        signature = _object_signature(info)
+        if record.get(rel) == signature:
+            reused += 1
+            continue
+        local = dest.joinpath(*parts)
+        local.parent.mkdir(parents=True, exist_ok=True)
+        root.fs.get_file(key, str(local))
+        record[rel] = signature
+        downloaded += 1
+    if not files:
+        raise _CloudStorageError(
+            f"{root} holds no images or tables ({', '.join(wanted)}).")
+    _write_cloud_manifest(dest, manifest)
+    say(f"cloud: {downloaded} files downloaded, {reused} already cached "
+        f"from {root}")
+    return {"downloaded": downloaded, "reused": reused, "files": files}
+
+
+def _cloud_local_copy(url: Any, options: Optional[_CloudOptions] = None,
+                      cache: Any = "") -> str:
+    """A cached local copy of one cloud file, fetched only when it changed.
+
+    Every table reader in :mod:`spacr.tabular` accepts a cloud address
+    through this.
+
+    :param url: the file's address.
+    :param options: where credentials come from; the standard places when
+        omitted.
+    :param cache: the ``cloud_cache`` setting.
+    :returns: the local path.
+    """
+    import hashlib
+
+    path = _cloud_path(url, options)
+    info = path.fs.info(path.key)
+    signature = _object_signature(info)
+    digest = hashlib.sha1(str(path).encode("utf-8")).hexdigest()[:16]
+    folder = _cloud_cache_root(cache) / "files" / digest
+    local = folder / (path.name or "download")
+    manifest = _read_cloud_manifest(folder)
+    if local.is_file() and manifest.get("signature") == signature:
+        return str(local)
+    folder.mkdir(parents=True, exist_ok=True)
+    partial = local.with_name(local.name + ".part")
+    path.fs.get_file(path.key, str(partial))
+    os.replace(partial, local)
+    _write_cloud_manifest(folder, {"source": str(path),
+                                   "signature": signature})
+    return str(local)
+
+
+def _cloud_listing(path: Any) -> List[Tuple[str, str, int]]:
+    """What is directly inside a cloud folder, folders first.
+
+    :param path: a cloud location.
+    :returns: ``[(name, "folder" | "file", size), ...]``.
+    :raises _CloudStorageError: for an HTTP address, which cannot be listed.
+    """
+    root = _as_store_path(path)
+    if not isinstance(root, _CloudPath):
+        raise ValueError(f"{path!r} is not a cloud address")
+    if root.protocol in ("http", "https"):
+        raise _CloudStorageError(
+            f"{root} cannot be listed: plain HTTP has no folders. Type the "
+            f"address of an OME-Zarr to open it.")
+    entries = []
+    prefix = root.key.rstrip("/")
+    for info in root.fs.ls(root.key, detail=True):
+        name = str(info.get("name", "")).rstrip("/")
+        if name.startswith(prefix):
+            name = name[len(prefix):]
+        name = name.strip("/").rsplit("/", 1)[-1]
+        if not name:
+            continue
+        kind = "folder" if info.get("type") == "directory" else "file"
+        entries.append((name, kind, int(info.get("size") or 0)))
+    return sorted(entries, key=lambda e: (e[1] != "folder", e[0].lower()))
+
+
+def _describe_cloud_source(path: Any) -> str:
+    """A few lines saying what a location holds, from metadata only.
+
+    :param path: a local path or cloud location.
+    :returns: for a plate its name, well count and first well's fields and
+        image; for an image its levels and channels; otherwise its kind.
+    """
+    root = _as_store_path(path)
+    kind = _cloud_source_kind(root)
+    if kind == "plate":
+        name, wells = _plate_layout(root)
+        lines = [f"OME-Zarr plate {name or root.name}: {len(wells)} wells"]
+        if wells:
+            first, well_path = wells[0]
+            fields = _well_fields(root / well_path)
+            lines.append(f"well {first}: {len(fields)} fields")
+            if fields:
+                lines.append(_open_ome_zarr(root / well_path / fields[0],
+                                            check_units=False).describe())
+        return "\n".join(lines)
+    if kind == "well":
+        fields = _well_fields(root)
+        lines = [f"OME-Zarr well: {len(fields)} fields"]
+        if fields:
+            lines.append(_open_ome_zarr(root / fields[0],
+                                        check_units=False).describe())
+        return "\n".join(lines)
+    if kind == "image":
+        return _open_ome_zarr(root, check_units=False).describe()
+    return f"{kind}: {root}"
+
+
+def _localize_cloud_source(src: Any, settings: Dict[str, Any],
+                           module: str,
+                           report: Optional[Callable[[str], None]] = print
+                           ) -> str:
+    """The local folder a run reads in place of a cloud ``src``.
+
+    For Make Masks an OME-Zarr has the fields chosen by ``cloud_wells``,
+    ``cloud_fields`` and ``cloud_level`` fetched as TIFFs, and a cloud
+    folder has its images mirrored. For Measure the folder Make Masks
+    staged the same address in is used, and a cloud folder is mirrored.
+    Either way the folder is the same for the same address, under
+    ``cloud_cache``.
+
+    :param src: the cloud address; for Measure it may end in ``/merged``.
+    :param settings: the run's settings. When an OME-Zarr is staged for
+        Make Masks its ``metadata_type`` is set to ``'cellvoyager'``, the
+        naming the staged TIFFs use.
+    :param module: ``"mask"`` or ``"measure"``.
+    :param report: called with progress lines.
+    :returns: the local path to hand the run.
+    :raises _CloudStorageError: when Measure is given an OME-Zarr that Make
+        Masks has not staged.
+    """
+    say = report or (lambda _line: None)
+    options = _CloudOptions._from_settings(settings)
+    url = str(src).strip().rstrip("/")
+    tail = ""
+    if module == "measure" and url.endswith("/merged"):
+        url, tail = url[:-len("/merged")], "merged"
+    root = _cloud_path(url, options)
+    dest = _cloud_source_folder(url, settings.get("cloud_cache", ""))
+    say(f"cloud: reading {root} {options.describe(root.protocol)}; "
+        f"local folder {dest}")
+    kind = _cloud_source_kind(root)
+    if kind in ("plate", "well", "image"):
+        if module == "measure":
+            if not (dest / "merged").is_dir():
+                raise _CloudStorageError(
+                    f"{root} has not been through Make Masks yet, so there "
+                    f"is nothing to measure. Run Make Masks with this src "
+                    f"first; its results are kept in {dest}.")
+        else:
+            summary = _stage_ome_zarr(
+                root, dest, wells=settings.get("cloud_wells", ""),
+                fields=int(settings.get("cloud_fields", 0) or 0),
+                level=int(settings.get("cloud_level", 0) or 0), report=say)
+            say(f"cloud: {summary['fetched']} fields fetched, "
+                f"{summary['reused']} reused, from {len(summary['wells'])} "
+                f"wells; channels {summary['channel_names'] or 'unnamed'}")
+            if settings.get("metadata_type") != "cellvoyager":
+                say(f"cloud: metadata_type set to 'cellvoyager' (was "
+                    f"{settings.get('metadata_type')!r}), the naming of the "
+                    f"fetched TIFFs")
+                settings["metadata_type"] = "cellvoyager"
+    elif kind == "file":
+        raise _CloudStorageError(
+            f"{root} is a single file; src needs a folder or an OME-Zarr.")
+    else:
+        _sync_cloud_folder(root, dest, report=say)
+    return str(dest / tail) if tail else str(dest)
+
+
+def _results_root(local: str) -> Path:
+    """The folder a run writes ``measurements`` into, for a run's src."""
+    path = Path(local)
+    return path.parent if path.name == "merged" else path
+
+
+def _upload_cloud_results(local: str, target: str, source: Any,
+                          options: _CloudOptions,
+                          report: Optional[Callable[[str], None]] = print
+                          ) -> List[str]:
+    """Copy a run's ``measurements`` folder to cloud storage.
+
+    :param local: the local src the run used.
+    :param target: the ``cloud_results`` address.
+    :param source: the src as given, whose name labels the upload.
+    :param options: where credentials come from.
+    :param report: called with one line naming what was written.
+    :returns: the addresses written, secrets removed.
+    """
+    say = report or (lambda _line: None)
+    folder = _results_root(local) / "measurements"
+    if not folder.is_dir():
+        say(f"cloud: {folder} does not exist; nothing to upload")
+        return []
+    label = _redact_url(str(source)).rstrip("/")
+    if label.endswith("/merged"):
+        label = label[:-len("/merged")]
+    label = label.replace("\\", "/").rsplit("/", 1)[-1]
+    label = re.sub(r"\.zarr$", "", label, flags=re.I)
+    label = re.sub(r"[^A-Za-z0-9._-]+", "-", label).strip("-.") or "results"
+    base = _cloud_path(str(target).rstrip("/"), options) / label / "measurements"
+    written = []
+    for file in sorted(folder.rglob("*")):
+        if not file.is_file():
+            continue
+        destination = base / file.relative_to(folder).as_posix()
+        base.fs.put_file(str(file), destination.key)
+        written.append(str(destination))
+    say(f"cloud: {len(written)} result files uploaded to {base}")
+    return written
+
+
+def _needs_cloud_run(settings: Mapping[str, Any]) -> bool:
+    """Whether a run's ``src`` names cloud storage or it uploads results.
+
+    :param settings: the run's settings.
+    :returns: True when :func:`_run_with_cloud_sources` has work to do.
+    """
+    src = settings.get("src")
+    sources = src if isinstance(src, (list, tuple)) else [src]
+    if any(_is_cloud_url(s) for s in sources):
+        return True
+    return _is_cloud_url(str(settings.get("cloud_results") or "").strip())
+
+
+def _run_with_cloud_sources(run: Callable[[Dict[str, Any]], Any],
+                            settings: Dict[str, Any], module: str,
+                            report: Optional[Callable[[str], None]] = print
+                            ) -> Any:
+    """Run a module on local copies of its cloud sources, then upload results.
+
+    Each cloud ``src`` is replaced by its local folder (see
+    :func:`_localize_cloud_source`) and ``run`` is called once with the
+    local sources. When ``cloud_results`` names a cloud folder, each
+    source's ``measurements`` folder is then copied under it.
+
+    :param run: the module's entry point, called with the settings.
+    :param settings: the run's settings, updated in place with local
+        sources.
+    :param module: ``"mask"`` or ``"measure"``.
+    :param report: called with progress lines.
+    :returns: what ``run`` returns.
+    """
+    src = settings.get("src")
+    single = not isinstance(src, (list, tuple))
+    sources = [src] if single else list(src)
+    local = [_localize_cloud_source(s, settings, module, report)
+             if _is_cloud_url(s) else s for s in sources]
+    target = str(settings.get("cloud_results") or "").strip()
+    settings["src"] = local[0] if single else local
+    settings["cloud_results"] = ""
+    try:
+        result = run(settings)
+    finally:
+        settings["cloud_results"] = target
+    if _is_cloud_url(target):
+        options = _CloudOptions._from_settings(settings)
+        for source, folder in zip(sources, local):
+            _upload_cloud_results(str(folder), target, source, options, report)
+    return result
