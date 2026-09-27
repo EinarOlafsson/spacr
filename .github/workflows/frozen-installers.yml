@@ -82,6 +82,7 @@ jobs:
             dist/*.exe
             dist/*.zip
             dist/*.dmg
+            dist/spacr-update-helper
             acceptance/
             build/**/warn-*.txt
 
