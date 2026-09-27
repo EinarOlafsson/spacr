@@ -1517,6 +1517,316 @@ def _object_group_keys(df, object_key):
     return keys
 
 
+#: The bleach-correction methods Measure offers, ``'none'`` first.
+_BLEACH_METHODS = ('none', 'ratio', 'exponential', 'histogram')
+
+#: The per-object intensity statistics that scale with the illumination and
+#: are therefore corrected: levels, sums and percentiles. Spread and shape
+#: statistics (``cv``, ``skew``, ``gini`` ...) are ratios or unitless and are
+#: left as measured.
+_BLEACH_LEVEL_PATTERN = (
+    r'(?:mean|median|max|min|integrated|mode)_intensity|percentile_\d+')
+
+
+def _bleach_channel_columns(df, object_type):
+    """Return the intensity columns of each channel that bleach correction rescales.
+
+    :param df: an object table from ``measurements.db``.
+    :param object_type: the table's object prefix, e.g. ``'cell'``.
+    :returns: ``{channel: [column, ...]}`` for every channel whose
+        ``<object>_channel_<n>_mean_intensity`` is present; that column is the
+        channel's reference trend and is listed first.
+    """
+    pattern = re.compile(
+        rf'^{re.escape(object_type)}_channel_(\d+)_(?:{_BLEACH_LEVEL_PATTERN})$')
+    channels = {}
+    for column in df.columns:
+        match = pattern.match(str(column))
+        if match:
+            channels.setdefault(int(match.group(1)), []).append(column)
+    result = {}
+    for channel in sorted(channels):
+        reference = f'{object_type}_channel_{channel}_mean_intensity'
+        if reference in channels[channel]:
+            rest = [c for c in channels[channel] if c != reference]
+            result[channel] = [reference] + rest
+    return result
+
+
+def _bleach_trend(frame, time_key, column):
+    """Return the median of ``column`` at each timepoint, in time order.
+
+    The median over every object in the frame is the background trend a
+    bleaching series shows: one bright or dying object does not move it.
+
+    :returns: ``pandas.Series`` indexed by timepoint, NaN frames dropped.
+    """
+    values = pd.to_numeric(frame[column], errors='coerce')
+    trend = values.groupby(frame[time_key]).median().sort_index()
+    return trend.dropna()
+
+
+def _fit_bleach_decay(times, trend):
+    """Fit ``a * exp(-b * t) + c`` to a background trend.
+
+    Time is counted from the first timepoint. ``a`` and ``b`` are held
+    non-negative so the fit describes a decay, never a growth.
+
+    :param times: timepoints, numeric.
+    :param trend: the trend value at each timepoint.
+    :returns: ``(a, b, c)``, or ``None`` when there are fewer than three
+        timepoints or the fit does not converge.
+    """
+    t = np.asarray(times, dtype=float)
+    y = np.asarray(trend, dtype=float)
+    if t.size < 3 or not np.all(np.isfinite(y)):
+        return None
+    t = t - t.min()
+    span = float(t.max()) or 1.0
+    amplitude = max(float(y.max() - y.min()), 1e-12)
+    try:
+        params, _ = curve_fit(
+            exponential_decay, t, y,
+            p0=[amplitude, 1.0 / span, float(y.min())],
+            bounds=([0.0, 0.0, -np.inf], [np.inf, np.inf, np.inf]),
+            maxfev=10000)
+    except (RuntimeError, ValueError):
+        return None
+    if not np.all(np.isfinite(params)):
+        return None
+    return tuple(float(p) for p in params)
+
+
+def _bleach_factors(trend, method):
+    """Return the multiplicative correction at each timepoint of one series.
+
+    ``ratio`` divides each timepoint by its own trend value and multiplies by
+    the first: the simple ratio method. ``exponential`` does the same with
+    the fitted decay in place of the measured trend, which ignores
+    frame-to-frame noise; when the fit fails or the curve reaches zero it
+    falls back to the ratio and reports ``ratio_fallback``.
+
+    :param trend: ``pandas.Series`` of the background trend by timepoint.
+    :param method: ``'ratio'`` or ``'exponential'``.
+    :returns: ``(factors, applied, params)``: a Series of factors by
+        timepoint, the method actually applied, and the fitted
+        ``(a, b, c)`` or ``None``.
+    """
+    times = np.asarray(trend.index, dtype=float)
+    params = None
+    if method == 'exponential':
+        params = _fit_bleach_decay(times, trend.to_numpy())
+        if params is not None:
+            model = exponential_decay(times - times.min(), *params)
+            if np.all(model > 0):
+                return (pd.Series(model[0] / model, index=trend.index),
+                        'exponential', params)
+        method = 'ratio_fallback'
+    reference = trend.to_numpy(dtype=float)
+    with np.errstate(divide='ignore', invalid='ignore'):
+        factors = np.where(reference > 0, reference[0] / reference, np.nan)
+    return pd.Series(factors, index=trend.index), method, params
+
+
+def _histogram_match(values, reference):
+    """Map ``values`` onto the distribution of ``reference`` rank for rank.
+
+    :returns: an array the length of ``values``; NaN stays NaN.
+    """
+    values = np.asarray(values, dtype=float)
+    reference = np.asarray(reference, dtype=float)
+    reference = reference[np.isfinite(reference)]
+    out = np.full(values.shape, np.nan)
+    finite = np.isfinite(values)
+    if not finite.any() or reference.size == 0:
+        return out
+    ranks = pd.Series(values[finite]).rank(method='average').to_numpy()
+    quantiles = (ranks - 0.5) / finite.sum()
+    out[finite] = np.quantile(reference, quantiles)
+    return out
+
+
+def _bleach_correct_table(df, object_type, method):
+    """Correct every intensity level of one timelapse object table for bleaching.
+
+    Each field (plate, row, column, field) is its own bleaching series and
+    each channel is corrected on its own. The background trend of a channel
+    is the per-timepoint median of ``<object>_channel_<n>_mean_intensity``;
+    ``ratio`` and ``exponential`` rescale every level column of that channel
+    by the factor that brings the trend back to its first timepoint.
+    ``histogram`` instead maps each column at each timepoint onto that
+    column's distribution at the first timepoint.
+
+    :param df: the object table as Measure wrote it, with a timepoint column.
+    :param object_type: its object prefix, e.g. ``'cell'``.
+    :param method: one of ``'ratio'``, ``'exponential'``, ``'histogram'``.
+    :returns: ``(corrected, fits)``. ``corrected`` has the identifier
+        columns, every corrected column under its measured name, and
+        ``bleach_correction_method``. ``fits`` has one row per field and
+        channel: the method applied, the timepoints, the trend at the first
+        and last timepoint before and after correction, and for an
+        exponential fit ``decay_a``, ``decay_b``, ``decay_c`` and
+        ``half_life`` in timepoint units.
+    :raises ValueError: an unknown method, or a table with no timepoint column.
+    """
+    if method not in _BLEACH_METHODS[1:]:
+        raise ValueError(
+            f"bleach_correction must be one of {list(_BLEACH_METHODS)}, "
+            f"got {method!r}")
+    time_key = _resolve_time_key(df)
+    if time_key is None:
+        raise ValueError(
+            f"the {object_type} table has no timepoint column; bleach "
+            f"correction needs a timelapse measurement")
+    channels = _bleach_channel_columns(df, object_type)
+    ids = [c for c in ('object_label', 'cell_id', *_OBJECT_WELL_KEYS,
+                       time_key, 'prcf', 'file_name') if c in df.columns]
+    corrected = df[ids].copy()
+    fields = [k for k in _OBJECT_WELL_KEYS if k in df.columns]
+    groups = (df.groupby(fields, sort=True, dropna=False).groups if fields
+              else {(): df.index})
+    fit_rows = []
+    for channel, columns in channels.items():
+        reference = columns[0]
+        for column in columns:
+            corrected[column] = np.nan
+        for key, index in groups.items():
+            frame = df.loc[index]
+            trend = _bleach_trend(frame, time_key, reference)
+            if trend.empty:
+                continue
+            key = key if isinstance(key, tuple) else (key,)
+            row = dict(zip(fields, key), object_type=object_type,
+                       channel=channel, n_timepoints=int(len(trend)),
+                       trend_first=float(trend.iloc[0]),
+                       trend_last=float(trend.iloc[-1]),
+                       decay_a=np.nan, decay_b=np.nan, decay_c=np.nan,
+                       half_life=np.nan)
+            if method == 'histogram':
+                first = (frame[time_key] == trend.index[0]).to_numpy()
+                for column in columns:
+                    values = pd.to_numeric(frame[column], errors='coerce')
+                    target = values.to_numpy()[first]
+                    matched = values.copy()
+                    for _, part in values.groupby(frame[time_key]):
+                        matched.loc[part.index] = _histogram_match(
+                            part.to_numpy(), target)
+                    corrected.loc[index, column] = matched
+                row['method'] = 'histogram'
+            else:
+                factors, applied, params = _bleach_factors(trend, method)
+                scale = frame[time_key].map(factors).astype(float)
+                for column in columns:
+                    corrected.loc[index, column] = (
+                        pd.to_numeric(frame[column], errors='coerce') * scale)
+                row['method'] = applied
+                if params is not None:
+                    a, b, c = params
+                    row.update(decay_a=a, decay_b=b, decay_c=c,
+                               half_life=(np.log(2) / b) if b > 0 else np.inf)
+            after = _bleach_trend(corrected.loc[index], time_key, reference)
+            row['corrected_first'] = float(after.iloc[0]) if len(after) else np.nan
+            row['corrected_last'] = float(after.iloc[-1]) if len(after) else np.nan
+            fit_rows.append(row)
+    corrected['bleach_correction_method'] = method
+    return corrected, pd.DataFrame(fit_rows)
+
+
+def _bleach_decay_figure(df, corrected, fits, object_type, time_key,
+                         max_fields=12):
+    """Draw each channel's background trend, the fitted decay and the corrected trend.
+
+    One panel per channel; one series per field, at most ``max_fields`` of
+    them. The measured trend is drawn as points, the fitted exponential (or,
+    for the ratio and histogram methods, the measured trend) as a line, and
+    the corrected trend dashed in the highlight colour.
+
+    :returns: a :class:`matplotlib.figure.Figure`.
+    """
+    channels = sorted(fits['channel'].unique()) if not fits.empty else []
+    fig = Figure(figsize=(3.2 * max(len(channels), 1), 2.8), dpi=100)
+    axes = fig.subplots(1, max(len(channels), 1), squeeze=False)[0]
+    fields = [k for k in _OBJECT_WELL_KEYS if k in df.columns]
+    for ax, channel in zip(axes, channels):
+        reference = f'{object_type}_channel_{channel}_mean_intensity'
+        rows = fits[fits['channel'] == channel].head(max_fields)
+        for _, row in rows.iterrows():
+            mask = np.ones(len(df), dtype=bool)
+            for k in fields:
+                mask &= (df[k] == row[k]).to_numpy()
+            raw = _bleach_trend(df[mask], time_key, reference)
+            fixed = _bleach_trend(corrected[mask], time_key, reference)
+            t = np.asarray(raw.index, dtype=float)
+            ax.plot(t, raw.to_numpy(), 'o', ms=2.5, color=ROLES['data'])
+            if np.isfinite(row['decay_b']):
+                grid = np.linspace(t.min(), t.max(), 100)
+                ax.plot(grid, exponential_decay(
+                    grid - t.min(), row['decay_a'], row['decay_b'],
+                    row['decay_c']), '-', lw=1, color=ROLES['reference'])
+            else:
+                ax.plot(t, raw.to_numpy(), '-', lw=0.8,
+                        color=ROLES['reference'])
+            ax.plot(np.asarray(fixed.index, dtype=float), fixed.to_numpy(),
+                    '--', lw=1, color=ROLES['highlight'])
+        ax.set_title(f'{object_type} channel {channel}')
+        ax.set_xlabel(time_key)
+        ax.set_ylabel('median mean intensity')
+    fig.tight_layout()
+    return fig
+
+
+def _correct_timelapse_bleaching(db_path, method, *, plot=True,
+                                 tables=('cell', 'nucleus', 'pathogen',
+                                         'cytoplasm')):
+    """Correct every timelapse object table in ``db_path`` for photobleaching.
+
+    For each object table present, writes
+    ``measurements.db:<object>_bleach_corrected`` (the corrected intensity
+    levels under their measured names, keyed like the source table, with the
+    method in ``bleach_correction_method``) and writes the per-field,
+    per-channel fits of every table to ``measurements.db:bleach_correction``.
+    The measured tables are left untouched. With ``plot``, the trends and
+    fitted decay of each table are saved to
+    ``results/bleach_correction/<object>.pdf`` beside the ``measurements``
+    folder.
+
+    :param db_path: a timelapse ``measurements.db``.
+    :param method: ``'ratio'``, ``'exponential'`` or ``'histogram'``.
+    :param plot: save the decay figures.
+    :param tables: the object tables to correct, where present.
+    :returns: the fits of every table, as one DataFrame.
+    :raises ValueError: an unknown method, or no table with a timepoint
+        column and channel intensities.
+    """
+    from .tabular import database_tables, read_table, write_database
+
+    present = [t for t in tables if t in database_tables(db_path)]
+    all_fits = []
+    for table in present:
+        df = read_table(db_path, table=table, report=None)
+        time_key = _resolve_time_key(df)
+        if time_key is None or not _bleach_channel_columns(df, table):
+            continue
+        corrected, fits = _bleach_correct_table(df, table, method)
+        write_database(corrected, db_path, f'{table}_bleach_corrected',
+                       if_exists='replace', canonicalise=False)
+        all_fits.append(fits)
+        if plot and not fits.empty:
+            root = os.path.dirname(os.path.dirname(os.path.abspath(db_path)))
+            fig = _bleach_decay_figure(df, corrected, fits, table, time_key)
+            save_figure_to_path(fig, os.path.join(
+                root, 'results', 'bleach_correction', f'{table}.pdf'),
+                close=True)
+    if not all_fits:
+        raise ValueError(
+            f"{db_path} has no timelapse object table with channel "
+            f"intensities to correct")
+    fits = pd.concat(all_fits, ignore_index=True)
+    write_database(fits, db_path, 'bleach_correction', if_exists='replace',
+                   canonicalise=False)
+    return fits
+
+
 def preprocess_pathogen_data(pathogen_df):
     """Aggregate a per-parasite table to one row per host cell with a parasite count.
 

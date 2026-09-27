@@ -5648,6 +5648,8 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
     :param file: merged NPY filename below ``settings['src']``.
     :param settings: Measure configuration; original PSF intensity choice is
         the default. Label planes and exported crops keep their source pixels.
+        With an unmixing record from the parent, the measured channels are
+        unmixed before any preprocessing hook.
     :param psf_plan: immutable plan captured by the parent. When omitted for
         a direct processed call, the worker prepares one from its settings.
     :param psf_cancel: optional process-safe cancellation event.
@@ -5661,6 +5663,7 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
     from .cancellation import PipelineCancelled
     from .psf_measurement import (prepare_measurement_psf, measurement_psf_record,
                                   measurement_psf_signature, SIGNATURE_KEY)
+    from .psf_pipeline import _UNMIX_RECORD_KEY, _apply_recorded_unmixing
 
     figs = {}
     grid = []
@@ -5717,6 +5720,8 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
             figs[f'{file_name}__before_filtration'] = fig
 
         channel_arrays = data[..., settings['channels']].astype(data_type)
+        if settings.get(_UNMIX_RECORD_KEY):
+            channel_arrays = _apply_recorded_unmixing(channel_arrays, settings)
 
         if preprocessing_hooks():
             channel_arrays = apply_preprocessing_hooks(
@@ -6378,6 +6383,8 @@ def measure_crop(settings):
                     settings, os.path.join(_measurements_dir, 'measurements.db'), psf_plan)
                 validate_measurement_illumination_inputs(settings)
                 prepare_illumination_correction(settings)
+                from .psf_pipeline import _prepare_measure_unmixing
+                _prepare_measure_unmixing(settings)
 
                 if settings['cell_mask_dim'] is None:
                     settings['uninfected'] = True
@@ -6629,6 +6636,14 @@ def measure_crop(settings):
                 if settings.get('wound_closure'):
                     _run_wound_closure(settings['src'], settings)
 
+                if (settings['timelapse']
+                        and settings.get('bleach_correction', 'none') != 'none'
+                        and os.path.isfile(db_path)):
+                    _run_bleach_correction_step(db_path, settings)
+
+                if settings.get('time_to_event') and os.path.isfile(db_path):
+                    _run_time_to_event_step(db_path, settings)
+
                 if settings['timelapse']:
                     if settings['timelapse_objects'] == 'nucleus':
                         folder_path = settings['src']
@@ -6643,6 +6658,32 @@ def measure_crop(settings):
                     print("Successfully completed run")
 
             run.register_outputs(settings=settings, roots=source_folders)
+
+def _run_bleach_correction_step(db_path, settings):
+    """Correct a timelapse run's intensities for photobleaching and say where.
+
+    Runs :func:`spacr.timelapse._correct_timelapse_bleaching` with the
+    ``bleach_correction`` method. A failure is reported and does not fail
+    the run: the measured tables are already written and are not changed.
+
+    :param db_path: the ``measurements.db`` the run produced.
+    :param settings: Measure settings.
+    :returns: the per-field, per-channel fits, or None when the step failed.
+    """
+    from .timelapse import _correct_timelapse_bleaching
+
+    method = settings.get('bleach_correction')
+    try:
+        fits = _correct_timelapse_bleaching(db_path, method, plot=True)
+    except Exception as exc:
+        print(f"Bleach correction could not be applied: {exc}")
+        return None
+    tables = sorted(fits['object_type'].unique())
+    print(f"Bleach correction ({method}): {len(fits)} field-channel series in "
+          f"{', '.join(f'{t}_bleach_corrected' for t in tables)}; fits in "
+          f"measurements.db:bleach_correction")
+    return fits
+
 
 def _run_cell_cycle_step(db_path, settings):
     """Call cell-cycle phases at the end of a Measure run and say where.
@@ -6665,6 +6706,690 @@ def _run_cell_cycle_step(db_path, settings):
           + ', '.join(f'{p} {shares.get(p, 0):.0%}'
                       for p in _CELL_CYCLE_PHASES))
     return table
+
+
+_TTE_TABLE = 'time_to_event'
+_TTE_CURVES_TABLE = 'time_to_event_curves'
+_TTE_SUMMARY_TABLE = 'time_to_event_summary'
+_TTE_TESTS_TABLE = 'time_to_event_tests'
+_TTE_COX_TABLE = 'time_to_event_cox'
+_TTE_MODES = ('track_end', 'annotated', 'above', 'below', 'fold_change')
+_TTE_ORIGINS = ('track', 'movie')
+_TTE_FIELD_KEYS = ('plateID', 'rowID', 'columnID', 'fieldID')
+_TTE_TRACK_KEYS = _TTE_FIELD_KEYS + ('object_label',)
+_TTE_OBJECT_TABLES = ('cell', 'nucleus', 'pathogen', 'cytoplasm')
+_TTE_GROUP_WORDS = ('well', 'plate', 'row', 'column', 'field')
+_TTE_FIGURE_GROUPS = 12
+
+
+def _tte_list(value):
+    """A list setting that may arrive as a list, a string or nothing.
+
+    :param value: the stored value.
+    :returns: a list of non-empty stripped strings.
+    """
+    if value is None:
+        return []
+    if isinstance(value, str):
+        value = value.split(',')
+    return [str(item).strip() for item in value if str(item).strip()]
+
+
+def _tte_frame_numbers(values):
+    """Frame numbers from ``timeID`` values such as ``t4``, ``t04`` or ``4``.
+
+    :param values: the ``timeID`` column.
+    :returns: a float array, NaN where no number ends the value.
+    """
+    text = pd.Series(list(values), dtype=object).astype(str).str.extract(
+        r'(-?\d+(?:\.\d+)?)\s*$')[0]
+    return pd.to_numeric(text, errors='coerce').to_numpy(dtype=float)
+
+
+def _tte_settings(settings):
+    """The time-to-event settings, validated and in the types they are used.
+
+    :param settings: Measure settings.
+    :returns: the twelve ``time_to_event_*`` settings other than the
+        switch, blanks resolved, numbers typed and lists split.
+    :raises ValueError: an unknown mode or origin, or a mode used without
+        the column or threshold it reads.
+    """
+    mode = str(settings.get('time_to_event_mode') or 'track_end')
+    origin = str(settings.get('time_to_event_origin') or 'track')
+    if mode not in _TTE_MODES:
+        raise ValueError(f"Setting: time_to_event_mode is {mode!r}; choose "
+                         f"one of {', '.join(_TTE_MODES)}.")
+    if origin not in _TTE_ORIGINS:
+        raise ValueError(f"Setting: time_to_event_origin is {origin!r}; "
+                         f"choose track or movie.")
+    column = str(settings.get('time_to_event_column') or '').strip()
+    threshold = settings.get('time_to_event_threshold')
+    threshold = None if threshold in (None, '') else float(threshold)
+    if mode != 'track_end' and not column:
+        raise ValueError(f"Setting: time_to_event_mode {mode} reads a "
+                         f"measurement; name it in time_to_event_column.")
+    if mode in ('above', 'below', 'fold_change') and threshold is None:
+        raise ValueError(f"Setting: time_to_event_mode {mode} needs "
+                         f"time_to_event_threshold.")
+    hours = settings.get('time_to_event_hours_per_frame')
+    hours = None if hours in (None, '') else float(hours)
+    if hours is not None and not hours > 0:
+        raise ValueError("Setting: time_to_event_hours_per_frame must be "
+                         "positive, or blank to count frames.")
+    return {
+        'time_to_event_object': str(settings.get('time_to_event_object')
+                                    or 'cell'),
+        'time_to_event_mode': mode, 'time_to_event_column': column,
+        'time_to_event_threshold': threshold,
+        'time_to_event_persist': max(
+            1, int(settings.get('time_to_event_persist') or 1)),
+        'time_to_event_origin': origin,
+        'time_to_event_min_frames': max(
+            1, int(settings.get('time_to_event_min_frames') or 1)),
+        'time_to_event_hours_per_frame': hours,
+        'time_to_event_group': str(settings.get('time_to_event_group')
+                                   or 'well').strip(),
+        'time_to_event_conditions': _tte_list(
+            settings.get('time_to_event_conditions')),
+        'time_to_event_reference': str(settings.get(
+            'time_to_event_reference') or '').strip(),
+        'time_to_event_covariates': _tte_list(
+            settings.get('time_to_event_covariates')),
+    }
+
+
+def _read_time_to_event_inputs(db_path, config):
+    """The tracked objects and each field's frames, read from the database.
+
+    Only the columns the analysis uses are read. A ``time_to_event_column``
+    that is not on the object table is looked up on ``png_list``, where
+    Annotate keeps its labels, and joined to each object in each frame
+    through its ``prcfo``. A field's frames are every frame any object table
+    has a row for, so a movie whose last frames lost every object of one
+    kind still ends where it ends.
+
+    :param db_path: the ``measurements.db``.
+    :param config: from :func:`_tte_settings`.
+    :returns: ``(frame, movies)``: the object rows, and a dict from field key
+        to the sorted array of its frame numbers.
+    :raises ValueError: a missing table or column, or a table measured
+        without time.
+    """
+    from . import schema
+    from .database_concurrency import connect
+    from .tabular import (_quote_identifier, _read_query, database_tables,
+                          table_columns)
+
+    table = config['time_to_event_object']
+    tables = database_tables(db_path)
+    if table not in tables:
+        raise ValueError(
+            f"{db_path} has no {table} table; set time_to_event_object to "
+            f"one of {', '.join(t for t in _TTE_OBJECT_TABLES if t in tables)}.")
+    columns = set(table_columns(db_path, table=table, canonicalise=False))
+    missing = [key for key in (*_TTE_TRACK_KEYS, 'timeID')
+               if key not in columns]
+    if missing:
+        raise ValueError(
+            f"measurements.db:{table} has no {', '.join(missing)}; time to "
+            f"event reads tracked objects over time, so measure a timelapse "
+            f"with timelapse on.")
+    wanted = [*_TTE_TRACK_KEYS, 'timeID']
+    wanted += [c for c in ('prcf',) if c in columns]
+    extra = list(config['time_to_event_covariates'])
+    if config['time_to_event_group'] not in _TTE_GROUP_WORDS and not config['time_to_event_conditions']:
+        extra.append(config['time_to_event_group'])
+    for name in extra:
+        if name not in columns:
+            raise ValueError(f"measurements.db:{table} has no column "
+                             f"{name!r} to group or adjust by.")
+    column = config['time_to_event_column']
+    from_crops = bool(column) and column not in columns
+    if column and not from_crops:
+        extra.append(column)
+    wanted += [c for c in dict.fromkeys(extra) if c not in wanted]
+    conn = connect(db_path, readonly=True)
+    try:
+        frame = _read_query(conn, "SELECT {} FROM {}".format(
+            ', '.join(_quote_identifier(c) for c in wanted),
+            _quote_identifier(table)), report=None)
+        if from_crops:
+            crop_columns = (table_columns(db_path, table='png_list',
+                                          canonicalise=False)
+                            if 'png_list' in tables else ())
+            if column not in crop_columns or 'prcf' not in frame.columns:
+                raise ValueError(
+                    f"Setting: time_to_event_column names {column!r}, which "
+                    f"is neither a column of measurements.db:{table} nor an "
+                    f"Annotate column of png_list.")
+            crops = _read_query(conn, "SELECT prcfo, {} FROM png_list".format(
+                _quote_identifier(column)), report=None)
+            labels = dict(zip(crops['prcfo'].astype(str), crops[column]))
+            keys = [f"{p}_{schema.object_id(int(o))}"
+                    for p, o in zip(frame['prcf'], frame['object_label'])]
+            frame[column] = [labels.get(k) for k in keys]
+        pieces = []
+        for name in dict.fromkeys((table, *_TTE_OBJECT_TABLES)):
+            if name in tables and {*_TTE_FIELD_KEYS, 'timeID'} <= set(
+                    table_columns(db_path, table=name, canonicalise=False)):
+                pieces.append(_read_query(
+                    conn, "SELECT DISTINCT {} FROM {}".format(
+                        ', '.join(_quote_identifier(c) for c in
+                                  (*_TTE_FIELD_KEYS, 'timeID')),
+                        _quote_identifier(name)), report=None))
+    finally:
+        conn.close()
+    fields = pd.concat(pieces, ignore_index=True)
+    fields['frame'] = _tte_frame_numbers(fields['timeID'])
+    movies = {tuple(str(v) for v in key): np.unique(
+        group['frame'].dropna().to_numpy())
+        for key, group in fields.groupby(list(_TTE_FIELD_KEYS))}
+    return frame, movies
+
+
+def _tte_flags(values, mode, threshold, baseline=None):
+    """Which frames of one track show the event.
+
+    :param values: the track's ``time_to_event_column``, frame by frame.
+    :param mode: ``annotated``, ``above``, ``below`` or ``fold_change``.
+    :param threshold: the cut; for ``annotated`` the label value that marks
+        the event, or None for any non-zero label.
+    :param baseline: the track's first value, for ``fold_change``.
+    :returns: a boolean array.
+    """
+    raw = pd.Series(list(values), dtype=object)
+    numbers = pd.to_numeric(raw, errors='coerce')
+    if mode == 'annotated':
+        if threshold is not None:
+            return (numbers == threshold).to_numpy()
+        text = raw.astype(str).str.strip().str.lower()
+        empty = raw.isna() | text.isin(('', '0', '0.0', 'false', 'none',
+                                        'nan'))
+        return (~empty).to_numpy()
+    if mode == 'above':
+        return (numbers >= threshold).to_numpy()
+    if mode == 'below':
+        return (numbers <= threshold).to_numpy()
+    return (numbers >= threshold * baseline).to_numpy()
+
+
+def _tte_first_run(flags, persist):
+    """The row where ``persist`` flagged rows in a row first begin.
+
+    :param flags: one boolean per observed frame of a track.
+    :param persist: how many consecutive rows the event must hold for.
+    :returns: the row index, or None when no run is long enough.
+    """
+    count = 0
+    for index, flag in enumerate(flags):
+        count = count + 1 if flag else 0
+        if count >= persist:
+            return index - persist + 1
+    return None
+
+
+def _time_to_event_objects(frame, config, movies=None):
+    """One row per tracked object: its time to the event or to censoring.
+
+    A track is the rows of one ``object_label`` in one field, ordered by
+    frame. The event is the first frame the track shows it for
+    ``time_to_event_persist`` consecutive observed frames, by
+    ``time_to_event_mode``: ``annotated`` a non-zero label (or the label
+    equal to the threshold), ``above`` and ``below`` the measurement at or
+    past the threshold, ``fold_change`` the measurement at least the
+    threshold times its value in the track's first frame, and
+    ``track_end`` the object disappearing: the event is the first frame of
+    the movie after the track's last one. A track without the event is
+    right-censored at its last frame, which is the end of the movie or the
+    point the tracker lost it.
+
+    Time runs from the track's first frame when ``time_to_event_origin`` is
+    ``track``, or from the first frame of the movie when it is ``movie``,
+    which keeps only the objects present in that first frame. An object
+    that already shows the event in its first frame has no time to it and
+    is left out, as are tracks shorter than ``time_to_event_min_frames``
+    and, for ``fold_change``, tracks without a positive first value. The
+    first-frame value of every covariate is kept, measured before anything
+    could happen.
+
+    :param frame: object rows with the track keys, ``timeID`` and the
+        columns ``config`` names.
+    :param config: from :func:`_tte_settings`.
+    :param movies: field key to its frame numbers; taken from ``frame``
+        when None.
+    :returns: ``(objects, dropped)``: the per-object frame and a dict
+        counting the tracks left out, by reason.
+    """
+    frame = frame.copy()
+    frame['frame'] = _tte_frame_numbers(frame['timeID'])
+    frame = frame[np.isfinite(frame['frame'])]
+    for key in _TTE_FIELD_KEYS:
+        frame[key] = frame[key].astype(str)
+    frame = frame.sort_values([*_TTE_TRACK_KEYS, 'frame'], kind='stable')
+    if movies is None:
+        movies = {key: np.unique(group['frame'].to_numpy())
+                  for key, group in frame.groupby(list(_TTE_FIELD_KEYS))}
+    mode = config['time_to_event_mode']
+    column = config['time_to_event_column']
+    threshold = config['time_to_event_threshold']
+    kept = list(config['time_to_event_covariates'])
+    if config['time_to_event_group'] not in _TTE_GROUP_WORDS and not config['time_to_event_conditions']:
+        kept.append(config['time_to_event_group'])
+    kept = list(dict.fromkeys(kept))
+    dropped = {'short': 0, 'late': 0, 'at_first_frame': 0, 'no_baseline': 0}
+    rows = []
+    for key, track in frame.groupby(list(_TTE_TRACK_KEYS), sort=False):
+        frames = track['frame'].to_numpy(dtype=float)
+        movie = np.asarray(movies.get(tuple(str(v) for v in key[:4]), frames),
+                           dtype=float)
+        start, end = float(min(movie.min(), frames[0])), float(
+            max(movie.max(), frames[-1]))
+        if frames.size < config['time_to_event_min_frames']:
+            dropped['short'] += 1
+            continue
+        if config['time_to_event_origin'] == 'movie' and frames[0] > start:
+            dropped['late'] += 1
+            continue
+        origin = frames[0] if config['time_to_event_origin'] == 'track' else start
+        event_frame = None
+        if mode == 'track_end':
+            later = movie[movie > frames[-1]]
+            if later.size:
+                event_frame = float(later.min())
+        else:
+            values = track[column].to_numpy()
+            baseline = None
+            if mode == 'fold_change':
+                baseline = pd.to_numeric(pd.Series([values[0]]),
+                                         errors='coerce').iloc[0]
+                if not (np.isfinite(baseline) and baseline > 0):
+                    dropped['no_baseline'] += 1
+                    continue
+            run = _tte_first_run(
+                _tte_flags(values, mode, threshold, baseline),
+                config['time_to_event_persist'])
+            if run == 0:
+                dropped['at_first_frame'] += 1
+                continue
+            if run is not None:
+                event_frame = float(frames[run])
+        observed = event_frame is not None
+        stop = event_frame if observed else float(frames[-1])
+        row = dict(zip(_TTE_TRACK_KEYS, key))
+        row.update({
+            'first_frame': float(frames[0]), 'last_frame': float(frames[-1]),
+            'n_frames': int(frames.size), 'origin_frame': float(origin),
+            'event': int(observed),
+            'event_frame': event_frame if observed else np.nan,
+            'duration_frames': stop - float(origin),
+            'censored_at': ('' if observed else
+                            'movie_end' if frames[-1] >= end
+                            else 'track_lost')})
+        for name in kept:
+            row[name] = track[name].iloc[0]
+        rows.append(row)
+    objects = pd.DataFrame(rows)
+    if objects.empty:
+        return objects, dropped
+    hours = config['time_to_event_hours_per_frame']
+    objects['duration'] = objects['duration_frames'] * (hours or 1.0)
+    objects['time_unit'] = 'h' if hours else 'frames'
+    objects['event_mode'] = mode
+    return objects, dropped
+
+
+def _tte_wells(objects):
+    """The composed well key of each object.
+
+    :param objects: rows with ``plateID``, ``rowID`` and ``columnID``.
+    :returns: a Series of well keys.
+    """
+    from . import schema
+
+    return pd.Series(list(schema.compose_prc_column(objects)),
+                     index=objects.index, dtype=object)
+
+
+def _time_to_event_groups(objects, config):
+    """Assign each object the condition it is compared in.
+
+    ``time_to_event_conditions`` entries ``name=wells`` name the wells of
+    each condition in the plate-map notation (``c1,c2``, ``r1``, ``A01``);
+    objects in wells no condition names are left out. Without them, objects
+    are grouped by ``time_to_event_group``: ``well``, ``plate``, ``row``,
+    ``column``, ``field``, or a column of the object table read at the
+    track's first frame.
+
+    :param objects: from :func:`_time_to_event_objects`.
+    :param config: from :func:`_tte_settings`.
+    :returns: ``(objects, order)``: the objects with ``condition`` and
+        ``well`` columns, and the conditions with the reference first.
+    :raises ValueError: a malformed condition, or a reference that is not
+        one of the conditions.
+    """
+    from . import well_spec
+
+    objects = objects.copy()
+    objects['well'] = _tte_wells(objects)
+    group = config['time_to_event_group']
+    if config['time_to_event_conditions']:
+        rows = pd.to_numeric(objects['rowID'].astype(str).str.extract(
+            r'(\d+)\s*$')[0], errors='coerce')
+        cols = pd.to_numeric(objects['columnID'].astype(str).str.extract(
+            r'(\d+)\s*$')[0], errors='coerce')
+        condition = pd.Series(None, index=objects.index, dtype=object)
+        order = []
+        for entry in config['time_to_event_conditions']:
+            name, sep, spec = entry.partition('=')
+            if not sep or not name.strip() or not spec.strip():
+                raise ValueError(
+                    f"Setting: time_to_event_conditions entry {entry!r} is "
+                    f"not name=wells, for example control=c1,c2.")
+            wells = well_spec.parse(spec, layout=1536)
+            hit = [(r, c) in wells if pd.notna(r) and pd.notna(c) else False
+                   for r, c in zip(rows, cols)]
+            condition = condition.where(
+                condition.notna() | ~pd.Series(hit, index=objects.index),
+                name.strip())
+            order.append(name.strip())
+        objects['condition'] = condition
+        objects = objects[objects['condition'].notna()].copy()
+    elif group == 'well':
+        objects['condition'] = objects['well']
+    elif group == 'plate':
+        objects['condition'] = objects['plateID'].astype(str)
+    elif group == 'row':
+        objects['condition'] = objects['rowID'].astype(str)
+    elif group == 'column':
+        objects['condition'] = objects['columnID'].astype(str)
+    elif group == 'field':
+        objects['condition'] = (objects['well'] + '_'
+                                + objects['fieldID'].astype(str))
+    else:
+        objects['condition'] = objects[group].astype(str)
+    present = [str(c) for c in pd.unique(objects['condition'])]
+    if config['time_to_event_conditions']:
+        order = [c for c in dict.fromkeys(order) if c in present]
+    else:
+        order = sorted(present)
+    reference = config['time_to_event_reference']
+    if reference:
+        if reference not in order:
+            raise ValueError(
+                f"Setting: time_to_event_reference {reference!r} is not one "
+                f"of the conditions ({', '.join(order)}).")
+        order = [reference] + [c for c in order if c != reference]
+    return objects, order
+
+
+def _time_to_event_statistics(objects, order, config, *, engine=None):
+    """Kaplan-Meier curves, medians, log-rank tests and a Cox model.
+
+    :param objects: from :func:`_time_to_event_groups`.
+    :param order: the conditions, reference first.
+    :param config: from :func:`_tte_settings`.
+    :param engine: see :func:`spacr.sp_stats._survival_engine`.
+    :returns: a dict of frames: ``curves`` (one Kaplan-Meier curve per
+        condition), ``summary`` (events, censoring and the median with its
+        interval per condition and per well), ``tests`` (the log-rank test
+        across every condition and each condition against the reference,
+        Benjamini-Hochberg adjusted) and ``cox`` (hazard ratios of each
+        condition against the reference and per unit of each covariate),
+        plus ``engine`` and ``cox_error``, why no Cox model was fitted.
+    """
+    from .multiple_testing import adjust_p_values
+    from .sp_stats import (_cox_regression, _kaplan_meier, _logrank,
+                           _median_survival, _survival_engine)
+
+    engine = _survival_engine(engine)
+    unit = str(objects['time_unit'].iloc[0])
+    curves, summary = [], []
+    for level, key in (('condition', 'condition'), ('well', 'well')):
+        for name, group in objects.groupby(key, sort=False):
+            curve = _kaplan_meier(group['duration'], group['event'],
+                                  engine=engine)
+            median, low, high = _median_survival(curve)
+            record = {'level': level, 'group': str(name),
+                      'condition': (str(name) if level == 'condition' else
+                                    '|'.join(sorted(map(str, pd.unique(
+                                        group['condition']))))),
+                      'n': int(len(group)),
+                      'events': int(group['event'].sum()),
+                      'censored': int((group['event'] == 0).sum()),
+                      'median': median, 'median_lower': low,
+                      'median_upper': high,
+                      'median_reached': int(np.isfinite(median)),
+                      'time_unit': unit, 'engine': engine}
+            summary.append(record)
+            if level == 'condition':
+                curves.append(curve.assign(condition=str(name),
+                                           time_unit=unit, engine=engine))
+    order_index = {name: i for i, name in enumerate(order)}
+    curves = sorted(curves, key=lambda c: order_index.get(
+        c['condition'].iloc[0], len(order)))
+    curves = pd.concat(curves, ignore_index=True)
+    summary = pd.DataFrame(summary)
+    tests = []
+    if len(order) > 1:
+        overall = _logrank(objects['duration'], objects['event'],
+                           objects['condition'], engine=engine)
+        tests.append({'comparison': 'all conditions', 'condition': 'all',
+                      'reference': '', 'statistic': overall['statistic'],
+                      'df': overall['df'], 'p_value': overall['p_value'],
+                      'n': int(len(objects))})
+        pairs = []
+        for name in order[1:]:
+            both = objects[objects['condition'].isin([order[0], name])]
+            result = _logrank(both['duration'], both['event'],
+                              both['condition'], engine=engine)
+            pairs.append({'comparison': f'{name} vs {order[0]}',
+                          'condition': name, 'reference': order[0],
+                          'statistic': result['statistic'],
+                          'df': result['df'], 'p_value': result['p_value'],
+                          'n': int(len(both))})
+        adjusted, _ = adjust_p_values([p['p_value'] for p in pairs],
+                                      method='fdr_bh')
+        for pair, value in zip(pairs, adjusted):
+            pair['p_adjusted'] = float(value)
+        tests.extend(pairs)
+    tests = pd.DataFrame(tests)
+    if not tests.empty:
+        tests['test'] = 'log-rank'
+        tests['engine'] = engine
+    cox, cox_error = pd.DataFrame(), ''
+    indicators = [f'condition={name}' for name in order[1:]]
+    covariates = indicators + list(config['time_to_event_covariates'])
+    if covariates:
+        data = objects[['duration', 'event']].copy()
+        for name, column in zip(order[1:], indicators):
+            data[column] = (objects['condition'] == name).astype(float)
+        for name in config['time_to_event_covariates']:
+            data[name] = pd.to_numeric(objects[name], errors='coerce')
+        data = data[np.isfinite(data.to_numpy(dtype=float)).all(axis=1)]
+        try:
+            cox, model = _cox_regression(data, 'duration', 'event',
+                                         covariates, engine=engine)
+        except Exception as exc:
+            cox_error = f"{type(exc).__name__}: {exc}"
+            cox = pd.DataFrame()
+        else:
+            cox['reference'] = [order[0] if c in indicators else ''
+                                for c in covariates]
+            for key, value in model.items():
+                cox[key] = value
+            cox['time_unit'] = unit
+    return {'curves': curves, 'summary': summary, 'tests': tests,
+            'cox': cox, 'engine': engine, 'cox_error': cox_error}
+
+
+def _time_to_event_figure(curves, summary, tests, title):
+    """Kaplan-Meier curves with their confidence bands and censoring ticks.
+
+    :param curves: the ``curves`` frame of
+        :func:`_time_to_event_statistics`, conditions in legend order.
+    :param summary: its ``summary`` frame, for the legend counts.
+    :param tests: its ``tests`` frame, for the log-rank p in the title.
+    :param title: the figure title.
+    :returns: the figure.
+    """
+    names = list(pd.unique(curves['condition']))
+    shown = names[:_TTE_FIGURE_GROUPS]
+    counts = summary[summary['level'] == 'condition'].set_index('group')
+    unit = str(curves['time_unit'].iloc[0])
+    with figure_style(theme_target()):
+        fig, ax = plt.subplots(figsize=(7, 4.5))
+        for name in shown:
+            curve = curves[curves['condition'] == name]
+            row = counts.loc[name]
+            line, = ax.step(curve['time'], curve['survival'], where='post',
+                            label=f"{name} (n={int(row['n'])}, "
+                                  f"events={int(row['events'])})")
+            ax.fill_between(curve['time'], curve['ci_lower'],
+                            curve['ci_upper'], step='post', alpha=0.18,
+                            color=line.get_color(), linewidth=0)
+            ticks = curve[curve['censored'] > 0]
+            ax.plot(ticks['time'], ticks['survival'], linestyle='none',
+                    marker='|', markersize=7, color=line.get_color())
+        ax.set_ylim(0, 1.03)
+        ax.set_xlim(left=0)
+        ax.set_xlabel(f'time ({unit})')
+        ax.set_ylabel('fraction without the event')
+        if not tests.empty:
+            overall = tests.iloc[0]
+            title = (f"{title}; log-rank p = {overall['p_value']:.3g} "
+                     f"({len(names)} conditions)")
+        if len(shown) < len(names):
+            title += f"; first {len(shown)} shown"
+        ax.set_title(title)
+        ax.legend(frameon=False, fontsize=8)
+        fig.tight_layout()
+    return fig
+
+
+def _hazard_ratio_figure(cox, title):
+    """Hazard ratios with their intervals, on a log axis.
+
+    :param cox: the ``cox`` frame of :func:`_time_to_event_statistics`.
+    :param title: the figure title.
+    :returns: the figure.
+    """
+    from matplotlib.ticker import FuncFormatter
+
+    ordered = cox.iloc[::-1]
+    y = np.arange(len(ordered))
+    with figure_style(theme_target()):
+        fig, ax = plt.subplots(figsize=(6, 1.6 + 0.45 * len(ordered)))
+        ratio = ordered['hazard_ratio'].to_numpy()
+        ax.errorbar(ratio, y, xerr=[ratio - ordered['hr_lower'].to_numpy(),
+                                    ordered['hr_upper'].to_numpy() - ratio],
+                    fmt='o', capsize=3)
+        ax.axvline(1.0, linestyle='--', linewidth=1)
+        ax.set_xscale('log')
+        plain = FuncFormatter(lambda value, _position: f'{value:g}')
+        ax.xaxis.set_major_formatter(plain)
+        ax.xaxis.set_minor_formatter(plain)
+        ax.set_yticks(y)
+        ax.set_yticklabels(list(ordered['covariate']))
+        ax.set_ylim(-0.6, len(ordered) - 0.4)
+        ax.set_xlabel('hazard ratio (95% interval)')
+        ax.set_title(title)
+        fig.tight_layout()
+    return fig
+
+
+def _time_to_event(db_path, settings, *, plot=True, engine=None):
+    """Time to an event for every tracked object, compared across conditions.
+
+    Reads the tracked objects Measure wrote for a timelapse, finds each
+    one's event as :func:`_time_to_event_objects` describes, and writes to
+    the database ``time_to_event`` (one row per object: its duration, event
+    flag, censoring reason, condition and first-frame covariates),
+    ``time_to_event_curves`` (the Kaplan-Meier curve of each condition with
+    its 95% band), ``time_to_event_summary`` (events and the median time to
+    event with its interval, per condition and per well),
+    ``time_to_event_tests`` (log-rank tests) and ``time_to_event_cox``
+    (hazard ratios of each condition against the reference and per unit of
+    each covariate, from one Cox model). Objects of one well share that
+    well's conditions, so the tests treat objects as independent and are
+    optimistic when wells differ; compare medians across wells in the
+    summary before trusting a small p.
+
+    :param db_path: the ``measurements.db``.
+    :param settings: Measure settings with the ``time_to_event_*`` keys.
+    :param plot: save the Kaplan-Meier and hazard-ratio figures under
+        ``results/time_to_event``.
+    :param engine: see :func:`spacr.sp_stats._survival_engine`.
+    :returns: a dict with the frames written (``objects``, ``curves``,
+        ``summary``, ``tests``, ``cox``), ``dropped`` counts, ``engine``,
+        ``cox_error`` and the ``figures`` saved.
+    :raises ValueError: unusable settings, or no object left to analyse.
+    """
+    from .tabular import write_database
+
+    config = _tte_settings(settings)
+    frame, movies = _read_time_to_event_inputs(db_path, config)
+    objects, dropped = _time_to_event_objects(frame, config, movies)
+    if objects.empty:
+        raise ValueError(
+            f"no tracked {config['time_to_event_object']} could be followed to an event "
+            f"or to censoring; left out: "
+            + ', '.join(f'{k} {v}' for k, v in dropped.items()))
+    objects, order = _time_to_event_groups(objects, config)
+    if objects.empty:
+        raise ValueError("no tracked object is in a well that "
+                         "time_to_event_conditions names.")
+    result = _time_to_event_statistics(objects, order, config, engine=engine)
+    objects = objects.assign(engine=result['engine'])
+    write_database(objects, db_path, _TTE_TABLE, if_exists='replace',
+                   canonicalise=False)
+    for key, name in (('curves', _TTE_CURVES_TABLE),
+                      ('summary', _TTE_SUMMARY_TABLE),
+                      ('tests', _TTE_TESTS_TABLE), ('cox', _TTE_COX_TABLE)):
+        if not result[key].empty:
+            write_database(result[key], db_path, name, if_exists='replace',
+                           canonicalise=False)
+    figures = []
+    if plot:
+        from .plot import save_figure
+
+        root = os.path.dirname(os.path.dirname(os.path.abspath(db_path)))
+        folder = os.path.join(root, 'results', 'time_to_event')
+        label = f"{config['time_to_event_object']}: {config['time_to_event_mode']}"
+        figures.append(save_figure(
+            _time_to_event_figure(result['curves'], result['summary'],
+                                  result['tests'], label),
+            os.path.join(folder, 'kaplan_meier.pdf'), close=True))
+        if not result['cox'].empty:
+            figures.append(save_figure(
+                _hazard_ratio_figure(result['cox'], label),
+                os.path.join(folder, 'hazard_ratios.pdf'), close=True))
+    return dict(result, objects=objects, dropped=dropped, figures=figures)
+
+
+def _run_time_to_event_step(db_path, settings):
+    """Run the time-to-event analysis at the end of a Measure run.
+
+    A failure is reported and does not fail the run: the measurements are
+    already in the database.
+
+    :param db_path: the ``measurements.db`` the run produced.
+    :param settings: Measure settings.
+    :returns: the result of :func:`_time_to_event`, or None when it failed.
+    """
+    try:
+        result = _time_to_event(db_path, settings)
+    except Exception as exc:
+        print(f"Time to event could not be analysed: {exc}")
+        return None
+    objects = result['objects']
+    print(f"Time to event ({result['engine']}): {len(objects)} tracked "
+          f"objects, {int(objects['event'].sum())} events, in "
+          f"measurements.db:{_TTE_TABLE}, {_TTE_SUMMARY_TABLE}, "
+          f"{_TTE_TESTS_TABLE} and {_TTE_COX_TABLE}.")
+    if result['cox_error']:
+        print(f"Time to event: no Cox model ({result['cox_error']}).")
+    return result
 
 
 def _emit_infection_report(db_path):
