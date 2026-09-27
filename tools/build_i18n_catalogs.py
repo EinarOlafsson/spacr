@@ -278,7 +278,7 @@ _IDENTITY_TEXT = {
     "NaN", "PDF", "SAMCell", "Cellpose 3", "SpotNet (DeepCell)",
     # 316, 2026-09-26: the Model Zoo's backend names (items 547/555), shown
     # alone as zoo rows; like DINOCell and SAMCell they are product names.
-    "InstanSeg", "Omnipose", "StarDist", "micro-SAM",
+    "InstanSeg", "Omnipose", "StarDist", "micro-SAM", "Spotiflow",
     # 316, 2026-09-26: the notification services named alone as Preferences
     # rows (item 577).
     "ntfy", "Slack",
@@ -4996,6 +4996,18 @@ def _contextualize(value: str, language: str, source: str = "") -> str:
         token = f"\ue000{len(context_literals)}\ue001"
         context_literals[token] = match.group(0)
         return token
+
+    # Preserve verbatim citation titles and copyright notices copied from
+    # the English source. Lexical cleanup must not rewrite quoted attribution.
+    attribution_literals = re.findall(r"\(Copyright \d{4}[^()\n]*\)", str(source))
+    if re.search(r"\bdoi:\s*10\.\d{4,9}/", str(source), re.IGNORECASE):
+        attribution_literals.extend(
+            match.group(0) for match in re.finditer(
+                r"(?<!\w)(['\"])[^'\"\n]+\s[^'\"\n]+\1", str(source)
+            )
+        )
+    for literal in attribution_literals:
+        corrected = re.sub(re.escape(literal), hide_context_literal, corrected)
 
     corrected = _CONTEXT_HARD_PROTECT_RE.sub(
         hide_context_literal, corrected,
