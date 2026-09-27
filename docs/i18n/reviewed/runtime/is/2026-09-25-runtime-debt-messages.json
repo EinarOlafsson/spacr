@@ -622,13 +622,6 @@
     },
     {
       "table": "ui",
-      "key": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
-      "source": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
-      "source_sha256": "2712c235708a6e6d3cf1479fc35c5ce9de07d44520620a1e2a6a21cee9dddffa",
-      "translation": "Sækja tíu dæmasjónsvið fyrir skellugreiningu og beina src á þau. Tvö söfn til að velja úr: hlutuð skellusjónsvið, sem skellulíkanið var þjálfað á, eða myndir af heilum plötum, sem vinnsluferlið tekur við. Geymt í skyndiminni eftir fyrsta niðurhal."
-    },
-    {
-      "table": "ui",
       "key": "Downloaded {name}, but the folder would not open",
       "source": "Downloaded {name}, but the folder would not open",
       "source_sha256": "598ac162ac0964c8845609cf7f6df59b0a9b65f733df071ae0677d37971c62d4",
@@ -2393,13 +2386,6 @@
     },
     {
       "table": "ui",
-      "key": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
-      "source": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
-      "source_sha256": "61fb84ed081b8c8413729fdc89c1b447cd521bcb0e21ade11b035450df3efaa3",
-      "translation": "Tíu sjónsvið úr gagnasafninu sem birt líkan var þjálfað á, með grímunum sem því voru kenndar. Þau opnast til breytinga, svo það sem þú sérð er það sem líkanið sá."
-    },
-    {
-      "table": "ui",
       "key": "Test data ready: nine tiles in {path}. Press Plan.",
       "source": "Test data ready: nine tiles in {path}. Press Plan.",
       "source_sha256": "a4f58ee4b2fbd6349bb803ac9cc9f6b052d8ae25c50cc58fa5a9775138fb4554",
@@ -3399,5 +3385,22 @@
       "source_sha256": "870a50738e7def3643fb71bd772bc2274d4d9dd902212e61f8a17e5f561a2d0c",
       "translation": "{paper}: {n} myndir, {m} með myndatexta (leyfi {licence}), í {path}."
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
+      "source": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
+      "source_sha256": "2712c235708a6e6d3cf1479fc35c5ce9de07d44520620a1e2a6a21cee9dddffa",
+      "translation": "Sækja tíu dæmasjónsvið fyrir skellugreiningu og beina src á þau. Tvö söfn til að velja úr: hlutuð skellusjónsvið, sem skellulíkanið var þjálfað á, eða myndir af heilum plötum, sem vinnsluferlið tekur við. Geymt í skyndiminni eftir fyrsta niðurhal."
+    },
+    {
+      "table": "ui",
+      "key": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
+      "source": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
+      "source_sha256": "61fb84ed081b8c8413729fdc89c1b447cd521bcb0e21ade11b035450df3efaa3",
+      "translation": "Tíu sjónsvið úr gagnasafninu sem birt líkan var þjálfað á, með grímunum sem því voru kenndar. Þau opnast til breytinga, svo það sem þú sérð er það sem líkanið sá."
+    }
+  ],
+  "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27."
 }

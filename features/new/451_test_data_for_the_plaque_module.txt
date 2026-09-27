@@ -2,9 +2,10 @@
 TEST DATA FOR THE PLAQUE MODULE, AND IT HAD NONE
 ================================================================================
 
-Status:    BUILT 2026-09-20. Two sets wired, both verified against the live
-           Hugging Face repositories. NOT DONE: the nine-language catalogs owe
-           the button caption and its tooltip.
+Status:    BUILT 2026-09-20. Runtime translation tail CLOSED 2026-09-27 in all
+           nine locales. Two sets retain the live acceptance receipts below.
+           Full closure awaits correction/translation of the plaque helper's
+           stale cataloged docstring; runtime wording is now accurate.
 
 Requested: 2026-09-20 -- "Don't forget to wire in test data for the plaque
            module".
@@ -95,3 +96,24 @@ domain rather than its first N. The dataset's revision is 2, so the sample
 caches under toxoplasma_plaque_r2 and a machine holding the old ten opens the
 new twenty instead. Plaque Analysis offers the same set (separated plaques)
 beside the plaque_figures set (whole figures for the YOLO detector).
+
+--------------------------------------------------------------------------------
+2026-09-27 — RUNTIME TRANSLATION TAIL CLOSED, VARIABLE SAMPLE WORDING FIXED
+--------------------------------------------------------------------------------
+
+The Load test data caption and tooltip are translated in all nine locales.
+The tooltip and shared picker no longer promise ten fields for every dataset
+or masks for images-only figures. The completion status reports the selected
+dataset's actual image count. Behavior is unchanged: the segmented plaque set
+contains twenty fields with the 8/4/4/4 quotas; the whole-figure set remains
+images-only. Existing completion tests now exercise both choices.
+
+Receipt: features/data/450_451_training_sample_wording_2026-09-27.json:
+27 source-bound AI-reviewed replacements, all historical originals preserved,
+exact +3/-3 UI inventory proof, nine-locale canonical audit passed, 59 strict
+focused tests passed. AI technical review only; no native-speaker signoff.
+
+The remaining API correction is precise: _install_plaque_example_button's
+docstring incorrectly says ten segmented fields and says analyze_plaques is
+absent from EXAMPLE_DATA_SECTIONS. Correct and translate that cataloged text
+before marking the entire item DONE. No new live download is claimed here.

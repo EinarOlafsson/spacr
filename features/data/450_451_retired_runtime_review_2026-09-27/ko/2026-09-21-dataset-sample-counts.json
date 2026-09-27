@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Downloading {count} fields of {name}…",
+      "source": "Downloading {count} fields of {name}…",
+      "source_sha256": "f049d8f50aba64ecca71a042b3150c5f8b29a75d87c6cc58ee9f5d44f774ca6c",
+      "translation": "{count}개의 시야를 {name}에서 다운로드하는 중…"
+    },
+    {
+      "table": "ui",
+      "key": "{name}: {count} fields and the masks the model was trained on",
+      "source": "{name}: {count} fields and the masks the model was trained on",
+      "source_sha256": "5a2f36b23fbf4728c0f77141544159d95e8d1b4d44117624c4471210d4f7b595",
+      "translation": "{name}: 시야 {count}개와 모델 학습에 사용한 마스크"
+    },
+    {
+      "table": "ui",
+      "key": "Open a sample of the dataset a published model was trained on, with its masks, and edit them here. One entry per model in the zoo. Cached after the first download.",
+      "source": "Open a sample of the dataset a published model was trained on, with its masks, and edit them here. One entry per model in the zoo. Cached after the first download.",
+      "source_sha256": "d6dc4840d68dbc91e338844de3de52cbab3a25d6f2b91540ad2fe11e230a8586",
+      "translation": "게시된 모델의 학습에 사용된 데이터셋에서 표본과 해당 마스크를 열어 여기에서 편집합니다. Model Zoo의 모델마다 항목이 하나씩 있습니다. 처음 다운로드한 뒤 캐시에 저장됩니다."
+    }
+  ]
+}

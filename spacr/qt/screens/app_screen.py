@@ -5366,10 +5366,9 @@ class AppScreen(QWidget):
                                         use=self.point_src_at)
         button.setText(tr("Load test data…"))
         button.setToolTip(tr(
-            "Download ten example fields for Plaque Analysis and point src at them. "
-            "Two sets to choose from: segmented plaque fields, which is what the "
-            "plaque model was trained on, or whole plate figures, which is what the "
-            "pipeline takes. Cached after the first download."))
+            "Download example data for Plaque Analysis and point src at it. "
+            "Choose segmented plaque fields or whole plate figures. Sample sizes "
+            "vary by dataset. Cached after the first download."))
         self._plaque_example_button = button
         section.add_prose(button, at_top=True)
 

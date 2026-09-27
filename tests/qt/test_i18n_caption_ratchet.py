@@ -590,7 +590,7 @@ EXTERNAL_SOURCE_KEY_SHA256 = (
     # EXTERNAL_SOURCE_COUNTS give this current source digest.
     # 47: one reviewed UI arrival, "Checking compatible GPUs…", no removals.
     # Exact subtraction reproduces the preceding 5a560d33...ef0091b pin.
-    '99b9f5f7a1c8daac16920364877cb30a6d24db453b7dd5e78033697b21254123'
+    '994a29a242b8f2e8d9217be68334e45bbebd1e7435ba6d23434d8b943ce82fb1'
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the

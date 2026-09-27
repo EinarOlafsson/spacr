@@ -129,6 +129,39 @@ def _compact_tooltip_sources(language: str) -> set[str]:
     return {record["source"] for record in records}
 
 
+def _with_training_sample_replacements(document, language, filename):
+    archive = ROOT / "features/data/450_451_retired_runtime_review_2026-09-27" / language / filename
+    if not archive.exists():
+        return document
+    original = json.loads(archive.read_text())["records"]
+    retained = document["records"]
+    retired = [row for row in original if row not in retained]
+    assert len(retired) == (2 if filename == "2026-09-21-runtime-ui-refresh.json" else 1)
+    replacements = {
+        "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.":
+            "A sample of a published model's training dataset. Sample sizes vary by dataset. Masks are included where available.",
+        "{name}: {count} fields and the masks the model was trained on":
+            "{name}: {count} example images ready",
+        "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.":
+            "Download example data for Plaque Analysis and point src at it. Choose segmented plaque fields or whole plate figures. Sample sizes vary by dataset. Cached after the first download.",
+    }
+    assert {row["source"] for row in retired} <= replacements.keys()
+    assert all(row in document["retired_records"] for row in retired)
+    assert retained == [row for row in original if row not in retired]
+    replacement = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
+                              "2026-09-27-training-samples.json").read_text())["records"]
+    assert len(replacement) == 3
+    assert {row["source"] for row in replacement} == set(replacements.values())
+    from build_i18n_catalogs import reviewed_runtime_translations
+    reviewed = reviewed_runtime_translations(language)
+    assert not {row["source"] for row in retired} & reviewed.keys()
+    assert all(reviewed[row["source"]] == row["translation"] for row in replacement)
+    wanted = {replacements[row["source"]] for row in retired}
+    replacement = [row for row in replacement if row["source"] in wanted]
+    assert len(retained + replacement) == len(original)
+    return {**document, "records": retained + replacement}
+
+
 def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int) -> set[str]:
     """The 2026-09-25 runtime translation debt (instruction 316), one cohort.
 
@@ -233,6 +266,8 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # retired five source captions, preserving their records in the archive.
     ui_refresh = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
                               "2026-09-21-runtime-ui-refresh.json").read_text())
+    ui_refresh = _with_training_sample_replacements(
+        ui_refresh, "sv", "2026-09-21-runtime-ui-refresh.json")
     ui_sources = {record["source"] for record in ui_refresh["records"]}
     # Item 511 retired four Make Masks filter captions (the fixed bounds'
     # button, ledger, card and placeholder help): 263 -> 259, 260 -> 256.
@@ -411,6 +446,8 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert background_sources <= reviewed.keys()
     samples = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
                            "2026-09-21-dataset-sample-counts.json").read_text())
+    samples = _with_training_sample_replacements(
+        samples, "sv", "2026-09-21-dataset-sample-counts.json")
     sample_sources = {record["source"] for record in samples["records"]}
     assert len(sample_sources) == 3
     assert sample_sources <= reviewed.keys()
@@ -480,6 +517,8 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert refresh_sources <= all_reviewed.keys()
     second = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                          "2026-09-21-runtime-second-slice.json").read_text())
+    second = _with_training_sample_replacements(
+        second, "fr", "2026-09-21-runtime-second-slice.json")
     second_sources = {record["source"] for record in second["records"]}
     assert len(second["records"]) == len(second_sources) == 64
     assert second_sources <= all_reviewed.keys()
@@ -489,6 +528,8 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     for filename, expected in (("third", 68), ("fourth", 71)):
         document = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                                f"2026-09-21-runtime-{filename}-slice.json").read_text())
+        document = _with_training_sample_replacements(
+            document, "fr", f"2026-09-21-runtime-{filename}-slice.json")
         added = {record["source"] for record in document["records"]}
         assert len(document["records"]) == len(added) == expected
         assert added <= all_reviewed.keys()
@@ -669,6 +710,8 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert background_sources <= reviewed.keys()
     samples = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                            "2026-09-21-dataset-sample-counts.json").read_text())
+    samples = _with_training_sample_replacements(
+        samples, "fr", "2026-09-21-dataset-sample-counts.json")
     sample_sources = {record["source"] for record in samples["records"]}
     assert len(sample_sources) == 3
     assert sample_sources <= reviewed.keys()
