@@ -1306,6 +1306,26 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'dilution and plated volume, a too-many or too-few flag, and colony '
     'areas and diameters, in millimetres when Scale & Time says how large '
     'the dish is.',
+    # 584, 2026-09-27: the compound option of the Control Charts hit
+    # scoring -- structures, clusters and SAR tables (alpha).
+    'A CSV or Excel table with a SMILES column and a compound name, and a '
+    'well column (with a plate column when plates differ) or names matching '
+    'the Treatment column. Hits are then drawn with their structures, '
+    'clustered by similarity and exported as SAR tables. Clustering needs '
+    'RDKit (pip install rdkit).',
+    'Cluster similarity',
+    'Compound table with SMILES',
+    'Compounds…',
+    "Load a compound table to draw the hits' structures.",
+    'Structures and SAR',
+    'Tables (*.csv *.tsv *.txt *.xlsx *.xls *.parquet)',
+    "The Tanimoto similarity of Morgan fingerprints (radius 2) a hit needs "
+    "to a cluster's centre to join it; other compounds join the cluster of "
+    "their most similar hit at the same similarity. Default 0.6.",
+    'no compound table',
+    'table',
+    'yes',
+    '{name}: {count} compound(s)',
 })
 
 

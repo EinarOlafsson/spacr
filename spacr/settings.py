@@ -7251,6 +7251,9 @@ ALPHA_FEATURES = {
     543: {
         'settings': ('illumination_vendor_profile',),
     },
+    584: {
+        'widgets': ('ControlChartChemistry', 'ControlChartChemistrySection'),
+    },
     585: {
         'widgets': ('PowerArrayedPlanner',),
     },

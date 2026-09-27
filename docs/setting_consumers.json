@@ -38631,7 +38631,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_correlation_threshold",
-    "line": 2918,
+    "line": 3492,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -38651,7 +38651,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_databases",
-    "line": 2898,
+    "line": 3472,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -38671,7 +38671,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_feature_selection",
-    "line": 2915,
+    "line": 3489,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -38680,7 +38680,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_feature_selection",
-    "line": 2916,
+    "line": 3490,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -38718,7 +38718,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_metadata",
-    "line": 2901,
+    "line": 3475,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -38738,7 +38738,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_negative_control",
-    "line": 2910,
+    "line": 3484,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -38758,7 +38758,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_normalization",
-    "line": 2911,
+    "line": 3485,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -38778,7 +38778,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_phenotype_column",
-    "line": 2907,
+    "line": 3481,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -38798,7 +38798,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_treatment_column",
-    "line": 2905,
+    "line": 3479,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -49366,7 +49366,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "threshold",
-    "line": 2688,
+    "line": 3262,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_write_profiles"
@@ -49375,7 +49375,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "threshold",
-    "line": 2693,
+    "line": 3267,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_write_profiles"
@@ -53135,6 +53135,24 @@
     "module": "spacr.settings",
     "nested": false,
     "qualname": "default_settings_analyze_percent_positive"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "value_col",
+    "line": 1745,
+    "module": "spacr.sp_stats",
+    "nested": false,
+    "qualname": "_structure_activity"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "value_col",
+    "line": 1771,
+    "module": "spacr.sp_stats",
+    "nested": false,
+    "qualname": "_structure_activity"
    },
    {
     "form": "subscript",
