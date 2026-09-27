@@ -127,7 +127,8 @@ heading hides with its rows (AppScreen._alpha_hidden_sections).
     mode, conditions, the whole step, failure path, engine agreement) and
     tests/qt/test_time_to_event_alpha_gate.py (hidden with the switch off,
     shown with it on, a value set while hidden reaches _tte_settings).
-    Ratchets moved: tooltip default claims 784 -> 802 (nine claims in
+    Ratchets moved: tooltip default claims 806 -> 824 after merging
+    nightly's items 547 and 536 (nine claims in
     Measure and External Masks); thirteen keys in KEYS_ADDED_BY_REGROUP; the
     Measure category order; the category-help caption held in
     _AWAITING_CATALOG_REBUILD. Regenerated: setting consumer map and API

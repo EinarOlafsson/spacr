@@ -66,13 +66,6 @@
       "source": "Path to a trained Timeflows checkpoint, spaCR's experimental temporal Cellpose that predicts where each object's centre moves in the next frame and links masks from those predictions. Only consulted when timelapse_mode='timeflows', which is never the default: on held-out movies measured so far it does not beat overlap linking ('iou'). No checkpoint is downloaded; leave empty unless you trained one. Default None.",
       "source_sha256": "88edfe30ad6d529a1bc4f650979f9110137ca67279a8b4fe9a29d29d5507af94",
       "translation": "학습된 Timeflows 체크포인트의 경로입니다. Timeflows는 spaCR의 실험적 시간 Cellpose로, 각 객체의 중심이 다음 프레임에서 어디로 이동하는지 예측하고 그 예측으로 마스크를 연결합니다. timelapse_mode='timeflows'일 때만 사용되며, 이는 결코 기본값이 아닙니다. 지금까지 측정한 보류 동영상에서는 겹침 기반 연결('iou')보다 낫지 않습니다. 체크포인트는 다운로드되지 않으므로, 직접 학습한 것이 없다면 비워 두세요. 기본값 None."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "timelapse_mode",
-      "source": "Tracking backend used to link objects between frames. 'trackastra' is a pretrained transformer with division-aware linking; 'ultrack' jointly optimizes segmentation and linking and supports dense or three-dimensional data at increased computational cost; 'trackpy' uses a configurable search radius and frame memory; 'btrack' uses a motion model; and 'iou' links masks by overlap and may fail when inter-frame displacement is large; 'timeflows' is spaCR's experimental temporal Cellpose, needs a trained checkpoint in timeflows_model and has not yet beaten 'iou' on held-out movies. Default 'trackastra'.",
-      "source_sha256": "387d42e3a0d187c4f6aac5d9a20a96854693853b5515de01e3f24d2b903436a2",
-      "translation": "프레임 사이에서 객체를 연결하는 추적 백엔드입니다. 'trackastra'는 분열을 고려한 연결을 하는 사전 학습된 트랜스포머입니다. 'ultrack'은 분할과 연결을 함께 최적화하며, 계산 비용이 늘지만 조밀하거나 3차원인 데이터를 지원합니다. 'trackpy'는 설정 가능한 검색 반경과 프레임 메모리를 사용합니다. 'btrack'은 운동 모델을 사용합니다. 'iou'는 겹침으로 마스크를 연결하며 프레임 간 변위가 크면 실패할 수 있습니다. 'timeflows'는 spaCR의 실험적 시간 Cellpose로, timeflows_model에 학습된 체크포인트가 필요하며 보류 동영상에서 아직 'iou'를 넘어서지 못했습니다. 기본값 'trackastra'."
     }
   ]
 }

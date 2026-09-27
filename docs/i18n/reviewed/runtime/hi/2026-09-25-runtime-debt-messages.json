@@ -342,13 +342,6 @@
     },
     {
       "table": "ui",
-      "key": "Equalise the histogram inside each tile rather than over the whole field, with a limit on how much any one level may be stretched. It is what brings out objects in a dim corner without blowing out the bright middle. It also amplifies noise in empty tiles, which is what the clip limit is for.",
-      "source": "Equalise the histogram inside each tile rather than over the whole field, with a limit on how much any one level may be stretched. It is what brings out objects in a dim corner without blowing out the bright middle. It also amplifies noise in empty tiles, which is what the clip limit is for.",
-      "source_sha256": "4d90cb622f7b5cb3f16195794f79550e39b97dea772275f26cd280e005d9923a",
-      "translation": "पूरे दृश्य क्षेत्र के बजाय हर टाइल के भीतर हिस्टोग्राम समतल करें, इस सीमा के साथ कि किसी एक स्तर को कितना खींचा जा सकता है। यही चमकीले मध्य को अत्यधिक चमकीला किए बिना किसी धुंधले कोने के ऑब्जेक्ट उभारता है। यह खाली टाइलों में शोर भी बढ़ाता है, और क्लिप सीमा इसी के लिए है।"
-    },
-    {
-      "table": "ui",
       "key": "Everything here is off until you switch sound on. The sounds are made by spaCR on this computer, nothing is recorded or downloaded, and they play on a thread of their own, so a missing or busy audio device only ever means silence.",
       "source": "Everything here is off until you switch sound on. The sounds are made by spaCR on this computer, nothing is recorded or downloaded, and they play on a thread of their own, so a missing or busy audio device only ever means silence.",
       "source_sha256": "8507419bf9faf24a18cf419021b9ea7e2ef42249bbb745cffb3366e6ebb40eed",

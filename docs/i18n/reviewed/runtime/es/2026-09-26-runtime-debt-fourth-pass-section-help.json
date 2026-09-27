@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third and fourth passes 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "categories",
+      "key": "How much of each field is covered by cells, measured per field and per well into measurements.db with a monolayer QC flag: from the cell masks, from the texture of a brightfield or phase channel, or from a fluorescent stain. Plaque and infection results from a thin or torn monolayer can then be dropped or divided by the covered fraction.",
+      "source": "How much of each field is covered by cells, measured per field and per well into measurements.db with a monolayer QC flag: from the cell masks, from the texture of a brightfield or phase channel, or from a fluorescent stain. Plaque and infection results from a thin or torn monolayer can then be dropped or divided by the covered fraction.",
+      "source_sha256": "1869889d24f86684aed2cc6b4280dcaeb9f1ab86d34e6c43e16fcb96ebe61f7f",
+      "translation": "Qué parte de cada campo está cubierta por células, medida por campo y por pocillo en measurements.db con un indicador de QC de la monocapa: a partir de las máscaras de células, de la textura de un canal de campo claro o de contraste de fase, o de una tinción fluorescente. Los resultados de placas y de infección procedentes de una monocapa fina o rota pueden descartarse o dividirse por la fracción cubierta."
+    }
+  ]
+}

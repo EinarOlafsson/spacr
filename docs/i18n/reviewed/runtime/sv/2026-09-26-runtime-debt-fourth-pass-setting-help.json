@@ -1,0 +1,127 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third and fourth passes 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "confluency",
+      "source": "Measure confluency, the fraction of each field covered by cells, and write it to measurements.db: one row per field in the confluency table and one per well in confluency_well, with a monolayer_ok flag the plaque and infection assays can filter on or divide by. Works for any channel (brightfield, phase or a fluorescent stain) or straight from the cell masks, as confluency_source decides. With plot on, each field also gets an overlay of the covered area. Default False.",
+      "source_sha256": "a2d567ea9c3689df6fcf52ce2e970c5fde2dfc20e67b2e86305fb7e84f3b7bb3",
+      "translation": "Mäter konfluensen, den andel av varje bildfält som täcks av celler, och skriver den till measurements.db: en rad per bildfält i tabellen confluency och en per brunn i confluency_well, med en flagga monolayer_ok som plack- och infektionsanalyserna kan filtrera på eller dividera med. Fungerar för vilken kanal som helst (ljusfält, faskontrast eller en fluorescerande färgning) eller direkt från cellmaskerna, som confluency_source avgör. Med plot på får varje bildfält också ett överlägg av den täckta ytan. Standard False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_channel",
+      "source": "The merged-array channel that the texture and intensity confluency sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, or the cytoplasm or membrane stain for intensity. Ignored when confluency_source resolves to masks. Default None.",
+      "source_sha256": "7147e89cfc25f7f1091cc5ee93542723ed6b6e8b285fa10644784164403d765b",
+      "translation": "Kanalen i den sammanslagna arrayen som konfluenskällorna textur och intensitet läser, räknad som i channels. Tomt använder första posten i channels. Välj ljusfälts- eller fasplanet för textur, eller cytoplasma- eller membranfärgningen för intensitet. Ignoreras när confluency_source blir masker. Standard None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_qc_threshold",
+      "source": "Lowest covered fraction, from 0 to 1, at which a field or well passes monolayer QC. Fields and wells below it get monolayer_ok 0 in measurements.db, so plaque and infection results from a thin or torn monolayer can be dropped or divided by the covered fraction. Blank passes every well. Default 0.8.",
+      "source_sha256": "fc1aa1ad92c9e5014c42bd4ff5e7120944b42209f611bb33f4a2b43748890c05",
+      "translation": "Lägsta täckta andel, från 0 till 1, vid vilken ett bildfält eller en brunn klarar monolagrets QC. Bildfält och brunnar under den får monolayer_ok 0 i measurements.db, så att plack- och infektionsresultat från ett tunt eller trasigt monolager kan tas bort eller divideras med den täckta andelen. Tomt godkänner varje brunn. Standard 0.8."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_source",
+      "source": "How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold, for brightfield and phase. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.",
+      "source_sha256": "cc761c6fcbe3b047f13a45397efe2679f6c3d3f4c73fbcc605b9e48dd6bafa59",
+      "translation": "Hur konfluensen bestäms. auto använder cellmaskerna när körningen har cellmasker och annars textur. masks är unionen av alla segmenterade celler, före Measures storleksfilter. texture läser den lokala variationen i confluency_channel med en automatisk tröskel, för ljusfält och faskontrast. intensity sätter automatiskt en tröskel för confluency_channel, för fluorescerande cytoplasma- eller membranfärgningar. Standard auto."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_window",
+      "source": "Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. Ignored by the masks and intensity sources. Default 15.",
+      "source_sha256": "c36dc65f120988bf82b56a3467e86491b7a16da88ea8f1a289d0784a23778d89",
+      "translation": "Sidan på det kvadratiska fönstret, i pixlar, över vilket konfluenskällan textur mäter lokal variation. Ungefär bredden på det tunnaste cellutskott som ska räknas som täckt: mindre följer kanter närmare men lämnar släta cellinteriörer som hål, större överbryggar smala glipor. Ignoreras av källorna masker och intensitet. Standard 15."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_clahe",
+      "source": "Contrast-limited adaptive histogram equalisation, per tile rather than over the whole field. Brings out objects in a dim corner without saturating the bright middle, and amplifies noise in empty tiles, which the clip limit bounds. Default False.",
+      "source_sha256": "90d6473ba37b1f946dfef57546245408551042ea9aaeb9f1bd1947418510156d",
+      "translation": "Kontrastbegränsad adaptiv histogramutjämning, per ruta i stället för över hela bildfältet. Lyfter fram objekt i ett mörkt hörn utan att mätta den ljusa mitten, och förstärker brus i tomma rutor, vilket klippgränsen begränsar. Standard False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "fill_in",
+      "source": "Fill the holes inside each object of every mask Cellpose Masks (Apply) writes. Each object is filled on its own and keeps its id, so touching objects stay separate and a hole never takes pixels from a neighbour. Default True in Cellpose Masks.",
+      "source_sha256": "44b9e0519c2e8b51d8258f580e717ce8764d61833839384949ae279b2f7fcafc",
+      "translation": "Fyller hålen inuti varje objekt i varje mask som Cellpose Masks (Apply) skriver. Varje objekt fylls för sig och behåller sitt id, så objekt som rör vid varandra förblir åtskilda och ett hål tar aldrig pixlar från en granne. Standard True i Cellpose Masks."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "mask_gpu_indices",
+      "source": "GPUs used when mask_parallel is on, as comma-separated numbers such as 0,1. Blank uses every GPU the process can see, which on a cluster means the GPUs allocated to the job; with fewer than two the run uses one device. Default blank.",
+      "source_sha256": "23cff63eedc09cc6269f47ee10c179ce024950a7c66e48cf0e31bd39e7db1751",
+      "translation": "GPUs som används när mask_parallel är på, som kommaseparerade nummer, till exempel 0,1. Tomt använder varje GPU som processen ser, vilket på ett kluster betyder de GPUs som tilldelats jobbet; med färre än två använder körningen en enhet. Standard tomt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "mask_parallel",
+      "source": "Segment the prepared cell, nucleus and pathogen batches on several GPUs at once, one model process per GPU. Each batch goes to exactly one GPU, finished batches are kept and a rerun with the same settings resumes the rest. Masks match the single-GPU run. Needs two or more CUDA or ROCm GPUs and the Cellpose backend; not for timelapse or t_stack runs. With adjust_cells, adjusted cells are written to masks/adjusted_cell_mask_stack and the raw cell masks are kept. Default False.",
+      "source_sha256": "4aa8f84644320895f9113991c3dbbb6b1aab52debce1dbee651af7486e84efff",
+      "translation": "Segmenterar de förberedda batcharna av celler, kärnor och patogener på flera GPUs samtidigt, en modellprocess per GPU. Varje batch går till exakt en GPU, färdiga batcher behålls och en ny körning med samma inställningar återupptar resten. Maskerna blir desamma som vid en körning på en GPU. Kräver två eller fler CUDA- eller ROCm-GPUs och Cellpose-motorn; inte för tidsserie- eller t_stack-körningar. Med adjust_cells skrivs justerade celler till masks/adjusted_cell_mask_stack och de råa cellmaskerna behålls. Standard False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "percentiles",
+      "source": "Two percentiles [low, high] used to rescale each channel of each image to 0-1 before segmentation, e.g. [2, 98]. Narrowing the window boosts contrast on dim objects but clips bright ones. Set None to derive them automatically: low fixed at 2, high the first of 98/99/99.9/99.99/99.999 exceeding background * Signal_to_noise. In Cellpose Masks (Apply), None instead lets Cellpose normalise each image itself, as the live preview does. Default None in the Cellpose steps.",
+      "source_sha256": "33c1b48bceefd01eb2a0ef3020e40ce4084df287aaf66905a2e99c57d6b5ce2d",
+      "translation": "Två percentiler [low, high] som används för att skala om varje kanal i varje bild till 0–1 före segmentering, till exempel [2, 98]. Ett smalare fönster ökar kontrasten för svaga objekt men klipper ljusa. Sätt None för att härleda dem automatiskt: low fast på 2, high det första av 98/99/99.9/99.99/99.999 som överstiger background * Signal_to_noise. I Cellpose Masks (Apply) låter None i stället Cellpose normalisera varje bild själv, som liveförhandsvisningen gör. Standard None i Cellpose-stegen."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_mode",
+      "source": "Tracking backend used to link objects between frames. 'trackastra' is a pretrained transformer with division-aware linking; 'ultrack' jointly optimizes segmentation and linking and supports dense or 3D data at a higher computational cost; 'trackpy' uses a configurable search radius and frame memory; 'btrack' uses a motion model; 'iou' links masks by overlap and may fail when objects move far between frames; 'timeflows' is spaCR's experimental temporal Cellpose, needs a trained checkpoint in timeflows_model and has not yet beaten 'iou' on held-out movies. Default 'trackastra'.",
+      "source_sha256": "2d47849b1fbbb707e98557c645739ce7cd01d0cbbece48f621148506c42f09e5",
+      "translation": "Spårningsmotor som länkar objekt mellan bildrutor. 'trackastra' är en förtränad transformer med delningsmedveten länkning; 'ultrack' optimerar segmentering och länkning gemensamt och stöder täta eller 3D-data till en högre beräkningskostnad; 'trackpy' använder en konfigurerbar sökradie och bildrutsminne; 'btrack' använder en rörelsemodell; 'iou' länkar masker via överlapp och kan misslyckas när objekt flyttar sig långt mellan bildrutor; 'timeflows' är spaCR:s experimentella tidsberoende Cellpose, kräver en tränad kontrollpunkt i timeflows_model och har ännu inte slagit 'iou' på undanhållna filmer. Standard 'trackastra'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "watch_folder",
+      "source": "Keep Make Masks running on src and analyse each field as its images arrive, for a plate the microscope is still writing. A file is taken once it has stopped changing for watch_settle_seconds and reads whole, and a field once a file for every entry of channels is in. Images already in src go first. Each field is analysed alone, as a batch run with batch_size 1 would, and results gather in src/spacr_watch, whose watch_ledger.json lets a restart skip fields already analysed. Not for timelapse, z_stack or t_stack runs. Default False.",
+      "source_sha256": "e1945b9b02af0ec5552ba3fa6349595a7267daca13fb78d3480b2d33938926be",
+      "translation": "Håller Make Masks igång på src och analyserar varje bildfält när dess bilder kommer in, för en platta som mikroskopet fortfarande skriver. En fil tas när den har slutat ändras under watch_settle_seconds och kan läsas hel, och ett bildfält när det finns en fil för varje post i channels. Bilder som redan finns i src går först. Varje bildfält analyseras för sig, som en batchkörning med batch_size 1 skulle göra, och resultaten samlas i src/spacr_watch, vars watch_ledger.json låter en omstart hoppa över bildfält som redan analyserats. Inte för tidsserie-, z_stack- eller t_stack-körningar. Standard False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "watch_idle_minutes",
+      "source": "Stop watching once nothing in src has changed for this many minutes, and list the fields that never became complete. 0 watches until Stop is pressed. Default 0.",
+      "source_sha256": "f8b6c2105fec08f67339f572ae5e5d563bd70b47c1ce54eb6ea8e112efb3fb1b",
+      "translation": "Sluta bevaka när inget i src har ändrats på så här många minuter, och lista de bildfält som aldrig blev fullständiga. 0 bevakar tills Stoppa trycks. Standard 0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "watch_measure_settings",
+      "source": "A Measure settings file (.csv or .json, as the Measure screen saves them) that watch_pipeline 'mask_measure' measures every field with. Blank uses Measure's defaults with this run's channels. Default blank.",
+      "source_sha256": "18280c253b0a2c1ddc164ded85c620d8bd3c37fb37ba782c5bdbd742defdb3c1",
+      "translation": "En inställningsfil för Measure (.csv eller .json, som Measure-skärmen sparar dem) som watch_pipeline 'mask_measure' mäter varje bildfält med. Tomt använder Measures standardvärden med den här körningens kanaler. Standard tomt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "watch_pipeline",
+      "source": "What watch_folder runs on each arriving field. 'mask' runs Make Masks; 'mask_measure' then runs Measure on the field's merged stacks and appends its rows to src/spacr_watch/measurements/measurements.db. Default 'mask'.",
+      "source_sha256": "74bbca66d83197ea90d44e01e1c8dac8a91f5f80ae0c2de27239e58632ff853c",
+      "translation": "Vad watch_folder kör på varje bildfält som kommer in. 'mask' kör Make Masks; 'mask_measure' kör sedan Measure på bildfältets sammanslagna stackar och lägger till dess rader i src/spacr_watch/measurements/measurements.db. Standard 'mask'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "watch_poll_seconds",
+      "source": "How often watch_folder looks in src for new or changed images. A field is picked up about watch_settle_seconds plus this long after its last file stops changing, once the fields before it are done. Default 5.",
+      "source_sha256": "171a24ef2d4d63b4d839a3777115de8a2d18fd75a394dd7f85c0302ff96b5764",
+      "translation": "Hur ofta watch_folder letar i src efter nya eller ändrade bilder. Ett bildfält plockas upp ungefär watch_settle_seconds plus så här länge efter att dess sista fil slutat ändras, när bildfälten före det är klara. Standard 5."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "watch_settle_seconds",
+      "source": "How long an image must keep the same size and modification time before watch_folder reads it, so a file the microscope is still writing is not taken half-written. Raise it for slow network shares. Default 10.",
+      "source_sha256": "7e40a4562581b1f508a919a4a548d5cfddaf1990175beae1c55f90e51fb72f0a",
+      "translation": "Hur länge en bild måste behålla samma storlek och ändringstid innan watch_folder läser den, så att en fil som mikroskopet fortfarande skriver inte tas halvskriven. Höj värdet för långsamma nätverksresurser. Standard 10."
+    }
+  ]
+}

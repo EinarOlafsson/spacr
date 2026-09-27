@@ -1,6 +1,10 @@
 SCRATCH / WOUND-CLOSURE ASSAY
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED AS ALPHA 2026-09-26. Measure finds the scratch wound in
+every frame (texture, intensity or cell masks), writes area, mean/min width,
+closure rate and half-closure time per field, well and condition, with
+closure curves and a plate map; the Measure preview draws the wound edge.
+Hidden with Alpha features. DONE WHEN not met on the public data (below).
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 
@@ -23,3 +27,85 @@ WHAT TO BUILD
 DONE WHEN
     A public scratch-assay timelapse gives closure curves matching hand
     measurements within 5 %.
+
+2026-09-26 — Implemented as Alpha
+    Measure runs it at the end of a run when `wound_closure` is on. Frames
+    are grouped by plate/well/field from their merged names (schema
+    .parse_field_stem, _merged_names.parse_merged_filename) and ordered by
+    timepoint; `wound_hours_per_frame` turns frames into hours and
+    voxel_size_xy_um widths into um.
+    Wound: `wound_source` texture (541's local-SD idea, on the frame divided
+    by its own heavy blur so vignetting drops out, normalised by its median;
+    cut by Otsu on the first frame, placed a fifth of the way up from the
+    open level in log texture, then the edge grown back by the
+    window-straddling offset), intensity (541's quarter-way rule, frame
+    normalised by its 95th percentile) or masks. The first frame's largest
+    open region is the wound; its principal axis and a band around it are
+    kept, and later frames count open regions of at least window^2 px
+    whose centre is in the band, clipped to it. Cells inside the wound are
+    filled (as the Wound Healing Size Tool and hand tracing count them).
+    The cut decided on frame 0 is reused for later frames.
+    Width: per one-pixel position along the axis, counted only where the
+    whole cross-section is in the field (tilted scratches); mean, min
+    (0 = bridged), max, SD.
+    Closure: relative open area, half-closure time (linear interpolation),
+    closure rate (LSQ slope of the closed fraction up to 90 % closed, with
+    R2), width rate and front speed (half of it), reopened flag.
+    QC status per field: ok, no_wound (<1 % open at t0), not_a_scratch
+    (open across <50 % of the axis), missing_start (first frame later than
+    the run's); wound_ok per well.
+    Tables in measurements.db: wound (field x frame), wound_well (fields
+    pooled by summed area), wound_closure (per well, with condition),
+    wound_condition (mean curve and per-well t50/rate mean, SD, n). CSVs and
+    figures (closure_curves, half_closure_time, plate_<plate>_half_closure
+    via plate_qc.plate_layout/layout_matrix, per-field wound_edges when plot
+    is on) in results/wound_closure, all through spacr.tabular and
+    spacr.plot.save_figure. `wound_conditions` maps wells to conditions in
+    the well_spec vocabulary (r2, c3, B03); unmapped wells are their own.
+    Preview: a Wound toggle in the Measure preview draws the edge on the
+    loaded field and reports open %, mean and narrowest width.
+    Code: spacr/measure.py (_wound_* helpers, _closure_metrics,
+    _run_wound_closure; all private, no new module), measure_preview.py.
+    Accuracy, synthetic (ragged bands of known area, 0/20/90 deg,
+    brightfield/fluorescent/masks): open area within 2 % of the first
+    frame's area, half-closure time within 0.1 frame, rate within 6 %.
+    A gap narrower than about one texture window reads as closed.
+    Accuracy, public data: Zenodo 21779854 (Cytometry A, CC BY 4.0), the 24
+    HUVEC/SKOV-3 series whose every frame has a hand-corrected (ImageJ)
+    wound mask, 86 frames at 0/8/12/24 h or 0/24/48 h; frames read at half
+    resolution, wound_window 15. First frames: median IoU 0.90, median open
+    area error 0.8 % of the field. Later frames: closure within 5 points of
+    the hand value in 45 %, within 10 in 61 %; median error 5.6, mean 13.9
+    points; 9 of 24 series have a mean closure error within 5 points; t50
+    in both for 14 series, median difference 1.2 h (mean 2.6 h). For
+    scale, the Wound Healing Size Tool on these frames was 25 points of
+    field area off (the paper's correction table); ours 3.2. The 5 %
+    DONE WHEN is therefore NOT met on this dataset: its time points are
+    separately re-imaged (focus, exposure and in one series zoom differ
+    from t0), and the frames were hand-corrected because automatic
+    measurement failed on them, so they are the hard ones. Scripts and
+    per-frame results: /mnt/firecuda2/codex/scratch-docs/536 (tools/,
+    real_final_15.csv).
+    Tests: tests/test_scratch_wound_closure.py (synthetic sources and
+    angles, widths, bridging, gaps beside the wound, cells in the wound,
+    no-wound/not-a-scratch QC, closure metrics, conditions, pooling,
+    measure_crop end to end with four tables, CSVs and figures, alpha
+    registration) and tests/qt/test_measure_wound_preview.py (overlay,
+    masks slice, failure reporting, button and Measure form hidden/visible).
+    Also: 541's confluency overlay used a bare .scaled(); it now goes
+    through hidpi.scaled_for like the wound overlay.
+    Left: the 5 % agreement on real time-lapses (a true same-position
+    time-lapse with hand measurements would be the fair test; per-frame
+    re-thresholding for re-imaged time points was tried and was worse);
+    a brightfield-only entry that does not need Measure's masks pipeline
+    (Measure still needs merged arrays); drift registration between
+    frames; a manual threshold override; condition curves across plates
+    are pooled by condition name only.
+ALPHA: settings wound_closure, wound_source, wound_channel, wound_window,
+wound_hours_per_frame, wound_conditions (Measure category "Wound Closure
+(Alpha)"); widget MeasureWoundToggle (its MeasureWoundOverlay label shows
+only through it). Registered as ALPHA_FEATURES[536] in spacr/settings.py;
+the preview asks preferences._is_alpha_visible. Ratchets: tooltip default
+claims 750 -> 760, six keys in KEYS_ADDED_BY_REGROUP, Measure category
+order, six captions in _AWAITING_CATALOG_REBUILD; flow page, consumer map,
+API targets and the 02 notebook regenerated.
