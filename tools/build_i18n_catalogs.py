@@ -284,6 +284,7 @@ _IDENTITY_TEXT = {
     "ntfy", "Slack",
     # 316, 2026-09-27: backend and workflow-engine names shown alone.
     "CellProfiler", "CellProfiler (Alpha)", "Nextflow…", "Snakemake…",
+    "Visium", "Visium HD", "Xenium",
     "PNG", "QC", "RGB",
     "RNA", "ROI", "SAM", "SHAP", "SQL", "TIFF", "UMAP", "ViT", "X",
     "XGBoost", "Y",
@@ -3816,8 +3817,44 @@ def _indirect_runtime_ui_sources() -> set[str]:
     from spacr.qt.widgets.test_data_chooser import TestDataChooser
     from spacr.qt.import_demo import ImportTestDataChooser
     from spacr.import_examples import IMPORT_VARIANTS
+    from spacr.embeddings import _FOUNDATION_MODELS
+    from spacr.qt.screens.map_barcodes import _SPATIAL_MASKS
 
     found: set[str] = set(PREFERENCE_TIPS)
+    presentation_sources = {info["label"] for info in _FOUNDATION_MODELS.values()}
+    presentation_sources.update(label for _key, label in _SPATIAL_MASKS)
+    spatial_tree = ast.parse(
+        (ROOT / "spacr/qt/screens/map_barcodes.py").read_text(encoding="utf-8")
+    )
+    for owner in spatial_tree.body:
+        if isinstance(owner, ast.FunctionDef) and owner.name == "_install_spatial_transcriptomics":
+            for node in ast.walk(owner):
+                if (isinstance(node, ast.Assign) and len(node.targets) == 1
+                        and isinstance(node.targets[0], ast.Name)
+                        and node.targets[0].id == "hint"):
+                    presentation_sources.update(_literal_strings(node.value, {}))
+        if isinstance(owner, ast.ClassDef) and owner.name == "_SpatialTranscriptomicsPanel":
+            for node in ast.walk(owner):
+                if (isinstance(node, ast.For) and isinstance(node.target, ast.Tuple)
+                        and [getattr(part, "id", None) for part in node.target.elts]
+                        == ["value", "caption"] and isinstance(node.iter, ast.Tuple)):
+                    for option in node.iter.elts:
+                        if isinstance(option, ast.Tuple) and len(option.elts) == 2:
+                            presentation_sources.update(_literal_strings(option.elts[1], {}))
+    cloud_tree = ast.parse(
+        (ROOT / "spacr/qt/screens/settings_model.py").read_text(encoding="utf-8")
+    )
+    for owner in cloud_tree.body:
+        if isinstance(owner, ast.ClassDef) and owner.name == "_CloudBrowserDialog":
+            for node in ast.walk(owner):
+                if (isinstance(node, ast.Call) and _call_name(node) == "setPlaceholderText"
+                        and isinstance(node.func, ast.Attribute)
+                        and isinstance(node.func.value, ast.Attribute)
+                        and node.func.value.attr == "address"):
+                    for argument in node.args:
+                        if isinstance(argument, ast.Call) and _call_name(argument) == "tr":
+                            for value in argument.args:
+                                presentation_sources.update(_literal_strings(value, {}))
     found.update(_starplast_progress_sources())
     found.update(_organism_description_sources())
     found.update(_make_masks_shortcut_sources())
@@ -3933,8 +3970,8 @@ def _indirect_runtime_ui_sources() -> set[str]:
     # These registry values are known presentation prose. A filename, URL or
     # example regex inside an explanation must not make the AST heuristic
     # discard the whole paragraph.
-    return {value.strip() for value in chooser_sources | preview_sources | _workflow_ui_sources()
-            if value.strip()} | {
+    return {value.strip() for value in chooser_sources | preview_sources | _workflow_ui_sources() | presentation_sources
+            if value.strip() and value not in _IDENTITY_TEXT} | {
         value.strip() for value in found if _looks_translatable(value)
     }
 
