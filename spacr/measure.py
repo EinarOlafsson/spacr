@@ -1151,17 +1151,16 @@ def _morphological_measurements(
                 found[name] = mask
         return found
 
-    def _with_distances(frame, mask, name):
+    def _with_distances(frame, name):
         """Merge the object-distance block onto a props frame.
 
         Props on the LEFT for the reason `_with_spatial` gives: 'label' has
-        to keep column position 0.
+        to keep column position 0. A non-empty frame means ``name``'s mask
+        holds labels, so `_all_masks` already carries it.
         """
         if not distances_on or len(frame) == 0:
             return frame
         masks = _all_masks()
-        if name not in masks:
-            masks = dict(masks, **{name: mask})
         try:
             from .object_distances import object_distances
 
@@ -1258,7 +1257,7 @@ def _morphological_measurements(
         cell_to_nucleus, cell_to_pathogen = get_components(cell_mask, nucleus_mask, pathogen_mask)
         cell_props = _props(cell_mask)
         cell_props = _with_spatial(cell_props, cell_mask)
-        cell_props = _with_distances(cell_props, cell_mask, 'cell')
+        cell_props = _with_distances(cell_props, 'cell')
         cell_props = _with_bystanders(cell_props, cell_mask, cell_to_pathogen)
         if zernike:
             cell_props = _calculate_zernike(
@@ -1272,7 +1271,7 @@ def _morphological_measurements(
     if settings['nucleus_mask_dim'] is not None:
         nucleus_props = _props(nucleus_mask)
         nucleus_props = _with_spatial(nucleus_props, nucleus_mask)
-        nucleus_props = _with_distances(nucleus_props, nucleus_mask, 'nucleus')
+        nucleus_props = _with_distances(nucleus_props, 'nucleus')
         if zernike:
             nucleus_props = _calculate_zernike(
                 nucleus_mask, nucleus_props, degree=degree)
@@ -1295,7 +1294,7 @@ def _morphological_measurements(
     if settings['pathogen_mask_dim'] is not None:
         pathogen_props = _props(pathogen_mask)
         pathogen_props = _with_spatial(pathogen_props, pathogen_mask)
-        pathogen_props = _with_distances(pathogen_props, pathogen_mask, 'pathogen')
+        pathogen_props = _with_distances(pathogen_props, 'pathogen')
         if zernike:
             pathogen_props = _calculate_zernike(
                 pathogen_mask, pathogen_props, degree=degree)
