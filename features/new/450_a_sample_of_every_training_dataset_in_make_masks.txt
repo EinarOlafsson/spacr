@@ -2,10 +2,10 @@
 A SAMPLE OF EVERY TRAINING DATASET, PICKABLE IN MAKE MASKS
 ================================================================================
 
-Status:    BUILT 2026-09-20. Runtime translation tail CLOSED 2026-09-27 in all
-           nine locales; sample wording now covers variable counts and optional
-           masks. Full closure awaits the shared plaque helper's API docstring
-           correction, tracked with item 451. Historical live receipts below.
+Status:    DONE 2026-09-27. Runtime translations cover all nine locales;
+           sample wording covers variable counts and optional masks, and the
+           shared plaque helper's private docstring is corrected. Historical
+           live receipts and current validation are recorded below.
 
 Requested: 2026-09-20 -- "for the generate masks modular, there should be
            multiple datasets for the user to choose from, a small sample of
@@ -146,3 +146,12 @@ The historical pairing, randomization, quotas and live foreground counts above
 remain the dataset acceptance evidence; no new network sampling is claimed.
 The shared plaque helper's cataloged docstring still needs its separate API
 correction before the item is marked fully DONE.
+
+2026-09-27 follow-up: the private helper's docstring now accurately describes
+the registered input section, variable sample sizes, images-only whole figures
+and src assignment. The earlier claim that it was cataloged was incorrect:
+canonical public_docstrings and _english_manifest generation prove that all
+11,865 public API entries are unchanged and this private helper is excluded.
+No API catalog or translation mutation is required. The package callable
+documentation guard passed. Receipt:
+features/data/450_451_private_docstring_2026-09-27.json.

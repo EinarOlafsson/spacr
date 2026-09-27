@@ -5348,15 +5348,12 @@ class AppScreen(QWidget):
     def _install_plaque_example_button(self, section) -> None:
         """Add Plaque Analysis's test-data control.
 
-        The module is not in EXAMPLE_DATA_SECTIONS, so the dispatch above never
-        reaches it and this builds its button instead. It offers TWO sets, because the module has two halves and they take
-        different input: ten segmented plaque FIELDS, which is what the cpsam_plaque
-        model was trained on, and ten whole plate FIGURES, which is what the pipeline
-        actually consumes before it has found a well.
+        The registered input section offers segmented plaque fields or whole
+        plate figures through the shared dataset picker. Sample sizes vary by
+        dataset; whole plate figures have no segmentation masks. The selected
+        directory becomes ``src``.
 
-        The sample machinery is the shared example-dataset one, unchanged. What differs is what happens
-        afterwards: Make Masks opens the folder in the editor, and this points ``src``
-        at it.
+        :param section: Input section receiving the dataset button.
         """
         from PySide6.QtWidgets import QPushButton
 

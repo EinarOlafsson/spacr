@@ -2,10 +2,10 @@
 TEST DATA FOR THE PLAQUE MODULE, AND IT HAD NONE
 ================================================================================
 
-Status:    BUILT 2026-09-20. Runtime translation tail CLOSED 2026-09-27 in all
-           nine locales. Two sets retain the live acceptance receipts below.
-           Full closure awaits correction/translation of the plaque helper's
-           stale cataloged docstring; runtime wording is now accurate.
+Status:    DONE 2026-09-27. Runtime translations cover all nine locales and
+           the plaque helper's private docstring is corrected. The two sets
+           retain the live acceptance receipts below; no fresh download is
+           claimed by the documentation follow-up.
 
 Requested: 2026-09-20 -- "Don't forget to wire in test data for the plaque
            module".
@@ -117,3 +117,10 @@ The remaining API correction is precise: _install_plaque_example_button's
 docstring incorrectly says ten segmented fields and says analyze_plaques is
 absent from EXAMPLE_DATA_SECTIONS. Correct and translate that cataloged text
 before marking the entire item DONE. No new live download is claimed here.
+
+2026-09-27 follow-up: the stale private docstring is corrected. Canonical
+public_docstrings and _english_manifest regeneration establish that the helper
+is not cataloged and all 11,865 English API entries remain unchanged. The
+earlier catalog claim above was incorrect; no translated API delta is needed.
+The package callable documentation guard passed. Receipt:
+features/data/450_451_private_docstring_2026-09-27.json.
