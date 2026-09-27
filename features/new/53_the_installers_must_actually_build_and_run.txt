@@ -2,7 +2,8 @@
 THE INSTALLERS MUST ACTUALLY BUILD AND RUN, ON ALL THREE PLATFORMS
 ================================================================================
 
-Status:    complete, 2026-08-14
+Status:    Native online installers verified; legacy frozen-bundle acceptance
+           remains OPEN. See the 2026-09-27 reconciliation.
 Requested: 2026-08-08 — "make sure to add the CPU/GPU ask and GIThub, claude, gemeni, gpt, asks during installation and making sure the installers work."
 
 --------------------------------------------------------------------------------
@@ -194,3 +195,13 @@ corrected above live only in this working tree.
 NEEDS A DECISION, NOT A PATCH: narrowing the ignore rule (to `/*.spec`, or
 to the build directory) and committing the spec changes what the repository
 ships, so it is the coordinator's call rather than an audit's.
+
+2026-09-27 — CURRENT SPEC AND REMAINING ACCEPTANCE
+The missing-spec claim above is historical: packaging/spacr.spec is tracked
+in the current nightly checkout, and .gitignore explicitly permits it. Its
+launcher calls spacr.qt.run(), with Qt hidden imports in the shared spec.
+No new permission or patch is needed to add a file already in the repository.
+The August native online-installer receipt remains distinct from the legacy
+PyInstaller .app/.exe family. This audit found no later actual frozen-bundle
+build-and-launch receipt, so that acceptance remains open; source inspection
+and the launcher's unit tests do not establish a native artifact launch.

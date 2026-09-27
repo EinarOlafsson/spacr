@@ -2190,3 +2190,13 @@ is imported on a worker after the first module screen. Final sweep, nightly
 interval over 500 ms 6 of 6 -> 0 of 6; Regression open 1.6 -> 0.7 s, Make
 Masks 1.3 -> 0.6 s. 380 REMAINS OPEN: Preferences' show is over the ceiling
 at load 15-21, and nothing here is macOS, Windows or a real compositor.
+
+2026-09-27 — PREFERENCES RESULT RECONCILED; NATIVE ACCEPTANCE STILL OPEN
+The last Preferences-over-500-ms statement above predates item284's final
+September26 lazy-tab result. That later measurement and its receipt,
+features/data/284_lazy_preferences_pages_2026-09-26.json, meet the existing
+500ms criterion for every module including Preferences on this host at
+moderate load. No additional optimization is justified by the stale number.
+Item380 remains open for its native compositor, Windows and macOS evidence;
+the existing offscreen/xvfb measurements do not substitute for those runs.
+No new performance run or other-platform signoff is claimed here.
