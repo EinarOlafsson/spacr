@@ -1251,6 +1251,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Spectral Unmixing (Alpha)", ("@Spectral Unmixing (Alpha)",)),
         ("Point Spread Function", ("@Point Spread Function",)),
+        ("Intensity Calibration (Alpha)", ("@Intensity Calibration (Alpha)",)),
         ("Measurement Features", (
             "save_measurements", "calculate_correlation",
             "spatial_measurements",
@@ -2671,6 +2672,13 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "reproducibility as mean average precision and percent replicating. "
         "Written as CSV, Parquet and GCT files that pycytominer, copairs and "
         "Morpheus read.",
+    "INTENSITY CALIBRATION (ALPHA)":
+        "Scale every imaging session to the same intensities before "
+        "measuring, from fluorescent beads or reference wells imaged "
+        "on every plate: each plate's intensity channels are "
+        "multiplied by the gain that makes its reference wells match "
+        "the first plate's, and the gains are recorded in "
+        "measurements.db.",
     "TIME TO EVENT (ALPHA)":
         "How long each tracked object of a timelapse lasts until an event "
         "such as death, lysis, egress, division or first detection, with "
