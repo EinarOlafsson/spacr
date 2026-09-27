@@ -1259,6 +1259,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "summarize_organelles_by",
         )),
         ("Confluency (Alpha)", ("@Confluency (Alpha)",)),
+        ("Cell Cycle (Alpha)", ("@Cell Cycle (Alpha)",)),
         ("Object Filtering", (
             "uninfected", "cell_min_size", "cell_max_size",
             "cytoplasm_min_size",
@@ -2644,6 +2645,13 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "out, the interval between frames, which backend links objects, and "
         "how far one may move between frames. For data that is both a "
         "z-stack and a time series.",
+    "CELL CYCLE (ALPHA)":
+        "The cell-cycle phase of every nucleus, called after measuring from "
+        "the DNA stain in one of three interchangeable ways: gates on each "
+        "plate's fitted DNA-content histogram, a boosted classifier on the "
+        "nucleus measurements, or an image classifier on nucleus crops. Each "
+        "writes the same phase column to measurements.db, with the phase "
+        "fractions per well among infected and uninfected cells.",
     "CONFLUENCY (ALPHA)":
         "How much of each field is covered by cells, measured per field and "
         "per well into measurements.db with a monolayer QC flag: from the "
