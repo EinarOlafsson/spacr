@@ -151,6 +151,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'cellpose_organelle_channel',
     'cellpose_pathogen_channel',
     'cellprob',
+    'cellprofiler_pipeline',
     'cellremove_background_',
     'cells',
     'cells_per_well',

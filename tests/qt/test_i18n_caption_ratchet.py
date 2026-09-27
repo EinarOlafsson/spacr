@@ -1156,6 +1156,11 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     # 555, 2026-09-26: the Segment by prompt category (micro-SAM), an alpha
     # feature: its caption, controls, tooltips and console lines.
+    # 546, 2026-09-27: the CellProfiler (Alpha) category help on Measure.
+    "Runs a lab's own CellProfiler pipeline on this run's fields after "
+    "measuring, headless in CellProfiler's own environment from the Model "
+    "Zoo, and writes its per-object measurements beside spaCR's, matched to "
+    "spaCR's objects, so existing pipelines keep working.",
     # 540, 2026-09-26: the Viability (Alpha) category help on Measure.
     "Live and dead cells, called after measuring from a dead stain, a live "
     "stain, both, or nuclear morphology, with thresholds fitted per plate or "

@@ -824,6 +824,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "viability", "viability_dead_channel", "viability_live_channel",
     "viability_thresholds", "viability_negative_wells",
     "viability_positive_wells", "viability_plate_map",
+    # A NEW SETTING, not a regrouping (item 546, 2026-09-27): a CellProfiler
+    # pipeline run on Measure's fields, under "CellProfiler (Alpha)".
+    "cellprofiler_pipeline",
     # A NEW SETTING GROUP, not a regrouping: Make Masks can keep watching
     # `src` and analyse each field as it arrives (`watch_folder`), with the
     # pipeline, Measure settings file, settle time, poll interval and idle
@@ -1537,6 +1540,9 @@ def _rendered_sections(app_key):
             # Item 540, 2026-09-26: live/dead viability, read from the same
             # measured nuclei, after the cell-cycle call.
             "Viability (Alpha)",
+            # Item 546, 2026-09-27: a lab's CellProfiler pipeline runs on
+            # the measured fields and its tables land beside spaCR's.
+            "CellProfiler (Alpha)",
             "Object Filtering", "Crop Output",
             # Item 547, 2026-09-26: profiling runs on the finished tables,
             # so its Alpha heading follows the outputs it reads.

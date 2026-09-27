@@ -1266,6 +1266,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Wound Closure (Alpha)", ("@Wound Closure (Alpha)",)),
         ("Time To Event (Alpha)", ("@Time To Event (Alpha)",)),
         ("Viability (Alpha)", ("@Viability (Alpha)",)),
+        ("CellProfiler (Alpha)", ("@CellProfiler (Alpha)",)),
         ("Object Filtering", (
             "uninfected", "cell_min_size", "cell_max_size",
             "cytoplasm_min_size",
@@ -2686,6 +2687,11 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "channels is estimated from single-stain control wells, and every "
         "field is unmixed with that matrix before it is segmented or "
         "measured. The matrix is printed and recorded with the run.",
+    "CELLPROFILER (ALPHA)":
+        "Runs a lab's own CellProfiler pipeline on this run's fields after "
+        "measuring, headless in CellProfiler's own environment from the "
+        "Model Zoo, and writes its per-object measurements beside spaCR's, "
+        "matched to spaCR's objects, so existing pipelines keep working.",
     "VIABILITY (ALPHA)":
         "Live and dead cells, called after measuring from a dead stain, a "
         "live stain, both, or nuclear morphology, with thresholds fitted "

@@ -1,6 +1,6 @@
 RUN CELLPROFILER .cppipe PIPELINES AS A spaCR STEP
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED AS ALPHA 2026-09-27.
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 
@@ -23,3 +23,54 @@ WHAT TO BUILD
 DONE WHEN
     An example CellProfiler pipeline runs from spaCR and its per-object
     measurements land in the database matched to spaCR objects.
+
+ALPHA: 2026-09-27. Hidden until Preferences -> "Show alpha features" is on:
+    the Measure setting cellprofiler_pipeline (heading "CellProfiler
+    (Alpha)") and the Model Zoo row cellprofiler_v1, registered as
+    ALPHA_FEATURES[546]. A value saved while hidden still reaches the run
+    (tests/qt/test_cellprofiler_alpha_gate.py).
+
+WHAT WAS BUILT (2026-09-27)
+    - Backend "cellprofiler" in spacr/_segmentation_backends.py, installed
+      from the Model Zoo into ~/.spacr/backends/cellprofiler, never into
+      spaCR's env: CellProfiler 4.2.8.1 + cellprofiler-core on Python 3.8/3.9
+      (scipy 1.9 / scikit-image 0.18.3 pins), headless (no wxPython, no
+      MySQL). CellProfiler 4 needs javabridge, which has no wheel, so the
+      install fetches a Java 11 JDK (install-jdk, Adoptium) into
+      <env>/jdk and builds python-javabridge against it; JAVA_HOME for the
+      build and the worker points only there. New spec fields: java,
+      built_here.
+    - Worker op run_cellprofiler: loads the .cppipe, hands it the file list,
+      runs it, returns every numeric per-object feature.
+    - Measure step (spacr/measure.py _run_cellprofiler_step): when
+      cellprofiler_pipeline is set, after measuring, each merged field is
+      exported as <stem>_ch<N>.tif and <stem>_<object>_mask.tif, the
+      pipeline runs, and each CellProfiler object lands in
+      measurements.db:cellprofiler_<object> with prcf, object_label, prcfo,
+      object_type and cp_* features. Objects are matched to spaCR objects by
+      the spaCR label under Location_Center_X/Y, in the mask the object name
+      names (Nuclei -> nucleus, Cells -> cell) or else the mask holding most
+      of them. A failure is printed and leaves spaCR's tables alone.
+    - Example pipeline: tests/data/cellprofiler/example.cppipe
+      (NamesAndTypes loads spaCR's masks as Nuclei/Cells objects,
+      MeasureObjectSizeShape + MeasureObjectIntensity on DNA/Actin).
+
+VERIFIED (CPU, 2026-09-27)
+    Installed through _install_backend with a Python 3.8 on PATH (109 s;
+    self-test OK). tests/test_cellprofiler_step.py::
+    test_the_example_pipeline_runs_in_the_installed_backend ran the example
+    pipeline for real: 2 Nuclei and 2 Cells measured, every one matched to
+    its spaCR object id.
+
+WHAT IS LEFT
+    - The Model Zoo row says the backend needs a Python 3.8 or 3.9 on
+      PATH; spaCR does not provision one. Most machines will need one
+      (conda or uv) before Install works.
+    - The example pipeline ships only as a test fixture; no GUI button
+      writes it out for users yet.
+    - Centre matching misses a concave object whose centre is off its own
+      mask; such rows keep an empty prcfo. Overlap matching would need the
+      pipeline's label images back from the worker.
+    - Maintainer: optional runtime needs (all inside the backend env, none
+      in setup.py): network access to PyPI and api.adoptium.net during
+      install; about 1.5 GB of disk.
