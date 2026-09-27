@@ -7296,6 +7296,14 @@ ALPHA_FEATURES = {
     },
     585: {
         'widgets': ('PowerArrayedPlanner',),
+    },    563: {
+        'widgets': ('ControlChartAnomaly', 'ControlChartAnomalySection'),
+    },
+    582: {
+        'widgets': ('PluginCatalogueHelp', 'PluginCatalogueSource',
+                    'PluginCatalogueLoad', 'PluginCatalogueTable',
+                    'PluginCatalogueInstall', 'PluginCatalogueUninstall',
+                    'PluginCatalogueStatus'),
     },
 }
 

@@ -1176,6 +1176,28 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'The Zenodo deposit failed: {error}',
     'Published {count} files on Zenodo: DOI {doi}, {url}',
     'Deposited {count} files as a Zenodo draft at {url}; its reserved DOI is {doi}. Publish it there.',
+    # 582, 2026-09-27: the Preferences Plugins tab, a plugin and recipe
+    # catalogue browser (alpha).
+    'Author',
+    'Browse a catalogue of community plugins and assay recipes. A plugin is installed into its own folder with the libraries it needs, so it never replaces a package spaCR uses; a recipe is saved as a settings file you can load into its module.',
+    'Catalogue',
+    'Catalogue file, folder or address',
+    'Could not read the catalogue: {error}',
+    'Install or update',
+    'Installed',
+    'Installed {name} {version}.',
+    'Its settings are in {path}.',
+    'Licence',
+    'List',
+    'Plugin',
+    'Recipe',
+    'Uninstalled {name}.',
+    'Where the catalogue is: a catalogue.json file, the folder holding one, or an http(s) address. It is remembered for next time. Default the SPACR_PLUGIN_CATALOGUE variable, else empty.',
+    'available',
+    'incompatible',
+    'update available',
+    '{count} entries in the catalogue.',
+    '{name} failed: {error}',
     # 585, 2026-09-27: the Power screen's alpha arrayed-assay planner.
     'Analyse replicates as pairs, so replicate-to-replicate variation cancels. Default off.',
     'Arrayed-assay planner',
@@ -1345,6 +1367,22 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'table',
     'yes',
     '{name}: {count} compound(s)',
+    # 563, 2026-09-27: the anomaly option of Control Charts -- objects
+    # scored against the negative control (alpha).
+    'An object is an outlier when it scores beyond this quantile of the control objects, so this share of controls is normal by construction. Wells are ranked by their share of outliers. Default 0.99.',
+    'Anomalies',
+    'Export anomalies…',
+    'How unlike the controls an object is: robust Mahalanobis distance, mean distance to the nearest control objects, an isolation forest, or low density under a Gaussian mixture. All run on the CPU. Default Robust Mahalanobis.',
+    'Known hits',
+    'Model the negative-control objects as normal and score every object and well for how unlike them it is, over every numeric feature (or the emb_ embedding columns when present). Needs a per-object table, the negative control picked above and well positions. Default off.',
+    'Outlier quantile',
+    'Pick the control column and the negative control to score anomalies against.',
+    'Score anomalies against the negative control',
+    'Turn on anomaly scoring and name the negative control.',
+    'Wells (A01), plate wells (prc) or treatment names that are known hits, separated by commas. With the positive control they give the AUROC of the ranking against the negative control. Default empty.',
+    'Write the anomaly report into',
+    "Write the ranked wells, every object's score, the top outliers and the review figure into a folder.",
+    'anomaly report written to {folder}',
 })
 
 

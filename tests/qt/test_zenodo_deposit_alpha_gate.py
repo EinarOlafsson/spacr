@@ -17,6 +17,19 @@ from tests.test_zenodo_deposit import FORM, TOKEN, make_run  # noqa: E402
 from tests.zenodo_fake import FakeZenodo  # noqa: E402
 
 
+@pytest.fixture(autouse=True)
+def _no_real_zenodo(tmp_path, monkeypatch):
+    """Each test keeps its own token file, and Zenodo points at a dead port.
+
+    A token remembered by one test must not be found by the next, and
+    nothing may reach Zenodo or its sandbox.
+    """
+    token_file = tmp_path / "zenodo_token.json"
+    monkeypatch.setattr(rep, "_zenodo_token_path", lambda: token_file)
+    monkeypatch.setattr(rep, "_ZENODO_API", {
+        "sandbox": "http://127.0.0.1:9/api", "zenodo": "http://127.0.0.1:9/api"})
+
+
 @pytest.fixture
 def alpha(monkeypatch):
     from spacr.qt import preferences

@@ -25,6 +25,22 @@ from tests.zenodo_fake import FakeZenodo
 
 TOKEN = "s3cret-zenodo-token"
 
+_REAL_API = dict(rep._ZENODO_API)
+_REAL_TOKEN_PATH = rep._zenodo_token_path
+
+
+@pytest.fixture(autouse=True)
+def _no_real_zenodo(tmp_path, monkeypatch):
+    """Each test keeps its own token file, and Zenodo points at a dead port.
+
+    A token remembered by one test must not be found by the next, and
+    nothing may reach Zenodo or its sandbox.
+    """
+    token_file = tmp_path / "zenodo_token.json"
+    monkeypatch.setattr(rep, "_zenodo_token_path", lambda: token_file)
+    monkeypatch.setattr(rep, "_ZENODO_API", {
+        "sandbox": "http://127.0.0.1:9/api", "zenodo": "http://127.0.0.1:9/api"})
+
 FORM = {"title": "Toxo screen", "description": "Two wells <test>.",
         "authors": "Doe Jane; Roe Rick", "email": "jane@example.org",
         "affiliation": "Example Lab", "microscope": "Nikon Ti2",
@@ -146,19 +162,14 @@ def test_no_token_and_no_plain_http_to_other_hosts(tmp_path):
         rep._zenodo_request("POST", "http://zenodo.example.org/api", TOKEN,
                             payload={})
     assert TOKEN not in str(err.value)
-    assert rep._ZENODO_API["sandbox"].startswith("https://sandbox.zenodo.org")
 
 
-def test_the_token_is_kept_in_a_mode_600_file_without_a_keyring(tmp_path,
-                                                                monkeypatch):
+def test_the_token_is_kept_in_a_mode_600_file_without_a_keyring(monkeypatch):
     from spacr import run_journal
 
-    path = tmp_path / "dot" / "notification_secrets.json"
-    monkeypatch.setattr(run_journal, "_notify_secrets_path", lambda: path)
     monkeypatch.setattr(run_journal, "_notify_keyring", lambda: None)
     assert rep._store_zenodo_token(TOKEN, sandbox=True) == "file"
     token_file = rep._zenodo_token_path()
-    assert token_file.parent == path.parent
     assert stat.S_IMODE(token_file.stat().st_mode) == 0o600
     assert rep._load_zenodo_token(sandbox=True) == TOKEN
     assert rep._load_zenodo_token(sandbox=False) == ""
@@ -166,8 +177,7 @@ def test_the_token_is_kept_in_a_mode_600_file_without_a_keyring(tmp_path,
     assert not token_file.exists()
 
 
-def test_the_token_goes_to_the_keyring_when_there_is_one(tmp_path,
-                                                         monkeypatch):
+def test_the_token_goes_to_the_keyring_when_there_is_one(monkeypatch):
     from spacr import run_journal
 
     class Ring:
@@ -184,8 +194,6 @@ def test_the_token_goes_to_the_keyring_when_there_is_one(tmp_path,
             self.kept.pop((service, name))
 
     ring = Ring()
-    monkeypatch.setattr(run_journal, "_notify_secrets_path",
-                        lambda: tmp_path / "notification_secrets.json")
     monkeypatch.setattr(run_journal, "_notify_keyring", lambda: ring)
     assert rep._store_zenodo_token(TOKEN, sandbox=False) == "keyring"
     assert ring.kept == {("spacr-zenodo", "token"): TOKEN}
@@ -193,3 +201,11 @@ def test_the_token_goes_to_the_keyring_when_there_is_one(tmp_path,
     assert rep._load_zenodo_token(sandbox=False) == TOKEN
     rep._store_zenodo_token("", sandbox=False)
     assert ring.kept == {}
+
+
+def test_the_token_file_sits_beside_the_other_spacr_secrets():
+    from spacr import run_journal
+
+    assert _REAL_API["sandbox"].startswith("https://sandbox.zenodo.org")
+    real = _REAL_TOKEN_PATH()
+    assert real.parent == run_journal._notify_secrets_path().parent
