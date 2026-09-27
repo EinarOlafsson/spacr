@@ -10152,6 +10152,27 @@ class SettingsWidgets:
         from ... import _mask_workers
 
         count = _mask_workers._mask_gpu_count_for_controls()
+        if count is None:
+            for control in (parallel, indices):
+                if control is not None:
+                    control.setEnabled(False)
+                    _apply_greyed_note(control, tr("Checking compatible GPUs…"))
+            if not getattr(self, "_mask_gpu_poll_pending", False):
+                self._mask_gpu_poll_pending = True
+                reference = weakref.ref(self)
+                timer = QTimer(parallel if parallel is not None else indices)
+                timer.setSingleShot(True)
+
+                def refresh():
+                    model = reference()
+                    if model is not None:
+                        model._mask_gpu_poll_pending = False
+                        model._refresh_mask_gpu_enablement()
+
+                timer.timeout.connect(refresh)
+                timer.timeout.connect(timer.deleteLater)
+                timer.start(100)
+            return
         if count < 2:
             note = tr(
                 "Needs two or more compatible CUDA or ROCm GPUs; {count} "

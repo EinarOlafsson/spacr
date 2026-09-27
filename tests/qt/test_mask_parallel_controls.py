@@ -6,7 +6,7 @@ import pytest
 pytest.importorskip("PySide6")
 pytest.importorskip("pytestqt")
 
-from PySide6.QtWidgets import QLabel                              # noqa: E402
+from PySide6.QtWidgets import QLabel, QWidget                     # noqa: E402
 
 from spacr import _mask_workers as mw                             # noqa: E402
 from spacr.qt.screens import settings_model as sm                 # noqa: E402
@@ -14,16 +14,18 @@ from spacr.qt.screens import settings_model as sm                 # noqa: E402
 NOTE = sm._PENDING_NOTE_PROPERTY
 
 
-def _panel(monkeypatch, count):
+def _panel(qtbot, monkeypatch, count):
     monkeypatch.setattr(mw, "_mask_gpu_count_for_controls", lambda: count)
-    panel = sm.SettingsWidgets("mask")
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    panel = sm.SettingsWidgets("mask", parent=owner)
     panel.build_sections()
     return panel, panel._widgets["mask_parallel"], panel._widgets["mask_gpu_indices"]
 
 
 @pytest.mark.parametrize("count", [0, 1])
 def test_without_two_gpus_both_controls_are_greyed_with_the_reason(qtbot, monkeypatch, count):
-    panel, parallel, indices = _panel(monkeypatch, count)
+    panel, parallel, indices = _panel(qtbot, monkeypatch, count)
     panel._refresh_mask_gpu_enablement()
     for control in (parallel, indices):
         assert not control.isEnabled()
@@ -32,7 +34,7 @@ def test_without_two_gpus_both_controls_are_greyed_with_the_reason(qtbot, monkey
 
 
 def test_with_two_gpus_the_list_follows_the_switch(qtbot, monkeypatch):
-    panel, parallel, indices = _panel(monkeypatch, 2)
+    panel, parallel, indices = _panel(qtbot, monkeypatch, 2)
     panel._refresh_mask_gpu_enablement()
     assert parallel.isEnabled() and not parallel.property(NOTE)
     assert not indices.isEnabled()
@@ -44,7 +46,7 @@ def test_with_two_gpus_the_list_follows_the_switch(qtbot, monkeypatch):
 
 
 def test_the_defaults_leave_the_feature_off(qtbot, monkeypatch):
-    panel, parallel, indices = _panel(monkeypatch, 2)
+    panel, parallel, indices = _panel(qtbot, monkeypatch, 2)
     assert panel._read_widget(parallel) is False
     assert (panel._read_widget(indices) or "") == ""
     from spacr.settings import set_default_settings_preprocess_generate_masks
@@ -54,13 +56,141 @@ def test_the_defaults_leave_the_feature_off(qtbot, monkeypatch):
     assert "mask_parallel" not in material_settings(defaults)
 
 
-def test_the_gpu_count_is_read_once_per_process(monkeypatch):
-    seen = []
+class _ProbePipe:
+    ready = False
+    closed = False
+
+    def poll(self):
+        return self.ready
+
+    def recv(self):
+        return 3
+
+    def close(self):
+        self.closed = True
+
+
+class _ProbeProcess:
+    started = False
+    stopped = False
+
+    def start(self):
+        self.started = True
+
+    def is_alive(self):
+        return not self.stopped
+
+    def terminate(self):
+        self.stopped = True
+
+    def join(self, timeout):
+        assert timeout == 0
+
+
+def _fake_probe(monkeypatch):
+    from types import SimpleNamespace
+
+    reader, writer = _ProbePipe(), _ProbePipe()
+    process = _ProbeProcess()
+    launches = []
+
+    def make_process(**kwargs):
+        launches.append(kwargs)
+        return process
+
+    context = SimpleNamespace(Pipe=lambda **_: (reader, writer), Process=make_process)
+    monkeypatch.setattr(mw.multiprocessing, "get_context", lambda mode: context)
     monkeypatch.setattr(mw, "_CONTROL_GPU_COUNT", [])
-    monkeypatch.setattr(mw, "_compatible_mask_gpus", lambda: seen.append(1) or (1, 2, 3))
+    monkeypatch.setattr(mw, "_CONTROL_GPU_PROBE", None)
+    monkeypatch.setattr(mw, "_compatible_mask_gpus", lambda: pytest.fail("probe ran in GUI"))
+    return reader, writer, process, launches
+
+
+def test_the_gpu_count_is_read_once_without_waiting_for_the_child(monkeypatch):
+    reader, writer, process, launches = _fake_probe(monkeypatch)
+    assert mw._mask_gpu_count_for_controls() is None
+    assert process.started and writer.closed and not reader.closed
+    assert mw._mask_gpu_count_for_controls() is None
+    assert len(launches) == 1
+    assert launches[0]["target"] is mw._probe_mask_gpu_count
+    reader.ready = True
     assert mw._mask_gpu_count_for_controls() == 3
     assert mw._mask_gpu_count_for_controls() == 3
-    assert seen == [1]
+    assert reader.closed and process.stopped and len(launches) == 1
+
+
+@pytest.mark.parametrize("failure", ["exit", "timeout", "eof"])
+def test_failed_gpu_discovery_finishes_without_blocking(monkeypatch, failure):
+    reader, _, process, _ = _fake_probe(monkeypatch)
+    assert mw._mask_gpu_count_for_controls() is None
+    if failure == "exit":
+        process.stopped = True
+    elif failure == "timeout":
+        started = mw._CONTROL_GPU_PROBE[2]
+        monkeypatch.setattr(mw.time, "monotonic", lambda: started + 61)
+    else:
+        reader.ready = True
+
+        def closed_pipe():
+            raise EOFError
+
+        reader.recv = closed_pipe
+    assert mw._mask_gpu_count_for_controls() == 0
+    assert reader.closed and process.stopped
+
+
+def test_child_counts_compatible_devices_and_closes_pipe(monkeypatch):
+    from types import SimpleNamespace
+
+    sent = []
+    closed = []
+    monkeypatch.setattr(mw, "_compatible_mask_gpus", lambda: (1, 2, 3))
+    mw._probe_mask_gpu_count(SimpleNamespace(send=sent.append, close=lambda: closed.append(True)))
+    assert sent == [3] and closed == [True]
+
+
+def test_pending_gpu_discovery_refreshes_the_controls(qtbot, monkeypatch):
+    panel, parallel, indices = _panel(qtbot, monkeypatch, None)
+    assert not parallel.isEnabled() and not indices.isEnabled()
+    assert "Checking compatible GPUs" in str(parallel.property(NOTE))
+    monkeypatch.setattr(mw, "_mask_gpu_count_for_controls", lambda: 2)
+    qtbot.waitUntil(parallel.isEnabled)
+    assert not parallel.property(NOTE)
+    panel.set_value_for_key("mask_parallel", True)
+    assert indices.isEnabled()
+
+
+def test_real_discovery_finishes_outside_the_gui_process():
+    import os
+    import subprocess
+    import sys
+
+    code = """
+import sys
+import time
+from PySide6.QtWidgets import QApplication, QWidget
+from spacr import _mask_workers
+from spacr.qt.screens.settings_model import SettingsWidgets
+app = QApplication([])
+owner = QWidget()
+panel = SettingsWidgets('mask', parent=owner)
+panel.build_sections()
+deadline = time.monotonic() + 45
+while not _mask_workers._CONTROL_GPU_COUNT and time.monotonic() < deadline:
+    app.processEvents()
+    time.sleep(.01)
+assert _mask_workers._CONTROL_GPU_COUNT == [0], _mask_workers._CONTROL_GPU_COUNT
+assert _mask_workers._CONTROL_GPU_PROBE is None
+assert 'torch' not in sys.modules
+assert not panel._widgets['mask_parallel'].isEnabled()
+owner.deleteLater()
+app.processEvents()
+"""
+    environment = dict(os.environ, CUDA_VISIBLE_DEVICES="", HIP_VISIBLE_DEVICES="",
+                       ROCR_VISIBLE_DEVICES="", QT_QPA_PLATFORM="offscreen")
+    result = subprocess.run([sys.executable, "-c", code], env=environment,
+                            capture_output=True, text=True, timeout=60)
+    assert result.returncode == 0, result.stderr[-3000:]
 
 
 def test_per_gpu_progress_reaches_the_label(qtbot):

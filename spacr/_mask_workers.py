@@ -585,16 +585,60 @@ def _compatible_mask_gpus():
 
 
 _CONTROL_GPU_COUNT = []
+_CONTROL_GPU_PROBE = None
+
+
+def _probe_mask_gpu_count(connection):
+    """Send the compatible GPU count from an isolated child process.
+
+    :param connection: the child's sending end of the discovery pipe.
+    """
+    try:
+        connection.send(len(_compatible_mask_gpus()))
+    except Exception:
+        connection.send(0)
+    finally:
+        connection.close()
 
 
 def _mask_gpu_count_for_controls():
     """Count compatible GPUs once per process for greying the settings controls."""
-    if not _CONTROL_GPU_COUNT:
+    global _CONTROL_GPU_PROBE
+    if _CONTROL_GPU_COUNT:
+        return _CONTROL_GPU_COUNT[0]
+    if _CONTROL_GPU_PROBE is None:
+        context = multiprocessing.get_context('spawn')
+        reader, writer = context.Pipe(duplex=False)
+        process = context.Process(target=_probe_mask_gpu_count,
+                                  args=(writer,), daemon=True)
         try:
-            _CONTROL_GPU_COUNT.append(len(_compatible_mask_gpus()))
+            process.start()
         except Exception:
+            reader.close()
+            writer.close()
             _CONTROL_GPU_COUNT.append(0)
-    return _CONTROL_GPU_COUNT[0]
+            return 0
+        writer.close()
+        _CONTROL_GPU_PROBE = (process, reader, time.monotonic())
+        return None
+    process, reader, started = _CONTROL_GPU_PROBE
+    count = None
+    try:
+        if reader.poll():
+            count = max(0, int(reader.recv()))
+        elif not process.is_alive() or time.monotonic() - started >= 60:
+            count = 0
+    except (EOFError, OSError, ValueError, TypeError):
+        count = 0
+    if count is None:
+        return None
+    reader.close()
+    if process.is_alive():
+        process.terminate()
+    process.join(timeout=0)
+    _CONTROL_GPU_PROBE = None
+    _CONTROL_GPU_COUNT.append(count)
+    return count
 
 
 def _selected_gpu_indices(value):
