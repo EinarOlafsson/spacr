@@ -1,4 +1,330 @@
 {
   "schema": 1,
-  "sources": {}
+  "sources": {
+    "017a098f1a748af21d3841c226b411266ae007305ea2c686fe9ae00ae59aecce": {
+      "source_blocks_sha256": [
+        "6b638a66ddd27519dbe1d48fff8038026d909bb07a0f7908d9b0781d858f5740",
+        "2645b131fcb0ef398a7f8880b46366b18f8e5144cb02a27706efb90c32d4d850",
+        "2223d6ffa4d2e69a9aaa11ef1c9e0132b0bc68a78c11398ce93b079b2a338961",
+        "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
+        "b4d1422e4bd0ea541c4a2611a3976e68689eca370a873789e681481adb35275a",
+        "07a1a8888483acf37f56f0f6eaa4e44f1eab6609c29763d0ca86576df9c34cb5"
+      ],
+      "source_sha256": "017a098f1a748af21d3841c226b411266ae007305ea2c686fe9ae00ae59aecce",
+      "text": "The OPS module's ``ops_spot_detector``: spaCR's own, or SpotNet.\n\nspaCR's own detector is first, the default and always usable. SpotNet\nis listed whether or not it can run; when its environment or its\nDeepCell token is missing its row is disabled and its tooltip says\nwhich, and either way the tooltip states its non-commercial licence,\nbecause this box is where a person chooses it.\n\n:param default: the value to start on, ``'native'`` or ``'spotnet'``.\n:param parent: parent widget.\n:param readiness: ``() -> (ready, reason)``; SpotNet's own check when\n    None, a stand-in in tests.\nList the detectors, disable SpotNet if it cannot run, select."
+    },
+    "2aeaabecf6c67c0419f368636508086589088a4d21df7e2e6efb5f70e42ffdea": {
+      "source_blocks_sha256": [
+        "343fe32113944eb9a2b943ea049f035002cae5d92e88c0258a2a4bc29fe8d8c8",
+        "b55ee15c1cec5f8ee686fedde07b50efa6e2d5347a163e4cbf8d5c8b6753ce25",
+        "c9b8abe78b419bb3892111c9a5cc7e2f4fa7af17bd7400d54d3f972534d2e882"
+      ],
+      "source_sha256": "2aeaabecf6c67c0419f368636508086589088a4d21df7e2e6efb5f70e42ffdea",
+      "text": "Opt-in PSF and enhancement-chain preparation and provenance for segmentation inputs.\n\nKernels are captured once per run. Only private intensity arrays are processed;\nraw stacks and mask labels are never rewritten by this module. V1 reuse checks\nboth the requested kernel/settings and the exact completed archive bytes.\n\nTHE ENHANCEMENT CHAIN TRAVELS THE SAME ROUTE. Make Masks' chain\n(:mod:`spacr.qt.detect_chain`) is written into a settings file as the\n``enhance_*`` keys and read back here by :func:`prepare_chain`, with the\n``psf_*`` settings folded in as the chain's PSF stage, so one plate run\napplies exactly the steps a curator tuned, in the chain's own order:\nbackground, PSF, denoise, contrast, sharpen. The session applies it per\nselected channel at the stage the PSF already ran -- after illumination\ncorrection and before normalization -- and its provenance goes into the\nsame ``psf/segmentation_application.json`` record, so a changed chain is\nrefused on resume the way a changed kernel is. With no chain step on, a\nrun is byte for byte what it was before the chain existed."
+    },
+    "2ff67c7a6631dfbff8feb9f4eb13a9f23a250a73969d2204b9e453e4233e2a60": {
+      "source_blocks_sha256": [
+        "bdea2d4d935fdada62dc3f44c8b2456c622173b79320fd5a7cf4e8a0e178deb1",
+        "327457c3cb011cac25d4b9ef6ca31a55d0c811e35b1ff3b12eb3512f9998a5ed",
+        "d30f428945bb3c400be1777373d16a3157a12c534cd6e75f2303a2abe9396b1b",
+        "15ff2ca016c1c575259534a0be93452a78d27f1bc16dcfcd4ec13516fda82f66",
+        "11e59d833f158e06ae192b942cb9108f72b064cfb7173fff132dcc691d3518c2",
+        "307f4b379a7a1902b0fa68fcf0a0371c73043fe48c436c4d8d3c830f48212deb",
+        "c33304be14f5205cfcab60bf9406330aecc2b72939a1529a874386802b128acf"
+      ],
+      "source_sha256": "2ff67c7a6631dfbff8feb9f4eb13a9f23a250a73969d2204b9e453e4233e2a60",
+      "text": "Embed a stack of crops.\n\nEvery crop is divided by the same per-channel scale,\n``spec.channel_scale``, so a crop's embedding does not depend on the other\ncrops in ``crops``. When the spec carries none, one is estimated from a\nrandom sample of ``crops`` -- the stack is treated as the whole plate --\nand a warning is logged. To embed one plate in several calls, pass the\nsame scale to each: the returned ``spec`` carries it.\n\n:param crops: ``(n, height, width, channels)``, the shape\n    :mod:`spacr.crops` already produces.\n:param spec: how to embed; the default is per-channel resnet18.\n:param encoder: a callable taking ``(n, height, width, 3)`` float32 in\n    [0, 1] and returning ``(n, dims)``. Injected by the tests so the\n    wiring can be exercised without downloading a backbone; production\n    callers leave it ``None``.\n:returns: an :class:`EmbeddingResult`.\n:raises EmbeddingError: on a shape or channel problem, before any model\n    is loaded -- a download is a slow way to find out the array was\n    wrong."
+    },
+    "38d592bc72362b629d4523236bee245c453d1908e937efb0eaa8b109c765b80c": {
+      "source_blocks_sha256": [
+        "264ee25f9242e2db6f8a2b5c761f5fd5b3321d464424dffaf144495d25df75b2",
+        "bc4ba6241be71569e20bc94ecabf0c9227e95266b1633a503263b333558e1c37",
+        "80e229a4b4b5ded4278360dd501eda8f870bc20ebcf8763dc0743472ce72abab",
+        "35d77d061cf8f4413382ce09a8136da28f0929ab3a03805e09ae9cd2a78aa1c4"
+      ],
+      "source_sha256": "38d592bc72362b629d4523236bee245c453d1908e937efb0eaa8b109c765b80c",
+      "text": "Whether these settings ask for a PSF or an enhancement step at all.\n\nA requested chain that cannot be built counts as requested: the run\nthen refuses with the reason rather than reusing inputs made without it.\n\n:param settings: the run's ``psf_*`` and ``enhance_*`` settings.\n:returns: True when either is switched on or cannot be read."
+    },
+    "447b424289aa7766de3674ae1ae4a88d06dfc3a0bc89b55b92ed43f3c96dddb4": {
+      "source_blocks_sha256": [
+        "a8f55513ecb54f6ef6094e1f5231cd4561edb5c2e7fd578292519d5928b4754a",
+        "35fab594ae536e49f6ba5718359c74084ea964b7a44fea1c7d88e484c2c5e41d",
+        "85bf00840d7e847c9b328b4188d7be15c228ead42df912797ecaadd79f937046",
+        "6f1a6402278301fbf43bed1209ab347ed0508f406cea0c656e507fadbecd2e9b",
+        "a790221c98b39c6adb17988ce1ff5f106f2150a1b3fd89d35e377f0b37c08713",
+        "6c6e649957d0b9c583c81c447713b9b3b3db4949a7b6bc6afbe768633e9fd6e3",
+        "42198a3abf9a706c48ef47734cb8536dda97a3ae52285ac4ffd2ba8f4888ddff",
+        "3c0dd888222825e0cd3f009a74557b14135d91a906b89b2a456ecfb3e1975f3b",
+        "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
+        "f778639f3568a0e8f65bd89f1db3981dc1e25738a947e767604358bf02fd3df8"
+      ],
+      "source_sha256": "447b424289aa7766de3674ae1ae4a88d06dfc3a0bc89b55b92ed43f3c96dddb4",
+      "text": "Segment host-cell plaques with a bundled Cellpose model and summarize per-image counts and areas.\n\nDownloads (if needed) the bundled ``toxo_plaque_cyto_e25000`` model,\nruns Cellpose over every ``.tif`` under ``src``, then computes\nper-image plaque count + mean/stddev area and writes a\n``plaques_analysis.db`` (tables: ``summary``, ``stats``,\n``details``) alongside the masks.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.get_analyze_plaque_settings`. Key entries:\n\n    - ``src`` — folder containing plaque images.\n    - ``masks`` — if truthy, run segmentation before analysis; if\n      falsy, expect masks already in ``<src>/masks``.\n    - ``diameter``, ``flow_threshold`` and ``CP_prob``, read by\n      :func:`spacr.plaque.segment_plaque_image`, the call the Plaque\n      preview makes too.\n    - ``plaque_mode`` -- ``'figure'`` hands the folder to\n      :func:`spacr.plaque_papers.measure_figure_folder` instead.\n\n:returns: None. Writes ``<src>/masks/plaques_analysis.db``.\n\nExample:\n    .. code-block:: python\n\n        from spacr.submodules import analyze_plaques\n        analyze_plaques({'src': '/data/plaque_assay', 'masks': True})\n\nSee Also:\n    :func:`analyze_recruitment` — intensity-ratio phenotype\n    instead of plaque counts."
+    },
+    "4ac980b9eb64d2bfb666bf21732ba9dfa9a4cf5846923319362eeeca21bffc7e": {
+      "source_blocks_sha256": [
+        "a9929b09f770c49ffd3eb6de32c1b4274fe55a7e67d336b686ad267c2b8be8b3",
+        "52acdc3925694f23cba6a907c537a1106037dd1cfbbcaa0e15bf7c43237cd485",
+        "840e2d522a5a06db333567db66bf7c9b9fe89e1a925845733ebafb1939df4444",
+        "0ae5294fe1224dacdbd44f54f2d6e533ce9b0353b8db908fdb04eab8a49d85bb",
+        "0de35813244bfab4d0bfea1ba9c5e2dfb136da1278847099f49481a6327efe61",
+        "f259011c20dc29861f49db3a19c7aa83131df95c97ea5a5bb848dfd293baffd3",
+        "cdc2893c728223d5a340d9093d9a777d7308579773b6289eb4ae54514e863a55",
+        "51514278b5933c93b94a00f5bbf0f7404c6cb847066386d922cd31aaf19039f6",
+        "38aa7873461c2c7d874784c4d387a54eeffed34388c1c305b4f380c038b4189b",
+        "7ac57d4b8f29e6ca1f3d3ac448d13ec3d75674544c67bc3aa2a6b7bb6ceb5a80",
+        "e04cf192063058d1e86b0dce12a94211954f78a4f0621d47dc6a9c0dc32bd89c",
+        "6820d8a6948cbdafc5706f858503cd16f7a86d21aea32f4fc8f4fd7a4e3dc5fc",
+        "e56eed853982e4d9af0d8a4a02192e153e1346aa2dbd16e4d5a00f2fd72ec35a",
+        "3090148e479841ba9434ab4b3bce4990d1276255caa972b11a5a00bf1165154e",
+        "9ccf463980e341d886e3efd1d5038440ae21fd6cb6bd54eeb623aa97b0fee32e",
+        "258b2c3959d0c9026f2c86ce64424e6155ad862dafb9106a3bda1a23e0590d99"
+      ],
+      "source_sha256": "4ac980b9eb64d2bfb666bf21732ba9dfa9a4cf5846923319362eeeca21bffc7e",
+      "text": "Write ``fig`` to ``path``, honouring the figure preferences.\n\nThe single place a spaCR figure the user keeps gets written. Before this\nexisted there were sixty-odd ``savefig`` calls, each with its own\nhard-coded format and DPI, and the \"Figure format\" and \"Resolution\"\npreferences reached exactly two of them -- both writing to a temp\ndirectory. Everything a pipeline saved into its results folder ignored\nboth settings entirely.\n\nThree things are decided here rather than left to the caller or to\nmatplotlib.\n\n**The format follows the preference**, and the file NAME follows the\nformat: a PNG written to ``figure.pdf`` is a file no viewer opens. An\nexplicit ``fmt=`` still wins, for the few callers that genuinely need one\nparticular format.\n\n**Fonts are embedded as TrueType** (``pdf.fonttype = 42``) for the length\nof the save. matplotlib's default is Type 3, which draws every glyph as\nits own content stream: the file is still vector, but Illustrator and\nInkscape open the text as unselectable outlines, and the preference that\nselects this path is labelled \"PDF (vector, editable)\". Scoped with\n``rc_context`` so a caller that has deliberately chosen otherwise is not\nchanged underneath it.\n\n**The DPI is passed**, always. A PDF page is resolution-independent, but\nspaCR figures are full of ``imshow`` panels -- cell montages, mask\noverlays, plate heatmaps -- and those are rasterised at the figure's own\n100 DPI unless told otherwise. Without it, 100, 300 and 600 produced\nbyte-identical files. What is passed is :func:`deliverable_dpi`, which\nsays so out loud when the requested number is not achievable here.\n\n**The chrome is repainted for paper**, and only for the length of the\nwrite. A figure saved from a dark-themed session was white ink on a white\npage -- `spacr.qt.preferences.get_figure_colors` hands both renderers a\nwhite foreground on a dark theme and nothing inverted it at export time, so\nthe file was a blank rectangle with some coloured dots in it, and a\ntransparent PNG even looked right in a dark file manager and disappeared\nwhen it was pasted into a manuscript. :func:`print_ready` moves the\nfurniture and puts it back; the DATA is never touched, because a white\npoint turned black is, on a volcano, the colour of \"not a hit\".\n\n:param fig: a matplotlib ``Figure``.\n:param path: destination; its extension is corrected to the format.\n:param fmt: force a format, bypassing the preference.\n:param dpi: force a DPI, bypassing the preference.\n:param close: close the figure once written.\n:param save_mode: force one of\n    :data:`spacr.figure_style.SAVE_MODES` -- ``'print'`` (light page, dark\n    chrome), ``'screen'`` (exactly what is on screen, the old behaviour)\n    or ``'transparent'``. None asks the preference, which defaults to\n    ``'print'``.\n:param announce_colours: say when a data colour has stopped working on the\n    light page. It is NAMED, never substituted.\n:param kwargs: passed through to ``savefig`` (``bbox_inches`` etc.). An\n    explicit ``facecolor`` still wins over the print ground.\n:returns: the path actually written, as a ``str``."
+    },
+    "56796700962603cf6f41768971803bc7239650e40bf5995a08ae69b658342df7": {
+      "source_blocks_sha256": [
+        "d75af6e19bbf75beb8772004bc7e4afe159047831aeec792e3a81ffcf0f635d9",
+        "171086381d5d85688069d6fb2a6a4f072cfff85695a1e8bd28407af0b6b27333",
+        "7222c9060c5d31f4a5f7b8389f022ceb12462659396893b0f69cbf5c89dc73d7",
+        "cfd049cc3169c2ca0ae38f83dbf45522d6b6581285766c7e5f1945864edc37e8",
+        "9672502cffbb81a075a474915582dc00a7f415dc29cab34bfac407a5b56e5ae5",
+        "cfd049cc3169c2ca0ae38f83dbf45522d6b6581285766c7e5f1945864edc37e8",
+        "909d858253db54ef559ca22ad578d402f10e2c75f962a34c3cc900173974895a",
+        "5a4fe4acd378454529ccaa48d42281c049934d2e53c0eda28240639026f462d2",
+        "a963f6f17166f1ffcca8826eae3ae77f797bad1db22b194afaa03f307f2c6e73",
+        "cd829f4cf58051944f9804638d8a54ef363b76fdd709bad8e1732cd109b40567"
+      ],
+      "source_sha256": "56796700962603cf6f41768971803bc7239650e40bf5995a08ae69b658342df7",
+      "text": "Run the export from a settings dict. The headless entry point.\n\nThe ``fn(settings)`` shape ``spacr-run``, the Qt Run button and\n:mod:`spacr.validate` all dispatch to, wrapped around\n:func:`export_anndata` -- which keeps its own explicit keyword\nsignature, because a function whose arguments are a dict is a function\nnobody can call from a notebook.\n\nEvery key it reads is one :func:`anndata_export_settings` declares and\n:func:`register_anndata_settings` gave a type and a tooltip, so the form\nthe GUI draws and the keys honoured here are the same list.\n\n:param settings: the run settings. ``src`` is the project root (or the\n    database); everything else falls back to\n    :func:`anndata_export_settings`.\n``anndata_format`` chooses what is written: ``'h5ad'`` the AnnData\nfile, ``'parquet'`` the tidy Parquet tables of :func:`_export_tables`\nin ``anndata_tidy_dir``, ``'r'`` those tables with the R loader script\n(and ``.rds`` data frames when pyreadr is installed), and ``'all'``\nevery one of them. The tables keep float64 features whatever\n``anndata_dtype`` says, which sets the AnnData matrix only.\n\n:param settings: the run settings. ``src`` is the project root (or the\n    database); everything else falls back to\n    :func:`anndata_export_settings`.\n:returns: the :class:`ExportResult` when an ``.h5ad`` was written, and\n    otherwise the tables result; ``describe()`` on either is what the\n    console prints.\n:raises ValueError: when ``src`` is empty -- there is nothing to export\n    and no path to name in the message otherwise -- or\n    ``anndata_format`` is not a known format.\n:raises AnnDataExtraMissing: when ``anndata`` is not installed and the\n    format includes ``.h5ad``.\n:raises ImportError: when pyarrow is not installed and the format\n    includes the tables."
+    },
+    "686905a3f54882806efedb8e5b83c27860e473841aab9585142574775cdc37dd": {
+      "source_blocks_sha256": [
+        "f53a58eaf09bcbaacfd28ef84758aca2ebfb16a7f49fa848f016a6397bc59ac1",
+        "57820363ed8045e1868ed1479301fde9625955270e70b4e069ed1f4d1b1fc481"
+      ],
+      "source_sha256": "686905a3f54882806efedb8e5b83c27860e473841aab9585142574775cdc37dd",
+      "text": "Select the row whose caption or value is ``text``, if usable.\n\n:param text: a caption or stored value; a row that is not installed\n    (disabled), or no match, leaves the selection alone."
+    },
+    "6d732a80ef2e59a331ace9caa93df3c38911e3521e1f5395cbc97a6cc2a57a95": {
+      "source_blocks_sha256": [
+        "18d6c57d3eee6f78dc59a9d37b1c501e0155f6ec6f55893c9ce73a988e87b891",
+        "4752c0a79fd6419078d7aa34bb9184b58ccb24d37468a15d1e9fbc48b5d34d61",
+        "60b730773d424102a58c358009b24f464f50047cc57d4a3eaa24bd740608a551",
+        "b698d72f5991df2243e69e872bee6fcc54447809295f587b6b1b5b262471b5cc",
+        "91ba116c8e764037a03e58f549a9f47f89d7a923e4d7a3b80fd9aa6f955cf324",
+        "b8ca37255b8e30c34071e469a995aaeca48bd930e153bbcd6f2460f2c162ad10"
+      ],
+      "source_sha256": "6d732a80ef2e59a331ace9caa93df3c38911e3521e1f5395cbc97a6cc2a57a95",
+      "text": "Register the illumination settings through the defaults seam.\n\nCalled once at import. Uses\n:func:`spacr.settings.register_defaults` rather than appending to\n``spacr/settings.py``, so this module owns its own knobs.\n\nTypes, tooltips and the module description are contributed; **categories\ndeliberately are not**. ``spacr.settings.categories`` is one shared,\nordered map that every settings panel walks, and its growth is guarded by\nan exact-equality test against a hand-kept list. A key contributed at\n*import* time is in that map only in a session that imported this module,\nso contributing categories would make that test's result depend on which\nfiles pytest was pointed at.\n\nThe nine keys ARE filed under a heading -- \"Illumination Correction\" in\n``spacr.settings.categories`` -- and Measure's panel offers every one of\nthem, because ``measure_crop`` calls\n:func:`prepare_illumination_correction` itself and these are the keys\nthat call reads. The heading is written in that map by hand for the\nreason above: it has to exist for every process that groups the Measure\nsettings, not only for one that happened to import this module.\n\n:param replace: re-register over an existing registration.\n:returns: True if it registered, False if it was already registered."
+    },
+    "79131094ba77fb600ce91b5f37b0db1671ba977d6a508d323d52c07218685692": {
+      "source_blocks_sha256": [
+        "4d31e17bb2050b9b91c9403bc34d46fcd9327fb9af625fc31d08ec70f3609218",
+        "5344804e7fa73843a8221b286fe316348e3ed0eb42d3c0cf3a82a1e81c869764",
+        "cb17b2385937e83eb33530e92c0d65718db3896862126336d7b033347fff85c1",
+        "1529fd8236a079fba95538152e8b1bd0750f75e2ceab0f8725ebd1bec0cd942a"
+      ],
+      "source_sha256": "79131094ba77fb600ce91b5f37b0db1671ba977d6a508d323d52c07218685692",
+      "text": "Versioned extension SDK for third-party spaCR plugins.\n\nPlugins are ordinary Python distributions exposing one entry point in the\n``spacr.plugins`` group.  The entry point may resolve to a\n:class:`SpacrPlugin`, a mapping accepted by :func:`plugin_from_mapping`, or a\nzero-argument factory returning either.  Discovery is lazy, deterministic and\nfailure-isolated: one malformed plugin is recorded in :func:`diagnostics`\nwithout preventing spaCR or the remaining plugins from loading.\n\nFor editable/local development, ``SPACR_PLUGIN_MODULES`` may contain a\ncomma-separated list of ``module`` or ``module:attribute`` references.\nInstalled plugins should always use package entry points instead.\n\nSetting ``SPACR_DISABLE_PLUGINS`` to ``1``, ``true``, ``yes`` or ``on``\n(case-insensitively) skips discovery entirely, so no plugin loads from either\nsource."
+    },
+    "7d13e0f1e05d16e6fd2daa0f6d61daa69538c29eda664525438777022e9d8f7a": {
+      "source_blocks_sha256": [
+        "17dc78a345ffddbb94a23456ec2ec5250d50595d19dd4149d2527dc18605a66a",
+        "6acece5945432e98466e1e2e1e232507d227c48111f6ad36231b8c15e428d79a",
+        "96259d50749ab05b8010cb41c2c982e853c3d7f000e789f4e104993132d90d92",
+        "8fc90492edba3d8ce0d6cf023c1bd27ef434634b3c5238dcacf08d46088e0a20",
+        "28aad97707b0eec2479cbb77f37445299d3ea0054cd90f68c62d20d2ffe7e279",
+        "78b903b4ed9ffb703ab8929b945a9d8fc1ccb5402bc44b7ccc5d0052b062e24c",
+        "04b93d696f23902bc551c04e043d8b7f2bfa10f60e716b2877bd8c510d4a1203",
+        "818dcecd6d63678702a5a3f3857f9ade73a91e5859f583779bbcae34c87d3649",
+        "b1c15f0ff167d5cadba2af78ca182737535d421f9f51723ee7199b8bf149981d",
+        "2b4da2cdf8be220cd4164767f5c89dac9942fa9ab61794470ddeac8f35ac2bdb"
+      ],
+      "source_sha256": "7d13e0f1e05d16e6fd2daa0f6d61daa69538c29eda664525438777022e9d8f7a",
+      "text": "The illumination estimate for one plate, for one or more channels.\n\n:param plate: the plate key, or :data:`ALL_PLATES` when the model was\n    estimated across every plate at once.\n:param channels: source channel indices, in the order they index\n    :attr:`flatfield`'s first axis. These are indices into the *merged\n    stack*, i.e. exactly the values in ``settings['channels']``.\n:param flatfield: ``(C, Y, X)`` float32 multiplicative field, normalised so\n    each channel's mean is 1.0. ``corrected = (observed - dark) /\n    flatfield``.\n:param dark: per-channel additive offset subtracted before dividing. Zero\n    unless the user supplied a measured camera offset -- see the module\n    docstring for why it is not estimated.\n:param n_fields: how many fields the estimate was made from.\n:param estimator: ``'polynomial'`` or ``'smooth'``.\n:param degree: polynomial degree, or 0 for the smooth estimator.\n:param bin_size: the binning factor the per-pixel median was computed at.\n    Illumination is low-frequency, so binning costs nothing and buys both\n    the memory to hold many fields at once and a quieter statistic.\n:param floored: pixels the fitted surface had to be floored at (see\n    :data:`FLAT_FLOOR_FRACTION`). Non-zero means the fit went negative\n    somewhere and the estimate should be looked at before it is trusted."
+    },
+    "819fa4b8c2a47e7b530ba1aaa7dcfc1958edd6eea69c085c1b1961b7cebe7d5f": {
+      "source_blocks_sha256": [
+        "c1f7b5174c2808b71bea08eb0a8510803b699e504e9582d1ecb273dcad39c5c1",
+        "5124c477ae8a1dae4f6c181ade828bc714cd1f73e25c463d46c140944ef644d7",
+        "aa6e55fc154187caa4e41e4b1ef1c8c1b0354853f9c11cd30f99e37ee83eeada",
+        "3208329337e12f76f40920021aa2e01770f5c644860ae29a7269ca39a26dda32",
+        "78d1ff8b47b50743e6854f90c90064b86d8b298610f535f3d6ca5d02be6bba03",
+        "7ad77eedfccd0d4103d965f337ca53daacc8b1dda9c9022abc975d9e57b97e0a",
+        "625777c1f1ecbd97f9c77bdcfcf4b6b0f91dad592a627fed1cb127d25a3a9c38"
+      ],
+      "source_sha256": "819fa4b8c2a47e7b530ba1aaa7dcfc1958edd6eea69c085c1b1961b7cebe7d5f",
+      "text": "Refuse V1 archive reuse after a PSF change or incomplete processing.\n\n:param settings: requested PSF and ``enhance_*`` settings; off also\n    checks a prior PSF or chain run.\n:param root: experiment root containing masks/ and psf/.\n:param channels: source intensity indices in archive order.\n:param expected_fields: exact field stems carried by the input archives.\n:returns: None for a compatible completed set or untouched legacy inputs.\n:raises ValueError: if archives cannot be proven to match this request."
+    },
+    "94675a6fa08e34886933abebd28e1bc682c1f26604b5a76ba9f8374ea15d8325": {
+      "source_blocks_sha256": [
+        "72d026b1e00b00aae4f241e75f6990cb9b8d6a48f58495115d1cdf0021d8ab0a",
+        "fc7edadf93ac204d5179f365d9e534a7371c846325af48b1d1dd48d638826015",
+        "8d59829c1e15afe1a7fae93e8e5e32d8511bec5fd598a09f4fea6033b31e8a66",
+        "789be199983d9ef63dd7b6b8576e40e0dbe2cf74294a42b18be578fab09a72e4",
+        "aaa1dc8eaffc3037233830e103e9441e26b53250fafc02c968729a2b8d9dc7a6",
+        "25c3d422f18e148bce3e24e51e7775edf6d5e57d155619c20c4aea91f51259d9"
+      ],
+      "source_sha256": "94675a6fa08e34886933abebd28e1bc682c1f26604b5a76ba9f8374ea15d8325",
+      "text": "``spacr repro`` — replay a pipeline run from its recorded journal.\n\nEvery pipeline invocation writes a run journal (see\n:mod:`spacr.run_journal`) containing the exact settings + environment\nthat produced a result. This CLI re-runs those settings, opens a\nFRESH journal folder, and reports whether the outcome matches.\n\nUsage::\n\n    spacr repro ~/.spacr/runs/2026-07-23_143507_ab12cd34__mask\n    spacr repro ~/.spacr/runs/2026-07-23_143507_ab12cd34__mask --dry\n    spacr repro ~/.spacr/runs/2026-07-23_143507_ab12cd34__mask --show\n\n* ``--dry``  prints the resolved settings + which pipeline entry\n  will run; doesn't invoke it.\n* ``--show`` prints the manifest + settings; doesn't invoke it.\n\nExit codes:\n  0  — replay ran to completion (regardless of scientific outcome)\n  1  — replay raised (journal captures the traceback for triage)\n  2  — bad input (missing run folder / unresolvable app_key)"
+    },
+    "a3e3f27dec7e5b5c3fea7894f87fb755034e3275aab810428b12cd904c32bdd0": {
+      "source_blocks_sha256": [
+        "6c71855a74e9e00dd905a25e974b039b781f85e88d0a24ecd35cfa0a787aa195",
+        "8fb1f2dd3a42d5076632d19933596a2b92359382f89c7a967f421191c784b936",
+        "e20254d539f028a99014f2257c3e476aff48bf6ffdab24e4d114c7d9e8de6baf",
+        "981286e57fbc8c1233dc6f0904dd716f2b532cf74a6f7b51603c94b908de41a4",
+        "d25c4df14b7da55e01664619369baaddb396553597fcb58e49a1b440998c3f9a",
+        "82170a84e8b055cd9b4d5ac0c524f3602fbae48774a31d2b2e52eec705f03bf2",
+        "e98c1e9684be349aaebc43fad4ac56335f6e1c26af0c05721866b799477352af",
+        "d5a1ac80dceb2da05694d37fc60468aff2c4187d20b5abf256f14fa9d3d7e637",
+        "b41e260f3f9259b4c111b9edc1db4cbbfc716f3ba8b4efc188ddb19a00cef301",
+        "f3740c4e162a81304f7dc17f9d11b87f18ca455db2f5e9346bfc2b3a93bddd2d",
+        "f28bcb7e35ec757d7e33bfb5eb99b9e0cce20e687ca74e7f55ae1f5299995ce6",
+        "0bafdfe5776597bee9ec1e9df0d479dbc049ebda792885ba9da6c815d8d9eb05"
+      ],
+      "source_sha256": "a3e3f27dec7e5b5c3fea7894f87fb755034e3275aab810428b12cd904c32bdd0",
+      "text": "Batch the field stacks through Cellpose, then append the mask\nchannel(s) to the SAME npy files.\n\n:param stacks: list produced by :func:`stream_originals_to_stack`.\n:param model_name: Cellpose model to use (``\"cyto\"``, ``\"nuclei\"``, …).\n:param channels_for_cellpose: C-axis indices selected out of each\n    assembled stack before it is handed to Cellpose — taken modulo the\n    channel count and de-duplicated in order. It is NOT forwarded as\n    Cellpose's ``channels=`` argument; ``[0, 0]`` therefore yields a\n    single plane, not a grayscale pair. The first selected channel is\n    the object's own channel for absolute mean-intensity filtering.\n:param diameter: expected object diameter in px (None → Cellpose\n    auto).\n:param batch_fields: how many field stacks to load into memory at\n    once. Larger = faster but more RAM.\n:param mask_channel_name: human name to record for the appended\n    mask channel (default ``\"mask\"``).\n:param keep_npz: the intermediate batch is compressed to an NPZ under\n    ``npz_dir`` on every batch regardless; this flag only decides\n    whether that file and the scratch folder survive the run.\n:param npz_dir: where to write the (optional) intermediate NPZ\n    files. Defaults to a scratch subfolder under the stack folder.\n:param illumination_session: optional\n    :class:`spacr.illumination.SegmentationIlluminationSession`. Its\n    corrector sees private selected-channel copies immediately before\n    normalisation/Cellpose; persisted intensity planes and scratch NPZs\n    remain raw, and completion is recorded only after the combined stack\n    has been atomically replaced.\n:param psf_session: optional captured PSF session. Processes selected\n    intensities after illumination and before normalization, padding or\n    Cellpose. Stored image channels stay raw; only the appended labels\n    depend on PSF processing.\n:returns: the same list, with each :class:`StackFile.shape` /\n    ``.channels`` updated to reflect the appended mask channel."
+    },
+    "ac03e74f1172e77293b26c9da83b307018b3606c5c3dbcd28d70beae52c89382": {
+      "source_blocks_sha256": [
+        "b4f66861cc7515e1660a98d6617ee34b671b8dee27231dbab412ae5d4d4aa24d",
+        "9c1c2fefccbc5dd8e6f26379cf0e339e4b407fc594030d073ac7ccf0a93fc211",
+        "bfea5ee7b31b25ccee51bbb08ba3b51fb86298c0e746c72b68f4ebc70e01961a",
+        "b29baa686269577add3c782ea181a66af78eba381f7ab23a010f3fb86973fe92",
+        "b6338a495d3d9a48ca16156bcb0ad2777c11978e41c0920a600f5543e9b08937"
+      ],
+      "source_sha256": "ac03e74f1172e77293b26c9da83b307018b3606c5c3dbcd28d70beae52c89382",
+      "text": "Test data for the assay modules: a measured plate, one button away.\n\nReplication, Invasion, Recruitment and Host–Pathogen offer published datasets\nthrough Load test data. Host–Pathogen contains two real THP-1 RNF213 fields,\nprepared host/nucleus/vacuole masks and fresh measurements of those fields.\nReplication and Recruitment contain slices of measured screens. Invasion's\nimages and masks are synthetic and explicitly labelled before downloading.\n\nAll four read ``<src>/measurements/measurements.db`` and apply the settings\nshipped in their archive. :data:`spacr.example_archives.EXAMPLE_SETS` describes\nthe same datasets for the GUI and ``spacr-download``.\n\nITS OWN FOLDER PER SET. Both ship ``measurements/measurements.db``, as the\nAnnotate example in the shared plate does, so each unpacks beside that plate\n(:func:`spacr.example_archives.example_set_folder`) rather than into it.\n\nTHE SAME PATTERN AS THE OTHER EXAMPLES. One uncompressed ``.tar`` streamed to\na ``.part`` file on a worker thread behind the shared progress dialog,\nunpacked through the tar data filter, ``<dataset>`` in the settings replaced\nwith where it landed, and cached: a second press uses the copy on disk."
+    },
+    "b1ba4f60b99193b6e7e84da978cd57604ef3fc6bdf0b5d0138cfe72408842668": {
+      "source_blocks_sha256": [
+        "62bf713a143594afa112c55cbe7a0e726cb4e916d58220e0fb761c68fb9da044",
+        "a6fae124fd018d99f0550d935bbd5bf24a2bd6b809c73f7d6552a8b9f1fee241"
+      ],
+      "source_sha256": "b1ba4f60b99193b6e7e84da978cd57604ef3fc6bdf0b5d0138cfe72408842668",
+      "text": "Enable SpotNet's row only when it can run, and say why not.\n\n:returns: SpotNet's ``(ready, reason)``."
+    },
+    "b38c5e0d6e03dec8c04bb90e70e4383532775dae970b32faf129116963f79713": {
+      "source_blocks_sha256": [
+        "b38c5e0d6e03dec8c04bb90e70e4383532775dae970b32faf129116963f79713"
+      ],
+      "source_sha256": "b38c5e0d6e03dec8c04bb90e70e4383532775dae970b32faf129116963f79713",
+      "text": "Run ``spacr-plugins list|doctor`` and return a shell exit code."
+    },
+    "b6a6326f07e3112a632730a88522abc15c58e4fb9645d72f503322fbaae3dd43": {
+      "source_blocks_sha256": [
+        "1392c1bbafc62d5f1874cca8969a3934b37a4570f28cb079cc7f2f2655e304b9",
+        "624dfe35b64469c8706bb58c3cec0fd2575afacb85650f3bcece0473beae04ec",
+        "c2fa4db99a4c86e2ea2b12b6d08823600d4da3d7551bbd63c8cbd051f10da341",
+        "938d83cba8b0a6574c0ef27fdbf59f91f5836ff4a8e0b9fe74c09de59cd53159"
+      ],
+      "source_sha256": "b6a6326f07e3112a632730a88522abc15c58e4fb9645d72f503322fbaae3dd43",
+      "text": "Render a square grid of percentile-normalised images with a black background.\n\n:param image_paths: Image files to display; extra tiles are filled\n    black.\n:param percentiles: Two-element percentile pair used to normalise\n    each channel.\n:returns: The generated ``Figure``."
+    },
+    "bc8643dae9ba9c18c413df45452399e6092a5c18349d4494426b2091ba84a3d6": {
+      "source_blocks_sha256": [
+        "2c7c2981f028f612ec0b6909dbb51677dd28b140957340f7d0ee30ab76bae722",
+        "8bd68328f92eb6598f74a5c5769f1e4d14fc3b7cd64a45a3946d89e34ca2f196",
+        "05e3bd5c5ae69908bbc49fcf9f4d8de3ac77f8ef90e24e1569d8e4122dcfc0e5",
+        "b77391fb30e77cdb6cc9f65e064636a5730177554dcb06c73e2d36ce2fbdc4c0",
+        "604e45408c4a4e5de6a28c66b362d41efde586caf88d6c1131bf702bafb0c255",
+        "d44a54ab4fabbea5314bdb3c8f34729dd10888b55bfcd4b63a85de2bdbca7e92",
+        "150925af7335af395df5fd874b744b53386a6510b0b1809e9e042c62398fe790",
+        "52167c57cbac30db84e00492ce14cbe6194c732d1e22c709ec013b75bb2bda42"
+      ],
+      "source_sha256": "bc8643dae9ba9c18c413df45452399e6092a5c18349d4494426b2091ba84a3d6",
+      "text": "Prepare one reusable optical model without installing a Measure hook.\n\nThis is the direct consumer of all nine ``illumination_*`` settings.  It\nestimates or loads the model once, ensures a fitted model is saved, hashes\nthe exact saved bytes, optionally writes stage-labelled QC, and builds a\ncorrector.  Applying that corrector belongs to the caller's stage.\n\n:param settings: settings carrying the nine illumination controls.\n:param src: optional raw field folder override. Defaults to ``settings['src']``.\n:param channels: optional persisted intensity-axis positions. Defaults to\n    ``settings['channels']``.\n:param qc_stage: optional stage label included in QC filenames/titles.\n:param verbose: override ``settings['verbose']``.\n:returns: a prepared model/corrector, or ``None`` when correction is off."
+    },
+    "e1b1133ce9f3e5064a7a0ffe8195c56ee2ded9bdc1a4999a230ed31303370581": {
+      "source_blocks_sha256": [
+        "e1b1133ce9f3e5064a7a0ffe8195c56ee2ded9bdc1a4999a230ed31303370581"
+      ],
+      "source_sha256": "e1b1133ce9f3e5064a7a0ffe8195c56ee2ded9bdc1a4999a230ed31303370581",
+      "text": "Command-line diagnostics for the spaCR plugin SDK."
+    },
+    "e263829cce74e8b3664c54231b6ce7bffa3d5155486e28334f28c964a0d4c492": {
+      "source_blocks_sha256": [
+        "929aeb66e8cfd87aa2da9bd6252e6537a475d08343535d73789b7bbe79ce288d",
+        "b7eb9fea98b25f046ee950e83fb6fa8edf0b47b8941a07bd1d7e027e91671dc4",
+        "f6cdf5cfa74eb77344cacbc788eaa7b7a8cdd9db9acb0c246320f2ba8513ade7",
+        "3c343a00e798b37ef78acc2a6fd456e46b1d2d0a5fc41391fe340ef0ba2f2fbf"
+      ],
+      "source_sha256": "e263829cce74e8b3664c54231b6ce7bffa3d5155486e28334f28c964a0d4c492",
+      "text": "Modern PySide6 (Qt 6) GUI for spacr.\n\nRuns alongside the classic Tk GUI (spacr.gui) — nothing here touches the\nTk stack. To launch:\n\n    spacr-qt            # CLI shortcut (see setup.py entry_points)\n    python -m spacr.qt  # equivalent\n\nThe old GUI keeps working via:\n    spacr               # Tk (classic)\n    python -m spacr\n\nThe Qt code lives in three layers::\n\n    theme.py              — palette + QSS stylesheet\n    widgets/              — reusable custom widgets (tiles, sections, ...)\n    screens/              — one Qt widget per app screen\n                            (startup, mask, measure, ...)\n    app.py                — main window + QApplication bootstrap"
+    },
+    "e356a7d09cc45a84f33168050cf679a8908bc0f48973eb41b8c5154a45c76817": {
+      "source_blocks_sha256": [
+        "d17b0c56b2a86cd98fcde98d22072d6c0c0cbadf5345c240b7cbbec2e9ca1c72",
+        "72584e8bd2ba5c978f03add619cec7cf7ba7ecf37e1857bbae146a09cb8893cb",
+        "e2af5044c4581a6b5cfa6fc82f6f5c5809d437d51ba343161a74e8bd9c15a116",
+        "8a4539d4840c0fb9f020d0fa288b67d7627decdad2ddd3db6ae59cac5bc1de00",
+        "f49638cf8782d42587b5c6edc9ce8c736db01bb5706862ab31cf0af5acaa5132",
+        "2e56c27b239f47a61450253adaeaee88662a0db3b9873b16ea288f4bb5e7352c",
+        "becf42ff6ecf8c15166a896cf414eb439b9caa2dee7218f78d12f9891b9467b9",
+        "ff8a0c9448a5906979bca804d19cddcf2c85df6698ce2d65663578bb98655891",
+        "e05d67e63abb2f383aa8cc82dee5a6c19f7ab048071dd147be3d921298f10278",
+        "08f5c4b93b4e2bb3fa0faf3d265fe01748e815f8ccd1aa74668e4f6a0806b110",
+        "d5d9affd47ac2288cd304bac425a775c6067fd6e518be7386743dd907991198d",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "318b1709471e21082b039d2c485117f295418a331f5cb037cfaa56e9bba46db6",
+        "a0ab1793eaf6d30a2bd1ccd5609af399b772fe7d28f91203ced34a1619d57d64",
+        "cbb83b1ffdb5e69ef1480e7306590ed8822f1aba6963b7ba95a0aea2944cab80"
+      ],
+      "source_sha256": "e356a7d09cc45a84f33168050cf679a8908bc0f48973eb41b8c5154a45c76817",
+      "text": "Order a queue, with the external tool's semantics.\n\n``name``\n    By stem, and nothing else is read — not the probabilities, not the\n    drafts. By stem rather than by file name so that the order does not\n    change when one field is a PNG and the next a TIFF.\n\n``prob``\n    Most likely first: the key is ``-probs.get(stem, -1.0)``. The\n    default is the point. An unscored field yields ``+1.0``, larger than\n    any real negated probability, so it sorts LAST rather than\n    pretending to be probability zero.\n\n``easy``\n    ``(0 if n > 0 else 1, -probs.get(stem, -1.0), -n)``. A populated\n    draft is accept-or-light-edit; an EMPTY draft means drawing from\n    scratch, so empty ones go last REGARDLESS of probability. Within\n    each group, most likely first, then most objects.\n\n``value``\n    By :func:`value_key`: how much draft there is to correct.\n\nTies are broken by stem, because the list is sorted by stem before any\nof this and Python's sort is stable.\n\n:param items: the fields to order.\n:param order: one of :data:`ORDERS`.\n:param probs: ``{stem: probability}``, or a callable returning one, or\n    ``None`` for none available.\n:param counts: ``{stem: n_objects}``, or a callable returning one. When\n    ``None``, ``easy`` reads the drafts itself.\n:param announce: where the fallback notice goes; defaults to\n    :func:`print`, so it lands on stdout as the external tool's does.\n:param min_objects: passed to :func:`value_key`.\n:param min_diameter: passed to :func:`value_key`.\n:param scores_hint: the scores file named in the fallback notice.\n:returns: a new list, ordered.\n:raises ValueError: when ``order`` is not one of :data:`ORDERS`."
+    },
+    "ec5a51ccab9717d4c0d1f889c2bde478f38a0b8b2b75c1e2330420027fac6710": {
+      "source_blocks_sha256": [
+        "13dc33e740ee3737075fe4345c15fdef20d33889d42a7c91077efcb2594d23d0",
+        "5f8827d1e6a62469074906bb37f4df5126a78eff9b7d93ad2fafa8ac12deeefd",
+        "188412ed16e9028194ec3656ad95e6a19eb2ef893dd824112d3e042b90ec699b",
+        "1f383a69f7dc9bf3ec00917ee9edcc85d6da1d12b1a58f00999ee69bcf876737"
+      ],
+      "source_sha256": "ec5a51ccab9717d4c0d1f889c2bde478f38a0b8b2b75c1e2330420027fac6710",
+      "text": "Put Map Barcodes' fold strip and its live barcode search on ``screen``.\n\nThe search is installed here rather than through a seam of its own because\nthis is the call every route to the Map Barcodes screen already passes\nthrough. A panel installed anywhere else would be present when the screen\nis reached one way and missing when it is reached another.\n\n:param screen: the screen to install into.\n:returns: the fold strip, or None when this screen hosts no folds."
+    },
+    "ed9a609699b1b9eb578c94d44848891ce0d7d445e5834a00794dffcd169a8d55": {
+      "source_blocks_sha256": [
+        "e4ea8d48afff16e1b9c5060fe9d382692e0ec6f6f6f27ba324518da231006a27",
+        "6e3b695c86c1d9de9628acbe17c8d39d882bff6e9d569aee282f1f2520fcd332",
+        "bcd39ee407d791269f359bc1cf6a233b2ed37abbe5e8e61052570482e881baa9",
+        "6918ebd813b4e33b602c24f51eda4009625974702edf4638f70a742afc89b4e3",
+        "c88c006aef081bc1f8578283346e92cc7c1002a8442cda92e5357215be57edbe",
+        "80530b219aabdb2fec833b764ecb64be04b6cfc0d6b014831d702e1fc2ffcf09"
+      ],
+      "source_sha256": "ed9a609699b1b9eb578c94d44848891ce0d7d445e5834a00794dffcd169a8d55",
+      "text": "Estimate, save, enable and QC the Measure correction.\n\nThe one call a pipeline makes before ``measure_crop``, and the one the\nIllumination button on the Measure masthead runs on its own -- the model\nand its QC figures in minutes, before committing hours to the measure run\nthat will reuse them through ``illumination_model``.\n\nIt does nothing at all -- and returns None -- unless\n``settings['illumination_correction']`` is True, which is NOT the shipped\ndefault: the correction is opt-in, so a run that never mentions it is\nmeasured uncorrected. Being asked to run with the switch off is a\nno-op worth hearing about rather than a silent one, because from a\nsettings form it looks exactly like a Run button that does nothing, so a\nverbose call says which switch was not thrown.\n\n:param settings: a ``measure_crop`` settings dict. Reads\n    ``illumination_correction``, ``illumination_model``,\n    ``illumination_estimator``, ``illumination_degree``,\n    ``illumination_per_plate``, ``illumination_max_fields``,\n    ``illumination_dark``, ``illumination_on_missing``,\n    ``illumination_qc``, plus ``src`` and ``channels``.\n:param verbose: overrides ``settings['verbose']``.\n:returns: the :class:`IlluminationModel` that was enabled, or None."
+    },
+    "ef72da78843ac3b434a9db70550d6ae45e7461cd8a31b8e532d42b39036f3535": {
+      "source_blocks_sha256": [
+        "3fc1762e735ac6c30c45da0434210d2c869a22a745fcb706629bdf15e3f88c8f",
+        "916b6066a605d088d46485345d6d0743cc3a0167638407b74cd41f432335ef31",
+        "8bbada4d31f7ad1add4091055c2b7a5276db47416bf881055a415d63e483a87e",
+        "38a3370d617ecf34bd792958517a53863798f3cc423a452b03bc14cdbdbf51bf",
+        "30f5db716c5321c029205fb20bed20737f71fc336215465f4e111b963299b6bb",
+        "f5a3891f2aca490d5c737940a5d0be4914b86e2b967ef0741fc3822c9b9e4f05",
+        "e0ca4472b134720edba0ce728751d3c31211058eaa5b861a55f422428fdfcaae",
+        "a822162a2c83f27981d0ccb9521e605b59c46fe7716f1361e9884ed2cca267d5",
+        "76da8fd26dd640f20604df3f309b11d6cfad804e3285f6a242b06658edc90d4a",
+        "f156737bd7777fb3403d9b269ec7bf3af4482e5f2d473182308eb40a771266da",
+        "4a26450667f19313c64cd55bfab6fe92569d4de4128fb847e4f1af26483b1f65",
+        "a473f2d0bf614b72d28dc70798f28ef11e3b59992f652b5eee476a02090b8c37",
+        "2daed458812e607f041e55b4d5f2e02a55059df2ed7f124c73170578959ae7cf",
+        "3939d488f8884ad019e6dfaa1991e3012947f976103941f59d9425efe8000acd",
+        "ed450006c63699d0e2641322bd90b0a56b7bf0fed50bac75f796462f9763ee5b",
+        "106d9e026f2d2681cdb69ef5ad5963ed96667ed9f801164f389bd4aad03ab78c",
+        "4f9a9dd2a177bcf90eaf317e829c883bb3f9e42425bc29e5ee62034ef0cd8054",
+        "30b31ab3af9a0fd2923241906afe7a68ef64a744970d3db94f4e71e823b25d94",
+        "a755d65aa524b4e701cdb56381033fade2086658ee6dc75b2ca57e3bad5ecb39",
+        "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
+        "df0cbfc8461e60b6d422e6a304b7cc5c2df95262a05d3556c59f572dd13e7818"
+      ],
+      "source_sha256": "ef72da78843ac3b434a9db70550d6ae45e7461cd8a31b8e532d42b39036f3535",
+      "text": "Turn a folder of raw microscopy images into per-channel Cellpose masks ready for :func:`spacr.measure.measure_crop`.\n\nGiven a source folder ``src`` of multi-channel images, this pipeline (1)\noptionally consolidates inputs from nested folders, (2) renames files to\nthe Yokogawa layout used downstream, (3) preprocesses per-channel arrays,\n(4) generates masks for cell / nucleus / pathogen / organelle channels\nvia Cellpose (SAM variant), (5) optionally reconciles the cell mask\nagainst nuclei + pathogen overlays, and (6) writes overlay plots and a\n``gen_mask_settings.csv`` next to the outputs.\n\n:param settings: Settings dict; canonicalized via\n    :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.\n    Must include ``src`` and at least one of ``cell_channel``,\n    ``nucleus_channel``, ``pathogen_channel``, or ``organelle_channel``.\n    Key entries the function reads:\n\n    - ``src`` (str or list of str) — image folder(s) to process.\n    - ``metadata_type`` — ``'cellvoyager'`` or ``'auto'`` (uses\n      ``custom_regex`` when set).\n    - ``cell_channel`` / ``nucleus_channel`` / ``pathogen_channel`` /\n      ``organelle_channel`` — 0-based channel indices; ``None`` skips.\n    - ``cell_diameter`` / ``nucleus_diameter`` / ``pathogen_diameter``\n      — Cellpose object diameters in pixels.\n    - ``pathogen_model`` — path to a Cellpose-SAM checkpoint to segment\n      pathogens with, instead of stock ``cpsam``. The pre-SAM\n      ``toxo_pv_lumen`` / ``toxo_cyto`` names are gone and resolve to\n      ``cpsam``; a PATH to a fine-tune is honoured, and a path that is\n      not there stops the run rather than silently using stock weights.\n    - ``consolidate`` — copy nested images into ``src/consolidated``\n      before processing.\n    - ``preprocess`` / ``masks`` — toggle the two pipeline halves.\n    - ``adjust_cells`` — reconcile cell masks against nuclei+pathogen.\n    - ``timelapse`` — enable trackpy linking; forces\n      ``randomize=False``.\n    - ``motility_analysis`` — when timelapse is enabled, analyze the\n      completed merged frames once per plate, rebuilding measurements\n      from the current masks rather than reusing an older assay table.\n    - ``dry_run`` — validate only: inspect the input folders, print the\n      preflight report and plan and return, without writing anything or\n      loading a model.\n    - ``watch_folder`` — keep watching ``src`` and analyse each field as\n      its files arrive and stop changing, with ``watch_pipeline``,\n      ``watch_measure_settings``, ``watch_settle_seconds``,\n      ``watch_poll_seconds`` and ``watch_idle_minutes``. Results gather\n      in ``src/spacr_watch``, and a record there lets a restarted watch\n      skip the fields already analysed.\n    - ``src`` may also be a cloud address (``s3://``, ``gs://``,\n      ``az://``, ``https://``). An OME-Zarr plate there has only the\n      wells, fields and pyramid level named by ``cloud_wells``,\n      ``cloud_fields`` and ``cloud_level`` fetched, as TIFFs, into a\n      folder under ``cloud_cache``, and the run analyses that folder; a\n      cloud folder of images is mirrored there instead. Credentials come\n      from the standard places, chosen with ``cloud_anonymous``,\n      ``cloud_profile`` and ``cloud_endpoint``, and ``cloud_results``\n      copies the measurements folder back to cloud storage.\n    - ``save``, ``plot``, ``verbose``, ``test_mode``, ``n_jobs``.\n\n:returns: ``None`` on a normal run, having written masks, overlays,\n    ``measurements.db`` counts and settings CSVs into subfolders of\n    ``src``. When ``dry_run`` is set, returns instead the list of\n    problems from :func:`spacr.validate.run_preflight`. When\n    ``watch_folder`` is set, returns a dict naming the fields analysed,\n    failed and never completed when the watch ends.\n:raises ValueError: if ``src`` is missing or of the wrong type, or no\n    segmentation channel is defined.\n\nExample:\n    .. code-block:: python\n\n        from spacr.core import preprocess_generate_masks\n        settings = {\n            'src': '/data/plate01',\n            'cell_channel': 0, 'nucleus_channel': 1, 'pathogen_channel': 2,\n            'cell_diameter': 60, 'nucleus_diameter': 20, 'pathogen_diameter': 8,\n            'magnification': 20, 'save': True, 'plot': True,\n        }\n        preprocess_generate_masks(settings)\n\nSee Also:\n    :func:`spacr.io.preprocess_img_data` — the preprocessing half only.\n    :func:`spacr.measure.measure_crop` — downstream feature extraction."
+    }
+  }
 }
