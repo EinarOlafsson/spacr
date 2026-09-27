@@ -251,8 +251,10 @@ def tick():
                 continue
             text = dialog.text()
             seen.add(id(dialog)); held_dialogs.append(dialog)
-            receipt['dialogs'].append(dict(title=dialog.windowTitle(), text=text))
-            if dialog.windowTitle() == 'Update available':
+            title = dialog.windowTitle()
+            receipt['dialogs'].append(dict(title=title, text=text))
+            untitled_cocoa = sys.platform == 'darwin' and not title
+            if title == 'Update available' or (untitled_cocoa and text.startswith('A new version is available.\n\n')):
                 assert f"Installed: {args.version}" in text
                 assert f'Latest:    {args.target_version}' in text
                 question_seen = True
@@ -260,7 +262,9 @@ def tick():
                 button = dialog.button(QMessageBox.StandardButton.Yes)
                 assert button is not None and button.isEnabled()
                 QTest.mouseClick(button, Qt.MouseButton.LeftButton)
-            elif dialog.windowTitle() == 'Updates':
+            elif title == 'Updates' or (untitled_cocoa and (
+                    text.startswith('pip returned exit code ')
+                    or text == 'Upgrade finished. Restart spaCR to use it.')):
                 terminal = text
                 assert dialog.grab().save(str(args.output.with_suffix('.result.png'))), 'Result screenshot was not saved'
                 button = dialog.button(QMessageBox.StandardButton.Ok)

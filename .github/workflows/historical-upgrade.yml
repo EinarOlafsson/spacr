@@ -96,12 +96,94 @@ jobs:
           @{ url="$base/$name"; sha256=$actual; bytes=(Get-Item $artifact).Length; runner=$env:RUNNER_OS } |
             ConvertTo-Json | Set-Content (Join-Path $evidence 'installer-provenance.json')
           if ($IsWindows) {
+            $bootstrapLog = Join-Path $installRoot 'install.log'
+            $observationLog = Join-Path $evidence 'installer-process-observations.jsonl'
+            $observation = [ordered]@{
+              status = 'running'; deadline_minutes = 40; artifact_sha256 = $actual
+              command = @($artifact, '/S'); started_utc = [DateTime]::UtcNow.ToString('o')
+              dialogs_dismissed = $false
+            }
+            function Save-InstallerObservation([Diagnostics.Process]$Installer) {
+              try {
+                $nodes = @(Get-CimInstance Win32_Process -Property ProcessId,ParentProcessId,Name,CreationDate)
+                $owned = [Collections.Generic.HashSet[uint32]]::new()
+                [void]$owned.Add([uint32]$Installer.Id)
+                do {
+                  $added = $false
+                  foreach ($node in $nodes) {
+                    if ($owned.Contains([uint32]$node.ParentProcessId) -and
+                        $node.CreationDate.ToUniversalTime() -ge $Installer.StartTime.ToUniversalTime().AddSeconds(-1)) {
+                      if ($owned.Add([uint32]$node.ProcessId)) { $added = $true }
+                    }
+                  }
+                } while ($added)
+                $snapshot = @(
+                  foreach ($node in $nodes) {
+                    if ($owned.Contains([uint32]$node.ProcessId)) {
+                      $native = Get-Process -Id $node.ProcessId -ErrorAction SilentlyContinue
+                      [ordered]@{
+                        pid = $node.ProcessId; parent_pid = $node.ParentProcessId
+                        name = $node.Name; created_utc = $node.CreationDate.ToUniversalTime().ToString('o')
+                        window_title = if ($native) { $native.MainWindowTitle } else { $null }
+                      }
+                    }
+                  }
+                )
+                $line = @{ observed_utc=[DateTime]::UtcNow.ToString('o'); processes=$snapshot } |
+                  ConvertTo-Json -Depth 5 -Compress
+                $line | Add-Content -LiteralPath $observationLog -Encoding utf8
+                Write-Host $line
+              } catch {
+                Write-Warning "Installer observation unavailable: $($_.Exception.Message)"
+              }
+              if (Test-Path -LiteralPath $bootstrapLog) {
+                try {
+                  Copy-Item -LiteralPath $bootstrapLog -Destination (Join-Path $evidence 'installer.log') -Force
+                  Write-Host 'Latest original bootstrap transcript:'
+                  Get-Content -LiteralPath $bootstrapLog -Tail 12
+                } catch {
+                  Write-Warning "Bootstrap transcript snapshot unavailable: $($_.Exception.Message)"
+                }
+              }
+            }
             try {
-              $process = Start-Process -FilePath $artifact -ArgumentList '/S' -Wait -PassThru
+              $process = Start-Process -FilePath $artifact -ArgumentList '/S' -PassThru
+              $observation.pid = $process.Id
+              $deadline = [DateTime]::UtcNow.AddMinutes(40)
+              while (-not $process.HasExited) {
+                Save-InstallerObservation $process
+                $remaining = [int][Math]::Max(0, ($deadline - [DateTime]::UtcNow).TotalMilliseconds)
+                if ($remaining -eq 0) {
+                  $observation.status = 'timed_out'
+                  $observation.error = 'Original released installer exceeded its observation deadline; no dialog was dismissed.'
+                  if (-not $process.HasExited) {
+                    try {
+                      $process.Kill($true)
+                      $observation.root_exited_after_tree_kill = $process.WaitForExit(30000)
+                      $observation.termination_scope = 'Exact launched Process and its descendants; root exit does not prove every descendant exited.'
+                    } catch {
+                      $observation.termination_error = $_.Exception.Message
+                    }
+                  }
+                  throw $observation.error
+                }
+                [void]$process.WaitForExit([Math]::Min(30000, $remaining))
+              }
+              $observation.exit_code = $process.ExitCode
               if ($process.ExitCode -ne 0) { throw "Original NSIS install failed: $($process.ExitCode)" }
+              $observation.status = 'passed'
+            } catch {
+              if ($observation.status -ne 'timed_out') { $observation.status = 'failed' }
+              $observation.error = $_.Exception.Message
+              throw
             } finally {
-              $bootstrapLog = Join-Path $installRoot 'install.log'
-              if (Test-Path $bootstrapLog) { Copy-Item $bootstrapLog (Join-Path $evidence 'installer.log') }
+              $observation.completed_utc = [DateTime]::UtcNow.ToString('o')
+              $observation | ConvertTo-Json -Depth 5 |
+                Set-Content (Join-Path $evidence 'installer-observation.json') -Encoding utf8
+              if (Test-Path -LiteralPath $bootstrapLog) {
+                try { Copy-Item -LiteralPath $bootstrapLog -Destination (Join-Path $evidence 'installer.log') -Force }
+                catch { Write-Warning "Final bootstrap transcript copy failed: $($_.Exception.Message)" }
+              }
             }
           } elseif ($IsMacOS) {
             & sudo installer -pkg $artifact -target / 2>&1 | Tee-Object (Join-Path $evidence 'installer.log')
