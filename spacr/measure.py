@@ -7822,6 +7822,10 @@ def measure_crop(settings):
                 if settings.get('viability') and os.path.isfile(db_path):
                     _run_viability_step(db_path, settings)
 
+                if (str(settings.get('cellprofiler_pipeline') or '').strip()
+                        and os.path.isfile(db_path)):
+                    _run_cellprofiler_step(db_path, settings)
+
                 if settings['timelapse']:
                     if settings['timelapse_objects'] == 'nucleus':
                         folder_path = settings['src']
@@ -7890,6 +7894,251 @@ def _run_plate_barcode_step(settings, fetch=None):
             and lower & set(_VIABILITY_DOSE_COLUMNS)):
         settings['viability_plate_map'] = map_path
     return plate_map, mismatches
+
+
+#: Tables the CellProfiler step writes are named this plus the lowercased
+#: CellProfiler object name, e.g. ``cellprofiler_nuclei``.
+_CELLPROFILER_TABLE_PREFIX = 'cellprofiler_'
+
+#: What each exported TIFF's name adds to its field's stem: ``_ch<N>`` for
+#: channel N, counted from zero among the intensity planes, and
+#: ``_<object>_mask`` for a label image.
+_CELLPROFILER_FILE = re.compile(
+    r'^(?P<stem>.+?)_(?:ch(?P<channel>\d+)|(?P<role>[a-z0-9]+)_mask)'
+    r'\.tiff?$')
+
+
+def _cellprofiler_roles(settings, n_planes):
+    """``{object type: plane}`` for every label plane of a merged array."""
+    roles = {}
+    for role in SEGMENTED_ROLES:
+        value = settings.get(f'{role}_mask_dim')
+        try:
+            value = int(value)
+        except (TypeError, ValueError):
+            continue
+        if 0 <= value < n_planes:
+            roles[role] = value
+    return roles
+
+
+def _cellprofiler_export(merged_folder, settings, dest):
+    """Write every field's channels and masks as TIFFs CellProfiler reads.
+
+    Each ``merged/<stem>.npy`` becomes ``<stem>_ch<N>.tif`` for each
+    intensity plane, N counted from zero, and ``<stem>_<object>_mask.tif``
+    (16-bit labels, spaCR's own object ids) for each mask plane, so a
+    pipeline's NamesAndTypes can pick them out by name.
+
+    :param merged_folder: the ``merged`` folder Measure read.
+    :param settings: Measure settings with the mask plane indices.
+    :param dest: the folder the TIFFs go in.
+    :returns: the written paths.
+    """
+    import tifffile
+
+    written = []
+    for name in sorted(os.listdir(merged_folder)):
+        if not name.endswith('.npy'):
+            continue
+        stem = name[:-len('.npy')]
+        data = np.load(os.path.join(merged_folder, name), mmap_mode='r')
+        if data.ndim != 3:
+            continue
+        roles = _cellprofiler_roles(settings, data.shape[-1])
+        labels = set(roles.values())
+        channel = 0
+        for plane in range(data.shape[-1]):
+            if plane in labels:
+                continue
+            path = os.path.join(dest, f'{stem}_ch{channel}.tif')
+            tifffile.imwrite(path, np.ascontiguousarray(data[..., plane]))
+            written.append(path)
+            channel += 1
+        for role, plane in roles.items():
+            path = os.path.join(dest, f'{stem}_{role}_mask.tif')
+            tifffile.imwrite(path, np.ascontiguousarray(
+                data[..., plane]).astype(np.uint16))
+            written.append(path)
+    return written
+
+
+def _cellprofiler_role(name, roles):
+    """The spaCR object type a CellProfiler object name means, or None.
+
+    ``Nuclei``, ``nucleus`` and ``NucleusObjects`` mean ``nucleus``;
+    ``Cells`` means ``cell``; a name that says no object type spaCR has a
+    mask for means None, and the caller decides by where its objects lie.
+    """
+    lowered = str(name).lower()
+    if lowered.startswith('nuclei'):
+        lowered = 'nucleus' + lowered[len('nuclei'):]
+    for role in sorted(roles, key=len, reverse=True):
+        if lowered.startswith(role):
+            return role
+    return None
+
+
+def _cellprofiler_tables(reply, merged_folder, settings):
+    """CellProfiler's per-object tables keyed by spaCR's object ids.
+
+    Each CellProfiler object is matched to the spaCR object whose mask
+    holds its centre, ``Location_Center_X/Y``, in the same field: in the
+    mask of the object type its name says (:func:`_cellprofiler_role`), or
+    otherwise in the mask that holds most of its objects. An object whose
+    centre lies on no spaCR object keeps its row with an empty
+    ``object_label`` and ``prcfo``.
+
+    :param reply: :func:`spacr._segmentation_backends._run_cellprofiler`'s
+        reply.
+    :param merged_folder: the ``merged`` folder the images came from.
+    :param settings: Measure settings with the mask plane indices.
+    :returns: ``{table name: DataFrame}``; each has ``prcf``,
+        ``object_label``, ``prcfo``, ``object_type``, ``cp_object``,
+        ``cp_image_number``, ``cp_object_number`` and every numeric
+        CellProfiler feature prefixed ``cp_``.
+    """
+    from . import schema
+
+    stems = {}
+    for number, names in (reply.get('images') or {}).items():
+        for file_name in names:
+            match = _CELLPROFILER_FILE.match(os.path.basename(str(file_name)))
+            if match:
+                stems[int(number)] = match.group('stem')
+                break
+    masks = {}
+
+    def field_masks(stem):
+        """``{object type: label image}`` of one field, read once."""
+        if stem not in masks:
+            data = np.load(os.path.join(merged_folder, f'{stem}.npy'),
+                           mmap_mode='r')
+            masks[stem] = {
+                role: np.asarray(data[..., plane])
+                for role, plane in _cellprofiler_roles(
+                    settings, data.shape[-1]).items()}
+        return masks[stem]
+
+    def lookup(role, image_numbers, xs, ys):
+        """The spaCR label under each centre in ``role``'s mask."""
+        found = np.zeros(len(xs))
+        for i, (number, x, y) in enumerate(zip(image_numbers, xs, ys)):
+            stem = stems.get(int(number))
+            if stem is None or not np.isfinite(x) or not np.isfinite(y):
+                continue
+            mask = field_masks(stem).get(role)
+            if mask is None:
+                continue
+            row = int(min(max(round(y), 0), mask.shape[0] - 1))
+            col = int(min(max(round(x), 0), mask.shape[1] - 1))
+            found[i] = mask[row, col]
+        return found
+
+    timelapse = bool(settings.get('timelapse'))
+    tables = {}
+    for cp_name, block in (reply.get('objects') or {}).items():
+        columns = list(block['columns'])
+        values = np.load(block['path'], allow_pickle=False)
+        frame = pd.DataFrame(values.reshape(-1, len(columns)), columns=columns)
+        if 'Location_Center_X' not in frame or 'Location_Center_Y' not in frame:
+            print(f"CellProfiler object {cp_name} has no Location_Center_X/Y "
+                  f"(add MeasureObjectSizeShape), so it cannot be matched to "
+                  f"spaCR objects; it was not imported.")
+            continue
+        numbers = frame['ImageNumber'].to_numpy()
+        xs = frame['Location_Center_X'].to_numpy(dtype=float)
+        ys = frame['Location_Center_Y'].to_numpy(dtype=float)
+        roles = sorted({r for s in set(stems.values())
+                        for r in field_masks(s)})
+        role = _cellprofiler_role(cp_name, roles)
+        if role is not None:
+            labels = lookup(role, numbers, xs, ys)
+        else:
+            best = None
+            for candidate in roles:
+                hits = lookup(candidate, numbers, xs, ys)
+                if best is None or (hits > 0).sum() > (best[1] > 0).sum():
+                    best = (candidate, hits)
+            role, labels = best if best else (None, np.zeros(len(frame)))
+        prcf = []
+        for number in numbers:
+            stem = stems.get(int(number), '')
+            try:
+                prcf.append(schema.parse_field_stem(
+                    stem, timelapse=timelapse).prcf)
+            except (ValueError, TypeError, KeyError):
+                prcf.append(stem)
+        keyed = pd.DataFrame({
+            'prcf': prcf,
+            'object_label': [int(v) if v > 0 else None for v in labels],
+            'object_type': role,
+            'cp_object': cp_name,
+            'cp_image_number': numbers.astype(int),
+            'cp_object_number': frame['ObjectNumber'].to_numpy().astype(int),
+        })
+        keyed.insert(2, 'prcfo', [
+            f"{p}_{schema.object_id(int(v))}" if v > 0 else None
+            for p, v in zip(prcf, labels)])
+        features = frame.drop(columns=['ImageNumber', 'ObjectNumber'])
+        features.columns = [f'cp_{c}' for c in features.columns]
+        table = f"{_CELLPROFILER_TABLE_PREFIX}{re.sub(r'[^0-9a-z]+', '_', str(cp_name).lower())}"
+        tables[table] = pd.concat([keyed, features.reset_index(drop=True)],
+                                  axis=1)
+    return tables
+
+
+def _run_cellprofiler_step(db_path, settings, *, runner=None):
+    """Run the ``cellprofiler_pipeline`` on this run's fields and import it.
+
+    Every field's channels and masks are written as TIFFs
+    (:func:`_cellprofiler_export`), the pipeline runs headless in
+    CellProfiler's own environment, and each of its objects' measurements
+    is written to ``measurements.db:cellprofiler_<object>``, matched to
+    spaCR's objects (:func:`_cellprofiler_tables`). A failure is reported
+    and does not fail the run: spaCR's own tables are already written and
+    are not changed.
+
+    :param db_path: the ``measurements.db`` the run produced.
+    :param settings: Measure settings.
+    :param runner: :func:`spacr._segmentation_backends._run_cellprofiler`,
+        or a stand-in for tests.
+    :returns: ``{table: rows}``, or None when the step failed.
+    """
+    import tempfile
+    from .tabular import write_database
+
+    pipeline = os.path.expanduser(str(settings['cellprofiler_pipeline']).strip())
+    merged_folder = settings['src']
+    work = os.path.join(os.path.dirname(os.path.dirname(db_path)),
+                        'cellprofiler')
+    try:
+        if not os.path.isfile(pipeline):
+            raise FileNotFoundError(f"no CellProfiler pipeline at {pipeline}")
+        if runner is None:
+            from ._segmentation_backends import _run_cellprofiler as runner
+        os.makedirs(work, exist_ok=True)
+        with tempfile.TemporaryDirectory(prefix='input_', dir=work) as inputs:
+            files = _cellprofiler_export(merged_folder, settings, inputs)
+            reply = runner(pipeline, files, os.path.join(work, 'output'))
+            tables = _cellprofiler_tables(reply, merged_folder, settings)
+    except Exception as exc:
+        print(f"The CellProfiler pipeline could not be run: {exc}")
+        return None
+    counts = {}
+    for table, frame in tables.items():
+        write_database(frame, db_path, table, if_exists='replace',
+                       canonicalise=False)
+        matched = int(frame['prcfo'].notna().sum())
+        counts[table] = len(frame)
+        print(f"CellProfiler: {len(frame)} {frame['cp_object'].iat[0]} "
+              f"object(s), {matched} matched to spaCR "
+              f"{frame['object_type'].iat[0]} objects, in "
+              f"measurements.db:{table}.")
+    if not tables:
+        print("CellProfiler: the pipeline measured no objects spaCR could "
+              "import.")
+    return counts
 
 
 def _run_bleach_correction_step(db_path, settings):

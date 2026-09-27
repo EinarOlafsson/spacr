@@ -321,7 +321,7 @@ COSMETIC_SETTINGS = frozenset({
     'profiling_negative_control', 'profiling_normalization',
     'profiling_feature_selection', 'profiling_correlation_threshold',
     'profiling_phenotype_column', 'profiling_databases',
-    'bleach_correction',
+    'bleach_correction', 'cellprofiler_pipeline',
     'timelapse_lineage', 'timelapse_lineage_color_by',
     'timelapse_lineage_max_distance',
     'test_mode', 'test_images', 'test_nr', 'random_test', 'test_size',

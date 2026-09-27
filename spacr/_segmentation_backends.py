@@ -124,6 +124,13 @@ _PAPERS = "papers"
 #: DeepCell's SpotNet, for fluorescent spots rather than cells.
 _SPOTNET = "spotnet"
 
+#: CellProfiler, which runs a lab's own ``.cppipe`` pipeline headlessly on
+#: spaCR's fields; it measures, it does not segment for spaCR.
+_CELLPROFILER = "cellprofiler"
+
+#: Where a backend that needs Java keeps the development kit it fetched.
+_JDK_FOLDER = "jdk"
+
 #: Every value ``segmentation_backend`` accepts, the default first.
 _BACKEND_NAMES = (_CELLPOSE, _CELLPOSE3, _DINOCELL, _SAMCELL)
 
@@ -383,6 +390,12 @@ class _BackendSpec:
     :param default_model: the model a bare prefix runs.
     :param alpha: built from the future-features list and shown only with
         Preferences' "Show alpha features" on (item 569).
+    :param built_here: requirements pip builds from source against the
+        environment's own numpy, with ``--no-build-isolation``, after
+        :attr:`requirements` and before :attr:`without_dependencies`.
+    :param java: the Java major version a development kit is fetched for,
+        into the environment's own ``jdk`` folder, before
+        :attr:`built_here` is built; ``''`` for a backend without Java.
     """
 
     name: str
@@ -407,6 +420,8 @@ class _BackendSpec:
     prefix: str = ""
     default_model: str = ""
     alpha: bool = False
+    built_here: tuple = ()
+    java: str = ""
 
 
 #: Every optional backend. The versions are the ones each adapter was
@@ -683,6 +698,47 @@ _SPECS = {
             "weakly supervised deep learning', Cell Systems 2024 "
             "(doi:10.1016/j.cels.2023.12.008). spaCR has not scored it on "
             "its own data.")),
+    _CELLPROFILER: _BackendSpec(
+        name=_CELLPROFILER, label="CellProfiler", module="cellprofiler",
+        probe=("javabridge", "bioformats", "cellprofiler_core.preferences",
+               "cellprofiler_core.pipeline",
+               "cellprofiler_core.utilities.java", "cellprofiler.modules"),
+        distribution="cellprofiler",
+        requirements=("numpy==1.23.5", "scipy==1.9.0", "scikit-image==0.18.3",
+                      "centrosome==1.2.3", "h5py==3.7.0", "matplotlib<3.8",
+                      "psutil", "pyzmq~=22.3", "docutils==0.15.2", "boto3",
+                      "imageio", "inflect<7", "Jinja2", "joblib", "mahotas",
+                      "Pillow", "scikit-learn<1", "six", "future",
+                      "tifffile<2022.4.22", "requests", "prokaryote==2.4.4",
+                      "cython<3", "wheel", "install-jdk==1.1.0"),
+        built_here=("python-javabridge==4.0.3", "python-bioformats==4.0.7"),
+        without_dependencies=("cellprofiler-core==4.2.8.1",
+                              "cellprofiler==4.2.8.1"),
+        torch=(), python=((3, 8), (3, 9)), java="11",
+        licence="BSD-3-Clause (CellProfiler) / GPL-2.0 (Bio-Formats, "
+                "OpenJDK with Classpath Exception)",
+        licence_note=(
+            "CellProfiler 4.2.8.1 and cellprofiler-core are BSD-3-Clause "
+            "(Broad Institute). They read images through Bio-Formats "
+            "(GPL-2.0, shipped inside prokaryote) on a Java 11 development "
+            "kit that the install fetches from Eclipse Adoptium (GPL-2.0 "
+            "with the Classpath Exception) into the backend's own folder. "
+            "CellProfiler's desktop interface (wxPython) and its MySQL "
+            "export are not installed: pipelines run headless. spaCR ships "
+            "none of it."),
+        homepage="https://cellprofiler.org", size_gb=1.5, segments=False,
+        alpha=True,
+        blurb=(
+            "CellProfiler 4.2, run headless on a lab's own .cppipe "
+            "pipeline from Measure: spaCR hands it each field's channels "
+            "and masks as TIFFs and brings its per-object measurements back "
+            "into measurements.db keyed by spaCR's object ids. It needs a "
+            "Python 3.8 or 3.9 on this computer to build its environment."),
+        published=(
+            "Published results: Stirling et al., 'CellProfiler 4: "
+            "improvements in speed, utility and usability', BMC "
+            "Bioinformatics 2021 (doi:10.1186/s12859-021-04344-9). It "
+            "measures what the pipeline says; spaCR scores nothing here.")),
     _PAPERS: _BackendSpec(
         name=_PAPERS, label="Plaque figure reader", module="ultralytics",
         probe=("ultralytics", "rapidocr_onnxruntime"),
@@ -1284,7 +1340,8 @@ def _stale_requirements(name, record=None, root=None):
     if not isinstance(listed, list):
         return []
     have = {_requirement_name(item) for item in listed}
-    return [item for item in spec.requirements + spec.without_dependencies
+    return [item for item in (spec.requirements + spec.built_here
+                              + spec.without_dependencies)
             if _requirement_name(item) not in have]
 
 
@@ -1557,6 +1614,16 @@ def _install_plan(spec, env, interpreter, torch_index=None, worker=None):
         steps.append(_Step("Install PyTorch", pip + tuple(spec.torch) + index))
     steps.append(_Step(f"Install {spec.label}",
                        pip + tuple(spec.requirements)))
+    if spec.java:
+        steps.append(_Step(
+            "Fetch a Java development kit",
+            (python, "-c", "import sys, jdk; jdk.install(sys.argv[1], "
+             "path=sys.argv[2])", spec.java,
+             os.path.join(env, _JDK_FOLDER))))
+    if spec.built_here:
+        steps.append(_Step(f"Build {spec.label}'s extensions",
+                           pip + ("--no-build-isolation",)
+                           + tuple(spec.built_here)))
     if spec.without_dependencies:
         steps.append(_Step(f"Install {spec.label}",
                            pip + ("--no-deps",)
@@ -1645,7 +1712,36 @@ def _worker_env(name, env):
     elif name == _MICROSAM:
         environ["MICROSAM_CACHEDIR"] = os.path.join(env, "micro_sam")
         environ["TORCH_HOME"] = os.path.join(env, "torch")
+    spec = _SPECS.get(name)
+    if spec is not None and spec.java:
+        home = _java_home(env)
+        if home:
+            environ["JAVA_HOME"] = home
+            environ["PATH"] = (os.path.join(home, "bin") + os.pathsep
+                               + environ.get("PATH", ""))
+        else:
+            environ.pop("JAVA_HOME", None)
     return environ
+
+
+def _java_home(env):
+    """The Java development kit inside a backend environment, or ``''``.
+
+    The install fetches it into ``<env>/jdk/<release folder>``; the folder
+    whose ``bin`` holds ``javac`` is the one ``JAVA_HOME`` names, so the
+    build and the worker never use a Java found elsewhere on the computer.
+    """
+    folder = os.path.join(env, _JDK_FOLDER)
+    try:
+        names = sorted(os.listdir(folder))
+    except OSError:
+        return ""
+    for name in names:
+        home = os.path.join(folder, name)
+        if os.path.isfile(os.path.join(home, "bin", "javac")) or \
+                os.path.isfile(os.path.join(home, "bin", "javac.exe")):
+            return home
+    return ""
 
 
 def _deepcell_token_path():
@@ -1780,6 +1876,39 @@ def _detect_spots(image, threshold=0.95, root=None, worker_for=None):
             "detect_spots", image=path, threshold=float(threshold))
     spots = np.asarray(reply.get("spots") or [], dtype=float)
     return spots.reshape(-1, 2)
+
+
+def _run_cellprofiler(pipeline, files, output, *, root=None,
+                      worker_for=None, should_cancel=None):
+    """Run a CellProfiler pipeline headlessly on ``files``, in its own
+    environment.
+
+    The pipeline's own input modules choose among ``files`` exactly as they
+    would in CellProfiler; nothing about the pipeline is changed.
+
+    :param pipeline: a ``.cppipe`` or ``.cpproj`` path.
+    :param files: the image paths handed to the pipeline's file list.
+    :param output: a folder for the per-object tables the worker writes;
+        also CellProfiler's default output folder, so a pipeline that
+        exports or saves files puts them there.
+    :param root: the backends folder.
+    :param worker_for: :func:`_worker_for`, or a stand-in for tests.
+    :param should_cancel: polled while it runs; True stops the worker.
+    :returns: the worker's reply: ``images`` maps each image number to the
+        file names it read, and ``objects`` maps each object name to its
+        ``columns`` and the ``path`` of a float ``.npy`` table whose first
+        two columns are ``ImageNumber`` and ``ObjectNumber``.
+    :raises ImportError: when CellProfiler is not installed here.
+    """
+    state = _backend_state(_CELLPROFILER, root)
+    if not state.ready or state.in_process:
+        raise ImportError(_not_installed_message(_CELLPROFILER, state))
+    os.makedirs(output, exist_ok=True)
+    return (worker_for or _worker_for)(_CELLPROFILER, state.env).request(
+        "run_cellprofiler", should_cancel=should_cancel,
+        pipeline=os.path.abspath(str(pipeline)),
+        files=[os.path.abspath(str(f)) for f in files],
+        output=os.path.abspath(str(output)))
 
 
 class _PromptClient:
@@ -2277,7 +2406,7 @@ def _install_backend(name, *, root=None, progress=None, cancel=None,
                 f"{log_path}.")
         _write_marker(env, {
             "backend": spec.name, "protocol": _PROTOCOL,
-            "requirements": list(spec.requirements
+            "requirements": list(spec.requirements + spec.built_here
                                  + spec.without_dependencies),
             "torch": list(spec.torch), "torch_index": index or "",
             "interpreter": list(interpreter),
@@ -4039,6 +4168,115 @@ def _worker_detect_spots(request, adapters):
     return {"spots": spots.tolist()}
 
 
+def _cellprofiler_started(adapters):
+    """Start CellProfiler headless and its Java machine, once per worker.
+
+    A Java machine cannot be started twice in one process, so the worker
+    keeps it for its lifetime and stops it as the process exits.
+    """
+    if "cellprofiler" not in adapters:
+        import cellprofiler_core.preferences as preferences
+        from cellprofiler_core.utilities.java import start_java, stop_java
+
+        preferences.set_headless()
+        preferences.set_allow_schema_write(False)
+        start_java()
+        atexit.register(stop_java)
+        adapters["cellprofiler"] = preferences
+    return adapters["cellprofiler"]
+
+
+def _worker_run_cellprofiler(request, adapters):
+    """Run one CellProfiler pipeline on a list of images.
+
+    :param request: ``pipeline`` (a ``.cppipe`` or ``.cpproj`` path),
+        ``files`` (the images the pipeline's input modules choose from) and
+        ``output`` (where the object tables are written; also CellProfiler's
+        default output folder).
+    :param adapters: the worker's cache; the Java machine starts once.
+    :returns: ``{"image_sets": n, "images": {number: [file names]},
+        "objects": {name: {"columns": [...], "path": ".npy"}}}``. Only
+        numeric per-object features are kept, each object table's first
+        two columns being ``ImageNumber`` and ``ObjectNumber``.
+    :raises RuntimeError: when the pipeline does not complete.
+    """
+    import numpy as np
+
+    preferences = _cellprofiler_started(adapters)
+    from cellprofiler_core.pipeline import Pipeline
+
+    pipeline_path = str(request["pipeline"])
+    files = [str(f) for f in request.get("files") or []]
+    output = str(request["output"])
+    if not os.path.isfile(pipeline_path):
+        raise FileNotFoundError(f"no CellProfiler pipeline at {pipeline_path}")
+    if not files:
+        raise ValueError("no images were given to the CellProfiler pipeline")
+    os.makedirs(output, exist_ok=True)
+    preferences.set_default_output_directory(output)
+    preferences.set_default_image_directory(os.path.dirname(files[0]))
+    pipeline = Pipeline()
+    pipeline.load(pipeline_path)
+    pipeline.add_pathnames_to_file_list(files)
+    measurements = pipeline.run()
+    if measurements is None:
+        raise RuntimeError("the CellProfiler pipeline produced no "
+                           "measurements; its input modules matched no "
+                           "image set among the files spaCR gave it")
+    status = ""
+    if measurements.has_feature("Experiment", "Exit_Status"):
+        status = str(measurements.get_experiment_measurement("Exit_Status"))
+    if status and status != "Complete":
+        raise RuntimeError(f"the CellProfiler pipeline stopped: {status}")
+    numbers = [int(n) for n in measurements.get_image_numbers()]
+    names = [f for f in measurements.get_feature_names("Image")
+             if f.startswith(("FileName_", "ObjectsFileName_"))]
+    images = {}
+    for number in numbers:
+        images[str(number)] = [
+            str(measurements.get_measurement("Image", f, number))
+            for f in names]
+    objects = {}
+    for index, name in enumerate(measurements.get_object_names()):
+        if name in ("Image", "Experiment"):
+            continue
+        features = [f for f in measurements.get_feature_names(name)
+                    if f != "Number_Object_Number"]
+        rows, keep = [], None
+        for number in numbers:
+            ids = np.asarray(measurements.get_measurement(
+                name, "Number_Object_Number", number), dtype=float).ravel()
+            if not ids.size:
+                continue
+            values = []
+            for feature in features:
+                column = np.asarray(measurements.get_measurement(
+                    name, feature, number)).ravel()
+                if column.size != ids.size:
+                    column = np.full(ids.size, np.nan)
+                try:
+                    values.append(column.astype(float))
+                except (TypeError, ValueError):
+                    values.append(None)
+            numeric = [v is not None for v in values]
+            keep = numeric if keep is None else [
+                a and b for a, b in zip(keep, numeric)]
+            rows.append((number, ids, values))
+        if keep is None:
+            continue
+        columns = [f for f, k in zip(features, keep) if k]
+        blocks = []
+        for number, ids, values in rows:
+            kept = [v for v, k in zip(values, keep) if k]
+            blocks.append(np.column_stack(
+                [np.full(ids.size, float(number)), ids] + kept))
+        path = os.path.join(output, f"objects_{index}.npy")
+        np.save(path, np.vstack(blocks), allow_pickle=False)
+        objects[name] = {"columns": ["ImageNumber", "ObjectNumber"] + columns,
+                         "path": path}
+    return {"image_sets": len(numbers), "images": images, "objects": objects}
+
+
 def _worker_read_text(request, adapters):
     """Read the words in one image with RapidOCR.
 
@@ -4267,6 +4505,8 @@ def _handle(name, request, adapters):
             body = _worker_detect(request, adapters)
         elif op == "detect_spots":
             body = _worker_detect_spots(request, adapters)
+        elif op == "run_cellprofiler":
+            body = _worker_run_cellprofiler(request, adapters)
         elif op == "read_text":
             body = _worker_read_text(request, adapters)
         elif op == "read_pdf":
