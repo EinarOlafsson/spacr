@@ -84,6 +84,34 @@ if one glyph drifts outside the shared weight band, so no platform can quietly
 become the loud one. Re-run it only when the artwork changes; `release.py
 collect` moves the links forward without touching the icons.
 
+## Offline (air-gapped) bundles (alpha)
+
+For microscope PCs with no network access. The online installers stay the
+default download; a bundle is built on request, on a machine that is online,
+and carried over (USB drive, file share). It holds the pinned uv, the private
+CPython uv would have downloaded (laid out as a `UV_PYTHON_INSTALL_MIRROR`),
+every wheel of an environment locked for the target platform, Cellpose weights
+(default `cpsam`), optional Mask test data, and a `SHA256SUMS` the installer
+checks before running anything.
+
+```bash
+# Build (online). The PyTorch wheel line is fixed at build time: cpu, cu126, ...
+python packaging/offline/build_offline_bundle.py --platform linux-x86_64 \
+    --torch-backend cpu --from-source . --out dist/offline \
+    --test-data ~/.cache/spacr/example_data/plate1 --test-fields 2 --archive
+
+# Install (offline), then run Mask on the bundled test data
+tar xf spaCR-<version>-Linux-x86_64-Offline-cpu.tar
+spaCR-<version>-Linux-x86_64-Offline-cpu/install.sh \
+    --offline-bundle spaCR-<version>-Linux-x86_64-Offline-cpu --check-mask
+```
+
+On Windows: `powershell -ExecutionPolicy Bypass -File install.ps1
+-OfflineBundle <bundle folder> -CheckMask`. Targets: `linux-x86_64`,
+`windows-x86_64`, `macos-arm64`; wheels are fetched per target with
+`pip download --platform`, so any bundle can be built on Linux. A proposed
+CI job is in `features/data/587_offline_bundle_workflow_2026-09-27.yml`.
+
 ## Container images
 
 `packaging/docker/` holds two Dockerfiles: a CPU image on `python:3.12-slim`

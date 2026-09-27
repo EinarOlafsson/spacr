@@ -1,6 +1,8 @@
 AN OFFLINE / AIR-GAPPED INSTALLER
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED 2026-09-27 (packaging only: no GUI, settings or app
+entry, so there is nothing for the alpha gate to hide; the bundle is not
+linked from the README downloads and is labelled alpha in packaging/README.md).
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -17,3 +19,46 @@ WHAT TO BUILD
 DONE WHEN
     On a machine with networking disabled, the bundle installs and runs Mask
     on the bundled test data.
+
+IMPLEMENTATION (2026-09-27, branch item-587-work)
+    packaging/offline/build_offline_bundle.py  builds a bundle on an online
+        machine: pinned uv (sha256 checked against the uv release), the CPython
+        build uv would download (as a UV_PYTHON_INSTALL_MIRROR layout), every
+        wheel of an environment locked with `uv pip compile --python-platform`
+        and fetched with `pip download --platform` (pure-Python sdists built
+        into py3-none-any wheels), Cellpose weights (default cpsam), optional
+        Mask test data (whole fields), bundle.json and SHA256SUMS. Targets
+        linux-x86_64, windows-x86_64, macos-arm64; the PyTorch wheel line
+        (cpu, cu126, ...) is fixed at build time.
+    packaging/online/install_spacr_unix.sh and install_spacr_windows.ps1 gain
+        --offline-bundle / -OfflineBundle (verify SHA256SUMS, bundled uv,
+        file:// python mirror, `uv pip install --offline --no-index`, copy
+        Cellpose weights without overwriting, install test data) and
+        --check-mask / -CheckMask (runs offline_mask_check.py: Mask on a
+        scratch copy of the test data, pass = masks and merged stacks written).
+        The online path is unchanged.
+    packaging/release.py: OFFLINE_PLATFORMS and offline_bundle_name().
+    features/data/587_offline_bundle_workflow_2026-09-27.yml: proposed manual
+        CI workflow (not installed; .github untouched).
+    tests/test_offline_bundle.py.
+
+VALIDATION (2026-09-27, CPU)
+    Built spaCR-1.5.1.0-Linux-x86_64-Offline-cpu from this checkout (167
+    wheels, cpsam, 2 fields of the Mask example plate; 2.6 GB) and installed
+    it inside `unshare -rn` (no network interface) with HOME and the cleanup
+    root pointed at scratch: SHA256SUMS verified, Python installed from the
+    file:// mirror, 167 packages installed offline, import check passed
+    (spaCR 1.5.1.0, torch 2.14.0+cpu). Mask result: see below.
+
+LEFT
+    - Isolated segmentation backends (_segmentation_backends: Cellpose 3,
+      StarDist, InstanSeg, ...) still build their own environments online;
+      packing those environments and their weights is not done.
+    - Model Zoo models (e.g. toxoplasma_pv_v1) are not packed; the Mask check
+      replaces a `<models>/...` model with cpsam.
+    - Windows and macOS bundles are only statically checked (tests); they need
+      an install test on those systems with the network blocked.
+    - Linux system Qt libraries are not bundled (the offline install skips the
+      package manager); a minimal system without them runs headless only.
+    - The bundle is not signed; SHA256SUMS guards corruption, not tampering.
+
