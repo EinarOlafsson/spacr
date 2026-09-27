@@ -155,6 +155,25 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     latest = {record["source"] for record in third}
     assert len(third) == len(latest) and not latest & sources
     sources |= latest
+    # The fourth pass (2026-09-26, CI run 36276973443) is the same kind of
+    # slice: the captions 316 owed in _AWAITING_CATALOG_REBUILD (alpha items
+    # 541, 544/573, 545, 548, 551-553, 555, 570 and 493's GPU controls) and
+    # the tooltips whose English moved under them (percentiles, fill_in,
+    # enhance_clahe, timelapse_mode, Make Masks' CLAHE caption). The stale
+    # records those edits left were deleted, as the loader directs.
+    fourth = [record for path in sorted(folder.glob("2026-09-26-runtime-debt-fourth-pass-*.json"))
+              for record in json.loads(path.read_text())["records"]]
+    newest = {record["source"] for record in fourth}
+    assert len(fourth) == len(newest) and not newest & sources
+    sources |= newest
+    # The fifth pass (2026-09-26) is one more slice: items 536, 550, 577 and
+    # the profiling and cell-cycle settings that reached nightly after the
+    # fourth. Every source was pending, so it overlaps no earlier pass.
+    fifth = [record for path in sorted(folder.glob("2026-09-26-runtime-debt-fifth-pass-*.json"))
+             for record in json.loads(path.read_text())["records"]]
+    latest5 = {record["source"] for record in fifth}
+    assert len(fifth) == len(latest5) and not latest5 & sources
+    sources |= latest5
     assert sources <= reviewed.keys()
     return sources
 
@@ -218,7 +237,11 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # +720/-0 on 2026-09-25: the runtime translation debt cohort (316).
     # 720 -> 712 on 2026-09-25 (474): eight organism-page paragraphs were
     # rewritten when twenty proposals became live or Coming soon tiles.
-    debt_sources = _runtime_debt_sources("sv", all_reviewed, 712)
+    # 712 -> 711 on 2026-09-26 (316 fourth pass): Make Masks' CLAHE caption
+    # now says "saturating" where it said "blowing out", so its first-pass
+    # record left 2026-09-25-runtime-debt-messages.json; the new wording is
+    # a fourth-pass record.
+    debt_sources = _runtime_debt_sources("sv", all_reviewed, 711)
     assert not debt_sources & (ui_sources | example_sources | preview_sources | normalized_sources | download_sources | subsequent_sources)
     older_all_sources = all_reviewed.keys() - download_sources - subsequent_sources - debt_sources
     reviewed = {source: value for source, value in all_reviewed.items()
@@ -380,21 +403,21 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # nucleus and pathogen mean-bound settings into object_filters rows, and
     # the seven sv records of their labels and tooltips were deleted from
     # 2026-09-15-mask-mean-bounds.json (the English is gone).
-    assert len(older_sources - added_sources - background_sources) == 306
+    assert len(older_sources - added_sources - background_sources) == 305  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
     # +8/-0: four source-bound background labels and four scientific tooltips.
-    assert len(older_sources - background_sources) == 313  # Item 511 retirement (2026-09-25): -7.
-    assert len(older_sources) == 321  # Item 511 retirement (2026-09-25): -7.
-    assert len(reviewed.keys() - sample_sources) == 360  # +39 scientific sources. Item 511 retirement (2026-09-25): -7.
-    assert len(reviewed) == 363  # Features, Controls and Quality use compact rows. Item 511 retirement (2026-09-25): -7.
+    assert len(older_sources - background_sources) == 312  # Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
+    assert len(older_sources) == 320  # Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
+    assert len(reviewed.keys() - sample_sources) == 359  # +39 scientific sources. Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
+    assert len(reviewed) == 362  # Features, Controls and Quality use compact rows. Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
     # The new panel cohort also reuses the earlier whole-field model tooltip.
     # 316 (71071b6c6) retired 17 setup and sign-in captions to _ROWS: -17 below;
     # the total also loses its sign-in-status record and a superseded psf-help record.
-    assert len(older_all_sources - example_sources - preview_sources - normalized_sources) == 601  # Item 511 retired four filter captions. Item 511 retirement (2026-09-25): -7.
-    assert len(older_all_sources - preview_sources - normalized_sources) == 608  # Item 511 retired four filter captions. Item 511 retirement (2026-09-25): -7.
-    assert len(older_all_sources - normalized_sources) == 613  # Item 511 retirement (2026-09-25): -7.
-    assert len(older_all_sources) == 618  # Item 511 retirement (2026-09-25): -7.
-    assert len(all_reviewed.keys() - subsequent_sources - debt_sources) == 629  # Item 511 retired four filter captions. Item 511 retirement (2026-09-25): -7.
-    assert len(all_reviewed.keys() - debt_sources) == 1668  # 931 - 9 - 4 + 782, less six filter captions item 511 retired, less 19 (316 retirement 18, psf-help 1). Item 511 retirement (2026-09-25): -7.
+    assert len(older_all_sources - example_sources - preview_sources - normalized_sources) == 600  # Item 511 retired four filter captions. Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
+    assert len(older_all_sources - preview_sources - normalized_sources) == 607  # Item 511 retired four filter captions. Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
+    assert len(older_all_sources - normalized_sources) == 612  # Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
+    assert len(older_all_sources) == 617  # Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
+    assert len(all_reviewed.keys() - subsequent_sources - debt_sources) == 628  # Item 511 retired four filter captions. Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
+    assert len(all_reviewed.keys() - debt_sources) == 1667  # 931 - 9 - 4 + 782, less six filter captions item 511 retired, less 19 (316 retirement 18, psf-help 1). Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -473,7 +496,11 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # +720/-0 on 2026-09-25: the runtime translation debt cohort (316).
     # 720 -> 712 on 2026-09-25 (474): eight organism-page paragraphs were
     # rewritten when twenty proposals became live or Coming soon tiles.
-    debt_sources = _runtime_debt_sources("fr", all_reviewed, 712)
+    # 712 -> 711 on 2026-09-26 (316 fourth pass): Make Masks' CLAHE caption
+    # now says "saturating" where it said "blowing out", so its first-pass
+    # record left 2026-09-25-runtime-debt-messages.json; the new wording is
+    # a fourth-pass record.
+    debt_sources = _runtime_debt_sources("fr", all_reviewed, 711)
     assert not debt_sources & (example_sources | preview_sources | normalized_sources | download_sources | refresh_sources | subsequent_sources)
     older_all_sources = all_reviewed.keys() - download_sources - refresh_sources - subsequent_sources - debt_sources
     reviewed = {source: value for source, value in all_reviewed.items()

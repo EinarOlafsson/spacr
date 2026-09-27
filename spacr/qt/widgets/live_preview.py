@@ -5202,7 +5202,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
 
     def _exec_comparison_dialog(self, dialog) -> bool:
         """Show the popup modally. Alone in here so a test can answer it."""
-        return dialog.exec() == dialog.Accepted
+        return dialog.exec() == QDialog.Accepted
 
     def open_mask_comparison(self) -> bool:
         """Ask what to compare, then draw it in the third panel.

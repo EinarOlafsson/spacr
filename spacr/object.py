@@ -885,8 +885,8 @@ def _raw_filter_images(src, filenames, model_inputs, masks, channel, *,
 def _fill_cellpose_channel_positions(settings):
     """Record each role's dense archive channel as ``cellpose_<role>_channel``.
 
-    Explicit values are kept. Shared by the Cellpose-SAM generator and the
-    parallel coordinator, so a run records the same settings on either path.
+    Explicit values are kept. Shared by both Cellpose generators and the
+    parallel coordinator, so a run records the same settings on every path.
     """
     from .utils import dense_mask_channel_positions
 
@@ -1372,6 +1372,9 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                                                           save=settings['save'],
                                                           mode=timelapse_mode,
                                                           track_by_iou=track_by_iou)
+                    if settings.get('timelapse_lineage'):
+                        from .timelapse import _run_lineage_step
+                        _run_lineage_step(src, name, object_type, timelapse_mode, settings)
                 else:
                     mask_stack = _masks_to_masks_stack(masks)
             else:
@@ -1485,20 +1488,7 @@ def generate_cellpose_masks(src, settings, object_type):
     
     model_name = object_settings['model_name']
     
-    from .utils import dense_mask_channel_positions
-
-    _dense = dense_mask_channel_positions(settings)
-    for _role in ('nucleus', 'cell', 'pathogen', 'organelle'):
-        if settings.get(f'cellpose_{_role}_channel') is not None:
-            continue
-        _raw = settings.get(f'{_role}_channel')
-        if _raw is None:
-            continue
-        try:
-            _raw = int(_raw)
-        except (TypeError, ValueError):
-            continue
-        settings[f'cellpose_{_role}_channel'] = _dense[_raw]
+    _fill_cellpose_channel_positions(settings)
 
     channels_to_extract, cellpose_channels = _get_cellpose_channels(settings)
 
@@ -1656,6 +1646,9 @@ def generate_cellpose_masks(src, settings, object_type):
                                                           save=settings['save'],
                                                           mode=timelapse_mode,
                                                           track_by_iou=track_by_iou)
+                    if settings.get('timelapse_lineage'):
+                        from .timelapse import _run_lineage_step
+                        _run_lineage_step(src, name, object_type, timelapse_mode, settings)
                 else:
                     mask_stack = _masks_to_masks_stack(masks)
             else:

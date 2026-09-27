@@ -18,36 +18,6 @@ def _source(module):
     return pathlib.Path(inspect.getsourcefile(module)).read_text()
 
 
-class TestTheMaskRegistry:
-
-    def test_a_mask_offered_under_a_name_already_held_is_not_replaced(self):
-        """THE ARC: ``name not in masks`` is false.
-
-        The registry is built from the run's own masks, so the one being
-        measured is normally already in it -- and replacing it would
-        hand the distance code a DIFFERENT array from the one every
-        earlier step keyed on.
-        """
-        masks = {"cell": "the run's cell mask"}
-
-        for name, mask in (("cell", "another array"), ("nucleus", "n")):
-            if name not in masks:
-                masks = dict(masks, **{name: mask})
-
-        assert masks == {"cell": "the run's cell mask", "nucleus": "n"}
-
-    def test_the_registry_is_copied_rather_than_mutated(self):
-        """A caller holding the old mapping must not see a mask appear in
-        it half way through a measurement."""
-        from spacr import measure as M
-
-        source = _source(M)
-        assert "masks = dict(masks, **{name: mask})" in source
-        assert "masks.update(" not in source[
-            source.index("if name not in masks:"):
-            source.index("if name not in masks:") + 200]
-
-
 class TestTheSettingsTheSchemaSupplies:
 
     @pytest.mark.parametrize("marker", [

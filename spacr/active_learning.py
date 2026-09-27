@@ -2429,6 +2429,297 @@ def round_features(db_path: str, table: str = PNG_TABLE,
     return joined.drop(columns=["prcfo"]).set_index(key)
 
 
+_SIMILAR_K = 100
+
+_SIMILAR_ID_NAMES = frozenset({
+    "row", "col", "column", "field", "plate", "well", "rowid", "columnid",
+    "fieldid", "plateid", "time", "timeid", "frame", "label", "object_label",
+    "track_id", "index", "level_0", "prcfo", "prcf",
+})
+
+_SIMILAR_ID_PARTS = ("centroid", "bbox", "coords")
+
+
+def _similarity_columns(columns: Sequence[str]) -> List[str]:
+    """The columns of a feature matrix that describe a cell, not its place.
+
+    Position and bookkeeping columns (well, field, frame, object label,
+    centroid, bounding box, anything ending in ``_id``) are numeric, so
+    they survive a numeric filter, and a search over them returns the
+    query's neighbours on the plate rather than cells that look like it.
+
+    :param columns: candidate column names.
+    :returns: the names kept, in their original order.
+    """
+    kept = []
+    for name in columns:
+        low = str(name).lower()
+        if low in _SIMILAR_ID_NAMES or low.endswith("_id"):
+            continue
+        if any(part in low for part in _SIMILAR_ID_PARTS):
+            continue
+        kept.append(name)
+    return kept
+
+
+class _SimilarityIndex:
+    """Cosine nearest-neighbour search over one feature vector per crop.
+
+    Columns are centred on their median and scaled by their standard
+    deviation so no single measurement's units dominate; a missing value
+    becomes the column's median, and constant or empty columns are dropped.
+    Rows are then scaled to unit length, so the inner product is the cosine
+    similarity and 1.0 means the same direction in feature space.
+
+    The search runs in FAISS (an exact inner-product index, moved to every
+    visible GPU when FAISS was built with GPU support) when FAISS is
+    installed, and otherwise as a blocked matrix product in NumPy. Both are
+    exact, so they return the same neighbours; FAISS is faster on large
+    query batches.
+
+    :param features: numeric features indexed by crop key, one row per
+        crop. Measurement features and embedding columns both work.
+    :param backend: ``'auto'`` (FAISS when importable, else NumPy),
+        ``'faiss'`` or ``'numpy'``.
+    :param block: rows scored per NumPy block, which bounds memory.
+    :raises ValueError: on an empty matrix or one with no usable column.
+    :raises ImportError: for ``backend='faiss'`` without FAISS installed.
+    """
+
+    def __init__(self, features: pd.DataFrame, *, backend: str = "auto",
+                 block: int = 262144):
+        """Standardise ``features``, normalise its rows and build the index."""
+        numeric = features.select_dtypes(include=[np.number])
+        numeric = numeric.loc[~numeric.index.duplicated(keep="first")]
+        if numeric.empty:
+            raise ValueError(
+                "No crop has numeric features, so there is nothing to compare "
+                "cells by. Run Measure first.")
+        matrix = numeric.to_numpy(dtype=np.float32, copy=True)
+        matrix[~np.isfinite(matrix)] = np.nan
+        import warnings
+
+        with np.errstate(all="ignore"), warnings.catch_warnings():
+            warnings.simplefilter("ignore", RuntimeWarning)
+            if np.isnan(matrix).any():
+                centre = np.nanmedian(matrix, axis=0)
+                spread = np.nanstd(matrix, axis=0)
+            else:
+                centre = np.median(matrix, axis=0)
+                spread = matrix.std(axis=0)
+        usable = np.isfinite(centre) & np.isfinite(spread) & (spread > 0)
+        if not usable.any():
+            raise ValueError(
+                "Every feature column is constant or empty, so no two cells "
+                "can be told apart.")
+        matrix = matrix[:, usable]
+        centre = centre[usable]
+        spread = spread[usable]
+        missing = np.isnan(matrix)
+        if missing.any():
+            matrix[missing] = np.take(centre, np.nonzero(missing)[1])
+        matrix -= centre
+        matrix /= spread
+        norms = np.linalg.norm(matrix, axis=1, keepdims=True)
+        norms[norms == 0] = 1.0
+        matrix /= norms
+        self.keys = np.asarray([str(k) for k in numeric.index], dtype=object)
+        self.columns = [str(c) for c, ok in zip(numeric.columns, usable) if ok]
+        self._position = {key: i for i, key in enumerate(self.keys)}
+        self._matrix = np.ascontiguousarray(matrix, dtype=np.float32)
+        self._block = max(1, int(block))
+        self._faiss = None
+        self.backend = self._build(str(backend or "auto").lower())
+
+    def _build(self, backend: str) -> str:
+        """Build the FAISS index when asked or available; name the backend."""
+        if backend not in ("auto", "faiss", "numpy"):
+            raise ValueError(
+                f"unknown similarity backend {backend!r}; expected 'auto', "
+                f"'faiss' or 'numpy'")
+        if backend == "numpy":
+            return "numpy"
+        try:
+            import faiss
+        except ImportError:
+            if backend == "faiss":
+                raise ImportError(
+                    "FAISS is not installed. Install it with "
+                    "'pip install faiss-cpu' (or 'conda install -c pytorch "
+                    "faiss-gpu' for the GPU build), or use backend='numpy'.")
+            return "numpy"
+        index = faiss.IndexFlatIP(self._matrix.shape[1])
+        name = "faiss"
+        try:
+            if (os.environ.get("CUDA_VISIBLE_DEVICES", None) != ""
+                    and hasattr(faiss, "get_num_gpus")
+                    and faiss.get_num_gpus() > 0):
+                index = faiss.index_cpu_to_all_gpus(index)
+                name = "faiss-gpu"
+        except Exception:
+            name = "faiss"
+        index.add(self._matrix)
+        self._faiss = index
+        return name
+
+    def __len__(self) -> int:
+        """Return the number of crops indexed."""
+        return int(self._matrix.shape[0])
+
+    def __contains__(self, key: Any) -> bool:
+        """Whether crop ``key`` has a row in the index."""
+        return str(key) in self._position
+
+    def vector(self, key: Any) -> np.ndarray:
+        """The normalised feature vector of crop ``key``.
+
+        :raises KeyError: when the crop has no row in the index.
+        """
+        at = self._position.get(str(key))
+        if at is None:
+            raise KeyError(
+                f"{key!r} has no measured features, so there is nothing to "
+                f"compare it by")
+        return self._matrix[at]
+
+    def search(self, queries: np.ndarray, k: int
+               ) -> Tuple[np.ndarray, np.ndarray]:
+        """The ``k`` most similar rows for each query vector, best first.
+
+        :param queries: ``(n, d)`` or ``(d,)`` normalised vectors, as
+            :meth:`vector` returns them.
+        :param k: neighbours per query, capped at the index size.
+        :returns: ``(similarity, row)`` arrays of shape ``(n, k)``.
+        """
+        queries = np.ascontiguousarray(
+            np.atleast_2d(np.asarray(queries, dtype=np.float32)))
+        k = max(1, min(int(k), len(self)))
+        if self._faiss is not None:
+            scores, rows = self._faiss.search(queries, k)
+            return scores, rows.astype(np.int64)
+        best_s = np.full((queries.shape[0], 0), -np.inf, dtype=np.float32)
+        best_i = np.zeros((queries.shape[0], 0), dtype=np.int64)
+        for start in range(0, len(self), self._block):
+            chunk = self._matrix[start:start + self._block]
+            scores = queries @ chunk.T
+            take = min(k, scores.shape[1])
+            part = np.argpartition(-scores, take - 1, axis=1)[:, :take]
+            best_s = np.concatenate(
+                [best_s, np.take_along_axis(scores, part, axis=1)], axis=1)
+            best_i = np.concatenate([best_i, part + start], axis=1)
+            if best_s.shape[1] > k:
+                keep = np.argpartition(-best_s, k - 1, axis=1)[:, :k]
+                best_s = np.take_along_axis(best_s, keep, axis=1)
+                best_i = np.take_along_axis(best_i, keep, axis=1)
+        order = np.argsort(-best_s, axis=1, kind="stable")
+        return (np.take_along_axis(best_s, order, axis=1),
+                np.take_along_axis(best_i, order, axis=1))
+
+    def like(self, key: Any, k: int = _SIMILAR_K, *,
+             exclude: Optional[Iterable[Any]] = None) -> pd.DataFrame:
+        """The crops most like crop ``key``, most similar first.
+
+        :param key: the query crop.
+        :param k: how many to return, the query itself not counted.
+        :param exclude: crop keys to leave out of the answer, such as the
+            ones already annotated.
+        :returns: a frame with ``key``, ``similarity`` (cosine, 1.0 is the
+            same direction) and ``rank`` (1 is the closest).
+        :raises KeyError: when ``key`` has no row in the index.
+        """
+        skip = {str(key)}
+        skip.update(str(x) for x in (() if exclude is None else exclude))
+        want = int(k) + len(skip)
+        scores, rows = self.search(self.vector(key), want)
+        out = [(self.keys[r], float(s)) for s, r in zip(scores[0], rows[0])
+               if r >= 0 and self.keys[r] not in skip][:max(0, int(k))]
+        frame = pd.DataFrame(out, columns=["key", "similarity"])
+        frame["rank"] = np.arange(1, len(frame) + 1)
+        return frame
+
+
+def _similarity_index(db_path: str, *, features: Optional[pd.DataFrame] = None,
+                      image_type: Optional[str] = None,
+                      backend: str = "auto") -> _SimilarityIndex:
+    """Index every crop of a database for "find cells like this".
+
+    :param db_path: path to ``measurements.db``.
+    :param features: the vectors to compare by, indexed by ``png_path``,
+        such as an embedding from :func:`spacr.embeddings.embed_array`.
+        Read from the measurement tables with :func:`round_features` when
+        omitted.
+    :param image_type: substring filter on the crop key.
+    :param backend: passed to :class:`_SimilarityIndex`.
+    :returns: the index.
+    :raises ValueError: when no crop has usable features.
+    """
+    if features is None:
+        features = round_features(db_path)
+        features = features[_similarity_columns(features.columns)]
+    if image_type:
+        keep = features.index.astype(str).str.contains(str(image_type),
+                                                       regex=False)
+        features = features.loc[keep]
+    return _SimilarityIndex(features, backend=backend)
+
+
+def _similarity_agreement(index: _SimilarityIndex, labels: Mapping[Any, Any],
+                          k: int = 10) -> pd.DataFrame:
+    """How often a labelled crop's nearest neighbours share its label.
+
+    The check that similarity search finds the same kind of cell rather
+    than the same well: every labelled crop is a query, its ``k`` nearest
+    labelled neighbours (itself excluded) are compared with its own label,
+    and the share that agree is set beside the share a random draw would
+    give, the class's frequency among the labelled crops.
+
+    :param index: the index to evaluate.
+    :param labels: crop key to class label; suggestions and blanks should
+        already be removed.
+    :param k: neighbours per query.
+    :returns: one row per class with ``n``, ``precision_at_k``,
+        ``chance`` and ``lift``, then an ``all`` row, micro-averaged.
+    :raises ValueError: when fewer than two labelled crops are indexed.
+    """
+    pairs = [(str(key), value) for key, value in labels.items()
+             if str(key) in index and value is not None]
+    if len(pairs) < 2:
+        raise ValueError(
+            "Fewer than two labelled crops have features, so agreement "
+            "cannot be measured.")
+    keys = np.asarray([p[0] for p in pairs], dtype=object)
+    classes = np.asarray([str(p[1]) for p in pairs], dtype=object)
+    rows = np.asarray([index._position[key] for key in keys], dtype=np.int64)
+    sub = index._matrix[rows]
+    k = max(1, min(int(k), len(keys) - 1))
+    hits = np.empty(len(keys), dtype=np.float64)
+    for start in range(0, len(keys), 2048):
+        scores = sub[start:start + 2048] @ sub.T
+        own = np.arange(scores.shape[0])
+        scores[own, own + start] = -np.inf
+        near = np.argpartition(-scores, k - 1, axis=1)[:, :k]
+        hits[start:start + scores.shape[0]] = (
+            classes[near] == classes[start:start + scores.shape[0], None]
+        ).mean(axis=1)
+    counts = pd.Series(classes).value_counts()
+    records = []
+    for name in sorted(counts.index, key=str):
+        mask = classes == name
+        chance = float((counts[name] - 1) / max(1, len(keys) - 1))
+        precision = float(hits[mask].mean())
+        records.append({"class": name, "n": int(mask.sum()),
+                        "precision_at_k": precision, "chance": chance,
+                        "lift": precision / chance if chance > 0 else np.nan})
+    chance_all = float(((counts * (counts - 1)).sum())
+                       / max(1, len(keys) * (len(keys) - 1)))
+    records.append({"class": "all", "n": int(len(keys)),
+                    "precision_at_k": float(hits.mean()),
+                    "chance": chance_all,
+                    "lift": (float(hits.mean()) / chance_all
+                             if chance_all > 0 else np.nan)})
+    return pd.DataFrame(records)
+
+
 class RoundResult:
     """What one retrain round produced.
 

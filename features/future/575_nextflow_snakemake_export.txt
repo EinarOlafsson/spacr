@@ -1,6 +1,6 @@
 EXPORT A RECORDED RUN AS A NEXTFLOW OR SNAKEMAKE WORKFLOW
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED AS ALPHA 2026-09-27.
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -17,3 +17,35 @@ WHAT TO BUILD
 DONE WHEN
     An exported workflow run on a small plate reproduces the GUI run's
     outputs.
+
+ALPHA: 2026-09-27. Run History's "Export workflow…" button (object name
+RunHistoryExportWorkflow, ALPHA_FEATURES[575]) is hidden unless
+Preferences -> Show alpha features is on. The command line
+(spacr-repro <run> --export snakemake|nextflow --out DIR [--plates ...]
+[--image ...]) never consults the gate.
+
+WHAT WAS BUILT (2026-09-27)
+    spacr/cli_repro.py: _export_workflow writes a recorded run as a
+    Snakemake (Snakefile + config.yaml) or Nextflow DSL2 (main.nf +
+    nextflow.config with docker, apptainer and slurm profiles) workflow.
+    One job per plate: each entry of the run's src becomes
+    settings/<plate>.json holding the run's exact settings with src set to
+    that plate, run as `spacr-run <module> --settings <file>`. A run with no
+    src is one job. The image defaults to the CPU GHCR image of the spaCR
+    version that ran. Tests: tests/test_workflow_export.py,
+    tests/qt/test_workflow_export_alpha_gate.py.
+
+    VALIDATED with Snakemake 9.27.0 and Nextflow 26.04.6 installed under
+    /mnt/firecuda2/codex/scratch-docs/575 (CPU, no container): the
+    external_masks smoke plate (packaging/docker/smoke_pipeline.py) was run
+    with spacr-run, exported, and re-run by each engine. Every measurement
+    table and output file matched the recorded run except run ids,
+    timestamps and the key order of the png_channel_mapping dict in the
+    settings copy (the journal stores settings key-sorted). A three-plate
+    mask export passes `snakemake -n`, `snakemake --lint` and
+    `nextflow lint` cleanly.
+
+WHAT IS LEFT
+    Per-well jobs (no pipeline takes a well filter yet); a per-plate dst
+    for modules that write to one dst; container runs (docker/apptainer)
+    not exercised here; a real Cellpose plate on a cluster not run.

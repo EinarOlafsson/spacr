@@ -116,7 +116,29 @@ def test_other_modules_are_untouched(app_key, qapp):
 
 
 def test_hiding_is_declared_in_one_place(qapp):
-    """So the next module that needs it does not invent a second mechanism."""
-    from spacr.qt.screens.settings_model import _APP_HIDDEN_KEYS
+    """So the next module that needs it does not invent a second mechanism.
 
-    assert _APP_HIDDEN_KEYS.get("timelapse") == {"timelapse"}
+    2026-09-26: this used to assert that ``timelapse`` was the ONLY key the
+    Timelapse panel hides. Items 493 (``mask_parallel``/``mask_gpu_indices``:
+    parallel GPU masks refuse timelapse runs) and 548 (the ``watch_*`` keys:
+    watching a folder is a Make Masks workflow) then hid more keys on this
+    panel, and did it through the same declaration -- which is what this test
+    exists to protect. So the rule is now that ``timelapse`` is declared
+    there, and that every key declared there is HIDDEN rather than dropped:
+    still in the module's settings, and not rendered.
+    """
+    from spacr.qt.screens.settings_model import (_APP_HIDDEN_KEYS,
+                                                 SettingsWidgets,
+                                                 resolve_default_settings)
+
+    declared = _APP_HIDDEN_KEYS.get("timelapse", set())
+    assert "timelapse" in declared
+
+    settings = resolve_default_settings("timelapse")
+    dropped = sorted(declared - set(settings))
+    assert not dropped, (
+        f"declared hidden on Timelapse but absent from its settings: {dropped}")
+
+    rendered = _rendered_keys(SettingsWidgets("timelapse").build_sections())
+    shown = sorted(declared & rendered)
+    assert not shown, f"declared hidden on Timelapse but rendered: {shown}"

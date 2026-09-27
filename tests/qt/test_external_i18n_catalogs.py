@@ -229,7 +229,9 @@ def test_reviewed_ui_rows_are_exact_in_regenerated_runtime_catalogs():
 #: nineteen enhance_* settings arrived with the catalog lane's 2026-09-25
 #: rebuild (316) and left it. Owed since 2026-09-26 by item 493 (Make Masks
 #: splits its fields across GPUs): the two mask GPU keys.
-_AWAITING_CATALOG_REBUILD = frozenset({"mask_parallel", "mask_gpu_indices"})
+# 316, 2026-09-26 (fourth pass): the catalog rebuild carries both mask GPU
+# keys now, so the list is empty.
+_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset()
 
 
 def _assert_setting_tooltip_inventory(sources, en):

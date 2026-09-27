@@ -317,6 +317,158 @@ def write_table(frame: pd.DataFrame, path: Any, *,
     return target
 
 
+#: The schema-metadata key a Parquet file written by :func:`_write_parquet`
+#: carries its spaCR description under, beside pandas' own ``pandas`` key.
+_PARQUET_METADATA_KEY = b'spacr'
+
+_PYARROW_MISSING_MESSAGE = """\
+Writing Parquet with its schema metadata needs pyarrow, which is not
+installed in this environment (missing module: {module}).
+
+Install it with:
+
+    python -m pip install pyarrow\
+"""
+
+_PYREADR_MISSING_MESSAGE = """\
+Writing R data files (.rds) needs pyreadr, which is not installed in this
+environment (missing module: {module}).
+
+Install it with:
+
+    python -m pip install pyreadr
+
+The Parquet tables and the R loader script do not need it: R reads the
+Parquet files with the arrow or nanoparquet package.\
+"""
+
+
+def _require_optional(module_name: str, message: str):
+    """Import an optional module, or raise ``ImportError`` with ``message``.
+
+    :param module_name: the module to import.
+    :param message: the install instructions, with a ``{module}`` field
+        naming the module that failed to import.
+    :returns: the imported module.
+    :raises ImportError: when the module cannot be imported.
+    """
+    import importlib
+
+    try:
+        return importlib.import_module(module_name)
+    except ImportError as exc:
+        missing = (getattr(exc, 'name', None) or module_name).split('.')[0]
+        raise ImportError(message.format(module=missing)) from exc
+
+
+def _publish(target: str, write: Callable[[str], None]) -> str:
+    """Write through a temporary sibling file and move it into place.
+
+    A failed write leaves any earlier file at ``target`` untouched and no
+    partial file behind.
+    """
+    parent = os.path.dirname(os.path.abspath(target))
+    os.makedirs(parent, exist_ok=True)
+    base, suffix = os.path.splitext(os.path.basename(target))
+    pending = os.path.join(parent, f'.{base}.{os.getpid()}.pending{suffix}')
+    try:
+        write(pending)
+        os.replace(pending, target)
+    finally:
+        if os.path.exists(pending):
+            os.remove(pending)
+    return target
+
+
+def _write_parquet(frame: pd.DataFrame, path: Any, *,
+                   metadata: Optional[Dict[str, Any]] = None,
+                   canonicalise: bool = True, index: bool = False,
+                   compression: str = 'snappy') -> str:
+    """Write one frame as Parquet, keeping its dtypes and a spaCR description.
+
+    Categorical columns are stored as Parquet dictionaries, which pandas
+    reads back as categoricals and R's arrow package as factors. Integer,
+    float, boolean and string columns keep their types. ``metadata`` is
+    stored as JSON under the ``spacr`` key of the file's schema metadata,
+    beside the ``pandas`` key pyarrow writes; :func:`_parquet_metadata`
+    reads it back. The file is written beside the target and moved into
+    place, so a failed write keeps any earlier file.
+
+    :param frame: the frame.
+    :param path: destination ``.parquet``. ``~`` and ``$VARS`` are expanded;
+        the parent directory is created.
+    :param metadata: JSON-serialisable description of the table. Values
+        JSON cannot represent are stored as their string form.
+    :param canonicalise: rename legacy metadata spellings on the way out.
+        Off for a table whose column names are not measurement metadata,
+        such as a feature dictionary with a ``channel`` column.
+    :param index: store the index as a column.
+    :param compression: Parquet codec. ``'snappy'`` by default, which every
+        Parquet reader supports.
+    :returns: the resolved path written.
+    :raises ImportError: with install instructions when pyarrow is missing.
+    """
+    import json
+
+    pa = _require_optional('pyarrow', _PYARROW_MISSING_MESSAGE)
+    parquet = _require_optional('pyarrow.parquet', _PYARROW_MISSING_MESSAGE)
+    target = resolve_path(path)
+    if canonicalise:
+        mapping = schema.canonical_rename_plan(frame.columns)
+        if mapping:
+            frame = frame.rename(columns=mapping)
+    table = pa.Table.from_pandas(frame, preserve_index=index)
+    stored = dict(table.schema.metadata or {})
+    if metadata is not None:
+        stored[_PARQUET_METADATA_KEY] = json.dumps(
+            metadata, default=str, sort_keys=True).encode('utf-8')
+    table = table.replace_schema_metadata(stored)
+    return _publish(target, lambda pending: parquet.write_table(
+        table, pending, compression=compression))
+
+
+def _parquet_metadata(path: Any) -> Dict[str, Any]:
+    """The spaCR description stored in a Parquet file by :func:`_write_parquet`.
+
+    Only the schema is read, not the data.
+
+    :param path: a ``.parquet`` file.
+    :returns: the stored dict, or ``{}`` when the file carries none.
+    :raises ImportError: with install instructions when pyarrow is missing.
+    """
+    import json
+
+    parquet = _require_optional('pyarrow.parquet', _PYARROW_MISSING_MESSAGE)
+    stored = parquet.read_schema(resolve_path(path)).metadata or {}
+    raw = stored.get(_PARQUET_METADATA_KEY)
+    return json.loads(raw.decode('utf-8')) if raw else {}
+
+
+def _write_rds(frame: pd.DataFrame, path: Any, *,
+               canonicalise: bool = True) -> str:
+    """Write one frame as an R data frame in an ``.rds`` file.
+
+    Written with pyreadr, which stores numbers as doubles, booleans as
+    logicals and text and categorical columns as character vectors: R
+    factor levels and integer types are not kept. The Parquet tables keep
+    both. Written beside the target and moved into place.
+
+    :param frame: the frame. The index is not written.
+    :param path: destination ``.rds``; the parent directory is created.
+    :param canonicalise: rename legacy metadata spellings on the way out.
+    :returns: the resolved path written.
+    :raises ImportError: with install instructions when pyreadr is missing.
+    """
+    pyreadr = _require_optional('pyreadr', _PYREADR_MISSING_MESSAGE)
+    target = resolve_path(path)
+    if canonicalise:
+        mapping = schema.canonical_rename_plan(frame.columns)
+        if mapping:
+            frame = frame.rename(columns=mapping)
+    frame = frame.reset_index(drop=True)
+    return _publish(target, lambda pending: pyreadr.write_rds(pending, frame))
+
+
 def _quote_identifier(name: Any) -> str:
     """Quote a SQLite identifier, refusing anything that is not one."""
     if not isinstance(name, str) or not name:

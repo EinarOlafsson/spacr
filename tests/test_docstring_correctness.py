@@ -2609,7 +2609,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # hit-scoring callables and build_plates' new `outline` keyword.
     # 19,522 -> 19,537, +15, the parameters of items 544 and 573's four:
     # start_blinding 4, unblind 2, lock_analysis 6, check_analysis_lock 3.
-    assert sum(len(item.parameters) for item in callables) == 19_537
+    # 19,537 -> 19,538 with item 572: save_figure's optional keyword-only
+    # `integrity`; no new callable, and the required sum does not move.
+    # 19,538 -> 19,539 with item 543: the IlluminationField dataclass
+    # constructor gained the optional `darkfield` field (none required).
+    assert sum(len(item.parameters) for item in callables) == 19_539
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2791,7 +2795,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # dropping the four new spacr.run_journal rows (start_blinding, unblind,
     # lock_analysis, check_analysis_lock) returns b3b92a26..., the previous
     # pin, byte for byte.
-) == "28984a976acda2eb846c4b7fe66c68bfa859ab21df3746328f461a3e0f6b8a27"
+    # Item 572 on 2026-09-26 (was 28984a97...): spacr.plot.save_figure
+    # gained the optional keyword-only `integrity`.
+    # Moved 2026-09-27 for item 543 on top of 572 (was 18d2977b...): the
+    # IlluminationField dataclass constructor gained the optional darkfield.
+) == "305e0422977d84f1a61eba0ebdddb0f745ec59f4231a5fba3323eaad206e0312"
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing

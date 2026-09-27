@@ -803,7 +803,89 @@ def test_real_default_claims_have_no_unrecorded_drift():
                             "cell_cycle_mitotic_ratio", "cell_cycle_labels",
                             "cell_cycle_model", "cell_cycle_epochs")}
     assert item_535 <= compared_pairs
-    # 784 -> 791 on 2026-09-27, +7/-0 (item 542): seven colony-counting
+    # 784 -> 796 on 2026-09-26, +12/-0 (item 547): profiling (False),
+    # profiling_metadata, profiling_negative_control and
+    # profiling_phenotype_column (blank), profiling_correlation_threshold
+    # (0.9) and profiling_databases ([]), each resolved by Measure and by
+    # External Masks, which measures with Measure's defaults.
+    # profiling_treatment_column ("columnID"), profiling_normalization
+    # ("mad_robustize") and profiling_feature_selection ("all five") are not
+    # literals and so are not compared.
+    item_547 = {(app, key) for app in ("measure", "external_masks")
+                for key in ("profiling", "profiling_metadata",
+                            "profiling_negative_control",
+                            "profiling_phenotype_column",
+                            "profiling_correlation_threshold",
+                            "profiling_databases")}
+    assert item_547 <= compared_pairs
+    # 796 -> 806 on 2026-09-26, +10/-0 (item 536): wound_closure (False),
+    # wound_channel (None), wound_window (15), wound_hours_per_frame (None)
+    # and wound_conditions ({}), each resolved by Measure and by External
+    # Masks, which measures with Measure's defaults. wound_source says
+    # "Default texture.", which is not a literal and so is not compared.
+    item_536 = {(app, key) for app in ("measure", "external_masks")
+                for key in ("wound_closure", "wound_channel", "wound_window",
+                            "wound_hours_per_frame", "wound_conditions")}
+    assert item_536 <= compared_pairs
+    # 806 -> 824 on 2026-09-26, +18/-0 (item 571): nine time-to-event
+    # claims -- time_to_event (False), time_to_event_column and
+    # time_to_event_reference (blank), time_to_event_threshold,
+    # time_to_event_hours_per_frame, time_to_event_conditions and
+    # time_to_event_covariates (None), time_to_event_persist (1) and
+    # time_to_event_min_frames (3) -- each resolved by Measure and by
+    # External Masks. The object, mode, origin and group settings say
+    # "Default cell.", "track_end.", "track." and "well.", not literals.
+    item_571 = {(app, key) for app in ("measure", "external_masks")
+                for key in ("time_to_event", "time_to_event_column",
+                            "time_to_event_reference",
+                            "time_to_event_threshold",
+                            "time_to_event_hours_per_frame",
+                            "time_to_event_conditions",
+                            "time_to_event_covariates",
+                            "time_to_event_persist",
+                            "time_to_event_min_frames")}
+    assert item_571 <= compared_pairs
+    # 824 -> 833 on 2026-09-27, +9/-0 (item 538): unmix (False),
+    # unmix_controls (blank) and unmix_background_percentile (5.0), each
+    # resolved by Make Masks, Measure and External Masks.
+    item_538 = {(app, key) for app in ("mask", "measure", "external_masks")
+                for key in ("unmix", "unmix_controls",
+                            "unmix_background_percentile")}
+    assert item_538 <= compared_pairs
+    # 833 -> 847 on 2026-09-27, +14/-0 (item 540): seven live/dead claims --
+    # viability (False), viability_dead_channel, viability_live_channel,
+    # viability_thresholds, viability_negative_wells and
+    # viability_positive_wells (None) and viability_plate_map (blank) --
+    # each resolved by Measure and by External Masks.
+    item_540 = {(app, key) for app in ("measure", "external_masks")
+                for key in ("viability", "viability_dead_channel",
+                            "viability_live_channel", "viability_thresholds",
+                            "viability_negative_wells",
+                            "viability_positive_wells", "viability_plate_map")}
+    assert item_540 <= compared_pairs
+    # 847 -> 853 on 2026-09-27, +6/-0 (item 580): intensity_calibration
+    # (False), intensity_calibration_wells (None) and
+    # intensity_calibration_offset (0), each resolved by Measure and by
+    # External Masks. intensity_calibration_statistic says "Default
+    # foreground.", which is not a literal and so is not compared.
+    item_580 = {(app, key) for app in ("measure", "external_masks")
+                for key in ("intensity_calibration",
+                            "intensity_calibration_wells",
+                            "intensity_calibration_offset")}
+    assert item_580 <= compared_pairs
+    # 853 -> 856 on 2026-09-27, +3/-0 (item 543): illumination_vendor_profile
+    # ("Default empty."), resolved by Measure, by External Masks, which
+    # measures with Measure's defaults, and by Mask, which corrects its
+    # segmentation inputs with the same field.
+    item_543 = {(app, "illumination_vendor_profile")
+                for app in ("measure", "external_masks", "mask")}
+    assert item_543 <= compared_pairs
+    # 856 -> 858 on 2026-09-27, +2/-0 (item 546): cellprofiler_pipeline
+    # (blank), resolved by Measure and by External Masks.
+    item_546 = {(app, "cellprofiler_pipeline")
+                for app in ("measure", "external_masks")}
+    assert item_546 <= compared_pairs
+    # 858 -> 865 on 2026-09-27, +7/-0 (item 542): seven colony-counting
     # claims -- colony_counting (False), colony_dilution (1),
     # colony_plated_volume_ul (100), colony_too_many (300), colony_too_few
     # (30), colony_threshold (4.0) and colony_min_area_px (None) -- each
@@ -814,7 +896,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
         "colony_too_many", "colony_too_few", "colony_threshold",
         "colony_min_area_px")}
     assert item_542 <= compared_pairs
-    assert comparisons == 791
+    assert comparisons == 865
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
@@ -823,10 +905,25 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # + 6: item 548's folder-watch settings, pinned above;
     # + 18: item 550's cloud-source settings, pinned above.
     # + 16: item 535's eight cell-cycle claims in two apps, pinned above.
+    # + 12: item 547's six profiling claims in two apps, pinned above.
+    # + 0: item 539's bleach_correction says "Default none.", a combo
+    # choice rather than a literal, and so is not compared.
+    # + 10: item 536's five wound-closure claims in two apps, pinned above.
+    # + 18: item 571's nine time-to-event claims in two apps, pinned above.
+    # + 9: item 538's three unmixing claims in three apps, pinned above.
+    # + 14: item 540's seven live/dead claims in two apps, pinned above.
+    # + 6: item 580's three calibration claims in two apps, pinned above.
+    # + 0: item 537's three lineage-tree settings belong to the Timelapse
+    # category, which no compared app resolves, so none is compared.
+    # + 3: item 543's vendor flat-field profile in three apps, pinned above.
+    # + 2: item 546's CellProfiler pipeline in two apps, pinned above.
     # + 7: item 542's colony-counting claims in Plaque Assay, pinned above.
     assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2
             + len(item_541) + len(item_548) + len(item_550)
-            + len(item_535) + len(item_542) == comparisons)
+            + len(item_535) + len(item_547) + len(item_536)
+            + len(item_571) + len(item_538) + len(item_540)
+            + len(item_580) + len(item_543) + len(item_546)
+            + len(item_542) == comparisons)
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs
     assert len(census_508['added_pairs']) == 19

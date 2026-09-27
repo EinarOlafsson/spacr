@@ -1,0 +1,246 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "anndata_format",
+      "source": "What the export writes. 'h5ad' writes the AnnData file; 'parquet' writes tidy Parquet tables (objects, features, wells, embeddings, provenance) that pandas, arrow and R read with their types kept; 'r' adds load_spacr_export.R, which builds a SingleCellExperiment in R, and .rds data frames when pyreadr is installed; 'all' writes every one. The tables need pyarrow. Default 'h5ad'.",
+      "source_sha256": "4641d38c6c850d298ed14d3d291e57537a3c02eeb243d37b587f5f5c16364c77",
+      "translation": "O que a exportação grava. 'h5ad' grava o arquivo AnnData; 'parquet' grava tabelas Parquet organizadas (objetos, variáveis, poços, incorporações, procedência) que pandas, arrow e R leem mantendo os tipos; 'r' acrescenta load_spacr_export.R, que monta um SingleCellExperiment no R, e data frames .rds quando pyreadr está instalado; 'all' grava tudo. As tabelas precisam de pyarrow. Padrão 'h5ad'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "anndata_tidy_dir",
+      "source": "Folder for the Parquet tables and the R loader when anndata_format is 'parquet', 'r' or 'all'. Files of the same names in it are replaced. Default <src>/results/<project>_tables.",
+      "source_sha256": "b59da2c719e1798af8902855880a4dba01fa863898d0132f0fa58b0e71d2b86d",
+      "translation": "Pasta para as tabelas Parquet e o carregador R quando anndata_format é 'parquet', 'r' ou 'all'. Arquivos com os mesmos nomes nela são substituídos. Padrão <src>/results/<project>_tables."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle",
+      "source": "Call the cell-cycle phase of every nucleus after measuring, from the DNA stain: G1, S, G2 or M, plus subG1 and >4N outside the peaks. Writes one row per nucleus to measurements.db:cell_cycle with the call in cell_cycle_phase, the phase fractions per well, overall and in infected and uninfected cells, to cell_cycle_well, and with plot on each plate's fitted DNA histogram. Needs measured nuclei. Default False.",
+      "source_sha256": "6d6487cfab9dc5ffb7e1aca80d26a799cecf46e1de0b4518cf69968d41fd46d8",
+      "translation": "Define após a medição a fase do ciclo celular de cada núcleo a partir da coloração de DNA: G1, S, G2 ou M, mais subG1 e >4N fora dos picos. Grava uma linha por núcleo em measurements.db:cell_cycle com a classificação em cell_cycle_phase, as frações de fase por poço, no total e em células infectadas e não infectadas, em cell_cycle_well e, com plot ativado, o histograma de DNA ajustado de cada placa. Requer núcleos medidos. Padrão False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_channel",
+      "source": "The merged-array channel holding the DNA stain (DAPI or Hoechst) the phase is read from, counted as in channels; it must be one of the measured channels. Blank uses nucleus_channel, then the first entry of channels. Default None.",
+      "source_sha256": "f69273cbbc964f59d582e2bda4e2301f2e60fc6ddc37bbdcd582354051d5cd98",
+      "translation": "O canal do array mesclado com a coloração de DNA (DAPI ou Hoechst) do qual a fase é lida, contado como em channels; deve ser um dos canais medidos. Em branco usa nucleus_channel e depois a primeira entrada de channels. Padrão None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_epochs",
+      "source": "Training epochs of the torch phase classifier. It is a ResNet-18 trained from scratch on crops as small as 32 pixels, so each epoch is quick on a GPU and slow on a busy CPU. Ignored when cell_cycle_model names a trained model. Default 20.",
+      "source_sha256": "35d3320524bc0ee7a51857bc33eeef9eb72fbca702f55d66c96b5fa57e327196",
+      "translation": "Épocas de treinamento do classificador de fases torch. É uma ResNet-18 treinada do zero em recortes de apenas 32 pixels, então cada época é rápida em uma GPU e lenta em uma CPU ocupada. Ignorado quando cell_cycle_model indica um modelo treinado. Padrão 20."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_fucci_channels",
+      "source": "Two merged-array channels of a FUCCI reporter, the G1 reporter (Cdt1) then the S/G2/M reporter (Geminin), both measured. Each is split into positive and negative per plate, and every nucleus gets a fucci_state: early G1, G1, G1/S or S/G2/M. The xgboost method also uses their intensities. Blank skips FUCCI. Default None.",
+      "source_sha256": "38238a35dd7ebf60815b22b017d307e05bdd1684d6d8ad1d99a70d2e701642bb",
+      "translation": "Dois canais do array mesclado de um repórter FUCCI, primeiro o repórter de G1 (Cdt1) e depois o de S/G2/M (Geminin), ambos medidos. Cada um é dividido em positivo e negativo por placa, e cada núcleo recebe um fucci_state: G1 inicial, G1, G1/S ou S/G2/M. O método xgboost também usa suas intensidades. Em branco ignora o FUCCI. Padrão None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_gates",
+      "source": "Fixed gates [G1/S, S/G2] in DNA content units, where the G1 peak is 2 and the G2 peak 4, for example [2.5, 3.5]. They replace the crossings fitted per plate; the peaks are still fitted to place the units. Read the fitted gates off the saved histogram before editing them. Blank uses the fitted gates. Default None.",
+      "source_sha256": "583b0ebfac84fe91331bba4d835ff43218bd719bfad5381f1a15bd26a77b3c1e",
+      "translation": "Gates fixos [G1/S, S/G2] em unidades de conteúdo de DNA, em que o pico G1 é 2 e o pico G2 é 4, por exemplo [2.5, 3.5]. Eles substituem os cruzamentos ajustados por placa; os picos continuam sendo ajustados para situar as unidades. Leia os gates ajustados no histograma salvo antes de editá-los. Em branco usa os gates ajustados. Padrão None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_labels",
+      "source": "A png_list column holding Annotate labels the xgboost and torch methods learn from: 1 to 4 for G1, S, G2 and M, or the phase names. Labels are matched to nuclei through their cell. Blank trains on the confident gate calls instead, which teaches the learned methods what the gates already say; annotate prophase and anaphase nuclei to teach them more. Default blank.",
+      "source_sha256": "f98dafb5c5d492479e5eb27075b2e0af9e344df46c9f8cf3cd38d36d4339459c",
+      "translation": "Uma coluna png_list com rótulos do Annotate dos quais os métodos xgboost e torch aprendem: 1 a 4 para G1, S, G2 e M, ou os nomes das fases. Os rótulos são associados aos núcleos por meio de sua célula. Em branco treina com as classificações seguras dos gates, o que ensina aos métodos aprendidos o que os gates já dizem; anote núcleos em prófase e anáfase para ensinar mais. Padrão em branco."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_method",
+      "source": "How phases are called. measurements gates each plate's DNA-content histogram, fitted as G1 and G2 peaks with S between, and calls condensed 4N nuclei M. xgboost trains a boosted classifier on nucleus features, torch trains an image classifier on nucleus crops with Classify's training; both learn from cell_cycle_labels. all runs the three and keeps their majority. Default measurements.",
+      "source_sha256": "cc9645da4e6a8379362200ef6bd0caf53a0a153688df35474d7b437b234de187",
+      "translation": "Como as fases são definidas. measurements aplica gates ao histograma de conteúdo de DNA de cada placa, ajustado como picos G1 e G2 com S entre eles, e classifica como M os núcleos 4N condensados. xgboost treina um classificador de boosting com variáveis dos núcleos, torch treina um classificador de imagens com recortes de núcleos usando o treinamento do Classify; ambos aprendem com cell_cycle_labels. all executa os três e mantém a maioria. Padrão measurements."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_mitotic_ratio",
+      "source": "A nucleus past the G1/S gate is called M when its background-subtracted mean DNA intensity is at least this many times the median of the plate's G2 nuclei: condensed mitotic chromatin is brighter. Lower catches more prophase and more bright G2 nuclei. Blank never calls M from intensity and leaves mitotic nuclei in G2. Default 1.8.",
+      "source_sha256": "57e0ad8c755fb15cfa2e762d5366d23f87ff6417b196f72ed3841290a3c21878",
+      "translation": "Um núcleo além do gate G1/S é classificado como M quando sua intensidade média de DNA, com o fundo subtraído, é pelo menos este múltiplo da mediana dos núcleos G2 da placa: a cromatina mitótica condensada é mais brilhante. Valores menores captam mais prófases e mais núcleos G2 brilhantes. Em branco nunca classifica M pela intensidade e deixa os núcleos mitóticos em G2. Padrão 1.8."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_model",
+      "source": "A torch model this step trained earlier, with its cell_cycle_phases.json beside it, applied to the nucleus crops instead of training a new one. Use it to call a second plate with the model trained on the first. Ignored unless cell_cycle_method is torch or all. Default blank.",
+      "source_sha256": "da89a9ff9d1c8ab65ed0d04144e650d5cdefc70b24ec4fc2ec41f88eab7b20c2",
+      "translation": "Um modelo torch que esta etapa treinou antes, com seu cell_cycle_phases.json ao lado, aplicado aos recortes de núcleos em vez de treinar um novo. Use-o para classificar uma segunda placa com o modelo treinado na primeira. Ignorado a menos que cell_cycle_method seja torch ou all. Padrão em branco."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_anonymous",
+      "source": "Read cloud sources without credentials, for public data such as IDR or the Cell Painting Gallery. When off, s3:// sources use the AWS credentials in the AWS_* environment variables, ~/.aws or AWS_PROFILE, and are read anonymously only when none are found; gs:// and az:// use their own default credentials. spaCR never stores or prints credentials. Default False.",
+      "source_sha256": "3ccc2e53b2a0bd32e404e0a5fbd47ad151bf7bb045f21b1f4daa56a3fe979801",
+      "translation": "Ler fontes na nuvem sem credenciais, para dados públicos como o IDR ou a Cell Painting Gallery. Quando desativado, fontes s3:// usam as credenciais da AWS nas variáveis de ambiente AWS_*, em ~/.aws ou em AWS_PROFILE, e só são lidas anonimamente quando nenhuma é encontrada; gs:// e az:// usam suas próprias credenciais padrão. O spaCR nunca armazena nem imprime credenciais. Padrão False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_cache",
+      "source": "Folder where cloud sources are fetched to and analysed in. Each src address gets its own subfolder, so a repeated run reuses what was fetched and Measure finds what Make Masks wrote. Blank uses ~/.cache/spacr/cloud. Default blank.",
+      "source_sha256": "d767cee6467247005aca5ce003cdf66798f2a80d49dec1000207ce043c56b6f1",
+      "translation": "Pasta para a qual as fontes na nuvem são buscadas e na qual são analisadas. Cada endereço src ganha sua própria subpasta, de modo que uma execução repetida reutiliza o que foi buscado e o Measure encontra o que o Make Masks gravou. Em branco usa ~/.cache/spacr/cloud. Padrão em branco."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_endpoint",
+      "source": "Address of the S3-compatible service holding s3:// sources, such as a MinIO or Ceph server, or https://uk1s3.embassy.ebi.ac.uk for IDR. Blank uses Amazon S3. Default blank.",
+      "source_sha256": "e06c15c5cd11032deea8d3a46b61b09473840a024b81b9876c243739d3a71265",
+      "translation": "Endereço do serviço compatível com S3 que contém fontes s3://, como um servidor MinIO ou Ceph, ou https://uk1s3.embassy.ebi.ac.uk para o IDR. Em branco usa o Amazon S3. Padrão em branco."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_fields",
+      "source": "Fields per well of a cloud OME-Zarr plate to fetch, counted from the first. 0 fetches every field. Default 0.",
+      "source_sha256": "3066d6c5eb3e1e0ac8fbad0fe421e7c7b2d9b088ede4d178be155ad8826ea449",
+      "translation": "Campos por poço de uma placa OME-Zarr na nuvem a buscar, contados a partir do primeiro. 0 busca todos os campos. Padrão 0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_level",
+      "source": "Resolution level of a cloud OME-Zarr to fetch. 0 is full resolution; each level above usually halves width and height, so set diameters and size limits for the smaller images. Default 0.",
+      "source_sha256": "d6be4a3a8a1dd13a9cd68a1dbacefebc7e77c751ba9369aa57b55f9e4ecf72fe",
+      "translation": "Nível de resolução de um OME-Zarr na nuvem a buscar. 0 é a resolução total; cada nível acima costuma reduzir pela metade a largura e a altura, então ajuste diâmetros e limites de tamanho para as imagens menores. Padrão 0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_profile",
+      "source": "Named AWS profile from ~/.aws/config used for s3:// sources, for example lab-readonly. Only the name is kept; the keys stay in ~/.aws. Blank uses the default AWS credential chain. Default blank.",
+      "source_sha256": "44be8d15ddc98b7363b0631865739886f35ed69d0c6cee26444aef78da9a75ff",
+      "translation": "Perfil nomeado da AWS em ~/.aws/config usado para fontes s3://, por exemplo lab-readonly. Apenas o nome é guardado; as chaves ficam em ~/.aws. Em branco usa a cadeia de credenciais padrão da AWS. Padrão em branco."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_results",
+      "source": "Cloud folder (s3://, gs:// or az://) the run's measurements folder is copied to when it finishes, in one subfolder per src. Blank keeps results in the local folder only. Default blank.",
+      "source_sha256": "d127ccb46519062f25da8fc973d433df0aaa28a51c17cfe7c95f625996261467",
+      "translation": "Pasta na nuvem (s3://, gs:// ou az://) para a qual a pasta de medições da execução é copiada ao terminar, em uma subpasta por src. Em branco mantém os resultados apenas na pasta local. Padrão em branco."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_wells",
+      "source": "Wells of a cloud OME-Zarr plate to fetch, such as A1, B03; only these are downloaded, a channel at a time, with z maximum projected. Blank fetches every well, which for a large plate can be many gigabytes. Default blank.",
+      "source_sha256": "208e69ac99c36e9abf30fb8dfbe93944ada1ddd10aabdc4da513e16e2b036115",
+      "translation": "Poços de uma placa OME-Zarr na nuvem a buscar, como A1, B03; somente esses são baixados, um canal por vez, com projeção de máximo em z. Em branco busca todos os poços, o que em uma placa grande pode somar muitos gigabytes. Padrão em branco."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling",
+      "source": "After Measure finishes, build image-based profiles from its tables: aggregate each object table to one median profile per well, add the plate map in profiling_metadata, normalise each plate against its negative-control wells, remove uninformative and redundant features, build one consensus profile per treatment and score replicate reproducibility as mean average precision (mAP) and percent replicating. Results go to measurements/profiles as CSV, Parquet and GCT with plots. Default False.",
+      "source_sha256": "dc2c206509ac345fe621dcdbca17d43684e5d44a47097c0a3fa7a1b2f961b0a1",
+      "translation": "Depois que o Measure termina, monta perfis baseados em imagem a partir de suas tabelas: agrega cada tabela de objetos em um perfil mediano por poço, acrescenta o mapa de placa de profiling_metadata, normaliza cada placa em relação aos seus poços de controle negativo, remove variáveis pouco informativas e redundantes, monta um perfil de consenso por tratamento e pontua a reprodutibilidade das réplicas como precisão média média (mAP) e porcentagem de replicação. Os resultados vão para measurements/profiles como CSV, Parquet e GCT com gráficos. Padrão False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_correlation_threshold",
+      "source": "Pearson correlation above which two features count as redundant in the correlation_threshold selection step. Of each such pair the feature more correlated with all others is removed. Lower values keep fewer, less redundant features. Default 0.9.",
+      "source_sha256": "497bdc5698c78a73118ded35f579bb1f32b2f0aeaa8e24dfee723506b1018606",
+      "translation": "Correlação de Pearson acima da qual duas variáveis contam como redundantes na etapa de seleção correlation_threshold. De cada par, é removida a variável mais correlacionada com todas as outras. Valores menores mantêm menos variáveis, menos redundantes. Padrão 0.9."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_databases",
+      "source": "Further measurements.db files to profile together with this run's, one per plate, so replicates on different plates are compared while each plate is still normalised on its own. Every plate needs a distinct plateID. Default [].",
+      "source_sha256": "56018344866daa7a080606f5c8d83379a37824a27a241798cbaba7e11a4f5ebf",
+      "translation": "Outros arquivos measurements.db a perfilar junto com os desta execução, um por placa, para que réplicas em placas diferentes sejam comparadas enquanto cada placa continua sendo normalizada separadamente. Cada placa precisa de um plateID distinto. Padrão []."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_feature_selection",
+      "source": "Feature-selection steps, run in order after normalisation: variance_threshold drops near-zero variance, frequency_threshold near-constant values, correlation_threshold the more redundant of each pair correlated above profiling_correlation_threshold, drop_na_columns features missing in over 5 % of wells, and drop_outliers any feature with an absolute value above 500. An empty list keeps every feature. Default all five.",
+      "source_sha256": "c375f4802bb5f45ccd30e6ed7fc14055161904447001c6046ffc4e6a76d6b159",
+      "translation": "Etapas de seleção de variáveis, executadas em ordem após a normalização: variance_threshold remove variância quase nula, frequency_threshold valores quase constantes, correlation_threshold a mais redundante de cada par com correlação acima de profiling_correlation_threshold, drop_na_columns variáveis ausentes em mais de 5 % dos poços, e drop_outliers qualquer variável com valor absoluto acima de 500. Uma lista vazia mantém todas as variáveis. Padrão as cinco."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_metadata",
+      "source": "Plate map for profiling: a CSV, TSV, Excel or Parquet table with one row per well position, located by rowID and columnID or by a well column such as A01, plus annotation columns such as treatment, dose, gene or a phenotype label. With a plateID column the map is matched plate by plate; without one it applies to every plate. Blank profiles the wells by position only. Default blank.",
+      "source_sha256": "86856a2ea0e293442885356576249f7b0a3cfd4942736157e94e0ced6a2b2fd5",
+      "translation": "Mapa de placa para o perfilamento: uma tabela CSV, TSV, Excel ou Parquet com uma linha por posição de poço, localizada por rowID e columnID ou por uma coluna com o poço, como A01, mais colunas de anotação como treatment, dose, gene ou um rótulo de fenótipo. Com uma coluna plateID, o mapa é associado placa a placa; sem ela, vale para todas as placas. Em branco perfila os poços apenas pela posição. Padrão em branco."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_negative_control",
+      "source": "Value or values of the first profiling_treatment_column that mark negative-control wells, for example DMSO or c1. Each plate is normalised against its own controls, and every treatment is scored for phenotypic activity, how well its replicates find each other among the controls. Blank normalises against all wells of a plate and skips the activity score. Default blank.",
+      "source_sha256": "5b9244226a4a20eaff91e744e604528103e9c9c02dae76a19ff5d28c285d200e",
+      "translation": "Valor ou valores da primeira profiling_treatment_column que marcam poços de controle negativo, por exemplo DMSO ou c1. Cada placa é normalizada em relação aos seus próprios controles, e cada tratamento é pontuado quanto à atividade fenotípica: quão bem suas réplicas se encontram entre os controles. Em branco normaliza em relação a todos os poços de uma placa e pula a pontuação de atividade. Padrão em branco."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_normalization",
+      "source": "How each feature is put on a common scale, plate by plate. mad_robustize subtracts the reference median and divides by 1.4826 times the reference MAD, which tolerates outlier wells; standardize uses the mean and standard deviation; robustize uses the median and interquartile range; none keeps the aggregated values. The reference is the negative control, or every well when none is named. Default mad_robustize.",
+      "source_sha256": "fc28fbaa7f0105f424fa80a3a28ba72aa673f5bf020a603645a19521d8180aa9",
+      "translation": "Como cada variável é levada a uma escala comum, placa a placa. mad_robustize subtrai a mediana de referência e divide por 1,4826 vezes a MAD de referência, o que tolera poços atípicos; standardize usa a média e o desvio-padrão; robustize usa a mediana e o intervalo interquartil; none mantém os valores agregados. A referência é o controle negativo, ou todos os poços quando nenhum é indicado. Padrão mad_robustize."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_phenotype_column",
+      "source": "Optional plate-map column holding a phenotype label that different treatments share, such as a mechanism of action, pathway or target gene. When set, consensus profiles are also scored for phenotypic consistency: how well treatments with the same label retrieve each other, as mAP per label. Default blank.",
+      "source_sha256": "f8e3e2dcbfe8dedb8e157d488101b59cf37fa32baeb237e4b4e574f0d95159a5",
+      "translation": "Coluna opcional do mapa de placa com um rótulo de fenótipo compartilhado por diferentes tratamentos, como um mecanismo de ação, uma via ou um gene-alvo. Quando definida, os perfis de consenso também são pontuados quanto à consistência fenotípica: quão bem tratamentos com o mesmo rótulo se recuperam mutuamente, como mAP por rótulo. Padrão em branco."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_treatment_column",
+      "source": "The annotation column, or columns, naming what each well received. Wells that share them are replicates and are collapsed into one consensus profile. Use a plate-map column such as treatment, treatment and dose together, or columnID when each plate column holds one condition. Default columnID.",
+      "source_sha256": "3584e01563f0ca89421355f5e7199774c3d66704a5052d0b7d61c97d6c20b139",
+      "translation": "A coluna ou colunas de anotação que indicam o que cada poço recebeu. Poços que as compartilham são réplicas e são reunidos em um perfil de consenso. Use uma coluna do mapa de placa como treatment, treatment e dose juntas, ou columnID quando cada coluna da placa contém uma condição. Padrão columnID."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_channel",
+      "source": "The merged-array channel the texture and intensity wound sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, the stain for intensity. Ignored by the masks source. Default None.",
+      "source_sha256": "878751f07ce559f6af253b2de378896e916d4dc76a17fcb452c9a4f7606b3d36",
+      "translation": "O canal do array mesclado que as fontes de ferida textura e intensidade leem, contado como em channels. Em branco usa a primeira entrada de channels. Escolha o plano de campo claro ou de fase para textura, a coloração para intensidade. Ignorado pela fonte máscaras. Padrão None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_closure",
+      "source": "Measure a scratch or wound-healing assay: find the open wound in every frame of every field, then write its area, mean and minimum width, the closure rate and the half-closure time per field, per well and per condition to measurements.db and results/wound_closure, with closure curves and a plate map. Frames are grouped by plate, well and field and ordered by timepoint; the first frame decides where the scratch is. Default False.",
+      "source_sha256": "687295b08c859fb5e592d4744cc09f573d4ce6eaab466c8520026db0a10c46db",
+      "translation": "Mede um ensaio de risco ou de cicatrização de feridas: encontra a ferida aberta em cada quadro de cada campo e grava sua área, sua largura média e mínima, a taxa de fechamento e o tempo de meio fechamento por campo, por poço e por condição em measurements.db e results/wound_closure, com curvas de fechamento e um mapa de placa. Os quadros são agrupados por placa, poço e campo e ordenados por ponto temporal; o primeiro quadro decide onde está o risco. Padrão False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_conditions",
+      "source": "Conditions to pool wells into for the closure curves and half-closure times, as {name: wells}, the wells as rows (r2), columns (c3) or single wells (B03), for example {'control': 'c1, c2', 'drug': 'c3, c4'}. A well in no condition is reported under its own name. A well may belong to one condition only. Default {}.",
+      "source_sha256": "f25b175e0514c3929471612ababb846f817fdb67e07920ee6c24ae03604210e0",
+      "translation": "Condições nas quais agrupar os poços para as curvas de fechamento e os tempos de meio fechamento, como {name: wells}, com os poços como linhas (r2), colunas (c3) ou poços isolados (B03), por exemplo {'control': 'c1, c2', 'drug': 'c3, c4'}. Um poço sem condição é informado com o próprio nome. Um poço pode pertencer a apenas uma condição. Padrão {}."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_hours_per_frame",
+      "source": "Hours between consecutive timepoints, so closure rates are per hour and half-closure times are in hours. Blank counts time in frames. With voxel_size_xy_um set, widths and front speeds are also reported in micrometres. Default None.",
+      "source_sha256": "bbbb7144e62af423a91b852f41d94db2a3026927d31878b9543731bfd22afdff",
+      "translation": "Horas entre pontos temporais consecutivos, para que as taxas de fechamento sejam por hora e os tempos de meio fechamento em horas. Em branco conta o tempo em quadros. Com voxel_size_xy_um definido, larguras e velocidades da frente também são informadas em micrômetros. Padrão None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_source",
+      "source": "How the open wound is told apart from the monolayer. texture reads the local variation of wound_channel, for brightfield and phase. intensity thresholds wound_channel, for a fluorescent cytoplasm or membrane stain. masks takes every pixel outside the segmented cells as open. The cut is decided on each field's first frame and kept for its later frames. Default texture.",
+      "source_sha256": "5d1d9d2af4bbead4c5b9bd4af1aae313cbd282ac7019a0374c2a06e8cd261ac2",
+      "translation": "Como a ferida aberta é distinguida da monocamada. texture lê a variação local de wound_channel, para campo claro e fase. intensity aplica um limiar a wound_channel, para uma coloração fluorescente de citoplasma ou de membrana. masks considera aberto cada pixel fora das células segmentadas. O corte é decidido no primeiro quadro de cada campo e mantido nos quadros seguintes. Padrão texture."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_window",
+      "source": "Side of the square window, in pixels, over which the texture wound source measures local variation. About the diameter of one cell at the imaging resolution: smaller follows the wound edge more closely but can open holes in smooth parts of the monolayer, larger bridges narrow gaps. Also sets the smallest gap kept in later frames. Default 15.",
+      "source_sha256": "146bdc2d95eeec0de57e7b983923816b003936584578a24d2ebc0439d6bf55f5",
+      "translation": "Lado da janela quadrada, em pixels, sobre a qual a fonte de ferida textura mede a variação local. Cerca do diâmetro de uma célula na resolução da imagem: menor acompanha a borda da ferida mais de perto, mas pode abrir buracos em partes lisas da monocamada; maior cobre lacunas estreitas. Também define a menor lacuna mantida nos quadros seguintes. Padrão 15."
+    }
+  ]
+}

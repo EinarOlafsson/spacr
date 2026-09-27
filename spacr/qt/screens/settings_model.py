@@ -1194,7 +1194,9 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_dark", "illumination_per_plate",
             "illumination_max_fields", "illumination_qc",
             "illumination_on_missing",
+            "illumination_vendor_profile",
         )),
+        ("Spectral Unmixing (Alpha)", ("@Spectral Unmixing (Alpha)",)),
         ("Point Spread Function", ("@Point Spread Function",)),
         ("Image Enhancement", ("@Image Enhancement",)),
         ("Cell Segmentation", ("@Cell",)),
@@ -1245,8 +1247,11 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_dark",
             "illumination_per_plate", "illumination_max_fields",
             "illumination_qc", "illumination_on_missing",
+            "illumination_vendor_profile",
         )),
+        ("Spectral Unmixing (Alpha)", ("@Spectral Unmixing (Alpha)",)),
         ("Point Spread Function", ("@Point Spread Function",)),
+        ("Intensity Calibration (Alpha)", ("@Intensity Calibration (Alpha)",)),
         ("Measurement Features", (
             "save_measurements", "calculate_correlation",
             "spatial_measurements",
@@ -1260,6 +1265,11 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Confluency (Alpha)", ("@Confluency (Alpha)",)),
         ("Cell Cycle (Alpha)", ("@Cell Cycle (Alpha)",)),
+        ("Bleach Correction (Alpha)", ("@Bleach Correction (Alpha)",)),
+        ("Wound Closure (Alpha)", ("@Wound Closure (Alpha)",)),
+        ("Time To Event (Alpha)", ("@Time To Event (Alpha)",)),
+        ("Viability (Alpha)", ("@Viability (Alpha)",)),
+        ("CellProfiler (Alpha)", ("@CellProfiler (Alpha)",)),
         ("Object Filtering", (
             "uninfected", "cell_min_size", "cell_max_size",
             "cytoplasm_min_size",
@@ -1274,6 +1284,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "dialate_pngs", "dialate_png_ratios", "use_bounding_box",
             "normalize", "normalize_by",
         )),
+        ("Profiling (Alpha)", ("@Profiling (Alpha)",)),
         ("Preview & Diagnostics", ("plot", "test_mode", "test_nr")),
         ("3D Calibration (Beta)", (
             "anisotropy", "voxel_size_z_um", "voxel_size_xy_um",
@@ -1312,7 +1323,9 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_dark", "illumination_per_plate",
             "illumination_max_fields", "illumination_qc",
             "illumination_on_missing",
+            "illumination_vendor_profile",
         )),
+        ("Spectral Unmixing (Alpha)", ("@Spectral Unmixing (Alpha)",)),
         ("Point Spread Function", ("@Point Spread Function",)),
         ("Image Enhancement", ("@Image Enhancement",)),
         ("Cell Segmentation", ("@Cell",)),
@@ -1338,6 +1351,10 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "t_track_backend", "t_link_threshold",
             "t_max_displacement_px", "t_max_displacement_um",
             "t_project_for_tracking",
+        )),
+        ("Lineage Trees (Alpha)", (
+            "timelapse_lineage", "timelapse_lineage_color_by",
+            "timelapse_lineage_max_distance",
         )),
         ("Visualization & Diagnostics", (
             "plot", "cmap", "figuresize", "examples_to_plot",
@@ -1601,6 +1618,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Input & Channels", ("src", "channels")),
         ("Correction Model", (
             "illumination_correction", "illumination_model",
+            "illumination_vendor_profile",
             "illumination_estimator", "illumination_degree",
             "illumination_dark",
         )),
@@ -1631,7 +1649,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Input Tables", ("src", "anndata_tables")),
         ("Output File", (
             "anndata_out", "anndata_single_table", "anndata_compression",
-            "anndata_dtype",
+            "anndata_dtype", "anndata_format", "anndata_tidy_dir",
         )),
         ("Rows & Missing Values", (
             "anndata_row_limit", "anndata_nan_policy",
@@ -2646,6 +2664,38 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "out, the interval between frames, which backend links objects, and "
         "how far one may move between frames. For data that is both a "
         "z-stack and a time series.",
+    "LINEAGE TREES (ALPHA)":
+        "Lineage trees drawn from the tracker's division links after each "
+        "field is tracked, coloured by a measurement, with Newick and CSV "
+        "export and per-lineage generation times and sibling correlation.",
+    "BLEACH CORRECTION (ALPHA)":
+        "Photobleaching correction for timelapse intensities, per field and "
+        "channel: a simple ratio to the first timepoint, a fitted exponential "
+        "decay, or histogram matching. Corrected intensities are written "
+        "beside the measured ones with the method, and the fitted decay is "
+        "plotted.",
+    "PROFILING (ALPHA)":
+        "Image-based profiling after Measure: one profile per well from the "
+        "object tables, annotated from a plate map, normalised per plate "
+        "against the negative controls, feature-selected, collapsed into one "
+        "consensus profile per treatment and scored for replicate "
+        "reproducibility as mean average precision and percent replicating. "
+        "Written as CSV, Parquet and GCT files that pycytominer, copairs and "
+        "Morpheus read.",
+    "INTENSITY CALIBRATION (ALPHA)":
+        "Scale every imaging session to the same intensities before "
+        "measuring, from fluorescent beads or reference wells imaged "
+        "on every plate: each plate's intensity channels are "
+        "multiplied by the gain that makes its reference wells match "
+        "the first plate's, and the gains are recorded in "
+        "measurements.db.",
+    "TIME TO EVENT (ALPHA)":
+        "How long each tracked object of a timelapse lasts until an event "
+        "such as death, lysis, egress, division or first detection, with "
+        "objects still waiting at the end of their track censored there. "
+        "Conditions are compared with Kaplan-Meier curves, median times, "
+        "log-rank tests and a Cox model, written to measurements.db and "
+        "drawn under results/time_to_event.",
     "CELL CYCLE (ALPHA)":
         "The cell-cycle phase of every nucleus, called after measuring from "
         "the DNA stain in one of three interchangeable ways: gates on each "
@@ -2660,6 +2710,24 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "from the dilution and plated volume, a too-many or too-few flag, "
         "and colony areas and diameters, in millimetres when Scale & Time "
         "says how large the dish is.",
+    "SPECTRAL UNMIXING (ALPHA)":
+        "Bleed-through correction: how much of each dye is read in the other "
+        "channels is estimated from single-stain control wells, and every "
+        "field is unmixed with that matrix before it is segmented or "
+        "measured. The matrix is printed and recorded with the run.",
+    "CELLPROFILER (ALPHA)":
+        "Runs a lab's own CellProfiler pipeline on this run's fields after "
+        "measuring, headless in CellProfiler's own environment from the "
+        "Model Zoo, and writes its per-object measurements beside spaCR's, "
+        "matched to spaCR's objects, so existing pipelines keep working.",
+    "VIABILITY (ALPHA)":
+        "Live and dead cells, called after measuring from a dead stain, a "
+        "live stain, both, or nuclear morphology, with thresholds fitted "
+        "per plate or set by hand. Writes per-well viability, a live-cell "
+        "index and a cytotoxicity index scaled to the control wells, each "
+        "plate's Z', and with a plate map the dose-response of viability "
+        "beside that of infection, so parasite killing can be told from "
+        "host toxicity.",
     "CONFLUENCY (ALPHA)":
         "How much of each field is covered by cells, measured per field and "
         "per well into measurements.db with a monolayer QC flag: from the "
@@ -2667,6 +2735,13 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "from a fluorescent stain. Plaque and infection results from a thin "
         "or torn monolayer can then be dropped or divided by the covered "
         "fraction.",
+    "WOUND CLOSURE (ALPHA)":
+        "A scratch or wound-healing assay measured over a time-lapse: the "
+        "open wound in every frame, from the texture of a brightfield or "
+        "phase channel, a fluorescent stain or the cell masks; its area, "
+        "mean and minimum width; and per well and per condition the "
+        "closure curve, closure rate and half-closure time, written to "
+        "measurements.db with figures and a plate map.",
     "MOTILITY (BETA)":
         "The beta motility assay run inline with the mask pipeline: whether "
         "it runs at all, and the per-object tracking parameters it uses. "

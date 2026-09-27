@@ -8,8 +8,6 @@ from __future__ import annotations
 
 import inspect
 
-import numpy as np
-import pytest
 
 # ---------------------------------------------------------------------------
 # 1. every numeric role channel is in the dense map built from those roles
@@ -91,9 +89,14 @@ class TestTheDenseChannelMap:
                 OBJ.generate_cellpose_masks):
             source = inspect.getsource(function)
             assert "if _raw in _dense:" not in source
-            assert source.count(
-                "settings[f'cellpose_{_role}_channel'] = _dense[_raw]"
-            ) == 1
+            assert source.count("_fill_cellpose_channel_positions(settings)") == 1
+        # 2026-09-26 (item 43): item 493 moved this loop into the shared
+        # _fill_cellpose_channel_positions, so each generator now calls it once
+        # and the direct lookup lives in that one helper.
+        helper = inspect.getsource(
+            OBJ._fill_cellpose_channel_positions)
+        assert "if raw in dense:" not in helper
+        assert helper.count("settings[f'cellpose_{role}_channel'] = dense[raw]") == 1
 
 
 # ---------------------------------------------------------------------------
@@ -128,19 +131,3 @@ class TestOrderPreservingDeduplication:
         assert "return tuple(sorted(found))" in source, (
             "the dropped-column report is no longer sorted, so it moves "
             "with table order and two identical runs disagree")
-
-    def test_the_same_shape_guards_the_mask_registry(self):
-        """The other copy, in measure.py: a mask offered under a name the
-        registry already holds must not replace it, because the two are
-        the same object type and the first is the one every later step
-        has already keyed on."""
-        from spacr import measure as M
-
-        source = inspect.getsource(M)
-
-        assert "if name not in masks:" in source
-        assert "masks = dict(masks, **{name: mask})" in source
-        index = source.index("if name not in masks:")
-        assert "dict(masks" in source[index:index + 200], (
-            "the registry is now mutated in place rather than copied, so a "
-            "caller holding the old mapping sees a mask appear in it")

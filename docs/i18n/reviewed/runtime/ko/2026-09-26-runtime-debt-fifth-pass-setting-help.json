@@ -1,0 +1,246 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "anndata_format",
+      "source": "What the export writes. 'h5ad' writes the AnnData file; 'parquet' writes tidy Parquet tables (objects, features, wells, embeddings, provenance) that pandas, arrow and R read with their types kept; 'r' adds load_spacr_export.R, which builds a SingleCellExperiment in R, and .rds data frames when pyreadr is installed; 'all' writes every one. The tables need pyarrow. Default 'h5ad'.",
+      "source_sha256": "4641d38c6c850d298ed14d3d291e57537a3c02eeb243d37b587f5f5c16364c77",
+      "translation": "내보내기가 기록하는 항목입니다. 'h5ad'는 AnnData 파일을 기록합니다. 'parquet'은 pandas, arrow, R이 형식을 유지한 채 읽는 정돈된 Parquet 표(객체, 특징, 웰, 임베딩, 출처)를 기록합니다. 'r'은 R에서 SingleCellExperiment를 만드는 load_spacr_export.R 파일을 추가하고, pyreadr가 설치되어 있으면 .rds 데이터 프레임도 추가합니다. 'all'은 모두 기록합니다. 표에는 pyarrow가 필요합니다. 기본값 'h5ad'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "anndata_tidy_dir",
+      "source": "Folder for the Parquet tables and the R loader when anndata_format is 'parquet', 'r' or 'all'. Files of the same names in it are replaced. Default <src>/results/<project>_tables.",
+      "source_sha256": "b59da2c719e1798af8902855880a4dba01fa863898d0132f0fa58b0e71d2b86d",
+      "translation": "anndata_format 값이 'parquet', 'r' 또는 'all'일 때 Parquet 표와 R 로더를 저장할 폴더입니다. 같은 이름의 파일은 교체됩니다. 기본값 <src>/results/<project>_tables."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle",
+      "source": "Call the cell-cycle phase of every nucleus after measuring, from the DNA stain: G1, S, G2 or M, plus subG1 and >4N outside the peaks. Writes one row per nucleus to measurements.db:cell_cycle with the call in cell_cycle_phase, the phase fractions per well, overall and in infected and uninfected cells, to cell_cycle_well, and with plot on each plate's fitted DNA histogram. Needs measured nuclei. Default False.",
+      "source_sha256": "6d6487cfab9dc5ffb7e1aca80d26a799cecf46e1de0b4518cf69968d41fd46d8",
+      "translation": "측정 후 DNA 염색으로 모든 핵의 세포 주기 단계(G1, S, G2 또는 M, 그리고 피크 밖의 subG1과 >4N)를 판정합니다. 핵마다 한 행을 measurements.db:cell_cycle에 기록하고 판정은 cell_cycle_phase 열에 담으며, 웰별 단계 비율(전체, 감염 세포, 비감염 세포)은 cell_cycle_well에, plot 설정이 켜져 있으면 각 플레이트의 적합된 DNA 히스토그램도 기록합니다. 측정된 핵이 필요합니다. 기본값 False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_channel",
+      "source": "The merged-array channel holding the DNA stain (DAPI or Hoechst) the phase is read from, counted as in channels; it must be one of the measured channels. Blank uses nucleus_channel, then the first entry of channels. Default None.",
+      "source_sha256": "f69273cbbc964f59d582e2bda4e2301f2e60fc6ddc37bbdcd582354051d5cd98",
+      "translation": "단계를 읽을 DNA 염색(DAPI 또는 Hoechst)이 있는 병합 배열 채널로, channels 설정과 같은 방식으로 셉니다. 측정된 채널 중 하나여야 합니다. 비워 두면 nucleus_channel 값을, 그다음 channels의 첫 항목을 사용합니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_epochs",
+      "source": "Training epochs of the torch phase classifier. It is a ResNet-18 trained from scratch on crops as small as 32 pixels, so each epoch is quick on a GPU and slow on a busy CPU. Ignored when cell_cycle_model names a trained model. Default 20.",
+      "source_sha256": "35d3320524bc0ee7a51857bc33eeef9eb72fbca702f55d66c96b5fa57e327196",
+      "translation": "torch 단계 분류기의 학습 에포크 수입니다. 32픽셀 정도로 작은 크롭으로 처음부터 학습하는 ResNet-18이므로, 에포크마다 GPU에서는 빠르고 바쁜 CPU에서는 느립니다. cell_cycle_model 설정이 학습된 모델을 가리키면 무시됩니다. 기본값 20."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_fucci_channels",
+      "source": "Two merged-array channels of a FUCCI reporter, the G1 reporter (Cdt1) then the S/G2/M reporter (Geminin), both measured. Each is split into positive and negative per plate, and every nucleus gets a fucci_state: early G1, G1, G1/S or S/G2/M. The xgboost method also uses their intensities. Blank skips FUCCI. Default None.",
+      "source_sha256": "38238a35dd7ebf60815b22b017d307e05bdd1684d6d8ad1d99a70d2e701642bb",
+      "translation": "FUCCI 리포터의 병합 배열 채널 두 개로, 먼저 G1 리포터(Cdt1), 그다음 S/G2/M 리포터(Geminin)이며 둘 다 측정되어야 합니다. 각각 플레이트별로 양성과 음성으로 나뉘고, 모든 핵은 fucci_state 값(초기 G1, G1, G1/S 또는 S/G2/M)을 받습니다. xgboost 방법은 그 강도도 사용합니다. 비워 두면 FUCCI를 건너뜁니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_gates",
+      "source": "Fixed gates [G1/S, S/G2] in DNA content units, where the G1 peak is 2 and the G2 peak 4, for example [2.5, 3.5]. They replace the crossings fitted per plate; the peaks are still fitted to place the units. Read the fitted gates off the saved histogram before editing them. Blank uses the fitted gates. Default None.",
+      "source_sha256": "583b0ebfac84fe91331bba4d835ff43218bd719bfad5381f1a15bd26a77b3c1e",
+      "translation": "DNA 함량 단위의 고정 게이트 [G1/S, S/G2]로, G1 피크는 2, G2 피크는 4입니다(예: [2.5, 3.5]). 플레이트별로 적합한 교차점을 대체하며, 단위를 정하기 위해 피크는 계속 적합합니다. 편집하기 전에 저장된 히스토그램에서 적합된 게이트를 읽으세요. 비워 두면 적합된 게이트를 사용합니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_labels",
+      "source": "A png_list column holding Annotate labels the xgboost and torch methods learn from: 1 to 4 for G1, S, G2 and M, or the phase names. Labels are matched to nuclei through their cell. Blank trains on the confident gate calls instead, which teaches the learned methods what the gates already say; annotate prophase and anaphase nuclei to teach them more. Default blank.",
+      "source_sha256": "f98dafb5c5d492479e5eb27075b2e0af9e344df46c9f8cf3cd38d36d4339459c",
+      "translation": "xgboost와 torch 방법이 학습하는 Annotate 라벨이 담긴 png_list 열입니다. G1, S, G2, M에 대해 1~4 또는 단계 이름을 씁니다. 라벨은 세포를 통해 핵과 연결됩니다. 비워 두면 게이트의 확실한 판정으로 학습하는데, 이는 학습 방법에 게이트가 이미 말하는 것을 가르칠 뿐입니다. 더 가르치려면 전기와 후기 핵을 어노테이션하세요. 기본값은 비어 있음."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_method",
+      "source": "How phases are called. measurements gates each plate's DNA-content histogram, fitted as G1 and G2 peaks with S between, and calls condensed 4N nuclei M. xgboost trains a boosted classifier on nucleus features, torch trains an image classifier on nucleus crops with Classify's training; both learn from cell_cycle_labels. all runs the three and keeps their majority. Default measurements.",
+      "source_sha256": "cc9645da4e6a8379362200ef6bd0caf53a0a153688df35474d7b437b234de187",
+      "translation": "단계를 판정하는 방식입니다. measurements는 각 플레이트의 DNA 함량 히스토그램을 G1과 G2 피크(그 사이가 S)로 적합해 게이트를 적용하고, 응축된 4N 핵을 M으로 판정합니다. xgboost는 핵 특징으로 부스팅 분류기를 학습하고, torch는 Classify의 학습 방식으로 핵 크롭에 대한 이미지 분류기를 학습합니다. 둘 다 cell_cycle_labels에서 학습합니다. all은 세 가지를 모두 실행해 다수결을 따릅니다. 기본값 measurements."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_mitotic_ratio",
+      "source": "A nucleus past the G1/S gate is called M when its background-subtracted mean DNA intensity is at least this many times the median of the plate's G2 nuclei: condensed mitotic chromatin is brighter. Lower catches more prophase and more bright G2 nuclei. Blank never calls M from intensity and leaves mitotic nuclei in G2. Default 1.8.",
+      "source_sha256": "57e0ad8c755fb15cfa2e762d5366d23f87ff6417b196f72ed3841290a3c21878",
+      "translation": "G1/S 게이트를 넘은 핵은 배경을 뺀 평균 DNA 강도가 플레이트 G2 핵 중앙값의 이 배수 이상이면 M으로 판정합니다. 응축된 유사분열 염색질은 더 밝습니다. 값이 낮을수록 전기 핵과 밝은 G2 핵을 더 많이 잡습니다. 비워 두면 강도로 M을 판정하지 않고 유사분열 핵을 G2에 둡니다. 기본값 1.8."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_model",
+      "source": "A torch model this step trained earlier, with its cell_cycle_phases.json beside it, applied to the nucleus crops instead of training a new one. Use it to call a second plate with the model trained on the first. Ignored unless cell_cycle_method is torch or all. Default blank.",
+      "source_sha256": "da89a9ff9d1c8ab65ed0d04144e650d5cdefc70b24ec4fc2ec41f88eab7b20c2",
+      "translation": "이 단계가 이전에 학습한 torch 모델로, 옆에 cell_cycle_phases.json 파일이 있으며 새로 학습하는 대신 핵 크롭에 적용합니다. 첫 번째 플레이트에서 학습한 모델로 두 번째 플레이트를 판정할 때 쓰세요. cell_cycle_method 값이 torch나 all이 아니면 무시됩니다. 기본값은 비어 있음."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_anonymous",
+      "source": "Read cloud sources without credentials, for public data such as IDR or the Cell Painting Gallery. When off, s3:// sources use the AWS credentials in the AWS_* environment variables, ~/.aws or AWS_PROFILE, and are read anonymously only when none are found; gs:// and az:// use their own default credentials. spaCR never stores or prints credentials. Default False.",
+      "source_sha256": "3ccc2e53b2a0bd32e404e0a5fbd47ad151bf7bb045f21b1f4daa56a3fe979801",
+      "translation": "IDR이나 Cell Painting Gallery 같은 공개 데이터용으로, 자격 증명 없이 클라우드 소스를 읽습니다. 끄면 s3:// 소스는 AWS_* 환경 변수, ~/.aws 또는 AWS_PROFILE의 AWS 자격 증명을 쓰고, 아무것도 없을 때만 익명으로 읽습니다. gs://와 az://는 각자의 기본 자격 증명을 씁니다. spaCR은 자격 증명을 저장하거나 출력하지 않습니다. 기본값 False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_cache",
+      "source": "Folder where cloud sources are fetched to and analysed in. Each src address gets its own subfolder, so a repeated run reuses what was fetched and Measure finds what Make Masks wrote. Blank uses ~/.cache/spacr/cloud. Default blank.",
+      "source_sha256": "d767cee6467247005aca5ce003cdf66798f2a80d49dec1000207ce043c56b6f1",
+      "translation": "클라우드 소스를 내려받아 분석하는 폴더입니다. src 주소마다 하위 폴더가 생기므로, 반복 실행 시 내려받은 것을 재사용하고 Measure가 Make Masks의 결과를 찾을 수 있습니다. 비워 두면 ~/.cache/spacr/cloud 경로를 사용합니다. 기본값은 비어 있음."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_endpoint",
+      "source": "Address of the S3-compatible service holding s3:// sources, such as a MinIO or Ceph server, or https://uk1s3.embassy.ebi.ac.uk for IDR. Blank uses Amazon S3. Default blank.",
+      "source_sha256": "e06c15c5cd11032deea8d3a46b61b09473840a024b81b9876c243739d3a71265",
+      "translation": "s3:// 소스를 보관하는 S3 호환 서비스의 주소로, MinIO나 Ceph 서버 또는 IDR용 https://uk1s3.embassy.ebi.ac.uk 등입니다. 비워 두면 Amazon S3를 사용합니다. 기본값은 비어 있음."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_fields",
+      "source": "Fields per well of a cloud OME-Zarr plate to fetch, counted from the first. 0 fetches every field. Default 0.",
+      "source_sha256": "3066d6c5eb3e1e0ac8fbad0fe421e7c7b2d9b088ede4d178be155ad8826ea449",
+      "translation": "가져올 클라우드 OME-Zarr 플레이트의 웰당 시야 수로, 첫 번째부터 셉니다. 0이면 모든 시야를 가져옵니다. 기본값 0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_level",
+      "source": "Resolution level of a cloud OME-Zarr to fetch. 0 is full resolution; each level above usually halves width and height, so set diameters and size limits for the smaller images. Default 0.",
+      "source_sha256": "d6be4a3a8a1dd13a9cd68a1dbacefebc7e77c751ba9369aa57b55f9e4ecf72fe",
+      "translation": "가져올 클라우드 OME-Zarr의 해상도 수준입니다. 0은 최대 해상도이며, 한 단계 올라갈 때마다 보통 너비와 높이가 절반이 되므로 직경과 크기 제한을 작은 이미지에 맞게 설정하세요. 기본값 0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_profile",
+      "source": "Named AWS profile from ~/.aws/config used for s3:// sources, for example lab-readonly. Only the name is kept; the keys stay in ~/.aws. Blank uses the default AWS credential chain. Default blank.",
+      "source_sha256": "44be8d15ddc98b7363b0631865739886f35ed69d0c6cee26444aef78da9a75ff",
+      "translation": "s3:// 소스에 쓰는 ~/.aws/config 파일의 명명된 AWS 프로필로, 예를 들면 lab-readonly입니다. 이름만 저장되고 키는 ~/.aws 폴더에 그대로 남습니다. 비워 두면 기본 AWS 자격 증명 체인을 사용합니다. 기본값은 비어 있음."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_results",
+      "source": "Cloud folder (s3://, gs:// or az://) the run's measurements folder is copied to when it finishes, in one subfolder per src. Blank keeps results in the local folder only. Default blank.",
+      "source_sha256": "d127ccb46519062f25da8fc973d433df0aaa28a51c17cfe7c95f625996261467",
+      "translation": "실행이 끝나면 측정 폴더를 복사할 클라우드 폴더(s3://, gs:// 또는 az://)로, src마다 하위 폴더 하나를 씁니다. 비워 두면 결과를 로컬 폴더에만 둡니다. 기본값은 비어 있음."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_wells",
+      "source": "Wells of a cloud OME-Zarr plate to fetch, such as A1, B03; only these are downloaded, a channel at a time, with z maximum projected. Blank fetches every well, which for a large plate can be many gigabytes. Default blank.",
+      "source_sha256": "208e69ac99c36e9abf30fb8dfbe93944ada1ddd10aabdc4da513e16e2b036115",
+      "translation": "가져올 클라우드 OME-Zarr 플레이트의 웰로, 예: A1, B03. 이 웰만 한 번에 채널 하나씩 z 최대 투영으로 내려받습니다. 비워 두면 모든 웰을 가져오며, 큰 플레이트에서는 수 기가바이트가 될 수 있습니다. 기본값은 비어 있음."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling",
+      "source": "After Measure finishes, build image-based profiles from its tables: aggregate each object table to one median profile per well, add the plate map in profiling_metadata, normalise each plate against its negative-control wells, remove uninformative and redundant features, build one consensus profile per treatment and score replicate reproducibility as mean average precision (mAP) and percent replicating. Results go to measurements/profiles as CSV, Parquet and GCT with plots. Default False.",
+      "source_sha256": "dc2c206509ac345fe621dcdbca17d43684e5d44a47097c0a3fa7a1b2f961b0a1",
+      "translation": "Measure가 끝나면 그 표로 이미지 기반 프로필을 만듭니다. 각 객체 표를 웰마다 중앙값 프로필 하나로 집계하고, profiling_metadata의 플레이트 맵을 더하고, 각 플레이트를 음성 대조군 웰에 대해 정규화하고, 정보가 없거나 중복된 특징을 제거하고, 처리 조건마다 합의 프로필 하나를 만들고, 반복 재현성을 평균 정밀도 평균(mAP)과 반복 일치 비율로 평가합니다. 결과는 measurements/profiles 폴더에 CSV, Parquet, GCT 형식과 그래프로 저장됩니다. 기본값 False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_correlation_threshold",
+      "source": "Pearson correlation above which two features count as redundant in the correlation_threshold selection step. Of each such pair the feature more correlated with all others is removed. Lower values keep fewer, less redundant features. Default 0.9.",
+      "source_sha256": "497bdc5698c78a73118ded35f579bb1f32b2f0aeaa8e24dfee723506b1018606",
+      "translation": "correlation_threshold 선택 단계에서 두 특징을 중복으로 보는 Pearson 상관 계수의 하한입니다. 이런 쌍마다 다른 모든 특징과 더 많이 상관된 특징을 제거합니다. 값이 낮을수록 더 적고 덜 중복된 특징이 남습니다. 기본값 0.9."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_databases",
+      "source": "Further measurements.db files to profile together with this run's, one per plate, so replicates on different plates are compared while each plate is still normalised on its own. Every plate needs a distinct plateID. Default [].",
+      "source_sha256": "56018344866daa7a080606f5c8d83379a37824a27a241798cbaba7e11a4f5ebf",
+      "translation": "이 실행의 파일과 함께 프로파일링할 추가 measurements.db 파일로, 플레이트마다 하나씩입니다. 서로 다른 플레이트의 반복을 비교하면서도 각 플레이트는 따로 정규화됩니다. 플레이트마다 서로 다른 plateID가 필요합니다. 기본값 []."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_feature_selection",
+      "source": "Feature-selection steps, run in order after normalisation: variance_threshold drops near-zero variance, frequency_threshold near-constant values, correlation_threshold the more redundant of each pair correlated above profiling_correlation_threshold, drop_na_columns features missing in over 5 % of wells, and drop_outliers any feature with an absolute value above 500. An empty list keeps every feature. Default all five.",
+      "source_sha256": "c375f4802bb5f45ccd30e6ed7fc14055161904447001c6046ffc4e6a76d6b159",
+      "translation": "정규화 후 차례로 실행하는 특징 선택 단계입니다. variance_threshold는 분산이 0에 가까운 특징을, frequency_threshold는 거의 일정한 값을, correlation_threshold는 profiling_correlation_threshold를 넘게 상관된 각 쌍에서 더 중복된 쪽을, drop_na_columns는 웰의 5 % 넘게 값이 빠진 특징을, drop_outliers는 절댓값이 500을 넘는 특징을 제거합니다. 빈 목록이면 모든 특징을 유지합니다. 기본값은 다섯 가지 모두."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_metadata",
+      "source": "Plate map for profiling: a CSV, TSV, Excel or Parquet table with one row per well position, located by rowID and columnID or by a well column such as A01, plus annotation columns such as treatment, dose, gene or a phenotype label. With a plateID column the map is matched plate by plate; without one it applies to every plate. Blank profiles the wells by position only. Default blank.",
+      "source_sha256": "86856a2ea0e293442885356576249f7b0a3cfd4942736157e94e0ced6a2b2fd5",
+      "translation": "프로파일링용 플레이트 맵: 웰 위치마다 한 행이 있는 CSV, TSV, Excel 또는 Parquet 표로, rowID와 columnID 또는 A01 같은 웰 열로 위치를 찾고, treatment, dose, gene 또는 표현형 라벨 같은 어노테이션 열을 더합니다. plateID 열이 있으면 플레이트별로 맞추고, 없으면 모든 플레이트에 적용합니다. 비워 두면 위치로만 웰을 프로파일링합니다. 기본값은 비어 있음."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_negative_control",
+      "source": "Value or values of the first profiling_treatment_column that mark negative-control wells, for example DMSO or c1. Each plate is normalised against its own controls, and every treatment is scored for phenotypic activity, how well its replicates find each other among the controls. Blank normalises against all wells of a plate and skips the activity score. Default blank.",
+      "source_sha256": "5b9244226a4a20eaff91e744e604528103e9c9c02dae76a19ff5d28c285d200e",
+      "translation": "음성 대조군 웰을 나타내는 첫 번째 profiling_treatment_column 열의 값(하나 또는 여러 개)으로, 예를 들면 DMSO나 c1입니다. 각 플레이트는 자체 대조군에 대해 정규화되고, 각 처리는 표현형 활성, 즉 반복이 대조군 사이에서 서로를 얼마나 잘 찾는지로 평가됩니다. 비워 두면 플레이트의 모든 웰에 대해 정규화하고 활성 점수를 건너뜁니다. 기본값은 비어 있음."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_normalization",
+      "source": "How each feature is put on a common scale, plate by plate. mad_robustize subtracts the reference median and divides by 1.4826 times the reference MAD, which tolerates outlier wells; standardize uses the mean and standard deviation; robustize uses the median and interquartile range; none keeps the aggregated values. The reference is the negative control, or every well when none is named. Default mad_robustize.",
+      "source_sha256": "fc28fbaa7f0105f424fa80a3a28ba72aa673f5bf020a603645a19521d8180aa9",
+      "translation": "각 특징을 플레이트별로 공통 척도로 맞추는 방식입니다. mad_robustize는 기준 중앙값을 빼고 기준 MAD의 1.4826배로 나누어 이상 웰을 견딥니다. standardize는 평균과 표준편차를, robustize는 중앙값과 사분위 범위를 씁니다. none은 집계된 값을 그대로 둡니다. 기준은 음성 대조군이며, 지정되지 않으면 모든 웰입니다. 기본값 mad_robustize."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_phenotype_column",
+      "source": "Optional plate-map column holding a phenotype label that different treatments share, such as a mechanism of action, pathway or target gene. When set, consensus profiles are also scored for phenotypic consistency: how well treatments with the same label retrieve each other, as mAP per label. Default blank.",
+      "source_sha256": "f8e3e2dcbfe8dedb8e157d488101b59cf37fa32baeb237e4b4e574f0d95159a5",
+      "translation": "서로 다른 처리가 공유하는 표현형 라벨(작용 기전, 경로, 표적 유전자 등)을 담은 선택적 플레이트 맵 열입니다. 설정하면 합의 프로필을 표현형 일관성으로도 평가합니다. 즉 같은 라벨의 처리가 서로를 얼마나 잘 찾아내는지를 라벨별 mAP로 나타냅니다. 기본값은 비어 있음."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_treatment_column",
+      "source": "The annotation column, or columns, naming what each well received. Wells that share them are replicates and are collapsed into one consensus profile. Use a plate-map column such as treatment, treatment and dose together, or columnID when each plate column holds one condition. Default columnID.",
+      "source_sha256": "3584e01563f0ca89421355f5e7199774c3d66704a5052d0b7d61c97d6c20b139",
+      "translation": "각 웰이 받은 처리를 나타내는 어노테이션 열(하나 또는 여러 개)입니다. 이 값을 공유하는 웰은 반복이며 합의 프로필 하나로 합쳐집니다. treatment, treatment와 dose 조합 같은 플레이트 맵 열을 쓰거나, 플레이트 열마다 조건이 하나라면 columnID를 쓰세요. 기본값 columnID."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_channel",
+      "source": "The merged-array channel the texture and intensity wound sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, the stain for intensity. Ignored by the masks source. Default None.",
+      "source_sha256": "878751f07ce559f6af253b2de378896e916d4dc76a17fcb452c9a4f7606b3d36",
+      "translation": "질감 및 강도 상처 소스가 읽는 병합 배열 채널로, channels 설정과 같은 방식으로 셉니다. 비워 두면 channels 설정의 첫 항목을 사용합니다. 질감에는 명시야나 위상차 평면을, 강도에는 염색을 고르세요. 마스크 소스는 이 값을 무시합니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_closure",
+      "source": "Measure a scratch or wound-healing assay: find the open wound in every frame of every field, then write its area, mean and minimum width, the closure rate and the half-closure time per field, per well and per condition to measurements.db and results/wound_closure, with closure curves and a plate map. Frames are grouped by plate, well and field and ordered by timepoint; the first frame decides where the scratch is. Default False.",
+      "source_sha256": "687295b08c859fb5e592d4744cc09f573d4ce6eaab466c8520026db0a10c46db",
+      "translation": "스크래치 또는 상처 치유 분석을 측정합니다. 모든 시야의 모든 프레임에서 열린 상처를 찾은 뒤, 그 면적, 평균 및 최소 너비, 봉합 속도, 반봉합 시간을 시야별, 웰별, 조건별로 measurements.db 파일과 results/wound_closure 폴더에 봉합 곡선 및 플레이트 맵과 함께 기록합니다. 프레임은 플레이트, 웰, 시야별로 묶이고 시점 순으로 정렬되며, 첫 프레임이 스크래치 위치를 정합니다. 기본값 False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_conditions",
+      "source": "Conditions to pool wells into for the closure curves and half-closure times, as {name: wells}, the wells as rows (r2), columns (c3) or single wells (B03), for example {'control': 'c1, c2', 'drug': 'c3, c4'}. A well in no condition is reported under its own name. A well may belong to one condition only. Default {}.",
+      "source_sha256": "f25b175e0514c3929471612ababb846f817fdb67e07920ee6c24ae03604210e0",
+      "translation": "봉합 곡선과 반봉합 시간을 위해 웰을 묶을 조건으로, {name: wells} 형식이며 웰은 행(r2), 열(c3) 또는 개별 웰(B03)로 씁니다. 예: {'control': 'c1, c2', 'drug': 'c3, c4'}. 어느 조건에도 없는 웰은 자기 이름으로 보고됩니다. 웰 하나는 한 조건에만 속할 수 있습니다. 기본값 {}."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_hours_per_frame",
+      "source": "Hours between consecutive timepoints, so closure rates are per hour and half-closure times are in hours. Blank counts time in frames. With voxel_size_xy_um set, widths and front speeds are also reported in micrometres. Default None.",
+      "source_sha256": "bbbb7144e62af423a91b852f41d94db2a3026927d31878b9543731bfd22afdff",
+      "translation": "연속된 시점 사이의 시간(시간 단위)으로, 봉합 속도는 시간당, 반봉합 시간은 시간으로 나타냅니다. 비워 두면 시간을 프레임 수로 셉니다. voxel_size_xy_um 값이 설정되어 있으면 너비와 전선 속도도 마이크로미터로 보고합니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_source",
+      "source": "How the open wound is told apart from the monolayer. texture reads the local variation of wound_channel, for brightfield and phase. intensity thresholds wound_channel, for a fluorescent cytoplasm or membrane stain. masks takes every pixel outside the segmented cells as open. The cut is decided on each field's first frame and kept for its later frames. Default texture.",
+      "source_sha256": "5d1d9d2af4bbead4c5b9bd4af1aae313cbd282ac7019a0374c2a06e8cd261ac2",
+      "translation": "열린 상처를 단층과 구별하는 방식입니다. texture는 명시야와 위상차용으로 wound_channel 채널의 국소 변동을 읽습니다. intensity는 형광 세포질이나 세포막 염색용으로 wound_channel 채널에 임계값을 적용합니다. masks는 분할된 세포 밖의 모든 픽셀을 열린 것으로 봅니다. 경계는 각 시야의 첫 프레임에서 정해지고 이후 프레임에서 유지됩니다. 기본값 texture."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_window",
+      "source": "Side of the square window, in pixels, over which the texture wound source measures local variation. About the diameter of one cell at the imaging resolution: smaller follows the wound edge more closely but can open holes in smooth parts of the monolayer, larger bridges narrow gaps. Also sets the smallest gap kept in later frames. Default 15.",
+      "source_sha256": "146bdc2d95eeec0de57e7b983923816b003936584578a24d2ebc0439d6bf55f5",
+      "translation": "질감 상처 소스가 국소 변동을 측정하는 정사각형 창의 한 변 길이(픽셀)입니다. 영상 해상도에서 세포 하나의 직경 정도로 잡으세요. 작을수록 상처 가장자리를 더 가깝게 따르지만 단층의 매끈한 부분에 구멍이 생길 수 있고, 클수록 좁은 틈을 메웁니다. 이후 프레임에서 유지할 가장 작은 틈도 정합니다. 기본값 15."
+    }
+  ]
+}
