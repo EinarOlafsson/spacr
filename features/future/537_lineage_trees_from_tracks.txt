@@ -1,6 +1,6 @@
 LINEAGE TREES FROM TRACKS
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED AS ALPHA 2026-09-27.
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 
@@ -23,3 +23,43 @@ WHAT TO BUILD
 DONE WHEN
     Trees render for a timelapse with divisions; generation times match the
     tracks.
+
+ALPHA: 2026-09-27. Built behind Preferences -> Show alpha features, registered
+    as ALPHA_FEATURES[537]: settings timelapse_lineage (default False),
+    timelapse_lineage_color_by (default generation_time) and
+    timelapse_lineage_max_distance (default 30.0), shown on the Timelapse app
+    under "Lineage Trees (Alpha)" and kept off Make Masks with the rest of the
+    Timelapse category.
+
+WHAT WAS BUILT (2026-09-27)
+    spacr/timelapse.py, private helpers only. After each field is tracked,
+    _run_lineage_step reads that field's tracks CSV (any backend) and writes
+    tracks/lineage/<stem>_segments.csv, <stem>_lineage_stats.csv, <stem>.nwk
+    and the <stem>_lineage figure (via spacr.plot.save_figure).
+    - Division links: Trackastra's own links are now kept in a
+      parent_track_id column of its tracks CSV and used as they are. For
+      every other backend a division is inferred where new tracks start
+      within timelapse_lineage_max_distance of a mother, either beside a
+      mother that goes on (one daughter kept her id; that track is cut at
+      the division) or as two or more tracks beside a mother that ends.
+    - Generation time = first frame of the daughters minus the cell's birth
+      frame, in frames, for cells born by a division that divide again.
+      Per lineage: cells, divisions, generations, complete cycles, mean,
+      median and SD generation time, sister pairs and sister correlation
+      (Pearson, symmetric, three or more pairs); plus an "all" row.
+    - Colour: a segment statistic or any numeric tracks column averaged over
+      the cell's frames; _lineage_trees_from_tracks also takes a measurement
+      table keyed by frame and track_id.
+    Tests: tests/test_lineage_trees_from_tracks.py (known divisions,
+    generation times match the tracks, Newick, statistics, run step),
+    tests/qt/test_lineage_trees_alpha_gate.py.
+
+WHAT IS LEFT
+    - Ultrack and btrack also report division links (to_tracks_layer's
+      lineage graph, btrack track.parent); they still go through inference.
+    - Colouring by a Measure-database column needs the step to run after
+      Measure (the per-field hook runs at mask time, before measurement);
+      today only the private helper accepts a measurement table.
+    - Generation time is in frames; no hours-per-frame conversion.
+    - Parasite endodyogeny needs the parasite objects tracked
+      (timelapse_objects including pathogen); not tested on real data.

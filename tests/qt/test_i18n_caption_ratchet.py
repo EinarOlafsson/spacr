@@ -1171,6 +1171,10 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     # 544 and 573, 2026-09-26: the Blind switches of Annotate and Make
     # Masks, their notices and questions, and the Lock analysis button and
     # dialog (all alpha).
+    # 537, 2026-09-27: the Lineage Trees (Alpha) category help on Timelapse.
+    "Lineage trees drawn from the tracker's division links after each field "
+    'is tracked, coloured by a measurement, with Newick and CSV export and '
+    'per-lineage generation times and sibling correlation.',
     # 539, 2026-09-26: the Bleach Correction (Alpha) category help on Measure.
     'Photobleaching correction for timelapse intensities, per field and '
     'channel: a simple ratio to the first timepoint, a fitted exponential '

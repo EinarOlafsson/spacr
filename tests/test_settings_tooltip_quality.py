@@ -867,6 +867,8 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # + 10: item 536's five wound-closure claims in two apps, pinned above.
     # + 18: item 571's nine time-to-event claims in two apps, pinned above.
     # + 9: item 538's three unmixing claims in three apps, pinned above.
+    # + 0: item 537's three lineage-tree settings belong to the Timelapse
+    # category, which no compared app resolves, so none is compared.
     assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2
             + len(item_541) + len(item_548) + len(item_550)
             + len(item_535) + len(item_547) + len(item_536)
