@@ -285,3 +285,13 @@ features/data/53_native_xcb_torchvision_failure_2026-09-27/README.md and
 features/data/53_torchvision_stable_library_2026-09-27.json.
 No successful native small run or full updater/backend/account/consent closure
 is claimed by these packaging repairs.
+
+STATUS 2026-09-27 — updater discovery and backend command repairs
+The current /opt/spacr Debian installation is now recognized only with exact
+dpkg ownership. Frozen application executables cannot enter Python/pip fallback
+paths, and missing archived helper source yields an error before removal.
+Online uv updates now retain the valid installer profile's requested Torch
+backend. Focused checks passed60 and189 cases; expanded packaging guards also
+passed19. Receipt: features/data/53_updater_boundaries_and_backend_2026-09-27.json.
+These are source-level fixes. Actual frozen replacement and post-update wheel
+state, custom-location discovery, and the remaining native acceptance stay open.

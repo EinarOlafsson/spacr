@@ -234,6 +234,19 @@ class _SystemPackages:
         text = (output or "").strip()
         return text if code == 0 and text and " " not in text else None
 
+    def owns(self, name: str, path: str) -> bool:
+        """Whether dpkg lists this exact path as a file owned by the package.
+
+        :param name: Debian package name.
+        :param path: exact installed file path whose ownership is required.
+        """
+        if not self._which("dpkg-query"):
+            return False
+        code, output = self._runner(["dpkg-query", "-L", name])
+        return code == 0 and os.path.normpath(path) in {
+            os.path.normpath(line) for line in (output or "").splitlines()
+        }
+
     def remove(self, name: str, sudo: bool) -> Tuple[bool, str]:
         """Remove package ``name``; say why when it could not be done.
 
@@ -634,7 +647,11 @@ def _running(machine: _Machine, root: str) -> bool:
     :param root: an installation directory.
     """
     prefix = machine.running_prefix
-    return bool(prefix) and _inside(prefix, root)
+    if bool(prefix) and _inside(prefix, root):
+        return True
+    return (bool(getattr(sys, "frozen", False))
+            and os.path.realpath(machine.executable) == os.path.realpath(sys.executable)
+            and _inside(machine.executable, root))
 
 
 def _windows_start_menu(machine: _Machine) -> str:
@@ -898,7 +915,13 @@ def _find_deb(machine: _Machine) -> List[InstallRecord]:
         version = machine.packages.version(name)
         if not version:
             continue
-        root = machine.path("/usr/lib/python3/dist-packages/spacr")
+        frozen_root = machine.path("/opt/spacr")
+        frozen_binary = os.path.join(frozen_root, "spacr")
+        owns = getattr(machine.packages, "owns", None)
+        root = (frozen_root if name == "spacr"
+                and os.path.isfile(frozen_binary)
+                and callable(owns) and owns(name, frozen_binary)
+                else machine.path("/usr/lib/python3/dist-packages/spacr"))
         launcher = machine.path("/usr/bin/spacr")
         records.append(InstallRecord(
             kind="installer", layout="linux-deb", platform="linux", root=root,
@@ -1422,7 +1445,12 @@ def _helper_command(records: Sequence[InstallRecord], workdir: str,
     """
     doomed = [r.root for r in records if r.kind == "installer"]
     tail = ["-I", module, "run-plan", plan_path]
-    if not any(_inside(machine.executable, root) for root in doomed):
+    frozen_executable = (
+        bool(getattr(sys, "frozen", False))
+        and os.path.realpath(machine.executable) == os.path.realpath(sys.executable)
+    )
+    if not frozen_executable and not any(
+            _inside(machine.executable, root) for root in doomed):
         return [machine.executable, *tail], None, None
     uv = None
     for record in records:
@@ -1505,8 +1533,6 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
     workdir = workdir or tempfile.mkdtemp(prefix="spacr-update-")
     os.makedirs(workdir, exist_ok=True)
     module = os.path.join(workdir, "install_cleanup.py")
-    with open(__file__, "rb") as source, open(module, "wb") as copy:
-        copy.write(source.read())
     plan_path = os.path.join(workdir, "plan.json")
     plan: Dict = {
         "schema": 1,
@@ -1522,12 +1548,23 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
     }
     if running is None:
         plan["error"] = "the running spaCR is not an installer-made copy"
+    elif not str(__file__).endswith(".py") or not os.path.isfile(__file__):
+        plan["error"] = (
+            "standalone updater source is unavailable in this installation; "
+            "run the new installer instead. Nothing was removed."
+        )
     else:
-        plan["fetch"], plan["install"], plan["relaunch"] = _reinstall_steps(
-            running, str(version), workdir, machine)
-        argv, environment, error = _helper_command(
-            records, workdir, module, plan_path, machine)
-        plan["command"], plan["error"] = argv, error
+        try:
+            with open(__file__, "rb") as source, open(module, "wb") as copy:
+                copy.write(source.read())
+        except OSError as error:
+            plan["error"] = f"could not prepare the updater: {error}. Nothing was removed."
+        else:
+            plan["fetch"], plan["install"], plan["relaunch"] = _reinstall_steps(
+                running, str(version), workdir, machine)
+            argv, environment, error = _helper_command(
+                records, workdir, module, plan_path, machine)
+            plan["command"], plan["error"] = argv, error
     with open(plan_path, "w", encoding="utf-8") as handle:
         json.dump(plan, handle, indent=2)
     if plan["command"]:
