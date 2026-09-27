@@ -816,6 +816,13 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # under their own "Intensity Calibration (Alpha)" heading.
     "intensity_calibration", "intensity_calibration_wells",
     "intensity_calibration_statistic", "intensity_calibration_offset",
+    # NEW SETTINGS, not a regrouping (item 583, 2026-09-27): Measure's
+    # plate map filled from sample records by plate barcode -- the records
+    # table or LIMS address, the plate barcodes, the barcode column and the
+    # token's environment variable -- under their own "Plate Barcode
+    # Linkage (Alpha)" heading.
+    "plate_barcode_source", "plate_barcodes", "plate_barcode_column",
+    "plate_barcode_token_env",
     # NEW SETTINGS, not a regrouping (item 571, 2026-09-26): Measure's
     # time-to-event analysis of tracked objects -- the switch, the object
     # table, the event mode, its column, threshold and persistence, the
@@ -1549,6 +1556,9 @@ def _rendered_sections(app_key):
             # Item 571, 2026-09-26: time to event follows, read from the
             # tracked objects measured above, after the run.
             "Time To Event (Alpha)",
+            # Item 583, 2026-09-27: the plate map filled by plate barcode
+            # feeds the viability and profiling steps, so it comes first.
+            "Plate Barcode Linkage (Alpha)",
             # Item 540, 2026-09-26: live/dead viability, read from the same
             # measured nuclei, after the cell-cycle call.
             "Viability (Alpha)",

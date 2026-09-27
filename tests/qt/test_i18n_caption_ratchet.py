@@ -1174,6 +1174,13 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "multiplied by the gain that makes its reference wells match "
     "the first plate's, and the gains are recorded in "
     "measurements.db.",
+    # 583, 2026-09-27: the Plate Barcode Linkage (Alpha) category help on
+    # Measure.
+    "Fill the plate map from sample records by plate barcode: each "
+    "imaged plate is looked up by its barcode in a table or a LIMS "
+    "service, its wells get the strain, compound, concentration, "
+    "passage and operator recorded there, and every mismatch between "
+    "the records and the images is listed.",
     # 571, 2026-09-26: the Time To Event (Alpha) category help on Measure.
     "How long each tracked object of a timelapse lasts until an event such "
     "as death, lysis, egress, division or first detection, with objects "

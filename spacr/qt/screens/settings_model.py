@@ -1266,6 +1266,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Bleach Correction (Alpha)", ("@Bleach Correction (Alpha)",)),
         ("Wound Closure (Alpha)", ("@Wound Closure (Alpha)",)),
         ("Time To Event (Alpha)", ("@Time To Event (Alpha)",)),
+        ("Plate Barcode Linkage (Alpha)", ("@Plate Barcode Linkage (Alpha)",)),
         ("Viability (Alpha)", ("@Viability (Alpha)",)),
         ("Object Filtering", (
             "uninfected", "cell_min_size", "cell_max_size",
@@ -2676,6 +2677,12 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "reproducibility as mean average precision and percent replicating. "
         "Written as CSV, Parquet and GCT files that pycytominer, copairs and "
         "Morpheus read.",
+    "PLATE BARCODE LINKAGE (ALPHA)":
+        "Fill the plate map from sample records by plate barcode: each "
+        "imaged plate is looked up by its barcode in a table or a LIMS "
+        "service, its wells get the strain, compound, concentration, "
+        "passage and operator recorded there, and every mismatch between "
+        "the records and the images is listed.",
     "INTENSITY CALIBRATION (ALPHA)":
         "Scale every imaging session to the same intensities before "
         "measuring, from fluorescent beads or reference wells imaged "
