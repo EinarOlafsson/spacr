@@ -2016,3 +2016,12 @@ is proved by exactly two added optional fit_designs parameters. Receipt:
 features/data/411_api_delta4_07_53_2026-09-27.json. Commit b6ed334fe is pushed;
 current strict HTML publication and aggregate review reports remain pending.
 Review is AI technical review only, with no native-speaker signoff.
+
+STATUS 2026-09-27 — delta4 aggregate reports current
+Refreshed current-source review scope against all8726 runtime entries and
+11865 public API symbol documents. All54 delta4 blocks are reflected; prior
+historical sections are preserved, and COVERAGE.md remains byte-identical.
+Both canonical report freshness tests passed in278.42s. Receipt:
+features/data/411_api_delta4_aggregate_reports_2026-09-27.json.
+Native-speaker/listening review remains unclaimed. Current HTML deployment
+and future source changes still require their own acceptance.
