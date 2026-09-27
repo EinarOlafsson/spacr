@@ -318,3 +318,24 @@ acceptance before default-branch promotion; no main promotion was performed.
 Receipt: features/data/53_historical_upgrade_preparation_2026-09-27.json
 (the workflow digest there describes the tested manual-only precursor; the
 subsequent push-trigger header is verified by GitHub workflow parsing).
+
+STATUS 2026-09-27 — Windows Measure passes; genuine historical Linux upgrade
+Native run36348757658 also passed Windows2025 installed Measure; macOS15.7.9
+arm64 completed Measure but failed the added menu witness. Both databases
+independently pass integrity and16-cell checks. Preserve that Mac receipt as
+FAILED: the witness incorrectly demanded a system menu despite the later
+2026-08-31 request for a unified in-window menu and visible window controls.
+Evidence: features/data/53_native_windows_macos_2026-09-27/README.md.
+
+Historical run36350873895 passed the genuine Ubuntu24.04 online recovery
+chain: original released1.5.0.1 GUI missing-pip failure; explicit private-uv
+repair to1.5.0.5; actual installed GUI update topublic1.5.1.0. The private
+prefix andCPU Torch are preserved, pip remains absent, and raw commands/source
+hashes/screenshots bind the receipt. This is not a claim that broken1.5.0.1
+can update without repair. Evidence:
+features/data/53_historical_linux_upgrade_2026-09-27/README.md.
+The first Mac historical driver reached the actual update question but
+incorrectly rejected Cocoa's empty dialog title. Its correction binds the
+prompt text/versions/buttons while permitting an empty title only onMac;
+actual repaired-driver execution remains pending. Frozen replacement and
+all remaining backend/account/consent requirements remain OPEN.
