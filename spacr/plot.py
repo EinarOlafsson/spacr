@@ -360,7 +360,8 @@ def print_ready(fig, mode=None, announce=True):
 
 
 def save_figure(fig, path, *, fmt=None, dpi=None, close=False,
-                save_mode=None, announce_colours=True, **kwargs):
+                save_mode=None, announce_colours=True, integrity=None,
+                **kwargs):
     """Write ``fig`` to ``path``, honouring the figure preferences.
 
     The single place a spaCR figure the user keeps gets written. Before this
@@ -415,6 +416,16 @@ def save_figure(fig, path, *, fmt=None, dpi=None, close=False,
         ``'print'``.
     :param announce_colours: say when a data colour has stopped working on the
         light page. It is NAMED, never substituted.
+    :param integrity: check the figure's image panels before writing --
+        display ranges that differ between panels meant for comparison,
+        saturated or clipped pixels, repeated panels, a lossy format, and
+        panels written with fewer pixels than they hold -- print any
+        warning, stamp the provenance (source files, display settings,
+        processing steps, spaCR version) into the PNG or PDF metadata and
+        write it to a ``<file>.provenance.json`` sidecar beside the figure.
+        None follows ``SPACR_FIGURE_INTEGRITY`` and then the Preferences
+        toggle, which is off by default. A figure without image panels is
+        written unchanged either way.
     :param kwargs: passed through to ``savefig`` (``bbox_inches`` etc.). An
         explicit ``facecolor`` still wins over the print ground.
     :returns: the path actually written, as a ``str``.
@@ -436,6 +447,21 @@ def save_figure(fig, path, *, fmt=None, dpi=None, close=False,
 
     from .figure_style import saved_figure_appearance
 
+    write_dpi = deliverable_dpi(fig, chosen_dpi, destination)
+    report = None
+    if _figure_integrity_enabled(integrity):
+        requested = str(fmt or os.path.splitext(str(path))[1] or chosen_fmt)
+        try:
+            report = _integrity_report(
+                fig, fmt=chosen_fmt, dpi=write_dpi,
+                requested_fmt=requested.strip().lower().lstrip("."))
+            if report is not None:
+                kwargs[_SAVEFIG_METADATA] = _integrity_metadata(
+                    report, chosen_fmt, kwargs.get(_SAVEFIG_METADATA))
+        except Exception as exc:
+            print(f"Figure integrity: the check could not run ({exc}); "
+                  f"writing {destination} without it.")
+            report = None
     look = saved_figure_appearance(save_mode)
     rc = {"pdf.fonttype": 42}
     if look.ground is not None and "facecolor" not in kwargs:
@@ -444,12 +470,816 @@ def save_figure(fig, path, *, fmt=None, dpi=None, close=False,
     rc["savefig.transparent"] = bool(look.transparent)
     with rc_context(rc), print_ready(fig, mode=look.mode,
                                      announce=announce_colours):
-        fig.savefig(destination, format=chosen_fmt,
-                    dpi=deliverable_dpi(fig, chosen_dpi, destination),
-                    **kwargs)
+        fig.savefig(destination, format=chosen_fmt, dpi=write_dpi, **kwargs)
+    if report is not None:
+        try:
+            _finish_integrity(report, destination)
+        except Exception as exc:
+            print(f"Figure integrity: the provenance sidecar for "
+                  f"{destination} could not be written ({exc}).")
     if close:
         plt.close(fig)
     return destination
+
+
+_INTEGRITY_ENV = "SPACR_FIGURE_INTEGRITY"
+_SAVEFIG_METADATA = "metadata"
+_PANEL_TAG = "_spacr_panel_provenance"
+_PROVENANCE_SCHEMA = "spacr.figure_provenance/1"
+_PROVENANCE_SUFFIX = ".provenance.json"
+_PNG_PROVENANCE_KEY = "spaCR provenance"
+_RANGE_TOLERANCE = 0.05
+_CLIP_WARN_FRACTION = 0.05
+_SENSOR_WARN_FRACTION = 0.001
+_DUPLICATE_CORRELATION = 0.97
+_DUPLICATE_THUMB = 32
+_DUPLICATE_DETAIL_SIZE = 96
+_DUPLICATE_DETAIL = 0.2
+_MIN_PANEL_SIDE = 16
+_MIN_COMPARE_PIXELS = 64 * 64
+_RESAMPLE_NOTE_FACTOR = 2.0
+_SOURCE_HASH_LIMIT = 256 * 1024 * 1024
+_LOSSY_FORMATS = frozenset({"jpg", "jpeg", "jpe", "jfif", "webp", "gif",
+                            "heic", "heif", "avif"})
+_REPLAYABLE_OPS = frozenset({"select_channel", "crop", "max_project",
+                             "rescale", "to_uint8"})
+
+
+def _figure_integrity_enabled(explicit=None):
+    """Whether figure exports are checked and stamped with provenance.
+
+    :param explicit: ``True`` or ``False`` decides outright; ``None`` asks
+        the ``SPACR_FIGURE_INTEGRITY`` environment variable (``1``/``0``) and
+        then the Preferences toggle, which is off on a fresh install.
+    :returns: a bool. Any failure to read the preference reads as off, so a
+        headless run without Qt exports exactly as before.
+    """
+    if explicit is not None:
+        return bool(explicit)
+    env = os.environ.get(_INTEGRITY_ENV, "").strip().lower()
+    if env in ("1", "true", "yes", "on"):
+        return True
+    if env in ("0", "false", "no", "off"):
+        return False
+    try:
+        from .qt.preferences import _get_figure_integrity
+        return bool(_get_figure_integrity())
+    except Exception:
+        return False
+
+
+def _display_ranges(value):
+    """``value`` as a list of ``[low, high]`` pairs, one per channel.
+
+    :param value: a pair, a list of pairs, or ``None``.
+    :returns: the list, or ``None`` when ``value`` is empty or malformed.
+    """
+    if value is None:
+        return None
+    try:
+        array = np.asarray(value, dtype=float)
+    except (TypeError, ValueError):
+        return None
+    if array.ndim == 1 and array.size == 2:
+        array = array.reshape(1, 2)
+    if array.ndim != 2 or array.shape[1] != 2 or array.shape[0] == 0:
+        return None
+    return [[float(lo), float(hi)] for lo, hi in array]
+
+
+def _percentile_display(image, percentiles):
+    """Percentile-stretch ``image`` for display and say where it was cut.
+
+    A two-dimensional image is stretched as a whole; a stack is stretched
+    channel by channel along its last axis into a float32 array.
+
+    :param image: array to stretch.
+    :param percentiles: ``(low, high)`` percentiles.
+    :returns: ``(stretched, ranges)``, the stretched array in ``[0, 1]`` and
+        the per-channel ``[low, high]`` it was cut at, in source units.
+    """
+    image = np.asarray(image)
+    if image.ndim == 2:
+        lo, hi = np.percentile(image, percentiles)
+        ranges = [[float(lo), float(hi)]]
+    else:
+        ranges = []
+        for c in range(image.shape[-1]):
+            lo, hi = np.percentile(image[..., c], percentiles)
+            ranges.append([float(lo), float(hi)])
+    return _apply_display_ranges(image, ranges), ranges
+
+
+def _apply_display_ranges(image, ranges):
+    """Map ``image`` onto ``[0, 1]`` through fixed per-channel ranges.
+
+    :param image: two-dimensional image, or a stack with channels last.
+    :param ranges: ``[[low, high], ...]``, one pair per channel; a
+        two-dimensional image uses the first.
+    :returns: the clipped, rescaled array (float64 for a plane, float32 for
+        a stack).
+    """
+    image = np.asarray(image)
+    if image.ndim == 2:
+        lo, hi = ranges[0]
+        return np.clip((image - lo) / (hi - lo), 0, 1)
+    out = np.zeros_like(image, dtype=np.float32)
+    for c in range(image.shape[-1]):
+        lo, hi = ranges[min(c, len(ranges) - 1)]
+        out[..., c] = np.clip((image[..., c] - lo) / (hi - lo), 0, 1)
+    return out
+
+
+def _raw_clip_stats(raw, ranges):
+    """How much of the source image a display range throws away.
+
+    :param raw: the source pixels, before any display mapping.
+    :param ranges: per-channel ``[low, high]`` in source units.
+    :returns: ``{'clipped_high', 'clipped_low', 'sensor_saturated'}``, each
+        the largest per-channel fraction of pixels above ``high``, below
+        ``low``, or at the ceiling the source's integer type can hold.
+    """
+    raw = np.asarray(raw)
+    planes = ([raw] if raw.ndim == 2 or not ranges or len(ranges) == 1
+              else [raw[..., c] for c in range(min(raw.shape[-1],
+                                                   len(ranges)))])
+    high = low = sensor = 0.0
+    ceiling = (np.iinfo(raw.dtype).max
+               if np.issubdtype(raw.dtype, np.integer) else None)
+    for c, plane in enumerate(planes):
+        if plane.size == 0:
+            continue
+        if ranges:
+            lo, hi = ranges[min(c, len(ranges) - 1)]
+            high = max(high, float(np.mean(plane > hi)))
+            low = max(low, float(np.mean(plane < lo)))
+        if ceiling is not None:
+            sensor = max(sensor, float(np.mean(plane == ceiling)))
+    return {"clipped_high": high, "clipped_low": low,
+            "sensor_saturated": sensor}
+
+
+def _tag_panel(artist, source=None, steps=(), display_range=None,
+               channel=None, compare=None, raw=None):
+    """Attach provenance to an image artist so an export can trace it.
+
+    Nothing is hashed or read here; the file hashes are taken only when a
+    checked export writes the figure.
+
+    :param artist: the ``AxesImage`` returned by ``imshow``.
+    :param source: the source image path, or a list of paths.
+    :param steps: the processing steps from source to the displayed array,
+        as dicts with an ``op`` key (``select_channel``, ``crop``,
+        ``max_project``, ``rescale``, ``to_uint8``). A step with any other
+        op is recorded but makes the panel non-replayable.
+    :param display_range: the ``[low, high]`` shown, in source units, or one
+        pair per channel.
+    :param channel: a channel label; panels with different labels are never
+        compared for display range.
+    :param compare: a comparison group name that overrides ``channel``.
+    :param raw: the source pixels, used once to measure clipping and
+        detector saturation.
+    :returns: the artist.
+    """
+    sources = ([] if source is None else
+               [source] if isinstance(source, (str, os.PathLike)) else
+               list(source))
+    ranges = _display_ranges(display_range)
+    record = {
+        "source": [os.path.abspath(str(path)) for path in sources],
+        "steps": [dict(step) for step in (steps or ())],
+        "display_range": ranges,
+        "channel": None if channel is None else str(channel),
+        "compare": None if compare is None else str(compare),
+    }
+    if raw is not None:
+        try:
+            record["raw_stats"] = _raw_clip_stats(raw, ranges)
+            record["raw_dtype"] = str(np.asarray(raw).dtype)
+        except Exception:
+            record["raw_stats"] = None
+    try:
+        setattr(artist, _PANEL_TAG, record)
+    except Exception:
+        pass
+    return artist
+
+
+def _array_digest(array):
+    """SHA-256 of an array's dtype, shape and bytes, as 64 hex characters."""
+    import hashlib
+
+    array = np.ascontiguousarray(array)
+    digest = hashlib.sha256()
+    digest.update(f"{array.dtype.str}|{array.shape}|".encode("ascii"))
+    digest.update(array.tobytes())
+    return digest.hexdigest()
+
+
+def _source_record(path):
+    """Path, size and full SHA-256 of one source file.
+
+    Files above 256 MiB are listed with their size and modification time
+    only, so a checked export never stalls on a whole-plate stack.
+    """
+    record = {"path": str(path), "exists": os.path.isfile(path)}
+    if not record["exists"]:
+        return record
+    try:
+        size = os.path.getsize(path)
+        record["bytes"] = int(size)
+        record["mtime"] = float(os.path.getmtime(path))
+        if size <= _SOURCE_HASH_LIMIT:
+            from .run_journal import hash_file
+            record["sha256"] = hash_file(path, full=True)
+    except Exception:
+        pass
+    return record
+
+
+def _panel_thumbnail(array):
+    """Two z-scored grey signatures for repeat detection, or None.
+
+    :returns: ``(layout, detail)``: a 32x32 area-filtered thumbnail that
+        carries the arrangement of the image, and a 96x96 high-pass
+        residual that carries its fine texture. Two different cells can
+        share a layout; only a repeat of the same pixels shares the detail.
+    """
+    from PIL import Image
+
+    data = np.asarray(array, dtype=np.float32)
+    if data.ndim == 3:
+        data = data[..., :3].mean(axis=-1)
+    if data.ndim != 2 or min(data.shape) < _MIN_PANEL_SIDE:
+        return None
+    if not np.isfinite(data).all():
+        data = np.nan_to_num(data, nan=float(np.nanmedian(data)),
+                             posinf=0.0, neginf=0.0)
+    picture = Image.fromarray(np.ascontiguousarray(data), mode="F")
+
+    def _zscored(values):
+        spread = values.std()
+        if not np.isfinite(spread) or spread < 1e-9:
+            return None
+        return (values - values.mean()) / spread
+
+    layout = _zscored(np.asarray(picture.resize(
+        (_DUPLICATE_THUMB, _DUPLICATE_THUMB), Image.BILINEAR),
+        dtype=np.float64))
+    if layout is None:
+        return None
+    fine = np.asarray(picture.resize(
+        (_DUPLICATE_DETAIL_SIZE, _DUPLICATE_DETAIL_SIZE), Image.BILINEAR),
+        dtype=np.float64)
+    detail = _zscored(fine - ndi.uniform_filter(fine, 3, mode="reflect"))
+    if detail is None:
+        detail = np.zeros_like(fine)
+    return layout, detail
+
+
+def _best_dihedral_correlation(first, second):
+    """Highest correlation of ``first`` with any flip or rotation of
+    ``second`` (both z-scored and square)."""
+    best = -1.0
+    for k in range(4):
+        turned = np.rot90(second, k)
+        for variant in (turned, turned[:, ::-1]):
+            best = max(best, float(np.mean(first * variant)))
+    return best
+
+
+def _figure_panels(fig):
+    """Every image panel in ``fig``: ``(axes_index, axes, artist)``."""
+    from matplotlib.image import AxesImage
+
+    found = []
+    for axes_index, axes in enumerate(fig.get_axes()):
+        for artist in axes.get_images():
+            if isinstance(artist, AxesImage):
+                found.append((axes_index, axes, artist))
+    return found
+
+
+def _panel_record(index, axes_index, axes, artist, fig, dpi):
+    """The provenance and integrity measurements for one image panel.
+
+    :returns: ``(record, displayed_array)``; the record is JSON-ready.
+    """
+    data = np.asarray(np.ma.getdata(artist.get_array()))
+    tag = getattr(artist, _PANEL_TAG, None) or {}
+    kind = ("rgb" if data.ndim == 3 and data.shape[-1] in (3, 4)
+            else "scalar" if data.ndim == 2 else "other")
+    title = ""
+    try:
+        title = axes.get_title() or axes.get_ylabel() or ""
+    except Exception:
+        pass
+    record = {
+        "panel": index,
+        "axes": axes_index,
+        "title": str(title),
+        "kind": kind,
+        "shape": [int(n) for n in data.shape],
+        "dtype": str(data.dtype),
+        "interpolation": str(artist.get_interpolation()),
+        "displayed_sha256": _array_digest(data),
+        "source": [],
+        "steps": list(tag.get("steps") or []),
+        "channel": tag.get("channel"),
+        "compare": tag.get("compare"),
+        "tagged": bool(tag),
+    }
+    clipped_high = clipped_low = sensor = None
+    if kind == "scalar":
+        vmin, vmax = artist.get_clim()
+        record["cmap"] = str(getattr(artist.get_cmap(), "name", ""))
+        record["clim"] = [None if vmin is None else float(vmin),
+                          None if vmax is None else float(vmax)]
+        finite = data[np.isfinite(data)] if data.dtype.kind == "f" else data
+        if finite.size and vmin is not None and vmax is not None:
+            clipped_high = float(np.mean(finite > vmax))
+            clipped_low = float(np.mean(finite < vmin))
+        if (np.issubdtype(data.dtype, np.integer)
+                and np.iinfo(data.dtype).bits > 8 and data.size):
+            sensor = float(np.mean(data == np.iinfo(data.dtype).max))
+    elif kind == "rgb" and data.size:
+        top = (np.iinfo(data.dtype).max
+               if np.issubdtype(data.dtype, np.integer) else 1.0)
+        colour = data[..., :3]
+        clipped_high = float(max(np.mean(colour[..., c] >= top)
+                                 for c in range(3)))
+        clipped_low = float(max(np.mean(colour[..., c] <= 0)
+                                for c in range(3)))
+    ranges = _display_ranges(tag.get("display_range"))
+    if ranges is not None:
+        record["display_range"] = ranges
+        record["display_range_units"] = "source"
+    elif kind == "scalar" and None not in record["clim"]:
+        record["display_range"] = [list(record["clim"])]
+        record["display_range_units"] = "displayed array"
+    else:
+        record["display_range"] = None
+        record["display_range_units"] = None
+    raw_stats = tag.get("raw_stats")
+    if raw_stats:
+        clipped_high = raw_stats.get("clipped_high", clipped_high)
+        clipped_low = raw_stats.get("clipped_low", clipped_low)
+        sensor = raw_stats.get("sensor_saturated", sensor)
+        record["raw_dtype"] = tag.get("raw_dtype")
+    record["clipped_high"] = clipped_high
+    record["clipped_low"] = clipped_low
+    record["sensor_saturated"] = sensor
+    record["clip_measured_on"] = ("source" if raw_stats else
+                                  "displayed array")
+    try:
+        box = axes.get_window_extent()
+        scale = float(dpi) / float(fig.dpi)
+        record["exported_pixels"] = [int(round(box.width * scale)),
+                                     int(round(box.height * scale))]
+    except Exception:
+        record["exported_pixels"] = None
+    record["source"] = [_source_record(path) for path in tag.get("source")
+                        or ()]
+    ops = [str(step.get("op", "")) for step in record["steps"]]
+    record["reproducible"] = bool(record["source"]) and all(
+        op in _REPLAYABLE_OPS for op in ops)
+    return record, data
+
+
+def _range_findings(panels):
+    """Panels meant for comparison that are shown through different ranges.
+
+    Panels are compared within a group: an explicit comparison name, else a
+    channel label, else (for untagged single-channel panels of at least
+    64x64 pixels) the colour map. Untagged colour panels carry their display
+    range baked in and are not compared. A group is flagged when, for any
+    channel, the lows or the highs spread by more than 5 % of the combined
+    range.
+    """
+    groups = {}
+    for panel in panels:
+        ranges = panel.get("display_range")
+        if not ranges:
+            continue
+        if panel.get("compare"):
+            key = ("compare", panel["compare"])
+        elif panel.get("tagged"):
+            key = ("channel", panel.get("channel"))
+        elif (panel["kind"] == "scalar"
+              and int(np.prod(panel["shape"])) >= _MIN_COMPARE_PIXELS):
+            key = ("cmap", panel.get("cmap"))
+        else:
+            continue
+        groups.setdefault(key, []).append(panel)
+    findings = []
+    for key, members in groups.items():
+        if len(members) < 2:
+            continue
+        width = min(len(p["display_range"]) for p in members)
+        worst = 0.0
+        for c in range(width):
+            lows = [p["display_range"][c][0] for p in members]
+            highs = [p["display_range"][c][1] for p in members]
+            span = max(highs) - min(lows)
+            if not np.isfinite(span) or span <= 0:
+                continue
+            spread = max(max(lows) - min(lows), max(highs) - min(highs))
+            worst = max(worst, spread / span)
+        if worst > _RANGE_TOLERANCE:
+            units = members[0].get("display_range_units") or ""
+            shown = ", ".join(
+                f"{p['panel']}: " + "/".join(
+                    f"{lo:.4g}-{hi:.4g}" for lo, hi in p["display_range"])
+                for p in members[:8])
+            group = {"compare": f"group '{key[1]}'",
+                     "channel": (f"channel {key[1]}" if key[1] is not None
+                                 else "panels traced to source files"),
+                     "cmap": f"colour map {key[1]}"}[key[0]]
+            findings.append({
+                "check": "display_range",
+                "severity": "warning",
+                "panels": [p["panel"] for p in members],
+                "spread": round(worst, 4),
+                "message": (
+                    f"{len(members)} panels in one comparison group "
+                    f"({group}) are shown through display ranges "
+                    f"that differ by {worst:.0%} of their combined range "
+                    f"({units} units; {shown}). Brightness is not comparable "
+                    f"between them; use one range, or say in the legend that "
+                    f"each panel was scaled on its own."),
+            })
+    return findings
+
+
+def _saturation_findings(panels):
+    """Panels with detector saturation or clipped highlights.
+
+    Warns when more than 0.1 % of source pixels sit at the ceiling their
+    integer type can hold, or more than 5 % are pushed above the top of the
+    display range. On an untagged colour panel the measurement cannot tell a
+    saturated pixel from an annotation colour, so it is a note there.
+    """
+    findings = []
+    for panel in panels:
+        sensor = panel.get("sensor_saturated")
+        if sensor is not None and sensor > _SENSOR_WARN_FRACTION:
+            findings.append({
+                "check": "saturation", "severity": "warning",
+                "panels": [panel["panel"]], "fraction": round(sensor, 5),
+                "message": (
+                    f"Panel {panel['panel']}: {sensor:.2%} of the source "
+                    f"pixels are at the largest value the image type can "
+                    f"hold. They are saturated at acquisition and no display "
+                    f"setting recovers them."),
+            })
+        high = panel.get("clipped_high")
+        if high is not None and high > _CLIP_WARN_FRACTION:
+            blind = panel["kind"] == "rgb" and not panel.get("tagged")
+            findings.append({
+                "check": "saturation",
+                "severity": "note" if blind else "warning",
+                "panels": [panel["panel"]], "fraction": round(high, 5),
+                "message": (
+                    f"Panel {panel['panel']}: {high:.1%} of the pixels are "
+                    f"at or above the top of the display range and show as "
+                    f"one flat maximum."
+                    + (" This is measured on the finished colour image, so "
+                       "annotation colours count too." if blind else
+                       " Differences between them are hidden; raise the "
+                       "upper display limit.")),
+            })
+    return findings
+
+
+def _duplicate_findings(panels, arrays):
+    """Panels whose image content is the same, allowing flips, rotations
+    and contrast changes.
+
+    Identical displayed arrays are always flagged. Otherwise a pair is
+    flagged when its 32x32 grey thumbnails correlate at 0.97 or more and its
+    96x96 high-pass texture at 0.2 or more, each at the best of the eight
+    flips and rotations. The texture test is what keeps a montage of
+    similar-looking but different cells from reading as repeats. Panels
+    traced to the same source file are a declared reuse and are reported as
+    a note.
+    """
+    findings = []
+    signatures, owners = [], []
+    for panel, array in zip(panels, arrays):
+        signature = _panel_thumbnail(array)
+        if signature is not None:
+            signatures.append(signature)
+            owners.append(panel)
+    if len(signatures) < 2:
+        return findings
+    count = len(signatures)
+    layouts = np.stack([sig[0] for sig in signatures])
+    flat = layouts.reshape(count, -1)
+    best = np.full((count, count), -1.0)
+    for k in range(4):
+        turned = np.rot90(layouts, k, axes=(1, 2))
+        for variant in (turned, turned[:, :, ::-1]):
+            corr = flat @ variant.reshape(count, -1).T / flat.shape[1]
+            best = np.maximum(best, corr)
+    for i in range(count):
+        for j in range(i + 1, count):
+            a, b = owners[i], owners[j]
+            same = a["displayed_sha256"] == b["displayed_sha256"]
+            score = max(best[i, j], best[j, i])
+            if not same:
+                if score < _DUPLICATE_CORRELATION:
+                    continue
+                texture = _best_dihedral_correlation(signatures[i][1],
+                                                     signatures[j][1])
+                if texture < _DUPLICATE_DETAIL:
+                    continue
+            declared = (a.get("source") and b.get("source")
+                        and [s["path"] for s in a["source"]]
+                        == [s["path"] for s in b["source"]])
+            findings.append({
+                "check": "duplicate",
+                "severity": "note" if declared else "warning",
+                "panels": [a["panel"], b["panel"]],
+                "correlation": round(float(score), 4),
+                "texture": None if same else round(float(texture), 4),
+                "identical": bool(same),
+                "message": (
+                    f"Panels {a['panel']} and {b['panel']} show "
+                    + ("identical pixels" if same else
+                       f"the same image content (correlation "
+                       f"{score:.3f}, allowing flips, rotations and "
+                       f"contrast changes)")
+                    + (". They are traced to the same source file; say so "
+                       "in the legend." if declared else
+                       ". If one image is shown twice on purpose, say so in "
+                       "the legend.")),
+            })
+    return findings
+
+
+def _lossy_findings(requested, written, panels):
+    """A lossy file format asked for, or used, for image panels."""
+    if not panels:
+        return []
+    findings = []
+    if written in _LOSSY_FORMATS:
+        findings.append({
+            "check": "lossy_format", "severity": "warning", "panels": [],
+            "message": (
+                f"{written.upper()} is a lossy format: it changes pixel "
+                f"values in image panels. Use PNG, TIFF or PDF for figures "
+                f"that carry intensities."),
+        })
+    elif requested in _LOSSY_FORMATS:
+        findings.append({
+            "check": "lossy_format", "severity": "note", "panels": [],
+            "message": (
+                f"{requested.upper()} was asked for; the figure was written "
+                f"as {written.upper()}, which keeps pixel values."),
+        })
+    return findings
+
+
+def _resampling_findings(panels):
+    """Panels written with fewer pixels than their image holds."""
+    findings = []
+    for panel in panels:
+        exported = panel.get("exported_pixels")
+        shape = panel.get("shape") or []
+        if not exported or len(shape) < 2 or min(exported) <= 0:
+            continue
+        factor = max(shape[1] / exported[0], shape[0] / exported[1])
+        if factor > _RESAMPLE_NOTE_FACTOR:
+            findings.append({
+                "check": "resampling", "severity": "note",
+                "panels": [panel["panel"]], "factor": round(factor, 2),
+                "message": (
+                    f"Panel {panel['panel']} holds {shape[1]}x{shape[0]} "
+                    f"pixels and is written at about {exported[0]}x"
+                    f"{exported[1]}; each written pixel stands for ~"
+                    f"{factor:.1f} image pixels per side. Raise the "
+                    f"resolution to keep single-pixel detail."),
+            })
+    return findings
+
+
+def _spacr_version():
+    """The installed spaCR version string, or ``'unknown'``."""
+    try:
+        from ._version import __version__
+        return str(__version__)
+    except Exception:
+        return "unknown"
+
+
+def _integrity_report(fig, *, fmt, requested_fmt=None, dpi=None):
+    """Check ``fig``'s image panels and assemble its provenance.
+
+    :param fig: the figure about to be written.
+    :param fmt: the format that will be written.
+    :param requested_fmt: the format the caller asked for, if different.
+    :param dpi: the resolution it will be written at.
+    :returns: a JSON-ready report, or ``None`` when the figure holds no
+        image panel of at least 16x16 pixels.
+    """
+    import datetime
+    import platform
+
+    dpi = float(dpi or fig.dpi)
+    panels, arrays = [], []
+    for axes_index, axes, artist in _figure_panels(fig):
+        record, data = _panel_record(len(panels), axes_index, axes, artist,
+                                     fig, dpi)
+        if data.ndim < 2 or min(data.shape[:2]) < _MIN_PANEL_SIDE:
+            continue
+        panels.append(record)
+        arrays.append(data)
+    if not panels:
+        return None
+    written = str(fmt or "").lower().lstrip(".")
+    requested = str(requested_fmt or written).lower().lstrip(".")
+    findings = (_range_findings(panels) + _saturation_findings(panels)
+                + _duplicate_findings(panels, arrays)
+                + _lossy_findings(requested, written, panels)
+                + _resampling_findings(panels))
+    run = None
+    try:
+        from .run_journal import current_run
+        active = current_run()
+        if active is not None:
+            run = {"dir": str(active.dir), "app": str(active.app_key),
+                   "manifest": str(os.path.join(str(active.dir),
+                                                "manifest.json"))}
+    except Exception:
+        run = None
+    import matplotlib
+    return {
+        "schema": _PROVENANCE_SCHEMA,
+        "created": datetime.datetime.now(datetime.timezone.utc).isoformat(
+            timespec="seconds"),
+        "software": {"spacr": _spacr_version(),
+                     "matplotlib": matplotlib.__version__,
+                     "numpy": np.__version__,
+                     "python": platform.python_version()},
+        "format": written,
+        "requested_format": requested,
+        "dpi": dpi,
+        "figure_inches": [float(v) for v in fig.get_size_inches()],
+        "run": run,
+        "panels": panels,
+        "integrity": {
+            "checks": ["display_range", "saturation", "duplicate",
+                       "lossy_format", "resampling"],
+            "warnings": sum(f["severity"] == "warning" for f in findings),
+            "notes": sum(f["severity"] == "note" for f in findings),
+            "findings": findings,
+        },
+    }
+
+
+def _integrity_metadata(report, fmt, existing=None):
+    """Metadata that stamps ``report`` into the written file.
+
+    PNG files carry the whole provenance as a ``spaCR provenance`` text
+    chunk; PDF files carry it in the document ``Subject``. Keys the caller
+    already set are kept. Other formats get no stamp and rely on the
+    sidecar.
+
+    :returns: the metadata dict to pass to ``savefig``, or ``existing``.
+    """
+    import json
+
+    merged = dict(existing or {})
+    text = json.dumps(report, separators=(",", ":"), default=str)
+    if fmt == "png":
+        merged.setdefault(_PNG_PROVENANCE_KEY, text)
+    elif fmt == "pdf":
+        merged.setdefault("Subject", f"{_PNG_PROVENANCE_KEY}: {text}")
+    else:
+        return existing
+    return merged
+
+
+def _provenance_sidecar_path(figure_path):
+    """Where the sidecar for ``figure_path`` is written."""
+    return f"{figure_path}{_PROVENANCE_SUFFIX}"
+
+
+def _finish_integrity(report, figure_path):
+    """Write the sidecar for a figure just written and announce findings.
+
+    Warnings are printed, and recorded on the open run journal when there
+    is one; the sidecar holds every finding and the provenance of every
+    panel, plus the written file's SHA-256.
+
+    :returns: the sidecar path, or ``None`` if it could not be written.
+    """
+    import json
+
+    from .run_journal import hash_file
+
+    figure_path = str(figure_path)
+    report = dict(report)
+    report["figure"] = os.path.basename(figure_path)
+    report["figure_sha256"] = hash_file(figure_path, full=True)
+    sidecar = _provenance_sidecar_path(figure_path)
+    try:
+        temporary = f"{sidecar}.tmp"
+        with open(temporary, "w", encoding="utf-8") as handle:
+            json.dump(report, handle, indent=2, default=str)
+        os.replace(temporary, sidecar)
+    except OSError:
+        sidecar = None
+    findings = report["integrity"]["findings"]
+    run = None
+    try:
+        from .run_journal import current_run
+        run = current_run()
+    except Exception:
+        run = None
+    for finding in findings:
+        if finding["severity"] != "warning":
+            continue
+        line = (f"Figure integrity ({os.path.basename(figure_path)}): "
+                f"{finding['message']}")
+        print(line)
+        if run is not None:
+            try:
+                run.record_warning(line)
+            except Exception:
+                pass
+    if findings or sidecar:
+        count = report["integrity"]["warnings"]
+        print(f"Figure integrity: {count} warning(s), "
+              f"{report['integrity']['notes']} note(s) for {figure_path}"
+              + (f"; provenance in {sidecar}" if sidecar else ""))
+    if run is not None and sidecar:
+        try:
+            run.record_output(sidecar, setting_key="figure_provenance")
+        except Exception:
+            pass
+    return sidecar
+
+
+def _read_panel_source(path):
+    """Read one source image as an array, by extension."""
+    extension = os.path.splitext(str(path))[1].lower()
+    if extension == ".npy":
+        return np.load(path, allow_pickle=False)
+    if extension in (".tif", ".tiff"):
+        return tiff.imread(path)
+    from PIL import Image
+
+    with Image.open(path) as image:
+        return np.array(image)
+
+
+def _replay_steps(image, steps):
+    """Apply recorded display steps to a source array.
+
+    :raises ValueError: for an op that cannot be replayed.
+    """
+    for step in steps:
+        op = step.get("op")
+        if op == "select_channel":
+            image = np.asarray(image)[..., int(step["index"])]
+        elif op == "crop":
+            y0, y1, x0, x1 = (int(v) for v in step["box"])
+            image = np.asarray(image)[y0:y1, x0:x1]
+        elif op == "max_project":
+            image = np.asarray(image).max(axis=int(step.get("axis", 0)))
+        elif op == "rescale":
+            image = _apply_display_ranges(image,
+                                          _display_ranges(step["ranges"]))
+        elif op == "to_uint8":
+            image = (np.asarray(image) * 255).astype(np.uint8)
+        else:
+            raise ValueError(f"step {op!r} cannot be replayed")
+    return np.asarray(image)
+
+
+def _reproduce_panel(sidecar, panel):
+    """Rebuild one exported panel from its source files and sidecar.
+
+    :param sidecar: path to a ``.provenance.json`` sidecar, or its loaded
+        dict.
+    :param panel: the panel number in the sidecar.
+    :returns: ``(array, matches)`` -- the rebuilt displayed array, and
+        whether it is bit-identical to what was exported.
+    :raises ValueError: when the panel names no source or holds a step
+        that cannot be replayed.
+    """
+    import json
+
+    if not isinstance(sidecar, dict):
+        with open(sidecar, encoding="utf-8") as handle:
+            sidecar = json.load(handle)
+    record = next(p for p in sidecar["panels"] if p["panel"] == int(panel))
+    if not record.get("source"):
+        raise ValueError(f"panel {panel} names no source file")
+    image = _read_panel_source(record["source"][0]["path"])
+    rebuilt = _replay_steps(image, record.get("steps") or [])
+    return rebuilt, _array_digest(rebuilt) == record["displayed_sha256"]
 
 
 #: Outline colours for the published overlay figure, per palette.
@@ -5620,6 +6450,11 @@ def plot_region(settings):
 def plot_image_grid(image_paths, percentiles):
     """Render a square grid of percentile-normalised images with a black background.
 
+    Each tile carries its source file and the per-channel display range it
+    was stretched to, so a checked export (see :func:`save_figure`) can say
+    when tiles are scaled differently and write a provenance sidecar that
+    rebuilds every tile from its file.
+
     :param image_paths: Image files to display; extra tiles are filled
         black.
     :param percentiles: Two-element percentile pair used to normalise
@@ -5630,28 +6465,6 @@ def plot_image_grid(image_paths, percentiles):
     from PIL import Image
     import matplotlib.pyplot as plt
     import math
-
-    def _normalize_image(image, percentiles=(2, 98)):
-        """ Normalize the image to the given percentiles for each channel independently, preserving the input type (either PIL.Image or numpy.ndarray)."""
-        
-        is_pil_image = isinstance(image, Image.Image)
-        if is_pil_image:
-            image = np.array(image)
-
-        if image.ndim == 2:
-            v_min, v_max = np.percentile(image, percentiles)
-            normalized_image = np.clip((image - v_min) / (v_max - v_min), 0, 1)
-        else:
-            normalized_image = np.zeros_like(image, dtype=np.float32)
-            for c in range(image.shape[-1]):
-                v_min, v_max = np.percentile(image[..., c], percentiles)
-                normalized_image[..., c] = np.clip((image[..., c] - v_min) / (v_max - v_min), 0, 1)
-
-        if is_pil_image:
-            normalized_image = (normalized_image * 255).astype(np.uint8)
-            return Image.fromarray(normalized_image)
-
-        return normalized_image
 
     N = len(image_paths)
     grid_size = math.ceil(math.sqrt(N))  
@@ -5669,10 +6482,18 @@ def plot_image_grid(image_paths, percentiles):
         for i, img_path in enumerate(image_paths):
             ax = axs[i]
 
-            img = Image.open(img_path)
-            img = _normalize_image(img, percentiles)
+            with Image.open(img_path) as opened:
+                raw = np.array(opened)
+            stretched, ranges = _percentile_display(raw, percentiles)
+            shown = Image.fromarray((stretched * 255).astype(np.uint8))
 
-            ax.imshow(img)
+            artist = ax.imshow(shown)
+            _tag_panel(artist, source=img_path, display_range=ranges,
+                       raw=raw,
+                       steps=[{"op": "rescale", "ranges": ranges,
+                               "percentiles": [float(p) for p in
+                                               percentiles]},
+                              {"op": "to_uint8"}])
             ax.axis('off')
 
         for j in range(i + 1, len(axs)):

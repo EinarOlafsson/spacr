@@ -7142,6 +7142,9 @@ ALPHA_FEATURES = {
                      'time_to_event_conditions', 'time_to_event_reference',
                      'time_to_event_covariates'),
     },
+    572: {
+        'widgets': ('FigureIntegrityCheck',),
+    },
     573: {
         'widgets': ('AnalysisLockButton',),
     },
