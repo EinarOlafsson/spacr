@@ -45868,7 +45868,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 2816,
+    "line": 2821,
     "module": "spacr.run_journal",
     "nested": false,
     "qualname": "lock_analysis"
@@ -45877,7 +45877,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 2916,
+    "line": 2921,
     "module": "spacr.run_journal",
     "nested": false,
     "qualname": "check_analysis_lock"

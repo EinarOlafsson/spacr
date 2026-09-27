@@ -3542,9 +3542,10 @@ Read by ``preprocess_generate_masks``.
 control_column
 --------------
 
+| ``_rescore_anomalies`` **-- reads it**
 | :py:func:`~spacr.qt.screens.control_chart.rescore_hits` **-- reads it**
 
-Read by ``rescore_hits``.
+Read by ``_rescore_anomalies``, ``rescore_hits``.
 
 .. _setting-flow-control_quantile:
 
@@ -11359,9 +11360,10 @@ Read by ``control_block_wells``.
 negative_levels
 ---------------
 
+| ``_rescore_anomalies`` **-- reads it**
 | :py:func:`~spacr.qt.screens.control_chart.rescore_hits` **-- reads it**
 
-Read by ``rescore_hits``.
+Read by ``_rescore_anomalies``, ``rescore_hits``.
 
 .. _setting-flow-negative_mean:
 
