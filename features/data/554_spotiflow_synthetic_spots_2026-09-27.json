@@ -1,0 +1,34 @@
+{
+  "truth_spots": 150,
+  "shape": [
+    256,
+    256
+  ],
+  "match_radius_px": 2.0,
+  "device": "cpu",
+  "spotiflow_coordinates": {
+    "n": 146,
+    "recall": 1.0,
+    "precision": 1.0,
+    "median_error_px": 0.136,
+    "seconds_incl_start": 260.0
+  },
+  "spotiflow_prefix_masks": {
+    "n": 146,
+    "recall": 1.0,
+    "precision": 1.0,
+    "median_error_px": 0.417,
+    "objects": 146,
+    "seconds": 1.9,
+    "heatmap_shape": [
+      256,
+      256
+    ]
+  },
+  "native_style_log_5sd": {
+    "n": 132,
+    "recall": 0.913,
+    "precision": 1.0,
+    "median_error_px": 0.402
+  }
+}

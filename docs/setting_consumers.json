@@ -6252,7 +6252,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cellpose_diameter",
-    "line": 1104,
+    "line": 1109,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_objects"
@@ -6418,7 +6418,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cellpose_model",
-    "line": 1066,
+    "line": 1071,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_cellpose_model"
@@ -12712,7 +12712,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "dst_root",
-    "line": 1801,
+    "line": 1826,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -15537,7 +15537,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "genotype_source",
-    "line": 1793,
+    "line": 1818,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -24975,7 +24975,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_workers",
-    "line": 1644,
+    "line": 1669,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_decode"
@@ -28316,7 +28316,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_base_channels",
-    "line": 632,
+    "line": 637,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_base_channels"
@@ -28336,7 +28336,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_footprint",
-    "line": 1620,
+    "line": 1645,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_decode"
@@ -28356,7 +28356,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_gpu",
-    "line": 1805,
+    "line": 1830,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -28376,7 +28376,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_library",
-    "line": 1809,
+    "line": 1834,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -28396,7 +28396,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_raster_overlap",
-    "line": 531,
+    "line": 536,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_stitch"
@@ -28416,7 +28416,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_read_threshold",
-    "line": 1617,
+    "line": 1642,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_decode"
@@ -28436,7 +28436,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_spot_detector",
-    "line": 1273,
+    "line": 1278,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_spot_detector"
@@ -28456,7 +28456,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_store_reads",
-    "line": 1622,
+    "line": 1647,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_decode"
@@ -28476,7 +28476,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_window_overlap",
-    "line": 1107,
+    "line": 1112,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_objects"
@@ -36620,7 +36620,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "phenotype_source",
-    "line": 1822,
+    "line": 1847,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -37047,7 +37047,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plate",
-    "line": 1804,
+    "line": 1829,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -44328,7 +44328,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "segmentation_backend",
-    "line": 970,
+    "line": 1015,
     "module": "spacr._segmentation_backends",
     "nested": false,
     "qualname": "_cellpose3_is_chosen"
