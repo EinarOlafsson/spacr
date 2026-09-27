@@ -593,9 +593,10 @@ def organelle_number(role: str) -> int:
             offset = 0
             for length in range(2, len(suffix)):
                 offset += 26 ** length
+            value = 0
             for char in suffix:
-                offset = offset * 26 + (ord(char) - ord("a"))
-            return offset + 27
+                value = value * 26 + (ord(char) - ord("a"))
+            return offset + value + 27
     raise ValueError(
         f"{role!r} is not an organelle role; expected 'organelle', "
         "'organelleb'..'organellez', then 'organelleaa' onward")
