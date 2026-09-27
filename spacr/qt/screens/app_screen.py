@@ -5959,7 +5959,8 @@ class AppScreen(QWidget):
 
         hidden_stages = set()
         gated = (self._dimension_hidden_sections()
-                 | self._headings_the_run_lacks())
+                 | self._headings_the_run_lacks()
+                 | self._alpha_hidden_sections())
         for section in self.rendered_settings_sections():
             visible = maturity_is_visible(section.maturity())
             section.setVisible(visible and id(section) not in gated)
@@ -6195,6 +6196,45 @@ class AppScreen(QWidget):
         widgets = getattr(getattr(self, "_settings_model", None),
                           "_widgets", None) or {}
         return {key for key in _alpha_names("settings") if key in widgets}
+
+    def _alpha_hidden_sections(self) -> set:
+        """``id()`` of every category made only of settings the alpha gate hides.
+
+        A heading with nothing left under it would still announce the
+        feature, so a category whose every row is an alpha setting goes with
+        its rows while Preferences -> Show alpha features is off. A category
+        that also holds ordinary settings keeps its card.
+        """
+        from PySide6.QtWidgets import QFormLayout
+
+        from ..preferences import _is_alpha_visible
+        from ...settings import _alpha_names
+
+        if _is_alpha_visible():
+            return set()
+        alpha = _alpha_names("settings")
+        model = getattr(self, "_settings_model", None)
+        widgets = getattr(model, "_widgets", None) or {}
+        built = getattr(widgets, "built_items", None)
+        pairs = built() if callable(built) else widgets.items()
+        by_widget = {id(widget): key for key, widget in pairs}
+        hidden = set()
+        for section in getattr(self, "_settings_sections", []) or []:
+            keys = []
+            form = getattr(section, "_form", None)
+            if isinstance(form, QFormLayout):
+                for index in range(form.rowCount()):
+                    item = form.itemAt(index, QFormLayout.FieldRole)
+                    field = item.widget() if item is not None else None
+                    keys.append(by_widget.get(id(field))
+                                if field is not None else None)
+            spec = getattr(section, "_spacr_waiting_spec", None)
+            if spec is not None and not getattr(spec, "children", ()):
+                keys.extend(self._key_of_row(widget)
+                            for _label, widget in spec[1])
+            if keys and all(key in alpha for key in keys):
+                hidden.add(id(section))
+        return hidden
 
     def _apply_alpha_rows(self) -> None:
         """Hide alpha settings rows and alpha dropdown entries (item 569).
