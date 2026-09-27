@@ -64,6 +64,7 @@ def main() -> int:
     parser.add_argument('--manager-execute', action='store_true', help='Demonstrate confirmed cleanup/archive on the independently verified private Data Manager clone')
     parser.add_argument('--manager-source', type=Path, help='Existing real project inside the private stage; preserve its registry and operate only on a verified bound clone')
     parser.add_argument('--external-input-root', type=Path, help='Private byte-identical copies of the retained Foreign inputs, preserving their original manifest and relative paths')
+    parser.add_argument('--external-preview-only', action='store_true', help='Stop after the real non-writing External Masks preview and its Preview only toggle; never run measurement')
     parser.add_argument('--test-data-route', choices=('load', 'stream'), default='load', help='Choose the real Annotate/Classify test-data route')
     parser.add_argument('--classifier-family', choices=('cv', 'ml'), default='cv', help='Choose the real merged Classify workflow')
     parser.add_argument('--classifier-existing-split', type=Path, help='Reuse the explicitly prepared, metadata-verified tutorial split; never rebuild it from legacy filenames')
@@ -100,6 +101,8 @@ def main() -> int:
         parser.error('--manager-source requires --module data_manager')
     if args.external_input_root is not None and args.module != 'external_masks':
         parser.error('--external-input-root requires --module external_masks')
+    if args.external_preview_only and (args.module != 'external_masks' or args.run or args.download or args.preview):
+        parser.error('--external-preview-only requires external_masks without run/download/preview')
     if args.sweep_input_root is not None and args.module != 'parameter_sweep':
         parser.error('--sweep-input-root requires --module parameter_sweep')
     if args.pca_host_only and (args.module != 'pca' or args.run or args.download or args.preview):
@@ -735,7 +738,9 @@ def main() -> int:
         if args.module == 'external_masks':
             from capture_external_masks import record_external_masks
             record_external_masks(app, window, screen, stage, captures, capture,
-                                  settle, write_json, args.timeout, input_root=args.external_input_root)
+                                  settle, write_json, args.timeout,
+                                  input_root=args.external_input_root,
+                                  stop_after_preview=args.external_preview_only)
         if args.module == 'model_zoo':
             if args.model_zoo_inventory:
                 from capture_model_inventory import record_inventory
