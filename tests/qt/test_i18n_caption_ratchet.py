@@ -1294,6 +1294,13 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "measurements, or an image classifier on nucleus crops. Each writes the "
     "same phase column to measurements.db, with the phase fractions per well "
     "among infected and uninfected cells.",
+    # 571, 2026-09-26: the Time To Event (Alpha) category help on Measure.
+    "How long each tracked object of a timelapse lasts until an event such "
+    "as death, lysis, egress, division or first detection, with objects "
+    "still waiting at the end of their track censored there. Conditions are "
+    "compared with Kaplan-Meier curves, median times, log-rank tests and a "
+    "Cox model, written to measurements.db and drawn under "
+    "results/time_to_event.",
     # 541, 2026-09-26: the Measure preview's Alpha confluency toggle, its
     # status lines, and the Confluency (Alpha) category help.
     'Confluency',

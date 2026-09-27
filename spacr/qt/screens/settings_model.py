@@ -1260,6 +1260,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Confluency (Alpha)", ("@Confluency (Alpha)",)),
         ("Cell Cycle (Alpha)", ("@Cell Cycle (Alpha)",)),
+        ("Time To Event (Alpha)", ("@Time To Event (Alpha)",)),
         ("Object Filtering", (
             "uninfected", "cell_min_size", "cell_max_size",
             "cytoplasm_min_size",
@@ -2645,6 +2646,13 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "out, the interval between frames, which backend links objects, and "
         "how far one may move between frames. For data that is both a "
         "z-stack and a time series.",
+    "TIME TO EVENT (ALPHA)":
+        "How long each tracked object of a timelapse lasts until an event "
+        "such as death, lysis, egress, division or first detection, with "
+        "objects still waiting at the end of their track censored there. "
+        "Conditions are compared with Kaplan-Meier curves, median times, "
+        "log-rank tests and a Cox model, written to measurements.db and "
+        "drawn under results/time_to_event.",
     "CELL CYCLE (ALPHA)":
         "The cell-cycle phase of every nucleus, called after measuring from "
         "the DNA stain in one of three interchangeable ways: gates on each "

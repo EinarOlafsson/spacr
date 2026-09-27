@@ -778,6 +778,18 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "cell_cycle_gates", "cell_cycle_mitotic_ratio",
     "cell_cycle_fucci_channels", "cell_cycle_labels", "cell_cycle_model",
     "cell_cycle_epochs",
+    # NEW SETTINGS, not a regrouping (item 571, 2026-09-26): Measure's
+    # time-to-event analysis of tracked objects -- the switch, the object
+    # table, the event mode, its column, threshold and persistence, the
+    # clock's origin, the shortest track, the frame interval, the grouping,
+    # the named conditions, the reference and the Cox covariates -- under
+    # their own "Time To Event (Alpha)" heading.
+    "time_to_event", "time_to_event_object", "time_to_event_mode",
+    "time_to_event_column", "time_to_event_threshold",
+    "time_to_event_persist", "time_to_event_origin",
+    "time_to_event_min_frames", "time_to_event_hours_per_frame",
+    "time_to_event_group", "time_to_event_conditions",
+    "time_to_event_reference", "time_to_event_covariates",
     # A NEW SETTING GROUP, not a regrouping: Make Masks can keep watching
     # `src` and analyse each field as it arrives (`watch_folder`), with the
     # pipeline, Measure settings file, settle time, poll interval and idle
@@ -1471,6 +1483,9 @@ def _rendered_sections(app_key):
             # Item 535, 2026-09-26: the cell-cycle phase call follows, read
             # from the nuclei the features above measured.
             "Cell Cycle (Alpha)",
+            # Item 571, 2026-09-26: time to event follows, read from the
+            # tracked objects measured above, after the run.
+            "Time To Event (Alpha)",
             "Object Filtering", "Crop Output",
             "Preview & Diagnostics", "3D Calibration (Beta)",
             "Runtime & Reliability",
