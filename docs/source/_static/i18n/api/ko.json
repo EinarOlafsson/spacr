@@ -44223,16 +44223,16 @@
         "3848eb53b4a57d6bd18503a127a3711684ecf42c98c6da22b9989c3d7537971a",
         "19e245b69b63d2be4b2484e110ee2e0c4277c2795de7003a9417b7b1fe6c7bfd",
         "1a83810f4009b0889d91a97319adbc1c8712366d911ae4c34a9e18a267061cfc",
-        "d636404d1376639ff309651a708f9b9e2ded079d53f6014464b180350262c624",
+        "111e077a528fd1a4ea54624a6d636cb0e646d6a4c9a3a8b065abe98f47e32e48",
         "79b6e9506939f9d20418598bc7a3aa2090aa55799ef82823438e1891720e01a4"
       ],
-      "source_sha256": "32502b60609019e6c44f789669553cfbd52043365bf45b35d353b3b7b8f2f9ec",
-      "text": "회복을 실행하고 실패하면 실행 가능한 세부 사항을 보고합니다.\n\n실패의 경우, 원래 예외는 보고서가 인쇄되고 처리 세션 폴더에 작성된 후에 변경되지 않게 다시 업그레이드됩니다.이 보고서는 ``settings['_regression_stage']``에 저장된 최신 단계, 사용 가능한 디자인 차원 및 인식 된 실패에 대한 해결책을 포함합니다.\n\n:param settings: 적절한 작업 흐름에 의해 소비되는 회복 설정.\n:returns: 결과는 regression 구현에 의해 반환됩니다.\n:raises Exception: 동일한 예외를 통해 다시 원래의 회복 실패가 발생합니다.",
+      "source_sha256": "cf5de94818e3452ba2d34999b9bb489519a28206ea756aa195d970a77db39e6a",
+      "text": "회복을 실행하고 실패하면 실행 가능한 세부 사항을 보고합니다.\n\n실패의 경우, 원래 예외는 보고서가 인쇄되고 처리 세션 폴더에 작성된 후에 변경되지 않게 다시 업그레이드됩니다.이 보고서는 ``settings['_regression_stage']``에 저장된 최신 단계, 사용 가능한 디자인 차원 및 인식 된 실패에 대한 해결책을 포함합니다.\n\n:param settings: 적절한 작업 흐름에 의해 소비되는 회복 설정.\n:returns: 회귀 출력 매핑입니다. ``model_data``는 준비된 입력 테이블이며 회귀계수 결과가 아닙니다. ``fit_designs``는 각 모수적 적합 수준에서 실제로 측정한 설계 관련 개수를 별도로 기록합니다. 기록되지 않은 개수는 생략하며, 순열 검정 출력은 자체 결과 스키마를 유지합니다.\n:raises Exception: 동일한 예외를 통해 다시 원래의 회복 실패가 발생합니다.",
       "translation_source_blocks_sha256": [
         "3848eb53b4a57d6bd18503a127a3711684ecf42c98c6da22b9989c3d7537971a",
         "3bd70d2f57343e7d2bed2e1ada759da15367d528e063d539e964088b4fe05ba2",
         "ab93bc5a939640bc727c20917f9640ba5179292b57633be4f581eaa4c793e4a7",
-        "d636404d1376639ff309651a708f9b9e2ded079d53f6014464b180350262c624",
+        "111e077a528fd1a4ea54624a6d636cb0e646d6a4c9a3a8b065abe98f47e32e48",
         "c3d2fdac63c7f4ef77afbc326c24a63070a6121b56c2bb3c436d6c55af6263ad"
       ]
     },
@@ -107192,14 +107192,16 @@
       "source_blocks_sha256": [
         "fbd99a931c1aa658731b8d31bcf72b8995acdbcf1026027edbab34c7d7aac139",
         "31e875c8021c5af64ce295eb2128dda1a971f31d0b978ea0dcc10845aaf7157b",
-        "19569a499f7f7ea9b58981a4e226dbe46458a02bc426f31a8e30cfd1f2cccf86"
+        "19569a499f7f7ea9b58981a4e226dbe46458a02bc426f31a8e30cfd1f2cccf86",
+        "caefeb5b0f01e4349e17700cf856cd22e48b89f3471ed7a7dbe9dd664e683b9c"
       ],
-      "source_sha256": "0021a1282d804902d6e61cf74accc315b3ee3ddaa2b5f858df9cb080a1f1e9cf",
-      "text": "환경에 의해 명명된 컨트롤러를 설치하거나 ``None``를 반환합니다.\n\n:param app: 실행 중인 ``QApplication`` 이며, 컨트롤러에 전달됩니다.\n:param window: 벤치마크가 구동하는 메인 창입니다.",
+      "source_sha256": "8638ce19c0dca532ebd2b499fcb8b47de9e0f9fadf32ec37d83a8e1c461cabdf",
+      "text": "환경에 의해 명명된 컨트롤러를 설치하거나 ``None``를 반환합니다.\n\n:param app: 실행 중인 ``QApplication`` 이며, 컨트롤러에 전달됩니다.\n:param window: 벤치마크가 구동하는 메인 창입니다.\n:returns: 레지스트리 벤치마크 컨트롤러이며, ``SPACR_DISTRIBUTION_SMOKE=1``을 명시적으로 선택하면 설치된 애플리케이션의 컨트롤러입니다. 출력 경로가 설정되지 않으면 ``None``입니다.",
       "translation_source_blocks_sha256": [
         "fbd99a931c1aa658731b8d31bcf72b8995acdbcf1026027edbab34c7d7aac139",
         "31e875c8021c5af64ce295eb2128dda1a971f31d0b978ea0dcc10845aaf7157b",
-        "19569a499f7f7ea9b58981a4e226dbe46458a02bc426f31a8e30cfd1f2cccf86"
+        "19569a499f7f7ea9b58981a4e226dbe46458a02bc426f31a8e30cfd1f2cccf86",
+        "caefeb5b0f01e4349e17700cf856cd22e48b89f3471ed7a7dbe9dd664e683b9c"
       ]
     },
     "spacr.qt.synthetic": {
@@ -164866,11 +164868,12 @@
         "ab68a0a2a3d4c8c0e736aaa876bd9ca330a7dd433c4cbaa931ac93428402faa7",
         "8aafb269e6f57e27b9e94794e54c3f6f51e40ea282b62fdbefa7f1fdf6f440d1",
         "afeb363054c60151746c74b7d5fad7523d4f3da16f3a815528f908e9b0fd4f20",
-        "c2a7660fd4919168562c4702bbfb639ead43170adbb7206e172a2e4149e35ae5",
+        "2cbe0a85e31708dc3a545dc15d993f55aa2c38470c123db52949c411eda5b9cf",
+        "7673a38b849e8c8e5fcecd3b98869c0f4834b6b9525047f3873b78d7f7743e78",
         "1e81a9e07cf3ddb3b98017c35f075956cbbde0fad56c9f6365b96c44d130b57a"
       ],
-      "source_sha256": "c4553236f25dc63ff95b86fcf63947184d302253cb569cd7c7e26b4e6cd71fbe",
-      "text": "spaCR 각 모드에 대한 동일한 형태로 하나의 실행의 자신의 요약.\n\n계약은 반환 값입니다. 어떤 유형과 어떤 추론이 사용되었든, 결과는 각 이름을 :data:`CONTRACT`로 옮기고 각각 응답됩니다 - 숫자로, 또는 왜이 모드가 하나를 가질 수 없다고 말하는 문장으로. :meth:`RunSummary.missing`는 각 마이크로 플레이트 샘플 위치 형식의 요약에 텅 비어 있으며, 상승하는 건축가는 예외로 뒤로 채워지기보다는 구멍을 떠날 수 있습니다.\n\n:param model: 적합한 모델, 또는 ``None`` - 이것은 변동 경로와 교차 경로의 일반적인 경우입니다. sklearn 뒷받침된 범죄가 맞고 오류가 아닙니다.\n:param settings: 프로세션 세션의 설정 키 가치 맵링.\n:param coef_df: 수정된 요소 테이블은 실행이 썼다.\n:param regression_type: 가족이 실제로 설정되었을 때, 호출자는 그것을 알고있다 (``regression_type=None``는 처리 세션 동안 자동으로 선택되므로 설정은 여전히 ``None``를 말할 수 있습니다).\n:param res_folder: ``regression_data.csv``을 읽으십시오, 이는 적합한 테이블에 도달하고 따라서 마이크로 플레이트 샘플 위치 / 가이드 / 유전자 / 세포 계산을위한 정직한 출처입니다.\n:returns: :class:`RunSummary`.",
+      "source_sha256": "f3132ad9397e37afa96be147daef9ac08c8a40d496f3586f1ea790e425ae0490",
+      "text": "spaCR 각 모드에 대한 동일한 형태로 하나의 실행의 자신의 요약.\n\n계약은 반환 값입니다. 어떤 유형과 어떤 추론이 사용되었든, 결과는 각 이름을 :data:`CONTRACT`로 옮기고 각각 응답됩니다 - 숫자로, 또는 왜이 모드가 하나를 가질 수 없다고 말하는 문장으로. :meth:`RunSummary.missing`는 각 마이크로 플레이트 샘플 위치 형식의 요약에 텅 비어 있으며, 상승하는 건축가는 예외로 뒤로 채워지기보다는 구멍을 떠날 수 있습니다.\n\n:param model: 적합한 모델, 또는 ``None`` - 이것은 변동 경로와 교차 경로의 일반적인 경우입니다. sklearn 뒷받침된 범죄가 맞고 오류가 아닙니다.\n:param settings: 프로세션 세션의 설정 키 가치 맵링.\n:param coef_df: 수정된 요소 테이블은 실행이 썼다.\n:param regression_type: 가족이 실제로 설정되었을 때, 호출자는 그것을 알고있다 (``regression_type=None``는 처리 세션 동안 자동으로 선택되므로 설정은 여전히 ``None``를 말할 수 있습니다).\n:param res_folder: 실행 폴더입니다. ``regression_data.csv``는 준비된 입력의 개수를 제공하며, 기록을 명시적으로 제공하지 않으면 ``regression_fit_designs.json``이 실제 측정한 적합 관련 개수를 제공합니다.\n:param fit_designs: 선택적으로 제공하는 수준별 실측 설계 관련 개수입니다. 적합 관련 개수가 없으면 알 수 없음으로 보고하며, 준비된 입력 행 수로 추정하지 않습니다.\n:returns: :class:`RunSummary`.",
       "translation_source_blocks_sha256": [
         "1d786b8e5bb6cb31ca87917d869b8043980e73c8756e4f906963b4058faf8ecf",
         "21e1d3dc23eac9cb110016c6ad8fdc19fb783dd27df8e40345854c75a894d6bc",
@@ -164878,7 +164881,8 @@
         "be82b40cd0188ff6319f9488ec4148d269b900cd096b81713240daae486c0e0b",
         "8aafb269e6f57e27b9e94794e54c3f6f51e40ea282b62fdbefa7f1fdf6f440d1",
         "817eaf5ecd4d61e56e4e1146669caa36a687718ad9bbdf976f8c2c10b83fa7e6",
-        "f6e1e0b0269c90a42545418d5ee62b3d7be786fb07b7548f7b35b2c585ac4ce1",
+        "d02bf75b9a52896ce67098572010f028e52aab073f336959820b3f5914dcfeff",
+        "7673a38b849e8c8e5fcecd3b98869c0f4834b6b9525047f3873b78d7f7743e78",
         "1e81a9e07cf3ddb3b98017c35f075956cbbde0fad56c9f6365b96c44d130b57a"
       ]
     },
@@ -164942,10 +164946,11 @@
         "ab68a0a2a3d4c8c0e736aaa876bd9ca330a7dd433c4cbaa931ac93428402faa7",
         "77ab10c5d08ab484b23551a9ec802fbe37781a25fbdcfdbaa3048671da400193",
         "618f1a9161d449fdd90624a18cd74975bda72aaf651f0bcd6a4ae1d48f284c0e",
+        "0b499050f8ee133da9988260234365c3ee8687d3f8f2ea418bdf777ed96d6c91",
         "acd83404be931212f684e1dbe243474eb3a9cbd40c35c2ea6fea9490c9cc8cfa"
       ],
-      "source_sha256": "ba2014f3b21a6c00359c56a8635d75d6c7ae3578969161cf5e2e8c90a9eeb64e",
-      "text": "이 처리 세션의 spaCR 요약을 자신의 폴더에 입력하고 경로를 반환합니다.\n\n그것은 이미 다시 읽는 :func:`spacr.qt.widgets.regression_results.find_summary_file` 파일을 쓰고, 그래서 디스크에서 다시 열린 처리 세션은 GUI 변경이없는이 요약을 보여줍니다 (디자인은 패널을 가르쳐 처리-세션 폴더를 읽을 수 있습니다; 디자인은 그것에 읽을 가치가있는 무언가가 있다는 것입니다).\n\n``ols`` 및 ``beta`` 실행은 이미 이 동일한 파일에 statsmodels 텍스트를 쓰고있다; 그것은 그것이 될 수있는 모델에서 다시 리더링하고, 그렇지 않으면 파일을 다시 읽고, 어쨌든 그것은 대체 대신 끝에 첨부되지 않습니다.\n\n:param res_folder: 프로세서 세션 폴더는 ``results.csv`` 옆에 있습니다.\n:param model: 고정된 모델 또는 ``None``.\n:param settings: 프로세션 세션의 설정 키 가치 맵링.\n:param coef_df: 수정된 요소 테이블입니다.\n:param regression_type: 가족은 실제로 준비되어 있습니다.\n:returns: 작성된 경로, 또는 ``None``에 폴더가 없었을 때.",
+      "source_sha256": "aa41482cf9f0287fee60ab9824c02b9702c068741a67333dfedd9e8dca3bbf12",
+      "text": "이 처리 세션의 spaCR 요약을 자신의 폴더에 입력하고 경로를 반환합니다.\n\n그것은 이미 다시 읽는 :func:`spacr.qt.widgets.regression_results.find_summary_file` 파일을 쓰고, 그래서 디스크에서 다시 열린 처리 세션은 GUI 변경이없는이 요약을 보여줍니다 (디자인은 패널을 가르쳐 처리-세션 폴더를 읽을 수 있습니다; 디자인은 그것에 읽을 가치가있는 무언가가 있다는 것입니다).\n\n``ols`` 및 ``beta`` 실행은 이미 이 동일한 파일에 statsmodels 텍스트를 쓰고있다; 그것은 그것이 될 수있는 모델에서 다시 리더링하고, 그렇지 않으면 파일을 다시 읽고, 어쨌든 그것은 대체 대신 끝에 첨부되지 않습니다.\n\n:param res_folder: 프로세서 세션 폴더는 ``results.csv`` 옆에 있습니다.\n:param model: 고정된 모델 또는 ``None``.\n:param settings: 프로세션 세션의 설정 키 가치 맵링.\n:param coef_df: 수정된 요소 테이블입니다.\n:param regression_type: 가족은 실제로 준비되어 있습니다.\n:param fit_designs: 선택적으로 제공하는 수준별 실측 설계 관련 개수이며, 모델 없이 다시 열어도 이 개수를 정확하게 복원할 수 있도록 ``regression_fit_designs.json``으로도 저장합니다.\n:returns: 작성된 경로, 또는 ``None``에 폴더가 없었을 때.",
       "translation_source_blocks_sha256": [
         "0f0701ffa1ad940628f575671d5acd966dd055a167906f9178b454ce51df9d43",
         "fadf14236d188695a4e3f7b1bc669d6e161ae30bde2bfe5a0e89ce2ce7c6d499",
@@ -164955,6 +164960,7 @@
         "be82b40cd0188ff6319f9488ec4148d269b900cd096b81713240daae486c0e0b",
         "77ab10c5d08ab484b23551a9ec802fbe37781a25fbdcfdbaa3048671da400193",
         "618f1a9161d449fdd90624a18cd74975bda72aaf651f0bcd6a4ae1d48f284c0e",
+        "0b499050f8ee133da9988260234365c3ee8687d3f8f2ea418bdf777ed96d6c91",
         "acd83404be931212f684e1dbe243474eb3a9cbd40c35c2ea6fea9490c9cc8cfa"
       ]
     },
@@ -182257,13 +182263,13 @@
     "spacr.trial_metrics.design_summary": {
       "source_blocks_sha256": [
         "3c7e366624199876423da4375aeeeef9ae88035f786cdbd11480043e875ed920",
-        "339a7784abffe84840b00be57bb11461f0ace1fbeb4e77c6d7aa9db872481d09"
+        "2a3c15af52cecbe3c3190eae07b41391eec03e17d04aab6661ee4483d5530587"
       ],
-      "source_sha256": "30c6598c87b871bc0f0969499ef5bcd223d6ef98ae757d8f267791462f2020ba",
-      "text": "얼마나 많은 데이터가 적합한지, 그리고 그것이 식별 가능한지 여부.\n\n:param output: 시험 출력 맵을 선택적으로 ``model_data``을 가져옵니다.",
+      "source_sha256": "cb63098d5a9aec806fe7a9b9f65a4f6c6fd83c5d11481e49fe5622ab0d332a3a",
+      "text": "얼마나 많은 데이터가 적합한지, 그리고 그것이 식별 가능한지 여부.\n\n:param output: 준비된 ``model_data``와 실제 측정한 수준별 ``fit_designs``를 선택적으로 포함하는 시행 출력 매핑입니다. 적합 관련 개수는 수준별로 보고하며, 모든 적합에 동일한 값이 기록된 경우에만 수준 구분이 없는 개수를 출력합니다. 적합 기록이 없는 기존 출력은 테이블을 기반으로 한 개수를 유지합니다.",
       "translation_source_blocks_sha256": [
         "3c7e366624199876423da4375aeeeef9ae88035f786cdbd11480043e875ed920",
-        "339a7784abffe84840b00be57bb11461f0ace1fbeb4e77c6d7aa9db872481d09"
+        "2a3c15af52cecbe3c3190eae07b41391eec03e17d04aab6661ee4483d5530587"
       ]
     },
     "spacr.trial_metrics.fit_quality": {

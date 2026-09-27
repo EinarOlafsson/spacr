@@ -2615,7 +2615,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # constructor gained the optional `darkfield` field (none required).
     # 19,539 -> 19,540 with item 554: SpotDetectorCombo's optional
     # `spotiflow_readiness` keyword; no new callable.
-    assert sum(len(item.parameters) for item in callables) == 19_540
+    # 19,540 -> 19,542 with item 07 on 2026-09-27: build_run_summary
+    # and write_run_summary each gain optional `fit_designs`; no required
+    # parameter or callable changes. Full-inventory subtraction proof is
+    # recorded in features/data/411_api_delta4_07_53_2026-09-27.json.
+    assert sum(len(item.parameters) for item in callables) == 19_542
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2803,7 +2807,12 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # IlluminationField dataclass constructor gained the optional darkfield.
     # Moved 2026-09-27 for item 554 (was 305e0422...): SpotDetectorCombo
     # gained the optional `spotiflow_readiness` keyword.
-) == "6cb99554618362fc8b00c996c185ade574adaf08f5f1a806718d64ca6a3b1096"
+    # Moved 2026-09-27 for item 07: removing only `fit_designs` from
+    # parameters and accepted_documented_parameters on build_run_summary
+    # and write_run_summary restores 6cb9955461... byte for byte across
+    # all 9,837 rows; source signatures at b38aea05b^ prove both additions
+    # are optional. All other inventory fields remain unchanged.
+) == "bafdafefba5aa913f78af993ebc2c7875f9840d8559ba11cd9fb705231d9c241"
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing

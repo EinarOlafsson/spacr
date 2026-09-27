@@ -44223,16 +44223,16 @@
         "3848eb53b4a57d6bd18503a127a3711684ecf42c98c6da22b9989c3d7537971a",
         "19e245b69b63d2be4b2484e110ee2e0c4277c2795de7003a9417b7b1fe6c7bfd",
         "1a83810f4009b0889d91a97319adbc1c8712366d911ae4c34a9e18a267061cfc",
-        "d636404d1376639ff309651a708f9b9e2ded079d53f6014464b180350262c624",
+        "111e077a528fd1a4ea54624a6d636cb0e646d6a4c9a3a8b065abe98f47e32e48",
         "79b6e9506939f9d20418598bc7a3aa2090aa55799ef82823438e1891720e01a4"
       ],
-      "source_sha256": "32502b60609019e6c44f789669553cfbd52043365bf45b35d353b3b7b8f2f9ec",
-      "text": "Execute a regressão e relate detalhes acionáveis se falhar.\n\nNa falha, a exceção original é re-raise inalterada depois que um relatório é impresso e gravado na pasta de sessão de processamento. O relatório inclui o estágio mais recente armazenado em ``settings['_regression_stage']``, dimensões de design disponíveis e um remédio para falhas reconhecidas.\n\n:param settings: Configurações de regressão consumidas pelo fluxo de trabalho adequado.\n:returns: Resultado retornado pela implementação da regressão.\n:raises Exception: Lança a mesma exceção novamente a falha de regressão original.",
+      "source_sha256": "cf5de94818e3452ba2d34999b9bb489519a28206ea756aa195d970a77db39e6a",
+      "text": "Execute a regressão e relate detalhes acionáveis se falhar.\n\nNa falha, a exceção original é re-raise inalterada depois que um relatório é impresso e gravado na pasta de sessão de processamento. O relatório inclui o estágio mais recente armazenado em ``settings['_regression_stage']``, dimensões de design disponíveis e um remédio para falhas reconhecidas.\n\n:param settings: Configurações de regressão consumidas pelo fluxo de trabalho adequado.\n:returns: Mapeamento dos resultados da regressão. ``model_data`` é a tabela de entrada preparada, não os resultados dos coeficientes; ``fit_designs`` registra as contagens medidas do desenho do modelo separadamente para cada nível de ajuste paramétrico. As contagens não registradas são omitidas, e as saídas de permutação mantêm seu próprio esquema de resultados.\n:raises Exception: Lança a mesma exceção novamente a falha de regressão original.",
       "translation_source_blocks_sha256": [
         "3848eb53b4a57d6bd18503a127a3711684ecf42c98c6da22b9989c3d7537971a",
         "3bd70d2f57343e7d2bed2e1ada759da15367d528e063d539e964088b4fe05ba2",
         "ab93bc5a939640bc727c20917f9640ba5179292b57633be4f581eaa4c793e4a7",
-        "d636404d1376639ff309651a708f9b9e2ded079d53f6014464b180350262c624",
+        "111e077a528fd1a4ea54624a6d636cb0e646d6a4c9a3a8b065abe98f47e32e48",
         "c3d2fdac63c7f4ef77afbc326c24a63070a6121b56c2bb3c436d6c55af6263ad"
       ]
     },
@@ -107192,14 +107192,16 @@
       "source_blocks_sha256": [
         "fbd99a931c1aa658731b8d31bcf72b8995acdbcf1026027edbab34c7d7aac139",
         "31e875c8021c5af64ce295eb2128dda1a971f31d0b978ea0dcc10845aaf7157b",
-        "19569a499f7f7ea9b58981a4e226dbe46458a02bc426f31a8e30cfd1f2cccf86"
+        "19569a499f7f7ea9b58981a4e226dbe46458a02bc426f31a8e30cfd1f2cccf86",
+        "caefeb5b0f01e4349e17700cf856cd22e48b89f3471ed7a7dbe9dd664e683b9c"
       ],
-      "source_sha256": "0021a1282d804902d6e61cf74accc315b3ee3ddaa2b5f858df9cb080a1f1e9cf",
-      "text": "Instale o controlador nomeado pelo ambiente ou retorne ``None``.\n\n:param app: o ``QApplication`` em execução, repassado ao controlador.\n:param window: a janela principal que o benchmark conduz.",
+      "source_sha256": "8638ce19c0dca532ebd2b499fcb8b47de9e0f9fadf32ec37d83a8e1c461cabdf",
+      "text": "Instale o controlador nomeado pelo ambiente ou retorne ``None``.\n\n:param app: o ``QApplication`` em execução, repassado ao controlador.\n:param window: a janela principal que o benchmark conduz.\n:returns: o controlador do teste de desempenho do registro, ou o controlador da aplicação instalada quando ``SPACR_DISTRIBUTION_SMOKE=1`` é selecionado explicitamente; ``None`` quando nenhum caminho de saída está configurado.",
       "translation_source_blocks_sha256": [
         "fbd99a931c1aa658731b8d31bcf72b8995acdbcf1026027edbab34c7d7aac139",
         "31e875c8021c5af64ce295eb2128dda1a971f31d0b978ea0dcc10845aaf7157b",
-        "19569a499f7f7ea9b58981a4e226dbe46458a02bc426f31a8e30cfd1f2cccf86"
+        "19569a499f7f7ea9b58981a4e226dbe46458a02bc426f31a8e30cfd1f2cccf86",
+        "caefeb5b0f01e4349e17700cf856cd22e48b89f3471ed7a7dbe9dd664e683b9c"
       ]
     },
     "spacr.qt.synthetic": {
@@ -164866,11 +164868,12 @@
         "ab68a0a2a3d4c8c0e736aaa876bd9ca330a7dd433c4cbaa931ac93428402faa7",
         "8aafb269e6f57e27b9e94794e54c3f6f51e40ea282b62fdbefa7f1fdf6f440d1",
         "afeb363054c60151746c74b7d5fad7523d4f3da16f3a815528f908e9b0fd4f20",
-        "c2a7660fd4919168562c4702bbfb639ead43170adbb7206e172a2e4149e35ae5",
+        "2cbe0a85e31708dc3a545dc15d993f55aa2c38470c123db52949c411eda5b9cf",
+        "7673a38b849e8c8e5fcecd3b98869c0f4834b6b9525047f3873b78d7f7743e78",
         "1e81a9e07cf3ddb3b98017c35f075956cbbde0fad56c9f6365b96c44d130b57a"
       ],
-      "source_sha256": "c4553236f25dc63ff95b86fcf63947184d302253cb569cd7c7e26b4e6cd71fbe",
-      "text": "spaCR's próprio resumo de uma execução, na mesma forma para cada modo.\n\nO contrato é o valor de retorno. Qualquer que seja o tipo de regressão e qualquer inferência usada, o resultado carrega todos os nomes em :data:`CONTRACT` e cada um é respondido com um número, ou com uma frase dizendo por que esse modo não pode ter um.  :meth:`RunSummary.missing` está vazio em cada resumo de posição formada por amostra de microplacas, e um construtor que levanta é preenchido com a exceção em vez de deixar um buraco: relatórios não vale a pena perder um campo de visão do microscópio.\n\n:param model: o modelo ajustado, ou ``None`` que é o caso comum para o caminho de permutação e para os ajustes penalizados apoiados por  sklearn, não um erro.\n:param settings: o mapeamento de chave-valor das configurações da sessão de processamento.\n:param coef_df: a tabela de coeficientes corrigidos que a corrida escreveu.\n:param regression_type: a família realmente encaixada, quando o chamador sabe disso (``regression_type=None`` é auto-selecionado durante a sessão de processamento, então as configurações ainda podem dizer ``None``).\n:param res_folder: a pasta de processamento-sessão. Leia para ``regression_data.csv``, que é a tabela que atingiu o ajuste e, portanto, a fonte honesta para a posição da amostra de microplacas / guia / contagem de genes / células.\n:returns: :class:`RunSummary`.",
+      "source_sha256": "f3132ad9397e37afa96be147daef9ac08c8a40d496f3586f1ea790e425ae0490",
+      "text": "spaCR's próprio resumo de uma execução, na mesma forma para cada modo.\n\nO contrato é o valor de retorno. Qualquer que seja o tipo de regressão e qualquer inferência usada, o resultado carrega todos os nomes em :data:`CONTRACT` e cada um é respondido com um número, ou com uma frase dizendo por que esse modo não pode ter um.  :meth:`RunSummary.missing` está vazio em cada resumo de posição formada por amostra de microplacas, e um construtor que levanta é preenchido com a exceção em vez de deixar um buraco: relatórios não vale a pena perder um campo de visão do microscópio.\n\n:param model: o modelo ajustado, ou ``None`` que é o caso comum para o caminho de permutação e para os ajustes penalizados apoiados por  sklearn, não um erro.\n:param settings: o mapeamento de chave-valor das configurações da sessão de processamento.\n:param coef_df: a tabela de coeficientes corrigidos que a corrida escreveu.\n:param regression_type: a família realmente encaixada, quando o chamador sabe disso (``regression_type=None`` é auto-selecionado durante a sessão de processamento, então as configurações ainda podem dizer ``None``).\n:param res_folder: a pasta da sessão de processamento. ``regression_data.csv`` fornece as contagens da entrada preparada; ``regression_fit_designs.json`` fornece as contagens medidas dos ajustes quando nenhum registro explícito é fornecido.\n:param fit_designs: contagens medidas opcionais do desenho do modelo por nível. As contagens de ajuste ausentes são informadas como desconhecidas, nunca inferidas a partir do número de linhas preparadas.\n:returns: :class:`RunSummary`.",
       "translation_source_blocks_sha256": [
         "1d786b8e5bb6cb31ca87917d869b8043980e73c8756e4f906963b4058faf8ecf",
         "21e1d3dc23eac9cb110016c6ad8fdc19fb783dd27df8e40345854c75a894d6bc",
@@ -164878,7 +164881,8 @@
         "be82b40cd0188ff6319f9488ec4148d269b900cd096b81713240daae486c0e0b",
         "8aafb269e6f57e27b9e94794e54c3f6f51e40ea282b62fdbefa7f1fdf6f440d1",
         "817eaf5ecd4d61e56e4e1146669caa36a687718ad9bbdf976f8c2c10b83fa7e6",
-        "f6e1e0b0269c90a42545418d5ee62b3d7be786fb07b7548f7b35b2c585ac4ce1",
+        "d02bf75b9a52896ce67098572010f028e52aab073f336959820b3f5914dcfeff",
+        "7673a38b849e8c8e5fcecd3b98869c0f4834b6b9525047f3873b78d7f7743e78",
         "1e81a9e07cf3ddb3b98017c35f075956cbbde0fad56c9f6365b96c44d130b57a"
       ]
     },
@@ -164942,10 +164946,11 @@
         "ab68a0a2a3d4c8c0e736aaa876bd9ca330a7dd433c4cbaa931ac93428402faa7",
         "77ab10c5d08ab484b23551a9ec802fbe37781a25fbdcfdbaa3048671da400193",
         "618f1a9161d449fdd90624a18cd74975bda72aaf651f0bcd6a4ae1d48f284c0e",
+        "0b499050f8ee133da9988260234365c3ee8687d3f8f2ea418bdf777ed96d6c91",
         "acd83404be931212f684e1dbe243474eb3a9cbd40c35c2ea6fea9490c9cc8cfa"
       ],
-      "source_sha256": "ba2014f3b21a6c00359c56a8635d75d6c7ae3578969161cf5e2e8c90a9eeb64e",
-      "text": "Escreva o resumo spaCR desta sessão de processamento em sua própria pasta e retorne o caminho.\n\nChamado em todas as sessões de processamento, para cada tipo de regressão suportado e ambas as inferências. Ele escreve o arquivo :func:`spacr.qt.widgets.regression_results.find_summary_file` já lê de volta, então uma sessão de processamento reaberta do disco mostra esse resumo sem alteração  GUI (o design ensinou o painel a ler a pasta de processamento-sessão; o design é sobre algo que vale a pena ler nele).\n\nO STATSMODELS RESUMO É PRESERVADO. ``ols`` e  ``beta`` as execuções já escreveram o texto statsmodels neste mesmo arquivo no momento em que este é chamado; ele é renderizado novamente a partir do modelo onde pode ser, e de outra forma lido de volta fora do arquivo, e seja como for, ele é anexado UNCHANGED no final, em vez de substituído. O texto inteiro é construído na memória primeiro, então exatamente uma falha foi aqui.\n\n:param res_folder: a pasta de sessão de processamento, ao lado de ``results.csv``.\n:param model: o modelo montado, ou ``None``.\n:param settings: o mapeamento de chave-valor das configurações da sessão de processamento.\n:param coef_df: tabela de coeficientes corrigidos.\n:param regression_type: A família realmente se encaixou.\n:returns: o caminho escrito, ou ``None`` quando não havia pasta para escrever.",
+      "source_sha256": "aa41482cf9f0287fee60ab9824c02b9702c068741a67333dfedd9e8dca3bbf12",
+      "text": "Escreva o resumo spaCR desta sessão de processamento em sua própria pasta e retorne o caminho.\n\nChamado em todas as sessões de processamento, para cada tipo de regressão suportado e ambas as inferências. Ele escreve o arquivo :func:`spacr.qt.widgets.regression_results.find_summary_file` já lê de volta, então uma sessão de processamento reaberta do disco mostra esse resumo sem alteração  GUI (o design ensinou o painel a ler a pasta de processamento-sessão; o design é sobre algo que vale a pena ler nele).\n\nO STATSMODELS RESUMO É PRESERVADO. ``ols`` e  ``beta`` as execuções já escreveram o texto statsmodels neste mesmo arquivo no momento em que este é chamado; ele é renderizado novamente a partir do modelo onde pode ser, e de outra forma lido de volta fora do arquivo, e seja como for, ele é anexado UNCHANGED no final, em vez de substituído. O texto inteiro é construído na memória primeiro, então exatamente uma falha foi aqui.\n\n:param res_folder: a pasta de sessão de processamento, ao lado de ``results.csv``.\n:param model: o modelo montado, ou ``None``.\n:param settings: o mapeamento de chave-valor das configurações da sessão de processamento.\n:param coef_df: tabela de coeficientes corrigidos.\n:param regression_type: A família realmente se encaixou.\n:param fit_designs: contagens medidas opcionais do desenho do modelo por nível, também salvas em ``regression_fit_designs.json`` para reabrir os resultados fielmente sem um modelo.\n:returns: o caminho escrito, ou ``None`` quando não havia pasta para escrever.",
       "translation_source_blocks_sha256": [
         "0f0701ffa1ad940628f575671d5acd966dd055a167906f9178b454ce51df9d43",
         "fadf14236d188695a4e3f7b1bc669d6e161ae30bde2bfe5a0e89ce2ce7c6d499",
@@ -164955,6 +164960,7 @@
         "be82b40cd0188ff6319f9488ec4148d269b900cd096b81713240daae486c0e0b",
         "77ab10c5d08ab484b23551a9ec802fbe37781a25fbdcfdbaa3048671da400193",
         "618f1a9161d449fdd90624a18cd74975bda72aaf651f0bcd6a4ae1d48f284c0e",
+        "0b499050f8ee133da9988260234365c3ee8687d3f8f2ea418bdf777ed96d6c91",
         "acd83404be931212f684e1dbe243474eb3a9cbd40c35c2ea6fea9490c9cc8cfa"
       ]
     },
@@ -182257,13 +182263,13 @@
     "spacr.trial_metrics.design_summary": {
       "source_blocks_sha256": [
         "3c7e366624199876423da4375aeeeef9ae88035f786cdbd11480043e875ed920",
-        "339a7784abffe84840b00be57bb11461f0ace1fbeb4e77c6d7aa9db872481d09"
+        "2a3c15af52cecbe3c3190eae07b41391eec03e17d04aab6661ee4483d5530587"
       ],
-      "source_sha256": "30c6598c87b871bc0f0969499ef5bcd223d6ef98ae757d8f267791462f2020ba",
-      "text": "Quantos dados chegaram ao ajuste e se foram identificáveis.\n\n:param output: trial output mapping opcionalmente carregando ``model_data``.",
+      "source_sha256": "cb63098d5a9aec806fe7a9b9f65a4f6c6fd83c5d11481e49fe5622ab0d332a3a",
+      "text": "Quantos dados chegaram ao ajuste e se foram identificáveis.\n\n:param output: mapeamento dos resultados do ensaio que pode conter ``model_data`` preparado e ``fit_designs`` medido por nível. As contagens dos ajustes são informadas por nível; uma contagem sem especificação de nível só é emitida quando todos os ajustes registram o mesmo valor. As saídas antigas sem registros de ajuste mantêm suas contagens baseadas em tabelas.",
       "translation_source_blocks_sha256": [
         "3c7e366624199876423da4375aeeeef9ae88035f786cdbd11480043e875ed920",
-        "339a7784abffe84840b00be57bb11461f0ace1fbeb4e77c6d7aa9db872481d09"
+        "2a3c15af52cecbe3c3190eae07b41391eec03e17d04aab6661ee4483d5530587"
       ]
     },
     "spacr.trial_metrics.fit_quality": {
