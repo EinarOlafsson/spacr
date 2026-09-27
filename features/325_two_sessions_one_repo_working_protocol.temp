@@ -17377,3 +17377,15 @@ of either shared nightly tree. Tests stay capped and named; existing GPU
 training and queued GPU turns are untouched. Catalogs will be regenerated
 after the implementation batch. Items retain real-data and maintainer
 acceptance requirements; synthetic validation alone does not close them.
+
+2026-09-27 — CODEX: FROZEN SERIAL QT ACCEPTANCE AND DOCUMENTATION DELTAS
+CPU repairs, source-comment extraction and segmented Invasion publication
+are committed through 969e97b74. Item 47 now runs all 1,445 explicitly named
+Qt test files serially in the separate, frozen serial-worktree at that SHA.
+Its scope has a 12G cap; at most one other test/build process may use 4G.
+CUDA is hidden. Logs, manifest and exit receipt are under
+/mnt/wd4tb/scratch/spacr-completion/item47-acceptance. The previous native
+abort is not declared fixed until the serial process reaches its summary.
+API regeneration, runtime translation and tutorial-redaction recovery are
+owned by this Codex session while that acceptance runs. The primary Claude
+checkout and all live_cell services, data and GPU jobs remain untouched.
