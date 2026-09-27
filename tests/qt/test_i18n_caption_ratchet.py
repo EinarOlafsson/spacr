@@ -1158,6 +1158,15 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 574, 2026-09-27: the Report screen's Archive package button and form.
 # 579, 2026-09-27: the Report screen's Deposit on Zenodo button and form.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    # 560, 2026-09-27: the Embeddings screen's Foundation model picker
+    # (alpha).
+    'Foundation model:',
+    'None (use the backbone)',
+    'OpenPhenom (Recursion, channel-agnostic MAE ViT-S/16)',
+    'ChAda-ViT (channel-adaptive ViT-T/16, IDRCell100k)',
+    'SubCell (CZI / Lundberg lab ViT-B/16, DNA + protein)',
+    'Cell-DINO (Meta FAIR DINOv2 on the Human Protein Atlas)',
+    "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO's weights are not published yet. Default None (use the backbone).",
     # 579, 2026-09-27: the Report screen's Deposit on Zenodo button and its
     # form (alpha).
     'Deposit on Zenodo…',

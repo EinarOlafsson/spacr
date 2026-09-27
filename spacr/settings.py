@@ -7261,6 +7261,9 @@ ALPHA_FEATURES = {
     565: {
         'widgets': ('AnnotateFindSimilar',),
     },
+    560: {
+        'widgets': ('EmbeddingsFoundationLabel', 'EmbeddingsFoundationPicker'),
+    },
     570: {
         'widgets': ('ControlChartHitPanel', 'ControlChartHitsSection',
                     'ControlChartExportHits'),

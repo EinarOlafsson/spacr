@@ -297,7 +297,10 @@ def _encoded_channels(available: int, spec: EmbeddingSpec) -> Tuple[int, ...]:
             raise EmbeddingError(
                 f"channel {channel} is not in the crops, which have "
                 f"{available}")
-    if spec.channel_policy == CHANNEL_PROJECT and len(channels) > 3:
+    adaptive = (spec.backbone in _FOUNDATION_MODELS
+                and _FOUNDATION_MODELS[spec.backbone]["in_channels"] is None)
+    if (spec.channel_policy == CHANNEL_PROJECT and len(channels) > 3
+            and not adaptive):
         raise EmbeddingError(
             f"{len(channels)} channels cannot be projected onto three "
             "without choosing which to drop; name three in "
@@ -475,7 +478,11 @@ def embed_array(crops: np.ndarray, spec: Optional[EmbeddingSpec] = None, *,
         :mod:`spacr.crops` already produces.
     :param spec: how to embed; the default is per-channel resnet18.
     :param encoder: a callable taking ``(n, height, width, 3)`` float32 in
-        [0, 1] and returning ``(n, dims)``. Injected by the tests so the
+        [0, 1] and returning ``(n, dims)``. An encoder with an
+        ``in_channels`` attribute takes that many planes instead, and one
+        whose ``in_channels`` is ``None`` takes any number: each channel
+        alone under the per-channel policy, every encoded channel in one
+        pass under the projection policy. Injected by the tests so the
         wiring can be exercised without downloading a backbone; production
         callers leave it ``None``.
     :returns: an :class:`EmbeddingResult`.
@@ -496,20 +503,21 @@ def embed_array(crops: np.ndarray, spec: Optional[EmbeddingSpec] = None, *,
         spec = replace(spec, channel_scale=scale)
     scales: Tuple[Optional[float], ...] = (
         spec.channel_scale if spec.normalize else (None,) * len(channels))
-    run = encoder if encoder is not None else _timm_encoder(spec)
+    run = encoder if encoder is not None else _backbone_encoder(spec)
+    width = getattr(run, "in_channels", 3)
 
     if spec.channel_policy == CHANNEL_PROJECT:
         planes = [_scaled(array[..., c], s) for c, s in zip(channels, scales)]
-        while len(planes) < 3:
+        while width is not None and len(planes) < width:
             planes.append(np.zeros_like(planes[0]))
-        stack = np.stack(planes[:3], axis=-1)
+        stack = np.stack(planes if width is None else planes[:width], axis=-1)
         values = np.asarray(run(stack), dtype=np.float32)
         per_channel = values.shape[1]
     else:
         blocks = []
         for channel, scale in zip(channels, scales):
             plane = _scaled(array[..., channel], scale)
-            stack = np.repeat(plane[..., None], 3, axis=-1)
+            stack = np.repeat(plane[..., None], width or 1, axis=-1)
             blocks.append(np.asarray(run(stack), dtype=np.float32))
         widths = {block.shape[1] for block in blocks}
         if len(widths) != 1:
@@ -564,6 +572,278 @@ def _timm_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
 
     return run
 
+
+
+_FOUNDATION_MODELS: Dict[str, Dict[str, Any]] = {
+    "openphenom": {
+        "label": "OpenPhenom (Recursion, channel-agnostic MAE ViT-S/16)",
+        "repo": "recursionpharma/OpenPhenom",
+        "revision": "0f92333685f6e9f031b804c70fe246f9b05ae90d",
+        "in_channels": None,
+        "size": 256,
+        "license": "Recursion non-commercial",
+    },
+    "chada_vit": {
+        "label": "ChAda-ViT (channel-adaptive ViT-T/16, IDRCell100k)",
+        "repo": "nicoboou/chadavit16-moyen",
+        "revision": "91a41123650ccff12f590364fec95d76af36cc93",
+        "in_channels": None,
+        "size": 224,
+        "license": "see the model card",
+    },
+    "subcell": {
+        "label": "SubCell (CZI / Lundberg lab ViT-B/16, DNA + protein)",
+        "url": ("https://czi-subcell-public.s3.amazonaws.com/models/"
+                "DNA-Protein_ViT-ProtS-Pool.pth"),
+        "in_channels": 2,
+        "size": 448,
+        "license": "MIT",
+    },
+    "cell_dino": {
+        "label": "Cell-DINO (Meta FAIR DINOv2 on the Human Protein Atlas)",
+        "in_channels": None,
+        "size": 224,
+        "license": "FAIR non-commercial research",
+    },
+}
+
+
+def _foundation_names() -> Tuple[str, ...]:
+    """The single-cell foundation models :func:`embed_array` can load by name.
+
+    They are offered beside the ``timm`` backbones. OpenPhenom and ChAda-ViT
+    are channel-adaptive and take any number of channels; SubCell takes two,
+    DNA then the stain of interest; Cell-DINO is listed so a request for it
+    gets a reason rather than an unknown-name error.
+    """
+    return tuple(_FOUNDATION_MODELS)
+
+
+def _backbone_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
+    """The encoder ``spec.backbone`` names: a foundation model or a timm one."""
+    if spec.backbone in _FOUNDATION_MODELS:
+        return _foundation_encoder(spec)
+    return _timm_encoder(spec)
+
+
+def _foundation_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
+    """Load one single-cell foundation model and wrap it as an encoder.
+
+    The returned callable takes ``(n, height, width, k)`` float32 in [0, 1]
+    and returns ``(n, dims)``; its ``in_channels`` attribute tells
+    :func:`embed_array` how many planes ``k`` it wants, ``None`` meaning any.
+    Crops are resized to the size the model was trained at. Weights are
+    downloaded once, at a pinned revision, into the Hugging Face or torch
+    hub cache.
+
+    :raises EmbeddingError: when torch or transformers is missing, or the
+        model's weights are not published.
+    """
+    try:
+        import torch
+    except ImportError as exc:
+        raise EmbeddingError(
+            "foundation-model embeddings need torch; install the "
+            "`spacr[embeddings]` extra") from exc
+    info = _FOUNDATION_MODELS[spec.backbone]
+    device = spec.device or ("cuda" if torch.cuda.is_available() else "cpu")
+    if spec.backbone == "cell_dino":
+        raise EmbeddingError(
+            "Cell-DINO's weights are not published yet (Meta FAIR, "
+            "facebookresearch/dinov2 README_CELL_DINO.md). Choose openphenom, "
+            "chada_vit or subcell, or a timm DINOv2 backbone such as "
+            "vit_small_patch14_dinov2.lvd142m.")
+    if spec.backbone == "subcell":
+        model, forward = _subcell_model(info, torch)
+    else:
+        model, forward = _hub_model(spec.backbone, info, torch)
+    model.eval().to(device)
+    size = int(info["size"])
+
+    def run(stack: np.ndarray) -> np.ndarray:
+        """Encode ``(n, h, w, k)`` crops in batches, resized to the model's size.
+
+        :param stack: float32 in [0, 1], channels last.
+        :returns: ``(n, dims)`` float32 features.
+        """
+        out: List[np.ndarray] = []
+        with torch.no_grad():
+            for start in range(0, stack.shape[0], spec.batch_size):
+                chunk = torch.from_numpy(np.ascontiguousarray(
+                    stack[start:start + spec.batch_size].transpose(0, 3, 1, 2)
+                )).float().to(device)
+                if chunk.shape[-2:] != (size, size):
+                    chunk = torch.nn.functional.interpolate(
+                        chunk, size=(size, size), mode="bilinear",
+                        align_corners=False)
+                out.append(forward(model, chunk).detach().float().cpu().numpy())
+        return np.concatenate(out, axis=0)
+
+    run.in_channels = info["in_channels"]
+    return run
+
+
+def _hub_model(name: str, info: Mapping[str, Any], torch: Any):
+    """A Hugging Face remote-code model and its forward pass.
+
+    :returns: ``(model, forward)``, where ``forward(model, x)`` maps a
+        ``(n, k, h, w)`` tensor in [0, 1] to ``(n, dims)``.
+    """
+    try:
+        from transformers import AutoModel
+    except ImportError as exc:
+        raise EmbeddingError(
+            f"{name} needs the transformers package; pip install "
+            "transformers") from exc
+    model = AutoModel.from_pretrained(info["repo"], revision=info["revision"],
+                                      trust_remote_code=True)
+    if name == "openphenom":
+        model.return_channelwise_embeddings = False
+
+        def forward(net, x):
+            """OpenPhenom's mean patch token; it rescales 0-255 itself."""
+            return net.predict(x * 255.0)
+
+        return model, forward
+    model.return_all_tokens = False
+
+    def forward(net, x):
+        """ChAda-ViT's class token, each crop's channels as one sequence."""
+        n, k, h, w = x.shape
+        flat = torch.nn.functional.instance_norm(x).reshape(n * k, 1, h, w)
+        return net(flat, index=0, list_num_channels=[[k] * n])
+
+    return model, forward
+
+
+def _subcell_model(info: Mapping[str, Any], torch: Any):
+    """SubCell's DNA + protein ViT encoder with its gated attention pooling.
+
+    The published checkpoint holds a Hugging Face ViT under ``encoder.`` and
+    a two-head gated attention pooler under ``pool_model.``; both are loaded
+    strictly, so a changed checkpoint is refused rather than half-loaded.
+    Each crop channel is min-max scaled, as SubCell's own loader does.
+    """
+    try:
+        from transformers import ViTConfig, ViTModel
+    except ImportError as exc:
+        raise EmbeddingError(
+            "subcell needs the transformers package; pip install "
+            "transformers") from exc
+    nn = torch.nn
+    target = os.path.join(torch.hub.get_dir(), "checkpoints",
+                          os.path.basename(info["url"]))
+    if not os.path.exists(target):
+        os.makedirs(os.path.dirname(target), exist_ok=True)
+        torch.hub.download_url_to_file(info["url"], target)
+    state = torch.load(target, map_location="cpu", weights_only=False)
+    config = ViTConfig(hidden_size=768, num_hidden_layers=12,
+                       num_attention_heads=12, intermediate_size=3072,
+                       hidden_dropout_prob=0.0,
+                       attention_probs_dropout_prob=0.0,
+                       layer_norm_eps=1e-12, image_size=448, patch_size=16,
+                       num_channels=2, qkv_bias=True)
+
+    class Pooled(nn.Module):
+        """The ViT's tokens pooled by two gated attention heads."""
+
+        def __init__(self):
+            """Build the ViT and the pooler the checkpoint expects."""
+            super().__init__()
+            self.encoder = ViTModel(config, add_pooling_layer=False)
+            self.attention_v = nn.Sequential(nn.Linear(768, 512), nn.Tanh())
+            self.attention_u = nn.Sequential(nn.Linear(768, 512), nn.GELU())
+            self.attention = nn.Linear(512, 2)
+
+        def forward(self, x):
+            """``(n, 2, h, w)`` to ``(n, 1536)``, the two heads joined."""
+            tokens = self.encoder(
+                x, interpolate_pos_encoding=True).last_hidden_state
+            gate = self.attention(self.attention_v(tokens)
+                                  * self.attention_u(tokens))
+            weights = torch.softmax(gate.permute(0, 2, 1), dim=-1)
+            return torch.bmm(weights, tokens).reshape(x.shape[0], -1)
+
+    model = Pooled()
+    model.load_state_dict({
+        k.replace("pool_model.", "").replace("_v.1.", "_v.0.")
+        .replace("_u.1.", "_u.0."): v for k, v in state.items()})
+
+    def forward(net, x):
+        """Min-max scale each crop channel, then encode."""
+        low = x.amin(dim=(2, 3), keepdim=True)
+        high = x.amax(dim=(2, 3), keepdim=True)
+        return net((x - low) / (high - low).clamp_min(1e-6))
+
+    return model, forward
+
+
+def _retrieval_scorecard(features: Any, labels: Mapping[Any, Any],
+                         k: int = 10) -> Dict[str, float]:
+    """How well one feature matrix separates known phenotypes.
+
+    Every labelled crop is a query against all the others, compared by
+    cosine similarity after the same median-centring, SD-scaling and row
+    normalisation "find cells like this" uses. Three numbers come back,
+    each against the chance a random ordering would give:
+
+    - ``knn_accuracy``: share of crops whose ``k`` nearest neighbours'
+      majority label (ties to the nearer neighbour) is their own.
+    - ``map``: mean average precision of retrieving same-label crops over
+      the full ranking, averaged over queries.
+    - ``precision_at_k``: share of the ``k`` nearest that share the label.
+
+    The whole similarity matrix is held at once, so this is meant for a
+    labelled set of up to a few tens of thousands of crops.
+
+    :param features: numeric frame indexed by crop key, such as
+        :meth:`EmbeddingResult.to_frame` or the measured features.
+    :param labels: crop key to class; blanks are dropped.
+    :param k: neighbours per query.
+    :returns: the metrics, ``chance_map``, ``chance_precision``, ``n`` and
+        ``classes``.
+    :raises ValueError: with fewer than two labelled crops or one class.
+    """
+    from .active_learning import _SimilarityIndex
+
+    index = _SimilarityIndex(features, backend="numpy")
+    pairs = [(str(key), str(value)) for key, value in labels.items()
+             if value is not None and str(value) != "" and str(key) in index]
+    classes = np.asarray([p[1] for p in pairs], dtype=object)
+    if len(pairs) < 2 or len(set(classes)) < 2:
+        raise ValueError(
+            "a scorecard needs at least two labelled crops in two classes")
+    rows = np.asarray([index._position[p[0]] for p in pairs], dtype=np.int64)
+    sub = index._matrix[rows].astype(np.float64)
+    scores = sub @ sub.T
+    np.fill_diagonal(scores, -np.inf)
+    order = np.argsort(-scores, axis=1, kind="stable")[:, :-1]
+    same = classes[order] == classes[:, None]
+    k = max(1, min(int(k), len(pairs) - 1))
+    correct = 0
+    for i in range(len(pairs)):
+        near = list(classes[order[i, :k]])
+        counts = {c: near.count(c) for c in near}
+        best = max(counts.values())
+        vote = next(c for c in near if counts[c] == best)
+        correct += vote == classes[i]
+    ranks = np.arange(1, same.shape[1] + 1)
+    positives = same.sum(axis=1)
+    precision = np.cumsum(same, axis=1) / ranks
+    ap = (precision * same).sum(axis=1) / np.maximum(positives, 1)
+    kept = positives > 0
+    freq = {c: float(np.mean(classes == c)) for c in set(classes)}
+    chance = np.asarray([(freq[c] * len(pairs) - 1) / (len(pairs) - 1)
+                         for c in classes])
+    return {
+        "knn_accuracy": float(correct / len(pairs)),
+        "map": float(ap[kept].mean()),
+        "precision_at_k": float(same[:, :k].mean()),
+        "chance_map": float(chance[kept].mean()),
+        "chance_precision": float(chance.mean()),
+        "n": float(len(pairs)),
+        "classes": float(len(freq)),
+    }
 
 
 #: Key prefix for an encoder's model-zoo entry. Distinct from a checkpoint's
