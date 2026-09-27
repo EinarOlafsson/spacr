@@ -897,6 +897,8 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # + 9: item 538's three unmixing claims in three apps, pinned above.
     # + 14: item 540's seven live/dead claims in two apps, pinned above.
     # + 6: item 580's three calibration claims in two apps, pinned above.
+    # + 0: item 537's three lineage-tree settings belong to the Timelapse
+    # category, which no compared app resolves, so none is compared.
     # + 3: item 543's vendor flat-field profile in three apps, pinned above.
     assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2
             + len(item_541) + len(item_548) + len(item_550)

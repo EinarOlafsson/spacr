@@ -802,6 +802,11 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # correction of a timelapse run's intensities, under its own
     # "Bleach Correction (Alpha)" heading.
     "bleach_correction",
+    # A NEW SETTING GROUP, not a regrouping (item 537, 2026-09-27): lineage
+    # trees from the tracker's division links, appended to the Timelapse
+    # category and shown under "Lineage Trees (Alpha)" on the Timelapse app.
+    "timelapse_lineage", "timelapse_lineage_color_by",
+    "timelapse_lineage_max_distance",
     # NEW SETTINGS, not a regrouping (item 536, 2026-09-26): Measure's
     # scratch-wound closure switch, its source, channel, texture window,
     # frame interval and well-to-condition map, under their own "Wound
@@ -1579,6 +1584,9 @@ def _rendered_sections(app_key):
             "Image Preprocessing (per object)",
             "Object Filtration (all objects)",
             "Quality Control", "Tracking Setup", "Tracking Backends",
+            # Item 537, 2026-09-27: lineage trees are built from the tracks
+            # the backends above produce.
+            "Lineage Trees (Alpha)",
             "Visualization & Diagnostics", "Output & Storage",
             "Runtime & Reliability",
         ]),

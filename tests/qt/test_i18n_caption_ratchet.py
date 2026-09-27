@@ -1153,6 +1153,8 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 550, 2026-09-26: the cloud-storage button on the src field of Make Masks
 # and Measure, and its browser dialog (alpha).
 # 577, 2026-09-26: the Preferences Notifications tab (alpha).
+# 572, 2026-09-26: the figure integrity toggle on the Preferences Figures
+# tab and its tooltip (alpha).
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     # 555, 2026-09-26: the Segment by prompt category (micro-SAM), an alpha
     # feature: its caption, controls, tooltips and console lines.
@@ -1186,6 +1188,10 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     # 544 and 573, 2026-09-26: the Blind switches of Annotate and Make
     # Masks, their notices and questions, and the Lock analysis button and
     # dialog (all alpha).
+    # 537, 2026-09-27: the Lineage Trees (Alpha) category help on Timelapse.
+    "Lineage trees drawn from the tracker's division links after each field "
+    'is tracked, coloured by a measurement, with Newick and CSV export and '
+    'per-lineage generation times and sibling correlation.',
     # 539, 2026-09-26: the Bleach Correction (Alpha) category help on Measure.
     'Photobleaching correction for timelapse intensities, per field and '
     'channel: a simple ratio to the first timepoint, a fitted exponential '
@@ -1209,6 +1215,8 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'channels is estimated from single-stain control wells, and every field '
     'is unmixed with that matrix before it is segmented or measured. The '
     'matrix is printed and recorded with the run.',
+    'Check figure integrity on export',
+    "When an image figure or montage is saved, warn if panels meant for comparison use different display ranges, if pixels are saturated or clipped, if a panel is repeated, or if a lossy format was chosen. Also writes the source files, display settings, processing steps and spaCR version into the file's metadata and a .provenance.json file beside it. Default off.",
 })
 
 

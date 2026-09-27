@@ -1125,6 +1125,9 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('ultrack_n_workers', 1)
     settings.setdefault('timeflows_model', None)
     settings.setdefault('timelapse_objects', ['cell'])
+    settings.setdefault('timelapse_lineage', False)
+    settings.setdefault('timelapse_lineage_color_by', 'generation_time')
+    settings.setdefault('timelapse_lineage_max_distance', 30.0)
 
     settings.setdefault('save_original_images', True)
     settings.setdefault('keep_intermediate', False)
@@ -3344,6 +3347,9 @@ expected_types = {
     "ultrack_n_workers": int,
     "timeflows_model": (str, type(None)),
     "timelapse_objects": list,
+    "timelapse_lineage": bool,
+    "timelapse_lineage_color_by": str,
+    "timelapse_lineage_max_distance": (int, float),
     "fps": int,
     "lower_percentile": (int, float),
     "merge_pathogens": bool,
@@ -4929,6 +4935,9 @@ tooltips = {
     "ultrack_n_workers": "(int) - How many worker processes Ultrack runs during its candidate-segmentation and linking passes; they all write into the same temporary sqlite store, so extra workers cut wall-clock on long movies but add database contention and memory. Leave it at one for short batches or a busy machine. Only consulted when timelapse_mode='ultrack'. Default 1.",
     "timelapse_frame_limits": "(list) - Slice of frame indices [start, end] kept from each batch before tracking, e.g. [0,10] to work on the first ten frames while tuning settings. The list is ignored unless it has at least two elements, which is why the shipped default [5,] has no effect. Default [5,].",
     "timelapse_objects": "(list) - Which segmented objects are tracked across frames and relabelled with track IDs: any subset of ['cell', 'nucleus', 'pathogen']; any other value aborts the run with a message. Each extra entry costs a full additional tracking pass. Tracking nuclei is often more stable than cells when cells touch. Default ['cell'].",
+    "timelapse_lineage": "(bool) - After tracking each field, build lineage trees from the tracker's division links: a tree figure coloured by timelapse_lineage_color_by, Newick trees, a per-cell segment table and per-lineage statistics (generation time in frames, sibling correlation), written to tracks/lineage. Trackastra division links are used as reported; for other trackers a division is inferred where new tracks start beside a mother. Default False.",
+    "timelapse_lineage_color_by": "(str) - What colours each cell in the lineage trees: generation_time, generation, start_frame or n_frames, or the name of a numeric column of the tracks table, averaged over the cell's frames. An unknown name falls back to generation_time with a message. Ignored unless timelapse_lineage. Default generation_time.",
+    "timelapse_lineage_max_distance": "(float) - Largest distance in pixels between a mother's last position and a new track's first position for the new track to count as her daughter when divisions are inferred. Raise it for large cells or long frame intervals, lower it when neighbours are wrongly joined. Not used for division links the tracker reports. Ignored unless timelapse_lineage. Default 30.0.",
     "timelapse_remove_transient": "(bool) - After linking, drop every track not present in all frames (trackpy filter_stubs over the full stack length), keeping only objects tracked from first frame to last. Enable for clean per-object time courses; expect to lose cells that divide, enter or leave the field, so object counts fall. Default False.",
     "timelapse": "(bool) - Treat each well/field as a time series instead of independent images: files are grouped into time stacks, randomization is switched off, per-channel movies are written, objects in timelapse_objects are tracked across frames, a timeID column is added to the measurement tables, and measure_crop stops writing single-object PNGs. Only enable when filenames carry a time index. Default False.",
     "pathogen_min_size": "(int) - (Deprecated) Minimum pathogen object area in pixels squared, applied during measurement: any label with fewer pixels than this is erased from the pathogen mask before features are extracted. 0, the default, disables it. Superseded by an 'area' row for pathogen in object_filters, which filters at segmentation time instead.",
@@ -5256,7 +5265,7 @@ def _name_the_family_in_every_estimator_tooltip():
 
 _name_the_family_in_every_estimator_tooltip()
 
-timelapse_settings = ['fps', 'timelapse_mode', 'trackastra_model', 'trackastra_linking', 'ultrack_max_distance', 'ultrack_division_weight', 'ultrack_contour_sigma', 'ultrack_n_workers', 'timeflows_model', 'timelapse_displacement', 'timelapse_memory', 'timelapse_frame_limits', 'timelapse_remove_transient', 'timelapse_objects']
+timelapse_settings = ['fps', 'timelapse_mode', 'trackastra_model', 'trackastra_linking', 'ultrack_max_distance', 'ultrack_division_weight', 'ultrack_contour_sigma', 'ultrack_n_workers', 'timeflows_model', 'timelapse_displacement', 'timelapse_memory', 'timelapse_frame_limits', 'timelapse_remove_transient', 'timelapse_objects', 'timelapse_lineage', 'timelapse_lineage_color_by', 'timelapse_lineage_max_distance']
 
 motility_settings = ['motility_analysis','tracked_object', 'infection_intensity_strategy', 'seconds_per_frame', 'pixels_per_um', 'motility_ylim', 'motility_xlim', 'infection_intensity_qc_scope']
 
@@ -7134,6 +7143,9 @@ ALPHA_FEATURES = {
                      'time_to_event_conditions', 'time_to_event_reference',
                      'time_to_event_covariates'),
     },
+    572: {
+        'widgets': ('FigureIntegrityCheck',),
+    },
     573: {
         'widgets': ('AnalysisLockButton',),
     },
@@ -7157,6 +7169,10 @@ ALPHA_FEATURES = {
     },
     538: {
         'settings': ('unmix', 'unmix_controls', 'unmix_background_percentile'),
+    },
+    537: {
+        'settings': ('timelapse_lineage', 'timelapse_lineage_color_by',
+                     'timelapse_lineage_max_distance'),
     },
     543: {
         'settings': ('illumination_vendor_profile',),
