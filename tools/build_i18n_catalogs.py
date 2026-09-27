@@ -276,6 +276,12 @@ _IDENTITY_TEXT = {
     "3D", "API", "CPU", "CUDA", "CV", "DNA", "EC50", "Eps", "FOV", "GPU",
     "CSV", "Cellpose-SAM", "DINOCell", "FlowView", "JSON", "MIP", "ML",
     "NaN", "PDF", "SAMCell", "Cellpose 3", "SpotNet (DeepCell)",
+    # 316, 2026-09-26: the Model Zoo's backend names (items 547/555), shown
+    # alone as zoo rows; like DINOCell and SAMCell they are product names.
+    "InstanSeg", "Omnipose", "StarDist", "micro-SAM",
+    # 316, 2026-09-26: the notification services named alone as Preferences
+    # rows (item 577).
+    "ntfy", "Slack",
     "PNG", "QC", "RGB",
     "RNA", "ROI", "SAM", "SHAP", "SQL", "TIFF", "UMAP", "ViT", "X",
     "XGBoost", "Y",

@@ -1,6 +1,6 @@
 PHOTOBLEACHING CORRECTION FOR EVERY TIMELAPSE
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED AS ALPHA 2026-09-26
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 
@@ -22,3 +22,43 @@ WHAT TO BUILD
 DONE WHEN
     A bleaching series corrects to a flat background trend; corrected
     intensities are recorded with the method.
+
+ALPHA: 2026-09-26. Hidden behind Preferences -> "Show alpha features";
+registered as ALPHA_FEATURES[539] = {'settings': ('bleach_correction',)}.
+
+WHAT WAS BUILT (2026-09-26)
+    Measure setting bleach_correction (none / ratio / exponential /
+    histogram, default none) under its own "Bleach Correction (Alpha)"
+    heading. When a timelapse Measure run finishes,
+    spacr.timelapse._correct_timelapse_bleaching reads every object table
+    (cell, nucleus, pathogen, cytoplasm) and, per field and per channel,
+    takes the background trend as the per-timepoint median of
+    <object>_channel_<n>_mean_intensity:
+      - ratio: each timepoint rescaled so the trend equals the first one;
+      - exponential: a*exp(-b*t)+c fitted to the trend (the same model the
+        calcium analysis uses), each timepoint rescaled by f(0)/f(t); a
+        failed or too-short fit falls back to the ratio and says so
+        (method "ratio_fallback");
+      - histogram: each column at each timepoint mapped rank-for-rank onto
+        that column's distribution at the first timepoint.
+    Level columns (mean/median/max/min/integrated/mode intensity and
+    percentiles) are corrected; spread/shape columns are left alone.
+    Output: measurements.db:<object>_bleach_corrected (keys + corrected
+    columns under their measured names + bleach_correction_method), and
+    measurements.db:bleach_correction (per field and channel: method,
+    timepoints, trend first/last before and after, decay_a/b/c, half_life).
+    The measured tables are not modified. The trend, fitted decay and
+    corrected trend are plotted per channel to
+    results/bleach_correction/<object>.pdf (through spacr.plot.save_figure).
+    Verified on a synthetic bleaching series (two channels, two fields):
+    every method flattens the trend to within 2 %; the exponential fit
+    recovers the decay rate (tests/test_bleach_correction.py). CPU only.
+
+WHAT IS LEFT
+    - Histogram matching works on the per-object measurement distributions,
+      not on pixel histograms of the images; an image-level variant would
+      have to run before measurement.
+    - The motility assay (automated_motility_assay) and the calcium analysis
+      still use their own intensity paths; wiring them to these helpers, and
+      greying bleach_correction when timelapse is off, are not done.
+    - No run on a real bleaching timelapse yet.

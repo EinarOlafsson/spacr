@@ -4953,6 +4953,584 @@ def _apply_alpha_widgets(root) -> int:
     return changed
 
 
+_KEY_NOTIFY_PREFIX = "notify/"
+_KEY_NOTIFY_SAVED_SECRETS = "notify/saved_secrets"
+
+_NOTIFY_DEFAULTS = {
+    "enabled": False,
+    "when": "always",
+    "min_minutes": 5,
+    "desktop": True,
+    "email": False,
+    "smtp_host": "",
+    "smtp_port": 587,
+    "smtp_security": "starttls",
+    "smtp_user": "",
+    "email_from": "",
+    "email_to": "",
+    "slack": False,
+    "ntfy": False,
+    "ntfy_server": "https://ntfy.sh",
+}
+"""Run-finished notification preferences and what a fresh install holds."""
+
+_NOTIFY_WHEN = ("always", "failed")
+_NOTIFY_SECURITY = ("starttls", "ssl", "none")
+_NOTIFY_ALPHA_WIDGET = "NotifyRunsEnabled"
+
+
+def _get_run_notifications() -> dict:
+    """The stored run-finished notification preferences, secrets excluded.
+
+    Every value falls back to :data:`_NOTIFY_DEFAULTS` when it is missing or
+    unreadable.
+
+    :returns: a dict with the keys of :data:`_NOTIFY_DEFAULTS`.
+    """
+    store = _settings()
+    out = {}
+    for key, default in _NOTIFY_DEFAULTS.items():
+        raw = store.value(_KEY_NOTIFY_PREFIX + key, default)
+        if isinstance(default, bool):
+            out[key] = _as_bool(raw, default)
+        elif isinstance(default, int):
+            try:
+                out[key] = int(raw)
+            except (TypeError, ValueError):
+                out[key] = default
+        else:
+            out[key] = str(raw if raw is not None else default).strip()
+    if out["when"] not in _NOTIFY_WHEN:
+        out["when"] = _NOTIFY_DEFAULTS["when"]
+    if out["smtp_security"] not in _NOTIFY_SECURITY:
+        out["smtp_security"] = _NOTIFY_DEFAULTS["smtp_security"]
+    out["min_minutes"] = max(0, min(1440, out["min_minutes"]))
+    if not 1 <= out["smtp_port"] <= 65535:
+        out["smtp_port"] = _NOTIFY_DEFAULTS["smtp_port"]
+    return out
+
+
+def _saved_notification_secrets() -> frozenset:
+    """Which notification secrets have been saved, by name, never by value."""
+    raw = _settings().value(_KEY_NOTIFY_SAVED_SECRETS, "")
+    if isinstance(raw, (list, tuple)):
+        raw = ",".join(str(part) for part in raw)
+    return frozenset(part for part in str(raw or "").split(",") if part)
+
+
+def _set_run_notifications(values: dict, secrets=None) -> None:
+    """Store run-finished notification preferences and any new secrets.
+
+    Secrets go to the OS keyring, or without one to a file only the user can
+    read; the preference store keeps only which ones are saved. An empty
+    secret leaves the saved one as it is.
+
+    :param values: any of the keys of :data:`_NOTIFY_DEFAULTS`.
+    :param secrets: optional ``{name: value}`` for the names in
+        ``spacr.run_journal._NOTIFY_SECRET_NAMES``.
+    """
+    store = _settings()
+    for key in _NOTIFY_DEFAULTS:
+        if key in values:
+            store.setValue(_KEY_NOTIFY_PREFIX + key, values[key])
+    saved = set(_saved_notification_secrets())
+    if secrets:
+        from ..run_journal import _store_notify_secret
+
+        for name, value in secrets.items():
+            if value:
+                _store_notify_secret(name, value)
+                saved.add(name)
+    store.setValue(_KEY_NOTIFY_SAVED_SECRETS, ",".join(sorted(saved)))
+    store.sync()
+
+
+def _forget_run_notification_secrets() -> None:
+    """Delete every saved notification secret from the keyring and the file."""
+    from ..run_journal import _NOTIFY_SECRET_NAMES, _store_notify_secret
+
+    for name in _NOTIFY_SECRET_NAMES:
+        _store_notify_secret(name, "")
+    store = _settings()
+    store.setValue(_KEY_NOTIFY_SAVED_SECRETS, "")
+    store.sync()
+
+
+def _run_notification_config():
+    """The notification settings a closing run is announced with, or None.
+
+    None unless notifications are switched on, at least one channel is
+    ready, and the Show alpha features gate shows them: a configuration the
+    gate hides sends nothing.
+
+    :returns: the stored preferences with ``desktop``, ``email``, ``slack``
+        and ``ntfy`` reduced to the channels that are ready, or ``None``.
+    """
+    if not _is_alpha_visible("widgets", _NOTIFY_ALPHA_WIDGET):
+        return None
+    values = _get_run_notifications()
+    if not values["enabled"]:
+        return None
+    saved = _saved_notification_secrets()
+    values["email"] = bool(values["email"] and values["smtp_host"]
+                           and values["email_to"])
+    values["slack"] = bool(values["slack"] and "slack_webhook" in saved)
+    values["ntfy"] = bool(values["ntfy"] and "ntfy_topic" in saved)
+    values["desktop"] = bool(values["desktop"])
+    if not any(values[name] for name in ("desktop", "email", "slack",
+                                         "ntfy")):
+        return None
+    return values
+
+
+class _NotificationsPage:
+    """The Notifications tab: when and how a finished or failed run is told.
+
+    Secrets are never read back into the dialog: a secret field is empty,
+    says whether one is saved, and replaces it only when something is typed.
+
+    :param form: the tab's form layout, from the dialog's ``_page``.
+    :param dialog: the Preferences dialog.
+    """
+
+    def __init__(self, form, dialog) -> None:
+        """Build every row, reading the stored values."""
+        from PySide6.QtWidgets import (QComboBox, QLabel, QLineEdit,
+                                       QPushButton, QSpinBox)
+
+        from .i18n import tr
+        from .widgets.toggle import Toggle
+
+        self._dialog = dialog
+        self._thread = None
+        self._timer = None
+        values = _get_run_notifications()
+
+        help_label = QLabel(tr(
+            "spaCR can tell you when a long run finishes or fails: on this "
+            "computer's desktop, by email, in Slack or through ntfy. Nothing "
+            "is sent until you switch it on here. Passwords and addresses "
+            "that work like passwords are kept in the system keyring."))
+        help_label.setWordWrap(True)
+        help_label.setObjectName("NotifyTabHelp")
+        form.addRow(help_label)
+
+        self.enabled = Toggle()
+        self.enabled.setObjectName("NotifyRunsEnabled")
+        self.enabled.setToolTip(
+            "Announce every run that finishes or fails, by the ways switched "
+            "on below, with its name, duration, outcome, a short QC summary "
+            "and where its output is. Runs from the app and from the command "
+            "line are both announced. A run you cancel is not. Default off.")
+        form.addRow(tr("Notify me"), self.enabled)
+
+        self.when = QComboBox()
+        self.when.setObjectName("NotifyRunsWhen")
+        self.when.addItem(tr("When a run finishes or fails"), "always")
+        self.when.addItem(tr("Only when a run fails"), "failed")
+        self.when.setToolTip(
+            "Which runs are announced: every run that ends, or only the ones "
+            "that fail. Default when a run finishes or fails.")
+        form.addRow(tr("When"), self.when)
+
+        self.min_minutes = QSpinBox()
+        self.min_minutes.setObjectName("NotifyRunsMinMinutes")
+        self.min_minutes.setRange(0, 1440)
+        self.min_minutes.setSuffix(tr(" min"))
+        self.min_minutes.setToolTip(
+            "Only runs that took at least this long are announced, so a "
+            "quick run you are watching does not send anything. 0 announces "
+            "every run. Default 5 min.")
+        form.addRow(tr("Runs longer than"), self.min_minutes)
+
+        self.desktop = Toggle()
+        self.desktop.setObjectName("NotifyDesktop")
+        self.desktop.setToolTip(
+            "Show a notification on this computer, from the system tray "
+            "while the app is open, or through the desktop's own "
+            "notifications for a command-line run. Default on.")
+        form.addRow(tr("Desktop"), self.desktop)
+
+        self.email = Toggle()
+        self.email.setObjectName("NotifyEmail")
+        self.email.setToolTip(
+            "Send an email through the SMTP server below. Your institution's "
+            "or mail provider's server works; many need an app password "
+            "rather than your usual one. Default off.")
+        form.addRow(tr("Email"), self.email)
+
+        def line(tip, placeholder="", secret=False):
+            """A text field with its tooltip and placeholder."""
+            field = QLineEdit()
+            field.setToolTip(tip)
+            if placeholder:
+                field.setPlaceholderText(placeholder)
+            if secret:
+                field.setEchoMode(QLineEdit.Password)
+            return field
+
+        self.smtp_host = line(
+            "The outgoing mail server, for example smtp.example.org. "
+            "Default empty.", "smtp.example.org")
+        self.smtp_host.setObjectName("NotifySmtpHost")
+        form.addRow(tr("SMTP server"), self.smtp_host)
+
+        self.smtp_port = QSpinBox()
+        self.smtp_port.setObjectName("NotifySmtpPort")
+        self.smtp_port.setRange(1, 65535)
+        self.smtp_port.setToolTip(
+            "The server's port: usually 587 with STARTTLS, 465 with SSL. "
+            "Default 587.")
+        form.addRow(tr("SMTP port"), self.smtp_port)
+
+        self.smtp_security = QComboBox()
+        self.smtp_security.setObjectName("NotifySmtpSecurity")
+        self.smtp_security.addItem("STARTTLS", "starttls")
+        self.smtp_security.addItem("SSL", "ssl")
+        self.smtp_security.addItem(tr("None"), "none")
+        self.smtp_security.setToolTip(
+            "How the connection to the mail server is encrypted. None sends "
+            "the password in the clear and is only for a server on your own "
+            "network. Default STARTTLS.")
+        form.addRow(tr("Encryption"), self.smtp_security)
+
+        self.smtp_user = line(
+            "The name you sign in to the mail server with, often your email "
+            "address. Leave empty for a server that needs no sign-in. "
+            "Default empty.")
+        self.smtp_user.setObjectName("NotifySmtpUser")
+        form.addRow(tr("SMTP user name"), self.smtp_user)
+
+        self.smtp_password = line(
+            "The mail server password. Kept in the system keyring, or "
+            "without one in a file only you can read, and never written to "
+            "a log. Leave empty to keep the saved one. Default empty.",
+            secret=True)
+        self.smtp_password.setObjectName("NotifySmtpPassword")
+        form.addRow(tr("SMTP password"), self.smtp_password)
+
+        self.email_from = line(
+            "The sender address. Empty uses the user name. Default empty.")
+        self.email_from.setObjectName("NotifyEmailFrom")
+        form.addRow(tr("From"), self.email_from)
+
+        self.email_to = line(
+            "Who is told, one or more addresses separated by commas. "
+            "Default empty.", "you@example.org")
+        self.email_to.setObjectName("NotifyEmailTo")
+        form.addRow(tr("To"), self.email_to)
+
+        self.slack = Toggle()
+        self.slack.setObjectName("NotifySlack")
+        self.slack.setToolTip(
+            "Post to a Slack channel through an incoming webhook. Default "
+            "off.")
+        form.addRow(tr("Slack"), self.slack)
+
+        self.slack_webhook = line(
+            "The incoming-webhook address Slack gives you, starting "
+            "https://hooks.slack.com/. Anyone with it can post to the "
+            "channel, so it is kept like a password. Leave empty to keep the "
+            "saved one. Default empty.", secret=True)
+        self.slack_webhook.setObjectName("NotifySlackWebhook")
+        form.addRow(tr("Slack webhook"), self.slack_webhook)
+
+        self.ntfy = Toggle()
+        self.ntfy.setObjectName("NotifyNtfy")
+        self.ntfy.setToolTip(
+            "Publish to an ntfy topic, which the ntfy phone app or web page "
+            "shows as a push notification. Default off.")
+        form.addRow(tr("ntfy"), self.ntfy)
+
+        self.ntfy_server = line(
+            "The ntfy server: the public one, or your own. Default "
+            "https://ntfy.sh.", "https://ntfy.sh")
+        self.ntfy_server.setObjectName("NotifyNtfyServer")
+        form.addRow(tr("ntfy server"), self.ntfy_server)
+
+        self.ntfy_topic = line(
+            "The topic to publish to. On a public server anyone who knows "
+            "the topic can read it, so choose one nobody would guess; it is "
+            "kept like a password. Leave empty to keep the saved one. "
+            "Default empty.", secret=True)
+        self.ntfy_topic.setObjectName("NotifyNtfyTopic")
+        form.addRow(tr("ntfy topic"), self.ntfy_topic)
+
+        self.ntfy_token = line(
+            "An access token, for a server or topic that needs one. Kept "
+            "like a password. Leave empty to keep the saved one. Default "
+            "empty.", secret=True)
+        self.ntfy_token.setObjectName("NotifyNtfyToken")
+        form.addRow(tr("ntfy access token"), self.ntfy_token)
+
+        self.send_test = QPushButton(tr("Send a test"))
+        self.send_test.setObjectName("NotifySendTest")
+        self.send_test.setToolTip(
+            "Send a test message now by every way switched on above, using "
+            "what is typed here, and say which got through. Nothing is "
+            "saved. Default not sent.")
+        self.send_test.clicked.connect(self._send_test)
+        form.addRow(tr("Try it"), self.send_test)
+
+        self.forget = QPushButton(tr("Forget saved secrets"))
+        self.forget.setObjectName("NotifyForgetSecrets")
+        self.forget.setToolTip(
+            "Delete the saved mail password, Slack webhook and ntfy topic "
+            "and token from the keyring and from spaCR's own file, at once. "
+            "Default kept.")
+        self.forget.clicked.connect(self._forget)
+        form.addRow(tr("Saved secrets"), self.forget)
+
+        self.test_result = QLabel("")
+        self.test_result.setObjectName("NotifyTestResult")
+        self.test_result.setWordWrap(True)
+        form.addRow(self.test_result)
+
+        self._secrets = {
+            "smtp_password": self.smtp_password,
+            "slack_webhook": self.slack_webhook,
+            "ntfy_topic": self.ntfy_topic,
+            "ntfy_token": self.ntfy_token,
+        }
+        self._show(values)
+        self._mark_saved_secrets()
+        for toggle in (self.email, self.slack, self.ntfy):
+            toggle.toggled.connect(lambda _on: self._sync())
+        self._sync()
+
+    def _show(self, values: dict) -> None:
+        """Put ``values`` into the controls; secret fields are cleared."""
+        self.enabled.setChecked(bool(values["enabled"]))
+        self.when.setCurrentIndex(max(0, self.when.findData(values["when"])))
+        self.min_minutes.setValue(int(values["min_minutes"]))
+        self.desktop.setChecked(bool(values["desktop"]))
+        self.email.setChecked(bool(values["email"]))
+        self.smtp_host.setText(values["smtp_host"])
+        self.smtp_port.setValue(int(values["smtp_port"]))
+        self.smtp_security.setCurrentIndex(
+            max(0, self.smtp_security.findData(values["smtp_security"])))
+        self.smtp_user.setText(values["smtp_user"])
+        self.email_from.setText(values["email_from"])
+        self.email_to.setText(values["email_to"])
+        self.slack.setChecked(bool(values["slack"]))
+        self.ntfy.setChecked(bool(values["ntfy"]))
+        self.ntfy_server.setText(values["ntfy_server"])
+        for field in self._secrets.values():
+            field.clear()
+
+    def _mark_saved_secrets(self) -> None:
+        """Say in each secret field whether a secret is saved for it."""
+        from .i18n import tr
+
+        saved = _saved_notification_secrets()
+        for name, field in self._secrets.items():
+            field.setPlaceholderText(
+                tr("Saved; type to replace") if name in saved
+                else tr("Not saved"))
+
+    def _sync(self) -> None:
+        """A channel's fields are editable only while it is switched on."""
+        for toggle, fields in (
+                (self.email, (self.smtp_host, self.smtp_port,
+                              self.smtp_security, self.smtp_user,
+                              self.smtp_password, self.email_from,
+                              self.email_to)),
+                (self.slack, (self.slack_webhook,)),
+                (self.ntfy, (self.ntfy_server, self.ntfy_topic,
+                             self.ntfy_token))):
+            for field in fields:
+                field.setEnabled(toggle.isChecked())
+
+    def values(self) -> dict:
+        """What the controls hold, secrets excluded."""
+        return {
+            "enabled": self.enabled.isChecked(),
+            "when": self.when.currentData(),
+            "min_minutes": self.min_minutes.value(),
+            "desktop": self.desktop.isChecked(),
+            "email": self.email.isChecked(),
+            "smtp_host": self.smtp_host.text().strip(),
+            "smtp_port": self.smtp_port.value(),
+            "smtp_security": self.smtp_security.currentData(),
+            "smtp_user": self.smtp_user.text().strip(),
+            "email_from": self.email_from.text().strip(),
+            "email_to": self.email_to.text().strip(),
+            "slack": self.slack.isChecked(),
+            "ntfy": self.ntfy.isChecked(),
+            "ntfy_server": (self.ntfy_server.text().strip()
+                            or _NOTIFY_DEFAULTS["ntfy_server"]),
+        }
+
+    def secrets(self) -> dict:
+        """The secrets typed into the dialog, by name; empty ones left out."""
+        return {name: field.text() for name, field in self._secrets.items()
+                if field.text()}
+
+    def save(self) -> None:
+        """Store the controls, and any secret that was typed."""
+        _set_run_notifications(self.values(), self.secrets())
+
+    def reset(self) -> None:
+        """Put the controls back to a fresh install's values.
+
+        Saved secrets are not touched; Forget saved secrets does that.
+        """
+        self._show(_get_run_notifications())
+        self._sync()
+
+    def _forget(self) -> None:
+        """Delete every saved secret now and say so."""
+        from .i18n import tr
+
+        try:
+            _forget_run_notification_secrets()
+            self.test_result.setText(tr("Saved secrets forgotten."))
+        except Exception as exc:
+            LOG.warning("could not forget the notification secrets (%s)",
+                        type(exc).__name__)
+            self.test_result.setText(tr("Could not forget the saved "
+                                        "secrets."))
+        self._mark_saved_secrets()
+
+    def _send_test(self):
+        """Send a test message by the channels switched on, off the GUI thread.
+
+        :returns: the sending thread, or ``None`` when no channel is on.
+        """
+        from PySide6.QtCore import QTimer
+
+        from ..run_journal import _dispatch_notification
+        from .i18n import tr
+
+        trial = self.values()
+        trial["secrets"] = self.secrets()
+        if not any(trial[name] for name in ("desktop", "email", "slack",
+                                             "ntfy")):
+            self.test_result.setText(tr(
+                "Switch on at least one way to be told first."))
+            return None
+        message = {
+            "title": tr("spaCR test notification"),
+            "body": tr("If you can read this, spaCR can tell you when a run "
+                       "finishes or fails."),
+            "failed": False,
+        }
+        self.send_test.setEnabled(False)
+        self.test_result.setText(tr("Sending…"))
+        self._thread = _dispatch_notification(message, trial)
+        self._timer = QTimer(self.test_result)
+        self._timer.setInterval(200)
+        self._timer.timeout.connect(self._test_finished)
+        self._timer.start()
+        return self._thread
+
+    def _test_finished(self) -> bool:
+        """Report the test once its thread is done.
+
+        :returns: ``True`` when the result was shown.
+        """
+        from .i18n import tr
+
+        thread = self._thread
+        if thread is None or thread.is_alive():
+            return False
+        if self._timer is not None:
+            self._timer.stop()
+        results = dict(getattr(thread, "results", {}) or {})
+        sent = [name for name, result in results.items() if result == "sent"]
+        failed = [f"{name} ({result})" for name, result in results.items()
+                  if result != "sent"]
+        lines = []
+        if sent:
+            lines.append(tr("Sent: {channels}").format(
+                channels=", ".join(sent)))
+        if failed:
+            lines.append(tr("Not sent: {channels}").format(
+                channels="; ".join(failed)))
+        try:
+            self.test_result.setText("\n".join(lines))
+            self.send_test.setEnabled(True)
+        except RuntimeError:
+            return False
+        return True
+
+
+def _install_run_notifier(app=None):
+    """Let run-finished notifications reach this app's desktop.
+
+    Installs the desktop sender the run journal calls from whichever thread
+    closed the run. The message is carried to the GUI thread and shown from
+    a system tray icon, or, where the desktop has no tray, by the operating
+    system's own notification command.
+
+    :param app: the ``QApplication``; falls back to the running one.
+    :returns: the relay object, or ``None`` without an application.
+    """
+    import threading
+
+    from PySide6.QtCore import QObject, QTimer, Signal, Slot
+    from PySide6.QtWidgets import QApplication, QStyle, QSystemTrayIcon
+
+    from .. import run_journal
+
+    app = app or QApplication.instance()
+    if app is None:
+        return None
+    existing = app.findChild(QObject, "RunFinishedNotifier")
+    if existing is not None:
+        run_journal._DESKTOP_NOTIFIER[0] = existing.arrived.emit
+        return existing
+
+    def _without_qt(title: str, body: str) -> None:
+        """The operating system's notification, any failure logged."""
+        try:
+            run_journal._desktop_os_notify(title, body)
+        except Exception as exc:
+            LOG.info("no desktop notification shown (%s)", exc)
+
+    class _RunFinishedRelay(QObject):
+        """Carries a message from the thread that sent it to the GUI thread."""
+
+        arrived = Signal(str, str, bool)
+
+        def __init__(self, parent) -> None:
+            """Listen for messages on the thread this object lives in."""
+            super().__init__(parent)
+            self.setObjectName("RunFinishedNotifier")
+            self._tray = None
+            self.arrived.connect(self._show)
+
+        @Slot(str, str, bool)
+        def _show(self, title: str, body: str, failed: bool) -> None:
+            """Show one message from the tray, or without Qt when none."""
+            try:
+                if not QSystemTrayIcon.isSystemTrayAvailable():
+                    threading.Thread(target=_without_qt, args=(title, body),
+                                     daemon=True).start()
+                    return
+                if self._tray is None:
+                    icon = app.windowIcon()
+                    if icon.isNull():
+                        icon = app.style().standardIcon(
+                            QStyle.StandardPixmap.SP_MessageBoxInformation)
+                    self._tray = QSystemTrayIcon(icon, self)
+                    self._tray.setToolTip("spaCR")
+                self._tray.show()
+                self._tray.showMessage(
+                    title, body,
+                    (QSystemTrayIcon.MessageIcon.Critical if failed
+                     else QSystemTrayIcon.MessageIcon.Information), 15000)
+                QTimer.singleShot(20000, self._tray.hide)
+            except Exception:
+                LOG.debug("could not show the run notification",
+                          exc_info=True)
+
+    relay = _RunFinishedRelay(app)
+    run_journal._DESKTOP_NOTIFIER[0] = relay.arrived.emit
+    return relay
+
+
+
 def color_blind_continuous_cmap() -> str:
     """Return a matplotlib colormap name safe for the active CB mode.
 
@@ -7378,6 +7956,11 @@ class PreferencesDialog:
         quit_button.clicked.connect(lambda: _quit_spacr(dlg))
         performance.addRow(tr("Application"), quit_button)
 
+        notifications_page = None
+        if _is_alpha_visible("widgets", _NOTIFY_ALPHA_WIDGET):
+            notifications_page = _NotificationsPage(
+                _page("Notifications", "PreferencesTabNotifications"), dlg)
+
         sound_page = None
         if sound_is_offered():
             from .sound_preferences import SoundPage
@@ -7536,6 +8119,8 @@ class PreferencesDialog:
                 alpha_features_check.setChecked(_get_show_alpha_features())
                 if sound_page is not None:
                     sound_page.reset()
+                if notifications_page is not None:
+                    notifications_page.reset()
             finally:
                 _settings = original
 
@@ -7684,6 +8269,12 @@ class PreferencesDialog:
                                    headroom_spin.value())
             if sound_page is not None:
                 sound_page.save()
+            if notifications_page is not None:
+                try:
+                    notifications_page.save()
+                except Exception as exc:                     # noqa: BLE001
+                    LOG.warning("could not save the notification settings "
+                                "(%s)", type(exc).__name__)
             apply_preferences_to_app()
             _refresh_owner_window(parent)
             dlg.accept()

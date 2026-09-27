@@ -1152,171 +1152,32 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 570, 2026-09-26: the Control Charts hit-scoring option (alpha).
 # 550, 2026-09-26: the cloud-storage button on the src field of Make Masks
 # and Measure, and its browser dialog (alpha).
+# 577, 2026-09-26: the Preferences Notifications tab (alpha).
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
-    'Show alpha features',
-    'Show the settings, controls, screens and models built from the '
-    'future-features list that are not yet released. Off hides them; saved '
-    'values still reach every run.',
-    'GPU {device}: {done}/{total} {state}',
-    'Mask generation: segment batches on every GPU allocated to the job',
-    'Needs two or more compatible CUDA or ROCm GPUs; {count} found on this '
-    'computer. Cluster Distribution runs use the GPUs allocated to the job.',
-    'Submits mask_parallel on with a blank mask_gpu_indices, so the job uses '
-    'exactly the GPUs its scheduler allocates, one model per GPU. Request them '
-    'in the execution profile, for example --gres=gpu:2. A job given one GPU '
-    'runs on that one.',
-    'Used only when mask_parallel is on. {count} GPUs found.',
-    'done',
-    'running',
-    'starting',
-    'stopped',
-    '{done}/{total} {role} batches done, {failed} failed',
     # 555, 2026-09-26: the Segment by prompt category (micro-SAM), an alpha
     # feature: its caption, controls, tooltips and console lines.
-    'Segment by prompt',
-    'Click on one object, or drag a box round it, and micro-SAM outlines '
-    'it. Right-click marks what is not the object. Enter adds the outline '
-    'as a new object.',
-    'Prompt with micro-SAM',
-    'While on, a left click on the image marks the object, a right click '
-    'marks what is not the object and a left drag draws a box round it. '
-    'micro-SAM runs in an environment of its own; the first click on a '
-    'field waits while it embeds the field, and later clicks reuse that '
-    'embedding. If micro-SAM is not installed, turning this on offers to '
-    'install it. The Live magnifier is turned off while this is on. '
-    'Default off.',
-    'What the accepted object does where the mask already has an object. '
-    'Clip keeps only its unlabelled pixels, so no existing object loses a '
-    'pixel. Skip adds nothing if it touches an existing object. Replace '
-    'lets it take every pixel it covers, which is how an object a model '
-    'split into pieces is made one again. Default Clip.',
-    'Add object',
-    "Add the outline micro-SAM drew as one new object: one edit, undone by "
-    "one Ctrl+Z, written by Save mask and recorded in the field's curation "
-    "ledger with the prompt, the model and the micro-SAM version. Enter on "
-    "the image does the same. Default unavailable until an outline is "
-    "shown.",
-    'Throw away the points, the box and the outline, and start again on '
-    'another object. Nothing had been added to the mask. Escape on the '
-    'image does the same. Default unavailable until there is a prompt.',
-    'Nothing was added: under the Overlap rule the outline leaves nothing '
-    'that is not already an object.',
-    'Prompt-based segmentation runs micro-SAM, which is not installed yet.',
-    'Prompting needs micro-SAM, which is not installed.',
-    'Prompting off. The objects it added stay in the mask.',
-    'Prompting on: click the object, right-click what is not it, or drag a '
-    'box round it; Enter adds the outline.',
-    'Put a point on the object, or drag a box round it, before points off '
-    'it.',
-    'micro-SAM added object {ids} — Ctrl+Z to undo',
-    'micro-SAM could not segment: {error}',
-    'micro-SAM embedded this field in {embed:.1f} s on {device}; the prompt '
-    'then took {prompt:.2f} s.',
-    'micro-SAM is embedding this field; the first prompt on a field waits '
-    'for it…',
-    'micro-SAM is starting in its own environment…',
-    'micro-SAM outlined nothing; add a point or draw a box.',
-    'micro-SAM outlined {pixels} px in {seconds:.2f} s. Enter adds it, '
-    'Backspace takes the last prompt back, Escape discards it.',
-    'A well is a hit when its score reaches this value. SSMD 3 is a strong '
-    'effect; 3 for robust z and B-score is three robust standard deviations.',
-    'Call hits by',
-    'Export hits…',
-    'Hit threshold',
-    'Nothing scored yet.',
-    'Pick the control column and the negative control to score hits '
-    'against.',
-    'Reference',
-    'SSMD estimator',
-    'Score every well against the negative control and call hits. Needs the '
-    'negative control picked above and well positions in the table (prc, '
-    'rowID and columnID, or well).',
-    'Score hits (SSMD, robust z, B-score)',
-    'The column naming what is in each well. Wells sharing a treatment are '
-    'replicates and get one replicate SSMD in the export. Leave empty for a '
-    'screen without replicates.',
-    'Treatment',
-    'Turn on hit scoring and name the negative control.',
-    'Write the hit report into',
-    "Write the ranked hit table, every well's scores and the plate summary "
-    "as CSV, and one plate heatmap per statistic, into a folder",
-    'hit report written to {folder}',
     # 535, 2026-09-26: the Cell Cycle (Alpha) category help on Measure.
-    "The cell-cycle phase of every nucleus, called after measuring from the "
-    "DNA stain in one of three interchangeable ways: gates on each plate's "
-    "fitted DNA-content histogram, a boosted classifier on the nucleus "
-    "measurements, or an image classifier on nucleus crops. Each writes the "
-    "same phase column to measurements.db, with the phase fractions per well "
-    "among infected and uninfected cells.",
+    # 571, 2026-09-26: the Time To Event (Alpha) category help on Measure.
+    "How long each tracked object of a timelapse lasts until an event such "
+    "as death, lysis, egress, division or first detection, with objects "
+    "still waiting at the end of their track censored there. Conditions are "
+    "compared with Kaplan-Meier curves, median times, log-rank tests and a "
+    "Cox model, written to measurements.db and drawn under "
+    "results/time_to_event.",
     # 541, 2026-09-26: the Measure preview's Alpha confluency toggle, its
     # status lines, and the Confluency (Alpha) category help.
-    'Confluency',
-    'Confluency failed: {error}',
-    'Confluency {percent} ({source}), {verdict}',
-    'How much of each field is covered by cells, measured per field and per '
-    'well into measurements.db with a monolayer QC flag: from the cell masks, '
-    'from the texture of a brightfield or phase channel, or from a '
-    'fluorescent stain. Plaque and infection results from a thin or torn '
-    'monolayer can then be dropped or divided by the covered fraction.',
-    'Show the area of this field Measure would count as covered by cells, '
-    'using the Confluency settings of the run.',
-    'below the monolayer QC threshold',
-    'monolayer QC passed',
+    # 536, 2026-09-26: the Measure preview's Alpha wound toggle, its status
+    # lines, and the Wound Closure (Alpha) category help.
     # 544 and 573, 2026-09-26: the Blind switches of Annotate and Make
     # Masks, their notices and questions, and the Lock analysis button and
     # dialog (all alpha).
-    'Analysis locked: {sha} at {time}.',
-    'Blind',
-    'Blinded {count} crops under key {key}.',
-    'Blinded · {page}',
-    'Blinded: the source, plates, wells, conditions and file names are '
-    'hidden, and the crops are in a shuffled order.',
-    'Blinded: {count} fields, named by code and in a shuffled order.',
-    'Curate blind: name every field by a code instead of its file name and '
-    'folder, and show the fields in a shuffled order. The key is kept beside '
-    'the run journal, outside the data folder. Turning it off unblinds, and '
-    'the journal records who unblinded and when. Default off.',
-    'Hypotheses',
-    'Lock',
-    'Lock analysis',
-    'Lock analysis…',
-    'Locked {sha} at {time}. Runs of these settings on this source are '
-    'checked against it.',
-    'No analysis lock applies to these settings yet.',
-    'Open a folder of images before curating it blind.',
-    'Open an experiment source before scoring it blind.',
-    'Preregister the analysis: freeze these settings, your hypotheses and '
-    'thresholds, and the model and gate files they name, with a hash and a '
-    'timestamp, before the results are seen. Every later run on the same '
-    'source is checked against the lock, and a change is flagged in its '
-    'manifest, the report and the methods text, as post-hoc once the '
-    'blinding key has been opened. Default no lock.',
-    'Recrop is off while blinded, because the new fields are named after the '
-    'field they are cut from.',
-    'Score blind: hide the source, plates, wells, conditions and file names, '
-    'and show the crops in a shuffled order. The key is kept beside the run '
-    'journal, outside the data folder. Turning it off unblinds, and the '
-    'journal records who unblinded and when. Default off.',
-    'The thresholds and gates that decide a call, one per line.',
-    'Thresholds and gates',
-    'Unblind?',
-    'Unblinded key {key}; the journal recorded who and when.',
-    "Unblinding shows every field's file name and folder again, and the run "
-    "journal records who unblinded and when. An analysis lock on this folder "
-    "treats any later change as post-hoc. Unblind now?",
-    'Unblinding shows where every crop is from again, and the run journal '
-    'records who unblinded and when. An analysis lock on this folder treats '
-    'any later change as post-hoc. Unblind now?',
-    'What you expect to find, and what would count against it.',
-    'uncoded field',
-    'Watching: {done} analysed, {waiting} waiting, {failed} failed',
-    'Browse cloud storage',
-    'Browse cloud storage…',
+    # 539, 2026-09-26: the Bleach Correction (Alpha) category help on Measure.
+    'Photobleaching correction for timelapse intensities, per field and '
+    'channel: a simple ratio to the first timepoint, a fitted exponential '
+    'decay, or histogram matching. Corrected intensities are written beside '
+    'the measured ones with the method, and the fitted decay is plotted.',
+    # 547, 2026-09-26: the Profiling (Alpha) category help on Measure.
     'Open',
-    'Public data (no credentials)',
-    'Reading…',
-    'S3-compatible endpoint (blank for Amazon S3)',
-    'Use this location',
     's3://bucket/folder, gs://, az:// or https://',
 })
 

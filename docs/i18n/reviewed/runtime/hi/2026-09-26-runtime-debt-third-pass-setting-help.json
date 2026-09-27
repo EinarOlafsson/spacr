@@ -66,13 +66,6 @@
       "source": "Path to a trained Timeflows checkpoint, spaCR's experimental temporal Cellpose that predicts where each object's centre moves in the next frame and links masks from those predictions. Only consulted when timelapse_mode='timeflows', which is never the default: on held-out movies measured so far it does not beat overlap linking ('iou'). No checkpoint is downloaded; leave empty unless you trained one. Default None.",
       "source_sha256": "88edfe30ad6d529a1bc4f650979f9110137ca67279a8b4fe9a29d29d5507af94",
       "translation": "प्रशिक्षित Timeflows चेकपॉइंट का पथ। Timeflows spaCR का प्रायोगिक कालिक Cellpose है, जो अनुमान लगाता है कि अगले फ़्रेम में हर ऑब्जेक्ट का केंद्र कहाँ जाएगा, और उन अनुमानों से मास्क जोड़ता है। इसका उपयोग केवल timelapse_mode='timeflows' होने पर होता है, जो कभी डिफ़ॉल्ट नहीं होता: अब तक मापी गई अलग रखी गई फ़िल्मों पर यह ओवरलैप से जोड़ने ('iou') से बेहतर नहीं है। कोई चेकपॉइंट डाउनलोड नहीं होता; जब तक आपने स्वयं एक प्रशिक्षित न किया हो, इसे खाली छोड़ें। डिफ़ॉल्ट None।"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "timelapse_mode",
-      "source": "Tracking backend used to link objects between frames. 'trackastra' is a pretrained transformer with division-aware linking; 'ultrack' jointly optimizes segmentation and linking and supports dense or three-dimensional data at increased computational cost; 'trackpy' uses a configurable search radius and frame memory; 'btrack' uses a motion model; and 'iou' links masks by overlap and may fail when inter-frame displacement is large; 'timeflows' is spaCR's experimental temporal Cellpose, needs a trained checkpoint in timeflows_model and has not yet beaten 'iou' on held-out movies. Default 'trackastra'.",
-      "source_sha256": "387d42e3a0d187c4f6aac5d9a20a96854693853b5515de01e3f24d2b903436a2",
-      "translation": "फ़्रेमों के बीच ऑब्जेक्ट जोड़ने वाला ट्रैकिंग बैकएंड। 'trackastra' विभाजन को ध्यान में रखकर जोड़ने वाला एक पूर्व-प्रशिक्षित ट्रांसफ़ॉर्मर है; 'ultrack' सेगमेंटेशन और जोड़ने को एक साथ अनुकूलित करता है और अधिक गणना लागत पर घने या त्रि-आयामी डेटा का समर्थन करता है; 'trackpy' विन्यास योग्य खोज त्रिज्या और फ़्रेम मेमोरी का उपयोग करता है; 'btrack' गति मॉडल का उपयोग करता है; 'iou' ओवरलैप से मास्क जोड़ता है और फ़्रेमों के बीच विस्थापन बड़ा होने पर विफल हो सकता है; 'timeflows' spaCR का प्रायोगिक कालिक Cellpose है, जिसे timeflows_model में प्रशिक्षित चेकपॉइंट चाहिए और जो अलग रखी गई फ़िल्मों पर अभी तक 'iou' से बेहतर नहीं हुआ है। डिफ़ॉल्ट 'trackastra'।"
     }
   ]
 }

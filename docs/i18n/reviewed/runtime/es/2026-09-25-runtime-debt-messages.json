@@ -251,13 +251,6 @@
     },
     {
       "table": "ui",
-      "key": "Equalise the histogram inside each tile rather than over the whole field, with a limit on how much any one level may be stretched. It is what brings out objects in a dim corner without blowing out the bright middle. It also amplifies noise in empty tiles, which is what the clip limit is for.",
-      "source": "Equalise the histogram inside each tile rather than over the whole field, with a limit on how much any one level may be stretched. It is what brings out objects in a dim corner without blowing out the bright middle. It also amplifies noise in empty tiles, which is what the clip limit is for.",
-      "source_sha256": "4d90cb622f7b5cb3f16195794f79550e39b97dea772275f26cd280e005d9923a",
-      "translation": "Ecualiza el histograma dentro de cada mosaico en lugar de en todo el campo, con un límite de cuánto puede estirarse cada nivel. Es lo que hace resaltar los objetos en una esquina tenue sin saturar el centro brillante. También amplifica el ruido en los mosaicos vacíos, para lo cual sirve el límite de recorte."
-    },
-    {
-      "table": "ui",
       "key": "Explore the apicomplexan cell using Starplast's Toxoplasma hyperLOPIT labels. Hover for a location description, check several compartments to keep them highlighted, or use Clear components to reset them. Several classes share a shape; dense granules use the generic cytoplasmic-granule shape. Ribosomes, proteasomes, apical classes and mixed endomembrane vesicles have no matching shape here. The illustration shows compartment names, not protein measurements.",
       "source": "Explore the apicomplexan cell using Starplast's Toxoplasma hyperLOPIT labels. Hover for a location description, check several compartments to keep them highlighted, or use Clear components to reset them. Several classes share a shape; dense granules use the generic cytoplasmic-granule shape. Ribosomes, proteasomes, apical classes and mixed endomembrane vesicles have no matching shape here. The illustration shows compartment names, not protein measurements.",
       "source_sha256": "7da76b8536419eaa9c117468cb3f56e9f610b29dd9d1274c793d2d13824dc10b",

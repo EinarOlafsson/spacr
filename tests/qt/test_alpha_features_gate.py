@@ -60,7 +60,8 @@ RELEASED_BEFORE_THE_ALPHA_RULE = {
 BUILT = re.compile(r"\b(built|implemented|done)\b", re.IGNORECASE)
 
 # Settings-only screens that are not in the module registry but render a form.
-EXTRA_SETTINGS_HOSTS = ("timelapse",)
+# anndata_export (581's table export settings) is the page folded into Measure.
+EXTRA_SETTINGS_HOSTS = ("timelapse", "anndata_export")
 
 
 @pytest.fixture
