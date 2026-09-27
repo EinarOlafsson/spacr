@@ -88,5 +88,94 @@
       }
     }
   },
-  "scope": "API delta4 is present on live nightly. This does not establish human review or deployment of later aggregate-report/source changes."
+  "scope": "API delta4 and its refreshed aggregate reports are present on live nightly. This establishes source compatibility, not native-speaker or human listening review.",
+  "aggregate_report_deployment": {
+    "run_url": "https://github.com/EinarOlafsson/spacr/actions/runs/36350873854",
+    "strict_html_and_pages": "passed",
+    "live_publication": {
+      "schema": 1,
+      "branch": "nightly",
+      "commit": "187637a160efb6b567d687ade4c4a425fec22b1c",
+      "translation_policy": "report-only; incompatible locales fall back to English"
+    },
+    "compatibility": {
+      "source_commit": "187637a160efb6b567d687ade4c4a425fec22b1c",
+      "api": {
+        "sv": {
+          "issues": [],
+          "source_compatible": true
+        },
+        "de": {
+          "issues": [],
+          "source_compatible": true
+        },
+        "es": {
+          "issues": [],
+          "source_compatible": true
+        },
+        "zh_CN": {
+          "issues": [],
+          "source_compatible": true
+        },
+        "pt": {
+          "issues": [],
+          "source_compatible": true
+        },
+        "hi": {
+          "issues": [],
+          "source_compatible": true
+        },
+        "ko": {
+          "issues": [],
+          "source_compatible": true
+        },
+        "is": {
+          "issues": [],
+          "source_compatible": true
+        },
+        "fr": {
+          "issues": [],
+          "source_compatible": true
+        }
+      },
+      "runtime": {
+        "sv": {
+          "issues": [],
+          "source_compatible": true
+        },
+        "de": {
+          "issues": [],
+          "source_compatible": true
+        },
+        "es": {
+          "issues": [],
+          "source_compatible": true
+        },
+        "zh_CN": {
+          "issues": [],
+          "source_compatible": true
+        },
+        "pt": {
+          "issues": [],
+          "source_compatible": true
+        },
+        "hi": {
+          "issues": [],
+          "source_compatible": true
+        },
+        "ko": {
+          "issues": [],
+          "source_compatible": true
+        },
+        "is": {
+          "issues": [],
+          "source_compatible": true
+        },
+        "fr": {
+          "issues": [],
+          "source_compatible": true
+        }
+      }
+    }
+  }
 }
