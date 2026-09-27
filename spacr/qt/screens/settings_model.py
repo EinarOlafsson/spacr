@@ -1209,6 +1209,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
          ("@Image preprocessing (per object)",)),
         ("Object Filtration (all objects)", ("@Object filtration",)),
         ("Quality Control", ("@Segmentation QC",)),
+        ("Segmentation Robustness (Alpha)",
+         ("@Segmentation Robustness (Alpha)",)),
         ("Volumetric Processing (Beta)", ("@3D Settings (Beta)",)),
         ("Time Axes & Tracking (Beta)", ("@4D Settings (Beta)",)),
         ("Visualization & Diagnostics", (
@@ -2717,6 +2719,11 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "from the dilution and plated volume, a too-many or too-few flag, "
         "and colony areas and diameters, in millimetres when Scale & Time "
         "says how large the dish is.",
+    "SEGMENTATION ROBUSTNESS (ALPHA)":
+        "Re-segments a few sampled fields with the diameter, the thresholds "
+        "and contrast enhancement each moved a little, and reports how much "
+        "object counts, areas and intensities change, flagging the settings "
+        "the results are fragile to.",
     "SPECTRAL UNMIXING (ALPHA)":
         "Bleed-through correction: how much of each dye is read in the other "
         "channels is estimated from single-stain control wells, and every "
