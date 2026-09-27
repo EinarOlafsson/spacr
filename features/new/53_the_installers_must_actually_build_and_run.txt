@@ -382,3 +382,20 @@ integration, not native installed-artifact acceptance. Native reruns and the
 remaining item53 installer/updater requirements remain OPEN. The subsequent
 machine reboot did not erase this completed validation; it did interrupt the
 separate item47 full Qt acceptance run.
+
+STATUS 2026-09-27 — native helper survival and scroll acceptance
+Run36357823769 at d33fa4fa0 built all three artifacts. Fresh installed Windows
+Server2025, Ubuntu22.04 and Debian12 jobs passed actual CPU Measure:16 cells,
+complete/one success/zero failures. Downloaded databases independently passed
+integrity_check and the16-cell recount. Their copied helpers still answered
+both CLI help commands after actual app removal, with PATH empty and extraction
+outside the removed installation. This proves helper independence, not updates.
+
+Native scroll witnesses reached52 controls/document endpoints on Windows and47
+on each Linux image, restoring scroll and cursor state. Raw viewport clipping
+remains recorded. The Windows window exceeded the VM desktop width; this is
+window-relative reachability evidence, not proof of fit on a1024px desktop.
+macOS stopped at checksum verification because upload omitted the extensionless
+helper named in the manifest. Commit6194b0184 corrects that omission; its native
+rerun is pending. Full frozen-update adapters and other original gates remain.
+Receipt: features/data/53_native_helper_and_windows_claude_acceptance_2026-09-27.json.

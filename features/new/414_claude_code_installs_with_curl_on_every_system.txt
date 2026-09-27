@@ -120,3 +120,14 @@ The correction passed 63 focused menu/provider/historical/docstring checks
 in 29.37 seconds. Native re-execution is still pending; no native acceptance
 or item closure is claimed. No translated runtime caption
 or public API signature/docstring changed.
+
+STATUS 2026-09-27 — actual Windows acceptance passed
+Run36357823769 jobs108732329298(CMD) and108732329268(PowerShell5.1) executed
+the command provided by the installed d33fa4fa0 artifact. Both installed native
+Claude2.1.283, changed registered User PATH through the product command, then
+resolved that exact executable and returned its version from a new terminal.
+Node/npm remained unavailable on the command PATH; no physical removal from the
+hosted VM or authentication is claimed. The verifier made no PATH repair.
+Receipt: features/data/53_native_helper_and_windows_claude_acceptance_2026-09-27.json.
+Windows acceptance is satisfied within that scope. Equivalent clean native
+macOS/Linux install evidence is still required before closing the whole item.
