@@ -480,7 +480,7 @@ class ControlChartScreen(QWidget):
         self._chem_section = outputs.add_section(
             self._build_chemistry_output(lower), "Structures and SAR",
             persist_key="control_chart/Structures and SAR")
-        self._chem_section.setObjectName(_CHEMISTRY_SECTION_OBJECT)
+        self._chem_section.setObjectName("ControlChartChemistrySection")
         lower_layout.addWidget(outputs, 1)
         right.add_pane(lower, "Output", stretch=2)
 
@@ -711,7 +711,7 @@ class ControlChartScreen(QWidget):
         :returns: the container, hidden by one name by the alpha gate.
         """
         box = QWidget(parent)
-        box.setObjectName(_CHEMISTRY_PANEL_OBJECT)
+        box.setObjectName("ControlChartChemistry")
         form = QFormLayout(box)
         form.setContentsMargins(0, SPACING["xs"], 0, 0)
         form.setSpacing(SPACING["xs"])
