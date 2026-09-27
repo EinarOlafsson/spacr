@@ -1,0 +1,279 @@
+name: legacy native installer acceptance
+on:
+  workflow_dispatch:
+  push:
+    branches: [nightly]
+    paths:
+      - .github/workflows/frozen-installers.yml
+      - packaging/build_windows.ps1
+      - packaging/build_macos.sh
+      - packaging/build_debian.sh
+      - packaging/spacr.spec
+      - packaging/spacr_launcher.py
+      - spacr/qt/startup_benchmark.py
+permissions:
+  contents: read
+env:
+  SPACR_DEVICE: cpu
+  CUDA_VISIBLE_DEVICES: ''
+  HIP_VISIBLE_DEVICES: ''
+  ROCR_VISIBLE_DEVICES: ''
+  OMP_NUM_THREADS: '2'
+  OPENBLAS_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+concurrency:
+  group: legacy-native-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  build-frozen:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2025
+            platform: windows
+          - os: macos-15
+            platform: macos
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Install clean CPU build dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install 'pyinstaller>=6,<7'
+          if [ '${{ matrix.platform }}' = windows ]; then
+            python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          fi
+          python -m pip install .
+          python -m pip check
+          mkdir -p acceptance
+          git rev-parse HEAD > acceptance/source-commit.txt
+          python -m pip freeze > acceptance/build-dependencies.txt
+      - name: Build Windows onedir and NSIS installer
+        if: matrix.platform == 'windows'
+        shell: pwsh
+        run: |
+          choco install nsis --yes --no-progress
+          if ($LASTEXITCODE -ne 0) { throw 'NSIS installation failed' }
+          ./packaging/build_windows.ps1 -SkipDependencyInstall -RequireInstaller
+      - name: Build native macOS app and DMG
+        if: matrix.platform == 'macos'
+        env:
+          SPACR_SKIP_BUILD_DEPENDENCIES: '1'
+        run: packaging/build_macos.sh
+      - name: Hash artifacts
+        shell: bash
+        run: |
+          python -c "import hashlib,pathlib; p=pathlib.Path('acceptance/SHA256SUMS'); files=sorted(f for f in pathlib.Path('dist').iterdir() if f.is_file()); p.write_text(''.join(hashlib.sha256(f.read_bytes()).hexdigest()+'  '+f.name+'\n' for f in files))"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: legacy-build-${{ matrix.platform }}
+          retention-days: 14
+          if-no-files-found: error
+          path: |
+            dist/*.exe
+            dist/*.zip
+            dist/*.dmg
+            acceptance/
+            build/**/warn-*.txt
+
+  smoke-frozen:
+    needs: build-frozen
+    if: ${{ always() && !cancelled() }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2025
+            platform: windows
+          - os: macos-15
+            platform: macos
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    env:
+      SPACR_DEVICE: cpu
+      CUDA_VISIBLE_DEVICES: ''
+      HIP_VISIBLE_DEVICES: ''
+      ROCR_VISIBLE_DEVICES: ''
+      OMP_NUM_THREADS: '2'
+      OPENBLAS_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      SPACR_NO_SETUP: '1'
+      SPACR_DISTRIBUTION_SMOKE: '1'
+      SPACR_DISTRIBUTION_KIND: frozen
+      PYTHONNOUSERSITE: '1'
+      PYTHONPATH: ''
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: legacy-build-${{ matrix.platform }}
+          path: incoming
+      - name: Install and launch the actual Windows artifact
+        if: matrix.platform == 'windows'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $Install = Join-Path $env:RUNNER_TEMP 'legacy-install'
+          $Receipt = Join-Path $env:RUNNER_TEMP 'legacy-receipt'
+          $Clean = Join-Path $env:RUNNER_TEMP 'empty-cwd'
+          New-Item -ItemType Directory -Force $Receipt,$Clean | Out-Null
+          $Installer = @(Get-ChildItem incoming/dist/*-setup.exe)
+          if ($Installer.Count -ne 1) { throw 'Expected exactly one native installer' }
+          foreach ($Line in Get-Content incoming/acceptance/SHA256SUMS) {
+            $Parts = $Line -split '  ',2
+            $Actual = (Get-FileHash (Join-Path 'incoming/dist' $Parts[1]) -Algorithm SHA256).Hash
+            if ($Actual -ne $Parts[0]) { throw 'Artifact checksum mismatch' }
+          }
+          $Process = Start-Process $Installer[0].FullName -ArgumentList @('/S', "/D=$Install") -Wait -PassThru
+          if ($Process.ExitCode -ne 0) { throw 'Native installation failed' }
+          $env:SPACR_BENCHMARK_JSON = Join-Path $Receipt 'smoke.json'
+          $env:SPACR_ACCEPTANCE_SOURCE_COMMIT = (Get-Content incoming/acceptance/source-commit.txt).Trim()
+          $env:APPDATA = Join-Path $Receipt 'profile/roaming'
+          $env:LOCALAPPDATA = Join-Path $Receipt 'profile/local'
+          New-Item -ItemType Directory -Force $env:APPDATA,$env:LOCALAPPDATA | Out-Null
+          $env:PYTHONHOME = ''
+          $env:PATH = "$env:SystemRoot\system32;$env:SystemRoot"
+          $Process = Start-Process (Join-Path $Install 'spacr.exe') -WorkingDirectory $Clean -ArgumentList '--no-setup' -PassThru
+          if (-not $Process.WaitForExit(660000)) {
+            & "$env:SystemRoot\system32\taskkill.exe" /PID $Process.Id /T /F
+            throw 'Frozen application timed out'
+          }
+          if ($Process.ExitCode -ne 0) { throw "Frozen application exited $($Process.ExitCode)" }
+          $Result = Get-Content $env:SPACR_BENCHMARK_JSON -Raw | ConvertFrom-Json
+          if ($Result.status -ne 'passed' -or -not $Result.frozen) { throw 'Frozen smoke did not pass' }
+          $Unrelated = Join-Path $Install 'preserved-analysis.txt'
+          Set-Content $Unrelated 'This file was not installed by NSIS.'
+          $Uninstall = Start-Process (Join-Path $Install 'Uninstall.exe') -ArgumentList '/S' -Wait -PassThru
+          if ($Uninstall.ExitCode -ne 0) { throw 'Uninstall failed' }
+          $Deadline = (Get-Date).AddSeconds(60)
+          while (((Test-Path (Join-Path $Install 'spacr.exe')) -or (Test-Path (Join-Path $Install '_internal'))) -and (Get-Date) -lt $Deadline) { Start-Sleep 1 }
+          if ((Test-Path (Join-Path $Install 'spacr.exe')) -or (Test-Path (Join-Path $Install '_internal'))) { throw 'Uninstall retained packaged runtime files' }
+          if (-not (Test-Path $Unrelated) -or -not (Test-Path $Result.database)) { throw 'Uninstall removed analysis data' }
+          Set-Content (Join-Path $Receipt 'uninstall.txt') 'Owned executable removed; unrelated and completed analysis files preserved.'
+      - name: Install and launch the actual macOS artifact
+        if: matrix.platform == 'macos'
+        shell: bash
+        run: |
+          set -euo pipefail
+          install_root="$RUNNER_TEMP/legacy-install"
+          receipt="$RUNNER_TEMP/legacy-receipt"
+          clean="$RUNNER_TEMP/empty-cwd"
+          mount="$RUNNER_TEMP/legacy-mounted"
+          mkdir -p "$install_root" "$receipt" "$clean" "$mount"
+          dmg=(incoming/dist/*.dmg)
+          test "${#dmg[@]}" = 1
+          (cd incoming/dist && shasum -a 256 -c ../acceptance/SHA256SUMS)
+          hdiutil attach -readonly -nobrowse -mountpoint "$mount" "${dmg[0]}"
+          ditto "$mount/spaCR.app" "$install_root/spaCR.app"
+          hdiutil detach "$mount"
+          codesign --verify --deep --strict "$install_root/spaCR.app"
+          export SPACR_ACCEPTANCE_SOURCE_COMMIT="$(cat incoming/acceptance/source-commit.txt)"
+          export SPACR_BENCHMARK_JSON="$receipt/smoke.json"
+          export HOME="$receipt/profile"
+          mkdir -p "$HOME"
+          unset PYTHONHOME
+          export PATH=/usr/bin:/bin:/usr/sbin:/sbin
+          cd "$clean"
+          "$install_root/spaCR.app/Contents/MacOS/spacr" --no-setup > "$receipt/application.log" 2>&1 &
+          app_pid=$!
+          (sleep 660; kill "$app_pid" 2>/dev/null || true) &
+          watchdog_pid=$!
+          trap 'kill "$watchdog_pid" 2>/dev/null || true' EXIT
+          wait "$app_pid"
+          test "$(plutil -extract status raw "$receipt/smoke.json")" = passed
+          test "$(plutil -extract frozen raw "$receipt/smoke.json")" = true
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: legacy-smoke-${{ matrix.platform }}
+          path: ${{ runner.temp }}/legacy-receipt/
+          retention-days: 14
+          if-no-files-found: error
+
+  build-debian:
+    runs-on: ubuntu-24.04
+    container: ubuntu:22.04
+    timeout-minutes: 90
+    steps:
+      - name: Prepare clean minimum-version builder
+        run: apt-get update && apt-get install -y git ca-certificates
+      - uses: actions/checkout@v7
+      - name: Build the self-contained Debian artifact on Ubuntu 22.04
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p acceptance
+          git rev-parse HEAD > acceptance/source-commit.txt
+          PATH=/usr/bin:/bin packaging/build_debian.sh 2>&1 | tee acceptance/debian-build.log
+          dpkg-deb -I dist/*.deb > acceptance/debian-control.txt
+          sha256sum dist/*.deb > acceptance/SHA256SUMS
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: legacy-build-debian
+          retention-days: 14
+          if-no-files-found: error
+          path: |
+            dist/*.deb
+            acceptance/
+            build/**/warn-*.txt
+
+  smoke-debian:
+    needs: build-debian
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        container: ['ubuntu:22.04', 'debian:12']
+    container: ${{ matrix.container }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: legacy-build-debian
+          path: incoming
+      - name: Install Debian artifact without source or pip supplementation
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/legacy-receipt" "$RUNNER_TEMP/empty-cwd"
+          (cd incoming && sha256sum -c acceptance/SHA256SUMS)
+          apt-get update
+          apt-get install -y ./incoming/dist/*.deb xvfb xauth jq 2>&1 | tee "$RUNNER_TEMP/legacy-receipt/install.log"
+          command -v /usr/bin/spacr
+          test -x /opt/spacr/spacr
+          test -s /usr/share/applications/io.github.olafssonlab.spacr.desktop
+          test -s /usr/share/icons/hicolor/256x256/apps/io.github.olafssonlab.spacr.png
+          dpkg -L spacr > "$RUNNER_TEMP/legacy-receipt/package-files.txt"
+          export SPACR_ACCEPTANCE_SOURCE_COMMIT="$(cat incoming/acceptance/source-commit.txt)"
+          export SPACR_BENCHMARK_JSON="$RUNNER_TEMP/legacy-receipt/smoke.json"
+          export SPACR_DISTRIBUTION_SMOKE=1 SPACR_DISTRIBUTION_KIND=debian-frozen SPACR_DEVICE=cpu SPACR_NO_SETUP=1
+          export CUDA_VISIBLE_DEVICES= HIP_VISIBLE_DEVICES= ROCR_VISIBLE_DEVICES= PYTHONPATH= PYTHONNOUSERSITE=1
+          export OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 MKL_NUM_THREADS=2 QT_QPA_PLATFORM=xcb
+          export HOME="$RUNNER_TEMP/legacy-receipt/profile"
+          export XDG_CONFIG_HOME="$HOME/.config"
+          mkdir -p "$XDG_CONFIG_HOME"
+          unset PYTHONHOME
+          cd "$RUNNER_TEMP/empty-cwd"
+          PATH=/usr/bin:/bin timeout --kill-after=20s 660s xvfb-run -a /usr/bin/spacr --no-setup > "$RUNNER_TEMP/legacy-receipt/application.log" 2>&1
+          jq -e '.status == "passed" and .frozen == true and .kind == "debian-frozen"' "$SPACR_BENCHMARK_JSON"
+          database=$(jq -r .database "$SPACR_BENCHMARK_JSON")
+          dpkg --remove spacr
+          test ! -e /opt/spacr
+          test ! -e /usr/bin/spacr
+          test ! -e /usr/share/applications/io.github.olafssonlab.spacr.desktop
+          test -s "$database"
+          printf '%s\n' 'Package removal preserved the completed analysis database.' > "$RUNNER_TEMP/legacy-receipt/uninstall.txt"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: legacy-smoke-${{ strategy.job-index }}-debian
+          path: ${{ runner.temp }}/legacy-receipt/
+          retention-days: 14
+          if-no-files-found: error

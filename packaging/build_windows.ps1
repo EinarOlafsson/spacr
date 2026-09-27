@@ -1,87 +1,91 @@
-# build_windows.ps1 — produce dist/spaCR-<version>.exe on Windows 10+
-#
-# Run from the spacr repo root in a "Developer PowerShell" (or plain PS)
-# with a Python 3.9+ interpreter on PATH:
-#
-#     .\packaging\build_windows.ps1
-#
-# Prerequisites (checked before build):
-#   * Windows 10 or newer (x64)
-#   * python.exe on PATH, version >= 3.9
-#   * spacr installed in a venv (or global)
-#   * pyinstaller >= 6.0
-#
-# Output: dist/spaCR-<version>.exe (a single-file windowed executable).
-
+# Build a portable onedir archive and, when NSIS is available, a native installer.
+param(
+    [switch]$SkipDependencyInstall,
+    [switch]$RequireInstaller
+)
 $ErrorActionPreference = "Stop"
+if ($env:OS -ne "Windows_NT") { throw "Run this builder on Windows." }
 
-if ($env:OS -ne "Windows_NT") {
-    Write-Error "This script must run on Windows. For macOS use build_macos.sh; for Debian use build_debian.sh."
-    exit 1
+function Invoke-CheckedNative {
+    param([string]$File, [string[]]$Arguments)
+    & $File @Arguments
+    if ($LASTEXITCODE -ne 0) {
+        throw "$File failed with exit code $LASTEXITCODE"
+    }
 }
 
-Write-Host "==> spacr Windows installer build" -ForegroundColor Cyan
-
-# --- version ---
-$version = (python -c "import re,pathlib; s=pathlib.Path('setup.py').read_text(); m=re.search(r'VERSION\s*=\s*[\"\']([^\"\']+)', s); print(m.group(1))").Trim()
-Write-Host "    version: $version"
-
-# --- clean previous build outputs so we don't ship stale binaries ---
-if (Test-Path .\build) { Remove-Item -Recurse -Force .\build }
-if (Test-Path .\dist)  { Remove-Item -Recurse -Force .\dist  }
-
-# --- deps ---
-Write-Host "==> installing build deps (pip)" -ForegroundColor Cyan
-python -m pip install --upgrade pip
-python -m pip install --upgrade pyinstaller
-python -m pip install -e .
-
-# --- run PyInstaller against the shared spec ---
-Write-Host "==> running PyInstaller" -ForegroundColor Cyan
-pyinstaller --noconfirm --clean packaging\spacr.spec
-
-# --- rename the collected folder to a versioned single-file drop ---
-$src = ".\dist\spacr"
-if (-not (Test-Path $src)) { Write-Error "PyInstaller output not found at $src" }
-
-# Compress the folder into a versioned zip (for direct download) AND
-# also emit a single-file portable exe when possible.
-$zip = ".\dist\spaCR-$version-windows.zip"
-Compress-Archive -Path "$src\*" -DestinationPath $zip -Force
-Write-Host "==> wrote $zip" -ForegroundColor Green
-
-# Optional NSIS installer: skip if makensis isn't present.
-$nsis = Get-Command makensis -ErrorAction SilentlyContinue
-if ($nsis) {
-    Write-Host "==> building NSIS installer" -ForegroundColor Cyan
-    $nsisScript = @"
+$Root = Split-Path $PSScriptRoot -Parent
+Push-Location $Root
+try {
+    $Match = Select-String -Path "setup.py" -Pattern '^VERSION\s*=\s*["'']([^"'']+)'
+    if (-not $Match) { throw "setup.py has no VERSION assignment" }
+    $Version = $Match.Matches[0].Groups[1].Value
+    foreach ($Directory in @("build", "dist")) {
+        if (Test-Path $Directory) { Remove-Item -Recurse -Force $Directory }
+    }
+    if (-not $SkipDependencyInstall) {
+        Invoke-CheckedNative "python" @("-m", "pip", "install", "--upgrade", "pip")
+        Invoke-CheckedNative "python" @("-m", "pip", "install", "pyinstaller>=6,<7")
+        Invoke-CheckedNative "python" @("-m", "pip", "install", ".")
+    }
+    Invoke-CheckedNative "python" @("-m", "PyInstaller", "--noconfirm", "--clean", "packaging\spacr.spec")
+    $Source = Join-Path $Root "dist\spacr"
+    if (-not (Test-Path (Join-Path $Source "spacr.exe"))) {
+        throw "PyInstaller did not produce the onedir executable"
+    }
+    Compress-Archive -Path "$Source\*" -DestinationPath "dist\spaCR-$Version-windows.zip" -Force
+    $Nsis = Get-Command makensis.exe -ErrorAction SilentlyContinue
+    $NsisPath = if ($Nsis) { $Nsis.Source } else { $null }
+    if (-not $Nsis) {
+        $Candidate = Join-Path ${env:ProgramFiles(x86)} "NSIS\makensis.exe"
+        if (Test-Path $Candidate) { $NsisPath = $Candidate }
+    }
+    if (-not $NsisPath) {
+        if ($RequireInstaller) { throw "NSIS is required for installer acceptance" }
+        Write-Warning "NSIS unavailable: only the portable onedir archive was built"
+        return
+    }
+    $Installer = Join-Path $Root "dist\spaCR-$Version-setup.exe"
+    $DeleteFiles = @(Get-ChildItem $Source -File -Recurse | ForEach-Object {
+        $Relative = $_.FullName.Substring($Source.Length).TrimStart([char]'\')
+        '  Delete "$INSTDIR\' + $Relative.Replace('$', '$$') + '"'
+    }) -join "`n"
+    $DeleteDirectories = @(Get-ChildItem $Source -Directory -Recurse |
+        Sort-Object { $_.FullName.Length } -Descending | ForEach-Object {
+        $Relative = $_.FullName.Substring($Source.Length).TrimStart([char]'\')
+        '  RMDir "$INSTDIR\' + $Relative.Replace('$', '$$') + '"'
+    }) -join "`n"
+    $Template = @'
 !include "MUI2.nsh"
 Name "spaCR"
-OutFile "dist\spaCR-$version-setup.exe"
-InstallDir "\$PROGRAMFILES64\spaCR"
+OutFile "@INSTALLER@"
+InstallDir "$PROGRAMFILES64\spaCR"
 RequestExecutionLevel admin
-
 Page directory
 Page instfiles
 UninstPage instfiles
-
 Section
-  SetOutPath "\$INSTDIR"
-  File /r "dist\spacr\*"
-  WriteUninstaller "\$INSTDIR\Uninstall.exe"
-  CreateShortcut "\$SMPROGRAMS\spaCR.lnk" "\$INSTDIR\spacr.exe"
+  SetShellVarContext all
+  SetOutPath "$INSTDIR"
+  File /r "@SOURCE@\*"
+  WriteUninstaller "$INSTDIR\Uninstall.exe"
+  CreateShortcut "$SMPROGRAMS\spaCR.lnk" "$INSTDIR\spacr.exe"
 SectionEnd
-
 Section "Uninstall"
-  Delete "\$SMPROGRAMS\spaCR.lnk"
-  RMDir /r "\$INSTDIR"
+  SetShellVarContext all
+  Delete "$SMPROGRAMS\spaCR.lnk"
+@DELETE_FILES@
+@DELETE_DIRECTORIES@
+  Delete "$INSTDIR\Uninstall.exe"
+  RMDir "$INSTDIR"
 SectionEnd
-"@
-    $nsisScript | Set-Content -Encoding ASCII .\packaging\spacr_installer.nsi
-    makensis .\packaging\spacr_installer.nsi
-    Write-Host "==> wrote dist\spaCR-$version-setup.exe" -ForegroundColor Green
-} else {
-    Write-Host "    (NSIS not installed; skipping .exe installer)" -ForegroundColor Yellow
+'@
+    $Script = Join-Path $Root "build\spacr_installer.nsi"
+    $Template.Replace("@INSTALLER@", $Installer.Replace('$', '$$')).Replace("@SOURCE@", $Source.Replace('$', '$$')).Replace("@DELETE_FILES@", $DeleteFiles).Replace("@DELETE_DIRECTORIES@", $DeleteDirectories) |
+        Set-Content -Encoding UTF8 $Script
+    Invoke-CheckedNative $NsisPath @($Script)
+    if (-not (Test-Path $Installer)) { throw "NSIS returned without an installer" }
+    Write-Host "Built $Installer and the portable onedir archive"
+} finally {
+    Pop-Location
 }
-
-Write-Host "==> done" -ForegroundColor Cyan

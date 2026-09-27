@@ -14,7 +14,7 @@ import os
 import sys
 import threading
 import time
-from typing import Callable, Iterable, Optional
+from typing import Callable, Iterable, Optional, Union
 
 from PySide6.QtCore import QObject, QTimer
 
@@ -622,15 +622,20 @@ class BenchmarkController(QObject):
             self._write("application quit before registry sweep completed")
 
 
-def maybe_start(app, window) -> Optional[BenchmarkController]:
+def maybe_start(app, window) -> Optional[Union[BenchmarkController, _DistributionSmokeController]]:
     """Install the controller named by the environment, or return ``None``.
 
     :param app: the running ``QApplication``, passed to the controller.
     :param window: the main window the benchmark drives.
+    :returns: the registry benchmark controller, or the installed-application
+        controller when ``SPACR_DISTRIBUTION_SMOKE=1`` is explicitly selected;
+        ``None`` when no output path is configured.
     """
     output = os.environ.get(OUTPUT_ENV, "").strip()
     if not output:
         return None
+    if os.environ.get("SPACR_DISTRIBUTION_SMOKE") == "1":
+        return _DistributionSmokeController(app, window, output)
     from .app import APPS
 
     def _live_keys() -> tuple[str, ...]:
@@ -642,3 +647,211 @@ def maybe_start(app, window) -> Optional[BenchmarkController]:
         raise ValueError("the live application registry contains duplicate keys")
     return BenchmarkController(
         app, window, keys, output, live_keys=_live_keys)
+
+
+class _DistributionSmokeController(QObject):
+    """Exercise an installed application's real Measure screen and Run action."""
+
+    def __init__(self, app, window, output):
+        """Retain the controller until a real run finishes or its deadline expires."""
+        from pathlib import Path
+
+        super().__init__(app)
+        self.app, self.window = app, window
+        self.output = Path(output).absolute()
+        self.output.parent.mkdir(parents=True, exist_ok=True)
+        self.root = self.output.parent / 'experiment'
+        self.screen = None
+        self.phase = 'launch'
+        self.started = time.monotonic()
+        self.record = {'schema': 'spacr-distribution-smoke-v1', 'status': 'running'}
+        self.timer = QTimer(self)
+        self.timer.setInterval(200)
+        self.timer.timeout.connect(self._advance)
+        app.aboutToQuit.connect(self._quitting)
+        self.timer.start()
+        self._write()
+
+    def _write(self):
+        """Atomically retain progress even when native loading later fails."""
+        temporary = self.output.with_suffix('.tmp')
+        temporary.write_text(json.dumps(self.record, indent=2, default=str) + '\n',
+                             encoding='utf-8')
+        temporary.replace(self.output)
+
+    def _provenance(self):
+        """Refuse source/build-environment imports in artifact acceptance."""
+        import platform
+        from pathlib import Path
+        import numpy
+        import PySide6
+        import spacr
+        import torch
+        from PySide6.QtGui import QImage
+        from spacr.version import get_version
+
+        if os.environ.get('SPACR_DEVICE') != 'cpu':
+            raise RuntimeError('Distribution acceptance must explicitly select CPU')
+        if any(os.environ.get(name) for name in
+               ('CUDA_VISIBLE_DEVICES', 'HIP_VISIBLE_DEVICES', 'ROCR_VISIBLE_DEVICES')):
+            raise RuntimeError('Accelerator visibility must be empty')
+        kind = os.environ.get('SPACR_DISTRIBUTION_KIND', '')
+        frozen = bool(getattr(sys, 'frozen', False))
+        if kind not in ('frozen', 'debian-frozen') or not frozen:
+            raise RuntimeError('The running installation is not the requested artifact family')
+        executable = Path(sys.executable).resolve()
+        root = self._installed_root(executable, Path(sys._MEIPASS), sys.platform)
+        for entry in sys.path:
+            self._require_installed_origin(Path(entry), root)
+        origins = {}
+        for module in (spacr, numpy, PySide6, torch):
+            path = Path(module.__file__).resolve()
+            self._require_installed_origin(path, root)
+            origins[module.__name__] = str(path)
+        if get_version() != spacr.__version__:
+            raise RuntimeError('Installed distribution metadata does not match spaCR')
+        if sys.platform != 'darwin' and torch.version.cuda is not None:
+            raise RuntimeError('CPU acceptance contains CUDA torch')
+        resources = Path(spacr.__file__).parent / 'resources'
+        for resource in (resources / 'layout_policy.json', resources / 'icons' / 'measure.png'):
+            self._require_installed_origin(resource, root)
+        policy = json.loads((resources / 'layout_policy.json').read_text(encoding='utf-8'))
+        if not policy or QImage(str(resources / 'icons' / 'measure.png')).isNull():
+            raise RuntimeError('Installed layout policy or Measure icon is missing')
+        font = resources / 'font' / 'open_sans' / 'OpenSans-VariableFont_wdth,wght.ttf'
+        self._require_installed_origin(font, root)
+        if not font.is_file() or font.stat().st_size == 0:
+            raise RuntimeError('Installed Open Sans font is missing')
+        self.record.update(
+            platform=platform.platform(), machine=platform.machine(),
+            python=sys.version, version=spacr.__version__, torch=torch.__version__,
+            kind=kind, frozen=frozen, executable=sys.executable,
+            bundle_root=str(root), import_origins=origins, sys_path=list(sys.path),
+            cwd=str(Path.cwd()), qt_platform=self.app.platformName(),
+            source_commit=os.environ.get('SPACR_ACCEPTANCE_SOURCE_COMMIT', ''),
+            device='cpu', packaged_resources_verified=True)
+        if self.app.platformName() in ('offscreen', 'minimal'):
+            raise RuntimeError('Native artifact acceptance requires the native Qt platform')
+
+    @staticmethod
+    def _installed_root(executable, bundle_root, platform):
+        """Permit macOS bundle siblings without widening other platforms' roots."""
+        executable = executable.resolve()
+        root = executable.parent
+        if platform == 'darwin':
+            root = executable.parents[2]
+            if (root.suffix != '.app' or executable.parent.name != 'MacOS'
+                    or executable.parent.parent.name != 'Contents'):
+                raise RuntimeError('The macOS executable is not inside its installed app bundle')
+        _DistributionSmokeController._require_installed_origin(bundle_root, root)
+        return root
+
+    @staticmethod
+    def _require_installed_origin(path, root):
+        """Resolve symlinks so an artifact cannot borrow a source checkout."""
+        if not path.resolve().is_relative_to(root.resolve()):
+            raise RuntimeError(f'Import outside the installed artifact: {path}')
+
+    def _advance(self):
+        """Drive production widgets without replacing pipeline or worker callbacks."""
+        try:
+            if time.monotonic() - self.started > 600:
+                raise RuntimeError('Distribution smoke exceeded its 600-second deadline')
+            from .first_run import _TourOverlay
+
+            for overlay in self.window.findChildren(_TourOverlay):
+                if overlay.isVisible():
+                    overlay._skip_btn.click()
+                    self.record['tours_skipped'] = self.record.get('tours_skipped', 0) + 1
+            if self.phase == 'launch':
+                if self.root.exists():
+                    raise RuntimeError('Smoke experiment already exists; refusing stale analysis output')
+                self._provenance()
+                if not self.window.isVisible():
+                    return
+                self.window.open_module('measure')
+                self.phase = 'screen'
+            elif self.phase == 'screen':
+                self.screen = self.window._screens.get('measure')
+                if self.screen is None or not self.screen._btn_run.isEnabled():
+                    return
+                if self.app.activeModalWidget() is not None:
+                    raise RuntimeError('An unexpected modal dialog blocks the installed application')
+                from .synthetic import demo_settings, generate_measure_demo
+
+                layout = generate_measure_demo(self.root, wells=('A01',), fields=1,
+                                               channels=(0, 1, 2, 3))
+                settings = demo_settings('measure', str(layout.src))
+                settings.update(save_png=False, representative_images=False,
+                                n_jobs=1, verbose=False, plot=False)
+                self.database = layout.src / 'measurements' / 'measurements.db'
+                self.screen.apply_settings_dict(settings)
+                self.screen = self.window._screens['measure']
+                self._expected_src = str(layout.src)
+                self.phase = 'configured'
+            elif self.phase == 'configured':
+                if not self.screen._btn_run.isEnabled():
+                    return
+                self.record['settings'] = self.screen._settings_model.collect()
+                if self.record['settings'].get('src') != self._expected_src:
+                    raise RuntimeError('The live Measure screen did not receive the smoke input')
+                if self.record['settings'].get('n_jobs') != 1:
+                    raise RuntimeError('The live Measure screen did not retain its one-worker limit')
+                if self.screen._crop_choice_warnings(self.record['settings']):
+                    raise RuntimeError('The smoke fixture unexpectedly requires crop confirmation')
+                self.record['module_constructed'] = True
+                self.phase = 'running'
+                self.screen._btn_run.click()
+                if self.screen._worker is None:
+                    raise RuntimeError('The real Run action did not start a pipeline worker')
+                self.screen._worker.error.connect(self._pipeline_failed)
+                self.record['real_run_clicked'] = True
+                self._write()
+            elif self.phase == 'running':
+                if self.screen._thread is not None:
+                    return
+                status, cells = self._read_result(self.database)
+                if status != ('complete', 1, 0) or cells < 1:
+                    raise RuntimeError(f'Incomplete measured field: {status!r}, cells={cells}')
+                screenshot = self.output.parent / 'measure-complete.png'
+                if not self.window.grab().save(str(screenshot)):
+                    raise RuntimeError('Could not retain the native application screenshot')
+                self.record.update(status='passed', run_status=list(status), cells=cells,
+                                   database=str(self.database), worker_finished=True,
+                                   elapsed_seconds=time.monotonic() - self.started)
+                self._finish(0)
+        except Exception as exc:
+            self._pipeline_failed(str(exc))
+
+    @staticmethod
+    def _read_result(database):
+        """Require a real terminal database and release its handle on Windows."""
+        import sqlite3
+        from contextlib import closing
+
+        if not database.is_file():
+            raise RuntimeError('Measure did not produce measurements.db')
+        with closing(sqlite3.connect(database)) as connection:
+            status = connection.execute(
+                'SELECT status,n_succeeded,n_failed FROM run_status ORDER BY rowid DESC LIMIT 1'
+            ).fetchone()
+            cells = connection.execute('SELECT COUNT(*) FROM cell').fetchone()[0]
+        return status, cells
+
+    def _pipeline_failed(self, error):
+        """Retain the failure before requesting ordinary Qt shutdown."""
+        self.record.update(status='failed', error=str(error))
+        self._finish(1)
+
+    def _finish(self, code):
+        """Stop polling, write the receipt, and leave the real Qt event loop."""
+        self.phase = 'finished'
+        self.timer.stop()
+        self._write()
+        self.app.exit(code)
+
+    def _quitting(self):
+        """A premature user/application exit cannot become a successful smoke."""
+        if self.phase != 'finished':
+            self.record.update(status='failed', error='Application exited before smoke completion')
+            self._write()

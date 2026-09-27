@@ -205,3 +205,40 @@ The August native online-installer receipt remains distinct from the legacy
 PyInstaller .app/.exe family. This audit found no later actual frozen-bundle
 build-and-launch receipt, so that acceptance remains open; source inspection
 and the launcher's unit tests do not establish a native artifact launch.
+
+2026-09-27 — NATIVE LEGACY ACCEPTANCE PREPARED; EXECUTION STILL PENDING
+The native GitHub runners already used for online installers can also exercise
+this family. A separate read-only workflow now builds artifacts and passes only
+those artifacts to fresh smoke jobs, with no checkout, build environment or
+PYTHONPATH fallback. The actual installed Qt entry constructs Measure, clicks
+its real Run action for one synthetic field and requires a terminal successful
+SQLite result. Binary/import/resource identities and screenshots are retained.
+No native build, install or launch result is claimed by this implementation note.
+
+Windows quoting, native exit checks and literal NSIS variables are repaired;
+the produced runtime is correctly described as onedir, with NSIS required in
+acceptance. The old Debian stdeb/system-Python implementation is REPLACED, not
+claimed fixed: dpkg now owns a frozen CPU runtime under /opt/spacr plus its
+launcher, desktop entry and icons. The minimum-version builder is Ubuntu 22.04;
+fresh Ubuntu 22.04 and Debian 12 jobs must install, run and remove it while
+preserving analysis output. Its libc dependency records the builder's actual
+version. This replaces missing PyPI-to-distro dependency assumptions with the
+same bundled environment tested on Windows/macOS.
+
+Still open: the actual native jobs, all resulting dependency/launch fixes,
+API inventory/translation delta for any newly cataloged smoke helpers, and the
+original update/install-screen requirements. Frozen sys.executable is not a
+Python interpreter; the online uv updater proof does not validate frozen
+self-update. The legacy builders do not inherit the online CPU/GPU, account or
+consent flows. No production release, notarization or credential-based signing
+is performed by these acceptance jobs. Item 53 remains OPEN.
+
+Local validation: the first named batch passed39 and exposed one real Qt
+Measure failure: bulk application rebuilt the form and the smoke driver held
+its retired screen. The driver now reacquires the live screen, verifies the
+input and one-worker limit, then clicks Run. All8focused cases pass, including
+an actual one-field analysis with16cell rows and complete/1success/0failure.
+Together the two batches establish40unique passing checks. This is explicitly
+source-level integration, not a native-artifact receipt. The initial failure
+and two Linux fork warnings are retained. Evidence:
+features/data/53_legacy_native_preparation_2026-09-27.json.

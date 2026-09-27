@@ -12,7 +12,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from PyInstaller.utils.hooks import collect_data_files, collect_submodules
+from PyInstaller.utils.hooks import collect_data_files, collect_submodules, copy_metadata
 
 # Repo root is one dir up from packaging/
 ROOT = Path(SPECPATH).resolve().parent
@@ -104,6 +104,7 @@ _NON_CORE_IMPORTS = [
 datas = []
 datas += collect_data_files("spacr", includes=["resources/**/*", "fonts/**/*"])
 datas += collect_data_files("cellpose", includes=["*.txt", "*.md"])
+datas += copy_metadata("spacr")
 
 
 # ------------------------------------------------------------------

@@ -33,13 +33,15 @@ rm -rf build dist
 
 # --- deps ---
 echo "==> installing build deps (pip)"
-python3 -m pip install --upgrade pip
-python3 -m pip install --upgrade pyinstaller
-python3 -m pip install -e .
+if [[ ${SPACR_SKIP_BUILD_DEPENDENCIES:-0} != 1 ]]; then
+    python3 -m pip install --upgrade pip
+    python3 -m pip install 'pyinstaller>=6,<7'
+    python3 -m pip install .
+fi
 
 # --- run PyInstaller ---
 echo "==> running PyInstaller"
-pyinstaller --noconfirm --clean packaging/spacr.spec
+python3 -m PyInstaller --noconfirm --clean packaging/spacr.spec
 
 APP="dist/spaCR.app"
 if [[ ! -d "$APP" ]]; then
