@@ -680,7 +680,8 @@ BUILDERS: Dict[str, Callable[[Optional[QWidget]], QWidget]] = {
 
 
 def install_folds(screen: QWidget) -> Optional[FoldStrip]:
-    """Put Map Barcodes' fold strip and its live barcode search on ``screen``.
+    """Put Map Barcodes' fold strip, its live barcode search and its spatial
+    transcriptomics panel on ``screen``.
 
     The search is installed here rather than through a seam of its own because
     this is the call every route to the Map Barcodes screen already passes
@@ -691,6 +692,7 @@ def install_folds(screen: QWidget) -> Optional[FoldStrip]:
     :returns: the fold strip, or None when this screen hosts no folds.
     """
     install_barcode_search(screen)
+    _install_spatial_transcriptomics(screen)
     return install_fold_strip(screen, HOST_KEY, FOLDED_APPS, BUILDERS)
 
 
@@ -2572,4 +2574,368 @@ def install_barcode_search(screen: QWidget, **kwargs):
     screen._barcode_search = panel
     screen._barcode_search_card = card
     screen._barcode_search_toggle = toggle
+    return panel
+
+
+#: The spatial-transcriptomics panel's object types, each a mask the reads
+#: can be assigned to, with the caption its row shows.
+_SPATIAL_MASKS: Tuple[Tuple[str, str], ...] = (
+    ("cell", "Cell mask"),
+    ("nucleus", "Nucleus mask"),
+    ("pathogen", "Pathogen mask"),
+    ("vacuole", "Vacuole mask"),
+)
+
+#: Object names of the widgets the alpha gate hides.
+_SPATIAL_ALPHA_WIDGETS: Tuple[str, ...] = ("MapBarcodesSpatialToggle",
+                                           "MapBarcodesSpatialCard")
+
+
+class _SpatialTranscriptomicsPanel(QWidget):
+    """Visium and Xenium reads registered to an image and assigned to
+    spaCR's segmented objects.
+
+    Load reads the platform's output folder and registers its coordinates to
+    the analysis image, drawing spots or transcripts over it so the fit can
+    be judged by eye. Assign counts every gene per object of each mask
+    given, writes the counts into the measurement database beside the
+    objects' measurements, and writes the infected-versus-uninfected
+    comparison, the distance trend, the region summary, an AnnData file and
+    the overlay into the results folder.
+    """
+
+    def __init__(self, screen=None, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
+        self._screen = screen
+        self._bundle = None
+        self._registered = None
+        self._loaded_key = None
+        self.summary = None
+        self._build_ui()
+
+    def _path_row(self, form, caption: str, hint: str, *, folder=False,
+                  save=False):
+        """One labelled path field with a browse button.
+
+        :param form: the form layout the row joins.
+        :param caption: the row's label, untranslated.
+        :param hint: the field's tooltip, untranslated.
+        :param folder: browse for a folder rather than a file.
+        :param save: browse for a file to write.
+        :returns: the line edit.
+        """
+        from PySide6.QtWidgets import QFileDialog, QLineEdit
+
+        row = QWidget(self)
+        layout = QHBoxLayout(row)
+        layout.setContentsMargins(0, 0, 0, 0)
+        edit = QLineEdit(row)
+        edit.setToolTip(tr(hint))
+        button = QToolButton(row)
+        button.setText(tr("Browse…"))
+
+        def browse(_checked=False):
+            if folder:
+                chosen = QFileDialog.getExistingDirectory(self, tr(caption),
+                                                          edit.text())
+            elif save:
+                chosen, _ = QFileDialog.getSaveFileName(self, tr(caption),
+                                                        edit.text())
+            else:
+                chosen, _ = QFileDialog.getOpenFileName(self, tr(caption),
+                                                        edit.text())
+            if chosen:
+                edit.setText(chosen)
+
+        button.clicked.connect(browse)
+        layout.addWidget(edit, 1)
+        layout.addWidget(button)
+        form.addRow(tr(caption), row)
+        return edit
+
+    def _build_ui(self) -> None:
+        """Lay out the inputs, the two actions, the status and the overlay."""
+        from PySide6.QtWidgets import (QComboBox, QDoubleSpinBox,
+                                       QFormLayout, QSpinBox)
+
+        from ..widgets.graph_builder import _canvas_class
+        from matplotlib.figure import Figure
+
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+        form = QFormLayout()
+        outer.addLayout(form)
+        self.folder = self._path_row(
+            form, "Platform output",
+            "The Space Ranger outs folder (Visium or Visium HD) or the "
+            "Xenium output bundle. Default empty.", folder=True)
+        self.platform = QComboBox(self)
+        for value, caption in (("auto", "Detect"), ("visium", "Visium"),
+                               ("visium_hd", "Visium HD"),
+                               ("xenium", "Xenium")):
+            self.platform.addItem(tr(caption), value)
+        self.platform.setToolTip(tr(
+            "Which platform wrote the folder. Detect reads it from the files "
+            "present. Default Detect."))
+        form.addRow(tr("Platform"), self.platform)
+        self.bin_um = QComboBox(self)
+        for size in (2, 8, 16):
+            self.bin_um.addItem(f"{size} µm", size)
+        self.bin_um.setCurrentIndex(1)
+        self.bin_um.setToolTip(tr(
+            "The Visium HD bin size read from binned_outputs; ignored for "
+            "Visium and Xenium. Default 8 µm."))
+        form.addRow(tr("Visium HD bin"), self.bin_um)
+        self.min_qv = QDoubleSpinBox(self)
+        self.min_qv.setRange(0.0, 40.0)
+        self.min_qv.setValue(20.0)
+        self.min_qv.setToolTip(tr(
+            "Xenium transcripts with a lower quality value (QV) are dropped, "
+            "as Xenium's own cell-feature matrix drops them. Default 20."))
+        form.addRow(tr("Minimum transcript QV"), self.min_qv)
+        self.image = self._path_row(
+            form, "Image",
+            "The image the masks were segmented on. Empty or hires uses "
+            "Visium's high-resolution image; lowres or full name the others; "
+            "Xenium uses its morphology image. A file of your own microscope "
+            "image of the same section is registered to the platform image, "
+            "through the landmarks when given, else by image content. "
+            "Default empty.")
+        self.level = QSpinBox(self)
+        self.level.setRange(0, 6)
+        self.level.setToolTip(tr(
+            "Pyramid level of the Xenium morphology image or the full "
+            "resolution Visium image the masks were segmented on; each level "
+            "halves the resolution. Default 0."))
+        form.addRow(tr("Image level"), self.level)
+        self.landmarks = self._path_row(
+            form, "Landmarks",
+            "Optional table of landmark pairs, with columns source_x, "
+            "source_y (platform image pixels), target_x and target_y (your "
+            "image's pixels); three or more pairs give an affine fit. "
+            "Default empty.")
+        self.masks = {}
+        for kind, caption in _SPATIAL_MASKS:
+            self.masks[kind] = self._path_row(
+                form, caption,
+                "A spaCR label mask (.npy or image) of this object type, "
+                "made from the image above. Default empty.")
+        self.region_mask = self._path_row(
+            form, "Region mask",
+            "Optional label image of regions; each object is summarised "
+            "under the region its centre falls in. Default empty.")
+        self.db = self._path_row(
+            form, "Measurement database",
+            "The measurements.db the counts are written into, keyed by "
+            "prcfo beside the object measurements. Default empty.",
+            save=True)
+        self.gene = QComboBox(self)
+        self.gene.setEditable(True)
+        self.gene.setToolTip(tr(
+            "The gene the overlay is coloured by. Default the most counted "
+            "gene."))
+        self.gene.currentTextChanged.connect(self._draw)
+        form.addRow(tr("Gene"), self.gene)
+        actions = QHBoxLayout()
+        self.load_button = QPushButton(tr("Load and register"), self)
+        self.load_button.clicked.connect(self.load)
+        self.assign_button = QPushButton(tr("Assign and write"), self)
+        self.assign_button.clicked.connect(self.run)
+        actions.addWidget(self.load_button)
+        actions.addWidget(self.assign_button)
+        actions.addStretch(1)
+        outer.addLayout(actions)
+        self.status = QLabel(self)
+        self.status.setWordWrap(True)
+        outer.addWidget(self.status)
+        self.figure = Figure(figsize=(6.0, 5.0))
+        self.canvas = _canvas_class()(self.figure)
+        self.canvas.setMinimumHeight(320)
+        outer.addWidget(self.canvas, 1)
+
+    def request(self) -> Dict[str, object]:
+        """The inputs as the request :func:`spacr.ops_engine._st_run` takes.
+
+        :returns: the request.
+        """
+        return {
+            "folder": self.folder.text().strip(),
+            "platform": self.platform.currentData() or "auto",
+            "bin_um": int(self.bin_um.currentData() or 8),
+            "min_qv": float(self.min_qv.value()),
+            "image": self.image.text().strip(),
+            "level": int(self.level.value()),
+            "landmarks": self.landmarks.text().strip(),
+            "masks": {kind: edit.text().strip()
+                      for kind, edit in self.masks.items()
+                      if edit.text().strip()},
+            "region_mask": self.region_mask.text().strip(),
+            "db": self.db.text().strip(),
+            "gene": self.gene.currentText().strip(),
+        }
+
+    def _load_key(self, request) -> Tuple[object, ...]:
+        """The inputs a loaded bundle and registration depend on.
+
+        :param request: the request.
+        :returns: a hashable key.
+        """
+        return tuple(request[key] for key in (
+            "folder", "platform", "bin_um", "min_qv", "image", "level",
+            "landmarks"))
+
+    def load(self, _checked: bool = False) -> bool:
+        """Read the platform output, register it and draw the overlay.
+
+        :returns: True when loaded.
+        """
+        from ... import ops_engine
+
+        request = self.request()
+        if not request["folder"]:
+            self.status.setText(tr("Choose the platform output folder first."))
+            return False
+        try:
+            self._bundle = ops_engine._st_read_bundle(
+                request["folder"], request["platform"],
+                bin_um=request["bin_um"], min_qv=request["min_qv"])
+            self._registered = ops_engine._st_register(self._bundle, request)
+        except Exception as error:
+            self._bundle = self._registered = self._loaded_key = None
+            self.status.setText(tr("Could not load: {error}").format(
+                error=error))
+            return False
+        self._loaded_key = self._load_key(request)
+        genes = list(self._bundle["genes"])
+        if self._bundle["platform"] == "xenium":
+            totals = self._bundle["transcripts"]["gene"].value_counts()
+        else:
+            import numpy as np
+            import pandas as pd
+
+            totals = pd.Series(np.asarray(
+                self._bundle["counts"].sum(axis=0)).ravel(), index=genes)
+        top = totals.sort_values(ascending=False).index[0] if genes else ""
+        wanted = request["gene"] if request["gene"] in genes else top
+        self.gene.blockSignals(True)
+        self.gene.clear()
+        self.gene.addItems(sorted(genes))
+        self.gene.setCurrentText(str(wanted))
+        self.gene.blockSignals(False)
+        info = self._registered["registration"]
+        self.status.setText(tr(
+            "{platform}: {points} positions and {genes} genes, registered "
+            "by {method}.").format(
+                platform=self._bundle["platform"],
+                points=len(self._registered["xy"]), genes=len(genes),
+                method=info.get("method", "")))
+        self._draw()
+        return True
+
+    def _draw(self, *_args) -> None:
+        """Redraw the overlay for the chosen gene."""
+        from ... import ops_engine
+
+        if self._bundle is None or self._registered is None:
+            return
+        gene = self.gene.currentText().strip()
+        ops_engine._st_draw_overlay(
+            self.figure, self._registered["image"], self._registered["xy"],
+            ops_engine._st_gene_values(self._bundle, gene),
+            radius=self._registered["radius"],
+            title=f"{self._bundle['platform']} {gene}".strip())
+        self.canvas.draw_idle()
+
+    def run(self, _checked: bool = False):
+        """Assign the reads to the masks' objects and write the results.
+
+        :returns: the run summary, or None when it could not run.
+        """
+        from ... import ops_engine
+
+        request = self.request()
+        if not request["masks"] or not request["db"]:
+            self.status.setText(tr(
+                "Give at least one mask and the measurement database."))
+            return None
+        if self._loaded_key != self._load_key(request) and not self.load():
+            return None
+        try:
+            summary = ops_engine._st_run(request, bundle=self._bundle,
+                                         registered=self._registered)
+        except Exception as error:
+            self.status.setText(tr("Could not assign: {error}").format(
+                error=error))
+            return None
+        self.summary = summary
+        written = ", ".join(f"{kind} {entry['objects']}"
+                            for kind, entry in summary["objects"].items())
+        self.status.setText(tr(
+            "Wrote counts for {objects} objects to {db}; results in "
+            "{output}.").format(objects=written, db=summary["db"],
+                                output=summary["output"]))
+        return summary
+
+
+def _install_spatial_transcriptomics(screen: QWidget):
+    """Attach the Visium and Xenium panel to the Map Barcodes screen.
+
+    It starts hidden behind a toggle, and both are alpha features.
+
+    :param screen: the screen to install into; anything but Map Barcodes is
+        left alone.
+    :returns: the panel, or None when not installed.
+    """
+    if getattr(screen, "app_key", None) != HOST_KEY:
+        return None
+    existing = getattr(screen, "_spatial_panel", None)
+    if isinstance(existing, _SpatialTranscriptomicsPanel):
+        return existing
+    try:
+        from ..widgets.card import Card
+
+        card = Card(title=tr("Spatial transcriptomics"), subtitle=tr(
+            "Register Visium spots or Xenium transcripts to the segmented "
+            "image and count each gene per cell, nucleus, pathogen and "
+            "vacuole."))
+        card.setObjectName("MapBarcodesSpatialCard")
+        panel = _SpatialTranscriptomicsPanel(screen, card)
+        card.body_layout.addWidget(panel)
+    except Exception:
+        LOG.debug("could not build the spatial transcriptomics panel",
+                  exc_info=True)
+        return None
+    if not _insert_above_actions(screen, card):
+        card.setParent(None)
+        card.deleteLater()
+        return None
+    card.setVisible(False)
+    toggle = QToolButton()
+    toggle.setObjectName("MapBarcodesSpatialToggle")
+    caption = "Spatial transcriptomics"
+    toggle.setProperty("_spacr_i18n_text", caption)
+    toggle.setText(tr(caption))
+    toggle.setCheckable(True)
+    toggle.setCursor(Qt.PointingHandCursor)
+    hint = ("Read 10x Visium, Visium HD or Xenium output, place its spots or "
+            "transcripts on the image spaCR segmented, and write gene counts "
+            "per object beside the measurements. Default hidden.")
+    toggle.setProperty("_spacr_i18n_tooltip", hint)
+    toggle.setToolTip(tr(hint))
+    toggle.toggled.connect(card.setVisible)
+    bar = getattr(screen, "_settings_search", None)
+    if bar is not None and hasattr(bar, "add_trailing_widget"):
+        bar.add_trailing_widget(toggle)
+    else:
+        toggle.setParent(screen)
+        _insert_above_actions(screen, toggle)
+    screen._spatial_panel = panel
+    screen._spatial_card = card
+    screen._spatial_toggle = toggle
+    try:
+        from ..preferences import _apply_alpha_widgets
+
+        _apply_alpha_widgets(toggle)
+    except Exception:
+        LOG.debug("alpha gate not applied", exc_info=True)
     return panel

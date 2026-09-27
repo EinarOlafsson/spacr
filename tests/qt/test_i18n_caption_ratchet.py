@@ -1158,6 +1158,14 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 574, 2026-09-27: the Report screen's Archive package button and form.
 # 579, 2026-09-27: the Report screen's Deposit on Zenodo button and form.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    # 562, 2026-09-27: the Embeddings screen's Learn from well labels
+    # button (alpha).
+    'Learn from well labels…',
+    "Choose a per-cell table with a 'well' column, a 'well_label' column (1 for treated or knockout wells, 0 for controls) and embedding or numeric feature columns. An attention model learns from the well labels alone which cells carry the phenotype. Two tables are written beside the input: each cell's attention and each well's probability. Runs on the CPU. Default 4-fold cross-validation over wells.",
+    'Choose a per-cell table with well labels',
+    'Tables (*.csv *.tsv *.parquet *.feather *.xlsx)',
+    'Learning from well labels…',
+    'Well-label model: held-out well AUROC {mil:.2f} (mean-feature baseline {mean:.2f}) over {wells} wells. Cell attention and well probabilities were written beside the table.',
     # 560, 2026-09-27: the Embeddings screen's Foundation model picker
     # (alpha).
     'Foundation model:',
@@ -1239,6 +1247,46 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'Uncertainty saved; the open fields changed while ranking, so their order was left alone.',
     'Uncertainty scores not saved: {error}',
     'Uncertainty…',
+    # 534, 2026-09-27: the Spatial transcriptomics panel on Map Barcodes
+    # (Visium and Xenium; alpha).
+    'Cell mask',
+    'Nucleus mask',
+    'Pathogen mask',
+    'Vacuole mask',
+    'Platform output',
+    'The Space Ranger outs folder (Visium or Visium HD) or the Xenium output bundle. Default empty.',
+    'Detect',
+    'Visium',
+    'Visium HD',
+    'Xenium',
+    'Which platform wrote the folder. Detect reads it from the files present. Default Detect.',
+    'Platform',
+    'The Visium HD bin size read from binned_outputs; ignored for Visium and Xenium. Default 8 µm.',
+    'Visium HD bin',
+    "Xenium transcripts with a lower quality value (QV) are dropped, as Xenium's own cell-feature matrix drops them. Default 20.",
+    'Minimum transcript QV',
+    "The image the masks were segmented on. Empty or hires uses Visium's high-resolution image; lowres or full name the others; Xenium uses its morphology image. A file of your own microscope image of the same section is registered to the platform image, through the landmarks when given, else by image content. Default empty.",
+    'Pyramid level of the Xenium morphology image or the full resolution Visium image the masks were segmented on; each level halves the resolution. Default 0.',
+    'Image level',
+    'Landmarks',
+    "Optional table of landmark pairs, with columns source_x, source_y (platform image pixels), target_x and target_y (your image's pixels); three or more pairs give an affine fit. Default empty.",
+    'A spaCR label mask (.npy or image) of this object type, made from the image above. Default empty.',
+    'Region mask',
+    'Optional label image of regions; each object is summarised under the region its centre falls in. Default empty.',
+    'Measurement database',
+    'The measurements.db the counts are written into, keyed by prcfo beside the object measurements. Default empty.',
+    'The gene the overlay is coloured by. Default the most counted gene.',
+    'Load and register',
+    'Assign and write',
+    'Choose the platform output folder first.',
+    'Could not load: {error}',
+    'Give at least one mask and the measurement database.',
+    'Could not assign: {error}',
+    'Wrote counts for {objects} objects to {db}; results in {output}.',
+    '{platform}: {points} positions and {genes} genes, registered by {method}.',
+    'Spatial transcriptomics',
+    'Register Visium spots or Xenium transcripts to the segmented image and count each gene per cell, nucleus, pathogen and vacuole.',
+    'Read 10x Visium, Visium HD or Xenium output, place its spots or transcripts on the image spaCR segmented, and write gene counts per object beside the measurements. Default hidden.',
 })
 
 

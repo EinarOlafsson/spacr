@@ -7297,6 +7297,9 @@ ALPHA_FEATURES = {
     560: {
         'widgets': ('EmbeddingsFoundationLabel', 'EmbeddingsFoundationPicker'),
     },
+    562: {
+        'widgets': ('EmbeddingsWellMilButton',),
+    },
     570: {
         'widgets': ('ControlChartHitPanel', 'ControlChartHitsSection',
                     'ControlChartExportHits'),
@@ -7391,6 +7394,9 @@ ALPHA_FEATURES = {
                     'PluginCatalogueLoad', 'PluginCatalogueTable',
                     'PluginCatalogueInstall', 'PluginCatalogueUninstall',
                     'PluginCatalogueStatus'),
+    },
+    534: {
+        'widgets': ('MapBarcodesSpatialToggle', 'MapBarcodesSpatialCard'),
     },
 }
 
