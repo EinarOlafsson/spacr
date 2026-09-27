@@ -10158,6 +10158,7 @@ class SettingsWidgets:
         from ... import _mask_workers
 
         count = _mask_workers._mask_gpu_count_for_controls()
+        _mask_workers._watch_mask_gpu_probe()
         if count is None:
             for control in (parallel, indices):
                 if control is not None:
@@ -10170,6 +10171,7 @@ class SettingsWidgets:
                 timer.setSingleShot(True)
 
                 def refresh():
+                    """Refresh surviving controls without extending the panel lifetime."""
                     model = reference()
                     if model is not None:
                         model._mask_gpu_poll_pending = False

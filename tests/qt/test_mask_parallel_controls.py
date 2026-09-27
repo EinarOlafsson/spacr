@@ -14,6 +14,15 @@ from spacr.qt.screens import settings_model as sm                 # noqa: E402
 NOTE = sm._PENDING_NOTE_PROPERTY
 
 
+@pytest.fixture(autouse=True)
+def _isolated_gpu_probe(monkeypatch):
+    mw._stop_mask_gpu_probe()
+    monkeypatch.setattr(mw, "_CONTROL_GPU_COUNT", [])
+    monkeypatch.setattr(mw, "_CONTROL_GPU_PROBE", None)
+    yield
+    mw._stop_mask_gpu_probe()
+
+
 def _panel(qtbot, monkeypatch, count):
     monkeypatch.setattr(mw, "_mask_gpu_count_for_controls", lambda: count)
     owner = QWidget()
@@ -73,6 +82,10 @@ class _ProbePipe:
 class _ProbeProcess:
     started = False
     stopped = False
+    closed = False
+
+    def __init__(self):
+        self.joins = []
 
     def start(self):
         self.started = True
@@ -83,8 +96,15 @@ class _ProbeProcess:
     def terminate(self):
         self.stopped = True
 
+    def kill(self):
+        self.stopped = True
+
     def join(self, timeout):
-        assert timeout == 0
+        self.joins.append(timeout)
+
+    def close(self):
+        assert self.stopped
+        self.closed = True
 
 
 def _fake_probe(monkeypatch):
@@ -117,6 +137,8 @@ def test_the_gpu_count_is_read_once_without_waiting_for_the_child(monkeypatch):
     assert mw._mask_gpu_count_for_controls() == 3
     assert mw._mask_gpu_count_for_controls() == 3
     assert reader.closed and process.stopped and len(launches) == 1
+    assert process.closed and mw._CONTROL_GPU_PROBE is None
+    assert process.joins == [0]
 
 
 @pytest.mark.parametrize("failure", ["exit", "timeout", "eof"])
@@ -126,7 +148,7 @@ def test_failed_gpu_discovery_finishes_without_blocking(monkeypatch, failure):
     if failure == "exit":
         process.stopped = True
     elif failure == "timeout":
-        started = mw._CONTROL_GPU_PROBE[2]
+        started = mw._CONTROL_GPU_PROBE['started']
         monkeypatch.setattr(mw.time, "monotonic", lambda: started + 61)
     else:
         reader.ready = True
@@ -137,6 +159,64 @@ def test_failed_gpu_discovery_finishes_without_blocking(monkeypatch, failure):
         reader.recv = closed_pipe
     assert mw._mask_gpu_count_for_controls() == 0
     assert reader.closed and process.stopped
+
+
+def test_discovery_retains_the_child_until_termination_is_confirmed(monkeypatch):
+    reader, _, process, _ = _fake_probe(monkeypatch)
+    now = [100.0]
+    signals = []
+    monkeypatch.setattr(mw.time, "monotonic", lambda: now[0])
+    monkeypatch.setattr(process, "terminate", lambda: signals.append("terminate"))
+    monkeypatch.setattr(process, "kill", lambda: signals.append("kill"))
+    assert mw._mask_gpu_count_for_controls() is None
+    reader.ready = True
+    assert mw._mask_gpu_count_for_controls() == 3
+    assert mw._CONTROL_GPU_PROBE is not None and not process.closed
+    assert reader.closed and signals == ["terminate"]
+    now[0] += 0.5
+    assert mw._mask_gpu_count_for_controls() == 3
+    assert signals == ["terminate"]
+    now[0] += 0.6
+    assert mw._mask_gpu_count_for_controls() == 3
+    assert signals == ["terminate", "kill"]
+    assert mw._CONTROL_GPU_PROBE is not None and not process.closed
+    now[0] += 2
+    assert mw._mask_gpu_count_for_controls() == 3
+    assert signals == ["terminate", "kill"]
+    process.stopped = True
+    assert mw._mask_gpu_count_for_controls() == 3
+    assert mw._CONTROL_GPU_PROBE is None and process.closed
+    assert all(timeout == 0 for timeout in process.joins)
+
+
+def test_closing_the_panel_does_not_cancel_discovery_timeout(qtbot, qapp, monkeypatch):
+    reader, _, process, _ = _fake_probe(monkeypatch)
+    owner = QWidget()
+    panel = sm.SettingsWidgets("mask", parent=owner)
+    panel.build_sections()
+    assert mw._CONTROL_GPU_TIMER.parent() is qapp
+    started = mw._CONTROL_GPU_PROBE['started']
+    with qtbot.waitSignal(owner.destroyed):
+        owner.deleteLater()
+    monkeypatch.setattr(mw.time, "monotonic", lambda: started + 61)
+    qtbot.waitUntil(lambda: mw._CONTROL_GPU_PROBE is None)
+    assert mw._CONTROL_GPU_COUNT == [0]
+    assert reader.closed and process.closed
+    assert not mw._CONTROL_GPU_TIMER.isActive()
+
+
+def test_application_exit_kills_and_reaps_pending_discovery(qapp, monkeypatch):
+    reader, _, process, _ = _fake_probe(monkeypatch)
+    signals = []
+    monkeypatch.setattr(process, "terminate", lambda: signals.append("terminate"))
+    assert mw._mask_gpu_count_for_controls() is None
+    mw._watch_mask_gpu_probe()
+    qapp.aboutToQuit.emit()
+    assert signals == ["terminate"]
+    assert reader.closed and process.closed
+    assert process.joins == [0.2, 0.2, 0]
+    assert mw._CONTROL_GPU_PROBE is None and mw._CONTROL_GPU_COUNT == [0]
+    assert not mw._CONTROL_GPU_TIMER.isActive()
 
 
 def test_child_counts_compatible_devices_and_closes_pipe(monkeypatch):
@@ -176,7 +256,8 @@ owner = QWidget()
 panel = SettingsWidgets('mask', parent=owner)
 panel.build_sections()
 deadline = time.monotonic() + 45
-while not _mask_workers._CONTROL_GPU_COUNT and time.monotonic() < deadline:
+while (not _mask_workers._CONTROL_GPU_COUNT or
+       _mask_workers._CONTROL_GPU_PROBE is not None) and time.monotonic() < deadline:
     app.processEvents()
     time.sleep(.01)
 assert _mask_workers._CONTROL_GPU_COUNT == [0], _mask_workers._CONTROL_GPU_COUNT
