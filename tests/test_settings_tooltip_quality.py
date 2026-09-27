@@ -904,7 +904,17 @@ def test_real_default_claims_have_no_unrecorded_drift():
         "colony_too_many", "colony_too_few", "colony_threshold",
         "colony_min_area_px")}
     assert item_542 <= compared_pairs
-    assert comparisons == 869
+    # 869 -> 879 on 2026-09-27, +10/-0 (item 549): the ten microscope
+    # feedback settings, each ending in a parseable default and resolved by
+    # Mask only (Timelapse hides them and is not in APPS).
+    item_549 = {("mask", key) for key in (
+        "microscope_feedback", "microscope_driver",
+        "microscope_simulated_folder", "microscope_positions",
+        "microscope_stage_transform", "microscope_event_table",
+        "microscope_event_query", "microscope_max_events",
+        "microscope_timepoints", "microscope_interval_seconds")}
+    assert item_549 <= compared_pairs
+    assert comparisons == 879
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
@@ -927,12 +937,13 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # + 3: item 543's vendor flat-field profile in three apps, pinned above.
     # + 2: item 546's CellProfiler pipeline in two apps, pinned above.
     # + 7: item 542's colony-counting claims in Plaque Assay, pinned above.
+    # + 10: item 549's microscope feedback claims in Mask, pinned above.
     assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2
             + len(item_541) + len(item_548) + len(item_550)
             + len(item_535) + len(item_547) + len(item_536)
             + len(item_571) + len(item_538) + len(item_540)
             + len(item_580) + len(item_543) + len(item_546)
-            + len(item_583) + len(item_542) == comparisons)
+            + len(item_583) + len(item_542) + len(item_549) == comparisons)
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs
     assert len(census_508['added_pairs']) == 19

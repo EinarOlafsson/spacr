@@ -1141,6 +1141,16 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('watch_settle_seconds', 10.0)
     settings.setdefault('watch_poll_seconds', 5.0)
     settings.setdefault('watch_idle_minutes', 0.0)
+    settings.setdefault('microscope_feedback', False)
+    settings.setdefault('microscope_driver', 'simulated')
+    settings.setdefault('microscope_simulated_folder', '')
+    settings.setdefault('microscope_positions', '')
+    settings.setdefault('microscope_stage_transform', [1.0, 0.0, 0.0, 1.0])
+    settings.setdefault('microscope_event_table', 'cell')
+    settings.setdefault('microscope_event_query', '')
+    settings.setdefault('microscope_max_events', 10)
+    settings.setdefault('microscope_timepoints', 1)
+    settings.setdefault('microscope_interval_seconds', 0.0)
     settings.setdefault('cloud_anonymous', False)
     settings.setdefault('cloud_profile', '')
     settings.setdefault('cloud_endpoint', '')
@@ -3394,6 +3404,16 @@ expected_types = {
     "watch_settle_seconds": float,
     "watch_poll_seconds": float,
     "watch_idle_minutes": float,
+    "microscope_feedback": bool,
+    "microscope_driver": str,
+    "microscope_simulated_folder": str,
+    "microscope_positions": str,
+    "microscope_stage_transform": list,
+    "microscope_event_table": str,
+    "microscope_event_query": str,
+    "microscope_max_events": int,
+    "microscope_timepoints": int,
+    "microscope_interval_seconds": float,
     "cloud_anonymous": bool,
     "cloud_profile": str,
     "cloud_endpoint": str,
@@ -4621,6 +4641,16 @@ tooltips = {
     "watch_settle_seconds": "(float) - How long an image must keep the same size and modification time before watch_folder reads it, so a file the microscope is still writing is not taken half-written. Raise it for slow network shares. Default 10.",
     "watch_poll_seconds": "(float) - How often watch_folder looks in src for new or changed images. A field is picked up about watch_settle_seconds plus this long after its last file stops changing, once the fields before it are done. Default 5.",
     "watch_idle_minutes": "(float) - Stop watching once nothing in src has changed for this many minutes, and list the fields that never became complete. 0 watches until Stop is pressed. Default 0.",
+    "microscope_feedback": "(bool) - While watch_folder runs with watch_pipeline 'mask_measure', send the objects of each measured field that match microscope_event_query back to the microscope to be imaged again, for example at higher resolution or as a short timelapse. Stage positions come from microscope_positions and microscope_stage_transform; every event and its images are recorded in watch_ledger.json and the images saved in src/spacr_watch/reimaged. Default False.",
+    "microscope_driver": "(str) - The microscope microscope_feedback drives. 'simulated' acquires from the images in microscope_simulated_folder laid out at microscope_positions, for trying the loop without a microscope. 'pycromanager' drives a running Micro-Manager through pycro-manager (pip install pycromanager, and turn on Micro-Manager's server under Tools > Options). Default 'simulated'.",
+    "microscope_simulated_folder": "(str) - The folder of field images the simulated microscope acquires from, named as the watched images are and placed on the stage by microscope_positions. Blank uses src. Default blank.",
+    "microscope_positions": "(str) - A table (.csv, .xlsx or .parquet) of the stage position each field was acquired at, with the columns field (the field name the watch prints, such as plate1_A01_0001_001), x and y in micrometres at the image centre, and optionally z. Events in a field missing from it are recorded but not imaged. Default blank.",
+    "microscope_stage_transform": "(list) - Four numbers [a, b, c, d] turning a pixel offset from the image centre (dx columns, dy rows) into a stage move of (a*dx + b*dy, c*dx + d*dy) micrometres. For a pixel size p with camera and stage axes aligned use [p, 0, 0, p]; negate a term for a flipped axis and swap them for a camera turned 90 degrees. Default [1.0, 0.0, 0.0, 1.0].",
+    "microscope_event_table": "(str) - The measurement table whose objects can become events, such as cell, nucleus or pathogen. Each event is placed at the object's intensity-weighted centroid. Default 'cell'.",
+    "microscope_event_query": "(str) - A pandas query on microscope_event_table choosing which objects are events, for example pathogen_area > 200 or cell_channel_1_mean_intensity > 900. Blank makes every object an event, up to microscope_max_events per field. Default blank.",
+    "microscope_max_events": "(int) - The most events one field sends to the microscope, taken in table order, so a field full of matches does not hold up the plate. Default 10.",
+    "microscope_timepoints": "(int) - How many images the microscope takes at each event: 1 is a single snapshot, more makes a timelapse spaced microscope_interval_seconds apart. The microscope keeps its current channel, objective and exposure. Default 1.",
+    "microscope_interval_seconds": "(float) - Seconds between the timelapse images of one event when microscope_timepoints is above 1. The watch waits at the event meanwhile, so long timelapses delay later fields. Default 0.",
     "cloud_anonymous": "(bool) - Read cloud sources without credentials, for public data such as IDR or the Cell Painting Gallery. When off, s3:// sources use the AWS credentials in the AWS_* environment variables, ~/.aws or AWS_PROFILE, and are read anonymously only when none are found; gs:// and az:// use their own default credentials. spaCR never stores or prints credentials. Default False.",
     "cloud_profile": "(str) - Named AWS profile from ~/.aws/config used for s3:// sources, for example lab-readonly. Only the name is kept; the keys stay in ~/.aws. Blank uses the default AWS credential chain. Default blank.",
     "cloud_endpoint": "(str) - Address of the S3-compatible service holding s3:// sources, such as a MinIO or Ceph server, or https://uk1s3.embassy.ebi.ac.uk for IDR. Blank uses Amazon S3. Default blank.",
@@ -5496,7 +5526,7 @@ categories = {
         "qc_plot_max_panels",
     ],
 
-    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "watch_folder", "watch_pipeline", "watch_measure_settings", "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes", "cloud_anonymous", "cloud_profile", "cloud_endpoint", "cloud_cache", "cloud_wells", "cloud_fields", "cloud_level", "cloud_results", "verbose", "n_jobs", "gpu", "mask_parallel", "mask_gpu_indices", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "consolidate", ],
+    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "watch_folder", "watch_pipeline", "watch_measure_settings", "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes", "microscope_feedback", "microscope_driver", "microscope_simulated_folder", "microscope_positions", "microscope_stage_transform", "microscope_event_table", "microscope_event_query", "microscope_max_events", "microscope_timepoints", "microscope_interval_seconds", "cloud_anonymous", "cloud_profile", "cloud_endpoint", "cloud_cache", "cloud_wells", "cloud_fields", "cloud_level", "cloud_results", "verbose", "n_jobs", "gpu", "mask_parallel", "mask_gpu_indices", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "consolidate", ],
 
     "3D Settings (Beta)": [
         "z_stack", "z_segmentation_mode", "z_axis", "z_projection",
@@ -7162,6 +7192,13 @@ ALPHA_FEATURES = {
                      'watch_settle_seconds', 'watch_poll_seconds',
                      'watch_idle_minutes'),
         'widgets': ('WatchFolderProgress',),
+    },
+    549: {
+        'settings': ('microscope_feedback', 'microscope_driver',
+                     'microscope_simulated_folder', 'microscope_positions',
+                     'microscope_stage_transform', 'microscope_event_table',
+                     'microscope_event_query', 'microscope_max_events',
+                     'microscope_timepoints', 'microscope_interval_seconds'),
     },
     550: {
         'settings': ('cloud_anonymous', 'cloud_profile', 'cloud_endpoint',

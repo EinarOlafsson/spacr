@@ -854,6 +854,15 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # stop beside it in Mask's Workflow & Test Run group.
     "watch_folder", "watch_pipeline", "watch_measure_settings",
     "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes",
+    # A NEW SETTING GROUP, not a regrouping: a folder watch can send the
+    # objects it finds back to the microscope (`microscope_feedback`), with
+    # the driver, simulated image folder, field positions, pixel-to-stage
+    # transform, event table, query, cap and timelapse beside the watch keys.
+    "microscope_feedback", "microscope_driver", "microscope_simulated_folder",
+    "microscope_positions", "microscope_stage_transform",
+    "microscope_event_table", "microscope_event_query",
+    "microscope_max_events", "microscope_timepoints",
+    "microscope_interval_seconds",
     # A NEW SETTING GROUP, not a regrouping: `src` of Make Masks and Measure
     # may name cloud storage. Where credentials come from, the cache folder,
     # the OME-Zarr wells, fields and level to fetch, and where results are
