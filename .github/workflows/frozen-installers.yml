@@ -10,6 +10,7 @@ on:
       - packaging/build_debian.sh
       - packaging/spacr.spec
       - packaging/spacr_launcher.py
+      - packaging/verify_claude_native_install.ps1
       - spacr/qt/startup_benchmark.py
 permissions:
   contents: read
@@ -175,6 +176,7 @@ jobs:
           codesign --verify --deep --strict "$install_root/spaCR.app"
           export SPACR_ACCEPTANCE_SOURCE_COMMIT="$(cat incoming/acceptance/source-commit.txt)"
           export SPACR_BENCHMARK_JSON="$receipt/smoke.json"
+          export SPACR_NATIVE_MENU_SMOKE=1
           export HOME="$receipt/profile"
           mkdir -p "$HOME"
           unset PYTHONHOME
@@ -188,11 +190,50 @@ jobs:
           wait "$app_pid"
           test "$(plutil -extract status raw "$receipt/smoke.json")" = passed
           test "$(plutil -extract frozen raw "$receipt/smoke.json")" = true
+          test "$(plutil -extract native_menu.preferences_opened raw "$receipt/smoke.json")" = true
+          test "$(plutil -extract native_menu.quit_observed raw "$receipt/smoke.json")" = true
       - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: legacy-smoke-${{ matrix.platform }}
           path: ${{ runner.temp }}/legacy-receipt/
+          retention-days: 14
+          if-no-files-found: error
+
+  claude-native-windows:
+    needs: smoke-frozen
+    if: ${{ always() && !cancelled() }}
+    runs-on: windows-2025
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        shell: [cmd, powershell51]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: legacy-smoke-windows
+          path: native-receipt
+      - name: Execute the exact artifact-provided install hint without Node or npm
+        shell: pwsh
+        run: |
+          $Output = Join-Path $env:RUNNER_TEMP 'claude-command-receipt'
+          $Clean = Join-Path $env:RUNNER_TEMP 'claude-empty-cwd'
+          New-Item -ItemType Directory -Force $Clean | Out-Null
+          $Script = Join-Path $env:GITHUB_WORKSPACE 'packaging/verify_claude_native_install.ps1'
+          $Receipt = Join-Path $env:GITHUB_WORKSPACE 'native-receipt/smoke.json'
+          Set-Location $Clean
+          & $Script -NativeReceipt $Receipt -Shell '${{ matrix.shell }}' -Output $Output
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: claude-native-command-${{ matrix.shell }}
+          path: |
+            ${{ runner.temp }}/claude-command-receipt/*.json
+            ${{ runner.temp }}/claude-command-receipt/*.log
+            ${{ runner.temp }}/claude-command-receipt/*.cmd
+            ${{ runner.temp }}/claude-command-receipt/*.ps1
           retention-days: 14
           if-no-files-found: error
 

@@ -689,6 +689,7 @@ class _DistributionSmokeController(QObject):
         import torch
         from PySide6.QtGui import QImage
         from spacr.version import get_version
+        from spacr.qt.ai.providers import ClaudeCliProvider
 
         if os.environ.get('SPACR_DEVICE') != 'cpu':
             raise RuntimeError('Distribution acceptance must explicitly select CPU')
@@ -729,7 +730,8 @@ class _DistributionSmokeController(QObject):
             bundle_root=str(root), import_origins=origins, sys_path=list(sys.path),
             cwd=str(Path.cwd()), qt_platform=self.app.platformName(),
             source_commit=os.environ.get('SPACR_ACCEPTANCE_SOURCE_COMMIT', ''),
-            device='cpu', packaged_resources_verified=True)
+            device='cpu', packaged_resources_verified=True,
+            claude_install_hint=ClaudeCliProvider.install_hint)
         if self.app.platformName() in ('offscreen', 'minimal'):
             raise RuntimeError('Native artifact acceptance requires the native Qt platform')
 
@@ -816,12 +818,129 @@ class _DistributionSmokeController(QObject):
                 screenshot = self.output.parent / 'measure-complete.png'
                 if not self.window.grab().save(str(screenshot)):
                     raise RuntimeError('Could not retain the native application screenshot')
-                self.record.update(status='passed', run_status=list(status), cells=cells,
+                self.record.update(run_status=list(status), cells=cells,
                                    database=str(self.database), worker_finished=True,
                                    elapsed_seconds=time.monotonic() - self.started)
+                if os.environ.get('SPACR_NATIVE_MENU_SMOKE') == '1':
+                    self._start_native_menu_check()
+                    return
+                self.record['status'] = 'passed'
                 self._finish(0)
+            elif self.phase.startswith('native-menu-'):
+                self._poll_native_menu_check()
         except Exception as exc:
             self._pipeline_failed(str(exc))
+
+    @staticmethod
+    def _cocoa_message(receiver, selector, result_type, *arguments):
+        """Call the real Objective-C menu object with an explicit native ABI."""
+        import ctypes
+
+        library = ctypes.CDLL('/usr/lib/libobjc.A.dylib')
+        library.sel_registerName.argtypes = [ctypes.c_char_p]
+        library.sel_registerName.restype = ctypes.c_void_p
+        method = library.sel_registerName(selector.encode('ascii'))
+        address = ctypes.cast(library.objc_msgSend, ctypes.c_void_p).value
+        function = ctypes.CFUNCTYPE(result_type, ctypes.c_void_p, ctypes.c_void_p,
+                                   *(kind for kind, _ in arguments))(address)
+        return function(receiver, method, *(value for _, value in arguments))
+
+    def _start_native_menu_check(self):
+        """Locate Preferences and Quit in Cocoa's actual application menu."""
+        import ctypes
+
+        if sys.platform != 'darwin' or self.app.platformName() != 'cocoa':
+            raise RuntimeError('Native menu acceptance requires macOS Cocoa')
+        if not self.window.menuBar().isNativeMenuBar():
+            raise RuntimeError('The application is not using its native menu bar')
+        library = ctypes.CDLL('/usr/lib/libobjc.A.dylib')
+        library.objc_getClass.argtypes = [ctypes.c_char_p]
+        library.objc_getClass.restype = ctypes.c_void_p
+        pointer, integer = ctypes.c_void_p, ctypes.c_long
+        message = self._cocoa_message
+        application = message(library.objc_getClass(b'NSApplication'), 'sharedApplication', pointer)
+        bar = message(application, 'mainMenu', pointer)
+        if not bar or message(bar, 'numberOfItems', integer) < 1:
+            raise RuntimeError('Cocoa has no application menu')
+        first = message(bar, 'itemAtIndex:', pointer, (integer, 0))
+        app_menu = message(first, 'submenu', pointer)
+        if not app_menu:
+            raise RuntimeError('Cocoa application submenu is absent')
+        message(app_menu, 'update', None)
+
+        def text(obj, selector):
+            """Read a native NSString without inventing an action caption."""
+            value = message(obj, selector, pointer)
+            raw = message(value, 'UTF8String', ctypes.c_char_p) if value else None
+            return raw.decode('utf-8') if raw else ''
+
+        rows = []
+        for index in range(message(app_menu, 'numberOfItems', integer)):
+            item = message(app_menu, 'itemAtIndex:', pointer, (integer, index))
+            rows.append(dict(index=index, title=text(item, 'title'),
+                key=text(item, 'keyEquivalent'),
+                modifiers=message(item, 'keyEquivalentModifierMask', ctypes.c_ulong),
+                enabled=bool(message(item, 'isEnabled', ctypes.c_bool)),
+                hidden=bool(message(item, 'isHidden', ctypes.c_bool))))
+        command = 1 << 20
+        selected = {}
+        for label, key in (('preferences', ','), ('quit', 'q')):
+            candidates = [row for row in rows if row['key'] == key
+                          and row['modifiers'] & command and row['enabled'] and not row['hidden']]
+            if len(candidates) != 1:
+                raise RuntimeError(f'Native application menu lacks a unique enabled {label}')
+            selected[label] = candidates[0]['index']
+        self._native_menu = app_menu
+        self._native_actions = selected
+        self._native_menu_started = time.monotonic()
+        self.record['native_menu'] = dict(application_menu=text(first, 'title'),
+            items=rows, selected=selected, preferences_opened=False,
+            preferences_closed=False, quit_dispatched=False, quit_observed=False)
+        self.phase = 'native-menu-opening'
+        self._write()
+        QTimer.singleShot(0, self._invoke_native_preferences)
+
+    def _invoke_native_preferences(self):
+        """Dispatch the Cocoa menu item and let Qt open its real modal dialog."""
+        import ctypes
+
+        try:
+            self._cocoa_message(self._native_menu, 'performActionForItemAtIndex:', None,
+                                (ctypes.c_long, self._native_actions['preferences']))
+            if self.phase != 'native-menu-closing':
+                raise RuntimeError('Native Preferences did not open the verified dialog')
+            self.record['native_menu']['preferences_closed'] = True
+            self.phase = 'native-menu-ready-to-quit'
+        except Exception as exc:
+            self._pipeline_failed(str(exc))
+
+    def _poll_native_menu_check(self):
+        """Observe actual Preferences, then terminate through the native Quit item."""
+        import ctypes
+        from .preferences import PreferencesDialog
+
+        if time.monotonic() - self._native_menu_started > 30:
+            raise RuntimeError('Native menu acceptance exceeded its deadline')
+        if self.phase == 'native-menu-opening':
+            dialog = self.app.activeModalWidget()
+            if dialog is None:
+                return
+            if not isinstance(dialog, PreferencesDialog) or not dialog.isVisible():
+                raise RuntimeError('Native Preferences opened a different dialog')
+            if not dialog.grab().save(str(self.output.parent / 'native-preferences.png')):
+                raise RuntimeError('Could not retain the actual Preferences screenshot')
+            self.record['native_menu']['preferences_opened'] = True
+            self.record['native_menu']['dialog_class'] = type(dialog).__name__
+            self.phase = 'native-menu-closing'
+            dialog.reject()
+        elif self.phase == 'native-menu-ready-to-quit':
+            if self.app.activeModalWidget() is not None:
+                raise RuntimeError('Preferences did not close before native Quit')
+            self.phase = 'native-menu-quitting'
+            self.record['native_menu']['quit_dispatched'] = True
+            self._write()
+            self._cocoa_message(self._native_menu, 'performActionForItemAtIndex:', None,
+                                (ctypes.c_long, self._native_actions['quit']))
 
     @staticmethod
     def _read_result(database):
@@ -852,6 +971,15 @@ class _DistributionSmokeController(QObject):
 
     def _quitting(self):
         """A premature user/application exit cannot become a successful smoke."""
+        if self.phase == 'native-menu-quitting':
+            menu = self.record.get('native_menu', {})
+            if all(menu.get(key) for key in ('preferences_opened', 'preferences_closed', 'quit_dispatched')):
+                menu['quit_observed'] = True
+                self.record['status'] = 'passed'
+                self.phase = 'finished'
+                self.timer.stop()
+                self._write()
+                return
         if self.phase != 'finished':
             self.record.update(status='failed', error='Application exited before smoke completion')
             self._write()
