@@ -45679,7 +45679,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 1351,
+    "line": 1353,
     "module": "spacr.qt.screens.map_barcodes",
     "nested": false,
     "qualname": "plan_barcode_search"
@@ -48466,7 +48466,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "target_sequence",
-    "line": 1382,
+    "line": 1384,
     "module": "spacr.qt.screens.map_barcodes",
     "nested": false,
     "qualname": "plan_barcode_search"

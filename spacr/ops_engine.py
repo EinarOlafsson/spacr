@@ -1881,3 +1881,1193 @@ def run_ops(settings: Mapping[str, Any], *,
             json.dump(report, handle, indent=1, default=str)
         out["wells"][well] = report
     return out
+
+
+_ST_CONTROL_PREFIXES = ("NegControl", "BLANK", "Blank", "Unassigned",
+                        "Deprecated", "Intergenic", "antisense_", "NegPrb")
+
+_ST_WIDE_GENE_LIMIT = 1500
+
+_ST_OBJECT_TYPES = ("cell", "nucleus", "pathogen", "vacuole")
+
+_ST_H5PY_MESSAGE = (
+    "Reading a 10x feature-barcode matrix (.h5) needs h5py, which is not "
+    "installed in this environment (missing module: {module}).\n\n"
+    "Install it with:\n\n    python -m pip install h5py")
+
+_ST_PYARROW_MESSAGE = (
+    "Reading Xenium or Visium HD parquet files needs pyarrow, which is not "
+    "installed in this environment (missing module: {module}).\n\n"
+    "Install it with:\n\n    python -m pip install pyarrow")
+
+
+def _st_decode(values) -> List[str]:
+    """Strings from an HDF5 or Arrow column that may hold bytes.
+
+    :param values: an iterable of ``str`` or ``bytes``.
+    :returns: the values as ``str``.
+    """
+    return [v.decode("utf-8") if isinstance(v, bytes) else str(v)
+            for v in values]
+
+
+def _st_read_10x_h5(path: str):
+    """Read a 10x Genomics feature-barcode matrix ``.h5``.
+
+    Only the Gene Expression features are kept, so antibody-capture or
+    control rows do not appear as genes.
+
+    :param path: the ``filtered_feature_bc_matrix.h5`` or
+        ``cell_feature_matrix.h5`` file.
+    :returns: ``(matrix, barcodes, genes)``, where ``matrix`` is a
+        barcodes-by-genes :class:`scipy.sparse.csr_matrix`.
+    """
+    from scipy import sparse
+
+    from .tabular import _require_optional
+
+    h5py = _require_optional("h5py", _ST_H5PY_MESSAGE)
+    with h5py.File(path, "r") as handle:
+        group = handle["matrix"]
+        shape = tuple(int(v) for v in group["shape"][:])
+        matrix = sparse.csc_matrix(
+            (group["data"][:], group["indices"][:], group["indptr"][:]),
+            shape=shape).T.tocsr()
+        barcodes = _st_decode(group["barcodes"][:])
+        features = group["features"]
+        genes = _st_decode(features["name"][:])
+        kinds = (_st_decode(features["feature_type"][:])
+                 if "feature_type" in features else
+                 ["Gene Expression"] * len(genes))
+    keep = np.array([kind == "Gene Expression"
+                     and not str(gene).startswith(_ST_CONTROL_PREFIXES)
+                     for kind, gene in zip(kinds, genes)], dtype=bool)
+    return (matrix[:, np.flatnonzero(keep)].tocsr(), np.asarray(barcodes),
+            np.asarray(genes, dtype=object)[keep])
+
+
+def _st_platform(folder: str) -> str:
+    """Which 10x platform wrote ``folder``.
+
+    :param folder: a Space Ranger ``outs`` folder or a Xenium output bundle.
+    :returns: ``"xenium"``, ``"visium_hd"`` or ``"visium"``.
+    :raises FileNotFoundError: when neither layout is present.
+    """
+    if (os.path.exists(os.path.join(folder, "transcripts.parquet"))
+            or os.path.exists(os.path.join(folder, "experiment.xenium"))):
+        return "xenium"
+    if os.path.isdir(os.path.join(folder, "binned_outputs")):
+        return "visium_hd"
+    if os.path.isdir(os.path.join(folder, "spatial")):
+        return "visium"
+    raise FileNotFoundError(
+        f"{folder} holds neither a Xenium bundle (transcripts.parquet, "
+        "experiment.xenium) nor Space Ranger output (spatial/, "
+        "binned_outputs/).")
+
+
+def _st_first(folder: str, names: Sequence[str]) -> Optional[str]:
+    """The first of ``names`` that exists in ``folder``.
+
+    :param folder: the folder searched.
+    :param names: file names in order of preference.
+    :returns: the path, or None.
+    """
+    for name in names:
+        path = os.path.join(folder, name)
+        if os.path.exists(path):
+            return path
+    return None
+
+
+def _st_read_visium(folder: str, bin_um: int = 8) -> Dict[str, Any]:
+    """Read Space Ranger output for Visium or one Visium HD bin size.
+
+    :param folder: the ``outs`` folder. For Visium HD, the bin folder
+        ``binned_outputs/square_<bin>um`` under it is read.
+    :param bin_um: the Visium HD bin size in micrometres (2, 8 or 16).
+    :returns: the bundle: ``platform``, ``genes``, ``counts`` (spots by
+        genes), ``obs`` (one row per spot with its full-resolution pixel
+        position ``x_full``, ``y_full``), ``scalefactors``, ``images``,
+        ``spot_diameter_full``, ``spot_shape`` and ``microns_per_pixel``.
+    """
+    import json
+
+    import pandas as pd
+
+    from .tabular import read_table
+
+    platform = "visium"
+    if os.path.isdir(os.path.join(folder, "binned_outputs")):
+        platform = "visium_hd"
+        folder = os.path.join(folder, "binned_outputs",
+                              f"square_{int(bin_um):03d}um")
+    spatial = os.path.join(folder, "spatial")
+    h5 = _st_first(folder, ("filtered_feature_bc_matrix.h5",))
+    if h5 is None:
+        found = [n for n in sorted(os.listdir(folder))
+                 if n.endswith("filtered_feature_bc_matrix.h5")]
+        h5 = os.path.join(folder, found[0]) if found else None
+    if h5 is None:
+        raise FileNotFoundError(
+            f"No filtered_feature_bc_matrix.h5 in {folder}.")
+    counts, barcodes, genes = _st_read_10x_h5(h5)
+    columns = ["barcode", "in_tissue", "array_row", "array_col",
+               "pxl_row_in_fullres", "pxl_col_in_fullres"]
+    positions = _st_first(spatial, ("tissue_positions.parquet",
+                                    "tissue_positions.csv"))
+    if positions is not None and positions.endswith(".parquet"):
+        from .tabular import _require_optional
+
+        _require_optional("pyarrow", _ST_PYARROW_MESSAGE)
+        table = read_table(positions, canonicalise=False)
+    elif positions is not None:
+        table = read_table(positions, canonicalise=False)
+    else:
+        legacy = _st_first(spatial, ("tissue_positions_list.csv",))
+        if legacy is None:
+            raise FileNotFoundError(f"No tissue_positions file in {spatial}.")
+        table = read_table(legacy, canonicalise=False, header=None,
+                           names=columns)
+    table = table.set_index("barcode")
+    missing = [b for b in barcodes if b not in table.index]
+    if missing:
+        raise ValueError(
+            f"{len(missing)} barcodes of the matrix have no position, "
+            f"for example {missing[0]}.")
+    table = table.loc[list(barcodes)]
+    with open(os.path.join(spatial, "scalefactors_json.json"),
+              encoding="utf-8") as handle:
+        scalefactors = json.load(handle)
+    obs = pd.DataFrame({
+        "barcode": barcodes,
+        "in_tissue": table["in_tissue"].to_numpy().astype(int),
+        "array_row": table["array_row"].to_numpy(),
+        "array_col": table["array_col"].to_numpy(),
+        "x_full": table["pxl_col_in_fullres"].to_numpy().astype(float),
+        "y_full": table["pxl_row_in_fullres"].to_numpy().astype(float),
+    })
+    images = {}
+    for key, name in (("hires", "tissue_hires_image.png"),
+                      ("lowres", "tissue_lowres_image.png")):
+        path = os.path.join(spatial, name)
+        if os.path.exists(path):
+            images[key] = path
+    outs = folder if platform == "visium" else os.path.dirname(
+        os.path.dirname(folder))
+    full = [n for n in sorted(os.listdir(outs))
+            if n.lower().endswith((".tif", ".tiff", ".btf"))]
+    if full:
+        images["full"] = os.path.join(outs, full[0])
+    diameter = float(scalefactors.get("spot_diameter_fullres", 0.0))
+    microns = scalefactors.get("microns_per_pixel")
+    if microns is None and diameter > 0 and platform == "visium":
+        microns = 55.0 / diameter
+    return {
+        "platform": platform, "folder": folder, "genes": genes,
+        "counts": counts, "obs": obs, "scalefactors": scalefactors,
+        "images": images, "spot_diameter_full": diameter,
+        "spot_shape": "square" if platform == "visium_hd" else "circle",
+        "microns_per_pixel": float(microns) if microns else None,
+    }
+
+
+def _st_read_xenium(folder: str, min_qv: float = 20.0) -> Dict[str, Any]:
+    """Read a Xenium output bundle.
+
+    Transcripts below ``min_qv`` and every control probe or codeword are
+    dropped, as Xenium's own cell-feature matrix drops them.
+
+    :param folder: the Xenium output bundle.
+    :param min_qv: the lowest Phred-scaled quality value kept.
+    :returns: the bundle: ``platform``, ``genes``, ``transcripts`` (one row
+        per transcript with ``gene``, ``x_um``, ``y_um``, ``z_um``, ``qv``
+        and Xenium's own ``xenium_cell_id``), ``cells``, ``pixel_size``
+        (micrometres per pixel of the full-resolution morphology image) and
+        ``images``.
+    """
+    import json
+
+    import pandas as pd
+
+    from .tabular import _require_optional, read_table
+
+    _require_optional("pyarrow", _ST_PYARROW_MESSAGE)
+    pixel_size = 0.2125
+    meta = os.path.join(folder, "experiment.xenium")
+    if os.path.exists(meta):
+        with open(meta, encoding="utf-8") as handle:
+            pixel_size = float(json.load(handle).get("pixel_size",
+                                                     pixel_size))
+    raw = read_table(os.path.join(folder, "transcripts.parquet"),
+                     canonicalise=False,
+                     columns=["cell_id", "feature_name", "x_location",
+                              "y_location", "z_location", "qv"])
+    names = raw["feature_name"]
+    if len(names) and isinstance(names.iloc[0], bytes):
+        names = names.str.decode("utf-8")
+    names = names.astype(str)
+    keep = (raw["qv"].to_numpy() >= float(min_qv)) & ~names.str.startswith(
+        _ST_CONTROL_PREFIXES).to_numpy()
+    genes = np.array(sorted(names[keep].unique()), dtype=object)
+    transcripts = pd.DataFrame({
+        "gene": pd.Categorical(names[keep], categories=genes),
+        "x_um": raw["x_location"].to_numpy()[keep].astype(float),
+        "y_um": raw["y_location"].to_numpy()[keep].astype(float),
+        "z_um": raw["z_location"].to_numpy()[keep].astype(float),
+        "qv": raw["qv"].to_numpy()[keep].astype(float),
+        "xenium_cell_id": raw["cell_id"].astype(str).to_numpy()[keep],
+    })
+    cells_path = os.path.join(folder, "cells.parquet")
+    cells = (read_table(cells_path, canonicalise=False)
+             if os.path.exists(cells_path) else None)
+    images = {}
+    focus = os.path.join(folder, "morphology_focus")
+    image = (_st_first(focus, ("morphology_focus_0000.ome.tif",))
+             if os.path.isdir(focus) else None)
+    image = image or _st_first(folder, ("morphology_focus.ome.tif",
+                                        "morphology_mip.ome.tif",
+                                        "morphology.ome.tif"))
+    if image:
+        images["morphology"] = image
+    return {"platform": "xenium", "folder": folder, "genes": genes,
+            "transcripts": transcripts, "cells": cells,
+            "pixel_size": pixel_size, "images": images,
+            "dropped": int((~keep).sum())}
+
+
+def _st_read_bundle(folder: str, platform: str = "auto", *,
+                    bin_um: int = 8, min_qv: float = 20.0) -> Dict[str, Any]:
+    """Read a Visium, Visium HD or Xenium output folder.
+
+    :param folder: the platform's output folder.
+    :param platform: ``"auto"``, ``"visium"``, ``"visium_hd"`` or
+        ``"xenium"``.
+    :param bin_um: the Visium HD bin size in micrometres.
+    :param min_qv: the lowest Xenium transcript quality kept.
+    :returns: the bundle described by :func:`_st_read_visium` or
+        :func:`_st_read_xenium`.
+    """
+    folder = os.path.expanduser(str(folder))
+    platform = _st_platform(folder) if platform in ("", "auto") else platform
+    if platform == "xenium":
+        return _st_read_xenium(folder, min_qv=min_qv)
+    return _st_read_visium(folder, bin_um=bin_um)
+
+
+def _st_load_image(path: str, level: int = 0) -> np.ndarray:
+    """Read one image plane: a PNG, JPEG or a level of a (pyramidal) TIFF.
+
+    A z-stack is maximum-projected; colour images keep their channels.
+
+    :param path: the image file.
+    :param level: the pyramid level of an OME-TIFF, 0 for full resolution.
+    :returns: a 2-D or ``(Y, X, 3|4)`` array.
+    """
+    lower = path.lower()
+    if lower.endswith((".tif", ".tiff", ".btf")):
+        import tifffile
+
+        with tifffile.TiffFile(path) as handle:
+            series = handle.series[0]
+            levels = getattr(series, "levels", None) or [series]
+            chosen = levels[min(int(level), len(levels) - 1)]
+            array = chosen.asarray()
+            axes = chosen.axes
+        while array.ndim > 2 and axes[0] not in "YX" and not (
+                array.ndim == 3 and axes[-1] in "SC" and array.shape[-1] in (3, 4)):
+            array = array.max(axis=0)
+            axes = axes[1:]
+        return array
+    from matplotlib import image as mpimage
+
+    return mpimage.imread(path)
+
+
+def _st_gray(image: np.ndarray) -> np.ndarray:
+    """A float grayscale copy of ``image``, stretched to 0..1.
+
+    :param image: a 2-D or colour image.
+    :returns: the 2-D float image.
+    """
+    array = np.asarray(image, dtype=float)
+    if array.ndim == 3:
+        array = array[..., :3].mean(axis=-1)
+    low, high = np.percentile(array, (1, 99.5))
+    return np.clip((array - low) / max(high - low, 1e-9), 0, 1)
+
+
+def _st_platform_xy(bundle: Mapping[str, Any], image: str = "",
+                    level: int = 0) -> Tuple[np.ndarray, float, float]:
+    """The sequencing coordinates in the pixel frame of a platform image.
+
+    Visium spots are scaled from full resolution by the scale factor of the
+    chosen image; Xenium transcripts are divided by the morphology image's
+    pixel size at the chosen pyramid level.
+
+    :param bundle: a bundle from :func:`_st_read_bundle`.
+    :param image: ``"hires"``, ``"lowres"`` or ``"full"`` for Visium;
+        ignored for Xenium. Empty picks ``"hires"``.
+    :param level: the OME-TIFF pyramid level for Xenium or a full-resolution
+        Visium image.
+    :returns: ``(xy, radius, microns_per_pixel)``: an ``(N, 2)`` array of x
+        (column) and y (row), the spot radius in pixels (0 for transcripts)
+        and the micrometres one pixel spans (0 when unknown).
+    """
+    if bundle["platform"] == "xenium":
+        size = float(bundle["pixel_size"]) * (2 ** int(level))
+        frame = bundle["transcripts"]
+        xy = np.column_stack([frame["x_um"].to_numpy() / size,
+                              frame["y_um"].to_numpy() / size])
+        return xy, 0.0, size
+    image = image or "hires"
+    factors = bundle["scalefactors"]
+    scale = {"hires": factors.get("tissue_hires_scalef", 1.0),
+             "lowres": factors.get("tissue_lowres_scalef", 1.0)}.get(
+                 image, 1.0 / (2 ** int(level)))
+    obs = bundle["obs"]
+    xy = np.column_stack([obs["x_full"].to_numpy(),
+                          obs["y_full"].to_numpy()]) * float(scale)
+    radius = 0.5 * float(bundle["spot_diameter_full"]) * float(scale)
+    microns = bundle.get("microns_per_pixel") or 0.0
+    return xy, radius, (float(microns) / float(scale) if microns else 0.0)
+
+
+def _st_fit_affine(source, target) -> Tuple[np.ndarray, float]:
+    """The least-squares affine transform taking ``source`` onto ``target``.
+
+    :param source: ``(N, 2)`` landmark positions (x, y) in the platform
+        image, N of at least 3.
+    :param target: the same landmarks in the user's image.
+    :returns: ``(matrix, rms)``: a 3x3 homogeneous matrix and the root mean
+        square landmark residual in target pixels.
+    :raises ValueError: with fewer than three landmark pairs.
+    """
+    source = np.asarray(source, dtype=float)
+    target = np.asarray(target, dtype=float)
+    if len(source) < 3 or source.shape != target.shape:
+        raise ValueError("An affine fit needs at least three landmark pairs.")
+    design = np.column_stack([source, np.ones(len(source))])
+    solution, *_ = np.linalg.lstsq(design, target, rcond=None)
+    matrix = np.eye(3)
+    matrix[:2, :] = solution.T
+    residual = _st_apply_affine(matrix, source) - target
+    return matrix, float(np.sqrt((residual ** 2).sum(axis=1).mean()))
+
+
+def _st_apply_affine(matrix, xy) -> np.ndarray:
+    """Map ``(N, 2)`` points through a 3x3 homogeneous matrix.
+
+    :param matrix: the affine matrix.
+    :param xy: the points, x then y.
+    :returns: the mapped points.
+    """
+    xy = np.asarray(xy, dtype=float)
+    return xy @ np.asarray(matrix)[:2, :2].T + np.asarray(matrix)[:2, 2]
+
+
+def _st_read_landmarks(path: str) -> Tuple[np.ndarray, np.ndarray]:
+    """Landmark pairs from a table with ``source_x``, ``source_y``,
+    ``target_x`` and ``target_y`` columns.
+
+    Source is the platform image, target the user's image, both in pixels.
+
+    :param path: the landmark table (CSV, TSV, Excel or Parquet).
+    :returns: ``(source, target)`` as ``(N, 2)`` arrays.
+    """
+    from .tabular import read_table
+
+    frame = read_table(path, canonicalise=False)
+    wanted = ["source_x", "source_y", "target_x", "target_y"]
+    absent = [c for c in wanted if c not in frame.columns]
+    if absent:
+        raise ValueError(f"{path} lacks the landmark columns {absent}.")
+    values = frame[wanted].to_numpy(dtype=float)
+    return values[:, :2], values[:, 2:]
+
+
+def _st_register_intensity(moving, fixed, *, max_side: int = 1024
+                           ) -> Tuple[np.ndarray, Dict[str, Any]]:
+    """Register the platform image onto the user's image by its content.
+
+    ORB keypoints matched in both images and a RANSAC affine fit; when too
+    few keypoints agree, phase correlation gives a translation at a common
+    scale instead.
+
+    :param moving: the platform image (the frame the coordinates are in).
+    :param fixed: the user's image of the same section.
+    :param max_side: both images are shrunk so their longer side is at most
+        this many pixels before matching.
+    :returns: ``(matrix, info)``: the 3x3 matrix taking platform pixels to
+        user pixels, and ``method``, ``inliers`` and ``matches``.
+    """
+    from skimage.feature import ORB, match_descriptors
+    from skimage.measure import ransac
+    from skimage.transform import AffineTransform, rescale
+
+    def shrink(image):
+        gray = _st_gray(image)
+        factor = min(1.0, float(max_side) / max(gray.shape))
+        return (rescale(gray, factor, anti_aliasing=True)
+                if factor < 1 else gray), factor
+
+    small_moving, f_moving = shrink(moving)
+    small_fixed, f_fixed = shrink(fixed)
+    info: Dict[str, Any] = {"method": "orb_ransac", "inliers": 0,
+                            "matches": 0}
+    try:
+        found = []
+        for image in (small_moving, small_fixed):
+            orb = ORB(n_keypoints=2000, fast_threshold=0.05)
+            orb.detect_and_extract(image)
+            found.append((orb.keypoints[:, ::-1], orb.descriptors))
+        pairs = match_descriptors(found[0][1], found[1][1], cross_check=True,
+                                  max_ratio=0.85)
+        info["matches"] = int(len(pairs))
+        if len(pairs) >= 6:
+            src = found[0][0][pairs[:, 0]]
+            dst = found[1][0][pairs[:, 1]]
+            model, inliers = ransac((src, dst), AffineTransform,
+                                    min_samples=3, residual_threshold=2.0,
+                                    max_trials=2000,
+                                    rng=np.random.default_rng(0))
+            if model is not None and inliers is not None \
+                    and int(inliers.sum()) >= 6:
+                info["inliers"] = int(inliers.sum())
+                down = np.diag([f_moving, f_moving, 1.0])
+                up = np.diag([1.0 / f_fixed, 1.0 / f_fixed, 1.0])
+                return up @ model.params @ down, info
+    except Exception:
+        LOG.debug("keypoint registration failed", exc_info=True)
+    from skimage.registration import phase_cross_correlation
+
+    factor = f_fixed / f_moving
+    resized = rescale(small_moving, factor) if abs(factor - 1) > 1e-6 \
+        else small_moving
+    rows = max(resized.shape[0], small_fixed.shape[0])
+    cols = max(resized.shape[1], small_fixed.shape[1])
+    pad_a = np.zeros((rows, cols))
+    pad_b = np.zeros((rows, cols))
+    pad_a[:resized.shape[0], :resized.shape[1]] = resized
+    pad_b[:small_fixed.shape[0], :small_fixed.shape[1]] = small_fixed
+    shift, _error, _phase = phase_cross_correlation(pad_b, pad_a)
+    matrix = np.eye(3)
+    matrix[0, 0] = matrix[1, 1] = f_moving / f_fixed
+    matrix[0, 2] = shift[1] / f_fixed
+    matrix[1, 2] = shift[0] / f_fixed
+    info["method"] = "phase_correlation"
+    return matrix, info
+
+
+def _st_load_mask(path: str) -> np.ndarray:
+    """Read a label mask saved by spaCR (``.npy``) or as an image.
+
+    :param path: the mask file.
+    :returns: the 2-D integer label image.
+    :raises ValueError: when the file does not hold one 2-D mask.
+    """
+    if path.lower().endswith(".npy"):
+        mask = np.load(path)
+    elif path.lower().endswith(".npz"):
+        with np.load(path) as bundle:
+            mask = bundle[list(bundle.keys())[0]]
+    else:
+        mask = _st_load_image(path)
+    mask = np.squeeze(mask)
+    if mask.ndim != 2:
+        raise ValueError(f"{path} holds a {mask.ndim}-D array, not one mask.")
+    return mask.astype(np.int64, copy=False)
+
+
+def _st_points_in_mask(xy, mask) -> np.ndarray:
+    """The mask label under each point, 0 outside every object.
+
+    The point-in-mask rule the OPS reads use: a point belongs to the object
+    whose pixel it falls in.
+
+    :param xy: ``(N, 2)`` points, x (column) then y (row), in mask pixels.
+    :param mask: the label image.
+    :returns: an ``(N,)`` integer array of labels.
+    """
+    xy = np.asarray(xy, dtype=float)
+    cols = np.floor(xy[:, 0]).astype(np.int64)
+    rows = np.floor(xy[:, 1]).astype(np.int64)
+    inside = ((rows >= 0) & (rows < mask.shape[0])
+              & (cols >= 0) & (cols < mask.shape[1]))
+    labels = np.zeros(len(xy), dtype=np.int64)
+    labels[inside] = mask[rows[inside], cols[inside]]
+    return labels
+
+
+def _st_spot_coverage(xy, radius: float, mask, shape: str = "circle"):
+    """Which objects each spot covers, and what fraction of the spot each
+    occupies.
+
+    :param xy: ``(N, 2)`` spot centres in mask pixels.
+    :param radius: the spot radius (half the side of a square bin) in
+        pixels.
+    :param mask: the label image.
+    :param shape: ``"circle"`` for Visium spots, ``"square"`` for Visium HD
+        bins.
+    :returns: a frame with ``spot`` (row index of the spot), ``object_label``,
+        ``pixels`` and ``fraction`` (of the whole spot's area).
+    """
+    import pandas as pd
+
+    reach = max(float(radius), 0.5)
+    span = int(np.ceil(reach))
+    offsets = np.arange(-span, span + 1)
+    dy, dx = np.meshgrid(offsets, offsets, indexing="ij")
+    if shape == "square":
+        footprint = (np.abs(dx) <= reach) & (np.abs(dy) <= reach)
+    else:
+        footprint = dx ** 2 + dy ** 2 <= reach ** 2
+    fy, fx = dy[footprint], dx[footprint]
+    area = float(footprint.sum())
+    spots, labels, pixels = [], [], []
+    height, width = mask.shape
+    for index, (x, y) in enumerate(np.asarray(xy, dtype=float)):
+        rows = int(round(y)) + fy
+        cols = int(round(x)) + fx
+        inside = (rows >= 0) & (rows < height) & (cols >= 0) & (cols < width)
+        if not inside.any():
+            continue
+        under = mask[rows[inside], cols[inside]]
+        under = under[under > 0]
+        if not under.size:
+            continue
+        found, counts = np.unique(under, return_counts=True)
+        spots.extend([index] * len(found))
+        labels.extend(found.tolist())
+        pixels.extend(counts.tolist())
+    frame = pd.DataFrame({"spot": np.asarray(spots, dtype=np.int64),
+                          "object_label": np.asarray(labels, dtype=np.int64),
+                          "pixels": np.asarray(pixels, dtype=np.int64)})
+    frame["fraction"] = frame["pixels"] / area
+    return frame
+
+
+def _st_object_counts(bundle: Mapping[str, Any], xy, mask,
+                      radius: float = 0.0):
+    """Gene counts per mask object.
+
+    Xenium transcripts are counted in the object they fall in. Visium spot
+    counts are shared out by the fraction of the spot each object occupies,
+    so an object's count is an estimate and need not be whole.
+
+    :param bundle: a bundle from :func:`_st_read_bundle`.
+    :param xy: the transcripts' or spots' positions in mask pixels.
+    :param mask: the label image.
+    :param radius: the spot radius in mask pixels (Visium only).
+    :returns: ``(labels, matrix, coverage)``: the object labels with any
+        count, an objects-by-genes :class:`scipy.sparse.csr_matrix`, and the
+        spot coverage frame (None for Xenium).
+    """
+    from scipy import sparse
+
+    genes = bundle["genes"]
+    if bundle["platform"] == "xenium":
+        labels = _st_points_in_mask(xy, mask)
+        hit = labels > 0
+        objects, rows = np.unique(labels[hit], return_inverse=True)
+        cols = bundle["transcripts"]["gene"].cat.codes.to_numpy()[hit]
+        matrix = sparse.coo_matrix(
+            (np.ones(int(hit.sum()), dtype=np.float64), (rows, cols)),
+            shape=(len(objects), len(genes))).tocsr()
+        return objects, matrix, None
+    coverage = _st_spot_coverage(xy, radius, mask,
+                                 bundle.get("spot_shape", "circle"))
+    objects, rows = np.unique(coverage["object_label"].to_numpy(),
+                              return_inverse=True)
+    weights = sparse.coo_matrix(
+        (coverage["fraction"].to_numpy(), (rows, coverage["spot"].to_numpy())),
+        shape=(len(objects), bundle["counts"].shape[0])).tocsr()
+    matrix = (weights @ bundle["counts"].astype(np.float64)).tocsr()
+    return objects, matrix, coverage
+
+
+def _st_prcfo(prcf: str, labels) -> List[str]:
+    """spaCR object keys for ``labels`` of the image ``prcf``.
+
+    :param prcf: the image key, ``plate_row_column_field``.
+    :param labels: object labels.
+    :returns: the ``prcfo`` keys.
+    """
+    return [f"{prcf}_o{int(label)}" for label in labels]
+
+
+def _st_replace_image_rows(db: str, table: str, frame, prcf: str) -> None:
+    """Write ``frame`` into ``table``, replacing that image's earlier rows.
+
+    :param db: the measurement database.
+    :param table: the table name.
+    :param frame: this image's rows, with a ``prcfo`` column.
+    :param prcf: the image key whose earlier rows are replaced.
+    """
+    import pandas as pd
+
+    from .tabular import database_tables, read_table, write_database
+
+    parts = [frame]
+    if os.path.exists(db) and table in database_tables(db):
+        old = read_table(db, table=table, canonicalise=False, report=None)
+        if "prcfo" in old.columns:
+            old = old[~old["prcfo"].astype(str).str.startswith(f"{prcf}_o")]
+        if len(old):
+            parts.insert(0, old)
+    combined = pd.concat(parts, ignore_index=True) if len(parts) > 1 \
+        else frame
+    write_database(combined, db, table, if_exists="replace")
+
+
+def _st_write_counts(db: str, object_type: str, prcf: str, labels, genes,
+                     matrix, platform: str) -> Dict[str, Any]:
+    """Write per-object gene counts beside the object's measurements.
+
+    Two tables keyed by ``prcfo``, the key of the measurement tables:
+    ``<object>_expression``, one row per object with an ``expr_<gene>``
+    column per gene (the most-counted genes when the panel has more than
+    SQLite's column limit allows) and ``expr_total``; and
+    ``<object>_expression_long``, one row per object and detected gene.
+
+    :param db: the measurement database; created if absent.
+    :param object_type: ``cell``, ``nucleus``, ``pathogen`` or ``vacuole``.
+    :param prcf: the image key the mask belongs to.
+    :param labels: the object labels, one per matrix row.
+    :param genes: the gene names, one per matrix column.
+    :param matrix: the objects-by-genes counts.
+    :param platform: the platform the counts came from.
+    :returns: the table names and the number of objects and genes written.
+    """
+    import pandas as pd
+
+    keys = _st_prcfo(prcf, labels)
+    totals = np.asarray(matrix.sum(axis=0)).ravel()
+    order = np.argsort(-totals, kind="stable")
+    wide_genes = order[:_ST_WIDE_GENE_LIMIT]
+    wide_genes = np.sort(wide_genes)
+    dense = matrix[:, wide_genes].toarray()
+    wide = pd.DataFrame(dense, columns=[f"expr_{genes[i]}"
+                                        for i in wide_genes])
+    wide.insert(0, "expr_total", np.asarray(matrix.sum(axis=1)).ravel())
+    wide.insert(0, "expr_platform", platform)
+    wide.insert(0, "object_label", np.asarray(labels, dtype=np.int64))
+    wide.insert(0, "prcfo", keys)
+    coo = matrix.tocoo()
+    long = pd.DataFrame({
+        "prcfo": np.asarray(keys, dtype=object)[coo.row],
+        "object_label": np.asarray(labels, dtype=np.int64)[coo.row],
+        "gene": np.asarray(genes, dtype=object)[coo.col],
+        "count": coo.data,
+    })
+    wide_table = f"{object_type}_expression"
+    long_table = f"{object_type}_expression_long"
+    _st_replace_image_rows(db, wide_table, wide, prcf)
+    _st_replace_image_rows(db, long_table, long, prcf)
+    return {"tables": (wide_table, long_table), "objects": int(len(keys)),
+            "genes": int(len(genes)), "wide_genes": int(len(wide_genes))}
+
+
+def _st_object_geometry(mask, others: Mapping[str, np.ndarray],
+                        microns_per_pixel: float = 0.0):
+    """Centroid, infection state and distance to the nearest parasite for
+    each object of ``mask``.
+
+    :param mask: the label image of the objects described.
+    :param others: ``pathogen`` and/or ``vacuole`` label images of the same
+        frame; an object overlapping any of their objects is infected.
+    :param microns_per_pixel: converts distances to micrometres; 0 keeps
+        pixels.
+    :returns: a frame indexed by object label with ``centroid_x``,
+        ``centroid_y``, ``infected``, ``parasite_objects`` and
+        ``distance_to_parasite`` (0 inside, in micrometres when the scale is
+        known, else pixels).
+    """
+    import pandas as pd
+    from scipy import ndimage
+
+    labels = np.unique(mask[mask > 0])
+    centres = ndimage.center_of_mass(np.ones_like(mask, dtype=np.uint8),
+                                     mask, labels)
+    centres = np.asarray(centres, dtype=float).reshape(-1, 2)
+    frame = pd.DataFrame({"centroid_x": centres[:, 1],
+                          "centroid_y": centres[:, 0]},
+                         index=pd.Index(labels, name="object_label"))
+    parasite = np.zeros(mask.shape, dtype=bool)
+    counts = pd.Series(0, index=frame.index)
+    for other in others.values():
+        if other is None or other.shape != mask.shape:
+            continue
+        parasite |= other > 0
+        both = (other > 0) & (mask > 0)
+        pairs = np.unique(np.column_stack([mask[both], other[both]]), axis=0)
+        if len(pairs):
+            counts = counts.add(pd.Series(pairs[:, 0]).value_counts(),
+                                fill_value=0)
+    frame["parasite_objects"] = counts.reindex(frame.index).fillna(0).astype(int)
+    frame["infected"] = frame["parasite_objects"] > 0
+    if parasite.any():
+        distance = ndimage.distance_transform_edt(~parasite)
+        rows = np.clip(np.round(centres[:, 0]).astype(int), 0, mask.shape[0] - 1)
+        cols = np.clip(np.round(centres[:, 1]).astype(int), 0, mask.shape[1] - 1)
+        values = distance[rows, cols]
+        frame["distance_to_parasite"] = values * (microns_per_pixel or 1.0)
+    else:
+        frame["distance_to_parasite"] = np.nan
+    return frame
+
+
+def _st_normalise(matrix) -> np.ndarray:
+    """Counts scaled to the median object total, then ``log1p``.
+
+    :param matrix: objects-by-genes counts.
+    :returns: a dense float array.
+    """
+    dense = np.asarray(matrix.toarray() if hasattr(matrix, "toarray")
+                       else matrix, dtype=float)
+    totals = dense.sum(axis=1, keepdims=True)
+    target = float(np.median(totals[totals > 0])) if (totals > 0).any() else 1.0
+    return np.log1p(np.divide(dense * target, totals,
+                              out=np.zeros_like(dense), where=totals > 0))
+
+
+def _st_testable_genes(matrix, genes, *, min_objects: int = 5,
+                       limit: int = 3000) -> np.ndarray:
+    """Columns detected in at least ``min_objects`` objects, the most
+    counted first, at most ``limit``.
+
+    :param matrix: objects-by-genes counts.
+    :param genes: gene names.
+    :param min_objects: fewest objects a gene must be seen in.
+    :param limit: most genes kept.
+    :returns: the kept column indices, ascending.
+    """
+    detected = np.asarray((matrix > 0).sum(axis=0)).ravel()
+    totals = np.asarray(matrix.sum(axis=0)).ravel()
+    candidates = np.flatnonzero(detected >= int(min_objects))
+    candidates = candidates[np.argsort(-totals[candidates], kind="stable")]
+    return np.sort(candidates[:int(limit)])
+
+
+def _st_compare_groups(matrix, genes, in_group, *, labels=("infected",
+                                                          "uninfected"),
+                       min_objects: int = 5):
+    """Genes enriched in one group of objects against the rest.
+
+    A two-sided Mann-Whitney U test per gene on library-size normalised,
+    log-transformed counts, with Benjamini-Hochberg q-values.
+
+    :param matrix: objects-by-genes counts.
+    :param genes: gene names.
+    :param in_group: a boolean per object, True for the first group.
+    :param labels: the names of the two groups, used in the column names.
+    :param min_objects: genes seen in fewer objects are not tested.
+    :returns: one row per tested gene with both groups' mean normalised
+        expression and detection fraction, ``log2_fold_change`` of mean
+        counts per object, ``p_value`` and ``q_value``, sorted by
+        ``p_value``.
+    """
+    import pandas as pd
+    from scipy.stats import mannwhitneyu
+    from statsmodels.stats.multitest import multipletests
+
+    in_group = np.asarray(in_group, dtype=bool)
+    if in_group.all() or not in_group.any():
+        raise ValueError(
+            f"Both groups need objects; found {int(in_group.sum())} "
+            f"{labels[0]} and {int((~in_group).sum())} {labels[1]}.")
+    columns = _st_testable_genes(matrix, genes, min_objects=min_objects)
+    counts = matrix[:, columns].toarray().astype(float)
+    normal = _st_normalise(matrix)[:, columns]
+    a, b = normal[in_group], normal[~in_group]
+    _u, p = mannwhitneyu(a, b, axis=0, alternative="two-sided")
+    p = np.nan_to_num(np.asarray(p, dtype=float), nan=1.0)
+    q = multipletests(p, method="fdr_bh")[1] if len(p) else p
+    mean_a = counts[in_group].mean(axis=0)
+    mean_b = counts[~in_group].mean(axis=0)
+    first, second = labels
+    frame = pd.DataFrame({
+        "gene": np.asarray(genes, dtype=object)[columns],
+        f"mean_{first}": a.mean(axis=0), f"mean_{second}": b.mean(axis=0),
+        f"detected_{first}": (counts[in_group] > 0).mean(axis=0),
+        f"detected_{second}": (counts[~in_group] > 0).mean(axis=0),
+        "log2_fold_change": np.log2((mean_a + 0.1) / (mean_b + 0.1)),
+        "p_value": p, "q_value": q,
+    })
+    frame = frame.sort_values("p_value", kind="stable").reset_index(drop=True)
+    frame.attrs["n"] = {first: int(in_group.sum()),
+                        second: int((~in_group).sum())}
+    return frame
+
+
+def _st_distance_trend(matrix, genes, distance, *, min_objects: int = 5):
+    """How each gene's expression changes with distance to the nearest
+    parasite.
+
+    Spearman's rank correlation per gene between normalised expression and
+    distance, over the objects with a finite distance, with
+    Benjamini-Hochberg q-values.
+
+    :param matrix: objects-by-genes counts.
+    :param genes: gene names.
+    :param distance: one distance per object.
+    :param min_objects: genes seen in fewer objects are not tested.
+    :returns: one row per tested gene with ``spearman_rho``, ``p_value``
+        and ``q_value``, sorted by ``p_value``.
+    """
+    import pandas as pd
+    from scipy.stats import rankdata, t as student
+    from statsmodels.stats.multitest import multipletests
+
+    distance = np.asarray(distance, dtype=float)
+    finite = np.isfinite(distance)
+    if finite.sum() < 4:
+        raise ValueError("Fewer than four objects have a parasite distance.")
+    columns = _st_testable_genes(matrix[finite], genes,
+                                 min_objects=min_objects)
+    normal = _st_normalise(matrix[finite])[:, columns]
+    ranks = np.apply_along_axis(rankdata, 0, normal)
+    reference = rankdata(distance[finite])
+    ranks = ranks - ranks.mean(axis=0)
+    reference = reference - reference.mean()
+    denominator = np.sqrt((ranks ** 2).sum(axis=0) * (reference ** 2).sum())
+    rho = np.divide(ranks.T @ reference, denominator,
+                    out=np.zeros(len(columns)), where=denominator > 0)
+    n = int(finite.sum())
+    stat = rho * np.sqrt((n - 2) / np.clip(1 - rho ** 2, 1e-12, None))
+    p = 2 * student.sf(np.abs(stat), n - 2)
+    q = multipletests(p, method="fdr_bh")[1] if len(p) else p
+    frame = pd.DataFrame({"gene": np.asarray(genes, dtype=object)[columns],
+                          "spearman_rho": rho, "p_value": p, "q_value": q,
+                          "objects": n})
+    return frame.sort_values("p_value", kind="stable").reset_index(drop=True)
+
+
+def _st_region_summary(matrix, genes, regions):
+    """Per-region expression summary.
+
+    :param matrix: objects-by-genes counts.
+    :param genes: gene names.
+    :param regions: one region name per object.
+    :returns: one row per region and gene with ``objects``,
+        ``mean_count`` and ``detected`` (the fraction of the region's
+        objects with any count), genes never counted in a region left out.
+    """
+    import pandas as pd
+
+    regions = pd.Series(np.asarray(regions)).astype(str)
+    rows = []
+    for region, index in regions.groupby(regions).groups.items():
+        part = matrix[np.asarray(list(index))]
+        means = np.asarray(part.mean(axis=0)).ravel()
+        detected = np.asarray((part > 0).mean(axis=0)).ravel()
+        keep = means > 0
+        rows.append(pd.DataFrame({
+            "region": region, "objects": int(part.shape[0]),
+            "gene": np.asarray(genes, dtype=object)[keep],
+            "mean_count": means[keep], "detected": detected[keep]}))
+    return (pd.concat(rows, ignore_index=True) if rows
+            else pd.DataFrame(columns=["region", "objects", "gene",
+                                       "mean_count", "detected"]))
+
+
+def _st_write_anndata(path: str, labels, genes, matrix, obs, spatial):
+    """Write objects-by-genes counts as ``.h5ad``.
+
+    :param path: the file written.
+    :param labels: object keys, the ``obs`` index.
+    :param genes: gene names, the ``var`` index.
+    :param matrix: the counts.
+    :param obs: per-object columns (measurements, infection state).
+    :param spatial: ``(N, 2)`` object centroids, stored as
+        ``obsm["spatial"]`` for squidpy.
+    :returns: the path written.
+    """
+    import pandas as pd
+
+    from .anndata_export import require_anndata
+
+    anndata = require_anndata()
+    obs = obs.copy()
+    obs.index = pd.Index([str(v) for v in labels], name="prcfo")
+    for column in obs.columns:
+        if obs[column].dtype == object:
+            obs[column] = obs[column].astype(str)
+    var = pd.DataFrame(index=pd.Index([str(g) for g in genes], name="gene"))
+    adata = anndata.AnnData(X=matrix.astype(np.float32), obs=obs, var=var)
+    adata.obsm["spatial"] = np.asarray(spatial, dtype=float)
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    adata.write_h5ad(path)
+    return path
+
+
+def _st_draw_overlay(figure, image, xy, values=None, *, radius: float = 0.0,
+                     mask=None, title: str = "", max_side: int = 1600,
+                     max_points: int = 60000) -> None:
+    """Draw the sequencing coordinates over the image, coloured by a gene.
+
+    :param figure: a matplotlib figure; cleared first.
+    :param image: the image the coordinates are registered to.
+    :param xy: ``(N, 2)`` points in that image's pixels.
+    :param values: one value per point (a gene's count); None draws every
+        point alike.
+    :param radius: the spot radius in pixels; 0 draws transcripts as dots.
+    :param mask: an optional label image whose object outlines are drawn.
+    :param title: the axis title.
+    :param max_side: the image is shrunk to at most this many pixels a side.
+    :param max_points: at most this many uncoloured points are drawn.
+    """
+    from skimage.segmentation import find_boundaries
+
+    figure.clear()
+    axis = figure.add_subplot(111)
+    step = max(1, int(np.ceil(max(image.shape[:2]) / float(max_side))))
+    shown = np.asarray(image)[::step, ::step]
+    if shown.ndim == 2:
+        axis.imshow(_st_gray(shown), cmap="gray", interpolation="nearest")
+    else:
+        rgb = shown[..., :3].astype(float)
+        axis.imshow(rgb / max(float(rgb.max()), 1.0), interpolation="nearest")
+    if mask is not None:
+        edges = find_boundaries(np.asarray(mask)[::step, ::step], mode="inner")
+        overlay = np.zeros(edges.shape + (4,))
+        overlay[edges] = (1.0, 1.0, 1.0, 0.6)
+        axis.imshow(overlay, interpolation="nearest")
+    xy = np.asarray(xy, dtype=float) / step
+    size = max(2.0, (2 * radius / step) ** 2 * 0.6) if radius else 1.5
+    if values is None:
+        chosen = np.arange(len(xy))
+        if len(chosen) > max_points:
+            chosen = np.random.default_rng(0).choice(len(xy), max_points,
+                                                     replace=False)
+        axis.scatter(xy[chosen, 0], xy[chosen, 1], s=size, c="#e4572e",
+                     linewidths=0, alpha=0.6)
+    else:
+        values = np.asarray(values, dtype=float)
+        if radius:
+            order = np.argsort(values)
+            points = axis.scatter(xy[order, 0], xy[order, 1], s=size,
+                                  c=np.log1p(values[order]), cmap="viridis",
+                                  linewidths=0, alpha=0.8)
+            figure.colorbar(points, ax=axis, fraction=0.035,
+                            label="log1p(count)")
+        else:
+            hit = values > 0
+            axis.scatter(xy[hit, 0], xy[hit, 1], s=3, c="#e4572e",
+                         linewidths=0)
+    axis.set_title(title, fontsize=9)
+    axis.set_axis_off()
+    figure.tight_layout()
+
+
+def _st_register(bundle: Mapping[str, Any], request: Mapping[str, Any]):
+    """Put the bundle's coordinates in the pixel frame of the analysis image.
+
+    Without a user image the frame is the platform's own image (Visium
+    ``hires``/``lowres``/``full``, Xenium morphology at a pyramid level).
+    With one, the platform image is registered onto it through landmarks
+    when a landmark table is given, else by image content.
+
+    :param bundle: a bundle from :func:`_st_read_bundle`.
+    :param request: ``image`` (a platform image name or a file of the user's
+        own), ``level`` and ``landmarks``.
+    :returns: a dict with ``xy``, ``radius``, ``microns_per_pixel``,
+        ``image`` (the analysis image), ``matrix`` (3x3, identity without a
+        user image) and ``registration`` (method and quality).
+    """
+    choice = str(request.get("image") or "")
+    level = int(request.get("level") or 0)
+    own = choice if choice and os.path.isfile(os.path.expanduser(choice)) \
+        else ""
+    if bundle["platform"] == "xenium":
+        name = "morphology"
+    else:
+        name = choice if choice in ("hires", "lowres", "full") else "hires"
+        if own:
+            name = "hires" if "hires" in bundle["images"] else "lowres"
+    if name not in bundle["images"]:
+        raise FileNotFoundError(f"The bundle has no {name} image.")
+    xy, radius, microns = _st_platform_xy(bundle, name, level)
+    platform_image = _st_load_image(bundle["images"][name], level)
+    result = {"xy": xy, "radius": radius, "microns_per_pixel": microns,
+              "image": platform_image, "matrix": np.eye(3),
+              "registration": {"method": "platform", "frame": name,
+                               "level": level}}
+    if not own:
+        return result
+    user_image = _st_load_image(os.path.expanduser(own))
+    landmarks = str(request.get("landmarks") or "")
+    if landmarks:
+        source, target = _st_read_landmarks(os.path.expanduser(landmarks))
+        matrix, rms = _st_fit_affine(source, target)
+        info = {"method": "landmarks", "rms_px": rms,
+                "landmarks": int(len(source))}
+    else:
+        matrix, info = _st_register_intensity(platform_image, user_image)
+    scale = float(np.sqrt(abs(np.linalg.det(matrix[:2, :2]))))
+    info.update({"frame": "user", "platform_frame": name})
+    result.update({
+        "xy": _st_apply_affine(matrix, xy), "radius": radius * scale,
+        "microns_per_pixel": microns / scale if microns else 0.0,
+        "image": user_image, "matrix": matrix, "registration": info})
+    return result
+
+
+def _st_gene_values(bundle: Mapping[str, Any], gene: str):
+    """One value per spot or transcript for colouring the overlay.
+
+    :param bundle: a bundle from :func:`_st_read_bundle`.
+    :param gene: the gene name; empty or unknown gives None.
+    :returns: the spot counts of ``gene`` (Visium) or a 0/1 flag per
+        transcript (Xenium), or None.
+    """
+    genes = list(bundle["genes"])
+    if not gene or gene not in genes:
+        return None
+    if bundle["platform"] == "xenium":
+        return (bundle["transcripts"]["gene"].to_numpy() == gene).astype(float)
+    column = genes.index(gene)
+    return np.asarray(bundle["counts"][:, column].toarray()).ravel()
+
+
+def _st_run(request: Mapping[str, Any], *, bundle=None,
+            registered=None) -> Dict[str, Any]:
+    """Read, register, assign to spaCR objects, write and analyse.
+
+    :param request: ``folder`` (the platform output), ``platform``,
+        ``bin_um``, ``min_qv``, ``image``, ``level``, ``landmarks``,
+        ``masks`` (``{object type: mask file}``), ``region_mask``, ``db``
+        (the measurement database), ``prcf`` (the image key; defaults to the
+        first mask's file stem), ``output`` (the results folder; defaults to
+        ``spatial_transcriptomics`` beside the database), ``gene`` (coloured
+        in the overlay) and ``anndata`` (write ``.h5ad`` when anndata is
+        installed).
+    :param bundle: an already-read bundle, to skip reading it again.
+    :param registered: an already-computed :func:`_st_register` result.
+    :returns: a summary with the objects written per type, the analyses'
+        file paths, the registration and the messages worth showing.
+    """
+    import pandas as pd
+
+    from .plot import save_figure
+    from .tabular import database_tables, read_table, write_table
+
+    bundle = bundle or _st_read_bundle(
+        request["folder"], str(request.get("platform") or "auto"),
+        bin_um=int(request.get("bin_um") or 8),
+        min_qv=float(request.get("min_qv") if request.get("min_qv")
+                     is not None else 20.0))
+    registered = registered or _st_register(bundle, request)
+    masks = {kind: _st_load_mask(os.path.expanduser(path))
+             for kind, path in (request.get("masks") or {}).items() if path}
+    if not masks:
+        raise ValueError("Give at least one object mask to assign reads to.")
+    frame_shape = np.asarray(registered["image"]).shape[:2]
+    for kind, mask in masks.items():
+        if mask.shape != frame_shape:
+            raise ValueError(
+                f"The {kind} mask is {mask.shape[1]}x{mask.shape[0]} px but "
+                f"the image the reads are registered to is "
+                f"{frame_shape[1]}x{frame_shape[0]} px; segment that image "
+                "or choose the image the mask was made from.")
+    first = next(path for path in request["masks"].values() if path)
+    prcf = str(request.get("prcf") or os.path.splitext(
+        os.path.basename(str(first)))[0])
+    db = os.path.expanduser(str(request["db"]))
+    output = os.path.expanduser(str(request.get("output") or os.path.join(
+        os.path.dirname(os.path.abspath(db)), "spatial_transcriptomics")))
+    os.makedirs(output, exist_ok=True)
+    genes = bundle["genes"]
+    microns = registered["microns_per_pixel"]
+    parasites = {k: masks[k] for k in ("pathogen", "vacuole") if k in masks}
+    summary: Dict[str, Any] = {
+        "platform": bundle["platform"], "prcf": prcf, "db": db,
+        "output": output, "registration": registered["registration"],
+        "objects": {}, "files": {}, "messages": []}
+    per_object = {}
+    for kind, mask in masks.items():
+        labels, matrix, coverage = _st_object_counts(
+            bundle, registered["xy"], mask, registered["radius"])
+        written = _st_write_counts(db, kind, prcf, labels, genes, matrix,
+                                   bundle["platform"])
+        if bundle["platform"] == "xenium":
+            assigned = int(matrix.sum())
+            written["assigned_fraction"] = assigned / max(
+                len(bundle["transcripts"]), 1)
+        if coverage is not None:
+            coverage = coverage.assign(
+                barcode=bundle["obs"]["barcode"].to_numpy()[
+                    coverage["spot"].to_numpy()],
+                prcfo=_st_prcfo(prcf, coverage["object_label"]))
+            _st_replace_image_rows(db, f"{kind}_spot_coverage",
+                                   coverage.drop(columns=["spot"]), prcf)
+            written["tables"] += (f"{kind}_spot_coverage",)
+            written["spots_covering"] = int(coverage["spot"].nunique())
+        summary["objects"][kind] = written
+        per_object[kind] = (labels, matrix)
+    host = "cell" if "cell" in masks else next(iter(masks))
+    labels, matrix = per_object[host]
+    geometry = _st_object_geometry(masks[host], {
+        k: v for k, v in parasites.items() if k != host}, microns)
+    geometry = geometry.reindex(labels)
+    obs = geometry.reset_index()
+    obs.insert(0, "prcfo", _st_prcfo(prcf, labels))
+    if os.path.exists(db) and host in database_tables(db):
+        measured = read_table(db, table=host, report=None)
+        if "prcfo" in measured.columns:
+            measured = measured.drop_duplicates("prcfo").set_index("prcfo")
+            extra = measured.drop(columns=[c for c in measured.columns
+                                           if c in obs.columns])
+            obs = obs.join(extra, on="prcfo")
+    files = summary["files"]
+    if parasites and host not in parasites:
+        infected = obs["infected"].to_numpy(dtype=bool)
+        try:
+            table = _st_compare_groups(matrix, genes, infected)
+            files["infected_vs_uninfected"] = write_table(
+                table, os.path.join(output, f"{prcf}_{host}_infected_vs_uninfected.csv"))
+            summary["infected_vs_uninfected"] = {
+                "n": table.attrs.get("n"), "genes": int(len(table)),
+                "significant": int((table["q_value"] < 0.05).sum())}
+        except ValueError as error:
+            summary["messages"].append(str(error))
+        try:
+            trend = _st_distance_trend(matrix, genes,
+                                       obs["distance_to_parasite"])
+            files["distance_trend"] = write_table(
+                trend, os.path.join(output, f"{prcf}_{host}_distance_trend.csv"))
+        except ValueError as error:
+            summary["messages"].append(str(error))
+    region_path = str(request.get("region_mask") or "")
+    if region_path:
+        region_mask = _st_load_mask(os.path.expanduser(region_path))
+        centres = obs[["centroid_x", "centroid_y"]].to_numpy()
+        regions = _st_points_in_mask(centres, region_mask)
+        obs["region"] = regions
+    elif parasites and host not in parasites:
+        regions = np.where(obs["infected"], "infected", "uninfected")
+    else:
+        regions = np.full(len(obs), "all")
+    files["region_summary"] = write_table(
+        _st_region_summary(matrix, genes, regions),
+        os.path.join(output, f"{prcf}_{host}_region_summary.csv"))
+    if request.get("anndata", True):
+        try:
+            files["anndata"] = _st_write_anndata(
+                os.path.join(output, f"{prcf}_{host}.h5ad"), obs["prcfo"],
+                genes, matrix, obs.drop(columns=["prcfo"]),
+                obs[["centroid_x", "centroid_y"]].to_numpy())
+        except ImportError as error:
+            summary["messages"].append(str(error).splitlines()[0])
+    from matplotlib.figure import Figure
+
+    figure = Figure(figsize=(7.0, 6.0))
+    gene = str(request.get("gene") or "")
+    _st_draw_overlay(figure, registered["image"], registered["xy"],
+                     _st_gene_values(bundle, gene),
+                     radius=registered["radius"], mask=masks[host],
+                     title=f"{bundle['platform']} {gene}".strip())
+    files["overlay"] = save_figure(figure, os.path.join(
+        output, f"{prcf}_overlay.png"))
+    summary["obs"] = obs
+    return summary

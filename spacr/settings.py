@@ -7257,6 +7257,9 @@ ALPHA_FEATURES = {
     585: {
         'widgets': ('PowerArrayedPlanner',),
     },
+    534: {
+        'widgets': ('MapBarcodesSpatialToggle', 'MapBarcodesSpatialCard'),
+    },
 }
 
 
