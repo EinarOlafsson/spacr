@@ -22104,12 +22104,12 @@ unmix
 |             ``_prepare_unmixing`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.measure.measure_crop`
-|     ``_prepare_measure_unmixing``
+|     ``_prepare_measure_unmixing`` **-- reads it**
 |         ``_prepare_unmixing`` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by ``_prepare_unmixing``, ``processing_requested``.
+Read by ``_prepare_measure_unmixing``, ``_prepare_unmixing``, ``processing_requested``.
 
 .. _setting-flow-unmix_background_percentile:
 

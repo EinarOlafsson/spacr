@@ -205,6 +205,27 @@
   },
   "limitations": [
     "No native-speaker signoff.",
-    "Full canonical audit retains18 localized README link/RST-target failures; API has zero failures."
-  ]
+    "The original full canonical audit preceded README repair and is preserved above; its 18 README failures were subsequently resolved by the scoped canonical recheck below. API checks were not repeated because those catalogs were unchanged."
+  ],
+  "readme_followup": {
+    "date": "2026-09-27",
+    "exit_code": 0,
+    "languages_checked": 9,
+    "scope": "Unmodified canonical README branch and syntax-contract helpers extracted from the audit AST; no API gate was changed or rerun.",
+    "canonical_audit_sha256": "9963a3adbf20ec491778632573b69bb62081875118e584291e162fdb7c9ca3cd",
+    "english_readme_sha256": "9d0fda10cabd97b52fb15570fd757bde3b43a36997655d9bb84b4523bb821445",
+    "script": "/mnt/wd4tb/scratch/spacr-completion/api-delta3/final_combined_audit.py",
+    "receipt": "/mnt/wd4tb/scratch/spacr-completion/api-delta3/final-combined-audit.json",
+    "current_runtime_entries_per_locale": 8726,
+    "current_api_symbols_per_locale": 11865,
+    "live_report_validation": {
+      "passed": 2,
+      "elapsed_seconds": 272.22,
+      "targets": [
+        "tests/test_i18n_coverage_audit.py::test_checked_in_coverage_report_is_the_live_source_report",
+        "tests/test_i18n_coverage_audit.py::test_written_review_scope_matches_current_source_bound_evidence"
+      ],
+      "log": "/mnt/wd4tb/scratch/spacr-completion/api-delta3/final-report-tests.log"
+    }
+  }
 }
