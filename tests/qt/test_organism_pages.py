@@ -62,6 +62,13 @@ def test_each_organism_has_home_tiles_and_a_credited_cell_diagram(
         assert tile.height() == scaled_px(TILE_H)
         assert tile.maximumWidth() == scaled_px(TILE_MAX_W)
         assert tile.sizePolicy().horizontalPolicy() == QSizePolicy.Preferred
+    # 2026-09-27 (item 43): wait for the settled layout rather than 30 ms.
+    # Under load the tiles are still narrowing to their final width at
+    # 30 ms ("Drug response imaging" measured 152 px wide against the 158
+    # it needs, then 172 once laid out), which failed two CI workers.
+    qtbot.waitUntil(
+        lambda: all(not tile.is_name_elided() for tile in screen._tiles),
+        timeout=3000)
     assert all(not tile.is_name_elided() for tile in screen._tiles)
     assert screen._scroll.horizontalScrollBar().maximum() == 0
     assert screen._module_scroll.horizontalScrollBar().maximum() == 0

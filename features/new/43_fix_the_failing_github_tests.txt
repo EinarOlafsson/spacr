@@ -2241,3 +2241,47 @@ today's modules (table in item 288). Still red for other lanes: docs count
 pins (callables 9767 vs 9735, API 11793 vs 11758, en.json manifest), the
 i18n caption ratchet, and release metadata in CITATION.cff and the conda
 recipe. This is not a green-CI claim.
+
+2026-09-27 — NIGHTLY 3307cb8a8: SIX FAILURE FAMILIES AND THE gw0 NATIVE CRASH
+Reproduced against run 36283739124's logs (the last to reach its test jobs).
+- Dense channel map (r8/r9/stale_c pins): item 493 moved the Cellpose-SAM
+  loop into _fill_cellpose_channel_positions and left a copy in
+  generate_cellpose_masks. That generator now calls the helper too; the
+  three pins follow the one-helper structure.
+- log_call verbose-off test: is_verbose() reads _verbose, and the verbose
+  preference defaults on, so any earlier test that applied preferences left
+  it True. The test now sets it off itself.
+- Organism pages [plasmodium]: a 30 ms wait. Under load the tiles are still
+  narrowing at 30 ms ("Drug response imaging" 152 px wide, needs 158, 172
+  once laid out; 21 of 40 builds on a loaded host). The test waits for the
+  settled layout. Fonts are not the cause: DejaVu Sans, CI's substitute for
+  Open Sans, needs 163 px of the 171 px it is given.
+- Instruction index: tools/build_instruction_index.py regenerates it
+  identical apart from the date on this tree; it was stale only in 43845277b.
+- a_channel_brings_its_segmentation_settings: passes on this tree, alone and
+  in the replayed gw0 order; its failure was on the previous agent's tree.
+- Preloading timing test: flaky, not order-dependent. It failed as the FIRST
+  file of a serial run (bisect 38-59) and passed 3/3 alone on the same host
+  minutes later. It is skipped under xdist already; it now runs only when
+  `-m timing` is asked for, the one request that says the machine is idle.
+- NATIVE CRASH, FOUND AND FIXED: MeasurementScanPanel's reader threads
+  emitted "read landed" on a _ReadRelay that was a CHILD of the panel. When
+  the GUI thread destroyed the panel mid-read, the worker's emit ran on a
+  QObject being freed. A replay of Qt shard 0 gw1's first 29 files under a
+  CI-like fontconfig segfaulted there (_run_read, line 246). A 5000-cycle
+  stress (build panel, start a read, delete the panel) crashed 4 of 4 runs
+  with the child relay (segfault or abort) and 0 of 3 with the fix: one
+  process-wide relay that is never destroyed, carrying a weak reference to
+  its panel and skipping a panel that is gone. The same replay then ran to
+  the end. The QImage::save -> QFactoryLoader -> moveToThread crash on gw0
+  is most likely a later symptom of the same use-after-free (gw0 runs
+  test_the_measurement_scan_panel.py first). It was NOT reproduced locally in
+  ~6 replays, so this is not proven. A main-thread probe (theMainThread
+  pointer, id and vtable checked before and after every test) saw no change
+  across the whole gw0 list. spacr's moveToThread calls are worker setup
+  plus three "come home" moves (sound, verbose_logger, logging_util). The
+  every-screen sweep starts only Python threads (Annotate's path probes,
+  Make Masks' model catalogue), no QThread.
+  Left: the panel's _relay_progress/_relay_started/_relay_result emit on the
+  panel itself from worker threads, the same pattern, guarded only by
+  RuntimeError. If gw0 still crashes, move those to the shared relay too.
