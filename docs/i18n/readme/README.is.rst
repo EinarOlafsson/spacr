@@ -2,7 +2,7 @@
 
 .. |Docs| image:: https://img.shields.io/github/actions/workflow/status/EinarOlafsson/spacr/pages%2Fpages-build-deployment?label=API%20Documentation
    :target: https://einarolafsson.github.io/spacr/
-   :alt: Skjöl
+   :alt: API-skjöl
 .. |Tutorials| image:: https://img.shields.io/badge/Tutorials-Interactive%20walkthrough-4A9EFF
    :target: https://einarolafsson.github.io/spacr/tutorials/
    :alt: Gagnvirkt kennsluefni
@@ -84,6 +84,18 @@ Myndir, grímur, myndúrklippur, mælingar, merkingar, spár, strikamerki og au�
 
 Keyrist sem skjáborðsforrit eða án grafísks viðmóts á vinnustöð, þjóni eða reikniklasa.
 
+Prófa spaCR
+~~~~~~~~~~~
+
+.. code-block:: bash
+
+   conda create -n spacr python=3.12 -y
+   conda activate spacr
+   python -m pip install "spacr[qt]"
+   spacr
+
+Notaðu **Hlaða prófunargögnum…** í Import, Make Masks, Annotate eða á greiningarskjá til að sækja sýnigögn. Notaðu ``spacr-download`` í skipanalínu.
+
 Hardware aðstoð
 ~~~~~~~~~~~~~~~~
 
@@ -128,10 +140,10 @@ Hardware aðstoð
 
 
 Setja upp spaCR
----------------
+~~~~~~~~~~~~~~~
 
 Skjáborðsforrit
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 Þessir uppbyggingar búnir eigin Python. Conda er ekki nauðsynlegt.
 
@@ -169,10 +181,10 @@ Fyrstu þremur tákn leyfja núverandi útgáfu. spaCR táknin opnar fullkomið 
 
 Á macOS, opna ``.pkg``. Núverandi beta er ekki notarið; ef Gatekeeper blokkir það, velja **System Settings → Privacy & Security → Open Anyway**.
 
-Sjá `Installer leiðbeiningar <../../source/installer_guide.rst>`_ til að uppgötva, deinstalla, offline og vandamálið.
+Sjá `uppsetningarleiðbeiningarnar <../../source/installer_guide.rst>`_ fyrir leiðbeiningar um uppfærslu, fjarlægingu, notkun án nettengingar og bilanagreiningu. Í `kerfiskröfunum <../../source/system_requirements.rst>`_ eru ráðleggingar um vinnustöðvar og netþjóna og töflur um GPU-samhæfi.
 
 Uppsetning frá PyPI
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 Fyrir útgáfuna á PyPI skaltu setja spaCR upp með pip inni í Conda-umhverfi. Python 3.12 býður upp á mesta úrvalið af valfrjálsum vísindapökkum:
 
@@ -196,7 +208,7 @@ Slepptu Qt á þjóni, reikniklasa eða CI-keyrsluumhverfi:
 Opinlegri samsetningar eru settar sérstakt, t.d. ``spacr[zarr]``, ``spacr[omero]``,``spacr[napari]`` og ``spacr[czi,nd2,lif]``. Sjá `Uppsetningu leiðbeiningar <../../source/installer_guide.rst>`_ fyrir fullkomna útgáfur og Python-version samskipti tól.
 
 Uppsetning með conda-forge
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------
 
 Opinberi conda-forge-pakkinn setur spaCR og nauðsynlegar einingar skjáborðsforritsins upp í virka umhverfinu:
 
@@ -208,7 +220,7 @@ Opinberi conda-forge-pakkinn setur spaCR og nauðsynlegar einingar skjáborðsfo
    spacr
 
 Uppsetning frá frumkóða
-~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------
 
 Klónaðu kóðasafnið og settu það upp í breytanlegum ham, svo að vinnueintakið þitt *sé* uppsetti pakkinn og breytingar taki gildi án enduruppsetningar::
 
@@ -231,7 +243,7 @@ Til að sækja síðari breytingar skaltu keyra inni í klóninu::
 Seinni línan er aðeins nauðsynleg þegar pakkar sem spaCR er háð eða inngangspunktar hafa breyst; Python-kóði skilar sér án hennar. Ef skipun keyrir enn gamlan kóða eftir að breytingar hafa verið sóttar sýnir ``spacr-doctor`` hvaða ``spacr`` er í raun í leitarslóðinni þinni, en þar liggur orsökin oftast.
 
 Uppsetning frá frumkóða (létt)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------
 
 Þeir sem leggja til kóða þurfa alla söguna; til að keyra spaCR eingöngu dugar ein af þessum leiðum. Tölurnar voru mældar 2026-09-15 með ``packaging/measure_clone_forms.sh``::
 
@@ -269,8 +281,6 @@ Skipanalínuskipanir
    spacr-download measure annotate            # fetch example sets by name
    spacr-make-masks --folder DIR              # curate masks as a resumable queue
    spacr-make-masks --folder DIR --order easy --limit 50
-
-Stilltu ``SPACR_LOG_LEVEL=DEBUG`` við bilanagreiningu. Annálaskrár með skráaveltu eru skrifaðar í ``~/.spacr/logs/spacr.log``.
 
 ``spacr-run --list`` listar einingar sem hafa skipanalínuinngang til keyrslu án grafísks viðmóts. Einingum fyrir merkingu, gagnayfirferð, samanburð og könnun sem eingöngu eru í GUI er sleppt.
 
@@ -432,14 +442,14 @@ Quantitative readouts for biological assays.
 
 .. spacr-workflow-end
 
-Allar einingar sem fylgja spaCR, í sömu röð og á upphafsskjánum: fyrst sex einingar aðalvinnuflæðisins, síðan allt annað. Veldu reit til að opna API-síðu einingarinnar.
+Allar einingar sem eiga reit á upphafsskjánum, í sömu röð og þar: fyrst sex einingar vinnslukeðjunnar, síðan hinar. Veldu reit til að opna API-síðu einingarinnar.
 
 Hvert verkfæri er útskýrt í `eiginleikahandbókinni <../../source/features.rst>`_.
 
 Öll aðrar auðlindir
 ~~~~~~~~~~~~~~~~~~~
 
-- `Samskiptaþjálfunar <https://einarolafsson.github.io/spacr/tutorials/>`_ — 73 leiðbeiningar vinnufluðum frá uppsetningu í gegnum hit rannsóknir.
+- `Gagnvirkt kennsluefni <https://einarolafsson.github.io/spacr/tutorials/>`_ — leiðsögn um verkferla frá uppsetningu til rannsóknar á niðurstöðum skimunar.
 - `Python API snemma byrjun <../../source/python_api.rst>`_ — hlaupa og staðfest pipelines frá skriptum, notebooks eða klúster.
 - `Leikstjóri <../../source/features.rst>`_ — hæfileika, fullnægjandi og valfrjáls tengsl.
 - `Heilluð API reference <https://einarolafsson.github.io/spacr/api/index.html>`_ — stuðlað innfangspunktur eftir verkefni, með fullkomna mótum tengslum einn hærra.
@@ -458,7 +468,7 @@ Hreyfimyndaleiðbeiningar fyrir stillingar
 Stillingar með sjónræna skýringu bjóða upp á **Animation**-stýringu í verkfæraábendingunni. Skoðaðu `myndasafn stillingahreyfimynda <https://einarolafsson.github.io/spacr/setting_animations.html>`_ eða `skrá stillingahreyfimynda <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.
 
 Gögn
-----
+~~~~
 
 Viðmiðunargagnasöfn
 ~~~~~~~~~~~~~~~~~~~
@@ -563,7 +573,7 @@ Hvert dæmi yfir er metið á myndum sem myndavél hefur aldrei séð í æfingu
 
 **Cross-validated**, með **SD**, þýðir að skólan er miðjan þremur rún á mismunandi rúnum og SD er hversu langt þeir flytja út.
 
-Modelli eru veitt á eigin Hugging Face reikningum rithöfundar síns, þannig að að taka þátt þýðir ekki að veita skrifu aðgang að einhverjum öðrum. ``spacr.model_zoo`` ``publish_model`` gerir upplifun og trúa á listanum eftir að bæta.
+Líkön eru hýst á eigin Hugging Face-reikningi hvers höfundar; ``spacr.model_zoo.publish_model`` hleður upp líkani og prentar færsluna sem bæta á í líkanaskrána.
 
 
 Greining á afköstum
@@ -575,7 +585,7 @@ Búðu til vélbúnaðarskýrslu og hengdu hana við mál um afköst::
 
 Spara til ``~/.spacr/reports`` og trúa leiðinni. ``--quick`` skiptir lengri skilyrði; ``--out PATH`` setur staðsetningu.
 
-Lesa engin verkefni gögnum. Tíms innfang, fjölbreytna bókasafn, vinstri byggingu og uppgötvun. Rannsóknir um meðferð-arquitectur emulans (a x86_64 Python bygging á Apple Silicon) og BLAS framkvæmd NumPy.
+Les engin verkefnisgögn. Mælir tímann sem innflutningur, töluleg söfn, gerð glugga og hreyfimyndir taka og greinir frá x86_64-hermun á Apple Silicon og BLAS-útfærslu NumPy.
 
 Orðlinna reference
 ----------------------
@@ -590,8 +600,6 @@ Að byrja við umsókn
    spacr              # the desktop application
    spacr-tutorial     # the interactive tutorial library
    spacr-server       # no first-run setup screen, for unattended launches
-
-``spacr-server`` skípa modal setup skján, sem annars myndi blokkja óþekkt vinnu.
 
 ``spacr-qt`` og ``spacr-nightly`` eru alias af ``spacr``.
 
@@ -623,8 +631,6 @@ Engin Qt, engin sýning — fyrir klúster, þjónusta og CI.
 
 ``validate`` lætur sömu settun sem fer myndi og segir hvað er saknað, óþekkt eða sýnir ekkert.
 
-``spacr-run --list`` sýnir aðeins mólur með heiðarlegt innfangspunkt; notkun, lækning og rannsóknir eru samskipt og yfirgefið.
-
 Spurning á leiðinni síðar
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -655,7 +661,7 @@ Rotating logs eru skrifað í ``~/.spacr/logs/spacr.log``. Sættu þessar skál 
 
 
 Framlög og aðstoð
-------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 Sendu villutilkynningar og afmarkaðar óskir um eiginleika í gegnum `GitHub-mál <https://github.com/EinarOlafsson/spacr/issues>`_. Þegar bilun er tilkynnt skal tilgreina útgáfu spaCR, stýrikerfi, útgáfu Python, stillingar einingarinnar og viðeigandi hluta úr annálnum. ``spacr-doctor`` safnar flestum þessara upplýsinga; láttu vélbúnaðarskýrsluna fylgja þegar tilkynnt er um afkastavandamál.
 

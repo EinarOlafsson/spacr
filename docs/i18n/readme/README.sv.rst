@@ -2,7 +2,7 @@
 
 .. |Docs| image:: https://img.shields.io/github/actions/workflow/status/EinarOlafsson/spacr/pages%2Fpages-build-deployment?label=API%20Documentation
    :target: https://einarolafsson.github.io/spacr/
-   :alt: Dokumentation
+   :alt: API-dokumentation
 .. |Tutorials| image:: https://img.shields.io/badge/Tutorials-Interactive%20walkthrough-4A9EFF
    :target: https://einarolafsson.github.io/spacr/tutorials/
    :alt: Interaktiva handledningar
@@ -84,6 +84,18 @@ Bilder, masker, bildutsnitt, mätningar, annoteringar, förutsägelser, streckko
 
 Körs som ett skrivbordsprogram eller utan grafiskt gränssnitt på en arbetsstation, server eller kluster.
 
+Prova spaCR
+~~~~~~~~~~~
+
+.. code-block:: bash
+
+   conda create -n spacr python=3.12 -y
+   conda activate spacr
+   python -m pip install "spacr[qt]"
+   spacr
+
+Använd **Ladda testdata…** i Import, Make Masks, Annotate eller en analysskärm för att hämta exempeldata. Från en terminal använder du ``spacr-download``.
+
 Hårdvarustöd
 ~~~~~~~~~~~~~~~~
 
@@ -128,10 +140,10 @@ Hårdvarustöd
 
 
 Installera spaCR
-----------------
+~~~~~~~~~~~~~~~~
 
 Skrivbordsprogram
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 Installatörerna buntar ihop sina egna Python. Conda krävs inte.
 
@@ -169,10 +181,10 @@ Gör den hämtade filen körbar i Linux och kör den:
 
 På macOS, öppna ``.pkg``. Nuvarande beta notariseras inte. Om Gatekeeper blockerar den, välj **Systeminställningar → Integritet & Säkerhet → Öppna ändå**.
 
-Se `installationsguide <../../source/installer_guide.rst>`_ för uppdatering, avinstallera, offline och felsökningsinstruktioner.
+Se `installationsguiden <../../source/installer_guide.rst>`_ för instruktioner om uppdatering, avinstallation, offlineanvändning och felsökning, och `systemkraven <../../source/system_requirements.rst>`_ för rekommendationer om arbetsstationer och servrar samt tabeller över GPU-kompatibilitet.
 
 Installation från PyPI
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
 För PyPI-utgåvan installerar du spaCR med pip i en Conda-miljö. Python 3.12 ger det största urvalet av valfria vetenskapliga paket:
 
@@ -196,7 +208,7 @@ Utelämna Qt på en server, ett beräkningskluster eller en CI-körare:
 Optional integrations are installed separately, for example ``spacr[zarr]``, ``spacr[omero]``, ``spacr[napari]`` and ``spacr[czi,nd2,lif]``. See the `installationsguide <../../source/installer_guide.rst>`_ for the complete extras and Python-version compatibility table.
 
 Installation med conda-forge
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------
 
 Det officiella conda-forge-paketet installerar spaCR och dess skrivbordsberoenden i den aktiva miljön:
 
@@ -208,7 +220,7 @@ Det officiella conda-forge-paketet installerar spaCR och dess skrivbordsberoende
    spacr
 
 Installation från källkod
-~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------
 
 Klona kodförrådet och installera det i redigerbart läge, så att din arbetskopia *är* det installerade paketet och ändringar börjar gälla utan ominstallation::
 
@@ -231,7 +243,7 @@ För att hämta senare ändringar kör du inifrån klonen::
 Den andra raden behövs bara när beroenden eller ingångspunkter har ändrats; Python-kod tas med även utan den. Om ett kommando fortfarande kör gammal kod efter en pull visar ``spacr-doctor`` vilken ``spacr`` som faktiskt ligger på din sökväg, vilket är den vanliga orsaken.
 
 Installation från källkod (lättviktig)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------------
 
 Den som bidrar behöver historiken; för att bara köra spaCR räcker ett av dessa alternativ, uppmätta 2026-09-15 med ``packaging/measure_clone_forms.sh``::
 
@@ -269,8 +281,6 @@ Kommandoradskommandon
    spacr-download measure annotate            # fetch example sets by name
    spacr-make-masks --folder DIR              # curate masks as a resumable queue
    spacr-make-masks --folder DIR --order easy --limit 50
-
-Ange ``SPACR_LOG_LEVEL=DEBUG`` vid felsökning. Roterande loggar skrivs till ``~/.spacr/logs/spacr.log``.
 
 ``spacr-run --list`` listar moduler med kommandoradsposter för körning utan grafiskt gränssnitt. GUI-bundna moduler för annotering, kurering, jämförelse och utforskning utelämnas.
 
@@ -432,14 +442,14 @@ Quantitative readouts for biological assays.
 
 .. spacr-workflow-end
 
-Alla moduler som följer med spaCR, i den ordning startskärmen visar dem: först de sex pipelinemodulerna, sedan allt annat. Välj en ruta för att öppna modulens API-sida.
+Alla moduler med en ruta på startskärmen, i startskärmens ordning: först de sex pipelinemodulerna, sedan resten. Välj en ruta för att öppna modulens API-sida.
 
 Se `funktionsguiden <../../source/features.rst>`_ för varje verktyg.
 
 Övriga resurser
 ~~~~~~~~~~~~~~~
 
-- `Interaktiva handledningar <https://einarolafsson.github.io/spacr/tutorials/>`_ – 73 guidade arbetsflöden från installation genom träffundersökning.
+- `Interaktiva handledningar <https://einarolafsson.github.io/spacr/tutorials/>`_ — guidade arbetsflöden från installation till undersökning av träffar.
 - `Snabbstart Python API <../../source/python_api.rst>`_ – kör och validera arbetsflöden från skript, anteckningsböcker eller ett kluster.
 - `Handbok för funktioner <../../source/features.rst>`_ – kapacitet, mognad och valfria integrationer.
 - `Kurerad API referens <https://einarolafsson.github.io/spacr/api/index.html>`_ – understödda ingångspunkter för uppgift, med den fullständiga modulreferensen en nivå djupare.
@@ -458,7 +468,7 @@ Animerad hjälp för inställningar
 Inställningar med en visuell förklaring har kontrollen **Animation** i verktygstipset. Bläddra i `galleriet med inställningsanimationer <https://einarolafsson.github.io/spacr/setting_animations.html>`_ eller `registret över inställningsanimationer <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.
 
 Data
-----
+~~~~
 
 Referensdatauppsättningar
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -563,7 +573,7 @@ Varje figur ovan mäts på bilder modellen aldrig såg i träning.
 
 **Cross-validerad**, med en **SD**, betyder att poängen är medelvärdet av tre körningar på olika splitar och SD är hur långt de flyttade isär. En split kan ha tur: denna modells litteraturfigur är 0,834 på en enda 19-håls split och 0,806 på alla tre.
 
-Modeller är värd på sin författares eget Hugging Face konto, så bidragande betyder inte att ge skrivåtkomst till någon annans. ``spacr.model_zoo`` s ``publish_model`` utför uppladdningen och skriver ut katalograden att lägga till.
+Modeller lagras på respektive författares eget Hugging Face-konto; ``spacr.model_zoo.publish_model`` laddar upp en modell och skriver ut katalograden som ska läggas till.
 
 
 Prestandadiagnostik
@@ -575,7 +585,7 @@ Skapa en maskinvarurapport och bifoga den till ett prestandarelaterat ärende::
 
 Sparar till ``~/.spacr/reports`` och skriver ut sökvägen. ``--quick`` hoppar över de längre riktmärkena; ``--out PATH`` anger platsen.
 
-Läser inga projektdata. Tidsimport, numeriska bibliotek, fönsterkonstruktion och animering. Rapporter processor-arkitektur emulering (en x86_64 Python bygga på Apple Silicon) och NumPy s BLAS genomförande.
+Läser inga projektdata. Mäter tiden för importer, numeriska bibliotek, fönsterkonstruktion och animering, och rapporterar x86_64-emulering på Apple Silicon samt NumPys BLAS.
 
 Kommandoradsreferens
 ----------------------
@@ -590,8 +600,6 @@ Lansering av ansökan
    spacr              # the desktop application
    spacr-tutorial     # the interactive tutorial library
    spacr-server       # no first-run setup screen, for unattended launches
-
-``spacr-server`` hoppar över skärmen för modal inställning, som annars skulle blockera ett oövervakat jobb.
 
 ``spacr-qt`` och ``spacr-nightly`` är alias till ``spacr``.
 
@@ -623,8 +631,6 @@ Ingen Qt, ingen visning – för kluster, servrar och CI.
 
 ``validate`` läser samma inställningar som körningen skulle och rapporterar vad som saknas, motsägelsefullt eller pekar på ingenting.
 
-``spacr-run --list`` visar endast moduler med en huvudlös ingångspunkt; annotering, kuration och prospektering är interaktiva och utelämnade.
-
 Inspektera en körning efteråt
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -655,7 +661,7 @@ Roterande loggar skrivs till ``~/.spacr/logs/spacr.log``. Bifoga filen till en f
 
 
 Bidrag och support
-------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 Skicka felrapporter och avgränsade funktionsförslag via `GitHub-ärenden <https://github.com/EinarOlafsson/spacr/issues>`_. Ange spaCR-version, operativsystem, Python-version, modulinställningar och relevant loggutdrag när du rapporterar ett fel. ``spacr-doctor`` samlar in det mesta av denna information; bifoga maskinvarurapporten vid prestandaproblem.
 

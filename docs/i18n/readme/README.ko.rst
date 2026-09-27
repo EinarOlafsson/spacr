@@ -2,7 +2,7 @@
 
 .. |Docs| image:: https://img.shields.io/github/actions/workflow/status/EinarOlafsson/spacr/pages%2Fpages-build-deployment?label=API%20Documentation
    :target: https://einarolafsson.github.io/spacr/
-   :alt: 문서
+   :alt: API 문서
 .. |Tutorials| image:: https://img.shields.io/badge/Tutorials-Interactive%20walkthrough-4A9EFF
    :target: https://einarolafsson.github.io/spacr/tutorials/
    :alt: 대화형 튜토리얼
@@ -84,6 +84,18 @@ spaCR는 고함량 현미경 영상에서 단일 세포를 분할하고 측정�
 
 데스크톱 애플리케이션으로 실행되거나 워크스테이션, 서버 또는 클러스터에서 헤드리스로 실행됩니다.
 
+spaCR 사용해 보기
+~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   conda create -n spacr python=3.12 -y
+   conda activate spacr
+   python -m pip install "spacr[qt]"
+   spacr
+
+Import, Make Masks, Annotate 또는 분석 화면에서 **테스트 데이터 불러오기…**\ 를 사용하여 예제 데이터를 다운로드합니다. 터미널에서는 ``spacr-download``\ 를 사용합니다.
+
 하드웨어 지원
 ~~~~~~~~~~~~~~~~
 
@@ -128,10 +140,10 @@ spaCR는 고함량 현미경 영상에서 단일 세포를 분할하고 측정�
 
 
 spaCR 설치
--------------
+~~~~~~~~~~~~~
 
 데스크톱 애플리케이션
-~~~~~~~~~~~~~~~~~~~~~
+---------------------
 
 The installers bundle their own Python. Conda is not required.
 
@@ -169,10 +181,10 @@ Linux에서는 다운로드한 파일에 실행 권한을 부여한 후 실행�
 
 macOS에서는 ``.pkg``\ 를 여세요. 현재 베타는 공증되지 않았습니다. Gatekeeper가 차단하면 **시스템 설정 → 개인정보 보호 및 보안 → 그래도 열기**\ 를 선택하세요.
 
-업데이트, 제거, 오프라인 설치 및 문제 해결 지침은 `설치 가이드 <../../source/installer_guide.rst>`_\ 를 참조하십시오.
+업데이트, 제거, 오프라인 사용 및 문제 해결 지침은 `설치 안내서 <../../source/installer_guide.rst>`_\ 를 참조하십시오. 워크스테이션과 서버 권장 사항 및 GPU 호환성 표는 `시스템 요구 사항 <../../source/system_requirements.rst>`_\ 을 참조하십시오.
 
 PyPI 설치
-~~~~~~~~~~~~~~~~~
+-----------------
 
 PyPI 릴리스는 Conda 환경 안에서 pip로 spaCR를 설치하세요. Python 3.12에서 선택 가능한 과학 패키지의 범위가 가장 넓습니다:
 
@@ -196,7 +208,7 @@ spaCR는 Python **3.9 through 3.14** 버전을 지원하며, torchvision이 제�
 선택적 통합 기능은 ``spacr[zarr]``, ``spacr[omero]``, ``spacr[napari]`` 및 ``spacr[czi,nd2,lif]``\ 과 같이 별도로 설치합니다. 전체 추가 기능 목록과 Python 버전 호환성 표는 `설치 안내서 <../../source/installer_guide.rst>`_\ 를 참조하십시오.
 
 conda-forge 설치
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
 
 공식 conda-forge 패키지는 활성 환경에 spaCR 및 데스크톱 실행에 필요한 종속성을 설치합니다:
 
@@ -208,7 +220,7 @@ conda-forge 설치
    spacr
 
 소스 코드에서 설치
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 저장소를 클론한 뒤 편집 가능 모드로 설치하십시오. 그러면 작업 사본 *자체가* 설치된 패키지가 되어, 수정 사항이 재설치 없이 반영됩니다::
 
@@ -231,7 +243,7 @@ conda-forge 설치
 두 번째 줄은 의존성이나 진입점이 바뀐 경우에만 필요하며, Python 코드는 이 줄 없이도 반영됩니다. pull 후에도 명령이 이전 코드를 실행한다면, ``spacr-doctor`` 명령이 경로에서 실제로 사용되는 ``spacr`` 실행 파일이 어느 것인지 알려 줍니다. 대개 이것이 원인입니다.
 
 소스 코드에서 설치 (경량)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------
 
 기여자에게는 전체 이력이 필요합니다. spaCR를 실행만 하려면 다음 중 하나를 사용하십시오. 수치는 2026-09-15에 ``packaging/measure_clone_forms.sh`` 스크립트로 측정했습니다::
 
@@ -269,8 +281,6 @@ conda-forge 설치
    spacr-download measure annotate            # fetch example sets by name
    spacr-make-masks --folder DIR              # curate masks as a resumable queue
    spacr-make-masks --folder DIR --order easy --limit 50
-
-문제를 해결할 때 ``SPACR_LOG_LEVEL=DEBUG``\ 로 설정하세요. 순환 로그는 ``~/.spacr/logs/spacr.log``\ 에 기록됩니다.
 
 ``spacr-run --list``\ 는 그래픽 인터페이스 없이 실행할 수 있는 명령줄 진입점이 있는 모듈을 나열합니다. GUI에서만 제공되는 주석, 큐레이션, 비교 및 탐색 모듈은 목록에서 제외됩니다.
 
@@ -432,14 +442,14 @@ Quantitative readouts for biological assays.
 
 .. spacr-workflow-end
 
-spaCR에 포함된 모든 모듈을 홈 화면에 나열되는 순서대로 보여 줍니다. 먼저 여섯 개의 파이프라인 모듈, 그다음 나머지 모듈입니다. 타일을 선택하면 해당 모듈의 API 페이지가 열립니다.
+홈 화면에 타일이 있는 모든 모듈을 홈 화면 순서대로 표시합니다. 먼저 여섯 파이프라인 모듈이 나오고 나머지 모듈이 이어집니다. 타일을 선택하면 해당 모듈의 API 페이지가 열립니다.
 
 각 도구에 대한 설명은 `기능 가이드 <../../source/features.rst>`_ 문서를 참조하십시오.
 
 다른 자원
 ~~~~~~~~~~~~~~~
 
-- `인터랙티브 튜토리얼 <https://einarolafsson.github.io/spacr/tutorials/>`_ — 설치에서 히트 조사를 통해 73 개의 지시된 작업 흐름.
+- `대화형 튜토리얼 <https://einarolafsson.github.io/spacr/tutorials/>`_ — 설치부터 스크리닝 히트 조사까지 안내하는 작업 흐름.
 - `Python API 빠른 시작 <../../source/python_api.rst>`_ - 스크립트, 노트북 또는 클러스터에서 튜브를 실행하고 검증합니다.
 - `특징 가이드 <../../source/features.rst>`_ - 능력, 성숙성 및 선택적 통합.
 - `정리된 API 참조 <https://einarolafsson.github.io/spacr/api/index.html>`_ - 작업에 따라 지원되는 입력 포인트, 전체 모듈 참조 1 레벨 더 깊습니다.
@@ -458,7 +468,7 @@ spaCR에 포함된 모든 모듈을 홈 화면에 나열되는 순서대로 보�
 시각적 설명이 있는 설정은 도구 설명에 **Animation** 컨트롤을 제공합니다. 다음 리소스를 살펴보세요: `설정 애니메이션 갤러리 <https://einarolafsson.github.io/spacr/setting_animations.html>`_ 및 `설정 애니메이션 레지스트리 <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.
 
 데이터
-------
+~~~~~~
 
 참조 데이터세트
 ~~~~~~~~~~~~~~~~~~
@@ -563,7 +573,7 @@ spaCR ships a catalogue of trained models and fetches them on demand. Open **Mod
 
 **Cross-validated**, **SD**, 점수는 다른 분할에서 3 라운드의 중간이며 SD는 그들이 얼마나 멀리 이동하는지 의미합니다.
 
-모델은 저자의 자신의 Hugging Face 계정에 호스팅되어 있으므로 참여하는 것은 다른 사람에게 글쓰기 액세스를 제공하는 것을 의미하지 않습니다. ``spacr.model_zoo``의 ``publish_model``는 업로드를 수행하고 추가 할 카탈로그 라인을 인쇄합니다.
+모델은 각 작성자의 Hugging Face 계정에 호스팅됩니다. ``spacr.model_zoo.publish_model``\ 은 모델을 업로드하고 카탈로그에 추가할 행을 출력합니다.
 
 
 성능 진단
@@ -575,7 +585,7 @@ spaCR ships a catalogue of trained models and fetches them on demand. Open **Mod
 
 ``~/.spacr/reports``로 저장하고 경로를 인쇄합니다. ``--quick``는 더 긴 좌표를 스키; ``--out PATH``는 위치를 설정합니다.
 
-Reads no project data. Times imports, numeric libraries, window construction and animation. Reports processor-architecture emulation (an x86_64 Python build on Apple Silicon) and NumPy's BLAS implementation.
+프로젝트 데이터를 읽지 않습니다. 가져오기, 수치 라이브러리, 창 구성 및 애니메이션에 걸리는 시간을 측정하고 Apple Silicon의 x86_64 에뮬레이션과 NumPy의 BLAS 구현 정보를 보고합니다.
 
 명령선 참조
 ----------------------
@@ -590,8 +600,6 @@ Every command below is installed by ``pip install spacr``. All of them accept ``
    spacr              # the desktop application
    spacr-tutorial     # the interactive tutorial library
    spacr-server       # no first-run setup screen, for unattended launches
-
-``spacr-server`` modal 설정 화면을 스키, 그렇지 않으면 예상치 못한 작업을 차단합니다.
 
 ``spacr-qt`` 및 ``spacr-nightly``은 ``spacr``의 동화입니다.
 
@@ -623,8 +631,6 @@ Qt 없으며, 클러스터, 서버 및 CI를 위한 디스플레이가 없습니
 
 ``validate``은 실행하는 것과 동일한 설정을 읽고 실종되는 것, 반대되는 것 또는 아무것도 지적하지 않는 것을 보고합니다.
 
-``spacr-run --list``는 헤드없는 입력 지점을 가진 모듈만 표시되며, 메모, 치유 및 탐험은 상호 작용하고 놓치지 않습니다.
-
 나중에 경주를 검사합니다.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -655,7 +661,7 @@ Qt 없으며, 클러스터, 서버 및 CI를 위한 디스플레이가 없습니
 
 
 기여 및 지원
-------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 버그 보고와 범위가 명확한 기능 요청은 `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_\ 를 통해 제출하세요. 오류를 보고할 때는 spaCR 버전, 운영 체제, Python 버전, 모듈 설정 및 관련 로그 일부를 포함하십시오. ``spacr-doctor``\ 가 이 정보의 대부분을 수집합니다. 성능 문제를 보고할 때는 하드웨어 보고서도 포함하십시오.
 

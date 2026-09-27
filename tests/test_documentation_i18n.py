@@ -4076,15 +4076,15 @@ def test_localized_readme_images_have_reviewed_accessible_text():
         for alt in canonical_alt
         if (match := re.fullmatch(r"Open the (.+) API", alt)) is not None
     ]
-    # 22, NOT 45. 45 is the size of the app REGISTRY; the grid draws one
-    # tile per TILED app, and instruction 318 moved everything reached from
-    # another module's button off the grid. This number was left at the
-    # registry size when that happened, so this test has been red on a stale
-    # count rather than on anything about accessible text. 21 -> 22 on
-    # 2026-09-11 with 386's Embeddings tile, which gets its alt text from
-    # the same `WORKFLOW_MODULE_ALT_TEMPLATES` entry as every other module,
-    # in all nine languages -- no reviewed record of its own is needed.
-    assert len(module_names) == 22
+    # 1d5a80f78 replaced four assay tiles with three organism entry points.
+    # Pin their identities and order, not the obsolete 22-tile count.
+    assert module_names == [
+        "Mask", "Measure", "Annotate", "Classify", "Map Barcodes", "Regression",
+        "Import", "Embeddings", "Run Compare", "Experiment Design",
+        "Power / Design", "Dose–Response", "QC", "Make Masks", "Align & Stitch",
+        "Image UMAP", "Gate Editor", "Graph Builder", "Toxoplasma",
+        "Plasmodium spp.", "Candida spp.",
+    ]
     readme_root = ROOT / "docs" / "i18n" / "readme"
     for language in ("de", "es", "fr", "hi", "is", "ko", "pt", "sv", "zh_CN"):
         text = (readme_root / f"README.{language}.rst").read_text(
@@ -4095,23 +4095,12 @@ def test_localized_readme_images_have_reviewed_accessible_text():
             ".. spacr-workflow-begin"
         )[2].partition(".. spacr-workflow-end")[0]
         workflow_alt = re.findall(r"(?m)^   :alt: (.+)$", workflow)
-        assert len(workflow_alt) == 22
-        # Twenty badges (19 plus the logo), 22 linked Home applications,
-        # four installer/archive icons and five resource icons. The badge
-        # count rose by one on 2026-09-02 when the bioRxiv preprint joined
-        # the row and by six on 2026-09-16; the application count fell from
-        # 44 to 21 with instruction 318 and was never brought down here.
-        # 21 -> 22 on 2026-09-11 with `embeddings`.
-        #
-        # COUNTED FROM README.rst SINCE 2026-09-19, not written out: 45 was
-        # correct for three days after the maintainer added six badges to
-        # the English README, because it described the nine and the nine
-        # had been left behind. Every image in the English README owes the
-        # nine an alt text, so the English README is the count.
-        # 2026-09-21: the info deck's title slide REPLACED the logo at the
-        # top, keeping its alternative text, so the count is the prior 51.
+        assert len(workflow_alt) == len(module_names)
+        # Every canonical badge, Home tile, installer and resource image
+        # must also have an accessible label in each translated README.
         assert len(alt_text) == len(
-            re.findall(r"(?m)^   :alt: (.+)$", canonical)) == 51
+            re.findall(r"(?m)^   :alt: (.+)$", canonical)) == (
+                20 + len(module_names) + 4 + 5)
         assert ".. image:: ../../source/_static/deck/slides/slide_01.jpg" in text
         assert "logo_spacr_readme.png" not in text
         assert all(

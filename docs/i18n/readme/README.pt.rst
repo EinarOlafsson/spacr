@@ -2,7 +2,7 @@
 
 .. |Docs| image:: https://img.shields.io/github/actions/workflow/status/EinarOlafsson/spacr/pages%2Fpages-build-deployment?label=API%20Documentation
    :target: https://einarolafsson.github.io/spacr/
-   :alt: Documentação
+   :alt: Documentação da API
 .. |Tutorials| image:: https://img.shields.io/badge/Tutorials-Interactive%20walkthrough-4A9EFF
    :target: https://einarolafsson.github.io/spacr/tutorials/
    :alt: Tutoriais interativos
@@ -84,6 +84,18 @@ Imagens, máscaras, recortes, medições, anotações, previsões, códigos de b
 
 É executado como um aplicativo de desktop ou sem interface gráfica em uma estação de trabalho, servidor ou cluster.
 
+Experimente o spaCR
+~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   conda create -n spacr python=3.12 -y
+   conda activate spacr
+   python -m pip install "spacr[qt]"
+   spacr
+
+Use **Carregar dados de teste…** em Import, Make Masks, Annotate ou em uma tela de ensaio para baixar dados de exemplo. No terminal, use ``spacr-download``.
+
 Suporte de hardware
 ~~~~~~~~~~~~~~~~~~~
 
@@ -128,10 +140,10 @@ Suporte de hardware
 
 
 Instalar o spaCR
-----------------
+~~~~~~~~~~~~~~~~
 
 Aplicativo para desktop
-~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------
 
 Os instaladores empacotam seus próprios Python. Conda não é necessário.
 
@@ -169,10 +181,10 @@ No Linux, torne o arquivo baixado executável e execute-o:
 
 No macOS, abra o arquivo ``.pkg``. A versão beta atual não é notarizada; se o Gatekeeper a bloquear, selecione **Ajustes do Sistema → Privacidade e Segurança → Abrir Mesmo Assim**.
 
-Veja as instruções `guia do instalador <../../source/installer_guide.rst>`_ para atualização, desinstalação, off-line e solução de problemas.
+Consulte o `guia de instalação <../../source/installer_guide.rst>`_ para obter instruções de atualização, desinstalação, uso offline e solução de problemas, e os `requisitos do sistema <../../source/system_requirements.rst>`_ para recomendações sobre estações de trabalho e servidores e tabelas de compatibilidade de GPU.
 
 Instalação pelo PyPI
-~~~~~~~~~~~~~~~~~~~~
+--------------------
 
 Para usar a versão publicada no PyPI, instale o spaCR com pip em um ambiente Conda. O Python 3.12 oferece a maior variedade de pacotes científicos opcionais:
 
@@ -196,7 +208,7 @@ Em um servidor, cluster ou executor de CI, omita o Qt:
 As integrações opcionais são instaladas separadamente, por exemplo ``spacr[zarr]``,  ``spacr[omero]``,``spacr[napari]`` e ``spacr[czi,nd2,lif]``. Veja a tabela de compatibilidade  `guia de instalação <../../source/installer_guide.rst>`_ para os extras completos e ?Python-versão.
 
 Instalação com conda-forge
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------
 
 O pacote oficial do conda-forge instala o spaCR e suas dependências de desktop no ambiente ativo:
 
@@ -208,7 +220,7 @@ O pacote oficial do conda-forge instala o spaCR e suas dependências de desktop 
    spacr
 
 Instalação a partir do código-fonte
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------------
 
 Clone o repositório e instale-o no modo editável, para que sua cópia de trabalho *seja* o pacote instalado e as alterações passem a valer sem reinstalar::
 
@@ -231,7 +243,7 @@ Para obter alterações posteriores, execute de dentro do clone::
 A segunda linha só é necessária quando dependências ou pontos de entrada mudaram; o código Python é atualizado sem ela. Se um comando ainda executar código antigo depois do pull, o ``spacr-doctor`` informa qual ``spacr`` está de fato no seu caminho de busca, o que costuma ser a causa.
 
 Instalação a partir do código-fonte (leve)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------------------
 
 Quem contribui precisa do histórico; para apenas executar o spaCR, use uma destas opções, medidas em 2026-09-15 com ``packaging/measure_clone_forms.sh``::
 
@@ -269,8 +281,6 @@ Comandos de linha de comando
    spacr-download measure annotate            # fetch example sets by name
    spacr-make-masks --folder DIR              # curate masks as a resumable queue
    spacr-make-masks --folder DIR --order easy --limit 50
-
-Defina ``SPACR_LOG_LEVEL=DEBUG`` durante a solução de problemas. Os logs rotativos são gravados em ``~/.spacr/logs/spacr.log``.
 
 ``spacr-run --list`` lista os módulos com pontos de entrada de linha de comando para execução sem interface gráfica. Os módulos de anotação, curadoria, comparação e exploração disponíveis apenas na interface gráfica são omitidos.
 
@@ -432,14 +442,14 @@ Quantitative readouts for biological assays.
 
 .. spacr-workflow-end
 
-Todos os módulos que acompanham o spaCR, na ordem em que a tela inicial os apresenta: primeiro os seis módulos do pipeline, depois todos os demais. Selecione um ícone para abrir a página da API desse módulo.
+Todos os módulos com um bloco na tela inicial, na ordem dessa tela: primeiro os seis módulos do fluxo de processamento, depois os demais. Selecione um bloco para abrir a página da API do módulo.
 
 Consulte o `guia de funcionalidades <../../source/features.rst>`_ para conhecer cada ferramenta.
 
 Outros recursos
 ~~~~~~~~~~~~~~~
 
-- `Tutoriais interativos <https://einarolafsson.github.io/spacr/tutorials/>`_ — 73 guided workflows from installation por meio de hit investigation.
+- `Tutoriais interativos <https://einarolafsson.github.io/spacr/tutorials/>`_ — fluxos de trabalho guiados, da instalação à investigação dos resultados positivos.
 - `Python  API início rápido <../../source/python_api.rst>`_ — run and validate pipelines from scripts, notebooks or a cluster.
 - `Guia de funcionalidades <../../source/features.rst>`_ capacidades, maturidade e integrações opcionais.
 - `Referência API com curadoria <https://einarolafsson.github.io/spacr/api/index.html>`_ — supported entry points by task, with the complete module reference one level deeper.
@@ -458,7 +468,7 @@ Guia animado de configurações
 As configurações com uma explicação visual oferecem um controle **Animation** na dica de ferramenta. Consulte a `galeria de animações de configurações <https://einarolafsson.github.io/spacr/setting_animations.html>`_ ou o `registro de animações de configurações <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.
 
 Dados
------
+~~~~~
 
 Conjuntos de dados de referência
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -563,7 +573,7 @@ Cada figura acima é medida em imagens que o modelo nunca viu no treinamento.
 
 **Cross-validated**, com um  **SD**, significa que a pontuação é a média de três execuções em divisões diferentes e o SD é o quão longe eles se afastaram. Uma divisão pode ter sorte: a figura da literatura deste modelo é 0,834 em uma única divisão de 19 poços e 0,806 em todos os três.
 
-Os modelos são hospedados na conta Hugging Face do próprio autor, portanto, contribuir não significa entregar o acesso de gravação a qualquer outra pessoa.  ``spacr.model_zoo`` ``publish_model`` executa o upload e imprime a linha de catálogo para adicionar.
+Os modelos são hospedados na conta de Hugging Face de cada autor; ``spacr.model_zoo.publish_model`` envia um modelo e imprime a linha a ser adicionada ao catálogo.
 
 
 Diagnóstico de desempenho
@@ -575,7 +585,7 @@ Gere um relatório de hardware e anexe-o a uma issue relacionada ao desempenho::
 
 Salva em ``~/.spacr/reports`` e imprime o caminho.  ``--quick`` pula os benchmarks mais longos;  ``--out PATH`` define a localização.
 
-Não lê dados do projeto. Importações de tempos, bibliotecas numéricas, construção de janelas e animação. Relata a emulação processador-arquitetura (uma compilação x86_64  Python no Apple Silicon) e a implementação BLAS do NumPy.
+Não lê dados do projeto. Mede o tempo de importações, bibliotecas numéricas, criação de janelas e animação, e informa a emulação x86_64 no Apple Silicon e a implementação de BLAS usada pelo NumPy.
 
 Referência da linha de comando
 ------------------------------
@@ -590,8 +600,6 @@ Lançamento do aplicativo
    spacr              # the desktop application
    spacr-tutorial     # the interactive tutorial library
    spacr-server       # no first-run setup screen, for unattended launches
-
-``spacr-server`` pula a triagem de configuração modal, que de outra forma bloquearia uma tarefa autônoma.
 
 ``spacr-qt`` e  ``spacr-nightly`` são aliases de ``spacr``.
 
@@ -623,8 +631,6 @@ No Qt, no display para clusters, servidores e CI.
 
 ``validate`` lê as mesmas configurações que a execução faria e relata o que está faltando, contraditório ou apontando para nada.
 
-``spacr-run --list`` mostra apenas módulos com um ponto de entrada sem interface gráfica; a anotação, a curadoria e a exploração são interativas e omitidas.
-
 Inspecionando uma corrida depois
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -655,7 +661,7 @@ Os logs rotativos são gravados em ``~/.spacr/logs/spacr.log``. Anexe esse arqui
 
 
 Contribuições e suporte
-------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 Envie relatos de erros e solicitações de recursos bem delimitadas pelo `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_. Ao relatar uma falha, inclua a versão do spaCR, o sistema operacional, a versão do Python, as configurações do módulo e o trecho relevante do log. O ``spacr-doctor`` coleta a maior parte dessas informações; inclua o relatório de hardware ao relatar problemas de desempenho.
 
