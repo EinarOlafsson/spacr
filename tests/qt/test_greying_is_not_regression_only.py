@@ -155,7 +155,7 @@ class TestTheRegressionPanelIsUnchangedByTheWidening:
         assert enabled == expected
 
     def test_mask_greys_its_one_ruled_setting_and_nothing_else(
-            self, qtbot, qt_theme_applied):
+            self, qtbot, qt_theme_applied, monkeypatch):
         """Mask has exactly one gated setting, and the sweep touches only it.
 
         THIS TEST USED TO ASSERT MASK HAD NONE, and that was true when it was
@@ -168,8 +168,21 @@ class TestTheRegressionPanelIsUnchangedByTheWidening:
         nothing". It is that the sweep greys THE RULED SETTING AND NOTHING
         ELSE: a rule that reached past its own key would disable controls a
         user needs, and would look like the panel had broken.
+
+        2026-09-26: item 493 added ``mask_parallel`` and ``mask_gpu_indices``,
+        which a separate hardware pass (``_refresh_mask_gpu_enablement``)
+        greys on a computer with fewer than two GPUs, and greys the index
+        list while ``mask_parallel`` is off. That is not a dependency rule and
+        it depends on the machine, so this test now pins the machine to two
+        GPUs with parallel masks on -- the state in which that pass greys
+        nothing -- and the property is back to exactly one greyed control.
         """
+        from spacr import _mask_workers
+
+        monkeypatch.setattr(_mask_workers, "_mask_gpu_count_for_controls",
+                            lambda: 2)
         panel = _panel(qtbot, "mask")
+        assert panel.set_value_for_key("mask_parallel", True)
 
         assert set(panel._rules_for_this_panel()) == {"custom_regex"}
 
