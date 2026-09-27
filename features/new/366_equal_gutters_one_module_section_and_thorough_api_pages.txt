@@ -2,9 +2,25 @@
 EQUAL GUTTERS, NO PER-MODULE PROSE IN THE README, AND REAL API PAGES
 ================================================================================
 
-Status:    OPEN 2026-09-27: live GitHub measured a 6 CSS pixel vertical surplus.
-           A middle-alignment repair passes local numerical preview; published
-           live acceptance remains pending. Translation tails are complete.
+Status:    DONE 2026-09-27: repaired gutters measured equal on live GitHub at
+           both desktop widths, with zero spread and full-page screenshots.
+           Translation and API landing-page tails are complete.
+
+2026-09-27 -- LIVE REPAIR ACCEPTED
+  - Actual nightly 4044d70de0ac2273a42ca3801775c259dd845db2 was pinned before
+    and after both measurements. No page styles or content were altered.
+  - At 1440 CSS pixels, horizontal and vertical gaps are both 8.3798828125px.
+    At 1024, both are 5.8193359375px. All measured neighboring pairs have
+    zero spread, satisfying the unchanged 1px tolerance. All 21 tiles load,
+    retaining the intended six-column rows and section separators.
+  - Receipt, executed measurement, exact loaded PNGs and complete unmodified
+    page screenshots: features/data/366_live_gutters_verified_2026-09-27/.
+    These full-page screenshots supersede the clipped images in the first
+    passing scratch run. The original failed live measurement is retained.
+  - The September20 removal approval, prior API landing-page acceptance,
+    current nine-locale API/runtime receipts, 34 README checks and three
+    actual PyPI render checks together close this item's remaining scope.
+    Full final documentation HTML/deployment remains tracked separately.
 
 2026-09-27 measured correction:
   - The actual nightly page at 90fb0c63f2393b8ab5301e8483b877d5c82ff6e8
