@@ -456,8 +456,8 @@ def save_figure(fig, path, *, fmt=None, dpi=None, close=False,
                 fig, fmt=chosen_fmt, dpi=write_dpi,
                 requested_fmt=requested.strip().lower().lstrip("."))
             if report is not None:
-                kwargs["metadata"] = _integrity_metadata(
-                    report, chosen_fmt, kwargs.get("metadata"))
+                kwargs[_SAVEFIG_METADATA] = _integrity_metadata(
+                    report, chosen_fmt, kwargs.get(_SAVEFIG_METADATA))
         except Exception as exc:
             print(f"Figure integrity: the check could not run ({exc}); "
                   f"writing {destination} without it.")
@@ -483,6 +483,7 @@ def save_figure(fig, path, *, fmt=None, dpi=None, close=False,
 
 
 _INTEGRITY_ENV = "SPACR_FIGURE_INTEGRITY"
+_SAVEFIG_METADATA = "metadata"
 _PANEL_TAG = "_spacr_panel_provenance"
 _PROVENANCE_SCHEMA = "spacr.figure_provenance/1"
 _PROVENANCE_SUFFIX = ".provenance.json"
