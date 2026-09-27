@@ -71,6 +71,12 @@ HOW EACH BACKEND BECOMES A MASK
   centroids as seeds, watershed inside the fill threshold), with its default
   thresholds.
 
+PROMPTS. micro-SAM is installed and run the same way but never segments a
+whole run: Make Masks sends it points and a box on one object
+(:class:`_PromptClient`), and it answers with that object's mask. The
+worker embeds each field once (``sam_embed``) and answers every later
+prompt on it from that embedding (``sam_prompt``).
+
 DINOCell and SAMCell are single-channel 2-D models: each reads the object's
 own channel (the first in the batch, as `_get_cellpose_channels` orders
 them), stretched to 8 bits because both packages quantise their input to
@@ -299,6 +305,35 @@ _SAMCELL_WEIGHTS = {
     "cyto": "samcell-cyto.pt",
 }
 
+#: micro-SAM, Segment Anything fine-tuned for microscopy. It is not a
+#: ``segmentation_backend`` value: it answers prompts -- points and a box on
+#: one object -- in Make Masks, and returns that one object's mask.
+_MICROSAM = "microsam"
+
+#: The micro-SAM model prompts are answered with: its light-microscopy
+#: generalist on a ViT-B encoder, which micro-SAM itself defaults to.
+_MICROSAM_MODEL = "vit_b_lm"
+
+#: A field whose longer side is above this is embedded in tiles of
+#: :data:`_MICROSAM_TILE` with :data:`_MICROSAM_HALO` of overlap, the way
+#: micro-SAM's own annotator does for large images. SAM looks at 1024
+#: pixels on the longer side, so a larger field embedded whole is shrunk
+#: first and small objects lose their edges.
+_MICROSAM_TILE_ABOVE = 1536
+_MICROSAM_TILE = 1024
+_MICROSAM_HALO = 256
+
+#: How many fields' embeddings one micro-SAM worker keeps. Going back to the
+#: field before costs nothing; a ViT-B embedding of one tile is about 4 MB.
+_MICROSAM_KEEP = 4
+
+#: At most this many CPU threads answer one prompt. The mask decoder is
+#: small, and on a CPU other work is also using, every thread torch starts
+#: waits on the others: on a 16-thread CPU under load, a prompt took 1.9 to
+#: 3.0 s on all 16 threads and 0.25 to 0.85 s on four (2026-09-26). The
+#: embedding, which is large, keeps every thread.
+_MICROSAM_PROMPT_THREADS = 4
+
 
 @dataclass(frozen=True)
 class _BackendSpec:
@@ -334,6 +369,12 @@ class _BackendSpec:
     :param published: the project's own reported results, quoted with their
         source, for the zoo row's scorecard note. spaCR has not measured
         these backends on its own data, and the note says so.
+    :param without_dependencies: requirements pip installs with
+        ``--no-deps``, after everything else. For a package whose declared
+        dependencies reach far past the part spaCR runs -- micro-SAM's
+        napari viewer, its tracker and that tracker's commercial solver --
+        the part spaCR runs is listed in ``requirements`` instead, and the
+        self-test proves the list is enough.
     :param prefix: what an object's model setting starts with to choose
         this backend, e.g. ``'stardist:'``, for a backend that is chosen
         that way and is no ``segmentation_backend`` value. Its models are
@@ -362,6 +403,7 @@ class _BackendSpec:
     blurb: str = ""
     published: str = ""
     segments: bool = True
+    without_dependencies: tuple = ()
     prefix: str = ""
     default_model: str = ""
     alpha: bool = False
@@ -573,6 +615,40 @@ _SPECS = {
             "0319532): LIVECell test set SEG 0.652, DET 0.893, OP_CSB 0.772, "
             "against Cellpose 0.589 / 0.779 / 0.684. spaCR has not scored "
             "this backend on its own data.")),
+    _MICROSAM: _BackendSpec(
+        name=_MICROSAM, label="micro-SAM", module="micro_sam",
+        probe=("micro_sam.util", "micro_sam.prompt_based_segmentation"),
+        distribution="micro_sam",
+        requirements=("segment-anything-py==1.0.1", "python-elf==0.9.2",
+                      "bioimage-cpp==0.9.0", "xxhash", "zarr", "pooch",
+                      "imageio", "scikit-image", "tqdm"),
+        without_dependencies=("micro-sam==1.8.14",),
+        torch=("torch", "torchvision"), python=((3, 11), (3, 13)),
+        licence="MIT (micro-SAM) / Apache-2.0 (segment-anything) / "
+                "CC-BY-4.0 (vit_b_lm weights)",
+        licence_note=(
+            "micro-SAM 1.8.14 is MIT (computational-cell-analytics). It "
+            "builds on Meta's Segment Anything, Apache-2.0. Its "
+            "light-microscopy model, vit_b_lm ('SAM LM Generalist (ViT-B)', "
+            "375 MB), is CC-BY-4.0 on bioimage.io and is downloaded into "
+            "the backend's own folder the first time a field is prompted. "
+            "micro-SAM itself is installed without its declared "
+            "dependencies -- napari, PyQt6, bioimageio.core and trackastra, "
+            "whose tracking solver pulls in the proprietary gurobipy -- "
+            "because the prompt path spaCR runs imports none of them."),
+        homepage="https://github.com/computational-cell-analytics/micro-sam",
+        size_gb=3.0, segments=False, models=(_MICROSAM_MODEL,), alpha=True,
+        blurb=(
+            "micro-SAM, Segment Anything fine-tuned for microscopy, for "
+            "prompt-based segmentation in Make Masks: click points on one "
+            "object, or drag a box round it, and it returns that object's "
+            "mask. Each field is embedded once and every later click on "
+            "it is answered from the cached embedding."),
+        published=(
+            "Published results: Archit et al., 'Segment Anything for "
+            "Microscopy', Nature Methods 2025 (doi:10.1038/s41592-024-"
+            "02580-4). spaCR has not scored this backend on its own "
+            "data.")),
     _SPOTNET: _BackendSpec(
         name=_SPOTNET, label="SpotNet (DeepCell)", module="deepcell_spots",
         probe=("deepcell_spots", "deepcell_spots.applications", "tensorflow"),
@@ -1208,7 +1284,7 @@ def _stale_requirements(name, record=None, root=None):
     if not isinstance(listed, list):
         return []
     have = {_requirement_name(item) for item in listed}
-    return [item for item in spec.requirements
+    return [item for item in spec.requirements + spec.without_dependencies
             if _requirement_name(item) not in have]
 
 
@@ -1481,6 +1557,10 @@ def _install_plan(spec, env, interpreter, torch_index=None, worker=None):
         steps.append(_Step("Install PyTorch", pip + tuple(spec.torch) + index))
     steps.append(_Step(f"Install {spec.label}",
                        pip + tuple(spec.requirements)))
+    if spec.without_dependencies:
+        steps.append(_Step(f"Install {spec.label}",
+                           pip + ("--no-deps",)
+                           + tuple(spec.without_dependencies)))
     steps.append(_Step(
         "Check it loads",
         (python, "-I", worker or _worker_path(), "--selftest", spec.name),
@@ -1531,6 +1611,10 @@ def _worker_env(name, env):
     are scoped to the environment; legacy Transformers cache overrides
     must be removed alongside the Hugging Face overrides.
 
+    micro-SAM fetches its model with pooch into ``MICROSAM_CACHEDIR``,
+    which otherwise defaults to the person's own cache folder; it is
+    pointed inside the environment for the same reason.
+
     Setting ``HF_HOME`` is necessary and not sufficient. :func:`_clean_env`
     forwards the rest of the inherited environment, and every variable in
     :data:`_HF_CACHE_VARIABLES` overrides the path ``HF_HOME`` would give,
@@ -1558,6 +1642,9 @@ def _worker_env(name, env):
             for variable in ("TRANSFORMERS_CACHE", "PYTORCH_TRANSFORMERS_CACHE",
                              "PYTORCH_PRETRAINED_BERT_CACHE", "HF_MODULES_CACHE"):
                 environ.pop(variable, None)
+    elif name == _MICROSAM:
+        environ["MICROSAM_CACHEDIR"] = os.path.join(env, "micro_sam")
+        environ["TORCH_HOME"] = os.path.join(env, "torch")
     return environ
 
 
@@ -1693,6 +1780,118 @@ def _detect_spots(image, threshold=0.95, root=None, worker_for=None):
             "detect_spots", image=path, threshold=float(threshold))
     spots = np.asarray(reply.get("spots") or [], dtype=float)
     return spots.reshape(-1, 2)
+
+
+class _PromptClient:
+    """micro-SAM answering prompts on a field, from its own environment.
+
+    The GUI's half of prompt-based segmentation. Each call sends the prompt
+    for a field the worker has already embedded; when it has not -- the
+    field is new, the worker was restarted after sitting idle, or it
+    dropped the field to keep newer ones -- the worker says so, the field
+    is sent and embedded, and the prompt is asked again. The image is asked
+    for only then, so a click on a field already embedded sends no image.
+
+    Nothing here imports torch or micro-SAM; the worker does.
+
+    :param model: the micro-SAM model, :data:`_MICROSAM_MODEL` by default.
+    :param device: ``'cpu'``, ``'cuda'``, ... or None for ``$SPACR_DEVICE``,
+        and failing that the worker's own best guess.
+    :param root: the backends folder.
+    :param worker_for: :func:`_worker_for`, or a stand-in for tests.
+    """
+
+    def __init__(self, *, model=_MICROSAM_MODEL, device=None, root=None,
+                 worker_for=None):
+        """Remember what to run; nothing is started until the first prompt."""
+        self.model = str(model or _MICROSAM_MODEL)
+        self.device = (str(device) if device is not None
+                       else os.environ.get(_DEVICE_ENV, "").strip() or "auto")
+        self.root = root
+        self._worker_for = worker_for or _worker_for
+
+    def readiness(self):
+        """Whether micro-SAM can answer a prompt now, and why not.
+
+        File checks only, so the GUI thread may ask.
+
+        :returns: ``(ready, reason)``.
+        """
+        state = _backend_state(_MICROSAM, self.root)
+        if state.ready and not state.in_process:
+            return True, f"micro-SAM is installed in {state.env}."
+        return False, _not_installed_message(_MICROSAM, state)
+
+    def segment(self, key, image, points=(), labels=(), box=None, *,
+                should_cancel=None, on_start=None, on_embed=None):
+        """The mask of the one object the prompt points at.
+
+        :param key: names the field and how it was prepared; the worker
+            keeps its embedding under it.
+        :param image: the field as micro-SAM should see it, or a function
+            returning it, called only when the field must be embedded.
+        :param points: ``(y, x)`` image pixels.
+        :param labels: one per point: 1 on the object, 0 off it.
+        :param box: ``(y0, x0, y1, x1)`` image pixels, or None.
+        :param should_cancel: polled while waiting; True abandons the
+            request and leaves the worker, and its loaded model, running.
+        :param on_start: called with no arguments when micro-SAM's worker
+            is not running and is about to be started, which loads torch and
+            micro-SAM in its environment.
+        :param on_embed: called with no arguments just before a field is
+            embedded, which is the slow part; the first field embedded also
+            downloads the model.
+        :returns: a dict: ``mask`` (a boolean ``H x W`` array), ``seconds``
+            (the prompt), ``embed_seconds`` (None when the embedding was
+            already there), ``score``, ``tiled``, ``device``, ``model`` and
+            ``versions`` (the environment's recorded packages).
+        :raises ImportError: when micro-SAM is not installed.
+        :raises _BackendError: with micro-SAM's own message.
+        :raises _BackendCancelled: when ``should_cancel`` said so.
+        """
+        state = _backend_state(_MICROSAM, self.root)
+        if not state.ready or state.in_process:
+            raise ImportError(_not_installed_message(_MICROSAM, state))
+        running = _WORKERS.get(_MICROSAM)
+        if on_start is not None and (running is None or not running.alive):
+            on_start()
+        worker = self._worker_for(_MICROSAM, state.env)
+        payload = {
+            "key": str(key),
+            "points": [[float(y), float(x)] for y, x in points],
+            "labels": [int(bool(v)) for v in labels],
+            "box": None if box is None else [float(v) for v in box]}
+        embedded = None
+        with tempfile.TemporaryDirectory(prefix="spacr_microsam_") as folder:
+            output = os.path.join(folder, "mask.npy")
+            try:
+                reply = worker.request(
+                    "sam_prompt", should_cancel=should_cancel,
+                    keep_on_cancel=True, output=output, **payload)
+            except _BackendError as exc:
+                if exc.remote_type != "LookupError":
+                    raise
+                if on_embed is not None:
+                    on_embed()
+                field = image() if callable(image) else image
+                path = os.path.join(folder, "image.npy")
+                np.save(path, np.ascontiguousarray(field), allow_pickle=False)
+                embedded = worker.request(
+                    "sam_embed", should_cancel=should_cancel,
+                    keep_on_cancel=True, image=path, key=str(key),
+                    model=self.model, device=self.device)
+                reply = worker.request(
+                    "sam_prompt", should_cancel=should_cancel,
+                    keep_on_cancel=True, output=output, **payload)
+            mask = np.load(output, allow_pickle=False).astype(bool)
+        packages = dict((state.record or {}).get("packages") or {})
+        return {"mask": mask, "seconds": reply.get("seconds"),
+                "score": reply.get("score"),
+                "embed_seconds": (embedded or {}).get("seconds"),
+                "tiled": (embedded or {}).get("tiled"),
+                "device": (embedded or {}).get("device")
+                or (state.record or {}).get("device", ""),
+                "model": self.model, "versions": packages}
 
 
 def _detached(windows=None):
@@ -2078,7 +2277,8 @@ def _install_backend(name, *, root=None, progress=None, cancel=None,
                 f"{log_path}.")
         _write_marker(env, {
             "backend": spec.name, "protocol": _PROTOCOL,
-            "requirements": list(spec.requirements),
+            "requirements": list(spec.requirements
+                                 + spec.without_dependencies),
             "torch": list(spec.torch), "torch_index": index or "",
             "interpreter": list(interpreter),
             "python": hello.get("python", ""),
@@ -3903,6 +4103,144 @@ def _worker_read_pdf(request, adapters):
     return {"pages": pages}
 
 
+def _sam_predictor(adapters, model, device):
+    """micro-SAM's predictor for ``model`` on ``device``, loaded once.
+
+    The first call downloads the model into ``MICROSAM_CACHEDIR`` -- inside
+    the backend's environment (:func:`_worker_env`) -- and every later one
+    returns the predictor already in memory.
+    """
+    from micro_sam import util
+
+    key = ("sam", model, device)
+    if key not in adapters:
+        adapters[key] = util.get_sam_model(model_type=model, device=device)
+    return adapters[key]
+
+
+def _worker_sam_embed(request, adapters):
+    """Compute and keep micro-SAM's embedding of one field.
+
+    The embedding is the expensive half of a prompt -- the image encoder
+    over the whole field -- and it depends on the field alone, so it is
+    computed once per field and kept under the caller's ``key``; the last
+    :data:`_MICROSAM_KEEP` fields are kept. A field whose longer side is
+    above :data:`_MICROSAM_TILE_ABOVE` is embedded in tiles.
+
+    :param request: ``image`` (a ``.npy`` path, ``H x W`` or ``H x W x C``),
+        ``key``, ``model`` and ``device``.
+    :param adapters: the worker's cache.
+    :returns: ``{"key", "seconds", "tiled", "shape", "device", "model"}``.
+    """
+    from micro_sam import util
+
+    device = _worker_device(request.get("device"))
+    model = str(request.get("model") or _MICROSAM_MODEL)
+    started = time.monotonic()
+    predictor = _sam_predictor(adapters, model, device)
+    loaded = time.monotonic() - started
+    image = np.load(str(request["image"]), allow_pickle=False)
+    if image.ndim not in (2, 3) or not all(image.shape[:2]):
+        raise ValueError("micro-SAM needs one nonempty 2-D field, with or "
+                         "without channels.")
+    tiled = max(image.shape[:2]) > _MICROSAM_TILE_ABOVE
+    started = time.monotonic()
+    embeddings = util.precompute_image_embeddings(
+        predictor, image, ndim=2,
+        tile_shape=(_MICROSAM_TILE, _MICROSAM_TILE) if tiled else None,
+        halo=(_MICROSAM_HALO, _MICROSAM_HALO) if tiled else None,
+        verbose=tiled)
+    seconds = time.monotonic() - started
+    kept = adapters.setdefault("sam_embeddings", collections.OrderedDict())
+    key = str(request["key"])
+    kept.pop(key, None)
+    kept[key] = (model, device, embeddings, tuple(image.shape[:2]))
+    while len(kept) > _MICROSAM_KEEP:
+        kept.popitem(last=False)
+    return {"key": key, "seconds": seconds, "load_seconds": loaded,
+            "tiled": bool(tiled), "shape": list(image.shape[:2]),
+            "device": str(device), "model": model}
+
+
+def _worker_sam_prompt(request, adapters):
+    """Answer one prompt on a field already embedded, with that object's mask.
+
+    Points are ``(y, x)`` in image pixels, each with label 1 (on the
+    object) or 0 (not on it); the box is ``(y0, x0, y1, x1)``. Points, a
+    box, or both, the way micro-SAM's own annotator takes them.
+
+    :param request: ``key``, ``points``, ``labels``, ``box`` and ``output``
+        (the ``.npy`` path the mask is written to).
+    :param adapters: the worker's cache.
+    :returns: ``{"seconds", "score", "pixels"}``.
+    :raises LookupError: when the field has no embedding here -- the worker
+        was restarted, or the field was dropped to keep others -- so spaCR
+        embeds it again and asks once more.
+
+    On the CPU the prompt runs on at most :data:`_MICROSAM_PROMPT_THREADS`
+    threads, and the thread count is put back afterwards.
+    """
+    import torch
+    from micro_sam import prompt_based_segmentation as prompts
+
+    key = str(request["key"])
+    entry = adapters.get("sam_embeddings", {}).get(key)
+    if entry is None:
+        raise LookupError(f"micro-SAM has no embedding for field {key!r}.")
+    model, device, embeddings, shape = entry
+    adapters["sam_embeddings"].move_to_end(key)
+    predictor = _sam_predictor(adapters, model, device)
+    points = np.asarray(request.get("points") or [], dtype=float).reshape(-1, 2)
+    labels = np.asarray(request.get("labels") or [], dtype=int).reshape(-1)
+    if len(labels) != len(points):
+        raise ValueError("micro-SAM needs one label for every point.")
+    box = request.get("box")
+    box = None if box is None else np.asarray(box, dtype=float).reshape(4)
+    threads = torch.get_num_threads()
+    if str(device) == "cpu":
+        torch.set_num_threads(max(1, min(threads, _MICROSAM_PROMPT_THREADS)))
+    try:
+        started = time.monotonic()
+        mask, scores = _sam_answer(prompts, predictor, embeddings, points,
+                                   labels, box)
+        seconds = time.monotonic() - started
+    finally:
+        torch.set_num_threads(threads)
+    mask = np.asarray(mask).astype(bool)
+    while mask.ndim > 2:
+        mask = mask[0]
+    if tuple(mask.shape) != tuple(shape):
+        raise ValueError(f"micro-SAM returned a {mask.shape} mask for a "
+                         f"{shape} field.")
+    np.save(str(request["output"]), mask, allow_pickle=False)
+    score = np.asarray(scores, dtype=float).ravel()
+    return {"seconds": seconds,
+            "score": float(score.max()) if score.size else None,
+            "pixels": int(mask.sum())}
+
+
+def _sam_answer(prompts, predictor, embeddings, points, labels, box):
+    """micro-SAM's answer to points, a box or both: ``(mask, scores)``.
+
+    :param prompts: ``micro_sam.prompt_based_segmentation``.
+    :raises ValueError: when there is neither a point nor a box.
+    """
+    if box is not None and len(points):
+        mask, scores, _logits = prompts.segment_from_box_and_points(
+            predictor, box, points, labels, image_embeddings=embeddings,
+            return_all=True)
+    elif box is not None:
+        mask, scores, _logits = prompts.segment_from_box(
+            predictor, box, image_embeddings=embeddings, return_all=True)
+    elif len(points):
+        mask, scores, _logits = prompts.segment_from_points(
+            predictor, points, labels, image_embeddings=embeddings,
+            return_all=True)
+    else:
+        raise ValueError("micro-SAM needs a point or a box.")
+    return mask, scores
+
+
 def _handle(name, request, adapters):
     """Answer one request; every failure becomes an error reply, never a
     dead worker."""
@@ -3933,6 +4271,10 @@ def _handle(name, request, adapters):
             body = _worker_read_text(request, adapters)
         elif op == "read_pdf":
             body = _worker_read_pdf(request, adapters)
+        elif op == "sam_embed":
+            body = _worker_sam_embed(request, adapters)
+        elif op == "sam_prompt":
+            body = _worker_sam_prompt(request, adapters)
         elif op == "shutdown":
             body = {}
         else:

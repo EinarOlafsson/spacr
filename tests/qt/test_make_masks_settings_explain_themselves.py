@@ -206,7 +206,8 @@ def _awaiting_translation(screen) -> set:
     enhancement card: the CLAHE tile, gamma, morphology and sharpen help.
     Owed again since 2026-09-26: the CLAHE help, whose wording 6fe2876fb
     changed ("saturating" for a figurative phrase) after the lane had
-    translated the old one.
+    translated the old one. Owed since 2026-09-26 by item 555's Segment
+    by prompt category, an alpha feature: its Overlap rule.
 
     Everything else once listed here -- the detection buttons, the other
     method and propagation parameters, the rest of the enhancement card,
@@ -222,7 +223,7 @@ def _awaiting_translation(screen) -> set:
     widgets += [widget for key, widget in getattr(screen, "_propagate_widgets", {}).items()
                 if key in propagate]
     for name in ("_enh_clahe", "_enh_clahe_tile", "_enh_gamma",
-                 "_enh_morphology", "_enh_sharpen"):
+                 "_enh_morphology", "_enh_sharpen", "_prompt_overlap"):
         widget = getattr(screen, name, None)
         if widget is not None:
             widgets.append(widget)

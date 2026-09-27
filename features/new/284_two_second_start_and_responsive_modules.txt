@@ -2,22 +2,17 @@
 HIGH PRIORITY: TWO-SECOND STARTUP AND RESPONSIVE MODULE LOADING
 ================================================================================
 
-Status:    OPEN ON THE 500 ms STALL CEILING AND NOTHING ELSE, filed
-           2026-08-27. HIGH PRIORITY. The 5 s and 10 s budgets have been met
-           since 2026-09-15. 2026-09-26: MET AT LOAD 11-13, NOT ABOVE IT.
-           The application-wide event filters now share one hub that calls
-           a filter only for the event types it acts on; that was most of
-           each screen's "indivisible" first stylesheet. Annotate no longer
-           imports pandas, and pandas comes in on a worker after the first
-           module screen. At load 11-13 on 32 cores, 0 of 51 intervals over
-           500 ms in all six runs of this branch (4 offscreen, 2 xvfb),
-           against 1-3 per run on nightly; worst Preferences 414-424 ms. At
-           load 15-21 Preferences is still 516-560 ms, and at load ~60 six
-           to ten intervals remain over (from 22-25 on nightly). What is
-           left is Preferences' show (sheet, glass, resize, retranslation
-           of ~755 widgets in one Polish/Show; lazy tab pages are the fix)
-           and load. See the 2026-09-26 note. Quiet-machine, real-display
-           and macOS/Windows answers are still owed.
+Status:    DONE 2026-09-26. Filed 2026-08-27, HIGH PRIORITY. The 5 s and
+           10 s budgets have been met since 2026-09-15; the 500 ms stall
+           ceiling since 2026-09-26: every module, Preferences included, is
+           under it here at load 6-20 -- 0 intervals over in 10 runs (8
+           offscreen, 2 xvfb), worst 433 ms. The last one over was
+           Preferences' first show (516-560 ms at load 15-21), which now
+           styles only the open tab's page; the others wait outside the
+           window until their tab is chosen (250-374 ms at the same loads).
+           See the third 2026-09-26 note. Not measured and not claimed: a
+           quiet machine, a real display with a compositor, macOS and
+           Windows; above load ~35 intervals still go over on both arms.
 Owner:     spacr/qt startup, application registration, module factories,
            optional-dependency boundaries, preload policy, and timing.
 Depends:   282 for lazy loading and memory budgets, which the 2026-09-14
@@ -1837,3 +1832,111 @@ failed from exactly that leak until they did).
 IS 284 DONE? NO. Every module is under the ceiling at load 11-13, offscreen
 and under xvfb, but Preferences is over it at load 15-21, and the
 quiet-machine, real-display and macOS/Windows answers are still owed.
+
+2026-09-26 — PREFERENCES STYLES ONE TAB WHEN IT OPENS; THE CEILING IS MET
+Third pass, on the one module the second pass left over the ceiling at a
+load a user's machine can have. Commits 8748958fd, eeee4ba3a, 803393488
+(and the nightly merge 0fe3bd4ff). Receipts:
+features/data/284_lazy_preferences_pages_2026-09-26.json.
+
+WHERE THE SHOW WENT, re-measured on nightly at load ~10 by wrapping each
+step of the real show in the real app (ms from the start of show()):
+the window sheet 118-170 (it runs inside the glass, and polishes 487 of the
+752 widgets), the frameless setWindowFlags 3-5, the glass's
+clear_the_containers 38-40, make_the_window_resizable 75-90 (polishes the
+other 125 and activates the layout), the first-show retranslation 28-33.
+Show 283-408 ms, build 64-78.
+
+WHAT CHANGED. Every control on every page is still built at open, as
+before -- nothing is built later, so Save, Reset and Cancel read and write
+the same controls whether or not a page was ever opened. What changed is
+which pages are IN THE WINDOW at the first show. Just before it (an
+override of setVisible on a small QDialog subclass, because the sheet, the
+glass and the resize filter all act on the application's Polish, which the
+window hears last), every page but the current tab's leaves its scroll area,
+parentless and hidden -- the pattern a closed settings category's body
+already uses (Section._detach_body_while_hidden) -- and a stand-in holds its
+place. Choosing the tab puts the page back; it is styled by the window
+sheet in that click, and given what it missed: the translation pass and the
+glass treatment (containers transparent, buttons spin the rim; a new
+private glass._glass_a_part_that_came_later).
+  * THE SIZE. A page never shown lays out as empty, so the stand-in asks
+    for the scroll area's cap (36 x 24 lines). The height is what it was
+    (Figures always exceeded the cap); the dialog opens ~100 px wider than
+    before (648 vs 548 px of tab at an 18 px line). Asking for less was
+    measured and is worse: at the open page's width the resize filter
+    judged the dialog stuck at its contents and wrapped the whole window in
+    a second scroll area.
+  * PYTHON STILL SEES THE WHOLE DIALOG. findChild finds a control on a
+    waiting page and brings that page back; findChildren brings every page
+    back before it walks -- except during the first show (the walks then
+    are the sheet's, glass's and resize filter's) and while a page is coming
+    back. So code that finds a control by object name, like item 569's
+    "Show alpha features" switch, and the ~60 test files that walk a shown
+    dialog see the tree they saw before. 569's Save and Reset now use the
+    switch the builder made rather than a name lookup, so a Save does not
+    bring Modules back.
+  * NOT CHANGED: setting the frameless flag at construction. After the
+    event hub the flag change inside the glass measures 3-5 ms; the second
+    restyle the 2026-09-25 note saw is gone, so there was nothing to move.
+
+The show now: sheet 7-46 ms (114-124 widgets in the window), frameless 1,
+containers 7-9, resize filter 34-38, retranslation 5-6; show() 39-76 ms
+against 283-408. A tab's first view costs 6-22 ms (Figures, 386 widgets,
+107-114 ms); later views nothing.
+
+RESULTS, medians, tools/spacr_startup_benchmark.py --runs 1 --record-only,
+arms alternated, both byte-compiled, base = nightly 4cf2cceab. "Synthetic"
+= twelve extra busy processes holding the machine at the load 15-21 where
+the last note found Preferences over.
+
+                             Preferences stall    open        runs with an
+                             base -> new          base -> new interval > 500
+  offscreen, load 6-8, 4 pr    403 ->  250         460 ->  250  base 0/4, new 0/4
+  offscreen, load 15-20 synth  573 ->  276         626 ->  298  base 3/4, new 0/4
+  xvfb, load 15-20 synth       661 ->  374         710 ->  375  base 2/2, new 0/2
+
+  worst of ANY module on the new arm: 317 ms (load 6-8), 419 (offscreen
+  15-20), 433 (xvfb 15-20, feature_dict). Every other row moved by noise.
+  After merging nightly d48d76207, 4 pairs at load 33-47 (other sessions,
+  plus a test run): Preferences 786 -> 471 ms; intervals over 500 per run
+  3-14 on nightly, 2-7 on this branch -- at that load the organism pages,
+  Make Masks, Dose Response and Feature Dictionary go over on both arms.
+
+TESTS. Every test file that mentions preferences (391 files, 393 after the
+merge), run in chunks under tools/run_capped.sh 8G, offscreen, before and
+after. Before the search overrides the change broke 18 of them (tests that
+showed the dialog and then found a control on another tab) and one aborted
+the process (a click on a never-shown Sound preview); with them, the only
+test edited is the Sound-tab one that asks the tab's scroll area directly
+what it holds -- it now chooses the tab first. New, in existing files: the
+first show carries only the open tab's page; choosing a tab brings its page
+back; a dialog opened on a named tab carries that one; a waiting tab asks
+for the full cap; Save writes changed and unchanged controls of never-opened
+tabs; Reset reaches them; Cancel keeps a change out; a returning page is
+translated; a page still waiting dies with the dialog; a control asked for
+by name, and a walk, bring pages back; 569's switch saves and resets
+unopened; the glass helper; and, with the real glass filter, a tab chosen
+after the show is glassed like the first.
+  Totals: nightly 4cf2cceab 11,155 passed, 50 failed, 2 errors; this branch
+  merged with nightly d48d76207, 11,212 passed, 29 failed, 0 errors. Every
+  failure on the branch fails on nightly too except one, the backdrop-shade
+  timing test (test_the_backdrop_survives_a_run), which was run at load 60
+  and fails identically on an export of nightly d48d76207 at that load; the
+  21 that no longer fail were fixed by nightly between the two bases.
+
+WHAT THE MERGE DID NOT GET: a post-merge run at moderate load. The machine
+sat at load 35-100 from other sessions for the rest of the day. The open's
+code path is the pre-merge one (the search overrides and 569's switch touch
+nothing the first show runs; a probe of the merged tree confirms every page
+but General is still waiting after the open settles), so the moderate-load
+rows above stand for it.
+
+IS 284 DONE? YES, on the criterion this item has carried since 2026-09-15:
+every module, Preferences included, under the 500 ms ceiling here at
+moderate load -- 0 intervals over in all 10 runs of this branch at load
+6-20 (8 offscreen, 2 under xvfb), worst 433 ms, where nightly had one in 5
+of its 6 runs at load 15-20. Not measured, and not claimed: a quiet
+machine, a real display with a compositor, macOS and Windows; and at load
+35 and above intervals still go over on both arms (2-7 per run here, 3-14 on
+nightly), which is load, not a screen.

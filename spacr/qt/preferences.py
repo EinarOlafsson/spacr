@@ -5520,12 +5520,272 @@ def explain_every_row(dialog) -> int:
     return explained
 
 
+_PREFERENCES_WINDOW_CLASS = None
+_PAGE_STAND_IN_CLASS = None
+
+
+def _page_stand_in_class():
+    """The placeholder a tab holds while its page waits. Made once, on first use.
+
+    :returns: a ``QWidget`` subclass, built with no arguments.
+    """
+    global _PAGE_STAND_IN_CLASS
+    if _PAGE_STAND_IN_CLASS is not None:
+        return _PAGE_STAND_IN_CLASS
+    from PySide6.QtCore import QSize
+    from PySide6.QtWidgets import QWidget
+
+    class _PageStandIn(QWidget):
+        """Holds a tab's place until its page comes back, asking for the most.
+
+        The dialog opens at the size of its largest tab, and a tab's scroll
+        area caps what its page may ask for at 36 by 24 lines of text. The
+        Figures page is always taller than the cap, so the dialog always
+        opened at the cap's height; this keeps that. Its width was the
+        widest page's, 548 px at an 18 px line where the cap is 648, and
+        what a page measures across is known only once it is styled -- the
+        cost this stand-in exists to put off. Asking the waiting page is no
+        answer either: a page that has never been shown lays out as empty,
+        because Qt leaves out widgets that have not been shown yet.
+
+        SO IT ASKS FOR THE CAP BOTH WAYS, and the dialog opens about 100 px
+        wider than it did, the same at every open and in every language.
+        Narrower was measured and is worse: at the open page's width the
+        resize filter judges the dialog stuck at its contents and wraps the
+        whole window in a second scroll area.
+        """
+
+        def sizeHint(self):                   # noqa: N802 - Qt naming
+            """Larger than any scroll area lets a page ask to be."""
+            return QSize(1 << 20, 1 << 20)
+
+    _PAGE_STAND_IN_CLASS = _PageStandIn
+    return _PAGE_STAND_IN_CLASS
+
+
+def _preferences_window_class():
+    """The dialog class Preferences is built on. Made once, on first use.
+
+    Qt is imported here rather than at module scope, for the reason
+    :class:`PreferencesDialog` gives.
+
+    :returns: a ``QDialog`` subclass.
+    """
+    global _PREFERENCES_WINDOW_CLASS
+    if _PREFERENCES_WINDOW_CLASS is not None:
+        return _PREFERENCES_WINDOW_CLASS
+    from PySide6.QtWidgets import QDialog, QWidget
+
+    class _PreferencesWindow(QDialog):
+        """The Preferences window, which styles one tab when it opens.
+
+        THE OPEN WAS THE SHOW, NOT THE BUILD. Building the dialog took
+        80-150 ms at load 15-21; showing it took 400-550 ms, because the
+        show styles every widget on every tab -- the window's stylesheet,
+        the glass card's transparent containers, the resize filter's polish
+        and the first-show translation each walk all ~755 widgets, and
+        nobody can see more than one tab. Figures alone is 386 of them.
+
+        So a tab nobody is looking at gives its page up for the first show
+        and gets it back the moment it is chosen: the page leaves its scroll
+        area, parentless and hidden, as a closed settings category's body
+        does (:meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`),
+        and a :func:`_page_stand_in_class` holds its place. Coming back, it
+        is styled by the window's sheet, given what the glass gave the rest
+        of the dialog, and translated, in the click that chose it.
+
+        NOTHING IS BUILT LATER. Every control on every page is made in the
+        build as it always was, and Save, Reset and Cancel read and write
+        those same controls whether their page is in the window or waiting,
+        so a page nobody opened saves exactly what it was built with.
+
+        AND PYTHON STILL SEES THE WHOLE DIALOG. ``findChild`` finds a
+        control on a waiting page and brings that page back, and
+        ``findChildren`` brings every page back before it walks, so code
+        that finds a control by its object name (item 569's switch) or walks
+        the dialog sees what it saw before -- except during the first show,
+        when the walks are the sheet's, the glass's and the resize filter's
+        and not bringing the pages back is the point. Qt's own C++ searches
+        see only the window, which is what they style.
+        """
+
+        def __init__(self, parent=None):
+            """An empty Preferences window; the builder fills it.
+
+            :param parent: the owning window, or ``None``.
+            """
+            super().__init__(parent)
+            self._page_tabs = None
+            self._pages_wait_for_the_show = False
+            self._window_only = 0
+            self._pages_away = {}
+
+        def _show_only_the_open_page_at_first(self, tabs) -> None:
+            """Have the first show style only the page of the current tab.
+
+            Called once the build is finished. The pages stay where they
+            are until the show, so the navigation that picks the tab to
+            open on finds each control on its tab.
+
+            :param tabs: the dialog's ``QTabWidget``; every page is a scroll
+                area holding the page.
+            """
+            self._page_tabs = tabs
+            self._pages_wait_for_the_show = True
+            tabs.currentChanged.connect(self._bring_the_page_back)
+
+        def setVisible(self, visible):            # noqa: N802 - Qt naming
+            """Send the unseen pages away just before the first show.
+
+            HERE, AND NOT ON THE FIRST ``Polish``. The window sheet, the
+            glass and the resize filter all act on that event from the
+            application, which hears it before the window does, and the
+            resize filter polishes every child as it does. Qt's own show
+            begins in this call, so the pages are gone before any of them
+            runs.
+
+            :param visible: as for ``QWidget.setVisible``.
+            """
+            if not (visible and self._pages_wait_for_the_show):
+                super().setVisible(visible)
+                return
+            self._pages_wait_for_the_show = False
+            self._send_the_unseen_pages_away()
+            self._window_only += 1
+            try:
+                super().setVisible(visible)
+            finally:
+                self._window_only -= 1
+
+        def findChild(self, *args, **kwargs):     # noqa: N802 - Qt naming
+            """``QObject.findChild``, finding a control whose page is waiting.
+
+            A control asked for by name is the dialog's wherever its page
+            is, so what the builder, Save and a test find by name does not
+            depend on which tabs have been chosen. The page it is on comes
+            back into its tab, hidden unless its tab is current, as it was
+            before pages waited: a caller that goes on to click or read the
+            geometry of what it found is holding a widget in the window.
+
+            :returns: the first match, or ``None``.
+            """
+            found = super().findChild(*args, **kwargs)
+            if found is not None or self._window_only:
+                return found
+            for index, page in list(self._pages_away.items()):
+                found = page.findChild(*args, **kwargs)
+                if found is not None:
+                    self._bring_the_page_back(index)
+                    return found
+            return None
+
+        def findChildren(self, *args, **kwargs):  # noqa: N802 - Qt naming
+            """``QObject.findChildren`` over every page, waiting or not.
+
+            A walk of the dialog from Python -- a test's, or code that
+            looks at every control -- sees the dialog it saw before pages
+            waited, so every waiting page comes back first. Not during the
+            first show: the window sheet, the glass and the resize filter
+            walk the dialog then, and bringing the pages back for them is
+            the cost the waiting exists to save. Nor while a page is coming
+            back, whose glass asks the dialog for its card.
+
+            :returns: every match.
+            """
+            if not self._window_only:
+                for index in list(self._pages_away):
+                    self._bring_the_page_back(index)
+            return super().findChildren(*args, **kwargs)
+
+        def _send_the_unseen_pages_away(self) -> int:
+            """Take every page but the current tab's out of the window.
+
+            :returns: how many widgets left the window.
+            """
+            tabs = self._page_tabs
+            if tabs is None:
+                return 0
+            current = tabs.currentIndex()
+            stand_in = _page_stand_in_class()
+            moved = 0
+            for index in range(tabs.count()):
+                if index == current or index in self._pages_away:
+                    continue
+                scroll = tabs.widget(index)
+                page = scroll.widget() if scroll is not None else None
+                if page is None:
+                    continue
+                moved += len(page.findChildren(QWidget)) + 1
+                scroll.takeWidget()
+                page._spacr_detached_from = scroll
+                page.setVisible(False)
+                self.destroyed.connect(page.deleteLater)
+                scroll.setWidget(stand_in())
+                self._pages_away[index] = page
+            return moved
+
+        def _bring_the_page_back(self, index) -> bool:
+            """Put a waiting page back in its tab as the tab is chosen.
+
+            :param index: the tab just chosen.
+            :returns: ``True`` when this call put a page back.
+            """
+            page = self._pages_away.pop(index, None)
+            if page is None:
+                return False
+            scroll = self._page_tabs.widget(index)
+            try:
+                self.destroyed.disconnect(page.deleteLater)
+            except (RuntimeError, TypeError):
+                pass
+            page._spacr_detached_from = None
+            self._window_only += 1
+            try:
+                holder = scroll.takeWidget()
+                scroll.setWidget(page)
+                if holder is not None:
+                    holder.deleteLater()
+                _what_a_page_missed_while_away(self, page)
+            finally:
+                self._window_only -= 1
+            return True
+
+    _PREFERENCES_WINDOW_CLASS = _PreferencesWindow
+    return _PREFERENCES_WINDOW_CLASS
+
+
+def _what_a_page_missed_while_away(dialog, page) -> None:
+    """Give a page coming back what the dialog's first show gave the rest.
+
+    The first-show translation pass and the glass card's treatment of the
+    containers and buttons each walked the dialog as it was shown, and a
+    page waiting outside it was not there to be walked.
+
+    :param dialog: the Preferences window.
+    :param page: the page just put back in its tab.
+    """
+    try:
+        from .i18n import retranslate_widget_tree, ui_language_resolved_once
+
+        with ui_language_resolved_once():
+            retranslate_widget_tree(page)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("a Preferences page was not translated", exc_info=True)
+    try:
+        from .widgets.glass import _glass_a_part_that_came_later
+
+        _glass_a_part_that_came_later(dialog, page)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("a Preferences page was not glassed", exc_info=True)
+
+
 class PreferencesDialog:
     """Wrapper that builds the modal Preferences dialog on demand.
 
     Kept as a factory (not a real class subclass) so this module can
     be imported headless without pulling in QtWidgets. The real
-    :class:`QDialog` is returned by ``PreferencesDialog(parent)``.
+    :class:`QDialog` -- the subclass :func:`_preferences_window_class`
+    makes on first use -- is returned by ``PreferencesDialog(parent)``.
     """
 
     def __new__(cls, parent=None):
@@ -5554,9 +5814,10 @@ class PreferencesDialog:
     def _build_the_dialog(cls, parent=None):
         """Build and return the preferences dialog.
 
-        A ``__new__`` returning a plain ``QDialog`` rather than an ``__init__``
-        on a subclass: everything Qt is imported inside the call, so importing
-        this module costs nothing until a dialog is actually asked for.
+        A ``__new__`` returning a ``QDialog`` rather than an ``__init__`` on a
+        subclass of one: everything Qt is imported inside the call, so
+        importing this module costs nothing until a dialog is actually asked
+        for.
 
         The window is detached from the window manager's point of view, so the
         user can put it where they like -- it is still parented, still modal and
@@ -5567,7 +5828,7 @@ class PreferencesDialog:
         """
         from PySide6.QtCore import Qt
         from PySide6.QtWidgets import (
-            QCheckBox, QComboBox, QDialog, QDialogButtonBox,
+            QCheckBox, QComboBox, QDialogButtonBox,
             QDoubleSpinBox, QFormLayout,
             QFrame, QHBoxLayout, QLabel, QPushButton, QScrollArea, QSlider,
             QSpinBox, QTabWidget, QVBoxLayout, QWidget,
@@ -5576,7 +5837,7 @@ class PreferencesDialog:
         from .theme import spaceout_enabled
         from .widgets.toggle import Toggle
 
-        dlg = QDialog(parent)
+        dlg = _preferences_window_class()(parent)
         from .dialogs import detach_from_window_manager
         detach_from_window_manager(dlg)
         dlg.setWindowTitle(tr("spaCR — Preferences"))
@@ -7272,10 +7533,7 @@ class PreferencesDialog:
                 db_edit_check.setChecked(get_db_browser_editable())
                 alpha_check.setChecked(get_show_alpha())
                 beta_check.setChecked(get_show_beta())
-                _alpha_features = dlg.findChild(
-                    QWidget, "ShowAlphaFutureFeatures")
-                if _alpha_features is not None:
-                    _alpha_features.setChecked(_get_show_alpha_features())
+                alpha_features_check.setChecked(_get_show_alpha_features())
                 if sound_page is not None:
                     sound_page.reset()
             finally:
@@ -7350,9 +7608,7 @@ class PreferencesDialog:
             set_db_browser_editable(db_edit_check.isChecked())
             set_show_alpha(alpha_check.isChecked())
             set_show_beta(beta_check.isChecked())
-            alpha_features = dlg.findChild(QWidget, "ShowAlphaFutureFeatures")
-            if alpha_features is not None:
-                _set_show_alpha_features(alpha_features.isChecked())
+            _set_show_alpha_features(alpha_features_check.isChecked())
             set_figure_save_mode(figure_save_mode_combo.currentData())
             set_figure_format(fig_format_combo.currentData())
             for shape, combo in default_graph_combos.items():
@@ -7444,6 +7700,7 @@ class PreferencesDialog:
             layout.addWidget(hints)
         explain_every_row(dlg)
         _everything_explains_itself_in_the_strip(dlg, hints)
+        dlg._show_only_the_open_page_at_first(tabs)
         return dlg
 
 
