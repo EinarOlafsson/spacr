@@ -71,7 +71,8 @@ def private_input_records(manifest, stage, input_root):
 
 
 def record_external_masks(app, window, screen, stage, captures, capture,
-                          settle, write_json, timeout, *, input_root=None):
+                          settle, write_json, timeout, *, input_root=None,
+                          stop_after_preview=False):
     """Preview without writing, then run and independently verify the project."""
     from PySide6.QtCore import Qt, QTimer
     from PySide6.QtTest import QTest
@@ -808,6 +809,20 @@ def record_external_masks(app, window, screen, stage, captures, capture,
         raise RuntimeError('Only Preview only may change before the first real import')
     write_json(captures / 'configured_settings.json', settings)
     write_json(captures / 'batch_settings.json', settings)
+    if stop_after_preview:
+        unchanged()
+        write_json(captures / 'scientific_acceptance.json', {
+            'accepted': True, 'published': False,
+            'scope': 'Native non-writing preview and Preview only toggle; no new measurement',
+            'destination': str(destination), 'destination_exists': False,
+            'source_inputs_unchanged': True, 'input_groups_from_real_pickers': True,
+            'nonwriting_preview_verified': True, 'originals_sha256': originals,
+            'measurement_run': False, 'measurement_outputs_verified': False,
+            'preview_worker': preview_outcome,
+            'final_frame': '08_preview_only_disabled',
+        })
+        print('Accepted real External Masks preview only; no measurement or project written', flush=True)
+        return
     outcome, run_lines, _ = run_job('09_measure', True)
     if 'Prepared 2 field(s) in ' + str(destination) not in ''.join(run_lines):
         raise RuntimeError('The actual pipeline did not report the completed two-field project')
