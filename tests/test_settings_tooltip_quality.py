@@ -829,9 +829,10 @@ def test_real_default_claims_have_no_unrecorded_drift():
     assert item_536 <= compared_pairs
     # 806 -> 809 on 2026-09-26, +3/-0 (item 543): illumination_vendor_profile
     # ("Default empty."), resolved by Measure, by External Masks, which
-    # measures with Measure's defaults, and by Illumination.
+    # measures with Measure's defaults, and by Mask, which corrects its
+    # segmentation inputs with the same field.
     item_543 = {(app, "illumination_vendor_profile")
-                for app in ("measure", "external_masks", "illumination")}
+                for app in ("measure", "external_masks", "mask")}
     assert item_543 <= compared_pairs
     assert comparisons == 809
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
@@ -844,9 +845,11 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # + 16: item 535's eight cell-cycle claims in two apps, pinned above.
     # + 12: item 547's six profiling claims in two apps, pinned above.
     # + 10: item 536's five wound-closure claims in two apps, pinned above.
+    # + 3: item 543's vendor flat-field profile in three apps, pinned above.
     assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2
             + len(item_541) + len(item_548) + len(item_550)
-            + len(item_535) + len(item_547) + len(item_536) == comparisons)
+            + len(item_535) + len(item_547) + len(item_536)
+            + len(item_543) == comparisons)
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs
     assert len(census_508['added_pairs']) == 19
