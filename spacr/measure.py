@@ -4357,7 +4357,8 @@ def _keep_content_calls(phases, measured):
     Nuclei outside the fitted peaks are fragments, cut nuclei and clumps,
     decided by their DNA content alone; the learned methods are asked only
     which phase a nucleus inside the peaks is in, so every method reports
-    the same subG1 and >4N nuclei.
+    the same subG1 and >4N nuclei. A nucleus the method did not call (no
+    crop of it, for instance) stays uncalled.
 
     :param phases: phase per nucleus from a learned method.
     :param measured: the frame from :func:`_phases_by_measurements`.
@@ -4365,7 +4366,7 @@ def _keep_content_calls(phases, measured):
     """
     out = pd.Series(list(phases), index=measured.index, dtype=object)
     outside = measured['phase_measurements'].isin(
-        (_CELL_CYCLE_BELOW, _CELL_CYCLE_ABOVE))
+        (_CELL_CYCLE_BELOW, _CELL_CYCLE_ABOVE)) & out.notna()
     out[outside] = measured.loc[outside, 'phase_measurements']
     return out
 
@@ -4466,31 +4467,36 @@ def _cell_cycle_by_well(table, methods):
     return pd.DataFrame(rows)
 
 
-def _phase_agreement_by_well(wells, methods):
+def _phase_agreement_by_well(table, methods):
     """The largest disagreement between methods in each well's fractions.
 
-    :param wells: the frame from :func:`_cell_cycle_by_well`.
+    Compared on the nuclei every method called, so a method that could not
+    see some nuclei (a field whose array is gone, for the crops) is not
+    counted as disagreeing about them.
+
+    :param table: the per-nucleus ``cell_cycle`` frame.
     :param methods: the methods compared.
-    :returns: one row per well, with ``max_fraction_difference`` and the
-        phase it occurs in.
+    :returns: one row per well, with ``n`` compared,
+        ``max_fraction_difference`` and the phase it occurs in.
     """
-    if wells.empty or len(methods) < 2:
+    columns = [f'phase_{m}' for m in methods if f'phase_{m}' in table]
+    if table is None or table.empty or len(columns) < 2:
         return pd.DataFrame()
     keys = [k for k in ('plateID', 'rowID', 'columnID', 'timeID')
-            if k in wells.columns]
+            if k in table.columns and table[k].notna().any()]
+    shared = table[table[columns].notna().all(axis=1)]
     rows = []
-    compared = wells[wells['method'].isin(methods)]
-    for name, block in compared.groupby(keys, dropna=False, sort=True):
+    for name, block in shared.groupby(keys, dropna=False, sort=True):
         identity = dict(zip(keys, name if isinstance(name, tuple)
                             else (name,)))
         worst, where = 0.0, None
         for phase in _CELL_CYCLE_PHASES:
-            values = block[f'fraction_{phase}'].astype(float)
-            spread = float(values.max() - values.min())
+            values = [float((block[c] == phase).mean()) for c in columns]
+            spread = max(values) - min(values)
             if spread > worst:
                 worst, where = spread, phase
-        rows.append({**identity, 'max_fraction_difference': worst,
-                     'phase': where})
+        rows.append({**identity, 'n': int(len(block)),
+                     'max_fraction_difference': worst, 'phase': where})
     return pd.DataFrame(rows)
 
 
@@ -4569,7 +4575,7 @@ def _classify_cell_cycle(db_path, settings, *, plot=None):
     ``cell_cycle_well`` holds the phase fractions per well and method,
     overall and among infected and uninfected cells, and
     ``cell_cycle_agreement`` the largest difference between methods per
-    well. With ``plot``, each plate's fitted histogram is saved under
+    well, on the nuclei they all called. With ``plot``, each plate's fitted histogram is saved under
     ``results/cell_cycle``.
 
     :param db_path: a ``measurements.db`` with a ``nucleus`` table.
@@ -4658,7 +4664,7 @@ def _classify_cell_cycle(db_path, settings, *, plot=None):
     if not wells.empty:
         write_database(wells, db_path, _CELL_CYCLE_WELL_TABLE,
                        if_exists='replace', canonicalise=False)
-    agreement = _phase_agreement_by_well(wells, methods)
+    agreement = _phase_agreement_by_well(table, methods)
     if not agreement.empty:
         write_database(agreement, db_path, 'cell_cycle_agreement',
                        if_exists='replace', canonicalise=False)

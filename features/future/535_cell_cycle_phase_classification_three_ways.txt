@@ -96,7 +96,8 @@ DONE WHEN
     count, cell_cycle_phase, cell_cycle_method); cell_cycle_well, per well
     and method (n and the fraction in each phase and in G2M, and the same
     among infected and uninfected cells); cell_cycle_agreement, per well the
-    largest phase-fraction difference between the methods.
+    largest phase-fraction difference between the methods, on the nuclei
+    they all called.
 
     Validation (scripts in /mnt/firecuda2/codex/scratch-docs/535): two
     synthetic plates, each 4 wells x 4 fields of 512 px and 1120 nuclei,
@@ -145,16 +146,25 @@ DONE WHEN
     S 6 %, G2 21 %, M 0.7 % and subG1 18 % (fragments and edge-cut nuclei):
     with peaks this wide the gates hand most of S to G1 and G2, which is why
     the per-well table also carries the posterior fractions (S 30-32 % per
-    well). xgboost on gate labels agrees with the gates on 91 % of nuclei.
-    In every well infected cells are more often in G2/M than uninfected ones
+    well). All three methods on gate labels (torch 30 epochs on the GPU,
+    128 px crops, on the 726 nuclei of the 16 fields whose arrays are in the
+    example download): per nucleus, gates and xgboost agree on 91 %, gates
+    and torch on 83 %, xgboost and torch on 87 %. Per well, on the nuclei
+    all three called, the phase fractions differ by 10-12 points, and gates
+    against xgboost alone by 8-9 points, nearly all of it S against G2: the
+    learned methods call 11-14 % S where the hard gates call 6 % (and the
+    posteriors 30 %). So on real widefield nuclei the 5-point tolerance the
+    synthetic plates meet is not met; the S/G2 split of broad peaks is where
+    the methods disagree, and hand labels are what would settle which is
+    right. In every well infected cells are more often in G2/M than uninfected ones
     (gated 25-31 % against 15-18 %), in line with the host G2 arrest
     Toxoplasma is reported to cause.
 
     Tests: tests/test_cell_cycle_phase_three_ways.py (the fit, user gates,
     subG1 and >4N, the four-phase measurement call per plate and the pooled
     fallback, FUCCI, annotation values, xgboost, Annotate and weak labels,
-    per-well fractions with infection and the consensus, the method
-    setting, Measure end to end writing both tables, the figure and the
+    per-well fractions with infection and the consensus, methods compared
+    on the nuclei they all called, the method setting, Measure end to end writing both tables, the figure and the
     booster, a failed step not failing the run, the torch route training
     one CPU epoch and reusing its model, a model without its phase order
     refused, the settings, and the real plate1 nuclei when downloaded) and

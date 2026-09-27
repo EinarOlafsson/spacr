@@ -36,7 +36,9 @@ from spacr.measure import (
     _fit_dna_content,
     _fucci_states,
     _gate_dna_content,
+    _keep_content_calls,
     _normalise_phase,
+    _phase_agreement_by_well,
     _phase_features,
     _phase_scores,
     _phases_by_measurements,
@@ -254,6 +256,28 @@ def test_per_well_fractions_split_by_infection_and_the_consensus():
     assert first["infected_n"] == 2 and first["uninfected_n"] == 1
     assert first["infected_fraction_G2"] == pytest.approx(0.5)
     assert set(wells["method"]) == {*methods, "consensus"}
+
+
+def test_methods_are_compared_on_the_nuclei_they_all_called():
+    frame = pd.DataFrame({
+        "plateID": ["p"] * 4, "rowID": ["r1"] * 4, "columnID": ["c1"] * 4,
+        "phase_measurements": ["G1", "G1", "S", "G2"],
+        "phase_torch": ["G1", "G1", None, None],
+    })
+    agreement = _phase_agreement_by_well(frame, ("measurements", "torch"))
+    row = agreement.iloc[0]
+    assert row["n"] == 2 and row["max_fraction_difference"] == 0.0
+    frame.loc[1, "phase_torch"] = "S"
+    row = _phase_agreement_by_well(frame, ("measurements", "torch")).iloc[0]
+    assert row["max_fraction_difference"] == pytest.approx(0.5)
+    assert _phase_agreement_by_well(frame, ("measurements",)).empty
+
+
+def test_out_of_peak_nuclei_keep_their_content_call_only_when_called():
+    measured = pd.DataFrame({"phase_measurements": ["G1", "subG1", ">4N",
+                                                    "subG1"]})
+    learned = _keep_content_calls(["S", "G1", "G2", None], measured)
+    assert list(learned) == ["S", "subG1", ">4N", None]
 
 
 def test_the_method_setting_names_what_runs():
