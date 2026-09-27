@@ -174,6 +174,13 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     latest5 = {record["source"] for record in fifth}
     assert len(fifth) == len(latest5) and not latest5 & sources
     sources |= latest5
+    # The sixth pass (2026-09-27) is one more slice: items 539, 571, 579,
+    # 582 and the other captions nightly added after the fifth.
+    sixth = [record for path in sorted(folder.glob("2026-09-27-runtime-debt-sixth-pass-*.json"))
+             for record in json.loads(path.read_text())["records"]]
+    latest6 = {record["source"] for record in sixth}
+    assert len(sixth) == len(latest6) and not latest6 & sources
+    sources |= latest6
     assert sources <= reviewed.keys()
     return sources
 
