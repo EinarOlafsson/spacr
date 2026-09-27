@@ -151,7 +151,11 @@ TEXT_ORDERS = ("above,left,below", "left,above,below", "above,below,left",
 FIGURE_ONLY_KEYS = ("figure_detector", "figure_imgsz", "figure_confidence",
                     "figure_read_text", "confirm_annotations") + TEXT_KEYS
 
-PLAQUE_ONLY_KEYS = ("well_detection", "well_confidence", "well_pad")
+PLAQUE_ONLY_KEYS = ("well_detection", "well_confidence", "well_pad",
+                    "colony_counting", "colony_dilution",
+                    "colony_plated_volume_ul", "colony_too_many",
+                    "colony_too_few", "colony_polarity", "colony_threshold",
+                    "colony_min_area_px")
 
 PAPERS_REQUIREMENT = "spacr[papers]"
 

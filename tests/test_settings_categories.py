@@ -860,6 +860,14 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # copied back sit beside `src` in Input & Metadata / Input & Experiment.
     "cloud_anonymous", "cloud_profile", "cloud_endpoint", "cloud_cache",
     "cloud_wells", "cloud_fields", "cloud_level", "cloud_results",
+    # NEW SETTINGS, not a regrouping (item 542, 2026-09-27): Plaque Assay's
+    # colony-counting switch, the dilution and plated volume that turn a
+    # count into CFU/mL, the too-many and too-few flags, and the polarity,
+    # threshold and minimum area of the colony segmentation, under their own
+    # "Colony Counting (Alpha)" heading.
+    "colony_counting", "colony_dilution", "colony_plated_volume_ul",
+    "colony_too_many", "colony_too_few", "colony_polarity",
+    "colony_threshold", "colony_min_area_px",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six

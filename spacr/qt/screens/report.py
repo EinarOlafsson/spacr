@@ -47,6 +47,7 @@ from PySide6.QtWidgets import (
 
 from ... import report as rep
 from ..bridge import make_thread
+from ..i18n import tr
 from ..theme import SPACING, active_palette
 from ..widgets import Divider
 from ..widgets.collapsible_splitter import FoldSection
@@ -124,6 +125,7 @@ class ReportScreen(QWidget):
         self._src: str = ""
         self._report: Optional[rep.Report] = None
         self._written: List[str] = []
+        self._archive_problems: List[str] = []
         self._busy = False
         self._jobs: List[tuple] = []
         self._pending: List[Tuple[Dict[str, Any], Callable[[Any], None]]] = []
@@ -234,6 +236,7 @@ class ReportScreen(QWidget):
         out_row.addWidget(self._btn_pick_out)
         out_row.addWidget(self._btn_generate)
         out_row.addWidget(self._btn_open)
+        out_row.addWidget(self._build_archive_button())
         outer.addLayout(out_row)
 
         self._status = QLabel("", self)
@@ -487,6 +490,137 @@ class ReportScreen(QWidget):
         return True
 
 
+    def _build_archive_button(self) -> QPushButton:
+        """The Archive package button: metadata and files for IDR or BioImage Archive.
+
+        Opens :meth:`_archive_dialog`. An alpha feature, registered as
+        ``ReportArchivePackage`` in :data:`spacr.settings.ALPHA_FEATURES`.
+
+        :returns: the button.
+        """
+        from ..preferences import _apply_alpha_widgets
+
+        button = QPushButton(tr("Archive package…"), self)
+        button.setObjectName("ReportArchivePackage")
+        button.setToolTip(tr(
+            "Assemble a submission package for the Image Data Resource or "
+            "the BioImage Archive: MIHCSME and REMBI metadata taken from "
+            "the settings spaCR saved, the images and a plate map, plus a "
+            "short form for what spaCR cannot know, with the IDR study and "
+            "library files, a BioStudies study and file list, and MD5 "
+            "checksums. Nothing is uploaded and the run folder is not "
+            "written to. Default not made."))
+        button.clicked.connect(self._on_archive_package)
+        self._btn_archive = button
+        _apply_alpha_widgets(button)
+        return button
+
+    def _archive_labels(self) -> Dict[str, str]:
+        """The caption of each archive form field, keyed as the form is."""
+        return {
+            "title": tr("Title"),
+            "description": tr("Description"),
+            "authors": tr("Authors (Last First; …)"),
+            "email": tr("Contact email"),
+            "affiliation": tr("Affiliation"),
+            "organism": tr("Organism (; between several)"),
+            "cell_line": tr("Cell line"),
+            "technology": tr("Screen technology"),
+            "screen_type": tr("Screen type"),
+            "imaging_method": tr("Imaging method"),
+            "microscope": tr("Microscope"),
+            "growth_protocol": tr("Growth protocol"),
+            "treatment_protocol": tr("Treatment protocol"),
+            "sample_preparation": tr("Sample preparation"),
+            "keywords": tr("Keywords (; between several)"),
+            "license": tr("License"),
+            "release_date": tr("Public release date"),
+            "plate_map": tr("Plate map (optional)"),
+        }
+
+    def _archive_dialog(self):
+        """Build the archive form, filled from the run folder's settings.
+
+        :returns: the dialog, not yet shown, or ``None`` without a folder.
+        """
+        from PySide6.QtWidgets import (QCheckBox, QDialog, QDialogButtonBox,
+                                       QFormLayout)
+
+        raw = self._path_edit.text().strip()
+        src = os.path.abspath(os.path.expanduser(raw)) if raw else ""
+        if not src or not os.path.isdir(src):
+            self._set_status(tr("Choose a run folder first."), error=True)
+            return None
+        dialog = QDialog(self)
+        dialog.setObjectName("ReportArchiveDialog")
+        dialog.setWindowTitle(tr("Archive package"))
+        form = QFormLayout(dialog)
+        defaults = rep._archive_form_defaults(src)
+        labels = self._archive_labels()
+        fields: Dict[str, QLineEdit] = {}
+        for key, required in rep._ARCHIVE_FORM_FIELDS:
+            edit = QLineEdit(defaults.get(key, ""), dialog)
+            edit.setObjectName(f"ArchiveField_{key}")
+            caption = labels[key] + (" *" if required else "")
+            form.addRow(caption, edit)
+            fields[key] = edit
+        out = QLineEdit(os.path.dirname(src.rstrip(os.sep)), dialog)
+        out.setObjectName("ArchiveOutput")
+        form.addRow(tr("Write the package into"), out)
+        copy = QCheckBox(tr("Copy the images into the package"), dialog)
+        copy.setObjectName("ArchiveCopyImages")
+        form.addRow("", copy)
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel, dialog)
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+        form.addRow(buttons)
+        dialog.accepted.connect(lambda: self._write_archive(
+            src, out.text().strip(),
+            {k: e.text() for k, e in fields.items()}, copy.isChecked()))
+        return dialog
+
+    def _on_archive_package(self) -> None:
+        """Show the archive form for the folder in the source box."""
+        dialog = self._archive_dialog()
+        if dialog is not None:
+            dialog.setAttribute(Qt.WA_DeleteOnClose, True)
+            dialog.open()
+
+    def _write_archive(self, src: str, out: str, form: Dict[str, str],
+                      copy_images: bool = False) -> bool:
+        """Write and validate an archive package off the GUI thread.
+
+        :param src: the run folder.
+        :param out: the folder the package folder is made in.
+        :param form: the form values.
+        :param copy_images: also copy the images into the package.
+        :returns: True when the job was started (or, unthreaded, ran).
+        """
+        target = out or os.path.dirname(src.rstrip(os.sep))
+        self._set_status(tr("Writing the archive package…"))
+
+        def _job():
+            """Write the package, then check it against the templates."""
+            pkg = rep._write_archive_package(src, target, form,
+                                             copy_images=copy_images)
+            return pkg, rep._validate_archive_package(pkg)
+
+        return self._run_job(_job, self._on_archive_written)
+
+    def _on_archive_written(self, result: Any) -> None:
+        """Say where the package went and whether it passed its checks."""
+        pkg, problems = result
+        self._archive_problems = list(problems)
+        if problems:
+            self._set_status(
+                tr("Wrote {path}, but it does not pass: {problems}").format(
+                    path=pkg, problems="; ".join(problems[:4])), error=True)
+            return
+        self._set_status(tr(
+            "Wrote {path}. It passes the IDR, BioStudies and MIHCSME "
+            "checks; nothing was uploaded.").format(path=pkg))
+
     def _run_job(self, fn: Callable[[], Any],
                  on_done: Callable[[Any], None]) -> bool:
         """Run ``fn`` off the GUI thread and hand its result to ``on_done``.
@@ -618,6 +752,7 @@ class ReportScreen(QWidget):
         self._btn_pick_out.setEnabled(idle)
         self._btn_generate.setEnabled(idle and has_src)
         self._btn_open.setEnabled(idle and bool(self._written))
+        self._btn_archive.setEnabled(idle and has_src)
         self._format.setEnabled(idle)
         self._figure_cap.setEnabled(idle)
 
