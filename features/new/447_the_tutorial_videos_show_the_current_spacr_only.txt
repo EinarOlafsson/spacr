@@ -594,3 +594,23 @@ offenders or OCR errors. Master/web hashes independently match the receipt:
 tools/tutorials/evidence/2026-09-27-methods-picker-neutral-recapture.json.
 Ten of13 batch2 lessons now have verified refreshed media. Lessons44,56 and73
 and batch publication/live verification remain; this is not overall closure.
+
+2026-09-27 — DATA MANAGER NATIVE MEDIA VERIFIED
+Lesson44 now uses 12 genuine neutral-root captures across its 13 unchanged
+English scenes. The capture at dc689b994 operates on an independently bound
+private copy of lesson31's completed project; all132 original files remain
+byte-identical. Real cancellation, deletion of104 private crop files and
+archiving are verified, with nine successful workers and none left running.
+The prior failed capture stopped before selecting a project because the
+recorder expected obsolete menu capitalization; it remains diagnostic evidence.
+
+All81 audio/timing/caption files and the English text are unchanged. Only the
+prune-plan spotlight height was adjusted to include the actual proposed row.
+Master and web playback passed;22 sampled frames contain no personal-path
+offenders or OCR errors. Receipt:
+tools/tutorials/evidence/2026-09-27-data-manager-neutral-recapture.json.
+
+Eleven of13 batch2 lessons now have verified refreshed media; lessons56 and73
+remain. The ready manifest contains12 lessons including75. Publication and
+live verification remain open; this is not overall447 closure or listening
+or native-speaker signoff.
