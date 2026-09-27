@@ -790,6 +790,12 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "cell_cycle_gates", "cell_cycle_mitotic_ratio",
     "cell_cycle_fucci_channels", "cell_cycle_labels", "cell_cycle_model",
     "cell_cycle_epochs",
+    # NEW SETTINGS, not a regrouping (item 536, 2026-09-26): Measure's
+    # scratch-wound closure switch, its source, channel, texture window,
+    # frame interval and well-to-condition map, under their own "Wound
+    # Closure (Alpha)" heading.
+    "wound_closure", "wound_source", "wound_channel", "wound_window",
+    "wound_hours_per_frame", "wound_conditions",
     # A NEW SETTING GROUP, not a regrouping: Make Masks can keep watching
     # `src` and analyse each field as it arrives (`watch_folder`), with the
     # pipeline, Measure settings file, settle time, poll interval and idle
@@ -1483,6 +1489,9 @@ def _rendered_sections(app_key):
             # Item 535, 2026-09-26: the cell-cycle phase call follows, read
             # from the nuclei the features above measured.
             "Cell Cycle (Alpha)",
+            # Item 536, 2026-09-26: wound closure follows confluency, whose
+            # texture and intensity methods it builds on.
+            "Wound Closure (Alpha)",
             "Object Filtering", "Crop Output",
             # Item 547, 2026-09-26: profiling runs on the finished tables,
             # so its Alpha heading follows the outputs it reads.

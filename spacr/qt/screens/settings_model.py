@@ -1260,6 +1260,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Confluency (Alpha)", ("@Confluency (Alpha)",)),
         ("Cell Cycle (Alpha)", ("@Cell Cycle (Alpha)",)),
+        ("Wound Closure (Alpha)", ("@Wound Closure (Alpha)",)),
         ("Object Filtering", (
             "uninfected", "cell_min_size", "cell_max_size",
             "cytoplasm_min_size",
@@ -2668,6 +2669,13 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "from a fluorescent stain. Plaque and infection results from a thin "
         "or torn monolayer can then be dropped or divided by the covered "
         "fraction.",
+    "WOUND CLOSURE (ALPHA)":
+        "A scratch or wound-healing assay measured over a time-lapse: the "
+        "open wound in every frame, from the texture of a brightfield or "
+        "phase channel, a fluorescent stain or the cell masks; its area, "
+        "mean and minimum width; and per well and per condition the "
+        "closure curve, closure rate and half-closure time, written to "
+        "measurements.db with figures and a plate map.",
     "MOTILITY (BETA)":
         "The beta motility assay run inline with the mask pipeline: whether "
         "it runs at all, and the per-object tracking parameters it uses. "
