@@ -818,7 +818,16 @@ def test_real_default_claims_have_no_unrecorded_drift():
                             "profiling_correlation_threshold",
                             "profiling_databases")}
     assert item_547 <= compared_pairs
-    assert comparisons == 796
+    # 796 -> 806 on 2026-09-26, +10/-0 (item 536): wound_closure (False),
+    # wound_channel (None), wound_window (15), wound_hours_per_frame (None)
+    # and wound_conditions ({}), each resolved by Measure and by External
+    # Masks, which measures with Measure's defaults. wound_source says
+    # "Default texture.", which is not a literal and so is not compared.
+    item_536 = {(app, key) for app in ("measure", "external_masks")
+                for key in ("wound_closure", "wound_channel", "wound_window",
+                            "wound_hours_per_frame", "wound_conditions")}
+    assert item_536 <= compared_pairs
+    assert comparisons == 806
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
@@ -830,9 +839,10 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # + 12: item 547's six profiling claims in two apps, pinned above.
     # + 0: item 539's bleach_correction says "Default none.", a combo
     # choice rather than a literal, and so is not compared.
+    # + 10: item 536's five wound-closure claims in two apps, pinned above.
     assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2
             + len(item_541) + len(item_548) + len(item_550)
-            + len(item_535) + len(item_547) == comparisons)
+            + len(item_535) + len(item_547) + len(item_536) == comparisons)
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs
     assert len(census_508['added_pairs']) == 19

@@ -66,13 +66,6 @@
       "source": "Path to a trained Timeflows checkpoint, spaCR's experimental temporal Cellpose that predicts where each object's centre moves in the next frame and links masks from those predictions. Only consulted when timelapse_mode='timeflows', which is never the default: on held-out movies measured so far it does not beat overlap linking ('iou'). No checkpoint is downloaded; leave empty unless you trained one. Default None.",
       "source_sha256": "88edfe30ad6d529a1bc4f650979f9110137ca67279a8b4fe9a29d29d5507af94",
       "translation": "Caminho para um checkpoint treinado do Timeflows, o Cellpose temporal experimental do spaCR que prevê para onde o centro de cada objeto se desloca no quadro seguinte e liga as máscaras a partir dessas previsões. Só é consultado quando timelapse_mode='timeflows', que nunca é o padrão: nos filmes reservados medidos até agora, ele não supera a ligação por sobreposição ('iou'). Nenhum checkpoint é baixado; deixe vazio, a menos que tenha treinado um. Padrão None."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "timelapse_mode",
-      "source": "Tracking backend used to link objects between frames. 'trackastra' is a pretrained transformer with division-aware linking; 'ultrack' jointly optimizes segmentation and linking and supports dense or three-dimensional data at increased computational cost; 'trackpy' uses a configurable search radius and frame memory; 'btrack' uses a motion model; and 'iou' links masks by overlap and may fail when inter-frame displacement is large; 'timeflows' is spaCR's experimental temporal Cellpose, needs a trained checkpoint in timeflows_model and has not yet beaten 'iou' on held-out movies. Default 'trackastra'.",
-      "source_sha256": "387d42e3a0d187c4f6aac5d9a20a96854693853b5515de01e3f24d2b903436a2",
-      "translation": "Backend de rastreamento usado para ligar objetos entre quadros. 'trackastra' é um transformer pré-treinado com ligação que considera divisões; 'ultrack' otimiza conjuntamente a segmentação e a ligação e suporta dados densos ou tridimensionais com maior custo computacional; 'trackpy' usa um raio de busca configurável e memória de quadros; 'btrack' usa um modelo de movimento; 'iou' liga máscaras por sobreposição e pode falhar quando o deslocamento entre quadros é grande; 'timeflows' é o Cellpose temporal experimental do spaCR, precisa de um checkpoint treinado em timeflows_model e ainda não superou 'iou' em filmes reservados. Padrão 'trackastra'."
     }
   ]
 }

@@ -692,13 +692,6 @@
     },
     {
       "table": "ui",
-      "key": "Equalise the histogram inside each tile rather than over the whole field, with a limit on how much any one level may be stretched. It is what brings out objects in a dim corner without blowing out the bright middle. It also amplifies noise in empty tiles, which is what the clip limit is for.",
-      "source": "Equalise the histogram inside each tile rather than over the whole field, with a limit on how much any one level may be stretched. It is what brings out objects in a dim corner without blowing out the bright middle. It also amplifies noise in empty tiles, which is what the clip limit is for.",
-      "source_sha256": "4d90cb622f7b5cb3f16195794f79550e39b97dea772275f26cd280e005d9923a",
-      "translation": "Jafna stuðlaritið innan hvers reits frekar en yfir allt sjónsviðið, með takmörkun á hve mikið hvert stig má teygja. Þetta dregur fram hluti í dimmu horni án þess að sprengja bjarta miðjuna. Það magnar einnig suð í tómum reitum, og til þess eru klippimörkin."
-    },
-    {
-      "table": "ui",
       "key": "Estimate and apply flat-field correction at configured stages. Keep corrected display values distinct from raw measurements and record the applied policy.",
       "source": "Estimate and apply flat-field correction at configured stages. Keep corrected display values distinct from raw measurements and record the applied policy.",
       "source_sha256": "55fe876cb0804a390ac56a7666124f4b040f4c05a6e930938cc92b938103e7d6",

@@ -794,6 +794,12 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # correction of a timelapse run's intensities, under its own
     # "Bleach Correction (Alpha)" heading.
     "bleach_correction",
+    # NEW SETTINGS, not a regrouping (item 536, 2026-09-26): Measure's
+    # scratch-wound closure switch, its source, channel, texture window,
+    # frame interval and well-to-condition map, under their own "Wound
+    # Closure (Alpha)" heading.
+    "wound_closure", "wound_source", "wound_channel", "wound_window",
+    "wound_hours_per_frame", "wound_conditions",
     # A NEW SETTING GROUP, not a regrouping: Make Masks can keep watching
     # `src` and analyse each field as it arrives (`watch_folder`), with the
     # pipeline, Measure settings file, settle time, poll interval and idle
@@ -1490,6 +1496,9 @@ def _rendered_sections(app_key):
             # Item 539, 2026-09-26: bleach correction rescales the
             # intensities the features above measured.
             "Bleach Correction (Alpha)",
+            # Item 536, 2026-09-26: wound closure follows confluency, whose
+            # texture and intensity methods it builds on.
+            "Wound Closure (Alpha)",
             "Object Filtering", "Crop Output",
             # Item 547, 2026-09-26: profiling runs on the finished tables,
             # so its Alpha heading follows the outputs it reads.
