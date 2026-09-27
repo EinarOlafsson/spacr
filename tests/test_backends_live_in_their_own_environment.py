@@ -497,6 +497,8 @@ def test_every_module_an_adapter_imports_is_in_its_self_test():
         "stardist": (SB._StarDistAdapter, SB._tensorflow_device),
         "instanseg": (SB._InstanSegAdapter,),
         "omnipose": (SB._OmniposeAdapter, SB._omnipose_shape),
+        "careamics": (SB._worker_n2v_train, SB._N2VLosses,
+                      SB._worker_n2v_denoise),
         "cellprofiler": (SB._cellprofiler_started,
                          SB._worker_run_cellprofiler),
     }

@@ -124,6 +124,15 @@ _PAPERS = "papers"
 #: DeepCell's SpotNet, for fluorescent spots rather than cells.
 _SPOTNET = "spotnet"
 
+#: CAREamics, which trains a Noise2Void denoiser on a run's own noisy fields
+#: and applies it before segmentation; it denoises, it does not segment.
+_CAREAMICS = "careamics"
+
+#: Noise2Void's training patch side in pixels and patches per batch, the
+#: sizes CAREamics' own 2-D examples use.
+_N2V_PATCH = 64
+_N2V_BATCH = 16
+
 #: CellProfiler, which runs a lab's own ``.cppipe`` pipeline headlessly on
 #: spaCR's fields; it measures, it does not segment for spaCR.
 _CELLPROFILER = "cellprofiler"
@@ -697,6 +706,36 @@ _SPECS = {
             "spot detection for image-based spatial transcriptomics with "
             "weakly supervised deep learning', Cell Systems 2024 "
             "(doi:10.1016/j.cels.2023.12.008). spaCR has not scored it on "
+            "its own data.")),
+    _CAREAMICS: _BackendSpec(
+        name=_CAREAMICS, label="CAREamics Noise2Void", module="careamics",
+        probe=("careamics", "careamics.config", "lightning",
+               "lightning.pytorch.callbacks", "torch"),
+        distribution="careamics",
+        requirements=("careamics==0.3.4", "lightning==2.6.6"),
+        torch=("torch>=2.6,<2.12", "torchvision<=0.26.0"),
+        python=((3, 11), (3, 13)),
+        licence="BSD-3-Clause",
+        licence_note=(
+            "CAREamics 0.3.4 is BSD-3-Clause (Copyright 2023, CAREamics "
+            "contributors). It downloads no weights: every Noise2Void model "
+            "is trained here, on the run's own images, and stays with the "
+            "experiment."),
+        homepage="https://careamics.github.io", size_gb=2.5, segments=False,
+        alpha=True,
+        blurb=(
+            "Self-supervised denoising: CAREamics trains a Noise2Void (N2V2) "
+            "network on a run's own noisy fields, with no clean images, and "
+            "Make Masks denoises every segmentation channel with it before "
+            "the enhancement chain. Training wants a GPU; a CPU trains a "
+            "small model slowly. PyTorch is held below 2.12 and torchvision "
+            "at 0.26 or older, the newest pair CAREamics 0.3.4 accepts."),
+        published=(
+            "Published results: Krull, Buchholz and Jug, 'Noise2Void - "
+            "learning denoising from single noisy images', CVPR 2019; Hock "
+            "et al., 'N2V2 - fixing Noise2Void checkerboard artifacts with "
+            "modified sampling strategies and a tweaked network "
+            "architecture', ECCV 2022 workshops. spaCR has not scored it on "
             "its own data.")),
     _CELLPROFILER: _BackendSpec(
         name=_CELLPROFILER, label="CellProfiler", module="cellprofiler",
@@ -2857,6 +2896,96 @@ def _restore_plane(image, plan, *, should_cancel=None, worker_for=None):
         return restored, dict(record)
 
 
+def _n2v_worker(root=None, worker_for=None):
+    """CAREamics' running worker, or ImportError saying how to install it."""
+    state = _backend_state(_CAREAMICS, root)
+    if state.state != _INSTALLED or state.in_process:
+        raise ImportError(_not_installed_message(_CAREAMICS, state))
+    return (worker_for or _worker_for)(_CAREAMICS, state.env)
+
+
+def _n2v_train(images, output, *, epochs=20, seed=0, device=None, root=None,
+               worker_for=None, should_cancel=None):
+    """Train a Noise2Void (N2V2) denoiser on noisy planes, in CAREamics' own
+    environment, with no clean targets.
+
+    Blocking; call it off the GUI thread. The planes go to the worker as
+    ``.npy`` files in a scratch folder removed afterwards.
+
+    :param images: 2-D intensity planes, at least :data:`_N2V_PATCH` on a
+        side, the noisy images the model learns from.
+    :param output: the ``.ckpt`` file the trained model is written to.
+    :param epochs: passes over the training patches.
+    :param seed: the random seed patches, masking and weights start from.
+    :param device: ``'cpu'``, ``'cuda'``, ... or None for the worker's own
+        best guess.
+    :param root: the backends folder.
+    :param worker_for: :func:`_worker_for`, or a stand-in for tests.
+    :param should_cancel: polled while it trains; True stops the worker.
+    :returns: the training record: the checkpoint, the losses per epoch, the patch and batch sizes, the device, the seconds and
+        CAREamics' version.
+    :raises ImportError: when CAREamics is not installed.
+    :raises ValueError: for no planes or a plane smaller than a patch.
+    """
+    planes = [np.asarray(image, dtype=np.float32) for image in images]
+    if not planes:
+        raise ValueError("Noise2Void needs at least one noisy image to train on")
+    for plane in planes:
+        if plane.ndim != 2 or min(plane.shape) < _N2V_PATCH:
+            raise ValueError(
+                f"Noise2Void trains on 2-D planes at least {_N2V_PATCH} "
+                f"pixels on a side; got {plane.shape}")
+        if not np.isfinite(plane).all():
+            raise ValueError("Noise2Void needs finite intensities")
+    worker = _n2v_worker(root, worker_for)
+    output = os.path.abspath(str(output))
+    os.makedirs(os.path.dirname(output), exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="spacr_n2v_") as folder:
+        inputs = []
+        for index, plane in enumerate(planes):
+            path = os.path.join(folder, f"plane_{index:04d}.npy")
+            np.save(path, plane, allow_pickle=False)
+            inputs.append(path)
+        reply = worker.request(
+            "n2v_train", should_cancel=should_cancel, inputs=inputs,
+            output=output, epochs=int(epochs), seed=int(seed),
+            patch=_N2V_PATCH, batch=_N2V_BATCH, device=device or "auto",
+            work=os.path.join(folder, "work"))
+    return {key: value for key, value in reply.items()
+            if key not in ("protocol", "id", "ok")}
+
+
+def _n2v_denoise(image, checkpoint, *, device=None, root=None,
+                 worker_for=None, should_cancel=None):
+    """One plane denoised by a trained Noise2Void checkpoint.
+
+    :param image: a 2-D intensity plane.
+    :param checkpoint: the ``.ckpt`` :func:`_n2v_train` wrote.
+    :param device: as for :func:`_n2v_train`.
+    :returns: a float32 plane of the same shape, in the input's intensity
+        units: CAREamics normalises with the training data's statistics and
+        undoes it on the way out.
+    :raises ImportError: when CAREamics is not installed.
+    """
+    source = np.asarray(image, dtype=np.float32)
+    if source.ndim != 2 or not np.isfinite(source).all():
+        raise ValueError("Noise2Void denoises one finite 2-D plane")
+    worker = _n2v_worker(root, worker_for)
+    with tempfile.TemporaryDirectory(prefix="spacr_n2v_") as folder:
+        input_path = os.path.join(folder, "input.npy")
+        output_path = os.path.join(folder, "output.npy")
+        np.save(input_path, source, allow_pickle=False)
+        worker.request("n2v_denoise", should_cancel=should_cancel,
+                       keep_on_cancel=source.size <= _KEEP_PIXELS,
+                       checkpoint=os.path.abspath(str(checkpoint)),
+                       input=input_path, output=output_path,
+                       device=device or "auto")
+        out = np.load(output_path, allow_pickle=False)
+    if out.shape != source.shape or not np.isfinite(out).all():
+        raise _BackendError("Noise2Void returned an invalid plane")
+    return out.astype(np.float32, copy=False)
+
+
 class _RemoteBackend:
     """A backend in its own environment, answering ``CellposeModel.eval``.
 
@@ -4479,6 +4608,132 @@ def _sam_answer(prompts, predictor, embeddings, points, labels, box):
     return mask, scores
 
 
+def _n2v_accelerator(device):
+    """Lightning's accelerator for a worker device name."""
+    return {"cuda": "gpu", "mps": "mps"}.get(str(device).split(":")[0], "cpu")
+
+
+def _worker_n2v_train(request, adapters):
+    """Train CAREamics' N2V2 on the request's planes and save a checkpoint.
+
+    A tenth of the patches, one to eight, are set aside from the training
+    planes for validation, as CAREamics does; with no clean targets there
+    is nothing else to validate against. The patches are loaded in the
+    worker's own process: a data-loader process forked from a worker that
+    is reading its requests on a thread never starts.
+    """
+    import careamics
+    import lightning
+    import torch
+    from careamics import CAREamist
+    from careamics.config import create_n2v_config
+
+    planes = [np.load(path, allow_pickle=False).astype(np.float32)
+              for path in request["inputs"]]
+    device = _worker_device(request.get("device"))
+    lightning.seed_everything(int(request.get("seed", 0)), workers=True)
+    patch = int(request.get("patch", _N2V_PATCH))
+    patches = sum((p.shape[0] // patch) * (p.shape[1] // patch) for p in planes)
+    if patches < 2:
+        raise ValueError("Noise2Void needs at least two training patches")
+    validation = max(1, min(8, patches // 10))
+    config = create_n2v_config(
+        experiment_name="spacr_n2v", data_type="array", axes="YX",
+        patch_size=[patch, patch], batch_size=int(request.get("batch", _N2V_BATCH)),
+        num_epochs=int(request.get("epochs", 20)), use_n2v2=True,
+        n_val_patches=validation)
+    data = config.data_config
+    for loader in (data.train_dataloader_params, data.val_dataloader_params,
+                   data.pred_dataloader_params):
+        loader["num_workers"] = 0
+        loader.pop("persistent_workers", None)
+    params = dict(config.training_config.trainer_params or {})
+    params.update(accelerator=_n2v_accelerator(device), devices=1,
+                  enable_progress_bar=False)
+    config.training_config.trainer_params = params
+    losses = _N2VLosses()
+    started = time.monotonic()
+    careamist = CAREamist(config, work_dir=request["work"],
+                          callbacks=[losses.callback()],
+                          enable_progress_bar=False)
+    careamist.train(train_data=planes)
+    output = str(request["output"])
+    careamist.trainer.save_checkpoint(output)
+    adapters.pop(("n2v", output), None)
+    return {"checkpoint": output,
+            "method": "N2V2 (CAREamics)", "epochs": int(params.get(
+                "max_epochs", request.get("epochs", 20))),
+            "patch": patch, "batch": int(request.get("batch", _N2V_BATCH)),
+            "planes": len(planes), "shapes": [list(p.shape) for p in planes],
+            "patches": patches, "validation_patches": validation,
+            "seed": int(request.get("seed", 0)),
+            "train_loss": losses.train, "val_loss": losses.val,
+            "device": device, "seconds": round(time.monotonic() - started, 3),
+            "careamics": careamics.__version__, "torch": torch.__version__}
+
+
+class _N2VLosses:
+    """The training and validation losses Lightning logs, epoch by epoch."""
+
+    def __init__(self):
+        """Start with no epochs."""
+        self.train = []
+        self.val = []
+
+    def callback(self):
+        """A Lightning callback that appends each epoch's losses here."""
+        from lightning.pytorch.callbacks import Callback
+
+        record = self
+
+        class _Record(Callback):
+            """Copy the logged epoch losses into the record."""
+
+            def on_train_epoch_end(self, trainer, module):
+                """Keep the epoch's training loss."""
+                value = trainer.callback_metrics.get("train_loss_epoch",
+                                                     trainer.callback_metrics.get("train_loss"))
+                if value is not None:
+                    record.train.append(round(float(value), 6))
+
+            def on_validation_epoch_end(self, trainer, module):
+                """Keep the epoch's validation loss, sanity checks aside."""
+                value = trainer.callback_metrics.get("val_loss")
+                if value is not None and not trainer.sanity_checking:
+                    record.val.append(round(float(value), 6))
+
+        return _Record()
+
+
+def _worker_n2v_denoise(request, adapters):
+    """Denoise one plane with a trained checkpoint, loaded once per worker."""
+    from careamics import CAREamist
+
+    checkpoint = str(request["checkpoint"])
+    key = ("n2v", checkpoint)
+    careamist = adapters.get(key)
+    if careamist is None:
+        careamist = CAREamist(checkpoint_path=checkpoint,
+                              work_dir=os.path.dirname(checkpoint),
+                              enable_progress_bar=False)
+        adapters[key] = careamist
+    image = np.load(request["input"], allow_pickle=False).astype(np.float32)
+    tile = _N2V_PATCH * 4
+    tiled = max(image.shape) > tile
+    predictions = careamist.predict(
+        image, axes="YX", data_type="array",
+        tile_size=(tile, tile) if tiled else None,
+        tile_overlap=(_N2V_PATCH // 2, _N2V_PATCH // 2) if tiled else None,
+        num_workers=0)
+    if isinstance(predictions, tuple):
+        predictions = predictions[0]
+    if isinstance(predictions, list):
+        predictions = predictions[0]
+    out = np.asarray(predictions, dtype=np.float32).reshape(image.shape)
+    np.save(request["output"], out, allow_pickle=False)
+    return {"output": request["output"]}
+
+
 def _handle(name, request, adapters):
     """Answer one request; every failure becomes an error reply, never a
     dead worker."""
@@ -4505,6 +4760,10 @@ def _handle(name, request, adapters):
             body = _worker_detect(request, adapters)
         elif op == "detect_spots":
             body = _worker_detect_spots(request, adapters)
+        elif op == "n2v_train":
+            body = _worker_n2v_train(request, adapters)
+        elif op == "n2v_denoise":
+            body = _worker_n2v_denoise(request, adapters)
         elif op == "run_cellprofiler":
             body = _worker_run_cellprofiler(request, adapters)
         elif op == "read_text":

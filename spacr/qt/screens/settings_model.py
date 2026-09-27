@@ -1210,6 +1210,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_vendor_profile",
         )),
         ("Spectral Unmixing (Alpha)", ("@Spectral Unmixing (Alpha)",)),
+        ("Self-Supervised Denoising (Alpha)",
+         ("@Self-Supervised Denoising (Alpha)",)),
         ("Point Spread Function", ("@Point Spread Function",)),
         ("Image Enhancement", ("@Image Enhancement",)),
         ("Cell Segmentation", ("@Cell",)),
@@ -1342,6 +1344,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_vendor_profile",
         )),
         ("Spectral Unmixing (Alpha)", ("@Spectral Unmixing (Alpha)",)),
+        ("Self-Supervised Denoising (Alpha)",
+         ("@Self-Supervised Denoising (Alpha)",)),
         ("Point Spread Function", ("@Point Spread Function",)),
         ("Image Enhancement", ("@Image Enhancement",)),
         ("Cell Segmentation", ("@Cell",)),
@@ -2737,6 +2741,11 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "and contrast enhancement each moved a little, and reports how much "
         "object counts, areas and intensities change, flagging the settings "
         "the results are fragile to.",
+    "SELF-SUPERVISED DENOISING (ALPHA)":
+        "Noise2Void denoising trained on the run's own noisy images, with no "
+        "clean targets: one model per segmentation channel, applied after "
+        "illumination correction and before the PSF and the enhancement "
+        "chain. Needs the CAREamics backend from the Model Zoo.",
     "SPECTRAL UNMIXING (ALPHA)":
         "Bleed-through correction: how much of each dye is read in the other "
         "channels is estimated from single-stain control wells, and every "

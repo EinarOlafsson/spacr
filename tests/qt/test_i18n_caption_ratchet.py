@@ -1309,6 +1309,13 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'channels is estimated from single-stain control wells, and every field '
     'is unmixed with that matrix before it is segmented or measured. The '
     'matrix is printed and recorded with the run.',
+    # 557, 2026-09-27: the Self-Supervised Denoising (Alpha) heading and
+    # its category help.
+    'Self-Supervised Denoising (Alpha)',
+    "Noise2Void denoising trained on the run's own noisy images, with no "
+    'clean targets: one model per segmentation channel, applied after '
+    'illumination correction and before the PSF and the enhancement chain. '
+    'Needs the CAREamics backend from the Model Zoo.',
     # 578, 2026-09-27: the Segmentation Robustness (Alpha) category help.
     'Re-segments a few sampled fields with the diameter, the thresholds and '
     'contrast enhancement each moved a little, and reports how much object '
