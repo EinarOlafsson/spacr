@@ -1,6 +1,7 @@
 COLONY / CFU COUNTING
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED AS ALPHA 2026-09-27. DONE WHEN not met on public photos (see
+VALIDATION); met on synthetic plates.
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 
@@ -21,3 +22,90 @@ WHAT TO BUILD
 
 DONE WHEN
     Counts on public plate photos match hand counts within 5 %.
+
+2026-09-27 — Built (alpha)
+    Where: Plaque Assay, plaque mode, `colony_counting=True` (Figure mode
+    ignores it; the colony rows come off the form in Figure mode).
+    spacr.submodules.analyze_plaques branches to _analyze_colony_plates
+    before any plaque model is resolved, so nothing is downloaded.
+    Dish: with `well_detection` set, spacr.plaque.detect_wells finds the
+    wells and each is counted as its own row; if ultralytics is missing or
+    nothing is detected, spacr.plaque._find_dish finds the dish by a Hough
+    circle (the largest of the five strongest), else the largest round disc
+    after Otsu, else the frame. The dish is a spacr.plaque.Well, so crop_well
+    and scale_from_well apply unchanged; `plate_format`, `well_diameter_mm`
+    or `plaque_pixels_per_um` give px/mm, otherwise sizes stay in pixels.
+    Segmentation (spacr/plaque.py, private): the photo is worked on at
+    <=1600 px; the area outside the dish is filled from the nearest agar;
+    the agar background is a morphological opening (closing for dark
+    colonies) over 5 % of the dish; the cut is `colony_threshold` x the
+    agar noise (robust MAD of the dimmer 60 % of the dish); polarity auto
+    picks bright/dark by the excess signal of compact objects; rim arcs are
+    removed before splitting; touching colonies are split by a watershed on
+    a landscape of the per-clump-normalised distance transform blended
+    50/50 with the smoothed colony dome, h-maxima depth 0.08; ragged
+    (solidity < 0.8), low-contrast (90th percentile < 3 noise above the
+    cut) and rim-edge specks are dropped.
+    Output: <src>/colonies/colonies.db, per_plate (file, well, colony_count,
+    count_flag, cfu_per_ml, dilution factor, plated_volume_ul, dish box and
+    method, px_per_mm and scale_source, polarity, mean/median area and
+    diameter in px and mm, covered_fraction) and per_colony (area and
+    equivalent diameter in px and mm, centroid in photo coordinates,
+    eccentricity, solidity), written with spacr.tabular.write_database; the
+    per-plate table again as colonies/per_plate.csv (spacr.tabular); with
+    `save`, one overlay per plate and a colony-diameter histogram through
+    spacr.plot.save_figure.
+    CFU/mL = count x dilution factor / plated volume (mL). `colony_dilution`
+    takes the factor (1e4) or the dilution (1e-4), or a dict {file or stem:
+    factor} for per-plate dilutions. Flags: 'too many to count' above
+    `colony_too_many` (300), 'too few to count' below `colony_too_few` (30),
+    either blank to turn off; CFU/mL is still written for flagged plates.
+
+VALIDATION (CPU only)
+    Synthetic plates of known count (tests/test_colony_cfu_counting.py:
+    isolated colonies, touching pairs, pairs overlapping by 15 % of a
+    diameter, bright on red agar and dark on light agar, lighting gradient,
+    noise, 2-D grey, a dish clipped by the frame, 3x upscaled photos):
+    within 2 % (max 1 % over 20 seeds x 5 layouts during development);
+    touching pairs split exactly (60/60); 15 %-overlapping pairs 54-60/60;
+    empty plate 0.
+    Public photos: Makrai et al. 2023, "Annotated dataset for deep-learning-
+    based bacterial colony detection", Sci Data, figshare
+    doi:10.6084/m9.figshare.22022540 (CC BY 4.0): 369 smartphone photos of
+    24 veterinary species, mostly blood/chocolate agar, one bounding box per
+    colony (56,865). Hand count = number of boxes. Default settings, all 369:
+      countable window 30-300 (n=217): median |error| 14.4 %, 13.8 % of
+        plates within 5 %, 34.6 % within 10 %, 65.4 % within 20 %; median
+        signed error -11 %, total 0.87 of the hand count (undercount).
+      under 30 (n=91): median |error| 50 %, overcount (glare, scratches,
+        bubbles on near-empty plates) - these are flagged TFTC anyway.
+      over 300 (n=61): median |error| 20 %, undercount (merged chains).
+      Best species (median |error| in window): sp24 5.5 %, sp07 5.9 %,
+      sp10/sp14 7.8 %; worst: sp04 (confluent swarming colonies) 96 %,
+      sp08 (spreading haze) 75 %, sp17/sp02 44 %.
+    So the DONE WHEN (within 5 % of hand counts) is NOT met on this public
+    set with thresholding + watershed. The dominant errors, measured on a
+    third of the set: colonies at the dish edge lost with the rim glare
+    (~11 % of colonies), chains of touching colonies left merged (~10 %),
+    and false objects from lamp glare, lid reflections and scratches. The
+    AGAR dataset (NeuroSYS) needs registration and was not used.
+
+ALPHA: settings colony_counting, colony_dilution, colony_plated_volume_ul,
+colony_too_many, colony_too_few, colony_polarity, colony_threshold,
+colony_min_area_px (Plaque Assay category "Colony Counting (Alpha)").
+Registered as ALPHA_FEATURES[542] in spacr/settings.py; hidden with
+Preferences -> Show alpha features off, and a saved value still reaches the
+run (tests/qt/test_colony_counting_alpha_gate.py). 2026-09-27.
+
+WHAT IS LEFT
+    - Reaching 5 % on real photos needs a learned detector or segmenter
+      (e.g. a YOLO/Cellpose model trained on the Makrai set, CC BY 4.0) in
+      place of the threshold; the tables, CFU, flags and scale would not
+      change.
+    - Glare and reflection rejection, and recovering colonies merged into
+      the rim glare.
+    - No live preview: the Plaque preview still shows the plaque model; a
+      colony overlay in the preview is not wired.
+    - Per-plate dilution only via a dict in settings (or a settings file);
+      no plate-map/CSV column for it.
+    - Colony counting in Figure mode is out of scope.

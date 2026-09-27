@@ -421,3 +421,705 @@ def segment_plaque_image(model: Any, image: np.ndarray,
     if return_flows:
         return labels, plaque_flow_outputs(output)
     return labels
+
+
+_COLONY_TOO_MANY = 300
+"""Colony counts above this are flagged "too many to count" (TNTC).
+
+Thirty to three hundred is the countable window of standard plate-count
+methods: above it neighbouring colonies merge and compete, so the count
+underestimates what was plated."""
+
+_COLONY_TOO_FEW = 30
+"""Colony counts below this are flagged "too few to count" (TFTC): a handful
+of colonies carries a Poisson error too large for the CFU/mL it implies."""
+
+_COLONY_WORKING_PX = 1600
+"""Longest side, in pixels, colony segmentation works at.
+
+A phone photo of a plate is 3000 to 6000 pixels across, far more than a
+colony needs, and segmenting it whole costs gigabytes; areas are scaled back
+to the original pixels afterwards."""
+
+
+def _colony_gray(image: np.ndarray) -> np.ndarray:
+    """One grey plane of a plate photo, as float32.
+
+    :param image: ``H x W`` or ``H x W x C``; a colour image is taken to be
+        RGB, as :func:`cellpose.io.imread` returns it.
+    :returns: the luminance (Rec. 601 weights) of a colour image, the plane
+        itself for a grey one, and the first plane of any other stack.
+    """
+    array = np.asarray(image)
+    if array.ndim == 2:
+        return array.astype(np.float32)
+    if array.ndim == 3 and array.shape[2] >= 3:
+        weights = np.array([0.299, 0.587, 0.114], np.float32)
+        return array[..., :3].astype(np.float32) @ weights
+    if array.ndim == 3:
+        return array[..., 0].astype(np.float32)
+    raise ValueError(f"a plate photo must be 2-D or 3-D, not {array.shape}")
+
+
+def _to_working_size(image: np.ndarray,
+                     longest: int = _COLONY_WORKING_PX
+                     ) -> Tuple[np.ndarray, float]:
+    """The image shrunk so its longest side is at most ``longest`` pixels.
+
+    :param image: the photo.
+    :param longest: the longest side allowed.
+    :returns: ``(image, factor)``, where ``factor`` is working pixels per
+        original pixel, 1.0 when the image was small enough already.
+    """
+    import cv2
+
+    height, width = image.shape[:2]
+    factor = min(1.0, float(longest) / max(height, width, 1))
+    if factor >= 1.0:
+        return image, 1.0
+    size = (max(1, int(round(width * factor))),
+            max(1, int(round(height * factor))))
+    source = image if image.dtype != np.bool_ else image.astype(np.uint8)
+    return cv2.resize(source, size, interpolation=cv2.INTER_AREA), factor
+
+
+def _find_dish(image: np.ndarray) -> Tuple[Well, str]:
+    """The dish or well in a plate photo, when there is no detector for it.
+
+    Tried in order: a Hough circle transform, the largest round disc left
+    by an automatic threshold, and the image frame itself.
+
+    :param image: the photo, grey or RGB.
+    :returns: ``(well, method)``: the dish's bounding box, which may reach
+        past the image edge when the photo clips the dish, and ``'hough'``,
+        ``'largest disc'`` or ``'frame'``.
+
+    OF THE STRONGEST CIRCLES THE LARGEST IS TAKEN. The rim of a dish is two
+    circles, the wall and the agar edge, and glare or a lid adds more inside;
+    the circle a colony can sit anywhere inside is the outermost one, and
+    ring artefacts just inside it are removed by the segmentation.
+    """
+    import cv2
+    from skimage import filters, measure
+
+    gray = _colony_gray(image)
+    height, width = gray.shape
+    factor = 800.0 / max(height, width, 1)
+    small = cv2.resize(gray, (max(1, int(width * factor)),
+                              max(1, int(height * factor))),
+                       interpolation=cv2.INTER_AREA)
+    small = cv2.GaussianBlur(small, (0, 0), 2)
+    shortest = min(small.shape)
+    as_bytes = cv2.normalize(small, None, 0, 255,
+                             cv2.NORM_MINMAX).astype(np.uint8)
+    circles = cv2.HoughCircles(as_bytes, cv2.HOUGH_GRADIENT, dp=1,
+                               minDist=shortest, param1=60, param2=30,
+                               minRadius=int(0.3 * shortest),
+                               maxRadius=int(0.62 * shortest))
+    if circles is not None and len(circles[0]):
+        x, y, radius = max(circles[0][:5], key=lambda c: c[2])
+        x, y, radius = x / factor, y / factor, radius / factor
+        return Well(int(round(x - radius)), int(round(y - radius)),
+                    int(round(x + radius)), int(round(y + radius))), "hough"
+    best = None
+    for mask in (small > filters.threshold_otsu(small),
+                 small <= filters.threshold_otsu(small)):
+        for region in measure.regionprops(measure.label(mask)):
+            if region.area < 0.1 * small.size:
+                continue
+            roundness = 4 * np.pi * region.area / max(region.perimeter, 1) ** 2
+            if roundness < 0.6:
+                continue
+            if best is None or region.area > best.area:
+                best = region
+    if best is not None:
+        y, x = best.centroid
+        radius = best.equivalent_diameter / 2.0
+        x, y, radius = x / factor, y / factor, radius / factor
+        return Well(int(round(x - radius)), int(round(y - radius)),
+                    int(round(x + radius)), int(round(y + radius))), \
+            "largest disc"
+    return Well(0, 0, int(width), int(height)), "frame"
+
+
+def _colony_background(gray: np.ndarray, radius_px: float, polarity: str,
+                       reach: float = 0.05) -> np.ndarray:
+    """The agar under the colonies, as a smooth image.
+
+    A morphological opening (a closing for dark colonies) with a disc a
+    ``reach`` fraction of the dish diameter wide removes every colony
+    narrower than it and keeps the slow shading of the agar, lighting and
+    lid. It is computed on a copy 400 pixels across the dish and scaled back.
+
+    :param gray: the grey plane, with the area outside the dish already
+        filled in from the nearest agar.
+    :param radius_px: the dish radius in the pixels of ``gray``.
+    :param polarity: ``'bright'`` or ``'dark'`` colonies.
+    :param reach: disc radius as a fraction of 400 working pixels.
+    :returns: the background, the shape of ``gray``.
+    """
+    import cv2
+
+    height, width = gray.shape
+    factor = 400.0 / max(2.0 * radius_px, 1.0)
+    small = cv2.resize(gray, (max(1, int(width * factor)),
+                              max(1, int(height * factor))),
+                       interpolation=cv2.INTER_AREA)
+    disc = max(2, int(round(reach * 400)))
+    element = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,
+                                        (2 * disc + 1, 2 * disc + 1))
+    operation = cv2.MORPH_OPEN if polarity == "bright" else cv2.MORPH_CLOSE
+    background = cv2.morphologyEx(small, operation, element)
+    background = cv2.GaussianBlur(background, (0, 0), disc / 2.0)
+    return cv2.resize(background, (width, height),
+                      interpolation=cv2.INTER_LINEAR)
+
+
+def _typical_colony_radius(mask: np.ndarray) -> float:
+    """The radius of a typical single colony in a foreground mask.
+
+    :param mask: the colony foreground.
+    :returns: the equivalent radius of the median convex object (solidity
+        above 0.9, which clumps rarely reach), or 3 pixels when there is none.
+    """
+    from skimage import measure
+
+    areas = [region.area for region in measure.regionprops(measure.label(mask))
+             if region.solidity > 0.9]
+    return float(np.sqrt(np.median(areas) / np.pi)) if areas else 3.0
+
+
+def _split_colonies(mask: np.ndarray, signal: np.ndarray,
+                    depth: float = 0.08, blend: float = 0.5) -> np.ndarray:
+    """Touching colonies cut apart by a distance-transform watershed.
+
+    :param mask: the colony foreground.
+    :param signal: the background-subtracted colony signal, positive for
+        colonies.
+    :param depth: how deep the waist between two colonies must be, as a
+        fraction of the clump's own peak, for them to be cut apart.
+    :param blend: the weight of the distance transform in the landscape the
+        watershed floods; the rest is the smoothed colony signal.
+    :returns: an integer label image, one label per colony.
+
+    THE LANDSCAPE IS SHAPE AND BRIGHTNESS TOGETHER. The distance transform
+    alone puts a peak at the centre of every round lobe, which cuts two
+    colonies whose outlines still show a waist; a colony is also a dome,
+    brightest at its centre, which separates neighbours whose outlines have
+    merged into a straight-sided chain. Each term is scaled to its clump's
+    own maximum, so the depth means the same for a small pair and a large
+    one: a fixed depth in pixels either leaves small touching pairs whole or
+    cuts large single colonies at every notch in their edge.
+    """
+    import cv2
+    from scipy import ndimage as ndi
+    from skimage import measure, morphology, segmentation
+
+    clumps = measure.label(mask)
+    if clumps.max() == 0:
+        return clumps.astype(np.int32)
+    radius = _typical_colony_radius(mask)
+    distance = ndi.distance_transform_edt(mask).astype(np.float32)
+    distance = cv2.GaussianBlur(distance, (0, 0), 1.0)
+    dome = cv2.GaussianBlur(np.clip(signal, 0, None).astype(np.float32),
+                            (0, 0), max(1.0, 0.3 * radius))
+    index = np.arange(clumps.max() + 1)
+    peak_distance = np.asarray(ndi.maximum(distance, clumps, index=index),
+                               np.float32)
+    peak_dome = np.asarray(ndi.maximum(dome, clumps, index=index), np.float32)
+    peak_distance[0] = peak_dome[0] = 1.0
+    landscape = (blend * distance / np.maximum(peak_distance[clumps], 1e-3)
+                 + (1.0 - blend) * dome / np.maximum(peak_dome[clumps], 1e-3))
+    landscape = np.where(mask, landscape, 0).astype(np.float32)
+    peaks = morphology.h_maxima(landscape, float(depth)).astype(bool) & mask
+    labels = segmentation.watershed(-landscape, measure.label(peaks), mask=mask)
+    unclaimed = mask & (labels == 0)
+    if unclaimed.any():
+        extra = measure.label(unclaimed)
+        labels[unclaimed] = extra[unclaimed] + labels.max()
+    return labels.astype(np.int32)
+
+
+def _colony_candidates(signal: np.ndarray, dish: np.ndarray, radius: float,
+                       *, threshold: float, min_area: int
+                       ) -> Tuple[np.ndarray, float, float]:
+    """Colony foreground from a background-subtracted signal.
+
+    :param signal: colony minus agar, positive for colonies.
+    :param dish: the pixels inside the dish.
+    :param radius: the dish radius in pixels.
+    :param threshold: the cut, in multiples of the agar's noise.
+    :param min_area: smallest colony kept, in pixels.
+    :returns: ``(mask, cut, noise)``: the foreground, the cut and the
+        agar noise it was a multiple of.
+
+    THE NOISE IS READ FROM THE DIMMER 60 % OF THE DISH, which is agar on any
+    plate that is still countable, so a crowded plate does not raise its own
+    threshold. Holes are filled only up to a large colony's size: filling
+    every hole would fill the whole dish whenever the rim glare closes a
+    ring.
+    """
+    from skimage import morphology
+
+    values = signal[dish]
+    if values.size == 0:
+        return np.zeros_like(dish), 0.0, 1.0
+    lower = values[values <= np.percentile(values, 60)]
+    noise = max(1.0, 1.4826 * float(np.median(np.abs(lower - np.median(lower)))))
+    cut = float(np.median(values)) + float(threshold) * noise
+    mask = (signal > cut) & dish
+    mask = morphology.binary_opening(mask, morphology.disk(1))
+    mask = morphology.remove_small_holes(mask, max(16, int((0.06 * radius) ** 2)))
+    mask = morphology.remove_small_objects(mask, max(1, int(min_area)))
+    return mask, cut, noise
+
+
+def _colony_likeness(excess: np.ndarray, mask: np.ndarray,
+                     radius: float) -> float:
+    """How colony-like one polarity's objects are, for choosing polarity.
+
+    :param excess: signal above the cut.
+    :param mask: that polarity's foreground.
+    :param radius: the dish radius in pixels.
+    :returns: the summed excess signal of the compact objects only.
+
+    ONLY COMPACT OBJECTS COUNT. Read with the wrong polarity, a plate still
+    gives foreground -- the agar between dense colonies, halos, stains --
+    but as large ragged regions. Summing all foreground let those win on
+    area alone; colonies are round and small against the dish.
+    """
+    from skimage import measure
+
+    largest = np.pi * (0.1 * radius) ** 2
+    score = 0.0
+    for region in measure.regionprops(measure.label(mask)):
+        if region.area > largest or region.solidity < 0.85:
+            continue
+        rows, cols = region.coords[:, 0], region.coords[:, 1]
+        score += float(np.sum(np.clip(excess[rows, cols], 0, None)))
+    return score
+
+
+def _drop_rim_arcs(mask: np.ndarray, centre, radius: float,
+                   rim: float) -> np.ndarray:
+    """The foreground without the arcs the dish wall leaves along its rim.
+
+    :param mask: the colony foreground.
+    :param centre: the dish centre, ``(x, y)``.
+    :param radius: the dish radius.
+    :param rim: width of the outer ring, as a fraction of the radius.
+    :returns: ``mask`` without the clumps that lie mostly in the outer ring
+        and are more than 3.5 times as long as they are wide.
+
+    DONE BEFORE SPLITTING, because the watershed cuts a thin arc into a
+    chain of short pieces, each of them round enough to pass for a colony.
+    """
+    from skimage import measure
+
+    out = mask.copy()
+    clumps = measure.label(mask)
+    cx, cy = centre
+    for region in measure.regionprops(clumps):
+        rows, cols = region.coords[:, 0], region.coords[:, 1]
+        outer = np.mean(np.hypot(cols - cx, rows - cy) > (1.0 - rim) * radius)
+        long = region.major_axis_length > 3.5 * max(region.minor_axis_length, 1.0)
+        if outer > 0.5 and long:
+            out[rows, cols] = False
+    return out
+
+
+def _keep_colonies(labels: np.ndarray, signal: np.ndarray, *, centre,
+                   radius: float, cut: float, noise: float, rim: float,
+                   min_solidity: float, min_contrast: float,
+                   edge: Optional[float] = None, min_area: int = 0
+                   ) -> np.ndarray:
+    """The labels that look like colonies; the rest set to 0.
+
+    :param labels: the split colony labels.
+    :param signal: the colony signal the labels were cut from.
+    :param centre: the dish centre, ``(x, y)``.
+    :param radius: the dish radius.
+    :param cut: the foreground threshold on ``signal``.
+    :param noise: the agar noise.
+    :param rim: width of the outer ring of the dish, as a fraction of the
+        radius, where a label must also be round (solidity 0.85,
+        eccentricity below 0.9): the wall's glare and the agar meniscus
+        leave arcs there. A label there that reaches the edge of the counted
+        disc must also be at least a quarter of the median label's area and
+        twice ``min_area``: the wall leaves specks along that edge.
+    :param min_solidity: area over convex-hull area every label must reach.
+        A colony, or each colony cut out of a clump, is convex; the edges of
+        glare, lid reflections and scratches are ragged.
+    :param min_contrast: how far, in agar-noise units, a label's brighter
+        pixels (its 90th percentile) must rise above the cut. Colonies stand
+        well clear of it; texture, bubbles and the fringes of glare barely
+        cross it.
+    :param edge: the radius of the counted disc; ``radius`` when ``None``.
+    :param min_area: the smallest colony kept, in pixels.
+    :returns: the filtered label image.
+    """
+    from skimage import measure
+
+    edge = float(radius if edge is None else edge)
+    keep = np.zeros(int(labels.max()) + 1, bool)
+    cx, cy = centre
+    regions = measure.regionprops(labels)
+    typical = float(np.median([r.area for r in regions])) if regions else 0.0
+    for region in regions:
+        y, x = region.centroid
+        ok = region.solidity >= min_solidity
+        if ok and np.hypot(x - cx, y - cy) > (1.0 - rim) * radius:
+            ok = region.solidity >= 0.85 and region.eccentricity < 0.9
+            rows, cols = region.coords[:, 0], region.coords[:, 1]
+            reach = float(np.max(np.hypot(cols - cx, rows - cy)))
+            if ok and reach >= edge - 1.5:
+                ok = region.area >= max(0.25 * typical, 2 * min_area)
+        if ok and min_contrast:
+            values = signal[region.coords[:, 0], region.coords[:, 1]]
+            ok = (np.percentile(values, 90) - cut) / noise >= min_contrast
+        keep[region.label] = ok
+    return np.where(keep[labels], labels, 0).astype(np.int32)
+
+
+def _segment_colonies(image: np.ndarray, *, centre=None, radius=None,
+                      polarity: str = "auto", threshold: float = 4.0,
+                      split: float = 0.08, min_area_px: Optional[float] = None,
+                      margin: float = 0.01, rim: float = 0.10,
+                      min_solidity: float = 0.8, min_contrast: float = 3.0
+                      ) -> Dict[str, Any]:
+    """Colonies on one dish or well, as a label image.
+
+    The photo is shrunk to :data:`_COLONY_WORKING_PX`, the agar background
+    is removed (:func:`_colony_background`), the colonies are thresholded
+    against the agar noise (:func:`_colony_candidates`), touching ones are
+    cut apart (:func:`_split_colonies`) and debris is dropped
+    (:func:`_keep_colonies`).
+
+    :param image: the dish, grey or RGB. When ``centre`` and ``radius`` are
+        not given the dish is found with :func:`_find_dish`.
+    :param centre: the dish centre, ``(x, y)`` in the image's pixels.
+    :param radius: the dish radius in the image's pixels.
+    :param polarity: ``'bright'`` colonies on darker agar, ``'dark'`` on
+        lighter agar, or ``'auto'`` to try both and keep the one whose
+        compact objects stand further above the agar noise.
+    :param threshold: the foreground cut in multiples of the agar noise.
+    :param split: the watershed depth, see :func:`_split_colonies`.
+    :param min_area_px: smallest colony in original pixels; ``None`` uses
+        0.4 % of the dish diameter squared.
+    :param margin: fraction of the radius trimmed off the dish edge.
+    :param rim: see :func:`_keep_colonies`.
+    :param min_solidity: see :func:`_keep_colonies`; 0 keeps every shape.
+    :param min_contrast: see :func:`_keep_colonies`; 0 keeps every label.
+    :returns: ``{'labels', 'factor', 'signal', 'cut', 'noise', 'centre',
+        'radius', 'polarity', 'method'}``, where ``labels`` and the
+        background-subtracted ``signal`` are at the working size, ``cut`` is
+        the foreground threshold on it and ``noise`` the agar noise, ``factor``
+        is working pixels per original pixel and ``centre``/``radius`` are in
+        working pixels.
+    :raises ValueError: for a polarity that is not one of the three.
+    """
+    import cv2
+    from scipy import ndimage as ndi
+
+    if polarity not in ("auto", "bright", "dark"):
+        raise ValueError(
+            f"colony polarity must be 'auto', 'bright' or 'dark', not {polarity!r}")
+    work, factor = _to_working_size(np.asarray(image))
+    gray = _colony_gray(work)
+    method = "given"
+    if centre is None or radius is None:
+        well, method = _find_dish(work)
+        centre = ((well.x0 + well.x1) / 2.0, (well.y0 + well.y1) / 2.0)
+        radius = well.diameter_px / 2.0
+    else:
+        centre = (float(centre[0]) * factor, float(centre[1]) * factor)
+        radius = float(radius) * factor
+    height, width = gray.shape
+    rows, cols = np.ogrid[:height, :width]
+    dish = np.hypot(cols - centre[0], rows - centre[1]) <= (1.0 - margin) * radius
+    empty = dict(labels=np.zeros(gray.shape, np.int32), factor=factor,
+                 signal=np.zeros(gray.shape, np.float32), cut=0.0, noise=1.0,
+                 centre=centre, radius=radius, polarity=polarity,
+                 method=method)
+    if not dish.any():
+        return empty
+    if min_area_px is None:
+        min_area = max(6, int(round((2 * radius * 0.004) ** 2)))
+    else:
+        min_area = max(1, int(round(float(min_area_px) * factor ** 2)))
+    nearest = ndi.distance_transform_edt(~dish, return_distances=False,
+                                         return_indices=True)
+    filled = gray[tuple(nearest)]
+    best = None
+    for side in (("bright", "dark") if polarity == "auto" else (polarity,)):
+        background = _colony_background(filled, radius, side)
+        signal = filled - background if side == "bright" else background - filled
+        signal = cv2.GaussianBlur(signal, (0, 0), 0.8)
+        mask, cut, noise = _colony_candidates(signal, dish, radius,
+                                              threshold=threshold,
+                                              min_area=min_area)
+        score = _colony_likeness(signal - cut, mask, radius)
+        if best is None or score > best[0]:
+            best = (score, mask, side, signal, cut, noise)
+    _score, mask, side, signal, cut, noise = best
+    mask = _drop_rim_arcs(mask, centre, radius, rim)
+    labels = _split_colonies(mask, signal, split)
+    labels = _keep_colonies(labels, signal, centre=centre, radius=radius,
+                            cut=cut, noise=noise, rim=rim,
+                            min_solidity=min_solidity,
+                            min_contrast=min_contrast,
+                            edge=(1.0 - margin) * radius, min_area=min_area)
+    return dict(empty, labels=labels, signal=signal, cut=cut, noise=noise,
+                polarity=side)
+
+
+def _dilution_factor(dilution: Any) -> Optional[float]:
+    """A dilution as the factor the count is multiplied by.
+
+    :param dilution: the factor, 10000 for a 10^-4 dilution; a fraction below
+        1, such as 1e-4, is read as the dilution itself and inverted.
+    :returns: the factor, or ``None`` when it is missing, not a number or
+        not positive.
+    """
+    try:
+        factor = float(dilution)
+    except (TypeError, ValueError):
+        return None
+    if not np.isfinite(factor) or factor <= 0:
+        return None
+    return 1.0 / factor if factor < 1.0 else factor
+
+
+def _cfu_per_ml(count: Any, dilution: Any, plated_volume_ul: Any
+                ) -> Optional[float]:
+    """Colony-forming units per millilitre of the undiluted sample.
+
+    CFU/mL = colonies x dilution factor / plated volume in mL.
+
+    :param count: colonies counted on the plate.
+    :param dilution: the dilution, as :func:`_dilution_factor` reads it.
+    :param plated_volume_ul: the volume spread on the plate, in microlitres.
+    :returns: the CFU/mL, or ``None`` when the count, the dilution or the
+        volume is missing or not positive.
+    """
+    factor = _dilution_factor(dilution)
+    try:
+        count = float(count)
+        volume_ml = float(plated_volume_ul) / 1000.0
+    except (TypeError, ValueError):
+        return None
+    if factor is None or count < 0 or not np.isfinite(volume_ml) \
+            or volume_ml <= 0:
+        return None
+    return count * factor / volume_ml
+
+
+def _colony_count_flag(count: int, too_many: Any = _COLONY_TOO_MANY,
+                       too_few: Any = _COLONY_TOO_FEW) -> str:
+    """Whether a plate count lies in the countable window.
+
+    :param count: colonies on the plate.
+    :param too_many: counts above this are ``'too many to count'``; empty
+        turns the upper check off.
+    :param too_few: counts below this are ``'too few to count'``; empty
+        turns the lower check off.
+    :returns: ``'too many to count'``, ``'too few to count'`` or
+        ``'countable'``.
+    """
+    if too_many not in (None, "") and count > float(too_many):
+        return "too many to count"
+    if too_few not in (None, "") and count < float(too_few):
+        return "too few to count"
+    return "countable"
+
+
+def _dilution_for(name: str, dilution: Any) -> Any:
+    """The dilution factor that applies to one plate.
+
+    :param name: the plate's file name.
+    :param dilution: one factor for every plate, or a dict from file name or
+        file stem to factor.
+    :returns: the factor, or ``None`` when a dict does not name this plate.
+    """
+    if isinstance(dilution, dict):
+        stem = name.rsplit(".", 1)[0]
+        for key in (name, stem):
+            if key in dilution:
+                return dilution[key]
+        return None
+    return dilution
+
+
+def _measure_colonies(labels: np.ndarray, factor: float,
+                      px_per_mm: Optional[float], *, offset=(0, 0)
+                      ) -> List[Dict[str, Any]]:
+    """One row per colony, in original pixels and, with a scale, mm.
+
+    :param labels: the colony label image at the working size.
+    :param factor: working pixels per original pixel.
+    :param px_per_mm: original pixels per millimetre, or ``None``.
+    :param offset: ``(x, y)`` of the label image's corner in the original
+        photo, so centroids are photo coordinates.
+    :returns: dicts with ``colony_id``, ``area_px``, ``diameter_px``,
+        ``area_mm2``, ``diameter_mm``, ``centroid_x``, ``centroid_y``,
+        ``eccentricity`` and ``solidity``.
+    """
+    from skimage import measure
+
+    rows = []
+    for region in measure.regionprops(labels):
+        area = float(region.area) / factor ** 2
+        diameter = float(region.equivalent_diameter) / factor
+        y, x = region.centroid
+        rows.append(dict(
+            colony_id=int(region.label), area_px=area, diameter_px=diameter,
+            area_mm2=area / px_per_mm ** 2 if px_per_mm else None,
+            diameter_mm=diameter / px_per_mm if px_per_mm else None,
+            centroid_x=x / factor + offset[0],
+            centroid_y=y / factor + offset[1],
+            eccentricity=float(region.eccentricity),
+            solidity=float(region.solidity)))
+    return rows
+
+
+def _count_colony_plate(image: np.ndarray, *, name: str = "",
+                        well: Optional[Well] = None,
+                        scale: Optional[PlaqueScale] = None,
+                        settings: Optional[Dict[str, Any]] = None
+                        ) -> Dict[str, Any]:
+    """Count and measure the colonies on one dish or well.
+
+    :param image: the whole photo, grey or RGB.
+    :param name: the photo's file name, which a per-plate
+        ``colony_dilution`` dict is looked up by.
+    :param well: the dish or well to count inside, from
+        :func:`detect_wells`; ``None`` finds it with :func:`_find_dish`.
+    :param scale: the ruler to use; ``None`` derives one from the well and
+        ``plate_format`` / ``well_diameter_mm`` in ``settings`` when they say
+        how large it is, and keeps pixels otherwise.
+    :param settings: the plaque settings; the ``colony_*`` keys, and
+        ``plate_format`` / ``well_diameter_mm`` / ``plaque_pixels_per_um``
+        for the scale.
+    :returns: ``{'summary', 'colonies', 'labels', 'image', 'well',
+        'method', 'polarity', 'centre', 'radius', 'factor', 'offset'}``: a
+        summary row, one row per colony, the label image, the working-size
+        crop it was drawn on, the dish circle in that crop's pixels, working
+        pixels per original pixel, and the crop's corner in the photo.
+    """
+    settings = dict(settings or {})
+    method = "detector"
+    if well is None:
+        well, method = _find_dish(image)
+    height, width = image.shape[:2]
+    crop = crop_well(image, well)
+    x_off, y_off = max(0, well.x0), max(0, well.y0)
+    centre = ((well.x0 + well.x1) / 2.0 - x_off,
+              (well.y0 + well.y1) / 2.0 - y_off)
+    if scale is None:
+        manual = _number(settings, "plaque_pixels_per_um", None)
+        if manual and manual > 0:
+            scale = PlaqueScale(px_per_mm=manual * 1000.0,
+                                well_diameter_px=well.diameter_px,
+                                well_diameter_mm=well.diameter_px / (manual * 1000.0),
+                                source="manual settings")
+        else:
+            plate_format = settings.get("plate_format") or None
+            if plate_format in ("None", ""):
+                plate_format = None
+            scale = scale_from_well(
+                well, plate_format=plate_format,
+                well_diameter_mm=_number(settings, "well_diameter_mm", None))
+    polarity = str(settings.get("colony_polarity") or "auto")
+    found = _segment_colonies(
+        crop, centre=centre, radius=well.diameter_px / 2.0,
+        polarity=polarity,
+        threshold=_number(settings, "colony_threshold", 4.0) or 4.0,
+        min_area_px=_number(settings, "colony_min_area_px", None))
+    px_per_mm = scale.px_per_mm if scale else None
+    colonies = _measure_colonies(found["labels"], found["factor"], px_per_mm,
+                                 offset=(x_off, y_off))
+    count = len(colonies)
+    areas = np.array([row["area_px"] for row in colonies], float)
+    diameters = np.array([row["diameter_px"] for row in colonies], float)
+    dish_area = np.pi * (well.diameter_px / 2.0) ** 2
+    flag = _colony_count_flag(count, settings.get("colony_too_many", _COLONY_TOO_MANY),
+                              settings.get("colony_too_few", _COLONY_TOO_FEW))
+    dilution = _dilution_for(name, settings.get("colony_dilution", 1))
+    volume = _number(settings, "colony_plated_volume_ul", 100.0)
+    summary = dict(
+        colony_count=count, count_flag=flag,
+        cfu_per_ml=_cfu_per_ml(count, dilution, volume),
+        dilution=_dilution_factor(dilution), plated_volume_ul=volume,
+        dish_method=method, dish_x0=well.x0, dish_y0=well.y0,
+        dish_x1=well.x1, dish_y1=well.y1,
+        dish_diameter_px=well.diameter_px, dish_clipped=bool(
+            well.x0 < 0 or well.y0 < 0 or well.x1 > width or well.y1 > height),
+        px_per_mm=px_per_mm, scale_source=scale.source if scale else "unknown",
+        polarity=found["polarity"],
+        mean_area_px=float(areas.mean()) if count else None,
+        median_area_px=float(np.median(areas)) if count else None,
+        median_diameter_px=float(np.median(diameters)) if count else None,
+        mean_area_mm2=float(areas.mean()) / px_per_mm ** 2 if count and px_per_mm else None,
+        median_diameter_mm=float(np.median(diameters)) / px_per_mm if count and px_per_mm else None,
+        covered_fraction=float(areas.sum() / dish_area) if dish_area > 0 else None)
+    return dict(summary=summary, colonies=colonies, labels=found["labels"],
+                image=_to_working_size(np.asarray(crop))[0], well=well,
+                method=method, polarity=found["polarity"],
+                centre=found["centre"], radius=found["radius"],
+                factor=found["factor"], offset=(x_off, y_off))
+
+
+def _colony_overlay_figure(result: Dict[str, Any], title: str = ""):
+    """The dish with each counted colony outlined, as a matplotlib figure.
+
+    :param result: what :func:`_count_colony_plate` returned.
+    :param title: shown above the image, with the count and its flag.
+    :returns: the figure.
+    """
+    import matplotlib.pyplot as plt
+    from skimage.segmentation import find_boundaries
+
+    image = np.asarray(result["image"])
+    shown = image.astype(np.float32)
+    if shown.ndim == 2:
+        shown = np.stack([shown] * 3, axis=-1)
+    shown = shown[..., :3]
+    top = float(shown.max()) or 1.0
+    shown = np.clip(shown / top, 0, 1)
+    edges = find_boundaries(result["labels"], mode="outer")
+    shown[edges] = (0.1, 1.0, 0.2)
+    figure, axis = plt.subplots(figsize=(6, 6))
+    axis.imshow(shown)
+    cx, cy = result["centre"]
+    axis.add_patch(plt.Circle((cx, cy), result["radius"], fill=False,
+                              color=(1.0, 0.85, 0.0), linewidth=1))
+    summary = result["summary"]
+    axis.set_title(f"{title}  {summary['colony_count']} colonies "
+                   f"({summary['count_flag']})".strip(), fontsize=9)
+    axis.set_axis_off()
+    return figure
+
+
+def _colony_size_figure(colonies: Sequence[Dict[str, Any]]):
+    """The distribution of colony diameters across every counted plate.
+
+    :param colonies: per-colony rows from :func:`_measure_colonies`, with
+        ``diameter_mm`` when a scale was known and ``diameter_px`` always.
+    :returns: the figure; millimetres when every colony has a scale.
+    """
+    import matplotlib.pyplot as plt
+
+    physical = bool(colonies) and all(
+        row.get("diameter_mm") is not None for row in colonies)
+    key = "diameter_mm" if physical else "diameter_px"
+    values = np.array([row[key] for row in colonies], float)
+    figure, axis = plt.subplots(figsize=(5, 3.5))
+    if values.size:
+        axis.hist(values, bins=min(50, max(5, int(np.sqrt(values.size)))),
+                  color="#4c78a8")
+        axis.axvline(float(np.median(values)), color="#e45756", linewidth=1)
+    axis.set_xlabel("colony diameter (mm)" if physical else "colony diameter (px)")
+    axis.set_ylabel("colonies")
+    axis.set_title(f"{values.size} colonies", fontsize=9)
+    figure.tight_layout()
+    return figure

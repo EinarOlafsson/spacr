@@ -1298,6 +1298,14 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'Writing the archive package…',
     'Wrote {path}, but it does not pass: {problems}',
     'Wrote {path}. It passes the IDR, BioStudies and MIHCSME checks; nothing was uploaded.',
+    # 542, 2026-09-27: the Colony Counting (Alpha) category help on Plaque
+    # Assay.
+    'Count bacterial or fungal colonies on plate or dish photos instead of '
+    'plaques: the dish is found, colonies are thresholded against the agar '
+    'and touching ones split, and each plate gets a count, CFU/mL from the '
+    'dilution and plated volume, a too-many or too-few flag, and colony '
+    'areas and diameters, in millimetres when Scale & Time says how large '
+    'the dish is.',
 })
 
 

@@ -1574,6 +1574,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
     "analyze_plaques": (
         ("Input & Channels", ("src", "masks")),
         ("Scale & Time", ("plate_format", "well_diameter_mm", "plaque_pixels_per_um", "plaque_formation_hours")),
+        ("Colony Counting (Alpha)", ("@Colony Counting (Alpha)",)),
         ("Experimental Growth Estimates", ("plaque_estimate_growth", "plaque_growth_reference_um", "plaque_growth_reference_hours")),
         ("Model", ("diameter",)),
         ("Detection Thresholds", (
@@ -2709,6 +2710,13 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "nucleus measurements, or an image classifier on nucleus crops. Each "
         "writes the same phase column to measurements.db, with the phase "
         "fractions per well among infected and uninfected cells.",
+    "COLONY COUNTING (ALPHA)":
+        "Count bacterial or fungal colonies on plate or dish photos instead "
+        "of plaques: the dish is found, colonies are thresholded against the "
+        "agar and touching ones split, and each plate gets a count, CFU/mL "
+        "from the dilution and plated volume, a too-many or too-few flag, "
+        "and colony areas and diameters, in millimetres when Scale & Time "
+        "says how large the dish is.",
     "SPECTRAL UNMIXING (ALPHA)":
         "Bleed-through correction: how much of each dye is read in the other "
         "channels is estimated from single-stain control wells, and every "
