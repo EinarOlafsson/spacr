@@ -109,3 +109,11 @@ other assertion could pass for the wrong reason.
 NOT VERIFIED: where the items actually land. Qt applies menu roles only on
 macOS and this was developed on Linux. Someone has to open it on a Mac and
 check that the python menu's Preferences opens Preferences, not recipes.
+
+STATUS 2026-09-27 (Codex): Native artifact acceptance now inspects Cocoa's
+actual application menu and dispatches its Preferences and Quit items. It
+requires an observed modal PreferencesDialog and application quit after a
+real Measure run. Local guards passed (35 tests across the native-menu and
+provider acceptance changes); actual Cocoa CI remains pending. Receipt:
+features/data/23_414_native_acceptance_preparation_2026-09-27.json.
+Item remains open; offscreen checks do not prove menu placement on macOS.

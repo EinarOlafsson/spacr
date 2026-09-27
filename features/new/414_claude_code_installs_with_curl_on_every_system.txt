@@ -89,3 +89,12 @@ PowerShell 5.1 rejects `&&`. `install.cmd` ends with `exit /b`, so the trailing
   * OWED: a paste-and-run on a clean Windows machine without Node.js, in both
     CMD and PowerShell, then `claude --version` in a new terminal.
   * Unchanged, as filed: the Codex and Gemini hints are still npm-first.
+
+STATUS 2026-09-27 (Codex): Fresh Windows acceptance jobs now consume the
+actual installed artifact's source-bound hint and execute it in CMD and
+Windows PowerShell5.1. They use the real fresh user profile, keep Node/npm
+off the command PATH, then verify claude --version in a new terminal using
+registered PATH values. Local guards passed; native executions are pending.
+Receipt: features/data/23_414_native_acceptance_preparation_2026-09-27.json.
+This does not claim Node is physically absent from the entire hosted image,
+or establish real authentication. Item remains open.

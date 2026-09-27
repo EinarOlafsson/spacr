@@ -2006,3 +2006,13 @@ features/data/411_live_strict_html_2026-09-27.json. This proves that deployed
 snapshot; the new regression and packaged-smoke helper work still requires
 another English inventory and translation delta after its source freezes.
 No native-speaker or human listening signoff is claimed.
+
+STATUS 2026-09-27 (Codex, delta4): English and all nine API catalogs now
+match the regression and distribution-smoke source changes: 11865 symbols,
+54 newly reviewed blocks, all680 prior review files preserved byte for byte.
+Canonical staging/installed audits and post-install preservation passed;
+144 named source/catalog/docstring tests passed. The inventory pin update
+is proved by exactly two added optional fit_designs parameters. Receipt:
+features/data/411_api_delta4_07_53_2026-09-27.json. Commit b6ed334fe is pushed;
+current strict HTML publication and aggregate review reports remain pending.
+Review is AI technical review only, with no native-speaker signoff.

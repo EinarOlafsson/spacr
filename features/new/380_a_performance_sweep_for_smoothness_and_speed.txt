@@ -2200,3 +2200,11 @@ moderate load. No additional optimization is justified by the stale number.
 Item380 remains open for its native compositor, Windows and macOS evidence;
 the existing offscreen/xvfb measurements do not substitute for those runs.
 No new performance run or other-platform signoff is claimed here.
+
+STATUS 2026-09-27 (Codex): Added opt-in real splitter/hover and fullscreen/
+windowed CPU screensaver observations to the existing paint harness. State
+changes and generated frames are required; actual display/Qt metadata and
+GUI loop gaps are recorded. Sixteen focused tests pass. Receipt:
+features/data/380_measurement_instruments_2026-09-27.json. These tests do not
+measure native physical presentation, input latency or dropped frames.
+Existing budgets and the outstanding lower-end/native acceptance remain.
