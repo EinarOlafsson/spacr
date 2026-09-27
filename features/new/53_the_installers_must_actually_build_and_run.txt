@@ -399,3 +399,19 @@ macOS stopped at checksum verification because upload omitted the extensionless
 helper named in the manifest. Commit6194b0184 corrects that omission; its native
 rerun is pending. Full frozen-update adapters and other original gates remain.
 Receipt: features/data/53_native_helper_and_windows_claude_acceptance_2026-09-27.json.
+
+STATUS 2026-09-27 — historical macOS repair artifact diagnosed
+Run36357823752 installed the actual released1.5.0.1 on macOS and reproduced
+its missing-pip GUI failure. The external1.5.0.5 repair then failed because
+that public wheel contains three differing-content case-colliding GIF pairs.
+Its full central directory proves those pairs; no explicit filesystem-case
+probe was recorded. The original failure and its source pins remain preserved.
+
+The witness now explicitly selects genuine public1.5.0.6 for macOS/Windows,
+retaining the proven1.5.0.5 Linux chain. The complete.6 wheel matches its PyPI
+SHA256, has no case-colliding names, and carries the same updater/init bytes.
+New source pins and verifier checks require the selected repair, the original
+private missing-pip environment, and a strictly newer real GUI update target.
+No wheel modification or ZIP-validation bypass is used. A41-test named local
+batch passed; the revised native recovery chain remains pending.
+Receipt: features/data/53_historical_case_collision_2026-09-27.json.

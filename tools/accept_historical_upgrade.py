@@ -16,6 +16,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('mode', choices=('state', 'gui', 'verify'))
 parser.add_argument('--version')
 parser.add_argument('--target-version')
+parser.add_argument('--repair-version', choices=('1.5.0.5', '1.5.0.6'), default='1.5.0.5')
 parser.add_argument('--expect', choices=('missing-pip', 'success'))
 parser.add_argument('--output', type=Path, required=True)
 parser.add_argument('--evidence', type=Path)
@@ -93,11 +94,14 @@ if args.mode == 'verify':
             for source in known[row['version']]['files']:
                 if source['path'] in source_names and bindings.get(source['path'], {}).get('sha256') != source['sha256']:
                     errors.append(f'{name} source differs from the exact historical PyPI wheel')
-    if [row['version'] for row in states] != ['1.5.0.1', '1.5.0.5', args.target_version]:
+    if [row['version'] for row in states] != ['1.5.0.1', args.repair_version, args.target_version]:
         errors.append('Version transition does not match historical repair then real update')
+    if (not re.fullmatch(r'[0-9]+(?:\.[0-9]+){2,3}', args.target_version or '')
+            or tuple(map(int, args.target_version.split('.'))) <= tuple(map(int, args.repair_version.split('.')))):
+        errors.append('Public upgrade target must be newer than the selected repair release')
     if len({row['prefix'] for row in states}) != 1:
         errors.append('The private installation environment changed')
-    for name, version, expected_state in (('broken-gui', '1.5.0.1', states[0]), ('fixed-gui', '1.5.0.5', states[1])):
+    for name, version, expected_state in (('broken-gui', '1.5.0.1', states[0]), ('fixed-gui', args.repair_version, states[1])):
         gui = records[name]
         if gui['state']['prefix'] != states[0]['prefix'] or gui['state']['version'] != version:
             errors.append(f'{name} did not use the same version-bound private installation')
@@ -125,7 +129,7 @@ if args.mode == 'verify':
     failure_log = (evidence / 'broken-gui.log').read_text(errors='replace')
     if 'No module named pip' not in failure_log:
         errors.append('Actual old child-process missing-pip failure is absent')
-    write(dict(passed=not errors, errors=errors, stages=records,
+    write(dict(passed=not errors, errors=errors, stages=records, repair_version=args.repair_version,
         scope='Released online installers and installed in-app updater only; not frozen self-update or unreleased checkout behavior.'))
     raise SystemExit(bool(errors))
 

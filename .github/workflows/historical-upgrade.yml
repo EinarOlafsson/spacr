@@ -213,8 +213,9 @@ jobs:
           Set-Location $empty
           $pypi = Invoke-RestMethod 'https://pypi.org/pypi/spacr/json'
           $target = $pypi.info.version
-          if ([version]$target -le [version]'1.5.0.5') { throw 'No genuine newer public upgrade exists' }
-          @{ target=$target; urls=$pypi.urls; historical=$pypi.releases.'1.5.0.1'; repair=$pypi.releases.'1.5.0.5' } |
+          $repair = if ($IsLinux) { '1.5.0.5' } else { '1.5.0.6' }
+          if ([version]$target -le [version]$repair) { throw 'No genuine newer public upgrade exists' }
+          @{ target=$target; urls=$pypi.urls; historical=$pypi.releases.'1.5.0.1'; repair_version=$repair; repair=$pypi.releases.$repair } |
             ConvertTo-Json -Depth 12 | Set-Content (Join-Path $evidence 'pypi-provenance.json')
           function Invoke-Installed([string[]]$Arguments, [string]$Log) {
             $command = @('-I', $driver) + $Arguments
@@ -230,14 +231,15 @@ jobs:
           if (!(Select-String -Path "$evidence/broken-gui.log" -SimpleMatch 'No module named pip')) {
             throw 'The original in-app update did not reproduce missing pip'
           }
-          # Documented private-uv escape, pinned to the first fixed release so a real later update remains.
-          & $env:HISTORICAL_UV pip install --upgrade --python $python 'spacr==1.5.0.5' 2>&1 |
+          # 1.5.0.5 contains conflicting GIF names on case-insensitive filesystems;
+          # use the next genuine public repair there, retaining the later GUI update.
+          & $env:HISTORICAL_UV pip install --upgrade --python $python "spacr==$repair" 2>&1 |
             Tee-Object "$evidence/external-repair.log"
           if ($LASTEXITCODE -ne 0) { throw 'Documented private-uv external repair failed' }
-          Invoke-Installed @('state','--version','1.5.0.5','--output',"$evidence/repaired.json") "$evidence/repaired.log"
-          Invoke-Installed @('gui','--version','1.5.0.5','--expect','success','--target-version',$target,'--output',"$evidence/fixed-gui.json") "$evidence/fixed-gui.log"
+          Invoke-Installed @('state','--version',$repair,'--output',"$evidence/repaired.json") "$evidence/repaired.log"
+          Invoke-Installed @('gui','--version',$repair,'--expect','success','--target-version',$target,'--output',"$evidence/fixed-gui.json") "$evidence/fixed-gui.log"
           Invoke-Installed @('state','--version',$target,'--output',"$evidence/after.json") "$evidence/after.log"
-          Invoke-Installed @('verify','--target-version',$target,'--evidence',$evidence,'--output',"$evidence/acceptance.json") "$evidence/acceptance.log"
+          Invoke-Installed @('verify','--target-version',$target,'--repair-version',$repair,'--evidence',$evidence,'--output',"$evidence/acceptance.json") "$evidence/acceptance.log"
       - name: Preserve actual historical-upgrade evidence
         if: always()
         uses: actions/upload-artifact@v7

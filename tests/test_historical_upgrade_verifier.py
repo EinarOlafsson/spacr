@@ -13,7 +13,7 @@ SOURCE_BINDINGS = ROOT / 'tools/historical_upgrade_sources.json'
 TARGET = '1.5.1.0'
 
 
-def _fixture(tmp_path):
+def _fixture(tmp_path, repair='1.5.0.5'):
     """Create labeled receipt fixtures without installing or launching any spaCR."""
     evidence = tmp_path / 'evidence'
     evidence.mkdir()
@@ -22,7 +22,7 @@ def _fixture(tmp_path):
     sources = ('spacr/updater.py', 'spacr/qt/app.py', 'spacr/qt/__init__.py')
     executable = str(prefix / 'bin/python')
     states = []
-    for version in ('1.5.0.1', '1.5.0.5', TARGET):
+    for version in ('1.5.0.1', repair, TARGET):
         hashes = {row['path']: row['sha256'] for row in known.get(version, {}).get('files', [])}
         states.append(dict(version=version, prefix=str(prefix), executable=executable,
             installed_sources={name: {'path': str(prefix / 'site-packages' / name),
@@ -47,24 +47,57 @@ def _fixture(tmp_path):
     return evidence, records
 
 
-def _verify(evidence, records):
+def _verify(evidence, records, repair='1.5.0.5', target=TARGET):
     """Run only the stdlib final-verifier branch, never its installed-state or GUI paths."""
     for name, value in records.items():
         (evidence / f'{name}.json').write_text(json.dumps(value))
     output = evidence / 'acceptance.json'
     completed = subprocess.run([sys.executable, '-I', str(DRIVER), 'verify',
-        '--target-version', TARGET, '--evidence', str(evidence), '--output', str(output)],
+        '--target-version', target, '--repair-version', repair,
+        '--evidence', str(evidence), '--output', str(output)],
         cwd=evidence, capture_output=True, text=True, timeout=20)
     return completed, json.loads(output.read_text()) if output.exists() else None
 
 
-def test_verifier_accepts_complete_synthetic_contract_only(tmp_path):
+@pytest.mark.parametrize('repair', ['1.5.0.5', '1.5.0.6'])
+def test_verifier_accepts_complete_synthetic_contract_only(tmp_path, repair):
     """A consistent fixture exercises the verifier, without claiming a real installation."""
-    evidence, records = _fixture(tmp_path)
-    completed, accepted = _verify(evidence, records)
+    evidence, records = _fixture(tmp_path, repair)
+    completed, accepted = _verify(evidence, records, repair)
     assert completed.returncode == 0, completed.stderr
     assert accepted['passed'] is True and accepted['errors'] == []
+    assert accepted['repair_version'] == repair
     assert all(row['fixture_kind'].startswith('verifier-only') for row in accepted['stages'].values())
+
+
+def test_verifier_rejects_receipts_for_an_unselected_repair(tmp_path):
+    """A valid alternate release cannot silently substitute for the selected repair."""
+    evidence, records = _fixture(tmp_path, '1.5.0.6')
+    completed, accepted = _verify(evidence, records, '1.5.0.5')
+    assert completed.returncode != 0
+    assert any('Version transition' in error for error in accepted['errors'])
+
+
+def test_verifier_checks_the_alternate_repair_source_pins(tmp_path):
+    """Both consistent state receipts must still match the actual public repair wheel."""
+    evidence, records = _fixture(tmp_path, '1.5.0.6')
+    for name in ('repaired', 'fixed-gui'):
+        records[name]['state']['installed_sources']['spacr/qt/app.py']['sha256'] = '0' * 64
+    completed, accepted = _verify(evidence, records, '1.5.0.6')
+    assert completed.returncode != 0
+    assert any('exact historical PyPI wheel' in error for error in accepted['errors'])
+
+
+@pytest.mark.parametrize('target', ['1.5.0.5', '1.5.0.6'])
+def test_verifier_requires_a_genuine_upgrade_after_the_repair(tmp_path, target):
+    """Equal or older public versions cannot prove a subsequent successful update."""
+    evidence, records = _fixture(tmp_path, '1.5.0.6')
+    records['after']['state']['version'] = target
+    for name in ('broken-gui', 'fixed-gui'):
+        records[name]['target_version'] = target
+    completed, accepted = _verify(evidence, records, '1.5.0.6', target)
+    assert completed.returncode != 0
+    assert any('must be newer' in error for error in accepted['errors'])
 
 
 @pytest.mark.parametrize(('fault', 'message'), [

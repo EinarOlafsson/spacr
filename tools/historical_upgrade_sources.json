@@ -88,5 +88,49 @@
       "size": 39519204,
       "url": "https://files.pythonhosted.org/packages/37/69/bf699a64805d17c584dcc9696e744b8f7bbd094bc59cd216ae1b8f7b1831/spacr-1.5.0.5-py3-none-any.whl"
     }
+  },
+  "1.5.0.6": {
+    "version": "1.5.0.6",
+    "extraction": "Full public wheel downloaded and SHA-256 matched PyPI metadata; four selected members read with unzip -p and hashed; no package code executed.",
+    "wheel": {
+      "filename": "spacr-1.5.0.6-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/bc/1e/a73e387ee5693438de9aba4f9382a38a047dd4730ddb244d62b62c0ca67a/spacr-1.5.0.6-py3-none-any.whl",
+      "size": 37505619,
+      "digests": {
+        "blake2b_256": "bc1ea73e387ee5693438de9aba4f9382a38a047dd4730ddb244d62b62c0ca67a",
+        "md5": "08e845a421043bb1288cebee226d8ad8",
+        "sha256": "79dd4e97e7e518a4eeca0fb82ef48cd770898f25e2a0506a7db6ffd8d73899d1"
+      }
+    },
+    "files": [
+      {
+        "sha256": "c2e18c747c03006e089a7da2c07c6c099454b65ca2b1fdfb770c7348bd02ae3e",
+        "path": "spacr/updater.py",
+        "bytes": 30458,
+        "compressed_bytes": 9548,
+        "zip_crc32": "5fa4d7b6"
+      },
+      {
+        "sha256": "5fb36865793f4bbbf3f160dda99237252d0de6cb601d1d7f2ab11df75f2ce430",
+        "path": "spacr/qt/app.py",
+        "bytes": 300372,
+        "compressed_bytes": 94168,
+        "zip_crc32": "e5e66de7"
+      },
+      {
+        "sha256": "da9591a794569dc5516145649d43ab664f1cb64f0bb8cfc2ef0abac773edceec",
+        "path": "spacr/qt/__init__.py",
+        "bytes": 25956,
+        "compressed_bytes": 10171,
+        "zip_crc32": "fc1c0a26"
+      },
+      {
+        "sha256": "f414e5af8e6b88ecb09bd60a9fdfbcad4f7d6f2f564c53d5151276fb664fdaa9",
+        "path": "spacr-1.5.0.6.dist-info/METADATA",
+        "bytes": 38088,
+        "compressed_bytes": 11282,
+        "zip_crc32": "34a1ca9b"
+      }
+    ]
   }
 }
