@@ -2025,3 +2025,11 @@ Both canonical report freshness tests passed in278.42s. Receipt:
 features/data/411_api_delta4_aggregate_reports_2026-09-27.json.
 Native-speaker/listening review remains unclaimed. Current HTML deployment
 and future source changes still require their own acceptance.
+
+STATUS 2026-09-27 — API delta4 now verified LIVE
+Strict HTML build and Pages deployment run36348757734 passed. The live
+nightly publication identifies2c9497c42, a descendant containingb6ed334fe's
+API delta4. Live compatibility reports all9 API and9runtime locales source
+compatible withzeroissues. Receipt: features/data/411_api_delta4_live_2026-09-27.json.
+This pins the publication checked; later aggregate-report/source changes
+need their own deployment, and native/listening signoff is not implied.

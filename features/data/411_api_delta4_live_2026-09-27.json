@@ -1,0 +1,92 @@
+{
+  "date": "2026-09-27",
+  "item": 411,
+  "run_url": "https://github.com/EinarOlafsson/spacr/actions/runs/36348757734",
+  "strict_html_and_pages": "passed",
+  "live_publication": {
+    "schema": 1,
+    "branch": "nightly",
+    "commit": "2c9497c42ac84c19b9e1c5d8affbffd915a3ff15",
+    "translation_policy": "report-only; incompatible locales fall back to English"
+  },
+  "compatibility": {
+    "source_commit": "2c9497c42ac84c19b9e1c5d8affbffd915a3ff15",
+    "api": {
+      "sv": {
+        "source_compatible": true,
+        "issues": []
+      },
+      "de": {
+        "source_compatible": true,
+        "issues": []
+      },
+      "es": {
+        "source_compatible": true,
+        "issues": []
+      },
+      "zh_CN": {
+        "source_compatible": true,
+        "issues": []
+      },
+      "pt": {
+        "source_compatible": true,
+        "issues": []
+      },
+      "hi": {
+        "source_compatible": true,
+        "issues": []
+      },
+      "ko": {
+        "source_compatible": true,
+        "issues": []
+      },
+      "is": {
+        "source_compatible": true,
+        "issues": []
+      },
+      "fr": {
+        "source_compatible": true,
+        "issues": []
+      }
+    },
+    "runtime": {
+      "sv": {
+        "source_compatible": true,
+        "issues": []
+      },
+      "de": {
+        "source_compatible": true,
+        "issues": []
+      },
+      "es": {
+        "source_compatible": true,
+        "issues": []
+      },
+      "zh_CN": {
+        "source_compatible": true,
+        "issues": []
+      },
+      "pt": {
+        "source_compatible": true,
+        "issues": []
+      },
+      "hi": {
+        "source_compatible": true,
+        "issues": []
+      },
+      "ko": {
+        "source_compatible": true,
+        "issues": []
+      },
+      "is": {
+        "source_compatible": true,
+        "issues": []
+      },
+      "fr": {
+        "source_compatible": true,
+        "issues": []
+      }
+    }
+  },
+  "scope": "API delta4 is present on live nightly. This does not establish human review or deployment of later aggregate-report/source changes."
+}
