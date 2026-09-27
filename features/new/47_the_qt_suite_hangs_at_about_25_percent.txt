@@ -1379,3 +1379,21 @@ the unchanged guard. No previous-boot kernel entries were available after18:00;
 the reboot's cause is unknown. The test named at interruption is not evidence
 that it caused the reboot. Receipt:
 features/data/47_qt_reboot_recovery_2026-09-27.json.
+
+STATUS 2026-09-27 — resumed-run failures and focused reproduction
+The unchanged frozen suffix exposed two cold-start theme assertions reading
+caches warmed by prior tests, plus a disk-report assertion assuming the temp
+folder's name contains tmp. The theme startup checks now observe a fresh
+interpreter while preserving the exact eager/lazy theme expectations. The disk
+check requires the actual configured tempfile directory. Product caches and
+the GUI-thread filesystem guards are unchanged.
+
+An11-node current-source reproduction passed7 and failed4 in22.05 seconds.
+Both repaired theme checks and the configured-temp check passed, including a
+TMPDIR without tmp in its name. Remaining reproduced failures concern the Home
+legend membership, genuine Zeiss fixture generation, translated caption debt,
+and backdrop transmission. Four other earlier failures passed in isolation;
+that does not resolve their original order-dependent failure or establish an
+uninterrupted serial/memory pass. The frozen suffix continues unchanged.
+Evidence: /mnt/wd4tb/scratch/spacr-completion/item47-failure-reproduction-20260927/
+(results.xml and logs/reproduce.log). Item47 remains open.
