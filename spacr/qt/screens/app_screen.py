@@ -3888,9 +3888,11 @@ class AppScreen(QWidget):
             pass
         waiting_owner = getattr(self, "_waiting_controls_owner", None)
         if waiting_owner is None:
-            waiting_owner = QWidget(self._settings_content)
+            waiting_owner = QWidget()
             waiting_owner.hide()
+            self.destroyed.connect(waiting_owner.deleteLater)
             self._waiting_controls_owner = waiting_owner
+            self._settings_model._unmounted_control_owner = waiting_owner
         for _label, widget in spec[1] or ():
             if isinstance(widget, QWidget):
                 widget.setParent(waiting_owner)

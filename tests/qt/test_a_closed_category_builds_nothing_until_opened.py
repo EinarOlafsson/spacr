@@ -454,4 +454,5 @@ def test_deleting_a_screen_retires_unopened_category_controls(qtbot):
     window.close()
     window.deleteLater()
     QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+    QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
     assert not [key for key, control in controls if isValid(control)]

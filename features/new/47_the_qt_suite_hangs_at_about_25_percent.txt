@@ -1337,3 +1337,19 @@ boundary end with zero live Qt widgets. A busy JobRunner warning at one earlier
 test boundary remains recorded for longer-session follow-up. These bounded
 results do not close the full serial acceptance requirement. Receipt:
 features/data/47_qt_ownership_memory_probe_2026-09-27.json.
+
+STATUS 2026-09-27 — identical ordered prefix measured and contract repaired
+The unchanged first 78 named files reached summary in 414.44 seconds:
+873 passed, 1 skipped, 1 failed. Final sampled parent RSS fell from 2.78 GiB
+to 2.08 GiB (25.08%); the same quiet test boundary fell from 2,051 widgets
+to 12. Preserve that raw failure: the first parking fix kept controls inside
+the page, violating the existing detached-category styling contract.
+The correction keeps the parking root detached, using the existing Qt
+owner.destroyed → detached.deleteLater pattern, including lazily built fields.
+The last 12 widgets were four replaced TableChip trees; the source-set owner
+now explicitly retires superseded chips. The original value-collection test
+remains intact. The two focused sequences pass (43 and 8 checks; 50 unique),
+and both finish at zero live widgets. Their transient runner warning remains
+in the receipt. The whole prefix was not rerun after these final corrections,
+and full serial acceptance remains OPEN. No collector or limit was raised.
+Receipt: features/data/47_ordered_prefix_memory_comparison_2026-09-27.json.
