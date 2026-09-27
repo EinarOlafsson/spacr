@@ -1264,6 +1264,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "dialate_pngs", "dialate_png_ratios", "use_bounding_box",
             "normalize", "normalize_by",
         )),
+        ("Profiling (Alpha)", ("@Profiling (Alpha)",)),
         ("Preview & Diagnostics", ("plot", "test_mode", "test_nr")),
         ("3D Calibration (Beta)", (
             "anisotropy", "voxel_size_z_um", "voxel_size_xy_um",
@@ -2635,6 +2636,14 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "out, the interval between frames, which backend links objects, and "
         "how far one may move between frames. For data that is both a "
         "z-stack and a time series.",
+    "PROFILING (ALPHA)":
+        "Image-based profiling after Measure: one profile per well from the "
+        "object tables, annotated from a plate map, normalised per plate "
+        "against the negative controls, feature-selected, collapsed into one "
+        "consensus profile per treatment and scored for replicate "
+        "reproducibility as mean average precision and percent replicating. "
+        "Written as CSV, Parquet and GCT files that pycytominer, copairs and "
+        "Morpheus read.",
     "CONFLUENCY (ALPHA)":
         "How much of each field is covered by cells, measured per field and "
         "per well into measurements.db with a monolayer QC flag: from the "

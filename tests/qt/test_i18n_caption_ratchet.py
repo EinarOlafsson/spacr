@@ -1207,6 +1207,13 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'below the monolayer QC threshold',
     'monolayer QC passed',
     'Watching: {done} analysed, {waiting} waiting, {failed} failed',
+    # 547, 2026-09-26: the Profiling (Alpha) category help on Measure.
+    'Image-based profiling after Measure: one profile per well from the '
+    'object tables, annotated from a plate map, normalised per plate against '
+    'the negative controls, feature-selected, collapsed into one consensus '
+    'profile per treatment and scored for replicate reproducibility as mean '
+    'average precision and percent replicating. Written as CSV, Parquet and '
+    'GCT files that pycytominer, copairs and Morpheus read.',
 })
 
 

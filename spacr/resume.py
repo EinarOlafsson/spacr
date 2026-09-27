@@ -314,7 +314,11 @@ NON_FIELD_TABLES = frozenset({
 COSMETIC_SETTINGS = frozenset({
     'src', 'resume', 'n_jobs', 'mask_parallel', 'mask_gpu_indices',
     'watch_folder', 'watch_pipeline', 'watch_measure_settings',
-    'watch_settle_seconds', 'watch_poll_seconds', 'watch_idle_minutes', 'plot', 'verbose', 'progress', 'update_gui',
+    'watch_settle_seconds', 'watch_poll_seconds', 'watch_idle_minutes',
+    'profiling', 'profiling_metadata', 'profiling_treatment_column',
+    'profiling_negative_control', 'profiling_normalization',
+    'profiling_feature_selection', 'profiling_correlation_threshold',
+    'profiling_phenotype_column', 'profiling_databases', 'plot', 'verbose', 'progress', 'update_gui',
     'test_mode', 'test_images', 'test_nr', 'random_test', 'test_size',
     'examples_to_plot', 'figuresize', 'cmap', 'save_figures', 'show',
     'dry_run', 'strict_errors', 'timestamp', 'from_scratch',

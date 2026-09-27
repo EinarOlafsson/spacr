@@ -770,6 +770,15 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # QC cut, under their own "Confluency (Alpha)" heading.
     "confluency", "confluency_source", "confluency_channel",
     "confluency_window", "confluency_qc_threshold",
+    # NEW SETTINGS, not a regrouping (item 547, 2026-09-26): image-based
+    # profiling at the end of Measure -- the switch, plate map, treatment
+    # and control, normalisation, feature selection and its correlation
+    # cut, phenotype label and further plates -- under their own
+    # "Profiling (Alpha)" heading.
+    "profiling", "profiling_metadata", "profiling_treatment_column",
+    "profiling_negative_control", "profiling_normalization",
+    "profiling_feature_selection", "profiling_correlation_threshold",
+    "profiling_phenotype_column", "profiling_databases",
     # A NEW SETTING GROUP, not a regrouping: Make Masks can keep watching
     # `src` and analyse each field as it arrives (`watch_folder`), with the
     # pipeline, Measure settings file, settle time, poll interval and idle
@@ -1455,6 +1464,9 @@ def _rendered_sections(app_key):
             # is measured beside, as an Alpha heading of its own.
             "Confluency (Alpha)",
             "Object Filtering", "Crop Output",
+            # Item 547, 2026-09-26: profiling runs on the finished tables,
+            # so its Alpha heading follows the outputs it reads.
+            "Profiling (Alpha)",
             "Preview & Diagnostics", "3D Calibration (Beta)",
             "Runtime & Reliability",
         ]),
