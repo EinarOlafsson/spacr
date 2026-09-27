@@ -136,9 +136,9 @@ def test_the_parser_asks_for_a_folder_and_defaults_to_easy():
     assert args.dry_run is False
 
 
-@pytest.mark.parametrize("order", ["easy", "prob", "value", "name"])
+@pytest.mark.parametrize("order", ["easy", "prob", "value", "name", "uncertain"])
 def test_every_documented_order_is_accepted(order):
-    """The four orders the ledger names all parse."""
+    """The four orders the ledger names, and uncertain, all parse."""
     args = cli_make_masks.build_parser().parse_args(
         ["--folder", "/tmp/x", "--order", order])
     assert args.order == order

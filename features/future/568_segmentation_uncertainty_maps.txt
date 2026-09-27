@@ -1,6 +1,6 @@
 SEGMENTATION UNCERTAINTY MAPS (TEST-TIME AUGMENTATION / ENSEMBLES)
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED AS ALPHA 2026-09-27
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -21,3 +21,57 @@ DONE WHEN
     Uncertainty correlates with actual segmentation error on fields with
     ground truth (item 532 set), and the queue ordering finds the worst
     fields first.
+
+ALPHA: 2026-09-27 -- shipped behind Preferences -> "Show alpha features"
+    (ALPHA_FEATURES[568]: widget MakeMasksUncertaintyButton).
+
+WHAT WAS BUILT (2026-09-27)
+    * spacr/active_learning.py: _tta_label_sets segments a field under
+      identity, flip_lr, flip_ud and rot90 with any segmenter and maps each
+      result back; _segmentation_uncertainty scores two or more label sets
+      (TTA passes or a model ensemble alike): a per-pixel map (foreground
+      disagreement 4p(1-p), and each reference object's own score), per
+      object 1 - mean best IoU with the other passes, per field 1 - mean
+      panoptic quality of the other passes against the reference.
+    * spacr/curation_queue.py: order "uncertain" (most uncertain first,
+      unscored last, falls back to value with a notice), read from
+      <folder>/curate_uncertainty.csv, written by _write_uncertainty
+      (merge, sorted, atomic). spacr-make-masks --order uncertain.
+    * Make Masks: "Uncertainty..." button (alpha) with "Map this field's
+      uncertainty" (four detection runs with the Object detection
+      settings on a worker thread; heat map on a new Uncertainty tab,
+      least certain object named) and "Rank the fields, most uncertain
+      first" (scores every open field, writes curate_uncertainty.csv in
+      the queue/open folder, reorders the fields; refused while blind).
+    * tools/validate_segmentation_uncertainty.py; result in
+      features/data/568_segmentation_uncertainty_2026-09-27.json.
+
+VALIDATION (CPU only, 2026-09-27; GPU was held by another session)
+    Toxo PV r5 (cpsam_v2_toxo_r5), the ten Make Masks toxo_pv test fields
+    with hand-drawn masks, three 256 px crops per field placed on the
+    densest truth, 4 TTA passes each, 62 min wall on a loaded CPU.
+    Per object (185 predicted, 16 with no truth match at IoU 0.5):
+      AUROC of uncertainty for a wrong object          0.67
+      Spearman, uncertainty vs 1 - best truth IoU      0.65
+      mean uncertainty wrong / right                   0.113 / 0.054
+    Per crop (30 crops; error = 1 - PQ against the truth):
+      Spearman, field uncertainty vs error             0.23
+      worst quarter found in the top quarter of the
+      uncertain queue                                  3 of 7 (1.6 by chance)
+      mean error of the top quarter / all / bottom     0.45 / 0.38 / 0.36
+    Reading: uncertainty tracks errors on the objects the model drew, well
+    enough to point a curator at them. At field level the signal is weak
+    and positive: 118 of 287 truth vacuoles were missed CONSISTENTLY by
+    every pass, and TTA cannot see an error the model makes the same way
+    every time. Other field scores tried on the cached passes (mean/max
+    object score, map over foreground, count spread, all pairs) were no
+    better than 0.34, so the shipped score was not tuned to these 30 crops.
+
+WHAT IS LEFT
+    * Field-level "done when" is only weakly met. Next: a model ensemble
+      (r2/r5/r6, or r5 + cpsam) through the same _segmentation_uncertainty,
+      which can see misses one model makes consistently; whole 1994 px
+      fields on the GPU; more fields than ten.
+    * Cellpose flow/cellprob disagreement is not used (labels only, so any
+      backend works); the map is not saved to disk; the CLI cannot compute
+      scores itself (only Make Masks writes curate_uncertainty.csv).

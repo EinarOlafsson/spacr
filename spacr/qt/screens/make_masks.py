@@ -4286,6 +4286,83 @@ def _detect_cellpose_snapshot(request, models):
     return labels, cellprob, flow
 
 
+def _uncertainty_snapshot(request, models):
+    """Segment captured fields under flips and a turn, and score the spread.
+
+    Each field is segmented once per test-time transform of
+    :func:`spacr.active_learning._tta_label_sets` with the detection
+    settings captured in ``request['detect']``, or with
+    ``request['segment']`` when one is given, and the passes are scored by
+    :func:`spacr.active_learning._segmentation_uncertainty`. Reads no Qt
+    object, so it runs on a worker thread.
+
+    :param request: ``kind`` is ``field`` (with ``image``) or ``rank`` (with
+        ``fields``, ``(folder, file name)`` pairs, and ``layout``, the mask
+        loader's keywords).
+    :param models: the screen's loaded Cellpose models, shared with
+        detection.
+    :returns: for ``field``, the score dictionary with its map; for
+        ``rank``, ``{(folder, file name): score dictionary}`` without the
+        maps, a field that cannot be read or segmented being left out.
+    """
+    from ...active_learning import _segmentation_uncertainty, _tta_label_sets
+
+    segment = request.get('segment')
+    if segment is None:
+        def segment(image):
+            """:param image: one transformed field.
+
+            :returns: its labels under the captured detection settings.
+            """
+            return _detect_cellpose_snapshot(
+                dict(request['detect'], image=image), models)[0]
+
+    if request['kind'] == 'field':
+        return _segmentation_uncertainty(
+            _tta_label_sets(request['image'], segment))
+    scores = {}
+    for folder, name in request['fields']:
+        try:
+            image, _mask = engine.load_image_and_mask(folder, name,
+                                                      **request['layout'])
+            result = _segmentation_uncertainty(_tta_label_sets(image, segment))
+        except Exception:                                    # noqa: BLE001
+            LOG.warning("uncertainty of %s could not be scored", name,
+                        exc_info=True)
+            continue
+        result.pop('map', None)
+        scores[(folder, name)] = result
+    return scores
+
+
+def _uncertainty_heatmap(uncertainty: np.ndarray,
+                         image: Optional[np.ndarray] = None) -> np.ndarray:
+    """An uncertainty map in colour over the field in grey, ``(H, W, 3)``.
+
+    The map is already in ``[0, 1]`` and is coloured without stretching, so
+    one colour means one uncertainty on every field. It is blended over the
+    field so the uncertain objects can be found on it.
+
+    :param uncertainty: the per-pixel map, values in ``[0, 1]``.
+    :param image: the field it was computed on, or None for the map alone.
+    :returns: uint8 RGB.
+    """
+    scaled = np.clip(np.asarray(uncertainty, dtype=np.float32), 0.0, 1.0)
+    try:
+        import matplotlib
+        colour = np.asarray(matplotlib.colormaps["magma"](scaled))[..., :3]
+    except Exception:                                        # noqa: BLE001
+        colour = np.repeat(scaled[..., None], 3, axis=2)
+    if image is not None and np.asarray(image).shape[:2] == scaled.shape:
+        field = np.asarray(image)
+        if field.ndim == 3:
+            field = field.mean(axis=2)
+        grey = stretch_to_uint8(field).astype(np.float32)[..., None] / 255.0
+        weight = 0.35 + 0.65 * scaled[..., None]
+        colour = weight * colour + (1.0 - weight) * grey
+    return (np.clip(colour, 0.0, 1.0) * 255).astype(np.uint8)
+
+
 class _NewestRequestWorker:
     """Runs requests one at a time on a background thread, newest first.
 
@@ -7941,6 +8018,7 @@ class MakeMasksScreen(QWidget):
     _histogram_delivered = Signal(object)
     _detection_delivered = Signal(object)
     _comparison_delivered = Signal(object)
+    _uncertainty_delivered = Signal(object)
 
     def __init__(self, parent: Optional[QWidget] = None):
         """Build the editor, its canvas and its tool panel.
@@ -7992,6 +8070,10 @@ class MakeMasksScreen(QWidget):
         self._detection_worker = None
         self._detection_request = None
         self._detection_delivered.connect(self._take_detection)
+        self._uncertainty_worker = None
+        self._uncertainty_request = None
+        self._uncertainty_pane = None
+        self._uncertainty_delivered.connect(self._take_uncertainty)
         self._comparison_worker = None
         self._comparison_request = None
         self._comparison_serial = 0
@@ -8302,6 +8384,7 @@ class MakeMasksScreen(QWidget):
         nav_row.addWidget(self._build_contribute_button())
         nav_row.addWidget(self._build_roi_button())
         nav_row.addWidget(self._build_blind_toggle())
+        nav_row.addWidget(self._build_uncertainty_button())
 
         self._btn_prev = QPushButton("Prev image")
         self._btn_prev.setIcon(iconset.icon("prev"))
@@ -8817,6 +8900,253 @@ class MakeMasksScreen(QWidget):
         _apply_alpha_widgets(button)
         self._btn_blind = button
         return button
+
+    def _build_uncertainty_button(self) -> QPushButton:
+        """The "Uncertainty" button: where the segmentation is least sure.
+
+        Its menu maps the field on screen, or ranks every open field and
+        offers the most uncertain first. Both segment each field four
+        times, as it is and flipped two ways and turned a quarter, with the
+        Object detection settings, and measure how much the four disagree.
+        An alpha feature, registered as ``MakeMasksUncertaintyButton`` in
+        :data:`spacr.settings.ALPHA_FEATURES`.
+
+        :returns: the button, with its menu.
+        """
+        from ..i18n import tr
+        from ..preferences import _apply_alpha_widgets
+
+        button = QPushButton(tr("Uncertainty…"), self)
+        button.setObjectName("MakeMasksUncertaintyButton")
+        button.setCursor(Qt.PointingHandCursor)
+        button.setToolTip(tr(
+            "Segment each field four times, as it is, flipped two ways and "
+            "turned a quarter, with the Object detection settings, and "
+            "measure where the four disagree. Map this field shows the "
+            "disagreement as a heat map on its own tab; Rank the fields puts "
+            "the most uncertain fields first and saves the scores as "
+            "curate_uncertainty.csv for spacr-make-masks --order uncertain. "
+            "Takes four detection runs per field."))
+        menu = QMenu(button)
+        self._uncertainty_actions = {}
+        for key, text, slot in (
+                ("map", tr("Map this field's uncertainty"),
+                 self._on_map_uncertainty),
+                ("rank", tr("Rank the fields, most uncertain first"),
+                 self._on_rank_uncertainty)):
+            action = menu.addAction(text)
+            action.triggered.connect(lambda _checked=False, run=slot: run())
+            self._uncertainty_actions[key] = action
+        button.setMenu(menu)
+        _apply_alpha_widgets(button)
+        self._btn_uncertainty = button
+        return button
+
+    def _uncertainty_detect_request(self) -> dict:
+        """The Object detection settings, captured for a worker thread.
+
+        :returns: what :func:`_detect_cellpose_snapshot` reads, without the
+            image, which each test-time pass supplies.
+        """
+        parameters = dict(diameter=int(self._cp_diameter.value()),
+                          normalize=bool(self._cp_normalize.isChecked()),
+                          flow_threshold=float(self._cp_flow.value()),
+                          cellprob_threshold=float(self._cp_cellprob.value()),
+                          min_size=self._detect_min_area())
+        return dict(model=self._cp_model.currentData() or 'cpsam',
+                    parameters=parameters, chain=self._detect_chain(),
+                    invert=bool(self._cp_invert.isChecked()),
+                    percentiles=(float(self._canvas.norm_lo),
+                                 float(self._canvas.norm_hi))
+                    if self._canvas.detect_on_normalized else None)
+
+    def _start_uncertainty(self, request: dict, threaded: bool) -> bool:
+        """Run one uncertainty request, on the worker unless told not to.
+
+        :param request: what :func:`_uncertainty_snapshot` reads.
+        :param threaded: False runs it here and delivers at once (tests).
+        :returns: whether it started; not while another one runs.
+        """
+        if self._uncertainty_request is not None:
+            return False
+        self._uncertainty_request = request
+        self._btn_uncertainty.setEnabled(False)
+        work = partial(_uncertainty_snapshot, models=self._cp_loaded)
+        if not threaded:
+            try:
+                result, error = work(request), None
+            except Exception as exc:                         # noqa: BLE001
+                result, error = None, exc
+            self._take_uncertainty((request, result, error))
+            return True
+        if self._uncertainty_worker is None:
+            self._uncertainty_worker = _NewestRequestWorker(
+                work, self._uncertainty_done, name='spacr-uncertainty')
+        self._uncertainty_worker.submit(request)
+        return True
+
+    def _uncertainty_done(self, request, result, error) -> None:
+        """Hand a finished uncertainty run to Qt's thread."""
+        try:
+            self._uncertainty_delivered.emit((request, result, error))
+        except RuntimeError:
+            pass
+
+    def _on_map_uncertainty(self, *, segment=None,
+                            threaded: bool = True) -> bool:
+        """Map where the segmentation of the field on screen is unsure.
+
+        :param segment: ``image -> labels`` in place of Object detection
+            (tests).
+        :param threaded: run on a worker thread.
+        :returns: whether a run started.
+        """
+        from ..i18n import tr
+
+        if self._canvas.image is None:
+            self._status_label.setText(tr(
+                "Open a folder before mapping segmentation uncertainty."))
+            return False
+        request = dict(kind='field', segment=segment,
+                       image=np.array(self._canvas.image, copy=True),
+                       image_reference=self._canvas.image,
+                       token=self._load_token,
+                       detect=self._uncertainty_detect_request())
+        if not self._start_uncertainty(request, threaded):
+            return False
+        self._status_label.setText(tr(
+            "Mapping segmentation uncertainty: four detection runs…"))
+        return True
+
+    def _on_rank_uncertainty(self, *, segment=None,
+                             threaded: bool = True) -> bool:
+        """Score every open field's uncertainty and offer the worst first.
+
+        Refused while curating blind, whose shuffled order is the point.
+
+        :param segment: ``image -> labels`` in place of Object detection
+            (tests).
+        :param threaded: run on a worker thread.
+        :returns: whether a run started.
+        """
+        from ..i18n import tr
+
+        if not self._image_files:
+            self._status_label.setText(tr(
+                "Open a folder before ranking fields by uncertainty."))
+            return False
+        if self._blind is not None:
+            self._status_label.setText(tr(
+                "Ranking by uncertainty would undo the blind order. Unblind "
+                "first."))
+            return False
+        pairs = self._field_pairs()
+        request = dict(kind='rank', segment=segment, fields=pairs,
+                       layout=self._layout_kwargs(),
+                       detect=self._uncertainty_detect_request())
+        if not self._start_uncertainty(request, threaded):
+            return False
+        self._status_label.setText(tr(
+            "Ranking {count} fields by segmentation uncertainty: four "
+            "detection runs each…", count=len(pairs)))
+        return True
+
+    def _take_uncertainty(self, payload) -> None:
+        """Show a finished map, or reorder the fields by a finished ranking."""
+        from ..i18n import tr
+
+        request, result, error = payload
+        if request is not self._uncertainty_request:
+            return
+        self._uncertainty_request = None
+        self._btn_uncertainty.setEnabled(True)
+        if error is not None:
+            self._warn(tr("Uncertainty failed"), str(error))
+            return
+        if request['kind'] == 'field':
+            if (request['token'] != self._load_token
+                    or request['image_reference'] is not self._canvas.image):
+                self._status_label.setText(tr(
+                    "Uncertainty map discarded because the field changed."))
+                return
+            self._show_uncertainty_map(result, request['image'])
+            return
+        self._apply_uncertainty_ranking(request['fields'], result)
+
+    def _show_uncertainty_map(self, result: dict, image) -> None:
+        """Put the map on an Uncertainty tab, made the first time it is used.
+
+        :param result: :func:`spacr.active_learning._segmentation_uncertainty`
+            output for the field on screen.
+        :param image: the field it was computed on.
+        """
+        from ..i18n import tr
+
+        if self._uncertainty_pane is None:
+            self._uncertainty_pane = _FlowPane()
+            self._view_tabs.addTab(self._uncertainty_pane, tr("Uncertainty"))
+        self._uncertainty_pane.show_rgb(
+            _uncertainty_heatmap(result['map'], image))
+        self._view_tabs.setCurrentWidget(self._uncertainty_pane)
+        objects = result['objects']
+        worst = max(objects, key=objects.get) if objects else None
+        text = tr("Segmentation uncertainty {value} over {count} objects.",
+                  value=f"{result['field']:.2f}", count=result['n_objects'])
+        if worst is not None:
+            text += " " + tr("The least certain is object {label} ({value}).",
+                             label=worst, value=f"{objects[worst]:.2f}")
+        self._status_label.setText(text)
+
+    def _apply_uncertainty_ranking(self, pairs, scores) -> None:
+        """Save the scores and offer the most uncertain field first.
+
+        The scores are merged into ``curate_uncertainty.csv`` in the queue's
+        folder, or in the open folder, where ``spacr-make-masks --order
+        uncertain`` reads them. A field that could not be scored is offered
+        after every scored one.
+
+        :param pairs: the ``(folder, file name)`` pairs that were ranked.
+        :param scores: ``{pair: score dictionary}``.
+        """
+        from ..i18n import tr
+        from ...curation_queue import SEG_SUFFIX, _write_uncertainty
+
+        def stem(name: str) -> str:
+            """:param name: a field's file name.
+
+            :returns: its stem, as the curation queue names it.
+            """
+            if name.endswith(SEG_SUFFIX):
+                return name[:-len(SEG_SUFFIX)]
+            return os.path.splitext(name)[0]
+
+        model = self._cp_model.currentData() or 'cpsam'
+        rows = {stem(name): dict(uncertainty=round(score['field'], 4),
+                                 n_objects=score['n_objects'],
+                                 passes=score['n_passes'], model=model)
+                for (_folder, name), score in scores.items()}
+        target = (str(self._queue.folder) if self._queue is not None
+                  else self._folder)
+        try:
+            if rows and target:
+                _write_uncertainty(target, rows)
+        except OSError as exc:
+            self._report(tr("Uncertainty scores not saved: {error}",
+                            error=str(exc)), "warning")
+        if self._field_pairs() != list(pairs):
+            self._status_label.setText(tr(
+                "Uncertainty saved; the open fields changed while ranking, "
+                "so their order was left alone."))
+            return
+        ordered = sorted(pairs, key=lambda pair: -scores[tuple(pair)]['field']
+                         if tuple(pair) in scores else 1.0)
+        self._set_field_pairs(ordered)
+        self._current_index = 0
+        self._load_current()
+        self._sync_button_states()
+        self._status_label.setText(tr(
+            "Ranked {count} fields by segmentation uncertainty, the most "
+            "uncertain first.", count=len(scores)))
 
     def _set_blind_checked(self, on: bool) -> None:
         """Move the Blind switch without asking it to act."""

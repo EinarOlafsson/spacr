@@ -3389,3 +3389,171 @@ def _write_round_card(model_path: str, report: Dict[str, Any],
     except Exception as exc:
         notes.append(f"Round model card could not be written ({exc}).")
         return ""
+
+
+_TTA_TRANSFORMS: Tuple[str, ...] = ("identity", "flip_lr", "flip_ud", "rot90")
+
+_UNCERTAINTY_MATCH_IOU = 0.5
+
+
+def _spatial_axes(image: np.ndarray) -> Tuple[int, int]:
+    """The two image axes a flip or a rotation acts on.
+
+    A channel-first stack, a leading axis of four or fewer planes in front
+    of a larger last axis, is turned on its last two axes; every other
+    array on its first two, which covers a plain field and a channel-last
+    one.
+
+    :param image: a 2-D field, or a 3-D field with a channel axis.
+    :returns: the pair of axes.
+    """
+    if image.ndim == 3 and image.shape[0] <= 4 < image.shape[-1]:
+        return (1, 2)
+    return (0, 1)
+
+
+def _tta_forward(image: np.ndarray, name: str) -> np.ndarray:
+    """``image`` with one test-time transform applied.
+
+    :param image: the field.
+    :param name: one of ``identity``, ``flip_lr``, ``flip_ud`` or ``rot90``.
+    :returns: the transformed field, as a contiguous copy.
+    :raises ValueError: for a transform name not listed.
+    """
+    rows, cols = _spatial_axes(image)
+    if name == "identity":
+        out = image
+    elif name == "flip_lr":
+        out = np.flip(image, axis=cols)
+    elif name == "flip_ud":
+        out = np.flip(image, axis=rows)
+    elif name == "rot90":
+        out = np.rot90(image, 1, axes=(rows, cols))
+    else:
+        raise ValueError(f"unknown test-time transform {name!r}; expected "
+                         f"one of {list(_TTA_TRANSFORMS)}")
+    return np.ascontiguousarray(out)
+
+
+def _tta_inverse(labels: np.ndarray, name: str) -> np.ndarray:
+    """A label image segmented under ``name``, turned back onto the field.
+
+    :param labels: the 2-D label image the model returned.
+    :param name: the transform the image was segmented under.
+    :returns: the label image in the field's own orientation.
+    """
+    labels = np.asarray(labels)
+    if name == "identity":
+        return labels
+    if name == "flip_lr":
+        return np.ascontiguousarray(labels[:, ::-1])
+    if name == "flip_ud":
+        return np.ascontiguousarray(labels[::-1, :])
+    if name == "rot90":
+        return np.ascontiguousarray(np.rot90(labels, -1))
+    raise ValueError(f"unknown test-time transform {name!r}")
+
+
+def _tta_label_sets(image: Any, segment: Callable[[np.ndarray], Any],
+                    transforms: Sequence[str] = _TTA_TRANSFORMS
+                    ) -> List[np.ndarray]:
+    """Segment one field once per test-time transform, all in its frame.
+
+    Flips and a quarter turn change nothing about the biology, so a model
+    that is sure of an object draws it the same way every time; where the
+    passes disagree, the model was guessing. The first transform is the
+    reference whose objects are scored, so it should be ``identity``.
+
+    :param image: the field, 2-D or with one channel axis.
+    :param segment: ``image -> labels``, any segmenter at all (Cellpose, a
+        threshold, another backend), called once per transform.
+    :param transforms: the transforms to run, from ``identity``,
+        ``flip_lr``, ``flip_ud`` and ``rot90``.
+    :returns: one int32 label image per transform, each in the field's own
+        orientation.
+    """
+    field = np.asarray(image)
+    sets = []
+    for name in transforms:
+        labels = segment(_tta_forward(field, name))
+        if isinstance(labels, tuple):
+            labels = labels[0]
+        sets.append(_tta_inverse(np.asarray(labels), name).astype(np.int32))
+    return sets
+
+
+def _segmentation_uncertainty(label_sets: Sequence[Any],
+                              match_iou: float = _UNCERTAINTY_MATCH_IOU
+                              ) -> Dict[str, Any]:
+    """How much repeated segmentations of one field disagree.
+
+    Three readings of the same disagreement:
+
+    ``map``
+        Per pixel, in ``[0, 1]``: the larger of how split the passes are on
+        foreground against background (``4 p (1 - p)``, 1 when half the
+        passes call a pixel an object) and the uncertainty of the reference
+        object the pixel belongs to.
+    ``objects``
+        Per object of the first (reference) pass: one minus its mean best
+        IoU with any object of each other pass. 0 is an object every pass
+        drew identically; 1 is one no other pass drew at all.
+    ``field``
+        One minus the mean panoptic quality of each other pass against the
+        reference, matching objects one to one at ``match_iou``. Objects the
+        reference missed but another pass drew count here, which the
+        per-object reading cannot see.
+
+    These are orderings, not probabilities of error: use them to rank
+    objects and fields for review.
+
+    :param label_sets: two or more label images of one field, same shape.
+    :param match_iou: the IoU at which two passes' objects are one object.
+    :returns: ``{"map", "objects", "field", "n_objects", "n_passes"}``,
+        ``objects`` being ``{label: uncertainty}`` for the reference pass.
+    :raises ValueError: for fewer than two passes or mismatched shapes.
+    """
+    from .scorecard import iou_matrix, match_objects
+
+    sets = [np.asarray(labels) for labels in label_sets]
+    if len(sets) < 2:
+        raise ValueError("segmentation uncertainty needs at least two passes")
+    shape = sets[0].shape
+    if any(labels.shape != shape for labels in sets):
+        raise ValueError("every pass must have the field's shape")
+    reference = sets[0]
+    others = sets[1:]
+    foreground = np.mean([labels > 0 for labels in sets], axis=0)
+    pixel = (4.0 * foreground * (1.0 - foreground)).astype(np.float32)
+
+    ref_ids = np.unique(reference)
+    ref_ids = ref_ids[ref_ids != 0]
+    best = np.zeros((ref_ids.size, len(others)), dtype=float)
+    qualities = []
+    for column, other in enumerate(others):
+        ious, t_ids, _p_ids = iou_matrix(reference, other)
+        if ious.size and t_ids.size:
+            best[:, column] = ious.max(axis=1)
+        match = match_objects(reference, other, threshold=match_iou)
+        matched = len(match.pairs)
+        misses = (match.n_truth - matched) + (match.n_pred - matched)
+        denominator = matched + 0.5 * misses
+        qualities.append(sum(match.ious) / denominator if denominator
+                         else 1.0)
+    per_object = 1.0 - best.mean(axis=1) if ref_ids.size else np.zeros(0)
+    objects = {int(label): float(value)
+               for label, value in zip(ref_ids, per_object)}
+
+    painted = np.zeros(shape, dtype=np.float32)
+    if ref_ids.size:
+        lookup = np.zeros(int(reference.max()) + 1, dtype=np.float32)
+        lookup[ref_ids] = per_object
+        painted = lookup[np.where(reference > 0, reference, 0)]
+        painted[reference == 0] = 0.0
+    return {
+        "map": np.maximum(pixel, painted),
+        "objects": objects,
+        "field": float(1.0 - np.mean(qualities)),
+        "n_objects": int(ref_ids.size),
+        "n_passes": len(sets),
+    }

@@ -568,7 +568,7 @@ def test_a_mistyped_order_is_refused_rather_than_quietly_becoming_another(tmp_pa
     with pytest.raises(ValueError):
         build_queue(folder, order="esay")
 
-    assert set(ORDERS) == {"easy", "prob", "value", "name"}
+    assert set(ORDERS) == {"easy", "prob", "value", "name", "uncertain"}
 
 
 # ---------------------------------------------------------------------------
