@@ -1156,7 +1156,48 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 572, 2026-09-26: the figure integrity toggle on the Preferences Figures
 # tab and its tooltip (alpha).
 # 574, 2026-09-27: the Report screen's Archive package button and form.
+# 579, 2026-09-27: the Report screen's Deposit on Zenodo button and form.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    # 579, 2026-09-27: the Report screen's Deposit on Zenodo button and its
+    # form (alpha).
+    'Deposit on Zenodo…',
+    'Deposit this run on Zenodo so the analysis gets a citable DOI: the archive package, settings, run journal, report, result tables and, if asked, the masks, with the archive form as its metadata. Uses your own Zenodo token, kept in the system keyring or a private file. The sandbox, for trying it out, is on until you turn it off; a draft is left to publish on Zenodo unless you publish here. Default not deposited.',
+    'Deposit on Zenodo',
+    'Stage the files in',
+    'Use the Zenodo sandbox (a test deposit, no real DOI)',
+    'A token is kept; type one to replace it',
+    'Personal access token with deposit:write',
+    'Zenodo token',
+    'Remember the token',
+    'Include the masks',
+    'Publish now (the DOI becomes permanent)',
+    'A Zenodo token is needed.',
+    'Depositing on Zenodo…',
+    'The Zenodo deposit failed: {error}',
+    'Published {count} files on Zenodo: DOI {doi}, {url}',
+    'Deposited {count} files as a Zenodo draft at {url}; its reserved DOI is {doi}. Publish it there.',
+    # 582, 2026-09-27: the Preferences Plugins tab, a plugin and recipe
+    # catalogue browser (alpha).
+    'Author',
+    'Browse a catalogue of community plugins and assay recipes. A plugin is installed into its own folder with the libraries it needs, so it never replaces a package spaCR uses; a recipe is saved as a settings file you can load into its module.',
+    'Catalogue',
+    'Catalogue file, folder or address',
+    'Could not read the catalogue: {error}',
+    'Install or update',
+    'Installed',
+    'Installed {name} {version}.',
+    'Its settings are in {path}.',
+    'Licence',
+    'List',
+    'Plugin',
+    'Recipe',
+    'Uninstalled {name}.',
+    'Where the catalogue is: a catalogue.json file, the folder holding one, or an http(s) address. It is remembered for next time. Default the SPACR_PLUGIN_CATALOGUE variable, else empty.',
+    'available',
+    'incompatible',
+    'update available',
+    '{count} entries in the catalogue.',
+    '{name} failed: {error}',
     # 585, 2026-09-27: the Power screen's alpha arrayed-assay planner.
     'Analyse replicates as pairs, so replicate-to-replicate variation cancels. Default off.',
     'Arrayed-assay planner',
@@ -1311,6 +1352,26 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'dilution and plated volume, a too-many or too-few flag, and colony '
     'areas and diameters, in millimetres when Scale & Time says how large '
     'the dish is.',
+    # 584, 2026-09-27: the compound option of the Control Charts hit
+    # scoring -- structures, clusters and SAR tables (alpha).
+    'A CSV or Excel table with a SMILES column and a compound name, and a '
+    'well column (with a plate column when plates differ) or names matching '
+    'the Treatment column. Hits are then drawn with their structures, '
+    'clustered by similarity and exported as SAR tables. Clustering needs '
+    'RDKit (pip install rdkit).',
+    'Cluster similarity',
+    'Compound table with SMILES',
+    'Compounds…',
+    "Load a compound table to draw the hits' structures.",
+    'Structures and SAR',
+    'Tables (*.csv *.tsv *.txt *.xlsx *.xls *.parquet)',
+    "The Tanimoto similarity of Morgan fingerprints (radius 2) a hit needs "
+    "to a cluster's centre to join it; other compounds join the cluster of "
+    "their most similar hit at the same similarity. Default 0.6.",
+    'no compound table',
+    'table',
+    'yes',
+    '{name}: {count} compound(s)',
 })
 
 

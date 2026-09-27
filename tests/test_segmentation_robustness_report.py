@@ -141,3 +141,31 @@ def test_the_report_is_off_by_default_and_never_raises(tmp_path):
 
     masks = _plate(tmp_path)
     assert _run_robustness_report(str(masks), _settings(), "cell", segment=broken) is None
+
+
+def test_each_grid_point_reaches_the_cellpose_call():
+    from spacr.object import _robustness_segment
+
+    calls = []
+
+    class FakeModel:
+        def eval(self, x, batch_size, normalize, channel_axis, min_size, progress,
+                 diameter, flow_threshold, cellprob_threshold, resample):
+            calls.append(dict(diameter=diameter, flow=flow_threshold,
+                              cellprob=cellprob_threshold, channel_axis=channel_axis,
+                              image=x[0]))
+            return [np.ones(x[0].shape[:2], np.uint16)], [None], None
+
+    image = np.stack([_field(0), _field(1)], axis=-1)
+    point = dict(diameter=45.0, flow_threshold=0.6, cellprob_threshold=-2.0, enhance=False)
+    labels = _robustness_segment(FakeModel(), dict(min_size=0, resample=True), "cell",
+                                 image, point)
+    assert labels.shape == (96, 96)
+    assert calls[-1]["diameter"] == 45.0 and calls[-1]["flow"] == 0.6
+    assert calls[-1]["cellprob"] == -2.0 and calls[-1]["channel_axis"] == -1
+    assert np.array_equal(calls[-1]["image"], image)
+    _robustness_segment(FakeModel(), dict(min_size=0, resample=True), "cell",
+                        image, dict(point, enhance=True, diameter=None))
+    assert calls[-1]["diameter"] is None
+    assert calls[-1]["image"].shape == image.shape
+    assert not np.allclose(calls[-1]["image"], image)

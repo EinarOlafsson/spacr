@@ -7267,6 +7267,9 @@ ALPHA_FEATURES = {
     574: {
         'widgets': ('ReportArchivePackage',),
     },
+    579: {
+        'widgets': ('ReportZenodoDeposit',),
+    },
     575: {
         'widgets': ('RunHistoryExportWorkflow',),
     },
@@ -7281,6 +7284,9 @@ ALPHA_FEATURES = {
     543: {
         'settings': ('illumination_vendor_profile',),
     },
+    584: {
+        'widgets': ('ControlChartChemistry', 'ControlChartChemistrySection'),
+    },
     585: {
         'widgets': ('PowerArrayedPlanner',),
     },
@@ -7290,6 +7296,12 @@ ALPHA_FEATURES = {
                      'robustness_flow_thresholds',
                      'robustness_cellprob_thresholds',
                      'robustness_enhancement', 'robustness_tolerance'),
+    },
+    582: {
+        'widgets': ('PluginCatalogueHelp', 'PluginCatalogueSource',
+                    'PluginCatalogueLoad', 'PluginCatalogueTable',
+                    'PluginCatalogueInstall', 'PluginCatalogueUninstall',
+                    'PluginCatalogueStatus'),
     },
 }
 

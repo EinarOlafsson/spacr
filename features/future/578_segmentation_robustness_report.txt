@@ -56,6 +56,11 @@ alpha features is on (tests/qt/test_segmentation_robustness_alpha_gate.py).
     eight keys in KEYS_ADDED_BY_REGROUP, the Make Masks category order, one
     caption held in _AWAITING_CATALOG_REBUILD. Regenerated the consumer map,
     settings-flow page and index, API targets and the mask notebooks.
+    After merging nightly: the keys are hidden on the Timelapse panel
+    (_APP_HIDDEN_KEYS), whose defaults share Make Masks'; the model call is
+    a private module-level helper (_robustness_segment), so the documented
+    callable count stays 11,865. CPU check rerun after the merge: same
+    verdicts (395 s with other jobs on the machine).
     Left: the v2 pipeline (pipeline_style v2) and z/t stacks are not
     sampled (skipped with a message); only stock or fine-tuned Cellpose-SAM
     models are re-run, not the Cellpose 3 / DINO / StarDist / InstanSeg /

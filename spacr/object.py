@@ -554,11 +554,9 @@ def _robustness_segmenter(settings, object_type):
         environment the report does not start.
     """
     from .settings import _get_object_settings
-    from .spacr_cellpose import parse_cellpose4_output
     from .utils import _resolve_cellpose_pretrained
     from ._segmentation_backends import (_backend_name, _cellpose3_choice,
                                          _cellpose_dino_choice, _prefixed_backend)
-    from .qt.detect_chain import Chain, prepare
 
     object_settings = _get_object_settings(object_type, settings)
     model_name = object_settings['model_name']
@@ -573,24 +571,32 @@ def _robustness_segmenter(settings, object_type):
     model = cp_models.CellposeModel(
         pretrained_model=_resolve_cellpose_pretrained(model_name, object_type=object_type),
         **accelerator.cellpose_kwargs())
-    clahe = Chain(clahe=True)
+    return partial(_robustness_segment, model, object_settings, object_type)
 
-    def segment(image, point):
-        """Segment one field at one grid point."""
-        if point.get('enhance'):
-            image = np.stack([prepare(image[..., c], clahe) for c in range(image.shape[-1])],
-                             axis=-1).astype(np.float32)
-        output = model.eval(
-            x=[image], batch_size=1, normalize=False, channel_axis=-1,
-            min_size=object_settings['min_size'], progress=False,
-            diameter=_eval_diameter(point.get('diameter'), object_type),
-            flow_threshold=point['flow_threshold'],
-            cellprob_threshold=point['cellprob_threshold'],
-            resample=object_settings['resample'])
-        masks = parse_cellpose4_output(output)[0]
-        return np.asarray(masks[0])
 
-    return segment
+def _robustness_segment(model, object_settings, object_type, image, point):
+    """Segment one field at one robustness grid point with a loaded Cellpose model.
+
+    With ``point['enhance']`` each channel is contrast-enhanced (CLAHE)
+    first; the diameter and thresholds are the grid point's.
+
+    :returns: the label mask.
+    """
+    from .qt.detect_chain import Chain, prepare
+    from .spacr_cellpose import parse_cellpose4_output
+
+    if point.get('enhance'):
+        clahe = Chain(clahe=True)
+        image = np.stack([prepare(image[..., c], clahe) for c in range(image.shape[-1])],
+                         axis=-1).astype(np.float32)
+    output = model.eval(
+        x=[image], batch_size=1, normalize=False, channel_axis=-1,
+        min_size=object_settings['min_size'], progress=False,
+        diameter=_eval_diameter(point.get('diameter'), object_type),
+        flow_threshold=point['flow_threshold'],
+        cellprob_threshold=point['cellprob_threshold'],
+        resample=object_settings['resample'])
+    return np.asarray(parse_cellpose4_output(output)[0][0])
 
 
 def _run_robustness_report(src, settings, object_type, *, segment=None):

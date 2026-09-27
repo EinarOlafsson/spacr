@@ -4114,7 +4114,9 @@
       "source_sha256": "716705a006c51ba98d09012dcb5466281e85fb7d21cc6002817996f7141e970f",
       "context": "WHY (item 502). The theme draws every ``QProgressBar`` as an 8 px track (``height: 8px; max-height: 8px`` in :mod:`spacr.qt.theme`). A bar that also paints its own text -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" -- draws a 13 px caption into those 8 px, so only the top half of each glyph reaches the application view, and at 50 % GUI scale the track is 4 px and almost nothing does. The maintainer's report was \"the text e.g. step 1 of 3 or 10% is cut off\".",
       "translation": "VARFÖR (punkt 502). Temat ritar varje ``QProgressBar`` som ett spår på 8 px (``height: 8px; max-height: 8px`` i :mod:`spacr.qt.theme`). Ett fält som också målar sin egen text -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" -- ritar en bildtext på 13 px i de 8 px, så bara den övre halvan av varje tecken når skärmen, och vid 50 % GUI-skala är spåret 4 px och nästan ingenting gör det. Förvaltarens rapport var \"texten, t.ex. step 1 of 3 eller 10%, klipps av\".",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding#4",
@@ -4122,7 +4124,9 @@
       "source_sha256": "7ab46fd9cca517c17f57de9c2ba6f927b48c48da68c442fa7074bb01eda156ce",
       "context": "The design the maintainer chose is \"thin bar + label\":",
       "translation": "DESIGNEN som förvaltaren valde är \"tunt fält + etikett\":",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding#5",

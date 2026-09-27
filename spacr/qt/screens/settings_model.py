@@ -283,7 +283,11 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
                   "watch_settle_seconds", "watch_poll_seconds",
                   "watch_idle_minutes", "cloud_anonymous", "cloud_profile",
                   "cloud_endpoint", "cloud_cache", "cloud_wells",
-                  "cloud_fields", "cloud_level", "cloud_results"},
+                  "cloud_fields", "cloud_level", "cloud_results",
+                  "robustness_report", "robustness_fields", "robustness_crop",
+                  "robustness_diameter_factors", "robustness_flow_thresholds",
+                  "robustness_cellprob_thresholds", "robustness_enhancement",
+                  "robustness_tolerance"},
     "classify": {
         "png_type", "crop_source", "file_metadata", "file_type",
         "path_string", "extract_channels", "coordinate_columns",
