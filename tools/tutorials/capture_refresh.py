@@ -86,11 +86,15 @@ def main() -> int:
     parser.add_argument('--diagnostics-from', type=Path, help='Existing private tutorial regression project to inspect')
     parser.add_argument('--evaluation-from', type=Path, help='Private prepared known-overlap classifier evaluation bundle')
     parser.add_argument('--sweep-from', type=Path, help='Replay this verified private two-trial sweep without refitting')
+    parser.add_argument('--pca-host-only', action='store_true',
+                        help='Recapture only the native Image UMAP PCA entry point; no data load or fit')
     parser.add_argument('--timeout', type=float, default=600)
     parser.add_argument('--preferences-alpha-toggle-scene', action='store_true',
                         help='Opt-in for a Preferences lesson scene that shows the Show alpha features toggle itself; '
                              'every other recording is refused while alpha features are on')
     args = parser.parse_args()
+    if args.pca_host_only and (args.module != 'pca' or args.run or args.download or args.preview):
+        parser.error('--pca-host-only requires pca without run/download/preview')
     if args.preferences_alpha_toggle_scene and (args.run or args.download or args.preview):
         parser.error('--preferences-alpha-toggle-scene records only the Preferences toggle, without run/download/preview')
     if args.workflow_overview and (args.module != 'workflow_overview' or args.run or args.download or args.preview):
@@ -581,9 +585,17 @@ def main() -> int:
         record_anndata(app, window, stage, captures, capture,
                       settle, write_json, args.timeout, route_only=args.anndata_api_introduction)
     elif args.module == 'pca':
-        from capture_pca import record_pca
-        record_pca(app, window, stage, captures, capture,
-                   settle, write_json, args.timeout)
+        from capture_pca import capture_pca_host, record_pca
+        if args.pca_host_only:
+            capture_pca_host(window, capture, settle)
+            write_json(captures / 'desktop_acceptance.json', {
+                'accepted': True, 'capture_scope': 'PCA entry point only',
+                'opened_through_actual_home_tile': True,
+                'pca_fold_visible_and_enabled': True,
+                'analysis_run': False, 'application_source_modified': False})
+        else:
+            record_pca(app, window, stage, captures, capture,
+                       settle, write_json, args.timeout)
     elif args.module == 'trellis':
         from capture_trellis import record_trellis
         record_trellis(app, window, stage, captures, capture,
