@@ -1194,6 +1194,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_dark", "illumination_per_plate",
             "illumination_max_fields", "illumination_qc",
             "illumination_on_missing",
+            "illumination_vendor_profile",
         )),
         ("Point Spread Function", ("@Point Spread Function",)),
         ("Image Enhancement", ("@Image Enhancement",)),
@@ -1245,6 +1246,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_dark",
             "illumination_per_plate", "illumination_max_fields",
             "illumination_qc", "illumination_on_missing",
+            "illumination_vendor_profile",
         )),
         ("Point Spread Function", ("@Point Spread Function",)),
         ("Measurement Features", (
@@ -1314,6 +1316,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_dark", "illumination_per_plate",
             "illumination_max_fields", "illumination_qc",
             "illumination_on_missing",
+            "illumination_vendor_profile",
         )),
         ("Point Spread Function", ("@Point Spread Function",)),
         ("Image Enhancement", ("@Image Enhancement",)),
@@ -1602,6 +1605,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Input & Channels", ("src", "channels")),
         ("Correction Model", (
             "illumination_correction", "illumination_model",
+            "illumination_vendor_profile",
             "illumination_estimator", "illumination_degree",
             "illumination_dark",
         )),

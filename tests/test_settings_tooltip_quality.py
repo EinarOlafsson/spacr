@@ -827,7 +827,13 @@ def test_real_default_claims_have_no_unrecorded_drift():
                 for key in ("wound_closure", "wound_channel", "wound_window",
                             "wound_hours_per_frame", "wound_conditions")}
     assert item_536 <= compared_pairs
-    assert comparisons == 806
+    # 806 -> 809 on 2026-09-26, +3/-0 (item 543): illumination_vendor_profile
+    # ("Default empty."), resolved by Measure, by External Masks, which
+    # measures with Measure's defaults, and by Illumination.
+    item_543 = {(app, "illumination_vendor_profile")
+                for app in ("measure", "external_masks", "illumination")}
+    assert item_543 <= compared_pairs
+    assert comparisons == 809
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
