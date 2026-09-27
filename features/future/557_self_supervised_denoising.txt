@@ -79,7 +79,6 @@ RESULTS (CPU, 2026-09-27; item 532 method)
         10    clip + Gaussian              0.404   0.759  0.275  14
         10    N2V, 30 epochs (218 s CPU)   0.244   0.349  0.188  56
         10    N2V 30 ep + clip             0.284   0.328  0.250  82
-        10    N2V, 120 epochs              __N2V120__
         40    no denoising                 0.662   0.780  0.575  26
         40    clip + Gaussian              0.562   0.621  0.513  50
         40    N2V, 30 epochs               0.556   0.528  0.588  84
@@ -93,6 +92,10 @@ RESULTS (CPU, 2026-09-27; item 532 method)
     the done-when is NOT met; the training IS recorded in provenance
     (psf/segmentation_application.json carries each model's sha256, epochs,
     patches, per-epoch losses, fields and versions).
+
+    A 120-epoch CPU run at PEAK 10 was started and stopped unfinished after
+    75 minutes (load average ~55 on 32 cores from other sessions), so the
+    effect of longer training is untested here.
 
 WHAT IS LEFT
     - The full GPU run (tools/validate_n2v_lowlight.py, DEVICE=cuda,
