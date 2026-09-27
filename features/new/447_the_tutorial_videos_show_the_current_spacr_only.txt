@@ -569,3 +569,15 @@ REMAINS
     This records publication preparation, not live deployment verification.
     Remaining: batch 2, lesson 75's neutral recapture, live readback and the
     visual/listening acceptance above. Item 447 remains open.
+
+STATUS 2026-09-27 — Gate Editor neutral media complete, publication pending
+Lesson 64 now combines three verified path redactions with two native console
+captures after real gate/export checks: 657 of 2341 objects, 265 in the second
+gate, exact exported identities, unchanged source/raw measurements. The
+console reports 2341; the chat draft was not sent and no provider was configured.
+English and all 81 audio/caption files are unchanged. Master and web browser
+playback passed; 22 sampled images show no path offenders, light frames or
+scan errors. Receipt:
+tools/tutorials/evidence/2026-09-27-gate-console-neutral-recapture.json.
+This closes the staged media work for 8 of 13 batch-two lessons, not publication
+or the final live sweep. Item 447 remains open.
