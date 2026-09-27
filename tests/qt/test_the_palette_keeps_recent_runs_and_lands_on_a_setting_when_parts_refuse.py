@@ -9,7 +9,13 @@ from __future__ import annotations
 
 import pytest
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QLineEdit, QMainWindow, QStackedWidget, QWidget
+from PySide6.QtWidgets import (
+    QApplication,
+    QLineEdit,
+    QMainWindow,
+    QStackedWidget,
+    QWidget,
+)
 
 from spacr.qt import command_palette as CP
 
@@ -95,3 +101,4 @@ def test_a_heading_that_will_not_open_still_focuses_the_setting(
     pal._reveal_setting("cell_channel")
 
     qtbot.waitUntil(lambda: field.hasFocus(), timeout=2000)
+    assert QApplication.focusWidget() is field
