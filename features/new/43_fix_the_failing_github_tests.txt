@@ -2350,3 +2350,13 @@ field immediately before a prose paragraph in run_anndata_export. Removed
 the duplicate; the complete entry-point docstring now parses with zero
 reStructuredText warnings and exactly one settings parameter. A full
 Sphinx rebuild still belongs to the documentation freshness pass.
+
+2026-09-27 — serial Dose-Response isolation repair
+The serial Qt acceptance run exposed a second failure at40%: the import-side-
+effect test restored sys.modules but left screens.dose_response pointing at
+a fresh module. A later monkeypatch changed that duplicate instead of the
+screen's real scoring function. Reproduced with the import test followed by
+the no-scorable-well test (one failed, one passed). The import test now restores
+both references and asserts their identities. Both complete named files pass:
+18 tests, CPU/offscreen. The frozen serial run remains untouched and running;
+this does not claim a green full suite or completed item47 acceptance.
