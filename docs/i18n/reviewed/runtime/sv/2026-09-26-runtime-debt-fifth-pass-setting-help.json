@@ -1,0 +1,246 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "anndata_format",
+      "source": "What the export writes. 'h5ad' writes the AnnData file; 'parquet' writes tidy Parquet tables (objects, features, wells, embeddings, provenance) that pandas, arrow and R read with their types kept; 'r' adds load_spacr_export.R, which builds a SingleCellExperiment in R, and .rds data frames when pyreadr is installed; 'all' writes every one. The tables need pyarrow. Default 'h5ad'.",
+      "source_sha256": "4641d38c6c850d298ed14d3d291e57537a3c02eeb243d37b587f5f5c16364c77",
+      "translation": "Vad exporten skriver. 'h5ad' skriver AnnData-filen; 'parquet' skriver städade Parquet-tabeller (objekt, egenskaper, brunnar, inbäddningar, härkomst) som pandas, arrow och R läser med typerna bevarade; 'r' lägger till load_spacr_export.R, som bygger ett SingleCellExperiment i R, och .rds-dataramar när pyreadr är installerat; 'all' skriver allt. Tabellerna kräver pyarrow. Standard 'h5ad'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "anndata_tidy_dir",
+      "source": "Folder for the Parquet tables and the R loader when anndata_format is 'parquet', 'r' or 'all'. Files of the same names in it are replaced. Default <src>/results/<project>_tables.",
+      "source_sha256": "b59da2c719e1798af8902855880a4dba01fa863898d0132f0fa58b0e71d2b86d",
+      "translation": "Mapp för Parquet-tabellerna och R-inläsaren när anndata_format är 'parquet', 'r' eller 'all'. Filer med samma namn i den ersätts. Standard <src>/results/<project>_tables."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle",
+      "source": "Call the cell-cycle phase of every nucleus after measuring, from the DNA stain: G1, S, G2 or M, plus subG1 and >4N outside the peaks. Writes one row per nucleus to measurements.db:cell_cycle with the call in cell_cycle_phase, the phase fractions per well, overall and in infected and uninfected cells, to cell_cycle_well, and with plot on each plate's fitted DNA histogram. Needs measured nuclei. Default False.",
+      "source_sha256": "6d6487cfab9dc5ffb7e1aca80d26a799cecf46e1de0b4518cf69968d41fd46d8",
+      "translation": "Bestämmer cellcykelfasen för varje kärna efter mätningen, från DNA-färgningen: G1, S, G2 eller M, plus subG1 och >4N utanför topparna. Skriver en rad per kärna till measurements.db:cell_cycle med bestämningen i cell_cycle_phase, fasandelarna per brunn, totalt och i infekterade och oinfekterade celler, till cell_cycle_well, och med plot på varje plattas anpassade DNA-histogram. Kräver uppmätta kärnor. Standard False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_channel",
+      "source": "The merged-array channel holding the DNA stain (DAPI or Hoechst) the phase is read from, counted as in channels; it must be one of the measured channels. Blank uses nucleus_channel, then the first entry of channels. Default None.",
+      "source_sha256": "f69273cbbc964f59d582e2bda4e2301f2e60fc6ddc37bbdcd582354051d5cd98",
+      "translation": "Kanalen i den sammanslagna arrayen med DNA-färgningen (DAPI eller Hoechst) som fasen läses från, räknad som i channels; den måste vara en av de uppmätta kanalerna. Tomt använder nucleus_channel och sedan första posten i channels. Standard None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_epochs",
+      "source": "Training epochs of the torch phase classifier. It is a ResNet-18 trained from scratch on crops as small as 32 pixels, so each epoch is quick on a GPU and slow on a busy CPU. Ignored when cell_cycle_model names a trained model. Default 20.",
+      "source_sha256": "35d3320524bc0ee7a51857bc33eeef9eb72fbca702f55d66c96b5fa57e327196",
+      "translation": "Träningsepoker för torch-fasklassificeraren. Det är en ResNet-18 tränad från grunden på utsnitt så små som 32 pixlar, så varje epok går snabbt på en GPU och långsamt på en upptagen CPU. Ignoreras när cell_cycle_model anger en tränad modell. Standard 20."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_fucci_channels",
+      "source": "Two merged-array channels of a FUCCI reporter, the G1 reporter (Cdt1) then the S/G2/M reporter (Geminin), both measured. Each is split into positive and negative per plate, and every nucleus gets a fucci_state: early G1, G1, G1/S or S/G2/M. The xgboost method also uses their intensities. Blank skips FUCCI. Default None.",
+      "source_sha256": "38238a35dd7ebf60815b22b017d307e05bdd1684d6d8ad1d99a70d2e701642bb",
+      "translation": "Två kanaler i den sammanslagna arrayen från en FUCCI-reporter, först G1-reportern (Cdt1) och sedan S/G2/M-reportern (Geminin), båda uppmätta. Var och en delas i positiv och negativ per platta, och varje kärna får ett fucci_state: tidig G1, G1, G1/S eller S/G2/M. Metoden xgboost använder också deras intensiteter. Tomt hoppar över FUCCI. Standard None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_gates",
+      "source": "Fixed gates [G1/S, S/G2] in DNA content units, where the G1 peak is 2 and the G2 peak 4, for example [2.5, 3.5]. They replace the crossings fitted per plate; the peaks are still fitted to place the units. Read the fitted gates off the saved histogram before editing them. Blank uses the fitted gates. Default None.",
+      "source_sha256": "583b0ebfac84fe91331bba4d835ff43218bd719bfad5381f1a15bd26a77b3c1e",
+      "translation": "Fasta grindar [G1/S, S/G2] i enheter av DNA-innehåll, där G1-toppen är 2 och G2-toppen 4, till exempel [2.5, 3.5]. De ersätter de korsningar som anpassas per platta; topparna anpassas fortfarande för att placera enheterna. Läs av de anpassade grindarna i det sparade histogrammet innan du ändrar dem. Tomt använder de anpassade grindarna. Standard None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_labels",
+      "source": "A png_list column holding Annotate labels the xgboost and torch methods learn from: 1 to 4 for G1, S, G2 and M, or the phase names. Labels are matched to nuclei through their cell. Blank trains on the confident gate calls instead, which teaches the learned methods what the gates already say; annotate prophase and anaphase nuclei to teach them more. Default blank.",
+      "source_sha256": "f98dafb5c5d492479e5eb27075b2e0af9e344df46c9f8cf3cd38d36d4339459c",
+      "translation": "En png_list-kolumn med Annotate-etiketter som metoderna xgboost och torch lär sig av: 1 till 4 för G1, S, G2 och M, eller fasnamnen. Etiketterna matchas till kärnorna via deras cell. Tomt tränar i stället på grindarnas säkra bestämningar, vilket lär de inlärda metoderna det grindarna redan säger; annotera kärnor i profas och anafas för att lära dem mer. Standard tomt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_method",
+      "source": "How phases are called. measurements gates each plate's DNA-content histogram, fitted as G1 and G2 peaks with S between, and calls condensed 4N nuclei M. xgboost trains a boosted classifier on nucleus features, torch trains an image classifier on nucleus crops with Classify's training; both learn from cell_cycle_labels. all runs the three and keeps their majority. Default measurements.",
+      "source_sha256": "cc9645da4e6a8379362200ef6bd0caf53a0a153688df35474d7b437b234de187",
+      "translation": "Hur faserna bestäms. measurements sätter grindar på varje plattas DNA-innehållshistogram, anpassat som G1- och G2-toppar med S emellan, och bestämmer kondenserade 4N-kärnor som M. xgboost tränar en boostad klassificerare på kärnegenskaper, torch tränar en bildklassificerare på kärnutsnitt med Classifys träning; båda lär sig av cell_cycle_labels. all kör alla tre och behåller majoriteten. Standard measurements."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_mitotic_ratio",
+      "source": "A nucleus past the G1/S gate is called M when its background-subtracted mean DNA intensity is at least this many times the median of the plate's G2 nuclei: condensed mitotic chromatin is brighter. Lower catches more prophase and more bright G2 nuclei. Blank never calls M from intensity and leaves mitotic nuclei in G2. Default 1.8.",
+      "source_sha256": "57e0ad8c755fb15cfa2e762d5366d23f87ff6417b196f72ed3841290a3c21878",
+      "translation": "En kärna förbi G1/S-grinden bestäms som M när dess bakgrundskorrigerade medelintensitet av DNA är minst så här många gånger medianen för plattans G2-kärnor: kondenserat mitotiskt kromatin är ljusare. Lägre fångar fler profaser och fler ljusa G2-kärnor. Tomt bestämmer aldrig M från intensitet och lämnar mitotiska kärnor i G2. Standard 1.8."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_model",
+      "source": "A torch model this step trained earlier, with its cell_cycle_phases.json beside it, applied to the nucleus crops instead of training a new one. Use it to call a second plate with the model trained on the first. Ignored unless cell_cycle_method is torch or all. Default blank.",
+      "source_sha256": "da89a9ff9d1c8ab65ed0d04144e650d5cdefc70b24ec4fc2ec41f88eab7b20c2",
+      "translation": "En torch-modell som detta steg tränat tidigare, med sin cell_cycle_phases.json bredvid, tillämpad på kärnutsnitten i stället för att träna en ny. Använd den för att bestämma faserna i en andra platta med modellen som tränats på den första. Ignoreras om inte cell_cycle_method är torch eller all. Standard tomt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_anonymous",
+      "source": "Read cloud sources without credentials, for public data such as IDR or the Cell Painting Gallery. When off, s3:// sources use the AWS credentials in the AWS_* environment variables, ~/.aws or AWS_PROFILE, and are read anonymously only when none are found; gs:// and az:// use their own default credentials. spaCR never stores or prints credentials. Default False.",
+      "source_sha256": "3ccc2e53b2a0bd32e404e0a5fbd47ad151bf7bb045f21b1f4daa56a3fe979801",
+      "translation": "Läs molnkällor utan inloggningsuppgifter, för offentliga data som IDR eller Cell Painting Gallery. När detta är av använder s3://-källor AWS-uppgifterna i miljövariablerna AWS_*, ~/.aws eller AWS_PROFILE och läses anonymt bara när inga hittas; gs:// och az:// använder sina egna standarduppgifter. spaCR lagrar eller skriver aldrig ut inloggningsuppgifter. Standard False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_cache",
+      "source": "Folder where cloud sources are fetched to and analysed in. Each src address gets its own subfolder, so a repeated run reuses what was fetched and Measure finds what Make Masks wrote. Blank uses ~/.cache/spacr/cloud. Default blank.",
+      "source_sha256": "d767cee6467247005aca5ce003cdf66798f2a80d49dec1000207ce043c56b6f1",
+      "translation": "Mapp dit molnkällor hämtas och där de analyseras. Varje src-adress får en egen undermapp, så att en upprepad körning återanvänder det som hämtats och Measure hittar det Make Masks skrev. Tomt använder ~/.cache/spacr/cloud. Standard tomt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_endpoint",
+      "source": "Address of the S3-compatible service holding s3:// sources, such as a MinIO or Ceph server, or https://uk1s3.embassy.ebi.ac.uk for IDR. Blank uses Amazon S3. Default blank.",
+      "source_sha256": "e06c15c5cd11032deea8d3a46b61b09473840a024b81b9876c243739d3a71265",
+      "translation": "Adress till den S3-kompatibla tjänst som har s3://-källor, till exempel en MinIO- eller Ceph-server, eller https://uk1s3.embassy.ebi.ac.uk för IDR. Tomt använder Amazon S3. Standard tomt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_fields",
+      "source": "Fields per well of a cloud OME-Zarr plate to fetch, counted from the first. 0 fetches every field. Default 0.",
+      "source_sha256": "3066d6c5eb3e1e0ac8fbad0fe421e7c7b2d9b088ede4d178be155ad8826ea449",
+      "translation": "Bildfält per brunn i en OME-Zarr-platta i molnet som hämtas, räknat från det första. 0 hämtar alla bildfält. Standard 0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_level",
+      "source": "Resolution level of a cloud OME-Zarr to fetch. 0 is full resolution; each level above usually halves width and height, so set diameters and size limits for the smaller images. Default 0.",
+      "source_sha256": "d6be4a3a8a1dd13a9cd68a1dbacefebc7e77c751ba9369aa57b55f9e4ecf72fe",
+      "translation": "Upplösningsnivå för en OME-Zarr i molnet som hämtas. 0 är full upplösning; varje nivå ovanför halverar oftast bredd och höjd, så ställ in diametrar och storleksgränser för de mindre bilderna. Standard 0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_profile",
+      "source": "Named AWS profile from ~/.aws/config used for s3:// sources, for example lab-readonly. Only the name is kept; the keys stay in ~/.aws. Blank uses the default AWS credential chain. Default blank.",
+      "source_sha256": "44be8d15ddc98b7363b0631865739886f35ed69d0c6cee26444aef78da9a75ff",
+      "translation": "Namngiven AWS-profil från ~/.aws/config som används för s3://-källor, till exempel lab-readonly. Bara namnet sparas; nycklarna stannar i ~/.aws. Tomt använder AWS standardkedja för inloggningsuppgifter. Standard tomt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_results",
+      "source": "Cloud folder (s3://, gs:// or az://) the run's measurements folder is copied to when it finishes, in one subfolder per src. Blank keeps results in the local folder only. Default blank.",
+      "source_sha256": "d127ccb46519062f25da8fc973d433df0aaa28a51c17cfe7c95f625996261467",
+      "translation": "Molnmapp (s3://, gs:// eller az://) som körningens mätmapp kopieras till när den är klar, i en undermapp per src. Tomt behåller resultaten bara i den lokala mappen. Standard tomt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_wells",
+      "source": "Wells of a cloud OME-Zarr plate to fetch, such as A1, B03; only these are downloaded, a channel at a time, with z maximum projected. Blank fetches every well, which for a large plate can be many gigabytes. Default blank.",
+      "source_sha256": "208e69ac99c36e9abf30fb8dfbe93944ada1ddd10aabdc4da513e16e2b036115",
+      "translation": "Brunnar i en OME-Zarr-platta i molnet som hämtas, till exempel A1, B03; bara dessa laddas ned, en kanal i taget, med maxprojektion över z. Tomt hämtar alla brunnar, vilket för en stor platta kan vara många gigabyte. Standard tomt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling",
+      "source": "After Measure finishes, build image-based profiles from its tables: aggregate each object table to one median profile per well, add the plate map in profiling_metadata, normalise each plate against its negative-control wells, remove uninformative and redundant features, build one consensus profile per treatment and score replicate reproducibility as mean average precision (mAP) and percent replicating. Results go to measurements/profiles as CSV, Parquet and GCT with plots. Default False.",
+      "source_sha256": "dc2c206509ac345fe621dcdbca17d43684e5d44a47097c0a3fa7a1b2f961b0a1",
+      "translation": "När Measure är klart byggs bildbaserade profiler från dess tabeller: varje objekttabell aggregeras till en medianprofil per brunn, plattkartan i profiling_metadata läggs till, varje platta normaliseras mot sina negativa kontrollbrunnar, ointressanta och redundanta egenskaper tas bort, en konsensusprofil byggs per behandling och replikatreproducerbarheten poängsätts som medelvärde av genomsnittlig precision (mAP) och procent replikerande. Resultaten hamnar i measurements/profiles som CSV, Parquet och GCT med diagram. Standard False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_correlation_threshold",
+      "source": "Pearson correlation above which two features count as redundant in the correlation_threshold selection step. Of each such pair the feature more correlated with all others is removed. Lower values keep fewer, less redundant features. Default 0.9.",
+      "source_sha256": "497bdc5698c78a73118ded35f579bb1f32b2f0aeaa8e24dfee723506b1018606",
+      "translation": "Pearson-korrelation över vilken två egenskaper räknas som redundanta i urvalssteget correlation_threshold. Ur varje sådant par tas den egenskap bort som korrelerar mest med alla andra. Lägre värden behåller färre, mindre redundanta egenskaper. Standard 0.9."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_databases",
+      "source": "Further measurements.db files to profile together with this run's, one per plate, so replicates on different plates are compared while each plate is still normalised on its own. Every plate needs a distinct plateID. Default [].",
+      "source_sha256": "56018344866daa7a080606f5c8d83379a37824a27a241798cbaba7e11a4f5ebf",
+      "translation": "Ytterligare measurements.db-filer att profilera tillsammans med den här körningens, en per platta, så att replikat på olika plattor jämförs medan varje platta fortfarande normaliseras för sig. Varje platta behöver ett eget plateID. Standard []."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_feature_selection",
+      "source": "Feature-selection steps, run in order after normalisation: variance_threshold drops near-zero variance, frequency_threshold near-constant values, correlation_threshold the more redundant of each pair correlated above profiling_correlation_threshold, drop_na_columns features missing in over 5 % of wells, and drop_outliers any feature with an absolute value above 500. An empty list keeps every feature. Default all five.",
+      "source_sha256": "c375f4802bb5f45ccd30e6ed7fc14055161904447001c6046ffc4e6a76d6b159",
+      "translation": "Steg i egenskapsurvalet, körda i ordning efter normaliseringen: variance_threshold tar bort nästan noll varians, frequency_threshold nästan konstanta värden, correlation_threshold den mer redundanta i varje par med korrelation över profiling_correlation_threshold, drop_na_columns egenskaper som saknas i över 5 % av brunnarna, och drop_outliers varje egenskap med ett absolutvärde över 500. En tom lista behåller alla egenskaper. Standard alla fem."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_metadata",
+      "source": "Plate map for profiling: a CSV, TSV, Excel or Parquet table with one row per well position, located by rowID and columnID or by a well column such as A01, plus annotation columns such as treatment, dose, gene or a phenotype label. With a plateID column the map is matched plate by plate; without one it applies to every plate. Blank profiles the wells by position only. Default blank.",
+      "source_sha256": "86856a2ea0e293442885356576249f7b0a3cfd4942736157e94e0ced6a2b2fd5",
+      "translation": "Plattkarta för profilering: en CSV-, TSV-, Excel- eller Parquet-tabell med en rad per brunnsposition, lokaliserad via rowID och columnID eller via en brunnskolumn som A01, plus annoteringskolumner som treatment, dose, gene eller en fenotypetikett. Med en plateID-kolumn matchas kartan platta för platta; utan den gäller den varje platta. Tomt profilerar brunnarna enbart efter position. Standard tomt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_negative_control",
+      "source": "Value or values of the first profiling_treatment_column that mark negative-control wells, for example DMSO or c1. Each plate is normalised against its own controls, and every treatment is scored for phenotypic activity, how well its replicates find each other among the controls. Blank normalises against all wells of a plate and skips the activity score. Default blank.",
+      "source_sha256": "5b9244226a4a20eaff91e744e604528103e9c9c02dae76a19ff5d28c285d200e",
+      "translation": "Värde eller värden i den första profiling_treatment_column som markerar negativa kontrollbrunnar, till exempel DMSO eller c1. Varje platta normaliseras mot sina egna kontroller, och varje behandling poängsätts för fenotypisk aktivitet: hur väl dess replikat hittar varandra bland kontrollerna. Tomt normaliserar mot alla brunnar på en platta och hoppar över aktivitetspoängen. Standard tomt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_normalization",
+      "source": "How each feature is put on a common scale, plate by plate. mad_robustize subtracts the reference median and divides by 1.4826 times the reference MAD, which tolerates outlier wells; standardize uses the mean and standard deviation; robustize uses the median and interquartile range; none keeps the aggregated values. The reference is the negative control, or every well when none is named. Default mad_robustize.",
+      "source_sha256": "fc28fbaa7f0105f424fa80a3a28ba72aa673f5bf020a603645a19521d8180aa9",
+      "translation": "Hur varje egenskap förs till en gemensam skala, platta för platta. mad_robustize drar bort referensmedianen och dividerar med 1,4826 gånger referensens MAD, vilket tål avvikande brunnar; standardize använder medelvärde och standardavvikelse; robustize använder median och kvartilavstånd; none behåller de aggregerade värdena. Referensen är den negativa kontrollen, eller alla brunnar när ingen anges. Standard mad_robustize."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_phenotype_column",
+      "source": "Optional plate-map column holding a phenotype label that different treatments share, such as a mechanism of action, pathway or target gene. When set, consensus profiles are also scored for phenotypic consistency: how well treatments with the same label retrieve each other, as mAP per label. Default blank.",
+      "source_sha256": "f8e3e2dcbfe8dedb8e157d488101b59cf37fa32baeb237e4b4e574f0d95159a5",
+      "translation": "Valfri plattkartekolumn med en fenotypetikett som olika behandlingar delar, till exempel en verkningsmekanism, en signalväg eller en målgen. När den anges poängsätts konsensusprofilerna också för fenotypisk konsistens: hur väl behandlingar med samma etikett hittar varandra, som mAP per etikett. Standard tomt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_treatment_column",
+      "source": "The annotation column, or columns, naming what each well received. Wells that share them are replicates and are collapsed into one consensus profile. Use a plate-map column such as treatment, treatment and dose together, or columnID when each plate column holds one condition. Default columnID.",
+      "source_sha256": "3584e01563f0ca89421355f5e7199774c3d66704a5052d0b7d61c97d6c20b139",
+      "translation": "Den eller de annoteringskolumner som anger vad varje brunn fått. Brunnar som delar dem är replikat och slås samman till en konsensusprofil. Använd en plattkartekolumn som treatment, treatment och dose tillsammans, eller columnID när varje plattkolumn har ett villkor. Standard columnID."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_channel",
+      "source": "The merged-array channel the texture and intensity wound sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, the stain for intensity. Ignored by the masks source. Default None.",
+      "source_sha256": "878751f07ce559f6af253b2de378896e916d4dc76a17fcb452c9a4f7606b3d36",
+      "translation": "Kanalen i den sammanslagna arrayen som sårkällorna textur och intensitet läser, räknad som i channels. Tomt använder första posten i channels. Välj ljusfälts- eller fasplanet för textur, färgningen för intensitet. Ignoreras av källan masker. Standard None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_closure",
+      "source": "Measure a scratch or wound-healing assay: find the open wound in every frame of every field, then write its area, mean and minimum width, the closure rate and the half-closure time per field, per well and per condition to measurements.db and results/wound_closure, with closure curves and a plate map. Frames are grouped by plate, well and field and ordered by timepoint; the first frame decides where the scratch is. Default False.",
+      "source_sha256": "687295b08c859fb5e592d4744cc09f573d4ce6eaab466c8520026db0a10c46db",
+      "translation": "Mät en repnings- eller sårläkningsanalys: hitta det öppna såret i varje bildruta i varje bildfält och skriv sedan dess yta, medel- och minsta bredd, slutningshastigheten och halvslutningstiden per bildfält, per brunn och per betingelse till measurements.db och results/wound_closure, med slutningskurvor och en plattkarta. Bildrutorna grupperas efter platta, brunn och bildfält och ordnas efter tidpunkt; den första bildrutan avgör var repan är. Standard False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_conditions",
+      "source": "Conditions to pool wells into for the closure curves and half-closure times, as {name: wells}, the wells as rows (r2), columns (c3) or single wells (B03), for example {'control': 'c1, c2', 'drug': 'c3, c4'}. A well in no condition is reported under its own name. A well may belong to one condition only. Default {}.",
+      "source_sha256": "f25b175e0514c3929471612ababb846f817fdb67e07920ee6c24ae03604210e0",
+      "translation": "Betingelser att slå samman brunnar till för slutningskurvorna och halvslutningstiderna, som {name: wells}, med brunnarna som rader (r2), kolumner (c3) eller enskilda brunnar (B03), till exempel {'control': 'c1, c2', 'drug': 'c3, c4'}. En brunn utan betingelse rapporteras under sitt eget namn. En brunn får tillhöra endast en betingelse. Standard {}."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_hours_per_frame",
+      "source": "Hours between consecutive timepoints, so closure rates are per hour and half-closure times are in hours. Blank counts time in frames. With voxel_size_xy_um set, widths and front speeds are also reported in micrometres. Default None.",
+      "source_sha256": "bbbb7144e62af423a91b852f41d94db2a3026927d31878b9543731bfd22afdff",
+      "translation": "Timmar mellan på varandra följande tidpunkter, så att slutningshastigheter anges per timme och halvslutningstider i timmar. Tomt räknar tiden i bildrutor. Med voxel_size_xy_um angivet rapporteras bredder och fronthastigheter också i mikrometer. Standard None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_source",
+      "source": "How the open wound is told apart from the monolayer. texture reads the local variation of wound_channel, for brightfield and phase. intensity thresholds wound_channel, for a fluorescent cytoplasm or membrane stain. masks takes every pixel outside the segmented cells as open. The cut is decided on each field's first frame and kept for its later frames. Default texture.",
+      "source_sha256": "5d1d9d2af4bbead4c5b9bd4af1aae313cbd282ac7019a0374c2a06e8cd261ac2",
+      "translation": "Hur det öppna såret skiljs från monolagret. texture läser den lokala variationen i wound_channel, för ljusfält och faskontrast. intensity sätter en tröskel för wound_channel, för en fluorescerande cytoplasma- eller membranfärgning. masks räknar varje pixel utanför de segmenterade cellerna som öppen. Gränsen bestäms i varje bildfälts första bildruta och behålls för dess senare bildrutor. Standard texture."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_window",
+      "source": "Side of the square window, in pixels, over which the texture wound source measures local variation. About the diameter of one cell at the imaging resolution: smaller follows the wound edge more closely but can open holes in smooth parts of the monolayer, larger bridges narrow gaps. Also sets the smallest gap kept in later frames. Default 15.",
+      "source_sha256": "146bdc2d95eeec0de57e7b983923816b003936584578a24d2ebc0439d6bf55f5",
+      "translation": "Sidan på det kvadratiska fönstret, i pixlar, över vilket sårkällan textur mäter lokal variation. Ungefär diametern på en cell vid bildupplösningen: mindre följer sårkanten närmare men kan öppna hål i släta delar av monolagret, större överbryggar smala glipor. Anger också den minsta glipa som behålls i senare bildrutor. Standard 15."
+    }
+  ]
+}
