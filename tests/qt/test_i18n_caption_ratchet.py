@@ -1155,6 +1155,7 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 577, 2026-09-26: the Preferences Notifications tab (alpha).
 # 572, 2026-09-26: the figure integrity toggle on the Preferences Figures
 # tab and its tooltip (alpha).
+# 574, 2026-09-27: the Report screen's Archive package button and form.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     # 585, 2026-09-27: the Power screen's alpha arrayed-assay planner.
     'Analyse replicates as pairs, so replicate-to-replicate variation cancels. Default off.',
@@ -1269,6 +1270,34 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'matrix is printed and recorded with the run.',
     'Check figure integrity on export',
     "When an image figure or montage is saved, warn if panels meant for comparison use different display ranges, if pixels are saturated or clipped, if a panel is repeated, or if a lossy format was chosen. Also writes the source files, display settings, processing steps and spaCR version into the file's metadata and a .provenance.json file beside it. Default off.",
+    # 574, 2026-09-27: the Report screen's Archive package button and its
+    # form (alpha).
+    'Affiliation',
+    'Archive package',
+    'Archive package…',
+    'Assemble a submission package for the Image Data Resource or the BioImage Archive: MIHCSME and REMBI metadata taken from the settings spaCR saved, the images and a plate map, plus a short form for what spaCR cannot know, with the IDR study and library files, a BioStudies study and file list, and MD5 checksums. Nothing is uploaded and the run folder is not written to. Default not made.',
+    'Authors (Last First; …)',
+    'Cell line',
+    'Choose a run folder first.',
+    'Contact email',
+    'Copy the images into the package',
+    'Description',
+    'Growth protocol',
+    'Imaging method',
+    'Keywords (; between several)',
+    'License',
+    'Microscope',
+    'Organism (; between several)',
+    'Plate map (optional)',
+    'Public release date',
+    'Sample preparation',
+    'Screen technology',
+    'Screen type',
+    'Treatment protocol',
+    'Write the package into',
+    'Writing the archive package…',
+    'Wrote {path}, but it does not pass: {problems}',
+    'Wrote {path}. It passes the IDR, BioStudies and MIHCSME checks; nothing was uploaded.',
 })
 
 
