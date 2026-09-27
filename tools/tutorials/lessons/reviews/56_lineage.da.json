@@ -1,13 +1,14 @@
 {
   "lesson": "56_lineage",
-  "english_sha256": "7fcbf79152a032546ff9ec5c185ab283c7c8f2a495b89d073fbf60cfa0c2014d",
+  "english_sha256": "495593daa307987beb6a264dc2850109813057ef21e2a025eaf0a00bba2964ed",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review (Codex correction), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 original translation retained; Codex corrected prerequisite and scene 10 against current English.",
+    "date": "2026-09-27",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Only prerequisite and scene 10 changed; thirteen other scene narrations, title, description and objectives preserved."
   },
   "language": "da",
   "title": "Lineage: gennemse forældreobjekter og deres indhold",
@@ -17,7 +18,7 @@
     "Vælge objekter og samtidig kontrollere synsfelt og objekttype.",
     "Åbne et tilsvarende udsnit af forældercellen og hente hele hierarkiet via Python."
   ],
-  "prerequisite": "Hent det komplette Annotate-eksempel med dets måledatabase og tilsvarende celleudsnit. Graph Builders arkiv med kun databasen kan ikke levere billeder. Eksemplet indeholder kun celleudsnit: dobbeltklik på en forældercelle for at undersøge et udsnit. Den nuværende familiehandling Open crops kan erstatte manglende børneudsnit med udsnit af urelaterede celler; undgå den med dette eksempel.",
+  "prerequisite": "Hent det komplette Annotate-eksempel med dets måledatabase og tilsvarende celleudsnit. Graph Builders arkiv med kun databasen kan ikke levere billeder. Eksemplet indeholder kun celleudsnit. For den viste familie viser Open crops kun det tilsvarende udsnit af forældercellen og melder, at to børneudsnit ikke er tilgængelige.",
   "scenes": [
     "Fra Home åbner du Database Browser og derefter Lineage. Brug træet til at se, hvilke målte objekter der er gemt i hver forældercelle.",
     "Gå til measurements.db fra Annotate-eksemplet, og klik på Build tree. Gør kolonnen Object og skillelinjen bredere for at læse labels. Identificér et objekt ud fra synsfelt og type samt nummer.",
@@ -29,9 +30,27 @@
     "Klik på en kolonneoverskrift for at sortere de viste familier. Sorteringen bevarer de gemte relationer og visningsgrænsen på 2.000 forældre.",
     "For at se udsnit åbner du først Annotate og indlæser det tilsvarende eksempelprojekt. Hvis du ser meddelelsen, der beder om Annotate, åbner du det, før du beder om billeder fra Lineage.",
     "Brug hele det hentede projekt, som indeholder celleudsnittene. Hold databasen og billederne fra samme kørsel samlet, så objektidentiteterne passer.",
-    "Undgå Open crops for en hel familie i dette eksempel. Manglende kerne- og patogenudsnit kan erstattes af udsnit af urelaterede celler. Vend tilbage til træet, og vælg kun forældercellen.",
+    "Klik på Open crops for den valgte familie. Annotate åbner kun det tilsvarende udsnit af forældercellen og melder, at to børneudsnit ikke er tilgængelige. Eksemplet indeholder kun celleudsnit; udsnit af kernen og patogenet er ikke tilgængelige.",
     "Dobbeltklik på forældercellen i Lineage. Annotate åbner det tilsvarende celleudsnit for denne forælder. Det er det udsnit, der findes i det hentede eksempel.",
     "Skift-klik på forælderens miniature for at forstørre forhåndsvisningen, og tryk derefter på Esc for at vende tilbage. Et almindeligt venstreklik tildeler en annoteringsklasse, så brug Shift, når du kun vil undersøge.",
     "Klik på Build tree for at opdatere visningen. Til hele hierarkiet i Python bruger du read_object_tables, build_forest og lineage_frame og gemmer tabellen som CSV. Den linkede eksempel-CSV indeholder alle 7.201 noder."
+  ],
+  "review_history": [
+    {
+      "english_sha256": "7fcbf79152a032546ff9ec5c185ab283c7c8f2a495b89d073fbf60cfa0c2014d",
+      "review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-25",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      },
+      "superseded_fields": {
+        "prerequisite": "Hent det komplette Annotate-eksempel med dets måledatabase og tilsvarende celleudsnit. Graph Builders arkiv med kun databasen kan ikke levere billeder. Eksemplet indeholder kun celleudsnit: dobbeltklik på en forældercelle for at undersøge et udsnit. Den nuværende familiehandling Open crops kan erstatte manglende børneudsnit med udsnit af urelaterede celler; undgå den med dette eksempel.",
+        "scene_10": "Undgå Open crops for en hel familie i dette eksempel. Manglende kerne- og patogenudsnit kan erstattes af udsnit af urelaterede celler. Vend tilbage til træet, og vælg kun forældercellen."
+      },
+      "reason": "9359607f4 preserves typed crop identity: this family opens one matching parent crop and reports two unavailable child crops."
+    }
   ]
 }

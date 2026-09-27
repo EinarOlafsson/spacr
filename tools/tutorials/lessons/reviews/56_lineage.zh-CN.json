@@ -1,13 +1,14 @@
 {
   "lesson": "56_lineage",
-  "english_sha256": "7fcbf79152a032546ff9ec5c185ab283c7c8f2a495b89d073fbf60cfa0c2014d",
+  "english_sha256": "495593daa307987beb6a264dc2850109813057ef21e2a025eaf0a00bba2964ed",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review (Codex correction), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 original translation retained; Codex corrected prerequisite and scene 10 against current English.",
+    "date": "2026-09-27",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Only prerequisite and scene 10 changed; thirteen other scene narrations, title, description and objectives preserved."
   },
   "language": "zh-CN",
   "title": "Lineage：浏览父对象及其内容",
@@ -17,7 +18,7 @@
     "在核对视野和对象类型的同时选择对象。",
     "打开对应的父细胞裁剪图像，并通过Python获取完整层级。"
   ],
-  "prerequisite": "下载完整的Annotate示例，其中包括测量数据库和对应的细胞裁剪图像。Graph Builder中仅含数据库的归档无法提供图像。本例只含细胞裁剪图像：请双击父细胞查看裁剪图像。当前针对家族的Open crops操作可能会用无关的细胞裁剪图像代替缺失的子对象裁剪图像；在本例中请避免使用该操作。",
+  "prerequisite": "下载完整的Annotate示例，其中包括测量数据库和对应的细胞裁剪图像。Graph Builder中仅含数据库的归档无法提供图像。本例只含细胞裁剪图像。对于这里展示的家族，Open crops只显示对应的父细胞裁剪图像，并报告两个子对象的裁剪图像不可用。",
   "scenes": [
     "从Home打开Database Browser，然后打开Lineage。用树形视图浏览每个父细胞中记录了哪些已测量对象。",
     "用Browse找到Annotate示例中的measurements.db，点击Build tree。加宽Object列和分隔条以阅读标签。识别对象时，除了编号，还要看它的视野和类型。",
@@ -29,9 +30,27 @@
     "点击列标题对显示的家族排序。排序不会改变保存的关系，也不会改变两千个父对象的显示上限。",
     "要查看裁剪图像，请先打开Annotate并加载对应的示例项目。如果看到要求打开Annotate的消息，请在从Lineage请求图像之前先打开它。",
     "使用完整下载的项目，其中包含细胞裁剪图像。把同一次运行的数据库和图像放在一起，使对象标识能够对应。",
-    "在本例中，请避免对整个家族使用Open crops。缺失的细胞核和病原体裁剪图像可能会被无关的细胞裁剪图像替代。请回到树形视图，只选择父细胞。",
+    "为所选家族点击Open crops。Annotate只打开对应的父细胞裁剪图像，并报告两个子对象的裁剪图像不可用。本例只含细胞裁剪图像；细胞核和病原体的裁剪图像不可用。",
     "在Lineage中双击父细胞。Annotate会打开该父对象对应的细胞裁剪图像。这就是下载示例中可用的裁剪图像。",
     "按住Shift点击父对象缩略图以放大预览，然后按Escape返回。普通的左键点击会分配标注类别，因此只想查看时请使用Shift。",
     "点击Build tree刷新视图。要在Python中获得完整层级，请使用read_object_tables、build_forest和lineage_frame，然后把表保存为CSV。链接中的示例CSV包含全部七千二百零一个节点。"
+  ],
+  "review_history": [
+    {
+      "english_sha256": "7fcbf79152a032546ff9ec5c185ab283c7c8f2a495b89d073fbf60cfa0c2014d",
+      "review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-25",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      },
+      "superseded_fields": {
+        "prerequisite": "下载完整的Annotate示例，其中包括测量数据库和对应的细胞裁剪图像。Graph Builder中仅含数据库的归档无法提供图像。本例只含细胞裁剪图像：请双击父细胞查看裁剪图像。当前针对家族的Open crops操作可能会用无关的细胞裁剪图像代替缺失的子对象裁剪图像；在本例中请避免使用该操作。",
+        "scene_10": "在本例中，请避免对整个家族使用Open crops。缺失的细胞核和病原体裁剪图像可能会被无关的细胞裁剪图像替代。请回到树形视图，只选择父细胞。"
+      },
+      "reason": "9359607f4 preserves typed crop identity: this family opens one matching parent crop and reports two unavailable child crops."
+    }
   ]
 }

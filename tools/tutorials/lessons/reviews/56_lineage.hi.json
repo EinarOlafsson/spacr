@@ -1,13 +1,14 @@
 {
   "lesson": "56_lineage",
-  "english_sha256": "7fcbf79152a032546ff9ec5c185ab283c7c8f2a495b89d073fbf60cfa0c2014d",
+  "english_sha256": "495593daa307987beb6a264dc2850109813057ef21e2a025eaf0a00bba2964ed",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review (Codex correction), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 original translation retained; Codex corrected prerequisite and scene 10 against current English.",
+    "date": "2026-09-27",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Only prerequisite and scene 10 changed; thirteen other scene narrations, title, description and objectives preserved."
   },
   "language": "hi",
   "title": "Lineage: पैरेंट वस्तुएँ और उनकी सामग्री देखें",
@@ -17,7 +18,7 @@
     "फ़ील्ड और वस्तु का प्रकार जाँचते हुए वस्तुएँ चुनें।",
     "मेल खाता पैरेंट कोशिका क्रॉप खोलें और Python से पूरा पदानुक्रम पाएँ।"
   ],
-  "prerequisite": "Annotate का पूरा उदाहरण उसके माप डेटाबेस और मेल खाते कोशिका क्रॉप के साथ डाउनलोड करें। Graph Builder का केवल डेटाबेस वाला आर्काइव इमेज नहीं दे सकता। इस उदाहरण में केवल कोशिका क्रॉप हैं: क्रॉप देखने के लिए पैरेंट कोशिका पर डबल-क्लिक करें। मौजूदा Open crops पारिवारिक क्रिया छूटे चाइल्ड क्रॉप की जगह असंबंधित कोशिका क्रॉप रख सकती है; इस उदाहरण में उससे बचें।",
+  "prerequisite": "Annotate का पूरा उदाहरण उसके माप डेटाबेस और मेल खाते कोशिका क्रॉप के साथ डाउनलोड करें। Graph Builder का केवल डेटाबेस वाला आर्काइव इमेज नहीं दे सकता। इस उदाहरण में केवल कोशिका क्रॉप हैं। दिखाई गई परिवार संरचना के लिए Open crops केवल मेल खाता पैरेंट कोशिका क्रॉप दिखाता है और दो चाइल्ड क्रॉप उपलब्ध न होने की सूचना देता है।",
   "scenes": [
     "Home से Database Browser खोलें, फिर Lineage। ट्री से देखें कि हर पैरेंट कोशिका के भीतर कौन-सी मापी गई वस्तुएँ दर्ज हैं।",
     "Browse से Annotate उदाहरण की measurements.db तक जाएँ और Build tree पर क्लिक करें। लेबल पढ़ने के लिए Object कॉलम और डिवाइडर चौड़े करें। किसी वस्तु को उसकी संख्या के साथ-साथ उसके फ़ील्ड और प्रकार से पहचानें।",
@@ -29,9 +30,27 @@
     "दिखाए गए परिवारों को क्रम में लगाने के लिए किसी कॉलम शीर्षक पर क्लिक करें। क्रम बदलने से दर्ज संबंध और दो हज़ार पैरेंट की प्रदर्शन सीमा नहीं बदलती।",
     "क्रॉप देखने के लिए पहले Annotate खोलें और मेल खाता उदाहरण प्रोजेक्ट लोड करें। अगर Annotate माँगने वाला संदेश दिखे, तो Lineage से इमेज माँगने से पहले उसे खोलें।",
     "पूरा डाउनलोड किया गया प्रोजेक्ट इस्तेमाल करें, जिसमें कोशिका क्रॉप हैं। एक ही रन का डेटाबेस और इमेज साथ रखें, ताकि वस्तुओं की पहचान मेल खाए।",
-    "इस उदाहरण में पूरे परिवार पर Open crops से बचें। छूटे नाभिक और रोगजनक क्रॉप की जगह असंबंधित कोशिका क्रॉप आ सकते हैं। ट्री पर लौटें और केवल पैरेंट कोशिका चुनें।",
+    "चुनी गई परिवार संरचना के लिए Open crops पर क्लिक करें। Annotate केवल मेल खाता पैरेंट कोशिका क्रॉप खोलता है और दो चाइल्ड क्रॉप उपलब्ध न होने की सूचना देता है। इस उदाहरण में केवल कोशिका क्रॉप हैं; नाभिक और रोगजनक के क्रॉप उपलब्ध नहीं हैं।",
     "Lineage में पैरेंट कोशिका पर डबल-क्लिक करें। Annotate उस पैरेंट का मेल खाता कोशिका क्रॉप खोलता है। डाउनलोड किए गए उदाहरण में यही क्रॉप उपलब्ध है।",
     "पैरेंट थंबनेल का पूर्वावलोकन बड़ा करने के लिए Shift के साथ क्लिक करें, फिर लौटने के लिए Escape दबाएँ। सामान्य बायाँ क्लिक एनोटेशन वर्ग लगा देता है, इसलिए केवल देखना हो तो Shift इस्तेमाल करें।",
     "दृश्य ताज़ा करने के लिए Build tree पर क्लिक करें। Python में पूरा पदानुक्रम पाने के लिए read_object_tables, build_forest और lineage_frame इस्तेमाल करें, फिर तालिका को CSV के रूप में सहेजें। जुड़ी उदाहरण CSV में सभी सात हज़ार दो सौ एक नोड हैं।"
+  ],
+  "review_history": [
+    {
+      "english_sha256": "7fcbf79152a032546ff9ec5c185ab283c7c8f2a495b89d073fbf60cfa0c2014d",
+      "review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-25",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      },
+      "superseded_fields": {
+        "prerequisite": "Annotate का पूरा उदाहरण उसके माप डेटाबेस और मेल खाते कोशिका क्रॉप के साथ डाउनलोड करें। Graph Builder का केवल डेटाबेस वाला आर्काइव इमेज नहीं दे सकता। इस उदाहरण में केवल कोशिका क्रॉप हैं: क्रॉप देखने के लिए पैरेंट कोशिका पर डबल-क्लिक करें। मौजूदा Open crops पारिवारिक क्रिया छूटे चाइल्ड क्रॉप की जगह असंबंधित कोशिका क्रॉप रख सकती है; इस उदाहरण में उससे बचें।",
+        "scene_10": "इस उदाहरण में पूरे परिवार पर Open crops से बचें। छूटे नाभिक और रोगजनक क्रॉप की जगह असंबंधित कोशिका क्रॉप आ सकते हैं। ट्री पर लौटें और केवल पैरेंट कोशिका चुनें।"
+      },
+      "reason": "9359607f4 preserves typed crop identity: this family opens one matching parent crop and reports two unavailable child crops."
+    }
   ]
 }
