@@ -5682,6 +5682,8 @@ def measure_crop(settings):
 
                 if ledger.is_complete:
                     _emit_infection_report(db_path)
+                    if settings.get('profiling'):
+                        _emit_profiles(settings, db_path)
                     print("Successfully completed run")
 
             run.register_outputs(settings=settings, roots=source_folders)
@@ -5733,6 +5735,41 @@ def _emit_infection_report(db_path):
         return
     if written:
         print(f"Infection report: {written}")
+
+
+def _emit_profiles(settings, db_path):
+    """Build the image-based profiles of a finished run, if it can.
+
+    Runs :func:`spacr.sp_stats._profile_measurements` on the run's
+    ``measurements.db`` and says where the profiles went and how many
+    treatments were phenotypically active. Like the infection report,
+    profiling never turns a run that has written its database into a
+    failure: anything that stops it is printed with the reason.
+
+    :param settings: the run's settings, with the ``profiling_*`` keys.
+    :param db_path: the ``measurements.db`` the run produced.
+    """
+    if not db_path or not os.path.isfile(db_path):
+        return
+    try:
+        from .sp_stats import _profile_measurements
+
+        result, written = _profile_measurements(settings, db_path)
+    except Exception as exc:
+        print(f"Profiles could not be built: {exc}")
+        return
+    summary = result.summary()
+    print(f"Profiles: {summary['wells']} wells, {summary['treatments']} "
+          f"treatments, {summary['kept_features']} of "
+          f"{summary['features']} features kept")
+    if summary['treatments_scored']:
+        print(f"Profiles: {summary['phenotypically_active']} of "
+              f"{summary['treatments_scored']} treatments phenotypically "
+              f"active (mean mAP {summary['mean_average_precision']:.3f})")
+    for note in summary['notes']:
+        print(f"Profiles: {note}")
+    folder = os.path.dirname(written.get('summary', '')) or db_path
+    print(f"Profiles written to {folder}")
 
 
 def process_measure_crop_results(partial_results, settings):

@@ -1,6 +1,10 @@
 IMAGE-BASED PROFILING: NORMALISE, SELECT, CONSENSUS, mAP
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED AS ALPHA 2026-09-26. Measure builds well and consensus
+profiles and scores them with mAP; on ten public LINCS Cell Painting plates
+the mAP, p values and calls equal copairs' and the kept features equal
+pycytominer's. Hidden unless Preferences -> Show alpha features is on
+(ALPHA_FEATURES[547]).
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 
@@ -23,3 +27,115 @@ WHAT TO BUILD
 DONE WHEN
     On a public Cell Painting subset, spaCR's profiles and mAP match
     pycytominer/copairs run directly on the same features.
+
+2026-09-26 — Implemented as Alpha
+    What it does. With `profiling` on, the end of a complete Measure run
+    reads every object table of measurements.db (cell, cytoplasm, nucleus,
+    pathogen; plus any databases in `profiling_databases`, one per plate),
+    reduces each to a per-well median (pycytominer aggregate), joins the
+    compartments on plate/row/column and keeps each compartment's object
+    count as n_<table>. Features are the numeric columns that are not
+    identity/provenance (schema.is_provenance_column) and not absolute image
+    positions (centroid-N, centroid_weighted-N, bbox-N). A plate map
+    (`profiling_metadata`: CSV/TSV/Excel/Parquet, located by rowID/columnID
+    or a well column such as A01, with or without plateID) adds the
+    annotations. Then: per-plate normalisation against the negative-control
+    wells (`profiling_normalization`: mad_robustize, standardize, robustize,
+    none; reference = `profiling_negative_control` values of the first
+    `profiling_treatment_column`, or every well when blank); feature
+    selection in the listed order (`profiling_feature_selection`:
+    variance_threshold, frequency_threshold, correlation_threshold at
+    `profiling_correlation_threshold`, drop_na_columns, drop_outliers, all
+    with pycytominer's rules and defaults); consensus profiles per treatment
+    (median; mean and MODZ in the API); phenotypic activity (every
+    non-control well retrieves its replicates against the controls, copairs'
+    reference-index recipe), mAP per treatment with copairs' permutation null
+    (same generator, seeds and draw order, 10,000 draws) and
+    Benjamini-Hochberg calls; phenotypic consistency per label when
+    `profiling_phenotype_column` is set; percent replicating (copairs'
+    correlation_test null). Profiling never fails a run that has written
+    its database: problems are printed.
+    Outputs, in measurements/profiles/: well_profiles,
+    well_profiles_normalized, well_profiles_feature_select and
+    consensus_profiles as CSV and Parquet with Metadata_ columns
+    (Metadata_Plate, Metadata_Well, Metadata_<annotation>) so pycytominer,
+    copairs and pandas read them as they are; consensus_profiles.gct (GCT
+    1.3, Morpheus); average_precision_activity, map_activity,
+    average_precision_consistency, map_consistency and percent_replicating
+    CSVs; profiling_summary.json; figures map_activity and map_consistency
+    (mAP against -log10 corrected p, calls coloured) and
+    consensus_similarity (cosine, clustered), all through
+    spacr.plot.save_figure. measurements.db also gains profile_wells,
+    profile_consensus and profile_map (replaced on each run; a table wider
+    than SQLite's column limit is left out).
+    Code: spacr/sp_stats.py, a new "Image-based profiling" section
+    (_read_well_profiles, _aggregate_profiles, _annotate_profiles,
+    _normalize_profiles, _select_profile_features, _consensus_profiles,
+    _profile_average_precision, _null_average_precision, _profile_map,
+    _phenotypic_activity, _phenotypic_consistency, _percent_replicating,
+    _profile_wells, _write_profiles, _profile_measurements); the hook
+    measure._emit_profiles. Reuses spacr.tabular (every read and write),
+    plate_qc (well parsing and names), sp_stats.MAD_SCALE,
+    multiple_testing.adjust_p_values, figures.style and plot.save_figure.
+    No new module, no new dependency; every helper is private, so the
+    public API surface and its catalogs do not move.
+    Validation (scripts and outputs in /mnt/firecuda2/codex/scratch-docs/547;
+    pycytominer 1.7.1 and copairs 0.5.4 in a scratch venv, never a
+    dependency):
+    * Well level: ten LINCS Cell Painting plates from the Cell Painting
+      Gallery (cpg0004-lincs, 2016_04_01_a549_48hr_batch1, plate maps
+      C-7161-01-LM6-001 and -002, five replicate plates each; 3,840 wells,
+      1,745 features, 675 compound-dose treatments plus DMSO). Both
+      pipelines run end to end on the same augmented profiles:
+      normalisation (mad_robustize vs DMSO per plate) agrees to 1.5e-6
+      relative, the whole difference being 1.4826 vs spaCR's exact
+      MAD_SCALE 1/Phi^-1(0.75) (ratio 0.9999985 on every value); feature
+      selection keeps the same 676 features (38/61/948/0/22 removed per
+      step); consensus median and MODZ equal pycytominer's to 0 and 4e-14
+      on the same input; per-well average precision (3,600 queries),
+      normalised AP, per-treatment mAP (674 treatments) agree to 2e-16 and
+      every p value and corrected p value is identical, 563 of 674
+      treatments active in both; consistency by Metadata_moa: 656 queries,
+      95 labels, identical p values, 93 consistent in both. Percent
+      replicating 82.3 % for both (seed 0; copairs' own null is random
+      pairs, so another seed moves spaCR's by about 3 points).
+    * Single cells: CPJUMP1 plate BR00117010 (cpg0000-jump-pilot), site 1
+      of wells A01-B08, CellProfiler Cells/Cytoplasm/Nuclei (1,237 objects
+      each, 5,627 features) written into a spaCR measurements.db:
+      spaCR's per-well aggregation equals pycytominer aggregate exactly
+      (max difference 0.0, same missing values), and _profile_measurements
+      runs on it with the real plate map.
+    * One tie: two LINCS features are identical columns (correlation 1.0),
+      so which one correlation_threshold keeps depends on sort order;
+      pycytominer's unstable sort resolves it differently under numpy 1.26
+      and 2.5. spaCR sorts stably (column order), so its answer does not
+      depend on the numpy version; the dropped twin carries the same
+      values, so profiles and scores are unaffected.
+    Tests: tests/test_image_based_profiling.py (aggregation, positions left
+    out, each normalisation against hand values and scikit-learn, each
+    selection step, tie rule, consensus median and MODZ, a hand-ranked AP,
+    missing metadata in pairs, the null, planted active and inert
+    treatments, consistency, no-control behaviour and refusals, two
+    measurement databases to annotated wells, the Measure hook writing CSV,
+    Parquet, GCT, figures and database tables, a failing profile never
+    failing a run, and pycytominer/copairs parity that skips where they are
+    not installed; with both installed over spaCR's own environment the
+    parity tests pass) and tests/qt/test_profiling_alpha_gate.py.
+    Not done: DeepProfiler/embedding features as profile input (spaCR's
+    embedding tables are not object tables yet); spherize and
+    inverse-normal normalisation; batch correction across plates beyond
+    per-plate normalisation (spacr.batch_correction's ComBat is not wired
+    in); multi-label phenotype columns (copairs multilabel) and
+    hierarchical FDR; time-lapse strata (timeID is not a stratum); a
+    dedicated screen or plot panel (results are files and tables); running
+    profiling on an existing database without re-running Measure (the
+    private _profile_measurements does it headless, but there is no public
+    entry point until the API catalogs are regenerated).
+ALPHA: settings profiling, profiling_metadata, profiling_treatment_column,
+profiling_negative_control, profiling_normalization,
+profiling_feature_selection, profiling_correlation_threshold,
+profiling_phenotype_column, profiling_databases (Measure category
+"Profiling (Alpha)"). Registered as ALPHA_FEATURES[547] in
+spacr/settings.py; no widgets, apps, choices or models. Hidden with Show
+alpha features off, shown with it on, and a value saved while hidden still
+reaches the run (tests/qt/test_profiling_alpha_gate.py).

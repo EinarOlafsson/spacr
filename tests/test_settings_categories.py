@@ -770,6 +770,15 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # QC cut, under their own "Confluency (Alpha)" heading.
     "confluency", "confluency_source", "confluency_channel",
     "confluency_window", "confluency_qc_threshold",
+    # NEW SETTINGS, not a regrouping (item 547, 2026-09-26): image-based
+    # profiling at the end of Measure -- the switch, plate map, treatment
+    # and control, normalisation, feature selection and its correlation
+    # cut, phenotype label and further plates -- under their own
+    # "Profiling (Alpha)" heading.
+    "profiling", "profiling_metadata", "profiling_treatment_column",
+    "profiling_negative_control", "profiling_normalization",
+    "profiling_feature_selection", "profiling_correlation_threshold",
+    "profiling_phenotype_column", "profiling_databases",
     # NEW SETTINGS, not a regrouping (item 535, 2026-09-26): Measure's
     # cell-cycle phase call -- the switch, the method, the DNA channel, the
     # gates, the mitotic cut, FUCCI, the training labels, a trained model
@@ -1472,6 +1481,9 @@ def _rendered_sections(app_key):
             # from the nuclei the features above measured.
             "Cell Cycle (Alpha)",
             "Object Filtering", "Crop Output",
+            # Item 547, 2026-09-26: profiling runs on the finished tables,
+            # so its Alpha heading follows the outputs it reads.
+            "Profiling (Alpha)",
             "Preview & Diagnostics", "3D Calibration (Beta)",
             "Runtime & Reliability",
         ]),
