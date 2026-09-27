@@ -123,6 +123,7 @@ from typing import Any, List, NamedTuple, Optional
 
 import numpy as np
 from PySide6.QtCore import (
+    QEvent,
     QObject,
     QPoint,
     QPointF,
@@ -1143,6 +1144,11 @@ class _MaskCanvas(QLabel):
         #: wheel zooms the box instead of the view; the right-button sweep
         #: and Shift/Alt pan work as they do from any tool.
         self.magnifier: Optional["_LiveMagnifier"] = None
+        #: Prompt-based segmentation the screen gives this canvas, or None.
+        #: While it is on, a left click, a right click and a left drag are
+        #: prompts (:class:`_PromptSession`); Shift/Alt pan and the Ctrl
+        #: edits work as they do from any tool.
+        self.prompter: Optional["_PromptSession"] = None
 
     def set_image_and_mask(self, image: np.ndarray, mask: np.ndarray) -> None:
         """Load a new image + mask pair and rerender at full-image zoom.
@@ -1166,6 +1172,8 @@ class _MaskCanvas(QLabel):
         self.readout = None
         if self.magnifier is not None:
             self.magnifier.forget()
+        if self.prompter is not None:
+            self.prompter.forget()
         self.reset_zoom(silent=True)
         self.refresh()
 
@@ -1704,6 +1712,7 @@ class _MaskCanvas(QLabel):
         super().paintEvent(event)
         self._paint_recrop_boxes()
         self._paint_magnifier()
+        self._paint_prompter()
         self._paint_drag()
         self._paint_readout()
         if self.ruler.start is not None:
@@ -1939,6 +1948,40 @@ class _MaskCanvas(QLabel):
         finally:
             painter.end()
 
+    def _paint_prompter(self) -> None:
+        """Draw the prompt and the mask it gave, while prompting is on."""
+        prompter = self.prompter
+        if prompter is None or not prompter.enabled:
+            return
+        painter = QPainter(self)
+        try:
+            prompter.paint(painter)
+        finally:
+            painter.end()
+
+    def event(self, event):
+        """Keep Enter, Backspace and Escape for a prompt that wants them.
+
+        The screen binds Escape to resetting the zoom; while a prompt is on
+        the canvas, Escape discards the prompt instead, and the canvas says
+        so to Qt before the shortcut is looked up.
+        """
+        prompter = getattr(self, "prompter", None)
+        if (event.type() == QEvent.ShortcutOverride and prompter is not None
+                and prompter.wants_key(event.key())):
+            event.accept()
+            return True
+        return super().event(event)
+
+    def keyPressEvent(self, event):
+        """Hand Enter, Backspace and Escape to a prompt that wants them."""
+        prompter = getattr(self, "prompter", None)
+        if prompter is not None and prompter.key(event.key()):
+            event.accept()
+            self.update()
+            return
+        super().keyPressEvent(event)
+
     def _paint_recrop_boxes(self) -> None:
         """Mark every region already cut out of this field, with its name.
 
@@ -2148,6 +2191,11 @@ class _MaskCanvas(QLabel):
         :attr:`_ctrl_click` is still rewritten by every press that arrives
         alone, so a release that never came -- a grab lost to a dialog --
         cannot leave it standing and swallow the next drag.
+
+        WITH PROMPTING ON (:attr:`prompter`) a left press, a right press and
+        a left drag are prompts. They are read after the Ctrl edits and
+        before everything else except a Shift/Alt pan, so the right button
+        adds a point off the object instead of sweeping objects away.
         """
         if self.mask is None:
             return super().mousePressEvent(event)
@@ -2187,6 +2235,15 @@ class _MaskCanvas(QLabel):
         elif (self._ctrl_click is not None
               or event.modifiers() & Qt.ControlModifier):
             self._swallowed.add(event.button())
+            return
+
+        prompter = self.prompter
+        if (prompter is not None and prompter.enabled
+                and not (event.button() == Qt.LeftButton
+                         and event.modifiers() & PAN_MODIFIERS)
+                and prompter.press(event.button(), event.position())):
+            self.setFocus(Qt.MouseFocusReason)
+            self.update()
             return
 
         if (event.button() == Qt.RightButton and self.magnifier is not None
@@ -2296,6 +2353,9 @@ class _MaskCanvas(QLabel):
                             measure=event.buttons() == Qt.NoButton)
         if self._ctrl_click is not None:
             return
+        if self.prompter is not None and self.prompter.move(event.position()):
+            self.update()
+            return
         if self._sweeping and event.buttons() & Qt.RightButton:
             self._sweep_delete_at(
                 self._canvas_to_image(event.position().x(),
@@ -2369,6 +2429,10 @@ class _MaskCanvas(QLabel):
             return
         if event.button() in self._swallowed:
             self._swallowed.discard(event.button())
+            return
+        if self.prompter is not None and self.prompter.release(
+                event.button(), event.position()):
+            self.update()
             return
         if event.button() == Qt.RightButton and self._sweeping:
             self._sweeping = False
@@ -4363,6 +4427,456 @@ class _NewestRequestWorker:
                 self._running = None
                 if self._thread is me:
                     self._thread = None
+
+
+#: How far, in widget pixels, a press on the canvas must travel before
+#: prompting reads it as a box rather than a point.
+_PROMPT_DRAG_PX = 5
+
+
+def _prompt_image(source, low: float, high: float) -> np.ndarray:
+    """The field as micro-SAM is shown it: the canvas's own stretch, 8-bit.
+
+    micro-SAM stretches whatever it is given from its minimum to its
+    maximum, which on a 16-bit field with a few hot pixels leaves every
+    cell nearly black. The field is therefore stretched here between the
+    same two percentiles the canvas draws it with, per channel, so the model
+    sees the contrast the curator sees.
+
+    :param source: the field, ``H x W`` or ``H x W x C``.
+    :param low: the lower percentile, 0 to 100.
+    :param high: the upper percentile, 0 to 100.
+    :returns: a ``uint8`` array of the same shape.
+    """
+    array = np.asarray(source, dtype=np.float32)
+    bottom = np.percentile(array, float(low), axis=(0, 1), keepdims=True)
+    top = np.percentile(array, float(high), axis=(0, 1), keepdims=True)
+    span = np.where(top > bottom, top - bottom, 1.0)
+    out = np.clip((array - bottom) / span, 0.0, 1.0)
+    return np.round(out * 255.0).astype(np.uint8)
+
+
+class _PromptRequest(NamedTuple):
+    """One prompt on one field, as the worker thread runs it.
+
+    :param key: the prompt itself, so an identical one is not run twice.
+    :param generation: the session's generation it was made in; a request
+        from an earlier one is abandoned.
+    :param field: the field's name, for the ledger.
+    :param source: the field's pixels, as the canvas draws them.
+    :param low: the canvas's lower percentile.
+    :param high: the canvas's upper percentile.
+    :param points: ``((y, x, on_object), ...)`` in image pixels.
+    :param box: ``(y0, x0, y1, x1)`` in image pixels, or None.
+    """
+
+    key: tuple
+    generation: int
+    field: str
+    source: Any
+    low: float
+    high: float
+    points: tuple
+    box: Optional[tuple]
+
+
+class _PromptSession(QObject):
+    """Prompt-based segmentation on the canvas, one object at a time.
+
+    While it is on, a left click on the canvas puts a point on the object,
+    a right click puts one off it, and a left drag draws a box round it.
+    Every prompt goes to micro-SAM, in its own environment, and the mask it
+    returns is drawn over the field; more points refine it. Enter accepts it
+    (:attr:`accept_requested`, which the screen turns into one undoable
+    edit), Backspace takes the last point or the box back, and Escape
+    discards the prompt.
+
+    THE SLOW PART IS PAID ONCE PER FIELD. The worker embeds a field the
+    first time it is prompted and answers every later prompt on it from
+    that embedding, so only the first click on a field waits for the image
+    encoder. The field is identified by its content as the model sees it,
+    so going back to a field, or back to its contrast, finds its embedding
+    still there.
+
+    THE WINDOW NEVER WAITS. Prompts run on a background thread through
+    :class:`_NewestRequestWorker`, so a click made while the model is busy
+    replaces the one still waiting instead of queueing behind it. Moving to
+    another field, switching prompting off or Escape abandons what is
+    running; the worker, and the model it has loaded, stay up.
+
+    :param canvas: the canvas prompts are drawn on and read from.
+    :param client: what answers a prompt, with the
+        :class:`spacr._segmentation_backends._PromptClient` interface; built
+        on first use when None.
+    :param gate: returns whether prompting may run now; the screen passes
+        whether its card is shown.
+    :param field_name: returns the name of the field on screen.
+    :param parent: the owning object.
+    """
+
+    #: Something on the canvas needs repainting.
+    changed = Signal()
+    #: ``(text, kind)`` for the console, kinds as :meth:`_MasksConsole.post`,
+    #: or ``status`` for the corner line, which the console copies.
+    said = Signal(str, str)
+    #: Enter was pressed on the canvas with a mask shown.
+    accept_requested = Signal()
+    _delivered = Signal(object, object, object)
+
+    def __init__(self, canvas, *, client=None, gate=None, field_name=None,
+                 parent=None):
+        """Build an idle session; nothing runs until the first prompt."""
+        super().__init__(parent)
+        self._canvas = canvas
+        self._client = client
+        self._gate = gate or (lambda: True)
+        self._field_name = field_name or (lambda: "")
+        self._enabled = False
+        self._closed = False
+        #: ``[(y, x, on_object), ...]`` in image pixels.
+        self.points: List[tuple] = []
+        #: ``(y0, x0, y1, x1)`` in image pixels, or None.
+        self.box: Optional[tuple] = None
+        #: The newest answer: the client's reply plus the prompt behind it.
+        self.pending: Optional[dict] = None
+        self.busy = False
+        self.generation = 0
+        self._press = None
+        self._drag = None
+        self._overlay = None
+        self._prepared = None
+        self._prepared_lock = threading.Lock()
+        self._worker = _NewestRequestWorker(
+            self._work, self._handover, name="spacr-sam-prompt")
+        self._delivered.connect(self._take)
+
+    @property
+    def enabled(self) -> bool:
+        """Whether clicks on the canvas are prompts right now."""
+        return self._enabled and not self._closed and bool(self._gate())
+
+    def client(self):
+        """What answers prompts, built the first time it is needed."""
+        if self._client is None:
+            from ... import _segmentation_backends as backends
+
+            self._client = backends._PromptClient()
+        return self._client
+
+    def set_enabled(self, on: bool) -> None:
+        """Start or stop reading canvas clicks as prompts.
+
+        Stopping discards the prompt and whatever mask it had; nothing was
+        in the label image until it was accepted.
+        """
+        self._enabled = bool(on)
+        if not on:
+            self.forget()
+        self._canvas.setFocusPolicy(Qt.ClickFocus if on else Qt.NoFocus)
+        if on:
+            self._canvas.setCursor(Qt.CrossCursor)
+        else:
+            self._canvas.unsetCursor()
+        self.changed.emit()
+
+    def forget(self) -> None:
+        """Discard the prompt and its mask, and abandon a prompt still running."""
+        self.generation += 1
+        self._worker.drop_waiting()
+        self.points = []
+        self.box = None
+        self.pending = None
+        self.busy = False
+        self._overlay = None
+        self._press = self._drag = None
+        self.changed.emit()
+
+    def close(self) -> None:
+        """Stop for good: the screen is going."""
+        self._closed = True
+        self.generation += 1
+        self._worker.close(timeout=0)
+
+    def press(self, button, pos) -> bool:
+        """A mouse button went down on the canvas.
+
+        :param button: the Qt mouse button.
+        :param pos: where, in widget pixels.
+        :returns: True when the press was a prompt's and nothing else's.
+        """
+        if button not in (Qt.LeftButton, Qt.RightButton):
+            return False
+        point = self._canvas._canvas_to_image(pos.x(), pos.y())
+        self._press = (button, QPointF(pos), point)
+        self._drag = None
+        return True
+
+    def move(self, pos) -> bool:
+        """The mouse moved: a left press dragged far enough draws a box.
+
+        :returns: True when a prompt's press is under way.
+        """
+        if self._press is None:
+            return False
+        button, start, _point = self._press
+        if button == Qt.LeftButton and (
+                self._drag is not None
+                or math.hypot(pos.x() - start.x(), pos.y() - start.y())
+                > _PROMPT_DRAG_PX):
+            self._drag = QPointF(pos)
+            self.changed.emit()
+        return True
+
+    def release(self, button, pos) -> bool:
+        """A button came up: add the point, or the box that was dragged.
+
+        :returns: True when the release belonged to a prompt's press.
+        """
+        if self._press is None or button != self._press[0]:
+            return self._press is not None
+        pressed, _start, point = self._press
+        dragged, self._press, self._drag = self._drag, None, None
+        if point is None:
+            self.changed.emit()
+            return True
+        if dragged is not None:
+            end = self._canvas._canvas_to_image(pos.x(), pos.y())
+            if end is not None:
+                (x0, y0), (x1, y1) = point, end
+                self.box = (min(y0, y1), min(x0, x1),
+                            max(y0, y1) + 1, max(x0, x1) + 1)
+                self._submit()
+            return True
+        self.points.append((int(point[1]), int(point[0]),
+                            pressed == Qt.LeftButton))
+        self._submit()
+        return True
+
+    def undo_prompt(self) -> bool:
+        """Take back the last point, or the box when no point is left.
+
+        :returns: False when there was nothing to take back.
+        """
+        if self.points:
+            self.points.pop()
+        elif self.box is not None:
+            self.box = None
+        else:
+            return False
+        if self._has_object():
+            self._submit()
+        else:
+            self.generation += 1
+            self._worker.drop_waiting()
+            self.pending = None
+            self._overlay = None
+            self.busy = False
+            self.changed.emit()
+        return True
+
+    def key(self, key) -> bool:
+        """Enter accepts, Backspace takes a prompt back, Escape discards.
+
+        :param key: a ``Qt.Key``.
+        :returns: True when the key did something here.
+        """
+        if not self.enabled:
+            return False
+        if key in (Qt.Key_Return, Qt.Key_Enter):
+            if self.pending is None:
+                return False
+            self.accept_requested.emit()
+            return True
+        if key == Qt.Key_Backspace:
+            return self.undo_prompt()
+        if key == Qt.Key_Escape:
+            if not (self.points or self.box is not None or self.pending):
+                return False
+            self.forget()
+            return True
+        return False
+
+    def wants_key(self, key) -> bool:
+        """Whether ``key`` would do something here, so the canvas keeps it
+        from the screen's own shortcuts (Escape resets the zoom there)."""
+        if not self.enabled:
+            return False
+        if key in (Qt.Key_Return, Qt.Key_Enter):
+            return self.pending is not None
+        if key in (Qt.Key_Backspace, Qt.Key_Escape):
+            return bool(self.points or self.box is not None or self.pending)
+        return False
+
+    def _has_object(self) -> bool:
+        """Whether the prompt says where the object is: a box or a point on it."""
+        return self.box is not None or any(on for _y, _x, on in self.points)
+
+    def _submit(self) -> None:
+        """Send the whole prompt as it now stands; the newest one wins."""
+        from ..i18n import tr
+
+        if not self._has_object():
+            self.said.emit(tr(
+                "Put a point on the object, or drag a box round it, before "
+                "points off it."), "info")
+            self.changed.emit()
+            return
+        source = self._canvas.displayed_source()
+        if source is None:
+            return
+        request = _PromptRequest(
+            key=(self.generation, tuple(self.points), self.box),
+            generation=self.generation, field=str(self._field_name() or ""),
+            source=source, low=float(self._canvas.norm_lo),
+            high=float(self._canvas.norm_hi), points=tuple(self.points),
+            box=self.box)
+        self.busy = True
+        self._worker.submit(request)
+        self.changed.emit()
+
+    def _prepare(self, request):
+        """The field as the model sees it and the key its embedding is kept
+        under, computed once per field and contrast."""
+        import hashlib
+
+        stamp = (id(request.source), request.low, request.high)
+        with self._prepared_lock:
+            cached = self._prepared
+        if cached is not None and cached[0] == stamp \
+                and cached[1] is request.source:
+            return cached[2], cached[3]
+        image = _prompt_image(request.source, request.low, request.high)
+        digest = hashlib.blake2b(image.tobytes(), digest_size=16)
+        digest.update(repr(image.shape).encode())
+        key = digest.hexdigest()
+        with self._prepared_lock:
+            self._prepared = (stamp, request.source, image, key)
+        return image, key
+
+    def _work(self, request):
+        """Run one prompt; on the worker thread."""
+        from ..i18n import tr
+
+        image, key = self._prepare(request)
+        started = time.monotonic()
+        result = self.client().segment(
+            key, image, points=[(y, x) for y, x, _on in request.points],
+            labels=[1 if on else 0 for _y, _x, on in request.points],
+            box=request.box,
+            should_cancel=lambda: (self._closed
+                                   or request.generation != self.generation),
+            on_start=lambda: self.said.emit(tr(
+                "micro-SAM is starting in its own environment…"),
+                "progress"),
+            on_embed=lambda: self.said.emit(tr(
+                "micro-SAM is embedding this field; the first prompt on a "
+                "field waits for it…"), "progress"))
+        result = dict(result)
+        result["total_seconds"] = time.monotonic() - started
+        result["key"] = key
+        return result
+
+    def _handover(self, request, result, error) -> None:
+        """Carry a finished prompt to the GUI thread."""
+        self._delivered.emit(request, result, error)
+
+    def _take(self, request, result, error) -> None:
+        """Show a finished prompt's mask, or say why there is none."""
+        from ..i18n import tr
+
+        if self._closed or request.generation != self.generation:
+            return
+        self.busy = not self._worker.idle()
+        if error is not None:
+            from ... import _segmentation_backends as backends
+
+            if not isinstance(error, backends._BackendCancelled):
+                self.said.emit(tr("micro-SAM could not segment: {error}",
+                                  error=error), "error")
+            self.changed.emit()
+            return
+        mask = np.asarray(result.get("mask"), dtype=bool)
+        canvas_mask = self._canvas.mask
+        if canvas_mask is None or mask.shape != tuple(canvas_mask.shape[:2]):
+            self.changed.emit()
+            return
+        self.pending = dict(result, points=request.points, box=request.box,
+                            field=request.field)
+        self._overlay = self._render(mask)
+        pixels = int(mask.sum())
+        embed = result.get("embed_seconds")
+        if embed is not None:
+            self.said.emit(tr(
+                "micro-SAM embedded this field in {embed:.1f} s on {device}; "
+                "the prompt then took {prompt:.2f} s.", embed=float(embed),
+                device=result.get("device") or "?",
+                prompt=float(result.get("seconds") or 0.0)), "info")
+        self.said.emit(tr(
+            "micro-SAM outlined {pixels} px in {seconds:.2f} s. Enter adds "
+            "it, Backspace takes the last prompt back, Escape discards it.",
+            pixels=pixels,
+            seconds=float(result.get("total_seconds") or 0.0)), "status")
+        self.changed.emit()
+
+    def _render(self, mask: np.ndarray):
+        """The mask as a translucent picture over its bounding box.
+
+        :returns: ``(QImage, x0, y0, x1, y1)`` in image pixels, or None for
+            an empty mask.
+        """
+        rows = np.flatnonzero(mask.any(axis=1))
+        cols = np.flatnonzero(mask.any(axis=0))
+        if not rows.size:
+            return None
+        y0, y1 = int(rows[0]), int(rows[-1]) + 1
+        x0, x1 = int(cols[0]), int(cols[-1]) + 1
+        crop = mask[y0:y1, x0:x1]
+        padded = np.pad(crop, 1)
+        inner = (padded[:-2, 1:-1] & padded[2:, 1:-1]
+                 & padded[1:-1, :-2] & padded[1:-1, 2:])
+        edge = crop & ~inner
+        colour = QColor(active_palette()["accent"])
+        rgba = np.zeros(crop.shape + (4,), dtype=np.uint8)
+        rgba[..., 0] = colour.red()
+        rgba[..., 1] = colour.green()
+        rgba[..., 2] = colour.blue()
+        rgba[..., 3] = np.where(edge, 255, np.where(crop, 96, 0))
+        height, width = crop.shape
+        picture = QImage(rgba.data, width, height, 4 * width,
+                         QImage.Format_RGBA8888).copy()
+        return picture, x0, y0, x1, y1
+
+    def paint(self, painter) -> None:
+        """Draw the mask, the box, the box being dragged and the points."""
+        canvas = self._canvas
+        if self._overlay is not None:
+            picture, x0, y0, x1, y1 = self._overlay
+            top_left = canvas._image_to_canvas(x0, y0)
+            bottom_right = canvas._image_to_canvas(x1, y1)
+            if top_left is not None and bottom_right is not None:
+                painter.drawImage(QRectF(QPointF(top_left),
+                                         QPointF(bottom_right)), picture)
+        palette = active_palette()
+        pen = QPen(QColor(palette["accent"]))
+        pen.setWidth(2)
+        pen.setStyle(Qt.DashLine)
+        painter.setPen(pen)
+        painter.setBrush(Qt.NoBrush)
+        if self.box is not None:
+            y0, x0, y1, x1 = self.box
+            a = canvas._image_to_canvas(x0, y0)
+            b = canvas._image_to_canvas(x1, y1)
+            if a is not None and b is not None:
+                painter.drawRect(QRect(a, b).normalized())
+        if self._drag is not None and self._press is not None:
+            painter.drawRect(QRectF(self._press[1], self._drag).normalized())
+        painter.setPen(QPen(QColor(palette["bg"]), 1))
+        for y, x, on in self.points:
+            where = canvas._image_to_canvas(x + 0.5, y + 0.5)
+            if where is None:
+                continue
+            painter.setBrush(QColor(palette["success" if on else "error"]))
+            painter.drawEllipse(QPointF(where), 5.0, 5.0)
 
 
 class _LiveMagnifier(QObject):
@@ -7721,6 +8235,15 @@ class MakeMasksScreen(QWidget):
             lambda text: self._status_label.setText(text))
         self._canvas.status.connect(
             lambda text: self._status_label.setText(text))
+        self._prompt_card = None
+        self._prompter = _PromptSession(
+            self._canvas, gate=self._prompt_card_shown,
+            field_name=self._current_field_name, parent=self)
+        self._canvas.prompter = self._prompter
+        self._prompter.changed.connect(self._canvas.update)
+        self._prompter.changed.connect(self._sync_prompt_buttons)
+        self._prompter.said.connect(self._on_prompt_said)
+        self._prompter.accept_requested.connect(self._accept_prompt)
         self._view_tabs = self._build_view_tabs()
 
         self._settings_scroll = QScrollArea()
@@ -9655,6 +10178,7 @@ class MakeMasksScreen(QWidget):
         _screens_package._breathe_while_a_window_opens()
         col.addWidget(self._build_enhance_card())
         col.addWidget(self._build_magnifier_card())
+        col.addWidget(self._build_prompt_card())
 
         col.addStretch(1)
         return wrap
@@ -13351,6 +13875,254 @@ class MakeMasksScreen(QWidget):
         """
         self._magnifier.refresh()
 
+    def _build_prompt_card(self) -> QWidget:
+        """Prompt-based segmentation: click or box one object, micro-SAM
+        outlines it.
+
+        An ALPHA feature: the category sits in a holder registered as
+        ``MakeMasksPromptCategory`` in :data:`spacr.settings.ALPHA_FEATURES`,
+        so it is shown only while Preferences -> "Show alpha features" is
+        on, and prompting runs only while it is shown. The holder, and not
+        the category, carries the name, because the category's own name is
+        the one every folding section is styled by.
+
+        :returns: the holder, with the category in it.
+        """
+        from ..i18n import tr
+        from ..preferences import _is_alpha_visible
+
+        card = self._settings_category(
+            "Segment by prompt",
+            tr("Click on one object, or drag a box round it, and micro-SAM "
+               "outlines it. Right-click marks what is not the object. Enter "
+               "adds the outline as a new object."))
+        holder = QWidget()
+        holder.setObjectName("MakeMasksPromptCategory")
+        line = QVBoxLayout(holder)
+        line.setContentsMargins(0, 0, 0, 0)
+        line.addWidget(card)
+        self._prompt_section = card
+        self._prompt_card = holder
+
+        self._btn_prompt = QPushButton(tr("Prompt with micro-SAM"))
+        self._btn_prompt.setObjectName("MakeMasksPromptToggle")
+        self._btn_prompt.setCheckable(True)
+        self._btn_prompt.setCursor(Qt.PointingHandCursor)
+        self._btn_prompt.setToolTip(tr(
+            "While on, a left click on the image marks the object, a right "
+            "click marks what is not the object and a left drag draws a box "
+            "round it. micro-SAM runs in an environment of its own; the "
+            "first click on a field waits while it embeds the field, and "
+            "later clicks reuse that embedding. If micro-SAM is not "
+            "installed, turning this on offers to install it. The Live "
+            "magnifier is turned off while this is on. Default off."))
+        self._btn_prompt.toggled.connect(self._on_toggle_prompt)
+        card.body_layout.addWidget(self._btn_prompt)
+
+        form = QFormLayout()
+        self._prompt_overlap = QComboBox()
+        self._prompt_overlap.addItem(tr("Clip"), "clip")
+        self._prompt_overlap.addItem(tr("Skip"), "skip")
+        self._prompt_overlap.addItem(tr("Replace"), "replace")
+        self._prompt_overlap.setToolTip(tr(
+            "What the accepted object does where the mask already has an "
+            "object. Clip keeps only its unlabelled pixels, so no existing "
+            "object loses a pixel. Skip adds nothing if it touches an "
+            "existing object. Replace lets it take every pixel it covers, "
+            "which is how an object a model split into pieces is made one "
+            "again. Default Clip."))
+        form.addRow(tr("Overlap"), self._prompt_overlap)
+        card.body_layout.addLayout(form)
+
+        row = QHBoxLayout()
+        row.setSpacing(SPACING["sm"])
+        self._btn_prompt_accept = QPushButton(tr("Add object"))
+        self._btn_prompt_accept.setCursor(Qt.PointingHandCursor)
+        self._btn_prompt_accept.setToolTip(tr(
+            "Add the outline micro-SAM drew as one new object: one edit, "
+            "undone by one Ctrl+Z, written by Save mask and recorded in the "
+            "field's curation ledger with the prompt, the model and the "
+            "micro-SAM version. Enter on the image does the same. "
+            "Default unavailable until an outline is shown."))
+        self._btn_prompt_accept.clicked.connect(self._accept_prompt)
+        row.addWidget(self._btn_prompt_accept)
+        self._btn_prompt_discard = QPushButton(tr("Discard"))
+        self._btn_prompt_discard.setCursor(Qt.PointingHandCursor)
+        self._btn_prompt_discard.setToolTip(tr(
+            "Throw away the points, the box and the outline, and start "
+            "again on another object. Nothing had been added to the mask. "
+            "Escape on the image does the same. Default unavailable until "
+            "there is a prompt."))
+        self._btn_prompt_discard.clicked.connect(
+            lambda _checked=False: self._prompter.forget())
+        row.addWidget(self._btn_prompt_discard)
+        wrap = QWidget()
+        wrap.setLayout(row)
+        card.body_layout.addWidget(wrap)
+        self._sync_prompt_buttons()
+        if not _is_alpha_visible("widgets", holder.objectName()):
+            holder.setProperty("_spacr_alpha_hid", True)
+            holder.setVisible(False)
+        return holder
+
+    def _prompt_card_shown(self) -> bool:
+        """Whether the prompt category is on screen, not hidden as alpha."""
+        card = getattr(self, "_prompt_card", None)
+        return card is not None and not card.isHidden()
+
+    def _current_field_name(self) -> str:
+        """The file name of the field on screen, or ``''``."""
+        files = getattr(self, "_image_files", None) or []
+        index = getattr(self, "_current_index", 0)
+        return str(files[index]) if 0 <= index < len(files) else ""
+
+    def _sync_prompt_buttons(self) -> None:
+        """Enable Add object and Discard only when they have something."""
+        prompter = self._prompter
+        accept = getattr(self, "_btn_prompt_accept", None)
+        if accept is not None:
+            accept.setEnabled(prompter.enabled and prompter.pending is not None)
+        discard = getattr(self, "_btn_prompt_discard", None)
+        if discard is not None:
+            discard.setEnabled(prompter.enabled and bool(
+                prompter.points or prompter.box is not None
+                or prompter.pending is not None))
+
+    def _on_prompt_said(self, text: str, kind: str) -> None:
+        """Put what prompting says in the corner or the console."""
+        if kind == "status":
+            self._status_label.setText(text)
+        else:
+            self._report(text, kind)
+
+    def _prompt_ready(self) -> bool:
+        """Whether micro-SAM can answer prompts now; file checks only."""
+        try:
+            return bool(self._prompter.client().readiness()[0])
+        except (OSError, ValueError):
+            return False
+
+    def _offer_prompt_install(self) -> bool:
+        """Offer to install micro-SAM, the way the Model Zoo installs it.
+
+        Into an environment of its own under the backends folder, off the
+        GUI thread, with its progress in this screen's console.
+
+        :returns: True when micro-SAM can answer prompts afterwards.
+        """
+        from ..i18n import tr
+        from ..widgets import model_zoo_picker
+
+        label = "micro-SAM"
+
+        def watch(dialog):
+            """Put the install's progress and its ending in the console."""
+            dialog.job_started.connect(lambda: self._report(
+                tr("Installing {name}…", name=label), "progress"))
+            dialog.job_progressed.connect(lambda text: self._report(
+                "{}: {}".format(tr("Installing {name}…", name=label), text),
+                "stream"))
+            dialog.job_failed.connect(lambda message: self._report(
+                "{} {}".format(tr("Installing {name} failed. Nothing was "
+                                  "left half-built.", name=label), message),
+                "error"))
+            dialog.job_cancelled.connect(lambda: self._report(
+                tr("Cancelled. Nothing was left behind."), "info"))
+
+        installed = bool(model_zoo_picker.install_backend(
+            self, "microsam", watch=watch, why=tr(
+                "Prompt-based segmentation runs micro-SAM, which is not "
+                "installed yet.")))
+        if installed:
+            self._report(tr("{name} is installed", name=label), "info")
+        return installed and self._prompt_ready()
+
+    def _on_toggle_prompt(self, on: bool) -> None:
+        """Turn prompting on or off; on offers the install when it is missing."""
+        from ..i18n import tr
+
+        if on and not self._prompt_ready() \
+                and not self._offer_prompt_install():
+            blocked = self._btn_prompt.blockSignals(True)
+            self._btn_prompt.setChecked(False)
+            self._btn_prompt.blockSignals(blocked)
+            self._status_label.setText(tr(
+                "Prompting needs micro-SAM, which is not installed."))
+            return
+        if on:
+            if self._btn_magnifier.isChecked():
+                self._btn_magnifier.setChecked(False)
+            if self._canvas.ruler.active:
+                self._set_mode(MODE_NONE)
+            self._status_label.setText(tr(
+                "Prompting on: click the object, right-click what is not "
+                "it, or drag a box round it; Enter adds the outline."))
+        else:
+            self._status_label.setText(tr(
+                "Prompting off. The objects it added stay in the mask."))
+        self._prompter.set_enabled(on)
+        self._sync_prompt_buttons()
+
+    def _accept_prompt(self) -> List[int]:
+        """Add the outline micro-SAM drew to the mask as one new object.
+
+        One edit: one ledger entry, ``prompt``, that names the new id and
+        keeps the prompt (points, box), the model, its score, the device
+        and the environment's package versions, and one undo step. Nothing
+        is written until Save mask. The overlap rule is read from the
+        category's Overlap box (:func:`spacr.qt.mask_engine.
+        _paste_region_objects`); an outline the rule leaves nothing of adds
+        nothing.
+
+        :returns: the ids added; empty when nothing was.
+        """
+        from ..i18n import tr
+
+        pending = self._prompter.pending
+        mask = self._canvas.mask
+        if pending is None or mask is None:
+            return []
+        region = np.asarray(pending.get("mask"), dtype=bool)
+        if region.shape != tuple(mask.shape[:2]):
+            return []
+        rows = np.flatnonzero(region.any(axis=1))
+        cols = np.flatnonzero(region.any(axis=0))
+        if not rows.size:
+            self._status_label.setText(tr(
+                "micro-SAM outlined nothing; add a point or draw a box."))
+            return []
+        y0, y1 = int(rows[0]), int(rows[-1]) + 1
+        x0, x1 = int(cols[0]), int(cols[-1]) + 1
+        overlap = self._prompt_overlap.currentData() or "clip"
+        out, added = engine._paste_region_objects(
+            mask, region[y0:y1, x0:x1].astype(np.uint8), (x0, y0),
+            overlap=overlap, min_area=0)
+        if not added:
+            self._status_label.setText(tr(
+                "Nothing was added: under the Overlap rule the outline "
+                "leaves nothing that is not already an object."))
+            return []
+        changed = self._pixels_changed(out)
+        self._canvas.mask = out
+        self._canvas.refresh()
+        self._record(
+            "prompt", list(added), changed, tool="micro-SAM",
+            model=pending.get("model"), overlap=overlap,
+            points=[[int(y), int(x), bool(on)]
+                    for y, x, on in pending.get("points") or ()],
+            box=(None if pending.get("box") is None
+                 else [int(v) for v in pending["box"]]),
+            score=pending.get("score"), device=pending.get("device"),
+            versions=dict(pending.get("versions") or {}),
+            embedding=pending.get("key"), n_objects=len(added))
+        self._history.push(out)
+        self._refresh_history_buttons()
+        self._prompter.forget()
+        self._status_label.setText(tr(
+            "micro-SAM added object {ids} — Ctrl+Z to undo",
+            ids=", ".join(str(v) for v in added)))
+        return added
+
     def _on_toggle_magnifier(self, on: bool) -> None:
         """Turn the live magnifier on or off from the tool row.
 
@@ -13361,6 +14133,9 @@ class MakeMasksScreen(QWidget):
 
         if on and self._canvas.ruler.active:
             self._set_mode(MODE_NONE)
+        button = getattr(self, "_btn_prompt", None)
+        if on and button is not None and button.isChecked():
+            button.setChecked(False)
         if on and self._magnifier.scope == "image":
             self._status_label.setText(tr(
                 "Magnifier on: a click adds the object under it and a "
@@ -13786,6 +14561,7 @@ class MakeMasksScreen(QWidget):
         if download is not None:
             download.cancel()
         self._magnifier.close()
+        self._prompter.close()
         self._primary_selector.shutdown()
         self._psf_controls._shutdown()
         self._restoration_controls._shutdown()
@@ -14335,3 +15111,4 @@ class MakeMasksScreen(QWidget):
                    *self._mode_buttons.values()):
             b.setEnabled(editable)
         self._btn_skip.setEnabled(editable and self._queue is not None)
+        self._btn_prompt.setEnabled(editable)

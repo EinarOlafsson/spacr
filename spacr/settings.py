@@ -6880,6 +6880,10 @@ ALPHA_FEATURES = {
                    'omnipose_worm_bact_omni', 'omnipose_worm_high_res_omni',
                    'omnipose_cyto2_omni'),
     },
+    555: {
+        'widgets': ('MakeMasksPromptCategory',),
+        'models': ('microsam_v1',),
+    },
     570: {
         'widgets': ('ControlChartHitPanel', 'ControlChartHitsSection',
                     'ControlChartExportHits'),

@@ -653,7 +653,8 @@ class BackendInstallDialog(QDialog):
                       "is not touched, and you can install it again at any time.",
                       name=self._label, environment=state.env)
         else:
-            packages = ", ".join(spec.torch + spec.requirements)
+            packages = ", ".join(spec.torch + spec.requirements
+                                  + spec.without_dependencies)
             text = "\n\n".join((tr(spec.blurb), tr(
                 "It installs into an environment of its own, {environment}, and "
                 "spaCR's own environment is not changed. Downloads: {packages}. Allow about "

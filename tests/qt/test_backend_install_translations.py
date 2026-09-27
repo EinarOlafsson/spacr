@@ -69,7 +69,15 @@ def test_installer_and_backend_cards_use_current_reviews(
     browser = QTextBrowser()
     qtbot.addWidget(browser)
     host = SimpleNamespace(card=browser)
+    from spacr.settings import _is_alpha
+
     for key, spec in backends._SPECS.items():
+        # An alpha backend's zoo row is hidden until it is promoted, and its
+        # prose is reviewed into the nine catalogs then: micro-SAM (item 555)
+        # is the first. Promotion deletes its ALPHA_FEATURES entry, which
+        # brings it back under this check.
+        if _is_alpha('models', f'{key}_v1'):
+            continue
         entry = SimpleNamespace(name=spec.label, kind='backend', source='installable',
                                 uri='backend:' + key, trained_on=spec.blurb,
                                 licence=spec.licence, metrics={},
