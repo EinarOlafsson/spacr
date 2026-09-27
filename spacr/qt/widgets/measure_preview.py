@@ -617,18 +617,16 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         retarget_field_tooltips(self)
 
 
-    def _object_names(self, count: Optional[int] = None) -> Tuple[str, ...]:
+    def _object_names(self) -> Tuple[str, ...]:
         """The objects this panel has controls for, in display order.
 
-        :param count: how many organelle slots to name. Defaults to the slots
-            already built, which is what every consumer of the control dicts
-            wants; :meth:`_build_slot_controls` passes the new total.
+        Named for the slots already built, which is what every consumer of
+        the control dicts wants.
+
         :returns: the role names.
         """
-        if count is None:
-            count = getattr(self, "_slots_built",
-                            DEFAULT_NUMBER_OF_ORGANELLES)
-        return _objects_for(count)
+        return _objects_for(getattr(self, "_slots_built",
+                                    DEFAULT_NUMBER_OF_ORGANELLES))
 
     @staticmethod
     def _in_role_order(controls: Dict[str, QWidget],
