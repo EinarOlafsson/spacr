@@ -31,8 +31,8 @@ import threading
 
 import numpy as np
 import pytest
-from PySide6.QtCore import QEvent, QPointF, Qt
-from PySide6.QtGui import QImage, QKeyEvent, QPainter, QPixmap
+from PySide6.QtCore import QEvent, QPoint, QPointF, Qt
+from PySide6.QtGui import QImage, QKeyEvent, QMouseEvent, QPainter, QPixmap, QWheelEvent
 
 from spacr.qt import cpu_modes
 from spacr.qt import mask_engine as engine
@@ -427,3 +427,77 @@ def test_the_overlap_promise_is_none_for_an_id_that_is_not_there(lens):
     assert lost is not None
     assert lost.shape == (20, 20)
     assert lost[7, 7] and not lost[0, 0]
+
+
+# ---------------------------------------------------------------------------
+# The canvas's mouse, with the box on
+# ---------------------------------------------------------------------------
+
+def _press(pos, button, buttons, modifiers=Qt.NoModifier):
+    return QMouseEvent(QEvent.MouseButtonPress, pos, pos, button, buttons,
+                       modifiers)
+
+
+def test_a_shift_wheel_with_no_turn_leaves_the_size_alone(lens):
+    canvas, magnifier = lens
+    magnifier.set_enabled(True)
+    size = magnifier.size
+    still = QWheelEvent(_at(50, 50), _at(50, 50), QPoint(0, 0), QPoint(0, 0),
+                        Qt.NoButton, Qt.ShiftModifier, Qt.NoScrollPhase,
+                        False)
+    canvas.wheelEvent(still)
+    assert still.isAccepted()
+    assert magnifier.size == size
+
+
+def test_the_lock_chord_with_another_button_held_does_not_toggle(lens):
+    canvas, magnifier = lens
+    magnifier.set_enabled(True)
+    magnifier._lock_key_down = True
+    canvas.mousePressEvent(_press(_at(50, 50), Qt.RightButton,
+                                  Qt.RightButton | Qt.LeftButton,
+                                  Qt.ControlModifier))
+    assert magnifier.locked is False
+    assert Qt.RightButton in canvas._swallowed
+
+
+def test_a_second_button_pressed_without_ctrl_is_read_as_its_own_press(lens):
+    canvas, magnifier = lens
+    mask = np.zeros((N, N), dtype=np.uint16)
+    mask[40:60, 40:60] = 3
+    canvas.set_image_and_mask(_field(), mask)
+    x, y = 50, 50
+    canvas._ctrl_click = None
+    point = QPointF(canvas._image_to_canvas(x + 0.5, y + 0.5))
+    canvas.mousePressEvent(_press(point, Qt.RightButton,
+                                  Qt.RightButton | Qt.LeftButton))
+    assert canvas._sweeping is True
+    assert Qt.RightButton not in canvas._swallowed
+
+
+def test_a_move_after_a_ctrl_click_only_moves_the_readout(lens):
+    canvas, magnifier = lens
+    mask = np.zeros((N, N), dtype=np.uint16)
+    mask[40:60, 40:60] = 3
+    canvas.set_image_and_mask(_field(), mask)
+    point = QPointF(canvas._image_to_canvas(50.5, 50.5))
+    canvas.mousePressEvent(_press(point, Qt.RightButton, Qt.RightButton,
+                                  Qt.ControlModifier))
+    assert canvas._ctrl_click == Qt.RightButton
+    edited = canvas.mask.copy()
+    away = QPointF(canvas._image_to_canvas(20.5, 20.5))
+    canvas.mouseMoveEvent(QMouseEvent(QEvent.MouseMove, away, away,
+                                      Qt.NoButton, Qt.RightButton,
+                                      Qt.ControlModifier))
+    np.testing.assert_array_equal(canvas.mask, edited)
+    assert canvas._sweeping is False
+
+
+def test_leaving_the_canvas_puts_the_box_away(lens):
+    canvas, magnifier = lens
+    magnifier.set_enabled(True)
+    magnifier.hover(_at(50, 50))
+    assert magnifier._cursor is not None
+    canvas.leaveEvent(QEvent(QEvent.Leave))
+    assert magnifier._cursor is None
+    assert magnifier.lens_geometry() is None
