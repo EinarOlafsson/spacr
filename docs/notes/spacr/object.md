@@ -621,3 +621,31 @@ Step 4: Remove objects that lack ring morphology
 ## generate_cellpose_masks_sam, 2026-09-19
 
 The `np.load(path)` that GitHub #121 and #117 report ("This file contains pickled (object) data") was handed a macOS AppleDouble sidecar, `masks/._stack_0_norm.npz`, not an archive spaCR wrote. The three `.npz` listings in this module (`generate_cellpose_masks_sam`, `generate_cellpose_masks`, `generate_organelle_masks_sam`) go through `spacr.io._listdir_visible`; the measurement and the reasons are in `docs/notes/spacr/io.md` under `_listdir_visible`.
+
+
+---
+
+# Notes from `spacr/object.py`
+
+Prose lifted out of `spacr/object.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## generate_cellpose_masks_sam
+
+### lines 1221-1222
+
+```python
+from ._segmentation_backends import (_backend_name, _load_backend,
+```
+
+Items 404/405: DINOCell and SAMCell answer the same model.eval call and return Cellpose's (masks, flows, styles), so this is the only dispatch.
+
+### lines 1263-1266
+
+```python
+archive_t_plan = t_plan
+```
+
+Filename selection, resume and batching all operate on timepoints. Canonicalize each archive with the original acquisition plan, then give the segmenter a local plan for this view. Mutating t_plan here would interpret later ZTYX archives as if they were already TZYX.

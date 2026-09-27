@@ -320,8 +320,6 @@ def _ensure_bundled_barcode(kind, fetch=None):
                 return response.read()
     payload = _verified_barcode_bytes(kind, fetch(url))
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    # Written whole and then moved, so an interrupted fetch cannot leave a
-    # half-written CSV that parses as a short barcode table.
     staging = f"{path}.partial"
     with open(staging, "wb") as handle:
         handle.write(payload)
@@ -1259,9 +1257,6 @@ def set_default_plot_data_from_db(settings):
     settings.setdefault('pathogen_plate_metadata', None)
     settings.setdefault('treatments', None)
     settings.setdefault('treatment_plate_metadata', None)
-    # 293: the Default Graph Type setting decides what is drawn
-    # FIRST. The fallback is the literal this line used to
-    # hold, so a user who chose nothing sees what they saw.
     settings.setdefault(
         'graph_type',
         _graph_types.mark_to_start_on(
@@ -5789,12 +5784,6 @@ def _advanced_family_members(table, family_suffixes, family_prefixes=()):
     """
     spoken_for, filed = _advanced_lookup_sets(table)
     found = []
-    # `seen` MIRRORS `found` ONLY TO BE ASKED. The list is the answer -- its
-    # order is the contract, object then suffix -- but `key in found` on a
-    # list is a linear scan, and this list grows to ~4,900 keys across 706
-    # objects. That made the duplicate check quadratic: ~12 million string
-    # comparisons to file one family, which was most of the regroup's cost
-    # and all of it invisible, because nothing here looks expensive.
     seen = set()
     for obj in ADVANCED_OBJECT_ORDER:
         candidates = [f"{obj}_{suffix}" for suffix in family_suffixes]
@@ -5817,13 +5806,6 @@ def _regroup_advanced(table):
     is the guard.
     """
     out = dict(table)
-    # COMPUTED ONCE PER FAMILY, NOT TWICE. The pass below that empties the
-    # per-object categories needs the same three member lists the pass at the
-    # bottom files under the family headings, and `out` is not modified
-    # between them in any way that changes which keys match -- so the second
-    # set of calls returned exactly the answers the first had already found.
-    # Three families over 706 objects is ~137 ms of pure Python, and doing it
-    # twice was ~137 ms of it for nothing.
     by_family = [
         (heading, _advanced_family_members(out, suffixes, prefixes))
         for heading, suffixes, prefixes in _ADVANCED_FAMILIES
@@ -6667,9 +6649,6 @@ def set_graph_importance_defaults(settings):
     settings.setdefault('csvs','list of paths')
     settings.setdefault('grouping_column','compartment')
     settings.setdefault('data_column','compartment_importance_sum')
-    # 293: the Default Graph Type setting decides what is drawn
-    # FIRST. The fallback is the literal this line used to
-    # hold, so a user who chose nothing sees what they saw.
     settings.setdefault(
         'graph_type',
         _graph_types.mark_to_start_on(
@@ -6855,9 +6834,6 @@ def get_plot_data_from_csv_default_settings(settings):
     settings.setdefault('src','path')
     settings.setdefault('data_column','choose column')
     settings.setdefault('grouping_column','choose column')
-    # 293: the Default Graph Type setting decides what is drawn
-    # FIRST. The fallback is the literal this line used to
-    # hold, so a user who chose nothing sees what they saw.
     settings.setdefault(
         'graph_type',
         _graph_types.mark_to_start_on(

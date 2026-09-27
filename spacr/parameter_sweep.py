@@ -871,8 +871,6 @@ def _execute_trial(payload):
     from .ml import perform_regression
 
     try:
-        # 291: a `spawn` worker starts on matplotlib's stock default; the
-        # trial's figures follow the app or pipeline run that started it.
         with _open_sans_if_a_run_started_this():
             output = perform_regression(settings)
         row["status"] = "ok"

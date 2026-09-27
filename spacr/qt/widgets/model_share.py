@@ -314,8 +314,6 @@ def target_repo(token: str) -> Tuple[str, bool]:
         for org in me.get("orgs", []) or []:
             if org.get("name") == owner:
                 return SHARE_REPO, True
-        # A collaborator's write access cannot be read back reliably; try it
-        # and let the upload itself be the test.
         return SHARE_REPO, True
     except Exception:                                        # noqa: BLE001
         pass
@@ -342,8 +340,6 @@ def share(path: str, fields: Dict[str, Any], token: str) -> str:
     if not repo_id:
         raise RuntimeError("Could not work out where to publish: check the token.")
     filename = os.path.basename(path)
-    # Into staging/ as well: unvetted is unvetted however it arrived, and
-    # the community listing looks in exactly one place.
     folder = "staging/" + slugify(fields.get("display_name") or filename)
     digest = model_zoo.sha256_file(path)
     api.create_repo(repo_id, repo_type="model", exist_ok=True)

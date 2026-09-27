@@ -107,8 +107,6 @@ def _numbered_background_value(
     number = organelle_number(role)
     if number <= CATALOGUED_ORGANELLE_SLOTS:
         return None
-    # Slot two's prose explicitly names its channel; the primary prose does
-    # not carry a number, so appending a number to it would be ambiguous.
     template_key = "remove_background_organelleb"
     canonical = getattr(_english(), table_name, {})
     template_source = canonical.get(template_key)

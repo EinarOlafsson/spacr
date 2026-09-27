@@ -739,9 +739,6 @@ class ShortcutOverlay(QWidget):
             the overlay to match; a mouse press on the scroll viewport
             dismisses the overlay and is consumed.
         """
-        # getattr: the overlay and its window are a reference cycle, so the
-        # collector can clear this wrapper before the window's destructor
-        # reaches the filter.
         window = getattr(self, "_window", None)
         scroll = getattr(self, "_scroll", None)
         if window is None or scroll is None:

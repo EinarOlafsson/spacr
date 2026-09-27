@@ -1747,3 +1747,123 @@ offers fewer animations. So the list is `off` plus every name in
 next theme cannot be added to one menu alone. The combo builds its label
 with `tr(key.capitalize())`, so this adds no caption the Resonance theme
 did not already owe.
+
+
+---
+
+# Notes from `spacr/qt/preferences.py`
+
+Prose lifted out of `spacr/qt/preferences.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## Contents
+
+- [set_laptop_mode](#set_laptop_mode) (1 entry)
+- [get_idle_minutes](#get_idle_minutes) (1 entry)
+- [get_cache_ceiling_mb](#get_cache_ceiling_mb) (1 entry)
+- [get_headroom_mb](#get_headroom_mb) (1 entry)
+- [get_performance_level](#get_performance_level) (2 entries)
+- [set_spacr_mode](#set_spacr_mode) (1 entry)
+- [_visual_snapshot](#_visual_snapshot) (1 entry)
+- [_restore_visuals](#_restore_visuals) (1 entry)
+- [PreferencesDialog._build_the_dialog](#preferencesdialog_build_the_dialog) (1 entry)
+
+## set_laptop_mode
+
+### lines 3006-3012
+
+```python
+if choice == "on":
+```
+
+286: THE OLD WORDS WRITE THE ONE VALUE. This used to store the key the migration removes and apply a hardware measurement for "automatic", so a caller could set "on" and read "off" back from `get_laptop_mode`, or have a two-core reading override Workstation. "on" is the Laptop level; "off" leaves Laptop for the default level; "automatic" states no choice and leaves the level alone. This run's backdrop follows through `set_performance_level`.
+
+## get_idle_minutes
+
+### lines 3048-3049
+
+```python
+fallback = float(_level_budget()[0])
+```
+
+286: an untouched budget follows the performance level, so the sweep enforces what the level promises; a number the user set is kept.
+
+## get_cache_ceiling_mb
+
+### line 3076  _(unsure)_
+
+```python
+fallback = int(_level_budget()[1])
+```
+
+Follows the level while untouched; see `get_idle_minutes`.
+
+## get_headroom_mb
+
+### line 3107  _(unsure)_
+
+```python
+fallback = int(_level_budget()[2])
+```
+
+Follows the level while untouched; see `get_idle_minutes`.
+
+## get_performance_level
+
+### lines 3243-3246
+
+```python
+return level
+```
+
+Safe mode answers every read with a default and sends every write to the real store, so migrating here would "migrate" defaults and write Balanced over the user's real level. Answer and store nothing; the next ordinary start migrates the real values.
+
+### lines 3257-3258
+
+```python
+try:
+```
+
+The obsolete answers go only once the level has reached the store: until then they are the only record of what the user chose (286).
+
+## set_spacr_mode
+
+### lines 3426-3428
+
+```python
+settings.setValue(_KEY_PERFORMANCE_LEVEL, mode)
+```
+
+ONE STORED VALUE (286). The posture is derived from the level, so the level is all that is written; the old `prefs/spacr_mode` copy was a second answer that only the migration ever read.
+
+## _visual_snapshot
+
+### lines 3475-3480
+
+```python
+return {
+```
+
+"ambient_enabled" is the STORED switch, read past SPACR_NO_BACKDROP. Restoring the animation goes through `set_ambient_animation`, which turns the backdrop on, so without it a user who had switched the backdrop off got it back by passing through Extra Performance or Laptop (286). The raw key and not `get_ambient_enabled()`, which answers False for a process-local suppression that must never be saved as a choice.
+
+## _restore_visuals
+
+### lines 3554-3556
+
+```python
+if "ambient_enabled" in stashed:
+```
+
+Last, because `set_ambient_animation` above switches the backdrop on. A stash written before 286 has no such entry and keeps the old behaviour.
+
+## PreferencesDialog._build_the_dialog
+
+### lines 7822-7823
+
+```python
+_budget_level = [mode_combo.currentData()]
+```
+
+286: a budget number still at the previous level's value moves with the level; a number the user typed stays where they put it.

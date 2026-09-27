@@ -2303,3 +2303,49 @@ self.table.setRowHidden(row, False)
 A hidden row is unhidden to select it, for the same reason
 
 `select_key` does: silently dropping the point the user just dragged over reads as a broken gesture.
+
+
+---
+
+# Notes from `spacr/qt/widgets/fast_plots.py`
+
+Prose lifted out of `spacr/qt/widgets/fast_plots.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## Contents
+
+- [FastPlot.__init__](#fastplot__init__) (1 entry)
+- [ControlSeparation.set_groups](#controlseparationset_groups) (1 entry)
+- [GuideAgreementPlot.set_support](#guideagreementplotset_support) (1 entry)
+
+## FastPlot.__init__
+
+### lines 1229-1231
+
+```python
+for menu in (self.plot.plotItem.ctrlMenu, self.plot.plotItem.vb.menu):
+```
+
+pyqtgraph's menus are parentless windows: tie them to this plot, or an embedded plot leaves them to the cycle collector. See docs/notes/spacr/qt/widgets/fast_plots.md.
+
+## ControlSeparation.set_groups
+
+### lines 7944-7945  _(unsure)_
+
+```python
+self._settle_mark(self.group_sizes())
+```
+
+The preference meets the data here: the sizes are known now and not when the panel was built. See :meth:`GroupedPlot._settle_mark`.
+
+## GuideAgreementPlot.set_support
+
+### lines 8129-8131
+
+```python
+self._settle_mark(self.group_sizes())
+```
+
+The preference meets the data here: the genes per guide count are known now and not when the panel was built. See :meth:`GroupedPlot._settle_mark`.

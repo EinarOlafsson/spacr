@@ -45,3 +45,23 @@ if sum(1 for value in counts.values() if value == agreeing) > 1:
 ```
 
 A TIE IS NOT A WINNER. `max` picks one arbitrarily, so a cell whose reads split evenly between two barcodes would be assigned on dictionary order -- which is exactly the silent misassignment the fraction test exists to prevent.
+
+
+---
+
+# Notes from `spacr/ops_sbs.py`
+
+Prose lifted out of `spacr/ops_sbs.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## attribute_reads
+
+### lines 585-591
+
+```python
+from scipy.spatial import cKDTree
+```
+
+SPOTS FIRST, OWNERS SECOND (372 PART 9 hole 2, measured in PART 14-L): code that only looks inside a footprint can never discover that the reads are elsewhere, and on the first real plate they were -- 25 % of spots inside the nucleus, 67 % within 3 px, 98 % within 10 px -- while sampling at the nuclear centroid decoded at chance. A read between two objects is refused rather than split, and counted, so a footprint that is too loose shows up as ambiguity instead of as wrong barcodes.

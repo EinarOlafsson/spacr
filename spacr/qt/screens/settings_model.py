@@ -276,8 +276,6 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
                        "remove_background", "diameter", "resize", "width_height",
                        "target_size", "augment", "verbose"},
     "mask": {"pathogen_model"},
-    # Parallel GPU masks refuse timelapse and t_stack runs, so the Timelapse
-    # panel keeps both keys at their off/blank defaults without showing them.
     "timelapse": {"timelapse", "mask_parallel", "mask_gpu_indices",
                   "watch_folder", "watch_pipeline", "watch_measure_settings",
                   "watch_settle_seconds", "watch_poll_seconds",
@@ -1180,7 +1178,6 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             NUMBER_OF_ORGANELLES,
             "organelle_channel",
             *(f"{role}_channel" for role in ALL_ORGANELLE_ROLES[1:]),
-            # 404/405: which model segments every object channel above.
             "segmentation_backend",
             "channels", "magnification",
             "metadata_type", "custom_regex",
@@ -1318,7 +1315,6 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             NUMBER_OF_ORGANELLES,
             "organelle_channel",
             *(f"{role}_channel" for role in ALL_ORGANELLE_ROLES[1:]),
-            # 404/405: which model segments every object channel above.
             "segmentation_backend",
             "channels", "magnification",
             "metadata_type", "custom_regex",

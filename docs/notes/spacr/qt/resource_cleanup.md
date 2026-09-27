@@ -175,3 +175,33 @@ LOG.debug("could not queue the live-cache sweep", exc_info=True)
 ```
 
 No event loop means the periodic integration is inapplicable.  The explicit ``sweep_memory_budget`` API remains usable by headless code.
+
+
+---
+
+# Notes from `spacr/qt/resource_cleanup.py`
+
+Prose lifted out of `spacr/qt/resource_cleanup.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## _uninstall_process_hooks
+
+### line 1712, trailing  _(unsure)_
+
+```python
+pass
+```
+
+already destroyed with its application
+
+### lines 1713-1725
+
+```python
+try:
+```
+
+EVERY CONNECTION, WHATEVER `_INSTALLED` SAYS. A caller that resets the flag and installs again (tests monkeypatch `_INSTALLED = False` to exercise `install_run_hook`) connects a second copy, and the flag is restored afterwards while the connection is not.
+
+BY HANDLE FIRST. PySide6 6.11's `disconnect(slot)` removes ONE connection of a slot connected several times and then answers False while the others are still connected, so asking by slot alone left every copy after the first firing in later tests. Each handle `install_run_hook` kept names exactly one connection. The loop by slot stays for a connection made without a handle; PySide6 WARNS before it raises on that last attempt, which here is the expected end of the loop, not news.

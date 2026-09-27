@@ -1978,9 +1978,6 @@ class AppScreen(QWidget):
         if uses_ambient_background(self.app_key):
             self._install_ambient()
 
-        # THE SWEEP IS UNCONDITIONAL (item 381). With no backdrop behind the
-        # containers, `page_fill` gives the page its own colour, so a
-        # transparent container shows the page and never the window's `bg`.
         if self._ambient is None:
             self._clear_page_surfaces()
         self._sync_page_palette()
@@ -2638,12 +2635,6 @@ class AppScreen(QWidget):
                                 section)
             self._settings_sections.append(section)
             section.set_expanded(True)
-            # TAG WHAT WAS JUST MOUNTED (item 408). While the panel is being
-            # built the screen's own sweep comes later and covers this, but a
-            # Preferences save mounts it on a screen already on show, after
-            # every sweep: the table's viewport then painted `QPalette.Base`,
-            # opaque black, over the backdrop until the next show. Only this
-            # subtree -- the whole-screen sweep re-polishes 201 settings.
             from ..theme import clear_container_surfaces
 
             clear_container_surfaces(section)
@@ -5237,28 +5228,7 @@ class AppScreen(QWidget):
         from ..settings_pack import settings_from_pack
 
         folder = Path(folder)
-        # A form rebuild detaches this widget before bulk application returns.
-        # Keep its owner so the report can reach the replacement's console.
         owner = self.window() if hasattr(self, "window") else None
-        # THE SHIPPED PACK FIRST, THEN THE PLATE'S OWN FOLDER.
-        #
-        # A completed run writes `<src>/settings/<name>.csv` --
-        # `utils.save_settings`, with name='gen_mask_settings' for Mask -- and
-        # that is the same folder and the same filename this search looks in.
-        # `_EXAMPLE_SETTINGS_FILES` even lists the run's spelling FIRST, which
-        # its own comment says out loud: "a mask run saves
-        # `gen_mask_settings.csv`, the older pack shipped
-        # `gen_masks_settings.csv`".
-        #
-        # So on a cached example, once the user has run the module once, their
-        # own output sits under the preferred name and wins forever, because a
-        # cached example is never re-fetched. It cannot happen until you have
-        # used the thing once, which is why it only bites returning users.
-        #
-        # The download already separates them -- the plate unpacks to
-        # `<dest>/plate1` and the pack to `<dest>/settings`, a SIBLING that no
-        # run writes into -- so the fix is to look there first rather than to
-        # guess between two files with the same name.
         roots = []
         if pack_folder is not None:
             roots.append(Path(pack_folder))
@@ -5267,14 +5237,9 @@ class AppScreen(QWidget):
             report = None
             path = root
             try:
-                # Do not override src here: Measure's pack points at /merged,
-                # which reanchor_example_paths preserves below the local plate.
                 loaded, report = settings_from_pack(self.app_key, root)
                 if not report.source:
                     continue
-                # The reader returns defaults too; an example import must not
-                # reset values the pack never supplied. A found pack remains
-                # authoritative even when all its keys were dropped.
                 supplied = set(report.applied)
                 supplied.update(new for _old, new in report.renamed)
                 loaded = {key: value for key, value in loaded.items()
@@ -8258,23 +8223,6 @@ class AppScreen(QWidget):
             self._refresh_usage()
         self._sync_hint_strip_height()
         self._sync_category_hint_height()
-        # ONCE, ON THE FIRST SHOW, AND THIS IS THE BLACK BOX.
-        # `_clear_page_surfaces` runs during construction, and it tags what
-        # exists THEN. Anything a screen builds afterwards -- a section that
-        # mounts on demand, a grid the preferences turn on -- is never
-        # tagged, inherits the blanket ``QWidget { background-color: bg }``
-        # rule, and paints the window colour as a solid rectangle over the
-        # backdrop.
-        #
-        # It looked intermittent because the repair was accidental:
-        # `refresh_ambient_background` re-tags, but only when the ambient
-        # preference actually CHANGED, and its docstring says so. Leaving
-        # the screen and coming back happened to take that path, so the box
-        # appeared on first open and was gone on the second -- which reads
-        # like a paint race and is not one.
-        #
-        # Guarded by a flag rather than run on every show: tagging walks
-        # every child and re-polishes it, and Mask carries 201 settings.
         if not getattr(self, "_surfaces_cleared_on_show", False):
             self._surfaces_cleared_on_show = True
             try:

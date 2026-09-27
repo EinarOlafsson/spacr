@@ -2355,7 +2355,6 @@ def _collect_paint_diagnostics(window, out_dir, report) -> None:
     except Exception:                                        # noqa: BLE001
         failed(f"create {folder}")
 
-    # FIRST, before anything below can change a pixel.
     pixels, scale = None, (1.0, 1.0)
     try:
         from .hidpi import screen_for_widget
@@ -2513,8 +2512,6 @@ def _collect_paint_diagnostics(window, out_dir, report) -> None:
         json_path.write_text(json.dumps(report, indent=2, default=str),
                              encoding="utf-8")
         report["files"]["json"] = str(json_path)
-        # Rewritten so the file names itself; the first write is the one
-        # that proves the folder takes a file at all.
         json_path.write_text(json.dumps(report, indent=2, default=str),
                              encoding="utf-8")
     except Exception:                                        # noqa: BLE001
@@ -3982,9 +3979,6 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(
                 self, "Updates", f"Upgrade unavailable: {exc}")
             return
-        # find old spaCR files --> delete old spaCR files --> install new
-        # spaCR. Step 1 runs off the GUI thread; what it found is shown before
-        # anything is deleted, in _on_old_installs_found.
         self._update_version = info.latest_release
         self.statusBar().showMessage(tr("Upgrading spaCR…"), 4000)
         self._start_update_worker(
@@ -6154,11 +6148,6 @@ def launch(argv: Optional[list[str]] = None) -> int:
     try:
         from .laptop_mode import apply as _apply_laptop_mode, describe
         from .preferences import get_performance_level as _level_now
-        # 286: THE LEVEL DECIDES, NOT THE MACHINE. `apply()` with no argument
-        # measures cores and memory, which overrode the level chosen in the
-        # selector -- a two-core Workstation lost its backdrop at every
-        # start. The measurement is still logged, as a reading, because "it
-        # looks different on my laptop" needs evidence.
         _level = _level_now()
         LOG.info("performance level %s; hardware reading, for diagnosis "
                  "only: %s", _level, describe())

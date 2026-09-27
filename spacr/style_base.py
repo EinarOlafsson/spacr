@@ -254,9 +254,6 @@ def apply_page(figure, axes, style: FigureStyle) -> None:
         axes.invert_yaxis()
     axes.tick_params(labelsize=style.tick_font_size)
 
-    # The face, on the text objects themselves. A renderer that drew outside
-    # a font `rc_context` would otherwise keep whatever the process-wide
-    # default was -- DejaVu Sans, unless something else had changed it.
     names = font_names(style)
     for text in (axes.title, axes.xaxis.label, axes.yaxis.label,
                  *axes.get_xticklabels(), *axes.get_yticklabels()):

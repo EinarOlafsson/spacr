@@ -2469,7 +2469,6 @@ PERFORMANCE_LABELS = {
 
 #: The hardware each level is for, and what it trades. Shown as the level's
 #: tooltip, so the choice can be made without guessing.
-#
 #: 286: EVERY CLAIM HERE IS ONE THE CODE KEEPS. The minutes and megabytes
 #: are `memory_budget.RECOMMENDED` for the level, which an untouched budget
 #: follows, and a test holds each note to them. The old wording promised
@@ -3003,13 +3002,6 @@ def set_laptop_mode(choice: str) -> None:
     if choice not in LAPTOP_MODE_CHOICES:
         raise ValueError(f"unknown laptop mode {choice!r}; "
                          f"expected one of {list(LAPTOP_MODE_CHOICES)}")
-    # 286: THE OLD WORDS WRITE THE ONE VALUE. This used to store the key the
-    # migration removes and apply a hardware measurement for "automatic",
-    # so a caller could set "on" and read "off" back from `get_laptop_mode`,
-    # or have a two-core reading override Workstation. "on" is the Laptop
-    # level; "off" leaves Laptop for the default level; "automatic" states no
-    # choice and leaves the level alone. This run's backdrop follows through
-    # `set_performance_level`.
     if choice == "on":
         set_performance_level("laptop")
     elif choice == "off" and get_performance_level() == "laptop":
@@ -3045,8 +3037,6 @@ def get_idle_minutes() -> float:
     :returns: minutes; 0 means "as soon as nothing is using it".
     """
     from .memory_budget import MAX_IDLE_MINUTES, MIN_IDLE_MINUTES
-    # 286: an untouched budget follows the performance level, so the sweep
-    # enforces what the level promises; a number the user set is kept.
     fallback = float(_level_budget()[0])
     raw = _settings().value(_KEY_IDLE_MINUTES, None)
     if raw is None or raw == "":
@@ -3073,7 +3063,6 @@ def set_idle_minutes(minutes: float) -> None:
 def get_cache_ceiling_mb() -> int:
     """How much cache spaCR may hold at once, in megabytes."""
     from .memory_budget import MAX_CACHE_CEILING_MB, MIN_CACHE_CEILING_MB
-    # Follows the level while untouched; see `get_idle_minutes`.
     fallback = int(_level_budget()[1])
     raw = _settings().value(_KEY_CACHE_CEILING, None)
     if raw is None or raw == "":
@@ -3104,7 +3093,6 @@ def get_headroom_mb() -> int:
     neither of the others has anything to answer to.
     """
     from .memory_budget import MAX_HEADROOM_MB, MIN_HEADROOM_MB
-    # Follows the level while untouched; see `get_idle_minutes`.
     fallback = int(_level_budget()[2])
     raw = _settings().value(_KEY_HEADROOM, None)
     if raw is None or raw == "":
@@ -3240,10 +3228,6 @@ def get_performance_level() -> str:
         level = DEFAULT_PERFORMANCE_LEVEL
 
     if _SAFE_MODE:
-        # Safe mode answers every read with a default and sends every write
-        # to the real store, so migrating here would "migrate" defaults and
-        # write Balanced over the user's real level. Answer and store
-        # nothing; the next ordinary start migrates the real values.
         return level
 
     try:
@@ -3254,8 +3238,6 @@ def get_performance_level() -> str:
                   exc_info=True)
         return level
     if _level_is_durable(settings, level):
-        # The obsolete answers go only once the level has reached the store:
-        # until then they are the only record of what the user chose (286).
         try:
             settings.remove(_KEY_LAPTOP_MODE)
             settings.remove(_KEY_SPACR_MODE)
@@ -3423,9 +3405,6 @@ def set_spacr_mode(mode: str) -> None:
                          f"Choose from {SPACR_MODES}.")
     previous = get_spacr_mode()
     settings = _settings()
-    # ONE STORED VALUE (286). The posture is derived from the level, so the
-    # level is all that is written; the old `prefs/spacr_mode` copy was a
-    # second answer that only the migration ever read.
     settings.setValue(_KEY_PERFORMANCE_LEVEL, mode)
     settings.sync()
     if mode == "extra_performance" and previous != "extra_performance":
@@ -3472,12 +3451,6 @@ def mode_warning(mode: str) -> str:
 
 def _visual_snapshot() -> dict:
     """The five settings Extra Performance overrides, as they are now."""
-    # "ambient_enabled" is the STORED switch, read past SPACR_NO_BACKDROP.
-    # Restoring the animation goes through `set_ambient_animation`, which
-    # turns the backdrop on, so without it a user who had switched the
-    # backdrop off got it back by passing through Extra Performance or Laptop
-    # (286). The raw key and not `get_ambient_enabled()`, which answers False
-    # for a process-local suppression that must never be saved as a choice.
     return {
         "ambient_animation": get_ambient_animation(),
         "ambient_enabled": _as_bool(
@@ -3551,9 +3524,6 @@ def _restore_visuals() -> bool:
             set_setting_animations_enabled(bool(stashed["setting_animations"]))
         if "field_fade" in stashed:
             set_field_fade_enabled(bool(stashed["field_fade"]))
-        # Last, because `set_ambient_animation` above switches the backdrop
-        # on. A stash written before 286 has no such entry and keeps the old
-        # behaviour.
         if "ambient_enabled" in stashed:
             set_ambient_enabled(_as_bool(stashed["ambient_enabled"], True))
     except Exception:
@@ -7819,8 +7789,6 @@ class PreferencesDialog:
             "Suggested:\n{levels}").format(levels=_suggestions(1)))
         performance.addRow(tr("Cache ceiling"), cache_spin)
 
-        # 286: a budget number still at the previous level's value moves with
-        # the level; a number the user typed stays where they put it.
         _budget_level = [mode_combo.currentData()]
         _budget_spins = (idle_spin, cache_spin, headroom_spin)
         mode_combo.currentIndexChanged.connect(

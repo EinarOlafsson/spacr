@@ -1849,9 +1849,6 @@ class BarcodeSearchPanel(QWidget):
             widget = widgets.get(key)
             if widget is None or any(w is widget for w in self._watched):
                 continue
-            # `contents_changed` first where a widget has one: it follows a
-            # settings load as well as an edit, which `value_changed` is
-            # deliberately kept from doing.
             signal = (getattr(widget, "contents_changed", None)
                       or getattr(widget, "value_changed", None)
                       or getattr(widget, "textChanged", None))
@@ -2027,11 +2024,6 @@ class BarcodeSearchPanel(QWidget):
                 LOG.debug("could not write %s into the form", key,
                           exc_info=True)
         self._changes = ()
-        # WHAT APPLY WROTE CAME FROM THIS SEARCH, so the form now holds what
-        # the search found and searching again would only repeat it -- while
-        # wiping the "wrote these" summary off the screen. Adopting the
-        # post-Apply inputs as the searched ones stops that re-run; a later
-        # edit by the user still starts one.
         self._searched_inputs = _search_inputs(self.current_settings())
         self._live_timer.stop()
         self._update_buttons()

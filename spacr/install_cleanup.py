@@ -45,9 +45,6 @@ import time
 from dataclasses import asdict, dataclass, field, replace
 from typing import Callable, Dict, Iterable, List, Optional, Sequence, Tuple
 
-# The 1.5.0.1 to 1.5.0.4 installers capitalised the first letter of the
-# folder, app bundle and Start Menu names. Built rather than written, so a
-# scan for the mis-cased project name does not mistake it for prose.
 _OLD_NAME = "Spa" + "CR"
 _NAME = "spaCR"
 _NAMES = (_NAME, _OLD_NAME)
@@ -65,7 +62,6 @@ _ASSET_SUFFIX = {
     "macos": "macOS-Universal-Online.pkg",
 }
 _WAIT_SECONDS = 600.0
-# Python 3.12 renamed shutil.rmtree's error hook from onerror to onexc.
 _RMTREE_TAKES_ONEXC = sys.version_info >= (3, 12)
 
 
@@ -129,9 +125,6 @@ class RemovalReport:
         return not self.failed
 
 
-# ---------------------------------------------------------------------------
-# The computer, behind one seam
-# ---------------------------------------------------------------------------
 
 class _WindowsRegistry:
     """``HKEY_CURRENT_USER`` read and written through :mod:`winreg`."""
@@ -376,9 +369,6 @@ class _Machine:
         return self.env(name) or os.path.join(self.home, fallback)
 
 
-# ---------------------------------------------------------------------------
-# Small path helpers
-# ---------------------------------------------------------------------------
 
 def _norm(path: str) -> str:
     """Return a comparable spelling of ``path``: absolute and lower case.
@@ -507,9 +497,6 @@ def _needs_admin(command: str = "") -> str:
         f"{reason}; delete it as an administrator")
 
 
-# ---------------------------------------------------------------------------
-# Package metadata
-# ---------------------------------------------------------------------------
 
 def _site_packages(prefix: str) -> List[str]:
     """Return every ``site-packages`` directory of an environment.
@@ -611,9 +598,6 @@ def _env_python(prefix: str) -> Optional[str]:
     return None
 
 
-# ---------------------------------------------------------------------------
-# Step 1: find
-# ---------------------------------------------------------------------------
 
 def find_old_installs(*, system=None) -> List[InstallRecord]:
     """Find every spaCR installation on this computer.
@@ -695,8 +679,6 @@ def _find_windows_online(machine: _Machine) -> List[InstallRecord]:
              if os.path.isdir(root)
              and any(_exists(os.path.join(root, m)) for m in markers)]
     if not roots and (uninstall or software.get("InstallRoot")):
-        # Registered, but the folder is already gone: the Apps list entry and
-        # shortcuts of a half-removed copy still have to go.
         gone = next((p for p in named if p), defaults[0] if defaults else "")
         roots = [gone] if gone else []
     menu = _windows_start_menu(machine)
@@ -794,7 +776,6 @@ def _find_macos_apps(machine: _Machine) -> List[InstallRecord]:
     command = machine.path("/usr/local/bin/spacr")
     records = []
     for index, app in enumerate(apps):
-        # The package's shared support folder belongs to the first bundle.
         support = supports[0] if supports and index == 0 else ""
         needles = [os.path.basename(app) + "/contents/macos",
                    machine.unmapped(app)]
@@ -856,7 +837,6 @@ def _find_unix_online(machine: _Machine,
         candidates += [os.path.join(support, name) for name in _NAMES]
         candidates += [machine.path(f"/Library/Application Support/{name}")
                        for name in _NAMES]
-    # A launcher names its root, which finds a copy put somewhere unusual.
     named_by_launchers = []
     for launcher in launchers_seen:
         if os.path.isfile(launcher) and not os.path.islink(launcher):
@@ -871,9 +851,6 @@ def _find_unix_online(machine: _Machine,
                 named_by_launchers.append(text[start:text.index(marker)])
     markers = (os.path.join("venv", "bin", "python"), os.path.join("bootstrap", "uv"),
                "uninstall-spacr.sh")
-    # Any project can have a venv. A folder known only because a launcher
-    # names it must also hold what only the installer writes, or a launcher
-    # a user made for a project's own venv would make the project an old copy.
     installer_only = markers[1:]
     taken = {_identity(r.root) for r in claimed if _exists(r.root)}
     roots = [root for root in _dedupe(candidates + named_by_launchers)
@@ -1025,9 +1002,6 @@ def _find_environments(machine: _Machine,
     return records + checkouts
 
 
-# ---------------------------------------------------------------------------
-# Step 2: delete
-# ---------------------------------------------------------------------------
 
 def _user_data(machine: _Machine) -> List[str]:
     """Return preferences and user-data locations removal must never touch.
@@ -1140,9 +1114,6 @@ def _delete(path: str, keep: Sequence[str], report: RemovalReport,
                 except OSError as exc:
                     errors.append((failed_path, exc))
                 except TypeError:
-                    # os.open and os.close cannot be called again with a path
-                    # alone; keep the error rmtree reported (onexc passes the
-                    # exception, the older onerror an exc_info tuple).
                     errors.append((failed_path, exc_info if isinstance(
                         exc_info, BaseException) else exc_info[1]))
 
@@ -1325,9 +1296,6 @@ def _uninstall_from_environment(record: InstallRecord, machine: _Machine,
         report.failed.append((item, last[-1] if last else f"exit code {code}"))
 
 
-# ---------------------------------------------------------------------------
-# Step 3: install, only after step 2
-# ---------------------------------------------------------------------------
 
 def run_update_sequence(install: Callable[[], object], *,
                         records: Optional[Sequence[InstallRecord]] = None,
@@ -1397,9 +1365,6 @@ def _format_reports(reports: Sequence[RemovalReport]) -> List[str]:
     return lines
 
 
-# ---------------------------------------------------------------------------
-# Steps 2 and 3 after spaCR has closed
-# ---------------------------------------------------------------------------
 
 def _record_from_json(data: Dict) -> InstallRecord:
     """Rebuild an :class:`InstallRecord` from its JSON form.
@@ -1786,13 +1751,10 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
         parser.print_help()
         return 2
     if args.root not in ("/", ""):
-        # A sandboxed file system, for testing an installer: no real registry,
-        # package manager or running environment is consulted.
         machine = _Machine(environ=dict(os.environ), fs_root=args.root,
                            sudo=getattr(args, "sudo", False))
     else:
         machine = _Machine(sudo=getattr(args, "sudo", False))
-    # The interpreter running this is a tool, not the spaCR being replaced.
     machine.running_prefix = None
     records = find_old_installs(system=machine)
     if args.command == "find":

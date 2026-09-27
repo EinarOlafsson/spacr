@@ -1731,8 +1731,6 @@ def _plaque_model_the_run_would_use(
         return (str(_resolve_plaque_model(settings, fetch=False)),
                 "plaque_model", True)
     except (FileNotFoundError, ValueError):
-        # ModelZooMissing is a FileNotFoundError. ValueError is a value the
-        # run cannot resolve either.
         return requested, "plaque_model", False
     except Exception:                                        # noqa: BLE001
         LOG.debug("could not resolve plaque_model=%r", requested,
@@ -3695,7 +3693,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             return
         self._run_model_pending = None
         if self._model_box.currentText() != pending[3]:
-            return                          # the user picked one meanwhile
+            return
         self._select_the_run_model(*answer)
 
     def _settle_the_run_model(self) -> None:
@@ -3988,9 +3986,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 w = _spin(kind, spin_args)
                 if suffix in ("min_intensity", "max_intensity"):
                     w.setDecimals(6)
-                    # Return may emit valueChanged even without an edit.
-                    # Conversely, typing 0 over a rounded-to-0 seed need
-                    # not change the number. Observe actual text edits too.
                     w.valueChanged.connect(
                         lambda *_args, widget=w:
                         self._forget_edited_intensity_seed(widget))
@@ -4025,8 +4020,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         if text_edited or self._widget_value(widget) != remembered[0]:
             self._clamped_on_seeding.pop(id(widget))
             if text_edited:
-                # A same-number edit emits no numeric change to trigger the
-                # ordinary cached-mask refresh below.
                 self._recompute_masks()
 
     def _all_compartment_widgets(self) -> List[QWidget]:
@@ -5108,9 +5101,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             "norm": self._normalise_check.isChecked(),
             "lo": float(self._lo_pct.value()),
             "hi": float(self._hi_pct.value()),
-            # The model that RAN, not the one now selected: the history is
-            # scrubbed back to compare passes, and a pass labelled with a
-            # model chosen after it is a comparison of the wrong two things.
             "model": self._model_that_ran or self._model_box.currentText(),
             "object": _combo_value(self._object_box),
             "summary": ", ".join(counts),
