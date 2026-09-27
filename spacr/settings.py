@@ -7260,6 +7260,12 @@ ALPHA_FEATURES = {
     585: {
         'widgets': ('PowerArrayedPlanner',),
     },
+    582: {
+        'widgets': ('PluginCatalogueHelp', 'PluginCatalogueSource',
+                    'PluginCatalogueLoad', 'PluginCatalogueTable',
+                    'PluginCatalogueInstall', 'PluginCatalogueUninstall',
+                    'PluginCatalogueStatus'),
+    },
 }
 
 

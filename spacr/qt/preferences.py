@@ -5476,6 +5476,216 @@ class _NotificationsPage:
         return True
 
 
+_KEY_PLUGIN_CATALOGUE = "plugins/catalogue"
+_PLUGIN_CATALOGUE_ALPHA_WIDGET = "PluginCatalogueTable"
+
+
+def _get_plugin_catalogue() -> str:
+    """The catalogue the Plugins tab opens with, or ``$SPACR_PLUGIN_CATALOGUE``."""
+    import os
+
+    stored = str(_settings().value(_KEY_PLUGIN_CATALOGUE, "") or "").strip()
+    return stored or os.environ.get("SPACR_PLUGIN_CATALOGUE", "").strip()
+
+
+def _set_plugin_catalogue(source: str) -> None:
+    """Remember the catalogue the Plugins tab opens with.
+
+    :param source: a catalogue file, its folder or an http(s) address.
+    """
+    settings = _settings()
+    settings.setValue(_KEY_PLUGIN_CATALOGUE, str(source or "").strip())
+    settings.sync()
+
+
+class _PluginCataloguePage:
+    """The Plugins tab: browse a catalogue and install plugins and recipes.
+
+    Each row shows an entry's version, the installed version, its status,
+    author and licence; its summary is the row's tooltip. Installing,
+    updating and uninstalling go through the plugin SDK, which puts each
+    plugin in its own folder and each recipe in a settings file.
+
+    :param form: the tab's form layout, from the dialog's ``_page``.
+    :param dialog: the Preferences dialog.
+    """
+
+    def __init__(self, form, dialog) -> None:
+        """Build the rows and list the remembered catalogue, if any."""
+        from PySide6.QtWidgets import (QAbstractItemView, QHBoxLayout, QLabel,
+                                       QLineEdit, QPushButton, QTableWidget,
+                                       QWidget)
+
+        from .i18n import tr
+
+        self._dialog = dialog
+        self._rows = []
+        help_label = QLabel(tr(
+            "Browse a catalogue of community plugins and assay recipes. A "
+            "plugin is installed into its own folder with the libraries it "
+            "needs, so it never replaces a package spaCR uses; a recipe is "
+            "saved as a settings file you can load into its module."))
+        help_label.setWordWrap(True)
+        help_label.setObjectName("PluginCatalogueHelp")
+        form.addRow(help_label)
+
+        self.source = QLineEdit(_get_plugin_catalogue())
+        self.source.setObjectName("PluginCatalogueSource")
+        self.source.setPlaceholderText(tr("Catalogue file, folder or address"))
+        self.source.setToolTip(tr(
+            "Where the catalogue is: a catalogue.json file, the folder "
+            "holding one, or an http(s) address. It is remembered for next "
+            "time. Default the SPACR_PLUGIN_CATALOGUE variable, else empty."))
+        self.load_button = QPushButton(tr("List"))
+        self.load_button.setObjectName("PluginCatalogueLoad")
+        self.load_button.clicked.connect(self.refresh)
+        source_row = QWidget()
+        source_layout = QHBoxLayout(source_row)
+        source_layout.setContentsMargins(0, 0, 0, 0)
+        source_layout.addWidget(self.source, 1)
+        source_layout.addWidget(self.load_button)
+        form.addRow(tr("Catalogue"), source_row)
+
+        columns = [tr("Type"), tr("Name"), tr("Version"), tr("Installed"),
+                   tr("Status"), tr("Author"), tr("Licence")]
+        self.table = QTableWidget(0, len(columns))
+        self.table.setObjectName(_PLUGIN_CATALOGUE_ALPHA_WIDGET)
+        self.table.setHorizontalHeaderLabels(columns)
+        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.table.itemSelectionChanged.connect(self._sync_buttons)
+        form.addRow(self.table)
+
+        self.install_button = QPushButton(tr("Install or update"))
+        self.install_button.setObjectName("PluginCatalogueInstall")
+        self.install_button.clicked.connect(self.install_selected)
+        self.uninstall_button = QPushButton(tr("Uninstall"))
+        self.uninstall_button.setObjectName("PluginCatalogueUninstall")
+        self.uninstall_button.clicked.connect(self.uninstall_selected)
+        actions = QWidget()
+        actions_layout = QHBoxLayout(actions)
+        actions_layout.setContentsMargins(0, 0, 0, 0)
+        actions_layout.addWidget(self.install_button)
+        actions_layout.addWidget(self.uninstall_button)
+        actions_layout.addStretch(1)
+        form.addRow(actions)
+
+        self.status = QLabel("")
+        self.status.setObjectName("PluginCatalogueStatus")
+        self.status.setWordWrap(True)
+        form.addRow(self.status)
+        self._sync_buttons()
+        if self.source.text().strip():
+            self.refresh()
+
+    def selected(self):
+        """The selected catalogue row as a dict, or None."""
+        rows = self.table.selectionModel().selectedRows()
+        return self._rows[rows[0].row()] if rows else None
+
+    def _sync_buttons(self) -> None:
+        """Offer only the actions the selected row allows."""
+        row = self.selected()
+        self.install_button.setEnabled(
+            row is not None and row["status"] in ("available",
+                                                  "update available"))
+        self.uninstall_button.setEnabled(
+            row is not None and bool(row["installed"]))
+
+    def refresh(self) -> bool:
+        """Read the catalogue and fill the table.
+
+        :returns: False, with the reason on the status line, when the
+            catalogue could not be read.
+        """
+        from PySide6.QtWidgets import QTableWidgetItem
+
+        from .i18n import tr
+        from ..plugins import _catalogue_rows
+
+        source = self.source.text().strip()
+        _set_plugin_catalogue(source)
+        try:
+            self._rows = _catalogue_rows(source or None)
+        except Exception as exc:
+            self._rows = []
+            self.table.setRowCount(0)
+            self.status.setText(tr("Could not read the catalogue: {error}")
+                                .format(error=exc))
+            self._sync_buttons()
+            return False
+        kinds = {"plugin": tr("Plugin"), "recipe": tr("Recipe")}
+        states = {"available": tr("available"), "installed": tr("installed"),
+                  "update available": tr("update available"),
+                  "incompatible": tr("incompatible")}
+        self.table.setRowCount(len(self._rows))
+        for index, row in enumerate(self._rows):
+            values = (kinds.get(row["kind"], row["kind"]), row["name"],
+                      row["version"], row["installed"],
+                      states.get(row["status"], row["status"]),
+                      row["author"], row["licence"])
+            for column, value in enumerate(values):
+                item = QTableWidgetItem(str(value))
+                item.setToolTip(row["summary"] or row["name"])
+                self.table.setItem(index, column, item)
+        self.table.resizeColumnsToContents()
+        self.status.setText(tr("{count} entries in the catalogue.")
+                            .format(count=len(self._rows)))
+        self._sync_buttons()
+        return True
+
+    def _select_key(self, key: str) -> None:
+        """Select the row for ``key`` again after the table is refilled."""
+        for index, row in enumerate(self._rows):
+            if row["key"] == key:
+                self.table.selectRow(index)
+                return
+
+    def _act(self, install: bool) -> bool:
+        """Install or uninstall the selected row, then list again."""
+        from PySide6.QtCore import Qt
+        from PySide6.QtWidgets import QApplication
+
+        from .i18n import tr
+        from ..plugins import _install_from_catalogue, _uninstall_from_catalogue
+
+        row = self.selected()
+        if row is None:
+            return False
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        try:
+            if install:
+                record = _install_from_catalogue(
+                    row["key"], self.source.text().strip() or None)
+                message = tr("Installed {name} {version}.").format(
+                    name=row["name"], version=record["version"])
+                if row["kind"] == "recipe":
+                    message += " " + tr("Its settings are in {path}.").format(
+                        path=record["path"])
+            else:
+                _uninstall_from_catalogue(row["key"])
+                message = tr("Uninstalled {name}.").format(name=row["name"])
+        except Exception as exc:
+            self.status.setText(tr("{name} failed: {error}").format(
+                name=row["name"], error=exc))
+            return False
+        finally:
+            QApplication.restoreOverrideCursor()
+        self.refresh()
+        self._select_key(row["key"])
+        self.status.setText(message)
+        return True
+
+    def install_selected(self) -> bool:
+        """Install or update the selected entry; True when it worked."""
+        return self._act(True)
+
+    def uninstall_selected(self) -> bool:
+        """Uninstall the selected entry; True when it worked."""
+        return self._act(False)
+
+
 def _install_run_notifier(app=None):
     """Let run-finished notifications reach this app's desktop.
 
@@ -7997,6 +8207,10 @@ class PreferencesDialog:
         if _is_alpha_visible("widgets", _NOTIFY_ALPHA_WIDGET):
             notifications_page = _NotificationsPage(
                 _page("Notifications", "PreferencesTabNotifications"), dlg)
+
+        if _is_alpha_visible("widgets", _PLUGIN_CATALOGUE_ALPHA_WIDGET):
+            dlg._plugin_catalogue_page = _PluginCataloguePage(
+                _page("Plugins", "PreferencesTabPlugins"), dlg)
 
         sound_page = None
         if sound_is_offered():
