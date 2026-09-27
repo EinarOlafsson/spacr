@@ -91,6 +91,7 @@ from PySide6.QtWidgets import (
 from ...crop_loader import (CROP_SOURCE_DATABASE, CROP_SOURCES,
                             DEFAULT_CROP_LIMIT, DEFAULT_PAGE_SIZE)
 from ..app_catalog import declared_app
+from ..i18n import tr
 from ..job_runner import JobRunner
 from ..theme import SPACING
 from ..widgets.collapsible_splitter import FoldSection
@@ -354,6 +355,7 @@ class EmbeddingsScreen(QWidget):
             "are the same number and not the same thing unless the backbone, "
             "the weights and the channel policy all match.")
         controls.addWidget(self._backbone)
+        self._add_foundation_picker(controls)
 
         controls.addWidget(QLabel("Batch:", self))
         self._batch = QSpinBox(self)
@@ -407,6 +409,34 @@ class EmbeddingsScreen(QWidget):
 
         retarget_field_tooltips(self)
 
+
+    def _add_foundation_picker(self, controls) -> None:
+        """The Foundation model picker, alpha-gated, beside the backbone.
+
+        A single-cell foundation model chosen here replaces the backbone for
+        the run, whether the picker is shown or not; None keeps the backbone.
+        """
+        from ...embeddings import _FOUNDATION_MODELS
+        from ..preferences import _apply_alpha_widgets
+
+        label = QLabel(tr("Foundation model:"), self)
+        label.setObjectName("EmbeddingsFoundationLabel")
+        controls.addWidget(label)
+        self._foundation = QComboBox(self)
+        self._foundation.setObjectName("EmbeddingsFoundationPicker")
+        self._foundation.addItem(tr("None (use the backbone)"), "")
+        for name, info in _FOUNDATION_MODELS.items():
+            self._foundation.addItem(tr(info["label"]), name)
+        self._foundation.setToolTip(tr(
+            "A model trained on microscopy rather than photographs. "
+            "OpenPhenom and ChAda-ViT take any number of stains; SubCell "
+            "takes two, DNA then the stain of interest, in the order the "
+            "channels are encoded. Weights download once. Cell-DINO's "
+            "weights are not published yet. Default None (use the "
+            "backbone)."))
+        controls.addWidget(self._foundation)
+        _apply_alpha_widgets(label)
+        _apply_alpha_widgets(self._foundation)
 
     def _fill_backbones(self) -> None:
         """Offer the engine's default first, and never an empty list."""
@@ -796,8 +826,9 @@ class EmbeddingsScreen(QWidget):
         """The :class:`spacr.embeddings.EmbeddingSpec` the controls describe."""
         from ...embeddings import EmbeddingSpec
 
+        foundation = str(self._foundation.currentData() or "")
         return EmbeddingSpec(
-            backbone=str(self._backbone.currentText()).strip(),
+            backbone=foundation or str(self._backbone.currentText()).strip(),
             channel_policy=str(self._policy.currentData()),
             batch_size=int(self._batch.value()),
         )
