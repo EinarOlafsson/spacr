@@ -2502,7 +2502,8 @@ class HomePage(QWidget):
         self._news.refresh_requested.connect(self.news_refresh_requested)
         self._totals = TotalsPanel()
         self._system = SystemPanel()
-        self._legend = StageLegend()
+        self._legend = StageLegend(self)
+        self._legend.hide()
 
         for panel in (self._queued, self._recent, self._news,
                       self._totals, self._system):

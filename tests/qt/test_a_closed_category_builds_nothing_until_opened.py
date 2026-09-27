@@ -83,6 +83,25 @@ def _differing(one: dict, other: dict) -> list:
 
 # -- the model on its own -----------------------------------------------------
 
+@pytest.fixture
+def owned_model(qtbot):
+    from spacr.qt.screens.settings_model import SettingsWidgets
+
+    models = []
+
+    def create(key):
+        model = SettingsWidgets(key)
+        models.append(model)
+        return model
+
+    yield create
+    # These models never mount their controls in a screen. Retire only
+    # controls actually built, leaving the lazy-building assertions intact.
+    for model in models:
+        for _, control in model._widgets.built_items():
+            control.close()
+            control.deleteLater()
+
 def test_every_plain_control_reads_back_what_its_plan_says(qapp):
     """The invariant that lets a control be read without being built."""
     from spacr.qt import register_self_registering_modules
@@ -113,20 +132,16 @@ def test_every_plain_control_reads_back_what_its_plan_says(qapp):
     assert not wrong, wrong[:10]
 
 
-def test_a_model_built_for_its_values_builds_every_control(qapp):
+def test_a_model_built_for_its_values_builds_every_control(owned_model):
     """Only a screen that asks for waiting gets it; everything else is eager."""
-    from spacr.qt.screens.settings_model import SettingsWidgets
-
-    model = SettingsWidgets("classify_merged")
+    model = owned_model("classify_merged")
     model.build_sections()
     assert not model._widgets.keys_to_come()
     assert len(model._widgets.built_items()) == len(model._widgets)
 
 
-def test_the_map_answers_which_settings_exist_without_building(qapp):
-    from spacr.qt.screens.settings_model import SettingsWidgets
-
-    model = SettingsWidgets("measure")
+def test_the_map_answers_which_settings_exist_without_building(owned_model):
+    model = owned_model("measure")
     model.categories_may_wait = lambda title, keys: True
     model.build_sections()
     widgets = model._widgets
@@ -145,27 +160,23 @@ def test_the_map_answers_which_settings_exist_without_building(qapp):
     assert not widgets.keys_to_come()
 
 
-def test_collect_reads_waiting_controls_without_building_them(qapp):
-    from spacr.qt.screens.settings_model import SettingsWidgets
-
-    lazy = SettingsWidgets("mask")
+def test_collect_reads_waiting_controls_without_building_them(owned_model):
+    lazy = owned_model("mask")
     lazy.categories_may_wait = lambda title, keys: True
     lazy.build_sections()
     waiting = len(lazy._widgets.keys_to_come())
     assert waiting > 50
     values = lazy.collect()
     assert len(lazy._widgets.keys_to_come()) == waiting
-    eager = SettingsWidgets("mask")
+    eager = owned_model("mask")
     eager.build_sections()
     assert _differing(values, eager.collect()) == []
     assert lazy.modified_keys() == eager.modified_keys()
     assert len(lazy._widgets.keys_to_come()) == waiting
 
 
-def test_writing_a_waiting_setting_builds_that_control_alone(qapp):
-    from spacr.qt.screens.settings_model import SettingsWidgets
-
-    model = SettingsWidgets("mask")
+def test_writing_a_waiting_setting_builds_that_control_alone(owned_model):
+    model = owned_model("mask")
     model.categories_may_wait = lambda title, keys: True
     model.build_sections()
     key = next(key for key in model._widgets.keys_to_come()
@@ -176,6 +187,34 @@ def test_writing_a_waiting_setting_builds_that_control_alone(qapp):
     assert model._widgets.is_built(key)
     assert len(model._widgets.keys_to_come()) == before - 1
     assert model.collect()[key] == target
+
+
+@pytest.mark.parametrize("waiting", [False, True])
+def test_unmounted_controls_are_deleted_with_the_model_owner(qtbot, waiting):
+    from PySide6.QtCore import QEvent
+    from shiboken6 import isValid
+
+    from spacr.qt.screens.settings_model import SettingsWidgets
+
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    model = SettingsWidgets("mask", parent=owner)
+    if waiting:
+        model.categories_may_wait = lambda title, keys: True
+    model.build_sections()
+    if waiting:
+        pending = model._widgets.keys_to_come()
+        assert pending
+        model._widgets[pending[0]]
+    controls = model._widgets.built_items()
+    for _, control in controls:
+        qtbot.addWidget(control)
+
+    # Keep the Python model and wrappers alive: Qt ownership alone must
+    # delete controls that have not yet joined a category's layout.
+    owner.deleteLater()
+    QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+    assert not [key for key, control in controls if isValid(control)]
 
 
 # -- on a real window ---------------------------------------------------------
@@ -348,7 +387,7 @@ def test_a_category_opened_after_a_switch_to_swedish_is_in_swedish(qtbot):
         assert not english, f"opened in English: {english[:5]}"
 
 
-def test_a_state_rule_reaches_controls_built_after_it_ran(qtbot):
+def test_a_state_rule_reaches_controls_built_after_it_ran(qtbot, owned_model):
     """The classifier family greys the other family's settings, built or not."""
     from spacr.classify import FAMILY_SETTINGS
 
@@ -365,9 +404,7 @@ def test_a_state_rule_reaches_controls_built_after_it_ran(qtbot):
     screen._open_every_waiting_heading()
     _pump(5)
     eager_states = {}
-    from spacr.qt.screens.settings_model import SettingsWidgets
-
-    eager = SettingsWidgets("classify_merged")
+    eager = owned_model("classify_merged")
     eager.build_sections()
     eager._widgets["classifier_family"].setCurrentIndex(other)
     for key in waiting:
@@ -402,3 +439,19 @@ def test_closing_a_screen_builds_nothing(qtbot, monkeypatch):
     screen.close()
     _pump(5)
     assert built == []
+
+
+def test_deleting_a_screen_retires_unopened_category_controls(qtbot):
+    from PySide6.QtCore import QEvent
+    from shiboken6 import isValid
+
+    window, screen = _window(qtbot, "mask")
+    controls = [(key, control)
+                for key, control in screen._settings_model._widgets.built_items()
+                if key in screen._waiting_heading_of]
+    assert controls
+    assert all(not control.isVisible() for _, control in controls)
+    window.close()
+    window.deleteLater()
+    QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+    assert not [key for key, control in controls if isValid(control)]

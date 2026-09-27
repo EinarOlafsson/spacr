@@ -3886,9 +3886,14 @@ class AppScreen(QWidget):
                 section, own_keys, bool(children))
         except AttributeError:
             pass
+        waiting_owner = getattr(self, "_waiting_controls_owner", None)
+        if waiting_owner is None:
+            waiting_owner = QWidget(self._settings_content)
+            waiting_owner.hide()
+            self._waiting_controls_owner = waiting_owner
         for _label, widget in spec[1] or ():
-            if isinstance(widget, QWidget) and widget.parentWidget() is not None:
-                widget.setParent(None)
+            if isinstance(widget, QWidget):
+                widget.setParent(waiting_owner)
         section._spacr_waiting_spec = spec
         section._spacr_declared_rows = ()
         opener = partial(self._open_a_waiting_heading, section)

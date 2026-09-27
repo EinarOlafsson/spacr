@@ -9038,6 +9038,8 @@ class SettingsWidgets:
                     if plan is None:
                         continue
                     widget = self._build_plain(plan)
+                    if self._parent is not None:
+                        widget.setParent(self._parent)
                     self._add_source_actions(key, widget)
                     attach_api_tooltip(widget, self.app_key, key,
                                        _descriptions=self._tooltips)
@@ -9517,12 +9519,16 @@ class SettingsWidgets:
         """
         route, what = self._route_control(kind, options, default, key)
         if route == "special":
-            return what()
-        if route == "plain":
+            widget = what()
+        elif route == "plain":
             widget = self._build_plain(what)
             self._add_source_actions(key, widget)
-            return widget
-        return None
+        else:
+            return None
+        if (widget is not None and self._parent is not None
+                and widget.parent() is None):
+            widget.setParent(self._parent)
+        return widget
 
     def _add_source_actions(self, key: str, widget: QWidget) -> None:
         """Give the ``src`` field of Make Masks and Measure a cloud browser.

@@ -1322,3 +1322,18 @@ runtime checks; the fresh-process heavy-import check remains to reproduce.
 Passive bounded probes are investigating cross-file retained memory without
 GC drains or higher limits. Receipt:
 features/data/47_serial_acceptance_2026-09-27.json.
+
+STATUS 2026-09-27 — bounded ownership defects repaired; acceptance still open
+Passive ordered-prefix observations found four unowned folded test pages,
+model-only controls without teardown ownership, controls detached from waiting
+categories, and a hidden Home legend without a Qt parent. Eager/lazy controls
+now keep the supplied owner; unopened categories park controls under a hidden
+screen-owned widget. Test-created pages/controls explicitly retire their own
+objects, and Home owns its hidden compatibility legend. No collector cadence,
+global cleanup, memory guard, or cgroup ceiling was changed.
+Two eager/lazy owner-destruction cases fail before the fix. Forty unique focused
+checks now pass; the combined ownership sequence and its following normal test
+boundary end with zero live Qt widgets. A busy JobRunner warning at one earlier
+test boundary remains recorded for longer-session follow-up. These bounded
+results do not close the full serial acceptance requirement. Receipt:
+features/data/47_qt_ownership_memory_probe_2026-09-27.json.
