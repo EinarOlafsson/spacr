@@ -331,3 +331,16 @@ The generated-caption source-hash guard was run after adding the new tooltip
 to the awaiting list. It still fails on12 other captions (notification/mail
 settings, hit-scoring help and the no-source notice); the Invasion tooltip is
 not among them. That phase2 catalog failure is not claimed green here.
+
+2026-09-27 — RUNTIME TRANSLATION TAIL ACCEPTED
+The current labels, help, categories and UI are source-current in all nine
+locales. The canonical audit passed; strict runtime checks passed 54 cases
+(51 on the first run, the 3 corrected test-cohort/context assumptions on the
+focused rerun). The advisory translation plugin was disabled. This closes
+this item's runtime catalog tail against the existing implementation and
+scientific evidence above; it adds no new efficacy or GPU claim. The shared
+API/publication work remains tracked separately under 411/358.
+
+Receipt: features/data/316_runtime_codex_delta_2026-09-27.json.
+Review: docs/i18n/2026-09-27-runtime-codex-delta.md.
+AI technical review (Codex), no native-speaker signoff.

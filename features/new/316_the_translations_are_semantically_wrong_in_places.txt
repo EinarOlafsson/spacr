@@ -1295,3 +1295,28 @@ written that day (201 records across the sixteen
 docs/i18n/reviewed/runtime/hi/2026-09-15-*.json files). None was read by a
 Hindi speaker. Hindi stays visible in the language menu; the record of its
 review status is REVIEW_SCOPE_2026-09-04.md, "Who reviewed what".
+
+--------------------------------------------------------------------------------
+2026-09-27 — CURRENT RUNTIME DELTA AND HINDI FALLBACKS ACCEPTED
+--------------------------------------------------------------------------------
+All nine runtime catalogs were rebuilt from reviewed inputs, without model
+inference, and passed the full canonical audit at 8,361 unique English
+sources: 1,194 labels, 1,216 help entries, 229 categories, 6,014 UI captions and
+72 module summaries. The 140-source shared delta includes 11 captions the
+extractor had missed. Hindi's 35 historical fallback captions were directly
+translated after content review; no external filter was invoked. Historical
+fallback records remain as dated evidence.
+
+The 1,295 locale/source cases passed the strict draft gates. The 54 named
+runtime checks passed with the advisory translation plugin disabled: 51 on
+the first run, then 3 focused repairs to historical retirement counts and the
+Chinese informational-guide test. All 76 resolved awaiting captions were
+removed only after the catalog audit. Exact record-identity changes reproduce
+the old ratchet pin before moving it: +813/-37.
+
+Receipts: features/data/316_runtime_codex_delta_2026-09-27.json and
+features/data/316_runtime_inventory_delta_2026-09-27.json. Review scope:
+docs/i18n/2026-09-27-runtime-codex-delta.md. This is AI technical review
+(Codex), no native-speaker signoff; mechanical coverage is not a claim that
+every historical translation has had semantic or listening review. Combined
+API coverage/publication remains in 411; tutorial completion remains in 358.

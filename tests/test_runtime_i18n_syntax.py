@@ -15,7 +15,7 @@ if str(TOOLS) not in sys.path:
 def _new_download_sources(language: str, reviewed: dict[str, str]) -> set[str]:
     """Account for the Import and synthetic Invasion review records separately."""
     sources: set[str] = set()
-    for filename, expected in (("import-examples", 9), ("synthetic-invasion", 2)):
+    for filename, expected in (("import-examples", 9), ("synthetic-invasion", 1)):
         document = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
                                f"2026-09-21-{filename}.json").read_text())
         added = {record["source"] for record in document["records"]}
@@ -23,7 +23,15 @@ def _new_download_sources(language: str, reviewed: dict[str, str]) -> set[str]:
         assert added <= reviewed.keys()
         assert not added & sources
         sources.update(added)
-    assert len(sources) == 11
+    # Item463 replaced the unsegmented-example tooltip. Preserve the original
+    # two-record evidence and prove that only the superseded tooltip retired.
+    archive = json.loads((ROOT / "features/data/463_retired_runtime_review_2026-09-27" /
+                          f"{language}.json").read_text())["records"]
+    old_invasion = {record["source"] for record in archive}
+    assert len(archive) == len(old_invasion) == 2
+    assert len(old_invasion - sources) == 1
+    assert not (old_invasion - sources) & reviewed.keys()
+    assert len(sources) == 10
     return sources
 
 
@@ -181,6 +189,13 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     latest6 = {record["source"] for record in sixth}
     assert len(sixth) == len(latest6) and not latest6 & sources
     sources |= latest6
+    # Direct Codex-reviewed delta: 129 new sources plus11 extraction repairs,
+    # minus the Spotiflow identity; Hindi also resolves35 historical fallbacks.
+    seventh = json.loads((folder / "2026-09-27-runtime-codex-delta.json").read_text())["records"]
+    latest7 = {record["source"] for record in seventh}
+    assert len(seventh) == len(latest7) == (174 if language == "hi" else 139)
+    assert not latest7 & sources
+    sources |= latest7
     assert sources <= reviewed.keys()
     return sources
 
@@ -423,8 +438,10 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(older_all_sources - preview_sources - normalized_sources) == 607  # Item 511 retired four filter captions. Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
     assert len(older_all_sources - normalized_sources) == 612  # Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
     assert len(older_all_sources) == 617  # Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
-    assert len(all_reviewed.keys() - subsequent_sources - debt_sources) == 628  # Item 511 retired four filter captions. Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
-    assert len(all_reviewed.keys() - debt_sources) == 1667  # 931 - 9 - 4 + 782, less six filter captions item 511 retired, less 19 (316 retirement 18, psf-help 1). Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
+    # Item463 retired one superseded download tooltip; its full old evidence
+    # and exact set difference are checked by _new_download_sources above.
+    assert len(all_reviewed.keys() - subsequent_sources - debt_sources) == 627
+    assert len(all_reviewed.keys() - debt_sources) == 1666
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -662,10 +679,11 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(older_all_sources - preview_sources - normalized_sources) == 318  # Item 511 retirement (2026-09-25): -12.
     assert len(older_all_sources - normalized_sources) == 323  # Item 511 retirement (2026-09-25): -12.
     assert len(older_all_sources) == 328  # Item 511 retirement (2026-09-25): -12.
-    assert len(all_reviewed.keys() - refresh_sources - subsequent_sources - debt_sources) == 339  # Item 511 retirement (2026-09-25): -12.
+    # Item463 retired the one superseded download tooltip, proven above.
+    assert len(all_reviewed.keys() - refresh_sources - subsequent_sources - debt_sources) == 338
     # 316 (71071b6c6) retired 17 setup and sign-in captions from the four slices to _ROWS.
-    assert len(all_reviewed.keys() - subsequent_sources - debt_sources) == 621  # Item 511 retired four filter captions. Item 511 retirement (2026-09-25): -12.
-    assert len(all_reviewed.keys() - debt_sources) == 1659  # 926 - 9 - 3 + 782, less six filter captions item 511 retired, less 19 (316 retirement 18, psf-help 1). Item 511 retirement (2026-09-25): -12.
+    assert len(all_reviewed.keys() - subsequent_sources - debt_sources) == 620
+    assert len(all_reviewed.keys() - debt_sources) == 1658
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

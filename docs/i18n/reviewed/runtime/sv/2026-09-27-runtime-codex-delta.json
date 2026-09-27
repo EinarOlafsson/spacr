@@ -1,0 +1,981 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI technical review (Codex), no native-speaker signoff",
+  "note": "Direct AI translation and technical review against current English source and code context. German, French and Icelandic, plus the 35 historical Hindi captions, also received a second independent Codex AI technical review. No native-speaker signoff. Hindi historical IDs 821–855 were directly translated after content review; no external translation filter was invoked. Prior fallback history remains in earlier evidence.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO's weights are not published yet. Default None (use the backbone).",
+      "source": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO's weights are not published yet. Default None (use the backbone).",
+      "source_sha256": "7ca7859bd5cc5cf407d141cc972dcadea61f53d5981ce243bc604b60cac418de",
+      "translation": "En modell tränad på mikroskopibilder i stället för fotografier. OpenPhenom och ChAda-ViT tar valfritt antal färgningar; SubCell tar två, först DNA och sedan den färgning som ska undersökas, i den ordning kanalerna är kodade. Vikterna laddas ned en gång. Cell-DINO:s vikter har inte publicerats ännu. Standard: None (använd basnätverket)."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "microscope_event_query",
+      "source": "A pandas query on microscope_event_table choosing which objects are events, for example pathogen_area > 200 or cell_channel_1_mean_intensity > 900. Blank makes every object an event, up to microscope_max_events per field. Default blank.",
+      "source_sha256": "1b7e75ef14364e9018c255ea5d875a6951b1e3c73e8ff04adfff99535cb5a5ab",
+      "translation": "En pandas-fråga mot microscope_event_table som väljer vilka objekt som är händelser, till exempel pathogen_area > 200 eller cell_channel_1_mean_intensity > 900. Tomt gör varje objekt till en händelse, upp till microscope_max_events per bildfält. Standard: tomt."
+    },
+    {
+      "table": "ui",
+      "key": "A spaCR label mask (.npy or image) of this object type, made from the image above. Default empty.",
+      "source": "A spaCR label mask (.npy or image) of this object type, made from the image above. Default empty.",
+      "source_sha256": "ab2431672e3ebbba6d416c8c426bd8eae59d0c20ff3471e6542bf091f7686c88",
+      "translation": "En spaCR-etikettmask (.npy eller bild) för den här objekttypen, skapad från bilden ovan. Standard: tomt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "microscope_positions",
+      "source": "A table (.csv, .xlsx or .parquet) of the stage position each field was acquired at, with the columns field (the field name the watch prints, such as plate1_A01_0001_001), x and y in micrometres at the image centre, and optionally z. Events in a field missing from it are recorded but not imaged. Default blank.",
+      "source_sha256": "944880435554a02014ff5e554f6fdb8481e26ae2a2d9cd89b8836b6708eb4a1a",
+      "translation": "En tabell (.csv, .xlsx eller .parquet) med objektbordets position när varje bildfält togs, med kolumnerna field (bildfältsnamnet som övervakningen skriver ut, till exempel plate1_A01_0001_001), x och y i mikrometer vid bildens centrum, samt valfritt z. Händelser i bildfält som saknas i tabellen registreras men avbildas inte. Standard: tomt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_events_model",
+      "source": "A trained event model (event_model.pt from an earlier run) to apply when timelapse_events_annotations is blank. It is read as tensors only. Default None.",
+      "source_sha256": "5addd74612490b3f08e2290b79c29480c72256f9a243d86bcef93134e5e9c594",
+      "translation": "En tränad händelsemodell (event_model.pt från en tidigare körning) som används när timelapse_events_annotations är tomt. Den läses endast som tensorer. Standard: None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "robustness_report",
+      "source": "After the masks are made, re-segment a few sampled fields with the diameter, the flow and cell-probability thresholds and contrast enhancement each moved a little, and report how much the object count, median area, mean object intensity and the objects themselves change. Settings whose results move more than robustness_tolerance are flagged fragile. Writes qc/segmentation_robustness_<object>.csv and a heatmap. Two-dimensional Cellpose-SAM runs only. Default False.",
+      "source_sha256": "67c78d886ede43196a1ac1676adfa4bb5eba231eea83bab2ff55b6d2459068f0",
+      "translation": "När maskerna är klara segmenteras några utvalda bildfält på nytt med små ändringar av diametern, trösklarna för flöde och cellsannolikhet samt kontrastförbättringen, var för sig. Rapporten visar hur mycket objektantal, medianarea, medelintensitet per objekt och själva objekten ändras. Inställningar vars resultat ändras mer än robustness_tolerance markeras som känsliga. Skriver qc/segmentation_robustness_<object>.csv och en värmekarta. Endast tvådimensionella Cellpose-SAM-körningar. Standard: False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_events",
+      "source": "After the run, detect events on every tracked object with a small neural network that reads short windows of each track (shape, intensity, movement, tracks starting or ending nearby, and image crops): mitosis, egress, invasion, host death or whatever classes timelapse_events_annotations names. Writes time-stamped events, lineage trees re-linked from detected mitoses and Kaplan-Meier time to each event per condition to tracks/events. Runs on the CPU. Default False.",
+      "source_sha256": "f7770d466133e7f859c6a59b6865c566414a2190f4e70670291a2b3a0f194478",
+      "translation": "Efter körningen detekteras händelser i varje spårat objekt med ett litet neuralt nätverk som läser korta fönster av varje spår (form, intensitet, rörelse, spår som börjar eller slutar i närheten samt bildutsnitt): mitos, utträde, invasion, värdcelldöd eller de klasser som anges i timelapse_events_annotations. Skriver tidsstämplade händelser, släktträd vars länkar byggts om utifrån detekterade mitoser och Kaplan-Meier-tid till varje händelse per betingelse till tracks/events. Körs på CPU. Standard: False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "robustness_enhancement",
+      "source": "Also re-segment each sampled field after contrast-limited adaptive histogram equalisation (CLAHE), to see whether contrast enhancement changes what the model finds. Default True.",
+      "source_sha256": "227b45710c4c09d1fd1e1fa14b5f11214423efb5d820cd3caf585cdabc3b5054",
+      "translation": "Segmentera även varje utvalt bildfält på nytt efter kontrastbegränsad adaptiv histogramutjämning (CLAHE), för att se om kontrastförbättring ändrar vad modellen hittar. Standard: True."
+    },
+    {
+      "table": "ui",
+      "key": "An access token, for a server or topic that needs one. Kept like a password. Leave empty to keep the saved one. Default empty.",
+      "source": "An access token, for a server or topic that needs one. Kept like a password. Leave empty to keep the saved one. Default empty.",
+      "source_sha256": "7d77a23cab2b2062de58eb613849df6a4e7d6e3a9f536c2efdf102864b5fc5f1",
+      "translation": "En åtkomsttoken för en server eller ett ämne som kräver en sådan. Förvaras som ett lösenord. Lämna tomt för att behålla den sparade. Standard: tomt."
+    },
+    {
+      "table": "ui",
+      "key": "Assign and write",
+      "source": "Assign and write",
+      "source_sha256": "4b19b0918a16814789d1defd63872cc04958ae7e12370bec65bb412680f9e93c",
+      "translation": "Tilldela och skriv"
+    },
+    {
+      "table": "ui",
+      "key": "Call hits above the negative control, below it, or both.",
+      "source": "Call hits above the negative control, below it, or both.",
+      "source_sha256": "06970e02b6eb5e3106480d116cbaf683b7db42e9a9f0ba5da360d9f66a17c817",
+      "translation": "Identifiera träffar över negativkontrollen, under den eller i båda riktningarna."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "robustness_cellprob_thresholds",
+      "source": "Cell-probability thresholds the robustness report tries in place of the run's own, one at a time. Lower grows objects and finds faint ones; higher shrinks or drops them. Default [-2.0, 2.0].",
+      "source_sha256": "dc2d99c3ef85fccf113a320cd80c20fa4f2255911d79b825216f7a6dbff7fe67",
+      "translation": "Trösklar för cellsannolikhet som robusthetsrapporten provar i stället för körningens egna, en i taget. Lägre värden gör objekten större och hittar svaga objekt; högre gör dem mindre eller tar bort dem. Standard: [-2.0, 2.0]."
+    },
+    {
+      "table": "ui",
+      "key": "Choose a per-cell table with a 'well' column, a 'well_label' column (1 for treated or knockout wells, 0 for controls) and embedding or numeric feature columns. An attention model learns from the well labels alone which cells carry the phenotype. Two tables are written beside the input: each cell's attention and each well's probability. Runs on the CPU. Default 4-fold cross-validation over wells.",
+      "source": "Choose a per-cell table with a 'well' column, a 'well_label' column (1 for treated or knockout wells, 0 for controls) and embedding or numeric feature columns. An attention model learns from the well labels alone which cells carry the phenotype. Two tables are written beside the input: each cell's attention and each well's probability. Runs on the CPU. Default 4-fold cross-validation over wells.",
+      "source_sha256": "0c491bd967eb0417bee4d207b89b4822b99e9a5438b0c84fac124aeed0cabd6a",
+      "translation": "Välj en tabell med en rad per cell, kolumnen 'well', kolumnen 'well_label' (1 för behandlade brunnar eller knockout-brunnar, 0 för kontroller) och kolumner med inbäddningar eller numeriska egenskaper. En uppmärksamhetsmodell lär sig enbart från brunnetiketterna vilka celler som bär fenotypen. Två tabeller skrivs bredvid indata: varje cells uppmärksamhetsvikt och varje brunns sannolikhet. Körs på CPU. Standard: 4-faldig korsvalidering över brunnar."
+    },
+    {
+      "table": "ui",
+      "key": "Choose a per-cell table with well labels",
+      "source": "Choose a per-cell table with well labels",
+      "source_sha256": "1bb2db19fa65c0f9778875126430d8885a37656cc1da91efdf3842950c6a28b1",
+      "translation": "Välj en celltabell med brunnetiketter"
+    },
+    {
+      "table": "ui",
+      "key": "Choose the platform output folder first.",
+      "source": "Choose the platform output folder first.",
+      "source_sha256": "c762076a69efcac314f001ec3a6c7e4086e3d3070a365e675c75b15ea59e8425",
+      "translation": "Välj först plattformens utdatamapp."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measure_gpu",
+      "source": "Compute the per-object intensity statistics, GLCM homogeneity and Zernike moments on a CUDA GPU through PyTorch, all objects of a field at once instead of one at a time. Values match the CPU run within float tolerance. Covers 2-D masks without voxel spacing; anything else, a missing PyTorch or no visible CUDA device measures on the CPU as usual. Default False.",
+      "source_sha256": "6eaaea0282c282c44b813c237e745549466d706e066e6dfc14d15529d80d0d6e",
+      "translation": "Beräkna intensitetsstatistik per objekt, GLCM-homogenitet och Zernike-moment på en CUDA-GPU via PyTorch, för alla objekt i ett bildfält samtidigt i stället för ett i taget. Värdena stämmer med CPU-körningen inom flyttalstoleransen. Gäller 2-D-masker utan voxelavstånd; i övriga fall, om PyTorch saknas eller om ingen CUDA-enhet är synlig, görs mätningen på CPU som vanligt. Standard: False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_events_conditions",
+      "source": "Conditions compared in the event timing, as name=wells entries in the plate-map notation, such as ['mock=c1,c2', 'drug=c3,c4']; fields in wells no entry names are left out. Blank compares wells. Default None.",
+      "source_sha256": "77be758082531ddb7e490f6baf0a62190de63ed446549f04f11084322960d28d",
+      "translation": "Betingelser som jämförs i händelsetiderna, som poster av typen name=wells i plattkartans notation, till exempel ['mock=c1,c2', 'drug=c3,c4']; bildfält i brunnar som ingen post anger utelämnas. Tomt jämför brunnar. Standard: None."
+    },
+    {
+      "table": "ui",
+      "key": "Could not assign: {error}",
+      "source": "Could not assign: {error}",
+      "source_sha256": "57327bb7db34998bdc37321ef66f061e7a8f6f7168b2a06b62eea6966d420e91",
+      "translation": "Kunde inte tilldela: {error}"
+    },
+    {
+      "table": "ui",
+      "key": "Could not load: {error}",
+      "source": "Could not load: {error}",
+      "source_sha256": "d34efd703c08555fbeafc6d36864cf9b7f4b766f6bdc519325e8ff2efb337e5e",
+      "translation": "Kunde inte läsa in: {error}"
+    },
+    {
+      "table": "ui",
+      "key": "Download about {size} MB of SYNTHETIC test data: two-colour images drawn by spaCR, segmented by Mask with Cellpose-SAM, then measured by Measure. No real cells were imaged. A staining-control column and two conditions have a known share of invaded parasites; ground truth records the drawn objects, not the segmented masks. Settings are filled in, so Run is the next step. Cached after the first download.",
+      "source": "Download about {size} MB of SYNTHETIC test data: two-colour images drawn by spaCR, segmented by Mask with Cellpose-SAM, then measured by Measure. No real cells were imaged. A staining-control column and two conditions have a known share of invaded parasites; ground truth records the drawn objects, not the segmented masks. Settings are filled in, so Run is the next step. Cached after the first download.",
+      "source_sha256": "c922848a8b7e2cd03b6ceb261c77b466aae137a3eec9912cc503873eed825c75",
+      "translation": "Ladda ned cirka {size} MB SYNTETISKA testdata: tvåfärgsbilder ritade av spaCR, segmenterade av Mask med Cellpose-SAM och sedan mätta med Measure. Inga verkliga celler har avbildats. En kolumn med färgningskontroll och två betingelser har en känd andel invaderade parasiter; facit beskriver de ritade objekten, inte de segmenterade maskerna. Inställningarna fylls i, så nästa steg är Kör. Data mellanlagras efter första nedladdningen."
+    },
+    {
+      "table": "ui",
+      "key": "Event Detection (Alpha)",
+      "source": "Event Detection (Alpha)",
+      "source_sha256": "460b9b85c82ea7c2e5db4c41c28f50fad49af1521780f8c561a39b7faac81499",
+      "translation": "Händelsedetektering (Alpha)"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "robustness_flow_thresholds",
+      "source": "Flow thresholds the robustness report tries in place of the run's own, one at a time. Higher keeps objects whose flows are less consistent. Default [0.2, 0.6].",
+      "source_sha256": "c719b214b3ad1fc389e7ac9451f100f854102cea3db05cfe7c9b687b1c1af27b",
+      "translation": "Flödeströsklar som robusthetsrapporten provar i stället för körningens egna, en i taget. Högre värden behåller objekt vars flöden är mindre samstämmiga. Standard: [0.2, 0.6]."
+    },
+    {
+      "table": "ui",
+      "key": "Foundation model:",
+      "source": "Foundation model:",
+      "source_sha256": "16096dbb4f700f67072f691232bb70bb4ff5823ada2f00d004c048bb26eb3dfc",
+      "translation": "Grundmodell:"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "microscope_stage_transform",
+      "source": "Four numbers [a, b, c, d] turning a pixel offset from the image centre (dx columns, dy rows) into a stage move of (a*dx + b*dy, c*dx + d*dy) micrometres. For a pixel size p with camera and stage axes aligned use [p, 0, 0, p]; negate a term for a flipped axis and swap them for a camera turned 90 degrees. Default [1.0, 0.0, 0.0, 1.0].",
+      "source_sha256": "7eb533829f6772d12f4b3cec4a35768e21c8ee5bf217abb99ede4e8ec011bbd9",
+      "translation": "Fyra tal [a, b, c, d] som omvandlar en pixelförskjutning från bildens centrum (dx kolumner, dy rader) till en förflyttning av objektbordet på (a*dx + b*dy, c*dx + d*dy) mikrometer. För pixelstorlek p med kamera- och objektbordsaxlar i samma riktning används [p, 0, 0, p]; byt tecken på en term för en spegelvänd axel och byt plats på dem om kameran vridits 90 grader. Standard: [1.0, 0.0, 0.0, 1.0]."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_events_window",
+      "source": "Frames the detector sees around each frame of a track, centred on it; an even number is raised by one. Longer windows see slower changes but blur events close together. Only read when training. Default 9.",
+      "source_sha256": "25ba9b52009fd9fb771b0d6d1723fcc1dcb448000a83976c09c976d668dc0dec",
+      "translation": "Antal bildrutor som detektorn ser runt varje bildruta i ett spår, centrerat på den; ett jämnt antal höjs med ett. Längre fönster ser långsammare förändringar men suddar ut händelser som ligger nära varandra. Läses endast vid träning. Standard: 9."
+    },
+    {
+      "table": "ui",
+      "key": "GPU Measurement (Alpha)",
+      "source": "GPU Measurement (Alpha)",
+      "source_sha256": "7aa096a77e726728bdae92c8dd521a6664afb5527a73b3681361cec989f4923c",
+      "translation": "GPU-mätning (Alpha)"
+    },
+    {
+      "table": "ui",
+      "key": "Give at least one mask and the measurement database.",
+      "source": "Give at least one mask and the measurement database.",
+      "source_sha256": "5edf810deb0530dabd5fdc52dda881e2393a28328dc2e949e6d9f1f7fb9ed7b2",
+      "translation": "Ange minst en mask och mätdatabasen."
+    },
+    {
+      "table": "ui",
+      "key": "How SSMD is estimated from the negative control: method of moments, the unbiased estimate, or the median and MAD.",
+      "source": "How SSMD is estimated from the negative control: method of moments, the unbiased estimate, or the median and MAD.",
+      "source_sha256": "9baae8acb675b838b88251097617ad13c17169d112de6d623f02aa1fa23ed416",
+      "translation": "Hur SSMD skattas från negativkontrollen: momentmetoden, den väntevärdesriktiga skattningen eller medianen och MAD."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "robustness_fields",
+      "source": "How many fields the robustness report samples at random (seeded by random_seed) and re-segments at every grid point. More fields give a steadier verdict; each field costs one segmentation per grid point. Default 4.",
+      "source_sha256": "47bd9fcb36835eacf54554d0e30dec5702270160a029b10198423e35e181b7fa",
+      "translation": "Hur många bildfält robusthetsrapporten väljer slumpmässigt (med random_seed som frö) och segmenterar på nytt vid varje punkt i rutnätet. Fler bildfält ger en stabilare bedömning; varje bildfält kostar en segmentering per rutnätspunkt. Standard: 4."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "microscope_timepoints",
+      "source": "How many images the microscope takes at each event: 1 is a single snapshot, more makes a timelapse spaced microscope_interval_seconds apart. The microscope keeps its current channel, objective and exposure. Default 1.",
+      "source_sha256": "86fbb0e0d28f703aeaf114c293aac343ee0ff40c6294f3067559000dc689b59a",
+      "translation": "Hur många bilder mikroskopet tar vid varje händelse: 1 ger en enda ögonblicksbild, fler ger en tidsserie med microscope_interval_seconds mellan bilderna. Mikroskopet behåller aktuell kanal, objektiv och exponering. Standard: 1."
+    },
+    {
+      "table": "ui",
+      "key": "Image level",
+      "source": "Image level",
+      "source_sha256": "aad191ad97e6fcfd9c608b5988b318c343e155661064f6455d8257cd574124fc",
+      "translation": "Bildnivå"
+    },
+    {
+      "table": "ui",
+      "key": "Landmarks",
+      "source": "Landmarks",
+      "source_sha256": "2ae8aced0bae3dab26ac2ff7b3564e4b3690a39babfd9ab548483f648907ff4d",
+      "translation": "Referenspunkter"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "robustness_tolerance",
+      "source": "Largest median relative change in object count, median area or mean intensity, or share of the run's objects not found again, that still counts as stable. A grid point beyond it is flagged fragile. Default 0.2.",
+      "source_sha256": "1fab0ba27b34e9a084fa6c6d7ecd90b5f0d64003f1350b2f2c6f91a307a76218",
+      "translation": "Största relativa medianändring i objektantal, medianarea eller medelintensitet, eller andel av körningens objekt som inte hittas igen, som fortfarande räknas som stabil. En rutnätspunkt som överskrider detta markeras som känslig. Standard: 0.2."
+    },
+    {
+      "table": "ui",
+      "key": "Learn from well labels…",
+      "source": "Learn from well labels…",
+      "source_sha256": "8f3d35dd5bdd76ebbeb4ff91e60fa76e7629aead0d23361cba9d69b2d9f1757c",
+      "translation": "Lär från brunnetiketter…"
+    },
+    {
+      "table": "ui",
+      "key": "Learning from well labels…",
+      "source": "Learning from well labels…",
+      "source_sha256": "cace352045a039e1cc1b81ffaf489431a106bc4bf2baf8c41f4fabd016214f46",
+      "translation": "Lär från brunnetiketter…"
+    },
+    {
+      "table": "ui",
+      "key": "Load and register",
+      "source": "Load and register",
+      "source_sha256": "c372237c781e28fe93b64916e44ba36c0868136d277a0db53230894343878251",
+      "translation": "Läs in och registrera"
+    },
+    {
+      "table": "ui",
+      "key": "Map this field's uncertainty",
+      "source": "Map this field's uncertainty",
+      "source_sha256": "e4830f6c4ae63f3bf8b88abd593ba6419f95aa6445e091cd73aef0d8963eadfe",
+      "translation": "Kartlägg bildfältets osäkerhet"
+    },
+    {
+      "table": "ui",
+      "key": "Mapping segmentation uncertainty: four detection runs…",
+      "source": "Mapping segmentation uncertainty: four detection runs…",
+      "source_sha256": "c9c443b58a7546c273183ee8ab5dc5d323afeb3b7f72b7cfc3d628267d64f3d7",
+      "translation": "Kartlägger segmenteringsosäkerhet: fyra detekteringskörningar…"
+    },
+    {
+      "table": "setting_labels",
+      "key": "measure_gpu",
+      "source": "Measure GPU",
+      "source_sha256": "49bc8300881ff0f4502d5fc185780da2b3552af52ccabe0d039dc80182f7c8cd",
+      "translation": "Mät med GPU"
+    },
+    {
+      "table": "ui",
+      "key": "Measurement database",
+      "source": "Measurement database",
+      "source_sha256": "e88dcee941bf4a6ee6b4ccc883c4293ce14830a6d571cb6490bd8798b997c58e",
+      "translation": "Mätdatabas"
+    },
+    {
+      "table": "setting_labels",
+      "key": "microscope_driver",
+      "source": "Microscope driver",
+      "source_sha256": "da877fd3e8412d82cb3ef9d9bc7d303019328a94ea8ff1f2aac4c102ebf56946",
+      "translation": "Mikroskopdrivrutin"
+    },
+    {
+      "table": "setting_labels",
+      "key": "microscope_event_query",
+      "source": "Microscope event query",
+      "source_sha256": "18af755902107c0cf7d821b68177f5b24162c139b55e3f1dfbd13e479b358738",
+      "translation": "Mikroskopets händelsefråga"
+    },
+    {
+      "table": "setting_labels",
+      "key": "microscope_event_table",
+      "source": "Microscope event table",
+      "source_sha256": "e091b714bc5293f7663887060b4db5ec31c3d234d27e6129b82306f388116604",
+      "translation": "Mikroskopets händelsetabell"
+    },
+    {
+      "table": "setting_labels",
+      "key": "microscope_feedback",
+      "source": "Microscope feedback",
+      "source_sha256": "b0744e4463733c32360bceb4a00381bbfe70c136766f1333b7ce0b5d20c73300",
+      "translation": "Mikroskopåterkoppling"
+    },
+    {
+      "table": "setting_labels",
+      "key": "microscope_interval_seconds",
+      "source": "Microscope interval seconds",
+      "source_sha256": "2df74e7b6b289e49f8a3246dab3a37301bc7f7e263e0ebccdac118211436f7c8",
+      "translation": "Mikroskopintervall i sekunder"
+    },
+    {
+      "table": "setting_labels",
+      "key": "microscope_max_events",
+      "source": "Microscope max events",
+      "source_sha256": "2db02845ef270aafd01774709cb0e957b2fc02278e62d275fa02cc14dc4fb706",
+      "translation": "Max händelser för mikroskop"
+    },
+    {
+      "table": "setting_labels",
+      "key": "microscope_positions",
+      "source": "Microscope positions",
+      "source_sha256": "07e14ab17b7c1001f5221b746f873ea3542f773ce6fd9c9f37b3cfcdd38fd967",
+      "translation": "Mikroskoppositioner"
+    },
+    {
+      "table": "setting_labels",
+      "key": "microscope_simulated_folder",
+      "source": "Microscope simulated folder",
+      "source_sha256": "fa3626a1c5cb76bc48f522f2a6606ab199c81907b481a40fc04989db9f191138",
+      "translation": "Mapp för simulerat mikroskop"
+    },
+    {
+      "table": "setting_labels",
+      "key": "microscope_stage_transform",
+      "source": "Microscope stage transform",
+      "source_sha256": "d17ed0b72f2bde902dc11a907295cb0324e73e844c913a6052253eb5c6faaa14",
+      "translation": "Mikroskopets bordstransform"
+    },
+    {
+      "table": "setting_labels",
+      "key": "microscope_timepoints",
+      "source": "Microscope timepoints",
+      "source_sha256": "5adf70cfea5234e7c1b270d3a50a44e1525b963cad3caf19de01e60c81e4d89e",
+      "translation": "Mikroskopets tidpunkter"
+    },
+    {
+      "table": "ui",
+      "key": "Minimum transcript QV",
+      "source": "Minimum transcript QV",
+      "source_sha256": "3f401a7b5d351508a294ed470b16cbd3ddcc35a6252cefdc6dce033dc8cf8d11",
+      "translation": "Minsta QV för transkript"
+    },
+    {
+      "table": "categories",
+      "key": "Mitosis, egress, invasion and host death detected on tracks by a small network trained on annotated events, with held-out precision and recall, division links re-made from mitoses and time to each event per condition.",
+      "source": "Mitosis, egress, invasion and host death detected on tracks by a small network trained on annotated events, with held-out precision and recall, division links re-made from mitoses and time to each event per condition.",
+      "source_sha256": "125bc37777f432c4101b348d23257de56f95209a91a5dc731d017272c7daf559",
+      "translation": "Mitos, utträde, invasion och värdcelldöd detekteras i spår av ett litet nätverk tränat på annoterade händelser, med precision och återkallning på undanhållna data, delningslänkar ombyggda från mitoser och tid till varje händelse per betingelse."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "robustness_diameter_factors",
+      "source": "Multiples of the object diameter the robustness report tries, one at a time; a blank diameter counts as Cellpose's nominal 30 pixels. Default [0.75, 1.25].",
+      "source_sha256": "a2aa5f4df3c6ae4f4615b6e4c4fcd3fb3c24f7e7207120071239dc2e5f0d2527",
+      "translation": "Multiplar av objektdiametern som robusthetsrapporten provar, en i taget; en tom diameter räknas som de nominella 30 pixlarna i Cellpose. Standard: [0.75, 1.25]."
+    },
+    {
+      "table": "ui",
+      "key": "None (use the backbone)",
+      "source": "None (use the backbone)",
+      "source_sha256": "77a061f04c2d6925458ab818764ef8a2c5a24af3f2bd787743a230a88356d4ec",
+      "translation": "None (använd basnätverket)"
+    },
+    {
+      "table": "ui",
+      "key": "Open a folder before mapping segmentation uncertainty.",
+      "source": "Open a folder before mapping segmentation uncertainty.",
+      "source_sha256": "574632b85a636e71bf1d12d2dadb2f17ab4d7e21368abf287f1a0f897259cdf4",
+      "translation": "Öppna en mapp innan du kartlägger segmenteringsosäkerhet."
+    },
+    {
+      "table": "ui",
+      "key": "Open a folder before ranking fields by uncertainty.",
+      "source": "Open a folder before ranking fields by uncertainty.",
+      "source_sha256": "a9482a01739f6e7083db98c297fc96d1e5efa4d4d889d8fd992efe19eeee2b46",
+      "translation": "Öppna en mapp innan du rangordnar bildfält efter osäkerhet."
+    },
+    {
+      "table": "ui",
+      "key": "Optional label image of regions; each object is summarised under the region its centre falls in. Default empty.",
+      "source": "Optional label image of regions; each object is summarised under the region its centre falls in. Default empty.",
+      "source_sha256": "56f060884ebdc94c74fed59fe7e319098e382d680674b3317ba7b9f3666d07e4",
+      "translation": "Valfri etikettbild med regioner; varje objekt sammanfattas under den region där dess centrum ligger. Standard: tomt."
+    },
+    {
+      "table": "ui",
+      "key": "Optional table of landmark pairs, with columns source_x, source_y (platform image pixels), target_x and target_y (your image's pixels); three or more pairs give an affine fit. Default empty.",
+      "source": "Optional table of landmark pairs, with columns source_x, source_y (platform image pixels), target_x and target_y (your image's pixels); three or more pairs give an affine fit. Default empty.",
+      "source_sha256": "ec2a0cde5f8e40af4310939f9a9e16ab1efab271097ede995d012a07531ebc5d",
+      "translation": "Valfri tabell med referenspunktpar, med kolumnerna source_x, source_y (pixlar i plattformsbilden), target_x och target_y (pixlar i din bild); tre eller fler par ger en affin anpassning. Standard: tomt."
+    },
+    {
+      "table": "categories",
+      "key": "Per-object intensity statistics, GLCM homogeneity and Zernike moments computed for all objects of a field at once on a CUDA GPU, matching the CPU values within float tolerance. Without a GPU the CPU path runs.",
+      "source": "Per-object intensity statistics, GLCM homogeneity and Zernike moments computed for all objects of a field at once on a CUDA GPU, matching the CPU values within float tolerance. Without a GPU the CPU path runs.",
+      "source_sha256": "7e809a13e4ed76d4eb33229a7db4eab84073713343f72d1be8f45d82c2d64865",
+      "translation": "Intensitetsstatistik per objekt, GLCM-homogenitet och Zernike-moment beräknas samtidigt för alla objekt i ett bildfält på en CUDA-GPU och stämmer med CPU-värdena inom flyttalstoleransen. Utan GPU används CPU-beräkningen."
+    },
+    {
+      "table": "ui",
+      "key": "Platform",
+      "source": "Platform",
+      "source_sha256": "c78ffe19571018fbc93a78873969046fe1a80c3d21e5d20fbb2ca17c7c53a144",
+      "translation": "Plattform"
+    },
+    {
+      "table": "ui",
+      "key": "Platform output",
+      "source": "Platform output",
+      "source_sha256": "ee2857378848f8efa727eac00d4275e609dbe40dc6ec59d9e95035ac02849a44",
+      "translation": "Plattformsutdata"
+    },
+    {
+      "table": "ui",
+      "key": "Published results: Dominguez Mantes et al., 'Spotiflow: accurate and efficient spot detection for fluorescence microscopy with deep stereographic flow regression', Nature Methods 2025 (doi:10.1038/s41592-025-02662-x). spaCR has not scored it against those results; it compared it with the native OPS detector and SpotNet on two real sequencing fields.",
+      "source": "Published results: Dominguez Mantes et al., 'Spotiflow: accurate and efficient spot detection for fluorescence microscopy with deep stereographic flow regression', Nature Methods 2025 (doi:10.1038/s41592-025-02662-x). spaCR has not scored it against those results; it compared it with the native OPS detector and SpotNet on two real sequencing fields.",
+      "source_sha256": "11922c750e0c82ee74befec17ed310fc46729b4e7aab92aec5b88d365fd51d1c",
+      "translation": "Publicerade resultat: Dominguez Mantes et al., 'Spotiflow: accurate and efficient spot detection for fluorescence microscopy with deep stereographic flow regression', Nature Methods 2025 (doi:10.1038/s41592-025-02662-x). spaCR har inte utvärderat det mot dessa resultat; det har jämförts med den inbyggda OPS-detektorn och SpotNet på två verkliga sekvenseringsbildfält."
+    },
+    {
+      "table": "ui",
+      "key": "Pyramid level of the Xenium morphology image or the full resolution Visium image the masks were segmented on; each level halves the resolution. Default 0.",
+      "source": "Pyramid level of the Xenium morphology image or the full resolution Visium image the masks were segmented on; each level halves the resolution. Default 0.",
+      "source_sha256": "30acd58947565ea96d137cdf5de0b7751160a5eaffa55225a9d2df3b61a5b036",
+      "translation": "Pyramidnivå för Xeniums morfologibild eller Visiums bild med full upplösning som maskerna segmenterades från; varje nivå halverar upplösningen. Standard: 0."
+    },
+    {
+      "table": "ui",
+      "key": "Rank the fields, most uncertain first",
+      "source": "Rank the fields, most uncertain first",
+      "source_sha256": "1f7e68e80c46e1b05cfa844d58354ff596937e5efe7f397c46b695af2ecd4a75",
+      "translation": "Rangordna bildfälten, mest osäkra först"
+    },
+    {
+      "table": "ui",
+      "key": "Ranked {count} fields by segmentation uncertainty, the most uncertain first.",
+      "source": "Ranked {count} fields by segmentation uncertainty, the most uncertain first.",
+      "source_sha256": "c7f1aa51fc765c5fd508914204188450874a2f1f3d461f75b17d109f157a5f4a",
+      "translation": "Rangordnade {count} bildfält efter segmenteringsosäkerhet, de mest osäkra först."
+    },
+    {
+      "table": "ui",
+      "key": "Ranking by uncertainty would undo the blind order. Unblind first.",
+      "source": "Ranking by uncertainty would undo the blind order. Unblind first.",
+      "source_sha256": "71dfec782cc41b906cb46ea2bbbf0575fcad1072ab54a4aecbe99bad04e5cc4b",
+      "translation": "Rangordning efter osäkerhet skulle upphäva den blindade ordningen. Avblinda först."
+    },
+    {
+      "table": "ui",
+      "key": "Ranking {count} fields by segmentation uncertainty: four detection runs each…",
+      "source": "Ranking {count} fields by segmentation uncertainty: four detection runs each…",
+      "source_sha256": "6c519545d490a13d4c697f617549327dcccf8e2e02377b2a1e9422fb38dbcb3b",
+      "translation": "Rangordnar {count} bildfält efter segmenteringsosäkerhet: fyra detekteringskörningar vardera…"
+    },
+    {
+      "table": "categories",
+      "key": "Re-segments a few sampled fields with the diameter, the thresholds and contrast enhancement each moved a little, and reports how much object counts, areas and intensities change, flagging the settings the results are fragile to.",
+      "source": "Re-segments a few sampled fields with the diameter, the thresholds and contrast enhancement each moved a little, and reports how much object counts, areas and intensities change, flagging the settings the results are fragile to.",
+      "source_sha256": "d8629d0c39d6779ed0c4329572b95de3ec28ba16b4d7f29da77cb57dfdfb1fff",
+      "translation": "Segmenterar några utvalda bildfält på nytt med små ändringar av diametern, trösklarna och kontrastförbättringen, var för sig, och rapporterar hur mycket objektantal, areor och intensiteter ändras samt markerar de inställningar som resultaten är känsliga för."
+    },
+    {
+      "table": "ui",
+      "key": "Region mask",
+      "source": "Region mask",
+      "source_sha256": "fbd43699d5d39f388348b05f6f7effef90f101d415624c2dd64334001a71664c",
+      "translation": "Regionmask"
+    },
+    {
+      "table": "ui",
+      "key": "Register Visium spots or Xenium transcripts to the segmented image and count each gene per cell, nucleus, pathogen and vacuole.",
+      "source": "Register Visium spots or Xenium transcripts to the segmented image and count each gene per cell, nucleus, pathogen and vacuole.",
+      "source_sha256": "2e4750e4f110bdcc1f634bd8be2c3105523859782a1293d511da57ad3f8f5845",
+      "translation": "Registrera Visium-punkter eller Xenium-transkript mot den segmenterade bilden och räkna varje gen per cell, kärna, patogen och vakuol."
+    },
+    {
+      "table": "setting_labels",
+      "key": "robustness_cellprob_thresholds",
+      "source": "Robustness cellprob thresholds",
+      "source_sha256": "453da1b152ff9c156c31fe4166f3a1852e0f5541c78382ff711ff03c72edf040",
+      "translation": "Robusthet: cellsannolikhetströsklar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "robustness_crop",
+      "source": "Robustness crop",
+      "source_sha256": "5c4d4018df6b6ceebe420ef41ea33af0909166c857f1dfdeeae7cba1f643614f",
+      "translation": "Robusthet: bildutsnitt"
+    },
+    {
+      "table": "setting_labels",
+      "key": "robustness_diameter_factors",
+      "source": "Robustness diameter factors",
+      "source_sha256": "ce2b8546ac7ea1cac120ef9024f9ae1e66a9499e1f0b2dd377198b966cc98f54",
+      "translation": "Robusthet: diameterfaktorer"
+    },
+    {
+      "table": "setting_labels",
+      "key": "robustness_enhancement",
+      "source": "Robustness enhancement",
+      "source_sha256": "f8f2ed6daf002d44ad844fed82fd5a6d2166a7876c7927d87cd164f3fc290964",
+      "translation": "Robusthet: kontrastförbättring"
+    },
+    {
+      "table": "setting_labels",
+      "key": "robustness_fields",
+      "source": "Robustness fields",
+      "source_sha256": "33611a20aa41a2493f3c2aa9d7c3a8fc19805688a1029e79cece3d7493379081",
+      "translation": "Robusthet: bildfält"
+    },
+    {
+      "table": "setting_labels",
+      "key": "robustness_flow_thresholds",
+      "source": "Robustness flow thresholds",
+      "source_sha256": "7537d714221cb96a549ee7be011abe49797dd9fd513e3792e6c2edf374e5744d",
+      "translation": "Robusthet: flödeströsklar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "robustness_report",
+      "source": "Robustness report",
+      "source_sha256": "f9a07d8259d8ec75e64ddd23bb8467958a2beb1fb213f0eace55d4aff59264ec",
+      "translation": "Robusthetsrapport"
+    },
+    {
+      "table": "setting_labels",
+      "key": "robustness_tolerance",
+      "source": "Robustness tolerance",
+      "source_sha256": "a69c2b83c5c80597bae6c48d7c92abc890bda3fb567c0c7ad7a81aed62b55898",
+      "translation": "Robusthetstolerans"
+    },
+    {
+      "table": "ui",
+      "key": "Score each well against its own plate's negative control, or against the negative control of every plate together.",
+      "source": "Score each well against its own plate's negative control, or against the negative control of every plate together.",
+      "source_sha256": "290d3878dbd77a4fad1089900a64930cbcf64996a6a886d2daba0f6c4d2e32a4",
+      "translation": "Poängsätt varje brunn mot den egna plattans negativkontroll eller mot negativkontrollerna på alla plattor tillsammans."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "microscope_interval_seconds",
+      "source": "Seconds between the timelapse images of one event when microscope_timepoints is above 1. The watch waits at the event meanwhile, so long timelapses delay later fields. Default 0.",
+      "source_sha256": "7ee11ee687c387671716d7c7329f9f57bd1fe0aedee4ec51d0fa5ec1c4d29955",
+      "translation": "Sekunder mellan tidsseriebilderna av en händelse när microscope_timepoints är över 1. Övervakningen väntar vid händelsen under tiden, så långa tidsserier fördröjer senare bildfält. Standard: 0."
+    },
+    {
+      "table": "ui",
+      "key": "Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field.",
+      "source": "Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field.",
+      "source_sha256": "e0cf5ba8422790530547833acc9f5e31162c2415de0de8804c4414a055a0928f",
+      "translation": "Segmentera varje bildfält fyra gånger, oförändrat, spegelvänt på två sätt och vridet ett kvarts varv, med inställningarna för objektdetektering, och mät var de fyra resultaten skiljer sig. Kartlägg detta bildfält visar skillnaderna som en värmekarta på en egen flik; Rangordna bildfälten placerar de mest osäkra bildfälten först och sparar poängen som curate_uncertainty.csv för spacr-make-masks --order uncertain. Kräver fyra detekteringskörningar per bildfält."
+    },
+    {
+      "table": "ui",
+      "key": "Segmentation Robustness (Alpha)",
+      "source": "Segmentation Robustness (Alpha)",
+      "source_sha256": "8d994eb6f9334219c2dd31a9f31d11cc5c39738567d53f8bd9abb9f7caf647ef",
+      "translation": "Segmenteringsrobusthet (Alpha)"
+    },
+    {
+      "table": "ui",
+      "key": "Segmentation uncertainty {value} over {count} objects.",
+      "source": "Segmentation uncertainty {value} over {count} objects.",
+      "source_sha256": "a9bff61a2b4f85e221e5d2a39982f8c16335f729fa6665a01cad275daa2539d2",
+      "translation": "Segmenteringsosäkerhet {value} för {count} objekt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "robustness_crop",
+      "source": "Side in pixels of the centre crop the robustness report cuts from each sampled field, to keep the grid fast, on a CPU especially. Blank or 0 re-segments whole fields. Default 512.",
+      "source_sha256": "a4bd53a8f7183e03c5d408cd50eb60a630ca088e8a6ee5ca168a84e0b83d5f28",
+      "translation": "Sidlängd i pixlar för det centrala bildutsnitt som robusthetsrapporten tar från varje utvalt bildfält, för att rutnätet ska gå snabbt, särskilt på CPU. Tomt eller 0 segmenterar om hela bildfält. Standard: 512."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_events_threshold",
+      "source": "Smallest class probability, from 0 to 1, at which a frame is called an event; each event keeps the most probable frame within 2 frames. Raise it for fewer false events, lower it to miss fewer. Default 0.5.",
+      "source_sha256": "38a21bc070669d41afc4c7f44622efd5330bf43fac449cec92719a8b2712d1e3",
+      "translation": "Minsta klassannolikhet, från 0 till 1, vid vilken en bildruta klassas som en händelse; varje händelse behåller den mest sannolika bildrutan inom 2 bildrutor. Höj för färre falska händelser, sänk för att missa färre. Standard: 0.5."
+    },
+    {
+      "table": "ui",
+      "key": "Spatial transcriptomics",
+      "source": "Spatial transcriptomics",
+      "source_sha256": "e3ccc829159208d6f8da5bab9c5837841b8e830baf2f0be7027bfb0d154e1ac4",
+      "translation": "Spatial transkriptomik"
+    },
+    {
+      "table": "ui",
+      "key": "Spotiflow 0.6.5 is BSD-3-Clause (Copyright 2023 Albert Dominguez Mantes and Martin Weigert). Its general, hybiss, synth_complex and fluo_live models are downloaded by Spotiflow itself from the weigertlab/spotiflow-models GitHub releases (BSD-3-Clause) into the backend's own folder. spaCR ships none of it.",
+      "source": "Spotiflow 0.6.5 is BSD-3-Clause (Copyright 2023 Albert Dominguez Mantes and Martin Weigert). Its general, hybiss, synth_complex and fluo_live models are downloaded by Spotiflow itself from the weigertlab/spotiflow-models GitHub releases (BSD-3-Clause) into the backend's own folder. spaCR ships none of it.",
+      "source_sha256": "55e0e8ddd59e0bd708d63f7a89886aa6f4c3c4a4d8bc7ce0c2e9bab05ae66515",
+      "translation": "Spotiflow 0.6.5 har licensen BSD-3-Clause (Copyright 2023 Albert Dominguez Mantes and Martin Weigert). Modellerna general, hybiss, synth_complex och fluo_live laddas ned av Spotiflow självt från GitHub-utgåvorna för weigertlab/spotiflow-models (BSD-3-Clause) till beräkningsmotorns egen mapp. spaCR levererar inget av detta."
+    },
+    {
+      "table": "ui",
+      "key": "Spotiflow finds SPOTS -- puncta, foci, FISH and sequencing spots, small parasites -- with sub-pixel coordinates. It runs in an environment of its own. Chosen by an object's model setting, each spot becomes a small disc in that object's mask, so spots are counted per cell like any other object; in OPS it is one of the sequencing-spot detectors.",
+      "source": "Spotiflow finds SPOTS -- puncta, foci, FISH and sequencing spots, small parasites -- with sub-pixel coordinates. It runs in an environment of its own. Chosen by an object's model setting, each spot becomes a small disc in that object's mask, so spots are counted per cell like any other object; in OPS it is one of the sequencing-spot detectors.",
+      "source_sha256": "d3afa485b1eed2fc1e44e4f8f90364af3fa23c0b29b7a6a313ae5d477bd189cc",
+      "translation": "Spotiflow hittar PUNKTER -- punktformiga signaler, foci, FISH- och sekvenseringspunkter, små parasiter -- med subpixelkoordinater. Det körs i en egen miljö. När det väljs via ett objekts modellinställning blir varje punkt en liten skiva i objektets mask, så att punkterna räknas per cell som andra objekt; i OPS är det en av detektorerna för sekvenseringspunkter."
+    },
+    {
+      "table": "ui",
+      "key": "Spotiflow's general model, run in its own environment; its spots go through the same base calls and nucleus assignment.",
+      "source": "Spotiflow's general model, run in its own environment; its spots go through the same base calls and nucleus assignment.",
+      "source_sha256": "ee13e608520b66765143ce04d55ab191e1be70ab7799913017cf50b2fb92a6dc",
+      "translation": "Spotiflows general-modell, körd i en egen miljö; dess punkter går igenom samma basbestämning och tilldelning till kärnor."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_events_annotations",
+      "source": "Table of hand-annotated events with columns field (the tracks file's field name), track_id, frame and event, plus an optional object column. Every event of an annotated field must be listed. The detector is scored on held-out annotated fields (precision, recall and timing error in frames, matched within 2 frames), trained on all of them and saved as tracks/events/event_model.pt. Blank uses timelapse_events_model. Default None.",
+      "source_sha256": "a1be9465767cee9689c8b1afb14567936063a5bd17dfe0c724efcee3cef82e17",
+      "translation": "Tabell med manuellt annoterade händelser, med kolumnerna field (spårfilens bildfältsnamn), track_id, frame och event samt en valfri kolumn object. Alla händelser i ett annoterat bildfält måste listas. Detektorn utvärderas på undanhållna annoterade bildfält (precision, återkallning och tidsfel i bildrutor, matchade inom 2 bildrutor), tränas på alla dessa och sparas som tracks/events/event_model.pt. Tomt använder timelapse_events_model. Standard: None."
+    },
+    {
+      "table": "ui",
+      "key": "Tables (*.csv *.tsv *.parquet *.feather *.xlsx)",
+      "source": "Tables (*.csv *.tsv *.parquet *.feather *.xlsx)",
+      "source_sha256": "c865733efb5c813450b6802f431cf6cbab8eeb32ebb010199ad9fd0cc2a10183",
+      "translation": "Tabeller (*.csv *.tsv *.parquet *.feather *.xlsx)"
+    },
+    {
+      "table": "ui",
+      "key": "The Space Ranger outs folder (Visium or Visium HD) or the Xenium output bundle. Default empty.",
+      "source": "The Space Ranger outs folder (Visium or Visium HD) or the Xenium output bundle. Default empty.",
+      "source_sha256": "50ea9ddbeec1ddd8ee398eb7d702627ddd2acdb69dff83bbb8ad6298c70f8875",
+      "translation": "Space Rangers outs-mapp (Visium eller Visium HD) eller Xeniums utdatapaket. Standard: tomt."
+    },
+    {
+      "table": "ui",
+      "key": "The Visium HD bin size read from binned_outputs; ignored for Visium and Xenium. Default 8 µm.",
+      "source": "The Visium HD bin size read from binned_outputs; ignored for Visium and Xenium. Default 8 µm.",
+      "source_sha256": "af61ebf856cc55f22f01db7a379500eb2d2fce8c3a02083b833887d583efddf4",
+      "translation": "Visium HD:s rutstorlek som läses från binned_outputs; ignoreras för Visium och Xenium. Standard: 8 µm."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "microscope_simulated_folder",
+      "source": "The folder of field images the simulated microscope acquires from, named as the watched images are and placed on the stage by microscope_positions. Blank uses src. Default blank.",
+      "source_sha256": "2defaddf259443dd77eee01330758cee0fe500458f01982c5085c1c8a3890aa2",
+      "translation": "Mappen med bildfältsbilder som det simulerade mikroskopet hämtar från, med samma namn som de övervakade bilderna och placerade på objektbordet av microscope_positions. Tomt använder src. Standard: tomt."
+    },
+    {
+      "table": "ui",
+      "key": "The gene the overlay is coloured by. Default the most counted gene.",
+      "source": "The gene the overlay is coloured by. Default the most counted gene.",
+      "source_sha256": "775bc412cf8637bbed5e4819d54aaad67a356420409cb340c8204d10a1bd220e",
+      "translation": "Genen som styr överlagringens färg. Standard: den gen som räknats flest gånger."
+    },
+    {
+      "table": "ui",
+      "key": "The image the masks were segmented on. Empty or hires uses Visium's high-resolution image; lowres or full name the others; Xenium uses its morphology image. A file of your own microscope image of the same section is registered to the platform image, through the landmarks when given, else by image content. Default empty.",
+      "source": "The image the masks were segmented on. Empty or hires uses Visium's high-resolution image; lowres or full name the others; Xenium uses its morphology image. A file of your own microscope image of the same section is registered to the platform image, through the landmarks when given, else by image content. Default empty.",
+      "source_sha256": "eedb1966b2d39573e8819e7f5ac7996dd14735684e12636ae3e35d42d2f597c1",
+      "translation": "Bilden som maskerna segmenterades från. Tomt eller hires använder Visiums högupplösta bild; lowres eller full anger de andra; Xenium använder sin morfologibild. En fil med din egen mikroskopbild av samma snitt registreras mot plattformsbilden, via referenspunkterna om sådana anges, annars via bildinnehållet. Standard: tomt."
+    },
+    {
+      "table": "ui",
+      "key": "The least certain is object {label} ({value}).",
+      "source": "The least certain is object {label} ({value}).",
+      "source_sha256": "5e7db56639221de905547faa6103599dec3480b8e28c0b4aefde66472196856c",
+      "translation": "Det mest osäkra är objekt {label} ({value})."
+    },
+    {
+      "table": "ui",
+      "key": "The mail server password. Kept in the system keyring, or without one in a file only you can read, and never written to a log. Leave empty to keep the saved one. Default empty.",
+      "source": "The mail server password. Kept in the system keyring, or without one in a file only you can read, and never written to a log. Leave empty to keep the saved one. Default empty.",
+      "source_sha256": "191d637ec399f203b9c7a606159c6b11b788eaefd48e6de767ea4214ce10edb5",
+      "translation": "E-postserverns lösenord. Förvaras i systemets nyckelring, eller om sådan saknas i en fil som bara du kan läsa, och skrivs aldrig till en logg. Lämna tomt för att behålla det sparade. Standard: tomt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "microscope_event_table",
+      "source": "The measurement table whose objects can become events, such as cell, nucleus or pathogen. Each event is placed at the object's intensity-weighted centroid. Default 'cell'.",
+      "source_sha256": "c9b94a99a8070a2b0f2d0d2e77bc14664def0571a2685396dc08ed4026e21545",
+      "translation": "Mättabellen vars objekt kan bli händelser, till exempel cell, nucleus eller pathogen. Varje händelse placeras vid objektets intensitetsviktade tyngdpunkt. Standard: 'cell'."
+    },
+    {
+      "table": "ui",
+      "key": "The measurements.db the counts are written into, keyed by prcfo beside the object measurements. Default empty.",
+      "source": "The measurements.db the counts are written into, keyed by prcfo beside the object measurements. Default empty.",
+      "source_sha256": "8ff2b0d03af1cbe73eb224be8e64bef2f8ef45ea2401a51ae81180f7b78ac2e0",
+      "translation": "Den measurements.db som antalen skrivs till, med prcfo som nyckel bredvid objektmätningarna. Standard: tomt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "microscope_driver",
+      "source": "The microscope microscope_feedback drives. 'simulated' acquires from the images in microscope_simulated_folder laid out at microscope_positions, for trying the loop without a microscope. 'pycromanager' drives a running Micro-Manager through pycro-manager (pip install pycromanager, and turn on Micro-Manager's server under Tools > Options). Default 'simulated'.",
+      "source_sha256": "d26e92c77777638532ea7d048fa24dfb96c847b13f05f4c2f291154f1e2734b3",
+      "translation": "Mikroskopet som microscope_feedback styr. 'simulated' hämtar bilderna i microscope_simulated_folder, placerade enligt microscope_positions, för att prova återkopplingen utan mikroskop. 'pycromanager' styr en körande Micro-Manager via pycro-manager (pip install pycromanager, och aktivera Micro-Managers server under Tools > Options). Standard: 'simulated'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "microscope_max_events",
+      "source": "The most events one field sends to the microscope, taken in table order, so a field full of matches does not hold up the plate. Default 10.",
+      "source_sha256": "b13c46c76e59d93f090a79dbe5880f54797e090b78e9f86f6ef8546dd8624ac8",
+      "translation": "Högsta antal händelser som ett bildfält skickar till mikroskopet, i tabellordning, så att ett bildfält fullt av träffar inte fördröjer hela plattan. Standard: 10."
+    },
+    {
+      "table": "ui",
+      "key": "The name you sign in to the mail server with, often your email address. Leave empty for a server that needs no sign-in. Default empty.",
+      "source": "The name you sign in to the mail server with, often your email address. Leave empty for a server that needs no sign-in. Default empty.",
+      "source_sha256": "afa3b3d1f207b47ed9a126abc0ca9880f516aa7985462d70f733ebae93d8b5df",
+      "translation": "Namnet du loggar in på e-postservern med, ofta din e-postadress. Lämna tomt för en server som inte kräver inloggning. Standard: tomt."
+    },
+    {
+      "table": "ui",
+      "key": "The outgoing mail server, for example smtp.example.org. Default empty.",
+      "source": "The outgoing mail server, for example smtp.example.org. Default empty.",
+      "source_sha256": "58b33495d75006599cc595ead55e7a2d5b72fdd6dd4debac7cb15ea263d28be4",
+      "translation": "Servern för utgående e-post, till exempel smtp.example.org. Standard: tomt."
+    },
+    {
+      "table": "ui",
+      "key": "The sender address. Empty uses the user name. Default empty.",
+      "source": "The sender address. Empty uses the user name. Default empty.",
+      "source_sha256": "366560386edc675aff7e0e98746a599ca405d642cb1eab5012a4b655fb36b4fa",
+      "translation": "Avsändaradressen. Tomt använder användarnamnet. Standard: tomt."
+    },
+    {
+      "table": "ui",
+      "key": "The statistic that calls and ranks the hits. B-score removes row and column effects by median polish first.",
+      "source": "The statistic that calls and ranks the hits. B-score removes row and column effects by median polish first.",
+      "source_sha256": "21342fa96f023d4cb321923042b7093088109e764466567f6f4f05a71ef22ed6",
+      "translation": "Statistikan som identifierar och rangordnar träffarna. B-score tar först bort rad- och kolumneffekter med medianpolering."
+    },
+    {
+      "table": "ui",
+      "key": "The topic to publish to. On a public server anyone who knows the topic can read it, so choose one nobody would guess; it is kept like a password. Leave empty to keep the saved one. Default empty.",
+      "source": "The topic to publish to. On a public server anyone who knows the topic can read it, so choose one nobody would guess; it is kept like a password. Leave empty to keep the saved one. Default empty.",
+      "source_sha256": "c9a9a1092b87dea91ea1dbea6c338ab11e4e33d54cd070d73bf4ba4d0214b03e",
+      "translation": "Ämnet att publicera till. På en offentlig server kan alla som känner till ämnet läsa det, så välj ett som ingen kan gissa; det förvaras som ett lösenord. Lämna tomt för att behålla det sparade. Standard: tomt."
+    },
+    {
+      "table": "setting_labels",
+      "key": "timelapse_events",
+      "source": "Timelapse events",
+      "source_sha256": "10455781519f60f6ffdcb78b0fb02ebc7f30b535e9e89b011dcf2e3a71fea34c",
+      "translation": "Händelser i tidsserier"
+    },
+    {
+      "table": "setting_labels",
+      "key": "timelapse_events_annotations",
+      "source": "Timelapse events annotations",
+      "source_sha256": "3f6b54355f211050a13d713da7a14a36b4c25995ca07b9eb479f735cc0fafeb8",
+      "translation": "Annoteringar av tidsseriehändelser"
+    },
+    {
+      "table": "setting_labels",
+      "key": "timelapse_events_conditions",
+      "source": "Timelapse events conditions",
+      "source_sha256": "1dff4f6aed3789e68e9433cfcc2492e28e0a10fe68acddad3dadb48408e40458",
+      "translation": "Betingelser för tidsseriehändelser"
+    },
+    {
+      "table": "setting_labels",
+      "key": "timelapse_events_model",
+      "source": "Timelapse events model",
+      "source_sha256": "848310869fcd1913d76143b564568d2940518f72743446547d1138cd6c75bce3",
+      "translation": "Modell för tidsseriehändelser"
+    },
+    {
+      "table": "setting_labels",
+      "key": "timelapse_events_threshold",
+      "source": "Timelapse events threshold",
+      "source_sha256": "772544e225f5bb1af77c27d34f9e665790023376e56fc7da0fb926f84cce6e39",
+      "translation": "Tröskel för tidsseriehändelser"
+    },
+    {
+      "table": "setting_labels",
+      "key": "timelapse_events_window",
+      "source": "Timelapse events window",
+      "source_sha256": "33cf17222959393bfe6e152908df79bb3b6933ab64a7b516d46dde56c15dd554",
+      "translation": "Fönster för tidsseriehändelser"
+    },
+    {
+      "table": "ui",
+      "key": "Uncertainty",
+      "source": "Uncertainty",
+      "source_sha256": "77b9ebf987ea64c6c250fa553f2377c314292279180aaff1242e7f2787a382b8",
+      "translation": "Osäkerhet"
+    },
+    {
+      "table": "ui",
+      "key": "Uncertainty failed",
+      "source": "Uncertainty failed",
+      "source_sha256": "c07f3cf5a3069fa24ffd2ba2e2032303886d6a86499d0693ae553e27bde11cb2",
+      "translation": "Osäkerhetsberäkningen misslyckades"
+    },
+    {
+      "table": "ui",
+      "key": "Uncertainty map discarded because the field changed.",
+      "source": "Uncertainty map discarded because the field changed.",
+      "source_sha256": "a2c991cdcff1fb9379388e952243203532c5fd8cbcb3565cadba0597c1c35936",
+      "translation": "Osäkerhetskartan kasserades eftersom bildfältet ändrades."
+    },
+    {
+      "table": "ui",
+      "key": "Uncertainty saved; the open fields changed while ranking, so their order was left alone.",
+      "source": "Uncertainty saved; the open fields changed while ranking, so their order was left alone.",
+      "source_sha256": "ee9fd84811367d94feb8e4130ed98aa2463fd4935b5176a5dd05602b4e7b7e5f",
+      "translation": "Osäkerheten sparades; de öppna bildfälten ändrades under rangordningen, så deras ordning behölls."
+    },
+    {
+      "table": "ui",
+      "key": "Uncertainty scores not saved: {error}",
+      "source": "Uncertainty scores not saved: {error}",
+      "source_sha256": "ec7d7c4dc9dc3b56c0eef5f62ffee3d604ec8cc3222bee0b0ea104fc04438af9",
+      "translation": "Osäkerhetspoängen sparades inte: {error}"
+    },
+    {
+      "table": "ui",
+      "key": "Uncertainty…",
+      "source": "Uncertainty…",
+      "source_sha256": "21cd20fa6ea24a7dbf1f71b1329636e7279c44b19dc92a60af0f15fc5049c89b",
+      "translation": "Osäkerhet…"
+    },
+    {
+      "table": "ui",
+      "key": "Visium HD bin",
+      "source": "Visium HD bin",
+      "source_sha256": "5ad3330dcfbf9d69dacc0b80edd12b80093d7436304ca7d1044ddf2572d83fdb",
+      "translation": "Visium HD-ruta"
+    },
+    {
+      "table": "ui",
+      "key": "Well-label model: held-out well AUROC {mil:.2f} (mean-feature baseline {mean:.2f}) over {wells} wells. Cell attention and well probabilities were written beside the table.",
+      "source": "Well-label model: held-out well AUROC {mil:.2f} (mean-feature baseline {mean:.2f}) over {wells} wells. Cell attention and well probabilities were written beside the table.",
+      "source_sha256": "f777138179becb2fe7196a08f3d957c08420ad402de4300071baf35548d296e9",
+      "translation": "Modell med brunnetiketter: AUROC på undanhållna brunnar {mil:.2f} (baslinje med medelegenskaper {mean:.2f}) över {wells} brunnar. Cellernas uppmärksamhetsvikter och brunnarnas sannolikheter skrevs bredvid tabellen."
+    },
+    {
+      "table": "ui",
+      "key": "Which platform wrote the folder. Detect reads it from the files present. Default Detect.",
+      "source": "Which platform wrote the folder. Detect reads it from the files present. Default Detect.",
+      "source_sha256": "44b81cebd60e2f43fb4fcdc1fcfc2ac9abb1606bc52dd66eb4aef93dcc57124c",
+      "translation": "Vilken plattform som skrev mappen. Identifiera läser det från de filer som finns. Standard: Identifiera."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "microscope_feedback",
+      "source": "While watch_folder runs with watch_pipeline 'mask_measure', send the objects of each measured field that match microscope_event_query back to the microscope to be imaged again, for example at higher resolution or as a short timelapse. Stage positions come from microscope_positions and microscope_stage_transform; every event and its images are recorded in watch_ledger.json and the images saved in src/spacr_watch/reimaged. Default False.",
+      "source_sha256": "df123f874e522da33ecb94dbbcff875aafa6703fbe6e911108a15c44ab8a84df",
+      "translation": "När watch_folder körs med watch_pipeline 'mask_measure' skickas de objekt i varje mätt bildfält som matchar microscope_event_query tillbaka till mikroskopet för ny avbildning, till exempel med högre upplösning eller som en kort tidsserie. Objektbordets positioner kommer från microscope_positions och microscope_stage_transform; varje händelse och dess bilder registreras i watch_ledger.json och bilderna sparas i src/spacr_watch/reimaged. Standard: False."
+    },
+    {
+      "table": "ui",
+      "key": "Who is told, one or more addresses separated by commas. Default empty.",
+      "source": "Who is told, one or more addresses separated by commas. Default empty.",
+      "source_sha256": "8ed3d0368da7a66d20496847988ad178d568e6b5fa688275ce4734d3c6036326",
+      "translation": "Vem som meddelas, en eller flera adresser åtskilda med kommatecken. Standard: tomt."
+    },
+    {
+      "table": "ui",
+      "key": "Wrote counts for {objects} objects to {db}; results in {output}.",
+      "source": "Wrote counts for {objects} objects to {db}; results in {output}.",
+      "source_sha256": "44e9c7ba96051260d04af2018ccf7de96a1dea301235fcf61eaba8c244dfab8b",
+      "translation": "Skrev antal för {objects} objekt till {db}; resultat i {output}."
+    },
+    {
+      "table": "ui",
+      "key": "Xenium transcripts with a lower quality value (QV) are dropped, as Xenium's own cell-feature matrix drops them. Default 20.",
+      "source": "Xenium transcripts with a lower quality value (QV) are dropped, as Xenium's own cell-feature matrix drops them. Default 20.",
+      "source_sha256": "4ebf853b238866db2ddad3ac51cc02e86f616fba700f08663112a97752808098",
+      "translation": "Xenium-transkript med ett lägre kvalitetsvärde (QV) tas bort, precis som i Xeniums egen cell-egenskapsmatris. Standard: 20."
+    },
+    {
+      "table": "ui",
+      "key": "no source is open, so none of them can be shown. Open the experiment first.",
+      "source": "no source is open, so none of them can be shown. Open the experiment first.",
+      "source_sha256": "94af42a8c615085a5749e38d6739747bb36bdd3a07c98639edfad376b1f0c463",
+      "translation": "ingen källa är öppen, så ingen av dem kan visas. Öppna experimentet först."
+    },
+    {
+      "table": "ui",
+      "key": "{platform}: {points} positions and {genes} genes, registered by {method}.",
+      "source": "{platform}: {points} positions and {genes} genes, registered by {method}.",
+      "source_sha256": "1483ddf805fd3d6336d32372f2d49ce7fc332b878a08ec95e04028622607c4e7",
+      "translation": "{platform}: {points} positioner och {genes} gener, registrerade med {method}."
+    },
+    {
+      "table": "ui",
+      "key": "Cell mask",
+      "source": "Cell mask",
+      "source_sha256": "f1fa3a1abc7c64bb73d5ec8a6d98fa4ed91495dbdd4cd420b744ef80c4b4e88d",
+      "translation": "Cellmask"
+    },
+    {
+      "table": "ui",
+      "key": "Cell-DINO (Meta FAIR DINOv2 on the Human Protein Atlas)",
+      "source": "Cell-DINO (Meta FAIR DINOv2 on the Human Protein Atlas)",
+      "source_sha256": "6dbb33377c72ca43af091f3707c2e3244e5ccdc00d635fb0bb02c3771263d15c",
+      "translation": "Cell-DINO (Meta FAIR DINOv2 på Human Protein Atlas)"
+    },
+    {
+      "table": "ui",
+      "key": "ChAda-ViT (channel-adaptive ViT-T/16, IDRCell100k)",
+      "source": "ChAda-ViT (channel-adaptive ViT-T/16, IDRCell100k)",
+      "source_sha256": "d72a7288e38225840564533dd06bc336bc6a317f7d5d6e7588e85f0c6cb60423",
+      "translation": "ChAda-ViT (kanalanpassad ViT-T/16, IDRCell100k)"
+    },
+    {
+      "table": "ui",
+      "key": "Detect",
+      "source": "Detect",
+      "source_sha256": "7f083fe98c9b6a01d7d39d234528854e4e3b9cd978765a23a84f2f80b1c6c44b",
+      "translation": "Identifiera"
+    },
+    {
+      "table": "ui",
+      "key": "Nucleus mask",
+      "source": "Nucleus mask",
+      "source_sha256": "a133bc9f69fcab42c2d16e3694bb7034c8944712e40bb6f0345b6d8afbc7a58f",
+      "translation": "Kärnmask"
+    },
+    {
+      "table": "ui",
+      "key": "OpenPhenom (Recursion, channel-agnostic MAE ViT-S/16)",
+      "source": "OpenPhenom (Recursion, channel-agnostic MAE ViT-S/16)",
+      "source_sha256": "2215c0f95f6903b7a76fc5ffe8890b4cf4a7bd5042b30b2f474f54be60b857c9",
+      "translation": "OpenPhenom (Recursion, kanaloberoende MAE ViT-S/16)"
+    },
+    {
+      "table": "ui",
+      "key": "Pathogen mask",
+      "source": "Pathogen mask",
+      "source_sha256": "ce1fae41bd90a02dc485cf3bacda850b86c52198dfe405165872b1bc626d434d",
+      "translation": "Patogenmask"
+    },
+    {
+      "table": "ui",
+      "key": "Read 10x Visium, Visium HD or Xenium output, place its spots or transcripts on the image spaCR segmented, and write gene counts per object beside the measurements. Default hidden.",
+      "source": "Read 10x Visium, Visium HD or Xenium output, place its spots or transcripts on the image spaCR segmented, and write gene counts per object beside the measurements. Default hidden.",
+      "source_sha256": "b50dccf02e390a4147054891f109e1dfb6c5574d8d6a5eb5344e180701dc104f",
+      "translation": "Läs utdata från 10x Visium, Visium HD eller Xenium, placera dess punkter eller transkript på bilden som spaCR segmenterade och skriv genantal per objekt bredvid mätningarna. Dold som standard."
+    },
+    {
+      "table": "ui",
+      "key": "SubCell (CZI / Lundberg lab ViT-B/16, DNA + protein)",
+      "source": "SubCell (CZI / Lundberg lab ViT-B/16, DNA + protein)",
+      "source_sha256": "ab016eda07b06e2425a7298b7fda33499f882a999af3b3b0ed5cc5ffb83165f3",
+      "translation": "SubCell (CZI / Lundberg-laboratoriet ViT-B/16, DNA + protein)"
+    },
+    {
+      "table": "ui",
+      "key": "Vacuole mask",
+      "source": "Vacuole mask",
+      "source_sha256": "eec66361529ce0eaae446be914e15af8750bbdda9ffb9fc620f8de595a766a9c",
+      "translation": "Vakuolmask"
+    },
+    {
+      "table": "ui",
+      "key": "s3://bucket/folder, gs://, az:// or https://",
+      "source": "s3://bucket/folder, gs://, az:// or https://",
+      "source_sha256": "e52c06fed71e307e6c87388838799babb056a41ff4544e9e0d7bb8e74b794dbd",
+      "translation": "s3://bucket/folder, gs://, az:// eller https://"
+    }
+  ]
+}

@@ -351,6 +351,11 @@ COMPACT_CAPTION_SHA256 = (
 # source-bound translation in all nine languages except 35 Hindi UI captions
 # (first-pass IDs 821-855), whose translator output a safety classifier
 # stopped; they show in English and nothing machine-generated replaced them.
+# 316, 2026-09-27: all nine regenerated catalogs passed the canonical audit.
+# Measured against 6ba9eba0f: +813/-37 identities, including the 11 newly
+# extracted captions. Exact diff and review scope are recorded in
+# features/data/316_runtime_inventory_delta_2026-09-27.json.
+# AI technical review (Codex), no native-speaker signoff.
 EXTERNAL_SOURCE_COUNTS = {
     # 2026-09-15, the old OPS engine deleted (372): -116 / +0 by SET
     # DIFFERENCE of the identities against the tree before the deletion,
@@ -361,15 +366,15 @@ EXTERNAL_SOURCE_COUNTS = {
     # to the fingerprint below.
     # `recursive` keeps its row: its English now comes from
     # spacr.external_masks, which reads it, so its identity is unchanged.
-    "SETTING_LABELS": 1086,
-    "SETTING_TOOLTIPS": 1108,
+    "SETTING_LABELS": 1194,
+    "SETTING_TOOLTIPS": 1216,
     # 192 -> 201 on 2026-09-08, +9/-0: the nine OPS section headings that
     # fold onto Align & Stitch. Each needed a curated CATEGORY_TOOLTIPS
     # entry or its panel drew the generic fallback -- a heading whose
     # tooltip says nothing about the settings under it, which costs the
     # reader the hover and tells them nothing. 201 -> 200 on 2026-09-11
     # with `save_to_db`, whose help text was one of them.
-    "CATEGORY_HELP": 211,
+    "CATEGORY_HELP": 229,
     # 2,988 -> 3,291 on 2026-09-14, and reviewed record by record against
     # 49c1189f7, where every count in this dict still reproduces exactly.
     # +304 / -1, NOT a flat +303: the four other tables did not move at all,
@@ -475,7 +480,7 @@ EXTERNAL_SOURCE_COUNTS = {
     # plus the product names DINOCell/SAMCell arrive; five old tooltips leave.
     # Every new prose row has a reviewed record in each of the nine locales.
     # The runtime pass preserved every pre-existing translated value.
-    "UI": 5472,
+    "UI": 6014,
     "MODULE_SUMMARIES": 72,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
@@ -583,7 +588,7 @@ EXTERNAL_SOURCE_KEY_SHA256 = (
     # The +32/-84 identities named above gave 476736243f...a5ac.
     # 316, 2026-09-25: the +2304/-122 identities named over
     # EXTERNAL_SOURCE_COUNTS give this current source digest.
-    "d9bacf1ad450423806f5680b05246e842b5d0d894e042deb645cdd5558feceff"
+    '5a560d33398485b2fc51e086960b8a205bb79dbe2cdc2c51e9d4f26fdef0091b'
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the
@@ -1157,146 +1162,8 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # tab and its tooltip (alpha).
 # 574, 2026-09-27: the Report screen's Archive package button and form.
 # 579, 2026-09-27: the Report screen's Deposit on Zenodo button and form.
-_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
-    # 463: the published synthetic example now carries Cellpose-SAM masks.
-    'Download about {size} MB of SYNTHETIC test data: two-colour images drawn '
-    'by spaCR, segmented by Mask with Cellpose-SAM, then measured by Measure. '
-    'No real cells were imaged. A staining-control column and two conditions '
-    'have a known share of invaded parasites; ground truth records the drawn '
-    'objects, not the segmented masks. Settings are filled in, so Run is the '
-    'next step. Cached after the first download.',
-    # 566, 2026-09-27: the GPU Measurement (Alpha) category help on Measure.
-    'Per-object intensity statistics, GLCM homogeneity and Zernike moments computed for all objects of a field at once on a CUDA GPU, matching the CPU values within float tolerance. Without a GPU the CPU path runs.',
-    # 562, 2026-09-27: the Embeddings screen's Learn from well labels
-    # button (alpha).
-    'Learn from well labels…',
-    "Choose a per-cell table with a 'well' column, a 'well_label' column (1 for treated or knockout wells, 0 for controls) and embedding or numeric feature columns. An attention model learns from the well labels alone which cells carry the phenotype. Two tables are written beside the input: each cell's attention and each well's probability. Runs on the CPU. Default 4-fold cross-validation over wells.",
-    'Choose a per-cell table with well labels',
-    'Tables (*.csv *.tsv *.parquet *.feather *.xlsx)',
-    'Learning from well labels…',
-    'Well-label model: held-out well AUROC {mil:.2f} (mean-feature baseline {mean:.2f}) over {wells} wells. Cell attention and well probabilities were written beside the table.',
-    # 560, 2026-09-27: the Embeddings screen's Foundation model picker
-    # (alpha).
-    'Foundation model:',
-    'None (use the backbone)',
-    'OpenPhenom (Recursion, channel-agnostic MAE ViT-S/16)',
-    'ChAda-ViT (channel-adaptive ViT-T/16, IDRCell100k)',
-    'SubCell (CZI / Lundberg lab ViT-B/16, DNA + protein)',
-    'Cell-DINO (Meta FAIR DINOv2 on the Human Protein Atlas)',
-    "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO's weights are not published yet. Default None (use the backbone).",
-    # 554, 2026-09-27: the Spotiflow row of the OPS spot detector box
-    # (alpha).
-    'Spotiflow',
-    "Spotiflow's general model, run in its own environment; its spots go through the same base calls and nucleus assignment.",
-    # 579, 2026-09-27: the Report screen's Deposit on Zenodo button and its
-    # form (alpha).
-    # 582, 2026-09-27: the Preferences Plugins tab, a plugin and recipe
-    # catalogue browser (alpha).
-    # 585, 2026-09-27: the Power screen's alpha arrayed-assay planner.
-    # 575, 2026-09-27: Run History's alpha Export workflow button, its
-    # menu, folder dialog and status lines.
-    # 555, 2026-09-26: the Segment by prompt category (micro-SAM), an alpha
-    # feature: its caption, controls, tooltips and console lines.
-    # 546, 2026-09-27: the CellProfiler (Alpha) category help on Measure.
-    # 540, 2026-09-26: the Viability (Alpha) category help on Measure.
-    # 535, 2026-09-26: the Cell Cycle (Alpha) category help on Measure.
-    # 580, 2026-09-27: the Intensity Calibration (Alpha) category help on
-    # Measure.
-    # 583, 2026-09-27: the Plate Barcode Linkage (Alpha) category help on
-    # Measure.
-    # 571, 2026-09-26: the Time To Event (Alpha) category help on Measure.
-    # 541, 2026-09-26: the Measure preview's Alpha confluency toggle, its
-    # status lines, and the Confluency (Alpha) category help.
-    # 536, 2026-09-26: the Measure preview's Alpha wound toggle, its status
-    # lines, and the Wound Closure (Alpha) category help.
-    # 544 and 573, 2026-09-26: the Blind switches of Annotate and Make
-    # Masks, their notices and questions, and the Lock analysis button and
-    # dialog (all alpha).
-    # 567, 2026-09-27: the Event Detection (Alpha) category help on Timelapse.
-    'Mitosis, egress, invasion and host death detected on tracks by a small '
-    'network trained on annotated events, with held-out precision and '
-    'recall, division links re-made from mitoses and time to each event per '
-    'condition.',
-    # 537, 2026-09-27: the Lineage Trees (Alpha) category help on Timelapse.
-    # 539, 2026-09-26: the Bleach Correction (Alpha) category help on Measure.
-    # 547, 2026-09-26: the Profiling (Alpha) category help on Measure.
-    'Open',
-    's3://bucket/folder, gs://, az:// or https://',
-    # 565: Annotate's Like this similarity search.
-    # 538, 2026-09-27: the Spectral Unmixing (Alpha) category help.
-    # 578, 2026-09-27: the Segmentation Robustness (Alpha) category help.
-    'Re-segments a few sampled fields with the diameter, the thresholds and '
-    'contrast enhancement each moved a little, and reports how much object '
-    'counts, areas and intensities change, flagging the settings the results '
-    'are fragile to.',
-    # 574, 2026-09-27: the Report screen's Archive package button and its
-    # form (alpha).
-    # 542, 2026-09-27: the Colony Counting (Alpha) category help on Plaque
-    # Assay.
-    # 584, 2026-09-27: the compound option of the Control Charts hit
-    # scoring -- structures, clusters and SAR tables (alpha).
-    # 563, 2026-09-27: the anomaly option of Control Charts -- objects
-    # scored against the negative control (alpha).
-    # 568, 2026-09-27: the Make Masks Uncertainty button, its map and its
-    # ranking (alpha).
-    "Map this field's uncertainty",
-    'Mapping segmentation uncertainty: four detection runs…',
-    'Open a folder before mapping segmentation uncertainty.',
-    'Open a folder before ranking fields by uncertainty.',
-    'Rank the fields, most uncertain first',
-    'Ranked {count} fields by segmentation uncertainty, the most uncertain first.',
-    'Ranking by uncertainty would undo the blind order. Unblind first.',
-    'Ranking {count} fields by segmentation uncertainty: four detection runs each…',
-    'Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field.',
-    'Segmentation uncertainty {value} over {count} objects.',
-    'The least certain is object {label} ({value}).',
-    'Uncertainty',
-    'Uncertainty failed',
-    'Uncertainty map discarded because the field changed.',
-    'Uncertainty saved; the open fields changed while ranking, so their order was left alone.',
-    'Uncertainty scores not saved: {error}',
-    'Uncertainty…',
-    # 534, 2026-09-27: the Spatial transcriptomics panel on Map Barcodes
-    # (Visium and Xenium; alpha).
-    'Cell mask',
-    'Nucleus mask',
-    'Pathogen mask',
-    'Vacuole mask',
-    'Platform output',
-    'The Space Ranger outs folder (Visium or Visium HD) or the Xenium output bundle. Default empty.',
-    'Detect',
-    'Visium',
-    'Visium HD',
-    'Xenium',
-    'Which platform wrote the folder. Detect reads it from the files present. Default Detect.',
-    'Platform',
-    'The Visium HD bin size read from binned_outputs; ignored for Visium and Xenium. Default 8 µm.',
-    'Visium HD bin',
-    "Xenium transcripts with a lower quality value (QV) are dropped, as Xenium's own cell-feature matrix drops them. Default 20.",
-    'Minimum transcript QV',
-    "The image the masks were segmented on. Empty or hires uses Visium's high-resolution image; lowres or full name the others; Xenium uses its morphology image. A file of your own microscope image of the same section is registered to the platform image, through the landmarks when given, else by image content. Default empty.",
-    'Pyramid level of the Xenium morphology image or the full resolution Visium image the masks were segmented on; each level halves the resolution. Default 0.',
-    'Image level',
-    'Landmarks',
-    "Optional table of landmark pairs, with columns source_x, source_y (platform image pixels), target_x and target_y (your image's pixels); three or more pairs give an affine fit. Default empty.",
-    'A spaCR label mask (.npy or image) of this object type, made from the image above. Default empty.',
-    'Region mask',
-    'Optional label image of regions; each object is summarised under the region its centre falls in. Default empty.',
-    'Measurement database',
-    'The measurements.db the counts are written into, keyed by prcfo beside the object measurements. Default empty.',
-    'The gene the overlay is coloured by. Default the most counted gene.',
-    'Load and register',
-    'Assign and write',
-    'Choose the platform output folder first.',
-    'Could not load: {error}',
-    'Give at least one mask and the measurement database.',
-    'Could not assign: {error}',
-    'Wrote counts for {objects} objects to {db}; results in {output}.',
-    '{platform}: {points} positions and {genes} genes, registered by {method}.',
-    'Spatial transcriptomics',
-    'Register Visium spots or Xenium transcripts to the segmented image and count each gene per cell, nucleus, pathogen and vacuole.',
-    'Read 10x Visium, Visium HD or Xenium output, place its spots or transcripts on the image spaCR segmented, and write gene counts per object beside the measurements. Default hidden.',
-})
+# 316, 2026-09-27: all 76 resolved through their explicit owners.
+_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset()
 
 
 
