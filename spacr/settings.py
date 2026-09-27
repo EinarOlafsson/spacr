@@ -7380,6 +7380,9 @@ ALPHA_FEATURES = {
                     'PluginCatalogueInstall', 'PluginCatalogueUninstall',
                     'PluginCatalogueStatus'),
     },
+    534: {
+        'widgets': ('MapBarcodesSpatialToggle', 'MapBarcodesSpatialCard'),
+    },
 }
 
 
