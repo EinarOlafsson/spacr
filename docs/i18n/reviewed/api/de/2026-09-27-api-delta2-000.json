@@ -5,68 +5,76 @@
   "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
   "records": [
     {
-      "label": "spacr.anndata_export.run_anndata_export#4",
+      "label": "spacr.anndata_export.run_anndata_export#3",
       "source": "``anndata_format`` chooses what is written: ``'h5ad'`` the AnnData file, ``'parquet'`` the tidy Parquet tables of :func:`_export_tables` in ``anndata_tidy_dir``, ``'r'`` those tables with the R loader script (and ``.rds`` data frames when pyreadr is installed), and ``'all'`` every one of them. The tables keep float64 features whatever ``anndata_dtype`` says, which sets the AnnData matrix only.",
       "source_sha256": "9672502cffbb81a075a474915582dc00a7f415dc29cab34bfac407a5b56e5ae5",
       "context": "``anndata_format`` chooses what is written: ``'h5ad'`` the AnnData file, ``'parquet'`` the tidy Parquet tables of :func:`_export_tables` in ``anndata_tidy_dir``, ``'r'`` those tables with the R loader script (and ``.rds`` data frames when pyreadr is installed), and ``'all'`` every one of them. The tables keep float64 features whatever ``anndata_dtype`` says, which sets the AnnData matrix only.",
       "translation": "``anndata_format`` legt fest, was geschrieben wird: ``'h5ad'`` die AnnData-Datei, ``'parquet'`` die aufgeräumten Parquet-Tabellen von :func:`_export_tables` in ``anndata_tidy_dir``, ``'r'`` diese Tabellen mit dem R-Ladeskript (und ``.rds``-Dataframes, wenn pyreadr installiert ist) und ``'all'`` alle davon. Die Tabellen behalten float64-Merkmale, unabhängig davon, was ``anndata_dtype`` angibt; diese Einstellung betrifft nur die AnnData-Matrix.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "rebound_from": "spacr.anndata_export.run_anndata_export#4"
     },
     {
-      "label": "spacr.anndata_export.run_anndata_export#6",
+      "label": "spacr.anndata_export.run_anndata_export#5",
       "source": "the :class:`ExportResult` when an ``.h5ad`` was written, and otherwise the tables result; ``describe()`` on either is what the console prints.",
       "source_sha256": "909d858253db54ef559ca22ad578d402f10e2c75f962a34c3cc900173974895a",
       "context": "the :class:`ExportResult` when an ``.h5ad`` was written, and otherwise the tables result; ``describe()`` on either is what the console prints.",
       "translation": "das :class:`ExportResult`, wenn eine ``.h5ad`` geschrieben wurde, sonst das Tabellenergebnis; ``describe()`` gibt bei beiden aus, was die Konsole anzeigt.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "rebound_from": "spacr.anndata_export.run_anndata_export#6"
     },
     {
-      "label": "spacr.anndata_export.run_anndata_export#7",
+      "label": "spacr.anndata_export.run_anndata_export#6",
       "source": "when ``src`` is empty -- there is nothing to export and no path to name in the message otherwise -- or ``anndata_format`` is not a known format.",
       "source_sha256": "5a4fe4acd378454529ccaa48d42281c049934d2e53c0eda28240639026f462d2",
       "context": "when ``src`` is empty -- there is nothing to export and no path to name in the message otherwise -- or ``anndata_format`` is not a known format.",
       "translation": "wenn ``src`` leer ist -- dann gibt es nichts zu exportieren und keinen Pfad, der in der Meldung genannt werden könnte -- oder wenn ``anndata_format`` kein bekanntes Format ist.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "rebound_from": "spacr.anndata_export.run_anndata_export#7"
     },
     {
-      "label": "spacr.anndata_export.run_anndata_export#8",
+      "label": "spacr.anndata_export.run_anndata_export#7",
       "source": "when ``anndata`` is not installed and the format includes ``.h5ad``.",
       "source_sha256": "a963f6f17166f1ffcca8826eae3ae77f797bad1db22b194afaa03f307f2c6e73",
       "context": "when ``anndata`` is not installed and the format includes ``.h5ad``.",
       "translation": "wenn ``anndata`` nicht installiert ist und das Format ``.h5ad`` einschließt.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "rebound_from": "spacr.anndata_export.run_anndata_export#8"
     },
     {
-      "label": "spacr.anndata_export.run_anndata_export#9",
+      "label": "spacr.anndata_export.run_anndata_export#8",
       "source": "when pyarrow is not installed and the format includes the tables.",
       "source_sha256": "cd829f4cf58051944f9804638d8a54ef363b76fdd709bad8e1732cd109b40567",
       "context": "when pyarrow is not installed and the format includes the tables.",
       "translation": "wenn pyarrow nicht installiert ist und das Format die Tabellen einschließt.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "rebound_from": "spacr.anndata_export.run_anndata_export#9"
     },
     {
-      "label": "spacr.core.preprocess_generate_masks#14",
+      "label": "spacr.core.preprocess_generate_masks#15",
       "source": "``watch_folder`` — keep watching ``src`` and analyse each field as its files arrive and stop changing, with ``watch_pipeline``, ``watch_measure_settings``, ``watch_settle_seconds``, ``watch_poll_seconds`` and ``watch_idle_minutes``. Results gather in ``src/spacr_watch``, and a record there lets a restarted watch skip the fields already analysed.",
       "source_sha256": "ed450006c63699d0e2641322bd90b0a56b7bf0fed50bac75f796462f9763ee5b",
       "context": "``watch_folder`` — keep watching ``src`` and analyse each field as its files arrive and stop changing, with ``watch_pipeline``, ``watch_measure_settings``, ``watch_settle_seconds``, ``watch_poll_seconds`` and ``watch_idle_minutes``. Results gather in ``src/spacr_watch``, and a record there lets a restarted watch skip the fields already analysed.",
       "translation": "``watch_folder`` — ``src`` weiter überwachen und jedes Sichtfeld analysieren, sobald seine Dateien eingetroffen sind und sich nicht mehr ändern, mit ``watch_pipeline``, ``watch_measure_settings``, ``watch_settle_seconds``, ``watch_poll_seconds`` und ``watch_idle_minutes``. Die Ergebnisse sammeln sich in ``src/spacr_watch``, und ein dortiger Eintrag lässt eine neu gestartete Überwachung die bereits analysierten Sichtfelder überspringen.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "rebound_from": "spacr.core.preprocess_generate_masks#14"
     },
     {
-      "label": "spacr.core.preprocess_generate_masks#15",
+      "label": "spacr.core.preprocess_generate_masks#17",
       "source": "``src`` may also be a cloud address (``s3://``, ``gs://``, ``az://``, ``https://``). An OME-Zarr plate there has only the wells, fields and pyramid level named by ``cloud_wells``, ``cloud_fields`` and ``cloud_level`` fetched, as TIFFs, into a folder under ``cloud_cache``, and the run analyses that folder; a cloud folder of images is mirrored there instead. Credentials come from the standard places, chosen with ``cloud_anonymous``, ``cloud_profile`` and ``cloud_endpoint``, and ``cloud_results`` copies the measurements folder back to cloud storage.",
       "source_sha256": "106d9e026f2d2681cdb69ef5ad5963ed96667ed9f801164f389bd4aad03ab78c",
       "context": "``src`` may also be a cloud address (``s3://``, ``gs://``, ``az://``, ``https://``). An OME-Zarr laboratory microplate there has only the microplate sample positions, microscope fields of view and pyramid level named by ``cloud_wells``, ``cloud_fields`` and ``cloud_level`` fetched, as TIFFs, into a folder under ``cloud_cache``, and the processing session analyses that folder; a cloud folder of images is mirrored there instead. Credentials come from the standard places, chosen with ``cloud_anonymous``, ``cloud_profile`` and ``cloud_endpoint``, and ``cloud_results`` copies the measurements folder back to cloud storage.",
       "translation": "``src`` kann auch eine Cloud-Adresse sein (``s3://``, ``gs://``, ``az://``, ``https://``). Von einer OME-Zarr-Mikrotiterplatte dort werden nur die mit ``cloud_wells``, ``cloud_fields`` und ``cloud_level`` benannten Wells, Sichtfelder und die Pyramidenebene als TIFFs in einen Ordner unter ``cloud_cache`` geladen, und der Verarbeitungslauf analysiert diesen Ordner; ein Cloud-Ordner mit Bildern wird stattdessen dorthin gespiegelt. Zugangsdaten stammen von den üblichen Orten, ausgewählt mit ``cloud_anonymous``, ``cloud_profile`` und ``cloud_endpoint``, und ``cloud_results`` kopiert den Messordner zurück in den Cloud-Speicher.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "rebound_from": "spacr.core.preprocess_generate_masks#15"
     },
     {
-      "label": "spacr.core.preprocess_generate_masks#17",
+      "label": "spacr.core.preprocess_generate_masks#19",
       "source": "``None`` on a normal run, having written masks, overlays, ``measurements.db`` counts and settings CSVs into subfolders of ``src``. When ``dry_run`` is set, returns instead the list of problems from :func:`spacr.validate.run_preflight`. When ``watch_folder`` is set, returns a dict naming the fields analysed, failed and never completed when the watch ends.",
       "source_sha256": "30b31ab3af9a0fd2923241906afe7a68ef64a744970d3db94f4e71e823b25d94",
       "context": "``None`` on a normal run, having written masks, overlays, ``measurements.db`` counts and settings CSVs into subfolders of ``src``. When ``dry_run`` is set, returns instead the list of problems from :func:`spacr.validate.run_preflight`. When ``watch_folder`` is set, returns a key-value mapping naming the microscope fields of view analysed, failed and never completed when the watch ends.",
       "translation": "``None`` bei einem normalen Verarbeitungslauf, nachdem Masken, Überlagerungen, Zählungen in ``measurements.db`` und Einstellungs-CSVs in Unterordner von ``src`` geschrieben wurden. Wenn ``dry_run`` gesetzt ist, wird stattdessen die Liste der Probleme aus :func:`spacr.validate.run_preflight` zurückgegeben. Wenn ``watch_folder`` gesetzt ist, wird ein Wörterbuch zurückgegeben, das die Sichtfelder nennt, die bei Ende der Überwachung analysiert, fehlgeschlagen oder nie abgeschlossen wurden.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "rebound_from": "spacr.core.preprocess_generate_masks#17"
     },
     {
       "label": "spacr.figures.plates.build_plates#11",

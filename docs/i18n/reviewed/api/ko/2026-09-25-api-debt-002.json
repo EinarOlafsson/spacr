@@ -290,7 +290,9 @@
       "source_sha256": "80e229a4b4b5ded4278360dd501eda8f870bc20ebcf8763dc0743472ce72abab",
       "context": "the processing session's ``psf_*`` and ``enhance_*`` settings.",
       "translation": "처리 세션의 ``psf_*`` 및 ``enhance_*`` 설정입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27 API delta 3: the English source block or its translation context changed before manifest 31000d98b. Original translation and review provenance are retained verbatim as historical evidence; this record is no longer loaded for the current source."
     },
     {
       "label": "spacr.psf_pipeline.processing_requested#3",
@@ -298,7 +300,9 @@
       "source_sha256": "35d77d061cf8f4413382ce09a8136da28f0929ab3a03805e09ae9cd2a78aa1c4",
       "context": "True when either is switched on or cannot be read.",
       "translation": "둘 중 하나가 켜져 있거나 읽을 수 없으면 True 입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27 API delta 3: the English source block or its translation context changed before manifest 31000d98b. Original translation and review provenance are retained verbatim as historical evidence; this record is no longer loaded for the current source."
     },
     {
       "label": "spacr.psf_pipeline.validate_psf_resume#0",
@@ -314,7 +318,9 @@
       "source_sha256": "5124c477ae8a1dae4f6c181ade828bc714cd1f73e25c463d46c140944ef644d7",
       "context": "requested PSF and ``enhance_*`` settings; off also checks a prior PSF or chain run.",
       "translation": "요청된 PSF 및 ``enhance_*`` 설정입니다. 꺼져 있어도 이전 PSF 또는 체인 처리 세션을 확인합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27 API delta 3: the English source block or its translation context changed before manifest 31000d98b. Original translation and review provenance are retained verbatim as historical evidence; this record is no longer loaded for the current source."
     },
     {
       "label": "spacr.psf_pipeline.validate_psf_resume#2",
@@ -2380,7 +2386,9 @@
       "source_sha256": "9c1c2fefccbc5dd8e6f26379cf0e339e4b407fc594030d073ac7ccf0a93fc211",
       "context": "Replication, Invasion, Recruitment and Host–Pathogen offer published datasets through Load test data. Host–Pathogen contains two real THP-1 RNF213 microscope fields of view, prepared host/nucleus/vacuole masks and fresh measurements of those microscope fields of view. Replication and Recruitment contain slices of measured screens. Invasion's images and masks are synthetic and explicitly labelled before downloading.",
       "translation": "Replication, Invasion, Recruitment, Host–Pathogen 은 Load test data 를 통해 공개 데이터셋을 제공합니다. Host–Pathogen 에는 실제 THP-1 RNF213 현미경 시야 두 개, 준비된 숙주/핵/액포 마스크, 그리고 그 현미경 시야에 대한 새 측정값이 들어 있습니다. Replication 과 Recruitment 에는 측정된 스크리닝의 일부가 들어 있습니다. Invasion 의 이미지와 마스크는 합성 데이터이며 다운로드 전에 명시적으로 표시됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27 API delta 3: the English source block or its translation context changed before manifest 31000d98b. Original translation and review provenance are retained verbatim as historical evidence; this record is no longer loaded for the current source."
     },
     {
       "label": "spacr.qt.assay_examples#2",

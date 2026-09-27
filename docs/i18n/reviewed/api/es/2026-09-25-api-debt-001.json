@@ -1500,7 +1500,9 @@
       "source_sha256": "f28bcb7e35ec757d7e33bfb5eb99b9e0cce20e687ca74e7f55ae1f5299995ce6",
       "context": "optional captured PSF session. Processes selected intensities after illumination and before normalization, padding or Cellpose. Stored image data channels stay raw; only the appended labels depend on PSF processing.",
       "translation": "sesión de PSF capturada opcional. Procesa las intensidades seleccionadas después de la iluminación y antes de la normalización, el relleno o Cellpose. Los canales de imagen almacenados permanecen sin procesar; solo las etiquetas añadidas dependen del procesamiento de PSF.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-27 API delta 3: the English source block or its translation context changed before manifest 31000d98b. Original translation and review provenance are retained verbatim as historical evidence; this record is no longer loaded for the current source."
     },
     {
       "label": "spacr.plaque.detect_wells#1",

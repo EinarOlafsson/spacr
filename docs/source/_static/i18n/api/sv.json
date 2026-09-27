@@ -2941,7 +2941,6 @@
         "d75af6e19bbf75beb8772004bc7e4afe159047831aeec792e3a81ffcf0f635d9",
         "171086381d5d85688069d6fb2a6a4f072cfff85695a1e8bd28407af0b6b27333",
         "7222c9060c5d31f4a5f7b8389f022ceb12462659396893b0f69cbf5c89dc73d7",
-        "cfd049cc3169c2ca0ae38f83dbf45522d6b6581285766c7e5f1945864edc37e8",
         "9672502cffbb81a075a474915582dc00a7f415dc29cab34bfac407a5b56e5ae5",
         "cfd049cc3169c2ca0ae38f83dbf45522d6b6581285766c7e5f1945864edc37e8",
         "909d858253db54ef559ca22ad578d402f10e2c75f962a34c3cc900173974895a",
@@ -2949,13 +2948,12 @@
         "a963f6f17166f1ffcca8826eae3ae77f797bad1db22b194afaa03f307f2c6e73",
         "cd829f4cf58051944f9804638d8a54ef363b76fdd709bad8e1732cd109b40567"
       ],
-      "source_sha256": "56796700962603cf6f41768971803bc7239650e40bf5995a08ae69b658342df7",
-      "text": "Kör exporten från en inställning av nyckelvärdeskartläggning. Huvudlös ingångspunkt.\n\nDen ``fn(settings)`` form ``spacr-run``, knappen Qt Kör och :mod:`spacr.validate` all sändning till, lindad runt :func:`export_anndata` -- som behåller sin egen explicita nyckelord signatur, eftersom en funktion vars argument är en nyckelvärde mappning är en funktion som ingen kan kalla från en anteckningsbok.\n\nVarje nyckel som den läser är en :func:`anndata_export_settings` förklarar och :func:`register_anndata_settings` gav en typ och ett verktygstips, så formen som GUI drar och de nycklar som hedras här är samma lista.\n\n:param settings: Inställningarna för processsession. ``src`` är projektroten (eller databasen); allt annat faller tillbaka till :func:`anndata_export_settings`.\n``anndata_format`` väljer vad som skrivs: ``'h5ad'`` AnnData-filen, ``'parquet'`` de prydliga Parquet-tabellerna från :func:`_export_tables` i ``anndata_tidy_dir``, ``'r'`` samma tabeller med R-inläsningsskriptet (och ``.rds``-dataramar när pyreadr är installerat) och ``'all'`` alla dessa. Tabellerna behåller float64-egenskaper oavsett vad ``anndata_dtype`` anger; den inställningen gäller bara AnnData-matrisen.\n\n:param settings: Inställningarna för processsession. ``src`` är projektroten (eller databasen); allt annat faller tillbaka till :func:`anndata_export_settings`.\n:returns: :class:`ExportResult` när en ``.h5ad`` skrevs, annars tabellresultatet; ``describe()`` på vilket som helst av dem är det som konsolen skriver ut.\n:raises ValueError: när ``src`` är tom -- det finns då inget att exportera och ingen sökväg att nämna i meddelandet -- eller när ``anndata_format`` inte är ett känt format.\n:raises AnnDataExtraMissing: när ``anndata`` inte är installerat och formatet omfattar ``.h5ad``.\n:raises ImportError: när pyarrow inte är installerat och formatet omfattar tabellerna.",
+      "source_sha256": "579719fcf2eced1c73c8377d67380595601f06f4369a65ceba925017dcd3c476",
+      "text": "Kör exporten från en inställning av nyckelvärdeskartläggning. Huvudlös ingångspunkt.\n\nDen ``fn(settings)`` form ``spacr-run``, knappen Qt Kör och :mod:`spacr.validate` all sändning till, lindad runt :func:`export_anndata` -- som behåller sin egen explicita nyckelord signatur, eftersom en funktion vars argument är en nyckelvärde mappning är en funktion som ingen kan kalla från en anteckningsbok.\n\nVarje nyckel som den läser är en :func:`anndata_export_settings` förklarar och :func:`register_anndata_settings` gav en typ och ett verktygstips, så formen som GUI drar och de nycklar som hedras här är samma lista.\n\n``anndata_format`` väljer vad som skrivs: ``'h5ad'`` AnnData-filen, ``'parquet'`` de prydliga Parquet-tabellerna från :func:`_export_tables` i ``anndata_tidy_dir``, ``'r'`` samma tabeller med R-inläsningsskriptet (och ``.rds``-dataramar när pyreadr är installerat) och ``'all'`` alla dessa. Tabellerna behåller float64-egenskaper oavsett vad ``anndata_dtype`` anger; den inställningen gäller bara AnnData-matrisen.\n\n:param settings: Inställningarna för processsession. ``src`` är projektroten (eller databasen); allt annat faller tillbaka till :func:`anndata_export_settings`.\n:returns: :class:`ExportResult` när en ``.h5ad`` skrevs, annars tabellresultatet; ``describe()`` på vilket som helst av dem är det som konsolen skriver ut.\n:raises ValueError: när ``src`` är tom -- det finns då inget att exportera och ingen sökväg att nämna i meddelandet -- eller när ``anndata_format`` inte är ett känt format.\n:raises AnnDataExtraMissing: när ``anndata`` inte är installerat och formatet omfattar ``.h5ad``.\n:raises ImportError: när pyarrow inte är installerat och formatet omfattar tabellerna.",
       "translation_source_blocks_sha256": [
         "8affa11442d4ce5fdc11d330fcf9db35458e5dffe4cbd16c116ae872c0673bb9",
         "805eeecfb72a3faab6e0d37b7033e21b3ea233249666734f723819d56b96b8fe",
         "7222c9060c5d31f4a5f7b8389f022ceb12462659396893b0f69cbf5c89dc73d7",
-        "cf8de8081f91c4c5d8978a42e5de37b7d95ebbff3f97a3d40d8945069e137247",
         "9672502cffbb81a075a474915582dc00a7f415dc29cab34bfac407a5b56e5ae5",
         "cf8de8081f91c4c5d8978a42e5de37b7d95ebbff3f97a3d40d8945069e137247",
         "909d858253db54ef559ca22ad578d402f10e2c75f962a34c3cc900173974895a",
@@ -11962,12 +11960,14 @@
     },
     "spacr.cli_plugins": {
       "source_blocks_sha256": [
-        "e1b1133ce9f3e5064a7a0ffe8195c56ee2ded9bdc1a4999a230ed31303370581"
+        "aea71f009932cf1bf3f231026f48dec7b3a7c9dbabdf261f93c9563f099dead6",
+        "7f2a3c4e41e7a9abf0527572473f58cb0e6a581853ebdcf2db9bca49bc050fe4"
       ],
-      "source_sha256": "e1b1133ce9f3e5064a7a0ffe8195c56ee2ded9bdc1a4999a230ed31303370581",
-      "text": "Kommandoradsdiagnostik för insticksprogrammet SDK spaCR.",
+      "source_sha256": "452485c21323734581cce475325410ea0562842c5b9f83387137d31b1c1c5d03",
+      "text": "Kommandoradsdiagnostik och installationer från en katalog för spaCR:s plugin-SDK.\n\n``spacr-plugins list`` och ``doctor`` visar vad som är installerat och vad som inte kunde läsas in. ``catalogue`` bläddrar i en katalog med pluginer och recept (en JSON-fil, dess mapp eller en adress, eller ``SPACR_PLUGIN_CATALOGUE``), och ``install``, ``update`` och ``uninstall`` hanterar en post i katalogen med dess nyckel.",
       "translation_source_blocks_sha256": [
-        "e1b1133ce9f3e5064a7a0ffe8195c56ee2ded9bdc1a4999a230ed31303370581"
+        "aea71f009932cf1bf3f231026f48dec7b3a7c9dbabdf261f93c9563f099dead6",
+        "ec5f51c1308b839826f41db890266d49e7dc30fe9b3ffbf8bb26ad8cc35a8cdd"
       ]
     },
     "spacr.cli_plugins.build_parser": {
@@ -11982,12 +11982,14 @@
     },
     "spacr.cli_plugins.main": {
       "source_blocks_sha256": [
-        "b38c5e0d6e03dec8c04bb90e70e4383532775dae970b32faf129116963f79713"
+        "b7a9c0957c17bd777d240e22be87701e9ba27ffd053396503ad9eb79e0276c42",
+        "cda06509c0d8be2ac6c17e26acf86e342d272a1240f0b2e6c8924d18d5a29b7e"
       ],
-      "source_sha256": "b38c5e0d6e03dec8c04bb90e70e4383532775dae970b32faf129116963f79713",
-      "text": "Kör ``spacr-plugins list|doctor`` och returnera en kod för skalutgång.",
+      "source_sha256": "2fbae66bca89db2bfc5307881beb644c56dd8cfc84fcef9a95ecef0c686b487f",
+      "text": "Kör ``spacr-plugins`` och returnera en avslutningskod till skalet.\n\n:param argv: argument utan programnamnet; ``sys.argv`` när värdet är None.",
       "translation_source_blocks_sha256": [
-        "b38c5e0d6e03dec8c04bb90e70e4383532775dae970b32faf129116963f79713"
+        "b7a9c0957c17bd777d240e22be87701e9ba27ffd053396503ad9eb79e0276c42",
+        "cda06509c0d8be2ac6c17e26acf86e342d272a1240f0b2e6c8924d18d5a29b7e"
       ]
     },
     "spacr.cli_remote": {
@@ -12029,16 +12031,18 @@
         "8d59829c1e15afe1a7fae93e8e5e32d8511bec5fd598a09f4fea6033b31e8a66",
         "789be199983d9ef63dd7b6b8576e40e0dbe2cf74294a42b18be578fab09a72e4",
         "aaa1dc8eaffc3037233830e103e9441e26b53250fafc02c968729a2b8d9dc7a6",
+        "a11ad98ba22bb1ce6fe275dd7791c1b3a49a308c33453956154c6ed34848ed1d",
         "25c3d422f18e148bce3e24e51e7775edf6d5e57d155619c20c4aea91f51259d9"
       ],
-      "source_sha256": "94675a6fa08e34886933abebd28e1bc682c1f26604b5a76ba9f8374ea15d8325",
-      "text": "``spacr repro`` – spela upp en arbetsflödesbearbetningssession från sin inspelade tidskrift.\n\nVarje arbetsflöde anrop skriver en process-session journal (se :mod:`spacr.run_journal`) som innehåller de exakta inställningarna + miljön som gav ett resultat. CLI kör om dessa inställningar, öppnar en FRESH journalmapp och rapporterar om resultatet matchar.\n\nAnvändning::\n\n    spacr repro ~/.spacr/runs/2026-07-23_143507_ab12cd34__mask\n    spacr repro ~/.spacr/runs/2026-07-23_143507_ab12cd34__mask --dry\n    spacr repro ~/.spacr/runs/2026-07-23_143507_ab12cd34__mask --show\n\n* ``--dry`` skriver ut de inställda inställningarna + vilket arbetsflöde som kommer att köras; åberopar det inte.\n* ``--show`` skriver ut manifestet + inställningar; åberopar det inte.\n\nUtgångskoder: 0 – återspelning pågick till slutförande (oavsett vetenskapligt resultat) 1 – uppspelning (tidskriften fångar spår tillbaka för triage) 2 – dålig inmatning (missing processing-session mapp / unresolviable app_key)",
+      "source_sha256": "715d3dfc87deeb214ef0bcf2af95855f9856d71c46e8c14abd2c1b09af3506c5",
+      "text": "``spacr repro`` – spela upp en arbetsflödesbearbetningssession från sin inspelade tidskrift.\n\nVarje arbetsflöde anrop skriver en process-session journal (se :mod:`spacr.run_journal`) som innehåller de exakta inställningarna + miljön som gav ett resultat. CLI kör om dessa inställningar, öppnar en FRESH journalmapp och rapporterar om resultatet matchar.\n\nAnvändning::\n\n    spacr repro ~/.spacr/runs/2026-07-23_143507_ab12cd34__mask\n    spacr repro ~/.spacr/runs/2026-07-23_143507_ab12cd34__mask --dry\n    spacr repro ~/.spacr/runs/2026-07-23_143507_ab12cd34__mask --show\n\n* ``--dry`` skriver ut de inställda inställningarna + vilket arbetsflöde som kommer att köras; åberopar det inte.\n* ``--show`` skriver ut manifestet + inställningar; åberopar det inte.\n* ``--export snakemake|nextflow --out DIR`` skriver körningen som ett arbetsflöde som kör samma modul en gång per mikroplatta med ``spacr-run``, lokalt, på ett kluster eller i spaCR:s Docker/Apptainer-avbild.\n\nUtgångskoder: 0 – återspelning pågick till slutförande (oavsett vetenskapligt resultat) 1 – uppspelning (tidskriften fångar spår tillbaka för triage) 2 – dålig inmatning (missing processing-session mapp / unresolviable app_key)",
       "translation_source_blocks_sha256": [
         "389e4b67ba8d7812a77c1ccddc3d8123c3a0d3e43b8563f1db6e2f6b08393d66",
         "5a34c3bc6374cf394959f90a88abc9900b18a6534dfae5a064c6c52e0a456535",
         "8d59829c1e15afe1a7fae93e8e5e32d8511bec5fd598a09f4fea6033b31e8a66",
         "708cd9b213878175dca03608d7a444169cb86e2c79869d1de1aa49326e0ad69d",
         "aaa1dc8eaffc3037233830e103e9441e26b53250fafc02c968729a2b8d9dc7a6",
+        "d170857026831380afc6a696c78d243e3a39279512a96fd0c232c027dbf6c9a7",
         "5f27a9e16f0da23b12302c1f972e9c43faacb39c15008a32f4bf1ad303982680"
       ]
     },
@@ -13647,8 +13651,10 @@
         "4a26450667f19313c64cd55bfab6fe92569d4de4128fb847e4f1af26483b1f65",
         "a473f2d0bf614b72d28dc70798f28ef11e3b59992f652b5eee476a02090b8c37",
         "2daed458812e607f041e55b4d5f2e02a55059df2ed7f124c73170578959ae7cf",
+        "c17527dde2936037401da9b251bee988446fcbc033796dbfea243442c461ae63",
         "3939d488f8884ad019e6dfaa1991e3012947f976103941f59d9425efe8000acd",
         "ed450006c63699d0e2641322bd90b0a56b7bf0fed50bac75f796462f9763ee5b",
+        "61226e080db4eced080f864b14c884ba5fd2cc8684078ebdb574905b217c9522",
         "106d9e026f2d2681cdb69ef5ad5963ed96667ed9f801164f389bd4aad03ab78c",
         "4f9a9dd2a177bcf90eaf317e829c883bb3f9e42425bc29e5ee62034ef0cd8054",
         "30b31ab3af9a0fd2923241906afe7a68ef64a744970d3db94f4e71e823b25d94",
@@ -13656,8 +13662,8 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "df0cbfc8461e60b6d422e6a304b7cc5c2df95262a05d3556c59f572dd13e7818"
       ],
-      "source_sha256": "ef72da78843ac3b434a9db70550d6ae45e7461cd8a31b8e532d42b39036f3535",
-      "text": "Förvandla en mapp med obehandlade mikroskopibilder till datakanal per bild Cellpose masker redo för :func:`spacr.measure.measure_crop`.\n\nMed tanke på en källkodsmapp ``src`` av datakanalbilder med flera bilder, konsoliderar detta arbetsflöde (1) valfritt indata från inbäddade mappar, (2) namnger filer till den layout Yokogawa som används nedströms, (3) förbehandlar datakanalmatriser per bild, (4) genererar masker för cell/kärna/patogen/organell bilddatakanaler via Cellpose (SAM variant), (5) förenar valfritt cellmasken mot nuclei + patogena överlagringar, och (6) skriver överlagringsytor och en ``gen_mask_settings.csv`` bredvid utgångarna.\n\n:param settings: Inställningar mappning av nyckelvärde; kanonikaliserad via :func:`spacr.settings.set_default_settings_preprocess_generate_masks`. Måste inkludera ``src`` och minst en av ``cell_channel``, ``nucleus_channel``, ``pathogen_channel`` eller ``organelle_channel``. Strukturerade dataposter funktionen lyder:\n\n    - ``src`` (str eller lista över str) – bildmapp(ar) att bearbeta.\n    - ``metadata_type`` – ``'cellvoyager'`` eller ``'auto'`` (använder ``custom_regex`` vid inställd).\n    - ``cell_channel`` / ``nucleus_channel`` / ``pathogen_channel`` / ``organelle_channel`` – 0-baserade kanalindex; ``None`` hoppar över.\n    - ``cell_diameter`` / ``nucleus_diameter``/ ``pathogen_diameter`` — Cellpose objektdiameter i pixlar.\n    - ``pathogen_model`` – sökväg till en Cellpose- SAM kontrollpunkt för segmentpatogener med, i stället för stam ``cpsam``. Namnen före SAM ``toxo_pv_lumen`` / ``toxo_cyto`` är borta och försvinner till ``cpsam``; en PATH till finjustering respekteras, och en väg som inte finns stoppar löpningen snarare än att tyst använda lagervikter.\n    - ``consolidate`` – kopiera inbäddade bilder till ``src/consolidated`` före bearbetning.\n    - ``preprocess`` / ``masks`` – växla de två arbetsflödeshalvorna.\n    - ``adjust_cells`` – förena cellmasker mot nuklei+patogen.\n    - ``timelapse`` – aktivera bandlänkning; krafter ``randomize=False``.\n    - ``motility_analysis`` — när tidsserier är aktiverade analyseras de färdiga sammanslagna bildrutorna en gång per platta, och mätningarna byggs om från de aktuella maskerna i stället för att en äldre analystabell återanvänds.\n    - ``dry_run`` – validera endast: inspektera inmatningsmapparna, skriv ut preflight-rapporten och planera och returnera utan att skriva något eller ladda en modell.\n    - ``watch_folder`` — fortsätt att bevaka ``src`` och analysera varje synfält när dess filer har kommit och slutat ändras, med ``watch_pipeline``, ``watch_measure_settings``, ``watch_settle_seconds``, ``watch_poll_seconds`` och ``watch_idle_minutes``. Resultaten samlas i ``src/spacr_watch``, och en post där låter en omstartad bevakning hoppa över de synfält som redan analyserats.\n    - ``src`` kan också vara en molnadress (``s3://``, ``gs://``, ``az://``, ``https://``). Från en OME-Zarr-mikroplatta där hämtas bara de brunnar, synfält och den pyramidnivå som anges med ``cloud_wells``, ``cloud_fields`` och ``cloud_level``, som TIFFs, till en mapp under ``cloud_cache``, och körningen analyserar den mappen; en molnmapp med bilder speglas dit i stället. Inloggningsuppgifter hämtas från de vanliga platserna, valda med ``cloud_anonymous``, ``cloud_profile`` och ``cloud_endpoint``, och ``cloud_results`` kopierar mätmappen tillbaka till molnlagringen.\n    - ``save``, ``plot``, ``verbose``, ``test_mode``, ``n_jobs``.\n\n:returns: ``None`` vid en normal körning, efter att masker, överlägg, antal i ``measurements.db`` och inställnings-CSVs har skrivits till undermappar i ``src``. När ``dry_run`` är satt returneras i stället listan med problem från :func:`spacr.validate.run_preflight`. När ``watch_folder`` är satt returneras en ordbok som anger vilka synfält som analyserades, misslyckades och aldrig slutfördes när bevakningen avslutas.\n:raises ValueError: Om ``src`` saknas eller av fel typ, eller ingen segmenteringskanal definieras.\n\nExempel:\n    .. code-block:: python\n\n        from spacr.core import preprocess_generate_masks\n        settings = {\n            'src': '/data/plate01',\n            'cell_channel': 0, 'nucleus_channel': 1, 'pathogen_channel': 2,\n            'cell_diameter': 60, 'nucleus_diameter': 20, 'pathogen_diameter': 8,\n            'magnification': 20, 'save': True, 'plot': True,\n        }\n        preprocess_generate_masks(settings)\n\nSe även: :func:`spacr.io.preprocess_img_data` – endast den förbehandlade hälften. :func:`spacr.measure.measure_crop` – extraktion nedströms.",
+      "source_sha256": "cef3fad925dcb6b1c2128bdf471e86702744cea7bff93f292052fe010e8db91d",
+      "text": "Förvandla en mapp med obehandlade mikroskopibilder till datakanal per bild Cellpose masker redo för :func:`spacr.measure.measure_crop`.\n\nMed tanke på en källkodsmapp ``src`` av datakanalbilder med flera bilder, konsoliderar detta arbetsflöde (1) valfritt indata från inbäddade mappar, (2) namnger filer till den layout Yokogawa som används nedströms, (3) förbehandlar datakanalmatriser per bild, (4) genererar masker för cell/kärna/patogen/organell bilddatakanaler via Cellpose (SAM variant), (5) förenar valfritt cellmasken mot nuclei + patogena överlagringar, och (6) skriver överlagringsytor och en ``gen_mask_settings.csv`` bredvid utgångarna.\n\n:param settings: Inställningar mappning av nyckelvärde; kanonikaliserad via :func:`spacr.settings.set_default_settings_preprocess_generate_masks`. Måste inkludera ``src`` och minst en av ``cell_channel``, ``nucleus_channel``, ``pathogen_channel`` eller ``organelle_channel``. Strukturerade dataposter funktionen lyder:\n\n    - ``src`` (str eller lista över str) – bildmapp(ar) att bearbeta.\n    - ``metadata_type`` – ``'cellvoyager'`` eller ``'auto'`` (använder ``custom_regex`` vid inställd).\n    - ``cell_channel`` / ``nucleus_channel`` / ``pathogen_channel`` / ``organelle_channel`` – 0-baserade kanalindex; ``None`` hoppar över.\n    - ``cell_diameter`` / ``nucleus_diameter``/ ``pathogen_diameter`` — Cellpose objektdiameter i pixlar.\n    - ``pathogen_model`` – sökväg till en Cellpose- SAM kontrollpunkt för segmentpatogener med, i stället för stam ``cpsam``. Namnen före SAM ``toxo_pv_lumen`` / ``toxo_cyto`` är borta och försvinner till ``cpsam``; en PATH till finjustering respekteras, och en väg som inte finns stoppar löpningen snarare än att tyst använda lagervikter.\n    - ``consolidate`` – kopiera inbäddade bilder till ``src/consolidated`` före bearbetning.\n    - ``preprocess`` / ``masks`` – växla de två arbetsflödeshalvorna.\n    - ``adjust_cells`` – förena cellmasker mot nuklei+patogen.\n    - ``timelapse`` – aktivera bandlänkning; krafter ``randomize=False``.\n    - ``motility_analysis`` — när tidsserier är aktiverade analyseras de färdiga sammanslagna bildrutorna en gång per platta, och mätningarna byggs om från de aktuella maskerna i stället för att en äldre analystabell återanvänds.\n    - ``robustness_report`` — när maskerna finns segmenteras några utvalda bildfält om över ett litet rutnät av diametrar, tröskelvärden och kontrastförstärkning. En stabilitetsrapport per objekttyp skrivs till ``qc/segmentation_robustness_<object>.csv`` och markerar de inställningar som resultaten är känsliga för.\n    - ``dry_run`` – validera endast: inspektera inmatningsmapparna, skriv ut preflight-rapporten och planera och returnera utan att skriva något eller ladda en modell.\n    - ``watch_folder`` — fortsätt att bevaka ``src`` och analysera varje synfält när dess filer har kommit och slutat ändras, med ``watch_pipeline``, ``watch_measure_settings``, ``watch_settle_seconds``, ``watch_poll_seconds`` och ``watch_idle_minutes``. Resultaten samlas i ``src/spacr_watch``, och en post där låter en omstartad bevakning hoppa över de synfält som redan analyserats.\n    - ``microscope_feedback`` — under en ``watch_folder``-körning med ``watch_pipeline='mask_measure'`` skickas objekten som matchar ``microscope_event_query`` tillbaka till mikroskopet som anges av ``microscope_driver`` för ny avbildning, vid objektbordspositioner beräknade från ``microscope_positions`` och ``microscope_stage_transform``.\n    - ``src`` kan också vara en molnadress (``s3://``, ``gs://``, ``az://``, ``https://``). Från en OME-Zarr-mikroplatta där hämtas bara de brunnar, synfält och den pyramidnivå som anges med ``cloud_wells``, ``cloud_fields`` och ``cloud_level``, som TIFFs, till en mapp under ``cloud_cache``, och körningen analyserar den mappen; en molnmapp med bilder speglas dit i stället. Inloggningsuppgifter hämtas från de vanliga platserna, valda med ``cloud_anonymous``, ``cloud_profile`` och ``cloud_endpoint``, och ``cloud_results`` kopierar mätmappen tillbaka till molnlagringen.\n    - ``save``, ``plot``, ``verbose``, ``test_mode``, ``n_jobs``.\n\n:returns: ``None`` vid en normal körning, efter att masker, överlägg, antal i ``measurements.db`` och inställnings-CSVs har skrivits till undermappar i ``src``. När ``dry_run`` är satt returneras i stället listan med problem från :func:`spacr.validate.run_preflight`. När ``watch_folder`` är satt returneras en ordbok som anger vilka synfält som analyserades, misslyckades och aldrig slutfördes när bevakningen avslutas.\n:raises ValueError: Om ``src`` saknas eller av fel typ, eller ingen segmenteringskanal definieras.\n\nExempel:\n    .. code-block:: python\n\n        from spacr.core import preprocess_generate_masks\n        settings = {\n            'src': '/data/plate01',\n            'cell_channel': 0, 'nucleus_channel': 1, 'pathogen_channel': 2,\n            'cell_diameter': 60, 'nucleus_diameter': 20, 'pathogen_diameter': 8,\n            'magnification': 20, 'save': True, 'plot': True,\n        }\n        preprocess_generate_masks(settings)\n\nSe även: :func:`spacr.io.preprocess_img_data` – endast den förbehandlade hälften. :func:`spacr.measure.measure_crop` – extraktion nedströms.",
       "translation_source_blocks_sha256": [
         "366be24510440a273cbaba7959fe628cb0f26e8c20215e13824a60d0ef5f95e0",
         "5afca811e741b3d6db1bbf2850514b3ac5b11f100ceed1f08a8e759717d5dc42",
@@ -13672,8 +13678,10 @@
         "4a26450667f19313c64cd55bfab6fe92569d4de4128fb847e4f1af26483b1f65",
         "a473f2d0bf614b72d28dc70798f28ef11e3b59992f652b5eee476a02090b8c37",
         "c10a21efe1c5646a99df8af5c5a50310835dc1607e8b473d383745baba35ad0b",
+        "acdcaa0951b6aab6a3821d2f70809475a0ecaa6d5589e985a3d86728186de4a9",
         "3939d488f8884ad019e6dfaa1991e3012947f976103941f59d9425efe8000acd",
         "ed450006c63699d0e2641322bd90b0a56b7bf0fed50bac75f796462f9763ee5b",
+        "61226e080db4eced080f864b14c884ba5fd2cc8684078ebdb574905b217c9522",
         "4e19fb433627a512a93086d2361ab750a67bd1c8cfc4a75c429ac63159c593b6",
         "4f9a9dd2a177bcf90eaf317e829c883bb3f9e42425bc29e5ee62034ef0cd8054",
         "11827ff0bd4ab3575648b0d2578a2e6ce9e721496b459904a049285ea142d094",
@@ -17607,10 +17615,11 @@
         "e2af5044c4581a6b5cfa6fc82f6f5c5809d437d51ba343161a74e8bd9c15a116",
         "8a4539d4840c0fb9f020d0fa288b67d7627decdad2ddd3db6ae59cac5bc1de00",
         "f49638cf8782d42587b5c6edc9ce8c736db01bb5706862ab31cf0af5acaa5132",
+        "54615bc3606b4ad70caf137bd7d1bc748c162eb7c5f61b1affe60ae32525d475",
         "2e56c27b239f47a61450253adaeaee88662a0db3b9873b16ea288f4bb5e7352c",
         "becf42ff6ecf8c15166a896cf414eb439b9caa2dee7218f78d12f9891b9467b9",
         "ff8a0c9448a5906979bca804d19cddcf2c85df6698ce2d65663578bb98655891",
-        "e05d67e63abb2f383aa8cc82dee5a6c19f7ab048071dd147be3d921298f10278",
+        "318a2b5428f1fc0f007f3170cb945eccfbc4d1f87d50424a4aab4fa3775cf7dd",
         "08f5c4b93b4e2bb3fa0faf3d265fe01748e815f8ccd1aa74668e4f6a0806b110",
         "d5d9affd47ac2288cd304bac425a775c6067fd6e518be7386743dd907991198d",
         "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
@@ -17619,18 +17628,19 @@
         "a0ab1793eaf6d30a2bd1ccd5609af399b772fe7d28f91203ced34a1619d57d64",
         "cbb83b1ffdb5e69ef1480e7306590ed8822f1aba6963b7ba95a0aea2944cab80"
       ],
-      "source_sha256": "e356a7d09cc45a84f33168050cf679a8908bc0f48973eb41b8c5154a45c76817",
-      "text": "Beställ en arbetslista med det externa verktygets semantik.\n\n``name`` Genom stam, och inget annat läses – inte sannolikheterna, inte utkasten. Genom stam snarare än filnamn så att ordningen inte ändras när ett fält är en PNG och nästa en TIFF.\n\n``prob`` Troligtvis först: det strukturerade datanamnet är ``-probs.get(stem, -1.0)``. Standardvärdet är punkten. Ett omärkt fält ger ``+1.0``, större än någon verklig negativ sannolikhet, så det sorterar LAST snarare än att låtsas vara sannolikhet noll.\n\n``easy`` ``(0 if n > 0 else 1, -probs.get(stem, -1.0), -n)``. Ett befolkat utkast är acceptera-eller-ljus-edit; ett EMPTY utkast innebär att rita från grunden, så tomma de går sist Närmelsevis av sannolikhet. Inom varje grupp, mest sannolikt först, sedan de flesta objekt.\n\n``value`` Av :func:`value_key`: hur mycket utkast det finns att korrigera.\n\nSlipsar bryts av stam, eftersom listan sorteras efter stam innan något av detta och Python s sort är stabil.\n\n:param items: fälten att beställa.\n:param order: en av :data:`ORDERS`.\n:param probs: ``{stem: probability}``, eller en återsändbar, eller ``None`` för ingen tillgänglig.\n:param counts: ``{stem: n_objects}``, eller en återvändbar. När ``None``, ``easy`` läser utkasten själv.\n:param announce: där reservmeddelandet går; standardvärdet är :func:`print`, så det landar på stdout som det externa verktyget gör.\n:param min_objects: övergick till :func:`value_key`.\n:param min_diameter: övergick till :func:`value_key`.\n:param scores_hint: Poängfilen som namngavs i reservmeddelandet.\n:returns: En ny lista, beställd.\n:raises ValueError: när ``order`` inte är en av :data:`ORDERS`.",
+      "source_sha256": "df83eb193a2f3e80b02f1f20e3b79d23b2fad186c1b4f63fbbad0d2edcb80fbb",
+      "text": "Beställ en arbetslista med det externa verktygets semantik.\n\n``name`` Genom stam, och inget annat läses – inte sannolikheterna, inte utkasten. Genom stam snarare än filnamn så att ordningen inte ändras när ett fält är en PNG och nästa en TIFF.\n\n``prob`` Troligtvis först: det strukturerade datanamnet är ``-probs.get(stem, -1.0)``. Standardvärdet är punkten. Ett omärkt fält ger ``+1.0``, större än någon verklig negativ sannolikhet, så det sorterar LAST snarare än att låtsas vara sannolikhet noll.\n\n``easy`` ``(0 if n > 0 else 1, -probs.get(stem, -1.0), -n)``. Ett befolkat utkast är acceptera-eller-ljus-edit; ett EMPTY utkast innebär att rita från grunden, så tomma de går sist Närmelsevis av sannolikhet. Inom varje grupp, mest sannolikt först, sedan de flesta objekt.\n\n``value`` Av :func:`value_key`: hur mycket utkast det finns att korrigera.\n\n``uncertain`` Mest osäker segmentering först, med nyckeln ``-probs.get(stem, -1.0)`` där ``probs`` innehåller varje bildfälts osäkerhet från ``curate_uncertainty.csv``. Ett bildfält utan poäng sorteras sist.\n\nSlipsar bryts av stam, eftersom listan sorteras efter stam innan något av detta och Python s sort är stabil.\n\n:param items: fälten att beställa.\n:param order: en av :data:`ORDERS`.\n:param probs: ``{stem: probability}``, eller ett anropbart objekt som returnerar en sådan, eller ``None`` om ingen finns; för ``uncertain`` används ``{stem: uncertainty}``.\n:param counts: ``{stem: n_objects}``, eller en återvändbar. När ``None``, ``easy`` läser utkasten själv.\n:param announce: där reservmeddelandet går; standardvärdet är :func:`print`, så det landar på stdout som det externa verktyget gör.\n:param min_objects: övergick till :func:`value_key`.\n:param min_diameter: övergick till :func:`value_key`.\n:param scores_hint: Poängfilen som namngavs i reservmeddelandet.\n:returns: En ny lista, beställd.\n:raises ValueError: när ``order`` inte är en av :data:`ORDERS`.",
       "translation_source_blocks_sha256": [
         "a865fdeef1fd5908cfca4338e7fe8229002f97c9daa29590f3cfeac7bb74a6eb",
         "72584e8bd2ba5c978f03add619cec7cf7ba7ecf37e1857bbae146a09cb8893cb",
         "890cfc6f25af9afe386f77d1b15c118ab52bccebbd3f73b0e845107acde273d3",
         "8a4539d4840c0fb9f020d0fa288b67d7627decdad2ddd3db6ae59cac5bc1de00",
         "f49638cf8782d42587b5c6edc9ce8c736db01bb5706862ab31cf0af5acaa5132",
+        "b2d5b446452ede78154ba0332b83a662b52e68a3b2a98bb0eba0356c7069d156",
         "2e56c27b239f47a61450253adaeaee88662a0db3b9873b16ea288f4bb5e7352c",
         "becf42ff6ecf8c15166a896cf414eb439b9caa2dee7218f78d12f9891b9467b9",
         "ff8a0c9448a5906979bca804d19cddcf2c85df6698ce2d65663578bb98655891",
-        "e05d67e63abb2f383aa8cc82dee5a6c19f7ab048071dd147be3d921298f10278",
+        "318a2b5428f1fc0f007f3170cb945eccfbc4d1f87d50424a4aab4fa3775cf7dd",
         "08f5c4b93b4e2bb3fa0faf3d265fe01748e815f8ccd1aa74668e4f6a0806b110",
         "d5d9affd47ac2288cd304bac425a775c6067fd6e518be7386743dd907991198d",
         "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
@@ -20844,18 +20854,18 @@
         "327457c3cb011cac25d4b9ef6ca31a55d0c811e35b1ff3b12eb3512f9998a5ed",
         "d30f428945bb3c400be1777373d16a3157a12c534cd6e75f2303a2abe9396b1b",
         "15ff2ca016c1c575259534a0be93452a78d27f1bc16dcfcd4ec13516fda82f66",
-        "11e59d833f158e06ae192b942cb9108f72b064cfb7173fff132dcc691d3518c2",
+        "1ce695814ba5d53929f1cfdbd20ca84d708d47090b58be77e869eda0976af31d",
         "307f4b379a7a1902b0fa68fcf0a0371c73043fe48c436c4d8d3c830f48212deb",
         "c33304be14f5205cfcab60bf9406330aecc2b72939a1529a874386802b128acf"
       ],
-      "source_sha256": "2ff67c7a6631dfbff8feb9f4eb13a9f23a250a73969d2204b9e453e4233e2a60",
-      "text": "Lägga in en hög med extraherade bildområden.\n\nVarje utsnitt divideras med samma skala per kanal, ``spec.channel_scale``, så ett utsnitts inbäddning beror inte på de andra utsnitten i ``crops``. Saknar specifikationen en skala uppskattas den från ett slumpmässigt urval av ``crops`` -- stapeln behandlas som hela plattan -- och en varning loggas. För att bädda in en platta i flera anrop, skicka samma skala till vart och ett: den returnerade ``spec`` bär den.\n\n:param crops: ``(n, height, width, channels)``, bildas redan formen :mod:`spacr.crops`.\n:param spec: hur man bäddar in; standardvärdet är resnet per kanal18.\n:param encoder: ett inkallbart intag ``(n, height, width, 3)`` float32 i [0, 1] och retur ``(n, dims)``. Injicerat av testerna så att ledningarna kan utövas utan att ladda ner en ryggrad; produktionsväljare lämnar det ``None``.\n:returns: an :class:`EmbeddingResult`.\n:raises EmbeddingError: på en form eller bild datakanal problem, innan någon modell laddas - en nedladdning är ett långsamt sätt att ta reda på arrayen var fel.",
+      "source_sha256": "f0c91f07727481f0b54fc2e4dc5f5ed398f42d72000c44f20b9b563016279d5b",
+      "text": "Lägga in en hög med extraherade bildområden.\n\nVarje utsnitt divideras med samma skala per kanal, ``spec.channel_scale``, så ett utsnitts inbäddning beror inte på de andra utsnitten i ``crops``. Saknar specifikationen en skala uppskattas den från ett slumpmässigt urval av ``crops`` -- stapeln behandlas som hela plattan -- och en varning loggas. För att bädda in en platta i flera anrop, skicka samma skala till vart och ett: den returnerade ``spec`` bär den.\n\n:param crops: ``(n, height, width, channels)``, bildas redan formen :mod:`spacr.crops`.\n:param spec: hur man bäddar in; standardvärdet är resnet per kanal18.\n:param encoder: ett anropbart objekt som tar ``(n, height, width, 3)`` float32 i [0, 1] och returnerar ``(n, dims)``. En kodare med attributet ``in_channels`` tar i stället så många bildplan, och en kodare vars ``in_channels`` är ``None`` tar valfritt antal: varje kanal separat med policyn per kanal, alla kodade kanaler i en enda genomgång med projektionspolicyn. Injiceras av testerna så att kopplingarna kan provas utan att ladda ned ett basnätverk; i produktion lämnar anroparna värdet som ``None``.\n:returns: an :class:`EmbeddingResult`.\n:raises EmbeddingError: på en form eller bild datakanal problem, innan någon modell laddas - en nedladdning är ett långsamt sätt att ta reda på arrayen var fel.",
       "translation_source_blocks_sha256": [
         "414f2d1719a77b29f99b0afea94418b6d92cb1c87873bc1694abff536ec22aba",
         "2a2643f2cf41032790018efe21250d670c2fd1e01266dfe68c0a7c1d7ec4b287",
         "d30f428945bb3c400be1777373d16a3157a12c534cd6e75f2303a2abe9396b1b",
         "15ff2ca016c1c575259534a0be93452a78d27f1bc16dcfcd4ec13516fda82f66",
-        "11e59d833f158e06ae192b942cb9108f72b064cfb7173fff132dcc691d3518c2",
+        "67df015fea6cb29a469a327127bc8487cd2e8c1fc2dbab60a3489346e719e593",
         "307f4b379a7a1902b0fa68fcf0a0371c73043fe48c436c4d8d3c830f48212deb",
         "d54d0beaa547fd8a2d266327462d03b5e4b7bccc3b06e7845cd13b2f58b9851c"
       ]
@@ -33001,10 +33011,11 @@
         "04b93d696f23902bc551c04e043d8b7f2bfa10f60e716b2877bd8c510d4a1203",
         "818dcecd6d63678702a5a3f3857f9ade73a91e5859f583779bbcae34c87d3649",
         "b1c15f0ff167d5cadba2af78ca182737535d421f9f51723ee7199b8bf149981d",
-        "2b4da2cdf8be220cd4164767f5c89dac9942fa9ab61794470ddeac8f35ac2bdb"
+        "2b4da2cdf8be220cd4164767f5c89dac9942fa9ab61794470ddeac8f35ac2bdb",
+        "039a30663b5f4970510ce6cc321f7f878dc3309b6ea3e1143ac2da8df2611709"
       ],
-      "source_sha256": "7d13e0f1e05d16e6fd2daa0f6d61daa69538c29eda664525438777022e9d8f7a",
-      "text": "Uppskattningen av belysningen för en platta, för en eller flera kanaler.\n\n:param plate: Plattans nyckel, eller :data:`ALL_PLATES` när modellen uppskattades över varje platta samtidigt.\n:param channels: Källkanalindex, i den ordning de indexerar :attr:`flatfield` första axeln. Dessa är index i *sammanslagna stacken*, dvs. exakt värdena i ``settings['channels']``.\n:param flatfield: ``(C, Y, X)`` float32 multiplikativt mikroskopfält, normaliserat så att varje kanals medelvärde är 1,0. ``corrected = (observed - dark) / flatfield``.\n:param dark: Additiv offset per kanal subtraherades innan delning. Noll om inte användaren har levererat en uppmätt kameraoffset – se modulen docstring för varför den inte beräknas.\n:param n_fields: hur många fält uppskattningen gjordes från.\n:param estimator: ``'polynomial'`` eller ``'smooth'``.\n:param degree: polynomgrad, eller 0 för den smidiga estimatorn.\n:param bin_size: Binningsfaktorn medianvärdet per pixel beräknades vid. Illumination är lågfrekvens, så binning kostar ingenting och köper både minnet för att hålla många fält på en gång och en tystare statistik.\n:param floored: Bildpunkter den monterade ytan måste vara golvad (se :data:`FLAT_FLOOR_FRACTION`). Non-noll betyder att passformen gick negativ någonstans och uppskattningen bör ses över innan den är betrodd.",
+      "source_sha256": "edfe5d5256128cc1ebd46a9d4ed4b134dd60123f419afe7ffcb6d5a6f15ecfb9",
+      "text": "Uppskattningen av belysningen för en platta, för en eller flera kanaler.\n\n:param plate: Plattans nyckel, eller :data:`ALL_PLATES` när modellen uppskattades över varje platta samtidigt.\n:param channels: Källkanalindex, i den ordning de indexerar :attr:`flatfield` första axeln. Dessa är index i *sammanslagna stacken*, dvs. exakt värdena i ``settings['channels']``.\n:param flatfield: ``(C, Y, X)`` float32 multiplikativt mikroskopfält, normaliserat så att varje kanals medelvärde är 1,0. ``corrected = (observed - dark) / flatfield``.\n:param dark: Additiv offset per kanal subtraherades innan delning. Noll om inte användaren har levererat en uppmätt kameraoffset – se modulen docstring för varför den inte beräknas.\n:param n_fields: hur många fält uppskattningen gjordes från.\n:param estimator: ``'polynomial'`` eller ``'smooth'``.\n:param degree: polynomgrad, eller 0 för den smidiga estimatorn.\n:param bin_size: Binningsfaktorn medianvärdet per pixel beräknades vid. Illumination är lågfrekvens, så binning kostar ingenting och köper både minnet för att hålla många fält på en gång och en tystare statistik.\n:param floored: Bildpunkter den monterade ytan måste vara golvad (se :data:`FLAT_FLOOR_FRACTION`). Non-noll betyder att passformen gick negativ någonstans och uppskattningen bör ses över innan den är betrodd.\n:param darkfield: valfri rumslig bakgrund ``(C, Y, X)`` som subtraheras utöver ``dark``. Den finns bara i en leverantörsprofil som levereras med en egen bakgrundsyta; ett skattat fält har aldrig någon.",
       "translation_source_blocks_sha256": [
         "17dc78a345ffddbb94a23456ec2ec5250d50595d19dd4149d2527dc18605a66a",
         "6acece5945432e98466e1e2e1e232507d227c48111f6ad36231b8c15e428d79a",
@@ -33015,7 +33026,8 @@
         "04b93d696f23902bc551c04e043d8b7f2bfa10f60e716b2877bd8c510d4a1203",
         "818dcecd6d63678702a5a3f3857f9ade73a91e5859f583779bbcae34c87d3649",
         "b1c15f0ff167d5cadba2af78ca182737535d421f9f51723ee7199b8bf149981d",
-        "2b4da2cdf8be220cd4164767f5c89dac9942fa9ab61794470ddeac8f35ac2bdb"
+        "2b4da2cdf8be220cd4164767f5c89dac9942fa9ab61794470ddeac8f35ac2bdb",
+        "039a30663b5f4970510ce6cc321f7f878dc3309b6ea3e1143ac2da8df2611709"
       ]
     },
     "spacr.illumination.IlluminationField.dark_stack": {
@@ -33493,17 +33505,17 @@
         "e4ea8d48afff16e1b9c5060fe9d382692e0ec6f6f6f27ba324518da231006a27",
         "6e3b695c86c1d9de9628acbe17c8d39d882bff6e9d569aee282f1f2520fcd332",
         "bcd39ee407d791269f359bc1cf6a233b2ed37abbe5e8e61052570482e881baa9",
-        "6918ebd813b4e33b602c24f51eda4009625974702edf4638f70a742afc89b4e3",
+        "7d9732d503d6b69caa62264f3a6bd65ab5017c8f993c6941d0edffce64708fe0",
         "c88c006aef081bc1f8578283346e92cc7c1002a8442cda92e5357215be57edbe",
         "80530b219aabdb2fec833b764ecb64be04b6cfc0d6b014831d702e1fc2ffcf09"
       ],
-      "source_sha256": "ed9a609699b1b9eb578c94d44848891ce0d7d445e5834a00794dffcd169a8d55",
-      "text": "Beräkna, spara, aktivera och QC åtgärdskorrigeringen.\n\nDen ena anropet ett arbetsflöde gör före ``measure_crop``, och den som Illumination knappen på mäta masthead kör på egen hand -- modellen och dess QC siffror i minuter, innan du förbinder timmar till den åtgärd kör som kommer att återanvända dem genom ``illumination_model``.\n\nDet gör ingenting alls -- och returnerar None -- om inte ``settings['illumination_correction']`` är True, vilket INTE är den levererade standardvärdet: korrigeringen är opt-in, så en processsession som aldrig nämner den mäts okorrigerad. Att bli ombedd att köra med avstängningen är ett no-op värt att höra om snarare än en tyst, eftersom det från en inställningsform ser exakt ut som en sessionsknapp som inte gör någonting, så ett verbose anrop säger vilken strömbrytare som inte kastades.\n\n:param settings: a ``measure_crop`` inställningar mappning av nyckelvärde. Läser ``illumination_correction``, ``illumination_model``, ``illumination_estimator``, ``illumination_degree``, ``illumination_per_plate``, ``illumination_max_fields``, ``illumination_dark``, ``illumination_on_missing``, ``illumination_qc``, plus ``src`` och ``channels``.\n:param verbose: Överskridningar ``settings['verbose']``.\n:returns: den :class:`IlluminationModel` som var aktiverad, eller None.",
+      "source_sha256": "673a6ea45c439762f29d997df262f63c4f9b4a712886ccf0af08a2ff31f707c6",
+      "text": "Beräkna, spara, aktivera och QC åtgärdskorrigeringen.\n\nDen ena anropet ett arbetsflöde gör före ``measure_crop``, och den som Illumination knappen på mäta masthead kör på egen hand -- modellen och dess QC siffror i minuter, innan du förbinder timmar till den åtgärd kör som kommer att återanvända dem genom ``illumination_model``.\n\nDet gör ingenting alls -- och returnerar None -- om inte ``settings['illumination_correction']`` är True, vilket INTE är den levererade standardvärdet: korrigeringen är opt-in, så en processsession som aldrig nämner den mäts okorrigerad. Att bli ombedd att köra med avstängningen är ett no-op värt att höra om snarare än en tyst, eftersom det från en inställningsform ser exakt ut som en sessionsknapp som inte gör någonting, så ett verbose anrop säger vilken strömbrytare som inte kastades.\n\n:param settings: en inställningsdict för ``measure_crop``. Läser ``illumination_correction``, ``illumination_model``, ``illumination_estimator``, ``illumination_degree``, ``illumination_per_plate``, ``illumination_max_fields``, ``illumination_dark``, ``illumination_on_missing``, ``illumination_qc``, ``illumination_vendor_profile`` samt ``src`` och ``channels``.\n:param verbose: Överskridningar ``settings['verbose']``.\n:returns: den :class:`IlluminationModel` som var aktiverad, eller None.",
       "translation_source_blocks_sha256": [
         "e4ea8d48afff16e1b9c5060fe9d382692e0ec6f6f6f27ba324518da231006a27",
         "342d6af3d7eff85681a527357219af5b5720ba9c3d839b8d4e4acfaef036bb5e",
         "9784f21f7be57727458481a50bf929300d748d78896d78d87c658e57499d5bc1",
-        "a2c0b2862dbdc3fdfc05aaa04185b5e19fd649dd3413bc462df0a6c7fc5365ee",
+        "e62d0ce1c7bf1b0f47e2054c4a92721ea66a127367b3e27f28dcff17bfc0d32b",
         "c88c006aef081bc1f8578283346e92cc7c1002a8442cda92e5357215be57edbe",
         "80530b219aabdb2fec833b764ecb64be04b6cfc0d6b014831d702e1fc2ffcf09"
       ]
@@ -33511,20 +33523,20 @@
     "spacr.illumination.prepare_illumination_model": {
       "source_blocks_sha256": [
         "2c7c2981f028f612ec0b6909dbb51677dd28b140957340f7d0ee30ab76bae722",
-        "8bd68328f92eb6598f74a5c5769f1e4d14fc3b7cd64a45a3946d89e34ca2f196",
-        "05e3bd5c5ae69908bbc49fcf9f4d8de3ac77f8ef90e24e1569d8e4122dcfc0e5",
+        "773830a7a23aa85f476671c8e45ec3da7b95d915d90333b4cce647ef79435fb0",
+        "b124e1d708fb5d05f93655d2e0e52c96accc228232e17046edeedc56c7e460b6",
         "b77391fb30e77cdb6cc9f65e064636a5730177554dcb06c73e2d36ce2fbdc4c0",
         "604e45408c4a4e5de6a28c66b362d41efde586caf88d6c1131bf702bafb0c255",
         "d44a54ab4fabbea5314bdb3c8f34729dd10888b55bfcd4b63a85de2bdbca7e92",
         "150925af7335af395df5fd874b744b53386a6510b0b1809e9e042c62398fe790",
         "52167c57cbac30db84e00492ce14cbe6194c732d1e22c709ec013b75bb2bda42"
       ],
-      "source_sha256": "bc8643dae9ba9c18c413df45452399e6092a5c18349d4494426b2091ba84a3d6",
-      "text": "Förbered en återanvändbar optisk modell utan att installera en Mätkrok.\n\nDetta är den direkta konsumenten av alla nio ``illumination_*`` inställningar. Det uppskattar eller laddar modellen en gång, säkerställer att en monterad modell sparas, hashhes den exakta sparade bytes, tillval skriver steg-märkt QC, och bygger en korrektor. Tillämpa att korrektor tillhör den uppringare scenen.\n\n:param settings: Inställningar med nio belysningskontroller.\n:param src: Valfri rå fältkatalog. Förvalt till ``settings['src']``.\n:param channels: Valfritt kvarstående intensitets-axelpositioner. Förvalt till ``settings['channels']``.\n:param qc_stage: Valfri stegetikett som ingår i QC filnamn/titlar.\n:param verbose: Överskridning ``settings['verbose']``.\n:returns: en beredd modell/korrigerare eller ``None`` när korrigeringen är avstängd.",
+      "source_sha256": "dea51f54ed007fed048d5a1c02b59a16288ef7ef2da89550ed69ff5d07d62426",
+      "text": "Förbered en återanvändbar optisk modell utan att installera en Mätkrok.\n\nDetta är den direkta användaren av alla tio ``illumination_*``-inställningarna. Den skattar, laddar eller läser in en leverantörsprofil för belysningsutjämning i modellen en gång, ser till att en anpassad modell sparas, beräknar hashvärdet för exakt de byte som sparats, skriver vid behov stegmärkt kvalitetskontroll (QC) och bygger en korrigerare. Anropande steg ansvarar för att använda korrigeraren.\n\n:param settings: inställningar med de tio belysningskontrollerna. Ett icke-tomt ``illumination_vendor_profile`` ersätter skattningen med leverantörens eget utjämningsfält; ``illumination_model`` har fortfarande företräde framför båda.\n:param src: Valfri rå fältkatalog. Förvalt till ``settings['src']``.\n:param channels: Valfritt kvarstående intensitets-axelpositioner. Förvalt till ``settings['channels']``.\n:param qc_stage: Valfri stegetikett som ingår i QC filnamn/titlar.\n:param verbose: Överskridning ``settings['verbose']``.\n:returns: en beredd modell/korrigerare eller ``None`` när korrigeringen är avstängd.",
       "translation_source_blocks_sha256": [
         "2c7c2981f028f612ec0b6909dbb51677dd28b140957340f7d0ee30ab76bae722",
-        "8bd68328f92eb6598f74a5c5769f1e4d14fc3b7cd64a45a3946d89e34ca2f196",
-        "05e3bd5c5ae69908bbc49fcf9f4d8de3ac77f8ef90e24e1569d8e4122dcfc0e5",
+        "773830a7a23aa85f476671c8e45ec3da7b95d915d90333b4cce647ef79435fb0",
+        "b124e1d708fb5d05f93655d2e0e52c96accc228232e17046edeedc56c7e460b6",
         "b77391fb30e77cdb6cc9f65e064636a5730177554dcb06c73e2d36ce2fbdc4c0",
         "604e45408c4a4e5de6a28c66b362d41efde586caf88d6c1131bf702bafb0c255",
         "d44a54ab4fabbea5314bdb3c8f34729dd10888b55bfcd4b63a85de2bdbca7e92",
@@ -33553,17 +33565,17 @@
         "18d6c57d3eee6f78dc59a9d37b1c501e0155f6ec6f55893c9ce73a988e87b891",
         "4752c0a79fd6419078d7aa34bb9184b58ccb24d37468a15d1e9fbc48b5d34d61",
         "60b730773d424102a58c358009b24f464f50047cc57d4a3eaa24bd740608a551",
-        "b698d72f5991df2243e69e872bee6fcc54447809295f587b6b1b5b262471b5cc",
+        "65be833d95e3dad52244c02a72fe958c040dd2693c0dc9e3fcaf80ff5ad94985",
         "91ba116c8e764037a03e58f549a9f47f89d7a923e4d7a3b80fd9aa6f955cf324",
         "b8ca37255b8e30c34071e469a995aaeca48bd930e153bbcd6f2460f2c162ad10"
       ],
-      "source_sha256": "6d732a80ef2e59a331ace9caa93df3c38911e3521e1f5395cbc97a6cc2a57a95",
-      "text": "Registrera belysningsinställningarna genom standardsömn.\n\nRingdes en gång vid import. Använder :func:`spacr.settings.register_defaults` istället för att lägga till ``spacr/settings.py``, så den här modulen äger sina egna rattar.\n\nTyper, verktygstips och modulbeskrivningen bidrar med; **kategorier är avsiktligt inte**. ``spacr.settings.categories`` är en delad, beställd karta som varje inställningspanel går, och dess tillväxt bevakas av en exakt kvalitetstest mot en handhållen lista. Ett strukturerat datanamn bidrog vid *import* tid finns i den kartan endast i en session som importerade modulen, så bidragande kategorier skulle göra att testets resultat beror på vilka filer pytest pekades på.\n\nDe nio strukturerade datanamnen är arkiverade under en rubrik -- \"Illumination Correction\" i ``spacr.settings.categories`` -- och Mätpanelen erbjuder var och en av dem, eftersom ``measure_crop`` anropar :func:`prepare_illumination_correction` sig själv och dessa är de strukturerade data namnen som anropas läser. Rubriken är skriven i den kartan för hand av anledningen ovan: den måste existera för varje process som grupperar Mätinställningarna, inte bara för en som råkade importera modulen.\n\n:param replace: Omregistrera sig över en befintlig registrering.\n:returns: True om den redan var registrerad, False",
+      "source_sha256": "782220e645d85e78ed45021021cd8bb684487bf8ab63c16ecc0505c9d1c89f41",
+      "text": "Registrera belysningsinställningarna genom standardsömn.\n\nRingdes en gång vid import. Använder :func:`spacr.settings.register_defaults` istället för att lägga till ``spacr/settings.py``, så den här modulen äger sina egna rattar.\n\nTyper, verktygstips och modulbeskrivningen bidrar med; **kategorier är avsiktligt inte**. ``spacr.settings.categories`` är en delad, beställd karta som varje inställningspanel går, och dess tillväxt bevakas av en exakt kvalitetstest mot en handhållen lista. Ett strukturerat datanamn bidrog vid *import* tid finns i den kartan endast i en session som importerade modulen, så bidragande kategorier skulle göra att testets resultat beror på vilka filer pytest pekades på.\n\nDe tio nycklarna ÄR placerade under en rubrik -- \"Illumination Correction\" i ``spacr.settings.categories`` -- och panelen Measure erbjuder varenda en, eftersom ``measure_crop`` själv anropar :func:`prepare_illumination_correction` och det är dessa nycklar som anropet läser. Rubriken skrivs in för hand i den mappningen av skälet ovan: den måste finnas för varje process som grupperar inställningarna för Measure, inte bara för en som råkade importera denna modul.\n\n:param replace: Omregistrera sig över en befintlig registrering.\n:returns: True om den redan var registrerad, False",
       "translation_source_blocks_sha256": [
         "18d6c57d3eee6f78dc59a9d37b1c501e0155f6ec6f55893c9ce73a988e87b891",
         "4752c0a79fd6419078d7aa34bb9184b58ccb24d37468a15d1e9fbc48b5d34d61",
         "92fca6e94bf2db1869144973a49a30ed0e359fa7c2a05a1d4e062707114c7f63",
-        "04bbc468aa47e2cc36b5212ffe713e0034724e808d5cd35c822a14d97b56a5bc",
+        "1ee642bf8b563f93ee45f87b9d2a4473d1e75e9632fb31c9ae47b21b877fa59a",
         "91ba116c8e764037a03e58f549a9f47f89d7a923e4d7a3b80fd9aa6f955cf324",
         "b8ca37255b8e30c34071e469a995aaeca48bd930e153bbcd6f2460f2c162ad10"
       ]
@@ -55156,11 +55168,11 @@
         "d5a1ac80dceb2da05694d37fc60468aff2c4187d20b5abf256f14fa9d3d7e637",
         "b41e260f3f9259b4c111b9edc1db4cbbfc716f3ba8b4efc188ddb19a00cef301",
         "f3740c4e162a81304f7dc17f9d11b87f18ca455db2f5e9346bfc2b3a93bddd2d",
-        "f28bcb7e35ec757d7e33bfb5eb99b9e0cce20e687ca74e7f55ae1f5299995ce6",
+        "73a797dd6762183eb99c4eda98ad78306b37f293bd697e9662dbbcea878fa976",
         "0bafdfe5776597bee9ec1e9df0d479dbc049ebda792885ba9da6c815d8d9eb05"
       ],
-      "source_sha256": "a3e3f27dec7e5b5c3fea7894f87fb755034e3275aab810428b12cd904c32bdd0",
-      "text": "Packa in mikroskopfältet för visningsstackar genom Cellpose och lägg sedan till maskera bilddatakanal(er) till SAMMA npy-filer.\n\n:param stacks: Förteckning som framställts av :func:`stream_originals_to_stack`.\n:param model_name: Cellpose modell att använda (``\"cyto\"``, ``\"nuclei\"``, ...).\n:param channels_for_cellpose: C-axelindex som valts ut ur varje sammansatt stack innan den överlämnas till Cellpose – tog modulo antalet bilddatakanaler och avduplicerades i ordning. Det vidarebefordras INTE som Cellpose argumentet ``channels=``; ``[0, 0]`` ger därför ett enda bildlager, inte ett gråskalepar. Den första valda bilddatakanalen är objektets egen bilddatakanal för filtrering av absolut medelintensitet.\n:param diameter: Förväntad objektdiameter i px (None → Cellpose auto).\n:param batch_fields: hur många fält stackar att ladda i minnet på en gång. Större = snabbare men mer RAM.\n:param mask_channel_name: mänskligt namn att registrera för den bifogade mask bilddatakanalen (standard ``\"mask\"``).\n:param keep_npz: den mellanliggande satsen komprimeras till en NPZ i ``npz_dir`` för varje sats oavsett, den här flaggan bestämmer bara om filen och arbetsmappen överlever bearbetningssessionen.\n:param npz_dir: var (valfritt) mellanhandsfilerna i NPZ ska skrivas. Förvaler till en underkatalog för repor under stackmappen.\n:param illumination_session: valfritt :class:`spacr.illumination.SegmentationIlluminationSession`. Dess korrektor ser privata datakanalkopior med vald bild omedelbart före normalisering/ Cellpose; kvarstående intensitetsbildlager och repa NPZs förblir råa, och slutförandet registreras först efter det att den kombinerade stacken har ersatts atomärt.\n:param psf_session: valfri infångad PSF-session. Bearbetar valda intensiteter efter belysningskorrigering och före normalisering, utfyllnad eller Cellpose. Lagrade bildkanaler förblir råa; endast de tillagda etiketterna beror på PSF-bearbetningen.\n:returns: Samma lista, med varje :class:`StackFile.shape` / ``.channels`` uppdaterad för att återspegla den bifogade bilddatakanalen mask.",
+      "source_sha256": "5bcb21e25ba29e246b37a441ac5f6a6ecf5a05d774e3e7654c807981d0ce3fa7",
+      "text": "Packa in mikroskopfältet för visningsstackar genom Cellpose och lägg sedan till maskera bilddatakanal(er) till SAMMA npy-filer.\n\n:param stacks: Förteckning som framställts av :func:`stream_originals_to_stack`.\n:param model_name: Cellpose modell att använda (``\"cyto\"``, ``\"nuclei\"``, ...).\n:param channels_for_cellpose: C-axelindex som valts ut ur varje sammansatt stack innan den överlämnas till Cellpose – tog modulo antalet bilddatakanaler och avduplicerades i ordning. Det vidarebefordras INTE som Cellpose argumentet ``channels=``; ``[0, 0]`` ger därför ett enda bildlager, inte ett gråskalepar. Den första valda bilddatakanalen är objektets egen bilddatakanal för filtrering av absolut medelintensitet.\n:param diameter: Förväntad objektdiameter i px (None → Cellpose auto).\n:param batch_fields: hur många fält stackar att ladda i minnet på en gång. Större = snabbare men mer RAM.\n:param mask_channel_name: mänskligt namn att registrera för den bifogade mask bilddatakanalen (standard ``\"mask\"``).\n:param keep_npz: den mellanliggande satsen komprimeras till en NPZ i ``npz_dir`` för varje sats oavsett, den här flaggan bestämmer bara om filen och arbetsmappen överlever bearbetningssessionen.\n:param npz_dir: var (valfritt) mellanhandsfilerna i NPZ ska skrivas. Förvaler till en underkatalog för repor under stackmappen.\n:param illumination_session: valfritt :class:`spacr.illumination.SegmentationIlluminationSession`. Dess korrektor ser privata datakanalkopior med vald bild omedelbart före normalisering/ Cellpose; kvarstående intensitetsbildlager och repa NPZs förblir råa, och slutförandet registreras först efter det att den kombinerade stacken har ersatts atomärt.\n:param psf_session: valfri infångad PSF-session. Separerar först de spektralt överlappande signalerna i varje helt bildfält när den funktionen är på, och bearbetar sedan valda intensiteter efter belysningskorrigering men före normalisering, utfyllnad eller Cellpose. Lagrade bildkanaler förblir råa; endast de tillagda etiketterna beror på PSF-bearbetningen.\n:returns: Samma lista, med varje :class:`StackFile.shape` / ``.channels`` uppdaterad för att återspegla den bifogade bilddatakanalen mask.",
       "translation_source_blocks_sha256": [
         "457c0fe40e57264cec59da2c88109de5b91fcf781e59c74aaffcfd57d23140c1",
         "8fb1f2dd3a42d5076632d19933596a2b92359382f89c7a967f421191c784b936",
@@ -55172,7 +55184,7 @@
         "1c5686703b7819b0eb38facdf3c9835f48c69b0cf3444c0e24caefd5e4c090fa",
         "b41e260f3f9259b4c111b9edc1db4cbbfc716f3ba8b4efc188ddb19a00cef301",
         "38d3aab58d51e9b36afc87510650e819ed990130c59c603005878c6ab90df4b3",
-        "ef3a61f4f0800102374abe6d21085b866cfec7f3a4071983d1127c0144004586",
+        "008c0c0e90213fcf26ba16c93e283c09a1f3ea299777dfc9c2145af30be2e98d",
         "0d8b03bff879f500441c8e40ea340fe82269e9849b361322b849088bd7782955"
       ]
     },
@@ -57793,14 +57805,16 @@
     "spacr.plot.plot_image_grid": {
       "source_blocks_sha256": [
         "1392c1bbafc62d5f1874cca8969a3934b37a4570f28cb079cc7f2f2655e304b9",
+        "7ec13439fda1359947fa838f7385b6e4c5e6b2fe0d0b4ae151c785bf8c320dd9",
         "624dfe35b64469c8706bb58c3cec0fd2575afacb85650f3bcece0473beae04ec",
         "c2fa4db99a4c86e2ea2b12b6d08823600d4da3d7551bbd63c8cbd051f10da341",
         "938d83cba8b0a6574c0ef27fdbf59f91f5836ff4a8e0b9fe74c09de59cd53159"
       ],
-      "source_sha256": "b6a6326f07e3112a632730a88522abc15c58e4fb9645d72f503322fbaae3dd43",
-      "text": "Ge ett fyrkantigt rutnät med percentilnormaliserade bilder med svart bakgrund.\n\n:param image_paths: Bildfiler att visa; extra brickor fylls svart.\n:param percentiles: Två element percentil par används för att normalisera varje kanal.\n:returns: Det genererade ``Figure``.",
+      "source_sha256": "64a44c584fc290ff063b8aa48f00bf7f1fe4f8bb74fec74ff84af7439aaf0bf1",
+      "text": "Ge ett fyrkantigt rutnät med percentilnormaliserade bilder med svart bakgrund.\n\nVarje bildruta bär med sig sin källfil och det visningsintervall per kanal som den sträcktes till, så att en kontrollerad export (se :func:`save_figure`) kan ange när bildrutor skalas olika och skriva en separat proveniensfil som återskapar varje bildruta från dess fil.\n\n:param image_paths: Bildfiler att visa; extra brickor fylls svart.\n:param percentiles: Två element percentil par används för att normalisera varje kanal.\n:returns: Det genererade ``Figure``.",
       "translation_source_blocks_sha256": [
         "1392c1bbafc62d5f1874cca8969a3934b37a4570f28cb079cc7f2f2655e304b9",
+        "7ec13439fda1359947fa838f7385b6e4c5e6b2fe0d0b4ae151c785bf8c320dd9",
         "624dfe35b64469c8706bb58c3cec0fd2575afacb85650f3bcece0473beae04ec",
         "c2fa4db99a4c86e2ea2b12b6d08823600d4da3d7551bbd63c8cbd051f10da341",
         "938d83cba8b0a6574c0ef27fdbf59f91f5836ff4a8e0b9fe74c09de59cd53159"
@@ -58312,11 +58326,12 @@
         "6820d8a6948cbdafc5706f858503cd16f7a86d21aea32f4fc8f4fd7a4e3dc5fc",
         "e56eed853982e4d9af0d8a4a02192e153e1346aa2dbd16e4d5a00f2fd72ec35a",
         "3090148e479841ba9434ab4b3bce4990d1276255caa972b11a5a00bf1165154e",
+        "eab2c7e944337e92601d4193eb6a95a8a9a14b44bf63851398481f8bf597237a",
         "9ccf463980e341d886e3efd1d5038440ae21fd6cb6bd54eeb623aa97b0fee32e",
         "258b2c3959d0c9026f2c86ce64424e6155ad862dafb9106a3bda1a23e0590d99"
       ],
-      "source_sha256": "4ac980b9eb64d2bfb666bf21732ba9dfa9a4cf5846923319362eeeca21bffc7e",
-      "text": "Skriv ``fig`` till ``path`` och följ figurpreferenserna.\n\nDen enda platsen en spaCR siffra användaren håller blir skriven. Innan detta fanns det sextioodd ``savefig`` samtal, var och en med sin egen hårdkodade format och DPI, och \"Figure format\" och \"Resolution\" inställningar nådde exakt två av dem - både skriva till en temp katalog. Allt ett arbetsflöde sparat i sin resultatmapp ignorerade båda inställningarna helt.\n\nTre saker avgörs här snarare än lämnas till den som ringer eller till matplotlib.\n\n**Formatet följer preferensen**, och filen Namn följer formatet: en PNG skriven till ``figure.pdf`` är en fil ingen tittare öppnas. En explicit ``fmt=`` fortfarande vinner, för de få uppringare som verkligen behöver ett visst format.\n\n**Fonts är inbäddade som TrueType** (``pdf.fonttype = 42``) för sparats längd. matplotlib standard är Typ 3, som ritar varje glyf som sin egen innehållsström: filen är fortfarande vektor, men Illustrator och Inkscape öppnar texten som ovalbara konturer, och den preferens som väljer denna sökväg är märkt \" PDF (vektor, redigerbar)\". Räcks med ``rc_context`` så en uppringare som avsiktligt har valt annars inte ändras under den.\n\n**DPI:et är godkänt**Alltid. PDF sidan är upplösningsoberoende, men spaCR siffrorna är fulla av ``imshow`` paneler -- cellmontager, masköverlägg, plattvärmekartor -- och de är rasteriserade på figurens egna 100 DPI om inte annat anges. Utan det, 100, 300 och 600 producerade byte-identiska filer. :func:`deliverable_dpi`, vilket säger så högt när det begärda numret inte är möjligt här.\n\n**Chrome är ommålad för papper**, och endast för längden på skriva. En siffra som sparats från en mörk-tema session var vitt bläck på en vit sida -- `spacr.qt.preferences.get_figure_colors` händer båda renders en vit förgrund på ett mörkt tema och ingenting inverterade det vid export tid, så filen var en tom rektangel med några färgade prickar i den, och en transparent PNG även såg rätt i en mörk filhanterare och försvann när det klistrades in i ett manuskript. :func:`print_ready` flyttar möblerna och sätter tillbaka den; DATA är aldrig rörd, eftersom en vit punkt vände svart är, på en vulkan, färgen på \"not a hit\".\n\n:param fig: a matplotlib ``Figure``.\n:param path: Bestämmelseort; dess utökning rättas till formatet.\n:param fmt: tvinga ett format, kringgår preferensen.\n:param dpi: tvinga en DPI, kringgår preferensen.\n:param close: stänga figuren en gång skrivet.\n:param save_mode: tvinga en av :data:`spacr.figure_style.SAVE_MODES` -- ``'print'`` (ljussida, mörk krom), ``'screen'`` (exakt vad som finns på applikationsvyn, det gamla beteendet) eller ``'transparent'``. None frågar den förvalda inställningen till ``'print'``.\n:param announce_colours: Säg till när en datafärg har slutat fungera på ljussidan.\n:param kwargs: gick igenom till ``savefig`` (``bbox_inches`` etc.). En explicit ``facecolor`` vinner fortfarande över utskriftsfältet.\n:returns: sökvägen faktiskt skriven, som en ``str``.",
+      "source_sha256": "18e1e4d37397e4231fb9dc2c433b7626877b1b207ecf7e1ab0ad9559182c1e70",
+      "text": "Skriv ``fig`` till ``path`` och följ figurpreferenserna.\n\nDen enda platsen en spaCR siffra användaren håller blir skriven. Innan detta fanns det sextioodd ``savefig`` samtal, var och en med sin egen hårdkodade format och DPI, och \"Figure format\" och \"Resolution\" inställningar nådde exakt två av dem - både skriva till en temp katalog. Allt ett arbetsflöde sparat i sin resultatmapp ignorerade båda inställningarna helt.\n\nTre saker avgörs här snarare än lämnas till den som ringer eller till matplotlib.\n\n**Formatet följer preferensen**, och filen Namn följer formatet: en PNG skriven till ``figure.pdf`` är en fil ingen tittare öppnas. En explicit ``fmt=`` fortfarande vinner, för de få uppringare som verkligen behöver ett visst format.\n\n**Fonts är inbäddade som TrueType** (``pdf.fonttype = 42``) för sparats längd. matplotlib standard är Typ 3, som ritar varje glyf som sin egen innehållsström: filen är fortfarande vektor, men Illustrator och Inkscape öppnar texten som ovalbara konturer, och den preferens som väljer denna sökväg är märkt \" PDF (vektor, redigerbar)\". Räcks med ``rc_context`` så en uppringare som avsiktligt har valt annars inte ändras under den.\n\n**DPI:et är godkänt**Alltid. PDF sidan är upplösningsoberoende, men spaCR siffrorna är fulla av ``imshow`` paneler -- cellmontager, masköverlägg, plattvärmekartor -- och de är rasteriserade på figurens egna 100 DPI om inte annat anges. Utan det, 100, 300 och 600 producerade byte-identiska filer. :func:`deliverable_dpi`, vilket säger så högt när det begärda numret inte är möjligt här.\n\n**Chrome är ommålad för papper**, och endast för längden på skriva. En siffra som sparats från en mörk-tema session var vitt bläck på en vit sida -- `spacr.qt.preferences.get_figure_colors` händer båda renders en vit förgrund på ett mörkt tema och ingenting inverterade det vid export tid, så filen var en tom rektangel med några färgade prickar i den, och en transparent PNG även såg rätt i en mörk filhanterare och försvann när det klistrades in i ett manuskript. :func:`print_ready` flyttar möblerna och sätter tillbaka den; DATA är aldrig rörd, eftersom en vit punkt vände svart är, på en vulkan, färgen på \"not a hit\".\n\n:param fig: a matplotlib ``Figure``.\n:param path: Bestämmelseort; dess utökning rättas till formatet.\n:param fmt: tvinga ett format, kringgår preferensen.\n:param dpi: tvinga en DPI, kringgår preferensen.\n:param close: stänga figuren en gång skrivet.\n:param save_mode: tvinga en av :data:`spacr.figure_style.SAVE_MODES` -- ``'print'`` (ljussida, mörk krom), ``'screen'`` (exakt vad som finns på applikationsvyn, det gamla beteendet) eller ``'transparent'``. None frågar den förvalda inställningen till ``'print'``.\n:param announce_colours: Säg till när en datafärg har slutat fungera på ljussidan.\n:param integrity: kontrollera figurens bildpaneler före skrivning -- visningsintervall som skiljer sig mellan paneler avsedda för jämförelse, mättade eller klippta pixlar, upprepade paneler, ett format med informationsförlust och paneler som skrivs med färre pixlar än de innehåller -- skriv ut eventuella varningar, bädda in proveniensen (källfiler, visningsinställningar, bearbetningssteg, spaCR-version) i PNG- eller PDF-metadata och skriv den till en separat ``<file>.provenance.json``-fil bredvid figuren. None följer först ``SPACR_FIGURE_INTEGRITY`` och sedan reglaget i Inställningar, som är av som standard. En figur utan bildpaneler skrivs oförändrad i båda fallen.\n:param kwargs: gick igenom till ``savefig`` (``bbox_inches`` etc.). En explicit ``facecolor`` vinner fortfarande över utskriftsfältet.\n:returns: sökvägen faktiskt skriven, som en ``str``.",
       "translation_source_blocks_sha256": [
         "a9929b09f770c49ffd3eb6de32c1b4274fe55a7e67d336b686ad267c2b8be8b3",
         "0ebc1772b811736642e4a24af5bd2f55500863d52ca160a6272adf6cf830b042",
@@ -58332,6 +58347,7 @@
         "6820d8a6948cbdafc5706f858503cd16f7a86d21aea32f4fc8f4fd7a4e3dc5fc",
         "6f431ff3c2a9a1790b926cdb611514a7a33691869e5120c94ef78d9852269bbc",
         "3090148e479841ba9434ab4b3bce4990d1276255caa972b11a5a00bf1165154e",
+        "eab2c7e944337e92601d4193eb6a95a8a9a14b44bf63851398481f8bf597237a",
         "9ccf463980e341d886e3efd1d5038440ae21fd6cb6bd54eeb623aa97b0fee32e",
         "258b2c3959d0c9026f2c86ce64424e6155ad862dafb9106a3bda1a23e0590d99"
       ]
@@ -58645,14 +58661,16 @@
         "4d31e17bb2050b9b91c9403bc34d46fcd9327fb9af625fc31d08ec70f3609218",
         "5344804e7fa73843a8221b286fe316348e3ed0eb42d3c0cf3a82a1e81c869764",
         "cb17b2385937e83eb33530e92c0d65718db3896862126336d7b033347fff85c1",
+        "52954824d7f15d9bc6e0607035172f86060e2844ac2bb53b20479675d3cc3f81",
         "1529fd8236a079fba95538152e8b1bd0750f75e2ceab0f8725ebd1bec0cd942a"
       ],
-      "source_sha256": "79131094ba77fb600ce91b5f37b0db1671ba977d6a508d323d52c07218685692",
-      "text": "Versionsanpassad utökning SDK för tredje part spaCR plugins.\n\nInsticksprogram är vanliga Python distributioner som exponerar en ingångspunkt i ``spacr.plugins`` gruppen. Ingångspunkten kan lösas till en :class:`SpacrPlugin`, en kartläggning som accepteras av :func:`plugin_from_mapping` eller en fabrik med nollargument som återvänder antingen. Upptäckten är lat, deterministisk och felisolerad: en felbildad plugin registreras i :func:`diagnostics` utan att förhindra spaCR eller de återstående insticksprogrammen från att ladda.\n\nFör redigerbar/lokal utveckling kan ``SPACR_PLUGIN_MODULES`` innehålla en lista med ``module`` eller ``module:attribute`` referenser. Installerade insticksprogram ska alltid använda paketinmatningspunkter istället.\n\nStälla in ``SPACR_DISABLE_PLUGINS`` till ``1``, ``true``, ``yes`` eller ``on`` (fallokänsligt) hoppar över upptäckten helt, så inga insticksprogramsbelastningar från någon av källorna.",
+      "source_sha256": "19bb37a42043e16d791689d5f1c10b27d692209a4323f8187e28ccdec8be189b",
+      "text": "Versionsanpassad utökning SDK för tredje part spaCR plugins.\n\nInsticksprogram är vanliga Python distributioner som exponerar en ingångspunkt i ``spacr.plugins`` gruppen. Ingångspunkten kan lösas till en :class:`SpacrPlugin`, en kartläggning som accepteras av :func:`plugin_from_mapping` eller en fabrik med nollargument som återvänder antingen. Upptäckten är lat, deterministisk och felisolerad: en felbildad plugin registreras i :func:`diagnostics` utan att förhindra spaCR eller de återstående insticksprogrammen från att ladda.\n\nFör redigerbar/lokal utveckling kan ``SPACR_PLUGIN_MODULES`` innehålla en lista med ``module`` eller ``module:attribute`` referenser. Installerade insticksprogram ska alltid använda paketinmatningspunkter istället.\n\nPluginer och analysrecept kan även installeras från en katalog, en JSON-fil som listar varje posts version, författare och licens. En katalogplugin installeras i en egen mapp under ``~/.spacr/plugins`` (eller ``SPACR_PLUGIN_HOME``), tillsammans med de bibliotek den begär, så att den aldrig ersätter eller uppgraderar ett paket som spaCR självt använder; den upptäcks som alla andra pluginer tills den avinstalleras.\n\nStälla in ``SPACR_DISABLE_PLUGINS`` till ``1``, ``true``, ``yes`` eller ``on`` (fallokänsligt) hoppar över upptäckten helt, så inga insticksprogramsbelastningar från någon av källorna.",
       "translation_source_blocks_sha256": [
         "4d31e17bb2050b9b91c9403bc34d46fcd9327fb9af625fc31d08ec70f3609218",
         "5344804e7fa73843a8221b286fe316348e3ed0eb42d3c0cf3a82a1e81c869764",
         "cb17b2385937e83eb33530e92c0d65718db3896862126336d7b033347fff85c1",
+        "52954824d7f15d9bc6e0607035172f86060e2844ac2bb53b20479675d3cc3f81",
         "1529fd8236a079fba95538152e8b1bd0750f75e2ceab0f8725ebd1bec0cd942a"
       ]
     },
@@ -62338,14 +62356,16 @@
       "source_blocks_sha256": [
         "343fe32113944eb9a2b943ea049f035002cae5d92e88c0258a2a4bc29fe8d8c8",
         "b55ee15c1cec5f8ee686fedde07b50efa6e2d5347a163e4cbf8d5c8b6753ce25",
-        "c9b8abe78b419bb3892111c9a5cc7e2f4fa7af17bd7400d54d3f972534d2e882"
+        "c9b8abe78b419bb3892111c9a5cc7e2f4fa7af17bd7400d54d3f972534d2e882",
+        "f222dfd579604639ea1be03958180542182f5d8d6067ae15c7456f53c881b158"
       ],
-      "source_sha256": "2aeaabecf6c67c0419f368636508086589088a4d21df7e2e6efb5f70e42ffdea",
-      "text": "Förberedelse och proveniens av PSF och förbättringskedja för segmenteringsindata, efter aktivt val.\n\nKärnor fångas in en gång per körning. Endast privata intensitetsarrayer bearbetas; råa staplar och masketiketter skrivs aldrig om av den här modulen. Återanvändning i V1 kontrollerar både den begärda kärnan/inställningarna och de exakta byten i det slutförda arkivet.\n\nFÖRBÄTTRINGSKEDJAN FÄRDAS SAMMA VÄG. Make Masks kedja (:mod:`spacr.qt.detect_chain`) skrivs in i en inställningsfil som nycklarna ``enhance_*`` och läses tillbaka här av :func:`prepare_chain`, med ``psf_*``-inställningarna invikta som kedjans PSF-steg, så att en körning av en platta tillämpar exakt de steg som en kurator finjusterade, i kedjans egen ordning: bakgrund, PSF, brusreducering, kontrast, skärpa. Sessionen tillämpar den per vald kanal i det steg där PSF:en redan kördes -- efter belysningskorrigering och före normalisering -- och dess proveniens går in i samma ``psf/segmentation_application.json``-post, så att en ändrad kedja vägras vid återupptagning på samma sätt som en ändrad kärna. Utan något kedjesteg påslaget är en körning byte för byte vad den var innan kedjan fanns.",
+      "source_sha256": "1e571373dd4a758b04c3df25efa5770c86bfd27d7f6fc433f86020c21269e374",
+      "text": "Förberedelse och proveniens av PSF och förbättringskedja för segmenteringsindata, efter aktivt val.\n\nKärnor fångas in en gång per körning. Endast privata intensitetsarrayer bearbetas; råa staplar och masketiketter skrivs aldrig om av den här modulen. Återanvändning i V1 kontrollerar både den begärda kärnan/inställningarna och de exakta byten i det slutförda arkivet.\n\nFÖRBÄTTRINGSKEDJAN FÄRDAS SAMMA VÄG. Make Masks kedja (:mod:`spacr.qt.detect_chain`) skrivs in i en inställningsfil som nycklarna ``enhance_*`` och läses tillbaka här av :func:`prepare_chain`, med ``psf_*``-inställningarna invikta som kedjans PSF-steg, så att en körning av en platta tillämpar exakt de steg som en kurator finjusterade, i kedjans egen ordning: bakgrund, PSF, brusreducering, kontrast, skärpa. Sessionen tillämpar den per vald kanal i det steg där PSF:en redan kördes -- efter belysningskorrigering och före normalisering -- och dess proveniens går in i samma ``psf/segmentation_application.json``-post, så att en ändrad kedja vägras vid återupptagning på samma sätt som en ändrad kärna. Utan något kedjesteg påslaget är en körning byte för byte vad den var innan kedjan fanns.\n\nSPEKTRAL SIGNALSEPARERING KOMMER FÖRST. När ``unmix`` är på skattas en överhörningsmatris från de enfärgade kontrollbrunnar som anges av ``unmix_controls``, och de överlappande signalerna i varje rått bildfält separeras över alla kanaler före belysningskorrigeringen, PSF och kedjan; matrisen läggs till i samma post. Measure skattar en egen matris över de uppmätta kanalerna och separerar signalerna i varje bildfält före sina förbehandlingsfunktioner, samt registrerar matrisen i de sparade körningsinställningarna och ``measurements/bleed_through.json``.",
       "translation_source_blocks_sha256": [
         "343fe32113944eb9a2b943ea049f035002cae5d92e88c0258a2a4bc29fe8d8c8",
         "979580e0fa1690da9ba407ea050c23943aef9d497a7741cdaaf5efee361ae3bf",
-        "230fe3cb3ede2aeb1ea70013bb0febe6fbcd77b88a6e0755a6912be502693a95"
+        "230fe3cb3ede2aeb1ea70013bb0febe6fbcd77b88a6e0755a6912be502693a95",
+        "f6a1ab6f48a1d13e437c630c67c00d83220dd32adf1f938f032855815820dda9"
       ]
     },
     "spacr.psf_pipeline.PSFPlan": {
@@ -62468,33 +62488,33 @@
       "source_blocks_sha256": [
         "264ee25f9242e2db6f8a2b5c761f5fd5b3321d464424dffaf144495d25df75b2",
         "bc4ba6241be71569e20bc94ecabf0c9227e95266b1633a503263b333558e1c37",
-        "80e229a4b4b5ded4278360dd501eda8f870bc20ebcf8763dc0743472ce72abab",
-        "35d77d061cf8f4413382ce09a8136da28f0929ab3a03805e09ae9cd2a78aa1c4"
+        "020ed299519d4a96466f449c51fce3e7ded116aa8465c8f16223cc082a25e525",
+        "a0d4a87dc2658f77c707a59b0b867d4323ad037fa23627efc1dd99eb0ed09634"
       ],
-      "source_sha256": "38d592bc72362b629d4523236bee245c453d1908e937efb0eaa8b109c765b80c",
-      "text": "Om dessa inställningar överhuvudtaget begär en PSF eller ett förbättringssteg.\n\nEn begärd kedja som inte kan byggas räknas som begärd: körningen vägrar då med orsaken i stället för att återanvända indata som skapats utan den.\n\n:param settings: körningens ``psf_*``- och ``enhance_*``-inställningar.\n:returns: True när någon av dem är påslagen eller inte kan läsas.",
+      "source_sha256": "2dbc15440ab214e76ca142362c58e55555fc052ca23128152c2f3aba4e000efc",
+      "text": "Om dessa inställningar överhuvudtaget begär en PSF eller ett förbättringssteg.\n\nEn begärd kedja som inte kan byggas räknas som begärd: körningen vägrar då med orsaken i stället för att återanvända indata som skapats utan den.\n\n:param settings: körningens inställningar för ``psf_*``, ``enhance_*`` och ``unmix``.\n:returns: True när någon är påslagen eller kedjan inte kan läsas.",
       "translation_source_blocks_sha256": [
         "264ee25f9242e2db6f8a2b5c761f5fd5b3321d464424dffaf144495d25df75b2",
         "bc4ba6241be71569e20bc94ecabf0c9227e95266b1633a503263b333558e1c37",
-        "2c3867549177fe1297d7457de77d1990f4b124114d54a190a30bf24523915e6f",
-        "35d77d061cf8f4413382ce09a8136da28f0929ab3a03805e09ae9cd2a78aa1c4"
+        "ad43c2312cad6702ce12a62caaaf4fbfebe9db91868c67367166e9f1d6e98be9",
+        "a0d4a87dc2658f77c707a59b0b867d4323ad037fa23627efc1dd99eb0ed09634"
       ]
     },
     "spacr.psf_pipeline.validate_psf_resume": {
       "source_blocks_sha256": [
         "c1f7b5174c2808b71bea08eb0a8510803b699e504e9582d1ecb273dcad39c5c1",
-        "5124c477ae8a1dae4f6c181ade828bc714cd1f73e25c463d46c140944ef644d7",
+        "261d6a01b40b8d08812f74e3c949c869c8598ea8f8a1fbd88d12301caffd92c5",
         "aa6e55fc154187caa4e41e4b1ef1c8c1b0354853f9c11cd30f99e37ee83eeada",
         "3208329337e12f76f40920021aa2e01770f5c644860ae29a7269ca39a26dda32",
         "78d1ff8b47b50743e6854f90c90064b86d8b298610f535f3d6ca5d02be6bba03",
         "7ad77eedfccd0d4103d965f337ca53daacc8b1dda9c9022abc975d9e57b97e0a",
         "625777c1f1ecbd97f9c77bdcfcf4b6b0f91dad592a627fed1cb127d25a3a9c38"
       ],
-      "source_sha256": "819fa4b8c2a47e7b530ba1aaa7dcfc1958edd6eea69c085c1b1961b7cebe7d5f",
-      "text": "Vägra återanvändning av V1-arkiv efter en PSF-ändring eller ofullständig bearbetning.\n\n:param settings: begärda PSF- och ``enhance_*``-inställningar; avstängt kontrollerar också en tidigare PSF- eller kedjekörning.\n:param root: experimentrot som innehåller masks/ och psf/.\n:param channels: källintensitetsindex i arkivordning.\n:param expected_fields: exakta synfältsstammar som indataarkiven bär.\n:returns: None för en kompatibel slutförd uppsättning eller orörda äldre indata.\n:raises ValueError: om arkiven inte kan bevisas motsvara den här begäran.",
+      "source_sha256": "f251e6f39691394570c53f627fdd596f1c7a42611b681e336005d09682c92356",
+      "text": "Vägra återanvändning av V1-arkiv efter en PSF-ändring eller ofullständig bearbetning.\n\n:param settings: begärda inställningar för PSF, ``enhance_*`` och ``unmix``; även avstängt läge kontrollerar en tidigare körning med PSF, kedjan eller spektral signalseparering.\n:param root: experimentrot som innehåller masks/ och psf/.\n:param channels: källintensitetsindex i arkivordning.\n:param expected_fields: exakta synfältsstammar som indataarkiven bär.\n:returns: None för en kompatibel slutförd uppsättning eller orörda äldre indata.\n:raises ValueError: om arkiven inte kan bevisas motsvara den här begäran.",
       "translation_source_blocks_sha256": [
         "c1f7b5174c2808b71bea08eb0a8510803b699e504e9582d1ecb273dcad39c5c1",
-        "5124c477ae8a1dae4f6c181ade828bc714cd1f73e25c463d46c140944ef644d7",
+        "261d6a01b40b8d08812f74e3c949c869c8598ea8f8a1fbd88d12301caffd92c5",
         "aa6e55fc154187caa4e41e4b1ef1c8c1b0354853f9c11cd30f99e37ee83eeada",
         "3208329337e12f76f40920021aa2e01770f5c644860ae29a7269ca39a26dda32",
         "78d1ff8b47b50743e6854f90c90064b86d8b298610f535f3d6ca5d02be6bba03",
@@ -62636,18 +62656,16 @@
     },
     "spacr.qt": {
       "source_blocks_sha256": [
-        "929aeb66e8cfd87aa2da9bd6252e6537a475d08343535d73789b7bbe79ce288d",
-        "b7eb9fea98b25f046ee950e83fb6fa8edf0b47b8941a07bd1d7e027e91671dc4",
-        "f6cdf5cfa74eb77344cacbc788eaa7b7a8cdd9db9acb0c246320f2ba8513ade7",
-        "3c343a00e798b37ef78acc2a6fd456e46b1d2d0a5fc41391fe340ef0ba2f2fbf"
+        "9bf9570ddb9b1d1b600c85d8eaa69ae816440aab5d37fdff48b050f93fc9bdfb",
+        "6797c54a8ab1291fb675e05a6622391cf568f71960020bb5220882f672f88bc9",
+        "9c46c7fdb48ed42b63a69495757410e7a56586a9ffc95ae5add49604ff68881e"
       ],
-      "source_sha256": "e263829cce74e8b3664c54231b6ce7bffa3d5155486e28334f28c964a0d4c492",
-      "text": "Modern PySide6 (Qt 6) GUI för spacr.\n\nKörs tillsammans med det klassiska Tk GUI (spacr.gui) - ingenting här rör Tk stacken. För att starta:\n\n    spacr-qt            # CLI shortcut (see setup.py entry_points)\n    python -m spacr.qt  # equivalent\n\nDen gamla GUI fortsätter att arbeta via:\n    spacr               # Tk (classic)\n    python -m spacr\n\nKoden Qt lever i tre skikt::\n\n    theme.py              — palette + QSS stylesheet\n    widgets/              — reusable custom widgets (tiles, sections, ...)\n    screens/              — one Qt widget per app screen\n                            (startup, mask, measure, ...)\n    app.py                — main window + QApplication bootstrap",
+      "source_sha256": "99556d0a422177d067fdb8895edc4dd035e6853bdbe860bdf750184c90084bc6",
+      "text": "Skrivbordsgränssnitt för spaCR med PySide6 (Qt 6).\n\nStarta programmet med ``spacr``, ``spacr-qt``, ``python -m spacr.qt`` eller ``python -m spacr``. Det sista kommandot accepterar även underkommandon som ``mask`` och ``measure`` för att öppna en viss programflik.\n\nGränssnittet använder ``theme.py`` för sin palett och QSS-formatmall, ``widgets/`` för återanvändbara widgetar, ``screens/`` för programvyer och ``app.py`` för huvudfönstret och initieringen av QApplication.",
       "translation_source_blocks_sha256": [
-        "929aeb66e8cfd87aa2da9bd6252e6537a475d08343535d73789b7bbe79ce288d",
-        "b7eb9fea98b25f046ee950e83fb6fa8edf0b47b8941a07bd1d7e027e91671dc4",
-        "f6cdf5cfa74eb77344cacbc788eaa7b7a8cdd9db9acb0c246320f2ba8513ade7",
-        "3c343a00e798b37ef78acc2a6fd456e46b1d2d0a5fc41391fe340ef0ba2f2fbf"
+        "9bf9570ddb9b1d1b600c85d8eaa69ae816440aab5d37fdff48b050f93fc9bdfb",
+        "6797c54a8ab1291fb675e05a6622391cf568f71960020bb5220882f672f88bc9",
+        "2317156d748af06bf6ccf8af277c7f8d71fb5bca008ed6d94da3083c579a0375"
       ]
     },
     "spacr.qt.ai": {
@@ -66189,16 +66207,16 @@
     "spacr.qt.assay_examples": {
       "source_blocks_sha256": [
         "b4f66861cc7515e1660a98d6617ee34b671b8dee27231dbab412ae5d4d4aa24d",
-        "9c1c2fefccbc5dd8e6f26379cf0e339e4b407fc594030d073ac7ccf0a93fc211",
+        "d9028b7fdac83815961076bc13b8dd74941c017e8923e0e2ea72a5c8115f8716",
         "bfea5ee7b31b25ccee51bbb08ba3b51fb86298c0e746c72b68f4ebc70e01961a",
         "b29baa686269577add3c782ea181a66af78eba381f7ab23a010f3fb86973fe92",
         "b6338a495d3d9a48ca16156bcb0ad2777c11978e41c0920a600f5543e9b08937"
       ],
-      "source_sha256": "ac03e74f1172e77293b26c9da83b307018b3606c5c3dbcd28d70beae52c89382",
-      "text": "Testdata för analysmodulerna: en uppmätt platta, en knapptryckning bort.\n\nReplication, Invasion, Recruitment och Host–Pathogen erbjuder publicerade dataset via Ladda testdata. Host–Pathogen innehåller två verkliga THP-1 RNF213-fält, förberedda masker för värdcell/kärna/vakuol och nya mätningar av dessa fält. Replication och Recruitment innehåller utsnitt av uppmätta screeningar. Bilderna och maskerna i Invasion är syntetiska och uttryckligen märkta före nedladdning.\n\nAlla fyra läser ``<src>/measurements/measurements.db`` och tillämpar de inställningar som följer med i deras arkiv. :data:`spacr.example_archives.EXAMPLE_SETS` beskriver samma dataset för GUI:t och ``spacr-download``.\n\nEN EGEN MAPP PER UPPSÄTTNING. Båda levereras med ``measurements/measurements.db``, precis som Annotate-exemplet i den delade plattan, så var och en packas upp bredvid den plattan (:func:`spacr.example_archives.example_set_folder`) i stället för i den.\n\nSAMMA MÖNSTER SOM DE ANDRA EXEMPLEN. En okomprimerad ``.tar`` strömmas till en ``.part``-fil i en arbetstråd bakom den delade förloppsdialogen, packas upp genom tar-datafiltret, ``<dataset>`` i inställningarna ersätts med platsen där den hamnade, och cachas: ett andra tryck använder kopian på disken.",
+      "source_sha256": "4ae5b17f918abb37b173ae72285a4f3917cbdc694af4abdd61c16d8cfc89c63d",
+      "text": "Testdata för analysmodulerna: en uppmätt platta, en knapptryckning bort.\n\nReplication, Invasion, Recruitment och Host–Pathogen erbjuder publicerade dataset via Ladda testdata. Host–Pathogen innehåller två verkliga THP-1 RNF213-bildfält, förberedda masker för värdcell/kärna/vakuol och nya mätningar av dessa bildfält. Replication och Recruitment innehåller utsnitt av uppmätta screeningar. Bilderna i Invasion är syntetiska och uttryckligen märkta före nedladdning. Dess masker är Cellpose-SAM-segmenteringar från Mask, och dess referensdata beskriver objekten som ursprungligen ritades i bilderna.\n\nAlla fyra läser ``<src>/measurements/measurements.db`` och tillämpar de inställningar som följer med i deras arkiv. :data:`spacr.example_archives.EXAMPLE_SETS` beskriver samma dataset för GUI:t och ``spacr-download``.\n\nEN EGEN MAPP PER UPPSÄTTNING. Båda levereras med ``measurements/measurements.db``, precis som Annotate-exemplet i den delade plattan, så var och en packas upp bredvid den plattan (:func:`spacr.example_archives.example_set_folder`) i stället för i den.\n\nSAMMA MÖNSTER SOM DE ANDRA EXEMPLEN. En okomprimerad ``.tar`` strömmas till en ``.part``-fil i en arbetstråd bakom den delade förloppsdialogen, packas upp genom tar-datafiltret, ``<dataset>`` i inställningarna ersätts med platsen där den hamnade, och cachas: ett andra tryck använder kopian på disken.",
       "translation_source_blocks_sha256": [
         "c952a790c3eff7c5e393c6fd65f685c10b40d603b129432715b54a642ecd37bf",
-        "b3a9129ef19424432768e02005f0d3af6deed5c4bd6f6995407e7d2fc2dcafba",
+        "2c726f34fa464224207ef32d73c3062499a1b1ed7be1f0f1c4ea13c1dbbbdfb5",
         "bfea5ee7b31b25ccee51bbb08ba3b51fb86298c0e746c72b68f4ebc70e01961a",
         "ba28cadce786037cce2ea802c2418fa211b4b0ffea9970da45fce86aac9818a9",
         "d37c4619aabe44499c9fa34cd83136d7fb9c03abd21a81349506feedbc6e699d"
@@ -79052,46 +79070,48 @@
     },
     "spacr.qt.model_install.SpotDetectorCombo": {
       "source_blocks_sha256": [
-        "6b638a66ddd27519dbe1d48fff8038026d909bb07a0f7908d9b0781d858f5740",
-        "2645b131fcb0ef398a7f8880b46366b18f8e5144cb02a27706efb90c32d4d850",
-        "2223d6ffa4d2e69a9aaa11ef1c9e0132b0bc68a78c11398ce93b079b2a338961",
+        "2e58d90f1d78f2c874eab21583e4b66e901d8fceae7a0d1a3707de3b637f4a0b",
+        "866dbed554577f5a929820cb939f1244a6a768efcbe77e1cbb3123173a8fd856",
+        "056d075c0e27a53a3d1d9a85aa60e6902626cb7a83e9e4055c0be5cbb7d84633",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "b4d1422e4bd0ea541c4a2611a3976e68689eca370a873789e681481adb35275a",
-        "07a1a8888483acf37f56f0f6eaa4e44f1eab6609c29763d0ca86576df9c34cb5"
+        "4aaf51ad0c3403798e1019ea6eeffa21dcbde599bf2441d866130ec211a2a6b8",
+        "f1d015992d365fe4c611675c97087ca7120c370e2fe774683535e0628c5d2eb7"
       ],
-      "source_sha256": "017a098f1a748af21d3841c226b411266ae007305ea2c686fe9ae00ae59aecce",
-      "text": "OPS-modulens ``ops_spot_detector``: spaCR:s egen eller SpotNet.\n\nspaCR:s egen detektor är först, standardvärdet och alltid användbar. SpotNet listas oavsett om den kan köras; när dess miljö eller dess DeepCell-token saknas är dess rad inaktiverad och dess verktygstips säger vilket, och i båda fallen anger verktygstipset dess icke-kommersiella licens, eftersom det är i den här rutan som en person väljer den.\n\n:param default: värdet att börja på, ``'native'`` eller ``'spotnet'``.\n:param parent: överordnad widget.\n:param readiness: ``() -> (ready, reason)``; SpotNets egen kontroll när None, en ersättare i tester.\nLista detektorerna, inaktivera SpotNet om den inte kan köras, välj.",
+      "source_sha256": "56c57f8b7121ded666a918d625af97426091766c2af5609384c0c67b27a258e4",
+      "text": "OPS-modulens ``ops_spot_detector``: spaCR:s egen detektor, SpotNet eller Spotiflow.\n\nspaCR:s egen detektor står först, är standardvalet och går alltid att använda. SpotNet och Spotiflow visas oavsett om de kan köras; om miljön för någon av dem (eller SpotNets DeepCell-token) saknas är dess rad inaktiverad och verktygstipset anger vad som saknas. SpotNets verktygstips anger dess icke-kommersiella licens i båda fallen, eftersom det är i denna ruta användaren väljer den. Ett sparat Spotiflow-val behålls även när dess rad är inaktiverad eller dold, så att körningen får valet och anger varför det inte kan köras i stället för att detektera med en annan detektor.\n\n:param default: startvärdet, ``'native'``, ``'spotnet'`` eller ``'spotiflow'``.\n:param parent: överordnad widget.\n:param readiness: ``() -> (ready, reason)``; SpotNets egen kontroll när None, en ersättare i tester.\n:param spotiflow_readiness: motsvarande för Spotiflow.\nLista detektorerna, inaktivera dem som inte kan köras och välj.",
       "translation_source_blocks_sha256": [
-        "6b638a66ddd27519dbe1d48fff8038026d909bb07a0f7908d9b0781d858f5740",
-        "2645b131fcb0ef398a7f8880b46366b18f8e5144cb02a27706efb90c32d4d850",
-        "2223d6ffa4d2e69a9aaa11ef1c9e0132b0bc68a78c11398ce93b079b2a338961",
+        "2e58d90f1d78f2c874eab21583e4b66e901d8fceae7a0d1a3707de3b637f4a0b",
+        "866dbed554577f5a929820cb939f1244a6a768efcbe77e1cbb3123173a8fd856",
+        "056d075c0e27a53a3d1d9a85aa60e6902626cb7a83e9e4055c0be5cbb7d84633",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "b4d1422e4bd0ea541c4a2611a3976e68689eca370a873789e681481adb35275a",
-        "07a1a8888483acf37f56f0f6eaa4e44f1eab6609c29763d0ca86576df9c34cb5"
+        "4aaf51ad0c3403798e1019ea6eeffa21dcbde599bf2441d866130ec211a2a6b8",
+        "f1d015992d365fe4c611675c97087ca7120c370e2fe774683535e0628c5d2eb7"
       ]
     },
     "spacr.qt.model_install.SpotDetectorCombo.refresh": {
       "source_blocks_sha256": [
-        "62bf713a143594afa112c55cbe7a0e726cb4e916d58220e0fb761c68fb9da044",
+        "c2294f35fd965873573b02cb78eddbfa4971d12bf566c978920675c35d4df12a",
         "a6fae124fd018d99f0550d935bbd5bf24a2bd6b809c73f7d6552a8b9f1fee241"
       ],
-      "source_sha256": "b1ba4f60b99193b6e7e84da978cd57604ef3fc6bdf0b5d0138cfe72408842668",
-      "text": "Aktivera SpotNets rad endast när den kan köras, och säg varför inte.\n\n:returns: SpotNets ``(ready, reason)``.",
+      "source_sha256": "3b25d31726eee2b2ffce0b8e6bf24cf9350a7528c80165d464471cfe1ebbf963",
+      "text": "Aktivera raderna för SpotNet och Spotiflow bara när respektive detektor kan köras, och ange annars varför.\n\n:returns: SpotNets ``(ready, reason)``.",
       "translation_source_blocks_sha256": [
-        "62bf713a143594afa112c55cbe7a0e726cb4e916d58220e0fb761c68fb9da044",
+        "c2294f35fd965873573b02cb78eddbfa4971d12bf566c978920675c35d4df12a",
         "a6fae124fd018d99f0550d935bbd5bf24a2bd6b809c73f7d6552a8b9f1fee241"
       ]
     },
     "spacr.qt.model_install.SpotDetectorCombo.setCurrentText": {
       "source_blocks_sha256": [
         "f53a58eaf09bcbaacfd28ef84758aca2ebfb16a7f49fa848f016a6397bc59ac1",
-        "57820363ed8045e1868ed1479301fde9625955270e70b4e069ed1f4d1b1fc481"
+        "b580b4d6fef151dd5bf86ea4c305908b0efa8d79005fd741ed8211fd398bcde5"
       ],
-      "source_sha256": "686905a3f54882806efedb8e5b83c27860e473841aab9585142574775cdc37dd",
-      "text": "Välj den rad vars bildtext eller värde är ``text``, om den är användbar.\n\n:param text: en bildtext eller ett lagrat värde; en rad som inte är installerad (inaktiverad), eller ingen träff, lämnar urvalet orört.",
+      "source_sha256": "e5ef9eb7dd33165ba49ca98c0ff42a83ef105e700f9b110ed5ed0509f8df4f60",
+      "text": "Välj den rad vars bildtext eller värde är ``text``, om den är användbar.\n\n:param text: en etikett eller ett lagrat värde; en rad som inte är installerad (inaktiverad), eller ingen matchning, lämnar valet oförändrat, utom för Spotiflow som väljs oavsett tillstånd.",
       "translation_source_blocks_sha256": [
         "f53a58eaf09bcbaacfd28ef84758aca2ebfb16a7f49fa848f016a6397bc59ac1",
-        "57820363ed8045e1868ed1479301fde9625955270e70b4e069ed1f4d1b1fc481"
+        "b580b4d6fef151dd5bf86ea4c305908b0efa8d79005fd741ed8211fd398bcde5"
       ]
     },
     "spacr.qt.model_install.backend_row": {
@@ -97080,15 +97100,15 @@
     },
     "spacr.qt.screens.map_barcodes.install_folds": {
       "source_blocks_sha256": [
-        "13dc33e740ee3737075fe4345c15fdef20d33889d42a7c91077efcb2594d23d0",
+        "ddd5058a3c8d3ac5faaafc87609dedaa57a0f859aa9cacea2cd780d78ca969e8",
         "5f8827d1e6a62469074906bb37f4df5126a78eff9b7d93ad2fafa8ac12deeefd",
         "188412ed16e9028194ec3656ad95e6a19eb2ef893dd824112d3e042b90ec699b",
         "1f383a69f7dc9bf3ec00917ee9edcc85d6da1d12b1a58f00999ee69bcf876737"
       ],
-      "source_sha256": "ec5a51ccab9717d4c0d1f889c2bde478f38a0b8b2b75c1e2330420027fac6710",
-      "text": "Lägg till Map Barcodes' vikremsan och dess sökning efter streckkoder direkt på ``screen``.\n\nSökningen är installerad här snarare än genom en egen söm eftersom detta är anropet till skärmen Map Barcodes redan passerar. En panel installerad någon annanstans skulle vara närvarande när skärmen nås på ett sätt och saknas när den nås en annan.\n\n:param screen: skärmen att installera i.\n:returns: vikremsan, eller None när den här skärmen inte är värd för veck.",
+      "source_sha256": "897a84fbca24bcbf4e1989ff9729f7e651fccb6aa0a834fa36a3f9fa1069bd47",
+      "text": "Placera Map Barcodes vikbara sektionsrad, dess direktsökning efter streckkoder och dess panel för spatial transkriptomik på ``screen``.\n\nSökningen är installerad här snarare än genom en egen söm eftersom detta är anropet till skärmen Map Barcodes redan passerar. En panel installerad någon annanstans skulle vara närvarande när skärmen nås på ett sätt och saknas när den nås en annan.\n\n:param screen: skärmen att installera i.\n:returns: vikremsan, eller None när den här skärmen inte är värd för veck.",
       "translation_source_blocks_sha256": [
-        "13dc33e740ee3737075fe4345c15fdef20d33889d42a7c91077efcb2594d23d0",
+        "ddd5058a3c8d3ac5faaafc87609dedaa57a0f859aa9cacea2cd780d78ca969e8",
         "5f8827d1e6a62469074906bb37f4df5126a78eff9b7d93ad2fafa8ac12deeefd",
         "188412ed16e9028194ec3656ad95e6a19eb2ef893dd824112d3e042b90ec699b",
         "1f383a69f7dc9bf3ec00917ee9edcc85d6da1d12b1a58f00999ee69bcf876737"
@@ -151538,7 +151558,7 @@
         "cecbe231434c8203dd00361d7a3f2c4ca4463b91fb026f5971e1e7ec148876a7"
       ],
       "source_sha256": "95e6b5a274616abb6944da3c8090549b85e33d1278af0557905fa0fe05dcb6af",
-      "text": "Ett kontrakt för varje levande vy, skrivet en gång.\n\nFyra moduler skickar en levande vy – Mask (:mod:`~spacr.qt.widgets.live_preview`), Timelapse (:mod:`~spacr.qt.widgets.timelapse_preview`), Measure (:mod:`~spacr.qt.widgets.measure_preview`) och Motility (:mod:`~spacr.qt.widgets.motility_preview`) – och var och en av dem fick sitt eget svar på samma handfull frågor. Inventariet som gjordes innan modulen skrevs, en kolumn per live vy:\n\n=====================================  ==========================  ============================  =============================================  ============================\nfråga                                  Masker                      Tidsserie                     Mätning                                        Motion\n=====================================  ==========================  ============================  =============================================  ============================\nvad kör knappen säger                  Kör förhandsgranskning      Kör förhandsgranskning        Uppdatera extraherade bildområden              Kör förhandsgranskning\nInförselställe för allmänheten         run_preview                 run_preview                   uppdatera                                      run_preview\nkan användaren avbeställa den          endast metod                Ingen känd frekvens:          Ingen känd frekvens:                           Ingen känd frekvens:\nsäger det varför det inte kan          Ja, det är jag.             Ja, det är jag.               NEJ – tyst                                     Ja, det är jag.\nvad \"busy\" är                          \"Preview already running.\"  \"Preview already running.\"    n/a                                            \"Preview already running.\"\nworker freed on ``finished``           Ja, det är jag.             Ej tillämpligt – deleteLater  n/a                                            Ej tillämpligt – deleteLater\ntillkännager sitt resultat             färdig                      färdig                        NEJ – inget                                    färdig\narbete körs utanför huvudsökvägen GUI  QThread                     QThread                       JobRunner                                      QThread\nvad en knopp ändrar kostnader          inget – explicit körning    en återlänk, cachemasker      extrahera bild regioner igen, ersatt av token  ett betyg från cachen\ndär bilden går                         dubbla zoomdukar            dubbla zoomdukar              rutnät för extraherad bildregion               matplotlib Tomt\n=====================================  ==========================  ============================  =============================================  ============================\n\nDe tre sista raderna är innehållsskillnader – ett extraherat bildområdesrutnät är inte ett par zoomdukar, och en förhandsgranskning som återlänkar från en cache inte bör göras för att kräva en knapppress för symmetrins skull. Raderna ovanför dem är de som inte hade någon anledning att skilja sig åt, och alla av dem är nu en enda implementation.\n\nTre av dessa rader var fel snarare än smakskillnader. Mät returnerade efter att ha extraherat bildregioner igen utan ett ord när ingen array laddades, så knappen gjorde ingenting och sade ingenting. Timelapse och Motility kopplade ``QThread.finished`` till ``worker.deleteLater`` och tappade sin egen referens i resultatet slot – mönstret :func:`spacr.qt.bridge.make_thread` dokument som en ras, och den Mask panelen hade redan rättats bort från – vilket lämnar en kör ``QThread`` ägs av ingen när användaren stänger programvyn mitt-pass. Och Mät aldrig berättade för någon sin pass hade landat, så ingen programvy kunde reagera på en extraherad bild region förhandsgranska hur den reagerar på de andra tre.\n\n:class:`LivePreviewContract` är vad de fyra panelerna nu ärver. Den äger vokabulären (:data:`PREVIEW_RUN_TEXT` och meddelandekonstanterna), sessionsvakten för behandling, avbokningssymbolen och knappen upptagen/idle, så en ändring av någon av dem är en förändring snarare än fyra.\n\nOrden\n---------\nEn **levande vy** är en panel som återger modulens egen utmatning från de nuvarande inställningarna, vid verklig inmatning, före en processsession. Det är Mask, Timelapse, Measure och Motility, och det är vad **Live** växla öppnas. Utforskaren Image UMAP är inte en: den gör ett redan sammansatt inbäddat klickbart, och ingen inställning ändrar vad den ritar. Dess växla säger därför **interaktiv**, inte Live – samma ord hade varit på båda.\n\n**Cancel** och **Stop** är också två ord med flit. En livevy Avbryt kastar bort passet: ingenting som produceras, eftersom ett halv-segmenterat fält inte är ett resultat. En hyperparametersökning s Stop (:class:`spacr.qt.screens.hyperparam.HyperparamPanel`) avslutar testet under flygning och håller varje försök redan gjort, markerar resultatet partiellt. Samma knappposition, avsiktligt olika verb, eftersom en användare som trycker på en förväntar sig att den andra förlorar antingen ingenting eller timmar.\n\nSökpanelens framsteg rapporteras redan hur detta kontrakt vill att en live vy ska vara - ``on_trial`` kallas med ``idx + 1`` *efter* en rättegång har gjorts, så \"12 av 40 konfigurationer utvärderas\" räknas arbete som görs snarare än arbete startas.\n\nCellpose\n--------\n:func:`preview_cellpose_model` är den andra halvan av delning. ``model_type=`` accepteras och IGNORED av Cellpose 4, så en förhandsgranskning som passerade det tyst segmenterade med ``cpsam`` – inklusive för en användare som just hade tränat sin egen kontrollpunkt i spaCR s Tåg Cellpose modul. Denna defekt skrevs två gånger, i två förhandsgranskningsfiler, och fast två gånger. En konstruktör betyder här nästa Cellpose API ändring är en korrigering.",
+      "text": "Ett kontrakt för varje levande vy, skrivet en gång.\n\nFyra moduler skickar en levande vy – Mask (:mod:`~spacr.qt.widgets.live_preview`), Timelapse (:mod:`~spacr.qt.widgets.timelapse_preview`), Measure (:mod:`~spacr.qt.widgets.measure_preview`) och Motility (:mod:`~spacr.qt.widgets.motility_preview`) – och var och en av dem fick sitt eget svar på samma handfull frågor. Inventariet som gjordes innan modulen skrevs, en kolumn per live vy:\n\n=====================================  ==========================  ============================  =============================================  ============================\nfråga                                  Masker                      Tidsserie                     Mätning                                        Motion\n=====================================  ==========================  ============================  =============================================  ============================\nvad kör knappen säger                  Kör förhandsgranskning      Kör förhandsgranskning        Uppdatera extraherade bildområden              Kör förhandsgranskning\nInförselställe för allmänheten         run_preview                 run_preview                   uppdatera                                      run_preview\nkan användaren avbeställa den          endast metod                Ingen känd frekvens:          Ingen känd frekvens:                           Ingen känd frekvens:\nsäger det varför det inte kan          ja                          ja                            NEJ – tyst                                     ja\nvad \"busy\" är                          \"Preview already running.\"  \"Preview already running.\"    n/a                                            \"Preview already running.\"\nworker freed on ``finished``           ja                          Ej tillämpligt – deleteLater  n/a                                            Ej tillämpligt – deleteLater\ntillkännager sitt resultat             färdig                      färdig                        NEJ – inget                                    färdig\narbete körs utanför huvudsökvägen GUI  QThread                     QThread                       JobRunner                                      QThread\nvad en knopp ändrar kostnader          inget – explicit körning    en återlänk, cachemasker      extrahera bild regioner igen, ersatt av token  ett betyg från cachen\ndär bilden går                         dubbla zoomdukar            dubbla zoomdukar              rutnät för extraherad bildregion               matplotlib Tomt\n=====================================  ==========================  ============================  =============================================  ============================\n\nDe tre sista raderna är innehållsskillnader – ett extraherat bildområdesrutnät är inte ett par zoomdukar, och en förhandsgranskning som återlänkar från en cache inte bör göras för att kräva en knapppress för symmetrins skull. Raderna ovanför dem är de som inte hade någon anledning att skilja sig åt, och alla av dem är nu en enda implementation.\n\nTre av dessa rader var fel snarare än smakskillnader. Mät returnerade efter att ha extraherat bildregioner igen utan ett ord när ingen array laddades, så knappen gjorde ingenting och sade ingenting. Timelapse och Motility kopplade ``QThread.finished`` till ``worker.deleteLater`` och tappade sin egen referens i resultatet slot – mönstret :func:`spacr.qt.bridge.make_thread` dokument som en ras, och den Mask panelen hade redan rättats bort från – vilket lämnar en kör ``QThread`` ägs av ingen när användaren stänger programvyn mitt-pass. Och Mät aldrig berättade för någon sin pass hade landat, så ingen programvy kunde reagera på en extraherad bild region förhandsgranska hur den reagerar på de andra tre.\n\n:class:`LivePreviewContract` är vad de fyra panelerna nu ärver. Den äger vokabulären (:data:`PREVIEW_RUN_TEXT` och meddelandekonstanterna), sessionsvakten för behandling, avbokningssymbolen och knappen upptagen/idle, så en ändring av någon av dem är en förändring snarare än fyra.\n\nOrden\n---------\nEn **levande vy** är en panel som återger modulens egen utmatning från de nuvarande inställningarna, vid verklig inmatning, före en processsession. Det är Mask, Timelapse, Measure och Motility, och det är vad **Live** växla öppnas. Utforskaren Image UMAP är inte en: den gör ett redan sammansatt inbäddat klickbart, och ingen inställning ändrar vad den ritar. Dess växla säger därför **interaktiv**, inte Live – samma ord hade varit på båda.\n\n**Cancel** och **Stop** är också två ord med flit. En livevy Avbryt kastar bort passet: ingenting som produceras, eftersom ett halv-segmenterat fält inte är ett resultat. En hyperparametersökning s Stop (:class:`spacr.qt.screens.hyperparam.HyperparamPanel`) avslutar testet under flygning och håller varje försök redan gjort, markerar resultatet partiellt. Samma knappposition, avsiktligt olika verb, eftersom en användare som trycker på en förväntar sig att den andra förlorar antingen ingenting eller timmar.\n\nSökpanelens framsteg rapporteras redan hur detta kontrakt vill att en live vy ska vara - ``on_trial`` kallas med ``idx + 1`` *efter* en rättegång har gjorts, så \"12 av 40 konfigurationer utvärderas\" räknas arbete som görs snarare än arbete startas.\n\nCellpose\n--------\n:func:`preview_cellpose_model` är den andra halvan av delning. ``model_type=`` accepteras och IGNORED av Cellpose 4, så en förhandsgranskning som passerade det tyst segmenterade med ``cpsam`` – inklusive för en användare som just hade tränat sin egen kontrollpunkt i spaCR s Tåg Cellpose modul. Denna defekt skrevs två gånger, i två förhandsgranskningsfiler, och fast två gånger. En konstruktör betyder här nästa Cellpose API ändring är en korrigering.",
       "translation_source_blocks_sha256": [
         "ce370466786a2821c3dff1793ddd326b3fac1f7f7dbf9b6ab54a3ba70946d6fa",
         "8d6953cd9b7271e7597bb0025700d57707dab2be9b2aaa30b5604625c317ccc2",
@@ -178307,12 +178327,13 @@
         "a790221c98b39c6adb17988ce1ff5f106f2150a1b3fd89d35e377f0b37c08713",
         "6c6e649957d0b9c583c81c447713b9b3b3db4949a7b6bc6afbe768633e9fd6e3",
         "42198a3abf9a706c48ef47734cb8536dda97a3ae52285ac4ffd2ba8f4888ddff",
-        "3c0dd888222825e0cd3f009a74557b14135d91a906b89b2a456ecfb3e1975f3b",
+        "7c8578008fd59f34eecf8753379a12ad7b400dea521e27c4f189e3d24550f6cd",
+        "619f4ae9b94537eb28274a3c6d6794b741a7b5722bd34b2bfbfbf7491a595a0d",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "f778639f3568a0e8f65bd89f1db3981dc1e25738a947e767604358bf02fd3df8"
       ],
-      "source_sha256": "447b424289aa7766de3674ae1ae4a88d06dfc3a0bc89b55b92ed43f3c96dddb4",
-      "text": "Segment host-cell plack med en buntad Cellpose modell och summera per bild antal och områden.\n\nNedladdningar (vid behov) den medföljande modellen ``toxo_plaque_cyto_e25000``, kör Cellpose över varje ``.tif`` under ``src``, beräknar sedan per bild plackräkning + medel/stdedev-område och skriver en ``plaques_analysis.db`` (tabeller: ``summary``, ``stats``, ``details``) vid sidan av maskerna.\n\n:param settings: Inställningar mappning av nyckelvärde, kanonikaliserad via :func:`spacr.settings.get_analyze_plaque_settings`. Strukturerade dataposter:\n\n    - ``src`` – mapp innehållande plaque-bilder.\n    - ``masks`` – om sanningen är sann, kör segmentering före analys; om förfalskning, förvänta masker redan i ``<src>/masks``.\n    - ``diameter``, ``flow_threshold`` och ``CP_prob``, som läses av :func:`spacr.plaque.segment_plaque_image`, samma anrop som plackförhandsvisningen också gör.\n    - ``plaque_mode`` -- ``'figure'`` lämnar i stället mappen till :func:`spacr.plaque_papers.measure_figure_folder`.\n\n:returns: None. Skriver ``<src>/masks/plaques_analysis.db``.\n\nExempel:\n    .. code-block:: python\n\n        from spacr.submodules import analyze_plaques\n        analyze_plaques({'src': '/data/plaque_assay', 'masks': True})\n\nSe även: :func:`analyze_recruitment` – intensitets-kvot fenotyp istället för plackräkning.",
+      "source_sha256": "e73b26b48f91262f9ee3d1ca7109e2c15391bd27b63dae33cbc320507c72fe19",
+      "text": "Segment host-cell plack med en buntad Cellpose modell och summera per bild antal och områden.\n\nNedladdningar (vid behov) den medföljande modellen ``toxo_plaque_cyto_e25000``, kör Cellpose över varje ``.tif`` under ``src``, beräknar sedan per bild plackräkning + medel/stdedev-område och skriver en ``plaques_analysis.db`` (tabeller: ``summary``, ``stats``, ``details``) vid sidan av maskerna.\n\n:param settings: Inställningar mappning av nyckelvärde, kanonikaliserad via :func:`spacr.settings.get_analyze_plaque_settings`. Strukturerade dataposter:\n\n    - ``src`` – mapp innehållande plaque-bilder.\n    - ``masks`` – om sanningen är sann, kör segmentering före analys; om förfalskning, förvänta masker redan i ``<src>/masks``.\n    - ``diameter``, ``flow_threshold`` och ``CP_prob``, som läses av :func:`spacr.plaque.segment_plaque_image`, samma anrop som plackförhandsvisningen också gör.\n    - ``plaque_mode`` -- ``'figure'`` lämnar i stället mappen till :func:`spacr.plaque_papers.measure_figure_folder`.\n    - ``colony_counting`` -- räknar i plackläge bakterie- eller svampkolonier på fotografier av odlingsplattor i stället för att segmentera plack (:func:`_analyze_colony_plates`), och skriver ``<src>/colonies/colonies.db``.\n\n:returns: None. Skriver ``<src>/masks/plaques_analysis.db``. Med ``colony_counting`` returneras i stället kolonitabellen per odlingsplatta.\n\nExempel:\n    .. code-block:: python\n\n        from spacr.submodules import analyze_plaques\n        analyze_plaques({'src': '/data/plaque_assay', 'masks': True})\n\nSe även: :func:`analyze_recruitment` – intensitets-kvot fenotyp istället för plackräkning.",
       "translation_source_blocks_sha256": [
         "a8f55513ecb54f6ef6094e1f5231cd4561edb5c2e7fd578292519d5928b4754a",
         "35fab594ae536e49f6ba5718359c74084ea964b7a44fea1c7d88e484c2c5e41d",
@@ -178321,7 +178342,8 @@
         "a790221c98b39c6adb17988ce1ff5f106f2150a1b3fd89d35e377f0b37c08713",
         "6c6e649957d0b9c583c81c447713b9b3b3db4949a7b6bc6afbe768633e9fd6e3",
         "42198a3abf9a706c48ef47734cb8536dda97a3ae52285ac4ffd2ba8f4888ddff",
-        "3c0dd888222825e0cd3f009a74557b14135d91a906b89b2a456ecfb3e1975f3b",
+        "7c8578008fd59f34eecf8753379a12ad7b400dea521e27c4f189e3d24550f6cd",
+        "619f4ae9b94537eb28274a3c6d6794b741a7b5722bd34b2bfbfbf7491a595a0d",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "f778639f3568a0e8f65bd89f1db3981dc1e25738a947e767604358bf02fd3df8"
       ]
