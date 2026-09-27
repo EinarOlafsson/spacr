@@ -805,6 +805,12 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # Closure (Alpha)" heading.
     "wound_closure", "wound_source", "wound_channel", "wound_window",
     "wound_hours_per_frame", "wound_conditions",
+    # NEW SETTINGS, not a regrouping (item 580, 2026-09-27): Measure's
+    # cross-plate intensity calibration from beads or reference wells -- the
+    # switch, the reference wells, the statistic and the camera offset --
+    # under their own "Intensity Calibration (Alpha)" heading.
+    "intensity_calibration", "intensity_calibration_wells",
+    "intensity_calibration_statistic", "intensity_calibration_offset",
     # NEW SETTINGS, not a regrouping (item 571, 2026-09-26): Measure's
     # time-to-event analysis of tracked objects -- the switch, the object
     # table, the event mode, its column, threshold and persistence, the
@@ -1518,6 +1524,10 @@ def _rendered_sections(app_key):
             # before the PSF and the features.
             "Spectral Unmixing (Alpha)",
             "Point Spread Function",
+            # Item 580, 2026-09-27: cross-plate intensity calibration
+            # rescales the pixels the features are computed from, so it
+            # follows the other image corrections, as an Alpha heading.
+            "Intensity Calibration (Alpha)",
             "Measurement Features",
             # Item 541, 2026-09-26: confluency sits after the features it
             # is measured beside, as an Alpha heading of its own.

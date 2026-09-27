@@ -1723,6 +1723,10 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('wound_window', 15)
     settings.setdefault('wound_hours_per_frame', None)
     settings.setdefault('wound_conditions', {})
+    settings.setdefault('intensity_calibration', False)
+    settings.setdefault('intensity_calibration_wells', None)
+    settings.setdefault('intensity_calibration_statistic', 'foreground')
+    settings.setdefault('intensity_calibration_offset', 0)
     settings.setdefault('time_to_event', False)
     settings.setdefault('time_to_event_object', 'cell')
     settings.setdefault('time_to_event_mode', 'track_end')
@@ -3546,6 +3550,10 @@ expected_types = {
     "wound_window": int,
     "wound_hours_per_frame": (float, int, type(None)),
     "wound_conditions": dict,
+    "intensity_calibration": bool,
+    "intensity_calibration_wells": (list, str, type(None)),
+    "intensity_calibration_statistic": str,
+    "intensity_calibration_offset": (float, int),
     "time_to_event": bool,
     "time_to_event_object": str,
     "time_to_event_mode": str,
@@ -4790,6 +4798,10 @@ tooltips = {
     "cell_cycle_labels": "(str) - A png_list column holding Annotate labels the xgboost and torch methods learn from: 1 to 4 for G1, S, G2 and M, or the phase names. Labels are matched to nuclei through their cell. Blank trains on the confident gate calls instead, which teaches the learned methods what the gates already say; annotate prophase and anaphase nuclei to teach them more. Default blank.",
     "cell_cycle_model": "(str) - A torch model this step trained earlier, with its cell_cycle_phases.json beside it, applied to the nucleus crops instead of training a new one. Use it to call a second plate with the model trained on the first. Ignored unless cell_cycle_method is torch or all. Default blank.",
     "cell_cycle_epochs": "(int) - Training epochs of the torch phase classifier. It is a ResNet-18 trained from scratch on crops as small as 32 pixels, so each epoch is quick on a GPU and slow on a busy CPU. Ignored when cell_cycle_model names a trained model. Default 20.",
+    "intensity_calibration": "(bool) - Calibrate intensities across imaging sessions before measuring: each plate is one session, the beads or reference wells imaged on every plate are measured, and every plate's intensity channels are scaled so its reference wells match the first plate's. This corrects exposure, lamp and detector drift between days at the image level, unlike batch correction of tables. The gains are recorded in measurements.db:intensity_rescale. Default False.",
+    "intensity_calibration_wells": "(list or None) - The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
+    "intensity_calibration_statistic": "(str) - How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
+    "intensity_calibration_offset": "(float) - The camera's dark offset, in the intensity units Measure works in, removed before the reference statistic and kept when scaling: a pixel becomes offset + (value - offset) x gain. Read it from a dark frame; 100 is common on sCMOS cameras. Leave 0 when images are already offset-corrected. Default 0.",
     "time_to_event": "(bool) - After measuring a timelapse, follow every tracked object to an event (death, lysis, egress, division, first detection) or to the end of its track, and compare conditions: Kaplan-Meier curves with 95% bands, median time to event per condition and well, log-rank tests and a Cox model. Writes measurements.db:time_to_event and four summary tables, and the curves and hazard ratios under results/time_to_event. Needs tracked objects measured with timelapse on. Default False.",
     "time_to_event_object": "(str) - The measured object table whose tracks are followed: cell, nucleus, pathogen or cytoplasm. Each object label in a field is one track, since the timelapse module relabels tracked objects with their track ID. Follow host cells for host death or lysis, pathogens for egress or division. Default cell.",
     "time_to_event_mode": "(str) - What counts as the event. track_end: the object disappears before the movie ends (lysis, egress, detachment, and tracking loss too). annotated: time_to_event_column turns non-zero, or equals the threshold. above or below: the column reaches time_to_event_threshold, such as a death dye. fold_change: the column reaches threshold times its first value, such as a doubled parasite count. Tracks without the event are censored at their last frame. Default track_end.",
@@ -5482,6 +5494,11 @@ categories = {
     "Wound Closure (Alpha)": [
         "wound_closure", "wound_source", "wound_channel", "wound_window",
         "wound_hours_per_frame", "wound_conditions",
+    ],
+
+    "Intensity Calibration (Alpha)": [
+        "intensity_calibration", "intensity_calibration_wells",
+        "intensity_calibration_statistic", "intensity_calibration_offset",
     ],
 
     "Time To Event (Alpha)": [
@@ -7118,6 +7135,11 @@ ALPHA_FEATURES = {
     },
     573: {
         'widgets': ('AnalysisLockButton',),
+    },
+    580: {
+        'settings': ('intensity_calibration', 'intensity_calibration_wells',
+                     'intensity_calibration_statistic',
+                     'intensity_calibration_offset'),
     },
     577: {
         'widgets': ('NotifyTabHelp', 'NotifyRunsEnabled', 'NotifyRunsWhen',
