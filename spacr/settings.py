@@ -6851,6 +6851,9 @@ ALPHA_FEATURES = {
     573: {
         'widgets': ('AnalysisLockButton',),
     },
+    581: {
+        'settings': ('anndata_format', 'anndata_tidy_dir'),
+    },
 }
 
 
