@@ -380,6 +380,42 @@ def _publish(target: str, write: Callable[[str], None]) -> str:
     return target
 
 
+_OPENPYXL_MISSING_MESSAGE = """\
+Writing an Excel workbook with several sheets needs openpyxl, which is not
+installed in this environment (missing module: {module}).
+
+Install it with:
+
+    python -m pip install openpyxl\
+"""
+
+
+def _write_workbook(sheets: Dict[str, pd.DataFrame], path: Any, *,
+                    index: bool = False) -> str:
+    """Write several frames as the sheets of one Excel workbook.
+
+    Column names are written exactly as given: a workbook that follows an
+    outside template has to keep that template's headings.
+
+    :param sheets: sheet name to frame, in sheet order.
+    :param path: the ``.xlsx`` destination; written through a temporary
+        sibling, so a failure leaves any earlier workbook in place.
+    :param index: pandas' ``index`` argument.
+    :returns: the resolved path written.
+    :raises ImportError: when openpyxl is not installed.
+    """
+    _require_optional('openpyxl', _OPENPYXL_MISSING_MESSAGE)
+    target = resolve_path(path)
+
+    def _write(pending: str) -> None:
+        """Write every sheet into ``pending``."""
+        with pd.ExcelWriter(pending, engine='openpyxl') as writer:
+            for name, frame in sheets.items():
+                frame.to_excel(writer, sheet_name=str(name)[:31], index=index)
+
+    return _publish(target, _write)
+
+
 def _write_parquet(frame: pd.DataFrame, path: Any, *,
                    metadata: Optional[Dict[str, Any]] = None,
                    canonicalise: bool = True, index: bool = False,

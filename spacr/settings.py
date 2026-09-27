@@ -7169,6 +7169,9 @@ ALPHA_FEATURES = {
     538: {
         'settings': ('unmix', 'unmix_controls', 'unmix_background_percentile'),
     },
+    574: {
+        'widgets': ('ReportArchivePackage',),
+    },
     537: {
         'settings': ('timelapse_lineage', 'timelapse_lineage_color_by',
                      'timelapse_lineage_max_distance'),
