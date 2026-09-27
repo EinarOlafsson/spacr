@@ -12,7 +12,7 @@ build_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 cd "$build_root"
 apt_runner=()
 [[ $EUID == 0 ]] || apt_runner=(sudo)
-needed=(python3 python3-venv binutils dpkg-dev libgl1 libegl1 libglib2.0-0 \
+needed=(python3 python3-venv libpython3-dev binutils dpkg-dev libgl1 libegl1 libglib2.0-0 \
         libx11-6 libxcb1 libxkbcommon0 libxkbcommon-x11-0 libxcb-cursor0 \
         libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 \
         libxcb-xinerama0 libxcb-xkb1 libfontconfig1 libfreetype6 libdbus-1-3 libgomp1)

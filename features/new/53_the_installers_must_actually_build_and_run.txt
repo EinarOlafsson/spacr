@@ -263,3 +263,11 @@ Local packaging validation passed7tests in0.82s (spec and native workflow).
 The repaired native rebuild remains pending.
 No completed native analysis or uninstall preservation is claimed. Item53
 remains OPEN, including its separate update/backend/account/consent tail.
+
+STATUS 2026-09-27 — Debian shared Python library prerequisite
+The exact-workspace ownership fix lets the clean Ubuntu22.04 builder reach
+PyInstaller. CI36343749550 then fails because libpython3.10.so.1.0 is absent.
+The builder now requests libpython3-dev, whose versioned dependency includes
+the shared runtime required for freezing. Shell syntax passes; a fresh native
+build and installed-artifact smoke are still required. Receipt:
+features/data/53_debian_shared_python_2026-09-27.json.
