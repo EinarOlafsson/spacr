@@ -1313,6 +1313,11 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'channels is estimated from single-stain control wells, and every field '
     'is unmixed with that matrix before it is segmented or measured. The '
     'matrix is printed and recorded with the run.',
+    # 578, 2026-09-27: the Segmentation Robustness (Alpha) category help.
+    'Re-segments a few sampled fields with the diameter, the thresholds and '
+    'contrast enhancement each moved a little, and reports how much object '
+    'counts, areas and intensities change, flagging the settings the results '
+    'are fragile to.',
     'Check figure integrity on export',
     "When an image figure or montage is saved, warn if panels meant for comparison use different display ranges, if pixels are saturated or clipped, if a panel is repeated, or if a lossy format was chosen. Also writes the source files, display settings, processing steps and spaCR version into the file's metadata and a .provenance.json file beside it. Default off.",
     # 574, 2026-09-27: the Report screen's Archive package button and its
