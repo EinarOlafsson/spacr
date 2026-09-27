@@ -13,13 +13,18 @@ if ($Proof.status -ne 'passed' -or -not $Proof.frozen -or $Proof.qt_platform -ne
 }
 if ($Proof.source_commit -ne $env:GITHUB_SHA) { throw 'Artifact receipt belongs to another commit' }
 $Hint = [string]$Proof.claude_install_hint
-$Expected = 'cmd /c "curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd"'
+$PathSetup = @'
+try{if(-not([IO.File]::Exists([IO.Path]::Combine([Environment]::GetFolderPath('UserProfile'),'.local\bin\claude.exe')))){throw('Claude_native_executable_missing')}if(-not([Environment]::ExpandEnvironmentVariables([string][Environment]::GetEnvironmentVariable('Path','User')).ToLowerInvariant().Split(';').Contains([Environment]::GetFolderPath('UserProfile').ToLowerInvariant()+'\.local\bin'))){[Environment]::SetEnvironmentVariable('Path',([string][Environment]::GetEnvironmentVariable('Path','User'))+';'+[Environment]::GetFolderPath('UserProfile')+'\.local\bin','User')}}catch{[Console]::Error.WriteLine('Claude_PATH_registration_failed');exit(1)}
+'@
+$Expected = 'cmd /c "curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd && powershell.exe -NoProfile -NonInteractive -Command ' + $PathSetup.Replace('(', '^(').Replace(')', '^)') + '"'
 if ($Hint -cne $Expected) { throw 'Displayed installer changed; review current vendor documentation before execution' }
 $Report = [ordered]@{
     status = 'running'; shell = $Shell; command = $Hint
     source_commit = $Proof.source_commit
     native_receipt_sha256 = (Get-FileHash $NativeReceipt -Algorithm SHA256).Hash.ToLowerInvariant()
     vendor_documentation = 'https://code.claude.com/docs/en/setup'
+    path_documentation = 'https://code.claude.com/docs/en/troubleshoot-install#verify-your-path'
+    path_registration_scope = 'The artifact-provided command registers the native directory in User PATH; this verifier never repairs PATH.'
     node_scope = 'No node or npm command available to the installer or new terminal; hosted runner tooling outside this PATH is not asserted absent.'
     authenticated = $false
 }
@@ -80,9 +85,13 @@ try {
     $env:PATH = ($FreshPaths | Select-Object -Unique) -join ';'
     $Report.user_path_changed_by_installer = ([Environment]::GetEnvironmentVariable('Path','User') -ne $BeforeUserPath)
     if (Get-Command node,npm -ErrorAction SilentlyContinue) { throw 'Node/npm became available to the fresh terminal' }
+    $NativeExecutable = Join-Path $InstallProfile '.local/bin/claude.exe'
+    $Report.native_executable_exists = Test-Path -LiteralPath $NativeExecutable -PathType Leaf
+    if (-not $Report.native_executable_exists) { throw 'The native Claude executable was not installed in the actual OS profile' }
+    $Report.registered_user_path = [Environment]::GetEnvironmentVariable('Path','User')
     $Executable = (Get-Command claude -CommandType Application -ErrorAction Stop).Source
-    if (-not [IO.Path]::GetFullPath($Executable).StartsWith($InstallProfile + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) {
-        throw 'New terminal resolved Claude outside the actual runner profile'
+    if (-not [IO.Path]::GetFullPath($Executable).Equals([IO.Path]::GetFullPath($NativeExecutable), [StringComparison]::OrdinalIgnoreCase)) {
+        throw 'New terminal did not resolve the exact native Claude executable'
     }
     if ($Shell -eq 'cmd') {
         $Answer = & $Cmd /d /c 'claude --version' 2>&1

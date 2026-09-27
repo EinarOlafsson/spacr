@@ -2,8 +2,8 @@
 CLAUDE CODE INSTALLS WITH CURL ON EVERY SYSTEM, WINDOWS INCLUDED
 ================================================================================
 
-Status:    BUILT 2026-09-15 (b3f7bd6c9), NOT YET TRIED ON A REAL WINDOWS MACHINE.
-           Filed OPEN 2026-09-15.
+Status:    OPEN 2026-09-27 — native Windows install succeeds, fresh-terminal
+           PATH acceptance failed. Product correction prepared; rerun pending.
 Requested: 2026-09-15, by the maintainer, in these words (item 1 of three):
            "the claud on all systems if possible code installation on windows
            (just allways use curl)"
@@ -98,3 +98,25 @@ registered PATH values. Local guards passed; native executions are pending.
 Receipt: features/data/23_414_native_acceptance_preparation_2026-09-27.json.
 This does not claim Node is physically absent from the entire hosted image,
 or establish real authentication. Item remains open.
+
+STATUS 2026-09-27 (Codex, native failure and correction): Run36348757658
+executed the actual artifact-provided command in CMD (job108709191052) and
+Windows PowerShell5.1 (job108709190905). Both installed Claude2.1.283 with
+exit0 and no Node/npm command available. Both then failed: the vendor installer
+explicitly requested adding the native directory to User PATH, and neither
+changed registered User PATH. A fresh terminal could not resolve claude.
+
+The shared product command now follows its curl/native-install chain with
+idempotent User-PATH registration, requiring the native executable under the
+actual OS user profile. It uses Environment APIs rather than setx, leaves
+Machine PATH untouched, and escapes CMD parentheses without exposing dollar
+variables or nested quotes to the outer PowerShell parser. The verifier pins
+that same command and still requires fresh-terminal resolution to the exact
+installed native executable; it performs no test-only PATH repair.
+
+Receipt: features/data/414_windows_native_path_failure_2026-09-27.json.
+Failed job logs and original acceptance artifacts are preserved with hashes.
+The correction passed 63 focused menu/provider/historical/docstring checks
+in 29.37 seconds. Native re-execution is still pending; no native acceptance
+or item closure is claimed. No translated runtime caption
+or public API signature/docstring changed.
