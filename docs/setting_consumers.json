@@ -2756,7 +2756,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "batch_size",
-    "line": 1643,
+    "line": 1656,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -2765,7 +2765,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "batch_size",
-    "line": 1971,
+    "line": 1984,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_organelle_masks_sam"
@@ -2774,7 +2774,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "batch_size",
-    "line": 2291,
+    "line": 2304,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose"
@@ -2783,7 +2783,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "batch_size",
-    "line": 2293,
+    "line": 2306,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose"
@@ -3610,7 +3610,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "cell_cellprob_threshold",
-    "line": 1645,
+    "line": 1658,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -3619,7 +3619,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "cell_cellprob_threshold",
-    "line": 2363,
+    "line": 2376,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose_sam"
@@ -3884,7 +3884,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 2257,
+    "line": 2270,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose"
@@ -3893,7 +3893,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 2315,
+    "line": 2328,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose_sam"
@@ -3974,7 +3974,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 8787,
+    "line": 8933,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -4527,7 +4527,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "cell_flow_threshold",
-    "line": 1647,
+    "line": 1660,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -4536,7 +4536,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "cell_flow_threshold",
-    "line": 2362,
+    "line": 2375,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose_sam"
@@ -6093,7 +6093,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose3_resample",
-    "line": 2364,
+    "line": 2377,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose_sam"
@@ -7363,7 +7363,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "channels",
-    "line": 8791,
+    "line": 8937,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -11768,7 +11768,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "db_table_name",
-    "line": 8707,
+    "line": 8853,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -12353,7 +12353,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "drop_straight_tracks",
-    "line": 6684,
+    "line": 6830,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_compute_velocities_and_well_summary"
@@ -13609,7 +13609,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "examples_to_plot",
-    "line": 2103,
+    "line": 2116,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_organelle_masks_sam"
@@ -14792,7 +14792,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "filter",
-    "line": 1821,
+    "line": 1834,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -14801,7 +14801,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "filter",
-    "line": 1834,
+    "line": 1847,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -18275,7 +18275,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_mode",
-    "line": 5875,
+    "line": 6021,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_pca_clustering"
@@ -18284,7 +18284,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_mode",
-    "line": 7855,
+    "line": 8001,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_histogram"
@@ -18293,7 +18293,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_mode",
-    "line": 8445,
+    "line": 8591,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -18313,7 +18313,7 @@
     "form": "get",
     "function_depth": 2,
     "key": "infection_intensity_n_bins",
-    "line": 3775,
+    "line": 3921,
     "module": "spacr.timelapse",
     "nested": true,
     "qualname": "_make_intensity_motility_panel._plot_hist_qc"
@@ -18322,7 +18322,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_n_bins",
-    "line": 7818,
+    "line": 7964,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_histogram"
@@ -18331,7 +18331,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_n_bins",
-    "line": 8579,
+    "line": 8725,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -18342,7 +18342,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_qc",
-    "line": 6373,
+    "line": 6519,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_apply_infection_intensity_qc"
@@ -18351,7 +18351,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_qc",
-    "line": 8955,
+    "line": 9101,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -18371,7 +18371,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_qc_graphs",
-    "line": 3669,
+    "line": 3815,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_make_intensity_motility_panel"
@@ -18380,7 +18380,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_qc_graphs",
-    "line": 7915,
+    "line": 8061,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_histogram"
@@ -18391,7 +18391,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_qc_panel_path",
-    "line": 3671,
+    "line": 3817,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_make_intensity_motility_panel"
@@ -18400,7 +18400,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "infection_intensity_qc_panel_path",
-    "line": 6250,
+    "line": 6396,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_pca_clustering"
@@ -18409,7 +18409,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "infection_intensity_qc_panel_path",
-    "line": 6371,
+    "line": 6517,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_apply_infection_intensity_qc"
@@ -18418,25 +18418,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "infection_intensity_qc_panel_path",
-    "line": 6416,
-    "module": "spacr.timelapse",
-    "nested": false,
-    "qualname": "_apply_infection_intensity_qc"
-   },
-   {
-    "form": "get",
-    "function_depth": 1,
-    "key": "infection_intensity_qc_panel_path",
-    "line": 6416,
-    "module": "spacr.timelapse",
-    "nested": false,
-    "qualname": "_apply_infection_intensity_qc"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "infection_intensity_qc_panel_path",
-    "line": 6457,
+    "line": 6562,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_apply_infection_intensity_qc"
@@ -18445,7 +18427,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_qc_panel_path",
-    "line": 6457,
+    "line": 6562,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_apply_infection_intensity_qc"
@@ -18454,7 +18436,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "infection_intensity_qc_panel_path",
-    "line": 6494,
+    "line": 6603,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_apply_infection_intensity_qc"
@@ -18463,7 +18445,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_qc_panel_path",
-    "line": 6494,
+    "line": 6603,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_apply_infection_intensity_qc"
@@ -18472,7 +18454,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "infection_intensity_qc_panel_path",
-    "line": 6547,
+    "line": 6640,
+    "module": "spacr.timelapse",
+    "nested": false,
+    "qualname": "_apply_infection_intensity_qc"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "infection_intensity_qc_panel_path",
+    "line": 6640,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_apply_infection_intensity_qc"
@@ -18481,7 +18472,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "infection_intensity_qc_panel_path",
-    "line": 7778,
+    "line": 6693,
+    "module": "spacr.timelapse",
+    "nested": false,
+    "qualname": "_apply_infection_intensity_qc"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "infection_intensity_qc_panel_path",
+    "line": 7924,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_histogram"
@@ -18490,7 +18490,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "infection_intensity_qc_panel_path",
-    "line": 7807,
+    "line": 7953,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_histogram"
@@ -18499,7 +18499,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "infection_intensity_qc_panel_path",
-    "line": 7983,
+    "line": 8129,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_histogram"
@@ -18508,7 +18508,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "infection_intensity_qc_panel_path",
-    "line": 8665,
+    "line": 8811,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -18528,7 +18528,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_qc_scope",
-    "line": 6395,
+    "line": 6541,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_apply_infection_intensity_qc"
@@ -18548,7 +18548,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_strategy",
-    "line": 3665,
+    "line": 3811,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_make_intensity_motility_panel"
@@ -18557,7 +18557,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_strategy",
-    "line": 5883,
+    "line": 6029,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_pca_clustering"
@@ -18566,7 +18566,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_strategy",
-    "line": 6380,
+    "line": 6526,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_apply_infection_intensity_qc"
@@ -18575,7 +18575,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_strategy",
-    "line": 8956,
+    "line": 9102,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -18584,7 +18584,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_strategy",
-    "line": 9030,
+    "line": 9176,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -18593,7 +18593,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_strategy",
-    "line": 9083,
+    "line": 9229,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -18613,7 +18613,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_pca_log_intensity",
-    "line": 6011,
+    "line": 6157,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_pca_clustering"
@@ -18633,7 +18633,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_pca_max_cells",
-    "line": 6040,
+    "line": 6186,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_pca_clustering"
@@ -18644,7 +18644,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "infection_pca_method",
-    "line": 5889,
+    "line": 6035,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_pca_clustering"
@@ -18673,7 +18673,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_pca_min_gt_separation",
-    "line": 6151,
+    "line": 6297,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_pca_clustering"
@@ -18693,7 +18693,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_pca_min_silhouette",
-    "line": 6152,
+    "line": 6298,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_pca_clustering"
@@ -18713,7 +18713,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_pca_pathogen_weight",
-    "line": 6089,
+    "line": 6235,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_pca_clustering"
@@ -18733,7 +18733,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_pca_random_state",
-    "line": 6095,
+    "line": 6241,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_pca_clustering"
@@ -18742,7 +18742,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_pca_random_state",
-    "line": 8616,
+    "line": 8762,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -18861,7 +18861,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_ambiguous_high",
-    "line": 8502,
+    "line": 8648,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -18870,7 +18870,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_ambiguous_high",
-    "line": 8960,
+    "line": 9106,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -18890,7 +18890,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_ambiguous_low",
-    "line": 8501,
+    "line": 8647,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -18899,7 +18899,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_ambiguous_low",
-    "line": 8959,
+    "line": 9105,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -18919,7 +18919,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_colsample_bytree",
-    "line": 8426,
+    "line": 8572,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -18939,7 +18939,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_drop_ambiguous",
-    "line": 8500,
+    "line": 8646,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -18948,7 +18948,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_drop_ambiguous",
-    "line": 8957,
+    "line": 9103,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -18968,7 +18968,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_learning_rate",
-    "line": 8424,
+    "line": 8570,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -18988,7 +18988,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_margin",
-    "line": 8439,
+    "line": 8585,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -19008,7 +19008,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_max_depth",
-    "line": 8423,
+    "line": 8569,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -19028,7 +19028,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_min_cells_per_class",
-    "line": 8298,
+    "line": 8444,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -19048,7 +19048,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_n_estimators",
-    "line": 8432,
+    "line": 8578,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -19086,7 +19086,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_n_jobs",
-    "line": 8430,
+    "line": 8576,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -19106,7 +19106,7 @@
     "form": "get",
     "function_depth": 2,
     "key": "infection_xgb_proba_column",
-    "line": 3885,
+    "line": 4031,
     "module": "spacr.timelapse",
     "nested": true,
     "qualname": "_make_intensity_motility_panel._plot_xgb_prob_qc"
@@ -19115,7 +19115,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_proba_column",
-    "line": 8962,
+    "line": 9108,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -19135,7 +19135,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_proba_threshold",
-    "line": 8438,
+    "line": 8584,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -19155,7 +19155,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_random_state",
-    "line": 8299,
+    "line": 8445,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -19175,7 +19175,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_reg_lambda",
-    "line": 8427,
+    "line": 8573,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -19195,7 +19195,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_subsample",
-    "line": 8425,
+    "line": 8571,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -19215,7 +19215,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_top_features",
-    "line": 8647,
+    "line": 8793,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -21669,7 +21669,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "max_displacement",
-    "line": 8709,
+    "line": 8855,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -23985,7 +23985,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "motility_xlim",
-    "line": 3697,
+    "line": 3843,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_make_intensity_motility_panel"
@@ -23994,7 +23994,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "motility_xlim",
-    "line": 7109,
+    "line": 7255,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_make_motility_plots"
@@ -24014,7 +24014,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "motility_ylim",
-    "line": 3698,
+    "line": 3844,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_make_intensity_motility_panel"
@@ -24023,7 +24023,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "motility_ylim",
-    "line": 7110,
+    "line": 7256,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_make_motility_plots"
@@ -24589,7 +24589,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 1950,
+    "line": 1963,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_organelle_masks_sam"
@@ -24787,7 +24787,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 8708,
+    "line": 8854,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -26638,7 +26638,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "nucleus_cellprob_threshold",
-    "line": 1645,
+    "line": 1658,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -26647,7 +26647,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "nucleus_cellprob_threshold",
-    "line": 2363,
+    "line": 2376,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose_sam"
@@ -26921,7 +26921,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 2256,
+    "line": 2269,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose"
@@ -26930,7 +26930,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 2271,
+    "line": 2284,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose"
@@ -26939,7 +26939,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 2313,
+    "line": 2326,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose_sam"
@@ -26948,7 +26948,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 2315,
+    "line": 2328,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose_sam"
@@ -27029,7 +27029,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 8788,
+    "line": 8934,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -27222,7 +27222,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "nucleus_flow_threshold",
-    "line": 1647,
+    "line": 1660,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -27231,7 +27231,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "nucleus_flow_threshold",
-    "line": 2362,
+    "line": 2375,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose_sam"
@@ -28064,7 +28064,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "object_filters",
-    "line": 1927,
+    "line": 1940,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_organelle_masks_sam"
@@ -28588,7 +28588,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_adaptive_block_size",
-    "line": 2468,
+    "line": 2481,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_spots"
@@ -28597,7 +28597,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_adaptive_block_size",
-    "line": 2589,
+    "line": 2602,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_network"
@@ -28606,7 +28606,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_adaptive_block_size",
-    "line": 2634,
+    "line": 2647,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_network_ridge"
@@ -28615,7 +28615,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_adaptive_block_size",
-    "line": 2697,
+    "line": 2710,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_irregular"
@@ -28624,7 +28624,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_adaptive_block_size",
-    "line": 2738,
+    "line": 2751,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_ring"
@@ -28644,7 +28644,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_adaptive_offset",
-    "line": 2469,
+    "line": 2482,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_spots"
@@ -28653,7 +28653,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_adaptive_offset",
-    "line": 2590,
+    "line": 2603,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_network"
@@ -28662,7 +28662,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_adaptive_offset",
-    "line": 2635,
+    "line": 2648,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_network_ridge"
@@ -28671,7 +28671,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_adaptive_offset",
-    "line": 2698,
+    "line": 2711,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_irregular"
@@ -28680,7 +28680,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_adaptive_offset",
-    "line": 2739,
+    "line": 2752,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_ring"
@@ -28747,7 +28747,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_cellprob_threshold",
-    "line": 1645,
+    "line": 1658,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -28756,7 +28756,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "organelle_cellprob_threshold",
-    "line": 2291,
+    "line": 2304,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose"
@@ -28765,7 +28765,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_cellprob_threshold",
-    "line": 2298,
+    "line": 2311,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose"
@@ -28774,7 +28774,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_cellprob_threshold",
-    "line": 2363,
+    "line": 2376,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose_sam"
@@ -28967,7 +28967,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_channel",
-    "line": 1939,
+    "line": 1952,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_organelle_masks_sam"
@@ -28976,7 +28976,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_channel",
-    "line": 2066,
+    "line": 2079,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_organelle_masks_sam"
@@ -28985,7 +28985,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_channel",
-    "line": 2259,
+    "line": 2272,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose"
@@ -28994,7 +28994,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_channel",
-    "line": 2262,
+    "line": 2275,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose"
@@ -29003,7 +29003,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_channel",
-    "line": 2322,
+    "line": 2335,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose_sam"
@@ -29077,7 +29077,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_clahe",
-    "line": 2188,
+    "line": 2201,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_preprocess_batch"
@@ -29097,7 +29097,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_clahe_clip_limit",
-    "line": 2205,
+    "line": 2218,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_preprocess_batch"
@@ -29162,7 +29162,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_diameter",
-    "line": 2153,
+    "line": 2166,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_build_object_settings"
@@ -29171,7 +29171,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "organelle_diameter",
-    "line": 2291,
+    "line": 2304,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose"
@@ -29180,7 +29180,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_diameter",
-    "line": 2296,
+    "line": 2309,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose"
@@ -29272,7 +29272,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_dog_sigma_high",
-    "line": 2508,
+    "line": 2521,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_spots_dog"
@@ -29310,7 +29310,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_dog_sigma_low",
-    "line": 2507,
+    "line": 2520,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_spots_dog"
@@ -29348,7 +29348,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_fill_holes",
-    "line": 2689,
+    "line": 2702,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_irregular"
@@ -29395,7 +29395,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_flow_threshold",
-    "line": 1647,
+    "line": 1660,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -29404,7 +29404,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "organelle_flow_threshold",
-    "line": 2291,
+    "line": 2304,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose"
@@ -29413,7 +29413,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_flow_threshold",
-    "line": 2297,
+    "line": 2310,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose"
@@ -29422,7 +29422,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_flow_threshold",
-    "line": 2362,
+    "line": 2375,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose_sam"
@@ -29469,7 +29469,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_hysteresis_high",
-    "line": 2661,
+    "line": 2674,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_network_hysteresis"
@@ -29498,7 +29498,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_hysteresis_low",
-    "line": 2660,
+    "line": 2673,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_network_hysteresis"
@@ -29527,7 +29527,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_log_max_sigma",
-    "line": 2490,
+    "line": 2503,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_spots_log"
@@ -29536,7 +29536,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "organelle_log_max_sigma",
-    "line": 2743,
+    "line": 2756,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_ring"
@@ -29545,7 +29545,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_log_max_sigma",
-    "line": 2745,
+    "line": 2758,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_ring"
@@ -29583,7 +29583,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_log_min_sigma",
-    "line": 2489,
+    "line": 2502,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_spots_log"
@@ -29592,7 +29592,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "organelle_log_min_sigma",
-    "line": 2743,
+    "line": 2756,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_ring"
@@ -29601,7 +29601,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_log_min_sigma",
-    "line": 2744,
+    "line": 2757,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_ring"
@@ -29639,7 +29639,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_log_num_sigma",
-    "line": 2491,
+    "line": 2504,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_spots_log"
@@ -29648,7 +29648,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "organelle_log_num_sigma",
-    "line": 2743,
+    "line": 2756,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_ring"
@@ -29657,7 +29657,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_log_num_sigma",
-    "line": 2746,
+    "line": 2759,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_ring"
@@ -29695,7 +29695,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_log_threshold",
-    "line": 2492,
+    "line": 2505,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_spots_log"
@@ -29704,7 +29704,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_log_threshold",
-    "line": 2509,
+    "line": 2522,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_spots_dog"
@@ -29713,7 +29713,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "organelle_log_threshold",
-    "line": 2743,
+    "line": 2756,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_ring"
@@ -29722,7 +29722,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_log_threshold",
-    "line": 2747,
+    "line": 2760,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_ring"
@@ -29906,7 +29906,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_mask_within_cells",
-    "line": 1995,
+    "line": 2008,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_organelle_masks_sam"
@@ -29935,7 +29935,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_max_area",
-    "line": 2155,
+    "line": 2168,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_build_object_settings"
@@ -29973,7 +29973,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_max_intensity",
-    "line": 1921,
+    "line": 1934,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_organelle_masks_sam"
@@ -30002,7 +30002,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_method",
-    "line": 1935,
+    "line": 1948,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_organelle_masks_sam"
@@ -30011,7 +30011,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_method",
-    "line": 2437,
+    "line": 2450,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_single_image"
@@ -30103,7 +30103,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_min_area",
-    "line": 2154,
+    "line": 2167,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_build_object_settings"
@@ -30112,7 +30112,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_min_area",
-    "line": 2402,
+    "line": 2415,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_unet"
@@ -30121,7 +30121,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_min_area",
-    "line": 2477,
+    "line": 2490,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_spots"
@@ -30130,7 +30130,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_min_area",
-    "line": 2599,
+    "line": 2612,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_network"
@@ -30139,7 +30139,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_min_area",
-    "line": 2644,
+    "line": 2657,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_network_ridge"
@@ -30148,7 +30148,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_min_area",
-    "line": 2675,
+    "line": 2688,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_network_hysteresis"
@@ -30157,7 +30157,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_min_area",
-    "line": 2712,
+    "line": 2725,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_irregular"
@@ -30166,7 +30166,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_min_area",
-    "line": 2760,
+    "line": 2773,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_ring"
@@ -30222,7 +30222,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_min_intensity",
-    "line": 1920,
+    "line": 1933,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_organelle_masks_sam"
@@ -30251,7 +30251,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_model_name",
-    "line": 1983,
+    "line": 1996,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_organelle_masks_sam"
@@ -30260,7 +30260,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_model_name",
-    "line": 2152,
+    "line": 2165,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_build_object_settings"
@@ -30307,7 +30307,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_morph_radius",
-    "line": 2596,
+    "line": 2609,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_network"
@@ -30316,7 +30316,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_morph_radius",
-    "line": 2672,
+    "line": 2685,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_network_hysteresis"
@@ -30325,7 +30325,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_morph_radius",
-    "line": 2688,
+    "line": 2701,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_irregular"
@@ -30354,7 +30354,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_morphology",
-    "line": 1934,
+    "line": 1947,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_organelle_masks_sam"
@@ -30363,7 +30363,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_morphology",
-    "line": 2436,
+    "line": 2449,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_single_image"
@@ -30401,7 +30401,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_network_threshold",
-    "line": 2613,
+    "line": 2626,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_network_ridge"
@@ -30450,7 +30450,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_remove_border",
-    "line": 1930,
+    "line": 1943,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_organelle_masks_sam"
@@ -30459,7 +30459,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_remove_border",
-    "line": 2159,
+    "line": 2172,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_build_object_settings"
@@ -30497,7 +30497,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_remove_border_objects",
-    "line": 1928,
+    "line": 1941,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_organelle_masks_sam"
@@ -30506,7 +30506,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_remove_border_objects",
-    "line": 1929,
+    "line": 1942,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_organelle_masks_sam"
@@ -30544,7 +30544,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_resample",
-    "line": 2156,
+    "line": 2169,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_build_object_settings"
@@ -30553,7 +30553,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "organelle_resample",
-    "line": 2291,
+    "line": 2304,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose"
@@ -30562,7 +30562,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_resample",
-    "line": 2300,
+    "line": 2313,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose"
@@ -30571,7 +30571,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_resample",
-    "line": 2364,
+    "line": 2377,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose_sam"
@@ -30591,7 +30591,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_ridge_filter",
-    "line": 2612,
+    "line": 2625,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_network_ridge"
@@ -30620,7 +30620,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_ridge_sigmas",
-    "line": 2611,
+    "line": 2624,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_network_ridge"
@@ -30649,7 +30649,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_ring_fill_method",
-    "line": 2729,
+    "line": 2742,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_ring"
@@ -30678,7 +30678,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_ring_min_prominence",
-    "line": 2728,
+    "line": 2741,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_ring"
@@ -30698,7 +30698,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_ring_sigma_inner",
-    "line": 2726,
+    "line": 2739,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_ring"
@@ -30727,7 +30727,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_ring_sigma_outer",
-    "line": 2727,
+    "line": 2740,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_ring"
@@ -30756,7 +30756,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_rolling_ball",
-    "line": 2187,
+    "line": 2200,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_preprocess_batch"
@@ -30776,7 +30776,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_rolling_ball_radius",
-    "line": 2199,
+    "line": 2212,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_preprocess_batch"
@@ -30816,7 +30816,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_skeletonize",
-    "line": 2380,
+    "line": 2393,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_unet"
@@ -30825,7 +30825,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_skeletonize",
-    "line": 2601,
+    "line": 2614,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_network"
@@ -30834,7 +30834,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_skeletonize",
-    "line": 2646,
+    "line": 2659,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_network_ridge"
@@ -30843,7 +30843,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_skeletonize",
-    "line": 2677,
+    "line": 2690,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_network_hysteresis"
@@ -30863,7 +30863,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_tophat_radius",
-    "line": 2454,
+    "line": 2467,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_spots"
@@ -30957,7 +30957,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_unet_model_path",
-    "line": 2237,
+    "line": 2250,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_load_unet_model"
@@ -30977,7 +30977,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_unet_threshold",
-    "line": 2379,
+    "line": 2392,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_unet"
@@ -30997,7 +30997,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_watershed_spots",
-    "line": 2455,
+    "line": 2468,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_spots"
@@ -31055,7 +31055,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelleb_cellprob_threshold",
-    "line": 1645,
+    "line": 1658,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -31064,7 +31064,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelleb_cellprob_threshold",
-    "line": 2363,
+    "line": 2376,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose_sam"
@@ -31376,7 +31376,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelleb_flow_threshold",
-    "line": 1647,
+    "line": 1660,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -31385,7 +31385,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelleb_flow_threshold",
-    "line": 2362,
+    "line": 2375,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose_sam"
@@ -31715,7 +31715,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_resample",
-    "line": 2364,
+    "line": 2377,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose_sam"
@@ -31815,7 +31815,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organellec_cellprob_threshold",
-    "line": 1645,
+    "line": 1658,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -31824,7 +31824,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organellec_cellprob_threshold",
-    "line": 2363,
+    "line": 2376,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose_sam"
@@ -32136,7 +32136,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organellec_flow_threshold",
-    "line": 1647,
+    "line": 1660,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -32145,7 +32145,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organellec_flow_threshold",
-    "line": 2362,
+    "line": 2375,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose_sam"
@@ -32475,7 +32475,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_resample",
-    "line": 2364,
+    "line": 2377,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose_sam"
@@ -32575,7 +32575,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelled_cellprob_threshold",
-    "line": 1645,
+    "line": 1658,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -32584,7 +32584,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelled_cellprob_threshold",
-    "line": 2363,
+    "line": 2376,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose_sam"
@@ -32896,7 +32896,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelled_flow_threshold",
-    "line": 1647,
+    "line": 1660,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -32905,7 +32905,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelled_flow_threshold",
-    "line": 2362,
+    "line": 2375,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose_sam"
@@ -33235,7 +33235,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_resample",
-    "line": 2364,
+    "line": 2377,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose_sam"
@@ -34295,7 +34295,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "pathogen_cellprob_threshold",
-    "line": 1645,
+    "line": 1658,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -34304,7 +34304,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "pathogen_cellprob_threshold",
-    "line": 2363,
+    "line": 2376,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose_sam"
@@ -34569,7 +34569,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 2258,
+    "line": 2271,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose"
@@ -34578,7 +34578,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 2317,
+    "line": 2330,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose_sam"
@@ -34659,7 +34659,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 3709,
+    "line": 3855,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_make_intensity_motility_panel"
@@ -34668,7 +34668,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 8789,
+    "line": 8935,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -34870,7 +34870,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "pathogen_flow_threshold",
-    "line": 1647,
+    "line": 1660,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -34879,7 +34879,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "pathogen_flow_threshold",
-    "line": 2362,
+    "line": 2375,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose_sam"
@@ -35694,7 +35694,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_model",
-    "line": 1667,
+    "line": 1680,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -35703,7 +35703,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_model",
-    "line": 1668,
+    "line": 1681,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -36797,7 +36797,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pixels_per_um",
-    "line": 8793,
+    "line": 8939,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -37666,7 +37666,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "plot",
-    "line": 1522,
+    "line": 1517,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks_sam"
@@ -37675,7 +37675,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot",
-    "line": 1530,
+    "line": 1525,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "keyword",
+    "function_depth": 1,
+    "key": "plot",
+    "line": 1535,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks_sam"
@@ -37684,7 +37693,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot",
-    "line": 1559,
+    "line": 1543,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks_sam"
@@ -37693,7 +37702,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot",
-    "line": 1730,
+    "line": 1572,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "plot",
+    "line": 1743,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -37702,7 +37720,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot",
-    "line": 1761,
+    "line": 1774,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -37711,7 +37729,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "plot",
-    "line": 1776,
+    "line": 1789,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -37720,7 +37738,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot",
-    "line": 1780,
+    "line": 1793,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -37729,7 +37747,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "plot",
-    "line": 1799,
+    "line": 1812,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -37738,25 +37756,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot",
-    "line": 1807,
-    "module": "spacr.object",
-    "nested": false,
-    "qualname": "generate_cellpose_masks"
-   },
-   {
-    "form": "keyword",
-    "function_depth": 1,
-    "key": "plot",
-    "line": 1822,
-    "module": "spacr.object",
-    "nested": false,
-    "qualname": "generate_cellpose_masks"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "plot",
-    "line": 1831,
+    "line": 1820,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -37780,10 +37780,28 @@
     "qualname": "generate_cellpose_masks"
    },
    {
+    "form": "keyword",
+    "function_depth": 1,
+    "key": "plot",
+    "line": 1848,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks"
+   },
+   {
     "form": "subscript",
     "function_depth": 1,
     "key": "plot",
-    "line": 1863,
+    "line": 1857,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "plot",
+    "line": 1876,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -37792,7 +37810,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plot",
-    "line": 2021,
+    "line": 2034,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_organelle_masks_sam"
@@ -37801,7 +37819,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plot",
-    "line": 2096,
+    "line": 2109,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_organelle_masks_sam"
@@ -37810,7 +37828,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plot",
-    "line": 2281,
+    "line": 2294,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose"
@@ -37819,7 +37837,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plot",
-    "line": 2346,
+    "line": 2359,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose_sam"
@@ -37981,7 +37999,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plot",
-    "line": 1876,
+    "line": 2022,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_lineage_step"
@@ -37990,7 +38008,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plot",
-    "line": 2669,
+    "line": 2815,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_event_detection_step"
@@ -41993,7 +42011,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "resume",
-    "line": 1731,
+    "line": 1744,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -42002,7 +42020,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "resume",
-    "line": 1733,
+    "line": 1746,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -42011,7 +42029,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "resume",
-    "line": 2023,
+    "line": 2036,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_organelle_masks_sam"
@@ -42020,7 +42038,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "resume",
-    "line": 2025,
+    "line": 2038,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_organelle_masks_sam"
@@ -42029,7 +42047,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "resume",
-    "line": 2282,
+    "line": 2295,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose"
@@ -42038,7 +42056,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "resume",
-    "line": 2284,
+    "line": 2297,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose"
@@ -42047,7 +42065,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "resume",
-    "line": 2347,
+    "line": 2360,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose_sam"
@@ -42056,7 +42074,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "resume",
-    "line": 2349,
+    "line": 2362,
     "module": "spacr.object",
     "nested": false,
     "qualname": "_segment_cellpose_sam"
@@ -42159,7 +42177,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "reuse_existing_measurements",
-    "line": 8712,
+    "line": 8858,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -42828,7 +42846,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "save",
-    "line": 1522,
+    "line": 1517,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks_sam"
@@ -42837,16 +42855,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 1531,
-    "module": "spacr.object",
-    "nested": false,
-    "qualname": "generate_cellpose_masks_sam"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "save",
-    "line": 1571,
+    "line": 1526,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks_sam"
@@ -42855,7 +42864,34 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "save",
-    "line": 1776,
+    "line": 1535,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "save",
+    "line": 1544,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "save",
+    "line": 1584,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "keyword",
+    "function_depth": 1,
+    "key": "save",
+    "line": 1789,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -42864,7 +42900,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 1781,
+    "line": 1794,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -42873,7 +42909,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "save",
-    "line": 1799,
+    "line": 1812,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -42882,7 +42918,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 1808,
+    "line": 1821,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -42891,7 +42927,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 1867,
+    "line": 1880,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -42900,7 +42936,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 2107,
+    "line": 2120,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_organelle_masks_sam"
@@ -43260,7 +43296,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "save",
-    "line": 1876,
+    "line": 2022,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_lineage_step"
@@ -43269,7 +43305,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "save",
-    "line": 2669,
+    "line": 2815,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_event_detection_step"
@@ -43911,7 +43947,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "seconds_per_frame",
-    "line": 8794,
+    "line": 8940,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -44346,7 +44382,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "segmentation_backend",
-    "line": 1015,
+    "line": 1071,
     "module": "spacr._segmentation_backends",
     "nested": false,
     "qualname": "_cellpose3_is_chosen"
@@ -46084,7 +46120,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1621,
+    "line": 1634,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -47497,7 +47533,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8706,
+    "line": 8852,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -47901,7 +47937,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "straightness_threshold",
-    "line": 6682,
+    "line": 6828,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_compute_velocities_and_well_summary"
@@ -51134,7 +51170,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 1633,
+    "line": 1646,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -51235,7 +51271,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "timelapse_displacement",
-    "line": 1636,
+    "line": 1649,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -51273,7 +51309,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_events",
-    "line": 1537,
+    "line": 1550,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks_sam"
@@ -51282,7 +51318,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_events",
-    "line": 1814,
+    "line": 1827,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -51311,7 +51347,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_events_annotations",
-    "line": 2663,
+    "line": 2809,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_event_detection_step"
@@ -51331,7 +51367,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_events_conditions",
-    "line": 2667,
+    "line": 2813,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_event_detection_step"
@@ -51351,7 +51387,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_events_model",
-    "line": 2664,
+    "line": 2810,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_event_detection_step"
@@ -51371,7 +51407,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_events_threshold",
-    "line": 2666,
+    "line": 2812,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_event_detection_step"
@@ -51391,7 +51427,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_events_window",
-    "line": 2665,
+    "line": 2811,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_event_detection_step"
@@ -51411,7 +51447,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "timelapse_frame_limits",
-    "line": 1637,
+    "line": 1650,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -51440,7 +51476,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_lineage",
-    "line": 1534,
+    "line": 1547,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks_sam"
@@ -51449,7 +51485,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_lineage",
-    "line": 1811,
+    "line": 1824,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -51478,7 +51514,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_lineage_color_by",
-    "line": 1874,
+    "line": 2020,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_lineage_step"
@@ -51498,7 +51534,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_lineage_max_distance",
-    "line": 1875,
+    "line": 2021,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_lineage_step"
@@ -51507,7 +51543,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_lineage_max_distance",
-    "line": 2668,
+    "line": 2814,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_event_detection_step"
@@ -51527,7 +51563,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "timelapse_memory",
-    "line": 1638,
+    "line": 1651,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -51565,7 +51601,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "timelapse_mode",
-    "line": 1640,
+    "line": 1653,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -51592,7 +51628,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_mode",
-    "line": 2655,
+    "line": 2801,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_event_detection_step"
@@ -51666,7 +51702,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "timelapse_objects",
-    "line": 1641,
+    "line": 1654,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -51675,7 +51711,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "timelapse_objects",
-    "line": 1703,
+    "line": 1716,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -51684,7 +51720,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "timelapse_objects",
-    "line": 1704,
+    "line": 1717,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -51720,7 +51756,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_objects",
-    "line": 2659,
+    "line": 2805,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_event_detection_step"
@@ -51740,7 +51776,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "timelapse_remove_transient",
-    "line": 1639,
+    "line": 1652,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -52189,7 +52225,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "track_outlier_zscore",
-    "line": 8710,
+    "line": 8856,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -52276,7 +52312,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "tracked_object",
-    "line": 8117,
+    "line": 8263,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -54576,7 +54612,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 1627,
+    "line": 1640,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -54585,7 +54621,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 1657,
+    "line": 1670,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_cellpose_masks"
@@ -54594,7 +54630,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 1954,
+    "line": 1967,
     "module": "spacr.object",
     "nested": false,
     "qualname": "generate_organelle_masks_sam"

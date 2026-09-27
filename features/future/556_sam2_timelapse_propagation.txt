@@ -1,6 +1,7 @@
 SAM2 VIDEO PROPAGATION: SEGMENT ONCE, FOLLOW EACH OBJECT OVER FRAMES
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED AS ALPHA 2026-09-27 (see the note of that date). CPU
+only; what is left is under "Not done".
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -26,3 +27,54 @@ DONE WHEN
     On a real timelapse, identities from SAM2 propagation are scored against
     ground-truth tracks (e.g. CTC metrics) next to trackastra and the
     stitcher.
+
+
+2026-09-27 -- IMPLEMENTED AS ALPHA
+
+What was built
+    SAM2 1.1.0 (Meta, Apache-2.0; SAM2.1 checkpoints Apache-2.0 on Hugging
+    Face) as a backend of its own, "sam2", in spacr/_segmentation_backends.py,
+    installed and run by the same machinery as micro-SAM (item 555): its
+    own venv under ~/.spacr/backends/sam2, the JSON worker, the Model Zoo row
+    (sam2_v1) and install dialog, the lock, the log and the self-test. It
+    is not a segmentation_backend value (segments=False).
+
+    Install: PyPI has SAM2 only as an sdist whose build requires torch, so
+    it goes in through the spec's built_here step (--no-build-isolation,
+    after torch and its dependencies hydra-core 1.3.2, iopath 0.1.10,
+    pillow, tqdm, huggingface_hub, setuptools) with SAM2_BUILD_CUDA=0 (the
+    optional CUDA extension only fills small mask holes and needs nvcc).
+    HF_HOME points inside the environment, so the checkpoint (sam2.1 hiera
+    tiny, 156 MB) lands there and uninstalling removes it. Measured: 247 s,
+    1.1 GB with the CPU torch 2.14.0 wheel index; the first checkpoint
+    download took ~11 min here.
+
+    Worker op sam2_propagate: the movie (T x H x W uint8, written as the
+    JPEG folder SAM2's video predictor reads), seed label images on any
+    frames (each label one object; a label seeded on several frames is
+    corrected there), forward propagation, and an optional backward pass
+    (backward=True) for frames before an object's first seed; otherwise an
+    object exists only from its first seed. Overlaps go to the higher
+    logit. bfloat16 autocast on CUDA, float32 on CPU. Client:
+    _sam2_propagate(frames, seeds, model=, device=, backward=) and
+    _sam2_frames (first channel, whole movie stretched 1-99.8 percentile).
+    Models offered: sam2.1_hiera_tiny (default), small, base_plus, large.
+
+    Timelapse: timelapse_mode='sam2' (alpha choice) ->
+    spacr.timelapse._sam2_track_cells, dispatched from
+    generate_cellpose_masks_sam next to trackastra / ultrack / timeflows.
+    spaCR's masks on the first frame with objects seed SAM2; objects spaCR
+    finds later that SAM2 is not following (under half covered; entering
+    cells, daughters) are seeded once on the frame they first appear
+    (chained by IoU >= 0.3 to the frame before) and the movie is followed
+    once more with every seed. The masks returned are SAM2's. Tracks CSV:
+    tracks/sam2_tracks_<object>_<name>.csv (the shared
+    _relabelled_stack_to_tracks_df layout); plot/save use the shared track
+    visualiser. No lineage (a daughter starts a new track).
+
+ALPHA: choices: timelapse_mode 'sam2'; models: sam2_v1 (the Model Zoo row,
+and with it the zoo's install / uninstall of SAM2). No settings keys,
+widgets or apps. Registered in spacr.settings.ALPHA_FEATURES under 556.
+tests/qt/test_556_sam2_timelapse_propagation.py checks the combo row and
+the zoo row hidden with the preference off and shown with it on, and that
+a saved 'sam2' is still selected (so it reaches the run) while hidden.

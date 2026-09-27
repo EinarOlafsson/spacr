@@ -7281,6 +7281,10 @@ ALPHA_FEATURES = {
         'widgets': ('MakeMasksPromptCategory',),
         'models': ('microsam_v1',),
     },
+    556: {
+        'choices': {'timelapse_mode': ('sam2',)},
+        'models': ('sam2_v1',),
+    },
     565: {
         'widgets': ('AnnotateFindSimilar',),
     },

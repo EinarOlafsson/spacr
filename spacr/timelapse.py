@@ -760,6 +760,152 @@ def _timeflows_track_cells(src, name, batch_filenames, object_type, masks, image
     return _masks_to_masks_stack(masks_tracked)
 
 
+def _sam2_new_seeds(masks, followed, next_id):
+    """Objects spaCR segmented that SAM2 is not following, as new seeds.
+
+    An object on frame t is new when less than
+    ``_SAM2_NEW_OBJECT_COVER`` of it lies under SAM2's objects on that
+    frame. A new object overlapping one found new on the frame before is
+    the same object and is not seeded again, so each is seeded once, on the
+    first frame it was found.
+
+    :param masks: spaCR's ``T x H x W`` per-frame labels.
+    :param followed: SAM2's ``T x H x W`` labels from the seeds so far.
+    :param next_id: the first id free for a new object.
+    :returns: ``{frame: H x W labels}`` of the new objects, ids from
+        ``next_id`` up.
+    """
+    from ._segmentation_backends import (_SAM2_NEW_OBJECT_COVER,
+                                         _SAM2_SAME_NEW_OBJECT_IOU)
+
+    seeds = {}
+    previous = None
+    for frame in range(1, len(masks)):
+        labels = np.asarray(masks[frame])
+        covered = np.asarray(followed[frame]) > 0
+        new = np.zeros(labels.shape, dtype=np.int32)
+        seeded = np.zeros(labels.shape, dtype=np.int32)
+        for label in np.unique(labels):
+            if not label:
+                continue
+            region = labels == label
+            area = int(region.sum())
+            if (covered & region).sum() >= _SAM2_NEW_OBJECT_COVER * area:
+                continue
+            new[region] = label
+            same = False
+            if previous is not None:
+                for other in np.unique(previous[region]):
+                    if not other:
+                        continue
+                    before = previous == other
+                    union = (before | region).sum()
+                    if union and (before & region).sum() / union >= _SAM2_SAME_NEW_OBJECT_IOU:
+                        same = True
+                        break
+            if not same:
+                seeded[region] = next_id
+                next_id += 1
+        if seeded.any():
+            seeds[frame] = seeded
+        previous = new
+    return seeds
+
+
+def _sam2_track_cells(src, name, batch_filenames, object_type, masks, images=None,
+                      timelapse_remove_transient=False, plot=False, save=False,
+                      mode='sam2', model=None, device=None, propagate=None):
+    """Segment and track in one step with SAM2's video predictor.
+
+    spaCR's masks on the first frame with objects seed SAM2, which follows
+    each object through the movie with a memory of its appearance, so each
+    keeps one id. Objects spaCR finds later that SAM2 is not following --
+    cells entering the field, or daughters of a division -- are seeded on
+    the frame they were first found and the movie is followed once more
+    with every seed. The masks returned are SAM2's, not spaCR's per-frame
+    masks. A daughter after a division starts a new track; parent/child
+    lineage is not recorded.
+
+    SAM2 runs in an environment of its own, installed from the Model Zoo.
+
+    :param src: run folder; the tracks CSV lands in ``<dirname(src)>/tracks``.
+    :param name: batch name used in the output filename.
+    :param batch_filenames: filenames of the frames, for the track visualiser.
+    :param object_type: 'cell' / 'nucleus' / 'pathogen' / 'organelle'.
+    :param masks: (T, Y, X) integer label stack from spaCR's segmentation.
+    :param images: (T, Y, X) or (T, Y, X, C) intensity stack; required,
+        because SAM2 follows appearance. With channels, the first is used.
+    :param timelapse_remove_transient: drop tracks not present in every frame.
+    :param model: a SAM2.1 checkpoint name; the smallest when None.
+    :param device: 'cuda', 'cpu' or None for the backend's own choice.
+    :param propagate: the SAM2 call; the backend's own when None.
+    :returns: the relabelled mask stack, ids consistent across frames.
+    :raises ValueError: no images, or mismatched shapes.
+    :raises ImportError: SAM2 is not installed.
+    """
+    from .plot import _visualize_and_save_timelapse_stack_with_tracks
+    from .qt.i18n import tr
+    from .utils import _masks_to_masks_stack
+    from ._segmentation_backends import _sam2_frames, _sam2_propagate
+
+    masks = np.asarray(masks)
+    if masks.ndim != 3:
+        raise ValueError(tr("SAM2 needs a (T, Y, X) mask stack, got shape {shape}.",
+                            shape=masks.shape))
+    if images is None:
+        raise ValueError(tr("timelapse_mode='sam2' needs the image stack, not only the masks."))
+    images = np.asarray(images)
+    if images.shape[:3] != masks.shape:
+        raise ValueError(tr("Image stack shape {images} does not match mask stack shape {masks}.",
+                            images=images.shape, masks=masks.shape))
+    occupied = [t for t in range(masks.shape[0]) if masks[t].any()]
+    if not occupied:
+        print(tr("SAM2: no {object_type} objects in any frame; nothing to follow.",
+                 object_type=object_type))
+        return _masks_to_masks_stack(masks)
+    propagate = propagate or _sam2_propagate
+    frames = _sam2_frames(images)
+    start = occupied[0]
+    seeds = {start: masks[start].astype(np.int32)}
+    masks_tracked, reply = propagate(frames, seeds, model=model, device=device)
+    later = masks.copy()
+    later[:start + 1] = 0
+    extra = _sam2_new_seeds(later, masks_tracked, int(masks[start].max()) + 1)
+    if extra:
+        seeds.update(extra)
+        masks_tracked, reply = propagate(frames, seeds, model=model, device=device)
+    print(tr("SAM2 followed {count} {object_type} objects through {frames} frames "
+             "in {seconds:.1f} s on {device}.",
+             count=reply.get('objects'), object_type=object_type,
+             frames=masks.shape[0], seconds=float(reply.get('seconds') or 0.0),
+             device=reply.get('device')))
+
+    tracks_df = _relabelled_stack_to_tracks_df(masks_tracked)
+    if timelapse_remove_transient and not tracks_df.empty:
+        n_frames = masks_tracked.shape[0]
+        keep = tracks_df.groupby('track_id')['frame'].nunique() == n_frames
+        kept_ids = set(keep[keep].index)
+        before = len(tracks_df)
+        tracks_df = tracks_df[tracks_df['track_id'].isin(kept_ids)].copy()
+        print(tr("Removed {count} objects that were not present in all frames",
+                 count=before - len(tracks_df)))
+        masks_tracked = np.where(np.isin(masks_tracked, list(kept_ids)), masks_tracked, 0)
+
+    tracks_path = os.path.join(os.path.dirname(src), 'tracks')
+    os.makedirs(tracks_path, exist_ok=True)
+    from .tabular import write_table
+
+    write_table(tracks_df, os.path.join(
+        tracks_path, f'sam2_tracks_{object_type}_{name}.csv'))
+
+    if plot or save:
+        _visualize_and_save_timelapse_stack_with_tracks(
+            masks_tracked, tracks_df, save, src, name, plot,
+            batch_filenames, object_type, mode)
+
+    return _masks_to_masks_stack(masks_tracked)
+
+
 def _relabelled_stack_to_tracks_df(masks_tracked):
     """Flatten a tracker's relabelled label stack into spaCR's tracks table.
 
