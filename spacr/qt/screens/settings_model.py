@@ -1194,6 +1194,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_dark", "illumination_per_plate",
             "illumination_max_fields", "illumination_qc",
             "illumination_on_missing",
+            "illumination_vendor_profile",
         )),
         ("Spectral Unmixing (Alpha)", ("@Spectral Unmixing (Alpha)",)),
         ("Point Spread Function", ("@Point Spread Function",)),
@@ -1246,6 +1247,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_dark",
             "illumination_per_plate", "illumination_max_fields",
             "illumination_qc", "illumination_on_missing",
+            "illumination_vendor_profile",
         )),
         ("Spectral Unmixing (Alpha)", ("@Spectral Unmixing (Alpha)",)),
         ("Point Spread Function", ("@Point Spread Function",)),
@@ -1320,6 +1322,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_dark", "illumination_per_plate",
             "illumination_max_fields", "illumination_qc",
             "illumination_on_missing",
+            "illumination_vendor_profile",
         )),
         ("Spectral Unmixing (Alpha)", ("@Spectral Unmixing (Alpha)",)),
         ("Point Spread Function", ("@Point Spread Function",)),
@@ -1347,6 +1350,10 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "t_track_backend", "t_link_threshold",
             "t_max_displacement_px", "t_max_displacement_um",
             "t_project_for_tracking",
+        )),
+        ("Lineage Trees (Alpha)", (
+            "timelapse_lineage", "timelapse_lineage_color_by",
+            "timelapse_lineage_max_distance",
         )),
         ("Visualization & Diagnostics", (
             "plot", "cmap", "figuresize", "examples_to_plot",
@@ -1609,6 +1616,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Input & Channels", ("src", "channels")),
         ("Correction Model", (
             "illumination_correction", "illumination_model",
+            "illumination_vendor_profile",
             "illumination_estimator", "illumination_degree",
             "illumination_dark",
         )),
@@ -2654,6 +2662,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "out, the interval between frames, which backend links objects, and "
         "how far one may move between frames. For data that is both a "
         "z-stack and a time series.",
+    "LINEAGE TREES (ALPHA)":
+        "Lineage trees drawn from the tracker's division links after each "
+        "field is tracked, coloured by a measurement, with Newick and CSV "
+        "export and per-lineage generation times and sibling correlation.",
     "BLEACH CORRECTION (ALPHA)":
         "Photobleaching correction for timelapse intensities, per field and "
         "channel: a simple ratio to the first timepoint, a fitted exponential "

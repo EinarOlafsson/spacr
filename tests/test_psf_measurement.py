@@ -380,3 +380,67 @@ def test_volume_psf_respects_voxel_calibration(tmp_path, mismatch):
     else:
         assert not result[4], result[4]
         assert _row(project)[2]['processing']['image_sampling_um'] == [1., .5, .5]
+
+
+@pytest.mark.parametrize('anisotropy,conflicts', [(2., False), (3., True)])
+def test_volume_psf_without_z_calibration_compares_shape_not_microns(
+        tmp_path, anisotropy, conflicts):
+    """A volume calibrated by anisotropy alone is in xy-pixel units, so its
+    spacing and the PSF's micron sampling are compared as z/x ratios: a
+    [1, .5, .5] um kernel matches an anisotropy of two and conflicts with
+    three."""
+    from spacr.measure import _measure_crop_core
+    project, merged, name = _project(tmp_path)
+    data = np.load(Path(merged) / name)
+    np.save(Path(merged) / name, np.repeat(data[None], 3, axis=0))
+    settings = _config(merged)
+    settings.update(psf_image_sampling_um=[1., .5, .5], psf_fwhm_um=[2., 1., 1.],
+                    voxel_size_z_um=None, voxel_size_xy_um=None,
+                    anisotropy=anisotropy, distance_gaussian_sigma=0,
+                    spatial_measurements=False)
+    result = _measure_crop_core(0, [], name, settings)
+    if conflicts:
+        assert 'PSF sampling conflicts' in result[4]
+        assert not (project / 'measurements/measurements.db').exists()
+    else:
+        assert not result[4], result[4]
+        assert _row(project)[0] == 'processed'
+
+
+def test_stop_waits_out_the_grace_period_for_a_worker_that_answers_late(
+        monkeypatch):
+    """Inside the five-second grace a Stop keeps waiting, and a worker that
+    answers then is heard rather than abandoned."""
+    from spacr.cancellation import CancellationToken, installed_token
+    import spacr.measure as measure
+    event = threading.Event()
+    token = CancellationToken()
+    token.cancel()
+    times = iter((100., 101.5, 103.))
+    monkeypatch.setattr(measure.time, 'monotonic', lambda: next(times))
+    answers = iter((mp.TimeoutError(), mp.TimeoutError(), mp.TimeoutError(),
+                    'field written'))
+
+    class LateWorker:
+        def get(self, timeout):
+            answer = next(answers)
+            if isinstance(answer, Exception):
+                raise answer
+            return answer
+
+    with installed_token(token):
+        assert measure._wait_for_measure_job(LateWorker(), event) == 'field written'
+    assert event.is_set()
+
+
+def test_measure_takes_a_list_of_folders_and_measures_each(tmp_path):
+    """``src`` given as a list measures every folder into its own database."""
+    import spacr.measure as measure
+    first, merged_first, _ = _project(tmp_path / 'plate_a')
+    second, merged_second, _ = _project(tmp_path / 'plate_b')
+    settings = _settings(merged_first, n_jobs=1)
+    settings['src'] = [merged_first, merged_second]
+    measure.measure_crop(settings)
+    for project in (first, second):
+        with sqlite3.connect(project / 'measurements/measurements.db') as db:
+            assert db.execute('SELECT COUNT(*) FROM cell').fetchone()[0] > 0

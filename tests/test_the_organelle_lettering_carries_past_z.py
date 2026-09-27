@@ -78,3 +78,23 @@ class TestTheCeilingStillSpeaks:
         for bad in (0, -1):
             with pytest.raises(ValueError):
                 organelle_role(bad)
+
+
+class TestThreeLettersCountOnFromTwo:
+    """Past ``organellezz`` the suffix carries to three letters, and the
+    number a three-letter role stands for continues from 702 rather than
+    jumping into the millions."""
+
+    def test_the_first_three_letter_role_is_seven_hundred_and_three(self):
+        assert organelle_number("organelleaaa") == 703
+
+    @pytest.mark.parametrize("role,expected", [
+        ("organellezz", 702), ("organelleaab", 704), ("organelleaba", 729),
+        ("organellezzz", 702 + 26 ** 3)])
+    def test_three_letter_roles_count_in_base_twenty_six(self, role, expected):
+        assert organelle_number(role) == expected
+
+    def test_the_schema_lettering_and_organelle_number_agree_past_two_letters(self):
+        from spacr.schema import _organelle_role
+        for slot in (703, 704, 729, 1000, 18278, 18279):
+            assert organelle_number(_organelle_role(slot)) == slot

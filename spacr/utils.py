@@ -772,17 +772,16 @@ def _process_single_fov_in_memory(mask, intensity_img=None, intensity_channel=No
     all_labels = np.unique(label_img)
     all_labels = all_labels[all_labels > 0]
 
-    if len(all_labels) > 0:
-        parent = {int(l): int(l) for l in all_labels}
-        n_before_merge = len(all_labels)
+    parent = {int(l): int(l) for l in all_labels}
+    n_before_merge = len(all_labels)
 
-        if do_perimeter_merge:
-            _merge_by_perimeter(label_img, perimeter_fraction, parent)
+    if do_perimeter_merge:
+        _merge_by_perimeter(label_img, perimeter_fraction, parent)
 
-        label_img = _apply_union_find(label_img, parent)
-        n_after_merge = len(np.unique(label_img[label_img > 0]))
-        if n_after_merge != n_before_merge:
-            print(f"  FOV {fov_index} merge: {n_before_merge} → {n_after_merge} objects")
+    label_img = _apply_union_find(label_img, parent)
+    n_after_merge = len(np.unique(label_img[label_img > 0]))
+    if n_after_merge != n_before_merge:
+        print(f"  FOV {fov_index} merge: {n_before_merge} → {n_after_merge} objects")
 
     label_img = _filter_objects(
         label_img,
