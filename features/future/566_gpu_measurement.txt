@@ -1,6 +1,6 @@
 GPU MEASUREMENT: cuCIM REGIONPROPS, HARALICK ON CuPy
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED AS ALPHA 2026-09-27.
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -19,3 +19,49 @@ WHAT TO BUILD
 DONE WHEN
     Measure on a real plate gives the same values as CPU within tolerance
     and is several times faster on the GPU.
+
+ALPHA: 2026-09-27
+    Setting measure_gpu (bool, default False) under "GPU Measurement
+    (Alpha)" on Measure, registered as ALPHA_FEATURES[566]; hidden until
+    Preferences -> Show alpha features. With it on, a visible CUDA device and
+    PyTorch installed, _intensity_measurements and _morphological_measurements
+    compute three blocks with vectorised PyTorch kernels in spacr/measure.py,
+    all objects of a field at once:
+      - _torch_intensity_table: the full _extended_regionprops_table (weighted
+        centroids, min/max/mean, integrated, std, median, skew, kurtosis,
+        mode, range, IQR, CV, Gini, frac_high90/low10, entropy, percentiles),
+        from one (label, intensity) sort plus segment sums;
+      - _torch_homogeneity: GLCM homogeneity without building matrices (mean
+        of 1/(1+(a-b)^2) over each bounding box's horizontal pairs, with
+        skimage's per-object 0-255 rescale reproduced);
+      - _torch_zernike: the Mahotas Zernike moments, with Mahotas' unit-disk
+        boundary decided exactly.
+    Anything else (3-D, voxel spacing, non-finite or negative intensities,
+    non-default intensity props, no torch, no CUDA) runs the unchanged
+    NumPy/scikit-image/Mahotas path, which stays the default.
+    Validation: the same kernels run on a CPU torch device in
+    tests/test_gpu_measurement.py against the CPU functions: homogeneity and
+    Zernike agree to 1e-12 absolute, the intensity table to float32 rounding
+    (rtol 1e-5), dtypes and column order identical. On a loaded 32-core
+    machine with torch limited to one thread, a 1024x1024 field with ~900
+    objects took 1.8-2.3 s (CPU table) vs 0.13-0.22 s, 2.4-3.8 s (homogeneity)
+    vs 0.66-0.81 s, 0.43 s (Zernike) vs 0.26 s, before any GPU.
+    GPU timing: queued 2026-09-27 as `tools/gpu_turn.sh 566-timing python
+    /mnt/wd4tb/scratch/566/gpu_timing.py` (2048x2048 field, ~3000 objects,
+    CPU vs CUDA with max relative error); output goes to
+    /mnt/wd4tb/scratch/566/gpu_timing.log. Not yet run: the GPU was held by
+    another session's training.
+    Optional dependency for the maintainer: PyTorch with CUDA (already used
+    by spaCR's deep-learning paths). CuPy/cuCIM were not installed here, so
+    the kernels are written in PyTorch rather than CuPy.
+
+WHAT IS LEFT
+    - Read the queued GPU timing log and confirm "several times faster";
+      then run Measure on a real plate with measure_gpu on and off and
+      compare the databases (the "done when").
+    - Still on the CPU: the morphology regionprops table (area, perimeter,
+      solidity...), blur, periphery/outside intensity, radial distribution
+      and correlation. cuCIM's regionprops_table could take the morphology
+      table once cuCIM is an optional dependency.
+    - Measure workers each open their own CUDA context (~300 MB each); with
+      many n_jobs a GPU run may want fewer workers.
