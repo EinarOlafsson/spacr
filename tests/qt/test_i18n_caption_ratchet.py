@@ -480,7 +480,7 @@ EXTERNAL_SOURCE_COUNTS = {
     # plus the product names DINOCell/SAMCell arrive; five old tooltips leave.
     # Every new prose row has a reviewed record in each of the nine locales.
     # The runtime pass preserved every pre-existing translated value.
-    "UI": 6014,
+    "UI": 6015,
     "MODULE_SUMMARIES": 72,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
@@ -588,7 +588,9 @@ EXTERNAL_SOURCE_KEY_SHA256 = (
     # The +32/-84 identities named above gave 476736243f...a5ac.
     # 316, 2026-09-25: the +2304/-122 identities named over
     # EXTERNAL_SOURCE_COUNTS give this current source digest.
-    '5a560d33398485b2fc51e086960b8a205bb79dbe2cdc2c51e9d4f26fdef0091b'
+    # 47: one reviewed UI arrival, "Checking compatible GPUs…", no removals.
+    # Exact subtraction reproduces the preceding 5a560d33...ef0091b pin.
+    '99b9f5f7a1c8daac16920364877cb30a6d24db453b7dd5e78033697b21254123'
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the

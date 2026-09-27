@@ -196,6 +196,12 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     assert len(seventh) == len(latest7) == (174 if language == "hi" else 139)
     assert not latest7 & sources
     sources |= latest7
+    discovery = json.loads((folder / "2026-09-27-gpu-discovery.json").read_text())["records"]
+    discovery_sources = {record["source"] for record in discovery}
+    assert len(discovery) == 1
+    assert discovery_sources == {"Checking compatible GPUs…"}
+    assert not discovery_sources & sources
+    sources |= discovery_sources
     assert sources <= reviewed.keys()
     return sources
 
