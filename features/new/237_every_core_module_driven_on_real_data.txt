@@ -1388,3 +1388,11 @@ factory named). ~3,000 settings/validation/doctor/CLI/Qt-preflight tests
 re-run: all pass except test_cov_8_cli_registry's plugin-SDK log check,
 which fails only inside that large batch and passes alone (order-dependent
 logger state, not this change).
+
+2026-09-27 — hash_inputs pre-flight correction
+The external-mask tutorial's real CPU run exposed a false ignored-setting
+warning for hash_inputs. GUI and CLI inject this supported RunJournal option;
+the validator now recognizes it. Typos still warn and suggest hash_inputs.
+Both Boolean values pass through the real GUI bridge unchanged. Validation:
+tests/test_hash_inputs_opt_in.py and
+tests/qt/test_the_gui_says_which_settings_it_is_ignoring.py: 24 passed, CPU.
