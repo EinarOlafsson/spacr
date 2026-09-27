@@ -108,3 +108,13 @@ def test_attribution_protection_is_bound_to_the_english_source(monkeypatch):
     monkeypatch.setattr(builder, "_reviewed_translation", lambda *_: None)
     target = "'accurate and efficient spot detection in microscopy'"
     assert builder._contextualize(target, "es", "Compare accuracy and efficiency.") == "'accurate y efficient spot detection in microscopy'"
+
+
+def test_citation_nested_inside_rst_code_restores_every_literal(monkeypatch):
+    import build_i18n_catalogs as builder
+    monkeypatch.setattr(builder, "_reviewed_translation", lambda *_: None)
+    notice = "``(Copyright 2023 A and B)``"
+    title = "``'accurate and efficient spot detection in microscopy'``"
+    source = f"Use {notice} and {title}, doi:10.1038/s41592-025-02662-x."
+    target = f"Utilice {notice} y {title}, doi:10.1038/s41592-025-02662-x."
+    assert builder._contextualize(target, "es", source) == target

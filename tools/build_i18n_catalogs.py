@@ -5106,7 +5106,7 @@ def _contextualize(value: str, language: str, source: str = "") -> str:
     # Reapplying this small, idempotent table keeps compound terms natural.
     for wrong, right in CONTEXT_REPLACEMENTS.get(language, ()):
         corrected = corrected.replace(wrong, right)
-    for token, literal in context_literals.items():
+    for token, literal in reversed(context_literals.items()):
         corrected = corrected.replace(token, literal)
     for wrong, right in POST_CONTEXT_REPLACEMENTS.get(language, ()):
         corrected = corrected.replace(wrong, right)
