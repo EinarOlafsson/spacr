@@ -1399,6 +1399,16 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'S3-compatible endpoint (blank for Amazon S3)',
     'Use this location',
     's3://bucket/folder, gs://, az:// or https://',
+    # 565: Annotate's Like this similarity search.
+    'Could not search for similar crops: {msg}',
+    'Finding crops like this one…',
+    'Like this',
+    'No crop is selected to match.',
+    'Open an experiment source before searching it.',
+    'Reading the measurements to compare crops by…',
+    'Searched {n} crops in {ms} ms.',
+    'Show the 100 crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run.',
+    '{name} and the {n} crops most like it, most similar first',
 })
 
 
