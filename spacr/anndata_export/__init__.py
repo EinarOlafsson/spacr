@@ -2516,9 +2516,6 @@ def run_anndata_export(settings: Optional[Mapping[str, Any]] = None
     :func:`register_anndata_settings` gave a type and a tooltip, so the form
     the GUI draws and the keys honoured here are the same list.
 
-    :param settings: the run settings. ``src`` is the project root (or the
-        database); everything else falls back to
-        :func:`anndata_export_settings`.
     ``anndata_format`` chooses what is written: ``'h5ad'`` the AnnData
     file, ``'parquet'`` the tidy Parquet tables of :func:`_export_tables`
     in ``anndata_tidy_dir``, ``'r'`` those tables with the R loader script

@@ -2340,3 +2340,13 @@ stress passes 1,000 cycles/100,000 emissions after the fix; 83 focused
 panel tests pass, including six live/deleted destination and thread tests.
 Outliers plus its immediate serial predecessors also pass (52 tests).
 This proves the measurement relay fix, not the cause of the old 61% abort.
+
+2026-09-27 — SAVED COVERAGE WORK INTEGRATED; DOCS WARNING REPAIRED
+Merged item-43c-work's four saved commits, including the early unmix-off
+return that lets invalid channels reach their own validator. Its ten test
+files plus test_measure_validation.py pass all148 tests (34.05s).
+The strict-docs failure in run36311520586 was a duplicated :param settings:
+field immediately before a prose paragraph in run_anndata_export. Removed
+the duplicate; the complete entry-point docstring now parses with zero
+reStructuredText warnings and exactly one settings parameter. A full
+Sphinx rebuild still belongs to the documentation freshness pass.
