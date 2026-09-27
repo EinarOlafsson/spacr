@@ -15,6 +15,14 @@ correction and before normalization -- and its provenance goes into the
 same ``psf/segmentation_application.json`` record, so a changed chain is
 refused on resume the way a changed kernel is. With no chain step on, a
 run is byte for byte what it was before the chain existed.
+
+SPECTRAL UNMIXING COMES FIRST. With ``unmix`` on, a bleed-through matrix is
+estimated from the single-stain control wells ``unmix_controls`` names and
+every raw field is unmixed across all its channels before illumination
+correction, the PSF and the chain; the matrix joins the same record. Measure
+estimates its own over the measured channels and unmixes each field before
+its preprocessing hooks, recording the matrix in the saved run settings and
+``measurements/bleed_through.json``.
 """
 from __future__ import annotations
 
@@ -302,10 +310,13 @@ def processing_requested(settings):
     A requested chain that cannot be built counts as requested: the run
     then refuses with the reason rather than reusing inputs made without it.
 
-    :param settings: the run's ``psf_*`` and ``enhance_*`` settings.
-    :returns: True when either is switched on or cannot be read.
+    :param settings: the run's ``psf_*``, ``enhance_*`` and ``unmix``
+        settings.
+    :returns: True when any is switched on or the chain cannot be read.
     """
     if settings.get('psf_operation', 'none') != 'none':
+        return True
+    if settings.get('unmix', False):
         return True
     try:
         return prepare_chain(settings) is not None
@@ -337,6 +348,299 @@ def apply_chain(image, chain, *, cancel=None):
     return out
 
 
+_UNMIX_RECORD_KEY = '_unmix_record'
+_UNMIX_MAX_FIELDS = 24
+_UNMIX_MAX_CONDITION = 1e6
+
+
+@dataclass(frozen=True)
+class _UnmixPlan:
+    """A bleed-through matrix estimated from single-stain control wells.
+
+    ``matrix[i][j]`` is the signal read in ``channels[i]`` per unit of the
+    dye whose own channel is ``channels[j]``, so the diagonal is one.
+    Unmixing solves every pixel's readings for the dye amounts, after each
+    channel's background percentile is set aside and before it is added
+    back, so an unstained channel stays at its own background.
+
+    :param channels: the field's channel indices the matrix spans.
+    :param matrix: square nested tuple, one row and column per channel.
+    :param background_percentile: per-plane percentile taken as background.
+    :param controls: ``{dye channel: (well, ...)}`` as the settings named them.
+    :param fields: ``{dye channel: (field stem, ...)}`` the estimate read.
+    """
+
+    channels: tuple
+    matrix: tuple
+    background_percentile: float
+    controls: dict
+    fields: dict
+
+    def provenance(self):
+        """The plan as a JSON-safe record for the run's provenance."""
+        return {
+            'method': 'single-stain linear unmixing',
+            'channels': [int(channel) for channel in self.channels],
+            'matrix': [[float(value) for value in row] for row in self.matrix],
+            'background_percentile': float(self.background_percentile),
+            'controls': {str(dye): list(wells)
+                         for dye, wells in sorted(self.controls.items())},
+            'fields': {str(dye): list(stems)
+                       for dye, stems in sorted(self.fields.items())},
+        }
+
+    def apply(self, image):
+        """Unmix the plan's channels of one field, the other planes untouched.
+
+        :param image: YXC or ZYXC intensities holding every plan channel.
+        :returns: float32 copy with the plan's channels unmixed.
+        """
+        array = np.asarray(image)
+        out = np.array(array, dtype=np.float32, copy=True)
+        channels = list(self.channels)
+        out[..., channels] = _unmix(array[..., channels], self.matrix,
+                                    self.background_percentile)
+        return out
+
+
+def _parse_unmix_controls(value):
+    """Read the single-stain controls as ``{dye channel: (well, ...)}``.
+
+    :param value: ``'0:A01,A02; 1:B01'`` text, or a mapping of channel to a
+        well or a list of wells.
+    :returns: dict of int channel to a tuple of well names, empty for blank.
+    :raises ValueError: for an entry that is not ``channel:well[,well]``.
+    """
+    from .schema import parse_well
+
+    if value is None:
+        return {}
+    if isinstance(value, dict):
+        items = [(key, [wells] if isinstance(wells, str) else list(wells))
+                 for key, wells in value.items()]
+    else:
+        items = []
+        for entry in str(value).replace('\n', ';').split(';'):
+            if not entry.strip():
+                continue
+            if ':' not in entry:
+                raise ValueError(
+                    f'unmix_controls entry {entry.strip()!r} is not '
+                    'channel:well[,well], for example 0:A01,A02; 1:B01')
+            key, wells = entry.split(':', 1)
+            items.append((key, wells.split(',')))
+    controls = {}
+    for key, wells in items:
+        try:
+            dye = int(str(key).strip())
+        except ValueError as exc:
+            raise ValueError(
+                f'unmix_controls channel {key!r} is not a whole number') from exc
+        names = tuple(str(well).strip() for well in wells if str(well).strip())
+        if not names:
+            raise ValueError(f'unmix_controls names no well for channel {dye}')
+        for name in names:
+            parse_well(name, strict=True)
+        controls[dye] = controls.get(dye, ()) + names
+    return controls
+
+
+def _unmix_background(pixels, background_percentile):
+    """Per-channel background of flattened ``(pixels, channels)`` values."""
+    return np.percentile(pixels, float(background_percentile), axis=0)
+
+
+def _estimate_bleed_through(fields_by_dye, channels):
+    """Estimate the bleed-through matrix from single-stain control fields.
+
+    For each dye, every other channel is regressed on the dye's own channel
+    over all pixels of its control fields, each field centred on its own
+    means so a background offset never reads as bleed-through, and the
+    slopes pooled; a negative spill is taken as none.
+
+    :param fields_by_dye: ``{dye channel: [field array over channels]}``.
+    :param channels: the channel indices the fields' last axis holds.
+    :returns: float64 square matrix with a unit diagonal.
+    :raises ValueError: for a control with no signal above background, or a
+        matrix too close to singular to invert.
+    """
+    channels = list(channels)
+    count = len(channels)
+    matrix = np.eye(count)
+    for dye, fields in sorted(fields_by_dye.items()):
+        own = channels.index(dye)
+        cross = np.zeros(count)
+        power = 0.0
+        for field in fields:
+            pixels = np.asarray(field, dtype=np.float64).reshape(-1, count)
+            pixels = pixels - pixels.mean(axis=0)
+            signal = pixels[:, own]
+            cross += pixels.T @ signal
+            power += float(signal @ signal)
+        if not power > 0.0:
+            raise ValueError(
+                f'the single-stain control for channel {dye} is flat, so '
+                'its bleed-through cannot be estimated')
+        column = np.clip(cross / power, 0.0, None)
+        column[own] = 1.0
+        matrix[:, own] = column
+    if not np.linalg.cond(matrix) < _UNMIX_MAX_CONDITION:
+        raise ValueError(
+            'the bleed-through matrix is too close to singular to unmix; '
+            'check that each control well holds only its own dye')
+    return matrix
+
+
+def _unmix(image, matrix, background_percentile):
+    """Solve every pixel of ``image`` for its dye amounts with ``matrix``.
+
+    :param image: array whose last axis holds the matrix's channels in order.
+    :param matrix: square bleed-through matrix.
+    :param background_percentile: per-plane percentile taken as background;
+        it is removed before solving and added back after, and the result is
+        clipped at zero.
+    :returns: float32 unmixed intensities of the same shape.
+    """
+    matrix = np.asarray(matrix, dtype=np.float64)
+    array = np.asarray(image, dtype=np.float64)
+    count = matrix.shape[0]
+    if array.shape[-1] != count:
+        raise ValueError(f'unmixing expects {count} channels on the last '
+                         f'axis, got {array.shape[-1]}')
+    pixels = array.reshape(-1, count)
+    background = _unmix_background(pixels, background_percentile)
+    solved = (pixels - background) @ np.linalg.inv(matrix).T + background
+    return np.clip(solved, 0.0, None).reshape(array.shape).astype(np.float32)
+
+
+def _prepare_unmixing(settings, source_dir, channels=None, load=None):
+    """Estimate the run's unmixing plan from its single-stain control wells.
+
+    :param settings: ``unmix``, ``unmix_controls`` and
+        ``unmix_background_percentile``.
+    :param source_dir: folder of ``plate_well_field[_time].npy`` fields.
+    :param channels: channel indices to unmix; None means every channel of
+        the fields, as Make Masks unmixes whole stacks.
+    :param load: reads one field into a channel-last array; ``np.load``.
+    :returns: a :class:`_UnmixPlan`, or None when ``unmix`` is off.
+    :raises ValueError: for missing or unreadable controls or settings.
+    """
+    from .schema import parse_field_stem, parse_well
+
+    if not settings.get('unmix', False):
+        return None
+    controls = _parse_unmix_controls(settings.get('unmix_controls'))
+    if not controls:
+        raise ValueError(
+            'unmix is on but unmix_controls names no single-stain control '
+            'wells; give them as channel:well[,well], for example 0:A01; 1:B01')
+    percentile = float(settings.get('unmix_background_percentile', 5.0))
+    if not 0.0 <= percentile < 100.0:
+        raise ValueError('unmix_background_percentile must be at least 0 '
+                         'and below 100')
+    load = load or np.load
+    wanted = {dye: {parse_well(well, strict=True) for well in wells}
+              for dye, wells in controls.items()}
+    source = Path(source_dir)
+    names = sorted(path.name for path in source.glob('*.npy')
+                   if not path.name.startswith('.')) if source.is_dir() else []
+    stems = {dye: [] for dye in controls}
+    for name in names:
+        try:
+            identity = parse_field_stem(name)
+        except ValueError:
+            continue
+        for dye, wells in wanted.items():
+            if ((identity.rowID, identity.columnID) in wells
+                    and len(stems[dye]) < _UNMIX_MAX_FIELDS):
+                stems[dye].append(name)
+    missing = sorted(dye for dye, found in stems.items() if not found)
+    if missing:
+        raise ValueError(
+            f'no field in {source} comes from the single-stain control wells '
+            f'of channel {missing[0]}: {", ".join(controls[missing[0]])}')
+    fields_by_dye = {}
+    for dye, found in stems.items():
+        fields_by_dye[dye] = []
+        for name in found:
+            checkpoint()
+            field = np.asarray(load(source / name))
+            if channels is None:
+                channels = tuple(range(field.shape[-1]))
+            outside = [c for c in (*channels, dye) if not 0 <= c < field.shape[-1]]
+            if outside:
+                raise ValueError(
+                    f'unmixing channel {outside[0]} is outside the '
+                    f'{field.shape[-1]} channels of {name}')
+            if dye not in channels:
+                raise ValueError(
+                    f'unmix_controls names channel {dye}, which is not among '
+                    f'the unmixed channels {list(channels)}')
+            fields_by_dye[dye].append(field[..., list(channels)])
+    matrix = _estimate_bleed_through(fields_by_dye, channels)
+    return _UnmixPlan(
+        channels=tuple(int(channel) for channel in channels),
+        matrix=tuple(tuple(float(value) for value in row) for row in matrix),
+        background_percentile=percentile, controls=controls,
+        fields={dye: tuple(Path(name).stem for name in found)
+                for dye, found in stems.items()})
+
+
+def _describe_unmixing(plan):
+    """Print the estimated bleed-through matrix, one row per channel."""
+    print('Spectral unmixing: bleed-through matrix (row reads, column dye):')
+    header = ''.join(f'{channel:>9}' for channel in plan.channels)
+    print(f'{"":>6}{header}')
+    for channel, row in zip(plan.channels, plan.matrix):
+        print(f'{channel:>6}' + ''.join(f'{value:9.4f}' for value in row))
+
+
+def _prepare_measure_unmixing(settings):
+    """Estimate Measure's unmixing plan once and record it in ``settings``.
+
+    The plan spans the measured ``channels`` of the merged fields in
+    ``settings['src']``. Its record is stored as JSON under a private key,
+    so the saved run settings carry the matrix and every worker unmixes with
+    the same one, and is written to ``measurements/bleed_through.json``.
+
+    :param settings: Measure settings, updated in place.
+    :returns: the plan, or None when ``unmix`` is off.
+    """
+    settings.pop(_UNMIX_RECORD_KEY, None)
+    plan = _prepare_unmixing(settings, settings['src'],
+                             channels=tuple(int(c) for c in settings['channels']))
+    if plan is None:
+        return None
+    record = plan.provenance()
+    settings[_UNMIX_RECORD_KEY] = json.dumps(record)
+    folder = Path(settings['src']).parent / 'measurements'
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / 'bleed_through.json').write_text(json.dumps(record, indent=2))
+    _describe_unmixing(plan)
+    return plan
+
+
+def _apply_recorded_unmixing(channel_arrays, settings):
+    """Unmix Measure's channel arrays with the matrix recorded in ``settings``.
+
+    :param channel_arrays: the field's measured channels, channel last.
+    :param settings: Measure settings holding the record, or not.
+    :returns: the arrays unchanged without a record; otherwise unmixed, in
+        the input's integer type, rounded and clipped, when it has one.
+    """
+    text = settings.get(_UNMIX_RECORD_KEY)
+    if not text:
+        return channel_arrays
+    record = json.loads(text)
+    out = _unmix(channel_arrays, record['matrix'],
+                 record['background_percentile'])
+    dtype = np.asarray(channel_arrays).dtype
+    if np.issubdtype(dtype, np.integer):
+        info = np.iinfo(dtype)
+        out = np.clip(np.rint(out), info.min, info.max).astype(dtype)
+    return out
+
+
 def _record_path(root):
     """Return the application record below an experiment's PSF directory."""
     return Path(root) / 'psf' / 'segmentation_application.json'
@@ -352,11 +656,12 @@ def _digest(path):
     return result.hexdigest()
 
 
-def _configuration(plan, channels, pipeline_style, chain=None):
+def _configuration(plan, channels, pipeline_style, chain=None, unmix=None):
     """Describe the processing stage and source-channel order for later reuse.
 
-    The chain's record is written ONLY when a chain step is on, so a record
-    made before the chain existed still matches a run that asks for none.
+    The chain's record is written ONLY when a chain step is on, and the
+    unmixing matrix only when unmixing is on, so a record made before either
+    existed still matches a run that asks for neither.
     """
     record = {
         'version': 1, 'pipeline_style': pipeline_style,
@@ -369,14 +674,16 @@ def _configuration(plan, channels, pipeline_style, chain=None):
         from .qt.detect_chain import provenance
 
         record['enhancement'] = provenance(chain)['enhancement']
+    if unmix is not None:
+        record['unmixing'] = unmix.provenance()
     return record
 
 
 def validate_psf_resume(settings, root, channels, *, expected_fields):
     """Refuse V1 archive reuse after a PSF change or incomplete processing.
 
-    :param settings: requested PSF and ``enhance_*`` settings; off also
-        checks a prior PSF or chain run.
+    :param settings: requested PSF, ``enhance_*`` and ``unmix`` settings;
+        off also checks a prior PSF, chain or unmixing run.
     :param root: experiment root containing masks/ and psf/.
     :param channels: source intensity indices in archive order.
     :param expected_fields: exact field stems carried by the input archives.
@@ -386,15 +693,17 @@ def validate_psf_resume(settings, root, channels, *, expected_fields):
     fill_psf_settings(settings, root)
     plan = prepare_psf(settings)
     chain = prepare_chain(settings, plan)
+    unmix = _prepare_unmixing(settings, Path(root) / 'stack')
     path = _record_path(root)
-    if plan is None and chain is None and not path.exists():
+    if plan is None and chain is None and unmix is None and not path.exists():
         return
     message = ('PSF or enhancement preprocessing does not match the saved '
                'Mask inputs. Enable preprocessing to rebuild the complete '
                'archive set from stack/ before generating masks.')
     try:
         record = json.loads(path.read_text())
-        if (record['configuration'] != _configuration(plan, channels, 'v1', chain)
+        if (record['configuration'] != _configuration(
+                plan, channels, 'v1', chain, unmix)
                 or not record['complete']
                 or set(record['fields']) != set(expected_fields)):
             raise ValueError(message)
@@ -408,26 +717,39 @@ def validate_psf_resume(settings, root, channels, *, expected_fields):
 class _SegmentationPSFSession:
     """Track a complete application, including switching processing off.
 
-    Holds the captured :class:`PSFPlan` and the enhancement chain of
-    :func:`prepare_chain`. With a chain, every selected channel goes through
-    :func:`apply_chain`, whose PSF stage is the same kernel in the chain's
-    order; without one, the PSF path is exactly what it was.
+    Holds the captured :class:`PSFPlan`, the enhancement chain of
+    :func:`prepare_chain` and the unmixing plan. With a chain, every selected
+    channel goes through :func:`apply_chain`, whose PSF stage is the same
+    kernel in the chain's order; without one, the PSF path is exactly what
+    it was. Unmixing runs first, on the whole raw field, through
+    :meth:`unmix`.
     """
 
-    def __init__(self, plan, root, channels, pipeline_style, chain=None):
+    def __init__(self, plan, root, channels, pipeline_style, chain=None,
+                 unmix=None):
         """Start a captured application with an explicit incomplete record."""
         self.plan = plan
         self.chain = chain
+        self.unmixing = unmix
         self.root = Path(root)
         self.pipeline_style = pipeline_style
-        self.configuration = _configuration(plan, channels, pipeline_style, chain)
+        self.configuration = _configuration(plan, channels, pipeline_style,
+                                            chain, unmix)
         self.fields = set()
         self._write(False)
 
     @property
     def processes(self):
         """Whether :meth:`correct` changes intensities, so callers make float copies."""
-        return self.plan is not None or self.chain is not None
+        return (self.plan is not None or self.chain is not None
+                or self.unmixing is not None)
+
+    def unmix(self, field):
+        """Unmix one whole raw field, or return it unchanged without a plan."""
+        if self.unmixing is None:
+            return field
+        checkpoint()
+        return self.unmixing.apply(field)
 
     def correct(self, image):
         """Process one private field, or return it unchanged when switching off."""
@@ -468,7 +790,8 @@ class _SegmentationPSFSession:
                 os.unlink(temporary)
 
 
-def _prepare_segmentation_psf(settings, root, channels, *, pipeline_style='v1'):
+def _prepare_segmentation_psf(settings, root, channels, *, pipeline_style='v1',
+                              stack_dir=None, load=None):
     """Capture a kernel and start provenance, including a prior run's off switch.
 
     :param settings: PSF configuration accepted by :func:`prepare_psf` and
@@ -476,8 +799,11 @@ def _prepare_segmentation_psf(settings, root, channels, *, pipeline_style='v1'):
     :param root: experiment root; original image files remain untouched.
     :param channels: selected indices in persisted intensity-channel order.
     :param pipeline_style: V1 normalized archives or V2 combined output stacks.
-    :returns: a new session, or None for an untracked run with the PSF and
-        the chain both off.
+    :param stack_dir: folder of the raw field stacks the unmixing controls
+        are read from; ``root/stack`` when None.
+    :param load: reads one raw field channel-last; ``np.load`` when None.
+    :returns: a new session, or None for an untracked run with the PSF, the
+        chain and unmixing all off.
     """
     inferred = fill_psf_settings(settings, root)
     if inferred is not None:
@@ -486,6 +812,13 @@ def _prepare_segmentation_psf(settings, root, channels, *, pipeline_style='v1'):
             print('  ' + line)
     plan = prepare_psf(settings)
     chain = prepare_chain(settings, plan)
-    if plan is None and chain is None and not _record_path(root).exists():
+    unmix = _prepare_unmixing(
+        settings, stack_dir if stack_dir is not None else Path(root) / 'stack',
+        load=load)
+    if unmix is not None:
+        _describe_unmixing(unmix)
+    if (plan is None and chain is None and unmix is None
+            and not _record_path(root).exists()):
         return None
-    return _SegmentationPSFSession(plan, root, channels, pipeline_style, chain)
+    return _SegmentationPSFSession(plan, root, channels, pipeline_style, chain,
+                                   unmix)

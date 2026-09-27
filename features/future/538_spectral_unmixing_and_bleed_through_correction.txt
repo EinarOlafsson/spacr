@@ -1,7 +1,7 @@
 SPECTRAL UNMIXING / BLEED-THROUGH CORRECTION
 
-Status: FILED 2026-09-26. Not started.
-Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
+Status: IMPLEMENTED AS ALPHA 2026-09-27
+Owner: item-538-work. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -24,3 +24,48 @@ DONE WHEN
     On single-stain controls, off-target signal falls to background after
     unmixing; a double-stain field's measured intensities move toward the
     known values.
+
+ALPHA: 2026-09-27. Settings unmix, unmix_controls and
+    unmix_background_percentile, registered under 538 in ALPHA_FEATURES
+    (spacr/settings.py) under a "Spectral Unmixing (Alpha)" heading on Make
+    Masks and Measure; hidden unless Preferences -> Show alpha features is
+    on. A value saved while hidden still reaches the run.
+
+WHAT WAS BUILT (2026-09-27, CPU only)
+    - spacr/psf_pipeline.py: _parse_unmix_controls reads
+      "channel:well[,well]; ..." (the dye's own channel and its single-stain
+      wells). _prepare_unmixing reads up to 24 fields per dye from those
+      wells and _estimate_bleed_through regresses every channel on the dye's
+      own, per field centred (so a background offset never reads as
+      bleed-through), pooled, negative spill clipped to 0, unit diagonal,
+      refusing a near-singular matrix. _unmix solves each pixel with the
+      inverse after setting aside a per-plane background percentile and adds
+      it back, so an unstained channel stays at background.
+    - Make Masks (V1 io._correct_v1_segmentation_batch and V2
+      pipeline_v2.stream_masks_from_stack): the PSF session carries the plan
+      and unmixes each whole raw field (all channels) before illumination
+      correction, the PSF and the enhancement chain. The matrix joins
+      psf/segmentation_application.json, so resume refuses archives made
+      with another matrix; processing_requested counts unmix.
+    - Measure: measure_crop estimates once over the measured channels of
+      merged/, stores the record under the private key _unmix_record (so it
+      is in the saved measure_crop_settings) and in
+      measurements/bleed_through.json, and _measure_crop_core unmixes the
+      channel arrays in their integer dtype before preprocessing hooks.
+    - The matrix is printed in both runs.
+    - Tests: tests/test_spectral_unmixing.py (known two-dye matrix is
+      recovered; controls' off-target signal falls to background; a double
+      stain's object intensities land within 2% of the known amounts;
+      provenance; Measure dtype) and
+      tests/qt/test_spectral_unmixing_alpha_gate.py.
+
+WHAT IS LEFT
+    - No live preview: the Make Masks live preview and the Measure preview
+      do not unmix yet.
+    - Controls are matched by well only, across all plates in the folder;
+      per-plate matrices and a matrix loaded from a file are not offered.
+    - Unmixing runs on raw fields before illumination correction; a
+      controls-free (blind/NMF) estimate is not built.
+    - The new category help caption waits in _AWAITING_CATALOG_REBUILD for
+      the catalog lane.
+    - Not yet checked on real single-stain plates.
