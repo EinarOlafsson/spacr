@@ -5549,7 +5549,7 @@ class _PluginCataloguePage:
         columns = [tr("Type"), tr("Name"), tr("Version"), tr("Installed"),
                    tr("Status"), tr("Author"), tr("Licence")]
         self.table = QTableWidget(0, len(columns))
-        self.table.setObjectName(_PLUGIN_CATALOGUE_ALPHA_WIDGET)
+        self.table.setObjectName("PluginCatalogueTable")
         self.table.setHorizontalHeaderLabels(columns)
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table.setSelectionMode(QAbstractItemView.SingleSelection)
