@@ -7237,6 +7237,9 @@ ALPHA_FEATURES = {
     574: {
         'widgets': ('ReportArchivePackage',),
     },
+    579: {
+        'widgets': ('ReportZenodoDeposit',),
+    },
     575: {
         'widgets': ('RunHistoryExportWorkflow',),
     },
@@ -7258,6 +7261,12 @@ ALPHA_FEATURES = {
         'widgets': ('PowerArrayedPlanner',),
     },    563: {
         'widgets': ('ControlChartAnomaly', 'ControlChartAnomalySection'),
+    },
+    582: {
+        'widgets': ('PluginCatalogueHelp', 'PluginCatalogueSource',
+                    'PluginCatalogueLoad', 'PluginCatalogueTable',
+                    'PluginCatalogueInstall', 'PluginCatalogueUninstall',
+                    'PluginCatalogueStatus'),
     },
 }
 

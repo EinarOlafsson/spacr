@@ -874,7 +874,9 @@
       "source_sha256": "716705a006c51ba98d09012dcb5466281e85fb7d21cc6002817996f7141e970f",
       "context": "WHY (item 502). The theme draws every ``QProgressBar`` as an 8 px track (``height: 8px; max-height: 8px`` in :mod:`spacr.qt.theme`). A bar that also paints its own text -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" -- draws a 13 px caption into those 8 px, so only the top half of each glyph reaches the application view, and at 50 % GUI scale the track is 4 px and almost nothing does. The maintainer's report was \"the text e.g. step 1 of 3 or 10% is cut off\".",
       "translation": "HVERS VEGNA (liður 502). Þemað teiknar hverja ``QProgressBar`` sem 8 px braut (``height: 8px; max-height: 8px`` í :mod:`spacr.qt.theme`). Stika sem teiknar líka eigin texta -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" -- teiknar 13 px yfirskrift inn í þá 8 px, svo aðeins efri helmingur hvers tákns nær á skjáinn, og við 50 % GUI-kvarða er brautin 4 px og nánast ekkert kemst. Tilkynning viðhaldsaðilans var „textinn, t.d. step 1 of 3 eða 10%, er skorinn af“.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding#4",
@@ -882,7 +884,9 @@
       "source_sha256": "7ab46fd9cca517c17f57de9c2ba6f927b48c48da68c442fa7074bb01eda156ce",
       "context": "The design the maintainer chose is \"thin bar + label\":",
       "translation": "HÖNNUNIN sem viðhaldsaðilinn valdi er „þunn stika + merki“:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding#5",
@@ -4549,31 +4553,36 @@
       "source_sha256": "23863d90eb7ce0b6020741383e0b4b6d9595560595ce695bbc8f783105b2d03c",
       "context": "\"here the user should be able to right click on the images to save them as png or pdf\" -- the maintainer, 2026-09-24 (item 505)",
       "translation": "\"hér ætti notandinn að geta hægrismellt á myndirnar til að vista þær sem png eða pdf\" -- umsjónarmaðurinn, 2026-09-24 (liður 505)",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
-      "label": "spacr.qt.widgets.picture_export#2",
+      "label": "spacr.qt.widgets.picture_export#1",
       "source": "A picture on screen is often the thing somebody wants in a slide an hour later, and the route to it was a screenshot of a window, at the window's resolution, with the surrounding chrome in it. This saves THE PICTURE, at the resolution it was rendered at rather than the size it happens to be shown at, into a file of the user's choosing.",
       "source_sha256": "e790835e1bc841edb8e98bae98ca2f407262ea6ec94c1080f578de17f115249b",
       "context": "A picture on application view is often the thing somebody wants in a slide an hour later, and the route to it was a screenshot of a window, at the window's resolution, with the surrounding chrome in it. This saves the picture, at the resolution it was rendered at rather than the size it happens to be shown at, into a file of the user's choosing.",
       "translation": "Mynd á skjánum er oft það sem einhver vill hafa á glæru klukkutíma síðar, og leiðin að henni var skjámynd af glugga, í upplausn gluggans, með umgjörðinni í kring. Þetta vistar MYNDINA, í upplausninni sem hún var teiknuð í frekar en stærðinni sem hún er sýnd í, í skrá sem notandinn velur.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "rebound_from": "spacr.qt.widgets.picture_export#2"
     },
     {
-      "label": "spacr.qt.widgets.picture_export#3",
+      "label": "spacr.qt.widgets.picture_export#2",
       "source": "TWO FORMATS, AND THE PDF IS NOT A PNG WITH A DIFFERENT EXTENSION. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
       "source_sha256": "e5dfebda32e1c3002c3fc6ea020427889f6c999e6e426903b6efc849052ca2f8",
       "context": "Two formats, and the PDF is not a PNG with a different extension. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
       "translation": "TVÖ SNIÐ, OG PDF ER EKKI PNG MEÐ ANNARRI ENDINGU. Rastamynd sem er sett inn í PDF uppfyllir skráarheitið og ekkert annað; hlutamynd er síða, og síða hefur stærð í millimetrum. :func:`save_picture` gefur PDF-skránni síðu með eigin lögun myndarinnar og segir skrifaranum upplausnina sem Preferences geymir, svo myndin lendir í stærðinni sem hún var mæld í og prentast í þeirri upplausn.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "rebound_from": "spacr.qt.widgets.picture_export#3"
     },
     {
-      "label": "spacr.qt.widgets.picture_export#4",
+      "label": "spacr.qt.widgets.picture_export#3",
       "source": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
       "source_sha256": "b53ac41d6f89dab369a0bdc50657ef521b9dfbbc754fc558a28464ca9bdf645e",
       "context": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
       "translation": "Upplausnin og sjálfgefna sniðið eru þau sem Figures-kjörstillingarnar eiga þegar -- :func:`spacr.qt.preferences.get_figure_png_dpi` og :func:`spacr.qt.preferences.get_figure_format` -- svo notandi sem hefur þegar sagt \"300 DPI, PDF\" er ekki spurður aftur með öðrum orðum.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "rebound_from": "spacr.qt.widgets.picture_export#4"
     },
     {
       "label": "spacr.qt.widgets.picture_export.as_image#0",

@@ -3805,12 +3805,13 @@
       "review_basis": "MT draft edited in AI review"
     },
     {
-      "label": "spacr.qt.mask_engine.fill_holes#1",
+      "label": "spacr.qt.mask_engine.fill_holes#2",
       "source": "label image to fill.",
       "source_sha256": "e0372b62229e25015964f0bc7a2127543cd4bca044d7d539a65d029e229bc863",
       "context": "label image to fill.",
       "translation": "image d’étiquettes à remplir.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "rebound_from": "spacr.qt.mask_engine.fill_holes#1"
     },
     {
       "label": "spacr.qt.mask_engine.fill_holes#2",
@@ -3818,7 +3819,9 @@
       "source_sha256": "324f21972dfe3d00de9f3ff423ffb008c798db9581c13651442e1e4e1b323309",
       "context": "fill per object without merging or renumbering labels. Requires exact uint16-compatible IDs; default retains binary relabeling.",
       "translation": "remplir objet par objet sans fusionner ni renuméroter les étiquettes. Nécessite des ID exacts compatibles avec uint16 ; par défaut, le réétiquetage binaire est conservé.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-27: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.mask_engine.filter_objects#0",

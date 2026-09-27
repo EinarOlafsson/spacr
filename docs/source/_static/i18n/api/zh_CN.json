@@ -2943,20 +2943,26 @@
         "171086381d5d85688069d6fb2a6a4f072cfff85695a1e8bd28407af0b6b27333",
         "7222c9060c5d31f4a5f7b8389f022ceb12462659396893b0f69cbf5c89dc73d7",
         "cfd049cc3169c2ca0ae38f83dbf45522d6b6581285766c7e5f1945864edc37e8",
-        "6beb357207f6b4866a41dff6b46731bee9471f738c82dc1f0c0a6bac325a1e3d",
-        "49ffbffdaadd9a5ab7c45eb5d935b4d1bb2814135bfe07060420c9b2eddc2271",
-        "16a8ba9917a04bb807df88640c3f84e194ad4f007c310953e398ba5089931217"
+        "9672502cffbb81a075a474915582dc00a7f415dc29cab34bfac407a5b56e5ae5",
+        "cfd049cc3169c2ca0ae38f83dbf45522d6b6581285766c7e5f1945864edc37e8",
+        "909d858253db54ef559ca22ad578d402f10e2c75f962a34c3cc900173974895a",
+        "5a4fe4acd378454529ccaa48d42281c049934d2e53c0eda28240639026f462d2",
+        "a963f6f17166f1ffcca8826eae3ae77f797bad1db22b194afaa03f307f2c6e73",
+        "cd829f4cf58051944f9804638d8a54ef363b76fdd709bad8e1732cd109b40567"
       ],
-      "source_sha256": "1aa6a2be3819135bc8786f08dad355dc6faf7df7314e7649fa4710b9e717521c",
-      "text": "从一个设置的关键值地图中进行出口. 无图形界面输入点。\n\n``fn(settings)`` 形状 ``spacr-run``, Qt 运行按钮和 :mod:`spacr.validate` 所有发送到,包围在 :func:`export_anndata` - 保持其自己的明确的关键字签名,因为一个函数,其论点是一个关键值地图是一个函数没有人可以从笔记本电脑调用。\n\n它所阅读的每个键都是一个 :func:`anndata_export_settings` 声明,而 :func:`register_anndata_settings` 给了一个类型和工具提示,所以格式 GUI 引用和这里荣誉的关键是相同的列表。\n\n:param settings: 处理会议设置 ``src`` 是项目根(或数据库);其余的一切都落后于 :func:`anndata_export_settings`。\n:returns: 它是 :class:`ExportResult` ,其 ``describe()`` 是控制台打印的。\n:raises ValueError: 当 ``src`` 空时 - 没有出口和路径在消息中另有命名。\n:raises AnnDataExtraMissing: 但是,如果 ``anndata`` 不安装。",
+      "source_sha256": "56796700962603cf6f41768971803bc7239650e40bf5995a08ae69b658342df7",
+      "text": "从一个设置的关键值地图中进行出口. 无图形界面输入点。\n\n``fn(settings)`` 形状 ``spacr-run``, Qt 运行按钮和 :mod:`spacr.validate` 所有发送到,包围在 :func:`export_anndata` - 保持其自己的明确的关键字签名,因为一个函数,其论点是一个关键值地图是一个函数没有人可以从笔记本电脑调用。\n\n它所阅读的每个键都是一个 :func:`anndata_export_settings` 声明,而 :func:`register_anndata_settings` 给了一个类型和工具提示,所以格式 GUI 引用和这里荣誉的关键是相同的列表。\n\n:param settings: 处理会议设置 ``src`` 是项目根(或数据库);其余的一切都落后于 :func:`anndata_export_settings`。\n``anndata_format`` 决定写出什么：``'h5ad'`` 写出 AnnData 文件，``'parquet'`` 写出 :func:`_export_tables` 的整洁 Parquet 表（位于 ``anndata_tidy_dir`` 中），``'r'`` 写出这些表以及 R 加载脚本（安装了 pyreadr 时还写出 ``.rds`` 数据框），``'all'`` 则全部写出。无论 ``anndata_dtype`` 如何设置，这些表都保留 float64 特征；该设置只决定 AnnData 矩阵。\n\n:param settings: 处理会议设置 ``src`` 是项目根(或数据库);其余的一切都落后于 :func:`anndata_export_settings`。\n:returns: 返回 :class:`ExportResult`（写出了 ``.h5ad`` 时），否则返回表格结果；对二者调用 ``describe()`` 得到的都是控制台打印的内容。\n:raises ValueError: 当 ``src`` 为空时——此时没有可导出的内容，消息中也没有可列出的路径——或当 ``anndata_format`` 不是已知格式时。\n:raises AnnDataExtraMissing: 当未安装 ``anndata`` 且格式包含 ``.h5ad`` 时。\n:raises ImportError: 当未安装 pyarrow 且格式包含这些表时。",
       "translation_source_blocks_sha256": [
         "8affa11442d4ce5fdc11d330fcf9db35458e5dffe4cbd16c116ae872c0673bb9",
         "805eeecfb72a3faab6e0d37b7033e21b3ea233249666734f723819d56b96b8fe",
         "7222c9060c5d31f4a5f7b8389f022ceb12462659396893b0f69cbf5c89dc73d7",
         "cf8de8081f91c4c5d8978a42e5de37b7d95ebbff3f97a3d40d8945069e137247",
-        "6beb357207f6b4866a41dff6b46731bee9471f738c82dc1f0c0a6bac325a1e3d",
-        "49ffbffdaadd9a5ab7c45eb5d935b4d1bb2814135bfe07060420c9b2eddc2271",
-        "16a8ba9917a04bb807df88640c3f84e194ad4f007c310953e398ba5089931217"
+        "9672502cffbb81a075a474915582dc00a7f415dc29cab34bfac407a5b56e5ae5",
+        "cf8de8081f91c4c5d8978a42e5de37b7d95ebbff3f97a3d40d8945069e137247",
+        "909d858253db54ef559ca22ad578d402f10e2c75f962a34c3cc900173974895a",
+        "5a4fe4acd378454529ccaa48d42281c049934d2e53c0eda28240639026f462d2",
+        "a963f6f17166f1ffcca8826eae3ae77f797bad1db22b194afaa03f307f2c6e73",
+        "cd829f4cf58051944f9804638d8a54ef363b76fdd709bad8e1732cd109b40567"
       ]
     },
     "spacr.annotation": {
@@ -13643,14 +13649,16 @@
         "a473f2d0bf614b72d28dc70798f28ef11e3b59992f652b5eee476a02090b8c37",
         "2daed458812e607f041e55b4d5f2e02a55059df2ed7f124c73170578959ae7cf",
         "3939d488f8884ad019e6dfaa1991e3012947f976103941f59d9425efe8000acd",
+        "ed450006c63699d0e2641322bd90b0a56b7bf0fed50bac75f796462f9763ee5b",
+        "106d9e026f2d2681cdb69ef5ad5963ed96667ed9f801164f389bd4aad03ab78c",
         "4f9a9dd2a177bcf90eaf317e829c883bb3f9e42425bc29e5ee62034ef0cd8054",
-        "f7383e8196746fc9c737a32678af0f70bcac20e9fa52d8f2d0a7bdcda93b9e06",
+        "30b31ab3af9a0fd2923241906afe7a68ef64a744970d3db94f4e71e823b25d94",
         "a755d65aa524b4e701cdb56381033fade2086658ee6dc75b2ca57e3bad5ecb39",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "df0cbfc8461e60b6d422e6a304b7cc5c2df95262a05d3556c59f572dd13e7818"
       ],
-      "source_sha256": "fd9dc331fad4251a1d0079ddd363ba7db67931c8072c46c26758d80777ded83b",
-      "text": "显微镜图像文件夹转换为每个图像数据通道 Cellpose 掩码,可用于 :func:`spacr.measure.measure_crop`。\n\n给定包含多图像数据通道图像的源文件夹 ``src``，该工作流会：(1) 可选地合并嵌套文件夹中的输入；(2) 将文件重命名为下游使用的 Yokogawa 布局；(3) 逐图像数据通道预处理数组；(4) 通过 Cellpose（SAM 变体）为细胞 / 细胞核 / 病原体 / 细胞器图像数据通道生成掩模；(5) 可选地依据细胞核和病原体叠加结果校正细胞掩模；以及 (6) 写出叠加图，并在输出旁保存 ``gen_mask_settings.csv``。\n\n:param settings: 设置关键值地图; 通过 :func:`spacr.settings.set_default_settings_preprocess_generate_masks` 可通化. 必须包含 ``src`` 和至少其中一个 ``cell_channel``, ``nucleus_channel``、 ``pathogen_channel`` 或 ``organelle_channel``. 结构数据输入函数阅读:\n\n    - ``src``(str 或 str 列表) — 图像文件夹(s)处理。\n    - ``metadata_type`` — ``'cellvoyager'`` 或 ``'auto'`` (在设置时使用 ``custom_regex``)。\n    - ``cell_channel`` / ``nucleus_channel`` /``pathogen_channel``/ ``organelle_channel`` — 基于 0 的频道指数; ``None`` 滑板。\n    - ``cell_diameter`` / ``nucleus_diameter``/ ``pathogen_diameter`` — Cellpose 对象直径在像素中。\n    - ``pathogen_model`` 走向A的路 Cellpose-SAM 检查点到分区病原体与,而不是库存 ``cpsam``此前的...SAM ``toxo_pv_lumen`` / ``toxo_cyto`` 命名已消失,决定 ``cpsam``; a PATH 到一个精致的色彩是荣誉的,而一个不存在的路径停止运行而不是沉默地使用库存重量。\n    - ``consolidate`` - 在处理之前将粘贴图像复制到 ``src/consolidated``。\n    - ``preprocess`` / ``masks`` - 将工作流的两半分。\n    - ``adjust_cells`` - 和解细胞掩膜对核 + 病原体。\n    - ``timelapse`` — 允许 trackpy 连接; 力量 ``randomize=False``。\n    - ``motility_analysis`` —— 启用时间序列时，对每个板的已完成合并帧分析一次，并根据当前掩膜重新构建测量结果，而不是复用较旧的检测实验表。\n    - ``dry_run`` - 只验证:检查输入文件夹,打印预标报告和计划和返回,没有写任何东西或加载模型。\n    - ``save``, ``plot``, ``verbose``, ``test_mode``, ``n_jobs``.\n\n:returns: ``None`` 在正常的行程中,有写掩膜,上层, ``measurements.db`` 计算和设置 CSVs 到分子中 ``src``什么时候 ``dry_run`` 已设置,而不是返回问题列表 :func:`spacr.validate.run_preflight`.\n:raises ValueError: 如果 ``src`` 缺席或错误的类型,或者没有分区频道被定义。\n\n示例：\n    .. code-block:: python\n\n        from spacr.core import preprocess_generate_masks\n        settings = {\n            'src': '/data/plate01',\n            'cell_channel': 0, 'nucleus_channel': 1, 'pathogen_channel': 2,\n            'cell_diameter': 60, 'nucleus_diameter': 20, 'pathogen_diameter': 8,\n            'magnification': 20, 'save': True, 'plot': True,\n        }\n        preprocess_generate_masks(settings)\n\n此外,请参见: :func:`spacr.io.preprocess_img_data` — 仅预处理的一半. :func:`spacr.measure.measure_crop` — 下流功能提取。",
+      "source_sha256": "ef72da78843ac3b434a9db70550d6ae45e7461cd8a31b8e532d42b39036f3535",
+      "text": "显微镜图像文件夹转换为每个图像数据通道 Cellpose 掩码,可用于 :func:`spacr.measure.measure_crop`。\n\n给定包含多图像数据通道图像的源文件夹 ``src``，该工作流会：(1) 可选地合并嵌套文件夹中的输入；(2) 将文件重命名为下游使用的 Yokogawa 布局；(3) 逐图像数据通道预处理数组；(4) 通过 Cellpose（SAM 变体）为细胞 / 细胞核 / 病原体 / 细胞器图像数据通道生成掩模；(5) 可选地依据细胞核和病原体叠加结果校正细胞掩模；以及 (6) 写出叠加图，并在输出旁保存 ``gen_mask_settings.csv``。\n\n:param settings: 设置关键值地图; 通过 :func:`spacr.settings.set_default_settings_preprocess_generate_masks` 可通化. 必须包含 ``src`` 和至少其中一个 ``cell_channel``, ``nucleus_channel``、 ``pathogen_channel`` 或 ``organelle_channel``. 结构数据输入函数阅读:\n\n    - ``src``(str 或 str 列表) — 图像文件夹(s)处理。\n    - ``metadata_type`` — ``'cellvoyager'`` 或 ``'auto'`` (在设置时使用 ``custom_regex``)。\n    - ``cell_channel`` / ``nucleus_channel`` /``pathogen_channel``/ ``organelle_channel`` — 基于 0 的频道指数; ``None`` 滑板。\n    - ``cell_diameter`` / ``nucleus_diameter``/ ``pathogen_diameter`` — Cellpose 对象直径在像素中。\n    - ``pathogen_model`` 走向A的路 Cellpose-SAM 检查点到分区病原体与,而不是库存 ``cpsam``此前的...SAM ``toxo_pv_lumen`` / ``toxo_cyto`` 命名已消失,决定 ``cpsam``; a PATH 到一个精致的色彩是荣誉的,而一个不存在的路径停止运行而不是沉默地使用库存重量。\n    - ``consolidate`` - 在处理之前将粘贴图像复制到 ``src/consolidated``。\n    - ``preprocess`` / ``masks`` - 将工作流的两半分。\n    - ``adjust_cells`` - 和解细胞掩膜对核 + 病原体。\n    - ``timelapse`` — 允许 trackpy 连接; 力量 ``randomize=False``。\n    - ``motility_analysis`` —— 启用时间序列时，对每个板的已完成合并帧分析一次，并根据当前掩膜重新构建测量结果，而不是复用较旧的检测实验表。\n    - ``dry_run`` - 只验证:检查输入文件夹,打印预标报告和计划和返回,没有写任何东西或加载模型。\n    - ``watch_folder`` — 持续监视 ``src``，每个视野的文件到齐且不再变化时即分析该视野，使用 ``watch_pipeline``、``watch_measure_settings``、``watch_settle_seconds``、``watch_poll_seconds`` 和 ``watch_idle_minutes``。结果汇集在 ``src/spacr_watch`` 中，其中的记录让重新启动的监视跳过已分析的视野。\n    - ``src`` 也可以是云地址 (``s3://``、``gs://``、``az://``、``https://``). 对于其中的 OME-Zarr 微孔板，只会把 ``cloud_wells``、``cloud_fields`` 和 ``cloud_level`` 指定的孔、视野和金字塔层级以 TIFFs 形式下载到 ``cloud_cache`` 下的文件夹中，处理过程随后分析该文件夹；云端的图像文件夹则改为镜像到那里。凭据来自标准位置，由 ``cloud_anonymous``、``cloud_profile`` 和 ``cloud_endpoint`` 选择，``cloud_results`` 会把测量文件夹复制回云存储。\n    - ``save``, ``plot``, ``verbose``, ``test_mode``, ``n_jobs``.\n\n:returns: 正常处理时返回 ``None``，此时已将掩膜、叠加图、``measurements.db`` 计数和设置 CSVs 写入 ``src`` 的子文件夹。设置了 ``dry_run`` 时，改为返回 :func:`spacr.validate.run_preflight` 给出的问题列表。设置了 ``watch_folder`` 时，返回一个字典，列出监视结束时已分析、失败和从未完成的视野。\n:raises ValueError: 如果 ``src`` 缺席或错误的类型,或者没有分区频道被定义。\n\n示例：\n    .. code-block:: python\n\n        from spacr.core import preprocess_generate_masks\n        settings = {\n            'src': '/data/plate01',\n            'cell_channel': 0, 'nucleus_channel': 1, 'pathogen_channel': 2,\n            'cell_diameter': 60, 'nucleus_diameter': 20, 'pathogen_diameter': 8,\n            'magnification': 20, 'save': True, 'plot': True,\n        }\n        preprocess_generate_masks(settings)\n\n此外,请参见: :func:`spacr.io.preprocess_img_data` — 仅预处理的一半. :func:`spacr.measure.measure_crop` — 下流功能提取。",
       "translation_source_blocks_sha256": [
         "366be24510440a273cbaba7959fe628cb0f26e8c20215e13824a60d0ef5f95e0",
         "5afca811e741b3d6db1bbf2850514b3ac5b11f100ceed1f08a8e759717d5dc42",
@@ -13666,8 +13674,10 @@
         "a473f2d0bf614b72d28dc70798f28ef11e3b59992f652b5eee476a02090b8c37",
         "c10a21efe1c5646a99df8af5c5a50310835dc1607e8b473d383745baba35ad0b",
         "3939d488f8884ad019e6dfaa1991e3012947f976103941f59d9425efe8000acd",
+        "ed450006c63699d0e2641322bd90b0a56b7bf0fed50bac75f796462f9763ee5b",
+        "4e19fb433627a512a93086d2361ab750a67bd1c8cfc4a75c429ac63159c593b6",
         "4f9a9dd2a177bcf90eaf317e829c883bb3f9e42425bc29e5ee62034ef0cd8054",
-        "f7383e8196746fc9c737a32678af0f70bcac20e9fa52d8f2d0a7bdcda93b9e06",
+        "11827ff0bd4ab3575648b0d2578a2e6ce9e721496b459904a049285ea142d094",
         "a755d65aa524b4e701cdb56381033fade2086658ee6dc75b2ca57e3bad5ecb39",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "df0cbfc8461e60b6d422e6a304b7cc5c2df95262a05d3556c59f572dd13e7818"
@@ -23810,10 +23820,11 @@
         "931e58bba324a05a99b80cc992a2f45648bd50b01c20c43aa2b867fe288a24ee",
         "ff5ae474b21ace77cd40a4b3d350dea86bdbdd2972b78c5ada1dda11a3df8e7c",
         "17352ac54a6c544d1f4119b4d501867995674c54f9919baf1acbf745a201111a",
+        "82e8ccf6f8004b41f76d8307dd1cf25d9780f12e100fc538d34dcce6a478c145",
         "fcd33d0ce5132de6c79d01ce90bab72e847d73f908673521fdd5abb36f4beba3"
       ],
-      "source_sha256": "14c4aff8e648b24b4ee535b799fdf24efd90e74633fb7906addbf17950d651c0",
-      "text": "每个筛选板作为一个图像,在一个颜色规模。\n\n:param frame: 长格式框与 ``prc`` 列和 ``variable``。\n:param variable: 测量按微板样本位置进行集成。\n:param grouping: ``'mean'``、``'sum'`` 或 ``'count'``。\n:param min_count: 要拍摄的微板样本位置所需的最低行数。\n:param min_max: 颜色尺寸特征,如 :func:`spacr.plot.generate_plate_heatmap` 定义它 - 但应用一次,在每个板上同时。\n:param cmap: ``None`` 使用 :func:`plate_ramp`,这就是风格要求的。\n:param target: ``'screen'`` 或 ``'print'``;默认情况下,用户自己的数字偏好。\n:param width: 尺寸宽度为英寸. 高度是由它衍生的,所以微板样本位置出于平方。\n:param plates: 只在这个顺序中绘制这些微孔板。\n:param limits: 一个明确的``(vmin, vmax)``,超越``min_max``,这就是什么使一个板到一个图标安全:一个呼叫者想要一个板在每个板上计算:func:`shared_limits`一次,并将相同的双转到每个图标,所以分裂小多层不会沉默地给每个板自己的规模。\n:returns: ``(figure, Panel)``. 没有矩阵,面板有 ``drawn=False`` 加上其缺少的要求和原因. 否则,其标签记录了实际的集成,微板样本位置计算,以及共享的限制。",
+      "source_sha256": "255b5f233cc8e21f46e51b2dfcd69f364b31e7f788e1b9de2001273900582a04",
+      "text": "每个筛选板作为一个图像,在一个颜色规模。\n\n:param frame: 长格式框与 ``prc`` 列和 ``variable``。\n:param variable: 测量按微板样本位置进行集成。\n:param grouping: ``'mean'``、``'sum'`` 或 ``'count'``。\n:param min_count: 要拍摄的微板样本位置所需的最低行数。\n:param min_max: 颜色尺寸特征,如 :func:`spacr.plot.generate_plate_heatmap` 定义它 - 但应用一次,在每个板上同时。\n:param cmap: ``None`` 使用 :func:`plate_ramp`,这就是风格要求的。\n:param target: ``'screen'`` 或 ``'print'``;默认情况下,用户自己的数字偏好。\n:param width: 尺寸宽度为英寸. 高度是由它衍生的,所以微板样本位置出于平方。\n:param plates: 只在这个顺序中绘制这些微孔板。\n:param limits: 一个明确的``(vmin, vmax)``,超越``min_max``,这就是什么使一个板到一个图标安全:一个呼叫者想要一个板在每个板上计算:func:`shared_limits`一次,并将相同的双转到每个图标,所以分裂小多层不会沉默地给每个板自己的规模。\n:param outline: ``frame`` 中的一列；该列均值大于零的每个孔都会以墨色画出方形轮廓。命中判定直接画在得出它的分数上，无需第二张图。\n:returns: ``(figure, Panel)``. 没有矩阵,面板有 ``drawn=False`` 加上其缺少的要求和原因. 否则,其标签记录了实际的集成,微板样本位置计算,以及共享的限制。",
       "translation_source_blocks_sha256": [
         "658700c87c73295c671e23d803a6183d10135d99edebe88f660835383e980211",
         "23b1df3b40dc3e2f226911415ecc4c6204bfd1b9c010f3f4a7bd7f3de38dd52c",
@@ -23826,6 +23837,7 @@
         "f162ad5c102de13a5f22262aec9549f6fb3b95ea3a1b4a2ac0319b7aeb915b81",
         "ff5ae474b21ace77cd40a4b3d350dea86bdbdd2972b78c5ada1dda11a3df8e7c",
         "af29a424fa53fb6ae9446755b1cd769c34c54fba7a8d62e191fee0561a3df6e3",
+        "d7c650e32a61d1ba2c7a47c1d8900fe04fc1c76cdee5ebf0d304bb60f1b20840",
         "6821181a95c4c294b14a8eb7fd3262128c47b43392408b5b699dcc39f4ed25db"
       ]
     },
@@ -23931,6 +23943,22 @@
         "46363b91d7251639c81034054b8fea7b520b5dbb7f1b8b9634eb41b1b6bcff6a",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "eafa3464b10b5efc75c6c0f60443bee333481314ea8eb2a2b4382c57062efd91"
+      ]
+    },
+    "spacr.figures.plates.score_ramp": {
+      "source_blocks_sha256": [
+        "9a9bd00f3df3d07d0010b9f04c73a9051fe7842a2be4b1606033538302923009",
+        "5a9cecbf7013e76f2b6620ff783bf8781b791a66bf90e6999afef9b6ef542e57",
+        "4a9859a40f838004337e02a3765a535e6b472ddcf2e022bcf71684e9d76c55a0",
+        "4440fa586152d0f68537a9971fbb65976956bbe33ded68a51e5991a3415bcb1f"
+      ],
+      "source_sha256": "be9e0d7766ac5b0c31550740da17b8e0fc0ba5cf688796c4ad4aa792acf9610a",
+      "text": "创建用于带符号板分数的发散色图。\n\n命中分数（SSMD、稳健 z、B 分数）以阴性对照为基准带有符号，这正是发散色图的用途。两端是内置的 ``down`` 和 ``up`` 颜色（:data:`spacr.figures.style.ROLES`），因此分数低于对照的孔显示为铁锈色，高于对照的显示为绿色，与火山图一致。\n\n:param target: ``\"print\"`` 以接近白色为中心；其他任何值都以屏幕板色阶的浅灰色为中心。\n:returns: 一个对无效值使用透明颜色的色图。",
+      "translation_source_blocks_sha256": [
+        "9a9bd00f3df3d07d0010b9f04c73a9051fe7842a2be4b1606033538302923009",
+        "00c1850401936f12f9a387cd2c357827c569f989b1d4f076c6f80234cdfc939e",
+        "4a9859a40f838004337e02a3765a535e6b472ddcf2e022bcf71684e9d76c55a0",
+        "4440fa586152d0f68537a9971fbb65976956bbe33ded68a51e5991a3415bcb1f"
       ]
     },
     "spacr.figures.plates.shared_limits": {
@@ -40925,10 +40953,14 @@
         "00b0a1afb5b3b44f309dc9761f852a7ce239834b14581a052285a4470f429311",
         "9c46318998ecc9b7b6e7dd5bb2554670da4a1ce47d3cd45293ab34510fa6fb23",
         "a50cece768c1226ad5df1ed9ac49ade533d7150fab808d747b7912452ffb500b",
-        "5b41e31401fbba92e40563d01ae6547b1f588754566c72a6e9790dd4bf95217a"
+        "5b41e31401fbba92e40563d01ae6547b1f588754566c72a6e9790dd4bf95217a",
+        "a7d221ac87b6abdc9cab73fac788436a358640a9414ce7887eb23562f78e4a9a",
+        "b4a646adb6c987e4a0a9006e09a7cf4574f09cbc6d1f479beaa31d5cfe648704",
+        "1a10a6cfc0bca08290c5bbb9ef49a39236eb6354c64886fcdbbbf50c90f3b9f5",
+        "d60b6acfe0b0fe8c574cccdb6d7f288463b7466187f05d758c731f79c93dedb1"
       ],
-      "source_sha256": "4d35e50854dd8e92cd85fb90c1c9962c9867c32a14b138338b7840c6695f6815",
-      "text": "Cellpose 掩膜 I/O - 写 + 阅读掩膜 如 EITHER TIFF 或 NumPy.\n\n输入两个助理,以替换分散的 ``np.save``/``np.load`` 通话在 :mod:`spacr.object` 和 :mod:`spacr.io` 中:\n\n* :func:`save_mask` - 写一个单一的 2-D uint16 掩膜. 默认情况下发行 ``.tif`` (在磁盘上更小 + 可在 Fiji / napari 中打开) 但 ``.npy`` 仍然通过 ``fmt=\"npy\"`` 支持,对于喜欢 numpy 环游的用户来说。\n* :func:`load_mask` - 阅读掩膜,无论在磁盘上格式。 考虑到没有 suffix 的路径或字符串,它以此顺序测试 ``.tif``、 ``.tiff`` 和 ``.npy`` ,并返回第一个打击。\n\n两个帮助函数都保留 uint16 dtype (spaCR 的掩码约定)并返回相同形状的数组 ``(H, W)``。  TIFF 通过 ``tifffile`` 使用 LZW 压缩进行写入。\n\n移民路径现有脚本:\n\n    # BEFORE\n    np.save(\"foo_mask.npy\", mask.astype(np.uint16))\n    m = np.load(\"foo_mask.npy\")\n\n    # AFTER\n    save_mask(\"foo_mask\", mask)       # writes foo_mask.tif\n    m = load_mask(\"foo_mask\")         # finds foo_mask.tif or foo_mask.npy\n\nenv var ``SPACR_MASK_FORMAT`` 将默认范围超过整个 process: set 到 ``npy`` 以保持旧行为。",
+      "source_sha256": "3264968f4673e874c9d284e5a0a4d608eab865921e2bfbd204d695335522f37f",
+      "text": "Cellpose 掩膜 I/O - 写 + 阅读掩膜 如 EITHER TIFF 或 NumPy.\n\n输入两个助理,以替换分散的 ``np.save``/``np.load`` 通话在 :mod:`spacr.object` 和 :mod:`spacr.io` 中:\n\n* :func:`save_mask` - 写一个单一的 2-D uint16 掩膜. 默认情况下发行 ``.tif`` (在磁盘上更小 + 可在 Fiji / napari 中打开) 但 ``.npy`` 仍然通过 ``fmt=\"npy\"`` 支持,对于喜欢 numpy 环游的用户来说。\n* :func:`load_mask` - 阅读掩膜,无论在磁盘上格式。 考虑到没有 suffix 的路径或字符串,它以此顺序测试 ``.tif``、 ``.tiff`` 和 ``.npy`` ,并返回第一个打击。\n\n两个帮助函数都保留 uint16 dtype (spaCR 的掩码约定)并返回相同形状的数组 ``(H, W)``。  TIFF 通过 ``tifffile`` 使用 LZW 压缩进行写入。\n\n移民路径现有脚本:\n\n    # BEFORE\n    np.save(\"foo_mask.npy\", mask.astype(np.uint16))\n    m = np.load(\"foo_mask.npy\")\n\n    # AFTER\n    save_mask(\"foo_mask\", mask)       # writes foo_mask.tif\n    m = load_mask(\"foo_mask\")         # finds foo_mask.tif or foo_mask.npy\n\nenv var ``SPACR_MASK_FORMAT`` 将默认范围超过整个 process: set 到 ``npy`` 以保持旧行为。\n\n将掩膜作为 ROIs：QuPath GeoJSON、ImageJ RoiSet 和 COCO\n------------------------------------------------------\n\n本模块的后半部分负责在标签掩膜与其他工具用于整理和训练的格式之间相互转换（第 545 项）：:func:`masks_to_geojson` 和 :func:`geojson_to_masks` 用于 QuPath，:func:`masks_to_roiset` 和 :func:`roiset_to_masks` 用于 Fiji 的 ROI Manager，:func:`masks_to_coco` 和 :func:`coco_to_masks` 用于 COCO 风格的训练集，:func:`export_rois` / :func:`import_rois` 则按文件名在它们之间选择。\n\n每个对象对应一个要素、一个 ROI 或一条标注，带有其对象类型（``cell``、``nucleus`` ...）、对象编号和类别；类别默认等于对象类型。每个对象单独描绘，因此相互接触的对象仍保持分离。轮廓沿像素边缘而不是像素中心：像素 ``(row, col)`` 是从 ``x = col`` 到 ``col + 1``、从 ``y = row`` 到 ``row + 1`` 的正方形，这是 QuPath 和 ImageJ 共同采用的约定。像素中心在多边形内时像素即在多边形内，因此描绘出的轮廓再栅格化后会精确还原对象：没有容差，孔洞和多部分对象也包括在内。孔洞在 GeoJSON 中是内环，在 ImageJ 中是复合 ROI 的一条路径；由于 COCO 多边形不能有孔洞，在 COCO 中则写为 RLE 分割。\n\n只有 ImageJ 文件需要 ``roifile``，并且只在读写此类文件时才导入。COCO RLE 在这里编码和解码，因此从不需要 ``pycocotools``；写出的文件正是 ``pycocotools`` 能读取的文件。",
       "translation_source_blocks_sha256": [
         "8b35ff4d18fdce4e97ff91c0301b6ea57b866cdca00fa8c4e2f4ad6cc148893c",
         "c7137ff73345ddf2dccd59265285731bc6e90bcb06ec0d9cd2858c672ef02ea8",
@@ -40936,7 +40968,133 @@
         "00b0a1afb5b3b44f309dc9761f852a7ce239834b14581a052285a4470f429311",
         "9c46318998ecc9b7b6e7dd5bb2554670da4a1ce47d3cd45293ab34510fa6fb23",
         "a50cece768c1226ad5df1ed9ac49ade533d7150fab808d747b7912452ffb500b",
-        "5b41e31401fbba92e40563d01ae6547b1f588754566c72a6e9790dd4bf95217a"
+        "5b41e31401fbba92e40563d01ae6547b1f588754566c72a6e9790dd4bf95217a",
+        "a7d221ac87b6abdc9cab73fac788436a358640a9414ce7887eb23562f78e4a9a",
+        "b4a646adb6c987e4a0a9006e09a7cf4574f09cbc6d1f479beaa31d5cfe648704",
+        "552a6713542fae1259a6a3ba08b7e021d1e5e30104d612f13b3dc9be5360535c",
+        "be533add19beefd38795ca68528612cc41b5abbeac7c1a808f85d0c70be47065"
+      ]
+    },
+    "spacr.mask_io.coco_image_names": {
+      "source_blocks_sha256": [
+        "be8048f5aeef2b259550786d803880e5a61636629c993dbbfe1ab7ff3e55a4d8",
+        "56a05316abd2a1cad320b89b997bbffe1dd0cdc6f7b9f6311c9f2486a79cd91a",
+        "d27a8d7f4daa61a9f39a20e550797e0149e19b3d34794027f08e1552e7bd53f4"
+      ],
+      "source_sha256": "a2cd10aaef665eccf8a798142bd925bbb44883aa970e11530b2935ba0b477b3f",
+      "text": "COCO 数据集所标注图像的文件名。\n\n:param data: 已解析的数据集，或其 ``.json`` 文件的路径。\n:returns: ``images[].file_name``，按文件中的顺序。",
+      "translation_source_blocks_sha256": [
+        "be8048f5aeef2b259550786d803880e5a61636629c993dbbfe1ab7ff3e55a4d8",
+        "56a05316abd2a1cad320b89b997bbffe1dd0cdc6f7b9f6311c9f2486a79cd91a",
+        "d27a8d7f4daa61a9f39a20e550797e0149e19b3d34794027f08e1552e7bd53f4"
+      ]
+    },
+    "spacr.mask_io.coco_to_masks": {
+      "source_blocks_sha256": [
+        "1e4afb6b88c1f50eb55d228a8a21d40e8ea56e22c8ad3e0c0551b6623f94f0c9",
+        "9da0e07164f0cb2463df89ec2879e3630e355a2dbfab43707cc24771b566ef8b",
+        "56a05316abd2a1cad320b89b997bbffe1dd0cdc6f7b9f6311c9f2486a79cd91a",
+        "c23417e09d07f1ab2ce0e645344f9e2106b42d144b79fa3f2cee425a4c2fddd3",
+        "a6ebcc9593fad26468de51eddb47fa620ee64dfa4e8ea43f9c467d6eadf6415a",
+        "e5e619292d92bb8bba5618e9fb12b36bda03ed5c9c06b8efb47f9bf445637661",
+        "55e5ca3e09bd81d6c6f35ca5a51d6c27f4877fb0d6264ddcf0e2abd80577c242",
+        "06a90097c1c065ed82d86907271cb31bda8d4349c15c2e950dbc1898e1127dce",
+        "271246668b3369fe302734025762136a4b0fd9d8fb1740d2274ac3c9e479c721"
+      ],
+      "source_sha256": "db367dc9ceea8e316438f8b20a88dfc4f8c24b6d418dad67a89a14f2c6c97051",
+      "text": "将 COCO 数据集中一张图像的标注栅格化。\n\n多边形按像素中心填充，一条标注的各部分按 ``pycocotools`` 的方式合并；RLE（无论是否压缩）都精确解码。对象类型依次取 ``object_type``、标注自身的 ``object_type`` 或其类别名；编号取 ``object_id`` 或下一个空闲编号；类别即类别名。\n\n:param data: 已解析的数据集，或其 ``.json`` 文件的路径。\n:param file_name: 对于含多张图像的数据集，指定是哪一张。\n:param shape: ``(rows, columns)``；默认取图像条目中的高度和宽度。\n:param object_type: 把所有标注都归入这一种对象类型。\n:param with_classes: 同时返回每个对象的类别。\n:returns: ``{object type: uint16 labels}``，或 ``(masks, {object type: {id: class}})``（指定 ``with_classes`` 时）。\n:raises ValueError: 图像不存在，或某个 RLE 与之不匹配。",
+      "translation_source_blocks_sha256": [
+        "1e4afb6b88c1f50eb55d228a8a21d40e8ea56e22c8ad3e0c0551b6623f94f0c9",
+        "9da0e07164f0cb2463df89ec2879e3630e355a2dbfab43707cc24771b566ef8b",
+        "56a05316abd2a1cad320b89b997bbffe1dd0cdc6f7b9f6311c9f2486a79cd91a",
+        "c23417e09d07f1ab2ce0e645344f9e2106b42d144b79fa3f2cee425a4c2fddd3",
+        "a6ebcc9593fad26468de51eddb47fa620ee64dfa4e8ea43f9c467d6eadf6415a",
+        "e5e619292d92bb8bba5618e9fb12b36bda03ed5c9c06b8efb47f9bf445637661",
+        "55e5ca3e09bd81d6c6f35ca5a51d6c27f4877fb0d6264ddcf0e2abd80577c242",
+        "06a90097c1c065ed82d86907271cb31bda8d4349c15c2e950dbc1898e1127dce",
+        "271246668b3369fe302734025762136a4b0fd9d8fb1740d2274ac3c9e479c721"
+      ]
+    },
+    "spacr.mask_io.export_rois": {
+      "source_blocks_sha256": [
+        "e7a8c7302d995df478153a63e3fbcfbc4993302545bd287135c5ff774b3feb81",
+        "8c8c9b5c504186b8e1d26267d29e8a88460c99a81d705f4aaa6b868dde0068ff",
+        "1d3a2debed84677ef704f042c202a1ffbcad81b721e40e4c2a25f4fb548f552b",
+        "a87e53653c2f0ce09ae70cbaefbf990ff9dd53b18140abd903661552fbbdb0b7",
+        "aa59182f435ab447699ebb7b2d8ea7dd3357086dbc89fbb7a49eb6228e719ac9",
+        "feb046bc8425d009b3b4032430f60377e73ceaf50ec4554f97111bd682062a06",
+        "134e61e92760eebdacc0e86d456626d892b100125f7dfdcf3f546b80816be951",
+        "889b26062b8392295731449e1dfa708a61d8cb67aedcf0bb6aa0d8f9017d2acd",
+        "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
+        "44682cfdfc9c23ebd78992b17bcda5899933cb238ef4538cfbc11176e3dc943b",
+        "485b69920d37e30bd8a1922443a680a0a27f392caaa0e3315a592f9bc632931f"
+      ],
+      "source_sha256": "0c1ca317911bba27e620f3030014c4bb4200ff5e97af0d1994b8a2bfdb937ce2",
+      "text": "将标签掩膜写为 QuPath GeoJSON、ImageJ RoiSet 或 COCO JSON。\n\n:param masks: 一个 2-D 标签掩膜，或 ``{object type: mask}``。\n:param path: 要写入的文件；除非由 ``fmt`` 指定，否则按其后缀选择格式（``.geojson``、``.zip``，COCO 用 ``.json``）。\n:param fmt: ``\"geojson\"``、``\"imagej\"`` 或 ``\"coco\"``。\n:param classes: ``{id: class}`` 或 ``{object type: {id: class}}``。\n:param object_type: 单个掩膜的类型（默认 ``\"object\"``）。\n:param file_name: 图像名称，记录在 GeoJSON 编号和 COCO ``images`` 中；默认为输出文件的主文件名。\n:param rle: 仅 COCO：将每个分割都写为 RLE。\n:returns: 写入的路径。\n:raises ImportError: 未安装 ``roifile`` 却要输出 ImageJ。\n:raises ValueError: 格式未知或掩膜无效。",
+      "translation_source_blocks_sha256": [
+        "e7a8c7302d995df478153a63e3fbcfbc4993302545bd287135c5ff774b3feb81",
+        "8c8c9b5c504186b8e1d26267d29e8a88460c99a81d705f4aaa6b868dde0068ff",
+        "1d3a2debed84677ef704f042c202a1ffbcad81b721e40e4c2a25f4fb548f552b",
+        "a87e53653c2f0ce09ae70cbaefbf990ff9dd53b18140abd903661552fbbdb0b7",
+        "aa59182f435ab447699ebb7b2d8ea7dd3357086dbc89fbb7a49eb6228e719ac9",
+        "feb046bc8425d009b3b4032430f60377e73ceaf50ec4554f97111bd682062a06",
+        "134e61e92760eebdacc0e86d456626d892b100125f7dfdcf3f546b80816be951",
+        "889b26062b8392295731449e1dfa708a61d8cb67aedcf0bb6aa0d8f9017d2acd",
+        "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
+        "44682cfdfc9c23ebd78992b17bcda5899933cb238ef4538cfbc11176e3dc943b",
+        "485b69920d37e30bd8a1922443a680a0a27f392caaa0e3315a592f9bc632931f"
+      ]
+    },
+    "spacr.mask_io.geojson_to_masks": {
+      "source_blocks_sha256": [
+        "3f6ee1488805e87d2a0aa2f0d517cd5e1c09125fa4b8c460d3e6993a4d8faccf",
+        "a551492f878a4be77281ea4ff8e45dfe4fad65033c74a1e37be4c37e86cf03cd",
+        "57c63dcdce8c5a2b3e139673a36ab03782fe6e921afbdfdc773d9ad9422aa067",
+        "b6d48017f916bdf15cf5f24e58936799bf31d4d600e8d2b29c294e5f0ed8d772",
+        "0b1e9987fd024a22678db89b477a375ac2721eb63d82254fc183c19498a0dc50",
+        "55e5ca3e09bd81d6c6f35ca5a51d6c27f4877fb0d6264ddcf0e2abd80577c242",
+        "06a90097c1c065ed82d86907271cb31bda8d4349c15c2e950dbc1898e1127dce",
+        "f2f2cb0bbdc347ffd1b8a0314d4a8821e20c1448533a4741cc38890ca44a5623"
+      ],
+      "source_sha256": "c65f3fbf5e64ba48ae9dae3d5f25e720de2b490c96d1463464ec765e01150553",
+      "text": "将（QuPath）GeoJSON 文档栅格化为标签掩膜。\n\n当像素中心位于多边形内且在其孔洞之外时，该像素属于该对象；因此由 :func:`masks_to_geojson` 写出的轮廓能逐像素还原。对象类型依次取 ``object_type``、要素的 ``object_type`` 属性、``\"<type> <id>\"`` 形式名称中的类型，或其分类——因此从未进入过 spaCR 的 QuPath 项目会按每个类别生成一个掩膜。编号取 ``object_id`` 属性或测量值，或名称中的编号；没有编号的对象排在其余对象之后编号。\n\n:param data: 已解析的文档，或 ``.geojson`` 文件的路径。\n:param shape: 图像的 ``(rows, columns)``。\n:param object_type: 把所有要素都归入这一种对象类型。\n:param with_classes: 同时返回每个对象的类别。\n:returns: ``{object type: uint16 labels}``，或 ``(masks, {object type: {id: class}})``（指定 ``with_classes`` 时）。\n:raises ValueError: 该文档不是 GeoJSON。",
+      "translation_source_blocks_sha256": [
+        "3f6ee1488805e87d2a0aa2f0d517cd5e1c09125fa4b8c460d3e6993a4d8faccf",
+        "a551492f878a4be77281ea4ff8e45dfe4fad65033c74a1e37be4c37e86cf03cd",
+        "57c63dcdce8c5a2b3e139673a36ab03782fe6e921afbdfdc773d9ad9422aa067",
+        "b6d48017f916bdf15cf5f24e58936799bf31d4d600e8d2b29c294e5f0ed8d772",
+        "0b1e9987fd024a22678db89b477a375ac2721eb63d82254fc183c19498a0dc50",
+        "55e5ca3e09bd81d6c6f35ca5a51d6c27f4877fb0d6264ddcf0e2abd80577c242",
+        "06a90097c1c065ed82d86907271cb31bda8d4349c15c2e950dbc1898e1127dce",
+        "f2f2cb0bbdc347ffd1b8a0314d4a8821e20c1448533a4741cc38890ca44a5623"
+      ]
+    },
+    "spacr.mask_io.import_rois": {
+      "source_blocks_sha256": [
+        "84c2c3128b363f9d384b6b256890b7df37229c9e9513442ab65981bac03fcf88",
+        "4dbf84b89ca778b809c39d04273d048c9fd8d85fb63aecc2b5ceb328bbb7e893",
+        "fe77ac1c4359f1644ce636aea27897a412df6e6b4bdf164b4cf38ef1de3e6bb5",
+        "38c695f333954f09ccbc95b0a5152f4d4ee6b48b443c2b7955e9a8c17d494d7c",
+        "9ebf8a97f05516b346d4954ffd1622c65d3c13428ce0d3fc450b0389fc9f9705",
+        "9f71f2ca4cdca9fd4261e3f8266a7e8cbf1ecf87cd61a79a1108c9cf81198231",
+        "55e5ca3e09bd81d6c6f35ca5a51d6c27f4877fb0d6264ddcf0e2abd80577c242",
+        "06a90097c1c065ed82d86907271cb31bda8d4349c15c2e950dbc1898e1127dce",
+        "92561cd308a9e06c4aa58a73d51de0b922e54589d9da40cc981545fa97b5bbfa",
+        "0682e76e0dbf013a6e78431a85f0d5dff14396e0557e0838f2afca5aa850b4f2"
+      ],
+      "source_sha256": "4ea81f7252c35211c3f44b5a7e614fdfad3871225e2ed9d5037eb593c7a82317",
+      "text": "将 QuPath GeoJSON、ImageJ RoiSet 或 COCO JSON 读取为标签掩膜。\n\n:param path: 该文件。\n:param shape: 图像的 ``(rows, columns)``；GeoJSON 和 ImageJ 必需，COCO 可选，因为 COCO 会记录它。\n:param fmt: ``\"geojson\"``、``\"imagej\"`` 或 ``\"coco\"``；默认根据文件判断（:func:`roi_format`）。\n:param file_name: 仅 COCO：含多张图像的数据集中的哪一张。\n:param object_type: 把所有对象都归入这一种对象类型。\n:param with_classes: 同时返回每个对象的类别。\n:returns: ``{object type: uint16 labels}``，或 ``(masks, {object type: {id: class}})``（指定 ``with_classes`` 时）。\n:raises ValueError: 需要 ``shape`` 时却未提供，或文件无法读取。\n:raises ImportError: 未安装 ``roifile`` 时遇到 ImageJ 文件。",
+      "translation_source_blocks_sha256": [
+        "84c2c3128b363f9d384b6b256890b7df37229c9e9513442ab65981bac03fcf88",
+        "4dbf84b89ca778b809c39d04273d048c9fd8d85fb63aecc2b5ceb328bbb7e893",
+        "fe77ac1c4359f1644ce636aea27897a412df6e6b4bdf164b4cf38ef1de3e6bb5",
+        "38c695f333954f09ccbc95b0a5152f4d4ee6b48b443c2b7955e9a8c17d494d7c",
+        "9ebf8a97f05516b346d4954ffd1622c65d3c13428ce0d3fc450b0389fc9f9705",
+        "9f71f2ca4cdca9fd4261e3f8266a7e8cbf1ecf87cd61a79a1108c9cf81198231",
+        "55e5ca3e09bd81d6c6f35ca5a51d6c27f4877fb0d6264ddcf0e2abd80577c242",
+        "06a90097c1c065ed82d86907271cb31bda8d4349c15c2e950dbc1898e1127dce",
+        "92561cd308a9e06c4aa58a73d51de0b922e54589d9da40cc981545fa97b5bbfa",
+        "0682e76e0dbf013a6e78431a85f0d5dff14396e0557e0838f2afca5aa850b4f2"
       ]
     },
     "spacr.mask_io.load_mask": {
@@ -40957,6 +41115,188 @@
         "e0410782131a1febdd4b83dbd1dd822626ab35b7396b375a27812b582b4425e2",
         "fc3514a64ca246bc01fb0ec852f71f1c3009ecbd36c7bd4d035059d49a88b1f4",
         "8f3631ca698a7ac14eb54cd0b20abde5cd39da0c11afa51a83bb13944cd74480"
+      ]
+    },
+    "spacr.mask_io.masks_to_coco": {
+      "source_blocks_sha256": [
+        "02571d8aa155c791b58982eb913b0c218bb9db608ec5d56f21fc64a4f2e788d8",
+        "d13c7028ff16792da028f2bffc235705a2830709d6c8f0be6e156c0062acd0b0",
+        "8c8c9b5c504186b8e1d26267d29e8a88460c99a81d705f4aaa6b868dde0068ff",
+        "65584565b9cdf8d81a8bbbf50e25a1ad39ee16134902bf584cd62796e6ba3e1b",
+        "00f5ae5db19981f9f2d8c3c2d7e51ca0265e19a15255bdbd4fa3d2ff212ebe83",
+        "feb046bc8425d009b3b4032430f60377e73ceaf50ec4554f97111bd682062a06",
+        "df9d09635789b7ac699cee4171f44d6d92612a75855f3440ebf2d986994fd096",
+        "17bfe9324f30b928f46659b35a72cc526b1cf0c351ac6871fa95c2f851e00e13",
+        "948d8b0f43c7c8f14bed521030cc5637495a2a4698f7778d08240efbfd0a171a",
+        "29a4c2c0d1de7109bd94a908c90e6e998205e5178c7ecaa4b109f7be50fc7528"
+      ],
+      "source_sha256": "0ddf3c4463f8f672c15444466687a5542a4a7f981d0b8adfcf503d51d47a23e6",
+      "text": "将标签掩膜表示为 COCO 实例分割数据集。\n\n每个对象是一条标注，包含 ``segmentation``、``area``（像素）、``bbox``（以像素角点表示的 ``[x, y, width, height]``）、值为 0 的 ``iscrowd``，以及 spaCR 的 ``object_type`` 和 ``object_id``。类别是 ``(object type, class)`` 对：``name`` 是类别，``supercategory`` 是对象类型。分割为多边形——每个部分一个扁平列表 ``[x1, y1, x2, y2, ...]``——但带孔洞的对象除外，COCO 多边形无法表达孔洞，因此写为 RLE；``rle=True`` 会把每个对象都写为压缩 RLE，无论由谁读取都是精确的。\n\n:param masks: 一个 2-D 标签掩膜，或 ``{object type: mask}``。\n:param file_name: 图像的文件名，即 ``images[].file_name``。\n:param classes: ``{id: class}`` 或 ``{object type: {id: class}}``；没有类别的对象按其对象类型分类。\n:param object_type: 单个掩膜的类型（默认 ``\"object\"``）。\n:param rle: 将每个分割都写为 RLE。\n:param dataset: 一个已有的 COCO 字典，把这张图像添加进去，如同队列导出所做的那样；``None`` 则新建一个。\n:returns: 数据集（给出 ``dataset`` 时即为其本身）。\n:raises ValueError: 无效的掩膜。",
+      "translation_source_blocks_sha256": [
+        "02571d8aa155c791b58982eb913b0c218bb9db608ec5d56f21fc64a4f2e788d8",
+        "d13c7028ff16792da028f2bffc235705a2830709d6c8f0be6e156c0062acd0b0",
+        "8c8c9b5c504186b8e1d26267d29e8a88460c99a81d705f4aaa6b868dde0068ff",
+        "65584565b9cdf8d81a8bbbf50e25a1ad39ee16134902bf584cd62796e6ba3e1b",
+        "00f5ae5db19981f9f2d8c3c2d7e51ca0265e19a15255bdbd4fa3d2ff212ebe83",
+        "feb046bc8425d009b3b4032430f60377e73ceaf50ec4554f97111bd682062a06",
+        "df9d09635789b7ac699cee4171f44d6d92612a75855f3440ebf2d986994fd096",
+        "aa3c6e7bb1bb28fee9a1344fc44bf0bcd7e13ff032bfedac42792508fdbc66f6",
+        "948d8b0f43c7c8f14bed521030cc5637495a2a4698f7778d08240efbfd0a171a",
+        "29a4c2c0d1de7109bd94a908c90e6e998205e5178c7ecaa4b109f7be50fc7528"
+      ]
+    },
+    "spacr.mask_io.masks_to_geojson": {
+      "source_blocks_sha256": [
+        "a0d7dabdb51d9bd3e952ca9c3295459a5edc97cf3b67b148a086c0ce23c41496",
+        "f175e7ce68a0cae27ae60a65257b73a6fbd0cb2c8ecaa6438510c8ac3034e24f",
+        "8c8c9b5c504186b8e1d26267d29e8a88460c99a81d705f4aaa6b868dde0068ff",
+        "ca851b08f813b9d87f8fd1c2ec02211b46a3842936babd104ff1732b51c949c0",
+        "feb046bc8425d009b3b4032430f60377e73ceaf50ec4554f97111bd682062a06",
+        "8af787c5f5a9a87a58978686bd1da9cd985dd7e1191892665f69e71d677c7299",
+        "3dfd8270c59c9012e743218ecd5e4ea48203647d5b24222f96cf8a6bd5fb5947",
+        "5d1730822394932c169e22d0e82e77d471c48d2c2205309c34c30aa691841a02",
+        "a57226ce66869e3056095ad946f817a70baebba16a6192aaddbd05ce28126126"
+      ],
+      "source_sha256": "ad778149d78c45f1823979b300346f6ac40c23bc7a23185b350960cc5535c6af",
+      "text": "将标签掩膜表示为 QuPath GeoJSON ``FeatureCollection``。\n\n每个对象一个要素：一个 ``Polygon``，多部分对象则为 ``MultiPolygon``，孔洞作为内环，坐标以像素为单位（像素角点，``x`` 向右，``y`` 向下）。属性为 QuPath 自身的属性——``objectType``、``classification``（``name`` 和 ``color``）、``name`` 和 ``isLocked``——外加 ``object_type`` 和 ``object_id``，以及 ``measurements.object_id``，使编号在经过 QuPath 往返后仍然保留，因为 QuPath 会保留测量值和名称。要素的 ``id`` 是由图像名称、对象类型和编号派生出的 UUID，因此同一掩膜导出两次会写出相同的文件。\n\n:param masks: 一个 2-D 标签掩膜，或 ``{object type: mask}``。\n:param classes: 每个对象的类别：单个掩膜为 ``{id: class}``，否则为 ``{object type: {id: class}}``；没有类别的对象按其对象类型分类。\n:param object_type: 单个掩膜的类型（默认 ``\"object\"``）。\n:param object_kind: ``\"annotation\"`` 或 ``\"detection\"``，即每个要素在 QuPath 中成为的对象。\n:param image_name: 这些掩膜所属的图像，用于使要素编号在不同图像之间唯一。\n:returns: 以可直接转为 JSON 的字典表示的 ``FeatureCollection``。\n:raises ValueError: 未知的 ``object_kind`` 或无效的掩膜。",
+      "translation_source_blocks_sha256": [
+        "a0d7dabdb51d9bd3e952ca9c3295459a5edc97cf3b67b148a086c0ce23c41496",
+        "f175e7ce68a0cae27ae60a65257b73a6fbd0cb2c8ecaa6438510c8ac3034e24f",
+        "8c8c9b5c504186b8e1d26267d29e8a88460c99a81d705f4aaa6b868dde0068ff",
+        "ca851b08f813b9d87f8fd1c2ec02211b46a3842936babd104ff1732b51c949c0",
+        "feb046bc8425d009b3b4032430f60377e73ceaf50ec4554f97111bd682062a06",
+        "8af787c5f5a9a87a58978686bd1da9cd985dd7e1191892665f69e71d677c7299",
+        "3dfd8270c59c9012e743218ecd5e4ea48203647d5b24222f96cf8a6bd5fb5947",
+        "6d63d7d404c88397a4813f98bb4d721b9ca7e8a3147fbf2052ac8dccca45f451",
+        "a57226ce66869e3056095ad946f817a70baebba16a6192aaddbd05ce28126126"
+      ]
+    },
+    "spacr.mask_io.masks_to_roiset": {
+      "source_blocks_sha256": [
+        "99388c80851c859bf23bea55a790aa4e99479e0fc985a9fd9d788506d4d7f24a",
+        "abdb04f7b703f2fb6c9c806e27d7d9b786ad4e474cf5da2f615eca9d6c7829d3",
+        "8c8c9b5c504186b8e1d26267d29e8a88460c99a81d705f4aaa6b868dde0068ff",
+        "1f0e204fb1ec8c33a4c4bf453941f2d73cbe51e9fa790988494fd913bc5bde36",
+        "00f5ae5db19981f9f2d8c3c2d7e51ca0265e19a15255bdbd4fa3d2ff212ebe83",
+        "feb046bc8425d009b3b4032430f60377e73ceaf50ec4554f97111bd682062a06",
+        "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
+        "3eced96e5c286896300e90bba8e860b3f81209d0445866a6b5292b1a68b51278",
+        "29a4c2c0d1de7109bd94a908c90e6e998205e5178c7ecaa4b109f7be50fc7528"
+      ],
+      "source_sha256": "0b2b0c9684741f0f785ae4905328ae326599d01bab36266ba816a5afeb455cfe",
+      "text": "将标签掩膜写为 ImageJ/Fiji ``RoiSet.zip``。\n\n没有孔洞的单块对象写为描绘出的多边形 ROI，即 Fiji 魔棒生成的那种；其他对象写为复合 ROI，其路径是它的全部环。每个 ROI 命名为 ``\"<type>-<id>\"``（唯一，也是 ROI Manager 中列出的名称），并将 ``object_type``、``object_id`` 和 ``class`` 作为 ROI 属性。\n\n:param masks: 一个 2-D 标签掩膜，或 ``{object type: mask}``。\n:param path: 要写入的 ``.zip``；若已存在则替换。\n:param classes: ``{id: class}`` 或 ``{object type: {id: class}}``；没有类别的对象按其对象类型分类。\n:param object_type: 单个掩膜的类型（默认 ``\"object\"``）。\n:returns: 写入的路径。\n:raises ImportError: 未安装 ``roifile``。\n:raises ValueError: 无效的掩膜。",
+      "translation_source_blocks_sha256": [
+        "99388c80851c859bf23bea55a790aa4e99479e0fc985a9fd9d788506d4d7f24a",
+        "abdb04f7b703f2fb6c9c806e27d7d9b786ad4e474cf5da2f615eca9d6c7829d3",
+        "8c8c9b5c504186b8e1d26267d29e8a88460c99a81d705f4aaa6b868dde0068ff",
+        "1f0e204fb1ec8c33a4c4bf453941f2d73cbe51e9fa790988494fd913bc5bde36",
+        "00f5ae5db19981f9f2d8c3c2d7e51ca0265e19a15255bdbd4fa3d2ff212ebe83",
+        "feb046bc8425d009b3b4032430f60377e73ceaf50ec4554f97111bd682062a06",
+        "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
+        "3eced96e5c286896300e90bba8e860b3f81209d0445866a6b5292b1a68b51278",
+        "29a4c2c0d1de7109bd94a908c90e6e998205e5178c7ecaa4b109f7be50fc7528"
+      ]
+    },
+    "spacr.mask_io.object_polygons": {
+      "source_blocks_sha256": [
+        "ba30c3a03bdf39d9228ad337058b363d76aee52ac9451eaaa0c6eb212f5ae1ce",
+        "172b0c090ec7aba6610e85b57a054210645ecbbe044febe193e38bab80b07b24",
+        "64c972edda9cd355c43b46b24178f30bbb8a6116340d2a170716a699fa585173",
+        "f44e24ec40c40663f108c8723228c60e3bbf22150c59409635a20cc76addd310"
+      ],
+      "source_sha256": "963c6276635ed12e656bb0d4f51ece7e5b34dc0f6f088a21e203eb0981b681dc",
+      "text": "精确勾勒标签掩膜中一个对象的多边形。\n\n:param mask: 2-D 标签掩膜。\n:param label: 要勾勒的对象编号。\n:returns: 对象的每个 4 连通部分对应一个 ``[exterior, hole, hole, ...]`` 列表；每个环是闭合的 ``(n, 2)`` 整数数组，包含像素角点的 ``x, y`` 坐标。编号不存在时为空。",
+      "translation_source_blocks_sha256": [
+        "ba30c3a03bdf39d9228ad337058b363d76aee52ac9451eaaa0c6eb212f5ae1ce",
+        "172b0c090ec7aba6610e85b57a054210645ecbbe044febe193e38bab80b07b24",
+        "64c972edda9cd355c43b46b24178f30bbb8a6116340d2a170716a699fa585173",
+        "f44e24ec40c40663f108c8723228c60e3bbf22150c59409635a20cc76addd310"
+      ]
+    },
+    "spacr.mask_io.rle_decode": {
+      "source_blocks_sha256": [
+        "1ee272b193a1be06eef95a23fe30c2ee26492d6788dae9bcc386ced280b6fe8b",
+        "d6e3bd05f2968c8b607c0358b8e1f8a32557352cf1e590eab837b021bbdd61a1",
+        "4c3b0595f089783f43db61ad9424c9e076fbadcd291a126a7dd57555eaaf616f",
+        "6d792290e74fd807befc391d39039fcdcdc96e0605200f991a1e121ca2208869"
+      ],
+      "source_sha256": "4b4482025ea0a92bfe5e7c6293eaa4fcdbee0918c8f9ddacf4205abefd236251",
+      "text": "解码 COCO RLE，可以是压缩的（文本）或未压缩的（游程长度列表）。\n\n:param rle: ``{\"size\": [rows, columns], \"counts\": ...}``.\n:returns: 2-D 布尔掩膜。\n:raises ValueError: 游程长度之和与尺寸不符。",
+      "translation_source_blocks_sha256": [
+        "011e306fb8ccadc73ffc67bc6b5fa7b8a99be31e46952daa26a9e2669b2ceadd",
+        "d6e3bd05f2968c8b607c0358b8e1f8a32557352cf1e590eab837b021bbdd61a1",
+        "4c3b0595f089783f43db61ad9424c9e076fbadcd291a126a7dd57555eaaf616f",
+        "6d792290e74fd807befc391d39039fcdcdc96e0605200f991a1e121ca2208869"
+      ]
+    },
+    "spacr.mask_io.rle_encode": {
+      "source_blocks_sha256": [
+        "81b4730f8d56a95d13f3628919682ad145cf2093100562d00de55ad0904ed1f3",
+        "96bfd1ae4a1506f9f7ede6ff4fe2c4b6ff5fb4da473fce2ad0cdb6b66195a70e",
+        "b3ca064b0e1aba306099c06e95426e1da9e83f0fc50725cfe8e4b48ed86c69c4"
+      ],
+      "source_sha256": "59a86f55f3332813a894ea4654ea7c3333a9b8f50bf7239c4a1d0f6e6053cf7c",
+      "text": "二值掩膜的 COCO 游程编码，按 COCO 写入的方式压缩。\n\n:param binary: 2-D 布尔掩膜。\n:returns: ``{\"size\": [rows, columns], \"counts\": str}``，即 ``pycocotools.mask.encode`` 在 ``counts`` 为文本时返回的内容。",
+      "translation_source_blocks_sha256": [
+        "81b4730f8d56a95d13f3628919682ad145cf2093100562d00de55ad0904ed1f3",
+        "96bfd1ae4a1506f9f7ede6ff4fe2c4b6ff5fb4da473fce2ad0cdb6b66195a70e",
+        "b3ca064b0e1aba306099c06e95426e1da9e83f0fc50725cfe8e4b48ed86c69c4"
+      ]
+    },
+    "spacr.mask_io.roi_format": {
+      "source_blocks_sha256": [
+        "2bc5a594d74680558dd3dbe408e768d346487bf9340e3c31fd1c2b66d2d8821a",
+        "4209797fa9d27f3f7486d03f35901d22e919ccf6594c3848cae4c63547c3f896",
+        "4b92ecdf5aabe1e5af0902f01b963935f69842500caed6f4c1e0e6a4dba5d22d",
+        "6a56e13c1ab7d2d453fcf32533bfc9812626466e9c9a52e111e2804ee3d38f97",
+        "d4e2e1cb99203d01b1cd65ced2cb2640e5e754f4bb02fee956db2812555f8378"
+      ],
+      "source_sha256": "824d3a385428807bd8dbf3396aeb97cc5f20b1411eab613d699c451666a2657b",
+      "text": "判断文件属于哪种 ROI 格式：``\"geojson\"``、``\"imagej\"`` 或 ``\"coco\"``。\n\n:param path: 文件；``.geojson`` 为 GeoJSON，``.zip`` 和 ``.roi`` 为 ImageJ，已存在的 ``.json`` 会被读取以区分 COCO 和 GeoJSON（新文件视为 COCO）。\n:param fmt: 调用方已知时直接给出的答案；也接受 ``\"qupath\"`` 和 ``\"roiset\"``。\n:returns: 格式。\n:raises ValueError: 未知的 ``fmt``，或文件不属于任何已知格式。",
+      "translation_source_blocks_sha256": [
+        "2bc5a594d74680558dd3dbe408e768d346487bf9340e3c31fd1c2b66d2d8821a",
+        "4209797fa9d27f3f7486d03f35901d22e919ccf6594c3848cae4c63547c3f896",
+        "4b92ecdf5aabe1e5af0902f01b963935f69842500caed6f4c1e0e6a4dba5d22d",
+        "6a56e13c1ab7d2d453fcf32533bfc9812626466e9c9a52e111e2804ee3d38f97",
+        "d4e2e1cb99203d01b1cd65ced2cb2640e5e754f4bb02fee956db2812555f8378"
+      ]
+    },
+    "spacr.mask_io.roi_suffix": {
+      "source_blocks_sha256": [
+        "5e134a8d96ae1e5309e7658ae33975f9cfb6a1842d01597e51931c3872de7533",
+        "a87e53653c2f0ce09ae70cbaefbf990ff9dd53b18140abd903661552fbbdb0b7",
+        "71cf3fc63cc9c38a80834767a0575d55820bd2feea5e87461fd9e76f46c4ba2a"
+      ],
+      "source_sha256": "d33c5017b95fe472f8fd4e2adae67569ae167607227dff2feec26b64d397425e",
+      "text": "写入某种 ROI 格式时使用的文件后缀。\n\n:param fmt: ``\"geojson\"``、``\"imagej\"`` 或 ``\"coco\"``。\n:returns: ``\".geojson\"``、``\".zip\"`` 或 ``\".json\"``。",
+      "translation_source_blocks_sha256": [
+        "5e134a8d96ae1e5309e7658ae33975f9cfb6a1842d01597e51931c3872de7533",
+        "a87e53653c2f0ce09ae70cbaefbf990ff9dd53b18140abd903661552fbbdb0b7",
+        "71cf3fc63cc9c38a80834767a0575d55820bd2feea5e87461fd9e76f46c4ba2a"
+      ]
+    },
+    "spacr.mask_io.roiset_to_masks": {
+      "source_blocks_sha256": [
+        "5517d2277395f15b49ed50cd11c780d24e1b3b10d7f4a3b1781c921d38807860",
+        "893f1f0921228aac030b046a9ba7c7c21455d916e082fb4564c55e4b2db2d956",
+        "5758bf78a469fbea0059f39d6ec4364d0289dc013530a9a4de7676cc635697d3",
+        "b6d48017f916bdf15cf5f24e58936799bf31d4d600e8d2b29c294e5f0ed8d772",
+        "86d589194ab54313e0d6799d34f5ef1df4244ed6bc2b7a3b2e4731e2bc7b8bbd",
+        "55e5ca3e09bd81d6c6f35ca5a51d6c27f4877fb0d6264ddcf0e2abd80577c242",
+        "06a90097c1c065ed82d86907271cb31bda8d4349c15c2e950dbc1898e1127dce",
+        "3eced96e5c286896300e90bba8e860b3f81209d0445866a6b5292b1a68b51278"
+      ],
+      "source_sha256": "93187a370051fb75390fbc2c9a14bf452741a4bc51493feb866a39b5fe3d63e4",
+      "text": "将 ImageJ ``RoiSet.zip``（或单个 ``.roi``）栅格化为标签掩膜。\n\n读取多边形、手绘、描绘、矩形和椭圆 ROIs，复合 ROI 则按其路径的奇偶规则读取，与 ImageJ 的填充方式一致；线和点没有面积，会被跳过。像素中心在其内部时像素即属于该 ROI，这是 ImageJ 自己的规则，因此由 :func:`masks_to_roiset` 写出的集合能逐像素还原。类型、编号和类别取自 ROI 属性；若没有，则取自 ``\"<type>-<id>\"`` 形式的名称；再没有，则该 ROI 视为 ``\"object\"``，排在其余对象之后编号。\n\n:param path: ``.zip`` 或 ``.roi`` 文件。\n:param shape: 图像的 ``(rows, columns)``。\n:param object_type: 把所有 ROI 都归入这一种对象类型。\n:param with_classes: 同时返回每个对象的类别。\n:returns: ``{object type: uint16 labels}``，或 ``(masks, {object type: {id: class}})``（指定 ``with_classes`` 时）。\n:raises ImportError: 未安装 ``roifile``。",
+      "translation_source_blocks_sha256": [
+        "5517d2277395f15b49ed50cd11c780d24e1b3b10d7f4a3b1781c921d38807860",
+        "893f1f0921228aac030b046a9ba7c7c21455d916e082fb4564c55e4b2db2d956",
+        "5758bf78a469fbea0059f39d6ec4364d0289dc013530a9a4de7676cc635697d3",
+        "b6d48017f916bdf15cf5f24e58936799bf31d4d600e8d2b29c294e5f0ed8d772",
+        "86d589194ab54313e0d6799d34f5ef1df4244ed6bc2b7a3b2e4731e2bc7b8bbd",
+        "55e5ca3e09bd81d6c6f35ca5a51d6c27f4877fb0d6264ddcf0e2abd80577c242",
+        "06a90097c1c065ed82d86907271cb31bda8d4349c15c2e950dbc1898e1127dce",
+        "3eced96e5c286896300e90bba8e860b3f81209d0445866a6b5292b1a68b51278"
       ]
     },
     "spacr.mask_io.save_mask": {
@@ -41406,7 +41746,7 @@
         "a19d38b7da35680a98438b6c9345ff12e12b71a4a21a0d368c390516d6fd1552",
         "054741b350d867667f171fa35a8690542cca56ed7ce2af372ca9196eb11b8377",
         "a37185726b85ad3c914d7ce9d24d7408b1490ec0357f1185c3a195d9453deb2c",
-        "6fac3b3c3d6315353854ef93aefd201e216cbbae8b3c2f92dda8874081d9e380",
+        "3d8ecd508f60dfc16456a0d2770f5aad0960c6270c9aaa78ddce6744c1fe756d",
         "4087a34207b4e68d07756e7776e46daec0dba3fbab45e193c8439293c16521b0",
         "fe4e08f552d7009f9e6ad5595de3e7b274d4b59f2d549e847128ae4eaa279d42",
         "aafc35c8e7dd5e02343204022316337ccbaeb83b2f30d905d521d7230b01fe71",
@@ -41423,13 +41763,13 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "e9fad3ffb2efec6a5b19f4127fb66633a0c096704de7bd7907e7fc3c03c7ad39"
       ],
-      "source_sha256": "d18ecf626386634140d8471f3b7dcd378d5e67ab3c4cf566f604d3af3c6452af",
-      "text": "提取物分物形态/强度测量和(可选)收获 PNGs 由掩膜粘贴。\n\n读取 ``merged/`` 文件夹；该文件夹由 :func:`spacr.core.preprocess_generate_masks` 生成，其中图像数据通道数组和掩模堆栈均保存为 ``.npy``。随后为每个细胞 / 细胞核 / 病原体 / 细胞质对象计算形状、强度、纹理和空间特征，并写入 SQLite ``measurements.db``。启用 ``save_png`` 时，还会为每个对象提取图像区域并保存为 PNG 缩略图，作为 :func:`spacr.deep_spacr.deep_spacr` 的训练输入。\n\n:param settings: 设置关键值地图,通过 :func:`spacr.settings.get_measure_crop_settings` 进行可通化。 结构数据输入函数阅读:\n\n    - ``src``(str 或列表) — 一或多个 ``…/merged`` 文件夹。\n    - ``psf_measurement_source`` —— original（默认）使用常规的经过重新缩放/预处理的强度；processed 会在定量特征之前加入一个经过显式校准的 PSF。不可变的卷积核会传递到每个工作进程。源图像和导出的裁剪图保持不变。视野的来源信息保存在 ``intensity_rescale`` 中；不兼容的已有 PSF 测量会在追加任何行之前被拒绝。\n    - ``cell_mask_dim`` / ``nucleus_mask_dim`` / ``pathogen_mask_dim`` - 每个掩膜板的图像数据渠道指数; ``None`` 阻止此类对象类型。\n    - ``cell_min_size`` / ``nucleus_min_size`` / ``pathogen_min_size`` / ``cytoplasm_min_size`` - 像素区域切割。\n    - ``channels`` - 图像强度数据渠道的列表来测量。\n    - ``crop_mode`` - 从 ``['cell','nucleus','pathogen', 'cytoplasm']`` 提取的列表;每个输入每对象产生一个 PNG。\n    - ``save_png`` — 写字符为对象 PNG。\n    - ``normalize`` — ``[lower_pct, upper_pct]`` 为 PNG 正常化。\n    - ``normalize_by`` — ``'png'``(每个提取图像区域)或 ``'fov'``(每显微镜视野)。\n    - ``timelapse``, ``timelapse_objects``, ``n_jobs``, ``test_mode``.\n    - ``dry_run`` - 验证设置,报告计划和停止;输入文件夹被检查,但没有写下任何内容。\n\n:returns: ``None``在正常运行中,写下``measurements/measurements.db``、``measure_crop_settings.csv``和(如果``save_png``) PNG 到每对象的子字段为 ``src``。当 ``dry_run``设置时,:class:`spacr.validate.Problem`的列表由 :func:`spacr.validate.run_preflight`返回,没有任何内容被写入。\n:raises ValueError: 如果 ``src`` 不是行或行列表。\n:raises spacr.errors.ConfigurationError: 只有在严格模式(``settings['strict_errors']``,或 ``SPACR_STRICT_ERRORS``环境变量)。 ``normalize``、 ``normalize_by``、掩膜尺寸/min尺寸和 ``channels`` 类型检查,否则打印一个警告并返回 ``None`` 没有测量任何东西。\n\n示例：\n    .. code-block:: python\n\n        from spacr.measure import measure_crop\n        settings = {\n            'src': '/data/plate01/merged',\n            'cell_mask_dim': 4, 'nucleus_mask_dim': 5, 'pathogen_mask_dim': 6,\n            'channels': [0, 1, 2, 3],\n            'crop_mode': ['cell'], 'save_png': True,\n            'normalize': [1, 99], 'normalize_by': 'png',\n        }\n        measure_crop(settings)\n\n看也: :func:`spacr.core.preprocess_generate_masks` — 上流掩膜生成 :func:`spacr.io.generate_dataset` — 创建一个训练组从 PNGs. :func:`spacr.deep_spacr.deep_spacr` — 在提取的图像区域上运行 CNN。",
+      "source_sha256": "84831429cc9a1e4b67232df48c98c7bff72a67dc2be87aeb20896faa1d8bcc01",
+      "text": "提取物分物形态/强度测量和(可选)收获 PNGs 由掩膜粘贴。\n\n读取 ``merged/`` 文件夹；该文件夹由 :func:`spacr.core.preprocess_generate_masks` 生成，其中图像数据通道数组和掩模堆栈均保存为 ``.npy``。随后为每个细胞 / 细胞核 / 病原体 / 细胞质对象计算形状、强度、纹理和空间特征，并写入 SQLite ``measurements.db``。启用 ``save_png`` 时，还会为每个对象提取图像区域并保存为 PNG 缩略图，作为 :func:`spacr.deep_spacr.deep_spacr` 的训练输入。\n\n:param settings: 设置关键值地图,通过 :func:`spacr.settings.get_measure_crop_settings` 进行可通化。 结构数据输入函数阅读:\n\n    - ``src``（str 或列表）— 一个或多个 ``…/merged`` 文件夹。Make Masks 已分析过的云地址，会从 Make Masks 暂存它的本地文件夹进行测量；包含合并堆栈的云文件夹会先镜像到 ``cloud_cache`` 下。``cloud_results`` 会把测量文件夹复制回云存储。\n    - ``psf_measurement_source`` —— original（默认）使用常规的经过重新缩放/预处理的强度；processed 会在定量特征之前加入一个经过显式校准的 PSF。不可变的卷积核会传递到每个工作进程。源图像和导出的裁剪图保持不变。视野的来源信息保存在 ``intensity_rescale`` 中；不兼容的已有 PSF 测量会在追加任何行之前被拒绝。\n    - ``cell_mask_dim`` / ``nucleus_mask_dim`` / ``pathogen_mask_dim`` - 每个掩膜板的图像数据渠道指数; ``None`` 阻止此类对象类型。\n    - ``cell_min_size`` / ``nucleus_min_size`` / ``pathogen_min_size`` / ``cytoplasm_min_size`` - 像素区域切割。\n    - ``channels`` - 图像强度数据渠道的列表来测量。\n    - ``crop_mode`` - 从 ``['cell','nucleus','pathogen', 'cytoplasm']`` 提取的列表;每个输入每对象产生一个 PNG。\n    - ``save_png`` — 写字符为对象 PNG。\n    - ``normalize`` — ``[lower_pct, upper_pct]`` 为 PNG 正常化。\n    - ``normalize_by`` — ``'png'``(每个提取图像区域)或 ``'fov'``(每显微镜视野)。\n    - ``timelapse``, ``timelapse_objects``, ``n_jobs``, ``test_mode``.\n    - ``dry_run`` - 验证设置,报告计划和停止;输入文件夹被检查,但没有写下任何内容。\n\n:returns: ``None``在正常运行中,写下``measurements/measurements.db``、``measure_crop_settings.csv``和(如果``save_png``) PNG 到每对象的子字段为 ``src``。当 ``dry_run``设置时,:class:`spacr.validate.Problem`的列表由 :func:`spacr.validate.run_preflight`返回,没有任何内容被写入。\n:raises ValueError: 如果 ``src`` 不是行或行列表。\n:raises spacr.errors.ConfigurationError: 只有在严格模式(``settings['strict_errors']``,或 ``SPACR_STRICT_ERRORS``环境变量)。 ``normalize``、 ``normalize_by``、掩膜尺寸/min尺寸和 ``channels`` 类型检查,否则打印一个警告并返回 ``None`` 没有测量任何东西。\n\n示例：\n    .. code-block:: python\n\n        from spacr.measure import measure_crop\n        settings = {\n            'src': '/data/plate01/merged',\n            'cell_mask_dim': 4, 'nucleus_mask_dim': 5, 'pathogen_mask_dim': 6,\n            'channels': [0, 1, 2, 3],\n            'crop_mode': ['cell'], 'save_png': True,\n            'normalize': [1, 99], 'normalize_by': 'png',\n        }\n        measure_crop(settings)\n\n看也: :func:`spacr.core.preprocess_generate_masks` — 上流掩膜生成 :func:`spacr.io.generate_dataset` — 创建一个训练组从 PNGs. :func:`spacr.deep_spacr.deep_spacr` — 在提取的图像区域上运行 CNN。",
       "translation_source_blocks_sha256": [
         "a19d38b7da35680a98438b6c9345ff12e12b71a4a21a0d368c390516d6fd1552",
         "52d723fdb3dd688a258786c9cb0fa01abc3f76a0da6919d495cf2b15dc5e17bf",
         "2250563fac2fe2543f93d58a7d18e1e6f2e792ed902b46468c5bef251a3b9463",
-        "6fac3b3c3d6315353854ef93aefd201e216cbbae8b3c2f92dda8874081d9e380",
+        "3d8ecd508f60dfc16456a0d2770f5aad0960c6270c9aaa78ddce6744c1fe756d",
         "3327bf29d365fa4ef5e052f06819a368d34a4f0815b00be99f5961c475553a0a",
         "938c8dfe071ebaa5f3900b0ed2bce9abad594ef5d0672f67375fb2841deeed2f",
         "aafc35c8e7dd5e02343204022316337ccbaeb83b2f30d905d521d7230b01fe71",
@@ -47955,7 +48295,7 @@
       "source_blocks_sha256": [
         "0b7ffdbdf6731edb022b8e88c07b33c5fcb96b3443178f5c338469f4b1430a18",
         "46ab8da3c52e5e9e3ce2eac6c3b1093e7700f9951b9664dc0118d885cb508040",
-        "e9befa8b26a4ea228599e37365b23b620e96419b1053571b5d5464606b30dedd",
+        "dd4a963e2f04dba4853a1c63f327c6b229864b11ad0b7ac61622e72baf7a5f6a",
         "29a1be2f9f32ead343bd5c3da14a47365d88f0bd7ef59e19650b57b940afc727",
         "3b4741714fe14d6366d7ad3a28496a310ee4670705a5cfe56a6640d41a835468",
         "ff0e2dc365436dd7787b99f3fcab7443eac3792d34e42fa13f9efb206d7b8c64",
@@ -47964,12 +48304,12 @@
         "7490cab6cdcf8d211548283b8a53ba6904fa0a270f553c593f3c231a4eb212bf",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ],
-      "source_sha256": "30f0bac4bd76395b57ecc40b356ba3c1ba298a6c6bdf9b997d3d9ee11161f8f1",
-      "text": "对所有 ``.npz`` 批次中位于 ``src`` 下的一个对象图像数据通道进行分割，并使用 Cellpose-SAM。\n\n加载 ``cpsam`` 预训练模型；如果 ``<object_type>_model_name``（或 ``pathogen_model``）指定了用户训练的检查点，则加载该检查点。遍历每个已预先分批的 ``.npz`` 文件，对 2-D 掩膜应用周长合并以及面积/边界过滤，并可选地根据对象在原始自身通道图像中的绝对平均强度进行过滤。然后可选地跟踪时间序列对象，保存每幅图像的 ``.npy`` 掩膜，并将每个对象的计数记录到本次运行的 SQLite 数据库中。无论声明的时间轴位置如何，时间堆栈归档都必须为每个时间点包含一个文件名；每个原始文件名标识该时间点的 ``(Z, Y, X, C)`` 体数据，或者其 ``(Y, X, C)`` 图像（对于扁平的 ``TYX`` 序列）。全板运动性分析属于 :func:`spacr.core.preprocess_generate_masks`，在所有对象掩膜都与其图像合并之后进行；本生成器不会运行它。\n\n模型设置为 ``cellpose3:<model or weights path>`` 的对象，或者当 ``segmentation_backend`` 为 ``'cellpose3'`` 时的任何对象，由 ``_cellpose3_masks`` 在 Cellpose 3 后端自己的环境中分割；其返回结果进入与 Cellpose-SAM 结果相同的流程，因此保存的掩膜和数据库行的写入方式相同。模型设置为 ``cellpose_dino:<checkpoint path>`` 的对象由 Cellpose-DINO 后端的工作进程分割，该进程接受与 Cellpose-SAM 模型完全相同的 ``eval`` 调用并返回其形状（条目 525）。\n\n:param src: 包含已预先分批的 ``.npz`` 图像堆栈的目录。\n:param settings: 处理流程设置字典；通过 :func:`spacr.settings.set_default_settings_preprocess_generate_masks` 规范化。\n:param object_type: ``'cell'``、``'nucleus'``、``'pathogen'`` 或 ``'organelle'``；决定通道和阈值的查找以及输出文件夹名称。\n:param batch_paths: 可选的、分配给工作进程的独占 NPZ 路径集合，位于 ``src`` 下。同一个模型会在整个分配中复用；``None`` 保持普通的整目录运行。空分配不会加载任何模型。\n:param on_batch_done: 可选的可调用对象，在归档中所选视野全部完成后接收该归档路径。失败的归档不会被报告。\n:param run_qc: False 让并行协调器在所有工作进程结束后统一运行一次共享的 QC，而不是由每个工作进程分别写出报告。\n:returns: None.",
+      "source_sha256": "fcd5ba4b06f054783df4793727780d3944cba7fd89a347c04603b1a86a417cc9",
+      "text": "对所有 ``.npz`` 批次中位于 ``src`` 下的一个对象图像数据通道进行分割，并使用 Cellpose-SAM。\n\n加载 ``cpsam`` 预训练模型；如果 ``<object_type>_model_name``（或 ``pathogen_model``）指定了用户训练的检查点，则加载该检查点。遍历每个已预先分批的 ``.npz`` 文件，对 2-D 掩膜应用周长合并以及面积/边界过滤，并可选地根据对象在原始自身通道图像中的绝对平均强度进行过滤。然后可选地跟踪时间序列对象，保存每幅图像的 ``.npy`` 掩膜，并将每个对象的计数记录到本次运行的 SQLite 数据库中。无论声明的时间轴位置如何，时间堆栈归档都必须为每个时间点包含一个文件名；每个原始文件名标识该时间点的 ``(Z, Y, X, C)`` 体数据，或者其 ``(Y, X, C)`` 图像（对于扁平的 ``TYX`` 序列）。全板运动性分析属于 :func:`spacr.core.preprocess_generate_masks`，在所有对象掩膜都与其图像合并之后进行；本生成器不会运行它。\n\n模型设置为 ``cellpose3:<model or weights path>`` 的对象，或在 ``segmentation_backend`` 为 ``'cellpose3'`` 时的任何对象，都由 ``_cellpose3_masks`` 在 Cellpose 3 后端自己的环境中分割；其返回结果进入与 Cellpose-SAM 结果相同的流程，因此保存的掩膜和数据库行的写法相同。模型设置为 ``cellpose_dino:<checkpoint path>`` 的对象由 Cellpose-DINO 后端的工作进程分割，该进程接受与 Cellpose-SAM 模型完全相同的 ``eval`` 调用并返回其形状（第 525 项）。模型设置带有 StarDist、InstanSeg 或 Omnipose 前缀的对象（``stardist:<model>`` 等，第 551-553 项）也是如此，各自在其后端的工作进程中处理。\n\n:param src: 包含已预先分批的 ``.npz`` 图像堆栈的目录。\n:param settings: 处理流程设置字典；通过 :func:`spacr.settings.set_default_settings_preprocess_generate_masks` 规范化。\n:param object_type: ``'cell'``、``'nucleus'``、``'pathogen'`` 或 ``'organelle'``；决定通道和阈值的查找以及输出文件夹名称。\n:param batch_paths: 可选的、分配给工作进程的独占 NPZ 路径集合，位于 ``src`` 下。同一个模型会在整个分配中复用；``None`` 保持普通的整目录运行。空分配不会加载任何模型。\n:param on_batch_done: 可选的可调用对象，在归档中所选视野全部完成后接收该归档路径。失败的归档不会被报告。\n:param run_qc: False 让并行协调器在所有工作进程结束后统一运行一次共享的 QC，而不是由每个工作进程分别写出报告。\n:returns: None.",
       "translation_source_blocks_sha256": [
         "0f72a3bf5b35389616ede547ab5aba76ad013ecd0871d1053e9b14188480ac85",
         "05ad5cce9a777e062a0f102029ade6f75e4ded11e2122b262526d7727101869e",
-        "e9befa8b26a4ea228599e37365b23b620e96419b1053571b5d5464606b30dedd",
+        "dd4a963e2f04dba4853a1c63f327c6b229864b11ad0b7ac61622e72baf7a5f6a",
         "29a1be2f9f32ead343bd5c3da14a47365d88f0bd7ef59e19650b57b940afc727",
         "249c32f29480a26a6cbbe578e01e8d7170adebcf6c33263f15454b3e1530fa52",
         "ff0e2dc365436dd7787b99f3fcab7443eac3792d34e42fa13f9efb206d7b8c64",
@@ -49057,10 +49397,11 @@
         "e40842638b234d034d5b4bd0354d8ddaf607a7cb5f55f98141bf481b3ce7c70c",
         "a84bf100ff82e8bd5e238ad235960e0b07439db78ae099865bf2242c07c92466",
         "c465b3646868ac8bced85d0ca736571a72baeaa830dbb7d9992ac761e1a2d32a",
-        "f5a19fade1b689c5b19c677830d3e6b8ee97d85b9083521e6f297e4bca4a4b93"
+        "f5a19fade1b689c5b19c677830d3e6b8ee97d85b9083521e6f297e4bca4a4b93",
+        "da9bfbe5a7177c40f39a8ad230dacf5f15cae6f76f14f24bb753282f062d7bdd"
       ],
-      "source_sha256": "14b4ca86e169aafb547cce931928e81b8915e3104ac9054971c244def054439f",
-      "text": "一个开放的 OME-Zarr 多层图像:现在的数据,需求上的碎片。\n\n回归为 :func:`read_ome_zarr` 阅读后仅是群体的 JSON,所以持有其中一个没有说多少数据被阅读 - 答案是没有,直到 :meth:`read` 被召唤,然后只有区域触摸的碎片。\n\n:param path: 组导演。\n:param axes: 每个轴,顺序顺序,水平0规模和翻译各。\n:param levels: 解析金字塔,第一级0。\n:param ngff_version: 文件所说的是什么。\n:param name: 这个名字是“``multiscales``”,如果有的话。\n:param channel_names: 从 ``omero`` 区块当存在时, spaCR 有频道名称要填写,所以它们被阅读和写作而不是落下。\n:param omero: 原始 ``omero`` 区块,仅读取,为此模块不解释(颜色、窗户、红色)的播放设置。\n:param units_declared: ``False``当空间轴携带没有单元时,所以 :attr:`spacing`是像素 *因为文件没有说什么*,而不是因为它说像素。\n:param multiscale: 原始 ``multiscales`` 输入,因为这里的任何东西都没有模型。",
+      "source_sha256": "a17e38378307fff75961c61c9a5392f586baf3e5d3ed0afecf7b9f692778d789",
+      "text": "一个开放的 OME-Zarr 多层图像:现在的数据,需求上的碎片。\n\n回归为 :func:`read_ome_zarr` 阅读后仅是群体的 JSON,所以持有其中一个没有说多少数据被阅读 - 答案是没有,直到 :meth:`read` 被召唤,然后只有区域触摸的碎片。\n\n:param path: 组导演。\n:param axes: 每个轴,顺序顺序,水平0规模和翻译各。\n:param levels: 解析金字塔,第一级0。\n:param ngff_version: 文件所说的是什么。\n:param name: 这个名字是“``multiscales``”,如果有的话。\n:param channel_names: 从 ``omero`` 区块当存在时, spaCR 有频道名称要填写,所以它们被阅读和写作而不是落下。\n:param omero: 原始 ``omero`` 区块,仅读取,为此模块不解释(颜色、窗户、红色)的播放设置。\n:param units_declared: ``False``当空间轴携带没有单元时,所以 :attr:`spacing`是像素 *因为文件没有说什么*,而不是因为它说像素。\n:param multiscale: 原始 ``multiscales`` 输入,因为这里的任何东西都没有模型。\n\n从云存储打开的图像还会保留打开时的位置及所用凭据，使 :meth:`read` 以同样的方式访问数据块。",
       "translation_source_blocks_sha256": [
         "fefcc0527a59694f89d8e62c425c40f3aa07ae326adf73ccca650e0caef01059",
         "aa118feced42033634dabb4b64f7cadc92225a4ccca89d13698b9fe65c4f7bb6",
@@ -49072,7 +49413,8 @@
         "e40842638b234d034d5b4bd0354d8ddaf607a7cb5f55f98141bf481b3ce7c70c",
         "a84bf100ff82e8bd5e238ad235960e0b07439db78ae099865bf2242c07c92466",
         "c465b3646868ac8bced85d0ca736571a72baeaa830dbb7d9992ac761e1a2d32a",
-        "f5a19fade1b689c5b19c677830d3e6b8ee97d85b9083521e6f297e4bca4a4b93"
+        "f5a19fade1b689c5b19c677830d3e6b8ee97d85b9083521e6f297e4bca4a4b93",
+        "da9bfbe5a7177c40f39a8ad230dacf5f15cae6f76f14f24bb753282f062d7bdd"
       ]
     },
     "spacr.ome_zarr.OmeZarrImage.__post_init__": {
@@ -49345,17 +49687,17 @@
       "source_blocks_sha256": [
         "dddaa7e9162d6926db7e1832d8745ffcbc4ec4948ac49f564b81be80653e9ab0",
         "0278fdaed39e40d2e67b16313d7b18e27476676628664ec3a28c4e6c6f5022b6",
-        "bef73e163cedee7ab83ac1c4fef33f81c0fd7cf1408d0214e2ac3cec58f9a818",
+        "d2ce9f6acb2261caf206277b9ddbe0a0bb4c7e81bae227f23e75cbc8c3673479",
         "cda4fa2fa5c5d05a73fd4ba188411bd7747d5323a709cf125f01177dc6db5499",
         "d946920a83329759a8b06c6a5bd2ee390099879861b6a42b41c13af0bfee6d89",
         "6df452e036a451f89ff45a250d1ae2c68e1bf48e2c2e3f0a1238925ceba7eaae"
       ],
-      "source_sha256": "49967afdbd5411f33f251ceddb1c47969515de494c6c27d553fae1dc0dbfce18",
-      "text": "打开一个 OME-Zarr 组,并阅读其代码。 **没有触摸**\n\n这一切都读得很小。 JSON 答:团体的 ``.zattrs`` (或者是 ``attributes`` 他的 ``zarr.json``)和一个 ``.zarray`` 因此,问一个100GB板,它的水平,形状,语音大小和频道花费几千里,这就是整个格式存在的属性。\n\n:param path: 组目录 - 持有 ``multiscales`` 的一个目录。 对于一个表格是``<plate>.zarr/<row>/<column>/<field>``。\n:param multiscale_index: 哪些 ``multiscales`` 入口可阅读. NGFF 允许多; spaCR 首先是默认的,而不是假设只有一个可以这样说。\n:returns: 打开的 :class:`OmeZarrImage`。\n:raises OmeZarrError: 如果目录不是一个 zarr 组,没有 ``multiscales`` ,表示一个 zarra 格式 spaCR 不阅读,或者携带轴单位 spaCR 不翻译。",
+      "source_sha256": "c90a87acfc6f92de15a9065778aa527b973ee7b9f8c45cf2aee9fffab322ba0c",
+      "text": "打开一个 OME-Zarr 组,并阅读其代码。 **没有触摸**\n\n这一切都读得很小。 JSON 答:团体的 ``.zattrs`` (或者是 ``attributes`` 他的 ``zarr.json``)和一个 ``.zarray`` 因此,问一个100GB板,它的水平,形状,语音大小和频道花费几千里,这就是整个格式存在的属性。\n\n:param path: 组目录——即包含 ``multiscales`` 的目录。对于孔板，它是 ``<plate>.zarr/<row>/<column>/<field>``。``s3://``、``gs://``、``az://`` 或 ``https://`` 地址从云存储读取，只下载元数据文件。\n:param multiscale_index: 哪些 ``multiscales`` 入口可阅读. NGFF 允许多; spaCR 首先是默认的,而不是假设只有一个可以这样说。\n:returns: 打开的 :class:`OmeZarrImage`。\n:raises OmeZarrError: 如果目录不是一个 zarr 组,没有 ``multiscales`` ,表示一个 zarra 格式 spaCR 不阅读,或者携带轴单位 spaCR 不翻译。",
       "translation_source_blocks_sha256": [
         "dddaa7e9162d6926db7e1832d8745ffcbc4ec4948ac49f564b81be80653e9ab0",
         "0278fdaed39e40d2e67b16313d7b18e27476676628664ec3a28c4e6c6f5022b6",
-        "bef73e163cedee7ab83ac1c4fef33f81c0fd7cf1408d0214e2ac3cec58f9a818",
+        "d2ce9f6acb2261caf206277b9ddbe0a0bb4c7e81bae227f23e75cbc8c3673479",
         "cda4fa2fa5c5d05a73fd4ba188411bd7747d5323a709cf125f01177dc6db5499",
         "d946920a83329759a8b06c6a5bd2ee390099879861b6a42b41c13af0bfee6d89",
         "6df452e036a451f89ff45a250d1ae2c68e1bf48e2c2e3f0a1238925ceba7eaae"
@@ -53911,10 +54253,10 @@
         "e924b69791e2acec75e374e405493f079d55c55bb71e3cccdaac645eb6e56237",
         "4c97fc884e4dc060810c406b34b1d68d0c0d2d0d937f445a7f4ba744ef625f5e",
         "7dd3627d16b785ea616e21f01516278a2a94911494e02ad644410f511726ec04",
-        "ad349bae0c2caa0c869ebdbec7600f465cdc7d5d6ee59e5ebc12691b56dfd5f6"
+        "9001d2b685d615b328bec571dfdcfa775b5e4079af3554cc78f71942569ffcf5"
       ],
-      "source_sha256": "6f19c92b398dc61b277aa541f0eab60dcc9380c3342123a74f16542cdb8750ed",
-      "text": "将置换运行的 QC 写入 ``<destination>/regression_qc/``。\n\n与参数化运行写入的文件夹相同，这样置换运行的诊断结果就能在其他所有运行的诊断结果所在的位置找到。\n\n:param destination: 该运行的结果文件夹。\n:param outcome: 残差所属的表型列；它用于命名文件，因此多结局的运行会为每个结局保留一组文件。\n:param residuals: 已被置换的残差。\n:param blocks: 每个残差所属的区组。\n:param positions: 位置列，与 ``residuals`` 对齐。\n:param report: 相同残差的 :func:`block_residual_report`。\n:param verdict: :func:`exchangeability_verdict` of ``report``.\n:param removed: 残差化之前移除的干扰列。\n:returns: ``{'dir', 'report', 'figure', 'figure_error'}``。JSON 报告总会写入；当没有可用于绘制的数据时，``figure`` 为 ``None``，``figure_error`` 说明原因。",
+      "source_sha256": "6b46edd499c085d4a3e5bbb0043d10e7d66d4cbd22df8c2829c4030e961f2eae",
+      "text": "将置换运行的 QC 写入 ``<destination>/regression_qc/``。\n\n与参数化运行写入的文件夹相同，这样置换运行的诊断结果就能在其他所有运行的诊断结果所在的位置找到。\n\n:param destination: 该运行的结果文件夹。\n:param outcome: 残差所属的表型列；它用于命名文件，因此多结局的运行会为每个结局保留一组文件。\n:param residuals: 已被置换的残差。\n:param blocks: 每个残差所属的区组。\n:param positions: 位置列，与 ``residuals`` 对齐。\n:param report: 相同残差的 :func:`block_residual_report`。\n:param verdict: :func:`exchangeability_verdict` of ``report``.\n:param removed: 残差化之前移除的干扰列。\n:returns: ``{'dir', 'report', 'figure', 'figure_error'}``。JSON 报告总会写出；没有可供对照绘制的内容时，``figure`` 为 ``None``，``figure_error`` 说明原因。面板由 :func:`spacr.plot.save_figure` 写出，因此其格式和分辨率与旁边的参数面板一样遵循图形偏好设置，``figure`` 给出磁盘上的文件。",
       "translation_source_blocks_sha256": [
         "ccb70107e3ca853a8ab6c0a0cb4f53909f0731252de90510b2eb568ec180a0e4",
         "6146db21d1e1915848e21a4a6ae1befd29eb6133d500a068f43f285bdc6f224c",
@@ -53926,7 +54268,7 @@
         "e924b69791e2acec75e374e405493f079d55c55bb71e3cccdaac645eb6e56237",
         "4c97fc884e4dc060810c406b34b1d68d0c0d2d0d937f445a7f4ba744ef625f5e",
         "7dd3627d16b785ea616e21f01516278a2a94911494e02ad644410f511726ec04",
-        "ad349bae0c2caa0c869ebdbec7600f465cdc7d5d6ee59e5ebc12691b56dfd5f6"
+        "9001d2b685d615b328bec571dfdcfa775b5e4079af3554cc78f71942569ffcf5"
       ]
     },
     "spacr.picture_settings": {
@@ -75698,7 +76040,7 @@
     "spacr.qt.live_zoom.ColumnTextScale": {
       "source_blocks_sha256": [
         "18b43468c94f95fbe22b871d3f57334968a943ed40d1593feb440af6e3b21bcd",
-        "78f79ed142d185430ba34ecabcbcd2bdfb0cd3e053bda3d5f3eaaf3accb9d799",
+        "de6c209e5cb15d6f4384dc85b4e7d871418f587558a079e1624f013c7b916708",
         "47f2cfcc4f71ff37fe537790887e3f37149bb779eed4223f4ff4fb5723dc0ecb",
         "92b0d754b476fbe0e457bbafdb58667506bb21c6c967148bbc681e4d673346bd",
         "ca7e75dc1aaa6ec777f5965a13a5d8d2eb5e5cc14cc55b2d11d0576b2993e177",
@@ -75707,11 +76049,11 @@
         "a99831205c44f8ae864bc77caab958c125f1370ca87d04ee28002a7f7de05ba9",
         "7946f2adc78c8990df6ec45eb4131ce7a142965739870f2c59e38e0e8521e057"
       ],
-      "source_sha256": "0826a8f47521b0ff62756f6c09191efa805601bc6762084b968530eba459fe7e",
-      "text": "在模块界面右侧栏上按住 Ctrl 并滚动滚轮可调整其文字大小。\n\n条目 529。维护者：\"for the pannels to the right holding ctrl and scrolling should increase or decrease the font size.\"\n\n所有栏共用一个大小，持久化保存在 :func:`spacr.qt.preferences.get_runtime_text_scale` 中。它与界面其余部分的大小相乘，因此整个 GUI 的缩放（471）和 Z 手势（378）仍会让该栏与其他一切一起变化。\n\n在栏上使用样式表，而不是 ``setFont``。Z 手势的 ``setFont`` 会被下一次重新润饰撤销（实测：一个设为 20 px 的标签在 ``unpolish``/``polish`` 之后会回到其样式表的 13 px），而每当卡片折叠或运行开始时，栏中的控件都会重新润饰。:func:`scaled_font_sheet` 在栏本身上重新声明继承的大小，只有其后代能看到这些声明。自己在 Python 中设置文字大小、因而优先于任何样式表的控件（控制台的条目）则改为通过 ``apply_column_text_scale(scale)`` 方法获取大小。\n\n这是一个应用程序级过滤器，因为控制台和栏中的每个滚动区域都会在父控件看到滚轮事件之前接收它。它会让位于：\n\n* 按住 Z 时的 Z 手势——Z + 滚轮归 378 所有；\n* 指针与栏之间任何在 Python 中处理滚轮的控件——蚀斑画布和实时预览画布在 Ctrl + 滚轮时缩放，图形画布有自己的滚动——这样该手势只作用于文字面板；\n* 已注册栏之外的一切。\n\n指针位于文字不在 100 % 的栏上时，按 Ctrl+0 会将其恢复；在 100 % 时，该快捷键留给 Go home，这也是它在其他情况下的作用。创建过滤器时使用已存储的大小，且尚未包含任何栏。",
+      "source_sha256": "f80b33836ed5a9a8c2de462fddfe46190203eca55f1aa9495e7808c9d2dc9d05",
+      "text": "在模块界面右侧栏上按住 Ctrl 并滚动滚轮可调整其文字大小。\n\n按住 Ctrl 并在该列任一面板上滚动滚轮，可放大或缩小其文字。\n\n所有栏共用一个大小，持久化保存在 :func:`spacr.qt.preferences.get_runtime_text_scale` 中。它与界面其余部分的大小相乘，因此整个 GUI 的缩放（471）和 Z 手势（378）仍会让该栏与其他一切一起变化。\n\n在栏上使用样式表，而不是 ``setFont``。Z 手势的 ``setFont`` 会被下一次重新润饰撤销（实测：一个设为 20 px 的标签在 ``unpolish``/``polish`` 之后会回到其样式表的 13 px），而每当卡片折叠或运行开始时，栏中的控件都会重新润饰。:func:`scaled_font_sheet` 在栏本身上重新声明继承的大小，只有其后代能看到这些声明。自己在 Python 中设置文字大小、因而优先于任何样式表的控件（控制台的条目）则改为通过 ``apply_column_text_scale(scale)`` 方法获取大小。\n\n这是一个应用程序级过滤器，因为控制台和栏中的每个滚动区域都会在父控件看到滚轮事件之前接收它。它会让位于：\n\n* 按住 Z 时的 Z 手势——Z + 滚轮归 378 所有；\n* 指针与栏之间任何在 Python 中处理滚轮的控件——蚀斑画布和实时预览画布在 Ctrl + 滚轮时缩放，图形画布有自己的滚动——这样该手势只作用于文字面板；\n* 已注册栏之外的一切。\n\n指针位于文字不在 100 % 的栏上时，按 Ctrl+0 会将其恢复；在 100 % 时，该快捷键留给 Go home，这也是它在其他情况下的作用。创建过滤器时使用已存储的大小，且尚未包含任何栏。",
       "translation_source_blocks_sha256": [
         "a08ed2b65ef1d36b96a736a4a6e5946f8d20cce99a2431661c9fdc8cd9e125ea",
-        "78f79ed142d185430ba34ecabcbcd2bdfb0cd3e053bda3d5f3eaaf3accb9d799",
+        "de6c209e5cb15d6f4384dc85b4e7d871418f587558a079e1624f013c7b916708",
         "b3370ea32ea456a1ee1ed2e9d48bf7c71cf2ac5ac8884d6e3ede3dab8478df46",
         "b3192f38c5f553443bcf33ff7144cc4f1d6d0f9c5a17845f4921caf2b0de5218",
         "b82bf10f015e9587097e0b1b76b0d58b6be764d89752c9c0b5adaeb8eba556d7",
@@ -77118,15 +77460,35 @@
     "spacr.qt.mask_engine.fill_holes": {
       "source_blocks_sha256": [
         "dcf5c9a6c3d42cdacfee0cf82dda4ea5201589046095d5c8e204d476eb3d7c05",
+        "060511a5963a45a4ab93c54df11f2ded756daf66838d7b13c50a91a4335828fd",
         "e0372b62229e25015964f0bc7a2127543cd4bca044d7d539a65d029e229bc863",
-        "324f21972dfe3d00de9f3ff423ffb008c798db9581c13651442e1e4e1b323309"
+        "3f6405ab7f5ecb1b8bc0ceed13a7a2ff4c0950edcca5e752efb54e7d6d68c2d9"
       ],
-      "source_sha256": "67783294a94f5bad162b8c5798a29fbc226781a725f988d52f01d090e3b7d78f",
-      "text": "填充被包围的背景像素，可选择保留初级对象标识。\n\n:param mask: 要填充的标签图像。\n:param preserve_ids: 逐个对象填充，不合并或重新编号标签。要求精确且与 uint16 兼容的 ID；默认保留二值化后的重新标记方式。",
+      "source_sha256": "6ce4e5b0cff159e19cd0d9c2f6737f9efbe2311255bab799c1c71173b3804e20",
+      "text": "填充被包围的背景像素，可选择保留初级对象标识。\n\n孔洞由 :func:`fill_label_holes` 按对象逐个填充，绝不先填充前景再重新标记：那种做法会把每一对相互接触的细胞合并成一个对象（第 588 项）。\n\n:param mask: 要填充的标签图像。\n:param preserve_ids: 先将编号验证为精确的主编号（与 uint16 兼容，通过 :func:`canonical_labels`）。无论哪种情况，每个编号都会保留。默认情况下，只有单一前景值的掩膜——用画笔绘制的二值掩膜，不带编号——会先按连通性编号，与 :func:`canonical_labels` 的编号方式相同。",
       "translation_source_blocks_sha256": [
         "dcf5c9a6c3d42cdacfee0cf82dda4ea5201589046095d5c8e204d476eb3d7c05",
+        "060511a5963a45a4ab93c54df11f2ded756daf66838d7b13c50a91a4335828fd",
         "e0372b62229e25015964f0bc7a2127543cd4bca044d7d539a65d029e229bc863",
-        "324f21972dfe3d00de9f3ff423ffb008c798db9581c13651442e1e4e1b323309"
+        "3f6405ab7f5ecb1b8bc0ceed13a7a2ff4c0950edcca5e752efb54e7d6d68c2d9"
+      ]
+    },
+    "spacr.qt.mask_engine.fill_label_holes": {
+      "source_blocks_sha256": [
+        "9312ce4278b3c81871304169221e74cee28493b8523b3d9f3e7760549f547f2a",
+        "528849e3ad3b9f0f32a552a64d14952125f367b5606308d916d8357d08a9bf99",
+        "f9d43ae649d474b59c186cd19babb479e137403cf6d3b79edf7b65944bbcbc55",
+        "f87566acf3e5c0750eeae4b8cc4cfd12c32c733b394340bf6e5f213692817bd4",
+        "3c936a313c048eec346e55339fa3c8b6ea7325c0d32a8866413d1965f9a80420"
+      ],
+      "source_sha256": "e04c595ff5d5193cedb14ccd9b7d1d1e019540ecbeb1c3fabac86456699f8251",
+      "text": "封闭每个对象内部的孔洞，并保留其原有的每个编号。\n\n标签图像唯一的孔洞填充器。:func:`fill_holes`、上面的传播步骤和 :func:`spacr.utils.fill_holes_in_mask`（Cellpose 的 ``fill_in`` 步骤）都调用这里。它取代的是先填充二值前景、再用 ``ndimage.label`` 重新标记的做法：那样会把每一对相互接触的对象变成一个对象，于是一个含有 74 个相邻细胞的视野返回时只剩 8 个（第 588 项）。这里不会重新标记任何东西。\n\n对整个前景使用 ``binary_fill_holes`` 还会填满恰好围住一块背景的对象之间的空隙，因此每个标签单独填充，并且只写回背景上：孔洞绝不会覆盖其他对象的像素。每个标签都在自己的边界框（:func:`scipy.ndimage.find_objects`）内填充，这是精确的——框边缘上的背景与框外相接，而该标签在框外没有像素，因此它永远不可能是该标签的孔洞——并能让一个含有数百个对象的 2048 x 2048 视野在不到一秒内完成。较小的框优先认领，因此位于某个环内、而该环本身又位于另一个环内的孔洞归属内侧的环。\n\n:param labels: 一张由非负整数组成的 2-D（或 N-D）标签图像。布尔掩膜会先按连通性标记，因为它不带任何需要保留的编号。\n:returns: 与输入 dtype 相同的数组（布尔输入则为 ``int32``），其中每个对象保留其编号，其孔洞也带上该编号。",
+      "translation_source_blocks_sha256": [
+        "9312ce4278b3c81871304169221e74cee28493b8523b3d9f3e7760549f547f2a",
+        "2a5300aac0d5233bdcf6481eb34523f9d7ce1dceeed3c65d1c6ca448a847889e",
+        "86381b858648c908c549a2ee844b2e117f22d7fade6e169483b7e39b9f10f401",
+        "f87566acf3e5c0750eeae4b8cc4cfd12c32c733b394340bf6e5f213692817bd4",
+        "3c936a313c048eec346e55339fa3c8b6ea7325c0d32a8866413d1965f9a80420"
       ]
     },
     "spacr.qt.mask_engine.fill_polygon": {
@@ -80246,16 +80608,16 @@
     "spacr.qt.preferences.PreferencesDialog": {
       "source_blocks_sha256": [
         "6c3e97961f7e505570487f48cbfc3def3efecd520a4f9b804958c04cea3c1e48",
-        "cace078c558447578bd909207314d7d321d8b01fee2a352f9ee7d83dfe3470c9",
+        "8f9f019940722c43d2670a4fd0b3d2bfaf2709dc6ffb3b643e37661c36f42787",
         "fa747bd284bfe28253c9bbcbf24e1e5d19a984236934ad2daf145569be1987bb",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6",
         "d12e1c844886fc10ca8b8932b53ecf712cfd1d2fd9a2c4dcfa425ee4dde23b24"
       ],
-      "source_sha256": "6ceea9d63225649b020d318358c4253dc927b1ddbb7fe794eeb56503c8fdd0c0",
-      "text": "Wrapper 构建模型偏好对话的需求。\n\n作为一个工厂(不是一个真正的班级子类),所以这个模块可以在QtWidgets中没有拖动的情况下无图形界面进口。 真实的 :class:`QDialog` 返回为 ``PreferencesDialog(parent)``. 用 UI 语言进行对话。\n\n构建这个对话被测量,问好存储哪种语言的界面是346次,通过415 ``QSettings``阅读,没有一个答案可以区分:没有什么在他们之间运行。\n\n:param parent: 父控件，或 ``None``。\n:returns: 对话,准备到 ``exec``。",
+      "source_sha256": "5346ad6d61a32e5768cb6249f1a30a4bb2ef601f2b1f8ba354edc5573902374c",
+      "text": "Wrapper 构建模型偏好对话的需求。\n\n保留为工厂函数（而不是真正的子类），以便在无界面环境下导入本模块时不必加载 QtWidgets。真正的 :class:`QDialog`——即 :func:`_preferences_window_class` 在首次使用时创建的子类——由 ``PreferencesDialog(parent)`` 返回。构建对话框时 UI 语言只解析一次。\n\n构建这个对话被测量,问好存储哪种语言的界面是346次,通过415 ``QSettings``阅读,没有一个答案可以区分:没有什么在他们之间运行。\n\n:param parent: 父控件，或 ``None``。\n:returns: 对话,准备到 ``exec``。",
       "translation_source_blocks_sha256": [
         "6c3e97961f7e505570487f48cbfc3def3efecd520a4f9b804958c04cea3c1e48",
-        "cace078c558447578bd909207314d7d321d8b01fee2a352f9ee7d83dfe3470c9",
+        "8f9f019940722c43d2670a4fd0b3d2bfaf2709dc6ffb3b643e37661c36f42787",
         "fa747bd284bfe28253c9bbcbf24e1e5d19a984236934ad2daf145569be1987bb",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6",
         "d12e1c844886fc10ca8b8932b53ecf712cfd1d2fd9a2c4dcfa425ee4dde23b24"
@@ -88081,6 +88443,16 @@
         "d591c658b6401f6f17b31a445462ef5687b1fa1258b8e5d0761475ff97ce0b05"
       ]
     },
+    "spacr.qt.screens.control_chart.ControlChartScreen.choose_hit_export": {
+      "source_blocks_sha256": [
+        "653d299a850b0ced13b78ae9bce28417bfe3473fe7afe65eddf153d997cfa4ab"
+      ],
+      "source_sha256": "653d299a850b0ced13b78ae9bce28417bfe3473fe7afe65eddf153d997cfa4ab",
+      "text": "请求选择一个文件夹，并把命中报告写入其中。",
+      "translation_source_blocks_sha256": [
+        "653d299a850b0ced13b78ae9bce28417bfe3473fe7afe65eddf153d997cfa4ab"
+      ]
+    },
     "spacr.qt.screens.control_chart.ControlChartScreen.choose_table": {
       "source_blocks_sha256": [
         "b5a8622863fedc9b340c8480f528379995d719c6d3151fc1062dccd55962b62f"
@@ -88103,6 +88475,20 @@
         "a0c5368a7fffc6afb72d47dc01ea200ff0754b61b753dae7e5dd5522614f5d70"
       ]
     },
+    "spacr.qt.screens.control_chart.ControlChartScreen.export_hits": {
+      "source_blocks_sha256": [
+        "4aaa770ce39dcf7b17f6fcf7d938c9d91ac118bb78a873ba900ae242233dda9a",
+        "9e5c6ac06bc6c4f75a1e66f0ceafb31e1bb2a05b1118e4123d1b306fc8346024",
+        "6b81e8eaf27ada8cb4caff8b66080e0d2b6e14d449a49361ecf991110d54d206"
+      ],
+      "source_sha256": "1e5c62e58c9c345b55d18bcb36f470bc3c6f4e40f7a23336bcc63f95ed7ece09",
+      "text": "写出排序后的命中表、分数和热图。\n\n:param folder: 文件夹，不存在时会创建。\n:returns: 已写出内容的 ``{name: path}``，尚未进行任何评分时为 ``None``。",
+      "translation_source_blocks_sha256": [
+        "4aaa770ce39dcf7b17f6fcf7d938c9d91ac118bb78a873ba900ae242233dda9a",
+        "9e5c6ac06bc6c4f75a1e66f0ceafb31e1bb2a05b1118e4123d1b306fc8346024",
+        "6b81e8eaf27ada8cb4caff8b66080e0d2b6e14d449a49361ecf991110d54d206"
+      ]
+    },
     "spacr.qt.screens.control_chart.ControlChartScreen.export_points": {
       "source_blocks_sha256": [
         "d37a69b9b801411c7da6ddf9050b7a9db521ed277d315dedd7b54d0d05264cac",
@@ -88115,14 +88501,36 @@
         "cbeaba4aa5a8a8cc30c25286a85425da972fbbd51cdc756ec9efcacfa0665cd7"
       ]
     },
+    "spacr.qt.screens.control_chart.ControlChartScreen.hit_options": {
+      "source_blocks_sha256": [
+        "8c9d9cf6ed102d7c6454ac041058dd38b933c98f13273273b04a73c1f163229c",
+        "181b952797072dbde5f13374a7b1746c370e00e680f6c4a464b8e91da1e786a8"
+      ],
+      "source_sha256": "cff33670ca4ab0b92e40371b849bb48dc3dfeff5ab84289ba0001f71436130d4",
+      "text": "表单传给 :func:`spacr.sp_stats.score_arrayed_screen` 的关键字参数。\n\n:returns: 选项；未选择阴性对照时 ``negative_levels`` 为空。",
+      "translation_source_blocks_sha256": [
+        "8c9d9cf6ed102d7c6454ac041058dd38b933c98f13273273b04a73c1f163229c",
+        "181b952797072dbde5f13374a7b1746c370e00e680f6c4a464b8e91da1e786a8"
+      ]
+    },
+    "spacr.qt.screens.control_chart.ControlChartScreen.hit_result": {
+      "source_blocks_sha256": [
+        "f9df8ebfb949d4acc20e4167d76564447c8331913fdef0af3c66ef5f10c742ed"
+      ],
+      "source_sha256": "f9df8ebfb949d4acc20e4167d76564447c8331913fdef0af3c66ef5f10c742ed",
+      "text": "当前显示的命中评分，或 ``None``。",
+      "translation_source_blocks_sha256": [
+        "f9df8ebfb949d4acc20e4167d76564447c8331913fdef0af3c66ef5f10c742ed"
+      ]
+    },
     "spacr.qt.screens.control_chart.ControlChartScreen.is_busy": {
       "source_blocks_sha256": [
-        "0bfa38e8545600bd7609584ca54e84e9e29662306f05b7595c84c8465841bf17"
+        "6e35bab927ab00215b7b884c92e26864e6682bc9ed044e4febb7d7ec4a1354a3"
       ],
-      "source_sha256": "0bfa38e8545600bd7609584ca54e84e9e29662306f05b7595c84c8465841bf17",
-      "text": "True 一张阅读或图表在飞行中。",
+      "source_sha256": "6e35bab927ab00215b7b884c92e26864e6682bc9ed044e4febb7d7ec4a1354a3",
+      "text": "读取、图表或命中评分仍在进行时为 True。",
       "translation_source_blocks_sha256": [
-        "0bfa38e8545600bd7609584ca54e84e9e29662306f05b7595c84c8465841bf17"
+        "6e35bab927ab00215b7b884c92e26864e6682bc9ed044e4febb7d7ec4a1354a3"
       ]
     },
     "spacr.qt.screens.control_chart.ControlChartScreen.load_path": {
@@ -88149,6 +88557,18 @@
       "translation_source_blocks_sha256": [
         "7d9e5314e536527b89c8d24775e14913c992d7ee06ee891e08e711e32c10718a",
         "5983b10ab2d5c2a8a0828992cb00523afa352115bc8f8c4598c40454c254ca0c"
+      ]
+    },
+    "spacr.qt.screens.control_chart.ControlChartScreen.rescore_hits": {
+      "source_blocks_sha256": [
+        "97e2950373269fcbf6d8b0b698d90e80ba15a95a8a297602ef9d971816bd5c61",
+        "98b7f589ef9241ff0b75f2c8577d88a497eaa5f33285f025dfccea54e84f55d6"
+      ],
+      "source_sha256": "3d882dc76deee3d8a1d00de08e2feb5d1fdfc23c98eb47a1cf99b2c0291e5542",
+      "text": "开启时，在 GUI 线程之外根据表单对命中进行评分。\n\n在自己的任务执行器上运行，因此即使引擎拒绝绘制控制图（例如用于基线的板太少），命中分数也不会被一并拒绝，因为它们不需要基线。",
+      "translation_source_blocks_sha256": [
+        "a15467f6341155299351f690e8b8a2ac87cf14c736190a30535abd6c0347f7a9",
+        "d55e30b266fd53bb9e8760d0707dd22af2ee9e7c100bafb389f8aaca17af72fe"
       ]
     },
     "spacr.qt.screens.control_chart.ControlChartScreen.result": {
@@ -95297,6 +95717,40 @@
         "dd7f33f837061726f5dfb734b0e591379d01443e8c7eb5597111672022975b01"
       ]
     },
+    "spacr.qt.screens.make_masks.MakeMasksScreen.export_all_rois": {
+      "source_blocks_sha256": [
+        "71dab42a4c5307f665e3cb858a46a219919e32998a53b37d5a13263a0dce8520",
+        "9abb06528cdec058d488c8bd9b335c62a55f7ca1d7c9da5802885b74164fb78d",
+        "0b61b55dcae33715a7041e8b029549260d2b6d33fad2eb7013d01d81f4cedd96",
+        "a87e53653c2f0ce09ae70cbaefbf990ff9dd53b18140abd903661552fbbdb0b7",
+        "337b782db4b0d5be39ee6cad25cec4ea2f99045820c9579954ad3a3044aa6dd0"
+      ],
+      "source_sha256": "25c74ddb93b34992822b8ec5d3b49a1f9033b94dabd4a7e92312cd065f5cf96f",
+      "text": "将每个视野的掩膜写为 ROIs。\n\nGeoJSON 和 ImageJ 在文件夹 ``target`` 中为每个视野写一个文件（``<stem>.geojson``、``<stem>_RoiSet.zip``），与 QuPath 和 Fiji 在图像旁打开它们的方式一致；COCO 则是一个数据集文件 ``target``，包含所有视野。当前显示的视野按显示内容导出，其他视野按已保存内容导出。没有对象的视野会被略过。\n\n:param target: 文件夹（GeoJSON、ImageJ）或文件（COCO）。\n:param fmt: ``\"geojson\"``、``\"imagej\"`` 或 ``\"coco\"``。\n:returns: 已写出的文件。",
+      "translation_source_blocks_sha256": [
+        "8e20e3c7539f7ef2ddbe2bf3113f2f7fb78d74117a007c0b6015c07759e3cd9c",
+        "dfbd8d55434fadd49717fad889bf12956c95e8e959502e2abd26fd6c7d8b349d",
+        "0b61b55dcae33715a7041e8b029549260d2b6d33fad2eb7013d01d81f4cedd96",
+        "a87e53653c2f0ce09ae70cbaefbf990ff9dd53b18140abd903661552fbbdb0b7",
+        "337b782db4b0d5be39ee6cad25cec4ea2f99045820c9579954ad3a3044aa6dd0"
+      ]
+    },
+    "spacr.qt.screens.make_masks.MakeMasksScreen.export_field_rois": {
+      "source_blocks_sha256": [
+        "1a1ffc5184416e240d9f1a567ef780822a8a0875067800360e68b8a4ca31acbb",
+        "f88075dd4a24d339f807a5ae3b49c27cc3aba24d31d8fab471ac98ea6563ace2",
+        "1b675b6af8d361ada2718ccfa95e20d2565c424cfb5238a508b0ed47b976e170",
+        "e83ed660208973ca5f327fcdc7ccc0c9bf427ac7a1f19d7ecf186c594d3e5efe"
+      ],
+      "source_sha256": "9dd9c83dc97a52163b8cdb06be43980899cb1e16819aff8b3918638de3274bad",
+      "text": "将当前显示的掩膜写为 QuPath GeoJSON、RoiSet 或 COCO JSON。\n\n:param path: 要写入的文件。\n:param fmt: ``\"geojson\"``、``\"imagej\"`` 或 ``\"coco\"``；默认根据 ``path`` 的后缀判断。\n:returns: 写出的路径；没有打开任何视野时为 ``\"\"``。",
+      "translation_source_blocks_sha256": [
+        "9ccec3d542e7c9d75d68f9cd0b104d89814a37ec099fe6bfe4bb1030ec8e8dd7",
+        "f88075dd4a24d339f807a5ae3b49c27cc3aba24d31d8fab471ac98ea6563ace2",
+        "1b675b6af8d361ada2718ccfa95e20d2565c424cfb5238a508b0ed47b976e170",
+        "e83ed660208973ca5f327fcdc7ccc0c9bf427ac7a1f19d7ecf186c594d3e5efe"
+      ]
+    },
     "spacr.qt.screens.make_masks.MakeMasksScreen.finish_recrop": {
       "source_blocks_sha256": [
         "0ffd049d0764518054d96a273e078738067804bc1ec9bd87830249666d40c4ee",
@@ -95323,6 +95777,46 @@
         "fa871e181bebe38fd18e9aa9c63969960786c0139c32e657f6a6bec97a530e2a",
         "b5719c65dc19948564b807ecf677368c674076c698fbc2d91bd7af4afccf56e0",
         "aef1d1d51550a5197eb4662edc3a7d4f4be298591c973761343a3cf8a22e1a69"
+      ]
+    },
+    "spacr.qt.screens.make_masks.MakeMasksScreen.import_all_rois": {
+      "source_blocks_sha256": [
+        "582d9bb10a674fd97eaeca8811735a8473b9f3317babc710445751a80154b7c9",
+        "f82223c20de0bd13ae85b1be131597e5203add50f6b7b0fa4d12a4070568bd93",
+        "0b61b55dcae33715a7041e8b029549260d2b6d33fad2eb7013d01d81f4cedd96",
+        "a87e53653c2f0ce09ae70cbaefbf990ff9dd53b18140abd903661552fbbdb0b7",
+        "52aa55b649a2efebfe47edfa7b7c2df5f73d8b4b23ef4382849e974b795b882a",
+        "f8d2c983087c80f038dab6c55a3f953f5d755c002b547fafe428bcb37372b976"
+      ],
+      "source_sha256": "e089e177550c5da5b932972259627e9a59bd7930bc007330b1c6bd7ea163715c",
+      "text": "为每个拥有 ROIs 的视野导入它们，并将其保存为掩膜。\n\nGeoJSON 和 ImageJ 文件按视野的主文件名在文件夹 ``source`` 中查找（``<stem>.geojson``、``<stem>_RoiSet.zip`` ...）；COCO 的 ``source`` 是一个按 ``file_name`` 匹配的文件。每个匹配视野的掩膜按 :meth:`_on_save` 的方式写出；当前显示的视野则改为在画布上替换，作为一次可撤销的编辑，并在用户保存时与其余内容一起保存。\n\n:param source: 文件夹（GeoJSON、ImageJ）或文件（COCO）。\n:param fmt: ``\"geojson\"``、``\"imagej\"`` 或 ``\"coco\"``。\n:param object_type: 从含多种对象类型的文件中选取的对象类型；默认为文件夹自身的类型，否则取文件中的第一种。\n:returns: 获得掩膜的视野名称。",
+      "translation_source_blocks_sha256": [
+        "3e51c8667ff9325bde012f71419993e1258fc9045e03d6c9a21cfd38ead24417",
+        "eee1aa4070e6b30704682b5d936d739add5b727018cae83eca05ccc2232e1655",
+        "0b61b55dcae33715a7041e8b029549260d2b6d33fad2eb7013d01d81f4cedd96",
+        "a87e53653c2f0ce09ae70cbaefbf990ff9dd53b18140abd903661552fbbdb0b7",
+        "52aa55b649a2efebfe47edfa7b7c2df5f73d8b4b23ef4382849e974b795b882a",
+        "f0ec82f7d75dc34dab140b26513de29a612bd74950c99e764daf661f1549e833"
+      ]
+    },
+    "spacr.qt.screens.make_masks.MakeMasksScreen.import_field_rois": {
+      "source_blocks_sha256": [
+        "76e4d346a40bb870d20dde7c0f382f8d00d8f2b038b567b2f52fb192513d66e5",
+        "87ac18038f34029a18e710e00c5bc748d9ee36f200fb191ea22653b93c8d4a13",
+        "1df735ac1ca3d8dc12704d373077706343dbb88f64f9b652457830d68dd9c11d",
+        "73e1c26c8d7ec2b9bb6819b504f1a9754d473abc587e6c005d466de4ac1fb785",
+        "c6458171bae709110c0d10e9279b37dad1185b27d6ab604b31556194decc88df",
+        "578e5d3214262c9e47e4ef413e2067cb226a9cca688545987e9fc8e52f2fb494"
+      ],
+      "source_sha256": "b22c7e229982f5b7844619fce4e53aba56e01f97200f9c21e030cb0aab421c5c",
+      "text": "用 ROI 文件中的对象替换当前显示的掩膜。\n\n在撤销栈和整理记录中各算一次编辑；保存掩膜之前不会写入任何内容。对于含多种对象类型的文件，画布上放置 ``object_type``，否则为文件夹自身的类型，再否则由用户选择。\n\n:param path: GeoJSON、RoiSet 或 COCO 文件。\n:param fmt: 其格式；默认根据文件判断。\n:param object_type: 要选取的对象类型。\n:returns: 导入后显示的对象数量；没有导入任何内容时为 ``-1``。",
+      "translation_source_blocks_sha256": [
+        "4bf2a7cfd9ebb35ab8d20f6afa318652ad6ea9ef6da7e570c71dfd9a2e56dae9",
+        "87ac18038f34029a18e710e00c5bc748d9ee36f200fb191ea22653b93c8d4a13",
+        "1df735ac1ca3d8dc12704d373077706343dbb88f64f9b652457830d68dd9c11d",
+        "73e1c26c8d7ec2b9bb6819b504f1a9754d473abc587e6c005d466de4ac1fb785",
+        "c6458171bae709110c0d10e9279b37dad1185b27d6ab604b31556194decc88df",
+        "9c4f44801bc593b9d9b26fb2c5e0a1e4d3c46118a06b8c858d00dc1f3f1f8aa2"
       ]
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.mask_settings": {
@@ -95866,16 +96360,16 @@
         "32db21e6177bed66b6c6b741978b341aae338fab2e969357ddfb3cdb73f72f33",
         "c6919646eb3e2edc5d84dcfff5b7537e34780d0679f66e6aa7de55442a02f049",
         "6b1a211cb51b8406a9c152b8c176aa55090c304da8936035532eb6e73b3f3a40",
-        "843bdd6167c7a4cfb0567c3617de9a4fb99e72f51a2eb7704c86d3e7fce6ebad",
+        "d50fb5f80a1805a55156234d7f1f653bd561a1f9fbb0686e5bb315d1b86640b2",
         "64592ccecc4a9e5944180e42c7cee6ac347fe2dda4c4cb64f7b77ad637dd0f0d"
       ],
-      "source_sha256": "236326cdd86cfeab7f4ba7d3e74f4932f31e3330691bb9564299e26b88092738",
-      "text": "通过 spaCR 自己的解决方案加载一个 Cellpose 模型。\n\n:func:`spacr.utils._resolve_cellpose_pretrained` 就是工作流本身所称之为: 它将每个 pre-SAM 名称地图到 ``cpsam`` ,保持一个精致的检查点路径本身, 而不是安静地取代存储重量,而不是一个不存在的检查点。 用第二次,更简单的呼叫会给这个筛选一个不同的答案,从处理会议它是要修正的。\n\n在 CPU 上，权重以 FLOAT32 加载。Cellpose-SAM 默认以 bfloat16 加载权重，而不具备原生 bfloat16 运算的处理器会以缓慢的模拟方式运行每个图块：在 AMD Ryzen 9 5950X 上测得，在相同负载下交替运行时，一个 256 px 图块在 bfloat16 下耗时 162-197 s，在 float32 下耗时 31-46 s。一个完整视野约有一百个这样的图块，因此这就是大半个小时与大半天的差别。在 GPU 上没有任何变化：那里由 :func:`spacr.accelerator.cellpose_kwargs` 决定，与流程中的做法相同。\n\n``cellpose3:<name or path>`` 模型——Cellpose 3 的内置模型或来自 bioimage.io 的 Cellpose 3 检查点——根本不是 Cellpose 4 模型：Cellpose 4 会加载这样的检查点并用它分割出毫无意义的结果。它由 :func:`_backend_model` 在 Cellpose 3 后端自己的环境中加载，与 Mask generation 加载它的方式相同。``cellpose_dino:<path>`` 模型（一个 Cellpose-DINO 检查点）以同样的方式在 Cellpose-DINO 后端中加载（条目 525）。\n\n:param model_name: Cellpose 模型名称、微调检查点的路径（由 :func:`spacr.utils._resolve_cellpose_pretrained` 解析），或 ``cellpose3:<name or path>``。",
+      "source_sha256": "9c40e289ebb3aec2761f5de2139e98a5b27723fcc313e7817b2d62707817cc0d",
+      "text": "通过 spaCR 自己的解决方案加载一个 Cellpose 模型。\n\n:func:`spacr.utils._resolve_cellpose_pretrained` 就是工作流本身所称之为: 它将每个 pre-SAM 名称地图到 ``cpsam`` ,保持一个精致的检查点路径本身, 而不是安静地取代存储重量,而不是一个不存在的检查点。 用第二次,更简单的呼叫会给这个筛选一个不同的答案,从处理会议它是要修正的。\n\n在 CPU 上，权重以 FLOAT32 加载。Cellpose-SAM 默认以 bfloat16 加载权重，而不具备原生 bfloat16 运算的处理器会以缓慢的模拟方式运行每个图块：在 AMD Ryzen 9 5950X 上测得，在相同负载下交替运行时，一个 256 px 图块在 bfloat16 下耗时 162-197 s，在 float32 下耗时 31-46 s。一个完整视野约有一百个这样的图块，因此这就是大半个小时与大半天的差别。在 GPU 上没有任何变化：那里由 :func:`spacr.accelerator.cellpose_kwargs` 决定，与流程中的做法相同。\n\n``cellpose3:<name or path>`` 模型——无论是 Cellpose 3 的标准模型还是来自 bioimage.io 的 Cellpose 3 检查点——根本不是 Cellpose 4 模型：Cellpose 4 会加载这样的检查点并用它分割出无意义的结果。它由 :func:`_backend_model` 在 Cellpose 3 后端自己的环境中加载，与 Mask generation 的加载方式相同。``cellpose_dino:<path>`` 模型（Cellpose-DINO 检查点）以同样方式在 Cellpose-DINO 后端中加载（第 525 项），``stardist:``、``instanseg:`` 或 ``omnipose:`` 模型则在各自的后端中加载（第 551-553 项）。\n\n:param model_name: Cellpose 模型名称、微调检查点的路径（由 :func:`spacr.utils._resolve_cellpose_pretrained` 解析），或 ``cellpose3:<name or path>``。",
       "translation_source_blocks_sha256": [
         "32db21e6177bed66b6c6b741978b341aae338fab2e969357ddfb3cdb73f72f33",
         "0ed6e9375ceb68ccddc2dafbb1404247b9f3525fe80793861fd5e0163680d878",
         "fc660e8401c77bbddfd8f2a6d01c61644b46b558a9c7bdcfbf8b7104b451a505",
-        "843bdd6167c7a4cfb0567c3617de9a4fb99e72f51a2eb7704c86d3e7fce6ebad",
+        "d50fb5f80a1805a55156234d7f1f653bd561a1f9fbb0686e5bb315d1b86640b2",
         "64592ccecc4a9e5944180e42c7cee6ac347fe2dda4c4cb64f7b77ad637dd0f0d"
       ]
     },
@@ -102062,16 +102556,16 @@
     "spacr.qt.screens.settings_model.SettingsWidgets.spawn_organelle_slots": {
       "source_blocks_sha256": [
         "9cc8f1be80b0bf93180e66768d126a13c48dd28f508655183d7bbf0a165de2d2",
-        "35a95e55832d09168f065f70692730cdb417b101a5d3f63f0b18988197e643a6",
+        "8388e14a9859298a58926eec1c39066c6a5dc55eb6d4a7f4ebd777ba81fb1732",
         "b0b253a218902b615a4c751111856471e5e80bc9df270ca8213b53b7bc795a08",
         "4cf336ec5b16ddacdd833ea444256490b6d07306e7049443dba2de6d5b611542",
         "db1e811a1010b15ae3a6447e1e2e6c91ff6f433a7987933927b670ef2d771ec8"
       ],
-      "source_sha256": "b4a42a8e2fef8a51926fb0a080d83d0ee6ec21dc7c375fe817cc7655945c4eb8",
-      "text": "构建增大后的 ``number_of_organelles`` 所需的控件。\n\n指令 356，情形 2：过去增大数量会重建整个界面，因为槽位的控件在数量达到之前并不存在。现在只在已显示的面板上构建新槽位的控件；已存在的每个控件都会保留其身份以及用户在其中输入的内容。由调用方对新控件进行布局。\n\n已有的值优先。设置文件中带有的、超出数量的槽位已经在 ``_defaults`` 中（参见 :meth:`set_hidden_value`），其控件构建时会保留该值，而不是面板自行生成的值。\n\n:param count: 新的 ``number_of_organelles``。\n:returns: 带有控件的新设置键，按面板声明它们的顺序排列；当数量不需要任何新内容时为空。",
+      "source_sha256": "ed4ec5c5cfce5bb0a3a7196bc0e1fbede6ed1b8ca23e52eefab5d33d6c06fe2e",
+      "text": "构建增大后的 ``number_of_organelles`` 所需的控件。\n\n在数量要求之前，槽位的控件并不存在，而为了添加它们重建整个视图会丢弃用户已输入的内容。这里只在已显示的面板上构建新槽位的控件；已存在的每个控件都保持其身份以及用户输入的全部内容。由调用方负责布置新控件。\n\n已有的值优先。设置文件中带有的、超出数量的槽位已经在 ``_defaults`` 中（参见 :meth:`set_hidden_value`），其控件构建时会保留该值，而不是面板自行生成的值。\n\n:param count: 新的 ``number_of_organelles``。\n:returns: 带有控件的新设置键，按面板声明它们的顺序排列；当数量不需要任何新内容时为空。",
       "translation_source_blocks_sha256": [
         "9cc8f1be80b0bf93180e66768d126a13c48dd28f508655183d7bbf0a165de2d2",
-        "b433831507a702c9d3871331a4538a11df1dc55053fec655d9a7e10a82227e41",
+        "220e178f0741fa77a47e7f6597b84a1ed57f649757b34ea8bf631e946b3d929c",
         "40c6d90356ed7c89bbbcbe5f9f6617ddec7d5f63ecfd86ad42144c027f80112b",
         "4cf336ec5b16ddacdd833ea444256490b6d07306e7049443dba2de6d5b611542",
         "e6731b8c91f83b587cc2562c97f1888afec20754a662b4c70c2745e2b73616be"
@@ -119948,16 +120442,16 @@
     "spacr.qt.widgets.dock.DockEdge": {
       "source_blocks_sha256": [
         "f3d58e9e35ff88a829521ea646d1fdfab3c41c3792227c19b955bce269f7ffaa",
-        "f4eb2b686f4264face50f9292e4981d391e541ae4335e0c8f2931682529d1ec5",
+        "51c4db88cb5e9f4051065235d5bfac3c7f3995f28486be3d5c0bb63a29971471",
         "61f1a55c8fe2aac1dde80ae43d84742e9aff21c7e5f6559f1d8bd4c4750806a1",
         "9a8606cb6d236b5d88671bb952fcfbd5150e448fa5b9faf74de313ad82c27067",
         "6f8ea5222b517bab4225b85c30696cc8dae58c371ec63346fd4ea5edf5dd4e41"
       ],
-      "source_sha256": "186036c98c2994ec11a8eaa3d9612e831535136a51224a0c5cf18c6d336fe795",
-      "text": "沿停靠栏右边缘、用于拖动调整其宽度的条带（条目 529）。\n\n维护者，2026-09-25：\"the user should be able to modify the width of the dock when not hidden\"。它是停靠栏槽位的同级控件，而不是分隔条手柄，因为停靠栏是固定宽度的布局成员，所有测量它的东西（抽屉、背景、自适应宽度）读取的都是这个固定宽度。拖动设置宽度；松开保存宽度；双击则忘记宽度，栏重新适应其名称。它随停靠栏一起显示和隐藏，因此隐藏的停靠栏没有可抓取的边缘。\n\n:param dock: 它调整大小的 :class:`Dock`。\n:param parent: 父控件；仅用于所有权。\n为 ``dock`` 构建边缘；在停靠栏显示之前保持隐藏。",
+      "source_sha256": "5add9ce8a07f0e0969df8e5c405093085a89928829ef588fb131d073907cf0d9",
+      "text": "沿停靠栏右边缘、用于拖动调整其宽度的条带（条目 529）。\n\n拖动它可在停靠栏显示时设置停靠栏的宽度。它是停靠栏槽位的同级部件，而不是分割器手柄，因为停靠栏是固定宽度的布局成员，所有测量它的部件（抽屉、背景、适配宽度）读取的都是该固定宽度。拖动时设置宽度，松开时保存宽度，双击则忘记宽度，使该列重新按其名称自适应。它随停靠栏一起显示和隐藏，因此隐藏的停靠栏没有可抓取的边缘。\n\n:param dock: 它调整大小的 :class:`Dock`。\n:param parent: 父控件；仅用于所有权。\n为 ``dock`` 构建边缘；在停靠栏显示之前保持隐藏。",
       "translation_source_blocks_sha256": [
         "f3d58e9e35ff88a829521ea646d1fdfab3c41c3792227c19b955bce269f7ffaa",
-        "f4eb2b686f4264face50f9292e4981d391e541ae4335e0c8f2931682529d1ec5",
+        "51c4db88cb5e9f4051065235d5bfac3c7f3995f28486be3d5c0bb63a29971471",
         "61f1a55c8fe2aac1dde80ae43d84742e9aff21c7e5f6559f1d8bd4c4750806a1",
         "9a8606cb6d236b5d88671bb952fcfbd5150e448fa5b9faf74de313ad82c27067",
         "6f8ea5222b517bab4225b85c30696cc8dae58c371ec63346fd4ea5edf5dd4e41"
@@ -121956,8 +122450,8 @@
         "134a808c6cb1583cad50f47b9315e1727d962a4e68d11d3eefb9d5c808bbc26e",
         "9d8f04617e9bc1b421ad97f56da964bc39f000489a55a2fa08f8ac0a3e8f8ebe",
         "c8d906546300bc92069194a3156ddef006697415a0fbb0be712d1eba248be3fc",
-        "716705a006c51ba98d09012dcb5466281e85fb7d21cc6002817996f7141e970f",
-        "7ab46fd9cca517c17f57de9c2ba6f927b48c48da68c442fa7074bb01eda156ce",
+        "ef2bf0295c68d121226542d4f7cbc5c166131857cca8d6bce5867832630e9eb6",
+        "a146840b95b410f516856ba329e4b0ba47893311da38d4657babf5a99018c63e",
         "cc28e8f95696103a39adcc4f2f1b66f5dd30fdb1ce5dd1e940aec3240deca4de",
         "e1936aa309118d0cd97be24eb39b34e074fcc576db25d3f96a1e042c2ba0c520",
         "020209c1da87a0c48c5abf65a902f4988fe5c0ae95a6f5bff6e019fd2fcd123a",
@@ -121965,14 +122459,14 @@
         "59ce0c0db0bdd5a2b4ef5510a642294bee7a60fdaf767ea2583da93579b51eff",
         "736c77b30164b7ef9fbb042adb1e5c05357c838cb7eea65beb733f7cade810b7"
       ],
-      "source_sha256": "b2701d32f192cb3f0db68deb827bfa8a2e9b5da63903d7de2373f12145179679",
-      "text": "Qt 标签和按钮,以消除文本而不失去全部值。\n\n当空间有限时, widgets 会发出一片幻灯片,并在一个工具提示中展示完整的文本,稳定的尺寸指示阻止布局在完整和缩短文本之间波动。\n\n“进度行。”:class:`ProgressLine` 是一个细长的进度条，其数字位于旁边，不会被任何东西截断。\n\n原因（第 502 项）。主题把每个 ``QProgressBar`` 都绘制为 8 px 的轨道（``height: 8px; max-height: 8px`` 位于 :mod:`spacr.qt.theme` 中）。如果进度条还自己绘制文字——\"step 2 of 3\"、\"45%\"、\"312 MB / 690 MB (45%)\"——就会把 13 px 的文字画进这 8 px 中，因此每个字形只有上半部分能显示在界面上；在 50 % 的 GUI 缩放下，轨道只有 4 px，几乎什么都显示不出来。维护者的报告是：\"文字，例如 step 1 of 3 或 10%，被截断了\"。\n\n维护者选择的“设计”是“细进度条 + 标签”：\n\n    [████████░░░░░░░░░░░░]  第 2 步，共 3 步 · 45% 正在下载 torch… 已下载 312 MB，共 690 MB · 4.2 MB/s · 剩余 1 min 30 s\n\n* 进度条完全不绘制文字，并保持为主题所绘制的细轨道；\n* 旁边的“计数”（步骤和百分比，即人们关注的数字）是一个普通标签，从不省略——其水平尺寸策略为 ``Minimum``，因此布局给它的宽度不会少于其文字所需；\n* 下方可选的“详情”行承载会变化且可能很长的部分（文件名、速度、剩余时间）；该部分会被省略显示，而 :meth:`ProgressLine.displayed_text` 会报告实际绘制的内容。\n\n这里没有任何尺寸是先根据字体度量计算、再交给尺寸设置函数的，因此 GUI 缩放层（:mod:`spacr.qt.gui_scale`）对每个尺寸只缩放一次：标签跟随缩放后的字体，间距跟随缩放后的布局。\n\n该控件响应调用点所使用的 ``QProgressBar`` API 部分（``setRange``、``setValue``、``setFormat``（带 ``%p``/``%v``/``%m``）、``setTextVisible``、``format``、``value`` 等），因此用它替换进度条时，每个调用点只需改一行。",
+      "source_sha256": "7b33ef6e164887fefe1f7f87aaa3aac0aec4725edc5824ec5d63785d3478f5c5",
+      "text": "Qt 标签和按钮,以消除文本而不失去全部值。\n\n当空间有限时, widgets 会发出一片幻灯片,并在一个工具提示中展示完整的文本,稳定的尺寸指示阻止布局在完整和缩短文本之间波动。\n\n“进度行。”:class:`ProgressLine` 是一个细长的进度条，其数字位于旁边，不会被任何东西截断。\n\n原因（第 502 项）。主题把每个 ``QProgressBar`` 绘制为 8 px 高的轨道（``height: 8px; max-height: 8px``，见 :mod:`spacr.qt.theme`）。同时绘制自身文字的进度条——\"step 2 of 3\"、\"45%\"、\"312 MB / 690 MB (45%)\"——会把 13 px 的文字画进这 8 px 中，因此每个字形只有上半部分能显示出来；而在 50 % 的 GUI 缩放下轨道只有 4 px，几乎什么都显示不出来。像 \"step 1 of 3\" 或 \"10%\" 这样的文字会被截断。\n\n设计方案是 \"细进度条 + 标签\"：\n\n    [████████░░░░░░░░░░░░]  第 2 步，共 3 步 · 45% 正在下载 torch… 已下载 312 MB，共 690 MB · 4.2 MB/s · 剩余 1 min 30 s\n\n* 进度条完全不绘制文字，并保持为主题所绘制的细轨道；\n* 旁边的“计数”（步骤和百分比，即人们关注的数字）是一个普通标签，从不省略——其水平尺寸策略为 ``Minimum``，因此布局给它的宽度不会少于其文字所需；\n* 下方可选的“详情”行承载会变化且可能很长的部分（文件名、速度、剩余时间）；该部分会被省略显示，而 :meth:`ProgressLine.displayed_text` 会报告实际绘制的内容。\n\n这里没有任何尺寸是先根据字体度量计算、再交给尺寸设置函数的，因此 GUI 缩放层（:mod:`spacr.qt.gui_scale`）对每个尺寸只缩放一次：标签跟随缩放后的字体，间距跟随缩放后的布局。\n\n该控件响应调用点所使用的 ``QProgressBar`` API 部分（``setRange``、``setValue``、``setFormat``（带 ``%p``/``%v``/``%m``）、``setTextVisible``、``format``、``value`` 等），因此用它替换进度条时，每个调用点只需改一行。",
       "translation_source_blocks_sha256": [
         "134a808c6cb1583cad50f47b9315e1727d962a4e68d11d3eefb9d5c808bbc26e",
         "9d8f04617e9bc1b421ad97f56da964bc39f000489a55a2fa08f8ac0a3e8f8ebe",
         "bfbb3f7c13ca9e05b40222359340d3cab6bbba6e5f528d904f790e1c1d21ea0b",
-        "5739d559e39643be6d31712af8c9c92329bd41314d22c30b6062f686064c6764",
-        "029a1b8ca348ba8c26fc0dcb1868be416abe6ac888cda8ad792df6c44d703f3f",
+        "52e5a00972cb0bab2a5f9c609394a4f20e28cd631d1ad24e0bb42424c699ee14",
+        "7093262fc5901d61cb7b566a870f07f1f9bd109b470362092200632db2e0d922",
         "cc28e8f95696103a39adcc4f2f1b66f5dd30fdb1ce5dd1e940aec3240deca4de",
         "e1936aa309118d0cd97be24eb39b34e074fcc576db25d3f96a1e042c2ba0c520",
         "020209c1da87a0c48c5abf65a902f4988fe5c0ae95a6f5bff6e019fd2fcd123a",
@@ -147430,16 +147924,14 @@
     "spacr.qt.widgets.picture_export": {
       "source_blocks_sha256": [
         "a648252226ebca801af3ba2f23cc8035cafe6ae34980f4dcee43ded12181d5a3",
-        "23863d90eb7ce0b6020741383e0b4b6d9595560595ce695bbc8f783105b2d03c",
         "e790835e1bc841edb8e98bae98ca2f407262ea6ec94c1080f578de17f115249b",
         "e5dfebda32e1c3002c3fc6ea020427889f6c999e6e426903b6efc849052ca2f8",
         "b53ac41d6f89dab369a0bdc50657ef521b9dfbbc754fc558a28464ca9bdf645e"
       ],
-      "source_sha256": "a5bf77f207801e57268199a1b7052d52605b37b4c7597513b0975cd6985490e5",
-      "text": "右键点击图像即可将其保存为 PNG 或 PDF。\n\n    “在这里，用户应该能够右键点击图像，将其保存为 png 或 pdf”——维护者，2026-09-24（第 505 项）\n\n界面上的图像往往正是有人一小时后想放进幻灯片里的东西，而过去的办法是对窗口截图，分辨率受限于窗口，还带着周围的界面元素。本功能以图像渲染时的分辨率（而不是它碰巧显示的尺寸）将“图像本身”保存到用户选择的文件中。\n\n“两种格式，而且 PDF 并不是换了扩展名的 PNG。”把栅格图直接放进 PDF 只满足了文件名，别无其他；分图是一个页面，而页面有以毫米计的尺寸。:func:`save_picture` 为 PDF 提供与图像自身形状相同的页面，并把“首选项”中的分辨率告诉写入器，因此图像会以其测量时的尺寸落在页面上，并以该分辨率打印。\n\n分辨率和默认格式就是 Figures 首选项已经管理的那些——:func:`spacr.qt.preferences.get_figure_png_dpi` 和 :func:`spacr.qt.preferences.get_figure_format`——因此已经说过“300 DPI, PDF”的用户不会被换一种说法再问一次。",
+      "source_sha256": "e3cf46c60a811ef1693d93a5d2811ce3a4e57d35a14002f4d5ac22396eb68af2",
+      "text": "右键点击图像即可将其保存为 PNG 或 PDF。\n\n界面上的图像往往正是有人一小时后想放进幻灯片里的东西，而过去的办法是对窗口截图，分辨率受限于窗口，还带着周围的界面元素。本功能以图像渲染时的分辨率（而不是它碰巧显示的尺寸）将“图像本身”保存到用户选择的文件中。\n\n“两种格式，而且 PDF 并不是换了扩展名的 PNG。”把栅格图直接放进 PDF 只满足了文件名，别无其他；分图是一个页面，而页面有以毫米计的尺寸。:func:`save_picture` 为 PDF 提供与图像自身形状相同的页面，并把“首选项”中的分辨率告诉写入器，因此图像会以其测量时的尺寸落在页面上，并以该分辨率打印。\n\n分辨率和默认格式就是 Figures 首选项已经管理的那些——:func:`spacr.qt.preferences.get_figure_png_dpi` 和 :func:`spacr.qt.preferences.get_figure_format`——因此已经说过“300 DPI, PDF”的用户不会被换一种说法再问一次。",
       "translation_source_blocks_sha256": [
         "a648252226ebca801af3ba2f23cc8035cafe6ae34980f4dcee43ded12181d5a3",
-        "23863d90eb7ce0b6020741383e0b4b6d9595560595ce695bbc8f783105b2d03c",
         "3db381ce4a8a7c15ebd16c5bf3922b9c09db62c2bb64dff1cb3bd2e06432658f",
         "d12853cb87032fe7b07e066fc051b99edb9b94eb73bb04bdc33c8fb8f285b98e",
         "b53ac41d6f89dab369a0bdc50657ef521b9dfbbc754fc558a28464ca9bdf645e"
@@ -167840,10 +168332,11 @@
         "62789fd9ca307f5731762889e038931a45ffc0bd9d2e466aeaf2b24e6e39f6a1",
         "c19bec0489c8a06f2b15b2850168b9eb279f2540a267de73a0903b9102c54f14",
         "75816c6e25886f663e62522e185a1cdbb1bc60f33df2feb2e960b65a2ad31e7f",
-        "0ca3a41435b330f5517523fc9b1ef4111e366192706f6b7b703f826af9099f1d"
+        "0ca3a41435b330f5517523fc9b1ef4111e366192706f6b7b703f826af9099f1d",
+        "8268982be4a59a166687566f77cbff9be9c2eac1594319ea55bdbd0e07c7e097"
       ],
-      "source_sha256": "39126364b7fc2d44158ef855008edb9683a7bcca2308b1ba76af00a401dd711d",
-      "text": "处理会议日记 - 每个工作流引用的可再生性记录。\n\n每次一个 spaCR 工作流处理会议(掩膜 / 测量 / 分类 / ...), :func:`open_run` 在 ``~/.spacr/runs/`` 下写一个按时编写的文件夹,包含一个审查员需要重复结果的一切:\n\n::\n\n    ~/.spacr/runs/2026-07-23_143507_ab12cd34__mask/\n        settings.csv          # exact settings dict, Key,Value CSV\n        settings.json         # same, JSON (source of truth for machines)\n        manifest.json         # spaCR version, git hash, python, packages,\n                              # torch / cuda / cellpose, start time,\n                              # end time, elapsed, exit status, model hashes\n        log.txt               # tail of ~/.spacr/logs/spacr.log for the run\n        outputs/              # optional — any pipeline-emitted artifacts\n                              # (masks, DBs, CSVs, plots) copied in\n\n公开 API::\n\n    from spacr.run_journal import open_run\n\n    with open_run(\"mask\", settings) as run:\n        preprocess_generate_masks(settings)\n        run.attach_output(Path(\"/path/to/mask.tif\"))\n        run.set_status(\"success\")\n\n背景管理员记录开始 / 结束时间标签并产生 :class:`Run` 对象,其 ``dir`` 属性是处理会议文件夹。当某些东西升起时,它标签 ``\"status\": \"failed\"`` (加上跟踪回归) 到 ``manifest.json`` 并重新升起;没有标记文件被写入。\n\n报纸的消费者:\n\n* ``spacr repro <run-folder>`` — 重复运行(参见 :mod:`spacr.cli_repro`)。\n* AI 控制台 → \"File as issue\" - 包含当存在时的最后一行的显明,因此错误报告是自我包含的。\n* 主应用程序查看 \"Recent runs\" 列表 — 列出从 :func:`recent_runs` 最新的第一。",
+      "source_sha256": "b971f240dda7e74813cc4e911ecf25af1a75c5a29ad931025da4f547cd109891",
+      "text": "处理会议日记 - 每个工作流引用的可再生性记录。\n\n每次一个 spaCR 工作流处理会议(掩膜 / 测量 / 分类 / ...), :func:`open_run` 在 ``~/.spacr/runs/`` 下写一个按时编写的文件夹,包含一个审查员需要重复结果的一切:\n\n::\n\n    ~/.spacr/runs/2026-07-23_143507_ab12cd34__mask/\n        settings.csv          # exact settings dict, Key,Value CSV\n        settings.json         # same, JSON (source of truth for machines)\n        manifest.json         # spaCR version, git hash, python, packages,\n                              # torch / cuda / cellpose, start time,\n                              # end time, elapsed, exit status, model hashes\n        log.txt               # tail of ~/.spacr/logs/spacr.log for the run\n        outputs/              # optional — any pipeline-emitted artifacts\n                              # (masks, DBs, CSVs, plots) copied in\n\n公开 API::\n\n    from spacr.run_journal import open_run\n\n    with open_run(\"mask\", settings) as run:\n        preprocess_generate_masks(settings)\n        run.attach_output(Path(\"/path/to/mask.tif\"))\n        run.set_status(\"success\")\n\n背景管理员记录开始 / 结束时间标签并产生 :class:`Run` 对象,其 ``dir`` 属性是处理会议文件夹。当某些东西升起时,它标签 ``\"status\": \"failed\"`` (加上跟踪回归) 到 ``manifest.json`` 并重新升起;没有标记文件被写入。\n\n报纸的消费者:\n\n* ``spacr repro <run-folder>`` — 重复运行(参见 :mod:`spacr.cli_repro`)。\n* AI 控制台 → \"File as issue\" - 包含当存在时的最后一行的显明,因此错误报告是自我包含的。\n* 主应用程序查看 \"Recent runs\" 列表 — 列出从 :func:`recent_runs` 最新的第一。\n\n除处理记录外，日志还为盲法工作保存两类记录。:func:`start_blinding` 将盲法编码表（编码名称和打乱的顺序）写入 ``~/.spacr/blinding``，:func:`unblind` 记录由谁在何时打开了它。:func:`lock_analysis` 把分析计划冻结在 ``~/.spacr/analysis_locks`` 中，并附上哈希和时间戳；之后在同一 ``src`` 上对同一流程的每次处理都由 :func:`check_analysis_lock` 与之核对，结论写入该次处理的 ``manifest.json`` 中的 ``analysis_lock`` 下，任何差异也会列在 ``provenance_warnings`` 中。",
       "translation_source_blocks_sha256": [
         "fb6bab474ef6515e7f1325b172b9b2b39f067aae29dfbf2c163bfbb5dd59bbd4",
         "3588b345ba4a83bbe7cef95b0d9a851d475bc5f50cae6f55bebc07db946a6255",
@@ -167852,7 +168345,8 @@
         "62789fd9ca307f5731762889e038931a45ffc0bd9d2e466aeaf2b24e6e39f6a1",
         "c19bec0489c8a06f2b15b2850168b9eb279f2540a267de73a0903b9102c54f14",
         "75816c6e25886f663e62522e185a1cdbb1bc60f33df2feb2e960b65a2ad31e7f",
-        "5d35b34d17390cf295287c4c7a87ea88575bb2cbb474d02dfc46ac3cdfcffa20"
+        "5d35b34d17390cf295287c4c7a87ea88575bb2cbb474d02dfc46ac3cdfcffa20",
+        "ba1e081e2f69bb4b33549ed053331af007cf4c85c67f48d77156e0a4ce91e83b"
       ]
     },
     "spacr.run_journal.MANIFEST_SCHEMA_VERSION": {
@@ -168011,6 +168505,26 @@
         "581ee7534d8a3b3d94810e1b2509f58447ca6fa3a5d0ba1d7f936c8fb97c9299"
       ]
     },
+    "spacr.run_journal.check_analysis_lock": {
+      "source_blocks_sha256": [
+        "a7dab553cf176267f0dc83ae6090ff6b64dd890fcd37a0b970343a4cc8bb9a66",
+        "fa1d435e1c436efdb5877fa024be6c851d6d98011578205654eeacb7f952c4df",
+        "21c35046c8d05f886c15bdd8240f3c09c0e79b554dc0b7ae203f18b786ae19c0",
+        "09f82ec376a95edec730570ef26a0339cd6171afc441c2382de7f6f3fa6212e1",
+        "04cfcc06ecb6198567eb63a5ad798f1401693b1357367656ab5724c2c8604e0f",
+        "b0c257c3fb76778206d96f0aaca390e18f89edf8aafb0abc32a1b129979b4626"
+      ],
+      "source_sha256": "6b10b5ea09d10e40ef81fea558a8e260ee683414c33bf623550966487d46128f",
+      "text": "将一次处理的设置与其预注册的分析锁进行核对。\n\n除非传入了锁，否则所用的锁是 :func:`lock_analysis` 为 ``app_key`` 在这些设置的 ``src`` 上创建的最新锁。锁首先与其自身的哈希核对，因此被编辑过的锁文件会被发现；然后逐项比较每个设置和每个已计算哈希的文件。\n\n:param settings: 被核对的那次处理的设置。\n:param app_key: 执行这些设置的流程。\n:param lock: 用于核对的锁记录，代替最新的锁。\n:returns: ``status``——``\"unlocked\"``（没有适用的锁）、``\"verified\"``（没有变化）、``\"deviation\"``（有变化，且自上锁以来该文件夹没有任何编码表被揭盲）、``\"post_hoc\"``（有变化，且该文件夹的某个编码表在上锁后被揭盲）、``\"not_preregistered\"``（没有变化，但锁是在揭盲之后创建的）或 ``\"tampered\"``（锁已与其哈希不符）——并附带 ``lock_id``、``sha256``、``locked_utc``、``locked_by``、``deviations``（``key``、``locked``、``now``）、``unblinded_utc`` 以及一句话的 ``summary``。",
+      "translation_source_blocks_sha256": [
+        "d1d670f8640e7cecbac224c8b4df192818341eb6ca6a3fb8e9de5f63ba136e4e",
+        "fa1d435e1c436efdb5877fa024be6c851d6d98011578205654eeacb7f952c4df",
+        "0d6ab0f3772416be6cbe881a047adac49cc660f87e14ff25a51ed96e1e6595dd",
+        "807ac9e49853be22e58a410a78df698f6b37ec7e55a4da39663f9757caeb1fff",
+        "04cfcc06ecb6198567eb63a5ad798f1401693b1357367656ab5724c2c8604e0f",
+        "b0c257c3fb76778206d96f0aaca390e18f89edf8aafb0abc32a1b129979b4626"
+      ]
+    },
     "spacr.run_journal.current_run": {
       "source_blocks_sha256": [
         "971e5b66f5f59bd3ad3121746d7158387a56e59ba9584afe2803f664b9b7f67f",
@@ -168157,6 +168671,34 @@
         "187e7cdc5dbfbcefff01b0de9407041e3a74e54aacd73569c59d10222fdb8515"
       ]
     },
+    "spacr.run_journal.lock_analysis": {
+      "source_blocks_sha256": [
+        "a814af9286c401fd23c822a779a1dbeacb4d1d3d9f20d57c9f1c83295a5f5d42",
+        "b39a0ffbfd1aa184adf4a8273c3ec2c2646fda3903cc42ea1165bc406dfc1da8",
+        "cf47343d42802b2c2950a7f9bd29025f6e5effa678455bf8687dcb0aaf51a6aa",
+        "0177a76b9efd77160351110a56cea8824ddd50a550de3889c91b8f1e2edbf608",
+        "df52c0026a3371e4f91b7f357ac048c82417557d35d9cdc581204bad0c81f868",
+        "1d3fae2a661cbe02803881cb4ca5ca01031c3d2f275510a44688d5dea042ec6f",
+        "fc63e888b1d52c57db4bfd324e65810dbfbba29f34361f37ca4ecde985adfaf8",
+        "4a542f32b49e522cc1bc53100214caede0cb0ad59623ddab592f09bdd5a6794f",
+        "0063f5e246bb561726b8d059577ccdb5c8807e677342a2eeacd3470d2c452a43",
+        "07d8ff4c8fd4fc1d666e2a6174a9471f98898a75a1efce1495955d616fe8c72b"
+      ],
+      "source_sha256": "23700232877f4a709b5b5bdd2cdca0e07525c9bc3e14e03ca09e881f3a0e67e1",
+      "text": "在看到结果之前冻结分析计划。\n\n设置、声明的假设和阈值，以及设置中提到的每个模型、门控或阈值文件的 SHA-256（外加 ``files``），会连同时间和用户一起写入 ``~/.spacr/analysis_locks/<lock id>.json`` 并计算哈希。此后，``app_key`` 在同一 ``src`` 上每次记入日志的处理都会由 :func:`check_analysis_lock` 与最新的锁核对；结论写入该次处理的 ``manifest.json``，差异则列在清单的警告、报告和方法文本中。\n\n如果在同一文件夹的盲法编码表被揭盲之后才创建锁，该锁会被如实标记，因为它不是在盲态下创建的。\n\n:param settings: 分析将使用的设置。\n:param app_key: 它将在其中运行的流程，例如 ``\"classify\"``。\n:param hypotheses: 用文字表述的假设。\n:param thresholds: 决策阈值和门控，可采用任何与 JSON 兼容的形式。\n:param files: 计划所依赖的其他文件。\n:param note: 值得与计划一起保存的其他任何内容。\n:returns: 已保存的锁，包括 ``lock_id``、``locked_utc`` 和 ``sha256``。",
+      "translation_source_blocks_sha256": [
+        "a814af9286c401fd23c822a779a1dbeacb4d1d3d9f20d57c9f1c83295a5f5d42",
+        "7e4e8dd62c6669ee3425c47f84a2b17af4a1e1724a61afe4f9948035a47b8255",
+        "cf47343d42802b2c2950a7f9bd29025f6e5effa678455bf8687dcb0aaf51a6aa",
+        "18dc897a921fbdbecd642593a4f839976f391690ad44f54709a193dd32f57767",
+        "837fb54f7df9783f146af92c2fb5383bb351bf3b7bb9df110b5d060f3ef8732a",
+        "1d3fae2a661cbe02803881cb4ca5ca01031c3d2f275510a44688d5dea042ec6f",
+        "2f2c1b564ae91d681b34138c8f3a3dba46f08a1901f0db0555df18ab5add50d4",
+        "4a542f32b49e522cc1bc53100214caede0cb0ad59623ddab592f09bdd5a6794f",
+        "0063f5e246bb561726b8d059577ccdb5c8807e677342a2eeacd3470d2c452a43",
+        "07d8ff4c8fd4fc1d666e2a6174a9471f98898a75a1efce1495955d616fe8c72b"
+      ]
+    },
     "spacr.run_journal.open_run": {
       "source_blocks_sha256": [
         "78c164a5dc069306f6cd3928f308d96e9721c26b6d2f6057614c95adb0d01d82",
@@ -168245,6 +168787,48 @@
         "03a196ab9ab45074d031b9c8de5482f76e13c9213ebe8899b04466599541e520",
         "9d866a1981e1366ea36d022e7f5f478f4ee3a7a5474310b694ef0d5de52b75bf",
         "aa2e3b714e1a71b9eb72e86d0dae62dbced742753c8fccb1d601afee1884134a"
+      ]
+    },
+    "spacr.run_journal.start_blinding": {
+      "source_blocks_sha256": [
+        "51b5579da70f94f9af625e544b505de7a7897a3b5bc7abc01449b410cf3c5e2c",
+        "080ffb3ee121cf59f4dc2a2e91ae7eb5b889cf65d0221e00636749a1395c88c4",
+        "6e49a2b0c5e9912145d5220596754786b869bdcc094a793897636e6794e8e524",
+        "32ba1c38520394afe3e3d96295fd44d70a76d650f2b1dc525f861f85700bbefc",
+        "4e22478174ba1af45dabfea6662bdc2d6dc86b002b7e0e3e980f51a8b9765613",
+        "13de89a3a49d5b276eb0c83c091dcb96c80ed7a00459612aabaa49b692fa077e",
+        "44ca44f7fba042fe8a8cef262f29016cc812d945e675329d5377e18c9df2e3f2"
+      ],
+      "source_sha256": "2280c337b2f253150cb9290b56e14eb45fb9c2d2941da093036ec96823d32956",
+      "text": "用编码名称打乱 ``items`` 的顺序，并使编码表与它们分开存放。\n\n盲法评分：评分者只能通过代码（``B0001``、``B0002`` 等，按打乱后的顺序编号）并按该顺序看到每个项目，因此名称及其相邻项都不会透露它来自哪块板、哪个孔或哪种条件。把代码映射回项目的编码表写入数据文件夹之外的 ``~/.spacr/blinding/<key id>.json``，此后对它的每个事件（揭盲、关闭）都会连同执行者和时间追加到 ``<key id>.log.jsonl`` 中。\n\n:param items: 被评分的对象，例如裁剪图路径或图像文件；重复项只保留一次，按首次出现的顺序排列。\n:param scope: 评分的内容，例如 ``\"annotate\"``；与编码表一起保存。\n:param src: 项目所属的实验文件夹。同一文件夹上的分析锁会读取该编码表的揭盲记录。\n:param seed: 打乱所用的随机种子；省略时会随机抽取一个并保存，以便根据编码表重建顺序。\n:returns: ``key_id``、``order``（打乱后的项目）和 ``codes``（``{item: code}``）。",
+      "translation_source_blocks_sha256": [
+        "51b5579da70f94f9af625e544b505de7a7897a3b5bc7abc01449b410cf3c5e2c",
+        "ec13c66e7c6f8fd220f75a854addf1412d0fcdbf8a4731f2e9375e6c037a0269",
+        "19f2003ef268019c5f6aa5797842c7eea36582aa24b7f3d4406d8b43e0237d1f",
+        "32ba1c38520394afe3e3d96295fd44d70a76d650f2b1dc525f861f85700bbefc",
+        "6230a778770a6c9fb2b2982e1fea248c94a5e5b8fa93a3b026f1d7feda0c499e",
+        "13de89a3a49d5b276eb0c83c091dcb96c80ed7a00459612aabaa49b692fa077e",
+        "44ca44f7fba042fe8a8cef262f29016cc812d945e675329d5377e18c9df2e3f2"
+      ]
+    },
+    "spacr.run_journal.unblind": {
+      "source_blocks_sha256": [
+        "293cb831413a2d9f9d2f92b3e6f9ae55649ae181386159357c944ec33687833c",
+        "817d1d13e9ec5fd65f8ba037cbb579c1dbeed7f46e7795dc13beb162c401cf00",
+        "be04618d8ac98c5c920b99d0d3aaf2a50c1fb433ce7a64cae4b0678aaf6c2eb1",
+        "98670ccd268892e9d5e0fe49e1abbdfde8ebccc883c58897af9456e0663f12fc",
+        "478a7e9a0ab8e98d55ba67d98bb48f770a24892c4394da556e774230d6de593b",
+        "ff56abacdb9bcd209339792e01bee3d8e0c97b13dbe1f65bd66fd852b0178052"
+      ],
+      "source_sha256": "a612cb96e4f18969703b8e798fc9d80fd3afae4f6890398b8832b85d8fdfec58",
+      "text": "打开盲法编码表，并记录由谁在何时打开。\n\n记录会在返回编码表之前追加到编码表的日志中，因此无法通过此调用读取身份而不留下记录。同一文件夹上的分析锁会把此刻之后发现的差异视为事后（post hoc）。\n\n:param key_id: 编码表的编号，即 :func:`start_blinding` 返回的编号。\n:param reason: 打开它的原因；与记录一起保存。\n:returns: ``{code: item}``.\n:raises FileNotFoundError: 当不存在这样的编码表时。",
+      "translation_source_blocks_sha256": [
+        "75b4dd2ca2536812da0e7d4074b8a6ede4fa7cffa6c01a0b2ebbb29f1d84f2c7",
+        "8693fa57891cdd36cb473784e6cb7999d8a84d31616c81778f62cf693d000d93",
+        "be04618d8ac98c5c920b99d0d3aaf2a50c1fb433ce7a64cae4b0678aaf6c2eb1",
+        "98670ccd268892e9d5e0fe49e1abbdfde8ebccc883c58897af9456e0663f12fc",
+        "478a7e9a0ab8e98d55ba67d98bb48f770a24892c4394da556e774230d6de593b",
+        "ff56abacdb9bcd209339792e01bee3d8e0c97b13dbe1f65bd66fd852b0178052"
       ]
     },
     "spacr.run_journal.values_equal": {
@@ -176263,14 +176847,146 @@
       "source_blocks_sha256": [
         "02565973eb04ad74df843d4c80b1f7f526827b0259f7e836f2e3ee0dc25c9357",
         "83e3aa188b9d91efbae785f0bfbb6f8585dc1b3b19e2eeaa9c65f542bf47a57d",
-        "54ffbd15c8f7c81b6db6c879f3f8e54dd09686ad622844457b0a8f46e2a837d7"
+        "54ffbd15c8f7c81b6db6c879f3f8e54dd09686ad622844457b0a8f46e2a837d7",
+        "b9b76401bc8c2088e3436718ad642671cac3a991a37ef72f3d2a9ecd22541e52",
+        "d878bf8c6c52ee39b0e709a05a0415bf0a5eeb97e84bc82c5e16798bd9811fa3",
+        "048bed063018b38251f3b8bbc16621fb439247088351d56473603a5634068790",
+        "9de91e770aa369e114832d84ac787e9a9f64264f60d5d8237ffcf710eb2e0f5c",
+        "37ada0091196229667708318c3d03c2d579ff51e17a9c4ee4918de89446f43d9"
       ],
-      "source_sha256": "27058ff5195ff32085a9142d97679a96c57061340a45b6e869f9a888bfd5b0dd",
-      "text": "提供统计测试和多方比较助理。\n\n组比较功能将测试选项分配到 :mod:`spacr.figures.stats` 同时保留该模块的确定的通话签名和结果密钥. 两组使用学生的 t、 Welch的 t 或 Mann-Whitney U 作为数据支持; 更大的设计使用单途 ANOVA、Welch的 ANOVA 或 Kruskal-Wallis. 结果识别选定的测试,并包括用于选择的假设检查。\n\n:func:`perform_normality_tests` 报告支持的检查是无信息的,而 :func:`perform_levene_test` 使用中间中心的 Brown-Forsythe 统计数据. 进口的插槽支持的统计引擎仍然是本地的,所以只有需要调整或紧张的桌面助理避免加载插槽。",
+      "source_sha256": "76a588db1faeee4fcc67d87ac755858b93f25b6700fb204a1492a6ebd92e628b",
+      "text": "提供统计测试和多方比较助理。\n\n组比较功能将测试选项分配到 :mod:`spacr.figures.stats` 同时保留该模块的确定的通话签名和结果密钥. 两组使用学生的 t、 Welch的 t 或 Mann-Whitney U 作为数据支持; 更大的设计使用单途 ANOVA、Welch的 ANOVA 或 Kruskal-Wallis. 结果识别选定的测试,并包括用于选择的假设检查。\n\n:func:`perform_normality_tests` 报告支持的检查是无信息的,而 :func:`perform_levene_test` 使用中间中心的 Brown-Forsythe 统计数据. 进口的插槽支持的统计引擎仍然是本地的,所以只有需要调整或紧张的桌面助理避免加载插槽。\n\n阵列筛选的命中统计\n-----------------------------\n\n:func:`score_arrayed_screen` 将阵列筛选中的每个孔与其阴性对照比较并评分：稳健 z（中位数/MAD）、针对有无重复设计的矩估计法 SSMD、UMVUE 和稳健估计量（Zhang 2011, J Biomol Screen 16:775），以及 B 分数（Brideau et al. 2003），其行效应和列效应来自 :func:`median_polish`，即 R 的 ``stats::medpolish`` 的移植版本。分数按板计算或相对于合并的阴性对照计算，在所选阈值处判定命中，:func:`write_hit_report` 将排序后的命中表写为 CSV，并通过 :func:`spacr.plot.save_figure` 为每种统计量写出一张板热图。孔的位置由 :mod:`spacr.plate_qc` 确定，对照按 :mod:`spacr.well_spec` 记法命名，每块板的 Z' 来自控制图视图自身的 :func:`~spacr.qt.widgets.control_chart.zprime_frame`。\n\n常量：``MAD_SCALE`` 为 ``1 / Phi^-1(0.75)`` = 1.4826，使正态样本的 MAD 能估计其标准差（这是 R 的 ``mad()`` 以及 cellHTS2 所用的系数）。``SSMD_ESTIMATORS`` 为 ``mm``（矩估计法）、``umvue``（一致最小方差无偏）和 ``robust``（中位数/MAD，SSMD*）。``DEFAULT_HIT_THRESHOLDS`` 对每种统计量都是 3：SSMD 3 是 Zhang 所说的 \"strong\" 效应，3 个稳健 sigma 是稳健 z 和 B 分数的常用临界值。``MEDIAN_POLISH_MAX_ITER`` 和 ``MEDIAN_POLISH_EPS`` 是 R 的 ``medpolish`` 默认值（10 和 0.01），保留它们是为了让残差与 cellHTS2 计算的 B 分数一致。\n\n基于图像的表型谱分析\n---------------------\n\n表型谱辅助函数把 Measure 的逐对象表转换为逐孔和逐处理的表型谱并对其评分，遵循 pycytominer 和 copairs，使相同特征上的数值与这些工具一致。每个对象表先汇总为每孔的中位数，板图添加处理注释，特征逐板相对于阴性对照孔进行归一化（默认使用稳健 MAD），去除信息量低和冗余的特征（方差、频率、相关性、缺失值和离群值），重复孔则合并为共识表型谱。重复的可重现性以平均精度均值（mAP）评分，使用 copairs 的置换零分布和 Benjamini-Hochberg 校正：表型活性（重复与对照相比）以及在给定表型标签时的表型一致性（共享该标签的处理）。旁边还报告重复成功率。表型谱写为带 ``Metadata_`` 列的 CSV 和 Parquet，共识表型谱还写为 GCT，并附一张 mAP 图和一张共识相似度热图。启用 ``profiling`` 时，Measure 会在处理结束时执行整个流程。",
       "translation_source_blocks_sha256": [
         "02565973eb04ad74df843d4c80b1f7f526827b0259f7e836f2e3ee0dc25c9357",
         "83e3aa188b9d91efbae785f0bfbb6f8585dc1b3b19e2eeaa9c65f542bf47a57d",
-        "54ffbd15c8f7c81b6db6c879f3f8e54dd09686ad622844457b0a8f46e2a837d7"
+        "54ffbd15c8f7c81b6db6c879f3f8e54dd09686ad622844457b0a8f46e2a837d7",
+        "426f628eccccc6b69e26c2f9e49034c1a36bfb7f6ca7d18a16e4f51a5fb71063",
+        "bf4bb85676830ba05036fb9c05d074032d6f26b099d86f757e935c6682da96c6",
+        "048bed063018b38251f3b8bbc16621fb439247088351d56473603a5634068790",
+        "9de91e770aa369e114832d84ac787e9a9f64264f60d5d8237ffcf710eb2e0f5c",
+        "eda1996d33661c778e9687876d464c896351af02895356da1caaca9c171854eb"
+      ]
+    },
+    "spacr.sp_stats.ArrayedHitResult": {
+      "source_blocks_sha256": [
+        "83be1a39098c02c134ef53660cbeb6edf34b2e5be75b8cb14995cd68637269ec",
+        "34ffeff07667090aebfb2ef06f4f3a0b741ef477cb9a2582b7966e40f8b2f2b2",
+        "afc192b0486e214561c606af1dbaf69682f90d31cc8bc82c73ae0bb4300e5a3a",
+        "5434a05da5c16db2b3b5bb868a145e196d61f8c5cc6c0b4f8593aaec007b0110",
+        "80b3ed45d280f1320df9b64bf44c3cbf9afba1f5a6b3fb3f4dd1336af13a85d8",
+        "12ebfed565a25a4cf2a1d5ae96a4700ad3e540cdcfc3ee7bed175d10686ddbf2"
+      ],
+      "source_sha256": "9c1a42ac6df09663f4e2393909abeb63a8b1333b551d8881f62b07f351244fcc",
+      "text": "一次筛选的逐孔分数、逐处理 SSMD 和逐板 QC。\n\n:param wells: 每孔一行，包含 ``robust_z``、``ssmd``、``b_score``、``difference``、``hit_<method>`` 标志、``hit``（按 ``options['rank_by']``）和 ``rank``。\n:param treatments: 每种处理的重复 SSMD；没有处理列时为空。\n:param plates: 逐板汇总，包括 Z'。\n:param options: 计算分数时所用的设置。\n:param notes: 说明哪些内容无法评分及其原因的句子。",
+      "translation_source_blocks_sha256": [
+        "2ef0ec9d939fee2081a7d42504dd5aaa1da1670071b7502104382f6c843dff51",
+        "6b1818222591392329999e6d32a397fae9b7f411bfd97360b944a88a79cdd061",
+        "afc192b0486e214561c606af1dbaf69682f90d31cc8bc82c73ae0bb4300e5a3a",
+        "5434a05da5c16db2b3b5bb868a145e196d61f8c5cc6c0b4f8593aaec007b0110",
+        "80b3ed45d280f1320df9b64bf44c3cbf9afba1f5a6b3fb3f4dd1336af13a85d8",
+        "12ebfed565a25a4cf2a1d5ae96a4700ad3e540cdcfc3ee7bed175d10686ddbf2"
+      ]
+    },
+    "spacr.sp_stats.ArrayedHitResult.hits": {
+      "source_blocks_sha256": [
+        "a52e5094db47e7324ffe44f1e62fd9c455e729d406b69311746f242a07c393d7"
+      ],
+      "source_sha256": "a52e5094db47e7324ffe44f1e62fd9c455e729d406b69311746f242a07c393d7",
+      "text": "判定为命中的样本孔，最强的排在最前。",
+      "translation_source_blocks_sha256": [
+        "8f4ae71acba762678a5a77ddd0f00bfe027250e1e95da27e53e72ce00489eade"
+      ]
+    },
+    "spacr.sp_stats.ArrayedHitResult.report": {
+      "source_blocks_sha256": [
+        "7bbb1faf1303f3b899bd2e420abe03ec9cccf28b7df31378cca312f50307a6b0"
+      ],
+      "source_sha256": "7bbb1faf1303f3b899bd2e420abe03ec9cccf28b7df31378cca312f50307a6b0",
+      "text": "以句子表述的结果，用于文本面板或日志。",
+      "translation_source_blocks_sha256": [
+        "7bbb1faf1303f3b899bd2e420abe03ec9cccf28b7df31378cca312f50307a6b0"
+      ]
+    },
+    "spacr.sp_stats.HitScoringError": {
+      "source_blocks_sha256": [
+        "dce0f94f092c229370cdfd56072e9dce9cfc62edd9ade822ed8d3f33e1adf1a4"
+      ],
+      "source_sha256": "dce0f94f092c229370cdfd56072e9dce9cfc62edd9ade822ed8d3f33e1adf1a4",
+      "text": "当一次筛选无法评分时抛出，并给出原因和解决办法。",
+      "translation_source_blocks_sha256": [
+        "134fd594e23e867b6afb3200fb6559cb3334f6a7b4ef36017fa8aac6e44a5864"
+      ]
+    },
+    "spacr.sp_stats.MedianPolish": {
+      "source_blocks_sha256": [
+        "107902ec1a71382d8de0ff1e216a4d4ce631364fb25738b51716d87bdc30a952",
+        "35fd865062c1e4c5ca558d288060924d71d04b12498936ef0f40640798df9cef",
+        "4731e4dc0fe2a17d60965678bc7bc1c2028b11dbe5950599f853f2035dd0e8db",
+        "e0e8125386e63dcc601774a207434c870606c6471f71ce58857b6e3b5ec87609",
+        "583dec85012f28b7ce1673034a0428357e4acb62a2516871f9eaa6b1d0b85351",
+        "3c8d8df4bc01829362a302e984720e62671278aa41c9470ed08e9a6bd5a69a38",
+        "ad731801f77b18dc45fb1a324b0e77db2b42c3cbbe7396e595091b20b95c962d"
+      ],
+      "source_sha256": "6b9e0c0ca0c47379adb950dcdebd92f007e1ac69b30c43897b7ac804d7083f7d",
+      "text": "对一块板做 Tukey 中位数平滑：``x = overall + row + column + residual``。\n\n:param overall: 拟合出的总体效应。\n:param row: 每个板行一个效应；没有拟合孔的行为 NaN。\n:param column: 每个板列一个效应；同样可能为 NaN。\n:param residuals: 残差矩阵；输入为 NaN 的位置为 NaN。\n:param iterations: 执行的扫描次数。\n:param converged: 相对变化是否已低于容差。",
+      "translation_source_blocks_sha256": [
+        "107902ec1a71382d8de0ff1e216a4d4ce631364fb25738b51716d87bdc30a952",
+        "35fd865062c1e4c5ca558d288060924d71d04b12498936ef0f40640798df9cef",
+        "d4a8a5cdc11a031f97ef3c560c5d595a825532f26f77473431fb85fdf511b430",
+        "1304e819aa0b4ccbd5be0ad386c7749db70815c950cb2440e4c307a468dcae47",
+        "583dec85012f28b7ce1673034a0428357e4acb62a2516871f9eaa6b1d0b85351",
+        "3c8d8df4bc01829362a302e984720e62671278aa41c9470ed08e9a6bd5a69a38",
+        "ad731801f77b18dc45fb1a324b0e77db2b42c3cbbe7396e595091b20b95c962d"
+      ]
+    },
+    "spacr.sp_stats.MedianPolish.fitted": {
+      "source_blocks_sha256": [
+        "2a6de3ac9cc2e8d60260014b815684441db4bfd77b0af06d4b3edf627ad9b722"
+      ],
+      "source_sha256": "2a6de3ac9cc2e8d60260014b815684441db4bfd77b0af06d4b3edf627ad9b722",
+      "text": "在完整网格上的加性拟合 ``overall + row + column``。",
+      "translation_source_blocks_sha256": [
+        "2a6de3ac9cc2e8d60260014b815684441db4bfd77b0af06d4b3edf627ad9b722"
+      ]
+    },
+    "spacr.sp_stats.b_scores": {
+      "source_blocks_sha256": [
+        "b473cecad9843f404a206419361d9f450d5cba41c12bae2e537a0226ccca8cc1",
+        "308d2139beeb2a1a302a0abafe68f6be22461fb5f27732a97503030980bf61a4",
+        "8b85e5b85b068dfe34be0e689e01e29ec04972c2d99261f193cdb26f9d1ea37c",
+        "607abaca63ccc64cc4df3c2a1f1ba5ffe842ecea80960fe817865f619f064848",
+        "5524ba8288783b6ea28afcfd4b366da163274d7aa682b974edb8adeb735fea41",
+        "c5bf8a72d3a674efb00efb232f495fa40fe46cff2608a4229edb4c138b7b04b6"
+      ],
+      "source_sha256": "854b6f8ab358b50dc44443244b3f65233901985967f676b5c702577ae61270dd",
+      "text": "一块板上每个孔的 B 分数（Brideau et al. 2003）。\n\n行效应和列效应由 :func:`median_polish` 在 ``fit_mask`` 中的孔上拟合（通常是样本孔，以免对照列变成列效应），然后从板上每个孔中减去。残差除以拟合孔残差的缩放 MAD，与 cellHTS2 的做法相同；Brideau 的未缩放 MAD 只相差常数 1.4826，对孔的排序完全相同。没有拟合孔的行或列（例如只含对照的列）没有可减去的效应，因此其中的孔只相对于总体效应和另一个效应评分。\n\n:param matrix: 板；缺失的孔为 NaN。\n:param fit_mask: 用于拟合效应的孔的布尔矩阵；``None`` 表示在每个有限值孔上拟合。\n:param scale: 用此值代替板自身的残差 MAD 作除数，合并范围正是以此方式应用整个筛选的 MAD。\n:returns: ``(scores, polish, scale_used)``；缺失孔的分数为 NaN，当拟合残差没有离散度时所有分数都是如此。",
+      "translation_source_blocks_sha256": [
+        "3994fa87153f78f90642bdf6e634cdd980f6a1b27890e59500e86b9ead49426d",
+        "7d4184c49c07c132a1d60909b24dc29ee54b5096de41dbb47a5f39494a965f2d",
+        "74232cf23d36a8178435a6a79b57493c54a2a5cf5761b4e753d0654855f6010c",
+        "da8f2c57db427fc83f14ee9e58a6e8394ed97d73bb7b43b3eb4016dd9fd726bf",
+        "dc911b7e9e6b5c7e026b99b81ff27a0c6cdce66a287318b9efa3c6ad88a84a0d",
+        "c5bf8a72d3a674efb00efb232f495fa40fe46cff2608a4229edb4c138b7b04b6"
+      ]
+    },
+    "spacr.sp_stats.call_hits": {
+      "source_blocks_sha256": [
+        "ea1458ebd566093a5ce72160e3827dd75bca87c3ab046b278de1e0ea965c9524",
+        "0a2c6227c2e11c4ee6e4b74bb45642eead295f3e8f16989731b806c928ce69ed",
+        "2d66a8280e973e58f352de260c72816fe5b3676510198626cbbb68d9b8c6a9cf",
+        "61cf0f44904a3b1c3f436fe04df3c0a1b70598e6a30160bb276ee0d36e0d26d6",
+        "c1b0bcf1c758600a34d5561189adeea0ef2763bdba8d8966817c63e9c3eab2ce",
+        "c3ba98f1e5af6a1087b5a7a7faf621bc3a037841abeba682e3d374966b5447b8"
+      ],
+      "source_sha256": "1ab05a206faa50d471c3544afabaaf08fdc4f3205af6f47eb3ad3bc9e48b1c8a",
+      "text": "哪些分数超过 ``threshold``（沿 ``direction`` 方向）。NaN 永远不是命中。\n\n:param scores: 每个孔的统计量。\n:param threshold: 临界值；忽略其符号。\n:param direction: ``both``（``|s| >= t``）、``up``（``s >= t``）或 ``down``（``s <= -t``）。\n:returns: 布尔数组。\n:raises HitScoringError: 方向未知时。",
+      "translation_source_blocks_sha256": [
+        "ea1458ebd566093a5ce72160e3827dd75bca87c3ab046b278de1e0ea965c9524",
+        "5416e38e045f069788a4f11f3fa343a1549ebd7221aac3e236f755525b722eae",
+        "2d66a8280e973e58f352de260c72816fe5b3676510198626cbbb68d9b8c6a9cf",
+        "61cf0f44904a3b1c3f436fe04df3c0a1b70598e6a30160bb276ee0d36e0d26d6",
+        "c1b0bcf1c758600a34d5561189adeea0ef2763bdba8d8966817c63e9c3eab2ce",
+        "c3ba98f1e5af6a1087b5a7a7faf621bc3a037841abeba682e3d374966b5447b8"
       ]
     },
     "spacr.sp_stats.chi_pairwise": {
@@ -176311,6 +177027,82 @@
         "676a140a16c47b90fe57dd8f2c4286f012618b245d07ab0c8921fa168d1a3ac0",
         "6de80d33f1e2ff0354717c1d86c3132a562caf2c344986c7e1f99aa20a270513",
         "3359361564098a45a6d98b649ca03a90bf33dcbc55ed6ea52c48bd8224b3833d"
+      ]
+    },
+    "spacr.sp_stats.hit_heatmap": {
+      "source_blocks_sha256": [
+        "ffc2e125a2e799a08c6a0af7b3d2c2c690bee9a8fe92600053187c5f1dc9455c",
+        "9b89d5afab61a7fb104e9ce205f6f005872159c487a4928e9520dfdf653e8fb7",
+        "a7d4e468f20d9559fc7151572346c0d56f64d7a4e313dfe112da08f6b9b74f53",
+        "98ffb47a789a2fbd0e282d3847ae76a9e3670ee9a3194ce51329ac0f67e6a99b",
+        "b155abed1c85148789f6a336753f0f3a1e7d99af5320386320ad83b604786146",
+        "39035226d9a89992b6739aa8c77ce2054d132d1c6b9a3caee4a24aa1a5bbcfb7",
+        "508d39c2537d1350fd4944914520223928078bb172bf64ab5b4025de9541d54a"
+      ],
+      "source_sha256": "f18cce4af3df8953cab76c2fb41d2233d71b845296e26f1f102e9f69a96e9534",
+      "text": "每块板的 ``method`` 分数使用同一个发散色阶，命中处画出轮廓。\n\n由 :func:`spacr.figures.plates.build_plates`（内置的板小多图）绘制，使用 :func:`spacr.figures.plates.score_ramp` 和以零为中心对称的色阶，因此在每块板上以及阴性对照两侧，同一种颜色都代表同一分数。\n\n:param result: 已评分的筛选。\n:param method: :data:`HIT_METHODS` 之一。\n:param target: ``'screen'`` 或 ``'print'``；默认取偏好设置。\n:returns: ``(figure, panel)``，与 ``build_plates`` 的返回值相同。\n:raises HitScoringError: 方法未知时。",
+      "translation_source_blocks_sha256": [
+        "ffc2e125a2e799a08c6a0af7b3d2c2c690bee9a8fe92600053187c5f1dc9455c",
+        "9b89d5afab61a7fb104e9ce205f6f005872159c487a4928e9520dfdf653e8fb7",
+        "a7d4e468f20d9559fc7151572346c0d56f64d7a4e313dfe112da08f6b9b74f53",
+        "98ffb47a789a2fbd0e282d3847ae76a9e3670ee9a3194ce51329ac0f67e6a99b",
+        "b155abed1c85148789f6a336753f0f3a1e7d99af5320386320ad83b604786146",
+        "39035226d9a89992b6739aa8c77ce2054d132d1c6b9a3caee4a24aa1a5bbcfb7",
+        "508d39c2537d1350fd4944914520223928078bb172bf64ab5b4025de9541d54a"
+      ]
+    },
+    "spacr.sp_stats.hit_table": {
+      "source_blocks_sha256": [
+        "eaaf3c8f0840e42641852025b199bd17edc6f088e679c108f56f378a6f9b6ad9",
+        "b2cfdbb9317a6f44e7224638ed7f367406aec569734394ccdd5d8494e4c8cad4",
+        "67cebccfa994ea7268bd034fe6581f40baf5abe88a8cbe5a8f939005b4ee9d41",
+        "7b5113b093575746f9348e087b6fb170a2e2c99fecb74de9327805338c8fb6f1"
+      ],
+      "source_sha256": "560ae98255bcc335f2331b315f46993f2ee322fe27a0cf510ae3e531fd1906c0",
+      "text": "排序后的命中表：样本孔，最强的排在最前。\n\n:param scored: ``wells``，来自 :class:`ArrayedHitResult`。\n:param hits_only: 只保留判定为命中的孔。\n:returns: 排序后的行，标识列排在最前。",
+      "translation_source_blocks_sha256": [
+        "24fb8fe6d9233f340fdc89af6d62fe442b0d64fd4d5a986e6120222dea8396f7",
+        "b2cfdbb9317a6f44e7224638ed7f367406aec569734394ccdd5d8494e4c8cad4",
+        "108dde6238c4b9ec39cda336aa7792fd53433bd00eaa7bd8e87968b4f91137d0",
+        "7b5113b093575746f9348e087b6fb170a2e2c99fecb74de9327805338c8fb6f1"
+      ]
+    },
+    "spacr.sp_stats.mad": {
+      "source_blocks_sha256": [
+        "c51589ea7af68a3510200c5abad2dab59414ec0545893f5c096a4533fa8cd45c",
+        "5d64e2f8f7c7d3046c22c5ecfd1610f98287605ec763d136df585b67bd0db852",
+        "cd218cf164aaea67c2732cbc01e774683537fe6c2efcfc479b84ef2a3eb85a7d",
+        "0562ef008354d286fe0c362ceb72e86b6e877216d082b4b61ffe97d581364c47"
+      ],
+      "source_sha256": "ada2e3bd5055a34c90fdfc751a62d93c6214fc9e16c4c30a695d0c45a8892064",
+      "text": "``values`` 中有限元素的中位数绝对偏差。\n\n:param values: 数值；忽略 NaN 和无穷值。\n:param scale: 乘以 :data:`MAD_SCALE`，使结果估计正态标准差，与 R 的 ``mad()`` 相同。\n:returns: MAD；没有有限值时为 NaN。",
+      "translation_source_blocks_sha256": [
+        "c51589ea7af68a3510200c5abad2dab59414ec0545893f5c096a4533fa8cd45c",
+        "5d64e2f8f7c7d3046c22c5ecfd1610f98287605ec763d136df585b67bd0db852",
+        "cd218cf164aaea67c2732cbc01e774683537fe6c2efcfc479b84ef2a3eb85a7d",
+        "0562ef008354d286fe0c362ceb72e86b6e877216d082b4b61ffe97d581364c47"
+      ]
+    },
+    "spacr.sp_stats.median_polish": {
+      "source_blocks_sha256": [
+        "560b1f78b5367d82a549b7b41f995efacad1473923434ca7da724c88bcb20fe6",
+        "d616f6fa7cc7de4d5bbe329acd48f44602e885abb68eb20a59535c0c7fe513c0",
+        "4e56661969a67cd337a33a44623e0192631ad78e31cbe7e5b9bf3270e6056fec",
+        "4b85d184b16bac3d7f5faedbdd19518faf1ea3bab83dfbb04a0884d2bce1ac05",
+        "001022ce61546ccf14fb32844ca4fd4b53c7cd130c7df4a869b4ebe72ddfdcc1",
+        "e21db3834b73dd1755b286f2793db288c6bdf82418021066e77bf0cbbdf47d75",
+        "b06c63caf726e921e4afc4bbd4a7cc15eaf3962cea6884d8eb5f0a30331acbab"
+      ],
+      "source_sha256": "50f35fd06eeb75b70a35cd84f7538f236fcd23fa72a4cfc8617fbfa495f67c73",
+      "text": "Tukey 双向中位数平滑，可处理 NaN，遵循 R 的 ``medpolish``。\n\n扫描顺序、效应的中心化和停止规则都与 R 相同，因此拟合结果与 ``stats::medpolish(x, na.rm = TRUE)`` 以及基于它的 cellHTS2 B 分数一致。没有任何有限值孔的行或列得到 NaN 效应，而不是猜测值。\n\n:param matrix: 2-D 数组，未参与拟合的孔为 NaN。\n:param max_iter: 最大扫描次数。\n:param eps: 当 ``|sum|r| - previous| < eps * sum|r|`` 时停止。\n:returns: 所得的 :class:`MedianPolish`。\n:raises HitScoringError: 输入不是二维时。",
+      "translation_source_blocks_sha256": [
+        "560b1f78b5367d82a549b7b41f995efacad1473923434ca7da724c88bcb20fe6",
+        "d616f6fa7cc7de4d5bbe329acd48f44602e885abb68eb20a59535c0c7fe513c0",
+        "5372c4f37a6c3303f391f45ca499d66c256f68d3a539c373441321e336a90db8",
+        "4b85d184b16bac3d7f5faedbdd19518faf1ea3bab83dfbb04a0884d2bce1ac05",
+        "001022ce61546ccf14fb32844ca4fd4b53c7cd130c7df4a869b4ebe72ddfdcc1",
+        "e21db3834b73dd1755b286f2793db288c6bdf82418021066e77bf0cbbdf47d75",
+        "b06c63caf726e921e4afc4bbd4a7cc15eaf3962cea6884d8eb5f0a30331acbab"
       ]
     },
     "spacr.sp_stats.perform_levene_test": {
@@ -176405,6 +177197,208 @@
         "5398d5539cf2e889e974b67557bfd683461e11d8989617109f6387f15ff1ed4c",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
         "8df21500c6a54cee29ce6747fffee15ff25a726564a44ba58322d6e125aa96ca"
+      ]
+    },
+    "spacr.sp_stats.robust_z_scores": {
+      "source_blocks_sha256": [
+        "7d9c7cda8b7a012d367e91ec7a1bb441cf9453ea8c1363a6bd8a73f531d73ccb",
+        "1dabe0c2767b55cb482069ae53967d303703d8dd3d195bf2b062188f8be788d3",
+        "1b39c6f6c8cee6f49bdb5be7310a98d6e099cbc572d455aa487d6aa298ddbcfc",
+        "fba8c38a51366e6f95a53578416b62e8037d9e624a7238f3999114c41bcede4f",
+        "bc3cb0f34d488dc0f728ddcc03f2d6203fd5ddb18e3a33baf99263a83b4b138e"
+      ],
+      "source_sha256": "07408d3037397597485006fb2a4b0f6c6eb551d2aa10aaa66e6bf2cbfc0c4f5b",
+      "text": "相对于参照的稳健 z：``(x - median) / (1.4826 MAD)``。\n\n以阴性对照孔作为 ``reference`` 时，这就是 Zhang 的 z* 分数：一个孔距离阴性对照有多远，以阴性对照的稳健标准差为单位。\n\n:param values: 要评分的孔。\n:param reference: 参照孔，通常是阴性对照。\n:returns: 每个值一个分数；当参照的有限值孔少于两个或没有离散度时，全部为 NaN。",
+      "translation_source_blocks_sha256": [
+        "7d9c7cda8b7a012d367e91ec7a1bb441cf9453ea8c1363a6bd8a73f531d73ccb",
+        "91b110f45a45c7dfd3330b32a1f4eb193852a67583c605925bb99ed83f20ae1a",
+        "b312896b4132f594c6a74925abaa6eb45d9e1dc0c30306871df7857ec695ee29",
+        "fc835943bceee752a87c94698eb8e3650009d8cf2dc38e8a2c5f91e616966595",
+        "dc1996119593525f9ba236b6a7723a82437923e481c8e78dc841203db8b1098b"
+      ]
+    },
+    "spacr.sp_stats.score_arrayed_screen": {
+      "source_blocks_sha256": [
+        "9fb99a26b7cc9091d43d381e142a2a749ec6d9efa99da18554b5a1cb340c4e30",
+        "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
+        "eb0fbf4efae476e3acaf4c560ffaf9052b5f5c84ef09be352a86a15d0eab2903",
+        "b6d212ff30a4d69586131a3fbbbcfd8436bbd7d99d4c984654ed97cfa76ed4ab",
+        "dd00e16da6a28596ceabc5803d0a707ab6af3626dccfa03a3c24587934b2162c",
+        "92125531008e6d7a201cb8d6fa460cf56b1b602f0093cf024b78efcb911746f7"
+      ],
+      "source_sha256": "32446948ce820db4582bc2b8a26f57929c5ab0a6664d53298339f2cf9a658e6c",
+      "text": "一次调用中先执行 :func:`screen_wells`，再执行 :func:`score_screen`。\n\n示例：\n    .. code-block:: python\n\n        from spacr.sp_stats import score_arrayed_screen, write_hit_report\n        result = score_arrayed_screen(\n            df, 'cell_area', negative_wells='c1', positive_wells='c24',\n            treatment_column='gene', rank_by='ssmd', scope='plate')\n        write_hit_report(result, 'results/hits')\n\n:param frame: 测量表。\n:param value_col: 要评分的测量值。\n:param options: 传给 :func:`score_screen`（``scope``、``ssmd_estimator``、``replicate_estimator``、``thresholds``、``direction``、``rank_by``）。\n:returns: an :class:`ArrayedHitResult`.",
+      "translation_source_blocks_sha256": [
+        "9fb99a26b7cc9091d43d381e142a2a749ec6d9efa99da18554b5a1cb340c4e30",
+        "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
+        "eb0fbf4efae476e3acaf4c560ffaf9052b5f5c84ef09be352a86a15d0eab2903",
+        "b6d212ff30a4d69586131a3fbbbcfd8436bbd7d99d4c984654ed97cfa76ed4ab",
+        "dd00e16da6a28596ceabc5803d0a707ab6af3626dccfa03a3c24587934b2162c",
+        "92125531008e6d7a201cb8d6fa460cf56b1b602f0093cf024b78efcb911746f7"
+      ]
+    },
+    "spacr.sp_stats.score_screen": {
+      "source_blocks_sha256": [
+        "153c8f715f372fda595c3d1599716f06a35c10c8a1524b91cf7b62b411eb3b31",
+        "8000c3a39ec91a2272fb5b1bd8009a7cabbb6266e8ba960a530220a3167cd6f0",
+        "56aa8fd448f4708b446a05e3e86fb43ab116ecd45502222ceebf2376308f3912",
+        "241d958730d37bb250a2579908288d7e7f26b668229ee50faa959992d191f976",
+        "3e40328572b520af1dbb2931bd48c732e1aba27d271d78ec0f92c94314a5f5fa",
+        "1c3d23fcb70a2a24c62f6e6d724bf7b5c85975afd30e8f0936af1c8e0e35bf2b",
+        "c4515f867b1f48ca202e489bb71f1b4fc89a9e7f76e6681d3712da63a08c42d0",
+        "60a29efa0fec66ee57e13e627688db8c77ad3fead15d49472aab7daddc32b153",
+        "2e5dd81677072fc0c9cb34b0defa748f2d7e07eae0f6a6c8f63d99c5f1679eb0",
+        "92125531008e6d7a201cb8d6fa460cf56b1b602f0093cf024b78efcb911746f7",
+        "8c37bd1a6f143b21065e96f9c4cf378cf83105a11fb666ae39f791f4bece3cc8"
+      ],
+      "source_sha256": "2c2c7ae62f6450473f22fd88b0ceb4dbf49d11846f22306e86f989391902dfe0",
+      "text": "将阵列筛选中的每个孔与其阴性对照比较并评分。\n\n稳健 z 和 SSMD 相对于该孔所在板的阴性对照孔（``scope='plate'``）或所有板合并后的阴性对照孔（``scope='pooled'``）计算。B 分数总是按板拟合，因为行效应和列效应属于某一块板；合并范围用整个筛选的残差 MAD 作除数，而不是各板自己的。对照也会被评分，阳性对照正是借此显示实验窗口，但只有样本孔会被判定为命中。\n\n:param wells: :func:`screen_wells` 返回的表。\n:param scope: :data:`HIT_SCOPES` 之一。\n:param ssmd_estimator: 逐孔 SSMD 估计量，为 :data:`SSMD_ESTIMATORS` 之一。\n:param replicate_estimator: 有重复的处理所用的 SSMD 估计量。\n:param thresholds: 每种方法的临界值；缺少的使用 :data:`DEFAULT_HIT_THRESHOLDS`。\n:param direction: :data:`HIT_DIRECTIONS` 之一。\n:param rank_by: 决定 ``hit`` 和 ``rank`` 的方法。\n:returns: an :class:`ArrayedHitResult`.\n:raises HitScoringError: 选项未知，或筛选中没有阴性对照孔时。",
+      "translation_source_blocks_sha256": [
+        "25ff3a004054baa8560759f2a734beebeb37d13b1517c06d3fd215c483641ed2",
+        "8fd08df37efbc42438c598702bc5d38573522a99c2eb44e76ca4e62b6640f56e",
+        "56aa8fd448f4708b446a05e3e86fb43ab116ecd45502222ceebf2376308f3912",
+        "241d958730d37bb250a2579908288d7e7f26b668229ee50faa959992d191f976",
+        "97f6ab74cf4edf5042acd7b9c7b04f9347aea744312f52cc200dc1423f268e00",
+        "1c3d23fcb70a2a24c62f6e6d724bf7b5c85975afd30e8f0936af1c8e0e35bf2b",
+        "c4515f867b1f48ca202e489bb71f1b4fc89a9e7f76e6681d3712da63a08c42d0",
+        "60a29efa0fec66ee57e13e627688db8c77ad3fead15d49472aab7daddc32b153",
+        "2e5dd81677072fc0c9cb34b0defa748f2d7e07eae0f6a6c8f63d99c5f1679eb0",
+        "92125531008e6d7a201cb8d6fa460cf56b1b602f0093cf024b78efcb911746f7",
+        "48906b5f0ff5cb64dd3b5e27701ce557f632597e7faf9e5ae85654bc58b19a1d"
+      ]
+    },
+    "spacr.sp_stats.screen_wells": {
+      "source_blocks_sha256": [
+        "9c9d611f4de96ae17e7f8a757615b9f3dd65dcfaebdf6ea80c9d52be75165d4e",
+        "6c1ef7c93c03322285bd17bb8c5a02aee357caebf74758ad9aefcdd9e793fb41",
+        "da46afffa4844bf1f51842dd26b19ea10eabc0494f98e958cf9fe57564c2e0ff",
+        "b6d212ff30a4d69586131a3fbbbcfd8436bbd7d99d4c984654ed97cfa76ed4ab",
+        "f04391af02f772c1405d1058a1ea7316fb4bd5c7c8a7950f761219b6c1efc1ef",
+        "193a840cda188b8e904b93941098f94308291a59b5a07256f4989c1893e78436",
+        "ccbb13107401703fc40b69037e9baa9d94430029554d5584b47304ce365d8d6c",
+        "a0eec928cd9bb9113055c2b2f1a647c51cbe4ea48b3871ff8ce605df0aea7896",
+        "36291fa34d14e877b66ba2393d452951d179dff5aef1926417b5f2224375ef30",
+        "861299008ac97d527214b5ce38e33f55009100a7ff223c88082cb8cc52801cbe",
+        "5dd70c5fedf3344090a612e7f8091273478dc42ae8a331ea030887b2f0274b91",
+        "42574d373bf17c63d84b1d698f555ff6db8d450ce606edf7ca51ce7698bf296e",
+        "b1a78c6e244a017184aaa1fd88716004d64c59d8cc87cf30cce24e808a35c2d8",
+        "58629e2b6373c85eb65b43f6cc3cc3259038e47668987c563ce9f3dc8a8d0448",
+        "a421ccb714f2d4c6b2c5dbb855c8b4cafea7fbbb697d4cab6647892e036138e2"
+      ],
+      "source_sha256": "8d94a53de50b03a3ea7c39568ac4952e4d132aff8ad743f71bbd4e2510a768a5",
+      "text": "将测量表汇总为每孔一行，并标明每个孔的角色。\n\n孔的位置由板 QC 读取器确定（:mod:`spacr.plate_qc`：``prc``、rowID/columnID 对或 ``well`` 列），因此这里与 Plate Viewer 对每个对象位置的判断一致。对照可以按某一列及其水平命名（与控制图视图的命名方式相同），也可以按板位置、用 ``negative_control_wells`` / ``positive_control_wells`` 记法（来自 :mod:`spacr.well_spec`）命名（``c1``、``r1``、``A01``），或两者兼用。\n\n:param frame: 逐对象或逐孔的表。\n:param value_col: 要评分的测量值。\n:param plate_column: 指明板的列；默认由读取器选择。\n:param control_column: 包含对照标签的列。\n:param negative_levels: ``control_column`` 中作为阴性对照的水平。\n:param positive_levels: 作为阳性对照的水平。\n:param negative_wells: 阴性对照孔的孔规格。\n:param positive_wells: 阳性对照孔的孔规格。\n:param treatment_column: 指明每个孔中内容的列，用于重复 SSMD；每个孔保留其最常见的值。\n:param grouping: 孔内对象的 ``mean`` 或 ``median``。\n:param min_count: 丢弃对象数少于此值的孔。\n:returns: 每孔一行：``plateID``、``well``、``row_index``、``column_index``、``prc``、``n``、``value``、``role``，按需还有 ``treatment``。\n:raises HitScoringError: 当表无法评分时。",
+      "translation_source_blocks_sha256": [
+        "d1a4b05b140dd4ff21b76b6f41f5d0ffa5f1da8625abc38627453da461ff406a",
+        "c2ac1595664c71d261b065c439d1250e946379706c8914235c0f320e58c0ac97",
+        "9ea40b607be4c9727f6cf0f9ae2d2e9f0d23cca739ec90ab0dec9927668499ca",
+        "b6d212ff30a4d69586131a3fbbbcfd8436bbd7d99d4c984654ed97cfa76ed4ab",
+        "38cbcf48b5063731b80d00e959de111d6bad7f7ef228b98cc268aecba261a9cb",
+        "193a840cda188b8e904b93941098f94308291a59b5a07256f4989c1893e78436",
+        "ccbb13107401703fc40b69037e9baa9d94430029554d5584b47304ce365d8d6c",
+        "a0eec928cd9bb9113055c2b2f1a647c51cbe4ea48b3871ff8ce605df0aea7896",
+        "ce93ac0e2bc76e37fc5b8fe4d62b4f21fc34e1bea646670b19936f74c7b8f9e5",
+        "8405740c3d661e56b4281c2bee4fda48040ea11173311f6c39aa8f421e0648f5",
+        "3e187710ea1785e1d0a587999884e8cdd024ce2906aaba26e86720569e166e6f",
+        "a531e69aa0c10c2f00e02163272b8fddec3694dddd8c3632c80f142fd4753a8d",
+        "34f46a3ffebcabc0ced21b6dc44f3ff41b56b406c29c2ca6c35b5d3d33839f3e",
+        "13589de8851b98b95c4b5ab4159581de03d8a31ce6602367b0088fbab051f78f",
+        "a421ccb714f2d4c6b2c5dbb855c8b4cafea7fbbb697d4cab6647892e036138e2"
+      ]
+    },
+    "spacr.sp_stats.ssmd_replicated": {
+      "source_blocks_sha256": [
+        "cfbbe95c6aba10e8cd65e9d4496f23dd8d9250e27be215d8caab758e74b0e2aa",
+        "99689fbd89ec467c3e4ad3826ce97ba8db2eb90154b6d60b910301d19abd2604",
+        "672084351480cd953f5558201178152136e8bef5aff42da653e3dd7b4af16548",
+        "cdfee4274b8694609725d98efd89a8368f9069527dee675a6970cede33fd30ff",
+        "6b7b301e2e6ddacbc3389b54b1765008ac5f5db0d8ae56a6fc546e6b8d08dd36",
+        "4e14e63a7408917b23905e3eaa35b67569359e67666567c626a35684e68bf6f2",
+        "e094a173cb88866d36e79406d4eb122f0b4c9e700bde03233b116d1673eabd1d",
+        "9eaca03004c08d7e51e54c3f4cb837c43360db41b61c4d65968697244854cd29",
+        "4c5d317304b6a1a7c5dcf0d14e9f650e1fde5b113bf3debc8bcbc528991dce5d"
+      ],
+      "source_sha256": "b44df2d0ab7746f03b3c6ccddfd5f55cd7061b9e2a45f2a91483f7cb581c1535",
+      "text": "根据重复的配对差值计算某个处理的 SSMD。\n\n``differences`` 是 ``D_j = x_j - median(negative reference)``，对每个重复 ``j`` 计算，参照取自该重复自己的板（Zhang 2011，有重复的筛选）：\n\n* ``mm``: ``mean(D) / sd(D)``;\n* ``umvue``：``sqrt(2/(n-1)) Gamma((n-1)/2) / Gamma((n-2)/2) mean(D) / sd(D)``，要求 ``n >= 3``；\n* ``robust``: ``median(D) / (1.4826 MAD(D))``.\n\n:param differences: 某个处理的重复差值。\n:param estimator: :data:`SSMD_ESTIMATORS` 之一。\n:returns: SSMD；重复太少或没有离散度时为 NaN。\n:raises HitScoringError: 估计量未知时。",
+      "translation_source_blocks_sha256": [
+        "cfbbe95c6aba10e8cd65e9d4496f23dd8d9250e27be215d8caab758e74b0e2aa",
+        "99689fbd89ec467c3e4ad3826ce97ba8db2eb90154b6d60b910301d19abd2604",
+        "672084351480cd953f5558201178152136e8bef5aff42da653e3dd7b4af16548",
+        "cdfee4274b8694609725d98efd89a8368f9069527dee675a6970cede33fd30ff",
+        "6b7b301e2e6ddacbc3389b54b1765008ac5f5db0d8ae56a6fc546e6b8d08dd36",
+        "4e14e63a7408917b23905e3eaa35b67569359e67666567c626a35684e68bf6f2",
+        "e094a173cb88866d36e79406d4eb122f0b4c9e700bde03233b116d1673eabd1d",
+        "9eaca03004c08d7e51e54c3f4cb837c43360db41b61c4d65968697244854cd29",
+        "4c5d317304b6a1a7c5dcf0d14e9f650e1fde5b113bf3debc8bcbc528991dce5d"
+      ]
+    },
+    "spacr.sp_stats.ssmd_unreplicated": {
+      "source_blocks_sha256": [
+        "a1c285b49ba832306c6dc6e8ae3b1e7997c7b90ba3d86ebe9a31575df1b7bbd4",
+        "e938c04df99b05f933f7ebd3ce8bd0a7b33d580c1f55eb38dbf60bd089449d93",
+        "cbe9147d0fd2071b9cef3a1ab948f4adf823c29a601e7866888a435acedd508c",
+        "267fcb0b37f5095b7139504b293c50937fdea972ef88a93889acf4e93477d479",
+        "3bd45f49d582e30073f20f3274ffe815cfac98214fb7966dd5260ca15616b009",
+        "1b39c6f6c8cee6f49bdb5be7310a98d6e099cbc572d455aa487d6aa298ddbcfc",
+        "ea6263362ac48cfc7af70c1db8ec668661d91996a98256670c85b014768c2fba",
+        "e094a173cb88866d36e79406d4eb122f0b4c9e700bde03233b116d1673eabd1d",
+        "bb02843fea7375140babd11d4206c7d37597bd52c1444c7c1004a919a7d15d34",
+        "4c5d317304b6a1a7c5dcf0d14e9f650e1fde5b113bf3debc8bcbc528991dce5d"
+      ],
+      "source_sha256": "98dfc83bd62e6fcd1b51b5ad252a781537ce51115800eb7fdb02d318be564af7",
+      "text": "单个孔相对于阴性参照的 SSMD，无重复。\n\nZhang (2011)，假设被测孔的变异性与阴性参照 ``N`` 相同：\n\n* ``mm``: ``(x - mean_N) / (sqrt(2) s_N)``;\n* ``umvue``：``(x - mean_N) / (sqrt(2 (n_N - 1) / K) s_N)``，其中 ``K = 2 (Gamma((n_N-1)/2) / Gamma((n_N-2)/2))^2``，要求 ``n_N >= 3``；\n* ``robust``（SSMD*）为 ``(x - median_N) / (1.4826 sqrt(2) MAD_N)``。\n\n:param values: 要评分的孔。\n:param reference: 阴性参照孔。\n:param estimator: :data:`SSMD_ESTIMATORS` 之一。\n:returns: 每个值一个 SSMD；参照不足以支撑该估计量时（孔太少或没有离散度）为 NaN。\n:raises HitScoringError: 估计量未知时。",
+      "translation_source_blocks_sha256": [
+        "e104ced87369e2647c18be6dade34d63bc220907067910222cf1f91fd55c28c6",
+        "e938c04df99b05f933f7ebd3ce8bd0a7b33d580c1f55eb38dbf60bd089449d93",
+        "cbe9147d0fd2071b9cef3a1ab948f4adf823c29a601e7866888a435acedd508c",
+        "267fcb0b37f5095b7139504b293c50937fdea972ef88a93889acf4e93477d479",
+        "3bd45f49d582e30073f20f3274ffe815cfac98214fb7966dd5260ca15616b009",
+        "b312896b4132f594c6a74925abaa6eb45d9e1dc0c30306871df7857ec695ee29",
+        "29de7d674397b300440772058446767b8c9e87b3f786641cda72e416d86428b4",
+        "e094a173cb88866d36e79406d4eb122f0b4c9e700bde03233b116d1673eabd1d",
+        "ad13a1c3ab1cd05820a9a2f4c7a21844302bef56d785f50732b6a56ae4db889e",
+        "4c5d317304b6a1a7c5dcf0d14e9f650e1fde5b113bf3debc8bcbc528991dce5d"
+      ]
+    },
+    "spacr.sp_stats.treatment_ssmd": {
+      "source_blocks_sha256": [
+        "c30819355fa193dff117b6de57d40e77651935e744cb74630126207fb3a4c5f5",
+        "b329711d0445b97a7a39bd4873e51fb27ec860d83cf6297dec53f87bb9a54015",
+        "e094a173cb88866d36e79406d4eb122f0b4c9e700bde03233b116d1673eabd1d",
+        "e0a1d632a96082ea9a54e6d75f2e78f9cc910fbd5b3e240cddade1b8eef40462",
+        "60a29efa0fec66ee57e13e627688db8c77ad3fead15d49472aab7daddc32b153",
+        "c36deb2ca8ce0ccc241b089c4610b7f0997d5868e16e5e6a00103f762f1007a0"
+      ],
+      "source_sha256": "4698e1d88b74c5b0a9bb7131fa11a36427899eb2bc6a73b3eb8e9cc7602b5404",
+      "text": "根据样本孔的配对差值计算每种处理的重复 SSMD。\n\n:param scored: ``wells``，来自 :class:`ArrayedHitResult`；没有 ``treatment`` 列时结果为空。\n:param estimator: :data:`SSMD_ESTIMATORS` 之一。\n:param threshold: ``hit`` 判定所用的 SSMD 临界值。\n:param direction: :data:`HIT_DIRECTIONS` 之一。\n:returns: 每种处理一行，最强的排在最前：``treatment``、``n_replicates``、``plates``、``mean_difference``、``ssmd_mm``、``ssmd_umvue``、``ssmd_robust``、``ssmd``（所选估计量）、``median_robust_z``、``median_b_score``、``hit`` 和 ``rank``。",
+      "translation_source_blocks_sha256": [
+        "f8eb857b3524d9241d18fbb502c1a9747ff6816664574ecaf57d7c072b8436d0",
+        "b329711d0445b97a7a39bd4873e51fb27ec860d83cf6297dec53f87bb9a54015",
+        "e094a173cb88866d36e79406d4eb122f0b4c9e700bde03233b116d1673eabd1d",
+        "e0a1d632a96082ea9a54e6d75f2e78f9cc910fbd5b3e240cddade1b8eef40462",
+        "60a29efa0fec66ee57e13e627688db8c77ad3fead15d49472aab7daddc32b153",
+        "c36deb2ca8ce0ccc241b089c4610b7f0997d5868e16e5e6a00103f762f1007a0"
+      ]
+    },
+    "spacr.sp_stats.write_hit_report": {
+      "source_blocks_sha256": [
+        "a503db99955aceeb4cc96d1b048e7146dd86b5422f58a7777298664622ae8f6d",
+        "30e1cd8e7d49718d4eff81697bf78212a054b2fa306fdf047db9ed16bda864d7",
+        "a7d4e468f20d9559fc7151572346c0d56f64d7a4e313dfe112da08f6b9b74f53",
+        "86a434135d545052a8186aec897433db294763b6dd75366029d472d002d65531",
+        "3481676d7acda8cdd2f1d2fe2f61023368e96ccb60eb485478e41b617b6c5061",
+        "4cacb6f834032eecc59ce13a342603fc379a0bfdf8e452184cf332b4dbb387d4",
+        "abaa3a362abd458bfa92df439a60e83fa15f2f8ea3764b07668ebec4ab3ff97d"
+      ],
+      "source_sha256": "c5345c1aefc8a587d96864ac2b2d7f567b532cbab7ae21e6ac1dea9f2d19e13f",
+      "text": "写出已评分的筛选：CSV 表以及每种方法一张板热图。\n\n图形经由 :func:`spacr.plot.save_figure` 输出，因此其格式、分辨率和打印重绘都遵循用户的图形偏好设置。这些图关闭了低对比度颜色警告：发散分数图的中心有意接近页面颜色，因为零分就是阴性对照，本应退居背景。\n\n:param result: 已评分的筛选。\n:param out_dir: 要写入的文件夹；不存在时会创建。\n:param methods: 要绘制哪些热图。\n:param target: 传给 :func:`hit_heatmap` 的图形目标。\n:returns: 所有已写出内容的 ``{name: path}``：``hit_table``（排序后的命中）、``hit_scores_wells``、``hit_plates``、有处理列时的 ``hit_treatments``，以及每张图的 ``hit_heatmap_<method>``。",
+      "translation_source_blocks_sha256": [
+        "a503db99955aceeb4cc96d1b048e7146dd86b5422f58a7777298664622ae8f6d",
+        "30e1cd8e7d49718d4eff81697bf78212a054b2fa306fdf047db9ed16bda864d7",
+        "a7d4e468f20d9559fc7151572346c0d56f64d7a4e313dfe112da08f6b9b74f53",
+        "86a434135d545052a8186aec897433db294763b6dd75366029d472d002d65531",
+        "3481676d7acda8cdd2f1d2fe2f61023368e96ccb60eb485478e41b617b6c5061",
+        "4cacb6f834032eecc59ce13a342603fc379a0bfdf8e452184cf332b4dbb387d4",
+        "abaa3a362abd458bfa92df439a60e83fa15f2f8ea3764b07668ebec4ab3ff97d"
       ]
     },
     "spacr.spacr_cellpose": {
@@ -178049,11 +179043,11 @@
         "ae6481b9d5437eb31ce783512478cf0899252a880c4bbdcb9029cd262ed810a8",
         "cdda79d5249f93e435aaddda00253a479e9cb845b1748575b5972ca854ac1944",
         "680de80eb4908c0585b17f463e72ef4e5956b487d327de76e6415f4df6bb252c",
-        "80bef6d5e0c3eaf04e6ab3f0822fb69e7e94193deab59f88447981942c6cf092",
+        "92015d4f07cdd8be43559121fb3c0766b79fd3a125b996550c973f5e145b8f1f",
         "82986ecf462dfdfd667469595eb6a45fe45d1f0be644eb6a8d98b7d38ba92de9"
       ],
-      "source_sha256": "435d82dd2b2bc0b2a6efd990ae654735069668b00027b4acf8f07fa23e18147a",
-      "text": "阅读最后回归的概率,并为每个提取的图像区域提供标签。\n\n阅读而不是重定向,所以一个评论家看到的建议和使用的工作列表的排名来自一个模型。\n\n:param db_path: 指向 ``measurements.db`` 的路径。\n:param annotation_column: 包含标签的列。\n:param png_table: 裁剪图表。\n:param classes: 每个分数列的分数值为. 已在标记列中存在的值的缺陷,顺序,这就是退线从中编码了它们。\n:param withhold_rejected: 排除标注者拒绝了其建议的每个裁剪区域（``<column>_verdict`` 为负）。维护者，2026-09-25（条目 512）：被拒绝的裁剪区域在之后的轮次中不会再被建议。它仍会作为另一类别的样本参与训练（:func:`rejected_suggestions`）；只是不再被提议。\n:returns: 一个 :class:`Suggestions`;它的框架是空的,当没有得分,而 ``note`` 说明为什么。",
+      "source_sha256": "1a86d13a5d4271489c988c1ccab08a83196cd0759a99fe122a366df3f23f2de7",
+      "text": "阅读最后回归的概率,并为每个提取的图像区域提供标签。\n\n阅读而不是重定向,所以一个评论家看到的建议和使用的工作列表的排名来自一个模型。\n\n:param db_path: 指向 ``measurements.db`` 的路径。\n:param annotation_column: 包含标签的列。\n:param png_table: 裁剪图表。\n:param classes: 每个分数列的分数值为. 已在标记列中存在的值的缺陷,顺序,这就是退线从中编码了它们。\n:param withhold_rejected: 排除标注者已拒绝其建议的每张裁剪图（``<column>_verdict`` 为否定），使被拒绝的裁剪图不会在后续轮次中再次被建议。它仍会作为另一类别的样本参与训练（:func:`rejected_suggestions`），只是不再被推荐。\n:returns: 一个 :class:`Suggestions`;它的框架是空的,当没有得分,而 ``note`` 说明为什么。",
       "translation_source_blocks_sha256": [
         "4aeae68ede8c6e2c197318c81c2a2bcea34c914ec58f607115cb338991d4c309",
         "75d7ceb700900d8e36fb56775950c5cfff344f8751308da4ad7826d2a1c05064",
@@ -178061,7 +179055,7 @@
         "ae6481b9d5437eb31ce783512478cf0899252a880c4bbdcb9029cd262ed810a8",
         "d12df42ea8b9c70b947530423c651a961e1a36b15211f3d505559b5ac4c5dc01",
         "680de80eb4908c0585b17f463e72ef4e5956b487d327de76e6415f4df6bb252c",
-        "5869a31c6902a3e10e3551cc9e29cf1556f0e1a4659060777620bfbed60aeb29",
+        "b6b406305529819d174f5a8884d4b1dca16b13b8111d3c8d4b7bce4f82d1595c",
         "82986ecf462dfdfd667469595eb6a45fe45d1f0be644eb6a8d98b7d38ba92de9"
       ]
     },
@@ -178609,7 +179603,7 @@
       "source_blocks_sha256": [
         "7da6ec2bf0364f9b13444c9eb8713ae43691da3d7b13a54aaef2decebb6517a8",
         "ca5b3f181df1a3bec9789597fa47baf5eaf4413a546871dc50034d2a28a9cead",
-        "3e3e8e39564e768dbafc5bcc983a9a4a85f5dcbf7f324505637f4efde0cb61cc",
+        "d3628131341f819c95e27b6b1716fc91d00e91d5013b2aa36872a9b31f8870dc",
         "81918d2eda50486ab20c71eb56908307672266bd3b77e833dd9a0d469ad69143",
         "f0ad79e43ee9794c2ad7268f998bc06f8ffd43382e239df846cb871c049f7a3a",
         "52cd23d381650120a31e2e2e2b7dc5f06e7d9a10f7b1ba06691bea728e4659dd",
@@ -178618,12 +179612,12 @@
         "363c2d1f6aa42181692a14da418f154184f3e0532c486644f9c322d537146ae1",
         "826f82993ba50bc9424886992fb8b880b4b2bf4c1733d930b3722ccd03b2f156"
       ],
-      "source_sha256": "0d320b3928b772b957566eae8561d202395f479006fe12ffd2cab84e5a2262c2",
-      "text": "阅读一个表,无论它存储在什么,与列名称。\n\nCSV, TSV, SQLite, Parquet, Feather 和 Excel, 由 suffix 选择. SQLite 路径需要 ``table``; 任何其他格式都忽略了它。\n\n:param source: 到文件的路径. ``~`` 和 ``$VARS`` 被扩展。\n:param table: 表名称,为数据库。\n:param canonicalise: 应用字典. **没有理由在常见路径**上开启此 - 这是使皮克和跑步同意一个列被称为什么。\n:param report: 按默认方式呼叫每一个同意 - 碰撞消息; ``print``, ``None`` 到沉默。\n:param warn: 呼叫每个不同意的冲突讯息; ``None`` 路线到 :func:`warnings.warn`。\n:param repair_plate_ids: 打破一张双重``pp``板预定。\n:param kwargs: 将其转移到底部 pandas 阅读器。\n:returns: a :class:`pandas.DataFrame`.",
+      "source_sha256": "67ac68baf1b7855ed9e6b277adbee700c0777c4dc651fc31f1aa0e37c76d4096",
+      "text": "阅读一个表,无论它存储在什么,与列名称。\n\nCSV, TSV, SQLite, Parquet, Feather 和 Excel, 由 suffix 选择. SQLite 路径需要 ``table``; 任何其他格式都忽略了它。\n\n:param source: 文件路径。``~`` 和 ``$VARS`` 会被展开。云地址 (``s3://``、``gs://``、``az://``、``https://``) 从缓存的本地副本读取。\n:param table: 表名称,为数据库。\n:param canonicalise: 应用字典. **没有理由在常见路径**上开启此 - 这是使皮克和跑步同意一个列被称为什么。\n:param report: 按默认方式呼叫每一个同意 - 碰撞消息; ``print``, ``None`` 到沉默。\n:param warn: 呼叫每个不同意的冲突讯息; ``None`` 路线到 :func:`warnings.warn`。\n:param repair_plate_ids: 打破一张双重``pp``板预定。\n:param kwargs: 将其转移到底部 pandas 阅读器。\n:returns: a :class:`pandas.DataFrame`.",
       "translation_source_blocks_sha256": [
         "7da6ec2bf0364f9b13444c9eb8713ae43691da3d7b13a54aaef2decebb6517a8",
         "ca5b3f181df1a3bec9789597fa47baf5eaf4413a546871dc50034d2a28a9cead",
-        "3e3e8e39564e768dbafc5bcc983a9a4a85f5dcbf7f324505637f4efde0cb61cc",
+        "d3628131341f819c95e27b6b1716fc91d00e91d5013b2aa36872a9b31f8870dc",
         "81918d2eda50486ab20c71eb56908307672266bd3b77e833dd9a0d469ad69143",
         "f0ad79e43ee9794c2ad7268f998bc06f8ffd43382e239df846cb871c049f7a3a",
         "52cd23d381650120a31e2e2e2b7dc5f06e7d9a10f7b1ba06691bea728e4659dd",
@@ -184381,16 +185375,18 @@
     },
     "spacr.utils.fill_holes_in_mask": {
       "source_blocks_sha256": [
-        "5ec978b7390685ee09770845788b9b93775175f2f44f68c69da8973cc3676ee7",
-        "5ed84b2dae89ca55aa1e0c987fc0dcbe0fffbeb03554419e8cdc7a6677d4f151",
-        "b1d7c97855aec827fb2b9469c7095fb55b19a8932f0f4c90b99860838d67e145"
+        "e8e0a0f59fea742ac404a5b3ad7a967922cfff9a51aebb649a939a0f318bbb88",
+        "277fc17c4713dbc6268ac5a5c115c3810387121b67d39975ec259903f1ec004d",
+        "5586cd034eede99a8578e229887a9cfaeff198bafdc17111e2177b26ef12c834",
+        "ec1c2d30f9efac9dd58820a2e8bc12be91e12e62ba20dbba19624c7a3ad6afc7"
       ],
-      "source_sha256": "a548178e5915384e05ec51950fd034ee9d3ee30efa05fd7e0cb43f02e5aca421",
-      "text": "填补掩膜中的每个对象中的洞,同时将对象分开。\n\nArgs:掩膜(np.ndarray):一个标签的掩膜,每个对象都有一个独特的整体值。\n\n回归: np.ndarray: 包含满洞和原始标签的掩膜。",
+      "source_sha256": "b28efd235ffea80311e25fc0fd96aa1d3e9daa58a381dec190d2f8b586cd41da",
+      "text": "填充标签掩膜中每个对象内部的孔洞，并保留每个编号。\n\n委托给 :func:`spacr.qt.mask_engine.fill_label_holes`，即标签图像唯一的孔洞填充器。过去会先对掩膜运行 ``ndimage.label``，这会把每一对相互接触的对象合并为一个对象：在开启 Cellpose 的 ``fill_in``（Apply 中的默认设置）时，一个含有 74 个相邻细胞的视野被保存为 8 个（第 588 项）。现在不会合并或重新编号任何对象，孔洞会获得包围它的对象的编号。\n\n参数：mask (np.ndarray)：一个标签掩膜，其中每个对象都有唯一的整数值。布尔掩膜会先按连通性标记。\n\n返回：np.ndarray：填充了孔洞并保留原始标签的掩膜，dtype 与输入相同。",
       "translation_source_blocks_sha256": [
-        "5ec978b7390685ee09770845788b9b93775175f2f44f68c69da8973cc3676ee7",
-        "5ed84b2dae89ca55aa1e0c987fc0dcbe0fffbeb03554419e8cdc7a6677d4f151",
-        "b1d7c97855aec827fb2b9469c7095fb55b19a8932f0f4c90b99860838d67e145"
+        "e8e0a0f59fea742ac404a5b3ad7a967922cfff9a51aebb649a939a0f318bbb88",
+        "e6c10fd3d4e129b39b5f30005de30fce0102163b29259a1f04fb4d87c223a6a8",
+        "5586cd034eede99a8578e229887a9cfaeff198bafdc17111e2177b26ef12c834",
+        "ec1c2d30f9efac9dd58820a2e8bc12be91e12e62ba20dbba19624c7a3ad6afc7"
       ]
     },
     "spacr.utils.filter_and_save_csv": {

@@ -3099,31 +3099,36 @@
       "source_sha256": "23863d90eb7ce0b6020741383e0b4b6d9595560595ce695bbc8f783105b2d03c",
       "context": "\"here the user should be able to right click on the images to save them as png or pdf\" -- the maintainer, 2026-09-24 (item 505)",
       "translation": "\"यहाँ उपयोगकर्ता को इमेज पर राइट क्लिक करके उन्हें png या pdf के रूप में सहेज पाना चाहिए\" -- अनुरक्षक, 2026-09-24 (आइटम 505)",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
-      "label": "spacr.qt.widgets.picture_export#2",
+      "label": "spacr.qt.widgets.picture_export#1",
       "source": "A picture on screen is often the thing somebody wants in a slide an hour later, and the route to it was a screenshot of a window, at the window's resolution, with the surrounding chrome in it. This saves THE PICTURE, at the resolution it was rendered at rather than the size it happens to be shown at, into a file of the user's choosing.",
       "source_sha256": "e790835e1bc841edb8e98bae98ca2f407262ea6ec94c1080f578de17f115249b",
       "context": "A picture on application view is often the thing somebody wants in a slide an hour later, and the route to it was a screenshot of a window, at the window's resolution, with the surrounding chrome in it. This saves the picture, at the resolution it was rendered at rather than the size it happens to be shown at, into a file of the user's choosing.",
       "translation": "डिस्प्ले पर दिखाई देने वाला चित्र अक्सर वही चीज़ होती है जिसे कोई एक घंटे बाद किसी स्लाइड में चाहता है, और वहाँ तक पहुँचने का रास्ता विंडो की एक कैप्चर की गई तस्वीर थी, विंडो के रिज़ॉल्यूशन पर, आसपास के क्रोम सहित। यह चित्र को ही सहेजता है, उस रिज़ॉल्यूशन पर जिस पर वह रेंडर हुआ था, न कि उस आकार पर जिस पर वह संयोग से दिखाया जा रहा है, उपयोगकर्ता की चुनी हुई फ़ाइल में।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "rebound_from": "spacr.qt.widgets.picture_export#2"
     },
     {
-      "label": "spacr.qt.widgets.picture_export#3",
+      "label": "spacr.qt.widgets.picture_export#2",
       "source": "TWO FORMATS, AND THE PDF IS NOT A PNG WITH A DIFFERENT EXTENSION. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
       "source_sha256": "e5dfebda32e1c3002c3fc6ea020427889f6c999e6e426903b6efc849052ca2f8",
       "context": "Two formats, and the PDF is not a PNG with a different extension. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
       "translation": "दो फ़ॉर्मेट, और PDF अलग एक्सटेंशन वाला PNG नहीं है। PDF में डाला गया रास्टर केवल फ़ाइल नाम को संतुष्ट करता है और कुछ नहीं; फ़िगर पैनल एक पेज है, और पेज का आकार मिलीमीटर में होता है। :func:`save_picture` PDF को इमेज की अपनी आकृति का पेज देता है और राइटर को वह रिज़ॉल्यूशन बताता है जो Preferences में है, ताकि चित्र उसी आकार पर आए जिस पर वह मापा गया था और उसी रिज़ॉल्यूशन पर छपे।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "rebound_from": "spacr.qt.widgets.picture_export#3"
     },
     {
-      "label": "spacr.qt.widgets.picture_export#4",
+      "label": "spacr.qt.widgets.picture_export#3",
       "source": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
       "source_sha256": "b53ac41d6f89dab369a0bdc50657ef521b9dfbbc754fc558a28464ca9bdf645e",
       "context": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
       "translation": "रिज़ॉल्यूशन और डिफ़ॉल्ट फ़ॉर्मेट वही हैं जिनकी स्वामी पहले से Figures प्राथमिकताएँ हैं -- :func:`spacr.qt.preferences.get_figure_png_dpi` और :func:`spacr.qt.preferences.get_figure_format` -- इसलिए जिस उपयोगकर्ता ने पहले ही \"300 DPI, PDF\" कह दिया है, उससे दूसरी बार अलग शब्दों में नहीं पूछा जाता।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "rebound_from": "spacr.qt.widgets.picture_export#4"
     },
     {
       "label": "spacr.qt.widgets.picture_export.as_image#0",

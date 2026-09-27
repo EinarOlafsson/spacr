@@ -2237,12 +2237,13 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.qt.mask_engine.fill_holes#1",
+      "label": "spacr.qt.mask_engine.fill_holes#2",
       "source": "label image to fill.",
       "source_sha256": "e0372b62229e25015964f0bc7a2127543cd4bca044d7d539a65d029e229bc863",
       "context": "label image to fill.",
       "translation": "채울 레이블 이미지입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "rebound_from": "spacr.qt.mask_engine.fill_holes#1"
     },
     {
       "label": "spacr.qt.mask_engine.fill_holes#2",
@@ -2250,7 +2251,9 @@
       "source_sha256": "324f21972dfe3d00de9f3ff423ffb008c798db9581c13651442e1e4e1b323309",
       "context": "fill per object without merging or renumbering labels. Requires exact uint16-compatible IDs; default retains binary relabeling.",
       "translation": "레이블을 병합하거나 번호를 다시 매기지 않고 객체별로 채웁니다. 정확한 uint16 호환 ID 가 필요하며, 기본값은 이진 레이블 재지정을 유지합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.mask_engine.filter_objects#0",

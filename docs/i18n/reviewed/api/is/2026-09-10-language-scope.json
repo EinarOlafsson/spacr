@@ -14,7 +14,9 @@
       "source_sha256": "cace078c558447578bd909207314d7d321d8b01fee2a352f9ee7d83dfe3470c9",
       "source": "Kept as a factory (not a real class subclass) so this module can be imported headless without pulling in QtWidgets. The real :class:`QDialog` is returned by ``PreferencesDialog(parent)``. Build the dialog with the UI language resolved once.",
       "context": "Kept as a factory (not a real class subclass) so this module can be imported headless without pulling in QtWidgets. The real :class:`QDialog` is returned by ``PreferencesDialog(parent)``. Build the dialog with the UI language resolved once.",
-      "translation": "Haldið sem verksmiðju (ekki raunverulegri undirklassa) svo að þessa einingu megi flytja inn án skjás og án þess að draga QtWidgets með. Raunverulegum :class:`QDialog` er skilað af ``PreferencesDialog(parent)``. Byggðu gluggann þar sem UI-tungumálið er leyst einu sinni."
+      "translation": "Haldið sem verksmiðju (ekki raunverulegri undirklassa) svo að þessa einingu megi flytja inn án skjás og án þess að draga QtWidgets með. Raunverulegum :class:`QDialog` er skilað af ``PreferencesDialog(parent)``. Byggðu gluggann þar sem UI-tungumálið er leyst einu sinni.",
+      "retired": true,
+      "retired_reason": "2026-09-27: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
     }
   ]
 }

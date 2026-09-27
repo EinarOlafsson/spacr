@@ -306,7 +306,9 @@
       "source_sha256": "e9befa8b26a4ea228599e37365b23b620e96419b1053571b5d5464606b30dedd",
       "context": "An object whose model setting reads ``cellpose3:<model or weights path>``, or any object when ``segmentation_backend`` is ``'cellpose3'``, is segmented by ``_cellpose3_masks`` in the Cellpose 3 backend's own environment; what it returns enters the same lines as a Cellpose-SAM result, so the saved masks and the database rows are written the same. One whose model setting reads ``cellpose_dino:<checkpoint path>`` is segmented by the Cellpose-DINO backend's worker, which takes the very ``eval`` call a Cellpose-SAM model takes and returns its shapes (item 525).",
       "translation": "Un objet dont le paramètre de modèle vaut ``cellpose3:<model or weights path>``, ou n’importe quel objet lorsque ``segmentation_backend`` vaut ``'cellpose3'``, est segmenté par ``_cellpose3_masks`` dans l’environnement propre au backend Cellpose 3 ; ce qu’il renvoie emprunte les mêmes lignes qu’un résultat Cellpose-SAM, de sorte que les masques enregistrés et les lignes de la base de données sont écrits de la même façon. Un objet dont le paramètre de modèle vaut ``cellpose_dino:<checkpoint path>`` est segmenté par le processus de travail du backend Cellpose-DINO, qui accepte exactement le même appel ``eval`` qu’un modèle Cellpose-SAM et renvoie ses formes (point 525).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.permutation_qc.plot_residual_by_position#0",
@@ -410,7 +412,9 @@
       "source_sha256": "ad349bae0c2caa0c869ebdbec7600f465cdc7d5d6ee59e5ebc12691b56dfd5f6",
       "context": "``{'dir', 'report', 'figure', 'figure_error'}``. The JSON report is always written; ``figure`` is ``None`` and ``figure_error`` says why when there is nothing to draw against.",
       "translation": "``{'dir', 'report', 'figure', 'figure_error'}``. Le rapport JSON est toujours écrit ; ``figure`` vaut ``None`` et ``figure_error`` indique pourquoi lorsqu’il n’y a rien par rapport à quoi tracer.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.permutation_qc.write_permutation_qc#2",
@@ -562,7 +566,9 @@
       "source_sha256": "78f79ed142d185430ba34ecabcbcd2bdfb0cd3e053bda3d5f3eaaf3accb9d799",
       "context": "Item 529. The maintainer: \"for the pannels to the right holding ctrl and scrolling should increase or decrease the font size.\"",
       "translation": "Point 529. Le mainteneur : \"for the pannels to the right holding ctrl and scrolling should increase or decrease the font size.\"",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.live_zoom.ColumnTextScale#2",
@@ -1266,7 +1272,9 @@
       "source_sha256": "843bdd6167c7a4cfb0567c3617de9a4fb99e72f51a2eb7704c86d3e7fce6ebad",
       "context": "A ``cellpose3:<name or path>`` model -- a stock Cellpose 3 model or a bioimage.io Cellpose 3 checkpoint -- is not a Cellpose 4 model at all: Cellpose 4 would load such a checkpoint and segment nonsense with it. It is loaded by :func:`_backend_model`, in the Cellpose 3 backend's own environment, as Mask generation loads it. A ``cellpose_dino:<path>`` model, a Cellpose-DINO checkpoint, is loaded the same way in the Cellpose-DINO backend (item 525).",
       "translation": "Un modèle ``cellpose3:<name or path>`` -- un modèle standard de Cellpose 3 ou un checkpoint Cellpose 3 de bioimage.io -- n’est pas du tout un modèle Cellpose 4 : Cellpose 4 chargerait un tel checkpoint et segmenterait n’importe quoi avec. Il est chargé par :func:`_backend_model`, dans l’environnement propre au backend Cellpose 3, comme le charge la génération de masques. Un modèle ``cellpose_dino:<path>``, un checkpoint Cellpose-DINO, est chargé de la même façon dans le backend Cellpose-DINO (point 525).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.model_explanation.ExplainCvPanel.importance_methods#0",
@@ -1426,7 +1434,9 @@
       "source_sha256": "35a95e55832d09168f065f70692730cdb417b101a5d3f63f0b18988197e643a6",
       "context": "Instruction 356, case 2: raising the count used to rebuild the whole application view, because a slot's controls do not exist until the count says so. This builds ONLY the new slots' controls, on the panel already on application view; every control that existed keeps its identity and whatever the user typed into it. The caller lays the new controls out.",
       "translation": "Instruction 356, cas 2 : augmenter le nombre reconstruisait auparavant tout l’écran, car les contrôles d’un emplacement n’existent pas tant que le nombre ne le prévoit pas. Ceci construit UNIQUEMENT les contrôles des nouveaux emplacements, sur le panneau déjà affiché ; chaque contrôle existant conserve son identité et tout ce que l’utilisateur y a saisi. L’appelant dispose les nouveaux contrôles.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.settings_model.SettingsWidgets.spawn_organelle_slots#2",
@@ -1626,7 +1636,9 @@
       "source_sha256": "f4eb2b686f4264face50f9292e4981d391e541ae4335e0c8f2931682529d1ec5",
       "context": "The maintainer, 2026-09-25: \"the user should be able to modify the width of the dock when not hidden\". A sibling of the dock's slot rather than a splitter handle, because the dock is a fixed-width layout member and everything that measures it (the drawer, the backdrop, the fitting width) reads that fixed width. Dragging sets it; releasing stores it; a double-click forgets it and the column fits its names again. It is shown and hidden with the dock, so a hidden dock has no edge to catch.",
       "translation": "Le mainteneur, 2026-09-25 : \"the user should be able to modify the width of the dock when not hidden\". Un widget frère de l’emplacement du dock plutôt qu’une poignée de séparateur, car le dock est un membre de mise en page à largeur fixe et tout ce qui le mesure (le tiroir, l’arrière-plan, la largeur ajustée) lit cette largeur fixe. Le glissement la définit ; le relâchement l’enregistre ; un double-clic l’oublie et la colonne s’ajuste à nouveau à ses noms. Elle est affichée et masquée avec le dock, de sorte qu’un dock masqué n’a aucun bord à saisir.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dock.DockEdge#2",
@@ -2890,7 +2902,9 @@
       "source_sha256": "80bef6d5e0c3eaf04e6ab3f0822fb69e7e94193deab59f88447981942c6cf092",
       "context": "leave out every extracted image region whose suggestion the annotator REJECTED (a negative ``<column>_verdict``). The maintainer, 2026-09-25 (item 512): a rejected extracted image region is not suggested again in a later round. It still trains as an example of the other class (:func:`rejected_suggestions`); it is only not proposed.",
       "translation": "écarter chaque vignette dont l’annotateur a REJETÉ la suggestion (un ``<column>_verdict`` négatif). Le mainteneur, 2026-09-25 (point 512) : une vignette rejetée n’est plus suggérée lors d’un tour ultérieur. Elle sert toujours d’exemple d’entraînement pour l’autre classe (:func:`rejected_suggestions`) ; elle n’est simplement pas proposée.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.surrogate.fit_surrogate#10",
