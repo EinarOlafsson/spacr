@@ -295,3 +295,26 @@ backend. Focused checks passed60 and189 cases; expanded packaging guards also
 passed19. Receipt: features/data/53_updater_boundaries_and_backend_2026-09-27.json.
 These are source-level fixes. Actual frozen replacement and post-update wheel
 state, custom-location discovery, and the remaining native acceptance stay open.
+
+STATUS 2026-09-27 — actual Linux installed small runs and historical witness
+All three builds in native run36348757658 passed. Debian12 and Ubuntu22.04
+installed-artifact jobs passed: native XCB, actual Measure Run, 16 cell rows,
+and removal preserving the completed database. Independent SQLite integrity
+and row-count checks also pass. Raw evidence and visual limitations are in
+features/data/53_native_linux_acceptance_2026-09-27/README.md. At1280x720 both
+screenshots clip Actions controls; layout acceptance remains open. Windows
+and macOS installed smoke results remain pending at this checkpoint.
+
+A genuine historical online-upgrade witness now installs the checksum-pinned
+released1.5.0.1 artifact, drives its actual Help action to reproduce missing
+pip, applies the documented private-uv repair pinned1.5.0.5, and drives the
+newly installed GUI to upgrade to the current public release. Source hashes,
+actual child commands, screenshots, versions, private prefix, missing pip and
+CPU wheel state must agree. It does not substitute current checkout behavior
+for historical releases. Local syntax and23verifier-only tests pass; native
+historical execution is pending. The workflow runs on its own nightly source
+changes and also exposes manual dispatch. Its narrow push trigger permits
+acceptance before default-branch promotion; no main promotion was performed.
+Receipt: features/data/53_historical_upgrade_preparation_2026-09-27.json
+(the workflow digest there describes the tested manual-only precursor; the
+subsequent push-trigger header is verified by GitHub workflow parsing).

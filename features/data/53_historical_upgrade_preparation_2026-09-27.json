@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "item": 53,
+  "scope": "Local syntax and verifier-only synthetic fixtures; no native historical installation or GUI execution",
+  "python_compile_passed": true,
+  "manual_workflow_parse_passed": true,
+  "tests": {
+    "passed": 23,
+    "seconds": 1.8,
+    "file": "tests/test_historical_upgrade_verifier.py",
+    "log": "logs/verifier-tests.log"
+  },
+  "native_acceptance": false,
+  "driver_sha256": "543ee5e44c39c31d5d39088bf72ccfcaa4a8c89dbfce291e22b1df331e3ffdfa",
+  "test_sha256": "a862c509e2a0c3c8108ee110ba32a2acf4ed5f9c9c217de9c157b326ba6fc137",
+  "workflow_sha256": "81ec34656e63256b83aefdc870fcad696bb0400a7e2c16fd12d1c78982fc00ac"
+}
