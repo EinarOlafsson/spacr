@@ -279,3 +279,24 @@ def test_a_crop_is_copied_where_it_cannot_be_linked(tmp_path, monkeypatch):
     monkeypatch.setattr(os, "link", refuse)
     m._link_or_copy(str(source), str(tmp_path / "b.png"))
     assert (tmp_path / "b.png").read_bytes() == b"png"
+
+
+def test_a_histogram_whose_peak_holds_too_few_nuclei_is_refused():
+    rng = np.random.default_rng(2)
+    content = np.r_[np.full(20, 1000.0), 10 ** rng.uniform(0, 8, 20)]
+    with pytest.raises(ValueError, match="needs at least 30"):
+        m._fit_dna_content(content)
+
+
+def test_the_histogram_figure_can_be_drawn_without_phases():
+    import matplotlib.pyplot as plt
+
+    table, _ = _nucleus_table(n=300)
+    measured, fits = m._phases_by_measurements(table, column=0)
+    fit = fits[("plate1",)]
+    figure = m._dna_histogram_figure(measured["dna_c"], fit, "plate1")
+    try:
+        assert "plate1" in figure.axes[0].get_title()
+    finally:
+        plt.close(figure)
+

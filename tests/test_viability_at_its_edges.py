@@ -173,3 +173,144 @@ def test_morphology_reads_the_first_channel_and_draws_its_log_cut(tmp_path):
         wells = pd.read_sql_query(f"SELECT * FROM {m._VIABILITY_WELL_TABLE}",
                                   conn)
     assert set(wells["timeID"].astype(str)) == {"1"}
+
+
+def _dosed_wells():
+    rows = []
+    for compound in ("A", "B"):
+        for dose in (0.0, 0.1, 1.0, 10.0, 100.0):
+            for rep in range(2):
+                live = 1.0 / (1.0 + dose / (3.0 if compound == "A" else 30.0))
+                rows.append({"compound": compound, "concentration": dose,
+                             "viability": live,
+                             "cytotoxicity_index": 100.0 * (1 - live),
+                             "infection_live": (0.8 / (1.0 + dose)
+                                                if compound == "A"
+                                                else np.nan)})
+    return pd.DataFrame(rows)
+
+
+def test_selectivity_is_reported_and_a_missing_curve_is_drawn_refused():
+    import matplotlib.pyplot as plt
+
+    curves, selectivity, fits = m._viability_dose_response(_dosed_wells())
+    assert set(fits) == {"viability", "cytotoxicity_index", "infection"}
+    assert selectivity["compound"].tolist() == ["A", "B"]
+    figure = m._viability_dose_figure(fits)
+    try:
+        texts = [t.get_text() for ax in figure.axes for t in ax.texts]
+        assert texts.count("refused") == 1, "B has no infection curve"
+    finally:
+        plt.close(figure)
+    without = _dosed_wells().assign(cytotoxicity_index=np.nan)
+    _curves, selectivity, fits = m._viability_dose_response(without)
+    assert "cytotoxicity_index" not in fits and selectivity.empty
+
+
+def test_qc_without_a_z_prime_still_lists_the_plate(monkeypatch):
+    import spacr.qt.widgets.dose_response as dr
+
+    def refuse(*_a, **_k):
+        raise dr.DoseResponseError("no controls")
+
+    monkeypatch.setattr(dr, "plate_reports", refuse)
+    wells = pd.DataFrame({"plateID": ["p"], "plate_key": ["p"],
+                          "role": ["sample"], "viability": [0.5],
+                          "live_cell_index": [1.0],
+                          "cytotoxicity_index": [0.0], "n_live": [3]})
+    qc = m._viability_qc(wells, {})
+    assert qc["plate_key"].tolist() == ["p"]
+    assert qc["zprime_viability"].isna().all()
+
+
+def test_a_whole_table_cut_is_drawn_without_picking_a_plate():
+    import matplotlib.pyplot as plt
+
+    table = pd.DataFrame({"dead_signal": np.r_[np.full(40, 5.0),
+                                               np.full(10, 500.0)],
+                          "viability_method": "stain"})
+    cut = m._PopulationCut(100.0, "mixture", 4.0, 0.2, 50)
+    figure = m._viability_threshold_figure(table, {"dead": {"all": cut}},
+                                           "all", "whole run")
+    try:
+        assert figure.axes[0].get_title().startswith("dead: cut 100")
+    finally:
+        plt.close(figure)
+
+
+def test_the_step_prints_the_controls_z_prime_per_plate(tmp_path, capsys):
+    p1 = _signal_table(n_live=200, n_dead=40, plates=("p1",))
+    dead = p1["state"] == "dead"
+    p1["columnID"] = np.where(dead, np.where(np.arange(len(p1)) % 2, "c3",
+                                             "c4"),
+                              np.where(np.arange(len(p1)) % 2, "c1", "c2"))
+    p1["prcf"] = "p1_r1_" + p1["columnID"] + "_f1"
+    p2 = _signal_table(n_live=60, n_dead=10, plates=("p2",), seed=4)
+    p2["columnID"] = "c1"
+    p2["prcf"] = p2["plateID"] + "_r1_c1_f1"
+    db = _db(tmp_path, pd.concat([p1, p2], ignore_index=True), "nucleus")
+    settings = {"channels": [0, 1, 2], "viability_dead_channel": 1,
+                "viability_negative_wells": ["c1", "c2"],
+                "viability_positive_wells": ["c3", "c4"], "plot": False}
+    table = m._run_viability_step(db, settings)
+    printed = capsys.readouterr().out
+    assert table is not None and "Viability (stain)" in printed
+    assert "Viability controls, plate p1: Z'" in printed
+    assert "plate p2" not in printed
+    m._run_viability_step(db, {"channels": [0, 1, 2],
+                               "viability_dead_channel": 1, "plot": False})
+    assert "Viability controls" not in capsys.readouterr().out
+
+
+def test_figures_skip_a_plate_map_that_draws_nothing(tmp_path, monkeypatch):
+    import matplotlib.pyplot as plt
+    import spacr.figures.plates as plates
+
+    class _Panel:
+        drawn = False
+
+    monkeypatch.setattr(plates, "build_plates",
+                        lambda *a, **k: (plt.figure(), _Panel()))
+    db = _db(tmp_path, _signal_table(n_live=40, n_dead=10), "nucleus")
+    table, report = m._classify_viability(
+        db, {"channels": [0, 1, 2], "viability_dead_channel": 1}, plot=False)
+    written = m._save_viability_figures(db, table, report["wells"],
+                                        report["qc"], {}, {})
+    assert [p.rsplit("/", 1)[-1].split(".")[0] for p in written] == [
+        "viability_controls"]
+
+
+def test_a_plate_map_by_row_and_column_is_read_as_it_is(tmp_path):
+    wells = pd.DataFrame({"plateID": ["p1"], "rowID": ["r2"],
+                          "columnID": ["c3"]})
+    path = tmp_path / "map.csv"
+    write_table(pd.DataFrame({"rowID": ["r2"], "columnID": ["c3"],
+                              "compound": ["drug"],
+                              "concentration": [2.0]}), str(path))
+    assert m._read_plate_map(str(path), wells)["compound"].tolist() == [
+        "drug"]
+
+
+def test_fits_with_no_curve_draw_no_dose_figure(tmp_path):
+    import types
+
+    db = _db(tmp_path, _signal_table(n_live=40, n_dead=10), "nucleus")
+    table, report = m._classify_viability(
+        db, {"channels": [0, 1, 2], "viability_dead_channel": 1}, plot=False)
+    written = m._save_viability_figures(
+        db, table, report["wells"], report["qc"], {},
+        {"viability": types.SimpleNamespace(fits=[])})
+    assert not any("dose_response" in p for p in written)
+    assert any("viability_controls" in p for p in written)
+
+
+def test_objects_without_a_field_are_called_without_an_object_key(tmp_path):
+    objects = _signal_table(n_live=80, n_dead=20).drop(
+        columns=["prcf", "fieldID"])
+    db = _db(tmp_path, objects, "nucleus")
+    table, report = m._classify_viability(
+        db, {"channels": [0, 1, 2], "viability_dead_channel": 1}, plot=False)
+    assert "prcfo" not in table.columns
+    assert (table["viability_state"] == "dead").sum() == pytest.approx(20,
+                                                                       abs=2)
+    assert len(report["wells"]) == 2

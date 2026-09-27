@@ -101,3 +101,30 @@ def test_a_late_field_is_not_pooled_and_a_single_frame_draws_no_curve(
     assert (out / "wound_closure_per_well.csv").is_file()
     assert not (out / "wound_closure_per_condition.csv").exists()
     assert not any(n.startswith("closure_curves") for n in os.listdir(out))
+
+
+def test_a_summary_without_curves_marks_every_well_failed():
+    fields = pd.DataFrame({"plateID": ["p"], "rowID": ["r1"],
+                           "columnID": ["c1"], "fieldID": ["f1"],
+                           "status": ["no_wound"], "time_unit": ["h"]})
+    summary, curves = m._wound_closure_summary(None, fields)
+    assert curves is None
+    assert summary["wound_ok"].tolist() == [0]
+
+
+SPECKLE = [(0, 0), (0, 1), (0, 2), (0, 7), (1, 2), (1, 4), (1, 6), (2, 0),
+           (2, 1), (2, 2), (2, 3), (2, 4), (3, 0), (3, 6), (3, 7), (4, 1),
+           (4, 2), (4, 3), (4, 6), (5, 0), (5, 2), (5, 3), (5, 5), (5, 7),
+           (6, 2), (6, 4), (6, 5), (6, 6), (6, 7), (7, 1), (7, 2), (7, 3),
+           (7, 4), (7, 5), (7, 7), (8, 1), (8, 3), (8, 4), (8, 7), (9, 1),
+           (9, 2), (9, 6)]
+
+
+def test_open_area_speckled_over_the_field_is_read_along_its_centre_line():
+    """No cross-section of this speckle fits inside the field at its full
+    width, so the widths are read wherever the centre line is in it."""
+    wound = np.zeros((10, 8), bool)
+    wound[tuple(np.array(SPECKLE).T)] = True
+    axis = m._wound_axis(wound, 2)
+    assert axis.valid.any()
+    assert axis.half_band > 2
