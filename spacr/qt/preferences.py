@@ -597,6 +597,8 @@ DEFAULT_CB_MODE = "off"
 _KEY_FIG_FORMAT = "prefs/figure_format"
 _KEY_FIG_PNG_DPI = "prefs/figure_png_dpi"
 _KEY_FIG_SAVE_MODE = "prefs/figure_save_mode"
+_KEY_FIG_INTEGRITY = "prefs/figure_integrity_check"
+_FIG_INTEGRITY_WIDGET = "FigureIntegrityCheck"
 VALID_FIG_FORMATS = ("png", "pdf")
 DEFAULT_FIG_FORMAT = "pdf"
 VALID_PNG_DPIS = (100, 200, 300, 600, 1200)
@@ -1110,6 +1112,25 @@ def set_figure_save_mode(mode: str) -> None:
             f"unknown figure save mode {mode!r}. "
             f"Choose from {VALID_FIG_SAVE_MODES}.")
     _settings().setValue(_KEY_FIG_SAVE_MODE, normalized)
+
+
+def _get_figure_integrity() -> bool:
+    """Whether exported image figures are checked and stamped (default off).
+
+    Read by :func:`spacr.plot.save_figure` on every export, from the app,
+    the command line and notebooks alike; the ``SPACR_FIGURE_INTEGRITY``
+    environment variable overrides it there.
+    """
+    return _as_bool(_settings().value(_KEY_FIG_INTEGRITY, False), False)
+
+
+def _set_figure_integrity(on: bool) -> None:
+    """Persist whether exported image figures are checked and stamped.
+
+    :param on: true to check display ranges, saturation, repeated panels
+        and lossy formats on export and write a provenance sidecar.
+    """
+    _settings().setValue(_KEY_FIG_INTEGRITY, bool(on))
 
 
 def get_figure_live_cache() -> int:
@@ -7374,6 +7395,22 @@ class PreferencesDialog:
                 fig_format_combo.setCurrentIndex(i); break
         figures.addRow(tr("Figure format"), fig_format_combo)
 
+        integrity_check = None
+        if _is_alpha_visible("widgets", _FIG_INTEGRITY_WIDGET):
+            integrity_check = Toggle(tr("Check figure integrity on export"))
+            integrity_check.setObjectName(_FIG_INTEGRITY_WIDGET)
+            integrity_check.setToolTip(tr(
+                "When an image figure or montage is saved, warn if panels "
+                "meant for comparison use different display ranges, if "
+                "pixels are saturated or clipped, if a panel is repeated, "
+                "or if a lossy format was chosen. Also writes the source "
+                "files, display settings, processing steps and spaCR "
+                "version into the file's metadata and a .provenance.json "
+                "file beside it. Default off."
+            ))
+            integrity_check.setChecked(_get_figure_integrity())
+            figures.addRow(integrity_check)
+
         from ..graph_types import (DATA_SHAPES, GRAPH_NAMES, DEFAULTS,
                                    types_for)
 
@@ -8073,6 +8110,8 @@ class PreferencesDialog:
                 _select(cb_combo, get_color_blind_mode())
                 _select(figure_save_mode_combo, get_figure_save_mode())
                 _select(fig_format_combo, get_figure_format())
+                if integrity_check is not None:
+                    integrity_check.setChecked(_get_figure_integrity())
                 _select(png_dpi_combo, get_figure_png_dpi())
                 live_cache_spin.setValue(get_figure_live_cache())
                 dynamic_check.setChecked(get_figure_dynamic())
@@ -8196,6 +8235,8 @@ class PreferencesDialog:
             _set_show_alpha_features(alpha_features_check.isChecked())
             set_figure_save_mode(figure_save_mode_combo.currentData())
             set_figure_format(fig_format_combo.currentData())
+            if integrity_check is not None:
+                _set_figure_integrity(integrity_check.isChecked())
             for shape, combo in default_graph_combos.items():
                 set_default_graph_type(shape, combo.currentData() or "")
             set_figure_png_dpi(png_dpi_combo.currentData())

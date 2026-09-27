@@ -6967,6 +6967,9 @@ ALPHA_FEATURES = {
         'widgets': ('ControlChartHitPanel', 'ControlChartHitsSection',
                     'ControlChartExportHits'),
     },
+    572: {
+        'widgets': ('FigureIntegrityCheck',),
+    },
     573: {
         'widgets': ('AnalysisLockButton',),
     },

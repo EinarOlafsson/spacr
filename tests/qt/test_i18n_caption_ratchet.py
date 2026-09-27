@@ -1153,6 +1153,8 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 550, 2026-09-26: the cloud-storage button on the src field of Make Masks
 # and Measure, and its browser dialog (alpha).
 # 577, 2026-09-26: the Preferences Notifications tab (alpha).
+# 572, 2026-09-26: the figure integrity toggle on the Preferences Figures
+# tab and its tooltip (alpha).
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'Announce every run that finishes or fails, by the ways switched on below, with its name, duration, outcome, a short QC summary and where its output is. Runs from the app and from the command line are both announced. A run you cancel is not. Default off.',
     'Could not forget the saved secrets.',
@@ -1371,6 +1373,8 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'S3-compatible endpoint (blank for Amazon S3)',
     'Use this location',
     's3://bucket/folder, gs://, az:// or https://',
+    'Check figure integrity on export',
+    "When an image figure or montage is saved, warn if panels meant for comparison use different display ranges, if pixels are saturated or clipped, if a panel is repeated, or if a lossy format was chosen. Also writes the source files, display settings, processing steps and spaCR version into the file's metadata and a .provenance.json file beside it. Default off.",
 })
 
 
