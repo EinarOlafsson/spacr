@@ -113,16 +113,22 @@ class TestFillingInTheDenseChannelPositions:
             assert int(settings[f"{role}_channel"]) in dense
 
         source = inspect.getsource(O)
+        # 2026-09-26 (item 43): item 493 folded both generator loops into
+        # _fill_cellpose_channel_positions, so the one lookup lives there.
         assert "if _raw in _dense:" not in source
-        assert source.count("= _dense[_raw]") == 2
+        assert "if raw in dense:" not in source
+        assert source.count("= _dense[_raw]") == 0
+        assert source.count("= dense[raw]") == 1
+        assert source.count(
+            "\n    _fill_cellpose_channel_positions(settings)\n") == 2
 
     def test_a_channel_that_is_not_a_number_is_skipped_before_the_lookup(self):
         """The guard above it: ``int('rgb')`` raises, and a settings file
         can hold anything a user typed."""
         from spacr import object as O
 
-        source = inspect.getsource(O)
-        first = source.index("= _dense[_raw]")
+        source = inspect.getsource(O._fill_cellpose_channel_positions)
+        first = source.index("= dense[raw]")
         window = source[max(0, first - 500):first]
         assert "except (TypeError, ValueError):" in window
         assert "continue" in window

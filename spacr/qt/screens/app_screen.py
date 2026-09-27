@@ -6226,6 +6226,7 @@ class AppScreen(QWidget):
                 for index in range(form.rowCount()):
                     item = form.itemAt(index, QFormLayout.FieldRole)
                     field = item.widget() if item is not None else None
+                    field = getattr(field, "_spacr_field", field)
                     keys.append(by_widget.get(id(field))
                                 if field is not None else None)
             spec = getattr(section, "_spacr_waiting_spec", None)
@@ -6356,10 +6357,13 @@ class AppScreen(QWidget):
                 continue
             for index in range(form.rowCount()):
                 item = form.itemAt(index, QFormLayout.FieldRole)
-                if item is not None and item.widget() is field:
+                shown = item.widget() if item is not None else None
+                if shown is not None and (
+                        shown is field
+                        or getattr(shown, "_spacr_field", None) is field):
                     from ..settings_search import _row_is_visible
                     return bool(not section.isHidden()
-                                and _row_is_visible(section, field))
+                                and _row_is_visible(section, shown))
         return False
 
     def _sync_dimension_switches(self, settings: dict) -> tuple:

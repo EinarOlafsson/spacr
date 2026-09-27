@@ -810,6 +810,12 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # Closure (Alpha)" heading.
     "wound_closure", "wound_source", "wound_channel", "wound_window",
     "wound_hours_per_frame", "wound_conditions",
+    # NEW SETTINGS, not a regrouping (item 580, 2026-09-27): Measure's
+    # cross-plate intensity calibration from beads or reference wells -- the
+    # switch, the reference wells, the statistic and the camera offset --
+    # under their own "Intensity Calibration (Alpha)" heading.
+    "intensity_calibration", "intensity_calibration_wells",
+    "intensity_calibration_statistic", "intensity_calibration_offset",
     # NEW SETTINGS, not a regrouping (item 571, 2026-09-26): Measure's
     # time-to-event analysis of tracked objects -- the switch, the object
     # table, the event mode, its column, threshold and persistence, the
@@ -822,6 +828,13 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "time_to_event_min_frames", "time_to_event_hours_per_frame",
     "time_to_event_group", "time_to_event_conditions",
     "time_to_event_reference", "time_to_event_covariates",
+    # NEW SETTINGS, not a regrouping (item 540, 2026-09-26): Measure's
+    # live/dead call -- the switch, the dead and live stain channels, manual
+    # thresholds, the negative and positive control wells and a plate map
+    # for dose-response -- under their own "Viability (Alpha)" heading.
+    "viability", "viability_dead_channel", "viability_live_channel",
+    "viability_thresholds", "viability_negative_wells",
+    "viability_positive_wells", "viability_plate_map",
     # A NEW SETTING GROUP, not a regrouping: Make Masks can keep watching
     # `src` and analyse each field as it arrives (`watch_folder`), with the
     # pipeline, Measure settings file, settle time, poll interval and idle
@@ -1516,6 +1529,10 @@ def _rendered_sections(app_key):
             # before the PSF and the features.
             "Spectral Unmixing (Alpha)",
             "Point Spread Function",
+            # Item 580, 2026-09-27: cross-plate intensity calibration
+            # rescales the pixels the features are computed from, so it
+            # follows the other image corrections, as an Alpha heading.
+            "Intensity Calibration (Alpha)",
             "Measurement Features",
             # Item 541, 2026-09-26: confluency sits after the features it
             # is measured beside, as an Alpha heading of its own.
@@ -1532,6 +1549,9 @@ def _rendered_sections(app_key):
             # Item 571, 2026-09-26: time to event follows, read from the
             # tracked objects measured above, after the run.
             "Time To Event (Alpha)",
+            # Item 540, 2026-09-26: live/dead viability, read from the same
+            # measured nuclei, after the cell-cycle call.
+            "Viability (Alpha)",
             "Object Filtering", "Crop Output",
             # Item 547, 2026-09-26: profiling runs on the finished tables,
             # so its Alpha heading follows the outputs it reads.

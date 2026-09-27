@@ -1726,6 +1726,10 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('wound_window', 15)
     settings.setdefault('wound_hours_per_frame', None)
     settings.setdefault('wound_conditions', {})
+    settings.setdefault('intensity_calibration', False)
+    settings.setdefault('intensity_calibration_wells', None)
+    settings.setdefault('intensity_calibration_statistic', 'foreground')
+    settings.setdefault('intensity_calibration_offset', 0)
     settings.setdefault('time_to_event', False)
     settings.setdefault('time_to_event_object', 'cell')
     settings.setdefault('time_to_event_mode', 'track_end')
@@ -1739,6 +1743,13 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('time_to_event_conditions', None)
     settings.setdefault('time_to_event_reference', '')
     settings.setdefault('time_to_event_covariates', None)
+    settings.setdefault('viability', False)
+    settings.setdefault('viability_dead_channel', None)
+    settings.setdefault('viability_live_channel', None)
+    settings.setdefault('viability_thresholds', None)
+    settings.setdefault('viability_negative_wells', None)
+    settings.setdefault('viability_positive_wells', None)
+    settings.setdefault('viability_plate_map', '')
     settings.setdefault('object_distances', True)
     settings.setdefault('object_distance_maxima', True)
     settings.setdefault('object_distance_intensity', True)
@@ -3545,6 +3556,10 @@ expected_types = {
     "wound_window": int,
     "wound_hours_per_frame": (float, int, type(None)),
     "wound_conditions": dict,
+    "intensity_calibration": bool,
+    "intensity_calibration_wells": (list, str, type(None)),
+    "intensity_calibration_statistic": str,
+    "intensity_calibration_offset": (float, int),
     "time_to_event": bool,
     "time_to_event_object": str,
     "time_to_event_mode": str,
@@ -3558,6 +3573,13 @@ expected_types = {
     "time_to_event_conditions": (list, type(None)),
     "time_to_event_reference": str,
     "time_to_event_covariates": (list, type(None)),
+    "viability": bool,
+    "viability_dead_channel": (int, type(None)),
+    "viability_live_channel": (int, type(None)),
+    "viability_thresholds": (list, type(None)),
+    "viability_negative_wells": (list, str, type(None)),
+    "viability_positive_wells": (list, str, type(None)),
+    "viability_plate_map": str,
     "spatial_measurements": bool,
     "spatial_neighbor_radius": int,
     "calculate_correlation": bool,
@@ -4782,6 +4804,10 @@ tooltips = {
     "cell_cycle_labels": "(str) - A png_list column holding Annotate labels the xgboost and torch methods learn from: 1 to 4 for G1, S, G2 and M, or the phase names. Labels are matched to nuclei through their cell. Blank trains on the confident gate calls instead, which teaches the learned methods what the gates already say; annotate prophase and anaphase nuclei to teach them more. Default blank.",
     "cell_cycle_model": "(str) - A torch model this step trained earlier, with its cell_cycle_phases.json beside it, applied to the nucleus crops instead of training a new one. Use it to call a second plate with the model trained on the first. Ignored unless cell_cycle_method is torch or all. Default blank.",
     "cell_cycle_epochs": "(int) - Training epochs of the torch phase classifier. It is a ResNet-18 trained from scratch on crops as small as 32 pixels, so each epoch is quick on a GPU and slow on a busy CPU. Ignored when cell_cycle_model names a trained model. Default 20.",
+    "intensity_calibration": "(bool) - Calibrate intensities across imaging sessions before measuring: each plate is one session, the beads or reference wells imaged on every plate are measured, and every plate's intensity channels are scaled so its reference wells match the first plate's. This corrects exposure, lamp and detector drift between days at the image level, unlike batch correction of tables. The gains are recorded in measurements.db:intensity_rescale. Default False.",
+    "intensity_calibration_wells": "(list or None) - The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
+    "intensity_calibration_statistic": "(str) - How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
+    "intensity_calibration_offset": "(float) - The camera's dark offset, in the intensity units Measure works in, removed before the reference statistic and kept when scaling: a pixel becomes offset + (value - offset) x gain. Read it from a dark frame; 100 is common on sCMOS cameras. Leave 0 when images are already offset-corrected. Default 0.",
     "time_to_event": "(bool) - After measuring a timelapse, follow every tracked object to an event (death, lysis, egress, division, first detection) or to the end of its track, and compare conditions: Kaplan-Meier curves with 95% bands, median time to event per condition and well, log-rank tests and a Cox model. Writes measurements.db:time_to_event and four summary tables, and the curves and hazard ratios under results/time_to_event. Needs tracked objects measured with timelapse on. Default False.",
     "time_to_event_object": "(str) - The measured object table whose tracks are followed: cell, nucleus, pathogen or cytoplasm. Each object label in a field is one track, since the timelapse module relabels tracked objects with their track ID. Follow host cells for host death or lysis, pathogens for egress or division. Default cell.",
     "time_to_event_mode": "(str) - What counts as the event. track_end: the object disappears before the movie ends (lysis, egress, detachment, and tracking loss too). annotated: time_to_event_column turns non-zero, or equals the threshold. above or below: the column reaches time_to_event_threshold, such as a death dye. fold_change: the column reaches threshold times its first value, such as a doubled parasite count. Tracks without the event are censored at their last frame. Default track_end.",
@@ -4795,6 +4821,13 @@ tooltips = {
     "time_to_event_conditions": "(list or None) - Conditions named by their wells, as name=wells entries in the plate-map notation, such as ['mock=c1,c2', 'drug=c3,c4']. Objects in wells no entry names are left out. It replaces time_to_event_group. Blank uses time_to_event_group. Default None.",
     "time_to_event_reference": "(str) - The condition the others are compared with: every log-rank pair and every hazard ratio is against it. It must be one of the conditions. Blank uses the first entry of time_to_event_conditions, or the first condition in sorted order. Default blank.",
     "time_to_event_covariates": "(list or None) - Columns of the object table adjusted for in the Cox model, each read at the track's first frame so it is measured before the event, such as ['cell_area']. Their hazard ratios are per unit of the column. Tracks missing a value are left out of the model only. Blank fits the conditions alone. Default None.",
+    "viability": "(bool) - Call every cell live or dead after measuring, from a dead stain (propidium iodide, SYTOX, DAPI on unfixed cells), a live stain (calcein), both, or without either from nuclear morphology (pyknotic nuclei). Writes one row per nucleus to measurements.db:viability, per-well viability, live-cell and cytotoxicity index to viability_well, each plate's thresholds and control Z' to viability_qc, and with plot the threshold, plate, control and dose-response figures. Default False.",
+    "viability_dead_channel": "(int or None) - The merged-array channel of the dead stain (propidium iodide, SYTOX, or DAPI added to unfixed cells), counted as in channels; it must be one of the measured channels. Each nucleus's background-subtracted mean intensity is split per plate into two populations, and above the cut is dead. Blank reads no dead stain; with neither stain channel set, dead cells are called from nuclear morphology instead. Default None.",
+    "viability_live_channel": "(int or None) - The merged-array channel of the live stain (calcein-AM), counted as in channels; it must be one of the measured channels. It is read on the nucleus, which calcein fills, split per plate, and above the cut is live. With a dead stain as well, a cell positive for neither is counted unstained, not live. Blank reads no live stain. Default None.",
+    "viability_thresholds": "(list or None) - Manual cuts [dead, live] in background-subtracted mean intensity, for example [150, None], each replacing the automatic per-plate cut of its stain; None keeps that one automatic. Without stain channels the dead entry is the condensation ratio (intensity per area against the plate's typical nucleus, about 3) above which a nucleus is pyknotic. Read the automatic cuts in viability_qc or the threshold figures first. Default None.",
+    "viability_negative_wells": "(list or str) - Untreated or vehicle wells, e.g. ['c1']; rows (r1), columns (c1) and wells (A01) all read. Their mean live-cell count is each plate's reference for the live-cell index, they read 0 on the cytotoxicity index and they are one side of its Z'. Blank leaves the index as the percentage of cells not live. Default None.",
+    "viability_positive_wells": "(list or str) - Wells given a cytotoxic control (for example digitonin, saponin or staurosporine), e.g. ['c12'], in the same notation as viability_negative_wells. They read 100 on the cytotoxicity index and, with the negative wells, give each plate's Z' in viability_qc; a Z' of 0.5 or more is a working assay. Blank scales the index to the negative wells alone. Default None.",
+    "viability_plate_map": "(str) - A table (CSV or Excel) of each well's compound and concentration: a well column (well such as A01, rowID and columnID, or prc), compound or treatment, concentration or dose, and optionally plateID. With it, viability, the cytotoxicity index and the infection of live cells are fitted against concentration per compound, and the host CC50 over the parasite EC50 is written as a selectivity index. Blank skips dose-response. Default blank.",
     "bystander_measurements": "(bool) - Split uninfected cells into bystanders and distal cells. A bystander is an uninfected cell within the reach set by bystander_reach_in_diameters of an infected one; everything else uninfected is distal. Without this the two are the same row, so a bystander phenotype cannot be found and the uninfected control is a mixture of two populations whose variance hides the effect being looked for. Adds three columns per cell and costs one distance transform and one KD-tree per field. Default False.",
     "bystander_reach_in_diameters": "(float) - How close an uninfected cell must be to an infected one to count as a bystander, expressed in measured cell diameters rather than pixels or micrometres, so it means the same thing at 20x and 63x. The diameter is the median of the cells in the field, ignoring those clipped by its edge. Zero or less makes every uninfected cell distal, which turns the split off without a second setting. Ignored unless bystander_measurements is enabled. Default 1.0.",
     "spatial_measurements": "(bool) - Measure each object's neighbourhood: the number of neighbours within a radius, first and second nearest-neighbour distances, and the fraction of its border contacting another object. These measurements can be used to model density-associated variation in morphology and intensity. They are not produced for cytoplasm, which is defined as one object per cell. Computation requires one KD-tree and one boundary pass per field. Default True.",
@@ -5472,6 +5505,11 @@ categories = {
         "wound_hours_per_frame", "wound_conditions",
     ],
 
+    "Intensity Calibration (Alpha)": [
+        "intensity_calibration", "intensity_calibration_wells",
+        "intensity_calibration_statistic", "intensity_calibration_offset",
+    ],
+
     "Time To Event (Alpha)": [
         "time_to_event", "time_to_event_object", "time_to_event_mode",
         "time_to_event_column", "time_to_event_threshold",
@@ -5479,6 +5517,12 @@ categories = {
         "time_to_event_min_frames", "time_to_event_hours_per_frame",
         "time_to_event_group", "time_to_event_conditions",
         "time_to_event_reference", "time_to_event_covariates",
+    ],
+
+    "Viability (Alpha)": [
+        "viability", "viability_dead_channel", "viability_live_channel",
+        "viability_thresholds", "viability_negative_wells",
+        "viability_positive_wells", "viability_plate_map",
     ],
 
     "Motility (beta)": motility_settings,
@@ -7021,6 +7065,12 @@ ALPHA_FEATURES = {
     539: {
         'settings': ('bleach_correction',),
     },
+    540: {
+        'settings': ('viability', 'viability_dead_channel',
+                     'viability_live_channel', 'viability_thresholds',
+                     'viability_negative_wells', 'viability_positive_wells',
+                     'viability_plate_map'),
+    },
     541: {
         'settings': ('confluency', 'confluency_source', 'confluency_channel',
                      'confluency_window', 'confluency_qc_threshold'),
@@ -7076,6 +7126,9 @@ ALPHA_FEATURES = {
         'widgets': ('MakeMasksPromptCategory',),
         'models': ('microsam_v1',),
     },
+    565: {
+        'widgets': ('AnnotateFindSimilar',),
+    },
     570: {
         'widgets': ('ControlChartHitPanel', 'ControlChartHitsSection',
                     'ControlChartExportHits'),
@@ -7091,6 +7144,11 @@ ALPHA_FEATURES = {
     },
     573: {
         'widgets': ('AnalysisLockButton',),
+    },
+    580: {
+        'settings': ('intensity_calibration', 'intensity_calibration_wells',
+                     'intensity_calibration_statistic',
+                     'intensity_calibration_offset'),
     },
     577: {
         'widgets': ('NotifyTabHelp', 'NotifyRunsEnabled', 'NotifyRunsWhen',

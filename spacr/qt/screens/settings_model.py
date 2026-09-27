@@ -1249,6 +1249,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Spectral Unmixing (Alpha)", ("@Spectral Unmixing (Alpha)",)),
         ("Point Spread Function", ("@Point Spread Function",)),
+        ("Intensity Calibration (Alpha)", ("@Intensity Calibration (Alpha)",)),
         ("Measurement Features", (
             "save_measurements", "calculate_correlation",
             "spatial_measurements",
@@ -1265,6 +1266,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Bleach Correction (Alpha)", ("@Bleach Correction (Alpha)",)),
         ("Wound Closure (Alpha)", ("@Wound Closure (Alpha)",)),
         ("Time To Event (Alpha)", ("@Time To Event (Alpha)",)),
+        ("Viability (Alpha)", ("@Viability (Alpha)",)),
         ("Object Filtering", (
             "uninfected", "cell_min_size", "cell_max_size",
             "cytoplasm_min_size",
@@ -2674,6 +2676,13 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "reproducibility as mean average precision and percent replicating. "
         "Written as CSV, Parquet and GCT files that pycytominer, copairs and "
         "Morpheus read.",
+    "INTENSITY CALIBRATION (ALPHA)":
+        "Scale every imaging session to the same intensities before "
+        "measuring, from fluorescent beads or reference wells imaged "
+        "on every plate: each plate's intensity channels are "
+        "multiplied by the gain that makes its reference wells match "
+        "the first plate's, and the gains are recorded in "
+        "measurements.db.",
     "TIME TO EVENT (ALPHA)":
         "How long each tracked object of a timelapse lasts until an event "
         "such as death, lysis, egress, division or first detection, with "
@@ -2693,6 +2702,14 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "channels is estimated from single-stain control wells, and every "
         "field is unmixed with that matrix before it is segmented or "
         "measured. The matrix is printed and recorded with the run.",
+    "VIABILITY (ALPHA)":
+        "Live and dead cells, called after measuring from a dead stain, a "
+        "live stain, both, or nuclear morphology, with thresholds fitted "
+        "per plate or set by hand. Writes per-well viability, a live-cell "
+        "index and a cytotoxicity index scaled to the control wells, each "
+        "plate's Z', and with a plate map the dose-response of viability "
+        "beside that of infection, so parasite killing can be told from "
+        "host toxicity.",
     "CONFLUENCY (ALPHA)":
         "How much of each field is covered by cells, measured per field and "
         "per well into measurements.db with a monolayer QC flag: from the "
