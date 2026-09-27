@@ -1,6 +1,6 @@
 SPOTIFLOW SPOT DETECTION IN ITS OWN ENVIRONMENT
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED AS ALPHA 2026-09-27
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -25,3 +25,62 @@ WHAT TO BUILD
 DONE WHEN
     Installs for real; detects spots on a real field; compared with the
     native detector and SpotNet as 475 did.
+
+2026-09-27 -- ALPHA: SPOTIFLOW BACKEND, OBJECT PREFIX AND OPS DETECTOR
+Built on the 551-553 seam in spacr/_segmentation_backends.py; nothing added
+to spaCR's own environment.
+  * Spec "spotiflow": spotiflow==0.6.5 (BSD-3-Clause; models from the
+    weigertlab/spotiflow-models releases, BSD-3-Clause), torch+torchvision
+    from spaCR's wheel index, Python 3.10-3.13, models general, hybiss,
+    synth_complex, fluo_live (2-D only). Weights go to SPOTIFLOW_CACHE_DIR
+    inside the environment. Model Zoo rows (spotiflow_v1 and one per model)
+    come from the spec, with 507's install offer.
+  * Objects: "spotiflow:<model or folder>" in an object's model setting.
+    _SpotiflowAdapter draws each spot as a disc (radius = diameter/2 when
+    set, else 2 px; every spot keeps its centre pixel), so spots reach the
+    same per-cell counts as any object. cellprob_threshold 0 keeps the
+    model's optimised threshold, otherwise logistic -> probability; the
+    heatmap fills the cell-probability slot; flow_threshold and resample
+    are named as not honoured.
+  * Coordinates: worker op "spotiflow_spots" (_worker_spotiflow_spots),
+    host _spotiflow_spots / _spotiflow_readiness. OPS: ops_spot_detector
+    'spotiflow' (alpha choice) feeds the same base calls and nucleus
+    assignment as SpotNet; decodes one field at a time; refuses with the
+    reason when not installed. SpotDetectorCombo gains a Spotiflow row
+    (disabled with the reason until installed; a saved choice is kept).
+  * Alpha: ALPHA_FEATURES[554] = choice ops_spot_detector:spotiflow and the
+    five Model Zoo keys.
+
+REAL INSTALL (CPU host, GPU held by another session): _install_backend
+built ~/.spacr/backends/spotiflow in 230 s; self-test loaded spotiflow 0.6.5,
+torch 2.14.0, Python 3.12.4.
+
+SYNTHETIC SPOTS (real worker, CPU): 150 Gaussian spots (sigma 1.3 px) on
+256x256 with noise. Coordinates: 146 found, recall 1.00, precision 1.00
+within 2 px, median error 0.14 px. Through "spotiflow:general" as an object
+model: 146 objects, same recall/precision, 1.9 s. A LoG 5-SD baseline
+found 132 (recall 0.91). Receipt:
+features/data/554_spotiflow_synthetic_spots_2026-09-27.json.
+
+REAL OPS FIELDS, AS 475 DID (tools/compare_spotnet_ops.py --detectors
+spotnet spotiflow; well A1 sites 331+332, CPU, same _decode_field):
+
+                          native     SpotNet    Spotiflow (general)
+  spots found             22,733     18,555     13,244
+  reads owned by nucleus  17,668     15,288     10,270
+  spots exact in library  18,194     13,174     11,105
+  objects assigned         3,476      2,523      1,994
+  assigned, library exact  95.3 %     95.3 %     95.4 %
+  decode seconds, 2 fields  35.0      270.1       75.1  (+12 s start)
+  its reads within 2 px of native: SpotNet 79.6 %, Spotiflow 93.5 %
+  native's reads within 2 px of it: SpotNet 69.3 %, Spotiflow 55.3 %
+
+Spotiflow's spots are the purest per spot (84 % library-exact vs 80 %
+native, 71 % SpotNet) and almost all sit on native reads, but at its
+optimised threshold it finds far fewer, assigning 43 % fewer nuclei. Native
+stays the default; Spotiflow is opt-in. Receipt:
+features/data/554_spotiflow_vs_spotnet_vs_native.json.
+
+WHAT IS LEFT: a lower Spotiflow threshold (or the hybiss model) on OPS
+fields, and a real puncta/FISH field through the object prefix; GPU timing
+once the card is free; the two new combo captions await catalog entries.

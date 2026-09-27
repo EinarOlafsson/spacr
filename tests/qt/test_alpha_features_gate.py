@@ -61,7 +61,8 @@ BUILT = re.compile(r"\b(built|implemented|done)\b", re.IGNORECASE)
 
 # Settings-only screens that are not in the module registry but render a form.
 # anndata_export (581's table export settings) is the page folded into Measure.
-EXTRA_SETTINGS_HOSTS = ("timelapse", "anndata_export")
+# ops carries 554's Spotiflow entry of ops_spot_detector.
+EXTRA_SETTINGS_HOSTS = ("timelapse", "anndata_export", "ops")
 
 
 @pytest.fixture
@@ -179,9 +180,9 @@ def _alpha_choice_rows(screen):
         if combo is None:
             continue
         for index in range(combo.count()):
-            if combo.itemText(index) in _alpha_choices(key):
-                out[(key, combo.itemText(index))] = (
-                    not combo.view().isRowHidden(index))
+            names = {combo.itemText(index), str(combo.itemData(index))}
+            for name in names & _alpha_choices(key):
+                out[(key, name)] = not combo.view().isRowHidden(index)
     return out
 
 

@@ -7187,6 +7187,11 @@ ALPHA_FEATURES = {
                    'omnipose_worm_bact_omni', 'omnipose_worm_high_res_omni',
                    'omnipose_cyto2_omni'),
     },
+    554: {
+        'choices': {'ops_spot_detector': ('spotiflow',)},
+        'models': ('spotiflow_v1', 'spotiflow_general', 'spotiflow_hybiss',
+                   'spotiflow_synth_complex', 'spotiflow_fluo_live'),
+    },
     555: {
         'widgets': ('MakeMasksPromptCategory',),
         'models': ('microsam_v1',),

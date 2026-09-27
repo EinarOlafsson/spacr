@@ -1158,6 +1158,10 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 574, 2026-09-27: the Report screen's Archive package button and form.
 # 579, 2026-09-27: the Report screen's Deposit on Zenodo button and form.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    # 554, 2026-09-27: the Spotiflow row of the OPS spot detector box
+    # (alpha).
+    'Spotiflow',
+    "Spotiflow's general model, run in its own environment; its spots go through the same base calls and nucleus assignment.",
     # 579, 2026-09-27: the Report screen's Deposit on Zenodo button and its
     # form (alpha).
     'Deposit on Zenodo…',

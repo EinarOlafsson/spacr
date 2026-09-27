@@ -211,6 +211,9 @@ ISOLATED_WORKER_IMPORTS = {
     "tensorflow": ("_tensorflow_device",),
     "instanseg": ("_InstanSegAdapter",),
     "cellpose_omni": ("_OmniposeAdapter",),
+    # Spotiflow (item 554) is imported only where its worker builds the
+    # network.
+    "spotiflow": ("_spotiflow_network",),
 }
 BACKEND_SOURCE = PKG / "_segmentation_backends.py"
 
