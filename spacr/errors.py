@@ -217,6 +217,10 @@ def _utcnow() -> str:
 
 
 
+_FINALIZE_LISTENERS: List[Any] = []
+"""Callables handed every ledger as it is finalized, such as the run journal."""
+
+
 class RunLedger:
     """Accounting for one batch run: what was attempted, what failed, and why.
 
@@ -509,6 +513,11 @@ class RunLedger:
                            self.name, self.n_succeeded, self.n_attempted)
             if not quiet_when_clean:
                 print(text, file=sys.stdout)
+        for listener in list(_FINALIZE_LISTENERS):
+            try:
+                listener(self)
+            except Exception:
+                self._log.debug('a ledger listener failed', exc_info=True)
         if artifact is not None:
             self.stamp(artifact)
         if threshold is not None:

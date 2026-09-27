@@ -842,6 +842,14 @@ def _isolated_dot_spacr_store(monkeypatch):
                             run_journal.runs_root, raising=False)
         monkeypatch.setattr(run_journal, "runs_root", lambda: root,
                             raising=False)
+        # Run-finished notification secrets: never the real OS keyring, and
+        # never the real ~/.spacr file.
+        monkeypatch.setattr(
+            run_journal, "_notify_secrets_path",
+            lambda: _DOT_SPACR_SANDBOX / "notification_secrets.json",
+            raising=False)
+        monkeypatch.setattr(run_journal, "_notify_keyring", lambda: None,
+                            raising=False)
     try:
         from spacr.qt import plate_queue
     except Exception:                                            # noqa: BLE001

@@ -6851,6 +6851,16 @@ ALPHA_FEATURES = {
     573: {
         'widgets': ('AnalysisLockButton',),
     },
+    577: {
+        'widgets': ('NotifyTabHelp', 'NotifyRunsEnabled', 'NotifyRunsWhen',
+                    'NotifyRunsMinMinutes', 'NotifyDesktop', 'NotifyEmail',
+                    'NotifySmtpHost', 'NotifySmtpPort', 'NotifySmtpSecurity',
+                    'NotifySmtpUser', 'NotifySmtpPassword', 'NotifyEmailFrom',
+                    'NotifyEmailTo', 'NotifySlack', 'NotifySlackWebhook',
+                    'NotifyNtfy', 'NotifyNtfyServer', 'NotifyNtfyTopic',
+                    'NotifyNtfyToken', 'NotifySendTest', 'NotifyForgetSecrets',
+                    'NotifyTestResult'),
+    },
 }
 
 
@@ -6871,7 +6881,9 @@ def _alpha_names(kind):
 
     Hiding is a display decision only: a saved or typed alpha setting still
     reaches the run, and headless and command-line runs never consult the
-    registry.
+    registry. The one exception is run-finished notifications, which are
+    configured only in Preferences and are sent, from the app or the command
+    line, only while the gate shows them.
 
     :param kind: one of ``ALPHA_KINDS``.
     :returns: a frozenset of names; for ``choices`` the settings keys that
