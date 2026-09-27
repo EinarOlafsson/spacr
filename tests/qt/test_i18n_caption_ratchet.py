@@ -1156,6 +1156,28 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 572, 2026-09-26: the figure integrity toggle on the Preferences Figures
 # tab and its tooltip (alpha).
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    # 582, 2026-09-27: the Preferences Plugins tab, a plugin and recipe
+    # catalogue browser (alpha).
+    'Author',
+    'Browse a catalogue of community plugins and assay recipes. A plugin is installed into its own folder with the libraries it needs, so it never replaces a package spaCR uses; a recipe is saved as a settings file you can load into its module.',
+    'Catalogue',
+    'Catalogue file, folder or address',
+    'Could not read the catalogue: {error}',
+    'Install or update',
+    'Installed',
+    'Installed {name} {version}.',
+    'Its settings are in {path}.',
+    'Licence',
+    'List',
+    'Plugin',
+    'Recipe',
+    'Uninstalled {name}.',
+    'Where the catalogue is: a catalogue.json file, the folder holding one, or an http(s) address. It is remembered for next time. Default the SPACR_PLUGIN_CATALOGUE variable, else empty.',
+    'available',
+    'incompatible',
+    'update available',
+    '{count} entries in the catalogue.',
+    '{name} failed: {error}',
     # 585, 2026-09-27: the Power screen's alpha arrayed-assay planner.
     'Analyse replicates as pairs, so replicate-to-replicate variation cancels. Default off.',
     'Arrayed-assay planner',
