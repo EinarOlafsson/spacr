@@ -1750,6 +1750,7 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('viability_negative_wells', None)
     settings.setdefault('viability_positive_wells', None)
     settings.setdefault('viability_plate_map', '')
+    settings.setdefault('cellprofiler_pipeline', '')
     settings.setdefault('object_distances', True)
     settings.setdefault('object_distance_maxima', True)
     settings.setdefault('object_distance_intensity', True)
@@ -3272,6 +3273,7 @@ expected_types = {
     "illumination_max_fields": int,
     "illumination_estimator": str,
     "illumination_model": str,
+    "illumination_vendor_profile": str,
     "illumination_on_missing": str,
     "dst": str,
     "db_path": str,
@@ -3580,6 +3582,7 @@ expected_types = {
     "viability_negative_wells": (list, str, type(None)),
     "viability_positive_wells": (list, str, type(None)),
     "viability_plate_map": str,
+    "cellprofiler_pipeline": str,
     "spatial_measurements": bool,
     "spatial_neighbor_radius": int,
     "calculate_correlation": bool,
@@ -4828,6 +4831,7 @@ tooltips = {
     "viability_negative_wells": "(list or str) - Untreated or vehicle wells, e.g. ['c1']; rows (r1), columns (c1) and wells (A01) all read. Their mean live-cell count is each plate's reference for the live-cell index, they read 0 on the cytotoxicity index and they are one side of its Z'. Blank leaves the index as the percentage of cells not live. Default None.",
     "viability_positive_wells": "(list or str) - Wells given a cytotoxic control (for example digitonin, saponin or staurosporine), e.g. ['c12'], in the same notation as viability_negative_wells. They read 100 on the cytotoxicity index and, with the negative wells, give each plate's Z' in viability_qc; a Z' of 0.5 or more is a working assay. Blank scales the index to the negative wells alone. Default None.",
     "viability_plate_map": "(str) - A table (CSV or Excel) of each well's compound and concentration: a well column (well such as A01, rowID and columnID, or prc), compound or treatment, concentration or dose, and optionally plateID. With it, viability, the cytotoxicity index and the infection of live cells are fitted against concentration per compound, and the host CC50 over the parasite EC50 is written as a selectivity index. Blank skips dose-response. Default blank.",
+    "cellprofiler_pipeline": "(str) - A CellProfiler pipeline (.cppipe) to run headless after measuring, in CellProfiler's own environment from the Model Zoo. Each field's channels are handed to it as <field>_ch<N>.tif, N from 0, and its masks as <field>_<object>_mask.tif; load the masks in NamesAndTypes as objects, and measure each object's Location. Its per-object measurements go to measurements.db:cellprofiler_<object>, matched to spaCR objects by prcfo. Blank skips it. Default blank.",
     "bystander_measurements": "(bool) - Split uninfected cells into bystanders and distal cells. A bystander is an uninfected cell within the reach set by bystander_reach_in_diameters of an infected one; everything else uninfected is distal. Without this the two are the same row, so a bystander phenotype cannot be found and the uninfected control is a mixture of two populations whose variance hides the effect being looked for. Adds three columns per cell and costs one distance transform and one KD-tree per field. Default False.",
     "bystander_reach_in_diameters": "(float) - How close an uninfected cell must be to an infected one to count as a bystander, expressed in measured cell diameters rather than pixels or micrometres, so it means the same thing at 20x and 63x. The diameter is the median of the cells in the field, ignoring those clipped by its edge. Zero or less makes every uninfected cell distal, which turns the split off without a second setting. Ignored unless bystander_measurements is enabled. Default 1.0.",
     "spatial_measurements": "(bool) - Measure each object's neighbourhood: the number of neighbours within a radius, first and second nearest-neighbour distances, and the fraction of its border contacting another object. These measurements can be used to model density-associated variation in morphology and intensity. They are not produced for cytoplasm, which is defined as one object per cell. Computation requires one KD-tree and one boundary pass per field. Default True.",
@@ -5360,7 +5364,7 @@ categories = {
 
     "Measurements": ["save_measurements", "calculate_correlation", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
 
-    "Illumination Correction": ["illumination_correction", "illumination_model", "illumination_estimator", "illumination_degree", "illumination_dark", "illumination_per_plate", "illumination_max_fields", "illumination_qc", "illumination_on_missing"],
+    "Illumination Correction": ["illumination_correction", "illumination_model", "illumination_estimator", "illumination_degree", "illumination_dark", "illumination_per_plate", "illumination_max_fields", "illumination_qc", "illumination_on_missing", "illumination_vendor_profile"],
 
     "Object Crops": ["save_png", "crop_mode", "png_size", "png_channel_mapping", "png_dims", "dialate_pngs", "dialate_png_ratios", "use_bounding_box", "normalize_by", "save_arrays"],
 
@@ -5523,6 +5527,10 @@ categories = {
         "viability", "viability_dead_channel", "viability_live_channel",
         "viability_thresholds", "viability_negative_wells",
         "viability_positive_wells", "viability_plate_map",
+    ],
+
+    "CellProfiler (Alpha)": [
+        "cellprofiler_pipeline",
     ],
 
     "Motility (beta)": motility_settings,
@@ -7108,6 +7116,10 @@ ALPHA_FEATURES = {
                      'cloud_level', 'cloud_results'),
         'widgets': ('CloudSourceBrowse',),
     },
+    546: {
+        'settings': ('cellprofiler_pipeline',),
+        'models': ('cellprofiler_v1',),
+    },
     551: {
         'models': ('stardist_v1', 'stardist_2D_versatile_fluo',
                    'stardist_2D_versatile_he', 'stardist_2D_paper_dsb2018'),
@@ -7172,9 +7184,15 @@ ALPHA_FEATURES = {
     574: {
         'widgets': ('ReportArchivePackage',),
     },
+    575: {
+        'widgets': ('RunHistoryExportWorkflow',),
+    },
     537: {
         'settings': ('timelapse_lineage', 'timelapse_lineage_color_by',
                      'timelapse_lineage_max_distance'),
+    },
+    543: {
+        'settings': ('illumination_vendor_profile',),
     },
 }
 

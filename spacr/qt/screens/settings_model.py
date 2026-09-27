@@ -1194,6 +1194,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_dark", "illumination_per_plate",
             "illumination_max_fields", "illumination_qc",
             "illumination_on_missing",
+            "illumination_vendor_profile",
         )),
         ("Spectral Unmixing (Alpha)", ("@Spectral Unmixing (Alpha)",)),
         ("Point Spread Function", ("@Point Spread Function",)),
@@ -1246,6 +1247,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_dark",
             "illumination_per_plate", "illumination_max_fields",
             "illumination_qc", "illumination_on_missing",
+            "illumination_vendor_profile",
         )),
         ("Spectral Unmixing (Alpha)", ("@Spectral Unmixing (Alpha)",)),
         ("Point Spread Function", ("@Point Spread Function",)),
@@ -1267,6 +1269,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Wound Closure (Alpha)", ("@Wound Closure (Alpha)",)),
         ("Time To Event (Alpha)", ("@Time To Event (Alpha)",)),
         ("Viability (Alpha)", ("@Viability (Alpha)",)),
+        ("CellProfiler (Alpha)", ("@CellProfiler (Alpha)",)),
         ("Object Filtering", (
             "uninfected", "cell_min_size", "cell_max_size",
             "cytoplasm_min_size",
@@ -1320,6 +1323,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_dark", "illumination_per_plate",
             "illumination_max_fields", "illumination_qc",
             "illumination_on_missing",
+            "illumination_vendor_profile",
         )),
         ("Spectral Unmixing (Alpha)", ("@Spectral Unmixing (Alpha)",)),
         ("Point Spread Function", ("@Point Spread Function",)),
@@ -1613,6 +1617,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Input & Channels", ("src", "channels")),
         ("Correction Model", (
             "illumination_correction", "illumination_model",
+            "illumination_vendor_profile",
             "illumination_estimator", "illumination_degree",
             "illumination_dark",
         )),
@@ -2702,6 +2707,11 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "channels is estimated from single-stain control wells, and every "
         "field is unmixed with that matrix before it is segmented or "
         "measured. The matrix is printed and recorded with the run.",
+    "CELLPROFILER (ALPHA)":
+        "Runs a lab's own CellProfiler pipeline on this run's fields after "
+        "measuring, headless in CellProfiler's own environment from the "
+        "Model Zoo, and writes its per-object measurements beside spaCR's, "
+        "matched to spaCR's objects, so existing pipelines keep working.",
     "VIABILITY (ALPHA)":
         "Live and dead cells, called after measuring from a dead stain, a "
         "live stain, both, or nuclear morphology, with thresholds fitted "
