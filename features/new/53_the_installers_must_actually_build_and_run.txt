@@ -353,3 +353,32 @@ installed helper, remove the original installation, and run its real CLI with
 an empty PATH and reset extraction environment. Native execution is pending.
 Receipt: features/data/53_standalone_helper_preparation_2026-09-27.json.
 Frozen family transactions and the remaining item53 acceptance remain OPEN.
+
+STATUS 2026-09-27 — bounded runtime layout and real scroll reachability
+The runtime column now preserves control minima inside a bounded scroll area.
+The completed-run successor row wraps its buttons instead of imposing its
+previous 893-pixel minimum width; order, actions and cleanup are retained.
+Settings width and user-drag/focus contracts remain covered by the existing
+focused checks. Source UI integration runs at exactly1280x720: actual Measure
+completed with16cells, all47 control/document-endpoint observations were
+reachable through real scroll operations, and original scroll positions and
+read-only document cursor selections were restored. Raw initial offscreen
+clipping is retained honestly; scrolling is part of this acceptance.
+
+Validation:17 distribution checks passed (including real Measure and negative
+unreachable-control cases). The preceding focused run had115 passes and its
+one real integration geometry failure is preserved; affected chaining and
+witness checks had94 passes plus a separate harness TMPDIR/socket-length
+failure. A standard-library probe reproduced AF_UNIX path-too-long, and the
+short private scratch TMPDIR fixed that harness issue without runtime changes.
+The next integration exposed two nested document-scroll observations; their
+real cursor/scroll navigation is covered by the final17-pass run.
+
+Receipt: features/data/53_native_layout_source_acceptance_2026-09-27.json.
+Complete receipts, original failures, logs and screenshots are preserved in
+/mnt/wd4tb/scratch/spacr-completion/53-native-layout-prep/; final images are in
+source-integration-final/ with screenshots.sha256. This is source-level Qt
+integration, not native installed-artifact acceptance. Native reruns and the
+remaining item53 installer/updater requirements remain OPEN. The subsequent
+machine reboot did not erase this completed validation; it did interrupt the
+separate item47 full Qt acceptance run.

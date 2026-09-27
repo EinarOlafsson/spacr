@@ -1410,6 +1410,98 @@ def _resume_the_fractal(screen) -> int:
     return resumed
 
 
+class _RuntimeViewport(QScrollArea):
+    """Keep runtime controls usable when their minimum height exceeds the viewport.
+
+    :param content: the widget containing the runtime layout.
+    :param parent: the existing runtime body pane.
+    """
+
+    def __init__(self, content, parent):
+        """Own content and coalesce geometry observations on the GUI thread.
+
+        :param content: the widget containing the runtime layout.
+        :param parent: the existing runtime body pane.
+        """
+        super().__init__(parent)
+        self._split = None
+        self._floor_timer = QTimer(self)
+        self._floor_timer.setSingleShot(True)
+        self._floor_timer.timeout.connect(self._sync_floor)
+        self.setFrameShape(QScrollArea.NoFrame)
+        self.setWidgetResizable(True)
+        self.setWidget(content)
+        self.viewport().installEventFilter(self)
+
+    def _watch_splitter(self, splitter):
+        """Observe pane changes without changing collapse or drag ownership.
+
+        :param splitter: the registered runtime pane splitter.
+        """
+        self._split = splitter
+        splitter.installEventFilter(self)
+        for index in range(splitter.count()):
+            splitter.widget(index).installEventFilter(self)
+        splitter.pane_toggled.connect(self._queue_floor)
+        self._queue_floor()
+
+    def _queue_floor(self, *_args):
+        """Collapse layout changes into one pending measurement.
+
+        :param _args: unused pane-toggle signal arguments.
+        """
+        if not self._floor_timer.isActive():
+            self._floor_timer.start(0)
+
+    def eventFilter(self, watched, event):
+        """Revisit minima after wrapping, visibility, and viewport width changes.
+
+        :param watched: the pane, splitter, or viewport receiving the event.
+        :param event: the actual Qt event.
+        :returns: the inherited event-filter result.
+        """
+        if event.type() in (QEvent.LayoutRequest, QEvent.ShowToParent,
+                            QEvent.HideToParent) or (
+                watched is self.viewport() and event.type() == QEvent.Resize):
+            self._queue_floor()
+        return super().eventFilter(watched, event)
+
+    def _sync_floor(self):
+        """Let scrolling absorb genuine overflow instead of shrinking controls."""
+        split = self._split
+        if split is None:
+            return
+        visible = split._visible_indices()
+        floor = split.handleWidth() * max(0, len(visible) - 1)
+        changed = False
+        for index in visible:
+            widget = split.widget(index)
+            pane = split._pane_of(widget)
+            if pane is not None and pane.is_collapsed():
+                height = split._collapsed_extent(pane)
+                minimum = 0
+            else:
+                minimum = max(0, widget.minimumSizeHint().height(),
+                              int(pane.minimum or 0) if pane is not None else 0)
+                if pane is not None and pane.stretch <= 0:
+                    minimum = max(minimum, split._height_for_width(widget))
+                height = minimum
+            if widget.minimumHeight() != minimum:
+                widget.setMinimumHeight(minimum)
+                changed = True
+            floor += height
+        margins = self.widget().layout().contentsMargins()
+        content_floor = floor + margins.top() + margins.bottom()
+        if split.minimumHeight() != floor:
+            split.setMinimumHeight(floor)
+            changed = True
+        if self.widget().minimumHeight() != content_floor:
+            self.widget().setMinimumHeight(content_floor)
+            changed = True
+        if changed:
+            split.rebalance(refit=True)
+
+
 class _WrappingButtonStrip(FlowLayout):
     """The action row's buttons, laid out so they wrap rather than squeeze.
 
@@ -7211,7 +7303,13 @@ class AppScreen(QWidget):
         """
         wrap = QWidget()
         self._runtime_wrap = wrap
-        layout = QVBoxLayout(wrap)
+        outside = QVBoxLayout(wrap)
+        outside.setContentsMargins(0, 0, 0, 0)
+        content = QWidget()
+        viewport = _RuntimeViewport(content, wrap)
+        self._runtime_viewport = viewport
+        outside.addWidget(viewport)
+        layout = QVBoxLayout(content)
         layout.setContentsMargins(SPACING["sm"], 0, 0, 0)
         layout.setSpacing(SPACING["md"])
 
@@ -7754,6 +7852,7 @@ class AppScreen(QWidget):
             actions_heading, actions_body, name="Actions",
             persist_key=f"{self.app_key}/Actions")
         self._install_the_shell_panes(layout, usage_card, section)
+        viewport._watch_splitter(self._runtime_splitter)
         return wrap
 
     #: Where a runtime splitter's state is stored. Distinct from the console

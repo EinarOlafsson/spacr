@@ -165,15 +165,250 @@ def test_source_ui_integration_runs_real_measurement(qapp, qtbot, monkeypatch, t
     monkeypatch.setattr(Controller, '_finish', finish)
     window = MainWindow()
     qtbot.addWidget(window)
+    window.resize(1280, 720)
     window.show()
     controller = Controller(qapp, window, str(tmp_path / 'source-unit.json'))
     try:
-        qtbot.waitUntil(lambda: bool(completed), timeout=180000)
+        qtbot.waitUntil(lambda: bool(completed), timeout=300000)
         record = json.loads((tmp_path / 'source-unit.json').read_text())
         assert completed == [0], record
         assert record['module_constructed'] and record['real_run_clicked']
         assert record['run_status'] == ['complete', 1, 0] and record['cells'] > 0
         assert record['worker_finished']
+        assert (window.width(), window.height()) == (1280, 720)
+        assert record['visual_layout_status'] == 'passed'
+        assert record['layout']['scroll_origin_restored'] is True
     finally:
         controller.timer.stop()
         window.close()
+
+
+def test_layout_snapshot_retains_actual_clipping_without_resizing(qtbot):
+    from PySide6.QtWidgets import QLabel, QLineEdit, QPushButton, QSpinBox, QWidget
+
+    window = QWidget()
+    qtbot.addWidget(window)
+    window.setFixedSize(1280, 720)
+    settings = QWidget(window)
+    settings.setGeometry(0, 0, 400, 720)
+    panes = []
+    for index, name in enumerate(('Console', 'System', 'Actions')):
+        pane = QWidget(window)
+        pane.setObjectName(name)
+        pane.setGeometry(400, index * 200, 880, 180)
+        label = QLabel(name, pane)
+        label.setGeometry(10, 10, 100, 30)
+        panes.append(pane)
+    clipped = QPushButton('Run', panes[2])
+    clipped.setObjectName('deliberately_clipped')
+    clipped.setGeometry(850, 40, 100, 30)
+    spin = QSpinBox(panes[1])
+    spin.setObjectName('measured_spin')
+    spin.setGeometry(20, 50, 100, 30)
+    narrow = QLineEdit(panes[1])
+    narrow.setObjectName('undersized_standalone_editor')
+    narrow.setGeometry(20, 90, 5, 30)
+    window.show()
+    qtbot.waitUntil(window.isVisible)
+    runtime = SimpleNamespace(
+        count=lambda: len(panes), widget=lambda index: panes[index],
+        _pane_of=lambda pane: SimpleNamespace(name=pane.objectName()),
+        sizes=lambda: [pane.height() for pane in panes])
+    fake = SimpleNamespace(window=window, screen=SimpleNamespace(
+        _runtime_splitter=runtime, _settings_panel=settings,
+        _body_splitter=SimpleNamespace(sizes=lambda: [400, 880])))
+    measured = Controller._layout_snapshot(fake)
+    row = next(control for control in measured['controls']
+               if control['object_name'] == 'deliberately_clipped')
+    assert row['rect'] == [1250, 440, 100, 30]
+    assert row['clipped'] is True
+    assert row['visible_clip'][0] + row['visible_clip'][2] == 1280
+    internal = next(control for control in measured['controls']
+                    if control['embedded_editor'])
+    assert internal['class'] == 'QLineEdit'
+    assert internal['acceptance_control'] is False
+    assert internal['undersized'] is False
+    outer = next(control for control in measured['controls']
+                 if control['object_name'] == 'measured_spin')
+    assert outer['acceptance_control'] is True
+    standalone = next(control for control in measured['controls']
+                      if control['object_name'] == 'undersized_standalone_editor')
+    assert standalone['acceptance_control'] is True
+    assert standalone['undersized'] is True
+    assert measured['window_size'] == [1280, 720]
+    assert window.width() == 1280 and window.height() == 720
+
+
+def _layout_controller(snapshot, monkeypatch):
+    calls = []
+    fake = SimpleNamespace(record={'analysis_status': 'passed'}, screen=SimpleNamespace(),
+                           _layout_snapshot=lambda: snapshot,
+                           _write=lambda: calls.append('written'),
+                           _save_layout_image=lambda name: calls.append(name) or [1280, 720],
+                           _finish=lambda code: calls.append(('finished', code)))
+    fake._finish_layout_check = lambda: Controller._finish_layout_check(fake)
+    monkeypatch.delenv('SPACR_NATIVE_MENU_SMOKE', raising=False)
+    Controller._start_layout_check(fake)
+    return fake, calls
+
+
+def _contained_layout():
+    names = ('Console', 'System', 'Actions')
+    return {'window_size': [1280, 720],
+            'panes': [{'name': name} for name in names],
+            'controls': [{'pane': name, 'clipped': False, 'undersized': False}
+                         for name in names]}
+
+
+def test_layout_acceptance_observes_three_samples_and_preserves_two_images(monkeypatch):
+    fake, calls = _layout_controller(_contained_layout(), monkeypatch)
+    Controller._poll_layout_check(fake)
+    assert not any(isinstance(call, tuple) for call in calls)
+    Controller._poll_layout_check(fake)
+    assert calls.count('measure-complete.png') == 1
+    assert calls.count('measure-settled.png') == 1
+    assert ('finished', 0) in calls
+    assert fake.record['layout']['window_size_unchanged'] is True
+    assert len(fake.record['layout']['samples']) == 3
+    assert fake.record['visual_layout_status'] == 'passed'
+
+
+@pytest.mark.parametrize('defect', ['clipped', 'undersized', 'missing-pane', 'empty-controls'])
+def test_layout_acceptance_cannot_hide_missing_or_clipped_controls(monkeypatch, defect):
+    snapshot = _contained_layout()
+    if defect == 'missing-pane':
+        snapshot['panes'].pop()
+    elif defect == 'empty-controls':
+        snapshot['controls'] = []
+    else:
+        snapshot['controls'][0][defect] = True
+    fake, calls = _layout_controller(snapshot, monkeypatch)
+    Controller._poll_layout_check(fake)
+    with pytest.raises(RuntimeError, match='fully contained controls'):
+        Controller._poll_layout_check(fake)
+    assert fake.record['analysis_status'] == 'passed'
+    assert fake.record['visual_layout_status'] == 'failed'
+    assert 'measure-settled.png' in calls
+    assert ('finished', 0) not in calls
+
+
+def test_layout_timeout_retains_failure_instead_of_forcing_geometry(monkeypatch):
+    fake, calls = _layout_controller(_contained_layout(), monkeypatch)
+    fake._layout_started -= 6
+    fake._layout_snapshot = lambda: {**_contained_layout(), 'runtime_sizes': [1, 2, 3]}
+    with pytest.raises(RuntimeError, match='fully contained controls'):
+        Controller._poll_layout_check(fake)
+    assert fake.record['layout']['settled'] is False
+    assert fake.record['layout']['window_resized_by_witness'] is False
+    assert 'measure-settled.png' in calls
+    assert ('finished', 0) not in calls
+
+
+@pytest.mark.parametrize('unreachable', [False, True])
+def test_scroll_witness_measures_real_reachability_and_retains_initial_clipping(
+        qtbot, tmp_path, monkeypatch, unreachable):
+    from types import MethodType
+    from PySide6.QtGui import QTextCursor
+    from PySide6.QtWidgets import QLabel, QPlainTextEdit, QPushButton, QScrollArea, QWidget
+
+    window = QWidget()
+    qtbot.addWidget(window)
+    window.setFixedSize(1280, 720)
+    settings = QWidget(window)
+    settings.setGeometry(0, 0, 400, 720)
+    scroll = QScrollArea(window)
+    scroll.setFrameShape(QScrollArea.NoFrame)
+    scroll.setGeometry(400, 0, 880, 720)
+    scroll.setWidgetResizable(True)
+    content = QWidget()
+    content.setMinimumHeight(1200)
+    scroll.setWidget(content)
+    panes = []
+    for index, name in enumerate(('Console', 'System', 'Actions')):
+        pane = QWidget(content)
+        pane.setObjectName(name)
+        pane.setGeometry(0, index * 400, 850, 380)
+        label = QLabel(name, pane)
+        label.setGeometry(10, 10, 100, 30)
+        panes.append(pane)
+    button = QPushButton('Run', panes[-1])
+    button.setObjectName('actual_run')
+    button.setGeometry(20, 100, 100, 30)
+    if unreachable:
+        button.setMinimumWidth(1500)
+    nested = QScrollArea(panes[0])
+    nested.setObjectName('actual_nested_console')
+    nested.setGeometry(10, 60, 800, 100)
+    document = QPlainTextEdit()
+    document.setObjectName('actual_read_only_log')
+    document.setReadOnly(True)
+    document.setPlainText('\n'.join(f'Actual log line {index}' for index in range(50)))
+    document.setFixedSize(780, 300)
+    cursor = document.textCursor()
+    cursor.setPosition(3)
+    cursor.setPosition(7, QTextCursor.KeepAnchor)
+    document.setTextCursor(cursor)
+    nested.setWidget(document)
+    window.show()
+    qtbot.waitUntil(window.isVisible)
+    finished = []
+    runtime = SimpleNamespace(
+        count=lambda: len(panes), widget=lambda index: panes[index],
+        _pane_of=lambda pane: SimpleNamespace(name=pane.objectName()),
+        sizes=lambda: [pane.height() for pane in panes])
+    fake = SimpleNamespace(window=window, screen=SimpleNamespace(
+        _runtime_splitter=runtime, _settings_panel=settings,
+        _body_splitter=SimpleNamespace(sizes=lambda: [400, 880]),
+        _runtime_viewport=scroll),
+        record={'analysis_status': 'passed'}, output=tmp_path / 'receipt.json',
+        _write=lambda: None, _finish=lambda code: finished.append(code))
+    for method in ('_layout_snapshot', '_save_layout_image', '_start_layout_check',
+                   '_poll_layout_check', '_control_for_layout_record',
+                   '_scroll_layout_target', '_poll_layout_reachability', '_finish_layout_check'):
+        setattr(fake, method, MethodType(getattr(Controller, method), fake))
+    monkeypatch.delenv('SPACR_NATIVE_MENU_SMOKE', raising=False)
+    fake._start_layout_check()
+    errors = []
+
+    def advance():
+        try:
+            if fake.phase == 'settling-layout':
+                fake._poll_layout_check()
+            else:
+                fake._poll_layout_reachability()
+        except RuntimeError as exc:
+            errors.append(str(exc))
+        return bool(finished or errors)
+
+    qtbot.waitUntil(advance, timeout=10000)
+    layout = fake.record['layout']
+    assert layout['raw_viewport_status'] == 'failed'
+    assert layout['violations']
+    run = next(row for row in layout['reachability']
+               if row['before']['object_name'] == 'actual_run')
+    assert run['before']['clipped'] is True
+    assert run['reachable'] is (not unreachable)
+    assert run['scroll_position'][1] > 0
+    assert (tmp_path / run['image']).is_file()
+    document_rows = [row for row in layout['reachability']
+                     if row['before']['object_name'] == 'actual_read_only_log']
+    assert {row['before']['document_edge'] for row in document_rows} == {'start', 'end'}
+    assert all(row['reachable'] for row in document_rows)
+    assert any(row['scroll_positions'][1][1] > 0 for row in document_rows)
+    document_scroll = next(row['index'] for row in layout['scroll_origins']
+                           if row['name'] == 'actual_read_only_log')
+    assert any(row['scroll_positions'][document_scroll][1] > 0 for row in document_rows)
+    assert layout['scroll_origin_restored'] is True
+    assert scroll.verticalScrollBar().value() == 0
+    assert nested.verticalScrollBar().value() == 0
+    assert document.verticalScrollBar().value() == 0
+    assert (document.textCursor().position(), document.textCursor().anchor()) == (7, 3)
+    assert layout['document_cursors_restored'] is True
+    assert (window.width(), window.height()) == (1280, 720)
+    assert fake.record['analysis_status'] == 'passed'
+    if unreachable:
+        assert errors and not finished
+        assert fake.record['visual_layout_status'] == 'failed'
+    else:
+        assert finished == [0] and not errors
+        assert fake.record['visual_layout_status'] == 'passed'

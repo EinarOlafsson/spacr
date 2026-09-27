@@ -815,21 +815,350 @@ class _DistributionSmokeController(QObject):
                 status, cells = self._read_result(self.database)
                 if status != ('complete', 1, 0) or cells < 1:
                     raise RuntimeError(f'Incomplete measured field: {status!r}, cells={cells}')
-                screenshot = self.output.parent / 'measure-complete.png'
-                if not self.window.grab().save(str(screenshot)):
-                    raise RuntimeError('Could not retain the native application screenshot')
                 self.record.update(run_status=list(status), cells=cells,
                                    database=str(self.database), worker_finished=True,
+                                   analysis_status='passed',
                                    elapsed_seconds=time.monotonic() - self.started)
-                if os.environ.get('SPACR_NATIVE_MENU_SMOKE') == '1':
-                    self._start_native_menu_check()
-                    return
-                self.record['status'] = 'passed'
-                self._finish(0)
+                self._start_layout_check()
+            elif self.phase == 'settling-layout':
+                self._poll_layout_check()
+            elif self.phase == 'checking-layout-reachability':
+                self._poll_layout_reachability()
             elif self.phase.startswith('native-menu-'):
                 self._poll_native_menu_check()
         except Exception as exc:
             self._pipeline_failed(str(exc))
+
+    def _layout_snapshot(self):
+        """Measure actual pane/control geometry without resizing or activating layouts."""
+        from PySide6.QtCore import QPoint, QRect
+        from PySide6.QtGui import QTextCursor
+        from PySide6.QtWidgets import (QAbstractButton, QAbstractSpinBox, QComboBox,
+                                       QLabel, QLineEdit, QPlainTextEdit, QTextEdit)
+
+        def rectangle(widget):
+            """Map actual geometry into the window.
+
+            :param widget: the real child widget being measured.
+            """
+            return QRect(widget.mapTo(self.window, QPoint()), widget.size())
+
+        def coordinates(rect):
+            """Retain integer geometry in a JSON-compatible representation.
+
+            :param rect: the observed Qt rectangle.
+            """
+            return [rect.x(), rect.y(), rect.width(), rect.height()]
+
+        window_rect = self.window.rect()
+        controls = []
+        panes = []
+        interactive = (QAbstractButton, QAbstractSpinBox, QComboBox, QLineEdit)
+        measured = interactive + (QLabel, QPlainTextEdit, QTextEdit)
+        splitter = self.screen._runtime_splitter
+        for index in range(splitter.count()):
+            pane = splitter.widget(index)
+            registered = splitter._pane_of(pane)
+            name = registered.name if registered is not None else pane.objectName()
+            if name not in ('Console', 'System', 'Actions') or not pane.isVisible():
+                continue
+            pane_rect = rectangle(pane)
+            panes.append({'name': name, 'rect': coordinates(pane_rect),
+                          'minimum': [pane.minimumWidth(), pane.minimumHeight()],
+                          'minimum_hint': [pane.minimumSizeHint().width(),
+                                           pane.minimumSizeHint().height()],
+                          'height_for_width': pane.heightForWidth(pane.width())
+                          if pane.hasHeightForWidth() else None})
+            for position, widget in enumerate(pane.findChildren(QObject)):
+                if not isinstance(widget, measured) or not widget.isVisibleTo(pane):
+                    continue
+                actual = rectangle(widget)
+                clip = window_rect.intersected(pane_rect)
+                ancestor = widget.parentWidget()
+                while ancestor is not None and ancestor is not self.window:
+                    clip = clip.intersected(rectangle(ancestor))
+                    ancestor = ancestor.parentWidget()
+                hint = widget.minimumSizeHint()
+                explicit = widget.minimumSize()
+                embedded_editor = False
+                if isinstance(widget, QLineEdit):
+                    owner = widget.parentWidget()
+                    while owner is not None and owner is not pane:
+                        if isinstance(owner, (QAbstractSpinBox, QComboBox)):
+                            embedded_editor = True
+                            break
+                        owner = owner.parentWidget()
+                required_height = max(explicit.height(), hint.height())
+                required_width = max(explicit.width(), hint.width())
+                clipped = actual.isEmpty() or not clip.contains(actual)
+                undersized = not embedded_editor and isinstance(widget, interactive) and (
+                    actual.height() < required_height or actual.width() < required_width)
+                document_edges = None
+                document_clip = None
+                if isinstance(widget, (QPlainTextEdit, QTextEdit)) and widget.isReadOnly():
+                    document_edges = {}
+                    document_clip = coordinates(clip.intersected(rectangle(widget.viewport())))
+                    for edge, move in (('start', QTextCursor.Start), ('end', QTextCursor.End)):
+                        cursor = widget.textCursor()
+                        cursor.movePosition(move)
+                        caret = widget.cursorRect(cursor)
+                        caret.moveTopLeft(widget.viewport().mapTo(self.window, caret.topLeft()))
+                        document_edges[edge] = coordinates(caret)
+                controls.append({'pane': name, 'position': position,
+                                 'class': type(widget).__name__,
+                                 'object_name': widget.objectName(),
+                                 'rect': coordinates(actual), 'visible_clip': coordinates(clip),
+                                 'minimum_hint': [hint.width(), hint.height()],
+                                 'minimum': [explicit.width(), explicit.height()],
+                                 'embedded_editor': embedded_editor,
+                                 'acceptance_control': not embedded_editor,
+                                 'document_edges': document_edges,
+                                 'document_clip': document_clip,
+                                 'clipped': clipped, 'undersized': undersized})
+        settings = self.screen._settings_panel
+        return {'window_size': [self.window.width(), self.window.height()],
+                'device_pixel_ratio': self.window.devicePixelRatioF(),
+                'available_screen': coordinates(self.window.screen().availableGeometry()),
+                'body_sizes': self.screen._body_splitter.sizes(),
+                'runtime_sizes': splitter.sizes(),
+                'settings_rect': coordinates(rectangle(settings)),
+                'panes': panes, 'controls': controls}
+
+    def _save_layout_image(self, filename):
+        """Save the unmodified native window at its current dimensions.
+
+        :param filename: the screenshot filename beside the receipt.
+        """
+        image = self.window.grab()
+        if not image.save(str(self.output.parent / filename)):
+            raise RuntimeError('Could not retain the native application screenshot')
+        return [image.width(), image.height()]
+
+    def _start_layout_check(self):
+        """Retain completion geometry, then observe later event-loop turns."""
+        self._layout_previous = self._layout_snapshot()
+        self._layout_stable = 0
+        self._layout_started = time.monotonic()
+        self.record['layout'] = {
+            'window_resized_by_witness': False,
+            'completion_image': 'measure-complete.png',
+            'completion_image_size': self._save_layout_image('measure-complete.png'),
+            'samples': [self._layout_previous], 'status': 'settling'}
+        self.phase = 'settling-layout'
+        self._write()
+
+    def _poll_layout_check(self):
+        """Keep truthful settled/clipped evidence; never resize to obtain acceptance."""
+        snapshot = self._layout_snapshot()
+        self._layout_stable = self._layout_stable + 1 if snapshot == self._layout_previous else 0
+        self._layout_previous = snapshot
+        record = self.record['layout']
+        record['samples'].append(snapshot)
+        elapsed = time.monotonic() - self._layout_started
+        settled = self._layout_stable >= 2
+        if not settled and elapsed < 5:
+            self._write()
+            return
+        record.update(settled=settled, elapsed_seconds=elapsed,
+                      settled_image='measure-settled.png',
+                      settled_image_size=self._save_layout_image('measure-settled.png'))
+        violations = [control for control in snapshot['controls']
+                      if control.get('acceptance_control', True)
+                      and (control['clipped'] or control['undersized'])]
+        unchanged = snapshot['window_size'] == record['samples'][0]['window_size']
+        observed = {pane['name'] for pane in snapshot['panes']}
+        complete = observed == {'Console', 'System', 'Actions'} and all(
+            any(control['pane'] == name for control in snapshot['controls'])
+            for name in observed)
+        record.update(violations=violations, window_size_unchanged=unchanged,
+                      required_panes_observed=complete,
+                      status='passed' if settled and unchanged and complete
+                      and not violations else 'failed')
+        record['raw_viewport_status'] = record['status']
+        from PySide6.QtWidgets import QAbstractScrollArea, QScrollArea
+
+        viewport = getattr(self.screen, '_runtime_viewport', None)
+        if settled and unchanged and complete and isinstance(viewport, QScrollArea):
+            self._layout_scroll = viewport
+            self._layout_scroll_states = [
+                (scroll, [scroll.horizontalScrollBar().value(), scroll.verticalScrollBar().value()])
+                for scroll in [viewport] + viewport.findChildren(QAbstractScrollArea)]
+            self._layout_scroll_origin = [viewport.horizontalScrollBar().value(),
+                                          viewport.verticalScrollBar().value()]
+            self._layout_targets = []
+            self._layout_document_cursors = []
+            for control in snapshot['controls']:
+                if not control.get('acceptance_control', True):
+                    continue
+                if control.get('document_edges') is not None:
+                    document = self._control_for_layout_record(control)
+                    if document is not None:
+                        self._layout_document_cursors.append((document, document.textCursor()))
+                    self._layout_targets.extend(dict(control, document_edge=edge)
+                                                for edge in ('start', 'end'))
+                else:
+                    self._layout_targets.append(control)
+            self._layout_target = None
+            self._layout_reachability_started = time.monotonic()
+            self._layout_restoring = False
+            record['scroll_origin'] = self._layout_scroll_origin
+            record['scroll_origins'] = [dict(index=index, name=scroll.objectName(), position=position)
+                                        for index, (scroll, position)
+                                        in enumerate(self._layout_scroll_states)]
+            record['reachability'] = []
+            record['status'] = 'checking-reachability'
+            self.phase = 'checking-layout-reachability'
+            self._write()
+            return
+        self._finish_layout_check()
+
+    def _control_for_layout_record(self, record):
+        """Resolve a measured control without inventing a replacement widget.
+
+        :param record: the pane, child position, class, and name measured earlier.
+        :returns: the same observable control, or ``None`` if it disappeared.
+        """
+        split = self.screen._runtime_splitter
+        for index in range(split.count()):
+            pane = split.widget(index)
+            registered = split._pane_of(pane)
+            name = registered.name if registered is not None else pane.objectName()
+            if name != record['pane']:
+                continue
+            children = pane.findChildren(QObject)
+            position = record['position']
+            if position >= len(children):
+                return None
+            widget = children[position]
+            if (type(widget).__name__ == record['class']
+                    and widget.objectName() == record['object_name']
+                    and widget.isVisibleTo(pane)):
+                return widget
+        return None
+
+    def _scroll_layout_target(self, widget, record):
+        """Drive each real enclosing scroll area, starting with the innermost.
+
+        :param widget: the measured control or read-only document.
+        :param record: its geometry identity and optional document endpoint.
+        """
+        from PySide6.QtGui import QTextCursor
+        from PySide6.QtWidgets import QScrollArea
+
+        edge = record.get('document_edge')
+        if edge is not None:
+            cursor = widget.textCursor()
+            cursor.movePosition(QTextCursor.Start if edge == 'start' else QTextCursor.End)
+            widget.setTextCursor(cursor)
+            widget.ensureCursorVisible()
+        ancestor = widget.parentWidget()
+        while ancestor is not None and ancestor is not self.window:
+            if isinstance(ancestor, QScrollArea):
+                if edge is None:
+                    ancestor.ensureWidgetVisible(widget, 0, 0)
+                else:
+                    cursor = widget.textCursor()
+                    cursor.movePosition(QTextCursor.Start if edge == 'start' else QTextCursor.End)
+                    caret = widget.cursorRect(cursor)
+                    point = widget.viewport().mapTo(ancestor.widget(), caret.center())
+                    ancestor.ensureVisible(point.x(), point.y(), (caret.width() + 1) // 2 + 2,
+                                           (caret.height() + 1) // 2 + 2)
+            ancestor = ancestor.parentWidget()
+
+    def _poll_layout_reachability(self):
+        """Actually scroll each control into view and retain its settled rectangle."""
+        record = self.record['layout']
+        if time.monotonic() - self._layout_reachability_started > 120:
+            record.update(status='failed', reachability_timeout=True)
+            self._finish_layout_check()
+            return
+        viewport = self._layout_scroll
+        if self._layout_target is None and not self._layout_restoring:
+            if self._layout_targets:
+                before = self._layout_targets.pop(0)
+                widget = self._control_for_layout_record(before)
+                if widget is None or not viewport.isAncestorOf(widget):
+                    record['reachability'].append({'before': before, 'reachable': False,
+                                                   'error': 'Observed control disappeared'})
+                    self._write()
+                    return
+                self._scroll_layout_target(widget, before)
+                self._layout_target = before
+            else:
+                for document, cursor in self._layout_document_cursors:
+                    document.setTextCursor(cursor)
+                for scroll, origin in self._layout_scroll_states:
+                    scroll.horizontalScrollBar().setValue(origin[0])
+                    scroll.verticalScrollBar().setValue(origin[1])
+                self._layout_restoring = True
+            self._layout_reach_previous = None
+            self._layout_target_started = time.monotonic()
+            return
+        snapshot = self._layout_snapshot()
+        unchanged = snapshot['window_size'] == record['samples'][0]['window_size']
+        position = [viewport.horizontalScrollBar().value(), viewport.verticalScrollBar().value()]
+        positions = [[scroll.horizontalScrollBar().value(), scroll.verticalScrollBar().value()]
+                     for scroll, _origin in self._layout_scroll_states]
+        if self._layout_restoring:
+            observed = {'snapshot': snapshot, 'scroll_position': position,
+                        'scroll_positions': positions}
+        else:
+            before = self._layout_target
+            after = next((control for control in snapshot['controls']
+                          if all(control[key] == before[key]
+                                 for key in ('pane', 'position', 'class', 'object_name'))), None)
+            observed = {'after': after, 'scroll_position': position,
+                        'scroll_positions': positions,
+                        'window_size': snapshot['window_size']}
+        settled = observed == self._layout_reach_previous
+        self._layout_reach_previous = observed
+        if not settled and time.monotonic() - self._layout_target_started < 3:
+            return
+        if self._layout_restoring:
+            cursors_restored = all(document.textCursor().position() == cursor.position()
+                                   and document.textCursor().anchor() == cursor.anchor()
+                                   for document, cursor in self._layout_document_cursors)
+            restored = settled and unchanged and cursors_restored and positions == [
+                origin for _scroll, origin in self._layout_scroll_states]
+            record.update(restored=observed, scroll_origin_restored=restored,
+                          document_cursors_restored=cursors_restored,
+                          restored_image='measure-restored.png',
+                          restored_image_size=self._save_layout_image('measure-restored.png'),
+                          acceptance_scope='actual scroll reachability of controls and read-only document endpoints',
+                          status='passed' if restored and record['reachability'] and all(
+                              row['reachable'] for row in record['reachability']) else 'failed')
+            self._finish_layout_check()
+            return
+        contained = after is not None and not after['clipped'] and not after['undersized']
+        if after is not None and before.get('document_edge') is not None:
+            from PySide6.QtCore import QRect
+
+            edge = after['document_edges'][before['document_edge']]
+            contained = QRect(*after['document_clip']).contains(QRect(*edge))
+            observed['document_endpoint'] = edge
+        row = dict(before=before, **observed, settled=settled,
+                   window_size_unchanged=unchanged,
+                   reachable=bool(settled and unchanged and contained))
+        if before['clipped'] or not row['reachable']:
+            filename = f"measure-scroll-{len(record['reachability']) + 1:03d}.png"
+            row.update(image=filename, image_size=self._save_layout_image(filename))
+        record['reachability'].append(row)
+        self._layout_target = None
+        self._write()
+
+    def _finish_layout_check(self):
+        """Finish visual acceptance separately from the retained scientific result."""
+        record = self.record['layout']
+        self.record['visual_layout_status'] = record['status']
+        self._write()
+        if record['status'] != 'passed':
+            raise RuntimeError('Installed UI layout did not settle with fully contained controls; '
+                               'completion and settled geometry/screenshots were retained')
+        if os.environ.get('SPACR_NATIVE_MENU_SMOKE') == '1':
+            self._start_native_menu_check()
+            return
+        self.record['status'] = 'passed'
+        self._finish(0)
 
     @staticmethod
     def _cocoa_message(receiver, selector, result_type, *arguments):
@@ -846,13 +1175,14 @@ class _DistributionSmokeController(QObject):
         return function(receiver, method, *(value for _, value in arguments))
 
     def _start_native_menu_check(self):
-        """Locate Preferences and Quit in Cocoa's actual application menu."""
+        """Locate actual Mac actions in the configured window or system menu."""
         import ctypes
 
         if sys.platform != 'darwin' or self.app.platformName() != 'cocoa':
             raise RuntimeError('Native menu acceptance requires macOS Cocoa')
         if not self.window.menuBar().isNativeMenuBar():
-            raise RuntimeError('The application is not using its native menu bar')
+            self._start_window_menu_check()
+            return
         library = ctypes.CDLL('/usr/lib/libobjc.A.dylib')
         library.objc_getClass.argtypes = [ctypes.c_char_p]
         library.objc_getClass.restype = ctypes.c_void_p
@@ -895,18 +1225,88 @@ class _DistributionSmokeController(QObject):
         self._native_menu_started = time.monotonic()
         self.record['native_menu'] = dict(application_menu=text(first, 'title'),
             items=rows, selected=selected, preferences_opened=False,
-            preferences_closed=False, quit_dispatched=False, quit_observed=False)
+            preferences_closed=False, quit_dispatched=False, quit_observed=False,
+            mode='system-menu-on-cocoa')
         self.phase = 'native-menu-opening'
         self._write()
         QTimer.singleShot(0, self._invoke_native_preferences)
 
+    def _start_window_menu_check(self):
+        """Verify the requested unified Mac bar and its visible window controls."""
+        from PySide6.QtCore import Qt
+        from PySide6.QtGui import QAction
+        from PySide6.QtWidgets import QMenu, QToolButton
+
+        bar = self.window.menuBar()
+        if not bar.isVisible() or bar.visibleRegion().isEmpty():
+            raise RuntimeError('The in-window Mac menu bar is not visible')
+        menus = [menu for menu in bar.findChildren(QMenu)
+                 if menu.title().replace('&', '') == 'spaCR']
+        if len(menus) != 1:
+            raise RuntimeError('The Mac window does not have one spaCR menu')
+        menu = menus[0]
+        actions = {'preferences': self.window._act_preferences,
+                   'quit': self.window._act_quit}
+        roles = {'preferences': QAction.MenuRole.PreferencesRole,
+                 'quit': QAction.MenuRole.QuitRole}
+        for label, action in actions.items():
+            if (action not in menu.actions() or action.menuRole() != roles[label]
+                    or not action.isEnabled() or not action.isVisible()):
+                raise RuntimeError(f'The Mac window lacks its actual {label} action')
+        corner = bar.cornerWidget(Qt.Corner.TopRightCorner)
+        controls = {}
+        for name in ('MinimiseWindow', 'FullScreenToggle', 'CloseWindow'):
+            button = corner.findChild(QToolButton, name) if corner else None
+            if (button is None or not button.isVisible() or not button.isEnabled()
+                    or not button.visibleRegion().contains(button.rect())):
+                raise RuntimeError(f'The Mac window control is not fully visible: {name}')
+            controls[name] = [button.width(), button.height()]
+        self._window_menu = menu
+        self._window_menu_actions = actions
+        self._native_menu_started = time.monotonic()
+        self.record['native_menu'] = dict(mode='in-window-on-cocoa',
+            application_menu=menu.title(), window_controls=controls,
+            items=[dict(title=action.text(), role=action.menuRole().name)
+                   for action in menu.actions() if not action.isSeparator()],
+            preferences_opened=False, preferences_closed=False,
+            quit_dispatched=False, quit_observed=False)
+        self.phase = 'native-menu-opening'
+        self._write()
+        QTimer.singleShot(0, self._invoke_native_preferences)
+
+    def _click_window_menu_action(self, label):
+        """Click the real bar and popup action using their actual visible geometry.
+
+        :param label: verified ``preferences`` or ``quit`` action to click.
+        """
+        from PySide6.QtCore import Qt
+        from PySide6.QtTest import QTest
+
+        bar, menu = self.window.menuBar(), self._window_menu
+        action = self._window_menu_actions[label]
+        rectangle = bar.actionGeometry(menu.menuAction())
+        if rectangle.isEmpty() or not bar.rect().contains(rectangle):
+            raise RuntimeError('The actual spaCR menu entry is outside its bar')
+        QTest.mouseClick(bar, Qt.MouseButton.LeftButton, pos=rectangle.center())
+        if not menu.isVisible():
+            raise RuntimeError('Clicking the Mac menu bar did not open spaCR')
+        rectangle = menu.actionGeometry(action)
+        if rectangle.isEmpty() or not menu.rect().contains(rectangle):
+            raise RuntimeError(f'The actual {label} menu action is outside its popup')
+        if not menu.grab().save(str(self.output.parent / f'native-menu-{label}.png')):
+            raise RuntimeError('Could not retain the actual Mac menu screenshot')
+        QTest.mouseClick(menu, Qt.MouseButton.LeftButton, pos=rectangle.center())
+
     def _invoke_native_preferences(self):
-        """Dispatch the Cocoa menu item and let Qt open its real modal dialog."""
+        """Activate the actual Mac Preferences item and observe its modal dialog."""
         import ctypes
 
         try:
-            self._cocoa_message(self._native_menu, 'performActionForItemAtIndex:', None,
-                                (ctypes.c_long, self._native_actions['preferences']))
+            if self.record['native_menu'].get('mode') == 'in-window-on-cocoa':
+                self._click_window_menu_action('preferences')
+            else:
+                self._cocoa_message(self._native_menu, 'performActionForItemAtIndex:', None,
+                                    (ctypes.c_long, self._native_actions['preferences']))
             if self.phase != 'native-menu-closing':
                 raise RuntimeError('Native Preferences did not open the verified dialog')
             self.record['native_menu']['preferences_closed'] = True
@@ -917,7 +1317,7 @@ class _DistributionSmokeController(QObject):
     def _poll_native_menu_check(self):
         """Observe actual Preferences, then terminate through the native Quit item."""
         import ctypes
-        from .preferences import PreferencesDialog
+        from .preferences import _preferences_window_class
 
         if time.monotonic() - self._native_menu_started > 30:
             raise RuntimeError('Native menu acceptance exceeded its deadline')
@@ -925,7 +1325,7 @@ class _DistributionSmokeController(QObject):
             dialog = self.app.activeModalWidget()
             if dialog is None:
                 return
-            if not isinstance(dialog, PreferencesDialog) or not dialog.isVisible():
+            if not isinstance(dialog, _preferences_window_class()) or not dialog.isVisible():
                 raise RuntimeError('Native Preferences opened a different dialog')
             if not dialog.grab().save(str(self.output.parent / 'native-preferences.png')):
                 raise RuntimeError('Could not retain the actual Preferences screenshot')
@@ -939,8 +1339,11 @@ class _DistributionSmokeController(QObject):
             self.phase = 'native-menu-quitting'
             self.record['native_menu']['quit_dispatched'] = True
             self._write()
-            self._cocoa_message(self._native_menu, 'performActionForItemAtIndex:', None,
-                                (ctypes.c_long, self._native_actions['quit']))
+            if self.record['native_menu'].get('mode') == 'in-window-on-cocoa':
+                self._click_window_menu_action('quit')
+            else:
+                self._cocoa_message(self._native_menu, 'performActionForItemAtIndex:', None,
+                                    (ctypes.c_long, self._native_actions['quit']))
 
     @staticmethod
     def _read_result(database):
