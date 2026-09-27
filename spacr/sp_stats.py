@@ -1349,6 +1349,7 @@ def write_hit_report(result: ArrayedHitResult, out_dir, *,
 
     from .figures.plates import plate_figure_name
     from .plot import save_figure
+    from .tabular import write_table
 
     os.makedirs(out_dir, exist_ok=True)
     written: Dict[str, str] = {}
@@ -1359,7 +1360,7 @@ def write_hit_report(result: ArrayedHitResult, out_dir, *,
         tables["hit_treatments"] = result.treatments
     for name, table in tables.items():
         path = os.path.join(str(out_dir), f"{name}.csv")
-        table.to_csv(path, index=False)
+        write_table(table, path, canonicalise=False)
         written[name] = path
     for method in methods:
         figure, panel = hit_heatmap(result, method, target=target)

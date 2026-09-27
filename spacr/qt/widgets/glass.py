@@ -254,6 +254,43 @@ def _ancestors(widget: QWidget, stop: QWidget):
         parent = parent.parentWidget()
 
 
+def _glass_a_part_that_came_later(dialog: QWidget, part: QWidget) -> int:
+    """Give ``part`` what :func:`glass` gave the rest of ``dialog``.
+
+    For a piece put into a dialog after it was glassed -- a Preferences page
+    that waited outside the window until its tab was chosen. :func:`glass`
+    walks the dialog once, so a piece that was not in it then has opaque
+    containers over the card and buttons that do not send the rim round.
+    What is done per widget as it is polished (the resize edges' mouse
+    tracking) needs nothing here.
+
+    :param dialog: the glassed dialog; one that is not glassed is left alone.
+    :param part: the widget just put into it, with everything under it.
+    :returns: how many containers were made transparent.
+    """
+    if not dialog.property(GLASSED):
+        return 0
+    cleared = clear_the_containers(part)
+    if not isinstance(part, OPAQUE):
+        try:
+            from ..theme import make_transparent
+
+            make_transparent(part)
+            cleared += 1
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("a late part would not go transparent", exc_info=True)
+    try:
+        from .setup_card import SetupCard
+
+        cards = dialog.findChildren(
+            SetupCard, options=Qt.FindChildOption.FindDirectChildrenOnly)
+    except Exception:                                        # noqa: BLE001
+        cards = []
+    if cards:
+        spin_on_every_button(part, cards[0])
+    return cleared
+
+
 #: How far inside an edge a press still counts as a grab, in pixels.
 #:
 #: Frameless windows have no resize handles: the ones a user reaches for

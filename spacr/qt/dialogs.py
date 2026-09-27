@@ -436,9 +436,9 @@ def _qts_own_dialogs():
     BY TYPE, NOT BY MODULE, and the difference is Preferences. The first
     draft asked whether the class came from a ``spacr`` module, which
     reads well and excludes the most important settings window in the
-    application: ``PreferencesDialog`` is a factory that builds a PLAIN
-    ``QDialog`` and fills it, so its class is Qt's while every one of its
-    thirty controls is spaCR's. Seven more windows are built the same way
+    application: ``PreferencesDialog`` was a factory that built a PLAIN
+    ``QDialog`` and filled it, so its class was Qt's while every one of its
+    thirty controls was spaCR's. Seven more windows are built the same way
     -- the shortcut sheet, the settings diff, the sweep panel's editor,
     the montage view's and the drag-and-drop prompts.
 

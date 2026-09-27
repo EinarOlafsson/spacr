@@ -39,6 +39,16 @@ Consumers of the journal:
   when present so bug reports are self-contained.
 * Home screen "Recent runs" list — enumerated from
   :func:`recent_runs` newest first.
+
+Beside the runs, the journal keeps two records for blinded work.
+:func:`start_blinding` writes a blinding key (coded names and a shuffled
+order) to ``~/.spacr/blinding`` and :func:`unblind` logs who opened it and
+when. :func:`lock_analysis` freezes an analysis plan, hashed and timestamped,
+in ``~/.spacr/analysis_locks``; every later run of the same pipeline on the
+same ``src`` is checked against it by :func:`check_analysis_lock`, and the
+verdict is written into that run's ``manifest.json`` under
+``analysis_lock``, with any difference also listed in
+``provenance_warnings``.
 """
 from __future__ import annotations
 
@@ -980,6 +990,9 @@ class Run:
             "n_settings":    len(self.settings),
             "traceback":     self.error_traceback or None,
         }
+        lock = getattr(self, "_analysis_lock", None)
+        if lock:
+            manifest["analysis_lock"] = lock
         _atomic_write_text(
             self.dir / "manifest.json",
             json.dumps(manifest, indent=2, default=str, sort_keys=True),
@@ -1078,6 +1091,7 @@ def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
     run = Run(app_key=app_key, settings=dict(settings or {}),
                 dir=_new_run_dir(app_key))
     run.environment = _env_snapshot()
+    _check_lock_for_run(run)
     run._write_settings()
     run._capture_initial_provenance()
     run._write_manifest()
@@ -1974,3 +1988,426 @@ def format_run_diff(diff: Dict[str, Any], max_drift_names: int = 6) -> str:
     else:
         lines.append("Schema drift: none — both runs share the same keys")
     return "\n".join(lines)
+
+
+_BLIND_CODE_PREFIX = "B"
+_LOCK_IGNORED_KEYS = frozenset({"hash_inputs"})
+_LOCK_FILE_KEY_PARTS = ("model", "gate", "checkpoint", "weights", "threshold")
+_LOCK_STATUS_WORDS = {
+    "verified": "verified, the run matches it",
+    "deviation": "DEVIATION, changed since the lock",
+    "post_hoc": "POST-HOC, changed after the key was unblinded",
+    "tampered": "TAMPERED, the lock file no longer matches its own hash",
+    "not_preregistered": "NOT PREREGISTERED, locked after the key had "
+                         "been unblinded",
+}
+
+
+def _blinding_root() -> Path:
+    """Where blinding keys and their logs live, beside the run journal."""
+    root = runs_root().parent / "blinding"
+    root.mkdir(parents=True, exist_ok=True)
+    return root
+
+
+def _locks_root() -> Path:
+    """Where preregistered analysis locks live, beside the run journal."""
+    root = runs_root().parent / "analysis_locks"
+    root.mkdir(parents=True, exist_ok=True)
+    return root
+
+
+def _who() -> str:
+    """``user@host`` for the person at this computer, as far as it is known."""
+    try:
+        import getpass
+        user = getpass.getuser()
+    except Exception:
+        user = os.environ.get("USER") or os.environ.get("USERNAME") or ""
+    host = platform.node() or ""
+    return f"{user or 'unknown'}@{host}" if host else (user or "unknown")
+
+
+def _utc_now() -> str:
+    """The current time as an ISO 8601 UTC string, to the microsecond."""
+    return datetime.now(timezone.utc).isoformat(timespec="microseconds")
+
+
+def _record_id() -> str:
+    """A sortable, unique name for a key or a lock file."""
+    return (datetime.now(timezone.utc).strftime("%Y-%m-%d_%H%M%S_%f")
+            + "_" + uuid.uuid4().hex[:8])
+
+
+def _scope_path(src: Any) -> str:
+    """``src`` as an absolute, normalised path, or empty when there is none."""
+    text = str(src or "").strip()
+    if not text:
+        return ""
+    return os.path.normcase(os.path.abspath(os.path.expanduser(text)))
+
+
+def _paths_overlap(a: str, b: str) -> bool:
+    """Whether two scope paths are the same folder or one holds the other."""
+    if not a or not b:
+        return False
+    if a == b:
+        return True
+    return a.startswith(b.rstrip(os.sep) + os.sep) or b.startswith(
+        a.rstrip(os.sep) + os.sep)
+
+
+def _append_blinding_event(key_id: str, event: Dict[str, Any]) -> None:
+    """Append one event to a key's log, one JSON object per line."""
+    path = _blinding_root() / f"{key_id}.log.jsonl"
+    with open(path, "a", encoding="utf-8") as handle:
+        handle.write(json.dumps(event, sort_keys=True, default=str) + "\n")
+
+
+def _blinding_events(key_id: str) -> List[Dict[str, Any]]:
+    """Every event recorded for a blinding key, oldest first.
+
+    :param key_id: the key's id, as :func:`start_blinding` returned it.
+    :returns: dicts with ``event`` (``blinded``, ``unblinded`` or
+        ``closed``), ``utc`` and ``who``, plus whatever the event carried;
+        an empty list for a key without a log.
+    """
+    path = _blinding_root() / f"{Path(str(key_id)).name}.log.jsonl"
+    events: List[Dict[str, Any]] = []
+    if not path.is_file():
+        return events
+    for line in path.read_text(encoding="utf-8").splitlines():
+        try:
+            event = json.loads(line)
+        except ValueError:
+            continue
+        if isinstance(event, dict):
+            events.append(event)
+    return events
+
+
+def _read_blinding_key(key_id: str) -> Dict[str, Any]:
+    """The stored key, or ``FileNotFoundError`` naming the id."""
+    path = _blinding_root() / f"{Path(str(key_id)).name}.json"
+    if not path.is_file():
+        raise FileNotFoundError(f"no blinding key {key_id!r} in {path.parent}")
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def start_blinding(items: Iterable[Any], *, scope: str, src: Any = "",
+                   seed: Optional[int] = None) -> Dict[str, Any]:
+    """Shuffle ``items`` under coded names and keep the key away from them.
+
+    Blind scoring: the person scoring sees each item only by its code
+    (``B0001``, ``B0002`` and so on, numbered in the shuffled order) and in
+    that order, so neither a name nor its neighbours say which plate, well
+    or condition it came from. The key that maps codes back to items is
+    written to ``~/.spacr/blinding/<key id>.json``, outside the data
+    folder, and every later event on it (unblinding, closing) is appended
+    to ``<key id>.log.jsonl`` with who did it and when.
+
+    :param items: the things being scored, such as crop paths or image
+        files; repeats are kept once, in first-seen order.
+    :param scope: what is being scored, such as ``"annotate"``; stored with
+        the key.
+    :param src: the experiment folder the items belong to. Analysis locks
+        on the same folder read this key's unblinding record.
+    :param seed: the shuffle's seed; a random one is drawn and stored when
+        omitted, so the order can be rebuilt from the key.
+    :returns: ``key_id``, ``order`` (the items, shuffled) and ``codes``
+        (``{item: code}``).
+    """
+    order = list(dict.fromkeys(str(item) for item in items))
+    if seed is None:
+        seed = random.SystemRandom().randrange(2 ** 32)
+    random.Random(int(seed)).shuffle(order)
+    width = max(4, len(str(len(order))))
+    codes = {item: f"{_BLIND_CODE_PREFIX}{index + 1:0{width}d}"
+             for index, item in enumerate(order)}
+    key_id = _record_id()
+    record = {
+        "key_id": key_id,
+        "scope": str(scope),
+        "src": _scope_path(src),
+        "created_utc": _utc_now(),
+        "created_by": _who(),
+        "seed": int(seed),
+        "n_items": len(order),
+        "order": order,
+        "codes": codes,
+    }
+    _atomic_write_text(_blinding_root() / f"{key_id}.json",
+                       json.dumps(record, indent=1, sort_keys=True))
+    _append_blinding_event(key_id, {
+        "event": "blinded", "utc": record["created_utc"],
+        "who": record["created_by"], "scope": record["scope"],
+        "src": record["src"], "n_items": len(order)})
+    return {"key_id": key_id, "order": order, "codes": codes}
+
+
+def unblind(key_id: str, *, reason: str = "") -> Dict[str, str]:
+    """Open a blinding key, and record who opened it and when.
+
+    The record is appended to the key's log before the key is returned, so
+    the identities cannot be read through this call without leaving the
+    record. An analysis lock on the same folder treats a difference found
+    after this moment as post-hoc.
+
+    :param key_id: the key's id, as :func:`start_blinding` returned it.
+    :param reason: why it was opened; stored with the record.
+    :returns: ``{code: item}``.
+    :raises FileNotFoundError: when there is no such key.
+    """
+    record = _read_blinding_key(key_id)
+    _append_blinding_event(record["key_id"], {
+        "event": "unblinded", "utc": _utc_now(), "who": _who(),
+        "reason": str(reason or ""), "scope": record.get("scope", ""),
+        "src": record.get("src", "")})
+    return {code: item for item, code in (record.get("codes") or {}).items()}
+
+
+def _close_blinding(key_id: str, *, reason: str = "") -> None:
+    """Record that a blinded session ended without opening the key."""
+    try:
+        record = _read_blinding_key(key_id)
+    except (FileNotFoundError, ValueError):
+        return
+    _append_blinding_event(record["key_id"], {
+        "event": "closed", "utc": _utc_now(), "who": _who(),
+        "reason": str(reason or ""), "src": record.get("src", "")})
+
+
+def _unblinding_times(src: Any) -> List[str]:
+    """When any key on ``src``, or on a folder in or around it, was unblinded.
+
+    :param src: the experiment folder.
+    :returns: ISO UTC times, oldest first.
+    """
+    scope = _scope_path(src)
+    times: List[str] = []
+    if not scope:
+        return times
+    for path in sorted(_blinding_root().glob("*.log.jsonl")):
+        key_id = path.name[:-len(".log.jsonl")]
+        for event in _blinding_events(key_id):
+            if (event.get("event") == "unblinded"
+                    and _paths_overlap(scope, str(event.get("src") or ""))):
+                times.append(str(event.get("utc") or ""))
+    return sorted(t for t in times if t)
+
+
+def _lock_settings(settings: Dict[str, Any]) -> Dict[str, Any]:
+    """The settings a lock records: JSON-safe, without run-only switches."""
+    kept = {str(k): v for k, v in (settings or {}).items()
+            if not str(k).startswith("_") and str(k) not in _LOCK_IGNORED_KEYS}
+    return json.loads(json.dumps(kept, sort_keys=True, default=str))
+
+
+def _lock_files(settings: Dict[str, Any], extra: Iterable[Any]) -> Dict[str, str]:
+    """Full SHA-256 of every model, gate or threshold file the plan names.
+
+    :param settings: the settings; a value is hashed when its key names a
+        model, gate, checkpoint, weights or threshold and it is a file.
+    :param extra: further file paths the plan names outright.
+    :returns: ``{absolute path: sha256}``.
+    """
+    paths = []
+    for key, value in (settings or {}).items():
+        lowered = str(key).lower()
+        if not any(part in lowered for part in _LOCK_FILE_KEY_PARTS):
+            continue
+        for candidate in (value if isinstance(value, (list, tuple))
+                          else [value]):
+            if isinstance(candidate, (str, Path)) and str(candidate).strip():
+                paths.append(str(candidate))
+    paths.extend(str(p) for p in (extra or ()) if str(p or "").strip())
+    files: Dict[str, str] = {}
+    for text in paths:
+        path = Path(os.path.expanduser(text))
+        try:
+            if not path.is_file():
+                continue
+        except OSError:
+            continue
+        digest = hash_file(path, full=True)
+        if digest:
+            files[str(path.resolve(strict=False))] = digest
+    return files
+
+
+def _lock_digest(record: Dict[str, Any]) -> str:
+    """The hash a lock carries: over everything in it but the hash itself."""
+    return _json_digest({k: v for k, v in record.items() if k != "sha256"})
+
+
+def lock_analysis(settings: Dict[str, Any], *, app_key: str,
+                  hypotheses: str = "", thresholds: Any = None,
+                  files: Iterable[Any] = (), note: str = "") -> Dict[str, Any]:
+    """Freeze an analysis plan before its results are seen.
+
+    The settings, the stated hypotheses and thresholds, and the SHA-256 of
+    every model, gate or threshold file the settings name (plus ``files``)
+    are written with the time and the user to
+    ``~/.spacr/analysis_locks/<lock id>.json`` and hashed. From then on
+    every journalled run of ``app_key`` on the same ``src`` is checked
+    against the newest lock by :func:`check_analysis_lock`; the verdict goes
+    into the run's ``manifest.json``, and a difference is listed in the
+    manifest's warnings, the report and the methods text.
+
+    A lock made after a blinding key on the same folder was unblinded is
+    marked as such, because it was not made blind.
+
+    :param settings: the settings the analysis will run with.
+    :param app_key: the pipeline it will run in, such as ``"classify"``.
+    :param hypotheses: the hypotheses, in words.
+    :param thresholds: the decision thresholds and gates, in any
+        JSON-compatible form.
+    :param files: further files the plan depends on.
+    :param note: anything else worth keeping with the plan.
+    :returns: the stored lock, including ``lock_id``, ``locked_utc`` and
+        ``sha256``.
+    """
+    src = _scope_path((settings or {}).get("src"))
+    record = {
+        "schema": 1,
+        "lock_id": _record_id(),
+        "app_key": str(app_key),
+        "src": src,
+        "locked_utc": _utc_now(),
+        "locked_by": _who(),
+        "settings": _lock_settings(settings),
+        "plan": json.loads(json.dumps({
+            "hypotheses": str(hypotheses or ""),
+            "thresholds": thresholds,
+            "note": str(note or ""),
+        }, sort_keys=True, default=str)),
+        "files": _lock_files(settings, files),
+        "unblinded_before_lock": _unblinding_times(src),
+    }
+    record["sha256"] = _lock_digest(record)
+    _atomic_write_text(_locks_root() / f"{record['lock_id']}.json",
+                       json.dumps(record, indent=1, sort_keys=True))
+    return record
+
+
+def _find_lock(app_key: str, src: Any) -> Optional[Dict[str, Any]]:
+    """The newest lock for ``app_key`` on ``src``, or ``None``."""
+    scope = _scope_path(src)
+    newest = None
+    for path in sorted(_locks_root().glob("*.json")):
+        try:
+            record = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if not isinstance(record, dict):
+            continue
+        if (str(record.get("app_key")) == str(app_key)
+                and str(record.get("src") or "") == scope):
+            newest = record
+    return newest
+
+
+def _lock_deviations(record: Dict[str, Any],
+                     settings: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """What differs between a lock and the settings of a run now."""
+    locked = record.get("settings") or {}
+    current = _lock_settings(settings)
+    changed = []
+    for key in sorted(set(locked) | set(current)):
+        before, after = locked.get(key), current.get(key)
+        if values_equal(before, after):
+            continue
+        changed.append({"key": key, "locked": before, "now": after})
+    for path, digest in sorted((record.get("files") or {}).items()):
+        now = hash_file(Path(path), full=True) if Path(path).is_file() else None
+        if now != digest:
+            changed.append({"key": f"file:{path}",
+                            "locked": str(digest)[:16],
+                            "now": (now or "missing")[:16]})
+    return changed
+
+
+def _lock_summary(result: Dict[str, Any]) -> str:
+    """One sentence saying how a run stands against its lock."""
+    status = result.get("status", "unlocked")
+    if status == "unlocked":
+        return "No analysis lock applies to this run."
+    text = (f"Analysis lock {str(result.get('sha256') or '')[:16]} "
+            f"(locked {result.get('locked_utc')}): "
+            f"{_LOCK_STATUS_WORDS.get(status, status)}")
+    if result.get("unblinded_utc"):
+        text += f" at {result['unblinded_utc']}"
+    names = [str(d.get("key")) for d in result.get("deviations") or ()]
+    if names:
+        text += ": " + ", ".join(names[:8]) + (" …" if len(names) > 8 else "")
+    return text + "."
+
+
+def check_analysis_lock(settings: Dict[str, Any], *, app_key: str,
+                        lock: Optional[Dict[str, Any]] = None
+                        ) -> Dict[str, Any]:
+    """Check a run's settings against its preregistered analysis lock.
+
+    The lock is the newest one :func:`lock_analysis` made for ``app_key``
+    on the settings' ``src``, unless one is passed. The lock is first
+    checked against its own hash, so an edited lock file is caught; then
+    every setting and every hashed file is compared.
+
+    :param settings: the settings of the run being checked.
+    :param app_key: the pipeline running them.
+    :param lock: a lock record to check against instead of the newest one.
+    :returns: ``status`` -- ``"unlocked"`` (no lock applies),
+        ``"verified"`` (nothing changed), ``"deviation"`` (changed, and no
+        key on the folder has been unblinded since the lock),
+        ``"post_hoc"`` (changed, and a key on the folder was unblinded
+        after the lock), ``"not_preregistered"`` (unchanged, but the lock
+        was made after an unblinding) or ``"tampered"`` (the lock no
+        longer matches its hash) -- with ``lock_id``, ``sha256``,
+        ``locked_utc``, ``locked_by``, ``deviations`` (``key``, ``locked``,
+        ``now``), ``unblinded_utc`` and a one-sentence ``summary``.
+    """
+    record = lock if lock is not None else _find_lock(
+        app_key, (settings or {}).get("src"))
+    if not record:
+        result: Dict[str, Any] = {"status": "unlocked", "deviations": []}
+        result["summary"] = _lock_summary(result)
+        return result
+    deviations = _lock_deviations(record, settings)
+    locked_utc = str(record.get("locked_utc") or "")
+    after = [t for t in _unblinding_times(record.get("src"))
+             if t > locked_utc]
+    if record.get("sha256") != _lock_digest(record):
+        status = "tampered"
+    elif deviations and after:
+        status = "post_hoc"
+    elif deviations:
+        status = "deviation"
+    elif record.get("unblinded_before_lock"):
+        status = "not_preregistered"
+    else:
+        status = "verified"
+    result = {
+        "status": status,
+        "lock_id": record.get("lock_id"),
+        "sha256": record.get("sha256"),
+        "locked_utc": locked_utc,
+        "locked_by": record.get("locked_by"),
+        "deviations": deviations,
+        "unblinded_utc": after[0] if after else None,
+    }
+    result["summary"] = _lock_summary(result)
+    return result
+
+
+def _check_lock_for_run(run: "Run") -> None:
+    """Stamp a run with its lock verdict; a failed check never fails a run."""
+    try:
+        result = check_analysis_lock(run.settings, app_key=run.app_key)
+    except Exception as exc:
+        run.provenance_warnings.append(f"analysis lock check failed: {exc}")
+        return
+    if result.get("status") == "unlocked":
+        return
+    run._analysis_lock = result
+    if result.get("status") != "verified":
+        run.provenance_warnings.append(result["summary"])

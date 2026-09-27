@@ -253,6 +253,35 @@ def test_the_real_preferences_dialog_gets_it_too(glassed):
         dialog.deleteLater()
 
 
+def test_a_preferences_tab_chosen_later_is_glassed_like_the_first(glassed):
+    """Since 284 a tab's page waits outside the window until its tab is
+    chosen, so the glass's one walk of the dialog at its show missed it."""
+    from PySide6.QtWidgets import QPushButton, QTabWidget, QWidget
+
+    from spacr.qt.preferences import PreferencesDialog
+    from spacr.qt.theme import TRANSPARENT_PROPERTY
+    from spacr.qt.widgets.glass import SPINS
+
+    dialog = PreferencesDialog()
+    page = dialog.findChild(QWidget, "PreferencesTabPerformance")
+    quit_button = dialog.findChild(QPushButton, "QuitSpacrButton")
+    dialog.resize(700, 620)
+    dialog.show()
+    try:
+        for _ in range(8):
+            glassed.processEvents()
+        assert page.property(TRANSPARENT_PROPERTY) is None
+        tabs = dialog.findChild(QTabWidget, "PreferencesTabs")
+        tabs.setCurrentIndex(
+            [tabs.tabText(i) for i in range(tabs.count())].index(
+                "Performance"))
+        assert dialog.isAncestorOf(page)
+        assert page.property(TRANSPARENT_PROPERTY) is True
+        assert quit_button.property(SPINS) is True
+    finally:
+        dialog.deleteLater()
+
+
 def test_the_backdrop_honours_the_ambient_preference(glassed, monkeypatch):
     """Somebody who turned the animated background off on the module
     screens has not asked for it back in every popup. The card and the rim

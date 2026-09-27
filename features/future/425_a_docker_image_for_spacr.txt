@@ -4,7 +4,12 @@ A DOCKER IMAGE FOR spaCR
 
 Filed as 416 on 2026-09-18; renumbered 2026-09-19 because 416 also names features/new/416_an_update_removes_every_older_spacr_first.txt.
 
-Status:    BUILT AND PUBLISHED; real GPU execution remains unproven.
+Status:    DONE 2026-09-26. Built, published, and GPU execution proven:
+           the published ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4
+           (manifest sha256:2863e27d...) ran a real Cellpose-SAM mask
+           generation on an RTX 3090 through `--gpus all`, 45x faster warm
+           than the same image on CPU, with the same 48 objects. See the
+           last note and 425_cuda_image_gpu_execution_2026-09-26.json.
            Verified 2026-09-23: both images passed the 1.5.0.9 release's
            build, CPU pipeline smoke and publication jobs on September22.
            Anonymous registry reads retrieve both versioned manifests and
@@ -468,3 +473,95 @@ actual installer checkout79d71a9, confirming the label defect fixed by
 the repaired label. The full evidence is in
 features/data/425_ci_and_public_registry_2026-09-23.json.
 Only real GPU execution from the original WHAT IS LEFT list remains open.
+
+2026-09-26 — PUBLISHED 1.5.1.0 CUDA IMAGE PULLED, CPU BASELINE MEASURED
+nvidia-container-toolkit is now installed; `docker info` lists the nvidia
+runtime, and `docker run --rm --gpus all ubuntu nvidia-smi -L` prints
+"GPU 0: NVIDIA GeForce RTX 3090". Docker can hand the card to a container.
+
+The image under test is the PUBLISHED one, not a local build:
+  ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4 (also tags cuda, cuda12.4)
+  manifest sha256:2863e27da58acc9c04f33a1cb2ca680f97b489e8ce1227ce63ef72cc438168e9
+  config   sha256:d3ea8a4075f53dde5322ec197a5e965670aebf4ca518a2e1c4c46a16cfb74334
+  labels   version 1.5.1.0, revision fbb78e1fc48bcc64015db66f1e5cff6ab4c3bde5
+  17 layers, 6.29 GB compressed, 11.48 GB unpacked; `spacr --version` 1.5.1.0.
+`docker pull` failed twice on this box's link: the 4.05 GB torch/venv layer
+(5c4cf48be369) died with "unexpected EOF" after 57 min and again on retry,
+and docker restarts a failed layer from zero. The blobs were instead fetched
+with resumable `curl -C -` from the registry's anonymous blob API, each one
+sha256-checked against the manifest, the manifest itself hashed to the
+digest above, and the set fed to `docker load`. The loaded image's ID equals
+the published config digest, so it is byte-for-byte the published image.
+Worth knowing for users on flaky links: Docker has no resume.
+
+CPU BASELINE, same image, no --gpus (--cpus 16, --memory 24g, --user 1000):
+one real Cellpose-SAM mask generation through spaCR's own
+spacr.model_compare.segment_with_cellpose (ModelConfig('cpsam') defaults:
+diameter 30, flow 0.4, cellprob 0.0), on plate1_A02_12.tif (1994x1994 uint16)
+from the Make Masks Toxo PV example set, mounted read-only; stock cpsam
+weights mounted read-only on /models from ~/.cellpose/models.
+  torch 2.6.0+cu124, cellpose 4.2.1.1, python 3.12.14
+  torch.cuda.is_available() False; spaCR accelerator kind cpu, float32 weights
+  wall time 641 s cold (incl. model load), 683 s warm (machine was loaded
+  by other sessions, ~8-9 effective cores)
+  48 objects; against the 33-object curated mask, 28 matched at IoU>=0.5,
+  mean IoU of matches 0.871, 20 predicted and 5 truth objects unmatched.
+The GPU run of the same probe is queued through tools/gpu_turn.sh
+(label 425-docker-gpu); results follow in the next note.
+
+2026-09-26 — GPU EXECUTION PROVEN IN THE PUBLISHED CUDA IMAGE. ITEM DONE.
+Run through `tools/gpu_turn.sh 425-docker-gpu bash run_gpu.sh` (queued 10:40,
+started 18:42:22 after the shared card's queue drained, FINISH rc=0 at
+18:44:43). Every container was
+  docker run --rm --gpus all --memory 24g --user 1000:1000 \
+    -v ~/.cache/spacr/example_data/make_masks_toxo_pv:/data:ro \
+    -v ~/.cellpose/models:/models:ro -v <scratch>/out_gpu:/out \
+    ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4 <command>
+
+Inside the container:
+  nvidia-smi -L            GPU 0: NVIDIA GeForce RTX 3090
+  spacr --version          1.5.1.0
+  torch                    2.6.0+cu124, CUDA 12.4, cuda.is_available() True,
+                           device "NVIDIA GeForce RTX 3090", sm_86, cuDNN 9.1
+  smoke_pipeline.py        7/7 checks passed
+  spacr-doctor             12 passed, 2 warnings, 0 failed. gpu: PASS "1 CUDA
+                           device(s) usable: NVIDIA GeForce RTX 3090 (driver
+                           580.178.04, torch CUDA 12.4)". The warnings are no
+                           DISPLAY (expected headless) and the czi extra
+                           missing pylibCZIrw (declared optional).
+
+The same Cellpose-SAM probe as the CPU baseline above (spaCR's
+segment_with_cellpose, stock cpsam, plate1_A02_12.tif), same image:
+
+                         GPU (--gpus all)       CPU (no --gpus, 16 CPUs)
+  spaCR accelerator      cuda:0, bf16 weights   cpu, float32 weights
+  cold, incl. model load 39.5 s                 641.1 s     (16x)
+  warm                   15.0 s                 683.5 s     (45x)
+  peak CUDA memory       1768 MB                --
+  objects found          48                     48
+  vs 33-object truth     28 matched at IoU>=0.5, mean IoU 0.871 (both)
+
+GPU and CPU masks agree object for object: all 48 pair at IoU>=0.5, mean
+IoU 0.994, worst 0.937, none unmatched, 99.94% foreground pixel agreement.
+The residue is bfloat16 against float32 weights, which is what
+spacr.accelerator.cellpose_kwargs chooses on each device. The CPU timing was
+taken on a shared, loaded machine and is an upper bound rather than a
+benchmark; the GPU speed-up is not in doubt at 45x.
+
+The 20 predicted objects without a truth partner are a model-quality
+question for stock cpsam on this field (the curated mask is the vacuole
+model's training label), not a container question, and they are identical on
+both devices.
+
+NOTHING IN THE DOCKERFILES OR ENTRYPOINT NEEDED CHANGING. The GPU path worked
+first time: the nvidia runtime injects the driver, the cu124 torch wheel
+drives a 580 driver, the non-root UID 1000 reads a host model folder mounted
+read-only on /models, and Cellpose loads cpsam from there without a
+download. The one practical finding is outside the image: `docker pull` has
+no resume, and on this box's link the 4.05 GB venv layer failed twice with
+"unexpected EOF"; the digest-verified resumable fetch described in the
+previous note is the workaround.
+
+Nothing was built, pushed or published by this work. Receipt:
+features/data/425_cuda_image_gpu_execution_2026-09-26.json.
+Every point of the original WHAT IS LEFT list is now closed.

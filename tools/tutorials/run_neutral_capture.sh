@@ -42,6 +42,18 @@ awk -F: -v home_path="$capture_mount/profile" '
     END { print "tutorial", "x", 65534, 65534, "Tutorial recording", home_path, "/bin/bash" }
 ' /etc/passwd > "$capture_stage/passwd"
 
+# Alpha features get no tutorials. Every private profile in this stage starts
+# with Preferences -> Show alpha features off; capture_refresh.py forces it off
+# again in the recording's own store and refuses a frame while it is on (only
+# its --preferences-alpha-toggle-scene opt-in may record the toggle itself).
+capture_profiles=("$capture_stage/profile/.config")
+for capture_config in "$capture_stage"/config/*/; do
+    [[ -d $capture_config ]] && capture_profiles+=("${capture_config%/}")
+done
+"$capture_repo/tools/run_capped.sh" 2G env QT_QPA_PLATFORM=offscreen \
+    "$capture_python" "$capture_repo/tools/tutorials/capture_policy.py" \
+    --force-alpha-off "${capture_profiles[@]}"
+
 exec "$capture_repo/tools/run_capped.sh" "${SPACR_TUTORIAL_MEMORY_CAP:-6G}" \
     bwrap --unshare-user --uid 65534 --gid 65534 "${capture_network[@]}" \
     --bind / / --dev-bind /dev /dev --proc /proc --tmpfs /nas_mnt \

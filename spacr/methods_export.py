@@ -543,8 +543,19 @@ def _read_manifest(run_dir: Union[str, os.PathLike]) -> Dict[str, Any]:
         settings = {}
     performance = manifest.get("performance") or {}
     seeds = manifest.get("seeds") or {}
+    lock = manifest.get("analysis_lock")
+    run_extra: Dict[str, Any] = {}
+    if isinstance(lock, dict) and lock.get("status"):
+        run_extra["analysis_lock"] = {
+            "status": str(lock.get("status")),
+            "sha256": str(lock.get("sha256") or ""),
+            "locked_utc": str(lock.get("locked_utc") or ""),
+            "changed": [str(d.get("key")) for d in lock.get("deviations") or ()
+                        if isinstance(d, dict)],
+        }
     return {
         "run": {
+            **run_extra,
             "journal_run_id": os.path.basename(str(folder)),
             "app_key": manifest.get("app_key", ""),
             "status": manifest.get("status", ""),
@@ -862,11 +873,41 @@ def caveats_for(digest: Mapping[str, Any]) -> List[str]:
         caveats.append(
             f"{missing} registered artifact(s) are no longer on disk.")
 
+    caveats.extend(_lock_caveats(run.get("analysis_lock")))
+
     for warning in (run.get("warnings") or ())[:5]:
         caveats.append(f"The run recorded a warning: {warning}")
 
     return caveats
 
+
+
+def _lock_caveats(lock: Any) -> List[str]:
+    """What a methods section must say about the preregistered analysis lock.
+
+    :param lock: the ``analysis_lock`` entry of the digest's run, or
+        ``None`` when no lock applied.
+    :returns: one sentence, or none when no lock applied.
+    """
+    if not isinstance(lock, Mapping) or not lock.get("status"):
+        return []
+    status = str(lock.get("status"))
+    changed = ", ".join(str(key) for key in lock.get("changed") or ())
+    if status == "verified":
+        return ["The analysis was run exactly as preregistered in its "
+                "analysis lock."]
+    if status == "post_hoc":
+        return [f"The analysis departs from its preregistered analysis lock "
+                f"after the blinding key was opened, so the changes to "
+                f"{changed} are post-hoc."]
+    if status == "deviation":
+        return [f"The analysis departs from its preregistered analysis lock: "
+                f"{changed} changed after the lock."]
+    if status == "not_preregistered":
+        return ["The analysis lock was made after the blinding key had been "
+                "opened, so the analysis was not preregistered."]
+    return ["The analysis lock file no longer matches its own hash, so it "
+            "cannot show that the analysis was preregistered."]
 
 
 def render_methods(digest: Mapping[str, Any]) -> str:
