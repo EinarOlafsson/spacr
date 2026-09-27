@@ -385,8 +385,6 @@ class _TopicBar(QFrame):
             panel = panel.parent()
         else:
             return
-        if panel is None:
-            return
         text = panel.section_text(self)
         if not text.strip():
             return

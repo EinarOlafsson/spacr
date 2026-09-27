@@ -344,13 +344,11 @@ class HTile(QPushButton):
         if not self.icon().isNull():
             _set_scaled_icon_size(self, self._icon_base_px, scale=scale)
         self.setMinimumHeight(_scaled_side(HTILE_MIN_HEIGHT_PX, scale))
-        layout = self.layout()
-        if layout is not None:
-            layout.setContentsMargins(
-                self._base_icon + _scaled_side(HTILE_ICON_GAP_PX, scale),
-                _scaled_side(HTILE_MARGIN_Y_PX, scale),
-                _scaled_side(HTILE_MARGIN_PX, scale),
-                _scaled_side(HTILE_MARGIN_Y_PX, scale))
+        self.layout().setContentsMargins(
+            self._base_icon + _scaled_side(HTILE_ICON_GAP_PX, scale),
+            _scaled_side(HTILE_MARGIN_Y_PX, scale),
+            _scaled_side(HTILE_MARGIN_PX, scale),
+            _scaled_side(HTILE_MARGIN_Y_PX, scale))
         self.updateGeometry()
 
     def required_width(self) -> int:

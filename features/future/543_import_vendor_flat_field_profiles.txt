@@ -1,6 +1,6 @@
 IMPORT VENDOR FLAT-FIELD PROFILES (OPERETTA/HARMONY, ZEN, ...)
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED AS ALPHA 2026-09-27.
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 
@@ -23,3 +23,43 @@ WHAT TO BUILD
 DONE WHEN
     An Operetta export's FFC profile is applied and matches Harmony's
     corrected output on the same field.
+
+ALPHA: 2026-09-27. One new setting, illumination_vendor_profile (registered
+    in ALPHA_FEATURES[543]; hidden unless Preferences -> Show alpha features
+    is on, and a saved value still reaches the run). It sits under
+    every Illumination Correction heading (Measure, External Masks) and under
+    Correction Model on the Illumination screen.
+
+WHAT WAS BUILT (2026-09-27, CPU only)
+    spacr/illumination.py: a non-empty illumination_vendor_profile replaces
+    the estimate in prepare_illumination_model (illumination_model still
+    wins over both). Read by _vendor_illumination:
+      * Harmony XML (Operetta / Opera Phenix Index.idx.xml, Index.xml or a
+        saved FFC profile): every *FlatfieldProfile element, JSON or the
+        bare-key spelling. Foreground polynomial = gain, Background
+        polynomial = spatial offset, both at Harmony's own scale, so
+        corrected = (raw - background) / foreground. Merged channel c takes
+        Harmony channel c + 1. Polynomial convention: x = (col - Origin[0]) *
+        Scale[0], y = (row - Origin[1]) * Scale[1], sum_i sum_j C[i][j] *
+        x**(i-j) * y**j (as described in the image.sc thread).
+      * Shading reference image (.tif/.tiff/.czi/.npy; ZEN, Nikon, Olympus):
+        plane c = channel c, one plane serves all; illumination_dark
+        subtracted, normalised to mean 1.
+    IlluminationField gained an optional spatial darkfield, saved/loaded in
+    the .npz, so the Harmony background survives into worker processes and
+    segmentation-input correction.
+    Tests: tests/test_vendor_flat_field_profiles.py (synthetic Operetta
+    export; spaCR's corrected field equals an independently computed
+    Harmony output, JSON and bare-key forms, npz round trip, TIFF reference)
+    and tests/qt/test_vendor_flat_field_alpha_gate.py.
+
+WHAT IS LEFT
+    * The "done when" check on REAL data: an Operetta export plus Harmony's
+      own flat-field-corrected export of the same field, to confirm the
+      polynomial convention (x/y order, Origin/Scale) and that Harmony adds
+      no further rescaling. Only synthetic data was available.
+    * Shading references embedded as CZI attachments (not exported images)
+      and Nikon ND2 / Olympus vendor-specific shading files are not read.
+    * Channel mapping is fixed at c -> Harmony channel c + 1; a run that
+      merged a subset or reordered channels needs a mapping setting.
+

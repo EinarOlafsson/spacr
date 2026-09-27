@@ -447,6 +447,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'illumination_on_missing',
     'illumination_per_plate',
     'illumination_qc',
+    'illumination_vendor_profile',
     'image_key',
     'image_nr',
     'image_qc_excluded_fields',

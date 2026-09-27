@@ -357,8 +357,7 @@ def _read_units(src: Any) -> QCCard:
                        connection.execute(f'PRAGMA table_info("{table}")')}
             present = [c for c in MEASUREMENT_STAMP_COLUMNS if c in columns]
             if not present:
-                if columns:
-                    unstamped.append(table)
+                unstamped.append(table)
                 continue
             checked.append(table)
             selected = ", ".join(f'"{c}"' for c in present)
