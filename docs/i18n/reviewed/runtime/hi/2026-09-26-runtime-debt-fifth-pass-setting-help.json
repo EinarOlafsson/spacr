@@ -1,0 +1,246 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "anndata_format",
+      "source": "What the export writes. 'h5ad' writes the AnnData file; 'parquet' writes tidy Parquet tables (objects, features, wells, embeddings, provenance) that pandas, arrow and R read with their types kept; 'r' adds load_spacr_export.R, which builds a SingleCellExperiment in R, and .rds data frames when pyreadr is installed; 'all' writes every one. The tables need pyarrow. Default 'h5ad'.",
+      "source_sha256": "4641d38c6c850d298ed14d3d291e57537a3c02eeb243d37b587f5f5c16364c77",
+      "translation": "निर्यात क्या लिखता है। 'h5ad' AnnData फ़ाइल लिखता है; 'parquet' व्यवस्थित Parquet तालिकाएँ (ऑब्जेक्ट, फ़ीचर, वेल, एम्बेडिंग, उद्गम) लिखता है जिन्हें pandas, arrow और R उनके प्रकार बनाए रखते हुए पढ़ते हैं; 'r' load_spacr_export.R जोड़ता है, जो R में SingleCellExperiment बनाता है, और pyreadr स्थापित होने पर .rds डेटा फ़्रेम; 'all' सब लिखता है। तालिकाओं को pyarrow चाहिए। डिफ़ॉल्ट 'h5ad'।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "anndata_tidy_dir",
+      "source": "Folder for the Parquet tables and the R loader when anndata_format is 'parquet', 'r' or 'all'. Files of the same names in it are replaced. Default <src>/results/<project>_tables.",
+      "source_sha256": "b59da2c719e1798af8902855880a4dba01fa863898d0132f0fa58b0e71d2b86d",
+      "translation": "जब anndata_format 'parquet', 'r' या 'all' हो तब Parquet तालिकाओं और R लोडर का फ़ोल्डर। उसमें समान नाम की फ़ाइलें बदल दी जाती हैं। डिफ़ॉल्ट <src>/results/<project>_tables।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle",
+      "source": "Call the cell-cycle phase of every nucleus after measuring, from the DNA stain: G1, S, G2 or M, plus subG1 and >4N outside the peaks. Writes one row per nucleus to measurements.db:cell_cycle with the call in cell_cycle_phase, the phase fractions per well, overall and in infected and uninfected cells, to cell_cycle_well, and with plot on each plate's fitted DNA histogram. Needs measured nuclei. Default False.",
+      "source_sha256": "6d6487cfab9dc5ffb7e1aca80d26a799cecf46e1de0b4518cf69968d41fd46d8",
+      "translation": "मापन के बाद DNA स्टेन से हर नाभिक की कोशिका चक्र अवस्था तय करें: G1, S, G2 या M, साथ में शिखरों के बाहर subG1 और >4N। हर नाभिक की एक पंक्ति measurements.db:cell_cycle में लिखता है जिसमें निर्णय cell_cycle_phase में है, हर वेल के अवस्था अनुपात, कुल और संक्रमित व असंक्रमित कोशिकाओं में, cell_cycle_well में, और plot चालू होने पर हर प्लेट का फ़िट किया गया DNA हिस्टोग्राम। मापे गए नाभिक चाहिए। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_channel",
+      "source": "The merged-array channel holding the DNA stain (DAPI or Hoechst) the phase is read from, counted as in channels; it must be one of the measured channels. Blank uses nucleus_channel, then the first entry of channels. Default None.",
+      "source_sha256": "f69273cbbc964f59d582e2bda4e2301f2e60fc6ddc37bbdcd582354051d5cd98",
+      "translation": "मर्ज किए गए ऐरे का वह चैनल जिसमें DNA स्टेन (DAPI या Hoechst) है और जिससे अवस्था पढ़ी जाती है, channels की तरह गिना जाता है; यह मापे गए चैनलों में से एक होना चाहिए। खाली होने पर nucleus_channel, फिर channels की पहली प्रविष्टि उपयोग होती है। डिफ़ॉल्ट None।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_epochs",
+      "source": "Training epochs of the torch phase classifier. It is a ResNet-18 trained from scratch on crops as small as 32 pixels, so each epoch is quick on a GPU and slow on a busy CPU. Ignored when cell_cycle_model names a trained model. Default 20.",
+      "source_sha256": "35d3320524bc0ee7a51857bc33eeef9eb72fbca702f55d66c96b5fa57e327196",
+      "translation": "torch अवस्था क्लासिफ़ायर के प्रशिक्षण एपॉक। यह 32 पिक्सेल जितने छोटे क्रॉप पर शुरू से प्रशिक्षित ResNet-18 है, इसलिए हर एपॉक GPU पर तेज़ और व्यस्त CPU पर धीमा होता है। जब cell_cycle_model किसी प्रशिक्षित मॉडल का नाम देता है तो अनदेखा किया जाता है। डिफ़ॉल्ट 20।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_fucci_channels",
+      "source": "Two merged-array channels of a FUCCI reporter, the G1 reporter (Cdt1) then the S/G2/M reporter (Geminin), both measured. Each is split into positive and negative per plate, and every nucleus gets a fucci_state: early G1, G1, G1/S or S/G2/M. The xgboost method also uses their intensities. Blank skips FUCCI. Default None.",
+      "source_sha256": "38238a35dd7ebf60815b22b017d307e05bdd1684d6d8ad1d99a70d2e701642bb",
+      "translation": "FUCCI रिपोर्टर के मर्ज किए गए ऐरे के दो चैनल, पहले G1 रिपोर्टर (Cdt1) फिर S/G2/M रिपोर्टर (Geminin), दोनों मापे गए। हर एक को हर प्लेट पर धनात्मक और ऋणात्मक में बाँटा जाता है, और हर नाभिक को एक fucci_state मिलता है: प्रारंभिक G1, G1, G1/S या S/G2/M। xgboost विधि उनकी तीव्रता भी उपयोग करती है। खाली होने पर FUCCI छोड़ दिया जाता है। डिफ़ॉल्ट None।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_gates",
+      "source": "Fixed gates [G1/S, S/G2] in DNA content units, where the G1 peak is 2 and the G2 peak 4, for example [2.5, 3.5]. They replace the crossings fitted per plate; the peaks are still fitted to place the units. Read the fitted gates off the saved histogram before editing them. Blank uses the fitted gates. Default None.",
+      "source_sha256": "583b0ebfac84fe91331bba4d835ff43218bd719bfad5381f1a15bd26a77b3c1e",
+      "translation": "DNA-मात्रा इकाइयों में स्थिर गेट [G1/S, S/G2], जहाँ G1 शिखर 2 और G2 शिखर 4 है, उदाहरण के लिए [2.5, 3.5]। ये हर प्लेट के लिए फ़िट किए गए प्रतिच्छेदों की जगह लेते हैं; इकाइयाँ तय करने के लिए शिखर अब भी फ़िट होते हैं। बदलने से पहले सहेजे गए हिस्टोग्राम से फ़िट किए गए गेट पढ़ें। खाली होने पर फ़िट किए गए गेट उपयोग होते हैं। डिफ़ॉल्ट None।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_labels",
+      "source": "A png_list column holding Annotate labels the xgboost and torch methods learn from: 1 to 4 for G1, S, G2 and M, or the phase names. Labels are matched to nuclei through their cell. Blank trains on the confident gate calls instead, which teaches the learned methods what the gates already say; annotate prophase and anaphase nuclei to teach them more. Default blank.",
+      "source_sha256": "f98dafb5c5d492479e5eb27075b2e0af9e344df46c9f8cf3cd38d36d4339459c",
+      "translation": "Annotate लेबल वाला png_list कॉलम, जिनसे xgboost और torch विधियाँ सीखती हैं: G1, S, G2 और M के लिए 1 से 4, या अवस्थाओं के नाम। लेबल उनकी कोशिका के माध्यम से नाभिकों से मिलाए जाते हैं। खाली होने पर गेट के विश्वसनीय निर्णयों पर प्रशिक्षण होता है, जो सीखी गई विधियों को वही सिखाता है जो गेट पहले से कहते हैं; उन्हें अधिक सिखाने के लिए प्रोफ़ेज़ और एनाफ़ेज़ नाभिक एनोटेट करें। डिफ़ॉल्ट खाली।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_method",
+      "source": "How phases are called. measurements gates each plate's DNA-content histogram, fitted as G1 and G2 peaks with S between, and calls condensed 4N nuclei M. xgboost trains a boosted classifier on nucleus features, torch trains an image classifier on nucleus crops with Classify's training; both learn from cell_cycle_labels. all runs the three and keeps their majority. Default measurements.",
+      "source_sha256": "cc9645da4e6a8379362200ef6bd0caf53a0a153688df35474d7b437b234de187",
+      "translation": "अवस्थाएँ कैसे तय होती हैं। measurements हर प्लेट के DNA-मात्रा हिस्टोग्राम पर गेट लगाता है, जिसे G1 और G2 शिखरों और उनके बीच S के रूप में फ़िट किया जाता है, और संघनित 4N नाभिकों को M मानता है। xgboost नाभिक फ़ीचर पर बूस्टेड क्लासिफ़ायर प्रशिक्षित करता है, torch Classify के प्रशिक्षण से नाभिक क्रॉप पर छवि क्लासिफ़ायर प्रशिक्षित करता है; दोनों cell_cycle_labels से सीखते हैं। all तीनों चलाता है और उनका बहुमत रखता है। डिफ़ॉल्ट measurements।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_mitotic_ratio",
+      "source": "A nucleus past the G1/S gate is called M when its background-subtracted mean DNA intensity is at least this many times the median of the plate's G2 nuclei: condensed mitotic chromatin is brighter. Lower catches more prophase and more bright G2 nuclei. Blank never calls M from intensity and leaves mitotic nuclei in G2. Default 1.8.",
+      "source_sha256": "57e0ad8c755fb15cfa2e762d5366d23f87ff6417b196f72ed3841290a3c21878",
+      "translation": "G1/S गेट से आगे का नाभिक M माना जाता है जब उसकी पृष्ठभूमि घटाई गई औसत DNA तीव्रता प्लेट के G2 नाभिकों की माध्यिका की कम से कम इतनी गुना हो: संघनित माइटोटिक क्रोमैटिन अधिक चमकीला होता है। कम मान अधिक प्रोफ़ेज़ और अधिक चमकीले G2 नाभिक पकड़ता है। खाली होने पर तीव्रता से कभी M नहीं माना जाता और माइटोटिक नाभिक G2 में रहते हैं। डिफ़ॉल्ट 1.8।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_model",
+      "source": "A torch model this step trained earlier, with its cell_cycle_phases.json beside it, applied to the nucleus crops instead of training a new one. Use it to call a second plate with the model trained on the first. Ignored unless cell_cycle_method is torch or all. Default blank.",
+      "source_sha256": "da89a9ff9d1c8ab65ed0d04144e650d5cdefc70b24ec4fc2ec41f88eab7b20c2",
+      "translation": "इस चरण द्वारा पहले प्रशिक्षित torch मॉडल, जिसके पास उसकी cell_cycle_phases.json हो, जो नया प्रशिक्षित करने के बजाय नाभिक क्रॉप पर लागू होता है। पहली प्लेट पर प्रशिक्षित मॉडल से दूसरी प्लेट तय करने के लिए इसका उपयोग करें। जब तक cell_cycle_method torch या all न हो, अनदेखा किया जाता है। डिफ़ॉल्ट खाली।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_anonymous",
+      "source": "Read cloud sources without credentials, for public data such as IDR or the Cell Painting Gallery. When off, s3:// sources use the AWS credentials in the AWS_* environment variables, ~/.aws or AWS_PROFILE, and are read anonymously only when none are found; gs:// and az:// use their own default credentials. spaCR never stores or prints credentials. Default False.",
+      "source_sha256": "3ccc2e53b2a0bd32e404e0a5fbd47ad151bf7bb045f21b1f4daa56a3fe979801",
+      "translation": "सार्वजनिक डेटा, जैसे IDR या Cell Painting Gallery, के लिए बिना क्रेडेंशियल क्लाउड स्रोत पढ़ें। बंद होने पर s3:// स्रोत AWS_* पर्यावरण चरों, ~/.aws या AWS_PROFILE के AWS क्रेडेंशियल उपयोग करते हैं, और कोई न मिलने पर ही अनाम रूप से पढ़े जाते हैं; gs:// और az:// अपने डिफ़ॉल्ट क्रेडेंशियल उपयोग करते हैं। spaCR कभी क्रेडेंशियल संग्रहित या प्रिंट नहीं करता। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_cache",
+      "source": "Folder where cloud sources are fetched to and analysed in. Each src address gets its own subfolder, so a repeated run reuses what was fetched and Measure finds what Make Masks wrote. Blank uses ~/.cache/spacr/cloud. Default blank.",
+      "source_sha256": "d767cee6467247005aca5ce003cdf66798f2a80d49dec1000207ce043c56b6f1",
+      "translation": "वह फ़ोल्डर जिसमें क्लाउड स्रोत लाए और विश्लेषित किए जाते हैं। हर src पते को अपना उप-फ़ोल्डर मिलता है, ताकि दोहराया गया रन लाई गई सामग्री फिर उपयोग करे और Measure वह पाए जो Make Masks ने लिखा। खाली होने पर ~/.cache/spacr/cloud उपयोग होता है। डिफ़ॉल्ट खाली।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_endpoint",
+      "source": "Address of the S3-compatible service holding s3:// sources, such as a MinIO or Ceph server, or https://uk1s3.embassy.ebi.ac.uk for IDR. Blank uses Amazon S3. Default blank.",
+      "source_sha256": "e06c15c5cd11032deea8d3a46b61b09473840a024b81b9876c243739d3a71265",
+      "translation": "s3:// स्रोत रखने वाली S3-संगत सेवा का पता, जैसे MinIO या Ceph सर्वर, या IDR के लिए https://uk1s3.embassy.ebi.ac.uk । खाली होने पर Amazon S3 उपयोग होता है। डिफ़ॉल्ट खाली।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_fields",
+      "source": "Fields per well of a cloud OME-Zarr plate to fetch, counted from the first. 0 fetches every field. Default 0.",
+      "source_sha256": "3066d6c5eb3e1e0ac8fbad0fe421e7c7b2d9b088ede4d178be155ad8826ea449",
+      "translation": "क्लाउड OME-Zarr प्लेट के हर वेल के कितने छवि क्षेत्र लाने हैं, पहले से गिनकर। 0 सभी छवि क्षेत्र लाता है। डिफ़ॉल्ट 0।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_level",
+      "source": "Resolution level of a cloud OME-Zarr to fetch. 0 is full resolution; each level above usually halves width and height, so set diameters and size limits for the smaller images. Default 0.",
+      "source_sha256": "d6be4a3a8a1dd13a9cd68a1dbacefebc7e77c751ba9369aa57b55f9e4ecf72fe",
+      "translation": "लाए जाने वाले क्लाउड OME-Zarr का रेज़ोल्यूशन स्तर। 0 पूरा रेज़ोल्यूशन है; ऊपर का हर स्तर आमतौर पर चौड़ाई और ऊँचाई आधी करता है, इसलिए व्यास और आकार सीमाएँ छोटी छवियों के अनुसार सेट करें। डिफ़ॉल्ट 0।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_profile",
+      "source": "Named AWS profile from ~/.aws/config used for s3:// sources, for example lab-readonly. Only the name is kept; the keys stay in ~/.aws. Blank uses the default AWS credential chain. Default blank.",
+      "source_sha256": "44be8d15ddc98b7363b0631865739886f35ed69d0c6cee26444aef78da9a75ff",
+      "translation": "s3:// स्रोतों के लिए ~/.aws/config का नामित AWS प्रोफ़ाइल, उदाहरण के लिए lab-readonly। केवल नाम रखा जाता है; कुंजियाँ ~/.aws में ही रहती हैं। खाली होने पर डिफ़ॉल्ट AWS क्रेडेंशियल शृंखला उपयोग होती है। डिफ़ॉल्ट खाली।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_results",
+      "source": "Cloud folder (s3://, gs:// or az://) the run's measurements folder is copied to when it finishes, in one subfolder per src. Blank keeps results in the local folder only. Default blank.",
+      "source_sha256": "d127ccb46519062f25da8fc973d433df0aaa28a51c17cfe7c95f625996261467",
+      "translation": "क्लाउड फ़ोल्डर (s3://, gs:// या az://) जिसमें रन पूरा होने पर उसका मापन फ़ोल्डर कॉपी होता है, हर src के लिए एक उप-फ़ोल्डर में। खाली होने पर परिणाम केवल स्थानीय फ़ोल्डर में रहते हैं। डिफ़ॉल्ट खाली।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_wells",
+      "source": "Wells of a cloud OME-Zarr plate to fetch, such as A1, B03; only these are downloaded, a channel at a time, with z maximum projected. Blank fetches every well, which for a large plate can be many gigabytes. Default blank.",
+      "source_sha256": "208e69ac99c36e9abf30fb8dfbe93944ada1ddd10aabdc4da513e16e2b036115",
+      "translation": "क्लाउड OME-Zarr प्लेट के लाए जाने वाले वेल, जैसे A1, B03; केवल ये डाउनलोड होते हैं, एक बार में एक चैनल, z पर अधिकतम प्रक्षेपण के साथ। खाली होने पर हर वेल लाया जाता है, जो बड़ी प्लेट के लिए कई गीगाबाइट हो सकता है। डिफ़ॉल्ट खाली।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling",
+      "source": "After Measure finishes, build image-based profiles from its tables: aggregate each object table to one median profile per well, add the plate map in profiling_metadata, normalise each plate against its negative-control wells, remove uninformative and redundant features, build one consensus profile per treatment and score replicate reproducibility as mean average precision (mAP) and percent replicating. Results go to measurements/profiles as CSV, Parquet and GCT with plots. Default False.",
+      "source_sha256": "dc2c206509ac345fe621dcdbca17d43684e5d44a47097c0a3fa7a1b2f961b0a1",
+      "translation": "Measure पूरा होने के बाद उसकी तालिकाओं से छवि-आधारित प्रोफ़ाइल बनाता है: हर ऑब्जेक्ट तालिका को हर वेल की एक माध्यिका प्रोफ़ाइल में समेटता है, profiling_metadata का प्लेट मैप जोड़ता है, हर प्लेट को उसके नकारात्मक नियंत्रण वेल के विरुद्ध सामान्यीकृत करता है, अनुपयोगी और अनावश्यक फ़ीचर हटाता है, हर उपचार के लिए एक सहमति प्रोफ़ाइल बनाता है और प्रतिकृति पुनरुत्पादकता को औसत औसत परिशुद्धता (mAP) और प्रतिशत प्रतिकृति के रूप में स्कोर करता है। परिणाम measurements/profiles में CSV, Parquet और GCT के रूप में प्लॉट सहित जाते हैं। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_correlation_threshold",
+      "source": "Pearson correlation above which two features count as redundant in the correlation_threshold selection step. Of each such pair the feature more correlated with all others is removed. Lower values keep fewer, less redundant features. Default 0.9.",
+      "source_sha256": "497bdc5698c78a73118ded35f579bb1f32b2f0aeaa8e24dfee723506b1018606",
+      "translation": "वह Pearson सहसंबंध जिसके ऊपर correlation_threshold चयन चरण में दो फ़ीचर अनावश्यक गिने जाते हैं। हर ऐसी जोड़ी में से वह फ़ीचर हटाया जाता है जो बाकी सभी से अधिक सहसंबद्ध है। कम मान कम और कम अनावश्यक फ़ीचर रखते हैं। डिफ़ॉल्ट 0.9।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_databases",
+      "source": "Further measurements.db files to profile together with this run's, one per plate, so replicates on different plates are compared while each plate is still normalised on its own. Every plate needs a distinct plateID. Default [].",
+      "source_sha256": "56018344866daa7a080606f5c8d83379a37824a27a241798cbaba7e11a4f5ebf",
+      "translation": "इस रन के साथ प्रोफ़ाइल की जाने वाली अतिरिक्त measurements.db फ़ाइलें, हर प्लेट के लिए एक, ताकि अलग-अलग प्लेटों की प्रतिकृतियों की तुलना हो जबकि हर प्लेट अब भी अलग से सामान्यीकृत हो। हर प्लेट को अलग plateID चाहिए। डिफ़ॉल्ट []।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_feature_selection",
+      "source": "Feature-selection steps, run in order after normalisation: variance_threshold drops near-zero variance, frequency_threshold near-constant values, correlation_threshold the more redundant of each pair correlated above profiling_correlation_threshold, drop_na_columns features missing in over 5 % of wells, and drop_outliers any feature with an absolute value above 500. An empty list keeps every feature. Default all five.",
+      "source_sha256": "c375f4802bb5f45ccd30e6ed7fc14055161904447001c6046ffc4e6a76d6b159",
+      "translation": "फ़ीचर चयन के चरण, सामान्यीकरण के बाद क्रम से चलते हैं: variance_threshold लगभग शून्य प्रसरण हटाता है, frequency_threshold लगभग स्थिर मान, correlation_threshold profiling_correlation_threshold से ऊपर सहसंबद्ध हर जोड़ी का अधिक अनावश्यक फ़ीचर, drop_na_columns 5 % से अधिक वेल में अनुपस्थित फ़ीचर, और drop_outliers 500 से अधिक निरपेक्ष मान वाला कोई भी फ़ीचर। खाली सूची हर फ़ीचर रखती है। डिफ़ॉल्ट सभी पाँच।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_metadata",
+      "source": "Plate map for profiling: a CSV, TSV, Excel or Parquet table with one row per well position, located by rowID and columnID or by a well column such as A01, plus annotation columns such as treatment, dose, gene or a phenotype label. With a plateID column the map is matched plate by plate; without one it applies to every plate. Blank profiles the wells by position only. Default blank.",
+      "source_sha256": "86856a2ea0e293442885356576249f7b0a3cfd4942736157e94e0ced6a2b2fd5",
+      "translation": "प्रोफ़ाइलिंग के लिए प्लेट मैप: CSV, TSV, Excel या Parquet तालिका जिसमें हर वेल स्थिति की एक पंक्ति हो, जो rowID और columnID से या A01 जैसे वेल कॉलम से पहचानी जाए, साथ में treatment, dose, gene या फ़ीनोटाइप लेबल जैसे एनोटेशन कॉलम। plateID कॉलम होने पर मैप प्लेट-दर-प्लेट मिलाया जाता है; न होने पर हर प्लेट पर लागू होता है। खाली होने पर वेल केवल स्थिति से प्रोफ़ाइल होते हैं। डिफ़ॉल्ट खाली।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_negative_control",
+      "source": "Value or values of the first profiling_treatment_column that mark negative-control wells, for example DMSO or c1. Each plate is normalised against its own controls, and every treatment is scored for phenotypic activity, how well its replicates find each other among the controls. Blank normalises against all wells of a plate and skips the activity score. Default blank.",
+      "source_sha256": "5b9244226a4a20eaff91e744e604528103e9c9c02dae76a19ff5d28c285d200e",
+      "translation": "पहले profiling_treatment_column का वह मान या मान जो नकारात्मक नियंत्रण वेल चिह्नित करते हैं, उदाहरण के लिए DMSO या c1। हर प्लेट अपने नियंत्रणों के विरुद्ध सामान्यीकृत होती है, और हर उपचार को फ़ीनोटाइपिक सक्रियता पर स्कोर किया जाता है: नियंत्रणों के बीच उसकी प्रतिकृतियाँ एक-दूसरे को कितनी अच्छी तरह ढूँढती हैं। खाली होने पर प्लेट के सभी वेल के विरुद्ध सामान्यीकरण होता है और सक्रियता स्कोर छोड़ा जाता है। डिफ़ॉल्ट खाली।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_normalization",
+      "source": "How each feature is put on a common scale, plate by plate. mad_robustize subtracts the reference median and divides by 1.4826 times the reference MAD, which tolerates outlier wells; standardize uses the mean and standard deviation; robustize uses the median and interquartile range; none keeps the aggregated values. The reference is the negative control, or every well when none is named. Default mad_robustize.",
+      "source_sha256": "fc28fbaa7f0105f424fa80a3a28ba72aa673f5bf020a603645a19521d8180aa9",
+      "translation": "हर फ़ीचर को प्लेट-दर-प्लेट एक साझा पैमाने पर कैसे लाया जाता है। mad_robustize संदर्भ माध्यिका घटाता है और संदर्भ MAD के 1.4826 गुना से भाग देता है, जो बाहरी वेल सहन करता है; standardize माध्य और मानक विचलन उपयोग करता है; robustize माध्यिका और अंतर-चतुर्थक परास उपयोग करता है; none समेकित मान रखता है। संदर्भ नकारात्मक नियंत्रण है, या कोई नामित न होने पर हर वेल। डिफ़ॉल्ट mad_robustize।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_phenotype_column",
+      "source": "Optional plate-map column holding a phenotype label that different treatments share, such as a mechanism of action, pathway or target gene. When set, consensus profiles are also scored for phenotypic consistency: how well treatments with the same label retrieve each other, as mAP per label. Default blank.",
+      "source_sha256": "f8e3e2dcbfe8dedb8e157d488101b59cf37fa32baeb237e4b4e574f0d95159a5",
+      "translation": "वैकल्पिक प्लेट मैप कॉलम जिसमें अलग-अलग उपचारों का साझा फ़ीनोटाइप लेबल हो, जैसे क्रिया-तंत्र, पाथवे या लक्ष्य जीन। सेट होने पर सहमति प्रोफ़ाइलों को फ़ीनोटाइपिक संगति पर भी स्कोर किया जाता है: समान लेबल वाले उपचार एक-दूसरे को कितनी अच्छी तरह ढूँढते हैं, हर लेबल के mAP के रूप में। डिफ़ॉल्ट खाली।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_treatment_column",
+      "source": "The annotation column, or columns, naming what each well received. Wells that share them are replicates and are collapsed into one consensus profile. Use a plate-map column such as treatment, treatment and dose together, or columnID when each plate column holds one condition. Default columnID.",
+      "source_sha256": "3584e01563f0ca89421355f5e7199774c3d66704a5052d0b7d61c97d6c20b139",
+      "translation": "वह एनोटेशन कॉलम या कॉलम जो बताते हैं कि हर वेल को क्या मिला। जिन वेल में ये समान हैं वे प्रतिकृतियाँ हैं और एक सहमति प्रोफ़ाइल में समेटे जाते हैं। प्लेट मैप का कोई कॉलम जैसे treatment, treatment और dose साथ में, या columnID उपयोग करें जब प्लेट का हर कॉलम एक स्थिति रखता हो। डिफ़ॉल्ट columnID।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_channel",
+      "source": "The merged-array channel the texture and intensity wound sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, the stain for intensity. Ignored by the masks source. Default None.",
+      "source_sha256": "878751f07ce559f6af253b2de378896e916d4dc76a17fcb452c9a4f7606b3d36",
+      "translation": "मर्ज किए गए ऐरे का वह चैनल जिसे बनावट और तीव्रता वाले घाव स्रोत पढ़ते हैं, channels की तरह गिना जाता है। खाली होने पर channels की पहली प्रविष्टि उपयोग होती है। बनावट के लिए ब्राइटफ़ील्ड या फ़ेज़ तल चुनें, तीव्रता के लिए स्टेन। मास्क स्रोत इसे अनदेखा करता है। डिफ़ॉल्ट None।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_closure",
+      "source": "Measure a scratch or wound-healing assay: find the open wound in every frame of every field, then write its area, mean and minimum width, the closure rate and the half-closure time per field, per well and per condition to measurements.db and results/wound_closure, with closure curves and a plate map. Frames are grouped by plate, well and field and ordered by timepoint; the first frame decides where the scratch is. Default False.",
+      "source_sha256": "687295b08c859fb5e592d4744cc09f573d4ce6eaab466c8520026db0a10c46db",
+      "translation": "स्क्रैच या घाव-भराव परीक्षण मापें: हर छवि क्षेत्र के हर फ़्रेम में खुला घाव खोजें, फिर उसका क्षेत्रफल, औसत और न्यूनतम चौड़ाई, भराव दर और अर्ध-भराव समय हर छवि क्षेत्र, हर वेल और हर स्थिति के लिए measurements.db और results/wound_closure में, भराव वक्रों और प्लेट मैप के साथ लिखें। फ़्रेम प्लेट, वेल और छवि क्षेत्र के अनुसार समूहित और समय बिंदु के अनुसार क्रमित होते हैं; पहला फ़्रेम तय करता है कि स्क्रैच कहाँ है। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_conditions",
+      "source": "Conditions to pool wells into for the closure curves and half-closure times, as {name: wells}, the wells as rows (r2), columns (c3) or single wells (B03), for example {'control': 'c1, c2', 'drug': 'c3, c4'}. A well in no condition is reported under its own name. A well may belong to one condition only. Default {}.",
+      "source_sha256": "f25b175e0514c3929471612ababb846f817fdb67e07920ee6c24ae03604210e0",
+      "translation": "वे स्थितियाँ जिनमें भराव वक्रों और अर्ध-भराव समयों के लिए वेल समेटे जाते हैं, {name: wells} के रूप में, वेल पंक्तियों (r2), कॉलमों (c3) या अलग वेल (B03) के रूप में, उदाहरण के लिए {'control': 'c1, c2', 'drug': 'c3, c4'}। किसी स्थिति में न होने वाला वेल अपने नाम से बताया जाता है। एक वेल केवल एक स्थिति में हो सकता है। डिफ़ॉल्ट {}।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_hours_per_frame",
+      "source": "Hours between consecutive timepoints, so closure rates are per hour and half-closure times are in hours. Blank counts time in frames. With voxel_size_xy_um set, widths and front speeds are also reported in micrometres. Default None.",
+      "source_sha256": "bbbb7144e62af423a91b852f41d94db2a3026927d31878b9543731bfd22afdff",
+      "translation": "लगातार समय बिंदुओं के बीच घंटे, ताकि भराव दरें प्रति घंटा और अर्ध-भराव समय घंटों में हों। खाली होने पर समय फ़्रेमों में गिना जाता है। voxel_size_xy_um सेट होने पर चौड़ाई और अग्र-भाग की गति माइक्रोमीटर में भी बताई जाती है। डिफ़ॉल्ट None।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_source",
+      "source": "How the open wound is told apart from the monolayer. texture reads the local variation of wound_channel, for brightfield and phase. intensity thresholds wound_channel, for a fluorescent cytoplasm or membrane stain. masks takes every pixel outside the segmented cells as open. The cut is decided on each field's first frame and kept for its later frames. Default texture.",
+      "source_sha256": "5d1d9d2af4bbead4c5b9bd4af1aae313cbd282ac7019a0374c2a06e8cd261ac2",
+      "translation": "खुले घाव को एकल परत से कैसे अलग किया जाता है। texture ब्राइटफ़ील्ड और फ़ेज़ के लिए wound_channel की स्थानीय भिन्नता पढ़ता है। intensity फ़्लोरोसेंट साइटोप्लाज़्म या झिल्ली स्टेन के लिए wound_channel पर सीमा लगाता है। masks सेगमेंट की गई कोशिकाओं के बाहर के हर पिक्सेल को खुला मानता है। विभाजन हर छवि क्षेत्र के पहले फ़्रेम पर तय होता है और उसके बाद के फ़्रेमों के लिए बना रहता है। डिफ़ॉल्ट texture।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_window",
+      "source": "Side of the square window, in pixels, over which the texture wound source measures local variation. About the diameter of one cell at the imaging resolution: smaller follows the wound edge more closely but can open holes in smooth parts of the monolayer, larger bridges narrow gaps. Also sets the smallest gap kept in later frames. Default 15.",
+      "source_sha256": "146bdc2d95eeec0de57e7b983923816b003936584578a24d2ebc0439d6bf55f5",
+      "translation": "वर्गाकार विंडो की भुजा, पिक्सेल में, जिस पर बनावट वाला घाव स्रोत स्थानीय भिन्नता मापता है। इमेजिंग रेज़ोल्यूशन पर लगभग एक कोशिका का व्यास: छोटी विंडो घाव के किनारे का अधिक बारीकी से अनुसरण करती है पर एकल परत के चिकने भागों में छेद खोल सकती है, बड़ी विंडो संकरे अंतराल पाटती है। यह बाद के फ़्रेमों में रखा जाने वाला सबसे छोटा अंतराल भी तय करती है। डिफ़ॉल्ट 15।"
+    }
+  ]
+}

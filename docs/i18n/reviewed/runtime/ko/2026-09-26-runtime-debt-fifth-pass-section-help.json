@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "categories",
+      "key": "A scratch or wound-healing assay measured over a time-lapse: the open wound in every frame, from the texture of a brightfield or phase channel, a fluorescent stain or the cell masks; its area, mean and minimum width; and per well and per condition the closure curve, closure rate and half-closure time, written to measurements.db with figures and a plate map.",
+      "source": "A scratch or wound-healing assay measured over a time-lapse: the open wound in every frame, from the texture of a brightfield or phase channel, a fluorescent stain or the cell masks; its area, mean and minimum width; and per well and per condition the closure curve, closure rate and half-closure time, written to measurements.db with figures and a plate map.",
+      "source_sha256": "c8d9b232b7bf1a2312e404c9e3d43842f09ab8aeadeb6e6d9cd60dff7df7e4ed",
+      "translation": "타임랩스에서 측정하는 스크래치 또는 상처 치유 분석: 명시야나 위상차 채널의 질감, 형광 염색 또는 세포 마스크로 찾은 모든 프레임의 열린 상처, 그 면적과 평균 및 최소 너비, 그리고 웰별과 조건별 봉합 곡선, 봉합 속도, 반봉합 시간을 그림과 플레이트 맵과 함께 measurements.db 파일에 기록합니다."
+    },
+    {
+      "table": "categories",
+      "key": "Image-based profiling after Measure: one profile per well from the object tables, annotated from a plate map, normalised per plate against the negative controls, feature-selected, collapsed into one consensus profile per treatment and scored for replicate reproducibility as mean average precision and percent replicating. Written as CSV, Parquet and GCT files that pycytominer, copairs and Morpheus read.",
+      "source": "Image-based profiling after Measure: one profile per well from the object tables, annotated from a plate map, normalised per plate against the negative controls, feature-selected, collapsed into one consensus profile per treatment and scored for replicate reproducibility as mean average precision and percent replicating. Written as CSV, Parquet and GCT files that pycytominer, copairs and Morpheus read.",
+      "source_sha256": "cfea2162db719cbcc1dcea3c459a861cc99e484c69430112f43900eeae410c4f",
+      "translation": "Measure 이후의 이미지 기반 프로파일링: 객체 표에서 웰마다 프로필 하나를 만들고, 플레이트 맵으로 주석을 달고, 플레이트별로 음성 대조군에 대해 정규화하고, 특징을 선택하고, 처리 조건마다 합의 프로필 하나로 합친 뒤, 반복 재현성을 평균 정밀도 평균과 반복 일치 비율로 평가합니다. pycytominer, copairs, Morpheus가 읽는 CSV, Parquet, GCT 파일로 기록됩니다."
+    },
+    {
+      "table": "categories",
+      "key": "The cell-cycle phase of every nucleus, called after measuring from the DNA stain in one of three interchangeable ways: gates on each plate's fitted DNA-content histogram, a boosted classifier on the nucleus measurements, or an image classifier on nucleus crops. Each writes the same phase column to measurements.db, with the phase fractions per well among infected and uninfected cells.",
+      "source": "The cell-cycle phase of every nucleus, called after measuring from the DNA stain in one of three interchangeable ways: gates on each plate's fitted DNA-content histogram, a boosted classifier on the nucleus measurements, or an image classifier on nucleus crops. Each writes the same phase column to measurements.db, with the phase fractions per well among infected and uninfected cells.",
+      "source_sha256": "e19f4a6c38c6d6ff7efdc14f1e6b6a4c0a9e1efb7d740d9d305240dff0a9d859",
+      "translation": "측정 후 DNA 염색으로 판정하는 각 핵의 세포 주기 단계로, 서로 바꿔 쓸 수 있는 세 방식 중 하나를 씁니다: 각 플레이트의 적합된 DNA 함량 히스토그램에 대한 게이트, 핵 측정값에 대한 부스팅 분류기, 또는 핵 크롭에 대한 이미지 분류기입니다. 어느 방식이든 같은 단계 열을 measurements.db 파일에 기록하며, 감염 세포와 비감염 세포 중 웰별 단계 비율도 함께 기록합니다."
+    }
+  ]
+}

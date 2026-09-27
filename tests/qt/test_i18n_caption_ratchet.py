@@ -1154,146 +1154,16 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # and Measure, and its browser dialog (alpha).
 # 577, 2026-09-26: the Preferences Notifications tab (alpha).
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
-    'Announce every run that finishes or fails, by the ways switched on below, with its name, duration, outcome, a short QC summary and where its output is. Runs from the app and from the command line are both announced. A run you cancel is not. Default off.',
-    'Could not forget the saved secrets.',
-    "Delete the saved mail password, Slack webhook and ntfy topic and token from the keyring and from spaCR's own file, at once. Default kept.",
-    'Desktop',
-    'Email',
-    'Encryption',
-    'Forget saved secrets',
-    'From',
-    'How the connection to the mail server is encrypted. None sends the password in the clear and is only for a server on your own network. Default STARTTLS.',
-    'If you can read this, spaCR can tell you when a run finishes or fails.',
-    'Not sent: {channels}',
-    'Notify me',
-    'Only runs that took at least this long are announced, so a quick run you are watching does not send anything. 0 announces every run. Default 5 min.',
-    'Only when a run fails',
-    'Post to a Slack channel through an incoming webhook. Default off.',
-    'Publish to an ntfy topic, which the ntfy phone app or web page shows as a push notification. Default off.',
-    'Runs longer than',
-    'SMTP password',
-    'SMTP port',
-    'SMTP server',
-    'SMTP user name',
-    'Saved secrets',
-    'Saved secrets forgotten.',
-    'Saved; type to replace',
-    'Send a test',
-    'Send a test message now by every way switched on above, using what is typed here, and say which got through. Nothing is saved. Default not sent.',
-    "Send an email through the SMTP server below. Your institution's or mail provider's server works; many need an app password rather than your usual one. Default off.",
-    'Sending…',
-    'Sent: {channels}',
-    "Show a notification on this computer, from the system tray while the app is open, or through the desktop's own notifications for a command-line run. Default on.",
-    'Slack',
-    'Slack webhook',
-    'Switch on at least one way to be told first.',
-    "The server's port: usually 587 with STARTTLS, 465 with SSL. Default 587.",
-    'To',
-    'Try it',
-    'When',
-    'When a run finishes or fails',
-    'Which runs are announced: every run that ends, or only the ones that fail. Default when a run finishes or fails.',
-    'ntfy',
-    'ntfy access token',
-    'ntfy server',
-    'ntfy topic',
-    "spaCR can tell you when a long run finishes or fails: on this computer's desktop, by email, in Slack or through ntfy. Nothing is sent until you switch it on here. Passwords and addresses that work like passwords are kept in the system keyring.",
-    'spaCR test notification',
-    'Show alpha features',
-    'Show the settings, controls, screens and models built from the '
-    'future-features list that are not yet released. Off hides them; saved '
-    'values still reach every run.',
-    'GPU {device}: {done}/{total} {state}',
-    'Mask generation: segment batches on every GPU allocated to the job',
-    'Needs two or more compatible CUDA or ROCm GPUs; {count} found on this '
-    'computer. Cluster Distribution runs use the GPUs allocated to the job.',
-    'Submits mask_parallel on with a blank mask_gpu_indices, so the job uses '
-    'exactly the GPUs its scheduler allocates, one model per GPU. Request them '
-    'in the execution profile, for example --gres=gpu:2. A job given one GPU '
-    'runs on that one.',
-    'Used only when mask_parallel is on. {count} GPUs found.',
-    'done',
-    'running',
-    'starting',
-    'stopped',
-    '{done}/{total} {role} batches done, {failed} failed',
     # 555, 2026-09-26: the Segment by prompt category (micro-SAM), an alpha
     # feature: its caption, controls, tooltips and console lines.
-    'Segment by prompt',
-    'Click on one object, or drag a box round it, and micro-SAM outlines '
-    'it. Right-click marks what is not the object. Enter adds the outline '
-    'as a new object.',
-    'Prompt with micro-SAM',
-    'While on, a left click on the image marks the object, a right click '
-    'marks what is not the object and a left drag draws a box round it. '
-    'micro-SAM runs in an environment of its own; the first click on a '
-    'field waits while it embeds the field, and later clicks reuse that '
-    'embedding. If micro-SAM is not installed, turning this on offers to '
-    'install it. The Live magnifier is turned off while this is on. '
-    'Default off.',
-    'What the accepted object does where the mask already has an object. '
-    'Clip keeps only its unlabelled pixels, so no existing object loses a '
-    'pixel. Skip adds nothing if it touches an existing object. Replace '
-    'lets it take every pixel it covers, which is how an object a model '
-    'split into pieces is made one again. Default Clip.',
-    'Add object',
-    "Add the outline micro-SAM drew as one new object: one edit, undone by "
-    "one Ctrl+Z, written by Save mask and recorded in the field's curation "
-    "ledger with the prompt, the model and the micro-SAM version. Enter on "
-    "the image does the same. Default unavailable until an outline is "
-    "shown.",
-    'Throw away the points, the box and the outline, and start again on '
-    'another object. Nothing had been added to the mask. Escape on the '
-    'image does the same. Default unavailable until there is a prompt.',
-    'Nothing was added: under the Overlap rule the outline leaves nothing '
-    'that is not already an object.',
-    'Prompt-based segmentation runs micro-SAM, which is not installed yet.',
-    'Prompting needs micro-SAM, which is not installed.',
-    'Prompting off. The objects it added stay in the mask.',
-    'Prompting on: click the object, right-click what is not it, or drag a '
-    'box round it; Enter adds the outline.',
-    'Put a point on the object, or drag a box round it, before points off '
-    'it.',
-    'micro-SAM added object {ids} — Ctrl+Z to undo',
-    'micro-SAM could not segment: {error}',
-    'micro-SAM embedded this field in {embed:.1f} s on {device}; the prompt '
-    'then took {prompt:.2f} s.',
-    'micro-SAM is embedding this field; the first prompt on a field waits '
-    'for it…',
-    'micro-SAM is starting in its own environment…',
-    'micro-SAM outlined nothing; add a point or draw a box.',
-    'micro-SAM outlined {pixels} px in {seconds:.2f} s. Enter adds it, '
-    'Backspace takes the last prompt back, Escape discards it.',
-    'A well is a hit when its score reaches this value. SSMD 3 is a strong '
-    'effect; 3 for robust z and B-score is three robust standard deviations.',
-    'Call hits by',
-    'Export hits…',
-    'Hit threshold',
-    'Nothing scored yet.',
-    'Pick the control column and the negative control to score hits '
-    'against.',
-    'Reference',
-    'SSMD estimator',
-    'Score every well against the negative control and call hits. Needs the '
-    'negative control picked above and well positions in the table (prc, '
-    'rowID and columnID, or well).',
-    'Score hits (SSMD, robust z, B-score)',
-    'The column naming what is in each well. Wells sharing a treatment are '
-    'replicates and get one replicate SSMD in the export. Leave empty for a '
-    'screen without replicates.',
-    'Treatment',
-    'Turn on hit scoring and name the negative control.',
-    'Write the hit report into',
-    "Write the ranked hit table, every well's scores and the plate summary "
-    "as CSV, and one plate heatmap per statistic, into a folder",
-    'hit report written to {folder}',
+    # 540, 2026-09-26: the Viability (Alpha) category help on Measure.
+    "Live and dead cells, called after measuring from a dead stain, a live "
+    "stain, both, or nuclear morphology, with thresholds fitted per plate or "
+    "set by hand. Writes per-well viability, a live-cell index and a "
+    "cytotoxicity index scaled to the control wells, each plate's Z', and "
+    "with a plate map the dose-response of viability beside that of "
+    "infection, so parasite killing can be told from host toxicity.",
     # 535, 2026-09-26: the Cell Cycle (Alpha) category help on Measure.
-    "The cell-cycle phase of every nucleus, called after measuring from the "
-    "DNA stain in one of three interchangeable ways: gates on each plate's "
-    "fitted DNA-content histogram, a boosted classifier on the nucleus "
-    "measurements, or an image classifier on nucleus crops. Each writes the "
-    "same phase column to measurements.db, with the phase fractions per well "
-    "among infected and uninfected cells.",
     # 571, 2026-09-26: the Time To Event (Alpha) category help on Measure.
     "How long each tracked object of a timelapse lasts until an event such "
     "as death, lysis, egress, division or first detection, with objects "
@@ -1303,101 +1173,18 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "results/time_to_event.",
     # 541, 2026-09-26: the Measure preview's Alpha confluency toggle, its
     # status lines, and the Confluency (Alpha) category help.
-    'Confluency',
-    'Confluency failed: {error}',
-    'Confluency {percent} ({source}), {verdict}',
-    'How much of each field is covered by cells, measured per field and per '
-    'well into measurements.db with a monolayer QC flag: from the cell masks, '
-    'from the texture of a brightfield or phase channel, or from a '
-    'fluorescent stain. Plaque and infection results from a thin or torn '
-    'monolayer can then be dropped or divided by the covered fraction.',
-    'Show the area of this field Measure would count as covered by cells, '
-    'using the Confluency settings of the run.',
-    'below the monolayer QC threshold',
-    'monolayer QC passed',
     # 536, 2026-09-26: the Measure preview's Alpha wound toggle, its status
     # lines, and the Wound Closure (Alpha) category help.
-    'Wound',
-    'Wound failed: {error}',
-    'Show the open wound Measure would start a wound-closure series from if '
-    'this field were its first frame, using the Wound Closure settings of '
-    'the run.',
-    'No scratch found: the largest open area is {percent} of the field',
-    'Wound {percent} open, mean width {mean} {unit}, narrowest {narrowest} '
-    '{unit}',
-    'A scratch or wound-healing assay measured over a time-lapse: the open '
-    'wound in every frame, from the texture of a brightfield or phase '
-    'channel, a fluorescent stain or the cell masks; its area, mean and '
-    'minimum width; and per well and per condition the closure curve, '
-    'closure rate and half-closure time, written to measurements.db with '
-    'figures and a plate map.',
     # 544 and 573, 2026-09-26: the Blind switches of Annotate and Make
     # Masks, their notices and questions, and the Lock analysis button and
     # dialog (all alpha).
-    'Analysis locked: {sha} at {time}.',
-    'Blind',
-    'Blinded {count} crops under key {key}.',
-    'Blinded · {page}',
-    'Blinded: the source, plates, wells, conditions and file names are '
-    'hidden, and the crops are in a shuffled order.',
-    'Blinded: {count} fields, named by code and in a shuffled order.',
-    'Curate blind: name every field by a code instead of its file name and '
-    'folder, and show the fields in a shuffled order. The key is kept beside '
-    'the run journal, outside the data folder. Turning it off unblinds, and '
-    'the journal records who unblinded and when. Default off.',
-    'Hypotheses',
-    'Lock',
-    'Lock analysis',
-    'Lock analysis…',
-    'Locked {sha} at {time}. Runs of these settings on this source are '
-    'checked against it.',
-    'No analysis lock applies to these settings yet.',
-    'Open a folder of images before curating it blind.',
-    'Open an experiment source before scoring it blind.',
-    'Preregister the analysis: freeze these settings, your hypotheses and '
-    'thresholds, and the model and gate files they name, with a hash and a '
-    'timestamp, before the results are seen. Every later run on the same '
-    'source is checked against the lock, and a change is flagged in its '
-    'manifest, the report and the methods text, as post-hoc once the '
-    'blinding key has been opened. Default no lock.',
-    'Recrop is off while blinded, because the new fields are named after the '
-    'field they are cut from.',
-    'Score blind: hide the source, plates, wells, conditions and file names, '
-    'and show the crops in a shuffled order. The key is kept beside the run '
-    'journal, outside the data folder. Turning it off unblinds, and the '
-    'journal records who unblinded and when. Default off.',
-    'The thresholds and gates that decide a call, one per line.',
-    'Thresholds and gates',
-    'Unblind?',
-    'Unblinded key {key}; the journal recorded who and when.',
-    "Unblinding shows every field's file name and folder again, and the run "
-    "journal records who unblinded and when. An analysis lock on this folder "
-    "treats any later change as post-hoc. Unblind now?",
-    'Unblinding shows where every crop is from again, and the run journal '
-    'records who unblinded and when. An analysis lock on this folder treats '
-    'any later change as post-hoc. Unblind now?',
-    'What you expect to find, and what would count against it.',
-    'uncoded field',
-    'Watching: {done} analysed, {waiting} waiting, {failed} failed',
     # 539, 2026-09-26: the Bleach Correction (Alpha) category help on Measure.
     'Photobleaching correction for timelapse intensities, per field and '
     'channel: a simple ratio to the first timepoint, a fitted exponential '
     'decay, or histogram matching. Corrected intensities are written beside '
     'the measured ones with the method, and the fitted decay is plotted.',
     # 547, 2026-09-26: the Profiling (Alpha) category help on Measure.
-    'Image-based profiling after Measure: one profile per well from the '
-    'object tables, annotated from a plate map, normalised per plate against '
-    'the negative controls, feature-selected, collapsed into one consensus '
-    'profile per treatment and scored for replicate reproducibility as mean '
-    'average precision and percent replicating. Written as CSV, Parquet and '
-    'GCT files that pycytominer, copairs and Morpheus read.',
-    'Browse cloud storage',
-    'Browse cloud storage…',
     'Open',
-    'Public data (no credentials)',
-    'Reading…',
-    'S3-compatible endpoint (blank for Amazon S3)',
-    'Use this location',
     's3://bucket/folder, gs://, az:// or https://',
     # 565: Annotate's Like this similarity search.
     'Could not search for similar crops: {msg}',
@@ -1409,6 +1196,11 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'Searched {n} crops in {ms} ms.',
     'Show the 100 crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run.',
     '{name} and the {n} crops most like it, most similar first',
+    # 538, 2026-09-27: the Spectral Unmixing (Alpha) category help.
+    'Bleed-through correction: how much of each dye is read in the other '
+    'channels is estimated from single-stain control wells, and every field '
+    'is unmixed with that matrix before it is segmented or measured. The '
+    'matrix is printed and recorded with the run.',
 })
 
 
