@@ -1310,3 +1310,15 @@ Outliers and the neighboring files pass all52 tests in serial order; the
 old failing Outliers test uses threaded=False and creates no QThread.
 The 61% abort is therefore still not attributed or declared fixed. Keep
 this item OPEN until the serial acceptance run reaches its summary.
+
+STATUS 2026-09-27 — serial acceptance stopped at the memory guard
+The frozen 969e97b74 run collected 27,186 tests from 1,445 explicit named files.
+It ran unattended from 09:19:50 to 11:46:38 EDT and reached 48%, then its
+memory guard ended pytest at 10.9 GB against a 10.8 GB ceiling (12G cgroup).
+Exit status was 3. There was no observed native crash, but no final pytest
+summary or completed acceptance either. Item 47 remains open.
+Six test failures were recorded. The first five have focused fixes or current
+runtime checks; the fresh-process heavy-import check remains to reproduce.
+Passive bounded probes are investigating cross-file retained memory without
+GC drains or higher limits. Receipt:
+features/data/47_serial_acceptance_2026-09-27.json.
