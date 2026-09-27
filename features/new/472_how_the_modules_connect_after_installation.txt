@@ -3,10 +3,11 @@ AFTER INSTALLATION: HOW THE MODULES CONNECT -- TUTORIALS, WALKTHROUGHS AND API
 THAT SAY WHAT FEEDS WHAT, AND A HOME SCREEN THAT SHOWS WHERE TO START
 ================================================================================
 
-Status:    OPEN, re-checked 2026-09-26 (CLAUDE-DOCS). Every part is built and
-           the English is live, and issue #130 is answered and closed. The one
-           gap is that the 13-language 78-81 are committed but not yet live.
-           See "2026-09-26 — CLAUDE-DOCS: STATUS" at the end.
+Status:    DONE, re-checked 2026-09-27 (Codex). Every part is built and live;
+           all 52 translations of lessons 78-81 match their current
+           source-bound reviews on nightly. Issue #130 is answered and closed.
+           Native-speaker and human listening signoff remain unclaimed.
+           See the current live receipt in the final dated note.
 Issue:     GitHub #130, "Guide what to do after installation" (momeara,
            2026-09-22).
 Owners:    CODEX -- the tutorials, walkthroughs and API prose (parts 1-4), the
@@ -599,3 +600,23 @@ REMAINS
     source_bound_review in all 13 languages, set Status to DONE.
  b. Native-speaker and listening review have not happened. DONE WHEN does
     not require them (owner: maintainer).
+
+2026-09-27 — CODEX: CURRENT PATHWAY TRANSLATIONS VERIFIED LIVE; DONE
+Downloaded all thirteen live language catalogs and the English catalog from
+nightly at ab2ddcf87534be50a1c56cce2850549c50577465. For each of lessons 78-81,
+the English matches its current lesson source. All 52 translated entries
+match the canonical translated_lesson result from their current, hash-bound
+reviews; none falls back to English. Every entry declares the complete
+27-voice set. A second channels.json read confirmed the deployment did not
+change during verification.
+
+Receipt: features/data/472_live_pathway_translations_2026-09-27.json records
+the live catalog URLs/hashes, English source hashes, review hashes and all
+52 source_bound_review results. This is a current catalog readback, not a
+new browser or listening run. The earlier native capture and playback
+receipts remain linked in it. AI technical review (Codex), no native-speaker
+signoff; human listening signoff is also false.
+
+This closes the specific remaining acceptance condition in the 2026-09-26
+note. Separate tutorial debts for lessons 01/06 and the path-redaction
+publication remain under 358/447 and do not reopen this pathway item.
