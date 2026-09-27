@@ -1,0 +1,281 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Browse cloud storage",
+      "source": "Browse cloud storage",
+      "source_sha256": "63e2e2df4a286a096b814bfd8f85587de564b52bfc984842c7db1f52dc00a45b",
+      "translation": "浏览云存储"
+    },
+    {
+      "table": "ui",
+      "key": "Browse cloud storage…",
+      "source": "Browse cloud storage…",
+      "source_sha256": "de1f6948896bd7cbbdc5828079b63a0c9d09980b4814bbec79ad19c878d62dfd",
+      "translation": "浏览云存储…"
+    },
+    {
+      "table": "ui",
+      "key": "Cell Cycle (Alpha)",
+      "source": "Cell Cycle (Alpha)",
+      "source_sha256": "b506b3a01ea8b35739b874b2f3b3f4782dab65c7efa5606b88bebfb1ab803235",
+      "translation": "细胞周期（Alpha）"
+    },
+    {
+      "table": "ui",
+      "key": "Could not forget the saved secrets.",
+      "source": "Could not forget the saved secrets.",
+      "source_sha256": "dd005b39ada4e02018607dee02b71c231a4d52778d8d45b50e461f75ce7efdfd",
+      "translation": "无法清除已保存的凭据。"
+    },
+    {
+      "table": "ui",
+      "key": "Desktop",
+      "source": "Desktop",
+      "source_sha256": "9bd88f2485acbb9426ad3dd9e06842ede8c7516d0ba8559298675f09419681fa",
+      "translation": "桌面"
+    },
+    {
+      "table": "ui",
+      "key": "Email",
+      "source": "Email",
+      "source_sha256": "969ccbd3cf6300ecd5c880459d81ae9027df7517563184a1b8b15282db230621",
+      "translation": "电子邮件"
+    },
+    {
+      "table": "ui",
+      "key": "Encryption",
+      "source": "Encryption",
+      "source_sha256": "82f4e719a19ce7e573734543f366f55117e4048116b3892adcd1831fb1775d8f",
+      "translation": "加密"
+    },
+    {
+      "table": "ui",
+      "key": "Forget saved secrets",
+      "source": "Forget saved secrets",
+      "source_sha256": "80efa7ed9f6288a820f67ae5cca2ab632710988f9f57b37286db2f11a8e447a5",
+      "translation": "清除已保存的凭据"
+    },
+    {
+      "table": "ui",
+      "key": "From",
+      "source": "From",
+      "source_sha256": "218197693424e0154cefc0af31aed96c084b987e08136e91d5528ddbb5461e24",
+      "translation": "发件人"
+    },
+    {
+      "table": "ui",
+      "key": "Not sent: {channels}",
+      "source": "Not sent: {channels}",
+      "source_sha256": "f873f2b006938c7bb359c76cc3f2da888928fa62888ce18bf786edad14b2060c",
+      "translation": "未发送：{channels}"
+    },
+    {
+      "table": "ui",
+      "key": "Notify me",
+      "source": "Notify me",
+      "source_sha256": "a5b3a74811e60623f753002629d9abfc8455155b316003299a39b9eb2871e8b8",
+      "translation": "通知我"
+    },
+    {
+      "table": "ui",
+      "key": "Only when a run fails",
+      "source": "Only when a run fails",
+      "source_sha256": "569b08fab3fdd217fe6cdf50d5c444d2d14ada88a5fc88a5e3e70eada301eb09",
+      "translation": "仅在运行失败时"
+    },
+    {
+      "table": "ui",
+      "key": "Profiling (Alpha)",
+      "source": "Profiling (Alpha)",
+      "source_sha256": "f121d9e3e46c4b60f8bf5555e2097fc258ed9b8832ba79658b88a11b77974745",
+      "translation": "特征谱分析（Alpha）"
+    },
+    {
+      "table": "ui",
+      "key": "Public data (no credentials)",
+      "source": "Public data (no credentials)",
+      "source_sha256": "026f421f87ef6cd25f7b0d22bf1c5b205df836ad06b5e8fabd96aab323bd3689",
+      "translation": "公开数据（无需凭据）"
+    },
+    {
+      "table": "ui",
+      "key": "Reading…",
+      "source": "Reading…",
+      "source_sha256": "874bfa5bedd7464ddd430790262daee63cf29d3813fc17be1cdd71cef79790e2",
+      "translation": "正在读取…"
+    },
+    {
+      "table": "ui",
+      "key": "Runs longer than",
+      "source": "Runs longer than",
+      "source_sha256": "99dec39a14b0c0b13acb93982aa134e4d0c5fddd250a6ba4f6c36a20fd21e40f",
+      "translation": "运行时长超过"
+    },
+    {
+      "table": "ui",
+      "key": "SMTP password",
+      "source": "SMTP password",
+      "source_sha256": "74eae55b2fbdccca0449a7694b5f5c30693bbf4944f02695d58edcc6472c0fc2",
+      "translation": "SMTP 密码"
+    },
+    {
+      "table": "ui",
+      "key": "SMTP port",
+      "source": "SMTP port",
+      "source_sha256": "525308ed2bc4cb41f9f61bf41424b1a6b5a9f7a0213a176f79070085b849bd45",
+      "translation": "SMTP 端口"
+    },
+    {
+      "table": "ui",
+      "key": "SMTP server",
+      "source": "SMTP server",
+      "source_sha256": "72817b3173b325f48756692332a7788bca4446c62cfbfdb95018689e602b609f",
+      "translation": "SMTP 服务器"
+    },
+    {
+      "table": "ui",
+      "key": "SMTP user name",
+      "source": "SMTP user name",
+      "source_sha256": "e1355760d03c55542299313bd358014f312d341b3b4d58448bcd1e1a2b9d6240",
+      "translation": "SMTP 用户名"
+    },
+    {
+      "table": "ui",
+      "key": "Saved secrets",
+      "source": "Saved secrets",
+      "source_sha256": "5bc9e131af40eed97659907c88fa8c7fe398449946a37c31411f11be5fae64b8",
+      "translation": "已保存的凭据"
+    },
+    {
+      "table": "ui",
+      "key": "Saved secrets forgotten.",
+      "source": "Saved secrets forgotten.",
+      "source_sha256": "33ba6d921bdec1d754141e6b33af845713a8f9a6df410622ca9d479a688e68fc",
+      "translation": "已清除保存的凭据。"
+    },
+    {
+      "table": "ui",
+      "key": "Saved; type to replace",
+      "source": "Saved; type to replace",
+      "source_sha256": "8be72d7e11a6bf93b2a0499140986dbee0f6fb6fa43e839b30ab554d94db89bf",
+      "translation": "已保存；输入内容以替换"
+    },
+    {
+      "table": "ui",
+      "key": "Send a test",
+      "source": "Send a test",
+      "source_sha256": "edc014363ddb8cf9e7bd64603f5f485f1a6cbe549ed9a131116e48c846f8c72d",
+      "translation": "发送测试"
+    },
+    {
+      "table": "ui",
+      "key": "Sending…",
+      "source": "Sending…",
+      "source_sha256": "b8ed5279e897be5def6b902caa5121b3c1ee6957209f715187878a93ae0ca8be",
+      "translation": "正在发送…"
+    },
+    {
+      "table": "ui",
+      "key": "Sent: {channels}",
+      "source": "Sent: {channels}",
+      "source_sha256": "b465ba22a137270d00465a3c66688becd887e6fe0db1f663e9c8e13a13001e86",
+      "translation": "已发送：{channels}"
+    },
+    {
+      "table": "ui",
+      "key": "Slack webhook",
+      "source": "Slack webhook",
+      "source_sha256": "d4270fe40fbb5fcdf29a23ef180ac02eec2aa7f047f83fc3462101d8cd6d496e",
+      "translation": "Slack 传入 Webhook 地址"
+    },
+    {
+      "table": "ui",
+      "key": "To",
+      "source": "To",
+      "source_sha256": "f4b06ef6d3c81436f60a318c81c42f8f7e2d774d45a22f3b9b5f3b6980d28146",
+      "translation": "收件人"
+    },
+    {
+      "table": "ui",
+      "key": "Try it",
+      "source": "Try it",
+      "source_sha256": "fe69511137842f6fddcfcc1e96e39bf6920b5ed00251ec6549d79463928b2e0c",
+      "translation": "试一试"
+    },
+    {
+      "table": "ui",
+      "key": "Use this location",
+      "source": "Use this location",
+      "source_sha256": "69d62e1893a1d79afb01c27a77791af8c83d80fcb2c82061746a39dcfb262e25",
+      "translation": "使用此位置"
+    },
+    {
+      "table": "ui",
+      "key": "When",
+      "source": "When",
+      "source_sha256": "cf9c7aa24a26aac4f0ec4b6395cbfdcc055677c3dac87bd6af898bccd66d4e17",
+      "translation": "何时"
+    },
+    {
+      "table": "ui",
+      "key": "When a run finishes or fails",
+      "source": "When a run finishes or fails",
+      "source_sha256": "c00b98f5c784c331d748120b32645aacd8296d8af526f1c9fa20e1b303a0a7fc",
+      "translation": "运行结束或失败时"
+    },
+    {
+      "table": "ui",
+      "key": "Wound",
+      "source": "Wound",
+      "source_sha256": "d65e2bcd794b2834437ee7b9555151145968d2768987fa4670d399f1dab5f119",
+      "translation": "伤口"
+    },
+    {
+      "table": "ui",
+      "key": "Wound Closure (Alpha)",
+      "source": "Wound Closure (Alpha)",
+      "source_sha256": "7ea3bc00f5ccb0b5da914ee57356be7e13b317986f544dc03e5d3da4c2933cc6",
+      "translation": "伤口愈合（Alpha）"
+    },
+    {
+      "table": "ui",
+      "key": "Wound failed: {error}",
+      "source": "Wound failed: {error}",
+      "source_sha256": "bb8503530bd939c8d132e2498ee4dbec0e9ab19e8c0f6b732365d47a67ac22d3",
+      "translation": "伤口测量失败：{error}"
+    },
+    {
+      "table": "ui",
+      "key": "ntfy access token",
+      "source": "ntfy access token",
+      "source_sha256": "2843de3fae996f29c636b7fae22c98bd524a658f267b02e35d73770dd1dcfaaa",
+      "translation": "ntfy 访问令牌"
+    },
+    {
+      "table": "ui",
+      "key": "ntfy server",
+      "source": "ntfy server",
+      "source_sha256": "071076ad44d40a48779660b2e55197e4ac4b32b48ce20875302cee3a124cd70d",
+      "translation": "ntfy 服务器"
+    },
+    {
+      "table": "ui",
+      "key": "ntfy topic",
+      "source": "ntfy topic",
+      "source_sha256": "076b5ae1e31ec7adf93f68a54d09a89730aeb57c4c3cf42c92c35a4aa9189f1d",
+      "translation": "ntfy 主题"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR test notification",
+      "source": "spaCR test notification",
+      "source_sha256": "10d975667fb4a41286151c7e33a4a9ad0a8c8f8bc85bd1078d18e0896a16705a",
+      "translation": "spaCR 测试通知"
+    }
+  ]
+}

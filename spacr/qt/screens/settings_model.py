@@ -1195,6 +1195,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_max_fields", "illumination_qc",
             "illumination_on_missing",
         )),
+        ("Spectral Unmixing (Alpha)", ("@Spectral Unmixing (Alpha)",)),
         ("Point Spread Function", ("@Point Spread Function",)),
         ("Image Enhancement", ("@Image Enhancement",)),
         ("Cell Segmentation", ("@Cell",)),
@@ -1246,6 +1247,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_per_plate", "illumination_max_fields",
             "illumination_qc", "illumination_on_missing",
         )),
+        ("Spectral Unmixing (Alpha)", ("@Spectral Unmixing (Alpha)",)),
         ("Point Spread Function", ("@Point Spread Function",)),
         ("Intensity Calibration (Alpha)", ("@Intensity Calibration (Alpha)",)),
         ("Measurement Features", (
@@ -1261,6 +1263,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Confluency (Alpha)", ("@Confluency (Alpha)",)),
         ("Cell Cycle (Alpha)", ("@Cell Cycle (Alpha)",)),
+        ("Bleach Correction (Alpha)", ("@Bleach Correction (Alpha)",)),
         ("Wound Closure (Alpha)", ("@Wound Closure (Alpha)",)),
         ("Time To Event (Alpha)", ("@Time To Event (Alpha)",)),
         ("Object Filtering", (
@@ -1317,6 +1320,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_max_fields", "illumination_qc",
             "illumination_on_missing",
         )),
+        ("Spectral Unmixing (Alpha)", ("@Spectral Unmixing (Alpha)",)),
         ("Point Spread Function", ("@Point Spread Function",)),
         ("Image Enhancement", ("@Image Enhancement",)),
         ("Cell Segmentation", ("@Cell",)),
@@ -2649,6 +2653,12 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "out, the interval between frames, which backend links objects, and "
         "how far one may move between frames. For data that is both a "
         "z-stack and a time series.",
+    "BLEACH CORRECTION (ALPHA)":
+        "Photobleaching correction for timelapse intensities, per field and "
+        "channel: a simple ratio to the first timepoint, a fitted exponential "
+        "decay, or histogram matching. Corrected intensities are written "
+        "beside the measured ones with the method, and the fitted decay is "
+        "plotted.",
     "PROFILING (ALPHA)":
         "Image-based profiling after Measure: one profile per well from the "
         "object tables, annotated from a plate map, normalised per plate "
@@ -2678,6 +2688,11 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "nucleus measurements, or an image classifier on nucleus crops. Each "
         "writes the same phase column to measurements.db, with the phase "
         "fractions per well among infected and uninfected cells.",
+    "SPECTRAL UNMIXING (ALPHA)":
+        "Bleed-through correction: how much of each dye is read in the other "
+        "channels is estimated from single-stain control wells, and every "
+        "field is unmixed with that matrix before it is segmented or "
+        "measured. The matrix is printed and recorded with the run.",
     "CONFLUENCY (ALPHA)":
         "How much of each field is covered by cells, measured per field and "
         "per well into measurements.db with a monolayer QC flag: from the "

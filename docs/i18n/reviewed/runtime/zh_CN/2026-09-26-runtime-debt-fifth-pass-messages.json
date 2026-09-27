@@ -1,0 +1,134 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Announce every run that finishes or fails, by the ways switched on below, with its name, duration, outcome, a short QC summary and where its output is. Runs from the app and from the command line are both announced. A run you cancel is not. Default off.",
+      "source": "Announce every run that finishes or fails, by the ways switched on below, with its name, duration, outcome, a short QC summary and where its output is. Runs from the app and from the command line are both announced. A run you cancel is not. Default off.",
+      "source_sha256": "1e4c862ec7ea9dfdf2f6d35e7bab94aec2418b922d7252d10598c226d4753be2",
+      "translation": "通过下方开启的方式通知每次结束或失败的运行，内容包括名称、耗时、结果、简短的 QC 摘要以及输出位置。来自应用和命令行的运行都会通知。您取消的运行不会通知。默认关闭。"
+    },
+    {
+      "table": "ui",
+      "key": "Delete the saved mail password, Slack webhook and ntfy topic and token from the keyring and from spaCR's own file, at once. Default kept.",
+      "source": "Delete the saved mail password, Slack webhook and ntfy topic and token from the keyring and from spaCR's own file, at once. Default kept.",
+      "source_sha256": "165cfc5f9a770a80d18e4a955733d88710efaaa7ebbef0034e9e3a168752cffb",
+      "translation": "一次性从密钥环和 spaCR 自己的文件中删除已保存的邮件密码、Slack Webhook 以及 ntfy 主题和令牌。默认保留。"
+    },
+    {
+      "table": "ui",
+      "key": "How the connection to the mail server is encrypted. None sends the password in the clear and is only for a server on your own network. Default STARTTLS.",
+      "source": "How the connection to the mail server is encrypted. None sends the password in the clear and is only for a server on your own network. Default STARTTLS.",
+      "source_sha256": "dc5f503eeb5c154ca474511086a69b11ca6b5e5debe83796111d6bab7553338c",
+      "translation": "与邮件服务器连接的加密方式。None 以明文发送密码，仅适用于您自己网络中的服务器。默认值 STARTTLS。"
+    },
+    {
+      "table": "ui",
+      "key": "If you can read this, spaCR can tell you when a run finishes or fails.",
+      "source": "If you can read this, spaCR can tell you when a run finishes or fails.",
+      "source_sha256": "7f115b6181964f6a035a7b13cfe178f407b653f677fdbde03b35600fc4e80744",
+      "translation": "如果您能读到这条消息，spaCR 就能在运行结束或失败时通知您。"
+    },
+    {
+      "table": "ui",
+      "key": "No scratch found: the largest open area is {percent} of the field",
+      "source": "No scratch found: the largest open area is {percent} of the field",
+      "source_sha256": "1d8170c2f492ee0d16f9494e41da54a5ec9bd8500006eae3898e0f7fb48ea018",
+      "translation": "未找到划痕：最大的开放区域占视野的 {percent}"
+    },
+    {
+      "table": "ui",
+      "key": "Only runs that took at least this long are announced, so a quick run you are watching does not send anything. 0 announces every run. Default 5 min.",
+      "source": "Only runs that took at least this long are announced, so a quick run you are watching does not send anything. 0 announces every run. Default 5 min.",
+      "source_sha256": "1f23bc3ed47a85240296fbe9700963be93d5bcb10cd173d495af6d1f6fe565a2",
+      "translation": "只有耗时至少这么长的运行才会通知，这样您正在观察的快速运行不会发送任何消息。0 表示通知每次运行。默认值 5 min。"
+    },
+    {
+      "table": "ui",
+      "key": "Post to a Slack channel through an incoming webhook. Default off.",
+      "source": "Post to a Slack channel through an incoming webhook. Default off.",
+      "source_sha256": "bef5d57b5f3da12ec55be01ee3f15eec798e7aea69dbf9ee1b9039395a2ce9e9",
+      "translation": "通过传入 Webhook 发布到 Slack 频道。默认关闭。"
+    },
+    {
+      "table": "ui",
+      "key": "Publish to an ntfy topic, which the ntfy phone app or web page shows as a push notification. Default off.",
+      "source": "Publish to an ntfy topic, which the ntfy phone app or web page shows as a push notification. Default off.",
+      "source_sha256": "4c0c3a50d592de5c1856559f7bd5e0549217b477c430fd300141c6e005aed206",
+      "translation": "发布到 ntfy 主题，ntfy 手机应用或网页会将其显示为推送通知。默认关闭。"
+    },
+    {
+      "table": "ui",
+      "key": "S3-compatible endpoint (blank for Amazon S3)",
+      "source": "S3-compatible endpoint (blank for Amazon S3)",
+      "source_sha256": "15d8503c59663cd1d343179334bb1caa5c449d0e454533d610a50b514afc13c4",
+      "translation": "S3 兼容端点（Amazon S3 请留空）"
+    },
+    {
+      "table": "ui",
+      "key": "Send a test message now by every way switched on above, using what is typed here, and say which got through. Nothing is saved. Default not sent.",
+      "source": "Send a test message now by every way switched on above, using what is typed here, and say which got through. Nothing is saved. Default not sent.",
+      "source_sha256": "37b200695a62679e1a51c27ee5820c82bf4a15183e5981439b151773e2435dfb",
+      "translation": "立即通过上面开启的每种方式、使用此处输入的内容发送一条测试消息，并说明哪些已送达。不会保存任何内容。默认不发送。"
+    },
+    {
+      "table": "ui",
+      "key": "Send an email through the SMTP server below. Your institution's or mail provider's server works; many need an app password rather than your usual one. Default off.",
+      "source": "Send an email through the SMTP server below. Your institution's or mail provider's server works; many need an app password rather than your usual one. Default off.",
+      "source_sha256": "efcf3155ea34c1f43d36ff81a5412c1f9e4d44d58bbd2f0a563493e85ac21e9a",
+      "translation": "通过下方的 SMTP 服务器发送电子邮件。您所在机构或邮件服务商的服务器均可；很多服务器需要应用专用密码，而不是您平时的密码。默认关闭。"
+    },
+    {
+      "table": "ui",
+      "key": "Show a notification on this computer, from the system tray while the app is open, or through the desktop's own notifications for a command-line run. Default on.",
+      "source": "Show a notification on this computer, from the system tray while the app is open, or through the desktop's own notifications for a command-line run. Default on.",
+      "source_sha256": "d513564cc95940bf6c192b9fab12301cfa95914333895e9f6902b634c4749aa3",
+      "translation": "在这台计算机上显示通知：应用打开时从系统托盘显示，命令行运行时通过桌面自身的通知显示。默认开启。"
+    },
+    {
+      "table": "ui",
+      "key": "Show the open wound Measure would start a wound-closure series from if this field were its first frame, using the Wound Closure settings of the run.",
+      "source": "Show the open wound Measure would start a wound-closure series from if this field were its first frame, using the Wound Closure settings of the run.",
+      "source_sha256": "e9d2874f2e4fa846e27700feae7240d5908d467c7d5bc727340469a6fd93c626",
+      "translation": "如果此视野是伤口闭合序列的第一帧，按本次运行的伤口愈合设置显示 Measure 会以之为起点的开放伤口。"
+    },
+    {
+      "table": "ui",
+      "key": "Switch on at least one way to be told first.",
+      "source": "Switch on at least one way to be told first.",
+      "source_sha256": "4c984c654dff1bb04d0c8835e665a5028fea54e87388fc3afbabc5afedce7cf1",
+      "translation": "请先至少开启一种通知方式。"
+    },
+    {
+      "table": "ui",
+      "key": "The server's port: usually 587 with STARTTLS, 465 with SSL. Default 587.",
+      "source": "The server's port: usually 587 with STARTTLS, 465 with SSL. Default 587.",
+      "source_sha256": "472c6b45141b0ec38c7bf97051496ee48aa57947728dd78818440983f9eaa6d1",
+      "translation": "服务器端口：STARTTLS 通常为 587，SSL 为 465。默认值 587。"
+    },
+    {
+      "table": "ui",
+      "key": "Which runs are announced: every run that ends, or only the ones that fail. Default when a run finishes or fails.",
+      "source": "Which runs are announced: every run that ends, or only the ones that fail. Default when a run finishes or fails.",
+      "source_sha256": "9a5a99203b828418041e87150d5c7d896439c83d83b0e4876913a81724c87924",
+      "translation": "通知哪些运行：每次结束的运行，或仅失败的运行。默认为运行结束或失败时。"
+    },
+    {
+      "table": "ui",
+      "key": "Wound {percent} open, mean width {mean} {unit}, narrowest {narrowest} {unit}",
+      "source": "Wound {percent} open, mean width {mean} {unit}, narrowest {narrowest} {unit}",
+      "source_sha256": "fd1bbb442a04adff2e4e8f57762fae00432bb5c1e43529929be68b870426452c",
+      "translation": "伤口开放 {percent}，平均宽度 {mean} {unit}，最窄处 {narrowest} {unit}"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR can tell you when a long run finishes or fails: on this computer's desktop, by email, in Slack or through ntfy. Nothing is sent until you switch it on here. Passwords and addresses that work like passwords are kept in the system keyring.",
+      "source": "spaCR can tell you when a long run finishes or fails: on this computer's desktop, by email, in Slack or through ntfy. Nothing is sent until you switch it on here. Passwords and addresses that work like passwords are kept in the system keyring.",
+      "source_sha256": "01919e0560a77154128f6c9230f0640d1ba1b4471a588fd6cd38a895668c879b",
+      "translation": "spaCR 可以在长时间运行结束或失败时通知您：在这台计算机的桌面上、通过电子邮件、在 Slack 中或通过 ntfy。在此开启之前不会发送任何内容。密码以及用作密码的地址保存在系统密钥环中。"
+    }
+  ]
+}

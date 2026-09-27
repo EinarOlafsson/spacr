@@ -5659,6 +5659,8 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
     :param file: merged NPY filename below ``settings['src']``.
     :param settings: Measure configuration; original PSF intensity choice is
         the default. Label planes and exported crops keep their source pixels.
+        With an unmixing record from the parent, the measured channels are
+        unmixed before any preprocessing hook.
     :param psf_plan: immutable plan captured by the parent. When omitted for
         a direct processed call, the worker prepares one from its settings.
     :param psf_cancel: optional process-safe cancellation event.
@@ -5672,6 +5674,7 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
     from .cancellation import PipelineCancelled
     from .psf_measurement import (prepare_measurement_psf, measurement_psf_record,
                                   measurement_psf_signature, SIGNATURE_KEY)
+    from .psf_pipeline import _UNMIX_RECORD_KEY, _apply_recorded_unmixing
 
     figs = {}
     grid = []
@@ -5742,6 +5745,8 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
             figs[f'{file_name}__before_filtration'] = fig
 
         channel_arrays = data[..., settings['channels']].astype(data_type)
+        if settings.get(_UNMIX_RECORD_KEY):
+            channel_arrays = _apply_recorded_unmixing(channel_arrays, settings)
 
         if preprocessing_hooks():
             channel_arrays = apply_preprocessing_hooks(
@@ -6403,6 +6408,8 @@ def measure_crop(settings):
                     settings, os.path.join(_measurements_dir, 'measurements.db'), psf_plan)
                 validate_measurement_illumination_inputs(settings)
                 prepare_illumination_correction(settings)
+                from .psf_pipeline import _prepare_measure_unmixing
+                _prepare_measure_unmixing(settings)
 
                 if settings['cell_mask_dim'] is None:
                     settings['uninfected'] = True
@@ -6666,6 +6673,11 @@ def measure_crop(settings):
                 if settings.get('wound_closure'):
                     _run_wound_closure(settings['src'], settings)
 
+                if (settings['timelapse']
+                        and settings.get('bleach_correction', 'none') != 'none'
+                        and os.path.isfile(db_path)):
+                    _run_bleach_correction_step(db_path, settings)
+
                 if settings.get('time_to_event') and os.path.isfile(db_path):
                     _run_time_to_event_step(db_path, settings)
 
@@ -6683,6 +6695,32 @@ def measure_crop(settings):
                     print("Successfully completed run")
 
             run.register_outputs(settings=settings, roots=source_folders)
+
+def _run_bleach_correction_step(db_path, settings):
+    """Correct a timelapse run's intensities for photobleaching and say where.
+
+    Runs :func:`spacr.timelapse._correct_timelapse_bleaching` with the
+    ``bleach_correction`` method. A failure is reported and does not fail
+    the run: the measured tables are already written and are not changed.
+
+    :param db_path: the ``measurements.db`` the run produced.
+    :param settings: Measure settings.
+    :returns: the per-field, per-channel fits, or None when the step failed.
+    """
+    from .timelapse import _correct_timelapse_bleaching
+
+    method = settings.get('bleach_correction')
+    try:
+        fits = _correct_timelapse_bleaching(db_path, method, plot=True)
+    except Exception as exc:
+        print(f"Bleach correction could not be applied: {exc}")
+        return None
+    tables = sorted(fits['object_type'].unique())
+    print(f"Bleach correction ({method}): {len(fits)} field-channel series in "
+          f"{', '.join(f'{t}_bleach_corrected' for t in tables)}; fits in "
+          f"measurements.db:bleach_correction")
+    return fits
+
 
 def _run_cell_cycle_step(db_path, settings):
     """Call cell-cycle phases at the end of a Measure run and say where.

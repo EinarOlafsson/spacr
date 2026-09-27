@@ -972,6 +972,13 @@ def _set_psf_defaults(settings):
     settings.setdefault('psf_iterations', 20)
 
 
+def _set_unmix_defaults(settings):
+    """Populate the dormant spectral-unmixing settings, unmixing off."""
+    settings.setdefault('unmix', False)
+    settings.setdefault('unmix_controls', '')
+    settings.setdefault('unmix_background_percentile', 5.0)
+
+
 def _set_enhancement_defaults(settings):
     """Populate the dormant enhancement-chain settings, every step off.
 
@@ -1016,6 +1023,7 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('pipeline_style', 'v1')
     _set_psf_defaults(settings)
     settings.setdefault('psf_objective', 'auto')
+    _set_unmix_defaults(settings)
     _set_enhancement_defaults(settings)
     from .image_quality import DEFAULTS as image_quality_defaults
     for key, value in image_quality_defaults.items():
@@ -1653,6 +1661,7 @@ def get_measure_crop_settings(settings=None):
     _fold_renamed_settings(settings)
     _set_psf_defaults(settings)
     settings.setdefault('psf_measurement_source', 'original')
+    _set_unmix_defaults(settings)
     _requested_organelle_count = organelle_count(settings)
     import ast as _ast
     for _k, _v in list(settings.items()):
@@ -1687,6 +1696,7 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('confluency_channel', None)
     settings.setdefault('confluency_window', 15)
     settings.setdefault('confluency_qc_threshold', 0.8)
+    settings.setdefault('bleach_correction', 'none')
     settings.setdefault('profiling', False)
     settings.setdefault('profiling_metadata', '')
     settings.setdefault('profiling_treatment_column', 'columnID')
@@ -3230,6 +3240,8 @@ expected_types = {
     "psf_image_sampling_um": (list, type(None)),
     "psf_kernel_sampling_um": (list, type(None)),
     "psf_fwhm_um": (list, type(None)), "psf_iterations": int,
+    "unmix": bool, "unmix_controls": str,
+    "unmix_background_percentile": (float, int),
     "enhance_background": str, "enhance_background_radius": int,
     "enhance_background_scale": float,
     "enhance_denoise": str, "enhance_denoise_strength": float,
@@ -3506,6 +3518,7 @@ expected_types = {
     "confluency_channel": (int, type(None)),
     "confluency_window": int,
     "confluency_qc_threshold": (float, int, type(None)),
+    "bleach_correction": str,
     "profiling": bool,
     "profiling_metadata": str,
     "profiling_treatment_column": (str, list),
@@ -4193,6 +4206,9 @@ tooltips = {
     'psf_kernel_sampling_um': "(list or None) - Default None (unset). Measured kernel pixel spacing [Y, X] in micrometers. Must match image sampling; mismatched kernels are refused rather than silently resampled. Unused for a Gaussian approximation.",
     'psf_fwhm_um': "(list or None) - Default None (unset). Gaussian full width at half maximum [Y, X] in micrometers; both values must be positive and finite. Unset, Mask and timelapse calculate 0.51 × emission wavelength / NA from image metadata or psf_objective (520 nm, NA 0.75: 0.354 µm by default), an approximation of the ideal widefield PSF, not measured resolution. Measure requires it explicitly.",
     'psf_iterations': "(int) - Richardson–Lucy iterations, 1–200; default 20. Higher values may amplify noise and artifacts. Unused for convolution. Processing is cancellable between iterations, uses symmetric boundaries and retains floating point intensities without clipping to the integer source range.",
+    'unmix': "(bool) - Spectral unmixing: estimate how much of each dye bleeds into the other channels from single-stain control wells, then unmix every field before it is segmented or measured. Make Masks unmixes each raw field across all its channels before illumination correction, the PSF and the enhancement chain; Measure unmixes the measured channels before its preprocessing. The matrix is printed and recorded with the run. Needs unmix_controls. Default False.",
+    'unmix_controls': "(str) - The single-stain control wells, as channel:well[,well] entries separated by semicolons, for example 0:A01,A02; 1:B01. The channel is the dye's own channel, counted as in the stack or merged array; its wells hold that dye alone. Channels without controls are taken to bleed into nothing. Up to 24 fields per dye are read. Ignored unless unmix is on. Default blank.",
+    'unmix_background_percentile': "(float) - Percentile of each channel's pixels taken as its background, from 0 up to but not including 100. It is set aside before each field is unmixed and added back after, so a channel with no dye stays at its own background level rather than being pulled below it. Keep it below the fraction of the field that is empty. Default 5.0.",
     'enhance_background': "(str) - Background subtraction for every selected segmentation channel after illumination correction and before normalization, the first step of the enhancement chain Make Masks tunes. rolling_ball removes a fitted surface of the radius below and flattens uneven illumination; tophat keeps what is brighter than its surroundings and is faster; none is off. Set the radius larger than the largest object. A resumed run refuses Mask inputs made with a different chain. Default 'none'.",
     'enhance_background_radius': "(int) - Radius in pixels of the rolling ball or the top-hat disk. Make it larger than the largest object and smaller than the scale the illumination varies on; a radius under the object size removes the objects with the background. Default 50.",
     'enhance_background_scale': "(float) - Fraction of full size the background is estimated at, above 0 and at most 1. The surface is scaled back up before subtraction, so only the estimate is smaller; 1.0 is scikit-image's exact answer and is slow on large fields. Default 0.5.",
@@ -4742,6 +4758,7 @@ tooltips = {
     "confluency_source": "(str) - How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold, for brightfield and phase. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.",
     "confluency_channel": "(int or None) - The merged-array channel that the texture and intensity confluency sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, or the cytoplasm or membrane stain for intensity. Ignored when confluency_source resolves to masks. Default None.",
     "confluency_window": "(int) - Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. Ignored by the masks and intensity sources. Default 15.",
+    "bleach_correction": "(str) - Photobleaching correction for a timelapse run, applied after measuring and per field and channel. ratio rescales each timepoint so the median object mean intensity equals the first timepoint's; exponential does the same with a fitted a*exp(-b*t)+c decay; histogram maps each timepoint's intensities onto the first timepoint's distribution. Writes <object>_bleach_corrected and the fits to measurements.db and plots the decay; the measured tables stay unchanged. Ignored unless timelapse. Default none.",
     "wound_closure": "(bool) - Measure a scratch or wound-healing assay: find the open wound in every frame of every field, then write its area, mean and minimum width, the closure rate and the half-closure time per field, per well and per condition to measurements.db and results/wound_closure, with closure curves and a plate map. Frames are grouped by plate, well and field and ordered by timepoint; the first frame decides where the scratch is. Default False.",
     "wound_source": "(str) - How the open wound is told apart from the monolayer. texture reads the local variation of wound_channel, for brightfield and phase. intensity thresholds wound_channel, for a fluorescent cytoplasm or membrane stain. masks takes every pixel outside the segmented cells as open. The cut is decided on each field's first frame and kept for its later frames. Default texture.",
     "wound_channel": "(int or None) - The merged-array channel the texture and intensity wound sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, the stain for intensity. Ignored by the masks source. Default None.",
@@ -5287,6 +5304,9 @@ categories = {
                               "psf_path", "psf_image_sampling_um", "psf_kernel_sampling_um",
                               "psf_fwhm_um", "psf_iterations"],
 
+    "Spectral Unmixing (Alpha)": ["unmix", "unmix_controls",
+                                  "unmix_background_percentile"],
+
     "Image Enhancement": ["enhance_background", "enhance_background_radius",
                           "enhance_background_scale",
                           "enhance_denoise", "enhance_denoise_strength",
@@ -5430,6 +5450,10 @@ categories = {
     "Confluency (Alpha)": [
         "confluency", "confluency_source", "confluency_channel",
         "confluency_window", "confluency_qc_threshold",
+    ],
+
+    "Bleach Correction (Alpha)": [
+        "bleach_correction",
     ],
 
     "Profiling (Alpha)": [
@@ -7002,6 +7026,9 @@ ALPHA_FEATURES = {
                      'cell_cycle_fucci_channels', 'cell_cycle_labels',
                      'cell_cycle_model', 'cell_cycle_epochs'),
     },
+    539: {
+        'settings': ('bleach_correction',),
+    },
     541: {
         'settings': ('confluency', 'confluency_source', 'confluency_channel',
                      'confluency_window', 'confluency_qc_threshold'),
@@ -7090,6 +7117,9 @@ ALPHA_FEATURES = {
     },
     581: {
         'settings': ('anndata_format', 'anndata_tidy_dir'),
+    },
+    538: {
+        'settings': ('unmix', 'unmix_controls', 'unmix_background_percentile'),
     },
 }
 

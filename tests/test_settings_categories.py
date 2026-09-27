@@ -773,6 +773,11 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # QC cut, under their own "Confluency (Alpha)" heading.
     "confluency", "confluency_source", "confluency_channel",
     "confluency_window", "confluency_qc_threshold",
+    # NEW SETTINGS, not a regrouping (item 538, 2026-09-26): spectral
+    # unmixing's switch, its single-stain control wells and background
+    # percentile, under a "Spectral Unmixing (Alpha)" heading in Mask,
+    # Timelapse and Measure.
+    "unmix", "unmix_controls", "unmix_background_percentile",
     # NEW SETTINGS, not a regrouping (item 547, 2026-09-26): image-based
     # profiling at the end of Measure -- the switch, plate map, treatment
     # and control, normalisation, feature selection and its correlation
@@ -790,6 +795,10 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "cell_cycle_gates", "cell_cycle_mitotic_ratio",
     "cell_cycle_fucci_channels", "cell_cycle_labels", "cell_cycle_model",
     "cell_cycle_epochs",
+    # A NEW SETTING, not a regrouping (item 539, 2026-09-26): photobleaching
+    # correction of a timelapse run's intensities, under its own
+    # "Bleach Correction (Alpha)" heading.
+    "bleach_correction",
     # NEW SETTINGS, not a regrouping (item 536, 2026-09-26): Measure's
     # scratch-wound closure switch, its source, channel, texture window,
     # frame interval and well-to-condition map, under their own "Wound
@@ -1471,7 +1480,11 @@ def _rendered_sections(app_key):
             ("mask", [
                 "Input & Metadata", "Workflow & Test Run", "Image Preprocessing",
                 'Image Quality',
-                "Illumination Correction", "Point Spread Function",
+                "Illumination Correction",
+                # Item 538, 2026-09-26: unmixing runs on the raw field
+                # before the PSF and the chain, so its heading comes first.
+                "Spectral Unmixing (Alpha)",
+                "Point Spread Function",
                 "Image Enhancement",
                 "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
@@ -1499,11 +1512,19 @@ def _rendered_sections(app_key):
         # same reason: that is the order the run executes them in.
         ("measure", [
             "Input & Experiment", "Mask & Channel Mapping",
+<<<<<<< HEAD
             "Illumination Correction", "Point Spread Function",
             # Item 580, 2026-09-27: cross-plate intensity calibration
             # rescales the pixels the features are computed from, so it
             # follows the other image corrections, as an Alpha heading.
             "Intensity Calibration (Alpha)",
+=======
+            "Illumination Correction",
+            # Item 538, 2026-09-26: the measured channels are unmixed
+            # before the PSF and the features.
+            "Spectral Unmixing (Alpha)",
+            "Point Spread Function",
+>>>>>>> nightly
             "Measurement Features",
             # Item 541, 2026-09-26: confluency sits after the features it
             # is measured beside, as an Alpha heading of its own.
@@ -1511,6 +1532,9 @@ def _rendered_sections(app_key):
             # Item 535, 2026-09-26: the cell-cycle phase call follows, read
             # from the nuclei the features above measured.
             "Cell Cycle (Alpha)",
+            # Item 539, 2026-09-26: bleach correction rescales the
+            # intensities the features above measured.
+            "Bleach Correction (Alpha)",
             # Item 536, 2026-09-26: wound closure follows confluency, whose
             # texture and intensity methods it builds on.
             "Wound Closure (Alpha)",
@@ -1527,7 +1551,11 @@ def _rendered_sections(app_key):
             ("timelapse", [
                 "Input & Metadata", "Acquisition & Axes", "Image Preprocessing",
                 'Image Quality',
-                "Illumination Correction", "Point Spread Function",
+                "Illumination Correction",
+                # Item 538, 2026-09-26: unmixing runs on the raw field
+                # before the PSF and the chain, so its heading comes first.
+                "Spectral Unmixing (Alpha)",
+                "Point Spread Function",
                 "Image Enhancement",
                 "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
