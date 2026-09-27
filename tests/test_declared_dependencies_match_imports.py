@@ -149,6 +149,8 @@ IMPORT_TO_DIST = {
     # Omnipose (item 553) ships its Cellpose fork inside its own wheel.
     "cellpose_omni": "omnipose",
     "cuml": "cuml-cu12",
+    # FAISS (item 565) is imported as `faiss`; the CPU wheel is faiss-cpu.
+    "faiss": "faiss-cpu",
     "cupy": "cupy-cuda12x",
     # `cupyx` is a SUBPACKAGE of the same distribution, not a second
     # one -- `cupyx.scipy.ndimage` is where cupy keeps the SciPy-
@@ -214,6 +216,13 @@ ISOLATED_WORKER_IMPORTS = {
     # Spotiflow (item 554) is imported only where its worker builds the
     # network.
     "spotiflow": ("_spotiflow_network",),
+    # CellProfiler (item 546) runs in its own Java/Python 3.8 environment;
+    # cellprofiler-core is imported only when its worker starts the JVM and
+    # loads a pipeline.
+    "cellprofiler_core": ("_cellprofiler_started", "_worker_run_cellprofiler"),
+    # micro-SAM (item 555) is imported only where its worker builds the
+    # predictor, embeds a field and answers a prompt.
+    "micro_sam": ("_sam_predictor", "_worker_sam_embed", "_worker_sam_prompt"),
 }
 BACKEND_SOURCE = PKG / "_segmentation_backends.py"
 
@@ -325,7 +334,9 @@ def _isolated_declaration(mod, files, tree=None):
         assert ("in_process" not in fields
                 or ast.literal_eval(fields["in_process"]) is False)
         requirements = [Requirement(value)
-                        for value in ast.literal_eval(fields["requirements"])]
+                        for key in ("requirements", "without_dependencies")
+                        if key in fields
+                        for value in ast.literal_eval(fields[key])]
         pinned = pinned or any(
             _norm(req.name) == distribution
             and any(pin.operator == "==" and "*" not in pin.version
