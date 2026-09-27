@@ -561,13 +561,16 @@ def get_components(cell_mask, nucleus_mask, pathogen_mask):
         subset=['pathogen']).reset_index(drop=True)
     return nucleus_df, pathogen_df
 
-def _calculate_zernike(mask, df, degree=8):
+def _calculate_zernike(mask, df, degree=8, device=None):
     """Append per-region Zernike-moment columns to ``df``.
 
     :param mask: Label mask defining the regions.
     :param df: DataFrame to extend, in the same row order as ``regionprops(mask)``.
     :param degree: Zernike-moment degree. Default ``8``. The number of
         coefficients is set by the degree: 9 for 4, 25 for 8, 49 for 12.
+    :param device: CUDA device from :func:`_measurement_device`, or ``None``
+        (the default) for the per-object Mahotas loop. On a device the moments
+        of all objects are computed in one vectorised pass.
     :returns: ``df`` with ``zernike_i`` columns appended, or unchanged when the
         mask has no regions or the mask is 3-D.
     :raises ImportError: When a non-empty 2-D mask needs the optional Mahotas
@@ -589,6 +592,11 @@ def _calculate_zernike(mask, df, degree=8):
     regions = list(regionprops(mask))
     if not regions:
         return df
+    if device is not None and _gpu_measurable(mask):
+        features = _torch_zernike(mask, degree, device)
+        zernike_df = pd.DataFrame(
+            features, columns=[f'zernike_{i}' for i in range(features.shape[1])])
+        return pd.concat([df.reset_index(drop=True), zernike_df], axis=1)
     zernike_moments = _load_zernike_moments()
     zernike_features = []
     for region in regions:
@@ -1113,6 +1121,7 @@ def _morphological_measurements(
     """
     if zernike is None:
         zernike = _zernike_is_available()
+    device = _measurement_device(settings)
 
     ndim = _ndim_of(cell_mask)
     spacing, stamp = resolve_measurement_spacing(settings, ndim)
@@ -1264,7 +1273,7 @@ def _morphological_measurements(
         cell_props = _with_bystanders(cell_props, cell_mask, cell_to_pathogen)
         if zernike:
             cell_props = _calculate_zernike(
-                cell_mask, cell_props, degree=degree)
+                cell_mask, cell_props, degree=degree, device=device)
         prop_ls.append(cell_props)
         ls.append('cell')
     else:
@@ -1277,7 +1286,7 @@ def _morphological_measurements(
         nucleus_props = _with_distances(nucleus_props, 'nucleus')
         if zernike:
             nucleus_props = _calculate_zernike(
-                nucleus_mask, nucleus_props, degree=degree)
+                nucleus_mask, nucleus_props, degree=degree, device=device)
         if settings['cell_mask_dim'] is not None:
             nucleus_props = _join_child_to_parent_cell(
                 nucleus_props, cell_to_nucleus, 'nucleus',
@@ -1300,7 +1309,7 @@ def _morphological_measurements(
         pathogen_props = _with_distances(pathogen_props, 'pathogen')
         if zernike:
             pathogen_props = _calculate_zernike(
-                pathogen_mask, pathogen_props, degree=degree)
+                pathogen_mask, pathogen_props, degree=degree, device=device)
         if settings['cell_mask_dim'] is not None:
             pathogen_props = _join_child_to_parent_cell(
                 pathogen_props, cell_to_pathogen, 'pathogen',
@@ -1325,7 +1334,7 @@ def _morphological_measurements(
                     organelle_props, current_organelle_mask)
             if len(organelle_props) > 0 and zernike:
                 organelle_props = _calculate_zernike(
-                    current_organelle_mask, organelle_props, degree=degree)
+                    current_organelle_mask, organelle_props, degree=degree, device=device)
             if len(organelle_props) > 0 and settings['cell_mask_dim'] is not None:
                 organelle_to_cell = _map_child_to_parent(
                     current_organelle_mask, cell_mask,
@@ -1519,6 +1528,7 @@ def _intensity_measurements(
 
     ndim = _ndim_of(cell_mask)
     spacing, _stamp = resolve_measurement_spacing(settings, ndim)
+    device = _measurement_device(settings)
     if homogeneity and ndim == 3:
         print("3-D mask: skipping GLCM homogeneity — "
               "skimage.feature.graycomatrix is defined for 2-D images only, "
@@ -1544,12 +1554,24 @@ def _intensity_measurements(
                 df.append(empty_df)
                 continue
 
-            mask_intensity_df = _extended_regionprops_table(
-                label, channel, intensity_props, spacing=spacing,
-                field_percentiles=channel_percentiles)
+            on_gpu = (device is not None
+                      and _gpu_measurable(label, channel, spacing))
+            if (on_gpu and tuple(intensity_props) == _GPU_INTENSITY_PROPS
+                    and np.min(channel) >= 0):
+                mask_intensity_df = _torch_intensity_table(
+                    label, channel, channel_percentiles, device)
+            else:
+                mask_intensity_df = _extended_regionprops_table(
+                    label, channel, intensity_props, spacing=spacing,
+                    field_percentiles=channel_percentiles)
 
             if homogeneity:
-                homogeneity_df = _calculate_homogeneity(label, channel, distances)
+                if on_gpu:
+                    homogeneity_df = _torch_homogeneity(
+                        label, channel, distances, device)
+                else:
+                    homogeneity_df = _calculate_homogeneity(
+                        label, channel, distances)
                 mask_intensity_df = pd.concat([mask_intensity_df.reset_index(drop=True), homogeneity_df], axis=1)
 
             if periphery:
@@ -1952,6 +1974,378 @@ def _calculate_homogeneity(label, channel, distances=None):
         homogeneity_df = pd.DataFrame(homogeneity_values, columns=columns)
 
         return homogeneity_df
+
+_GPU_INTENSITY_PROPS = ("label", "centroid_weighted", "centroid_weighted_local",
+                        "max_intensity", "mean_intensity", "min_intensity")
+
+
+def _measurement_device(settings):
+    """Return the CUDA device per-object measurement runs on, or ``None`` for the CPU path.
+
+    ``measure_gpu`` off, PyTorch not installed or no CUDA device all give
+    ``None``, and the NumPy/scikit-image measurements run unchanged. The GPU
+    path computes the same columns within float tolerance.
+    """
+    if not settings.get('measure_gpu', False):
+        return None
+    try:
+        import torch
+    except ImportError:
+        print("measure_gpu is on but PyTorch is not installed "
+              "(pip install torch); measuring on the CPU.")
+        return None
+    if not torch.cuda.is_available():
+        print("measure_gpu is on but no CUDA device is visible; "
+              "measuring on the CPU.")
+        return None
+    return torch.device('cuda')
+
+
+def _gpu_measurable(labels, image=None, spacing=None):
+    """Whether the vectorised GPU kernels reproduce the CPU path for this input.
+
+    They cover a 2-D mask without voxel spacing and a finite, real-valued
+    image; anything else keeps the scikit-image implementation.
+    """
+    if _ndim_of(labels) != 2 or spacing is not None:
+        return False
+    if image is None:
+        return True
+    image = np.asarray(image)
+    if image.dtype.kind not in 'uif' or image.dtype.itemsize > 8:
+        return False
+    if image.dtype.kind == 'f' and image.dtype != np.float32 and image.dtype != np.float64:
+        return False
+    return bool(np.isfinite(image).all())
+
+
+def _torch_label_segments(labels, image, device):
+    """Sort a mask's object pixels by (label, intensity) on ``device``.
+
+    Returns a dict of tensors: the sorted pixel intensities (float64), their
+    rows and columns, the object each belongs to as a 0-based segment index,
+    the object labels in ascending order and each object's first position and
+    pixel count.
+    """
+    import torch
+    labels = np.asarray(labels)
+    lab = torch.as_tensor(labels.astype(np.int64, copy=False).ravel(), device=device)
+    fg = torch.nonzero(lab > 0).squeeze(1)
+    lab = lab[fg]
+    if image is None:
+        val = torch.zeros(fg.shape[0], dtype=torch.float64, device=device)
+    else:
+        val = torch.as_tensor(np.asarray(image, dtype=np.float64).ravel(),
+                              device=device)[fg]
+    order = torch.sort(val, stable=True).indices
+    order = order[torch.sort(lab[order], stable=True).indices]
+    fg, lab, val = fg[order], lab[order], val[order]
+    object_labels, counts = torch.unique_consecutive(lab, return_counts=True)
+    starts = torch.cumsum(counts, 0) - counts
+    seg = torch.repeat_interleave(
+        torch.arange(object_labels.shape[0], device=device), counts)
+    width = labels.shape[1]
+    return {'val': val, 'row': torch.div(fg, width, rounding_mode='floor'),
+            'col': fg % width, 'seg': seg, 'labels': object_labels,
+            'starts': starts, 'counts': counts}
+
+
+def _torch_segment_sum(seg, values, n_segments):
+    """Sum ``values`` per segment in float64."""
+    import torch
+    out = torch.zeros(n_segments, dtype=torch.float64, device=values.device)
+    return out.index_add_(0, seg, values.to(torch.float64))
+
+
+def _torch_segment_extreme(seg, values, n_segments, reduce):
+    """Per-segment ``'amin'`` or ``'amax'`` of ``values``."""
+    import torch
+    fill = values.max() if reduce == 'amin' else values.min()
+    out = torch.full((n_segments,), 0, dtype=values.dtype, device=values.device)
+    out.fill_(fill)
+    return out.scatter_reduce_(0, seg, values, reduce=reduce, include_self=True)
+
+
+def _torch_segment_percentile(segments, q):
+    """NumPy's default ('linear') percentile ``q`` of every sorted segment."""
+    import torch
+    val, starts, counts = segments['val'], segments['starts'], segments['counts']
+    position = (counts - 1).to(torch.float64) * (q / 100.0)
+    low = torch.floor(position)
+    t = position - low
+    low = low.to(torch.int64)
+    high = torch.minimum(low + 1, counts - 1)
+    a = val[starts + low]
+    b = val[starts + high]
+    diff = b - a
+    lerp = a + diff * t
+    return torch.where(t >= 0.5, b - diff * (1 - t), lerp)
+
+
+def _torch_intensity_table(labels, image, field_percentiles, device):
+    """Vectorised equivalent of :func:`_extended_regionprops_table` for a 2-D mask.
+
+    One sort of the object pixels by (label, intensity) gives every order
+    statistic (min, max, median, percentiles, IQR, mode, Gini), and segment
+    sums give the moments, so the whole table is a handful of array passes
+    instead of one Python iteration per object. Covers the default intensity
+    properties on a finite, non-negative image; the caller checks that.
+    """
+    import torch
+    image = np.asarray(image)
+    segments = _torch_label_segments(labels, image, device)
+    val, seg, starts, counts = (segments['val'], segments['seg'],
+                                segments['starts'], segments['counts'])
+    n_obj = int(counts.shape[0])
+    n = counts.to(torch.float64)
+    ends = starts + counts - 1
+    total = _torch_segment_sum(seg, val, n_obj)
+    mean = total / n
+    centred = val - mean[seg]
+    m2 = _torch_segment_sum(seg, centred ** 2, n_obj) / n
+    m3 = _torch_segment_sum(seg, centred ** 3, n_obj) / n
+    m4 = _torch_segment_sum(seg, centred ** 4, n_obj) / n
+    vmin, vmax = val[starts], val[ends]
+    has_variation = vmax != vmin
+    resolution = 1e-6 if image.dtype == np.float32 else 1e-15
+    flat = m2 <= (resolution * mean) ** 2
+    nan = torch.full_like(mean, float('nan'))
+    skew_v = torch.where(has_variation & (n > 2) & ~flat, m3 / m2 ** 1.5, nan)
+    kurt_v = torch.where(has_variation & (n > 3) & ~flat, m4 / m2 ** 2 - 3.0, nan)
+    std = torch.where(has_variation, torch.sqrt(m2), torch.zeros_like(m2))
+
+    row = segments['row'].to(torch.float64)
+    col = segments['col'].to(torch.float64)
+    cy = _torch_segment_sum(seg, row * val, n_obj) / total
+    cx = _torch_segment_sum(seg, col * val, n_obj) / total
+    r0 = _torch_segment_extreme(seg, segments['row'], n_obj, 'amin').to(torch.float64)
+    c0 = _torch_segment_extreme(seg, segments['col'], n_obj, 'amin').to(torch.float64)
+
+    position = torch.arange(val.shape[0], device=val.device)
+    new_run = torch.ones_like(val, dtype=torch.bool)
+    new_run[1:] = (val[1:] != val[:-1]) | (seg[1:] != seg[:-1])
+    run_id = torch.cumsum(new_run.to(torch.int64), 0) - 1
+    run_start = position[new_run]
+    run_seg = seg[run_start]
+    run_count = torch.bincount(run_id)
+    best = _torch_segment_extreme(run_seg, run_count, n_obj, 'amax')
+    run_index = torch.arange(run_count.shape[0], device=val.device)
+    candidate = torch.where(run_count == best[run_seg], run_index,
+                            torch.full_like(run_index, run_count.shape[0]))
+    first = _torch_segment_extreme(run_seg, candidate, n_obj, 'amin')
+    mode_v = val[run_start[first]]
+    p = run_count.to(torch.float64) / n[run_seg]
+    entropy = -_torch_segment_sum(run_seg, p * torch.log2(p), n_obj)
+    entropy = torch.where(counts > 1, entropy, torch.zeros_like(entropy))
+
+    rank = (position - starts[seg] + 1).to(torch.float64)
+    gini_num = _torch_segment_sum(seg, (2 * rank - n[seg] - 1) * val, n_obj)
+    gini = torch.where(total != 0, gini_num / (n * total), nan)
+
+    field_p90, field_p10 = field_percentiles
+    if np.isfinite(field_p90):
+        high = _torch_segment_sum(seg, (val > field_p90).to(torch.float64), n_obj) / n
+    else:
+        high = nan
+    if np.isfinite(field_p10):
+        low = _torch_segment_sum(seg, (val < field_p10).to(torch.float64), n_obj) / n
+    else:
+        low = nan
+
+    pct = {q: _torch_segment_percentile(segments, q)
+           for q in (5, 10, 25, 50, 75, 85, 95)}
+
+    def host(tensor):
+        """Copy a tensor to a NumPy array."""
+        return tensor.detach().cpu().numpy()
+
+    narrow = np.float32 if image.dtype == np.float32 else np.float64
+    df = pd.DataFrame({
+        'label': host(segments['labels']),
+        'centroid_weighted-0': host(cy),
+        'centroid_weighted-1': host(cx),
+        'centroid_weighted_local-0': host(cy - r0),
+        'centroid_weighted_local-1': host(cx - c0),
+        'max_intensity': host(vmax),
+        'mean_intensity': host(mean),
+        'min_intensity': host(vmin),
+        'integrated_intensity': host(total).astype(
+            np.add.reduce(np.zeros(1, dtype=image.dtype)).dtype),
+        'std_intensity': host(std).astype(narrow),
+        'median_intensity': host(pct[50]).astype(narrow),
+        'skew_intensity': host(skew_v),
+        'kurtosis_intensity': host(kurt_v),
+        'mode_intensity': host(mode_v),
+        'range_intensity': host(vmax - vmin).astype(image.dtype),
+        'iqr_intensity': host(pct[75] - pct[25]),
+        'cv_intensity': host(torch.where(mean != 0, std / mean, nan)).astype(narrow),
+        'gini_intensity': host(gini),
+        'frac_high90': host(high) if torch.is_tensor(high) else np.nan,
+        'frac_low10': host(low) if torch.is_tensor(low) else np.nan,
+        'entropy_intensity': host(entropy),
+    })
+    for q in (5, 10, 25, 75, 85, 95):
+        df[f'percentile_{q}'] = host(pct[q])
+    return df
+
+
+def _torch_quantise(values, imin, imax, float32):
+    """The uint8 grey level ``rescale_intensity(..., out_range=(0, 255))`` gives ``values``.
+
+    Reproduces scikit-image's arithmetic: float32 images are rescaled in
+    float32, everything else in float64, then truncated to uint8. A region
+    whose rescale range is empty gets level 0 throughout, which leaves every
+    co-occurrence on the diagonal exactly as the constant CPU image does.
+    """
+    import torch
+    dtype = torch.float32 if float32 else torch.float64
+    span = (imax - imin).to(dtype)
+    safe = torch.where(span == 0, torch.ones_like(span), span)
+    scaled = ((values.to(dtype) - imin.to(dtype)) / safe) * 255.0
+    scaled = torch.where(span == 0, torch.zeros_like(scaled), scaled)
+    return torch.trunc(scaled).to(torch.float64)
+
+
+def _torch_homogeneity(labels, image, distances, device):
+    """Vectorised equivalent of :func:`_calculate_homogeneity` for a 2-D mask.
+
+    The CPU path builds, per object, a 256-level horizontal co-occurrence
+    matrix of the object's bounding box (object pixels rescaled to 0-255, every
+    other pixel of the box zero) and reads its homogeneity. That homogeneity is
+    the mean over the box's horizontal pixel pairs of ``1 / (1 + (a - b)^2)``,
+    so no matrix is needed: pairs with no object pixel sit on the diagonal and
+    add 1 each, and pairs touching the object are enumerated for all objects
+    at once over the whole field.
+    """
+    import torch
+    if distances is None:
+        distances = [2, 4, 8, 16, 32, 64]
+    image = np.asarray(image)
+    labels = np.asarray(labels)
+    float32 = image.dtype == np.float32
+    segments = _torch_label_segments(labels, image, device)
+    seg, counts = segments['seg'], segments['counts']
+    n_obj = int(counts.shape[0])
+    columns = [f'homogeneity_distance_{d}' for d in distances]
+    if n_obj == 0:
+        return pd.DataFrame(columns=columns)
+    starts, ends = segments['starts'], segments['starts'] + counts - 1
+    r0 = _torch_segment_extreme(seg, segments['row'], n_obj, 'amin')
+    r1 = _torch_segment_extreme(seg, segments['row'], n_obj, 'amax') + 1
+    c0 = _torch_segment_extreme(seg, segments['col'], n_obj, 'amin')
+    c1 = _torch_segment_extreme(seg, segments['col'], n_obj, 'amax') + 1
+    height, width = r1 - r0, c1 - c0
+    fills = counts == height * width
+    imin, imax = segments['val'][starts], segments['val'][ends]
+    zero = torch.zeros_like(imin)
+    imin = torch.where(fills, imin, torch.minimum(imin, zero))
+    imax = torch.where(fills, imax, torch.maximum(imax, zero))
+    outside_level = _torch_quantise(zero, imin, imax, float32)
+
+    label_to_seg = torch.full((int(labels.max()) + 1,), -1, dtype=torch.int64,
+                              device=device)
+    label_to_seg[segments['labels']] = torch.arange(n_obj, device=device)
+    lab = torch.as_tensor(labels.astype(np.int64, copy=False), device=device)
+    val = torch.as_tensor(image.astype(np.float64, copy=False), device=device)
+    field_width = labels.shape[1]
+    results = []
+    for d in distances:
+        pairs = height * (width - d)
+        if d >= field_width:
+            results.append(torch.full((n_obj,), float('nan'), dtype=torch.float64,
+                                      device=device))
+            continue
+        left, right = lab[:, :-d].reshape(-1), lab[:, d:].reshape(-1)
+        v_left, v_right = val[:, :-d].reshape(-1), val[:, d:].reshape(-1)
+        col_left = torch.arange(field_width - d, device=device).repeat(labels.shape[0])
+        sums = torch.zeros(n_obj, dtype=torch.float64, device=device)
+        touched = torch.zeros(n_obj, dtype=torch.float64, device=device)
+
+        k = label_to_seg[left.clamp(min=0)]
+        keep = (left > 0) & (col_left + d < c1[k.clamp(min=0)])
+        k = k[keep]
+        a = _torch_quantise(v_left[keep], imin[k], imax[k], float32)
+        same = (right[keep] == left[keep])
+        b = torch.where(same, _torch_quantise(v_right[keep], imin[k], imax[k], float32),
+                        outside_level[k])
+        sums.index_add_(0, k, 1.0 / (1.0 + (a - b) ** 2))
+        touched.index_add_(0, k, torch.ones_like(a))
+
+        k = label_to_seg[right.clamp(min=0)]
+        keep = (right > 0) & (right != left) & (col_left >= c0[k.clamp(min=0)])
+        k = k[keep]
+        b = _torch_quantise(v_right[keep], imin[k], imax[k], float32)
+        a = outside_level[k]
+        sums.index_add_(0, k, 1.0 / (1.0 + (a - b) ** 2))
+        touched.index_add_(0, k, torch.ones_like(b))
+
+        pairs_f = pairs.to(torch.float64)
+        value = (sums + pairs_f - touched) / pairs_f
+        results.append(torch.where(pairs > 0, value,
+                                   torch.full_like(value, float('nan'))))
+    stacked = torch.stack(results, dim=1).detach().cpu().numpy()
+    return pd.DataFrame(stacked, columns=columns)
+
+
+def _torch_zernike(mask, degree, device):
+    """Vectorised equivalent of the per-object mahotas Zernike moments.
+
+    Every object is taken on its own bounding box, centred on its centre of
+    mass and scaled by its largest centre-to-pixel distance, exactly as
+    :func:`_calculate_zernike` calls ``mahotas.features.zernike_moments``; the
+    radial polynomials are then evaluated for all object pixels at once and
+    summed per object. Returns an ``(n_objects, n_moments)`` array.
+
+    Which boundary pixels fall inside the unit disk is decided exactly as
+    Mahotas decides it: the radius is a correctly rounded square root taken
+    on the host, and ``sqrt(s) <= 1`` is tested as ``s <= nextafter(1, 2)``,
+    which is the same predicate without relying on the device's square root.
+    """
+    import torch
+    from math import factorial, pi
+    segments = _torch_label_segments(mask, None, device)
+    seg, counts = segments['seg'], segments['counts']
+    n_obj = int(counts.shape[0])
+    n = counts.to(torch.float64)
+    row = segments['row']
+    col = segments['col']
+    y = (row - _torch_segment_extreme(seg, row, n_obj, 'amin')[seg]).to(torch.float64)
+    x = (col - _torch_segment_extreme(seg, col, n_obj, 'amin')[seg]).to(torch.float64)
+    cy = _torch_segment_sum(seg, y, n_obj) / n
+    cx = _torch_segment_sum(seg, x, n_obj) / n
+    squared = (y - cy[seg]) ** 2 + (x - cx[seg]) ** 2
+    farthest = _torch_segment_extreme(seg, squared, n_obj, 'amax')
+    radius = torch.as_tensor(
+        np.maximum(np.sqrt(farthest.cpu().numpy()), 1.0), device=device)
+    yn = (y - cy[seg]) / radius[seg]
+    xn = (x - cx[seg]) / radius[seg]
+    squared = xn ** 2 + yn ** 2
+    inside = squared <= np.nextafter(1.0, 2.0)
+    seg, yn, xn = seg[inside], yn[inside], xn[inside]
+    dn = torch.clamp(torch.sqrt(squared[inside]), min=1e-9)
+    weight = 1.0 / _torch_segment_sum(seg, torch.ones_like(dn), n_obj)
+    a_re, a_im = xn / dn, yn / dn
+    powers = [(torch.ones_like(dn), torch.zeros_like(dn))]
+    for _ in range(degree + 1):
+        p_re, p_im = powers[-1]
+        powers.append((p_re * a_re - p_im * a_im, p_re * a_im + p_im * a_re))
+    moments = []
+    for order in range(degree + 1):
+        for rep in range(order + 1):
+            if (order - rep) % 2:
+                continue
+            radial = torch.zeros_like(dn)
+            for m in range((order - rep) // 2 + 1):
+                g = ((-1) ** m) * factorial(order - m) / (
+                    factorial(m) * factorial((order - 2 * m + rep) // 2)
+                    * factorial((order - 2 * m - rep) // 2))
+                radial = radial + g * dn ** (order - 2 * m)
+            p_re, p_im = powers[rep]
+            re = _torch_segment_sum(seg, radial * p_re, n_obj) * weight
+            im = _torch_segment_sum(seg, -radial * p_im, n_obj) * weight
+            moments.append((order + 1) / pi * torch.sqrt(re ** 2 + im ** 2))
+    return torch.stack(moments, dim=1).detach().cpu().numpy()
+
 
 def _periphery_intensity(label_mask, image):
     """Return per-region intensity stats along each object's outer boundary.

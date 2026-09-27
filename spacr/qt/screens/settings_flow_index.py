@@ -585,6 +585,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'max_train_images',
     'max_workers',
     'measure',
+    'measure_gpu',
     'measurement',
     'measurement_object',
     'measurement_table',
