@@ -21325,8 +21325,9 @@ timelapse
 |     ``register_outputs(...)  [UNRESOLVED]``
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 | :py:func:`~spacr.qt.synthetic.generate_timelapse_demo` **-- reads it**
+| :py:func:`~spacr.settings.get_setting_dependencies` **-- reads it**
 
-Read by ``_parallel_mask_plan``, ``preprocess_generate_masks``, ``preprocess_generate_masks_timelapse``, ``_build_calibration_plan``, ``_plate_id``, ``_concatenate_and_normalize_impl``, ``_rebuild_stacks_from_raw``, ``_resume_normalized_archives``, ``preprocess_img_data``, ``_cellprofiler_tables``, ``_measure_crop_core``, ``_measured_fields``, ``_run_plate_barcode_step``, ``_write_confluency_record``, ``_write_intensity_rescale_record``, ``measure_crop``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``generate_timelapse_demo``, ``plan_measure_resume``, ``get_measure_crop_settings``, ``get_timelapse_settings``, ``filepaths_to_database``.
+Read by ``_parallel_mask_plan``, ``preprocess_generate_masks``, ``preprocess_generate_masks_timelapse``, ``_build_calibration_plan``, ``_plate_id``, ``_concatenate_and_normalize_impl``, ``_rebuild_stacks_from_raw``, ``_resume_normalized_archives``, ``preprocess_img_data``, ``_cellprofiler_tables``, ``_measure_crop_core``, ``_measured_fields``, ``_run_plate_barcode_step``, ``_write_confluency_record``, ``_write_intensity_rescale_record``, ``measure_crop``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``generate_timelapse_demo``, ``plan_measure_resume``, ``get_measure_crop_settings``, ``get_setting_dependencies``, ``get_timelapse_settings``, ``filepaths_to_database``.
 
 .. _setting-flow-timelapse_batch_size:
 

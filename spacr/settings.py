@@ -6260,6 +6260,13 @@ def get_setting_dependencies():
             f"segments without a checkpoint. The value is kept and saved."),
     )
 
+    setting_dependencies['bleach_correction'] = rule(
+        ('timelapse',),
+        lambda settings, context: bool(settings.get('timelapse', False)),
+        lambda settings, context: (
+            "Bleach correction is only used for timelapse runs. The value is kept and saved."),
+    )
+
     return setting_dependencies
 
 category_value_dependencies = {
