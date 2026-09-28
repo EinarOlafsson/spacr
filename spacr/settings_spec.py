@@ -285,7 +285,7 @@ def convert_settings_dict_for_gui(settings):
                       + [repr(['cell', role]) for role in ALL_ROLES
                          if role != 'cell'],
                       "['cell']"),
-        'timelapse_mode': ('combo', ['trackastra', 'ultrack', 'trackpy', 'iou', 'btrack', 'timeflows'], 'trackastra'),
+        'timelapse_mode': ('combo', ['trackastra', 'ultrack', 'trackpy', 'iou', 'btrack', 'timeflows', 'sam2'], 'trackastra'),
         'train_mode': ('combo', ['erm', 'irm'], 'erm'),
         'clustering': ('combo', ['dbscan', 'kmean'], 'dbscan'),
         'reduction_method': ('combo', ['umap', 'tsne'], 'umap'),
@@ -308,6 +308,7 @@ def convert_settings_dict_for_gui(settings):
         'confluency_source': ('combo', ['auto', 'masks', 'texture', 'intensity'], 'auto'),
         'colony_polarity': ('combo', ['auto', 'bright', 'dark'], 'auto'),
         'bleach_correction': ('combo', ['none', 'ratio', 'exponential', 'histogram'], 'none'),
+        'measurement_backend': ('combo', ['sqlite', 'duckdb', 'parquet', 'postgres'], 'sqlite'),
         'profiling_normalization': ('combo', ['mad_robustize', 'standardize', 'robustize', 'none'], 'mad_robustize'),
         'cell_cycle_method': ('combo', ['measurements', 'xgboost', 'torch', 'all'], 'measurements'),
         'wound_source': ('combo', ['texture', 'intensity', 'masks'], 'texture'),

@@ -1,0 +1,142 @@
+{
+  "schema": "spacr.545.qupath_gui_interop.v1",
+  "passed": true,
+  "qupath_version": "0.7.0",
+  "source_revision": "5014fb90f71302246782e099aad0159a04294be7",
+  "actual_gui_visible": true,
+  "javafx_application_thread": true,
+  "native_import_api": "InteractiveObjectImporter.promptToImportObjectsFromFile",
+  "input": "spacr-field.geojson",
+  "image_size_xy": [
+    96,
+    64
+  ],
+  "annotation_count": 8,
+  "objects": [
+    {
+      "name": "cell 3",
+      "object_id": 3,
+      "classification": "infected",
+      "bounds_xywh": [
+        5.0,
+        5.0,
+        25.0,
+        20.0
+      ],
+      "area_pixels": 416.0,
+      "pixel_centre_differences": 0,
+      "geometry_type": "MultiPolygon",
+      "uuid": "3c6cb07a-9f2b-5309-834d-d4e58b8aae97"
+    },
+    {
+      "name": "cell 4",
+      "object_id": 4,
+      "classification": "cell",
+      "bounds_xywh": [
+        0.0,
+        0.0,
+        96.0,
+        3.0
+      ],
+      "area_pixels": 288.0,
+      "pixel_centre_differences": 0,
+      "geometry_type": "Polygon",
+      "uuid": "ceda9ab4-8a51-5ea5-941d-bf4f450dc86a"
+    },
+    {
+      "name": "cell 7",
+      "object_id": 7,
+      "classification": "cell",
+      "bounds_xywh": [
+        30.0,
+        5.0,
+        15.0,
+        20.0
+      ],
+      "area_pixels": 300.0,
+      "pixel_centre_differences": 0,
+      "geometry_type": "Polygon",
+      "uuid": "df995ad9-d52f-5b05-bcb9-9ffc435920c0"
+    },
+    {
+      "name": "cell 9",
+      "object_id": 9,
+      "classification": "dividing",
+      "bounds_xywh": [
+        30.0,
+        30.0,
+        22.0,
+        20.0
+      ],
+      "area_pixels": 71.0,
+      "pixel_centre_differences": 0,
+      "geometry_type": "MultiPolygon",
+      "uuid": "544718aa-34cb-5ba0-8033-31c3b5ea4973"
+    },
+    {
+      "name": "cell 12",
+      "object_id": 12,
+      "classification": "cell",
+      "bounds_xywh": [
+        60.0,
+        50.0,
+        2.0,
+        3.0
+      ],
+      "area_pixels": 3.0,
+      "pixel_centre_differences": 0,
+      "geometry_type": "MultiPolygon",
+      "uuid": "9719ba04-c923-59ca-a650-2105ff5e2250"
+    },
+    {
+      "name": "cell 20",
+      "object_id": 20,
+      "classification": "cell",
+      "bounds_xywh": [
+        5.0,
+        40.0,
+        10.0,
+        8.0
+      ],
+      "area_pixels": 78.0,
+      "pixel_centre_differences": 0,
+      "geometry_type": "Polygon",
+      "uuid": "2ccd6a33-c560-5a0d-b4ad-74c1fa59eb39"
+    },
+    {
+      "name": "cell 65535",
+      "object_id": 65535,
+      "classification": "cell",
+      "bounds_xywh": [
+        90.0,
+        60.0,
+        6.0,
+        4.0
+      ],
+      "area_pixels": 24.0,
+      "pixel_centre_differences": 0,
+      "geometry_type": "Polygon",
+      "uuid": "0c8e5711-c570-5551-9559-06fd933a49c6"
+    },
+    {
+      "name": "nucleus 2",
+      "object_id": 2,
+      "classification": "nucleus",
+      "bounds_xywh": [
+        30.0,
+        5.0,
+        15.0,
+        20.0
+      ],
+      "area_pixels": 300.0,
+      "pixel_centre_differences": 0,
+      "geometry_type": "Polygon",
+      "uuid": "ac1299ad-7f80-5df1-9b9a-ebc2aa59f3fd"
+    }
+  ],
+  "screenshot": "qupath-gui.png",
+  "saved_native_data": "imported.qpdata",
+  "synthetic_fixture": true,
+  "rendering": "JavaFX prism software; private Xvfb",
+  "archive_sha256": "165e27a0731d58ba039e9d0d34a54acf896bb92e81922370df295cb85418ce53"
+}

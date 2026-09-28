@@ -1,7 +1,7 @@
 MASKS AND ROIS IN AND OUT: QUPATH GEOJSON, IMAGEJ ROISET, COCO
 
-Status: IMPLEMENTED AS ALPHA 2026-09-26 (see the note of that date). Opening
-the files in the QuPath and Fiji GUIs themselves remains to be done by hand.
+Status: DONE 2026-09-28 (original acceptance verified); remains ALPHA.
+Exact round trips and actual QuPath and Fiji/ImageJ GUI opening are verified.
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 
@@ -123,3 +123,33 @@ every field); no settings keys, choices, apps or models. Registered in
 spacr.settings.ALPHA_FEATURES under 545 (item 569's gate), applied when the
 button is built and live by the app when the preference changes. The API
 functions in spacr.mask_io are not gated (API, not GUI).
+
+NOTE 2026-09-28 -- NATIVE GUI ACCEPTANCE VERIFIED; CLOSED
+
+The original DONE WHEN is fulfilled on source 5014fb90f7. The existing
+awkward synthetic fixture exports eight objects and round-trips GeoJSON,
+ImageJ RoiSet and COCO exactly, retaining classes and IDs. It covers holes,
+multipart objects, corner contacts and label 65535. This is format
+interoperability acceptance, not a real-data scientific benchmark.
+
+Actual Fiji launcher --ij1 / ImageJ 1.54p opened the spaCR RoiSet in its GUI:
+all eight names, IDs, classes, bounds and areas matched; native rasterized
+cell/nucleus masks differed by zero pixels; the GUI-resaved RoiSet
+reimported into spaCR exactly, retaining classes. ImageJ2 GUI is not claimed.
+The actual QuPath 0.7.0 GUI opened the field and imported all eight GeoJSON
+annotations: IDs, classes, UUIDs, bounds and areas matched, JTS geometry was
+valid, and all 49,152 per-object pixel-centre comparisons matched exactly.
+QuPath saved the imported native project data. Its official Linux archive
+was checked against the official release digest; no global install changed.
+
+Both GUIs ran with private displays, software rendering, private preferences,
+hidden GPU and 4G/zero-swap caps. Screenshots were reviewed by AI; no manual
+human signoff is claimed. Earlier harness failures remain recorded in the
+original scratch evidence. Neither export nor native application code changed
+to pass. These checks resolve the historical GUI-opening omission above;
+the alpha gate and documented Make Masks Save behavior remain in place.
+
+Receipts, native outputs, screenshots and SHA-256 manifest:
+features/data/545_native_gui_acceptance_2026-09-28/.
+Source hashes bind this evidence to unchanged mask_io and API tests.
+No original request or DONE WHEN criterion has been changed.
