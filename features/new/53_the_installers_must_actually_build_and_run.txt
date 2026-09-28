@@ -463,3 +463,21 @@ bytes match. YAML parsing passed; no installer ran locally. Actual Windows
 build acceptance remains pending, and this prerequisite repair does not close
 historical Windows recovery or frozen replacement gates. Receipt:
 features/data/53_pinned_nsis_acquisition_2026-09-27.json.
+
+STATUS 2026-09-27 — user-writable frozen macOS replacement integrated
+The standalone helper now verifies an official DMG and its read-only mount,
+checks native/package identity and payload inventories, stages a sibling bundle,
+and atomically exchanges it while retaining the complete old bundle. Durable
+journals support explicit recovery. Normal-user LaunchServices acceptance is
+reported separately from actual GUI startup; it does not prove that startup.
+
+Integration checks: 378 passed, one actual-native-artifact skip across five named
+files. The final adapter unit file has 44 passing cases; the unchanged protected
+shell/native semantics have 20 passing actual macOS cases in run36364609424.
+The inventory includes the bundle-root mode and propagates traversal errors.
+Receipt: features/data/53_macos_frozen_adapter_integration_2026-09-27.json.
+
+Actual rebuilt-DMG/helper replacement, interrupted recovery and GUI/CPU relaunch
+acceptance remain required. Protected replacement dispatch and authorization
+acceptance are still outstanding, as are other frozen and mixed/legacy families.
+This implementation does not close item53 or authorize a version promotion.

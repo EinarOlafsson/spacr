@@ -49,6 +49,31 @@ if [[ ! -d "$APP" ]]; then
     exit 1
 fi
 
+python3 - "$APP" "$VERSION" <<'BUNDLE_VERSION'
+"""Bind both native bundle version fields to the already selected release."""
+from pathlib import Path
+import plistlib
+import re
+import sys
+
+path = Path(sys.argv[1]) / "Contents/Info.plist"
+with path.open("rb") as stream:
+    info = plistlib.load(stream)
+version = sys.argv[2]
+if not re.fullmatch(r"[0-9]+(?:\.[0-9]+){2,3}", version):
+    raise ValueError("unsupported release version for a native macOS bundle")
+parts = [int(part) for part in version.split(".")]
+parts += [0] * (4 - len(parts))
+major, minor, patch, revision = parts
+if not 1 <= major <= 99 or any(not 0 <= part <= 99 for part in parts[1:]):
+    raise ValueError("native bundle version mapping supports major1..99 and remaining components0..99")
+info["CFBundleShortVersionString"] = f"{major}.{minor}.{patch}"
+info["CFBundleVersion"] = f"{major * 100 + minor}.{patch}.{revision}"
+info["SPACRPackageVersion"] = version
+with path.open("wb") as stream:
+    plistlib.dump(info, stream)
+BUNDLE_VERSION
+
 # --- ad-hoc codesign so the app can launch without --disable-library-validation ---
 echo "==> ad-hoc codesigning $APP"
 codesign --force --deep --sign - "$APP"
