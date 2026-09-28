@@ -2714,3 +2714,11 @@ checks pass for01/04/06. Remaining web/language checks, OCR, visual review and
 publication continue. AI technical review only; no human listening or native
 speaker signoff. Receipt:
 features/data/358_four_lesson_render_environment_2026-09-27.json.
+
+STATUS 2026-09-27 — retain caption-only language reviews in later batches
+The candidate builder now retains earlier reviews for every catalog language,
+including caption-only catalogs whose filenames use a different prefix. The
+previous filename assumption dropped198 records across six caption languages.
+All53 named appended-candidate checks pass, with coverage for all13 non-English
+languages. This repairs candidate construction only; the saved four-lesson
+publication candidates remain unpublished and their failure evidence is retained.

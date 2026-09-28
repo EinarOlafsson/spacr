@@ -131,8 +131,10 @@ def complete_translation_compatibility(catalogs, updated, previous=()):
     """Retain prior lesson reviews and English fallbacks across publication batches."""
     english = {row['id']: row for row in catalogs['lessons_en.json']['lessons']}
     old = {(row['lesson'], row['language']): row for row in previous}
+    languages = {filename.split('_', 1)[1].removesuffix('.json')
+                 for filename in CATALOGS if filename in catalogs}
     records = {key: deepcopy(row) for key, row in old.items()
-               if key[0] in english and f'lessons_{key[1]}.json' in catalogs}
+               if key[0] in english and key[1] in languages}
     for filename in CATALOGS:
         language = filename.split('_', 1)[1].removesuffix('.json')
         if language == 'en':

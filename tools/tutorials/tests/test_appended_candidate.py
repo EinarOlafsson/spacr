@@ -108,13 +108,16 @@ def test_later_batch_keeps_earlier_fallbacks_registered(sources):
     assert all(row['status'] == 'english_fallback' and row['reason'] for row in recovered)
 
 
-def test_later_batch_retains_reviewed_translations_and_replaces_refreshed_records(sources):
+@pytest.mark.parametrize('filename', [name for name in CATALOGS if name != 'lessons_en.json'])
+def test_later_batch_retains_reviewed_translations_and_replaces_refreshed_records(sources, filename):
     published, first, voices = sources
     intermediate, first_report = append_catalogs(published, [first], voices, {})
-    reviewed = {**first_report[0], 'status': 'source_bound_review', 'reason': None}
+    language = filename.split('_', 1)[1].removesuffix('.json')
+    reviewed = {**next(row for row in first_report if row['language'] == language),
+                'status': 'source_bound_review', 'reason': None}
     language = reviewed['language']
-    intermediate[f'lessons_{language}.json']['lessons'][-1]['title'] = 'Reviewed translated title'
-    first_report[0] = reviewed
+    intermediate[filename]['lessons'][-1]['title'] = 'Reviewed translated title'
+    first_report = [reviewed if row['language'] == language else row for row in first_report]
     second = {**first, 'id': '03_second', 'number': 3}
     catalogs, second_report = append_catalogs(
         intermediate, [second], {second['id']: {'en': ['af_heart']}}, {})
