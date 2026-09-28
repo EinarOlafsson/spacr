@@ -273,6 +273,7 @@ setup(
                   'adlfs>=2023.1', 'aiohttp>=3.8,<4', 'botocore>=1.29,<2'],
         'survival': ['lifelines>=0.27,<1'],
         'search': ['faiss-cpu>=1.7.4,<2'],
+        'foundation': ['transformers>=4.40,<6'],
         'notify': ['keyring>=23.0,<27'],
         'chem': ['rdkit>=2023.3'],
         'microscope': ['pycromanager>=0.28,<1'],

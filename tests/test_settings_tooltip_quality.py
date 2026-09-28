@@ -1132,10 +1132,13 @@ def test_inapplicable_real_defaults_always_explain_which_setting_gated_them():
     # arrays instead" -- and the setting was retired with it (357-Q4). The
     # rule explained when a control did not apply; nothing read the control
     # in either case.
-    assert len(witnessed) == 48
+    # 48 -> 50 on 2026-09-28, item 539: bleach_correction is gated on
+    # timelapse in Measure and External Masks, and its reason names it.
+    assert len(witnessed) == 50
     # 35 -> 34 with it: `load_path_regex` was witnessed in exactly one app,
     # so the pair count and the distinct-key count fall by one together.
-    assert len({key for _app, key in witnessed}) == 34
+    # 34 -> 35 with it: bleach_correction is one new distinct key.
+    assert len({key for _app, key in witnessed}) == 35
     assert not failures
 
 
