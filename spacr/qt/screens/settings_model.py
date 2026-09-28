@@ -1748,6 +1748,16 @@ _APP_ESSENTIAL_EXTRAS: Dict[str, Tuple[str, ...]] = {
     "illumination": ("illumination_correction", "illumination_model"),
     "anndata_export": ("anndata_out",),
     "classify": ("@Labels & Classes", "model_type", "train_channels"),
+    "classify_merged": (
+        "src", "experiment", "generate_training_dataset", "train", "test",
+        "dataset_mode", "classes", "metadata_item_1_name",
+        "metadata_item_1_value", "metadata_item_2_name",
+        "metadata_item_2_value", "test_split", "val_split",
+        "image_source", "channel_of_interest", "train_channels",
+        "image_size", "model_type", "init_weights", "epochs", "batch_size",
+        "learning_rate", "optimizer_type", "mixed_precision",
+        "model_type_ml", "n_estimators", "reg_alpha", "reg_lambda",
+    ),
     "umap": ("tables", "reduction_method", "color_by"),
     "external_masks": ("channels", "experiment"),
 }
@@ -1801,6 +1811,11 @@ def essential_keys(
 
     A module with no curated layout gets the first shared category, which is
     "Paths" — still the right answer, just a thinner one.
+
+    Classify's first group is only the family switch, so its extras carry
+    what training either family needs: the classes, the splits, the image
+    model and its schedule, and the tabular algorithm and its main
+    hyperparameters. The family switch greys whichever half does not apply.
 
     :param app_key: the module's app key.
     :param categories: optional pre-computed :func:`categories_for_app`

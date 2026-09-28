@@ -8058,7 +8058,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "classifier_family",
-    "line": 149,
+    "line": 150,
     "module": "spacr.classify",
     "nested": false,
     "qualname": "resolve_family"
@@ -9871,7 +9871,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "count_data",
-    "line": 4981,
+    "line": 4997,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "_count_files_of"
@@ -23621,7 +23621,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "model_type",
-    "line": 195,
+    "line": 196,
     "module": "spacr.classify",
     "nested": false,
     "qualname": "resolve_ml_model_type"
@@ -23929,7 +23929,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "model_type_ml",
-    "line": 193,
+    "line": 194,
     "module": "spacr.classify",
     "nested": false,
     "qualname": "resolve_ml_model_type"
@@ -34042,7 +34042,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 4974,
+    "line": 4990,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "_count_files_of"
