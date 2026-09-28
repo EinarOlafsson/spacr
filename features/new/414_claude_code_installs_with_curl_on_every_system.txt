@@ -131,3 +131,18 @@ hosted VM or authentication is claimed. The verifier made no PATH repair.
 Receipt: features/data/53_native_helper_and_windows_claude_acceptance_2026-09-27.json.
 Windows acceptance is satisfied within that scope. Equivalent clean native
 macOS/Linux install evidence is still required before closing the whole item.
+
+STATUS 2026-09-27 — Unix native acceptance jobs prepared
+The artifact workflow now follows installed Linux/macOS smoke with the exact
+curl command from each source-bound smoke receipt. Linux uses a fresh normal
+user in Ubuntu22.04 with no Node packages. macOS uses the hosted account's real
+login shell and unchanged profiles, requiring Node/npm to remain unavailable
+after shell startup. That hosted check does not claim physical Node absence.
+
+Both jobs require a native executable, its unchanged hash, and successful
+claude --version discovery in a fresh interactive login shell. They perform
+no verifier PATH repair, profile edit, authentication or terminal-emulator UI
+automation. Installer-made profile changes are recorded by before/after hashes.
+The shell verifier passes bash syntax checking; genuine native runs remain
+pending. A failure to establish fresh-terminal PATH must be repaired in the
+product command rather than hidden by the verifier. Item414 remains open.

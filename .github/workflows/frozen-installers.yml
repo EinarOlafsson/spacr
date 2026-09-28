@@ -12,6 +12,7 @@ on:
       - packaging/spacr_launcher.py
       - spacr/install_cleanup.py
       - packaging/verify_claude_native_install.ps1
+      - packaging/verify_claude_native_install.sh
       - spacr/qt/startup_benchmark.py
 permissions:
   contents: read
@@ -320,6 +321,71 @@ jobs:
             ${{ runner.temp }}/claude-command-receipt/*.log
             ${{ runner.temp }}/claude-command-receipt/*.cmd
             ${{ runner.temp }}/claude-command-receipt/*.ps1
+          retention-days: 14
+          if-no-files-found: error
+
+  claude-native-linux:
+    needs: smoke-debian
+    if: ${{ always() && !cancelled() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: legacy-smoke-0-debian
+          path: native-receipt
+      - name: Run the artifact hint as a normal user in Ubuntu without Node
+        shell: bash
+        run: |
+          set -euo pipefail
+          output="$RUNNER_TEMP/claude-command-receipt"
+          mkdir -p "$output"
+          docker run --rm --pull always \
+            -e ACCEPTANCE_COMMIT="$GITHUB_SHA" \
+            -v "$GITHUB_WORKSPACE/packaging/verify_claude_native_install.sh:/acceptance/verify.sh:ro" \
+            -v "$GITHUB_WORKSPACE/native-receipt:/acceptance/native-receipt:ro" \
+            -v "$output:/acceptance/output" \
+            ubuntu:22.04 /bin/bash -euc '
+              apt-get update
+              DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends bash ca-certificates curl file jq passwd util-linux
+              useradd --create-home --shell /bin/bash --uid 1000 claude-acceptance
+              chown claude-acceptance:claude-acceptance /acceptance/output
+              runuser -u claude-acceptance -- env HOME=/home/claude-acceptance \
+                /bin/bash /acceptance/verify.sh /acceptance/native-receipt/smoke.json \
+                /acceptance/output "$ACCEPTANCE_COMMIT" ubuntu-container
+            ' 2>&1 | tee "$output/container.log"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: claude-native-command-linux
+          path: ${{ runner.temp }}/claude-command-receipt/
+          retention-days: 14
+          if-no-files-found: error
+
+  claude-native-macos:
+    needs: smoke-frozen
+    if: ${{ always() && !cancelled() }}
+    runs-on: macos-15
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: legacy-smoke-macos
+          path: native-receipt
+      - name: Run the artifact hint in the real account login shell with Node excluded
+        shell: bash
+        run: |
+          set -euo pipefail
+          /bin/bash "$GITHUB_WORKSPACE/packaging/verify_claude_native_install.sh" \
+            "$GITHUB_WORKSPACE/native-receipt/smoke.json" \
+            "$RUNNER_TEMP/claude-command-receipt" "$GITHUB_SHA" macos-hosted
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: claude-native-command-macos
+          path: ${{ runner.temp }}/claude-command-receipt/
           retention-days: 14
           if-no-files-found: error
 
