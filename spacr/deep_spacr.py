@@ -4156,3 +4156,419 @@ def annotate_filter_vision(settings):
         if settings['remove_train']:
             df = filter_csv_by_png(output_csv)
             df.to_csv(output_csv, index=False)
+
+
+_VS_SUFFIXES = ('.npy', '.tif', '.tiff')
+
+
+def _vs_normalize(image, low: float = 1.0, high: float = 99.8):
+    """Scale one plane so its ``low`` and ``high`` percentiles map to 0 and 1.
+
+    Values are clipped to ``[0, 1]``, so a few saturated pixels cannot set
+    the scale. A flat plane becomes all zeros.
+
+    :param image: 2-D array.
+    :param low: lower percentile.
+    :param high: upper percentile.
+    :returns: float32 array of the same shape.
+    """
+    image = np.asarray(image, dtype=np.float32)
+    lo, hi = np.percentile(image, (low, high))
+    if hi - lo <= 1e-6:
+        return np.zeros_like(image)
+    return np.clip((image - lo) / (hi - lo), 0.0, 1.0)
+
+
+def _vs_downscale(image, scale: int):
+    """Block-average a 2-D plane by an integer factor, trimming the edge."""
+    scale = max(int(scale), 1)
+    if scale == 1:
+        return np.asarray(image, dtype=np.float32)
+    height = image.shape[0] // scale * scale
+    width = image.shape[1] // scale * scale
+    blocks = np.asarray(image[:height, :width], dtype=np.float32)
+    return blocks.reshape(height // scale, scale, width // scale,
+                          scale).mean(axis=(1, 3))
+
+
+def _vs_read_field(path):
+    """One multichannel field as a ``(height, width, channels)`` array.
+
+    ``.npy`` files are read as saved (spaCR's merged arrays are channels
+    last). TIFF stacks whose first axis is shorter than the other two are
+    moved to channels last.
+
+    :param path: a ``.npy``, ``.tif`` or ``.tiff`` file.
+    :returns: the array.
+    """
+    path = str(path)
+    if path.lower().endswith('.npy'):
+        array = np.load(path)
+    else:
+        import tifffile
+        array = tifffile.imread(path)
+    array = np.asarray(array)
+    if array.ndim == 2:
+        array = array[..., None]
+    if array.ndim == 3 and array.shape[0] < min(array.shape[1:]):
+        array = np.moveaxis(array, 0, -1)
+    return array
+
+
+def _vs_folder_fields(folder):
+    """The multichannel fields of a folder, sorted by file name."""
+    names = sorted(name for name in os.listdir(folder)
+                   if name.lower().endswith(_VS_SUFFIXES))
+    return [os.path.join(folder, name) for name in names]
+
+
+class _VirtualStainUNet(torch.nn.Module):
+    """A small U-Net that maps input planes to one predicted stain plane.
+
+    Each level is two 3x3 convolutions with batch normalisation and ReLU;
+    the image is halved ``depth`` times and brought back up with transposed
+    convolutions and skip connections. The last layer is a linear 1x1
+    convolution, so the output is an intensity rather than a probability.
+
+    :param in_channels: input planes.
+    :param base: filters at the first level, doubled at each level down.
+    :param depth: number of down-sampling steps.
+    """
+
+    def __init__(self, in_channels: int = 1, base: int = 16, depth: int = 3):
+        super().__init__()
+        nn = torch.nn
+
+        def block(cin, cout):
+            """Two convolution, normalisation and ReLU layers."""
+            return nn.Sequential(
+                nn.Conv2d(cin, cout, 3, padding=1), nn.BatchNorm2d(cout),
+                nn.ReLU(inplace=True),
+                nn.Conv2d(cout, cout, 3, padding=1), nn.BatchNorm2d(cout),
+                nn.ReLU(inplace=True))
+
+        widths = [base * 2 ** level for level in range(depth + 1)]
+        self.depth = depth
+        self.down = nn.ModuleList()
+        cin = in_channels
+        for width in widths[:-1]:
+            self.down.append(block(cin, width))
+            cin = width
+        self.bottom = block(widths[-2], widths[-1])
+        self.up = nn.ModuleList()
+        self.merge = nn.ModuleList()
+        for level in range(depth, 0, -1):
+            self.up.append(nn.ConvTranspose2d(widths[level], widths[level - 1],
+                                              2, stride=2))
+            self.merge.append(block(widths[level - 1] * 2, widths[level - 1]))
+        self.head = nn.Conv2d(widths[0], 1, 1)
+
+    def forward(self, x):
+        """Predict the stain plane for a ``(batch, channels, h, w)`` tensor."""
+        skips = []
+        for layer in self.down:
+            x = layer(x)
+            skips.append(x)
+            x = F.max_pool2d(x, 2)
+        x = self.bottom(x)
+        for up, merge, skip in zip(self.up, self.merge, reversed(skips)):
+            x = merge(torch.cat([up(x), skip], dim=1))
+        return self.head(x)
+
+
+def _vs_prepare(field, sources, target, scale):
+    """Normalised, down-scaled input planes and target plane of one field."""
+    planes = np.stack([_vs_normalize(_vs_downscale(field[..., c], scale))
+                       for c in sources])
+    goal = None
+    if target is not None:
+        goal = _vs_normalize(_vs_downscale(field[..., target], scale))
+    return planes, goal
+
+
+def _vs_crops(prepared, crop: int, per_field: int, rng):
+    """Random paired crops with flips and quarter turns.
+
+    :param prepared: ``(inputs, target)`` pairs from :func:`_vs_prepare`.
+    :param crop: crop side in pixels at the working scale.
+    :param per_field: crops drawn from each field.
+    :param rng: numpy random generator.
+    :returns: ``(inputs, targets)`` float32 arrays of shape
+        ``(n, channels, crop, crop)`` and ``(n, 1, crop, crop)``.
+    """
+    inputs, targets = [], []
+    for planes, goal in prepared:
+        height, width = goal.shape
+        side = min(crop, height, width)
+        for _ in range(per_field):
+            top = int(rng.integers(0, height - side + 1))
+            left = int(rng.integers(0, width - side + 1))
+            x = planes[:, top:top + side, left:left + side]
+            y = goal[None, top:top + side, left:left + side]
+            turns = int(rng.integers(0, 4))
+            x, y = np.rot90(x, turns, (1, 2)), np.rot90(y, turns, (1, 2))
+            if rng.random() < 0.5:
+                x, y = x[:, :, ::-1], y[:, :, ::-1]
+            inputs.append(np.ascontiguousarray(x))
+            targets.append(np.ascontiguousarray(y))
+    return np.stack(inputs), np.stack(targets)
+
+
+def _train_virtual_stain(fields, sources, target, *, scale: int = 4,
+                         crop: int = 128, per_field: int = 32,
+                         epochs: int = 10, batch_size: int = 16,
+                         base: int = 16, depth: int = 3, lr: float = 1e-3,
+                         seed: int = 0, device: str = 'cpu', progress=None):
+    """Train a U-Net that predicts one channel of a field from others.
+
+    Each field is block-averaged by ``scale``, every plane is scaled to its
+    1st-99.8th percentiles, and new random crops (with flips and quarter
+    turns) are drawn every epoch. The loss is the mean absolute error
+    between the predicted and the real target plane.
+
+    :param fields: ``(height, width, channels)`` arrays with both the input
+        and the target channels.
+    :param sources: input channel indices, for example ``[1]`` for a
+        phase or cytoplasm plane.
+    :param target: the channel to learn, for example the nucleus stain.
+    :param scale: integer down-scaling before training.
+    :param crop: crop side at the working scale.
+    :param per_field: crops per field per epoch.
+    :param epochs: passes over freshly drawn crops.
+    :param batch_size: crops per optimiser step.
+    :param base: filters at the U-Net's first level.
+    :param depth: U-Net down-sampling steps; ``crop`` must be divisible by
+        ``2 ** depth``.
+    :param lr: AdamW learning rate.
+    :param seed: seed for the crops and the weights.
+    :param device: torch device.
+    :param progress: optional callable given ``(epoch, loss)``.
+    :returns: a dict with the ``model`` (in eval mode), its settings and the
+        per-epoch ``losses``.
+    """
+    sources = [int(c) for c in sources]
+    target = int(target)
+    if target in sources:
+        raise ValueError('The target channel cannot also be an input channel.')
+    if crop % (2 ** depth):
+        raise ValueError(f'crop must be divisible by {2 ** depth}.')
+    torch.manual_seed(seed)
+    rng = np.random.default_rng(seed)
+    prepared = [_vs_prepare(field, sources, target, scale) for field in fields]
+    model = _VirtualStainUNet(len(sources), base=base, depth=depth).to(device)
+    optimizer = AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
+    losses = []
+    for epoch in range(int(epochs)):
+        model.train()
+        x_all, y_all = _vs_crops(prepared, crop, per_field, rng)
+        order = rng.permutation(len(x_all))
+        total = 0.0
+        for start in range(0, len(order), batch_size):
+            pick = order[start:start + batch_size]
+            x = torch.from_numpy(x_all[pick]).to(device)
+            y = torch.from_numpy(y_all[pick]).to(device)
+            optimizer.zero_grad()
+            loss = F.l1_loss(model(x), y)
+            loss.backward()
+            optimizer.step()
+            total += float(loss) * len(pick)
+        losses.append(total / len(order))
+        if progress is not None:
+            progress(epoch + 1, losses[-1])
+    model.eval()
+    return {'model': model, 'sources': sources, 'target': target,
+            'scale': int(scale), 'depth': int(depth), 'base': int(base),
+            'losses': losses}
+
+
+def _predict_virtual_stain(fitted, field):
+    """Predict the target plane of a whole field at its full resolution.
+
+    The field is prepared as in training, padded by reflection to a multiple
+    of ``2 ** depth``, predicted in one pass, cropped back and resized to
+    the field's own size.
+
+    :param fitted: the dict returned by :func:`_train_virtual_stain`.
+    :param field: ``(height, width, channels)`` array holding the inputs.
+    :returns: float32 plane in the normalised 0-1 intensity scale.
+    """
+    from skimage.transform import resize
+
+    planes, _ = _vs_prepare(field, fitted['sources'], None, fitted['scale'])
+    step = 2 ** fitted['depth']
+    height, width = planes.shape[1:]
+    pad_h, pad_w = (-height) % step, (-width) % step
+    padded = np.pad(planes, ((0, 0), (0, pad_h), (0, pad_w)), mode='reflect')
+    model = fitted['model']
+    device = next(model.parameters()).device
+    with torch.no_grad():
+        out = model(torch.from_numpy(padded[None]).to(device))
+    pred = out[0, 0, :height, :width].cpu().numpy()
+    pred = np.clip(pred, 0.0, 1.0)
+    return resize(pred, field.shape[:2], order=1, preserve_range=True,
+                  anti_aliasing=False).astype(np.float32)
+
+
+def _vs_segment(plane, *, sigma: float = 2.0, min_size: int = 300,
+                min_distance: int = 30):
+    """Label blobs in a stain plane: Otsu threshold, then a watershed.
+
+    The same segmenter is applied to the real and the predicted stain, so
+    the comparison measures the prediction and not the segmenter.
+
+    :param plane: 2-D stain plane.
+    :param sigma: Gaussian smoothing before thresholding.
+    :param min_size: smallest object kept, in pixels.
+    :param min_distance: smallest distance between two object centres, in
+        pixels; about a third of the object diameter.
+    :returns: int32 label image.
+    """
+    from scipy import ndimage as ndi
+    from skimage.feature import peak_local_max
+    from skimage.filters import gaussian, threshold_otsu
+    from skimage.morphology import remove_small_objects
+    from skimage.segmentation import watershed
+
+    smooth = gaussian(np.asarray(plane, dtype=np.float32), sigma=sigma)
+    if float(smooth.max() - smooth.min()) <= 1e-6:
+        return np.zeros(smooth.shape, dtype=np.int32)
+    mask = smooth > threshold_otsu(smooth)
+    mask = remove_small_objects(mask, min_size=min_size)
+    distance = ndi.distance_transform_edt(mask)
+    peaks = peak_local_max(distance, min_distance=min_distance,
+                           labels=ndi.label(mask)[0], exclude_border=False)
+    markers = np.zeros(mask.shape, dtype=np.int32)
+    markers[tuple(peaks.T)] = np.arange(1, len(peaks) + 1)
+    return watershed(-distance, markers, mask=mask).astype(np.int32)
+
+
+def _vs_pixel_metrics(real, pred):
+    """Pearson r, SSIM, PSNR and NRMSE of two planes in the 0-1 scale."""
+    from skimage.metrics import (normalized_root_mse, peak_signal_noise_ratio,
+                                 structural_similarity)
+
+    real = np.asarray(real, dtype=np.float32)
+    pred = np.asarray(pred, dtype=np.float32)
+    if real.std() > 0 and pred.std() > 0:
+        pearson = float(np.corrcoef(real.ravel(), pred.ravel())[0, 1])
+    else:
+        pearson = float('nan')
+    return {'pearson': pearson,
+            'ssim': float(structural_similarity(real, pred, data_range=1.0)),
+            'psnr': float(peak_signal_noise_ratio(real, pred, data_range=1.0)),
+            'nrmse': float(normalized_root_mse(real, pred))}
+
+
+def _virtual_stain_scorecard(fitted, fields, names=None, segment=None):
+    """Score predicted stains on held-out fields against the real stain.
+
+    For each field the real target plane and the prediction are compared
+    pixel by pixel (Pearson r, SSIM, PSNR, NRMSE) and as objects: both are
+    segmented with ``segment`` and matched one-to-one at IoU 0.5 and 0.75
+    with :func:`spacr.scorecard.match_objects`, the real stain's objects
+    taken as the reference. A baseline row segments the first input plane
+    itself, which shows what the model adds over using that plane directly.
+
+    :param fitted: the dict returned by :func:`_train_virtual_stain`.
+    :param fields: held-out ``(height, width, channels)`` arrays.
+    :param names: one name per field.
+    :param segment: callable from a plane to a label image; defaults to
+        :func:`_vs_segment`.
+    :returns: ``pandas.DataFrame`` with one row per field and ``kind``
+        ``predicted`` or ``input_baseline``.
+    """
+    from .scorecard import match_objects
+
+    segment = segment or _vs_segment
+    names = list(names) if names is not None else [
+        f'field_{i}' for i in range(len(fields))]
+    rows = []
+    for name, field in zip(names, fields):
+        real = _vs_normalize(field[..., fitted['target']])
+        truth = segment(real)
+        pred = _predict_virtual_stain(fitted, field)
+        source = _vs_normalize(field[..., fitted['sources'][0]])
+        for kind, plane in (('predicted', pred), ('input_baseline', source)):
+            labels = segment(plane)
+            row = {'field': name, 'kind': kind}
+            row.update(_vs_pixel_metrics(real, plane))
+            for iou in (0.5, 0.75):
+                match = match_objects(truth, labels, iou)
+                tag = int(round(iou * 100))
+                row[f'f1_{tag}'] = match.f1
+                row[f'precision_{tag}'] = match.precision
+                row[f'recall_{tag}'] = match.recall
+            row['n_real'] = match.n_truth
+            row['n_pred'] = match.n_pred
+            rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def _save_virtual_stain(fitted, path):
+    """Write a trained virtual-stain model and its settings to ``path``."""
+    meta = {key: value for key, value in fitted.items() if key != 'model'}
+    torch.save({'state_dict': fitted['model'].state_dict(), 'meta': meta},
+               str(path))
+
+
+def _load_virtual_stain(path, device: str = 'cpu'):
+    """Read a model written by :func:`_save_virtual_stain`, in eval mode."""
+    saved = torch.load(str(path), map_location=device, weights_only=False)
+    meta = dict(saved['meta'])
+    model = _VirtualStainUNet(len(meta['sources']), base=meta['base'],
+                              depth=meta['depth']).to(device)
+    model.load_state_dict(saved['state_dict'])
+    model.eval()
+    meta['model'] = model
+    return meta
+
+
+def _virtual_stain_from_folder(folder, sources, target, *, held_out: int = 0,
+                               out_dir=None, **train_kwargs):
+    """Train on a folder of paired fields and score the held-out ones.
+
+    The fields are the folder's ``.npy`` and TIFF files in name order; the
+    last ``held_out`` fields (a quarter of them, at least one, when 0) are
+    kept out of training and scored. The model is written to
+    ``<out_dir>/virtual_stain_c<target>.pt``, the per-field scores to
+    ``virtual_stain_scores.csv``, and each held-out prediction to
+    ``<field>_virtual_c<target>.npy``; ``out_dir`` defaults to
+    ``<folder>/virtual_stain``.
+
+    :param folder: folder of multichannel fields.
+    :param sources: input channel indices.
+    :param target: the channel to predict.
+    :param held_out: number of fields scored rather than trained on.
+    :param out_dir: where results are written.
+    :param train_kwargs: passed to :func:`_train_virtual_stain`.
+    :returns: ``(scores, summary)``: the per-field table and a dict of
+        mean held-out metrics for the prediction and the baseline.
+    """
+    from .tabular import write_table
+
+    paths = _vs_folder_fields(folder)
+    if len(paths) < 2:
+        raise ValueError('Virtual staining needs at least two paired fields.')
+    held_out = int(held_out) or max(1, len(paths) // 4)
+    held_out = min(held_out, len(paths) - 1)
+    train_paths, test_paths = paths[:-held_out], paths[-held_out:]
+    fitted = _train_virtual_stain([_vs_read_field(p) for p in train_paths],
+                                  sources, target, **train_kwargs)
+    out_dir = out_dir or os.path.join(folder, 'virtual_stain')
+    os.makedirs(out_dir, exist_ok=True)
+    _save_virtual_stain(fitted, os.path.join(out_dir,
+                                             f'virtual_stain_c{target}.pt'))
+    fields = [_vs_read_field(p) for p in test_paths]
+    names = [os.path.splitext(os.path.basename(p))[0] for p in test_paths]
+    for name, field in zip(names, fields):
+        np.save(os.path.join(out_dir, f'{name}_virtual_c{target}.npy'),
+                _predict_virtual_stain(fitted, field))
+    scores = _virtual_stain_scorecard(fitted, fields, names)
+    write_table(scores, os.path.join(out_dir, 'virtual_stain_scores.csv'))
+    means = scores.groupby('kind')[['pearson', 'ssim', 'f1_50', 'f1_75']].mean()
+    summary = {'train_fields': len(train_paths), 'test_fields': len(test_paths),
+               'final_loss': fitted['losses'][-1]}
+    for kind in means.index:
+        for column in means.columns:
+            summary[f'{kind}_{column}'] = float(means.loc[kind, column])
+    return scores, summary

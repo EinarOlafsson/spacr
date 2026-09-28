@@ -494,6 +494,10 @@ def test_every_module_an_adapter_imports_is_in_its_self_test():
         "spotnet": (SB._worker_detect_spots,),
         "microsam": (SB._sam_predictor, SB._worker_sam_embed,
                      SB._worker_sam_prompt),
+        # + sam2 (item 556, 2026-09-27): SAM2's video predictor, which
+        # follows objects through a movie as timelapse_mode='sam2'.
+        "sam2": (SB._sam2_video_predictor, SB._sam2_write_frames,
+                 SB._worker_sam2_propagate),
         "stardist": (SB._StarDistAdapter, SB._tensorflow_device),
         "instanseg": (SB._InstanSegAdapter,),
         "omnipose": (SB._OmniposeAdapter, SB._omnipose_shape),
