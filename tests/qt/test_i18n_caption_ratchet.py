@@ -1171,8 +1171,7 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     # 561, 2026-09-28: the Embeddings screen's Pretrain on these crops
     # button (alpha).
     'Pretrain on these crops…',
-    'Self-supervised (DINO) pretraining of a ResNet-18 on the loaded crops, no labels needed, under the chosen channel policy. Choose a checkpoint file; it is saved after every epoch, and choosing the same file again resumes the run. When it finishes the checkpoint is offered in the Foundation model picker. Slow without a GPU. Default 20 epochs from ImageNet weights at 64 px.',
-    'Load crops first.',
+    'Self-supervised (DINO) pretraining of a ResNet-18 on the loaded crops, no labels needed, under the chosen channel policy. Choose a checkpoint file; it is saved after every epoch, and choosing the same file again resumes the run. When it finishes the checkpoint is offered in the Foundation model picker. Slow without a GPU. Default 20 epochs from random weights at 64 px.',
     'Save the pretrained backbone as',
     'PyTorch checkpoints (*.pt)',
     'Pretraining on {n} crops…',

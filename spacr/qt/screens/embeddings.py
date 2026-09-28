@@ -515,7 +515,7 @@ class EmbeddingsScreen(QWidget):
             "a checkpoint file; it is saved after every epoch, and choosing "
             "the same file again resumes the run. When it finishes the "
             "checkpoint is offered in the Foundation model picker. Slow "
-            "without a GPU. Default 20 epochs from ImageNet weights at 64 "
+            "without a GPU. Default 20 epochs from random weights at 64 "
             "px."))
         self._dino.clicked.connect(lambda: self._pretrain_dino())
         controls.addWidget(self._dino)
@@ -552,7 +552,7 @@ class EmbeddingsScreen(QWidget):
             from ...embeddings import _dino_pretrain
 
             return _dino_pretrain(crops, path, channel_policy=policy,
-                                  epochs=epochs, pretrained=True)
+                                  epochs=epochs, pretrained=False)
 
         self._jobs.submit(work, self._on_dino_done)
         return path
