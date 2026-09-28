@@ -17842,6 +17842,229 @@
     "qualname": "set_default_umap_image_settings"
    }
   ],
+  "image_qc_channels": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "image_qc_channels",
+    "line": 35,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "quality_policy"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "image_qc_channels",
+    "line": 38,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "quality_policy"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "image_qc_channels",
+    "line": 42,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "quality_policy"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "image_qc_channels",
+    "line": 104,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "assess_image"
+   }
+  ],
+  "image_qc_classifier": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "image_qc_classifier",
+    "line": 35,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "quality_policy"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "image_qc_classifier",
+    "line": 62,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "quality_policy"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "image_qc_classifier",
+    "line": 228,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "screen_fields"
+   }
+  ],
+  "image_qc_classifier_labels": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "image_qc_classifier_labels",
+    "line": 35,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "quality_policy"
+   }
+  ],
+  "image_qc_classifier_model": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "image_qc_classifier_model",
+    "line": 35,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "quality_policy"
+   }
+  ],
+  "image_qc_classifier_threshold": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "image_qc_classifier_threshold",
+    "line": 35,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "quality_policy"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "image_qc_classifier_threshold",
+    "line": 72,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "quality_policy"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "image_qc_classifier_threshold",
+    "line": 75,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "quality_policy"
+   }
+  ],
+  "image_qc_max_nonfinite": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "image_qc_max_nonfinite",
+    "line": 35,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "quality_policy"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "image_qc_max_nonfinite",
+    "line": 58,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "quality_policy"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "image_qc_max_nonfinite",
+    "line": 61,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "quality_policy"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "image_qc_max_nonfinite",
+    "line": 130,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "assess_image"
+   }
+  ],
+  "image_qc_max_saturation": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "image_qc_max_saturation",
+    "line": 35,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "quality_policy"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "image_qc_max_saturation",
+    "line": 123,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "assess_image"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "image_qc_max_saturation",
+    "line": 128,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "assess_image"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "image_qc_max_saturation",
+    "line": 128,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "assess_image"
+   }
+  ],
+  "image_qc_min_focus": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "image_qc_min_focus",
+    "line": 35,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "quality_policy"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "image_qc_min_focus",
+    "line": 126,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "assess_image"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "image_qc_min_focus",
+    "line": 126,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "assess_image"
+   }
+  ],
   "image_qc_mode": [
    {
     "form": "get",
@@ -17851,6 +18074,80 @@
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "image_qc_mode",
+    "line": 35,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "quality_policy"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "image_qc_mode",
+    "line": 36,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "quality_policy"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "image_qc_mode",
+    "line": 219,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "screen_fields"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "image_qc_mode",
+    "line": 222,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "screen_fields"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "image_qc_mode",
+    "line": 224,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "screen_fields"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "image_qc_mode",
+    "line": 239,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "screen_fields"
+   }
+  ],
+  "image_qc_saturation_level": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "image_qc_saturation_level",
+    "line": 35,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "quality_policy"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "image_qc_saturation_level",
+    "line": 119,
+    "module": "spacr.image_quality",
+    "nested": false,
+    "qualname": "assess_image"
    }
   ],
   "image_size": [
@@ -57098,11 +57395,11 @@
    }
   ]
  },
- "exact_targets": 690,
+ "exact_targets": 699,
  "nested_consumers_only": 0,
- "no_consumer_found": 140,
+ "no_consumer_found": 131,
  "setting_count": 1189,
- "target_count": 949,
+ "target_count": 958,
  "targets": {
   "CP_prob": {
    "exact": true,
@@ -58619,10 +58916,55 @@
    "module": "spacr.core",
    "symbol": "generate_image_umap"
   },
+  "image_qc_channels": {
+   "exact": true,
+   "module": "spacr.image_quality",
+   "symbol": "quality_policy"
+  },
+  "image_qc_classifier": {
+   "exact": true,
+   "module": "spacr.image_quality",
+   "symbol": "quality_policy"
+  },
+  "image_qc_classifier_labels": {
+   "exact": true,
+   "module": "spacr.image_quality",
+   "symbol": "quality_policy"
+  },
+  "image_qc_classifier_model": {
+   "exact": true,
+   "module": "spacr.image_quality",
+   "symbol": "quality_policy"
+  },
+  "image_qc_classifier_threshold": {
+   "exact": true,
+   "module": "spacr.image_quality",
+   "symbol": "quality_policy"
+  },
+  "image_qc_max_nonfinite": {
+   "exact": true,
+   "module": "spacr.image_quality",
+   "symbol": "quality_policy"
+  },
+  "image_qc_max_saturation": {
+   "exact": true,
+   "module": "spacr.image_quality",
+   "symbol": "assess_image"
+  },
+  "image_qc_min_focus": {
+   "exact": true,
+   "module": "spacr.image_quality",
+   "symbol": "assess_image"
+  },
   "image_qc_mode": {
    "exact": true,
    "module": "spacr.core",
    "symbol": "preprocess_generate_masks"
+  },
+  "image_qc_saturation_level": {
+   "exact": true,
+   "module": "spacr.image_quality",
+   "symbol": "assess_image"
   },
   "image_size": {
    "exact": true,
@@ -61866,15 +62208,6 @@
   "gradient_accumulation",
   "half_widths",
   "illumination",
-  "image_qc_channels",
-  "image_qc_classifier",
-  "image_qc_classifier_labels",
-  "image_qc_classifier_model",
-  "image_qc_classifier_threshold",
-  "image_qc_max_nonfinite",
-  "image_qc_max_saturation",
-  "image_qc_min_focus",
-  "image_qc_saturation_level",
   "investigate_hit",
   "map_barcodes",
   "mask",
@@ -61992,6 +62325,6 @@
   "umap_stability_repeats",
   "umap_stability_weight"
  ],
- "with_addressable_consumer": 1049,
- "with_any_consumer": 1049
+ "with_addressable_consumer": 1058,
+ "with_any_consumer": 1058
 }

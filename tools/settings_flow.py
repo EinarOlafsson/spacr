@@ -144,8 +144,44 @@ def _filled_from_settings(fn: ast.AST) -> Set[str]:
     return found
 
 
+def _projected_settings(value, tables, aliases=frozenset()) -> bool:
+    """Recognize a defaults table projected through actual settings reads.
+
+    :param value: expression to inspect without importing or executing it.
+    :param tables: statically folded module tables and their string keys.
+    :param aliases: local names already bound to a settings mapping.
+    :returns: whether this is ``{key: settings.get(key, default) for key,
+        default in TABLE.items()}``, with the same key and default throughout.
+    """
+    if not isinstance(value, ast.DictComp) or len(value.generators) != 1:
+        return False
+    gen = value.generators[0]
+    if gen.ifs or gen.is_async or not isinstance(gen.target, ast.Tuple):
+        return False
+    if len(gen.target.elts) != 2 or not all(
+            isinstance(part, ast.Name) for part in gen.target.elts):
+        return False
+    key, default = (part.id for part in gen.target.elts)
+    source = gen.iter
+    if not (isinstance(source, ast.Call) and not source.args
+            and not source.keywords and isinstance(source.func, ast.Attribute)
+            and source.func.attr == 'items'
+            and isinstance(source.func.value, ast.Name)
+            and source.func.value.id in tables):
+        return False
+    read = value.value
+    return (isinstance(value.key, ast.Name) and value.key.id == key
+            and isinstance(read, ast.Call) and not read.keywords
+            and isinstance(read.func, ast.Attribute) and read.func.attr == 'get'
+            and _is_settings(read.func.value, aliases)
+            and len(read.args) == 2
+            and isinstance(read.args[0], ast.Name) and read.args[0].id == key
+            and isinstance(read.args[1], ast.Name) and read.args[1].id == default)
+
+
 def _alias_targets(fn: ast.AST,
-                   helpers: "Set[str] | frozenset" = frozenset()) -> Set[str]:
+                   helpers: "Set[str] | frozenset" = frozenset(),
+                   tables=None) -> Set[str]:
     """Local names bound to the settings mapping inside ``fn``.
 
     Five binding forms, and the fifth is not a spelling of the first four.
@@ -166,6 +202,7 @@ def _alias_targets(fn: ast.AST,
 
     :param fn: the function to read.
     :param helpers: local names that return a settings mapping.
+    :param tables: statically folded module tables used by projections.
     :returns: the local names bound to the settings mapping.
     """
     found: Set[str] = set()
@@ -173,7 +210,8 @@ def _alias_targets(fn: ast.AST,
         value = getattr(node, "value", None)
         if not isinstance(node, (ast.Assign, ast.AnnAssign)) or value is None:
             continue
-        ok = _is_settings_value(value, set())
+        ok = (_is_settings_value(value, set())
+              or _projected_settings(value, tables or {}, found))
         if isinstance(value, ast.Call) and not ok:
             f = value.func
             if _names_a_helper(f, helpers):
@@ -217,7 +255,7 @@ def _takes_settings(call: ast.Call) -> bool:
                for k in call.keywords)
 
 
-def _returns_settings(fn: ast.AST) -> bool:
+def _returns_settings(fn: ast.AST, tables=None) -> bool:
     """Whether ``fn`` hands its caller back a settings mapping.
 
     Asked of the RETURN STATEMENTS, not of the name: `default_settings`,
@@ -227,10 +265,11 @@ def _returns_settings(fn: ast.AST) -> bool:
     is spelled differently.
 
     :param fn: the function to read.
+    :param tables: statically folded module tables used by projections.
     :returns: True when some return hands back the settings mapping.
     """
     params = {a.arg for a in fn.args.args + fn.args.kwonlyargs}
-    aliases = _alias_targets(fn) | (params & SETTINGS_NAMES)
+    aliases = _alias_targets(fn, tables=tables) | (params & SETTINGS_NAMES)
     for node in ast.walk(fn):
         if isinstance(node, ast.Return) and node.value is not None:
             if _is_settings(node.value, aliases):
@@ -250,10 +289,11 @@ def _settings_helpers(modules: Dict[str, ast.Module]) -> Set[str]:
     """
     found: Set[str] = set()
     for module, tree in modules.items():
+        tables = _module_tables(tree)
         for node in ast.walk(tree):
             if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 continue
-            if _returns_settings(node):
+            if _returns_settings(node, tables):
                 found.add(f"{module}.{node.name}")
     return found
 
@@ -409,11 +449,16 @@ def _keyed_names(fn: ast.AST, tables: Dict[str, Set[str]],
 
 
 def _keys_from(node, aliases: Set[str],
-               keyed: "Dict[str, Set[str]] | None" = None
+               keyed: "Dict[str, Set[str]] | None" = None,
+               tables=None,
                ) -> List[Tuple[str, str]]:
     """``(key, form)`` pairs a subscript or ``.get`` call reads."""
     out: List[Tuple[str, str]] = []
     keyed = keyed or {}
+    if _projected_settings(node, tables or {}, aliases):
+        table = node.generators[0].iter.func.value.id
+        return [(key, 'get-dynamic') for key in sorted(tables[table])
+                if key in _tooltips()]
 
     def named(node, form: str) -> bool:
         """A key held in a variable: a folded table's key, or a constant.
@@ -535,11 +580,11 @@ def analyse() -> dict:
             takes = bool(params & SETTINGS_NAMES)
             if takes:
                 receivers.add(qual)
-            aliases = (_alias_targets(fn, local_helpers)
+            aliases = (_alias_targets(fn, local_helpers, tables)
                        | (params & SETTINGS_NAMES))
             keyed = _keyed_names(fn, tables, constants)
             for node in ast.walk(fn):
-                for key, form in _keys_from(node, aliases, keyed):
+                for key, form in _keys_from(node, aliases, keyed, tables):
                     reads[key].append({"function": qual, "form": form,
                                        "line": node.lineno})
                 if not isinstance(node, ast.Call):
