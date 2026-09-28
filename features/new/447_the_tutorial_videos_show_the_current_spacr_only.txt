@@ -632,3 +632,11 @@ committed; all27 lesson73 voice tracks still require regeneration, followed
 by rendering, playback/path checks, publication and live verification.
 Receipt: tools/tutorials/evidence/2026-09-27-sweep-verified-composite.json.
 This is staging acceptance only, with no native-speaker or listening signoff.
+
+STATUS 2026-09-28 — All27 lesson73 audio tracks accepted
+The CPU batch exited0 and independently verified all27 regenerated voice
+tracks against the frozen source and13 source-bound reviews. Historical audio
+is unchanged. AI technical review (Codex), no native-speaker signoff; no human
+listening signoff. Rendering, browser/path checks, publication and live
+verification remain pending, so this does not close447.
+Receipt: features/data/447_lesson73_audio_acceptance_2026-09-28.json.
