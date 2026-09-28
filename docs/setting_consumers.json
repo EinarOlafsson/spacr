@@ -7955,7 +7955,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "classes",
-    "line": 6834,
+    "line": 6868,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "_threshold_histogram"
@@ -7964,7 +7964,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 6836,
+    "line": 6870,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "_threshold_histogram"
@@ -7973,7 +7973,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 11349,
+    "line": 11385,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._cpu_detect"
@@ -7982,7 +7982,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 11349,
+    "line": 11385,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._cpu_detect"
@@ -7991,7 +7991,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 11465,
+    "line": 11501,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._otsu_description"
@@ -8058,7 +8058,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "classifier_family",
-    "line": 149,
+    "line": 150,
     "module": "spacr.classify",
     "nested": false,
     "qualname": "resolve_family"
@@ -9871,7 +9871,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "count_data",
-    "line": 4998,
+    "line": 5013,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "_count_files_of"
@@ -12216,7 +12216,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "diameter",
-    "line": 13716,
+    "line": 13752,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._on_detect_cellpose"
@@ -15644,7 +15644,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "gpu",
-    "line": 2890,
+    "line": 2924,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "load_cellpose_model"
@@ -23684,7 +23684,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "mode",
-    "line": 5660,
+    "line": 5694,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "_LiveMagnifier._primary_request_values"
@@ -24036,7 +24036,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "model_type",
-    "line": 195,
+    "line": 196,
     "module": "spacr.classify",
     "nested": false,
     "qualname": "resolve_ml_model_type"
@@ -24344,7 +24344,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "model_type_ml",
-    "line": 193,
+    "line": 194,
     "module": "spacr.classify",
     "nested": false,
     "qualname": "resolve_ml_model_type"
@@ -34526,7 +34526,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 4991,
+    "line": 5006,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "_count_files_of"
