@@ -1,13 +1,14 @@
 {
   "lesson": "73_parameter_sweep",
-  "english_sha256": "8f164d56e7d6d48b866022bb05940e29cf343154681c65517a51ce2676825346",
+  "english_sha256": "44292936fb6b522935dc2402151ddb2bba49786333975d2b8a683e271411e2a4",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 original translations retained; Codex translated and technically reviewed the corrected fitted-support scene.",
+    "date": "2026-09-27",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Only scene8 narration changed. The remaining nine scenes, metadata, scene IDs and statistical caveats are preserved."
   },
   "language": "da",
   "title": "Parameter Sweep: sammenlign gemte Regression-kørsler",
@@ -27,7 +28,7 @@
     "Undersøg de færdige rækker, og åbn derefter sweep_results.csv og hver kørsels indstillings- og kvalitetskontrolfiler. Begge viste kørsler afslutter beregningen, men består ikke inferenskontrollerne, så en kørselsstatus ok er ikke nok alene til at vælge en model.",
     "Vælg den første række, og klik på Show figures for selected row. Undersøg guideresultaterne og akselabels. Plottet udelader skæringspunktet fra koefficienttabellen.",
     "Skift Level til Gene for at undersøge genfamilien separat. Kontrollér dens rækker, effekter og kvalitetskontrolresultater, før du sammenligner den med guidevisningen.",
-    "Skift tilbage til Guide. Læs stikprøvestøtten i input- og diagnosefilerne: eksemplets oversigt over tilpassede rækker tæller outputrækker for koefficienter, ikke brønde.",
+    "Skift tilbage til Guide. Sammenlign rækker brugt i modeltilpasningen og unikke brønde i forsøgets oversigt. Antallene registreres separat for modeltilpasningen på guide-niveau og på gen-niveau. Disse antal beskriver datagrundlaget, ikke kvaliteten af den statistiske inferens.",
     "Behold hver kørsels indstillinger, oversigt og kvalitetskontrolfiler sammen med dens figurer. Brug Regression Diagnostics til yderligere gennemsyn, eller SweepSpace og run_sweep i Python til en scriptet sammenligning."
   ]
 }

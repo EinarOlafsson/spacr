@@ -2978,3 +2978,39 @@ def absent(role) -> bool:
 ```
 
 Extended from organelle slots to nucleus and pathogen. Clearing a pathogen channel hid its rows and left "Pathogen Segmentation" on the form as a heading over nothing, at either level. The heading is hidden and recorded exactly as a slot heading is, and `AppScreen.refresh_maturity_visibility` now leaves a recorded heading hidden -- before, it re-showed any rendered heading whose maturity was visible, and the next object pass hid it again.
+
+
+---
+
+# Notes from `spacr/qt/screens/settings_model.py`
+
+Prose lifted out of `spacr/qt/screens/settings_model.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## Module level
+
+### lines 279-280  _(unsure)_
+
+```python
+"timelapse": {"timelapse", "mask_parallel", "mask_gpu_indices",
+```
+
+Parallel GPU masks refuse timelapse and t_stack runs, so the Timelapse panel keeps both keys at their off/blank defaults without showing them.
+
+### line 1183
+
+```python
+"segmentation_backend",
+```
+
+404/405: which model segments every object channel above.
+
+### line 1321
+
+```python
+"segmentation_backend",
+```
+
+404/405: which model segments every object channel above.

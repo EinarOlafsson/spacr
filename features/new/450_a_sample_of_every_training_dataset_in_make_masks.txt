@@ -2,10 +2,10 @@
 A SAMPLE OF EVERY TRAINING DATASET, PICKABLE IN MAKE MASKS
 ================================================================================
 
-Status:    BUILT 2026-09-20, the day it was asked for. Five datasets wired, all
-           five verified against the live Hugging Face repositories. NOT DONE:
-           the nine-language catalogs owe the button caption, its tooltip, the
-           dialog's title and blurb, and four status sentences.
+Status:    DONE 2026-09-27. Runtime translations cover all nine locales;
+           sample wording covers variable counts and optional masks, and the
+           shared plaque helper's private docstring is corrected. Historical
+           live receipts and current validation are recorded below.
 
 Requested: 2026-09-20 -- "for the generate masks modular, there should be
            multiple datasets for the user to choose from, a small sample of
@@ -123,3 +123,35 @@ random within each group, per domain for the plaque quota. Measured on the
 live repositories: PV 8/2, plaque 20/0, figures 8/2, cell-from-Hoechst 10/0,
 nuclei-from-CellMask 10/0, Toxoplasma-from-CellMask 8/2 (with objects / empty).
 Samples cache under <key>_random2, so the uniform draws are refetched.
+
+--------------------------------------------------------------------------------
+2026-09-27 — RUNTIME TRANSLATIONS AND SAMPLE WORDING VERIFIED
+--------------------------------------------------------------------------------
+
+The original translation tail is resolved in all nine runtime catalogs, with
+source-bound AI technical review and no native-speaker signoff. The shared
+picker now describes variable sample sizes and includes masks only where
+available. Its completion message reports the actual number of example images,
+including the twenty-field plaque set and images-only whole-figure set.
+
+Exactly three UI sources replaced three obsolete sources. All 27 old review
+records remain in archived whole original files and active retired_records;
+all 27 replacements passed the canonical source/context/format gates. English
+and all nine catalogs were rebuilt without model inference, and the canonical
+nine-locale audit passed. The four named behavior/translation files passed
+59 tests with the translation advisory plugin disabled.
+
+Receipt: features/data/450_451_training_sample_wording_2026-09-27.json.
+The historical pairing, randomization, quotas and live foreground counts above
+remain the dataset acceptance evidence; no new network sampling is claimed.
+The shared plaque helper's cataloged docstring still needs its separate API
+correction before the item is marked fully DONE.
+
+2026-09-27 follow-up: the private helper's docstring now accurately describes
+the registered input section, variable sample sizes, images-only whole figures
+and src assignment. The earlier claim that it was cataloged was incorrect:
+canonical public_docstrings and _english_manifest generation prove that all
+11,865 public API entries are unchanged and this private helper is excluded.
+No API catalog or translation mutation is required. The package callable
+documentation guard passed. Receipt:
+features/data/450_451_private_docstring_2026-09-27.json.

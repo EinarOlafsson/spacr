@@ -77,8 +77,8 @@ def path_hits(lines):
         loose = squeezed.replace('_', '').replace('-', '')
         for kind, pattern in PATH_PATTERNS.items():
             if pattern.search(squeezed):
-                if kind == 'unix_home' and GENERIC_HOME.search(squeezed) and \
-                        len(re.findall(r'/home/', squeezed)) == len(GENERIC_HOME.findall(squeezed)):
+                named = re.findall(r'/home/(?=[a-z0-9])', squeezed)  # "/home/" cut off names nobody
+                if kind == 'unix_home' and len(named) == len(GENERIC_HOME.findall(squeezed)):
                     kind = 'generic_home'
                 hits.append((kind, text))
         for kind, token in LOOSE_PATTERNS.items():

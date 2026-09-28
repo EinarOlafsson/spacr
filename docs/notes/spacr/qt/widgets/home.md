@@ -751,3 +751,23 @@ if not self._hint_bar.is_holding():
 THE STRIP IS NOT CLEARED ON LEAVE, which is the whole point of the thirty-second hold: the API and Tutorial words appeared only while the pointer was on the tile, so moving toward them removed them and neither could ever be pressed. The hold in `ModuleHintBar` puts the prompt back instead, thirty seconds later or as soon as another module is hovered.
 
 A tile with nothing registered still clears, because it never wrote anything to reach.
+
+
+---
+
+# Notes from `spacr/qt/widgets/home.py`
+
+Prose lifted out of `spacr/qt/widgets/home.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## HomePage._build_aside
+
+### lines 2486-2488
+
+```python
+start = QPushButton(tr("Pipeline overviews"), aside)
+```
+
+GitHub #130: Home said what spaCR can do and nothing about where to begin. First in the column, above the panels, because it is the answer to the first question a new user has.

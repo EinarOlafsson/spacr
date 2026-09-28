@@ -51,3 +51,23 @@ return [("", "whatever is available")] + found if found else []
 ```
 
 "whatever is available" first, and it IS the default: a machine with two CLIs today may have one tomorrow, and a pinned name that is gone is worse than no preference.
+
+
+---
+
+# Notes from `spacr/qt/setup_screen.py`
+
+Prose lifted out of `spacr/qt/setup_screen.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## questions
+
+### lines 136-138
+
+```python
+("spacr_mode", "Performance", prefs.get_performance_level,
+```
+
+Captioned as Preferences captions the same selector (286: "the same names ... appear in first-run setup"). The key stays `spacr_mode` because the slide and dialog groupings are keyed by it.

@@ -209,10 +209,6 @@ def group_entries(entries) -> list:
     out = []
     for stem, pairs in groups.items():
         pairs.sort(key=lambda pl: _version_sort_key(pl[0]), reverse=True)
-        # One entry per version label. The same model can arrive twice -- the
-        # picker guarantees a stock row AND the catalogue lists the stock
-        # models -- and a version box offering "v2, v2" is a bug the user sees.
-        # First wins, which is the caller's preferred copy.
         seen, unique = set(), []
         for label, entry in pairs:
             if label in seen:
@@ -220,9 +216,6 @@ def group_entries(entries) -> list:
             seen.add(label)
             unique.append((label, entry))
         out.append((stem, unique))
-    # Insertion order, not alphabetical: the caller's order is meaningful --
-    # the picker puts the stock model first, and a listing that reordered it
-    # would move the row the user reaches for most.
     return out
 
 
@@ -522,8 +515,6 @@ class ModelZooScreen(QWidget):
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self._table.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self._table.itemSelectionChanged.connect(self._on_selection_changed)
-        # A click on an uninstalled backend offers to install it, the same as
-        # the Make Masks Mode box and the Model Zoo button.
         self._table.itemClicked.connect(self._row_clicked)
         self.models_section = FoldSection(
             self._table, "Models", self, persist_key=f"{FOLD_KEY}/Models")

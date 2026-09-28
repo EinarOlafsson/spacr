@@ -1128,9 +1128,6 @@ class ModelZooPicker(QDialog):
         self.table.horizontalHeader().setSectionResizeMode(
             2, QHeaderView.Stretch)
         self.table.itemSelectionChanged.connect(self._selection_changed)
-        # A CLICK offers the install, the same as the Make Masks Mode box.
-        # itemClicked fires only for a person, so restoring a selection in
-        # code never opens a modal.
         self.table.itemClicked.connect(self._row_clicked)
         layout.addWidget(self.table, 1)
 
@@ -1138,9 +1135,6 @@ class ModelZooPicker(QDialog):
         self.sources.changed.connect(self._sources_changed)
         layout.insertWidget(layout.indexOf(self.table), self.sources)
 
-        # The scorecard sits between the list and the controls, at a fixed
-        # height: a box that grew and shrank with the selected model would
-        # move the Download button under the pointer between clicks.
         self.card = QTextBrowser(self)
         self.card.setOpenExternalLinks(True)
         self.card.setFixedHeight(200)
@@ -1368,10 +1362,6 @@ class ModelZooPicker(QDialog):
 
         try:
             entries = [self.STOCK_MODEL]
-            # The catalogue lists the Cellpose stock models too. Duplicates
-            # are collapsed per version label by group_entries, which catches
-            # the stock row whose key and name disagree -- name "cpsam", key
-            # "cpsam_v2" -- where a name comparison here did not.
             entries += list(model_zoo.catalogue(remote=True, block=False))
             if self.sources.is_on("spaCR community"):
                 entries += list(model_zoo.community_entries())
@@ -1379,9 +1369,6 @@ class ModelZooPicker(QDialog):
             self.status.setText(f"Could not read the model list: {exc}")
             entries = [self.STOCK_MODEL]
         if self._kinds:
-            # Installable backends survive the kind filter: they are listed so
-            # a user learns they exist, which is the whole point of showing a
-            # thing that is not installed.
             entries = [e for e in entries
                        if e.kind in self._kinds or e.kind == "backend"]
         from ..screens.model_zoo import _model_is_alpha_hidden
@@ -1401,9 +1388,6 @@ class ModelZooPicker(QDialog):
 
         self._entries = list(entries)
 
-        # Tear the old rows down FIRST. A combo box from the previous refresh
-        # is still wired to _version_picked, and setRowCount destroying it can
-        # emit currentIndexChanged against groups that no longer exist.
         self._rebuilding = True
         self.table.clearContents()
         self.table.setRowCount(0)
@@ -1662,8 +1646,6 @@ class ModelZooPicker(QDialog):
         if not installed:
             self.status.setText("")
             return
-        # Leave the row the user just installed selected, so "install it and
-        # use it" is one action rather than install-then-hunt-for-the-row.
         for group, (stem, pairs) in enumerate(self._groups):
             if any(getattr(e, "name", "") == label for _l, e in pairs):
                 row = self._row_of_group(group)
@@ -1758,8 +1740,6 @@ class ModelZooPicker(QDialog):
         if backend_row:
             html += _backend_card(entry)
         if not html:
-            # The stock model is a SimpleNamespace, not a ModelEntry, so it has
-            # no describe(); fall back to what any entry-shaped object has.
             describe = getattr(entry, "describe", None)
             if callable(describe):
                 html = f"<p>{describe()}</p>"

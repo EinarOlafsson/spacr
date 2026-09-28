@@ -1,0 +1,176 @@
+{
+  "item": "07/447",
+  "date": "2026-09-27",
+  "lesson": "73_parameter_sweep",
+  "scene_index": 8,
+  "visual": "12_saved_guide_family_restored",
+  "old_english_sha256": "8f164d56e7d6d48b866022bb05940e29cf343154681c65517a51ce2676825346",
+  "new_english_sha256": "44292936fb6b522935dc2402151ddb2bba49786333975d2b8a683e271411e2a4",
+  "unchanged_scenes": 9,
+  "original_metadata_preserved": true,
+  "languages": [
+    {
+      "language": "da",
+      "old_review_sha256": "c54417e877c4edcba5bfcc1bf90c11031b24f13af7b0990ad93d9a283c5aff9f",
+      "inherited_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-25",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      }
+    },
+    {
+      "language": "de",
+      "old_review_sha256": "88663fa843163f01db30989d45bf5cb75eadcffae9aa981b0b29308f5fe68e25",
+      "inherited_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-25",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      }
+    },
+    {
+      "language": "es",
+      "old_review_sha256": "97d37e2f13b3db7add168bb8dac684b78f8077fc6a090c7fa28b6fc251c692b6",
+      "inherited_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-25",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      }
+    },
+    {
+      "language": "fr",
+      "old_review_sha256": "380b861e730a364af9905b8e71365d4f1515646c99f5e9c4ac754ab39f248d84",
+      "inherited_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-25",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      }
+    },
+    {
+      "language": "hi",
+      "old_review_sha256": "54a119bdf71c911a0b9eafcc703453e3e15982d42a938069fabcc6b87a42902b",
+      "inherited_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-25",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      }
+    },
+    {
+      "language": "is",
+      "old_review_sha256": "ddb86e3b55f5538c01d37ed24d007b1ca3ec01f302f11af954866210d4084d0e",
+      "inherited_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-25",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      }
+    },
+    {
+      "language": "it",
+      "old_review_sha256": "ee27878866bfad818b76a0e898b929027b25947fb4e9132bbcf824e77edb2194",
+      "inherited_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-25",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      }
+    },
+    {
+      "language": "ja",
+      "old_review_sha256": "13cb002a781ed2f9c943834559ee5601111d44ca0b31c7a2e7a2553605b57ee3",
+      "inherited_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-25",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      }
+    },
+    {
+      "language": "ko",
+      "old_review_sha256": "26116440101ea216a3bfd69f4d8ad1c059df587473fe2fdec7f8d19c465baa48",
+      "inherited_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-25",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      }
+    },
+    {
+      "language": "nb",
+      "old_review_sha256": "814a2d574179b57b14c184a11139c072e4fa6b01e7ecfd6008e404b55dda2995",
+      "inherited_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-25",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      }
+    },
+    {
+      "language": "pt-BR",
+      "old_review_sha256": "25c2551527e776e62ac0caed13a2882775429389bf1cb411c233b08bb09bd52a",
+      "inherited_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-25",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      }
+    },
+    {
+      "language": "sv",
+      "old_review_sha256": "65dc18b1566531cb3b3c2e091a9441779c49d7cd5d4ca7b6a1b0efbbb33d1464",
+      "inherited_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-25",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      }
+    },
+    {
+      "language": "zh-CN",
+      "old_review_sha256": "756cf47e97016242cf19495b19e28ca84e42a52202bb088a3a7feb99e018bf67",
+      "inherited_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-25",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      }
+    }
+  ],
+  "review_kind": "AI technical review (Codex), no native-speaker signoff",
+  "native_speaker_signoff": false,
+  "listening_review": false,
+  "media_staged": false,
+  "rendered": false,
+  "published": false,
+  "scope": "Corrected narration for measured fit support; source review is not a capture or scientific inference acceptance receipt."
+}

@@ -2028,10 +2028,6 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
             diam = settings.get(f"{obj}_diameter")
             if diam:
                 self._diameter.setValue(float(diam))
-            # The model the RUN segments `obj` with, by the key order the
-            # Mask panel reads (333). This seeded the object, channel and
-            # diameter and never the model, so every frame was segmented
-            # with the menu's first entry whatever the run was set to use.
             wanted, _key, here = _model_the_run_would_use(
                 self._settings, obj)
             _offer_the_run_model(self._model_box, wanted, here)

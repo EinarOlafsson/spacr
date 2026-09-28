@@ -53,3 +53,23 @@ controls = payload.get("controls") or {}
 ```
 
 The caller's own control ALIASES, on top of the canonical positive_control_* columns. The sweep screen puts `positive_rank` in its table, and that column is built from this mapping -- so a contained trial that did not compute it would leave the one column the run is judged on blank, which looks exactly like a control that was never recovered.
+
+
+---
+
+# Notes from `spacr/sweep_child.py`
+
+Prose lifted out of `spacr/sweep_child.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## main
+
+### lines 82-84
+
+```python
+with _open_sans_if_a_run_started_this():
+```
+
+291: this interpreter starts on matplotlib's stock default. When the app or a pipeline run started the sweep, the trial's figures follow it into Open Sans; started from a notebook, they do not.

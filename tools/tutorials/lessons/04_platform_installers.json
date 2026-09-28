@@ -50,6 +50,11 @@
       "hold_after": 0.7
     },
     {
+      "visual": "09_performance",
+      "narration": "In Preferences, choose a Performance profile for your computer. Laptop uses fewer resources; the higher profiles allow more caching and background work. Start with a modest profile if memory is limited. Your analysis settings stay under your control in each module.",
+      "hold_after": 0.7
+    },
+    {
       "visual": "06_installed_home",
       "narration": "When Home opens, continue with the Home tutorial. It shows how to open a module, find test data and choose a pipeline for your experiment.",
       "related_lessons": [

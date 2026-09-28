@@ -1,0 +1,14 @@
+{
+  "date": "2026-09-27",
+  "item": "453",
+  "scope": "Read-only systemd deployment verification",
+  "commands": [
+    "systemctl --user show spacr-memory-watchdog.service -p LoadState -p ActiveState -p UnitFileState",
+    "systemctl show user@1000.service -p MemoryHigh -p MemoryMax"
+  ],
+  "watchdog": {"LoadState": "not-found", "ActiveState": "inactive", "UnitFileState": ""},
+  "user_service": {"MemoryHigh": "infinity", "MemoryMax": "infinity"},
+  "deployment_complete": false,
+  "services_changed": false,
+  "remaining": "Maintainer-reserved watchdog installation and user-service memory configuration remain undone. Live training was left untouched."
+}

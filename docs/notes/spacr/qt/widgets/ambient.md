@@ -1087,3 +1087,49 @@ running module holds `gil_priority.BUSY_INTERVAL`, where the same
 measurement is 6 to 24 ms. Nobody has seen a pure-Python worker running
 with the Resonance backdrop on a real screen, and that is the honest
 state of it.
+
+
+---
+
+# Notes from `spacr/qt/widgets/ambient.py`
+
+Prose lifted out of `spacr/qt/widgets/ambient.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## Contents
+
+- [AmbientWidget.__init__](#ambientwidget__init__) (1 entry)
+- [AmbientWidget.hideEvent](#ambientwidgethideevent) (1 entry)
+- [AmbientWidget.eventFilter](#ambientwidgeteventfilter) (1 entry)
+
+## AmbientWidget.__init__
+
+### lines 4972-4973  _(unsure)_
+
+```python
+self._watched: Optional[weakref.ReferenceType] = None
+```
+
+WEAK, or the window and this widget form a reference cycle; see docs/notes/spacr/qt/widgets/ambient.md for what the collector does.
+
+## AmbientWidget.hideEvent
+
+### lines 5473-5474  _(unsure)_
+
+```python
+if getattr(self, "_timer", None) is not None:
+```
+
+Absent when the collector cleared this wrapper before its window was destroyed: nothing is left to stop.
+
+## AmbientWidget.eventFilter
+
+### line 5488  _(unsure)_
+
+```python
+ref = getattr(self, "_watched", None)
+```
+
+getattr for the same teardown as hideEvent: nothing watched.

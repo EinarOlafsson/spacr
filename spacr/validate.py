@@ -280,7 +280,7 @@ def _known_setting_keys() -> frozenset:
     if _KNOWN_KEYS_CACHE is not None:
         return _KNOWN_KEYS_CACHE
 
-    keys = set()
+    keys = {"hash_inputs"}
     from . import settings as _settings
 
     keys.update(getattr(_settings, "expected_types", {}))
@@ -295,9 +295,6 @@ def _known_setting_keys() -> frozenset:
     from . import graph_types as _graph_types
 
     buf = _io.StringIO()
-    # The sweep wants KEYS, not the user's graph-type choice, and asking for
-    # the choice imports Qt, which validating a batch queue must not do. See
-    # `graph_types._READ_THE_PREFERENCE_STORE`.
     reading = _graph_types._READ_THE_PREFERENCE_STORE.set(False)
     try:
         with contextlib.redirect_stdout(buf):

@@ -94,3 +94,23 @@ picked = np.sort(np.random.default_rng(spec.seed).choice(
 ```
 
 Positional, seeded, and sorted back into the frame's own order — not `DataFrame.sample`, whose result has to be re-sorted by *index*, which is not the row order for a frame that arrived from a filter or a join.
+
+
+---
+
+# Notes from `spacr/qt/widgets/graph_spec.py`
+
+Prose lifted out of `spacr/qt/widgets/graph_spec.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## GraphSpec.describe
+
+### lines 505-508
+
+```python
+return f"{said} — {note}" if note else said
+```
+
+THE FALLBACK IS SAID OUT LOUD, in the one line that becomes the chart's caption and the window title. A preference that is quietly ignored leaves the user looking at a chart they did not choose with no way to find out why.

@@ -1,9 +1,9 @@
 EXPORT FOR R (SingleCellExperiment) AND TIDY PARQUET
 
-Status: IMPLEMENTED AS ALPHA 2026-09-26 (see the note of that date). The
-Parquet tables, the R loader and the .rds data frames are built and
-round-trip tested in pandas/pyarrow/pyreadr. Still open: the R half of
-DONE WHEN has not been run -- R is not installed on this machine.
+Status: DONE AS ALPHA 2026-09-28. Parquet tables, the R loader and .rds
+data frames round-trip in pandas/pyarrow/pyreadr and native R. The full
+SingleCellExperiment comparison passes for values, missing entries,
+annotations, embeddings and provenance. See the source-bound receipt below.
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -118,3 +118,23 @@ no choices, widgets, apps or models. Registered in
 spacr.settings.ALPHA_FEATURES under 581, hidden unless Preferences -> Show
 alpha features is on; a saved value still reaches the run, and the API
 (_export_tables) is not gated. 2026-09-26.
+
+STATUS 2026-09-28 — DONE AS ALPHA; native R requirement accepted
+An isolated R4.5.3 environment now executes the exported loader with
+nanoparquet0.5.2 and SingleCellExperiment1.32.0. All158 named-file checks pass
+with no skips, including both direct/nested source() paths, native SCE loading,
+pyreadr round trips, alpha visibility, required-parameter docs and English API
+inventory. Fixed the loader default to use its own innermost source() frame
+before the caller's Rscript --file; loading from a different cwd now works.
+The broader native check compares every assay value and missing position,
+all annotations/feature metadata and embedding coordinates, well means/counts
+and provenance. Native saveRDS/readRDS and CLI-produced SCE RDS agree exactly;
+all four pyreadr data-frame RDS files match their Parquet tables. Original
+warnings and raw results are retained in the source-bound receipt.
+This proves the stated DONE WHEN using the deterministic20-object database
+fixture, not a real-plate or human-review claim. The alpha gate is unchanged.
+The preceding dated native-R skip is closed. Optional API promotion, further
+per-well statistics and extra UI entry points remain separate enhancements.
+No shared environment, GPU or live_cell training state was modified.
+Receipt: features/data/581_native_r_acceptance_2026-09-28.json.
+Checker: features/data/581_native_r_checker_2026-09-28.R.

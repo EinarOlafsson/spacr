@@ -375,3 +375,57 @@ A CROP BOX, NOT A GRAPH. This is neither of the two shape controls a figure has:
 ```
 
 Keep control values alive on the panel between dialog openings.
+
+
+---
+
+# Notes from `spacr/qt/widgets/measure_preview.py`
+
+Prose lifted out of `spacr/qt/widgets/measure_preview.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## Contents
+
+- [MeasurePreviewPanel._apply_png_size](#measurepreviewpanel_apply_png_size) (1 entry)
+- [MeasurePreviewPanel.apply_settings](#measurepreviewpanelapply_settings) (2 entries)
+- [CropSettingsDialog._adopt_new_slot_controls](#cropsettingsdialog_adopt_new_slot_controls) (1 entry)
+
+## MeasurePreviewPanel._apply_png_size
+
+### lines 1158-1159  _(unsure)_
+
+```python
+from PySide6.QtCore import QSignalBlocker
+```
+
+Loading a saved rectangle is not a user edit that requests a square. Keep its geometry while setting the displayed width.
+
+## MeasurePreviewPanel.apply_settings
+
+### lines 1693-1698
+
+```python
+speaks_to_the_count = (
+```
+
+THE COUNT FIRST, because it is what brings the slot controls into existence: a value written into a slot whose control does not exist yet is a value dropped on the floor. Absent is still LEFT ALONE a dict that mentions no slot and no count is not claiming the run has none, it is making no claim, which is the rule `_set` below follows for every other field.
+
+### lines 1704-1708
+
+```python
+self._build_slot_controls(_slots_the_settings_speak_for(settings))
+```
+
+AND THE SLOTS THE FILE CARRIES BEYOND IT. `declared_organelle_roles` is the wider of the two -- the slots shown, plus any further slot this dict already has keys for -- so a file written at seven and opened at two keeps controls for slots three to seven and hands their values back untouched instead of dropping them.
+
+## CropSettingsDialog._adopt_new_slot_controls
+
+### lines 2177-2178  _(unsure)_
+
+```python
+if getattr(self, "_filter_form", None) is None:
+```
+
+The last of the three layouts this reaches, so a call made while the dialog is still being built finds nothing half-laid-out.

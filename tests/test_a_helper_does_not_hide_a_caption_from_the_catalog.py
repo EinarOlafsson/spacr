@@ -232,6 +232,30 @@ def test_make_masks_parameter_rows_expose_help_but_not_setting_keys(builder):
     assert reached - {""} <= set(builder.extract_static_ui_sources())
 
 
+def test_feature_registry_labels_reach_catalog_without_model_metadata(builder):
+    from spacr.embeddings import _FOUNDATION_MODELS
+    from spacr.qt.screens.map_barcodes import _SPATIAL_MASKS
+
+    sources = set(builder.extract_static_ui_sources())
+    assert {info["label"] for info in _FOUNDATION_MODELS.values()} <= sources
+    assert {label for _key, label in _SPATIAL_MASKS} <= sources
+    assert not set(_FOUNDATION_MODELS) & sources
+    assert not {info[key] for info in _FOUNDATION_MODELS.values()
+                for key in ("repo", "url") if key in info} & sources
+    assert {"Visium", "Visium HD", "Xenium"} <= builder._IDENTITY_TEXT
+    assert not {"Visium", "Visium HD", "Xenium"} & sources
+
+
+def test_indirect_spatial_help_and_cloud_placeholder_reach_catalog(builder):
+    sources = set(builder.extract_static_ui_sources())
+    assert "Detect" in sources
+    assert ("Read 10x Visium, Visium HD or Xenium output, place its spots or "
+            "transcripts on the image spaCR segmented, and write gene counts "
+            "per object beside the measurements. Default hidden.") in sources
+    assert "s3://bucket/folder, gs://, az:// or https://" in sources
+    assert not builder._looks_translatable("s3://bucket/private-data")
+
+
 def test_section_titles_are_extracted_without_persistence_keys(builder):
     """Both add_section implementations put their visible title after the widget."""
     for filename, parameter in (("widgets/collapsible_splitter.py", "name"),

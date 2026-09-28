@@ -401,9 +401,6 @@ def render_volcano(results: pd.DataFrame, style: VolcanoStyle, *,
     else:
         figure.clear()
 
-    # `font_rc`, not a hand-written `font.family`: naming a family matplotlib
-    # has not been given the FILE for falls back to DejaVu Sans without
-    # failing, so the faces spaCR ships have to be registered first.
     with mpl.rc_context(font_rc(style)):
         if style.split_axis and style.split_y_lims:
             lower, upper = style.split_y_lims

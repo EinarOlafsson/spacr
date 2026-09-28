@@ -1569,7 +1569,6 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
             from spacr.align import align_folder
             return _ret(log_call(align_folder))
         if app_key == "ops":
-            # 372 PART 14-M: the sequencing engine, validated on the plate.
             from spacr.ops_engine import run_ops
             return _ret(log_call(run_ops))
         if app_key == "convert":

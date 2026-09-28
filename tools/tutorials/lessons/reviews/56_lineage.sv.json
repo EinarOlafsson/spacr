@@ -1,13 +1,14 @@
 {
   "lesson": "56_lineage",
-  "english_sha256": "7fcbf79152a032546ff9ec5c185ab283c7c8f2a495b89d073fbf60cfa0c2014d",
+  "english_sha256": "495593daa307987beb6a264dc2850109813057ef21e2a025eaf0a00bba2964ed",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review (Codex correction), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 original translation retained; Codex corrected prerequisite and scene 10 against current English.",
+    "date": "2026-09-27",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Only prerequisite and scene 10 changed; thirteen other scene narrations, title, description and objectives preserved."
   },
   "language": "sv",
   "title": "Lineage: bläddra bland föräldraobjekt och deras innehåll",
@@ -17,7 +18,7 @@
     "Välja objekt och samtidigt kontrollera synfält och objekttyp.",
     "Öppna ett matchande utsnitt av föräldracellen och få hela hierarkin via Python."
   ],
-  "prerequisite": "Hämta det kompletta Annotate-exemplet med dess mätdatabas och matchande cellutsnitt. Graph Builders arkiv med bara databasen kan inte ge bilder. Exemplet innehåller bara cellutsnitt: dubbelklicka på en föräldracell för att granska ett utsnitt. Den nuvarande familjeåtgärden Open crops kan ersätta saknade barnutsnitt med utsnitt av orelaterade celler; undvik den med det här exemplet.",
+  "prerequisite": "Hämta det kompletta Annotate-exemplet med dess mätdatabas och matchande cellutsnitt. Graph Builders arkiv med bara databasen kan inte ge bilder. Exemplet innehåller bara cellutsnitt. För familjen som visas här visar Open crops bara föräldracellens matchande utsnitt och meddelar att två barnutsnitt inte är tillgängliga.",
   "scenes": [
     "Från Home öppnar du Database Browser och sedan Lineage. Använd trädet för att se vilka uppmätta objekt som finns sparade i varje föräldracell.",
     "Bläddra till measurements.db från Annotate-exemplet och klicka på Build tree. Bredda kolumnen Object och avdelaren för att läsa etiketterna. Identifiera ett objekt med synfält och typ, inte bara nummer.",
@@ -29,9 +30,27 @@
     "Klicka på en kolumnrubrik för att sortera de visade familjerna. Sorteringen behåller de sparade relationerna och visningsgränsen på 2 000 föräldrar.",
     "För att se utsnitt öppnar du först Annotate och läser in motsvarande exempelprojekt. Om du ser meddelandet som ber om Annotate öppnar du det innan du begär bilder från Lineage.",
     "Använd hela det nedladdade projektet, som innehåller cellutsnitten. Håll databasen och bilderna från samma körning tillsammans så att objektidentiteterna stämmer.",
-    "Undvik Open crops för en hel familj i det här exemplet. Saknade kärn- och patogenutsnitt kan ersättas med utsnitt av orelaterade celler. Gå tillbaka till trädet och välj bara föräldracellen.",
+    "Klicka på Open crops för den valda familjen. Annotate öppnar bara föräldracellens matchande utsnitt och meddelar att två barnutsnitt inte är tillgängliga. Exemplet innehåller bara cellutsnitt; utsnitt av kärnan och patogenen är inte tillgängliga.",
     "Dubbelklicka på föräldracellen i Lineage. Annotate öppnar förälderns matchande cellutsnitt. Det är utsnittet som finns i det nedladdade exemplet.",
     "Skiftklicka på förälderns miniatyr för att förstora förhandsvisningen och tryck sedan på Esc för att gå tillbaka. Ett vanligt vänsterklick sätter en annoteringsklass, så använd Shift när du bara vill granska.",
     "Klicka på Build tree för att uppdatera vyn. För hela hierarkin i Python använder du read_object_tables, build_forest och lineage_frame och sparar tabellen som CSV. Den länkade exempel-CSV-filen innehåller alla 7 201 noder."
+  ],
+  "review_history": [
+    {
+      "english_sha256": "7fcbf79152a032546ff9ec5c185ab283c7c8f2a495b89d073fbf60cfa0c2014d",
+      "review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-25",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      },
+      "superseded_fields": {
+        "prerequisite": "Hämta det kompletta Annotate-exemplet med dess mätdatabas och matchande cellutsnitt. Graph Builders arkiv med bara databasen kan inte ge bilder. Exemplet innehåller bara cellutsnitt: dubbelklicka på en föräldracell för att granska ett utsnitt. Den nuvarande familjeåtgärden Open crops kan ersätta saknade barnutsnitt med utsnitt av orelaterade celler; undvik den med det här exemplet.",
+        "scene_10": "Undvik Open crops för en hel familj i det här exemplet. Saknade kärn- och patogenutsnitt kan ersättas med utsnitt av orelaterade celler. Gå tillbaka till trädet och välj bara föräldracellen."
+      },
+      "reason": "9359607f4 preserves typed crop identity: this family opens one matching parent crop and reports two unavailable child crops."
+    }
   ]
 }

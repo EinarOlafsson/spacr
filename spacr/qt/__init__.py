@@ -1,23 +1,13 @@
-"""
-Modern PySide6 (Qt 6) GUI for spacr.
+"""PySide6 (Qt 6) desktop interface for spaCR.
 
-Runs alongside the classic Tk GUI (spacr.gui) — nothing here touches the
-Tk stack. To launch:
+Launch the application with ``spacr``, ``spacr-qt``,
+``python -m spacr.qt`` or ``python -m spacr``. The last command also accepts
+subcommands such as ``mask`` and ``measure`` to open a specific application
+tab.
 
-    spacr-qt            # CLI shortcut (see setup.py entry_points)
-    python -m spacr.qt  # equivalent
-
-The old GUI keeps working via:
-    spacr               # Tk (classic)
-    python -m spacr
-
-The Qt code lives in three layers::
-
-    theme.py              — palette + QSS stylesheet
-    widgets/              — reusable custom widgets (tiles, sections, ...)
-    screens/              — one Qt widget per app screen
-                            (startup, mask, measure, ...)
-    app.py                — main window + QApplication bootstrap
+The interface uses ``theme.py`` for its palette and QSS stylesheet,
+``widgets/`` for reusable widgets, ``screens/`` for application screens,
+and ``app.py`` for the main window and QApplication bootstrap.
 """
 from __future__ import annotations
 
@@ -406,17 +396,6 @@ def run(argv: list[str] | None = None) -> int:
 
     register_self_registering_modules()
 
-    # 291, decided 2026-09-15: "Global in the app only". Every GUI console
-    # script reaches the window through this line -- spacr, spacr-qt,
-    # spacr-nightly, spacr-server, spaceout, spacr-make-masks and
-    # `python -m spacr` -- so this is where Open Sans becomes matplotlib's
-    # default, and a plain `Figure()` anywhere in the application draws in
-    # the face the interface uses. Held around `launch`, which is the life of
-    # the process; see `spacr.figure_font._open_sans_is_the_default`.
-    #
-    # NOT IN SAFE MODE. `safespacr` is the least spaCR that can still change
-    # a setting (296), and this imports matplotlib and registers eight font
-    # files before the first window.
     preferences = sys.modules.get(f"{__name__}.preferences")
     if preferences is not None and preferences.in_safe_mode():
         return launch(argv)

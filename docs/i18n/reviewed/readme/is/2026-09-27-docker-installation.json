@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_method": "AI technical review (Codex), no native-speaker signoff",
+  "readme_source_sha256": "de9db9502bd3f88ade1926a0f116c9e40471b4b89284f9c7376fa457a63a0690",
+  "translated_readme_sha256": "16cddad21796cc3f096310841d1ebdce0c6d66a555a54aff4b742a9bc876d3e8",
+  "scope": "Docker installation section only: heading and two prose blocks; command, image tags and URLs retained exactly. All earlier sections and review files unchanged.",
+  "records": [
+    {
+      "label": "heading",
+      "source": "Docker installation",
+      "source_sha256": "64c2a591a9cae8cf03f230fe74c4f7ce222720199e03196a6dcf6b2cfa99c64b",
+      "translation": "Uppsetning með Docker"
+    },
+    {
+      "label": "intro",
+      "source": "Run spaCR's command-line pipelines in a container using the published `Docker images on GHCR <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_. Install `Docker <https://docs.docker.com/get-started/get-docker/>`_, then list the available pipelines with this published CPU image:",
+      "source_sha256": "33da0a682cef1f28f0629dd566878a6f9c64de15a85b968b742ac4a9040ef3bd",
+      "translation": "Keyrðu skipanalínuvinnslur spaCR í gámi með útgefnum `Docker-myndum á GHCR <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_. Settu upp `Docker <https://docs.docker.com/get-started/get-docker/>`_ og birtu síðan lista yfir tiltækar vinnslur með þessari útgefnu CPU-mynd:"
+    },
+    {
+      "label": "gpu",
+      "source": "The matching NVIDIA GPU image is ``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``. Both images target Linux x86-64 containers. See the `Docker installation guide <docs/source/installer_guide.rst#container-images>`_ for GPU prerequisites, data and model mounts, settings files, and complete pipeline commands.",
+      "source_sha256": "cbe2b796bc8f882e792bed76cd317d873178587daf20bff533f6f7b7dabcd575",
+      "translation": "Samsvarandi mynd fyrir NVIDIA-skjákort er ``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``. Báðar myndirnar eru ætlaðar fyrir Linux-gáma á x86-64. Sjá `uppsetningarleiðbeiningar fyrir Docker <docs/source/installer_guide.rst#container-images>`_ um forkröfur fyrir skjákort, tengingu gagna- og líkanamappa, stillingaskrár og heildarskipanir fyrir vinnslurnar."
+    }
+  ]
+}

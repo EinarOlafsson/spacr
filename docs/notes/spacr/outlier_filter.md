@@ -29,3 +29,23 @@ report.append({"criterion": criterion, "caption": caption,
 ```
 
 NOT SILENT. A filter the user switched on that found no column removed nothing, and a run that says nothing about it looks exactly like one where the filter worked and found nothing.
+
+
+---
+
+# Notes from `spacr/outlier_filter.py`
+
+Prose lifted out of `spacr/outlier_filter.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## Module level
+
+### lines 20-22
+
+```python
+from ._outlier_criteria import COLUMNS, CRITERIA           # noqa: E402,F401
+```
+
+Re-exported so every existing importer of `outlier_filter.CRITERIA` and `.COLUMNS` keeps working. They live in `_outlier_criteria` because `spacr.settings` needs them and must not pay for pandas to get them.

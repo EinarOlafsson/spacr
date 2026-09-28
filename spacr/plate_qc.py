@@ -1856,6 +1856,7 @@ def _locate_records(frame: pd.DataFrame) -> Tuple[pd.DataFrame, pd.Series]:
     located, _ = _identify_wells(frame)
 
     def whole(value):
+        """Convert whole-valued floats to integers before parsing well labels."""
         if isinstance(value, float) and value.is_integer():
             return int(value)
         return value

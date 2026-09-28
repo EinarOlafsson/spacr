@@ -1,0 +1,136 @@
+{
+  "1.5.0.1": {
+    "extraction": "Exact HTTP ranges, ZIP central directory, uncompressed length and CRC32 verified; full wheel SHA not reverified because full wheel not downloaded.",
+    "files": [
+      {
+        "bytes": 4455,
+        "compressed_bytes": 1804,
+        "path": "spacr/updater.py",
+        "sha256": "9163508120f89679d4211388f1356597b83055df3824009e58e282b1575fd856",
+        "zip_crc32": "30064c3e"
+      },
+      {
+        "bytes": 15414,
+        "compressed_bytes": 6304,
+        "path": "spacr/qt/__init__.py",
+        "sha256": "c81ee0c3036c50c25e5481deb36faddfa7bed1d1add24549227176711b69dcc7",
+        "zip_crc32": "efb1fc25"
+      },
+      {
+        "bytes": 120343,
+        "compressed_bytes": 38121,
+        "path": "spacr/qt/app.py",
+        "sha256": "a0e4fc2c359acadb875f9d812834f880eb48a85f2b3a31d9c5b98882aa94bd95",
+        "zip_crc32": "3f70ff70"
+      },
+      {
+        "bytes": 40727,
+        "compressed_bytes": 12255,
+        "path": "spacr-1.5.0.1.dist-info/METADATA",
+        "sha256": "f7c57646535c7778498525c05b6e3e2a968f3af807b7d6082572a4e07961705f",
+        "zip_crc32": "7e175199"
+      }
+    ],
+    "range_requests": 10,
+    "version": "1.5.0.1",
+    "wheel": {
+      "digests": {
+        "blake2b_256": "e2a49fe9f140ab494941870e0a9cd3059a7e72a59a9fef44efec83df6ce00fe5",
+        "md5": "408bed34e96b8a2d1e062623556caec3",
+        "sha256": "c763b916c22f8dfd9f8c1fa438df48314b8aa4d0a5a5dec962ce9d1a50079310"
+      },
+      "filename": "spacr-1.5.0.1-py3-none-any.whl",
+      "size": 28338486,
+      "url": "https://files.pythonhosted.org/packages/e2/a4/9fe9f140ab494941870e0a9cd3059a7e72a59a9fef44efec83df6ce00fe5/spacr-1.5.0.1-py3-none-any.whl"
+    }
+  },
+  "1.5.0.5": {
+    "extraction": "Exact HTTP ranges, ZIP central directory, uncompressed length and CRC32 verified; full wheel SHA not reverified because full wheel not downloaded.",
+    "files": [
+      {
+        "bytes": 30458,
+        "compressed_bytes": 9548,
+        "path": "spacr/updater.py",
+        "sha256": "c2e18c747c03006e089a7da2c07c6c099454b65ca2b1fdfb770c7348bd02ae3e",
+        "zip_crc32": "5fa4d7b6"
+      },
+      {
+        "bytes": 25956,
+        "compressed_bytes": 10171,
+        "path": "spacr/qt/__init__.py",
+        "sha256": "da9591a794569dc5516145649d43ab664f1cb64f0bb8cfc2ef0abac773edceec",
+        "zip_crc32": "fc1c0a26"
+      },
+      {
+        "bytes": 300366,
+        "compressed_bytes": 94168,
+        "path": "spacr/qt/app.py",
+        "sha256": "734ddf31520c51c0f20ec55ed718d75939f57352c4080cca2dadf6d53a361454",
+        "zip_crc32": "983f7a18"
+      },
+      {
+        "bytes": 39072,
+        "compressed_bytes": 11430,
+        "path": "spacr-1.5.0.5.dist-info/METADATA",
+        "sha256": "dc96375c99fb863d8bd76647179e030bd8e630ab21dd9f0546a6c2f27d1c044e",
+        "zip_crc32": "69a93f0b"
+      }
+    ],
+    "range_requests": 10,
+    "version": "1.5.0.5",
+    "wheel": {
+      "digests": {
+        "blake2b_256": "3769bf699a64805d17c584dcc9696e744b8f7bbd094bc59cd216ae1b8f7b1831",
+        "md5": "aff022838d33a6a50200620aaa293724",
+        "sha256": "4dcccbbf55dafed1c16fbe986e308758e7b124eb2c50d120d2cc647d043523da"
+      },
+      "filename": "spacr-1.5.0.5-py3-none-any.whl",
+      "size": 39519204,
+      "url": "https://files.pythonhosted.org/packages/37/69/bf699a64805d17c584dcc9696e744b8f7bbd094bc59cd216ae1b8f7b1831/spacr-1.5.0.5-py3-none-any.whl"
+    }
+  },
+  "1.5.0.6": {
+    "version": "1.5.0.6",
+    "extraction": "Full public wheel downloaded and SHA-256 matched PyPI metadata; four selected members read with unzip -p and hashed; no package code executed.",
+    "wheel": {
+      "filename": "spacr-1.5.0.6-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/bc/1e/a73e387ee5693438de9aba4f9382a38a047dd4730ddb244d62b62c0ca67a/spacr-1.5.0.6-py3-none-any.whl",
+      "size": 37505619,
+      "digests": {
+        "blake2b_256": "bc1ea73e387ee5693438de9aba4f9382a38a047dd4730ddb244d62b62c0ca67a",
+        "md5": "08e845a421043bb1288cebee226d8ad8",
+        "sha256": "79dd4e97e7e518a4eeca0fb82ef48cd770898f25e2a0506a7db6ffd8d73899d1"
+      }
+    },
+    "files": [
+      {
+        "sha256": "c2e18c747c03006e089a7da2c07c6c099454b65ca2b1fdfb770c7348bd02ae3e",
+        "path": "spacr/updater.py",
+        "bytes": 30458,
+        "compressed_bytes": 9548,
+        "zip_crc32": "5fa4d7b6"
+      },
+      {
+        "sha256": "5fb36865793f4bbbf3f160dda99237252d0de6cb601d1d7f2ab11df75f2ce430",
+        "path": "spacr/qt/app.py",
+        "bytes": 300372,
+        "compressed_bytes": 94168,
+        "zip_crc32": "e5e66de7"
+      },
+      {
+        "sha256": "da9591a794569dc5516145649d43ab664f1cb64f0bb8cfc2ef0abac773edceec",
+        "path": "spacr/qt/__init__.py",
+        "bytes": 25956,
+        "compressed_bytes": 10171,
+        "zip_crc32": "fc1c0a26"
+      },
+      {
+        "sha256": "f414e5af8e6b88ecb09bd60a9fdfbcad4f7d6f2f564c53d5151276fb664fdaa9",
+        "path": "spacr-1.5.0.6.dist-info/METADATA",
+        "bytes": 38088,
+        "compressed_bytes": 11282,
+        "zip_crc32": "34a1ca9b"
+      }
+    ]
+  }
+}

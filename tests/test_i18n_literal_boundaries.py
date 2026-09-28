@@ -89,3 +89,32 @@ def test_comma_separated_options_are_literals_with_either_quote_style():
     assert _syntax_preserved(source, translated)
     assert _contextualize(translated, "pt", source) == translated
     assert not _syntax_preserved(source, translated.replace("left,below", "below,left"))
+
+
+def test_spanish_cleanup_preserves_verbatim_citation_and_copyright(monkeypatch):
+    import build_i18n_catalogs as builder
+    monkeypatch.setattr(builder, "_reviewed_translation", lambda *_: None)
+    title = "'Spotiflow: accurate and efficient spot detection'"
+    notice = "(Copyright 2023 Albert Dominguez Mantes and Martin Weigert)"
+    source = f"Published results: {title}, doi:10.1038/s41592-025-02662-x. {notice}"
+    target = f"Resultados publicados: {title}, doi:10.1038/s41592-025-02662-x. {notice} and otros."
+    expected = target.removesuffix("and otros.") + "y otros."
+    assert builder._contextualize(target, "es", source) == expected
+    assert builder._contextualize(expected, "es", source) == expected
+
+
+def test_attribution_protection_is_bound_to_the_english_source(monkeypatch):
+    import build_i18n_catalogs as builder
+    monkeypatch.setattr(builder, "_reviewed_translation", lambda *_: None)
+    target = "'accurate and efficient spot detection in microscopy'"
+    assert builder._contextualize(target, "es", "Compare accuracy and efficiency.") == "'accurate y efficient spot detection in microscopy'"
+
+
+def test_citation_nested_inside_rst_code_restores_every_literal(monkeypatch):
+    import build_i18n_catalogs as builder
+    monkeypatch.setattr(builder, "_reviewed_translation", lambda *_: None)
+    notice = "``(Copyright 2023 A and B)``"
+    title = "``'accurate and efficient spot detection in microscopy'``"
+    source = f"Use {notice} and {title}, doi:10.1038/s41592-025-02662-x."
+    target = f"Utilice {notice} y {title}, doi:10.1038/s41592-025-02662-x."
+    assert builder._contextualize(target, "es", source) == target

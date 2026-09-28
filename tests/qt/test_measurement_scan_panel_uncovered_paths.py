@@ -160,10 +160,8 @@ def test_a_fit_that_returns_a_model_rather_than_a_table_is_still_a_run():
 def test_merge_progress_arriving_after_the_panel_is_destroyed_is_dropped(qapp):
     """A merge outlives its tab, and its progress must not take it down.
 
-    ``_relay_progress`` runs ON THE WORKER THREAD. When the panel's C++ half
-    has been destroyed, PySide6 raises ``RuntimeError: Signal source has been
-    deleted`` from the emit -- inside the worker, where nothing would catch
-    it, aborting a join that is still holding databases open.
+    Delivery uses a process-wide QObject because emitting on a panel while
+    its C++ half is being destroyed can fail before a Python guard can help.
     """
     import shiboken6
 
@@ -193,6 +191,68 @@ def test_a_fit_finishing_after_the_queue_panel_is_destroyed_is_dropped(qapp):
 
     outcome = msp.ColumnFit(column="cell_area", ok=True, folder="/runs/a")
     assert panel._relay_result(outcome) is None
+
+
+@pytest.mark.parametrize("kind", ["merge", "fit_started", "fit_result"])
+@pytest.mark.parametrize("delete_before_delivery", [False, True])
+def test_worker_updates_arrive_on_the_gui_thread_only_while_the_panel_lives(
+        qapp, qtbot, kind, delete_before_delivery):
+    """Queued updates run on the GUI thread and never reach a deleted panel."""
+    import threading
+    import shiboken6
+
+    if kind == "merge":
+        panel = msp.DatabaseMergePanel(threaded=False)
+        callback = panel._relay_progress
+        args = ("joining cell", 120, 4000)
+        signal = panel.merge_progress
+        expected = args
+    else:
+        panel = msp.ColumnRegressionPanel(threaded=False)
+        if kind == "fit_started":
+            callback = panel._relay_started
+            args = ("cell_area", 0, 3)
+            signal = panel.queue_progress
+            expected = args
+        else:
+            callback = panel._relay_result
+            args = (msp.ColumnFit(column="cell_area", ok=True, folder="/runs/a"),)
+            signal = panel.fit_finished
+            expected = ("cell_area", {"ok": True, "folder": "/runs/a",
+                                      "error": "", "n_results": 0})
+    qtbot.addWidget(panel)
+    relay = msp._read_relay()
+    assert relay.parent() is None
+    seen = []
+    errors = []
+    signal.connect(lambda *values: seen.append((threading.get_ident(), values)))
+
+    def send():
+        try:
+            callback(*args)
+        except BaseException as error:
+            errors.append(error)
+
+    worker = threading.Thread(target=send)
+    worker.start()
+    worker.join(timeout=5)
+    assert not worker.is_alive()
+    assert errors == []
+    assert seen == [], "a worker update ran without returning to the GUI loop"
+    if delete_before_delivery:
+        shiboken6.delete(panel)
+    qapp.processEvents()
+    assert seen == ([] if delete_before_delivery else [
+        (threading.get_ident(), expected)])
+    assert shiboken6.isValid(relay)
+    if delete_before_delivery:
+        worker = threading.Thread(target=send)
+        worker.start()
+        worker.join(timeout=5)
+        assert not worker.is_alive()
+        qapp.processEvents()
+        assert errors == []
+        assert seen == []
 
 
 # --------------------------------------------------------------------------- #

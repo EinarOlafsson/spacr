@@ -2033,13 +2033,20 @@ _R_LOADER_TEMPLATE = r'''## Load a spaCR table export into R.
 ## jsonlite, when installed, turns the provenance values into R lists.
 
 .spacr_export_dir <- local({{
-  args <- commandArgs(trailingOnly = FALSE)
-  file_arg <- sub("^--file=", "", args[grep("^--file=", args)])
-  if (length(file_arg) == 1L) {{
-    dirname(normalizePath(file_arg))
+  sourced <- NULL
+  for (frame in rev(sys.frames())) {{
+    candidate <- frame$ofile
+    if (is.character(candidate) && length(candidate) == 1L) {{
+      sourced <- candidate
+      break
+    }}
+  }}
+  if (!is.null(sourced)) {{
+    dirname(normalizePath(sourced))
   }} else {{
-    sourced <- tryCatch(sys.frame(1)$ofile, error = function(e) NULL)
-    if (is.null(sourced)) getwd() else dirname(normalizePath(sourced))
+    args <- commandArgs(trailingOnly = FALSE)
+    file_arg <- sub("^--file=", "", args[grep("^--file=", args)])
+    if (length(file_arg) == 1L) dirname(normalizePath(file_arg)) else getwd()
   }}
 }})
 
@@ -2516,9 +2523,6 @@ def run_anndata_export(settings: Optional[Mapping[str, Any]] = None
     :func:`register_anndata_settings` gave a type and a tooltip, so the form
     the GUI draws and the keys honoured here are the same list.
 
-    :param settings: the run settings. ``src`` is the project root (or the
-        database); everything else falls back to
-        :func:`anndata_export_settings`.
     ``anndata_format`` chooses what is written: ``'h5ad'`` the AnnData
     file, ``'parquet'`` the tidy Parquet tables of :func:`_export_tables`
     in ``anndata_tidy_dir``, ``'r'`` those tables with the R loader script

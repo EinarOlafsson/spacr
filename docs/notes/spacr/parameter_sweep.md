@@ -562,3 +562,23 @@ with figure_style(theme_target()):
 THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
 
 rcParams reach an artist when it is CREATED, so a context opened after `plt.subplots` would leave the spines, ticks and labels at the caller's globals.
+
+
+---
+
+# Notes from `spacr/parameter_sweep.py`
+
+Prose lifted out of `spacr/parameter_sweep.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## _execute_trial
+
+### lines 874-875
+
+```python
+with _open_sans_if_a_run_started_this():
+```
+
+291: a `spawn` worker starts on matplotlib's stock default; the trial's figures follow the app or pipeline run that started it.

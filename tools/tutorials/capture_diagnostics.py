@@ -68,6 +68,36 @@ class PrivateDesktop:
         self.x.XCloseDisplay(self.display)
 
 
+def _configure_file_manager(stage):
+    """Hide Nemo's path chrome using only the recording's native preferences.
+
+    The keyfile backend shares these preferences with the separately launched
+    file manager. An in-memory backend would discard each gsettings write when
+    its process exits. Read back every preference before opening the folder.
+    """
+    config = Path(os.environ['XDG_CONFIG_HOME']).resolve()
+    if not config.is_relative_to(Path(stage).resolve()):
+        raise RuntimeError('File manager settings must remain inside the private stage')
+    if os.environ.get('GSETTINGS_BACKEND') != 'keyfile':
+        raise RuntimeError('The private file manager needs the keyfile settings backend')
+    settings = (
+        ('org.nemo.window-state', 'start-with-toolbar'),
+        ('org.nemo.window-state', 'start-with-location-bar'),
+        ('org.nemo.preferences', 'show-full-path-titles'),
+    )
+    recorded = {}
+    for schema, key in settings:
+        command = ['/usr/bin/gsettings']
+        subprocess.run(command + ['set', schema, key, 'false'], check=True,
+                       capture_output=True, text=True, timeout=10)
+        actual = subprocess.run(command + ['get', schema, key], check=True,
+                                capture_output=True, text=True, timeout=10)
+        if actual.stdout.strip() != 'false':
+            raise RuntimeError(f'The private file manager did not retain {schema}.{key}')
+        recorded[f'{schema}.{key}'] = False
+    return recorded
+
+
 def record_diagnostics(window, screen, stage, project, captures, capture, settle, write_json):
     from PySide6.QtCore import Qt
     from PySide6.QtTest import QTest
@@ -103,15 +133,27 @@ def record_diagnostics(window, screen, stage, project, captures, capture, settle
         raise RuntimeError('Regression must expose its actual Diagnostics button')
     desktop = PrivateDesktop(stage)
     try:
+        file_manager_settings = _configure_file_manager(stage)
+        folder_only = os.environ.get('SPACR_TUTORIAL_DIAGNOSTICS_FOLDER_ONLY') == '1'
         QTest.mouseMove(buttons[0])
         settle(1.5)
-        capture('02_diagnostics_button')
+        if not folder_only:
+            capture('02_diagnostics_button')
         # The actual callback opens the existing folder, without computing a fit.
         QTest.mouseClick(buttons[0], Qt.LeftButton)
         wid, title = desktop.find('diagnostics', settle)
         desktop.show(wid)
         settle(1.5)
         capture('03_diagnostics_folder', desktop=True)
+        if folder_only:
+            write_json(captures / 'desktop_acceptance.json', {
+                'accepted': True, 'capture_scope': 'diagnostics folder only',
+                'folder_opened_by_actual_diagnostics_button': True,
+                'file_manager_title': title, 'file_manager_settings': file_manager_settings,
+                'system_viewer_panels': [], 'application_source_modified': False,
+                'private_display': os.environ['DISPLAY'],
+                'new_regression_fitted_by_button': False})
+            return
         desktop.lower(wid)
         viewers = []
         for number, name in enumerate(names, 4):
@@ -137,7 +179,8 @@ def record_diagnostics(window, screen, stage, project, captures, capture, settle
         capture('07_back_to_regression')
         write_json(captures / 'desktop_acceptance.json', {
             'accepted': True, 'folder_opened_by_actual_diagnostics_button': True,
-            'file_manager_title': title, 'system_viewer_panels': viewers,
+            'file_manager_title': title, 'file_manager_settings': file_manager_settings,
+            'system_viewer_panels': viewers,
             'application_source_modified': False, 'private_display': os.environ['DISPLAY'],
             'new_regression_fitted_by_button': False})
     finally:
@@ -150,6 +193,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--project', type=Path, required=True)
     parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE)
+    parser.add_argument('--capture-name', help='Write frames in a new capture directory')
+    parser.add_argument('--folder-only', action='store_true',
+                        help='Capture only the actual Diagnostics folder; reuse existing figure frames')
     args = parser.parse_args()
     stage = args.stage.resolve()
     env = dict(os.environ)
@@ -163,15 +209,18 @@ def main():
     runtime_root.mkdir(parents=True, exist_ok=True)
     env['XDG_RUNTIME_DIR'] = tempfile.mkdtemp(prefix='capture-', dir=runtime_root)
     env.update(SPACR_TUTORIAL_PRIVATE_DESKTOP='1', GIO_USE_VFS='local',
-               GVFS_DISABLE_FUSE='1', GSETTINGS_BACKEND='memory',
+               GVFS_DISABLE_FUSE='1', GSETTINGS_BACKEND='keyfile',
                GTK_USE_PORTAL='0', QT_QPA_PLATFORMTHEME='',
                XDG_CURRENT_DESKTOP='SPACR_TUTORIAL', NO_AT_BRIDGE='1',
                GDK_SCALE='2', GDK_DPI_SCALE='1')
+    env['SPACR_TUTORIAL_DIAGNOSTICS_FOLDER_ONLY'] = '1' if args.folder_only else '0'
     command = ['xvfb-run', '-a', '-s', '-screen 0 3840x2160x24',
                'dbus-run-session', '--', sys.executable,
                str(Path(__file__).with_name('capture_refresh.py')),
                '--module', 'regression_diagnostics', '--stage', str(stage),
                '--diagnostics-from', str(args.project.resolve()), '--platform', 'xcb']
+    if args.capture_name:
+        command.extend(['--capture-name', args.capture_name])
     return subprocess.run(command, env=env, timeout=240, check=False).returncode
 
 

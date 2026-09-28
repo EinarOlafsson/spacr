@@ -1140,7 +1140,9 @@
       "source_sha256": "6b638a66ddd27519dbe1d48fff8038026d909bb07a0f7908d9b0781d858f5740",
       "context": "The OPS module's ``ops_spot_detector``: spaCR's own, or SpotNet.",
       "translation": "O ``ops_spot_detector`` do módulo OPS: o próprio do spaCR, ou o SpotNet.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27 API delta 3: the English source block or its translation context changed before manifest 31000d98b. Original translation and review provenance are retained verbatim as historical evidence; this record is no longer loaded for the current source."
     },
     {
       "label": "spacr.qt.model_install.SpotDetectorCombo#1",
@@ -1148,7 +1150,9 @@
       "source_sha256": "2645b131fcb0ef398a7f8880b46366b18f8e5144cb02a27706efb90c32d4d850",
       "context": "spaCR's own detector is first, the default and always usable. SpotNet is listed whether or not it can run; when its environment or its DeepCell token is missing its row is disabled and its tooltip says which, and either way the tooltip states its non-commercial licence, because this box is where a person chooses it.",
       "translation": "O detector próprio do spaCR vem primeiro, é o padrão e sempre pode ser usado. O SpotNet é listado podendo ou não ser executado; quando falta seu ambiente ou seu token do DeepCell, sua linha fica desativada e a dica de ferramenta diz qual dos dois falta, e, em qualquer caso, a dica de ferramenta informa sua licença não comercial, porque é nesta caixa que uma pessoa o escolhe.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27 API delta 3: the English source block or its translation context changed before manifest 31000d98b. Original translation and review provenance are retained verbatim as historical evidence; this record is no longer loaded for the current source."
     },
     {
       "label": "spacr.qt.model_install.SpotDetectorCombo#2",
@@ -1156,7 +1160,9 @@
       "source_sha256": "2223d6ffa4d2e69a9aaa11ef1c9e0132b0bc68a78c11398ce93b079b2a338961",
       "context": "the value to start on, ``'native'`` or ``'spotnet'``.",
       "translation": "o valor inicial, ``'native'`` ou ``'spotnet'``.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27 API delta 3: the English source block or its translation context changed before manifest 31000d98b. Original translation and review provenance are retained verbatim as historical evidence; this record is no longer loaded for the current source."
     },
     {
       "label": "spacr.qt.model_install.SpotDetectorCombo#4",
@@ -1172,7 +1178,9 @@
       "source_sha256": "07a1a8888483acf37f56f0f6eaa4e44f1eab6609c29763d0ca86576df9c34cb5",
       "context": "List the detectors, disable SpotNet if it cannot run, select.",
       "translation": "Lista os detectores, desativa o SpotNet se ele não puder ser executado e seleciona.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27 API delta 3: the English source block or its translation context changed before manifest 31000d98b. Original translation and review provenance are retained verbatim as historical evidence; this record is no longer loaded for the current source."
     },
     {
       "label": "spacr.qt.model_install.SpotDetectorCombo.refresh#0",
@@ -1180,7 +1188,9 @@
       "source_sha256": "62bf713a143594afa112c55cbe7a0e726cb4e916d58220e0fb761c68fb9da044",
       "context": "Enable SpotNet's row only when it can run, and say why not.",
       "translation": "Ativa a linha do SpotNet apenas quando ele pode ser executado, e diz por que não.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27 API delta 3: the English source block or its translation context changed before manifest 31000d98b. Original translation and review provenance are retained verbatim as historical evidence; this record is no longer loaded for the current source."
     },
     {
       "label": "spacr.qt.model_install.SpotDetectorCombo.refresh#1",
@@ -1204,7 +1214,9 @@
       "source_sha256": "57820363ed8045e1868ed1479301fde9625955270e70b4e069ed1f4d1b1fc481",
       "context": "a caption or stored value; a row that is not installed (disabled), or no match, leaves the selection alone.",
       "translation": "uma legenda ou valor armazenado; uma linha que não está instalada (desativada), ou nenhuma correspondência, deixa a seleção como está.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27 API delta 3: the English source block or its translation context changed before manifest 31000d98b. Original translation and review provenance are retained verbatim as historical evidence; this record is no longer loaded for the current source."
     },
     {
       "label": "spacr.qt.model_install.backend_row#0",

@@ -98,29 +98,26 @@ class TestFillingInTheDenseChannelPositions:
     def test_every_numeric_role_channel_is_in_the_map_it_just_built(self):
         """The deleted membership guard re-checked this exact premise.
 
-        ``dense_mask_channel_positions`` reads the same role keys as the two
-        generator loops and applies the same ``int`` coercion.  A numeric role
+        ``dense_mask_channel_positions`` reads the same role keys as the shared
+        channel helper and applies the same ``int`` coercion. A numeric role
         channel therefore cannot be absent; indexing directly makes future
         contract drift fail loudly instead of silently leaving an alias unset.
         """
         from spacr import object as O
         from spacr.utils import dense_mask_channel_positions
 
-        settings = {"nucleus_channel": 2, "cell_channel": 5,
-                    "pathogen_channel": None, "organelle_channel": 7}
+        settings = {"nucleus_channel": 5, "cell_channel": "2",
+                    "pathogen_channel": 5, "organelle_channel": 7}
         dense = dense_mask_channel_positions(settings)
-        for role in ("nucleus", "cell", "organelle"):
-            assert int(settings[f"{role}_channel"]) in dense
+        assert dense == {5: 0, 2: 1, 7: 2}
+        assert O._fill_cellpose_channel_positions(settings) is settings
+        for role in ("nucleus", "cell", "pathogen", "organelle"):
+            assert settings[f"cellpose_{role}_channel"] == dense[
+                int(settings[f"{role}_channel"])]
 
-        source = inspect.getsource(O)
-        # 2026-09-26 (item 43): item 493 folded both generator loops into
-        # _fill_cellpose_channel_positions, so the one lookup lives there.
-        assert "if _raw in _dense:" not in source
-        assert "if raw in dense:" not in source
-        assert source.count("= _dense[_raw]") == 0
-        assert source.count("= dense[raw]") == 1
-        assert source.count(
-            "\n    _fill_cellpose_channel_positions(settings)\n") == 2
+        settings["cellpose_cell_channel"] = 9
+        O._fill_cellpose_channel_positions(settings)
+        assert settings["cellpose_cell_channel"] == 9
 
     def test_a_channel_that_is_not_a_number_is_skipped_before_the_lookup(self):
         """The guard above it: ``int('rgb')`` raises, and a settings file

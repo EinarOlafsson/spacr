@@ -1,13 +1,14 @@
 {
   "lesson": "73_parameter_sweep",
-  "english_sha256": "8f164d56e7d6d48b866022bb05940e29cf343154681c65517a51ce2676825346",
+  "english_sha256": "44292936fb6b522935dc2402151ddb2bba49786333975d2b8a683e271411e2a4",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 original translations retained; Codex translated and technically reviewed the corrected fitted-support scene.",
+    "date": "2026-09-27",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Only scene8 narration changed. The remaining nine scenes, metadata, scene IDs and statistical caveats are preserved."
   },
   "language": "ja",
   "title": "Parameter Sweep：保存したRegressionの試行を比べる",
@@ -27,7 +28,7 @@
     "完了した行を確認し、sweep_results.csvと、各試行の設定と品質管理のファイルを開きます。図の二つの試行はどちらも計算を終えますが、推論のチェックには合格しません。実行状態がokというだけでは、モデルの選択には不十分です。",
     "最初の行を選び、Show figures for selected rowをクリックします。ガイドの結果と軸のラベルを確認します。プロットには、係数の表の切片は含まれません。",
     "LevelをGeneに切り替え、遺伝子のファミリーを別に確認します。ガイドの表示と比べる前に、その行、効果、品質管理の結果を確認します。",
-    "Guideに戻します。サンプルの裏付けは、入力と診断のファイルから読みます。この例の当てはめた行数の要約は、ウェルではなく、出力の係数の行を数えています。",
+    "Guide に戻ります。試行の概要で、モデルの当てはめに使用した行数と重複を除いたウェル数を比較します。これらの件数は、ガイド単位のモデルと遺伝子単位のモデルの当てはめについて別々に記録されます。これらの件数は当てはめを支えるデータ量を示すもので、推論の質を示すものではありません。",
     "各試行の設定、要約、品質管理のファイルは、その図と一緒に保管します。さらに調べるにはRegression Diagnosticsを使い、スクリプトで比べるにはPythonのSweepSpaceとrun_sweepを使います。"
   ]
 }

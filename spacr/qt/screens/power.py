@@ -934,6 +934,31 @@ class PowerScreen(QWidget):
             "Analyse replicates as pairs, so replicate-to-replicate "
             "variation cancels. Default off."))
         form.addRow(self._plan_paired)
+        self._plan_costs: Dict[str, QDoubleSpinBox] = {}
+        for key, label, default in (
+                ("replicate", tr("Replicate cost"), 20.0),
+                ("well", tr("Well cost"), 1.0),
+                ("field", tr("Field cost"), 0.1)):
+            cost = self._float_box(0.0, 1e6, default, decimals=3)
+            cost.setToolTip(tr(
+                "Relative cost per condition: one replicate, one well "
+                "within a replicate, or one field within a well. Use common "
+                "units; zero ignores this cost. Default {default:g}.",
+                default=default))
+            self._plan_costs[key] = cost
+            form.addRow(label, cost)
+        self._plan_limits: Dict[str, QSpinBox] = {}
+        for key, label, low, high, default in (
+                ("replicates", tr("Maximum replicates"), 2, 24, 12),
+                ("wells", tr("Maximum wells per condition"), 1, 24, 12),
+                ("fields", tr("Maximum fields per well"), 1, 50, 25)):
+            limit = self._int_box(low, high, default)
+            limit.setToolTip(tr(
+                "Largest count considered: biological replicates per "
+                "condition, wells per condition per replicate, or fields "
+                "per well. Default {default}.", default=default))
+            self._plan_limits[key] = limit
+            form.addRow(label, limit)
         plan = QPushButton(tr("Plan the design"))
         plan.clicked.connect(self._plan_from_pilot)
         form.addRow(plan)
@@ -944,6 +969,7 @@ class PowerScreen(QWidget):
         headers = [tr("Replicates"), tr("Wells"), tr("Fields"), tr("Power"),
                    tr("Cost")]
         self._plan_table = QTableWidget(0, len(headers))
+        install_sorting(self._plan_table)
         self._plan_table.setHorizontalHeaderLabels(headers)
         self._plan_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self._plan_table.verticalHeader().setVisible(False)
@@ -951,6 +977,11 @@ class PowerScreen(QWidget):
             QHeaderView.ResizeToContents)
         self._plan_table.setMinimumHeight(120)
         form.addRow(self._plan_table)
+        self._arrayed_plan = None
+        self._save_plan = QPushButton(tr("Save plan…"))
+        self._save_plan.setEnabled(False)
+        self._save_plan.clicked.connect(self._save_arrayed_plan)
+        form.addRow(self._save_plan)
         from ..preferences import _apply_alpha_widgets
 
         _apply_alpha_widgets(box)
@@ -994,13 +1025,16 @@ class PowerScreen(QWidget):
                                  _plan_arrayed_design,
                                  _simulate_arrayed_power)
         from ...tabular import read_table
+        from pathlib import Path
 
+        self._arrayed_plan = None
+        self._save_plan.setEnabled(False)
         column = {k: c.currentText().strip()
                   for k, c in self._pilot_columns.items()}
+        pilot_path = self._pilot_path.text().strip()
+        pilot_table = self._pilot_table.text().strip()
         try:
-            pilot = read_table(self._pilot_path.text().strip(),
-                               table=self._pilot_table.text().strip(),
-                               report=None)
+            pilot = read_table(pilot_path, table=pilot_table, report=None)
             components = _nested_variance_components(
                 pilot, column["value"], well=column["well"],
                 field=column["field"],
@@ -1013,9 +1047,14 @@ class PowerScreen(QWidget):
         effect = self._plan_effect.value()
         paired = self._plan_paired.isChecked()
         alpha = self._plan_alpha.value()
-        designs = _plan_arrayed_design(
-            components, effect, power=self._plan_power.value(), alpha=alpha,
-            paired=paired)
+        inputs = dict(effect=effect, power=self._plan_power.value(),
+                      alpha=alpha, paired=paired, cells=None,
+                      max_replicates=self._plan_limits["replicates"].value(),
+                      max_wells=self._plan_limits["wells"].value(),
+                      max_fields=self._plan_limits["fields"].value(),
+                      costs=tuple(self._plan_costs[key].value()
+                                  for key in ("replicate", "well", "field")))
+        designs = _plan_arrayed_design(components, **inputs)
         variances = tr(
             "Mean {mean:.4g}; variance between replicates {rep}, wells "
             "{well:.4g}, fields {field:.4g}, cells {cell:.4g}; "
@@ -1026,6 +1065,7 @@ class PowerScreen(QWidget):
                  else tr("not estimated (taken as 0)")),
             well=components["well"], field=components["field"],
             cell=components["cell"], cells=components["cells_per_field"])
+        self._plan_table.setRowCount(0)
         self._plan_table.setRowCount(min(10, len(designs)))
         for row, design in enumerate(designs.head(10).itertuples()):
             for col, text in enumerate((
@@ -1035,14 +1075,16 @@ class PowerScreen(QWidget):
                 self._plan_table.setItem(row, col, table_item(text))
         if designs.empty:
             self._plan_summary.setText(variances + " " + tr(
-                "No design within 12 replicates, 12 wells and 25 fields "
-                "reaches the target power."))
+                "No design within {replicates} replicates, {wells} wells "
+                "per condition and {fields} fields per well reaches the "
+                "target power.", replicates=inputs["max_replicates"],
+                wells=inputs["max_wells"], fields=inputs["max_fields"]))
             return designs
         best = designs.iloc[0]
         simulated = _simulate_arrayed_power(
             components, effect, replicates=int(best.replicates),
             wells=int(best.wells), fields=int(best.fields), alpha=alpha,
-            paired=paired, n_sim=500)
+            paired=paired, n_sim=500, seed=0)
         self._plan_summary.setText(variances + " " + tr(
             "Cheapest design: {replicates} replicates, {wells} wells per "
             "condition, {fields} fields per well; power {power:.2f}, "
@@ -1050,7 +1092,62 @@ class PowerScreen(QWidget):
             replicates=int(best.replicates), wells=int(best.wells),
             fields=int(best.fields), power=best.power,
             simulated=simulated))
+        self._arrayed_plan = {
+            "schema": "spacr-arrayed-plan-v1",
+            "pilot": {"path": str(Path(pilot_path).expanduser().resolve()),
+                      "table": pilot_table,
+                      "columns": {**column, "condition": None}},
+            "variance_components": {
+                key: None if isinstance(value, float) and not math.isfinite(value)
+                else value for key, value in components.items()},
+            "design_inputs": inputs,
+            "designs": designs.to_dict(orient="records"),
+            "recommendation_index": 0,
+            "simulation": {"design_index": 0, "n_sim": 500, "seed": 0,
+                           "cells_per_field": max(1, int(round(
+                               components.get("cells_per_field") or 1.0))),
+                           "power": simulated},
+            "summary": self._plan_summary.text(),
+        }
+        self._save_plan.setEnabled(True)
         return designs
+
+    def _save_arrayed_plan(self) -> bool:
+        """Choose a JSON destination and atomically save the computed snapshot.
+
+        Unestimated variances are null with their estimation flags retained;
+        design inputs and candidate rows describe the completed computation,
+        even after the form changes. Cancelling or having no result writes
+        nothing. Write failures leave any existing destination intact.
+
+        :returns: True when the complete plan was saved.
+        """
+        import json
+        from PySide6.QtCore import QIODevice, QSaveFile
+
+        if self._arrayed_plan is None:
+            return False
+        path, _ = QFileDialog.getSaveFileName(
+            self, tr("Save plan…"), "arrayed_plan.json",
+            "JSON (*.json);;All files (*)")
+        if not path:
+            return False
+        try:
+            payload = (json.dumps(self._arrayed_plan, indent=2,
+                                  allow_nan=False) + "\n").encode("utf-8")
+            output = QSaveFile(path)
+            if not output.open(QIODevice.WriteOnly):
+                raise OSError(output.errorString())
+            if output.write(payload) != len(payload):
+                output.cancelWriting()
+                raise OSError(output.errorString())
+            if not output.commit():
+                raise OSError(output.errorString())
+        except (OSError, TypeError, ValueError) as exc:
+            self._plan_summary.setText(tr("Export failed") + ": " + str(exc))
+            return False
+        self._plan_summary.setText(self._arrayed_plan["summary"] + "\n" + path)
+        return True
 
     @staticmethod
     def _int_box(low: int, high: int, value: int) -> QSpinBox:

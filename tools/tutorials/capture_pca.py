@@ -8,11 +8,36 @@ from feature_explorer_evidence import read_measurements
 from pca_evidence import verify, verify_csv, close
 
 
+def capture_pca_host(window, capture, settle):
+    """Record the real PCA entry point without loading data or fitting PCA."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+    from PySide6.QtWidgets import QAbstractButton
+    from spacr.qt.widgets.fold_strip import FoldButton
+
+    tiles = [w for w in window.findChildren(QAbstractButton)
+             if w.isVisible() and w.isEnabled()
+             and (w.property('moduleAppKey') == 'umap' or w.property('navKey') == 'umap')]
+    if not tiles:
+        raise ValueError('No actual Home Image UMAP tile')
+    tile = max(tiles, key=lambda w: w.width() * w.height())
+    if tile.visibleRegion().isEmpty():
+        raise ValueError('Image UMAP tile is not exposed')
+    QTest.mouseClick(tile, Qt.LeftButton, pos=tile.visibleRegion().boundingRect().center())
+    settle(.8)
+    host = window._screens['umap']
+    folds = [w for w in host.findChildren(FoldButton)
+             if w.isVisible() and w.isEnabled() and w.app_key == 'pca']
+    if len(folds) != 1 or folds[0].visibleRegion().isEmpty():
+        raise ValueError('No unique exposed Image UMAP PCA fold')
+    capture('01_image_umap_host')
+    return folds[0]
+
+
 def record_pca(app,window,stage,captures,capture,settle,write_json,timeout):
     from PySide6.QtCore import Qt,QTimer,QPoint
     from PySide6.QtTest import QTest
-    from PySide6.QtWidgets import QAbstractButton,QPushButton,QFileDialog,QLineEdit,QDialogButtonBox
-    from spacr.qt.widgets.fold_strip import FoldButton
+    from PySide6.QtWidgets import QPushButton,QFileDialog,QLineEdit,QDialogButtonBox
     from spacr.qt.screens.pca import PCAScreen
 
     parent=Path(stage)/'pca_runs';parent.mkdir(exist_ok=True)
@@ -111,13 +136,8 @@ def record_pca(app,window,stage,captures,capture,settle,write_json,timeout):
         proof.setdefault('checks',{})[name]=p;capture(name);return p
 
     try:
-        tiles=[w for w in window.findChildren(QAbstractButton) if w.isVisible() and
-               (w.property('moduleAppKey')=='umap' or w.property('navKey')=='umap')]
-        if not tiles:raise ValueError('No actual Home Image UMAP tile')
-        click(max(tiles,key=lambda w:w.width()*w.height()));settle(.8)
-        host=window._screens['umap'];folds=[w for w in host.findChildren(FoldButton) if w.isVisible() and w.app_key=='pca']
-        if len(folds)!=1:raise ValueError('No unique Image UMAP PCA fold')
-        capture('01_image_umap_host');click(folds[0]);settle(.8)
+        fold = capture_pca_host(window, capture, settle)
+        click(fold);settle(.8)
         screens=[w for w in window.findChildren(PCAScreen) if w.isVisible()]
         if len(screens)!=1:raise ValueError('Actual PCA fold not visible')
         screen=screens[0];panel=screen.pca

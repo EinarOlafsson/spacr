@@ -20,7 +20,7 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtWidgets import QLineEdit, QPushButton, QWidget
+from PySide6.QtWidgets import QLineEdit, QPushButton, QSpacerItem, QWidget
 
 from spacr import chaining as core_chaining
 from spacr.chaining import ChainedInput, HeldPin, NextStep, Resolution
@@ -271,7 +271,7 @@ def test_the_successor_row_clears_whatever_it_finds_between_its_ends(qtbot,
     """Row 4 is rebuilt from scratch on every refresh.
 
     It empties itself by taking items from position 1 until only its label
-    and its trailing stretch are left, and what it takes need not be one of
+    is left, and what it takes need not be one of
     the buttons it made -- a theme or a layout change can leave a spacer in
     there.  ``QLayoutItem.widget()`` is None for one of those, and treating
     it as a widget would raise inside the redraw, so the strip would go dark
@@ -279,16 +279,51 @@ def test_the_successor_row_clears_whatever_it_finds_between_its_ends(qtbot,
     """
     strip = _bar(qtbot, pins)
     stale_button = QPushButton("Continue to Classify")
-    strip._next_layout.insertWidget(1, stale_button)
-    strip._next_layout.insertStretch(1)
+    strip._next_layout.addWidget(stale_button)
+    strip._next_layout.addItem(QSpacerItem(1, 1))
     strip._next_row.show()
     strip._last_steps = (_step(),)
-    assert strip._next_layout.count() == 4
+    assert strip._next_layout.count() == 3
 
     strip._draw_next({"src": "/plate"}, finished=False)
 
-    assert strip._next_layout.count() == 2, \
-        "the spacer and the stale button both went; the ends stayed"
+    assert strip._next_layout.count() == 1, \
+        "the spacer and the stale button both went; the label stayed"
     assert stale_button.parent() is None
     assert strip._next_row.isHidden()
     assert strip._last_steps == ()
+
+
+def test_successor_buttons_wrap_without_changing_order_or_actions(qtbot, pins, monkeypatch):
+    from spacr import ports
+    from spacr.qt import chaining as gui
+    from spacr.qt.app import APPS
+
+    strip = _bar(qtbot, pins)
+    modules = [row[0] for row in APPS[:7]]
+    steps = tuple(NextStep(module=module, source='measure', root='/plate',
+                          kinds=('crops',), seed={'src': '/plate'},
+                          readiness=ports.Readiness(module=module, root='/plate', ok=True))
+                  for module in modules)
+    monkeypatch.setattr(core_chaining, 'next_steps', lambda *args, **kwargs: steps)
+    clicked = []
+    monkeypatch.setattr(strip, '_on_continue', clicked.append)
+    strip._draw_next({'src': '/plate'}, finished=True)
+    host = strip.parentWidget()
+    host.setFixedSize(480, 300)
+    strip.setGeometry(0, 0, 480, 300)
+    host.show()
+    strip.show()
+    strip._timer.stop()
+    qtbot.waitUntil(lambda: strip._next_row.isVisible())
+    qtbot.waitUntil(lambda: strip._next_row.height() >= strip._next_layout.heightForWidth(480))
+    buttons = [strip._next_layout.itemAt(index).widget()
+               for index in range(1, strip._next_layout.count())]
+    assert len(buttons) == len(steps)
+    assert strip.steps == gui._only_what_the_gui_offers(steps)
+    assert len({button.y() for button in buttons}) > 1
+    assert all(strip._next_row.rect().contains(button.geometry()) for button in buttons)
+    assert all(button.width() >= button.minimumSizeHint().width() for button in buttons)
+    for button in buttons:
+        button.click()
+    assert clicked == list(strip.steps)

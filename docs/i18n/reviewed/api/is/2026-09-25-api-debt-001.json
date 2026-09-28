@@ -1564,7 +1564,9 @@
       "source_sha256": "f28bcb7e35ec757d7e33bfb5eb99b9e0cce20e687ca74e7f55ae1f5299995ce6",
       "context": "optional captured PSF session. Processes selected intensities after illumination and before normalization, padding or Cellpose. Stored image data channels stay raw; only the appended labels depend on PSF processing.",
       "translation": "valfrjáls skráð PSF-lota. Vinnur valin styrkleikagildi eftir lýsingarleiðréttingu og fyrir stöðlun, fyllingu eða Cellpose. Vistaðar myndrásir haldast hráar; aðeins viðbættu merkin eru háð PSF-vinnslu.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27 API delta 3: the English source block or its translation context changed before manifest 31000d98b. Original translation and review provenance are retained verbatim as historical evidence; this record is no longer loaded for the current source."
     },
     {
       "label": "spacr.plaque.detect_wells#1",

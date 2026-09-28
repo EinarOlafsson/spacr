@@ -290,7 +290,9 @@
       "source_sha256": "80e229a4b4b5ded4278360dd501eda8f870bc20ebcf8763dc0743472ce72abab",
       "context": "the processing session's ``psf_*`` and ``enhance_*`` settings.",
       "translation": "``psf_*`` og ``enhance_*`` stillingar keyrslunnar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27 API delta 3: the English source block or its translation context changed before manifest 31000d98b. Original translation and review provenance are retained verbatim as historical evidence; this record is no longer loaded for the current source."
     },
     {
       "label": "spacr.psf_pipeline.processing_requested#3",
@@ -298,7 +300,9 @@
       "source_sha256": "35d77d061cf8f4413382ce09a8136da28f0929ab3a03805e09ae9cd2a78aa1c4",
       "context": "True when either is switched on or cannot be read.",
       "translation": "True þegar annað hvort er virkt eða ekki er hægt að lesa það.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27 API delta 3: the English source block or its translation context changed before manifest 31000d98b. Original translation and review provenance are retained verbatim as historical evidence; this record is no longer loaded for the current source."
     },
     {
       "label": "spacr.psf_pipeline.validate_psf_resume#0",
@@ -314,7 +318,9 @@
       "source_sha256": "5124c477ae8a1dae4f6c181ade828bc714cd1f73e25c463d46c140944ef644d7",
       "context": "requested PSF and ``enhance_*`` settings; off also checks a prior PSF or chain run.",
       "translation": "umbeðnar PSF- og ``enhance_*`` stillingar; off athugar líka fyrri PSF- eða keðjukeyrslu.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27 API delta 3: the English source block or its translation context changed before manifest 31000d98b. Original translation and review provenance are retained verbatim as historical evidence; this record is no longer loaded for the current source."
     },
     {
       "label": "spacr.psf_pipeline.validate_psf_resume#2",
@@ -2380,7 +2386,9 @@
       "source_sha256": "9c1c2fefccbc5dd8e6f26379cf0e339e4b407fc594030d073ac7ccf0a93fc211",
       "context": "Replication, Invasion, Recruitment and Host–Pathogen offer published datasets through Load test data. Host–Pathogen contains two real THP-1 RNF213 microscope fields of view, prepared host/nucleus/vacuole masks and fresh measurements of those microscope fields of view. Replication and Recruitment contain slices of measured screens. Invasion's images and masks are synthetic and explicitly labelled before downloading.",
       "translation": "Replication, Invasion, Recruitment og Host–Pathogen bjóða birt gagnasöfn í gegnum Hlaða prófunargögnum. Host–Pathogen inniheldur tvö raunveruleg THP-1 RNF213 sjónsvið, tilbúnar grímur fyrir hýsil/kjarna/safabólu og nýjar mælingar á þeim sjónsviðum. Replication og Recruitment innihalda sneiðar af mældum skimunum. Myndir og grímur Invasion eru tilbúnar og sérstaklega merktar sem slíkar fyrir niðurhal.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27 API delta 3: the English source block or its translation context changed before manifest 31000d98b. Original translation and review provenance are retained verbatim as historical evidence; this record is no longer loaded for the current source."
     },
     {
       "label": "spacr.qt.assay_examples#2",

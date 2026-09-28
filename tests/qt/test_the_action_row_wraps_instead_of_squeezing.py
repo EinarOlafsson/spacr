@@ -358,3 +358,58 @@ def test_the_activity_spinner_is_still_beside_clear_console(qtbot,
     strip = screen._actions_row.layout().itemAt(0).layout()
     order = [strip.itemAt(i).widget() for i in range(strip.count())]
     assert order.index(spinner) == order.index(screen._btn_clear) + 1
+
+
+@pytest.mark.parametrize('locale', LOCALES)
+def test_short_window_preserves_control_sizes_and_actual_scroll_reachability(
+        locale, qtbot, monkeypatch):
+    from PySide6.QtCore import QPoint, QRect
+    from PySide6.QtWidgets import QLineEdit
+
+    monkeypatch.setenv(I.ENV_LANGUAGE, locale)
+    host, screen = _screen_in_a_window(qtbot, 'measure', 1280, 720)
+    viewport = screen._runtime_viewport
+    assert (host.width(), host.height()) == (1280, 720)
+    assert screen._settings_panel.width() >= screen._body_splitter.width() // 4
+    controls = _action_buttons(screen) + [
+        control for control in screen._console_wrap.findChildren(QLineEdit)
+        if control.isVisible()]
+    assert controls
+    for control in controls:
+        viewport.ensureWidgetVisible(control, 0, 0)
+        settle(qtbot, screen)
+        actual = QRect(control.mapTo(viewport.viewport(), QPoint()), control.size())
+        assert viewport.viewport().rect().contains(actual), (locale, control.text(), actual)
+        assert control.height() >= control.minimumSizeHint().height()
+        assert control.width() >= control.minimumSizeHint().width()
+    assert (host.width(), host.height()) == (1280, 720)
+
+
+def test_runtime_layout_requests_preserve_a_user_dragged_settings_width(qtbot):
+    from PySide6.QtCore import QEvent
+    from PySide6.QtWidgets import QApplication
+
+    host, screen = _screen_in_a_window(qtbot, 'measure', 1280, 720)
+    body = screen._body_splitter
+    body.moveSplitter(300, 1)
+    settle(qtbot, screen)
+    dragged = body.sizes()
+    assert dragged[0] > 0
+    for _ in range(25):
+        QApplication.sendEvent(screen._actions_section, QEvent(QEvent.LayoutRequest))
+    settle(qtbot, screen)
+    assert abs(body.sizes()[0] - dragged[0]) <= 2
+    assert (host.width(), host.height()) == (1280, 720)
+
+
+def test_runtime_overflow_releases_space_when_actions_collapse(qtbot):
+    host, screen = _screen_in_a_window(qtbot, 'measure', 1280, 720)
+    viewport = screen._runtime_viewport
+    original_minimum = viewport.widget().minimumHeight()
+    screen._runtime_splitter.set_collapsed('Actions', True, by_user=True)
+    settle(qtbot, screen)
+    assert viewport.widget().minimumHeight() < original_minimum
+    screen._runtime_splitter.set_collapsed('Actions', False, by_user=True)
+    settle(qtbot, screen)
+    assert viewport.widget().minimumHeight() >= original_minimum
+    assert (host.width(), host.height()) == (1280, 720)

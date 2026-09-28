@@ -13078,6 +13078,3831 @@
     }
    },
    "published": false
+  },
+  "32_align_stitch": {
+   "lesson": "32_align_stitch",
+   "frames": [
+    {
+     "frame": "02_preserved_real_pixel_tiles.png",
+     "capture_folder": "align_release",
+     "scenes": [
+      1
+     ],
+     "source_sha256": "ac75af78c77609a373f239ac16fa6143ca02ef11575a8f2e41f55d93d3754b2c",
+     "redacted_image": "captures/path_redacted_447/32_align_stitch/02_preserved_real_pixel_tiles.png",
+     "redacted_sha256": "1050b2e18a2c9c1056d47d7e22d60a010667eaf39c72152aedcd3574af39caf4",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        139,
+        414,
+        266,
+        466
+       ],
+       "kind": "account_name->user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.06,
+       "fit_score": 0.978,
+       "shift": 48,
+       "clipped_left": false,
+       "gamma": 1.2,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "03_actual_layout_and_budget.png",
+     "capture_folder": "align_release",
+     "scenes": [
+      2,
+      3,
+      4
+     ],
+     "source_sha256": "8ae6a869efed0566ab03706719fac79016cda252bcf68437839b89071f89c4ea",
+     "redacted_image": "captures/path_redacted_447/32_align_stitch/03_actual_layout_and_budget.png",
+     "redacted_sha256": "3b01b28e1fe04bbca4abade7f5cc7d98cba8f564274764d8aa99921d94ed3fef",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        517,
+        252,
+        1494,
+        308
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.06,
+       "fit_score": 0.954,
+       "shift": 570,
+       "clipped_left": false,
+       "gamma": 1.5,
+       "verified": true
+      },
+      {
+       "box": [
+        554,
+        2006,
+        1848,
+        2067
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.1,
+       "fit_score": 0.942,
+       "shift": 645,
+       "clipped_left": false,
+       "gamma": 1.5999999999999999,
+       "verified": true
+      },
+      {
+       "box": [
+        2144,
+        2006,
+        3436,
+        2066
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 25.99,
+       "fit_score": 0.943,
+       "shift": 498,
+       "clipped_left": false,
+       "gamma": 1.1,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "04_registered_plan_not_yet_written.png",
+     "capture_folder": "align_release",
+     "scenes": [
+      5
+     ],
+     "source_sha256": "fc9abf2d5451dae417f2246b36990670c1c3c95119e454caf25759bd4e333c8a",
+     "redacted_image": "captures/path_redacted_447/32_align_stitch/04_registered_plan_not_yet_written.png",
+     "redacted_sha256": "02629b9c1370fe6ae34e96f9d7e5acb7b29f894ce8bddd1f2353c868bacd416c",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        518,
+        252,
+        1494,
+        308
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.01,
+       "fit_score": 0.974,
+       "shift": 569,
+       "clipped_left": false,
+       "gamma": 1.2,
+       "verified": true
+      },
+      {
+       "box": [
+        554,
+        2006,
+        1848,
+        2066
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.1,
+       "fit_score": 0.942,
+       "shift": 645,
+       "clipped_left": false,
+       "gamma": 1.5999999999999999,
+       "verified": true
+      },
+      {
+       "box": [
+        2138,
+        2008,
+        3436,
+        2065
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 25.88,
+       "fit_score": 0.938,
+       "shift": 503,
+       "clipped_left": true,
+       "gamma": 1.6999999999999997,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "05_actual_tile_detail.png",
+     "capture_folder": "align_release",
+     "scenes": [
+      6,
+      7
+     ],
+     "source_sha256": "c80d7637c3d1f46701d613e1241dfa7f8c2c2e074c7f2eff6447224c9c911399",
+     "redacted_image": "captures/path_redacted_447/32_align_stitch/05_actual_tile_detail.png",
+     "redacted_sha256": "1db3c90282f690b42a2081488a79fab8cbe9d352dca92dfb100edc9d20a7e4c9",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        519,
+        251,
+        1494,
+        308
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 25.91,
+       "fit_score": 0.938,
+       "shift": 569,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        555,
+        2008,
+        1848,
+        2065
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.05,
+       "fit_score": 0.946,
+       "shift": 645,
+       "clipped_left": false,
+       "gamma": 1.2999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        2133,
+        2009,
+        3436,
+        2065
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.09,
+       "fit_score": 0.948,
+       "shift": 508,
+       "clipped_left": true,
+       "gamma": 1.5,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "06_real_stitch_complete.png",
+     "capture_folder": "align_release",
+     "scenes": [
+      8
+     ],
+     "source_sha256": "78f7564523ccedb0c9a00a863f47fe8df47e8b377597e037d9c0db0b1d145da2",
+     "redacted_image": "captures/path_redacted_447/32_align_stitch/06_real_stitch_complete.png",
+     "redacted_sha256": "e217b281318e14963f271848bc1a53e18735bbcbd9c5bb44441d311ff1dbf722",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        518,
+        251,
+        1494,
+        308
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.01,
+       "fit_score": 0.974,
+       "shift": 569,
+       "clipped_left": false,
+       "gamma": 1.2,
+       "verified": true
+      },
+      {
+       "box": [
+        554,
+        2006,
+        1848,
+        2067
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.1,
+       "fit_score": 0.942,
+       "shift": 645,
+       "clipped_left": false,
+       "gamma": 1.5999999999999999,
+       "verified": true
+      },
+      {
+       "box": [
+        2144,
+        1998,
+        3643,
+        2074
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 25.98,
+       "fit_score": 0.948,
+       "shift": 498,
+       "clipped_left": false,
+       "gamma": 1.2,
+       "verified": true
+      },
+      {
+       "box": [
+        1283,
+        2063,
+        2684,
+        2119
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 24.11,
+       "fit_score": 0.915,
+       "shift": 658,
+       "clipped_left": false,
+       "gamma": 2.1999999999999997,
+       "verified": true
+      },
+      {
+       "box": [
+        1784,
+        1233,
+        3460,
+        1301
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 25.89,
+       "fit_score": 0.928,
+       "shift": 712,
+       "clipped_left": false,
+       "gamma": 1.8999999999999997,
+       "verified": true
+      }
+     ]
+    }
+   ],
+   "media": {
+    "master_sha256": "9a0acf5b8e5fe41a5daccb4ee3cbe1b39f69453fde2a27efc06a22e758f8265a",
+    "poster_sha256": "7a2e86088b0683353c40bca575966d85997a39a7e1cea2af18c4c7a0f7149027",
+    "web_sha256": "0b33479647cb36d7b4210eb09f7bb90b36b9cb1d72358bb48b845ebfdb9c791d",
+    "web_bytes": 4933978,
+    "web_rendition_accepted": true,
+    "visual_json_sha256": "f6d50892bed22a7ed2960edac9a1215dd001c650bc3d4394ec063151c72fdfdb",
+    "narration_and_timing": "unchanged (audio/en/af_heart.m4a and .json reused)",
+    "af_heart_timing_sha256": "e6854ff98c5b2a1e19c42aa0b24a1c27868fce053545c06506e086ec46c27ac2"
+   },
+   "checks": {
+    "browser": {
+     "sentence_cues": {
+      "passed": true,
+      "report_sha256": "fb5adc2b6de57a0e5c6648a28c6fce3d8c1a6d1d56126978a80e49b72ebe1fcd"
+     },
+     "web_rendition": {
+      "passed": true,
+      "report_sha256": "064cea7a36818ca104ae7985b7c5ed904f4f744abc4b10f6be5dde2a6098af61"
+     }
+    },
+    "frame_sweep": {
+     "images_checked": 20,
+     "path_offenders": [],
+     "frames_sampled": {
+      "web_copy": 12,
+      "master": 6
+     },
+     "poster_checked": true
+    }
+   },
+   "published": false
+  },
+  "29_report": {
+   "lesson": "29_report",
+   "frames": [
+    {
+     "frame": "02_existing_project_picker.png",
+     "capture_folder": "report_private_copy",
+     "scenes": [
+      1
+     ],
+     "source_sha256": "7ae4b50912cdc010e99bbfe9774954240af72a83e9f8f4f4c0a3ec00f0feb091",
+     "redacted_image": "captures/path_redacted_447/29_report/02_existing_project_picker.png",
+     "redacted_sha256": "a6b55b4826fdccd14b64eff9e0ac0b3d37a636762fa7959591ef9fb00838a8c5",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        1750,
+        803,
+        1967,
+        864
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 25.99,
+       "fit_score": 0.981,
+       "shift": 48,
+       "clipped_left": false,
+       "gamma": 1.2,
+       "verified": true
+      },
+      {
+       "box": [
+        1598,
+        893,
+        1723,
+        950
+       ],
+       "kind": "account_name->user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 25.46,
+       "fit_score": 0.939,
+       "shift": 48,
+       "clipped_left": false,
+       "gamma": 2.5999999999999996,
+       "verified": true
+      },
+      {
+       "box": [
+        1728,
+        1634,
+        2909,
+        1690
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 25.89,
+       "fit_score": 0.923,
+       "shift": 405,
+       "clipped_left": true,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "03_actual_completion_not_qc_pass.png",
+     "capture_folder": "report_private_copy",
+     "scenes": [
+      2
+     ],
+     "source_sha256": "a39047efac877619504d524d87f228aa3b181da7d812b42aeb18f6ec03d6a091",
+     "redacted_image": "captures/path_redacted_447/29_report/03_actual_completion_not_qc_pass.png",
+     "redacted_sha256": "7cb3d020754915e4ed287447d430c1bb4309dbe521028f73e182ca5b021aa361",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        455,
+        210,
+        1943,
+        283
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 25.94,
+       "fit_score": 0.955,
+       "shift": 713,
+       "clipped_left": false,
+       "gamma": 1.6999999999999997,
+       "verified": true
+      },
+      {
+       "box": [
+        455,
+        2002,
+        1009,
+        2066
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 25.99,
+       "fit_score": 0.981,
+       "shift": 47,
+       "clipped_left": false,
+       "gamma": 1.2,
+       "verified": true
+      },
+      {
+       "box": [
+        554,
+        2061,
+        2908,
+        2121
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.06,
+       "fit_score": 0.951,
+       "shift": 713,
+       "clipped_left": false,
+       "gamma": 1.2999999999999998,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "04_read_only_missing_sections.png",
+     "capture_folder": "report_private_copy",
+     "scenes": [
+      3
+     ],
+     "source_sha256": "a39047efac877619504d524d87f228aa3b181da7d812b42aeb18f6ec03d6a091",
+     "redacted_image": "captures/path_redacted_447/29_report/04_read_only_missing_sections.png",
+     "redacted_sha256": "7cb3d020754915e4ed287447d430c1bb4309dbe521028f73e182ca5b021aa361",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        455,
+        210,
+        1943,
+        283
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 25.94,
+       "fit_score": 0.955,
+       "shift": 713,
+       "clipped_left": false,
+       "gamma": 1.6999999999999997,
+       "verified": true
+      },
+      {
+       "box": [
+        455,
+        2002,
+        1009,
+        2066
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 25.99,
+       "fit_score": 0.981,
+       "shift": 47,
+       "clipped_left": false,
+       "gamma": 1.2,
+       "verified": true
+      },
+      {
+       "box": [
+        554,
+        2061,
+        2908,
+        2121
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.06,
+       "fit_score": 0.951,
+       "shift": 713,
+       "clipped_left": false,
+       "gamma": 1.2999999999999998,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "05_actual_output_format_choices.png",
+     "capture_folder": "report_private_copy",
+     "scenes": [
+      4
+     ],
+     "source_sha256": "c91f87fb17265cc9b1b364c4756b8a0a9b38c38ae6486216d66d12ff748a321d",
+     "redacted_image": "captures/path_redacted_447/29_report/05_actual_output_format_choices.png",
+     "redacted_sha256": "7df763df8dec6d744ec76fcddda4d58e3d5c17b5d60727cb0225aadb5fc5dd83",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        455,
+        210,
+        1943,
+        283
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 25.94,
+       "fit_score": 0.955,
+       "shift": 713,
+       "clipped_left": false,
+       "gamma": 1.6999999999999997,
+       "verified": true
+      },
+      {
+       "box": [
+        896,
+        2059,
+        2908,
+        2123
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.01,
+       "fit_score": 0.916,
+       "shift": 371,
+       "clipped_left": true,
+       "gamma": 1.2,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "06_actual_figure_cap.png",
+     "capture_folder": "report_private_copy",
+     "scenes": [
+      5
+     ],
+     "source_sha256": "c643c475b68549167f6c21222c3a90ef973a664e946091e6df25794f6ce0b3fc",
+     "redacted_image": "captures/path_redacted_447/29_report/06_actual_figure_cap.png",
+     "redacted_sha256": "6b8605b4fab4cc7f165df8143600fce02f31528baf3f6f3294c9952ca815a75e",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        455,
+        210,
+        1943,
+        283
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 25.94,
+       "fit_score": 0.955,
+       "shift": 713,
+       "clipped_left": false,
+       "gamma": 1.6999999999999997,
+       "verified": true
+      },
+      {
+       "box": [
+        455,
+        2002,
+        1009,
+        2066
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 25.99,
+       "fit_score": 0.981,
+       "shift": 47,
+       "clipped_left": false,
+       "gamma": 1.2,
+       "verified": true
+      },
+      {
+       "box": [
+        554,
+        2061,
+        2908,
+        2121
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.06,
+       "fit_score": 0.951,
+       "shift": 713,
+       "clipped_left": false,
+       "gamma": 1.2999999999999998,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "07_separate_output_picker.png",
+     "capture_folder": "report_private_copy",
+     "scenes": [
+      6
+     ],
+     "source_sha256": "0bebcda010a8d926e450b8553abaa1a0fdd1c136af77563c58e2c97e429eb818",
+     "redacted_image": "captures/path_redacted_447/29_report/07_separate_output_picker.png",
+     "redacted_sha256": "5164b42e73c4e515b5c5cf2ca78bf77b4615b02d1961859f8cc93577d1d3dee8",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        455,
+        210,
+        1943,
+        283
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 25.94,
+       "fit_score": 0.95,
+       "shift": 713,
+       "clipped_left": false,
+       "gamma": 1.6999999999999997,
+       "verified": true
+      },
+      {
+       "box": [
+        1750,
+        803,
+        1967,
+        864
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 25.99,
+       "fit_score": 0.981,
+       "shift": 48,
+       "clipped_left": false,
+       "gamma": 1.2,
+       "verified": true
+      },
+      {
+       "box": [
+        1598,
+        893,
+        1723,
+        950
+       ],
+       "kind": "account_name->user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 25.46,
+       "fit_score": 0.939,
+       "shift": 48,
+       "clipped_left": false,
+       "gamma": 2.5999999999999996,
+       "verified": true
+      },
+      {
+       "box": [
+        1722,
+        1633,
+        2909,
+        1690
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.04,
+       "fit_score": 0.945,
+       "shift": 152,
+       "clipped_left": true,
+       "gamma": 1.5999999999999999,
+       "verified": true
+      },
+      {
+       "box": [
+        455,
+        2004,
+        1009,
+        2065
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 25.97,
+       "fit_score": 0.981,
+       "shift": 47,
+       "clipped_left": false,
+       "gamma": 1.2,
+       "verified": true
+      },
+      {
+       "box": [
+        554,
+        2061,
+        2908,
+        2121
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.06,
+       "fit_score": 0.951,
+       "shift": 713,
+       "clipped_left": false,
+       "gamma": 1.2999999999999998,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "09_actual_report_written.png",
+     "capture_folder": "report_private_copy",
+     "scenes": [
+      7
+     ],
+     "source_sha256": "b09de6a52a700997cdeb3709de13afef894f3bf7402f98f8152afacac3119e46",
+     "redacted_image": "captures/path_redacted_447/29_report/09_actual_report_written.png",
+     "redacted_sha256": "515332e08666d5d07265e1cf30fb4948ce49e7c85564dd944776dc7cafa005f0",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        455,
+        210,
+        1943,
+        283
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 25.94,
+       "fit_score": 0.955,
+       "shift": 713,
+       "clipped_left": false,
+       "gamma": 1.6999999999999997,
+       "verified": true
+      },
+      {
+       "box": [
+        454,
+        2005,
+        2200,
+        2062
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.06,
+       "fit_score": 0.946,
+       "shift": 714,
+       "clipped_left": false,
+       "gamma": 1.5,
+       "verified": true
+      },
+      {
+       "box": [
+        903,
+        2060,
+        2306,
+        2120
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 25.91,
+       "fit_score": 0.93,
+       "shift": 712,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "01_report_top_completion_and_contents.png",
+     "capture_folder": "report_browser_private_copy",
+     "scenes": [
+      8
+     ],
+     "source_sha256": "bb53c9eee2feffd467fc8585805f51e9f340280bb22080c99921a2f21e16d4df",
+     "redacted_image": "captures/path_redacted_447/29_report/01_report_top_completion_and_contents.png",
+     "redacted_sha256": "1f803af7ca67adf5133a1459012404121f7a51917877276680fcfd9c253c429e",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        1011,
+        143,
+        2896,
+        203
+       ],
+       "kind": "local_root->/data/example",
+       "font": "LiberationMono-Regular.ttf",
+       "size": 23.12,
+       "fit_score": 0.95,
+       "shift": 790,
+       "clipped_left": false,
+       "gamma": 2.0999999999999996,
+       "verified": true
+      },
+      {
+       "box": [
+        1194,
+        1642,
+        2654,
+        1714
+       ],
+       "kind": "local_root->/data/example",
+       "font": "LiberationMono-Regular.ttf",
+       "size": 26.25,
+       "fit_score": 0.905,
+       "shift": 900,
+       "clipped_left": false,
+       "gamma": 2.3,
+       "verified": true
+      }
+     ]
+    }
+   ],
+   "media": {
+    "master_sha256": "5b8487c8770636517509dd03fc65c146064c7563a77cc6874fa2b2b4d4cbfd82",
+    "poster_sha256": "24efcf7eeaa4beac1decc3c6f5aa60dacf93ec98652c4ee4c27d253ecf30a9ea",
+    "web_sha256": "e01e350490b42ad191e5b51687cfed6e6f20c7cb130068b97b1adcabd33e059b",
+    "web_bytes": 5004845,
+    "web_rendition_accepted": true,
+    "visual_json_sha256": "669ff26ccb6b868009295372d8a81a951e1f800019b724fbc0ac0ac339054753",
+    "narration_and_timing": "unchanged (audio/en/af_heart.m4a and .json reused)",
+    "af_heart_timing_sha256": "f316a183467f9eb5754f55100ce8af92a9c034dc0ea0834591e507db32bd5026"
+   },
+   "checks": {
+    "browser": {
+     "sentence_cues": {
+      "passed": true,
+      "report_sha256": "b85d5291f03b35b5d4ab468a6d39c2808e1020c06491b3bfe7c7b73006faae33"
+     },
+     "web_rendition": {
+      "passed": true,
+      "report_sha256": "c2eb91a246f9130e58715ee32fb80eb7e1a2d47c970887cc20093a5c463e2c73"
+     }
+    },
+    "frame_sweep": {
+     "images_checked": 20,
+     "path_offenders": [],
+     "frames_sampled": {
+      "web_copy": 12,
+      "master": 6
+     },
+     "poster_checked": true
+    }
+   },
+   "published": false
+  },
+  "35_converter": {
+   "lesson": "35_converter",
+   "frames": [
+    {
+     "frame": "02_real_source_folder.png",
+     "capture_folder": "converter_readable",
+     "scenes": [
+      2
+     ],
+     "source_sha256": "d1217bc4ff00f8384715f591d6f038ceb501991cea15d426f8803d53497aee9a",
+     "redacted_image": "captures/path_redacted_447/35_converter/02_real_source_folder.png",
+     "redacted_sha256": "f61d02620f7085fd1b819aa06c72e2fff161c1aabea236bc3f512ba6f138b8ff",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        292,
+        319,
+        724,
+        388
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.05,
+       "fit_score": 0.946,
+       "shift": 153,
+       "clipped_left": false,
+       "gamma": 1.5,
+       "verified": true
+      },
+      {
+       "box": [
+        139,
+        414,
+        266,
+        466
+       ],
+       "kind": "account_name->user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.06,
+       "fit_score": 0.978,
+       "shift": 48,
+       "clipped_left": false,
+       "gamma": 1.2,
+       "verified": true
+      },
+      {
+       "box": [
+        264,
+        1151,
+        1371,
+        1208
+       ],
+       "kind": "wrapped_local_root->(removed)",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.11,
+       "fit_score": 0.92,
+       "shift": 606,
+       "clipped_left": false,
+       "gamma": 2.1999999999999997,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "03_new_private_destination.png",
+     "capture_folder": "converter_readable",
+     "scenes": [
+      3
+     ],
+     "source_sha256": "65c4d1e0b204fa7fec99cef532e3698d9b0caad3d6687e3002eb6d8d0a3aaf71",
+     "redacted_image": "captures/path_redacted_447/35_converter/03_new_private_destination.png",
+     "redacted_sha256": "b7bfd567658985a72b444be5b8b5d18262c35ba9d4e7b4ea7eb1147cd5df48ec",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        292,
+        319,
+        724,
+        388
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.05,
+       "fit_score": 0.946,
+       "shift": 153,
+       "clipped_left": false,
+       "gamma": 1.5,
+       "verified": true
+      },
+      {
+       "box": [
+        139,
+        414,
+        266,
+        466
+       ],
+       "kind": "account_name->user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.06,
+       "fit_score": 0.978,
+       "shift": 48,
+       "clipped_left": false,
+       "gamma": 1.2,
+       "verified": true
+      },
+      {
+       "box": [
+        264,
+        1151,
+        1371,
+        1208
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.1,
+       "fit_score": 0.939,
+       "shift": 361,
+       "clipped_left": true,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "04_explicit_flat_single_plane_settings.png",
+     "capture_folder": "converter_readable",
+     "scenes": [
+      4,
+      5
+     ],
+     "source_sha256": "120fccfe24ba78ee9300659daaef0604147ffc7e15ac11bd5dc2949bae743b5e",
+     "redacted_image": "captures/path_redacted_447/35_converter/04_explicit_flat_single_plane_settings.png",
+     "redacted_sha256": "4302d0435d376a14a181352218ba33fb1e0602b1fc8ff91d7671a28be25c4d77",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        564,
+        828,
+        1963,
+        888
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 25.94,
+       "fit_score": 0.956,
+       "shift": 713,
+       "clipped_left": false,
+       "gamma": 1.6999999999999997,
+       "verified": true
+      },
+      {
+       "box": [
+        619,
+        958,
+        2076,
+        1010
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.06,
+       "fit_score": 0.946,
+       "shift": 714,
+       "clipped_left": false,
+       "gamma": 1.5,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "05_preview_no_output_written.png",
+     "capture_folder": "converter_readable",
+     "scenes": [
+      6,
+      8
+     ],
+     "source_sha256": "869c6aa9bc0f94b6762efb11b1fd149d7594afd983083353975595f7b41926ce",
+     "redacted_image": "captures/path_redacted_447/35_converter/05_preview_no_output_written.png",
+     "redacted_sha256": "df03e152d34ba53d43d1c0aaaed1d9b6c9f7a71e216511dcacd2c315e0c436ef",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        564,
+        828,
+        1963,
+        888
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 25.99,
+       "fit_score": 0.942,
+       "shift": 713,
+       "clipped_left": false,
+       "gamma": 1.2,
+       "verified": true
+      },
+      {
+       "box": [
+        620,
+        958,
+        2076,
+        1010
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.01,
+       "fit_score": 0.943,
+       "shift": 713,
+       "clipped_left": false,
+       "gamma": 1.2,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "06_preview_source_channel_and_plane_provenance.png",
+     "capture_folder": "converter_readable",
+     "scenes": [
+      7
+     ],
+     "source_sha256": "d44121b86c5db042ce06d371b0fed9f52ff1c121e002ee65d72aa0e73db75ab0",
+     "redacted_image": "captures/path_redacted_447/35_converter/06_preview_source_channel_and_plane_provenance.png",
+     "redacted_sha256": "a0a338705b3559b770e6eb254b40d0c3f9c872d919ced7d87f6b297b5b318e7a",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        564,
+        828,
+        1963,
+        888
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 25.99,
+       "fit_score": 0.942,
+       "shift": 713,
+       "clipped_left": false,
+       "gamma": 1.2,
+       "verified": true
+      },
+      {
+       "box": [
+        620,
+        958,
+        2076,
+        1011
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 25.96,
+       "fit_score": 0.949,
+       "shift": 713,
+       "clipped_left": false,
+       "gamma": 1.5,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "07_actual_conversion_complete.png",
+     "capture_folder": "converter_readable",
+     "scenes": [
+      9,
+      10
+     ],
+     "source_sha256": "aeeb73688856c5805f385266828300abdcf8a42584cb35094643f6ad6021555d",
+     "redacted_image": "captures/path_redacted_447/35_converter/07_actual_conversion_complete.png",
+     "redacted_sha256": "1784de116cb3971dc4b2ec41f019277d28702489f7809a4f7327704a39894b5e",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        564,
+        828,
+        1963,
+        888
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 25.99,
+       "fit_score": 0.942,
+       "shift": 713,
+       "clipped_left": false,
+       "gamma": 1.2,
+       "verified": true
+      },
+      {
+       "box": [
+        621,
+        958,
+        2076,
+        1011
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 25.91,
+       "fit_score": 0.938,
+       "shift": 712,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        751,
+        1593,
+        2215,
+        1646
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.1,
+       "fit_score": 0.928,
+       "shift": 713,
+       "clipped_left": false,
+       "gamma": 1.5,
+       "verified": true
+      },
+      {
+       "box": [
+        583,
+        1627,
+        2294,
+        1684
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.06,
+       "fit_score": 0.966,
+       "shift": 713,
+       "clipped_left": false,
+       "gamma": 1.2999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        720,
+        1734,
+        2365,
+        1790
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 23.88,
+       "fit_score": 0.923,
+       "shift": 658,
+       "clipped_left": false,
+       "gamma": 2.1999999999999997,
+       "verified": true
+      },
+      {
+       "box": [
+        623,
+        1662,
+        2502,
+        1722
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.01,
+       "fit_score": 0.949,
+       "shift": 712,
+       "clipped_left": false,
+       "gamma": 1.2,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "08_resume_enabled.png",
+     "capture_folder": "converter_readable",
+     "scenes": [
+      11
+     ],
+     "source_sha256": "dfd7cbd64cd4e3a8d5ecc316d9c86bc170339f90f7c2ed447a3664b8e8a5a3af",
+     "redacted_image": "captures/path_redacted_447/35_converter/08_resume_enabled.png",
+     "redacted_sha256": "71a3a9d721cf4f7a474bd336c5ab1c5be518bbada0efb9b0b991bba7a98aa225",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        564,
+        828,
+        1963,
+        888
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 25.99,
+       "fit_score": 0.942,
+       "shift": 713,
+       "clipped_left": false,
+       "gamma": 1.2,
+       "verified": true
+      },
+      {
+       "box": [
+        619,
+        958,
+        2076,
+        1011
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.06,
+       "fit_score": 0.946,
+       "shift": 714,
+       "clipped_left": false,
+       "gamma": 1.5,
+       "verified": true
+      },
+      {
+       "box": [
+        752,
+        1591,
+        2215,
+        1647
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.01,
+       "fit_score": 0.965,
+       "shift": 713,
+       "clipped_left": false,
+       "gamma": 1.2999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        583,
+        1627,
+        2294,
+        1684
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.06,
+       "fit_score": 0.966,
+       "shift": 713,
+       "clipped_left": false,
+       "gamma": 1.2999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        720,
+        1734,
+        2365,
+        1790
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 23.88,
+       "fit_score": 0.923,
+       "shift": 658,
+       "clipped_left": false,
+       "gamma": 2.1999999999999997,
+       "verified": true
+      },
+      {
+       "box": [
+        623,
+        1662,
+        2502,
+        1722
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 26.01,
+       "fit_score": 0.949,
+       "shift": 712,
+       "clipped_left": false,
+       "gamma": 1.2,
+       "verified": true
+      }
+     ]
+    }
+   ],
+   "media": {
+    "master_sha256": "a1bf4768ac02caac72043df748091d386f4b8385ecc219819dab523f532d98f6",
+    "poster_sha256": "bdf1520c7b7b42098b31ddf59e4bbb749cb38d7b8621cbd7aed6be0ad9b92ce0",
+    "web_sha256": "6fbd5528e24294446340523f64faa76069cf100a63e9f607f302aea1be40dad9",
+    "web_bytes": 7220623,
+    "web_rendition_accepted": true,
+    "visual_json_sha256": "4f9b7363b014ae4ca5a1d099bcd9ad6ca320d496abb7bf4925853b435bc09c95",
+    "narration_and_timing": "unchanged (audio/en/af_heart.m4a and .json reused)",
+    "af_heart_timing_sha256": "bffa1e4530bfb70a33f15ea8c8e80a903896c2a2a9072d1021dd0c589af7e5db"
+   },
+   "checks": {
+    "browser": {
+     "sentence_cues": {
+      "passed": true,
+      "report_sha256": "55fc08d2c870a5797afccc4df5e3cc758908e0fc3866c802044cb929e269dde9"
+     },
+     "web_rendition": {
+      "passed": true,
+      "report_sha256": "f3187e622d136b915e0c286b4826dd4282dfaa4b9fd89def4a18c92dab82b206"
+     }
+    },
+    "frame_sweep": {
+     "images_checked": 20,
+     "path_offenders": [],
+     "frames_sampled": {
+      "web_copy": 12,
+      "master": 6
+     },
+     "poster_checked": true
+    }
+   },
+   "published": false
+  },
+  "15_image_umap": {
+   "lesson": "15_image_umap",
+   "frames": [
+    {
+     "frame": "23_batch_finished.png",
+     "capture_folder": "umap_explorer",
+     "scenes": [
+      9
+     ],
+     "source_sha256": "df91152b45efac820287bc105be5e084bd70827b5eb53513e8cc602d477832e5",
+     "redacted_image": "captures/path_redacted_447/15_image_umap/23_batch_finished.png",
+     "redacted_sha256": "dc571367ff8a9bedd26a5012fa50e031292b5af83c3c182ac95dfa7b6395124f",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        2154,
+        1108,
+        3376,
+        1160
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.09,
+       "fit_score": 0.973,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        2154,
+        1135,
+        3460,
+        1188
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.04,
+       "fit_score": 0.977,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.2999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        2154,
+        1192,
+        3376,
+        1244
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.09,
+       "fit_score": 0.973,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        2154,
+        1219,
+        3364,
+        1272
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.06,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        2154,
+        1247,
+        3426,
+        1300
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.06,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        2154,
+        1277,
+        3376,
+        1326
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.12,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        2360,
+        1305,
+        3810,
+        1353
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.12,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        3196,
+        1305,
+        3774,
+        1353
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.93,
+       "fit_score": 0.962,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.6999999999999997,
+       "verified": true
+      },
+      {
+       "box": [
+        2258,
+        1362,
+        3048,
+        1407
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.93,
+       "fit_score": 0.961,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.5999999999999999,
+       "verified": true
+      },
+      {
+       "box": [
+        2154,
+        1166,
+        3351,
+        1214
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.06,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "24_batch_figure.png",
+     "capture_folder": "umap_explorer",
+     "scenes": [
+      10
+     ],
+     "source_sha256": "917bd3dad20b86d4abc1bc1ad8678a3de4d4947c85a3ca87053f3fc7a78f3331",
+     "redacted_image": "captures/path_redacted_447/15_image_umap/24_batch_figure.png",
+     "redacted_sha256": "8b9a5c228c6c81fda9f5d9131e91f15b40e328689a0e2aaceae0a7368e58b032",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        2154,
+        1108,
+        3376,
+        1160
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.09,
+       "fit_score": 0.973,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        2154,
+        1135,
+        3460,
+        1188
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.04,
+       "fit_score": 0.977,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.2999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        2154,
+        1192,
+        3376,
+        1244
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.09,
+       "fit_score": 0.973,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        2154,
+        1219,
+        3364,
+        1272
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.06,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        2154,
+        1247,
+        3426,
+        1300
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.06,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        2154,
+        1277,
+        3376,
+        1326
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.12,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        2360,
+        1305,
+        3810,
+        1353
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.12,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        3196,
+        1305,
+        3774,
+        1353
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.93,
+       "fit_score": 0.962,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.6999999999999997,
+       "verified": true
+      },
+      {
+       "box": [
+        2258,
+        1362,
+        3048,
+        1407
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.93,
+       "fit_score": 0.961,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.5999999999999999,
+       "verified": true
+      },
+      {
+       "box": [
+        2154,
+        1166,
+        3351,
+        1214
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.06,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "25_interactive_embedding.png",
+     "capture_folder": "umap_explorer",
+     "scenes": [
+      11
+     ],
+     "source_sha256": "6790531a8c77c360ddd84da0a9142aaf07966c9d118bfafea943bddaa80ef7d0",
+     "redacted_image": "captures/path_redacted_447/15_image_umap/25_interactive_embedding.png",
+     "redacted_sha256": "ac4f817e1322c770ff3e4cc67a5e6129667e3eaf00bc001bc4a8002fa6e01e48",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        1285,
+        1137,
+        2507,
+        1186
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.12,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1162,
+        2591,
+        1218
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.12,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1193,
+        2482,
+        1242
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.12,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1220,
+        2507,
+        1272
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.09,
+       "fit_score": 0.973,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1246,
+        2495,
+        1302
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.04,
+       "fit_score": 0.977,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.2999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1276,
+        2557,
+        1328
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.06,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1305,
+        2507,
+        1354
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.12,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1491,
+        1334,
+        3150,
+        1379
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.06,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        2327,
+        1334,
+        3114,
+        1379
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.98,
+       "fit_score": 0.968,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1389,
+        1362,
+        2179,
+        1407
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.93,
+       "fit_score": 0.961,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.5999999999999999,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1107,
+        2507,
+        1160
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.06,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "26_point_0.png",
+     "capture_folder": "umap_explorer",
+     "scenes": [
+      12
+     ],
+     "source_sha256": "bbf6ed7fd53443dd9c1fd10989108bcc63455670035f93bfd65de39a600006e2",
+     "redacted_image": "captures/path_redacted_447/15_image_umap/26_point_0.png",
+     "redacted_sha256": "d0bee78a2fe7ce59aa506606e7f394ecb6a9723a9bbefe9d88cbf192b79ec864",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        3160,
+        533,
+        3717,
+        577
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.04,
+       "fit_score": 0.966,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.5999999999999999,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1137,
+        2507,
+        1186
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.12,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1162,
+        2591,
+        1218
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.12,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1193,
+        2482,
+        1242
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.12,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1220,
+        2507,
+        1272
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.09,
+       "fit_score": 0.973,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1247,
+        2495,
+        1300
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.12,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1276,
+        2557,
+        1328
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.06,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1305,
+        2507,
+        1354
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.12,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1491,
+        1334,
+        3150,
+        1379
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.06,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        2327,
+        1334,
+        3114,
+        1379
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.98,
+       "fit_score": 0.968,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1389,
+        1362,
+        2179,
+        1407
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.93,
+       "fit_score": 0.961,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.5999999999999999,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1107,
+        2507,
+        1160
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.06,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "26_point_200.png",
+     "capture_folder": "umap_explorer",
+     "scenes": [
+      13
+     ],
+     "source_sha256": "64eb1f1a3bbbef9b0d0e2e5fe6421ba55d024116583bb4259a2443df62ab0f38",
+     "redacted_image": "captures/path_redacted_447/15_image_umap/26_point_200.png",
+     "redacted_sha256": "525ae0151f38a073feff733c458ff0f0893a14711a22a72b801c65f8c3e41b56",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        3160,
+        533,
+        3717,
+        577
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.04,
+       "fit_score": 0.966,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.5999999999999999,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1137,
+        2507,
+        1186
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.12,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1162,
+        2591,
+        1218
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.12,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1193,
+        2482,
+        1242
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.12,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1220,
+        2507,
+        1272
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.09,
+       "fit_score": 0.973,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1247,
+        2495,
+        1300
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.12,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1276,
+        2557,
+        1328
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.06,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1305,
+        2507,
+        1354
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.12,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1491,
+        1334,
+        3150,
+        1379
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.06,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        2327,
+        1334,
+        3114,
+        1379
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.98,
+       "fit_score": 0.968,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1389,
+        1362,
+        2179,
+        1407
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.93,
+       "fit_score": 0.961,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.5999999999999999,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1107,
+        2507,
+        1160
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.06,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "27_fold_image_scatter.png",
+     "capture_folder": "umap_explorer",
+     "scenes": [
+      14
+     ],
+     "source_sha256": "c8d539656efbe50a613b2c3cc7941f69ae7679e078dea69b5064a28e5f3e359f",
+     "redacted_image": "captures/path_redacted_447/15_image_umap/27_fold_image_scatter.png",
+     "redacted_sha256": "ee181a76211c8907dcc187402731fe593fe2cd9b132484b9040e71b534d240ad",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        3160,
+        533,
+        3717,
+        577
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.04,
+       "fit_score": 0.966,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.5999999999999999,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1137,
+        2507,
+        1186
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.12,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1162,
+        2591,
+        1218
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.12,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1220,
+        2507,
+        1272
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.09,
+       "fit_score": 0.973,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1247,
+        2495,
+        1300
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.12,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1276,
+        2557,
+        1328
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.06,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1305,
+        2507,
+        1354
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.12,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1491,
+        1334,
+        3150,
+        1379
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.06,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        2327,
+        1334,
+        3114,
+        1379
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.98,
+       "fit_score": 0.968,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1389,
+        1362,
+        2179,
+        1407
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.93,
+       "fit_score": 0.961,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.5999999999999999,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1107,
+        2507,
+        1160
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.06,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1285,
+        1193,
+        2482,
+        1242
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.12,
+       "fit_score": 0.975,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.4,
+       "verified": true
+      }
+     ]
+    }
+   ],
+   "media": {
+    "master_sha256": "cd07c98b6c33490b90707d31e046cb9bdd2d6ffdd254f858c846278cbcf3c36f",
+    "poster_sha256": "def56f0183d2fdc80cd823d0d23e4c7005ad884e329e6c94520ad7ed840ef26e",
+    "web_sha256": "618558e316eb3a1f82cdd27f4b5a9e52632349b5b2ea13db25ce9d98f93c42f7",
+    "web_bytes": 9342450,
+    "web_rendition_accepted": true,
+    "visual_json_sha256": "cfc8ea9c56b07ae0c9d3135529f7eeb34bf7c5cd8eda12bb3dcdad23195d5721",
+    "narration_and_timing": "unchanged (audio/en/af_heart.m4a and .json reused)",
+    "af_heart_timing_sha256": "3544edbc31d39dd305164eac619e2e461510a791997cb7c111cc6624c9d5ee22"
+   },
+   "checks": {
+    "browser": {
+     "sentence_cues": {
+      "passed": true,
+      "report_sha256": "7e9fa004d4f1cdf47e3cdd03740e5abb9d7811b4de0cef28e9d86ccd02d7b22b"
+     },
+     "web_rendition": {
+      "passed": true,
+      "report_sha256": "0ee3b9dab2b708c62aaf420492860d41e825e0b2dceedf9a31beac36ccf2f199"
+     }
+    },
+    "frame_sweep": {
+     "images_checked": 20,
+     "path_offenders": [],
+     "frames_sampled": {
+      "web_copy": 12,
+      "master": 6
+     },
+     "poster_checked": true
+    }
+   },
+   "published": false
+  },
+  "43_illumination": {
+   "lesson": "43_illumination",
+   "frames": [
+    {
+     "frame": "01_measure_host.png",
+     "capture_folder": "illumination_exported_qc_viewer",
+     "scenes": [
+      0
+     ],
+     "source_sha256": "34f61a6b45bcedf726f1f92eac1bb6b4cf91a863162a2595791da419b1b808f0",
+     "redacted_image": "captures/path_redacted_447/43_illumination/01_measure_host.png",
+     "redacted_sha256": "c6feee322dfe739976111526db5046d933bd55d65a12747621d8329e9ec0f926",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        625,
+        373,
+        1354,
+        421
+       ],
+       "kind": "account_name->user",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.46,
+       "fit_score": 0.971,
+       "shift": 36,
+       "clipped_left": false,
+       "gamma": 1.5999999999999999,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "05_setting_src.png",
+     "capture_folder": "illumination_exported_qc_viewer",
+     "scenes": [
+      1
+     ],
+     "source_sha256": "c60c18c064f1c87c9d70e9249e11dbdfe098dc21466d3de42f1a71d9c779702b",
+     "redacted_image": "captures/path_redacted_447/43_illumination/05_setting_src.png",
+     "redacted_sha256": "f335b3763396e6a750f616d6ba858a4da6f8dba69edd7f1910572c011a3aa181",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        2096,
+        460,
+        3455,
+        508
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Light.ttf",
+       "size": 19.12,
+       "fit_score": 0.934,
+       "shift": 506,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        1745,
+        518,
+        2395,
+        558
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Light.ttf",
+       "size": 19.31,
+       "fit_score": 0.957,
+       "shift": 33,
+       "clipped_left": false,
+       "gamma": 2.0999999999999996,
+       "verified": true
+      },
+      {
+       "box": [
+        473,
+        431,
+        1490,
+        480
+       ],
+       "kind": "wrapped_local_root->(removed)",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.0,
+       "fit_score": 0.957,
+       "shift": 375,
+       "clipped_left": false,
+       "gamma": 1.9999999999999998,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "05_setting_channels.png",
+     "capture_folder": "illumination_exported_qc_viewer",
+     "scenes": [
+      2
+     ],
+     "source_sha256": "42133188ff49e03f77d97deea1046ecc4146402084d9646b69f507fe795941da",
+     "redacted_image": "captures/path_redacted_447/43_illumination/05_setting_channels.png",
+     "redacted_sha256": "798df18715f29f7533c86a995f7423e1b424c965b37cfd8be20932c5be15ded6",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        2096,
+        460,
+        3455,
+        508
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Light.ttf",
+       "size": 19.12,
+       "fit_score": 0.934,
+       "shift": 506,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        1745,
+        518,
+        2395,
+        558
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Light.ttf",
+       "size": 19.31,
+       "fit_score": 0.957,
+       "shift": 33,
+       "clipped_left": false,
+       "gamma": 2.0999999999999996,
+       "verified": true
+      },
+      {
+       "box": [
+        473,
+        431,
+        1490,
+        480
+       ],
+       "kind": "wrapped_local_root->(removed)",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.0,
+       "fit_score": 0.957,
+       "shift": 375,
+       "clipped_left": false,
+       "gamma": 1.9999999999999998,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "04_correction_off_finished.png",
+     "capture_folder": "illumination_exported_qc_viewer",
+     "scenes": [
+      3
+     ],
+     "source_sha256": "46fb96869dbe64815cc079ae1451817cee03abe8647cfdd6ca9339f6ab05459d",
+     "redacted_image": "captures/path_redacted_447/43_illumination/04_correction_off_finished.png",
+     "redacted_sha256": "b7b223fda9042bff2d2175078d0f4eefcbc644cef870b334adae97ed1c7de7e6",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        2096,
+        460,
+        3455,
+        508
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Light.ttf",
+       "size": 19.12,
+       "fit_score": 0.934,
+       "shift": 506,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        1745,
+        518,
+        2395,
+        558
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Light.ttf",
+       "size": 19.31,
+       "fit_score": 0.957,
+       "shift": 33,
+       "clipped_left": false,
+       "gamma": 2.0999999999999996,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "05_setting_illumination_degree.png",
+     "capture_folder": "illumination_exported_qc_viewer",
+     "scenes": [
+      4
+     ],
+     "source_sha256": "4c47f8fcf3089d213fdb243420297e93e0f63e278ccda16466eb766ecbe75a6b",
+     "redacted_image": "captures/path_redacted_447/43_illumination/05_setting_illumination_degree.png",
+     "redacted_sha256": "eaee034558bc291f43f513b17d8741ea2f2a690fb4d596220cca0c22c2e97007",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        2096,
+        460,
+        3455,
+        508
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Light.ttf",
+       "size": 19.12,
+       "fit_score": 0.934,
+       "shift": 506,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        1745,
+        518,
+        2395,
+        558
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Light.ttf",
+       "size": 19.31,
+       "fit_score": 0.957,
+       "shift": 33,
+       "clipped_left": false,
+       "gamma": 2.0999999999999996,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "05_setting_illumination_max_fields.png",
+     "capture_folder": "illumination_exported_qc_viewer",
+     "scenes": [
+      5
+     ],
+     "source_sha256": "3430feda6fd7e1db525be9d78a8a45106e6fbd3b6f615a9b1fe8b3626a68eedf",
+     "redacted_image": "captures/path_redacted_447/43_illumination/05_setting_illumination_max_fields.png",
+     "redacted_sha256": "ec56a02171ac42cede5640cbdaa582f744df80540f8c8e2482a2daffb8ca25a8",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        2096,
+        460,
+        3455,
+        508
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Light.ttf",
+       "size": 19.12,
+       "fit_score": 0.934,
+       "shift": 506,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        1746,
+        518,
+        2395,
+        558
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Light.ttf",
+       "size": 19.03,
+       "fit_score": 0.964,
+       "shift": 33,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        471,
+        431,
+        1490,
+        479
+       ],
+       "kind": "wrapped_local_root->(removed)",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.16,
+       "fit_score": 0.936,
+       "shift": 378,
+       "clipped_left": false,
+       "gamma": 2.3,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "05_setting_illumination_dark.png",
+     "capture_folder": "illumination_exported_qc_viewer",
+     "scenes": [
+      6
+     ],
+     "source_sha256": "46cf70a27e2ed7ca178ee3a16b9f491ce73e1eaa9b8f360552f3bb52daa46cb0",
+     "redacted_image": "captures/path_redacted_447/43_illumination/05_setting_illumination_dark.png",
+     "redacted_sha256": "d192f769453891717d830c4287a27e993f3641c1439641b76f0b82776fe1b97e",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        2096,
+        460,
+        3455,
+        508
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Light.ttf",
+       "size": 19.12,
+       "fit_score": 0.934,
+       "shift": 506,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        1746,
+        518,
+        2395,
+        558
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Light.ttf",
+       "size": 19.03,
+       "fit_score": 0.964,
+       "shift": 33,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "05_setting_illumination_on_missing.png",
+     "capture_folder": "illumination_exported_qc_viewer",
+     "scenes": [
+      7
+     ],
+     "source_sha256": "ff5700a8cfd12a005336054e6bc77a6dac86185ae11efac9aad7e557920fd8f3",
+     "redacted_image": "captures/path_redacted_447/43_illumination/05_setting_illumination_on_missing.png",
+     "redacted_sha256": "a8c8713c6c65e0d32b44a722e5e36650751649d81bc832e603ab7c7b618816eb",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        2096,
+        460,
+        3455,
+        508
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Light.ttf",
+       "size": 19.12,
+       "fit_score": 0.934,
+       "shift": 506,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        1745,
+        518,
+        2395,
+        558
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Light.ttf",
+       "size": 19.26,
+       "fit_score": 0.956,
+       "shift": 33,
+       "clipped_left": false,
+       "gamma": 2.0999999999999996,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "06_correction_on_finished.png",
+     "capture_folder": "illumination_exported_qc_viewer",
+     "scenes": [
+      8
+     ],
+     "source_sha256": "089c1e1ffdc6a7e6f9693029f1c053efc8d00fa1ba7c555542533431ff1994b2",
+     "redacted_image": "captures/path_redacted_447/43_illumination/06_correction_on_finished.png",
+     "redacted_sha256": "ec6b40eebccbb1125f3cb46f5aaabbda3625035ad9d0bc767ae54bea77a89330",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        2096,
+        460,
+        3455,
+        508
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Light.ttf",
+       "size": 19.12,
+       "fit_score": 0.933,
+       "shift": 506,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        1745,
+        518,
+        2395,
+        558
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Light.ttf",
+       "size": 19.31,
+       "fit_score": 0.957,
+       "shift": 33,
+       "clipped_left": false,
+       "gamma": 2.0999999999999996,
+       "verified": true
+      },
+      {
+       "box": [
+        2097,
+        590,
+        3455,
+        643
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Light.ttf",
+       "size": 19.07,
+       "fit_score": 0.923,
+       "shift": 505,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        1745,
+        653,
+        2394,
+        690
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Light.ttf",
+       "size": 19.26,
+       "fit_score": 0.956,
+       "shift": 33,
+       "clipped_left": false,
+       "gamma": 2.0999999999999996,
+       "verified": true
+      },
+      {
+       "box": [
+        1860,
+        727,
+        3325,
+        771
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Light.ttf",
+       "size": 19.11,
+       "fit_score": 0.922,
+       "shift": 505,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        2597,
+        753,
+        3755,
+        797
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Light.ttf",
+       "size": 19.11,
+       "fit_score": 0.906,
+       "shift": 505,
+       "clipped_left": false,
+       "gamma": 1.9999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        467,
+        429,
+        1490,
+        481
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.12,
+       "fit_score": 0.959,
+       "shift": 236,
+       "clipped_left": true,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "09_return_to_illumination.png",
+     "capture_folder": "illumination_exported_qc_viewer",
+     "scenes": [
+      12
+     ],
+     "source_sha256": "5ef53e39fe7f1f80b4c217104424ba971554ecb2c313d70230c7be488c5fb1ea",
+     "redacted_image": "captures/path_redacted_447/43_illumination/09_return_to_illumination.png",
+     "redacted_sha256": "eeae37eddc9ae006bade441955d2d366ca0885b93eb20899c4b64c433b8b0cc9",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        2096,
+        460,
+        3455,
+        508
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Light.ttf",
+       "size": 19.12,
+       "fit_score": 0.933,
+       "shift": 506,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        1745,
+        518,
+        2395,
+        558
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Light.ttf",
+       "size": 19.31,
+       "fit_score": 0.957,
+       "shift": 33,
+       "clipped_left": false,
+       "gamma": 2.0999999999999996,
+       "verified": true
+      },
+      {
+       "box": [
+        2097,
+        590,
+        3455,
+        643
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Light.ttf",
+       "size": 19.07,
+       "fit_score": 0.923,
+       "shift": 505,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        1745,
+        653,
+        2394,
+        690
+       ],
+       "kind": "account_home->/home/user",
+       "font": "OpenSans-Light.ttf",
+       "size": 19.26,
+       "fit_score": 0.956,
+       "shift": 33,
+       "clipped_left": false,
+       "gamma": 2.0999999999999996,
+       "verified": true
+      },
+      {
+       "box": [
+        1860,
+        727,
+        3325,
+        771
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Light.ttf",
+       "size": 19.11,
+       "fit_score": 0.922,
+       "shift": 505,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        2597,
+        753,
+        3755,
+        797
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Light.ttf",
+       "size": 19.11,
+       "fit_score": 0.907,
+       "shift": 505,
+       "clipped_left": false,
+       "gamma": 1.9999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        467,
+        429,
+        1490,
+        481
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.12,
+       "fit_score": 0.959,
+       "shift": 236,
+       "clipped_left": true,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      }
+     ]
+    }
+   ],
+   "media": {
+    "master_sha256": "69636ca57ca48a477fdeeb262f21b1271246f5008529f00dbfd63bb825382403",
+    "poster_sha256": "dcd0e7e83d7fdfb7a67e52759734fcf102a16077305471f80c1c9255655e76c3",
+    "web_sha256": "0e19560c45ee5a602bb14f53dbae05e5943e56737a68c15449f917df6a355302",
+    "web_bytes": 4440722,
+    "web_rendition_accepted": true,
+    "visual_json_sha256": "b227d22fbb8ed4f9b3cb1b013a0a0bd8111e2c2be1eea39ddddbbe00c7c4c956",
+    "narration_and_timing": "unchanged (audio/en/af_heart.m4a and .json reused)",
+    "af_heart_timing_sha256": "0991e1fea1333e0fec0ef0b028620c0d5faeb812517e3565c8e348f220b54cfe"
+   },
+   "checks": {
+    "browser": {
+     "sentence_cues": {
+      "passed": true,
+      "report_sha256": "95a0741c6f4f455666a8d3ec76bcca505f0e92a7714c3a13e6ab0ff7463166c8"
+     },
+     "web_rendition": {
+      "passed": true,
+      "report_sha256": "a96602f2a5636f284185f3e8bbb2355f575d2f08c10cb813b5753db642b4738f"
+     }
+    },
+    "frame_sweep": {
+     "images_checked": 20,
+     "path_offenders": [],
+     "frames_sampled": {
+      "web_copy": 12,
+      "master": 6
+     },
+     "poster_checked": true
+    }
+   },
+   "published": false
+  },
+  "74_import_images": {
+   "lesson": "74_import_images",
+   "frames": [
+    {
+     "frame": "04_source_options.png",
+     "capture_folder": "import_images",
+     "scenes": [
+      1
+     ],
+     "source_sha256": "c33a033e6c1f7f44d72364b73683564a520a7ba17bccc157cd81fdf2ebf7a915",
+     "redacted_image": "captures/path_redacted_447/74_import_images/04_source_options.png",
+     "redacted_sha256": "4b94417b130160aaa950fb0cec982e46a2804fcdb1f25d325828236c2fc50262",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        478,
+        1662,
+        1647,
+        1711
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.95,
+       "fit_score": 0.952,
+       "shift": 548,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        437,
+        689,
+        1591,
+        741
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.0,
+       "fit_score": 0.974,
+       "shift": 548,
+       "clipped_left": false,
+       "gamma": 1.5,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "04a_unresolved_acquisition_token.png",
+     "capture_folder": "import_images",
+     "scenes": [
+      2
+     ],
+     "source_sha256": "2f0c8d24d04e23b0ba0eb723a721995525d8924e169b8a776e850dae13606f0d",
+     "redacted_image": "captures/path_redacted_447/74_import_images/04a_unresolved_acquisition_token.png",
+     "redacted_sha256": "b19d0a990f911f89aeafc3fb4c7aafda139d3cfc44adf84e9731fd4f4662894d",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        437,
+        689,
+        1591,
+        741
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.0,
+       "fit_score": 0.974,
+       "shift": 548,
+       "clipped_left": false,
+       "gamma": 1.5,
+       "verified": true
+      },
+      {
+       "box": [
+        477,
+        1662,
+        1647,
+        1710
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.05,
+       "fit_score": 0.942,
+       "shift": 549,
+       "clipped_left": false,
+       "gamma": 1.9999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        937,
+        1484,
+        1678,
+        1529
+       ],
+       "kind": "wrapped_local_root->(removed)",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.9,
+       "fit_score": 0.955,
+       "shift": 271,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        525,
+        1482,
+        1407,
+        1530
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.95,
+       "fit_score": 0.959,
+       "shift": 275,
+       "clipped_left": false,
+       "gamma": 1.6999999999999997,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "05_scan_proposal.png",
+     "capture_folder": "import_images",
+     "scenes": [
+      3
+     ],
+     "source_sha256": "cc430180db4b49d294acc5f05f6ca0bd5b322facb5b80c91c01e4e5b5d520be2",
+     "redacted_image": "captures/path_redacted_447/74_import_images/05_scan_proposal.png",
+     "redacted_sha256": "269ac659b24aed00f44eaeb670f4a1751623fa1a1ca8566b01591150d70fe5ad",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        524,
+        1482,
+        1730,
+        1531
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.0,
+       "fit_score": 0.963,
+       "shift": 548,
+       "clipped_left": false,
+       "gamma": 1.5,
+       "verified": true
+      },
+      {
+       "box": [
+        477,
+        1662,
+        1647,
+        1710
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.05,
+       "fit_score": 0.953,
+       "shift": 549,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        437,
+        691,
+        1643,
+        740
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.95,
+       "fit_score": 0.952,
+       "shift": 548,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "06_check_filename.png",
+     "capture_folder": "import_images",
+     "scenes": [
+      4
+     ],
+     "source_sha256": "cf4758f6fa6c41880a1d725c0fd2610c63276c56bc2d963353713b57b60c80ab",
+     "redacted_image": "captures/path_redacted_447/74_import_images/06_check_filename.png",
+     "redacted_sha256": "3586ce8a3d87bc7e79fe1999c878bd58c1e83599d202569bd8bd93ba59e9810d",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        524,
+        1482,
+        1730,
+        1531
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.0,
+       "fit_score": 0.963,
+       "shift": 548,
+       "clipped_left": false,
+       "gamma": 1.5,
+       "verified": true
+      },
+      {
+       "box": [
+        477,
+        1662,
+        1647,
+        1710
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.05,
+       "fit_score": 0.953,
+       "shift": 549,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        437,
+        691,
+        1643,
+        740
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.95,
+       "fit_score": 0.952,
+       "shift": 548,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "07_copy_destination.png",
+     "capture_folder": "import_images",
+     "scenes": [
+      5,
+      6
+     ],
+     "source_sha256": "2a435f8efa596300b656b46d71cf4d00678f9220af4a68fad7566eb982dd0e02",
+     "redacted_image": "captures/path_redacted_447/74_import_images/07_copy_destination.png",
+     "redacted_sha256": "1688340019c046f6293854f1c33a00ade96e1d50b927ae23c493bd5e832a0b7d",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        524,
+        1482,
+        1730,
+        1531
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.0,
+       "fit_score": 0.963,
+       "shift": 548,
+       "clipped_left": false,
+       "gamma": 1.5,
+       "verified": true
+      },
+      {
+       "box": [
+        477,
+        1662,
+        1647,
+        1710
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.05,
+       "fit_score": 0.953,
+       "shift": 549,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        437,
+        691,
+        1643,
+        740
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.95,
+       "fit_score": 0.952,
+       "shift": 548,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "09_saved_plan.png",
+     "capture_folder": "import_images",
+     "scenes": [
+      7
+     ],
+     "source_sha256": "2007440361cc7e8cb60efc00dd45cf8ac7d80cd3558c32863b4d16c685a6cd98",
+     "redacted_image": "captures/path_redacted_447/74_import_images/09_saved_plan.png",
+     "redacted_sha256": "3e711627d58e310c2955fc49130af41b9e92f9aea449536e57daabf7e6a21128",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        524,
+        1482,
+        1730,
+        1531
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.0,
+       "fit_score": 0.963,
+       "shift": 548,
+       "clipped_left": false,
+       "gamma": 1.5,
+       "verified": true
+      },
+      {
+       "box": [
+        477,
+        1662,
+        1647,
+        1710
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.05,
+       "fit_score": 0.953,
+       "shift": 549,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        468,
+        1766,
+        2525,
+        1810
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 17.97,
+       "fit_score": 0.947,
+       "shift": 493,
+       "clipped_left": false,
+       "gamma": 1.8999999999999997,
+       "verified": true
+      },
+      {
+       "box": [
+        437,
+        691,
+        1643,
+        740
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.95,
+       "fit_score": 0.952,
+       "shift": 548,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "11_reloaded_plan.png",
+     "capture_folder": "import_images",
+     "scenes": [
+      8
+     ],
+     "source_sha256": "6e9be83ddde5461e0e712cadb79b4faa4a819f04a3b7c0458bad07e1f962d18f",
+     "redacted_image": "captures/path_redacted_447/74_import_images/11_reloaded_plan.png",
+     "redacted_sha256": "98050772aa51b5c189351d01d6f707b7e44f4a61283fa5d16d7e989c919439e5",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        524,
+        1482,
+        1730,
+        1531
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.0,
+       "fit_score": 0.965,
+       "shift": 548,
+       "clipped_left": false,
+       "gamma": 1.5,
+       "verified": true
+      },
+      {
+       "box": [
+        477,
+        1662,
+        1647,
+        1710
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.05,
+       "fit_score": 0.953,
+       "shift": 549,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        437,
+        691,
+        1643,
+        740
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.95,
+       "fit_score": 0.952,
+       "shift": 548,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "12_import_complete.png",
+     "capture_folder": "import_images",
+     "scenes": [
+      9
+     ],
+     "source_sha256": "b52ec2004b3f7398ba0363376682402000a94c0b10375eeb143cb7962334ba49",
+     "redacted_image": "captures/path_redacted_447/74_import_images/12_import_complete.png",
+     "redacted_sha256": "c7b0f7bbea55aff3d87569e1888a3110a3875d1d86dbd9acddead6aab4844a89",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        559,
+        1482,
+        1728,
+        1531
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.95,
+       "fit_score": 0.966,
+       "shift": 548,
+       "clipped_left": false,
+       "gamma": 1.5999999999999999,
+       "verified": true
+      },
+      {
+       "box": [
+        478,
+        1662,
+        1647,
+        1711
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.95,
+       "fit_score": 0.952,
+       "shift": 548,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        561,
+        1766,
+        2380,
+        1810
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 18.02,
+       "fit_score": 0.962,
+       "shift": 494,
+       "clipped_left": false,
+       "gamma": 1.2999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        437,
+        691,
+        1643,
+        740
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.95,
+       "fit_score": 0.952,
+       "shift": 548,
+       "clipped_left": false,
+       "gamma": 1.7999999999999998,
+       "verified": true
+      }
+     ]
+    }
+   ],
+   "media": {
+    "master_sha256": "b79ce83e49b7ed04da75cb86f601d2246c8550ae27db00ac0536299e3b554c4c",
+    "poster_sha256": "a76923bdf5a38eaef43d03223b1abd90061cdaa15e7ec125284776c4f8b7a61d",
+    "web_sha256": "f745a1cd8c7fb48ccde49a32a5e50fc4eeb30ef9bc46dc87ef2ef59e81453f44",
+    "web_bytes": 5942497,
+    "web_rendition_accepted": true,
+    "visual_json_sha256": "74b09a8fc53d05d7d7a1bdf6278a47f4a2cf744f6ad2edb50f9ce21012c0a046",
+    "narration_and_timing": "unchanged (audio/en/af_heart.m4a and .json reused)",
+    "af_heart_timing_sha256": "c12804ff764dedcb331dbf084694e0d616681e6e929cdab70b627078fa11c776"
+   },
+   "checks": {
+    "browser": {
+     "sentence_cues": {
+      "passed": true,
+      "report_sha256": "e946c53292e69da91a1f40387dc7429e174d9059999ca5dc9a357012b4a5bb5b"
+     },
+     "web_rendition": {
+      "passed": true,
+      "report_sha256": "5864bbfd8d5317013e12cced0d2193bcf86cfe05ac6c54380cc2fa4ea0df5d63"
+     }
+    },
+    "frame_sweep": {
+     "images_checked": 20,
+     "path_offenders": [],
+     "frames_sampled": {
+      "web_copy": 12,
+      "master": 6
+     },
+     "poster_checked": true
+    }
+   },
+   "published": false
   }
  },
  "rerecord": {}

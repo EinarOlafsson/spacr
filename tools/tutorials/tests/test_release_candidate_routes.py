@@ -83,7 +83,20 @@ def test_candidate_has_all_routes_without_claiming_placeholders_are_recorded():
                 assert lesson['scenes'] and all(x['narration'].strip() for x in lesson['scenes'])
     manifest = json.loads((ROOT / 'release-manifest.json').read_text())
     assert manifest['published'] is False and manifest['release_hold'] is True
-    assert manifest['narration_tracks'] == 2243
+    declared_tracks = [(lesson['id'], language, voice) for lesson in ready
+                       for language, voices in lesson['narration_voices'].items() for voice in voices]
+    assert len(declared_tracks) == len(set(declared_tracks))
+    media_tracks = [tuple(Path(record['path']).parts[index] for index in (1, 3))
+                    + (Path(record['path']).stem,) for record in manifest['files']
+                    if record['path'].startswith('media_host/')
+                    and Path(record['path']).parts[2:3] == ('audio',)
+                    and record['path'].endswith('.m4a')]
+    assert len(media_tracks) == len(set(media_tracks))
+    assert set(media_tracks) == set(declared_tracks)
+    assert manifest['narration_tracks'] == len(declared_tracks)
+    assert manifest['narration_tracks'] == 85 * 27 == 2295
+    assert all(sum(map(len, lesson['narration_voices'].values())) == 27 for lesson in ready)
+    assert all((lesson['id'], 'en', 'af_heart') in declared_tracks for lesson in ready)
     local = {Path(r['path']).parts[2] for r in manifest['files']
              if r['path'].startswith('web/production/') and r['path'].endswith('.mp4')}
     hosted = {Path(r['path']).parts[1] for r in manifest['files']

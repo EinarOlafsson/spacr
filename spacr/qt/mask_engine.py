@@ -162,11 +162,16 @@ def masks_folder(folder: str, masks_dir: Optional[str] = None) -> str:
 def _as_field_image(image: np.ndarray, image_path: str) -> np.ndarray:
     """Check one decoded image and bring it to the editor's uint16 grey.
 
+    Finite images with a negative minimum have that minimum subtracted in
+    float64 before scaling their maximum to 65535. A constant negative field
+    becomes zeros. Nonnegative uint16 values are kept; other nonnegative
+    images retain their zero-to-maximum display scaling.
+
     :param image: the decoded pixels.
     :param image_path: where they came from, for the messages.
     :returns: a 2-D uint16 image.
     :raises ValueError: for an unsupported shape or channel count, or
-        non-finite or negative intensities.
+        non-finite intensities.
     """
     if image.ndim == 3:
         if image.shape[2] == 1:
@@ -193,7 +198,7 @@ def _as_field_image(image: np.ndarray, image_path: str) -> np.ndarray:
     if not np.all(np.isfinite(image)):
         raise ValueError(f"Image contains non-finite values: {image_path}")
     if image.size and float(image.min()) < 0:
-        raise ValueError(f"Image contains negative intensities: {image_path}")
+        image = image.astype(np.float64) - float(image.min())
     if image.dtype != np.uint16:
         max_val = float(image.max()) if image.size else 1.0
         if max_val <= 0:

@@ -690,3 +690,23 @@ PICKING A RUN IS NOT LOADING IT (190). Reported 2026-08-20: "for some reason cli
 This used to load on selection, which meant ARROWING DOWN A LIST OF FIVE RUNS LOADED FIVE RUNS -- five multi-second reads nobody asked for, to look at five names. Selection now does what selection does: it shows this run's photograph and its detail, and nothing else. `_load_selected` on double-click is the gesture that costs time, and it was already wired.
 
 THE FAILURE MESSAGE STILL BELONGS TO SELECTION, though. A trial that failed or is still going has no results to show ever, and saying so when it is picked is the difference between a table that ignores clicks and one that explains them -- it costs nothing to say.
+
+
+---
+
+# Notes from `spacr/qt/widgets/sweep_runs.py`
+
+Prose lifted out of `spacr/qt/widgets/sweep_runs.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## SweepRunsPanel._deletion_finished
+
+### lines 1416-1419
+
+```python
+keep = {os.path.abspath(os.path.expanduser(_failed_folder(item)))
+```
+
+A ROW AND ITS FOLDER ARE ONE CLAIM. A folder that would not delete is still on disk with the whole run in it, so its row has to stay on the table; `keep` is therefore built from the folder half of each failure, which is what the records carry.

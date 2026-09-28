@@ -75,9 +75,9 @@ LINGER_MS = 1000
 #: which is the same as forever and cannot leak a stuck window.
 HOLD_MS = 3600 * 1000
 
-#: Dynamic property a widget can set to ``True`` to keep Qt's own instant
-#: tooltip. Nothing in spaCR sets it; it exists so a widget with a reason
-#: has a way out that is not "edit this module".
+#: Dynamic property that bypasses the application-wide native tooltip policy.
+#: Custom hover popups set it alongside their widget-level event suppressor;
+#: other widgets can use it to retain Qt's own tooltip handling.
 OPT_OUT_PROPERTY = "spacrNoTooltipPolicy"
 
 _filter: Optional["_TooltipFilter"] = None

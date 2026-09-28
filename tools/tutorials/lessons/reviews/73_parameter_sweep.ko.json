@@ -1,13 +1,14 @@
 {
   "lesson": "73_parameter_sweep",
-  "english_sha256": "8f164d56e7d6d48b866022bb05940e29cf343154681c65517a51ce2676825346",
+  "english_sha256": "44292936fb6b522935dc2402151ddb2bba49786333975d2b8a683e271411e2a4",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 original translations retained; Codex translated and technically reviewed the corrected fitted-support scene.",
+    "date": "2026-09-27",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Only scene8 narration changed. The remaining nine scenes, metadata, scene IDs and statistical caveats are preserved."
   },
   "language": "ko",
   "title": "Parameter Sweep: 저장된 Regression 시행 비교",
@@ -27,7 +28,7 @@
     "완료된 행을 확인한 뒤 sweep_results.csv와 각 시행의 설정 및 품질 관리 파일을 여세요. 그림의 두 시행은 모두 계산을 마치지만 추론 검사를 통과하지 못하므로, 실행 상태가 ok라는 것만으로는 모델을 고르기에 충분하지 않습니다.",
     "첫 번째 행을 고르고 Show figures for selected row를 클릭하세요. 가이드 결과와 축 라벨을 확인하세요. 그래프에는 계수 표의 절편이 빠져 있습니다.",
     "Level을 Gene으로 바꿔 유전자 패밀리를 따로 확인하세요. 가이드 보기와 비교하기 전에 그 행, 효과, 품질 관리 결과를 확인하세요.",
-    "Guide로 다시 바꾸세요. 표본 뒷받침은 입력 파일과 진단 파일에서 읽으세요. 예제의 적합 행 수 요약은 웰이 아니라 출력 계수 행을 셉니다.",
+    "Guide로 돌아갑니다. 시행 요약에서 모델 적합에 사용된 행 수와 중복을 제외한 웰 수를 비교합니다. 이 수치는 가이드 수준 모델 적합과 유전자 수준 모델 적합에 대해 각각 기록됩니다. 이 수치는 적합을 뒷받침하는 데이터의 양을 나타내며, 추론의 품질을 나타내지는 않습니다.",
     "각 시행의 설정, 요약, 품질 관리 파일을 그림과 함께 보관하세요. 더 살펴보려면 Regression Diagnostics를 쓰고, 스크립트로 비교하려면 Python에서 SweepSpace와 run_sweep을 쓰세요."
   ]
 }

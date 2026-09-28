@@ -313,10 +313,19 @@ def upgrade_command(pre_release: bool = False, *, target_version=None) -> list:
     :param pre_release: allow prerelease packages.
     :param target_version: explicit version selected by the update check.
     """
+    if getattr(sys, "frozen", False):
+        raise RuntimeError(
+            "A frozen spaCR application is not a Python environment. "
+            "Update it with its installer instead of pip."
+        )
     uv = find_uv()
     if uv:
         args = [uv, "pip", "install", "--upgrade",
                 "--python", sys.executable]
+        from .install_profile import read_profile
+        profile = read_profile()
+        if profile is not None:
+            args.extend(["--torch-backend", profile["requested_backend"]])
     else:
         args = [sys.executable, "-m", "pip", "install", "--upgrade"]
     if pre_release:
@@ -387,6 +396,11 @@ def run_pip_upgrade(pre_release: bool = False, *, target_version=None):
         output remains available to desktop installations launched without a
         terminal.
     """
+    if getattr(sys, "frozen", False):
+        return 2, (
+            "A frozen spaCR application is not a Python environment. "
+            "Update it with its installer instead of pip."
+        )
     editable = editable_install_location()
     if editable:
         return (2 if target_version is not None else 0, (

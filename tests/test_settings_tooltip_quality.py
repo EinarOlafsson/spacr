@@ -931,7 +931,15 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # resolved by Measure and by External Masks.
     item_566 = {(app, "measure_gpu") for app in ("measure", "external_masks")}
     assert item_566 <= compared_pairs
-    assert comparisons == 889
+    # 889 -> 893 on 2026-09-27, +4/-0 (item 559): the four image-quality
+    # classifier claims -- image_qc_classifier (False),
+    # image_qc_classifier_model (None), image_qc_classifier_labels (None) and
+    # image_qc_classifier_threshold (0.5) -- each resolved by Make Masks only.
+    item_559 = {("mask", key) for key in (
+        "image_qc_classifier", "image_qc_classifier_model",
+        "image_qc_classifier_labels", "image_qc_classifier_threshold")}
+    assert item_559 <= compared_pairs
+    assert comparisons == 893
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
@@ -959,13 +967,14 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # above.
     # + 10: item 549's microscope feedback claims in Mask, pinned above.
     # + 2: item 566's measure_gpu in two apps, pinned above.
+    # + 4: item 559's image-quality classifier claims in Mask, pinned above.
     assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2
             + len(item_541) + len(item_548) + len(item_550)
             + len(item_535) + len(item_547) + len(item_536)
             + len(item_571) + len(item_538) + len(item_540)
             + len(item_580) + len(item_543) + len(item_546)
             + len(item_583) + len(item_542) + len(item_578)
-            + len(item_549) + len(item_566) == comparisons)
+            + len(item_549) + len(item_566) + len(item_559) == comparisons)
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs
     assert len(census_508['added_pairs']) == 19
@@ -1123,10 +1132,13 @@ def test_inapplicable_real_defaults_always_explain_which_setting_gated_them():
     # arrays instead" -- and the setting was retired with it (357-Q4). The
     # rule explained when a control did not apply; nothing read the control
     # in either case.
-    assert len(witnessed) == 48
+    # 48 -> 50 on 2026-09-28, item 539: bleach_correction is gated on
+    # timelapse in Measure and External Masks, and its reason names it.
+    assert len(witnessed) == 50
     # 35 -> 34 with it: `load_path_regex` was witnessed in exactly one app,
     # so the pair count and the distinct-key count fall by one together.
-    assert len({key for _app, key in witnessed}) == 34
+    # 34 -> 35 with it: bleach_correction is one new distinct key.
+    assert len({key for _app, key in witnessed}) == 35
     assert not failures
 
 

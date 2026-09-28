@@ -388,6 +388,44 @@ def test_scalar_score_and_count_paths_are_wrapped_in_lists(screen, stubs):
     assert os.path.isfile(os.path.join(results_dir(screen["count"], settings=settings), "results.csv"))
 
 
+@pytest.mark.parametrize("level", ["grna", "gene", "both"])
+@pytest.mark.parametrize("layout", ["long", "wide"])
+def test_regression_returns_prepared_data_separate_from_annotated_coefficients(
+        screen, stubs, level, layout):
+    import json
+    from spacr.ml import perform_regression
+    from spacr.regression_summary import build_run_summary
+    from spacr.trial_metrics import design_summary
+
+    settings = parametric_settings(
+        screen, regression_type="ridge", level=level, model_data_layout=layout,
+        regression_qc=False, model_plate_position=False)
+    output = perform_regression(settings)
+    prepared = output["model_data"]
+    saved = pd.read_csv(os.path.join(output["res_folder"], "regression_data.csv"),
+                        dtype={"gene": str, "grna": str, "prc": str})
+    pd.testing.assert_frame_equal(prepared.reset_index(drop=True), saved,
+                                  check_dtype=False)
+    assert {"prc", "grna", "gene", "fraction"} <= set(prepared.columns)
+    assert "coefficient" not in prepared
+    assert "coefficient" in output["results"]
+    expected_levels = {"grna", "gene"} if level == "both" else {level}
+    assert set(output["fit_designs"]) == expected_levels
+    expected_rows = len(prepared) if layout == "long" else prepared["prc"].nunique()
+    for counts in output["fit_designs"].values():
+        assert counts["n_rows_fitted"] == expected_rows
+        assert counts["n_wells"] == prepared["prc"].nunique()
+    summary = design_summary(output)
+    assert summary["n_rows_prepared"] == len(prepared)
+    assert summary["n_rows_fitted"] == expected_rows
+    with open(os.path.join(output["res_folder"], "regression_fit_designs.json")) as handle:
+        assert json.load(handle) == output["fit_designs"]
+    reopened = build_run_summary(res_folder=output["res_folder"], settings=settings)
+    assert reopened.field("n_rows_prepared").value.startswith(f"{len(prepared):,} rows")
+    for one in expected_levels:
+        assert f"{one}: {expected_rows:,}" in reopened.field("n_rows_fitted").value
+
+
 def test_legacy_score_list_longer_than_count_list_migrates(screen):
     """An unpaired tail remains legal because the final join is by well."""
     from spacr.ml import normalize_regression_input_pairs

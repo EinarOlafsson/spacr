@@ -118,13 +118,6 @@
     },
     {
       "table": "ui",
-      "key": "No design within 12 replicates, 12 wells and 25 fields reaches the target power.",
-      "source": "No design within 12 replicates, 12 wells and 25 fields reaches the target power.",
-      "source_sha256": "f9c34a0049e35e2c1c299b789376aeef18850ee8a1fa2dd529798eba5a016f93",
-      "translation": "12 प्रतिकृतियों, 12 वेल और 25 छवि क्षेत्रों के भीतर कोई डिज़ाइन लक्ष्य सांख्यिकीय शक्ति तक नहीं पहुँचता।"
-    },
-    {
-      "table": "ui",
       "key": "Open an experiment source before searching it.",
       "source": "Open an experiment source before searching it.",
       "source_sha256": "063d431398e6f6b58c4d3974b8a54967718dff996e8637f2ea68085dd87a2702",

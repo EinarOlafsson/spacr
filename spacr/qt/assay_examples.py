@@ -4,7 +4,9 @@ Replication, Invasion, Recruitment and Host–Pathogen offer published datasets
 through Load test data. Host–Pathogen contains two real THP-1 RNF213 fields,
 prepared host/nucleus/vacuole masks and fresh measurements of those fields.
 Replication and Recruitment contain slices of measured screens. Invasion's
-images and masks are synthetic and explicitly labelled before downloading.
+images are synthetic and explicitly labelled before downloading. Its masks
+are Cellpose-SAM segmentations from Mask, and its ground truth describes
+the objects originally drawn into those images.
 
 All four read ``<src>/measurements/measurements.db`` and apply the settings
 shipped in their archive. :data:`spacr.example_archives.EXAMPLE_SETS` describes
@@ -91,11 +93,11 @@ def _tooltip(app_key: str) -> str:
     if app_key == "invasion":
         return tr(
             "Download about {size} MB of SYNTHETIC test data: two-colour "
-            "fields and object masks drawn by spaCR, not imaged or "
-            "segmented, then measured by Measure. A staining-control column "
-            "and two conditions with a known share of invaded parasites, "
-            "with the "
-            "truth beside them. Settings are filled in, so Run is the next "
+            "images drawn by spaCR, segmented by Mask with Cellpose-SAM, "
+            "then measured by Measure. No real cells were imaged. A "
+            "staining-control column and two conditions have a known share "
+            "of invaded parasites; ground truth records the drawn objects, "
+            "not the segmented masks. Settings are filled in, so Run is the next "
             "step. Cached after the first download.",
             size=round(example_set("invasion").bytes / 1e6))
     return tr(

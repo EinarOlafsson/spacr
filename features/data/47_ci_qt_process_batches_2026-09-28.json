@@ -1,0 +1,23 @@
+{
+  "item": 47,
+  "date": "2026-09-28",
+  "ci_run": 36419911411,
+  "failed_job": 108920261288,
+  "observed_failure": "The existing test memory guard ended a Qt worker at its 6.0 GB ceiling. The final report retained 6198 widgets and 2030 top-level windows. No kernel OOM or failed panel assertion is established.",
+  "repair": "Qt CI runs 16-file batches in fresh two-worker processes using the existing batch runner.",
+  "preserved": ["all three deterministic hash shards", "original marker expression", "seven measurement-file exclusions and designated serial tail", "6 GB memory guard", "1200 second per-test ceiling", "900 second faulthandler dump", "zero worker restarts", "execution of remaining batches after failure"],
+  "validation": {
+    "runner_and_workflow_contracts": {"passed": 70, "seconds": 99.32, "memory_cap": "4G", "junit_sha256": "0160817840acde06a7fed5276021a5c4f62519175464bdb71639d28481734c6f"},
+    "fresh_original_panel_file": {"passed": 77, "seconds": 21.62, "memory_cap": "8G", "junit_sha256": "8dee148e4107cf74e223f4e42f24fa48909aa8aa03751f1df5ab0c81107355f6"},
+    "actual_batch_runner": {"exit": 0, "batches": 2, "workers": 2, "passed": 80, "files": ["tests/qt/test_anomaly_alpha_gate.py", "tests/qt/test_page_panels_backdrop.py"], "memory_cap": "8G", "log_sha256": "e66b101a167d742911387d05c5de3be7baf1dd3c97c708a79ff177f942f4c856"},
+    "gpu_devices_hidden": true
+  },
+  "source_sha256": {
+    ".github/workflows/_pytest-suite.yml": "759d6ba5d900d1bbb345af652af873c0b6a8c2c66eba167eaaa5c3052c480aa1",
+    ".github/workflows/tests.yml": "4da8dc10e620ab808800a22913ea2ec330aa8e5fe9dcb1520d8e7c95c6077fc6",
+    "tools/run_pytest_batches.py": "cd1dcb341851ebdf464a84b2eb0ac43fc2522d843bbc3045c060346f478820f9",
+    "tests/test_ci_pytest_batches.py": "c04285d0e0bee3f5acc3e30f1e197b940ca85a1d15c87af095fe00173996a39d"
+  },
+  "whole_item_complete": false,
+  "remaining": "Localize retained-widget growth and obtain uninterrupted long serial acceptance. Final CI acceptance is pending."
+}

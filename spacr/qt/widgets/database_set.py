@@ -600,6 +600,7 @@ class DatabaseSetWidget(QWidget):
             widget = item.widget()
             if widget is not None:
                 widget.setParent(None)
+                widget.deleteLater()
         removable = len(self._sources) > self._min_items
         for index, (source, label) in enumerate(
                 zip(self._sources, self._labels())):

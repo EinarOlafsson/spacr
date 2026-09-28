@@ -581,12 +581,6 @@ def qapp(qapp):
     gc_policy.uninstall()
 
 
-#: How many Qt test boundaries pass between full GUI-thread collections.
-#: See `_the_widget_tree_does_not_outgrow_the_session`.
-_FULL_COLLECTION_EVERY = 20
-_BOUNDARIES_SINCE_A_FULL_COLLECTION = 0
-
-
 @pytest.fixture(autouse=True)
 def _the_widget_tree_does_not_outgrow_the_session(_isolated_qsettings_store):
     """Deliver owner-requested Qt deletions for every Qt test boundary.
@@ -639,14 +633,10 @@ def _the_widget_tree_does_not_outgrow_the_session(_isolated_qsettings_store):
     (features/new/47). One tick per test boundary is the application's
     own cadence, measured in tests instead of seconds.
 
-    AND EVERY :data:`_FULL_COLLECTION_EVERY` BOUNDARIES, A FULL ONE, still on
-    the GUI thread. A tick collects the oldest generation only once every
-    ~120 ticks -- two minutes in the application, but a hundred tests here
-    -- and the orphaned editors are old by the time their screen goes: 146
-    of them survived all 113 tests of ``test_cov_qt_app.py`` on the ticks
-    alone. A full sweep is what the application's own policy runs every two
-    minutes; this runs it at a cadence that keeps the tree down to what the
-    last few tests built.
+    No additional full sweep is forced at a fixed test count. Reference
+    cycles follow the application's thresholds; persistent widget trees
+    must be fixed at their owners rather than by collecting live wrappers
+    more aggressively in the test harness.
 
     Ordered behind the QSettings sandbox, and depending on it by name rather
     than by where it sits in this file, because destroying a widget can run
@@ -666,16 +656,7 @@ def _the_widget_tree_does_not_outgrow_the_session(_isolated_qsettings_store):
                 module.QApplication.sendPostedEvents(
                     None, QEvent.DeferredDelete)
                 if gc_policy.is_installed():
-                    global _BOUNDARIES_SINCE_A_FULL_COLLECTION
-                    _BOUNDARIES_SINCE_A_FULL_COLLECTION += 1
-                    if (_BOUNDARIES_SINCE_A_FULL_COLLECTION
-                            >= _FULL_COLLECTION_EVERY):
-                        _BOUNDARIES_SINCE_A_FULL_COLLECTION = 0
-                        import gc
-
-                        gc.collect()
-                    else:
-                        gc_policy.collect_once()
+                    gc_policy.collect_once()
         except Exception:                                        # noqa: BLE001
             pass
     yield

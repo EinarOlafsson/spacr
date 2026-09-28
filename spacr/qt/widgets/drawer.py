@@ -329,9 +329,6 @@ class EdgeDrawer(QWidget):
         :param event: the event.
         :returns: True to stop the event going further.
         """
-        # getattr: the drawer and its host are a reference cycle, so the
-        # collector can clear this wrapper before the host's destructor
-        # reaches the filter.
         host = getattr(self, "_host", None)
         if host is not None and obj is host and event.type() == QEvent.Resize:
             self.relayout()

@@ -1119,12 +1119,6 @@ class FilePathListWidget(QWidget):
     """
 
     value_changed = Signal()
-    # ANY change to what the list holds, including one made by `set_value`.
-    # `value_changed` is deliberately the USER's edit: it is what marks a
-    # screen dirty and re-writes a settings file, so a load must not emit it.
-    # That leaves a listener which has to follow the value itself -- Map
-    # Barcodes' live search -- deaf to a settings file replacing a path. This
-    # is that listener's signal, and every user edit emits it too.
     contents_changed = Signal()
 
     def __init__(
@@ -1172,25 +1166,6 @@ class FilePathListWidget(QWidget):
         outer.addWidget(self._hint)
         self._follow_path_probes()
 
-        # ONE ROW FOR A SETTING THAT NAMES ONE FILE.
-        #
-        # Reported 2026-09-15: "the barcode references in map barcodes should
-        # be one line or row each now they are large fields for some reason."
-        # Measured on the live screen: `grna_csv`, `row_csv` and `column_csv`
-        # each came to a sizeHint height of 240 against 30-33 for every other
-        # field on that form -- eight rows of furniture for one path.
-        #
-        # `single=True` already existed and was not enough: it shrank the list
-        # from 96 to 48 and left the list, the hint and the button on three
-        # separate rows. A setting that holds exactly one path has no order to
-        # show, no selection to make and nothing to scroll.
-        #
-        # THE LIST STAYS AND STAYS THE VALUE. `paths()` reads it, every
-        # mutation goes through it, and the drop target and the path probes
-        # are wired to it. Hiding it and mirroring its one row into a
-        # read-only field changes what the user sees and nothing about what
-        # the widget IS -- which is why this is a presentation change and not
-        # a rewrite of the value logic.
         self._single_line = None
         if self._single:
             self._list.hide()

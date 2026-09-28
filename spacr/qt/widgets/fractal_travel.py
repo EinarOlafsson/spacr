@@ -928,13 +928,6 @@ def _join_on_destroy(widget, thread, quit_hook=None) -> None:
             _quit_and_join_thread(thread)
         except Exception:                                    # noqa: BLE001
             pass
-        # `quit_hook` is the widget's hook on the application's `aboutToQuit`,
-        # and it has to go with the widget. `shutdown` takes it down, but a
-        # backdrop freed WITH ITS SCREEN never runs `shutdown` -- a child
-        # deleted with its parent is not sent `closeEvent` -- so every screen
-        # teardown left one connection behind, holding its finished QThread
-        # until the application quit. The hook is a lambda over the thread
-        # alone, so taking it down still reaches nothing of the widget.
         if quit_hook is None:
             return
         try:
@@ -945,8 +938,6 @@ def _join_on_destroy(widget, thread, quit_hook=None) -> None:
             application = QApplication.instance()
             if application is not None:
                 with warnings.catch_warnings():
-                    # Already gone when `shutdown` ran first (the closeEvent
-                    # path), and PySide reports that as a RuntimeWarning.
                     warnings.simplefilter("ignore", RuntimeWarning)
                     application.aboutToQuit.disconnect(quit_hook)
         except Exception:                                    # noqa: BLE001
@@ -1107,9 +1098,6 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
             self._thread.start()
             self._app_quit_join = (
                 lambda thread=self._thread: _quit_and_join_thread(thread))
-            # Handed to the destroy-time join as well, so a backdrop freed
-            # with its screen -- which never runs `shutdown` -- still takes
-            # its hook off `aboutToQuit`. See the comment in `_join_on_destroy`.
             _join_on_destroy(self, self._thread, quit_hook=self._app_quit_join)
             application = QApplication.instance()
             if application is not None:
@@ -1347,7 +1335,7 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
             self._stopped = True
             self._timer.stop()
             application = QApplication.instance()
-            if application is not None:
+            if application is not None and self._app_quit_join is not None:
                 try:
                     application.aboutToQuit.disconnect(self._app_quit_join)
                 except (RuntimeError, TypeError):

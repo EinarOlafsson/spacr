@@ -1,7 +1,7 @@
 THE PUBLIC SLIDE DECK IS FLAWLESS AND HIGH RESOLUTION
 
-Status: BUILT 2026-09-26 (see the dated note at the end); the nine translated
-READMEs' Back link is left for the docs lane (below).
+Status: BUILT 2026-09-26; all nine translated README Back links are also
+updated to slide 55. Integration verified 2026-09-27; see the closing note.
 Owner: Claude agent (worktree agent-af1616c9b018f601c).
 
 THE REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -215,3 +215,9 @@ points at pages/55.md (the last slide). The nine translated READMEs in
 docs/i18n/readme/ still point at pages/51.md, which exists but is now slide
 51, not the last; their reviewed records are docs/i18n/reviewed/readme/*/
 2026-09-21-deck-navigation.json. No other README text changed.
+
+2026-09-27 — TRANSLATED NAVIGATION RECONCILED
+The remaining translation task above was completed by 3e0c975ea, already
+integrated into nightly. All nine docs/i18n/readme/README.<locale>.rst files
+(de, es, fr, hi, is, ko, pt, sv, zh_CN) now point Back to pages/55.md.
+No deck assets or translated prose were regenerated for this reconciliation.
