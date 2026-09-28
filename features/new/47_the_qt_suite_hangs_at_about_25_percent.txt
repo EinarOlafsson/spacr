@@ -1504,3 +1504,17 @@ The uninterrupted full run remains active on its older frozen source, with
 its failures preserved. Item 47 still requires a complete final-source run;
 these focused checks do not establish full acceptance or resolve sustained
 memory growth. No forced GC, global cache clearing or memory-guard change.
+
+STATUS 2026-09-28 — bounded preview snapshot regression repaired
+The still-running frozenf9 full Qt job reports five failures; four already
+have verified current-source fixes. Its new98304-file timing failure measured
+17.93ms over the unchanged15ms ceiling. Source inspection found each async
+preview enqueue copying the full plate population twice, even without projection.
+Non-projection loads now make no population snapshot; projection loads reuse
+one immutable tuple until the sampler replaces its population. Real old/new
+TIFF projections, stale callbacks and all rescan/invalidation paths are covered.
+All63 named preview-load/performance checks pass under4G with the original
+15ms ceiling. The existing benchmark queues async work, so this does not claim
+completed-field-change latency or a passing final full Qt run. The healthy
+frozen serial job continues without forced collection, restart or raised cap.
+Receipt: features/data/47_preview_population_snapshot_2026-09-28.json.

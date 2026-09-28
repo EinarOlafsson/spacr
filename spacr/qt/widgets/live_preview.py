@@ -2009,6 +2009,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._auto_outline_colours: Dict[str, Tuple[int, int, int]] = {}
         self._loading_fov = False
         self._sampler = ImageSetSampler(DEFAULT_MAX_SETS)
+        self._projection_population = None
+        self._projection_snapshot = None
         self._mip_enabled = False
         self._table_row = 0
         self._table_col = 0
@@ -2582,7 +2584,15 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         token = self._image_load_token
         max_sets = int(self._sampler.max_sets)
         project = self._mip_enabled
-        known_sets = tuple(self._sampler.sets)
+        population = self._sampler._sets
+        if population is not self._projection_population:
+            self._projection_population = population
+            self._projection_snapshot = None
+        known_sets = ()
+        if project:
+            if self._projection_snapshot is None:
+                self._projection_snapshot = tuple(population)
+            known_sets = self._projection_snapshot
         self._load_request = (text, enumerate_sets, display_plane)
         self._status.setText(f"Loading preview from {text}…")
         self._load_jobs.submit(
