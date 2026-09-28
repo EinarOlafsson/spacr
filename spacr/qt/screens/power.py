@@ -934,6 +934,31 @@ class PowerScreen(QWidget):
             "Analyse replicates as pairs, so replicate-to-replicate "
             "variation cancels. Default off."))
         form.addRow(self._plan_paired)
+        self._plan_costs: Dict[str, QDoubleSpinBox] = {}
+        for key, label, default in (
+                ("replicate", tr("Replicate cost"), 20.0),
+                ("well", tr("Well cost"), 1.0),
+                ("field", tr("Field cost"), 0.1)):
+            cost = self._float_box(0.0, 1e6, default, decimals=3)
+            cost.setToolTip(tr(
+                "Relative cost per condition: one replicate, one well "
+                "within a replicate, or one field within a well. Use common "
+                "units; zero ignores this cost. Default {default:g}.",
+                default=default))
+            self._plan_costs[key] = cost
+            form.addRow(label, cost)
+        self._plan_limits: Dict[str, QSpinBox] = {}
+        for key, label, low, high, default in (
+                ("replicates", tr("Maximum replicates"), 2, 24, 12),
+                ("wells", tr("Maximum wells per condition"), 1, 24, 12),
+                ("fields", tr("Maximum fields per well"), 1, 50, 25)):
+            limit = self._int_box(low, high, default)
+            limit.setToolTip(tr(
+                "Largest count considered: biological replicates per "
+                "condition, wells per condition per replicate, or fields "
+                "per well. Default {default}.", default=default))
+            self._plan_limits[key] = limit
+            form.addRow(label, limit)
         plan = QPushButton(tr("Plan the design"))
         plan.clicked.connect(self._plan_from_pilot)
         form.addRow(plan)
@@ -1024,8 +1049,11 @@ class PowerScreen(QWidget):
         alpha = self._plan_alpha.value()
         inputs = dict(effect=effect, power=self._plan_power.value(),
                       alpha=alpha, paired=paired, cells=None,
-                      max_replicates=12, max_wells=12, max_fields=25,
-                      costs=(20.0, 1.0, 0.1))
+                      max_replicates=self._plan_limits["replicates"].value(),
+                      max_wells=self._plan_limits["wells"].value(),
+                      max_fields=self._plan_limits["fields"].value(),
+                      costs=tuple(self._plan_costs[key].value()
+                                  for key in ("replicate", "well", "field")))
         designs = _plan_arrayed_design(components, **inputs)
         variances = tr(
             "Mean {mean:.4g}; variance between replicates {rep}, wells "
@@ -1047,8 +1075,10 @@ class PowerScreen(QWidget):
                 self._plan_table.setItem(row, col, table_item(text))
         if designs.empty:
             self._plan_summary.setText(variances + " " + tr(
-                "No design within 12 replicates, 12 wells and 25 fields "
-                "reaches the target power."))
+                "No design within {replicates} replicates, {wells} wells "
+                "per condition and {fields} fields per well reaches the "
+                "target power.", replicates=inputs["max_replicates"],
+                wells=inputs["max_wells"], fields=inputs["max_fields"]))
             return designs
         best = designs.iloc[0]
         simulated = _simulate_arrayed_power(

@@ -281,7 +281,7 @@ _IDENTITY_TEXT = {
     "InstanSeg", "Omnipose", "StarDist", "micro-SAM", "Spotiflow",
     # 316, 2026-09-26: the notification services named alone as Preferences
     # rows (item 577).
-    "ntfy", "Slack",
+    "ntfy", "Slack", "Microsoft Teams",
     # 316, 2026-09-27: backend and workflow-engine names shown alone.
     "CellProfiler", "CellProfiler (Alpha)", "Nextflow…", "Snakemake…",
     "Visium", "Visium HD", "Xenium",
@@ -5137,6 +5137,10 @@ def _contextualize(value: str, language: str, source: str = "") -> str:
         SOURCE_CONTEXT_REGEX_REPLACEMENTS.get(language, ())
     ):
         if re.search(source_pattern, str(source), flags=re.IGNORECASE):
+            if language == "pt" and wrong_pattern == r"\bpoço (abaixo|acima|além|dentro|fora)\b":
+                total_well, noun_well = _english_well_sense_counts(source)
+                if total_well == noun_well:
+                    continue
             corrected = re.sub(wrong_pattern, right, corrected)
     # A source-conditioned replacement can expose a second global cleanup
     # (for example Chinese ``图像作物`` first becomes ``图像图像裁剪``).

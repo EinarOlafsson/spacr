@@ -44,6 +44,10 @@ def test_the_planner_is_hidden_until_alpha_features_are_shown(
         screen = PowerScreen(threaded=False)
         qtbot.addWidget(screen)
         assert screen._arrayed_planner.isHidden() is (not shown)
+        for control in (*screen._plan_costs.values(),
+                        *screen._plan_limits.values()):
+            assert screen._arrayed_planner.isAncestorOf(control)
+            assert control.isVisibleTo(screen._arrayed_planner)
         monkeypatch.setattr(preferences, "_get_show_alpha_features",
                             lambda s=shown: not s)
         preferences._apply_alpha_widgets(screen)
@@ -91,19 +95,126 @@ def planner(qtbot, qt_theme_applied, monkeypatch, tmp_path):
     return screen
 
 
+def test_cost_and_limit_controls_keep_bounded_defaults(planner):
+    """The form starts with bounded defaults explained on its row labels.
+
+    :param planner: the alpha-enabled Power screen with a readable pilot.
+    """
+    form = planner._arrayed_planner.layout()
+    for key, default in (("replicate", 20.0), ("well", 1.0), ("field", 0.1)):
+        control = planner._plan_costs[key]
+        assert control.value() == default
+        assert control.minimum() == 0.0
+        assert control.maximum() == 1e6
+        assert control.decimals() == 3
+        label = form.labelForField(control)
+        assert label is not None, key
+        assert label.property("settingHelpLabel"), key
+        assert control.toolTip() == "", key
+        hint = label.toolTip()
+        assert ("Relative cost per condition: one replicate, one well "
+                "within a replicate, or one field within a well.") in hint
+        assert "Use common units; zero ignores this cost." in hint
+        assert f"Default {default:g}." in hint
+    for key, minimum, maximum, default in (
+            ("replicates", 2, 24, 12), ("wells", 1, 24, 12),
+            ("fields", 1, 50, 25)):
+        control = planner._plan_limits[key]
+        assert (control.minimum(), control.maximum(), control.value()) == (
+            minimum, maximum, default)
+        label = form.labelForField(control)
+        assert label is not None, key
+        assert label.property("settingHelpLabel"), key
+        assert control.toolTip() == "", key
+        hint = label.toolTip()
+        assert ("Largest count considered: biological replicates per "
+                "condition, wells per condition per replicate, or fields "
+                "per well.") in hint
+        assert f"Default {default}." in hint
+
+
+def test_search_limits_change_reachable_designs_and_empty_summary(planner):
+    """Small ceilings can rule out designs that a larger search finds.
+
+    :param planner: the alpha-enabled Power screen with a readable pilot.
+    """
+    for key, value in zip(("replicates", "wells", "fields"), (2, 1, 1)):
+        planner._plan_limits[key].setValue(value)
+    assert planner._plan_from_pilot().empty
+    assert "2 replicates, 1 wells per condition and 1 fields per well" in (
+        planner._plan_summary.text())
+    assert planner._arrayed_plan is None
+    assert not planner._save_plan.isEnabled()
+    previous_count = 0
+    for limits in ((4, 3, 5), (8, 4, 8)):
+        for key, value in zip(("replicates", "wells", "fields"), limits):
+            planner._plan_limits[key].setValue(value)
+        designs = planner._plan_from_pilot()
+        assert len(designs) > previous_count
+        previous_count = len(designs)
+        for key, maximum in zip(("replicates", "wells", "fields"), limits):
+            assert designs[key].between(2 if key == "replicates" else 1,
+                                        maximum).all()
+            assert planner._arrayed_plan["design_inputs"]["max_" + key] == maximum
+        assert (designs["power"] >= planner._plan_power.value()).all()
+
+
+def test_cost_weights_change_ranking_without_changing_reachable_designs(planner):
+    """Each cost changes the ranking of the same feasible search grid.
+
+    :param planner: the alpha-enabled Power screen with a readable pilot.
+    """
+    for key, value in zip(("replicates", "wells", "fields"), (12, 4, 8)):
+        planner._plan_limits[key].setValue(value)
+    candidates = None
+    recommendations = set()
+    for costs in ((1000.0, 0.0, 0.0), (0.0, 1000.0, 0.0),
+                  (0.0, 0.0, 1000.0)):
+        for key, value in zip(("replicate", "well", "field"), costs):
+            planner._plan_costs[key].setValue(value)
+        designs = planner._plan_from_pilot()
+        assert not designs.empty
+        expected_cost = designs["replicates"] * (
+            costs[0] + designs["wells"] * (
+                costs[1] + designs["fields"] * costs[2]))
+        pd.testing.assert_series_equal(designs["cost"], expected_cost,
+                                       check_names=False)
+        assert designs["cost"].is_monotonic_increasing
+        comparable = (designs.drop(columns="cost")
+                      .sort_values(["replicates", "wells", "fields"])
+                      .reset_index(drop=True))
+        if candidates is None:
+            candidates = comparable
+        else:
+            pd.testing.assert_frame_equal(comparable, candidates)
+        recommendations.add(tuple(designs.iloc[0][
+            ["replicates", "wells", "fields"]]))
+        assert planner._arrayed_plan["design_inputs"]["costs"] == costs
+    assert len(recommendations) > 1
+
+
 def test_save_preserves_the_computed_design_after_form_edits(
         planner, monkeypatch, tmp_path):
     from spacr.qt.screens.power import QFileDialog
     from spacr.sp_stats import _plan_arrayed_design
 
+    for key, value in zip(("replicate", "well", "field"), (120.5, 3.25, 0.05)):
+        planner._plan_costs[key].setValue(value)
+    for key, value in zip(("replicates", "wells", "fields"), (8, 3, 6)):
+        planner._plan_limits[key].setValue(value)
     designs = planner._plan_from_pilot()
     assert not designs.empty
     pilot_path = planner._pilot_path.text()
+    summary = planner._plan_summary.text()
     planner._plan_effect.setValue(17.0)
     planner._plan_power.setValue(0.5)
     planner._plan_paired.setChecked(True)
     planner._pilot_path.setText("another-pilot.csv")
     planner._pilot_columns["value"].setEditText("other_measurement")
+    for control in planner._plan_costs.values():
+        control.setValue(0.0)
+    for key, value in zip(("replicates", "wells", "fields"), (9, 5, 7)):
+        planner._plan_limits[key].setValue(value)
     target = tmp_path / "saved-plan.json"
     monkeypatch.setattr(QFileDialog, "getSaveFileName",
                         lambda *args: (str(target), ""))
@@ -116,6 +227,10 @@ def test_save_preserves_the_computed_design_after_form_edits(
     assert saved["design_inputs"]["effect"] == 1.0
     assert saved["design_inputs"]["power"] == 0.9
     assert saved["design_inputs"]["paired"] is False
+    assert saved["design_inputs"]["costs"] == [120.5, 3.25, 0.05]
+    assert saved["design_inputs"]["max_replicates"] == 8
+    assert saved["design_inputs"]["max_wells"] == 3
+    assert saved["design_inputs"]["max_fields"] == 6
     assert saved["variance_components"]["replicate"] is None
     assert saved["variance_components"]["estimated"]["replicate"] is False
     assert "NaN" not in target.read_text(encoding="utf-8")
@@ -125,6 +240,7 @@ def test_save_preserves_the_computed_design_after_form_edits(
     assert saved["simulation"]["n_sim"] == 500
     assert saved["simulation"]["seed"] == 0
     assert 0 <= saved["simulation"]["power"] <= 1
+    assert saved["summary"] == summary
     replayed = _plan_arrayed_design(saved["variance_components"],
                                    **saved["design_inputs"])
     pd.testing.assert_frame_equal(replayed, designs)

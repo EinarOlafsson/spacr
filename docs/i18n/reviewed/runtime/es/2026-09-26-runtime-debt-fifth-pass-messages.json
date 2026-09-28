@@ -13,13 +13,6 @@
     },
     {
       "table": "ui",
-      "key": "Delete the saved mail password, Slack webhook and ntfy topic and token from the keyring and from spaCR's own file, at once. Default kept.",
-      "source": "Delete the saved mail password, Slack webhook and ntfy topic and token from the keyring and from spaCR's own file, at once. Default kept.",
-      "source_sha256": "165cfc5f9a770a80d18e4a955733d88710efaaa7ebbef0034e9e3a168752cffb",
-      "translation": "Elimina a la vez la contraseña de correo, el webhook de Slack y el tema y el token de ntfy guardados, del llavero y del propio archivo de spaCR. Valor predeterminado: se conservan."
-    },
-    {
-      "table": "ui",
       "key": "How the connection to the mail server is encrypted. None sends the password in the clear and is only for a server on your own network. Default STARTTLS.",
       "source": "How the connection to the mail server is encrypted. None sends the password in the clear and is only for a server on your own network. Default STARTTLS.",
       "source_sha256": "dc5f503eeb5c154ca474511086a69b11ca6b5e5debe83796111d6bab7553338c",
@@ -122,13 +115,6 @@
       "source": "Wound {percent} open, mean width {mean} {unit}, narrowest {narrowest} {unit}",
       "source_sha256": "fd1bbb442a04adff2e4e8f57762fae00432bb5c1e43529929be68b870426452c",
       "translation": "Herida abierta al {percent}, anchura media {mean} {unit}, mínima {narrowest} {unit}"
-    },
-    {
-      "table": "ui",
-      "key": "spaCR can tell you when a long run finishes or fails: on this computer's desktop, by email, in Slack or through ntfy. Nothing is sent until you switch it on here. Passwords and addresses that work like passwords are kept in the system keyring.",
-      "source": "spaCR can tell you when a long run finishes or fails: on this computer's desktop, by email, in Slack or through ntfy. Nothing is sent until you switch it on here. Passwords and addresses that work like passwords are kept in the system keyring.",
-      "source_sha256": "01919e0560a77154128f6c9230f0640d1ba1b4471a588fd6cd38a895668c879b",
-      "translation": "spaCR puede avisarle cuando una ejecución larga termina o falla: en el escritorio de este equipo, por correo electrónico, en Slack o mediante ntfy. No se envía nada hasta que lo active aquí. Las contraseñas y las direcciones que funcionan como contraseñas se guardan en el llavero del sistema."
     }
   ]
 }

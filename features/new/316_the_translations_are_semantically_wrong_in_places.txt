@@ -1330,3 +1330,18 @@ is +1 UI identity, no removals: 6,015 UI sources and 8,362 unique source values.
 Three focused source/review/pin checks pass. Previous review cohort pins remain
 intact, with this single-caption cohort accounted for separately. Receipt:
 features/data/316_gpu_discovery_caption_2026-09-27.json.
+
+STATUS 2026-09-28 — notification and planner runtime delta verified
+The 577/585 delta adds 21 UI identities and retires three. Twenty translated
+sources per locale have source-bound review: 180 records across nine locales;
+Microsoft Teams retains its product identity. Full originals of retired
+reviews are archived before removal. All ten catalogs were rebuilt without
+model inference and audited: 8,382 unique English sources, including 6,035
+UI identities. The awaiting-caption list remains empty. Portuguese scientific
+well-location phrases retain their container meaning, with an independent
+noun/adverb regression. Historical review cohorts retain their counts and
+hashes, and the two later cohorts are checked independently. The 268 unique
+focused checks have passing final outcomes; original failures and reruns are
+retained in the acceptance receipt. Review remains AI technical review
+(Codex), no native-speaker signoff. Receipt:
+features/data/316_runtime_577_585_2026-09-28.json.

@@ -4962,6 +4962,8 @@ _NOTIFY_DEFAULTS = {
     "slack": False,
     "ntfy": False,
     "ntfy_server": "https://ntfy.sh",
+    "teams": False,
+    "webhook": False,
 }
 """Run-finished notification preferences and what a fresh install holds."""
 
@@ -5054,8 +5056,9 @@ def _run_notification_config():
     ready, and the Show alpha features gate shows them: a configuration the
     gate hides sends nothing.
 
-    :returns: the stored preferences with ``desktop``, ``email``, ``slack``
-        and ``ntfy`` reduced to the channels that are ready, or ``None``.
+    :returns: the stored preferences with ``desktop``, ``email``, ``slack``,
+        ``ntfy``, ``teams`` and ``webhook`` reduced to the channels that are
+        ready, or ``None``.
     """
     if not _is_alpha_visible("widgets", _NOTIFY_ALPHA_WIDGET):
         return None
@@ -5067,9 +5070,11 @@ def _run_notification_config():
                            and values["email_to"])
     values["slack"] = bool(values["slack"] and "slack_webhook" in saved)
     values["ntfy"] = bool(values["ntfy"] and "ntfy_topic" in saved)
+    values["teams"] = bool(values["teams"] and "teams_webhook" in saved)
+    values["webhook"] = bool(values["webhook"] and "webhook_url" in saved)
     values["desktop"] = bool(values["desktop"])
     if not any(values[name] for name in ("desktop", "email", "slack",
-                                         "ntfy")):
+                                         "ntfy", "teams", "webhook")):
         return None
     return values
 
@@ -5099,8 +5104,9 @@ class _NotificationsPage:
 
         help_label = QLabel(tr(
             "spaCR can tell you when a long run finishes or fails: on this "
-            "computer's desktop, by email, in Slack or through ntfy. Nothing "
-            "is sent until you switch it on here. Passwords and addresses "
+            "computer's desktop, by email, in Slack or Microsoft Teams, "
+            "through ntfy or a webhook. Nothing is sent until you switch "
+            "it on here. Passwords and addresses "
             "that work like passwords are kept in the system keyring."))
         help_label.setWordWrap(True)
         help_label.setObjectName("NotifyTabHelp")
@@ -5254,6 +5260,43 @@ class _NotificationsPage:
         self.ntfy_token.setObjectName("NotifyNtfyToken")
         form.addRow(tr("ntfy access token"), self.ntfy_token)
 
+        self.teams = Toggle()
+        self.teams.setObjectName("NotifyTeams")
+        self.teams.setToolTip(
+            "Post an Adaptive Card to a Microsoft Teams channel or chat "
+            "through a workflow webhook. Default off.")
+        form.addRow(tr("Microsoft Teams"), self.teams)
+
+        self.teams_webhook = line(
+            "The webhook address from a Teams workflow configured to allow "
+            "Anyone to call it. Anyone with the address can post, so it is "
+            "kept like a password. Leave empty to keep the saved one. "
+            "Default empty.", secret=True)
+        self.teams_webhook.setObjectName("NotifyTeamsWebhook")
+        form.addRow(tr("Teams webhook"), self.teams_webhook)
+
+        self.webhook = Toggle()
+        self.webhook.setObjectName("NotifyWebhook")
+        self.webhook.setToolTip(
+            "Send a JSON object with title, body and failed fields to the "
+            "webhook below. The body contains the run summary and output "
+            "path; failed is true when the run failed. Default off.")
+        form.addRow(tr("Webhook"), self.webhook)
+
+        self.webhook_url = line(
+            "The HTTP or HTTPS address that receives the JSON notification. "
+            "Kept like a password because webhook addresses can contain "
+            "access keys. Leave empty to keep the saved one. Default "
+            "empty.", secret=True)
+        self.webhook_url.setObjectName("NotifyWebhookUrl")
+        form.addRow(tr("Webhook address"), self.webhook_url)
+
+        self.webhook_token = line(
+            "An optional bearer token for the webhook. Kept like a password. "
+            "Leave empty to keep the saved one. Default empty.", secret=True)
+        self.webhook_token.setObjectName("NotifyWebhookToken")
+        form.addRow(tr("Webhook access token"), self.webhook_token)
+
         self.send_test = QPushButton(tr("Send a test"))
         self.send_test.setObjectName("NotifySendTest")
         self.send_test.setToolTip(
@@ -5266,8 +5309,9 @@ class _NotificationsPage:
         self.forget = QPushButton(tr("Forget saved secrets"))
         self.forget.setObjectName("NotifyForgetSecrets")
         self.forget.setToolTip(
-            "Delete the saved mail password, Slack webhook and ntfy topic "
-            "and token from the keyring and from spaCR's own file, at once. "
+            "Delete all saved notification passwords, webhook addresses, "
+            "topics and tokens from the keyring and from spaCR's own file, "
+            "at once. "
             "Default kept.")
         self.forget.clicked.connect(self._forget)
         form.addRow(tr("Saved secrets"), self.forget)
@@ -5282,10 +5326,14 @@ class _NotificationsPage:
             "slack_webhook": self.slack_webhook,
             "ntfy_topic": self.ntfy_topic,
             "ntfy_token": self.ntfy_token,
+            "teams_webhook": self.teams_webhook,
+            "webhook_url": self.webhook_url,
+            "webhook_token": self.webhook_token,
         }
         self._show(values)
         self._mark_saved_secrets()
-        for toggle in (self.email, self.slack, self.ntfy):
+        for toggle in (self.email, self.slack, self.ntfy, self.teams,
+                       self.webhook):
             toggle.toggled.connect(lambda _on: self._sync())
         self._sync()
 
@@ -5306,6 +5354,8 @@ class _NotificationsPage:
         self.slack.setChecked(bool(values["slack"]))
         self.ntfy.setChecked(bool(values["ntfy"]))
         self.ntfy_server.setText(values["ntfy_server"])
+        self.teams.setChecked(bool(values["teams"]))
+        self.webhook.setChecked(bool(values["webhook"]))
         for field in self._secrets.values():
             field.clear()
 
@@ -5327,6 +5377,8 @@ class _NotificationsPage:
                               self.smtp_password, self.email_from,
                               self.email_to)),
                 (self.slack, (self.slack_webhook,)),
+                (self.teams, (self.teams_webhook,)),
+                (self.webhook, (self.webhook_url, self.webhook_token)),
                 (self.ntfy, (self.ntfy_server, self.ntfy_topic,
                              self.ntfy_token))):
             for field in fields:
@@ -5348,6 +5400,8 @@ class _NotificationsPage:
             "email_to": self.email_to.text().strip(),
             "slack": self.slack.isChecked(),
             "ntfy": self.ntfy.isChecked(),
+            "teams": self.teams.isChecked(),
+            "webhook": self.webhook.isChecked(),
             "ntfy_server": (self.ntfy_server.text().strip()
                             or _NOTIFY_DEFAULTS["ntfy_server"]),
         }
@@ -5396,7 +5450,7 @@ class _NotificationsPage:
         trial = self.values()
         trial["secrets"] = self.secrets()
         if not any(trial[name] for name in ("desktop", "email", "slack",
-                                             "ntfy")):
+                                             "ntfy", "teams", "webhook")):
             self.test_result.setText(tr(
                 "Switch on at least one way to be told first."))
             return None

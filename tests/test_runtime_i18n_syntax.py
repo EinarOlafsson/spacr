@@ -12,6 +12,27 @@ if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
 
+def test_portuguese_well_locations_preserve_containers_and_repair_adverbs() -> None:
+    """Container positions retain poço; adverbial well still repairs to bem."""
+    from build_i18n_catalogs import _contextualize, _translation_rejection_reasons
+
+    cases = (
+        ("One well within a replicate, or one field within a well.",
+         "Um poço dentro de uma réplica ou um campo dentro de um poço.",
+         "Um poço dentro de uma réplica ou um campo dentro de um poço."),
+        ("The well below the control well.",
+         "O poço abaixo do poço de controle.",
+         "O poço abaixo do poço de controle."),
+        ("Values remain well within tolerance.",
+         "Os valores permanecem poço dentro da tolerância.",
+         "Os valores permanecem bem dentro da tolerância."),
+    )
+    for source, draft, expected in cases:
+        assert _contextualize(draft, "pt", source) == expected
+        assert _contextualize(expected, "pt", source) == expected
+        assert not _translation_rejection_reasons(source, expected, "pt", force=True)
+
+
 def _new_download_sources(language: str, reviewed: dict[str, str]) -> set[str]:
     """Account for the Import and synthetic Invasion review records separately."""
     sources: set[str] = set()
@@ -116,6 +137,19 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
     assert len(additions) == report["later_distinct_additions"] == 780
     assert hashlib.sha256(json.dumps(sorted(additions), ensure_ascii=False).encode()).hexdigest() == report["added_sources_sha256"]
     assert not sources & additions
+    for filename, record_count, source_count in (
+            ("2026-09-27-mask-cloud-category.json", 3, 2),
+            ("2026-09-28-runtime-577-585.json", 20, 20)):
+        document = json.loads((folder / filename).read_text())
+        records = document["records"]
+        values = {record["source"] for record in records}
+        assert len(records) == record_count and len(values) == source_count
+        assert values <= reviewed.keys()
+        assert not values & (sources | additions)
+        for record in records:
+            assert record["source_sha256"] == hashlib.sha256(record["source"].encode()).hexdigest()
+            assert reviewed[record["source"]] == record["translation"]
+        sources.update(values)
     return sources | additions
 
 
@@ -484,7 +518,7 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # Item463 retired one superseded download tooltip; its full old evidence
     # and exact set difference are checked by _new_download_sources above.
     assert len(all_reviewed.keys() - subsequent_sources - debt_sources) == 627
-    assert len(all_reviewed.keys() - debt_sources) == 1666
+    assert len(all_reviewed.keys() - debt_sources) == 1688
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -732,7 +766,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(all_reviewed.keys() - refresh_sources - subsequent_sources - debt_sources) == 338
     # 316 (71071b6c6) retired 17 setup and sign-in captions from the four slices to _ROWS.
     assert len(all_reviewed.keys() - subsequent_sources - debt_sources) == 620
-    assert len(all_reviewed.keys() - debt_sources) == 1658
+    assert len(all_reviewed.keys() - debt_sources) == 1680
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

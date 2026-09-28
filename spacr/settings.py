@@ -7315,7 +7315,8 @@ ALPHA_FEATURES = {
                     'NotifyEmailTo', 'NotifySlack', 'NotifySlackWebhook',
                     'NotifyNtfy', 'NotifyNtfyServer', 'NotifyNtfyTopic',
                     'NotifyNtfyToken', 'NotifySendTest', 'NotifyForgetSecrets',
-                    'NotifyTestResult'),
+                    'NotifyTestResult', 'NotifyTeams', 'NotifyTeamsWebhook',
+                    'NotifyWebhook', 'NotifyWebhookUrl', 'NotifyWebhookToken'),
     },
     581: {
         'settings': ('anndata_format', 'anndata_tidy_dir'),
