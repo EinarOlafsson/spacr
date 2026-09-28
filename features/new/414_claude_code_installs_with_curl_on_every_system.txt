@@ -160,3 +160,13 @@ and empty PATH entries, retaining an existing Claude directory, adding none,
 leaving Linux unchanged, and rejecting a PATH without any retained entry.
 The vendor installer was not run locally. Actual native re-execution remains
 required. Receipt: features/data/414_macos_node_path_scope_2026-09-27.json.
+
+STATUS 2026-09-27 — actual Linux command acceptance passed
+Run36362303533 job108749909518 passed the installed app's exact curl command in
+a clean Ubuntu container. A separate interactive login shell resolved the same
+native ELF executable and returned Claude2.1.283 without PATH repair. Node/npm
+were unavailable in both shells and the user profiles remained unchanged.
+The downloaded artifact digest and source-bound receipts were verified.
+This establishes Linux acceptance within the container scope; it does not claim
+a terminal-emulator window or authentication. macOS acceptance is still pending.
+Receipt: features/data/414_linux_native_command_acceptance_2026-09-27.json.
