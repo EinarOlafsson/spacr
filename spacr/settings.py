@@ -1720,6 +1720,8 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('confluency_qc_threshold', 0.8)
     settings.setdefault('bleach_correction', 'none')
     settings.setdefault('measure_gpu', False)
+    settings.setdefault('measurement_backend', 'sqlite')
+    settings.setdefault('measurement_backend_target', '')
     settings.setdefault('profiling', False)
     settings.setdefault('profiling_metadata', '')
     settings.setdefault('profiling_treatment_column', 'columnID')
@@ -3583,6 +3585,8 @@ expected_types = {
     "confluency_qc_threshold": (float, int, type(None)),
     "bleach_correction": str,
     "measure_gpu": bool,
+    "measurement_backend": str,
+    "measurement_backend_target": str,
     "profiling": bool,
     "profiling_metadata": str,
     "profiling_treatment_column": (str, list),
@@ -3826,6 +3830,9 @@ expected_types = {
     'attribution_steps':int,
     'attribution_baseline':str,
     'sanity_check':bool,
+    'counterfactuals':bool,
+    'counterfactual_crops':int,
+    'counterfactual_epochs':int,
     'object_type':str,
     "parasite_table": str,
     "compartment": str,
@@ -4878,6 +4885,8 @@ tooltips = {
     "confluency_window": "(int) - Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. Ignored by the masks and intensity sources. Default 15.",
     "bleach_correction": "(str) - Photobleaching correction for a timelapse run, applied after measuring and per field and channel. ratio rescales each timepoint so the median object mean intensity equals the first timepoint's; exponential does the same with a fitted a*exp(-b*t)+c decay; histogram maps each timepoint's intensities onto the first timepoint's distribution. Writes <object>_bleach_corrected and the fits to measurements.db and plots the decay; the measured tables stay unchanged. Ignored unless timelapse. Default none.",
     "measure_gpu": "(bool) - Compute the per-object intensity statistics, GLCM homogeneity and Zernike moments on a CUDA GPU through PyTorch, all objects of a field at once instead of one at a time. Values match the CPU run within float tolerance. Covers 2-D masks without voxel spacing; anything else, a missing PyTorch or no visible CUDA device measures on the CPU as usual. Default False.",
+    "measurement_backend": "(str) - Where a finished run's measurements are also stored. sqlite keeps only measurements.db. duckdb copies every table into a DuckDB file and parquet into a folder of Parquet files, both for very large screens; postgres copies them into a PostgreSQL database that several users can write at once. measurements.db stays the working copy every later step reads. Needs pip install spacr[databases]. Default sqlite.",
+    "measurement_backend_target": "(str) - The DuckDB file, Parquet folder or PostgreSQL connection string the measurements are copied to. Blank puts measurements.duckdb or measurements.parquetdb beside measurements.db, and reaches PostgreSQL through the PGHOST, PGDATABASE, PGUSER and PGPASSWORD environment variables. Keep passwords in ~/.pgpass, not here. Ignored for sqlite. Default blank.",
     "wound_closure": "(bool) - Measure a scratch or wound-healing assay: find the open wound in every frame of every field, then write its area, mean and minimum width, the closure rate and the half-closure time per field, per well and per condition to measurements.db and results/wound_closure, with closure curves and a plate map. Frames are grouped by plate, well and field and ordered by timepoint; the first frame decides where the scratch is. Default False.",
     "wound_source": "(str) - How the open wound is told apart from the monolayer. texture reads the local variation of wound_channel, for brightfield and phase. intensity thresholds wound_channel, for a fluorescent cytoplasm or membrane stain. masks takes every pixel outside the segmented cells as open. The cut is decided on each field's first frame and kept for its later frames. Default texture.",
     "wound_channel": "(int or None) - The merged-array channel the texture and intensity wound sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, the stain for intensity. Ignored by the masks source. Default None.",
@@ -5241,6 +5250,9 @@ tooltips = {
     'object_type': "(str) - Mask used to define an object when the pointing game scores an attribution map: 'cell', 'nucleus', 'pathogen' or 'cytoplasm'. The metric checks only whether the map's maximum-valued pixel lies inside that mask. It has low computational cost but does not evaluate the rest of the map, so a method can score 1.0 while assigning spurious attribution elsewhere. Default 'cell'.",
     'occlusion_stride': '(int) - How far the occlusion patch moves between evaluations. Equal to occlusion_window it tiles without overlap and is fastest; half of it doubles the passes and halves the blockiness. A stride larger than the window leaves unmeasured gaps that appear as an artificial grid in the map. Default 4.',
     'occlusion_window': "(int) - Side length in pixels of the patch moved across the image during occlusion analysis. Larger windows reduce runtime but spatial resolution and can miss features smaller than the window; smaller windows resolve finer structure with quadratically more forward passes. Occlusion provides a gradient-independent comparison for gradient-based attribution methods. Default 8.",
+    'counterfactuals': '(bool) - Also train a small class-conditional generator on the crops, guided by the loaded classifier, and morph held-out crops toward the other class in steps. Writes each crop\'s classifier score along its sequence, the flip rate, how far the edit moved the crop, a class-mean-shift baseline and a figure to counterfactuals/ next to the maps. The same classifier guides and scores the edits, so read the flip rate with the edit size. Default False.',
+    'counterfactual_crops': '(int) - How many crops, taken in dataset order, train and test the counterfactual generator; a quarter is held out for scoring. More crops give a steadier estimate and a slower run. Ignored unless counterfactuals is on. Default 256.',
+    'counterfactual_epochs': '(int) - Training passes of the counterfactual generator over its crops. Ignored unless counterfactuals is on. Default 30.',
     'sanity_check': "(bool) - Randomize the model's weights layer by layer, recompute attribution and report the similarity between maps. A method that produces nearly the same map for a randomized model is responding to image structure rather than the trained decision function. On a small CNN, the CAM family, including spaCR's default Grad-CAM, fails this test while saliency and integrated gradients pass. The resulting similarity is reported for the selected model rather than inferred from benchmark behavior. This costs one additional attribution per randomized layer. Default True.",
     'smoothgrad_samples': "(int) - Number of noise-perturbed image copies averaged into one attribution map. Using 8-50 samples reduces local gradient variability and improves between-image comparability. A value of 0, the default, evaluates the method once and minimizes computation during method selection. Applies to every method, including the CAM family, where maps are averaged explicitly rather than through Captum.",
     'smoothgrad_sigma': "(float) - Standard deviation of the noise added by SmoothGrad, expressed as a fraction of the image intensity range. Values that are too small produce nearly identical samples and little averaging effect; values that are too large move samples outside the training distribution, causing the average to characterize responses to noise rather than the experimental images. Values of 0.1-0.2 are typical. Ignored when smoothgrad_samples is 0. Default 0.15.",
@@ -5553,7 +5565,7 @@ categories = {
     ],
     "Regression: Diagnostics": ["regression_qc"],
 
-    "Activation Maps": ["smoothgrad_samples", "smoothgrad_sigma", "occlusion_window", "occlusion_stride", "ig_steps", "ig_baseline", "attribution_steps", "attribution_baseline", "sanity_check", "object_type", "cam_type", "target_layer", "overlay", "correlation", "manders_thresholds", "normalize_input"],
+    "Activation Maps": ["smoothgrad_samples", "smoothgrad_sigma", "occlusion_window", "occlusion_stride", "ig_steps", "ig_baseline", "attribution_steps", "attribution_baseline", "sanity_check", "object_type", "cam_type", "target_layer", "overlay", "correlation", "manders_thresholds", "normalize_input", "counterfactuals", "counterfactual_crops", "counterfactual_epochs"],
 
     "Sequencing": ["mode", "single_direction", "target_sequence", "regex", "offset_start", "window_length", "barcode_mismatches", "chunk_size", "fill_na", "save_h5", "comp_type", "comp_level"],
 
@@ -5612,6 +5624,10 @@ categories = {
 
     "GPU Measurement (Alpha)": [
         "measure_gpu",
+    ],
+
+    "Measurement Backend (Alpha)": [
+        "measurement_backend", "measurement_backend_target",
     ],
 
     "Profiling (Alpha)": [
@@ -6586,6 +6602,9 @@ def get_default_generate_activation_map_settings(settings):
     settings.setdefault('attribution_baseline', 'blur')
     settings.setdefault('sanity_check', True)
     settings.setdefault('object_type', 'cell')
+    settings.setdefault('counterfactuals', False)
+    settings.setdefault('counterfactual_crops', 256)
+    settings.setdefault('counterfactual_epochs', 30)
     return settings
 
 def get_analyze_plaque_settings(settings):
@@ -7201,6 +7220,9 @@ ALPHA_FEATURES = {
     566: {
         'settings': ('measure_gpu',),
     },
+    576: {
+        'settings': ('measurement_backend', 'measurement_backend_target'),
+    },
     540: {
         'settings': ('viability', 'viability_dead_channel',
                      'viability_live_channel', 'viability_thresholds',
@@ -7398,6 +7420,10 @@ ALPHA_FEATURES = {
     },
     534: {
         'widgets': ('MapBarcodesSpatialToggle', 'MapBarcodesSpatialCard'),
+    },
+    564: {
+        'settings': ('counterfactuals', 'counterfactual_crops',
+                     'counterfactual_epochs'),
     },
 }
 

@@ -8396,9 +8396,69 @@ def measure_crop(settings):
                     _emit_infection_report(db_path)
                     if settings.get('profiling'):
                         _emit_profiles(settings, db_path)
+                    if (str(settings.get('measurement_backend') or 'sqlite')
+                            != 'sqlite' and os.path.isfile(db_path)):
+                        _copy_to_measurement_backend(db_path, settings)
                     print("Successfully completed run")
 
             run.register_outputs(settings=settings, roots=source_folders)
+
+def _measurement_backend_target(db_path, settings):
+    """Where ``measurement_backend`` sends the measurements of ``db_path``.
+
+    A blank ``measurement_backend_target`` puts a DuckDB file or a Parquet
+    store beside ``measurements.db`` and reaches PostgreSQL through the
+    standard ``PG*`` environment variables.
+
+    :param db_path: the run's ``measurements.db``.
+    :param settings: the run settings.
+    :returns: a path or a PostgreSQL connection string.
+    :raises ValueError: for a backend that is not one of the stores.
+    """
+    backend = str(settings.get('measurement_backend') or 'sqlite').lower()
+    target = str(settings.get('measurement_backend_target') or '').strip()
+    folder = os.path.dirname(db_path)
+    if backend == 'duckdb':
+        return target or os.path.join(folder, 'measurements.duckdb')
+    if backend == 'parquet':
+        return target or os.path.join(folder, 'measurements.parquetdb')
+    if backend == 'postgres':
+        if target and not target.lower().startswith(
+                ('postgresql://', 'postgres://')):
+            target = 'postgresql://' + target
+        return target or 'postgresql://'
+    raise ValueError(
+        f"measurement_backend must be one of sqlite, duckdb, parquet, "
+        f"postgres, not {backend!r}.")
+
+
+def _copy_to_measurement_backend(db_path, settings):
+    """Copy every table of a finished run into the chosen measurement store.
+
+    ``measurements.db`` stays where it is and every later step keeps reading
+    it; the DuckDB, Parquet or PostgreSQL copy is for large screens and
+    shared servers. A failed copy is reported and the run still succeeds.
+
+    :param db_path: the run's ``measurements.db``.
+    :param settings: the run settings.
+    :returns: the target the tables were copied to, or ``None`` on failure.
+    """
+    from .tabular import _migrate_database
+
+    try:
+        target = _measurement_backend_target(db_path, settings)
+        _migrate_database(db_path, target)
+    except (ImportError, OSError, ValueError, RuntimeError) as exc:
+        print(f"Measurement backend: copy skipped ({exc}).")
+        return None
+    except Exception as exc:
+        print(f"Measurement backend: copy failed ({type(exc).__name__}: "
+              f"{exc}).")
+        return None
+    print(f"Measurement backend: measurements copied to "
+          f"{settings.get('measurement_backend')}.")
+    return target
+
 
 def _run_plate_barcode_step(settings, fetch=None):
     """Fill the plate map from sample records by plate barcode and say where.
