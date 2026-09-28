@@ -107,7 +107,7 @@ when the preference changes. The journal check itself is not gated: it acts
 only when a lock exists, and hiding is a display decision (headless and CLI
 runs never consult the registry).
 
-2026-09-27 — RECORDED VERDICTS IN HISTORY AND COMPARE (validation pending)
+2026-09-27 — RECORDED VERDICTS IN HISTORY AND COMPARE (validation passed)
     Run History and Run Compare now display a readable Lock / Status /
     Summary line from the saved manifest's analysis_lock object. Details
     retain its lock ID, digest, lock time and author, unblinding time and
