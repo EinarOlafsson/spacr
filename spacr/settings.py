@@ -7297,6 +7297,9 @@ ALPHA_FEATURES = {
     562: {
         'widgets': ('EmbeddingsWellMilButton',),
     },
+    558: {
+        'widgets': ('CellposeWorkbenchVirtualStain',),
+    },
     570: {
         'widgets': ('ControlChartHitPanel', 'ControlChartHitsSection',
                     'ControlChartExportHits'),
