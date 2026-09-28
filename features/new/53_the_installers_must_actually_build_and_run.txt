@@ -546,3 +546,13 @@ receipt. Historical Windows recovery, frozen replacement/interruption/restart,
 protected macOS authorization and other update-family gates remain open.
 No whole-item completion or version promotion is claimed.
 Receipt: features/data/53_rebuilt_native_acceptance_2026-09-28.json.
+
+STATUS 2026-09-28 — Native NSIS fallback evidence recovered
+Downloaded the original Windows build artifact from run36372926331. Its
+archive SHA256 matches GitHub's official digest. The source-bound acquisition
+receipt proves exact-package-entry was actually selected, the pinned package
+hash/size and executable signature checks passed, compiler v3.13 was invoked,
+and installation exited0. This closes the specific fallback evidence gap in
+the preceding note. Historical recovery, frozen replacement/interruption/
+restart and protected macOS authorization still remain open.
+Receipt: features/data/53_nsis_native_fallback_acceptance_2026-09-28.json.
