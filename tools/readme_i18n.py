@@ -1,6 +1,7 @@
 """Reviewed locale templates for generated README workflow markup."""
 from __future__ import annotations
 
+from html import escape, unescape
 import re
 import unicodedata
 
@@ -124,6 +125,14 @@ def localize_workflow_markup(text: str, language: str) -> str:
         r"(?m)^(?P<indent>\s*):alt: Open the (?P<module>.+) API$",
         replace_alt,
         str(text),
+    )
+    localized = re.sub(
+        r'\balt="Open the (?P<module>[^"]+) API"',
+        lambda match: 'alt="' + escape(
+            template.format(module=unescape(match.group("module"))),
+            quote=True,
+        ) + '"',
+        localized,
     )
     for source, target in WORKFLOW_SECTION_LABELS[language].items():
         localized = re.sub(

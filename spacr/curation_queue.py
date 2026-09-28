@@ -461,9 +461,6 @@ class CurationQueue:
                 f"{self.order_phrase}")
 
 
-# ---------------------------------------------------------------------------
-# Layout detection
-# ---------------------------------------------------------------------------
 
 def _listdir(folder: Path) -> List[Path]:
     """Entries of ``folder``, sorted, with dotfiles left out.
@@ -666,9 +663,6 @@ def discover_items(folder: PathLike) -> Tuple[QueueItem, ...]:
     return detect_layout(folder).items
 
 
-# ---------------------------------------------------------------------------
-# The resume record
-# ---------------------------------------------------------------------------
 
 def external_record(folder: PathLike, suffix: str) -> Path:
     """Where the external curation tool keeps one of a queue's files.
@@ -935,9 +929,6 @@ def summarize(items: Iterable[QueueItem],
                         unknown=unknown)
 
 
-# ---------------------------------------------------------------------------
-# Reading drafts — the only place numpy is needed
-# ---------------------------------------------------------------------------
 
 def _read_draft(item: QueueItem):
     """Load one item's draft labels.
@@ -1067,9 +1058,6 @@ def value_key(item: QueueItem,
     return (0 if rich else 1, -diameter, -n_objects)
 
 
-# ---------------------------------------------------------------------------
-# Probabilities and cached draft counts
-# ---------------------------------------------------------------------------
 
 def load_probabilities(folder: PathLike) -> Dict[str, float]:
     """Read the queue's scores file, when there is one.

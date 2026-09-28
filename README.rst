@@ -244,6 +244,24 @@ into the active environment:
    conda install conda-forge::spacr
    spacr
 
+Docker installation
+-------------------
+
+Run spaCR's command-line pipelines in a container using the published
+`Docker images on GHCR <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_.
+Install `Docker <https://docs.docker.com/get-started/get-docker/>`_, then list
+the available pipelines with this published CPU image:
+
+.. code-block:: bash
+
+   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.0 spacr-run --list
+
+The matching NVIDIA GPU image is
+``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``. Both images target Linux
+x86-64 containers. See the `Docker installation guide
+<docs/source/installer_guide.rst#container-images>`_ for GPU prerequisites,
+data and model mounts, settings files, and complete pipeline commands.
+
 Install from source
 -------------------
 
@@ -375,111 +393,89 @@ Quantitative readouts for biological assays.
 
 | |Module_toxoplasma|\ |Module_plasmodium|\ |Module_candida|
 
-.. |Module_mask| image:: spacr/resources/icons/workflow/mask.png
-   :width: 16.0%
-   :alt: Open the Mask API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks
-   :align: middle
-.. |Module_measure| image:: spacr/resources/icons/workflow/measure.png
-   :width: 16.0%
-   :alt: Open the Measure API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html
-   :align: middle
-.. |Module_annotate| image:: spacr/resources/icons/workflow/annotate.png
-   :width: 16.0%
-   :alt: Open the Annotate API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html
-   :align: middle
-.. |Module_classify_merged| image:: spacr/resources/icons/workflow/classify_merged.png
-   :width: 16.0%
-   :alt: Open the Classify API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/classify/index.html
-   :align: middle
-.. |Module_map_barcodes| image:: spacr/resources/icons/workflow/map_barcodes.png
-   :width: 16.0%
-   :alt: Open the Map Barcodes API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html
-   :align: middle
-.. |Module_regression| image:: spacr/resources/icons/workflow/regression.png
-   :width: 16.0%
-   :alt: Open the Regression API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
-   :align: middle
-.. |Module_foreign| image:: spacr/resources/icons/workflow/apps/foreign.png
-   :width: 16.0%
-   :alt: Open the Import API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/foreign/index.html
-   :align: middle
-.. |Module_embeddings| image:: spacr/resources/icons/workflow/apps/embeddings.png
-   :width: 16.0%
-   :alt: Open the Embeddings API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/embeddings/index.html
-   :align: middle
-.. |Module_run_compare| image:: spacr/resources/icons/workflow/apps/run_compare.png
-   :width: 16.0%
-   :alt: Open the Run Compare API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html
-   :align: middle
-.. |Module_experiment_design| image:: spacr/resources/icons/workflow/apps/experiment_design.png
-   :width: 16.0%
-   :alt: Open the Experiment Design API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/experiment_design/index.html
-   :align: middle
-.. |Module_power| image:: spacr/resources/icons/workflow/apps/power.png
-   :width: 16.0%
-   :alt: Open the Power / Design API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html
-   :align: middle
-.. |Module_dose_response| image:: spacr/resources/icons/workflow/apps/dose_response.png
-   :width: 16.0%
-   :alt: Open the Dose–Response API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html
-   :align: middle
-.. |Module_qc_dashboard| image:: spacr/resources/icons/workflow/apps/qc_dashboard.png
-   :width: 16.0%
-   :alt: Open the QC API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html
-   :align: middle
-.. |Module_make_masks| image:: spacr/resources/icons/workflow/apps/make_masks.png
-   :width: 16.0%
-   :alt: Open the Make Masks API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html
-   :align: middle
-.. |Module_align| image:: spacr/resources/icons/workflow/apps/align.png
-   :width: 16.0%
-   :alt: Open the Align & Stitch API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/align/index.html
-   :align: middle
-.. |Module_umap| image:: spacr/resources/icons/workflow/apps/umap.png
-   :width: 16.0%
-   :alt: Open the Image UMAP API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.generate_image_umap
-   :align: middle
-.. |Module_gate_editor| image:: spacr/resources/icons/workflow/apps/gate_editor.png
-   :width: 16.0%
-   :alt: Open the Gate Editor API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html
-   :align: middle
-.. |Module_graph_builder| image:: spacr/resources/icons/workflow/apps/graph_builder.png
-   :width: 16.0%
-   :alt: Open the Graph Builder API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html
-   :align: middle
-.. |Module_toxoplasma| image:: spacr/resources/icons/workflow/apps/toxoplasma.png
-   :width: 16.0%
-   :alt: Open the Toxoplasma API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-toxoplasma
-   :align: middle
-.. |Module_plasmodium| image:: spacr/resources/icons/workflow/apps/plasmodium.png
-   :width: 16.0%
-   :alt: Open the Plasmodium spp. API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-plasmodium
-   :align: middle
-.. |Module_candida| image:: spacr/resources/icons/workflow/apps/candida.png
-   :width: 16.0%
-   :alt: Open the Candida spp. API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-candida
-   :align: middle
+.. |Module_mask| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks"><img src="spacr/resources/icons/workflow/mask.png" width="16.0%" align="middle" alt="Open the Mask API"></a>
+
+.. |Module_measure| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/measure/index.html"><img src="spacr/resources/icons/workflow/measure.png" width="16.0%" align="middle" alt="Open the Measure API"></a>
+
+.. |Module_annotate| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html"><img src="spacr/resources/icons/workflow/annotate.png" width="16.0%" align="middle" alt="Open the Annotate API"></a>
+
+.. |Module_classify_merged| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/classify/index.html"><img src="spacr/resources/icons/workflow/classify_merged.png" width="16.0%" align="middle" alt="Open the Classify API"></a>
+
+.. |Module_map_barcodes| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html"><img src="spacr/resources/icons/workflow/map_barcodes.png" width="16.0%" align="middle" alt="Open the Map Barcodes API"></a>
+
+.. |Module_regression| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/ml/index.html"><img src="spacr/resources/icons/workflow/regression.png" width="16.0%" align="middle" alt="Open the Regression API"></a>
+
+.. |Module_foreign| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/foreign/index.html"><img src="spacr/resources/icons/workflow/apps/foreign.png" width="16.0%" align="middle" alt="Open the Import API"></a>
+
+.. |Module_embeddings| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/embeddings/index.html"><img src="spacr/resources/icons/workflow/apps/embeddings.png" width="16.0%" align="middle" alt="Open the Embeddings API"></a>
+
+.. |Module_run_compare| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html"><img src="spacr/resources/icons/workflow/apps/run_compare.png" width="16.0%" align="middle" alt="Open the Run Compare API"></a>
+
+.. |Module_experiment_design| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/experiment_design/index.html"><img src="spacr/resources/icons/workflow/apps/experiment_design.png" width="16.0%" align="middle" alt="Open the Experiment Design API"></a>
+
+.. |Module_power| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html"><img src="spacr/resources/icons/workflow/apps/power.png" width="16.0%" align="middle" alt="Open the Power / Design API"></a>
+
+.. |Module_dose_response| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html"><img src="spacr/resources/icons/workflow/apps/dose_response.png" width="16.0%" align="middle" alt="Open the Dose–Response API"></a>
+
+.. |Module_qc_dashboard| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html"><img src="spacr/resources/icons/workflow/apps/qc_dashboard.png" width="16.0%" align="middle" alt="Open the QC API"></a>
+
+.. |Module_make_masks| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html"><img src="spacr/resources/icons/workflow/apps/make_masks.png" width="16.0%" align="middle" alt="Open the Make Masks API"></a>
+
+.. |Module_align| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/align/index.html"><img src="spacr/resources/icons/workflow/apps/align.png" width="16.0%" align="middle" alt="Open the Align &amp; Stitch API"></a>
+
+.. |Module_umap| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.generate_image_umap"><img src="spacr/resources/icons/workflow/apps/umap.png" width="16.0%" align="middle" alt="Open the Image UMAP API"></a>
+
+.. |Module_gate_editor| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html"><img src="spacr/resources/icons/workflow/apps/gate_editor.png" width="16.0%" align="middle" alt="Open the Gate Editor API"></a>
+
+.. |Module_graph_builder| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html"><img src="spacr/resources/icons/workflow/apps/graph_builder.png" width="16.0%" align="middle" alt="Open the Graph Builder API"></a>
+
+.. |Module_toxoplasma| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-toxoplasma"><img src="spacr/resources/icons/workflow/apps/toxoplasma.png" width="16.0%" align="middle" alt="Open the Toxoplasma API"></a>
+
+.. |Module_plasmodium| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-plasmodium"><img src="spacr/resources/icons/workflow/apps/plasmodium.png" width="16.0%" align="middle" alt="Open the Plasmodium spp. API"></a>
+
+.. |Module_candida| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-candida"><img src="spacr/resources/icons/workflow/apps/candida.png" width="16.0%" align="middle" alt="Open the Candida spp. API"></a>
 
 .. spacr-workflow-end
 

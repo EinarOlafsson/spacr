@@ -554,3 +554,113 @@ REMAINS
     (owner: maintainer).
  c. Nobody has listened to "pype" in the rendered audio. Only the phonemes
     are checked (owner: maintainer).
+
+2026-09-27 — CODEX: FIRST REDACTION PUBLICATION RECOVERED
+    Candidate release-candidate-append-dbc6wwi7 contains the 33 lessons in
+    scratch-docs/redact/republish_batch1.txt, retaining their narration and
+    captions. Its publisher had finished before the handoff: 4,654 files
+    were read back with matching SHA256 at immutable media revision
+    be5acc81a8bcb233a96d9999c1534018fa461a47; local and hosted playback
+    receipts pass. Do not upload this candidate again.
+    Receipt: tools/tutorials/evidence/2026-09-27-redaction-batch1-publication.json.
+    Rechecked publication guards: 102 passed, one browser check skipped
+    in the app environment; all 10 hosted-web checks then passed in the
+    tutorial environment with Playwright available.
+    This records publication preparation, not live deployment verification.
+    Remaining: batch 2, lesson 75's neutral recapture, live readback and the
+    visual/listening acceptance above. Item 447 remains open.
+
+STATUS 2026-09-27 — Gate Editor neutral media complete, publication pending
+Lesson 64 now combines three verified path redactions with two native console
+captures after real gate/export checks: 657 of 2341 objects, 265 in the second
+gate, exact exported identities, unchanged source/raw measurements. The
+console reports 2341; the chat draft was not sent and no provider was configured.
+English and all 81 audio/caption files are unchanged. Master and web browser
+playback passed; 22 sampled images show no path offenders, light frames or
+scan errors. Receipt:
+tools/tutorials/evidence/2026-09-27-gate-console-neutral-recapture.json.
+This closes the staged media work for 8 of 13 batch-two lessons, not publication
+or the final live sweep. Item 447 remains open.
+
+2026-09-27 — METHODS EXPORT PICKER AND REDACTED MEDIA VERIFIED
+Lesson49 now combines its genuine neutral-root export-picker capture with
+8 verified path-only redactions of the existing recording. This mixed
+provenance is explicit; historical Methods prose and scientific caveats are
+preserved. The draft is not marked scientifically approved. All original
+and private inputs were unchanged by the capture, with no provider contact.
+English scene text and all81 audio/caption files are byte-identical.
+Master and web playback checks pass;22 sampled frames have no personal-path
+offenders or OCR errors. Master/web hashes independently match the receipt:
+tools/tutorials/evidence/2026-09-27-methods-picker-neutral-recapture.json.
+Ten of13 batch2 lessons now have verified refreshed media. Lessons44,56 and73
+and batch publication/live verification remain; this is not overall closure.
+
+2026-09-27 — DATA MANAGER NATIVE MEDIA VERIFIED
+Lesson44 now uses 12 genuine neutral-root captures across its 13 unchanged
+English scenes. The capture at dc689b994 operates on an independently bound
+private copy of lesson31's completed project; all132 original files remain
+byte-identical. Real cancellation, deletion of104 private crop files and
+archiving are verified, with nine successful workers and none left running.
+The prior failed capture stopped before selecting a project because the
+recorder expected obsolete menu capitalization; it remains diagnostic evidence.
+
+All81 audio/timing/caption files and the English text are unchanged. Only the
+prune-plan spotlight height was adjusted to include the actual proposed row.
+Master and web playback passed;22 sampled frames contain no personal-path
+offenders or OCR errors. Receipt:
+tools/tutorials/evidence/2026-09-27-data-manager-neutral-recapture.json.
+
+Eleven of13 batch2 lessons now have verified refreshed media; lessons56 and73
+remain. The ready manifest contains12 lessons including75. Publication and
+live verification remain open; this is not overall447 closure or listening
+or native-speaker signoff.
+
+STATUS 2026-09-27 — Sweep execution and fitted-support replay staged
+Lesson73 now stages nine neutral-root frames from two actual CPU trials and
+one later saved-result replay frame exposing the measured per-level counts.
+The original Start sweep/running frame remains from genuine execution;
+the replay requested no new fits. Independent verification compared21626
+result cells and1963 plot points, with2955 fitted rows and620 unique wells
+at both guide and gene levels. The two trials still fail inference checks;
+computational/display acceptance is not statistical or biological validation.
+
+The source-bound recapture spotlight includes all four fitted-support columns
+and eight cells. Canonical English, all13 source-bound reviews, prior audio
+and captions, unrelated catalog entries and the active narration batch's
+frozen JSON inputs are unchanged. The corrected narration was already
+committed; all27 lesson73 voice tracks still require regeneration, followed
+by rendering, playback/path checks, publication and live verification.
+Receipt: tools/tutorials/evidence/2026-09-27-sweep-verified-composite.json.
+This is staging acceptance only, with no native-speaker or listening signoff.
+
+STATUS 2026-09-28 — All27 lesson73 audio tracks accepted
+The CPU batch exited0 and independently verified all27 regenerated voice
+tracks against the frozen source and13 source-bound reviews. Historical audio
+is unchanged. AI technical review (Codex), no native-speaker signoff; no human
+listening signoff. Rendering, browser/path checks, publication and live
+verification remain pending, so this does not close447.
+Receipt: features/data/447_lesson73_audio_acceptance_2026-09-28.json.
+
+STATUS 2026-09-28 — lesson73 media technically accepted
+All27 voice tracks and13 reviews are adopted; each catalog changes only lesson73.
+Master/web playback, English sentence cues and caption-only locales pass.
+All22 sampled frames/posters pass path OCR and dark-theme checks. The84 other
+entries,106 prior new tracks,2 English anchors and historical originals remain
+unchanged. Large rendering outputs stay on WD. The original Chrome socket-path
+failure is preserved; a separate shorter WD temporary launcher resumes the
+unchanged frozen scripts and accepted checkpoints.
+AI technical review (Codex), no human listening or native-speaker signoff.
+Candidate build, publication and live verification remain pending;447 stays open.
+Receipt: features/data/447_lesson73_media_acceptance_2026-09-28.json.
+
+STATUS 2026-09-28 — current sentence-cue receipts wired into publication
+The13-lesson candidate build verified351 current narration tracks, then stopped
+on lesson60's stale plain playback receipt. All six affected refreshed videos
+already have passing, current-byte sentence-cue playback receipts; no recordings
+or checks are fabricated or relabeled. The builder now selects those stronger
+existing receipts when they match the actual video hash, and validates all
+selected web inputs before creating/copying a candidate. Failed, mismatched and
+undecoded inputs still reject. All70 named candidate/receipt checks pass. The
+original partial candidate and failed build log remain preserved; publication
+and live verification remain open.
+Receipt: features/data/447_current_web_receipt_selection_2026-09-28.json.

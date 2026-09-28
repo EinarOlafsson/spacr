@@ -236,8 +236,6 @@ def _host_declarations(module_name: str):
         tree = ast.parse(
             pathlib.Path(spec.origin).read_text(encoding="utf-8"))
     except Exception:                                   # noqa: BLE001
-        # Cached too: a host that cannot be read cannot start being readable,
-        # and re-parsing to fail again costs the same as parsing to succeed.
         _HOST_DECLARATION_CACHE[module_name] = None
         return None
 

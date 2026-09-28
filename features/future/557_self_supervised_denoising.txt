@@ -97,6 +97,15 @@ RESULTS (CPU, 2026-09-27; item 532 method)
     75 minutes (load average ~55 on 32 cores from other sessions), so the
     effect of longer training is untested here.
 
+    Re-check after merging nightly (2026-09-28, CPU, PEAK 10, 5 epochs,
+    arms off and n2v; tools/validate_n2v_lowlight.py EPOCHS=5
+    CHAINS=off,n2v): training 24 s (train loss 1.18 -> 1.11, val 1.09 ->
+    1.02), the backend, worker, Mask generation hook and scoring all run
+    end to end. F1@.5 0.354 (off; P 0.755, R 0.231, 12 FP) against 0.274
+    (N2V; P 0.470, R 0.194, 35 FP): the same precision loss as at 30
+    epochs, as expected from a barely trained model. The Qt alpha gate,
+    the 13 unit tests and the guards pass on the merged tree.
+
 WHAT IS LEFT
     - The full GPU run (tools/validate_n2v_lowlight.py, DEVICE=cuda,
       EPOCHS 100-200, all ten FULL fields at 1994-2000 px, i.e. ~9,600

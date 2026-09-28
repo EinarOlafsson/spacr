@@ -7,7 +7,7 @@ is gone, and the tile and the button then race for which one a user reaches
 first -- the tile opens the module bare, the button opens it seeded by the
 host.
 
-ILLUMINATION IS THE FOLD THESE TESTS DRIVE. Its nine ``illumination_*``
+ILLUMINATION IS THE FOLD THESE TESTS DRIVE. Its ``illumination_*``
 keys were filed under Measure's "Illumination Correction" heading, which is
 the switch thrown on the run whose numbers it changes, but a settings
 category cannot ask for the one thing the module also does on its own:
@@ -148,7 +148,7 @@ def test_the_illumination_button_opens_the_module_itself(qtbot,
     assert len(page._settings_model.collect()) > 0
 
 
-def test_the_page_and_the_measure_panel_offer_the_same_nine_keys(
+def test_the_page_and_the_measure_panel_offer_the_same_illumination_keys(
         qtbot, qt_theme_applied):
     """Two doors, one set of knobs -- measured on both panels.
 
@@ -160,7 +160,13 @@ def test_the_page_and_the_measure_panel_offer_the_same_nine_keys(
 
     expected = {key for key in illumination_settings({})
                 if key.startswith("illumination_")}
-    assert len(expected) == 9
+    assert expected == {
+        'illumination_correction', 'illumination_model',
+        'illumination_estimator', 'illumination_degree',
+        'illumination_per_plate', 'illumination_max_fields',
+        'illumination_dark', 'illumination_on_missing', 'illumination_qc',
+        'illumination_vendor_profile',
+    }
 
     panels = {}
     for key in ("measure", "illumination"):

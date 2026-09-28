@@ -74,10 +74,25 @@ _CLAUDE_POSIX = (
     InstallMethod(("curl", "bash"),
                   "curl -fsSL https://claude.ai/install.sh | bash", "shell"),
 )
+_CLAUDE_WINDOWS_PATH_SETUP = (
+    "try{if(-not([IO.File]::Exists([IO.Path]::Combine("
+    "[Environment]::GetFolderPath('UserProfile'),'.local\\bin\\claude.exe'))))"
+    "{throw('Claude_native_executable_missing')}"
+    "if(-not([Environment]::ExpandEnvironmentVariables([string]"
+    "[Environment]::GetEnvironmentVariable('Path','User')).ToLowerInvariant()"
+    ".Split(';').Contains([Environment]::GetFolderPath('UserProfile')"
+    ".ToLowerInvariant()+'\\.local\\bin')))"
+    "{[Environment]::SetEnvironmentVariable('Path',([string]"
+    "[Environment]::GetEnvironmentVariable('Path','User'))+';'"
+    "+[Environment]::GetFolderPath('UserProfile')+'\\.local\\bin','User')}}"
+    "catch{[Console]::Error.WriteLine('Claude_PATH_registration_failed');exit(1)}"
+)
 _CLAUDE_WINDOWS = (
     InstallMethod(("curl",),
                   "curl -fsSL https://claude.ai/install.cmd -o install.cmd"
-                  " && install.cmd && del install.cmd", "cmd"),
+                  " && install.cmd && del install.cmd"
+                  " && powershell.exe -NoProfile -NonInteractive -Command "
+                  + _CLAUDE_WINDOWS_PATH_SETUP.replace("(", "^(").replace(")", "^)"), "cmd"),
 )
 _CODEX_NPM = InstallMethod(("npm",), "npm install -g @openai/codex")
 _GEMINI_NPM = InstallMethod(("npm",), "npm install -g @google/gemini-cli")

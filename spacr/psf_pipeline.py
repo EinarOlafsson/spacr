@@ -618,6 +618,8 @@ def _prepare_measure_unmixing(settings):
     :returns: the plan, or None when ``unmix`` is off.
     """
     settings.pop(_UNMIX_RECORD_KEY, None)
+    if not settings.get('unmix', False):
+        return None
     plan = _prepare_unmixing(settings, settings['src'],
                              channels=tuple(int(c) for c in settings['channels']))
     if plan is None:

@@ -1,0 +1,271 @@
+{
+  "item": "286/358",
+  "date": "2026-09-27",
+  "lesson": "04_platform_installers",
+  "english_sha256": "5733777916561df1997773e74a43ef023771a98798aa3d7a9fb2be87e92b4f63",
+  "visual_sha256": "7586de6f64764144c9b2a68097923cf9a3126cc19cd77c348cbdae7e16279bf2",
+  "original_scenes_preserved": 10,
+  "added_scene": "09_performance",
+  "capture_provenance": {
+    "completed_capture": true,
+    "app_source_modified": false,
+    "module": "installer_with_separately_recorded_performance",
+    "composite_capture": true,
+    "scope": "Original ten installer scenes retained; one separate native Preferences scene added. Windows/macOS guidance cards remain explicitly generated instructions, not recordings of native installations.",
+    "original_installer_provenance": {
+      "completed_capture": true,
+      "module": "installer_install_walkthrough",
+      "commit": "c655a3dd1a2ee84bfe923a81923acc99b10dedbc",
+      "route": "installer",
+      "expected_version": "1.5.1.0",
+      "actual_system_terminal": true,
+      "interactive_shell_typed": true,
+      "installation_recorded_live": true,
+      "application_source_modified": false,
+      "application_preferences_modified": false,
+      "first_launch_dialogs": "dismissed with their own Escape action",
+      "visible_home": "/home/user",
+      "phases": {
+        "install": {
+          "returncode": 1,
+          "cuda_visible": false,
+          "gpu_turn": false,
+          "started": 1790364589.9473605,
+          "seconds": 440
+        },
+        "resume": {
+          "returncode": 0,
+          "cuda_visible": false,
+          "gpu_turn": false,
+          "started": 1790365131.1464772,
+          "seconds": 28
+        },
+        "relist": {
+          "returncode": 0,
+          "cuda_visible": false,
+          "gpu_turn": false,
+          "started": 1790365191.39502,
+          "seconds": 13
+        }
+      },
+      "installation_folder": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/installation_runs/installer-walkthrough-cf9qyrrz",
+      "installation_deleted": false,
+      "installer": {
+        "tag": "v1.5.1.0",
+        "name": "spaCR-1.5.1.0-Linux-x86_64-Online.run",
+        "sha256": "50c58d7f6e9e60f7a1e85fbe6c2be98f44be37a8eb5f61625c0c146d88571bbe",
+        "release_url": "https://github.com/EinarOlafsson/spacr/releases/tag/v1.5.1.0"
+      },
+      "working_directory": "/home/user/Downloads",
+      "installed_identity": {
+        "version": "1.5.1.0",
+        "package": "/home/user/.local/share/spacr/venv/lib/python3.12/site-packages/spacr/__init__.py",
+        "prefix": "/home/user/.local/share/spacr/venv",
+        "python": "3.12.13"
+      },
+      "frames": [
+        "02_installer_backend",
+        "03_installed_versions",
+        "05_doctor",
+        "06_installed_home",
+        "07_privacy_keep_off",
+        "11_linux_commands",
+        "12_logs_and_versions"
+      ],
+      "generated_instruction_cards": [
+        "09_windows_guidance",
+        "10_macos_guidance"
+      ],
+      "reused_official_release_capture": {
+        "path": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/captures/installation_release_1510/04_github_current_assets.png",
+        "sha256": "445899c2bf1d133fe6ac5dee92046d39d6c303e980e03f1421ed96fe54df4955"
+      },
+      "platform_guidance_source_files": [
+        {
+          "path": "packaging/online/spacr_online_installer.nsi",
+          "sha256": "c66ddec362115ef9fa6617db9907cf30c18a1dad05ff7bf8d10f23767f9d3d93"
+        },
+        {
+          "path": "packaging/online/build_macos_online.sh",
+          "sha256": "800f51e8f1b0175101143cb03f1d243988dc4da00c479687ee01d61965d02306"
+        },
+        {
+          "path": "packaging/online/install_spacr_unix.sh",
+          "sha256": "2ae24903ffa2ad41740d70b10008a88d4eb7de3a4f6b0eae0f4b0a8d5aa47d8a"
+        }
+      ]
+    },
+    "added_home_provenance": {
+      "commit": "ac3c42dc3a9996c31d3094204ee07c97e79fc48c",
+      "version": "1.5.1.0",
+      "module": "home",
+      "download_requested": false,
+      "dataset_cache": "/tmp/spacr-tutorials/example_data",
+      "app_source_modified": false,
+      "cache_isolated_with_bind_mount": true,
+      "completed_capture": true
+    },
+    "per_frame_origins": {
+      "08_official_release": {
+        "source": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/captures/installer_walkthrough_1510/08_official_release.png",
+        "sha256": "445899c2bf1d133fe6ac5dee92046d39d6c303e980e03f1421ed96fe54df4955",
+        "capture": "installer_walkthrough_1510"
+      },
+      "09_windows_guidance": {
+        "source": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/captures/installer_walkthrough_1510/09_windows_guidance.png",
+        "sha256": "445135bf70d7f6c7c9c5e19cb3fae09272c27086a62b192ba8cfe17aefe800ef",
+        "capture": "installer_walkthrough_1510"
+      },
+      "10_macos_guidance": {
+        "source": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/captures/installer_walkthrough_1510/10_macos_guidance.png",
+        "sha256": "9f67648c417f3c96c127b44fa72576abcd953414305a9c8baa7a44043e2a9f55",
+        "capture": "installer_walkthrough_1510"
+      },
+      "11_linux_commands": {
+        "source": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/captures/installer_walkthrough_1510/11_linux_commands.png",
+        "sha256": "77242abd8ce3c0916a788ec28e03cc6317a701f3012f63c906b56bb94f95bc4e",
+        "capture": "installer_walkthrough_1510"
+      },
+      "02_installer_backend": {
+        "source": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/captures/installer_walkthrough_1510/02_installer_backend.png",
+        "sha256": "db7a12c7c5e18fed3190cb5a1b24401d2d0570c44160e26612e1d4f09d86c78d",
+        "capture": "installer_walkthrough_1510"
+      },
+      "03_installed_versions": {
+        "source": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/captures/installer_walkthrough_1510/03_installed_versions.png",
+        "sha256": "416e77ff8975e8e6ce1e124f1980b18bb0f5a154d42181211e448f538f2ecf04",
+        "capture": "installer_walkthrough_1510"
+      },
+      "07_privacy_keep_off": {
+        "source": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/captures/installer_walkthrough_1510/07_privacy_keep_off.png",
+        "sha256": "1755f0c51563ddfc065dcfe02f087224fa67efe261c9ad14c3beabc673ac56f5",
+        "capture": "installer_walkthrough_1510"
+      },
+      "06_installed_home": {
+        "source": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/captures/installer_walkthrough_1510/06_installed_home.png",
+        "sha256": "90e4cd4be9e351339bfe27817c0636ac5caef44e0576dd72a676e59af920ff11",
+        "capture": "installer_walkthrough_1510"
+      },
+      "05_doctor": {
+        "source": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/captures/installer_walkthrough_1510/05_doctor.png",
+        "sha256": "a41e3ade59c3978763520bbfbb3949de01e95a2aa28dba3af44e2eacf8c5998b",
+        "capture": "installer_walkthrough_1510"
+      },
+      "12_logs_and_versions": {
+        "source": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/captures/installer_walkthrough_1510/12_logs_and_versions.png",
+        "sha256": "bb77192ebff56fa43f91509a529c728fc9f7cc6e6844377b6fe9ec426a60effa",
+        "capture": "installer_walkthrough_1510"
+      },
+      "09_performance": {
+        "source": "/mnt/firecuda2/codex/workflow-authoring-20260922/recapture-20260925/captures/home-20260925/09_performance.png",
+        "sha256": "d71d58a83ecadd80563402f822998d6adb526544c308030551b256f4fb95d9ac",
+        "capture": "home-20260925",
+        "separately_recorded": true
+      }
+    },
+    "installer_backend_changed_by_added_scene": false
+  },
+  "historical_media_backup": "/mnt/firecuda2/codex/scratch-docs/item286-installer-performance-20260927/backup-before-performance",
+  "historical_audio_and_cues_sha256": {
+    "audio/en/af_heart.json": "eecf55c5a1e2d314ca10056cda172e2a9acc432a2f87b181fd4dd39dbcbf8a14",
+    "audio/en/af_heart.m4a": "5e233179a9754423b4db9a69ed848aadd768217af24a47b429ba03f4314a1f40",
+    "audio/es/ef_dora.json": "655ed9da4149828b734a125b75074ef8aa4f6f162c0ded525466c8c3863d3920",
+    "audio/es/ef_dora.m4a": "49d6d3944e632168bd3d8947cbea5238eb388c8b1b67321e284b66a005034c50",
+    "audio/es/em_alex.json": "02500d15e8ee2ca42aceb2da33ab0b62a142a7ca3740dcf70b70df6cd0705e72",
+    "audio/es/em_alex.m4a": "484cfe57976bd3be661afc89118b489758d7d83a8461a8a56e612662c9720d70",
+    "audio/es/em_santa.json": "708504cf98a56969ddb0edfe89d8522e3945dea73ccd1e7a18a79b996b2c1aa4",
+    "audio/es/em_santa.m4a": "b6068f5a5c72f3c7bff59ca6a725d44f7e80e8ba8b062bc38f86ef5f4de59c6c",
+    "audio/fr/ff_siwis.json": "ab136725de6e9274b359fe652a1f6d55991f7144ee023606601fcbc705ccca83",
+    "audio/fr/ff_siwis.m4a": "68f4f5fd12684473da11d63b93f524e919d059c0aab46f0edbe146abe7183047",
+    "audio/hi/hf_alpha.json": "4439d7e7e34e57fba97e07394769b437fdf90e754f16beefaae158750705d3fe",
+    "audio/hi/hf_alpha.m4a": "8f7d18fcb96b13ff348e4bb8f8baa62ce246fa5ca3e74876abe1ccafc72656e7",
+    "audio/hi/hf_beta.json": "e1bc7ce6668220ffb642d105db648cbe644b3ff1251246cf83361016324e93af",
+    "audio/hi/hf_beta.m4a": "a86f5f23066878e827b19bd42822da6c4833f7277f725ac9d6842dd4d1ff1e1a",
+    "audio/hi/hm_omega.json": "fd12724940c882f21cf003571f7aef6c55fd1fdcea0dccf07f16fcc83f25cc59",
+    "audio/hi/hm_omega.m4a": "abed230a822fad1e6a891c4cf7bdd30a390b1c65780902331eca6cf4264b02f1",
+    "audio/hi/hm_psi.json": "503e0fbaa11b00fcbd1b9d0a6c89cef814cc4a23c46ce0e8136c79bd373b9c4a",
+    "audio/hi/hm_psi.m4a": "b63d2f846b4d7593b02b761171a0889484a5841ed00740fdaa2c8aab644c31d6",
+    "audio/it/if_sara.json": "c11cae5a9cbf523223a892463d453593a06448e16778fa0457a7ddc3f0fdf2e1",
+    "audio/it/if_sara.m4a": "b1fcb6c37acad3bf03e9e8744548aeba8303e3c848e97f0d0a1aa805dc18edcd",
+    "audio/it/im_nicola.json": "9b4659a7a373eed80f8b9b1eb2254391fdfb1993fde21b1826b739f12ab22f4d",
+    "audio/it/im_nicola.m4a": "9c0b53add02f10e0187343fb1f8a304303c04cf3044fce0ad4e0db61188bfa21",
+    "audio/ja/jf_alpha.json": "698f8c89867eb9a5a3c79735d02da66e8088d0b74a287859edaeed5c716bbec5",
+    "audio/ja/jf_alpha.m4a": "e5fe823657b56849ac61ac9c409266f185a895c8df67b7881898f150d8b3b1e3",
+    "audio/ja/jf_gongitsune.json": "8b60d1b24bca996701c27eba0f33d04aee91b5238846cbcb5e119611e7f45429",
+    "audio/ja/jf_gongitsune.m4a": "e61beb4a1da9a796b35a0112bb79740c5fd0a53ad3bf55793338075e6385d7d1",
+    "audio/ja/jf_nezumi.json": "f4219cee179b05a2c05e75dcb6fce64ee8b053c5113e4dd5d08c08c54909bb10",
+    "audio/ja/jf_nezumi.m4a": "abdce3e8aa8c4c3390dacea0feaf6e0c153086e2b55bf67136bbc0fc7038202c",
+    "audio/ja/jf_tebukuro.json": "28d92223028f31facd96f95ace607053d565fbf4a8f053e2f35c92e8c6122b8a",
+    "audio/ja/jf_tebukuro.m4a": "1d3181e528cb073e7eaf66dd8e3f96bd390053bb9743b6f4908f1c5d20587c2e",
+    "audio/ja/jm_kumo.json": "dede7e1cc1877bc803aab0291ac953d1ea99ea76467f2a22e8534fe9c898481b",
+    "audio/ja/jm_kumo.m4a": "365e74d793277a3c4cae13b3505240500578e152ee6276506c3ebebc1f170405",
+    "audio/pt-BR/pf_dora.json": "d0e96681fab31b0131be3a66c396818f5345d3483a9191fab71562f0046a9d69",
+    "audio/pt-BR/pf_dora.m4a": "7284c92e59f6ce08a849b9b7675555fd18472b2d287464bfe3fe2b426de0e530",
+    "audio/pt-BR/pm_alex.json": "baa5cfd084f5d8c64b482dd4ec517070186d4e66acbcb7cd1fa52d1c4bd37e99",
+    "audio/pt-BR/pm_alex.m4a": "3d3ed4332d8cf8142322e686eeb1343b6d3222920ab2a575f413a63d456ab24c",
+    "audio/pt-BR/pm_santa.json": "9c0abf67cdcc208cd2b1bda2b4cdbcb81a95002f98609d5fa39fb7d2feb94ec7",
+    "audio/pt-BR/pm_santa.m4a": "dbb628e7302bb8703c4974778247c1cc8b8ed9ab7fb2abf861b2a5dac56215d4",
+    "audio/zh-CN/zf_xiaobei.json": "7e82abcdf0bd7aad43096f0ebd2fb2ee5c6630b7efaa3344931642f6ac022e94",
+    "audio/zh-CN/zf_xiaobei.m4a": "16532ef6f303abdc330ba189904004ce8468e99272d2737f1207e1c816e8b054",
+    "audio/zh-CN/zf_xiaoni.json": "b206aaefa981de35d71e05bca5a51eb05505c7a33acea0c3c7812a7671543b3f",
+    "audio/zh-CN/zf_xiaoni.m4a": "5a662fc4a966839e39fbb7f25552180e655aecfbdac18f78829afc855cfe5c9b",
+    "audio/zh-CN/zf_xiaoxiao.json": "59790c75c2cbc538b83f1767fb7c9de0ba84ce3f9362f0a94d90d057174ee4a8",
+    "audio/zh-CN/zf_xiaoxiao.m4a": "ce536f37e9068e675f6a2eb8aea5056ec3442bf541c388890d28e23ae1a56af7",
+    "audio/zh-CN/zf_xiaoyi.json": "1623f8adff7fb3ac0874b273ffb69ee53e6efdfd95d1d2a70560c99dd543c5cf",
+    "audio/zh-CN/zf_xiaoyi.m4a": "4aab58122411cd61d534e358ecfb23ca54b4b00b2872743f2b9e3dce8a0082c2",
+    "audio/zh-CN/zm_yunjian.json": "00438bf7a81750dbd167a42cb4d39d4c466eb2652b458ec3e231ce041d9ce49e",
+    "audio/zh-CN/zm_yunjian.m4a": "0e19fe696355726539d920574ce8ac510d609680bc0ed657e40e1edd4d54f97f",
+    "audio/zh-CN/zm_yunxi.json": "fc94cdbf854303d0e11bbe8a1bd4ee6cb32ab2cfd6e8293f25bcb78ac1deb110",
+    "audio/zh-CN/zm_yunxi.m4a": "0f909fe3691bdf57e38209f7b2c8eadae6745e15d695f080bb3567cf04373db6",
+    "audio/zh-CN/zm_yunxia.json": "545590de693453d9e882effd47b46527614978b84feb03aa8c9ff387eedca8b0",
+    "audio/zh-CN/zm_yunxia.m4a": "0ca0a80cacfe3f1d124f5ad5f81410a784791f6c534a081a748c12674cf3f482",
+    "audio/zh-CN/zm_yunyang.json": "4b46b42168b6e9d26ee0b029966bb0043c432d64fe3cb0aa620226d0d8149d65",
+    "audio/zh-CN/zm_yunyang.m4a": "fb935454bcbe570a3a44d664993a1c8449f36e8d015a3eeb0f1d726a1d4487da",
+    "captions/en/af_heart.vtt": "21758420afdf1b3711aab3da4a569c93b7dad6b3fb89aee40ed4ebe143e23044",
+    "captions/es/ef_dora.vtt": "5800fc335ddc8e9a49e46eb5db2f3c9e4a3a9e8c707b65f3d2315c6fd8c50376",
+    "captions/es/em_alex.vtt": "fc2d6ed84b79803652e513e545768e0a2fad4216d2f61f140489d1aa364b35f8",
+    "captions/es/em_santa.vtt": "de6e7081e99361a46ca6ddadb46ced6ba1ff018e30a9d3b0414acbb17db1c7c2",
+    "captions/fr/ff_siwis.vtt": "4ae659abb98882470d9c78937c5376456856fbcb1d8a331f10593376aeb081ef",
+    "captions/hi/hf_alpha.vtt": "c2693f57ccd8aa080fc16017704c0ec885f861c5270b7692b32d56fdf3c606a5",
+    "captions/hi/hf_beta.vtt": "021c46154061cdec07364d456f1510c518a139bcae10d07d2dbee0e1f3943c34",
+    "captions/hi/hm_omega.vtt": "fae4e860d007402c72b853fa8880e650fa701e90ddb28698e3ee55c752f8ef6b",
+    "captions/hi/hm_psi.vtt": "db0de35117d12b6fff5f88823aa8580ecfdce15944f945e836f76d1835a53b03",
+    "captions/it/if_sara.vtt": "0d529b1f060bb19e5c71d0a134961f3b0f8812b51199fe9b7245a0c8fc487590",
+    "captions/it/im_nicola.vtt": "dd1d1e14a86d694b99f33727754847b333fa34721944cd858d64f4a0a6d8ae5b",
+    "captions/ja/jf_alpha.vtt": "196cf35ce34342b87c9be21c44bc7662e38c0dd509a0442379e54a0d5103f247",
+    "captions/ja/jf_gongitsune.vtt": "5af7a65a980449dc16a7a1798b3e0504542f3a4d0299615219ea74190c0b0e9d",
+    "captions/ja/jf_nezumi.vtt": "120e629e98688f85dbcf2ffabb03bf24bbc53a61dc6c5fca541c749a33d8683a",
+    "captions/ja/jf_tebukuro.vtt": "ee42ed4e17137ea5d1c385e3fd198f59eb1cfb5deefc896c6b8674bfea5ea78d",
+    "captions/ja/jm_kumo.vtt": "ce36cd0a4f64e5de79d4302ab32691013cb735427cb192d0d2c9d0a8dfbbf6cc",
+    "captions/pt-BR/pf_dora.vtt": "5f293afbd1c7b3279aeeb620cb9da73ab20f4d3d7c80fb58e0c6b746b3919f74",
+    "captions/pt-BR/pm_alex.vtt": "afbcd26849b5b8ca348d4fa2e65ca84894fc4e37c72af654db6f236e031af6a1",
+    "captions/pt-BR/pm_santa.vtt": "961052a69750a543dec1c7613c1a896b3601a7e08dc06bbad1142c222a923042",
+    "captions/zh-CN/zf_xiaobei.vtt": "27fe014ad7fdba1e6c9d026f983534fd2eaf72f52538f98ccacd88cd64263577",
+    "captions/zh-CN/zf_xiaoni.vtt": "3d21b27d6d7d50c6edd74141decd8e7328501876cd0c99dd38e795906a95ec6d",
+    "captions/zh-CN/zf_xiaoxiao.vtt": "f52eb22a57fa9ec73886b245654ac0a97fffc5aee4f756ead9a67a2e14bf8ca5",
+    "captions/zh-CN/zf_xiaoyi.vtt": "50ab3a5c0481d4a80e9c53f3c2df503ad68f763eb1e88e89e9e94be6c6e996ca",
+    "captions/zh-CN/zm_yunjian.vtt": "8fb2adccf04ac54f8a4b1a8d708409ea321221249bde6f7f874a6665bd865b05",
+    "captions/zh-CN/zm_yunxi.vtt": "5e897f6425525338120165fa137485718ddcecf2b0c7d2de2debe50f7aeb25b4",
+    "captions/zh-CN/zm_yunxia.vtt": "2525babecc62e01cc395cb16cda262b28b6d6896c9d0373cb619c10745e38941",
+    "captions/zh-CN/zm_yunyang.vtt": "fb8c4932c063c14bed70501363d0378337227f4a876bf90d8a49fd7a19e60e13"
+  },
+  "translation_reviews": {
+    "da": "5733777916561df1997773e74a43ef023771a98798aa3d7a9fb2be87e92b4f63",
+    "de": "5733777916561df1997773e74a43ef023771a98798aa3d7a9fb2be87e92b4f63",
+    "es": "5733777916561df1997773e74a43ef023771a98798aa3d7a9fb2be87e92b4f63",
+    "fr": "5733777916561df1997773e74a43ef023771a98798aa3d7a9fb2be87e92b4f63",
+    "hi": "5733777916561df1997773e74a43ef023771a98798aa3d7a9fb2be87e92b4f63",
+    "is": "5733777916561df1997773e74a43ef023771a98798aa3d7a9fb2be87e92b4f63",
+    "it": "5733777916561df1997773e74a43ef023771a98798aa3d7a9fb2be87e92b4f63",
+    "ja": "5733777916561df1997773e74a43ef023771a98798aa3d7a9fb2be87e92b4f63",
+    "ko": "5733777916561df1997773e74a43ef023771a98798aa3d7a9fb2be87e92b4f63",
+    "nb": "5733777916561df1997773e74a43ef023771a98798aa3d7a9fb2be87e92b4f63",
+    "pt-BR": "5733777916561df1997773e74a43ef023771a98798aa3d7a9fb2be87e92b4f63",
+    "sv": "5733777916561df1997773e74a43ef023771a98798aa3d7a9fb2be87e92b4f63",
+    "zh-CN": "5733777916561df1997773e74a43ef023771a98798aa3d7a9fb2be87e92b4f63"
+  },
+  "review_kind": "AI technical review (Codex), no native-speaker signoff",
+  "human_listening_signoff": false,
+  "media_rendered": false,
+  "published": false
+}

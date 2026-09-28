@@ -2,7 +2,46 @@
 EQUAL GUTTERS, NO PER-MODULE PROSE IN THE README, AND REAL API PAGES
 ================================================================================
 
-Status:    2026-09-25: DONE here; remaining: docs lane only -- the
+Status:    DONE 2026-09-27: repaired gutters measured equal on live GitHub at
+           both desktop widths, with zero spread and full-page screenshots.
+           Translation and API landing-page tails are complete.
+
+2026-09-27 -- LIVE REPAIR ACCEPTED
+  - Actual nightly 4044d70de0ac2273a42ca3801775c259dd845db2 was pinned before
+    and after both measurements. No page styles or content were altered.
+  - At 1440 CSS pixels, horizontal and vertical gaps are both 8.3798828125px.
+    At 1024, both are 5.8193359375px. All measured neighboring pairs have
+    zero spread, satisfying the unchanged 1px tolerance. All 21 tiles load,
+    retaining the intended six-column rows and section separators.
+  - Receipt, executed measurement, exact loaded PNGs and complete unmodified
+    page screenshots: features/data/366_live_gutters_verified_2026-09-27/.
+    These full-page screenshots supersede the clipped images in the first
+    passing scratch run. The original failed live measurement is retained.
+  - The September20 removal approval, prior API landing-page acceptance,
+    current nine-locale API/runtime receipts, 34 README checks and three
+    actual PyPI render checks together close this item's remaining scope.
+    Full final documentation HTML/deployment remains tracked separately.
+
+2026-09-27 measured correction:
+  - The actual nightly page at 90fb0c63f2393b8ab5301e8483b877d5c82ff6e8
+    failed the unchanged 1 CSS pixel criterion at both 1440 and 1024 widths.
+    Evidence: features/data/366_live_gutters_2026-09-27/.
+  - GitHub strips docutils' middle-alignment class. The canonical README
+    generator now emits the supported HTML align attribute, retaining all
+    21 tile images, links, widths, translated alternative text and row breaks.
+    Sphinx keeps image directives; PyPI converts the raw tile substitutions
+    back to RST because its renderer disables raw HTML.
+  - Local HTML4/GitHub-CSS preview gives equal horizontal/vertical gaps at
+    both widths, with zero spread. This is not live acceptance. All nine
+    canonical README audits pass, 34 focused README contracts pass, and the
+    three real PyPI rendering/conversion checks pass in the existing docs
+    environment. The latter resolves the missing-renderer skip in the
+    application environment. Coverage retains 8,726 runtime entries and
+    11,865 API symbols in every locale; only README byte counts change.
+    Evidence: features/data/366_gutter_alignment_2026-09-27/.
+  - Publish and repeat the unmodified live measurement before marking DONE.
+
+Prior status (historical): 2026-09-25: DONE here; remaining: docs lane only -- the
            quiet_crop_paths docstring in the reviewed API packs other than
            de ("Loading stopped" reached hi/is on nightly the same day). Today the Embeddings tile was redrawn from 527's new outline
            icon, which had left the README guard red.
@@ -896,3 +935,30 @@ pack for de only. No code is owed under 366.
 
 2026-09-25, after merging nightly: the hi/is runtime catalogs now carry
 this item's strings (checked by grep of spacr/qt/i18n_catalogs/hi.py, is.py).
+
+2026-09-27 -- TRANSLATION TAIL CLOSED; LIVE GUTTER RECEIPT STILL REQUIRED
+--------------------------------------------------------------------------------
+Read-only inspection of all nine API catalogs confirms that
+spacr.crops.quiet_crop_paths has the current English symbol hash
+af1b8a4f56d4064cb4ebcf6c7c1614d738c2ce1e46be303cb9e0f77a7eb22ecf
+and all four current block hashes. Every locale has four source-bound
+reviewed records, and each exact reviewed translation appears in its catalog.
+German evidence is 2026-09-21-crop-diagnostics-curation.json; the other eight
+use 2026-09-25-api-debt-000.json under docs/i18n/reviewed/api/<locale>/.
+Loading stopped is also present in all nine runtime catalogs.
+
+The shared acceptance receipts are
+features/data/316_runtime_codex_delta_2026-09-27.json (54 strict runtime
+checks, advisory plugin disabled, nine canonical locale audits accepted) and
+features/data/411_api_delta3_2026-09-27.json (207 API checks, zero API audit
+failures; commit 7d38d35d1). No new GPU work or native-speaker signoff.
+
+The original acceptance explicitly requires measured horizontal and vertical
+gaps on github.com, recorded as evidence. Earlier notes document the old
+9px-padding/16px-paragraph-margin diagnosis and the line-block correction,
+but this audit found no numerical post-fix live receipt. That bounded browser
+measurement remains open; a local render or a source assertion is not a
+substitute. The September20 approval to remove Make Masks prose and the
+September25 landing-page/loader validation remain valid historical evidence.
+The current README has 21 Home tiles after the intentional four-assay to
+three-organism replacement in 1d5a80f78; measure that actual grid.

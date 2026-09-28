@@ -1,0 +1,656 @@
+name: legacy native installer acceptance
+on:
+  workflow_dispatch:
+  push:
+    branches: [nightly]
+    paths:
+      - .github/workflows/frozen-installers.yml
+      - packaging/build_windows.ps1
+      - packaging/build_macos.sh
+      - packaging/build_debian.sh
+      - packaging/spacr.spec
+      - packaging/spacr_launcher.py
+      - spacr/install_cleanup.py
+      - packaging/verify_claude_native_install.ps1
+      - packaging/verify_claude_native_install.sh
+      - spacr/qt/startup_benchmark.py
+permissions:
+  contents: read
+env:
+  SPACR_DEVICE: cpu
+  CUDA_VISIBLE_DEVICES: ''
+  HIP_VISIBLE_DEVICES: ''
+  ROCR_VISIBLE_DEVICES: ''
+  OMP_NUM_THREADS: '2'
+  OPENBLAS_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+concurrency:
+  group: legacy-native-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  build-frozen:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2025
+            platform: windows
+          - os: macos-15
+            platform: macos
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Install clean CPU build dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install 'pyinstaller>=6.10,<7'
+          if [ '${{ matrix.platform }}' = windows ]; then
+            python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          fi
+          python -m pip install .
+          python -m pip check
+          mkdir -p acceptance
+          git rev-parse HEAD > acceptance/source-commit.txt
+          python -m pip freeze > acceptance/build-dependencies.txt
+      - name: Build Windows onedir and NSIS installer
+        if: matrix.platform == 'windows'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $version = '3.13'
+          $expected = 'db9a1038bbc0e53fef24f423fd609979bd578e942f1be1198db186d1c42652a3'
+          $direct = 'https://downloads.sourceforge.net/project/nsis/NSIS%203/3.13/nsis-3.13-setup.exe'
+          $mirror = 'https://master.dl.sourceforge.net/project/nsis/NSIS%203/3.13/nsis-3.13-setup.exe'
+          $urls = @($direct, $mirror, $direct)
+          $stage = Join-Path $env:RUNNER_TEMP ('nsis-build-' + [Guid]::NewGuid().ToString('N'))
+          [void](New-Item -ItemType Directory -Path $stage)
+          $installer = Join-Path $stage 'nsis-3.13-setup.exe'
+          $evidence = 'acceptance/nsis-acquisition'
+          [void](New-Item -ItemType Directory -Force -Path $evidence)
+          $receipt = [ordered]@{status='failed'; version=$version; expected_sha256=$expected; source_commit=$env:GITHUB_SHA; attempts=[Collections.Generic.List[object]]::new()}
+          try {
+            for ($index = 0; $index -lt $urls.Count; $index++) {
+              $number = $index + 1
+              $payload = Join-Path $evidence "attempt-$number.bin"
+              $attempt = [ordered]@{number=$number; url=$urls[$index]; payload=$payload; verified=$false; started_utc=[DateTime]::UtcNow.ToString('o')}
+              try {
+                $response = Invoke-WebRequest -Uri $urls[$index] -OutFile $payload -PassThru -SkipHttpErrorCheck -TimeoutSec 120 -MaximumRetryCount 0
+                $attempt.http_status = [int]$response.StatusCode
+                $attempt.final_url = $response.BaseResponse.RequestMessage.RequestUri.AbsoluteUri
+                $attempt.headers = [ordered]@{}
+                foreach ($header in $response.Headers.GetEnumerator()) {
+                  $attempt.headers[$header.Key] = $header.Value -join ', '
+                }
+              } catch {
+                $attempt.error = $_.Exception.Message
+              } finally {
+                if (Test-Path -LiteralPath $payload -PathType Leaf) {
+                  $attempt.bytes = (Get-Item -LiteralPath $payload).Length
+                  $attempt.actual_sha256 = (Get-FileHash -LiteralPath $payload -Algorithm SHA256).Hash.ToLowerInvariant()
+                  $stream = [IO.File]::OpenRead((Resolve-Path -LiteralPath $payload).Path)
+                  try { $attempt.pe_magic = ($stream.ReadByte() -eq 77 -and $stream.ReadByte() -eq 90) }
+                  finally { $stream.Dispose() }
+                  $attempt.verified = ($attempt.http_status -eq 200 -and $attempt.actual_sha256 -eq $expected -and $attempt.pe_magic)
+                }
+                $attempt.completed_utc = [DateTime]::UtcNow.ToString('o')
+                $receipt.attempts.Add($attempt)
+                $attempt | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $evidence "attempt-$number.json") -Encoding utf8
+              }
+              if ($attempt.verified) {
+                Copy-Item -LiteralPath $payload -Destination $installer
+                $receipt.selected_attempt = $number
+                $receipt.url = $attempt.url
+                break
+              }
+              if ($number -lt $urls.Count) { Start-Sleep -Seconds 5 }
+            }
+            if (-not (Test-Path -LiteralPath $installer -PathType Leaf)) {
+              $packageUrl = 'https://community.chocolatey.org/api/v2/package/nsis.install/3.13.0'
+              $packageExpected = 'cefd57d4ebbc56d3ab104034044f54d61918642d51f6fcc44ff8d6c960533f91'
+              $packagePath = Join-Path $evidence 'nsis.install.3.13.0.nupkg'
+              $entryPath = 'tools/nsis-3.13-setup.exe'
+              $entryBytes = 1567985
+              $entryPayload = Join-Path $evidence 'package-installer.bin'
+              $fallback = [ordered]@{url=$packageUrl; payload=$packagePath; expected_sha256=$packageExpected; expected_bytes=1553581; entry=$entryPath; entry_expected_bytes=$entryBytes; verified=$false; started_utc=[DateTime]::UtcNow.ToString('o')}
+              $receipt.package_fallback = $fallback
+              try {
+                $handler = [Net.Http.HttpClientHandler]::new()
+                $handler.MaxAutomaticRedirections = 5
+                $client = [Net.Http.HttpClient]::new($handler)
+                $client.Timeout = [TimeSpan]::FromSeconds(120)
+                $deadline = [Threading.CancellationTokenSource]::new(120000)
+                $response = $null
+                try {
+                  $response = $client.GetAsync($packageUrl, [Net.Http.HttpCompletionOption]::ResponseHeadersRead, $deadline.Token).GetAwaiter().GetResult()
+                  $fallback.http_status = [int]$response.StatusCode
+                  $fallback.final_url = $response.RequestMessage.RequestUri.AbsoluteUri
+                  $fallback.headers = [ordered]@{}
+                  foreach ($header in @($response.Headers) + @($response.Content.Headers)) { $fallback.headers[$header.Key] = $header.Value -join ', ' }
+                  $downloadStream = $response.Content.ReadAsStreamAsync($deadline.Token).GetAwaiter().GetResult()
+                  try {
+                    $downloadOutput = [IO.File]::Open((Join-Path (Get-Location).Path $packagePath), [IO.FileMode]::CreateNew, [IO.FileAccess]::Write)
+                    try {
+                      $downloadBuffer = [byte[]]::new(65536)
+                      $downloadTotal = 0
+                      while (($downloadCount = $downloadStream.ReadAsync($downloadBuffer, 0, [Math]::Min($downloadBuffer.Length, $fallback.expected_bytes - $downloadTotal + 1), $deadline.Token).GetAwaiter().GetResult()) -gt 0) {
+                        $downloadOutput.Write($downloadBuffer, 0, $downloadCount)
+                        $downloadTotal += $downloadCount
+                        if ($downloadTotal -gt $fallback.expected_bytes) { $fallback.download_limit_exceeded = $true; throw 'NSIS package download exceeded its exact byte bound.' }
+                      }
+                      $fallback.download_complete = $true
+                    } finally { $downloadOutput.Dispose() }
+                  } finally { $downloadStream.Dispose() }
+                } finally {
+                  if ($response) { $response.Dispose() }
+                  $deadline.Dispose()
+                  $client.Dispose()
+                }
+                $fallback.bytes = (Get-Item -LiteralPath $packagePath).Length
+                $fallback.actual_sha256 = (Get-FileHash -LiteralPath $packagePath -Algorithm SHA256).Hash.ToLowerInvariant()
+                if ($fallback.http_status -ne 200 -or $fallback.bytes -ne $fallback.expected_bytes -or $fallback.actual_sha256 -ne $packageExpected) { throw 'Exact NSIS package status, size or checksum mismatch.' }
+                $archive = [IO.Compression.ZipFile]::OpenRead((Resolve-Path -LiteralPath $packagePath).Path)
+                try {
+                  if ($archive.Entries.Count -gt 32) { throw 'NSIS package entry count exceeds its bound.' }
+                  $entryMatches = @($archive.Entries | Where-Object { $_.FullName -ieq $entryPath })
+                  if ($entryMatches.Count -ne 1 -or $entryMatches[0].FullName -cne $entryPath) { throw 'NSIS package installer entry is absent, duplicated or differently cased.' }
+                  $entry = $entryMatches[0]
+                  $entryType = ($entry.ExternalAttributes -shr 16) -band 0xf000
+                  if ($entry.Length -ne $entryBytes -or $entry.CompressedLength -le 0 -or $entry.CompressedLength -gt $fallback.expected_bytes -or $entryType -notin @(0,0x8000)) { throw 'NSIS package installer entry has an unexpected size or file type.' }
+                  $entryStream = $entry.Open()
+                  try {
+                    $entryOutput = [IO.File]::Open((Join-Path (Get-Location).Path $entryPayload), [IO.FileMode]::CreateNew, [IO.FileAccess]::Write)
+                    try {
+                      $buffer = [byte[]]::new(65536)
+                      $total = 0
+                      while (($count = $entryStream.Read($buffer, 0, [Math]::Min($buffer.Length, $entryBytes - $total + 1))) -gt 0) {
+                        if ($total + $count -gt $entryBytes) { throw 'NSIS package installer exceeded its exact byte bound.' }
+                        $entryOutput.Write($buffer, 0, $count)
+                        $total += $count
+                      }
+                      if ($total -ne $entryBytes) { throw 'NSIS package installer was truncated.' }
+                    } finally { $entryOutput.Dispose() }
+                  } finally { $entryStream.Dispose() }
+                } finally { $archive.Dispose() }
+                $fallback.entry_payload = $entryPayload
+                $fallback.entry_actual_sha256 = (Get-FileHash -LiteralPath $entryPayload -Algorithm SHA256).Hash.ToLowerInvariant()
+                $stream = [IO.File]::OpenRead((Resolve-Path -LiteralPath $entryPayload).Path)
+                try { $fallback.pe_magic = ($stream.ReadByte() -eq 77 -and $stream.ReadByte() -eq 90) }
+                finally { $stream.Dispose() }
+                $fallback.verified = ($fallback.entry_actual_sha256 -eq $expected -and $fallback.pe_magic)
+                if (-not $fallback.verified) { throw 'Embedded NSIS installer failed the unchanged checksum and executable-header gate.' }
+                Copy-Item -LiteralPath $entryPayload -Destination $installer
+                $receipt.selected_source = 'exact-package-entry'
+                $receipt.url = $packageUrl
+              } catch {
+                $fallback.error = $_.Exception.Message
+                throw
+              } finally {
+                if (Test-Path -LiteralPath $packagePath -PathType Leaf) {
+                  $fallback.bytes = (Get-Item -LiteralPath $packagePath).Length
+                  $fallback.actual_sha256 = (Get-FileHash -LiteralPath $packagePath -Algorithm SHA256).Hash.ToLowerInvariant()
+                }
+                $fallback.completed_utc = [DateTime]::UtcNow.ToString('o')
+                $fallback | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $evidence 'package-fallback.json') -Encoding utf8
+              }
+            }
+            if (-not (Test-Path -LiteralPath $installer -PathType Leaf)) {
+              throw 'No NSIS download matched the pinned version, checksum and executable header; diagnostic payloads were retained.'
+            }
+            $receipt.actual_sha256 = (Get-FileHash -LiteralPath $installer -Algorithm SHA256).Hash.ToLowerInvariant()
+            if ($receipt.actual_sha256 -ne $expected) { throw 'Pinned NSIS installer checksum mismatch before execution' }
+            $process = Start-Process -FilePath $installer -ArgumentList '/S' -PassThru
+            if (-not $process.WaitForExit(120000)) {
+              try { $process.Kill($true); [void]$process.WaitForExit(10000) } catch { $receipt.termination_error = $_.Exception.Message }
+              throw 'Pinned NSIS installer exceeded its two-minute deadline'
+            }
+            $receipt.installer_exit = $process.ExitCode
+            if ($process.ExitCode -notin @(0,3010)) { throw "Pinned NSIS installer failed: $($process.ExitCode)" }
+            $compiler = Join-Path ${env:ProgramFiles(x86)} 'NSIS\makensis.exe'
+            if (-not (Test-Path -LiteralPath $compiler -PathType Leaf)) { throw 'Installed NSIS compiler is missing' }
+            $reported = (& $compiler /VERSION | Out-String).Trim()
+            $receipt.compiler_version = $reported
+            if ($LASTEXITCODE -ne 0 -or $reported -ne "v$version") { throw "Unexpected NSIS compiler version: $reported" }
+            $receipt.compiler_sha256 = (Get-FileHash -LiteralPath $compiler -Algorithm SHA256).Hash.ToLowerInvariant()
+            $receipt.status = 'passed'
+          } catch {
+            $receipt.error = $_.Exception.Message
+            throw
+          } finally {
+            $receipt | ConvertTo-Json -Depth 8 | Set-Content acceptance/nsis-acquisition.json -Encoding utf8
+          }
+          ./packaging/build_windows.ps1 -SkipDependencyInstall -RequireInstaller
+      - name: Build native macOS app and DMG
+        if: matrix.platform == 'macos'
+        env:
+          SPACR_SKIP_BUILD_DEPENDENCIES: '1'
+        run: packaging/build_macos.sh
+      - name: Hash artifacts
+        shell: bash
+        run: |
+          python -c "import hashlib,pathlib; p=pathlib.Path('acceptance/SHA256SUMS'); files=sorted(f for f in pathlib.Path('dist').iterdir() if f.is_file()); p.write_text(''.join(hashlib.sha256(f.read_bytes()).hexdigest()+'  '+f.name+'\n' for f in files))"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: legacy-build-${{ matrix.platform }}
+          retention-days: 14
+          if-no-files-found: error
+          path: |
+            dist/*.exe
+            dist/*.zip
+            dist/*.dmg
+            dist/spacr-update-helper
+            acceptance/
+            build/**/warn-*.txt
+
+  smoke-frozen:
+    needs: build-frozen
+    if: ${{ always() && !cancelled() }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2025
+            platform: windows
+          - os: macos-15
+            platform: macos
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    env:
+      SPACR_DEVICE: cpu
+      CUDA_VISIBLE_DEVICES: ''
+      HIP_VISIBLE_DEVICES: ''
+      ROCR_VISIBLE_DEVICES: ''
+      OMP_NUM_THREADS: '2'
+      OPENBLAS_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      SPACR_NO_SETUP: '1'
+      SPACR_DISTRIBUTION_SMOKE: '1'
+      SPACR_DISTRIBUTION_KIND: frozen
+      PYTHONNOUSERSITE: '1'
+      PYTHONPATH: ''
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: legacy-build-${{ matrix.platform }}
+          path: incoming
+      - name: Install and launch the actual Windows artifact
+        if: matrix.platform == 'windows'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $Install = Join-Path $env:RUNNER_TEMP 'legacy-install'
+          $Receipt = Join-Path $env:RUNNER_TEMP 'legacy-receipt'
+          $Clean = Join-Path $env:RUNNER_TEMP 'empty-cwd'
+          New-Item -ItemType Directory -Force $Receipt,$Clean | Out-Null
+          $Installer = @(Get-ChildItem incoming/dist/*-setup.exe)
+          if ($Installer.Count -ne 1) { throw 'Expected exactly one native installer' }
+          foreach ($Line in Get-Content incoming/acceptance/SHA256SUMS) {
+            $Parts = $Line -split '  ',2
+            $Actual = (Get-FileHash (Join-Path 'incoming/dist' $Parts[1]) -Algorithm SHA256).Hash
+            if ($Actual -ne $Parts[0]) { throw 'Artifact checksum mismatch' }
+          }
+          $Process = Start-Process $Installer[0].FullName -ArgumentList @('/S', "/D=$Install") -Wait -PassThru
+          if ($Process.ExitCode -ne 0) { throw 'Native installation failed' }
+          $env:SPACR_BENCHMARK_JSON = Join-Path $Receipt 'smoke.json'
+          $env:SPACR_ACCEPTANCE_SOURCE_COMMIT = (Get-Content incoming/acceptance/source-commit.txt).Trim()
+          $env:APPDATA = Join-Path $Receipt 'profile/roaming'
+          $env:LOCALAPPDATA = Join-Path $Receipt 'profile/local'
+          New-Item -ItemType Directory -Force $env:APPDATA,$env:LOCALAPPDATA | Out-Null
+          $env:PYTHONHOME = ''
+          $env:PATH = "$env:SystemRoot\system32;$env:SystemRoot"
+          $Process = Start-Process (Join-Path $Install 'spacr.exe') -WorkingDirectory $Clean -ArgumentList '--no-setup' -PassThru
+          if (-not $Process.WaitForExit(660000)) {
+            & "$env:SystemRoot\system32\taskkill.exe" /PID $Process.Id /T /F
+            throw 'Frozen application timed out'
+          }
+          if ($Process.ExitCode -ne 0) { throw "Frozen application exited $($Process.ExitCode)" }
+          $Result = Get-Content $env:SPACR_BENCHMARK_JSON -Raw | ConvertFrom-Json
+          if ($Result.status -ne 'passed' -or -not $Result.frozen) { throw 'Frozen smoke did not pass' }
+          $HelperSource = Join-Path $Install '_internal/spacr-update-helper.exe'
+          if (-not (Test-Path $HelperSource -PathType Leaf)) { throw 'Bundled standalone helper is missing' }
+          $HelperRoot = Join-Path $env:RUNNER_TEMP ('standalone-helper-' + [guid]::NewGuid())
+          New-Item -ItemType Directory $HelperRoot | Out-Null
+          $Sid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+          & "$env:SystemRoot\system32\icacls.exe" $HelperRoot /inheritance:r /grant:r "*${Sid}:(OI)(CI)F"
+          if ($LASTEXITCODE -ne 0) { throw 'Could not make helper directory private' }
+          $Helper = Join-Path $HelperRoot 'spacr-update-helper.exe'
+          $HelperTemp = Join-Path $HelperRoot 'extraction'
+          New-Item -ItemType Directory $HelperTemp | Out-Null
+          $HelperHash = (Get-FileHash $HelperSource -Algorithm SHA256).Hash
+          Copy-Item -LiteralPath $HelperSource -Destination $Helper
+          if ((Get-FileHash $Helper -Algorithm SHA256).Hash -ne $HelperHash) { throw 'Copied helper hash changed' }
+          Set-Content (Join-Path $Receipt 'helper-sha256.txt') $HelperHash
+          $Unrelated = Join-Path $Install 'preserved-analysis.txt'
+          Set-Content $Unrelated 'This file was not installed by NSIS.'
+          $Uninstall = Start-Process (Join-Path $Install 'Uninstall.exe') -ArgumentList '/S' -Wait -PassThru
+          if ($Uninstall.ExitCode -ne 0) { throw 'Uninstall failed' }
+          $Deadline = (Get-Date).AddSeconds(60)
+          while (((Test-Path (Join-Path $Install 'spacr.exe')) -or (Test-Path (Join-Path $Install '_internal'))) -and (Get-Date) -lt $Deadline) { Start-Sleep 1 }
+          if ((Test-Path (Join-Path $Install 'spacr.exe')) -or (Test-Path (Join-Path $Install '_internal'))) { throw 'Uninstall retained packaged runtime files' }
+          if (-not (Test-Path $Unrelated) -or -not (Test-Path $Result.database)) { throw 'Uninstall removed analysis data' }
+          Set-Content (Join-Path $Receipt 'uninstall.txt') 'Owned executable removed; unrelated and completed analysis files preserved.'
+          if (Test-Path $HelperSource) { throw 'Original bundled helper survived uninstall' }
+          foreach ($Variable in @(Get-ChildItem Env:)) {
+            if ($Variable.Name -match '^(PYTHON|_PYI|LD_|DYLD_)' -or $Variable.Name -in @('LIBPATH','LIBRARY_PATH')) {
+              Remove-Item -LiteralPath ('Env:' + $Variable.Name)
+            }
+          }
+          $env:PATH = ''
+          $env:PYINSTALLER_RESET_ENVIRONMENT = '1'
+          $env:TMPDIR = $env:TMP = $env:TEMP = $HelperTemp
+          $HelperExits = @{}
+          foreach ($Case in @(@{name='help'; arguments=@('--help')}, @{name='run-plan-help'; arguments=@('run-plan','--help')})) {
+            $Stdout = Join-Path $Receipt ('helper-' + $Case.name + '.log')
+            $Stderr = Join-Path $Receipt ('helper-' + $Case.name + '-stderr.log')
+            $Child = Start-Process $Helper -WorkingDirectory $Clean -ArgumentList $Case.arguments -PassThru -RedirectStandardOutput $Stdout -RedirectStandardError $Stderr
+            if (-not $Child.WaitForExit(60000)) {
+              Set-Content (Join-Path $Receipt 'helper-timeout.txt') $Case.name
+              & "$env:SystemRoot\system32\taskkill.exe" /PID $Child.Id /T /F
+              throw 'Copied standalone helper timed out'
+            }
+            $HelperExits[$Case.name] = $Child.ExitCode
+            Set-Content (Join-Path $Receipt ('helper-' + $Case.name + '-exit.txt')) $Child.ExitCode
+            if ($Child.ExitCode -ne 0) { throw 'Copied standalone helper failed' }
+            if ((Get-Content $Stdout -Raw) -notmatch 'install_cleanup' -or (Get-Content $Stdout -Raw) -notmatch 'run-plan') { throw 'Copied helper did not expose its real CLI' }
+          }
+          if ((Get-FileHash $Helper -Algorithm SHA256).Hash -ne $HelperHash) { throw 'Executed helper hash changed' }
+          @{passed=$true; scope='native copied-helper CLI after uninstall, not update execution'; source_commit=$env:SPACR_ACCEPTANCE_SOURCE_COMMIT; source=$HelperSource; helper=$Helper; sha256=$HelperHash; original_removed=$true; path_empty=($env:PATH -eq ''); environment_reset=$true; extraction_root=$HelperTemp; exits=$HelperExits} | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $Receipt 'helper-survival.json')
+      - name: Install and launch the actual macOS artifact
+        if: matrix.platform == 'macos'
+        shell: bash
+        run: |
+          set -euo pipefail
+          install_root="$RUNNER_TEMP/legacy-install"
+          receipt="$RUNNER_TEMP/legacy-receipt"
+          clean="$RUNNER_TEMP/empty-cwd"
+          mount="$RUNNER_TEMP/legacy-mounted"
+          mkdir -p "$install_root" "$receipt" "$clean" "$mount"
+          dmg=(incoming/dist/*.dmg)
+          test "${#dmg[@]}" = 1
+          (cd incoming/dist && shasum -a 256 -c ../acceptance/SHA256SUMS)
+          test ! -e "$install_root/spaCR.app" && test ! -L "$install_root/spaCR.app"
+          hdiutil attach -readonly -nobrowse -mountpoint "$mount" "${dmg[0]}"
+          ditto "$mount/spaCR.app" "$install_root/spaCR.app"
+          hdiutil detach "$mount"
+          codesign --verify --deep --strict "$install_root/spaCR.app"
+          export SPACR_ACCEPTANCE_SOURCE_COMMIT="$(cat incoming/acceptance/source-commit.txt)"
+          export SPACR_BENCHMARK_JSON="$receipt/smoke.json"
+          export SPACR_NATIVE_MENU_SMOKE=1
+          export HOME="$receipt/profile"
+          mkdir -p "$HOME"
+          unset PYTHONHOME
+          export PATH=/usr/bin:/bin:/usr/sbin:/sbin
+          cd "$clean"
+          "$install_root/spaCR.app/Contents/MacOS/spacr" --no-setup > "$receipt/application.log" 2>&1 &
+          app_pid=$!
+          (sleep 660; kill "$app_pid" 2>/dev/null || true) &
+          watchdog_pid=$!
+          trap 'kill "$watchdog_pid" 2>/dev/null || true' EXIT
+          wait "$app_pid"
+          kill "$watchdog_pid" 2>/dev/null || true
+          wait "$watchdog_pid" 2>/dev/null || true
+          trap - EXIT
+          test "$(plutil -extract status raw "$receipt/smoke.json")" = passed
+          test "$(plutil -extract frozen raw "$receipt/smoke.json")" = true
+          test "$(plutil -extract native_menu.mode raw "$receipt/smoke.json")" = in-window-on-cocoa
+          test "$(plutil -extract native_menu.preferences_opened raw "$receipt/smoke.json")" = true
+          test "$(plutil -extract native_menu.quit_observed raw "$receipt/smoke.json")" = true
+          helper_source="$install_root/spaCR.app/Contents/Frameworks/spacr-update-helper"
+          test -x "$helper_source"
+          helper_root=$(mktemp -d "$RUNNER_TEMP/standalone-helper.XXXXXX")
+          chmod 700 "$helper_root"
+          helper="$helper_root/spacr-update-helper"
+          helper_temp="$helper_root/extraction"
+          mkdir -m 700 "$helper_temp"
+          helper_hash=$(shasum -a 256 "$helper_source" | cut -d ' ' -f 1)
+          cp -p "$helper_source" "$helper"
+          test "$(shasum -a 256 "$helper" | cut -d ' ' -f 1)" = "$helper_hash"
+          printf '%s\n' "$helper_hash" > "$receipt/helper-sha256.txt"
+          database=$(plutil -extract database raw "$receipt/smoke.json")
+          test "$install_root" = "$RUNNER_TEMP/legacy-install"
+          test -d "$install_root/spaCR.app" && test ! -L "$install_root/spaCR.app"
+          rm -rf -- "$install_root/spaCR.app"
+          test ! -e "$install_root/spaCR.app"
+          test ! -e "$helper_source"
+          test -s "$database"
+          printf '%s\n' 'Only the job-created installed app was removed; analysis database preserved.' > "$receipt/uninstall.txt"
+          run_helper() {
+            label="$1"
+            shift
+            /usr/bin/env -i HOME="$HOME" PATH= PYINSTALLER_RESET_ENVIRONMENT=1 TMPDIR="$helper_temp" TMP="$helper_temp" TEMP="$helper_temp" "$helper" "$@" > "$receipt/helper-$label.log" 2>&1 &
+            helper_pid=$!
+            (/bin/sleep 60; printf '%s\n' "$label" > "$receipt/helper-timeout.txt"; /bin/kill -TERM "$helper_pid" 2>/dev/null || true; /bin/sleep 5; /bin/kill -KILL "$helper_pid" 2>/dev/null || true) &
+            helper_watchdog=$!
+            if wait "$helper_pid"; then helper_status=0; else helper_status=$?; fi
+            kill "$helper_watchdog" 2>/dev/null || true
+            wait "$helper_watchdog" 2>/dev/null || true
+            printf '%s\n' "$helper_status" > "$receipt/helper-$label-exit.txt"
+            test ! -e "$receipt/helper-timeout.txt"
+            test "$helper_status" = 0
+            grep -q install_cleanup "$receipt/helper-$label.log"
+            grep -q run-plan "$receipt/helper-$label.log"
+          }
+          run_helper help --help
+          run_helper run-plan-help run-plan --help
+          test "$(shasum -a 256 "$helper" | cut -d ' ' -f 1)" = "$helper_hash"
+          printf '{"passed":true,"scope":"native copied-helper CLI after app removal, not update execution","sha256":"%s","source_commit":"%s","original_removed":true,"path_empty":true,"environment_reset":true,"help_exit":0,"run_plan_help_exit":0}\n' "$helper_hash" "$SPACR_ACCEPTANCE_SOURCE_COMMIT" > "$receipt/helper-survival.json"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: legacy-smoke-${{ matrix.platform }}
+          path: ${{ runner.temp }}/legacy-receipt/
+          retention-days: 14
+          if-no-files-found: error
+
+  claude-native-windows:
+    needs: smoke-frozen
+    if: ${{ always() && !cancelled() }}
+    runs-on: windows-2025
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        shell: [cmd, powershell51]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: legacy-smoke-windows
+          path: native-receipt
+      - name: Execute the exact artifact-provided install hint without Node or npm
+        shell: pwsh
+        run: |
+          $Output = Join-Path $env:RUNNER_TEMP 'claude-command-receipt'
+          $Clean = Join-Path $env:RUNNER_TEMP 'claude-empty-cwd'
+          New-Item -ItemType Directory -Force $Clean | Out-Null
+          $Script = Join-Path $env:GITHUB_WORKSPACE 'packaging/verify_claude_native_install.ps1'
+          $Receipt = Join-Path $env:GITHUB_WORKSPACE 'native-receipt/smoke.json'
+          Set-Location $Clean
+          & $Script -NativeReceipt $Receipt -Shell '${{ matrix.shell }}' -Output $Output
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: claude-native-command-${{ matrix.shell }}
+          path: |
+            ${{ runner.temp }}/claude-command-receipt/*.json
+            ${{ runner.temp }}/claude-command-receipt/*.log
+            ${{ runner.temp }}/claude-command-receipt/*.cmd
+            ${{ runner.temp }}/claude-command-receipt/*.ps1
+          retention-days: 14
+          if-no-files-found: error
+
+  claude-native-linux:
+    needs: smoke-debian
+    if: ${{ always() && !cancelled() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: legacy-smoke-0-debian
+          path: native-receipt
+      - name: Run the artifact hint as a normal user in Ubuntu without Node
+        shell: bash
+        run: |
+          set -euo pipefail
+          output="$RUNNER_TEMP/claude-command-receipt"
+          mkdir -p "$output"
+          docker run --rm --pull always \
+            -e ACCEPTANCE_COMMIT="$GITHUB_SHA" \
+            -v "$GITHUB_WORKSPACE/packaging/verify_claude_native_install.sh:/acceptance/verify.sh:ro" \
+            -v "$GITHUB_WORKSPACE/native-receipt:/acceptance/native-receipt:ro" \
+            -v "$output:/acceptance/output" \
+            ubuntu:22.04 /bin/bash -euc '
+              apt-get update
+              DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends bash ca-certificates curl file jq passwd util-linux
+              useradd --create-home --shell /bin/bash --uid 1000 claude-acceptance
+              chown claude-acceptance:claude-acceptance /acceptance/output
+              runuser -u claude-acceptance -- env HOME=/home/claude-acceptance \
+                /bin/bash /acceptance/verify.sh /acceptance/native-receipt/smoke.json \
+                /acceptance/output "$ACCEPTANCE_COMMIT" ubuntu-container
+            ' 2>&1 | tee "$output/container.log"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: claude-native-command-linux
+          path: ${{ runner.temp }}/claude-command-receipt/
+          retention-days: 14
+          if-no-files-found: error
+
+  claude-native-macos:
+    needs: smoke-frozen
+    if: ${{ always() && !cancelled() }}
+    runs-on: macos-15
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: legacy-smoke-macos
+          path: native-receipt
+      - name: Run the artifact hint in the real account login shell with Node excluded
+        shell: bash
+        run: |
+          set -euo pipefail
+          /bin/bash "$GITHUB_WORKSPACE/packaging/verify_claude_native_install.sh" \
+            "$GITHUB_WORKSPACE/native-receipt/smoke.json" \
+            "$RUNNER_TEMP/claude-command-receipt" "$GITHUB_SHA" macos-hosted
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: claude-native-command-macos
+          path: ${{ runner.temp }}/claude-command-receipt/
+          retention-days: 14
+          if-no-files-found: error
+
+  build-debian:
+    runs-on: ubuntu-24.04
+    container: ubuntu:22.04
+    timeout-minutes: 90
+    steps:
+      - name: Prepare clean minimum-version builder
+        run: apt-get update && apt-get install -y git ca-certificates
+      - uses: actions/checkout@v7
+      - name: Build the self-contained Debian artifact on Ubuntu 22.04
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p acceptance
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git rev-parse HEAD > acceptance/source-commit.txt
+          PATH=/usr/bin:/bin packaging/build_debian.sh 2>&1 | tee acceptance/debian-build.log
+          dpkg-deb -I dist/*.deb > acceptance/debian-control.txt
+          sha256sum dist/*.deb > acceptance/SHA256SUMS
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: legacy-build-debian
+          retention-days: 14
+          if-no-files-found: error
+          path: |
+            dist/*.deb
+            acceptance/
+            build/**/warn-*.txt
+
+  smoke-debian:
+    needs: build-debian
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        container: ['ubuntu:22.04', 'debian:12']
+    container: ${{ matrix.container }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: legacy-build-debian
+          path: incoming
+      - name: Install Debian artifact without source or pip supplementation
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/legacy-receipt" "$RUNNER_TEMP/empty-cwd"
+          (cd incoming && sha256sum -c acceptance/SHA256SUMS)
+          apt-get update
+          apt-get install -y ./incoming/dist/*.deb xvfb xauth jq 2>&1 | tee "$RUNNER_TEMP/legacy-receipt/install.log"
+          command -v /usr/bin/spacr
+          test -x /opt/spacr/spacr
+          test -s /usr/share/applications/io.github.olafssonlab.spacr.desktop
+          test -s /usr/share/icons/hicolor/256x256/apps/io.github.olafssonlab.spacr.png
+          dpkg -L spacr > "$RUNNER_TEMP/legacy-receipt/package-files.txt"
+          export SPACR_ACCEPTANCE_SOURCE_COMMIT="$(cat incoming/acceptance/source-commit.txt)"
+          export SPACR_BENCHMARK_JSON="$RUNNER_TEMP/legacy-receipt/smoke.json"
+          export SPACR_DISTRIBUTION_SMOKE=1 SPACR_DISTRIBUTION_KIND=debian-frozen SPACR_DEVICE=cpu SPACR_NO_SETUP=1
+          export CUDA_VISIBLE_DEVICES= HIP_VISIBLE_DEVICES= ROCR_VISIBLE_DEVICES= PYTHONPATH= PYTHONNOUSERSITE=1
+          export OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 MKL_NUM_THREADS=2 QT_QPA_PLATFORM=xcb
+          export HOME="$RUNNER_TEMP/legacy-receipt/profile"
+          export XDG_CONFIG_HOME="$HOME/.config"
+          mkdir -p "$XDG_CONFIG_HOME"
+          unset PYTHONHOME
+          cd "$RUNNER_TEMP/empty-cwd"
+          PATH=/usr/bin:/bin timeout --kill-after=20s 660s xvfb-run -a /usr/bin/spacr --no-setup > "$RUNNER_TEMP/legacy-receipt/application.log" 2>&1
+          jq -e '.status == "passed" and .frozen == true and .kind == "debian-frozen"' "$SPACR_BENCHMARK_JSON"
+          database=$(jq -r .database "$SPACR_BENCHMARK_JSON")
+          helper_source=/opt/spacr/_internal/spacr-update-helper
+          test -x "$helper_source"
+          helper_root=$(mktemp -d "$RUNNER_TEMP/standalone-helper.XXXXXX")
+          chmod 700 "$helper_root"
+          helper="$helper_root/spacr-update-helper"
+          helper_temp="$helper_root/extraction"
+          mkdir -m 700 "$helper_temp"
+          helper_hash=$(sha256sum "$helper_source" | cut -d ' ' -f 1)
+          cp -p "$helper_source" "$helper"
+          test "$(sha256sum "$helper" | cut -d ' ' -f 1)" = "$helper_hash"
+          printf '%s\n' "$helper_hash" > "$RUNNER_TEMP/legacy-receipt/helper-sha256.txt"
+          dpkg --remove spacr
+          test ! -e /opt/spacr
+          test ! -e /usr/bin/spacr
+          test ! -e /usr/share/applications/io.github.olafssonlab.spacr.desktop
+          test -s "$database"
+          printf '%s\n' 'Package removal preserved the completed analysis database.' > "$RUNNER_TEMP/legacy-receipt/uninstall.txt"
+          test ! -e "$helper_source"
+          for label in help run-plan-help; do
+            if [ "$label" = help ]; then set -- --help; else set -- run-plan --help; fi
+            helper_status=0
+            /usr/bin/timeout --kill-after=5s 60s /usr/bin/env -i HOME="$HOME" PATH= PYINSTALLER_RESET_ENVIRONMENT=1 TMPDIR="$helper_temp" TMP="$helper_temp" TEMP="$helper_temp" "$helper" "$@" > "$RUNNER_TEMP/legacy-receipt/helper-$label.log" 2>&1 || helper_status=$?
+            printf '%s\n' "$helper_status" > "$RUNNER_TEMP/legacy-receipt/helper-$label-exit.txt"
+            test "$helper_status" = 0
+            grep -q install_cleanup "$RUNNER_TEMP/legacy-receipt/helper-$label.log"
+            grep -q run-plan "$RUNNER_TEMP/legacy-receipt/helper-$label.log"
+          done
+          test "$(sha256sum "$helper" | cut -d ' ' -f 1)" = "$helper_hash"
+          jq -n --arg sha256 "$helper_hash" --arg source_commit "$SPACR_ACCEPTANCE_SOURCE_COMMIT" --arg helper "$helper" --arg extraction_root "$helper_temp" '{passed:true,scope:"native copied-helper CLI after package removal, not update execution",sha256:$sha256,source_commit:$source_commit,helper:$helper,extraction_root:$extraction_root,original_removed:true,path_empty:true,environment_reset:true,help_exit:0,run_plan_help_exit:0}' > "$RUNNER_TEMP/legacy-receipt/helper-survival.json"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: legacy-smoke-${{ strategy.job-index }}-debian
+          path: ${{ runner.temp }}/legacy-receipt/
+          retention-days: 14
+          if-no-files-found: error

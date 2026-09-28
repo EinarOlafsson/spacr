@@ -28,73 +28,121 @@
       "id": "01_pypi_github",
       "number": 1,
       "slug": "pypi_github",
-      "title": "Find spaCR on GitHub, PyPI and conda-forge",
+      "title": "Encontrar o spaCR no GitHub, no PyPI e no conda-forge",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Find the official package and installer sources, compare the release available on each channel, and choose the matching installation tutorial.",
+      "description": "Encontre as fontes oficiais do pacote e dos instaladores, compare a versão disponível em cada canal e escolha o tutorial de instalação correspondente.",
       "objectives": [
-        "Find the official download pages.",
-        "Choose the installation route for your computer.",
-        "Open the matching installation tutorial."
+        "Encontrar as páginas oficiais de download.",
+        "Escolher a forma de instalação para o seu computador.",
+        "Abrir o tutorial de instalação correspondente."
       ],
-      "prerequisite": "Open a web browser and decide whether you want a desktop installer or a Python environment.",
+      "prerequisite": "Abra um navegador e decida se você quer um instalador de desktop ou um ambiente Python.",
       "scenes": [
         {
           "visual": "01_pypi_current_release",
-          "narration": "Choose how you want to install spaCR. Use a desktop installer for a ready-to-launch application, pip for a Python virtual environment, or conda-forge for a Conda environment. Start from the official spaCR links shown here.",
-          "hold_after": 0.7
+          "narration": "Escolha como você quer instalar o spaCR. Use um instalador de desktop para um aplicativo pronto para abrir, o pip para um ambiente virtual Python ou o conda-forge para um ambiente Conda. Comece pelos links oficiais do spaCR mostrados aqui.",
+          "hold_after": 0.7,
+          "speech_text": "Escolha como você quer instalar o espáquer. Use um instalador de desktop para um aplicativo pronto para abrir, o pip para um ambiente virtual Python ou o Conda Forge para um ambiente Conda. Comece pelos links oficiais do espáquer mostrados aqui."
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "On PyPI, find spaCR and read the installation command beside the current release. Copy that command when you are ready to install into your Python environment. The pip tutorial shows how to create and activate that environment first.",
-          "hold_after": 0.7
+          "narration": "No PyPI, encontre o spaCR e leia o comando de instalação ao lado da versão atual. Copie esse comando quando estiver pronto para instalar no seu ambiente Python. O tutorial de pip mostra como criar e ativar esse ambiente antes.",
+          "hold_after": 0.7,
+          "speech_text": "No paip, encontre o espáquer e leia o comando de instalação ao lado da versão atual. Copie esse comando quando estiver pronto para instalar no seu ambiente Python. O tutorial de pip mostra como criar e ativar esse ambiente antes."
         },
         {
           "visual": "02_pypi_project_links",
-          "narration": "Use Project links to open the documentation, source repository or issue tracker. Bookmark the documentation so you can return to the module walkthroughs while working in spaCR.",
-          "hold_after": 0.7
+          "narration": "Use Project links para abrir a documentação, o repositório do código-fonte ou o rastreador de problemas. Adicione a documentação aos favoritos para voltar aos passo a passos dos módulos enquanto trabalha no spaCR.",
+          "hold_after": 0.7,
+          "speech_text": "Use Project links para abrir a documentação, o repositório do código-fonte ou o rastreador de problemas. Adicione a documentação aos favoritos para voltar aos passo a passos dos módulos enquanto trabalha no espáquer."
         },
         {
           "visual": "03_github_main_branch",
-          "narration": "On GitHub, open the spaCR repository. Main contains the release source, and nightly contains the latest development work. For a packaged desktop installation, open Releases and choose a release.",
-          "hold_after": 0.7
+          "narration": "No GitHub, abra o repositório do spaCR. Main contém o código da versão lançada, e nightly contém o trabalho de desenvolvimento mais recente. Para uma instalação de desktop empacotada, abra Releases e escolha uma versão.",
+          "hold_after": 0.7,
+          "speech_text": "No GitHub, abra o repositório do espáquer. Main contém o código da versão lançada, e nightly contém o trabalho de desenvolvimento mais recente. Para uma instalação de desktop empacotada, abra Releases e escolha uma versão."
         },
         {
           "visual": "04_github_current_assets",
-          "narration": "Expand Assets and download the installer for Windows, macOS or Linux. Keep the checksum file from the same release if you want to verify the download. The Platform installers lesson walks through launching the installer and opening spaCR.",
+          "narration": "Expanda Assets e baixe o instalador para Windows, macOS ou Linux. Guarde o arquivo de somas de verificação da mesma versão se quiser verificar o download. A lição de Platform installers mostra como iniciar o instalador e abrir o spaCR.",
           "hold_after": 0.7,
           "related_lessons": [
             "04_platform_installers"
-          ]
+          ],
+          "speech_text": "Expanda Assets e baixe o instalador para Windows, macOS ou Linux. Guarde o arquivo de somas de verificação da mesma versão se quiser verificar o download. A lição de Platform installers mostra como iniciar o instalador e abrir o espáquer."
         },
         {
           "visual": "05_conda_current_package",
-          "narration": "On conda-forge, open the spaCR package page and check the available version. Package channels can update at different times, so select the version available through the route you choose.",
-          "hold_after": 0.7
+          "narration": "No conda-forge, abra a página do pacote spaCR e confira a versão disponível. Os canais de pacotes podem ser atualizados em momentos diferentes, então escolha a versão disponível pela forma que você escolher.",
+          "hold_after": 0.7,
+          "speech_text": "No Conda Forge, abra a página do pacote espáquer e confira a versão disponível. Os canais de pacotes podem ser atualizados em momentos diferentes, então escolha a versão disponível pela forma que você escolher."
         },
         {
           "visual": "05_conda_current_package",
-          "narration": "The conda-forge command installs spaCR into your active Conda environment. Follow the Conda lesson to create that environment, install the package and launch the application.",
+          "narration": "O comando do conda-forge instala o spaCR no seu ambiente Conda ativo. Siga a lição de Conda para criar esse ambiente, instalar o pacote e abrir o aplicativo.",
           "hold_after": 0.7,
           "related_lessons": [
             "02_conda_install"
-          ]
+          ],
+          "speech_text": "O comando do Conda Forge instala o espáquer no seu ambiente Conda ativo. Siga a lição de Conda para criar esse ambiente, instalar o pacote e abrir o aplicativo."
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "Continue with pip, Conda or Platform installers. Once spaCR opens, move to the Home lesson, then the pipeline overviews to choose a workflow for your data.",
+          "narration": "Continue com pip, Conda ou Platform installers. Quando o spaCR abrir, passe para a lição de Home e depois para as visões gerais dos pipelines para escolher um fluxo de trabalho para os seus dados.",
           "hold_after": 0.7,
           "related_lessons": [
             "02_conda_install",
             "03_pip_install",
             "04_platform_installers"
-          ]
+          ],
+          "speech_text": "Continue com pip, Conda ou Platform installers. Quando o espáquer abrir, passe para a lição de Home e depois para as visões gerais dos pipelines para escolher um fluxo de trabalho para os seus dados."
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -427,6 +475,12 @@
           "speech_text": "A configuração pergunta sobre o compartilhamento opcional de diagnósticos e a configuração de conta. Responda y apenas para as opções que você quer; n, o padrão, mantém cada uma desativada. O instalador do Windows mostra as mesmas escolhas como caixas de seleção."
         },
         {
+          "visual": "09_performance",
+          "narration": "Em Preferences, escolha um perfil de Performance para o seu computador. Laptop usa menos recursos; os perfis mais altos permitem mais cache e mais trabalho em segundo plano. Comece com um perfil modesto se a memória for limitada. As configurações das suas análises continuam sob o seu controle em cada módulo.",
+          "hold_after": 0.7,
+          "speech_text": "Em Preferences, escolha um perfil de Performance para o seu computador. Laptop usa menos recursos; os perfis mais altos permitem mais cache e mais trabalho em segundo plano. Comece com um perfil modesto se a memória for limitada. As configurações das suas análises continuam sob o seu controle em cada módulo."
+        },
+        {
           "visual": "06_installed_home",
           "narration": "Quando a tela Home abrir, continue com o tutorial de Home. Ele mostra como abrir um módulo, encontrar dados de teste e escolher um pipeline para o seu experimento.",
           "related_lessons": [
@@ -722,17 +776,17 @@
       "id": "06_api",
       "number": 6,
       "slug": "api",
-      "title": "Python API and batch commands",
+      "title": "API Python e comandos em lote",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Find an analysis function, load saved settings, check the inputs and run spaCR from a terminal.",
+      "description": "Encontre uma função de análise, carregue configurações salvas, confira as entradas e execute o spaCR em um terminal.",
       "objectives": [
-        "Find the installed batch commands and their Python functions.",
-        "Inspect a function signature and its API reference.",
-        "Check saved settings before running an analysis."
+        "Encontrar os comandos em lote instalados e suas funções Python.",
+        "Inspecionar a assinatura de uma função e a referência da API.",
+        "Conferir as configurações salvas antes de executar uma análise."
       ],
-      "prerequisite": "Install spaCR and activate its Python environment. Follow the Regression tutorial to prepare paired score/count tables and save the analysis settings. Use your own file paths in the commands.",
+      "prerequisite": "Instale o spaCR e ative o ambiente Python dele. Siga o tutorial de Regression para preparar tabelas pareadas de pontuações e contagens e salvar as configurações da análise. Use seus próprios caminhos de arquivo nos comandos.",
       "scenes": [
         {
           "visual": "01_version",
@@ -742,13 +796,14 @@
             1900,
             650
           ],
-          "narration": "Activate the Python environment where you installed spaCR. Import spacr and print its version with the command shown. Keep the version with your analysis notes so you can reproduce the same run later.",
+          "narration": "Ative o ambiente Python em que você instalou o spaCR. Importe spacr e imprima a versão com o comando exibido. Guarde a versão com suas anotações de análise para poder reproduzir a mesma execução depois.",
           "related_lessons": [
             "02_conda_install",
             "03_pip_install",
             "04_platform_installers"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Ative o ambiente Python em que você instalou o espáquer. Importe espáquer e imprima a versão com o comando exibido. Guarde a versão com suas anotações de análise para poder reproduzir a mesma execução depois."
         },
         {
           "visual": "02_list",
@@ -758,8 +813,9 @@
             2800,
             1900
           ],
-          "narration": "Run spacr-run with dash dash list to find the available batch commands. The list shows each command key and its Python function. Choose the command for your task, such as mask, measure or regression. Use the desktop application for interactive tasks such as labelling images in Annotate.",
-          "hold_after": 0.7
+          "narration": "Execute spacr-run com hífen hífen list para encontrar os comandos em lote disponíveis. A lista mostra a chave de cada comando e a função Python correspondente. Escolha o comando para a sua tarefa, como mask, measure ou regression. Use o aplicativo de desktop para tarefas interativas, como rotular imagens no Annotate.",
+          "hold_after": 0.7,
+          "speech_text": "Execute espáquer-run com hífen hífen list para encontrar os comandos em lote disponíveis. A lista mostra a chave de cada comando e a função Python correspondente. Escolha o comando para a sua tarefa, como mask, measure ou regression. Use o aplicativo de desktop para tarefas interativas, como rotular imagens no Annotate."
         },
         {
           "visual": "03_describe",
@@ -769,12 +825,13 @@
             2250,
             900
           ],
-          "narration": "Run spacr-run with dash dash describe followed by regression. Read the required inputs, defaults and function name. Here, the batch command calls perform_regression in spacr.ml. Open that function in the API reference to read its parameters and returned results.",
+          "narration": "Execute spacr-run com hífen hífen describe seguido de regression. Leia as entradas obrigatórias, os valores padrão e o nome da função. Aqui, o comando em lote chama perform_regression em spacr.ml. Abra essa função na referência da API para ler os parâmetros e os resultados retornados.",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Execute espáquer-run com hífen hífen describe seguido de regression. Leia as entradas obrigatórias, os valores padrão e o nome da função. Aqui, o comando em lote chama perform_regression em espáquer.ml. Abra essa função na referência da API para ler os parâmetros e os resultados retornados."
         },
         {
           "visual": "05_report_api",
@@ -784,8 +841,9 @@
             2800,
             700
           ],
-          "narration": "In Python, import the function you need and inspect its signature. This example imports build_report from spacr.report. Look up the same name in the API reference, prepare the required arguments, and call the function from your script or notebook.",
-          "hold_after": 0.7
+          "narration": "No Python, importe a função de que você precisa e inspecione a assinatura. Este exemplo importa build_report de spacr.report. Procure o mesmo nome na referência da API, prepare os argumentos obrigatórios e chame a função a partir do seu script ou notebook.",
+          "hold_after": 0.7,
+          "speech_text": "No Python, importe a função de que você precisa e inspecione a assinatura. Este exemplo importa build_report de espáquer.report. Procure o mesmo nome na referência da API, prepare os argumentos obrigatórios e chame a função a partir do seu script ou notebook."
         },
         {
           "visual": "06_dry_run",
@@ -795,8 +853,9 @@
             3440,
             680
           ],
-          "narration": "Save the settings from your module workflow, then pass the file with dash dash settings. Add dash dash dry-run to check the configuration and input paths. In this Regression example, the settings pair phenotype scores with guide counts for each plate. Read the messages and correct any missing inputs before continuing.",
-          "hold_after": 0.7
+          "narration": "Salve as configurações do fluxo de trabalho do módulo e passe o arquivo com hífen hífen settings. Acrescente hífen hífen dry-run para conferir a configuração e os caminhos de entrada. Neste exemplo de Regression, as configurações associam as pontuações de fenótipo às contagens de guias de cada placa. Leia as mensagens e corrija as entradas ausentes antes de continuar.",
+          "hold_after": 0.7,
+          "speech_text": "Salve as configurações do fluxo de trabalho do módulo e passe o arquivo com hífen hífen settings. Acrescente hífen hífen dry-run para conferir a configuração e os caminhos de entrada. Neste exemplo de Regression, as configurações associam as pontuações de fenótipo às contagens de guias de cada placa. Leia as mensagens e corrija as entradas ausentes antes de continuar."
         },
         {
           "visual": "03_describe",
@@ -806,17 +865,58 @@
             2250,
             900
           ],
-          "narration": "To execute the analysis, run the same command without dash dash dry-run. Follow the console until the command finishes, then inspect the outputs described by that module’s tutorial and API page. Keep the settings file, input tables, package version and console log with the results.",
+          "narration": "Para executar a análise, rode o mesmo comando sem hífen hífen dry-run. Acompanhe o console até o comando terminar e depois inspecione as saídas descritas no tutorial e na página da API desse módulo. Guarde com os resultados o arquivo de configurações, as tabelas de entrada, a versão do pacote e o log do console.",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Para executar a análise, rode o mesmo comando sem hífen hífen dry-run. Acompanhe o console até o comando terminar e depois inspecione as saídas descritas no tutorial e na página da API desse módulo. Guarde com os resultados o arquivo de configurações, as tabelas de entrada, a versão do pacote e o log do console."
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -10026,7 +10126,7 @@
         "Selecionar objetos conferindo o campo e o tipo de objeto.",
         "Abrir o recorte da célula pai correspondente e obter a hierarquia completa pelo Python."
       ],
-      "prerequisite": "Baixe o exemplo completo do Annotate com o banco de dados de medições e os recortes de células correspondentes. O arquivo do Graph Builder, que só tem o banco de dados, não fornece imagens. Este exemplo só tem recortes de células: dê um clique duplo numa célula pai para inspecionar um recorte. A ação atual Open crops numa família pode trocar recortes filhos ausentes por recortes de células não relacionadas; evite essa ação com este exemplo.",
+      "prerequisite": "Baixe o exemplo completo do Annotate com o banco de dados de medições e os recortes de células correspondentes. O arquivo do Graph Builder, que só tem o banco de dados, não fornece imagens. Este exemplo só contém recortes de células. Para a família mostrada, Open crops exibe apenas o recorte da célula pai correspondente e informa que dois recortes filhos não estão disponíveis.",
       "example_files": [
         "Lineage_real_containment_review.zip",
         "Graph_Builder_real_measurements.zip"
@@ -10099,10 +10199,10 @@
           "speech_text": "Use o projeto baixado completo, que inclui os recortes de células. Mantenha juntos o banco de dados e as imagens da mesma execução para que as identidades dos objetos correspondam."
         },
         {
-          "visual": "20_wrong_typed_children_are_unrelated_cell_crops",
-          "narration": "Evite Open crops numa família inteira neste exemplo. Recortes ausentes de núcleos e patógenos podem ser trocados por recortes de células não relacionadas. Volte à árvore e escolha só a célula pai.",
+          "visual": "20_family_crop_identity_preserved",
+          "narration": "Clique em Open crops para a família selecionada. O Annotate abre apenas o recorte da célula pai correspondente e informa que dois recortes filhos não estão disponíveis. Este exemplo só contém recortes de células; os recortes do núcleo e do patógeno não estão disponíveis.",
           "hold_after": 0.7,
-          "speech_text": "Evite Open crops numa família inteira neste exemplo. Recortes ausentes de núcleos e patógenos podem ser trocados por recortes de células não relacionadas. Volte à árvore e escolha só a célula pai."
+          "speech_text": "Clique em Open crops para a família selecionada. O Annotate abre apenas o recorte da célula pai correspondente e informa que dois recortes filhos não estão disponíveis. Este exemplo só contém recortes de células; os recortes do núcleo e do patógeno não estão disponíveis."
         },
         {
           "visual": "22_verified_parent_only_real_cell_crop",

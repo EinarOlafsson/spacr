@@ -48,9 +48,6 @@ def main(argv=None) -> int:
     from ...figure_font import _open_sans_is_the_default
 
     targets = AVAILABLE_TUTORIALS if args.app == "all" else [args.app]
-    # 291: the tutorial films the application, which draws its figures in
-    # Open Sans; `render_tutorial` builds MainWindow itself rather than going
-    # through `spacr.qt.run`, so it holds the same default here.
     with _open_sans_is_the_default():
         for name in targets:
             if name not in AVAILABLE_TUTORIALS:

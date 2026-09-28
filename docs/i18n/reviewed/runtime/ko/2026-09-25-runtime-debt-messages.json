@@ -2232,13 +2232,6 @@
     },
     {
       "table": "ui",
-      "key": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
-      "source": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
-      "source_sha256": "61fb84ed081b8c8413729fdc89c1b447cd521bcb0e21ade11b035450df3efaa3",
-      "translation": "게재된 모델의 학습 데이터셋에서 가져온 시야 10개와 모델이 학습한 마스크입니다. 편집용으로 열리므로, 보이는 것이 곧 모델이 본 것입니다."
-    },
-    {
-      "table": "ui",
       "key": "Test data ready: nine tiles in {path}. Press Plan.",
       "source": "Test data ready: nine tiles in {path}. Press Plan.",
       "source_sha256": "a4f58ee4b2fbd6349bb803ac9cc9f6b052d8ae25c50cc58fa5a9775138fb4554",
@@ -3238,5 +3231,15 @@
       "source_sha256": "870a50738e7def3643fb71bd772bc2274d4d9dd902212e61f8a17e5f561a2d0c",
       "translation": "{paper}: 그림 {n}개, 범례 있음 {m}개(라이선스 {licence}), 위치 {path}."
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
+      "source": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
+      "source_sha256": "61fb84ed081b8c8413729fdc89c1b447cd521bcb0e21ade11b035450df3efaa3",
+      "translation": "게재된 모델의 학습 데이터셋에서 가져온 시야 10개와 모델이 학습한 마스크입니다. 편집용으로 열리므로, 보이는 것이 곧 모델이 본 것입니다."
+    }
+  ],
+  "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27."
 }

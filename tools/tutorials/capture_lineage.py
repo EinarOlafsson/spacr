@@ -72,7 +72,7 @@ def record_lineage(app,window,stage,captures,capture,settle,write_json,timeout):
     def database_route(name):
         actions=[a for a in window.menuBar().actions() if a.text().replace('&','')=='Help']
         if len(actions)!=1:raise ValueError('No actual Help menu')
-        menu=actions[0].menu();choices=[a for a in menu.actions() if a.text().replace('&','')=='Database browser']
+        menu=actions[0].menu();choices=[a for a in menu.actions() if a.text().replace('&','').casefold()=='database browser']
         if len(choices)!=1:raise ValueError('No actual Database browser route')
         QTest.mouseClick(window.menuBar(),Qt.LeftButton,pos=window.menuBar().actionGeometry(actions[0]).center())
         settle(.2);capture(name)
@@ -165,7 +165,7 @@ def record_lineage(app,window,stage,captures,capture,settle,write_json,timeout):
         QTest.mouseMove(header.viewport(),end,delay=150)
         QTest.mouseRelease(header.viewport(),Qt.LeftButton,pos=end);settle(.3)
         if header.sectionSize(0)<250:raise ValueError('Actual Object header remains too narrow to read')
-        splitter=screen.tree.parentWidget().parentWidget();handle=splitter.handle(1)
+        splitter=screen._body;handle=splitter.handle(1)
         start=handle.rect().center();end=start+QPoint(2900-handle.mapTo(window,start).x(),0)
         QTest.mousePress(handle,Qt.LeftButton,pos=start);QTest.mouseMove(handle,end,delay=150)
         QTest.mouseRelease(handle,Qt.LeftButton,pos=end);settle(.3)
@@ -215,16 +215,17 @@ def record_lineage(app,window,stage,captures,capture,settle,write_json,timeout):
         if any(c in source_columns for c in ('nucleus_id','pathogen_id')) or len(crop_rows)!=3:
             raise ValueError('This demonstration requires genuine cell-only source crop identities')
         observed_paths=[r[0] for r in annotate._page_paths]
-        wrong_family_paths=[crop_rows[k] for k in ('o3','o5','o1')]
-        if len(annotate._object_rows)!=3 or annotate._total!=3 or observed_paths!=wrong_family_paths:
-            raise ValueError('The known unsafe family-crop fallback changed; re-evaluate this warning')
-        proof['unsafe_family_crop_handoff']=dict(requested=list(request.keys),shown_paths=observed_paths,
-            source_object_types=['cell','cell','cell'],source_labels=[3,5,1],note=annotate._request_note,
-            scientifically_valid=False,recommended=False,
-            cause='Typed missing nucleus/pathogen keys fall back to untyped cell labels despite known cell-only identity columns')
-        capture('20_wrong_typed_children_are_unrelated_cell_crops')
+        if len(annotate._object_rows)!=1 or annotate._total!=1 or observed_paths!=[crop_rows['o3']]:
+            raise ValueError('Family crop handoff must show only the matching parent, never unrelated cell crops')
+        if '2 of them are not in this database' not in annotate._request_note:
+            raise ValueError('Annotate must report both missing child crops')
+        proof['family_crop_handoff']=dict(requested=list(request.keys),shown_paths=observed_paths,
+            source_object_types=['cell'],source_labels=[3],note=annotate._request_note,
+            matching_crops=1,missing_crops=2,unrelated_crops_substituted=False,
+            child_crops_in_source=False,labels_edited=False)
+        capture('20_family_crop_identity_preserved')
         # A genuine double-click sends ONLY this parent, unlike Open crops,
-        # which expands its family. Verify the actual safe counterpart.
+        # which requests its family and reports unavailable child crops.
         database_route('21_return_for_parent_only');settle(.4)
         item=select(family)
         rect=screen.tree.visualItemRect(item)

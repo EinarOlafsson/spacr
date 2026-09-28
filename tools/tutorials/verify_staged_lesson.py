@@ -175,7 +175,9 @@ def main():
                 'uploaded': False, 'translation_or_listening_review': False}
     try:
         with sync_playwright() as engine:
-            browser = engine.chromium.launch(executable_path='/opt/google/chrome/chrome', headless=True)
+            browser = engine.chromium.launch(
+                executable_path='/opt/google/chrome/chrome', headless=True,
+                args=['--disable-gpu', '--disable-accelerated-video-decode'])
             context = browser.new_context(viewport={'width': 1440, 'height': 1100})
             base = f'http://127.0.0.1:{server.server_port}'
             context.route(base + '/web/', lambda route: route.fulfill(body=source, content_type='text/html'))

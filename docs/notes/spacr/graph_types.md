@@ -56,3 +56,38 @@ return fallback
 ```
 
 No Qt, no stored preferences, or a preference file that cannot be read: a figure still has to be drawn.
+
+
+---
+
+# Notes from `spacr/graph_types.py`
+
+Prose lifted out of `spacr/graph_types.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## Contents
+
+- [Module level](#module-level) (1 entry)
+- [chosen_for](#chosen_for) (1 entry)
+
+## Module level
+
+### lines 25-34
+
+```python
+_READ_THE_PREFERENCE_STORE = ContextVar(
+```
+
+WHETHER `chosen_for` MAY ASK THE QT PREFERENCE STORE. Reading it imports PySide6.QtCore. `spacr.validate._known_setting_keys` calls every settings default with `{}` only to learn which KEYS exist, and since 293 three of those defaults ask this module for a graph type. That sweep has no use for the user's choice. It runs when a batch queue is validated, which must not import Qt (tests/test_batch.py). So the sweep turns this off, and `chosen_for` answers "nothing was chosen", which every default already falls back to. A ContextVar rather than a module flag, so another thread asking at the same moment still reads the real preference. Everything else, including a headless pipeline run, reads it exactly as before.
+
+## chosen_for
+
+### line 277
+
+```python
+if not _READ_THE_PREFERENCE_STORE.get():
+```
+
+Checked BEFORE the import, because the import is the cost being avoided.

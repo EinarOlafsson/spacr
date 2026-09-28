@@ -606,13 +606,6 @@
     },
     {
       "table": "ui",
-      "key": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
-      "source": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
-      "source_sha256": "2712c235708a6e6d3cf1479fc35c5ce9de07d44520620a1e2a6a21cee9dddffa",
-      "translation": "Lädt zehn Beispielfelder für die Plaque-Analyse herunter und setzt src auf deren Speicherort. Zwei Datensätze stehen zur Wahl: segmentierte Plaque-Felder, mit denen das Plaque-Modell trainiert wurde, oder Abbildungen ganzer Platten, die als Eingabe für die Pipeline dienen. Nach dem ersten Download werden sie zwischengespeichert."
-    },
-    {
-      "table": "ui",
       "key": "Download {name}?",
       "source": "Download {name}?",
       "source_sha256": "c370b702fb8e700e08a90f0956ad28ed6e9377764ceb2f49fa57259263284053",
@@ -1422,13 +1415,6 @@
       "source": "Stopping the installer…",
       "source_sha256": "42958a5514188bdb1e8613d56d63acba59a710857f2735e7cb28781d5fac0906",
       "translation": "Installationsprogramm wird gestoppt…"
-    },
-    {
-      "table": "ui",
-      "key": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
-      "source": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
-      "source_sha256": "61fb84ed081b8c8413729fdc89c1b447cd521bcb0e21ade11b035450df3efaa3",
-      "translation": "Zehn Felder des Datensatzes, mit dem ein veröffentlichtes Modell trainiert wurde, samt den verwendeten Trainingsmasken. Sie werden zur Bearbeitung geöffnet; Sie sehen also dieselben Eingaben wie das Modell."
     },
     {
       "table": "ui",
@@ -2257,6 +2243,21 @@
         "translation": "{label} ist noch nicht installiert.\n\nInstallieren führt den folgenden Befehl auf diesem Rechner aus: Das Installationsprogramm des Anbieters wird heruntergeladen und gestartet; anschließend beginnt die Anmeldung. spaCR erhält niemals Ihre Zugangsdaten."
       },
       "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "table": "ui",
+      "key": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
+      "source": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
+      "source_sha256": "2712c235708a6e6d3cf1479fc35c5ce9de07d44520620a1e2a6a21cee9dddffa",
+      "translation": "Lädt zehn Beispielfelder für die Plaque-Analyse herunter und setzt src auf deren Speicherort. Zwei Datensätze stehen zur Wahl: segmentierte Plaque-Felder, mit denen das Plaque-Modell trainiert wurde, oder Abbildungen ganzer Platten, die als Eingabe für die Pipeline dienen. Nach dem ersten Download werden sie zwischengespeichert."
+    },
+    {
+      "table": "ui",
+      "key": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
+      "source": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
+      "source_sha256": "61fb84ed081b8c8413729fdc89c1b447cd521bcb0e21ade11b035450df3efaa3",
+      "translation": "Zehn Felder des Datensatzes, mit dem ein veröffentlichtes Modell trainiert wurde, samt den verwendeten Trainingsmasken. Sie werden zur Bearbeitung geöffnet; Sie sehen also dieselben Eingaben wie das Modell."
     }
-  ]
+  ],
+  "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27."
 }

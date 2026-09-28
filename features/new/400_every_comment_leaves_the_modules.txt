@@ -2,11 +2,13 @@
 EVERY COMMENT LEAVES THE MODULES AND THE REASONS MOVE TO docs/notes
 ================================================================================
 
-Status:    DONE 2026-09-13, landed on nightly as d0334c103. 492 modules
-           stripped, 491 notes under docs/notes, the extractor included.
-           The earlier BLOCKED note was accurate when written: both
-           branches were local-only to one checkout. See the closing
-           section for what was verified before the push.
+Status:    DONE 2026-09-27. The remaining 635 ordinary comment tokens in
+           66 modules moved to notes or the recoverable discard log. The
+           full package plus setup.py now has zero ordinary comment blocks;
+           published attribute documentation and tool directives remain.
+           AST, protected-token, coverage-structure, per-directory lint and
+           184 focused tests verified this pass. See the closing receipt;
+           earlier DONE claims below describe the incomplete historical pass.
 Requested: 2026-09-12 -- "you have left an extreemely high number of notes
            throughout many of the modual py files. If there is valuble
            information there i would like that to be retained. but if possible
@@ -215,3 +217,74 @@ with `ruff check` and the coverage ratchet after each directory rather than
 once at the end.
 
 The package-wide run was reverted in full today; only setup.py is kept.
+
+
+--------------------------------------------------------------------------------
+2026-09-27 -- CLOSED: THE REMAINING ORDINARY COMMENTS HAVE BEEN EXTRACTED
+--------------------------------------------------------------------------------
+
+The 2026-09-16 reopening is resolved. The preservation classifier already
+handled the required noqa, pragma, type, fmt, isort and coding declarations,
+but its tests did not run most of those through an actual source write.
+The extractor repair, committed as 23bb77ab8, adds execution-path checks
+and preserves bare/qualified nosec, embedded fmt/isort, and yapf directives.
+It also appends to existing notes instead of overwriting them, and writes
+notes before stripping the source so a failed notes write loses no prose.
+
+MECHANICAL PASS. Starting from the 66-file census, 635 ordinary comment
+tokens were removed: 539 RETAIN, 71 UNSURE and 25 DISCARD. Retained and
+uncertain prose is in 66 mirrored docs/notes files; 59 existing notes files
+were preserved byte-for-byte before the new notes were appended, and seven
+notes files are new. All removed source and previous notes were backed up;
+the 25 discarded comment tokens are also in a separate discard log.
+
+For each file, before and after the write:
+  * the Python AST is identical;
+  * all protected comment tokens match exactly, in order (6,177 tokens
+    across the 66 changed files);
+  * coverage.py's executable statements, branch arcs and excluded lines
+    match after mapping the deleted comment line numbers. This uses the
+    repository's .coveragerc, and changes no coverage baseline or ceiling.
+
+Each directory was linted before and after its pass. Existing Ruff findings
+were identical, accounting for source-line relocation in diagnostic text:
+
+  directory                    files   Ruff before   Ruff after   new
+  spacr                           24            71           71     0
+  spacr/qt                        14            76           76     0
+  spacr/qt/i18n_catalogs            1             1            1     0
+  spacr/qt/screens                 6            99           99     0
+  spacr/qt/tutorial                1             0            0     0
+  spacr/qt/widgets                20           117          117     0
+
+The 364 existing Ruff findings remain outside this comment-only change;
+they were not hidden, fixed incidentally, or allowed by raising a baseline.
+
+FINAL DRY RUN. tools/extract_source_notes.py spacr setup.py --samples 0
+--top 20 reads 653 files, verifies all 653 ASTs and finds ZERO ordinary
+comment blocks. It preserves 18,817 comment tokens: 16,897 Sphinx attribute
+documentation, 1,841 noqa, 46 pragma, 31 type and two shebangs. Hashes inside
+strings and docstrings are not comment tokens and remain untouched.
+
+TESTS. 184 passed in 14.54 seconds, with CUDA hidden, offscreen Qt, private
+HOME/TMPDIR and tools/run_capped.sh 8G:
+  tests/test_a_comment_leaves_but_the_code_does_not.py
+  tests/test_module_coverage_ratchet.py
+  tests/test_coverage_ratchet_rules.py
+
+These verify extraction and coverage-gate behavior; the statement/arc proof
+above verifies that this comment-only edit preserves the coverage structure
+of each actual changed module. This is not a claim that the full package's
+runtime coverage has newly reached its target; that remains item 288.
+
+RECEIPTS (under /mnt/wd4tb/scratch/spacr-completion):
+  400-extraction/receipt.json -- per-file hashes, preserved counts, proofs,
+    and all six directory lint comparisons.
+  400-extraction/source-before/ and notes-before/ -- original bytes.
+  400-extraction/discarded-comments.txt -- every discarded comment.
+  400-extraction/*-before-ruff.json and *-after-ruff.json -- raw findings.
+  400-dryrun-after.log -- final zero-block report.
+  400-post-extraction-tests.log -- 184 passing tests.
+
+No GPU, training data, running services, generated translation catalog
+entries or package behavior were changed by this pass.

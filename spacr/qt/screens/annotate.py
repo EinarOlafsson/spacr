@@ -1720,6 +1720,7 @@ def _blind_order(rows, rank: Dict[str, int]) -> list:
     import hashlib
 
     def position(row):
+        """Order known crops by the blind key and unseen crops by path hash."""
         path = str(row[0])
         at = rank.get(path)
         if at is not None:
@@ -3460,6 +3461,9 @@ class AnnotateScreen(QWidget):
         Opened again, the pane takes the height the user last dragged it to
         when there is one, and otherwise about a third of the column.
         """
+        if self._blind is not None:
+            self._console_wrap.hide()
+            return
         self._console_wrap.setVisible(on)
         self._set_console_switch_text(on)
         pane = self._runtime_splitter.pane("Console + AI")
@@ -3665,6 +3669,8 @@ class AnnotateScreen(QWidget):
         two-argument form does not give. Same pair before and after:
         102 passed and 1 error, then 103 passed.
         """
+        if self._blind is not None:
+            return
         try:
             text = self._console.copy_all()
         except Exception as exc:                             # noqa: BLE001
@@ -3727,6 +3733,8 @@ class AnnotateScreen(QWidget):
         and because a press is already the affirmative act that 'always'
         exists to avoid asking for. 'never' files nothing and says so.
         """
+        if self._blind is not None:
+            return
         try:
             body = self._console.copy_all()
         except Exception:                                    # noqa: BLE001
@@ -4444,6 +4452,7 @@ class AnnotateScreen(QWidget):
             return True
         if ask is None:
             def ask():
+                """Confirm revealing crop origins and recording the unblind event."""
                 return QMessageBox.question(
                     self, tr("Unblind?"),
                     tr("Unblinding shows where every crop is from again, "
@@ -4488,7 +4497,8 @@ class AnnotateScreen(QWidget):
         """
         self._set_blind_checked(on)
         for button in (self._btn_coverage, self._btn_auto,
-                       self._btn_browse_db):
+                       self._btn_browse_db, self._btn_settings,
+                       self._console_switch, self._ai_switch):
             if on:
                 button.setProperty("_spacr_blind_was", button.isEnabled())
                 button.setEnabled(False)
@@ -4496,6 +4506,12 @@ class AnnotateScreen(QWidget):
                 button.setEnabled(bool(button.property("_spacr_blind_was")))
                 button.setProperty("_spacr_blind_was", None)
         if on:
+            dialog = getattr(self, "_settings_dialog", None)
+            if dialog is not None:
+                dialog.reject()
+            self._console_wrap.setProperty(
+                "_spacr_blind_visible", not self._console_wrap.isHidden())
+            self._console_wrap.hide()
             self._src_label.setText(tr(
                 "Blinded: the source, plates, wells, conditions and file "
                 "names are hidden, and the crops are in a shuffled order."))
@@ -4505,6 +4521,10 @@ class AnnotateScreen(QWidget):
         else:
             self._src_label.setText(
                 tr("No source selected — click Open source…"))
+        if not on:
+            self._console_wrap.setVisible(bool(
+                self._console_wrap.property("_spacr_blind_visible")))
+            self._console_wrap.setProperty("_spacr_blind_visible", None)
 
     def _on_open_settings(self):
         """Open the annotation settings dialog, and apply it on OK.
@@ -4515,6 +4535,8 @@ class AnnotateScreen(QWidget):
         and comparing old against new then found nothing changed, repainted
         an empty screen, and OK appeared to do nothing.
         """
+        if self._blind is not None:
+            return
         dlg = _SettingsDialog(self._settings, self)
         self._settings_dialog = dlg
         dlg.destroyed.connect(self._on_settings_dialog_destroyed)

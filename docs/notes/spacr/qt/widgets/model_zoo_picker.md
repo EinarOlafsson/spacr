@@ -152,3 +152,87 @@ thread.wait(10000)
 ```
 
 A bounded wait: an unbounded one turns "close the dialog" into "hang until the download finishes", which is the same freeze this thread was introduced to remove.
+
+
+---
+
+# Notes from `spacr/qt/widgets/model_zoo_picker.py`
+
+Prose lifted out of `spacr/qt/widgets/model_zoo_picker.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## Contents
+
+- [ModelZooPicker.__init__](#modelzoopicker__init__) (2 entries)
+- [ModelZooPicker.refresh](#modelzoopickerrefresh) (2 entries)
+- [ModelZooPicker._rebuild](#modelzoopicker_rebuild) (1 entry)
+- [ModelZooPicker._install_backend](#modelzoopicker_install_backend) (1 entry)
+- [ModelZooPicker._show_card](#modelzoopicker_show_card) (1 entry)
+
+## ModelZooPicker.__init__
+
+### lines 1131-1133
+
+```python
+self.table.itemClicked.connect(self._row_clicked)
+```
+
+A CLICK offers the install, the same as the Make Masks Mode box. itemClicked fires only for a person, so restoring a selection in code never opens a modal.
+
+### lines 1141-1143
+
+```python
+self.card = QTextBrowser(self)
+```
+
+The scorecard sits between the list and the controls, at a fixed height: a box that grew and shrank with the selected model would move the Download button under the pointer between clicks.
+
+## ModelZooPicker.refresh
+
+### lines 1371-1374
+
+```python
+entries += list(model_zoo.catalogue(remote=True, block=False))
+```
+
+The catalogue lists the Cellpose stock models too. Duplicates are collapsed per version label by group_entries, which catches the stock row whose key and name disagree -- name "cpsam", key "cpsam_v2" -- where a name comparison here did not.
+
+### lines 1382-1384
+
+```python
+entries = [e for e in entries
+```
+
+Installable backends survive the kind filter: they are listed so a user learns they exist, which is the whole point of showing a thing that is not installed.
+
+## ModelZooPicker._rebuild
+
+### lines 1404-1406
+
+```python
+self._rebuilding = True
+```
+
+Tear the old rows down FIRST. A combo box from the previous refresh is still wired to _version_picked, and setRowCount destroying it can emit currentIndexChanged against groups that no longer exist.
+
+## ModelZooPicker._install_backend
+
+### lines 1665-1666
+
+```python
+for group, (stem, pairs) in enumerate(self._groups):
+```
+
+Leave the row the user just installed selected, so "install it and use it" is one action rather than install-then-hunt-for-the-row.
+
+## ModelZooPicker._show_card
+
+### lines 1761-1762  _(unsure)_
+
+```python
+describe = getattr(entry, "describe", None)
+```
+
+The stock model is a SimpleNamespace, not a ModelEntry, so it has no describe(); fall back to what any entry-shaped object has.

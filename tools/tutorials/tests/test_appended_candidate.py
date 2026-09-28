@@ -12,8 +12,59 @@ from build_appended_candidate import (append_catalogs, append_javascript_catalog
                                      copy_preserved_web,
                                      complete_translation_compatibility,
                                      require_baseline_receipt, require_no_new_route_gaps,
-                                     update_catalogs, synchronize_links)
+                                     update_catalogs, synchronize_links,
+                                     checked_web_input)
 from audit_staged_catalogs import CATALOGS
+
+
+@pytest.mark.parametrize('sentence_hash', [None, 'stale', 'current'])
+def test_web_evidence_selects_current_sentence_checks_or_regular_checks(tmp_path, sentence_hash):
+    identity = '60_pca'
+    video = tmp_path / 'web-renditions' / identity / 'video' / f'{identity}_silent.mp4'
+    video.parent.mkdir(parents=True)
+    video.write_bytes(b'current web bytes')
+    current = hashlib.sha256(video.read_bytes()).hexdigest()
+    proof = dict(lesson=identity, accepted=True, rendition_sha256=current,
+                 all_frame_presentation_times_match=True, full_decode_passed=True)
+    (video.parent.parent / 'rendition-checks.json').write_text(json.dumps(proof))
+    regular = tmp_path / 'browser-web' / identity / 'en-af_heart/playback-checks.json'
+    regular.parent.mkdir(parents=True)
+    regular.write_text(json.dumps(dict(lesson=identity, passed=True,
+        checked_web_rendition={'sha256': 'stale' if sentence_hash == 'current' else current})))
+    sentence = regular.parent.parent / 'en-af_heart-sentence-cues/playback-checks.json'
+    if sentence_hash is not None:
+        sentence.parent.mkdir(parents=True)
+        sentence.write_text(json.dumps(dict(lesson=identity, passed=True,
+            checked_web_rendition={'sha256': current if sentence_hash == 'current' else 'stale'})))
+    assert checked_web_input(tmp_path, identity) == (video, proof,
+        sentence if sentence_hash == 'current' else regular)
+
+
+@pytest.mark.parametrize('change', ['failed_browser', 'wrong_lesson', 'failed_decode', 'changed_video'])
+def test_current_sentence_evidence_preserves_all_acceptance_guards(tmp_path, change):
+    identity = '60_pca'
+    video = tmp_path / 'web-renditions' / identity / 'video' / f'{identity}_silent.mp4'
+    video.parent.mkdir(parents=True)
+    video.write_bytes(b'current web bytes')
+    current = hashlib.sha256(video.read_bytes()).hexdigest()
+    proof = dict(lesson=identity, accepted=True, rendition_sha256=current,
+                 all_frame_presentation_times_match=True, full_decode_passed=True)
+    browser = dict(lesson=identity, passed=True, checked_web_rendition={'sha256': current})
+    if change == 'failed_browser':
+        browser['passed'] = False
+    elif change == 'wrong_lesson':
+        browser['lesson'] = '61_other'
+    elif change == 'failed_decode':
+        proof['full_decode_passed'] = False
+    elif change == 'changed_video':
+        proof['rendition_sha256'] = 'stale'
+    (video.parent.parent / 'rendition-checks.json').write_text(json.dumps(proof))
+    for tag in ('en-af_heart', 'en-af_heart-sentence-cues'):
+        path = tmp_path / 'browser-web' / identity / tag / 'playback-checks.json'
+        path.parent.mkdir(parents=True)
+        path.write_text(json.dumps(browser))
+    with pytest.raises(ValueError, match='Stale or failed web-copy evidence'):
+        checked_web_input(tmp_path, identity)
 
 
 @pytest.mark.parametrize('replace', [False, True])
@@ -106,6 +157,30 @@ def test_later_batch_keeps_earlier_fallbacks_registered(sources):
     assert {(row['lesson'], row['language']) for row in recovered} == {
         (row['lesson'], row['language']) for row in complete}
     assert all(row['status'] == 'english_fallback' and row['reason'] for row in recovered)
+
+
+@pytest.mark.parametrize('filename', [name for name in CATALOGS if name != 'lessons_en.json'])
+def test_later_batch_retains_reviewed_translations_and_replaces_refreshed_records(sources, filename):
+    published, first, voices = sources
+    intermediate, first_report = append_catalogs(published, [first], voices, {})
+    language = filename.split('_', 1)[1].removesuffix('.json')
+    reviewed = {**next(row for row in first_report if row['language'] == language),
+                'status': 'source_bound_review', 'reason': None}
+    language = reviewed['language']
+    intermediate[filename]['lessons'][-1]['title'] = 'Reviewed translated title'
+    first_report = [reviewed if row['language'] == language else row for row in first_report]
+    second = {**first, 'id': '03_second', 'number': 3}
+    catalogs, second_report = append_catalogs(
+        intermediate, [second], {second['id']: {'en': ['af_heart']}}, {})
+    before = deepcopy(first_report)
+    complete = complete_translation_compatibility(catalogs, second_report, first_report)
+    assert len(complete) == 26 and reviewed in complete
+    assert all(row in complete for row in first_report + second_report)
+    assert first_report == before
+    replacement = {**reviewed, 'status': 'english_fallback', 'reason': 'Changed source needs review'}
+    refreshed = complete_translation_compatibility(catalogs, [replacement], complete)
+    assert replacement in refreshed and reviewed not in refreshed
+    assert len(refreshed) == len(complete)
 
 
 def test_mixed_release_preserves_unselected_lesson_and_updates_both_catalog_formats(sources):

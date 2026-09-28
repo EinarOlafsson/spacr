@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Codex), no native-speaker signoff",
+  "note": "API delta 6, items 47/53. Written from the exact current English; AI technical review of meaning, negations, parameter semantics and protected syntax. No machine-translation inference, human listening or native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.install_cleanup.start_update_helper#10",
+      "source": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. Other frozen application families return an error before removing anything; the helper does not enable an online-installer fallback for these applications.",
+      "source_sha256": "21a4f7340e6ecf2a0034ef44bec46f864cd7952b935458021fa9866aadc24759",
+      "context": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. Other frozen application families return an error before removing anything; the helper does not enable an online-installer fallback for these applications.",
+      "translation": "사용자가 쓸 수 있는 위치의 동결된 macOS 앱 번들은 검증된 DMG 교체 어댑터를 사용하며 이전 번들 전체를 보존합니다. 다른 동결 애플리케이션 계열은 어떤 항목도 제거하기 전에 오류를 반환합니다. 도우미는 이러한 애플리케이션에 대해 온라인 설치 프로그램으로 대체하는 경로를 활성화하지 않습니다.",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.closeEvent#2",
+      "source": "An accepted close also joins the owned backdrop renderer. Showing the screen again creates a fresh backdrop from the current settings.",
+      "source_sha256": "90b9bbc56d70e06f3d9b420eba571bf6e6feaa6fdfef03c90449e01033cd8b88",
+      "context": "An accepted close also joins the owned backdrop renderer. Showing the application view again creates a fresh backdrop from the current settings.",
+      "translation": "닫기 요청이 수락되면 이 화면이 소유한 배경 렌더러가 종료될 때까지 기다립니다. 화면을 다시 표시하면 현재 설정에 따라 새로운 배경을 만듭니다.",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    }
+  ]
+}

@@ -1709,20 +1709,7 @@ def _uninstall_process_hooks() -> None:
             timer.stop()
             timer.deleteLater()
         except (AttributeError, RuntimeError):
-            pass                  # already destroyed with its application
-    # EVERY CONNECTION, WHATEVER `_INSTALLED` SAYS. A caller that resets the
-    # flag and installs again (tests monkeypatch `_INSTALLED = False` to
-    # exercise `install_run_hook`) connects a second copy, and the flag is
-    # restored afterwards while the connection is not.
-    #
-    # BY HANDLE FIRST. PySide6 6.11's `disconnect(slot)` removes ONE
-    # connection of a slot connected several times and then answers False
-    # while the others are still connected, so asking by slot alone left
-    # every copy after the first firing in later tests. Each handle
-    # `install_run_hook` kept names exactly one connection. The loop by slot
-    # stays for a connection made without a handle; PySide6 WARNS before it
-    # raises on that last attempt, which here is the expected end of the
-    # loop, not news.
+            pass
     try:
         import warnings
 

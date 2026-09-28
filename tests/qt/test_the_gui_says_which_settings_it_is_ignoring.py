@@ -62,6 +62,17 @@ def test_clean_settings_say_nothing_about_unknown_keys(measure_entry, capsys):
     assert len(seen) == 1
 
 
+@pytest.mark.parametrize("enabled", [False, True])
+def test_the_hashing_preference_reaches_the_pipeline_without_a_false_warning(
+        measure_entry, capsys, enabled):
+    entry, seen = measure_entry
+    entry({"src": "/tmp", "n_jobs": 1, "hash_inputs": enabled})
+
+    assert "[settings] WARNING [hash_inputs]" not in capsys.readouterr().out
+    assert len(seen) == 1
+    assert seen[0]["hash_inputs"] is enabled
+
+
 def test_the_wrapper_keeps_the_app_key_the_run_registry_reads(measure_entry):
     """_tag still has to see the function, or the registry cannot name the run."""
     entry, _seen = measure_entry

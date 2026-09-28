@@ -15,6 +15,27 @@ os.environ.setdefault("MPLBACKEND", "Agg")
 
 class TestARowReproducesItsTrial:
 
+    @pytest.mark.parametrize("csv_roundtrip", [False, True])
+    def test_measured_design_counts_are_not_replayed_as_settings(self, tmp_path, csv_roundtrip):
+        from spacr.parameter_sweep import settings_for_trial
+        from spacr.trial_metrics import design_summary
+
+        measurements = design_summary({
+            "model_data": pd.DataFrame({"prc": ["w1", "w2"],
+                                        "grna": ["a", "b"], "gene": ["A", "B"]}),
+            "fit_designs": {level: {"n_rows_fitted": 1, "n_wells": 1,
+                                    "n_guides": 1, "n_genes": 1,
+                                    "n_design_columns": 2}
+                            for level in ("grna", "gene")}})
+        row = {"regression_type": "ridge", "custom_sweep_axis": 0.25, **measurements}
+        if csv_roundtrip:
+            path = tmp_path / "sweep.csv"
+            pd.DataFrame([row]).to_csv(path, index=False)
+            row = pd.read_csv(path).iloc[0].to_dict()
+        settings = settings_for_trial({}, row)
+        assert not set(measurements).intersection(settings)
+        assert settings["custom_sweep_axis"] == 0.25
+
     def test_settings_round_trip_through_the_csv(self, tmp_path):
         """Values come back as strings from disk and must be parsed back.
 
@@ -175,6 +196,45 @@ class TestTheDesignSizeIsRecorded:
 
         assert _design_summary({}) == {}
         assert _design_summary(None) == {}
+
+    def test_empty_measured_records_do_not_revert_to_prepared_counts(self):
+        from spacr.parameter_sweep import _design_summary
+
+        summary = _design_summary({"model_data": pd.DataFrame({"prc": ["a", "b"]}),
+                                   "fit_designs": {}})
+        assert summary == {"n_rows_prepared": 2, "n_wells_prepared": 2}
+
+    def test_different_fit_levels_keep_their_counts_separate(self):
+        from spacr.parameter_sweep import _design_summary
+        from spacr.trial_metrics import design_summary
+
+        output = {"model_data": pd.DataFrame({"prc": list("aabbccdd")}),
+                  "fit_designs": {
+                      "grna": {"n_rows_fitted": 6, "n_wells": 3},
+                      "gene": {"n_rows_fitted": 3, "n_wells": 3}}}
+        summary = _design_summary(output)
+        assert summary == design_summary(output)
+        assert summary["n_rows_prepared"] == 8
+        assert summary["n_wells_prepared"] == 4
+        assert summary["n_rows_fitted_grna"] == 6
+        assert summary["n_rows_fitted_gene"] == 3
+        assert "n_rows_fitted" not in summary
+        assert summary["n_wells"] == 3
+
+    @pytest.mark.parametrize("unknown", [{}, {"n_rows_fitted": None},
+                                         {"n_rows_fitted": -1},
+                                         {"n_rows_fitted": float("nan")}])
+    def test_unrecorded_fit_counts_are_not_replaced_by_prepared_rows(self, unknown):
+        from spacr.parameter_sweep import _design_summary
+
+        output = {"model_data": pd.DataFrame({"prc": ["a", "b"]}),
+                  "fit_designs": {"grna": {"n_rows_fitted": 1},
+                                  "gene": unknown}}
+        summary = _design_summary(output)
+        assert summary["n_rows_prepared"] == 2
+        assert summary["n_rows_fitted_grna"] == 1
+        assert "n_rows_fitted_gene" not in summary
+        assert "n_rows_fitted" not in summary
 
 
 class TestTheScreenWiresItUp:

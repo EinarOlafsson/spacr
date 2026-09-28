@@ -2,8 +2,8 @@
 CLAUDE CODE INSTALLS WITH CURL ON EVERY SYSTEM, WINDOWS INCLUDED
 ================================================================================
 
-Status:    BUILT 2026-09-15 (b3f7bd6c9), NOT YET TRIED ON A REAL WINDOWS MACHINE.
-           Filed OPEN 2026-09-15.
+Status:    OPEN 2026-09-27 — native Windows install succeeds, fresh-terminal
+           PATH acceptance failed. Product correction prepared; rerun pending.
 Requested: 2026-09-15, by the maintainer, in these words (item 1 of three):
            "the claud on all systems if possible code installation on windows
            (just allways use curl)"
@@ -89,3 +89,84 @@ PowerShell 5.1 rejects `&&`. `install.cmd` ends with `exit /b`, so the trailing
   * OWED: a paste-and-run on a clean Windows machine without Node.js, in both
     CMD and PowerShell, then `claude --version` in a new terminal.
   * Unchanged, as filed: the Codex and Gemini hints are still npm-first.
+
+STATUS 2026-09-27 (Codex): Fresh Windows acceptance jobs now consume the
+actual installed artifact's source-bound hint and execute it in CMD and
+Windows PowerShell5.1. They use the real fresh user profile, keep Node/npm
+off the command PATH, then verify claude --version in a new terminal using
+registered PATH values. Local guards passed; native executions are pending.
+Receipt: features/data/23_414_native_acceptance_preparation_2026-09-27.json.
+This does not claim Node is physically absent from the entire hosted image,
+or establish real authentication. Item remains open.
+
+STATUS 2026-09-27 (Codex, native failure and correction): Run36348757658
+executed the actual artifact-provided command in CMD (job108709191052) and
+Windows PowerShell5.1 (job108709190905). Both installed Claude2.1.283 with
+exit0 and no Node/npm command available. Both then failed: the vendor installer
+explicitly requested adding the native directory to User PATH, and neither
+changed registered User PATH. A fresh terminal could not resolve claude.
+
+The shared product command now follows its curl/native-install chain with
+idempotent User-PATH registration, requiring the native executable under the
+actual OS user profile. It uses Environment APIs rather than setx, leaves
+Machine PATH untouched, and escapes CMD parentheses without exposing dollar
+variables or nested quotes to the outer PowerShell parser. The verifier pins
+that same command and still requires fresh-terminal resolution to the exact
+installed native executable; it performs no test-only PATH repair.
+
+Receipt: features/data/414_windows_native_path_failure_2026-09-27.json.
+Failed job logs and original acceptance artifacts are preserved with hashes.
+The correction passed 63 focused menu/provider/historical/docstring checks
+in 29.37 seconds. Native re-execution is still pending; no native acceptance
+or item closure is claimed. No translated runtime caption
+or public API signature/docstring changed.
+
+STATUS 2026-09-27 — actual Windows acceptance passed
+Run36357823769 jobs108732329298(CMD) and108732329268(PowerShell5.1) executed
+the command provided by the installed d33fa4fa0 artifact. Both installed native
+Claude2.1.283, changed registered User PATH through the product command, then
+resolved that exact executable and returned its version from a new terminal.
+Node/npm remained unavailable on the command PATH; no physical removal from the
+hosted VM or authentication is claimed. The verifier made no PATH repair.
+Receipt: features/data/53_native_helper_and_windows_claude_acceptance_2026-09-27.json.
+Windows acceptance is satisfied within that scope. Equivalent clean native
+macOS/Linux install evidence is still required before closing the whole item.
+
+STATUS 2026-09-27 — Unix native acceptance jobs prepared
+The artifact workflow now follows installed Linux/macOS smoke with the exact
+curl command from each source-bound smoke receipt. Linux uses a fresh normal
+user in Ubuntu22.04 with no Node packages. macOS uses the hosted account's real
+login shell and unchanged profiles, requiring Node/npm to remain unavailable
+after shell startup. That hosted check does not claim physical Node absence.
+
+Both jobs require a native executable, its unchanged hash, and successful
+claude --version discovery in a fresh interactive login shell. They perform
+no verifier PATH repair, profile edit, authentication or terminal-emulator UI
+automation. Installer-made profile changes are recorded by before/after hashes.
+The shell verifier passes bash syntax checking; genuine native runs remain
+pending. A failure to establish fresh-terminal PATH must be repaired in the
+product command rather than hidden by the verifier. Item414 remains open.
+
+STATUS 2026-09-27 — hosted macOS Node precondition correction
+Run36362303533 job108744055538 showed that normal login startup restores a
+Homebrew directory exposing Node. The hosted witness now excludes only PATH
+entries exposing node/nodejs/npm/npx after loading the real profiles, logs
+those exclusions, and clears cached command lookups. It adds no directory and
+does not edit profiles; missing Claude PATH registration must still fail.
+Physical Node absence is not claimed. Linux behavior is unchanged.
+
+Bash syntax and five local scope checks passed, including preserving spaces
+and empty PATH entries, retaining an existing Claude directory, adding none,
+leaving Linux unchanged, and rejecting a PATH without any retained entry.
+The vendor installer was not run locally. Actual native re-execution remains
+required. Receipt: features/data/414_macos_node_path_scope_2026-09-27.json.
+
+STATUS 2026-09-27 — actual Linux command acceptance passed
+Run36362303533 job108749909518 passed the installed app's exact curl command in
+a clean Ubuntu container. A separate interactive login shell resolved the same
+native ELF executable and returned Claude2.1.283 without PATH repair. Node/npm
+were unavailable in both shells and the user profiles remained unchanged.
+The downloaded artifact digest and source-bound receipts were verified.
+This establishes Linux acceptance within the container scope; it does not claim
+a terminal-emulator window or authentication. macOS acceptance is still pending.
+Receipt: features/data/414_linux_native_command_acceptance_2026-09-27.json.

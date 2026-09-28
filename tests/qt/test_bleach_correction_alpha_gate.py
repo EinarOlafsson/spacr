@@ -70,3 +70,43 @@ def test_the_measure_row_follows_the_switch(qtbot, prefs):
         retire_pyqtgraph_menus(screen)
         screen.close()
         screen.deleteLater()
+
+
+def test_timelapse_controls_bleach_editability_without_losing_saved_value(qtbot, prefs):
+    """The real Measure form keeps disabled and alpha-hidden choices intact."""
+    from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt.widget_cleanup import retire_pyqtgraph_menus
+
+    prefs._set_show_alpha_features(True)
+    screen = AppScreen("measure")
+    qtbot.addWidget(screen)
+    try:
+        screen._open_the_heading_of(KEY)
+        model = screen._settings_model
+        control = model._built_control(KEY)
+        assert control is not None
+        assert model.set_value_for_key(KEY, "exponential")
+        assert model.set_value_for_key("timelapse", False)
+        assert screen.setting_row_is_visible(KEY)
+        assert not control.isEnabled()
+        assert model.collect()[KEY] == "exponential"
+
+        assert model.set_value_for_key("timelapse", True)
+        assert control.isEnabled()
+        assert model.collect()[KEY] == "exponential"
+
+        prefs._set_show_alpha_features(False)
+        screen._refresh_alpha_visibility()
+        assert not screen.setting_row_is_visible(KEY)
+        assert model.set_value_for_key("timelapse", False)
+        assert model.collect()[KEY] == "exponential"
+
+        prefs._set_show_alpha_features(True)
+        screen._refresh_alpha_visibility()
+        assert screen.setting_row_is_visible(KEY)
+        assert not control.isEnabled()
+        assert model.collect()[KEY] == "exponential"
+    finally:
+        retire_pyqtgraph_menus(screen)
+        screen.close()
+        screen.deleteLater()

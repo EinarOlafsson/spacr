@@ -693,12 +693,19 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.qt.screens.app_screen.AppScreen.closeEvent#2",
+      "label": "spacr.qt.screens.app_screen.AppScreen.closeEvent#3",
       "source": "the close event; ignored (so the screen stays open) when the worker is still running three seconds after the cancel request.",
       "source_sha256": "49ffd506b6f618a3e2eb51bc2710b1c67b4b3b0c0808d93d914d967736430f8a",
       "context": "the close event; ignored (so the screen stays open) when the worker is still executing three seconds after the cancel request.",
       "translation": "o evento de fechamento; ignorado (para que a tela continue aberta) quando o worker ainda está em execução três segundos depois do pedido de cancelamento.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "rebinding_history": [
+        {
+          "date": "2026-09-27",
+          "from": "spacr.qt.screens.app_screen.AppScreen.closeEvent#2",
+          "to": "spacr.qt.screens.app_screen.AppScreen.closeEvent#3"
+        }
+      ]
     },
     {
       "label": "spacr.qt.screens.app_screen.AppScreen.dimension_is_on#1",

@@ -1,6 +1,7 @@
 OPS SAYS "src is missing" ON A RUN THAT SUCCEEDS, AND MASK'S TRACK PREVIEW SWITCH HIDES
 
-Status: FIXED 2026-09-25, both parts, with tests; awaiting merge to nightly.
+Status: DONE. Both fixes and their tests are on nightly; integration verified
+2026-09-27 against commit e59560e96.
 Owner: unassigned. Found by the docs session while recording the OPS and
 Timelapse tutorials.
 

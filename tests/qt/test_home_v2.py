@@ -1087,6 +1087,10 @@ def test_no_aside_panel_claims_to_be_unfinished(home):
     ``spacr/resources/release_notes.json``, so the mark came off with the
     placeholder — and the whole column is finished.
 
+    The hidden stage legend is owned by Home for Qt cleanup, but is not
+    part of the aside. Check that it stays hidden and inspect the column's
+    descendants rather than treating every owned panel as displayed.
+
     The mark's MACHINERY is still asserted, because the next provisional
     panel should get it: lower case on purpose, since the header is
     upper-cased and letter-spaced and "(BETA)" would read as another word
@@ -1094,7 +1098,10 @@ def test_no_aside_panel_claims_to_be_unfinished(home):
     from spacr.qt.widgets.home import BETA_SUFFIX, Panel
 
     assert BETA_SUFFIX == " (beta)" and BETA_SUFFIX.islower()
-    headings = {p.header.text(): p for p in home.findChildren(Panel)}
+    aside = home._news.parentWidget()
+    headings = {p.header.text(): p for p in aside.findChildren(Panel)}
+    assert home.legend.isHidden()
+    assert home.legend not in headings.values()
     marked = {h: p for h, p in headings.items() if p.is_beta}
     assert not marked, f"these panels still claim to be unfinished: {marked}"
     assert not any(h.endswith(BETA_SUFFIX) for h in headings)

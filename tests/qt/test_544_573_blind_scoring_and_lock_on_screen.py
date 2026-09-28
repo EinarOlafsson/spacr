@@ -21,7 +21,13 @@ from PIL import Image
 
 pytest.importorskip("PySide6")
 
+from PySide6.QtWidgets import QDialog, QMessageBox  # noqa: E402
+
 from spacr import run_journal as rj  # noqa: E402
+
+_REAL_DIALOG_EXEC = QDialog.exec
+_REAL_MESSAGE_QUESTION = QMessageBox.question
+_REAL_MESSAGE_WARNING = QMessageBox.warning
 
 
 @pytest.fixture
@@ -153,6 +159,71 @@ def test_a_new_source_ends_a_blinded_session_without_unblinding(
     assert rj._unblinding_times(plate) == []
 
 
+def test_blinding_hides_settings_and_console_history_then_restores_them(
+        annotate, plate, qtbot, monkeypatch):
+    from PySide6.QtCore import QTimer
+    from PySide6.QtWidgets import QApplication
+    from spacr.qt.screens.annotate import _SettingsDialog
+
+    screen = annotate
+    screen.show()
+    screen._console_switch.setChecked(True)
+    qtbot.waitUntil(lambda: screen._console_wrap.isVisible())
+    history = screen._console.copy_all()
+    assert str(plate) in history
+    source, database = screen._settings.src, screen._settings.db_path
+    screen._btn_blind.setChecked(True)
+    assert not screen._btn_settings.isEnabled()
+    assert not screen._console_switch.isEnabled()
+    assert not screen._console_wrap.isVisible()
+    screen._on_console_switch(True)
+    screen._on_open_settings()
+    assert not screen._console_wrap.isVisible()
+    assert getattr(screen, '_settings_dialog', None) is None
+    QApplication.clipboard().setText('unchanged while blinded')
+    screen._on_copy_console()
+    assert QApplication.clipboard().text() == 'unchanged while blinded'
+    assert (screen._settings.src, screen._settings.db_path) == (source, database)
+    assert screen._end_blind(ask=lambda: False) is False
+    assert not screen._console_wrap.isVisible()
+    assert screen._end_blind(ask=lambda: True)
+    assert screen._btn_settings.isEnabled() and screen._console_switch.isEnabled()
+    assert screen._console_wrap.isVisible()
+    assert history in screen._console.copy_all()
+    displayed = []
+    expired = []
+
+    def close_settings():
+        dialog = screen._settings_dialog
+        if dialog is not None:
+            displayed.append(dialog._src_edit.text())
+            dialog.reject()
+
+    def abort_modal():
+        expired.append(True)
+        dialog = QApplication.activeModalWidget()
+        if dialog is not None:
+            dialog.reject()
+
+    monkeypatch.setattr(_SettingsDialog, 'exec', _REAL_DIALOG_EXEC)
+    timer = QTimer(screen)
+    timer.timeout.connect(close_settings)
+    deadline = QTimer(screen)
+    deadline.setSingleShot(True)
+    deadline.timeout.connect(abort_modal)
+    deadline.start(5000)
+    timer.start(20)
+    try:
+        screen._on_open_settings()
+    finally:
+        timer.stop()
+        timer.deleteLater()
+        deadline.stop()
+        deadline.deleteLater()
+    assert not expired
+    assert displayed == [source]
+
+
 @pytest.fixture
 def masks(qtbot, qt_theme_applied, tmp_path, journal, alpha):
     from spacr.qt.screens.make_masks import MakeMasksScreen
@@ -200,6 +271,98 @@ def test_make_masks_names_fields_by_code_while_blinded(masks, qtbot):
     assert on_screen in screen._status_label.text()
     assert [e["event"] for e in rj._blinding_events(blind["key_id"])] == [
         "blinded", "unblinded"]
+
+
+def test_make_masks_blinds_raw_status_failures_and_actual_folder_confirmation(
+        masks, qtbot, monkeypatch):
+    from PySide6.QtCore import QTimer
+    from PySide6.QtWidgets import QApplication, QMessageBox
+    from spacr.qt.screens import make_masks as module
+
+    screen, folder, names = masks
+    screen.show()
+    screen._console_section.show()
+    screen._status_label.setText(f'Opened {folder / names[0]}')
+    before = screen._masks_console.console.copy_all()
+    assert str(folder) in before
+    screen._btn_blind.setChecked(True)
+    assert not screen._console_section.isVisible()
+    screen._console_section.set_folded(True, by_user=False)
+    screen._console_section.set_folded(False, by_user=False)
+    screen._view_pane.set_collapsed('Shortcuts', True, by_user=False)
+    screen._view_pane.set_collapsed('Shortcuts', False, by_user=False)
+    assert not screen._console_section.isVisible()
+    selected = screen._image_files[screen._current_index]
+    path = folder / selected
+    code = screen._blind['codes'][str(path)]
+    raw = f'Could not read {path}; field {selected} in {folder.name}'
+    screen._canvas.status.emit(raw)
+    assert code in screen._status_label.text()
+    assert 'plate7' not in screen._status_label.text()
+    assert 'drugA' not in screen._status_label.toolTip()
+    original = path.read_bytes()
+    path.write_bytes(b'not a TIFF')
+    try:
+        screen._load_current()
+        assert 'Load failed' in screen._status_label.text()
+        assert 'plate7' not in screen._status_label.text()
+        assert 'drugA' not in screen._status_label.toolTip()
+        assert screen._canvas.image is None
+    finally:
+        path.write_bytes(original)
+    shown = []
+    expired = []
+    monkeypatch.setattr(module, 'is_headless', lambda: False)
+    monkeypatch.setattr(QMessageBox, 'question', _REAL_MESSAGE_QUESTION)
+    monkeypatch.setattr(QMessageBox, 'warning', _REAL_MESSAGE_WARNING)
+
+    def refuse_dialog():
+        dialog = QApplication.activeModalWidget()
+        if isinstance(dialog, QMessageBox):
+            shown.append((dialog.windowTitle(), dialog.text()))
+            dialog.done(QMessageBox.No)
+
+    def abort_modal():
+        expired.append(True)
+        dialog = QApplication.activeModalWidget()
+        if dialog is not None:
+            dialog.reject()
+
+    timer = QTimer(screen)
+    timer.timeout.connect(refuse_dialog)
+    deadline = QTimer(screen)
+    deadline.setSingleShot(True)
+    deadline.timeout.connect(abort_modal)
+    deadline.start(5000)
+    timer.start(20)
+    try:
+        assert screen.mask_whole_folder() is False
+    finally:
+        timer.stop()
+        deadline.stop()
+    assert not expired
+    assert len(shown) == 1
+    assert 'Segment all 6 images' in shown[0][1]
+    assert 'plate7' not in str(shown) and 'drugA' not in str(shown)
+    timer.start(20)
+    deadline.start(5000)
+    try:
+        screen._warn('Read failed', raw)
+    finally:
+        timer.stop()
+        timer.deleteLater()
+        deadline.stop()
+        deadline.deleteLater()
+    assert not expired
+    assert len(shown) == 2 and code in shown[1][1]
+    assert 'plate7' not in str(shown) and 'drugA' not in str(shown)
+    assert screen._folder == str(folder) and sorted(screen._image_files) == sorted(names)
+    assert screen._end_blind(ask=lambda: True)
+    assert screen._console_section.isVisible()
+    assert before in screen._masks_console.console.copy_all()
+    screen._canvas.status.emit(raw)
+    assert screen._status_label.text() == raw
+    assert screen._canvas.image is not None
 
 
 def test_every_new_control_is_hidden_until_alpha_features_are_shown(

@@ -821,11 +821,17 @@ class HoverTooltip(QFrame):
         """
         if anchor is None:
             return
+        from ..tooltip_policy import OPT_OUT_PROPERTY, tooltip_policy
+
         try:
             anchor.removeEventFilter(self._tooltip_suppressor)
             anchor.installEventFilter(self._tooltip_suppressor)
+            anchor.setProperty(OPT_OUT_PROPERTY, True)
         except RuntimeError:
             return
+        policy = tooltip_policy()
+        if policy is not None:
+            policy.hide_now()
         QToolTip.hideText()
 
     def _pointer_is_on_me(self) -> bool:

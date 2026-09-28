@@ -2,9 +2,9 @@
 THE LIVE-CELL MODEL IN THE ZOO, UNDER spaCR, AND ITS DATASET IN MAKE MASKS
 ================================================================================
 
-Status:    LANDED 2026-09-21. Zoo entry `live_cell_v1` in spacr/model_zoo.py;
-           MaskDataset `live_cell` in spacr/qt/make_masks_datasets.py. See the
-           trailing note for what was published and what the sample draws.
+Status:    DONE 2026-09-28. Published v1 installed through the model picker;
+           Make Masks opened all ten public sample fields from eight sources.
+           See the dated acceptance note and features/data/467_* receipts.
 
 Requested: 2026-09-21 -- "when it hits 40 (or 44 if thats the next checkpoint)
            stop training and uploade to hugging face (qc, train test valid
@@ -119,3 +119,41 @@ modalities. Foreground counts come from the repo's splits.csv (name, n_objects).
 choose_sample was run on the real 22,014-file images/ + masks/ listing with the
 real splits.csv: 10 pairs, 8 sources, 3 modalities. Test:
 test_the_live_cell_sample_spans_its_sources_and_modalities.
+
+--------------------------------------------------------------------------------
+ACCEPTED 2026-09-28 (Codex)
+--------------------------------------------------------------------------------
+
+The published 1,218,642,395-byte checkpoint was downloaded and independently
+verified against the SHA256 above. The actual model picker showed the spaCR
+entry, both stock comparisons, LIVECell/YeaZ caveats and enabled Use. Acceptance
+exposed an installer bug: the first destination stripped the explicit _v1.
+versioned_path now preserves the published filename and advances the version
+only when that destination already exists, preserving the previous bytes.
+
+The immutable public dataset revision
+1795a901f965202011a72c107fcd40e192c60a45 supplied the actual listing, foreground
+counts and ten selected image/mask pairs across eight sources. All twenty
+downloaded files matched their published hashes. Training datasets in Make
+Masks opened the genuine dialog, then Next image displayed all ten images
+and their exact published mask labels.
+
+This also exposed signed QPI intensities rejected by the editor. Finite signed
+images now subtract their negative minimum in float64 before the existing
+uint16 display scaling. Original image and mask files remain unchanged;
+constant negative images display zeros and non-finite values remain rejected.
+
+The corrected installation reused independently verified downloaded bytes via
+a local mirror; corrected sample acceptance copied the twenty verified payloads
+into a fresh canonical cache. Original failed attempts and their evidence were
+preserved. No model inference or GPU work was needed; live_cell v3 training,
+files and services were untouched.
+
+Focused installation/picker/docstring/API checks: 225 cases passed after fixing
+a missing test-local import. Signed image/dataset/caption/docstring/API checks:
+189 passed. Both original failures and successful rechecks remain in receipts.
+
+Receipts:
+  features/data/467_public_v1_install_and_picker_2026-09-28.json
+  features/data/467_public_sample_open_2026-09-28.json
+  features/data/467_versioned_name_acceptance_2026-09-28.json

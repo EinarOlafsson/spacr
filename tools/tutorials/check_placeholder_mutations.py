@@ -62,7 +62,9 @@ def verify(root):
     observed = []
     try:
         with sync_playwright() as engine:
-            browser = engine.chromium.launch(executable_path='/opt/google/chrome/chrome', headless=True)
+            browser = engine.chromium.launch(
+                executable_path='/opt/google/chrome/chrome', headless=True,
+                args=['--disable-gpu', '--disable-accelerated-video-decode'])
             def check(code):
                 context = browser.new_context()
                 context.route('**/app_v2.js*', lambda route: route.fulfill(body=code, content_type='application/javascript'))

@@ -14,6 +14,7 @@ Pinned here:
 """
 from __future__ import annotations
 
+import json
 import os
 import threading
 
@@ -74,8 +75,11 @@ def _tab_titles(dlg):
 
 def _configured(prefs, secret_file):
     prefs._set_run_notifications(
-        {"enabled": True, "min_minutes": 0, "desktop": False, "ntfy": True},
-        {"ntfy_topic": "lab-topic-7c1"})
+        {"enabled": True, "min_minutes": 0, "desktop": False, "ntfy": True,
+         "teams": True, "webhook": True},
+        {"ntfy_topic": "lab-topic-7c1",
+         "teams_webhook": "http://127.0.0.1/teams-gate-secret",
+         "webhook_url": "http://127.0.0.1/webhook-gate-secret"})
 
 
 def test_notifications_are_off_on_a_fresh_install(prefs, secret_file):
@@ -83,6 +87,8 @@ def test_notifications_are_off_on_a_fresh_install(prefs, secret_file):
     assert prefs._get_run_notifications()["enabled"] is False
     assert prefs._run_notification_config() is None
     assert run_journal._notification_config() is None
+    assert prefs._get_run_notifications()["teams"] is False
+    assert prefs._get_run_notifications()["webhook"] is False
 
 
 def test_hidden_the_tab_is_not_built_and_nothing_fires(qtbot, prefs,
@@ -180,6 +186,146 @@ def test_send_a_test_reports_what_got_through(qtbot, prefs, secret_file,
     assert "Not sent: slack (ValueError" in label.text()
     assert "secretpart" not in label.text()
     assert prefs._saved_notification_secrets() == frozenset()
+
+
+def test_new_channels_save_reopen_reset_and_forget_without_changing_recipients(
+        qtbot, prefs, secret_file, tmp_path, dispatched):
+    """The new controls preserve existing settings and retain blank secrets.
+
+    :param qtbot: owns and interacts with the preference dialogs.
+    :param prefs: preferences backed by a temporary store.
+    :param secret_file: isolated keyring fallback file.
+    :param tmp_path: contains the temporary preference file.
+    :param dispatched: intercepts run notifications without a network request.
+    """
+    prefs._set_show_alpha_features(True)
+    prefs._set_run_notifications({
+        "email_to": "first@lab.example, second@lab.example", "slack": True},
+        {"slack_webhook": "http://127.0.0.1/existing-slack-secret"})
+    dlg = _dialog(qtbot, prefs)
+    fields = {
+        "teams_webhook": ("NotifyTeamsWebhook", "http://127.0.0.1/teams-secret"),
+        "webhook_url": ("NotifyWebhookUrl", "http://127.0.0.1/webhook-secret"),
+        "webhook_token": ("NotifyWebhookToken", "webhook-token-secret"),
+    }
+    for name, value in fields.values():
+        field = dlg.findChild(QLineEdit, name)
+        assert field.echoMode() == QLineEdit.Password
+        assert not field.isEnabled()
+        assert field.placeholderText() == "Not saved"
+    dlg.findChild(QWidget, "NotifyRunsEnabled").setChecked(True)
+    dlg.findChild(QWidget, "NotifyRunsMinMinutes").setValue(0)
+    dlg.findChild(QWidget, "NotifyDesktop").setChecked(False)
+    for name in ("NotifyTeams", "NotifyWebhook"):
+        dlg.findChild(QWidget, name).setChecked(True)
+    for name, value in fields.values():
+        field = dlg.findChild(QLineEdit, name)
+        assert field.isEnabled()
+        field.setText(value)
+    dlg.findChild(QDialogButtonBox).button(QDialogButtonBox.Save).click()
+    config = prefs._run_notification_config()
+    assert config["teams"] and config["webhook"] and config["slack"]
+    assert config["email_to"] == "first@lab.example, second@lab.example"
+    assert prefs._saved_notification_secrets() == {*fields, "slack_webhook"}
+    for secret_name, (_, value) in fields.items():
+        assert value not in (tmp_path / "notify.ini").read_text()
+        assert run_journal._load_notify_secret(secret_name) == value
+    assert run_journal._load_notify_secret("slack_webhook") == \
+        "http://127.0.0.1/existing-slack-secret"
+
+    with run_journal.open_run("mask", {}):
+        pass
+    assert len(dispatched) == 1
+    assert dispatched[0][1]["teams"] and dispatched[0][1]["webhook"]
+    prefs._set_show_alpha_features(False)
+    with run_journal.open_run("mask", {}):
+        pass
+    assert len(dispatched) == 1
+    prefs._set_show_alpha_features(True)
+
+    reopened = _dialog(qtbot, prefs)
+    for name, _ in fields.values():
+        field = reopened.findChild(QLineEdit, name)
+        assert field.text() == ""
+        assert field.placeholderText() == "Saved; type to replace"
+    reopened.findChild(QDialogButtonBox).button(QDialogButtonBox.Save).click()
+    for secret_name, (_, value) in fields.items():
+        assert run_journal._load_notify_secret(secret_name) == value
+
+    reset_dialog = _dialog(qtbot, prefs)
+    reset_dialog.findChild(QPushButton, "PreferencesReset").click()
+    for name in ("NotifyTeams", "NotifyWebhook"):
+        assert not reset_dialog.findChild(QWidget, name).isChecked()
+    for secret_name, (_, value) in fields.items():
+        assert run_journal._load_notify_secret(secret_name) == value
+    reset_dialog.findChild(QPushButton, "NotifyForgetSecrets").click()
+    for secret_name in (*fields, "slack_webhook"):
+        assert run_journal._load_notify_secret(secret_name) == ""
+    assert not secret_file.exists()
+
+
+def test_new_channels_require_saved_addresses_before_a_run_can_send(prefs,
+                                                                   secret_file):
+    """Enabled toggles without saved addresses do not arm notifications.
+
+    :param prefs: preferences backed by a temporary store.
+    :param secret_file: isolated keyring fallback file.
+    """
+    prefs._set_show_alpha_features(True)
+    prefs._set_run_notifications({"enabled": True, "desktop": False,
+                                  "teams": True, "webhook": True})
+    assert prefs._run_notification_config() is None
+    prefs._set_run_notifications({}, {"teams_webhook": "http://127.0.0.1/teams"})
+    config = prefs._run_notification_config()
+    assert config["teams"] is True and config["webhook"] is False
+    prefs._set_run_notifications({}, {"webhook_url": "http://127.0.0.1/webhook"})
+    assert prefs._run_notification_config()["webhook"] is True
+
+
+def test_send_a_test_uses_the_new_webhooks_without_saving(qtbot, prefs,
+                                                        secret_file,
+                                                        monkeypatch):
+    """Typed credentials reach the fake transports and their results reach Qt.
+
+    :param qtbot: owns the dialog and waits for its asynchronous result.
+    :param prefs: preferences backed by a temporary store.
+    :param secret_file: isolated keyring fallback file.
+    :param monkeypatch: replaces the network call with a local fake.
+    """
+    posts = []
+
+    def receive(url, data, headers):
+        """Capture a JSON request without opening any network connection.
+
+        :param url: the fake receiving address.
+        :param data: JSON payload bytes.
+        :param headers: request content and authentication headers.
+        :returns: a successful HTTP status.
+        """
+        posts.append((url, json.loads(data), headers))
+        return 200
+
+    monkeypatch.setattr(run_journal, "_notify_http_post", receive)
+    prefs._set_show_alpha_features(True)
+    dlg = _dialog(qtbot, prefs)
+    dlg.findChild(QWidget, "NotifyDesktop").setChecked(False)
+    dlg.findChild(QWidget, "NotifyTeams").setChecked(True)
+    dlg.findChild(QWidget, "NotifyWebhook").setChecked(True)
+    dlg.findChild(QLineEdit, "NotifyTeamsWebhook").setText(
+        "http://127.0.0.1/unsaved-teams-secret")
+    dlg.findChild(QLineEdit, "NotifyWebhookUrl").setText(
+        "http://127.0.0.1/unsaved-webhook-secret")
+    dlg.findChild(QLineEdit, "NotifyWebhookToken").setText("unsaved-token-secret")
+    dlg.findChild(QPushButton, "NotifySendTest").click()
+    label = dlg.findChild(QWidget, "NotifyTestResult")
+    qtbot.waitUntil(lambda: label.text() == "Sent: teams, webhook", timeout=10000)
+    assert len(posts) == 2
+    assert posts[0][1]["type"] == "message"
+    assert posts[1][1]["title"] == "spaCR test notification"
+    assert posts[1][1]["failed"] is False
+    assert posts[1][2]["Authorization"] == "Bearer unsaved-token-secret"
+    assert prefs._saved_notification_secrets() == frozenset()
+    assert not secret_file.exists()
 
 
 def test_the_desktop_relay_reaches_the_gui_thread(qtbot, monkeypatch):

@@ -2,7 +2,8 @@
 THE INSTALLERS MUST ACTUALLY BUILD AND RUN, ON ALL THREE PLATFORMS
 ================================================================================
 
-Status:    complete, 2026-08-14
+Status:    Native online installers verified; legacy frozen-bundle acceptance
+           remains OPEN. See the 2026-09-27 reconciliation.
 Requested: 2026-08-08 — "make sure to add the CPU/GPU ask and GIThub, claude, gemeni, gpt, asks during installation and making sure the installers work."
 
 --------------------------------------------------------------------------------
@@ -194,3 +195,432 @@ corrected above live only in this working tree.
 NEEDS A DECISION, NOT A PATCH: narrowing the ignore rule (to `/*.spec`, or
 to the build directory) and committing the spec changes what the repository
 ships, so it is the coordinator's call rather than an audit's.
+
+2026-09-27 — CURRENT SPEC AND REMAINING ACCEPTANCE
+The missing-spec claim above is historical: packaging/spacr.spec is tracked
+in the current nightly checkout, and .gitignore explicitly permits it. Its
+launcher calls spacr.qt.run(), with Qt hidden imports in the shared spec.
+No new permission or patch is needed to add a file already in the repository.
+The August native online-installer receipt remains distinct from the legacy
+PyInstaller .app/.exe family. This audit found no later actual frozen-bundle
+build-and-launch receipt, so that acceptance remains open; source inspection
+and the launcher's unit tests do not establish a native artifact launch.
+
+2026-09-27 — NATIVE LEGACY ACCEPTANCE PREPARED; EXECUTION STILL PENDING
+The native GitHub runners already used for online installers can also exercise
+this family. A separate read-only workflow now builds artifacts and passes only
+those artifacts to fresh smoke jobs, with no checkout, build environment or
+PYTHONPATH fallback. The actual installed Qt entry constructs Measure, clicks
+its real Run action for one synthetic field and requires a terminal successful
+SQLite result. Binary/import/resource identities and screenshots are retained.
+No native build, install or launch result is claimed by this implementation note.
+
+Windows quoting, native exit checks and literal NSIS variables are repaired;
+the produced runtime is correctly described as onedir, with NSIS required in
+acceptance. The old Debian stdeb/system-Python implementation is REPLACED, not
+claimed fixed: dpkg now owns a frozen CPU runtime under /opt/spacr plus its
+launcher, desktop entry and icons. The minimum-version builder is Ubuntu 22.04;
+fresh Ubuntu 22.04 and Debian 12 jobs must install, run and remove it while
+preserving analysis output. Its libc dependency records the builder's actual
+version. This replaces missing PyPI-to-distro dependency assumptions with the
+same bundled environment tested on Windows/macOS.
+
+Still open: the actual native jobs, all resulting dependency/launch fixes,
+API inventory/translation delta for any newly cataloged smoke helpers, and the
+original update/install-screen requirements. Frozen sys.executable is not a
+Python interpreter; the online uv updater proof does not validate frozen
+self-update. The legacy builders do not inherit the online CPU/GPU, account or
+consent flows. No production release, notarization or credential-based signing
+is performed by these acceptance jobs. Item 53 remains OPEN.
+
+Local validation: the first named batch passed39 and exposed one real Qt
+Measure failure: bulk application rebuilt the form and the smoke driver held
+its retired screen. The driver now reacquires the live screen, verifies the
+input and one-worker limit, then clicks Run. All8focused cases pass, including
+an actual one-field analysis with16cell rows and complete/1success/0failure.
+Together the two batches establish40unique passing checks. This is explicitly
+source-level integration, not a native-artifact receipt. The initial failure
+and two Linux fork warnings are retained. Evidence:
+features/data/53_legacy_native_preparation_2026-09-27.json.
+
+STATUS 2026-09-27 (Codex, first native CI): run36342374345 reached its native
+matrix. Debian stopped before package construction because Git rejected the
+container checkout ownership. The build step now trusts only its exact
+GITHUB_WORKSPACE path. Workflow structure checks pass; the native repair is
+not yet verified. Receipt: features/data/53_debian_checkout_ownership_2026-09-27.json.
+
+STATUS 2026-09-27 (Codex, native launch now exercised; dependency failure)
+Run36342374345 built both macOS and Windows native artifacts successfully.
+Fresh hosts installed and launched the produced binaries from empty working
+directories. Native Qt, installed import origins/resources, actual Measure
+construction and its real Run action all passed. Both scientific pipelines
+then failed because ImageIO's import-time version lookup could not find its
+distribution metadata. The shared spec now collects that metadata explicitly;
+no runtime/API source or scientific acceptance is changed. Original failed
+smoke receipts are retained in
+features/data/53_native_imageio_failure_2026-09-27/.
+Local packaging validation passed7tests in0.82s (spec and native workflow).
+The repaired native rebuild remains pending.
+No completed native analysis or uninstall preservation is claimed. Item53
+remains OPEN, including its separate update/backend/account/consent tail.
+
+STATUS 2026-09-27 — Debian shared Python library prerequisite
+The exact-workspace ownership fix lets the clean Ubuntu22.04 builder reach
+PyInstaller. CI36343749550 then fails because libpython3.10.so.1.0 is absent.
+The builder now requests libpython3-dev, whose versioned dependency includes
+the shared runtime required for freezing. Shell syntax passes; a fresh native
+build and installed-artifact smoke are still required. Receipt:
+features/data/53_debian_shared_python_2026-09-27.json.
+
+STATUS 2026-09-27 — current native dependency repairs
+Run36345082025 built all3 native artifacts. Linux installed launches required
+libxcb-shape0; Windows/macOS reached Measure but lacked TorchVision operators.
+The builder/runtime Debian dependency and targeted operator collection were
+repaired with14 focused tests passing. Run36347645045 then exposed an overly
+narrow collection guard: current0.29 wheels use _C_stable, not _C. Exact wheels
+and loader source from all3 platforms establish the renamed library identity.
+The guard now accepts both exact identities and retains rejection of unrelated
+libraries. Expanded tests and the next native build remain pending. Receipts:
+features/data/53_native_xcb_torchvision_failure_2026-09-27/README.md and
+features/data/53_torchvision_stable_library_2026-09-27.json.
+No successful native small run or full updater/backend/account/consent closure
+is claimed by these packaging repairs.
+
+STATUS 2026-09-27 — updater discovery and backend command repairs
+The current /opt/spacr Debian installation is now recognized only with exact
+dpkg ownership. Frozen application executables cannot enter Python/pip fallback
+paths, and missing archived helper source yields an error before removal.
+Online uv updates now retain the valid installer profile's requested Torch
+backend. Focused checks passed60 and189 cases; expanded packaging guards also
+passed19. Receipt: features/data/53_updater_boundaries_and_backend_2026-09-27.json.
+These are source-level fixes. Actual frozen replacement and post-update wheel
+state, custom-location discovery, and the remaining native acceptance stay open.
+
+STATUS 2026-09-27 — actual Linux installed small runs and historical witness
+All three builds in native run36348757658 passed. Debian12 and Ubuntu22.04
+installed-artifact jobs passed: native XCB, actual Measure Run, 16 cell rows,
+and removal preserving the completed database. Independent SQLite integrity
+and row-count checks also pass. Raw evidence and visual limitations are in
+features/data/53_native_linux_acceptance_2026-09-27/README.md. At1280x720 both
+screenshots clip Actions controls; layout acceptance remains open. Windows
+and macOS installed smoke results remain pending at this checkpoint.
+
+A genuine historical online-upgrade witness now installs the checksum-pinned
+released1.5.0.1 artifact, drives its actual Help action to reproduce missing
+pip, applies the documented private-uv repair pinned1.5.0.5, and drives the
+newly installed GUI to upgrade to the current public release. Source hashes,
+actual child commands, screenshots, versions, private prefix, missing pip and
+CPU wheel state must agree. It does not substitute current checkout behavior
+for historical releases. Local syntax and23verifier-only tests pass; native
+historical execution is pending. The workflow runs on its own nightly source
+changes and also exposes manual dispatch. Its narrow push trigger permits
+acceptance before default-branch promotion; no main promotion was performed.
+Receipt: features/data/53_historical_upgrade_preparation_2026-09-27.json
+(the workflow digest there describes the tested manual-only precursor; the
+subsequent push-trigger header is verified by GitHub workflow parsing).
+
+STATUS 2026-09-27 — Windows Measure passes; genuine historical Linux upgrade
+Native run36348757658 also passed Windows2025 installed Measure; macOS15.7.9
+arm64 completed Measure but failed the added menu witness. Both databases
+independently pass integrity and16-cell checks. Preserve that Mac receipt as
+FAILED: the witness incorrectly demanded a system menu despite the later
+2026-08-31 request for a unified in-window menu and visible window controls.
+Evidence: features/data/53_native_windows_macos_2026-09-27/README.md.
+
+Historical run36350873895 passed the genuine Ubuntu24.04 online recovery
+chain: original released1.5.0.1 GUI missing-pip failure; explicit private-uv
+repair to1.5.0.5; actual installed GUI update topublic1.5.1.0. The private
+prefix andCPU Torch are preserved, pip remains absent, and raw commands/source
+hashes/screenshots bind the receipt. This is not a claim that broken1.5.0.1
+can update without repair. Evidence:
+features/data/53_historical_linux_upgrade_2026-09-27/README.md.
+The first Mac historical driver reached the actual update question but
+incorrectly rejected Cocoa's empty dialog title. Its correction binds the
+prompt text/versions/buttons while permitting an empty title only onMac;
+actual repaired-driver execution remains pending. Frozen replacement and
+all remaining backend/account/consent requirements remain OPEN.
+
+STATUS 2026-09-27 — independent frozen helper infrastructure
+The native builds now include a separate stdlib-only updater executable.
+Preparation copies it outside installation roots and gives it independent
+extraction storage and environment. Unsupported frozen replacement families
+remain blocked before removal; this does not enable an online-family fallback.
+The copied onefile helper must never be elevated from user-controlled storage.
+
+Local helper, ownership-boundary, cleanup and packaging checks:216 passed,
+one actual-native-binary test deferred. Artifact-only jobs now copy/hash the
+installed helper, remove the original installation, and run its real CLI with
+an empty PATH and reset extraction environment. Native execution is pending.
+Receipt: features/data/53_standalone_helper_preparation_2026-09-27.json.
+Frozen family transactions and the remaining item53 acceptance remain OPEN.
+
+STATUS 2026-09-27 — bounded runtime layout and real scroll reachability
+The runtime column now preserves control minima inside a bounded scroll area.
+The completed-run successor row wraps its buttons instead of imposing its
+previous 893-pixel minimum width; order, actions and cleanup are retained.
+Settings width and user-drag/focus contracts remain covered by the existing
+focused checks. Source UI integration runs at exactly1280x720: actual Measure
+completed with16cells, all47 control/document-endpoint observations were
+reachable through real scroll operations, and original scroll positions and
+read-only document cursor selections were restored. Raw initial offscreen
+clipping is retained honestly; scrolling is part of this acceptance.
+
+Validation:17 distribution checks passed (including real Measure and negative
+unreachable-control cases). The preceding focused run had115 passes and its
+one real integration geometry failure is preserved; affected chaining and
+witness checks had94 passes plus a separate harness TMPDIR/socket-length
+failure. A standard-library probe reproduced AF_UNIX path-too-long, and the
+short private scratch TMPDIR fixed that harness issue without runtime changes.
+The next integration exposed two nested document-scroll observations; their
+real cursor/scroll navigation is covered by the final17-pass run.
+
+Receipt: features/data/53_native_layout_source_acceptance_2026-09-27.json.
+Complete receipts, original failures, logs and screenshots are preserved in
+/mnt/wd4tb/scratch/spacr-completion/53-native-layout-prep/; final images are in
+source-integration-final/ with screenshots.sha256. This is source-level Qt
+integration, not native installed-artifact acceptance. Native reruns and the
+remaining item53 installer/updater requirements remain OPEN. The subsequent
+machine reboot did not erase this completed validation; it did interrupt the
+separate item47 full Qt acceptance run.
+
+STATUS 2026-09-27 — native helper survival and scroll acceptance
+Run36357823769 at d33fa4fa0 built all three artifacts. Fresh installed Windows
+Server2025, Ubuntu22.04 and Debian12 jobs passed actual CPU Measure:16 cells,
+complete/one success/zero failures. Downloaded databases independently passed
+integrity_check and the16-cell recount. Their copied helpers still answered
+both CLI help commands after actual app removal, with PATH empty and extraction
+outside the removed installation. This proves helper independence, not updates.
+
+Native scroll witnesses reached52 controls/document endpoints on Windows and47
+on each Linux image, restoring scroll and cursor state. Raw viewport clipping
+remains recorded. The Windows window exceeded the VM desktop width; this is
+window-relative reachability evidence, not proof of fit on a1024px desktop.
+macOS stopped at checksum verification because upload omitted the extensionless
+helper named in the manifest. Commit6194b0184 corrects that omission; its native
+rerun is pending. Full frozen-update adapters and other original gates remain.
+Receipt: features/data/53_native_helper_and_windows_claude_acceptance_2026-09-27.json.
+
+STATUS 2026-09-27 — historical macOS repair artifact diagnosed
+Run36357823752 installed the actual released1.5.0.1 on macOS and reproduced
+its missing-pip GUI failure. The external1.5.0.5 repair then failed because
+that public wheel contains three differing-content case-colliding GIF pairs.
+Its full central directory proves those pairs; no explicit filesystem-case
+probe was recorded. The original failure and its source pins remain preserved.
+
+The witness now explicitly selects genuine public1.5.0.6 for macOS/Windows,
+retaining the proven1.5.0.5 Linux chain. The complete.6 wheel matches its PyPI
+SHA256, has no case-colliding names, and carries the same updater/init bytes.
+New source pins and verifier checks require the selected repair, the original
+private missing-pip environment, and a strictly newer real GUI update target.
+No wheel modification or ZIP-validation bypass is used. A41-test named local
+batch passed; the revised native recovery chain remains pending.
+Receipt: features/data/53_historical_case_collision_2026-09-27.json.
+
+STATUS 2026-09-27 — macOS native helper and menu acceptance passed
+Run36358947318 at6194b0184 is green, including installed Windows/macOS,
+Ubuntu22.04/Debian12 and both Windows Claude terminal checks. The downloaded
+macOS receipt proves actual CPU Measure completed with16 synthetic cells; its
+database independently passes integrity_check and the16-cell recount. All47
+control/document observations were reachable by actual scrolling with scroll
+and cursor state restored. Raw viewport clipping remains in the receipt.
+
+The copied macOS helper answers both CLI help commands after app removal with
+empty PATH and reset extraction environment. Actual Cocoa menu interaction also
+opens Preferences and exits through Quit, closing item23. These results verify
+installation, helper independence and GUI behavior; they do not implement or
+accept frozen replacement transactions. Historical update recovery and the other
+item53 gates remain open. Receipt:
+features/data/23_53_macos_native_acceptance_2026-09-27.json.
+
+STATUS 2026-09-27 — real historical macOS recovery passed
+Run36360415321 installs the original released1.5.0.1 online package on
+macOS14.8.9 arm64. Its installed Help action actually invokes python -m pip
+and reports the missing-pip failure. External public1.5.0.6 repair retains the
+same private environment without pip. The repaired installed Help action invokes
+the real bootstrap uv and upgrades successfully to public1.5.1.0; the same
+interpreter verifies that version afterward. CPU Torch remains intact and CUDA
+unavailable throughout. Downloaded stage receipts were independently inspected.
+
+This closes the macOS released online-family recovery gate. Windows historical
+acceptance remains pending; the earlier bootstrap exit lacks its actual error.
+Its observer now attempts bounded passive control-text/window captures after
+bootstrap exit and before the unchanged deadline. Initialization/read failures
+remain diagnostic. No input is sent, no dialog dismissed, and no original
+installer bytes or update command changed. Native observer validation is pending.
+Full item53 and frozen replacement acceptance remain open. Receipt:
+features/data/53_historical_macos_recovery_2026-09-27.json.
+
+STATUS 2026-09-27 — pin the already-validated Windows compiler prerequisite
+Native run36362303533 failed before packaging: Chocolatey reported nsis absent
+from its discovery feed. The same command had installed3.13.0 successfully in
+run36358947318. Exact package downloads still succeed; no failing HTTP status
+was retained, so a particular network/feed cause is not claimed.
+
+The Windows build now downloads official NSIS3.13 by exact URL and SHA256,
+checks its compiler version, bounds silent installation and records acquisition
+receipts. Independently downloaded upstream and Chocolatey-embedded installer
+bytes match. YAML parsing passed; no installer ran locally. Actual Windows
+build acceptance remains pending, and this prerequisite repair does not close
+historical Windows recovery or frozen replacement gates. Receipt:
+features/data/53_pinned_nsis_acquisition_2026-09-27.json.
+
+STATUS 2026-09-27 — user-writable frozen macOS replacement integrated
+The standalone helper now verifies an official DMG and its read-only mount,
+checks native/package identity and payload inventories, stages a sibling bundle,
+and atomically exchanges it while retaining the complete old bundle. Durable
+journals support explicit recovery. Normal-user LaunchServices acceptance is
+reported separately from actual GUI startup; it does not prove that startup.
+
+Integration checks: 378 passed, one actual-native-artifact skip across five named
+files. The final adapter unit file has 44 passing cases; the unchanged protected
+shell/native semantics have 20 passing actual macOS cases in run36364609424.
+The inventory includes the bundle-root mode and propagates traversal errors.
+Receipt: features/data/53_macos_frozen_adapter_integration_2026-09-27.json.
+
+Actual rebuilt-DMG/helper replacement, interrupted recovery and GUI/CPU relaunch
+acceptance remain required. Protected replacement dispatch and authorization
+acceptance are still outstanding, as are other frozen and mixed/legacy families.
+This implementation does not close item53 or authorize a version promotion.
+
+STATUS 2026-09-27 — direct pinned Windows compiler acquisition
+The native build rejected unknown response bytes from the SourceForge download
+page. It now tries three bounded official direct-asset requests, retaining each
+response and headers. HTTP success, the unchanged pinned SHA256 and executable
+header are required; the copied installer is rehashed before execution.
+Both official endpoints independently supplied the same pinned installer.
+Three existing workflow checks and the acquisition gate checks passed. Actual
+hosted Windows execution remains pending. Historical recovery is a separate gate.
+Receipt: features/data/53_nsis_direct_acquisition_2026-09-27.json.
+
+STATUS 2026-09-27 — historical Windows child diagnostic prepared
+The observer now retains the original uv child identity, script bytes and exit
+code, and ends promptly after a proven error dialog and ended bootstrap. A
+separate bounded replay captures the unchanged child's output after the failed
+observed process tree exits. Environment evidence is explicitly reconstructed
+whitelist inheritance, not a direct read of the unavailable child environment.
+Original installer bytes and acceptance criteria remain unchanged.
+
+The exact verifier file passed 28 tests in 2.33 seconds under a 4G CPU cap;
+YAML and diff checks passed. Native PowerShell capture/replay validation and
+historical Windows acceptance remain pending. A successful diagnostic cannot
+pass the original installer or close item53. Receipt:
+features/data/53_historical_windows_child_diagnostic_2026-09-27.json.
+
+STATUS 2026-09-27 — actual Windows child diagnostic captured
+Run36368371775 at e9c7baee3 captured the original uv child exiting1 with no
+expected uv.exe. Its unchanged retained script then replayed under the same
+32-bit Windows PowerShell engine/account/path and exited0, installing uv.
+The environment match covers reconstructed whitelist inheritance only; the
+original child error text remains unavailable and its failure cause unproven.
+Artifact digest/head binding and executed-driver CRLF source binding verified.
+This validates the diagnostic, not the failed historical installer or upgrade.
+Receipt: features/data/53_historical_windows_child_diagnostic_native_2026-09-27.json.
+
+STATUS 2026-09-27 — exact embedded NSIS package fallback verified locally
+Run36368240823 retained three official NSIS responses that are demonstrably
+HTML download pages. After those unchanged attempts, the workflow now permits
+one exact-version, checksum-pinned Chocolatey package download with bounded
+time and bytes. Only its known installer entry is read; the unchanged inner
+installer checksum and executable-header gate still precede execution.
+
+A fresh package matches the earlier independently verified package, and its
+embedded installer is byte-identical to the verified official installer.
+ZIP identity/size, YAML and static gate checks passed. The capped focused
+batch passed all 12 checks, including the three native-workflow checks. No
+installer executed locally; native Windows acceptance remains pending.
+Receipt: features/data/53_nsis_exact_package_fallback_2026-09-27.json.
+
+STATUS 2026-09-28 — rebuilt native artifacts accepted on four platforms
+Run36372926331 at f9d5af988 is green for every build, installed-artifact smoke
+and native terminal command job. Downloaded receipts are bound to that exact
+source. Windows, macOS, Ubuntu22.04 and Debian12 each completed the actual GUI
+CPU Measure run; independent read-only database integrity checks and recounts
+confirm16 cells on all four platforms. Packaged-resource and visual-layout
+checks passed. Copied helper CLI help and run-plan help both exit0 after the
+original app/package is removed, with PATH empty and extraction state reset.
+
+This accepts the rebuilt installer/launch and helper-independence gates. The
+Windows compiler acquisition/build executed successfully, but the exact-package
+fallback branch is not independently established without its acquisition
+receipt. Historical Windows recovery, frozen replacement/interruption/restart,
+protected macOS authorization and other update-family gates remain open.
+No whole-item completion or version promotion is claimed.
+Receipt: features/data/53_rebuilt_native_acceptance_2026-09-28.json.
+
+STATUS 2026-09-28 — Native NSIS fallback evidence recovered
+Downloaded the original Windows build artifact from run36372926331. Its
+archive SHA256 matches GitHub's official digest. The source-bound acquisition
+receipt proves exact-package-entry was actually selected, the pinned package
+hash/size and executable signature checks passed, compiler v3.13 was invoked,
+and installation exited0. This closes the specific fallback evidence gap in
+the preceding note. Historical recovery, frozen replacement/interruption/
+restart and protected macOS authorization still remain open.
+Receipt: features/data/53_nsis_native_fallback_acceptance_2026-09-28.json.
+
+STATUS 2026-09-28 — full historical Windows recovery prepared
+The workflow preserves original_install outcome=failure, diagnoses the actual
+uv child and separately runs the unchanged original bootstrap with captured
+output, native engine/account and source/receipt bindings. Only successful full
+recovery proceeds to the existing real GUI missing-pip failure, external public
+repair, Help update and fresh installed-state checks. UV-only replay and
+relabeling the failed original as passed cannot satisfy the verifier.
+The named verifier/hygiene selection reports91 passes with captured pytest exit0;
+YAML/Windows recovery guards are checked. Synthetic fixtures prove no native
+execution. PowerShell5.1 parsing and the full native GUI chain remain pending.
+Receipt: features/data/53_historical_bootstrap_recovery_preparation_2026-09-28.json.
+
+STATUS 2026-09-28 — native Windows bootstrap reached the actual broken GUI
+Historical-upgrade run36394396168 at08cf8d3f1 verifies the explicit unchanged
+Windows full-bootstrap recovery with exit0. The original installer wrapper
+remains failed. The real installed Help action produced the missing-pip dialog;
+the audit witness then failed because CPython reports Windows Popen arguments
+as a serialized string. External repair and successful update were not reached.
+The observer now accepts only the exact canonical serialization of the required
+installed command; altered or additional relevant children remain rejecting
+entries. Both baseline Windows cases fail with an empty command witness, and
+all78 corrected observer/full-verifier checks pass without skips under4G.
+This corrects acceptance observation, not installer behavior. The genuine
+complete native GUI chain and whole53 acceptance remain open pending new CI.
+Receipt: features/data/53_windows_update_audit_witness_2026-09-28.json.
+
+STATUS 2026-09-28 — genuine historical online-runtime update accepted on3 OS
+Run36396804771 at3b1e6a13e passes the full real Help missing-pip failure,
+public external repair, actual Help/uv update and fresh independently checked
+installed1.5.1.0 state on Windows2022, macOS14 arm64 and Ubuntu24.04.
+All five native stage receipts and final guards pass for each platform;
+artifact ZIP hashes match official metadata and the witness/recovery sources
+still match the exact run commit. Windows/macOS repair via public1.5.0.6,
+Ubuntu via1.5.0.5. CPU/no-CUDA and pip-free private runtimes are preserved.
+Windows's original released wrapper remains failed; the separately recorded
+unchanged original full-bootstrap recovery passed and is part of this route.
+The CRLF native recovery-driver hash is bound to the exact run's LF source.
+This closes the historical online-runtime missing-pip/update subrequirement.
+It does not close53: frozen replacement/rollback, protected macOS account/ACL
+flows, other legacy families, backend/account/report-consent tails, and actual
+post-update new-version GUI restart/Measure remain outside this receipt.
+Receipt: features/data/53_historical_missing_pip_native_acceptance_2026-09-28.json.
+
+STATUS 2026-09-28 — frozen macOS readiness and shutdown handshake checked locally
+The user-writable frozen updater now binds private ready/approved/cancelled
+messages to one random nonce and the exact plan. It permits60 minutes for
+verified staging, then10 minutes for consent and actual process exit. A GUI
+QTimer keeps preparation asynchronous. The real closeEvent publishes approval
+after shutdown veto checks and before teardown; refusal, ordinary close,
+cancellation, expiry and approval-write failure leave replacement unapproved.
+
+The separately retained updater-r2 batch exits0 with438 passes and one skip.
+All11 recorded source hashes match both its post-run check and current files.
+The exact skip is tests/test_frozen_update_helper.py::
+test_actual_frozen_helper_runs_after_copy_without_source_or_python: it requires
+an actual native PyInstaller helper artifact. The invocation configures4G,
+private HOME/XDG/TMP, offscreen Qt, CPU and hidden CUDA/HIP/ROCR; no separate
+kernel-cgroup receipt is retained. The original updater.log has no terminal
+exit/JUnit receipt and remains unknown, separate from the accepted rerun.
+
+Native commands, helper launch and PID exit are modeled in these local tests.
+Published-DMG/helper replacement, interruption/recovery and real new-version
+GUI restart/CPU Measure are unproved. The retained latest public1.5.1.0 asset
+snapshot has no DMG. Protected macOS flows, other update families and the
+remaining installer/backend/account/report-consent gates still remain open.
+Whole53 staysOPEN; no version promotion is claimed. Receipt:
+features/data/53_frozen_readiness_handshake_2026-09-28.json.

@@ -911,6 +911,7 @@ def test_a_comma_separated_table_list_is_taken_apart(tmp_path, monkeypatch):
 
     import spacr.anndata_export as ax
 
+    monkeypatch.setattr(ax, "require_anndata", lambda: None)
     monkeypatch.setattr(ax, "export_anndata",
                         lambda db, out, **kw: seen.update(db=db, out=out, **kw))
 
@@ -932,6 +933,7 @@ def test_an_explicit_output_and_single_table_are_passed_through(tmp_path,
 
     import spacr.anndata_export as ax
 
+    monkeypatch.setattr(ax, "require_anndata", lambda: None)
     monkeypatch.setattr(ax, "export_anndata",
                         lambda db, out, **kw: seen.update(db=db, out=out, **kw))
 

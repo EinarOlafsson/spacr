@@ -2,7 +2,7 @@
 spaCR FEATURES -- NEW, AND FUTURE
 ================================================================================
 
-Regenerated 2026-09-26 by `tools/build_instruction_index.py`, from the files in
+Regenerated 2026-09-28 by `tools/build_instruction_index.py`, from the files in
 these globs and nothing else:
 
   features/future/*.txt
@@ -231,7 +231,7 @@ FUTURE FEATURES
   576  A POSTGRES OR DUCKDB/PARQUET MEASUREMENT BACKEND
        576_postgres_duckdb_parquet_backend.txt
 
-  577  RUN-FINISHED NOTIFICATIONS: EMAIL, SLACK, NTFY
+  577  RUN-FINISHED NOTIFICATIONS: EMAIL, SLACK, NTFY, TEAMS, WEBHOOK
        577_run_finished_notifications.txt
 
   578  SEGMENTATION PARAMETER-ROBUSTNESS REPORT

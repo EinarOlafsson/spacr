@@ -2355,7 +2355,6 @@ def _collect_paint_diagnostics(window, out_dir, report) -> None:
     except Exception:                                        # noqa: BLE001
         failed(f"create {folder}")
 
-    # FIRST, before anything below can change a pixel.
     pixels, scale = None, (1.0, 1.0)
     try:
         from .hidpi import screen_for_widget
@@ -2513,8 +2512,6 @@ def _collect_paint_diagnostics(window, out_dir, report) -> None:
         json_path.write_text(json.dumps(report, indent=2, default=str),
                              encoding="utf-8")
         report["files"]["json"] = str(json_path)
-        # Rewritten so the file names itself; the first write is the one
-        # that proves the folder takes a file at all.
         json_path.write_text(json.dumps(report, indent=2, default=str),
                              encoding="utf-8")
     except Exception:                                        # noqa: BLE001
@@ -3834,6 +3831,9 @@ class MainWindow(QMainWindow):
         Both the network call and an accepted ``pip`` upgrade run on
         :class:`_UpdateWorker`; only dialogs and status updates run here.
         """
+        if getattr(self, "_frozen_update_handshake", None) is not None:
+            self.statusBar().showMessage(tr("An update operation is already running."), 4000)
+            return
         worker = getattr(self, "_update_worker", None)
         try:
             if worker is not None and worker.isRunning():
@@ -3982,9 +3982,6 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(
                 self, "Updates", f"Upgrade unavailable: {exc}")
             return
-        # find old spaCR files --> delete old spaCR files --> install new
-        # spaCR. Step 1 runs off the GUI thread; what it found is shown before
-        # anything is deleted, in _on_old_installs_found.
         self._update_version = info.latest_release
         self.statusBar().showMessage(tr("Upgrading spaCR…"), 4000)
         self._start_update_worker(
@@ -4082,6 +4079,21 @@ class MainWindow(QMainWindow):
                        error=self._removal_reason_text(
                            str(plan.get("error")))))
                 return
+            if plan.get("adapter") == "macos-frozen-v1" and plan.get("handshake"):
+                from PySide6.QtCore import QTimer
+
+                self._frozen_update_plan = plan
+                try:
+                    self._frozen_update_handshake = install_cleanup._FrozenUpdateHandshake(plan)
+                except Exception as error:
+                    QMessageBox.warning(
+                        self, "Updates", tr("Upgrade unavailable: {error}", error=str(error)))
+                    return
+                self._frozen_update_timer = QTimer(self)
+                self._frozen_update_timer.timeout.connect(self._poll_frozen_update)
+                self._frozen_update_timer.start(250)
+                self._poll_frozen_update()
+                return
             QMessageBox.information(
                 self, "Updates",
                 tr("spaCR will close, remove the older copies, install "
@@ -4094,6 +4106,62 @@ class MainWindow(QMainWindow):
                 lambda: updater.run_pip_upgrade(target_version=version),
                 records=records, ticked=ticked),
             self._on_update_sequence_done)
+
+    def _cancel_frozen_update(self):
+        """Disarm preparation before an ordinary close, cancellation or refusal."""
+        handshake = getattr(self, "_frozen_update_handshake", None)
+        timer = getattr(self, "_frozen_update_timer", None)
+        if timer is not None:
+            timer.stop()
+        if handshake is not None:
+            try:
+                handshake.cancel()
+            except Exception:
+                LOG.exception("Could not publish update cancellation; no shutdown approval was issued")
+        self._frozen_update_handshake = None
+        self._frozen_update_plan = None
+
+    def _poll_frozen_update(self):
+        """Keep the GUI alive until verified staging, then approve only accepted closure."""
+        handshake = getattr(self, "_frozen_update_handshake", None)
+        if handshake is None:
+            return
+        try:
+            if self._closing:
+                self._cancel_frozen_update()
+                return
+            status = handshake.status()
+            if status is None:
+                return
+            if status["state"] == "error":
+                raise RuntimeError(status["error"])
+            self._frozen_update_timer.stop()
+            answer = QMessageBox.information(
+                self, "Updates",
+                tr("spaCR will close, remove the older copies, install "
+                   "{version} and start again.", version=self._frozen_update_plan["version"]),
+                QMessageBox.Ok | QMessageBox.Cancel)
+            if answer != QMessageBox.Ok or self._closing:
+                self._cancel_frozen_update()
+                return
+            handshake.check()
+            self._frozen_update_closing = True
+            try:
+                accepted = self.close()
+            finally:
+                self._frozen_update_closing = False
+            if accepted is not True:
+                self._cancel_frozen_update()
+                return
+            self._frozen_update_handshake = None
+            self._frozen_update_plan = None
+        except Exception as error:
+            self._cancel_frozen_update()
+            if self._closing:
+                LOG.exception("Frozen update shutdown approval failed; the installed app is retained")
+            else:
+                QMessageBox.warning(
+                    self, "Updates", tr("Upgrade unavailable: {error}", error=str(error)))
 
     def _confirm_old_installs(self, records):
         """List the copies an update removes, with a tick box per environment.
@@ -4228,6 +4296,9 @@ class MainWindow(QMainWindow):
             worker or an application screen does not stop, otherwise passed to
             the base class, and the application quits if it is accepted.
         """
+        if (getattr(self, "_frozen_update_handshake", None) is not None
+                and not getattr(self, "_frozen_update_closing", False)):
+            self._cancel_frozen_update()
         from .bridge import registry
         remaining = registry().cancel_all(
             timeout_ms=5000, reason="application shutdown")
@@ -4264,6 +4335,17 @@ class MainWindow(QMainWindow):
                 return
             if accepted is False:
                 LOG.warning("Shutdown deferred by an application screen")
+                event.ignore()
+                self._closing = False
+                return
+        handshake = getattr(self, "_frozen_update_handshake", None)
+        if handshake is not None and getattr(self, "_frozen_update_closing", False):
+            try:
+                handshake.approve()
+            except Exception as error:
+                self._cancel_frozen_update()
+                QMessageBox.warning(
+                    self, "Updates", tr("Upgrade unavailable: {error}", error=str(error)))
                 event.ignore()
                 self._closing = False
                 return
@@ -6154,11 +6236,6 @@ def launch(argv: Optional[list[str]] = None) -> int:
     try:
         from .laptop_mode import apply as _apply_laptop_mode, describe
         from .preferences import get_performance_level as _level_now
-        # 286: THE LEVEL DECIDES, NOT THE MACHINE. `apply()` with no argument
-        # measures cores and memory, which overrode the level chosen in the
-        # selector -- a two-core Workstation lost its backdrop at every
-        # start. The measurement is still logged, as a reading, because "it
-        # looks different on my laptop" needs evidence.
         _level = _level_now()
         LOG.info("performance level %s; hardware reading, for diagnosis "
                  "only: %s", _level, describe())

@@ -147,3 +147,23 @@ if saved_policy is not None:
 ```
 
 Restored while updates are still off, so putting the policy back cannot itself be a visible step. The layout has settled by now, so `AsNeeded` reaches the same answer the pre-resolution did.
+
+
+---
+
+# Notes from `spacr/qt/widgets/section.py`
+
+Prose lifted out of `spacr/qt/widgets/section.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## Section.eventFilter
+
+### lines 677-679
+
+```python
+if watched is getattr(self, "_header", None):
+```
+
+getattr, not attribute access: Qt can deliver an event to this filter while __init__ is still building the header, and on CI that raised AttributeError inside the event loop.

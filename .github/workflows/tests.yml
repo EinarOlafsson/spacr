@@ -223,7 +223,9 @@ jobs:
       # duration. Qt is blocking, so that was a required check that could not
       # pass.
       timeout_minutes: 180
-      xdist_workers: 4
+      # Recycle the Qt heap before one worker accumulates a full shard.
+      batch_size: 16
+      xdist_workers: 2
       file_shard_index: ${{ matrix.shard }}
       # THREE SHARDS, NOT TWO (items 43 and 288, 2026-09-15). The MEMORY lines
       # of dispatched run 35012948690 (nightly 783a8d2f3) put Qt shard 0 of 2
@@ -234,7 +236,7 @@ jobs:
       # Each of the four long-lived workers grows over its shard, so a third
       # shard cuts the tests per worker, and with it the peak, by a third.
       file_shard_count: 3
-      # The serial tail runs after the four workers exit, so it costs time,
+      # The serial tail runs after the batched workers exit, so it costs time,
       # not peak memory, and it goes to the lightest shard. Shard 0 of 2's
       # per-file times from run 35012948690, rebucketed three ways: 4,045,
       # 4,854 and 3,372 worker-seconds for shards 0, 1 and 2.

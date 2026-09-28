@@ -223,3 +223,65 @@ return (-(score if score == score else -1.0), result.seconds,
 ```
 
 nan sorts last rather than first: a model nobody scored is not the best model.
+
+
+---
+
+# Notes from `spacr/model_zoo.py`
+
+Prose lifted out of `spacr/model_zoo.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## Contents
+
+- [Module level](#module-level) (2 entries)
+- [stock_cellpose_entries](#stock_cellpose_entries) (1 entry)
+- [community_entries](#community_entries) (2 entries)
+
+## Module level
+
+### lines 346-350
+
+```python
+"dataset": "anti-Toxoplasma-biotin and DsRed PV lumen; 229 images "
+```
+
+ROUND 2, CORRECTED 2026-09-15 (item 370). Until then this row quoted ROUND 1 -- 115 images, 104 train / 11 test, F1 0.867 while the sha256 above has always been round 2's checkpoint. Every figure below is from round 2's own run: round2.log for the split and the stock baseline, round2_vs_round1.csv for the scores.
+
+### lines 415-418
+
+```python
+"uri": "https://huggingface.co/einarolafsson/"
+```
+
+THE WEIGHT IS UNDER weights/ IN THIS REPO, unlike the older plaque and PV repos which put it at the root, so the URL is given rather than built from `name`: hf_uri(repo_id, "cpsam_plaque_r5") would 404 on a repo that has it one directory down, and a 404 here reads as "the model is gone".
+
+## stock_cellpose_entries
+
+### lines 2035-2038
+
+```python
+import sys
+```
+
+Deliberately does NOT import cellpose: importing this module must stay free of torch and cellpose (there is a test for it, and the GUI lists models long before anything segments). If cellpose is already loaded its own list is authoritative; otherwise the names above are the fallback.
+
+## community_entries
+
+### lines 2668-2670
+
+```python
+if (not allow_network and cache.is_file()
+```
+
+allow_network means the user just asked to see these, so the cache is skipped: a cached empty list from before the first submission would otherwise hide it for hours, which is exactly how this was found.
+
+### lines 2695-2697
+
+```python
+inside = [f for f in files
+```
+
+The checkpoint, not the README beside it: match on the extensions a model actually has, or a folder with a README listed first offers the README as the download.

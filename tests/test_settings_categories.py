@@ -359,6 +359,10 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "hp_parasite_table", "hp_parasite_parent", "hp_count_column",
     "image_qc_mode", "image_qc_channels", "image_qc_min_focus",
     "image_qc_max_saturation", "image_qc_saturation_level", "image_qc_max_nonfinite",
+    # NEW SETTINGS, not a regrouping (item 559, 2026-09-27): the learned
+    # image-quality classifier, appended to the Image Quality category.
+    "image_qc_classifier", "image_qc_classifier_model",
+    "image_qc_classifier_labels", "image_qc_classifier_threshold",
     "plaque_pixels_per_um", "plaque_formation_hours", "plaque_estimate_growth",
     "plaque_growth_reference_um", "plaque_growth_reference_hours",
     "replication_method", "tta_enabled", "tta_rotations", "tta_horizontal_flip",
@@ -806,6 +810,10 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # correction of a timelapse run's intensities, under its own
     # "Bleach Correction (Alpha)" heading.
     "bleach_correction",
+    # A NEW SETTING, not a regrouping (item 566, 2026-09-27): per-object
+    # measurement on a CUDA GPU, under its own "GPU Measurement (Alpha)"
+    # heading.
+    "measure_gpu",
     # A NEW SETTING GROUP, not a regrouping (item 537, 2026-09-27): lineage
     # trees from the tracker's division links, appended to the Timelapse
     # category and shown under "Lineage Trees (Alpha)" on the Timelapse app.
@@ -1539,7 +1547,7 @@ def _rendered_sections(app_key):
             "Runtime & Reliability",
         ]),
             ("mask", [
-                "Input & Metadata", "Workflow & Test Run", "Image Preprocessing",
+                "Input & Metadata", "Cloud", "Workflow & Test Run", "Image Preprocessing",
                 'Image Quality',
                 "Illumination Correction",
                 # Item 538, 2026-09-26: unmixing runs on the raw field
@@ -1599,6 +1607,9 @@ def _rendered_sections(app_key):
             # Item 539, 2026-09-26: bleach correction rescales the
             # intensities the features above measured.
             "Bleach Correction (Alpha)",
+            # Item 566, 2026-09-27: GPU measurement computes the features
+            # above on the device, as an Alpha heading of its own.
+            "GPU Measurement (Alpha)",
             # Item 536, 2026-09-26: wound closure follows confluency, whose
             # texture and intensity methods it builds on.
             "Wound Closure (Alpha)",

@@ -1019,6 +1019,7 @@ def test_runtime_catalogs_resolve_all_reviewed_false_friend_variants():
 
 def test_chinese_and_scientific_runtime_terms_are_contextual():
     from spacr.qt.i18n_catalogs import de, en, es, fr, zh_CN
+    from tools.build_i18n_catalogs import _DOCUMENTATION_GUIDE_SOURCE
 
     for key, source in en.SETTING_LABELS.items():
         value = zh_CN.SETTING_LABELS[key]
@@ -1042,7 +1043,12 @@ def test_chinese_and_scientific_runtime_terms_are_contextual():
             if re.search(r"\bplates?\b", source, re.IGNORECASE):
                 assert "板块" not in value
             if re.search(r"\bguides?\b", source, re.IGNORECASE):
-                assert "指南" not in value and "向导 RNA" not in value
+                assert "向导 RNA" not in value
+                # Informational guides are legitimately 指南; only molecular
+                # guides require the RNA sense. Match the documented source
+                # boundary instead of rejecting correct organism-help prose.
+                if not re.search(_DOCUMENTATION_GUIDE_SOURCE, source, re.IGNORECASE):
+                    assert "指南" not in value
 
     power_labels = [
         es.SETTING_LABELS[key]

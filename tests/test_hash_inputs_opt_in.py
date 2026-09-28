@@ -54,6 +54,18 @@ def test_hashing_happens_when_asked_for(source):
     assert manifest["performance"]["input_files"] >= 2
 
 
+@pytest.mark.parametrize("app", ["mask", "measure", "external_masks"])
+@pytest.mark.parametrize("enabled", [False, True])
+def test_the_validator_recognizes_the_run_journal_hashing_control(app, enabled):
+    from spacr.validate import _check_unknown_keys
+
+    assert _check_unknown_keys({"hash_inputs": enabled}, app) == []
+    problems = _check_unknown_keys({"hash_inptus": enabled}, app)
+    assert len(problems) == 1
+    assert problems[0].setting == "hash_inptus"
+    assert "hash_inputs" in problems[0].message
+
+
 def test_the_manifest_is_written_either_way(source):
     """A run without hashes still has a reproducibility record."""
     from spacr.run_journal import open_run

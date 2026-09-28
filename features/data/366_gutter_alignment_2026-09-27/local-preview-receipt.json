@@ -1,0 +1,615 @@
+{
+  "scope": "Local candidate HTML4 fragment in a saved GitHub-page shell; not published GitHub acceptance.",
+  "readme_sha256": "aa0e6469013d8bdac78d95440dc3ee501da8bda527e6f701b9da3683add013b4",
+  "tolerance_css_px": 1.0,
+  "accepted": true,
+  "viewports": [
+    {
+      "viewport_width": 1440,
+      "rectangles": [
+        {
+          "label": "Mask",
+          "x": 145,
+          "y": 2117,
+          "width": 134.078125,
+          "height": 134.078125,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 149.18994140625,
+            "right": 274.88818359375,
+            "top": 2121.18994140625,
+            "bottom": 2246.88818359375
+          }
+        },
+        {
+          "label": "Measure",
+          "x": 279.078125,
+          "y": 2117,
+          "width": 134.078125,
+          "height": 134.078125,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 283.26806640625,
+            "right": 408.96630859375,
+            "top": 2121.18994140625,
+            "bottom": 2246.88818359375
+          }
+        },
+        {
+          "label": "Annotate",
+          "x": 413.15625,
+          "y": 2117,
+          "width": 134.078125,
+          "height": 134.078125,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 417.34619140625,
+            "right": 543.04443359375,
+            "top": 2121.18994140625,
+            "bottom": 2246.88818359375
+          }
+        },
+        {
+          "label": "Classify",
+          "x": 547.234375,
+          "y": 2117,
+          "width": 134.078125,
+          "height": 134.078125,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 551.42431640625,
+            "right": 677.12255859375,
+            "top": 2121.18994140625,
+            "bottom": 2246.88818359375
+          }
+        },
+        {
+          "label": "Map Barcodes",
+          "x": 681.3125,
+          "y": 2117,
+          "width": 134.078125,
+          "height": 134.078125,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 685.50244140625,
+            "right": 811.20068359375,
+            "top": 2121.18994140625,
+            "bottom": 2246.88818359375
+          }
+        },
+        {
+          "label": "Regression",
+          "x": 815.390625,
+          "y": 2117,
+          "width": 134.078125,
+          "height": 134.078125,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 819.58056640625,
+            "right": 945.27880859375,
+            "top": 2121.18994140625,
+            "bottom": 2246.88818359375
+          }
+        },
+        {
+          "label": "Import",
+          "x": 145,
+          "y": 2356.078125,
+          "width": 134.078125,
+          "height": 134.078125,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 149.18994140625,
+            "right": 274.88818359375,
+            "top": 2360.26806640625,
+            "bottom": 2485.96630859375
+          }
+        },
+        {
+          "label": "Embeddings",
+          "x": 279.078125,
+          "y": 2356.078125,
+          "width": 134.078125,
+          "height": 134.078125,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 283.26806640625,
+            "right": 408.96630859375,
+            "top": 2360.26806640625,
+            "bottom": 2485.96630859375
+          }
+        },
+        {
+          "label": "Run Compare",
+          "x": 413.15625,
+          "y": 2356.078125,
+          "width": 134.078125,
+          "height": 134.078125,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 417.34619140625,
+            "right": 543.04443359375,
+            "top": 2360.26806640625,
+            "bottom": 2485.96630859375
+          }
+        },
+        {
+          "label": "Experiment Design",
+          "x": 547.234375,
+          "y": 2356.078125,
+          "width": 134.078125,
+          "height": 134.078125,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 551.42431640625,
+            "right": 677.12255859375,
+            "top": 2360.26806640625,
+            "bottom": 2485.96630859375
+          }
+        },
+        {
+          "label": "Power / Design",
+          "x": 681.3125,
+          "y": 2356.078125,
+          "width": 134.078125,
+          "height": 134.078125,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 685.50244140625,
+            "right": 811.20068359375,
+            "top": 2360.26806640625,
+            "bottom": 2485.96630859375
+          }
+        },
+        {
+          "label": "Dose\u2013Response",
+          "x": 815.390625,
+          "y": 2356.078125,
+          "width": 134.078125,
+          "height": 134.078125,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 819.58056640625,
+            "right": 945.27880859375,
+            "top": 2360.26806640625,
+            "bottom": 2485.96630859375
+          }
+        },
+        {
+          "label": "QC",
+          "x": 145,
+          "y": 2490.15625,
+          "width": 134.078125,
+          "height": 134.078125,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 149.18994140625,
+            "right": 274.88818359375,
+            "top": 2494.34619140625,
+            "bottom": 2620.04443359375
+          }
+        },
+        {
+          "label": "Make Masks",
+          "x": 145,
+          "y": 2753.234375,
+          "width": 134.078125,
+          "height": 134.078125,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 149.18994140625,
+            "right": 274.88818359375,
+            "top": 2757.42431640625,
+            "bottom": 2883.12255859375
+          }
+        },
+        {
+          "label": "Align & Stitch",
+          "x": 279.078125,
+          "y": 2753.234375,
+          "width": 134.078125,
+          "height": 134.078125,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 283.26806640625,
+            "right": 408.96630859375,
+            "top": 2757.42431640625,
+            "bottom": 2883.12255859375
+          }
+        },
+        {
+          "label": "Image UMAP",
+          "x": 413.15625,
+          "y": 2753.234375,
+          "width": 134.078125,
+          "height": 134.078125,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 417.34619140625,
+            "right": 543.04443359375,
+            "top": 2757.42431640625,
+            "bottom": 2883.12255859375
+          }
+        },
+        {
+          "label": "Gate Editor",
+          "x": 547.234375,
+          "y": 2753.234375,
+          "width": 134.078125,
+          "height": 134.078125,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 551.42431640625,
+            "right": 677.12255859375,
+            "top": 2757.42431640625,
+            "bottom": 2883.12255859375
+          }
+        },
+        {
+          "label": "Graph Builder",
+          "x": 681.3125,
+          "y": 2753.234375,
+          "width": 134.078125,
+          "height": 134.078125,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 685.50244140625,
+            "right": 811.20068359375,
+            "top": 2757.42431640625,
+            "bottom": 2883.12255859375
+          }
+        },
+        {
+          "label": "Toxoplasma",
+          "x": 145,
+          "y": 2992.3125,
+          "width": 134.078125,
+          "height": 134.078125,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 149.18994140625,
+            "right": 274.88818359375,
+            "top": 2996.50244140625,
+            "bottom": 3122.20068359375
+          }
+        },
+        {
+          "label": "Plasmodium spp.",
+          "x": 279.078125,
+          "y": 2992.3125,
+          "width": 134.078125,
+          "height": 134.078125,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 283.26806640625,
+            "right": 408.96630859375,
+            "top": 2996.50244140625,
+            "bottom": 3122.20068359375
+          }
+        },
+        {
+          "label": "Candida spp.",
+          "x": 413.15625,
+          "y": 2992.3125,
+          "width": 134.078125,
+          "height": 134.078125,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 417.34619140625,
+            "right": 543.04443359375,
+            "top": 2996.50244140625,
+            "bottom": 3122.20068359375
+          }
+        }
+      ],
+      "horizontal_median": 8.3798828125,
+      "vertical_median": 8.3798828125,
+      "spread_css_px": 0.0,
+      "accepted": true
+    },
+    {
+      "viewport_width": 1024,
+      "rectangles": [
+        {
+          "label": "Mask",
+          "x": 65,
+          "y": 2117,
+          "width": 93.109375,
+          "height": 93.109375,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 67.90966796875,
+            "right": 155.19970703125,
+            "top": 2119.90966796875,
+            "bottom": 2207.19970703125
+          }
+        },
+        {
+          "label": "Measure",
+          "x": 158.109375,
+          "y": 2117,
+          "width": 93.109375,
+          "height": 93.109375,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 161.01904296875,
+            "right": 248.30908203125,
+            "top": 2119.90966796875,
+            "bottom": 2207.19970703125
+          }
+        },
+        {
+          "label": "Annotate",
+          "x": 251.21875,
+          "y": 2117,
+          "width": 93.109375,
+          "height": 93.109375,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 254.12841796875,
+            "right": 341.41845703125,
+            "top": 2119.90966796875,
+            "bottom": 2207.19970703125
+          }
+        },
+        {
+          "label": "Classify",
+          "x": 344.328125,
+          "y": 2117,
+          "width": 93.109375,
+          "height": 93.109375,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 347.23779296875,
+            "right": 434.52783203125,
+            "top": 2119.90966796875,
+            "bottom": 2207.19970703125
+          }
+        },
+        {
+          "label": "Map Barcodes",
+          "x": 437.4375,
+          "y": 2117,
+          "width": 93.109375,
+          "height": 93.109375,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 440.34716796875,
+            "right": 527.63720703125,
+            "top": 2119.90966796875,
+            "bottom": 2207.19970703125
+          }
+        },
+        {
+          "label": "Regression",
+          "x": 530.546875,
+          "y": 2117,
+          "width": 93.109375,
+          "height": 93.109375,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 533.45654296875,
+            "right": 620.74658203125,
+            "top": 2119.90966796875,
+            "bottom": 2207.19970703125
+          }
+        },
+        {
+          "label": "Import",
+          "x": 65,
+          "y": 2339.109375,
+          "width": 93.109375,
+          "height": 93.109375,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 67.90966796875,
+            "right": 155.19970703125,
+            "top": 2342.01904296875,
+            "bottom": 2429.30908203125
+          }
+        },
+        {
+          "label": "Embeddings",
+          "x": 158.109375,
+          "y": 2339.109375,
+          "width": 93.109375,
+          "height": 93.109375,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 161.01904296875,
+            "right": 248.30908203125,
+            "top": 2342.01904296875,
+            "bottom": 2429.30908203125
+          }
+        },
+        {
+          "label": "Run Compare",
+          "x": 251.21875,
+          "y": 2339.109375,
+          "width": 93.109375,
+          "height": 93.109375,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 254.12841796875,
+            "right": 341.41845703125,
+            "top": 2342.01904296875,
+            "bottom": 2429.30908203125
+          }
+        },
+        {
+          "label": "Experiment Design",
+          "x": 344.328125,
+          "y": 2339.109375,
+          "width": 93.109375,
+          "height": 93.109375,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 347.23779296875,
+            "right": 434.52783203125,
+            "top": 2342.01904296875,
+            "bottom": 2429.30908203125
+          }
+        },
+        {
+          "label": "Power / Design",
+          "x": 437.4375,
+          "y": 2339.109375,
+          "width": 93.109375,
+          "height": 93.109375,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 440.34716796875,
+            "right": 527.63720703125,
+            "top": 2342.01904296875,
+            "bottom": 2429.30908203125
+          }
+        },
+        {
+          "label": "Dose\u2013Response",
+          "x": 530.546875,
+          "y": 2339.109375,
+          "width": 93.109375,
+          "height": 93.109375,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 533.45654296875,
+            "right": 620.74658203125,
+            "top": 2342.01904296875,
+            "bottom": 2429.30908203125
+          }
+        },
+        {
+          "label": "QC",
+          "x": 65,
+          "y": 2432.21875,
+          "width": 93.109375,
+          "height": 93.109375,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 67.90966796875,
+            "right": 155.19970703125,
+            "top": 2435.12841796875,
+            "bottom": 2522.41845703125
+          }
+        },
+        {
+          "label": "Make Masks",
+          "x": 65,
+          "y": 2654.328125,
+          "width": 93.109375,
+          "height": 93.109375,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 67.90966796875,
+            "right": 155.19970703125,
+            "top": 2657.23779296875,
+            "bottom": 2744.52783203125
+          }
+        },
+        {
+          "label": "Align & Stitch",
+          "x": 158.109375,
+          "y": 2654.328125,
+          "width": 93.109375,
+          "height": 93.109375,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 161.01904296875,
+            "right": 248.30908203125,
+            "top": 2657.23779296875,
+            "bottom": 2744.52783203125
+          }
+        },
+        {
+          "label": "Image UMAP",
+          "x": 251.21875,
+          "y": 2654.328125,
+          "width": 93.109375,
+          "height": 93.109375,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 254.12841796875,
+            "right": 341.41845703125,
+            "top": 2657.23779296875,
+            "bottom": 2744.52783203125
+          }
+        },
+        {
+          "label": "Gate Editor",
+          "x": 344.328125,
+          "y": 2654.328125,
+          "width": 93.109375,
+          "height": 93.109375,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 347.23779296875,
+            "right": 434.52783203125,
+            "top": 2657.23779296875,
+            "bottom": 2744.52783203125
+          }
+        },
+        {
+          "label": "Graph Builder",
+          "x": 437.4375,
+          "y": 2654.328125,
+          "width": 93.109375,
+          "height": 93.109375,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 440.34716796875,
+            "right": 527.63720703125,
+            "top": 2657.23779296875,
+            "bottom": 2744.52783203125
+          }
+        },
+        {
+          "label": "Toxoplasma",
+          "x": 65,
+          "y": 2852.4375,
+          "width": 93.109375,
+          "height": 93.109375,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 67.90966796875,
+            "right": 155.19970703125,
+            "top": 2855.34716796875,
+            "bottom": 2942.63720703125
+          }
+        },
+        {
+          "label": "Plasmodium spp.",
+          "x": 158.109375,
+          "y": 2852.4375,
+          "width": 93.109375,
+          "height": 93.109375,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 161.01904296875,
+            "right": 248.30908203125,
+            "top": 2855.34716796875,
+            "bottom": 2942.63720703125
+          }
+        },
+        {
+          "label": "Candida spp.",
+          "x": 251.21875,
+          "y": 2852.4375,
+          "width": 93.109375,
+          "height": 93.109375,
+          "align": "-webkit-baseline-middle",
+          "visible": {
+            "left": 254.12841796875,
+            "right": 341.41845703125,
+            "top": 2855.34716796875,
+            "bottom": 2942.63720703125
+          }
+        }
+      ],
+      "horizontal_median": 5.8193359375,
+      "vertical_median": 5.8193359375,
+      "spread_css_px": 0.0,
+      "accepted": true
+    }
+  ],
+  "github_shell_sha256": "9344c49ed9f461ddbba4200efe0e12983357a1415bc877726a524377428540e2"
+}

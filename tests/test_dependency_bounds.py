@@ -367,7 +367,7 @@ def test_numpy_admits_2x_now_that_all_three_blockers_are_closed():
 # ---------------------------------------------------------------------------
 
 def test_the_unimported_dependencies_stay_removed():
-    """The 18 distributions with zero imports do not come back.
+    """The 17 distributions with zero imports do not come back.
 
     This replaces ``test_monai_is_capped_so_it_cannot_raise_the_torch_floor``,
     which asserted that ``monai`` carried an upper bound — monai 1.6.0
@@ -394,7 +394,7 @@ def test_the_unimported_dependencies_stay_removed():
     """
     removed = {
         "transformers", "monai", "segmentation-models-pytorch",
-        "torch-geometric", "pywavelets", "rapidfuzz", "wandb", "gdown",
+        "torch-geometric", "rapidfuzz", "wandb", "gdown",
         "pytz", "ipykernel", "ttkthemes", "ttf-opensans", "brokenaxes",
         "gpustat", "customtkinter", "openai", "keyring", "importlib-metadata",
     }
@@ -409,6 +409,24 @@ def test_the_unimported_dependencies_stay_removed():
         f"through a string literal the way umap-learn is, say so in a comment "
         f"next to the pin, because the next census will not be able to tell."
     )
+
+
+def test_pywavelets_bound_covers_measure_texture_noise_estimation():
+    """Measure needs the wavelet dependency imported by scikit-image."""
+    measure = ast.parse(_src("measure.py"))
+    texture = next(node for node in measure.body
+                   if isinstance(node, ast.FunctionDef)
+                   and node.name == "_texture_ratio")
+    assert any(isinstance(node, ast.ImportFrom)
+               and node.module == "skimage.restoration"
+               and any(alias.name == "estimate_sigma" for alias in node.names)
+               for node in ast.walk(texture))
+    assert any(isinstance(node, ast.Call)
+               and isinstance(node.func, ast.Name)
+               and node.func.id == "estimate_sigma"
+               for node in ast.walk(texture))
+    assert _admits("PyWavelets", "1.4.0")
+    assert not _admits("PyWavelets", "2.0.0")
 
 
 def test_every_directly_imported_third_party_module_is_declared():
