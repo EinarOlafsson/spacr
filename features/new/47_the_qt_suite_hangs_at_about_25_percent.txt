@@ -1532,3 +1532,18 @@ checks pass under4GiB with zero skips and production app_screen.py unchanged.
 The600 parameter still meets the existing720 minimum window height; this is
 recorded rather than presented as a physical600-height acceptance. Receipt:
 features/data/47_regression_scroll_geometry_2026-09-28.json.
+
+2026-09-28 -- Qt CI uses bounded fresh-process batches; whole47 remains OPEN
+Run36419911411's Qt shard1 worker ended at the existing6GB memory ceiling,
+with6198widgets/2030top-levelwindows retained at session end. The reported
+Project Browser node is not established as the leak's cause: the complete
+original panel file passes77checks in a fresh8GB process. Qt CI now uses the
+existing runner for16-file batches/two workers. Allthree hash shards, markers,
+seven exclusions and designated measurement tail remain; the memory guard,
+1200-second ceiling and900-second dump are unchanged. Failed batches still
+allow later batches to run and keep a failing final status. All70 runner,
+workflow/classification/hygiene checks pass under4GB; an actual two-batch,
+two-worker Qt execution passes all80 selected checks under8GB. No GUI source,
+assertion, GC policy or memory ceiling was changed. Long serial accumulation
+and uninterrupted acceptance remain open; final CI is pending. Receipt:
+features/data/47_ci_qt_process_batches_2026-09-28.json.
