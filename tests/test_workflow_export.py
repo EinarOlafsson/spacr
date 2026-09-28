@@ -1,7 +1,7 @@
 """A recorded run exported as a Snakemake or Nextflow workflow.
 
 The workflow runs the run's module once per plate with ``spacr-run`` and one
-settings file per plate holding the run's exact settings. Whether the
+settings file per plate, separating explicit output folders for multiple jobs. Whether the
 exported workflow reproduces a run end to end was checked with real
 Snakemake and Nextflow; these tests pin what is written.
 """
@@ -71,6 +71,60 @@ def test_nextflow_export_runs_the_module_per_settings_file(recorded, tmp_path):
     assert 'image        = "spacr:local"' in config
     assert 'spacr_run    = "python -m spacr.cli"' in config
     assert "apptainer" in config and "slurm" in config
+
+
+@pytest.mark.parametrize("engine", ["snakemake", "nextflow"])
+@pytest.mark.parametrize("destination_key", ["dst", "dst_root"])
+def test_plate_jobs_isolate_explicit_outputs_even_when_plate_names_collide(
+        recorded, tmp_path, engine, destination_key):
+    output = tmp_path / "results with spaces"
+    original = {"src": ["/a/plate", "/b/plate", "/c/plate_2"],
+                destination_key: str(output), "custom_model": "/models/shared",
+                "reference_file": "/reference/shared.csv"}
+    run = recorded("convert", original)
+    cli_repro._export_workflow(run, tmp_path / engine, engine)
+    jobs = _settings(tmp_path / engine)
+    assert set(jobs) == {"plate", "plate_2", "plate_2_2"}
+    destinations = {value[destination_key] for value in jobs.values()}
+    assert destinations == {str(output / name) for name in jobs}
+    assert len(destinations) == len(jobs)
+    for name, settings in jobs.items():
+        assert settings["custom_model"] == original["custom_model"]
+        assert settings["reference_file"] == original["reference_file"]
+        assert settings[destination_key].endswith(name)
+    assert journal.load_run_settings(run) == original
+
+
+@pytest.mark.parametrize("sources", [None, "/a/plate", ["/a/plate"]])
+def test_single_job_keeps_both_output_roots_exactly(sources):
+    original = {"dst": "relative/results", "dst_root": "/separate/results"}
+    if sources is not None:
+        original["src"] = sources
+    jobs = cli_repro._workflow_plates(original)
+    assert len(jobs) == 1
+    job = next(iter(jobs.values()))
+    assert job["dst"] == original["dst"]
+    assert job["dst_root"] == original["dst_root"]
+
+
+@pytest.mark.parametrize("destination", [None, ""])
+def test_multi_plate_jobs_leave_unset_destinations_to_the_module(destination):
+    original = {"src": ["/a/plate", "/b/plate"], "dst": destination}
+    jobs = cli_repro._workflow_plates(original)
+    assert all(job["dst"] == destination and "dst_root" not in job
+               for job in jobs.values())
+
+
+def test_replacement_plates_control_whether_destinations_are_split():
+    original = {"src": "/recorded/plate", "dst": "/outputs",
+                "dst_root": "/other-outputs"}
+    jobs = cli_repro._workflow_plates(original, ["/a/plate", "/b/plate"])
+    assert jobs["plate"]["dst"] == "/outputs/plate"
+    assert jobs["plate_2"]["dst_root"] == "/other-outputs/plate_2"
+    assert cli_repro._workflow_plates(original, ["/a/plate"])["plate"] == {
+        **original, "src": "/a/plate"}
+    assert original == {"src": "/recorded/plate", "dst": "/outputs",
+                        "dst_root": "/other-outputs"}
 
 
 def test_a_run_without_src_is_one_job_and_versions_pick_the_image(

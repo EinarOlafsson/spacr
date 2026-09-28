@@ -49,3 +49,16 @@ WHAT IS LEFT
     Per-well jobs (no pipeline takes a well filter yet); a per-plate dst
     for modules that write to one dst; container runs (docker/apptainer)
     not exercised here; a real Cellpose plate on a cluster not run.
+
+STATUS 2026-09-28 — explicit per-plate output roots isolated
+Multiple exported plate jobs now place explicit dst/dst_root outputs in unique
+plate-ID subdirectories, including sources with identical folder names. Single
+jobs, unset roots and input/model paths retain their recorded behavior.
+All15 workflow-export checks pass; five collision regressions fail against the
+preserved previous implementation. Actual CPU Snakemake and Nextflow each ran
+two Convert jobs and independently matched every image pixel and conversion-map
+identity to direct canonical Convert outputs. Four converted jobs use distinct
+output folders, maps and checkpoints. No GUI, container, cluster or GPU run is
+claimed by this receipt. Per-well jobs and other explicit file destinations
+remain separate work; this closes the root-directory collision defect only.
+Receipt: features/data/575_unique_plate_outputs_2026-09-28.json.

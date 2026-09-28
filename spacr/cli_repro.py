@@ -101,8 +101,13 @@ def _workflow_plates(settings: Dict[str, Any],
 
     Each entry of ``src`` (a path or a list of paths) becomes its own job
     with ``src`` set to that one plate. ``plates`` replaces the recorded
-    plates. Settings with no ``src`` stay one job named ``run``.
+    plates. Settings with no ``src`` stay one job named ``run``. When there
+    is more than one job, explicit ``dst`` and ``dst_root`` output folders
+    gain the unique plate id as a subfolder, so jobs do not overwrite each
+    other's outputs. Single-job destinations and unset folders stay unchanged.
 
+    :param settings: recorded settings; the input dictionary is not changed.
+    :param plates: optional replacement source folders.
     :returns: ``{plate_id: settings}``, ids unique and safe as file names.
     """
     src = settings.get("src")
@@ -124,6 +129,11 @@ def _workflow_plates(settings: Dict[str, Any],
         while plate_id in jobs:
             plate_id, n = f"{stem}_{n}", n + 1
         jobs[plate_id] = {**settings, "src": source}
+        if len(sources) > 1:
+            for key in ("dst", "dst_root"):
+                destination = settings.get(key)
+                if isinstance(destination, str) and destination:
+                    jobs[plate_id][key] = str(Path(destination) / plate_id)
     return jobs
 
 
@@ -248,8 +258,9 @@ def _export_workflow(run_dir: Any, out_dir: Any, engine: str = "snakemake",
     """Write a recorded run as a Snakemake or Nextflow workflow.
 
     The workflow runs the run's module once per plate with ``spacr-run`` and
-    the run's exact settings, one ``settings/<plate>.json`` each, so a plate
-    gives the outputs the recorded run gave it.
+    the recorded settings, one ``settings/<plate>.json`` each. Multiple jobs
+    receive unique subfolders of explicit ``dst`` or ``dst_root`` folders;
+    other settings and single-job destinations are preserved.
 
     :param run_dir: run-journal folder (or its name under the runs root).
     :param out_dir: folder to write the workflow into; created if missing.
