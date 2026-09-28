@@ -529,3 +529,20 @@ ZIP identity/size, YAML and static gate checks passed. The capped focused
 batch passed all 12 checks, including the three native-workflow checks. No
 installer executed locally; native Windows acceptance remains pending.
 Receipt: features/data/53_nsis_exact_package_fallback_2026-09-27.json.
+
+STATUS 2026-09-28 — rebuilt native artifacts accepted on four platforms
+Run36372926331 at f9d5af988 is green for every build, installed-artifact smoke
+and native terminal command job. Downloaded receipts are bound to that exact
+source. Windows, macOS, Ubuntu22.04 and Debian12 each completed the actual GUI
+CPU Measure run; independent read-only database integrity checks and recounts
+confirm16 cells on all four platforms. Packaged-resource and visual-layout
+checks passed. Copied helper CLI help and run-plan help both exit0 after the
+original app/package is removed, with PATH empty and extraction state reset.
+
+This accepts the rebuilt installer/launch and helper-independence gates. The
+Windows compiler acquisition/build executed successfully, but the exact-package
+fallback branch is not independently established without its acquisition
+receipt. Historical Windows recovery, frozen replacement/interruption/restart,
+protected macOS authorization and other update-family gates remain open.
+No whole-item completion or version promotion is claimed.
+Receipt: features/data/53_rebuilt_native_acceptance_2026-09-28.json.
