@@ -2722,3 +2722,17 @@ previous filename assumption dropped198 records across six caption languages.
 All53 named appended-candidate checks pass, with coverage for all13 non-English
 languages. This repairs candidate construction only; the saved four-lesson
 publication candidates remain unpublished and their failure evidence is retained.
+
+STATUS 2026-09-28 — four refreshed lessons published and verified live
+Lessons 01, 04, 06 and 56 were published in 4014dbdef with their 27 voices
+and 13-language captions retained. All 85 lessons passed hosted playback
+before publication. The 4,760 immutable hosted files passed complete SHA256
+readback; the other 81 lessons and previous path redactions were preserved.
+Documentation workflow 36379281659 passed for that exact commit. Live checks
+then verified the catalog hash, hosted video sizes, player cache hashes,
+voice inventories and eight synchronized playback cases: English and Spanish
+for each refreshed lesson. Receipt:
+features/data/358_four_lesson_live_2026-09-27.json.
+This closes the four-lesson publication action. Item 358 remains open while
+the remaining tutorial path-redaction batch is completed. Review remains AI
+technical review (Codex), no native-speaker signoff or human listening review.
