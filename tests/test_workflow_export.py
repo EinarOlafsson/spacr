@@ -127,6 +127,114 @@ def test_replacement_plates_control_whether_destinations_are_split():
                         "dst_root": "/other-outputs"}
 
 
+@pytest.mark.parametrize("engine", ["snakemake", "nextflow"])
+@pytest.mark.parametrize("module", ["convert", "align"])
+def test_output_database_follows_each_module_plate_without_rewriting_inputs(
+        recorded, tmp_path, engine, module):
+    original = {"src": ["/a/plate", "/b/plate"], "dst": "/outputs",
+                "db_path": "/outputs/measurements/result.sqlite",
+                "checkpoint_path": "/checkpoints/progress.json",
+                "reference_file": "/references/input.sqlite"}
+    run = recorded(module, original)
+    cli_repro._export_workflow(run, tmp_path / engine, engine)
+    jobs = _settings(tmp_path / engine)
+    assert set(jobs) == {"plate", "plate_2"}
+    for name, job in jobs.items():
+        assert job["db_path"] == f"/outputs/{name}/measurements/result.sqlite"
+        assert job["reference_file"] == original["reference_file"]
+        assert job["checkpoint_path"] == (
+            f"/checkpoints/{name}/progress.json" if module == "convert"
+            else original["checkpoint_path"])
+    assert journal.load_run_settings(run) == original
+
+
+@pytest.mark.parametrize("module", ["explain_cv", "investigate_hit", "mask"])
+def test_input_database_and_model_checkpoint_are_not_output_files(
+        recorded, tmp_path, module):
+    original = {"src": ["/a/plate", "/b/plate"],
+                "db_path": "/inputs/measurements.db",
+                "checkpoint_path": "/models/model.ckpt", "resume": True}
+    run = recorded(module, original)
+    cli_repro._export_workflow(run, tmp_path / "workflow")
+    for job in _settings(tmp_path / "workflow").values():
+        assert job["db_path"] == original["db_path"]
+        assert job["checkpoint_path"] == original["checkpoint_path"]
+
+
+@pytest.mark.parametrize("engine", ["snakemake", "nextflow"])
+def test_explicit_convert_resume_input_cannot_be_silently_relocated(
+        recorded, tmp_path, engine):
+    checkpoint = tmp_path / "existing.json"
+    checkpoint.write_text('{"retained": true}')
+    original = {"src": ["/a/plate", "/b/plate"], "dst": "/outputs",
+                "checkpoint_path": str(checkpoint), "resume": True}
+    run = recorded("convert", original)
+    with pytest.raises(ValueError, match="explicit resume checkpoint"):
+        cli_repro._export_workflow(run, tmp_path / engine, engine)
+    assert checkpoint.read_text() == '{"retained": true}'
+    assert not (tmp_path / engine).exists()
+    single = cli_repro._workflow_plates(original, ["/a/plate"], module="convert")
+    assert single["plate"]["checkpoint_path"] == str(checkpoint)
+    defaults = cli_repro._workflow_plates(
+        {**original, "checkpoint_path": None}, module="convert")
+    assert all(job["checkpoint_path"] is None and job["resume"] for job in defaults.values())
+
+
+@pytest.mark.parametrize("destination", ["state/db.sqlite", "outputs/../state/db.sqlite"])
+def test_external_output_file_gets_a_unique_parent_after_path_normalization(destination):
+    jobs = cli_repro._workflow_plates(
+        {"src": ["a/plate", "b/plate"], "dst": "outputs", "db_path": destination},
+        module="convert")
+    assert jobs["plate"]["db_path"] == "state/plate/db.sqlite"
+    assert jobs["plate_2"]["db_path"] == "state/plate_2/db.sqlite"
+
+
+def test_single_plate_preserves_explicit_output_file_paths():
+    original = {"src": "/plate", "dst": "/outputs",
+                "db_path": "/existing/measurements.db",
+                "checkpoint_path": "/existing/resume.json", "resume": True,
+                "map_name": "/existing/map.csv"}
+    assert cli_repro._workflow_plates(original, module="convert")["plate"] == original
+
+
+@pytest.mark.parametrize("engine", ["snakemake", "nextflow"])
+@pytest.mark.parametrize("map_name,expected", [
+    ("/shared/map.csv", "/shared/{plate}/map.csv"),
+    ("/outputs/maps/map.csv", "/outputs/{plate}/maps/map.csv"),
+    ("../shared/map.csv", "/shared/{plate}/map.csv"),
+    ("nested/../../shared/map.csv", "/shared/{plate}/map.csv"),
+])
+def test_convert_escaped_map_outputs_are_isolated(
+        recorded, tmp_path, engine, map_name, expected):
+    original = {"src": ["/a/plate", "/b/plate"], "dst": "/outputs",
+                "map_name": map_name}
+    run = recorded("convert", original)
+    cli_repro._export_workflow(run, tmp_path / engine, engine)
+    for name, job in _settings(tmp_path / engine).items():
+        assert job["map_name"] == expected.format(plate=name)
+    assert journal.load_run_settings(run) == original
+
+
+@pytest.mark.parametrize("map_name", [None, "", "map.csv", "maps/map.csv",
+                                     "maps/../map.csv"])
+def test_convert_contained_map_names_keep_their_original_spelling(map_name):
+    jobs = cli_repro._workflow_plates(
+        {"src": ["/a/plate", "/b/plate"], "dst": "/outputs", "map_name": map_name},
+        module="convert")
+    assert all(job["map_name"] == map_name for job in jobs.values())
+
+
+def test_convert_escaped_map_with_relative_or_default_output_root(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    original = {"src": ["a/plate", "b/plate"], "map_name": "../map.csv"}
+    jobs = cli_repro._workflow_plates({**original, "dst": "outputs"}, module="convert")
+    assert jobs["plate"]["map_name"] == str(tmp_path / "plate/map.csv")
+    assert jobs["plate_2"]["map_name"] == str(tmp_path / "plate_2/map.csv")
+    defaults = cli_repro._workflow_plates(original, module="convert")
+    assert defaults["plate"]["map_name"] == str(tmp_path / "a/plate/map.csv")
+    assert defaults["plate_2"]["map_name"] == str(tmp_path / "b/plate_2/map.csv")
+
+
 def test_a_run_without_src_is_one_job_and_versions_pick_the_image(
         recorded, tmp_path):
     run = recorded("external_masks", {"inputs": ["/a", "/b"], "dst": "/o"})

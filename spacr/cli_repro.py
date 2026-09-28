@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -81,6 +82,10 @@ def _resolve_pipeline(app_key: str):
 
 _WORKFLOW_IMAGE = "ghcr.io/einarolafsson/spacr"
 _WORKFLOW_ENGINES = ("snakemake", "nextflow")
+_WORKFLOW_FILE_OUTPUTS = {
+    "convert": ("db_path", "checkpoint_path"),
+    "align": ("db_path",),
+}
 
 
 def _workflow_image(manifest: Dict[str, Any]) -> str:
@@ -96,7 +101,8 @@ def _workflow_image(manifest: Dict[str, Any]) -> str:
 
 
 def _workflow_plates(settings: Dict[str, Any],
-                     plates: Optional[List[str]] = None) -> Dict[str, Dict[str, Any]]:
+                     plates: Optional[List[str]] = None, *,
+                     module: str = "") -> Dict[str, Dict[str, Any]]:
     """Split recorded settings into one settings dict per plate.
 
     Each entry of ``src`` (a path or a list of paths) becomes its own job
@@ -105,10 +111,17 @@ def _workflow_plates(settings: Dict[str, Any],
     is more than one job, explicit ``dst`` and ``dst_root`` output folders
     gain the unique plate id as a subfolder, so jobs do not overwrite each
     other's outputs. Single-job destinations and unset folders stay unchanged.
+    Convert and Align database outputs, and new Convert checkpoints, are
+    separated too; the same setting names in other modules are untouched.
+    Convert map names that escape the destination folder are separated as
+    explicit output paths; relative names inside it retain their spelling.
 
     :param settings: recorded settings; the input dictionary is not changed.
     :param plates: optional replacement source folders.
+    :param module: canonical CLI module key, identifying output-file settings.
     :returns: ``{plate_id: settings}``, ids unique and safe as file names.
+    :raises ValueError: when multiple Convert jobs would share an explicit
+        checkpoint requested as resume input.
     """
     src = settings.get("src")
     if plates:
@@ -121,6 +134,12 @@ def _workflow_plates(settings: Dict[str, Any],
         sources = []
     if not sources:
         return {"run": dict(settings)}
+    if (len(sources) > 1 and module == "convert"
+            and settings.get("resume") and settings.get("checkpoint_path")):
+        raise ValueError(
+            "Multiple Convert jobs cannot reuse one explicit resume checkpoint. "
+            "Export one plate, or clear checkpoint_path to use each plate's "
+            "destination checkpoint.")
     jobs: Dict[str, Dict[str, Any]] = {}
     for source in sources:
         stem = re.sub(r"[^A-Za-z0-9_.-]+", "_",
@@ -134,6 +153,36 @@ def _workflow_plates(settings: Dict[str, Any],
                 destination = settings.get(key)
                 if isinstance(destination, str) and destination:
                     jobs[plate_id][key] = str(Path(destination) / plate_id)
+            file_outputs = {key: settings.get(key)
+                            for key in _WORKFLOW_FILE_OUTPUTS.get(module, ())}
+            map_name = settings.get("map_name")
+            if module == "convert" and isinstance(map_name, str) and map_name:
+                map_path = Path(os.path.normpath(map_name))
+                if map_path.is_absolute() or map_path.parts[:1] == ("..",):
+                    original_root = settings.get("dst") or (
+                        os.path.normpath(os.path.abspath(source)) + "_yokogawa")
+                    file_outputs["map_name"] = os.path.normpath(os.path.join(
+                        os.path.abspath(str(original_root)), map_name))
+            for key, destination in file_outputs.items():
+                if not isinstance(destination, str) or not destination:
+                    continue
+                path = Path(os.path.normpath(destination))
+                roots = [(Path(os.path.abspath(settings[root]) if key == "map_name"
+                               else os.path.normpath(settings[root])), root)
+                         for root in ("dst", "dst_root")
+                         if isinstance(settings.get(root), str) and settings[root]]
+                for root, root_key in sorted(roots, key=lambda row: len(row[0].parts),
+                                             reverse=True):
+                    try:
+                        relative = path.relative_to(root)
+                    except ValueError:
+                        continue
+                    jobs[plate_id][key] = str(Path(jobs[plate_id][root_key]) / relative)
+                    break
+                else:
+                    jobs[plate_id][key] = str(path.parent / plate_id / path.name)
+                if key == "map_name":
+                    jobs[plate_id][key] = os.path.abspath(jobs[plate_id][key])
     return jobs
 
 
@@ -259,8 +308,10 @@ def _export_workflow(run_dir: Any, out_dir: Any, engine: str = "snakemake",
 
     The workflow runs the run's module once per plate with ``spacr-run`` and
     the recorded settings, one ``settings/<plate>.json`` each. Multiple jobs
-    receive unique subfolders of explicit ``dst`` or ``dst_root`` folders;
-    other settings and single-job destinations are preserved.
+    receive unique subfolders of explicit ``dst`` or ``dst_root`` folders.
+    Convert/Align databases, fresh Convert checkpoints and Convert map paths
+    escaping their destination are separated too. Input paths, other settings
+    and single-job destinations are preserved.
 
     :param run_dir: run-journal folder (or its name under the runs root).
     :param out_dir: folder to write the workflow into; created if missing.
@@ -271,7 +322,8 @@ def _export_workflow(run_dir: Any, out_dir: Any, engine: str = "snakemake",
     :param spacr_run: command that starts ``spacr-run`` on the nodes.
     :returns: the workflow's main file (``Snakefile`` or ``main.nf``).
     :raises ValueError: for an unknown engine, a folder that is not a run,
-        or a module that cannot run headless.
+        a module that cannot run headless, or an ambiguous multi-plate
+        explicit Convert resume checkpoint.
     """
     from .cli import resolve_module
 
@@ -291,9 +343,10 @@ def _export_workflow(run_dir: Any, out_dir: Any, engine: str = "snakemake",
                          f"headless, so it cannot be exported")
     settings = load_run_settings(run_dir)
     image = image or _workflow_image(manifest)
+    jobs = _workflow_plates(settings, plates, module=module.key)
     out = Path(out_dir)
     (out / "settings").mkdir(parents=True, exist_ok=True)
-    for plate_id, plate_settings in _workflow_plates(settings, plates).items():
+    for plate_id, plate_settings in jobs.items():
         (out / "settings" / f"{plate_id}.json").write_text(
             json.dumps(plate_settings, indent=2, default=str), encoding="utf-8")
     (out / "run_manifest.json").write_text(
