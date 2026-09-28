@@ -62,6 +62,7 @@ _ASSET_SUFFIX = {
     "macos": "macOS-Universal-Online.pkg",
 }
 _WAIT_SECONDS = 600.0
+_FROZEN_PREPARATION_SECONDS = 3600.0
 _RMTREE_TAKES_ONEXC = sys.version_info >= (3, 12)
 
 
@@ -2060,6 +2061,141 @@ def _macos_replace_user_bundle(target, staged, transaction, version, expected, *
             "journal": os.path.join(root, "journal.json"), "unknown_files": "retained in complete prior bundle"}
 
 
+class _FrozenUpdateHandshake:
+    """Bind frozen preparation and shutdown consent to one private, expiring plan.
+
+    Preparation allows an hour for the multi-gigabyte image and native staging;
+    verified readiness then allows ten minutes for consent and orderly shutdown.
+    The GUI polls these messages without a network call or blocking process wait.
+    """
+
+    def __init__(self, plan):
+        """Validate the private message directory and bind every plan input.
+
+        :param plan: the macOS frozen helper plan containing its one-use lease.
+        """
+        lease = plan["handshake"]
+        token = lease["token"]
+        self.expires = float(lease["expires"])
+        if (lease.get("schema") != 1 or not isinstance(token, str)
+                or len(token) != 64 or any(c not in "0123456789abcdef" for c in token)
+                or not 0 < self.expires < float("inf")):
+            raise ValueError("invalid frozen updater readiness lease")
+        requested_root = os.path.abspath(plan["workdir"])
+        details = os.lstat(requested_root)
+        if (not stat.S_ISDIR(details.st_mode)
+                or details.st_uid != os.geteuid() or stat.S_IMODE(details.st_mode) & 0o077):
+            raise ValueError("frozen updater readiness requires its private owner directory")
+        self.root = os.path.realpath(requested_root)
+        resolved = os.lstat(self.root)
+        if (resolved.st_dev, resolved.st_ino) != (details.st_dev, details.st_ino):
+            raise ValueError("frozen updater readiness directory changed during validation")
+        self.pid = int(plan["pid"])
+        bound = {key: plan[key] for key in
+                 ("adapter", "version", "pid", "records", "ticked", "workdir", "handshake")}
+        self.binding = hashlib.sha256(json.dumps(
+            bound, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
+
+    def _read(self, name):
+        """Read one bounded owner-only message, rejecting another plan's bytes.
+
+        :param name: internal message filename inside the private helper folder.
+        :returns: decoded message, or None before publication.
+        """
+        try:
+            descriptor = os.open(os.path.join(self.root, name),
+                                 os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+        except FileNotFoundError:
+            return None
+        with os.fdopen(descriptor, "r", encoding="utf-8") as stream:
+            details = os.fstat(stream.fileno())
+            if (not stat.S_ISREG(details.st_mode) or details.st_uid != os.geteuid()
+                    or stat.S_IMODE(details.st_mode) & 0o077 or details.st_size > 8192):
+                raise ValueError("invalid frozen updater readiness message")
+            message = json.loads(stream.read(8193))
+        if message.get("binding") != self.binding:
+            raise ValueError("frozen updater readiness belongs to a different plan")
+        return message
+
+    def _write(self, name, state, error="", expires=None):
+        """Atomically publish a complete message; interruption cannot expose half JSON.
+
+        :param name: internal message filename inside the private helper folder.
+        :param state: the protocol state being published.
+        :param error: bounded diagnostic for a preparation failure.
+        :param expires: a readiness-specific shutdown deadline, or the preparation deadline.
+        """
+        descriptor, temporary = tempfile.mkstemp(prefix="readiness-", dir=self.root)
+        with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+            json.dump({"binding": self.binding, "state": state,
+                       "error": str(error)[:2000],
+                       "expires": self.expires if expires is None else expires}, stream)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, os.path.join(self.root, name))
+
+    def check(self):
+        """Refuse expired or cancelled work, even if ready or approved arrived later."""
+        if self._read("cancelled.json") is not None:
+            raise RuntimeError("frozen update cancelled; nothing was changed")
+        message = self._read("readiness.json")
+        deadline = (float(message["expires"]) if message is not None
+                    and message.get("state") == "ready" else self.expires)
+        if not 0 < deadline <= self.expires + _WAIT_SECONDS:
+            raise ValueError("invalid frozen updater readiness deadline")
+        if time.time() >= deadline:
+            raise RuntimeError("frozen update preparation or shutdown timed out; nothing was changed")
+
+    def status(self):
+        """Return the helper's verified readiness or error without waiting."""
+        self.check()
+        message = self._read("readiness.json")
+        if message is not None and message.get("state") not in {"ready", "error"}:
+            raise ValueError("invalid frozen updater readiness state")
+        return message
+
+    def ready(self):
+        """Publish readiness only while the original preparation remains authorized."""
+        self.check()
+        self._write("readiness.json", "ready", expires=time.time() + _WAIT_SECONDS)
+
+    def failed(self, error):
+        """Expose preparation failure while preserving the installed application.
+
+        :param error: the helper's verification or preparation exception.
+        """
+        self._write("readiness.json", "error", error)
+
+    def cancel(self):
+        """Permanently disarm this plan, including any subsequently published readiness."""
+        self._write("cancelled.json", "cancelled")
+
+    def approve(self):
+        """Authorize replacement after readiness and all GUI shutdown veto checks."""
+        message = self.status()
+        if message is None or message["state"] != "ready":
+            raise RuntimeError("frozen update is not ready for shutdown")
+        self._write("approved.json", "approved")
+
+    def wait_for_shutdown(self, wait=None):
+        """Require both explicit approval and actual process exit within the lease.
+
+        :param wait: optional short PID-exit probe for deterministic tests.
+        """
+        while True:
+            self.check()
+            approved = self._read("approved.json")
+            if approved is not None:
+                if approved.get("state") != "approved":
+                    raise ValueError("invalid frozen updater shutdown approval")
+                exited = (wait(self.pid) if wait is not None
+                          else _wait_for_exit(self.pid, timeout=0.25))
+                if exited:
+                    self.check()
+                    return
+            time.sleep(0.05)
+
+
 def _run_macos_frozen_update(plan, *, run=None, download=None, wait=None, swap=None):
     """Verify an official read-only DMG and replace a writable app without elevation.
 
@@ -2076,6 +2212,9 @@ def _run_macos_frozen_update(plan, *, run=None, download=None, wait=None, swap=N
     import re
 
     invoke = run or _macos_native
+    handshake = _FrozenUpdateHandshake(plan) if plan.get("handshake") else None
+    if handshake is not None:
+        handshake.check()
     original_uid = os.geteuid()
     if original_uid == 0:
         raise ValueError("start the application as its normal user before updating")
@@ -2124,7 +2263,14 @@ def _run_macos_frozen_update(plan, *, run=None, download=None, wait=None, swap=N
         invoke(["/usr/bin/ditto", "--rsrc", "--extattr", source, staged])
         if _macos_digest(image) != expected_digest:
             raise ValueError("DMG changed while its payload was staged")
-        if not (wait or _wait_for_exit)(int(plan["pid"])):
+        if handshake is not None:
+            _macos_bundle_identity(staged, version, run=invoke)
+            if _macos_tree(staged) != expected:
+                raise ValueError("staged bytes differ from the authenticated read-only mounted payload")
+            _macos_tree(target, allow_external_links=True)
+            handshake.ready()
+            handshake.wait_for_shutdown(wait)
+        elif not (wait or _wait_for_exit)(int(plan["pid"])):
             raise RuntimeError("spaCR did not close; the installed bundle was not changed")
         result = _macos_replace_user_bundle(target, staged, transaction, version, expected,
                                             run=invoke, swap=swap)
@@ -2495,6 +2641,8 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
     elif (plan["frozen_application"] and running.layout == "macos-app"
           and running.root.endswith(".app") and machine.platform == "macos"):
         plan["adapter"] = "macos-frozen-v1"
+        plan["handshake"] = {"schema": 1, "token": os.urandom(32).hex(),
+                             "expires": time.time() + _FROZEN_PREPARATION_SECONDS}
         argv, environment, error = _standalone_helper_command(records, workdir, plan_path, machine)
         plan["command"], plan["error"] = argv, error
     elif plan["frozen_application"] or _requires_frozen_adapter(running):
@@ -2690,12 +2838,19 @@ def _run_plan(plan_path: str, *, wait=None, fetch=None, run=None, remove=None,
         try:
             if machine.platform != "macos":
                 raise ValueError("a macOS frozen update requires its actual native platform")
+            if not plan.get("handshake"):
+                raise ValueError("the frozen update plan has no readiness handshake")
             receipt = _run_macos_frozen_update(plan, wait=wait)
             lines.append(json.dumps(receipt, sort_keys=True))
             if receipt["relaunch"]["status"] != "accepted":
                 lines.append("The bundle replacement committed, but LaunchServices did not accept its relaunch; the backup and journal are retained.")
                 return _finish(6)
         except Exception as error:
+            if plan.get("handshake"):
+                try:
+                    _FrozenUpdateHandshake(plan).failed(error)
+                except Exception:
+                    lines.append("The readiness error could not be published; shutdown remains unapproved.")
             lines.append(f"Frozen macOS update stopped: {error}")
             return _finish(6)
         return _finish(0)

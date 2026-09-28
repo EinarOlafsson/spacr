@@ -599,3 +599,28 @@ It does not close53: frozen replacement/rollback, protected macOS account/ACL
 flows, other legacy families, backend/account/report-consent tails, and actual
 post-update new-version GUI restart/Measure remain outside this receipt.
 Receipt: features/data/53_historical_missing_pip_native_acceptance_2026-09-28.json.
+
+STATUS 2026-09-28 — frozen macOS readiness and shutdown handshake checked locally
+The user-writable frozen updater now binds private ready/approved/cancelled
+messages to one random nonce and the exact plan. It permits60 minutes for
+verified staging, then10 minutes for consent and actual process exit. A GUI
+QTimer keeps preparation asynchronous. The real closeEvent publishes approval
+after shutdown veto checks and before teardown; refusal, ordinary close,
+cancellation, expiry and approval-write failure leave replacement unapproved.
+
+The separately retained updater-r2 batch exits0 with438 passes and one skip.
+All11 recorded source hashes match both its post-run check and current files.
+The exact skip is tests/test_frozen_update_helper.py::
+test_actual_frozen_helper_runs_after_copy_without_source_or_python: it requires
+an actual native PyInstaller helper artifact. The invocation configures4G,
+private HOME/XDG/TMP, offscreen Qt, CPU and hidden CUDA/HIP/ROCR; no separate
+kernel-cgroup receipt is retained. The original updater.log has no terminal
+exit/JUnit receipt and remains unknown, separate from the accepted rerun.
+
+Native commands, helper launch and PID exit are modeled in these local tests.
+Published-DMG/helper replacement, interruption/recovery and real new-version
+GUI restart/CPU Measure are unproved. The retained latest public1.5.1.0 asset
+snapshot has no DMG. Protected macOS flows, other update families and the
+remaining installer/backend/account/report-consent gates still remain open.
+Whole53 staysOPEN; no version promotion is claimed. Receipt:
+features/data/53_frozen_readiness_handshake_2026-09-28.json.

@@ -340,13 +340,15 @@ def test_commit_publication_durability_error_does_not_swap_behind_committed_jour
 
 
 @pytest.mark.parametrize("detach_failure,launch_failure", [(False, False), (True, False), (False, True), (True, True)])
-def test_committed_update_reports_cleanup_and_launchservices_outcomes(tmp_path, monkeypatch, detach_failure, launch_failure):
+@pytest.mark.parametrize("staged_change", [False, True])
+def test_committed_update_reports_cleanup_and_launchservices_outcomes(tmp_path, monkeypatch, detach_failure, launch_failure, staged_change):
     """Cleanup or launcher failure retains a truthful receipt and both application trees.
 
     :param tmp_path: pytest-owned inert bundle and download fixture directory.
     :param monkeypatch: pytest fixture replacing network and mount inspection.
     :param detach_failure: whether the modeled detach reports a busy mount.
     :param launch_failure: whether the modeled LaunchServices request is rejected.
+    :param staged_change: corrupt staged bytes before publishing readiness.
     """
     import shutil
     from types import SimpleNamespace
@@ -357,9 +359,14 @@ def test_committed_update_reports_cleanup_and_launchservices_outcomes(tmp_path, 
     (target / "analysis.csv").write_text("preserve")
     payload = _bundle(tmp_path / "payload.app", "1.5.1.1")
     work = tmp_path / "work"
-    work.mkdir()
+    work.mkdir(mode=0o700)
     plan = {"records": [cleanup.asdict(cleanup.InstallRecord("installer", "macos-app", "macos", str(target), running=True))],
-            "ticked": [], "version": "1.5.1.1", "workdir": str(work), "pid": 123}
+            "ticked": [], "version": "1.5.1.1", "workdir": str(work), "pid": 123,
+            "adapter": "macos-frozen-v1",
+            "handshake": {"schema": 1, "token": "a" * 64,
+                          "expires": cleanup.time.time() + 120}}
+    handshake = cleanup._FrozenUpdateHandshake(plan)
+    monkeypatch.setattr(cleanup.time, "sleep", lambda seconds: handshake.approve())
     image_bytes = b"authenticated fixture"
     digest = cleanup.hashlib.sha256(image_bytes).hexdigest()
     monkeypatch.setattr(cleanup, "_published_digest", lambda url: digest)
@@ -380,6 +387,8 @@ def test_committed_update_reports_cleanup_and_launchservices_outcomes(tmp_path, 
             return plistlib.dumps({"system-entities": [{"mount-point": mount}]})
         if argv[0] == "/usr/bin/ditto":
             shutil.copytree(argv[-2], argv[-1], symlinks=True)
+            if staged_change:
+                (Path(argv[-1]) / "unverified.txt").write_text("not the mounted payload")
             return ""
         if argv[:2] == ["/usr/bin/hdiutil", "detach"]:
             if detach_failure:
@@ -391,8 +400,19 @@ def test_committed_update_reports_cleanup_and_launchservices_outcomes(tmp_path, 
             return ""
         return _native(argv, **options)
 
+    if staged_change:
+        with pytest.raises((ValueError, RuntimeError), match="staged bytes"):
+            cleanup._run_macos_frozen_update(plan, run=native,
+                download=lambda url, destination: Path(destination).write_bytes(image_bytes),
+                wait=lambda pid: pytest.fail("unverified staging reached shutdown"), swap=_swap)
+        assert handshake.status() is None
+        assert not (work / "approved.json").exists()
+        assert (target / "analysis.csv").read_text() == "preserve"
+        assert not any(argv[0] == "/usr/bin/open" for argv, _ in calls)
+        return
     receipt = cleanup._run_macos_frozen_update(plan, run=native,
-        download=lambda url, destination: Path(destination).write_bytes(image_bytes), wait=lambda pid: True, swap=_swap)
+        download=lambda url, destination: Path(destination).write_bytes(image_bytes),
+        wait=lambda pid: handshake.status()["state"] == "ready", swap=_swap)
     assert receipt["state"] == "committed"
     assert receipt["detach"]["status"] == ("failed" if detach_failure else "detached")
     assert receipt["relaunch"]["status"] == ("failed" if launch_failure else "accepted")
@@ -401,6 +421,148 @@ def test_committed_update_reports_cleanup_and_launchservices_outcomes(tmp_path, 
     assert cleanup._macos_tree(str(target)) == cleanup._macos_tree(str(payload))
     assert json.loads(Path(receipt["journal"]).read_text())["state"] == "committed"
     assert [uid for argv, uid in calls if argv[0] == "/usr/bin/open"] == [original_uid]
+
+
+def _readiness_plan(tmp_path):
+    """Create an owner-only, expiring plan without starting any process.
+
+    :param tmp_path: pytest-owned private workspace.
+    """
+    work = tmp_path / "readiness"
+    work.mkdir(mode=0o700)
+    return {"adapter": "macos-frozen-v1", "version": "1.5.1.1", "pid": 123,
+            "records": [], "ticked": [], "workdir": str(work),
+            "handshake": {"schema": 1, "token": "a" * 64,
+                          "expires": cleanup.time.time() + 120}}
+
+
+@pytest.mark.parametrize("changed", ["version", "pid", "records", "ticked", "token"])
+def test_readiness_cannot_be_reused_by_a_different_plan(tmp_path, changed):
+    plan = _readiness_plan(tmp_path)
+    cleanup._FrozenUpdateHandshake(plan).ready()
+    if changed == "token":
+        plan["handshake"]["token"] = "b" * 64
+    else:
+        plan[changed] = {"version": "1.5.1.2", "pid": 456,
+                         "records": [{"root": "/another.app"}],
+                         "ticked": ["/another-environment"]}[changed]
+    with pytest.raises(ValueError, match="different plan"):
+        cleanup._FrozenUpdateHandshake(plan).status()
+
+
+def test_shutdown_approval_requires_actual_readiness(tmp_path):
+    handshake = cleanup._FrozenUpdateHandshake(_readiness_plan(tmp_path))
+    with pytest.raises(RuntimeError, match="not ready"):
+        handshake.approve()
+    assert not (Path(handshake.root) / "approved.json").exists()
+
+
+def test_readiness_allows_a_symlinked_ancestor_but_preserves_plan_binding(tmp_path):
+    plan = _readiness_plan(tmp_path)
+    ancestor = tmp_path / "var-alias"
+    ancestor.symlink_to(tmp_path, target_is_directory=True)
+    plan["workdir"] = str(ancestor / "readiness")
+    helper = cleanup._FrozenUpdateHandshake(plan)
+    assert helper.root == str((tmp_path / "readiness").resolve())
+    helper.ready()
+    gui = cleanup._FrozenUpdateHandshake(plan)
+    assert gui.status()["state"] == "ready"
+    changed_plan = dict(plan, workdir=helper.root)
+    with pytest.raises(ValueError, match="different plan"):
+        cleanup._FrozenUpdateHandshake(changed_plan).status()
+
+
+def test_readiness_rejects_a_symlink_as_the_helper_directory(tmp_path):
+    plan = _readiness_plan(tmp_path)
+    alias = tmp_path / "helper-alias"
+    alias.symlink_to(plan["workdir"], target_is_directory=True)
+    plan["workdir"] = str(alias)
+    with pytest.raises(ValueError, match="private owner directory"):
+        cleanup._FrozenUpdateHandshake(plan)
+    assert not (tmp_path / "readiness" / "readiness.json").exists()
+
+
+def test_long_preparation_gets_a_separate_bounded_shutdown_window(tmp_path, monkeypatch):
+    now = [cleanup.time.time()]
+    monkeypatch.setattr(cleanup.time, "time", lambda: now[0])
+    plan = _readiness_plan(tmp_path)
+    plan["handshake"]["expires"] = now[0] + cleanup._FROZEN_PREPARATION_SECONDS
+    handshake = cleanup._FrozenUpdateHandshake(plan)
+    now[0] += 50 * 60
+    assert handshake.status() is None
+    handshake.ready()
+    deadline = handshake.status()["expires"]
+    assert deadline == now[0] + cleanup._WAIT_SECONDS
+    now[0] = deadline + 1
+    with pytest.raises(RuntimeError, match="timed out"):
+        handshake.approve()
+    assert not (Path(handshake.root) / "approved.json").exists()
+
+
+@pytest.mark.parametrize("kind", ["symlink", "fifo"])
+def test_readiness_refuses_nonregular_messages_without_blocking(tmp_path, kind):
+    handshake = cleanup._FrozenUpdateHandshake(_readiness_plan(tmp_path))
+    message = Path(handshake.root) / "readiness.json"
+    if kind == "symlink":
+        message.symlink_to(tmp_path / "outside.json")
+    else:
+        os.mkfifo(message, mode=0o600)
+    with pytest.raises((OSError, ValueError)):
+        handshake.status()
+
+
+@pytest.mark.parametrize("disarm", ["cancel", "timeout"])
+def test_disarmed_plan_refuses_late_ready_and_approval(tmp_path, monkeypatch, disarm):
+    handshake = cleanup._FrozenUpdateHandshake(_readiness_plan(tmp_path))
+    if disarm == "cancel":
+        handshake.cancel()
+    else:
+        monkeypatch.setattr(cleanup.time, "time", lambda: handshake.expires + 1)
+    handshake._write("readiness.json", "ready")
+    handshake._write("approved.json", "approved")
+    with pytest.raises(RuntimeError, match="cancelled|timed out"):
+        handshake.status()
+    with pytest.raises(RuntimeError, match="cancelled|timed out"):
+        handshake.wait_for_shutdown(lambda pid: pytest.fail("disarmed plan probed shutdown"))
+
+
+def test_approved_plan_still_requires_actual_exit_and_checks_cancellation(tmp_path, monkeypatch):
+    handshake = cleanup._FrozenUpdateHandshake(_readiness_plan(tmp_path))
+    handshake.ready()
+    handshake.approve()
+    seen = []
+
+    def wait(pid):
+        seen.append(pid)
+        if len(seen) == 2:
+            handshake.cancel()
+            return True
+        return False
+
+    monkeypatch.setattr(cleanup.time, "sleep", lambda seconds: None)
+    with pytest.raises(RuntimeError, match="cancelled"):
+        handshake.wait_for_shutdown(wait)
+    assert seen == [123, 123]
+
+
+def test_helper_reports_missing_release_without_waiting_for_gui_exit(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+
+    plan = _readiness_plan(tmp_path)
+    target = _bundle(tmp_path / "spaCR.app", "1.5.1.0")
+    (target / "analysis.csv").write_text("preserved")
+    plan["records"] = [cleanup.asdict(cleanup.InstallRecord(
+        "installer", "macos-app", "macos", str(target), running=True))]
+    path = Path(plan["workdir"]) / "plan.json"
+    path.write_text(json.dumps(plan))
+    monkeypatch.setattr(cleanup, "_published_digest", lambda url: None)
+    assert cleanup._run_plan(str(path), system=SimpleNamespace(platform="macos"),
+        wait=lambda pid: pytest.fail("missing release closed the GUI")) == 6
+    message = cleanup._FrozenUpdateHandshake(plan).status()
+    assert message["state"] == "error"
+    assert "no positive published digest" in message["error"]
+    assert (target / "analysis.csv").read_text() == "preserved"
+    assert not (Path(plan["workdir"]) / "approved.json").exists()
 
 
 def test_native_launcher_captures_rejection_in_sanitized_normal_user_environment(monkeypatch):
@@ -440,13 +602,27 @@ def test_helper_preserves_committed_receipt_when_launchservices_rejects(tmp_path
     from types import SimpleNamespace
 
     plan_path, log = tmp_path / "plan.json", tmp_path / "update.log"
-    plan_path.write_text(json.dumps({"adapter": "macos-frozen-v1", "records": [], "version": "1.5.1.1", "log": str(log)}))
+    plan = _readiness_plan(tmp_path)
+    plan["log"] = str(log)
+    plan_path.write_text(json.dumps(plan))
     receipt = {"state": "committed", "backup": "/retained/previous.app", "journal": "/retained/journal.json",
                "relaunch": {"status": "failed", "error": "LaunchServices rejection"}}
     monkeypatch.setattr(cleanup, "_run_macos_frozen_update", lambda *args, **kwargs: receipt)
     assert cleanup._run_plan(str(plan_path), system=SimpleNamespace(platform="macos")) != 0
     assert json.dumps(receipt, sort_keys=True) in log.read_text()
     assert "replacement committed" in log.read_text()
+
+
+def test_frozen_helper_requires_the_gui_readiness_protocol(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+
+    plan = _readiness_plan(tmp_path)
+    del plan["handshake"]
+    path = tmp_path / "plan.json"
+    path.write_text(json.dumps(plan))
+    monkeypatch.setattr(cleanup, "_run_macos_frozen_update",
+                        lambda *a, **k: pytest.fail("a handshakeless plan reached replacement"))
+    assert cleanup._run_plan(str(path), system=SimpleNamespace(platform="macos")) == 6
 
 
 def test_native_rename_binding_requests_atomic_swap_not_replace(monkeypatch):
