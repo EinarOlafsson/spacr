@@ -2976,7 +2976,12 @@ def generate_activation_map(settings):
         ``settings.get_default_generate_activation_map_settings`` for
         keys (``dataset``, ``model_path``, ``cam_type``, ``target_layer``,
         ``image_size``, ``batch_size``, ``channels``, ``normalize``,
-        ``save``, ``plot``, ``correlation``, ...).
+        ``save``, ``plot``, ``correlation``, ...). With ``counterfactuals``
+        on, up to ``counterfactual_crops`` of the crops also train a small
+        class-conditional generator against the loaded model, and the
+        held-out crops are morphed toward the other class with the
+        classifier's score written at every step (see
+        ``_run_counterfactuals``).
     :returns: None
     """
     from .utils import SaliencyMapGenerator, GradCAMGenerator, SelectChannels, activation_maps_to_database, activation_correlations_to_database
@@ -3080,9 +3085,15 @@ def generate_activation_map(settings):
         cam_generator = SaliencyMapGenerator(model)
 
     time_ls = []
+    cf_limit = int(settings.get('counterfactual_crops') or 0) if settings.get('counterfactuals') else 0
+    cf_crops, cf_names = [], []
     for batch_idx, (inputs, filenames) in enumerate(data_loader):
         start = time.time()
         img_paths = []
+        taken = sum(len(c) for c in cf_crops)
+        if taken < cf_limit:
+            cf_crops.append(inputs[:cf_limit - taken].detach().cpu())
+            cf_names.extend(list(filenames)[:cf_limit - taken])
         inputs = inputs.to(device)
 
         if use_attribution:
@@ -3158,9 +3169,47 @@ def generate_activation_map(settings):
         files_to_process = len(data_loader) * settings['batch_size']
         print_progress(files_processed, files_to_process, n_jobs=n_jobs, time_ls=time_ls, batch_size=settings['batch_size'], operation_type="Generating Activation Maps")
 
+    if cf_limit:
+        _run_counterfactuals(settings, model, cf_crops, cf_names,
+                             os.path.join(save_dir, 'counterfactuals'), device)
     _empty_device_cache()
     gc.collect()
     print("Activation map generation complete.")
+
+
+def _run_counterfactuals(settings, model, crops, names, out_dir, device):
+    """Train the counterfactual generator on collected crops and write its report.
+
+    The crops are split into a training and a held-out part; the held-out
+    crops are morphed toward the other class and scored by ``model``. The
+    per-crop table, the summary (flip rate, monotone fraction, edit size and
+    the class-mean baseline) and a figure of the first sequences go to
+    ``out_dir``. Fewer than four crops print a note and write nothing.
+
+    :param settings: the activation-map settings (``counterfactual_epochs``).
+    :param model: the loaded classifier, in eval mode.
+    :param crops: list of ``(B, C, H, W)`` tensors in model input space.
+    :param names: one file name per crop.
+    :param out_dir: folder for the tables and the figure.
+    :param device: torch device for training.
+    :returns: the summary dict, or ``None`` when too few crops were collected.
+    """
+    from .attribution import _counterfactual_report
+    batch = torch.cat(crops, dim=0) if crops else torch.zeros(0)
+    if batch.shape[0] < 4:
+        print(f"Counterfactuals skipped: {batch.shape[0]} crops collected, "
+              "at least 4 are needed.")
+        return None
+    summary, _rows, _frames = _counterfactual_report(
+        model, batch, names=names,
+        epochs=int(settings.get('counterfactual_epochs') or 30),
+        device=device, out_dir=out_dir)
+    print(f"Counterfactuals: flip rate {summary['flip_rate']:.2f} "
+          f"(class-mean shift {summary['baseline_flip_rate']:.2f}), "
+          f"monotone {summary['monotone_fraction']:.2f}, median edit "
+          f"{summary['median_edit_l1']:.3f} of the intensity range. "
+          f"Written to {out_dir}")
+    return summary
 
 def analyze_activation_maps(model, images, methods=None, *, masks=None,
                             target=None, target_layer=None, model_type=None,

@@ -363,6 +363,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # image-quality classifier, appended to the Image Quality category.
     "image_qc_classifier", "image_qc_classifier_model",
     "image_qc_classifier_labels", "image_qc_classifier_threshold",
+    # NEW SETTINGS, not a regrouping (item 564, 2026-09-28): the generative
+    # counterfactuals, appended to the Activation Maps category.
+    "counterfactuals", "counterfactual_crops", "counterfactual_epochs",
     "plaque_pixels_per_um", "plaque_formation_hours", "plaque_estimate_growth",
     "plaque_growth_reference_um", "plaque_growth_reference_hours",
     "replication_method", "tta_enabled", "tta_rotations", "tta_horizontal_flip",
@@ -1702,7 +1705,9 @@ def _rendered_sections(app_key):
         ]),
         ("activation", [
             "Model & Data", "Attribution Method", "Attribution Validation",
-            "Map Display", "Map Quantification", "Output & Runtime",
+            "Map Display", "Map Quantification",
+            # item 564 (2026-09-28): alpha-only heading, hidden with the gate.
+            "Counterfactuals", "Output & Runtime",
         ]),
         ("replication", [
             "Replication Method", "Assay Inputs", "Size Proxy (Legacy)",
