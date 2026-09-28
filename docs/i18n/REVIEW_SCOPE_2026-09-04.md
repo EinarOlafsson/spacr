@@ -5,7 +5,7 @@ that report, **this is an evidence report and not a certificate that every
 sentence was read by a fluent speaker.** The semantic-review evidence is
 defect-driven and much smaller than the shipped corpus.
 
-**Current checkpoint — 2026-09-27:** the current source inventories contain 8,726 runtime entries and 11,865 public API symbol documents. The table below is derived from the strict current-source review loaders. API delta 4 reviews six new blocks per locale (54 total) in five changed symbol documents, covering measured regression fit support and the explicit installed-application smoke mode. All 680 original API review files remain byte-identical; unchanged symbol records and reused blocks were verified. All nine new API drafts received an independent second AI technical review. The item 450/451 runtime wording delta replaces three sources per locale; retired review evidence is preserved separately. All new records are labelled "AI technical review (Codex), no native-speaker signoff". The complete nine-locale canonical API/README audit and installed-file preservation gates passed for API delta 4. API block counts divided by symbol counts are not percentages of fully reviewed API pages. Dated completion statements below describe historical trees; `COVERAGE.md` reports current mechanical source coverage. No native-speaker or human listening signoff is claimed.
+**Current checkpoint — 2026-09-27:** the current source inventories contain 8,726 runtime entries and 11,865 public API symbol documents. The table below is derived from the strict current-source review loaders. API delta 5 adds one reviewed block per locale (nine total) documenting the frozen-application replacement boundary. All 689 original API review files, the ten prior translated blocks in the changed symbol, and all 11,864 unrelated symbol records per locale remain unchanged. Earlier API delta 4 reviewed six new blocks per locale (54 total) in five changed symbol documents, covering measured regression fit support and the explicit installed-application smoke mode. All 680 original API review files remain byte-identical; unchanged symbol records and reused blocks were verified. All nine delta 4 API drafts received an independent second AI technical review. The item 450/451 runtime wording delta replaces three sources per locale; retired review evidence is preserved separately. All new records are labelled "AI technical review (Codex), no native-speaker signoff". The complete nine-locale canonical API/README audit and installed-file preservation gates passed for API delta 5. API block counts divided by symbol counts are not percentages of fully reviewed API pages. Dated completion statements below describe historical trees; `COVERAGE.md` reports current mechanical source coverage. No native-speaker or human listening signoff is claimed.
 
 **Mechanical source coverage IS complete, as of 2026-09-10.** It was not on
 2026-09-06, and this paragraph carried that gap until now: the runtime
@@ -55,15 +55,15 @@ table derives them from the same source the builders read.
 
 | Language | Reviewed runtime records | Of 8,726 | Remainder | Reviewed API blocks | Of 11,865 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 3,354 | 38.44% | 5,372 | 8,500 | 71.64% | 3,365 |
-| German | 3,321 | 38.06% | 5,405 | 8,582 | 72.33% | 3,283 |
-| Spanish | 3,324 | 38.09% | 5,402 | 8,361 | 70.47% | 3,504 |
-| Simplified Chinese | 3,627 | 41.57% | 5,099 | 8,642 | 72.84% | 3,223 |
-| Portuguese | 3,330 | 38.16% | 5,396 | 8,587 | 72.37% | 3,278 |
-| Hindi | 3,415 | 39.14% | 5,311 | 8,535 | 71.93% | 3,330 |
-| Korean | 3,531 | 40.47% | 5,195 | 8,608 | 72.55% | 3,257 |
-| Icelandic | 3,481 | 39.89% | 5,245 | 9,099 | 76.69% | 2,766 |
-| French | 3,346 | 38.35% | 5,380 | 8,521 | 71.82% | 3,344 |
+| Swedish | 3,354 | 38.44% | 5,372 | 8,501 | 71.65% | 3,364 |
+| German | 3,321 | 38.06% | 5,405 | 8,583 | 72.34% | 3,282 |
+| Spanish | 3,324 | 38.09% | 5,402 | 8,362 | 70.48% | 3,503 |
+| Simplified Chinese | 3,627 | 41.57% | 5,099 | 8,643 | 72.84% | 3,222 |
+| Portuguese | 3,330 | 38.16% | 5,396 | 8,588 | 72.38% | 3,277 |
+| Hindi | 3,415 | 39.14% | 5,311 | 8,536 | 71.94% | 3,329 |
+| Korean | 3,531 | 40.47% | 5,195 | 8,609 | 72.56% | 3,256 |
+| Icelandic | 3,481 | 39.89% | 5,245 | 9,100 | 76.70% | 2,765 |
+| French | 3,346 | 38.35% | 5,380 | 8,522 | 71.82% | 3,343 |
 
 *Re-measured 2026-09-16 for 317 using the actual live source extractors and
 reviewed-record loaders. Runtime sources increase 5,767 -> 5,773 (seven
