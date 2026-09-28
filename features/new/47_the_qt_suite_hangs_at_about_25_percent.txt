@@ -1472,3 +1472,14 @@ and retired; no observed live threads, widgets or PCM arrays remained.
 The original sustained memory growth did not reproduce in this bounded interval.
 This is not a replacement for the still-required uninterrupted full Qt summary.
 Receipt: features/data/47_combined_stylesheet_audio_probe_2026-09-27.json.
+
+STATUS 2026-09-27 — REAL HOVER CONTRACT VERIFIED; OBSERVER REPAIR OPEN
+The fresh run at 9d173b961 retained 5,549 call reports and one hover assertion
+failure before its observer hit a deliberate Path.open mock. Its outer
+exit is 1; no full-summary acceptance or memory-guard diagnosis is claimed.
+The test now requires the actual bottom hint, anchor, active hold timer,
+no second popup and intact chat styling. The independent forced-polish
+sweep check remains. All 12 focused checks passed under 4G; no runtime
+source changed for this correction. Preserve the failed run and repair
+the scratch observer before attempting full acceptance again.
+Receipt: features/data/47_hover_contract_2026-09-27.json.

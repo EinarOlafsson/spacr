@@ -1,0 +1,43 @@
+{
+  "item": 47,
+  "date": "2026-09-27",
+  "scope": "Verify real setting-hover styling and single tooltip surface without requiring incidental palette sweep",
+  "original_full_attempt": {
+    "source_commit": "9d173b961f883b729794934dfc7a3bc3bf2e3357",
+    "directory": "/mnt/wd4tb/scratch/spacr-completion/item47-fresh-acceptance-20260927",
+    "outer_exit_status": 1,
+    "completed_call_reports": 5549,
+    "hover_failure": "test_hovering_a_setting_leaves_the_chat_box_styled expected an incidental palette sweep; the hover remains connected to the bottom hint.",
+    "termination": "Reporting observer used Path.open while test_cov_dnd_handlers deliberately mocked that function; PermissionError during report serialization prevented full acceptance.",
+    "full_acceptance": false
+  },
+  "correction": {
+    "runtime_source_changed": false,
+    "assertions": [
+      "Actual tooltip-role setting receives Enter",
+      "Exact hint text and widget anchor",
+      "Active hint hold timer",
+      "No popup with box tooltips disabled",
+      "Chat styling preserved",
+      "Separate forced-polish sweep check retained"
+    ],
+    "test_file_sha256": "6eb935d4aa8343b55baef2705f77b4c2805aa534d38e1912a2a86849493b7c44"
+  },
+  "focused_checks": {
+    "files": [
+      "tests/test_native_installer_workflow.py",
+      "tests/qt/test_plugin_catalogue_alpha_gate.py",
+      "tests/qt/test_a_hovered_setting_does_not_turn_the_chat_box_black.py"
+    ],
+    "cap": "4G",
+    "private_home": true,
+    "cuda_hidden": true,
+    "qt_platform": "offscreen",
+    "exit_status": 0,
+    "passed": 12,
+    "duration_seconds": 13.89,
+    "log": "/mnt/wd4tb/scratch/spacr-completion/cheap-fixes-check-20260927/pytest.log",
+    "log_sha256": "b3bd18e5a3ce8a88cf3d59c03405b3c93dc849d53821673dce8cc87715fdbc56"
+  },
+  "full_item_complete": false
+}
