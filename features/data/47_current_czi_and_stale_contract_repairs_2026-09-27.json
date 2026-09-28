@@ -1,0 +1,33 @@
+{
+  "date": "2026-09-27",
+  "item": 47,
+  "status": "focused repairs verified; uninterrupted serial acceptance remains open",
+  "evidence_directory": "/mnt/wd4tb/scratch/spacr-completion/item47-three-fixes-20260927",
+  "validation": {
+    "passed": 8,
+    "failed": 0,
+    "seconds": 4.55,
+    "nodeids_sha256": "dee6171b1d8fb9b1e7cfbe7a6a396c26e75acac4a0c55fceaeab36d014e0366e",
+    "junit_sha256": "6544081786cf68a4a4deb27c2781db9dcaf9494583d695d1cae50a0dd4872219",
+    "log_sha256": "743353c882617c4d4a8c240ce8d5882ea02839423e71bb43b0840cd801ff1f7d",
+    "environment": "Linux x86_64, CPython 3.12.13, Qt 6.11.2, czifile 2026.8.16, private pylibCZIrw 6.1.0; 4G CPU cap, private HOME and short TMPDIR"
+  },
+  "changes": [
+    "Inspect actual Home aside panels and require the retained Qt-owned legend to remain hidden.",
+    "Remove 13 translated captions from the exception list; the exact-row check covers every shipped catalog.",
+    "Read current CZI per-scene dimensions and absolute coordinates, retaining legacy shape/axes behavior."
+  ],
+  "czi_acceptance": {
+    "fixture": "Genuine native-writer CZI with distinct scenes 3 and 7; synthetic pixels, no biological acceptance claim",
+    "header_scan_decodes_pixels": false,
+    "converted_planes_compared_pixel_for_pixel": 11,
+    "legacy_reader_double_tests_passed": 3,
+    "writer_wheel_sha256": "42adce30fb5f30952ac860e5b499b2d18b9b61acf07e399e8a4c91aff0223e25"
+  },
+  "limits": [
+    "No native Windows/macOS CZI or Python 3.14 writer acceptance in this run.",
+    "Legacy API validation uses reader doubles, not an older real czifile installation.",
+    "The frozen suffix is unchanged; focused passes do not clear earlier order-dependent failures.",
+    "The settings overlay failure and full serial/memory acceptance remain open."
+  ]
+}

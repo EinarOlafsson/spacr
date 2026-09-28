@@ -1397,3 +1397,19 @@ that does not resolve their original order-dependent failure or establish an
 uninterrupted serial/memory pass. The frozen suffix continues unchanged.
 Evidence: /mnt/wd4tb/scratch/spacr-completion/item47-failure-reproduction-20260927/
 (results.xml and logs/reproduce.log). Item47 remains open.
+
+STATUS 2026-09-27 — three reproduced failures repaired
+The Home assertion now inspects the actual aside and verifies the retained
+Qt-owned legend is hidden. Thirteen already translated captions leave the
+exception list and pass the existing exact-row checks in every shipped catalog.
+The genuine Zeiss fixture exposed a current czifile API change: dimensions now
+belong to scene images. Conversion retains each scene's absolute coordinate and
+own dimensions while preserving the legacy shape/axes reader path.
+
+Eight named tests pass in4.55 seconds, including header-only scanning and exact
+output pixels for all11 planes of a real synthetic CZI with different scene
+dimensions. The native writer was installed only in task scratch; its dependency
+was already declared in the czi extra and blocking CI. No public signatures or
+runtime docstrings changed. The settings overlay and uninterrupted serial/memory
+acceptance remain open; the frozen suffix continues unchanged. Receipt:
+features/data/47_current_czi_and_stale_contract_repairs_2026-09-27.json.

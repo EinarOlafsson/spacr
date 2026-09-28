@@ -1101,6 +1101,22 @@ def _describe_czi(path: str) -> Dict[str, Any]:
     """Read a CZI's dimensions via ``czifile`` (header only)."""
     module = _import_reader('.czi')
     with module.CziFile(path) as handle:
+        if hasattr(handle, 'scenes'):
+            series = []
+            for scene, image in handle.scenes.items():
+                sizes = dict(image.sizes)
+                series.append({
+                    'czi_scene': scene,
+                    'shape': tuple(int(s) for s in image.shape),
+                    'axes': str(image.axes or '').upper(),
+                    'dtype': str(image.dtype),
+                    'n_t': max(int(sizes.get('T', 1) or 1), 1),
+                    'n_z': max(int(sizes.get('Z', 1) or 1), 1),
+                    'n_c': max(int(sizes.get('C', 1) or 1), 1),
+                    'axes_assumed': '', 'reader': 'czifile'})
+            if not series:
+                raise ConfigurationError(f'{path} contains no images')
+            return dict(series[0], n_series=len(series), per_series=series)
         shape = tuple(int(s) for s in handle.shape)
         axes = str(handle.axes or '').upper()
         dtype = str(getattr(handle, 'dtype', ''))
@@ -1880,6 +1896,14 @@ def _read_czi(source: SourceImage) -> np.ndarray:
     module = _import_reader('.czi')
     series = int(source.meta.get('series', 0) or 0)
     with module.CziFile(source.path) as handle:
+        if hasattr(handle, 'scenes'):
+            scene = source.meta.get('czi_scene')
+            if scene is None:
+                scene = list(handle.scenes)[series]
+            image = handle.scenes[scene]
+            return _to_5d(np.asarray(image.asarray()),
+                          str(image.axes or '').upper(),
+                          source.t, source.z, source.n_channels)
         array = np.asarray(handle.asarray())
         axes = str(handle.axes or '').upper()
     if 'S' in axes:
