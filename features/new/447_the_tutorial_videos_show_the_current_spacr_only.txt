@@ -652,3 +652,15 @@ unchanged frozen scripts and accepted checkpoints.
 AI technical review (Codex), no human listening or native-speaker signoff.
 Candidate build, publication and live verification remain pending;447 stays open.
 Receipt: features/data/447_lesson73_media_acceptance_2026-09-28.json.
+
+STATUS 2026-09-28 — current sentence-cue receipts wired into publication
+The13-lesson candidate build verified351 current narration tracks, then stopped
+on lesson60's stale plain playback receipt. All six affected refreshed videos
+already have passing, current-byte sentence-cue playback receipts; no recordings
+or checks are fabricated or relabeled. The builder now selects those stronger
+existing receipts when they match the actual video hash, and validates all
+selected web inputs before creating/copying a candidate. Failed, mismatched and
+undecoded inputs still reject. All70 named candidate/receipt checks pass. The
+original partial candidate and failed build log remain preserved; publication
+and live verification remain open.
+Receipt: features/data/447_current_web_receipt_selection_2026-09-28.json.

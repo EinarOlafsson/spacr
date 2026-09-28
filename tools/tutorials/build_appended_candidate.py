@@ -291,6 +291,23 @@ def synchronize_links(catalogs, lessons):
     return result
 
 
+def checked_web_input(stage, identity):
+    """Select current-byte playback evidence, preferring sentence-cue checks."""
+    rendition = stage / 'web-renditions' / identity
+    video = rendition / 'video' / f'{identity}_silent.mp4'
+    proof = read(rendition / 'rendition-checks.json')
+    actual_hash = digest(video)
+    browser_root = stage / 'browser-web' / identity
+    browser_path = browser_root / 'en-af_heart/playback-checks.json'
+    sentence_path = browser_root / 'en-af_heart-sentence-cues/playback-checks.json'
+    if sentence_path.exists():
+        sentence = read(sentence_path)
+        if sentence.get('checked_web_rendition', {}).get('sha256') == actual_hash:
+            browser_path = sentence_path
+    require_web_receipt(identity, proof, read(browser_path), actual_hash)
+    return video, proof, browser_path
+
+
 def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_ids=(),
           host_web=False, migrate_web=()):
     """Create a new private candidate; never upload or modify the published tree.
@@ -353,6 +370,8 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
     migrate_web = list(migrate_web)
     if len(migrate_web) != len(set(migrate_web)) or set(migrate_web) & set(identities):
         raise ValueError('Migrate only unique, otherwise preserved lessons')
+    # Reject stale playback evidence before allocating or copying the library.
+    web_inputs = {lesson['id']: checked_web_input(stage, lesson['id']) for lesson in lessons}
     root = Path(tempfile.mkdtemp(prefix='release-candidate-append-', dir=stage))
     records = copy_preserved_web(published, baseline, root, previous,
                                  replacements=refresh_ids, hosted=migrate_web)
@@ -367,11 +386,7 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
     for lesson in lessons:
         identity = lesson['id']
         source = stage / 'production' / identity
-        rendition = stage / 'web-renditions' / identity
-        video = rendition / 'video' / f'{identity}_silent.mp4'
-        proof = read(rendition / 'rendition-checks.json')
-        browser_path = stage / 'browser-web' / identity / 'en-af_heart/playback-checks.json'
-        require_web_receipt(identity, proof, read(browser_path), digest(video))
+        video, proof, browser_path = web_inputs[identity]
         copy_checked(source / 'video' / video.name, root / 'media_host' / identity / 'video' / video.name,
                      records, root, proof['master_sha256'])
         web_target = (root / 'media_host' / hosted_web_path(identity) if host_web
