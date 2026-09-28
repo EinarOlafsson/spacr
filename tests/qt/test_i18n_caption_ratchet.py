@@ -1173,6 +1173,15 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 579, 2026-09-27: the Report screen's Deposit on Zenodo button and form.
 # 316, 2026-09-27: all 76 resolved through their explicit owners.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    # 561, 2026-09-28: the Embeddings screen's Pretrain on these crops
+    # button (alpha).
+    'Pretrain on these crops…',
+    'Self-supervised (DINO) pretraining of a ResNet-18 on the loaded crops, no labels needed, under the chosen channel policy. Choose a checkpoint file; it is saved after every epoch, and choosing the same file again resumes the run. When it finishes the checkpoint is offered in the Foundation model picker. Slow without a GPU. Default 20 epochs from random weights at 64 px.',
+    'Save the pretrained backbone as',
+    'PyTorch checkpoints (*.pt)',
+    'Pretraining on {n} crops…',
+    'Own DINO: {name}',
+    'Pretrained {epochs} epochs (last loss {loss:.3f}). The checkpoint is chosen in the Foundation model picker; press Embed to use it.',
     # 576, 2026-09-28: the Measurement Backend (Alpha) category help on
     # Measure.
     "Copies a finished run's measurements into DuckDB or Parquet for very large screens, or into PostgreSQL for labs that share one server. measurements.db stays the working copy.",

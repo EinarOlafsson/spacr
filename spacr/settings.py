@@ -7319,6 +7319,9 @@ ALPHA_FEATURES = {
     562: {
         'widgets': ('EmbeddingsWellMilButton',),
     },
+    561: {
+        'widgets': ('EmbeddingsDinoPretrainButton',),
+    },
     558: {
         'widgets': ('CellposeWorkbenchVirtualStain',),
     },
