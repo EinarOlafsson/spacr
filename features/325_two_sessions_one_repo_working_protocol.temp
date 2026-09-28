@@ -17403,3 +17403,10 @@ as failed. A separate source-bound full-bootstrap recovery must complete before
 the existing actual GUI failure, external repair, Help update and installed-state
 checks can proceed. Verifier-only fixtures cannot close native acceptance.
 No release bump, original-artifact rewrite, GPU or live_cell change is involved.
+
+2026-09-28 — CODEX: MAINTAINER AUTHORIZED1.5.1.1 PROMOTION
+The maintainer now explicitly requests publishing1.5.1.1 onnightly then merging
+nightly onto main. This replaces the prior release-owner reservation. Claiming
+setup.py VERSION,spacr/_version.py andCITATION.cff for packaging/release.py bump
+and verify. Existing validated466/575/53 work will be committed first. Required
+release/compatibility gates are checked before promotion; noGPU/training changes.
