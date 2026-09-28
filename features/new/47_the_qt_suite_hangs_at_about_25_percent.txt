@@ -1463,3 +1463,12 @@ Two changed API docstrings are recorded for the final catalog delta.
 This closes the reproduced thread-shutdown defect, not the separate sustained
 memory growth or full serial acceptance. Receipt:
 features/data/47_cpu_backdrop_close_2026-09-27.json.
+
+STATUS 2026-09-27 — combined stylesheet/audio interval passed
+All73 original-order predecessor/audio nodes passed in38.92 seconds, exit0,
+with the original global stylesheet retained. Peak sampled RSS was1.29GiB;
+final RSS544MiB. The actual CPU backdrop thread finished during normal teardown
+and retired; no observed live threads, widgets or PCM arrays remained.
+The original sustained memory growth did not reproduce in this bounded interval.
+This is not a replacement for the still-required uninterrupted full Qt summary.
+Receipt: features/data/47_combined_stylesheet_audio_probe_2026-09-27.json.
