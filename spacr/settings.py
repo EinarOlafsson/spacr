@@ -7371,7 +7371,7 @@ ALPHA_FEATURES = {
         'widgets': ('PluginCatalogueHelp', 'PluginCatalogueSource',
                     'PluginCatalogueLoad', 'PluginCatalogueTable',
                     'PluginCatalogueInstall', 'PluginCatalogueUninstall',
-                    'PluginCatalogueStatus'),
+                    'PluginCatalogueOpen', 'PluginCatalogueStatus'),
     },
     534: {
         'widgets': ('MapBarcodesSpatialToggle', 'MapBarcodesSpatialCard'),

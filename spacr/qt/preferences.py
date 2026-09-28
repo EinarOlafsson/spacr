@@ -5536,11 +5536,15 @@ class _PluginCataloguePage:
         self.uninstall_button = QPushButton(tr("Uninstall"))
         self.uninstall_button.setObjectName("PluginCatalogueUninstall")
         self.uninstall_button.clicked.connect(self.uninstall_selected)
+        self.open_button = QPushButton(tr("Open"))
+        self.open_button.setObjectName("PluginCatalogueOpen")
+        self.open_button.clicked.connect(self._open_selected)
         actions = QWidget()
         actions_layout = QHBoxLayout(actions)
         actions_layout.setContentsMargins(0, 0, 0, 0)
         actions_layout.addWidget(self.install_button)
         actions_layout.addWidget(self.uninstall_button)
+        actions_layout.addWidget(self.open_button)
         actions_layout.addStretch(1)
         form.addRow(actions)
 
@@ -5569,6 +5573,51 @@ class _PluginCataloguePage:
                                                   "update available"))
         self.uninstall_button.setEnabled(
             row is not None and bool(row["installed"]))
+        self.open_button.setEnabled(
+            row is not None and row["kind"] == "recipe"
+            and bool(row["installed"]))
+
+    def _open_selected(self) -> bool:
+        """Load the installed recipe into its desktop module without running it."""
+        from ..cli import load_settings_file
+        from ..plugins import _catalogue_installed, get_app
+        from .app import APPS, _opened_module_screen, app_is_visible
+        from .chaining import screen_for_module
+        from .i18n import tr
+
+        row = self.selected()
+        if row is None or not _is_alpha_visible(
+                "widgets", _PLUGIN_CATALOGUE_ALPHA_WIDGET):
+            return False
+        try:
+            installed = _catalogue_installed().get(row["key"], {})
+            if installed.get("kind") != "recipe":
+                return False
+            requested = str(installed.get("app") or "")
+            host = screen_for_module(requested)
+            plugin = get_app(host)
+            if (not requested
+                    or (host not in {app[0] for app in APPS} and plugin is None)
+                    or (plugin is not None and not maturity_is_visible(plugin.stage))
+                    or not app_is_visible(requested)
+                    or not app_is_visible(host)):
+                raise ValueError(f"{tr('Could not apply template')}: {requested}")
+            settings = load_settings_file(installed.get("path"))
+            window = self._dialog.parentWidget()
+            if window is None or not callable(getattr(window, "open_module", None)):
+                raise ValueError(tr("Could not apply template"))
+            opened = window.open_module(requested)
+            screen = _opened_module_screen(window, requested, opened)
+            if screen is None or not callable(getattr(screen, "apply_settings_dict", None)):
+                raise ValueError(f"{tr('Could not apply template')}: {requested}")
+            if not screen.apply_settings_dict(settings):
+                raise ValueError(tr("Could not apply template"))
+        except Exception as exc:
+            self.status.setText(tr("{name} failed: {error}").format(
+                name=row["name"], error=exc))
+            return False
+        self._dialog.close()
+        return True
 
     def refresh(self) -> bool:
         """Read the catalogue and fill the table.

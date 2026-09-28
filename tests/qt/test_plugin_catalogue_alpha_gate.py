@@ -89,6 +89,7 @@ def test_a_catalogue_saved_while_hidden_opens_installs_and_uninstalls(
         QWidget, "PluginCatalogueStatus").text()
     assert table.item(0, 3).text() == "1.0.0"
     assert table.item(0, 4).text() == "installed"
+    assert not dlg.findChild(QWidget, "PluginCatalogueOpen").isEnabled()
 
     prefs._set_show_alpha_features(False)
     assert plugins.reload_plugins()
@@ -143,3 +144,89 @@ def test_sorting_keeps_installation_and_reselection_on_the_chosen_entry(
     assert page.table.item(0, 3).text() == "0.2"
     assert page.uninstall_selected()
     assert plugins._catalogue_installed() == {}
+
+
+@pytest.mark.parametrize("module", ["regression", "catalogue_probe_app"])
+def test_open_loads_installed_recipe_into_its_real_module_without_running(
+        qtbot, prefs, tmp_path, monkeypatch, module):
+    """An offered update must not replace the installed module or settings."""
+    import json
+
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QDialog, QFormLayout
+    from spacr.qt.app import APPS, MainWindow
+
+    monkeypatch.setenv("SPACR_HOME", str(tmp_path / "spacr"))
+    prefs._set_show_alpha_features(True)
+    prefs.set_show_alpha(True)
+    window = MainWindow()
+    qtbot.addWidget(window)
+    values = {"alpha": "auto", "fdr_alpha": 0.013}
+    if module == "catalogue_probe_app":
+        plugin_source = tmp_path / "plugin"
+        plugin_source.mkdir()
+        _catalogue(plugin_source)
+        plugins._install_from_catalogue("catalogue_probe", str(plugin_source))
+        assert module not in {row[0] for row in APPS}
+        values = {"probe": "loaded from installed recipe"}
+    source = tmp_path / "catalogue.json"
+    data = {"recipes": [{
+        "key": "fit", "name": "Fit recipe", "version": "1",
+        "app": module, "settings": values,
+    }]}
+    source.write_text(json.dumps(data))
+    plugins._install_from_catalogue("fit", str(source))
+    data["recipes"][0].update(version="2", app="measure",
+                              settings={"fdr_alpha": 0.9})
+    source.write_text(json.dumps(data))
+    prefs._set_plugin_catalogue(str(source))
+    dialog = QDialog(window)
+    qtbot.addWidget(dialog)
+    page = prefs._PluginCataloguePage(QFormLayout(dialog), dialog)
+    page.table.selectRow(0)
+    dialog.show()
+    assert page.selected()["status"] == "update available"
+    assert page.open_button.isEnabled()
+
+    qtbot.mouseClick(page.open_button, Qt.LeftButton)
+
+    screen = window._screens[module]
+    assert window._stack.currentWidget() is screen
+    assert "measure" not in window._screens
+    assert {key: screen._settings_model.collect()[key] for key in values} == values
+    assert getattr(screen, "_thread", None) is None
+    assert not dialog.isVisible()
+    assert plugins._catalogue_installed()["fit"]["version"] == "1"
+
+
+def test_open_requires_installed_recipe_and_readable_settings(
+        qtbot, prefs, tmp_path):
+    """Unavailable entries and removed settings must not open a module."""
+    from pathlib import Path
+
+    from PySide6.QtWidgets import QDialog, QFormLayout
+
+    source = tmp_path / "cat"
+    source.mkdir()
+    _catalogue(source)
+    prefs._set_show_alpha_features(True)
+    prefs._set_plugin_catalogue(str(source))
+    dialog = QDialog()
+    qtbot.addWidget(dialog)
+    page = prefs._PluginCataloguePage(QFormLayout(dialog), dialog)
+    assert not page.open_button.isEnabled()
+    page._select_key("catalogue_probe")
+    assert not page.open_button.isEnabled()
+    assert not page._open_selected()
+    page._select_key("toxo_infection")
+    assert not page.open_button.isEnabled()
+    assert page.install_selected()
+    assert page.open_button.isEnabled()
+    Path(plugins._catalogue_installed()["toxo_infection"]["path"]).unlink()
+    dialog.show()
+
+    assert not page._open_selected()
+    assert "settings file not found" in page.status.text()
+    assert dialog.isVisible()
+    prefs._set_show_alpha_features(False)
+    assert not page._open_selected()
