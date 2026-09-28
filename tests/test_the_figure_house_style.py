@@ -35,6 +35,32 @@ from spacr.figures.panels import label_series
 from spacr.figures.style import INK_PRINT, INK_SCREEN, ROLES, TRANSPARENT
 
 
+@pytest.mark.parametrize("target", ["screen", "print"])
+@pytest.mark.parametrize("fails", [False, True])
+def test_subplot_context_styles_later_artists_and_restores_globals(
+        monkeypatch, target, fails):
+    from spacr.figures import style
+
+    monkeypatch.setattr(style, "theme_target", lambda: target)
+    before = dict(plt.rcParams)
+    figure = None
+    try:
+        try:
+            with style._figure_axes(1, 2, squeeze=False) as (figure, axes):
+                assert axes.shape == (1, 2)
+                title = axes[0, 1].set_title("An artist created after the axes")
+                assert title.get_color() == style.resolve_ink(target)
+                assert plt.rcParams["text.color"] == style.resolve_ink(target)
+                if fails:
+                    raise RuntimeError("drawing failed")
+        except RuntimeError as error:
+            assert fails and str(error) == "drawing failed"
+        assert dict(plt.rcParams) == before
+    finally:
+        if figure is not None:
+            plt.close(figure)
+
+
 def _results(n=400, seed=0, with_q=True):
     """A coefficient table shaped like the real one."""
     rng = np.random.default_rng(seed)

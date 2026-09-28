@@ -110,9 +110,10 @@ HOST_PATHOGEN_EXAMPLE_REPO = "einarolafsson/spacr-example-host-pathogen"
 IMPORT_EXAMPLE_REPO = _IMPORT_EXAMPLE_REPO
 
 #: The Invasion Assay's example, and it is SYNTHETIC. No real two-colour
-#: differential-staining acquisition exists to publish, so the fields are
-#: synthetic and clearly labelled. The object masks are the drawn objects,
-#: not a Cellpose segmentation; spaCR's own Measure makes the database. See
+#: differential-staining acquisition was available when the set was prepared.
+#: The fields are drawn, Mask segments them with Cellpose-SAM, and Measure
+#: makes the database. Ground truth records the drawn objects, not the masks.
+#: The versioned cache keeps earlier drawn-mask examples intact. See
 #: ``tools/build_invasion_example_dataset.py``.
 INVASION_EXAMPLE_REPO = "einarolafsson/spacr-example-invasion"
 #: The optical pooled screen's example: two sequencing fields of one well of a
@@ -315,12 +316,12 @@ EXAMPLE_SETS: Tuple[ExampleSet, ...] = (
     ExampleSet(
         key="invasion",
         repo=INVASION_EXAMPLE_REPO,
-        summary="Invasion Assay example, SYNTHETIC: two-colour fields and "
-                "masks drawn by spaCR, then measured by Measure.",
+        summary="Invasion Assay example, SYNTHETIC: two-colour images drawn "
+                "by spaCR, segmented by Mask, then measured by Measure.",
         bytes=107_000_000,
         markers=("measurements/measurements.db",
                  "settings/invasion_settings.csv"),
-        folder="invasion",
+        folder="invasion_segmented_v1",
     ),
     ExampleSet(
         key="stitch",

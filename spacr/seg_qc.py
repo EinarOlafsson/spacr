@@ -2616,7 +2616,7 @@ def _format_robustness(summary, object_type: str, tolerance: float) -> str:
 
 def _robustness_figure(summary, tolerance: float, object_type: str):
     """A heatmap of each grid point's change in each metric, fragile rows marked."""
-    import matplotlib.pyplot as plt
+    from .figures.style import _figure_axes
 
     columns = [f"{metric}_change" for metric in _ROBUSTNESS_METRICS]
     values = np.abs(summary[columns].to_numpy(float))
@@ -2625,19 +2625,19 @@ def _robustness_figure(summary, tolerance: float, object_type: str):
     shown = np.where(np.isfinite(values), values, 2.0 * tolerance)
     labels = [f"{'! ' if f else ''}{p} {v}" for p, v, f in
               zip(summary["parameter"], summary["value"], summary["fragile"])]
-    figure, axis = plt.subplots(figsize=(6, 0.4 * len(labels) + 1.6))
-    image = axis.imshow(shown, cmap="magma_r", vmin=0, vmax=max(2.0 * tolerance, 1e-6),
-                        aspect="auto")
-    axis.set_xticks(range(4))
-    axis.set_xticklabels(["count", "median area", "mean intensity", "objects lost"])
-    axis.set_yticks(range(len(labels)))
-    axis.set_yticklabels(labels, fontsize=8)
-    for (row, col), value in np.ndenumerate(values):
-        text = _change_pct(value)
-        axis.text(col, row, text, ha="center", va="center", fontsize=7,
-                  color="white" if shown[row, col] > tolerance else "black")
-    figure.colorbar(image, ax=axis, label="change from the run's settings")
-    axis.set_title(f"{object_type} segmentation robustness (! = over {_pct(tolerance)})",
-                   fontsize=9)
-    figure.tight_layout()
+    with _figure_axes(figsize=(6, 0.4 * len(labels) + 1.6)) as (figure, axis):
+        image = axis.imshow(shown, cmap="magma_r", vmin=0, vmax=max(2.0 * tolerance, 1e-6),
+                            aspect="auto")
+        axis.set_xticks(range(4))
+        axis.set_xticklabels(["count", "median area", "mean intensity", "objects lost"])
+        axis.set_yticks(range(len(labels)))
+        axis.set_yticklabels(labels, fontsize=8)
+        for (row, col), value in np.ndenumerate(values):
+            text = _change_pct(value)
+            axis.text(col, row, text, ha="center", va="center", fontsize=7,
+                      color="white" if shown[row, col] > tolerance else "black")
+        figure.colorbar(image, ax=axis, label="change from the run's settings")
+        axis.set_title(f"{object_type} segmentation robustness (! = over {_pct(tolerance)})",
+                       fontsize=9)
+        figure.tight_layout()
     return figure

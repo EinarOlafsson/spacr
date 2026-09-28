@@ -56,8 +56,6 @@ class ShareDialog(QDialog):
             form.addRow(label, edit)
         outer.addLayout(form)
 
-        # Optional training data. A model whose data came with it can be
-        # retrained and checked; one without it can only be believed.
         self._train_dir = ""
         train_row = QHBoxLayout()
         self._train_label = QLabel("No training data attached (optional)", self)

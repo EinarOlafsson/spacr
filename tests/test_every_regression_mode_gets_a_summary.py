@@ -411,7 +411,7 @@ def test_the_design_counts_come_from_the_run_folder(run_folder):
     assert summary.field("n_wells").value.startswith("24 distinct")
     assert summary.field("n_guides").value.startswith("12 distinct")
     assert summary.field("n_genes").value.startswith("4 distinct")
-    assert summary.field("n_rows_fitted").value.startswith("72 rows")
+    assert summary.field("n_rows_prepared").value.startswith("72 rows")
 
 
 def test_without_a_run_folder_the_counts_say_why_rather_than_zero(tmp_path):

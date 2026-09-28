@@ -1,13 +1,14 @@
 {
   "lesson": "04_platform_installers",
-  "english_sha256": "67f5f50b34186ea7d27a9be6536fcc4fd4c7d6877dd0ad4bf2283093344441c0",
+  "english_sha256": "5733777916561df1997773e74a43ef023771a98798aa3d7a9fb2be87e92b4f63",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review (Codex insertion), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 original installer and Home translations retained; Codex checked reuse of unchanged Home Performance narration.",
+    "date": "2026-09-27",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Only the Performance scene was inserted before the Home handoff; all original ten scene translations and lesson metadata preserved."
   },
   "language": "es",
   "title": "Instalar spaCR con un instalador de escritorio",
@@ -26,6 +27,7 @@
     "Tras la configuración, el perfil de instalación registra el backend seleccionado. Consúltalo cuando quieras confirmar si el entorno de ejecución usa la CPU o un acelerador compatible.",
     "Comprueba la versión instalada de spaCR. Guárdala con tus notas de análisis, sobre todo cuando actualices la aplicación más adelante.",
     "La configuración pregunta por el envío opcional de diagnósticos y por la configuración de una cuenta. Responde y solo para las opciones que quieras; n, la opción predeterminada, deja cada una desactivada. El instalador de Windows muestra las mismas opciones como casillas.",
+    "En Preferences, elige un perfil de Performance para tu ordenador. Laptop usa menos recursos; los perfiles más altos permiten más caché y más trabajo en segundo plano. Empieza con un perfil modesto si la memoria es limitada. Los ajustes de tus análisis siguen bajo tu control en cada módulo.",
     "Cuando se abra Home, continúa con el tutorial de Home. Muestra cómo abrir un módulo, encontrar datos de prueba y elegir un flujo de trabajo para tu experimento.",
     "Si el inicio o un formato de archivo necesitan atención, ejecuta spacr-doctor desde el entorno instalado. Enumera cada comprobación con una solución sugerida. En esta instalación solo con CPU, la comprobación de GPU falla como es de esperar, y la comprobación de PATH señala el propio lanzador spacr del instalador, que inicia este mismo entorno, así que aquí no hace falta cambiar nada.",
     "Si hay problemas de instalación, busca install punto log e install-profile punto json en la carpeta de instalación. Revisa los registros antes de compartirlos en una solicitud de soporte. Incluye tu sistema operativo y la versión de spaCR para que el problema sea más fácil de diagnosticar."

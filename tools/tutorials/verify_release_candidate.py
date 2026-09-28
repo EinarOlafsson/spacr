@@ -117,7 +117,9 @@ def verify(root, *, placeholders_only=False, published=None):
 
     try:
         with sync_playwright() as engine:
-            browser = engine.chromium.launch(executable_path='/opt/google/chrome/chrome', headless=True)
+            browser = engine.chromium.launch(
+                executable_path='/opt/google/chrome/chrome', headless=True,
+                args=['--disable-gpu', '--disable-accelerated-video-decode'])
             def context(language='en', width=1440):
                 ctx = browser.new_context(viewport={'width': width, 'height': 1100})
                 def no_remote(route):

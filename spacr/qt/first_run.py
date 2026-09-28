@@ -373,9 +373,6 @@ class _TourOverlay(QWidget):
         :returns: whatever the base filter returns -- the resize is observed,
             never consumed.
         """
-        # getattr: the overlay and its window are a reference cycle, so the
-        # collector can clear this wrapper before the window's destructor
-        # reaches the filter.
         window = getattr(self, "_window", None)
         if window is not None and obj is window \
                 and event.type() in (QEvent.Resize, QEvent.Move):

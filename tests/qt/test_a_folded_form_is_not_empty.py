@@ -30,9 +30,10 @@ SETTINGS_FOLDS = {
 
 
 @pytest.mark.parametrize("key,floor", sorted(SETTINGS_FOLDS.items()))
-def test_a_folded_settings_page_still_has_its_settings(qapp, key, floor):
+def test_a_folded_settings_page_still_has_its_settings(qtbot, key, floor):
     """The page opens on a real form, not on an empty one."""
     screen = build_settings_screen(key, None)
+    qtbot.addWidget(screen)
     rows = screen._settings_model.collect()
     assert len(rows) >= floor, (
         f"{key}: the folded page offers {len(rows)} settings. Its row is "

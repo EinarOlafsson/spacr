@@ -452,13 +452,6 @@
     },
     {
       "table": "ui",
-      "key": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
-      "source": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
-      "translation": "Dix champs du jeu de données utilisé pour entraîner un modèle publié, avec les masques d'entraînement correspondants. Ils s'ouvrent pour être modifiés : vous voyez donc les données réellement vues par le modèle.",
-      "source_sha256": "61fb84ed081b8c8413729fdc89c1b447cd521bcb0e21ade11b035450df3efaa3"
-    },
-    {
-      "table": "ui",
       "key": "Test on my folder",
       "source": "Test on my folder",
       "translation": "Tester sur mon dossier",
@@ -554,6 +547,14 @@
         "source_sha256": "252e31bc85e4bd0da5351ee1cbe0507aed2b3727b9718f8b343b902619e88776"
       },
       "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "table": "ui",
+      "key": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
+      "source": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
+      "translation": "Dix champs du jeu de données utilisé pour entraîner un modèle publié, avec les masques d'entraînement correspondants. Ils s'ouvrent pour être modifiés : vous voyez donc les données réellement vues par le modèle.",
+      "source_sha256": "61fb84ed081b8c8413729fdc89c1b447cd521bcb0e21ade11b035450df3efaa3"
     }
-  ]
+  ],
+  "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27."
 }

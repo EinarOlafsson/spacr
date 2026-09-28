@@ -201,7 +201,8 @@ def record_manager(app, window, stage, captures, capture, settle, write_json, ti
     try:
         action = next(a for a in window.menuBar().actions() if a.text().replace('&', '') == 'Help')
         menu = action.menu()
-        choices = [a for a in menu.actions() if a.text().replace('&', '') == 'Data manager']
+        choices = [a for a in menu.actions()
+                   if a.text().replace('&', '').casefold() == 'data manager']
         if len(choices) != 1:
             raise ValueError('No unique Help -> Data manager route')
         QTest.mouseClick(window.menuBar(), Qt.LeftButton,

@@ -1,0 +1,148 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI technical review (Codex), no native-speaker signoff",
+  "note": "Direct AI translation and technical review against the current English runtime source and adjacent code context. Format fields and technical identities retained. The empty-result caption makes the per-replicate wells hierarchy explicit, following the adjacent shared tooltip and planner semantics. No native-speaker signoff; no external translation service used.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "spaCR can tell you when a long run finishes or fails: on this computer's desktop, by email, in Slack or Microsoft Teams, through ntfy or a webhook. Nothing is sent until you switch it on here. Passwords and addresses that work like passwords are kept in the system keyring.",
+      "source": "spaCR can tell you when a long run finishes or fails: on this computer's desktop, by email, in Slack or Microsoft Teams, through ntfy or a webhook. Nothing is sent until you switch it on here. Passwords and addresses that work like passwords are kept in the system keyring.",
+      "source_sha256": "d38a6a538fb06ee8ee9499d2b2876d0a564a98f38ef962ea692a552be76e81e0",
+      "translation": "spaCR kann Ihnen mitteilen, wenn ein langer Lauf endet oder fehlschlägt: auf dem Desktop dieses Computers, per E-Mail, in Slack oder Microsoft Teams, über ntfy oder einen Webhook. Nichts wird gesendet, bis Sie es hier aktivieren. Passwörter und Adressen, die wie Passwörter wirken, werden im Schlüsselbund des Systems aufbewahrt."
+    },
+    {
+      "table": "ui",
+      "key": "Post an Adaptive Card to a Microsoft Teams channel or chat through a workflow webhook. Default off.",
+      "source": "Post an Adaptive Card to a Microsoft Teams channel or chat through a workflow webhook. Default off.",
+      "source_sha256": "a6d993d95072530b1241dc409a8cb4236e5234955a9cf4b677fa6274f8a646dc",
+      "translation": "Eine Adaptive Card über einen Workflow-Webhook in einem Microsoft Teams-Kanal oder -Chat veröffentlichen. Standardmäßig aus."
+    },
+    {
+      "table": "ui",
+      "key": "The webhook address from a Teams workflow configured to allow Anyone to call it. Anyone with the address can post, so it is kept like a password. Leave empty to keep the saved one. Default empty.",
+      "source": "The webhook address from a Teams workflow configured to allow Anyone to call it. Anyone with the address can post, so it is kept like a password. Leave empty to keep the saved one. Default empty.",
+      "source_sha256": "5e98d1b71d697540e0926dac0d691cf682054cd59a55aae56585018886e0af77",
+      "translation": "Die Webhook-Adresse eines Teams-Workflows, der so eingerichtet ist, dass Anyone ihn aufrufen darf. Jede Person mit der Adresse kann Nachrichten veröffentlichen; deshalb wird sie wie ein Passwort aufbewahrt. Leer lassen, um die gespeicherte Adresse beizubehalten. Standard leer."
+    },
+    {
+      "table": "ui",
+      "key": "Teams webhook",
+      "source": "Teams webhook",
+      "source_sha256": "523081b681fe39a4a5dcab47b001577dfe437e08d587784b2d99767c3a9c4ee9",
+      "translation": "Teams-Webhook"
+    },
+    {
+      "table": "ui",
+      "key": "Webhook",
+      "source": "Webhook",
+      "source_sha256": "4814f62c108d82de42a65c515d56fc220b7fe8521510fd128919664daaa167bb",
+      "translation": "Benachrichtigungs-Webhook"
+    },
+    {
+      "table": "ui",
+      "key": "Send a JSON object with title, body and failed fields to the webhook below. The body contains the run summary and output path; failed is true when the run failed. Default off.",
+      "source": "Send a JSON object with title, body and failed fields to the webhook below. The body contains the run summary and output path; failed is true when the run failed. Default off.",
+      "source_sha256": "05cdc1e8fdf4addf210064b30dac90e16da5256081d1562d74c28b9c6e6df6d2",
+      "translation": "Ein JSON-Objekt mit den Feldern title, body und failed an den Webhook unten senden. body enthält die Zusammenfassung des Laufs und den Ausgabepfad; failed ist true, wenn der Lauf fehlgeschlagen ist. Standardmäßig aus."
+    },
+    {
+      "table": "ui",
+      "key": "The HTTP or HTTPS address that receives the JSON notification. Kept like a password because webhook addresses can contain access keys. Leave empty to keep the saved one. Default empty.",
+      "source": "The HTTP or HTTPS address that receives the JSON notification. Kept like a password because webhook addresses can contain access keys. Leave empty to keep the saved one. Default empty.",
+      "source_sha256": "4c0cb28108347b3b562e19a86b74e079236efbc3f496de7fa6851cfbc2fdcf5c",
+      "translation": "Die HTTP- oder HTTPS-Adresse, die die JSON-Benachrichtigung empfängt. Sie wird wie ein Passwort aufbewahrt, weil Webhook-Adressen Zugriffsschlüssel enthalten können. Leer lassen, um die gespeicherte Adresse beizubehalten. Standard leer."
+    },
+    {
+      "table": "ui",
+      "key": "Webhook address",
+      "source": "Webhook address",
+      "source_sha256": "18012b843143b06546935b95ce2827022d1945bd9abaa396ba3193cdde00d268",
+      "translation": "Webhook-Adresse"
+    },
+    {
+      "table": "ui",
+      "key": "An optional bearer token for the webhook. Kept like a password. Leave empty to keep the saved one. Default empty.",
+      "source": "An optional bearer token for the webhook. Kept like a password. Leave empty to keep the saved one. Default empty.",
+      "source_sha256": "3be3c528703397b324bfe168165ea594188bd13d57ab0174a1a830c3484087da",
+      "translation": "Ein optionales Bearer-Token für den Webhook. Wird wie ein Passwort aufbewahrt. Leer lassen, um das gespeicherte Token beizubehalten. Standard leer."
+    },
+    {
+      "table": "ui",
+      "key": "Webhook access token",
+      "source": "Webhook access token",
+      "source_sha256": "c9bf9a69746d024cb45c3167f36f083f8e3c8b09e7b5babf71b949d2993385e8",
+      "translation": "Webhook-Zugriffstoken"
+    },
+    {
+      "table": "ui",
+      "key": "Delete all saved notification passwords, webhook addresses, topics and tokens from the keyring and from spaCR's own file, at once. Default kept.",
+      "source": "Delete all saved notification passwords, webhook addresses, topics and tokens from the keyring and from spaCR's own file, at once. Default kept.",
+      "source_sha256": "0288ec581c62a0646f6437a269baf99cd5cc21721b0e64c5cc97739afb3510af",
+      "translation": "Alle gespeicherten Benachrichtigungspasswörter, Webhook-Adressen, Themen und Tokens gleichzeitig aus dem Schlüsselbund und aus der eigenen Datei von spaCR löschen. Standardmäßig beibehalten."
+    },
+    {
+      "table": "ui",
+      "key": "Replicate cost",
+      "source": "Replicate cost",
+      "source_sha256": "a72f91f668f3869195f291c1e06d5e681c46431f79e3cfbbd8bebb31a79c5a43",
+      "translation": "Kosten pro Replikat"
+    },
+    {
+      "table": "ui",
+      "key": "Well cost",
+      "source": "Well cost",
+      "source_sha256": "94cb7ed27ccbe00725817f7adce54948eaadf1741e3aae35742c625dcbd15423",
+      "translation": "Kosten pro Well"
+    },
+    {
+      "table": "ui",
+      "key": "Field cost",
+      "source": "Field cost",
+      "source_sha256": "bd7750c94fa3b6c5bc7d92dcd90b76b2cba056585c885433168c4958d5c8bf45",
+      "translation": "Kosten pro Bildfeld"
+    },
+    {
+      "table": "ui",
+      "key": "Relative cost per condition: one replicate, one well within a replicate, or one field within a well. Use common units; zero ignores this cost. Default {default:g}.",
+      "source": "Relative cost per condition: one replicate, one well within a replicate, or one field within a well. Use common units; zero ignores this cost. Default {default:g}.",
+      "source_sha256": "a64f3c811be6caf3663ac5403cd510504dc7acacf394f46a738cc3ec07769322",
+      "translation": "Relative Kosten pro Bedingung: ein Replikat, ein Well innerhalb eines Replikats oder ein Bildfeld innerhalb eines Wells. Alle Kosten in derselben Einheit angeben; bei null werden diese Kosten ignoriert. Standard {default:g}."
+    },
+    {
+      "table": "ui",
+      "key": "Maximum replicates",
+      "source": "Maximum replicates",
+      "source_sha256": "ce1dd2746f3a8b8a0af0e090282e491d39ea1e7dca20974dfdc978bf7a5671e9",
+      "translation": "Maximale Replikatzahl"
+    },
+    {
+      "table": "ui",
+      "key": "Maximum wells per condition",
+      "source": "Maximum wells per condition",
+      "source_sha256": "10f8b6776761833a9cd9fb0d8ba861cdbbd1fcf6297e4f8715d9d58e5dc12662",
+      "translation": "Maximale Wells pro Bedingung"
+    },
+    {
+      "table": "ui",
+      "key": "Maximum fields per well",
+      "source": "Maximum fields per well",
+      "source_sha256": "0f16affb9b3a18265f0ed1bf4dd1463563632dc80d94932986f106b58bdff2aa",
+      "translation": "Maximale Bildfelder pro Well"
+    },
+    {
+      "table": "ui",
+      "key": "Largest count considered: biological replicates per condition, wells per condition per replicate, or fields per well. Default {default}.",
+      "source": "Largest count considered: biological replicates per condition, wells per condition per replicate, or fields per well. Default {default}.",
+      "source_sha256": "8612f7a5599f3ef21a9dedfedca00fb7630c3f982f6e11b3fa48312f144bc4c0",
+      "translation": "Größte berücksichtigte Anzahl: biologische Replikate pro Bedingung, Wells pro Bedingung und Replikat oder Bildfelder pro Well. Standard {default}."
+    },
+    {
+      "table": "ui",
+      "key": "No design within {replicates} replicates, {wells} wells per condition and {fields} fields per well reaches the target power.",
+      "source": "No design within {replicates} replicates, {wells} wells per condition and {fields} fields per well reaches the target power.",
+      "source_sha256": "ac59cfdd09e7786679c3aa7077c9ac0b94e3e98ac95aa8386c17a9fbaa157ac4",
+      "translation": "Kein Design mit höchstens {replicates} Replikaten, {wells} Wells pro Bedingung und Replikat sowie {fields} Bildfeldern pro Well erreicht die Ziel-Teststärke."
+    }
+  ]
+}

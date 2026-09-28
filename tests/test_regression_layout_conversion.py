@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import pytest
 
 from spacr.ml import _wide_fixed_effect_design, regression_model
 from spacr.regression_layout import (
@@ -143,3 +144,42 @@ def test_regression_layout_settings_are_explicit_and_backwards_compatible():
     assert settings["independent_variable_layout"] == "auto"
     assert settings["wide_predictor_columns"] == []
     assert settings["model_data_layout"] == "long"
+
+
+@pytest.mark.parametrize("layout, expected_rows", [("long", 6), ("wide", 3)])
+@pytest.mark.parametrize("level", ["grna", "gene"])
+def test_fit_counts_measure_the_cleaned_design_not_input_or_coefficients(
+        tmp_path, monkeypatch, layout, expected_rows, level):
+    from spacr import ml, plot
+
+    frame = _long_fractions()
+    frame.loc[frame["prc"] == "p1_r4_c1", "score"] = np.nan
+    monkeypatch.setattr(plot, "plot_histogram", lambda *args, **kwargs: None)
+    model, coefficients, kind = ml.regression(
+        frame, str(tmp_path / "screen.csv"), dependent_variable="score",
+        regression_type="ridge", level=level, model_data_layout=layout,
+        model_plate_position=False, qc=False, plot=False, draw_shared_panels=False)
+
+    counts = coefficients.attrs["fit_design"]
+    assert len(frame) == 8
+    assert counts["n_rows_fitted"] == expected_rows
+    assert counts["n_wells"] == 3
+    assert counts["n_guides"] == 2 and counts["n_genes"] == 2
+    assert counts["n_design_columns"] == model.n_features_in_
+    assert counts["layout"] == layout
+    assert kind == "ridge"
+
+
+def test_fit_counts_follow_rows_patsy_drops_after_response_cleaning(tmp_path, monkeypatch):
+    from spacr import ml, plot
+
+    frame = _long_fractions()
+    frame.loc[frame["prc"] == "p1_r4_c1", "score"] = np.nan
+    frame.loc[frame["prc"] == "p1_r3_c1", "rowID"] = None
+    monkeypatch.setattr(plot, "plot_histogram", lambda *args, **kwargs: None)
+    _model, coefficients, _kind = ml.regression(
+        frame, str(tmp_path / "screen.csv"), dependent_variable="score",
+        regression_type="ridge", level="grna", model_data_layout="long",
+        model_plate_position=True, qc=False, plot=False, draw_shared_panels=False)
+    assert coefficients.attrs["fit_design"]["n_rows_fitted"] == 4
+    assert coefficients.attrs["fit_design"]["n_wells"] == 2

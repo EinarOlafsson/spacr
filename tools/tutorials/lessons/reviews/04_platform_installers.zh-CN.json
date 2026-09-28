@@ -1,13 +1,14 @@
 {
   "lesson": "04_platform_installers",
-  "english_sha256": "67f5f50b34186ea7d27a9be6536fcc4fd4c7d6877dd0ad4bf2283093344441c0",
+  "english_sha256": "5733777916561df1997773e74a43ef023771a98798aa3d7a9fb2be87e92b4f63",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review (Codex insertion), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 original installer and Home translations retained; Codex checked reuse of unchanged Home Performance narration.",
+    "date": "2026-09-27",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Only the Performance scene was inserted before the Home handoff; all original ten scene translations and lesson metadata preserved."
   },
   "language": "zh-CN",
   "title": "使用桌面安装程序安装spaCR",
@@ -26,6 +27,7 @@
     "设置完成后，安装配置文件会记录所选的后端。当您想确认运行时使用的是CPU还是受支持的加速器时，请查看它。",
     "检查已安装的spaCR版本。把它记在分析笔记中，尤其是在以后更新应用程序时。",
     "设置过程会询问是否可选地共享诊断信息以及是否设置账户。只对您想要的选项回答y；默认的n会让每一项保持关闭。Windows安装程序以复选框形式显示同样的选项。",
+    "在Preferences中，为您的电脑选择一个Performance配置。Laptop占用的资源较少；更高的配置允许更多缓存和后台工作。如果内存有限，请从较低的配置开始。每个模块中的分析设置仍由您自己掌控。",
     "Home打开后，继续学习Home教程。它介绍如何打开模块、查找测试数据，以及为您的实验选择流程。",
     "如果启动或某种文件格式出现问题，请从已安装的运行时运行spacr-doctor。它会列出每项检查及建议的修复方法。在这个仅CPU的安装中，GPU检查按预期失败；PATH检查标记了安装程序自带的spacr启动器，它启动的正是同一个运行时，因此这里两者都无需更改。",
     "遇到安装问题时，请在安装目录中找到install点log和install-profile点json。在提交支持请求并共享日志之前，请先检查日志内容。请注明您的操作系统和spaCR版本，以便更容易诊断问题。"

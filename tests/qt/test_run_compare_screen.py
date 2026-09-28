@@ -322,6 +322,86 @@ def test_the_tab_labels_count_what_is_behind_them(compared):
     assert compared._tabs.tabText(2) == "Hits (1/1)"
 
 
+@pytest.mark.parametrize("comparison_fixture", ["compared", "incomparable"])
+def test_recorded_lock_evidence_is_visible_even_when_comparison_is_blocked(
+        request, tmp_path, monkeypatch, comparison_fixture):
+    """Two saved verdicts retain their identity and do not alter comparability."""
+    import json
+    from PySide6.QtCore import Qt
+    from spacr import run_journal as journal
+    from spacr.qt import preferences
+
+    root = tmp_path / "journal"
+    root.mkdir()
+    monkeypatch.setattr(journal, "runs_root", lambda: root)
+    monkeypatch.setattr(journal, "check_analysis_lock",
+                        lambda *a, **k: pytest.fail("must not recheck saved verdict"))
+    monkeypatch.setattr(preferences, "_get_show_alpha_features", lambda: False)
+    view = request.getfixturevalue(comparison_fixture)
+    expected = {}
+    for side, run, status in zip(
+            ("A", "B"), view.selected_runs(), ("verified", "post_hoc")):
+        recorded = {
+            "status": status, "summary": f"Saved {side} verdict <unchanged>.",
+            "lock_id": f"lock-{side}", "sha256": side.lower() * 64,
+            "locked_utc": "2026-09-25T12:00:00Z", "locked_by": "reviewer@host",
+            "unblinded_utc": "2026-09-26T12:00:00Z" if side == "B" else None,
+            "deviations": [{"key": "threshold", "locked": 0.1, "now": 0.2}]
+            if side == "B" else [],
+        }
+        directory = root / run.run_id
+        directory.mkdir()
+        (directory / "settings.json").write_text("{}")
+        (directory / "manifest.json").write_text(json.dumps({"analysis_lock": recorded}))
+        expected[side] = {"run_id": run.run_id, "analysis_lock": recorded}
+
+    result = view.compare()
+
+    assert result.comparable is (comparison_fixture == "compared")
+    assert json.loads(view._environment.toPlainText()) == expected
+    assert view._environment.isReadOnly()
+    assert view._analysis_lock_summary.textFormat() == Qt.PlainText
+    assert not view._analysis_lock_summary.isHidden()
+    for side, evidence in expected.items():
+        assert f"{side} · {evidence['run_id']}" in view._analysis_lock_summary.text()
+        assert evidence["analysis_lock"]["status"] in view._analysis_lock_summary.text()
+        assert evidence["analysis_lock"]["summary"] in view._analysis_lock_summary.text()
+
+
+def test_legacy_comparison_does_not_borrow_a_prefix_match_or_infer_a_verdict(
+        compared, tmp_path, monkeypatch):
+    """Missing and legacy manifests remain unknown; changing projects clears them."""
+    import json
+    from spacr import run_journal as journal
+
+    root = tmp_path / "journal"
+    root.mkdir()
+    monkeypatch.setattr(journal, "runs_root", lambda: root)
+    monkeypatch.setattr(journal, "check_analysis_lock",
+                        lambda *a, **k: pytest.fail("must not invent a verdict"))
+    a, b = compared.selected_runs()
+    for name, manifest in (
+            (a.run_id + "-other", {"analysis_lock": {"status": "verified"}}),
+            (b.run_id, {"status": "success"})):
+        directory = root / name
+        directory.mkdir()
+        (directory / "settings.json").write_text("{}")
+        (directory / "manifest.json").write_text(json.dumps(manifest))
+    compared.compare()
+
+    evidence = json.loads(compared._environment.toPlainText())
+    assert evidence == {"A": {"run_id": a.run_id, "analysis_lock": None},
+                        "B": {"run_id": b.run_id, "analysis_lock": None}}
+    assert compared._analysis_lock_summary.text().count("Status: None") == 2
+    assert "verified" not in compared._analysis_lock_summary.text()
+    assert "unlocked" not in compared._analysis_lock_summary.text()
+    empty = tmp_path / "empty-project"
+    empty.mkdir()
+    compared.load_project(str(empty))
+    assert compared._analysis_lock_summary.text() == ""
+    assert compared._environment.toPlainText() == ""
+
+
 def test_the_banner_carries_the_headline(compared):
     text = compared.verdict_text()
     assert "cell" in text and "-20.0%" in text

@@ -453,7 +453,7 @@ def _record_database(app, window, screen, stage, captures, capture, settle, writ
     if len(help_actions) != 1 or help_actions[0].menu() is None:
         raise RuntimeError('Expected one actual Help menu')
     menu = help_actions[0].menu()
-    choices = [a for a in menu.actions() if a.text().replace('&', '') == 'Database browser']
+    choices = [a for a in menu.actions() if a.text().replace('&', '').casefold() == 'database browser']
     if len(choices) != 1 or not choices[0].isEnabled():
         raise RuntimeError('The actual Help menu lacks Database browser')
     QTest.mouseClick(window.menuBar(), Qt.LeftButton,

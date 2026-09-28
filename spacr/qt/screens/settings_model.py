@@ -276,8 +276,6 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
                        "remove_background", "diameter", "resize", "width_height",
                        "target_size", "augment", "verbose"},
     "mask": {"pathogen_model"},
-    # Parallel GPU masks refuse timelapse and t_stack runs, so the Timelapse
-    # panel keeps both keys at their off/blank defaults without showing them.
     "timelapse": {"timelapse", "mask_parallel", "mask_gpu_indices",
                   "watch_folder", "watch_pipeline", "watch_measure_settings",
                   "watch_settle_seconds", "watch_poll_seconds",
@@ -1173,17 +1171,18 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
     ),
     "mask": (
         ("Input & Metadata", (
-            "src", "cloud_anonymous", "cloud_profile", "cloud_endpoint",
-            "cloud_cache", "cloud_wells", "cloud_fields", "cloud_level",
-            "cloud_results",
-            "cell_channel", "nucleus_channel", "pathogen_channel",
+            "src", "cell_channel", "nucleus_channel", "pathogen_channel",
             NUMBER_OF_ORGANELLES,
             "organelle_channel",
             *(f"{role}_channel" for role in ALL_ORGANELLE_ROLES[1:]),
-            # 404/405: which model segments every object channel above.
             "segmentation_backend",
             "channels", "magnification",
             "metadata_type", "custom_regex",
+        )),
+        ("Cloud", (
+            "cloud_anonymous", "cloud_profile", "cloud_endpoint",
+            "cloud_cache", "cloud_wells", "cloud_fields", "cloud_level",
+            "cloud_results",
         )),
         ("Workflow & Test Run", (
             "preprocess", "masks", "test_mode", "test_images", "resume",
@@ -1318,7 +1317,6 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             NUMBER_OF_ORGANELLES,
             "organelle_channel",
             *(f"{role}_channel" for role in ALL_ORGANELLE_ROLES[1:]),
-            # 404/405: which model segments every object channel above.
             "segmentation_backend",
             "channels", "magnification",
             "metadata_type", "custom_regex",
@@ -2896,6 +2894,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "reads plate, well and field out of the file names. Nothing "
         "segments correctly until the channel assignment and the naming "
         "convention here are right.",
+    "CLOUD":
+        "Cloud storage access, local cache, selected wells and fields, image "
+        "resolution, and result uploads. Use these settings when the source "
+        "is a remote storage address.",
     "WORKFLOW & TEST RUN":
         "Select the stages to execute, enable a small test run over a subset "
         "of fields, and configure resumption after interruption. Validate a "
@@ -6603,7 +6605,7 @@ class _CloudBrowserDialog(QDialog):
                  endpoint: str = "", parent: Optional[QWidget] = None) -> None:
         """Build the address row, the listing and the description."""
         super().__init__(parent)
-        from PySide6.QtWidgets import (QCheckBox, QDialogButtonBox,
+        from PySide6.QtWidgets import (QDialogButtonBox,
                                        QListWidget, QPlainTextEdit)
         from ..i18n import tr
 
@@ -6626,7 +6628,7 @@ class _CloudBrowserDialog(QDialog):
         go.clicked.connect(self.open_address)
         row.addWidget(go)
         layout.addLayout(row)
-        self.anonymous = QCheckBox(tr("Public data (no credentials)"), self)
+        self.anonymous = Toggle(tr("Public data (no credentials)"), self)
         self.anonymous.setChecked(bool(anonymous))
         layout.addWidget(self.anonymous)
         self.endpoint = QLineEdit(endpoint or "", self)
@@ -8719,6 +8721,11 @@ class SettingsWidgets:
         """
         self.app_key = app_key
         self._parent = parent
+        self._unmounted_control_owner = None
+        if parent is not None:
+            self._unmounted_control_owner = QWidget(parent)
+            self._unmounted_control_owner.setObjectName("UnmountedSettingsControls")
+            self._unmounted_control_owner.hide()
         #: Settings to build no widget for. See __init__'s docstring.
         self._skip_keys = frozenset(str(k) for k in (skip_keys or ()))
         from spacr.settings import organelle_slots_beyond_the_count
@@ -9042,6 +9049,9 @@ class SettingsWidgets:
                     if plan is None:
                         continue
                     widget = self._build_plain(plan)
+                    owner = getattr(self, "_unmounted_control_owner", self._parent)
+                    if owner is not None:
+                        widget.setParent(owner)
                     self._add_source_actions(key, widget)
                     attach_api_tooltip(widget, self.app_key, key,
                                        _descriptions=self._tooltips)
@@ -9517,16 +9527,30 @@ class SettingsWidgets:
 
         See :meth:`_route_control` for how it is chosen.
 
+        A parented model keeps unmounted controls under a hidden Qt-owned
+        host. Folded forms may omit rows after building them; parenting those
+        controls directly to the visible form would paint them over its rows.
+        A row layout reparents its control when it is actually mounted.
+
+        :param kind: the setting's declared control kind.
+        :param options: allowed choices or constraints from its declaration.
+        :param default: initial value for the control.
+        :param key: the setting name used to choose specialized controls.
         :returns: the control, or ``None`` when the kind has none.
         """
         route, what = self._route_control(kind, options, default, key)
         if route == "special":
-            return what()
-        if route == "plain":
+            widget = what()
+        elif route == "plain":
             widget = self._build_plain(what)
             self._add_source_actions(key, widget)
-            return widget
-        return None
+        else:
+            return None
+        owner = getattr(self, "_unmounted_control_owner", self._parent)
+        if (widget is not None and owner is not None
+                and widget.parent() in (None, self._parent)):
+            widget.setParent(owner)
+        return widget
 
     def _add_source_actions(self, key: str, widget: QWidget) -> None:
         """Give the ``src`` field of Make Masks and Measure a cloud browser.
@@ -10156,6 +10180,29 @@ class SettingsWidgets:
         from ... import _mask_workers
 
         count = _mask_workers._mask_gpu_count_for_controls()
+        _mask_workers._watch_mask_gpu_probe()
+        if count is None:
+            for control in (parallel, indices):
+                if control is not None:
+                    control.setEnabled(False)
+                    _apply_greyed_note(control, tr("Checking compatible GPUs…"))
+            if not getattr(self, "_mask_gpu_poll_pending", False):
+                self._mask_gpu_poll_pending = True
+                reference = weakref.ref(self)
+                timer = QTimer(parallel if parallel is not None else indices)
+                timer.setSingleShot(True)
+
+                def refresh():
+                    """Refresh surviving controls without extending the panel lifetime."""
+                    model = reference()
+                    if model is not None:
+                        model._mask_gpu_poll_pending = False
+                        model._refresh_mask_gpu_enablement()
+
+                timer.timeout.connect(refresh)
+                timer.timeout.connect(timer.deleteLater)
+                timer.start(100)
+            return
         if count < 2:
             note = tr(
                 "Needs two or more compatible CUDA or ROCm GPUs; {count} "
@@ -11553,6 +11600,11 @@ def retarget_field_tooltips(root: QWidget) -> int:
             carried = field.property(prop)
             if carried:
                 label.setProperty(prop, carried)
+        field._spacr_setting_label = label
+        pending = str(field.property(_PENDING_NOTE_PROPERTY) or "")
+        if pending:
+            label.setEnabled(field.isEnabled())
+            _note_on_label(label, pending)
         label.removeEventFilter(event_filter)
         label.installEventFilter(event_filter)
         field.setToolTip("")

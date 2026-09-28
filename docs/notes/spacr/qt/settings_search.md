@@ -266,3 +266,23 @@ Counted UPWARDS, off the widget tree, rather than by asking the screen for its h
 The count LINE is composed from the matching keys, not from these numbers, so a heading kept by a roll-up adds nothing to "Showing 1 of 119 settings." -- which is the part a reader checks, and the part that was true all along while the form showed nothing.
 
 `_apply_section_state` is the only caller, and it is given the rolled-up mapping rather than the raw one, so `_sections_kept` -- what the next `apply(reopen=False)` compares against -- is also in terms of headings that are really on the form.
+
+
+---
+
+# Notes from `spacr/qt/settings_search.py`
+
+Prose lifted out of `spacr/qt/settings_search.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## install
+
+### lines 1064-1071
+
+```python
+sizes = list(parent.sizes()) if scroll.isVisible() else []
+```
+
+THE SIZES ARE ONLY WORTH KEEPING ONCE THERE ARE SOME. A splitter that has never been laid out answers `sizes()` with pre-layout defaults, so restoring them after the insert would WRITE those defaults over the layout the first show is about to compute this file's own WATCH list warns about reading geometry before the layout settles. Installing before the screen is shown is the point of doing it early (item 380), so the unlaid case is the common one now rather than the exception.

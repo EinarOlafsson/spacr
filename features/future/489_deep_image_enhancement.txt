@@ -1,8 +1,25 @@
 489 — DEEP IMAGE ENHANCEMENT
 ===========================
-Status: DONE for the runtime 2026-09-25 (Compare/Apply, real crop and full-field
-CPU acceptance 2026-09-24; re-tested 2026-09-25). Owed to the docs lane: a
-guide section, three restoration captions' catalog rows, a tutorial/animation.
+Status: IN PROGRESS 2026-09-27. Runtime complete 2026-09-25 (Compare/Apply, real crop and full-field
+CPU acceptance 2026-09-24; re-tested 2026-09-25). Guide and current nine-locale
+runtime/API coverage verified 2026-09-27. Remaining: tutorial scenes and a
+restoration before/after animation; no additional runtime acceptance claimed.
+
+2026-09-27 documentation follow-up:
+docs/source/make_masks.rst now explains the isolated Cellpose 3 installation,
+model readiness, Denoise/Deblur/One-click choices, CPU/device behavior,
+Compare/Apply, float detection input, preserved originals and saved provenance.
+It does not advertise CARE/Noise2Void as ready engines or promise biological
+improvement. Full-source strict Sphinx dummy validation passed after correcting
+the new section underline. Current coverage remains 8,726/8,726 runtime entries
+and 11,865/11,865 API documents in all nine locales. AI technical review only,
+no native-speaker signoff. Full HTML build/deployment acceptance remains separate.
+
+Restoration controls are not alpha-gated. The future recording must still keep
+Show alpha features off and force SPACR_DEVICE=cpu while the training GPU is
+reserved. Existing lesson 14 has no restoration scene; its current English
+scenes must be preserved when the missing workflow is added. Receipt:
+features/data/489_490_guides_2026-09-27.json.
 
 Add opt-in network-based enhancement to Make Masks, with useful choices for
 different structures and acquisition noise. Research primary documentation and

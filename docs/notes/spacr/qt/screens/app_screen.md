@@ -4182,3 +4182,100 @@ _REPORTS_BEING_FILED: dict = {}
 The in-flight record was a set, and only `_on_report_filed_automatically` took anything out of it. `JobRunner` drops a result -- never calls `on_done` -- when `cancel()` has bumped the generation or the worker reports not-ok, which is what closing a screen does to a report in flight. The fingerprint then stayed in a module-level set for the rest of the process, and every later failure with that traceback, in any screen, printed "[issue] This error is being reported already" and filed nothing. The `submit() == False` fallback covered only a submit the runner refused outright.
 
 It now records when each report started and treats anything older than `REPORT_IN_FLIGHT_SECONDS` as gone. Two minutes: `gh auth token` is capped at 8 s and each API call at 20 s, so a report that has not come back inside that is not coming back, and the cost of being wrong is one duplicate search that finds the open issue and comments on it.
+
+
+---
+
+# Notes from `spacr/qt/screens/app_screen.py`
+
+Prose lifted out of `spacr/qt/screens/app_screen.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## Contents
+
+- [AppScreen.__init__](#appscreen__init__) (1 entry)
+- [AppScreen._mount_the_object_grid](#appscreen_mount_the_object_grid) (1 entry)
+- [AppScreen.apply_settings_that_came_with](#appscreenapply_settings_that_came_with) (4 entries)
+- [AppScreen.showEvent](#appscreenshowevent) (1 entry)
+
+## AppScreen.__init__
+
+### lines 1981-1983
+
+```python
+if self._ambient is None:
+```
+
+THE SWEEP IS UNCONDITIONAL (item 381). With no backdrop behind the containers, `page_fill` gives the page its own colour, so a transparent container shows the page and never the window's `bg`.
+
+## AppScreen._mount_the_object_grid
+
+### lines 2641-2646
+
+```python
+from ..theme import clear_container_surfaces
+```
+
+TAG WHAT WAS JUST MOUNTED (item 408). While the panel is being built the screen's own sweep comes later and covers this, but a Preferences save mounts it on a screen already on show, after every sweep: the table's viewport then painted `QPalette.Base`, opaque black, over the backdrop until the next show. Only this subtree -- the whole-screen sweep re-polishes 201 settings.
+
+## AppScreen.apply_settings_that_came_with
+
+### lines 5240-5241  _(unsure)_
+
+```python
+owner = self.window() if hasattr(self, "window") else None
+```
+
+A form rebuild detaches this widget before bulk application returns. Keep its owner so the report can reach the replacement's console.
+
+### lines 5243-5261
+
+```python
+roots = []
+```
+
+THE SHIPPED PACK FIRST, THEN THE PLATE'S OWN FOLDER.
+
+A completed run writes `<src>/settings/<name>.csv`
+
+`utils.save_settings`, with name='gen_mask_settings' for Mask -- and that is the same folder and the same filename this search looks in. `_EXAMPLE_SETTINGS_FILES` even lists the run's spelling FIRST, which its own comment says out loud: "a mask run saves `gen_mask_settings.csv`, the older pack shipped `gen_masks_settings.csv`".
+
+So on a cached example, once the user has run the module once, their own output sits under the preferred name and wins forever, because a cached example is never re-fetched. It cannot happen until you have used the thing once, which is why it only bites returning users.
+
+The download already separates them -- the plate unpacks to
+
+`<dest>/plate1` and the pack to `<dest>/settings`, a SIBLING that no run writes into -- so the fix is to look there first rather than to guess between two files with the same name.
+
+### lines 5270-5271
+
+```python
+loaded, report = settings_from_pack(self.app_key, root)
+```
+
+Do not override src here: Measure's pack points at /merged, which reanchor_example_paths preserves below the local plate.
+
+### lines 5275-5277
+
+```python
+supplied = set(report.applied)
+```
+
+The reader returns defaults too; an example import must not reset values the pack never supplied. A found pack remains authoritative even when all its keys were dropped.
+
+## AppScreen.showEvent
+
+### lines 8261-8277
+
+```python
+if not getattr(self, "_surfaces_cleared_on_show", False):
+```
+
+ONCE, ON THE FIRST SHOW, AND THIS IS THE BLACK BOX. `_clear_page_surfaces` runs during construction, and it tags what exists THEN. Anything a screen builds afterwards -- a section that mounts on demand, a grid the preferences turn on -- is never tagged, inherits the blanket ``QWidget { background-color: bg }`` rule, and paints the window colour as a solid rectangle over the backdrop.
+
+It looked intermittent because the repair was accidental:
+
+`refresh_ambient_background` re-tags, but only when the ambient preference actually CHANGED, and its docstring says so. Leaving the screen and coming back happened to take that path, so the box appeared on first open and was gone on the second -- which reads like a paint race and is not one.
+
+Guarded by a flag rather than run on every show: tagging walks every child and re-polishes it, and Mask carries 201 settings.

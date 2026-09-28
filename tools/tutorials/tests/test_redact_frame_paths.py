@@ -113,3 +113,12 @@ def test_changed_outside_counts_pixels_beyond_the_boxes():
     record = redact.Redaction(box=[0, 0, 4, 4], kind='k', font='f', size=1, fit_score=1, shift=0,
                               clipped_left=False, replacement_len=1, original_len=1)
     assert redact.changed_outside(before, after, [record]) == 1
+
+
+def test_account_inside_a_name_and_wrapped_rows():
+    [(start, end, token)] = redact.path_spans('/tmp/pytest-of-olafsson/pytest-8/x')
+    assert token.startswith('olafsson') and redact.neutral_path(token)[0] == 'user/pytest-8/x'
+    above = {'text': 'saved to /mnt/disk9/Someone/toxo', 'box': [100, 100, 900, 125]}
+    below = {'text': 'plasma_projects/tutorials/refresh_2026-09-09/runs/a', 'box': [100, 128, 900, 153]}
+    assert redact.is_continuation(below, [above, below])
+    assert not redact.is_continuation(above, [above, below])

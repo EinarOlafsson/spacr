@@ -813,3 +813,46 @@ LOG.warning("the Mandelbrot pattern needs the GPU renderer; "
 ```
 
 AND THE CPU CANNOT DRAW THIS ONE. Handing it to the CPU builder silently produced the orbit fold, because that is what its final `else` does -- so the user chose Mandelbrot and got something else with no indication anything had happened.
+
+
+---
+
+# Notes from `spacr/qt/widgets/fractal_travel.py`
+
+Prose lifted out of `spacr/qt/widgets/fractal_travel.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## Contents
+
+- [_join_on_destroy._join](#_join_on_destroy_join) (2 entries)
+- [_make_cpu_widget.CpuFractalWidget.__init__](#_make_cpu_widgetcpufractalwidget__init__) (1 entry)
+
+## _join_on_destroy._join
+
+### lines 931-937
+
+```python
+if quit_hook is None:
+```
+
+`quit_hook` is the widget's hook on the application's `aboutToQuit`, and it has to go with the widget. `shutdown` takes it down, but a backdrop freed WITH ITS SCREEN never runs `shutdown` -- a child deleted with its parent is not sent `closeEvent` -- so every screen teardown left one connection behind, holding its finished QThread until the application quit. The hook is a lambda over the thread alone, so taking it down still reaches nothing of the widget.
+
+### lines 948-949  _(unsure)_
+
+```python
+warnings.simplefilter("ignore", RuntimeWarning)
+```
+
+Already gone when `shutdown` ran first (the closeEvent path), and PySide reports that as a RuntimeWarning.
+
+## _make_cpu_widget.CpuFractalWidget.__init__
+
+### lines 1110-1112
+
+```python
+_join_on_destroy(self, self._thread, quit_hook=self._app_quit_join)
+```
+
+Handed to the destroy-time join as well, so a backdrop freed with its screen -- which never runs `shutdown` -- still takes its hook off `aboutToQuit`. See the comment in `_join_on_destroy`.

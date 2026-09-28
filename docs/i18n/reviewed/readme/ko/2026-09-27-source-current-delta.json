@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_method": "AI technical review (Codex), no native-speaker signoff",
+  "readme_source_sha256": "9d0fda10cabd97b52fb15570fd757bde3b43a36997655d9bb84b4523bb821445",
+  "scope": "Current-source delta only; prior translations and dated review records remain intact. Source-deleted duplicate paragraphs removed; section hierarchy aligned with English.",
+  "records": [
+    {
+      "label": "try",
+      "source": "Try spaCR",
+      "source_sha256": "2f251585454541a756ee2043266214a9b6c30cad902b126d3f9fe7b24bf7ae91",
+      "translation": "spaCR 사용해 보기"
+    },
+    {
+      "label": "examples",
+      "source": "Use **Load test data…** in Import, Make Masks, Annotate or an assay screen to download example data. From a terminal, use ``spacr-download``.",
+      "source_sha256": "cfe651c03b06fd4f9f6c52576f21b4344383ad9d51b1e32ef09dc15a471445b7",
+      "translation": "Import, Make Masks, Annotate 또는 분석 화면에서 **테스트 데이터 불러오기…**\\ 를 사용하여 예제 데이터를 다운로드합니다. 터미널에서는 ``spacr-download``\\ 를 사용합니다."
+    },
+    {
+      "label": "installer",
+      "source": "See the `installer guide <docs/source/installer_guide.rst>`_ for update, uninstall, offline and troubleshooting instructions, and `system requirements <docs/source/system_requirements.rst>`_ for workstation and server recommendations and the GPU compatibility tables.",
+      "source_sha256": "52066500237d2bb17c251bc26bd7b31af81e7c66928b99f4df96dfa3b6c5e108",
+      "translation": "업데이트, 제거, 오프라인 사용 및 문제 해결 지침은 `설치 안내서 <docs/source/installer_guide.rst>`_\\ 를 참조하십시오. 워크스테이션과 서버 권장 사항 및 GPU 호환성 표는 `시스템 요구 사항 <docs/source/system_requirements.rst>`_\\ 을 참조하십시오."
+    },
+    {
+      "label": "modules",
+      "source": "Every module with a Home tile, in Home's order: the six pipeline modules first, then the rest. Select a tile to open that module's API page.",
+      "source_sha256": "52d69df219fe19d55eeabc54bce5fe1fc6fc78253d68fc7a664682d47fbad11a",
+      "translation": "홈 화면에 타일이 있는 모든 모듈을 홈 화면 순서대로 표시합니다. 먼저 여섯 파이프라인 모듈이 나오고 나머지 모듈이 이어집니다. 타일을 선택하면 해당 모듈의 API 페이지가 열립니다."
+    },
+    {
+      "label": "tutorials",
+      "source": "`Interactive tutorials <https://einarolafsson.github.io/spacr/tutorials/>`_ — guided workflows from installation through hit investigation.",
+      "source_sha256": "8f80fac28aa3b8cda7b7019ac0cfe955b0f881f0b4d2d72cebcf5e82c3ac3a68",
+      "translation": "`대화형 튜토리얼 <https://einarolafsson.github.io/spacr/tutorials/>`_ — 설치부터 스크리닝 히트 조사까지 안내하는 작업 흐름."
+    },
+    {
+      "label": "models",
+      "source": "Models are hosted on each author's own Hugging Face account; ``spacr.model_zoo.publish_model`` uploads one and prints the catalogue row to add.",
+      "source_sha256": "b44169274ea3259eb8fe6c5473fa04ebe2935ec60afa2b72c63bbe16b1870d93",
+      "translation": "모델은 각 작성자의 Hugging Face 계정에 호스팅됩니다. ``spacr.model_zoo.publish_model``\\ 은 모델을 업로드하고 카탈로그에 추가할 행을 출력합니다."
+    },
+    {
+      "label": "performance",
+      "source": "Reads no project data. Times imports, numeric libraries, window construction and animation, and reports x86_64 emulation on Apple Silicon and NumPy's BLAS.",
+      "source_sha256": "1eb1d56ed0edb3b7714fe3d0049d5b5065c3b2574b1a343d606fdf507e27beb8",
+      "translation": "프로젝트 데이터를 읽지 않습니다. 가져오기, 수치 라이브러리, 창 구성 및 애니메이션에 걸리는 시간을 측정하고 Apple Silicon의 x86_64 에뮬레이션과 NumPy의 BLAS 구현 정보를 보고합니다."
+    },
+    {
+      "label": "api_alt",
+      "source": "API Documentation",
+      "source_sha256": "1cc77e60fcee8c4392cc52a2fdd1d9129beed4e6af97aca1b78ea61362c85247",
+      "translation": "API 문서"
+    }
+  ]
+}

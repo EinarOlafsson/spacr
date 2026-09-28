@@ -1,13 +1,14 @@
 {
   "lesson": "04_platform_installers",
-  "english_sha256": "67f5f50b34186ea7d27a9be6536fcc4fd4c7d6877dd0ad4bf2283093344441c0",
+  "english_sha256": "5733777916561df1997773e74a43ef023771a98798aa3d7a9fb2be87e92b4f63",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review (Codex insertion), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 original installer and Home translations retained; Codex checked reuse of unchanged Home Performance narration.",
+    "date": "2026-09-27",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Only the Performance scene was inserted before the Home handoff; all original ten scene translations and lesson metadata preserved."
   },
   "language": "ja",
   "title": "デスクトップインストーラーでspaCRをインストールする",
@@ -26,6 +27,7 @@
     "セットアップ後、インストールプロファイルに選択されたバックエンドが記録されます。ランタイムがCPUと対応アクセラレーターのどちらを使っているか確かめたいときに確認します。",
     "インストールされたspaCRのバージョンを確認します。特に後でアプリケーションを更新するときのために、解析メモに残しておきましょう。",
     "セットアップでは、診断情報の任意の共有とアカウント設定について尋ねられます。希望するオプションにだけyと答えます。既定のnでは、それぞれがオフのままになります。Windowsのインストーラーでは、同じ選択肢がチェックボックスで表示されます。",
+    "Preferencesで、お使いのコンピューターに合ったPerformanceプロファイルを選びます。Laptopは使用するリソースが少なく、上位のプロファイルほどキャッシュやバックグラウンド処理を多く使えます。メモリが限られている場合は、控えめなプロファイルから始めましょう。解析の設定は、各モジュールで引き続き自分で管理できます。",
     "Homeが開いたら、Homeのチュートリアルに進みます。モジュールの開き方、テストデータの見つけ方、実験に合ったパイプラインの選び方を説明しています。",
     "起動やファイル形式に問題がある場合は、インストールされたランタイムからspacr-doctorを実行します。各チェックが修正案とともに一覧表示されます。このCPUのみのインストールでは、GPUのチェックは想定どおり失敗します。PATHのチェックはインストーラー自身のspacrランチャーを指摘しますが、これは同じランタイムを起動するものなので、ここではどちらも変更は不要です。",
     "インストールで問題が起きたときは、インストールフォルダーにあるinstall ドット logとinstall-profile ドット jsonを探します。サポートを依頼する際に共有する前に、ログの内容を確認してください。問題を診断しやすいように、OSとspaCRのバージョンも添えましょう。"

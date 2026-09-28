@@ -1,13 +1,14 @@
 {
   "lesson": "73_parameter_sweep",
-  "english_sha256": "8f164d56e7d6d48b866022bb05940e29cf343154681c65517a51ce2676825346",
+  "english_sha256": "44292936fb6b522935dc2402151ddb2bba49786333975d2b8a683e271411e2a4",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 original translations retained; Codex translated and technically reviewed the corrected fitted-support scene.",
+    "date": "2026-09-27",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Only scene8 narration changed. The remaining nine scenes, metadata, scene IDs and statistical caveats are preserved."
   },
   "language": "hi",
   "title": "Parameter Sweep: सहेजे गए Regression परीक्षणों की तुलना करें",
@@ -27,7 +28,7 @@
     "पूरी हुई पंक्तियाँ देखें, फिर sweep_results.csv और हर परीक्षण की सेटिंग्स और गुणवत्ता नियंत्रण फ़ाइलें खोलें। दोनों दिखाए गए परीक्षण गणना पूरी करते हैं पर अनुमान जाँच में विफल होते हैं, इसलिए मॉडल चुनने के लिए केवल ok निष्पादन स्थिति काफ़ी नहीं है।",
     "पहली पंक्ति चुनें और Show figures for selected row पर क्लिक करें। गाइड परिणाम और अक्ष लेबल देखें। प्लॉट गुणांक तालिका से इंटरसेप्ट छोड़ देता है।",
     "जीन परिवार को अलग से देखने के लिए Level को Gene पर बदलें। गाइड दृश्य से तुलना करने से पहले उसकी पंक्तियाँ, प्रभाव और गुणवत्ता नियंत्रण परिणाम जाँचें।",
-    "वापस Guide पर जाएँ। नमूना समर्थन इनपुट और निदान फ़ाइलों से पढ़ें: उदाहरण में फ़िट की गई पंक्तियों का सारांश वेल नहीं, बल्कि आउटपुट गुणांक पंक्तियाँ गिनता है।",
+    "Guide पर वापस जाएँ। परीक्षण के सारांश में मॉडल फ़िट करने के लिए इस्तेमाल की गई पंक्तियों और अलग-अलग वेल की संख्या की तुलना करें। गाइड-स्तर और जीन-स्तर पर फ़िट किए गए मॉडल के लिए ये संख्याएँ अलग-अलग दर्ज की जाती हैं। ये संख्याएँ फ़िट के लिए उपलब्ध डेटा बताती हैं, सांख्यिकीय निष्कर्ष की गुणवत्ता नहीं।",
     "हर परीक्षण की सेटिंग्स, सारांश और गुणवत्ता नियंत्रण फ़ाइलें उसके चित्रों के साथ रखें। आगे की जाँच के लिए Regression Diagnostics, या स्क्रिप्ट से तुलना के लिए Python में SweepSpace और run_sweep इस्तेमाल करें।"
   ]
 }

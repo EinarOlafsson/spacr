@@ -131,12 +131,16 @@ def _settings_elsewhere():
 
 def _environment() -> dict:
     """Where this ran. A profile from one machine is a fact about it."""
+    from spacr.qt.timing import _hardware_profile
+
     return {
         "platform": platform.platform(),
         "python": platform.python_version(),
         "processor": platform.processor(),
         "cpu_count": os.cpu_count(),
-        "qt_platform": os.environ.get("QT_QPA_PLATFORM", "(default)"),
+        "qt_platform_requested": os.environ.get("QT_QPA_PLATFORM", "(default)"),
+        **_hardware_profile(),
+        "acceptance_scope": "diagnostic; no physical display or lower-end signoff",
         **_load(),
     }
 
@@ -564,6 +568,258 @@ def measure_magnifier(field_px: int = 1024, moves: int = 40) -> List[dict]:
     return rows
 
 
+def _surface(widget) -> dict:
+    """Describe the actual Qt surface, including clamping and HiDPI scale."""
+    return {
+        "logical_width": widget.width(),
+        "logical_height": widget.height(),
+        "device_pixel_ratio": float(widget.devicePixelRatioF()),
+        "fullscreen": widget.isFullScreen(),
+    }
+
+
+def _observe_activity(app, widget, seconds: float, action=None) -> dict:
+    """Measure Qt paints and event-loop gaps, never compositor presentations.
+
+    The optional pointer action runs inside the measured event loop. Action
+    failures propagate after the loop exits so a no-op cannot look fast.
+    """
+    from PySide6.QtCore import QEvent, QEventLoop, QObject, QTimer, Qt
+    from PySide6.QtWidgets import QWidget
+
+    class Paints(QObject):
+        """Observe real paint delivery without capturing or replacing it."""
+
+        def eventFilter(self, obj, event):
+            """Timestamp delivery and leave the widget's paint handler intact."""
+            if event.type() == QEvent.Type.Paint:
+                paints.append(time.perf_counter())
+            return False
+
+    paints, ticks, errors = [], [], []
+    action_ms = None
+    observer = Paints(widget)
+    observed = [widget, *widget.findChildren(QWidget)]
+    for target in observed:
+        target.installEventFilter(observer)
+    loop = QEventLoop()
+    timer = QTimer()
+    timer.setTimerType(Qt.TimerType.PreciseTimer)
+    timer.setInterval(8)
+
+    def tick():
+        """Timestamp event-loop service, independently of pointer actions."""
+        ticks.append(time.perf_counter())
+
+    def act():
+        """Time the actual input dispatch and preserve any failed witness."""
+        nonlocal action_ms
+        started = time.perf_counter()
+        try:
+            action()
+            app.processEvents()
+        except Exception as error:
+            errors.append(error)
+        action_ms = (time.perf_counter() - started) * 1000
+
+    timer.timeout.connect(tick)
+    started = time.perf_counter()
+    ticks.append(started)
+    timer.start()
+    action_timer = QTimer()
+    action_timer.setSingleShot(True)
+    if action is not None:
+        action_timer.timeout.connect(act)
+        action_timer.start(40)
+    stop = QTimer()
+    stop.setSingleShot(True)
+    stop.timeout.connect(loop.quit)
+    stop.start(max(100, round(seconds * 1000)))
+    try:
+        loop.exec()
+    finally:
+        timer.stop()
+        action_timer.stop()
+        stop.stop()
+        for target in observed:
+            target.removeEventFilter(observer)
+        observer.deleteLater()
+    elapsed = time.perf_counter() - started
+    ticks.append(started + elapsed)
+    if errors:
+        raise errors[0]
+    if action is not None and action_ms is None:
+        raise RuntimeError("the measured input action never ran")
+    gaps = [(b - a) * 1000 for a, b in zip(ticks, ticks[1:])]
+    return {
+        "seconds": round(elapsed, 4),
+        "qt_paints": len(paints),
+        "qt_paints_per_second": round(len(paints) / elapsed, 2),
+        "observed_widgets": len(observed),
+        "max_event_loop_gap_ms": round(max(gaps, default=0), 3),
+        "event_loop_sample_period_ms": 8,
+        "input_dispatch_and_events_ms": (
+            round(action_ms, 3) if action_ms is not None else None),
+        "frame_scope": "Qt subtree paint events; physical presented/dropped frames unknown",
+    }
+
+
+def _drag_splitter(splitter, app) -> dict:
+    """Drag a real handle and reject a locked or otherwise unchanged splitter."""
+    from PySide6.QtCore import QPoint, Qt
+    from PySide6.QtTest import QTest
+
+    handle = splitter.handle(1)
+    if not handle.isVisible():
+        raise RuntimeError("the splitter handle is not visible")
+    before = splitter.sizes()
+    direction = -1 if before[0] > sum(before) / 2 else 1
+    start = handle.rect().center()
+    delta = (QPoint(48 * direction, 0)
+             if splitter.orientation() == Qt.Orientation.Horizontal
+             else QPoint(0, 48 * direction))
+    QTest.mousePress(handle, Qt.MouseButton.LeftButton, pos=start, delay=0)
+    try:
+        QTest.mouseMove(handle, start + delta, delay=0)
+        app.processEvents()
+    finally:
+        QTest.mouseRelease(handle, Qt.MouseButton.LeftButton,
+                           pos=start + delta, delay=0)
+    after = splitter.sizes()
+    if before == after:
+        raise RuntimeError("the splitter drag did not change any pane size")
+    return {"pane_sizes_before": before, "pane_sizes_after": after}
+
+
+def measure_pointer_interaction(app_key: str = "mask") -> List[dict]:
+    """Measure real splitter movement and Home-grid hover with state witnesses."""
+    from PySide6.QtCore import QPoint
+    from PySide6.QtTest import QTest
+    from PySide6.QtWidgets import QApplication, QWidget
+    from spacr.qt.app import make_home_page
+    from spacr.qt.screens.app_screen import AppScreen
+
+    app = QApplication.instance() or QApplication([])
+    rows = []
+    panel = AppScreen(app_key=app_key)
+    try:
+        panel.resize(1600, 1000)
+        panel.show()
+        _drain_until_quiet(app)
+        splitter = panel._body_splitter
+        for repeat in range(3):
+            witness = {}
+
+            def drag():
+                """Keep before/after geometry from this measured drag."""
+                witness.update(_drag_splitter(splitter, app))
+
+            metrics = _observe_activity(app, panel, .2, drag)
+            rows.append({"measurement": "interaction", "action": "drag splitter",
+                         "screen": app_key, "repeat": repeat,
+                         **metrics, **witness, **_surface(panel)})
+    finally:
+        _shut_down(panel, app)
+
+    home = make_home_page()
+    try:
+        home.resize(1600, 1000)
+        home.show()
+        _drain_until_quiet(app)
+        tiles = [w for w in home.findChildren(QWidget)
+                 if w.property("moduleAppKey") and w.isVisible()
+                 and not w.visibleRegion().isEmpty()]
+        if len(tiles) < 2:
+            raise RuntimeError("Home must expose two actual module tiles")
+        for repeat in range(3):
+            tile = tiles[repeat % 2]
+            QTest.mouseMove(home, QPoint(1, 1), delay=0)
+            app.processEvents()
+            if home._hint_bar.module_key == tile.property("moduleAppKey"):
+                raise RuntimeError("the hover target was already active")
+
+            def hover():
+                """Deliver a pointer move and require the real hint-bar update."""
+                QTest.mouseMove(tile, tile.rect().center(), delay=0)
+                app.processEvents()
+                if home._hint_bar.module_key != tile.property("moduleAppKey"):
+                    raise RuntimeError("Home hover did not update its module hint")
+
+            metrics = _observe_activity(app, home, .2, hover)
+            rows.append({"measurement": "interaction", "action": "hover Home grid",
+                         "module": str(tile.property("moduleAppKey")),
+                         "repeat": repeat, **metrics, **_surface(home)})
+    finally:
+        _shut_down(home, app)
+    return rows
+
+
+def measure_screensaver(seconds: float = 3.0,
+                        themes: Optional[List[str]] = None) -> List[dict]:
+    """Compare the real CPU screensaver with the same backdrop windowed.
+
+    This opt-in measurement records unchanged quality/scale preferences and
+    explicitly selects CPU. The fullscreen row uses the actual display size;
+    requested 1080p/4K window sizes are never substituted for observed sizes.
+    """
+    from PySide6.QtWidgets import QApplication
+    from spacr.qt.preferences import (PALETTE_THEMES, apply_preferences_to_app,
+                                      get_fractal_settings, set_fractal_settings)
+    from spacr.qt.screensaver import Screensaver, show_screensaver
+
+    app = QApplication.instance() or QApplication([])
+    rows = []
+    previous_backend = get_fractal_settings()["backend"]
+    previous_theme = os.environ.get("SPACR_THEME")
+    try:
+        set_fractal_settings(backend="cpu")
+        for theme in themes or PALETTE_THEMES:
+            os.environ["SPACR_THEME"] = str(theme)
+            apply_preferences_to_app(app)
+            for size in (*SIZES, "actual fullscreen"):
+                if size == "actual fullscreen":
+                    window = show_screensaver()
+                else:
+                    window = Screensaver()
+                    window.resize(*SIZES[size])
+                    window.show()
+                if window is None:
+                    raise RuntimeError("the real screensaver failed to open")
+                backdrop = window._backdrop
+                try:
+                    app.processEvents()
+                    if backdrop is None or not hasattr(backdrop, "_frames"):
+                        raise RuntimeError("screensaver has no measurable CPU backdrop")
+                    if size == "actual fullscreen" and not window.isFullScreen():
+                        raise RuntimeError("screensaver did not enter fullscreen")
+                    before = backdrop._frames
+                    metrics = _observe_activity(app, backdrop, seconds)
+                    produced = backdrop._frames - before
+                    if produced <= 0 or backdrop._error:
+                        raise RuntimeError("screensaver produced no valid CPU frames")
+                    rows.append({"measurement": "screensaver", "theme": theme,
+                                 "size_requested": size,
+                                 "settings": get_fractal_settings(),
+                                 "rendered_frames": produced,
+                                 "render_surface": list(backdrop._render_size),
+                                 "render_ema_ms": 1000 * backdrop._render_ema,
+                                 **metrics, **_surface(window)})
+                finally:
+                    if backdrop is not None:
+                        shutdown = getattr(backdrop, "shutdown", None)
+                        if callable(shutdown):
+                            shutdown()
+                    window.close()
+                    app.processEvents()
+    finally:
+        set_fractal_settings(backend=previous_backend)
+        if previous_theme is None:
+            os.environ.pop("SPACR_THEME", None)
+        else:
+            os.environ["SPACR_THEME"] = previous_theme
+    return rows
+
+
 def _shut_down(screen, app) -> None:
     """Close a measured screen without taking the process with it.
 
@@ -595,8 +851,8 @@ def main(argv: Optional[List[str]] = None) -> int:
                         help="which module screen to measure on")
     parser.add_argument("--only",
                         choices=("backdrop", "theme", "interaction",
-                                 "magnifier"),
-                        help="run one measurement instead of all four")
+                                 "magnifier", "pointer", "screensaver"),
+                        help="run one measurement; pointer and CPU screensaver are opt-in")
     parser.add_argument("--field-px", type=int, default=1024,
                         help="the side of the field the magnifier is "
                              "measured on")
@@ -621,6 +877,10 @@ def main(argv: Optional[List[str]] = None) -> int:
             rows.extend(measure_interaction(args.screen))
         if args.only in (None, "magnifier"):
             rows.extend(measure_magnifier(args.field_px))
+        if args.only == "pointer":
+            rows.extend(measure_pointer_interaction(args.screen))
+        if args.only == "screensaver":
+            rows.extend(measure_screensaver(args.seconds))
 
     record = {
         "schema": SCHEMA,

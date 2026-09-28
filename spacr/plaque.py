@@ -1078,6 +1078,7 @@ def _colony_overlay_figure(result: Dict[str, Any], title: str = ""):
     """
     import matplotlib.pyplot as plt
     from skimage.segmentation import find_boundaries
+    from .figures.style import _figure_axes
 
     image = np.asarray(result["image"])
     shown = image.astype(np.float32)
@@ -1088,15 +1089,15 @@ def _colony_overlay_figure(result: Dict[str, Any], title: str = ""):
     shown = np.clip(shown / top, 0, 1)
     edges = find_boundaries(result["labels"], mode="outer")
     shown[edges] = (0.1, 1.0, 0.2)
-    figure, axis = plt.subplots(figsize=(6, 6))
-    axis.imshow(shown)
-    cx, cy = result["centre"]
-    axis.add_patch(plt.Circle((cx, cy), result["radius"], fill=False,
-                              color=(1.0, 0.85, 0.0), linewidth=1))
-    summary = result["summary"]
-    axis.set_title(f"{title}  {summary['colony_count']} colonies "
-                   f"({summary['count_flag']})".strip(), fontsize=9)
-    axis.set_axis_off()
+    with _figure_axes(figsize=(6, 6)) as (figure, axis):
+        axis.imshow(shown)
+        cx, cy = result["centre"]
+        axis.add_patch(plt.Circle((cx, cy), result["radius"], fill=False,
+                                  color=(1.0, 0.85, 0.0), linewidth=1))
+        summary = result["summary"]
+        axis.set_title(f"{title}  {summary['colony_count']} colonies "
+                       f"({summary['count_flag']})".strip(), fontsize=9)
+        axis.set_axis_off()
     return figure
 
 
@@ -1107,19 +1108,19 @@ def _colony_size_figure(colonies: Sequence[Dict[str, Any]]):
         ``diameter_mm`` when a scale was known and ``diameter_px`` always.
     :returns: the figure; millimetres when every colony has a scale.
     """
-    import matplotlib.pyplot as plt
+    from .figures.style import _figure_axes
 
     physical = bool(colonies) and all(
         row.get("diameter_mm") is not None for row in colonies)
     key = "diameter_mm" if physical else "diameter_px"
     values = np.array([row[key] for row in colonies], float)
-    figure, axis = plt.subplots(figsize=(5, 3.5))
-    if values.size:
-        axis.hist(values, bins=min(50, max(5, int(np.sqrt(values.size)))),
-                  color="#4c78a8")
-        axis.axvline(float(np.median(values)), color="#e45756", linewidth=1)
-    axis.set_xlabel("colony diameter (mm)" if physical else "colony diameter (px)")
-    axis.set_ylabel("colonies")
-    axis.set_title(f"{values.size} colonies", fontsize=9)
-    figure.tight_layout()
+    with _figure_axes(figsize=(5, 3.5)) as (figure, axis):
+        if values.size:
+            axis.hist(values, bins=min(50, max(5, int(np.sqrt(values.size)))),
+                      color="#4c78a8")
+            axis.axvline(float(np.median(values)), color="#e45756", linewidth=1)
+        axis.set_xlabel("colony diameter (mm)" if physical else "colony diameter (px)")
+        axis.set_ylabel("colonies")
+        axis.set_title(f"{values.size} colonies", fontsize=9)
+        figure.tight_layout()
     return figure

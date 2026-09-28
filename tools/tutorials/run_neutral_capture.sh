@@ -60,7 +60,8 @@ exec "$capture_repo/tools/run_capped.sh" "${SPACR_TUTORIAL_MEMORY_CAP:-6G}" \
     --ro-bind "$capture_repo" /tmp/spacr-code --chdir /tmp/spacr-code \
     --bind "$capture_stage" "$capture_mount" \
     --ro-bind "$capture_stage/passwd" /etc/passwd \
-    --unsetenv HOME --unsetenv USER --unsetenv LOGNAME -- \
+    --unsetenv HOME --unsetenv USER --unsetenv LOGNAME \
+    --unsetenv USERNAME --unsetenv SUDO_UID --unsetenv PKEXEC_UID -- \
     env CUDA_VISIBLE_DEVICES= PYTHONUNBUFFERED=1 \
     OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 MKL_NUM_THREADS=2 \
     xvfb-run -a -s '-screen 0 3840x2160x24' "$capture_python" \

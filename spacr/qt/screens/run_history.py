@@ -108,6 +108,20 @@ def _json_text(value: Any) -> str:
     return json.dumps(value, indent=2, sort_keys=True, default=str)
 
 
+def _analysis_lock_text(manifest: dict) -> str:
+    """Present only the verdict and summary recorded in a run manifest.
+
+    :param manifest: saved manifest, optionally containing ``analysis_lock``.
+    :returns: localized labels and the recorded values, or an empty-state label.
+    """
+    recorded = manifest.get("analysis_lock")
+    recorded = recorded if isinstance(recorded, dict) else {}
+    status = recorded.get("status") or tr("None")
+    summary = recorded.get("summary") or tr("None")
+    return (f"{tr('Lock')} · {tr('Status')}: {status}\n"
+            f"{tr('Summary')}: {summary}")
+
+
 #: ``objectName`` of the tab strip, and the name its QSS block is
 #: registered under. The tabs ARE the page on this screen, so they take
 #: Home's treatment — rounded top corners, a dark-grey tab, the accent
@@ -274,6 +288,12 @@ class RunHistoryScreen(QWidget):
         action_row.addWidget(self._load_settings)
         action_row.addWidget(self._export_workflow)
         detail_layout.addLayout(action_row)
+        self._analysis_lock_summary = QLabel(detail)
+        self._analysis_lock_summary.setObjectName("RunHistoryAnalysisLockSummary")
+        self._analysis_lock_summary.setTextFormat(Qt.PlainText)
+        self._analysis_lock_summary.setProperty("i18nSkipText", True)
+        self._analysis_lock_summary.setWordWrap(True)
+        detail_layout.addWidget(self._analysis_lock_summary)
         from ..preferences import _apply_alpha_widgets
 
         _apply_alpha_widgets(self._export_workflow)
@@ -527,6 +547,7 @@ class RunHistoryScreen(QWidget):
             self._clear_details()
             return
         perf = record.get("performance") or {}
+        manifest = record.get("manifest") or {}
         summary = {
             "run_id": record.get("run_id"),
             "module": record.get("app_key"),
@@ -543,6 +564,9 @@ class RunHistoryScreen(QWidget):
             "output_size": _bytes(perf.get("output_bytes")),
             "run_folder": str(record.get("dir")),
         }
+        if isinstance(manifest.get("analysis_lock"), dict):
+            summary["analysis_lock"] = manifest["analysis_lock"]
+        self._analysis_lock_summary.setText(_analysis_lock_text(manifest))
         self._selection_label.setText(
             f"{record.get('app_key')} · {record.get('status')} · "
             f"{record.get('run_id')}"
@@ -564,7 +588,6 @@ class RunHistoryScreen(QWidget):
             + (str(failure) if failure else "None.")
         )
         self._problems.setPlainText(problem_text)
-        manifest = record.get("manifest") or {}
         self._environment.setPlainText(_json_text({
             "environment": record.get("environment") or {},
             "seeds": manifest.get("seeds") or {},
@@ -585,6 +608,7 @@ class RunHistoryScreen(QWidget):
     def _clear_details(self) -> None:
         """Reset detail panes and actions when nothing is selected."""
         self._selection_label.setText("Select a run to inspect it.")
+        self._analysis_lock_summary.clear()
         for widget in (
             self._overview, self._settings, self._outputs, self._problems,
             self._environment,

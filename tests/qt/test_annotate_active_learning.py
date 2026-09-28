@@ -159,6 +159,17 @@ def test_open_object_request_reports_keys_this_database_does_not_have(screen):
     assert "1 of them are not in this database" in screen._page_label.text()
 
 
+def test_missing_child_crops_report_missing_instead_of_showing_other_cells(screen):
+    request = ObjectRequest(keys=["p1_r1_c1_f1_cell3", "p1_r1_c1_f1_nucleus1",
+                                  "p1_r1_c1_f1_pathogen2"],
+                            reason="selected family", source="lineage")
+    screen.open_object_request(request)
+    assert [os.path.basename(path) for path, _ in screen._page_paths] == [
+        "cell_03.png"]
+    assert screen._total == 1
+    assert "2 of them are not in this database" in screen._page_label.text()
+
+
 def test_an_empty_request_is_a_real_answer_not_an_exception(screen):
     request = ObjectRequest(keys=[], reason="no errors in this cell",
                             source="classifier_evaluation")

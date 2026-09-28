@@ -116,6 +116,7 @@ import os
 import re
 import threading
 import time
+import weakref
 from collections import deque
 from functools import partial
 from importlib.util import find_spec
@@ -623,6 +624,10 @@ class _StatusLabel(QLabel):
     def setText(self, text: str) -> None:
         """Show ``text``'s first line and report the whole of it once."""
         text = str(text or "")
+        owner_ref = getattr(self, "_blind_owner", None)
+        owner = owner_ref() if owner_ref is not None else None
+        if owner is not None:
+            text = owner._blind_text(text)
         changed = text != self._full
         self._show(text)
         if changed and text.strip() and not self._quiet:
@@ -8444,6 +8449,7 @@ class MakeMasksScreen(QWidget):
 
         outer_row.addStretch(1)
         self._status_label = _StatusLabel("Ready.")
+        self._status_label._blind_owner = weakref.ref(self)
         self._status_label.setObjectName("SubtitleSmall")
         self._status_label.said.connect(self._report_status)
         outer_row.addWidget(self._status_label)
@@ -9192,6 +9198,36 @@ class MakeMasksScreen(QWidget):
         code = self._blind["codes"].get(os.path.abspath(str(path)))
         return code or tr("uncoded field")
 
+    def _blind_text(self, text: str) -> str:
+        """Replace known source identifiers in displayed messages while blinded.
+
+        :param text: status, warning or confirmation text; stored paths are untouched.
+        :returns: text with field paths/names replaced by their codes and source
+            folders hidden. Identical names in different folders use a placeholder.
+        """
+        if self._blind is None:
+            return str(text)
+        from ..i18n import tr
+
+        replacements = {}
+        folders = set()
+        for path, code in self._blind["codes"].items():
+            folders.add(os.path.dirname(path))
+            for identifier in (path, os.path.basename(path),
+                               os.path.splitext(os.path.basename(path))[0]):
+                previous = replacements.get(identifier, code)
+                replacements[identifier] = (code if previous == code
+                                            else tr("uncoded field"))
+        for folder in folders:
+            for identifier in (folder, os.path.basename(folder)):
+                if identifier and identifier != os.path.sep:
+                    replacements[identifier] = tr("Blind")
+        if not replacements:
+            return str(text)
+        pattern = "|".join(re.escape(value) for value in
+                           sorted(replacements, key=len, reverse=True) if value)
+        return re.sub(pattern, lambda match: replacements[match.group()], str(text))
+
     def _start_blind(self) -> bool:
         """Shuffle the open fields under a new blinding key.
 
@@ -9219,6 +9255,9 @@ class MakeMasksScreen(QWidget):
                        key=lambda i: rank.get(paths[i], len(rank)))
         self._blind = {"key_id": key["key_id"], "codes": key["codes"],
                        "original": paths}
+        self._console_section.setProperty(
+            "_spacr_blind_visible", not self._console_section.isHidden())
+        self._console_section.hide()
         self._set_field_pairs([pairs[i] for i in order])
         self._current_index = 0
         self._set_blind_checked(True)
@@ -9242,6 +9281,7 @@ class MakeMasksScreen(QWidget):
 
         if ask is None:
             def ask():
+                """Confirm revealing field paths and recording the unblind event."""
                 return self._confirm(
                     tr("Unblind?"),
                     tr("Unblinding shows every field's file name and folder "
@@ -9278,6 +9318,9 @@ class MakeMasksScreen(QWidget):
         original = {path: index for index, path
                     in enumerate(self._blind["original"])}
         self._blind = None
+        self._console_section.setVisible(bool(
+            self._console_section.property("_spacr_blind_visible")))
+        self._console_section.setProperty("_spacr_blind_visible", None)
         self._set_blind_checked(False)
         pairs = self._field_pairs()
         current = (pairs[self._current_index]
@@ -11560,6 +11603,7 @@ class MakeMasksScreen(QWidget):
             install's own output) goes to the console only, which throttles
             it; the corner keeps the task's own words.
         """
+        text = self._blind_text(text)
         self._masks_console.post(text, kind)
         if kind != "stream":
             self._status_label.set_quietly(text)
@@ -14661,6 +14705,7 @@ class MakeMasksScreen(QWidget):
         message goes to the status line and the log, because a modal box
         under the offscreen/minimal platform plugin never returns.
         """
+        title, text = self._blind_text(title), self._blind_text(text)
         self._status_label.setText(f"{title}: {text}")
         if is_headless():
             LOG.warning("%s: %s", title, text)
@@ -14673,6 +14718,7 @@ class MakeMasksScreen(QWidget):
         Returns False when headless: with nobody to answer, the safe
         answer for an irreversible operation is "no".
         """
+        title, text = self._blind_text(title), self._blind_text(text)
         if is_headless():
             LOG.warning("%s: no display to confirm on — not proceeding", title)
             self._status_label.setText(

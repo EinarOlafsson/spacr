@@ -8,14 +8,13 @@ module was developed and taught on, but as IMAGES that spaCR's own Measure
 turns into a real ``measurements.db``.
 
 THE MASKS ARE THE DRAWN OBJECTS BY DEFAULT, NOT A CELLPOSE SEGMENTATION.
-``--segment`` runs spaCR's Mask (Cellpose-SAM) over the images instead, and
-that is the better example -- but on CPU it did not finish one plate row in
-40 minutes (2026-09-21, machine load 36 on 32 cores): the 10-px parasites
-make Cellpose upscale the pathogen channel threefold. The GPU was shared and
-not to be used. So the published set carries the generator's own label discs
-in exactly the planes Mask would have written, and Measure -- the step that
-makes the database -- is spaCR's, unchanged. Rebuild with ``--segment`` on a
-free GPU to replace them.
+``--segment`` runs spaCR's Mask (Cellpose-SAM) over the same images instead.
+Use it to reproduce the published segmented example. Without it, the archive
+contains the generator's label discs in the planes Mask would have written.
+Both modes use spaCR's Measure to make the database and preserve the drawn
+objects in ``ground_truth.csv``; the dataset card identifies the chosen mode.
+The small parasites cause Cellpose to upscale its input, so segmentation can
+take much longer on CPU than building the drawn-mask variant.
 
 THE DESIGN OF THE TEACHING SET, KEPT. ``tools/tutorials/authoring/tools/
 prepare_invasion_tutorial_data.py`` wrote the tutorial's rows directly: column

@@ -60,3 +60,17 @@ and the Preferences row. `tests/qt/test_tooltips.py`,
 NOT CHECKED IN A SCREENSHOT: the timings are read from the code and the
 filter's decisions, because a two-second wait per case would cost the suite
 a minute to measure a number this file names in one place.
+
+2026-09-27 — desktop settings duplicate repaired
+The maintainer reported an immediate settings/API popup followed by another
+popup to its right. The application-wide filter intercepted ToolTip before
+the custom popup's widget suppressor and scheduled a second native tooltip.
+Claimed custom-popup anchors now bypass the native policy and cancel its
+pending timer. The existing first popup, API link, animation behavior and
+accessible toolTip() text remain; unrelated native tooltips retain their delay.
+Both new real event-delivery cases failed before the repair. Four existing
+tooltip test files pass afterward: 72 passed in 47.47 s. The cases cover
+native requests arriving before and after custom-popup ownership, plus a
+positive control for ordinary native tooltips. This is offscreen Qt evidence,
+not a native-desktop screenshot or full-suite acceptance.
+Receipt: features/data/506_desktop_tooltip_duplicate_2026-09-27.json.

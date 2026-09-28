@@ -56,7 +56,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
-from PySide6.QtCore import QPointF, QRectF, Qt, QThread, QTimer, Signal
+from PySide6.QtCore import QPointF, QRectF, Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QImage, QPainter, QPixmap
 from PySide6.QtWidgets import (
     QComboBox, QDoubleSpinBox, QFileDialog, QGraphicsPixmapItem,
@@ -1731,8 +1731,6 @@ def _plaque_model_the_run_would_use(
         return (str(_resolve_plaque_model(settings, fetch=False)),
                 "plaque_model", True)
     except (FileNotFoundError, ValueError):
-        # ModelZooMissing is a FileNotFoundError. ValueError is a value the
-        # run cannot resolve either.
         return requested, "plaque_model", False
     except Exception:                                        # noqa: BLE001
         LOG.debug("could not resolve plaque_model=%r", requested,
@@ -2011,6 +2009,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._auto_outline_colours: Dict[str, Tuple[int, int, int]] = {}
         self._loading_fov = False
         self._sampler = ImageSetSampler(DEFAULT_MAX_SETS)
+        self._projection_population = None
+        self._projection_snapshot = None
         self._mip_enabled = False
         self._table_row = 0
         self._table_col = 0
@@ -2584,7 +2584,15 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         token = self._image_load_token
         max_sets = int(self._sampler.max_sets)
         project = self._mip_enabled
-        known_sets = tuple(self._sampler.sets)
+        population = self._sampler._sets
+        if population is not self._projection_population:
+            self._projection_population = population
+            self._projection_snapshot = None
+        known_sets = ()
+        if project:
+            if self._projection_snapshot is None:
+                self._projection_snapshot = tuple(population)
+            known_sets = self._projection_snapshot
         self._load_request = (text, enumerate_sets, display_plane)
         self._status.setText(f"Loading preview from {text}…")
         self._load_jobs.submit(
@@ -3695,7 +3703,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             return
         self._run_model_pending = None
         if self._model_box.currentText() != pending[3]:
-            return                          # the user picked one meanwhile
+            return
         self._select_the_run_model(*answer)
 
     def _settle_the_run_model(self) -> None:
@@ -3793,13 +3801,67 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         req = self._build_request()
         self._status.setText(PREVIEW_RUNNING_MESSAGE)
         worker = _PreviewWorker(req, self, token=self._run_token)
-        worker.provenance_ready.connect(self._on_processing_provenance)
-        worker.finished_masks.connect(self._on_worker_done)
-        worker.flows_ready.connect(self._on_flows_ready)
-        worker.cellprob_ready.connect(self._on_cellprob_ready)
-        worker.finished.connect(self._on_worker_finished)
+        worker.provenance_ready.connect(
+            self._receive_processing_provenance, Qt.QueuedConnection)
+        worker.finished_masks.connect(
+            self._receive_worker_done, Qt.QueuedConnection)
+        worker.flows_ready.connect(
+            self._receive_flows_ready, Qt.QueuedConnection)
+        worker.cellprob_ready.connect(
+            self._receive_cellprob_ready, Qt.QueuedConnection)
+        worker.finished.connect(
+            self._receive_worker_finished, Qt.QueuedConnection)
         self._worker = worker
         worker.start()
+
+    @Slot(object, int)
+    def _receive_processing_provenance(self, record, token: int) -> None:
+        """Forward captured settings on the panel's thread.
+
+        :param record: processing settings captured by the worker.
+        :param token: the run token carried by the result.
+        :returns: None.
+        """
+        self._on_processing_provenance(record, token)
+
+    @Slot(object, str, int)
+    def _receive_worker_done(self, masks, err: str, token: int) -> None:
+        """Forward completed masks on the panel's thread.
+
+        :param masks: the worker's masks by compartment, or None on failure.
+        :param err: the failure message, or an empty string on success.
+        :param token: the run token carried by the result.
+        :returns: None.
+        """
+        self._on_worker_done(masks, err, token)
+
+    @Slot(object, int)
+    def _receive_flows_ready(self, flows, token: int) -> None:
+        """Forward flow images on the panel's thread.
+
+        :param flows: flow RGB images by compartment.
+        :param token: the run token carried by the result.
+        :returns: None.
+        """
+        self._on_flows_ready(flows, token)
+
+    @Slot(object, int)
+    def _receive_cellprob_ready(self, cellprob, token: int) -> None:
+        """Forward probability maps on the panel's thread.
+
+        :param cellprob: cell probability logits by compartment.
+        :param token: the run token carried by the result.
+        :returns: None.
+        """
+        self._on_cellprob_ready(cellprob, token)
+
+    @Slot()
+    def _receive_worker_finished(self) -> None:
+        """Forward thread completion on the panel's thread.
+
+        :returns: None.
+        """
+        self._on_worker_finished()
 
     def cancel_preview(self) -> bool:
         """Cancel PSF work cooperatively and discard any native inference result."""
@@ -3840,11 +3902,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         old.setParent(None)
 
     def _on_worker_finished(self) -> None:
-        """Relay for the worker thread's own ``finished`` signal.
+        """Return controls to idle after the worker thread finishes.
 
-        A bound method on purpose (see :meth:`run_preview`). Returning the
-        buttons to the idle state here as well as in :meth:`_on_worker_done`
-        is what keeps them usable after a run whose result was discarded as
+        Returning the buttons to the idle state here as well as in
+        :meth:`_on_worker_done` keeps them usable after a run discarded as
         stale, or a worker that died without emitting a result at all.
         """
         if not self.preview_running():
@@ -3988,9 +4049,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 w = _spin(kind, spin_args)
                 if suffix in ("min_intensity", "max_intensity"):
                     w.setDecimals(6)
-                    # Return may emit valueChanged even without an edit.
-                    # Conversely, typing 0 over a rounded-to-0 seed need
-                    # not change the number. Observe actual text edits too.
                     w.valueChanged.connect(
                         lambda *_args, widget=w:
                         self._forget_edited_intensity_seed(widget))
@@ -4025,8 +4083,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         if text_edited or self._widget_value(widget) != remembered[0]:
             self._clamped_on_seeding.pop(id(widget))
             if text_edited:
-                # A same-number edit emits no numeric change to trigger the
-                # ordinary cached-mask refresh below.
                 self._recompute_masks()
 
     def _all_compartment_widgets(self) -> List[QWidget]:
@@ -5108,9 +5164,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             "norm": self._normalise_check.isChecked(),
             "lo": float(self._lo_pct.value()),
             "hi": float(self._hi_pct.value()),
-            # The model that RAN, not the one now selected: the history is
-            # scrubbed back to compare passes, and a pass labelled with a
-            # model chosen after it is a comparison of the wrong two things.
             "model": self._model_that_ran or self._model_box.currentText(),
             "object": _combo_value(self._object_box),
             "summary": ", ".join(counts),

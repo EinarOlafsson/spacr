@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Cloud",
+      "source_sha256": "b977b950c1ae31e5aeb9ef778cc20a66fc034eb81e738e0206104b677962c465",
+      "source": "Cloud",
+      "translation": "Moln"
+    },
+    {
+      "table": "categories",
+      "key": "Cloud storage access, local cache, selected wells and fields, image resolution, and result uploads. Use these settings when the source is a remote storage address.",
+      "source_sha256": "24a001745dccbfe5d65f0701b9abed5fd2c35297fbd1139c0102ff0445896aa6",
+      "source": "Cloud storage access, local cache, selected wells and fields, image resolution, and result uploads. Use these settings when the source is a remote storage address.",
+      "translation": "Åtkomst till molnlagring, lokal cache, valda brunnar och bildfält, bildupplösning och uppladdning av resultat. Använd dessa inställningar när källan är en adress till fjärrlagring."
+    },
+    {
+      "table": "ui",
+      "key": "Cloud storage access, local cache, selected wells and fields, image resolution, and result uploads. Use these settings when the source is a remote storage address.",
+      "source_sha256": "24a001745dccbfe5d65f0701b9abed5fd2c35297fbd1139c0102ff0445896aa6",
+      "source": "Cloud storage access, local cache, selected wells and fields, image resolution, and result uploads. Use these settings when the source is a remote storage address.",
+      "translation": "Åtkomst till molnlagring, lokal cache, valda brunnar och bildfält, bildupplösning och uppladdning av resultat. Använd dessa inställningar när källan är en adress till fjärrlagring."
+    }
+  ]
+}

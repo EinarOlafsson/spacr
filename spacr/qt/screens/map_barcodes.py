@@ -1849,9 +1849,6 @@ class BarcodeSearchPanel(QWidget):
             widget = widgets.get(key)
             if widget is None or any(w is widget for w in self._watched):
                 continue
-            # `contents_changed` first where a widget has one: it follows a
-            # settings load as well as an edit, which `value_changed` is
-            # deliberately kept from doing.
             signal = (getattr(widget, "contents_changed", None)
                       or getattr(widget, "value_changed", None)
                       or getattr(widget, "textChanged", None))
@@ -2027,11 +2024,6 @@ class BarcodeSearchPanel(QWidget):
                 LOG.debug("could not write %s into the form", key,
                           exc_info=True)
         self._changes = ()
-        # WHAT APPLY WROTE CAME FROM THIS SEARCH, so the form now holds what
-        # the search found and searching again would only repeat it -- while
-        # wiping the "wrote these" summary off the screen. Adopting the
-        # post-Apply inputs as the searched ones stops that re-run; a later
-        # edit by the user still starts one.
         self._searched_inputs = _search_inputs(self.current_settings())
         self._live_timer.stop()
         self._update_buttons()
@@ -2605,6 +2597,7 @@ class _SpatialTranscriptomicsPanel(QWidget):
     """
 
     def __init__(self, screen=None, parent: Optional[QWidget] = None) -> None:
+        """Build the spatial-data controls with no loaded or registered sample."""
         super().__init__(parent)
         self._screen = screen
         self._bundle = None
@@ -2612,6 +2605,8 @@ class _SpatialTranscriptomicsPanel(QWidget):
         self._loaded_key = None
         self.summary = None
         self._build_ui()
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     def _path_row(self, form, caption: str, hint: str, *, folder=False,
                   save=False):
@@ -2635,6 +2630,7 @@ class _SpatialTranscriptomicsPanel(QWidget):
         button.setText(tr("Browse…"))
 
         def browse(_checked=False):
+            """Fill this row from its folder, input-file or output-file picker."""
             if folder:
                 chosen = QFileDialog.getExistingDirectory(self, tr(caption),
                                                           edit.text())

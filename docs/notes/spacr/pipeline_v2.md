@@ -298,3 +298,23 @@ and not p.name.startswith(".")
 ```
 
 The v2 Mask pipeline lists the raw folder itself. On a macOS external volume (GitHub #121 and #117) every raw tiff has an AppleDouble sidecar, `._<name>.tif`. The CellVoyager pattern starts `(?P<plateID>.*)_`, so the sidecar matched as plate `._plate1`, got a field of its own, and `stream_originals_to_stack` stopped on it: `TiffFileError: not a TIFF file: header=b'\x00\x05\x16\x07'`. Measured on the code before this line. Dot-files are left out inline rather than through `spacr.io._listdir_visible` because discovery runs before anything here needs torch, and `spacr.io` imports it at module level. Reasons for the dot-file rule are in `docs/notes/spacr/io.md` under `_listdir_visible`.
+
+
+---
+
+# Notes from `spacr/pipeline_v2.py`
+
+Prose lifted out of `spacr/pipeline_v2.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## stream_masks_from_stack
+
+### lines 751-752  _(unsure)_
+
+```python
+filter_images = [
+```
+
+Match the padded segmentation canvas while retaining the original values, before illumination and normalization.

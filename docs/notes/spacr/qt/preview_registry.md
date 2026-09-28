@@ -33,3 +33,33 @@ toggle.setParent(screen)
 ```
 
 No strip on this screen — put the toggle above the card so the preview is still reachable rather than permanently hidden.
+
+
+---
+
+# Notes from `spacr/qt/preview_registry.py`
+
+Prose lifted out of `spacr/qt/preview_registry.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## Module level
+
+### lines 112-113
+
+```python
+"custom_model": "custom_model",
+```
+
+The run loads `custom_model` over `model_name` when it is set; the panel writes it back only if it was (333).
+
+### lines 126-128
+
+```python
+"plaque_model": "plaque_model",
+```
+
+The plaque run segments with `plaque_model`, never
+
+`model_name`; the panel writes it only for a checkpoint the user picked (333).

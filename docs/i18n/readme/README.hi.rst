@@ -2,7 +2,7 @@
 
 .. |Docs| image:: https://img.shields.io/github/actions/workflow/status/EinarOlafsson/spacr/pages%2Fpages-build-deployment?label=API%20Documentation
    :target: https://einarolafsson.github.io/spacr/
-   :alt: दस्तावेज़
+   :alt: API दस्तावेज़
 .. |Tutorials| image:: https://img.shields.io/badge/Tutorials-Interactive%20walkthrough-4A9EFF
    :target: https://einarolafsson.github.io/spacr/tutorials/
    :alt: इंटरैक्टिव ट्यूटोरियल
@@ -84,6 +84,18 @@ segmentation, measurement, annotation और classification modules भी ए�
 
 यह डेस्कटॉप एप्लिकेशन के रूप में, या वर्कस्टेशन, सर्वर या क्लस्टर पर हेडलेस रूप में चलता है।
 
+spaCR आज़माएँ
+~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   conda create -n spacr python=3.12 -y
+   conda activate spacr
+   python -m pip install "spacr[qt]"
+   spacr
+
+उदाहरण डेटा डाउनलोड करने के लिए Import, Make Masks, Annotate या किसी असे स्क्रीन में **टेस्ट डेटा लोड करें…** का उपयोग करें। टर्मिनल से ``spacr-download`` का उपयोग करें।
+
 हार्डवेयर समर्थन
 ~~~~~~~~~~~~~~~~
 
@@ -128,10 +140,10 @@ segmentation, measurement, annotation और classification modules भी ए�
 
 
 spaCR इंस्टॉल करें
------------------
+~~~~~~~~~~~~~~~~~
 
 डेस्कटॉप एप्लिकेशन
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 इंस्टॉलर अपने स्वयं के Python को जोड़ते हैं. कॉन्डा की आवश्यकता नहीं है.
 
@@ -169,10 +181,10 @@ Linux पर डाउनलोड की गई फ़ाइल को नि�
 
 macOS पर, ``.pkg`` खोलें. वर्तमान बीटा नोटिस नहीं किया गया है; यदि Gatekeeper इसे ब्लॉक करता है, तो **सिस्टम सेटिंग्स → गोपनीयता और सुरक्षा → किसी भी तरह से खोलें** का चयन करें.
 
-अद्यतन, अनइंस्टॉल, ऑफ़लाइन और समस्या हल करने के लिए निर्देशों के लिए `इंस्टॉलर गाइड <../../source/installer_guide.rst>`_ देखें।
+अपडेट, अनइंस्टॉल, ऑफ़लाइन उपयोग और समस्या निवारण के निर्देशों के लिए `इंस्टॉलेशन गाइड <../../source/installer_guide.rst>`_ देखें। वर्कस्टेशन और सर्वर संबंधी सुझावों तथा GPU संगतता तालिकाओं के लिए `सिस्टम आवश्यकताएँ <../../source/system_requirements.rst>`_ देखें।
 
 PyPI से इंस्टॉलेशन
-~~~~~~~~~~~~~~~~~
+-----------------
 
 PyPI रिलीज़ के लिए, Conda वातावरण के भीतर pip से spaCR इंस्टॉल करें। Python 3.12 में वैकल्पिक वैज्ञानिक पैकेजों की सबसे व्यापक उपलब्धता है:
 
@@ -196,7 +208,7 @@ spaCR, Python **3.9 through 3.14** का समर्थन करता है
 वैकल्पिक एकीकरण अलग से स्थापित किए जाते हैं, उदाहरण के लिए ``spacr[zarr]``, ``spacr[omero]``,``spacr[napari]`` और ``spacr[czi,nd2,lif]``. पूर्ण अतिरिक्त और Python संस्करण संगतता तालिका में `स्थापना गाइड <../../source/installer_guide.rst>`_ देखें.
 
 conda-forge से इंस्टॉलेशन
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
 
 आधिकारिक conda-forge पैकेज सक्रिय वातावरण में spaCR और उसकी डेस्कटॉप निर्भरताएँ इंस्टॉल करता है:
 
@@ -207,8 +219,19 @@ conda-forge से इंस्टॉलेशन
    conda install conda-forge::spacr
    spacr
 
+Docker से इंस्टॉलेशन
+-------------------
+
+प्रकाशित `GHCR पर Docker इमेज <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ का उपयोग करके spaCR की कमांड-लाइन पाइपलाइन कंटेनर में चलाएँ। `Docker <https://docs.docker.com/get-started/get-docker/>`_ इंस्टॉल करें, फिर इस प्रकाशित CPU इमेज से उपलब्ध पाइपलाइन की सूची देखें:
+
+.. code-block:: bash
+
+   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.0 spacr-run --list
+
+NVIDIA GPU के लिए संबंधित इमेज ``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4`` है। दोनों इमेज Linux x86-64 कंटेनर के लिए हैं। GPU की पूर्वापेक्षाओं, डेटा और मॉडल माउंट, सेटिंग फ़ाइलों तथा पाइपलाइन के पूरे कमांड के लिए `Docker इंस्टॉलेशन गाइड <../../source/installer_guide.rst#container-images>`_ देखें।
+
 सोर्स कोड से इंस्टॉलेशन
-~~~~~~~~~~~~~~~~~~~~~
+---------------------
 
 रिपॉज़िटरी को क्लोन करें और उसे एडिटेबल मोड में इंस्टॉल करें, ताकि आपकी वर्किंग कॉपी *ही* इंस्टॉल किया गया पैकेज हो और बदलाव दोबारा इंस्टॉल किए बिना लागू हो जाएँ::
 
@@ -231,7 +254,7 @@ conda-forge से इंस्टॉलेशन
 दूसरी पंक्ति की ज़रूरत तभी होती है जब निर्भरताएँ या एंट्री पॉइंट बदले हों; Python कोड इसके बिना भी लागू हो जाता है। अगर pull करने के बाद भी कोई कमांड पुराना कोड चलाता है, तो ``spacr-doctor`` बताता है कि आपके पाथ पर असल में कौन-सा ``spacr`` है; आम तौर पर यही कारण होता है।
 
 सोर्स कोड से इंस्टॉलेशन (हल्का)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------
 
 योगदानकर्ताओं को इतिहास चाहिए; केवल spaCR चलाने के लिए इनमें से कोई एक तरीका चुनें, जिन्हें 2026-09-15 को ``packaging/measure_clone_forms.sh`` से मापा गया::
 
@@ -269,8 +292,6 @@ conda-forge से इंस्टॉलेशन
    spacr-download measure annotate            # fetch example sets by name
    spacr-make-masks --folder DIR              # curate masks as a resumable queue
    spacr-make-masks --folder DIR --order easy --limit 50
-
-समस्या निवारण के समय ``SPACR_LOG_LEVEL=DEBUG`` सेट करें। रोटेटिंग लॉग ``~/.spacr/logs/spacr.log`` में लिखे जाते हैं।
 
 ``spacr-run --list`` उन मॉड्यूलों की सूची दिखाता है जिनके पास ग्राफ़िकल इंटरफ़ेस के बिना चलाने के लिए कमांड-लाइन प्रवेश बिंदु हैं। केवल GUI में उपलब्ध एनोटेशन, क्यूरेशन, तुलना और अन्वेषण मॉड्यूल इस सूची में शामिल नहीं होते।
 
@@ -324,122 +345,100 @@ Quantitative readouts for biological assays.
 
 | |Module_toxoplasma|\ |Module_plasmodium|\ |Module_candida|
 
-.. |Module_mask| image:: ../../../spacr/resources/icons/workflow/mask.png
-   :width: 16.0%
-   :alt: Mask API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks
-   :align: middle
-.. |Module_measure| image:: ../../../spacr/resources/icons/workflow/measure.png
-   :width: 16.0%
-   :alt: Measure API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html
-   :align: middle
-.. |Module_annotate| image:: ../../../spacr/resources/icons/workflow/annotate.png
-   :width: 16.0%
-   :alt: Annotate API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html
-   :align: middle
-.. |Module_classify_merged| image:: ../../../spacr/resources/icons/workflow/classify_merged.png
-   :width: 16.0%
-   :alt: Classify API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/classify/index.html
-   :align: middle
-.. |Module_map_barcodes| image:: ../../../spacr/resources/icons/workflow/map_barcodes.png
-   :width: 16.0%
-   :alt: Map Barcodes API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html
-   :align: middle
-.. |Module_regression| image:: ../../../spacr/resources/icons/workflow/regression.png
-   :width: 16.0%
-   :alt: Regression API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
-   :align: middle
-.. |Module_foreign| image:: ../../../spacr/resources/icons/workflow/apps/foreign.png
-   :width: 16.0%
-   :alt: Import API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/foreign/index.html
-   :align: middle
-.. |Module_embeddings| image:: ../../../spacr/resources/icons/workflow/apps/embeddings.png
-   :width: 16.0%
-   :alt: Embeddings API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/embeddings/index.html
-   :align: middle
-.. |Module_run_compare| image:: ../../../spacr/resources/icons/workflow/apps/run_compare.png
-   :width: 16.0%
-   :alt: Run Compare API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html
-   :align: middle
-.. |Module_experiment_design| image:: ../../../spacr/resources/icons/workflow/apps/experiment_design.png
-   :width: 16.0%
-   :alt: Experiment Design API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/experiment_design/index.html
-   :align: middle
-.. |Module_power| image:: ../../../spacr/resources/icons/workflow/apps/power.png
-   :width: 16.0%
-   :alt: Power / Design API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html
-   :align: middle
-.. |Module_dose_response| image:: ../../../spacr/resources/icons/workflow/apps/dose_response.png
-   :width: 16.0%
-   :alt: Dose–Response API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html
-   :align: middle
-.. |Module_qc_dashboard| image:: ../../../spacr/resources/icons/workflow/apps/qc_dashboard.png
-   :width: 16.0%
-   :alt: QC API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html
-   :align: middle
-.. |Module_make_masks| image:: ../../../spacr/resources/icons/workflow/apps/make_masks.png
-   :width: 16.0%
-   :alt: Make Masks API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html
-   :align: middle
-.. |Module_align| image:: ../../../spacr/resources/icons/workflow/apps/align.png
-   :width: 16.0%
-   :alt: Align & Stitch API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/align/index.html
-   :align: middle
-.. |Module_umap| image:: ../../../spacr/resources/icons/workflow/apps/umap.png
-   :width: 16.0%
-   :alt: Image UMAP API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.generate_image_umap
-   :align: middle
-.. |Module_gate_editor| image:: ../../../spacr/resources/icons/workflow/apps/gate_editor.png
-   :width: 16.0%
-   :alt: Gate Editor API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html
-   :align: middle
-.. |Module_graph_builder| image:: ../../../spacr/resources/icons/workflow/apps/graph_builder.png
-   :width: 16.0%
-   :alt: Graph Builder API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html
-   :align: middle
-.. |Module_toxoplasma| image:: ../../../spacr/resources/icons/workflow/apps/toxoplasma.png
-   :width: 16.0%
-   :alt: Toxoplasma API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-toxoplasma
-   :align: middle
-.. |Module_plasmodium| image:: ../../../spacr/resources/icons/workflow/apps/plasmodium.png
-   :width: 16.0%
-   :alt: Plasmodium spp. API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-plasmodium
-   :align: middle
-.. |Module_candida| image:: ../../../spacr/resources/icons/workflow/apps/candida.png
-   :width: 16.0%
-   :alt: Candida spp. API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-candida
-   :align: middle
+.. |Module_mask| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks"><img src="../../../spacr/resources/icons/workflow/mask.png" width="16.0%" align="middle" alt="Mask API खोलें"></a>
+
+.. |Module_measure| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/measure/index.html"><img src="../../../spacr/resources/icons/workflow/measure.png" width="16.0%" align="middle" alt="Measure API खोलें"></a>
+
+.. |Module_annotate| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html"><img src="../../../spacr/resources/icons/workflow/annotate.png" width="16.0%" align="middle" alt="Annotate API खोलें"></a>
+
+.. |Module_classify_merged| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/classify/index.html"><img src="../../../spacr/resources/icons/workflow/classify_merged.png" width="16.0%" align="middle" alt="Classify API खोलें"></a>
+
+.. |Module_map_barcodes| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html"><img src="../../../spacr/resources/icons/workflow/map_barcodes.png" width="16.0%" align="middle" alt="Map Barcodes API खोलें"></a>
+
+.. |Module_regression| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/ml/index.html"><img src="../../../spacr/resources/icons/workflow/regression.png" width="16.0%" align="middle" alt="Regression API खोलें"></a>
+
+.. |Module_foreign| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/foreign/index.html"><img src="../../../spacr/resources/icons/workflow/apps/foreign.png" width="16.0%" align="middle" alt="Import API खोलें"></a>
+
+.. |Module_embeddings| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/embeddings/index.html"><img src="../../../spacr/resources/icons/workflow/apps/embeddings.png" width="16.0%" align="middle" alt="Embeddings API खोलें"></a>
+
+.. |Module_run_compare| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html"><img src="../../../spacr/resources/icons/workflow/apps/run_compare.png" width="16.0%" align="middle" alt="Run Compare API खोलें"></a>
+
+.. |Module_experiment_design| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/experiment_design/index.html"><img src="../../../spacr/resources/icons/workflow/apps/experiment_design.png" width="16.0%" align="middle" alt="Experiment Design API खोलें"></a>
+
+.. |Module_power| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html"><img src="../../../spacr/resources/icons/workflow/apps/power.png" width="16.0%" align="middle" alt="Power / Design API खोलें"></a>
+
+.. |Module_dose_response| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html"><img src="../../../spacr/resources/icons/workflow/apps/dose_response.png" width="16.0%" align="middle" alt="Dose–Response API खोलें"></a>
+
+.. |Module_qc_dashboard| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html"><img src="../../../spacr/resources/icons/workflow/apps/qc_dashboard.png" width="16.0%" align="middle" alt="QC API खोलें"></a>
+
+.. |Module_make_masks| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html"><img src="../../../spacr/resources/icons/workflow/apps/make_masks.png" width="16.0%" align="middle" alt="Make Masks API खोलें"></a>
+
+.. |Module_align| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/align/index.html"><img src="../../../spacr/resources/icons/workflow/apps/align.png" width="16.0%" align="middle" alt="Align &amp; Stitch API खोलें"></a>
+
+.. |Module_umap| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.generate_image_umap"><img src="../../../spacr/resources/icons/workflow/apps/umap.png" width="16.0%" align="middle" alt="Image UMAP API खोलें"></a>
+
+.. |Module_gate_editor| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html"><img src="../../../spacr/resources/icons/workflow/apps/gate_editor.png" width="16.0%" align="middle" alt="Gate Editor API खोलें"></a>
+
+.. |Module_graph_builder| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html"><img src="../../../spacr/resources/icons/workflow/apps/graph_builder.png" width="16.0%" align="middle" alt="Graph Builder API खोलें"></a>
+
+.. |Module_toxoplasma| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-toxoplasma"><img src="../../../spacr/resources/icons/workflow/apps/toxoplasma.png" width="16.0%" align="middle" alt="Toxoplasma API खोलें"></a>
+
+.. |Module_plasmodium| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-plasmodium"><img src="../../../spacr/resources/icons/workflow/apps/plasmodium.png" width="16.0%" align="middle" alt="Plasmodium spp. API खोलें"></a>
+
+.. |Module_candida| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-candida"><img src="../../../spacr/resources/icons/workflow/apps/candida.png" width="16.0%" align="middle" alt="Candida spp. API खोलें"></a>
 
 .. spacr-workflow-end
 
-spaCR के साथ आने वाले सभी मॉड्यूल, उसी क्रम में जिसमें होम स्क्रीन उन्हें दिखाती है: पहले छह पाइपलाइन मॉड्यूल, फिर बाकी सब। किसी मॉड्यूल का API पृष्ठ खोलने के लिए उसकी टाइल चुनें।
+होम स्क्रीन पर टाइल वाले सभी मॉड्यूल उसी स्क्रीन के क्रम में दिए गए हैं: पहले पाइपलाइन के छह मॉड्यूल, फिर बाकी। किसी मॉड्यूल का API पृष्ठ खोलने के लिए उसकी टाइल चुनें।
 
 हर टूल का विवरण `सुविधा गाइड <../../source/features.rst>`_ में देखें।
 
 अन्य संसाधन
 ~~~~~~~~~~~~~~~
 
-- `इंटरैक्टिव ट्यूटोरियल <https://einarolafsson.github.io/spacr/tutorials/>`_ — स्थापना से हिट जांच के माध्यम से 73 निर्देशित कार्यप्रवाह।
+- `इंटरैक्टिव ट्यूटोरियल <https://einarolafsson.github.io/spacr/tutorials/>`_ — इंस्टॉलेशन से लेकर स्क्रीनिंग में मिले हिट की जाँच तक के निर्देशित कार्यप्रवाह।
 - `Python API त्वरित प्रारंभ <../../source/python_api.rst>`_ - स्क्रिप्ट, नोटबुक या एक क्लस्टर से पाइपलाइन चलाएं और वैध करें।
 - `सुविधा गाइड <../../source/features.rst>`_ — क्षमताओं, परिपक्वता और वैकल्पिक एकीकरण।
 - `शुद्ध API संदर्भ <https://einarolafsson.github.io/spacr/api/index.html>`_ - कार्य के आधार पर समर्थित प्रवेश बिंदु, पूर्ण मॉड्यूल संदर्भ एक स्तर गहरा है।
@@ -458,7 +457,7 @@ spaCR के साथ आने वाले सभी मॉड्यूल, �
 दृश्य व्याख्या वाली सेटिंग के टूलटिप में **Animation** नियंत्रण मिलता है। `सेटिंग एनिमेशन गैलरी <https://einarolafsson.github.io/spacr/setting_animations.html>`_ या `सेटिंग एनिमेशन रजिस्ट्री <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_ देखें।
 
 डेटा
-----
+~~~~
 
 संदर्भ डेटासेट
 ~~~~~~~~~~~~~~~~~~
@@ -563,7 +562,7 @@ spaCR प्रशिक्षित मॉडलों का एक कैट�
 
 **Cross-validated**, एक **SD** के साथ, स्कोर का मतलब है कि विभिन्न विभाजनों पर तीन रनों का औसत है और एसडी यह है कि वे कितनी दूर चले गए हैं. एक विभाजन भाग्यशाली हो सकता है: इस मॉडल का साहित्यिक आंकड़ा एक 19 अच्छी विभाजन पर 0.834 है और सभी तीनों के बीच 0.806 है.
 
-मॉडलों को उनके लेखक के स्वयं के Hugging Face खाते पर होस्ट किया जाता है, इसलिए एक में योगदान करने का मतलब किसी और के लेखन एक्सेस को सौंपना नहीं है. ``spacr.model_zoo`` का ``publish_model`` अपलोड करता है और जोड़ने के लिए कैटलॉग पंक्ति प्रिंट करता है.
+मॉडल हर लेखक के अपने Hugging Face खाते पर होस्ट किए जाते हैं; ``spacr.model_zoo.publish_model`` मॉडल अपलोड करता है और कैटलॉग में जोड़ने वाली पंक्ति प्रिंट करता है।
 
 
 प्रदर्शन का निदान
@@ -575,7 +574,7 @@ spaCR प्रशिक्षित मॉडलों का एक कैट�
 
 ``~/.spacr/reports`` पर बचत करें और मार्ग प्रिंट करें. ``--quick`` लंबे संदर्भ संकेतों को स्काइप करता है; ``--out PATH`` स्थान निर्धारित करता है.
 
-कोई परियोजना डेटा नहीं पढ़ता. टाइम आयात, संख्यात्मक पुस्तकालय, खिड़की निर्माण और एनीमेशन. रिपोर्ट प्रोसेसर-आर्किटेक्चर इमुलेशन (एक x86_64 Python Apple सिलिकॉन पर निर्माण) और NumPy के BLAS कार्यान्वयन।
+प्रोजेक्ट का कोई डेटा नहीं पढ़ता। इम्पोर्ट, संख्यात्मक लाइब्रेरी, विंडो निर्माण और एनीमेशन में लगने वाला समय मापता है, और Apple Silicon पर x86_64 इम्यूलेशन तथा NumPy के BLAS कार्यान्वयन की जानकारी देता है।
 
 कमांड लाइन संदर्भ
 ----------------------
@@ -590,8 +589,6 @@ spaCR प्रशिक्षित मॉडलों का एक कैट�
    spacr              # the desktop application
    spacr-tutorial     # the interactive tutorial library
    spacr-server       # no first-run setup screen, for unattended launches
-
-``spacr-server`` मॉडल सेटअप स्क्रीनिंग को स्काइप करता है, जो अन्यथा एक अप्रत्याशित नौकरी को अवरुद्ध करेगा।
 
 ``spacr-qt`` और ``spacr-nightly`` ``spacr`` के सहयोगी हैं।
 
@@ -623,8 +620,6 @@ spaCR प्रशिक्षित मॉडलों का एक कैट�
 
 ``validate`` उसी सेटिंग्स को पढ़ता है जो चलता है और रिपोर्ट करता है कि क्या खो रहा है, विरोधाभासी है या कुछ भी नहीं बता रहा है।
 
-``spacr-run --list`` केवल एक शीर्ष के बिना प्रवेश बिंदु के साथ मॉड्यूल दिखाता है; नोटिस, चिकित्सा और अन्वेषण इंटरैक्टिव हैं और अनदेखा किया गया है।
-
 बाद में एक दौड़ की जांच करें
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -655,7 +650,7 @@ spaCR प्रशिक्षित मॉडलों का एक कैट�
 
 
 योगदान और सहायता
-------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 बग रिपोर्ट और स्पष्ट रूप से सीमित फ़ीचर अनुरोध `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_ के माध्यम से भेजें। किसी विफलता की रिपोर्ट करते समय spaCR संस्करण, ऑपरेटिंग सिस्टम, Python संस्करण, मॉड्यूल सेटिंग्स और संबंधित लॉग अंश शामिल करें। ``spacr-doctor`` इनमें से अधिकांश जानकारी एकत्र करता है; प्रदर्शन संबंधी समस्या की रिपोर्ट करते समय हार्डवेयर रिपोर्ट भी शामिल करें।
 

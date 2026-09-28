@@ -2224,6 +2224,7 @@ def _event_network(n_inputs, n_classes, channels=0):
         """Temporal convolutional classifier of track windows."""
 
         def __init__(self):
+            """Build temporal features and the optional per-frame crop encoder."""
             super().__init__()
             self.encoder = None
             width = n_inputs

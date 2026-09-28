@@ -74,7 +74,8 @@ def test_account_name_outside_public_urls_is_flagged(text):
 
 
 def test_generic_home_misread_by_ocr_is_still_generic():
-    for text in ('saved at /home/user.cache/spacr', 'manifest: /home/user', 'at/home/user/cachie'):
+    for text in ('saved at /home/user.cache/spacr', 'manifest: /home/user', 'at/home/user/cachie',
+                 'Look in: /home/'):
         hits = [{'kind': k, 'text': t} for k, t in sweep.path_hits([text])]
         assert sweep.offending(hits) == [], text
     for text in ('/home/username/x', '/home/users/x'):

@@ -13,7 +13,7 @@
     "Select objects while checking field and object type.",
     "Open a matching parent-cell crop and obtain the full hierarchy through Python."
   ],
-  "prerequisite": "Download the complete Annotate example with its measurements database and matching cell crops. The Graph Builder database-only archive cannot supply images. This example provides cell crops only: use a parent-cell double-click to inspect a crop. The current Open crops family action can substitute unrelated cell crops for missing child crops; avoid that action with this example.",
+  "prerequisite": "Download the complete Annotate example with its measurements database and matching cell crops. The Graph Builder database-only archive cannot supply images. This example provides cell crops only. For the family shown here, Open crops shows only the matching parent-cell crop and reports two unavailable child crops.",
   "example_files": [
     "Lineage_real_containment_review.zip",
     "Graph_Builder_real_measurements.zip"
@@ -76,8 +76,8 @@
       "hold_after": 0.7
     },
     {
-      "visual": "20_wrong_typed_children_are_unrelated_cell_crops",
-      "narration": "Avoid Open crops on a whole family in this example. Missing nucleus and pathogen crops can be replaced by unrelated cell crops. Return to the tree and choose the parent cell alone instead.",
+      "visual": "20_family_crop_identity_preserved",
+      "narration": "Click Open crops for the selected family. Annotate opens only the matching parent-cell crop and reports two unavailable child crops. This example includes cell crops only; nucleus and pathogen crops are not available.",
       "hold_after": 0.7
     },
     {
