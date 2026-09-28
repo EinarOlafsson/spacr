@@ -59,8 +59,8 @@ the same slides).
 2. Slide 3: a plain "Category" column right of spaCR (Usability,
    Automation, Input, Segmentation, Measurement, Image types, Screening,
    Classification, Analysis, Performance, Extensibility), no fill colour.
-3. New slide 4, "Alpha features: switch them on in Preferences": the 49
-   ALPHA_FEATURES items (the same set as the future items marked
+3. New slide 4, "Alpha features: switch them on in Preferences": the 51
+   ALPHA_FEATURES items after merging nightly, 564 and 576 included (the same set as the future items marked
    IMPLEMENTED/BUILT/DONE AS ALPHA), one line each, in eight categories
    over two tables in slide 3's style: Segmentation, Image preprocessing,
    Measurements and assays, Time-lapse, Cells and machine learning,
