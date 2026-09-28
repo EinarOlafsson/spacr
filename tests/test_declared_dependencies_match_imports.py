@@ -213,6 +213,9 @@ ISOLATED_WORKER_IMPORTS = {
     "tensorflow": ("_tensorflow_device",),
     "instanseg": ("_InstanSegAdapter",),
     "cellpose_omni": ("_OmniposeAdapter",),
+    # CAREamics' Noise2Void (item 557) and the Lightning it trains with.
+    "careamics": ("_worker_n2v_train", "_worker_n2v_denoise"),
+    "lightning": ("_worker_n2v_train", "_N2VLosses"),
     # Spotiflow (item 554) is imported only where its worker builds the
     # network.
     "spotiflow": ("_spotiflow_network",),

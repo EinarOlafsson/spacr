@@ -788,6 +788,10 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # percentile, under a "Spectral Unmixing (Alpha)" heading in Mask,
     # Timelapse and Measure.
     "unmix", "unmix_controls", "unmix_background_percentile",
+    # NEW SETTINGS, not a regrouping (item 557, 2026-09-27): Noise2Void
+    # denoising's switch, its model folder and training epochs, under a
+    # "Self-Supervised Denoising (Alpha)" heading in Mask and Timelapse.
+    "n2v_denoise", "n2v_model", "n2v_epochs",
     # NEW SETTINGS, not a regrouping (item 547, 2026-09-26): image-based
     # profiling at the end of Measure -- the switch, plate map, treatment
     # and control, normalisation, feature selection and its correlation
@@ -1556,6 +1560,9 @@ def _rendered_sections(app_key):
                 # Item 538, 2026-09-26: unmixing runs on the raw field
                 # before the PSF and the chain, so its heading comes first.
                 "Spectral Unmixing (Alpha)",
+                # Item 557, 2026-09-27: Noise2Void denoises after
+                # illumination and before the PSF and the chain.
+                "Self-Supervised Denoising (Alpha)",
                 "Point Spread Function",
                 "Image Enhancement",
                 "Cell Segmentation", "Nucleus Segmentation",
@@ -1642,6 +1649,9 @@ def _rendered_sections(app_key):
                 # Item 538, 2026-09-26: unmixing runs on the raw field
                 # before the PSF and the chain, so its heading comes first.
                 "Spectral Unmixing (Alpha)",
+                # Item 557, 2026-09-27: Noise2Void denoises after
+                # illumination and before the PSF and the chain.
+                "Self-Supervised Denoising (Alpha)",
                 "Point Spread Function",
                 "Image Enhancement",
                 "Cell Segmentation", "Nucleus Segmentation",

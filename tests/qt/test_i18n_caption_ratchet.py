@@ -1185,6 +1185,13 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     # 576, 2026-09-28: the Measurement Backend (Alpha) category help on
     # Measure.
     "Copies a finished run's measurements into DuckDB or Parquet for very large screens, or into PostgreSQL for labs that share one server. measurements.db stays the working copy.",
+    # 557, 2026-09-27: the Self-Supervised Denoising (Alpha) heading and
+    # its category help.
+    'Self-Supervised Denoising (Alpha)',
+    "Noise2Void denoising trained on the run's own noisy images, with no "
+    'clean targets: one model per segmentation channel, applied after '
+    'illumination correction and before the PSF and the enhancement chain. '
+    'Needs the CAREamics backend from the Model Zoo.',
 })
 
 

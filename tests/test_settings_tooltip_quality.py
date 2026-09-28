@@ -946,7 +946,13 @@ def test_real_default_claims_have_no_unrecorded_drift():
     item_576 = {(app, "measurement_backend_target")
                 for app in ("measure", "external_masks")}
     assert item_576 <= compared_pairs
-    assert comparisons == 895
+    # 895 -> 898 on 2026-09-28, +3/-0 (item 557): n2v_denoise (False),
+    # n2v_model (blank) and n2v_epochs (20), resolved by Make Masks only
+    # (Timelapse is not in APPS).
+    item_557 = {("mask", key) for key in (
+        "n2v_denoise", "n2v_model", "n2v_epochs")}
+    assert item_557 <= compared_pairs
+    assert comparisons == 898
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
@@ -976,6 +982,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # + 2: item 566's measure_gpu in two apps, pinned above.
     # + 4: item 559's image-quality classifier claims in Mask, pinned above.
     # + 2: item 576's measurement_backend_target in two apps, pinned above.
+    # + 3: item 557's Noise2Void claims in Mask, pinned above.
     assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2
             + len(item_541) + len(item_548) + len(item_550)
             + len(item_535) + len(item_547) + len(item_536)
@@ -983,7 +990,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
             + len(item_580) + len(item_543) + len(item_546)
             + len(item_583) + len(item_542) + len(item_578)
             + len(item_549) + len(item_566) + len(item_559)
-            + len(item_576) == comparisons)
+            + len(item_576) + len(item_557) == comparisons)
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs
     assert len(census_508['added_pairs']) == 19

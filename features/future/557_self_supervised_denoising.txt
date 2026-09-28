@@ -1,7 +1,7 @@
 SELF-SUPERVISED DENOISING TRAINED ON THE USER'S OWN IMAGES (Noise2Void / CAREamics)
 
-Status: FILED 2026-09-26. Not started.
-Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
+Status: IMPLEMENTED AS ALPHA 2026-09-27 (CPU-validated; the done-when is NOT met yet, see RESULTS)
+Owner: item-557-work. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
     "Add to future features list: B1,2,3,4,(in its own env like cellpose 3),
@@ -21,3 +21,103 @@ DONE WHEN
     On a low-light dataset, denoised images raise segmentation F1 (item 532
     method) against the same pipeline without denoising, with the training
     recorded in provenance.
+
+ALPHA: 2026-09-27. Settings n2v_denoise, n2v_model and n2v_epochs under a
+    "Self-Supervised Denoising (Alpha)" heading on Make Masks and Timelapse,
+    and the Model Zoo row careamics_v1 (the CAREamics backend), registered
+    under 557 in ALPHA_FEATURES (spacr/settings.py); hidden unless
+    Preferences -> Show alpha features is on. A value saved while hidden
+    still reaches the run (tests/qt/test_n2v_denoising_alpha_gate.py).
+
+WHAT WAS BUILT (2026-09-27, CPU only; the GPU was held by another session)
+    - spacr/_segmentation_backends.py: a "careamics" backend spec in its own
+      environment (careamics==0.3.4, lightning==2.6.6, torch>=2.6,<2.12,
+      torchvision<=0.26.0, Python 3.11-3.13, BSD-3-Clause, alpha,
+      segments=False), installed from the Model Zoo like Cellpose 3. Worker
+      ops n2v_train (N2V2, 64 px patches, batch 16, a tenth of the patches
+      (1-8) for validation, seeded, per-epoch train/val loss recorded) and
+      n2v_denoise (checkpoint loaded once per worker, 256 px tiles with 32 px
+      overlap above 256 px). Host helpers _n2v_train / _n2v_denoise.
+      Data loading runs in the worker's own process: a DataLoader process
+      forked from a worker reading requests on a thread never started (the
+      first real run hung; fixed and noted in the docstring).
+    - spacr/psf_pipeline.py: _prepare_n2v trains one model per segmentation
+      channel on up to 8 evenly spaced raw fields of the run into
+      <src>/n2v/channel_<c>.ckpt (+ .json training record), reuses them on
+      resume when the epochs match, or reads a named n2v_model folder. The
+      segmentation session denoises each field after illumination and before
+      the PSF and the enhancement chain (N2V assumes pixel-independent
+      noise), and the models (sha256, losses, epochs, patches, fields,
+      CAREamics/torch versions) join psf/segmentation_application.json, so a
+      changed model is refused on resume like a changed chain. Mask V1 and V2
+      (and so Timelapse) both go through this session.
+    - Settings, tooltips, categories, API targets, flow index, notebooks and
+      the generated settings artefacts; tests/test_n2v_denoising.py (13) and
+      the Qt alpha gate; guard pins bumped (tooltip census 887 -> 890,
+      KEYS_ADDED_BY_REGROUP, rendered sections, caption ratchet, backend
+      adapter/import lists).
+    - tools/validate_n2v_lowlight.py: the validation below, rerunnable on the
+      GPU through gpu_turn.sh.
+    - The CAREamics environment was built with spaCR's own installer
+      (_install_backend) on this machine, self-test passing (CPU torch
+      2.11.0+cpu), in a scratch backends folder. Maintainer: careamics is an
+      optional dependency of that environment only; nothing enters setup.py.
+
+RESULTS (CPU, 2026-09-27; item 532 method)
+    Data: the ten toxo_pv fields with curated ground truth (item 412), one
+    512 x 512 crop each (the window with the most whole objects; 160 GT
+    objects), photon-starved by simulation: signal above the median scaled
+    to PEAK photons at its 99.9th percentile, +2 background photons, Poisson,
+    read noise 1.5, offset 100, seed 0. N2V trained once on the ten noisy
+    crops only. Every arm runs through Mask generation (532 driver
+    stage_and_preprocess + run_strategy), Cellpose-SAM cpsam, the true
+    diameter, scored with score_field/pooled. Pooled F1 at IoU 0.5:
+
+        PEAK  arm                          F1@.5   P      R      FP
+        10    no denoising                 0.354   0.755  0.231  12
+        10    percentile clip              0.398   0.824  0.263   9
+        10    clip + Gaussian              0.404   0.759  0.275  14
+        10    N2V, 30 epochs (218 s CPU)   0.244   0.349  0.188  56
+        10    N2V 30 ep + clip             0.284   0.328  0.250  82
+        40    no denoising                 0.662   0.780  0.575  26
+        40    clip + Gaussian              0.562   0.621  0.513  50
+        40    N2V, 30 epochs               0.556   0.528  0.588  84
+
+    Image fidelity is NOT the problem: Pearson r against the clean crop
+    (PEAK 10, four fields) rose from 0.31-0.52 (noisy) to 0.90-0.96 (N2V),
+    above a Gaussian (sigma 1.5, 0.84-0.92). What costs F1 is precision:
+    an under-trained model leaves isolated background speckles that
+    percentile normalisation lifts and Cellpose-SAM calls objects (56-84 FP
+    against 12-26). Recall rises slightly at PEAK 40. So on this CPU budget
+    the done-when is NOT met; the training IS recorded in provenance
+    (psf/segmentation_application.json carries each model's sha256, epochs,
+    patches, per-epoch losses, fields and versions).
+
+    A 120-epoch CPU run at PEAK 10 was started and stopped unfinished after
+    75 minutes (load average ~55 on 32 cores from other sessions), so the
+    effect of longer training is untested here.
+
+    Re-check after merging nightly (2026-09-28, CPU, PEAK 10, 5 epochs,
+    arms off and n2v; tools/validate_n2v_lowlight.py EPOCHS=5
+    CHAINS=off,n2v): training 24 s (train loss 1.18 -> 1.11, val 1.09 ->
+    1.02), the backend, worker, Mask generation hook and scoring all run
+    end to end. F1@.5 0.354 (off; P 0.755, R 0.231, 12 FP) against 0.274
+    (N2V; P 0.470, R 0.194, 35 FP): the same precision loss as at 30
+    epochs, as expected from a barely trained model. The Qt alpha gate,
+    the 13 unit tests and the guards pass on the merged tree.
+
+WHAT IS LEFT
+    - The full GPU run (tools/validate_n2v_lowlight.py, DEVICE=cuda,
+      EPOCHS 100-200, all ten FULL fields at 1994-2000 px, i.e. ~9,600
+      patches instead of 640, through gpu_turn.sh). It adds what the CPU
+      could not: a converged model (the 30-epoch loss was still noisy at
+      ~1.05) that removes the background speckle, the F1 question answered
+      on whole fields, and GPU training time per field for the tooltip. If
+      speckle FPs persist, try N2V + the chain's background subtraction or
+      a minimum object size before calling the done-when failed.
+    - A real low-light acquisition (short exposure / low laser) with its own
+      ground truth instead of simulated photon noise.
+    - Make Masks' interactive detect chain (spacr/qt/detect_chain.py) does
+      not preview N2V yet; the step runs in the plate run only.
+    - Multi-channel N2V (one joint model) and structN2V for correlated
+      camera noise are not offered.
