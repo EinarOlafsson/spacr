@@ -587,6 +587,8 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'measure',
     'measure_gpu',
     'measurement',
+    'measurement_backend',
+    'measurement_backend_target',
     'measurement_object',
     'measurement_table',
     'measurements',
