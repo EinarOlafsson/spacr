@@ -17395,3 +17395,11 @@ Claiming .github/constraints/minimum-py39.txt for the missing PyWavelets1.4.0
 pin, matching setup.py's declared >=1.4 floor. Official PyPI metadata confirms
 the Python3.9 Linux wheels and NumPy>=1.17.3 compatibility. No workflow or
 shared environment changes; focused profile checks follow the CPU audio job.
+
+2026-09-28 — CODEX: EXPLICIT HISTORICAL WINDOWS BOOTSTRAP RECOVERY (53)
+Claiming .github/workflows/historical-upgrade.yml and its acceptance helpers.
+The failed original released wrapper and all original diagnostics stay recorded
+as failed. A separate source-bound full-bootstrap recovery must complete before
+the existing actual GUI failure, external repair, Help update and installed-state
+checks can proceed. Verifier-only fixtures cannot close native acceptance.
+No release bump, original-artifact rewrite, GPU or live_cell change is involved.

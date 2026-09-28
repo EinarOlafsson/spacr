@@ -8,6 +8,7 @@ on:
       - tools/accept_historical_upgrade.py
       - tools/historical_upgrade_sources.json
       - tools/diagnose_historical_windows_uv.ps1
+      - tools/recover_historical_windows_bootstrap.ps1
   workflow_dispatch:
 
 permissions:
@@ -45,6 +46,7 @@ jobs:
             tools/accept_historical_upgrade.py
             tools/historical_upgrade_sources.json
             tools/diagnose_historical_windows_uv.ps1
+            tools/recover_historical_windows_bootstrap.ps1
           sparse-checkout-cone-mode: false
       - name: Linux native Qt display prerequisites
         if: runner.os == 'Linux'
@@ -60,6 +62,8 @@ jobs:
             libasound2t64 libsm6 libxext6 libxrender1
       - name: Install the checksum-pinned original released artifact
         id: original_install
+        # Preserve outcome=failure; only explicit verified recovery may continue.
+        continue-on-error: ${{ runner.os == 'Windows' }}
         shell: pwsh
         env:
           SPACR_TORCH_BACKEND: cpu
@@ -472,7 +476,7 @@ jobs:
           "HISTORICAL_UV=$uv" >> $env:GITHUB_ENV
           "HISTORICAL_EVIDENCE=$evidence" >> $env:GITHUB_ENV
       - name: Diagnose the original Windows uv child after preserved installer failure
-        if: ${{ failure() && runner.os == 'Windows' && steps.original_install.outcome == 'failure' }}
+        if: ${{ !cancelled() && runner.os == 'Windows' && steps.original_install.outcome == 'failure' }}
         timeout-minutes: 4
         shell: pwsh
         env:
@@ -497,6 +501,22 @@ jobs:
             $status.status = if ($LASTEXITCODE -eq 0) { 'captured' } else { 'diagnostic_failed' }
           } catch { $status.reason = $_.Exception.Message }
           finally { $status | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $evidence 'uv-diagnostic-status.json') -Encoding utf8 }
+      - name: Recover the original private runtime explicitly after failed Windows wrapper
+        if: ${{ !cancelled() && runner.os == 'Windows' && steps.original_install.outcome == 'failure' }}
+        timeout-minutes: 45
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $evidence = Join-Path $env:RUNNER_TEMP 'historical-upgrade-evidence'
+          $capture = Get-Content -Raw (Join-Path $evidence 'original-uv-child.json') | ConvertFrom-Json
+          $driver = Join-Path $env:GITHUB_WORKSPACE 'tools/recover_historical_windows_bootstrap.ps1'
+          & $capture.executable_path -NoProfile -ExecutionPolicy Bypass -File $driver -OriginalEvidence $evidence
+          if ($LASTEXITCODE -ne 0) { throw 'Explicit original-bootstrap recovery failed; wrapper acceptance remains failed.' }
+          $receipt = Get-Content -Raw (Join-Path $evidence 'bootstrap-recovery\receipt.json') | ConvertFrom-Json
+          if ($receipt.status -ne 'passed' -or $receipt.original_wrapper_accepted) { throw 'Recovery receipt contradicts the failed original wrapper.' }
+          "HISTORICAL_PYTHON=$($receipt.private_python)" >> $env:GITHUB_ENV
+          "HISTORICAL_UV=$(Join-Path (Split-Path $receipt.private_prefix -Parent) 'bootstrap\uv.exe')" >> $env:GITHUB_ENV
+          "HISTORICAL_EVIDENCE=$evidence" >> $env:GITHUB_ENV
       - name: Reproduce failure, repair externally, then perform the real GUI update
         shell: pwsh
         run: |

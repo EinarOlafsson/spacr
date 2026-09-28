@@ -556,3 +556,15 @@ and installation exited0. This closes the specific fallback evidence gap in
 the preceding note. Historical recovery, frozen replacement/interruption/
 restart and protected macOS authorization still remain open.
 Receipt: features/data/53_nsis_native_fallback_acceptance_2026-09-28.json.
+
+STATUS 2026-09-28 — full historical Windows recovery prepared
+The workflow preserves original_install outcome=failure, diagnoses the actual
+uv child and separately runs the unchanged original bootstrap with captured
+output, native engine/account and source/receipt bindings. Only successful full
+recovery proceeds to the existing real GUI missing-pip failure, external public
+repair, Help update and fresh installed-state checks. UV-only replay and
+relabeling the failed original as passed cannot satisfy the verifier.
+The named verifier/hygiene selection reports91 passes with captured pytest exit0;
+YAML/Windows recovery guards are checked. Synthetic fixtures prove no native
+execution. PowerShell5.1 parsing and the full native GUI chain remain pending.
+Receipt: features/data/53_historical_bootstrap_recovery_preparation_2026-09-28.json.

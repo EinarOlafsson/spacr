@@ -74,6 +74,90 @@ if args.mode == 'verify':
     if not all(record.get('passed') is True for record in records.values()):
         errors.append('One or more stages failed')
     states = [records[name]['state'] for name in ('before', 'repaired', 'after')]
+    windows_installation = None
+    if states[0]['platform'].startswith('Windows-'):
+        try:
+            observation = json.loads((evidence / 'installer-observation.json').read_text(encoding='utf-8-sig'))
+            capture_path = evidence / 'original-uv-child.json'
+            capture = json.loads(capture_path.read_text(encoding='utf-8-sig')) if capture_path.is_file() else None
+            expected_artifact = '2b6b07ad12926288f693c01945f2fc4555b0a37022fd73dce932e2d8b6e4ee76'
+            if (sha(evidence / 'SpaCR-1.5.0.1-Windows-Online-Setup.exe') != expected_artifact
+                    or observation.get('artifact_sha256') != expected_artifact):
+                errors.append('Original Windows artifact identity changed')
+            windows_installation = dict(original_wrapper_accepted=observation['status'] == 'passed',
+                explicit_bootstrap_recovery=None)
+            if observation['status'] == 'failed':
+                if capture is None:
+                    raise ValueError('Failed original wrapper lacks its captured uv child')
+                recovery = json.loads((evidence / 'bootstrap-recovery/receipt.json').read_text(encoding='utf-8-sig'))
+                replay = json.loads((evidence / 'uv-child-diagnostic/receipt.json').read_text(encoding='utf-8-sig'))
+                windows_installation['explicit_bootstrap_recovery'] = recovery
+                if (not observation.get('observed_tree_exited') or not observation.get('bootstrap_gone')
+                        or not observation.get('transcript_ended')
+                        or not re.fullmatch(r'spaCR installation failed with exit code [1-9][0-9]*\. The existing installation, if any, was preserved\.',
+                                            observation.get('failure_dialog', {}).get('text', ''))):
+                    errors.append('Original Windows wrapper failure/process exit is not proven')
+                if (not capture.get('available') or not capture.get('original_child_exited')
+                        or capture.get('original_child_exit_code') in (None, 0)
+                        or capture.get('expected_uv_present_before_diagnostic') is not False):
+                    errors.append('Original Windows uv-child failure is not proven')
+                if (recovery.get('status') != 'passed' or recovery.get('child_exit_code') != 0
+                        or recovery.get('timed_out') is not False or not recovery.get('stdout_complete')
+                        or not recovery.get('stderr_complete')
+                        or recovery.get('original_wrapper_accepted') is not False
+                        or recovery.get('gui_update_accepted') is not False
+                        or recovery.get('frozen_update_accepted') is not False):
+                    errors.append('Explicit bootstrap recovery cannot replace failed wrapper or GUI acceptance')
+                bindings = {
+                    'original_artifact_sha256': expected_artifact,
+                    'bootstrap_sha256': '94f05a5b8150f7491c7319eb3beeb62e8405b0fdf6a2d498f58313103ac7b28e',
+                    'original_failure_receipt_sha256': sha(evidence / 'installer-observation.json'),
+                    'original_child_receipt_sha256': sha(evidence / 'original-uv-child.json'),
+                    'uv_replay_receipt_sha256': sha(evidence / 'uv-child-diagnostic/receipt.json'),
+                    'driver_sha256': sha(Path(__file__).with_name('recover_historical_windows_bootstrap.ps1')),
+                }
+                if (any(recovery.get(key) != value for key, value in bindings.items())
+                        or sha(evidence / 'original-bootstrap.ps1') != bindings['bootstrap_sha256']
+                        or capture.get('bootstrap_sha256') != bindings['bootstrap_sha256']):
+                    errors.append('Explicit bootstrap recovery lacks exact original/source/receipt bindings')
+                if (recovery.get('engine_sha256') != capture.get('engine_sha256')
+                        or recovery.get('account_sid') != capture.get('owner_sid')
+                        or recovery.get('cwd') != capture.get('working_directory')
+                        or Path(recovery['private_prefix']).resolve() != Path(states[0]['prefix']).resolve()
+                        or Path(recovery['private_python']).resolve() != Path(states[0]['executable']).resolve()):
+                    errors.append('Explicit bootstrap recovery changed native identity or private environment')
+                if (replay.get('status') != 'captured' or replay.get('child_exit_code') != 0
+                        or replay.get('timed_out') is not False or not replay.get('stdout_complete')
+                        or not replay.get('stderr_complete') or not replay.get('expected_uv_present')
+                        or not re.fullmatch(r'[a-f0-9]{64}', replay.get('uv_sha256', ''))
+                        or recovery.get('uv_sha256') != replay.get('uv_sha256')
+                        or replay.get('engine_sha256') != capture.get('engine_sha256')
+                        or replay.get('account_sid') != capture.get('owner_sid')
+                        or replay.get('bootstrap_sha256') != bindings['bootstrap_sha256']
+                        or replay.get('script_sha256') != capture.get('script_sha256')):
+                    errors.append('Explicit bootstrap recovery lacks the successful independent uv replay')
+                expected_argv = [capture['executable_path'], '-NoProfile', '-ExecutionPolicy', 'Bypass',
+                    '-File', str((evidence / 'original-bootstrap.ps1').resolve()),
+                    '-InstallRoot', str(Path(states[0]['prefix']).parent),
+                    '-Version', '1.5.0.1', '-TorchBackend', 'cpu']
+                if recovery.get('bootstrap_argv') != expected_argv:
+                    errors.append('Explicit bootstrap recovery did not execute the unchanged original bootstrap')
+                for name, complete in (('stdout.txt', 'stdout_complete'), ('stderr.txt', 'stderr_complete')):
+                    if not recovery.get(complete) or not (evidence / 'bootstrap-recovery' / name).is_file():
+                        errors.append('Explicit bootstrap recovery lacks its real child output')
+            elif observation['status'] == 'passed':
+                if (observation.get('exit_code') != 0 or observation.get('failure_dialog')
+                        or observation.get('error') or (evidence / 'bootstrap-recovery').exists()
+                        or (evidence / 'uv-child-diagnostic/receipt.json').is_file()
+                        or (capture is not None and capture.get('available')
+                            and capture.get('original_child_exited')
+                            and capture.get('original_child_exit_code') not in (None, 0))):
+                    windows_installation['original_wrapper_accepted'] = False
+                    errors.append('Original Windows wrapper success contradicts retained failure or recovery evidence')
+            else:
+                errors.append('Original Windows wrapper neither passed nor has explicit verified recovery')
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            errors.append(f'Windows installation/recovery provenance is incomplete: {error}')
     known = json.loads(Path(__file__).with_name('historical_upgrade_sources.json').read_text())
     source_names = ('spacr/updater.py', 'spacr/qt/app.py', 'spacr/qt/__init__.py')
     for name, row in zip(('before', 'repaired', 'after'), states):
@@ -129,8 +213,12 @@ if args.mode == 'verify':
     failure_log = (evidence / 'broken-gui.log').read_text(errors='replace')
     if 'No module named pip' not in failure_log:
         errors.append('Actual old child-process missing-pip failure is absent')
+    recovered_windows = windows_installation is not None and not windows_installation['original_wrapper_accepted']
     write(dict(passed=not errors, errors=errors, stages=records, repair_version=args.repair_version,
-        scope='Released online installers and installed in-app updater only; not frozen self-update or unreleased checkout behavior.'))
+        windows_installation=windows_installation,
+        scope=('Released Windows online runtime recovery after explicit bootstrap and missing-pip repairs; original NSIS wrapper remains failed; no frozen self-update.'
+               if recovered_windows else
+               'Released online installers and installed in-app updater only; not frozen self-update or unreleased checkout behavior.')))
     raise SystemExit(bool(errors))
 
 assert args.expect and args.target_version
