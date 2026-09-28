@@ -5531,3 +5531,15 @@ maintainer.
 
 Nothing here touches the feature owners' files (make_masks, detect_chain,
 psf_controls, point_spread, model_zoo*, _segmentation_backends, ops_engine).
+
+2026-09-28 (evening, Claude): the 59 failures of CI run 36432941067
+(item-564-wip, pre-merge) were replayed by name on nightly 173571f77.
+5 no longer exist, 47 passed; the 7 still red are fixed in e88501cfc
+(figure_style around the counterfactual figure, three docstrings, the
+intensity-link test skips the bounds item 511 retired) and c95151355 (English
+API and runtime sources regenerated for 557/561 and psf_pipeline; the nine
+awaiting captions entered en.py). Locally, 5 i18n tests fail on clean nightly
+too and were not in CI's list (two Portuguese API-repair cases, the
+indented-literal shape test, Swedish and French reviewed runtime text); left
+for CI to confirm. Stale wip-branch runs were cancelled with the
+maintainer's approval so nightly gets runners. Still needed: one green run.
