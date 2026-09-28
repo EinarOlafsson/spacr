@@ -3066,6 +3066,159 @@ def _promote_merged_to_uint16(data, settings, *, rescale_factor=None):
     return out, factor
 
 
+_CALIBRATION_IDENTITY_KEY = '_intensity_calibration_identity'
+
+
+def _calibration_reference_hashes(settings, files):
+    """Bind reference field names to their bytes, independently of timestamps.
+
+    :param settings: Measurement settings containing the source, reference wells
+        and optional timelapse mode.
+    :param files: Available merged-array basenames after quality exclusions.
+    :returns: Reference basenames mapped to SHA-256 content digests.
+    """
+    import hashlib
+    from . import schema
+    from .intensity_rescale import _calibration_wells
+
+    wells = _calibration_wells(settings)
+    references = {}
+    for filename in sorted(set(files)):
+        field = schema.parse_field_stem(
+            filename, timelapse=bool(settings.get('timelapse', False)))
+        if (field.rowID, field.columnID) not in wells:
+            continue
+        digest = hashlib.sha256()
+        with open(os.path.join(settings['src'], filename), 'rb') as stream:
+            for chunk in iter(lambda: stream.read(1 << 20), b''):
+                digest.update(chunk)
+        references[filename] = digest.hexdigest()
+    return references
+
+
+def _prepare_measurement_calibration(settings, files):
+    """Resolve calibration before resume or any measurement database write.
+
+    :param settings: Measurement settings updated with the resolved content
+        identity, or None when calibration is disabled; stale gains are removed.
+    :param files: Available merged-array basenames after quality exclusions.
+    :returns: The full rescale plan and calibrated gains with reference hashes,
+        or ``(None, None)`` when calibration is disabled.
+    """
+    import hashlib
+
+    settings.pop(CALIBRATION_SETTINGS_KEY, None)
+    settings[_CALIBRATION_IDENTITY_KEY] = None
+    if not settings.get('intensity_calibration'):
+        return None, None
+    references = _calibration_reference_hashes(settings, files)
+    full_plan = build_plate_plan(settings['src'], files, settings)
+    resolved = dict(settings)
+    resolved[PLAN_SETTINGS_KEY] = {
+        key: full_plan[key] for key in ('version', 'plates', 'failures')}
+    calibration = _build_intensity_calibration_plan(
+        settings['src'], files, resolved)
+    if _calibration_reference_hashes(settings, files) != references:
+        raise ValueError('Intensity calibration reference files changed while '
+                         'planning. Nothing was measured; retry after acquisition stops.')
+    calibration['reference_files'] = references
+    identity = hashlib.sha256(json.dumps(
+        calibration, sort_keys=True, separators=(',', ':'),
+        allow_nan=False).encode('utf-8')).hexdigest()
+    settings[_CALIBRATION_IDENTITY_KEY] = identity
+    calibration['identity'] = identity
+    return full_plan, calibration
+
+
+def _validate_measurement_calibration_history(settings, db_path):
+    """Refuse incompatible or unproven calibration without mutating SQLite.
+
+    Retained measured rows must have matching content-bound provenance. Legacy
+    uncalibrated rows remain compatible with disabled calibration; legacy
+    calibrated rows cannot prove which reference bytes produced their gains.
+
+    :param settings: Measurement settings with the resolved calibration identity.
+    :param db_path: Existing measurement database path, if any.
+    :returns: None when retained measurements are compatible or absent.
+    :raises ValueError: Existing measurements have incompatible or unverified
+        calibration or lack the required per-field provenance.
+    """
+    if not os.path.isfile(db_path):
+        return
+    from .database_concurrency import connect
+    from .resume import MEASURE_OWNED_TABLES, measure_rows_clause, read_recorded_settings
+
+    identity = settings.get(_CALIBRATION_IDENTITY_KEY)
+    message = ('Existing measurements have a different or unverified intensity '
+               'calibration/reference content. Restore the recorded references '
+               'and calibration, or use a clean separate output project. '
+               'No existing measurement rows were changed.')
+    connection = connect(db_path, readonly=True)
+    try:
+        tables = {row[0] for row in connection.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'")}
+        occupied = {}
+        for table in tables & (MEASURE_OWNED_TABLES - {'png_list', 'intensity_rescale'}):
+            clause = measure_rows_clause(connection, table) or '1'
+            if connection.execute(f'SELECT 1 FROM "{table}" WHERE {clause} LIMIT 1').fetchone():
+                occupied[table] = clause
+        if not occupied:
+            return
+        recorded = read_recorded_settings(db_path)
+        previous = recorded.get(_CALIBRATION_IDENTITY_KEY)
+        if previous in ('None', '', 'null'):
+            previous = None
+        if previous is not None and previous != identity:
+            raise ValueError(message)
+        if (identity is None and str(recorded.get('intensity_calibration', '')).lower()
+                in {'true', '1', 'yes', 'on'}):
+            raise ValueError(message)
+        columns = {row[1] for row in connection.execute(
+            'PRAGMA table_info(intensity_rescale)')}
+        if 'intensity_calibration' not in columns:
+            if identity is not None:
+                raise ValueError(message)
+            return
+        for (text,) in connection.execute(
+                'SELECT DISTINCT intensity_calibration FROM intensity_rescale'):
+            if text is None:
+                if identity is not None:
+                    raise ValueError(message)
+                continue
+            try:
+                record = json.loads(text)
+            except (ValueError, TypeError) as error:
+                raise ValueError(message) from error
+            if (identity is None or not isinstance(record, dict)
+                    or record.get('identity') != identity):
+                raise ValueError(message)
+        if identity is None:
+            return
+        keys = ('plateID', 'rowID', 'columnID', 'fieldID')
+        if not set(keys) <= columns:
+            raise ValueError(message)
+        for table, clause in occupied.items():
+            field_columns = {row[1] for row in connection.execute(
+                f'PRAGMA table_info("{table}")')}
+            if not set(keys) <= field_columns:
+                raise ValueError(message)
+            matches = [f'CAST(p."{key}" AS TEXT) = CAST(measured."{key}" AS TEXT)'
+                       for key in keys]
+            if 'timeID' in field_columns:
+                if 'timeID' not in columns:
+                    raise ValueError(message)
+                matches.append('COALESCE(CAST(p.timeID AS TEXT), \'\') = '
+                               'COALESCE(CAST(measured.timeID AS TEXT), \'\')')
+            missing = connection.execute(
+                f'SELECT 1 FROM "{table}" AS measured WHERE ({clause}) AND NOT EXISTS '
+                '(SELECT 1 FROM intensity_rescale AS p WHERE ' + ' AND '.join(matches)
+                + ' AND p.intensity_calibration IS NOT NULL) LIMIT 1').fetchone()
+            if missing:
+                raise ValueError(message)
+    finally:
+        connection.close()
+
+
 def _write_intensity_rescale_record(source_folder, file_name, settings,
                                     record, psf_record=None):
     """Upsert base rescaling and subsequent PSF provenance for one field.
@@ -3073,8 +3226,17 @@ def _write_intensity_rescale_record(source_folder, file_name, settings,
     ``target_dtype`` describes the standard rescaling stage. The separate PSF
     provenance records the final float dtype, kernel and quantitative source.
     ``intensity_calibration`` holds the cross-plate calibration applied to the
-    field (gains, reference plate, statistic and offset) as JSON, or NULL.
+    field (gains, reference plate, statistic, offset and content identity) as
+    JSON, or NULL. Reference hashes bind the resolved plan to its actual inputs.
     Older tables gain nullable signature/details and an original-source default.
+
+    :param source_folder: Project root containing the measurements directory.
+    :param file_name: Merged field stem without the ``.npy`` suffix.
+    :param settings: Measurement settings containing resolved calibration and
+        optional PSF identities.
+    :param record: Rescaling provenance and any applied per-field calibration.
+    :param psf_record: Optional subsequent PSF processing provenance.
+    :returns: None after the field's provenance is saved.
     """
     from . import schema
     from .database_concurrency import connect, transaction
@@ -3098,7 +3260,11 @@ def _write_intensity_rescale_record(source_folder, file_name, settings,
         'psf_signature': settings.get('_psf_measurement_signature'),
         'psf_provenance': json.dumps(psf_record, sort_keys=True, allow_nan=False),
         'intensity_calibration': (
-            json.dumps(record['intensity_calibration'], sort_keys=True,
+            json.dumps({**record['intensity_calibration'],
+                        'identity': settings.get(_CALIBRATION_IDENTITY_KEY),
+                        'reference_files': settings.get(
+                            CALIBRATION_SETTINGS_KEY, {}).get('reference_files', {})},
+                       sort_keys=True,
                        allow_nan=False)
             if record.get('intensity_calibration') else None),
     }
@@ -7917,7 +8083,15 @@ def measure_crop(settings):
 
                 from .database_concurrency import enable_wal_where_safe
                 _measurements_dir = os.path.join(
-                    os.path.dirname(src_fldr), 'measurements')
+                    os.path.dirname(settings['src']), 'measurements')
+                files = [f for f in _listdir_visible(settings['src']) if f.endswith('.npy')]
+                from .image_quality import excluded_fields, ensure_no_retained_measurements
+                rejected_quality = excluded_fields(os.path.dirname(settings['src']))
+                ensure_no_retained_measurements(os.path.dirname(settings['src']), rejected_quality)
+                files = [name for name in files if name not in rejected_quality]
+                _full_rescale_plan, calibration = _prepare_measurement_calibration(settings, files)
+                _validate_measurement_calibration_history(
+                    settings, os.path.join(_measurements_dir, 'measurements.db'))
                 os.makedirs(_measurements_dir, exist_ok=True)
                 enable_wal_where_safe(
                     os.path.join(_measurements_dir, 'measurements.db'))
@@ -8010,13 +8184,9 @@ def measure_crop(settings):
 
                 _save_settings_to_db(settings)
 
-                files = [f for f in _listdir_visible(settings['src']) if f.endswith('.npy')]
-                from .image_quality import excluded_fields, ensure_no_retained_measurements
-                rejected_quality = excluded_fields(os.path.dirname(settings['src']))
-                ensure_no_retained_measurements(os.path.dirname(settings['src']), rejected_quality)
-                files = [name for name in files if name not in rejected_quality]
-                _full_rescale_plan = build_plate_plan(
-                    settings['src'], files, settings)
+                if _full_rescale_plan is None:
+                    _full_rescale_plan = build_plate_plan(
+                        settings['src'], files, settings)
                 settings[PLAN_SETTINGS_KEY] = {
                     'version': _full_rescale_plan['version'],
                     'plates': _full_rescale_plan['plates'],
@@ -8030,10 +8200,7 @@ def measure_crop(settings):
                         f"can be loaded by its worker, it will use a per-field "
                         f"fallback and measurements.db:intensity_rescale will "
                         f"mark it non-comparable.")
-                settings.pop(CALIBRATION_SETTINGS_KEY, None)
-                if settings.get('intensity_calibration'):
-                    calibration = _build_intensity_calibration_plan(
-                        settings['src'], files, settings)
+                if calibration is not None:
                     settings[CALIBRATION_SETTINGS_KEY] = calibration
                     print(f"Intensity calibration against plate "
                           f"{calibration['reference_plate']}: " + '; '.join(

@@ -48,3 +48,16 @@ ALPHA: 2026-09-27
     folder outside the plate); a changed calibration does not invalidate
     resumed fields; no GUI preview of the gains; the reference plate is
     always the first by name.
+
+STATUS 2026-09-28 — reference-content identity checked before reuse
+Measure now resolves gains and reference-file SHA256 identities before WAL,
+settings replacement or resume cleanup. Retained calibrated fields require
+matching per-field provenance. Changed references, even with unchanged file
+size/timestamp or calibration statistics, disabling calibration, and legacy
+unverified calibrated rows refuse reuse while preserving exact database bytes.
+Unchanged calibrated runs and legacy uncalibrated runs still resume.
+All118 named calibration/resume/callable checks pass under4G. The source-current
+English API inventory and docstring correctness checks also pass. This repairs
+reuse consistency only; reference-selection/gain-preview UI and real acquisition
+acceptance are not claimed complete. Item580 remains implemented as alpha.
+Receipt: features/data/580_calibration_resume_identity_2026-09-28.json.
