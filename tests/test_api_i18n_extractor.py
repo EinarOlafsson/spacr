@@ -1307,7 +1307,11 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # spacr.qt.mask_engine.fill_label_holes.
     # 11,861 -> 11,865 on 2026-09-26, +4 / -0, items 544 and 573 (blind
     # scoring and the preregistered analysis lock): spacr.run_journal's start_blinding, unblind, lock_analysis and check_analysis_lock.
-    expected = 11_865
+    # 11,865 -> 11,929 on 2026-09-28, +64 / -0, item 593: the new modules
+    # spacr.folder_consolidation, spacr.channel_sorting and
+    # spacr.qt.widgets.channel_sort_dialog. English sources regenerated with
+    # --sources-only; the locale catalogs are not (catalog lane).
+    expected = 11_929
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1352,7 +1356,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 11,528 -> 11,651 -> 11,661 with `expected` above, for the same moves.
     # 11,758 -> 11,816 with `expected` above.
     # 11,816 -> 11,834 with `expected` above.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_865
+    # 11,865 -> 11,929 with `expected` above, for item 593's 64.
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_929
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be

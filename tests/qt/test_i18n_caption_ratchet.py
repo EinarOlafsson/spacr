@@ -1177,9 +1177,73 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 574, 2026-09-27: the Report screen's Archive package button and form.
 # 579, 2026-09-27: the Report screen's Deposit on Zenodo button and form.
 # 316, 2026-09-27: all 76 resolved through their explicit owners.
-# 557/561, 2026-09-28: the nine Noise2Void and DINO captions entered en.py
-# when the English runtime sources were regenerated; the locales follow.
-_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset()
+# 593, 2026-09-28: Make Masks' Consolidate folders and Sort into channels
+# buttons, their prompts and console lines, and the channel-sort dialog,
+# regex window and example-sets check (spacr/qt/widgets/channel_sort_dialog.py).
+_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    # Incoming 557/561 captions remain pending source-bound review.
+    # 593: consolidate folders and sort into channels.
+    'A folder job is still running.',
+    "A regex with named groups sorts every image into a channel and a set (one field across all channels). chanID is the channel; plateID, wellID, fieldID and timeID say where a set goes; any other named group only tells sets apart. Images assigned to a channel by selection keep that channel.\nExamples:\nspaCR's Yokogawa default: {cellvoyager}\nwell, field and channel: {typical}\nnames made by Consolidate folders: {consolidated}",
+    'Add channel',
+    'Are these sets right?',
+    'Assign the selected images to channel {n}.',
+    "Assign this folder's images to channels, by selection or by a regex, then move them with their masks into one folder per channel, rename them in Yokogawa format and merge them into merged/ for Measure.",
+    'Auto regex',
+    'Busy',
+    'Cannot sort',
+    'Change the regex?',
+    'Channel {channel}: {name}',
+    'Channel {n} masks are',
+    'Clear channel',
+    'Consolidate folders?',
+    'Consolidate folders…',
+    'Consolidating {folder} into {output}…',
+    'Consolidation failed',
+    'Copied {n} image(s) into {output}; the mapping is in {manifest}.',
+    'Detect sets',
+    'Detect sets needs at least two channels: assign images to channels first, by selection or with a chanID group.',
+    'Edit regex…',
+    'File',
+    'Find a regex that puts every image in exactly one complete set: the token that changes with the channel, and the tokens that name the field.',
+    'Groups',
+    "Ignore the names' structure: pair each image with the most similar image of the same size in every other channel, then show three sets to check.",
+    'Move and merge?',
+    'Moved {moved} file(s); {stacks} stack(s) and {merged} merged array(s) written under {dest}. Every move is in {manifest}.',
+    'No',
+    'No folder',
+    'No images were found in subfolders of {folder}.',
+    'Nothing to consolidate',
+    'Open one folder of images to sort into channels.',
+    'Pick a folder whose images sit in subfolders, and copy them all into one new folder, each named after the folders it was in. The originals are not touched.',
+    'Pick the folder to consolidate',
+    'Regex for channels and sets',
+    'Regex with named groups',
+    'Select all',
+    'Select images and assign them to a channel, or let a regex assign every image. On Apply the images and their masks are MOVED into one folder per channel under {dest}, renamed in Yokogawa format, and merged into merged/. Every move is written to a manifest.',
+    'Set',
+    'Sort into channels',
+    'Sort into channels…',
+    'Sorting failed',
+    'Sorting {n} image(s) into channels under {dest}…',
+    'Take the selected images out of their channel, so the regex decides theirs.',
+    'The names cannot be turned into Yokogawa names with the current regex: not every image maps to a unique set of plate, well and field plus a channel.\n\n{why}\n\nChange the regex?',
+    'The regex is not valid: {error}',
+    'Use this regex',
+    'Yes, these are right',
+    'mask',
+    'no',
+    'no mask',
+    'not merged',
+    'spaCR found no regex that puts every image in exactly one complete set. Assign channels by selection and try again, or use Detect sets.',
+    'spaCR paired each image with the most similar image of the same size in every other channel. Here are three of the {n} sets it found, each channel with its mask in red. Are they right?',
+    '{error}\nEvery move made before the failure is listed in the manifest.',
+    '{folder} has {n} image(s) in {m} subfolder(s). Copy them into one new folder, each named after the folders it was in (for example exp_nucleus_2.tif)? The originals are not touched. No opens the folder as it is.',
+    '{name}\n{mask} · channel {channel}',
+    '{n} file(s) could not be copied; see the manifest.',
+    '{n} set(s) detected by pairing.',
+    '{n} set(s) detected.',
+})
 
 
 

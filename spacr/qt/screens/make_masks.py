@@ -593,6 +593,40 @@ class _MaskLoadWorker(QThread):
             )
 
 
+#: Subfolders a dropped folder may hold that are not images to consolidate:
+#: masks, the pipeline's raw-image backup and an earlier channel sort.
+_NOT_CONSOLIDATED = ("masks", "orig", "sorted_channels")
+
+
+class _FolderJobWorker(QThread):
+    """Run one folder job -- consolidating or sorting -- off the GUI thread.
+
+    Item 593. Copying a folder tree or moving and merging a plate can take
+    minutes; the screen stays responsive and the job's lines go to the Make
+    Masks console, which accepts them from any thread.
+    """
+
+    def __init__(self, job, parent=None):
+        """Remember the job.
+
+        :param job: a callable taking no arguments; its return value is kept
+            as :attr:`result`, an exception it raises as :attr:`error`.
+        :param parent: parent object.
+        """
+        super().__init__(parent)
+        self.job = job
+        self.result = None
+        self.error: Optional[Exception] = None
+
+    def run(self) -> None:
+        """Run the job, keeping its result or the exception it raised."""
+        try:
+            self.result = self.job()
+        except Exception as exc:
+            self.error = exc
+            LOG.exception("Make Masks folder job failed")
+
+
 class _StatusLabel(QLabel):
     """The corner readout: one short line here, every line in the console.
 
@@ -8382,6 +8416,8 @@ class MakeMasksScreen(QWidget):
         self._btn_open.setCursor(Qt.PointingHandCursor)
         self._btn_open.clicked.connect(self._on_pick_folder)
         nav_row.addWidget(self._btn_open)
+        nav_row.addWidget(self._build_consolidate_button())
+        nav_row.addWidget(self._build_sort_channels_button())
         from ..make_masks_demo import install_test_data_button
         nav_row.addWidget(install_test_data_button(self))
         from ..make_masks_datasets import install_dataset_button
@@ -14733,7 +14769,206 @@ class MakeMasksScreen(QWidget):
                                               self._folder or os.getcwd())
         if not d:
             return
+        if self._offer_consolidation(d):
+            return
         self._open_folder(d)
+
+    # -- item 593: consolidate folders, sort into channels -----------------
+
+    def _build_consolidate_button(self) -> QPushButton:
+        """The "Consolidate folders…" button beside "Open folder…"."""
+        from ..i18n import tr
+
+        button = QPushButton(tr("Consolidate folders…"), self)
+        button.setObjectName("MakeMasksConsolidateButton")
+        button.setCursor(Qt.PointingHandCursor)
+        button.setToolTip(tr(
+            "Pick a folder whose images sit in subfolders, and copy them all "
+            "into one new folder, each named after the folders it was in. "
+            "The originals are not touched."))
+        button.clicked.connect(
+            lambda _checked=False: self._on_consolidate_folders())
+        self._btn_consolidate = button
+        return button
+
+    def _build_sort_channels_button(self) -> QPushButton:
+        """The "Sort into channels…" button, for the folder that is open."""
+        from ..i18n import tr
+
+        button = QPushButton(tr("Sort into channels…"), self)
+        button.setObjectName("MakeMasksSortChannelsButton")
+        button.setCursor(Qt.PointingHandCursor)
+        button.setToolTip(tr(
+            "Assign this folder's images to channels, by selection or by a "
+            "regex, then move them with their masks into one folder per "
+            "channel, rename them in Yokogawa format and merge them into "
+            "merged/ for Measure."))
+        button.clicked.connect(lambda _checked=False: self._on_sort_channels())
+        self._btn_sort_channels = button
+        return button
+
+    def _folder_job_running(self) -> bool:
+        """Whether a consolidation or channel sort is still running."""
+        worker = getattr(self, "_folder_job", None)
+        return worker is not None and worker.isRunning()
+
+    def _on_consolidate_folders(self) -> bool:
+        """Pick a folder and consolidate it, asking first.
+
+        :returns: whether a consolidation was started.
+        """
+        from ..i18n import tr
+
+        d = QFileDialog.getExistingDirectory(
+            self, tr("Pick the folder to consolidate"),
+            self._folder or os.getcwd())
+        if not d:
+            return False
+        if self._offer_consolidation(d):
+            return True
+        self._warn(tr("Nothing to consolidate"),
+                   tr("No images were found in subfolders of {folder}.",
+                      folder=d))
+        return False
+
+    def _offer_consolidation(self, folder: str) -> bool:
+        """Ask whether to consolidate ``folder`` when its images sit in subfolders.
+
+        Folders in :data:`_NOT_CONSOLIDATED` are not counted or copied: they
+        hold masks, raw originals or an earlier sort, not images to edit.
+
+        :param folder: the folder dropped or picked.
+        :returns: True when a consolidation was started, and the new folder
+            will open when it ends; False to open ``folder`` as it is.
+        """
+        from ..i18n import tr
+        from ... import folder_consolidation as fc
+
+        try:
+            files, folders = fc.nested_file_count(
+                folder, engine.IMAGE_EXTS, _NOT_CONSOLIDATED)
+        except OSError:
+            return False
+        if not files:
+            return False
+        if not self._confirm(
+                tr("Consolidate folders?"),
+                tr("{folder} has {n} image(s) in {m} subfolder(s). Copy them "
+                   "into one new folder, each named after the folders it was "
+                   "in (for example exp_nucleus_2.tif)? The originals are not "
+                   "touched. No opens the folder as it is.",
+                   folder=folder, n=files, m=folders)):
+            return False
+        return self._start_consolidation(folder)
+
+    def _start_consolidation(self, folder: str) -> bool:
+        """Copy ``folder``'s tree into one new folder off the GUI thread.
+
+        :param folder: the folder to consolidate.
+        :returns: False when another folder job is still running.
+        """
+        from ..i18n import tr
+        from ... import folder_consolidation as fc
+
+        if self._folder_job_running():
+            self._warn(tr("Busy"), tr("A folder job is still running."))
+            return False
+        post = self._masks_console.post
+        output = fc.default_output_folder(folder)
+        post(tr("Consolidating {folder} into {output}…", folder=folder,
+                output=str(output)))
+        worker = _FolderJobWorker(lambda: fc.consolidate_folder(
+            folder, output, extensions=engine.IMAGE_EXTS,
+            skip_dirs=_NOT_CONSOLIDATED,
+            log=post), self)
+        worker.finished.connect(lambda: self._on_consolidated(worker))
+        self._folder_job = worker
+        worker.start()
+        return True
+
+    def _on_consolidated(self, worker: _FolderJobWorker) -> None:
+        """Open the consolidated folder, or say why there is none.
+
+        :param worker: the finished job.
+        """
+        from ..i18n import tr
+
+        if worker.error is not None or worker.result is None:
+            self._warn(tr("Consolidation failed"), str(worker.error))
+            return
+        result = worker.result
+        self._masks_console.post(tr(
+            "Copied {n} image(s) into {output}; the mapping is in {manifest}.",
+            n=result.copied, output=str(result.output),
+            manifest=str(result.manifest)))
+        if result.failed:
+            self._masks_console.post(tr(
+                "{n} file(s) could not be copied; see the manifest.",
+                n=result.failed), "warning")
+        self._open_folder(str(result.output))
+
+    def _on_sort_channels(self):
+        """Open "Sort into channels…" on the open folder and apply its plan.
+
+        :returns: the dialog, or None when no single folder is open.
+        """
+        from ..i18n import tr
+        from ..widgets.channel_sort_dialog import ChannelSortDialog
+
+        if not self._folder or self._field_folders:
+            self._warn(tr("No folder"),
+                       tr("Open one folder of images to sort into channels."))
+            return None
+        dialog = ChannelSortDialog(self._folder, self._masks_dir, self)
+        if is_headless():
+            return dialog
+        if dialog.exec() == QDialog.Accepted and dialog.plan is not None:
+            self._start_channel_sort(dialog.plan)
+        return dialog
+
+    def _start_channel_sort(self, plan) -> bool:
+        """Move, rename and merge as ``plan`` says, off the GUI thread.
+
+        :param plan: a confirmed :class:`spacr.channel_sorting.SortPlan`.
+        :returns: False when another folder job is still running.
+        """
+        from ..i18n import tr
+        from ... import channel_sorting as cs
+
+        if self._folder_job_running():
+            self._warn(tr("Busy"), tr("A folder job is still running."))
+            return False
+        post = self._masks_console.post
+        post(tr("Sorting {n} image(s) into channels under {dest}…",
+                n=len(plan.rows), dest=plan.dest))
+        worker = _FolderJobWorker(lambda: cs.apply_plan(plan, log=post), self)
+        worker.finished.connect(lambda: self._on_channels_sorted(worker))
+        self._folder_job = worker
+        worker.start()
+        return True
+
+    def _on_channels_sorted(self, worker: _FolderJobWorker) -> None:
+        """Report the sort and open the first channel folder.
+
+        :param worker: the finished job.
+        """
+        from ..i18n import tr
+
+        if worker.error is not None or worker.result is None:
+            self._warn(tr("Sorting failed"), tr(
+                "{error}\nEvery move made before the failure is listed in "
+                "the manifest.", error=str(worker.error)))
+            return
+        result = worker.result
+        self._masks_console.post(tr(
+            "Moved {moved} file(s); {stacks} stack(s) and {merged} merged "
+            "array(s) written under {dest}. Every move is in {manifest}.",
+            moved=result.moved, stacks=len(result.stacks),
+            merged=len(result.merged), dest=result.dest,
+            manifest=result.manifest))
+        first = os.path.join(result.dest, "C01")
+        if os.path.isdir(first):
+            self._open_folder(first)
 
     def open_paths(self, paths) -> bool:
         """Open dropped image files and folders as one queue, in drop order.
@@ -14751,6 +14986,8 @@ class MakeMasksScreen(QWidget):
 
         paths = [os.path.abspath(str(p)) for p in paths]
         if len(paths) == 1 and os.path.isdir(paths[0]):
+            if self._offer_consolidation(paths[0]):
+                return True
             return self._open_folder(paths[0])
         fields: list = []
         for path in paths:
@@ -15487,4 +15724,8 @@ class MakeMasksScreen(QWidget):
                    *self._mode_buttons.values()):
             b.setEnabled(editable)
         self._btn_skip.setEnabled(editable and self._queue is not None)
+        sort_button = getattr(self, "_btn_sort_channels", None)
+        if sort_button is not None:
+            sort_button.setEnabled(has_files and not getattr(
+                self, "_field_folders", None))
         self._btn_prompt.setEnabled(editable)
