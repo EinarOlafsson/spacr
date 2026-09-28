@@ -2,12 +2,11 @@
 EVERY FUNCTION DOCUMENTED, AND A CLICKABLE TREE OF WHERE EACH SETTING IS USED
 ================================================================================
 
-Status:    2026-09-25: DONE here (both pins green again on this commit);
-           remaining: docs lane -- the API translation tail on 411, and the
-           public-API-surface ratchet in tests/test_api_i18n_extractor.py,
-           red on nightly a93f937d2 before this commit (11724 vs reviewed
-           11710, +14 from other items), which is bumped by regenerating the
-           catalogs with tools/build_documentation_i18n.py.
+Status:    2026-09-27: DONE here. Package-wide callable documentation and
+           current settings-flow/API-link guards pass. The current API
+           inventory and nine catalogs agree at 11,865 symbols; the former
+           translation tail is resolved. Nested-helper publication remains
+           separately scoped by future item 411, as agreed on 2026-09-15.
            PHASES 1-4 DONE, AND BOTH ENDS NOW HELD BY A TEST rather than by
            a note in this file, which is what the two previous closes were
            missing. 2026-09-14: the two generated artefacts were two days
@@ -806,3 +805,23 @@ regeneration, not this sweep.
 meanwhile (seed_well_boxes now reads figure_confidence, figure_detector,
 figure_imgsz, src) staled 4 sections; regenerated again, 7489
 cross-references. Settings-flow pins and the API-link test: 11 passed.
+
+2026-09-27 -- CURRENT SOURCE ACCEPTANCE
+The callable-documentation guard passes on the current package, including
+the nested GPU-discovery refresh callback (47). The API extractor, frontend,
+docstring and catalog gates passed in the 207-case delta-3 validation batch;
+all nine localized API catalogs are current at 11,865 symbols.
+
+The settings-flow guard found one stale section: unmix omitted the direct
+read in _prepare_measure_unmixing. Regenerated with the canonical
+tools/settings_flow.py --rst command. Only that reader marker/list changed;
+the generated index is unchanged. There are 1,273 sections and 5,791 API
+cross-references, derived from 1,298 read settings and 1,115 propagation
+edges (808 resolved, 307 explicitly unresolved).
+
+The command also emits its specified docs/settings_flow.json analysis file.
+That generated JSON remains gitignored; it was used to exercise both API-link
+checks which otherwise skip when it is absent. Final current-artifact and
+API-link validation: 11 passed, no skips, in 39.83 seconds under a 4G cap.
+Log: /mnt/wd4tb/scratch/spacr-completion/settings-doc-acceptance-tests.log.
+No test ceiling, runtime setting, API signature or translation source changed.

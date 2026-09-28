@@ -53,6 +53,7 @@ VERBATIM at the end rather than replaced.
 
 from __future__ import annotations
 
+import json
 import os
 import textwrap
 from collections import OrderedDict
@@ -105,7 +106,7 @@ CONTRACT: Dict[str, Tuple[str, ...]] = {
         "transform", "formula", "plate_position",
     ),
     "design": (
-        "n_wells", "n_guides", "n_genes", "n_cells", "n_rows_fitted",
+        "n_wells", "n_guides", "n_genes", "n_cells", "n_rows_prepared", "n_rows_fitted",
         "n_observations", "n_parameters", "design_rank",
         "wells_per_parameter", "identifiable",
     ),
@@ -143,11 +144,12 @@ LABELS: Dict[Tuple[str, str], str] = {
     ("fitted", "transform"): "response transform",
     ("fitted", "formula"): "formula fitted",
     ("fitted", "plate_position"): "plate position",
-    ("design", "n_wells"): "wells",
-    ("design", "n_guides"): "guides",
-    ("design", "n_genes"): "genes",
-    ("design", "n_cells"): "cells",
-    ("design", "n_rows_fitted"): "rows in the fitted table",
+    ("design", "n_wells"): "wells in prepared input",
+    ("design", "n_guides"): "guides in prepared input",
+    ("design", "n_genes"): "genes in prepared input",
+    ("design", "n_cells"): "cells in prepared input",
+    ("design", "n_rows_prepared"): "rows in prepared input",
+    ("design", "n_rows_fitted"): "measured rows fitted",
     ("design", "n_observations"): "observations fitted",
     ("design", "n_parameters"): "parameters estimated",
     ("design", "design_rank"): "rank of the design",
@@ -544,6 +546,7 @@ class _Run:
     data: Optional[pd.DataFrame]
     data_note: str
     metrics: Dict[str, Any]
+    fit_designs: Mapping[str, Any] = field(default_factory=dict)
     #: WHAT THE SECTIONS ABOVE ACTUALLY WROTE. The assumption builders
     #: measure a number, format it into a sentence and would otherwise throw
     #: the number away -- so the recommendations at the end would have had to
@@ -591,12 +594,10 @@ def _penalised_types() -> Tuple[str, ...]:
 def _read_fitted_table(res_folder) -> Tuple[Optional[pd.DataFrame], str]:
     """The run's own ``regression_data.csv``, and where it came from.
 
-    THIS IS THE TABLE THAT REACHED THE FIT, written by
-    :func:`spacr.ml.perform_regression` before any model is built, so it is
-    the honest source for wells, guides, genes and cells — the four counts the
-    Runs tab compares runs by. Reading it is collecting; counting the inputs
-    again would be re-deriving, and the two can differ by every row the merge
-    dropped.
+    This prepared table is written by :func:`spacr.ml.perform_regression`
+    before model-specific cleaning, missing-value exclusion and reshaping.
+    Its wells, guides, genes and cells describe prepared input; actual fitted
+    observations must be read from retained model or design records.
     """
     if not res_folder:
         return None, ("no run folder was given, so regression_data.csv could "
@@ -605,7 +606,7 @@ def _read_fitted_table(res_folder) -> Tuple[Optional[pd.DataFrame], str]:
     if not os.path.isfile(path):
         return None, f"{path} does not exist"
     try:
-        return pd.read_csv(path), f"read from {path}"
+        return pd.read_csv(path, dtype={"prc": str, "grna": str, "gene": str}), f"read from {path}"
     except Exception as error:                                   # noqa: BLE001
         return None, f"{path} could not be read ({type(error).__name__}: {error})"
 
@@ -883,23 +884,30 @@ def _design_section(run: "_Run") -> List[SummaryField]:
                                ("n_genes", "gene", "gene")):
         number = counts.get(name)
         if number is None:
-            add(name, reason=f"the fitted table has no {column!r} column "
+            add(name, reason=f"the prepared table has no {column!r} column "
                              f"({note})")
         else:
             add(name, value=f"{number:,} distinct {unit}(s)")
     cells = counts.get("n_cells")
     if cells is None:
         add("n_cells",
-            reason=f"the fitted table has no 'cell_count' column, so the "
+            reason=f"the prepared table has no 'cell_count' column, so the "
                    f"objects behind the wells cannot be counted ({note})")
     else:
         add("n_cells",
             value=f"{cells:,} objects, summed over the distinct wells")
-    rows = counts.get("n_rows_fitted")
+    rows = counts.get("n_rows_prepared")
     if rows is None:
-        add("n_rows_fitted", reason=note)
+        add("n_rows_prepared", reason=note)
     else:
-        add("n_rows_fitted", value=f"{rows:,} rows in regression_data.csv")
+        add("n_rows_prepared", value=f"{rows:,} rows in regression_data.csv")
+
+    fitted = _fitted_rows(run)
+    if fitted:
+        add("n_rows_fitted", value=fitted)
+    else:
+        add("n_rows_fitted", reason="no measured fit-row count was retained; "
+            "regression_data.csv records prepared input, before model cleaning and reshaping")
 
     observations = _count(run.metrics.get("n_observations"))
     if observations is None:
@@ -979,7 +987,7 @@ _LOW_PAIRING_PERCENT = 50.0
 
 
 def _design_counts(frame) -> Dict[str, Optional[int]]:
-    """Wells, guides, genes, cells and rows from the run's fitted table.
+    """Wells, guides, genes, cells and rows from the run's prepared table.
 
     ``n_cells`` is summed over the DISTINCT WELLS. ``regression_data.csv`` is
     one row per (well, guide), so ``cell_count`` repeats once per guide in the
@@ -988,11 +996,11 @@ def _design_counts(frame) -> Dict[str, Optional[int]]:
     """
     out: Dict[str, Optional[int]] = {
         "n_wells": None, "n_guides": None, "n_genes": None,
-        "n_cells": None, "n_rows_fitted": None,
+        "n_cells": None, "n_rows_prepared": None,
     }
     if not isinstance(frame, pd.DataFrame):
         return out
-    out["n_rows_fitted"] = int(len(frame))
+    out["n_rows_prepared"] = int(len(frame))
     for name, column in (("n_wells", "prc"), ("n_guides", "grna"),
                          ("n_genes", "gene")):
         if column in frame.columns:
@@ -1004,6 +1012,26 @@ def _design_counts(frame) -> Dict[str, Optional[int]]:
         if np.isfinite(total):
             out["n_cells"] = int(total)
     return out
+
+
+def _fitted_rows(run):
+    """Describe measured fit rows per level, without inferring from input size."""
+    if run.fit_designs:
+        parts = []
+        for level, record in run.fit_designs.items():
+            count = None
+            try:
+                value = float(record.get("n_rows_fitted")) if isinstance(record, Mapping) else float("nan")
+                if np.isfinite(value) and value >= 0 and value.is_integer():
+                    count = int(value)
+            except (TypeError, ValueError, OverflowError):
+                pass
+            parts.append(f"{level}: {count:,}" if count is not None else f"{level}: not recorded")
+        return "; ".join(parts)
+    count = _count(run.metrics.get("n_observations"))
+    if count is None:
+        count = _count(getattr(run.model, "nobs", getattr(run.model, "n_obs", None)))
+    return f"{count:,} observations in the retained model" if count is not None else None
 
 
 #: Families fitted by maximum likelihood through a link, whose R2 does not
@@ -2020,7 +2048,7 @@ def _excluded_section(run: "_Run") -> List[SummaryField]:
                   f"of wells in the smaller input paired){flag}")
 
     counts = _design_counts(run.data)
-    rows = counts.get("n_rows_fitted")
+    rows = counts.get("n_rows_prepared")
     observations = _count(run.metrics.get("n_observations"))
     if observations is None:
         observations = _count(getattr(run.model, "nobs", None))
@@ -2034,16 +2062,13 @@ def _excluded_section(run: "_Run") -> List[SummaryField]:
                   f"test runs over all of them"
             if wells is not None else
             f"{rows:,} rows reached the permutation test")
-    elif observations is None:
-        add("rows_not_fitted",
-            value=f"{rows:,} rows reached the fit; what the estimator kept of "
-                  f"them cannot be read back off it")
     else:
-        dropped = rows - observations
+        fitted = _fitted_rows(run)
         add("rows_not_fitted",
-            value=f"{dropped:,} — {rows:,} rows in regression_data.csv "
-                  f"against {observations:,} observations in the fit "
-                  f"({'aggregation to wells and non-finite rows' if dropped > 0 else 'nothing was dropped'})")
+            value=f"{rows:,} prepared rows in regression_data.csv; "
+                  f"measured fit rows: {fitted or 'not recorded'}. "
+                  "Prepared rows may be cleaned or aggregated into wells; "
+                  "their difference from fit observations is not a count of excluded samples.")
 
     tested = _tested_mask(run)
     if tested is None or not isinstance(run.coef_df, pd.DataFrame):
@@ -2115,7 +2140,7 @@ _BUILDERS = {
 
 
 def build_run_summary(*, model=None, settings=None, coef_df=None,
-                      regression_type=None, res_folder=None) -> RunSummary:
+                      regression_type=None, res_folder=None, fit_designs=None) -> RunSummary:
     """spaCR's own summary of one run, in the same shape for every mode.
 
     THE CONTRACT IS THE RETURN VALUE. Whatever the regression type and
@@ -2135,15 +2160,24 @@ def build_run_summary(*, model=None, settings=None, coef_df=None,
     :param regression_type: the family actually fitted, when the caller knows
         it (``regression_type=None`` is auto-selected during the run, so the
         settings may still say ``None``).
-    :param res_folder: the run folder. Read for ``regression_data.csv``, which
-        is the table that reached the fit and therefore the honest source for
-        the well / guide / gene / cell counts.
+    :param res_folder: the run folder. ``regression_data.csv`` supplies prepared
+        input counts; ``regression_fit_designs.json`` supplies measured fit
+        counts when no explicit records are provided.
+    :param fit_designs: optional per-level measured design counts. Missing fit
+        counts are reported as unknown, never inferred from prepared row counts.
     :returns: :class:`RunSummary`.
     """
     settings = settings if isinstance(settings, Mapping) else {}
     frame = coef_df if isinstance(coef_df, pd.DataFrame) else None
     kind = _clean(regression_type) or _clean(settings.get("regression_type"))
     data, note = _read_fitted_table(res_folder)
+    if fit_designs is None and res_folder:
+        try:
+            with open(os.path.join(res_folder, "regression_fit_designs.json"),
+                      encoding="utf-8") as handle:
+                fit_designs = json.load(handle)
+        except (OSError, ValueError, TypeError):
+            fit_designs = None
     run = _Run(
         res_folder=res_folder, model=model, settings=settings, coef_df=frame,
         regression_type=kind,
@@ -2151,6 +2185,7 @@ def build_run_summary(*, model=None, settings=None, coef_df=None,
         penalised=(kind or "").strip().lower() in _penalised_types(),
         data=data, data_note=note,
         metrics=_collect_metrics(model, frame, settings),
+        fit_designs=fit_designs if isinstance(fit_designs, Mapping) else {},
     )
 
     sections: List[SummarySection] = []
@@ -2533,7 +2568,7 @@ def _hyperparameter_report(kind, settings, run) -> dict:
 
 
 def write_run_summary(res_folder, *, model=None, settings=None, coef_df=None,
-                      regression_type=None) -> Optional[str]:
+                      regression_type=None, fit_designs=None) -> Optional[str]:
     """Write this run's spaCR summary into its own folder, and return the path.
 
     CALLED ON EVERY RUN, for every supported regression type and
@@ -2555,6 +2590,8 @@ def write_run_summary(res_folder, *, model=None, settings=None, coef_df=None,
     :param settings: the run's settings dict.
     :param coef_df: the corrected coefficient table.
     :param regression_type: the family actually fitted.
+    :param fit_designs: optional measured per-level design counts, also saved
+        as ``regression_fit_designs.json`` for faithful reopening without a model.
     :returns: the path written, or ``None`` when there was no folder to write
         into.
     """
@@ -2564,7 +2601,7 @@ def write_run_summary(res_folder, *, model=None, settings=None, coef_df=None,
     summary = build_run_summary(model=model, settings=settings,
                                 coef_df=coef_df,
                                 regression_type=regression_type,
-                                res_folder=folder)
+                                res_folder=folder, fit_designs=fit_designs)
     path = os.path.join(folder, _summary_filename())
     if summary.verbatim is None and os.path.isfile(path):
         try:
@@ -2579,4 +2616,9 @@ def write_run_summary(res_folder, *, model=None, settings=None, coef_df=None,
     os.makedirs(folder, exist_ok=True)
     with open(path, "w", encoding="utf-8") as handle:
         handle.write(format_run_summary(summary))
+    if isinstance(fit_designs, Mapping):
+        with open(os.path.join(folder, "regression_fit_designs.json"),
+                  "w", encoding="utf-8") as handle:
+            json.dump(dict(fit_designs), handle, indent=2, allow_nan=False)
+            handle.write("\n")
     return path

@@ -41,7 +41,7 @@ def test_a_design_missing_the_id_columns_counts_only_its_rows():
 
     out = _design_counts(pd.DataFrame({"effect": [1.0, 2.0, 3.0]}))
 
-    assert out["n_rows_fitted"] == 3
+    assert out["n_rows_prepared"] == 3
     for absent in ("n_wells", "n_guides", "n_genes"):
         assert absent not in out or out[absent] is None
     assert "n_cells" not in out or out.get("n_cells") is None
@@ -60,7 +60,7 @@ def test_a_full_design_counts_every_column_it_has():
 
     out = _design_counts(frame)
 
-    assert out["n_rows_fitted"] == 3
+    assert out["n_rows_prepared"] == 3
     assert out["n_wells"] == 2
     assert out["n_guides"] == 2
     assert out["n_genes"] == 2
@@ -78,8 +78,62 @@ def test_something_that_is_not_a_frame_counts_none_of_anything():
 
     for value in (None, "not a frame"):
         out = _design_counts(value)
-        assert set(out) >= {"n_rows_fitted", "n_wells", "n_guides", "n_genes"}
+        assert set(out) >= {"n_rows_prepared", "n_wells", "n_guides", "n_genes"}
         assert all(v is None for v in out.values())
+
+
+@pytest.mark.parametrize("fit_designs", [
+    {"grna": {"n_rows_fitted": 6, "layout": "long"},
+     "gene": {"n_rows_fitted": 3, "layout": "wide"}},
+    {"grna": {}, "gene": {"n_rows_fitted": 3}},
+])
+def test_saved_summary_preserves_per_level_fit_counts_without_calling_aggregation_exclusion(tmp_path, fit_designs):
+    from spacr.regression_summary import build_run_summary, write_run_summary
+
+    pd.DataFrame({"prc": ["a", "a", "b", "b", "c", "c", "d", "d"]}).to_csv(
+        tmp_path / "regression_data.csv", index=False)
+    write_run_summary(tmp_path, settings={"regression_type": "ridge"},
+                      fit_designs=fit_designs)
+    reopened = build_run_summary(res_folder=tmp_path, settings={"regression_type": "ridge"})
+    assert reopened.field("n_rows_prepared").value.startswith("8 rows")
+    fitted = reopened.field("n_rows_fitted").value
+    assert "gene: 3" in fitted
+    assert "grna: 6" in fitted if fit_designs["grna"] else "grna: not recorded" in fitted
+    excluded = reopened.field("rows_not_fitted").value
+    assert "not a count of excluded samples" in excluded
+    assert "5 —" not in excluded
+
+
+def test_historic_prepared_input_does_not_invent_fit_counts(tmp_path):
+    from spacr.regression_summary import build_run_summary
+
+    pd.DataFrame({"prc": ["a", "b", "c"]}).to_csv(
+        tmp_path / "regression_data.csv", index=False)
+    summary = build_run_summary(res_folder=tmp_path, settings={"regression_type": "ridge"})
+    assert summary.field("n_rows_prepared").value.startswith("3 rows")
+    assert summary.field("n_rows_fitted").value is None
+    assert "no measured fit-row count" in summary.field("n_rows_fitted").reason
+
+
+def test_saved_prepared_counts_preserve_textual_identifiers(tmp_path):
+    from spacr.regression_summary import build_run_summary
+
+    pd.DataFrame({"prc": ["001", "1"], "grna": ["002", "2"],
+                  "gene": ["003", "3"]}).to_csv(tmp_path / "regression_data.csv", index=False)
+    summary = build_run_summary(res_folder=tmp_path, settings={"regression_type": "ridge"})
+    for key in ("n_wells", "n_guides", "n_genes"):
+        assert summary.field(key).value.startswith("2 distinct")
+
+
+@pytest.mark.parametrize("count", [-1, 2.9, "NaN", "bad", None])
+def test_reopened_malformed_fit_counts_are_unknown(tmp_path, count):
+    import json
+    from spacr.regression_summary import build_run_summary
+
+    (tmp_path / "regression_fit_designs.json").write_text(
+        json.dumps({"gene": {"n_rows_fitted": count}}), encoding="utf-8")
+    summary = build_run_summary(res_folder=tmp_path, settings={"regression_type": "ridge"})
+    assert summary.field("n_rows_fitted").value == "gene: not recorded"
 
 
 # ---------------------------------------------------------------------------

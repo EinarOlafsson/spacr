@@ -156,13 +156,14 @@ def test_default_foreground_readers_handle_bad_csv_counts_and_empty_yolo_files(s
 
 
 @pytest.mark.parametrize('error,opened', [('', True), ('', False), ('download interrupted', False)])
-def test_download_completion_restores_the_button_and_reports_opening(qtbot, tmp_path, error, opened):
+@pytest.mark.parametrize('dataset_key', ['toxoplasma_plaque', 'plaque_figures'])
+def test_download_completion_restores_the_button_and_reports_opening(qtbot, tmp_path, error, opened, dataset_key):
     screen = QWidget()
     qtbot.addWidget(screen)
     screen._status_label = QLabel(screen)
     screen._btn_training_datasets = QPushButton(screen)
     pending, used = [], []
-    dataset = md.MASK_DATASETS[0]
+    dataset = md.DATASETS_BY_KEY[dataset_key]
 
     def fetch(parent, selected, folder, done):
         assert parent is screen and selected is dataset
@@ -182,7 +183,10 @@ def test_download_completion_restores_the_button_and_reports_opening(qtbot, tmp_
         assert error in screen._status_label.text() and used == []
     else:
         assert used == [folder]
-        assert ('fields and the masks' if opened else 'folder would not open') in screen._status_label.text()
+        if opened:
+            assert screen._status_label.text() == f'{dataset.title}: {dataset.size} example images ready'
+        else:
+            assert 'folder would not open' in screen._status_label.text()
 
 
 def test_picker_selection_and_cancel_are_real_dialog_results(qtbot, monkeypatch):

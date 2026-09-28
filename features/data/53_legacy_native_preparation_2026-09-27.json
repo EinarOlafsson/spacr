@@ -1,0 +1,68 @@
+{
+  "date": "2026-09-27",
+  "item": 53,
+  "status": "implementation locally validated; native artifacts not yet built or launched",
+  "base_commit_at_receipt": "85fdd27f2e094652c1b12fb1ebfd4b1bb5dd29cd",
+  "validation": {
+    "first_batch": {
+      "passed": 39,
+      "failed": 1,
+      "seconds": 23.40,
+      "failure": "The source-level real Qt Measure test read path/merged because the smoke driver retained an AppScreen replaced by apply_settings_dict.",
+      "log": "/mnt/wd4tb/scratch/spacr-completion/53-native-feasibility/tests-first.log",
+      "sha256": "06ffcc2f219db43eb7be601679b6f6d3f532f06deab5670758c054ab0e4651a9"
+    },
+    "repair": "Reacquire window._screens['measure'] after bulk settings application; verify its exact source and one-worker limit before clicking its actual Run button.",
+    "focused_rerun": {
+      "passed": 8,
+      "failed": 0,
+      "seconds": 13.60,
+      "log": "/mnt/wd4tb/scratch/spacr-completion/53-native-feasibility/retry.log",
+      "sha256": "0952481f049eb675ae13aa1976c4d251cb09812886879d5a7aa1bc1bfa125624",
+      "warnings": "Two Linux multiprocessing DeprecationWarnings about fork from the multi-threaded source Qt process; retained, not silenced. Native spawned/frozen behavior remains for CI."
+    },
+    "unique_tests_passing_across_batches": 40,
+    "named_files": [
+      "tests/qt/test_distribution_smoke.py",
+      "tests/test_native_installer_workflow.py",
+      "tests/test_packaging_launcher.py",
+      "tests/test_pyinstaller_spec.py",
+      "tests/qt/test_real_startup_readiness.py",
+      "tests/test_every_callable_in_the_package_is_documented.py"
+    ],
+    "shell_syntax": ["packaging/build_debian.sh", "packaging/build_macos.sh"],
+    "resource_scope": "one capped 4G process, private HOME/TMPDIR, hidden accelerators, CPU and two BLAS/OpenMP threads"
+  },
+  "actual_source_ui_result": {
+    "scope": "source-level integration only; the unit test substitutes the native provenance guard and final QApplication exit, not the UI controls, scientific pipeline or database",
+    "real_run_clicked": true,
+    "module_constructed": true,
+    "run_status": ["complete", 1, 0],
+    "cells": 16,
+    "worker_finished": true,
+    "elapsed_seconds": 10.933431159995962,
+    "receipt_sha256": "ba3b82d2e8a73fb2db8ef1a5cff7188331e2d4d61e4e4be76c64b72c98ad31da"
+  },
+  "candidate_sha256": {
+    "spacr/qt/startup_benchmark.py": "e7a84349d100e806f0ea1b165d1ca5375711b9ce1b7e5401956426d7b8c11f26",
+    "packaging/build_windows.ps1": "4b26694b3982e2dcbce9feba27dbae6dc465f6607e7c2fdf9682d0242452b39a",
+    "packaging/build_debian.sh": "a7ee4c7915760b19e6b3231b59ca4cdd8c49ee14f69f650e38cde52883a4036c",
+    ".github/workflows/frozen-installers.yml": "37652a23979193a3fe13871a9411d13f31dc38fe852db32acca723d26c01e635"
+  },
+  "native_design": {
+    "workflow": ".github/workflows/frozen-installers.yml",
+    "artifact_only_fresh_smoke_jobs": true,
+    "source_import_fallback_forbidden": true,
+    "windows": "Actual NSIS install of the onedir executable; owned-file uninstall preserves unrelated data.",
+    "macos": "Actual DMG mount/copy/unmount then .app binary launch; only existing ad-hoc signing, no notarization or universal-architecture claim.",
+    "debian": "Replaces stdeb system-Python packaging with the shared frozen CPU runtime under /opt/spacr; build on Ubuntu 22.04, install/run/remove on fresh Ubuntu 22.04 and Debian 12. Actual builder glibc minimum is declared.",
+    "evidence": "Exact artifact hashes, dependencies, platform/import/resource provenance, native screenshot, SQLite proof and removal checks retained for review."
+  },
+  "remaining": [
+    "Run actual native CI and repair every build/install/launch failure; no native result is claimed here.",
+    "Regenerate English API inventory and translate the exact nine-locale delta for newly cataloged helpers and maybe_start's corrected return contract.",
+    "Frozen self-update is not established: sys.executable is an application, not the online installer's Python interpreter.",
+    "Legacy builders do not implement the online CPU/GPU selection, account or consent flows; existing online acceptance does not transfer automatically.",
+    "No production release, Developer ID signing, notarization, account sign-in or live public report sending was performed."
+  ]
+}

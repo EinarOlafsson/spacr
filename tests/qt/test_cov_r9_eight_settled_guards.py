@@ -178,34 +178,34 @@ class TestTheFoldedPanelKey:
 
 class TestGuardsAfterALoopThatCannotFallThrough:
 
-    def test_the_console_copy_cannot_reach_a_none_panel(self):
-        """THE PIN, for ``if panel is None`` after a ``for``/``else``.
-
-        The walk returns as soon as the parent is None and breaks only
-        when it has found a panel, so the ``else`` clause returns too --
-        there is no path out of the loop that leaves ``panel`` unset.
-        """
+    @pytest.mark.parametrize("text", ["copied section\n", " \n\t"])
+    def test_the_console_copy_uses_the_found_panel(
+            self, qtbot, monkeypatch, text):
+        """A found panel supplies the text; blank sections leave the clipboard."""
+        from PySide6.QtWidgets import QApplication
         from spacr.qt.widgets import console_panel as C
 
-        source = inspect.getsource(C._TopicBar._copy_section)
+        panel = C.ConsolePanel()
+        qtbot.addWidget(panel)
+        bar = C._TopicBar("section", parent=panel)
+        requested = []
+        flashed = []
 
-        # THE LAST ONE. `if panel is None:` appears TWICE -- once inside
-        # the walk, where it is live, and once after it, where it cannot
-        # be. `index` finds the live one and the pin then holds nothing.
-        guard = source.rindex("if panel is None:")
-        inside = source.index("if panel is None:")
-        assert inside < guard, (
-            "the duplicate check is gone; this pin was anchored on there "
-            "being two")
+        def section_text(selected):
+            requested.append(selected)
+            return text
 
-        # Every way out of the walk is a return or a break, so there is
-        # no path that leaves `panel` None at the second check.
-        walk = source[inside:guard]
-        assert 'hasattr(panel, "section_text")' in walk
-        assert "break" in walk
-        assert "else:" in walk and walk.rstrip().endswith("return"), (
-            "the for/else no longer returns, so a walk that ran out of "
-            "parents now falls through to the guard")
+        monkeypatch.setattr(panel, "section_text", section_text)
+        monkeypatch.setattr(bar._copy_btn, "flash_copied",
+                            lambda: flashed.append(True))
+        QApplication.clipboard().setText("previous contents")
+
+        bar._copy_section()
+
+        assert requested == [bar]
+        assert QApplication.clipboard().text() == (
+            text if text.strip() else "previous contents")
+        assert flashed == ([True] if text.strip() else [])
 
     def test_the_fold_strip_guard_sits_inside_the_handler(self):
         """THE PIN, for ``if strip is None`` in the mask screen.
@@ -253,22 +253,30 @@ class TestTwoNoneChecksOnValuesThatArrive:
         assert "if target is None:" in source
         assert "return False, False" in source
 
-    def test_an_icon_that_could_not_be_inked_is_not_cached(self):
-        """THE PIN, for ``if inked is not None`` in the icon set.
-
-        Caching a None would poison the cache for that stamp and theme
-        for the life of the process, so every later request would answer
-        the same failure without retrying. Returning it uncached lets the
-        next call try again.
-        """
+    @pytest.mark.parametrize("decoded", [False, True])
+    def test_only_a_decoded_icon_is_written_to_the_disk_cache(
+            self, monkeypatch, tmp_path, decoded):
+        """Decoding can return None; re-inking valid RGBA always returns pixels."""
         from spacr.qt import iconset as I
 
-        source = inspect.getsource(I._themed_array)
-        inked = source.index("inked = reink(rgba, theme)")
-        guard = source.index("if inked is not None:", inked)
-        write = source.index("_write_cached_icon(path, inked)", guard)
+        rgba = np.full((8, 8, 4), 200, dtype=np.float32) if decoded else None
+        cache_path = tmp_path / "themed.png"
+        writes = []
+        monkeypatch.setattr(I, "_cache_path", lambda stamp, theme: cache_path)
+        monkeypatch.setattr(I, "_read_cached_icon", lambda path: None)
+        monkeypatch.setattr(I, "_load_rgba", lambda path: rgba)
+        monkeypatch.setattr(I, "_write_cached_icon",
+                            lambda path, image: writes.append((path, image)))
 
-        assert inked < guard < write
-        assert source.index("return inked", write) > write, (
-            "the icon is returned before the cache write, so a failure to "
-            "write would be invisible")
+        inked = I._themed_array.__wrapped__(("source.png",), "dark")
+
+        if decoded:
+            assert inked.shape == rgba.shape
+            assert inked.dtype == np.uint8
+            np.testing.assert_array_equal(inked[..., 3], rgba[..., 3])
+            assert len(writes) == 1
+            assert writes[0][0] == cache_path
+            assert writes[0][1] is inked
+        else:
+            assert inked is None
+            assert writes == []

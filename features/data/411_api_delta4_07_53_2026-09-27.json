@@ -1,0 +1,277 @@
+{
+  "schema": 1,
+  "item": 411,
+  "date": "2026-09-27",
+  "review_kind": "AI technical review (Codex), no native-speaker signoff",
+  "source_manifest_commit": "683e35639392c6b06bb0551bce526efe08f22a5d",
+  "api_symbols": 11865,
+  "changed_symbols": [
+    "spacr.ml.perform_regression",
+    "spacr.qt.startup_benchmark.maybe_start",
+    "spacr.regression_summary.build_run_summary",
+    "spacr.regression_summary.write_run_summary",
+    "spacr.trial_metrics.design_summary"
+  ],
+  "new_symbols": [],
+  "removed_symbols": [],
+  "new_reviewed_blocks": 54,
+  "retired_records": 0,
+  "rebound_records": 0,
+  "preserved_original_review_files": 680,
+  "languages": {
+    "sv": {
+      "unchanged_symbols": 11860,
+      "unchanged_blocks_in_changed_symbols": 24,
+      "newly_reviewed_blocks": 6
+    },
+    "de": {
+      "unchanged_symbols": 11860,
+      "unchanged_blocks_in_changed_symbols": 24,
+      "newly_reviewed_blocks": 6
+    },
+    "es": {
+      "unchanged_symbols": 11860,
+      "unchanged_blocks_in_changed_symbols": 24,
+      "newly_reviewed_blocks": 6
+    },
+    "zh_CN": {
+      "unchanged_symbols": 11860,
+      "unchanged_blocks_in_changed_symbols": 24,
+      "newly_reviewed_blocks": 6
+    },
+    "pt": {
+      "unchanged_symbols": 11860,
+      "unchanged_blocks_in_changed_symbols": 24,
+      "newly_reviewed_blocks": 6
+    },
+    "hi": {
+      "unchanged_symbols": 11860,
+      "unchanged_blocks_in_changed_symbols": 24,
+      "newly_reviewed_blocks": 6
+    },
+    "ko": {
+      "unchanged_symbols": 11860,
+      "unchanged_blocks_in_changed_symbols": 24,
+      "newly_reviewed_blocks": 6
+    },
+    "is": {
+      "unchanged_symbols": 11860,
+      "unchanged_blocks_in_changed_symbols": 24,
+      "newly_reviewed_blocks": 6
+    },
+    "fr": {
+      "unchanged_symbols": 11860,
+      "unchanged_blocks_in_changed_symbols": 24,
+      "newly_reviewed_blocks": 6
+    }
+  },
+  "independent_review": {
+    "sv_de_is": "Second Codex agent reviewed all 18 blocks; no corrections.",
+    "es_pt_fr": "Second Codex agent reviewed all 18 blocks; no corrections.",
+    "zh_CN_hi_ko": "Second Codex agent reviewed all 18 blocks; no substantive corrections."
+  },
+  "validation": {
+    "staging_and_preservation_exit": 0,
+    "staged_canonical_audit_exit": 0,
+    "installed_canonical_audit_exit": 0,
+    "postinstall_preservation_passed": true,
+    "fresh_canonical_inventory_bound": true,
+    "exact_staged_and_accepted_file_sets": true,
+    "original_reviews_byte_identical": true,
+    "model_inference": false,
+    "gpu_used": false,
+    "postinstall_tests": {
+      "exit_code": 0,
+      "elapsed_seconds": 67,
+      "summary": "144 passed in 65.97s (0:01:05)",
+      "targets": [
+        "tests/test_documentation_i18n.py::test_documentation_api_catalog_inventory_and_hashes_are_current",
+        "tests/test_docstring_correctness.py"
+      ],
+      "log": "logs/current-tests.log"
+    }
+  },
+  "callable_inventory_pin_repair": {
+    "before_tests": {
+      "exit_code": 1,
+      "elapsed_seconds": 67,
+      "summary": "1 failed, 143 passed in 65.16s (0:01:05)",
+      "targets": [
+        "tests/test_documentation_i18n.py::test_documentation_api_catalog_inventory_and_hashes_are_current",
+        "tests/test_docstring_correctness.py"
+      ],
+      "log": "logs/current-tests.log"
+    },
+    "proof": {
+      "passed": true,
+      "source_change_commit": "b38aea05b11c81e321f249d7750b731c6fdbc67e",
+      "original_test_pin": "6cb99554618362fc8b00c996c185ade574adaf08f5f1a806718d64ca6a3b1096",
+      "restored_inventory_sha256": "6cb99554618362fc8b00c996c185ade574adaf08f5f1a806718d64ca6a3b1096",
+      "current_inventory_sha256": "bafdafefba5aa913f78af993ebc2c7875f9840d8559ba11cd9fb705231d9c241",
+      "symbols": 9837,
+      "previous_parameters": 19540,
+      "current_parameters": 19542,
+      "required_parameters": 10056,
+      "changed": {
+        "spacr.regression_summary.build_run_summary": {
+          "added_optional_parameters": [
+            "fit_designs"
+          ],
+          "before_parameters": [
+            "coef_df",
+            "model",
+            "regression_type",
+            "res_folder",
+            "settings"
+          ],
+          "after_parameters": [
+            "coef_df",
+            "fit_designs",
+            "model",
+            "regression_type",
+            "res_folder",
+            "settings"
+          ],
+          "required_parameters": []
+        },
+        "spacr.regression_summary.write_run_summary": {
+          "added_optional_parameters": [
+            "fit_designs"
+          ],
+          "before_parameters": [
+            "coef_df",
+            "model",
+            "regression_type",
+            "res_folder",
+            "settings"
+          ],
+          "after_parameters": [
+            "coef_df",
+            "fit_designs",
+            "model",
+            "regression_type",
+            "res_folder",
+            "settings"
+          ],
+          "required_parameters": [
+            "res_folder"
+          ]
+        }
+      },
+      "added_symbols": [],
+      "removed_symbols": []
+    },
+    "changed_test": "tests/test_docstring_correctness.py::test_public_callable_inventory_is_source_derived_not_docstring_derived",
+    "scope": "Count and digest pins only, supported by exact two-parameter subtraction across the full inventory; original failure retained."
+  },
+  "installation": {
+    "accepted": true,
+    "english_sha256_before": "0c677934af1388f32678f050b09f633787f5abd50ffd61cd7affbb2ec6f76680",
+    "english_sha256_after": "de98c7438482a94402dafc4ad68fcd686c897a4f022f64c26f4dfca8f25a3899",
+    "source_history_sha256": "0638fe89465816636856a6b7a78d0b63a7704d099115a72c2d87c84eb064802b",
+    "installed_files": {
+      "/mnt/wd4tb/scratch/spacr-completion/worktree/docs/i18n/reviewed/api/de/2026-09-27-api-delta4-000.json": "c1a7d46883421a0749d0190ae96c8c1a6425f01ebb512b9d7a8ca3f7943e4f9b",
+      "/mnt/wd4tb/scratch/spacr-completion/worktree/docs/i18n/reviewed/api/es/2026-09-27-api-delta4-000.json": "0446409d62f9f7bf89d81167614847c5cf0fe5314f84eb90b4aba1eb08fc95fe",
+      "/mnt/wd4tb/scratch/spacr-completion/worktree/docs/i18n/reviewed/api/fr/2026-09-27-api-delta4-000.json": "3e3b5d04c685da7af5f0f02d671b24faa122c9a8894fdae8c1d16664f5552c97",
+      "/mnt/wd4tb/scratch/spacr-completion/worktree/docs/i18n/reviewed/api/hi/2026-09-27-api-delta4-000.json": "34d06ea7cc76f841459ca707a02b8afb4fa37274da58fb66d8f14ff7ef12a7b2",
+      "/mnt/wd4tb/scratch/spacr-completion/worktree/docs/i18n/reviewed/api/is/2026-09-27-api-delta4-000.json": "8ef38f86f845aeae3e2af34763ebed0c1fcb8fff4b0810a0c99d3feba2235c40",
+      "/mnt/wd4tb/scratch/spacr-completion/worktree/docs/i18n/reviewed/api/ko/2026-09-27-api-delta4-000.json": "fbd965aad01fd7a79f64bba1d7edfa1dab7ff961d8dbb6019891926461796557",
+      "/mnt/wd4tb/scratch/spacr-completion/worktree/docs/i18n/reviewed/api/pt/2026-09-27-api-delta4-000.json": "664cb6161320d424256d97f12c7b29028985af8d84d2b6ade771e194eaa97ac4",
+      "/mnt/wd4tb/scratch/spacr-completion/worktree/docs/i18n/reviewed/api/sv/2026-09-27-api-delta4-000.json": "d311a678336d1df0b3fffb6f2e475d4c47554d6905722416ac53398037b36543",
+      "/mnt/wd4tb/scratch/spacr-completion/worktree/docs/i18n/reviewed/api/zh_CN/2026-09-27-api-delta4-000.json": "f7ce06108560a787b724680b78ee1d49095eaf34e33d793b340beb5bba2c6574",
+      "/mnt/wd4tb/scratch/spacr-completion/worktree/docs/source/_static/i18n/api/de.json": "79b547f7b30a5df503b101bb24f99cbf347df46caf8d20a56eff72e05eadc483",
+      "/mnt/wd4tb/scratch/spacr-completion/worktree/docs/source/_static/i18n/api/es.json": "df048185055e9b429b15d15b2d26360c4176b54f4370a3c1dcec0b5d337d7552",
+      "/mnt/wd4tb/scratch/spacr-completion/worktree/docs/source/_static/i18n/api/fr.json": "bd8f3c7eee82349031027674a0bf5af6d42f8c8482c841c272d2ccc949946782",
+      "/mnt/wd4tb/scratch/spacr-completion/worktree/docs/source/_static/i18n/api/hi.json": "7a625bf9786d168c9077a63053eb01475be2f304ffc73e7beaf7be1815146f98",
+      "/mnt/wd4tb/scratch/spacr-completion/worktree/docs/source/_static/i18n/api/is.json": "9b12c4de7052d6a7204fbcab4a82f18f769f361b22be8707b44eb948e1e8f925",
+      "/mnt/wd4tb/scratch/spacr-completion/worktree/docs/source/_static/i18n/api/ko.json": "f15ddf77fe4d06511a0281711f745dad3b61654e4b012927d2469ce77af53ad2",
+      "/mnt/wd4tb/scratch/spacr-completion/worktree/docs/source/_static/i18n/api/pt.json": "51d5913a21bc06f01bb1ce2cbadabc9d5b83786e97aa624d181bab08308cec43",
+      "/mnt/wd4tb/scratch/spacr-completion/worktree/docs/source/_static/i18n/api/sv.json": "c448f7a7b172aa1c540810b94bedb459d02d1a95cb18eec5cd1d2fbabbd28413",
+      "/mnt/wd4tb/scratch/spacr-completion/worktree/docs/source/_static/i18n/api/zh_CN.json": "f7e98ba717b82fb9887a7ca4c836714803c8236ed2903df9ac279a14a39a9b86"
+    }
+  },
+  "evidence": {
+    "workspace": "/mnt/firecuda2/codex/scratch-docs/api-delta4-07-53-20260927",
+    "files": [
+      {
+        "sha256": "8ba4d4503b8fcf70dd1dfa01975cae4a8d46407c781387cf9b607cf8e9ef4b38",
+        "file": "freeze.json"
+      },
+      {
+        "sha256": "46330c324735f8cd6d5df57c8f3abb66d4210c8635dd6b9d4604a0179018819c",
+        "file": "english-delta.json"
+      },
+      {
+        "sha256": "b5d1d400633c160b30b77adf7a7b8ab0af9be5ef3daf9f8134e734b5098b7ac9",
+        "file": "staged-acceptance.json"
+      },
+      {
+        "sha256": "e7b1681b142eee13d697d73a1926c4116cb886c9b7fe0786131ed7d172159d81",
+        "file": "installation.json"
+      },
+      {
+        "sha256": "68c5eec331b80314c24ff5bc28bb774c5b15c2f5152c924c7a9c36aaa2b7a064",
+        "file": "preservation-staged.json"
+      },
+      {
+        "sha256": "e1f34b1b8c8a53e4694ec21070977bb67a36b6a9a2d8678e96f07b0fd9ef152a",
+        "file": "preservation-preinstall.json"
+      },
+      {
+        "sha256": "d0e21634750a6d869a0f49709afa6769be237fe615c1a371bb64cc9c5fdaf553",
+        "file": "preservation-postinstall.json"
+      },
+      {
+        "sha256": "8465088a0eaa1dc7730fdabbc1c9ac58050ae37c98bccfdcefd22ea62df126ac",
+        "file": "current-tests.json"
+      },
+      {
+        "sha256": "be8f8918b7afb4c1d843db581b5aca7b96b7ce6492b1205109865c228a3b9773",
+        "file": "current-tests-before-pin.json"
+      },
+      {
+        "sha256": "6142311fe37c4d7339a7c47a9ca6a92276ebf089160537a2667d72a747194af7",
+        "file": "inventory-pin-proof.json"
+      },
+      {
+        "sha256": "5d1c7727b34a49d0865aac09a2fe34c8f5e8394e78d7db3cf1ebe9ce51492374",
+        "file": "prove-inventory.py"
+      },
+      {
+        "sha256": "7662c727ba4e2316c23e8f61f0c289b37e9e959e2b7a139823bb8496fd04b8ef",
+        "file": "test-current.sh"
+      },
+      {
+        "sha256": "5d66707c9167ce4113b1c669d67500b0f8c7f50e2f44330eebef06a462016777",
+        "file": "logs/guarded-stages.log"
+      },
+      {
+        "sha256": "1f197174ca60608df2ca24dea58aaa3889dda6219c14dd1b666f48b451eba747",
+        "file": "logs/guarded-audit.log"
+      },
+      {
+        "sha256": "d243c535ee2bac15376d3a498de1e651d0986b5f0acdcaed4f0ad092e9b9907f",
+        "file": "logs/guarded-install.log"
+      },
+      {
+        "sha256": "351e594df86d52cf5ccce54a8a25d5b5aca0f67d5234c6077b50649b8beb18b2",
+        "file": "logs/current-tests.log"
+      },
+      {
+        "sha256": "a7b44629d36f5f5fba95887d9c31ae2b4f790d37e3248b5034e2327dee0f78b0",
+        "file": "logs/current-tests-before-pin.log"
+      },
+      {
+        "sha256": "dee093573fcea5b16905d6a492220be22f22e99319b63d2dd0634823a6efed97",
+        "file": "logs/inventory-pin-proof.log"
+      }
+    ]
+  },
+  "published": false,
+  "native_speaker_signoff": false,
+  "limitations": [
+    "No native-speaker or human listening signoff.",
+    "Private helpers excluded by the canonical extractor are not claimed as translated.",
+    "This receipt does not claim refreshed HTML or aggregate coverage reports."
+  ]
+}

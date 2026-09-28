@@ -2,7 +2,7 @@
 
 .. |Docs| image:: https://img.shields.io/github/actions/workflow/status/EinarOlafsson/spacr/pages%2Fpages-build-deployment?label=API%20Documentation
    :target: https://einarolafsson.github.io/spacr/
-   :alt: Skjöl
+   :alt: API-skjöl
 .. |Tutorials| image:: https://img.shields.io/badge/Tutorials-Interactive%20walkthrough-4A9EFF
    :target: https://einarolafsson.github.io/spacr/tutorials/
    :alt: Gagnvirkt kennsluefni
@@ -84,6 +84,18 @@ Myndir, grímur, myndúrklippur, mælingar, merkingar, spár, strikamerki og au�
 
 Keyrist sem skjáborðsforrit eða án grafísks viðmóts á vinnustöð, þjóni eða reikniklasa.
 
+Prófa spaCR
+~~~~~~~~~~~
+
+.. code-block:: bash
+
+   conda create -n spacr python=3.12 -y
+   conda activate spacr
+   python -m pip install "spacr[qt]"
+   spacr
+
+Notaðu **Hlaða prófunargögnum…** í Import, Make Masks, Annotate eða á greiningarskjá til að sækja sýnigögn. Notaðu ``spacr-download`` í skipanalínu.
+
 Hardware aðstoð
 ~~~~~~~~~~~~~~~~
 
@@ -128,10 +140,10 @@ Hardware aðstoð
 
 
 Setja upp spaCR
----------------
+~~~~~~~~~~~~~~~
 
 Skjáborðsforrit
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 Þessir uppbyggingar búnir eigin Python. Conda er ekki nauðsynlegt.
 
@@ -169,10 +181,10 @@ Fyrstu þremur tákn leyfja núverandi útgáfu. spaCR táknin opnar fullkomið 
 
 Á macOS, opna ``.pkg``. Núverandi beta er ekki notarið; ef Gatekeeper blokkir það, velja **System Settings → Privacy & Security → Open Anyway**.
 
-Sjá `Installer leiðbeiningar <../../source/installer_guide.rst>`_ til að uppgötva, deinstalla, offline og vandamálið.
+Sjá `uppsetningarleiðbeiningarnar <../../source/installer_guide.rst>`_ fyrir leiðbeiningar um uppfærslu, fjarlægingu, notkun án nettengingar og bilanagreiningu. Í `kerfiskröfunum <../../source/system_requirements.rst>`_ eru ráðleggingar um vinnustöðvar og netþjóna og töflur um GPU-samhæfi.
 
 Uppsetning frá PyPI
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 Fyrir útgáfuna á PyPI skaltu setja spaCR upp með pip inni í Conda-umhverfi. Python 3.12 býður upp á mesta úrvalið af valfrjálsum vísindapökkum:
 
@@ -196,7 +208,7 @@ Slepptu Qt á þjóni, reikniklasa eða CI-keyrsluumhverfi:
 Opinlegri samsetningar eru settar sérstakt, t.d. ``spacr[zarr]``, ``spacr[omero]``,``spacr[napari]`` og ``spacr[czi,nd2,lif]``. Sjá `Uppsetningu leiðbeiningar <../../source/installer_guide.rst>`_ fyrir fullkomna útgáfur og Python-version samskipti tól.
 
 Uppsetning með conda-forge
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------
 
 Opinberi conda-forge-pakkinn setur spaCR og nauðsynlegar einingar skjáborðsforritsins upp í virka umhverfinu:
 
@@ -207,8 +219,19 @@ Opinberi conda-forge-pakkinn setur spaCR og nauðsynlegar einingar skjáborðsfo
    conda install conda-forge::spacr
    spacr
 
+Uppsetning með Docker
+---------------------
+
+Keyrðu skipanalínuvinnslur spaCR í gámi með útgefnum `Docker-myndum á GHCR <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_. Settu upp `Docker <https://docs.docker.com/get-started/get-docker/>`_ og birtu síðan lista yfir tiltækar vinnslur með þessari útgefnu CPU-mynd:
+
+.. code-block:: bash
+
+   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.0 spacr-run --list
+
+Samsvarandi mynd fyrir NVIDIA-skjákort er ``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``. Báðar myndirnar eru ætlaðar fyrir Linux-gáma á x86-64. Sjá `uppsetningarleiðbeiningar fyrir Docker <../../source/installer_guide.rst#container-images>`_ um forkröfur fyrir skjákort, tengingu gagna- og líkanamappa, stillingaskrár og heildarskipanir fyrir vinnslurnar.
+
 Uppsetning frá frumkóða
-~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------
 
 Klónaðu kóðasafnið og settu það upp í breytanlegum ham, svo að vinnueintakið þitt *sé* uppsetti pakkinn og breytingar taki gildi án enduruppsetningar::
 
@@ -231,7 +254,7 @@ Til að sækja síðari breytingar skaltu keyra inni í klóninu::
 Seinni línan er aðeins nauðsynleg þegar pakkar sem spaCR er háð eða inngangspunktar hafa breyst; Python-kóði skilar sér án hennar. Ef skipun keyrir enn gamlan kóða eftir að breytingar hafa verið sóttar sýnir ``spacr-doctor`` hvaða ``spacr`` er í raun í leitarslóðinni þinni, en þar liggur orsökin oftast.
 
 Uppsetning frá frumkóða (létt)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------
 
 Þeir sem leggja til kóða þurfa alla söguna; til að keyra spaCR eingöngu dugar ein af þessum leiðum. Tölurnar voru mældar 2026-09-15 með ``packaging/measure_clone_forms.sh``::
 
@@ -269,8 +292,6 @@ Skipanalínuskipanir
    spacr-download measure annotate            # fetch example sets by name
    spacr-make-masks --folder DIR              # curate masks as a resumable queue
    spacr-make-masks --folder DIR --order easy --limit 50
-
-Stilltu ``SPACR_LOG_LEVEL=DEBUG`` við bilanagreiningu. Annálaskrár með skráaveltu eru skrifaðar í ``~/.spacr/logs/spacr.log``.
 
 ``spacr-run --list`` listar einingar sem hafa skipanalínuinngang til keyrslu án grafísks viðmóts. Einingum fyrir merkingu, gagnayfirferð, samanburð og könnun sem eingöngu eru í GUI er sleppt.
 
@@ -324,122 +345,100 @@ Quantitative readouts for biological assays.
 
 | |Module_toxoplasma|\ |Module_plasmodium|\ |Module_candida|
 
-.. |Module_mask| image:: ../../../spacr/resources/icons/workflow/mask.png
-   :width: 16.0%
-   :alt: Opna API-skjölin fyrir Mask
-   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks
-   :align: middle
-.. |Module_measure| image:: ../../../spacr/resources/icons/workflow/measure.png
-   :width: 16.0%
-   :alt: Opna API-skjölin fyrir Measure
-   :target: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html
-   :align: middle
-.. |Module_annotate| image:: ../../../spacr/resources/icons/workflow/annotate.png
-   :width: 16.0%
-   :alt: Opna API-skjölin fyrir Annotate
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html
-   :align: middle
-.. |Module_classify_merged| image:: ../../../spacr/resources/icons/workflow/classify_merged.png
-   :width: 16.0%
-   :alt: Opna API-skjölin fyrir Classify
-   :target: https://einarolafsson.github.io/spacr/api/spacr/classify/index.html
-   :align: middle
-.. |Module_map_barcodes| image:: ../../../spacr/resources/icons/workflow/map_barcodes.png
-   :width: 16.0%
-   :alt: Opna API-skjölin fyrir Map Barcodes
-   :target: https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html
-   :align: middle
-.. |Module_regression| image:: ../../../spacr/resources/icons/workflow/regression.png
-   :width: 16.0%
-   :alt: Opna API-skjölin fyrir Regression
-   :target: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
-   :align: middle
-.. |Module_foreign| image:: ../../../spacr/resources/icons/workflow/apps/foreign.png
-   :width: 16.0%
-   :alt: Opna API-skjölin fyrir Import
-   :target: https://einarolafsson.github.io/spacr/api/spacr/foreign/index.html
-   :align: middle
-.. |Module_embeddings| image:: ../../../spacr/resources/icons/workflow/apps/embeddings.png
-   :width: 16.0%
-   :alt: Opna API-skjölin fyrir Embeddings
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/embeddings/index.html
-   :align: middle
-.. |Module_run_compare| image:: ../../../spacr/resources/icons/workflow/apps/run_compare.png
-   :width: 16.0%
-   :alt: Opna API-skjölin fyrir Run Compare
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html
-   :align: middle
-.. |Module_experiment_design| image:: ../../../spacr/resources/icons/workflow/apps/experiment_design.png
-   :width: 16.0%
-   :alt: Opna API-skjölin fyrir Experiment Design
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/experiment_design/index.html
-   :align: middle
-.. |Module_power| image:: ../../../spacr/resources/icons/workflow/apps/power.png
-   :width: 16.0%
-   :alt: Opna API-skjölin fyrir Power / Design
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html
-   :align: middle
-.. |Module_dose_response| image:: ../../../spacr/resources/icons/workflow/apps/dose_response.png
-   :width: 16.0%
-   :alt: Opna API-skjölin fyrir Dose–Response
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html
-   :align: middle
-.. |Module_qc_dashboard| image:: ../../../spacr/resources/icons/workflow/apps/qc_dashboard.png
-   :width: 16.0%
-   :alt: Opna API-skjölin fyrir QC
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html
-   :align: middle
-.. |Module_make_masks| image:: ../../../spacr/resources/icons/workflow/apps/make_masks.png
-   :width: 16.0%
-   :alt: Opna API-skjölin fyrir Make Masks
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html
-   :align: middle
-.. |Module_align| image:: ../../../spacr/resources/icons/workflow/apps/align.png
-   :width: 16.0%
-   :alt: Opna API-skjölin fyrir Align & Stitch
-   :target: https://einarolafsson.github.io/spacr/api/spacr/align/index.html
-   :align: middle
-.. |Module_umap| image:: ../../../spacr/resources/icons/workflow/apps/umap.png
-   :width: 16.0%
-   :alt: Opna API-skjölin fyrir Image UMAP
-   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.generate_image_umap
-   :align: middle
-.. |Module_gate_editor| image:: ../../../spacr/resources/icons/workflow/apps/gate_editor.png
-   :width: 16.0%
-   :alt: Opna API-skjölin fyrir Gate Editor
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html
-   :align: middle
-.. |Module_graph_builder| image:: ../../../spacr/resources/icons/workflow/apps/graph_builder.png
-   :width: 16.0%
-   :alt: Opna API-skjölin fyrir Graph Builder
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html
-   :align: middle
-.. |Module_toxoplasma| image:: ../../../spacr/resources/icons/workflow/apps/toxoplasma.png
-   :width: 16.0%
-   :alt: Opna API-skjölin fyrir Toxoplasma
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-toxoplasma
-   :align: middle
-.. |Module_plasmodium| image:: ../../../spacr/resources/icons/workflow/apps/plasmodium.png
-   :width: 16.0%
-   :alt: Opna API-skjölin fyrir Plasmodium spp.
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-plasmodium
-   :align: middle
-.. |Module_candida| image:: ../../../spacr/resources/icons/workflow/apps/candida.png
-   :width: 16.0%
-   :alt: Opna API-skjölin fyrir Candida spp.
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-candida
-   :align: middle
+.. |Module_mask| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks"><img src="../../../spacr/resources/icons/workflow/mask.png" width="16.0%" align="middle" alt="Opna API-skjölin fyrir Mask"></a>
+
+.. |Module_measure| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/measure/index.html"><img src="../../../spacr/resources/icons/workflow/measure.png" width="16.0%" align="middle" alt="Opna API-skjölin fyrir Measure"></a>
+
+.. |Module_annotate| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html"><img src="../../../spacr/resources/icons/workflow/annotate.png" width="16.0%" align="middle" alt="Opna API-skjölin fyrir Annotate"></a>
+
+.. |Module_classify_merged| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/classify/index.html"><img src="../../../spacr/resources/icons/workflow/classify_merged.png" width="16.0%" align="middle" alt="Opna API-skjölin fyrir Classify"></a>
+
+.. |Module_map_barcodes| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html"><img src="../../../spacr/resources/icons/workflow/map_barcodes.png" width="16.0%" align="middle" alt="Opna API-skjölin fyrir Map Barcodes"></a>
+
+.. |Module_regression| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/ml/index.html"><img src="../../../spacr/resources/icons/workflow/regression.png" width="16.0%" align="middle" alt="Opna API-skjölin fyrir Regression"></a>
+
+.. |Module_foreign| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/foreign/index.html"><img src="../../../spacr/resources/icons/workflow/apps/foreign.png" width="16.0%" align="middle" alt="Opna API-skjölin fyrir Import"></a>
+
+.. |Module_embeddings| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/embeddings/index.html"><img src="../../../spacr/resources/icons/workflow/apps/embeddings.png" width="16.0%" align="middle" alt="Opna API-skjölin fyrir Embeddings"></a>
+
+.. |Module_run_compare| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html"><img src="../../../spacr/resources/icons/workflow/apps/run_compare.png" width="16.0%" align="middle" alt="Opna API-skjölin fyrir Run Compare"></a>
+
+.. |Module_experiment_design| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/experiment_design/index.html"><img src="../../../spacr/resources/icons/workflow/apps/experiment_design.png" width="16.0%" align="middle" alt="Opna API-skjölin fyrir Experiment Design"></a>
+
+.. |Module_power| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html"><img src="../../../spacr/resources/icons/workflow/apps/power.png" width="16.0%" align="middle" alt="Opna API-skjölin fyrir Power / Design"></a>
+
+.. |Module_dose_response| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html"><img src="../../../spacr/resources/icons/workflow/apps/dose_response.png" width="16.0%" align="middle" alt="Opna API-skjölin fyrir Dose–Response"></a>
+
+.. |Module_qc_dashboard| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html"><img src="../../../spacr/resources/icons/workflow/apps/qc_dashboard.png" width="16.0%" align="middle" alt="Opna API-skjölin fyrir QC"></a>
+
+.. |Module_make_masks| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html"><img src="../../../spacr/resources/icons/workflow/apps/make_masks.png" width="16.0%" align="middle" alt="Opna API-skjölin fyrir Make Masks"></a>
+
+.. |Module_align| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/align/index.html"><img src="../../../spacr/resources/icons/workflow/apps/align.png" width="16.0%" align="middle" alt="Opna API-skjölin fyrir Align &amp; Stitch"></a>
+
+.. |Module_umap| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.generate_image_umap"><img src="../../../spacr/resources/icons/workflow/apps/umap.png" width="16.0%" align="middle" alt="Opna API-skjölin fyrir Image UMAP"></a>
+
+.. |Module_gate_editor| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html"><img src="../../../spacr/resources/icons/workflow/apps/gate_editor.png" width="16.0%" align="middle" alt="Opna API-skjölin fyrir Gate Editor"></a>
+
+.. |Module_graph_builder| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html"><img src="../../../spacr/resources/icons/workflow/apps/graph_builder.png" width="16.0%" align="middle" alt="Opna API-skjölin fyrir Graph Builder"></a>
+
+.. |Module_toxoplasma| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-toxoplasma"><img src="../../../spacr/resources/icons/workflow/apps/toxoplasma.png" width="16.0%" align="middle" alt="Opna API-skjölin fyrir Toxoplasma"></a>
+
+.. |Module_plasmodium| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-plasmodium"><img src="../../../spacr/resources/icons/workflow/apps/plasmodium.png" width="16.0%" align="middle" alt="Opna API-skjölin fyrir Plasmodium spp."></a>
+
+.. |Module_candida| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-candida"><img src="../../../spacr/resources/icons/workflow/apps/candida.png" width="16.0%" align="middle" alt="Opna API-skjölin fyrir Candida spp."></a>
 
 .. spacr-workflow-end
 
-Allar einingar sem fylgja spaCR, í sömu röð og á upphafsskjánum: fyrst sex einingar aðalvinnuflæðisins, síðan allt annað. Veldu reit til að opna API-síðu einingarinnar.
+Allar einingar sem eiga reit á upphafsskjánum, í sömu röð og þar: fyrst sex einingar vinnslukeðjunnar, síðan hinar. Veldu reit til að opna API-síðu einingarinnar.
 
 Hvert verkfæri er útskýrt í `eiginleikahandbókinni <../../source/features.rst>`_.
 
 Öll aðrar auðlindir
 ~~~~~~~~~~~~~~~~~~~
 
-- `Samskiptaþjálfunar <https://einarolafsson.github.io/spacr/tutorials/>`_ — 73 leiðbeiningar vinnufluðum frá uppsetningu í gegnum hit rannsóknir.
+- `Gagnvirkt kennsluefni <https://einarolafsson.github.io/spacr/tutorials/>`_ — leiðsögn um verkferla frá uppsetningu til rannsóknar á niðurstöðum skimunar.
 - `Python API snemma byrjun <../../source/python_api.rst>`_ — hlaupa og staðfest pipelines frá skriptum, notebooks eða klúster.
 - `Leikstjóri <../../source/features.rst>`_ — hæfileika, fullnægjandi og valfrjáls tengsl.
 - `Heilluð API reference <https://einarolafsson.github.io/spacr/api/index.html>`_ — stuðlað innfangspunktur eftir verkefni, með fullkomna mótum tengslum einn hærra.
@@ -458,7 +457,7 @@ Hreyfimyndaleiðbeiningar fyrir stillingar
 Stillingar með sjónræna skýringu bjóða upp á **Animation**-stýringu í verkfæraábendingunni. Skoðaðu `myndasafn stillingahreyfimynda <https://einarolafsson.github.io/spacr/setting_animations.html>`_ eða `skrá stillingahreyfimynda <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.
 
 Gögn
-----
+~~~~
 
 Viðmiðunargagnasöfn
 ~~~~~~~~~~~~~~~~~~~
@@ -563,7 +562,7 @@ Hvert dæmi yfir er metið á myndum sem myndavél hefur aldrei séð í æfingu
 
 **Cross-validated**, með **SD**, þýðir að skólan er miðjan þremur rún á mismunandi rúnum og SD er hversu langt þeir flytja út.
 
-Modelli eru veitt á eigin Hugging Face reikningum rithöfundar síns, þannig að að taka þátt þýðir ekki að veita skrifu aðgang að einhverjum öðrum. ``spacr.model_zoo`` ``publish_model`` gerir upplifun og trúa á listanum eftir að bæta.
+Líkön eru hýst á eigin Hugging Face-reikningi hvers höfundar; ``spacr.model_zoo.publish_model`` hleður upp líkani og prentar færsluna sem bæta á í líkanaskrána.
 
 
 Greining á afköstum
@@ -575,7 +574,7 @@ Búðu til vélbúnaðarskýrslu og hengdu hana við mál um afköst::
 
 Spara til ``~/.spacr/reports`` og trúa leiðinni. ``--quick`` skiptir lengri skilyrði; ``--out PATH`` setur staðsetningu.
 
-Lesa engin verkefni gögnum. Tíms innfang, fjölbreytna bókasafn, vinstri byggingu og uppgötvun. Rannsóknir um meðferð-arquitectur emulans (a x86_64 Python bygging á Apple Silicon) og BLAS framkvæmd NumPy.
+Les engin verkefnisgögn. Mælir tímann sem innflutningur, töluleg söfn, gerð glugga og hreyfimyndir taka og greinir frá x86_64-hermun á Apple Silicon og BLAS-útfærslu NumPy.
 
 Orðlinna reference
 ----------------------
@@ -590,8 +589,6 @@ Að byrja við umsókn
    spacr              # the desktop application
    spacr-tutorial     # the interactive tutorial library
    spacr-server       # no first-run setup screen, for unattended launches
-
-``spacr-server`` skípa modal setup skján, sem annars myndi blokkja óþekkt vinnu.
 
 ``spacr-qt`` og ``spacr-nightly`` eru alias af ``spacr``.
 
@@ -623,8 +620,6 @@ Engin Qt, engin sýning — fyrir klúster, þjónusta og CI.
 
 ``validate`` lætur sömu settun sem fer myndi og segir hvað er saknað, óþekkt eða sýnir ekkert.
 
-``spacr-run --list`` sýnir aðeins mólur með heiðarlegt innfangspunkt; notkun, lækning og rannsóknir eru samskipt og yfirgefið.
-
 Spurning á leiðinni síðar
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -655,7 +650,7 @@ Rotating logs eru skrifað í ``~/.spacr/logs/spacr.log``. Sættu þessar skál 
 
 
 Framlög og aðstoð
-------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 Sendu villutilkynningar og afmarkaðar óskir um eiginleika í gegnum `GitHub-mál <https://github.com/EinarOlafsson/spacr/issues>`_. Þegar bilun er tilkynnt skal tilgreina útgáfu spaCR, stýrikerfi, útgáfu Python, stillingar einingarinnar og viðeigandi hluta úr annálnum. ``spacr-doctor`` safnar flestum þessara upplýsinga; láttu vélbúnaðarskýrsluna fylgja þegar tilkynnt er um afkastavandamál.
 

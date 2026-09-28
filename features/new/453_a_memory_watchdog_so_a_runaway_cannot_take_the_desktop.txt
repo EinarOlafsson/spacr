@@ -122,3 +122,11 @@ WHAT IS LEFT
   * It has never fired in anger. Everything above is tested on made-up
     process lists, which is the right way to test the selection rules and
     proves nothing about the day it matters.
+
+STATUS 2026-09-27 — deployment checked, still incomplete
+Read-only systemd queries confirm the watchdog user unit is not installed
+(LoadState=not-found, ActiveState=inactive), and user@1000.service still has
+MemoryHigh=infinity and MemoryMax=infinity. Receipt:
+features/data/453_memory_guard_readback_2026-09-27.json.
+No units or memory settings were changed; the recorded maintainer-reserved
+deployment and active live_cell training remain untouched. This item is open.

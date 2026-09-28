@@ -518,9 +518,8 @@ class DatasetPicker(QDialog):
         self._datasets = tuple(datasets)
         column = QVBoxLayout(self)
         blurb = QLabel(tr(
-            "Ten fields of the dataset a published model was trained on, with the "
-            "masks it was taught. They open for editing, so what you see is what the "
-            "model saw."), self)
+            "A sample of a published model's training dataset. Sample sizes vary "
+            "by dataset. Masks are included where available."), self)
         blurb.setWordWrap(True)
         column.addWidget(blurb)
         self._list = QListWidget(self)
@@ -628,7 +627,7 @@ def open_a_training_dataset(screen, *, pick=None, fetch=None, root=None,
             _say(screen, tr("Downloaded {name}, but the folder would not open")
                  .format(name=dataset.title))
             return
-        _say(screen, tr("{name}: {count} fields and the masks the model was trained on")
+        _say(screen, tr("{name}: {count} example images ready")
              .format(name=dataset.title, count=dataset.size))
 
     (fetch or _fetch_sample)(screen, dataset, folder, done)

@@ -2,8 +2,8 @@
 EVERY SETTING AUDITED: IS IT NEEDED, IS IT A DUPLICATE, IS ITS NAME HONEST
 ================================================================================
 
-Status:    IMPLEMENTATION COMPLETE, reconciled 2026-09-24. Nine-language
-           translation/review work remains under future/411. The three
+Status:    DONE, implementation and runtime translation tail reconciled
+           2026-09-27. Shared API work remains under future/411. The three
            formerly parked runtime changes are already in nightly:
            ee6a608e6 declares every enabled slot's background switch;
            7d619d78b renames straightness_filter to drop_straight_tracks;
@@ -3029,3 +3029,16 @@ were needed in this reconciliation. Current old-settings migration and
 per-slot preprocessing/measurement checks pass (see the shared325handoff).
 The translation lane remains open under411; no all-language completion is
 claimed and the original audit/decision history is retained.
+
+2026-09-27 — RUNTIME TRANSLATION TAIL ACCEPTED
+The current labels, help, categories and UI are source-current in all nine
+locales. The canonical audit passed; strict runtime checks passed 54 cases
+(51 on the first run, the 3 corrected test-cohort/context assumptions on the
+focused rerun). The advisory translation plugin was disabled. This closes
+this item's runtime catalog tail against the existing implementation and
+scientific evidence above; it adds no new efficacy or GPU claim. The shared
+API/publication work remains tracked separately under 411/358.
+
+Receipt: features/data/316_runtime_codex_delta_2026-09-27.json.
+Review: docs/i18n/2026-09-27-runtime-codex-delta.md.
+AI technical review (Codex), no native-speaker signoff.

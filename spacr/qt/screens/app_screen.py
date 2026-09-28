@@ -1410,6 +1410,98 @@ def _resume_the_fractal(screen) -> int:
     return resumed
 
 
+class _RuntimeViewport(QScrollArea):
+    """Keep runtime controls usable when their minimum height exceeds the viewport.
+
+    :param content: the widget containing the runtime layout.
+    :param parent: the existing runtime body pane.
+    """
+
+    def __init__(self, content, parent):
+        """Own content and coalesce geometry observations on the GUI thread.
+
+        :param content: the widget containing the runtime layout.
+        :param parent: the existing runtime body pane.
+        """
+        super().__init__(parent)
+        self._split = None
+        self._floor_timer = QTimer(self)
+        self._floor_timer.setSingleShot(True)
+        self._floor_timer.timeout.connect(self._sync_floor)
+        self.setFrameShape(QScrollArea.NoFrame)
+        self.setWidgetResizable(True)
+        self.setWidget(content)
+        self.viewport().installEventFilter(self)
+
+    def _watch_splitter(self, splitter):
+        """Observe pane changes without changing collapse or drag ownership.
+
+        :param splitter: the registered runtime pane splitter.
+        """
+        self._split = splitter
+        splitter.installEventFilter(self)
+        for index in range(splitter.count()):
+            splitter.widget(index).installEventFilter(self)
+        splitter.pane_toggled.connect(self._queue_floor)
+        self._queue_floor()
+
+    def _queue_floor(self, *_args):
+        """Collapse layout changes into one pending measurement.
+
+        :param _args: unused pane-toggle signal arguments.
+        """
+        if not self._floor_timer.isActive():
+            self._floor_timer.start(0)
+
+    def eventFilter(self, watched, event):
+        """Revisit minima after wrapping, visibility, and viewport width changes.
+
+        :param watched: the pane, splitter, or viewport receiving the event.
+        :param event: the actual Qt event.
+        :returns: the inherited event-filter result.
+        """
+        if event.type() in (QEvent.LayoutRequest, QEvent.ShowToParent,
+                            QEvent.HideToParent) or (
+                watched is self.viewport() and event.type() == QEvent.Resize):
+            self._queue_floor()
+        return super().eventFilter(watched, event)
+
+    def _sync_floor(self):
+        """Let scrolling absorb genuine overflow instead of shrinking controls."""
+        split = self._split
+        if split is None:
+            return
+        visible = split._visible_indices()
+        floor = split.handleWidth() * max(0, len(visible) - 1)
+        changed = False
+        for index in visible:
+            widget = split.widget(index)
+            pane = split._pane_of(widget)
+            if pane is not None and pane.is_collapsed():
+                height = split._collapsed_extent(pane)
+                minimum = 0
+            else:
+                minimum = max(0, widget.minimumSizeHint().height(),
+                              int(pane.minimum or 0) if pane is not None else 0)
+                if pane is not None and pane.stretch <= 0:
+                    minimum = max(minimum, split._height_for_width(widget))
+                height = minimum
+            if widget.minimumHeight() != minimum:
+                widget.setMinimumHeight(minimum)
+                changed = True
+            floor += height
+        margins = self.widget().layout().contentsMargins()
+        content_floor = floor + margins.top() + margins.bottom()
+        if split.minimumHeight() != floor:
+            split.setMinimumHeight(floor)
+            changed = True
+        if self.widget().minimumHeight() != content_floor:
+            self.widget().setMinimumHeight(content_floor)
+            changed = True
+        if changed:
+            split.rebalance(refit=True)
+
+
 class _WrappingButtonStrip(FlowLayout):
     """The action row's buttons, laid out so they wrap rather than squeeze.
 
@@ -1978,9 +2070,6 @@ class AppScreen(QWidget):
         if uses_ambient_background(self.app_key):
             self._install_ambient()
 
-        # THE SWEEP IS UNCONDITIONAL (item 381). With no backdrop behind the
-        # containers, `page_fill` gives the page its own colour, so a
-        # transparent container shows the page and never the window's `bg`.
         if self._ambient is None:
             self._clear_page_surfaces()
         self._sync_page_palette()
@@ -2111,11 +2200,17 @@ class AppScreen(QWidget):
                 _discard_widget(child)
 
     def _remove_ambient(self) -> None:
-        """Tear the ambient backdrop down. Safe when there is none."""
+        """Stop and remove the ambient backdrop. Safe when there is none."""
         widget, self._ambient = self._ambient, None
         self._ambient_applied = None
         if widget is None:
             return
+        try:
+            shutdown = getattr(widget, "shutdown", None)
+            if callable(shutdown):
+                shutdown()
+        except Exception:
+            LOG.debug("could not shut down the ambient backdrop", exc_info=True)
         try:
             widget.set_animating(False)
         except Exception:
@@ -2638,12 +2733,6 @@ class AppScreen(QWidget):
                                 section)
             self._settings_sections.append(section)
             section.set_expanded(True)
-            # TAG WHAT WAS JUST MOUNTED (item 408). While the panel is being
-            # built the screen's own sweep comes later and covers this, but a
-            # Preferences save mounts it on a screen already on show, after
-            # every sweep: the table's viewport then painted `QPalette.Base`,
-            # opaque black, over the backdrop until the next show. Only this
-            # subtree -- the whole-screen sweep re-polishes 201 settings.
             from ..theme import clear_container_surfaces
 
             clear_container_surfaces(section)
@@ -3895,9 +3984,16 @@ class AppScreen(QWidget):
                 section, own_keys, bool(children))
         except AttributeError:
             pass
+        waiting_owner = getattr(self, "_waiting_controls_owner", None)
+        if waiting_owner is None:
+            waiting_owner = QWidget()
+            waiting_owner.hide()
+            self.destroyed.connect(waiting_owner.deleteLater)
+            self._waiting_controls_owner = waiting_owner
+            self._settings_model._unmounted_control_owner = waiting_owner
         for _label, widget in spec[1] or ():
-            if isinstance(widget, QWidget) and widget.parentWidget() is not None:
-                widget.setParent(None)
+            if isinstance(widget, QWidget):
+                widget.setParent(waiting_owner)
         section._spacr_waiting_spec = spec
         section._spacr_declared_rows = ()
         opener = partial(self._open_a_waiting_heading, section)
@@ -5237,28 +5333,7 @@ class AppScreen(QWidget):
         from ..settings_pack import settings_from_pack
 
         folder = Path(folder)
-        # A form rebuild detaches this widget before bulk application returns.
-        # Keep its owner so the report can reach the replacement's console.
         owner = self.window() if hasattr(self, "window") else None
-        # THE SHIPPED PACK FIRST, THEN THE PLATE'S OWN FOLDER.
-        #
-        # A completed run writes `<src>/settings/<name>.csv` --
-        # `utils.save_settings`, with name='gen_mask_settings' for Mask -- and
-        # that is the same folder and the same filename this search looks in.
-        # `_EXAMPLE_SETTINGS_FILES` even lists the run's spelling FIRST, which
-        # its own comment says out loud: "a mask run saves
-        # `gen_mask_settings.csv`, the older pack shipped
-        # `gen_masks_settings.csv`".
-        #
-        # So on a cached example, once the user has run the module once, their
-        # own output sits under the preferred name and wins forever, because a
-        # cached example is never re-fetched. It cannot happen until you have
-        # used the thing once, which is why it only bites returning users.
-        #
-        # The download already separates them -- the plate unpacks to
-        # `<dest>/plate1` and the pack to `<dest>/settings`, a SIBLING that no
-        # run writes into -- so the fix is to look there first rather than to
-        # guess between two files with the same name.
         roots = []
         if pack_folder is not None:
             roots.append(Path(pack_folder))
@@ -5267,14 +5342,9 @@ class AppScreen(QWidget):
             report = None
             path = root
             try:
-                # Do not override src here: Measure's pack points at /merged,
-                # which reanchor_example_paths preserves below the local plate.
                 loaded, report = settings_from_pack(self.app_key, root)
                 if not report.source:
                     continue
-                # The reader returns defaults too; an example import must not
-                # reset values the pack never supplied. A found pack remains
-                # authoritative even when all its keys were dropped.
                 supplied = set(report.applied)
                 supplied.update(new for _old, new in report.renamed)
                 loaded = {key: value for key, value in loaded.items()
@@ -5376,15 +5446,12 @@ class AppScreen(QWidget):
     def _install_plaque_example_button(self, section) -> None:
         """Add Plaque Analysis's test-data control.
 
-        The module is not in EXAMPLE_DATA_SECTIONS, so the dispatch above never
-        reaches it and this builds its button instead. It offers TWO sets, because the module has two halves and they take
-        different input: ten segmented plaque FIELDS, which is what the cpsam_plaque
-        model was trained on, and ten whole plate FIGURES, which is what the pipeline
-        actually consumes before it has found a well.
+        The registered input section offers segmented plaque fields or whole
+        plate figures through the shared dataset picker. Sample sizes vary by
+        dataset; whole plate figures have no segmentation masks. The selected
+        directory becomes ``src``.
 
-        The sample machinery is the shared example-dataset one, unchanged. What differs is what happens
-        afterwards: Make Masks opens the folder in the editor, and this points ``src``
-        at it.
+        :param section: Input section receiving the dataset button.
         """
         from PySide6.QtWidgets import QPushButton
 
@@ -5394,10 +5461,9 @@ class AppScreen(QWidget):
                                         use=self.point_src_at)
         button.setText(tr("Load test data…"))
         button.setToolTip(tr(
-            "Download ten example fields for Plaque Analysis and point src at them. "
-            "Two sets to choose from: segmented plaque fields, which is what the "
-            "plaque model was trained on, or whole plate figures, which is what the "
-            "pipeline takes. Cached after the first download."))
+            "Download example data for Plaque Analysis and point src at it. "
+            "Choose segmented plaque fields or whole plate figures. Sample sizes "
+            "vary by dataset. Cached after the first download."))
         self._plaque_example_button = button
         section.add_prose(button, at_top=True)
 
@@ -7243,7 +7309,13 @@ class AppScreen(QWidget):
         """
         wrap = QWidget()
         self._runtime_wrap = wrap
-        layout = QVBoxLayout(wrap)
+        outside = QVBoxLayout(wrap)
+        outside.setContentsMargins(0, 0, 0, 0)
+        content = QWidget()
+        viewport = _RuntimeViewport(content, wrap)
+        self._runtime_viewport = viewport
+        outside.addWidget(viewport)
+        layout = QVBoxLayout(content)
         layout.setContentsMargins(SPACING["sm"], 0, 0, 0)
         layout.setSpacing(SPACING["md"])
 
@@ -7786,6 +7858,7 @@ class AppScreen(QWidget):
             actions_heading, actions_body, name="Actions",
             persist_key=f"{self.app_key}/Actions")
         self._install_the_shell_panes(layout, usage_card, section)
+        viewport._watch_splitter(self._runtime_splitter)
         return wrap
 
     #: Where a runtime splitter's state is stored. Distinct from the console
@@ -8249,6 +8322,7 @@ class AppScreen(QWidget):
             for the focus-collapse rule.
         """
         super().showEvent(event)
+        self._backdrops_ready = True
         focus = getattr(self, "_shell_focus", None)
         if focus is not None and not event.spontaneous():
             focus.begin_view()
@@ -8258,23 +8332,6 @@ class AppScreen(QWidget):
             self._refresh_usage()
         self._sync_hint_strip_height()
         self._sync_category_hint_height()
-        # ONCE, ON THE FIRST SHOW, AND THIS IS THE BLACK BOX.
-        # `_clear_page_surfaces` runs during construction, and it tags what
-        # exists THEN. Anything a screen builds afterwards -- a section that
-        # mounts on demand, a grid the preferences turn on -- is never
-        # tagged, inherits the blanket ``QWidget { background-color: bg }``
-        # rule, and paints the window colour as a solid rectangle over the
-        # backdrop.
-        #
-        # It looked intermittent because the repair was accidental:
-        # `refresh_ambient_background` re-tags, but only when the ambient
-        # preference actually CHANGED, and its docstring says so. Leaving
-        # the screen and coming back happened to take that path, so the box
-        # appeared on first open and was gone on the second -- which reads
-        # like a paint race and is not one.
-        #
-        # Guarded by a flag rather than run on every show: tagging walks
-        # every child and re-polishes it, and Mask carries 201 settings.
         if not getattr(self, "_surfaces_cleared_on_show", False):
             self._surfaces_cleared_on_show = True
             try:
@@ -9557,6 +9614,9 @@ class AppScreen(QWidget):
         dropping its references or force-terminating it could corrupt an
         output and triggers Qt's fatal "QThread destroyed while running".
 
+        An accepted close also joins the owned backdrop renderer. Showing
+        the screen again creates a fresh backdrop from the current settings.
+
         :param event: the close event; ignored (so the screen stays open)
             when the worker is still running three seconds after the cancel
             request.
@@ -9589,6 +9649,8 @@ class AppScreen(QWidget):
                 return
             self._thread = None
             self._worker = None
+        self._backdrops_ready = False
+        self._remove_ambient()
         try:
             self._usage_generation += 1
             self._usage_timer.stop()
@@ -11136,6 +11198,7 @@ class AppScreen(QWidget):
         buttons.rejected.connect(dialog.reject)
 
         def _lock():
+            """Persist the displayed analysis plan and show its immutable identity."""
             record = self._lock_analysis_now(
                 settings, hypotheses.toPlainText(), thresholds.toPlainText(),
                 note.text())

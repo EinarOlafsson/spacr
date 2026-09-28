@@ -95,13 +95,6 @@
     },
     {
       "table": "ui",
-      "key": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
-      "source": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
-      "translation": "下载十个用于 Plaque Analysis 的示例视野，并将 src 指向它们。可选择两组数据：带有分割标注的噬斑视野，即噬斑模型的训练数据；或整个板的图像，即流程接受的输入。首次下载后会缓存。",
-      "source_sha256": "2712c235708a6e6d3cf1479fc35c5ce9de07d44520620a1e2a6a21cee9dddffa"
-    },
-    {
-      "table": "ui",
       "key": "Download {name}?",
       "source": "Download {name}?",
       "translation": "下载 {name}？",
@@ -287,6 +280,14 @@
         "source_sha256": "901d757c233bb10cc32d397d6fc28b0dc14b5608dc2b8a29ff494acc9e437e6a"
       },
       "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "table": "ui",
+      "key": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
+      "source": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
+      "translation": "下载十个用于 Plaque Analysis 的示例视野，并将 src 指向它们。可选择两组数据：带有分割标注的噬斑视野，即噬斑模型的训练数据；或整个板的图像，即流程接受的输入。首次下载后会缓存。",
+      "source_sha256": "2712c235708a6e6d3cf1479fc35c5ce9de07d44520620a1e2a6a21cee9dddffa"
     }
-  ]
+  ],
+  "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27."
 }

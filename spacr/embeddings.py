@@ -965,7 +965,10 @@ def _mil_fit(bags: Sequence[np.ndarray], labels: Sequence[int], *,
     width = stacked.shape[1]
 
     class _Attention(nn.Module):
+        """Pool cell embeddings into a well score with gated attention."""
+
         def __init__(self):
+            """Build the cell projection, attention gate and binary well head."""
             super().__init__()
             self.cell = nn.Sequential(nn.Linear(width, hidden), nn.ReLU(),
                                       nn.Dropout(dropout))
@@ -975,6 +978,7 @@ def _mil_fit(bags: Sequence[np.ndarray], labels: Sequence[int], *,
             self.head = nn.Linear(hidden, 1)
 
         def forward(self, x, mask):
+            """Return well logits, attention and cell evidence, excluding padding."""
             h = self.cell(x)
             logits = self.weight(torch.tanh(self.value(h))
                                  * torch.sigmoid(self.gate(h))).squeeze(-1)

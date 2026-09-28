@@ -161,8 +161,8 @@ def test_the_note_stays_on_the_card_when_nothing_can_be_measured(
         pytest.skip("this machine shows no GPU note")
     back = slides._back
     monkeypatch.setattr(note, "heightForWidth", lambda _w: 0)
-    monkeypatch.setattr(back, "mapTo", _broken)
-    monkeypatch.setattr(back, "sizeHint", _broken)
+    monkeypatch.setattr(slides, "_back", types.SimpleNamespace(
+        parent=back.parent, rect=back.rect, mapTo=_broken, sizeHint=_broken))
     slides._place_the_gpu_note()
     assert _on_card(slides)
     assert note.height() == note.sizeHint().height()

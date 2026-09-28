@@ -14,3 +14,23 @@ wanted = bool(style.grid) and str(style.grid_axis) != "none"
 ```
 
 THE GRID IS OFF WHEN IT IS OFF. matplotlib warns -- "First parameter to grid() is false, but line properties are supplied. The grid will be enabled." -- and then enables it, which is how a "draw a grid" tick box drew one whichever way it was set. The same fault was found and fixed in the save dialog; it is spelled once here so a third renderer cannot meet it again.
+
+
+---
+
+# Notes from `spacr/style_base.py`
+
+Prose lifted out of `spacr/style_base.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## apply_page
+
+### lines 257-259
+
+```python
+names = font_names(style)
+```
+
+The face, on the text objects themselves. A renderer that drew outside a font `rc_context` would otherwise keep whatever the process-wide default was -- DejaVu Sans, unless something else had changed it.

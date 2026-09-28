@@ -238,7 +238,8 @@ Enhancement before and after detection
 
 **Compare** previews the configured enhancement; **Apply** enables it for
 detection and display. The order is percentile stretch, background
-subtraction, optional point-spread processing, denoise, contrast, sharpen,
+subtraction, optional point-spread processing, optional restoration, denoise,
+contrast, sharpen,
 detection, morphology, then split.
 Disabled steps leave their input unchanged. Background estimation radius
 should exceed the structures you want to retain. Denoising and the separate
@@ -265,6 +266,43 @@ Y/X full widths at half maximum. Use **Reload** after changing a kernel file.
 Compare the result before applying it; more deconvolution iterations can
 amplify noise. The original image intensities stay available for measurement.
 See :doc:`point_spread` for the complete workflow and batch settings.
+
+Restore an image with Cellpose 3
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Under **Image enhancement**, choose **Denoise**, **Deblur**, or
+**One-click restoration** in **Deep image enhancement**. The default is
+**Off**. If needed, select **Install Cellpose 3…** to install its separate
+backend environment; this does not replace spaCR's own Cellpose installation.
+First use may download the selected model's weights.
+
+Open **Restoration model settings** and choose **Cells (cyto3)**,
+**Cells (cyto2)**, or **Nuclei**, according to the structures in the selected
+intensity channel. Set their approximate diameter in pixels. This controls
+model rescaling, not microscope calibration. **Load / retry model** reloads
+the current choice. Wait for the ready message before comparing or applying
+it; that message identifies the device used by the isolated backend.
+
+Loading and restoration run in the background. On a CPU, a whole field can
+take tens of seconds; a small magnifier region is quicker. Timing depends
+on the image, model and computer. A backend installed with supported GPU
+acceleration can use it, but the workflow also runs on a CPU.
+
+Use **Compare** to inspect several representative regions before choosing
+**Apply**. Restoration follows background and PSF processing and precedes
+classical denoising and contrast adjustments. Apply feeds the restored
+floating-point intensities to detection and the Wand while keeping display
+scaling separate. The image dimensions and loaded source pixels stay
+unchanged; upsampling models are not offered here.
+
+Restored values are normalized model output, not calibrated fluorescence;
+they can be negative or exceed one. Measurements retain the original
+intensities. A clearer-looking image does not establish recovered structure
+or more accurate masks, and these weights are not validated for every
+organelle or acquisition. Inspect the resulting masks as well as the image.
+Keep the saved enhancement record with the masks: it identifies the model,
+Cellpose version, checkpoint hash, device, diameter and processing settings.
+CARE and Noise2Void are not supplied as ready restoration engines.
 
 Grow secondary objects from a primary mask
 ------------------------------------------

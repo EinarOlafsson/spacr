@@ -2,10 +2,9 @@
 API PAGES, IN NINE LANGUAGES, FOR THE NESTED HELPER FUNCTIONS -- ASSIGNED TO CODEX
 ================================================================================
 
-Status:    IN PROGRESS, CODEX, 2026-09-22. Phase A inventory, rendering and
-           extractor support and CI wiring implemented; exact-SHA CI pending.
-           German API freshness is 10487/11194 after source-bound reviews;
-           remaining catalog debt and full audit acceptance are still open.
+Status:    SOURCE-CURRENT, CODEX, 2026-09-27. English and all nine translated
+           catalogs contain11865 current symbols; local validation passed.
+           Current deployment acceptance and native-speaker review remain open;
            Still NOT BLOCKING the 1.5.0.8 release: the release is not held for
            it, and it must not turn a release gate red while it is built.
            Filed as FUTURE the same day ("don't work on it now"), then handed
@@ -1997,3 +1996,49 @@ Regenerated the bundled GUI tutorial index (75modules), including the four
 organism guides and current lesson titles; publication now maintains it.
 Receipt:data/411_overview_release_readiness_2026-09-24.json. This is local
 build evidence, not a claim that the latest nightly deployment is already live.
+
+STATUS 2026-09-27 (Codex, strict HTML deployment): CI36338455327 built
+main/nightly HTML with -W -E and all API languages, then deployed Pages.
+The live nightly publication identifies4044d70de and all nine API/runtime
+locales report source-compatible with zero issues. Receipt:
+features/data/411_live_strict_html_2026-09-27.json. This proves that deployed
+snapshot; the new regression and packaged-smoke helper work still requires
+another English inventory and translation delta after its source freezes.
+No native-speaker or human listening signoff is claimed.
+
+STATUS 2026-09-27 (Codex, delta4): English and all nine API catalogs now
+match the regression and distribution-smoke source changes: 11865 symbols,
+54 newly reviewed blocks, all680 prior review files preserved byte for byte.
+Canonical staging/installed audits and post-install preservation passed;
+144 named source/catalog/docstring tests passed. The inventory pin update
+is proved by exactly two added optional fit_designs parameters. Receipt:
+features/data/411_api_delta4_07_53_2026-09-27.json. Commit b6ed334fe is pushed;
+current strict HTML publication and aggregate review reports remain pending.
+Review is AI technical review only, with no native-speaker signoff.
+
+STATUS 2026-09-27 — delta4 aggregate reports current
+Refreshed current-source review scope against all8726 runtime entries and
+11865 public API symbol documents. All54 delta4 blocks are reflected; prior
+historical sections are preserved, and COVERAGE.md remains byte-identical.
+Both canonical report freshness tests passed in278.42s. Receipt:
+features/data/411_api_delta4_aggregate_reports_2026-09-27.json.
+Native-speaker/listening review remains unclaimed. Current HTML deployment
+and future source changes still require their own acceptance.
+
+STATUS 2026-09-27 — API delta4 now verified LIVE
+Strict HTML build and Pages deployment run36348757734 passed. The live
+nightly publication identifies2c9497c42, a descendant containingb6ed334fe's
+API delta4. Live compatibility reports all9 API and9runtime locales source
+compatible withzeroissues. Receipt: features/data/411_api_delta4_live_2026-09-27.json.
+This pins the publication checked; later aggregate-report/source changes
+need their own deployment, and native/listening signoff is not implied.
+
+STATUS 2026-09-27 — API delta6 maintenance complete locally
+Both changed public docstrings are translated and AI technically reviewed in
+all nine locales, reusing the completed checkpoints. All ten catalog inventory
+and hash checks pass; the canonical audit reports zero incompatible API locales.
+Two aggregate report checks pass. Runtime coverage is8729 current entries;
+API coverage is11865 symbols. Historical reviews are preserved, including
+18 archived originals. Current HTML deployment remains a separate acceptance;
+no native-speaker or listening signoff is claimed.
+Receipt: features/data/411_api_delta6_maintenance_2026-09-27.json.

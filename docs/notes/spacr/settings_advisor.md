@@ -282,3 +282,25 @@ chosen, withdrawn = [], list(advice.undecided)
 ```
 
 WHICH SETTING TO WITHDRAW. Named from the sentence rather than guessed: every refusal above quotes the key it is about.
+
+
+---
+
+# Notes from `spacr/settings_advisor.py`
+
+Prose lifted out of `spacr/settings_advisor.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## Module level
+
+### lines 23-32
+
+```python
+ROW_CAP = 400_000
+```
+
+PANDAS IS IMPORTED WHERE IT IS USED, not here. Only `read_the_counts` and `read_the_response` touch it, and both READ A TABLE -- work that happens when the user asks for advice, never while a screen is being built. At module level it cost ~200 ms on the main thread during a screen open, because this module is reachable from the settings panel and an import is paid by whoever arrives first. Every annotation that names it is already a string, so nothing needs the name at definition time.
+
+Both functions already import their other helpers locally, so this joins a pattern rather than starting one.

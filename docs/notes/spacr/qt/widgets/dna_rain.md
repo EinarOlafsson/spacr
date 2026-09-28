@@ -282,3 +282,49 @@ layout.addWidget(button)
 ```
 
 Not a box layout — better beside nothing than not at all.
+
+
+---
+
+# Notes from `spacr/qt/widgets/dna_rain.py`
+
+Prose lifted out of `spacr/qt/widgets/dna_rain.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## Contents
+
+- [DnaRainWidget.__init__](#dnarainwidget__init__) (1 entry)
+- [DnaRainWidget.hideEvent](#dnarainwidgethideevent) (1 entry)
+- [DnaRainWidget.eventFilter](#dnarainwidgeteventfilter) (1 entry)
+
+## DnaRainWidget.__init__
+
+### lines 805-806  _(unsure)_
+
+```python
+self._watched: Optional[weakref.ReferenceType] = None
+```
+
+WEAK, or the window and this widget form a reference cycle; see docs/notes/spacr/qt/widgets/dna_rain.md for what the collector does.
+
+## DnaRainWidget.hideEvent
+
+### lines 1141-1142  _(unsure)_
+
+```python
+if getattr(self, "_timer", None) is not None:
+```
+
+Absent when the collector cleared this wrapper before its window was destroyed: nothing is left to stop.
+
+## DnaRainWidget.eventFilter
+
+### line 1157  _(unsure)_
+
+```python
+ref = getattr(self, "_watched", None)
+```
+
+getattr for the same teardown as hideEvent: nothing watched.

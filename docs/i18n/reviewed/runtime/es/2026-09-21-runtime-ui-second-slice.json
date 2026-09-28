@@ -88,13 +88,6 @@
     },
     {
       "table": "ui",
-      "key": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
-      "source": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
-      "translation": "Descarga diez campos de ejemplo para Plaque Analysis y configura src para usarlos. Hay dos conjuntos disponibles: campos con placas segmentadas, usados para entrenar el modelo de placas, o figuras de placas de cultivo completas, que son la entrada del flujo de análisis. Se guarda en caché tras la primera descarga.",
-      "source_sha256": "2712c235708a6e6d3cf1479fc35c5ce9de07d44520620a1e2a6a21cee9dddffa"
-    },
-    {
-      "table": "ui",
       "key": "Download {name}?",
       "source": "Download {name}?",
       "translation": "¿Descargar {name}?",
@@ -568,6 +561,14 @@
         "source_sha256": "66756402c8ebea2e3d38897d2df455b480a2499312a3e082a2d770824329343f"
       },
       "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "table": "ui",
+      "key": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
+      "source": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
+      "translation": "Descarga diez campos de ejemplo para Plaque Analysis y configura src para usarlos. Hay dos conjuntos disponibles: campos con placas segmentadas, usados para entrenar el modelo de placas, o figuras de placas de cultivo completas, que son la entrada del flujo de análisis. Se guarda en caché tras la primera descarga.",
+      "source_sha256": "2712c235708a6e6d3cf1479fc35c5ce9de07d44520620a1e2a6a21cee9dddffa"
     }
-  ]
+  ],
+  "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27."
 }

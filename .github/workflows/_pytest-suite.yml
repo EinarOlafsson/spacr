@@ -29,6 +29,11 @@ on:
         required: false
         default: 0
         type: number
+      batch_size:
+        description: Maximum test files per fresh pytest process (0 disables batching)
+        required: false
+        default: 0
+        type: number
       file_shard_index:
         description: Zero-based deterministic test-file shard
         required: false
@@ -216,18 +221,38 @@ jobs:
                           --timeout-method thread
                           --max-worker-restart=0)
           fi
-          python -m pytest tests/ \
-            -o faulthandler_timeout=900 \
-            "${timeout_args[@]}" \
-            -m '${{ inputs.marker_expression }}' \
-            --ignore=tests/test_perf_guard.py \
-            --ignore=tests/qt/test_gui_responsiveness.py \
-            --ignore=tests/qt/test_home_stage_and_dock.py \
-            --ignore=tests/qt/test_figure_queue.py \
-            --ignore=tests/qt/test_pca.py \
-            --ignore=tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py \
-            --ignore=tests/qt/test_the_backdrop_survives_a_run.py \
-            "${xdist_args[@]}" -v --tb=short
+          if [ "${{ inputs.batch_size }}" -gt 0 ]; then
+            batch_workers="${{ inputs.xdist_workers }}"
+            if [ "$batch_workers" -lt 1 ]; then
+              batch_workers=1
+            fi
+            python tools/run_pytest_batches.py tests/ \
+              --marker '${{ inputs.marker_expression }}' \
+              --batch-size "${{ inputs.batch_size }}" \
+              --workers "$batch_workers" \
+              --per-test-timeout "${{ inputs.per_test_timeout_seconds }}" \
+              --faulthandler-timeout 900 \
+              --ignore=tests/test_perf_guard.py \
+              --ignore=tests/qt/test_gui_responsiveness.py \
+              --ignore=tests/qt/test_home_stage_and_dock.py \
+              --ignore=tests/qt/test_figure_queue.py \
+              --ignore=tests/qt/test_pca.py \
+              --ignore=tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py \
+              --ignore=tests/qt/test_the_backdrop_survives_a_run.py
+          else
+            python -m pytest tests/ \
+              -o faulthandler_timeout=900 \
+              "${timeout_args[@]}" \
+              -m '${{ inputs.marker_expression }}' \
+              --ignore=tests/test_perf_guard.py \
+              --ignore=tests/qt/test_gui_responsiveness.py \
+              --ignore=tests/qt/test_home_stage_and_dock.py \
+              --ignore=tests/qt/test_figure_queue.py \
+              --ignore=tests/qt/test_pca.py \
+              --ignore=tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py \
+              --ignore=tests/qt/test_the_backdrop_survives_a_run.py \
+              "${xdist_args[@]}" -v --tb=short
+          fi
           if [ "${{ inputs.run_serial_tail }}" = "true" ]; then
             # These files measure process-local memory, event-loop latency,
             # CPU frame budgets, and real hover pixels. Running them beside

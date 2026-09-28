@@ -204,3 +204,23 @@ by_cat: dict[str, list[ShortcutSpec]] = {}
 ```
 
 Group by category
+
+
+---
+
+# Notes from `spacr/qt/shortcuts.py`
+
+Prose lifted out of `spacr/qt/shortcuts.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## ShortcutOverlay.eventFilter
+
+### lines 742-744
+
+```python
+window = getattr(self, "_window", None)
+```
+
+getattr: the overlay and its window are a reference cycle, so the collector can clear this wrapper before the window's destructor reaches the filter.

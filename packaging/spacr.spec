@@ -12,7 +12,14 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from PyInstaller.utils.hooks import collect_data_files, collect_submodules
+from packaging.version import Version
+from PyInstaller import __version__ as PYINSTALLER_VERSION
+from PyInstaller.utils.hooks import (
+    collect_data_files, collect_dynamic_libs, collect_submodules, copy_metadata,
+)
+
+if Version(PYINSTALLER_VERSION) < Version("6.10"):
+    raise RuntimeError("The independent updater helper requires PyInstaller >= 6.10")
 
 # Repo root is one dir up from packaging/
 ROOT = Path(SPECPATH).resolve().parent
@@ -104,6 +111,27 @@ _NON_CORE_IMPORTS = [
 datas = []
 datas += collect_data_files("spacr", includes=["resources/**/*", "fonts/**/*"])
 datas += collect_data_files("cellpose", includes=["*.txt", "*.md"])
+datas += copy_metadata("spacr")
+# ImageIO reads its distribution version at import time. Its data hook does
+# not retain dist-info, so otherwise a frozen Measure run fails on spacr.io.
+datas += copy_metadata("imageio")
+
+
+def _torchvision_binaries():
+    """Retain torchvision's directly loaded operator library and dependencies."""
+    libraries = collect_dynamic_libs(
+        "torchvision", search_patterns=["*.so", "*.so.*", "*.pyd", "*.dll", "*.dylib"],
+    )
+    # The maintained hook asks for hidden import torchvision._C, but these
+    # wheels load it with torch.ops.load_library instead. Native CI found no
+    # _C in the resulting bundle and failed while registering torchvision::nms.
+    if not any(Path(source).name.startswith(("_C.", "_C_stable."))
+               for source, _ in libraries):
+        raise RuntimeError("torchvision's _C operator library was not collected")
+    return libraries
+
+
+binaries = _torchvision_binaries()
 
 
 # ------------------------------------------------------------------
@@ -111,10 +139,27 @@ datas += collect_data_files("cellpose", includes=["*.txt", "*.md"])
 # ------------------------------------------------------------------
 block_cipher = None
 
+helper_analysis = Analysis(
+    [str(ROOT / "spacr" / "install_cleanup.py")],
+    pathex=[], binaries=[], datas=[], hiddenimports=[],
+    hookspath=[], runtime_hooks=[],
+    excludes=["spacr", "PySide6", "torch", "numpy"],
+    noarchive=False,
+)
+helper_pyz = PYZ(helper_analysis.pure)
+helper_exe = EXE(
+    helper_pyz, helper_analysis.scripts,
+    helper_analysis.binaries, helper_analysis.datas, [],
+    name="spacr-update-helper", exclude_binaries=False,
+    debug=False, bootloader_ignore_signals=False,
+    strip=False, upx=False, console=True,
+)
+binaries += [(helper_exe.name, ".")]
+
 a = Analysis(
     [ENTRY],
     pathex=[str(ROOT)],
-    binaries=[],
+    binaries=binaries,
     datas=datas,
     hiddenimports=hiddenimports,
     hookspath=[],

@@ -1621,7 +1621,7 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
         con.close()
 
     from .selection import (KEY_ESCAPED_CHARACTERS, escape_key_component,
-                            untyped_object_key)
+                            key_object_type, untyped_object_key)
 
     index = {c: i for i, c in enumerate(select)}
     id_columns = [c for c in PNG_ID_COLUMN_TYPES if c in index]
@@ -1631,6 +1631,8 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
 
     by_key: Dict[str, Tuple[str, Optional[int]]] = {}
     by_escaped_key: Dict[str, Tuple[str, Optional[int]]] = {}
+    untyped_rows: Dict[str, Tuple[str, Optional[int]]] = {}
+    escaped_untyped_rows: Dict[str, Tuple[str, Optional[int]]] = {}
 
     def _register(target: Dict[str, Tuple[str, Optional[int]]],
                   composed: List[str], label: str, object_type: Optional[str],
@@ -1654,12 +1656,15 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
         stated = [(column, _object_label(row[index[column]]))
                   for column in id_columns]
         stated = [(column, value) for column, value in stated if value]
+        declared = [column for column in id_columns
+                    if row[index[column]] is not None
+                    and str(row[index[column]]).strip().lower()
+                    not in ("", "nan", "none", "null")]
         object_type = None
         label = ""
-        if len(stated) == 1:
-            label = stated[0][1]
-            object_type = PNG_ID_COLUMN_TYPES[stated[0][0]]
-        elif stated:
+        if len(declared) == 1:
+            object_type = PNG_ID_COLUMN_TYPES[declared[0]]
+        if stated:
             label = stated[0][1]
         prcfo = (str(row[index["prcfo"]])
                  if "prcfo" in index and row[index["prcfo"]] is not None
@@ -1669,16 +1674,28 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
         if label and all(c in index for c in meta_columns):
             parts = [str(row[index[c]]) for c in meta_columns]
             _register(by_key, parts, label, object_type, entry)
+            if not declared:
+                _register(untyped_rows, parts, label, None, entry)
             if any(c in p for p in parts for c in KEY_ESCAPED_CHARACTERS):
                 _register(by_escaped_key,
                           [escape_key_component(p) for p in parts],
                           label, object_type, entry)
+                if not declared:
+                    _register(escaped_untyped_rows,
+                              [escape_key_component(p) for p in parts],
+                              label, None, entry)
         file_name = (str(row[index["file_name"]])
                      if "file_name" in index and
                      row[index["file_name"]] is not None else "")
         for candidate in (path, prcfo, file_name):
             if candidate:
+                candidate_type = key_object_type(candidate)
+                if (candidate_type is not None and declared
+                        and candidate_type != object_type):
+                    continue
                 by_key.setdefault(candidate, entry)
+                if not declared:
+                    untyped_rows.setdefault(candidate, entry)
 
     def _resolve(name: str) -> Optional[Tuple[str, Optional[int]]]:
         """The escaped spelling first — it is the one a producer emits today."""
@@ -1692,7 +1709,9 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
         if entry is None:
             reduced = untyped_object_key(wanted_key)
             if reduced != wanted_key:
-                entry = _resolve(reduced)
+                entry = escaped_untyped_rows.get(reduced)
+                if entry is None:
+                    entry = untyped_rows.get(reduced)
         if entry is None or entry[0] in seen:
             continue
         seen.add(entry[0])

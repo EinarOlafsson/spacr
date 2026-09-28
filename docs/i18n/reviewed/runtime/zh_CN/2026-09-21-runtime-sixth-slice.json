@@ -123,13 +123,6 @@
     },
     {
       "table": "ui",
-      "key": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
-      "source": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
-      "translation": "已发布模型的训练数据集中的十个视野，以及训练时使用的掩膜。它们以可编辑方式打开，因此您看到的就是模型训练时看到的内容。",
-      "source_sha256": "61fb84ed081b8c8413729fdc89c1b447cd521bcb0e21ade11b035450df3efaa3"
-    },
-    {
-      "table": "ui",
       "key": "Test on my folder",
       "source": "Test on my folder",
       "translation": "在我的文件夹中测试",
@@ -291,6 +284,14 @@
         "source_sha256": "d930372c7454ce2bd555a2d336fe82827bc574231b9b695c7742659c9dcf43e8"
       },
       "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "table": "ui",
+      "key": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
+      "source": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
+      "translation": "已发布模型的训练数据集中的十个视野，以及训练时使用的掩膜。它们以可编辑方式打开，因此您看到的就是模型训练时看到的内容。",
+      "source_sha256": "61fb84ed081b8c8413729fdc89c1b447cd521bcb0e21ade11b035450df3efaa3"
     }
-  ]
+  ],
+  "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27."
 }

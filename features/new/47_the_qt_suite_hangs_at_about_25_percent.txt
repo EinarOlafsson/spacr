@@ -2,21 +2,14 @@
 THE FULL tests/qt RUN HANGS PART-WAY THROUGH
 ================================================================================
 
-Status:    DONE for what this file is about, and the shutdown gap it left
-           open is closed: the budget now starts when the last test ends
-           rather than at the end of `pytest_sessionfinish`, so the interval
-           between the coverage write and the summary line -- where the
-           reported wedge sits, and the one interval nothing was armed for --
-           is bounded and names what is holding the process open.
-           OPEN, re-run 2026-09-25/26 (last entry): the full SERIAL
-           `pytest tests/qt` still does NOT reach its summary line. It
-           passed the old 15% segfault point and the 25% "hang" point
-           cleanly, then at 28% was ended by the suite's OWN memory guard
-           (tests/conftest.py, 6 GB RSS ceiling), which exited 3 and left
-           nothing in the log. Both halves of that are fixed: a run under a
-           kernel cap now gets 90% of the cap as its ceiling, and the
-           guard's message reaches the log. A third serial run has not been
-           made.
+Status:    OPEN: uninterrupted final-source Qt acceptance remains incomplete.
+           The latest full original-order frozen run ended 2026-09-28 with
+           exit3 at its memory guard after19,591 call reports out of27,269
+           collected cases. It reported11.4GiB over its10.8GiB ceiling;
+           the12GiB kernel cap and zero-swap limit remain unchanged.
+           All seven preserved assertion failures have focused current-source
+           repairs. Sustained memory growth is not yet localized, and the
+           run did not reach its complete pytest summary.
 Severity:  test-only, but it makes the qt suite unrunnable as a whole,
            which is how the order-dependent failures in 03 and 46 stay
            invisible.
@@ -1287,3 +1280,270 @@ test_teardown_watchdog_arming and test_test_suite_hygiene pass, except
 test_no_new_assertion_free_tests, which names
 qt/test_bioimageio_rows_in_the_picker.py (already on nightly, not this
 change).
+
+2026-09-27 — RESUME AUDIT: SERIAL RUN ABORTED AT 61%, STILL OPEN
+The inherited /tmp/spacr-47-scratch/serial.log ends at
+outliers_screen::test_set_frame_scans_and_fills_both_result_tables with
+EXIT 134, after the preceding four tests passed. There is no traceback
+proving its cause. This is neither a completed run nor a memory-limit exit.
+The root boundary fixture also forced gc.collect() every twenty tests,
+contradicting its own live-wrapper crash guard. Removed that extra sweep;
+Qt deferred deletes and the application's threshold-driven GC tick remain.
+Focused ownership/GC/fold/import checks: 73 passed in 40.59s, CPU-only under
+8G. This does not establish that the 61% abort is fixed. A serial replay
+with memory and crash evidence is still required before closing this item.
+
+2026-09-27 — MEASUREMENT RELAY RACE REPRODUCED AND FIXED
+The remaining worker-to-panel signals identified in item43's handoff had
+an unsafe emission: concurrent progress and GUI deletion raised TypeError
+at stress cycle zero. Three updates now use the surviving process relay,
+checking weak panel references only on the GUI thread. 1,000 stress cycles
+with 100,000 emissions complete without errors; 83 focused tests pass.
+Outliers and the neighboring files pass all52 tests in serial order; the
+old failing Outliers test uses threaded=False and creates no QThread.
+The 61% abort is therefore still not attributed or declared fixed. Keep
+this item OPEN until the serial acceptance run reaches its summary.
+
+STATUS 2026-09-27 — serial acceptance stopped at the memory guard
+The frozen 969e97b74 run collected 27,186 tests from 1,445 explicit named files.
+It ran unattended from 09:19:50 to 11:46:38 EDT and reached 48%, then its
+memory guard ended pytest at 10.9 GB against a 10.8 GB ceiling (12G cgroup).
+Exit status was 3. There was no observed native crash, but no final pytest
+summary or completed acceptance either. Item 47 remains open.
+Six test failures were recorded. The first five have focused fixes or current
+runtime checks; the fresh-process heavy-import check remains to reproduce.
+Passive bounded probes are investigating cross-file retained memory without
+GC drains or higher limits. Receipt:
+features/data/47_serial_acceptance_2026-09-27.json.
+
+STATUS 2026-09-27 — bounded ownership defects repaired; acceptance still open
+Passive ordered-prefix observations found four unowned folded test pages,
+model-only controls without teardown ownership, controls detached from waiting
+categories, and a hidden Home legend without a Qt parent. Eager/lazy controls
+now keep the supplied owner; unopened categories park controls under a hidden
+screen-owned widget. Test-created pages/controls explicitly retire their own
+objects, and Home owns its hidden compatibility legend. No collector cadence,
+global cleanup, memory guard, or cgroup ceiling was changed.
+Two eager/lazy owner-destruction cases fail before the fix. Forty unique focused
+checks now pass; the combined ownership sequence and its following normal test
+boundary end with zero live Qt widgets. A busy JobRunner warning at one earlier
+test boundary remains recorded for longer-session follow-up. These bounded
+results do not close the full serial acceptance requirement. Receipt:
+features/data/47_qt_ownership_memory_probe_2026-09-27.json.
+
+STATUS 2026-09-27 — identical ordered prefix measured and contract repaired
+The unchanged first 78 named files reached summary in 414.44 seconds:
+873 passed, 1 skipped, 1 failed. Final sampled parent RSS fell from 2.78 GiB
+to 2.08 GiB (25.08%); the same quiet test boundary fell from 2,051 widgets
+to 12. Preserve that raw failure: the first parking fix kept controls inside
+the page, violating the existing detached-category styling contract.
+The correction keeps the parking root detached, using the existing Qt
+owner.destroyed → detached.deleteLater pattern, including lazily built fields.
+The last 12 widgets were four replaced TableChip trees; the source-set owner
+now explicitly retires superseded chips. The original value-collection test
+remains intact. The two focused sequences pass (43 and 8 checks; 50 unique),
+and both finish at zero live widgets. Their transient runner warning remains
+in the receipt. The whole prefix was not rerun after these final corrections,
+and full serial acceptance remains OPEN. No collector or limit was raised.
+Receipt: features/data/47_ordered_prefix_memory_comparison_2026-09-27.json.
+
+STATUS 2026-09-27 — host reboot interrupted the second frozen acceptance run
+The frozen928498503 run reached17,198 terminal test outcomes (63.2186%):
+17,165 passed,16 skipped,10 xfailed and7 FAILED. The host reboot interrupted
+one further test;10,005 had never started. There is no terminal pytest summary
+or exit status, so this run is INTERRUPTED, not accepted. The unfinished suffix
+contains10,006 exact node IDs. All seven failures remain open, including the
+Mask smoke case whose separate isolated pass did not reproduce the original
+order-dependent failure.
+
+Recovery recollected the original1,445 named files from the unchanged frozen
+checkout without executing tests:27,204 node IDs. Every observed original node
+and its complete order match the recollected prefix exactly. Completed,
+interrupted and never-started sets are exhaustive and disjoint. The remaining
+IDs and failures are preserved separately under
+/mnt/wd4tb/scratch/spacr-completion/item47-recovery-20260927/.
+No automatic restart or whole-suite repeat was performed. A future suffix run
+would use a fresh process and cannot establish completion of the interrupted
+continuous memory-acceptance run or erase its seven failures.
+
+The previous boot journal ended18:08:25; current boot began18:09:40–45 EDT.
+The last serial memory sample at18:08:20 was10,003,124KiB (about9.54GiB), below
+the unchanged guard. No previous-boot kernel entries were available after18:00;
+the reboot's cause is unknown. The test named at interruption is not evidence
+that it caused the reboot. Receipt:
+features/data/47_qt_reboot_recovery_2026-09-27.json.
+
+STATUS 2026-09-27 — resumed-run failures and focused reproduction
+The unchanged frozen suffix exposed two cold-start theme assertions reading
+caches warmed by prior tests, plus a disk-report assertion assuming the temp
+folder's name contains tmp. The theme startup checks now observe a fresh
+interpreter while preserving the exact eager/lazy theme expectations. The disk
+check requires the actual configured tempfile directory. Product caches and
+the GUI-thread filesystem guards are unchanged.
+
+An11-node current-source reproduction passed7 and failed4 in22.05 seconds.
+Both repaired theme checks and the configured-temp check passed, including a
+TMPDIR without tmp in its name. Remaining reproduced failures concern the Home
+legend membership, genuine Zeiss fixture generation, translated caption debt,
+and backdrop transmission. Four other earlier failures passed in isolation;
+that does not resolve their original order-dependent failure or establish an
+uninterrupted serial/memory pass. The frozen suffix continues unchanged.
+Evidence: /mnt/wd4tb/scratch/spacr-completion/item47-failure-reproduction-20260927/
+(results.xml and logs/reproduce.log). Item47 remains open.
+
+STATUS 2026-09-27 — three reproduced failures repaired
+The Home assertion now inspects the actual aside and verifies the retained
+Qt-owned legend is hidden. Thirteen already translated captions leave the
+exception list and pass the existing exact-row checks in every shipped catalog.
+The genuine Zeiss fixture exposed a current czifile API change: dimensions now
+belong to scene images. Conversion retains each scene's absolute coordinate and
+own dimensions while preserving the legacy shape/axes reader path.
+
+Eight named tests pass in4.55 seconds, including header-only scanning and exact
+output pixels for all11 planes of a real synthetic CZI with different scene
+dimensions. The native writer was installed only in task scratch; its dependency
+was already declared in the czi extra and blocking CI. No public signatures or
+runtime docstrings changed. The settings overlay and uninterrupted serial/memory
+acceptance remain open; the frozen suffix continues unchanged. Receipt:
+features/data/47_current_czi_and_stale_contract_repairs_2026-09-27.json.
+
+STATUS 2026-09-27 — stray settings overlay repaired
+The failed transmission probe identified an unmounted timelapse pathogen_model
+editor covering the visible Mask settings. Folded sections omitted that row
+after building its control; direct ownership by the visible form caused Qt to
+paint it at default geometry. SettingsWidgets now keeps unmounted eager and
+deferred controls under a hidden Qt-owned host. Actual form rows reparent their
+controls when mounted. The detached lazy-category owner remains unchanged.
+
+Seven focused checks pass in19.22 seconds, including the original transmission
+and animation-cycle calibration, eager/deferred visibility and destruction,
+lazy reveal and settings collection. Opacity and thresholds are unchanged.
+This repairs the reproduced overlay; it does not establish the interrupted
+full serial/memory acceptance or clear unrelated order-dependent failures.
+Receipt: features/data/47_unmounted_settings_overlay_repair_2026-09-27.json.
+
+STATUS 2026-09-27 — frozen suffix stopped at the unchanged memory guard
+The frozen928498503 suffix exited3 at20:25:12 EDT after1h08m34s. It completed
+6,054 nodes:6,011 passed,39 skipped and4 failed. The10.8GiB guard interrupted
+test_the_music_bed_is_a_piece.py::test_the_bed_is_exactly_its_bars_long;3,951
+other nodes never started. The remaining manifest therefore contains3,952 nodes.
+This was a controlled test-process stop, not another host reboot.
+
+Prefix/order and exhaustive disjoint-accounting checks pass. Combined completed
+coverage is23,252/27,204 (85.47%), with11 original frozen-source failures retained.
+No uninterrupted serial/memory acceptance is established. Current-source focused
+repairs above remain valid within their own scopes. Both pytest and its sampler
+ended; no restart was made. Memory growth and the interrupted music test require
+investigation before another long run. Receipt and exact remaining manifest:
+features/data/47_qt_suffix_guard_stop_2026-09-27.json.
+
+STATUS 2026-09-27 — screen-owned CPU backdrop joins on accepted close
+A bounded two-node stylesheet/Mask-completion probe passed its assertions but
+aborted at process exit twice (exit134). Passive start-origin evidence identified
+the live unnamed QThread as CpuFractalWidget._thread, installed by AppScreen;
+the GPU-discovery child was separate. AppScreen closed its jobs/settings without
+shutting down its owned backdrop. Child closeEvent does not run merely because
+the parent closes, and queued deletion/application quit was too late here.
+
+Accepted close now synchronously stops/removes that backdrop and suppresses
+pending reinstall callbacks while closed. Showing the reusable screen builds a
+fresh backdrop. A deferred pipeline close leaves the renderer alive with its
+screen. The original two nodes now pass and exit0 with the CPU thread stopped;
+44 named lifecycle/backdrop checks pass, including real-thread close/reopen and
+refused-close contracts. No global cleanup, forced GC or guard change was added.
+Two changed API docstrings are recorded for the final catalog delta.
+
+This closes the reproduced thread-shutdown defect, not the separate sustained
+memory growth or full serial acceptance. Receipt:
+features/data/47_cpu_backdrop_close_2026-09-27.json.
+
+STATUS 2026-09-27 — combined stylesheet/audio interval passed
+All73 original-order predecessor/audio nodes passed in38.92 seconds, exit0,
+with the original global stylesheet retained. Peak sampled RSS was1.29GiB;
+final RSS544MiB. The actual CPU backdrop thread finished during normal teardown
+and retired; no observed live threads, widgets or PCM arrays remained.
+The original sustained memory growth did not reproduce in this bounded interval.
+This is not a replacement for the still-required uninterrupted full Qt summary.
+Receipt: features/data/47_combined_stylesheet_audio_probe_2026-09-27.json.
+
+STATUS 2026-09-27 — REAL HOVER CONTRACT VERIFIED; OBSERVER REPAIR OPEN
+The fresh run at 9d173b961 retained 5,549 call reports and one hover assertion
+failure before its observer hit a deliberate Path.open mock. Its outer
+exit is 1; no full-summary acceptance or memory-guard diagnosis is claimed.
+The test now requires the actual bottom hint, anchor, active hold timer,
+no second popup and intact chat styling. The independent forced-polish
+sweep check remains. All 12 focused checks passed under 4G; no runtime
+source changed for this correction. Preserve the failed run and repair
+the scratch observer before attempting full acceptance again.
+Receipt: features/data/47_hover_contract_2026-09-27.json.
+
+STATUS 2026-09-28 — queued preview results and shared quit hooks verified
+The frozen full run exposed a completion callback executing on its worker
+thread. Five queued QObject slots now deliver provenance, masks, flows,
+probability maps and completion on the panel's GUI thread. The original
+thread assertion and a regression covering every payload and real overlay
+rendering pass. Dynamic handler spies still observe the actual callbacks.
+A cleared backdrop quit callback previously passed None to disconnect and
+removed every application exit hook. Shutdown now guards that callback;
+blanket-disconnect semantics are exercised on a private signal. The original
+GPU-discovery lifecycle failure passes after its original predecessors,
+without resetting the global timer or clearing shared connections.
+All 199 named Qt/gate/API checks pass. The Zeiss fixture also passes using
+the declared CZI extra in a private dependency folder; the shared Python
+environment is unchanged. The layout observer fixture retains actual themed
+geometry and clipping and passed in the separate 268-check acceptance.
+Receipt: features/data/47_queued_preview_and_quit_hooks_2026-09-28.json.
+The uninterrupted full run remains active on its older frozen source, with
+its failures preserved. Item 47 still requires a complete final-source run;
+these focused checks do not establish full acceptance or resolve sustained
+memory growth. No forced GC, global cache clearing or memory-guard change.
+
+STATUS 2026-09-28 — bounded preview snapshot regression repaired
+The still-running frozenf9 full Qt job reports five failures; four already
+have verified current-source fixes. Its new98304-file timing failure measured
+17.93ms over the unchanged15ms ceiling. Source inspection found each async
+preview enqueue copying the full plate population twice, even without projection.
+Non-projection loads now make no population snapshot; projection loads reuse
+one immutable tuple until the sampler replaces its population. Real old/new
+TIFF projections, stale callbacks and all rescan/invalidation paths are covered.
+All63 named preview-load/performance checks pass under4G with the original
+15ms ceiling. The existing benchmark queues async work, so this does not claim
+completed-field-change latency or a passing final full Qt run. The healthy
+frozen serial job continues without forced collection, restart or raised cap.
+Receipt: features/data/47_preview_population_snapshot_2026-09-28.json.
+
+STATUS 2026-09-28 — authoritative memory stop and regression measurement repair
+The frozenf9d5af988 original-order run is terminal, exit3, after6.52hours.
+It collected27,269 cases from1,448 named files and recorded19,528 passing,
+7 failing and56 skipped call reports before its unchanged guard stopped it.
+No full-summary acceptance is claimed. Original reports and source/order
+bindings are retained in features/data/47_frozen_serial_memory_stop_2026-09-28.json.
+The final sound test marks the stopping point, not an established retention
+cause. A passive per-file observer is being prepared; no forced collection,
+cache clearing, cap increase, changed ordering or reduced selection is used.
+
+Both Regression scrolling assertions were reproduced unchanged: the test read
+maximum103 before queued shell layout raised it to264/216. The same production
+screen reaches the bottom after settling. The test now waits for consecutive
+unchanged observed geometry/ranges and no queued splitter/floor work, within a
+finite1second bound. Original shell/reachability assertions and600/768 parameters
+remain; bottom/top reachability is repeated after fold/reopen. All14 focused
+checks pass under4GiB with zero skips and production app_screen.py unchanged.
+The600 parameter still meets the existing720 minimum window height; this is
+recorded rather than presented as a physical600-height acceptance. Receipt:
+features/data/47_regression_scroll_geometry_2026-09-28.json.
+
+2026-09-28 -- Qt CI uses bounded fresh-process batches; whole47 remains OPEN
+Run36419911411's Qt shard1 worker ended at the existing6GB memory ceiling,
+with6198widgets/2030top-levelwindows retained at session end. The reported
+Project Browser node is not established as the leak's cause: the complete
+original panel file passes77checks in a fresh8GB process. Qt CI now uses the
+existing runner for16-file batches/two workers. Allthree hash shards, markers,
+seven exclusions and designated measurement tail remain; the memory guard,
+1200-second ceiling and900-second dump are unchanged. Failed batches still
+allow later batches to run and keep a failing final status. All70 runner,
+workflow/classification/hygiene checks pass under4GB; an actual two-batch,
+two-worker Qt execution passes all80 selected checks under8GB. No GUI source,
+assertion, GC policy or memory ceiling was changed. Long serial accumulation
+and uninterrupted acceptance remain open; final CI is pending. Receipt:
+features/data/47_ci_qt_process_batches_2026-09-28.json.

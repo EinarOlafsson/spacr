@@ -2,7 +2,7 @@
 
 .. |Docs| image:: https://img.shields.io/github/actions/workflow/status/EinarOlafsson/spacr/pages%2Fpages-build-deployment?label=API%20Documentation
    :target: https://einarolafsson.github.io/spacr/
-   :alt: 文档
+   :alt: API 文档
 .. |Tutorials| image:: https://img.shields.io/badge/Tutorials-Interactive%20walkthrough-4A9EFF
    :target: https://einarolafsson.github.io/spacr/tutorials/
    :alt: 交互式教程
@@ -84,6 +84,18 @@ spaCR 对高内涵显微镜图像中的单细胞进行分割和测量，将逐�
 
 可作为桌面应用程序运行，也可在工作站、服务器或集群上以无图形界面方式运行。
 
+试用 spaCR
+~~~~~~~~~~
+
+.. code-block:: bash
+
+   conda create -n spacr python=3.12 -y
+   conda activate spacr
+   python -m pip install "spacr[qt]"
+   spacr
+
+在 Import、Make Masks、Annotate 或实验分析界面中使用 **加载测试数据…** 下载示例数据。在终端中使用 ``spacr-download``。
+
 硬件支持
 ~~~~~~~~~~~~~~~~
 
@@ -128,10 +140,10 @@ spaCR 对高内涵显微镜图像中的单细胞进行分割和测量，将逐�
 
 
 安装 spaCR
--------------
+~~~~~~~~~~~~~
 
 桌面应用程序
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 安装器包装自己的 Python. Conda 不需要。
 
@@ -169,10 +181,10 @@ spaCR 对高内涵显微镜图像中的单细胞进行分割和测量，将逐�
 
 在 macOS 中,打开 ``.pkg``. 目前的 beta 没有通知; 如果 Gatekeeper 阻止它,请选择 **系统设置 → 隐私和安全 → 打开 无论如何**。
 
-请参见 `安装导游 <../../source/installer_guide.rst>`_ 更新、删除、离线和解决问题的指示。
+有关更新、卸载、离线使用和故障排查的说明，请参阅 `安装指南 <../../source/installer_guide.rst>`_；有关工作站和服务器的配置建议以及 GPU 兼容性表，请参阅 `系统要求 <../../source/system_requirements.rst>`_。
 
 使用 PyPI 安装
-~~~~~~~~~~~~~~~~~
+-----------------
 
 如需使用 PyPI 版本，请在 Conda 环境中通过 pip 安装 spaCR。Python 3.12 可选择的科学计算扩展包最为丰富：
 
@@ -196,7 +208,7 @@ spaCR 支持 Python **3.9 through 3.14**，但 Python 3.14.1 除外，torchvisio
 可选集成单独安装,例如 ``spacr[zarr]``、 ``spacr[omero]``、``spacr[napari]`` 和 ``spacr[czi,nd2,lif]``. 查看完整的附件和 Python 版本兼容性表的 `安装导游 <../../source/installer_guide.rst>`_。
 
 使用 conda-forge 安装
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
 
 官方 conda-forge 软件包会将 spaCR 及其桌面应用依赖项安装到当前环境中：
 
@@ -207,8 +219,19 @@ spaCR 支持 Python **3.9 through 3.14**，但 Python 3.14.1 除外，torchvisio
    conda install conda-forge::spacr
    spacr
 
+使用 Docker 安装
+----------------
+
+使用已发布的 `GHCR 上的 Docker 镜像 <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_，在容器中运行 spaCR 的命令行处理流程。安装 `Docker <https://docs.docker.com/get-started/get-docker/>`_，然后使用此已发布的 CPU 镜像列出可用的处理流程：
+
+.. code-block:: bash
+
+   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.0 spacr-run --list
+
+对应的 NVIDIA GPU 镜像为 ``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``。这两种镜像均面向 Linux x86-64 容器。有关 GPU 前提条件、数据和模型挂载、设置文件及完整处理流程命令，请参阅 `Docker 安装指南 <../../source/installer_guide.rst#container-images>`_。
+
 从源代码安装
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 克隆代码仓库并以可编辑模式安装。这样工作副本 *就是* 已安装的软件包，修改无需重新安装即可生效::
 
@@ -231,7 +254,7 @@ spaCR 支持 Python **3.9 through 3.14**，但 Python 3.14.1 除外，torchvisio
 只有在依赖项或入口点发生变化时才需要第二行；Python 代码无需它即可生效。如果拉取后某个命令仍在运行旧代码，``spacr-doctor`` 会报告路径中实际使用的是哪个 ``spacr``，这通常就是原因所在。
 
 从源代码安装（精简版）
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------
 
 贡献者需要完整的提交历史；如果只想运行 spaCR，请选用以下任一方式。数据于 2026-09-15 由 ``packaging/measure_clone_forms.sh`` 测得::
 
@@ -269,8 +292,6 @@ spaCR 支持 Python **3.9 through 3.14**，但 Python 3.14.1 除外，torchvisio
    spacr-download measure annotate            # fetch example sets by name
    spacr-make-masks --folder DIR              # curate masks as a resumable queue
    spacr-make-masks --folder DIR --order easy --limit 50
-
-排查问题时，请设置 ``SPACR_LOG_LEVEL=DEBUG``。轮转日志写入 ``~/.spacr/logs/spacr.log``。
 
 ``spacr-run --list`` 会列出具有无界面命令行入口的模块。仅在 GUI 中提供的标注、数据整理、比较和探索模块不会列出。
 
@@ -324,122 +345,100 @@ Quantitative readouts for biological assays.
 
 | |Module_toxoplasma|\ |Module_plasmodium|\ |Module_candida|
 
-.. |Module_mask| image:: ../../../spacr/resources/icons/workflow/mask.png
-   :width: 16.0%
-   :alt: 打开 Mask API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks
-   :align: middle
-.. |Module_measure| image:: ../../../spacr/resources/icons/workflow/measure.png
-   :width: 16.0%
-   :alt: 打开 Measure API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html
-   :align: middle
-.. |Module_annotate| image:: ../../../spacr/resources/icons/workflow/annotate.png
-   :width: 16.0%
-   :alt: 打开 Annotate API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html
-   :align: middle
-.. |Module_classify_merged| image:: ../../../spacr/resources/icons/workflow/classify_merged.png
-   :width: 16.0%
-   :alt: 打开 Classify API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/classify/index.html
-   :align: middle
-.. |Module_map_barcodes| image:: ../../../spacr/resources/icons/workflow/map_barcodes.png
-   :width: 16.0%
-   :alt: 打开 Map Barcodes API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html
-   :align: middle
-.. |Module_regression| image:: ../../../spacr/resources/icons/workflow/regression.png
-   :width: 16.0%
-   :alt: 打开 Regression API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
-   :align: middle
-.. |Module_foreign| image:: ../../../spacr/resources/icons/workflow/apps/foreign.png
-   :width: 16.0%
-   :alt: 打开 Import API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/foreign/index.html
-   :align: middle
-.. |Module_embeddings| image:: ../../../spacr/resources/icons/workflow/apps/embeddings.png
-   :width: 16.0%
-   :alt: 打开 Embeddings API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/embeddings/index.html
-   :align: middle
-.. |Module_run_compare| image:: ../../../spacr/resources/icons/workflow/apps/run_compare.png
-   :width: 16.0%
-   :alt: 打开 Run Compare API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html
-   :align: middle
-.. |Module_experiment_design| image:: ../../../spacr/resources/icons/workflow/apps/experiment_design.png
-   :width: 16.0%
-   :alt: 打开 Experiment Design API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/experiment_design/index.html
-   :align: middle
-.. |Module_power| image:: ../../../spacr/resources/icons/workflow/apps/power.png
-   :width: 16.0%
-   :alt: 打开 Power / Design API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html
-   :align: middle
-.. |Module_dose_response| image:: ../../../spacr/resources/icons/workflow/apps/dose_response.png
-   :width: 16.0%
-   :alt: 打开 Dose–Response API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html
-   :align: middle
-.. |Module_qc_dashboard| image:: ../../../spacr/resources/icons/workflow/apps/qc_dashboard.png
-   :width: 16.0%
-   :alt: 打开 QC API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html
-   :align: middle
-.. |Module_make_masks| image:: ../../../spacr/resources/icons/workflow/apps/make_masks.png
-   :width: 16.0%
-   :alt: 打开 Make Masks API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html
-   :align: middle
-.. |Module_align| image:: ../../../spacr/resources/icons/workflow/apps/align.png
-   :width: 16.0%
-   :alt: 打开 Align & Stitch API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/align/index.html
-   :align: middle
-.. |Module_umap| image:: ../../../spacr/resources/icons/workflow/apps/umap.png
-   :width: 16.0%
-   :alt: 打开 Image UMAP API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.generate_image_umap
-   :align: middle
-.. |Module_gate_editor| image:: ../../../spacr/resources/icons/workflow/apps/gate_editor.png
-   :width: 16.0%
-   :alt: 打开 Gate Editor API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html
-   :align: middle
-.. |Module_graph_builder| image:: ../../../spacr/resources/icons/workflow/apps/graph_builder.png
-   :width: 16.0%
-   :alt: 打开 Graph Builder API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html
-   :align: middle
-.. |Module_toxoplasma| image:: ../../../spacr/resources/icons/workflow/apps/toxoplasma.png
-   :width: 16.0%
-   :alt: 打开 Toxoplasma API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-toxoplasma
-   :align: middle
-.. |Module_plasmodium| image:: ../../../spacr/resources/icons/workflow/apps/plasmodium.png
-   :width: 16.0%
-   :alt: 打开 Plasmodium spp. API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-plasmodium
-   :align: middle
-.. |Module_candida| image:: ../../../spacr/resources/icons/workflow/apps/candida.png
-   :width: 16.0%
-   :alt: 打开 Candida spp. API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-candida
-   :align: middle
+.. |Module_mask| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks"><img src="../../../spacr/resources/icons/workflow/mask.png" width="16.0%" align="middle" alt="打开 Mask API"></a>
+
+.. |Module_measure| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/measure/index.html"><img src="../../../spacr/resources/icons/workflow/measure.png" width="16.0%" align="middle" alt="打开 Measure API"></a>
+
+.. |Module_annotate| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html"><img src="../../../spacr/resources/icons/workflow/annotate.png" width="16.0%" align="middle" alt="打开 Annotate API"></a>
+
+.. |Module_classify_merged| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/classify/index.html"><img src="../../../spacr/resources/icons/workflow/classify_merged.png" width="16.0%" align="middle" alt="打开 Classify API"></a>
+
+.. |Module_map_barcodes| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html"><img src="../../../spacr/resources/icons/workflow/map_barcodes.png" width="16.0%" align="middle" alt="打开 Map Barcodes API"></a>
+
+.. |Module_regression| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/ml/index.html"><img src="../../../spacr/resources/icons/workflow/regression.png" width="16.0%" align="middle" alt="打开 Regression API"></a>
+
+.. |Module_foreign| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/foreign/index.html"><img src="../../../spacr/resources/icons/workflow/apps/foreign.png" width="16.0%" align="middle" alt="打开 Import API"></a>
+
+.. |Module_embeddings| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/embeddings/index.html"><img src="../../../spacr/resources/icons/workflow/apps/embeddings.png" width="16.0%" align="middle" alt="打开 Embeddings API"></a>
+
+.. |Module_run_compare| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html"><img src="../../../spacr/resources/icons/workflow/apps/run_compare.png" width="16.0%" align="middle" alt="打开 Run Compare API"></a>
+
+.. |Module_experiment_design| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/experiment_design/index.html"><img src="../../../spacr/resources/icons/workflow/apps/experiment_design.png" width="16.0%" align="middle" alt="打开 Experiment Design API"></a>
+
+.. |Module_power| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html"><img src="../../../spacr/resources/icons/workflow/apps/power.png" width="16.0%" align="middle" alt="打开 Power / Design API"></a>
+
+.. |Module_dose_response| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html"><img src="../../../spacr/resources/icons/workflow/apps/dose_response.png" width="16.0%" align="middle" alt="打开 Dose–Response API"></a>
+
+.. |Module_qc_dashboard| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html"><img src="../../../spacr/resources/icons/workflow/apps/qc_dashboard.png" width="16.0%" align="middle" alt="打开 QC API"></a>
+
+.. |Module_make_masks| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html"><img src="../../../spacr/resources/icons/workflow/apps/make_masks.png" width="16.0%" align="middle" alt="打开 Make Masks API"></a>
+
+.. |Module_align| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/align/index.html"><img src="../../../spacr/resources/icons/workflow/apps/align.png" width="16.0%" align="middle" alt="打开 Align &amp; Stitch API"></a>
+
+.. |Module_umap| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.generate_image_umap"><img src="../../../spacr/resources/icons/workflow/apps/umap.png" width="16.0%" align="middle" alt="打开 Image UMAP API"></a>
+
+.. |Module_gate_editor| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html"><img src="../../../spacr/resources/icons/workflow/apps/gate_editor.png" width="16.0%" align="middle" alt="打开 Gate Editor API"></a>
+
+.. |Module_graph_builder| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html"><img src="../../../spacr/resources/icons/workflow/apps/graph_builder.png" width="16.0%" align="middle" alt="打开 Graph Builder API"></a>
+
+.. |Module_toxoplasma| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-toxoplasma"><img src="../../../spacr/resources/icons/workflow/apps/toxoplasma.png" width="16.0%" align="middle" alt="打开 Toxoplasma API"></a>
+
+.. |Module_plasmodium| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-plasmodium"><img src="../../../spacr/resources/icons/workflow/apps/plasmodium.png" width="16.0%" align="middle" alt="打开 Plasmodium spp. API"></a>
+
+.. |Module_candida| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-candida"><img src="../../../spacr/resources/icons/workflow/apps/candida.png" width="16.0%" align="middle" alt="打开 Candida spp. API"></a>
 
 .. spacr-workflow-end
 
-spaCR 附带的全部模块，按主页中的顺序排列：先是主要工作流程的六个模块，然后是其余模块。选择一个图块即可打开该模块的 API 页面。
+这里列出所有在主界面上有入口卡片的模块，顺序与主界面一致：先是六个流程模块，然后是其余模块。选择卡片可打开对应模块的 API 页面。
 
 各工具的说明见 `功能指南 <../../source/features.rst>`_。
 
 其他资源
 ~~~~~~~~~~~~~~~
 
-- `互动教程 <https://einarolafsson.github.io/spacr/tutorials/>`_ — 从安装到成功调查的73个导向工作流。
+- `交互式教程 <https://einarolafsson.github.io/spacr/tutorials/>`_ — 从安装到筛选命中结果分析的引导式工作流程。
 - `Python API 快速启动 <../../source/python_api.rst>`_ - 从脚本、笔记本或集群运行和验证流程。
 - `功能指南 <../../source/features.rst>`_ - 能力、成熟度和可选集成。
 - `清理 API 参考 <https://einarolafsson.github.io/spacr/api/index.html>`_ - 按任务支持输入点,完整的模块参考一个级别更深。
@@ -458,7 +457,7 @@ spaCR 附带的全部模块，按主页中的顺序排列：先是主要工作�
 带有视觉说明的设置会在工具提示中提供 **Animation** 控件。浏览 `设置动画图库 <https://einarolafsson.github.io/spacr/setting_animations.html>`_ 或 `设置动画注册表 <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_。
 
 数据
-----
+~~~~
 
 参考数据集
 ~~~~~~~~~~~~~~~~~~
@@ -563,7 +562,7 @@ spaCR ships a catalogue of trained models and fetches them on demand. Open **Mod
 
 **Cross-validated**,与一个**SD**,意味着得分是不同分区的三轮的平均值,而SD是它们移动到多远。
 
-模型在其作者自己的 Hugging Face 帐户上托管,因此捐款并不意味着向其他人提供写作访问。 ``spacr.model_zoo`` 的 ``publish_model`` 进行上传并打印添加的目录行。
+模型托管在各作者自己的 Hugging Face 账户中； ``spacr.model_zoo.publish_model`` 可上传模型，并输出要添加到目录中的条目。
 
 
 性能诊断
@@ -575,7 +574,7 @@ spaCR ships a catalogue of trained models and fetches them on demand. Open **Mod
 
 节省到 ``~/.spacr/reports`` 并打印路径. ``--quick`` 将更长的基准标志; ``--out PATH`` 设置位置。
 
-阅读没有项目数据. 时间进口,数字图书馆,窗户建设和动画. 报告处理器架构模拟(一个 x86_64 Python 构建在苹果硅)和 NumPy 的 BLAS 实施。
+不读取项目数据。测量导入、数值库运算、窗口构建和动画的耗时，并报告 Apple Silicon 上的 x86_64 仿真情况以及 NumPy 使用的 BLAS 实现。
 
 命令线参考
 ----------------------
@@ -590,8 +589,6 @@ spaCR ships a catalogue of trained models and fetches them on demand. Open **Mod
    spacr              # the desktop application
    spacr-tutorial     # the interactive tutorial library
    spacr-server       # no first-run setup screen, for unattended launches
-
-``spacr-server`` 扫描模型设置筛选,否则会阻止未预期的工作。
 
 ``spacr-qt`` 和 ``spacr-nightly`` 是 ``spacr`` 的联盟。
 
@@ -623,8 +620,6 @@ spaCR ships a catalogue of trained models and fetches them on demand. Open **Mod
 
 ``validate`` 读取相同的设置,并报告什么是缺乏,矛盾或指向什么。
 
-``spacr-run --list`` 只显示无图形界面输入点的模块;标记、治疗和探索是互动的,被忽略了。
-
 接下来的跑步检查
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -655,7 +650,7 @@ spaCR ships a catalogue of trained models and fetches them on demand. Open **Mod
 
 
 贡献与支持
-------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 请通过 `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_ 提交错误报告和范围明确的功能请求。报告故障时，请提供 spaCR 版本、操作系统、Python 版本、模块设置和相关日志片段。``spacr-doctor`` 会收集其中的大部分信息；报告性能问题时还应附上硬件报告。
 

@@ -1543,7 +1543,7 @@ def _rendered_sections(app_key):
             "Runtime & Reliability",
         ]),
             ("mask", [
-                "Input & Metadata", "Workflow & Test Run", "Image Preprocessing",
+                "Input & Metadata", "Cloud", "Workflow & Test Run", "Image Preprocessing",
                 'Image Quality',
                 "Illumination Correction",
                 # Item 538, 2026-09-26: unmixing runs on the raw field

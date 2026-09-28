@@ -12,11 +12,13 @@ from capture_report import copy_private_source, require_unchanged, snapshot_sour
 SOURCE_RELATIVE = 'external_mask_runs/example-pj_qwr_5/project'
 
 
-def prepare(stage):
+def prepare(stage, *, source=None):
     stage = Path(stage).resolve()
     if os.environ.get('SPACR_ARTIFACTS_DB'):
         raise ValueError('Data Manager capture must not use an external registry')
-    source = stage / SOURCE_RELATIVE
+    source = (Path(source) if source is not None else stage / SOURCE_RELATIVE).resolve()
+    if source == stage or not source.is_relative_to(stage) or not source.is_dir():
+        raise ValueError('Data Manager source must be a project directory inside the private stage')
     wal = source / 'artifacts.db-wal'
     if wal.exists() and wal.stat().st_size:
         raise ValueError('The source registry has uncheckpointed writes')

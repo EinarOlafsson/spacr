@@ -718,6 +718,7 @@ def _panel_thumbnail(array):
     picture = Image.fromarray(np.ascontiguousarray(data), mode="F")
 
     def _zscored(values):
+        """Standardize a signature, or return None when its spread is unusable."""
         spread = values.std()
         if not np.isfinite(spread) or spread < 1e-9:
             return None

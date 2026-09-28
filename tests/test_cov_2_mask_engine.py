@@ -114,22 +114,65 @@ def test_a_volume_is_refused_because_the_editor_shows_one_field(folder):
     assert "expects one 2-D field" in str(excinfo.value)
 
 
-def test_non_finite_and_negative_intensities_are_refused(folder):
-    """Both would come out of the uint16 rescale as plausible pixel values.
+@pytest.mark.parametrize("value", [np.nan, np.inf, -np.inf])
+def test_non_finite_intensities_are_refused(folder, value):
+    """Reject nonfinite TIFF pixels before they become display values.
 
-    A NaN cast to uint16 is 0 and a negative one wraps to a large positive,
-    so an image with either would display as ordinary data with fabricated
-    bright or dark regions -- and the mask would be drawn against them.
+    :param folder: the image folder with its masks subfolder.
+    :param value: the nonfinite pixel value.
+    :returns: None.
     """
-    nan_image = np.zeros((3, 3), dtype=np.float32)
-    nan_image[1, 1] = np.nan
+    image = np.zeros((3, 3), dtype=np.float32)
+    image[1, 1] = value
     with pytest.raises(ValueError, match="non-finite values"):
-        me.load_image_and_mask(*_write(folder, "nan.tif", nan_image))
+        me.load_image_and_mask(*_write(folder, "nonfinite.tif", image))
 
-    negative = np.zeros((3, 3), dtype=np.float32)
-    negative[0, 0] = -5.0
-    with pytest.raises(ValueError, match="negative intensities"):
-        me.load_image_and_mask(*_write(folder, "neg.tif", negative))
+
+@pytest.mark.parametrize("pixels", [
+    np.array([[-2., -1.], [0., 2.]], dtype=np.float32),
+    np.array([[-2147483648, -1073741824], [0, 2147483647]], dtype=np.int32),
+], ids=["signed-float32", "signed-int32"])
+def test_signed_tiff_display_preserves_order_source_bytes_and_mask_ids(
+        folder, pixels):
+    """Map signed field pixels to display values while retaining mask IDs.
+
+    :param folder: the image folder with its masks subfolder.
+    :param pixels: signed floating-point or integer field intensities.
+    :returns: None.
+    """
+    labels = np.array([[0, 7], [900, 65535]], dtype=np.uint16)
+    args = _write(folder, "signed.tif", pixels, mask=labels)
+    image_path = folder / "signed.tif"
+    mask_path = folder / "masks" / "signed.tif"
+    image_bytes = image_path.read_bytes()
+    mask_bytes = mask_path.read_bytes()
+
+    grey, mask = me.load_image_and_mask(*args)
+
+    assert grey.shape == pixels.shape and grey.dtype == np.uint16
+    np.testing.assert_array_equal(grey, [[0, 16383], [32767, 65535]])
+    assert np.all(np.diff(grey.ravel().astype(np.int64)) > 0)
+    assert mask.dtype == np.uint16
+    np.testing.assert_array_equal(mask, labels)
+    assert image_path.read_bytes() == image_bytes
+    assert mask_path.read_bytes() == mask_bytes
+    np.testing.assert_array_equal(tifffile.imread(image_path), pixels)
+
+
+@pytest.mark.parametrize("dtype", [np.float32, np.int32])
+def test_a_constant_negative_tiff_loads_as_zero_display(folder, dtype):
+    """Map a constant negative background to zero without dividing by zero.
+
+    :param folder: the image folder with its masks subfolder.
+    :param dtype: a signed floating-point or integer pixel dtype.
+    :returns: None.
+    """
+    grey, mask = me.load_image_and_mask(
+        *_write(folder, "negative-background.tif", np.full((3, 3), -5, dtype)))
+
+    assert grey.shape == (3, 3) and grey.dtype == np.uint16
+    np.testing.assert_array_equal(grey, np.zeros((3, 3), dtype=np.uint16))
+    assert not mask.any()
 
 
 def test_an_all_zero_float_image_does_not_divide_by_its_own_maximum(folder):

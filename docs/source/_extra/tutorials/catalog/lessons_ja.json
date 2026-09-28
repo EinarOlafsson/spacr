@@ -28,73 +28,121 @@
       "id": "01_pypi_github",
       "number": 1,
       "slug": "pypi_github",
-      "title": "Find spaCR on GitHub, PyPI and conda-forge",
+      "title": "GitHub、PyPI、conda-forgeでspaCRを見つける",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Find the official package and installer sources, compare the release available on each channel, and choose the matching installation tutorial.",
+      "description": "公式のパッケージとインストーラーの入手先を見つけ、各チャネルで入手できるリリースを比べて、対応するインストールのチュートリアルを選びます。",
       "objectives": [
-        "Find the official download pages.",
-        "Choose the installation route for your computer.",
-        "Open the matching installation tutorial."
+        "公式のダウンロードページを見つける。",
+        "お使いのコンピューターに合ったインストール方法を選ぶ。",
+        "対応するインストールのチュートリアルを開く。"
       ],
-      "prerequisite": "Open a web browser and decide whether you want a desktop installer or a Python environment.",
+      "prerequisite": "ウェブブラウザーを開き、デスクトップインストーラーとPython環境のどちらを使うかを決めてください。",
       "scenes": [
         {
           "visual": "01_pypi_current_release",
-          "narration": "Choose how you want to install spaCR. Use a desktop installer for a ready-to-launch application, pip for a Python virtual environment, or conda-forge for a Conda environment. Start from the official spaCR links shown here.",
-          "hold_after": 0.7
+          "narration": "spaCRのインストール方法を選びます。すぐに起動できるアプリケーションにはデスクトップインストーラーを、Pythonの仮想環境にはpipを、Conda環境にはconda-forgeを使います。ここに表示されているspaCRの公式リンクから始めましょう。",
+          "hold_after": 0.7,
+          "speech_text": "スペーカーのインストール方法を選びます。すぐに起動できるアプリケーションにはデスクトップインストーラーを、Pythonの仮想環境にはpipを、Conda環境にはconda-forgeを使います。ここに表示されているスペーカーの公式リンクから始めましょう。"
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "On PyPI, find spaCR and read the installation command beside the current release. Copy that command when you are ready to install into your Python environment. The pip tutorial shows how to create and activate that environment first.",
-          "hold_after": 0.7
+          "narration": "PyPIでspaCRを探し、現在のリリースの横にあるインストールコマンドを読みます。Python環境にインストールする準備ができたら、そのコマンドをコピーします。pipのチュートリアルでは、先にその環境を作成して有効にする方法を説明しています。",
+          "hold_after": 0.7,
+          "speech_text": "パイプでスペーカーを探し、現在のリリースの横にあるインストールコマンドを読みます。Python環境にインストールする準備ができたら、そのコマンドをコピーします。pipのチュートリアルでは、先にその環境を作成して有効にする方法を説明しています。"
         },
         {
           "visual": "02_pypi_project_links",
-          "narration": "Use Project links to open the documentation, source repository or issue tracker. Bookmark the documentation so you can return to the module walkthroughs while working in spaCR.",
-          "hold_after": 0.7
+          "narration": "Project linksを使うと、ドキュメント、ソースリポジトリ、課題トラッカーを開けます。spaCRで作業しながらモジュールの手順に戻れるよう、ドキュメントをブックマークしておきましょう。",
+          "hold_after": 0.7,
+          "speech_text": "Project linksを使うと、ドキュメント、ソースリポジトリ、課題トラッカーを開けます。スペーカーで作業しながらモジュールの手順に戻れるよう、ドキュメントをブックマークしておきましょう。"
         },
         {
           "visual": "03_github_main_branch",
-          "narration": "On GitHub, open the spaCR repository. Main contains the release source, and nightly contains the latest development work. For a packaged desktop installation, open Releases and choose a release.",
-          "hold_after": 0.7
+          "narration": "GitHubでspaCRのリポジトリを開きます。mainにはリリースのソースが、nightlyには最新の開発作業が入っています。パッケージ化されたデスクトップ版をインストールするには、Releasesを開いてリリースを選びます。",
+          "hold_after": 0.7,
+          "speech_text": "GitHubでスペーカーのリポジトリを開きます。mainにはリリースのソースが、nightlyには最新の開発作業が入っています。パッケージ化されたデスクトップ版をインストールするには、Releasesを開いてリリースを選びます。"
         },
         {
           "visual": "04_github_current_assets",
-          "narration": "Expand Assets and download the installer for Windows, macOS or Linux. Keep the checksum file from the same release if you want to verify the download. The Platform installers lesson walks through launching the installer and opening spaCR.",
+          "narration": "Assetsを展開し、Windows、macOS、Linux用のインストーラーをダウンロードします。ダウンロードを検証したい場合は、同じリリースのチェックサムファイルも保存しておきます。Platform installersのレッスンで、インストーラーの起動とspaCRの開き方を説明しています。",
           "hold_after": 0.7,
           "related_lessons": [
             "04_platform_installers"
-          ]
+          ],
+          "speech_text": "Assetsを展開し、Windows、macOS、Linux用のインストーラーをダウンロードします。ダウンロードを検証したい場合は、同じリリースのチェックサムファイルも保存しておきます。Platform installersのレッスンで、インストーラーの起動とスペーカーの開き方を説明しています。"
         },
         {
           "visual": "05_conda_current_package",
-          "narration": "On conda-forge, open the spaCR package page and check the available version. Package channels can update at different times, so select the version available through the route you choose.",
-          "hold_after": 0.7
+          "narration": "conda-forgeでspaCRのパッケージページを開き、入手できるバージョンを確認します。パッケージのチャネルは更新の時期が異なることがあるので、選んだ方法で入手できるバージョンを選んでください。",
+          "hold_after": 0.7,
+          "speech_text": "conda-forgeでスペーカーのパッケージページを開き、入手できるバージョンを確認します。パッケージのチャネルは更新の時期が異なることがあるので、選んだ方法で入手できるバージョンを選んでください。"
         },
         {
           "visual": "05_conda_current_package",
-          "narration": "The conda-forge command installs spaCR into your active Conda environment. Follow the Conda lesson to create that environment, install the package and launch the application.",
+          "narration": "conda-forgeのコマンドは、有効なConda環境にspaCRをインストールします。Condaのレッスンに従って、その環境を作成し、パッケージをインストールして、アプリケーションを起動します。",
           "hold_after": 0.7,
           "related_lessons": [
             "02_conda_install"
-          ]
+          ],
+          "speech_text": "conda-forgeのコマンドは、有効なConda環境にスペーカーをインストールします。Condaのレッスンに従って、その環境を作成し、パッケージをインストールして、アプリケーションを起動します。"
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "Continue with pip, Conda or Platform installers. Once spaCR opens, move to the Home lesson, then the pipeline overviews to choose a workflow for your data.",
+          "narration": "pip、Conda、Platform installersのいずれかに進みます。spaCRが開いたら、Homeのレッスン、続いてパイプラインの概要に進み、データに合ったワークフローを選びましょう。",
           "hold_after": 0.7,
           "related_lessons": [
             "02_conda_install",
             "03_pip_install",
             "04_platform_installers"
-          ]
+          ],
+          "speech_text": "pip、Conda、Platform installersのいずれかに進みます。スペーカーが開いたら、ホームのレッスン、続いてパイプラインの概要に進み、データに合ったワークフローを選びましょう。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -427,6 +475,12 @@
           "speech_text": "セットアップでは、診断情報の任意の共有とアカウント設定について尋ねられます。希望するオプションにだけyと答えます。既定のnでは、それぞれがオフのままになります。Windowsのインストーラーでは、同じ選択肢がチェックボックスで表示されます。"
         },
         {
+          "visual": "09_performance",
+          "narration": "Preferencesで、お使いのコンピューターに合ったPerformanceプロファイルを選びます。Laptopは使用するリソースが少なく、上位のプロファイルほどキャッシュやバックグラウンド処理を多く使えます。メモリが限られている場合は、控えめなプロファイルから始めましょう。解析の設定は、各モジュールで引き続き自分で管理できます。",
+          "hold_after": 0.7,
+          "speech_text": "Preferencesで、お使いのコンピューターに合ったPerformanceプロファイルを選びます。Laptopは使用するリソースが少なく、上位のプロファイルほどキャッシュやバックグラウンド処理を多く使えます。メモリが限られている場合は、控えめなプロファイルから始めましょう。解析の設定は、各モジュールで引き続き自分で管理できます。"
+        },
+        {
           "visual": "06_installed_home",
           "narration": "Homeが開いたら、Homeのチュートリアルに進みます。モジュールの開き方、テストデータの見つけ方、実験に合ったパイプラインの選び方を説明しています。",
           "related_lessons": [
@@ -722,17 +776,17 @@
       "id": "06_api",
       "number": 6,
       "slug": "api",
-      "title": "Python API and batch commands",
+      "title": "Python APIとバッチコマンド",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Find an analysis function, load saved settings, check the inputs and run spaCR from a terminal.",
+      "description": "解析関数を見つけ、保存した設定を読み込み、入力を確認して、ターミナルからspaCRを実行します。",
       "objectives": [
-        "Find the installed batch commands and their Python functions.",
-        "Inspect a function signature and its API reference.",
-        "Check saved settings before running an analysis."
+        "インストールされたバッチコマンドと、そのPython関数を見つける。",
+        "関数のシグネチャとAPIリファレンスを確認する。",
+        "解析を実行する前に、保存した設定を確認する。"
       ],
-      "prerequisite": "Install spaCR and activate its Python environment. Follow the Regression tutorial to prepare paired score/count tables and save the analysis settings. Use your own file paths in the commands.",
+      "prerequisite": "spaCRをインストールし、そのPython環境を有効にします。Regressionのチュートリアルに従って、スコアとカウントを組にした表を用意し、解析の設定を保存しておきます。コマンドには自分のファイルパスを使ってください。",
       "scenes": [
         {
           "visual": "01_version",
@@ -742,13 +796,14 @@
             1900,
             650
           ],
-          "narration": "Activate the Python environment where you installed spaCR. Import spacr and print its version with the command shown. Keep the version with your analysis notes so you can reproduce the same run later.",
+          "narration": "spaCRをインストールしたPython環境を有効にします。表示されているコマンドでspacrをインポートし、バージョンを表示します。後で同じ実行を再現できるよう、バージョンは解析メモに残しておきましょう。",
           "related_lessons": [
             "02_conda_install",
             "03_pip_install",
             "04_platform_installers"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "スペーカーをインストールしたPython環境を有効にします。表示されているコマンドでスペーカーをインポートし、バージョンを表示します。後で同じ実行を再現できるよう、バージョンは解析メモに残しておきましょう。"
         },
         {
           "visual": "02_list",
@@ -758,8 +813,9 @@
             2800,
             1900
           ],
-          "narration": "Run spacr-run with dash dash list to find the available batch commands. The list shows each command key and its Python function. Choose the command for your task, such as mask, measure or regression. Use the desktop application for interactive tasks such as labelling images in Annotate.",
-          "hold_after": 0.7
+          "narration": "spacr-runをダッシュ ダッシュ listで実行すると、利用できるバッチコマンドが表示されます。一覧には、各コマンドのキーとそのPython関数が示されます。mask、measure、regressionなど、作業に合ったコマンドを選びます。Annotateで画像にラベルを付けるような対話的な作業には、デスクトップアプリケーションを使います。",
+          "hold_after": 0.7,
+          "speech_text": "スペーカー-runをダッシュ ダッシュ listで実行すると、利用できるバッチコマンドが表示されます。一覧には、各コマンドのキーとそのPython関数が示されます。mask、measure、regressionなど、作業に合ったコマンドを選びます。Annotateで画像にラベルを付けるような対話的な作業には、デスクトップアプリケーションを使います。"
         },
         {
           "visual": "03_describe",
@@ -769,12 +825,13 @@
             2250,
             900
           ],
-          "narration": "Run spacr-run with dash dash describe followed by regression. Read the required inputs, defaults and function name. Here, the batch command calls perform_regression in spacr.ml. Open that function in the API reference to read its parameters and returned results.",
+          "narration": "spacr-runをダッシュ ダッシュ describeに続けてregressionを付けて実行します。必須の入力、既定値、関数名を読みます。ここでは、バッチコマンドがspacr.mlのperform_regressionを呼び出しています。その関数をAPIリファレンスで開き、引数と返される結果を確認します。",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "スペーカー-runをダッシュ ダッシュ describeに続けてregressionを付けて実行します。必須の入力、既定値、関数名を読みます。ここでは、バッチコマンドがスペーカー.mlのperform_regressionを呼び出しています。その関数をAPIリファレンスで開き、引数と返される結果を確認します。"
         },
         {
           "visual": "05_report_api",
@@ -784,8 +841,9 @@
             2800,
             700
           ],
-          "narration": "In Python, import the function you need and inspect its signature. This example imports build_report from spacr.report. Look up the same name in the API reference, prepare the required arguments, and call the function from your script or notebook.",
-          "hold_after": 0.7
+          "narration": "Pythonで必要な関数をインポートし、シグネチャを確認します。この例では、spacr.reportからbuild_reportをインポートしています。APIリファレンスで同じ名前を調べ、必須の引数を用意して、スクリプトやノートブックから関数を呼び出します。",
+          "hold_after": 0.7,
+          "speech_text": "Pythonで必要な関数をインポートし、シグネチャを確認します。この例では、スペーカー.reportからbuild_reportをインポートしています。APIリファレンスで同じ名前を調べ、必須の引数を用意して、スクリプトやノートブックから関数を呼び出します。"
         },
         {
           "visual": "06_dry_run",
@@ -795,8 +853,9 @@
             3440,
             680
           ],
-          "narration": "Save the settings from your module workflow, then pass the file with dash dash settings. Add dash dash dry-run to check the configuration and input paths. In this Regression example, the settings pair phenotype scores with guide counts for each plate. Read the messages and correct any missing inputs before continuing.",
-          "hold_after": 0.7
+          "narration": "モジュールのワークフローで設定を保存し、そのファイルをダッシュ ダッシュ settingsで渡します。ダッシュ ダッシュ dry-runを付けると、設定と入力パスを確認できます。このRegressionの例では、設定によって表現型スコアとガイドのカウントがプレートごとに組み合わされます。メッセージを読み、足りない入力があれば先に直してください。",
+          "hold_after": 0.7,
+          "speech_text": "モジュールのワークフローで設定を保存し、そのファイルをダッシュ ダッシュ settingsで渡します。ダッシュ ダッシュ dry-runを付けると、設定と入力パスを確認できます。このRegressionの例では、設定によって表現型スコアとガイドのカウントがプレートごとに組み合わされます。メッセージを読み、足りない入力があれば先に直してください。"
         },
         {
           "visual": "03_describe",
@@ -806,17 +865,58 @@
             2250,
             900
           ],
-          "narration": "To execute the analysis, run the same command without dash dash dry-run. Follow the console until the command finishes, then inspect the outputs described by that module’s tutorial and API page. Keep the settings file, input tables, package version and console log with the results.",
+          "narration": "解析を実行するには、ダッシュ ダッシュ dry-runを付けずに同じコマンドを実行します。コマンドが終わるまでコンソールを見守り、その後、そのモジュールのチュートリアルとAPIページに書かれた出力を確認します。設定ファイル、入力の表、パッケージのバージョン、コンソールのログは、結果と一緒に保管してください。",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "解析を実行するには、ダッシュ ダッシュ dry-runを付けずに同じコマンドを実行します。コマンドが終わるまでコンソールを見守り、その後、そのモジュールのチュートリアルとAPIページに書かれた出力を確認します。設定ファイル、入力の表、パッケージのバージョン、コンソールのログは、結果と一緒に保管してください。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -10026,7 +10126,7 @@
         "視野と物体の種類を確認しながら物体を選ぶ。",
         "対応する親細胞の切り出し画像を開き、Pythonで階層全体を取得する。"
       ],
-      "prerequisite": "測定データベースと対応する細胞の切り出し画像を含む、Annotateの例一式をダウンロードします。Graph Builderのデータベースだけのアーカイブでは、画像は得られません。この例には細胞の切り出し画像しかないので、切り出し画像を確認するには親細胞をダブルクリックします。現在のファミリーに対するOpen cropsの操作では、欠けている子の切り出し画像が無関係な細胞の切り出し画像に置き換わることがあるため、この例では使わないでください。",
+      "prerequisite": "測定データベースと対応する細胞の切り出し画像を含む、Annotateの例一式をダウンロードします。Graph Builderのデータベースだけのアーカイブでは、画像は得られません。この例には細胞の切り出し画像だけが含まれています。ここで示すファミリーに対してOpen cropsを実行すると、対応する親細胞の切り出し画像だけが表示され、子の切り出し画像が2つ利用できないことが通知されます。",
       "example_files": [
         "Lineage_real_containment_review.zip",
         "Graph_Builder_real_measurements.zip"
@@ -10099,10 +10199,10 @@
           "speech_text": "細胞の切り出し画像を含む、ダウンロードしたプロジェクト一式を使います。物体の識別情報が一致するよう、同じ実行のデータベースと画像は一緒にしておきます。"
         },
         {
-          "visual": "20_wrong_typed_children_are_unrelated_cell_crops",
-          "narration": "この例では、ファミリー全体に対するOpen cropsは避けます。欠けている核や病原体の切り出し画像が、無関係な細胞の切り出し画像に置き換わることがあります。ツリーに戻り、親細胞だけを選びます。",
+          "visual": "20_family_crop_identity_preserved",
+          "narration": "選択したファミリーに対してOpen cropsをクリックします。Annotateは対応する親細胞の切り出し画像だけを開き、子の切り出し画像が2つ利用できないことを通知します。この例には細胞の切り出し画像だけが含まれているため、核と病原体の切り出し画像は利用できません。",
           "hold_after": 0.7,
-          "speech_text": "この例では、ファミリー全体に対するOpen cropsは避けます。欠けている核や病原体の切り出し画像が、無関係な細胞の切り出し画像に置き換わることがあります。ツリーに戻り、親細胞だけを選びます。"
+          "speech_text": "選択したファミリーに対してOpen cropsをクリックします。Annotateは対応する親細胞の切り出し画像だけを開き、子の切り出し画像が2つ利用できないことを通知します。この例には細胞の切り出し画像だけが含まれているため、核と病原体の切り出し画像は利用できません。"
         },
         {
           "visual": "22_verified_parent_only_real_cell_crop",

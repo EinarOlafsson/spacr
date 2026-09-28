@@ -4528,6 +4528,8 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
               f"coefficient reads as its distance from that value.")
 
     qc_design = None
+    fit_frame = None
+    fit_counts = {}
 
     block_screen = screen_is_blockable(df)
     if block_screen:
@@ -4552,6 +4554,21 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
             random_row_column_effects=random_row_column_effects,
             regression_backend=regression_backend)
         model = mixed_model
+        observed_count = getattr(model, 'nobs', getattr(model, 'n_obs', None))
+        if observed_count is not None and np.isfinite(observed_count):
+            fit_counts['n_rows_fitted'] = int(observed_count)
+        inner = getattr(model, 'model', None)
+        row_labels = getattr(getattr(inner, 'data', None), 'row_labels', None)
+        if row_labels is not None and df.index.is_unique:
+            fit_frame = df.loc[row_labels]
+        elif fit_counts.get('n_rows_fitted') == len(df):
+            fit_frame = df
+        exog = getattr(inner, 'exog', None)
+        if exog is not None:
+            fit_counts['n_design_columns'] = int(exog.shape[1])
+        elif getattr(model, 'k_fe', None) is not None:
+            fit_counts['n_design_columns'] = int(model.k_fe)
+        fit_counts['layout'] = 'long'
     else:
         formula = prepare_formula(dependent_variable,
                                   random_row_column_effects=False,
@@ -4570,6 +4587,13 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         else:
             y, X = dmatrices(formula, data=df, return_type='dataframe')
         model_index = y.index
+        if model_index.equals(fit_df.index):
+            fit_frame = fit_df
+        elif fit_df.index.is_unique:
+            fit_frame = fit_df.loc[model_index]
+        fit_counts = {'n_rows_fitted': int(len(y)),
+                      'n_design_columns': int(X.shape[1]),
+                      'layout': model_layout}
 
         if draw_shared_panels and not _show_well_distributions(
                 df, dependent_variable, dst, plot=plot):
@@ -4609,11 +4633,24 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
             glm_force_identity=glm_force_identity,
         )
 
+        fitted_exog = getattr(getattr(model, 'model', None), 'exog', None)
+        if fitted_exog is not None:
+            fit_counts['n_design_columns'] = int(fitted_exog.shape[1])
+
         coef_df = process_model_coefficients(
             model, regression_type, X, y, nc, pc, controls,
             hinge_threshold=hinge_threshold, hinge_n_boot=hinge_n_boot)
         display(coef_df)
         qc_design = (X, y)
+
+    if fit_frame is not None:
+        contributing = fit_frame
+        if fit_counts.get('layout') == 'wide' and 'prc' in fit_frame:
+            contributing = df.loc[df['prc'].isin(fit_frame['prc'])]
+        for name, column in (('n_wells', 'prc'), ('n_guides', 'grna'),
+                             ('n_genes', 'gene')):
+            if column in contributing:
+                fit_counts[name] = int(contributing[column].nunique())
 
     if plot and legacy_volcano:
         volcano_plot(
@@ -4651,6 +4688,7 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
 
     coef_df = coef_df.copy()
     coef_df['level'] = level
+    coef_df.attrs['fit_design'] = fit_counts
     if qc_manifest is not None and coef_df is not None:
         coef_df.attrs["qc_manifest"] = qc_manifest
     return model, coef_df, regression_type
@@ -6724,7 +6762,10 @@ def perform_regression(settings):
     dimensions, and a remedy for recognized failures.
 
     :param settings: Regression settings consumed by the fitting pipeline.
-    :returns: Result returned by the regression implementation.
+    :returns: Regression output mapping. ``model_data`` is the prepared input
+        table, not coefficient results; ``fit_designs`` records measured design
+        counts separately for each parametric fit level. Unrecorded counts are
+        omitted, and permutation outputs retain their own result schema.
     :raises Exception: Re-raises the original regression failure.
     """
     from .regression_failure import describe_failure, write_failure_report
@@ -7522,7 +7563,8 @@ def _perform_regression(settings):
                 write_run_summary(
                     res_folder, model=None, settings=settings,
                     coef_df=output.get('primary'),
-                    regression_type=settings.get('regression_type'))
+                    regression_type=settings.get('regression_type'),
+                    fit_designs={})
             except Exception as error:  # noqa: BLE001 - never lose a run
                 print(f"Could not write the run summary: "
                       f"{type(error).__name__}: {error}")
@@ -7568,6 +7610,8 @@ def _perform_regression(settings):
         intercept_value=float(settings.get('intercept_value') or 0.0),
     )
     regression_type = next(iter(fits.values()))[2]
+    fit_designs = {one: dict(one_coef.attrs.get('fit_design', {}))
+                   for one, (_model, one_coef, _type) in fits.items()}
 
     settings['_regression_diagnostics'] = _write_regression_diagnostics(
         res_folder, merged_df, fits, settings)
@@ -7576,6 +7620,8 @@ def _perform_regression(settings):
         one: _annotate_level_coefficients(one_coef, n_grna, n_gene)
         for one, (_model, one_coef, _type) in fits.items()
     }
+    for table in level_tables.values():
+        table.attrs.pop('fit_design', None)
 
     if regression_type == 'mixed' and 'gene' in level_tables:
         whole = level_tables.pop('gene')
@@ -7682,7 +7728,8 @@ def _perform_regression(settings):
         try:
             _stage(settings, "the fit has returned")
             write_run_summary(res_folder, model=model, settings=settings,
-                              coef_df=coef_df, regression_type=regression_type)
+                              coef_df=coef_df, regression_type=regression_type,
+                              fit_designs=fit_designs)
         except Exception as error:  # noqa: BLE001 - never lose a run
             print(f"Could not write the run summary: "
                   f"{type(error).__name__}: {error}")
@@ -7698,7 +7745,7 @@ def _perform_regression(settings):
     if isinstance(settings['metadata_files'], str):
         settings['metadata_files'] = [settings['metadata_files']]
 
-    merged_df = tabular.read_table(results_path, report=None)
+    results_metadata_df = tabular.read_table(results_path, report=None)
     gene_merged_df = tabular.read_table(results_path_gene, report=None)
     grna_merged_df = tabular.read_table(results_path_grna, report=None)
 
@@ -7715,7 +7762,7 @@ def _perform_regression(settings):
             continue
         try:
             _ = merge_regression_res_with_metadata(hits_path, metadata_file, name=filename)
-            merged_df = merge_regression_res_with_metadata(results_path, metadata_file, name=filename)
+            results_metadata_df = merge_regression_res_with_metadata(results_path, metadata_file, name=filename)
             gene_merged_df = merge_regression_res_with_metadata(results_path_gene, metadata_file, name=filename)
             grna_merged_df = merge_regression_res_with_metadata(results_path_grna, metadata_file, name=filename)
         except Exception as metadata_error:
@@ -7730,7 +7777,7 @@ def _perform_regression(settings):
               "draw the original matplotlib one as well.")
 
     if _toxoplasma_is_on(settings):
-        data_path = merged_df
+        data_path = results_metadata_df
         data_path_gene = gene_merged_df
         data_path_grna = grna_merged_df
         base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -7835,6 +7882,7 @@ def _perform_regression(settings):
               'significant':significant,
               'model': model,
               'model_data': merged_df,
+              'fit_designs': fit_designs,
               'regression_type': regression_type,
               'res_folder': res_folder,
               'settings': dict(settings)}

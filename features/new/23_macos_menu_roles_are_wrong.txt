@@ -2,7 +2,7 @@
 macOS: PREFERENCES AND QUIT VANISH, AND THE PYTHON MENU OPENS RECIPES
 ================================================================================
 
-Status:    done - 2026-08-06, needs confirming on a Mac
+Status:    DONE - 2026-09-27, installed macOS Cocoa acceptance verified
 Requested: 2026-08-06 - "om OSX the preferences and quit items in the drop down dont show up now. move these to the top of the list." and "on osx there is a apple logo, then python, spaCR, Deoms, Help drop downs ... the python dropdown on osx has a preferences item which spawns as module recipies window. please fix this"
 
 --------------------------------------------------------------------------------
@@ -109,3 +109,26 @@ other assertion could pass for the wrong reason.
 NOT VERIFIED: where the items actually land. Qt applies menu roles only on
 macOS and this was developed on Linux. Someone has to open it on a Mac and
 check that the python menu's Preferences opens Preferences, not recipes.
+
+STATUS 2026-09-27 (Codex): Native artifact acceptance now inspects Cocoa's
+actual application menu and dispatches its Preferences and Quit items. It
+requires an observed modal PreferencesDialog and application quit after a
+real Measure run. Local guards passed (35 tests across the native-menu and
+provider acceptance changes); actual Cocoa CI remains pending. Receipt:
+features/data/23_414_native_acceptance_preparation_2026-09-27.json.
+Item remains open; offscreen checks do not prove menu placement on macOS.
+
+STATUS 2026-09-27 — DONE, actual installed macOS acceptance
+Run36358947318 at6194b0184 passes on macOS15.7.9 arm64 using Cocoa and the
+packaged app. The current frameless app deliberately uses an in-window menu,
+as required by the later window-controls/split-menu fix. Actual menu interaction
+opens _PreferencesWindow, closes it, and dispatches Quit with application exit
+observed after a completed CPU Measure run. Preferences and Quit are present in
+the menu; all three window controls are visible. Downloaded screenshots were
+visually inspected and show Preferences, not recipes.
+
+This closes the requested behavior on the current Mac UI. It does not claim
+placement in the native system strip, which the current app deliberately does
+not use. The earlier preparation note above described the system-menu branch;
+the recorded acceptance mode is explicitly in-window-on-cocoa. Receipt:
+features/data/23_53_macos_native_acceptance_2026-09-27.json.

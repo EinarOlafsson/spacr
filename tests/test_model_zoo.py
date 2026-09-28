@@ -487,6 +487,32 @@ def test_fetching_twice_versions_the_destination_and_never_overwrites(remote,
     assert zoo.install(second_entry, dest).version == "4"
 
 
+@pytest.mark.parametrize("filename", ("live_cell_v1", "demo_v1.CP_model"))
+def test_install_preserves_explicit_first_version_and_never_overwrites(
+        remote, tmp_path, filename):
+    """Keep the published first-version name usable after installation.
+
+    :param remote: a real local checkpoint, its declared entry and digest.
+    :param tmp_path: the isolated destination root.
+    :param filename: published name with or without a checkpoint extension.
+    :returns: None.
+    """
+    from pathlib import Path
+
+    entry, _source, digest = remote
+    entry = replace(entry, name=filename, key=filename)
+    dest = tmp_path / "dest"
+    first = zoo.install(entry, dest, require_checksum=True)
+    assert Path(first.path).name == first.name == filename
+    assert first.verified and first.sha256 == digest
+    original = Path(first.path).read_bytes()
+    second = zoo.install(entry, dest, require_checksum=True)
+    assert Path(second.path).name == filename.replace("_v1", "_v2")
+    assert second.verified and second.sha256 == digest
+    assert Path(first.path).read_bytes() == original
+    assert Path(first.path) != Path(second.path)
+
+
 def test_versioned_path_counts_on_from_an_existing_version(tmp_path):
     (tmp_path / "m_v2.CP_model").write_bytes(b"x")
     assert zoo.versioned_path(tmp_path, "m_v2.CP_model").name == "m_v3.CP_model"

@@ -542,3 +542,38 @@ toggle.setParent(screen)
 ```
 
 No strip on this screen, so the toggle goes above the card rather than nowhere, or the search would be installed and unreachable.
+
+
+---
+
+# Notes from `spacr/qt/screens/map_barcodes.py`
+
+Prose lifted out of `spacr/qt/screens/map_barcodes.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## Contents
+
+- [BarcodeSearchPanel._watch_the_form](#barcodesearchpanel_watch_the_form) (1 entry)
+- [BarcodeSearchPanel.apply_proposal](#barcodesearchpanelapply_proposal) (1 entry)
+
+## BarcodeSearchPanel._watch_the_form
+
+### lines 1852-1854
+
+```python
+signal = (getattr(widget, "contents_changed", None)
+```
+
+`contents_changed` first where a widget has one: it follows a settings load as well as an edit, which `value_changed` is deliberately kept from doing.
+
+## BarcodeSearchPanel.apply_proposal
+
+### lines 2030-2034
+
+```python
+self._searched_inputs = _search_inputs(self.current_settings())
+```
+
+WHAT APPLY WROTE CAME FROM THIS SEARCH, so the form now holds what the search found and searching again would only repeat it -- while wiping the "wrote these" summary off the screen. Adopting the post-Apply inputs as the searched ones stops that re-run; a later edit by the user still starts one.

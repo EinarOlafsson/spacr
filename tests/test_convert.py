@@ -1,7 +1,7 @@
 """
 The Format converter / importer — :mod:`spacr.convert`.
 
-Everything here runs on synthetic TIFFs and hand-built fake readers: no
+Everything here runs on synthetic TIFFs/CZI and hand-built fake readers: no
 sample file is downloaded, nothing touches a GPU, and every expectation
 is about a number or a filename that was put there on purpose.
 
@@ -738,6 +738,61 @@ def test_a_czi_is_read_through_czifile(tmp_path, monkeypatch):
     value = tifffile.imread(
         str(tmp_path / "out" / "plate1_A01_T0001F002L01A01Z04C02.tif"))
     assert int(value[0, 0]) == 100 * 1 + 10 * 1 + 3
+
+
+def test_current_czi_scenes_keep_their_own_dimensions_and_pixels(
+        tmp_path, monkeypatch):
+    """Real CZI scenes retain absolute keys, distinct shapes and every plane.
+
+    Both supported czifile APIs must preserve this same real file. The CZI
+    extra supplies the native writer; no fake extension or skipped optional
+    writer can make this acceptance pass.
+
+    :param tmp_path: isolated input and conversion output directory.
+    :param monkeypatch: prevents pixel decoding during the header-only scan.
+    """
+    import czifile
+    from pylibCZIrw import czi
+
+    root = tmp_path / "src"
+    root.mkdir()
+    expected = {}
+    layouts = ((3, 2, 2, 2, 4, 5), (7, 1, 3, 1, 3, 6))
+    with czi.create_czi(str(root / "scan.czi")) as writer:
+        for scene, times, slices, channels, height, width in layouts:
+            for t in range(times):
+                for z in range(slices):
+                    for c in range(channels):
+                        pixels = np.arange(height * width, dtype=np.uint16)
+                        pixels = pixels.reshape(height, width)
+                        pixels = pixels + scene * 1000 + t * 100 + z * 10 + c
+                        expected[scene, t, z, c] = pixels
+                        writer.write(data=pixels, plane={"T": t, "Z": z, "C": c},
+                                     scene=scene)
+
+    with monkeypatch.context() as headers_only:
+        pixel_reader = (czifile.CziImage if hasattr(czifile, "CziImage")
+                        else czifile.CziFile)
+        headers_only.setattr(pixel_reader, "asarray", lambda *a, **kw:
+                             pytest.fail("header scan decoded CZI pixels"))
+        sources = cv.scan(str(root))
+    assert not any(source.error for source in sources)
+    assert [(s.meta["czi_scene"], s.t, s.z, s.n_channels,
+             *s.meta["shape"][-2:]) for s in sources] == list(layouts)
+
+    plan = cv.plan(sources)
+    output = tmp_path / "out"
+    result = cv.convert(plan, str(output))
+    assert result.n_written == len(expected)
+    scene_for_series = {s.meta["series"]: s.meta["czi_scene"] for s in sources}
+    seen = set()
+    for mapping in plan.mappings:
+        key = (scene_for_series[mapping.meta["series"]], *mapping.plane)
+        assert key not in seen
+        seen.add(key)
+        np.testing.assert_array_equal(tifffile.imread(output / mapping.target),
+                                      expected[key])
+    assert seen == set(expected)
 
 
 def _install_fake_readlif(monkeypatch, file_class):

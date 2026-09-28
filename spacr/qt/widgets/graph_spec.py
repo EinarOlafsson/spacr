@@ -502,10 +502,6 @@ class GraphSpec:
         pinned = " (pinned)" if self.kind else ""
         note = self._kind_note(kinds)
         said = f"{kind}{pinned} · " + " · ".join(parts)
-        # THE FALLBACK IS SAID OUT LOUD, in the one line that becomes the
-        # chart's caption and the window title. A preference that is quietly
-        # ignored leaves the user looking at a chart they did not choose with
-        # no way to find out why.
         return f"{said} — {note}" if note else said
 
 

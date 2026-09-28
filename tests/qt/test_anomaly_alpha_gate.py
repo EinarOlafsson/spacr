@@ -73,7 +73,8 @@ def test_a_scoring_set_up_while_hidden_still_reaches_the_export(
     screen._anomaly_hits.setText(", ".join(_HITS))
     screen._anomaly_score.setChecked(True)
     result = screen._anomaly
-    assert result is not None and result.method == "knn"
+    assert result is not None, screen.anomaly_summary.text()
+    assert result.method == "knn"
     assert result.auroc >= 0.95
     assert screen.anomaly_table.rowCount() == 160
     assert screen.anomaly_figure.axes

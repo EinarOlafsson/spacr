@@ -7,41 +7,41 @@
       "id": "01_pypi_github",
       "number": 1,
       "slug": "pypi_github",
-      "title": "Find spaCR on GitHub, PyPI and conda-forge",
+      "title": "GitHub, PyPI, conda-forge에서 spaCR 찾기",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Find the official package and installer sources, compare the release available on each channel, and choose the matching installation tutorial.",
+      "description": "공식 패키지와 설치 프로그램의 출처를 찾고, 채널별로 제공되는 릴리스를 비교한 뒤 알맞은 설치 튜토리얼을 고릅니다.",
       "objectives": [
-        "Find the official download pages.",
-        "Choose the installation route for your computer.",
-        "Open the matching installation tutorial."
+        "공식 다운로드 페이지를 찾습니다.",
+        "컴퓨터에 맞는 설치 방법을 고릅니다.",
+        "알맞은 설치 튜토리얼을 엽니다."
       ],
-      "prerequisite": "Open a web browser and decide whether you want a desktop installer or a Python environment.",
+      "prerequisite": "웹 브라우저를 열고, 데스크톱 설치 프로그램과 Python 환경 중 무엇을 쓸지 정하세요.",
       "scenes": [
         {
           "visual": "01_pypi_current_release",
-          "narration": "Choose how you want to install spaCR. Use a desktop installer for a ready-to-launch application, pip for a Python virtual environment, or conda-forge for a Conda environment. Start from the official spaCR links shown here.",
+          "narration": "spaCR을 어떻게 설치할지 고르세요. 바로 실행할 수 있는 애플리케이션을 원하면 데스크톱 설치 프로그램을, Python 가상 환경에는 pip을, Conda 환경에는 conda-forge를 쓰세요. 여기 표시된 spaCR 공식 링크에서 시작하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "On PyPI, find spaCR and read the installation command beside the current release. Copy that command when you are ready to install into your Python environment. The pip tutorial shows how to create and activate that environment first.",
+          "narration": "PyPI에서 spaCR을 찾아 현재 릴리스 옆의 설치 명령을 읽으세요. Python 환경에 설치할 준비가 되면 그 명령을 복사하세요. pip 튜토리얼에서 먼저 그 환경을 만들고 활성화하는 방법을 보여 줍니다.",
           "hold_after": 0.7
         },
         {
           "visual": "02_pypi_project_links",
-          "narration": "Use Project links to open the documentation, source repository or issue tracker. Bookmark the documentation so you can return to the module walkthroughs while working in spaCR.",
+          "narration": "Project links로 문서, 소스 저장소, 이슈 트래커를 열 수 있습니다. spaCR로 작업하는 동안 모듈 안내로 돌아갈 수 있도록 문서를 북마크해 두세요.",
           "hold_after": 0.7
         },
         {
           "visual": "03_github_main_branch",
-          "narration": "On GitHub, open the spaCR repository. Main contains the release source, and nightly contains the latest development work. For a packaged desktop installation, open Releases and choose a release.",
+          "narration": "GitHub에서 spaCR 저장소를 여세요. main에는 릴리스 소스가, nightly에는 최신 개발 작업이 들어 있습니다. 패키지된 데스크톱 설치를 원하면 Releases를 열고 릴리스를 고르세요.",
           "hold_after": 0.7
         },
         {
           "visual": "04_github_current_assets",
-          "narration": "Expand Assets and download the installer for Windows, macOS or Linux. Keep the checksum file from the same release if you want to verify the download. The Platform installers lesson walks through launching the installer and opening spaCR.",
+          "narration": "Assets를 펼치고 Windows, macOS, Linux용 설치 프로그램을 내려받으세요. 다운로드를 검증하려면 같은 릴리스의 체크섬 파일도 보관하세요. Platform installers 강의에서 설치 프로그램을 실행하고 spaCR을 여는 방법을 안내합니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "04_platform_installers"
@@ -49,12 +49,12 @@
         },
         {
           "visual": "05_conda_current_package",
-          "narration": "On conda-forge, open the spaCR package page and check the available version. Package channels can update at different times, so select the version available through the route you choose.",
+          "narration": "conda-forge에서 spaCR 패키지 페이지를 열고 제공되는 버전을 확인하세요. 패키지 채널마다 업데이트 시기가 다를 수 있으므로, 선택한 방법으로 받을 수 있는 버전을 고르세요.",
           "hold_after": 0.7
         },
         {
           "visual": "05_conda_current_package",
-          "narration": "The conda-forge command installs spaCR into your active Conda environment. Follow the Conda lesson to create that environment, install the package and launch the application.",
+          "narration": "conda-forge 명령은 활성화된 Conda 환경에 spaCR을 설치합니다. Conda 강의를 따라 그 환경을 만들고, 패키지를 설치하고, 애플리케이션을 실행하세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "02_conda_install"
@@ -62,7 +62,7 @@
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "Continue with pip, Conda or Platform installers. Once spaCR opens, move to the Home lesson, then the pipeline overviews to choose a workflow for your data.",
+          "narration": "pip, Conda, Platform installers 중 하나로 이어 가세요. spaCR이 열리면 Home 강의로, 이어서 파이프라인 개요로 넘어가 데이터에 맞는 워크플로를 고르세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "02_conda_install",
@@ -74,6 +74,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -379,6 +419,11 @@
           "hold_after": 0.7
         },
         {
+          "visual": "09_performance",
+          "narration": "Preferences에서 컴퓨터에 맞는 Performance 프로필을 고르세요. Laptop은 자원을 적게 쓰고, 더 높은 프로필은 더 많은 캐시와 백그라운드 작업을 허용합니다. 메모리가 부족하다면 적당한 프로필로 시작하세요. 분석 설정은 각 모듈에서 여전히 직접 관리합니다.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "06_installed_home",
           "narration": "Home이 열리면 Home 튜토리얼로 넘어가세요. 모듈을 여는 방법, 테스트 데이터를 찾는 방법, 실험에 맞는 파이프라인을 고르는 방법을 보여 줍니다.",
           "related_lessons": [
@@ -660,17 +705,17 @@
       "id": "06_api",
       "number": 6,
       "slug": "api",
-      "title": "Python API and batch commands",
+      "title": "Python API와 배치 명령",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Find an analysis function, load saved settings, check the inputs and run spaCR from a terminal.",
+      "description": "분석 함수를 찾고, 저장된 설정을 불러오고, 입력을 확인한 뒤 터미널에서 spaCR을 실행합니다.",
       "objectives": [
-        "Find the installed batch commands and their Python functions.",
-        "Inspect a function signature and its API reference.",
-        "Check saved settings before running an analysis."
+        "설치된 배치 명령과 그 Python 함수를 찾습니다.",
+        "함수 시그니처와 API 참조를 확인합니다.",
+        "분석을 실행하기 전에 저장된 설정을 확인합니다."
       ],
-      "prerequisite": "Install spaCR and activate its Python environment. Follow the Regression tutorial to prepare paired score/count tables and save the analysis settings. Use your own file paths in the commands.",
+      "prerequisite": "spaCR을 설치하고 그 Python 환경을 활성화하세요. Regression 튜토리얼을 따라 점수와 개수를 짝지은 표를 준비하고 분석 설정을 저장하세요. 명령에는 자신의 파일 경로를 사용하세요.",
       "scenes": [
         {
           "visual": "01_version",
@@ -680,7 +725,7 @@
             1900,
             650
           ],
-          "narration": "Activate the Python environment where you installed spaCR. Import spacr and print its version with the command shown. Keep the version with your analysis notes so you can reproduce the same run later.",
+          "narration": "spaCR을 설치한 Python 환경을 활성화하세요. 표시된 명령으로 spacr를 가져오고 버전을 출력하세요. 나중에 같은 실행을 재현할 수 있도록 버전을 분석 노트와 함께 기록해 두세요.",
           "related_lessons": [
             "02_conda_install",
             "03_pip_install",
@@ -696,7 +741,7 @@
             2800,
             1900
           ],
-          "narration": "Run spacr-run with dash dash list to find the available batch commands. The list shows each command key and its Python function. Choose the command for your task, such as mask, measure or regression. Use the desktop application for interactive tasks such as labelling images in Annotate.",
+          "narration": "spacr-run --list를 실행해 사용할 수 있는 배치 명령을 찾으세요. 목록에는 각 명령의 키와 해당 Python 함수가 표시됩니다. mask, measure, regression처럼 작업에 맞는 명령을 고르세요. Annotate에서 이미지에 라벨을 붙이는 것 같은 대화형 작업에는 데스크톱 애플리케이션을 쓰세요.",
           "hold_after": 0.7
         },
         {
@@ -707,7 +752,7 @@
             2250,
             900
           ],
-          "narration": "Run spacr-run with dash dash describe followed by regression. Read the required inputs, defaults and function name. Here, the batch command calls perform_regression in spacr.ml. Open that function in the API reference to read its parameters and returned results.",
+          "narration": "spacr-run --describe regression을 실행하세요. 필수 입력, 기본값, 함수 이름을 읽으세요. 여기서 배치 명령은 spacr.ml의 perform_regression을 호출합니다. API 참조에서 그 함수를 열어 매개변수와 반환 결과를 읽으세요.",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
@@ -722,7 +767,7 @@
             2800,
             700
           ],
-          "narration": "In Python, import the function you need and inspect its signature. This example imports build_report from spacr.report. Look up the same name in the API reference, prepare the required arguments, and call the function from your script or notebook.",
+          "narration": "Python에서 필요한 함수를 가져오고 시그니처를 확인하세요. 이 예제는 spacr.report에서 build_report를 가져옵니다. API 참조에서 같은 이름을 찾아 필수 인수를 준비하고, 스크립트나 노트북에서 함수를 호출하세요.",
           "hold_after": 0.7
         },
         {
@@ -733,7 +778,7 @@
             3440,
             680
           ],
-          "narration": "Save the settings from your module workflow, then pass the file with dash dash settings. Add dash dash dry-run to check the configuration and input paths. In this Regression example, the settings pair phenotype scores with guide counts for each plate. Read the messages and correct any missing inputs before continuing.",
+          "narration": "모듈 워크플로의 설정을 저장한 뒤 --settings로 그 파일을 넘기세요. --dry-run을 추가하면 구성과 입력 경로를 확인할 수 있습니다. 이 Regression 예제에서는 설정이 플레이트마다 표현형 점수와 가이드 개수를 짝짓습니다. 계속하기 전에 메시지를 읽고 빠진 입력을 채우세요.",
           "hold_after": 0.7
         },
         {
@@ -744,7 +789,7 @@
             2250,
             900
           ],
-          "narration": "To execute the analysis, run the same command without dash dash dry-run. Follow the console until the command finishes, then inspect the outputs described by that module’s tutorial and API page. Keep the settings file, input tables, package version and console log with the results.",
+          "narration": "분석을 실행하려면 --dry-run 없이 같은 명령을 실행하세요. 명령이 끝날 때까지 콘솔을 지켜본 뒤, 그 모듈의 튜토리얼과 API 페이지에 설명된 출력을 확인하세요. 설정 파일, 입력 표, 패키지 버전, 콘솔 로그를 결과와 함께 보관하세요.",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
@@ -755,6 +800,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9372,7 +9457,7 @@
         "시야와 객체 유형을 확인하며 객체를 선택합니다.",
         "대응하는 부모 세포 크롭을 열고 Python으로 전체 계층을 얻습니다."
       ],
-      "prerequisite": "측정 데이터베이스와 대응하는 세포 크롭이 함께 있는 Annotate 예제 전체를 내려받으세요. 데이터베이스만 있는 Graph Builder 아카이브로는 이미지를 얻을 수 없습니다. 이 예제에는 세포 크롭만 있으므로, 크롭을 확인하려면 부모 세포를 더블클릭하세요. 현재 가족 단위의 Open crops 동작은 누락된 자식 크롭을 관련 없는 세포 크롭으로 대신할 수 있으니, 이 예제에서는 쓰지 마세요.",
+      "prerequisite": "측정 데이터베이스와 대응하는 세포 크롭이 함께 있는 Annotate 예제 전체를 내려받으세요. 데이터베이스만 있는 Graph Builder 아카이브로는 이미지를 얻을 수 없습니다. 이 예제에는 세포 크롭만 있습니다. 표시된 가족에 대해 Open crops를 실행하면 대응하는 부모 세포 크롭만 표시되고 자식 크롭 두 개를 사용할 수 없다는 안내가 나옵니다.",
       "example_files": [
         "Lineage_real_containment_review.zip",
         "Graph_Builder_real_measurements.zip"
@@ -9435,8 +9520,8 @@
           "hold_after": 0.7
         },
         {
-          "visual": "20_wrong_typed_children_are_unrelated_cell_crops",
-          "narration": "이 예제에서는 가족 전체에 Open crops를 쓰지 마세요. 누락된 핵과 병원체 크롭이 관련 없는 세포 크롭으로 대체될 수 있습니다. 트리로 돌아가 부모 세포만 선택하세요.",
+          "visual": "20_family_crop_identity_preserved",
+          "narration": "선택한 가족에 대해 Open crops를 클릭하세요. Annotate는 대응하는 부모 세포 크롭만 열고 자식 크롭 두 개를 사용할 수 없다고 알립니다. 이 예제에는 세포 크롭만 있으므로 핵과 병원체 크롭은 사용할 수 없습니다.",
           "hold_after": 0.7
         },
         {

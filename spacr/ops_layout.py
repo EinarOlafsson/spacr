@@ -121,8 +121,6 @@ class WellLayout:
         remainder = self.radius * self.radius - across * across
         if remainder < 0:
             return None
-        # At a half tile of zero this is floor(sqrt(R^2 - dx^2)) to the bit:
-        # subtracting 0.0 moves no float, so the centre rule is unchanged.
         reach = math.sqrt(remainder) - self.half_tile
         if reach < 0:
             return None

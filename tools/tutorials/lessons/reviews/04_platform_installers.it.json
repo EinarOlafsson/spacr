@@ -1,13 +1,14 @@
 {
   "lesson": "04_platform_installers",
-  "english_sha256": "67f5f50b34186ea7d27a9be6536fcc4fd4c7d6877dd0ad4bf2283093344441c0",
+  "english_sha256": "5733777916561df1997773e74a43ef023771a98798aa3d7a9fb2be87e92b4f63",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review (Codex insertion), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 original installer and Home translations retained; Codex checked reuse of unchanged Home Performance narration.",
+    "date": "2026-09-27",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Only the Performance scene was inserted before the Home handoff; all original ten scene translations and lesson metadata preserved."
   },
   "language": "it",
   "title": "Installare spaCR con un installer desktop",
@@ -26,6 +27,7 @@
     "Dopo la configurazione, il profilo di installazione registra il backend selezionato. Controllalo quando vuoi confermare se il runtime usa la CPU o un acceleratore compatibile.",
     "Controlla la versione installata di spaCR. Conservala con le note di analisi, soprattutto quando aggiornerai l’applicazione in seguito.",
     "La configurazione chiede della condivisione facoltativa dei dati diagnostici e della configurazione di un account. Rispondi y solo per le opzioni che vuoi; n, il valore predefinito, lascia ciascuna disattivata. L’installer di Windows mostra le stesse scelte come caselle di controllo.",
+    "In Preferences, scegli un profilo Performance per il tuo computer. Laptop usa meno risorse; i profili più alti consentono più cache e più lavoro in background. Parti da un profilo modesto se la memoria è limitata. Le impostazioni delle analisi restano sotto il tuo controllo in ciascun modulo.",
     "Quando si apre Home, continua con il tutorial di Home. Mostra come aprire un modulo, trovare dati di prova e scegliere una pipeline per il tuo esperimento.",
     "Se l’avvio o un formato di file richiede attenzione, esegui spacr-doctor dal runtime installato. Elenca ogni controllo con una correzione suggerita. In questa installazione solo CPU il controllo della GPU fallisce come previsto, e il controllo del PATH segnala il launcher spacr dell’installer stesso, che avvia questo stesso runtime; quindi qui nessuno dei due richiede modifiche.",
     "Per i problemi di installazione, cerca install punto log e install-profile punto json nella cartella di installazione. Rivedi i log prima di condividerli in una richiesta di assistenza. Indica il sistema operativo e la versione di spaCR, così il problema è più facile da diagnosticare."

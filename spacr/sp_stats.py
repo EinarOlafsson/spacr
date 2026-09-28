@@ -4459,7 +4459,7 @@ def _score_anomalies(frame: pd.DataFrame, *,
     else:
         wells["anomaly_z"] = np.nan
     wanted = {str(v) for v in (known_hits or ())}
-    known = (wells["role"] == ROLE_POSITIVE).to_numpy()
+    known = (wells["role"] == ROLE_POSITIVE).to_numpy(copy=True)
     if wanted:
         for column in ("well", "prc", "treatment", "control"):
             if column in wells.columns:

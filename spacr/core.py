@@ -1683,8 +1683,7 @@ def _microscope_acquire(event, context):
     :param context: the watch state, with the open ``microscope``.
     :returns: the written file names.
     """
-    import tifffile
-
+    from .tiff_io import write_tiff
     from .cancellation import checkpoint
 
     core, settings = context['microscope'], context['settings']
@@ -1709,8 +1708,8 @@ def _microscope_acquire(event, context):
         pixels = np.asarray(core.get_image()).reshape(
             int(core.get_image_height()), int(core.get_image_width()))
         name = f"{event['id']}_t{frame:03d}.tif"
-        tifffile.imwrite(os.path.join(out, name), pixels,
-                         metadata={'stage_x_um': x, 'stage_y_um': y})
+        write_tiff(os.path.join(out, name), pixels,
+                   metadata={'stage_x_um': x, 'stage_y_um': y})
         names.append(name)
     return names
 

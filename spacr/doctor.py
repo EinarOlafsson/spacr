@@ -1224,9 +1224,6 @@ def check_gpu(ctx: Context) -> Result:
 
     def _result(status, message, *, fix="", details=()):
         """Append shared task evidence without changing the GPU diagnosis."""
-        # Take one shared capability snapshot for every diagnostic path,
-        # including CPU-only and broken installations. Optional display
-        # evidence must not replace or prevent the underlying diagnosis.
         try:
             from .accelerator import capabilities
 

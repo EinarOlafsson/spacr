@@ -792,10 +792,6 @@ class FigureQueue(QWidget):
         :param event: the filtered event; a ``Resize`` of the view restarts
             the resize timer, and every event is passed on to the base class.
         """
-        # Qt can deliver an event here while the queue has no view -- before
-        # `_build_ui` made one, or while a teardown takes the widget apart --
-        # and an unguarded `self._view` raised inside the event loop. With no
-        # view there is nothing to debounce.
         view = getattr(self, "_view", None)
         if view is not None and obj is view and event.type() == QEvent.Resize:
             timer = getattr(self, "_resize_timer", None)

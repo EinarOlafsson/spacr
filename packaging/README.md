@@ -321,7 +321,7 @@ installer/executable for each of the three target platforms:
 
 | Target             | Script                    | Output                   |
 |--------------------|---------------------------|--------------------------|
-| Windows 10/11 (x64)| `build_windows.ps1`       | `dist/spaCR-<ver>.exe`   |
+| Windows 10/11 (x64)| `build_windows.ps1`       | `dist/spaCR-<ver>-windows.zip`; `dist/spaCR-<ver>-setup.exe` with NSIS |
 | macOS 11+ (arm64/x64)| `build_macos.sh`        | `dist/spaCR-<ver>.dmg`   |
 | Debian/Ubuntu (x64)| `build_debian.sh`         | `dist/spacr_<ver>_amd64.deb` (installable via `sudo apt install ./spacr_<ver>_amd64.deb`) |
 
@@ -335,21 +335,25 @@ archive its output.
 
 **What each build does under the hood**
 
-* Windows: PyInstaller `--onefile --windowed` bundles Python, spacr,
+* Windows: PyInstaller's windowed **onedir** bundle contains Python, spacr,
   cellpose, torch (CPU or CUDA depending on your local env), plus a
   hidden-imports list of the heavy scientific stack (numpy, scipy,
   sklearn, statsmodels, skimage, matplotlib, cv2). The resulting
-  `.exe` runs on any Windows 10+ machine.
+  `spacr.exe` must stay beside its collected files. The ZIP preserves that
+  directory; NSIS wraps it in an installer. Use `-RequireInstaller` to fail
+  instead of skipping the installer when NSIS is unavailable. Actual platform
+  compatibility requires native build-and-launch evidence.
 
 * macOS: PyInstaller `--windowed` produces a `spaCR.app` bundle, which
   `hdiutil` then packs into a signed (ad-hoc) `.dmg` you can drag into
   `/Applications`. Requires code-signing for distribution outside your
   own Mac — that step is left explicit at the top of the script.
 
-* Debian: `stdeb` converts the `setup.py` into `debian/` control files,
-  then `dpkg-buildpackage` produces a `.deb` that pins the required
-  system libs (libgl1, libglib2.0-0, libsm6, libxext6, libxrender1)
-  in the `Depends:` field. Install with
+* Debian: the former `stdeb` system-Python recipe is replaced by the same
+  private CPU PyInstaller runtime under `/opt/spacr`. `dpkg-deb` packages
+  it with `/usr/bin/spacr`, the desktop entry and application icons, and
+  declares its native Qt/system library dependencies. Build on Ubuntu 22.04
+  to retain the Ubuntu 22.04 / Debian 12 compatibility floor. Install with
   `sudo apt install ./dist/spacr_<ver>_amd64.deb`.
 
 **Cross-building caveat**
@@ -363,3 +367,19 @@ You *cannot* cross-build these from a single machine:
 The scripts assume they run on their native platform; each fails fast with a
 clear error if run elsewhere. For normal releases, prefer the online
 installers above: frozen artifacts duplicate Python and the scientific stack.
+
+`frozen-installers.yml` builds these legacy artifacts and passes them to
+separate fresh native jobs for installation and a real Qt Measure run. Those
+jobs receive no checkout or spaCR environment from the builders. The receipts
+identify the architecture actually tested; an Apple silicon result is not an
+Intel macOS result. Artifacts and diagnostics are retained for review without
+publishing a release or using signing credentials. The macOS bundle retains
+its local ad-hoc signature, which is not notarization or Gatekeeper acceptance.
+
+This check does not establish legacy self-update or add the online installers'
+CPU/GPU, account and consent flows to the frozen builders. The Debian artifact
+is installed and launched in fresh Ubuntu 22.04 and Debian 12 containers without
+source or a supplementary pip environment. Its removal must delete package-owned
+paths while preserving the completed analysis outside `/opt/spacr`. Native
+acceptance is still required; changing the recipe alone does not establish that
+the package works.

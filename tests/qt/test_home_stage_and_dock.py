@@ -331,8 +331,8 @@ def test_the_legend_is_no_longer_in_the_aside_column(qtbot,
     qtbot.addWidget(page)
     legend = page.legend
     assert isinstance(legend, StageLegend)
-    assert legend.parent() is None, (
-        "the legend is still parented into the page")
+    assert legend.parent() is page, (
+        "the hidden legend needs the page's ownership until it is used")
 
     aside = page._news.parent()
     widgets = [aside.layout().itemAt(i).widget()
@@ -344,6 +344,15 @@ def test_the_legend_is_no_longer_in_the_aside_column(qtbot,
     assert present[-1] is page._system, (
         "System is not at the bottom of the aside: "
         f"{[w.header.text() for w in present]}")
+    from PySide6.QtCore import QEvent
+    from PySide6.QtWidgets import QApplication
+    from shiboken6 import isValid
+
+    assert legend.isHidden()
+    page.close()
+    page.deleteLater()
+    QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+    assert not isValid(legend), "the hidden legend outlived its Home page"
 
 
 def test_the_legend_names_every_stage_and_draws_its_colour(qtbot,

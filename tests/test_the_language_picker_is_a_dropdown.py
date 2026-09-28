@@ -234,14 +234,8 @@ def test_the_menu_offers_every_shipped_language_and_each_link_resolves():
         assert (PICKER_PAGE.parent / target).resolve().is_file(), (name, target)
 
 
-def test_the_menu_says_which_translations_nobody_has_read():
-    """Instruction 316: the claim has to be honest per locale.
-
-    Offering ten languages with nothing said about them is itself a claim
-    that all ten are equally good. Three were sampled by a fluent speaker;
-    six are machine drafts nobody who speaks them has checked.
-    """
-    generator = _generator()
+def test_the_menu_labels_ai_review_without_native_speaker_signoff():
+    """Current AI review must not inherit claims of native-speaker approval."""
     from spacr.qt.i18n import LANGUAGES
 
     text = PICKER_PAGE.read_text(encoding="utf-8")
@@ -251,15 +245,13 @@ def test_the_menu_says_which_translations_nobody_has_read():
         for line in menu.splitlines()
         if line.startswith("| [")
     }
-    assert set(generator.SPOT_CHECKED_LOCALES) == {"sv", "de", "is"}
+    assert "A fluent speaker read a sample" not in menu
     for language in LANGUAGES:
         row = rows[language.native_name]
         if language.code == "en":
             assert "Source text" in row
-        elif language.code in generator.SPOT_CHECKED_LOCALES:
-            assert "A fluent speaker read a sample" in row
         else:
-            assert "No fluent-speaker review" in row
+            assert "AI technical review (Codex), no native-speaker signoff" in row
 
 
 def test_the_page_and_the_readmes_are_regenerated_not_hand_written(tmp_path):

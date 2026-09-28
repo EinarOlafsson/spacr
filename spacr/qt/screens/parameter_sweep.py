@@ -603,7 +603,11 @@ def _make_screen(app_key=None, host=None):
                 "analysis_unit", "agg_type", "transform",
                 "multiple_testing_method", "fdr_alpha",
                 "fraction_threshold", "min_cells_per_well",
+                "n_rows_fitted_grna", "n_wells_grna",
+                "n_rows_fitted_gene", "n_wells_gene",
                 "n_wells", "n_guides", "n_cells", "n_rows_fitted",
+                "n_rows_prepared", "n_wells_prepared",
+                "n_guides_prepared", "n_genes_prepared",
                 "n_results", "n_below_alpha", "positive_rank",
                 "seconds", "error_type") if c in frame.columns]
             columns = preferred or list(frame.columns)[:12]

@@ -1,13 +1,14 @@
 {
   "lesson": "73_parameter_sweep",
-  "english_sha256": "8f164d56e7d6d48b866022bb05940e29cf343154681c65517a51ce2676825346",
+  "english_sha256": "44292936fb6b522935dc2402151ddb2bba49786333975d2b8a683e271411e2a4",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 original translations retained; Codex translated and technically reviewed the corrected fitted-support scene.",
+    "date": "2026-09-27",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Only scene8 narration changed. The remaining nine scenes, metadata, scene IDs and statistical caveats are preserved."
   },
   "language": "de",
   "title": "Parameter Sweep: gespeicherte Regression-Durchläufe vergleichen",
@@ -27,7 +28,7 @@
     "Prüfen Sie die abgeschlossenen Zeilen und öffnen Sie dann sweep_results.csv sowie die Einstellungs- und Qualitätskontrolldateien jedes Durchlaufs. Beide gezeigten Durchläufe beenden die Berechnung, bestehen aber die Inferenzprüfungen nicht; ein Ausführungsstatus ok allein reicht also nicht zur Modellwahl.",
     "Wählen Sie die erste Zeile und klicken Sie auf Show figures for selected row. Prüfen Sie die Guide-Ergebnisse und Achsenbeschriftungen. Das Diagramm lässt den Achsenabschnitt aus der Koeffiziententabelle weg.",
     "Stellen Sie Level auf Gene, um die Genfamilie separat zu prüfen. Prüfen Sie ihre Zeilen, Effekte und Qualitätskontrollergebnisse, bevor Sie sie mit der Guide-Ansicht vergleichen.",
-    "Wechseln Sie zurück zu Guide. Lesen Sie die Stichprobenunterstützung aus den Eingabe- und Diagnosedateien: Die Übersicht der angepassten Zeilen im Beispiel zählt ausgegebene Koeffizientenzeilen, nicht Wells.",
+    "Wechseln Sie zurück zu Guide. Vergleichen Sie in der Versuchszusammenfassung die für die Modellanpassung verwendeten Zeilen und die eindeutigen Wells. Die Anzahlen werden für die Modellanpassungen auf Guide-Ebene und auf Gen-Ebene getrennt erfasst. Diese Zahlen beschreiben die Datengrundlage, nicht die Qualität der statistischen Inferenz.",
     "Bewahren Sie Einstellungen, Übersicht und Qualitätskontrolldateien jedes Durchlaufs zusammen mit seinen Abbildungen auf. Verwenden Sie Regression Diagnostics zur weiteren Prüfung oder SweepSpace und run_sweep in Python für einen skriptgesteuerten Vergleich."
   ]
 }
