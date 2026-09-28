@@ -505,3 +505,13 @@ YAML and diff checks passed. Native PowerShell capture/replay validation and
 historical Windows acceptance remain pending. A successful diagnostic cannot
 pass the original installer or close item53. Receipt:
 features/data/53_historical_windows_child_diagnostic_2026-09-27.json.
+
+STATUS 2026-09-27 — actual Windows child diagnostic captured
+Run36368371775 at e9c7baee3 captured the original uv child exiting1 with no
+expected uv.exe. Its unchanged retained script then replayed under the same
+32-bit Windows PowerShell engine/account/path and exited0, installing uv.
+The environment match covers reconstructed whitelist inheritance only; the
+original child error text remains unavailable and its failure cause unproven.
+Artifact digest/head binding and executed-driver CRLF source binding verified.
+This validates the diagnostic, not the failed historical installer or upgrade.
+Receipt: features/data/53_historical_windows_child_diagnostic_native_2026-09-27.json.
