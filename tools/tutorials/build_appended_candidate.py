@@ -128,10 +128,11 @@ def update_catalogs(published, lessons, voices, reviews, refresh_ids, *, current
 
 
 def complete_translation_compatibility(catalogs, updated, previous=()):
-    """Keep earlier English fallbacks visible when publishing another batch."""
+    """Retain prior lesson reviews and English fallbacks across publication batches."""
     english = {row['id']: row for row in catalogs['lessons_en.json']['lessons']}
     old = {(row['lesson'], row['language']): row for row in previous}
-    records = {}
+    records = {key: deepcopy(row) for key, row in old.items()
+               if key[0] in english and f'lessons_{key[1]}.json' in catalogs}
     for filename in CATALOGS:
         language = filename.split('_', 1)[1].removesuffix('.json')
         if language == 'en':

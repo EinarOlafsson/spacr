@@ -108,6 +108,27 @@ def test_later_batch_keeps_earlier_fallbacks_registered(sources):
     assert all(row['status'] == 'english_fallback' and row['reason'] for row in recovered)
 
 
+def test_later_batch_retains_reviewed_translations_and_replaces_refreshed_records(sources):
+    published, first, voices = sources
+    intermediate, first_report = append_catalogs(published, [first], voices, {})
+    reviewed = {**first_report[0], 'status': 'source_bound_review', 'reason': None}
+    language = reviewed['language']
+    intermediate[f'lessons_{language}.json']['lessons'][-1]['title'] = 'Reviewed translated title'
+    first_report[0] = reviewed
+    second = {**first, 'id': '03_second', 'number': 3}
+    catalogs, second_report = append_catalogs(
+        intermediate, [second], {second['id']: {'en': ['af_heart']}}, {})
+    before = deepcopy(first_report)
+    complete = complete_translation_compatibility(catalogs, second_report, first_report)
+    assert len(complete) == 26 and reviewed in complete
+    assert all(row in complete for row in first_report + second_report)
+    assert first_report == before
+    replacement = {**reviewed, 'status': 'english_fallback', 'reason': 'Changed source needs review'}
+    refreshed = complete_translation_compatibility(catalogs, [replacement], complete)
+    assert replacement in refreshed and reviewed not in refreshed
+    assert len(refreshed) == len(complete)
+
+
 def test_mixed_release_preserves_unselected_lesson_and_updates_both_catalog_formats(sources):
     published, new, _ = sources
     for catalog in published.values():
