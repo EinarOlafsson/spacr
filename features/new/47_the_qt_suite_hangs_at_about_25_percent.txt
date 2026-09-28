@@ -1443,3 +1443,23 @@ repairs above remain valid within their own scopes. Both pytest and its sampler
 ended; no restart was made. Memory growth and the interrupted music test require
 investigation before another long run. Receipt and exact remaining manifest:
 features/data/47_qt_suffix_guard_stop_2026-09-27.json.
+
+STATUS 2026-09-27 — screen-owned CPU backdrop joins on accepted close
+A bounded two-node stylesheet/Mask-completion probe passed its assertions but
+aborted at process exit twice (exit134). Passive start-origin evidence identified
+the live unnamed QThread as CpuFractalWidget._thread, installed by AppScreen;
+the GPU-discovery child was separate. AppScreen closed its jobs/settings without
+shutting down its owned backdrop. Child closeEvent does not run merely because
+the parent closes, and queued deletion/application quit was too late here.
+
+Accepted close now synchronously stops/removes that backdrop and suppresses
+pending reinstall callbacks while closed. Showing the reusable screen builds a
+fresh backdrop. A deferred pipeline close leaves the renderer alive with its
+screen. The original two nodes now pass and exit0 with the CPU thread stopped;
+44 named lifecycle/backdrop checks pass, including real-thread close/reopen and
+refused-close contracts. No global cleanup, forced GC or guard change was added.
+Two changed API docstrings are recorded for the final catalog delta.
+
+This closes the reproduced thread-shutdown defect, not the separate sustained
+memory growth or full serial acceptance. Receipt:
+features/data/47_cpu_backdrop_close_2026-09-27.json.

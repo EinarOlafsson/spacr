@@ -2200,11 +2200,17 @@ class AppScreen(QWidget):
                 _discard_widget(child)
 
     def _remove_ambient(self) -> None:
-        """Tear the ambient backdrop down. Safe when there is none."""
+        """Stop and remove the ambient backdrop. Safe when there is none."""
         widget, self._ambient = self._ambient, None
         self._ambient_applied = None
         if widget is None:
             return
+        try:
+            shutdown = getattr(widget, "shutdown", None)
+            if callable(shutdown):
+                shutdown()
+        except Exception:
+            LOG.debug("could not shut down the ambient backdrop", exc_info=True)
         try:
             widget.set_animating(False)
         except Exception:
@@ -8316,6 +8322,7 @@ class AppScreen(QWidget):
             for the focus-collapse rule.
         """
         super().showEvent(event)
+        self._backdrops_ready = True
         focus = getattr(self, "_shell_focus", None)
         if focus is not None and not event.spontaneous():
             focus.begin_view()
@@ -9607,6 +9614,9 @@ class AppScreen(QWidget):
         dropping its references or force-terminating it could corrupt an
         output and triggers Qt's fatal "QThread destroyed while running".
 
+        An accepted close also joins the owned backdrop renderer. Showing
+        the screen again creates a fresh backdrop from the current settings.
+
         :param event: the close event; ignored (so the screen stays open)
             when the worker is still running three seconds after the cancel
             request.
@@ -9639,6 +9649,8 @@ class AppScreen(QWidget):
                 return
             self._thread = None
             self._worker = None
+        self._backdrops_ready = False
+        self._remove_ambient()
         try:
             self._usage_generation += 1
             self._usage_timer.stop()
