@@ -2889,26 +2889,28 @@ def _write_counterfactual_outputs(out_dir: str, summary: Dict[str, Any],
     if frames.ndim != 5 or not len(frames):
         return
     import matplotlib.pyplot as plt
+    from .figures.style import figure_style, theme_target
 
     n_rows, n_steps = frames.shape[0], frames.shape[1]
-    fig, axes = plt.subplots(n_rows, n_steps, squeeze=False,
-                             figsize=(1.4 * n_steps, 1.5 * n_rows))
-    for r in range(n_rows):
-        seq = frames[r]
-        lo, hi = float(seq[0].min()), float(seq[0].max())
-        path = [float(s) for s in rows[r]['score_path'].split(';')]
-        for k in range(n_steps):
-            img = seq[k]
-            img = img[0] if img.shape[0] != 3 else np.moveaxis(img, 0, -1)
-            img = np.clip((img - lo) / ((hi - lo) or 1.0), 0, 1)
-            ax = axes[r][k]
-            ax.imshow(img, cmap=None if img.ndim == 3 else 'gray')
-            ax.set_xticks([])
-            ax.set_yticks([])
-            ax.set_title(f'p={path[k]:.2f}', fontsize=7)
-        axes[r][0].set_ylabel(f"{rows[r]['source_class']}→{rows[r]['target_class']}",
-                              fontsize=7)
-    fig.suptitle('Counterfactual sequences (classifier score for the target class)',
-                 fontsize=8)
-    save_figure(fig, os.path.join(out_dir, 'counterfactual_sequences.pdf'),
-                close=True)
+    with figure_style(theme_target()):
+        fig, axes = plt.subplots(n_rows, n_steps, squeeze=False,
+                                 figsize=(1.4 * n_steps, 1.5 * n_rows))
+        for r in range(n_rows):
+            seq = frames[r]
+            lo, hi = float(seq[0].min()), float(seq[0].max())
+            path = [float(s) for s in rows[r]['score_path'].split(';')]
+            for k in range(n_steps):
+                img = seq[k]
+                img = img[0] if img.shape[0] != 3 else np.moveaxis(img, 0, -1)
+                img = np.clip((img - lo) / ((hi - lo) or 1.0), 0, 1)
+                ax = axes[r][k]
+                ax.imshow(img, cmap=None if img.ndim == 3 else 'gray')
+                ax.set_xticks([])
+                ax.set_yticks([])
+                ax.set_title(f'p={path[k]:.2f}', fontsize=7)
+            axes[r][0].set_ylabel(f"{rows[r]['source_class']}→{rows[r]['target_class']}",
+                                  fontsize=7)
+        fig.suptitle('Counterfactual sequences (classifier score for the target class)',
+                     fontsize=8)
+        save_figure(fig, os.path.join(out_dir, 'counterfactual_sequences.pdf'),
+                    close=True)

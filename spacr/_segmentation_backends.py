@@ -5158,6 +5158,7 @@ def _sam2_float_memory(predictor):
     forward = attention.forward
 
     def float_forward(*args, **kwargs):
+        """Call the original attention with the stored memory in float32."""
         for name in ("memory", "memory_pos"):
             value = kwargs.get(name)
             if value is not None and value.dtype != torch.float32:

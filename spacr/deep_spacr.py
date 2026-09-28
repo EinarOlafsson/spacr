@@ -4236,6 +4236,7 @@ class _VirtualStainUNet(torch.nn.Module):
     """
 
     def __init__(self, in_channels: int = 1, base: int = 16, depth: int = 3):
+        """Build the encoder, decoder and 1x1 output layer."""
         super().__init__()
         nn = torch.nn
 

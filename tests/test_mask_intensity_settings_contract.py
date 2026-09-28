@@ -199,7 +199,11 @@ def test_old_csv_loads_without_repurposing_split_or_merge_values(tmp_path, heade
 def test_bound_api_links_name_the_filter_reader():
     from spacr.qt.screens.setting_api_targets import SETTING_API_TARGETS
 
-    for role in (*PRIMARY_ROLES, "organelleb", "organellec", "organelled"):
+    for role in RETIRED_BOUND_ROLES:
+        for side in ("min", "max"):
+            assert f"{role}_{side}_intensity" not in SETTING_API_TARGETS
+    live = [r for r in PRIMARY_ROLES if r not in RETIRED_BOUND_ROLES]
+    for role in (*live, "organelleb", "organellec", "organelled"):
         for side in ("min", "max"):
             # The primary organelle generator reads its literal keys to
             # validate the bounds and enable original-channel loading. Its
