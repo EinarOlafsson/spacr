@@ -61,8 +61,39 @@ jobs:
         if: matrix.platform == 'windows'
         shell: pwsh
         run: |
-          choco install nsis --yes --no-progress
-          if ($LASTEXITCODE -ne 0) { throw 'NSIS installation failed' }
+          $ErrorActionPreference = 'Stop'
+          $version = '3.13'
+          $expected = 'db9a1038bbc0e53fef24f423fd609979bd578e942f1be1198db186d1c42652a3'
+          $url = 'https://sourceforge.net/projects/nsis/files/NSIS%203/3.13/nsis-3.13-setup.exe/download'
+          $stage = Join-Path $env:RUNNER_TEMP ('nsis-build-' + [Guid]::NewGuid().ToString('N'))
+          [void](New-Item -ItemType Directory -Path $stage)
+          $installer = Join-Path $stage 'nsis-3.13-setup.exe'
+          $receipt = [ordered]@{status='failed'; version=$version; url=$url; expected_sha256=$expected; source_commit=$env:GITHUB_SHA}
+          try {
+            Invoke-WebRequest -Uri $url -OutFile $installer -TimeoutSec 120 -MaximumRetryCount 3 -RetryIntervalSec 5
+            $actual = (Get-FileHash -LiteralPath $installer -Algorithm SHA256).Hash.ToLowerInvariant()
+            $receipt.actual_sha256 = $actual
+            if ($actual -ne $expected) { throw 'Pinned NSIS installer checksum mismatch' }
+            $process = Start-Process -FilePath $installer -ArgumentList '/S' -PassThru
+            if (-not $process.WaitForExit(120000)) {
+              try { $process.Kill($true); [void]$process.WaitForExit(10000) } catch { $receipt.termination_error = $_.Exception.Message }
+              throw 'Pinned NSIS installer exceeded its two-minute deadline'
+            }
+            $receipt.installer_exit = $process.ExitCode
+            if ($process.ExitCode -notin @(0,3010)) { throw "Pinned NSIS installer failed: $($process.ExitCode)" }
+            $compiler = Join-Path ${env:ProgramFiles(x86)} 'NSIS\makensis.exe'
+            if (-not (Test-Path -LiteralPath $compiler -PathType Leaf)) { throw 'Installed NSIS compiler is missing' }
+            $reported = (& $compiler /VERSION | Out-String).Trim()
+            $receipt.compiler_version = $reported
+            if ($LASTEXITCODE -ne 0 -or $reported -ne "v$version") { throw "Unexpected NSIS compiler version: $reported" }
+            $receipt.compiler_sha256 = (Get-FileHash -LiteralPath $compiler -Algorithm SHA256).Hash.ToLowerInvariant()
+            $receipt.status = 'passed'
+          } catch {
+            $receipt.error = $_.Exception.Message
+            throw
+          } finally {
+            $receipt | ConvertTo-Json -Depth 4 | Set-Content acceptance/nsis-acquisition.json -Encoding utf8
+          }
           ./packaging/build_windows.ps1 -SkipDependencyInstall -RequireInstaller
       - name: Build native macOS app and DMG
         if: matrix.platform == 'macos'

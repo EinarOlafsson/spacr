@@ -449,3 +449,17 @@ remain diagnostic. No input is sent, no dialog dismissed, and no original
 installer bytes or update command changed. Native observer validation is pending.
 Full item53 and frozen replacement acceptance remain open. Receipt:
 features/data/53_historical_macos_recovery_2026-09-27.json.
+
+STATUS 2026-09-27 — pin the already-validated Windows compiler prerequisite
+Native run36362303533 failed before packaging: Chocolatey reported nsis absent
+from its discovery feed. The same command had installed3.13.0 successfully in
+run36358947318. Exact package downloads still succeed; no failing HTTP status
+was retained, so a particular network/feed cause is not claimed.
+
+The Windows build now downloads official NSIS3.13 by exact URL and SHA256,
+checks its compiler version, bounds silent installation and records acquisition
+receipts. Independently downloaded upstream and Chocolatey-embedded installer
+bytes match. YAML parsing passed; no installer ran locally. Actual Windows
+build acceptance remains pending, and this prerequisite repair does not close
+historical Windows recovery or frozen replacement gates. Receipt:
+features/data/53_pinned_nsis_acquisition_2026-09-27.json.
