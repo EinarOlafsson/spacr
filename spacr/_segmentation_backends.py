@@ -95,6 +95,7 @@ from __future__ import annotations
 
 import atexit
 import collections
+import contextlib
 import inspect
 import json
 import logging
@@ -354,6 +355,27 @@ _MICROSAM_KEEP = 4
 #: 3.0 s on all 16 threads and 0.25 to 0.85 s on four (2026-09-26). The
 #: embedding, which is large, keeps every thread.
 _MICROSAM_PROMPT_THREADS = 4
+
+#: SAM2, Meta's Segment Anything 2, used for its video predictor. It is not
+#: a ``segmentation_backend`` value either: given the objects' masks on one
+#: frame of a movie, it follows each of them through the other frames, so
+#: every object keeps one id (``timelapse_mode='sam2'``).
+_SAM2 = "sam2"
+
+#: The SAM2.1 checkpoints, smallest first. Each is fetched from the
+#: ``facebook/<name>`` Hugging Face repository (underscores become hyphens)
+#: into the backend's own folder the first time it is used.
+_SAM2_MODELS = ("sam2.1_hiera_tiny", "sam2.1_hiera_small",
+                "sam2.1_hiera_base_plus", "sam2.1_hiera_large")
+
+#: An object spaCR segmented on a later frame is new to SAM2 when less than
+#: this fraction of it lies under the objects SAM2 is already following.
+_SAM2_NEW_OBJECT_COVER = 0.5
+
+#: A new object overlapping one found new on the frame before by at least
+#: this IoU is the same object, which SAM2 already follows from its first
+#: frame.
+_SAM2_SAME_NEW_OBJECT_IOU = 0.3
 
 
 @dataclass(frozen=True)
@@ -709,6 +731,40 @@ _SPECS = {
             "Microscopy', Nature Methods 2025 (doi:10.1038/s41592-024-"
             "02580-4). spaCR has not scored this backend on its own "
             "data.")),
+    _SAM2: _BackendSpec(
+        name=_SAM2, label="SAM2", module="sam2",
+        probe=("sam2.sam2_video_predictor", "huggingface_hub", "PIL.Image"),
+        distribution="sam2",
+        requirements=("hydra-core==1.3.2", "iopath==0.1.10",
+                      "setuptools>=61", "pillow>=9.4.0", "tqdm>=4.66.1",
+                      "huggingface_hub"),
+        built_here=("sam2==1.1.0",),
+        torch=("torch>=2.5.1", "torchvision>=0.20.1"),
+        python=((3, 10), (3, 13)),
+        licence="Apache-2.0 (SAM2 and its SAM2.1 checkpoints)",
+        licence_note=(
+            "SAM2 1.1.0 is Apache-2.0 (Copyright Meta Platforms). Its "
+            "SAM2.1 checkpoints, Apache-2.0 as well, are downloaded from "
+            "the facebook/sam2.1-hiera-* repositories on Hugging Face into "
+            "the backend's own folder the first time a movie is followed. "
+            "PyPI carries SAM2 only as source, so it is built inside the "
+            "environment, without its optional CUDA post-processing "
+            "extension. spaCR ships none of it."),
+        homepage="https://github.com/facebookresearch/sam2",
+        size_gb=3.0, segments=False, models=_SAM2_MODELS,
+        default_model=_SAM2_MODELS[0], alpha=True,
+        blurb=(
+            "SAM2's video predictor, as a timelapse mode: seeded with "
+            "spaCR's masks on the first frame, it follows each object "
+            "through the movie with a memory of its appearance, so "
+            "segmentation and tracking are one step and every object keeps "
+            "its id. Objects that appear later are seeded where spaCR first "
+            "finds them."),
+        published=(
+            "Published results: Ravi et al., 'SAM 2: Segment Anything in "
+            "Images and Videos', ICLR 2025 (arXiv:2408.00714). spaCR has not "
+            "scored it against those results; item 556 scores it on Cell "
+            "Tracking Challenge movies.")),
     _SPOTNET: _BackendSpec(
         name=_SPOTNET, label="SpotNet (DeepCell)", module="deepcell_spots",
         probe=("deepcell_spots", "deepcell_spots.applications", "tensorflow"),
@@ -1730,6 +1786,11 @@ def _worker_env(name, env):
     which otherwise defaults to the person's own cache folder; it is
     pointed inside the environment for the same reason.
 
+    SAM2 fetches its checkpoints from Hugging Face, so ``HF_HOME`` is
+    pointed inside its environment too; ``SAM2_BUILD_CUDA=0`` builds it
+    without its optional CUDA extension, which needs a CUDA compiler and
+    only fills small holes in masks.
+
     Setting ``HF_HOME`` is necessary and not sufficient. :func:`_clean_env`
     forwards the rest of the inherited environment, and every variable in
     :data:`_HF_CACHE_VARIABLES` overrides the path ``HF_HOME`` would give,
@@ -1762,6 +1823,11 @@ def _worker_env(name, env):
     elif name == _MICROSAM:
         environ["MICROSAM_CACHEDIR"] = os.path.join(env, "micro_sam")
         environ["TORCH_HOME"] = os.path.join(env, "torch")
+    elif name == _SAM2:
+        environ["HF_HOME"] = os.path.join(env, "huggingface")
+        for variable in _HF_CACHE_VARIABLES:
+            environ.pop(variable, None)
+        environ["SAM2_BUILD_CUDA"] = "0"
     spec = _SPECS.get(name)
     if spec is not None and spec.java:
         home = _java_home(env)
@@ -2114,6 +2180,76 @@ class _PromptClient:
                 "device": (embedded or {}).get("device")
                 or (state.record or {}).get("device", ""),
                 "model": self.model, "versions": packages}
+
+
+def _sam2_frames(images, low=1.0, high=99.8):
+    """A movie as SAM2 should see it: one channel, stretched to uint8.
+
+    The whole movie is stretched between the same two percentiles, so a
+    cell that brightens or fades does so in what SAM2 sees too.
+
+    :param images: ``T x H x W`` or ``T x H x W x C``; with channels, the
+        first is the object's own.
+    :returns: a ``T x H x W`` uint8 array.
+    """
+    images = np.asarray(images)
+    if images.ndim == 4:
+        images = images[..., 0]
+    if images.ndim != 3:
+        raise ValueError(f"SAM2 needs a T x H x W movie, got {images.shape}.")
+    images = images.astype(np.float32)
+    bottom, top = np.percentile(images, (low, high))
+    scaled = (images - bottom) / max(float(top - bottom), 1e-6)
+    return np.round(np.clip(scaled, 0, 1) * 255).astype(np.uint8)
+
+
+def _sam2_propagate(frames, seeds, *, model=None, device=None,
+                    backward=False, root=None, worker_for=None,
+                    should_cancel=None):
+    """SAM2 following seeded objects through a movie, from its own
+    environment.
+
+    :param frames: the movie, ``T x H x W`` uint8 (see :func:`_sam2_frames`).
+    :param seeds: ``{frame index: H x W labels}``; each label is one object,
+        and a label seeded on more than one frame is corrected there.
+    :param model: one of :data:`_SAM2_MODELS`; the smallest when None.
+    :param device: ``'cpu'``, ``'cuda'``, ... or None for ``$SPACR_DEVICE``,
+        and failing that the worker's own best guess.
+    :param backward: also follow each object back from its first seed to
+        the start of the movie. Otherwise an object exists only from the
+        frame it was first seeded on.
+    :param root: the backends folder.
+    :param worker_for: :func:`_worker_for`, or a stand-in for tests.
+    :param should_cancel: polled while it runs; True stops the worker.
+    :returns: ``(labels, reply)``: the ``T x H x W`` int32 labels, one id
+        per object on every frame, and the worker's reply (``seconds``,
+        ``objects``, ``device``, ``model``).
+    :raises ImportError: when SAM2 is not installed here.
+    """
+    state = _backend_state(_SAM2, root)
+    if not state.ready or state.in_process:
+        raise ImportError(_not_installed_message(_SAM2, state))
+    frames = np.asarray(frames)
+    order = sorted(seeds)
+    if device is None:
+        device = os.environ.get(_DEVICE_ENV, "").strip() or "auto"
+    with tempfile.TemporaryDirectory(prefix="spacr_sam2_") as folder:
+        movie = os.path.join(folder, "frames.npy")
+        seeded = os.path.join(folder, "seeds.npy")
+        output = os.path.join(folder, "labels.npy")
+        np.save(movie, np.ascontiguousarray(frames, dtype=np.uint8),
+                allow_pickle=False)
+        stack = (np.stack([np.asarray(seeds[f], dtype=np.int32)
+                           for f in order])
+                 if order else np.zeros((0,) + frames.shape[1:3], np.int32))
+        np.save(seeded, stack, allow_pickle=False)
+        reply = (worker_for or _worker_for)(_SAM2, state.env).request(
+            "sam2_propagate", should_cancel=should_cancel, frames=movie,
+            seeds=seeded, seed_frames=[int(f) for f in order],
+            output=output, model=str(model or _SAM2_MODELS[0]),
+            device=str(device), backward=bool(backward))
+        labels = np.load(output, allow_pickle=False).astype(np.int32)
+    return labels, reply
 
 
 def _detached(windows=None):
@@ -4723,6 +4859,151 @@ def _sam_answer(prompts, predictor, embeddings, points, labels, box):
     return mask, scores
 
 
+def _sam2_hub_id(model):
+    """The Hugging Face repository a SAM2.1 checkpoint name is fetched from.
+
+    :raises ValueError: for a name that is not in :data:`_SAM2_MODELS`.
+    """
+    model = str(model or _SAM2_MODELS[0])
+    if model not in _SAM2_MODELS:
+        raise ValueError(f"SAM2 has no model {model!r}; choose one of "
+                         f"{', '.join(_SAM2_MODELS)}.")
+    return "facebook/" + model.replace("_", "-")
+
+
+def _sam2_video_predictor(adapters, model, device):
+    """SAM2's video predictor for ``model`` on ``device``, loaded once.
+
+    The first call downloads the checkpoint into ``HF_HOME`` -- inside the
+    backend's environment (:func:`_worker_env`).
+    """
+    from sam2.sam2_video_predictor import SAM2VideoPredictor
+
+    key = ("sam2", model, device)
+    if key not in adapters:
+        predictor = SAM2VideoPredictor.from_pretrained(
+            _sam2_hub_id(model), device=device)
+        if not str(device).startswith("cuda"):
+            _sam2_float_memory(predictor)
+        adapters[key] = predictor
+    return adapters[key]
+
+
+def _sam2_float_memory(predictor):
+    """Let SAM2 attend to its memory without CUDA's autocast.
+
+    SAM2 keeps each frame's memory in bfloat16 and relies on CUDA autocast
+    to mix it with its float32 features; on the CPU, with no autocast, the
+    first frame that attends to a stored memory fails on the mixed types.
+    The memory is cast back to float32 as it enters attention instead.
+    """
+    import torch
+
+    attention = predictor.memory_attention
+    forward = attention.forward
+
+    def float_forward(*args, **kwargs):
+        for name in ("memory", "memory_pos"):
+            value = kwargs.get(name)
+            if value is not None and value.dtype != torch.float32:
+                kwargs[name] = value.float()
+        return forward(*args, **kwargs)
+
+    attention.forward = float_forward
+
+
+def _sam2_write_frames(frames, folder):
+    """Write a ``T x H x W`` (or ``T x H x W x 3``) uint8 movie as the
+    numbered JPEG folder SAM2's video predictor reads."""
+    from PIL import Image
+
+    for index, frame in enumerate(frames):
+        frame = np.asarray(frame, dtype=np.uint8)
+        if frame.ndim == 2:
+            frame = np.repeat(frame[..., None], 3, axis=-1)
+        Image.fromarray(frame).save(
+            os.path.join(folder, f"{index:05d}.jpg"), quality=95)
+
+
+def _worker_sam2_propagate(request, adapters):
+    """Follow seeded objects through a movie with SAM2's video predictor.
+
+    :param request: ``frames`` (a ``.npy`` path, ``T x H x W`` uint8),
+        ``seeds`` (a ``.npy`` path, ``S x H x W`` integer labels),
+        ``seed_frames`` (the frame each seed image belongs to), ``output``
+        (where the ``T x H x W`` int32 labels are written), ``model``,
+        ``device`` and ``backward``. Each label is one object; an object
+        seeded on several frames is corrected there.
+    :param adapters: the worker's cache; each model loads once.
+    :returns: ``{"seconds", "frames", "objects", "device", "model"}``.
+    :raises ValueError: when the movie or the seeds are malformed.
+    """
+    import torch
+
+    frames = np.load(str(request["frames"]), allow_pickle=False)
+    seeds = np.load(str(request["seeds"]), allow_pickle=False)
+    seed_frames = [int(v) for v in request.get("seed_frames") or ()]
+    if frames.ndim not in (3, 4) or frames.shape[0] < 1:
+        raise ValueError("SAM2 needs a T x H x W movie.")
+    if seeds.ndim != 3 or len(seed_frames) != seeds.shape[0]:
+        raise ValueError("SAM2 needs one seed frame index per seed image.")
+    if tuple(seeds.shape[1:]) != tuple(frames.shape[1:3]):
+        raise ValueError(f"SAM2 seeds are {seeds.shape[1:]}, the movie is "
+                         f"{frames.shape[1:3]}.")
+    count = frames.shape[0]
+    if any(not 0 <= f < count for f in seed_frames):
+        raise ValueError("A SAM2 seed frame is outside the movie.")
+    model = str(request.get("model") or _SAM2_MODELS[0])
+    device = _worker_device(request.get("device"))
+    backward = bool(request.get("backward"))
+    predictor = _sam2_video_predictor(adapters, model, device)
+    first = {}
+    for frame, seed in sorted(zip(seed_frames, seeds), key=lambda p: p[0]):
+        for label in np.unique(seed):
+            if label:
+                first.setdefault(int(label), frame)
+    labels = np.zeros((count,) + tuple(frames.shape[1:3]), dtype=np.int32)
+    if not first:
+        np.save(str(request["output"]), labels, allow_pickle=False)
+        return {"seconds": 0.0, "frames": count, "objects": 0,
+                "device": str(device), "model": model}
+    best = np.full(labels.shape, -np.inf, dtype=np.float32)
+    started = time.monotonic()
+    autocast = (torch.autocast("cuda", dtype=torch.bfloat16)
+                if str(device).startswith("cuda")
+                else contextlib.nullcontext())
+    with tempfile.TemporaryDirectory(prefix="spacr_sam2_") as folder, \
+            torch.inference_mode(), autocast:
+        _sam2_write_frames(frames, folder)
+        state = predictor.init_state(video_path=folder,
+                                     offload_video_to_cpu=True)
+        for frame, seed in zip(seed_frames, seeds):
+            for label in np.unique(seed):
+                if label:
+                    predictor.add_new_mask(state, frame_idx=frame,
+                                           obj_id=int(label),
+                                           mask=seed == label)
+        passes = [False, True] if backward else [False]
+        for reverse in passes:
+            for frame, ids, logits in predictor.propagate_in_video(
+                    state, reverse=reverse):
+                logits = logits.float().cpu().numpy()[:, 0]
+                for obj, logit in zip(ids, logits):
+                    obj = int(obj)
+                    if frame < first[obj] and not reverse:
+                        continue
+                    if reverse and frame >= first[obj]:
+                        continue
+                    better = (logit > 0) & (logit > best[frame])
+                    labels[frame][better] = obj
+                    best[frame][better] = logit[better]
+        predictor.reset_state(state)
+    seconds = time.monotonic() - started
+    np.save(str(request["output"]), labels, allow_pickle=False)
+    return {"seconds": seconds, "frames": count, "objects": len(first),
+            "device": str(device), "model": model}
+
+
 def _worker_spotiflow_spots(request, adapters):
     """Find spots in one image with Spotiflow.
 
@@ -4787,6 +5068,8 @@ def _handle(name, request, adapters):
             body = _worker_sam_embed(request, adapters)
         elif op == "sam_prompt":
             body = _worker_sam_prompt(request, adapters)
+        elif op == "sam2_propagate":
+            body = _worker_sam2_propagate(request, adapters)
         elif op == "shutdown":
             body = {}
         else:

@@ -1,0 +1,23 @@
+THE DECK SHOWS FOUR OBJECT CLASSES AND AN ALPHA FEATURES SLIDE
+
+Status:    FILED 2026-09-28. Not started.
+Requested: 2026-09-28, by the maintainer, verbatim:
+  "to the slide deck, the model used to detect the nuclei needs to be
+  changed, or its settigs, and there should be a pathogen object detection
+  there to (nuclei, cell, pathogen, organelle) (slide 10/55).
+  the features slide is good! but we have added a tone of new features under
+  the alpha flag in preferences. make an edditional slide where these are
+  included. also add an extra column to the right of spacr with category of
+  the features (not collored)"
+
+WHAT TO BUILD (deck source and build: see item 589)
+1. Slide 10: re-detect nuclei with a better model or settings so every
+   nucleus is outlined cleanly, and add a pathogen panel, so the slide shows
+   four object classes: nuclei, cell, pathogen, organelle.
+2. Slide 3 (features table): add a column right of the spaCR column giving
+   each feature's category, in plain uncoloured text.
+3. A new slide after slide 3 listing the alpha features (Preferences ->
+   Show alpha features), grouped by category, in the same table style.
+
+DONE WHEN the rebuilt deck (3200x1800, PDF, thumbs, pages) shows these and
+every changed slide has been checked by eye at full size.

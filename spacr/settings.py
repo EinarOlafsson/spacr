@@ -7297,6 +7297,10 @@ ALPHA_FEATURES = {
         'widgets': ('MakeMasksPromptCategory',),
         'models': ('microsam_v1',),
     },
+    556: {
+        'choices': {'timelapse_mode': ('sam2',)},
+        'models': ('sam2_v1',),
+    },
     565: {
         'widgets': ('AnnotateFindSimilar',),
     },
@@ -7305,6 +7309,9 @@ ALPHA_FEATURES = {
     },
     562: {
         'widgets': ('EmbeddingsWellMilButton',),
+    },
+    558: {
+        'widgets': ('CellposeWorkbenchVirtualStain',),
     },
     570: {
         'widgets': ('ControlChartHitPanel', 'ControlChartHitsSection',

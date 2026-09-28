@@ -1137,7 +1137,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                      _save_object_counts_to_database)
     from .timelapse import (_npz_to_movie, _btrack_track_cells, _trackpy_track_cells,
                             _trackastra_track_cells, _ultrack_track_cells,
-                            _timeflows_track_cells)
+                            _timeflows_track_cells, _sam2_track_cells)
     from .plot import plot_cellpose4_output
     from .settings import set_default_settings_preprocess_generate_masks, _get_object_settings
     from .spacr_cellpose import parse_cellpose4_output
@@ -1506,6 +1506,19 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                             save=settings['save'],
                             mode=timelapse_mode,
                             model_path=settings.get('timeflows_model'))
+
+                    elif timelapse_mode == 'sam2':
+                        mask_stack = _sam2_track_cells(
+                            src=src,
+                            name=name,
+                            batch_filenames=batch_filenames,
+                            object_type=object_type,
+                            masks=masks,
+                            images=batch,
+                            timelapse_remove_transient=timelapse_remove_transient,
+                            plot=settings['plot'],
+                            save=settings['save'],
+                            mode=timelapse_mode)
 
                     if timelapse_mode == 'trackpy' or timelapse_mode == 'iou':
                         if timelapse_mode == 'iou':
