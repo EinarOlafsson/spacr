@@ -1243,6 +1243,9 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     '{n} file(s) could not be copied; see the manifest.',
     '{n} set(s) detected by pairing.',
     '{n} set(s) detected.',
+    '…and {n} more',
+    'Convert RGB images and z-stacks?',
+    '{n} image(s) are not a single grey plane:\n{names}\n\nConvert them? RGB images become grey (the mean of their colours) and z-stacks become their maximum projection. The originals are kept in originals/ of the sorted folder.',
 })
 
 

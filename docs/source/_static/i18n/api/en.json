@@ -5887,10 +5887,11 @@
         "65d0bccb8efb9116009324ba4facefb49f833760a3f43eb9b04040f288daaec6",
         "a0c6e24419f745c52cc2a10a1874c4ee86d14b6d91a7f46ec0220c6ab267ae68",
         "10484b5526c41557b5e92888836c03cfde7a3f541aafb1a98a34513494239e3f",
-        "0353d9672c27d58b4057366015f793fb0a3e503a6eb4d4395afc771fed6a75b6"
+        "0353d9672c27d58b4057366015f793fb0a3e503a6eb4d4395afc771fed6a75b6",
+        "f621f5a3acf1478b90563db5517900225e5c163e92139602dce88d3796205fcc"
       ],
-      "source_sha256": "f70b75f7eacfd68b2fb1ad465137277285324b6fe8cc4c1ae3b1a9b0a8958a80",
-      "text": "One image to move, with its mask and the mask's ledger.\n\n:ivar channel: 1-based channel.\n:ivar name: the set's place.\n:ivar set_key: the set the image is in.\n:ivar source_image: current image path.\n:ivar target_image: where it goes.\n:ivar source_mask: current mask path, or None.\n:ivar target_mask: where the mask goes, or None.\n:ivar source_ledger: the mask's ``.curation.json``, or None.\n:ivar target_ledger: where the ledger goes, or None."
+      "source_sha256": "25df457356a3765d056a5a274c55bf43a1cda7a0be4e31f8a398e4d555c9c5df",
+      "text": "One image to move, with its mask and the mask's ledger.\n\n:ivar channel: 1-based channel.\n:ivar name: the set's place.\n:ivar set_key: the set the image is in.\n:ivar source_image: current image path.\n:ivar target_image: where it goes.\n:ivar source_mask: current mask path, or None.\n:ivar target_mask: where the mask goes, or None.\n:ivar source_ledger: the mask's ``.curation.json``, or None.\n:ivar target_ledger: where the ledger goes, or None.\n:ivar convert: ``\"rgb\"`` or ``\"zstack\"`` when the image is written as one\n    converted 2-D plane (the original is kept under ``originals/``)."
     },
     "spacr.channel_sorting.SetName": {
       "source_blocks_sha256": [
@@ -5939,10 +5940,11 @@
         "b29d1877be33def0a3f0489ebf16630a17487afd874a466686d315dc34082aa4",
         "c960491cebcac2488ab96a021f0186cc6d4eb8bd6c7aa5e289361e43c36b6b43",
         "f36d4ede262bf84048aa9c123ff72a9e6c7862cf93cea075ff319c74939ae80a",
-        "f3b1687c55cc4cb4ab0921f2d25783f4dedf97b2cef335d4b95cf1a91d7866cc"
+        "f3b1687c55cc4cb4ab0921f2d25783f4dedf97b2cef335d4b95cf1a91d7866cc",
+        "9fe0cdb630b97ba90463a7cb01b94795995928a57ab6d029796f9bb5ef067d32"
       ],
-      "source_sha256": "b983b9708ff98a62a43d73611fa2d871b0c7f304d9d620abd759b4850ddb223c",
-      "text": "Everything :func:`apply_plan` will do, decided before it does any.\n\n:ivar folder: the image folder.\n:ivar dest: the new folder the channels, stacks and ``merged/`` go in.\n:ivar rows: one per image.\n:ivar channels: channels, sorted.\n:ivar mask_roles: ``{channel: role}`` for channels whose masks are merged.\n:ivar problems: reasons the plan cannot be applied.\n:ivar warnings: things the user should know before it is."
+      "source_sha256": "4f9b09ee4dee59805bd97c0ad4bab10375aa1e4fe9a1b059afa61de8f7c3760e",
+      "text": "Everything :func:`apply_plan` will do, decided before it does any.\n\n:ivar folder: the image folder.\n:ivar dest: the new folder the channels, stacks and ``merged/`` go in.\n:ivar rows: one per image.\n:ivar channels: channels, sorted.\n:ivar mask_roles: ``{channel: role}`` for channels whose masks are merged.\n:ivar problems: reasons the plan cannot be applied.\n:ivar warnings: things the user should know before it is.\n:ivar convertible: RGB images and z-stacks that :func:`build_plan` would\n    convert when asked to (``convert=True``)."
     },
     "spacr.channel_sorting.SortPlan.n_sets": {
       "source_blocks_sha256": [
@@ -5988,10 +5990,11 @@
         "f011c1f5a9daa343616645b60eb89f588c990bbc270384ae28621846dc27a5a1",
         "f4e6a46f4fba0f5d82c2a794dddbd6efd63779d65a04e2552f6201b4286570d8",
         "d5ec331991d19d64869eb3b1a422dd5c23c09f03def5404e799d913e04c4091e",
+        "ea3bd380a00d79b11341a3863a9d3b4ab4d88d1ecdd52bf5eb716a8d9f768202",
         "a89332de24fb787ed65f2d099a9ffcd11684ed342db68c883cd7117062eaf1cd"
       ],
-      "source_sha256": "2e27cfb8861e49765fe19c9d51ba56f05e3ca8bfa2684d624e8be12a69993dd3",
-      "text": "Decide every move, name and check before anything is touched.\n\n:param folder: the image folder.\n:param sets: ``{set key: {channel: name}}``, complete sets only.\n:param masks_dir: an explicit masks folder.\n:param mask_roles: ``{channel: role}``; ``None`` guesses\n    (:func:`default_mask_roles`); a channel missing from it, or given\n    ``\"none\"``, has its masks moved but not merged.\n:param dest: the new folder; default ``<folder>/sorted_channels``.\n:param check_shapes: read each image's and mask's size and refuse a set\n    whose images differ in size, a mask that is not its image's size or\n    an image that is not 2-D.\n:returns: a :class:`SortPlan`."
+      "source_sha256": "2a450af570bab49d1ea619f21f07db28cddd21d6d302fee40ac695bf521f15cb",
+      "text": "Decide every move, name and check before anything is touched.\n\n:param folder: the image folder.\n:param sets: ``{set key: {channel: name}}``, complete sets only.\n:param masks_dir: an explicit masks folder.\n:param mask_roles: ``{channel: role}``; ``None`` guesses\n    (:func:`default_mask_roles`); a channel missing from it, or given\n    ``\"none\"``, has its masks moved but not merged.\n:param dest: the new folder; default ``<folder>/sorted_channels``.\n:param check_shapes: read each image's and mask's size and refuse a set\n    whose images differ in size, a mask that is not its image's size or\n    an image that is not 2-D.\n:param convert: write RGB images as grey and z-stacks as their maximum\n    projection instead of refusing them; without it they are listed in\n    :attr:`SortPlan.convertible` so the caller can ask.\n:returns: a :class:`SortPlan`."
     },
     "spacr.channel_sorting.canonical_well": {
       "source_blocks_sha256": [
@@ -72400,10 +72403,11 @@
     "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.prepare_plan": {
       "source_blocks_sha256": [
         "2bd52c6680719917979df604164efe23969826ecfdf7206e86fe0d994842e2f8",
+        "4b415e01f3f299799068a41ac06a10ee2360d49c1a4b92b6bdb25780831a1da7",
         "ee34f95d670f4acd170c298e14397d489fa5f0d5a88dcac9588072f9106ba6f9"
       ],
-      "source_sha256": "c73acf72eead0e6bf3252b48e48ddbead175baaa94da9084ec9d52cc0bb0c0f6",
-      "text": "Build the plan from the current sets, or None when there are none.\n\n:returns: the plan, which may still carry problems."
+      "source_sha256": "b1050511b7763467d507fd735090e090bb95f30fdda4014b734468a7fe2258c1",
+      "text": "Build the plan from the current sets, or None when there are none.\n\n:param convert: convert RGB images and z-stacks to one plane.\n:returns: the plan, which may still carry problems."
     },
     "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.refresh": {
       "source_blocks_sha256": [

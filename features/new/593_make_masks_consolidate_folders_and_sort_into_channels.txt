@@ -142,3 +142,16 @@ For the maintainer to confirm:
 
 Left: no translation rows yet for the new captions (next catalog rebuild);
 no real-data run on the maintainer's folder.
+
+2026-09-28 (evening) -- maintainer's decisions, and the conversion prompt.
+Confirmed as built: output in <folder>/sorted_channels/; incomplete or
+duplicated sets block Apply and send the user to the regex window; mask roles
+are guessed from names and editable. Changed: RGB images and z-stacks are no
+longer simply refused. build_plan lists them in SortPlan.convertible and the
+dialog asks "Convert RGB images and z-stacks?"; on yes RGB becomes grey (mean
+of its colours, same dtype) and a z-stack its maximum projection, written as
+TIFF through tiff_io.write_tiff, with the original moved to
+sorted_channels/originals/ and the manifest status "converted rgb" or
+"converted zstack". Tested in test_593 (RGB PNG plus a 3-plane TIFF).
+Left: a run on a real folder by the maintainer; translation rows follow the
+next catalog rebuild.

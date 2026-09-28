@@ -369,3 +369,36 @@ def test_regex_strategy_end_to_end(tmp_path):
     wells = sorted(os.path.basename(p).split("_")[1] for p in result.merged)
     assert wells == ["B02", "B03"]
     assert np.load(result.merged[0]).shape == (8, 8, 3)
+
+
+def test_rgb_and_zstack_images_are_listed_then_converted_when_asked(tmp_path):
+    """Refused by default but listed; converted to one plane on request."""
+    from PIL import Image
+
+    folder = tmp_path / "field"
+    folder.mkdir()
+    rgb = np.zeros((20, 30, 3), np.uint8)
+    rgb[..., 0], rgb[..., 1], rgb[..., 2] = 30, 60, 90
+    Image.fromarray(rgb).save(folder / "s1_rgb.png")
+    stack = np.stack([np.full((20, 30), v, np.uint16) for v in (5, 50, 9)])
+    _tif(folder / "s1_z.tif", stack)
+    sets = {(("set", "000001"),): {1: "s1_rgb.png", 2: "s1_z.tif"}}
+
+    refused = cs.build_plan(str(folder), sets)
+    assert not refused.ok
+    assert sorted(refused.convertible) == ["s1_rgb.png", "s1_z.tif"]
+
+    plan = cs.build_plan(str(folder), sets, convert=True)
+    assert plan.ok, plan.problems
+    assert {r.convert for r in plan.rows} == {"rgb", "zstack"}
+    cs.apply_plan(plan, merge=False, log=lambda _t: None)
+    by_channel = {r.channel: r.target_image for r in plan.rows}
+    grey = tifffile.imread(by_channel[1])
+    assert grey.shape == (20, 30) and grey.dtype == np.uint8 and int(grey[0, 0]) == 60
+    projected = tifffile.imread(by_channel[2])
+    assert projected.shape == (20, 30) and int(projected[0, 0]) == 50
+    kept = sorted(os.listdir(os.path.join(plan.dest, "originals")))
+    assert kept == ["s1_rgb.png", "s1_z.tif"]
+    with open(os.path.join(plan.dest, cs.MANIFEST_NAME), encoding="utf-8") as handle:
+        statuses = {row["status"] for row in csv.DictReader(handle)}
+    assert {"converted rgb", "converted zstack"} <= statuses

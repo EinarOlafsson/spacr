@@ -2632,7 +2632,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 19,542 -> 19,672 on 2026-09-28, +130 / -0: the parameters of item
     # 593's 58 new callables (folder_consolidation, channel_sorting and
     # qt.widgets.channel_sort_dialog); no existing signature changed.
-    assert sum(len(item.parameters) for item in callables) == 19_672
+    # 593, 2026-09-28: +4 for the RGB/z-stack conversion (build_plan and
+    # prepare_plan take convert; PlanRow.convert, SortPlan.convertible).
+    assert sum(len(item.parameters) for item in callables) == 19_676
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2830,7 +2832,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # of spacr.channel_sorting, spacr.folder_consolidation and
     # spacr.qt.widgets.channel_sort_dialog restores bafdafefba5a... byte for
     # byte; no existing row changed.
-) == "b2512740681bac9b607ec3b9bf9102a71b225d62184891e3bb99029d4e974757"
+) == "bd5124b7ab2fbb48d73de7b14fd4d78617b4ead2f1e77a5d98fab7fbf845443e"
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing

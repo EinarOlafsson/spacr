@@ -597,16 +597,37 @@ class ChannelSortDialog(QDialog):
                 for channel, box in self._role_boxes.items()
                 if box.currentData() in cs.MASK_ROLES}
 
-    def prepare_plan(self) -> Optional[cs.SortPlan]:
+    def prepare_plan(self, convert: bool = False) -> Optional[cs.SortPlan]:
         """Build the plan from the current sets, or None when there are none.
 
+        :param convert: convert RGB images and z-stacks to one plane.
         :returns: the plan, which may still carry problems.
         """
         sets, _text = self.current_sets()
         if not sets:
             return None
         return cs.build_plan(self.folder, sets, masks_dir=self.masks_dir,
-                             mask_roles=self.mask_roles())
+                             mask_roles=self.mask_roles(), convert=convert)
+
+    def _ask_to_convert(self, plan: cs.SortPlan) -> bool:
+        """Ask whether RGB images and z-stacks should be converted.
+
+        :param plan: a plan whose ``convertible`` list is not empty.
+        :returns: whether the user said yes (always False headless).
+        """
+        shown = "\n".join(plan.convertible[:8])
+        more = len(plan.convertible) - 8
+        if more > 0:
+            shown += "\n" + tr("…and {n} more", n=more)
+        question = tr(
+            "{n} image(s) are not a single grey plane:\n{names}\n\nConvert "
+            "them? RGB images become grey (the mean of their colours) and "
+            "z-stacks become their maximum projection. The originals are kept "
+            "in originals/ of the sorted folder.",
+            n=len(plan.convertible), names=shown)
+        return (not _headless() and QMessageBox.question(
+            self, tr("Convert RGB images and z-stacks?"),
+            question) == QMessageBox.Yes)
 
     def _open_regex_window(self) -> bool:
         """Open the regex window and take what it returns.
@@ -642,6 +663,8 @@ class ChannelSortDialog(QDialog):
             if self.open_regex_window():
                 self._on_apply()
             return
+        if plan.convertible and self._ask_to_convert(plan):
+            plan = self.prepare_plan(convert=True)
         if not plan.ok:
             if not _headless():
                 QMessageBox.warning(self, tr("Cannot sort"), plan.summary())

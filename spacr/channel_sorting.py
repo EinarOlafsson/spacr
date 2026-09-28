@@ -144,6 +144,52 @@ def mask_for(folder: str, name: str,
     return path if os.path.isfile(path) else None
 
 
+def _plane_conversion(shape: Optional[Tuple[int, ...]]) -> Optional[str]:
+    """How an image that is not one 2-D plane could become one.
+
+    :param shape: the image's shape from :func:`image_shape`.
+    :returns: ``"rgb"`` for ``(H, W, 3|4)`` (converted to grey by the mean of
+        its colours), ``"zstack"`` for any other 3-D shape (converted by a
+        maximum projection over the first axis), None for a 2-D plane or a
+        shape that cannot be converted.
+    """
+    if shape is None or len(shape) != 3:
+        return None
+    return "rgb" if shape[-1] in (3, 4) else "zstack"
+
+
+def _converted_shape(shape: Tuple[int, ...], kind: Optional[str]) -> Tuple[int, ...]:
+    """The 2-D shape an image has after :func:`_convert_plane`.
+
+    :param shape: the image's shape.
+    :param kind: ``"rgb"``, ``"zstack"`` or None.
+    :returns: the shape after conversion (unchanged when ``kind`` is None).
+    """
+    if kind == "rgb":
+        return tuple(shape[:2])
+    if kind == "zstack":
+        return tuple(shape[1:])
+    return tuple(shape)
+
+
+def _convert_plane(array: np.ndarray, kind: str) -> np.ndarray:
+    """Turn an RGB image or a z-stack into one 2-D plane.
+
+    RGB (and RGBA, whose alpha is dropped) becomes the mean of its colours in
+    the original dtype; a z-stack becomes its maximum projection.
+
+    :param array: the image's pixels, singleton axes already squeezed.
+    :param kind: ``"rgb"`` or ``"zstack"``.
+    :returns: a 2-D array.
+    """
+    if kind == "rgb":
+        colours = array[..., :3].astype(np.float64).mean(axis=-1)
+        if np.issubdtype(array.dtype, np.integer):
+            return np.round(colours).astype(array.dtype)
+        return colours.astype(array.dtype)
+    return array.max(axis=0)
+
+
 def image_shape(path: str) -> Optional[Tuple[int, ...]]:
     """Read an image's pixel shape from its header, without its pixels.
 
@@ -1085,6 +1131,8 @@ class PlanRow:
     :ivar target_mask: where the mask goes, or None.
     :ivar source_ledger: the mask's ``.curation.json``, or None.
     :ivar target_ledger: where the ledger goes, or None.
+    :ivar convert: ``"rgb"`` or ``"zstack"`` when the image is written as one
+        converted 2-D plane (the original is kept under ``originals/``).
     """
 
     channel: int
@@ -1096,6 +1144,7 @@ class PlanRow:
     target_mask: Optional[str] = None
     source_ledger: Optional[str] = None
     target_ledger: Optional[str] = None
+    convert: Optional[str] = None
 
 
 @dataclass
@@ -1109,6 +1158,8 @@ class SortPlan:
     :ivar mask_roles: ``{channel: role}`` for channels whose masks are merged.
     :ivar problems: reasons the plan cannot be applied.
     :ivar warnings: things the user should know before it is.
+    :ivar convertible: RGB images and z-stacks that :func:`build_plan` would
+        convert when asked to (``convert=True``).
     """
 
     folder: str
@@ -1116,6 +1167,7 @@ class SortPlan:
     rows: List[PlanRow] = field(default_factory=list)
     channels: List[int] = field(default_factory=list)
     mask_roles: Dict[int, str] = field(default_factory=dict)
+    convertible: List[str] = field(default_factory=list)
     problems: List[str] = field(default_factory=list)
     warnings: List[str] = field(default_factory=list)
 
@@ -1203,7 +1255,8 @@ def build_plan(folder: str, sets: Dict[SetKey, Dict[int, str]], *,
                masks_dir: Optional[str] = None,
                mask_roles: Optional[Dict[int, str]] = None,
                dest: Optional[str] = None,
-               check_shapes: bool = True) -> SortPlan:
+               check_shapes: bool = True,
+               convert: bool = False) -> SortPlan:
     """Decide every move, name and check before anything is touched.
 
     :param folder: the image folder.
@@ -1216,6 +1269,9 @@ def build_plan(folder: str, sets: Dict[SetKey, Dict[int, str]], *,
     :param check_shapes: read each image's and mask's size and refuse a set
         whose images differ in size, a mask that is not its image's size or
         an image that is not 2-D.
+    :param convert: write RGB images as grey and z-stacks as their maximum
+        projection instead of refusing them; without it they are listed in
+        :attr:`SortPlan.convertible` so the caller can ask.
     :returns: a :class:`SortPlan`.
     """
     plan = SortPlan(folder=folder,
@@ -1273,6 +1329,13 @@ def build_plan(folder: str, sets: Dict[SetKey, Dict[int, str]], *,
                 lacking[channel] += 1
             if check_shapes:
                 shape = image_shape(source)
+                kind = _plane_conversion(shape)
+                if kind:
+                    plan.convertible.append(image)
+                    if convert:
+                        row.convert = kind
+                        row.target_image = split_extension(target)[0] + ".tif"
+                        shape = _converted_shape(shape, kind)
                 set_shapes[image] = shape
                 if shape is None:
                     plan.problems.append(f"{image} cannot be read.")
@@ -1320,6 +1383,38 @@ class ApplyResult:
 
 MANIFEST_COLUMNS = ("kind", "channel", "plate", "well", "field", "time",
                     "set", "original_path", "new_path", "status", "error")
+
+
+def _write_converted(source: str, target: str, kind: str, dest: str) -> None:
+    """Write ``source`` as one converted 2-D plane, then keep the original.
+
+    The original is moved to ``<dest>/originals/`` rather than deleted, so a
+    conversion can always be checked against what it came from.
+
+    :param source: the RGB image or z-stack.
+    :param target: the TIFF to write.
+    :param kind: ``"rgb"`` or ``"zstack"``.
+    :param dest: the sort's output folder.
+    :raises OSError: when the image cannot be read or written.
+    """
+    from .tiff_io import write_tiff
+
+    try:
+        if source.lower().endswith((".tif", ".tiff")):
+            import tifffile
+
+            array = tifffile.imread(source)
+        else:
+            from PIL import Image
+
+            with Image.open(source) as image:
+                array = np.asarray(image)
+    except Exception as exc:
+        raise OSError(f"cannot read {source}: {exc}") from exc
+    write_tiff(target, _convert_plane(np.squeeze(np.asarray(array)), kind))
+    originals = os.path.join(dest, "originals")
+    os.makedirs(originals, exist_ok=True)
+    shutil.move(source, os.path.join(originals, os.path.basename(source)))
 
 
 def apply_plan(plan: SortPlan, *, merge: bool = True,
@@ -1370,14 +1465,19 @@ def apply_plan(plan: SortPlan, *, merge: bool = True,
             place = row.name
             base = [kind, row.channel, place.plate, place.well, place.field,
                     place.time, set_label(row.set_key), source, target]
+            status = "moved"
             try:
                 os.makedirs(os.path.dirname(target), exist_ok=True)
-                shutil.move(source, target)
+                if kind == "image" and row.convert:
+                    _write_converted(source, target, row.convert, plan.dest)
+                    status = f"converted {row.convert}"
+                else:
+                    shutil.move(source, target)
             except OSError as exc:
                 writer.writerow(base + ["error", str(exc)])
                 handle.flush()
                 raise
-            writer.writerow(base + ["moved", ""])
+            writer.writerow(base + [status, ""])
             handle.flush()
             result.moved += 1
             if (index + 1) % 50 == 0:
