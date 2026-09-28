@@ -3925,6 +3925,10 @@ expected_types = {
     'image_qc_max_saturation':dict,
     'image_qc_saturation_level':dict,
     'image_qc_max_nonfinite':float,
+    'image_qc_classifier':bool,
+    'image_qc_classifier_model':(str, type(None)),
+    'image_qc_classifier_labels':(str, type(None)),
+    'image_qc_classifier_threshold':(int, float),
     "seg_qc_min_objects":int,
     "robustness_report": bool,
     "robustness_fields": int,
@@ -4523,6 +4527,10 @@ tooltips = {
     'image_qc_max_saturation': '(dict) - Largest allowed saturated-pixel fraction by channel, for example {2: 0.01}. Values range from 0 to 1. Saturation uses the acquisition level or integer dtype ceiling, never the brightest observed pixel. Empty disables saturation exclusions. Default {}.',
     'image_qc_saturation_level': '(dict) - Acquisition saturation level by channel, for example {0: 4095, 2: 65535}. Set 4095 for a 12-bit detector stored in uint16. Missing integer levels use the dtype ceiling; floating images require an explicit level if saturation exclusion is enabled. Default {}.',
     'image_qc_max_nonfinite': '(float) - Maximum fraction of NaN or infinite pixels allowed per screened channel. Exceeding it flags the field; exclusion occurs only in exclude mode. Range 0-1; default 0.',
+    'image_qc_classifier': '(bool) - Also screen each field with a small neural network that flags out-of-focus, saturated, debris-covered, bubble and empty fields, alongside the focus and saturation rules. Flags go into the image-quality report with a probability per class; in exclude mode a flagged field is kept out of segmentation like any other. Runs on the CPU. The built-in model is trained once on synthetic fields with planted defects and cached. Ignored when image_qc_mode is off. Default False.',
+    'image_qc_classifier_model': '(str or None) - A classifier saved by an earlier run (qc/image_qc_model.pt) to use instead of the built-in one. It is read as tensors only. Blank uses the built-in model. Default None.',
+    'image_qc_classifier_labels': '(str or None) - Table of hand-labelled fields to fine-tune the classifier on, with a field column (the raw file name) and a label column: good, or out_of_focus, saturated, debris, bubble or empty, several separated by semicolons; an optional channel column picks the channel. With 10 or more fields, cross-validated precision and recall against the rule metrics go to qc/image_qc_benchmark.csv; the tuned model is saved as qc/image_qc_model.pt. Default None.',
+    'image_qc_classifier_threshold': '(float) - Smallest class probability, from 0 to 1, at which the classifier flags a field. Raise it to flag fewer fields, lower it to miss fewer defects. Default 0.5.',
     "seg_qc": "(str) - Segmentation quality control performed when masks are written, before measurement. 'off' skips scoring; 'report' scores every field, writes qc/segmentation_qc_<object>.csv, and displays detected quality issues; 'flag' also writes per-field JSON for downstream processing; 'stop' raises when the plate verdict is 'fail', after writing the scorecard. No mode deletes or omits a field, and 'stop' does not raise for a 'warn' verdict. Default 'report'.",
     "robustness_report": "(bool) - After the masks are made, re-segment a few sampled fields with the diameter, the flow and cell-probability thresholds and contrast enhancement each moved a little, and report how much the object count, median area, mean object intensity and the objects themselves change. Settings whose results move more than robustness_tolerance are flagged fragile. Writes qc/segmentation_robustness_<object>.csv and a heatmap. Two-dimensional Cellpose-SAM runs only. Default False.",
     "robustness_fields": "(int) - How many fields the robustness report samples at random (seeded by random_seed) and re-segments at every grid point. More fields give a steadier verdict; each field costs one segmentation per grid point. Default 4.",
@@ -5452,7 +5460,9 @@ categories = {
                           "enhance_sharpen_amount"],
 
     "Image Quality": ['image_qc_mode', 'image_qc_channels', 'image_qc_min_focus',
-                      'image_qc_max_saturation', 'image_qc_saturation_level', 'image_qc_max_nonfinite'],
+                      'image_qc_max_saturation', 'image_qc_saturation_level', 'image_qc_max_nonfinite',
+                      'image_qc_classifier', 'image_qc_classifier_model',
+                      'image_qc_classifier_labels', 'image_qc_classifier_threshold'],
 
     "Cellpose 3": ["cellpose3_add_nucleus_channel", "cellpose3_size_model", "cellpose3_resample", "cellpose3_augment", "cellpose3_percentile_low", "cellpose3_percentile_high"],
 
@@ -7367,6 +7377,11 @@ ALPHA_FEATURES = {
                      'robustness_flow_thresholds',
                      'robustness_cellprob_thresholds',
                      'robustness_enhancement', 'robustness_tolerance'),
+    },
+    559: {
+        'settings': ('image_qc_classifier', 'image_qc_classifier_model',
+                     'image_qc_classifier_labels',
+                     'image_qc_classifier_threshold'),
     },
     582: {
         'widgets': ('PluginCatalogueHelp', 'PluginCatalogueSource',
