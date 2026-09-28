@@ -363,6 +363,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # image-quality classifier, appended to the Image Quality category.
     "image_qc_classifier", "image_qc_classifier_model",
     "image_qc_classifier_labels", "image_qc_classifier_threshold",
+    # NEW SETTINGS, not a regrouping (item 564, 2026-09-28): the generative
+    # counterfactuals, appended to the Activation Maps category.
+    "counterfactuals", "counterfactual_crops", "counterfactual_epochs",
     "plaque_pixels_per_um", "plaque_formation_hours", "plaque_estimate_growth",
     "plaque_growth_reference_um", "plaque_growth_reference_hours",
     "replication_method", "tta_enabled", "tta_rotations", "tta_horizontal_flip",
@@ -810,6 +813,10 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # measurement on a CUDA GPU, under its own "GPU Measurement (Alpha)"
     # heading.
     "measure_gpu",
+    # NEW SETTINGS, not a regrouping (item 576, 2026-09-28): a DuckDB,
+    # Parquet or PostgreSQL copy of the measurements, under their own
+    # "Measurement Backend (Alpha)" heading.
+    "measurement_backend", "measurement_backend_target",
     # A NEW SETTING GROUP, not a regrouping (item 537, 2026-09-27): lineage
     # trees from the tracker's division links, appended to the Timelapse
     # category and shown under "Lineage Trees (Alpha)" on the Timelapse app.
@@ -1603,6 +1610,9 @@ def _rendered_sections(app_key):
             # Item 566, 2026-09-27: GPU measurement computes the features
             # above on the device, as an Alpha heading of its own.
             "GPU Measurement (Alpha)",
+            # Item 576, 2026-09-28: the measurement backend copies the
+            # tables the features above filled, as an Alpha heading.
+            "Measurement Backend (Alpha)",
             # Item 536, 2026-09-26: wound closure follows confluency, whose
             # texture and intensity methods it builds on.
             "Wound Closure (Alpha)",
@@ -1695,7 +1705,9 @@ def _rendered_sections(app_key):
         ]),
         ("activation", [
             "Model & Data", "Attribution Method", "Attribution Validation",
-            "Map Display", "Map Quantification", "Output & Runtime",
+            "Map Display", "Map Quantification",
+            # item 564 (2026-09-28): alpha-only heading, hidden with the gate.
+            "Counterfactuals", "Output & Runtime",
         ]),
         ("replication", [
             "Replication Method", "Assay Inputs", "Size Proxy (Legacy)",

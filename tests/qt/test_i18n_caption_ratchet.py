@@ -1168,6 +1168,9 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 579, 2026-09-27: the Report screen's Deposit on Zenodo button and form.
 # 316, 2026-09-27: all 76 resolved through their explicit owners.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    # 576, 2026-09-28: the Measurement Backend (Alpha) category help on
+    # Measure.
+    "Copies a finished run's measurements into DuckDB or Parquet for very large screens, or into PostgreSQL for labs that share one server. measurements.db stays the working copy.",
     # 558, 2026-09-27: the Cellpose workbench's Virtual staining button
     # (alpha).
     'Virtual staining…',

@@ -64,7 +64,8 @@ BUILT = re.compile(r"\b(built|implemented|done)\b", re.IGNORECASE)
 # Settings-only screens that are not in the module registry but render a form.
 # anndata_export (581's table export settings) is the page folded into Measure.
 # ops carries 554's Spotiflow entry of ops_spot_detector.
-EXTRA_SETTINGS_HOSTS = ("timelapse", "anndata_export", "ops")
+# activation carries 564's counterfactual settings (Activation Maps).
+EXTRA_SETTINGS_HOSTS = ("timelapse", "anndata_export", "ops", "activation")
 
 
 @pytest.fixture
