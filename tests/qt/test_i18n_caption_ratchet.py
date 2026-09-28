@@ -374,7 +374,7 @@ EXTERNAL_SOURCE_COUNTS = {
     # tooltip says nothing about the settings under it, which costs the
     # reader the hover and tells them nothing. 201 -> 200 on 2026-09-11
     # with `save_to_db`, whose help text was one of them.
-    "CATEGORY_HELP": 229,
+    "CATEGORY_HELP": 230,
     # 2,988 -> 3,291 on 2026-09-14, and reviewed record by record against
     # 49c1189f7, where every count in this dict still reproduces exactly.
     # +304 / -1, NOT a flat +303: the four other tables did not move at all,
@@ -480,7 +480,7 @@ EXTERNAL_SOURCE_COUNTS = {
     # plus the product names DINOCell/SAMCell arrive; five old tooltips leave.
     # Every new prose row has a reviewed record in each of the nine locales.
     # The runtime pass preserved every pre-existing translated value.
-    "UI": 6015,
+    "UI": 6017,
     "MODULE_SUMMARIES": 72,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
@@ -583,6 +583,8 @@ EXTERNAL_SOURCE_COUNTS = {
 # 6408b9e46d4b7478430257a6f632bbb12ec43a279df807213c4433b8e37d6a72, the
 # previous pin byte for byte.
 EXTERNAL_SOURCE_KEY_SHA256 = (
+    # Mask cloud category: Cloud heading (+1 UI), its curated help
+    # (+1 UI and +1 CATEGORY_HELP), and no removed identities.
     # 418: 0f21cbfb3's English identities reproduce the previous pin exactly:
     # b4d1896bbc1135f9f4098b3473ac4163d9cf36bf3d58c7447daeb652dacf725f.
     # The +32/-84 identities named above gave 476736243f...a5ac.
@@ -590,7 +592,7 @@ EXTERNAL_SOURCE_KEY_SHA256 = (
     # EXTERNAL_SOURCE_COUNTS give this current source digest.
     # 47: one reviewed UI arrival, "Checking compatible GPUs…", no removals.
     # Exact subtraction reproduces the preceding 5a560d33...ef0091b pin.
-    '994a29a242b8f2e8d9217be68334e45bbebd1e7435ba6d23434d8b943ce82fb1'
+    '3d8b79fa2c4cded37fae3cf4e0302980b675b859d902b44b3a8d6322c16e319b'
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the

@@ -1171,16 +1171,18 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
     ),
     "mask": (
         ("Input & Metadata", (
-            "src", "cloud_anonymous", "cloud_profile", "cloud_endpoint",
-            "cloud_cache", "cloud_wells", "cloud_fields", "cloud_level",
-            "cloud_results",
-            "cell_channel", "nucleus_channel", "pathogen_channel",
+            "src", "cell_channel", "nucleus_channel", "pathogen_channel",
             NUMBER_OF_ORGANELLES,
             "organelle_channel",
             *(f"{role}_channel" for role in ALL_ORGANELLE_ROLES[1:]),
             "segmentation_backend",
             "channels", "magnification",
             "metadata_type", "custom_regex",
+        )),
+        ("Cloud", (
+            "cloud_anonymous", "cloud_profile", "cloud_endpoint",
+            "cloud_cache", "cloud_wells", "cloud_fields", "cloud_level",
+            "cloud_results",
         )),
         ("Workflow & Test Run", (
             "preprocess", "masks", "test_mode", "test_images", "resume",
@@ -2892,6 +2894,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "reads plate, well and field out of the file names. Nothing "
         "segments correctly until the channel assignment and the naming "
         "convention here are right.",
+    "CLOUD":
+        "Cloud storage access, local cache, selected wells and fields, image "
+        "resolution, and result uploads. Use these settings when the source "
+        "is a remote storage address.",
     "WORKFLOW & TEST RUN":
         "Select the stages to execute, enable a small test run over a subset "
         "of fields, and configure resumption after interruption. Validate a "
