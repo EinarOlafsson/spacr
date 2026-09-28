@@ -1181,6 +1181,14 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # buttons, their prompts and console lines, and the channel-sort dialog,
 # regex window and example-sets check (spacr/qt/widgets/channel_sort_dialog.py).
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    # 595: Measure's QC popup and its regrouped category blurbs.
+    'Choose the plate folder in src to read the segmentation QC its mask run wrote.',
+    'Click to open the segmentation QC the mask run wrote for this plate: the verdict, the wells it flags and the likely cause. It is advisory and never stops Measure from running.',
+    'Read the plate straight from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Leave it alone for a plate on local disk.',
+    'The folder holding the masked images, the experiment name the measurements are filed under, and the small test run and plots used to check a configuration before committing to a whole plate.',
+    'What happens around and after the measurement: how the run recovers from failures and how many workers it uses, profiling of the finished tables, and copying them to a database backend.',
+    'What is done to the pixels of each field before a single feature is measured -- bleach, spectral and illumination correction, deconvolution with a point spread function and cross-plate intensity calibration -- and which barcode links each plate to its plate map. The masks are not changed.',
+    'Which families of measurement are computed for every object -- intensity, morphology, texture, radial distribution and colocalisation -- and the assays read from them, such as confluency, cell cycle, wound closure, viability and time to event. More features means a wider table and a longer run.',
     # Incoming 557/561 captions remain pending source-bound review.
     # 593: consolidate folders and sort into channels.
     'A folder job is still running.',

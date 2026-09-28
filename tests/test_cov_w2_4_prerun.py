@@ -25,7 +25,7 @@ import pytest
 pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QEvent
-from PySide6.QtWidgets import QLabel, QLineEdit, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QLabel, QLineEdit, QHBoxLayout, QVBoxLayout, QWidget
 
 from spacr.qt import prerun
 
@@ -65,6 +65,7 @@ class _Screen(QWidget):
             self._runtime_wrap = QWidget(self)
             QVBoxLayout(self._runtime_wrap)
             self._actions_row = QWidget(self._runtime_wrap)
+            QHBoxLayout(self._actions_row)
             self._runtime_wrap.layout().addWidget(self._actions_row)
 
     def _apply_value(self, widget, value):
@@ -935,25 +936,31 @@ def test_use_all_with_nothing_usable_says_nothing_new(diameter, tmp_path):
 def test_a_screen_with_no_anchors_cannot_carry_a_panel(qtbot):
     screen = _Screen(with_anchors=False)
     qtbot.addWidget(screen)
-    assert prerun._insert_above_actions(screen, QWidget()) is False
+    assert prerun._insert_before_dimension_switches(screen, QWidget()) is False
 
 
-def test_a_runtime_panel_with_no_layout_cannot_carry_a_panel(qtbot):
+def test_an_action_row_with_no_layout_cannot_carry_a_panel(qtbot):
     screen = _Screen()
     qtbot.addWidget(screen)
-    screen._runtime_wrap = QWidget(screen)          # no layout on it
-    assert prerun._insert_above_actions(screen, QWidget()) is False
+    screen._actions_row = QWidget(screen)          # no layout on it
+    assert prerun._insert_before_dimension_switches(screen, QWidget()) is False
 
 
-def test_the_banner_goes_immediately_above_the_run_row(qtbot):
+def test_the_qc_switch_goes_left_of_the_dimension_switches(qtbot):
     screen = _Screen(widgets={"src": _src_field("")})
     qtbot.addWidget(screen)
+    row = screen._actions_row.layout()
+    run, z_switch, t_switch = QWidget(), QWidget(), QWidget()
+    for widget in (run, z_switch, t_switch):
+        row.addWidget(widget)
+    screen.dimension_switch = {"z": z_switch, "t": t_switch}.get
 
     banner = prerun.install_qc_banner(screen, reader=lambda src: _Digest())
 
     assert banner is not None
-    layout = screen._runtime_wrap.layout()
-    assert layout.indexOf(banner) == layout.indexOf(screen._actions_row) - 1
+    assert row.indexOf(screen._seg_qc_toggle) == row.indexOf(z_switch) - 1
+    assert row.indexOf(banner) < 0
+    assert prerun._qc_dialog(screen).isAncestorOf(banner)
     # Installing twice hands back the one that is already there.
     assert prerun.install_qc_banner(screen) is banner
 

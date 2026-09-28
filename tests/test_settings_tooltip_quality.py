@@ -1150,11 +1150,15 @@ def test_inapplicable_real_defaults_always_explain_which_setting_gated_them():
     # in either case.
     # 48 -> 50 on 2026-09-28, item 539: bleach_correction is gated on
     # timelapse in Measure and External Masks, and its reason names it.
-    assert len(witnessed) == 50
+    # 50 -> 76 on 2026-09-28, item 595: the thirteen time_to_event settings
+    # are gated on timelapse wherever both are shown (Measure and External
+    # Masks), and every reason names it.
+    assert len(witnessed) == 76
     # 35 -> 34 with it: `load_path_regex` was witnessed in exactly one app,
     # so the pair count and the distinct-key count fall by one together.
     # 34 -> 35 with it: bleach_correction is one new distinct key.
-    assert len({key for _app, key in witnessed}) == 35
+    # 35 -> 48 with item 595: thirteen new distinct keys.
+    assert len({key for _app, key in witnessed}) == 48
     assert not failures
 
 

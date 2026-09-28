@@ -3232,12 +3232,12 @@ class AppScreen(QWidget):
             ``None`` when one of them would have no heading on this screen.
         """
         from .settings_model import (_APP_HIDDEN_CATEGORIES,
-                                     _shared_category_parents,
+                                     _category_parents,
                                      categories_for_app, get_categories)
 
         cats = categories_for_app(self.app_key, get_categories())
         hidden = _APP_HIDDEN_CATEGORIES.get(self.app_key, set())
-        parents = _shared_category_parents()
+        parents = _category_parents(self.app_key)
         fresh = set(wanted)
         placed = set()
         out = []
@@ -3371,7 +3371,7 @@ class AppScreen(QWidget):
         :param split: the categories drawn with a sub-heading per object.
         :returns: the new heading.
         """
-        from .settings_model import (SettingsSection, _shared_category_parents,
+        from .settings_model import (SettingsSection, _category_parents,
                                      _split_rows_by_object,
                                      categories_for_app, get_categories)
 
@@ -3384,7 +3384,7 @@ class AppScreen(QWidget):
             spec = SettingsSection(title, rows)
         section = self._build_settings_section(spec)
         order = list(categories_for_app(self.app_key, get_categories()))
-        parents = _shared_category_parents()
+        parents = _category_parents(self.app_key)
         rank = {}
         for index, name in enumerate(order):
             rank.setdefault(name, index)

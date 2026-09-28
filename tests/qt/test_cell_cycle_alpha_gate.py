@@ -67,7 +67,7 @@ def test_the_measure_form_hides_and_shows_the_cell_cycle_settings(qtbot,
         assert prefs._is_alpha_visible("settings", "cell_cycle") is False
         assert not any(screen.setting_row_is_visible(k) for k in KEYS)
         assert _heading(screen, "Cell Cycle (Alpha)").isHidden()
-        assert not _heading(screen, "Measurement Features").isHidden()
+        assert not _heading(screen, "Features").isHidden()
         assert screen.setting_row_is_visible("radial_dist")
         if bar is not None:
             assert not set(KEYS) & set(bar.indexed_keys())

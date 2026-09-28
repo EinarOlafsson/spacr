@@ -69,7 +69,7 @@ def test_the_measure_form_hides_and_shows_the_time_to_event_settings(
         assert prefs._is_alpha_visible("settings", "time_to_event") is False
         assert not any(screen.setting_row_is_visible(k) for k in KEYS)
         assert _heading(screen, "Time To Event (Alpha)").isHidden()
-        assert not _heading(screen, "Measurement Features").isHidden()
+        assert not _heading(screen, "Features").isHidden()
         assert screen.setting_row_is_visible("radial_dist")
         if bar is not None:
             assert not set(KEYS) & set(bar.indexed_keys())
@@ -102,3 +102,25 @@ def test_the_measure_form_hides_and_shows_the_time_to_event_settings(
         retire_pyqtgraph_menus(screen)
         screen.close()
         screen.deleteLater()
+
+
+def test_time_to_event_is_greyed_until_timelapse_is_on(qtbot):
+    """Time to event follows tracks, so it only applies to a timelapse run."""
+    from spacr.qt.screens.settings_model import SettingsWidgets
+    from spacr.settings import categories
+
+    panel = SettingsWidgets("measure")
+    panel.build_sections()
+    for widget in panel._widgets.values():
+        qtbot.addWidget(widget)
+    keys = [key for key in categories["Time To Event (Alpha)"]
+            if key in panel._widgets]
+    assert keys
+
+    assert panel.set_value_for_key("timelapse", False)
+    panel._refresh_setting_dependencies()
+    assert not any(panel._widgets[key].isEnabled() for key in keys)
+
+    assert panel.set_value_for_key("timelapse", True)
+    panel._refresh_setting_dependencies()
+    assert all(panel._widgets[key].isEnabled() for key in keys)

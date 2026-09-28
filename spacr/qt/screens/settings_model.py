@@ -1244,8 +1244,11 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
     ),
     "measure": (
         ("Input & Experiment", (
-            "src", "cloud_anonymous", "cloud_profile", "cloud_endpoint",
-            "cloud_cache", "cloud_results", "experiment",
+            "src", "experiment", "plot", "test_mode", "test_nr",
+        )),
+        ("Cloud (Alpha)", (
+            "cloud_anonymous", "cloud_profile", "cloud_endpoint",
+            "cloud_cache", "cloud_results",
         )),
         ("Mask & Channel Mapping", (
             "channels", "cell_mask_dim", "nucleus_mask_dim",
@@ -1257,6 +1260,9 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "cytoplasm",
             "timelapse", "timelapse_objects",
         )),
+        ("Bleach Correction (Alpha)", ("@Bleach Correction (Alpha)",)),
+        ("Spectral Unmixing (Alpha)", ("@Spectral Unmixing (Alpha)",)),
+        ("Image Deconvolution (PSF)", ("@Point Spread Function",)),
         ("Illumination Correction", (
             "illumination_correction", "illumination_model",
             "illumination_estimator", "illumination_degree",
@@ -1265,10 +1271,10 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_qc", "illumination_on_missing",
             "illumination_vendor_profile",
         )),
-        ("Spectral Unmixing (Alpha)", ("@Spectral Unmixing (Alpha)",)),
-        ("Point Spread Function", ("@Point Spread Function",)),
+        ("Image Enhancement", ("@Image Enhancement",)),
         ("Intensity Calibration (Alpha)", ("@Intensity Calibration (Alpha)",)),
-        ("Measurement Features", (
+        ("Plate Barcode Linkage (Alpha)", ("@Plate Barcode Linkage (Alpha)",)),
+        ("Features", (
             "save_measurements", "calculate_correlation",
             "spatial_measurements",
             "spatial_neighbor_radius",
@@ -1281,14 +1287,11 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Confluency (Alpha)", ("@Confluency (Alpha)",)),
         ("Cell Cycle (Alpha)", ("@Cell Cycle (Alpha)",)),
-        ("Bleach Correction (Alpha)", ("@Bleach Correction (Alpha)",)),
-        ("GPU Measurement (Alpha)", ("@GPU Measurement (Alpha)",)),
-        ("Measurement Backend (Alpha)", ("@Measurement Backend (Alpha)",)),
         ("Wound Closure (Alpha)", ("@Wound Closure (Alpha)",)),
-        ("Time To Event (Alpha)", ("@Time To Event (Alpha)",)),
-        ("Plate Barcode Linkage (Alpha)", ("@Plate Barcode Linkage (Alpha)",)),
         ("Viability (Alpha)", ("@Viability (Alpha)",)),
         ("CellProfiler (Alpha)", ("@CellProfiler (Alpha)",)),
+        ("GPU Measurement (Alpha)", ("@GPU Measurement (Alpha)",)),
+        ("Time To Event (Alpha)", ("@Time To Event (Alpha)",)),
         ("Object Filtering", (
             "uninfected", "cell_min_size", "cell_max_size",
             "cytoplasm_min_size",
@@ -1303,8 +1306,6 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "dialate_pngs", "dialate_png_ratios", "use_bounding_box",
             "normalize", "normalize_by",
         )),
-        ("Profiling (Alpha)", ("@Profiling (Alpha)",)),
-        ("Preview & Diagnostics", ("plot", "test_mode", "test_nr")),
         ("3D Calibration (Beta)", (
             "anisotropy", "voxel_size_z_um", "voxel_size_xy_um",
         )),
@@ -1313,6 +1314,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "on_error_attempts", "on_error_backoff", "random_seed", "dry_run",
             "verbose", "n_jobs",
         )),
+        ("Profiling (Alpha)", ("@Profiling (Alpha)",)),
+        ("Measurement Backend (Alpha)", ("@Measurement Backend (Alpha)",)),
     ),
     "timelapse": (
         ("Input & Metadata", (
@@ -2047,35 +2050,94 @@ def _split_rows_by_object(rows, keys):
     return own, children
 
 
-def _nest_sections(flat) -> List[SettingsSection]:
+#: ``app_key -> {category: the heading it is drawn under}`` for one module.
+#:
+#: The same nesting :data:`spacr.settings.CATEGORY_PARENTS` declares, but for
+#: headings that belong together on ONE screen only. A shared parent would
+#: also split its children by object (``cell_cycle`` reads as a cell
+#: setting) and move the same families on every other module that draws
+#: them. A parent that is itself a category of the layout keeps its own rows
+#: above its children.
+_APP_CATEGORY_PARENTS: Dict[str, Dict[str, str]] = {
+    "measure": {
+        "Cloud (Alpha)": "Input & Experiment",
+        "Bleach Correction (Alpha)": "Image Preprocessing",
+        "Spectral Unmixing (Alpha)": "Image Preprocessing",
+        "Image Deconvolution (PSF)": "Image Preprocessing",
+        "Illumination Correction": "Image Preprocessing",
+        "Image Enhancement": "Image Preprocessing",
+        "Intensity Calibration (Alpha)": "Image Preprocessing",
+        "Plate Barcode Linkage (Alpha)": "Image Preprocessing",
+        "Confluency (Alpha)": "Features",
+        "Cell Cycle (Alpha)": "Features",
+        "Wound Closure (Alpha)": "Features",
+        "Viability (Alpha)": "Features",
+        "CellProfiler (Alpha)": "Features",
+        "GPU Measurement (Alpha)": "Features",
+        "Time To Event (Alpha)": "Features",
+        "Runtime & Reliability": "Postprocessing",
+        "Profiling (Alpha)": "Postprocessing",
+        "Measurement Backend (Alpha)": "Postprocessing",
+    },
+}
+
+
+def _category_parents(app_key: Optional[str] = None) -> Dict[str, str]:
+    """Which heading each category nests under on ``app_key``'s screen.
+
+    The shared nesting of :func:`_shared_category_parents`, overlaid with
+    the module's own :data:`_APP_CATEGORY_PARENTS`.
+
+    :param app_key: the module whose screen is drawn; None gives the shared
+        nesting alone.
+    """
+    parents = _shared_category_parents()
+    parents.update(_APP_CATEGORY_PARENTS.get(str(app_key or ""), {}))
+    return parents
+
+
+def _nest_sections(flat, app_key: Optional[str] = None) -> List[SettingsSection]:
     """Hang each flat section under the parent its category declares.
 
     THE PARENT TAKES THE PLACE OF ITS FIRST CHILD, so the running order of a
     panel is the one its layout wrote. Hoisting the umbrella to the top or
     dropping it to the bottom would move a block of settings the layout
-    deliberately put between two others.
+    deliberately put between two others. A parent that is itself one of the
+    flat sections stays where it is, keeps its own rows and gains the
+    children.
 
     A parent whose children all vanished -- every key hidden, or none
     offered by this module -- is not emitted, the same rule an empty
     category has always followed.
+
+    :param flat: the sections in layout order.
+    :param app_key: the module drawn, for its own nesting.
     """
-    parents = _shared_category_parents()
-    order: List[str] = []
+    parents = _category_parents(app_key)
+    titled = {section.title for section in flat}
     umbrellas: Dict[str, List[SettingsSection]] = {}
     out: List[object] = []
     for section in flat:
         parent = parents.get(section.title)
-        if parent is None:
+        if parent is None or parent == section.title:
             out.append(section)
             continue
         if parent not in umbrellas:
             umbrellas[parent] = []
-            order.append(parent)
-            out.append(parent)
+            if parent not in titled:
+                out.append(parent)
         umbrellas[parent].append(section)
-    return [SettingsSection(item, (), umbrellas[item])
-            if isinstance(item, str) else item
-            for item in out]
+    nested: List[SettingsSection] = []
+    for item in out:
+        if isinstance(item, str):
+            nested.append(SettingsSection(item, (), umbrellas[item]))
+        elif item.title in umbrellas:
+            nested.append(SettingsSection(
+                item.title, item.own_rows,
+                tuple(item.children) + tuple(umbrellas[item.title])))
+        else:
+            nested.append(item)
+    return nested
 
 
 #: Below this many settings a module cannot render as an undifferentiated
@@ -2926,6 +2988,20 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "reads plate, well and field out of the file names. Nothing "
         "segments correctly until the channel assignment and the naming "
         "convention here are right.",
+    "CLOUD (ALPHA)":
+        "Read the plate straight from cloud storage: credentials, endpoint "
+        "and local cache, and the cloud folder the measurements are copied "
+        "to when the run finishes. Leave it alone for a plate on local disk.",
+    "FEATURES":
+        "Which families of measurement are computed for every object -- "
+        "intensity, morphology, texture, radial distribution and "
+        "colocalisation -- and the assays read from them, such as "
+        "confluency, cell cycle, wound closure, viability and time to "
+        "event. More features means a wider table and a longer run.",
+    "POSTPROCESSING":
+        "What happens around and after the measurement: how the run "
+        "recovers from failures and how many workers it uses, profiling of "
+        "the finished tables, and copying them to a database backend.",
     "CLOUD":
         "Cloud storage access, local cache, selected wells and fields, image "
         "resolution, and result uploads. Use these settings when the source "
@@ -3009,19 +3085,14 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "to whichever you pick. Switch backends when cells swap identities "
         "or tracks break at division.",
     "INPUT & EXPERIMENT":
-        "The folder holding the masked images and the experiment name the "
-        "measurements are filed under. Set once at the start of a "
-        "measurement run.",
+        "The folder holding the masked images, the experiment name the "
+        "measurements are filed under, and the small test run and plots "
+        "used to check a configuration before committing to a whole plate.",
     "MASK & CHANNEL MAPPING":
         "Which plane of the stack holds each mask and each intensity "
         "channel, whether a cytoplasm compartment is derived, and whether "
         "the data is a time series. A wrong index here quietly measures the "
         "wrong object, so it is worth checking twice.",
-    "MEASUREMENT FEATURES":
-        "Which families of measurement are computed for every object — "
-        "intensity, morphology, texture, radial distribution and "
-        "colocalisation, with their parameters. More features means a wider "
-        "table and a longer run, so enable what the analysis needs.",
     "OBJECT FILTERING":
         "Which objects are large enough, infected enough or clean enough to "
         "be measured at all. Raise the minimum sizes when debris is being "
@@ -3031,10 +3102,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "— crop mode and size, which channels and masks are included, "
         "dilation, and how they are normalised. These are the images "
         "Annotate and the CV classifier read later.",
-    "PREVIEW & DIAGNOSTICS":
-        "The small test run and the plots used to check a configuration "
-        "before committing to a whole plate. The fastest way to find out "
-        "that a channel index is wrong.",
     "3D CALIBRATION (BETA)":
         "The physical size of a voxel and the anisotropy between z and xy. "
         "Only these turn volumetric measurements from pixel counts into "
@@ -3406,7 +3473,13 @@ CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
             "tolerates. Fix the seed when two runs have to be compared.",
     },
     "measure": {
-        "POINT SPREAD FUNCTION": "Choose normal Measure intensities or calibrated PSF-processed intensities for quantitative features. PSF processing follows standard rescaling and registered preprocessing hooks. Source files and exported crops retain their existing pixels; database provenance records the choice and exact kernel. A changed kernel cannot be mixed with existing measurements.",
+        "IMAGE PREPROCESSING":
+            "What is done to the pixels of each field before a single "
+            "feature is measured -- bleach, spectral and illumination "
+            "correction, deconvolution with a point spread function and "
+            "cross-plate intensity calibration -- and which barcode links "
+            "each plate to its plate map. The masks are not changed.",
+        "IMAGE DECONVOLUTION (PSF)": "Choose normal Measure intensities or calibrated PSF-processed intensities for quantitative features. PSF processing follows standard rescaling and registered preprocessing hooks. Source files and exported crops retain their existing pixels; database provenance records the choice and exact kernel. A changed kernel cannot be mixed with existing measurements.",
     },
     "train_cellpose": {
         "TRAINING DATA": "Pair microscopy images with integer object-label masks, and optionally supply a separate validation set.",
@@ -8886,7 +8959,10 @@ class SettingsWidgets:
         import time as _time
 
         cats = categories_for_app(self.app_key, get_categories())
-        hidden = _APP_HIDDEN_CATEGORIES.get(self.app_key, set())
+        hidden = set(_APP_HIDDEN_CATEGORIES.get(self.app_key, set()))
+        own_parents = _APP_CATEGORY_PARENTS.get(str(self.app_key or ""), {})
+        hidden.update(child for child, parent in own_parents.items()
+                      if parent in hidden)
         may_wait = self._keys_that_may_wait(cats, hidden, variables,
                                             hidden_keys)
         _BREATH = 0.025
@@ -9012,7 +9088,7 @@ class SettingsWidgets:
             timer.timeout.connect(timer.deleteLater)
             timer.start(0)
 
-        return _nest_sections(sections)
+        return _nest_sections(sections, self.app_key)
 
     def _keys_that_may_wait(self, cats, hidden, variables,
                             hidden_keys) -> set:
@@ -9030,7 +9106,7 @@ class SettingsWidgets:
         judge = self.categories_may_wait
         if judge is None:
             return set()
-        parents = _shared_category_parents()
+        parents = _category_parents(self.app_key)
         owner: Dict[str, str] = {}
         for cat_name, keys in cats.items():
             if cat_name in hidden:

@@ -106,6 +106,13 @@ DIAMETER_APP = "mask"
 
 #: Object names, for the stylesheet and for tests that look widgets up.
 QC_OBJECT_NAME = "MeasureQCBanner"
+_QC_DIALOG_OBJECT_NAME = "MeasureQCDialog"
+
+#: Hover text of the QC switch on the Measure action row.
+_QC_TOGGLE_TOOLTIP = (
+    "Click to open the segmentation QC the mask run wrote for this plate: "
+    "the verdict, the wells it flags and the likely cause. It is advisory "
+    "and never stops Measure from running.")
 DIAMETER_OBJECT_NAME = "DiameterPanel"
 
 #: Key the shared stylesheet block is registered under. Both widgets are
@@ -1525,36 +1532,135 @@ def qc_banner(screen) -> Optional[SegQCBanner]:
     return found if isinstance(found, SegQCBanner) else None
 
 
-def _insert_above_actions(screen, widget) -> bool:
-    """Put ``widget`` in the runtime panel just above the Run row.
+def _insert_before_dimension_switches(screen, widget) -> bool:
+    """Put ``widget`` in the action row, just left of the 3D and Time switches.
 
-    Both anchors (``_runtime_wrap`` and ``_actions_row``) are attributes
-    ``AppScreen`` keeps for exactly this kind of reach, so nothing here
-    depends on that panel's internal layout order. Above the actions row is
-    the last thing the eye crosses on its way to Run, which is the whole
-    point: a panel the user would have to go and open is a panel nobody opens.
+    The switches are found through ``dimension_switch``, so nothing here
+    depends on the row's internal order. A screen that draws neither switch
+    gets ``widget`` at the end of the row, where the switches would be.
+    The row's height and the place of Run and Stop do not change.
+
+    :param screen: the screen whose ``_actions_row`` takes the widget.
+    :param widget: the control to add.
+    :returns: False when the screen has no action row with a layout.
     """
-    wrap = getattr(screen, "_runtime_wrap", None)
     actions = getattr(screen, "_actions_row", None)
-    if wrap is None or actions is None:
-        return False
-    layout = wrap.layout()
-    holder = actions.parentWidget()
-    if (holder is not None and holder is not wrap
-            and wrap.isAncestorOf(holder)
-            and holder.layout() is not None
-            and holder.layout().indexOf(actions) >= 0):
-        layout = holder.layout()
+    layout = actions.layout() if actions is not None else None
     if layout is None:
         return False
-    index = layout.indexOf(actions)
-    layout.insertWidget(index if index >= 0 else layout.count(), widget)
+    finder = getattr(screen, "dimension_switch", None)
+    indices = []
+    for dimension in ("z", "t"):
+        switch = finder(dimension) if callable(finder) else None
+        index = layout.indexOf(switch) if switch is not None else -1
+        if index >= 0:
+            indices.append(index)
+    layout.insertWidget(min(indices) if indices else layout.count(), widget)
     return True
+
+
+class _SegQCDialog(QDialog):
+    """The segmentation verdict in a popup of its own.
+
+    Opened from the QC switch on the Measure action row, so reading the
+    verdict is something a user asks for; the Run row never moves for it.
+    The popup gets spaCR's translucent rounded card like every other
+    dialog.
+
+    :param screen: the ``AppScreen`` whose masks are reported on.
+    :param banner: the :class:`SegQCBanner` shown inside.
+    """
+
+    def __init__(self, screen: QWidget, banner: "SegQCBanner") -> None:
+        """Build the popup around ``banner``.
+
+        :param screen: the screen the popup belongs to.
+        :param banner: the verdict panel it shows.
+        """
+        from .i18n import tr
+
+        super().__init__(screen)
+        self.setObjectName(_QC_DIALOG_OBJECT_NAME)
+        self.setWindowTitle(tr("Segmentation QC"))
+        self.setModal(False)
+        self.banner = banner
+        column = QVBoxLayout(self)
+        column.setContentsMargins(16, 16, 16, 16)
+        column.setSpacing(10)
+        self._empty = _label(
+            "Choose the plate folder in src to read the segmentation QC its "
+            "mask run wrote.", "PrerunSub")
+        column.addWidget(self._empty)
+        banner.setParent(self)
+        column.addWidget(banner)
+        column.addStretch(1)
+        row = QHBoxLayout()
+        row.addStretch(1)
+        self.close_button = QPushButton(tr("Close"), self)
+        self.close_button.setCursor(Qt.PointingHandCursor)
+        self.close_button.clicked.connect(self.close)
+        row.addWidget(self.close_button)
+        column.addLayout(row)
+        self.resize(560, 360)
+        banner.refreshed.connect(self._sync)
+        self._sync()
+
+    def _sync(self, *_args) -> None:
+        """Say how to get a verdict while the banner has none to show."""
+        self._empty.setVisible(self.banner.isHidden())
+
+    def showEvent(self, event) -> None:              # noqa: N802 - Qt override
+        """Read the verdict afresh each time the popup opens.
+
+        :param event: the show event.
+        """
+        try:
+            from .widgets.glass import glass
+            glass(self)
+        except Exception:                            # noqa: BLE001
+            LOG.debug("the QC popup stays unglassed", exc_info=True)
+        super().showEvent(event)
+        self.banner.schedule_refresh()
+        self._sync()
+
+    def closeEvent(self, event) -> None:             # noqa: N802 - Qt override
+        """Turn the QC switch off when the popup closes.
+
+        :param event: the close event.
+        """
+        toggle = getattr(self.parentWidget(), "_seg_qc_toggle", None)
+        if toggle is not None and toggle.isChecked():
+            toggle.setChecked(False)
+        super().closeEvent(event)
+
+
+def _qc_dialog(screen) -> Optional[QDialog]:
+    """The QC popup built for ``screen``, or None.
+
+    :param screen: the screen widget whose ``_seg_qc_dialog`` is read.
+    """
+    found = getattr(screen, "_seg_qc_dialog", None)
+    return found if isinstance(found, _SegQCDialog) else None
+
+
+def _on_qc_toggled(screen, on: bool) -> None:
+    """Open or close the QC popup as the switch is turned on or off."""
+    dialog = _qc_dialog(screen)
+    if dialog is None:
+        return
+    if on:
+        dialog.show()
+        dialog.raise_()
+    elif dialog.isVisible():
+        dialog.close()
 
 
 def install_qc_banner(screen, *, reader=None,
                       threaded: bool = True) -> Optional[SegQCBanner]:
-    """Put a :class:`SegQCBanner` above ``screen``'s Run row.
+    """Put a QC switch on ``screen``'s action row that opens the verdict.
+
+    The switch sits left of the 3D and Time switches; the banner lives in
+    its popup, so the Run row keeps its place whatever the verdict says.
 
     :param screen: an ``AppScreen``.
     :param reader: digest reader, for tests.
@@ -1567,13 +1673,23 @@ def install_qc_banner(screen, *, reader=None,
         existing = qc_banner(screen)
         if existing is not None:
             return existing
+        from .widgets import AiToggleLabel
+
         banner = SegQCBanner(screen, reader=reader, threaded=threaded)
-        if not _insert_above_actions(screen, banner):
+        from .screens.app_screen import DIMENSION_TOGGLE_MIN_PX
+
+        toggle = AiToggleLabel(text="QC", tooltip=_QC_TOGGLE_TOOLTIP)
+        toggle.setMinimumWidth(DIMENSION_TOGGLE_MIN_PX)
+        if not _insert_before_dimension_switches(screen, toggle):
+            toggle.deleteLater()
             banner.setParent(None)
             banner.deleteLater()
             return None
+        dialog = _SegQCDialog(screen, banner)
         screen._seg_qc_banner = banner
-        banner.schedule_refresh()
+        screen._seg_qc_toggle = toggle
+        screen._seg_qc_dialog = dialog
+        toggle.toggled.connect(lambda on: _on_qc_toggled(screen, on))
         return banner
     except Exception:
         LOG.exception("could not install the segmentation-QC banner on %s",

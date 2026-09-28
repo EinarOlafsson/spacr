@@ -1487,6 +1487,11 @@ def test_every_qt_section_hint_names_a_real_category():
     # the advanced families, so they appear on no module's category map and
     # would read as dead blurbs without this.
     known.update(p.upper().strip() for p in S.CATEGORY_PARENTS.values())
+    # Item 595: a module's own umbrellas (Measure's Image Preprocessing,
+    # Features, Postprocessing) are synthesised the same way.
+    from spacr.qt.screens.settings_model import _APP_CATEGORY_PARENTS
+    known.update(p.upper().strip() for parents in
+                 _APP_CATEGORY_PARENTS.values() for p in parents.values())
     dead = sorted(set(hints) - known)
     assert not dead, (
         f"SECTION_HINTS entries that match no settings section: {dead}"
@@ -1593,54 +1598,25 @@ def _rendered_sections(app_key):
         # `prepare_illumination_correction` returned None on every GUI run.
         # It sits after the channel mapping and before the features for the
         # same reason: that is the order the run executes them in.
+        # Item 595, 2026-09-28: the maintainer's regroup. Cloud nests under
+        # Input & Experiment; the corrections nest under Image
+        # Preprocessing, the assays under Features, and Runtime,
+        # Profiling and the backend under Postprocessing
+        # (_APP_CATEGORY_PARENTS). This is the flat order they are drawn
+        # in; Image Enhancement offers no measure key, so it is not drawn.
         ("measure", [
-            "Input & Experiment", "Mask & Channel Mapping",
-            "Illumination Correction",
-            # Item 538, 2026-09-26: the measured channels are unmixed
-            # before the PSF and the features.
-            "Spectral Unmixing (Alpha)",
-            "Point Spread Function",
-            # Item 580, 2026-09-27: cross-plate intensity calibration
-            # rescales the pixels the features are computed from, so it
-            # follows the other image corrections, as an Alpha heading.
-            "Intensity Calibration (Alpha)",
-            "Measurement Features",
-            # Item 541, 2026-09-26: confluency sits after the features it
-            # is measured beside, as an Alpha heading of its own.
-            "Confluency (Alpha)",
-            # Item 535, 2026-09-26: the cell-cycle phase call follows, read
-            # from the nuclei the features above measured.
-            "Cell Cycle (Alpha)",
-            # Item 539, 2026-09-26: bleach correction rescales the
-            # intensities the features above measured.
-            "Bleach Correction (Alpha)",
-            # Item 566, 2026-09-27: GPU measurement computes the features
-            # above on the device, as an Alpha heading of its own.
-            "GPU Measurement (Alpha)",
-            # Item 576, 2026-09-28: the measurement backend copies the
-            # tables the features above filled, as an Alpha heading.
-            "Measurement Backend (Alpha)",
-            # Item 536, 2026-09-26: wound closure follows confluency, whose
-            # texture and intensity methods it builds on.
-            "Wound Closure (Alpha)",
-            # Item 571, 2026-09-26: time to event follows, read from the
-            # tracked objects measured above, after the run.
+            "Input & Experiment", "Cloud (Alpha)", "Mask & Channel Mapping",
+            "Bleach Correction (Alpha)", "Spectral Unmixing (Alpha)",
+            "Image Deconvolution (PSF)", "Illumination Correction",
+            "Intensity Calibration (Alpha)", "Plate Barcode Linkage (Alpha)",
+            "Features",
+            "Confluency (Alpha)", "Cell Cycle (Alpha)",
+            "Wound Closure (Alpha)", "Viability (Alpha)",
+            "CellProfiler (Alpha)", "GPU Measurement (Alpha)",
             "Time To Event (Alpha)",
-            # Item 583, 2026-09-27: the plate map filled by plate barcode
-            # feeds the viability and profiling steps, so it comes first.
-            "Plate Barcode Linkage (Alpha)",
-            # Item 540, 2026-09-26: live/dead viability, read from the same
-            # measured nuclei, after the cell-cycle call.
-            "Viability (Alpha)",
-            # Item 546, 2026-09-27: a lab's CellProfiler pipeline runs on
-            # the measured fields and its tables land beside spaCR's.
-            "CellProfiler (Alpha)",
-            "Object Filtering", "Crop Output",
-            # Item 547, 2026-09-26: profiling runs on the finished tables,
-            # so its Alpha heading follows the outputs it reads.
-            "Profiling (Alpha)",
-            "Preview & Diagnostics", "3D Calibration (Beta)",
-            "Runtime & Reliability",
+            "Object Filtering", "Crop Output", "3D Calibration (Beta)",
+            "Runtime & Reliability", "Profiling (Alpha)",
+            "Measurement Backend (Alpha)",
         ]),
             ("timelapse", [
                 "Input & Metadata", "Acquisition & Axes", "Image Preprocessing",

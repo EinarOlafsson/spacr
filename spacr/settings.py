@@ -6308,6 +6308,16 @@ def get_setting_dependencies():
             "Bleach correction is only used for timelapse runs. The value is kept and saved."),
     )
 
+    for _key in categories.get("Time To Event (Alpha)", ()):
+        setting_dependencies[_key] = _combined(
+            setting_dependencies.get(_key),
+            ('timelapse',),
+            lambda settings, context: bool(settings.get('timelapse', False)),
+            lambda settings, context, key=_key: (
+                f"{key} follows tracked objects, so it is only read when "
+                f"timelapse is on. The value is kept and saved."),
+        )
+
     return setting_dependencies
 
 category_value_dependencies = {

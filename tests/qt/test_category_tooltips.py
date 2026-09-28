@@ -35,6 +35,7 @@ from spacr.qt.screens.app_screen import AppScreen, CATEGORY_STRIP_LINES
 from spacr.qt.screens.settings_model import (
     CATEGORY_TOOLTIPS,
     CATEGORY_TOOLTIPS_BY_APP,
+    _APP_CATEGORY_PARENTS,
     _APP_HIDDEN_CATEGORIES,
     categories_for_app,
     category_tooltip,
@@ -172,6 +173,9 @@ def test_per_app_overrides_all_name_a_category_that_module_renders():
     dead = {}
     for app_key, overrides in CATEGORY_TOOLTIPS_BY_APP.items():
         rendered = {t.upper().strip() for t in _rendered_categories(app_key)}
+        # Item 595: the umbrellas a module nests its categories under.
+        rendered.update(p.upper().strip() for p in
+                        _APP_CATEGORY_PARENTS.get(app_key, {}).values())
         missing = sorted(set(overrides) - rendered)
         if missing:
             dead[app_key] = missing
