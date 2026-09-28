@@ -2375,3 +2375,20 @@ changing historical installation roots or removing assertions.
 Full serial Qt acceptance and green final-source CI remain open. The earlier
 CI Qt worker crash still has no established cause; no memory limit was raised.
 Receipt: features/data/43_focused_ci_repairs_2026-09-28.json.
+
+2026-09-28 — Release CI contract repairs verified
+The six failed cases in source2eb coverage shards7/9/10 are addressed without
+changing historical released directory bytes or dropping caption assertions.
+Nine-locale two-build snapshots hold GPU discovery constant. PyWavelets remains
+a required core dependency because Measure's texture ratio calls scikit-image's
+wavelet noise estimator; an AST/pin check now records that dependency. Two
+mocked-export forwarding tests supply their optional AnnData preflight seam,
+while missing-extra checks remain active. Ten settings-flow sections were
+regenerated for the current workflow/calibration readers.
+Validation:83 brand/caption/historical installer checks and245 dependency,
+AnnData, flow and confluency checks pass;7 optional/data checks skip. Three
+additional checks pass with AnnData explicitly unavailable. The initial local
+confluency failures came from absent PyWavelets; an existing private1.10.0 copy
+passes them without modifying the shared environment. Original logs retained.
+Full final-source CI and uninterrupted Qt acceptance remain open.
+Receipt: features/data/43_release_ci_contract_repairs_2026-09-28.json.

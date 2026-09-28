@@ -122,6 +122,8 @@ LEGACY_IDENTIFIERS = re.compile(
     r"Application Support/SpaCR(?:/|['\"])"
     r"|\$env:LOCALAPPDATA\\+SpaCR\\+"
     r"|Join-Path \$env:LOCALAPPDATA ['\"]SpaCR['\"]"
+    r"|AppData\\+Local\\+SpaCR\\+(?:venv|bootstrap)\\+"
+    r"|['\"]SpaCR/venv['\"]"
     r'|"Olafsson Lab", "SpaCR"'
 )
 
@@ -216,6 +218,9 @@ def _offenders():
     "Join-Path $env:LOCALAPPDATA 'SpaCR'",
     'Join-Path $env:LOCALAPPDATA "SpaCR"',
     "Join-Path $HOME 'Library/Application Support/SpaCR'",
+    r"C:\Users\A B\AppData\Local\SpaCR\venv\Scripts\python.exe",
+    r"C:\Users\A B\AppData\Local\SpaCR\bootstrap\uv.exe",
+    "'SpaCR/venv'",
 ])
 def test_legacy_directory_identifiers_preserve_the_spelling_guard(literal):
     """Exempt historical directory bytes while still rejecting prose on the line.

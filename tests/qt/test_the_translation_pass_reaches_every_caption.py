@@ -189,7 +189,8 @@ def test_a_full_pass_over_a_built_screen_changes_nothing(qtbot, code, monkeypatc
 
 
 @pytest.mark.parametrize("code", NON_ENGLISH)
-def test_the_caption_set_is_stable_across_two_identical_builds(qtbot, code):
+def test_the_caption_set_is_stable_across_two_identical_builds(qtbot, code,
+                                                              monkeypatch):
     """Two builds of one screen must render the same strings.
 
     This is the "compare the sets" check in its strongest available form:
@@ -197,6 +198,14 @@ def test_the_caption_set_is_stable_across_two_identical_builds(qtbot, code):
     module-level generation counter that never resets -- the SECOND build
     would skip work the first one did, and only this comparison would see it.
     """
+    from spacr import _mask_workers
+
+    # Hardware discovery changes disabled-reason tooltips independently of
+    # translation. Both builds must observe the same hardware state.
+    monkeypatch.setattr(_mask_workers, "_mask_gpu_count_for_controls",
+                        lambda: 0)
+    monkeypatch.setattr(_mask_workers, "_watch_mask_gpu_probe", lambda: None)
+
     with _language(code):
         first = _captions(_screen(qtbot))
         second = _captions(_screen(qtbot))

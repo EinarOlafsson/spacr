@@ -84,6 +84,8 @@ dependencies = [
     'scipy>=1.12.0,<2.0',
     'cellpose>=4.0.7,<5.0',
     'scikit-image>=0.22.0,<0.28',
+    # Measure's texture confluency calls skimage.restoration.estimate_sigma,
+    # which imports PyWavelets internally even though spaCR never imports pywt.
     'PyWavelets>=1.4,<2',
     'scikit-learn>=1.5.0,<2.0',
     'scikit-posthocs>=0.10.0,<0.20',
