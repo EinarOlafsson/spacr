@@ -10,7 +10,9 @@
       "source_sha256": "ac8db0fb3865ad7b09ce2fa0bc2b1ecda3f645b092b98f6623d80963934af31d",
       "context": "Frozen application families currently return an error before spawning or removing anything: their verified, family-preserving replacement adapters are not implemented. The bundled standalone helper does not enable an online-installer fallback for these applications.",
       "translation": "冻结打包的应用程序系列目前会在启动任何进程或删除任何内容之前返回错误：用于替换这些应用程序、经过验证且保留相应安装系列的适配器尚未实现。随附的独立辅助程序不会为这些应用程序启用回退到在线安装程序的方式。",
-      "review_basis": "written from current English and technically reviewed by Codex"
+      "review_basis": "written from current English and technically reviewed by Codex",
+      "retired": true,
+      "retired_reason": "2026-09-27 API delta 6: canonical source or context changed. Original translation and review attribution are preserved as historical evidence."
     }
   ]
 }

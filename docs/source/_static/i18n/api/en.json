@@ -21638,10 +21638,10 @@
         "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
         "18cc3d05f1388e86a5a9b30a181ef22c17b155c14da1e8e7a6e07b7e8fd36e59",
         "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
-        "ac8db0fb3865ad7b09ce2fa0bc2b1ecda3f645b092b98f6623d80963934af31d"
+        "21a4f7340e6ecf2a0034ef44bec46f864cd7952b935458021fa9866aadc24759"
       ],
-      "source_sha256": "5fcd94805bfd42f9aa865e23fe110df8eb83d9d1cf1844536d874299d6107fd6",
-      "text": "Hand deleting and installing to a process that outlives spaCR.\n\nUsed when the running spaCR is itself an installer-made copy, which on\nWindows cannot delete itself while it runs. The helper waits for this\nprocess to exit, downloads the new installer, removes every older copy\nincluding the one that was running, runs the installer, and starts the new\nversion. If any installer-made copy cannot be removed, nothing is\ninstalled and the reason is written to the update log.\n\n:param records: installations from :func:`find_old_installs`.\n:param version: the version to install.\n:param ticked: roots of the environments the user ticked.\n:param pid: the process to wait for; this process when ``None``.\n:param workdir: the helper's folder; a new temporary folder when ``None``.\n:param system: the computer; ``None`` means this one.\n:param spawn: replaces the detached process launcher.\n:returns: the plan as written to ``plan.json``. ``plan[\"command\"]`` is the\n    helper's command, or ``None`` with ``plan[\"error\"]`` saying why\n    nothing was started.\n\nFrozen application families currently return an error before spawning or\nremoving anything: their verified, family-preserving replacement adapters\nare not implemented. The bundled standalone helper does not enable an\nonline-installer fallback for these applications."
+      "source_sha256": "826d63f21829c58371d1ca0c20316d118868819a14b529aacb6f0aa0a60b208c",
+      "text": "Hand deleting and installing to a process that outlives spaCR.\n\nUsed when the running spaCR is itself an installer-made copy, which on\nWindows cannot delete itself while it runs. The helper waits for this\nprocess to exit, downloads the new installer, removes every older copy\nincluding the one that was running, runs the installer, and starts the new\nversion. If any installer-made copy cannot be removed, nothing is\ninstalled and the reason is written to the update log.\n\n:param records: installations from :func:`find_old_installs`.\n:param version: the version to install.\n:param ticked: roots of the environments the user ticked.\n:param pid: the process to wait for; this process when ``None``.\n:param workdir: the helper's folder; a new temporary folder when ``None``.\n:param system: the computer; ``None`` means this one.\n:param spawn: replaces the detached process launcher.\n:returns: the plan as written to ``plan.json``. ``plan[\"command\"]`` is the\n    helper's command, or ``None`` with ``plan[\"error\"]`` saying why\n    nothing was started.\n\nA frozen macOS bundle in a user-writable location uses its verified DMG\nreplacement adapter and retains its complete prior bundle. Other frozen\napplication families return an error before removing anything; the helper\ndoes not enable an online-installer fallback for these applications."
     },
     "spacr.install_profile": {
       "source_blocks_sha256": [
@@ -53821,10 +53821,11 @@
       "source_blocks_sha256": [
         "7bab1f0806e736f393aaafbdbfa5aaf3147d32e975b3a5500c56a059212bc513",
         "09da6414957d227548eb805ce5d35a28bbbc19985e808988f7a15c8a238a7f2e",
+        "90b9bbc56d70e06f3d9b420eba571bf6e6feaa6fdfef03c90449e01033cd8b88",
         "49ffd506b6f618a3e2eb51bc2710b1c67b4b3b0c0808d93d914d967736430f8a"
       ],
-      "source_sha256": "c954ecabf5b26aba0c9343da2de7b7cd548a36a10391f61a69df8205c049d5f5",
-      "text": "Cancel and join this screen's worker before destroying widgets.\n\nA worker that has not reached a safe boundary keeps the screen alive;\ndropping its references or force-terminating it could corrupt an\noutput and triggers Qt's fatal \"QThread destroyed while running\".\n\n:param event: the close event; ignored (so the screen stays open)\n    when the worker is still running three seconds after the cancel\n    request."
+      "source_sha256": "07d52a07c1e9af8cdfff4624baa305b20cb40c0f6d9a75cc326692f4087ac622",
+      "text": "Cancel and join this screen's worker before destroying widgets.\n\nA worker that has not reached a safe boundary keeps the screen alive;\ndropping its references or force-terminating it could corrupt an\noutput and triggers Qt's fatal \"QThread destroyed while running\".\n\nAn accepted close also joins the owned backdrop renderer. Showing\nthe screen again creates a fresh backdrop from the current settings.\n\n:param event: the close event; ignored (so the screen stays open)\n    when the worker is still running three seconds after the cancel\n    request."
     },
     "spacr.qt.screens.app_screen.AppScreen.close_run_beside": {
       "source_blocks_sha256": [

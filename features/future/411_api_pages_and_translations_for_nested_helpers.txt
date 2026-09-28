@@ -2,9 +2,9 @@
 API PAGES, IN NINE LANGUAGES, FOR THE NESTED HELPER FUNCTIONS -- ASSIGNED TO CODEX
 ================================================================================
 
-Status:    IN PROGRESS, CODEX, 2026-09-22. Phase A inventory, rendering and
-           extractor support and CI wiring implemented; exact-SHA CI pending.
-           German API freshness is 10487/11194 after source-bound reviews;
+Status:    SOURCE-CURRENT, CODEX, 2026-09-27. English and all nine translated
+           catalogs contain11865 current symbols; local validation passed.
+           Current deployment acceptance and native-speaker review remain open;
            remaining catalog debt and full audit acceptance are still open.
            Still NOT BLOCKING the 1.5.0.8 release: the release is not held for
            it, and it must not turn a release gate red while it is built.
@@ -2033,3 +2033,13 @@ API delta4. Live compatibility reports all9 API and9runtime locales source
 compatible withzeroissues. Receipt: features/data/411_api_delta4_live_2026-09-27.json.
 This pins the publication checked; later aggregate-report/source changes
 need their own deployment, and native/listening signoff is not implied.
+
+STATUS 2026-09-27 — API delta6 maintenance complete locally
+Both changed public docstrings are translated and AI technically reviewed in
+all nine locales, reusing the completed checkpoints. All ten catalog inventory
+and hash checks pass; the canonical audit reports zero incompatible API locales.
+Two aggregate report checks pass. Runtime coverage is8729 current entries;
+API coverage is11865 symbols. Historical reviews are preserved, including
+18 archived originals. Current HTML deployment remains a separate acceptance;
+no native-speaker or listening signoff is claimed.
+Receipt: features/data/411_api_delta6_maintenance_2026-09-27.json.

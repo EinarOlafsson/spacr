@@ -35126,10 +35126,10 @@
         "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
         "18cc3d05f1388e86a5a9b30a181ef22c17b155c14da1e8e7a6e07b7e8fd36e59",
         "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
-        "ac8db0fb3865ad7b09ce2fa0bc2b1ecda3f645b092b98f6623d80963934af31d"
+        "21a4f7340e6ecf2a0034ef44bec46f864cd7952b935458021fa9866aadc24759"
       ],
-      "source_sha256": "5fcd94805bfd42f9aa865e23fe110df8eb83d9d1cf1844536d874299d6107fd6",
-      "text": "Confie la suppression et l’installation à un processus qui survit à spaCR.\n\nUtilisé quand le spaCR en cours d’exécution est lui-même une copie créée par un programme d’installation, qui sous Windows ne peut pas se supprimer elle-même pendant qu’elle s’exécute. Le processus auxiliaire attend la fin de ce processus, télécharge le nouveau programme d’installation, supprime toutes les anciennes copies, y compris celle qui était en cours d’exécution, lance le programme d’installation et démarre la nouvelle version. Si une copie créée par un programme d’installation ne peut pas être supprimée, rien n’est installé et la raison est écrite dans le journal de mise à jour.\n\n:param records: installations issues de :func:`find_old_installs`.\n:param version: la version à installer.\n:param ticked: racines des environnements cochés par l’utilisateur.\n:param pid: le processus à attendre ; ce processus-ci si la valeur est ``None``.\n:param workdir: le dossier du processus auxiliaire ; un nouveau dossier temporaire si la valeur est ``None``.\n:param system: l’ordinateur ; ``None`` désigne cet ordinateur-ci.\n:param spawn: remplace le lanceur du processus détaché.\n:returns: le plan tel qu’il a été écrit dans ``plan.json``. ``plan[\"command\"]`` est la commande du processus auxiliaire, ou ``None``, auquel cas ``plan[\"error\"]`` indique pourquoi rien n’a été démarré.\n\nLes familles d’applications empaquetées sous forme de programmes autonomes renvoient actuellement une erreur avant de lancer un processus ou de supprimer quoi que ce soit : leurs adaptateurs de remplacement vérifiés, qui préservent la famille d’installation correspondante, ne sont pas encore implémentés. Le programme auxiliaire autonome fourni ne permet pas de recourir à un programme d’installation en ligne comme solution de repli pour ces applications.",
+      "source_sha256": "826d63f21829c58371d1ca0c20316d118868819a14b529aacb6f0aa0a60b208c",
+      "text": "Confie la suppression et l’installation à un processus qui survit à spaCR.\n\nUtilisé quand le spaCR en cours d’exécution est lui-même une copie créée par un programme d’installation, qui sous Windows ne peut pas se supprimer elle-même pendant qu’elle s’exécute. Le processus auxiliaire attend la fin de ce processus, télécharge le nouveau programme d’installation, supprime toutes les anciennes copies, y compris celle qui était en cours d’exécution, lance le programme d’installation et démarre la nouvelle version. Si une copie créée par un programme d’installation ne peut pas être supprimée, rien n’est installé et la raison est écrite dans le journal de mise à jour.\n\n:param records: installations issues de :func:`find_old_installs`.\n:param version: la version à installer.\n:param ticked: racines des environnements cochés par l’utilisateur.\n:param pid: le processus à attendre ; ce processus-ci si la valeur est ``None``.\n:param workdir: le dossier du processus auxiliaire ; un nouveau dossier temporaire si la valeur est ``None``.\n:param system: l’ordinateur ; ``None`` désigne cet ordinateur-ci.\n:param spawn: remplace le lanceur du processus détaché.\n:returns: le plan tel qu’il a été écrit dans ``plan.json``. ``plan[\"command\"]`` est la commande du processus auxiliaire, ou ``None``, auquel cas ``plan[\"error\"]`` indique pourquoi rien n’a été démarré.\n\nUn paquet d’application macOS figé situé dans un emplacement accessible en écriture à l’utilisateur emploie son adaptateur de remplacement par DMG vérifié et conserve l’intégralité du paquet précédent. Les autres familles d’applications figées renvoient une erreur avant toute suppression ; le programme auxiliaire n’active pas de solution de repli par installateur en ligne pour ces applications.",
       "translation_source_blocks_sha256": [
         "53a4372d5ee733dcea5beb653cc2903c614acadd319e859a11ad2dcabec09aeb",
         "75241705d164afdde641d643f08af75ae9a1020b7547b8499a23e2e6edda6ecb",
@@ -35141,7 +35141,7 @@
         "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
         "18cc3d05f1388e86a5a9b30a181ef22c17b155c14da1e8e7a6e07b7e8fd36e59",
         "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
-        "ac8db0fb3865ad7b09ce2fa0bc2b1ecda3f645b092b98f6623d80963934af31d"
+        "21a4f7340e6ecf2a0034ef44bec46f864cd7952b935458021fa9866aadc24759"
       ]
     },
     "spacr.install_profile": {
@@ -86940,13 +86940,15 @@
       "source_blocks_sha256": [
         "7bab1f0806e736f393aaafbdbfa5aaf3147d32e975b3a5500c56a059212bc513",
         "09da6414957d227548eb805ce5d35a28bbbc19985e808988f7a15c8a238a7f2e",
+        "90b9bbc56d70e06f3d9b420eba571bf6e6feaa6fdfef03c90449e01033cd8b88",
         "49ffd506b6f618a3e2eb51bc2710b1c67b4b3b0c0808d93d914d967736430f8a"
       ],
-      "source_sha256": "c954ecabf5b26aba0c9343da2de7b7cd548a36a10391f61a69df8205c049d5f5",
-      "text": "Annuler et rejoindre l'ouvrier de cet criblage avant de détruire les widgets.\n\nUn travailleur qui n'a pas atteint une limite sécuritaire maintient la vue de l'application en vie; abandonner ses références ou la déterminer par la force pourrait corrompre une sortie et déclencher Qt fatale \"QThread destroyed while running\".\n\n:param event: l’événement de fermeture ; ignoré (la vue reste donc ouverte) lorsque le worker s’exécute encore trois secondes après la demande d’annulation.",
+      "source_sha256": "07d52a07c1e9af8cdfff4624baa305b20cb40c0f6d9a75cc326692f4087ac622",
+      "text": "Annuler et rejoindre l'ouvrier de cet criblage avant de détruire les widgets.\n\nUn travailleur qui n'a pas atteint une limite sécuritaire maintient la vue de l'application en vie; abandonner ses références ou la déterminer par la force pourrait corrompre une sortie et déclencher Qt fatale \"QThread destroyed while running\".\n\nLorsqu’une fermeture est acceptée, elle attend aussi la fin du moteur de rendu de fond appartenant à cette vue. Lorsque la vue est affichée à nouveau, un nouveau fond est créé à partir des paramètres actuels.\n\n:param event: l’événement de fermeture ; ignoré (la vue reste donc ouverte) lorsque le worker s’exécute encore trois secondes après la demande d’annulation.",
       "translation_source_blocks_sha256": [
         "7bab1f0806e736f393aaafbdbfa5aaf3147d32e975b3a5500c56a059212bc513",
         "0224c54af3e34cb854f0cb1f53581599f56092d37b1e97c7680ba0062afe6095",
+        "b80113618a4e60ac02c21f36f53bb3cab9c1e325e8c12b93fb0b59a473c0fcd0",
         "3bc7322c63cb673dd06f729202cc45b4fa569183b58e4d1b9537d75a749af48a"
       ]
     },

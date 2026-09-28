@@ -35126,10 +35126,10 @@
         "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
         "18cc3d05f1388e86a5a9b30a181ef22c17b155c14da1e8e7a6e07b7e8fd36e59",
         "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
-        "ac8db0fb3865ad7b09ce2fa0bc2b1ecda3f645b092b98f6623d80963934af31d"
+        "21a4f7340e6ecf2a0034ef44bec46f864cd7952b935458021fa9866aadc24759"
       ],
-      "source_sha256": "5fcd94805bfd42f9aa865e23fe110df8eb83d9d1cf1844536d874299d6107fd6",
-      "text": "Entrega a exclusão e a instalação a um processo que sobrevive ao spaCR.\n\nUsado quando o spaCR em execução é ele próprio uma cópia criada por um instalador, que no Windows não consegue excluir a si mesma enquanto está em execução. O processo auxiliar espera este processo terminar, baixa o novo instalador, remove todas as cópias antigas, inclusive a que estava em execução, executa o instalador e inicia a nova versão. Se alguma cópia criada por um instalador não puder ser removida, nada é instalado e o motivo é gravado no log da atualização.\n\n:param records: instalações vindas de :func:`find_old_installs`.\n:param version: a versão a instalar.\n:param ticked: raízes dos ambientes que o usuário marcou.\n:param pid: o processo pelo qual esperar; este processo quando o valor é ``None``.\n:param workdir: a pasta do processo auxiliar; uma nova pasta temporária quando o valor é ``None``.\n:param system: o computador; ``None`` significa este computador.\n:param spawn: substitui o iniciador do processo desanexado.\n:returns: o plano como foi gravado em ``plan.json``. ``plan[\"command\"]`` é o comando do processo auxiliar, ou ``None``, caso em que ``plan[\"error\"]`` diz por que nada foi iniciado.\n\nAs famílias de aplicativos empacotados como programas autônomos atualmente retornam um erro antes de iniciar qualquer processo ou remover qualquer coisa: seus adaptadores de substituição verificados, que preservam a respectiva família de instalação, ainda não foram implementados. O programa auxiliar autônomo incluído não permite recorrer a um instalador on-line como alternativa para esses aplicativos.",
+      "source_sha256": "826d63f21829c58371d1ca0c20316d118868819a14b529aacb6f0aa0a60b208c",
+      "text": "Entrega a exclusão e a instalação a um processo que sobrevive ao spaCR.\n\nUsado quando o spaCR em execução é ele próprio uma cópia criada por um instalador, que no Windows não consegue excluir a si mesma enquanto está em execução. O processo auxiliar espera este processo terminar, baixa o novo instalador, remove todas as cópias antigas, inclusive a que estava em execução, executa o instalador e inicia a nova versão. Se alguma cópia criada por um instalador não puder ser removida, nada é instalado e o motivo é gravado no log da atualização.\n\n:param records: instalações vindas de :func:`find_old_installs`.\n:param version: a versão a instalar.\n:param ticked: raízes dos ambientes que o usuário marcou.\n:param pid: o processo pelo qual esperar; este processo quando o valor é ``None``.\n:param workdir: a pasta do processo auxiliar; uma nova pasta temporária quando o valor é ``None``.\n:param system: o computador; ``None`` significa este computador.\n:param spawn: substitui o iniciador do processo desanexado.\n:returns: o plano como foi gravado em ``plan.json``. ``plan[\"command\"]`` é o comando do processo auxiliar, ou ``None``, caso em que ``plan[\"error\"]`` diz por que nada foi iniciado.\n\nUm pacote de aplicativo macOS congelado em um local no qual o usuário pode gravar usa seu adaptador de substituição por DMG verificado e mantém o pacote anterior completo. As outras famílias de aplicativos congelados retornam um erro antes de remover qualquer coisa; o programa auxiliar não habilita uma alternativa por instalador on-line para esses aplicativos.",
       "translation_source_blocks_sha256": [
         "53a4372d5ee733dcea5beb653cc2903c614acadd319e859a11ad2dcabec09aeb",
         "75241705d164afdde641d643f08af75ae9a1020b7547b8499a23e2e6edda6ecb",
@@ -35141,7 +35141,7 @@
         "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
         "18cc3d05f1388e86a5a9b30a181ef22c17b155c14da1e8e7a6e07b7e8fd36e59",
         "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
-        "ac8db0fb3865ad7b09ce2fa0bc2b1ecda3f645b092b98f6623d80963934af31d"
+        "21a4f7340e6ecf2a0034ef44bec46f864cd7952b935458021fa9866aadc24759"
       ]
     },
     "spacr.install_profile": {
@@ -86940,13 +86940,15 @@
       "source_blocks_sha256": [
         "7bab1f0806e736f393aaafbdbfa5aaf3147d32e975b3a5500c56a059212bc513",
         "09da6414957d227548eb805ce5d35a28bbbc19985e808988f7a15c8a238a7f2e",
+        "90b9bbc56d70e06f3d9b420eba571bf6e6feaa6fdfef03c90449e01033cd8b88",
         "49ffd506b6f618a3e2eb51bc2710b1c67b4b3b0c0808d93d914d967736430f8a"
       ],
-      "source_sha256": "c954ecabf5b26aba0c9343da2de7b7cd548a36a10391f61a69df8205c049d5f5",
-      "text": "Cancele e junte-se ao trabalhador desta triagem antes de destruir widgets.\n\nUm trabalhador que não tenha atingido um limite seguro mantém a visualização do aplicativo viva; deixar de lado suas referências ou finalizá-la com força pode corromper uma saída e acionar o fatal \"QThread destroyed while running\" de Qt.\n\n:param event: o evento de fechamento; ignorado (para que a tela continue aberta) quando o worker ainda está em execução três segundos depois do pedido de cancelamento.",
+      "source_sha256": "07d52a07c1e9af8cdfff4624baa305b20cb40c0f6d9a75cc326692f4087ac622",
+      "text": "Cancele e junte-se ao trabalhador desta triagem antes de destruir widgets.\n\nUm trabalhador que não tenha atingido um limite seguro mantém a visualização do aplicativo viva; deixar de lado suas referências ou finalizá-la com força pode corromper uma saída e acionar o fatal \"QThread destroyed while running\" de Qt.\n\nQuando o fechamento é aceito, também se aguarda o término do renderizador de fundo pertencente a essa tela. Ao exibir a tela novamente, um novo fundo é criado com base nas configurações atuais.\n\n:param event: o evento de fechamento; ignorado (para que a tela continue aberta) quando o worker ainda está em execução três segundos depois do pedido de cancelamento.",
       "translation_source_blocks_sha256": [
         "7bab1f0806e736f393aaafbdbfa5aaf3147d32e975b3a5500c56a059212bc513",
         "0224c54af3e34cb854f0cb1f53581599f56092d37b1e97c7680ba0062afe6095",
+        "b80113618a4e60ac02c21f36f53bb3cab9c1e325e8c12b93fb0b59a473c0fcd0",
         "3bc7322c63cb673dd06f729202cc45b4fa569183b58e4d1b9537d75a749af48a"
       ]
     },

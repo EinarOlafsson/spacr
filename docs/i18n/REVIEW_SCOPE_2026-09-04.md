@@ -5,7 +5,7 @@ that report, **this is an evidence report and not a certificate that every
 sentence was read by a fluent speaker.** The semantic-review evidence is
 defect-driven and much smaller than the shipped corpus.
 
-**Current checkpoint — 2026-09-27:** the current source inventories contain 8,726 runtime entries and 11,865 public API symbol documents. The table below is derived from the strict current-source review loaders. API delta 5 adds one reviewed block per locale (nine total) documenting the frozen-application replacement boundary. All 689 original API review files, the ten prior translated blocks in the changed symbol, and all 11,864 unrelated symbol records per locale remain unchanged. Earlier API delta 4 reviewed six new blocks per locale (54 total) in five changed symbol documents, covering measured regression fit support and the explicit installed-application smoke mode. All 680 original API review files remain byte-identical; unchanged symbol records and reused blocks were verified. All nine delta 4 API drafts received an independent second AI technical review. The item 450/451 runtime wording delta replaces three sources per locale; retired review evidence is preserved separately. All new records are labelled "AI technical review (Codex), no native-speaker signoff". The complete nine-locale canonical API/README audit and installed-file preservation gates passed for API delta 5. API block counts divided by symbol counts are not percentages of fully reviewed API pages. Dated completion statements below describe historical trees; `COVERAGE.md` reports current mechanical source coverage. No native-speaker or human listening signoff is claimed.
+**Current checkpoint — 2026-09-27:** the current source inventories contain 8,729 runtime entries and 11,865 public API symbol documents. The table below is derived from the strict current-source review loaders. API delta 6 adds two reviewed blocks per locale (18 total), documenting the verified replacement adapter for a frozen macOS bundle in a user-writable location and the accepted-close backdrop lifecycle. The earlier blanket frozen-family refusal statement is explicitly retired, and an unchanged close-event parameter record is rebound to its new block position. All 18 affected original review files are archived byte-for-byte; their original translations and attribution remain in the active records with explicit retirement or rebinding metadata. The 680 unaffected review-directory files and 11,863 unrelated symbol records per locale remain unchanged. Earlier API delta 4 reviewed six new blocks per locale (54 total) in five changed symbol documents, covering measured regression fit support and the explicit installed-application smoke mode. Its original source and translation history remain preserved. All nine delta 4 API drafts received an independent second AI technical review. The item 450/451 runtime wording delta replaces three sources per locale; retired review evidence is preserved separately. The Mask Generation Cloud category adds three runtime sources with three reviewed records per locale. The Docker README section adds three reviewed blocks per locale, preserving all 90 preceding README review files. All new records are labelled "AI technical review (Codex), no native-speaker signoff". The complete nine-locale canonical API/README audit and installed-file preservation gates passed for API delta 6. API block counts divided by symbol counts are not percentages of fully reviewed API pages. Dated completion statements below describe historical trees; `COVERAGE.md` reports current mechanical source coverage. No native-speaker or human listening signoff is claimed.
 
 **Mechanical source coverage IS complete, as of 2026-09-10.** It was not on
 2026-09-06, and this paragraph carried that gap until now: the runtime
@@ -45,7 +45,7 @@ Every mechanical gate now passes. `tests/qt/test_external_i18n_catalogs.py` is
 
 Source-bound records under `docs/i18n/reviewed/runtime/<locale>/` and
 `docs/i18n/reviewed/api/<locale>/`, against the LIVE denominators rather than a
-remembered one: 8,726 runtime entries and 11,865 public API docstrings. As before,
+remembered one: 8,729 runtime entries and 11,865 public API docstrings. As before,
 repeated source strings mean this is not a unique-string percentage, and these counts describe source-bound technical review, not
 native-speaker approval or fully reviewed API pages.
 
@@ -53,17 +53,17 @@ Both denominators move whenever a string or a docstring is added, so these
 numbers are regenerated rather than transcribed; the test that guards this
 table derives them from the same source the builders read.
 
-| Language | Reviewed runtime records | Of 8,726 | Remainder | Reviewed API blocks | Of 11,865 | Remainder |
+| Language | Reviewed runtime records | Of 8,729 | Remainder | Reviewed API blocks | Of 11,865 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 3,354 | 38.44% | 5,372 | 8,501 | 71.65% | 3,364 |
-| German | 3,321 | 38.06% | 5,405 | 8,583 | 72.34% | 3,282 |
-| Spanish | 3,324 | 38.09% | 5,402 | 8,362 | 70.48% | 3,503 |
-| Simplified Chinese | 3,627 | 41.57% | 5,099 | 8,643 | 72.84% | 3,222 |
-| Portuguese | 3,330 | 38.16% | 5,396 | 8,588 | 72.38% | 3,277 |
-| Hindi | 3,415 | 39.14% | 5,311 | 8,536 | 71.94% | 3,329 |
-| Korean | 3,531 | 40.47% | 5,195 | 8,609 | 72.56% | 3,256 |
-| Icelandic | 3,481 | 39.89% | 5,245 | 9,100 | 76.70% | 2,765 |
-| French | 3,346 | 38.35% | 5,380 | 8,522 | 71.82% | 3,343 |
+| Swedish | 3,356 | 38.45% | 5,373 | 8,502 | 71.66% | 3,363 |
+| German | 3,323 | 38.07% | 5,406 | 8,584 | 72.35% | 3,281 |
+| Spanish | 3,326 | 38.10% | 5,403 | 8,363 | 70.48% | 3,502 |
+| Simplified Chinese | 3,629 | 41.57% | 5,100 | 8,644 | 72.85% | 3,221 |
+| Portuguese | 3,332 | 38.17% | 5,397 | 8,589 | 72.39% | 3,276 |
+| Hindi | 3,417 | 39.15% | 5,312 | 8,537 | 71.95% | 3,328 |
+| Korean | 3,533 | 40.47% | 5,196 | 8,610 | 72.57% | 3,255 |
+| Icelandic | 3,483 | 39.90% | 5,246 | 9,101 | 76.70% | 2,764 |
+| French | 3,348 | 38.35% | 5,381 | 8,523 | 71.83% | 3,342 |
 
 *Re-measured 2026-09-16 for 317 using the actual live source extractors and
 reviewed-record loaders. Runtime sources increase 5,767 -> 5,773 (seven

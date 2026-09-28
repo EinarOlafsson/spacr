@@ -10,7 +10,9 @@
       "source_sha256": "ac8db0fb3865ad7b09ce2fa0bc2b1ecda3f645b092b98f6623d80963934af31d",
       "context": "Frozen application families currently return an error before spawning or removing anything: their verified, family-preserving replacement adapters are not implemented. The bundled standalone helper does not enable an online-installer fallback for these applications.",
       "translation": "As famílias de aplicativos empacotados como programas autônomos atualmente retornam um erro antes de iniciar qualquer processo ou remover qualquer coisa: seus adaptadores de substituição verificados, que preservam a respectiva família de instalação, ainda não foram implementados. O programa auxiliar autônomo incluído não permite recorrer a um instalador on-line como alternativa para esses aplicativos.",
-      "review_basis": "written from current English and technically reviewed by Codex"
+      "review_basis": "written from current English and technically reviewed by Codex",
+      "retired": true,
+      "retired_reason": "2026-09-27 API delta 6: canonical source or context changed. Original translation and review attribution are preserved as historical evidence."
     }
   ]
 }
