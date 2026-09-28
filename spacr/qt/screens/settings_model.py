@@ -1510,6 +1510,9 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "normalize", "normalize_input", "overlay", "plot",
         )),
         ("Map Quantification", ("correlation", "manders_thresholds")),
+        ("Counterfactuals", (
+            "counterfactuals", "counterfactual_crops", "counterfactual_epochs",
+        )),
         ("Output & Runtime", (
             "save", "shuffle", "batch_size", "n_jobs",
         )),

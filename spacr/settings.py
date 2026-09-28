@@ -3826,6 +3826,9 @@ expected_types = {
     'attribution_steps':int,
     'attribution_baseline':str,
     'sanity_check':bool,
+    'counterfactuals':bool,
+    'counterfactual_crops':int,
+    'counterfactual_epochs':int,
     'object_type':str,
     "parasite_table": str,
     "compartment": str,
@@ -5241,6 +5244,9 @@ tooltips = {
     'object_type': "(str) - Mask used to define an object when the pointing game scores an attribution map: 'cell', 'nucleus', 'pathogen' or 'cytoplasm'. The metric checks only whether the map's maximum-valued pixel lies inside that mask. It has low computational cost but does not evaluate the rest of the map, so a method can score 1.0 while assigning spurious attribution elsewhere. Default 'cell'.",
     'occlusion_stride': '(int) - How far the occlusion patch moves between evaluations. Equal to occlusion_window it tiles without overlap and is fastest; half of it doubles the passes and halves the blockiness. A stride larger than the window leaves unmeasured gaps that appear as an artificial grid in the map. Default 4.',
     'occlusion_window': "(int) - Side length in pixels of the patch moved across the image during occlusion analysis. Larger windows reduce runtime but spatial resolution and can miss features smaller than the window; smaller windows resolve finer structure with quadratically more forward passes. Occlusion provides a gradient-independent comparison for gradient-based attribution methods. Default 8.",
+    'counterfactuals': '(bool) - Also train a small class-conditional generator on the crops, guided by the loaded classifier, and morph held-out crops toward the other class in steps. Writes each crop\'s classifier score along its sequence, the flip rate, how far the edit moved the crop, a class-mean-shift baseline and a figure to counterfactuals/ next to the maps. The same classifier guides and scores the edits, so read the flip rate with the edit size. Default False.',
+    'counterfactual_crops': '(int) - How many crops, taken in dataset order, train and test the counterfactual generator; a quarter is held out for scoring. More crops give a steadier estimate and a slower run. Ignored unless counterfactuals is on. Default 256.',
+    'counterfactual_epochs': '(int) - Training passes of the counterfactual generator over its crops. Ignored unless counterfactuals is on. Default 30.',
     'sanity_check': "(bool) - Randomize the model's weights layer by layer, recompute attribution and report the similarity between maps. A method that produces nearly the same map for a randomized model is responding to image structure rather than the trained decision function. On a small CNN, the CAM family, including spaCR's default Grad-CAM, fails this test while saliency and integrated gradients pass. The resulting similarity is reported for the selected model rather than inferred from benchmark behavior. This costs one additional attribution per randomized layer. Default True.",
     'smoothgrad_samples': "(int) - Number of noise-perturbed image copies averaged into one attribution map. Using 8-50 samples reduces local gradient variability and improves between-image comparability. A value of 0, the default, evaluates the method once and minimizes computation during method selection. Applies to every method, including the CAM family, where maps are averaged explicitly rather than through Captum.",
     'smoothgrad_sigma': "(float) - Standard deviation of the noise added by SmoothGrad, expressed as a fraction of the image intensity range. Values that are too small produce nearly identical samples and little averaging effect; values that are too large move samples outside the training distribution, causing the average to characterize responses to noise rather than the experimental images. Values of 0.1-0.2 are typical. Ignored when smoothgrad_samples is 0. Default 0.15.",
@@ -5553,7 +5559,7 @@ categories = {
     ],
     "Regression: Diagnostics": ["regression_qc"],
 
-    "Activation Maps": ["smoothgrad_samples", "smoothgrad_sigma", "occlusion_window", "occlusion_stride", "ig_steps", "ig_baseline", "attribution_steps", "attribution_baseline", "sanity_check", "object_type", "cam_type", "target_layer", "overlay", "correlation", "manders_thresholds", "normalize_input"],
+    "Activation Maps": ["smoothgrad_samples", "smoothgrad_sigma", "occlusion_window", "occlusion_stride", "ig_steps", "ig_baseline", "attribution_steps", "attribution_baseline", "sanity_check", "object_type", "cam_type", "target_layer", "overlay", "correlation", "manders_thresholds", "normalize_input", "counterfactuals", "counterfactual_crops", "counterfactual_epochs"],
 
     "Sequencing": ["mode", "single_direction", "target_sequence", "regex", "offset_start", "window_length", "barcode_mismatches", "chunk_size", "fill_na", "save_h5", "comp_type", "comp_level"],
 
@@ -6586,6 +6592,9 @@ def get_default_generate_activation_map_settings(settings):
     settings.setdefault('attribution_baseline', 'blur')
     settings.setdefault('sanity_check', True)
     settings.setdefault('object_type', 'cell')
+    settings.setdefault('counterfactuals', False)
+    settings.setdefault('counterfactual_crops', 256)
+    settings.setdefault('counterfactual_epochs', 30)
     return settings
 
 def get_analyze_plaque_settings(settings):
@@ -7391,6 +7400,10 @@ ALPHA_FEATURES = {
     },
     534: {
         'widgets': ('MapBarcodesSpatialToggle', 'MapBarcodesSpatialCard'),
+    },
+    564: {
+        'settings': ('counterfactuals', 'counterfactual_crops',
+                     'counterfactual_epochs'),
     },
 }
 
