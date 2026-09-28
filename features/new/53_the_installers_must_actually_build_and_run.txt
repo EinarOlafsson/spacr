@@ -415,3 +415,19 @@ private missing-pip environment, and a strictly newer real GUI update target.
 No wheel modification or ZIP-validation bypass is used. A41-test named local
 batch passed; the revised native recovery chain remains pending.
 Receipt: features/data/53_historical_case_collision_2026-09-27.json.
+
+STATUS 2026-09-27 — macOS native helper and menu acceptance passed
+Run36358947318 at6194b0184 is green, including installed Windows/macOS,
+Ubuntu22.04/Debian12 and both Windows Claude terminal checks. The downloaded
+macOS receipt proves actual CPU Measure completed with16 synthetic cells; its
+database independently passes integrity_check and the16-cell recount. All47
+control/document observations were reachable by actual scrolling with scroll
+and cursor state restored. Raw viewport clipping remains in the receipt.
+
+The copied macOS helper answers both CLI help commands after app removal with
+empty PATH and reset extraction environment. Actual Cocoa menu interaction also
+opens Preferences and exits through Quit, closing item23. These results verify
+installation, helper independence and GUI behavior; they do not implement or
+accept frozen replacement transactions. Historical update recovery and the other
+item53 gates remain open. Receipt:
+features/data/23_53_macos_native_acceptance_2026-09-27.json.
