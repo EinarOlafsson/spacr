@@ -1,0 +1,84 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (GPT-6), no native-speaker signoff",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Choose a folder of paired multichannel fields",
+      "source": "Choose a folder of paired multichannel fields",
+      "source_sha256": "44c2fc6c07512d9a31a5786cc6ba052f20f0fd241da84874c3ff839b0cf1d3b9",
+      "translation": "选择包含配对多通道视野的文件夹"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a folder of paired multichannel fields (.npy or .tif) and the channels to learn from and to predict, for example 1 > 0 to predict the nucleus stain from channel 1. A small U-Net is trained on the CPU, the last quarter of the fields is held out, and the real and predicted stains are segmented the same way and matched at IoU 0.5. The model, predictions and a score table are written to <folder>/virtual_stain. Default 20 epochs.",
+      "source": "Choose a folder of paired multichannel fields (.npy or .tif) and the channels to learn from and to predict, for example 1 > 0 to predict the nucleus stain from channel 1. A small U-Net is trained on the CPU, the last quarter of the fields is held out, and the real and predicted stains are segmented the same way and matched at IoU 0.5. The model, predictions and a score table are written to <folder>/virtual_stain. Default 20 epochs.",
+      "source_sha256": "53df53aa0c44a9fe1c0da1027e6747cbd6af23b10de375027a7e69f9089c80b7",
+      "translation": "选择包含配对多通道视野（.npy 或 .tif）的文件夹，以及用于学习和预测的通道，例如 1 > 0 表示从通道 1 预测细胞核染色。在 CPU 上训练一个小型 U-Net，最后四分之一的视野保留用于测试、不参与训练。对真实染色和预测染色采用相同的分割方式，并以 IoU 0.5 进行匹配。模型、预测结果和评分表将写入 <folder>/virtual_stain。默认训练 20 个轮次。"
+    },
+    {
+      "table": "ui",
+      "key": "Input channels > channel to predict:",
+      "source": "Input channels > channel to predict:",
+      "source_sha256": "9a9b1d3f3306ef8ad54280d217b28ac7c00fbb4a2f3b9eff705c9dcc4b3c13fa",
+      "translation": "输入通道 > 待预测通道："
+    },
+    {
+      "table": "ui",
+      "key": "Published results: Ravi et al., 'SAM 2: Segment Anything in Images and Videos', ICLR 2025 (arXiv:2408.00714). spaCR has not scored it against those results; item 556 scores it on Cell Tracking Challenge movies.",
+      "source": "Published results: Ravi et al., 'SAM 2: Segment Anything in Images and Videos', ICLR 2025 (arXiv:2408.00714). spaCR has not scored it against those results; item 556 scores it on Cell Tracking Challenge movies.",
+      "source_sha256": "10f5c11cd47de98ef14f6be733e8adaf6dffdad559aacfa2933deba08cd7bac3",
+      "translation": "已发表的结果：Ravi et al., 'SAM 2: Segment Anything in Images and Videos', ICLR 2025 (arXiv:2408.00714)。spaCR 尚未对照这些结果对该模型进行评分；第 556 项使用 Cell Tracking Challenge 影像序列对其评分。"
+    },
+    {
+      "table": "ui",
+      "key": "SAM2 1.1.0 is Apache-2.0 (Copyright Meta Platforms). Its SAM2.1 checkpoints, Apache-2.0 as well, are downloaded from the facebook/sam2.1-hiera-* repositories on Hugging Face into the backend's own folder the first time a movie is followed. PyPI carries SAM2 only as source, so it is built inside the environment, without its optional CUDA post-processing extension. spaCR ships none of it.",
+      "source": "SAM2 1.1.0 is Apache-2.0 (Copyright Meta Platforms). Its SAM2.1 checkpoints, Apache-2.0 as well, are downloaded from the facebook/sam2.1-hiera-* repositories on Hugging Face into the backend's own folder the first time a movie is followed. PyPI carries SAM2 only as source, so it is built inside the environment, without its optional CUDA post-processing extension. spaCR ships none of it.",
+      "source_sha256": "ab6a345b30110097105b8569ea0e017132e32feed7bf0ead8731e130384db098",
+      "translation": "SAM2 1.1.0 采用 Apache-2.0 许可证（Copyright Meta Platforms）。其 SAM2.1 检查点也采用 Apache-2.0，在首次跟踪影像序列时，从 Hugging Face 上的 facebook/sam2.1-hiera-* 仓库下载到后端自己的文件夹。PyPI 仅提供 SAM2 源代码，因此会在环境内构建，不包含其可选的 CUDA 后处理扩展。spaCR 不随附上述任何组件。"
+    },
+    {
+      "table": "ui",
+      "key": "SAM2's video predictor, as a timelapse mode: seeded with spaCR's masks on the first frame, it follows each object through the movie with a memory of its appearance, so segmentation and tracking are one step and every object keeps its id. Objects that appear later are seeded where spaCR first finds them.",
+      "source": "SAM2's video predictor, as a timelapse mode: seeded with spaCR's masks on the first frame, it follows each object through the movie with a memory of its appearance, so segmentation and tracking are one step and every object keeps its id. Objects that appear later are seeded where spaCR first finds them.",
+      "source_sha256": "4a11b92e2eb3595b6542e9658c62cf8fa635bfcaedefa22cf1c9675e583d44b3",
+      "translation": "将 SAM2 的视频预测器用作延时成像模式：以第一帧中的 spaCR 掩膜进行初始化，利用对外观的记忆，在整个影像序列中跟踪每个对象，因此分割与跟踪在一个步骤中完成，每个对象都保留自己的标识符。对于后续出现的对象，在 spaCR 首次发现它们的位置进行初始化。"
+    },
+    {
+      "table": "ui",
+      "key": "Training the virtual stain…",
+      "source": "Training the virtual stain…",
+      "source_sha256": "c41cfd4e94255a62e46cfc03ede452839e877a0bdef5cba361bbb9bddab4e6bf",
+      "translation": "正在训练虚拟染色…"
+    },
+    {
+      "table": "ui",
+      "key": "Virtual stain on {fields} held-out fields: F1 {f1:.2f} at IoU 0.5 against the real stain's objects (input channel alone {base:.2f}), Pearson r {r:.2f}.",
+      "source": "Virtual stain on {fields} held-out fields: F1 {f1:.2f} at IoU 0.5 against the real stain's objects (input channel alone {base:.2f}), Pearson r {r:.2f}.",
+      "source_sha256": "b4ba6e8ff0706307dade16c877d6111cadb51b7b36e55094d5500ed9cbf37da0",
+      "translation": "在 {fields} 个保留测试视野上的虚拟染色：以真实染色的对象为参照，在 IoU 0.5 下的 F1 为 {f1:.2f}（仅使用输入通道时为 {base:.2f}），Pearson r 为 {r:.2f}。"
+    },
+    {
+      "table": "ui",
+      "key": "Virtual staining",
+      "source": "Virtual staining",
+      "source_sha256": "3e4d7d3bcf801565104fa14d50194830cccaee0a99a1df93cbf856da0063de08",
+      "translation": "虚拟染色"
+    },
+    {
+      "table": "ui",
+      "key": "Virtual staining failed: {error}",
+      "source": "Virtual staining failed: {error}",
+      "source_sha256": "f08847a01c2bfcc6243db9bc523306be65f38a4923d7dcae00cd8c0390ad39d2",
+      "translation": "虚拟染色失败：{error}"
+    },
+    {
+      "table": "ui",
+      "key": "Virtual staining…",
+      "source": "Virtual staining…",
+      "source_sha256": "f31bfdd297d543a0c682b0dcf4c17cd69c4a6ed4cc28a54b96bb75722d6c8c66",
+      "translation": "虚拟染色…"
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 SPOTNET IN THE MODEL ZOO, AND WHERE SPACR COULD USE IT
 ================================================================================
 
-Status:    FILED 2026-09-22. The zoo row, the backend, a real CPU install and
+Status:    DONE 2026-09-28 (original acceptance verified). The zoo row, the backend, a real CPU install and
            an opt-in OPS setting (ops_spot_detector) are BUILT; the token
            is read from a file. First real SpotNet-vs-native comparison
            DONE 2026-09-25 (CPU): SpotNet does NOT beat native on the two
@@ -181,3 +181,19 @@ way. The gpu_turn.sh run (queued 13:55) never got a turn: an unqueued
 pytest held a CUDA context for over two hours, so the card was never idle,
 and the turn was withdrawn at 14:57 (logged in ~/.spacr/gpu/log). A GPU
 SpotNet would need CUDA 11.2 / cuDNN 8.1 wheels in its environment first. Receipt: 475_real_install_and_native_baseline_2026-09-25.json.
+
+2026-09-28 — ORIGINAL DONE WHEN VERIFIED; CLOSED
+The original request and both DONE WHEN bullets are fulfilled: SpotNet is in
+Model Zoo; the production installer completed on Python 3.10.20; pretrained
+SpotNet detected spots on real A1 fields 331 and 332 and was compared with
+native through the same shipped decoder. The saved result supports keeping
+native as default (3,476 versus 2,523 assignments; 21.8 versus 145.9 CPU s).
+The conditional "If it wins" recommendation is not triggered; the opt-in
+ops_spot_detector setting and non-commercial licence at selection are built.
+Receipt: features/data/475_real_install_and_native_baseline_2026-09-25.json.
+Receipt SHA-256:
+087e5839f09fc997d8b3ebffe056a31b3743a4468ecdcd5f9e99df2bdbd54af1.
+The earlier notes above are history. GPU execution, FISH/SMFISH per-cell
+counting and labelled accuracy remain unproven extensions; they were not in
+the original DONE WHEN. The two-field comparison establishes agreement and
+runtime, not ground-truth accuracy. No original acceptance criterion changed.

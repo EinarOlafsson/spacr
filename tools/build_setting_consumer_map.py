@@ -327,7 +327,44 @@ def _filled_from_settings(fn) -> set:
     return found
 
 
-def _returns_settings(fn) -> bool:
+def _projected_settings(value, tables, aliases=frozenset()) -> bool:
+    """Recognize a defaults table projected through actual settings reads.
+
+    ``{key: settings.get(key, default) for key, default in TABLE.items()}``
+    returns a settings mapping; a comprehension over unrelated data does not.
+
+    :param value: assigned expression to inspect without executing it.
+    :param tables: statically folded module tables and their string keys.
+    :param aliases: local names already bound to a settings mapping.
+    :returns: whether the expression has this complete projection shape.
+    """
+    if not isinstance(value, ast.DictComp) or len(value.generators) != 1:
+        return False
+    gen = value.generators[0]
+    if gen.ifs or gen.is_async or not isinstance(gen.target, ast.Tuple):
+        return False
+    if len(gen.target.elts) != 2 or not all(
+            isinstance(part, ast.Name) for part in gen.target.elts):
+        return False
+    key, default = (part.id for part in gen.target.elts)
+    source = gen.iter
+    if not (isinstance(source, ast.Call) and not source.args
+            and not source.keywords and isinstance(source.func, ast.Attribute)
+            and source.func.attr == 'items'
+            and isinstance(source.func.value, ast.Name)
+            and source.func.value.id in tables):
+        return False
+    read = value.value
+    return (isinstance(value.key, ast.Name) and value.key.id == key
+            and isinstance(read, ast.Call) and not read.keywords
+            and isinstance(read.func, ast.Attribute) and read.func.attr == 'get'
+            and _is_settings_mapping(read.func.value, aliases)
+            and len(read.args) == 2
+            and isinstance(read.args[0], ast.Name) and read.args[0].id == key
+            and isinstance(read.args[1], ast.Name) and read.args[1].id == default)
+
+
+def _returns_settings(fn, tables=None) -> bool:
     """Whether ``fn`` hands its caller back a settings mapping.
 
     Asked of the RETURN STATEMENTS rather than of the name.
@@ -338,7 +375,9 @@ def _returns_settings(fn) -> bool:
     params = {a.arg for a in fn.args.args + fn.args.kwonlyargs}
     aliases = set(params & SETTINGS_NAMES) | _filled_from_settings(fn)
     for child in ast.walk(fn):
-        if isinstance(child, ast.Assign) and _settings_alias(child.value):
+        if isinstance(child, ast.Assign) and (
+                _settings_alias(child.value)
+                or _projected_settings(child.value, tables or {}, aliases)):
             aliases |= {t.id for t in child.targets
                         if isinstance(t, ast.Name)}
     for child in ast.walk(fn):
@@ -370,9 +409,10 @@ def settings_helpers() -> set:
             tree = ast.parse(path.read_text(encoding="utf-8"))
         except (SyntaxError, UnicodeDecodeError):
             continue
+        tables = _module_tables(tree)
         for node in ast.walk(tree):
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                if _returns_settings(node):
+                if _returns_settings(node, tables):
                     found.add(node.name)
     return found
 
@@ -631,7 +671,8 @@ class Reads(ast.NodeVisitor):
         Both halves are required: a factory called on something else
         returns something else.
         """
-        if _settings_alias(value):
+        if (_settings_alias(value)
+                or _projected_settings(value, self.tables, self.aliases)):
             return True
         if not isinstance(value, ast.Call):
             return False
@@ -715,6 +756,14 @@ class Reads(ast.NodeVisitor):
                 self._record_dynamic(node.slice, node, "subscript")
             else:
                 self._record_named(node.slice, node, "subscript")
+        self.generic_visit(node)
+
+    def visit_DictComp(self, node):           # noqa: N802 - ast naming
+        """Record folded defaults reads without leaking the loop key's scope."""
+        if _projected_settings(node, self.tables, self.aliases):
+            table = node.generators[0].iter.func.value.id
+            for key in sorted(self.tables[table]):
+                self._record(key, node.value, 'get-dynamic')
         self.generic_visit(node)
 
     def visit_Call(self, node):               # noqa: N802 - ast naming

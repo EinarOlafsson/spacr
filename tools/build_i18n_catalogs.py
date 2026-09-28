@@ -5037,7 +5037,8 @@ def _contextualize(value: str, language: str, source: str = "") -> str:
     # Preserve verbatim citation titles and copyright notices copied from
     # the English source. Lexical cleanup must not rewrite quoted attribution.
     attribution_literals = re.findall(r"\(Copyright \d{4}[^()\n]*\)", str(source))
-    if re.search(r"\bdoi:\s*10\.\d{4,9}/", str(source), re.IGNORECASE):
+    if re.search(r"\b(?:doi:\s*10\.\d{4,9}/|arxiv:\s*\d{4}\.\d{4,5}(?:v\d+)?\b)",
+                 str(source), re.IGNORECASE):
         attribution_literals.extend(
             match.group(0) for match in re.finditer(
                 r"(?<!\w)(['\"])[^'\"\n]+\s[^'\"\n]+\1", str(source)

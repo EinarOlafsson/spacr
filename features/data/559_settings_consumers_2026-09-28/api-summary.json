@@ -1,0 +1,34 @@
+{
+  "source_revision": "fb2490022314536af6f843b9d1ca4189d239e30e",
+  "english_catalog_sha256": "d828f9514af97d9a4c22a4afccec239790f4d0eed1e193a743a1b704d211a5fc",
+  "old_api_symbol_count": 11865,
+  "current_api_symbol_count": 11865,
+  "missing_symbols": [],
+  "changed_symbols": [],
+  "removed_symbols": [],
+  "missing_count": 0,
+  "changed_count": 0,
+  "removed_count": 0,
+  "delta_symbol_source_block_count": 0,
+  "delta_unique_source_block_count": 0,
+  "new_unique_source_block_count": 0,
+  "counts": {
+    "public_callable_count": 9837,
+    "signature_variant_count": 9844,
+    "accepted_parameter_count": 19542,
+    "required_parameter_count": 10056,
+    "callable_categories": {
+      "constructor": 452,
+      "dataclass_constructor": 508,
+      "exception_constructor": 149,
+      "function": 4399,
+      "inherited_or_default_constructor": 60,
+      "method": 4245,
+      "namedtuple_constructor": 24
+    },
+    "callable_parameter_inventory_sha256": "5627d293313b3f0600a6fd4f6475bbeafd61bfd34c78304727d6fce85a752139",
+    "required_parameter_omissions": [],
+    "omission_callable_categories": {},
+    "omission_parameter_categories": {}
+  }
+}

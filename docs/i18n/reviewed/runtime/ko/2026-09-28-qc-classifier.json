@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (GPT-6), no native-speaker signoff",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "image_qc_classifier",
+      "source": "Image QC classifier",
+      "source_sha256": "531a47394a1d7c49b9cd589d10df4f7057d5bdbd4a6f8f82690cde75f3a02092",
+      "translation": "영상 품질(QC) 분류기"
+    },
+    {
+      "table": "setting_labels",
+      "key": "image_qc_classifier_model",
+      "source": "Image QC classifier model",
+      "source_sha256": "f165ac20974fa6d98a9f6c6e93b63854f45f78207322a8829cb41964d3d65c8b",
+      "translation": "영상 품질(QC) 분류기 모델"
+    },
+    {
+      "table": "setting_labels",
+      "key": "image_qc_classifier_labels",
+      "source": "Image QC classifier labels",
+      "source_sha256": "943c322ed4a5b86e28ad37c5598759f48ad71da1e5a868238becc5eefd8a86ea",
+      "translation": "영상 품질(QC) 분류기 레이블"
+    },
+    {
+      "table": "setting_labels",
+      "key": "image_qc_classifier_threshold",
+      "source": "Image QC classifier threshold",
+      "source_sha256": "69b945ee7598e93b26c4d41ebcbbfff0942284494920042e630c7025a7d10aa8",
+      "translation": "영상 품질(QC) 분류기 임계값"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_classifier",
+      "source": "Also screen each field with a small neural network that flags out-of-focus, saturated, debris-covered, bubble and empty fields, alongside the focus and saturation rules. Flags go into the image-quality report with a probability per class; in exclude mode a flagged field is kept out of segmentation like any other. Runs on the CPU. The built-in model is trained once on synthetic fields with planted defects and cached. Ignored when image_qc_mode is off. Default False.",
+      "source_sha256": "a4278479156447351631aebe25cd9eb4f3ce12479723607300c85da00364afb8",
+      "translation": "초점 및 포화도 규칙과 함께 작은 신경망으로 각 영상 필드도 검사하여 초점이 맞지 않는 필드, 포화된 필드, 잔해로 덮인 필드, 기포가 있는 필드 및 빈 필드를 표시합니다. 표시 결과는 클래스별 확률과 함께 영상 품질 보고서에 기록됩니다. exclude 모드에서는 표시된 필드가 다른 표시된 필드와 마찬가지로 분할에서 제외됩니다. CPU에서 실행됩니다. 내장 모델은 결함을 의도적으로 삽입한 합성 필드로 한 번 학습한 후 캐시에 저장됩니다. image_qc_mode가 off이면 이 설정은 무시됩니다. 기본값 False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_classifier_model",
+      "source": "A classifier saved by an earlier run (qc/image_qc_model.pt) to use instead of the built-in one. It is read as tensors only. Blank uses the built-in model. Default None.",
+      "source_sha256": "bf40849d0c7891c8abb3ad319f807c7113eac5fbdb5dedd2d85c6d22f3817056",
+      "translation": "내장 분류기 대신 이전 실행에서 저장한 분류기(qc/image_qc_model.pt)를 사용합니다. 텐서로만 읽습니다. 비워 두면 내장 모델을 사용합니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_classifier_labels",
+      "source": "Table of hand-labelled fields to fine-tune the classifier on, with a field column (the raw file name) and a label column: good, or out_of_focus, saturated, debris, bubble or empty, several separated by semicolons; an optional channel column picks the channel. With 10 or more fields, cross-validated precision and recall against the rule metrics go to qc/image_qc_benchmark.csv; the tuned model is saved as qc/image_qc_model.pt. Default None.",
+      "source_sha256": "70d32bc87f65993cdc22720a190b3cd911a7e423c594db0a3d113799e6ab4a32",
+      "translation": "분류기를 미세 조정하기 위한 수동 레이블 지정 필드 테이블입니다. field 열(원본 파일 이름)과 label 열을 포함합니다. 레이블은 good 또는 out_of_focus, saturated, debris, bubble, empty 이며, 여러 레이블은 세미콜론으로 구분합니다. 선택 사항인 channel 열은 채널을 선택합니다. 필드가 10 개 이상이면 교차 검증으로 구한 정밀도와 재현율 및 규칙 기반 지표와의 비교가 qc/image_qc_benchmark.csv 에 기록됩니다. 미세 조정한 모델은 qc/image_qc_model.pt 로 저장됩니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_classifier_threshold",
+      "source": "Smallest class probability, from 0 to 1, at which the classifier flags a field. Raise it to flag fewer fields, lower it to miss fewer defects. Default 0.5.",
+      "source_sha256": "72435294f7c4860f3dbd890c3f06dce9befa3f0fe732a61595ec4bc2676609d8",
+      "translation": "분류기가 필드를 표시하는 최소 클래스 확률로, 범위는 0에서 1까지입니다. 값을 높이면 표시하는 필드가 줄고, 낮추면 놓치는 결함이 줄어듭니다. 기본값 0.5."
+    }
+  ]
+}

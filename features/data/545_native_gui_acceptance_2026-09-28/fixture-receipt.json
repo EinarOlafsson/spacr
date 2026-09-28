@@ -1,0 +1,136 @@
+{
+  "schema": "spacr.545.gui_interop_fixture.v1",
+  "fixture_is_synthetic": true,
+  "fixture_function": "tests/test_545_roi_export_import.py::_awkward_mask",
+  "shape_yx": [
+    64,
+    96
+  ],
+  "expected_roi_count": 8,
+  "objects": [
+    {
+      "name": "cell-3",
+      "object_type": "cell",
+      "object_id": 3,
+      "class": "infected",
+      "bounds_xywh": [
+        5,
+        5,
+        25,
+        20
+      ],
+      "area_pixels": 416,
+      "native_imagej_selection_type": 9
+    },
+    {
+      "name": "cell-4",
+      "object_type": "cell",
+      "object_id": 4,
+      "class": "cell",
+      "bounds_xywh": [
+        0,
+        0,
+        96,
+        3
+      ],
+      "area_pixels": 288,
+      "native_imagej_selection_type": 4
+    },
+    {
+      "name": "cell-7",
+      "object_type": "cell",
+      "object_id": 7,
+      "class": "cell",
+      "bounds_xywh": [
+        30,
+        5,
+        15,
+        20
+      ],
+      "area_pixels": 300,
+      "native_imagej_selection_type": 4
+    },
+    {
+      "name": "cell-9",
+      "object_type": "cell",
+      "object_id": 9,
+      "class": "dividing",
+      "bounds_xywh": [
+        30,
+        30,
+        22,
+        20
+      ],
+      "area_pixels": 71,
+      "native_imagej_selection_type": 9
+    },
+    {
+      "name": "cell-12",
+      "object_type": "cell",
+      "object_id": 12,
+      "class": "cell",
+      "bounds_xywh": [
+        60,
+        50,
+        2,
+        3
+      ],
+      "area_pixels": 3,
+      "native_imagej_selection_type": 9
+    },
+    {
+      "name": "cell-20",
+      "object_type": "cell",
+      "object_id": 20,
+      "class": "cell",
+      "bounds_xywh": [
+        5,
+        40,
+        10,
+        8
+      ],
+      "area_pixels": 78,
+      "native_imagej_selection_type": 9
+    },
+    {
+      "name": "cell-65535",
+      "object_type": "cell",
+      "object_id": 65535,
+      "class": "cell",
+      "bounds_xywh": [
+        90,
+        60,
+        6,
+        4
+      ],
+      "area_pixels": 24,
+      "native_imagej_selection_type": 4
+    },
+    {
+      "name": "nucleus-2",
+      "object_type": "nucleus",
+      "object_id": 2,
+      "class": "nucleus",
+      "bounds_xywh": [
+        30,
+        5,
+        15,
+        20
+      ],
+      "area_pixels": 300,
+      "native_imagej_selection_type": 4
+    }
+  ],
+  "spacr_round_trips_exact": [
+    "geojson",
+    "imagej",
+    "coco"
+  ],
+  "python": "3.12.13 | packaged by Anaconda, Inc. | (main, Jul  9 2026, 14:38:16) [GCC 14.3.0]",
+  "roifile_version": "2026.7.30",
+  "tifffile_version": "2026.8.16",
+  "source_sha256": {
+    "tests/test_545_roi_export_import.py": "d9d7e4f86e655bc178a2e3d099f2f425dbdf4bd583561248fa4a7b9ef7538d22",
+    "spacr/mask_io.py": "f8eda3ee0ac80ce9a309c4c67424ccdd037d3c29d698e58b22a8247ead77deed"
+  }
+}

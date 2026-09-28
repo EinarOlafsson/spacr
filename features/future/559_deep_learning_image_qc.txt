@@ -94,3 +94,15 @@ WHAT IS LEFT
       was only exercised through v1-style stack/ folders here.
     - No dedicated QC dashboard card for classifier classes (the existing
       Image Quality card shows the reasons).
+
+2026-09-28 — SETTINGS CONSUMER AND HELP DOCUMENTATION CORRECTED
+Both static analyzers now recognize a literal defaults table projected
+through settings.get(key, default), including policies returned to callers.
+There are no classifier-key exceptions or scientific-module imports. The
+four classifier controls link to image_quality.quality_policy; nine QC flow
+sections and the Help search index were regenerated from the actual readers.
+Merged-source validation: 50 analyzer/flow/literal checks and 22 Help checks
+passed. The new arXiv attribution regression belongs to the runtime pass.
+Receipts: features/data/559_settings_consumers_2026-09-28/.
+The original public-QC pretraining, Annotate field labels and real-data
+precision/recall acceptance remain open; this note does not close item 559.
