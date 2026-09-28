@@ -568,3 +568,17 @@ The named verifier/hygiene selection reports91 passes with captured pytest exit0
 YAML/Windows recovery guards are checked. Synthetic fixtures prove no native
 execution. PowerShell5.1 parsing and the full native GUI chain remain pending.
 Receipt: features/data/53_historical_bootstrap_recovery_preparation_2026-09-28.json.
+
+STATUS 2026-09-28 — native Windows bootstrap reached the actual broken GUI
+Historical-upgrade run36394396168 at08cf8d3f1 verifies the explicit unchanged
+Windows full-bootstrap recovery with exit0. The original installer wrapper
+remains failed. The real installed Help action produced the missing-pip dialog;
+the audit witness then failed because CPython reports Windows Popen arguments
+as a serialized string. External repair and successful update were not reached.
+The observer now accepts only the exact canonical serialization of the required
+installed command; altered or additional relevant children remain rejecting
+entries. Both baseline Windows cases fail with an empty command witness, and
+all78 corrected observer/full-verifier checks pass without skips under4G.
+This corrects acceptance observation, not installer behavior. The genuine
+complete native GUI chain and whole53 acceptance remain open pending new CI.
+Receipt: features/data/53_windows_update_audit_witness_2026-09-28.json.

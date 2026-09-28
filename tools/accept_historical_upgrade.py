@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import platform
 import re
+import subprocess
 import sys
 import threading
 import time
@@ -26,6 +27,39 @@ args.output.parent.mkdir(parents=True, exist_ok=True)
 def sha(path):
     """Return the SHA256 of one installed source file."""
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+def _observed_update_command(event, values, expected_command):
+    """Normalize an actual subprocess audit event without replacing execution.
+
+    Parameters
+    ----------
+    event : str
+        Audit event name.
+    values : tuple
+        Audit arguments, including the native child arguments at index one.
+    expected_command : list[str]
+        Exact installed updater arguments required by the acceptance contract.
+
+    Returns
+    -------
+    list[str] or None
+        Observed updater arguments, or None for an unrelated event. Windows
+        strings must exactly match CPython's serialization of expected_command.
+        Unexpected relevant strings remain raw entries so strict command/count
+        checks reject them rather than hiding an additional update child.
+    """
+    if event != 'subprocess.Popen':
+        return None
+    argv = values[1]
+    if isinstance(argv, str):
+        if not all(token in argv for token in ('install', '--upgrade', 'spacr')):
+            return None
+        return list(expected_command) if argv == subprocess.list2cmdline(expected_command) else [argv]
+    if isinstance(argv, (list, tuple)):
+        command = [os.fsdecode(value) for value in argv]
+        if all(token in command for token in ('install', '--upgrade', 'spacr')):
+            return command
+    return None
 
 def write(payload):
     """Write the current stage receipt to the explicit output path."""
@@ -233,14 +267,15 @@ import spacr.qt.app as installed_app
 assert sha(updater.__file__) == before['installed_sources']['spacr/updater.py']['sha256']
 assert sha(installed_app.__file__) == before['installed_sources']['spacr/qt/app.py']['sha256']
 commands = []
+expected_update_command = [sys.executable, '-m', 'pip', 'install', '--upgrade', 'spacr']
+if args.expect == 'success':
+    expected_uv = Path(sys.prefix).parent / 'bootstrap' / ('uv.exe' if os.name == 'nt' else 'uv')
+    expected_update_command = [str(expected_uv), 'pip', 'install', '--upgrade', '--python', sys.executable, 'spacr']
 def observe(event, values):
     """Observe actual upgrade child-process arguments without replacing execution."""
-    if event == 'subprocess.Popen':
-        argv = values[1]
-        if isinstance(argv, (list, tuple)):
-            command = [os.fsdecode(value) for value in argv]
-            if 'install' in command and '--upgrade' in command and 'spacr' in command:
-                commands.append(command)
+    command = _observed_update_command(event, values, expected_update_command)
+    if command is not None:
+        commands.append(command)
 sys.addaudithook(observe)
 
 started = time.monotonic()
