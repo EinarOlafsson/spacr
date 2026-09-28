@@ -98,6 +98,127 @@ jobs:
           if ($IsWindows) {
             $bootstrapLog = Join-Path $installRoot 'install.log'
             $observationLog = Join-Path $evidence 'installer-process-observations.jsonl'
+            $script:installerSnapshot = @()
+            $script:bootstrapSeen = $false
+            $script:bootstrapGone = $false
+            $script:transcriptEnded = $false
+            $script:installerObserverReady = $false
+            $script:installerObserverInitError = $null
+            try {
+              Add-Type -AssemblyName System.Drawing -ErrorAction Stop
+              Add-Type -ErrorAction Stop -TypeDefinition @'
+            using System;
+            using System.Collections.Generic;
+            using System.Diagnostics;
+            using System.Runtime.InteropServices;
+            using System.Text;
+            public static class InstallerWindowObserver {
+              public delegate bool Callback(IntPtr window, IntPtr state);
+              [StructLayout(LayoutKind.Sequential)] public struct Rect { public int left, top, right, bottom; }
+              public class Row {
+                public long handle; public uint pid; public long start_ticks;
+                public bool top_level, visible, text_read, text_truncated; public int error;
+                public string window_class, text; public int[] rectangle;
+              }
+              public class Result { public List<Row> windows = new List<Row>(); public bool truncated; public long elapsed_ms; }
+              [DllImport("user32.dll")] static extern bool EnumWindows(Callback callback, IntPtr state);
+              [DllImport("user32.dll")] static extern bool EnumChildWindows(IntPtr parent, Callback callback, IntPtr state);
+              [DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr window, out uint pid);
+              [DllImport("user32.dll")] static extern bool IsWindowVisible(IntPtr window);
+              [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr window, out Rect rectangle);
+              [DllImport("user32.dll", CharSet=CharSet.Unicode)] static extern int GetClassNameW(IntPtr window, StringBuilder value, int capacity);
+              [DllImport("user32.dll", CharSet=CharSet.Unicode, SetLastError=true)]
+              static extern IntPtr SendMessageTimeoutW(IntPtr window, uint message, UIntPtr count, StringBuilder text, uint flags, uint timeout, out UIntPtr result);
+              public static bool Matches(IntPtr window, Dictionary<uint,long> owned) {
+                uint pid; GetWindowThreadProcessId(window, out pid);
+                if (!owned.ContainsKey(pid)) return false;
+                try { using (var process = Process.GetProcessById((int)pid)) {
+                  return process.StartTime.ToUniversalTime().Ticks == owned[pid];
+                }} catch { return false; }
+              }
+              public static Result Capture(Dictionary<uint,long> owned) {
+                var result = new Result(); var clock = Stopwatch.StartNew();
+                Func<IntPtr,bool,bool> read = (window, top) => {
+                  if (clock.ElapsedMilliseconds >= 4000 || result.windows.Count >= 64) { result.truncated=true; return false; }
+                  if (!Matches(window, owned)) return true;
+                  uint pid; GetWindowThreadProcessId(window, out pid);
+                  var name = new StringBuilder(256); GetClassNameW(window, name, name.Capacity);
+                  var text = new StringBuilder(4096); UIntPtr length;
+                  bool ok = SendMessageTimeoutW(window, 0x000D, new UIntPtr((uint)text.Capacity), text, 0x22, 100, out length) != IntPtr.Zero;
+                  int error = ok ? 0 : Marshal.GetLastWin32Error();
+                  Rect rectangle; bool located = GetWindowRect(window, out rectangle);
+                  result.windows.Add(new Row { handle=window.ToInt64(), pid=pid, start_ticks=owned[pid],
+                    top_level=top, visible=IsWindowVisible(window), text_read=ok, text_truncated=ok && text.Length==4095, error=error,
+                    window_class=name.ToString(), text=ok ? text.ToString() : null,
+                    rectangle=located ? new int[] {rectangle.left, rectangle.top, rectangle.right-rectangle.left, rectangle.bottom-rectangle.top} : null });
+                  return true;
+                };
+                EnumWindows((window, state) => {
+                  if (!read(window, true)) return false;
+                  if (Matches(window, owned)) EnumChildWindows(window, (child, unused) => read(child, false), IntPtr.Zero);
+                  return clock.ElapsedMilliseconds < 4000 && result.windows.Count < 64;
+                }, IntPtr.Zero);
+                result.elapsed_ms=clock.ElapsedMilliseconds;
+                result.truncated = result.truncated || result.elapsed_ms >= 4000 || result.windows.Count >= 64;
+                return result;
+              }
+            }
+          '@
+              $script:installerObserverReady = $true
+            } catch {
+              $script:installerObserverInitError = $_.Exception.Message
+              try {
+                @{available=$false; error=$script:installerObserverInitError; diagnostic_only=$true; original_installer_modified=$false} |
+                  ConvertTo-Json -Depth 4 | Set-Content (Join-Path $evidence 'installer-ui-initialization.json') -Encoding utf8
+              } catch { Write-Warning "Cannot retain passive observer initialization error: $($_.Exception.Message)" }
+              Write-Warning "Passive installer observer unavailable: $script:installerObserverInitError"
+            }
+            function Save-InstallerWindows([string]$Label, [Diagnostics.Process]$Installer) {
+              $proof = [ordered]@{label=$Label; observed_utc=[DateTime]::UtcNow.ToString('o'); input_sent=$false; dialogs_dismissed=$false; complete=$false; images=@()}
+              if (-not $script:installerObserverReady) {
+                $proof.observer_available = $false
+                $proof.error = $script:installerObserverInitError
+                try { $proof | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $evidence "installer-ui-$Label.json") -Encoding utf8 }
+                catch { Write-Warning "Cannot retain passive observer diagnostic: $($_.Exception.Message)" }
+                return
+              }
+              try {
+                $owned = [Collections.Generic.Dictionary[uint32,long]]::new()
+                if (-not $Installer.HasExited) { $owned[[uint32]$Installer.Id] = $Installer.StartTime.ToUniversalTime().Ticks }
+                foreach ($row in $script:installerSnapshot) {
+                  if ($row.start_ticks) { $owned[[uint32]$row.pid] = [long]$row.start_ticks }
+                }
+                $capture = [InstallerWindowObserver]::Capture($owned)
+                $proof.windows = $capture.windows
+                $proof.truncated = $capture.truncated
+                $proof.control_capture_ms = $capture.elapsed_ms
+                $imageCount = 0
+                foreach ($window in $capture.windows) {
+                  if (-not $window.top_level -or -not $window.visible -or $imageCount -ge 2) { continue }
+                  $handle = [IntPtr]::new($window.handle)
+                  if (-not [InstallerWindowObserver]::Matches($handle, $owned)) { continue }
+                  $rectangle = [InstallerWindowObserver+Rect]::new()
+                  if (-not [InstallerWindowObserver]::GetWindowRect($handle, [ref]$rectangle)) { continue }
+                  $width = $rectangle.right - $rectangle.left
+                  $height = $rectangle.bottom - $rectangle.top
+                  if ($width -le 0 -or $height -le 0 -or [long]$width * $height -gt 8294400) { continue }
+                  $bitmap = $null; $graphics = $null
+                  try {
+                    $bitmap = [Drawing.Bitmap]::new($width, $height)
+                    $graphics = [Drawing.Graphics]::FromImage($bitmap)
+                    $graphics.CopyFromScreen($rectangle.left, $rectangle.top, 0, 0, [Drawing.Size]::new($width,$height))
+                    $filename = "installer-ui-$Label-$($window.pid)-$($window.handle).png"
+                    $bitmap.Save((Join-Path $evidence $filename), [Drawing.Imaging.ImageFormat]::Png)
+                    $proof.images += @{file=$filename; pid=$window.pid; handle=$window.handle; rectangle=@($rectangle.left,$rectangle.top,$width,$height); scope='Actual installer-window screen rectangle; may be occluded'}
+                    $imageCount++
+                  } catch { $proof.images += @{pid=$window.pid; error=$_.Exception.Message} }
+                  finally { if ($graphics) { $graphics.Dispose() }; if ($bitmap) { $bitmap.Dispose() } }
+                }
+                $proof.complete = -not $capture.truncated
+              } catch { $proof.error = $_.Exception.Message }
+              try { $proof | ConvertTo-Json -Depth 9 | Set-Content (Join-Path $evidence "installer-ui-$Label.json") -Encoding utf8 }
+              catch { Write-Warning "Cannot retain passive observer diagnostic: $($_.Exception.Message)" }
+            }
             $observation = [ordered]@{
               status = 'running'; deadline_minutes = 40; artifact_sha256 = $actual
               command = @($artifact, '/S'); started_utc = [DateTime]::UtcNow.ToString('o')
@@ -106,13 +227,20 @@ jobs:
             function Save-InstallerObservation([Diagnostics.Process]$Installer) {
               try {
                 $nodes = @(Get-CimInstance Win32_Process -Property ProcessId,ParentProcessId,Name,CreationDate)
+                $rootNode = @($nodes | Where-Object { $_.ProcessId -eq $Installer.Id })
+                if ($rootNode.Count -ne 1 -or $Installer.HasExited) { throw 'Original installer identity is no longer available' }
+                $rootTicks = $Installer.StartTime.ToUniversalTime().Ticks
+                $observedRootTicks = $rootNode[0].CreationDate.ToUniversalTime().Ticks
+                if (($rootTicks - ($rootTicks % 10)) -ne ($observedRootTicks - ($observedRootTicks % 10))) { throw 'Installer PID creation identity changed' }
+                $byId = @{}
+                foreach ($node in $nodes) { $byId[[uint32]$node.ProcessId] = $node }
                 $owned = [Collections.Generic.HashSet[uint32]]::new()
                 [void]$owned.Add([uint32]$Installer.Id)
                 do {
                   $added = $false
                   foreach ($node in $nodes) {
                     if ($owned.Contains([uint32]$node.ParentProcessId) -and
-                        $node.CreationDate.ToUniversalTime() -ge $Installer.StartTime.ToUniversalTime().AddSeconds(-1)) {
+                        $node.CreationDate.ToUniversalTime() -ge $byId[[uint32]$node.ParentProcessId].CreationDate.ToUniversalTime()) {
                       if ($owned.Add([uint32]$node.ProcessId)) { $added = $true }
                     }
                   }
@@ -121,14 +249,22 @@ jobs:
                   foreach ($node in $nodes) {
                     if ($owned.Contains([uint32]$node.ProcessId)) {
                       $native = Get-Process -Id $node.ProcessId -ErrorAction SilentlyContinue
+                      if (-not $native) { continue }
+                      $ticks = $native.StartTime.ToUniversalTime().Ticks
+                      $nodeTicks = $node.CreationDate.ToUniversalTime().Ticks
+                      if (($ticks - ($ticks % 10)) -ne ($nodeTicks - ($nodeTicks % 10))) { continue }
                       [ordered]@{
                         pid = $node.ProcessId; parent_pid = $node.ParentProcessId
                         name = $node.Name; created_utc = $node.CreationDate.ToUniversalTime().ToString('o')
-                        window_title = if ($native) { $native.MainWindowTitle } else { $null }
+                        window_title = $native.MainWindowTitle; start_ticks = $ticks
                       }
                     }
                   }
                 )
+                $bootstrapPresent = @($snapshot | Where-Object { $_.name -in @('powershell.exe','pwsh.exe') }).Count -gt 0
+                if ($bootstrapPresent) { $script:bootstrapSeen = $true }
+                if ($script:bootstrapSeen -and -not $bootstrapPresent) { $script:bootstrapGone = $true }
+                $script:installerSnapshot = $snapshot
                 $line = @{ observed_utc=[DateTime]::UtcNow.ToString('o'); processes=$snapshot } |
                   ConvertTo-Json -Depth 5 -Compress
                 $line | Add-Content -LiteralPath $observationLog -Encoding utf8
@@ -141,6 +277,7 @@ jobs:
                   Copy-Item -LiteralPath $bootstrapLog -Destination (Join-Path $evidence 'installer.log') -Force
                   Write-Host 'Latest original bootstrap transcript:'
                   Get-Content -LiteralPath $bootstrapLog -Tail 12
+                  $script:transcriptEnded = [bool](Get-Content -LiteralPath $bootstrapLog -Tail 8 | Select-String -SimpleMatch 'Windows PowerShell transcript end')
                 } catch {
                   Write-Warning "Bootstrap transcript snapshot unavailable: $($_.Exception.Message)"
                 }
@@ -150,8 +287,20 @@ jobs:
               $process = Start-Process -FilePath $artifact -ArgumentList '/S' -PassThru
               $observation.pid = $process.Id
               $deadline = [DateTime]::UtcNow.AddMinutes(40)
+              $earlyUntil = [DateTime]::UtcNow.AddSeconds(30)
+              $capturedAfterBootstrap = $false
+              $capturedBeforeDeadline = $false
               while (-not $process.HasExited) {
                 Save-InstallerObservation $process
+                $remaining = [int][Math]::Max(0, ($deadline - [DateTime]::UtcNow).TotalMilliseconds)
+                if ($remaining -gt 15000 -and -not $capturedAfterBootstrap -and ($script:bootstrapGone -or $script:transcriptEnded)) {
+                  Save-InstallerWindows 'after-bootstrap' $process
+                  $capturedAfterBootstrap = $true
+                }
+                if ($remaining -gt 0 -and $remaining -le 15000 -and -not $capturedBeforeDeadline) {
+                  Save-InstallerWindows 'before-deadline' $process
+                  $capturedBeforeDeadline = $true
+                }
                 $remaining = [int][Math]::Max(0, ($deadline - [DateTime]::UtcNow).TotalMilliseconds)
                 if ($remaining -eq 0) {
                   $observation.status = 'timed_out'
@@ -167,7 +316,9 @@ jobs:
                   }
                   throw $observation.error
                 }
-                [void]$process.WaitForExit([Math]::Min(30000, $remaining))
+                $interval = if ([DateTime]::UtcNow -lt $earlyUntil) { 1000 } else { 30000 }
+                if (-not $capturedBeforeDeadline) { $interval = [Math]::Min($interval, [Math]::Max(1, $remaining - 15000)) }
+                [void]$process.WaitForExit([Math]::Min($interval, $remaining))
               }
               $observation.exit_code = $process.ExitCode
               if ($process.ExitCode -ne 0) { throw "Original NSIS install failed: $($process.ExitCode)" }

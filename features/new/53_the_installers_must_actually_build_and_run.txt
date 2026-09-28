@@ -431,3 +431,21 @@ installation, helper independence and GUI behavior; they do not implement or
 accept frozen replacement transactions. Historical update recovery and the other
 item53 gates remain open. Receipt:
 features/data/23_53_macos_native_acceptance_2026-09-27.json.
+
+STATUS 2026-09-27 — real historical macOS recovery passed
+Run36360415321 installs the original released1.5.0.1 online package on
+macOS14.8.9 arm64. Its installed Help action actually invokes python -m pip
+and reports the missing-pip failure. External public1.5.0.6 repair retains the
+same private environment without pip. The repaired installed Help action invokes
+the real bootstrap uv and upgrades successfully to public1.5.1.0; the same
+interpreter verifies that version afterward. CPU Torch remains intact and CUDA
+unavailable throughout. Downloaded stage receipts were independently inspected.
+
+This closes the macOS released online-family recovery gate. Windows historical
+acceptance remains pending; the earlier bootstrap exit lacks its actual error.
+Its observer now attempts bounded passive control-text/window captures after
+bootstrap exit and before the unchanged deadline. Initialization/read failures
+remain diagnostic. No input is sent, no dialog dismissed, and no original
+installer bytes or update command changed. Native observer validation is pending.
+Full item53 and frozen replacement acceptance remain open. Receipt:
+features/data/53_historical_macos_recovery_2026-09-27.json.
