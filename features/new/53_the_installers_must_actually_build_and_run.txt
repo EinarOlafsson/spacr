@@ -582,3 +582,20 @@ all78 corrected observer/full-verifier checks pass without skips under4G.
 This corrects acceptance observation, not installer behavior. The genuine
 complete native GUI chain and whole53 acceptance remain open pending new CI.
 Receipt: features/data/53_windows_update_audit_witness_2026-09-28.json.
+
+STATUS 2026-09-28 — genuine historical online-runtime update accepted on3 OS
+Run36396804771 at3b1e6a13e passes the full real Help missing-pip failure,
+public external repair, actual Help/uv update and fresh independently checked
+installed1.5.1.0 state on Windows2022, macOS14 arm64 and Ubuntu24.04.
+All five native stage receipts and final guards pass for each platform;
+artifact ZIP hashes match official metadata and the witness/recovery sources
+still match the exact run commit. Windows/macOS repair via public1.5.0.6,
+Ubuntu via1.5.0.5. CPU/no-CUDA and pip-free private runtimes are preserved.
+Windows's original released wrapper remains failed; the separately recorded
+unchanged original full-bootstrap recovery passed and is part of this route.
+The CRLF native recovery-driver hash is bound to the exact run's LF source.
+This closes the historical online-runtime missing-pip/update subrequirement.
+It does not close53: frozen replacement/rollback, protected macOS account/ACL
+flows, other legacy families, backend/account/report-consent tails, and actual
+post-update new-version GUI restart/Measure remain outside this receipt.
+Receipt: features/data/53_historical_missing_pip_native_acceptance_2026-09-28.json.
