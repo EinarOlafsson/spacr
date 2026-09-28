@@ -356,6 +356,11 @@ COMPACT_CAPTION_SHA256 = (
 # extracted captions. Exact diff and review scope are recorded in
 # features/data/316_runtime_inventory_delta_2026-09-27.json.
 # AI technical review (Codex), no native-speaker signoff.
+# 316, 2026-09-28: +19/-0 identities (559: four labels and four tooltips;
+# 558: eight UI captions; 556: three SAM2 UI captions). All nine locales
+# have source-bound AI technical review, no native-speaker signoff.
+# Every existing translation is preserved; exact additions and prior
+# fingerprint: features/data/316_runtime_alpha_delta_2026-09-28.json.
 EXTERNAL_SOURCE_COUNTS = {
     # 2026-09-15, the old OPS engine deleted (372): -116 / +0 by SET
     # DIFFERENCE of the identities against the tree before the deletion,
@@ -366,8 +371,8 @@ EXTERNAL_SOURCE_COUNTS = {
     # to the fingerprint below.
     # `recursive` keeps its row: its English now comes from
     # spacr.external_masks, which reads it, so its identity is unchanged.
-    "SETTING_LABELS": 1194,
-    "SETTING_TOOLTIPS": 1216,
+    "SETTING_LABELS": 1198,
+    "SETTING_TOOLTIPS": 1220,
     # 192 -> 201 on 2026-09-08, +9/-0: the nine OPS section headings that
     # fold onto Align & Stitch. Each needed a curated CATEGORY_TOOLTIPS
     # entry or its panel drew the generic fallback -- a heading whose
@@ -480,7 +485,7 @@ EXTERNAL_SOURCE_COUNTS = {
     # plus the product names DINOCell/SAMCell arrive; five old tooltips leave.
     # Every new prose row has a reviewed record in each of the nine locales.
     # The runtime pass preserved every pre-existing translated value.
-    "UI": 6035,
+    "UI": 6046,
     "MODULE_SUMMARIES": 72,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
@@ -592,7 +597,7 @@ EXTERNAL_SOURCE_KEY_SHA256 = (
     # EXTERNAL_SOURCE_COUNTS give this current source digest.
     # 47: one reviewed UI arrival, "Checking compatible GPUs…", no removals.
     # Exact subtraction reproduces the preceding 5a560d33...ef0091b pin.
-    'fe5315235280c69d30649341cfb60caa3793a4ae282cda6acc4b4bb0768a9178'
+    '0cd2f374f92a1b21d7413b1030b18e62089a9355d575942f62b51522d2f538e5'
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the
@@ -1167,18 +1172,7 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 574, 2026-09-27: the Report screen's Archive package button and form.
 # 579, 2026-09-27: the Report screen's Deposit on Zenodo button and form.
 # 316, 2026-09-27: all 76 resolved through their explicit owners.
-_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
-    # 558, 2026-09-27: the Cellpose workbench's Virtual staining button
-    # (alpha).
-    'Virtual staining…',
-    'Choose a folder of paired multichannel fields (.npy or .tif) and the channels to learn from and to predict, for example 1 > 0 to predict the nucleus stain from channel 1. A small U-Net is trained on the CPU, the last quarter of the fields is held out, and the real and predicted stains are segmented the same way and matched at IoU 0.5. The model, predictions and a score table are written to <folder>/virtual_stain. Default 20 epochs.',
-    'Choose a folder of paired multichannel fields',
-    'Virtual staining',
-    'Input channels > channel to predict:',
-    'Training the virtual stain…',
-    'Virtual stain on {fields} held-out fields: F1 {f1:.2f} at IoU 0.5 against the real stain\'s objects (input channel alone {base:.2f}), Pearson r {r:.2f}.',
-    'Virtual staining failed: {error}',
-})
+_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset()
 
 
 
