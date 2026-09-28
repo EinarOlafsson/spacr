@@ -263,15 +263,54 @@ def calibration(results: pd.DataFrame) -> dict:
 def design_summary(output: Mapping[str, Any]) -> dict:
     """How much data reached the fit, and whether it was identifiable.
 
-    :param output: trial output mapping optionally carrying ``model_data``.
+    :param output: trial output mapping optionally carrying prepared
+        ``model_data`` and measured per-level ``fit_designs``. Fitted counts
+        are reported per level; an unqualified count is emitted only when
+        every fit records the same value. Legacy outputs without fit records
+        retain their table-based counts.
     """
     out: dict[str, Any] = {}
-    frame = output.get("model_data") if isinstance(output, Mapping) else None
+    if not isinstance(output, Mapping):
+        return out
+    measured = output.get("fit_designs")
+    frame = output.get("model_data")
     if isinstance(frame, pd.DataFrame):
-        out["n_rows_fitted"] = int(len(frame))
-        for key, column in (("n_wells", "prc"), ("n_guides", "grna")):
+        out["n_rows_prepared"] = int(len(frame))
+        if not isinstance(measured, Mapping):
+            out["n_rows_fitted"] = int(len(frame))
+        for key, column in (("n_wells", "prc"), ("n_guides", "grna"),
+                            ("n_genes", "gene")):
             if column in frame.columns:
-                out[key] = int(frame[column].nunique())
+                suffix = "_prepared" if isinstance(measured, Mapping) else ""
+                out[key + suffix] = int(frame[column].nunique())
+    if isinstance(measured, Mapping):
+        keys = ("n_rows_fitted", "n_design_columns", "n_wells", "n_guides",
+                "n_genes")
+        levels = {}
+        for level, counts in measured.items():
+            valid = {}
+            for key in keys:
+                value = counts.get(key) if isinstance(counts, Mapping) else None
+                try:
+                    number = float(value)
+                    if not np.isfinite(number) or number < 0 or not number.is_integer():
+                        continue
+                    valid[key] = int(number)
+                except (TypeError, ValueError, OverflowError):
+                    continue
+                out[f"{key}_{level}"] = valid[key]
+            levels[level] = valid
+        for key in keys:
+            values = [counts.get(key) for counts in levels.values()]
+            if values and values[0] is not None and all(v == values[0] for v in values):
+                out[key] = values[0]
+    for key in ("n_wells", "n_guides", "n_cells"):
+        if key not in out and key in output and (
+                key == "n_cells" or not isinstance(measured, Mapping)):
+            try:
+                out[key] = int(output[key])
+            except (TypeError, ValueError, OverflowError):
+                pass
     return out
 
 
@@ -543,6 +582,11 @@ METRIC_COLUMNS: frozenset = frozenset({
     "n_results", "n_significant", "n_primary", "n_below_alpha",
     "n_raw_below_alpha",
     "n_rows_fitted", "n_wells", "n_guides", "n_cells", "n_parameters",
+    "n_rows_prepared", "n_wells_prepared", "n_guides_prepared",
+    "n_genes_prepared", "n_genes", "n_design_columns",
+    *(f"{count}_{level}" for level in ("grna", "gene")
+      for count in ("n_rows_fitted", "n_wells", "n_guides", "n_genes",
+                    "n_design_columns")),
     "design_rank", "non_identifiable_directions",
     "residual_degrees_of_freedom", "design_identifiable",
     "wells_per_parameter", "max_vif", "n_vif_above_10", "n_collinear_pairs",

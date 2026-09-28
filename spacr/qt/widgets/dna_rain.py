@@ -802,8 +802,6 @@ class DnaRainWidget(QWidget):
         self._timer.setTimerType(Qt.CoarseTimer)
         self._timer.setInterval(max(1, 1000 // self._fps))
         self._timer.timeout.connect(self._on_tick)
-        # WEAK, or the window and this widget form a reference cycle; see
-        # docs/notes/spacr/qt/widgets/dna_rain.md for what the collector does.
         self._watched: Optional[weakref.ReferenceType] = None
 
     def focusInEvent(self, event) -> None:  # noqa: N802 (Qt override)
@@ -1138,8 +1136,6 @@ class DnaRainWidget(QWidget):
         :param event: the Qt hide event.
         """
         super().hideEvent(event)
-        # Absent when the collector cleared this wrapper before its window
-        # was destroyed: nothing is left to stop.
         if getattr(self, "_timer", None) is not None:
             self.stop()
 
@@ -1154,7 +1150,6 @@ class DnaRainWidget(QWidget):
             the base class.
         """
         etype = event.type()
-        # getattr for the same teardown as hideEvent: nothing watched.
         ref = getattr(self, "_watched", None)
         watched = ref() if ref is not None else None
         if etype == QEvent.Resize and obj is self.parent():

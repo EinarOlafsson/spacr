@@ -2285,3 +2285,110 @@ Reproduced against run 36283739124's logs (the last to reach its test jobs).
   Left: the panel's _relay_progress/_relay_started/_relay_result emit on the
   panel itself from worker threads, the same pattern, guarded only by
   RuntimeError. If gw0 still crashes, move those to the shared relay too.
+
+2026-09-27 — CODEX RESUME: CPU CI REPAIR, NOT A GREEN-RUN CLAIM
+Replayed the 65 failure node IDs from Actions run 36304299793 on the
+isolated nightly-derived worktree: 44 failed, 21 passed. Repaired these
+families without raising ratchet ceilings:
+- Power's planner and the plugin catalogue now install shared sorting;
+  catalogue actions resolve a stable entry key after sorting and refresh.
+  The cloud browser uses spaCR's Toggle. Focused checks: 15 passed.
+- Added missing callable docstrings. Scoped subplot construction now keeps
+  colony, robustness, cell-cycle, wound and viability artists in the house
+  style, and guide lines use theme ink. The helper restores rcParams on
+  success and drawing failure. Style-helper/docstring checks: 393 passed.
+- The confluency estimator needs PyWavelets, now declared in core packaging.
+  Its numerical and packaging checks: 83 passed, 2 unavailable-data skips.
+- Microscope and CellProfiler TIFFs now use the canonical writer, preserving
+  their arrays and metadata. Checks: 17 passed, 1 missing-backend skip.
+- Alpha-aware layout/maturity contracts, isolated setup fallback injection,
+  folded settings inventories, import restoration and Qt ownership checks:
+  39 and 73 passed in their two focused runs. Item 47 remains open.
+- Cellpose-SAM mocks declare a complete recorded API; the isolated Omnipose
+  mock has its own exact 1.1.4 contract. 86 passed, 1 missing-weights skip.
+- Replaced stale source-string guards with channel-map, clipboard-depth,
+  image-decode cache and normalized-image/provenance behavior checks:
+  58 passed. Caption helper extraction and instruction-index checks: 19 passed.
+- Broader assay/figure checks: 106 passed, 2 unavailable-data skips, 3 failures
+  in cell-cycle classification. The installed XGBoost 3.4.1 also fails a
+  standalone four-class, device='cpu' fit with cudaErrorNoDevice; binary
+  CPU fitting passes. Explicit CPU selection does not cure that upstream
+  failure. Dependency compatibility is being checked in scratch space,
+  without changing the shared environment or exposing the busy GPU.
+Remaining: merge the saved item-43 coverage work, repair catalog/API freshness
+in the documentation phase, replay remaining CI failures, and obtain an
+actually completed green nightly run. These receipts are CPU-only, with
+named files, private settings and memory caps; they are not full-suite or
+GPU acceptance. Scratch logs: /mnt/wd4tb/scratch/spacr-completion/.
+
+2026-09-27 — CPU MULTICLASS FIT AND MEASUREMENT WORKER LIFETIME
+The XGBoost issue narrows to unused per-iteration multiclass metrics: both
+3.3.0 and 3.4.1 request CUDA when initializing those metrics on a CPU fit.
+A standalone four-class fit passes when default training metrics are
+explicitly disabled; requesting mlogloss or merror restores the failure.
+The phase classifier now disables those unused metrics and retains its
+own held-out-field accuracy/F1 scoring. No dependency downgrade or scientific
+classification algorithm change was needed. All three previously failing
+cell-cycle tests pass with the installed 3.4.1, CUDA hidden (31.15s),
+including the small CPU neural-network training/reuse integration test.
+
+Separately, a real measurement-panel progress/delete race raised TypeError
+at the first cycle, outside the old RuntimeError guard. Progress, fit-start
+and fit-result updates now travel through the existing process-lifetime
+relay, with weak panel references checked on the GUI thread. The same
+stress passes 1,000 cycles/100,000 emissions after the fix; 83 focused
+panel tests pass, including six live/deleted destination and thread tests.
+Outliers plus its immediate serial predecessors also pass (52 tests).
+This proves the measurement relay fix, not the cause of the old 61% abort.
+
+2026-09-27 — SAVED COVERAGE WORK INTEGRATED; DOCS WARNING REPAIRED
+Merged item-43c-work's four saved commits, including the early unmix-off
+return that lets invalid channels reach their own validator. Its ten test
+files plus test_measure_validation.py pass all148 tests (34.05s).
+The strict-docs failure in run36311520586 was a duplicated :param settings:
+field immediately before a prose paragraph in run_anndata_export. Removed
+the duplicate; the complete entry-point docstring now parses with zero
+reStructuredText warnings and exactly one settings parameter. A full
+Sphinx rebuild still belongs to the documentation freshness pass.
+
+2026-09-27 — serial Dose-Response isolation repair
+The serial Qt acceptance run exposed a second failure at40%: the import-side-
+effect test restored sys.modules but left screens.dose_response pointing at
+a fresh module. A later monkeypatch changed that duplicate instead of the
+screen's real scoring function. Reproduced with the import test followed by
+the no-scorable-well test (one failed, one passed). The import test now restores
+both references and asserts their identities. Both complete named files pass:
+18 tests, CPU/offscreen. The frozen serial run remains untouched and running;
+this does not claim a green full suite or completed item47 acceptance.
+
+2026-09-28 — Focused CI repairs verified
+The explicit CPU/offscreen selection passes478 tests with21 skips. A private
+readme_renderer install then passes all3 README cases, including the one
+previously skipped. Twenty native-macOS tests remain correctly skipped on
+Linux. Real CZI header/plane regression checks pass2 cases with each of
+czifile2019.7.2.3 and2026.8.16, retaining sparse scene IDs and per-scene shapes.
+The minimum Py39 profile now pins the already-declared PyWavelets floor;
+database smoke reads use the shared read-only timeout connection. Field-help
+retargeting preserves disabled reasons and label associations. Test fixtures
+retain translation, branding, preview and adversarial path checks without
+changing historical installation roots or removing assertions.
+Full serial Qt acceptance and green final-source CI remain open. The earlier
+CI Qt worker crash still has no established cause; no memory limit was raised.
+Receipt: features/data/43_focused_ci_repairs_2026-09-28.json.
+
+2026-09-28 — Release CI contract repairs verified
+The six failed cases in source2eb coverage shards7/9/10 are addressed without
+changing historical released directory bytes or dropping caption assertions.
+Nine-locale two-build snapshots hold GPU discovery constant. PyWavelets remains
+a required core dependency because Measure's texture ratio calls scikit-image's
+wavelet noise estimator; an AST/pin check now records that dependency. Two
+mocked-export forwarding tests supply their optional AnnData preflight seam,
+while missing-extra checks remain active. Ten settings-flow sections were
+regenerated for the current workflow/calibration readers.
+Validation:83 brand/caption/historical installer checks and245 dependency,
+AnnData, flow and confluency checks pass;7 optional/data checks skip. Three
+additional checks pass with AnnData explicitly unavailable. The initial local
+confluency failures came from absent PyWavelets; an existing private1.10.0 copy
+passes them without modifying the shared environment. Original logs retained.
+Full final-source CI and uninterrupted Qt acceptance remain open.
+Receipt: features/data/43_release_ci_contract_repairs_2026-09-28.json.

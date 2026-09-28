@@ -1161,7 +1161,8 @@ _NOTIFY_KEYRING_SERVICE = "spacr-notifications"
 """Service name the run-finished notification secrets use in the OS keyring."""
 
 _NOTIFY_SECRET_NAMES = ("smtp_password", "slack_webhook", "ntfy_topic",
-                        "ntfy_token")
+                        "ntfy_token", "teams_webhook", "webhook_url",
+                        "webhook_token")
 """The notification settings that are secrets and never leave the store."""
 
 _NOTIFY_TIMEOUT_S = 10.0
@@ -1496,6 +1497,56 @@ def _notify_by_slack(message: Dict[str, Any], webhook: str) -> None:
                       {"Content-Type": "application/json"})
 
 
+def _notify_by_teams(message: Dict[str, Any], webhook: str) -> None:
+    """Post an Adaptive Card to a Microsoft Teams workflow webhook.
+
+    :param message: the notification's ``title``, ``body`` and ``failed``.
+    :param webhook: the URL of a workflow allowing anyone to call it.
+    :returns: ``None`` after the server accepts the card.
+    :raises ValueError: when no webhook address is supplied.
+    """
+    if not webhook:
+        raise ValueError("no Teams webhook address is saved")
+    body = [{"type": "TextBlock", "text": message["title"],
+             "weight": "Bolder", "wrap": True}]
+    body.extend({"type": "TextBlock", "text": line, "wrap": True,
+                 "spacing": "Small"}
+                for line in message["body"].splitlines() if line)
+    payload = {
+        "type": "message",
+        "attachments": [{
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "contentUrl": None,
+            "content": {
+                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                "type": "AdaptiveCard", "version": "1.2", "body": body,
+            },
+        }],
+    }
+    _notify_http_post(webhook, json.dumps(payload).encode("utf-8"),
+                      {"Content-Type": "application/json"})
+
+
+def _notify_by_webhook(message: Dict[str, Any], webhook: str,
+                       token: str) -> None:
+    """POST the notification as JSON to a generic webhook.
+
+    :param message: the notification's ``title``, ``body`` and ``failed``.
+    :param webhook: the receiving HTTP or HTTPS URL.
+    :param token: optional bearer token for the receiving service.
+    :returns: ``None`` after the server accepts the notification.
+    :raises ValueError: when no webhook address is supplied.
+    """
+    if not webhook:
+        raise ValueError("no webhook address is saved")
+    payload = {"title": message["title"], "body": message["body"],
+               "failed": bool(message["failed"])}
+    headers = {"Content-Type": "application/json"}
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    _notify_http_post(webhook, json.dumps(payload).encode("utf-8"), headers)
+
+
 def _notify_by_ntfy(message: Dict[str, Any], notify: Dict[str, Any],
                     topic: str, token: str) -> None:
     """Publish the message to an ntfy topic."""
@@ -1596,6 +1647,12 @@ def _send_notification(message: Dict[str, Any],
     if notify.get("ntfy"):
         channels.append(("ntfy", lambda: _notify_by_ntfy(
             message, notify, secret("ntfy_topic"), secret("ntfy_token"))))
+    if notify.get("teams"):
+        channels.append(("teams", lambda: _notify_by_teams(
+            message, secret("teams_webhook"))))
+    if notify.get("webhook"):
+        channels.append(("webhook", lambda: _notify_by_webhook(
+            message, secret("webhook_url"), secret("webhook_token"))))
     for name, send in channels:
         try:
             send()

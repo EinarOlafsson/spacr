@@ -103,6 +103,55 @@ def test_the_settings_edge_is_the_shell_s_thin_line_and_collapses(qtbot):
     assert not splitter.is_collapsed("Settings")
 
 
+def test_the_hovered_settings_handle_paints_one_logical_pixel(
+        qtbot, qt_theme_applied, tmp_path):
+    """A real hovered Make Masks divider keeps its twelve-pixel grab target."""
+    from PySide6.QtCore import QPoint
+    from spacr.qt.theme import active_palette
+    import tifffile
+
+    image_path = tmp_path / "field.tif"
+    tifffile.imwrite(image_path, np.full((32, 32), 100, dtype=np.uint16))
+    screen = mm.MakeMasksScreen()
+    qtbot.addWidget(screen)
+    try:
+        screen.resize(1200, 800)
+        screen.show()
+        assert screen.open_paths([str(image_path)])
+        qtbot.waitUntil(lambda: screen._canvas.image is not None)
+        splitter = screen._body_splitter
+        splitter.set_collapsed("Settings", False, by_user=True)
+        handle = splitter.handle(1)
+        qtbot.waitUntil(lambda: handle.isVisible() and handle.height() > 96)
+        qtbot.wait(50)
+        geometry = handle.geometry()
+        qtbot.wait(50)
+        assert handle.geometry() == geometry
+        assert handle.width() == 12
+        qtbot.mouseMove(screen, QPoint(20, 20))
+        qtbot.mouseMove(handle, QPoint(handle.rect().center().x(), 8))
+        qtbot.waitUntil(handle.underMouse)
+        qt_theme_applied.processEvents()
+
+        pixmap = handle.grab()
+        assert pixmap.save(str(tmp_path / "settings-handle-hover.png"))
+        image = pixmap.toImage()
+        dpr = pixmap.devicePixelRatio()
+        assert pixmap.deviceIndependentSize().width() == 12
+        row = min(image.height() - 1, int(8.5 * dpr))
+        accent = active_palette()["accent"].lower()
+        columns = [x for x in range(image.width())
+                   if image.pixelColor(x, row).name().lower() == accent]
+        assert columns, "the actual hover did not paint the accent line"
+        assert columns == list(range(columns[0], columns[-1] + 1))
+        assert abs(len(columns) - dpr) <= 0.5, (
+            f"hover painted {len(columns)} physical columns at DPR {dpr}")
+        centre = (columns[0] + columns[-1] + 1) / (2 * dpr)
+        assert abs(centre - (handle.rect().center().x() + 0.5)) <= 0.5 / dpr
+    finally:
+        screen.close()
+
+
 def test_the_shortcut_list_hides_like_the_settings(qtbot):
     """2026-09-22, the maintainer: "in make masks i should also be able to
     hide the shortcuts like i can hide the settings"."""

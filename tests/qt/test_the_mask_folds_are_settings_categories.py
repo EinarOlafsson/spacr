@@ -175,7 +175,8 @@ def test_the_tracking_categories_are_the_ones_mask_does_not_have(host):
     screen, _strip = host
     titles = {card.title() for card in _sections(screen, "timelapse")}
 
-    assert titles == {"TRACKING SETUP", "TRACKING BACKENDS"}
+    assert titles == {"TRACKING SETUP", "TRACKING BACKENDS",
+                      "LINEAGE TREES (ALPHA)", "EVENT DETECTION (ALPHA)"}
     assert "timelapse_mode" in screen._settings_model._widgets
     assert "IMAGE PREPROCESSING" not in titles
 

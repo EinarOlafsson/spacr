@@ -1655,3 +1655,71 @@ if name.startswith("."):
 ```
 
 `._<name>.tif` sorts before every image under `str.casefold`, because `.` sorts before letters and digits. On a folder with macOS sidecars the preview's first file was therefore a sidecar. Measured on a synthetic cellvoyager folder with a sidecar beside each file: tifffile raised "not a TIFF file: header=b'\x00\x05\x16\x07'", no image loaded, and the table never filled. See the note on `enumerate_image_sets` in `preview_controls.md`. Held by `test_a_folder_on_an_exfat_drive_previews_its_images` and `test_the_listing_helpers_skip_macos_sidecars`.
+
+
+---
+
+# Notes from `spacr/qt/widgets/live_preview.py`
+
+Prose lifted out of `spacr/qt/widgets/live_preview.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## Contents
+
+- [_plaque_model_the_run_would_use](#_plaque_model_the_run_would_use) (1 entry)
+- [LivePreviewPanel._on_run_model_resolved](#livepreviewpanel_on_run_model_resolved) (1 entry)
+- [LivePreviewPanel._build_compartment_widgets](#livepreviewpanel_build_compartment_widgets) (1 entry)
+- [LivePreviewPanel._forget_edited_intensity_seed](#livepreviewpanel_forget_edited_intensity_seed) (1 entry)
+- [LivePreviewPanel._snapshot_run](#livepreviewpanel_snapshot_run) (1 entry)
+
+## _plaque_model_the_run_would_use
+
+### lines 1734-1735
+
+```python
+return requested, "plaque_model", False
+```
+
+ModelZooMissing is a FileNotFoundError. ValueError is a value the run cannot resolve either.
+
+## LivePreviewPanel._on_run_model_resolved
+
+### line 3698, trailing  _(unsure)_
+
+```python
+return
+```
+
+the user picked one meanwhile
+
+## LivePreviewPanel._build_compartment_widgets
+
+### lines 3991-3993
+
+```python
+w.valueChanged.connect(
+```
+
+Return may emit valueChanged even without an edit. Conversely, typing 0 over a rounded-to-0 seed need not change the number. Observe actual text edits too.
+
+## LivePreviewPanel._forget_edited_intensity_seed
+
+### lines 4028-4029  _(unsure)_
+
+```python
+self._recompute_masks()
+```
+
+A same-number edit emits no numeric change to trigger the ordinary cached-mask refresh below.
+
+## LivePreviewPanel._snapshot_run
+
+### lines 5111-5113
+
+```python
+"model": self._model_that_ran or self._model_box.currentText(),
+```
+
+The model that RAN, not the one now selected: the history is scrubbed back to compare passes, and a pass labelled with a model chosen after it is a comparison of the wrong two things.

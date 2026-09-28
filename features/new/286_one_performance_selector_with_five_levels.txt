@@ -380,3 +380,31 @@ exact synthesis freshness, timing and activity. Each lesson has 50 checked
 voices/language combinations; receipt is tools/tutorials/evidence/
 2026-09-21-recovered-narration-matrix.json. Lessons 04/05 remain open for
 listening, captions/player acceptance and publication with the refreshed set.
+
+2026-09-27 — Installer's missing Performance scene restored in source
+-------------------------------------------------------------------------------
+The current published ten-scene installer lesson omitted Performance despite
+older receipts and obsolete authoring catalogs claiming it was present. Home's
+current eleven-scene lesson does contain a separately recorded native 4K
+Performance view. The installer source now inserts that unchanged Home scene
+before the Home tutorial handoff; all ten original scenes and metadata remain.
+All thirteen existing reviewed Home translations were reused for that exact
+sentence, preserving every other installer caption and metadata field. Original
+and updated English bindings and pronunciation checks pass in all thirteen
+locales; 13 existing translation-review tests pass. Review is AI technical review
+(Codex insertion), with inherited Claude translations retained, no native-speaker
+signoff or listening claim. Receipt:
+features/data/286_installer_performance_source_2026-09-27.json.
+
+The added frame is the separately recorded Home Preferences view, not a claim
+that the installer CPU-only runtime changed hardware backend. Its source hash
+is d71d58a83ecadd80563402f822998d6adb526544c308030551b256f4fb95d9ac;
+the single closed selector displays Balanced and no host paths. Original live
+Linux installation evidence and Windows/macOS instruction-card provenance are
+preserved. No new operating-system installation is claimed.
+
+Still open: root-owned composite media staging, updated 27-track narration,
+source/timing/decode/peak and caption/player checks, and paired publication.
+This source correction does not turn the historical published omission into
+accepted media. English source digest after insertion:
+5733777916561df1997773e74a43ef023771a98798aa3d7a9fb2be87e92b4f63.

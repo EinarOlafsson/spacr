@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "item": 47,
+  "date": "2026-09-27",
+  "source_commit": "279526b7eb7734aedfbd9921fb4e9d67802897f1",
+  "scope": "Exact original-order 47 predecessors and 26 audio nodes in one process, retaining their existing session stylesheet carrier",
+  "manifest": {
+    "count": 73,
+    "original_suffix_rows": [2294, 2366],
+    "matches_original_order": true,
+    "sha256": "c76ceca6f75ea82f9f5823bb6dba2d22001b4409a293bd60cb81f57703a732c8"
+  },
+  "execution": {
+    "session": 5227,
+    "pid": 1562057,
+    "started": "2026-09-27T21:59:17-04:00",
+    "finished": "2026-09-27T21:59:58-04:00",
+    "result": "73 passed in 38.92 s",
+    "exit_status": 0,
+    "cap_bytes": 12884901888,
+    "guard_bytes": 11596411699.2,
+    "swap_limit_bytes": 0,
+    "gpu_visibility": "hidden",
+    "home": "private",
+    "tmpdir": "/mnt/wd4tb/scratch/r47s73",
+    "observer": "Existing passive RSS sampler, returned-array/engine weakrefs, QThread start origins and process identities; no GC, cache clearing, renderer changes or raised guards"
+  },
+  "measurements": {
+    "peak_sampled_rss_bytes": 1383473152,
+    "final_rss_bytes": 570761216,
+    "final_widgets": 0,
+    "final_returned_pcm_arrays": 0,
+    "final_observed_valid_qthreads": 0,
+    "final_closed_empty_engine_wrappers": 6,
+    "stylesheet_characters_at_real_mask_completion": 76588,
+    "final_glibc_arena_bytes": 147046400,
+    "final_glibc_allocated_arena_bytes": 119598256,
+    "final_glibc_free_arena_bytes": 27448144,
+    "final_glibc_mmap_bytes": 6348800
+  },
+  "renderer_lifecycle": {
+    "origin": "CpuFractalWidget._thread.start via AppScreen ambient installation",
+    "running_after_real_mask_completion_call": true,
+    "finished_after_normal_test_teardown": true,
+    "wrapper_retired_by_session_finish": true,
+    "mask_discovery_child_pid": 1566059,
+    "mask_discovery_child_absent_at_finish": true
+  },
+  "interpretation": "The combined stylesheet/predecessor/audio interval passes and the real owned CPU renderer stops normally. This bounded current-source run does not reproduce the original multi-GiB growth. There is no matched 73-node before-run, so it does not establish that renderer shutdown alone fixes full-run memory retention.",
+  "source_hashes_unchanged_during_run": [
+    "spacr/qt/screens/app_screen.py",
+    "spacr/qt/widgets/fractal_travel.py",
+    "tests/qt/conftest.py",
+    "tests/conftest.py"
+  ],
+  "log_sha256": "57129b3fccd5090e8877c52fbb01b8c993399c3c05e54aff0f5d99bf04108ee8",
+  "observer_sha256": "235a15720783a5a99065f6540ea60617af620024afc33504824b78d65b6a5826",
+  "evidence_directory": "/mnt/wd4tb/scratch/spacr-completion/item47-audio-memory-20260927/combined-style73",
+  "full_serial_acceptance": "OPEN: one unattended full Qt manifest must reach summary within the unchanged guard; partial and fresh-process suffix runs do not substitute for it",
+  "broader_execution_started": false
+}

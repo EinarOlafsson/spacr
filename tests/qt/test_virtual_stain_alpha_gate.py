@@ -4,6 +4,11 @@
 ``spacr.settings.ALPHA_FEATURES``, so it is hidden until Preferences ->
 "Show alpha features" is on. Hiding is display only: a folder given while
 it is hidden still reaches the training run.
+
+Measured on the CPU only (plate1, nucleus stain predicted from the cell
+stain, one held-out well of 4 fields, 20 epochs): F1 0.70 at IoU 0.5
+against the real stain's objects, against 0.26 for the input channel
+alone; F1 0.37 at IoU 0.75; Pearson r 0.88. The run below is mocked.
 """
 from __future__ import annotations
 

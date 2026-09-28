@@ -345,14 +345,23 @@ def slow_plaque_resolver(monkeypatch, tmp_path):
 
 
 def test_a_model_picked_while_the_plaque_model_resolves_is_kept(
-        qtbot, slow_plaque_resolver):
+        qtbot, slow_plaque_resolver, tmp_path):
+    """A chosen checkpoint survives an older resolver without local model caches.
+
+    :param qtbot: ownership and event-loop fixture.
+    :param slow_plaque_resolver: delayed checkpoint resolution fixture.
+    :param tmp_path: isolated alternate checkpoint destination.
+    """
     go, checkpoint = slow_plaque_resolver
     widget = LP.LivePreviewPanel(module="analyze_plaques")
     qtbot.addWidget(widget)
     widget.apply_settings({"plaque_model": "zoo:plaque_v2"})
     box = widget._model_box
-    other = next(box.itemText(i) for i in range(box.count())
-                 if box.itemText(i) != box.currentText())
+    alternate = tmp_path / "chosen_checkpoint"
+    alternate.write_bytes(b"independent choice")
+    other = str(alternate)
+    assert other != box.currentText()
+    box.addItem(other)
     box.setCurrentText(other)
     assert widget._model_for_this_pass()[0] == other, (
         "the pass settles the pending seed and keeps the user's pick")

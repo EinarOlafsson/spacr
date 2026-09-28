@@ -121,7 +121,7 @@ from .intensity_rescale import (
     resolve_record as _resolve_intensity_rescale_record,
 )
 
-from .figures.style import figure_style, theme_target
+from .figures.style import _figure_axes, figure_style, theme_target, resolve_ink
 
 
 
@@ -561,13 +561,16 @@ def get_components(cell_mask, nucleus_mask, pathogen_mask):
         subset=['pathogen']).reset_index(drop=True)
     return nucleus_df, pathogen_df
 
-def _calculate_zernike(mask, df, degree=8):
+def _calculate_zernike(mask, df, degree=8, device=None):
     """Append per-region Zernike-moment columns to ``df``.
 
     :param mask: Label mask defining the regions.
     :param df: DataFrame to extend, in the same row order as ``regionprops(mask)``.
     :param degree: Zernike-moment degree. Default ``8``. The number of
         coefficients is set by the degree: 9 for 4, 25 for 8, 49 for 12.
+    :param device: CUDA device from :func:`_measurement_device`, or ``None``
+        (the default) for the per-object Mahotas loop. On a device the moments
+        of all objects are computed in one vectorised pass.
     :returns: ``df`` with ``zernike_i`` columns appended, or unchanged when the
         mask has no regions or the mask is 3-D.
     :raises ImportError: When a non-empty 2-D mask needs the optional Mahotas
@@ -589,6 +592,11 @@ def _calculate_zernike(mask, df, degree=8):
     regions = list(regionprops(mask))
     if not regions:
         return df
+    if device is not None and _gpu_measurable(mask):
+        features = _torch_zernike(mask, degree, device)
+        zernike_df = pd.DataFrame(
+            features, columns=[f'zernike_{i}' for i in range(features.shape[1])])
+        return pd.concat([df.reset_index(drop=True), zernike_df], axis=1)
     zernike_moments = _load_zernike_moments()
     zernike_features = []
     for region in regions:
@@ -1113,6 +1121,7 @@ def _morphological_measurements(
     """
     if zernike is None:
         zernike = _zernike_is_available()
+    device = _measurement_device(settings)
 
     ndim = _ndim_of(cell_mask)
     spacing, stamp = resolve_measurement_spacing(settings, ndim)
@@ -1264,7 +1273,7 @@ def _morphological_measurements(
         cell_props = _with_bystanders(cell_props, cell_mask, cell_to_pathogen)
         if zernike:
             cell_props = _calculate_zernike(
-                cell_mask, cell_props, degree=degree)
+                cell_mask, cell_props, degree=degree, device=device)
         prop_ls.append(cell_props)
         ls.append('cell')
     else:
@@ -1277,7 +1286,7 @@ def _morphological_measurements(
         nucleus_props = _with_distances(nucleus_props, 'nucleus')
         if zernike:
             nucleus_props = _calculate_zernike(
-                nucleus_mask, nucleus_props, degree=degree)
+                nucleus_mask, nucleus_props, degree=degree, device=device)
         if settings['cell_mask_dim'] is not None:
             nucleus_props = _join_child_to_parent_cell(
                 nucleus_props, cell_to_nucleus, 'nucleus',
@@ -1300,7 +1309,7 @@ def _morphological_measurements(
         pathogen_props = _with_distances(pathogen_props, 'pathogen')
         if zernike:
             pathogen_props = _calculate_zernike(
-                pathogen_mask, pathogen_props, degree=degree)
+                pathogen_mask, pathogen_props, degree=degree, device=device)
         if settings['cell_mask_dim'] is not None:
             pathogen_props = _join_child_to_parent_cell(
                 pathogen_props, cell_to_pathogen, 'pathogen',
@@ -1325,7 +1334,7 @@ def _morphological_measurements(
                     organelle_props, current_organelle_mask)
             if len(organelle_props) > 0 and zernike:
                 organelle_props = _calculate_zernike(
-                    current_organelle_mask, organelle_props, degree=degree)
+                    current_organelle_mask, organelle_props, degree=degree, device=device)
             if len(organelle_props) > 0 and settings['cell_mask_dim'] is not None:
                 organelle_to_cell = _map_child_to_parent(
                     current_organelle_mask, cell_mask,
@@ -1519,6 +1528,7 @@ def _intensity_measurements(
 
     ndim = _ndim_of(cell_mask)
     spacing, _stamp = resolve_measurement_spacing(settings, ndim)
+    device = _measurement_device(settings)
     if homogeneity and ndim == 3:
         print("3-D mask: skipping GLCM homogeneity — "
               "skimage.feature.graycomatrix is defined for 2-D images only, "
@@ -1544,12 +1554,24 @@ def _intensity_measurements(
                 df.append(empty_df)
                 continue
 
-            mask_intensity_df = _extended_regionprops_table(
-                label, channel, intensity_props, spacing=spacing,
-                field_percentiles=channel_percentiles)
+            on_gpu = (device is not None
+                      and _gpu_measurable(label, channel, spacing))
+            if (on_gpu and tuple(intensity_props) == _GPU_INTENSITY_PROPS
+                    and np.min(channel) >= 0):
+                mask_intensity_df = _torch_intensity_table(
+                    label, channel, channel_percentiles, device)
+            else:
+                mask_intensity_df = _extended_regionprops_table(
+                    label, channel, intensity_props, spacing=spacing,
+                    field_percentiles=channel_percentiles)
 
             if homogeneity:
-                homogeneity_df = _calculate_homogeneity(label, channel, distances)
+                if on_gpu:
+                    homogeneity_df = _torch_homogeneity(
+                        label, channel, distances, device)
+                else:
+                    homogeneity_df = _calculate_homogeneity(
+                        label, channel, distances)
                 mask_intensity_df = pd.concat([mask_intensity_df.reset_index(drop=True), homogeneity_df], axis=1)
 
             if periphery:
@@ -1952,6 +1974,378 @@ def _calculate_homogeneity(label, channel, distances=None):
         homogeneity_df = pd.DataFrame(homogeneity_values, columns=columns)
 
         return homogeneity_df
+
+_GPU_INTENSITY_PROPS = ("label", "centroid_weighted", "centroid_weighted_local",
+                        "max_intensity", "mean_intensity", "min_intensity")
+
+
+def _measurement_device(settings):
+    """Return the CUDA device per-object measurement runs on, or ``None`` for the CPU path.
+
+    ``measure_gpu`` off, PyTorch not installed or no CUDA device all give
+    ``None``, and the NumPy/scikit-image measurements run unchanged. The GPU
+    path computes the same columns within float tolerance.
+    """
+    if not settings.get('measure_gpu', False):
+        return None
+    try:
+        import torch
+    except ImportError:
+        print("measure_gpu is on but PyTorch is not installed "
+              "(pip install torch); measuring on the CPU.")
+        return None
+    if not torch.cuda.is_available():
+        print("measure_gpu is on but no CUDA device is visible; "
+              "measuring on the CPU.")
+        return None
+    return torch.device('cuda')
+
+
+def _gpu_measurable(labels, image=None, spacing=None):
+    """Whether the vectorised GPU kernels reproduce the CPU path for this input.
+
+    They cover a 2-D mask without voxel spacing and a finite, real-valued
+    image; anything else keeps the scikit-image implementation.
+    """
+    if _ndim_of(labels) != 2 or spacing is not None:
+        return False
+    if image is None:
+        return True
+    image = np.asarray(image)
+    if image.dtype.kind not in 'uif' or image.dtype.itemsize > 8:
+        return False
+    if image.dtype.kind == 'f' and image.dtype != np.float32 and image.dtype != np.float64:
+        return False
+    return bool(np.isfinite(image).all())
+
+
+def _torch_label_segments(labels, image, device):
+    """Sort a mask's object pixels by (label, intensity) on ``device``.
+
+    Returns a dict of tensors: the sorted pixel intensities (float64), their
+    rows and columns, the object each belongs to as a 0-based segment index,
+    the object labels in ascending order and each object's first position and
+    pixel count.
+    """
+    import torch
+    labels = np.asarray(labels)
+    lab = torch.as_tensor(labels.astype(np.int64, copy=False).ravel(), device=device)
+    fg = torch.nonzero(lab > 0).squeeze(1)
+    lab = lab[fg]
+    if image is None:
+        val = torch.zeros(fg.shape[0], dtype=torch.float64, device=device)
+    else:
+        val = torch.as_tensor(np.asarray(image, dtype=np.float64).ravel(),
+                              device=device)[fg]
+    order = torch.sort(val, stable=True).indices
+    order = order[torch.sort(lab[order], stable=True).indices]
+    fg, lab, val = fg[order], lab[order], val[order]
+    object_labels, counts = torch.unique_consecutive(lab, return_counts=True)
+    starts = torch.cumsum(counts, 0) - counts
+    seg = torch.repeat_interleave(
+        torch.arange(object_labels.shape[0], device=device), counts)
+    width = labels.shape[1]
+    return {'val': val, 'row': torch.div(fg, width, rounding_mode='floor'),
+            'col': fg % width, 'seg': seg, 'labels': object_labels,
+            'starts': starts, 'counts': counts}
+
+
+def _torch_segment_sum(seg, values, n_segments):
+    """Sum ``values`` per segment in float64."""
+    import torch
+    out = torch.zeros(n_segments, dtype=torch.float64, device=values.device)
+    return out.index_add_(0, seg, values.to(torch.float64))
+
+
+def _torch_segment_extreme(seg, values, n_segments, reduce):
+    """Per-segment ``'amin'`` or ``'amax'`` of ``values``."""
+    import torch
+    fill = values.max() if reduce == 'amin' else values.min()
+    out = torch.full((n_segments,), 0, dtype=values.dtype, device=values.device)
+    out.fill_(fill)
+    return out.scatter_reduce_(0, seg, values, reduce=reduce, include_self=True)
+
+
+def _torch_segment_percentile(segments, q):
+    """NumPy's default ('linear') percentile ``q`` of every sorted segment."""
+    import torch
+    val, starts, counts = segments['val'], segments['starts'], segments['counts']
+    position = (counts - 1).to(torch.float64) * (q / 100.0)
+    low = torch.floor(position)
+    t = position - low
+    low = low.to(torch.int64)
+    high = torch.minimum(low + 1, counts - 1)
+    a = val[starts + low]
+    b = val[starts + high]
+    diff = b - a
+    lerp = a + diff * t
+    return torch.where(t >= 0.5, b - diff * (1 - t), lerp)
+
+
+def _torch_intensity_table(labels, image, field_percentiles, device):
+    """Vectorised equivalent of :func:`_extended_regionprops_table` for a 2-D mask.
+
+    One sort of the object pixels by (label, intensity) gives every order
+    statistic (min, max, median, percentiles, IQR, mode, Gini), and segment
+    sums give the moments, so the whole table is a handful of array passes
+    instead of one Python iteration per object. Covers the default intensity
+    properties on a finite, non-negative image; the caller checks that.
+    """
+    import torch
+    image = np.asarray(image)
+    segments = _torch_label_segments(labels, image, device)
+    val, seg, starts, counts = (segments['val'], segments['seg'],
+                                segments['starts'], segments['counts'])
+    n_obj = int(counts.shape[0])
+    n = counts.to(torch.float64)
+    ends = starts + counts - 1
+    total = _torch_segment_sum(seg, val, n_obj)
+    mean = total / n
+    centred = val - mean[seg]
+    m2 = _torch_segment_sum(seg, centred ** 2, n_obj) / n
+    m3 = _torch_segment_sum(seg, centred ** 3, n_obj) / n
+    m4 = _torch_segment_sum(seg, centred ** 4, n_obj) / n
+    vmin, vmax = val[starts], val[ends]
+    has_variation = vmax != vmin
+    resolution = 1e-6 if image.dtype == np.float32 else 1e-15
+    flat = m2 <= (resolution * mean) ** 2
+    nan = torch.full_like(mean, float('nan'))
+    skew_v = torch.where(has_variation & (n > 2) & ~flat, m3 / m2 ** 1.5, nan)
+    kurt_v = torch.where(has_variation & (n > 3) & ~flat, m4 / m2 ** 2 - 3.0, nan)
+    std = torch.where(has_variation, torch.sqrt(m2), torch.zeros_like(m2))
+
+    row = segments['row'].to(torch.float64)
+    col = segments['col'].to(torch.float64)
+    cy = _torch_segment_sum(seg, row * val, n_obj) / total
+    cx = _torch_segment_sum(seg, col * val, n_obj) / total
+    r0 = _torch_segment_extreme(seg, segments['row'], n_obj, 'amin').to(torch.float64)
+    c0 = _torch_segment_extreme(seg, segments['col'], n_obj, 'amin').to(torch.float64)
+
+    position = torch.arange(val.shape[0], device=val.device)
+    new_run = torch.ones_like(val, dtype=torch.bool)
+    new_run[1:] = (val[1:] != val[:-1]) | (seg[1:] != seg[:-1])
+    run_id = torch.cumsum(new_run.to(torch.int64), 0) - 1
+    run_start = position[new_run]
+    run_seg = seg[run_start]
+    run_count = torch.bincount(run_id)
+    best = _torch_segment_extreme(run_seg, run_count, n_obj, 'amax')
+    run_index = torch.arange(run_count.shape[0], device=val.device)
+    candidate = torch.where(run_count == best[run_seg], run_index,
+                            torch.full_like(run_index, run_count.shape[0]))
+    first = _torch_segment_extreme(run_seg, candidate, n_obj, 'amin')
+    mode_v = val[run_start[first]]
+    p = run_count.to(torch.float64) / n[run_seg]
+    entropy = -_torch_segment_sum(run_seg, p * torch.log2(p), n_obj)
+    entropy = torch.where(counts > 1, entropy, torch.zeros_like(entropy))
+
+    rank = (position - starts[seg] + 1).to(torch.float64)
+    gini_num = _torch_segment_sum(seg, (2 * rank - n[seg] - 1) * val, n_obj)
+    gini = torch.where(total != 0, gini_num / (n * total), nan)
+
+    field_p90, field_p10 = field_percentiles
+    if np.isfinite(field_p90):
+        high = _torch_segment_sum(seg, (val > field_p90).to(torch.float64), n_obj) / n
+    else:
+        high = nan
+    if np.isfinite(field_p10):
+        low = _torch_segment_sum(seg, (val < field_p10).to(torch.float64), n_obj) / n
+    else:
+        low = nan
+
+    pct = {q: _torch_segment_percentile(segments, q)
+           for q in (5, 10, 25, 50, 75, 85, 95)}
+
+    def host(tensor):
+        """Copy a tensor to a NumPy array."""
+        return tensor.detach().cpu().numpy()
+
+    narrow = np.float32 if image.dtype == np.float32 else np.float64
+    df = pd.DataFrame({
+        'label': host(segments['labels']),
+        'centroid_weighted-0': host(cy),
+        'centroid_weighted-1': host(cx),
+        'centroid_weighted_local-0': host(cy - r0),
+        'centroid_weighted_local-1': host(cx - c0),
+        'max_intensity': host(vmax),
+        'mean_intensity': host(mean),
+        'min_intensity': host(vmin),
+        'integrated_intensity': host(total).astype(
+            np.add.reduce(np.zeros(1, dtype=image.dtype)).dtype),
+        'std_intensity': host(std).astype(narrow),
+        'median_intensity': host(pct[50]).astype(narrow),
+        'skew_intensity': host(skew_v),
+        'kurtosis_intensity': host(kurt_v),
+        'mode_intensity': host(mode_v),
+        'range_intensity': host(vmax - vmin).astype(image.dtype),
+        'iqr_intensity': host(pct[75] - pct[25]),
+        'cv_intensity': host(torch.where(mean != 0, std / mean, nan)).astype(narrow),
+        'gini_intensity': host(gini),
+        'frac_high90': host(high) if torch.is_tensor(high) else np.nan,
+        'frac_low10': host(low) if torch.is_tensor(low) else np.nan,
+        'entropy_intensity': host(entropy),
+    })
+    for q in (5, 10, 25, 75, 85, 95):
+        df[f'percentile_{q}'] = host(pct[q])
+    return df
+
+
+def _torch_quantise(values, imin, imax, float32):
+    """The uint8 grey level ``rescale_intensity(..., out_range=(0, 255))`` gives ``values``.
+
+    Reproduces scikit-image's arithmetic: float32 images are rescaled in
+    float32, everything else in float64, then truncated to uint8. A region
+    whose rescale range is empty gets level 0 throughout, which leaves every
+    co-occurrence on the diagonal exactly as the constant CPU image does.
+    """
+    import torch
+    dtype = torch.float32 if float32 else torch.float64
+    span = (imax - imin).to(dtype)
+    safe = torch.where(span == 0, torch.ones_like(span), span)
+    scaled = ((values.to(dtype) - imin.to(dtype)) / safe) * 255.0
+    scaled = torch.where(span == 0, torch.zeros_like(scaled), scaled)
+    return torch.trunc(scaled).to(torch.float64)
+
+
+def _torch_homogeneity(labels, image, distances, device):
+    """Vectorised equivalent of :func:`_calculate_homogeneity` for a 2-D mask.
+
+    The CPU path builds, per object, a 256-level horizontal co-occurrence
+    matrix of the object's bounding box (object pixels rescaled to 0-255, every
+    other pixel of the box zero) and reads its homogeneity. That homogeneity is
+    the mean over the box's horizontal pixel pairs of ``1 / (1 + (a - b)^2)``,
+    so no matrix is needed: pairs with no object pixel sit on the diagonal and
+    add 1 each, and pairs touching the object are enumerated for all objects
+    at once over the whole field.
+    """
+    import torch
+    if distances is None:
+        distances = [2, 4, 8, 16, 32, 64]
+    image = np.asarray(image)
+    labels = np.asarray(labels)
+    float32 = image.dtype == np.float32
+    segments = _torch_label_segments(labels, image, device)
+    seg, counts = segments['seg'], segments['counts']
+    n_obj = int(counts.shape[0])
+    columns = [f'homogeneity_distance_{d}' for d in distances]
+    if n_obj == 0:
+        return pd.DataFrame(columns=columns)
+    starts, ends = segments['starts'], segments['starts'] + counts - 1
+    r0 = _torch_segment_extreme(seg, segments['row'], n_obj, 'amin')
+    r1 = _torch_segment_extreme(seg, segments['row'], n_obj, 'amax') + 1
+    c0 = _torch_segment_extreme(seg, segments['col'], n_obj, 'amin')
+    c1 = _torch_segment_extreme(seg, segments['col'], n_obj, 'amax') + 1
+    height, width = r1 - r0, c1 - c0
+    fills = counts == height * width
+    imin, imax = segments['val'][starts], segments['val'][ends]
+    zero = torch.zeros_like(imin)
+    imin = torch.where(fills, imin, torch.minimum(imin, zero))
+    imax = torch.where(fills, imax, torch.maximum(imax, zero))
+    outside_level = _torch_quantise(zero, imin, imax, float32)
+
+    label_to_seg = torch.full((int(labels.max()) + 1,), -1, dtype=torch.int64,
+                              device=device)
+    label_to_seg[segments['labels']] = torch.arange(n_obj, device=device)
+    lab = torch.as_tensor(labels.astype(np.int64, copy=False), device=device)
+    val = torch.as_tensor(image.astype(np.float64, copy=False), device=device)
+    field_width = labels.shape[1]
+    results = []
+    for d in distances:
+        pairs = height * (width - d)
+        if d >= field_width:
+            results.append(torch.full((n_obj,), float('nan'), dtype=torch.float64,
+                                      device=device))
+            continue
+        left, right = lab[:, :-d].reshape(-1), lab[:, d:].reshape(-1)
+        v_left, v_right = val[:, :-d].reshape(-1), val[:, d:].reshape(-1)
+        col_left = torch.arange(field_width - d, device=device).repeat(labels.shape[0])
+        sums = torch.zeros(n_obj, dtype=torch.float64, device=device)
+        touched = torch.zeros(n_obj, dtype=torch.float64, device=device)
+
+        k = label_to_seg[left.clamp(min=0)]
+        keep = (left > 0) & (col_left + d < c1[k.clamp(min=0)])
+        k = k[keep]
+        a = _torch_quantise(v_left[keep], imin[k], imax[k], float32)
+        same = (right[keep] == left[keep])
+        b = torch.where(same, _torch_quantise(v_right[keep], imin[k], imax[k], float32),
+                        outside_level[k])
+        sums.index_add_(0, k, 1.0 / (1.0 + (a - b) ** 2))
+        touched.index_add_(0, k, torch.ones_like(a))
+
+        k = label_to_seg[right.clamp(min=0)]
+        keep = (right > 0) & (right != left) & (col_left >= c0[k.clamp(min=0)])
+        k = k[keep]
+        b = _torch_quantise(v_right[keep], imin[k], imax[k], float32)
+        a = outside_level[k]
+        sums.index_add_(0, k, 1.0 / (1.0 + (a - b) ** 2))
+        touched.index_add_(0, k, torch.ones_like(b))
+
+        pairs_f = pairs.to(torch.float64)
+        value = (sums + pairs_f - touched) / pairs_f
+        results.append(torch.where(pairs > 0, value,
+                                   torch.full_like(value, float('nan'))))
+    stacked = torch.stack(results, dim=1).detach().cpu().numpy()
+    return pd.DataFrame(stacked, columns=columns)
+
+
+def _torch_zernike(mask, degree, device):
+    """Vectorised equivalent of the per-object mahotas Zernike moments.
+
+    Every object is taken on its own bounding box, centred on its centre of
+    mass and scaled by its largest centre-to-pixel distance, exactly as
+    :func:`_calculate_zernike` calls ``mahotas.features.zernike_moments``; the
+    radial polynomials are then evaluated for all object pixels at once and
+    summed per object. Returns an ``(n_objects, n_moments)`` array.
+
+    Which boundary pixels fall inside the unit disk is decided exactly as
+    Mahotas decides it: the radius is a correctly rounded square root taken
+    on the host, and ``sqrt(s) <= 1`` is tested as ``s <= nextafter(1, 2)``,
+    which is the same predicate without relying on the device's square root.
+    """
+    import torch
+    from math import factorial, pi
+    segments = _torch_label_segments(mask, None, device)
+    seg, counts = segments['seg'], segments['counts']
+    n_obj = int(counts.shape[0])
+    n = counts.to(torch.float64)
+    row = segments['row']
+    col = segments['col']
+    y = (row - _torch_segment_extreme(seg, row, n_obj, 'amin')[seg]).to(torch.float64)
+    x = (col - _torch_segment_extreme(seg, col, n_obj, 'amin')[seg]).to(torch.float64)
+    cy = _torch_segment_sum(seg, y, n_obj) / n
+    cx = _torch_segment_sum(seg, x, n_obj) / n
+    squared = (y - cy[seg]) ** 2 + (x - cx[seg]) ** 2
+    farthest = _torch_segment_extreme(seg, squared, n_obj, 'amax')
+    radius = torch.as_tensor(
+        np.maximum(np.sqrt(farthest.cpu().numpy()), 1.0), device=device)
+    yn = (y - cy[seg]) / radius[seg]
+    xn = (x - cx[seg]) / radius[seg]
+    squared = xn ** 2 + yn ** 2
+    inside = squared <= np.nextafter(1.0, 2.0)
+    seg, yn, xn = seg[inside], yn[inside], xn[inside]
+    dn = torch.clamp(torch.sqrt(squared[inside]), min=1e-9)
+    weight = 1.0 / _torch_segment_sum(seg, torch.ones_like(dn), n_obj)
+    a_re, a_im = xn / dn, yn / dn
+    powers = [(torch.ones_like(dn), torch.zeros_like(dn))]
+    for _ in range(degree + 1):
+        p_re, p_im = powers[-1]
+        powers.append((p_re * a_re - p_im * a_im, p_re * a_im + p_im * a_re))
+    moments = []
+    for order in range(degree + 1):
+        for rep in range(order + 1):
+            if (order - rep) % 2:
+                continue
+            radial = torch.zeros_like(dn)
+            for m in range((order - rep) // 2 + 1):
+                g = ((-1) ** m) * factorial(order - m) / (
+                    factorial(m) * factorial((order - 2 * m + rep) // 2)
+                    * factorial((order - 2 * m - rep) // 2))
+                radial = radial + g * dn ** (order - 2 * m)
+            p_re, p_im = powers[rep]
+            re = _torch_segment_sum(seg, radial * p_re, n_obj) * weight
+            im = _torch_segment_sum(seg, -radial * p_im, n_obj) * weight
+            moments.append((order + 1) / pi * torch.sqrt(re ** 2 + im ** 2))
+    return torch.stack(moments, dim=1).detach().cpu().numpy()
+
 
 def _periphery_intensity(label_mask, image):
     """Return per-region intensity stats along each object's outer boundary.
@@ -2672,6 +3066,159 @@ def _promote_merged_to_uint16(data, settings, *, rescale_factor=None):
     return out, factor
 
 
+_CALIBRATION_IDENTITY_KEY = '_intensity_calibration_identity'
+
+
+def _calibration_reference_hashes(settings, files):
+    """Bind reference field names to their bytes, independently of timestamps.
+
+    :param settings: Measurement settings containing the source, reference wells
+        and optional timelapse mode.
+    :param files: Available merged-array basenames after quality exclusions.
+    :returns: Reference basenames mapped to SHA-256 content digests.
+    """
+    import hashlib
+    from . import schema
+    from .intensity_rescale import _calibration_wells
+
+    wells = _calibration_wells(settings)
+    references = {}
+    for filename in sorted(set(files)):
+        field = schema.parse_field_stem(
+            filename, timelapse=bool(settings.get('timelapse', False)))
+        if (field.rowID, field.columnID) not in wells:
+            continue
+        digest = hashlib.sha256()
+        with open(os.path.join(settings['src'], filename), 'rb') as stream:
+            for chunk in iter(lambda: stream.read(1 << 20), b''):
+                digest.update(chunk)
+        references[filename] = digest.hexdigest()
+    return references
+
+
+def _prepare_measurement_calibration(settings, files):
+    """Resolve calibration before resume or any measurement database write.
+
+    :param settings: Measurement settings updated with the resolved content
+        identity, or None when calibration is disabled; stale gains are removed.
+    :param files: Available merged-array basenames after quality exclusions.
+    :returns: The full rescale plan and calibrated gains with reference hashes,
+        or ``(None, None)`` when calibration is disabled.
+    """
+    import hashlib
+
+    settings.pop(CALIBRATION_SETTINGS_KEY, None)
+    settings[_CALIBRATION_IDENTITY_KEY] = None
+    if not settings.get('intensity_calibration'):
+        return None, None
+    references = _calibration_reference_hashes(settings, files)
+    full_plan = build_plate_plan(settings['src'], files, settings)
+    resolved = dict(settings)
+    resolved[PLAN_SETTINGS_KEY] = {
+        key: full_plan[key] for key in ('version', 'plates', 'failures')}
+    calibration = _build_intensity_calibration_plan(
+        settings['src'], files, resolved)
+    if _calibration_reference_hashes(settings, files) != references:
+        raise ValueError('Intensity calibration reference files changed while '
+                         'planning. Nothing was measured; retry after acquisition stops.')
+    calibration['reference_files'] = references
+    identity = hashlib.sha256(json.dumps(
+        calibration, sort_keys=True, separators=(',', ':'),
+        allow_nan=False).encode('utf-8')).hexdigest()
+    settings[_CALIBRATION_IDENTITY_KEY] = identity
+    calibration['identity'] = identity
+    return full_plan, calibration
+
+
+def _validate_measurement_calibration_history(settings, db_path):
+    """Refuse incompatible or unproven calibration without mutating SQLite.
+
+    Retained measured rows must have matching content-bound provenance. Legacy
+    uncalibrated rows remain compatible with disabled calibration; legacy
+    calibrated rows cannot prove which reference bytes produced their gains.
+
+    :param settings: Measurement settings with the resolved calibration identity.
+    :param db_path: Existing measurement database path, if any.
+    :returns: None when retained measurements are compatible or absent.
+    :raises ValueError: Existing measurements have incompatible or unverified
+        calibration or lack the required per-field provenance.
+    """
+    if not os.path.isfile(db_path):
+        return
+    from .database_concurrency import connect
+    from .resume import MEASURE_OWNED_TABLES, measure_rows_clause, read_recorded_settings
+
+    identity = settings.get(_CALIBRATION_IDENTITY_KEY)
+    message = ('Existing measurements have a different or unverified intensity '
+               'calibration/reference content. Restore the recorded references '
+               'and calibration, or use a clean separate output project. '
+               'No existing measurement rows were changed.')
+    connection = connect(db_path, readonly=True)
+    try:
+        tables = {row[0] for row in connection.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'")}
+        occupied = {}
+        for table in tables & (MEASURE_OWNED_TABLES - {'png_list', 'intensity_rescale'}):
+            clause = measure_rows_clause(connection, table) or '1'
+            if connection.execute(f'SELECT 1 FROM "{table}" WHERE {clause} LIMIT 1').fetchone():
+                occupied[table] = clause
+        if not occupied:
+            return
+        recorded = read_recorded_settings(db_path)
+        previous = recorded.get(_CALIBRATION_IDENTITY_KEY)
+        if previous in ('None', '', 'null'):
+            previous = None
+        if previous is not None and previous != identity:
+            raise ValueError(message)
+        if (identity is None and str(recorded.get('intensity_calibration', '')).lower()
+                in {'true', '1', 'yes', 'on'}):
+            raise ValueError(message)
+        columns = {row[1] for row in connection.execute(
+            'PRAGMA table_info(intensity_rescale)')}
+        if 'intensity_calibration' not in columns:
+            if identity is not None:
+                raise ValueError(message)
+            return
+        for (text,) in connection.execute(
+                'SELECT DISTINCT intensity_calibration FROM intensity_rescale'):
+            if text is None:
+                if identity is not None:
+                    raise ValueError(message)
+                continue
+            try:
+                record = json.loads(text)
+            except (ValueError, TypeError) as error:
+                raise ValueError(message) from error
+            if (identity is None or not isinstance(record, dict)
+                    or record.get('identity') != identity):
+                raise ValueError(message)
+        if identity is None:
+            return
+        keys = ('plateID', 'rowID', 'columnID', 'fieldID')
+        if not set(keys) <= columns:
+            raise ValueError(message)
+        for table, clause in occupied.items():
+            field_columns = {row[1] for row in connection.execute(
+                f'PRAGMA table_info("{table}")')}
+            if not set(keys) <= field_columns:
+                raise ValueError(message)
+            matches = [f'CAST(p."{key}" AS TEXT) = CAST(measured."{key}" AS TEXT)'
+                       for key in keys]
+            if 'timeID' in field_columns:
+                if 'timeID' not in columns:
+                    raise ValueError(message)
+                matches.append('COALESCE(CAST(p.timeID AS TEXT), \'\') = '
+                               'COALESCE(CAST(measured.timeID AS TEXT), \'\')')
+            missing = connection.execute(
+                f'SELECT 1 FROM "{table}" AS measured WHERE ({clause}) AND NOT EXISTS '
+                '(SELECT 1 FROM intensity_rescale AS p WHERE ' + ' AND '.join(matches)
+                + ' AND p.intensity_calibration IS NOT NULL) LIMIT 1').fetchone()
+            if missing:
+                raise ValueError(message)
+    finally:
+        connection.close()
+
+
 def _write_intensity_rescale_record(source_folder, file_name, settings,
                                     record, psf_record=None):
     """Upsert base rescaling and subsequent PSF provenance for one field.
@@ -2679,8 +3226,17 @@ def _write_intensity_rescale_record(source_folder, file_name, settings,
     ``target_dtype`` describes the standard rescaling stage. The separate PSF
     provenance records the final float dtype, kernel and quantitative source.
     ``intensity_calibration`` holds the cross-plate calibration applied to the
-    field (gains, reference plate, statistic and offset) as JSON, or NULL.
+    field (gains, reference plate, statistic, offset and content identity) as
+    JSON, or NULL. Reference hashes bind the resolved plan to its actual inputs.
     Older tables gain nullable signature/details and an original-source default.
+
+    :param source_folder: Project root containing the measurements directory.
+    :param file_name: Merged field stem without the ``.npy`` suffix.
+    :param settings: Measurement settings containing resolved calibration and
+        optional PSF identities.
+    :param record: Rescaling provenance and any applied per-field calibration.
+    :param psf_record: Optional subsequent PSF processing provenance.
+    :returns: None after the field's provenance is saved.
     """
     from . import schema
     from .database_concurrency import connect, transaction
@@ -2704,7 +3260,11 @@ def _write_intensity_rescale_record(source_folder, file_name, settings,
         'psf_signature': settings.get('_psf_measurement_signature'),
         'psf_provenance': json.dumps(psf_record, sort_keys=True, allow_nan=False),
         'intensity_calibration': (
-            json.dumps(record['intensity_calibration'], sort_keys=True,
+            json.dumps({**record['intensity_calibration'],
+                        'identity': settings.get(_CALIBRATION_IDENTITY_KEY),
+                        'reference_files': settings.get(
+                            CALIBRATION_SETTINGS_KEY, {}).get('reference_files', {})},
+                       sort_keys=True,
                        allow_nan=False)
             if record.get('intensity_calibration') else None),
     }
@@ -4056,11 +4616,13 @@ def _field_split(groups, fraction=0.2, seed=0):
 
 
 def _phases_by_xgboost(features, labels, groups, *, seed=0, n_jobs=1):
-    """Cell-cycle phase of every nucleus from a gradient-boosted classifier.
+    """Cell-cycle phase of every nucleus from a CPU gradient-boosted classifier.
 
     Trained on the labelled nuclei and applied to all of them. Whole fields
     are first held out to score the classifier on nuclei it never saw; the
     model that calls every nucleus is then refitted on all the labels.
+    Scores are calculated on the held-out fields below; fitting does not
+    request XGBoost's separate per-iteration training metrics.
 
     :param features: the frame from :func:`_phase_features`.
     :param labels: phase or None per row.
@@ -4091,7 +4653,8 @@ def _phases_by_xgboost(features, labels, groups, *, seed=0, n_jobs=1):
         return XGBClassifier(
             n_estimators=300, max_depth=4, learning_rate=0.1,
             subsample=0.9, colsample_bytree=0.8, tree_method='hist',
-            random_state=seed, n_jobs=n_jobs, eval_metric='mlogloss')
+            random_state=seed, n_jobs=n_jobs, device='cpu',
+            disable_default_eval_metric=True)
 
     report = {'classes': classes,
               'counts': {p: int((labels == p).sum()) for p in classes}}
@@ -4525,15 +5088,16 @@ def _dna_histogram_figure(dna_c, fit, title, phases=None):
     upper = max(6.0, float(np.percentile(values, 99.5)) if values.size else 6)
     grid = np.linspace(0, upper, 600)
     dens = fit.densities(grid * fit.g1 / 2.0) * fit.g1 / 2.0
-    with figure_style(theme_target()):
-        fig, ax = plt.subplots(figsize=(7, 4))
+    with _figure_axes(figsize=(7, 4)) as (fig, ax):
         ax.hist(values, bins=120, range=(0, upper), density=True,
                 color='0.7', label='nuclei')
         for column, name in enumerate(('G1', 'S', 'G2')):
             ax.plot(grid, dens[:, column], label=f'{name} fit')
-        ax.plot(grid, dens.sum(axis=1), color='k', lw=1, label='model')
+        ax.plot(grid, dens.sum(axis=1), color=resolve_ink(theme_target()),
+                lw=1, label='model')
         for gate in fit.gates:
-            ax.axvline(float(fit.c_value(gate)), color='k', ls='--', lw=1)
+            ax.axvline(float(fit.c_value(gate)),
+                       color=resolve_ink(theme_target()), ls='--', lw=1)
         ax.set_xlabel('DNA content (C, G1 peak = 2)')
         ax.set_ylabel('density')
         if phases is not None:
@@ -4889,6 +5453,7 @@ def _wound_axis(wound, margin):
     centres = np.arange(first, last + 1) + 0.5
 
     def inside(offset):
+        """Mark axis samples inside the image at the given normal offset."""
         py = cy + centres * dy + offset * ny
         px = cx + centres * dx + offset * nx
         return ((py >= -0.5) & (py <= height - 0.5)
@@ -5407,9 +5972,8 @@ def _wound_edge_figure(title, panels):
     :param panels: ``[(label, plane, wound)]``.
     :returns: the figure.
     """
-    with figure_style(theme_target()):
-        fig, axes = plt.subplots(1, len(panels),
-                                 figsize=(4 * len(panels), 4), squeeze=False)
+    with _figure_axes(1, len(panels), figsize=(4 * len(panels), 4),
+                      squeeze=False) as (fig, axes):
         for ax, (label, plane, wound) in zip(axes[0], panels):
             ax.imshow(_wound_overlay(plane, wound))
             ax.set_title(label)
@@ -5425,8 +5989,7 @@ def _wound_curve_figure(condition_curves, well_curves):
     :param well_curves: per-well curves, drawn faintly behind their mean.
     :returns: the figure.
     """
-    with figure_style(theme_target()):
-        fig, ax = plt.subplots(figsize=(7, 5))
+    with _figure_axes(figsize=(7, 5)) as (fig, ax):
         colours = plt.rcParams['axes.prop_cycle'].by_key().get(
             'color', ['C0'])
         for number, (condition, block) in enumerate(
@@ -5460,9 +6023,8 @@ def _wound_half_closure_figure(summary):
     :returns: the figure.
     """
     use = summary[summary['wound_ok'] == 1]
-    with figure_style(theme_target()):
-        fig, ax = plt.subplots(
-            figsize=(max(4, 1.2 * use['condition'].nunique() + 2), 5))
+    with _figure_axes(
+            figsize=(max(4, 1.2 * use['condition'].nunique() + 2), 5)) as (fig, ax):
         names = sorted(use['condition'].unique())
         for position, condition in enumerate(names):
             values = use.loc[use['condition'] == condition,
@@ -5473,7 +6035,7 @@ def _wound_half_closure_figure(summary):
                       if len(values) > 1 else np.zeros(1))
             ax.scatter(position + jitter, values, s=24, zorder=3)
             ax.hlines(values.mean(), position - 0.25, position + 0.25,
-                      linewidth=2, color='black')
+                      linewidth=2, color=resolve_ink(theme_target()))
         ax.set_xticks(range(len(names)))
         ax.set_xticklabels(names, rotation=45, ha='right')
         unit = use['time_unit'].iloc[0] if len(use) else 'frame'
@@ -5498,9 +6060,8 @@ def _wound_plate_figure(summary, plate):
     layout = plate_layout(wells[['plateID', 'rowID', 'columnID', 'value']],
                           'value', plate=plate)
     grid = layout_matrix(layout)
-    with figure_style(theme_target()):
-        fig, ax = plt.subplots(figsize=(max(5, 0.45 * grid.shape[1] + 2),
-                                        max(3.5, 0.45 * grid.shape[0] + 1.5)))
+    with _figure_axes(figsize=(max(5, 0.45 * grid.shape[1] + 2),
+                              max(3.5, 0.45 * grid.shape[0] + 1.5))) as (fig, ax):
         image = ax.imshow(np.ma.masked_invalid(grid.to_numpy(dtype=float)),
                           cmap='viridis')
         ax.set_xticks(range(grid.shape[1]))
@@ -5559,6 +6120,7 @@ def _wound_closure_tables(merged_dir, settings, figures=None):
                  for time_id, _path, _stem in items]
 
         def planes(items=items):
+            """Yield this field's wound-analysis planes in time order."""
             for _time_id, path, _stem in items:
                 yield _wound_plane(np.load(path, mmap_mode='r'), settings)
 
@@ -6443,10 +7005,9 @@ def _viability_threshold_figure(table, cuts, name, label):
     :returns: the figure.
     """
     stains = [s for s in ('dead', 'live') if name in cuts.get(s, {})]
-    with figure_style(theme_target()):
-        panels = len(stains) + (1 if len(stains) == 2 else 0)
-        fig, axes = plt.subplots(1, max(panels, 1),
-                                 figsize=(4.2 * max(panels, 1), 3.6))
+    panels = len(stains) + (1 if len(stains) == 2 else 0)
+    with _figure_axes(1, max(panels, 1),
+                      figsize=(4.2 * max(panels, 1), 3.6)) as (fig, axes):
         axes = np.atleast_1d(axes)
         plate = table
         key = name if isinstance(name, tuple) else (name,)
@@ -6470,7 +7031,7 @@ def _viability_threshold_figure(table, cuts, name, label):
                 line = float(np.arcsinh(cut.threshold / scale))
                 ax.set_xlabel(f'{stain} stain, arcsinh(intensity / {scale:.3g})')
             ax.hist(shown, bins=80, color='0.6')
-            ax.axvline(line, color='k', ls='--', lw=1)
+            ax.axvline(line, color=resolve_ink(theme_target()), ls='--', lw=1)
             ax.set_ylabel('objects')
             ax.set_title(f'{stain}: cut {cut.threshold:.4g} ({cut.source}), '
                          f'{cut.positive_fraction:.0%} above', fontsize=9)
@@ -6487,9 +7048,9 @@ def _viability_threshold_figure(table, cuts, name, label):
                                np.arcsinh(dead[pick] / d_scale), s=4,
                                label=f'{state} ({int(pick.sum())})')
             ax.axvline(np.arcsinh(cuts['live'][name].threshold / l_scale),
-                       color='k', ls='--', lw=1)
+                       color=resolve_ink(theme_target()), ls='--', lw=1)
             ax.axhline(np.arcsinh(cuts['dead'][name].threshold / d_scale),
-                       color='k', ls='--', lw=1)
+                       color=resolve_ink(theme_target()), ls='--', lw=1)
             ax.set_xlabel('live stain (arcsinh)')
             ax.set_ylabel('dead stain (arcsinh)')
             ax.legend(frameon=False, fontsize=7)
@@ -6506,9 +7067,8 @@ def _viability_controls_figure(wells, qc):
     :returns: the figure.
     """
     plates = list(dict.fromkeys(wells['plate_key']))
-    with figure_style(theme_target()):
-        fig, axes = plt.subplots(len(plates), 2,
-                                 figsize=(8, 3.2 * len(plates)), squeeze=False)
+    with _figure_axes(len(plates), 2, figsize=(8, 3.2 * len(plates)),
+                      squeeze=False) as (fig, axes):
         rng = np.random.default_rng(0)
         for row, plate in enumerate(plates):
             block = wells[wells['plate_key'] == plate]
@@ -6540,11 +7100,9 @@ def _viability_dose_figure(fits):
     if not compounds:
         return None
     readouts = list(fits)
-    with figure_style(theme_target()):
-        fig, axes = plt.subplots(len(compounds), len(readouts),
-                                 figsize=(3.6 * len(readouts),
-                                          3.0 * len(compounds)),
-                                 squeeze=False)
+    with _figure_axes(len(compounds), len(readouts),
+                      figsize=(3.6 * len(readouts), 3.0 * len(compounds)),
+                      squeeze=False) as (fig, axes):
         for i, compound in enumerate(compounds):
             for j, readout in enumerate(readouts):
                 ax = axes[i, j]
@@ -6559,10 +7117,10 @@ def _viability_dose_figure(fits):
                 result = group.result
                 ax.scatter(result.dose, result.response, s=10)
                 x, y = result.curve()
-                ax.plot(x, y, color='k', lw=1)
+                ax.plot(x, y, color=resolve_ink(theme_target()), lw=1)
                 ec50 = result.ec50
                 if ec50 is not None:
-                    ax.axvline(ec50, color='k', ls=':', lw=1)
+                    ax.axvline(ec50, color=resolve_ink(theme_target()), ls=':', lw=1)
                     ax.set_title(f'{compound}: {readout}, EC50 {ec50:.3g}',
                                  fontsize=9)
         fig.tight_layout()
@@ -7525,7 +8083,15 @@ def measure_crop(settings):
 
                 from .database_concurrency import enable_wal_where_safe
                 _measurements_dir = os.path.join(
-                    os.path.dirname(src_fldr), 'measurements')
+                    os.path.dirname(settings['src']), 'measurements')
+                files = [f for f in _listdir_visible(settings['src']) if f.endswith('.npy')]
+                from .image_quality import excluded_fields, ensure_no_retained_measurements
+                rejected_quality = excluded_fields(os.path.dirname(settings['src']))
+                ensure_no_retained_measurements(os.path.dirname(settings['src']), rejected_quality)
+                files = [name for name in files if name not in rejected_quality]
+                _full_rescale_plan, calibration = _prepare_measurement_calibration(settings, files)
+                _validate_measurement_calibration_history(
+                    settings, os.path.join(_measurements_dir, 'measurements.db'))
                 os.makedirs(_measurements_dir, exist_ok=True)
                 enable_wal_where_safe(
                     os.path.join(_measurements_dir, 'measurements.db'))
@@ -7618,13 +8184,9 @@ def measure_crop(settings):
 
                 _save_settings_to_db(settings)
 
-                files = [f for f in _listdir_visible(settings['src']) if f.endswith('.npy')]
-                from .image_quality import excluded_fields, ensure_no_retained_measurements
-                rejected_quality = excluded_fields(os.path.dirname(settings['src']))
-                ensure_no_retained_measurements(os.path.dirname(settings['src']), rejected_quality)
-                files = [name for name in files if name not in rejected_quality]
-                _full_rescale_plan = build_plate_plan(
-                    settings['src'], files, settings)
+                if _full_rescale_plan is None:
+                    _full_rescale_plan = build_plate_plan(
+                        settings['src'], files, settings)
                 settings[PLAN_SETTINGS_KEY] = {
                     'version': _full_rescale_plan['version'],
                     'plates': _full_rescale_plan['plates'],
@@ -7638,10 +8200,7 @@ def measure_crop(settings):
                         f"can be loaded by its worker, it will use a per-field "
                         f"fallback and measurements.db:intensity_rescale will "
                         f"mark it non-comparable.")
-                settings.pop(CALIBRATION_SETTINGS_KEY, None)
-                if settings.get('intensity_calibration'):
-                    calibration = _build_intensity_calibration_plan(
-                        settings['src'], files, settings)
+                if calibration is not None:
                     settings[CALIBRATION_SETTINGS_KEY] = calibration
                     print(f"Intensity calibration against plate "
                           f"{calibration['reference_plate']}: " + '; '.join(
@@ -7935,7 +8494,7 @@ def _cellprofiler_export(merged_folder, settings, dest):
     :param dest: the folder the TIFFs go in.
     :returns: the written paths.
     """
-    import tifffile
+    from .tiff_io import write_tiff
 
     written = []
     for name in sorted(os.listdir(merged_folder)):
@@ -7952,12 +8511,12 @@ def _cellprofiler_export(merged_folder, settings, dest):
             if plane in labels:
                 continue
             path = os.path.join(dest, f'{stem}_ch{channel}.tif')
-            tifffile.imwrite(path, np.ascontiguousarray(data[..., plane]))
+            write_tiff(path, np.ascontiguousarray(data[..., plane]))
             written.append(path)
             channel += 1
         for role, plane in roles.items():
             path = os.path.join(dest, f'{stem}_{role}_mask.tif')
-            tifffile.imwrite(path, np.ascontiguousarray(
+            write_tiff(path, np.ascontiguousarray(
                 data[..., plane]).astype(np.uint16))
             written.append(path)
     return written

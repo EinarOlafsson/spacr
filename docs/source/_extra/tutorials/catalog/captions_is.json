@@ -7,41 +7,41 @@
       "id": "01_pypi_github",
       "number": 1,
       "slug": "pypi_github",
-      "title": "Find spaCR on GitHub, PyPI and conda-forge",
+      "title": "Finndu spaCR á GitHub, PyPI og conda-forge",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Find the official package and installer sources, compare the release available on each channel, and choose the matching installation tutorial.",
+      "description": "Finndu opinberar uppsprettur pakkans og uppsetningarforritanna, berðu saman útgáfuna sem er í boði á hverri rás og veldu samsvarandi uppsetningarkennslu.",
       "objectives": [
-        "Find the official download pages.",
-        "Choose the installation route for your computer.",
-        "Open the matching installation tutorial."
+        "Finna opinberu niðurhalssíðurnar.",
+        "Velja uppsetningarleið fyrir tölvuna þína.",
+        "Opna samsvarandi uppsetningarkennslu."
       ],
-      "prerequisite": "Open a web browser and decide whether you want a desktop installer or a Python environment.",
+      "prerequisite": "Opnaðu vafra og ákveddu hvort þú vilt uppsetningarforrit fyrir skjáborð eða Python-umhverfi.",
       "scenes": [
         {
           "visual": "01_pypi_current_release",
-          "narration": "Choose how you want to install spaCR. Use a desktop installer for a ready-to-launch application, pip for a Python virtual environment, or conda-forge for a Conda environment. Start from the official spaCR links shown here.",
+          "narration": "Veldu hvernig þú vilt setja upp spaCR. Notaðu uppsetningarforrit fyrir skjáborð til að fá forrit sem er tilbúið til ræsingar, pip fyrir Python-sýndarumhverfi eða conda-forge fyrir Conda-umhverfi. Byrjaðu á opinberu spaCR-tenglunum sem sjást hér.",
           "hold_after": 0.7
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "On PyPI, find spaCR and read the installation command beside the current release. Copy that command when you are ready to install into your Python environment. The pip tutorial shows how to create and activate that environment first.",
+          "narration": "Á PyPI finnurðu spaCR og lest uppsetningarskipunina við hlið núverandi útgáfu. Afritaðu skipunina þegar þú ert tilbúinn að setja upp í Python-umhverfið þitt. Kennslan um pip sýnir hvernig þú býrð fyrst til og virkjar það umhverfi.",
           "hold_after": 0.7
         },
         {
           "visual": "02_pypi_project_links",
-          "narration": "Use Project links to open the documentation, source repository or issue tracker. Bookmark the documentation so you can return to the module walkthroughs while working in spaCR.",
+          "narration": "Notaðu Project links til að opna skjölunina, frumkóðageymsluna eða villuskráninguna. Settu bókamerki á skjölunina svo þú getir farið aftur í yfirferðir eininganna meðan þú vinnur í spaCR.",
           "hold_after": 0.7
         },
         {
           "visual": "03_github_main_branch",
-          "narration": "On GitHub, open the spaCR repository. Main contains the release source, and nightly contains the latest development work. For a packaged desktop installation, open Releases and choose a release.",
+          "narration": "Á GitHub opnarðu spaCR-geymsluna. main inniheldur frumkóða útgáfunnar og nightly nýjustu þróunarvinnuna. Fyrir pakkaða skjáborðsuppsetningu opnarðu Releases og velur útgáfu.",
           "hold_after": 0.7
         },
         {
           "visual": "04_github_current_assets",
-          "narration": "Expand Assets and download the installer for Windows, macOS or Linux. Keep the checksum file from the same release if you want to verify the download. The Platform installers lesson walks through launching the installer and opening spaCR.",
+          "narration": "Opnaðu Assets og sæktu uppsetningarforritið fyrir Windows, macOS eða Linux. Geymdu gátsummuskrána úr sömu útgáfu ef þú vilt staðfesta niðurhalið. Kennslan Platform installers sýnir hvernig á að ræsa uppsetningarforritið og opna spaCR.",
           "hold_after": 0.7,
           "related_lessons": [
             "04_platform_installers"
@@ -49,12 +49,12 @@
         },
         {
           "visual": "05_conda_current_package",
-          "narration": "On conda-forge, open the spaCR package page and check the available version. Package channels can update at different times, so select the version available through the route you choose.",
+          "narration": "Á conda-forge opnarðu pakkasíðu spaCR og athugar hvaða útgáfa er í boði. Pakkarásir geta uppfærst á ólíkum tímum, svo veldu útgáfuna sem er í boði eftir leiðinni sem þú velur.",
           "hold_after": 0.7
         },
         {
           "visual": "05_conda_current_package",
-          "narration": "The conda-forge command installs spaCR into your active Conda environment. Follow the Conda lesson to create that environment, install the package and launch the application.",
+          "narration": "Skipunin fyrir conda-forge setur spaCR upp í virka Conda-umhverfinu þínu. Fylgdu Conda-kennslunni til að búa til það umhverfi, setja pakkann upp og ræsa forritið.",
           "hold_after": 0.7,
           "related_lessons": [
             "02_conda_install"
@@ -62,7 +62,7 @@
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "Continue with pip, Conda or Platform installers. Once spaCR opens, move to the Home lesson, then the pipeline overviews to choose a workflow for your data.",
+          "narration": "Haltu áfram með pip, Conda eða Platform installers. Þegar spaCR opnast ferðu í Home-kennsluna og síðan í yfirlit greiningarferla til að velja verkferli fyrir gögnin þín.",
           "hold_after": 0.7,
           "related_lessons": [
             "02_conda_install",
@@ -74,6 +74,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -379,6 +419,11 @@
           "hold_after": 0.7
         },
         {
+          "visual": "09_performance",
+          "narration": "Í Preferences velurðu Performance-snið fyrir tölvuna þína. Laptop notar minni tilföng; hærri sniðin leyfa meiri skyndiminnisnotkun og bakgrunnsvinnu. Byrjaðu á hóflegu sniði ef minni er takmarkað. Greiningarstillingarnar eru áfram á þínu valdi í hverri einingu.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "06_installed_home",
           "narration": "Þegar Home opnast heldurðu áfram með Home-kennsluna. Hún sýnir hvernig á að opna einingu, finna prófunargögn og velja greiningarferli fyrir tilraunina þína.",
           "related_lessons": [
@@ -660,17 +705,17 @@
       "id": "06_api",
       "number": 6,
       "slug": "api",
-      "title": "Python API and batch commands",
+      "title": "Python-API og runuskipanir",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Find an analysis function, load saved settings, check the inputs and run spaCR from a terminal.",
+      "description": "Finndu greiningarfall, hlaðu inn vistuðum stillingum, athugaðu inntökin og keyrðu spaCR úr skipanaglugga.",
       "objectives": [
-        "Find the installed batch commands and their Python functions.",
-        "Inspect a function signature and its API reference.",
-        "Check saved settings before running an analysis."
+        "Finna uppsettar runuskipanir og Python-föll þeirra.",
+        "Skoða undirskrift falls og API-tilvísun þess.",
+        "Athuga vistaðar stillingar áður en greining er keyrð."
       ],
-      "prerequisite": "Install spaCR and activate its Python environment. Follow the Regression tutorial to prepare paired score/count tables and save the analysis settings. Use your own file paths in the commands.",
+      "prerequisite": "Settu upp spaCR og virkjaðu Python-umhverfi þess. Fylgdu Regression-kennslunni til að útbúa pöruð töflur með stigum og talningum og vista greiningarstillingarnar. Notaðu eigin skráarslóðir í skipununum.",
       "scenes": [
         {
           "visual": "01_version",
@@ -680,7 +725,7 @@
             1900,
             650
           ],
-          "narration": "Activate the Python environment where you installed spaCR. Import spacr and print its version with the command shown. Keep the version with your analysis notes so you can reproduce the same run later.",
+          "narration": "Virkjaðu Python-umhverfið sem þú settir spaCR upp í. Fluttu inn spacr og prentaðu útgáfu þess með skipuninni sem sést. Geymdu útgáfuna með greiningarglósunum svo þú getir endurtekið sömu keyrslu síðar.",
           "related_lessons": [
             "02_conda_install",
             "03_pip_install",
@@ -696,7 +741,7 @@
             2800,
             1900
           ],
-          "narration": "Run spacr-run with dash dash list to find the available batch commands. The list shows each command key and its Python function. Choose the command for your task, such as mask, measure or regression. Use the desktop application for interactive tasks such as labelling images in Annotate.",
+          "narration": "Keyrðu spacr-run --list til að finna tiltækar runuskipanir. Listinn sýnir lykil hverrar skipunar og Python-fall hennar. Veldu skipunina fyrir verkið þitt, til dæmis mask, measure eða regression. Notaðu skjáborðsforritið fyrir gagnvirk verk eins og að merkja myndir í Annotate.",
           "hold_after": 0.7
         },
         {
@@ -707,7 +752,7 @@
             2250,
             900
           ],
-          "narration": "Run spacr-run with dash dash describe followed by regression. Read the required inputs, defaults and function name. Here, the batch command calls perform_regression in spacr.ml. Open that function in the API reference to read its parameters and returned results.",
+          "narration": "Keyrðu spacr-run --describe regression. Lestu nauðsynleg inntök, sjálfgefin gildi og heiti fallsins. Hér kallar runuskipunin á perform_regression í spacr.ml. Opnaðu það fall í API-tilvísuninni til að lesa stika þess og niðurstöðurnar sem það skilar.",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
@@ -722,7 +767,7 @@
             2800,
             700
           ],
-          "narration": "In Python, import the function you need and inspect its signature. This example imports build_report from spacr.report. Look up the same name in the API reference, prepare the required arguments, and call the function from your script or notebook.",
+          "narration": "Í Python flytur þú inn fallið sem þú þarft og skoðar undirskrift þess. Þetta dæmi flytur inn build_report úr spacr.report. Flettu upp sama heiti í API-tilvísuninni, útbúðu nauðsynleg færibreytugildi og kallaðu á fallið úr skriftu eða vinnubók.",
           "hold_after": 0.7
         },
         {
@@ -733,7 +778,7 @@
             3440,
             680
           ],
-          "narration": "Save the settings from your module workflow, then pass the file with dash dash settings. Add dash dash dry-run to check the configuration and input paths. In this Regression example, the settings pair phenotype scores with guide counts for each plate. Read the messages and correct any missing inputs before continuing.",
+          "narration": "Vistaðu stillingarnar úr verkferli einingarinnar og sendu svo skrána með --settings. Bættu við --dry-run til að athuga stillingarnar og inntaksslóðirnar. Í þessu Regression-dæmi para stillingarnar svipgerðarstig við fjölda leiðsagnar-RNA fyrir hverja plötu. Lestu skilaboðin og lagaðu inntök sem vantar áður en þú heldur áfram.",
           "hold_after": 0.7
         },
         {
@@ -744,7 +789,7 @@
             2250,
             900
           ],
-          "narration": "To execute the analysis, run the same command without dash dash dry-run. Follow the console until the command finishes, then inspect the outputs described by that module’s tutorial and API page. Keep the settings file, input tables, package version and console log with the results.",
+          "narration": "Til að framkvæma greininguna keyrirðu sömu skipun án --dry-run. Fylgstu með stjórnborðinu þar til skipuninni lýkur og skoðaðu svo úttakið sem lýst er í kennslu og API-síðu einingarinnar. Geymdu stillingaskrána, inntakstöflurnar, útgáfu pakkans og annál stjórnborðsins með niðurstöðunum.",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
@@ -755,6 +800,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9372,7 +9457,7 @@
         "Velja hluti og athuga um leið sjónsvið og tegund hlutar.",
         "Opna samsvarandi úrklipp foreldrafrumu og fá allt stigveldið með Python."
       ],
-      "prerequisite": "Sæktu allt Annotate-dæmið með mælingagagnagrunni þess og samsvarandi frumuúrklippum. Gagnagrunnssafnið eitt úr Graph Builder getur ekki lagt til myndir. Þetta dæmi inniheldur aðeins frumuúrklipp: tvísmelltu á foreldrafrumu til að skoða úrklipp. Núverandi fjölskylduaðgerðin Open crops getur sett úrklipp ótengdra frumna í stað afkvæmaúrklippa sem vantar; forðastu hana með þessu dæmi.",
+      "prerequisite": "Sæktu allt Annotate-dæmið með mælingagagnagrunni þess og samsvarandi frumuúrklippum. Gagnagrunnssafnið eitt úr Graph Builder getur ekki lagt til myndir. Þetta dæmi inniheldur aðeins frumuúrklippur. Fyrir fjölskylduna sem hér er sýnd birtir Open crops aðeins samsvarandi úrklippu foreldrafrumunnar og tilkynnir að tvær afkvæmaúrklippur séu ekki tiltækar.",
       "example_files": [
         "Lineage_real_containment_review.zip",
         "Graph_Builder_real_measurements.zip"
@@ -9435,8 +9520,8 @@
           "hold_after": 0.7
         },
         {
-          "visual": "20_wrong_typed_children_are_unrelated_cell_crops",
-          "narration": "Forðastu Open crops fyrir heila fjölskyldu í þessu dæmi. Úrklippum kjarna og sýkla sem vantar getur verið skipt út fyrir úrklipp ótengdra frumna. Farðu aftur í tréð og veldu aðeins foreldrafrumuna.",
+          "visual": "20_family_crop_identity_preserved",
+          "narration": "Smelltu á Open crops fyrir valda fjölskyldu. Annotate opnar aðeins samsvarandi úrklippu foreldrafrumunnar og tilkynnir að tvær afkvæmaúrklippur séu ekki tiltækar. Þetta dæmi inniheldur aðeins frumuúrklippur; úrklippur kjarnans og sýkilsins eru ekki tiltækar.",
           "hold_after": 0.7
         },
         {

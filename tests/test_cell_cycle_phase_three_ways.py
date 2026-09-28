@@ -201,6 +201,8 @@ def test_xgboost_learns_the_phases_from_nucleus_features():
     assert scores["accuracy"] >= 0.93, scores
     assert report["classes"] == list(PHASES)
     assert report["held_out"]["n"] > 0
+    assert json.loads(_model.get_booster().save_config())["learner"][
+        "generic_param"]["device"] == "cpu"
     assert np.all((confidence > 0) & (confidence <= 1))
     one = pd.Series(["G1"] * len(truth), dtype=object)
     with pytest.raises(ValueError, match="at least two"):
@@ -402,10 +404,7 @@ def test_a_failed_step_is_reported_and_does_not_fail_the_run(tmp_path,
 @pytest.mark.slow
 def test_the_torch_route_trains_with_classify_and_reuses_its_model(
         tmp_path, monkeypatch):
-    import torch
-
     monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "")
-    torch.set_num_threads(4)
     merged, truths = _write_plate(tmp_path, fields=4, seed=3)
     measure.measure_crop(_measure_settings(
         merged, cell_cycle=False))

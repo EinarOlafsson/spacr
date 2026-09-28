@@ -1564,7 +1564,9 @@
       "source_sha256": "f28bcb7e35ec757d7e33bfb5eb99b9e0cce20e687ca74e7f55ae1f5299995ce6",
       "context": "optional captured PSF session. Processes selected intensities after illumination and before normalization, padding or Cellpose. Stored image data channels stay raw; only the appended labels depend on PSF processing.",
       "translation": "선택적으로 캡처된 PSF 세션입니다. 선택된 강도를 조명 보정 후, 정규화, 패딩 또는 Cellpose 전에 처리합니다. 저장된 이미지 채널은 원시 상태로 유지되며, 추가되는 레이블만 PSF 처리에 의존합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27 API delta 3: the English source block or its translation context changed before manifest 31000d98b. Original translation and review provenance are retained verbatim as historical evidence; this record is no longer loaded for the current source."
     },
     {
       "label": "spacr.plaque.detect_wells#1",

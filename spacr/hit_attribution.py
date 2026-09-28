@@ -248,10 +248,6 @@ def build_hit_cell_frame(
     if direction_key not in {"positive", "negative"}:
         raise HitAttributionError("direction must be 'positive' or 'negative'")
     ascending = direction_key == "negative"
-    # Both of these are functions of score_column alone, so both are listed
-    # in SCORE_DERIVED_COLUMNS -- rename one here and rename it there too, or
-    # _default_features will start handing the score back to the model under
-    # a name that does not look like it.
     frame["candidate_rank"] = (
         frame.groupby(wells, dropna=False)[score_column]
         .rank(method="first", ascending=ascending).astype(int))

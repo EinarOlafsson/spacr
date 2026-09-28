@@ -79,3 +79,23 @@ CPU RUN (2026-09-27; GPU held by another session, none queued)
   fluorescence cell stain, not brightfield/phase (plate1 has no label-free
   channel); the segmenter is a threshold watershed, weaker than Cellpose.
   Script: /mnt/wd4tb/scratch/558/run.py (outside the repo).
+
+FULL GPU TRAINING NEEDS (written 2026-09-28; not run)
+  Script: /mnt/wd4tb/scratch/558/gpu_train.sh (ready, not run). Queue it
+  through tools/gpu_turn.sh; it asserts CUDA, caps RAM at 24 GB and writes
+  to /mnt/wd4tb/scratch/558/gpu_s<src>_e<epochs>_x<scale>/.
+  Settings: device cuda, scale 2 (half resolution, nuclei ~42 px) instead
+  of 4, crop 256, 128 crops/field/epoch, batch 32, base 32, depth 4, 200
+  epochs. Expected: under 4 GB of GPU memory, roughly 1-2 h on one card;
+  the CPU run (scale 4, base 16, 20 epochs) took 22 min.
+  Data a real claim needs: a label-free channel (brightfield or phase),
+  which plate1 lacks; at least 3 plates or 3 wells per condition, split by
+  plate for testing; 50+ fields. Score with Cellpose (pass
+  segment=<Cellpose callable> to _virtual_stain_scorecard) as well as the
+  threshold watershed, and report F1@0.5 against curated nucleus masks.
+
+WHAT IS LEFT
+  A GPU run of the script above; a label-free paired data set; a Cellpose
+  segmenter in the scorecard by default; applying a saved model from the
+  Timelapse or Make Masks screens (only the Cellpose workbench button runs
+  it now); a pix2pix / published-model option.

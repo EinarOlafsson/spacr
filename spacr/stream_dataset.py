@@ -18,11 +18,6 @@ import pandas as pd
 
 LOG = logging.getLogger("spacr.stream_dataset")
 
-# THE SELECTION TABLES LIVE IN `_stream_selection`, which imports nothing
-# but typing: `spacr.settings` reads them while a settings panel is being
-# laid out, and must not pay for pandas to read two dictionaries. They are
-# re-exported here, and the two lookups below stay this module's public API
-# and delegate, so there is one implementation and nothing moved for a caller.
 from . import _stream_selection  # noqa: E402
 from ._stream_selection import (COORDINATE_COLUMNS, METHOD_SETTINGS,  # noqa: E402,F401
                                 SELECTION_COLUMNS, SELECTION_FILE,

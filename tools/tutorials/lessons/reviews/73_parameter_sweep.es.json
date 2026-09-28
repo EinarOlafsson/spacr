@@ -1,13 +1,14 @@
 {
   "lesson": "73_parameter_sweep",
-  "english_sha256": "8f164d56e7d6d48b866022bb05940e29cf343154681c65517a51ce2676825346",
+  "english_sha256": "44292936fb6b522935dc2402151ddb2bba49786333975d2b8a683e271411e2a4",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 original translations retained; Codex translated and technically reviewed the corrected fitted-support scene.",
+    "date": "2026-09-27",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Only scene8 narration changed. The remaining nine scenes, metadata, scene IDs and statistical caveats are preserved."
   },
   "language": "es",
   "title": "Parameter Sweep: comparar ensayos de Regression guardados",
@@ -27,7 +28,7 @@
     "Revisa las filas completadas y luego abre sweep_results.csv y los archivos de configuración y de control de calidad de cada ensayo. Los dos ensayos mostrados terminan el cálculo pero no superan las comprobaciones de inferencia, así que un estado de ejecución ok no basta para elegir un modelo.",
     "Selecciona la primera fila y haz clic en Show figures for selected row. Revisa los resultados por guía y las etiquetas de los ejes. El gráfico omite el intercepto de la tabla de coeficientes.",
     "Cambia Level a Gene para revisar la familia de genes por separado. Comprueba sus filas, efectos y resultados de control de calidad antes de compararla con la vista por guía.",
-    "Vuelve a Guide. Lee el respaldo muestral en los archivos de entrada y de diagnóstico: en el ejemplo, el resumen de filas ajustadas cuenta filas de coeficientes de salida, no pozos.",
+    "Vuelva a Guide. Compare las filas usadas en el ajuste y los pocillos únicos en el resumen del ensayo. Los recuentos se registran por separado para los ajustes a nivel de guía y a nivel de gen. Estos recuentos describen los datos que sustentan el ajuste, no la calidad de la inferencia.",
     "Guarda la configuración, el resumen y los archivos de control de calidad de cada ensayo junto con sus figuras. Usa Regression Diagnostics para una revisión más a fondo, o SweepSpace y run_sweep desde Python para una comparación con código."
   ]
 }

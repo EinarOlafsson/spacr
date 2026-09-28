@@ -1,0 +1,28 @@
+{
+  "scope": "Current feature ledgers, caption ratchet and all ten API source inventories after the CPU repairs",
+  "source_commit": "dd68602418b5af37bce8feb374f4e84cc4c2f871",
+  "passed": true,
+  "tests": 619,
+  "seconds": 53.95,
+  "exit_code": 0,
+  "junit_sha256": "99b7d72727fe744801c218c84e31c4451270fb8c717f0f94393ce7e21d64f415",
+  "log_sha256": "db7e8ca4dd9c40669e1cbf689e674e2d9edb33b627de3fdbbc7f88959555cb98",
+  "english_catalog_sha256": "d828f9514af97d9a4c22a4afccec239790f4d0eed1e193a743a1b704d211a5fc",
+  "api_symbols": 11865,
+  "api_languages": [
+    "en",
+    "sv",
+    "de",
+    "es",
+    "zh_CN",
+    "pt",
+    "hi",
+    "ko",
+    "is",
+    "fr"
+  ],
+  "index_regenerated": true,
+  "gpu_used": false,
+  "full_qt_acceptance": false,
+  "whole_feature_lists_complete": false
+}

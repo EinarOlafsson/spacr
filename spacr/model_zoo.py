@@ -343,11 +343,6 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         "metrics": {'n_train': '229', 'train_objects': 'not recorded', 'n_test': '11 wells', 'test_objects': 'not recorded', 'cv': 'no', 'f1': '0.8640', 'aji': '0.8090', 'dice': 'not recorded', 'stock_f1': '0.7130', 'stock_aji': '0.4260', 'stock_dice': 'not recorded', 'train_loss': 'not recorded', 'val_loss': 'not recorded', 'best_epoch': '100 / 100'},
         "display_name": "Toxoplasma PV v1",
         "architecture": "Cellpose-SAM (cpsam_v2)",
-        # ROUND 2, CORRECTED 2026-09-15 (item 370). Until then this row
-        # quoted ROUND 1 -- 115 images, 104 train / 11 test, F1 0.867 --
-        # while the sha256 above has always been round 2's checkpoint. Every
-        # figure below is from round 2's own run: round2.log for the split and
-        # the stock baseline, round2_vs_round1.csv for the scores.
         "dataset": "anti-Toxoplasma-biotin and DsRed PV lumen; 229 images "
                    "from 2 datasets, 104 round-1 and 125 newly curated",
         "versus_stock": "F1 0.864 against 0.713 for stock cpsam on 11 "
@@ -412,10 +407,6 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         "kind": "cellpose",
         "repo_id": "einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5",
         "repo_type": "model",
-        # THE WEIGHT IS UNDER weights/ IN THIS REPO, unlike the older plaque and PV
-        # repos which put it at the root, so the URL is given rather than built from
-        # `name`: hf_uri(repo_id, "cpsam_plaque_r5") would 404 on a repo that has it
-        # one directory down, and a 404 here reads as "the model is gone".
         "uri": "https://huggingface.co/einarolafsson/"
                "toxoplasma-plaque-segmentation-cpsam-r5/resolve/main/"
                "weights/cpsam_plaque_r5?download=true",
@@ -2032,10 +2023,6 @@ def stock_cellpose_entries() -> List["ModelEntry"]:
     I segment with" rather than "what has Einar trained", which is the
     question a new user actually has.
     """
-    # Deliberately does NOT import cellpose: importing this module must stay
-    # free of torch and cellpose (there is a test for it, and the GUI lists
-    # models long before anything segments). If cellpose is already loaded its
-    # own list is authoritative; otherwise the names above are the fallback.
     import sys
 
     loaded = sys.modules.get("cellpose.models")
@@ -2665,9 +2652,6 @@ def community_entries(allow_network: bool = False,
     cache = Path.home() / ".spacr" / "community_models.json"
     records = None
     try:
-        # allow_network means the user just asked to see these, so the cache is
-        # skipped: a cached empty list from before the first submission would
-        # otherwise hide it for hours, which is exactly how this was found.
         if (not allow_network and cache.is_file()
                 and _time.time() - cache.stat().st_mtime < 6 * 3600):
             records = _json.loads(cache.read_text())
@@ -2692,9 +2676,6 @@ def community_entries(allow_network: bool = False,
                         meta = _json.loads(Path(hf_hub_download(repo, sub)).read_text())
                     except Exception:                        # noqa: BLE001
                         meta = {}
-                # The checkpoint, not the README beside it: match on the
-                # extensions a model actually has, or a folder with a README
-                # listed first offers the README as the download.
                 inside = [f for f in files
                           if f.startswith(f"{COMMUNITY_PREFIX}{folder}/")]
                 weights = [f for f in inside
@@ -2999,8 +2980,7 @@ def versioned_path(dest: Any, filename: str) -> Path:
     base = match.group("base") if match else p.stem
     n = int(match.group("n")) if match else 1
 
-    candidate = folder / (f"{base}{suffix}" if n == 1
-                          else f"{base}_v{n}{suffix}")
+    candidate = folder / p.name
     while candidate.exists():
         n += 1
         candidate = folder / f"{base}_v{n}{suffix}"

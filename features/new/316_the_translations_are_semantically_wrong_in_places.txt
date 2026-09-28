@@ -1295,3 +1295,53 @@ written that day (201 records across the sixteen
 docs/i18n/reviewed/runtime/hi/2026-09-15-*.json files). None was read by a
 Hindi speaker. Hindi stays visible in the language menu; the record of its
 review status is REVIEW_SCOPE_2026-09-04.md, "Who reviewed what".
+
+--------------------------------------------------------------------------------
+2026-09-27 — CURRENT RUNTIME DELTA AND HINDI FALLBACKS ACCEPTED
+--------------------------------------------------------------------------------
+All nine runtime catalogs were rebuilt from reviewed inputs, without model
+inference, and passed the full canonical audit at 8,361 unique English
+sources: 1,194 labels, 1,216 help entries, 229 categories, 6,014 UI captions and
+72 module summaries. The 140-source shared delta includes 11 captions the
+extractor had missed. Hindi's 35 historical fallback captions were directly
+translated after content review; no external filter was invoked. Historical
+fallback records remain as dated evidence.
+
+The 1,295 locale/source cases passed the strict draft gates. The 54 named
+runtime checks passed with the advisory translation plugin disabled: 51 on
+the first run, then 3 focused repairs to historical retirement counts and the
+Chinese informational-guide test. All 76 resolved awaiting captions were
+removed only after the catalog audit. Exact record-identity changes reproduce
+the old ratchet pin before moving it: +813/-37.
+
+Receipts: features/data/316_runtime_codex_delta_2026-09-27.json and
+features/data/316_runtime_inventory_delta_2026-09-27.json. Review scope:
+docs/i18n/2026-09-27-runtime-codex-delta.md. This is AI technical review
+(Codex), no native-speaker signoff; mechanical coverage is not a claim that
+every historical translation has had semantic or listening review. Combined
+API coverage/publication remains in 411; tutorial completion remains in 358.
+
+STATUS 2026-09-27 — asynchronous GPU-discovery caption translated
+The new pending-status caption "Checking compatible GPUs…" has source-bound
+AI technical review (Codex), no native-speaker signoff, in all nine locales.
+Canonical gates and strict review loading pass; all catalogs were regenerated
+without model inference and the all-nine audit passes. Exact inventory proof
+is +1 UI identity, no removals: 6,015 UI sources and 8,362 unique source values.
+Three focused source/review/pin checks pass. Previous review cohort pins remain
+intact, with this single-caption cohort accounted for separately. Receipt:
+features/data/316_gpu_discovery_caption_2026-09-27.json.
+
+STATUS 2026-09-28 — notification and planner runtime delta verified
+The 577/585 delta adds 21 UI identities and retires three. Twenty translated
+sources per locale have source-bound review: 180 records across nine locales;
+Microsoft Teams retains its product identity. Full originals of retired
+reviews are archived before removal. All ten catalogs were rebuilt without
+model inference and audited: 8,382 unique English sources, including 6,035
+UI identities. The awaiting-caption list remains empty. Portuguese scientific
+well-location phrases retain their container meaning, with an independent
+noun/adverb regression. Historical review cohorts retain their counts and
+hashes, and the two later cohorts are checked independently. The 268 unique
+focused checks have passing final outcomes; original failures and reruns are
+retained in the acceptance receipt. Review remains AI technical review
+(Codex), no native-speaker signoff. Receipt:
+features/data/316_runtime_577_585_2026-09-28.json.

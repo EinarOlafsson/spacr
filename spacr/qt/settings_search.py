@@ -1061,14 +1061,6 @@ def install(screen: QWidget) -> Optional[SettingsSearchBar]:
         return None
     try:
         index = parent.indexOf(scroll)
-        # THE SIZES ARE ONLY WORTH KEEPING ONCE THERE ARE SOME. A splitter
-        # that has never been laid out answers `sizes()` with pre-layout
-        # defaults, so restoring them after the insert would WRITE those
-        # defaults over the layout the first show is about to compute --
-        # this file's own WATCH list warns about reading geometry before
-        # the layout settles. Installing before the screen is shown is the
-        # point of doing it early (item 380), so the unlaid case is the
-        # common one now rather than the exception.
         sizes = list(parent.sizes()) if scroll.isVisible() else []
         bar = SettingsSearchBar(screen)
         container = QWidget()

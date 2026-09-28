@@ -1,13 +1,14 @@
 {
   "lesson": "73_parameter_sweep",
-  "english_sha256": "8f164d56e7d6d48b866022bb05940e29cf343154681c65517a51ce2676825346",
+  "english_sha256": "44292936fb6b522935dc2402151ddb2bba49786333975d2b8a683e271411e2a4",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 original translations retained; Codex translated and technically reviewed the corrected fitted-support scene.",
+    "date": "2026-09-27",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Only scene8 narration changed. The remaining nine scenes, metadata, scene IDs and statistical caveats are preserved."
   },
   "language": "fr",
   "title": "Parameter Sweep : comparer des essais Regression enregistrés",
@@ -27,7 +28,7 @@
     "Examinez les lignes terminées, puis ouvrez sweep_results.csv ainsi que les fichiers de réglages et de contrôle qualité de chaque essai. Les deux essais illustrés terminent le calcul mais échouent aux contrôles d’inférence ; un statut d’exécution ok ne suffit donc pas pour choisir un modèle.",
     "Sélectionnez la première ligne et cliquez sur Show figures for selected row. Examinez les résultats par guide et les étiquettes des axes. Le graphique omet l’ordonnée à l’origine de la table des coefficients.",
     "Passez Level sur Gene pour examiner séparément la famille des gènes. Vérifiez ses lignes, ses effets et ses résultats de contrôle qualité avant de la comparer à la vue par guide.",
-    "Revenez à Guide. Lisez le soutien des échantillons dans les fichiers d’entrée et de diagnostic : dans l’exemple, le résumé des lignes ajustées compte des lignes de coefficients en sortie, et non des puits.",
+    "Revenez à Guide. Comparez les lignes utilisées pour l’ajustement et les puits distincts dans le résumé de l’essai. Les effectifs sont enregistrés séparément pour les ajustements au niveau des guides et au niveau des gènes. Ces effectifs décrivent les données qui étayent l’ajustement, pas la qualité de l’inférence.",
     "Conservez les réglages, le résumé et les fichiers de contrôle qualité de chaque essai avec ses figures. Utilisez Regression Diagnostics pour un examen plus poussé, ou SweepSpace et run_sweep en Python pour une comparaison par script."
   ]
 }

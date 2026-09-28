@@ -63,7 +63,9 @@ PUBLIC_URL = re.compile(r'olafsson\.g[il1]thub\.io|g[il1]thub\.com/einarolafsson
 # The author's full name (PyPI author field, commit author) is public attribution;
 # a bare account name (file-dialog sidebar, /home/<account>) is local.
 LOCAL_ACCOUNT = re.compile(r'(?<!einar)(?<!birnir)olafsson')
-GENERIC_HOME = re.compile(r'/home/user/')
+# OCR often reads the slash after it as a dot or drops it at a line end, so
+# "/home/user" counts as generic whatever non-alphanumeric character follows.
+GENERIC_HOME = re.compile(r'/home/user(?![a-z0-9_])')
 NEUTRAL_KINDS = {'generic_home'}
 
 
@@ -75,8 +77,8 @@ def path_hits(lines):
         loose = squeezed.replace('_', '').replace('-', '')
         for kind, pattern in PATH_PATTERNS.items():
             if pattern.search(squeezed):
-                if kind == 'unix_home' and GENERIC_HOME.search(squeezed) and \
-                        len(re.findall(r'/home/', squeezed)) == len(GENERIC_HOME.findall(squeezed)):
+                named = re.findall(r'/home/(?=[a-z0-9])', squeezed)  # "/home/" cut off names nobody
+                if kind == 'unix_home' and len(named) == len(GENERIC_HOME.findall(squeezed)):
                     kind = 'generic_home'
                 hits.append((kind, text))
         for kind, token in LOOSE_PATTERNS.items():

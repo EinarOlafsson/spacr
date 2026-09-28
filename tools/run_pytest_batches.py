@@ -75,6 +75,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="xdist workers within each batch (default: 2).",
     )
     parser.add_argument(
+        "--ignore", action="append", default=[], metavar="PATH",
+        help="Exclude a file or directory before batching; repeat as needed.",
+    )
+    parser.add_argument(
+        "--faulthandler-timeout", type=int, default=0, metavar="SECONDS",
+        help="Pytest faulthandler timeout; 0 retains pytest's configured value.",
+    )
+    parser.add_argument(
         "--per-test-timeout", type=int, default=0, metavar="SECONDS",
         help=(
             "Kill any single test that runs longer than SECONDS and report "
@@ -104,7 +112,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.workers < 1:
         raise ValueError("workers must be at least 1")
 
-    files = _test_files(args.paths)
+    ignored = [Path(path).resolve() for path in args.ignore]
+    files = [path for path in _test_files(args.paths)
+             if not any(Path(path).resolve() == excluded
+                        or excluded in Path(path).resolve().parents
+                        for excluded in ignored)]
     batches = _batches(files, args.batch_size)
     if not batches:
         raise FileNotFoundError("no test_*.py files found")
@@ -168,6 +180,10 @@ def main(argv: Sequence[str] | None = None) -> int:
                 # once per restart. The same reasoning, and the same flag,
                 # as `_pytest-suite.yml`.
                 command.append("--max-worker-restart=0")
+        if args.faulthandler_timeout > 0:
+            command.extend([
+                "-o", f"faulthandler_timeout={args.faulthandler_timeout}",
+            ])
         command.extend(["-v", "--tb=short"])
         result = subprocess.run(command, check=False)
         if result.returncode not in (0, NO_TESTS_COLLECTED):

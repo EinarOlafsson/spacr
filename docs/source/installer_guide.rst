@@ -277,9 +277,10 @@ must not be running as root, and it must complete one real pipeline — so an
 image that exists is an image that ran. An image that fails a check is not
 published, and the release run that built it is red.
 
-Images begin with the first release made after this page described them.
-Older versions have no image, and ``docker pull`` will say so rather than
-give you something unrelated.
+The public `GHCR package page
+<https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ lists available
+versions. The commands below use the published **1.5.1.0** images; not every
+older spaCR release has a container image.
 
 They exist for the headless half of spaCR: the CLI, the pipelines, a cluster
 job and a reviewer re-running an analysis a year later. They are not a way to
@@ -292,11 +293,10 @@ better.
 
    * - Image
      - For
-   * - ``ghcr.io/einarolafsson/spacr:<version>``
-     - CPU only. Works on any x86-64 host with Docker or Podman, needs no
-       driver, and runs the measure and regression half of spaCR at full
-       speed.
-   * - ``ghcr.io/einarolafsson/spacr:<version>-cuda12.4``
+   * - ``ghcr.io/einarolafsson/spacr:1.5.1.0``
+     - CPU only. Runs Linux x86-64 containers with Docker or Podman and
+       needs no GPU driver.
+   * - ``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``
      - CUDA 12.4. Needs an NVIDIA driver of **550 or newer on the host** and
        the NVIDIA Container Toolkit. Without ``--gpus`` it behaves as the CPU
        image.
@@ -313,23 +313,49 @@ images either, because they pin PyTorch versions that conflict with spaCR's
 and with each other; install one inside a running container, or let the Model
 Zoo install it into an isolated environment of its own.
 
-Running a pipeline
-~~~~~~~~~~~~~~~~~~
+Install Docker and check the image
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``<version>`` below is a spaCR version that has a published image — the
-`GHCR package page <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_
-lists them. ``:latest`` takes the newest CPU image if you do not need a
-particular one.
+Install `Docker Desktop <https://docs.docker.com/get-started/get-docker/>`_
+or, on a Linux server, `Docker Engine
+<https://docs.docker.com/engine/install/>`_. Configure it to run Linux
+containers. These images target x86-64; a native ARM64 image is not provided.
+
+Check that Docker can start the pinned CPU image and list spaCR's headless
+pipelines:
 
 .. code-block:: bash
 
-   docker pull ghcr.io/einarolafsson/spacr:<version>
+   docker pull ghcr.io/einarolafsson/spacr:1.5.1.0
+   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.0 spacr --version
+   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.0 spacr-run --list
+
+For NVIDIA GPU processing, install the host driver and follow the
+`NVIDIA Container Toolkit installation guide
+<https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html>`_
+to configure Docker's NVIDIA runtime. The CUDA image's host-driver requirement
+is listed above; the CPU image needs neither the toolkit nor ``--gpus``.
+
+Running a pipeline
+~~~~~~~~~~~~~~~~~~
+
+These examples use a Linux Bash shell. Prepare a ``screen`` folder containing
+your data and exported settings, and a model-cache folder. The
+`bind mounts <https://docs.docker.com/engine/storage/bind-mounts/>`_ make them
+available inside the container as ``/data`` and ``/models``. Paths inside
+the settings CSV must use these container paths, rather than the host's
+paths. Write outputs under ``/data`` so they remain in ``screen`` after
+``--rm`` removes the container.
+
+.. code-block:: bash
+
+   mkdir -p screen "$HOME/.cellpose/models"
 
    docker run --rm \
        --user "$(id -u):$(id -g)" \
        -v "$PWD/screen:/data" \
        -v "$HOME/.cellpose/models:/models" \
-       ghcr.io/einarolafsson/spacr:<version> \
+       ghcr.io/einarolafsson/spacr:1.5.1.0 \
        spacr-run measure --settings /data/settings/measure_settings.csv
 
 On a GPU host, add ``--gpus all`` and use the CUDA tag:
@@ -340,13 +366,13 @@ On a GPU host, add ``--gpus all`` and use the CUDA tag:
        --user "$(id -u):$(id -g)" \
        -v "$PWD/screen:/data" \
        -v "$HOME/.cellpose/models:/models" \
-       ghcr.io/einarolafsson/spacr:<version>-cuda12.4 \
+       ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4 \
        spacr-run mask --settings /data/settings/gen_mask_settings.csv
 
-Pass ``--user "$(id -u):$(id -g)"``. Every file a container writes to a
-mounted folder is owned by the user ID inside the container, so without it
-the results belong to a user that does not exist on the host and cannot be
-deleted without ``sudo``. The images already run as a non-root user, and the
+On Linux, pass ``--user "$(id -u):$(id -g)"`` to match your host user and group.
+Files written to a mounted folder use the container's user ID; without this
+option, ownership or permissions may differ from your host account. The
+images already run as a non-root user, and the
 entrypoint moves the cache directories somewhere writable when the user ID
 you pass has no home inside the image.
 
@@ -357,7 +383,7 @@ is visible:
 
 .. code-block:: bash
 
-   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:<version>-cuda12.4 spacr-doctor
+   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4 spacr-doctor
 
 The desktop interface in a container
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -373,7 +399,7 @@ libraries, so a Linux host running X11 can pass its display socket in:
        -e DISPLAY \
        -v /tmp/.X11-unix:/tmp/.X11-unix \
        -v "$PWD/screen:/data" \
-       ghcr.io/einarolafsson/spacr:<version> \
+       ghcr.io/einarolafsson/spacr:1.5.1.0 \
        spacr
 
 Do not pass the host's ``XDG_RUNTIME_DIR`` in. That path does not exist
@@ -387,7 +413,7 @@ switched off, and is the right command when the window is slow or blank:
 .. code-block:: bash
 
    docker run --rm -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix \
-       ghcr.io/einarolafsson/spacr:<version> safespacr
+       ghcr.io/einarolafsson/spacr:1.5.1.0 safespacr
 
 On macOS and Windows this needs a third-party X server and is not tested or
 supported. Use the desktop installer on those platforms.

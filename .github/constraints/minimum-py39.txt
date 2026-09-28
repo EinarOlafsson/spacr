@@ -67,6 +67,7 @@ pandas==2.2.1
 scipy==1.12.0
 cellpose==4.0.7
 scikit-image==0.22.0
+PyWavelets==1.4.0
 scikit-learn==1.6.0
 scikit-posthocs==0.10.0
 btrack==0.7.0

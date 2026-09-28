@@ -53,3 +53,14 @@ ALPHA: 2026-09-27
     Object crops show only when the loaded table carries png_path (a
     png_list join is not done automatically). Captions await a catalog
     rebuild.
+
+2026-09-28 -- read-only pandas scoring repaired; feature remains alpha/open
+CI run36419911411 reproduced six scoring failures when pandas returned a
+read-only known-hit array. The scorer now requests a writable copy before
+accumulating hit matches. The GUI test reports the scoring refusal on failure.
+The exact kNN failure was independently reproduced with pandas copy-on-write;
+after repair, all118 anomaly, alpha-gate, category and release/index checks
+pass under4GiB with GPU devices hidden. Mask Generation's intended Cloud
+category is retained and its stale ordered-category expectation is corrected.
+Receipt: features/data/563_readonly_scoring_release_repair_2026-09-28.json.
+This does not claim real-screen validation or green integrated CI.

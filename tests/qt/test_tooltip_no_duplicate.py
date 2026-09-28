@@ -121,3 +121,70 @@ def test_a_decorated_label_carries_no_dot_of_any_colour(qtbot):
     assert label.property("settingHelpLabel"), (
         "the label was never decorated, so counting its dots proves nothing")
     assert owner.findChildren(DotLink) == []
+
+
+@pytest.fixture
+def native_policy(qapp):
+    """Install the real application filter and restore its prior state."""
+    from spacr.qt import tooltip_policy as policy
+
+    existing = policy.tooltip_policy()
+    policy.install_tooltip_policy(qapp)
+    current = policy.tooltip_policy()
+    current.hide_now()
+    yield current
+    current.hide_now()
+    if existing is None:
+        policy.uninstall_tooltip_policy(qapp)
+
+
+@pytest.mark.parametrize("native_request_first", [False, True])
+def test_custom_api_popup_prevents_delayed_native_duplicate(
+        qtbot, qapp, monkeypatch, native_policy, native_request_first):
+    """The real application event route must preserve only the first popup."""
+    from PySide6.QtCore import QPoint
+    from PySide6.QtGui import QHelpEvent
+    from PySide6.QtWidgets import QToolTip
+    from spacr.qt import tooltip_policy as policy
+    from spacr.qt.widgets.hover_tooltip import HoverTooltip
+
+    monkeypatch.setattr(policy, "tooltips_enabled", lambda: True)
+    owner, label, field = _panel(qtbot)
+    install_api_tooltips(owner, "mask")
+    html = str(label.property("apiTooltipHtml"))
+    accessible = label.toolTip()
+    assert html and accessible and "href=" in html
+    owner.show()
+    popup = HoverTooltip()
+    qtbot.addWidget(popup)
+    native_shown = []
+    monkeypatch.setattr(QToolTip, "showText", lambda *args: native_shown.append(args))
+
+    def request(widget):
+        point = QPoint(3, 3)
+        qapp.sendEvent(widget, QHelpEvent(QEvent.Type.ToolTip, point,
+                                        widget.mapToGlobal(point)))
+
+    if native_request_first:
+        request(label)
+        assert native_policy._show_timer.isActive()
+    popup.show_for(label, html, animation=None)
+    assert popup.isVisible()
+    assert popup._api_url and popup._label.text()
+    request(label)
+    assert not native_policy._show_timer.isActive()
+    native_policy._show_now()
+    assert native_shown == []
+    assert popup.isVisible()
+    assert label.toolTip() == accessible
+
+    ordinary = QLabel("Ordinary help")
+    qtbot.addWidget(ordinary)
+    ordinary.setToolTip("Delayed native help still works")
+    ordinary.show()
+    request(ordinary)
+    assert native_policy._show_timer.isActive()
+    assert native_shown == []
+    native_policy._show_now()
+    assert len(native_shown) == 1
+    assert native_shown[0][1] == ordinary.toolTip()

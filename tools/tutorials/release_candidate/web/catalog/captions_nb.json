@@ -7,41 +7,41 @@
       "id": "01_pypi_github",
       "number": 1,
       "slug": "pypi_github",
-      "title": "Find spaCR on GitHub, PyPI and conda-forge",
+      "title": "Finn spaCR på GitHub, PyPI og conda-forge",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Find the official package and installer sources, compare the release available on each channel, and choose the matching installation tutorial.",
+      "description": "Finn de offisielle kildene for pakken og installasjonsprogrammene, sammenlign versjonen som finnes i hver kanal, og velg den tilhørende installasjonsveiledningen.",
       "objectives": [
-        "Find the official download pages.",
-        "Choose the installation route for your computer.",
-        "Open the matching installation tutorial."
+        "Finne de offisielle nedlastingssidene.",
+        "Velge installasjonsmåte for datamaskinen din.",
+        "Åpne den tilhørende installasjonsveiledningen."
       ],
-      "prerequisite": "Open a web browser and decide whether you want a desktop installer or a Python environment.",
+      "prerequisite": "Åpne en nettleser og bestem deg for om du vil ha et installasjonsprogram for skrivebordet eller et Python-miljø.",
       "scenes": [
         {
           "visual": "01_pypi_current_release",
-          "narration": "Choose how you want to install spaCR. Use a desktop installer for a ready-to-launch application, pip for a Python virtual environment, or conda-forge for a Conda environment. Start from the official spaCR links shown here.",
+          "narration": "Velg hvordan du vil installere spaCR. Bruk et installasjonsprogram for et program som er klart til å starte, pip for et virtuelt Python-miljø eller conda-forge for et Conda-miljø. Begynn med de offisielle spaCR-lenkene som vises her.",
           "hold_after": 0.7
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "On PyPI, find spaCR and read the installation command beside the current release. Copy that command when you are ready to install into your Python environment. The pip tutorial shows how to create and activate that environment first.",
+          "narration": "På PyPI finner du spaCR og leser installasjonskommandoen ved siden av den gjeldende versjonen. Kopier kommandoen når du er klar til å installere i Python-miljøet ditt. Veiledningen for pip viser hvordan du først oppretter og aktiverer det miljøet.",
           "hold_after": 0.7
         },
         {
           "visual": "02_pypi_project_links",
-          "narration": "Use Project links to open the documentation, source repository or issue tracker. Bookmark the documentation so you can return to the module walkthroughs while working in spaCR.",
+          "narration": "Bruk Project links for å åpne dokumentasjonen, kildekodelageret eller saksoppfølgingen. Legg dokumentasjonen til som bokmerke, slik at du kan gå tilbake til modulgjennomgangene mens du arbeider i spaCR.",
           "hold_after": 0.7
         },
         {
           "visual": "03_github_main_branch",
-          "narration": "On GitHub, open the spaCR repository. Main contains the release source, and nightly contains the latest development work. For a packaged desktop installation, open Releases and choose a release.",
+          "narration": "På GitHub åpner du spaCR-lageret. main inneholder kildekoden for utgivelsen, og nightly inneholder det nyeste utviklingsarbeidet. For en pakket skrivebordsinstallasjon åpner du Releases og velger en utgivelse.",
           "hold_after": 0.7
         },
         {
           "visual": "04_github_current_assets",
-          "narration": "Expand Assets and download the installer for Windows, macOS or Linux. Keep the checksum file from the same release if you want to verify the download. The Platform installers lesson walks through launching the installer and opening spaCR.",
+          "narration": "Utvid Assets og last ned installasjonsprogrammet for Windows, macOS eller Linux. Ta vare på kontrollsumfilen fra samme utgivelse hvis du vil verifisere nedlastingen. Leksjonen Platform installers viser hvordan du starter installasjonsprogrammet og åpner spaCR.",
           "hold_after": 0.7,
           "related_lessons": [
             "04_platform_installers"
@@ -49,12 +49,12 @@
         },
         {
           "visual": "05_conda_current_package",
-          "narration": "On conda-forge, open the spaCR package page and check the available version. Package channels can update at different times, so select the version available through the route you choose.",
+          "narration": "På conda-forge åpner du pakkesiden for spaCR og kontrollerer hvilken versjon som finnes. Pakkekanaler kan oppdateres på ulike tidspunkter, så velg versjonen som finnes via den veien du velger.",
           "hold_after": 0.7
         },
         {
           "visual": "05_conda_current_package",
-          "narration": "The conda-forge command installs spaCR into your active Conda environment. Follow the Conda lesson to create that environment, install the package and launch the application.",
+          "narration": "Kommandoen for conda-forge installerer spaCR i det aktive Conda-miljøet ditt. Følg Conda-leksjonen for å opprette miljøet, installere pakken og starte programmet.",
           "hold_after": 0.7,
           "related_lessons": [
             "02_conda_install"
@@ -62,7 +62,7 @@
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "Continue with pip, Conda or Platform installers. Once spaCR opens, move to the Home lesson, then the pipeline overviews to choose a workflow for your data.",
+          "narration": "Fortsett med pip, Conda eller Platform installers. Når spaCR åpnes, går du videre til Home-leksjonen og deretter til pipelineoversiktene for å velge en arbeidsflyt for dataene dine.",
           "hold_after": 0.7,
           "related_lessons": [
             "02_conda_install",
@@ -74,6 +74,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -379,6 +419,11 @@
           "hold_after": 0.7
         },
         {
+          "visual": "09_performance",
+          "narration": "I Preferences velger du en Performance-profil for datamaskinen din. Laptop bruker færre ressurser; de høyere profilene tillater mer mellomlagring og bakgrunnsarbeid. Begynn med en moderat profil hvis minnet er begrenset. Analyseinnstillingene dine forblir under din kontroll i hver modul.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "06_installed_home",
           "narration": "Når Home åpnes, fortsetter du med Home-veiledningen. Den viser hvordan du åpner en modul, finner testdata og velger en pipeline for eksperimentet ditt.",
           "related_lessons": [
@@ -660,17 +705,17 @@
       "id": "06_api",
       "number": 6,
       "slug": "api",
-      "title": "Python API and batch commands",
+      "title": "Python-API og batchkommandoer",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Find an analysis function, load saved settings, check the inputs and run spaCR from a terminal.",
+      "description": "Finn en analysefunksjon, last inn lagrede innstillinger, kontroller inndataene og kjør spaCR fra en terminal.",
       "objectives": [
-        "Find the installed batch commands and their Python functions.",
-        "Inspect a function signature and its API reference.",
-        "Check saved settings before running an analysis."
+        "Finne de installerte batchkommandoene og Python-funksjonene deres.",
+        "Undersøke signaturen til en funksjon og API-referansen.",
+        "Kontrollere lagrede innstillinger før en analyse kjøres."
       ],
-      "prerequisite": "Install spaCR and activate its Python environment. Follow the Regression tutorial to prepare paired score/count tables and save the analysis settings. Use your own file paths in the commands.",
+      "prerequisite": "Installer spaCR og aktiver Python-miljøet. Følg Regression-veiledningen for å klargjøre parede tabeller med poeng og tellinger og lagre analyseinnstillingene. Bruk dine egne filbaner i kommandoene.",
       "scenes": [
         {
           "visual": "01_version",
@@ -680,7 +725,7 @@
             1900,
             650
           ],
-          "narration": "Activate the Python environment where you installed spaCR. Import spacr and print its version with the command shown. Keep the version with your analysis notes so you can reproduce the same run later.",
+          "narration": "Aktiver Python-miljøet der du installerte spaCR. Importer spacr og skriv ut versjonen med kommandoen som vises. Ta vare på versjonen sammen med analysenotatene dine, slik at du kan gjenskape den samme kjøringen senere.",
           "related_lessons": [
             "02_conda_install",
             "03_pip_install",
@@ -696,7 +741,7 @@
             2800,
             1900
           ],
-          "narration": "Run spacr-run with dash dash list to find the available batch commands. The list shows each command key and its Python function. Choose the command for your task, such as mask, measure or regression. Use the desktop application for interactive tasks such as labelling images in Annotate.",
+          "narration": "Kjør spacr-run --list for å finne de tilgjengelige batchkommandoene. Listen viser nøkkelen til hver kommando og Python-funksjonen. Velg kommandoen for oppgaven din, for eksempel mask, measure eller regression. Bruk skrivebordsprogrammet til interaktive oppgaver som å merke bilder i Annotate.",
           "hold_after": 0.7
         },
         {
@@ -707,7 +752,7 @@
             2250,
             900
           ],
-          "narration": "Run spacr-run with dash dash describe followed by regression. Read the required inputs, defaults and function name. Here, the batch command calls perform_regression in spacr.ml. Open that function in the API reference to read its parameters and returned results.",
+          "narration": "Kjør spacr-run --describe regression. Les de obligatoriske inndataene, standardverdiene og funksjonsnavnet. Her kaller batchkommandoen perform_regression i spacr.ml. Åpne funksjonen i API-referansen for å lese parameterne og resultatene den returnerer.",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
@@ -722,7 +767,7 @@
             2800,
             700
           ],
-          "narration": "In Python, import the function you need and inspect its signature. This example imports build_report from spacr.report. Look up the same name in the API reference, prepare the required arguments, and call the function from your script or notebook.",
+          "narration": "I Python importerer du funksjonen du trenger, og undersøker signaturen. Dette eksemplet importerer build_report fra spacr.report. Slå opp det samme navnet i API-referansen, klargjør de obligatoriske argumentene og kall funksjonen fra skriptet eller notatboken din.",
           "hold_after": 0.7
         },
         {
@@ -733,7 +778,7 @@
             3440,
             680
           ],
-          "narration": "Save the settings from your module workflow, then pass the file with dash dash settings. Add dash dash dry-run to check the configuration and input paths. In this Regression example, the settings pair phenotype scores with guide counts for each plate. Read the messages and correct any missing inputs before continuing.",
+          "narration": "Lagre innstillingene fra modulens arbeidsflyt, og send deretter filen med --settings. Legg til --dry-run for å kontrollere konfigurasjonen og inndatabanene. I dette Regression-eksemplet parer innstillingene fenotypepoeng med guideantall for hver plate. Les meldingene og rett manglende inndata før du fortsetter.",
           "hold_after": 0.7
         },
         {
@@ -744,7 +789,7 @@
             2250,
             900
           ],
-          "narration": "To execute the analysis, run the same command without dash dash dry-run. Follow the console until the command finishes, then inspect the outputs described by that module’s tutorial and API page. Keep the settings file, input tables, package version and console log with the results.",
+          "narration": "For å utføre analysen kjører du den samme kommandoen uten --dry-run. Følg konsollen til kommandoen er ferdig, og undersøk deretter utdataene som er beskrevet i modulens veiledning og API-side. Ta vare på innstillingsfilen, inndatatabellene, pakkeversjonen og konsolloggen sammen med resultatene.",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
@@ -755,6 +800,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9372,7 +9457,7 @@
         "Velge objekter og samtidig kontrollere synsfelt og objekttype.",
         "Åpne et tilhørende utsnitt av foreldrecellen og hente hele hierarkiet via Python."
       ],
-      "prerequisite": "Last ned det komplette Annotate-eksemplet med måledatabasen og de tilhørende celleutsnittene. Graph Builders arkiv med bare databasen kan ikke gi bilder. Eksemplet inneholder bare celleutsnitt: dobbeltklikk på en foreldercelle for å undersøke et utsnitt. Den nåværende familiehandlingen Open crops kan erstatte manglende barneutsnitt med utsnitt av urelaterte celler; unngå den med dette eksemplet.",
+      "prerequisite": "Last ned det komplette Annotate-eksemplet med måledatabasen og de tilhørende celleutsnittene. Graph Builders arkiv med bare databasen kan ikke gi bilder. Eksemplet inneholder bare celleutsnitt. For familien som vises her, viser Open crops bare det tilhørende utsnittet av foreldercellen og melder at to barneutsnitt ikke er tilgjengelige.",
       "example_files": [
         "Lineage_real_containment_review.zip",
         "Graph_Builder_real_measurements.zip"
@@ -9435,8 +9520,8 @@
           "hold_after": 0.7
         },
         {
-          "visual": "20_wrong_typed_children_are_unrelated_cell_crops",
-          "narration": "Unngå Open crops for en hel familie i dette eksemplet. Manglende kjerne- og patogenutsnitt kan bli erstattet med utsnitt av urelaterte celler. Gå tilbake til treet og velg bare foreldrecellen.",
+          "visual": "20_family_crop_identity_preserved",
+          "narration": "Klikk på Open crops for den valgte familien. Annotate åpner bare det tilhørende utsnittet av foreldercellen og melder at to barneutsnitt ikke er tilgjengelige. Eksemplet inneholder bare celleutsnitt; utsnitt av kjernen og patogenet er ikke tilgjengelige.",
           "hold_after": 0.7
         },
         {

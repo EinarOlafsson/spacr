@@ -97,6 +97,45 @@ def test_dashboard_lists_performance_and_failure(screen):
     assert "failed" in screen._selection_label.text()
 
 
+@pytest.mark.parametrize("status", [
+    "verified", "deviation", "post_hoc", "not_preregistered", "tampered",
+])
+def test_history_displays_recorded_lock_verdict_and_evidence(
+        screen, monkeypatch, status):
+    """Saved provenance stays visible without rechecking a current lock."""
+    import json
+    from spacr import run_journal as journal
+    from spacr.qt import preferences
+
+    monkeypatch.setattr(journal, "check_analysis_lock",
+                        lambda *a, **k: pytest.fail("must not recheck saved verdict"))
+    monkeypatch.setattr(preferences, "_get_show_alpha_features", lambda: False)
+    record = next(row for row in screen.records if row["app_key"] == "classify")
+    path = record["dir"] / "manifest.json"
+    manifest = json.loads(path.read_text())
+    recorded = {
+        "status": status, "summary": "Recorded verdict, retained verbatim.",
+        "lock_id": "lock-original", "sha256": "a" * 64,
+        "locked_utc": "2026-09-25T12:00:00Z", "locked_by": "reviewer@host",
+        "unblinded_utc": "2026-09-26T12:00:00Z",
+        "deviations": [{"key": "threshold", "locked": 0.1, "now": 0.2}],
+    }
+    manifest["analysis_lock"] = recorded
+    path.write_text(json.dumps(manifest))
+    screen.refresh()
+    _select_module(screen, "classify")
+
+    assert status in screen._analysis_lock_summary.text()
+    assert recorded["summary"] in screen._analysis_lock_summary.text()
+    assert screen._analysis_lock_summary.textFormat() == Qt.PlainText
+    assert not screen._analysis_lock_summary.isHidden()
+    assert json.loads(screen._overview.toPlainText())["analysis_lock"] == recorded
+
+    _select_module(screen, "measure")
+    assert screen._analysis_lock_summary.text() == "Lock · Status: None\nSummary: None"
+    assert "analysis_lock" not in json.loads(screen._overview.toPlainText())
+
+
 def test_hashes_pane_is_empty_when_hashing_is_off(qtbot, qt_theme_applied,
                                                   tmp_path, monkeypatch):
     """A default run records no digests, and the manifest says which it was.

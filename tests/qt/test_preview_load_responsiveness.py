@@ -725,6 +725,125 @@ def test_skipping_enumeration_returns_no_sets(plate):
     assert payload["array"] is not None
 
 
+def test_unprojected_load_does_not_copy_or_iterate_the_plate(qtbot, plate, monkeypatch):
+    """Dispatch and decode need only the selected file when projection is off."""
+    panel = _panel(qtbot)
+    pending = []
+
+    class UnreadablePopulation(list):
+        def __iter__(self):
+            raise AssertionError("An unprojected load visited the plate population")
+
+    def enqueue(fn, on_done):
+        pending.append(fn)
+        return True
+
+    panel._sampler._sets = UnreadablePopulation([object()])
+    panel._mip_enabled = False
+    monkeypatch.setattr(panel._load_jobs, "submit", enqueue)
+    target = sorted(plate.iterdir())[0]
+    assert panel.load_source_async(target, enumerate_sets=False)
+    payload = pending[0]()
+    assert payload["error"] == ""
+    np.testing.assert_array_equal(payload["array"], tifffile.imread(target))
+
+
+def test_projection_reuses_one_snapshot_and_preserves_pending_worker_inputs(
+        qtbot, tmp_path, monkeypatch):
+    """Replacing a population cannot redirect a queued projection to new planes."""
+    from spacr.qt.widgets.preview_controls import ImageSet
+
+    panel = _panel(qtbot)
+    pending, snapshots = [], []
+    populations = []
+    for field in (1, 2):
+        names = []
+        for z in (1, 2):
+            name = f"plate1_A01_T0001F{field:03d}L01A01Z{z:02d}C01.tif"
+            tifffile.imwrite(tmp_path / name,
+                             np.full((8, 8), field * 10 + z, np.uint16))
+            names.append(name)
+        populations.append([ImageSet(
+            key=("plate1", "A01", f"{field:03d}"), directory=str(tmp_path),
+            channels={"01": names[0]}, planes={"01": names})])
+
+    class CountedPopulation(list):
+        iterations = 0
+
+        def __iter__(self):
+            self.iterations += 1
+            return super().__iter__()
+
+    def enqueue(fn, on_done):
+        pending.append((fn, on_done))
+        return True
+
+    original = LP.load_source_payload
+
+    def decode(*args, **kwargs):
+        snapshots.append(kwargs["known_sets"])
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(panel._load_jobs, "submit", enqueue)
+    monkeypatch.setattr(LP, "load_source_payload", decode)
+    panel._mip_enabled = True
+    panel._sampler.adopt(tmp_path, populations[0], ["01"])
+    counted = CountedPopulation(panel._sampler._sets)
+    panel._sampler._sets = counted
+    for _ in range(2):
+        assert panel.load_source_async(populations[0][0].path(), enumerate_sets=False)
+    assert counted.iterations == 1
+    panel._sampler.adopt(tmp_path, populations[1], ["01"])
+    assert panel.load_source_async(populations[1][0].path(), enumerate_sets=False)
+    payloads = [fn() for fn, _ in pending]
+    assert snapshots[0] is snapshots[1]
+    assert isinstance(snapshots[0], tuple)
+    assert snapshots[2] is not snapshots[0]
+    assert [payload["array"].max() for payload in payloads] == [12, 12, 22]
+    for (_, completed), payload in zip(pending[:2], payloads[:2]):
+        completed(payload)
+    assert panel._image_path is None
+    pending[2][1](payloads[2])
+    assert panel._image_path == populations[1][0].path()
+    np.testing.assert_array_equal(panel._image, 22)
+
+
+@pytest.mark.parametrize("mutation", ["enumerate", "enumerate_paths", "invalidate"])
+def test_projection_snapshot_tracks_every_other_population_replacement(
+        qtbot, plate, monkeypatch, mutation):
+    """A same-folder rescan or cache invalidation must discard the old snapshot."""
+    from spacr.qt.widgets import preview_controls as controls
+
+    panel = _panel(qtbot)
+    sets, channels = controls.enumerate_image_sets(plate, LP.SUPPORTED_SUFFIXES)
+    panel._sampler.adopt(plate, sets, channels)
+    panel._mip_enabled = True
+    pending = []
+
+    def enqueue(fn, on_done):
+        pending.append(fn)
+        return True
+
+    def capture(*args, **kwargs):
+        return kwargs["known_sets"]
+
+    monkeypatch.setattr(panel._load_jobs, "submit", enqueue)
+    monkeypatch.setattr(LP, "load_source_payload", capture)
+    assert panel.load_source_async(sets[0].path(), enumerate_sets=False)
+    if mutation == "enumerate":
+        panel._sampler.enumerate(plate, LP.SUPPORTED_SUFFIXES, force=True)
+    elif mutation == "enumerate_paths":
+        panel._sampler.enumerate_paths(plate, lambda: [sets[-1].path()], force=True)
+    else:
+        panel._sampler.invalidate()
+    expected = tuple(panel._sampler.sets)
+    assert panel.load_source_async(sets[0].path(), enumerate_sets=False)
+    old, new = [fn() for fn in pending]
+    assert old == tuple(sets)
+    assert new == expected
+    assert new is not old
+
+
 def test_enumeration_opens_no_image_files(plate, monkeypatch):
     """Listing a plate must read names only -- never open a single image."""
     opened = []

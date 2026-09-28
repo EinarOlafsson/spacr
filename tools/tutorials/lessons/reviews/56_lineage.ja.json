@@ -1,13 +1,14 @@
 {
   "lesson": "56_lineage",
-  "english_sha256": "7fcbf79152a032546ff9ec5c185ab283c7c8f2a495b89d073fbf60cfa0c2014d",
+  "english_sha256": "495593daa307987beb6a264dc2850109813057ef21e2a025eaf0a00bba2964ed",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review (Codex correction), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 original translation retained; Codex corrected prerequisite and scene 10 against current English.",
+    "date": "2026-09-27",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Only prerequisite and scene 10 changed; thirteen other scene narrations, title, description and objectives preserved."
   },
   "language": "ja",
   "title": "Lineage：親の物体とその中身を閲覧する",
@@ -17,7 +18,7 @@
     "視野と物体の種類を確認しながら物体を選ぶ。",
     "対応する親細胞の切り出し画像を開き、Pythonで階層全体を取得する。"
   ],
-  "prerequisite": "測定データベースと対応する細胞の切り出し画像を含む、Annotateの例一式をダウンロードします。Graph Builderのデータベースだけのアーカイブでは、画像は得られません。この例には細胞の切り出し画像しかないので、切り出し画像を確認するには親細胞をダブルクリックします。現在のファミリーに対するOpen cropsの操作では、欠けている子の切り出し画像が無関係な細胞の切り出し画像に置き換わることがあるため、この例では使わないでください。",
+  "prerequisite": "測定データベースと対応する細胞の切り出し画像を含む、Annotateの例一式をダウンロードします。Graph Builderのデータベースだけのアーカイブでは、画像は得られません。この例には細胞の切り出し画像だけが含まれています。ここで示すファミリーに対してOpen cropsを実行すると、対応する親細胞の切り出し画像だけが表示され、子の切り出し画像が2つ利用できないことが通知されます。",
   "scenes": [
     "HomeからDatabase Browserを開き、続いてLineageを開きます。ツリーを使って、各親細胞の中にどの測定済みの物体が記録されているかを閲覧します。",
     "BrowseでAnnotateの例のmeasurements.dbを選び、Build treeをクリックします。ラベルが読めるよう、Objectの列と区切り線を広げます。物体は番号だけでなく、視野と種類でも識別します。",
@@ -29,9 +30,27 @@
     "列の見出しをクリックすると、表示されたファミリーが並べ替えられます。並べ替えても、保存された関係と、二千の親という表示の上限は変わりません。",
     "切り出し画像を見るには、先にAnnotateを開いて対応する例のプロジェクトを読み込みます。Annotateを求めるメッセージが表示された場合は、Lineageから画像を要求する前にAnnotateを開きます。",
     "細胞の切り出し画像を含む、ダウンロードしたプロジェクト一式を使います。物体の識別情報が一致するよう、同じ実行のデータベースと画像は一緒にしておきます。",
-    "この例では、ファミリー全体に対するOpen cropsは避けます。欠けている核や病原体の切り出し画像が、無関係な細胞の切り出し画像に置き換わることがあります。ツリーに戻り、親細胞だけを選びます。",
+    "選択したファミリーに対してOpen cropsをクリックします。Annotateは対応する親細胞の切り出し画像だけを開き、子の切り出し画像が2つ利用できないことを通知します。この例には細胞の切り出し画像だけが含まれているため、核と病原体の切り出し画像は利用できません。",
     "Lineageで親細胞をダブルクリックします。Annotateで、その親に対応する細胞の切り出し画像が開きます。これが、ダウンロードした例で利用できる切り出し画像です。",
     "親のサムネイルをShiftを押しながらクリックすると、プレビューが拡大されます。戻るにはEscapeを押します。普通に左クリックすると注釈のクラスが付くので、確認するだけのときはShiftを使います。",
     "Build treeをクリックすると、表示が更新されます。Pythonで階層全体を得るには、read_object_tables、build_forest、lineage_frameを使い、表をCSVとして保存します。リンク先の例のCSVには、七千二百一個のノードすべてが入っています。"
+  ],
+  "review_history": [
+    {
+      "english_sha256": "7fcbf79152a032546ff9ec5c185ab283c7c8f2a495b89d073fbf60cfa0c2014d",
+      "review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-25",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      },
+      "superseded_fields": {
+        "prerequisite": "測定データベースと対応する細胞の切り出し画像を含む、Annotateの例一式をダウンロードします。Graph Builderのデータベースだけのアーカイブでは、画像は得られません。この例には細胞の切り出し画像しかないので、切り出し画像を確認するには親細胞をダブルクリックします。現在のファミリーに対するOpen cropsの操作では、欠けている子の切り出し画像が無関係な細胞の切り出し画像に置き換わることがあるため、この例では使わないでください。",
+        "scene_10": "この例では、ファミリー全体に対するOpen cropsは避けます。欠けている核や病原体の切り出し画像が、無関係な細胞の切り出し画像に置き換わることがあります。ツリーに戻り、親細胞だけを選びます。"
+      },
+      "reason": "9359607f4 preserves typed crop identity: this family opens one matching parent crop and reports two unavailable child crops."
+    }
   ]
 }

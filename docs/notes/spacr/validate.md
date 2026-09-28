@@ -758,3 +758,23 @@ f"Rename '{key}' to '{replacement}'. spaCR still moves the "
 ```
 
 THE RENAME ADVICE USED TO SAY THE VALUE WAS IGNORED, which stopped being true with 15fa72737 (2026-09-12). Since then `tests/test_the_two_settings_tables_agree.py` has asserted that every rename the doctor reports is performed by `_fold_renamed_settings`, and every factory in `spacr/settings.py` that fills a renamed key calls it first -- seven of them, checked by an AST walk on 2026-09-19. Kept in step on 2026-09-19, when `img_size` became the first rename whose old value had always worked.
+
+
+---
+
+# Notes from `spacr/validate.py`
+
+Prose lifted out of `spacr/validate.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## _known_setting_keys
+
+### lines 298-300
+
+```python
+reading = _graph_types._READ_THE_PREFERENCE_STORE.set(False)
+```
+
+The sweep wants KEYS, not the user's graph-type choice, and asking for the choice imports Qt, which validating a batch queue must not do. See `graph_types._READ_THE_PREFERENCE_STORE`.

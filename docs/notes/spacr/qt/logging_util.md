@@ -70,3 +70,23 @@ qt_h = get_signal_handler()
 ```
 
 Qt signal handler — only relevant when a QApplication exists.
+
+
+---
+
+# Notes from `spacr/qt/logging_util.py`
+
+Prose lifted out of `spacr/qt/logging_util.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## QtLogHandler.__init__
+
+### lines 90-101
+
+```python
+try:
+```
+
+The relay exists to deliver records into GUI-thread slots, so it has to LIVE on the GUI thread whichever thread happens to build it. `get_signal_handler` builds the singleton lazily, and one of its callers is `verbose_logger._NotAlreadyShownByTheRootSink.filter`, which runs on whatever thread logged. When a worker's record was the first to ask, the relay was born on that worker: an AutoConnection to a receiver-less slot then queues to a thread with no event loop, and every later record -- the GUI thread's included -- was dropped without an error. Measured in CI run 34961482728 (gw1): the sink built on "Dummy-1", and one Qt warning rendered zero console lines. Pushing from the constructing thread is the direction Qt allows; the relay is a child, so it moves with the handler.

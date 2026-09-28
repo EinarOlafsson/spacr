@@ -1,0 +1,39 @@
+{
+  "item": 53,
+  "date": "2026-09-27",
+  "failed_run": 36347645045,
+  "failed_source_commit": "8d7dac5d780ed860e4c93d95e8afd09f1ae35753",
+  "diagnosis": "The new fail-fast predicate accepted only _C. but the exact TorchVision 0.29 wheels use _C_stable. Existing collection globs already include the renamed binaries.",
+  "wheels": [
+    {
+      "platform": "Linux x86_64, CPython 3.10",
+      "version": "0.29.0+cpu",
+      "sha256": "f32547706851d8bf7665ba8503c8ed9a46a8b3ebba384bfe9778e635476f99f4",
+      "operator": "torchvision/_C_stable.so",
+      "source": "https://download-r2.pytorch.org/whl/cpu/torchvision-0.29.0%2Bcpu-cp310-cp310-manylinux_2_28_x86_64.whl"
+    },
+    {
+      "platform": "macOS arm64, CPython 3.12",
+      "version": "0.29.0",
+      "sha256": "994687b818cac0e6d34cb407a41458e2c3262cb7db927465841c9522ba7ebb92",
+      "operator": "torchvision/_C_stable.so"
+    },
+    {
+      "platform": "Windows amd64, CPython 3.12",
+      "version": "0.29.0+cpu",
+      "sha256": "7fa995dff29396950418ced2f21c9bfee8b7b71e9e324a18a4b0489be762dd07",
+      "operator": "torchvision/_C_stable.pyd",
+      "source": "https://download.pytorch.org/whl/cpu/torchvision-0.29.0%2Bcpu-cp312-cp312-win_amd64.whl"
+    }
+  ],
+  "validation": {
+    "actual_wheels_downloaded_and_hashed": true,
+    "extension_source_loads_C_stable": true,
+    "python_executed": false,
+    "gpu_used": false,
+    "expanded_local_tests": "Queued until the active narration releases the local 4G slot",
+    "repaired_native_build": "Pending"
+  },
+  "evidence_directory": "/mnt/wd4tb/scratch/spacr-completion/53-native-feasibility/ci-36347645045",
+  "item_closed": false
+}

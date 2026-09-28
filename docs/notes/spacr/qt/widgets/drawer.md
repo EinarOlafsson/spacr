@@ -37,3 +37,23 @@ def set_enabled(self, enabled: bool) -> None:
 ```
 
 the preference: locked, hidden, or the reveal
+
+
+---
+
+# Notes from `spacr/qt/widgets/drawer.py`
+
+Prose lifted out of `spacr/qt/widgets/drawer.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## EdgeDrawer.eventFilter
+
+### lines 332-334
+
+```python
+host = getattr(self, "_host", None)
+```
+
+getattr: the drawer and its host are a reference cycle, so the collector can clear this wrapper before the host's destructor reaches the filter.

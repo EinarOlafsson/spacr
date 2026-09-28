@@ -42,6 +42,7 @@ from __future__ import annotations
 
 import collections
 import os
+import tempfile
 import threading
 import time
 
@@ -139,8 +140,7 @@ def test_the_readings_that_never_needed_a_user_path_still_arrive(
     """
     paths = rc.project_paths()
     assert os.path.expanduser("~") in paths
-    assert any(os.path.realpath(p) == os.path.realpath("/tmp") or
-               "tmp" in p for p in paths)
+    assert tempfile.gettempdir() in paths
 
 
 def test_a_second_ask_is_still_immediate(qapp, sleeping_mount):

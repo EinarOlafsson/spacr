@@ -8,6 +8,8 @@ uncalibrated they differ 2.5-fold.
 from __future__ import annotations
 
 import json
+import os
+import shutil
 import sqlite3
 
 import numpy as np
@@ -190,3 +192,132 @@ def test_reference_wells_and_statistic_are_validated():
     beads = _beads(1)
     assert _reference_statistic(beads * 2.5, 0, "foreground") == pytest.approx(
         2.5 * _reference_statistic(beads, 0, "foreground"), rel=1e-9)
+
+
+@pytest.fixture(scope="module")
+def measured_calibration_projects(tmp_path_factory):
+    """Keep genuine measured rows available for independent resume regressions."""
+    projects = {}
+    for enabled in (False, True):
+        root = tmp_path_factory.mktemp(f"calibration-history-{enabled}")
+        merged = _write_sessions(root)
+        measure.measure_crop(_settings(merged, intensity_calibration=enabled))
+        with sqlite3.connect(root / "measurements" / "measurements.db") as conn:
+            conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+        projects[enabled] = root
+    return projects
+
+
+def _copy_measured_project(projects, destination, enabled=True):
+    """Copy a closed measurement project without sharing mutable SQLite state."""
+    shutil.copytree(projects[enabled], destination)
+    return destination / "merged", destination / "measurements" / "measurements.db"
+
+
+def _assert_refused_before_database_writes(monkeypatch, settings, database):
+    """Reject incompatible history before WAL, settings replacement or cleanup."""
+    from spacr import database_concurrency, io
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("Database mutation was reached before calibration refusal")
+
+    before = database.read_bytes()
+    monkeypatch.setattr(database_concurrency, "enable_wal_where_safe", forbidden)
+    monkeypatch.setattr(measure, "plan_measure_resume", forbidden)
+    monkeypatch.setattr(io, "_save_settings_to_db", forbidden)
+    with pytest.raises(ValueError, match="different or unverified intensity calibration"):
+        measure.measure_crop(settings)
+    assert database.read_bytes() == before
+
+
+@pytest.mark.parametrize("enabled", [False, True])
+def test_unchanged_calibration_and_legacy_disabled_projects_resume(
+        tmp_path, monkeypatch, measured_calibration_projects, enabled):
+    merged, database = _copy_measured_project(
+        measured_calibration_projects, tmp_path / "resume", enabled)
+    if not enabled:
+        with sqlite3.connect(database) as conn:
+            conn.execute("DELETE FROM settings WHERE setting_key = ?",
+                         (measure._CALIBRATION_IDENTITY_KEY,))
+    else:
+        reference = merged / "plate2_A01_1.npy"
+        previous = reference.stat()
+        os.utime(reference, ns=(previous.st_atime_ns,
+                               previous.st_mtime_ns + 10_000_000_000))
+    before, provenance = _cell_means(merged.parent)
+    plans = []
+    original = measure.plan_measure_resume
+
+    def observe(settings):
+        plan = original(settings)
+        plans.append(plan)
+        return plan
+
+    monkeypatch.setattr(measure, "plan_measure_resume", observe)
+    measure.measure_crop(_settings(
+        merged, intensity_calibration=enabled, resume=True))
+    after, resumed_provenance = _cell_means(merged.parent)
+    pd.testing.assert_frame_equal(before, after)
+    assert len(plans) == 1
+    assert {f"{plate}_B02_{field}" for plate in EXPOSURES for field in (1, 2)} <= set(plans[0].skipped)
+    if enabled:
+        identities = {json.loads(text)["identity"]
+                      for text in provenance["intensity_calibration"]}
+        assert len(identities) == 1
+        assert {json.loads(text)["identity"] for text in
+                resumed_provenance["intensity_calibration"]} == identities
+        assert all(len(json.loads(text)["reference_files"]) == 4
+                   for text in resumed_provenance["intensity_calibration"])
+
+
+@pytest.mark.parametrize("change", ["gain", "same_statistics"])
+@pytest.mark.parametrize("resume", [False, True])
+def test_changed_reference_bytes_refuse_even_with_original_size_and_timestamp(
+        tmp_path, monkeypatch, measured_calibration_projects, change, resume):
+    merged, database = _copy_measured_project(
+        measured_calibration_projects, tmp_path / "changed")
+    reference = merged / "plate2_A01_1.npy"
+    previous = reference.stat()
+    data = np.load(reference)
+    if change == "gain":
+        data[..., 0] += 500
+    else:
+        data = data[::-1].copy()
+    np.save(reference, data)
+    os.utime(reference, ns=(previous.st_atime_ns, previous.st_mtime_ns))
+    assert reference.stat().st_size == previous.st_size
+    assert reference.stat().st_mtime_ns == previous.st_mtime_ns
+    _assert_refused_before_database_writes(monkeypatch, _settings(
+        merged, intensity_calibration=True, resume=resume), database)
+
+
+@pytest.mark.parametrize("resume", [False, True])
+def test_disabling_calibration_cannot_mix_with_retained_calibrated_rows(
+        tmp_path, monkeypatch, measured_calibration_projects, resume):
+    merged, database = _copy_measured_project(
+        measured_calibration_projects, tmp_path / "disabled")
+    _assert_refused_before_database_writes(monkeypatch, _settings(
+        merged, intensity_calibration=False, resume=resume), database)
+
+
+@pytest.mark.parametrize("damage", ["legacy_identity", "missing_field_provenance"])
+def test_unverified_calibrated_history_refuses_before_resume_clears_rows(
+        tmp_path, monkeypatch, measured_calibration_projects, damage):
+    merged, database = _copy_measured_project(
+        measured_calibration_projects, tmp_path / "unverified")
+    with sqlite3.connect(database) as conn:
+        if damage == "legacy_identity":
+            conn.execute("DELETE FROM settings WHERE setting_key = ?",
+                         (measure._CALIBRATION_IDENTITY_KEY,))
+            for rowid, text in conn.execute(
+                    "SELECT rowid, intensity_calibration FROM intensity_rescale").fetchall():
+                record = json.loads(text)
+                record.pop("identity")
+                record.pop("reference_files")
+                conn.execute("UPDATE intensity_rescale SET intensity_calibration = ? WHERE rowid = ?",
+                             (json.dumps(record), rowid))
+        else:
+            conn.execute("DELETE FROM intensity_rescale WHERE file_name = 'plate1_B02_1'")
+            assert conn.execute("SELECT changes()").fetchone()[0] == 1
+    _assert_refused_before_database_writes(monkeypatch, _settings(
+        merged, intensity_calibration=True, resume=True), database)

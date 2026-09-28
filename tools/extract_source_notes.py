@@ -114,8 +114,10 @@ DIRECTIVE_PATTERNS: Sequence[Tuple[str, "re.Pattern[str]"]] = (
     ("noqa", re.compile(r"#\s*noqa\b", re.IGNORECASE)),
     ("type", re.compile(r"^#\s*type:\s*\S")),
     ("pragma", re.compile(r"#\s*pragma[:\s]", re.IGNORECASE)),
-    ("fmt", re.compile(r"^#\s*fmt:\s*(on|off|skip)\b", re.IGNORECASE)),
-    ("isort", re.compile(r"^#\s*isort:\s*\S", re.IGNORECASE)),
+    ("fmt", re.compile(r"[#;]\s*fmt:\s*(on|off|skip)\b", re.IGNORECASE)),
+    ("isort", re.compile(r"#\s*isort:\s*\S", re.IGNORECASE)),
+    ("yapf", re.compile(r"#\s*yapf:\s*(enable|disable)\b", re.IGNORECASE)),
+    ("nosec", re.compile(r"#\s*nosec\b", re.IGNORECASE)),
     ("lint", re.compile(
         r"#\s*(pylint|mypy|ruff|flake8|nosec|bandit|pyright)\s*:", re.IGNORECASE)),
 )
@@ -875,9 +877,9 @@ def render_notes(rel_path: str, blocks: Sequence[Block]) -> str:
         f"# Notes from `{rel_path}`",
         "",
         f"Prose lifted out of `{rel_path}` by `tools/extract_source_notes.py`.",
-        "The module itself carries no comments now, so this file is where its "
-        "reasons live; the path mirrors the source path, which is how it is "
-        "found.",
+        "Ordinary comments move here; tool directives and published attribute "
+        "documentation stay in the module. The path mirrors the source path, "
+        "which is how its reasons are found.",
         "",
         "Entries are grouped by the function or class they sat in and carry "
         "the line they came from. Line numbers are from the state of the "
@@ -1008,12 +1010,15 @@ def process_file(
     report.note_lines = len(notes.splitlines()) if notes else 0
 
     if execute:
-        path.write_text(stripped, encoding=encoding)
         if notes:
             note_path = out_dir / rel_path
             note_path = note_path.with_suffix(".md")
             note_path.parent.mkdir(parents=True, exist_ok=True)
+            if note_path.exists():
+                previous = note_path.read_text(encoding="utf-8")
+                notes = previous + "\n\n---\n\n" + notes
             note_path.write_text(notes, encoding="utf-8")
+        path.write_text(stripped, encoding=encoding)
     return report
 
 
@@ -1136,6 +1141,8 @@ def report(
                 "pragma": "#  pragma",
                 "fmt": "#  fmt: on/off/skip",
                 "isort": "#  isort:",
+                "yapf": "#  yapf: enable/disable",
+                "nosec": "#  nosec",
                 "lint": "#  pylint/mypy/ruff/flake8/nosec",
                 "shebang": "#! shebang",
                 "coding": "#  coding declaration (PEP 263)",

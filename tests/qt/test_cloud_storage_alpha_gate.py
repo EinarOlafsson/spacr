@@ -51,6 +51,38 @@ def test_every_part_of_cloud_access_is_registered_under_its_item():
     assert _is_alpha("widgets", "CloudSourceBrowse")
 
 
+def test_mask_cloud_controls_have_one_dedicated_category():
+    """Cloud controls have their own section without moving the image source."""
+    from spacr.settings import categories
+    from spacr.qt.screens.settings_model import categories_for_app
+
+    sections = categories_for_app("mask", categories)
+    assert tuple(sections["Cloud"]) == MASK_SETTINGS
+    assert "src" in sections["Input & Metadata"]
+    for key in MASK_SETTINGS:
+        assert [title for title, keys in sections.items() if key in keys] == [
+            "Cloud"]
+    assert "Cloud" not in categories_for_app("measure", categories)
+
+
+@pytest.mark.parametrize("language", ["sv", "de", "es", "zh_CN", "pt",
+                                     "hi", "ko", "is", "fr"])
+def test_cloud_heading_and_help_are_translated(language):
+    """Render a translated heading and curated help for each shipped locale.
+
+    :param language: supported non-English interface language.
+    """
+    from spacr.qt.i18n import tr
+    from spacr.qt.screens.settings_model import (
+        category_tooltip, category_tooltip_is_curated,
+    )
+
+    assert tr("Cloud", language=language) != "Cloud"
+    assert category_tooltip_is_curated("mask", "Cloud")
+    assert category_tooltip("mask", "Cloud", language) != category_tooltip(
+        "mask", "Cloud", "en")
+
+
 def _browse_action(screen):
     """The cloud-storage button on the screen's src field."""
     found = screen.findChildren(QObject, "CloudSourceBrowse")
@@ -75,11 +107,21 @@ def test_cloud_settings_and_button_follow_the_switch(qtbot, prefs, app_key,
         assert not any(screen.setting_row_is_visible(key) for key in keys)
         assert not _browse_action(screen).isVisible()
         model = screen._settings_model
-        assert model.set_value_for_key("cloud_anonymous", True)
-        assert model.set_value_for_key("cloud_endpoint", "https://minio.lab")
+        values = {
+            "cloud_anonymous": True,
+            "cloud_profile": "lab-readonly",
+            "cloud_endpoint": "https://minio.lab",
+            "cloud_cache": "/tmp/cloud-cache",
+            "cloud_wells": "A1, B03",
+            "cloud_fields": 2,
+            "cloud_level": 1,
+            "cloud_results": "s3://lab-results/run",
+        }
+        expected = {key: values[key] for key in keys}
+        for key, value in expected.items():
+            assert model.set_value_for_key(key, value)
         collected = model.collect()
-        assert collected["cloud_anonymous"] is True
-        assert collected["cloud_endpoint"] == "https://minio.lab"
+        assert {key: collected[key] for key in keys} == expected
 
         prefs._set_show_alpha_features(True)
         screen._refresh_alpha_visibility()
@@ -90,6 +132,8 @@ def test_cloud_settings_and_button_follow_the_switch(qtbot, prefs, app_key,
         screen._refresh_alpha_visibility()
         assert not any(screen.setting_row_is_visible(key) for key in keys)
         assert not _browse_action(screen).isVisible()
+        collected = model.collect()
+        assert {key: collected[key] for key in keys} == expected
     finally:
         retire_pyqtgraph_menus(screen)
         screen.close()

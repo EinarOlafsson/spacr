@@ -158,7 +158,7 @@ from __future__ import annotations
 
 import logging
 
-from PySide6.QtCore import QSettings
+from PySide6.QtCore import QSettings, Qt
 
 from .night_themes import NIGHT_THEME_KEYS, is_night_theme, theme_for
 
@@ -2469,7 +2469,6 @@ PERFORMANCE_LABELS = {
 
 #: The hardware each level is for, and what it trades. Shown as the level's
 #: tooltip, so the choice can be made without guessing.
-#
 #: 286: EVERY CLAIM HERE IS ONE THE CODE KEEPS. The minutes and megabytes
 #: are `memory_budget.RECOMMENDED` for the level, which an untouched budget
 #: follows, and a test holds each note to them. The old wording promised
@@ -3003,13 +3002,6 @@ def set_laptop_mode(choice: str) -> None:
     if choice not in LAPTOP_MODE_CHOICES:
         raise ValueError(f"unknown laptop mode {choice!r}; "
                          f"expected one of {list(LAPTOP_MODE_CHOICES)}")
-    # 286: THE OLD WORDS WRITE THE ONE VALUE. This used to store the key the
-    # migration removes and apply a hardware measurement for "automatic",
-    # so a caller could set "on" and read "off" back from `get_laptop_mode`,
-    # or have a two-core reading override Workstation. "on" is the Laptop
-    # level; "off" leaves Laptop for the default level; "automatic" states no
-    # choice and leaves the level alone. This run's backdrop follows through
-    # `set_performance_level`.
     if choice == "on":
         set_performance_level("laptop")
     elif choice == "off" and get_performance_level() == "laptop":
@@ -3045,8 +3037,6 @@ def get_idle_minutes() -> float:
     :returns: minutes; 0 means "as soon as nothing is using it".
     """
     from .memory_budget import MAX_IDLE_MINUTES, MIN_IDLE_MINUTES
-    # 286: an untouched budget follows the performance level, so the sweep
-    # enforces what the level promises; a number the user set is kept.
     fallback = float(_level_budget()[0])
     raw = _settings().value(_KEY_IDLE_MINUTES, None)
     if raw is None or raw == "":
@@ -3073,7 +3063,6 @@ def set_idle_minutes(minutes: float) -> None:
 def get_cache_ceiling_mb() -> int:
     """How much cache spaCR may hold at once, in megabytes."""
     from .memory_budget import MAX_CACHE_CEILING_MB, MIN_CACHE_CEILING_MB
-    # Follows the level while untouched; see `get_idle_minutes`.
     fallback = int(_level_budget()[1])
     raw = _settings().value(_KEY_CACHE_CEILING, None)
     if raw is None or raw == "":
@@ -3104,7 +3093,6 @@ def get_headroom_mb() -> int:
     neither of the others has anything to answer to.
     """
     from .memory_budget import MAX_HEADROOM_MB, MIN_HEADROOM_MB
-    # Follows the level while untouched; see `get_idle_minutes`.
     fallback = int(_level_budget()[2])
     raw = _settings().value(_KEY_HEADROOM, None)
     if raw is None or raw == "":
@@ -3240,10 +3228,6 @@ def get_performance_level() -> str:
         level = DEFAULT_PERFORMANCE_LEVEL
 
     if _SAFE_MODE:
-        # Safe mode answers every read with a default and sends every write
-        # to the real store, so migrating here would "migrate" defaults and
-        # write Balanced over the user's real level. Answer and store
-        # nothing; the next ordinary start migrates the real values.
         return level
 
     try:
@@ -3254,8 +3238,6 @@ def get_performance_level() -> str:
                   exc_info=True)
         return level
     if _level_is_durable(settings, level):
-        # The obsolete answers go only once the level has reached the store:
-        # until then they are the only record of what the user chose (286).
         try:
             settings.remove(_KEY_LAPTOP_MODE)
             settings.remove(_KEY_SPACR_MODE)
@@ -3423,9 +3405,6 @@ def set_spacr_mode(mode: str) -> None:
                          f"Choose from {SPACR_MODES}.")
     previous = get_spacr_mode()
     settings = _settings()
-    # ONE STORED VALUE (286). The posture is derived from the level, so the
-    # level is all that is written; the old `prefs/spacr_mode` copy was a
-    # second answer that only the migration ever read.
     settings.setValue(_KEY_PERFORMANCE_LEVEL, mode)
     settings.sync()
     if mode == "extra_performance" and previous != "extra_performance":
@@ -3472,12 +3451,6 @@ def mode_warning(mode: str) -> str:
 
 def _visual_snapshot() -> dict:
     """The five settings Extra Performance overrides, as they are now."""
-    # "ambient_enabled" is the STORED switch, read past SPACR_NO_BACKDROP.
-    # Restoring the animation goes through `set_ambient_animation`, which
-    # turns the backdrop on, so without it a user who had switched the
-    # backdrop off got it back by passing through Extra Performance or Laptop
-    # (286). The raw key and not `get_ambient_enabled()`, which answers False
-    # for a process-local suppression that must never be saved as a choice.
     return {
         "ambient_animation": get_ambient_animation(),
         "ambient_enabled": _as_bool(
@@ -3551,9 +3524,6 @@ def _restore_visuals() -> bool:
             set_setting_animations_enabled(bool(stashed["setting_animations"]))
         if "field_fade" in stashed:
             set_field_fade_enabled(bool(stashed["field_fade"]))
-        # Last, because `set_ambient_animation` above switches the backdrop
-        # on. A stash written before 286 has no such entry and keeps the old
-        # behaviour.
         if "ambient_enabled" in stashed:
             set_ambient_enabled(_as_bool(stashed["ambient_enabled"], True))
     except Exception:
@@ -4992,6 +4962,8 @@ _NOTIFY_DEFAULTS = {
     "slack": False,
     "ntfy": False,
     "ntfy_server": "https://ntfy.sh",
+    "teams": False,
+    "webhook": False,
 }
 """Run-finished notification preferences and what a fresh install holds."""
 
@@ -5084,8 +5056,9 @@ def _run_notification_config():
     ready, and the Show alpha features gate shows them: a configuration the
     gate hides sends nothing.
 
-    :returns: the stored preferences with ``desktop``, ``email``, ``slack``
-        and ``ntfy`` reduced to the channels that are ready, or ``None``.
+    :returns: the stored preferences with ``desktop``, ``email``, ``slack``,
+        ``ntfy``, ``teams`` and ``webhook`` reduced to the channels that are
+        ready, or ``None``.
     """
     if not _is_alpha_visible("widgets", _NOTIFY_ALPHA_WIDGET):
         return None
@@ -5097,9 +5070,11 @@ def _run_notification_config():
                            and values["email_to"])
     values["slack"] = bool(values["slack"] and "slack_webhook" in saved)
     values["ntfy"] = bool(values["ntfy"] and "ntfy_topic" in saved)
+    values["teams"] = bool(values["teams"] and "teams_webhook" in saved)
+    values["webhook"] = bool(values["webhook"] and "webhook_url" in saved)
     values["desktop"] = bool(values["desktop"])
     if not any(values[name] for name in ("desktop", "email", "slack",
-                                         "ntfy")):
+                                         "ntfy", "teams", "webhook")):
         return None
     return values
 
@@ -5129,8 +5104,9 @@ class _NotificationsPage:
 
         help_label = QLabel(tr(
             "spaCR can tell you when a long run finishes or fails: on this "
-            "computer's desktop, by email, in Slack or through ntfy. Nothing "
-            "is sent until you switch it on here. Passwords and addresses "
+            "computer's desktop, by email, in Slack or Microsoft Teams, "
+            "through ntfy or a webhook. Nothing is sent until you switch "
+            "it on here. Passwords and addresses "
             "that work like passwords are kept in the system keyring."))
         help_label.setWordWrap(True)
         help_label.setObjectName("NotifyTabHelp")
@@ -5284,6 +5260,43 @@ class _NotificationsPage:
         self.ntfy_token.setObjectName("NotifyNtfyToken")
         form.addRow(tr("ntfy access token"), self.ntfy_token)
 
+        self.teams = Toggle()
+        self.teams.setObjectName("NotifyTeams")
+        self.teams.setToolTip(
+            "Post an Adaptive Card to a Microsoft Teams channel or chat "
+            "through a workflow webhook. Default off.")
+        form.addRow(tr("Microsoft Teams"), self.teams)
+
+        self.teams_webhook = line(
+            "The webhook address from a Teams workflow configured to allow "
+            "Anyone to call it. Anyone with the address can post, so it is "
+            "kept like a password. Leave empty to keep the saved one. "
+            "Default empty.", secret=True)
+        self.teams_webhook.setObjectName("NotifyTeamsWebhook")
+        form.addRow(tr("Teams webhook"), self.teams_webhook)
+
+        self.webhook = Toggle()
+        self.webhook.setObjectName("NotifyWebhook")
+        self.webhook.setToolTip(
+            "Send a JSON object with title, body and failed fields to the "
+            "webhook below. The body contains the run summary and output "
+            "path; failed is true when the run failed. Default off.")
+        form.addRow(tr("Webhook"), self.webhook)
+
+        self.webhook_url = line(
+            "The HTTP or HTTPS address that receives the JSON notification. "
+            "Kept like a password because webhook addresses can contain "
+            "access keys. Leave empty to keep the saved one. Default "
+            "empty.", secret=True)
+        self.webhook_url.setObjectName("NotifyWebhookUrl")
+        form.addRow(tr("Webhook address"), self.webhook_url)
+
+        self.webhook_token = line(
+            "An optional bearer token for the webhook. Kept like a password. "
+            "Leave empty to keep the saved one. Default empty.", secret=True)
+        self.webhook_token.setObjectName("NotifyWebhookToken")
+        form.addRow(tr("Webhook access token"), self.webhook_token)
+
         self.send_test = QPushButton(tr("Send a test"))
         self.send_test.setObjectName("NotifySendTest")
         self.send_test.setToolTip(
@@ -5296,8 +5309,9 @@ class _NotificationsPage:
         self.forget = QPushButton(tr("Forget saved secrets"))
         self.forget.setObjectName("NotifyForgetSecrets")
         self.forget.setToolTip(
-            "Delete the saved mail password, Slack webhook and ntfy topic "
-            "and token from the keyring and from spaCR's own file, at once. "
+            "Delete all saved notification passwords, webhook addresses, "
+            "topics and tokens from the keyring and from spaCR's own file, "
+            "at once. "
             "Default kept.")
         self.forget.clicked.connect(self._forget)
         form.addRow(tr("Saved secrets"), self.forget)
@@ -5312,10 +5326,14 @@ class _NotificationsPage:
             "slack_webhook": self.slack_webhook,
             "ntfy_topic": self.ntfy_topic,
             "ntfy_token": self.ntfy_token,
+            "teams_webhook": self.teams_webhook,
+            "webhook_url": self.webhook_url,
+            "webhook_token": self.webhook_token,
         }
         self._show(values)
         self._mark_saved_secrets()
-        for toggle in (self.email, self.slack, self.ntfy):
+        for toggle in (self.email, self.slack, self.ntfy, self.teams,
+                       self.webhook):
             toggle.toggled.connect(lambda _on: self._sync())
         self._sync()
 
@@ -5336,6 +5354,8 @@ class _NotificationsPage:
         self.slack.setChecked(bool(values["slack"]))
         self.ntfy.setChecked(bool(values["ntfy"]))
         self.ntfy_server.setText(values["ntfy_server"])
+        self.teams.setChecked(bool(values["teams"]))
+        self.webhook.setChecked(bool(values["webhook"]))
         for field in self._secrets.values():
             field.clear()
 
@@ -5357,6 +5377,8 @@ class _NotificationsPage:
                               self.smtp_password, self.email_from,
                               self.email_to)),
                 (self.slack, (self.slack_webhook,)),
+                (self.teams, (self.teams_webhook,)),
+                (self.webhook, (self.webhook_url, self.webhook_token)),
                 (self.ntfy, (self.ntfy_server, self.ntfy_topic,
                              self.ntfy_token))):
             for field in fields:
@@ -5378,6 +5400,8 @@ class _NotificationsPage:
             "email_to": self.email_to.text().strip(),
             "slack": self.slack.isChecked(),
             "ntfy": self.ntfy.isChecked(),
+            "teams": self.teams.isChecked(),
+            "webhook": self.webhook.isChecked(),
             "ntfy_server": (self.ntfy_server.text().strip()
                             or _NOTIFY_DEFAULTS["ntfy_server"]),
         }
@@ -5426,7 +5450,7 @@ class _NotificationsPage:
         trial = self.values()
         trial["secrets"] = self.secrets()
         if not any(trial[name] for name in ("desktop", "email", "slack",
-                                             "ntfy")):
+                                             "ntfy", "teams", "webhook")):
             self.test_result.setText(tr(
                 "Switch on at least one way to be told first."))
             return None
@@ -5549,6 +5573,9 @@ class _PluginCataloguePage:
         columns = [tr("Type"), tr("Name"), tr("Version"), tr("Installed"),
                    tr("Status"), tr("Author"), tr("Licence")]
         self.table = QTableWidget(0, len(columns))
+        from .widgets.sortable_table import install_sorting
+
+        install_sorting(self.table)
         self.table.setObjectName("PluginCatalogueTable")
         self.table.setHorizontalHeaderLabels(columns)
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -5563,11 +5590,15 @@ class _PluginCataloguePage:
         self.uninstall_button = QPushButton(tr("Uninstall"))
         self.uninstall_button.setObjectName("PluginCatalogueUninstall")
         self.uninstall_button.clicked.connect(self.uninstall_selected)
+        self.open_button = QPushButton(tr("Open"))
+        self.open_button.setObjectName("PluginCatalogueOpen")
+        self.open_button.clicked.connect(self._open_selected)
         actions = QWidget()
         actions_layout = QHBoxLayout(actions)
         actions_layout.setContentsMargins(0, 0, 0, 0)
         actions_layout.addWidget(self.install_button)
         actions_layout.addWidget(self.uninstall_button)
+        actions_layout.addWidget(self.open_button)
         actions_layout.addStretch(1)
         form.addRow(actions)
 
@@ -5582,7 +5613,11 @@ class _PluginCataloguePage:
     def selected(self):
         """The selected catalogue row as a dict, or None."""
         rows = self.table.selectionModel().selectedRows()
-        return self._rows[rows[0].row()] if rows else None
+        if not rows:
+            return None
+        item = self.table.item(rows[0].row(), 0)
+        key = item.data(Qt.UserRole) if item is not None else None
+        return next((row for row in self._rows if row["key"] == key), None)
 
     def _sync_buttons(self) -> None:
         """Offer only the actions the selected row allows."""
@@ -5592,6 +5627,51 @@ class _PluginCataloguePage:
                                                   "update available"))
         self.uninstall_button.setEnabled(
             row is not None and bool(row["installed"]))
+        self.open_button.setEnabled(
+            row is not None and row["kind"] == "recipe"
+            and bool(row["installed"]))
+
+    def _open_selected(self) -> bool:
+        """Load the installed recipe into its desktop module without running it."""
+        from ..cli import load_settings_file
+        from ..plugins import _catalogue_installed, get_app
+        from .app import APPS, _opened_module_screen, app_is_visible
+        from .chaining import screen_for_module
+        from .i18n import tr
+
+        row = self.selected()
+        if row is None or not _is_alpha_visible(
+                "widgets", _PLUGIN_CATALOGUE_ALPHA_WIDGET):
+            return False
+        try:
+            installed = _catalogue_installed().get(row["key"], {})
+            if installed.get("kind") != "recipe":
+                return False
+            requested = str(installed.get("app") or "")
+            host = screen_for_module(requested)
+            plugin = get_app(host)
+            if (not requested
+                    or (host not in {app[0] for app in APPS} and plugin is None)
+                    or (plugin is not None and not maturity_is_visible(plugin.stage))
+                    or not app_is_visible(requested)
+                    or not app_is_visible(host)):
+                raise ValueError(f"{tr('Could not apply template')}: {requested}")
+            settings = load_settings_file(installed.get("path"))
+            window = self._dialog.parentWidget()
+            if window is None or not callable(getattr(window, "open_module", None)):
+                raise ValueError(tr("Could not apply template"))
+            opened = window.open_module(requested)
+            screen = _opened_module_screen(window, requested, opened)
+            if screen is None or not callable(getattr(screen, "apply_settings_dict", None)):
+                raise ValueError(f"{tr('Could not apply template')}: {requested}")
+            if not screen.apply_settings_dict(settings):
+                raise ValueError(tr("Could not apply template"))
+        except Exception as exc:
+            self.status.setText(tr("{name} failed: {error}").format(
+                name=row["name"], error=exc))
+            return False
+        self._dialog.close()
+        return True
 
     def refresh(self) -> bool:
         """Read the catalogue and fill the table.
@@ -5599,9 +5679,8 @@ class _PluginCataloguePage:
         :returns: False, with the reason on the status line, when the
             catalogue could not be read.
         """
-        from PySide6.QtWidgets import QTableWidgetItem
-
         from .i18n import tr
+        from .widgets.sortable_table import table_item
         from ..plugins import _catalogue_rows
 
         source = self.source.text().strip()
@@ -5619,6 +5698,7 @@ class _PluginCataloguePage:
         states = {"available": tr("available"), "installed": tr("installed"),
                   "update available": tr("update available"),
                   "incompatible": tr("incompatible")}
+        self.table.setRowCount(0)
         self.table.setRowCount(len(self._rows))
         for index, row in enumerate(self._rows):
             values = (kinds.get(row["kind"], row["kind"]), row["name"],
@@ -5626,7 +5706,8 @@ class _PluginCataloguePage:
                       states.get(row["status"], row["status"]),
                       row["author"], row["licence"])
             for column, value in enumerate(values):
-                item = QTableWidgetItem(str(value))
+                item = table_item(str(value))
+                item.setData(Qt.UserRole, row["key"])
                 item.setToolTip(row["summary"] or row["name"])
                 self.table.setItem(index, column, item)
         self.table.resizeColumnsToContents()
@@ -5637,8 +5718,9 @@ class _PluginCataloguePage:
 
     def _select_key(self, key: str) -> None:
         """Select the row for ``key`` again after the table is refilled."""
-        for index, row in enumerate(self._rows):
-            if row["key"] == key:
+        for index in range(self.table.rowCount()):
+            item = self.table.item(index, 0)
+            if item is not None and item.data(Qt.UserRole) == key:
                 self.table.selectRow(index)
                 return
 
@@ -7810,8 +7892,6 @@ class PreferencesDialog:
             "Suggested:\n{levels}").format(levels=_suggestions(1)))
         performance.addRow(tr("Cache ceiling"), cache_spin)
 
-        # 286: a budget number still at the previous level's value moves with
-        # the level; a number the user typed stays where they put it.
         _budget_level = [mode_combo.currentData()]
         _budget_spins = (idle_spin, cache_spin, headroom_spin)
         mode_combo.currentIndexChanged.connect(

@@ -2260,3 +2260,57 @@ try:
 ```
 
 Also kill any subprocess still tracked by a provider
+
+
+---
+
+# Notes from `spacr/qt/app.py`
+
+Prose lifted out of `spacr/qt/app.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## Contents
+
+- [_collect_paint_diagnostics](#_collect_paint_diagnostics) (2 entries)
+- [MainWindow._on_update_check_done](#mainwindow_on_update_check_done) (1 entry)
+- [launch](#launch) (1 entry)
+
+## _collect_paint_diagnostics
+
+### line 2358  _(unsure)_
+
+```python
+pixels, scale = None, (1.0, 1.0)
+```
+
+FIRST, before anything below can change a pixel.
+
+### lines 2516-2517  _(unsure)_
+
+```python
+json_path.write_text(json.dumps(report, indent=2, default=str),
+```
+
+Rewritten so the file names itself; the first write is the one that proves the folder takes a file at all.
+
+## MainWindow._on_update_check_done
+
+### lines 3985-3987
+
+```python
+self._update_version = info.latest_release
+```
+
+find old spaCR files --> delete old spaCR files --> install new spaCR. Step 1 runs off the GUI thread; what it found is shown before anything is deleted, in _on_old_installs_found.
+
+## launch
+
+### lines 6157-6161
+
+```python
+_level = _level_now()
+```
+
+286: THE LEVEL DECIDES, NOT THE MACHINE. `apply()` with no argument measures cores and memory, which overrode the level chosen in the selector -- a two-core Workstation lost its backdrop at every start. The measurement is still logged, as a reading, because "it looks different on my laptop" needs evidence.

@@ -35,7 +35,9 @@ class Images(HTMLParser):
 
 
 def test_packaged_readme_renders_all_original_images(metadata):
-    render = pytest.importorskip("readme_renderer.rst").render
+    renderer = pytest.importorskip("readme_renderer.rst")
+    render = renderer.render
+    from docutils.core import publish_parts
 
     packaged, _ = metadata
     source = (ROOT / "README.rst").read_text(encoding="utf-8")
@@ -43,7 +45,11 @@ def test_packaged_readme_renders_all_original_images(metadata):
     html = render(packaged["long_description"], stream=warnings)
     assert html is not None, warnings.getvalue()
     original, converted = Images(), Images()
-    original.feed(render(source))
+    writer = renderer.Writer()
+    writer.translator_class = renderer.ReadMeHTMLTranslator
+    original.feed(publish_parts(source, writer=writer, settings_overrides={
+        **renderer.SETTINGS, "raw_enabled": True,
+    })["fragment"])
     converted.feed(html)
     assert len(converted.images) == len(original.images) > 30
     assert [i.get("alt") for i in converted.images] == [i.get("alt") for i in original.images]
@@ -55,7 +61,14 @@ def test_packaged_readme_renders_all_original_images(metadata):
     original_normalized = source.replace(
         "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/", "").replace(
         "https://github.com/EinarOlafsson/spacr/blob/nightly/", "")
-    assert restored == original_normalized
+    # Only GitHub's raw image substitutions change shape for PyPI. All
+    # surrounding prose and generated content remain byte-for-byte intact.
+    workflow = r"(?s)(?<=\.\. spacr-workflow-begin).*?(?=\.\. spacr-workflow-end)"
+    assert re.sub(workflow, "", restored) == re.sub(workflow, "", original_normalized)
+    assert re.findall(r"(?m)^\| .*", restored) == re.findall(r"(?m)^\| .*", original_normalized)
+    assert "raw:: html" not in packaged["long_description"]
+    assert {i["alt"]: i["src"].split("/nightly/")[-1] for i in converted.images} == {
+        i["alt"]: i["src"].split("/nightly/")[-1] for i in original.images}
 
 
 def test_conversion_handles_figures_links_and_preserves_external_urls(metadata):
@@ -74,4 +87,19 @@ def test_conversion_handles_figures_links_and_preserves_external_urls(metadata):
     for value in ("mailto:someone@example.org", "<#example>",
                   "https://example.org/page?q=a&b=c", "https://example.org/image.svg?q=a&b=c"):
         assert value in converted
+    assert convert(converted) == converted
+
+
+def test_conversion_preserves_escaped_tile_labels_and_destinations(metadata):
+    _, convert = metadata
+    source = '''.. |Module_sample| raw:: html
+
+   <a href="https://example.org/api?a=1&amp;b=2"><img src="icons/sample.png" width="16.5%" align="middle" alt="Open the A &amp; &quot;B&quot; API"></a>
+'''
+    converted = convert(source)
+    assert "raw:: html" not in converted
+    assert ':alt: Open the A & "B" API' in converted
+    assert ':target: https://example.org/api?a=1&b=2' in converted
+    assert 'image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/icons/sample.png' in converted
+    assert ':width: 16.5%' in converted
     assert convert(converted) == converted

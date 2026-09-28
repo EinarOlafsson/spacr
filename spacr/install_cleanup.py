@@ -45,9 +45,6 @@ import time
 from dataclasses import asdict, dataclass, field, replace
 from typing import Callable, Dict, Iterable, List, Optional, Sequence, Tuple
 
-# The 1.5.0.1 to 1.5.0.4 installers capitalised the first letter of the
-# folder, app bundle and Start Menu names. Built rather than written, so a
-# scan for the mis-cased project name does not mistake it for prose.
 _OLD_NAME = "Spa" + "CR"
 _NAME = "spaCR"
 _NAMES = (_NAME, _OLD_NAME)
@@ -65,7 +62,7 @@ _ASSET_SUFFIX = {
     "macos": "macOS-Universal-Online.pkg",
 }
 _WAIT_SECONDS = 600.0
-# Python 3.12 renamed shutil.rmtree's error hook from onerror to onexc.
+_FROZEN_PREPARATION_SECONDS = 3600.0
 _RMTREE_TAKES_ONEXC = sys.version_info >= (3, 12)
 
 
@@ -129,9 +126,6 @@ class RemovalReport:
         return not self.failed
 
 
-# ---------------------------------------------------------------------------
-# The computer, behind one seam
-# ---------------------------------------------------------------------------
 
 class _WindowsRegistry:
     """``HKEY_CURRENT_USER`` read and written through :mod:`winreg`."""
@@ -240,6 +234,19 @@ class _SystemPackages:
             ["dpkg-query", "-W", "-f=${Version}", name])
         text = (output or "").strip()
         return text if code == 0 and text and " " not in text else None
+
+    def owns(self, name: str, path: str) -> bool:
+        """Whether dpkg lists this exact path as a file owned by the package.
+
+        :param name: Debian package name.
+        :param path: exact installed file path whose ownership is required.
+        """
+        if not self._which("dpkg-query"):
+            return False
+        code, output = self._runner(["dpkg-query", "-L", name])
+        return code == 0 and os.path.normpath(path) in {
+            os.path.normpath(line) for line in (output or "").splitlines()
+        }
 
     def remove(self, name: str, sudo: bool) -> Tuple[bool, str]:
         """Remove package ``name``; say why when it could not be done.
@@ -376,9 +383,6 @@ class _Machine:
         return self.env(name) or os.path.join(self.home, fallback)
 
 
-# ---------------------------------------------------------------------------
-# Small path helpers
-# ---------------------------------------------------------------------------
 
 def _norm(path: str) -> str:
     """Return a comparable spelling of ``path``: absolute and lower case.
@@ -507,9 +511,6 @@ def _needs_admin(command: str = "") -> str:
         f"{reason}; delete it as an administrator")
 
 
-# ---------------------------------------------------------------------------
-# Package metadata
-# ---------------------------------------------------------------------------
 
 def _site_packages(prefix: str) -> List[str]:
     """Return every ``site-packages`` directory of an environment.
@@ -611,9 +612,6 @@ def _env_python(prefix: str) -> Optional[str]:
     return None
 
 
-# ---------------------------------------------------------------------------
-# Step 1: find
-# ---------------------------------------------------------------------------
 
 def find_old_installs(*, system=None) -> List[InstallRecord]:
     """Find every spaCR installation on this computer.
@@ -650,7 +648,11 @@ def _running(machine: _Machine, root: str) -> bool:
     :param root: an installation directory.
     """
     prefix = machine.running_prefix
-    return bool(prefix) and _inside(prefix, root)
+    if bool(prefix) and _inside(prefix, root):
+        return True
+    return (bool(getattr(sys, "frozen", False))
+            and os.path.realpath(machine.executable) == os.path.realpath(sys.executable)
+            and _inside(machine.executable, root))
 
 
 def _windows_start_menu(machine: _Machine) -> str:
@@ -695,8 +697,6 @@ def _find_windows_online(machine: _Machine) -> List[InstallRecord]:
              if os.path.isdir(root)
              and any(_exists(os.path.join(root, m)) for m in markers)]
     if not roots and (uninstall or software.get("InstallRoot")):
-        # Registered, but the folder is already gone: the Apps list entry and
-        # shortcuts of a half-removed copy still have to go.
         gone = next((p for p in named if p), defaults[0] if defaults else "")
         roots = [gone] if gone else []
     menu = _windows_start_menu(machine)
@@ -780,7 +780,7 @@ def _plist_version(app: str) -> Optional[str]:
             info = plistlib.load(handle)
     except Exception:                                        # noqa: BLE001
         return None
-    return str(info.get("CFBundleShortVersionString") or "") or None
+    return str(info.get("SPACRPackageVersion") or info.get("CFBundleShortVersionString") or "") or None
 
 
 def _find_macos_apps(machine: _Machine) -> List[InstallRecord]:
@@ -789,13 +789,23 @@ def _find_macos_apps(machine: _Machine) -> List[InstallRecord]:
     :param machine: the computer.
     """
     apps = _dedupe(machine.path(f"/Applications/{name}.app") for name in _NAMES)
+    current_app = ""
+    if (getattr(sys, "frozen", False)
+            and os.path.realpath(machine.executable) == os.path.realpath(sys.executable)):
+        executable_folder = os.path.dirname(os.path.realpath(machine.executable))
+        contents = os.path.dirname(executable_folder)
+        candidate = os.path.dirname(contents)
+        if (os.path.basename(executable_folder) == "MacOS"
+                and os.path.basename(contents) == "Contents" and candidate.endswith(".app")):
+            current_app = candidate
+            if current_app not in apps:
+                apps.append(current_app)
     supports = _dedupe(machine.path(f"/Library/Application Support/{name}")
                        for name in _NAMES)
     command = machine.path("/usr/local/bin/spacr")
     records = []
     for index, app in enumerate(apps):
-        # The package's shared support folder belongs to the first bundle.
-        support = supports[0] if supports and index == 0 else ""
+        support = supports[0] if supports and index == 0 and app != current_app else ""
         needles = [os.path.basename(app) + "/contents/macos",
                    machine.unmapped(app)]
         launchers = [command] if _exists(command) and _mentions(command, needles) else []
@@ -856,7 +866,6 @@ def _find_unix_online(machine: _Machine,
         candidates += [os.path.join(support, name) for name in _NAMES]
         candidates += [machine.path(f"/Library/Application Support/{name}")
                        for name in _NAMES]
-    # A launcher names its root, which finds a copy put somewhere unusual.
     named_by_launchers = []
     for launcher in launchers_seen:
         if os.path.isfile(launcher) and not os.path.islink(launcher):
@@ -871,9 +880,6 @@ def _find_unix_online(machine: _Machine,
                 named_by_launchers.append(text[start:text.index(marker)])
     markers = (os.path.join("venv", "bin", "python"), os.path.join("bootstrap", "uv"),
                "uninstall-spacr.sh")
-    # Any project can have a venv. A folder known only because a launcher
-    # names it must also hold what only the installer writes, or a launcher
-    # a user made for a project's own venv would make the project an old copy.
     installer_only = markers[1:]
     taken = {_identity(r.root) for r in claimed if _exists(r.root)}
     roots = [root for root in _dedupe(candidates + named_by_launchers)
@@ -921,7 +927,13 @@ def _find_deb(machine: _Machine) -> List[InstallRecord]:
         version = machine.packages.version(name)
         if not version:
             continue
-        root = machine.path("/usr/lib/python3/dist-packages/spacr")
+        frozen_root = machine.path("/opt/spacr")
+        frozen_binary = os.path.join(frozen_root, "spacr")
+        owns = getattr(machine.packages, "owns", None)
+        root = (frozen_root if name == "spacr"
+                and os.path.isfile(frozen_binary)
+                and callable(owns) and owns(name, frozen_binary)
+                else machine.path("/usr/lib/python3/dist-packages/spacr"))
         launcher = machine.path("/usr/bin/spacr")
         records.append(InstallRecord(
             kind="installer", layout="linux-deb", platform="linux", root=root,
@@ -1025,9 +1037,6 @@ def _find_environments(machine: _Machine,
     return records + checkouts
 
 
-# ---------------------------------------------------------------------------
-# Step 2: delete
-# ---------------------------------------------------------------------------
 
 def _user_data(machine: _Machine) -> List[str]:
     """Return preferences and user-data locations removal must never touch.
@@ -1140,9 +1149,6 @@ def _delete(path: str, keep: Sequence[str], report: RemovalReport,
                 except OSError as exc:
                     errors.append((failed_path, exc))
                 except TypeError:
-                    # os.open and os.close cannot be called again with a path
-                    # alone; keep the error rmtree reported (onexc passes the
-                    # exception, the older onerror an exc_info tuple).
                     errors.append((failed_path, exc_info if isinstance(
                         exc_info, BaseException) else exc_info[1]))
 
@@ -1325,9 +1331,6 @@ def _uninstall_from_environment(record: InstallRecord, machine: _Machine,
         report.failed.append((item, last[-1] if last else f"exit code {code}"))
 
 
-# ---------------------------------------------------------------------------
-# Step 3: install, only after step 2
-# ---------------------------------------------------------------------------
 
 def run_update_sequence(install: Callable[[], object], *,
                         records: Optional[Sequence[InstallRecord]] = None,
@@ -1397,9 +1400,6 @@ def _format_reports(reports: Sequence[RemovalReport]) -> List[str]:
     return lines
 
 
-# ---------------------------------------------------------------------------
-# Steps 2 and 3 after spaCR has closed
-# ---------------------------------------------------------------------------
 
 def _record_from_json(data: Dict) -> InstallRecord:
     """Rebuild an :class:`InstallRecord` from its JSON form.
@@ -1412,6 +1412,995 @@ def _record_from_json(data: Dict) -> InstallRecord:
     return InstallRecord(**values)
 
 
+def _requires_frozen_adapter(record: InstallRecord) -> bool:
+    """Identify installer families that cannot use an online replacement recipe.
+
+    :param record: the discovered installation to classify.
+    :returns: whether replacement requires a native frozen-family adapter.
+    """
+    return (
+        record.layout in {"windows-offline", "linux-deb"}
+        or (record.layout == "macos-app" and record.root.lower().endswith(".app"))
+    )
+
+
+
+_MACOS_PROTECTED_TRANSACTION = r"""
+set -eu
+PATH=/usr/bin:/bin:/usr/sbin:/sbin
+export PATH
+LC_ALL=C
+export LC_ALL
+umask 077
+[ "$(/usr/bin/id -u)" = 0 ] || exit 70
+for parent in / /Applications /private /private/var /private/var/root; do
+  [ ! -L "$parent" ] && [ -d "$parent" ] || exit 71
+  [ "$(cd "$parent" && /bin/pwd -P)" = "$parent" ] || exit 71
+  [ "$(/usr/bin/stat -f %u "$parent")" = 0 ] || exit 71
+  parent_mode=$(/usr/bin/stat -f %Lp "$parent")
+  [ $((0$parent_mode & 0002)) = 0 ] || exit 71
+  if [ $((0$parent_mode & 0020)) != 0 ]; then
+    parent_group=$(/usr/bin/stat -f %g "$parent")
+    [ "$parent_group" = 0 ] || [ "$parent_group" = 80 ] || exit 71
+  fi
+  if /bin/ls -lde "$parent" | /usr/bin/grep -Eq '^[[:space:]]+[0-9]+:.* allow '; then exit 71; fi
+done
+target=/Applications/spaCR.app
+mounted=0
+phase=initial
+txn=
+private_stage=
+old_identity=
+new_identity=
+receipt_ready=0
+
+private_path() {
+  [ ! -L "$1" ] && [ -e "$1" ] || return 1
+  [ "$(/usr/bin/stat -f %u "$1")" = 0 ] || return 1
+  bits=$(/usr/bin/stat -f %Lp "$1")
+  [ $((0$bits & 0077)) = 0 ] || return 1
+  if /bin/ls -lde "$1" | /usr/bin/grep -Eq '^[[:space:]]+[0-9]+:.* allow '; then return 1; fi
+}
+
+identity() {
+  [ ! -L "$1" ] && [ -d "$1" ] || return 1
+  /usr/bin/stat -f '%d:%i' "$1"
+}
+
+readonly_mount() {
+  /sbin/mount | /usr/bin/awk -v wanted="$1" '
+    index($0, " on " wanted " (") && $0 ~ /[, ]read-only[,)]/ {found=1}
+    END {exit !found}'
+}
+
+inventory() {
+  (
+    cd "$1" || exit 1
+    /usr/bin/find -s . -exec /bin/sh -c '
+      for entry do
+        mode=$(/usr/bin/stat -f %Lp "$entry") || exit 1
+        if [ -L "$entry" ]; then
+          kind=link
+          value=$(/usr/bin/readlink -n "$entry" && printf .) || exit 1
+          value=${value%.}
+        elif [ -f "$entry" ]; then
+          kind=file
+          value=$(/usr/bin/shasum -a 256 < "$entry") || exit 1
+          value=${value%% *}
+        elif [ -d "$entry" ]; then
+          kind=dir
+          value=
+        else exit 1; fi
+        printf "%s:%s %s %s %s:%s\000" "${#entry}" "$entry" "$kind" "$mode" "${#value}" "$value" || exit 1
+      done
+    ' sh '{}' + || exit 1
+  ) > "$2"
+}
+
+check_links() {
+  link_root=$1
+  /usr/bin/find -s "$link_root" -type l -print > "$private_stage/links"
+  while IFS= read -r link; do
+    resolved=$link
+    hops=0
+    while [ -L "$resolved" ]; do
+      hops=$((hops + 1))
+      [ "$hops" -le 64 ] || return 1
+      destination=$(/usr/bin/readlink -n "$resolved" && printf .) || return 1
+      destination=${destination%.}
+      case "$destination" in /*) resolved=$destination;; *) resolved="$(/usr/bin/dirname "$resolved")/$destination";; esac
+      canonical_parent=$(cd "$(/usr/bin/dirname "$resolved")" && /bin/pwd -P) || return 1
+      resolved="$canonical_parent/$(/usr/bin/basename "$resolved")"
+    done
+    if [ -d "$resolved" ]; then resolved=$(cd "$resolved" && /bin/pwd -P) || return 1; fi
+    [ -e "$resolved" ] || return 1
+    case "$resolved" in "$link_root"/*) ;; *) return 1;; esac
+  done < "$private_stage/links"
+}
+
+matches_inventory() {
+  inventory "$1" "$txn/check.inventory" || return 1
+  /usr/bin/cmp "$2" "$txn/check.inventory"
+}
+
+verify_bundle() {
+  app=$1
+  info="$app/Contents/Info.plist"
+  [ ! -L "$info" ] && [ -f "$info" ] || return 1
+  [ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$info")" = com.einarolafsson.spacr ] || return 1
+  [ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$info")" = spacr ] || return 1
+  [ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$info")" = "$short_version" ] || return 1
+  [ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$info")" = "$build_version" ] || return 1
+  [ "$(/usr/libexec/PlistBuddy -c 'Print :SPACRPackageVersion' "$info")" = "$package_version" ] || return 1
+  /usr/bin/lipo -verify_arch "$(/usr/bin/uname -m)" "$app/Contents/MacOS/spacr" || return 1
+  /usr/bin/codesign --verify --deep --strict "$app" || return 1
+  metadata=$(/usr/bin/find "$app" -type f -path "*/spacr-$package_version.dist-info/METADATA") || return 1
+  [ -n "$metadata" ] && [ "$(printf '%s\n' "$metadata" | /usr/bin/wc -l | /usr/bin/tr -d ' ')" = 1 ] || return 1
+  /usr/bin/grep -Fqx 'Name: spacr' "$metadata" || return 1
+  /usr/bin/grep -Fqx "Version: $package_version" "$metadata"
+}
+
+write_journal() {
+  journal_next=$(/usr/bin/mktemp "$txn/journal.next.XXXXXXXX") || return 1
+  printf 'schema=1\nfamily=macos-frozen\nstate=%s\nversion=%s\ndmg_sha256=%s\ntarget=%s\nold_identity=%s\nnew_identity=%s\nprivate_stage=%s\n' \
+    "$phase" "$package_version" "$expected_digest" "$target" "$old_identity" "$new_identity" "$private_stage" > "$journal_next" || return 1
+  /bin/mv -f "$journal_next" "$txn/journal" || return 1
+  /bin/sync
+}
+
+restore_transaction() {
+  private_path "$txn" && private_path "$txn/old.inventory" && private_path "$txn/source.inventory" || return 1
+  current=$(identity "$target" 2>/dev/null || :)
+  previous=$(identity "$txn/previous.app" 2>/dev/null || :)
+  next=$(identity "$txn/new.app" 2>/dev/null || :)
+  failed=$(identity "$txn/failed.app" 2>/dev/null || :)
+  if [ "$phase" = committed ]; then
+    [ "$current" = "$new_identity" ] && [ "$previous" = "$old_identity" ] || return 1
+    matches_inventory "$target" "$txn/source.inventory" && matches_inventory "$txn/previous.app" "$txn/old.inventory" || return 1
+    verify_bundle "$target" || return 1
+    return 0
+  fi
+  if [ "$current" = "$old_identity" ]; then
+    matches_inventory "$target" "$txn/old.inventory" || return 1
+    if [ "$next" = "$new_identity" ]; then
+      matches_inventory "$txn/new.app" "$txn/source.inventory" || return 1
+    elif [ "$failed" = "$new_identity" ]; then
+      matches_inventory "$txn/failed.app" "$txn/source.inventory" || return 1
+    else return 1; fi
+  else
+    [ "$previous" = "$old_identity" ] || return 1
+    matches_inventory "$txn/previous.app" "$txn/old.inventory" || return 1
+    if [ "$current" = "$new_identity" ]; then
+      [ ! -e "$txn/failed.app" ] && [ ! -L "$txn/failed.app" ] || return 1
+      matches_inventory "$target" "$txn/source.inventory" || return 1
+      phase=recovering
+      write_journal || return 1
+      /bin/mv -n "$target" "$txn/failed.app" || return 1
+      [ "$(identity "$txn/failed.app")" = "$new_identity" ] || return 1
+    elif [ -e "$target" ] || [ -L "$target" ]; then return 1
+    elif [ "$next" = "$new_identity" ]; then
+      matches_inventory "$txn/new.app" "$txn/source.inventory" || return 1
+    elif [ "$failed" = "$new_identity" ]; then
+      matches_inventory "$txn/failed.app" "$txn/source.inventory" || return 1
+    else return 1; fi
+    [ ! -e "$target" ] && [ ! -L "$target" ] || return 1
+    phase=recovering
+    write_journal || return 1
+    /bin/mv -n "$txn/previous.app" "$target" || return 1
+    [ "$(identity "$target")" = "$old_identity" ] || return 1
+    matches_inventory "$target" "$txn/old.inventory" || return 1
+  fi
+  phase=rolled-back
+  write_journal
+}
+
+finish() {
+  result=$?
+  trap - EXIT HUP INT TERM
+  set +e
+  if [ "$phase" != initial ] && [ "$phase" != committed ] && [ "$phase" != rolled-back ] && [ -n "$old_identity" ] && [ -n "$new_identity" ]; then
+    if ! restore_transaction; then
+      printf 'Automatic recovery refused changed identities/content; preserved transaction: %s\n' "$txn" >&2
+      result=76
+    fi
+  fi
+  detach_status=not-mounted
+  if [ "$mounted" = 1 ]; then
+    detach_status=detached
+    if ! /usr/bin/hdiutil detach "$private_stage/mount" >/dev/null; then
+      printf 'Read-only mount retained for recovery: %s\n' "$private_stage/mount" >&2
+      detach_status=failed
+      result=77
+    fi
+  fi
+  if [ "$receipt_ready" = 1 ]; then
+    printf '%s\t%s\t%s\n' "$phase" "$txn" "$detach_status"
+    exit 0
+  fi
+  exit "$result"
+}
+trap finish EXIT
+trap 'exit 130' HUP INT TERM
+
+if [ "$operation" = recover ]; then
+  txn=$recovery_transaction
+  printf '%s\n' "$txn" | /usr/bin/grep -Eq '^/Applications/\.spacr-update\.[a-zA-Z0-9]{8}$' || exit 78
+  [ "$(cd "$txn" && /bin/pwd -P)" = "$txn" ] || exit 78
+  private_path "$txn" && private_path "$txn/journal" || exit 78
+  [ -f "$txn/journal" ] || exit 78
+  seen=
+  while IFS='=' read -r key value; do
+    case " $seen " in *" $key "*) exit 78;; esac
+    seen="$seen $key"
+    case "$key" in
+      schema) [ "$value" = 1 ] || exit 78;;
+      family) [ "$value" = macos-frozen ] || exit 78;;
+      state) case "$value" in prepared|old-moved|installed|committed|recovering|rolled-back) journal_phase=$value;; *) exit 78;; esac;;
+      version) [ "$value" = "$package_version" ] || exit 78;;
+      dmg_sha256) [ "$value" = "$expected_digest" ] || exit 78;;
+      target) [ "$value" = "$target" ] || exit 78;;
+      old_identity) old_identity=$value;;
+      new_identity) new_identity=$value;;
+      private_stage) private_stage=$value;;
+      *) exit 78;;
+    esac
+  done < "$txn/journal"
+  [ "$(printf '%s\n' "$seen" | /usr/bin/wc -w | /usr/bin/tr -d ' ')" = 9 ] || exit 78
+  printf '%s\n%s\n' "$old_identity" "$new_identity" | /usr/bin/grep -Eqv '^[0-9]+:[0-9]+$' && exit 78
+  printf '%s\n' "$private_stage" | /usr/bin/grep -Eq '^/private/var/root/spacr-update\.[a-zA-Z0-9]{8}$' || exit 78
+  private_path "$private_stage" || exit 78
+  [ -d "$private_stage" ] || exit 78
+  if readonly_mount "$private_stage/mount"; then mounted=1; fi
+  phase=$journal_phase
+  restore_transaction || exit 78
+  receipt_ready=1
+  exit 0
+fi
+[ "$operation" = replace ] || exit 78
+[ "$(identity "$target")" = "$original_identity" ] || exit 72
+[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$target/Contents/Info.plist")" = com.einarolafsson.spacr ] || exit 72
+private_stage=$(/usr/bin/mktemp -d /private/var/root/spacr-update.XXXXXXXX)
+/bin/cp -R -P -X "$download" "$private_stage/image.dmg"
+[ ! -L "$private_stage/image.dmg" ] && [ -f "$private_stage/image.dmg" ] || exit 73
+actual_digest=$(/usr/bin/shasum -a 256 "$private_stage/image.dmg")
+[ "${actual_digest%% *}" = "$expected_digest" ] || exit 73
+/bin/mkdir "$private_stage/mount"
+mounted=1
+/usr/bin/hdiutil attach -readonly -nobrowse -mountpoint "$private_stage/mount" -plist "$private_stage/image.dmg" > "$private_stage/mount.plist"
+readonly_mount "$private_stage/mount"
+source_app="$private_stage/mount/spaCR.app"
+[ ! -L "$source_app" ] && [ -d "$source_app" ] || exit 74
+verify_bundle "$source_app"
+txn=$(/usr/bin/mktemp -d /Applications/.spacr-update.XXXXXXXX)
+private_path "$txn"
+/usr/bin/ditto --rsrc --extattr "$source_app" "$txn/new.app"
+verify_bundle "$txn/new.app"
+inventory "$source_app" "$txn/source.inventory"
+inventory "$txn/new.app" "$txn/new.inventory"
+/usr/bin/cmp "$txn/source.inventory" "$txn/new.inventory"
+check_links "$source_app"
+check_links "$txn/new.app"
+/bin/chown -R -P root:wheel "$txn/new.app"
+/bin/chmod -RN "$txn/new.app"
+unsafe_owners=$(/usr/bin/find "$txn/new.app" ! -user root -print)
+[ -z "$unsafe_owners" ] || exit 74
+unsafe_modes=$(/usr/bin/find "$txn/new.app" ! -type l -perm -002 -print)
+[ -z "$unsafe_modes" ] || exit 74
+old_identity=$(identity "$target")
+[ "$old_identity" = "$original_identity" ] || exit 75
+new_identity=$(identity "$txn/new.app")
+inventory "$target" "$txn/old.inventory"
+phase=prepared
+write_journal
+/bin/mv -n "$target" "$txn/previous.app"
+[ "$(identity "$txn/previous.app")" = "$old_identity" ] || exit 75
+phase=old-moved
+write_journal
+[ ! -e "$target" ] && [ ! -L "$target" ] || exit 75
+/bin/mv -n "$txn/new.app" "$target"
+[ "$(identity "$target")" = "$new_identity" ] || exit 75
+phase=installed
+write_journal
+verify_bundle "$target"
+matches_inventory "$target" "$txn/source.inventory"
+matches_inventory "$txn/previous.app" "$txn/old.inventory"
+phase=committed
+write_journal
+receipt_ready=1
+"""
+
+
+def _macos_protected_command(version, digest, *, image=None, transaction=None,
+                              original_identity=None):
+    """Encode one fixed native administrator transaction without executing user-owned code.
+
+    The protected inventory uses byte lengths under ``LC_ALL=C`` to delimit
+    paths and link targets, retaining trailing target newlines and removing only
+    readlink's output terminator. Every inventory command propagates failure
+    even when a caller uses a conditional or OR-list.
+
+    :param version: exact numeric public package release string.
+    :param digest: positive published lowercase SHA-256 of that release's DMG.
+    :param image: absolute DMG path for replacement, mutually exclusive with transaction.
+    :param transaction: exact protected transaction directory for restart recovery.
+    :param original_identity: installed bundle's device/inode pair, required for replacement.
+    :returns: quoted OS osascript argument vector; constructing it executes nothing.
+    """
+    import re
+    import shlex
+
+    fields = _macos_version_fields(version)
+    if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
+        raise ValueError("a positive exact release digest is required")
+    if (image is None) == (transaction is None):
+        raise ValueError("choose exactly one replacement image or recovery transaction")
+    if image is not None:
+        if (not isinstance(image, str) or not os.path.isabs(image)
+                or os.path.basename(image) != f"spaCR-{version}.dmg"
+                or any(ord(character) < 32 for character in image)):
+            raise ValueError("the replacement must name its exact absolute DMG path")
+        if (not isinstance(original_identity, (list, tuple)) or len(original_identity) != 2
+                or any(type(value) is not int or value < 0 for value in original_identity)):
+            raise ValueError("replacement requires the actual original device and directory inode")
+    elif not isinstance(transaction, str) or not re.fullmatch(
+            r"/Applications/\.spacr-update\.[A-Za-z0-9]{8}", transaction):
+        raise ValueError("recovery requires an exact private standard-Applications transaction")
+    values = {"operation": "replace" if image is not None else "recover",
+              "package_version": version, "short_version": fields["CFBundleShortVersionString"],
+              "build_version": fields["CFBundleVersion"], "expected_digest": digest,
+              "download": image or "", "recovery_transaction": transaction or "",
+              "original_identity": ":".join(map(str, original_identity or []))}
+    script = "\n".join(f"{key}={shlex.quote(value)}" for key, value in values.items()) + "\n" + _MACOS_PROTECTED_TRANSACTION
+    literal = script.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")
+    return ["/usr/bin/osascript", "-e",
+            f'do shell script "{literal}" with administrator privileges without altering line endings']
+
+
+def _macos_request_protected_update(version, digest, *, image=None, transaction=None,
+                                    expected_inventory=None, run=None):
+    """Request OS authorization, then independently verify its receipt at the original UID.
+
+    :param version: exact release expected in the replacement or recovery journal.
+    :param digest: published DMG SHA-256 bound to the protected transaction.
+    :param image: authenticated DMG path for replacement; omit for recovery.
+    :param transaction: protected journal directory for recovery; omit for replacement.
+    :param expected_inventory: mounted release inventory, required when replacing.
+    :param run: optional native-command runner compatible with _macos_native.
+    :returns: verified transaction receipt, including retained backup and journal paths.
+    """
+    import re
+
+    original_uid = os.geteuid()
+    if original_uid == 0:
+        raise ValueError("a frozen updater must not run as root")
+    target = "/Applications/spaCR.app"
+    identity = None
+    if image is not None:
+        if os.path.islink(image) or not os.path.isfile(image) or _macos_digest(image) != digest:
+            raise ValueError("the normal-user image does not match the release digest")
+        if expected_inventory is None:
+            raise ValueError("the actual read-only mounted payload inventory is required")
+        if os.path.islink(target) or not os.path.isdir(target):
+            raise ValueError("the protected app is not its actual directory")
+        details = os.lstat(target)
+        identity = [details.st_dev, details.st_ino]
+    argv = _macos_protected_command(version, digest, image=image, transaction=transaction,
+                                    original_identity=identity)
+    receipt = (run or _macos_native)(argv).strip()
+    match = re.fullmatch(r"(committed|rolled-back)\t(/Applications/\.spacr-update\.[A-Za-z0-9]{8})\t(detached|failed|not-mounted)", receipt)
+    if match is None:
+        raise ValueError("native authorization returned no valid transaction receipt")
+    if os.geteuid() != original_uid or original_uid == 0:
+        raise RuntimeError("updater identity changed; refusing privileged application handling")
+    state, root, detach_status = match.groups()
+    if transaction is not None and root != transaction:
+        raise ValueError("the recovered transaction differs from the requested journal")
+    if image is not None and state != "committed":
+        raise ValueError("the native replacement was rolled back")
+    if state == "committed":
+        _macos_bundle_identity(target, version, run=run)
+        if expected_inventory is not None and _macos_tree(target) != expected_inventory:
+            raise ValueError("installed protected payload differs from the actual mounted release")
+    else:
+        _macos_bundle_identity(target, run=run)
+    return {"state": state, "version": version, "target": target, "transaction": root,
+            "backup": os.path.join(root, "previous.app"), "journal": os.path.join(root, "journal"),
+            "original_uid": original_uid, "dmg_sha256": digest,
+            "detach": {"status": detach_status},
+            "unknown_files": "retained in the complete prior bundle"}
+
+
+def _macos_native(argv, *, binary=False):
+    """Run only a requested native tool in the normal user's sanitized environment.
+
+    :param argv: complete OS-command argument vector, without shell interpretation.
+    :param binary: return stdout bytes rather than decoded text when true.
+    :returns: captured stdout; nonzero status raises with captured stderr.
+    """
+    environment = dict(os.environ)
+    environment["PYINSTALLER_RESET_ENVIRONMENT"] = "1"
+    for key in tuple(environment):
+        if key.startswith("DYLD_") or key in {"PYTHONHOME", "PYTHONPATH", "LD_LIBRARY_PATH", "LD_LIBRARY_PATH_ORIG"}:
+            environment.pop(key, None)
+    result = subprocess.run(argv, stdin=subprocess.DEVNULL, capture_output=True,
+                            text=not binary, env=environment, check=False)
+    if result.returncode:
+        detail = result.stderr.decode("utf-8", "replace") if binary else result.stderr
+        raise RuntimeError(f"native macOS command failed ({result.returncode}): {detail}")
+    return result.stdout
+
+
+def _macos_digest(path):
+    """Hash payload bytes without importing the application or external packages.
+
+    :param path: file whose contents are to be hashed; callers validate its type.
+    :returns: lowercase hexadecimal SHA-256.
+    """
+    digest = hashlib.sha256()
+    with open(path, "rb") as stream:
+        for chunk in iter(lambda: stream.read(1 << 20), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _macos_tree(bundle, *, allow_external_links=False):
+    """Inventory every file, directory and link without following unknown user content.
+
+    Include the bundle root's mode and propagate traversal errors, so a failed
+    directory read cannot produce a partial inventory.
+
+    :param bundle: canonical, actual bundle directory to inventory.
+    :param allow_external_links: retain outside link targets only for the prior bundle.
+    :returns: relative-path records containing modes, kinds, file hashes or link targets.
+    :raises OSError: the complete directory traversal could not be read.
+    """
+    root = os.path.realpath(bundle)
+    if root != os.path.abspath(bundle) or not os.path.isdir(root) or os.path.islink(bundle):
+        raise ValueError("a bundle must be an actual canonical directory")
+
+    def refuse_unreadable(error):
+        """Propagate a filesystem traversal failure instead of omitting its subtree.
+
+        :param error: operating-system exception reported by os.walk.
+        """
+        raise error
+
+    result = {".": {"kind": "directory", "mode": stat.S_IMODE(os.lstat(root).st_mode)}}
+    for directory, folders, files in os.walk(root, followlinks=False, onerror=refuse_unreadable):
+        for name in sorted(set(folders + files)):
+            path = os.path.join(directory, name)
+            relative = os.path.relpath(path, root)
+            details = os.lstat(path)
+            record = {"mode": stat.S_IMODE(details.st_mode)}
+            if stat.S_ISLNK(details.st_mode):
+                target = os.readlink(path)
+                if not allow_external_links and os.path.commonpath([root, os.path.realpath(path)]) != root:
+                    raise ValueError("the incoming bundle links outside its own payload")
+                record.update(kind="symlink", target=target)
+            elif stat.S_ISDIR(details.st_mode):
+                record.update(kind="directory")
+            elif stat.S_ISREG(details.st_mode):
+                record.update(kind="file", size=details.st_size, sha256=_macos_digest(path))
+            else:
+                raise ValueError("a bundle contains an unsupported special file")
+            result[relative] = record
+    return result
+
+
+def _macos_version_fields(version):
+    """Map bounded package versions to Apple's three-part build field.
+
+    :param version: exact three- or four-component numeric package release; a
+        missing fourth component normalizes to zero for the native build field.
+    :returns: marketing/build version fields and the exact package-version field.
+    """
+    import re
+
+    if not re.fullmatch(r"[0-9]+(?:\.[0-9]+){2,3}", version):
+        raise ValueError("unsupported release version for a native macOS bundle")
+    parts = [int(part) for part in version.split(".")]
+    parts += [0] * (4 - len(parts))
+    major, minor, patch, revision = parts
+    if not 1 <= major <= 99 or any(not 0 <= part <= 99 for part in parts[1:]):
+        raise ValueError("native bundle version components exceed the supported bounds")
+    return {"CFBundleShortVersionString": f"{major}.{minor}.{patch}",
+            "CFBundleVersion": f"{major * 100 + minor}.{patch}.{revision}",
+            "SPACRPackageVersion": version}
+
+
+def _macos_bundle_identity(bundle, version=None, *, run=None):
+    """Check actual native identity, version, executable and distribution metadata.
+
+    :param bundle: canonical application bundle to inspect.
+    :param version: exact incoming release; None limits checks to existing identity.
+    :param run: optional native-command runner for architecture/signature checks.
+    :returns: parsed native Info.plist after the requested checks pass.
+    """
+    invoke = run or _macos_native
+    root = os.path.realpath(bundle)
+    if root != os.path.abspath(bundle) or os.path.islink(bundle):
+        raise ValueError("application bundle aliases are unsupported")
+    with open(os.path.join(root, "Contents", "Info.plist"), "rb") as stream:
+        info = plistlib.load(stream)
+    if (info.get("CFBundleIdentifier") != "com.einarolafsson.spacr"
+            or info.get("CFBundleExecutable") != "spacr"):
+        raise ValueError("the application identity does not match the frozen spaCR family")
+    if version is not None and any(info.get(key) != expected for key, expected in
+                                   _macos_version_fields(version).items()):
+        raise ValueError("the actual bundle version differs from the requested release")
+    executable = os.path.join(root, "Contents", "MacOS", "spacr")
+    if not os.path.isfile(executable) or not os.access(executable, os.X_OK):
+        raise ValueError("the native bundle executable is missing or not executable")
+    if os.path.commonpath([root, os.path.realpath(executable)]) != root:
+        raise ValueError("the bundle executable escapes its application")
+    if version is not None:
+        matches = set()
+        for directory, _, files in os.walk(root, followlinks=False):
+            if os.path.basename(directory).lower() == f"spacr-{version}.dist-info".lower() and "METADATA" in files:
+                matches.add(os.path.realpath(os.path.join(directory, "METADATA")))
+        if len(matches) != 1:
+            raise ValueError("the target distribution metadata is absent or ambiguous")
+        metadata = next(iter(matches))
+        if os.path.commonpath([root, metadata]) != root:
+            raise ValueError("the target distribution metadata escapes its application")
+        with open(metadata, encoding="utf-8") as stream:
+            lines = stream.read().splitlines()
+        if "Name: spacr" not in lines or f"Version: {version}" not in lines:
+            raise ValueError("the frozen distribution version differs from the bundle version")
+        architecture = invoke(["/usr/bin/uname", "-m"]).strip()
+        if architecture not in {"arm64", "x86_64"}:
+            raise ValueError("unsupported native macOS architecture")
+        invoke(["/usr/bin/lipo", "-verify_arch", architecture, executable])
+        invoke(["/usr/bin/codesign", "--verify", "--deep", "--strict", root])
+    return info
+
+
+def _macos_swap(left, right):
+    """Atomically exchange two existing same-filesystem bundle directories on macOS.
+
+    :param left: first existing bundle directory.
+    :param right: second existing bundle directory on the same filesystem.
+    :raises OSError: native RENAME_SWAP failure.
+    """
+    import ctypes
+
+    library = ctypes.CDLL("/usr/lib/libSystem.B.dylib", use_errno=True)
+    exchange = library.renamex_np
+    exchange.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_uint]
+    exchange.restype = ctypes.c_int
+    if exchange(os.fsencode(left), os.fsencode(right), 0x00000002) != 0:
+        error = ctypes.get_errno()
+        raise OSError(error, os.strerror(error), left, right)
+
+
+def _macos_journal(transaction, data):
+    """Durably publish a replacement state before its next atomic filesystem change.
+
+    Each publication uses a fresh private temporary. An interrupted write may
+    leave that file behind; future publication preserves it for inspection and
+    is not blocked by its name.
+
+    :param transaction: private transaction directory containing the journal.
+    :param data: JSON-serializable journal state to publish atomically.
+    """
+    path = os.path.join(transaction, "journal.json")
+    descriptor, temporary = tempfile.mkstemp(prefix="journal-", suffix=".next", dir=transaction)
+    with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+        json.dump(data, stream, sort_keys=True)
+        stream.flush()
+        os.fsync(stream.fileno())
+    os.replace(temporary, path)
+    descriptor = os.open(transaction, os.O_RDONLY)
+    try:
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+
+
+def _macos_replace_user_bundle(target, staged, transaction, version, expected, *, run=None, swap=None):
+    """Exchange verified bundles and retain the whole previous tree for rollback or review.
+
+    Committed publication sits outside verification rollback because publication
+    may precede a durability error. Both trees then stay in place so recovery can
+    follow the actual published journal.
+
+    :param target: installed bundle's canonical path.
+    :param staged: verified incoming bundle within the private sibling transaction.
+    :param transaction: private same-filesystem transaction directory.
+    :param version: exact incoming public release string.
+    :param expected: authenticated read-only mounted bundle inventory.
+    :param run: optional native-command runner for bundle verification.
+    :param swap: optional atomic directory-exchange backend, defaulting to Darwin.
+    :returns: committed replacement receipt with whole-old-bundle backup and journal.
+    """
+    invoke = run or _macos_native
+    exchange = swap or _macos_swap
+    root = os.path.realpath(transaction)
+    if root != os.path.abspath(transaction) or os.path.dirname(root) != os.path.dirname(target):
+        raise ValueError("transaction must be a canonical sibling of the installed application")
+    if os.path.dirname(staged) != root or os.path.islink(staged):
+        raise ValueError("staged bundle must remain inside its private sibling transaction")
+    details = os.stat(root)
+    if details.st_uid != os.geteuid() or stat.S_IMODE(details.st_mode) & 0o077:
+        raise ValueError("the transaction directory must be private to the normal user")
+    if os.stat(target).st_dev != os.stat(staged).st_dev:
+        raise ValueError("atomic replacement requires the same filesystem")
+    _macos_bundle_identity(target, run=invoke)
+    _macos_bundle_identity(staged, version, run=invoke)
+    old = _macos_tree(target, allow_external_links=True)
+    if _macos_tree(staged) != expected:
+        raise ValueError("staged bytes differ from the authenticated read-only mounted payload")
+    def identity(path):
+        """Record the actual directory identity before or after the exchange.
+
+        :param path: bundle directory whose device and inode are recorded.
+        :returns: JSON-compatible device/inode pair.
+        """
+        details = os.lstat(path)
+        return [details.st_dev, details.st_ino]
+    data = {"schema": 1, "family": "macos-frozen", "target": target, "backup": staged,
+            "version": version, "old_identity": identity(target), "new_identity": identity(staged),
+            "old_inventory": old, "new_inventory": expected, "state": "prepared"}
+    _macos_journal(root, data)
+    exchange(target, staged)
+    try:
+        if identity(target) != data["new_identity"] or identity(staged) != data["old_identity"]:
+            raise ValueError("bundle identities changed unexpectedly during replacement")
+        if _macos_tree(target) != expected or _macos_tree(staged, allow_external_links=True) != old:
+            raise ValueError("bundle content changed during replacement")
+        _macos_bundle_identity(target, version, run=invoke)
+    except Exception:
+        if identity(target) == data["new_identity"] and identity(staged) == data["old_identity"]:
+            exchange(target, staged)
+            data["state"] = "rolled-back"
+            _macos_journal(root, data)
+        raise
+    data["state"] = "committed"
+    _macos_journal(root, data)
+    return {"state": "committed", "version": version, "target": target, "backup": staged,
+            "journal": os.path.join(root, "journal.json"), "unknown_files": "retained in complete prior bundle"}
+
+
+class _FrozenUpdateHandshake:
+    """Bind frozen preparation and shutdown consent to one private, expiring plan.
+
+    Preparation allows an hour for the multi-gigabyte image and native staging;
+    verified readiness then allows ten minutes for consent and orderly shutdown.
+    The GUI polls these messages without a network call or blocking process wait.
+    """
+
+    def __init__(self, plan):
+        """Validate the private message directory and bind every plan input.
+
+        :param plan: the macOS frozen helper plan containing its one-use lease.
+        """
+        lease = plan["handshake"]
+        token = lease["token"]
+        self.expires = float(lease["expires"])
+        if (lease.get("schema") != 1 or not isinstance(token, str)
+                or len(token) != 64 or any(c not in "0123456789abcdef" for c in token)
+                or not 0 < self.expires < float("inf")):
+            raise ValueError("invalid frozen updater readiness lease")
+        requested_root = os.path.abspath(plan["workdir"])
+        details = os.lstat(requested_root)
+        if (not stat.S_ISDIR(details.st_mode)
+                or details.st_uid != os.geteuid() or stat.S_IMODE(details.st_mode) & 0o077):
+            raise ValueError("frozen updater readiness requires its private owner directory")
+        self.root = os.path.realpath(requested_root)
+        resolved = os.lstat(self.root)
+        if (resolved.st_dev, resolved.st_ino) != (details.st_dev, details.st_ino):
+            raise ValueError("frozen updater readiness directory changed during validation")
+        self.pid = int(plan["pid"])
+        bound = {key: plan[key] for key in
+                 ("adapter", "version", "pid", "records", "ticked", "workdir", "handshake")}
+        self.binding = hashlib.sha256(json.dumps(
+            bound, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
+
+    def _read(self, name):
+        """Read one bounded owner-only message, rejecting another plan's bytes.
+
+        :param name: internal message filename inside the private helper folder.
+        :returns: decoded message, or None before publication.
+        """
+        try:
+            descriptor = os.open(os.path.join(self.root, name),
+                                 os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+        except FileNotFoundError:
+            return None
+        with os.fdopen(descriptor, "r", encoding="utf-8") as stream:
+            details = os.fstat(stream.fileno())
+            if (not stat.S_ISREG(details.st_mode) or details.st_uid != os.geteuid()
+                    or stat.S_IMODE(details.st_mode) & 0o077 or details.st_size > 8192):
+                raise ValueError("invalid frozen updater readiness message")
+            message = json.loads(stream.read(8193))
+        if message.get("binding") != self.binding:
+            raise ValueError("frozen updater readiness belongs to a different plan")
+        return message
+
+    def _write(self, name, state, error="", expires=None):
+        """Atomically publish a complete message; interruption cannot expose half JSON.
+
+        :param name: internal message filename inside the private helper folder.
+        :param state: the protocol state being published.
+        :param error: bounded diagnostic for a preparation failure.
+        :param expires: a readiness-specific shutdown deadline, or the preparation deadline.
+        """
+        descriptor, temporary = tempfile.mkstemp(prefix="readiness-", dir=self.root)
+        with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+            json.dump({"binding": self.binding, "state": state,
+                       "error": str(error)[:2000],
+                       "expires": self.expires if expires is None else expires}, stream)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, os.path.join(self.root, name))
+
+    def check(self):
+        """Refuse expired or cancelled work, even if ready or approved arrived later."""
+        if self._read("cancelled.json") is not None:
+            raise RuntimeError("frozen update cancelled; nothing was changed")
+        message = self._read("readiness.json")
+        deadline = (float(message["expires"]) if message is not None
+                    and message.get("state") == "ready" else self.expires)
+        if not 0 < deadline <= self.expires + _WAIT_SECONDS:
+            raise ValueError("invalid frozen updater readiness deadline")
+        if time.time() >= deadline:
+            raise RuntimeError("frozen update preparation or shutdown timed out; nothing was changed")
+
+    def status(self):
+        """Return the helper's verified readiness or error without waiting."""
+        self.check()
+        message = self._read("readiness.json")
+        if message is not None and message.get("state") not in {"ready", "error"}:
+            raise ValueError("invalid frozen updater readiness state")
+        return message
+
+    def ready(self):
+        """Publish readiness only while the original preparation remains authorized."""
+        self.check()
+        self._write("readiness.json", "ready", expires=time.time() + _WAIT_SECONDS)
+
+    def failed(self, error):
+        """Expose preparation failure while preserving the installed application.
+
+        :param error: the helper's verification or preparation exception.
+        """
+        self._write("readiness.json", "error", error)
+
+    def cancel(self):
+        """Permanently disarm this plan, including any subsequently published readiness."""
+        self._write("cancelled.json", "cancelled")
+
+    def approve(self):
+        """Authorize replacement after readiness and all GUI shutdown veto checks."""
+        message = self.status()
+        if message is None or message["state"] != "ready":
+            raise RuntimeError("frozen update is not ready for shutdown")
+        self._write("approved.json", "approved")
+
+    def wait_for_shutdown(self, wait=None):
+        """Require both explicit approval and actual process exit within the lease.
+
+        :param wait: optional short PID-exit probe for deterministic tests.
+        """
+        while True:
+            self.check()
+            approved = self._read("approved.json")
+            if approved is not None:
+                if approved.get("state") != "approved":
+                    raise ValueError("invalid frozen updater shutdown approval")
+                exited = (wait(self.pid) if wait is not None
+                          else _wait_for_exit(self.pid, timeout=0.25))
+                if exited:
+                    self.check()
+                    return
+            time.sleep(0.05)
+
+
+def _run_macos_frozen_update(plan, *, run=None, download=None, wait=None, swap=None):
+    """Verify an official read-only DMG and replace a writable app without elevation.
+
+    Cleanup and relaunch failures retain the committed replacement receipt.
+    A zero open result proves LaunchServices acceptance, not GUI readiness.
+
+    :param plan: serialized update plan with the running bundle, release, workdir and PID.
+    :param run: optional native-command runner, including the captured open request.
+    :param download: optional URL-to-file downloader replacing _download.
+    :param wait: optional PID-exit waiter returning whether the original app closed.
+    :param swap: optional atomic bundle-exchange backend.
+    :returns: replacement receipt with distinct detach and relaunch outcomes.
+    """
+    import re
+
+    invoke = run or _macos_native
+    handshake = _FrozenUpdateHandshake(plan) if plan.get("handshake") else None
+    if handshake is not None:
+        handshake.check()
+    original_uid = os.geteuid()
+    if original_uid == 0:
+        raise ValueError("start the application as its normal user before updating")
+    records = [_record_from_json(data) for data in plan["records"]]
+    installers = [record for record in records if record.kind == "installer"]
+    if (len(installers) != 1 or not installers[0].running or plan.get("ticked")
+            or installers[0].layout != "macos-app" or not installers[0].root.endswith(".app")):
+        raise ValueError("mixed or legacy macOS installations require a separately reviewed migration")
+    target = installers[0].root
+    if os.path.realpath(target) != target or not os.path.isdir(target):
+        raise ValueError("the installed app must be an actual canonical directory")
+    _macos_bundle_identity(target, run=invoke)
+    if not os.access(os.path.dirname(target), os.W_OK | os.X_OK):
+        raise ValueError("protected Applications replacement requires its reviewed native authorization adapter")
+    parent_details = os.stat(os.path.dirname(target))
+    if parent_details.st_mode & 0o002:
+        raise ValueError("an application in a world-writable parent cannot be replaced safely")
+    version = str(plan["version"])
+    if not re.fullmatch(r"[0-9]+(?:\.[0-9]+){2,3}", version):
+        raise ValueError("unsupported frozen macOS version")
+    name = f"spaCR-{version}.dmg"
+    image = os.path.join(plan["workdir"], name)
+    url = f"{_RELEASE_DOWNLOAD}/v{version}/{name}"
+    expected_digest = _published_digest(url)
+    if not expected_digest or not re.fullmatch(r"[0-9a-f]{64}", expected_digest):
+        raise ValueError("the official DMG has no positive published digest")
+    (download or _download)(url, image)
+    if _macos_digest(image) != expected_digest:
+        raise ValueError("downloaded DMG differs from its published digest")
+    mount = tempfile.mkdtemp(prefix="mounted-", dir=os.path.realpath(plan["workdir"]))
+    attached = False
+    result = None
+    try:
+        attached = True
+        raw_receipt = invoke(["/usr/bin/hdiutil", "attach", "-readonly", "-nobrowse",
+                              "-mountpoint", mount, "-plist", image], binary=True)
+        receipt = plistlib.loads(raw_receipt)
+        mounted = [entry for entry in receipt.get("system-entities", []) if entry.get("mount-point") == mount]
+        if len(mounted) != 1 or not os.statvfs(mount).f_flag & os.ST_RDONLY:
+            raise ValueError("hdiutil did not provide the requested actual read-only mount")
+        source = os.path.join(mount, "spaCR.app")
+        _macos_bundle_identity(source, version, run=invoke)
+        expected = _macos_tree(source)
+        transaction = tempfile.mkdtemp(prefix=".spacr-update-", dir=os.path.dirname(target))
+        staged = os.path.join(transaction, "previous-or-new.app")
+        invoke(["/usr/bin/ditto", "--rsrc", "--extattr", source, staged])
+        if _macos_digest(image) != expected_digest:
+            raise ValueError("DMG changed while its payload was staged")
+        if handshake is not None:
+            _macos_bundle_identity(staged, version, run=invoke)
+            if _macos_tree(staged) != expected:
+                raise ValueError("staged bytes differ from the authenticated read-only mounted payload")
+            _macos_tree(target, allow_external_links=True)
+            handshake.ready()
+            handshake.wait_for_shutdown(wait)
+        elif not (wait or _wait_for_exit)(int(plan["pid"])):
+            raise RuntimeError("spaCR did not close; the installed bundle was not changed")
+        result = _macos_replace_user_bundle(target, staged, transaction, version, expected,
+                                            run=invoke, swap=swap)
+    finally:
+        if attached:
+            operation_error = sys.exc_info()[1]
+            try:
+                invoke(["/usr/bin/hdiutil", "detach", mount])
+                if result is not None:
+                    result["detach"] = {"status": "detached"}
+            except Exception as detach_error:
+                if result is not None:
+                    result["detach"] = {"status": "failed", "mount": mount, "error": str(detach_error)}
+                elif operation_error is not None:
+                    raise RuntimeError(f"macOS update stopped ({operation_error}); could not detach {mount}: {detach_error}") from operation_error
+                else:
+                    raise
+    result.update(original_uid=original_uid, dmg_sha256=expected_digest)
+    return _macos_relaunch(result, original_uid, run=invoke)
+
+
+def _macos_relaunch(result, original_uid, *, run=None):
+    """Keep verified replacement/recovery state even when normal-user launch fails.
+
+    :param result: verified transaction receipt naming its installed target.
+    :param original_uid: normal user that began this replacement or recovery.
+    :param run: optional native-command runner for the captured LaunchServices request.
+    :returns: the same receipt with an accepted, failed or refused relaunch result.
+    """
+    invoke = run or _macos_native
+    if os.geteuid() != original_uid or original_uid == 0:
+        result["relaunch"] = {"status": "refused", "error": "updater identity changed; GUI relaunch requires the original normal user"}
+        return result
+    try:
+        invoke(["/usr/bin/open", "-n", result["target"]])
+    except Exception as launch_error:
+        result["relaunch"] = {"status": "failed", "error": str(launch_error)}
+    else:
+        result["relaunch"] = {"status": "accepted"}
+    return result
+
+
+def _run_macos_frozen_recovery(transaction, *, protected=False, version=None,
+                                digest=None, run=None, swap=None):
+    """Recover one explicit frozen-family journal, then request normal-user launch.
+
+    :param transaction: exact original transaction directory, never a scanned guess.
+    :param protected: request native authorization for the fixed Applications route.
+    :param version: exact release bound to a protected journal; omit for user recovery.
+    :param digest: published DMG digest bound to a protected journal; omit for user recovery.
+    :param run: optional captured native-tool runner used for verification and relaunch.
+    :param swap: optional atomic exchange backend for user-owned recovery only.
+    :returns: verified transaction state and independent cleanup/relaunch outcomes.
+    """
+    if sys.platform != "darwin" or os.geteuid() == 0:
+        raise ValueError("macOS frozen recovery requires its native platform and original normal user")
+    original_uid = os.geteuid()
+    if protected:
+        if version is None or digest is None or swap is not None:
+            raise ValueError("protected recovery requires its exact version and published digest")
+        result = _macos_request_protected_update(
+            version, digest, transaction=transaction, run=run)
+    else:
+        if version is not None or digest is not None:
+            raise ValueError("release arguments apply only to protected recovery")
+        result = _macos_recover_user_bundle(transaction, run=run, swap=swap)
+        _macos_bundle_identity(result["target"], run=run)
+        result.update(transaction=os.path.realpath(transaction),
+                      journal=os.path.join(os.path.realpath(transaction), "journal.json"),
+                      original_uid=original_uid)
+    return _macos_relaunch(result, original_uid, run=run)
+
+
+def _macos_recover_user_bundle(transaction, *, run=None, swap=None):
+    """Recover a journaled exchange only when original directory identities and content agree.
+
+    :param transaction: original private sibling directory containing journal.json.
+    :param run: optional native-command runner for a committed bundle's identity checks.
+    :param swap: optional atomic directory-exchange backend used when restoring.
+    :returns: verified committed or newly published rolled-back journal state.
+    """
+    invoke = run or _macos_native
+    exchange = swap or _macos_swap
+    root = os.path.realpath(transaction)
+    details = os.lstat(root)
+    if (root != os.path.abspath(transaction) or details.st_uid != os.geteuid()
+            or not stat.S_ISDIR(details.st_mode) or stat.S_IMODE(details.st_mode) & 0o077):
+        raise ValueError("recovery requires the original private transaction directory")
+    journal = os.path.join(root, "journal.json")
+    if os.path.islink(journal):
+        raise ValueError("a recovery journal cannot be a symlink")
+    with open(journal, encoding="utf-8") as stream:
+        data = json.load(stream)
+    target, backup = data["target"], data["backup"]
+    if (data.get("schema") != 1 or data.get("family") != "macos-frozen"
+            or os.path.dirname(target) != os.path.dirname(root) or os.path.dirname(backup) != root
+            or os.path.islink(target) or os.path.islink(backup)):
+        raise ValueError("recovery paths differ from the original application transaction")
+
+    def identity(path):
+        """Bind recovery to actual directory inodes, not mutable app names alone.
+
+        :param path: journaled bundle directory to identify.
+        :returns: JSON-compatible device/inode pair.
+        """
+        details = os.lstat(path)
+        return [details.st_dev, details.st_ino]
+
+    old_at_target = identity(target) == data["old_identity"] and identity(backup) == data["new_identity"]
+    new_at_target = identity(target) == data["new_identity"] and identity(backup) == data["old_identity"]
+    if new_at_target:
+        if (_macos_tree(target) != data["new_inventory"]
+                or _macos_tree(backup, allow_external_links=True) != data["old_inventory"]):
+            raise ValueError("journaled application content changed; manual recovery is required")
+        if data["state"] == "committed":
+            _macos_bundle_identity(target, data["version"], run=invoke)
+            return data
+        if data["state"] != "prepared":
+            raise ValueError("journal state and actual application identities disagree")
+        exchange(target, backup)
+    elif old_at_target:
+        if (_macos_tree(target, allow_external_links=True) != data["old_inventory"]
+                or _macos_tree(backup) != data["new_inventory"] or data["state"] == "committed"):
+            raise ValueError("recovery cannot replace changed or committed application content")
+    else:
+        raise ValueError("one journaled application directory was replaced; preserving all paths")
+    data["state"] = "rolled-back"
+    _macos_journal(root, data)
+    return data
+
 def _reinstall_steps(record: InstallRecord, version: str, workdir: str,
                      machine: _Machine):
     """Return how the new version replaces an installer-made copy.
@@ -1423,6 +2412,8 @@ def _reinstall_steps(record: InstallRecord, version: str, workdir: str,
     :returns: ``(fetch, install, relaunch)``: the installer download, the
         command that runs it, and the command that starts the new version.
     """
+    if _requires_frozen_adapter(record):
+        raise ValueError("this installer family needs a verified frozen replacement adapter")
     suffix = _ASSET_SUFFIX[record.platform]
     name = f"{_NAME}-{version}-{suffix}"
     target = os.path.join(workdir, name)
@@ -1443,9 +2434,88 @@ def _reinstall_steps(record: InstallRecord, version: str, workdir: str,
     return fetch, install, relaunch
 
 
+def _standalone_helper_command(records: Sequence[InstallRecord], workdir: str,
+                               plan_path: str, machine: _Machine):
+    """Copy the bundled updater outside every removed root without host Python.
+
+    The independently extracted one-file helper contains only this module and
+    Python's standard library. Preparing it does not authorize a replacement
+    recipe or remove an installation.
+
+    :param records: installations whose roots must survive helper preparation.
+    :param workdir: private helper directory outside all installation roots.
+    :param plan_path: update plan inside that private directory.
+    :param machine: current platform, executable and environment description.
+    :returns: helper argv, isolated environment and any preparation error.
+    """
+    def contains(path, root):
+        """Compare canonical paths using the host filesystem's case semantics.
+
+        :param path: candidate nested path.
+        :param root: containing directory to check.
+        :returns: whether the candidate resolves inside the directory.
+        """
+        try:
+            canonical_path = os.path.normcase(os.path.realpath(path))
+            canonical_root = os.path.normcase(os.path.realpath(root))
+            return os.path.commonpath([canonical_path, canonical_root]) == canonical_root
+        except (OSError, ValueError):
+            return False
+
+    bundle = getattr(sys, "_MEIPASS", None)
+    if not getattr(sys, "frozen", False) or not bundle:
+        return None, None, "a frozen application bundle is required"
+    roots = [record.root for record in records if record.kind == "installer"]
+    roots.extend(path for record in records if record.kind == "installer"
+                 for path in record.registrations if path.lower().endswith(".app"))
+    roots.extend([str(bundle), os.path.dirname(machine.executable)])
+    executable_folder = os.path.dirname(os.path.realpath(machine.executable))
+    contents = os.path.dirname(executable_folder)
+    application = os.path.dirname(contents)
+    if (os.path.basename(executable_folder) == "MacOS"
+            and os.path.basename(contents) == "Contents"
+            and application.lower().endswith(".app")):
+        roots.append(application)
+    destination_root = os.path.realpath(workdir)
+    if any(contains(destination_root, root) for root in roots):
+        return None, None, "the standalone updater folder is inside an installation"
+    canonical_plan = os.path.realpath(plan_path)
+    if not contains(canonical_plan, destination_root):
+        return None, None, "the update plan must stay inside the standalone updater folder"
+    name = "spacr-update-helper" + (".exe" if machine.platform == "windows" else "")
+    source = os.path.realpath(os.path.join(str(bundle), name))
+    if not contains(source, str(bundle)) or not os.path.isfile(source):
+        return None, None, "the bundled standalone updater is missing or outside its bundle"
+    target = os.path.join(destination_root, name)
+    runtime = os.path.join(destination_root, "runtime")
+    try:
+        os.makedirs(destination_root, mode=0o700, exist_ok=True)
+        if os.name != "nt" and stat.S_IMODE(os.stat(destination_root).st_mode) & 0o077:
+            return None, None, "the standalone updater folder must be private to its owner"
+        os.mkdir(runtime, mode=0o700)
+        with open(source, "rb") as original, open(target, "xb") as copied:
+            shutil.copyfileobj(original, copied)
+        os.chmod(target, 0o700)
+    except OSError as error:
+        return None, None, f"could not prepare the standalone updater: {error}"
+    environment = dict(machine.environ)
+    environment["PYINSTALLER_RESET_ENVIRONMENT"] = "1"
+    for variable in ("PYTHONHOME", "PYTHONPATH"):
+        environment.pop(variable, None)
+    for variable in ("LD_LIBRARY_PATH", "LIBPATH"):
+        previous = environment.pop(variable + "_ORIG", None)
+        if previous is None:
+            environment.pop(variable, None)
+        else:
+            environment[variable] = previous
+    for variable in ("TMPDIR", "TMP", "TEMP"):
+        environment[variable] = runtime
+    return [target, "run-plan", canonical_plan], environment, None
+
+
 def _helper_command(records: Sequence[InstallRecord], workdir: str,
                     module: str, plan_path: str, machine: _Machine):
-    """Choose an interpreter that survives the removal, and the helper's argv.
+    """Choose a standalone helper or interpreter that survives the removal.
 
     :param records: every installation in the plan.
     :param workdir: the helper's folder.
@@ -1453,11 +2523,18 @@ def _helper_command(records: Sequence[InstallRecord], workdir: str,
     :param plan_path: the plan file.
     :param machine: the computer.
     :returns: ``(argv, environment, error)``; ``argv`` is ``None`` when no
-        interpreter outside the removed copies exists.
+        standalone helper or interpreter outside the removed copies exists.
     """
     doomed = [r.root for r in records if r.kind == "installer"]
     tail = ["-I", module, "run-plan", plan_path]
-    if not any(_inside(machine.executable, root) for root in doomed):
+    frozen_executable = (
+        bool(getattr(sys, "frozen", False))
+        and os.path.realpath(machine.executable) == os.path.realpath(sys.executable)
+    )
+    if frozen_executable:
+        return _standalone_helper_command(records, workdir, plan_path, machine)
+    if not frozen_executable and not any(
+            _inside(machine.executable, root) for root in doomed):
         return [machine.executable, *tail], None, None
     uv = None
     for record in records:
@@ -1532,6 +2609,11 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
     :returns: the plan as written to ``plan.json``. ``plan["command"]`` is the
         helper's command, or ``None`` with ``plan["error"]`` saying why
         nothing was started.
+
+    A frozen macOS bundle in a user-writable location uses its verified DMG
+    replacement adapter and retains its complete prior bundle. Other frozen
+    application families return an error before removing anything; the helper
+    does not enable an online-installer fallback for these applications.
     """
     machine = system or _Machine()
     records = list(records)
@@ -1540,8 +2622,6 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
     workdir = workdir or tempfile.mkdtemp(prefix="spacr-update-")
     os.makedirs(workdir, exist_ok=True)
     module = os.path.join(workdir, "install_cleanup.py")
-    with open(__file__, "rb") as source, open(module, "wb") as copy:
-        copy.write(source.read())
     plan_path = os.path.join(workdir, "plan.json")
     plan: Dict = {
         "schema": 1,
@@ -1554,15 +2634,39 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
         "workdir": workdir,
         "fetch": None, "install": None, "relaunch": None,
         "command": None, "error": None,
+        "frozen_application": bool(getattr(sys, "frozen", False)),
     }
     if running is None:
         plan["error"] = "the running spaCR is not an installer-made copy"
-    else:
-        plan["fetch"], plan["install"], plan["relaunch"] = _reinstall_steps(
-            running, str(version), workdir, machine)
-        argv, environment, error = _helper_command(
-            records, workdir, module, plan_path, machine)
+    elif (plan["frozen_application"] and running.layout == "macos-app"
+          and running.root.endswith(".app") and machine.platform == "macos"):
+        plan["adapter"] = "macos-frozen-v1"
+        plan["handshake"] = {"schema": 1, "token": os.urandom(32).hex(),
+                             "expires": time.time() + _FROZEN_PREPARATION_SECONDS}
+        argv, environment, error = _standalone_helper_command(records, workdir, plan_path, machine)
         plan["command"], plan["error"] = argv, error
+    elif plan["frozen_application"] or _requires_frozen_adapter(running):
+        plan["error"] = (
+            "this installation requires a verified frozen replacement adapter; "
+            "run the matching installer instead. Nothing was removed."
+        )
+    elif not str(__file__).endswith(".py") or not os.path.isfile(__file__):
+        plan["error"] = (
+            "standalone updater source is unavailable in this installation; "
+            "run the new installer instead. Nothing was removed."
+        )
+    else:
+        try:
+            with open(__file__, "rb") as source, open(module, "wb") as copy:
+                copy.write(source.read())
+        except OSError as error:
+            plan["error"] = f"could not prepare the updater: {error}. Nothing was removed."
+        else:
+            plan["fetch"], plan["install"], plan["relaunch"] = _reinstall_steps(
+                running, str(version), workdir, machine)
+            argv, environment, error = _helper_command(
+                records, workdir, module, plan_path, machine)
+            plan["command"], plan["error"] = argv, error
     with open(plan_path, "w", encoding="utf-8") as handle:
         json.dump(plan, handle, indent=2)
     if plan["command"]:
@@ -1704,7 +2808,8 @@ def _run_plan(plan_path: str, *, wait=None, fetch=None, run=None, remove=None,
     :param remove: replaces :func:`remove_install`.
     :param spawn: replaces the launcher used to start the new version.
     :param system: the computer; ``None`` means this one.
-    :returns: the helper's exit code; ``0`` when the new version started.
+    :returns: the helper's exit code; ``0`` when replacement succeeds and relaunch
+        is requested. Native LaunchServices acceptance does not confirm GUI startup.
     """
     with open(plan_path, encoding="utf-8") as handle:
         plan = json.load(handle)
@@ -1728,6 +2833,32 @@ def _run_plan(plan_path: str, *, wait=None, fetch=None, run=None, remove=None,
         print("\n".join(lines))
         return code
 
+    planned_records = [_record_from_json(data) for data in plan["records"]]
+    if plan.get("adapter") == "macos-frozen-v1":
+        try:
+            if machine.platform != "macos":
+                raise ValueError("a macOS frozen update requires its actual native platform")
+            if not plan.get("handshake"):
+                raise ValueError("the frozen update plan has no readiness handshake")
+            receipt = _run_macos_frozen_update(plan, wait=wait)
+            lines.append(json.dumps(receipt, sort_keys=True))
+            if receipt["relaunch"]["status"] != "accepted":
+                lines.append("The bundle replacement committed, but LaunchServices did not accept its relaunch; the backup and journal are retained.")
+                return _finish(6)
+        except Exception as error:
+            if plan.get("handshake"):
+                try:
+                    _FrozenUpdateHandshake(plan).failed(error)
+                except Exception:
+                    lines.append("The readiness error could not be published; shutdown remains unapproved.")
+            lines.append(f"Frozen macOS update stopped: {error}")
+            return _finish(6)
+        return _finish(0)
+    if plan.get("frozen_application") or any(
+            record.running and _requires_frozen_adapter(record)
+            for record in planned_records):
+        lines.append("A verified frozen replacement adapter is required; nothing was changed.")
+        return _finish(2)
     if not (wait or _wait_for_exit)(int(plan["pid"])):
         lines.append("spaCR did not close, so nothing was changed.")
         return _finish(3)
@@ -1764,7 +2895,8 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     """Command line used by the installers and by the update helper.
 
     :param argv: arguments; :data:`sys.argv` when ``None``.
-    :returns: the exit code; ``1`` when an installer-made copy was not removed.
+    :returns: the exit code; ``1`` when an installer-made copy was not removed,
+        or ``6`` when frozen macOS recovery or its launch request fails.
     """
     parser = argparse.ArgumentParser(
         prog="install_cleanup",
@@ -1779,20 +2911,32 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     remove.add_argument("--root", default="/", help=argparse.SUPPRESS)
     plan = commands.add_parser("run-plan", help="finish an in-app update")
     plan.add_argument("plan")
+    recover = commands.add_parser("recover-macos-frozen", help="recover one retained macOS bundle transaction")
+    recover.add_argument("transaction")
+    recover.add_argument("--protected", action="store_true")
+    recover.add_argument("--version")
+    recover.add_argument("--sha256")
     args = parser.parse_args(argv)
+    if args.command == "recover-macos-frozen":
+        try:
+            receipt = _run_macos_frozen_recovery(
+                args.transaction, protected=args.protected,
+                version=args.version, digest=args.sha256)
+        except Exception as error:
+            print(f"Frozen macOS recovery stopped: {error}")
+            return 6
+        print(json.dumps(receipt, sort_keys=True))
+        return 0 if receipt["relaunch"]["status"] == "accepted" else 6
     if args.command == "run-plan":
         return _run_plan(args.plan)
     if args.command not in ("find", "remove"):
         parser.print_help()
         return 2
     if args.root not in ("/", ""):
-        # A sandboxed file system, for testing an installer: no real registry,
-        # package manager or running environment is consulted.
         machine = _Machine(environ=dict(os.environ), fs_root=args.root,
                            sudo=getattr(args, "sudo", False))
     else:
         machine = _Machine(sudo=getattr(args, "sudo", False))
-    # The interpreter running this is a tool, not the spaCR being replaced.
     machine.running_prefix = None
     records = find_old_installs(system=machine)
     if args.command == "find":
