@@ -146,3 +146,17 @@ automation. Installer-made profile changes are recorded by before/after hashes.
 The shell verifier passes bash syntax checking; genuine native runs remain
 pending. A failure to establish fresh-terminal PATH must be repaired in the
 product command rather than hidden by the verifier. Item414 remains open.
+
+STATUS 2026-09-27 — hosted macOS Node precondition correction
+Run36362303533 job108744055538 showed that normal login startup restores a
+Homebrew directory exposing Node. The hosted witness now excludes only PATH
+entries exposing node/nodejs/npm/npx after loading the real profiles, logs
+those exclusions, and clears cached command lookups. It adds no directory and
+does not edit profiles; missing Claude PATH registration must still fail.
+Physical Node absence is not claimed. Linux behavior is unchanged.
+
+Bash syntax and five local scope checks passed, including preserving spaces
+and empty PATH entries, retaining an existing Claude directory, adding none,
+leaving Linux unchanged, and rejecting a PATH without any retained entry.
+The vendor installer was not run locally. Actual native re-execution remains
+required. Receipt: features/data/414_macos_node_path_scope_2026-09-27.json.

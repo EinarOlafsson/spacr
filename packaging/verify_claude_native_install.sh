@@ -43,7 +43,7 @@ finish() {
           scope:$scope,node_scope:$node_scope,exit_code:$exit_code,
           install_exit_code:$install_exit,fresh_terminal_exit_code:$fresh_exit,
           installed_native_sha256:$native_hash,authenticated:false,
-          path_registration_scope:"No verifier PATH repair or profile edits; normal startup files run, including any vendor-made edits.",
+          path_registration_scope:"No verifier PATH additions or profile edits; normal startup files run, including vendor-made edits. On hosted macOS only, directories exposing Node tools are then excluded and logged.",
           terminal_scope:"New interactive login shell with real account profiles; no terminal-emulator window.",
           vendor_documentation:"https://code.claude.com/docs/en/setup",
           path_documentation:"https://code.claude.com/docs/en/troubleshoot-install#verify-your-path"}' \
@@ -69,7 +69,7 @@ case "$(uname -s):$scope" in
         record=$(/usr/bin/dscl . -read "/Users/$(id -un)" NFSHomeDirectory UserShell)
         profile=$(printf '%s\n' "$record" | sed -n 's/^NFSHomeDirectory: //p')
         login_shell=$(printf '%s\n' "$record" | sed -n 's/^UserShell: //p')
-        node_scope='Hosted macOS image retains tooling outside the base system PATH. Both real login shells must keep node/npm unavailable after loading their unchanged profiles; physical absence is not claimed.'
+        node_scope='Hosted macOS retains Node tooling. After unchanged login profiles run, only directories exposing node/nodejs/npm/npx are excluded from each witness PATH. No path is added; physical Node absence is not claimed.'
         ;;
     *) echo 'Unsupported platform/scope' >&2; exit 1 ;;
 esac
@@ -111,6 +111,37 @@ cat > "$output/login-witness.sh" <<'WITNESS'
 # Sourced inside a fresh real login shell after its normal startup files run.
 printf 'uid=%s\nhome=%s\nshell=%s\npath=%s\n' "$(id -u)" "$HOME" "$SHELL" "$PATH"
 [ "$HOME" = "$ACCEPTANCE_PROFILE" ] && [ "$(id -u)" = "$ACCEPTANCE_UID" ] || exit 20
+if [ "$ACCEPTANCE_SCOPE" = macos-hosted ]; then
+    remaining_path=$PATH
+    filtered_path=''
+    have_entry=false
+    removed_paths="$ACCEPTANCE_OUTPUT/node-path-exclusions-$ACCEPTANCE_PHASE.log"
+    : > "$removed_paths"
+    while :; do
+        case "$remaining_path" in
+            *:*) entry=${remaining_path%%:*}; remaining_path=${remaining_path#*:}; more=true ;;
+            *) entry=$remaining_path; more=false ;;
+        esac
+        exposes_node=false
+        for tool in node nodejs npm npx; do
+            if [ -x "${entry:-.}/$tool" ]; then exposes_node=true; break; fi
+        done
+        if [ "$exposes_node" = true ]; then
+            printf '%s\n' "$entry" >> "$removed_paths"
+        elif [ "$have_entry" = true ]; then
+            filtered_path="$filtered_path:$entry"
+        else
+            filtered_path=$entry
+            have_entry=true
+        fi
+        [ "$more" = true ] || break
+    done
+    [ "$have_entry" = true ] || exit 21
+    PATH=$filtered_path
+    export PATH
+    hash -r
+    printf 'node_excluded_path=%s\n' "$PATH"
+fi
 for tool in node nodejs npm npx; do
     if command -v "$tool" >/dev/null 2>&1; then
         command -v "$tool"
@@ -141,7 +172,7 @@ login_witness() {
     /usr/bin/env -i HOME="$profile" USER="$(id -un)" LOGNAME="$(id -un)" \
         SHELL="$login_shell" PATH=/usr/bin:/bin:/usr/sbin:/sbin TERM=dumb LANG=C \
         ACCEPTANCE_PROFILE="$profile" ACCEPTANCE_UID="$(id -u)" \
-        ACCEPTANCE_OUTPUT="$output" ACCEPTANCE_PHASE="$1" \
+        ACCEPTANCE_OUTPUT="$output" ACCEPTANCE_PHASE="$1" ACCEPTANCE_SCOPE="$scope" \
         "$login_shell" -lic '. "$ACCEPTANCE_OUTPUT/login-witness.sh"'
 }
 stage=exact-command
