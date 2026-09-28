@@ -64,16 +64,56 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $version = '3.13'
           $expected = 'db9a1038bbc0e53fef24f423fd609979bd578e942f1be1198db186d1c42652a3'
-          $url = 'https://sourceforge.net/projects/nsis/files/NSIS%203/3.13/nsis-3.13-setup.exe/download'
+          $direct = 'https://downloads.sourceforge.net/project/nsis/NSIS%203/3.13/nsis-3.13-setup.exe'
+          $mirror = 'https://master.dl.sourceforge.net/project/nsis/NSIS%203/3.13/nsis-3.13-setup.exe'
+          $urls = @($direct, $mirror, $direct)
           $stage = Join-Path $env:RUNNER_TEMP ('nsis-build-' + [Guid]::NewGuid().ToString('N'))
           [void](New-Item -ItemType Directory -Path $stage)
           $installer = Join-Path $stage 'nsis-3.13-setup.exe'
-          $receipt = [ordered]@{status='failed'; version=$version; url=$url; expected_sha256=$expected; source_commit=$env:GITHUB_SHA}
+          $evidence = 'acceptance/nsis-acquisition'
+          [void](New-Item -ItemType Directory -Force -Path $evidence)
+          $receipt = [ordered]@{status='failed'; version=$version; expected_sha256=$expected; source_commit=$env:GITHUB_SHA; attempts=[Collections.Generic.List[object]]::new()}
           try {
-            Invoke-WebRequest -Uri $url -OutFile $installer -TimeoutSec 120 -MaximumRetryCount 3 -RetryIntervalSec 5
-            $actual = (Get-FileHash -LiteralPath $installer -Algorithm SHA256).Hash.ToLowerInvariant()
-            $receipt.actual_sha256 = $actual
-            if ($actual -ne $expected) { throw 'Pinned NSIS installer checksum mismatch' }
+            for ($index = 0; $index -lt $urls.Count; $index++) {
+              $number = $index + 1
+              $payload = Join-Path $evidence "attempt-$number.bin"
+              $attempt = [ordered]@{number=$number; url=$urls[$index]; payload=$payload; verified=$false; started_utc=[DateTime]::UtcNow.ToString('o')}
+              try {
+                $response = Invoke-WebRequest -Uri $urls[$index] -OutFile $payload -PassThru -SkipHttpErrorCheck -TimeoutSec 120 -MaximumRetryCount 0
+                $attempt.http_status = [int]$response.StatusCode
+                $attempt.final_url = $response.BaseResponse.RequestMessage.RequestUri.AbsoluteUri
+                $attempt.headers = [ordered]@{}
+                foreach ($header in $response.Headers.GetEnumerator()) {
+                  $attempt.headers[$header.Key] = $header.Value -join ', '
+                }
+              } catch {
+                $attempt.error = $_.Exception.Message
+              } finally {
+                if (Test-Path -LiteralPath $payload -PathType Leaf) {
+                  $attempt.bytes = (Get-Item -LiteralPath $payload).Length
+                  $attempt.actual_sha256 = (Get-FileHash -LiteralPath $payload -Algorithm SHA256).Hash.ToLowerInvariant()
+                  $stream = [IO.File]::OpenRead((Resolve-Path -LiteralPath $payload).Path)
+                  try { $attempt.pe_magic = ($stream.ReadByte() -eq 77 -and $stream.ReadByte() -eq 90) }
+                  finally { $stream.Dispose() }
+                  $attempt.verified = ($attempt.http_status -eq 200 -and $attempt.actual_sha256 -eq $expected -and $attempt.pe_magic)
+                }
+                $attempt.completed_utc = [DateTime]::UtcNow.ToString('o')
+                $receipt.attempts.Add($attempt)
+                $attempt | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $evidence "attempt-$number.json") -Encoding utf8
+              }
+              if ($attempt.verified) {
+                Copy-Item -LiteralPath $payload -Destination $installer
+                $receipt.selected_attempt = $number
+                $receipt.url = $attempt.url
+                break
+              }
+              if ($number -lt $urls.Count) { Start-Sleep -Seconds 5 }
+            }
+            if (-not (Test-Path -LiteralPath $installer -PathType Leaf)) {
+              throw 'No NSIS download matched the pinned version, checksum and executable header; diagnostic payloads were retained.'
+            }
+            $receipt.actual_sha256 = (Get-FileHash -LiteralPath $installer -Algorithm SHA256).Hash.ToLowerInvariant()
+            if ($receipt.actual_sha256 -ne $expected) { throw 'Pinned NSIS installer checksum mismatch before execution' }
             $process = Start-Process -FilePath $installer -ArgumentList '/S' -PassThru
             if (-not $process.WaitForExit(120000)) {
               try { $process.Kill($true); [void]$process.WaitForExit(10000) } catch { $receipt.termination_error = $_.Exception.Message }
@@ -92,7 +132,7 @@ jobs:
             $receipt.error = $_.Exception.Message
             throw
           } finally {
-            $receipt | ConvertTo-Json -Depth 4 | Set-Content acceptance/nsis-acquisition.json -Encoding utf8
+            $receipt | ConvertTo-Json -Depth 8 | Set-Content acceptance/nsis-acquisition.json -Encoding utf8
           }
           ./packaging/build_windows.ps1 -SkipDependencyInstall -RequireInstaller
       - name: Build native macOS app and DMG

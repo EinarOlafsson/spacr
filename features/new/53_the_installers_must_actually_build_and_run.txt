@@ -481,3 +481,13 @@ Actual rebuilt-DMG/helper replacement, interrupted recovery and GUI/CPU relaunch
 acceptance remain required. Protected replacement dispatch and authorization
 acceptance are still outstanding, as are other frozen and mixed/legacy families.
 This implementation does not close item53 or authorize a version promotion.
+
+STATUS 2026-09-27 — direct pinned Windows compiler acquisition
+The native build rejected unknown response bytes from the SourceForge download
+page. It now tries three bounded official direct-asset requests, retaining each
+response and headers. HTTP success, the unchanged pinned SHA256 and executable
+header are required; the copied installer is rehashed before execution.
+Both official endpoints independently supplied the same pinned installer.
+Three existing workflow checks and the acquisition gate checks passed. Actual
+hosted Windows execution remains pending. Historical recovery is a separate gate.
+Receipt: features/data/53_nsis_direct_acquisition_2026-09-27.json.

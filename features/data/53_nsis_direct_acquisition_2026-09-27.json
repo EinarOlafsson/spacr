@@ -1,0 +1,60 @@
+{
+  "schema": 1,
+  "item": 53,
+  "date": "2026-09-27",
+  "scope": "Native Windows NSIS build prerequisite acquisition only",
+  "failed_run": 36365242924,
+  "failed_job": 108750484511,
+  "failed_source": "bbf2d35607a1693d4f7e3f8438ddae372f54e9bc",
+  "failure": {
+    "message": "Pinned NSIS installer checksum mismatch",
+    "expected_sha256": "db9a1038bbc0e53fef24f423fd609979bd578e942f1be1198db186d1c42652a3",
+    "actual_sha256": "35aadcb153e59dc52018a9987e10be9beb3cef1ca44d2eccf7ca10f9e398378f",
+    "payload_and_headers_retained_by_failed_run": false,
+    "interpretation": "Unknown response bytes were correctly rejected before execution. An HTML or mirror failure is plausible but not proven."
+  },
+  "verified_downloads": [
+    {
+      "url": "https://downloads.sourceforge.net/project/nsis/NSIS%203/3.13/nsis-3.13-setup.exe",
+      "bytes": 1567985,
+      "sha256": "db9a1038bbc0e53fef24f423fd609979bd578e942f1be1198db186d1c42652a3",
+      "format": "PE32 NSIS installer; MZ and PE signatures verified",
+      "headers_sha256": "9dcd15aacb96b6b44985fef3ee7a4e81a3291f1d0950f2157eeb261203f2a6d8"
+    },
+    {
+      "url": "https://master.dl.sourceforge.net/project/nsis/NSIS%203/3.13/nsis-3.13-setup.exe",
+      "bytes": 1567985,
+      "sha256": "db9a1038bbc0e53fef24f423fd609979bd578e942f1be1198db186d1c42652a3",
+      "format": "PE32 NSIS installer; MZ and PE signatures verified",
+      "headers_sha256": "2d629d31ee8dd2da89d8da5cdf38e4931d118060cd1b79675119508c05224710"
+    }
+  ],
+  "repair": {
+    "attempt_order": ["official direct asset", "official master mirror asset", "official direct asset"],
+    "attempt_limit": 3,
+    "request_timeout_seconds": 120,
+    "automatic_http_retries": 0,
+    "between_attempt_delay_seconds": 5,
+    "same_version_and_hash_required_for_every_attempt": true,
+    "execution_gate": "HTTP 200, unchanged SHA256 and MZ header required before copying; copied installer is rehashed immediately before execution",
+    "retained_diagnostics": "Each attempt's payload, HTTP status, final URL, headers, byte count, SHA256, executable-header result, timestamps and request error are retained under always-uploaded acceptance/nsis-acquisition",
+    "installer_deadline_seconds": 120,
+    "compiler_version_requirement": "v3.13"
+  },
+  "validation": {
+    "source_base": "279526b7eb7734aedfbd9921fb4e9d67802897f1",
+    "workflow_sha256": "dc87e4416111497a6a04782688247e681b80e6f7bf70a7594b0f6d83e27afc58",
+    "python_scope": "4G, private HOME/TMPDIR, CPU only",
+    "yaml_structure_independent_download_and_execution_gate_checks_exit": 0,
+    "check_log_sha256": "5c8eea6aafa01203311a941ce559dce22aad5350243b4c23a179763e50c4dcfe",
+    "named_test_file": "tests/test_native_installer_workflow.py",
+    "named_test_result": "3 passed in 0.52 s",
+    "named_test_log_sha256": "1efbd5fc9da76a71b0acad1451577d9edfe50962077b19e434edf3ce3a299dba",
+    "powershell_parser_or_execution_locally": false,
+    "installer_executed_locally": false,
+    "hosted_windows_acceptance": "pending"
+  },
+  "evidence_directory": "/mnt/wd4tb/scratch/spacr-completion/53-windows-ci-20260927",
+  "historical_windows_uv_child_failure": "Separate unresolved failure; this repair does not modify or validate the original 1.5.0.1 installer",
+  "full_item_complete": false
+}
