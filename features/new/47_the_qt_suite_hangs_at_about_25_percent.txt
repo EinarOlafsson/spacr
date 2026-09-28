@@ -1428,3 +1428,18 @@ lazy reveal and settings collection. Opacity and thresholds are unchanged.
 This repairs the reproduced overlay; it does not establish the interrupted
 full serial/memory acceptance or clear unrelated order-dependent failures.
 Receipt: features/data/47_unmounted_settings_overlay_repair_2026-09-27.json.
+
+STATUS 2026-09-27 — frozen suffix stopped at the unchanged memory guard
+The frozen928498503 suffix exited3 at20:25:12 EDT after1h08m34s. It completed
+6,054 nodes:6,011 passed,39 skipped and4 failed. The10.8GiB guard interrupted
+test_the_music_bed_is_a_piece.py::test_the_bed_is_exactly_its_bars_long;3,951
+other nodes never started. The remaining manifest therefore contains3,952 nodes.
+This was a controlled test-process stop, not another host reboot.
+
+Prefix/order and exhaustive disjoint-accounting checks pass. Combined completed
+coverage is23,252/27,204 (85.47%), with11 original frozen-source failures retained.
+No uninterrupted serial/memory acceptance is established. Current-source focused
+repairs above remain valid within their own scopes. Both pytest and its sampler
+ended; no restart was made. Memory growth and the interrupted music test require
+investigation before another long run. Receipt and exact remaining manifest:
+features/data/47_qt_suffix_guard_stop_2026-09-27.json.
