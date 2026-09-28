@@ -491,3 +491,17 @@ Both official endpoints independently supplied the same pinned installer.
 Three existing workflow checks and the acquisition gate checks passed. Actual
 hosted Windows execution remains pending. Historical recovery is a separate gate.
 Receipt: features/data/53_nsis_direct_acquisition_2026-09-27.json.
+
+STATUS 2026-09-27 — historical Windows child diagnostic prepared
+The observer now retains the original uv child identity, script bytes and exit
+code, and ends promptly after a proven error dialog and ended bootstrap. A
+separate bounded replay captures the unchanged child's output after the failed
+observed process tree exits. Environment evidence is explicitly reconstructed
+whitelist inheritance, not a direct read of the unavailable child environment.
+Original installer bytes and acceptance criteria remain unchanged.
+
+The exact verifier file passed 28 tests in 2.33 seconds under a 4G CPU cap;
+YAML and diff checks passed. Native PowerShell capture/replay validation and
+historical Windows acceptance remain pending. A successful diagnostic cannot
+pass the original installer or close item53. Receipt:
+features/data/53_historical_windows_child_diagnostic_2026-09-27.json.

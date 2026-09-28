@@ -7,6 +7,7 @@ on:
       - .github/workflows/historical-upgrade.yml
       - tools/accept_historical_upgrade.py
       - tools/historical_upgrade_sources.json
+      - tools/diagnose_historical_windows_uv.ps1
   workflow_dispatch:
 
 permissions:
@@ -43,6 +44,7 @@ jobs:
           sparse-checkout: |
             tools/accept_historical_upgrade.py
             tools/historical_upgrade_sources.json
+            tools/diagnose_historical_windows_uv.ps1
           sparse-checkout-cone-mode: false
       - name: Linux native Qt display prerequisites
         if: runner.os == 'Linux'
@@ -57,6 +59,7 @@ jobs:
             libxcomposite1 libxcursor1 libxdamage1 libxrandr2 libxi6 libxtst6 \
             libasound2t64 libsm6 libxext6 libxrender1
       - name: Install the checksum-pinned original released artifact
+        id: original_install
         shell: pwsh
         env:
           SPACR_TORCH_BACKEND: cpu
@@ -104,6 +107,15 @@ jobs:
             $script:transcriptEnded = $false
             $script:installerObserverReady = $false
             $script:installerObserverInitError = $null
+            $script:installerKnownProcesses = @{}
+            $script:installerFailureDialog = $null
+            $script:uvChildCaptured = $false
+            $script:uvChildProcess = $null
+            $script:uvChildProof = $null
+            $script:installerLaunchEnvironment = [ordered]@{}
+            foreach ($key in @('PATH','PATHEXT','TEMP','TMP','USERPROFILE','LOCALAPPDATA','UV_INSTALL_DIR','CARGO_DIST_FORCE_INSTALL_DIR','CARGO_HOME','XDG_BIN_HOME','XDG_DATA_HOME','XDG_CONFIG_HOME','UV_UNMANAGED_INSTALL','UV_NO_MODIFY_PATH')) {
+              $script:installerLaunchEnvironment[$key] = [Environment]::GetEnvironmentVariable($key)
+            }
             try {
               Add-Type -AssemblyName System.Drawing -ErrorAction Stop
               Add-Type -ErrorAction Stop -TypeDefinition @'
@@ -215,6 +227,15 @@ jobs:
                   finally { if ($graphics) { $graphics.Dispose() }; if ($bitmap) { $bitmap.Dispose() } }
                 }
                 $proof.complete = -not $capture.truncated
+                if ($proof.complete) {
+                  $failure = @($capture.windows | Where-Object {
+                    $_.pid -eq $Installer.Id -and $_.visible -and $_.text_read -and -not $_.text_truncated -and
+                    $_.text -cmatch '^spaCR installation failed with exit code [1-9][0-9]*\. The existing installation, if any, was preserved\.$'
+                  })
+                  if ($failure.Count -eq 1) {
+                    $script:installerFailureDialog = @{text=$failure[0].text; handle=$failure[0].handle; pid=$Installer.Id; start_ticks=$failure[0].start_ticks; evidence="installer-ui-$Label.json"}
+                  }
+                }
               } catch { $proof.error = $_.Exception.Message }
               try { $proof | ConvertTo-Json -Depth 9 | Set-Content (Join-Path $evidence "installer-ui-$Label.json") -Encoding utf8 }
               catch { Write-Warning "Cannot retain passive observer diagnostic: $($_.Exception.Message)" }
@@ -224,9 +245,84 @@ jobs:
               command = @($artifact, '/S'); started_utc = [DateTime]::UtcNow.ToString('o')
               dialogs_dismissed = $false
             }
+            function Save-HistoricalUvChild([object]$Child, [object]$Bootstrap) {
+              <#
+              .SYNOPSIS
+              Retain the original child identity and downloaded bytes without changing either process.
+              .PARAMETER Child
+              CIM record for the owned nested Windows PowerShell process.
+              .PARAMETER Bootstrap
+              CIM record for its original installer bootstrap parent.
+              #>
+              if ($script:uvChildCaptured) { return }
+              $scriptPath = Join-Path $env:TEMP ("spacr-uv-installer-" + $Bootstrap.ProcessId + '.ps1')
+              if (-not $Child.CommandLine -or $Child.CommandLine.IndexOf($scriptPath, [StringComparison]::OrdinalIgnoreCase) -lt 0 -or
+                  -not $Bootstrap.CommandLine -or $Bootstrap.CommandLine -notmatch 'install_spacr_windows\.ps1') { return }
+              $capture = [ordered]@{available=$false; observed_utc=[DateTime]::UtcNow.ToString('o'); child_pid=$Child.ProcessId; bootstrap_pid=$Bootstrap.ProcessId; child_created_utc=$Child.CreationDate.ToUniversalTime().ToString('o'); executable_path=$Child.ExecutablePath; command_line=$Child.CommandLine; original_script_path=$scriptPath}
+              try {
+                if (-not $script:uvChildProcess) {
+                  $script:uvChildProcess = Get-Process -Id $Child.ProcessId -ErrorAction Stop
+                  $null = $script:uvChildProcess.Handle
+                }
+                $retained = Join-Path $evidence 'original-uv-installer.ps1'
+                $before = (Get-FileHash -LiteralPath $scriptPath -Algorithm SHA256).Hash.ToLowerInvariant()
+                Copy-Item -LiteralPath $scriptPath -Destination $retained -Force
+                $capture.script_sha256 = (Get-FileHash -LiteralPath $retained -Algorithm SHA256).Hash.ToLowerInvariant()
+                if ($capture.script_sha256 -ne $before -or (Get-FileHash -LiteralPath $scriptPath -Algorithm SHA256).Hash.ToLowerInvariant() -ne $before) { throw 'Original uv script changed during passive capture.' }
+                $capture.script_bytes = (Get-Item -LiteralPath $retained).Length
+                $originalBootstrap = Join-Path $env:TEMP 'spaCR-online-installer\install_spacr_windows.ps1'
+                Copy-Item -LiteralPath $originalBootstrap -Destination (Join-Path $evidence 'original-bootstrap.ps1') -Force
+                $capture.bootstrap_sha256 = (Get-FileHash -LiteralPath (Join-Path $evidence 'original-bootstrap.ps1') -Algorithm SHA256).Hash.ToLowerInvariant()
+                if ($capture.bootstrap_sha256 -ne '94f05a5b8150f7491c7319eb3beeb62e8405b0fdf6a2d498f58313103ac7b28e') { throw 'Observed bootstrap differs from the reviewed original artifact.' }
+                $owner = Invoke-CimMethod -InputObject $Child -MethodName GetOwnerSid
+                if ($owner.ReturnValue -ne 0 -or -not $owner.Sid -or -not $Child.ExecutablePath) { throw 'Could not bind original child executable and account.' }
+                $capture.owner_sid = $owner.Sid
+                if ($owner.Sid -ne [Security.Principal.WindowsIdentity]::GetCurrent().User.Value) { throw 'Child account differs from the launching workflow account.' }
+                $capture.engine_sha256 = (Get-FileHash -LiteralPath $Child.ExecutablePath -Algorithm SHA256).Hash.ToLowerInvariant()
+                $engineBytes = [IO.File]::ReadAllBytes($Child.ExecutablePath)
+                $capture.engine_pe_machine = '0x{0:x4}' -f [BitConverter]::ToUInt16($engineBytes, [BitConverter]::ToInt32($engineBytes, 60) + 4)
+                $capture.working_directory = Join-Path $env:TEMP 'spaCR-online-installer'
+                $capture.working_directory_provenance = 'Original NSIS SetOutPath; not read from child memory.'
+                $capture.environment_provenance = 'Reconstructed from launching workflow inheritance and two assignments in the hash-verified bootstrap; not read from child memory.'
+                $capture.environment = [ordered]@{}
+                foreach ($key in $script:installerLaunchEnvironment.Keys) { $capture.environment[$key] = $script:installerLaunchEnvironment[$key] }
+                $capture.environment.UV_UNMANAGED_INSTALL = Join-Path $installRoot 'bootstrap'
+                $capture.environment.UV_NO_MODIFY_PATH = '1'
+                $capture.available = $true
+                $script:uvChildCaptured = $true
+              } catch { $capture.error = $_.Exception.Message }
+              $script:uvChildProof = $capture
+              $capture | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $evidence 'original-uv-child.json') -Encoding utf8
+            }
+            function Stop-HistoricalInstaller([Diagnostics.Process]$Installer) {
+              <#
+              .SYNOPSIS
+              Stop only the failed launched tree and verify every observed process identity exited.
+              .PARAMETER Installer
+              Original Process object returned when the pinned artifact was launched.
+              #>
+              if (-not $Installer) { $observation.observed_tree_exited = $false; return }
+              if (-not $Installer.HasExited) { $Installer.Kill($true); [void]$Installer.WaitForExit(10000) }
+              $until = [DateTime]::UtcNow.AddSeconds(10)
+              do {
+                $survivors = @(
+                  foreach ($known in $script:installerKnownProcesses.Values) {
+                    try {
+                      $live = Get-Process -Id $known.pid -ErrorAction SilentlyContinue
+                      if ($live -and $live.StartTime.ToUniversalTime().Ticks -eq $known.start_ticks) { $known }
+                    } catch { $known }
+                  }
+                )
+                if ($survivors.Count -eq 0) { break }
+                Start-Sleep -Milliseconds 100
+              } while ([DateTime]::UtcNow -lt $until)
+              $observation.observed_tree_exited = $Installer.HasExited -and $survivors.Count -eq 0
+              $observation.surviving_observed_processes = $survivors
+              $observation.termination_scope = 'Exact launched Process tree; all observed PID/start-time identities checked after termination.'
+            }
             function Save-InstallerObservation([Diagnostics.Process]$Installer) {
               try {
-                $nodes = @(Get-CimInstance Win32_Process -Property ProcessId,ParentProcessId,Name,CreationDate)
+                $nodes = @(Get-CimInstance Win32_Process -Property ProcessId,ParentProcessId,Name,CreationDate,ExecutablePath,CommandLine)
                 $rootNode = @($nodes | Where-Object { $_.ProcessId -eq $Installer.Id })
                 if ($rootNode.Count -ne 1 -or $Installer.HasExited) { throw 'Original installer identity is no longer available' }
                 $rootTicks = $Installer.StartTime.ToUniversalTime().Ticks
@@ -253,6 +349,9 @@ jobs:
                       $ticks = $native.StartTime.ToUniversalTime().Ticks
                       $nodeTicks = $node.CreationDate.ToUniversalTime().Ticks
                       if (($ticks - ($ticks % 10)) -ne ($nodeTicks - ($nodeTicks % 10))) { continue }
+                      if ($node.Name -eq 'powershell.exe' -and $byId.ContainsKey([uint32]$node.ParentProcessId)) {
+                        Save-HistoricalUvChild $node $byId[[uint32]$node.ParentProcessId]
+                      }
                       [ordered]@{
                         pid = $node.ProcessId; parent_pid = $node.ParentProcessId
                         name = $node.Name; created_utc = $node.CreationDate.ToUniversalTime().ToString('o')
@@ -265,6 +364,7 @@ jobs:
                 if ($bootstrapPresent) { $script:bootstrapSeen = $true }
                 if ($script:bootstrapSeen -and -not $bootstrapPresent) { $script:bootstrapGone = $true }
                 $script:installerSnapshot = $snapshot
+                foreach ($row in $snapshot) { $script:installerKnownProcesses[('{0}:{1}' -f $row.pid,$row.start_ticks)] = $row }
                 $line = @{ observed_utc=[DateTime]::UtcNow.ToString('o'); processes=$snapshot } |
                   ConvertTo-Json -Depth 5 -Compress
                 $line | Add-Content -LiteralPath $observationLog -Encoding utf8
@@ -283,19 +383,28 @@ jobs:
                 }
               }
             }
+            $process = $null
             try {
               $process = Start-Process -FilePath $artifact -ArgumentList '/S' -PassThru
               $observation.pid = $process.Id
               $deadline = [DateTime]::UtcNow.AddMinutes(40)
               $earlyUntil = [DateTime]::UtcNow.AddSeconds(30)
-              $capturedAfterBootstrap = $false
               $capturedBeforeDeadline = $false
               while (-not $process.HasExited) {
                 Save-InstallerObservation $process
                 $remaining = [int][Math]::Max(0, ($deadline - [DateTime]::UtcNow).TotalMilliseconds)
-                if ($remaining -gt 15000 -and -not $capturedAfterBootstrap -and ($script:bootstrapGone -or $script:transcriptEnded)) {
+                if ($remaining -gt 15000 -and -not $script:installerFailureDialog -and ($script:bootstrapGone -or $script:transcriptEnded)) {
                   Save-InstallerWindows 'after-bootstrap' $process
-                  $capturedAfterBootstrap = $true
+                }
+                if ($script:installerFailureDialog -and $script:bootstrapGone -and $script:transcriptEnded -and
+                    @($script:installerSnapshot | Where-Object { $_.pid -ne $process.Id }).Count -eq 0) {
+                  $observation.status = 'failed'
+                  $observation.failure_dialog = $script:installerFailureDialog
+                  $observation.bootstrap_gone = $true
+                  $observation.transcript_ended = $true
+                  $observation.error = 'Exact original installer error dialog and ended bootstrap prove failure; no dialog was dismissed.'
+                  Stop-HistoricalInstaller $process
+                  throw $observation.error
                 }
                 if ($remaining -gt 0 -and $remaining -le 15000 -and -not $capturedBeforeDeadline) {
                   Save-InstallerWindows 'before-deadline' $process
@@ -316,7 +425,7 @@ jobs:
                   }
                   throw $observation.error
                 }
-                $interval = if ([DateTime]::UtcNow -lt $earlyUntil) { 1000 } else { 30000 }
+                $interval = if ([DateTime]::UtcNow -lt $earlyUntil) { 100 } else { 30000 }
                 if (-not $capturedBeforeDeadline) { $interval = [Math]::Min($interval, [Math]::Max(1, $remaining - 15000)) }
                 [void]$process.WaitForExit([Math]::Min($interval, $remaining))
               }
@@ -326,8 +435,20 @@ jobs:
             } catch {
               if ($observation.status -ne 'timed_out') { $observation.status = 'failed' }
               $observation.error = $_.Exception.Message
+              try { Stop-HistoricalInstaller $process }
+              catch { $observation.termination_error = $_.Exception.Message }
               throw
             } finally {
+              if ($script:uvChildProof) {
+                try {
+                  $script:uvChildProof.original_child_exited = $script:uvChildProcess -and $script:uvChildProcess.HasExited
+                  if ($script:uvChildProof.original_child_exited) { $script:uvChildProof.original_child_exit_code = $script:uvChildProcess.ExitCode }
+                  $script:uvChildProof.expected_uv_present_before_diagnostic = Test-Path -LiteralPath $uv
+                  $script:uvChildProof.completed_utc = [DateTime]::UtcNow.ToString('o')
+                  $script:uvChildProof | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $evidence 'original-uv-child.json') -Encoding utf8
+                } catch { Write-Warning "Cannot finalize original uv child receipt: $($_.Exception.Message)" }
+                finally { if ($script:uvChildProcess) { $script:uvChildProcess.Dispose() } }
+              }
               $observation.completed_utc = [DateTime]::UtcNow.ToString('o')
               $observation | ConvertTo-Json -Depth 5 |
                 Set-Content (Join-Path $evidence 'installer-observation.json') -Encoding utf8
@@ -350,6 +471,32 @@ jobs:
           "HISTORICAL_PYTHON=$python" >> $env:GITHUB_ENV
           "HISTORICAL_UV=$uv" >> $env:GITHUB_ENV
           "HISTORICAL_EVIDENCE=$evidence" >> $env:GITHUB_ENV
+      - name: Diagnose the original Windows uv child after preserved installer failure
+        if: ${{ failure() && runner.os == 'Windows' && steps.original_install.outcome == 'failure' }}
+        timeout-minutes: 4
+        shell: pwsh
+        env:
+          SPACR_TORCH_BACKEND: cpu
+          SPACR_NO_RELAUNCH: "1"
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $evidence = Join-Path $env:RUNNER_TEMP 'historical-upgrade-evidence'
+          $capturePath = Join-Path $evidence 'original-uv-child.json'
+          $observationPath = Join-Path $evidence 'installer-observation.json'
+          $status = [ordered]@{diagnostic_only=$true; original_acceptance_remains_failed=$true; status='not_run'}
+          try {
+            if (-not (Test-Path $capturePath) -or -not (Test-Path $observationPath)) { throw 'Original child identity or installer outcome was not captured.' }
+            $capture = Get-Content -Raw $capturePath | ConvertFrom-Json
+            $observation = Get-Content -Raw $observationPath | ConvertFrom-Json
+            if (-not $capture.available -or -not $capture.original_child_exited -or $observation.status -ne 'failed' -or -not $observation.observed_tree_exited) { throw 'Diagnostic requires a captured original child and a failed installer with observed process-tree exit.' }
+            if ((Get-FileHash -LiteralPath $capture.executable_path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $capture.engine_sha256) { throw 'Observed Windows PowerShell executable changed.' }
+            $driver = Join-Path $env:GITHUB_WORKSPACE 'tools/diagnose_historical_windows_uv.ps1'
+            $status.driver_sha256 = (Get-FileHash -LiteralPath $driver -Algorithm SHA256).Hash.ToLowerInvariant()
+            & $capture.executable_path -NoProfile -ExecutionPolicy Bypass -File $driver -CapturePath $capturePath -EvidenceDirectory (Join-Path $evidence 'uv-child-diagnostic')
+            $status.driver_exit_code = $LASTEXITCODE
+            $status.status = if ($LASTEXITCODE -eq 0) { 'captured' } else { 'diagnostic_failed' }
+          } catch { $status.reason = $_.Exception.Message }
+          finally { $status | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $evidence 'uv-diagnostic-status.json') -Encoding utf8 }
       - name: Reproduce failure, repair externally, then perform the real GUI update
         shell: pwsh
         run: |
