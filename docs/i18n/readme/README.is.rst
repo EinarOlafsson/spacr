@@ -219,6 +219,17 @@ Opinberi conda-forge-pakkinn setur spaCR og nauðsynlegar einingar skjáborðsfo
    conda install conda-forge::spacr
    spacr
 
+Uppsetning með Docker
+---------------------
+
+Keyrðu skipanalínuvinnslur spaCR í gámi með útgefnum `Docker-myndum á GHCR <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_. Settu upp `Docker <https://docs.docker.com/get-started/get-docker/>`_ og birtu síðan lista yfir tiltækar vinnslur með þessari útgefnu CPU-mynd:
+
+.. code-block:: bash
+
+   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.0 spacr-run --list
+
+Samsvarandi mynd fyrir NVIDIA-skjákort er ``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``. Báðar myndirnar eru ætlaðar fyrir Linux-gáma á x86-64. Sjá `uppsetningarleiðbeiningar fyrir Docker <../../source/installer_guide.rst#container-images>`_ um forkröfur fyrir skjákort, tengingu gagna- og líkanamappa, stillingaskrár og heildarskipanir fyrir vinnslurnar.
+
 Uppsetning frá frumkóða
 -----------------------
 

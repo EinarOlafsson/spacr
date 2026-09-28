@@ -2130,7 +2130,8 @@ def test_github_summary_has_reviewed_domain_translations():
     assert "CRISPR-skim" in joined["is"]
     # The reviewed "Try spaCR" heading was added by the
     # 2026-09-27 source-current README pass.
-    assert len(REVIEWED_README_HEADINGS) == 17
+    assert len(REVIEWED_README_HEADINGS) == 18
+    assert "Docker installation" in REVIEWED_README_HEADINGS
     assert "Try spaCR" in REVIEWED_README_HEADINGS
     for reviewed in REVIEWED_README_HEADINGS.values():
         assert set(reviewed) == {

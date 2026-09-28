@@ -219,6 +219,17 @@ spaCR 支持 Python **3.9 through 3.14**，但 Python 3.14.1 除外，torchvisio
    conda install conda-forge::spacr
    spacr
 
+使用 Docker 安装
+----------------
+
+使用已发布的 `GHCR 上的 Docker 镜像 <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_，在容器中运行 spaCR 的命令行处理流程。安装 `Docker <https://docs.docker.com/get-started/get-docker/>`_，然后使用此已发布的 CPU 镜像列出可用的处理流程：
+
+.. code-block:: bash
+
+   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.0 spacr-run --list
+
+对应的 NVIDIA GPU 镜像为 ``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``。这两种镜像均面向 Linux x86-64 容器。有关 GPU 前提条件、数据和模型挂载、设置文件及完整处理流程命令，请参阅 `Docker 安装指南 <../../source/installer_guide.rst#container-images>`_。
+
 从源代码安装
 -------------------
 

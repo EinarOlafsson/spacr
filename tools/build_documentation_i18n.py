@@ -3523,6 +3523,13 @@ REVIEWED_README_HEADINGS = {
     )
 }
 REVIEWED_README_HEADINGS.update({
+    "Docker installation": {
+        "sv": "Installation med Docker", "de": "Installation mit Docker",
+        "es": "Instalación con Docker", "zh_CN": "使用 Docker 安装",
+        "pt": "Instalação com Docker", "hi": "Docker से इंस्टॉलेशन",
+        "ko": "Docker로 설치", "is": "Uppsetning með Docker",
+        "fr": "Installation avec Docker",
+    },
     "Try spaCR": {
         "sv": "Prova spaCR", "de": "spaCR ausprobieren",
         "es": "Probar spaCR", "zh_CN": "试用 spaCR",

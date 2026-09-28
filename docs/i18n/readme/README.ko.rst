@@ -219,6 +219,17 @@ conda-forge 설치
    conda install conda-forge::spacr
    spacr
 
+Docker로 설치
+-------------
+
+게시된 `GHCR의 Docker 이미지 <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_\ 를 사용하여 컨테이너에서 spaCR의 명령줄 파이프라인을 실행합니다. `Docker <https://docs.docker.com/get-started/get-docker/>`_\ 를 설치한 다음, 게시된 이 CPU 이미지로 사용 가능한 파이프라인 목록을 확인합니다:
+
+.. code-block:: bash
+
+   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.0 spacr-run --list
+
+해당 NVIDIA GPU 이미지는 ``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``\ 입니다. 두 이미지 모두 Linux x86-64 컨테이너용입니다. GPU 사전 요구 사항, 데이터 및 모델 마운트, 설정 파일, 전체 파이프라인 명령은 `Docker 설치 가이드 <../../source/installer_guide.rst#container-images>`_\ 를 참조하세요.
+
 소스 코드에서 설치
 -------------------
 

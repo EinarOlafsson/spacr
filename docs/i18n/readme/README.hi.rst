@@ -219,6 +219,17 @@ conda-forge से इंस्टॉलेशन
    conda install conda-forge::spacr
    spacr
 
+Docker से इंस्टॉलेशन
+-------------------
+
+प्रकाशित `GHCR पर Docker इमेज <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ का उपयोग करके spaCR की कमांड-लाइन पाइपलाइन कंटेनर में चलाएँ। `Docker <https://docs.docker.com/get-started/get-docker/>`_ इंस्टॉल करें, फिर इस प्रकाशित CPU इमेज से उपलब्ध पाइपलाइन की सूची देखें:
+
+.. code-block:: bash
+
+   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.0 spacr-run --list
+
+NVIDIA GPU के लिए संबंधित इमेज ``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4`` है। दोनों इमेज Linux x86-64 कंटेनर के लिए हैं। GPU की पूर्वापेक्षाओं, डेटा और मॉडल माउंट, सेटिंग फ़ाइलों तथा पाइपलाइन के पूरे कमांड के लिए `Docker इंस्टॉलेशन गाइड <../../source/installer_guide.rst#container-images>`_ देखें।
+
 सोर्स कोड से इंस्टॉलेशन
 ---------------------
 
