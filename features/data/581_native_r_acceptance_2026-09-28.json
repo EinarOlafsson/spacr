@@ -1,0 +1,102 @@
+{
+  "schema": 1,
+  "item": 581,
+  "date": "2026-09-28",
+  "status": "DONE AS ALPHA",
+  "scope": "Deterministic20-object export through spaCR database writers, pandas/Arrow/pyreadr and native R; no real-plate or human review claim",
+  "source_base_commit": "920e86005b81d1b5b6a22d66a055f816bb37e60e",
+  "source_sha256": {
+    "spacr/anndata_export/__init__.py": "bffa96df395b745fac1844c95e1e5f6274c44451418afc98eae8ca0ede9b4c55",
+    "spacr/tabular.py": "f577d509cb73c6a19a225690ce32b285a10cd5f8f793e571eedaad94b227c11d",
+    "tests/test_r_and_parquet_export.py": "ae6e710d29607c18dcae96c8fcae4aecbb4e0a58cd8cf4e0f2e25b44197edf1f"
+  },
+  "python_checks": {
+    "result": {
+      "tests": 158,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    "passed": 158,
+    "log": "/mnt/wd4tb/scratch/spacr-completion/item581-acceptance-preparation/pytest-20260928T031825-3582644.log",
+    "junit_sha256": "9815af4debbde69476562dd0e8327f1a590e2aa8ddb54fae97c59c7dce624372",
+    "native_cases": [
+      "test_rds_data_frames_round_trip_when_pyreadr_is_installed",
+      "test_the_sourced_r_loader_resolves_its_own_directory[False]",
+      "test_the_sourced_r_loader_resolves_its_own_directory[True]",
+      "test_the_r_loader_builds_a_single_cell_experiment"
+    ]
+  },
+  "native_r": {
+    "exit": 0,
+    "receipt_directory": "/mnt/wd4tb/scratch/spacr-completion/item581-acceptance-preparation/native-acceptance-20260928T032024-3594765",
+    "checker": "features/data/581_native_r_checker_2026-09-28.R",
+    "checker_sha256": "9cc6e3782f0834b90dba0164bb91ea39f8fb0c5054358ae447acfd3b9b779b8e",
+    "native_log": "R: R version 4.5.3 (2026-03-11) \nnanoparquet 0.5.2 \nSingleCellExperiment 1.32.0 \nS4Vectors 0.48.1 \nSummarizedExperiment 1.40.0 \nWarning message:\nIn as.data.frame.DataFrame(actual, check.names = FALSE) :\n  arguments in '...' ignored\nWarning message:\nIn as.data.frame.DataFrame(actual, check.names = FALSE) :\n  arguments in '...' ignored\nNative data-frame RDS tables checked: objects, features, wells, provenance \nPASS: all assay values/NA positions, keys, colData, rowData, embedding coordinates,\n well means/counts, provenance, source default, saveRDS/readRDS and CLI SCE RDS.\n",
+    "cli_log": "Wrote /mnt/wd4tb/scratch/spacr-completion/item581-acceptance-preparation/native-acceptance-20260928T032024-3594765/cli-sce.rds with 20 objects and 16 features\n",
+    "input_hashes": "bffa96df395b745fac1844c95e1e5f6274c44451418afc98eae8ca0ede9b4c55  /mnt/wd4tb/scratch/spacr-completion/worktree/spacr/anndata_export/__init__.py\nf577d509cb73c6a19a225690ce32b285a10cd5f8f793e571eedaad94b227c11d  /mnt/wd4tb/scratch/spacr-completion/worktree/spacr/tabular.py\nae6e710d29607c18dcae96c8fcae4aecbb4e0a58cd8cf4e0f2e25b44197edf1f  /mnt/wd4tb/scratch/spacr-completion/worktree/tests/test_r_and_parquet_export.py\n9cc6e3782f0834b90dba0164bb91ea39f8fb0c5054358ae447acfd3b9b779b8e  /mnt/wd4tb/scratch/spacr-completion/item581-acceptance-preparation/check_export.R\ndf915ac4f49651a92811636ed74cb2ce1d4e235419638b9a0034a121cccafd4e  /mnt/wd4tb/scratch/spacr-completion/item581-acceptance-preparation/pytest-tmp-20260928T031825-3582644/tables_out0/embeddings.parquet\n37731e1e26ec0eca2eeb9aa40beb7fdc7e0d6eabe4b5aafcfeea6aa7c60cedc9  /mnt/wd4tb/scratch/spacr-completion/item581-acceptance-preparation/pytest-tmp-20260928T031825-3582644/tables_out0/features.parquet\n7f416c829c64db58dcd796fb9938de7f6a2e9f7fe3688126bdd75651c4e1d436  /mnt/wd4tb/scratch/spacr-completion/item581-acceptance-preparation/pytest-tmp-20260928T031825-3582644/tables_out0/objects.parquet\nb1da324c37525322202361746c546f28030b069259e10ce5fa3422792340e4f7  /mnt/wd4tb/scratch/spacr-completion/item581-acceptance-preparation/pytest-tmp-20260928T031825-3582644/tables_out0/provenance.parquet\n1b85f4579e76f515d188c799ea7a2f6c586959127ecb6833e444440786691351  /mnt/wd4tb/scratch/spacr-completion/item581-acceptance-preparation/pytest-tmp-20260928T031825-3582644/tables_out0/wells.parquet\naad2775ee8000e836364c2bab43d0076356a5c1b5330acb014675fbc60d7c8d1  /mnt/wd4tb/scratch/spacr-completion/item581-acceptance-preparation/pytest-tmp-20260928T031825-3582644/tables_out0/load_spacr_export.R\na5b9b86d68f97ef6bc283d6f74090bbc568b37f85378dfa8af69a0dc0815d409  /mnt/wd4tb/scratch/spacr-completion/item581-acceptance-preparation/pytest-tmp-20260928T031825-3582644/test_rds_data_frames_round_tricurrent/features.parquet\n177721b9a3bc7632a6992dbc143fc634b4670f1c6fa6618e488477a0eaab5570  /mnt/wd4tb/scratch/spacr-completion/item581-acceptance-preparation/pytest-tmp-20260928T031825-3582644/test_rds_data_frames_round_tricurrent/objects.parquet\n026b45963330a89208623670c16923f96734a81cd846aba92072ae23db62a75a  /mnt/wd4tb/scratch/spacr-completion/item581-acceptance-preparation/pytest-tmp-20260928T031825-3582644/test_rds_data_frames_round_tricurrent/provenance.parquet\n81c79b01a4a7ab39ab82a2c76e5be829ea7fc4c966b8ccf824232c9a4fa62dd7  /mnt/wd4tb/scratch/spacr-completion/item581-acceptance-preparation/pytest-tmp-20260928T031825-3582644/test_rds_data_frames_round_tricurrent/wells.parquet\n4968191868e4a876cc0b0ded6a01101535ab82f865e11a41cebbcbc6c92e4dc6  /mnt/wd4tb/scratch/spacr-completion/item581-acceptance-preparation/pytest-tmp-20260928T031825-3582644/test_rds_data_frames_round_tricurrent/features.rds\nbd38af39d63d60adf602a897eb7496cca9cc1f27ca2284d231c789dde653a1d7  /mnt/wd4tb/scratch/spacr-completion/item581-acceptance-preparation/pytest-tmp-20260928T031825-3582644/test_rds_data_frames_round_tricurrent/objects.rds\n8b672592927daecbeb91cc841db3d71d778032a241b5b1f2f14613c383d91ca6  /mnt/wd4tb/scratch/spacr-completion/item581-acceptance-preparation/pytest-tmp-20260928T031825-3582644/test_rds_data_frames_round_tricurrent/provenance.rds\n8def2fcc6a9072774966a3fa2e48f3ce473c9cf278b0c6b8448810aac12504cd  /mnt/wd4tb/scratch/spacr-completion/item581-acceptance-preparation/pytest-tmp-20260928T031825-3582644/test_rds_data_frames_round_tricurrent/wells.rds\n",
+    "native_saveRDS_sha256": "c7c4c630fb3cf84ab0b7a3d59cf12ca5cb57c6d822a8046be3a8b45d10e50c1d",
+    "cli_sce_rds_sha256": "c7c4c630fb3cf84ab0b7a3d59cf12ca5cb57c6d822a8046be3a8b45d10e50c1d",
+    "checks": [
+      "all assay values",
+      "all missing-value positions",
+      "object and feature keys",
+      "all annotations and feature metadata",
+      "all embedding coordinates",
+      "well means and object counts",
+      "provenance",
+      "loader default from other and nested caller directories",
+      "native saveRDS/readRDS",
+      "CLI SingleCellExperiment RDS",
+      "all four pyreadr table RDS files"
+    ]
+  },
+  "private_dependencies": {
+    "conda_packages": {
+      "r-base": {
+        "version": "4.5.3",
+        "build": "h502d0c9_3",
+        "channel": "https://conda.anaconda.org/conda-forge/linux-64"
+      },
+      "bioconductor-singlecellexperiment": {
+        "version": "1.32.0",
+        "build": "r45hdfd78af_0",
+        "channel": "https://conda.anaconda.org/bioconda/noarch"
+      },
+      "r-jsonlite": {
+        "version": "2.0.0",
+        "build": "r45h54b55ab_1",
+        "channel": "https://conda.anaconda.org/conda-forge/linux-64"
+      },
+      "r-nanoparquet": {
+        "version": "0.5.2",
+        "build": "r45hfa9885e_0",
+        "channel": "https://conda.anaconda.org/conda-forge/linux-64"
+      }
+    },
+    "package_archive_sha256_checks": 109,
+    "pyreadr_version": "0.5.6",
+    "pyreadr_download": {
+      "url": "https://files.pythonhosted.org/packages/2a/2e/458c6c8ae6a7854a0097e664f52ee322a98faa79b8f210b65bfc798b240b/pyreadr-0.5.6-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "archive_info": {
+        "hashes": {
+          "sha256": "62cb6f016aa1cf7849c268c7b01aa3e56712590dd8b4c8fe66e86a2f4de500a6"
+        },
+        "hash": "sha256=62cb6f016aa1cf7849c268c7b01aa3e56712590dd8b4c8fe66e86a2f4de500a6"
+      }
+    },
+    "shared_environments_changed": false
+  },
+  "alpha_gate": {
+    "test_file": "tests/qt/test_r_and_parquet_export_alpha_gate.py",
+    "passed": true,
+    "unchanged": true
+  },
+  "gpu_used": false,
+  "ledger_checks": {
+    "passed": 593,
+    "failed": 0,
+    "log": "/mnt/wd4tb/scratch/spacr-completion/item581-acceptance-preparation/ledger-check.log",
+    "exit": 0
+  }
+}

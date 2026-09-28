@@ -674,9 +674,6 @@ class Section(QFrame):
         :param event: the event.
         :returns: True to stop a tooltip from being shown.
         """
-        # getattr, not attribute access: Qt can deliver an event to this
-        # filter while __init__ is still building the header, and on CI
-        # that raised AttributeError inside the event loop.
         if watched is getattr(self, "_header", None):
             if event.type() == QEvent.ToolTip:
                 return True

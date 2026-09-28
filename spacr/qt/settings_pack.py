@@ -65,8 +65,6 @@ from typing import Any, Dict, List, Optional, Tuple
 
 LOG = logging.getLogger("spacr.qt.settings_pack")
 
-# Shared with ordinary GUI CSV imports; these form names remain accepted
-# legacy pipeline inputs and therefore are not globally retired settings.
 _FORM_RENAMES = {"png_dims": "png_channel_mapping"}
 
 #: Keys that MOVED, per app: ``{app_key: {old name: new name}}``.
@@ -365,8 +363,6 @@ def _defaults_for_pack_shape(defaults: Dict[str, Any], raw: Dict[str, Any],
             role = organelle_role_of(target)
             if role in allowed_roles and (
                     target in settings or primary_setting(target) in settings):
-                # An explicit current spelling wins independently of CSV order,
-                # including the primary values cloned into newly revealed slots.
                 slot_values[target] = raw[target] if target in raw else value
                 break
 
@@ -376,16 +372,11 @@ def _defaults_for_pack_shape(defaults: Dict[str, Any], raw: Dict[str, Any],
     if NUMBER_OF_ORGANELLES in raw:
         deciding[NUMBER_OF_ORGANELLES] = raw[NUMBER_OF_ORGANELLES]
     else:
-        # Infer from the incoming slots, not a default count of zero.
         settings[NUMBER_OF_ORGANELLES] = organelle_count(deciding)
 
     from ..settings import organelle_slots_beyond_the_count
 
-    # Declared slots include saved values above an explicitly lowered count;
-    # expanding their schema must not raise that active count again.
     count = len(declared_organelle_roles(deciding))
-    # Newly revealed slots inherit the pack's primary values, just as the
-    # pipeline's defaults do. Existing/supplied secondary values still win.
     settings.update(slot_values)
     return organelle_slots_beyond_the_count(settings, count)
 
@@ -398,8 +389,6 @@ def _classes_from_pack(settings: Dict[str, Any], raw: Dict[str, Any]):
             or metadata_sources.intersection(settings)):
         return None, set()
 
-    # Match the form's rename-then-compound order without importing a screen.
-    # A current spelling wins when an old and current key coexist.
     context = dict(raw)
     canonical = {}
     for key, value in raw.items():
@@ -474,7 +463,6 @@ def settings_from_pack(app_key: str, pack_dir: str, *,
             report.renamed.append((key, "classes"))
             continue
         if key == "classes" and classes is not None:
-            # An explicitly empty Classes value does not erase the migration.
             value = classes
         if key in settings:
             settings[key] = value

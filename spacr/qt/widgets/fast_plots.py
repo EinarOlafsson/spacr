@@ -1226,9 +1226,6 @@ class FastPlot(QWidget):
         layout.addLayout(self._header)
 
         self.plot = pg.PlotWidget(title=title or None)
-        # pyqtgraph's menus are parentless windows: tie them to this plot, or
-        # an embedded plot leaves them to the cycle collector. See
-        # docs/notes/spacr/qt/widgets/fast_plots.md.
         for menu in (self.plot.plotItem.ctrlMenu, self.plot.plotItem.vb.menu):
             if menu is not None:
                 self.destroyed.connect(menu.deleteLater)
@@ -7941,8 +7938,6 @@ class ControlSeparation(GroupedPlot):
             self.set_status("No controls identified.")
             return 0
 
-        # The preference meets the data here: the sizes are known now and
-        # not when the panel was built. See :meth:`GroupedPlot._settle_mark`.
         self._settle_mark(self.group_sizes())
 
         flat_keys: list = []
@@ -8126,9 +8121,6 @@ class GuideAgreementPlot(GroupedPlot):
                             "support is unknown.")
             return 0
 
-        # The preference meets the data here: the genes per guide count are
-        # known now and not when the panel was built. See
-        # :meth:`GroupedPlot._settle_mark`.
         self._settle_mark(self.group_sizes())
 
         frame = support.reset_index() if support.index.name else support

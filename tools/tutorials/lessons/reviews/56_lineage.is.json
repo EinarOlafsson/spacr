@@ -1,13 +1,14 @@
 {
   "lesson": "56_lineage",
-  "english_sha256": "7fcbf79152a032546ff9ec5c185ab283c7c8f2a495b89d073fbf60cfa0c2014d",
+  "english_sha256": "495593daa307987beb6a264dc2850109813057ef21e2a025eaf0a00bba2964ed",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review (Codex correction), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 original translation retained; Codex corrected prerequisite and scene 10 against current English.",
+    "date": "2026-09-27",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Only prerequisite and scene 10 changed; thirteen other scene narrations, title, description and objectives preserved."
   },
   "language": "is",
   "title": "Lineage: flettu í foreldrahlutum og innihaldi þeirra",
@@ -17,7 +18,7 @@
     "Velja hluti og athuga um leið sjónsvið og tegund hlutar.",
     "Opna samsvarandi úrklipp foreldrafrumu og fá allt stigveldið með Python."
   ],
-  "prerequisite": "Sæktu allt Annotate-dæmið með mælingagagnagrunni þess og samsvarandi frumuúrklippum. Gagnagrunnssafnið eitt úr Graph Builder getur ekki lagt til myndir. Þetta dæmi inniheldur aðeins frumuúrklipp: tvísmelltu á foreldrafrumu til að skoða úrklipp. Núverandi fjölskylduaðgerðin Open crops getur sett úrklipp ótengdra frumna í stað afkvæmaúrklippa sem vantar; forðastu hana með þessu dæmi.",
+  "prerequisite": "Sæktu allt Annotate-dæmið með mælingagagnagrunni þess og samsvarandi frumuúrklippum. Gagnagrunnssafnið eitt úr Graph Builder getur ekki lagt til myndir. Þetta dæmi inniheldur aðeins frumuúrklippur. Fyrir fjölskylduna sem hér er sýnd birtir Open crops aðeins samsvarandi úrklippu foreldrafrumunnar og tilkynnir að tvær afkvæmaúrklippur séu ekki tiltækar.",
   "scenes": [
     "Frá Home opnarðu Database Browser og svo Lineage. Notaðu tréð til að sjá hvaða mældir hlutir eru vistaðir innan hverrar foreldrafrumu.",
     "Flettu að measurements.db úr Annotate-dæminu og smelltu á Build tree. Breikkaðu dálkinn Object og skilrúmið til að lesa merkin. Auðkenndu hlut eftir sjónsviði og tegund jafnt sem númeri.",
@@ -29,9 +30,27 @@
     "Smelltu á dálkfyrirsögn til að raða birtu fjölskyldunum. Röðunin heldur vistuðu tengslunum og birtingarmörkunum 2.000 foreldra.",
     "Til að sjá úrklipp opnarðu fyrst Annotate og hleður inn samsvarandi dæmaverkefni. Ef þú sérð skilaboðin sem biðja um Annotate opnarðu það áður en þú biður um myndir úr Lineage.",
     "Notaðu allt niðurhalaða verkefnið, sem inniheldur frumuúrklippin. Haltu gagnagrunni og myndum úr sömu keyrslu saman svo auðkenni hluta passi.",
-    "Forðastu Open crops fyrir heila fjölskyldu í þessu dæmi. Úrklippum kjarna og sýkla sem vantar getur verið skipt út fyrir úrklipp ótengdra frumna. Farðu aftur í tréð og veldu aðeins foreldrafrumuna.",
+    "Smelltu á Open crops fyrir valda fjölskyldu. Annotate opnar aðeins samsvarandi úrklippu foreldrafrumunnar og tilkynnir að tvær afkvæmaúrklippur séu ekki tiltækar. Þetta dæmi inniheldur aðeins frumuúrklippur; úrklippur kjarnans og sýkilsins eru ekki tiltækar.",
     "Tvísmelltu á foreldrafrumuna í Lineage. Annotate opnar samsvarandi frumuúrklipp þess foreldris. Þetta er úrklippið sem er tiltækt í niðurhalaða dæminu.",
     "Smelltu með Shift á smámynd foreldrisins til að stækka forskoðunina og ýttu svo á Esc til að fara til baka. Venjulegur vinstrismellur setur merkingarflokk, svo notaðu Shift þegar þú vilt aðeins skoða.",
     "Smelltu á Build tree til að endurnýja sýnina. Fyrir allt stigveldið í Python notarðu read_object_tables, build_forest og lineage_frame og vistar töfluna sem CSV. Tengda dæma-CSV-skráin inniheldur alla 7.201 hnúta."
+  ],
+  "review_history": [
+    {
+      "english_sha256": "7fcbf79152a032546ff9ec5c185ab283c7c8f2a495b89d073fbf60cfa0c2014d",
+      "review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-25",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      },
+      "superseded_fields": {
+        "prerequisite": "Sæktu allt Annotate-dæmið með mælingagagnagrunni þess og samsvarandi frumuúrklippum. Gagnagrunnssafnið eitt úr Graph Builder getur ekki lagt til myndir. Þetta dæmi inniheldur aðeins frumuúrklipp: tvísmelltu á foreldrafrumu til að skoða úrklipp. Núverandi fjölskylduaðgerðin Open crops getur sett úrklipp ótengdra frumna í stað afkvæmaúrklippa sem vantar; forðastu hana með þessu dæmi.",
+        "scene_10": "Forðastu Open crops fyrir heila fjölskyldu í þessu dæmi. Úrklippum kjarna og sýkla sem vantar getur verið skipt út fyrir úrklipp ótengdra frumna. Farðu aftur í tréð og veldu aðeins foreldrafrumuna."
+      },
+      "reason": "9359607f4 preserves typed crop identity: this family opens one matching parent crop and reports two unavailable child crops."
+    }
   ]
 }

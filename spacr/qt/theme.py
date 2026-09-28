@@ -2782,19 +2782,6 @@ def make_transparent(*widgets) -> None:
         for target in targets:
             if target is None:
                 continue
-            # A TAG ALREADY IN FORCE GETS NO SECOND STYLE PASS (item 408).
-            # The pass is not harmless. AppScreen.changeEvent sweeps on
-            # PaletteChange, and Qt raises that from INSIDE its own polish of
-            # the screen -- the first hover on Mask is enough, because the
-            # hint timer's connection grows the screen's metaobject and Qt
-            # polishes it again. QStyleSheetStyle refuses a polish nested in
-            # another sheet style's call but lets the unpolish through, so
-            # every re-tagged widget with a sheet of its own (ConsoleSplit,
-            # the chat row, the chat input) was left with no stylesheet, and
-            # the chat viewport painted an opaque QPalette.Base until a sweep
-            # outside a polish -- Home and back. WA_StyleSheetTarget is what
-            # that unpolish clears, so a widget it did reach is not skipped
-            # here and still heals at the next sweep.
             if (target.property(TRANSPARENT_PROPERTY) is True
                     and target.testAttribute(Qt.WA_StyleSheetTarget)):
                 continue
@@ -5979,8 +5966,6 @@ class _CloseMarkWatcher(QObject):
             setup covers only the tabs open at the time.
         """
         super().__init__(bar)
-        # WEAK: the bar owns this watcher, so a strong reference is a cycle
-        # only the collector frees; see docs/notes/spacr/qt/theme.md.
         self._bar = weakref.ref(bar)
         self._tooltip = tooltip
         self._pending = False

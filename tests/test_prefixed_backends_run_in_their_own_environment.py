@@ -33,6 +33,7 @@ from spacr import model_zoo as zoo
 from spacr.spacr_cellpose import parse_cellpose4_output
 import tests.test_object_tstack_wiring as _wiring
 from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
+from tests.cellpose_api_contract import eval_arguments
 
 _base_settings = _wiring._base_settings
 _write_npz = _wiring._write_npz
@@ -639,10 +640,22 @@ class _FakeOmniModel:
         self.calls = []
         type(self).built.append(self)
 
-    def eval(self, x, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+    def eval(self, x, batch_size=8, indices=None, channels=None,
+             channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+             invert=False, rescale=None, diameter=None, do_3D=False,
+             anisotropy=None, net_avg=True, augment=False, tile=False,
+             tile_overlap=0.1, bsize=224, num_workers=8, loader_batch_size=1,
+             resample=True, interp=True, cluster=False, hdbscan=False,
+             suppress=None, boundary_seg=False, affinity_seg=False,
+             despur=False, flow_threshold=0.4, mask_threshold=0.0,
+             diam_threshold=12.0, niter=None, cellprob_threshold=None,
+             dist_threshold=None, flow_factor=5.0, compute_masks=True,
+             min_size=15, max_size=None, stitch_threshold=0.0, progress=None,
+             show_progress=True, omni=False, calc_trace=False, verbose=False,
+             transparency=False, loop_run=False, model_loaded=False,
+             hysteresis=True):
+        kwargs = eval_arguments(locals())
         check_cellpose_eval_call(x, channel_axis, require_channel_axis=False)
-        if channel_axis is not MISSING_CHANNEL_AXIS:
-            kwargs["channel_axis"] = channel_axis
         self.calls.append(dict(kwargs, shape=np.shape(x)))
         h, w = np.shape(x)[:2]
         return (_known_labels((h, w)),

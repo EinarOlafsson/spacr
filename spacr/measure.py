@@ -121,7 +121,7 @@ from .intensity_rescale import (
     resolve_record as _resolve_intensity_rescale_record,
 )
 
-from .figures.style import figure_style, theme_target
+from .figures.style import _figure_axes, figure_style, theme_target, resolve_ink
 
 
 
@@ -3066,6 +3066,159 @@ def _promote_merged_to_uint16(data, settings, *, rescale_factor=None):
     return out, factor
 
 
+_CALIBRATION_IDENTITY_KEY = '_intensity_calibration_identity'
+
+
+def _calibration_reference_hashes(settings, files):
+    """Bind reference field names to their bytes, independently of timestamps.
+
+    :param settings: Measurement settings containing the source, reference wells
+        and optional timelapse mode.
+    :param files: Available merged-array basenames after quality exclusions.
+    :returns: Reference basenames mapped to SHA-256 content digests.
+    """
+    import hashlib
+    from . import schema
+    from .intensity_rescale import _calibration_wells
+
+    wells = _calibration_wells(settings)
+    references = {}
+    for filename in sorted(set(files)):
+        field = schema.parse_field_stem(
+            filename, timelapse=bool(settings.get('timelapse', False)))
+        if (field.rowID, field.columnID) not in wells:
+            continue
+        digest = hashlib.sha256()
+        with open(os.path.join(settings['src'], filename), 'rb') as stream:
+            for chunk in iter(lambda: stream.read(1 << 20), b''):
+                digest.update(chunk)
+        references[filename] = digest.hexdigest()
+    return references
+
+
+def _prepare_measurement_calibration(settings, files):
+    """Resolve calibration before resume or any measurement database write.
+
+    :param settings: Measurement settings updated with the resolved content
+        identity, or None when calibration is disabled; stale gains are removed.
+    :param files: Available merged-array basenames after quality exclusions.
+    :returns: The full rescale plan and calibrated gains with reference hashes,
+        or ``(None, None)`` when calibration is disabled.
+    """
+    import hashlib
+
+    settings.pop(CALIBRATION_SETTINGS_KEY, None)
+    settings[_CALIBRATION_IDENTITY_KEY] = None
+    if not settings.get('intensity_calibration'):
+        return None, None
+    references = _calibration_reference_hashes(settings, files)
+    full_plan = build_plate_plan(settings['src'], files, settings)
+    resolved = dict(settings)
+    resolved[PLAN_SETTINGS_KEY] = {
+        key: full_plan[key] for key in ('version', 'plates', 'failures')}
+    calibration = _build_intensity_calibration_plan(
+        settings['src'], files, resolved)
+    if _calibration_reference_hashes(settings, files) != references:
+        raise ValueError('Intensity calibration reference files changed while '
+                         'planning. Nothing was measured; retry after acquisition stops.')
+    calibration['reference_files'] = references
+    identity = hashlib.sha256(json.dumps(
+        calibration, sort_keys=True, separators=(',', ':'),
+        allow_nan=False).encode('utf-8')).hexdigest()
+    settings[_CALIBRATION_IDENTITY_KEY] = identity
+    calibration['identity'] = identity
+    return full_plan, calibration
+
+
+def _validate_measurement_calibration_history(settings, db_path):
+    """Refuse incompatible or unproven calibration without mutating SQLite.
+
+    Retained measured rows must have matching content-bound provenance. Legacy
+    uncalibrated rows remain compatible with disabled calibration; legacy
+    calibrated rows cannot prove which reference bytes produced their gains.
+
+    :param settings: Measurement settings with the resolved calibration identity.
+    :param db_path: Existing measurement database path, if any.
+    :returns: None when retained measurements are compatible or absent.
+    :raises ValueError: Existing measurements have incompatible or unverified
+        calibration or lack the required per-field provenance.
+    """
+    if not os.path.isfile(db_path):
+        return
+    from .database_concurrency import connect
+    from .resume import MEASURE_OWNED_TABLES, measure_rows_clause, read_recorded_settings
+
+    identity = settings.get(_CALIBRATION_IDENTITY_KEY)
+    message = ('Existing measurements have a different or unverified intensity '
+               'calibration/reference content. Restore the recorded references '
+               'and calibration, or use a clean separate output project. '
+               'No existing measurement rows were changed.')
+    connection = connect(db_path, readonly=True)
+    try:
+        tables = {row[0] for row in connection.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'")}
+        occupied = {}
+        for table in tables & (MEASURE_OWNED_TABLES - {'png_list', 'intensity_rescale'}):
+            clause = measure_rows_clause(connection, table) or '1'
+            if connection.execute(f'SELECT 1 FROM "{table}" WHERE {clause} LIMIT 1').fetchone():
+                occupied[table] = clause
+        if not occupied:
+            return
+        recorded = read_recorded_settings(db_path)
+        previous = recorded.get(_CALIBRATION_IDENTITY_KEY)
+        if previous in ('None', '', 'null'):
+            previous = None
+        if previous is not None and previous != identity:
+            raise ValueError(message)
+        if (identity is None and str(recorded.get('intensity_calibration', '')).lower()
+                in {'true', '1', 'yes', 'on'}):
+            raise ValueError(message)
+        columns = {row[1] for row in connection.execute(
+            'PRAGMA table_info(intensity_rescale)')}
+        if 'intensity_calibration' not in columns:
+            if identity is not None:
+                raise ValueError(message)
+            return
+        for (text,) in connection.execute(
+                'SELECT DISTINCT intensity_calibration FROM intensity_rescale'):
+            if text is None:
+                if identity is not None:
+                    raise ValueError(message)
+                continue
+            try:
+                record = json.loads(text)
+            except (ValueError, TypeError) as error:
+                raise ValueError(message) from error
+            if (identity is None or not isinstance(record, dict)
+                    or record.get('identity') != identity):
+                raise ValueError(message)
+        if identity is None:
+            return
+        keys = ('plateID', 'rowID', 'columnID', 'fieldID')
+        if not set(keys) <= columns:
+            raise ValueError(message)
+        for table, clause in occupied.items():
+            field_columns = {row[1] for row in connection.execute(
+                f'PRAGMA table_info("{table}")')}
+            if not set(keys) <= field_columns:
+                raise ValueError(message)
+            matches = [f'CAST(p."{key}" AS TEXT) = CAST(measured."{key}" AS TEXT)'
+                       for key in keys]
+            if 'timeID' in field_columns:
+                if 'timeID' not in columns:
+                    raise ValueError(message)
+                matches.append('COALESCE(CAST(p.timeID AS TEXT), \'\') = '
+                               'COALESCE(CAST(measured.timeID AS TEXT), \'\')')
+            missing = connection.execute(
+                f'SELECT 1 FROM "{table}" AS measured WHERE ({clause}) AND NOT EXISTS '
+                '(SELECT 1 FROM intensity_rescale AS p WHERE ' + ' AND '.join(matches)
+                + ' AND p.intensity_calibration IS NOT NULL) LIMIT 1').fetchone()
+            if missing:
+                raise ValueError(message)
+    finally:
+        connection.close()
+
+
 def _write_intensity_rescale_record(source_folder, file_name, settings,
                                     record, psf_record=None):
     """Upsert base rescaling and subsequent PSF provenance for one field.
@@ -3073,8 +3226,17 @@ def _write_intensity_rescale_record(source_folder, file_name, settings,
     ``target_dtype`` describes the standard rescaling stage. The separate PSF
     provenance records the final float dtype, kernel and quantitative source.
     ``intensity_calibration`` holds the cross-plate calibration applied to the
-    field (gains, reference plate, statistic and offset) as JSON, or NULL.
+    field (gains, reference plate, statistic, offset and content identity) as
+    JSON, or NULL. Reference hashes bind the resolved plan to its actual inputs.
     Older tables gain nullable signature/details and an original-source default.
+
+    :param source_folder: Project root containing the measurements directory.
+    :param file_name: Merged field stem without the ``.npy`` suffix.
+    :param settings: Measurement settings containing resolved calibration and
+        optional PSF identities.
+    :param record: Rescaling provenance and any applied per-field calibration.
+    :param psf_record: Optional subsequent PSF processing provenance.
+    :returns: None after the field's provenance is saved.
     """
     from . import schema
     from .database_concurrency import connect, transaction
@@ -3098,7 +3260,11 @@ def _write_intensity_rescale_record(source_folder, file_name, settings,
         'psf_signature': settings.get('_psf_measurement_signature'),
         'psf_provenance': json.dumps(psf_record, sort_keys=True, allow_nan=False),
         'intensity_calibration': (
-            json.dumps(record['intensity_calibration'], sort_keys=True,
+            json.dumps({**record['intensity_calibration'],
+                        'identity': settings.get(_CALIBRATION_IDENTITY_KEY),
+                        'reference_files': settings.get(
+                            CALIBRATION_SETTINGS_KEY, {}).get('reference_files', {})},
+                       sort_keys=True,
                        allow_nan=False)
             if record.get('intensity_calibration') else None),
     }
@@ -4450,11 +4616,13 @@ def _field_split(groups, fraction=0.2, seed=0):
 
 
 def _phases_by_xgboost(features, labels, groups, *, seed=0, n_jobs=1):
-    """Cell-cycle phase of every nucleus from a gradient-boosted classifier.
+    """Cell-cycle phase of every nucleus from a CPU gradient-boosted classifier.
 
     Trained on the labelled nuclei and applied to all of them. Whole fields
     are first held out to score the classifier on nuclei it never saw; the
     model that calls every nucleus is then refitted on all the labels.
+    Scores are calculated on the held-out fields below; fitting does not
+    request XGBoost's separate per-iteration training metrics.
 
     :param features: the frame from :func:`_phase_features`.
     :param labels: phase or None per row.
@@ -4485,7 +4653,8 @@ def _phases_by_xgboost(features, labels, groups, *, seed=0, n_jobs=1):
         return XGBClassifier(
             n_estimators=300, max_depth=4, learning_rate=0.1,
             subsample=0.9, colsample_bytree=0.8, tree_method='hist',
-            random_state=seed, n_jobs=n_jobs, eval_metric='mlogloss')
+            random_state=seed, n_jobs=n_jobs, device='cpu',
+            disable_default_eval_metric=True)
 
     report = {'classes': classes,
               'counts': {p: int((labels == p).sum()) for p in classes}}
@@ -4919,15 +5088,16 @@ def _dna_histogram_figure(dna_c, fit, title, phases=None):
     upper = max(6.0, float(np.percentile(values, 99.5)) if values.size else 6)
     grid = np.linspace(0, upper, 600)
     dens = fit.densities(grid * fit.g1 / 2.0) * fit.g1 / 2.0
-    with figure_style(theme_target()):
-        fig, ax = plt.subplots(figsize=(7, 4))
+    with _figure_axes(figsize=(7, 4)) as (fig, ax):
         ax.hist(values, bins=120, range=(0, upper), density=True,
                 color='0.7', label='nuclei')
         for column, name in enumerate(('G1', 'S', 'G2')):
             ax.plot(grid, dens[:, column], label=f'{name} fit')
-        ax.plot(grid, dens.sum(axis=1), color='k', lw=1, label='model')
+        ax.plot(grid, dens.sum(axis=1), color=resolve_ink(theme_target()),
+                lw=1, label='model')
         for gate in fit.gates:
-            ax.axvline(float(fit.c_value(gate)), color='k', ls='--', lw=1)
+            ax.axvline(float(fit.c_value(gate)),
+                       color=resolve_ink(theme_target()), ls='--', lw=1)
         ax.set_xlabel('DNA content (C, G1 peak = 2)')
         ax.set_ylabel('density')
         if phases is not None:
@@ -5283,6 +5453,7 @@ def _wound_axis(wound, margin):
     centres = np.arange(first, last + 1) + 0.5
 
     def inside(offset):
+        """Mark axis samples inside the image at the given normal offset."""
         py = cy + centres * dy + offset * ny
         px = cx + centres * dx + offset * nx
         return ((py >= -0.5) & (py <= height - 0.5)
@@ -5801,9 +5972,8 @@ def _wound_edge_figure(title, panels):
     :param panels: ``[(label, plane, wound)]``.
     :returns: the figure.
     """
-    with figure_style(theme_target()):
-        fig, axes = plt.subplots(1, len(panels),
-                                 figsize=(4 * len(panels), 4), squeeze=False)
+    with _figure_axes(1, len(panels), figsize=(4 * len(panels), 4),
+                      squeeze=False) as (fig, axes):
         for ax, (label, plane, wound) in zip(axes[0], panels):
             ax.imshow(_wound_overlay(plane, wound))
             ax.set_title(label)
@@ -5819,8 +5989,7 @@ def _wound_curve_figure(condition_curves, well_curves):
     :param well_curves: per-well curves, drawn faintly behind their mean.
     :returns: the figure.
     """
-    with figure_style(theme_target()):
-        fig, ax = plt.subplots(figsize=(7, 5))
+    with _figure_axes(figsize=(7, 5)) as (fig, ax):
         colours = plt.rcParams['axes.prop_cycle'].by_key().get(
             'color', ['C0'])
         for number, (condition, block) in enumerate(
@@ -5854,9 +6023,8 @@ def _wound_half_closure_figure(summary):
     :returns: the figure.
     """
     use = summary[summary['wound_ok'] == 1]
-    with figure_style(theme_target()):
-        fig, ax = plt.subplots(
-            figsize=(max(4, 1.2 * use['condition'].nunique() + 2), 5))
+    with _figure_axes(
+            figsize=(max(4, 1.2 * use['condition'].nunique() + 2), 5)) as (fig, ax):
         names = sorted(use['condition'].unique())
         for position, condition in enumerate(names):
             values = use.loc[use['condition'] == condition,
@@ -5867,7 +6035,7 @@ def _wound_half_closure_figure(summary):
                       if len(values) > 1 else np.zeros(1))
             ax.scatter(position + jitter, values, s=24, zorder=3)
             ax.hlines(values.mean(), position - 0.25, position + 0.25,
-                      linewidth=2, color='black')
+                      linewidth=2, color=resolve_ink(theme_target()))
         ax.set_xticks(range(len(names)))
         ax.set_xticklabels(names, rotation=45, ha='right')
         unit = use['time_unit'].iloc[0] if len(use) else 'frame'
@@ -5892,9 +6060,8 @@ def _wound_plate_figure(summary, plate):
     layout = plate_layout(wells[['plateID', 'rowID', 'columnID', 'value']],
                           'value', plate=plate)
     grid = layout_matrix(layout)
-    with figure_style(theme_target()):
-        fig, ax = plt.subplots(figsize=(max(5, 0.45 * grid.shape[1] + 2),
-                                        max(3.5, 0.45 * grid.shape[0] + 1.5)))
+    with _figure_axes(figsize=(max(5, 0.45 * grid.shape[1] + 2),
+                              max(3.5, 0.45 * grid.shape[0] + 1.5))) as (fig, ax):
         image = ax.imshow(np.ma.masked_invalid(grid.to_numpy(dtype=float)),
                           cmap='viridis')
         ax.set_xticks(range(grid.shape[1]))
@@ -5953,6 +6120,7 @@ def _wound_closure_tables(merged_dir, settings, figures=None):
                  for time_id, _path, _stem in items]
 
         def planes(items=items):
+            """Yield this field's wound-analysis planes in time order."""
             for _time_id, path, _stem in items:
                 yield _wound_plane(np.load(path, mmap_mode='r'), settings)
 
@@ -6837,10 +7005,9 @@ def _viability_threshold_figure(table, cuts, name, label):
     :returns: the figure.
     """
     stains = [s for s in ('dead', 'live') if name in cuts.get(s, {})]
-    with figure_style(theme_target()):
-        panels = len(stains) + (1 if len(stains) == 2 else 0)
-        fig, axes = plt.subplots(1, max(panels, 1),
-                                 figsize=(4.2 * max(panels, 1), 3.6))
+    panels = len(stains) + (1 if len(stains) == 2 else 0)
+    with _figure_axes(1, max(panels, 1),
+                      figsize=(4.2 * max(panels, 1), 3.6)) as (fig, axes):
         axes = np.atleast_1d(axes)
         plate = table
         key = name if isinstance(name, tuple) else (name,)
@@ -6864,7 +7031,7 @@ def _viability_threshold_figure(table, cuts, name, label):
                 line = float(np.arcsinh(cut.threshold / scale))
                 ax.set_xlabel(f'{stain} stain, arcsinh(intensity / {scale:.3g})')
             ax.hist(shown, bins=80, color='0.6')
-            ax.axvline(line, color='k', ls='--', lw=1)
+            ax.axvline(line, color=resolve_ink(theme_target()), ls='--', lw=1)
             ax.set_ylabel('objects')
             ax.set_title(f'{stain}: cut {cut.threshold:.4g} ({cut.source}), '
                          f'{cut.positive_fraction:.0%} above', fontsize=9)
@@ -6881,9 +7048,9 @@ def _viability_threshold_figure(table, cuts, name, label):
                                np.arcsinh(dead[pick] / d_scale), s=4,
                                label=f'{state} ({int(pick.sum())})')
             ax.axvline(np.arcsinh(cuts['live'][name].threshold / l_scale),
-                       color='k', ls='--', lw=1)
+                       color=resolve_ink(theme_target()), ls='--', lw=1)
             ax.axhline(np.arcsinh(cuts['dead'][name].threshold / d_scale),
-                       color='k', ls='--', lw=1)
+                       color=resolve_ink(theme_target()), ls='--', lw=1)
             ax.set_xlabel('live stain (arcsinh)')
             ax.set_ylabel('dead stain (arcsinh)')
             ax.legend(frameon=False, fontsize=7)
@@ -6900,9 +7067,8 @@ def _viability_controls_figure(wells, qc):
     :returns: the figure.
     """
     plates = list(dict.fromkeys(wells['plate_key']))
-    with figure_style(theme_target()):
-        fig, axes = plt.subplots(len(plates), 2,
-                                 figsize=(8, 3.2 * len(plates)), squeeze=False)
+    with _figure_axes(len(plates), 2, figsize=(8, 3.2 * len(plates)),
+                      squeeze=False) as (fig, axes):
         rng = np.random.default_rng(0)
         for row, plate in enumerate(plates):
             block = wells[wells['plate_key'] == plate]
@@ -6934,11 +7100,9 @@ def _viability_dose_figure(fits):
     if not compounds:
         return None
     readouts = list(fits)
-    with figure_style(theme_target()):
-        fig, axes = plt.subplots(len(compounds), len(readouts),
-                                 figsize=(3.6 * len(readouts),
-                                          3.0 * len(compounds)),
-                                 squeeze=False)
+    with _figure_axes(len(compounds), len(readouts),
+                      figsize=(3.6 * len(readouts), 3.0 * len(compounds)),
+                      squeeze=False) as (fig, axes):
         for i, compound in enumerate(compounds):
             for j, readout in enumerate(readouts):
                 ax = axes[i, j]
@@ -6953,10 +7117,10 @@ def _viability_dose_figure(fits):
                 result = group.result
                 ax.scatter(result.dose, result.response, s=10)
                 x, y = result.curve()
-                ax.plot(x, y, color='k', lw=1)
+                ax.plot(x, y, color=resolve_ink(theme_target()), lw=1)
                 ec50 = result.ec50
                 if ec50 is not None:
-                    ax.axvline(ec50, color='k', ls=':', lw=1)
+                    ax.axvline(ec50, color=resolve_ink(theme_target()), ls=':', lw=1)
                     ax.set_title(f'{compound}: {readout}, EC50 {ec50:.3g}',
                                  fontsize=9)
         fig.tight_layout()
@@ -7919,7 +8083,15 @@ def measure_crop(settings):
 
                 from .database_concurrency import enable_wal_where_safe
                 _measurements_dir = os.path.join(
-                    os.path.dirname(src_fldr), 'measurements')
+                    os.path.dirname(settings['src']), 'measurements')
+                files = [f for f in _listdir_visible(settings['src']) if f.endswith('.npy')]
+                from .image_quality import excluded_fields, ensure_no_retained_measurements
+                rejected_quality = excluded_fields(os.path.dirname(settings['src']))
+                ensure_no_retained_measurements(os.path.dirname(settings['src']), rejected_quality)
+                files = [name for name in files if name not in rejected_quality]
+                _full_rescale_plan, calibration = _prepare_measurement_calibration(settings, files)
+                _validate_measurement_calibration_history(
+                    settings, os.path.join(_measurements_dir, 'measurements.db'))
                 os.makedirs(_measurements_dir, exist_ok=True)
                 enable_wal_where_safe(
                     os.path.join(_measurements_dir, 'measurements.db'))
@@ -8012,13 +8184,9 @@ def measure_crop(settings):
 
                 _save_settings_to_db(settings)
 
-                files = [f for f in _listdir_visible(settings['src']) if f.endswith('.npy')]
-                from .image_quality import excluded_fields, ensure_no_retained_measurements
-                rejected_quality = excluded_fields(os.path.dirname(settings['src']))
-                ensure_no_retained_measurements(os.path.dirname(settings['src']), rejected_quality)
-                files = [name for name in files if name not in rejected_quality]
-                _full_rescale_plan = build_plate_plan(
-                    settings['src'], files, settings)
+                if _full_rescale_plan is None:
+                    _full_rescale_plan = build_plate_plan(
+                        settings['src'], files, settings)
                 settings[PLAN_SETTINGS_KEY] = {
                     'version': _full_rescale_plan['version'],
                     'plates': _full_rescale_plan['plates'],
@@ -8032,10 +8200,7 @@ def measure_crop(settings):
                         f"can be loaded by its worker, it will use a per-field "
                         f"fallback and measurements.db:intensity_rescale will "
                         f"mark it non-comparable.")
-                settings.pop(CALIBRATION_SETTINGS_KEY, None)
-                if settings.get('intensity_calibration'):
-                    calibration = _build_intensity_calibration_plan(
-                        settings['src'], files, settings)
+                if calibration is not None:
                     settings[CALIBRATION_SETTINGS_KEY] = calibration
                     print(f"Intensity calibration against plate "
                           f"{calibration['reference_plate']}: " + '; '.join(
@@ -8329,7 +8494,7 @@ def _cellprofiler_export(merged_folder, settings, dest):
     :param dest: the folder the TIFFs go in.
     :returns: the written paths.
     """
-    import tifffile
+    from .tiff_io import write_tiff
 
     written = []
     for name in sorted(os.listdir(merged_folder)):
@@ -8346,12 +8511,12 @@ def _cellprofiler_export(merged_folder, settings, dest):
             if plane in labels:
                 continue
             path = os.path.join(dest, f'{stem}_ch{channel}.tif')
-            tifffile.imwrite(path, np.ascontiguousarray(data[..., plane]))
+            write_tiff(path, np.ascontiguousarray(data[..., plane]))
             written.append(path)
             channel += 1
         for role, plane in roles.items():
             path = os.path.join(dest, f'{stem}_{role}_mask.tif')
-            tifffile.imwrite(path, np.ascontiguousarray(
+            write_tiff(path, np.ascontiguousarray(
                 data[..., plane]).astype(np.uint16))
             written.append(path)
     return written

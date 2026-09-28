@@ -28,6 +28,8 @@ from scipy import ndimage
 from spacr.qt import mask_engine as engine
 from spacr.utils import fill_holes_in_mask
 from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
+from tests.cellpose_api_contract import (
+    assert_declares_installed_eval_signature, eval_arguments)
 
 ZIP = os.path.join(os.path.dirname(__file__), os.pardir, "docs", "source", "_extra",
                    "tutorials", "examples", "Cellpose_training_images_masks.zip")
@@ -164,10 +166,17 @@ class _RecordingModel:
     def __init__(self, *args, **kwargs):
         self.pretrained_model = kwargs.get("pretrained_model")
 
-    def eval(self, x, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+    def eval(self, x, batch_size=8, resample=True, channels=None,
+             channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+             rescale=None, diameter=None, flow_threshold=0.4,
+             cellprob_threshold=0.0, do_3D=False, anisotropy=None,
+             flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
+             max_size_fraction=0.4, niter=None, augment=False,
+             tile_overlap=0.1, bsize=None, compute_masks=True, progress=None):
+        kwargs = eval_arguments(locals())
         check_cellpose_eval_call(x, channel_axis)
         _RecordingModel.calls.append(
-            (np.array(x, copy=True), dict(kwargs, channel_axis=channel_axis)))
+            (np.array(x, copy=True), kwargs))
         mask = np.zeros(np.asarray(x).shape[:2], np.uint16)
         mask[2:10, 2:10] = 1
         mask[2:10, 10:18] = 2
@@ -183,6 +192,7 @@ def test_apply_hands_cellpose_the_preview_input_and_keeps_touching_ids(
         tmp_path, monkeypatch, extra, normalised_by_cellpose):
     from spacr import spacr_cellpose
 
+    assert_declares_installed_eval_signature(_RecordingModel.eval)
     monkeypatch.setattr(spacr_cellpose.cp_models, "CellposeModel", _RecordingModel)
     monkeypatch.setattr("spacr.accelerator.cellpose_gpu", lambda: False)
     _RecordingModel.calls = []

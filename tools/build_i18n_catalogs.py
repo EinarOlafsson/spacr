@@ -278,12 +278,13 @@ _IDENTITY_TEXT = {
     "NaN", "PDF", "SAMCell", "Cellpose 3", "SpotNet (DeepCell)",
     # 316, 2026-09-26: the Model Zoo's backend names (items 547/555), shown
     # alone as zoo rows; like DINOCell and SAMCell they are product names.
-    "InstanSeg", "Omnipose", "StarDist", "micro-SAM",
+    "InstanSeg", "Omnipose", "StarDist", "micro-SAM", "Spotiflow",
     # 316, 2026-09-26: the notification services named alone as Preferences
     # rows (item 577).
-    "ntfy", "Slack",
+    "ntfy", "Slack", "Microsoft Teams",
     # 316, 2026-09-27: backend and workflow-engine names shown alone.
     "CellProfiler", "CellProfiler (Alpha)", "Nextflow…", "Snakemake…",
+    "Visium", "Visium HD", "Xenium",
     "PNG", "QC", "RGB",
     "RNA", "ROI", "SAM", "SHAP", "SQL", "TIFF", "UMAP", "ViT", "X",
     "XGBoost", "Y",
@@ -3462,10 +3463,16 @@ _HELPER_CAPTION_RULES: dict[
         ("help_search.py", ((3, "text"),)),
     ("preferences.py", "_percent_row"):
         ("preferences.py", ((1, "label_text"), (5, "tip"))),
+    ("preferences.py", "line"):
+        ("preferences.py", ((0, "tip"),)),
     ("prerun.py", "_label"): ("prerun.py", ((0, "text"),)),
     ("prerun.py", "_say"): ("prerun.py", ((0, "text"),)),
     ("screens/annotate.py", "_set_kbd_hint"):
         ("screens/annotate.py", ((0, "text"),)),
+    ("screens/annotate.py", "_set_page_label"):
+        ("screens/annotate.py", ((0, "text"),)),
+    ("screens/control_chart.py", "combo"):
+        ("screens/control_chart.py", ((2, "tip"),)),
     # Writes to the console, which the language pass does not translate.
     ("screens/app_screen.py", "_say"):
         ("screens/app_screen.py", ((0, "message"),)),
@@ -3497,6 +3504,8 @@ _HELPER_CAPTION_RULES: dict[
         ("screens/make_masks.py", ((0, "text"),)),
     ("screens/map_barcodes.py", "_button"):
         ("screens/map_barcodes.py", ((0, "caption"), (1, "hint"))),
+    ("screens/map_barcodes.py", "_path_row"):
+        ("screens/map_barcodes.py", ((1, "caption"), (2, "hint"))),
     ("screens/methods_export.py", "_set_provenance"):
         ("screens/methods_export.py", ((0, "text"),)),
     ("screens/organism_screen.py", "_paragraph"):
@@ -3808,8 +3817,44 @@ def _indirect_runtime_ui_sources() -> set[str]:
     from spacr.qt.widgets.test_data_chooser import TestDataChooser
     from spacr.qt.import_demo import ImportTestDataChooser
     from spacr.import_examples import IMPORT_VARIANTS
+    from spacr.embeddings import _FOUNDATION_MODELS
+    from spacr.qt.screens.map_barcodes import _SPATIAL_MASKS
 
     found: set[str] = set(PREFERENCE_TIPS)
+    presentation_sources = {info["label"] for info in _FOUNDATION_MODELS.values()}
+    presentation_sources.update(label for _key, label in _SPATIAL_MASKS)
+    spatial_tree = ast.parse(
+        (ROOT / "spacr/qt/screens/map_barcodes.py").read_text(encoding="utf-8")
+    )
+    for owner in spatial_tree.body:
+        if isinstance(owner, ast.FunctionDef) and owner.name == "_install_spatial_transcriptomics":
+            for node in ast.walk(owner):
+                if (isinstance(node, ast.Assign) and len(node.targets) == 1
+                        and isinstance(node.targets[0], ast.Name)
+                        and node.targets[0].id == "hint"):
+                    presentation_sources.update(_literal_strings(node.value, {}))
+        if isinstance(owner, ast.ClassDef) and owner.name == "_SpatialTranscriptomicsPanel":
+            for node in ast.walk(owner):
+                if (isinstance(node, ast.For) and isinstance(node.target, ast.Tuple)
+                        and [getattr(part, "id", None) for part in node.target.elts]
+                        == ["value", "caption"] and isinstance(node.iter, ast.Tuple)):
+                    for option in node.iter.elts:
+                        if isinstance(option, ast.Tuple) and len(option.elts) == 2:
+                            presentation_sources.update(_literal_strings(option.elts[1], {}))
+    cloud_tree = ast.parse(
+        (ROOT / "spacr/qt/screens/settings_model.py").read_text(encoding="utf-8")
+    )
+    for owner in cloud_tree.body:
+        if isinstance(owner, ast.ClassDef) and owner.name == "_CloudBrowserDialog":
+            for node in ast.walk(owner):
+                if (isinstance(node, ast.Call) and _call_name(node) == "setPlaceholderText"
+                        and isinstance(node.func, ast.Attribute)
+                        and isinstance(node.func.value, ast.Attribute)
+                        and node.func.value.attr == "address"):
+                    for argument in node.args:
+                        if isinstance(argument, ast.Call) and _call_name(argument) == "tr":
+                            for value in argument.args:
+                                presentation_sources.update(_literal_strings(value, {}))
     found.update(_starplast_progress_sources())
     found.update(_organism_description_sources())
     found.update(_make_masks_shortcut_sources())
@@ -3925,8 +3970,8 @@ def _indirect_runtime_ui_sources() -> set[str]:
     # These registry values are known presentation prose. A filename, URL or
     # example regex inside an explanation must not make the AST heuristic
     # discard the whole paragraph.
-    return {value.strip() for value in chooser_sources | preview_sources | _workflow_ui_sources()
-            if value.strip()} | {
+    return {value.strip() for value in chooser_sources | preview_sources | _workflow_ui_sources() | presentation_sources
+            if value.strip() and value not in _IDENTITY_TEXT} | {
         value.strip() for value in found if _looks_translatable(value)
     }
 
@@ -4989,6 +5034,18 @@ def _contextualize(value: str, language: str, source: str = "") -> str:
         context_literals[token] = match.group(0)
         return token
 
+    # Preserve verbatim citation titles and copyright notices copied from
+    # the English source. Lexical cleanup must not rewrite quoted attribution.
+    attribution_literals = re.findall(r"\(Copyright \d{4}[^()\n]*\)", str(source))
+    if re.search(r"\bdoi:\s*10\.\d{4,9}/", str(source), re.IGNORECASE):
+        attribution_literals.extend(
+            match.group(0) for match in re.finditer(
+                r"(?<!\w)(['\"])[^'\"\n]+\s[^'\"\n]+\1", str(source)
+            )
+        )
+    for literal in attribution_literals:
+        corrected = re.sub(re.escape(literal), hide_context_literal, corrected)
+
     corrected = _CONTEXT_HARD_PROTECT_RE.sub(
         hide_context_literal, corrected,
     )
@@ -5080,13 +5137,17 @@ def _contextualize(value: str, language: str, source: str = "") -> str:
         SOURCE_CONTEXT_REGEX_REPLACEMENTS.get(language, ())
     ):
         if re.search(source_pattern, str(source), flags=re.IGNORECASE):
+            if language == "pt" and wrong_pattern == r"\bpoço (abaixo|acima|além|dentro|fora)\b":
+                total_well, noun_well = _english_well_sense_counts(source)
+                if total_well == noun_well:
+                    continue
             corrected = re.sub(wrong_pattern, right, corrected)
     # A source-conditioned replacement can expose a second global cleanup
     # (for example Chinese ``图像作物`` first becomes ``图像图像裁剪``).
     # Reapplying this small, idempotent table keeps compound terms natural.
     for wrong, right in CONTEXT_REPLACEMENTS.get(language, ()):
         corrected = corrected.replace(wrong, right)
-    for token, literal in context_literals.items():
+    for token, literal in reversed(context_literals.items()):
         corrected = corrected.replace(token, literal)
     for wrong, right in POST_CONTEXT_REPLACEMENTS.get(language, ()):
         corrected = corrected.replace(wrong, right)

@@ -178,7 +178,7 @@ class _ReadFailed:
 
 
 class _ReadRelay(QObject):
-    """Carries "a read has landed" from a reader thread to the GUI thread.
+    """Carry reads, merge progress and fit results onto the GUI thread.
 
     ONE RELAY FOR THE PROCESS, never a child of a panel. A reader thread
     emitting on a panel's child raced the GUI thread destroying that panel:
@@ -191,11 +191,13 @@ class _ReadRelay(QObject):
     """
 
     landed = Signal(object)
+    update = Signal(object, str, object)
 
     def __init__(self) -> None:
         """Connect the relay to its own GUI-thread delivery."""
         super().__init__()
         self.landed.connect(self._deliver)
+        self.update.connect(self._deliver_update)
 
     @Slot(object)
     def _deliver(self, panel_ref) -> None:
@@ -209,6 +211,21 @@ class _ReadRelay(QObject):
         if panel is None or not shiboken6.isValid(panel):
             return
         panel._on_read_landed()
+
+    @Slot(object, str, object)
+    def _deliver_update(self, panel_ref, handler: str, args) -> None:
+        """Deliver a worker update only while its panel still exists.
+
+        :param panel_ref: weak reference to the destination panel.
+        :param handler: the panel's GUI-thread update method.
+        :param args: positional arguments captured by the worker.
+        """
+        import shiboken6
+
+        panel = panel_ref()
+        if panel is None or not shiboken6.isValid(panel):
+            return
+        getattr(panel, handler)(*args)
 
 
 _READ_RELAY: Optional[_ReadRelay] = None
@@ -1520,14 +1537,6 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
     #: writes and could disagree with each other.
     step_folds_changed = Signal()
 
-    #: Internal relay: emitted from the WORKER thread, received on the GUI
-    #: thread. Emitting a Signal is the only thing a worker-thread callback
-    #: may safely do; the receiver below is a bound method of this GUI-thread
-    #: object, so Qt queues the real work back where it belongs. Getting this
-    #: wrong is the exact bug `spacr.qt.job_runner` was written to stop being
-    #: re-derived.
-    _progress_relayed = Signal(str, int, int)
-
     #: The list columns, in reading order.
     COLUMNS = ("Plate", "Database", "Screen", "Tables", "Plates in it",
                "Rows", "Status")
@@ -1612,7 +1621,6 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
         #: F): the fits read this file, so the merge is paid for once and
         #: every run in the queue is fitted on the same numbers.
         self._artefact = ""
-        self._progress_relayed.connect(self._on_progress)
         self._read_relay = (_read_relay(), weakref.ref(self))
 
         from ..preferences import scaled_px
@@ -2785,17 +2793,10 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
 
 
     def _relay_progress(self, stage: str, done: int, total: int) -> None:
-        """Called BY THE WORKER. Emits, and does nothing else.
-
-        The guard is the one `JobRunner._relay` documents: a panel closed
-        while a merge is still running takes its C++ half with it, and PySide6
-        then raises ``RuntimeError: Signal source has been deleted`` inside
-        the worker.
-        """
-        try:
-            self._progress_relayed.emit(str(stage), int(done), int(total))
-        except RuntimeError:
-            pass
+        """Send worker progress through the relay that outlives this panel."""
+        relay, panel_ref = self._read_relay
+        relay.update.emit(panel_ref, "_on_progress",
+                          (str(stage), int(done), int(total)))
 
     def _on_progress(self, stage: str, done: int, total: int) -> None:
         """Show one stage. Always on the GUI thread."""
@@ -3080,13 +3081,6 @@ class ColumnRegressionPanel(WorkflowSteps, QWidget):
     #: `DatabaseMergePanel` because `WorkflowSteps` is not a QObject.
     step_folds_changed = Signal()
 
-    #: Worker-thread relays. The rule is the one `job_runner` exists to stop
-    #: being re-derived: a worker may EMIT and nothing else, and the receiver
-    #: is a bound method of this GUI-thread object so Qt queues the real work
-    #: back where it belongs.
-    _started_relayed = Signal(str, int, int)
-    _result_relayed = Signal(object)
-
     def __init__(self, frame_provider=None, settings_provider=None,
                  parent=None, *, score_provider=None, threaded: bool = True,
                  fit=None):
@@ -3110,8 +3104,7 @@ class ColumnRegressionPanel(WorkflowSteps, QWidget):
         self._outcomes: List[ColumnFit] = []
         self._queue_settings: Dict[str, Any] = {}
         self._queue_score = ""
-        self._started_relayed.connect(self._on_queue_progress)
-        self._result_relayed.connect(self._on_queue_result)
+        self._worker_relay = (_read_relay(), weakref.ref(self))
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -3429,18 +3422,15 @@ class ColumnRegressionPanel(WorkflowSteps, QWidget):
         return {"outcome": "ran", "fits": fits}
 
     def _relay_started(self, column: str, index: int, total: int) -> None:
-        """Called BY THE WORKER before each fit. Emits, and nothing else."""
-        try:
-            self._started_relayed.emit(str(column), int(index), int(total))
-        except RuntimeError:
-            pass
+        """Send a fit's start through the relay that outlives this panel."""
+        relay, panel_ref = self._worker_relay
+        relay.update.emit(panel_ref, "_on_queue_progress",
+                          (str(column), int(index), int(total)))
 
     def _relay_result(self, outcome: ColumnFit) -> None:
-        """Called BY THE WORKER after each fit. Emits, and nothing else."""
-        try:
-            self._result_relayed.emit(outcome)
-        except RuntimeError:
-            pass
+        """Send a fit's result through the relay that outlives this panel."""
+        relay, panel_ref = self._worker_relay
+        relay.update.emit(panel_ref, "_on_queue_result", (outcome,))
 
     def _on_queue_progress(self, column: str, index: int, total: int) -> None:
         """One fit is starting. Always on the GUI thread."""

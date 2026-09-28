@@ -524,30 +524,38 @@ def test_plot_image_grid_grayscale_normalises_to_full_range(tmp_path, rng):
         assert arr.min() == 0 and arr.max() == 255
 
 
-def test_plot_image_grid_normalises_raw_ndarrays(tmp_path, rng, monkeypatch):
-    """The nested normaliser has a non-PIL branch that returns a float array
-    instead of re-wrapping in PIL. Force it by making Image.open hand back
-    ndarrays, and check the tiles come through as float32 scaled to 0..1."""
+def test_plot_image_grid_preserves_per_channel_scaling_and_provenance(tmp_path):
+    """Rendered pixels and their recorded ranges reproduce the source stretch."""
     from PIL import Image as PILImage
-    from spacr.plot import plot_image_grid
+    from spacr.plot import _PANEL_TAG, _percentile_display, plot_image_grid
 
-    paths = [_write_png(tmp_path / f"n{i}.png", rng) for i in range(2)]
-    real_open = PILImage.open
+    ramp = np.arange(16, dtype=np.uint8).reshape(4, 4)
+    raw = np.stack([ramp, 2 * ramp + 20, 3 * ramp + 80], axis=-1)
+    path = tmp_path / "channels.png"
+    PILImage.fromarray(raw).save(path)
+    expected_plane = np.clip((ramp.astype(float) - 3) / 9, 0, 1)
+    expected = np.repeat(expected_plane[..., None], 3, axis=-1)
+    expected_ranges = [[3, 12], [26, 44], [89, 116]]
 
-    def _open_as_array(path, *args, **kwargs):
-        with real_open(path, *args, **kwargs) as im:
-            return np.asarray(im).astype(np.float64)
+    stretched, ranges = _percentile_display(raw.astype(np.float64), (20, 80))
+    assert stretched.dtype == np.float32
+    np.testing.assert_allclose(stretched, expected)
+    np.testing.assert_allclose(ranges, expected_ranges)
 
-    monkeypatch.setattr(PILImage, "open", _open_as_array)
-    fig = plot_image_grid(paths, percentiles=(2, 98))
-
-    assert len(fig.axes) == 4
-    for ax in fig.axes[:2]:
-        arr = np.asarray(ax.images[0].get_array())
-        assert arr.dtype == np.float32       # not the uint8 PIL round-trip
-        assert arr.shape == (16, 16, 3)
-        assert arr.min() == pytest.approx(0.0)
-        assert arr.max() == pytest.approx(1.0)
+    fig = plot_image_grid([str(path)], percentiles=(20, 80))
+    assert len(fig.axes) == 1
+    artist = fig.axes[0].images[0]
+    shown = np.asarray(artist.get_array())
+    assert shown.dtype == np.uint8
+    np.testing.assert_array_equal(shown, (expected * 255).astype(np.uint8))
+    provenance = getattr(artist, _PANEL_TAG)
+    assert provenance["source"] == [str(path.resolve())]
+    assert provenance["raw_dtype"] == "uint8"
+    assert provenance["display_range"] == expected_ranges
+    assert provenance["steps"] == [
+        {"op": "rescale", "ranges": expected_ranges, "percentiles": [20, 80]},
+        {"op": "to_uint8"},
+    ]
 
 
 def test_plot_image_grid_single_image(tmp_path, rng):

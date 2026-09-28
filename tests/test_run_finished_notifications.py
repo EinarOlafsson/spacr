@@ -159,6 +159,7 @@ def _config(smtp, http, **extra):
     config = {
         "enabled": True, "when": "always", "min_minutes": 0,
         "desktop": True, "email": True, "slack": True, "ntfy": True,
+        "teams": False, "webhook": False,
         "smtp_host": "127.0.0.1", "smtp_port": smtp.server_address[1],
         "smtp_security": "none", "smtp_user": "lab",
         "email_from": "spacr@lab.example", "email_to": "me@lab.example",
@@ -175,6 +176,11 @@ def secrets(http):
                                      f"{http.url}/services/T0/B0/xyzsecret")
     run_journal._store_notify_secret("ntfy_topic", "spacr-lab-topic-9f3")
     run_journal._store_notify_secret("ntfy_token", "tk_secret_token")
+    run_journal._store_notify_secret("teams_webhook",
+                                     f"{http.url}/teams?sig=teams-secret")
+    run_journal._store_notify_secret("webhook_url",
+                                     f"{http.url}/webhook?key=webhook-secret")
+    run_journal._store_notify_secret("webhook_token", "webhook-bearer-secret")
     yield
     for name in run_journal._NOTIFY_SECRET_NAMES:
         run_journal._store_notify_secret(name, "")
@@ -201,7 +207,7 @@ def _join(threads):
 
 def test_a_finished_run_sends_one_notification_with_its_summary(
         monkeypatch, smtp, http, secrets, sent, desktop):
-    _configure(monkeypatch, _config(smtp, http))
+    _configure(monkeypatch, _config(smtp, http, teams=True, webhook=True))
     with run_journal.open_run("mask", {"src": "/data/plate1"}) as run:
         ledger = RunLedger("preprocess_generate_masks")
         for field in range(4):
@@ -213,7 +219,8 @@ def test_a_finished_run_sends_one_notification_with_its_summary(
 
     assert len(sent) == 1
     assert sent[0].results == {"desktop": "sent", "email": "sent",
-                               "slack": "sent", "ntfy": "sent"}
+                               "slack": "sent", "ntfy": "sent",
+                               "teams": "sent", "webhook": "sent"}
     assert len(smtp.messages) == 1
     subject, mail = _mail(smtp)
     assert subject == "spaCR run finished: mask"
@@ -238,11 +245,32 @@ def test_a_finished_run_sends_one_notification_with_its_summary(
     title, body, failed = desktop[0]
     assert title == "spaCR run finished: mask" and failed is False
     assert "Outcome: finished" in body and "Output: /data/plate1" in body
+    teams = [p for p in http.posts if p["path"].startswith("/teams?")]
+    webhook = [p for p in http.posts if p["path"].startswith("/webhook?")]
+    assert len(teams) == 1 and len(webhook) == 1
+    assert teams[0]["headers"]["Content-Type"] == "application/json"
+    payload = json.loads(teams[0]["body"])
+    assert payload["type"] == "message"
+    assert len(payload["attachments"]) == 1
+    attachment = payload["attachments"][0]
+    assert attachment["contentType"] == "application/vnd.microsoft.card.adaptive"
+    assert attachment["contentUrl"] is None
+    card = attachment["content"]
+    assert card["$schema"] == "http://adaptivecards.io/schemas/adaptive-card.json"
+    assert card["type"] == "AdaptiveCard" and card["version"] == "1.2"
+    assert all(block["type"] == "TextBlock" and block["wrap"]
+               for block in card["body"])
+    assert card["body"][0]["weight"] == "Bolder"
+    assert [block["text"] for block in card["body"]] == [title, *body.splitlines()]
+    assert json.loads(webhook[0]["body"]) == {
+        "title": title, "body": body, "failed": False}
+    assert webhook[0]["headers"]["Content-Type"] == "application/json"
+    assert webhook[0]["headers"]["Authorization"] == "Bearer webhook-bearer-secret"
 
 
 def test_a_failed_run_sends_one_notification_and_still_raises(
         monkeypatch, smtp, http, secrets, sent, desktop):
-    _configure(monkeypatch, _config(smtp, http))
+    _configure(monkeypatch, _config(smtp, http, teams=True, webhook=True))
     with pytest.raises(RuntimeError, match="boom"):
         with run_journal.open_run("measure", {"src": "/data/plate2"}):
             raise RuntimeError("boom")
@@ -261,6 +289,16 @@ def test_a_failed_run_sends_one_notification_and_still_raises(
     assert ntfy[0]["headers"]["Tags"] == "x"
     assert desktop[0][0] == "spaCR run failed: measure"
     assert desktop[0][2] is True
+    teams = [p for p in http.posts if p["path"].startswith("/teams?")]
+    webhook = [p for p in http.posts if p["path"].startswith("/webhook?")]
+    assert len(teams) == 1 and len(webhook) == 1
+    blocks = json.loads(teams[0]["body"])["attachments"][0]["content"]["body"]
+    assert blocks[0]["text"] == "spaCR run failed: measure"
+    assert "Error: RuntimeError: boom" in [block["text"] for block in blocks]
+    payload = json.loads(webhook[0]["body"])
+    assert payload["title"] == "spaCR run failed: measure"
+    assert payload["failed"] is True
+    assert "Error: RuntimeError: boom" in payload["body"]
 
 
 def test_runs_that_should_stay_quiet_send_nothing(monkeypatch, smtp, http,
@@ -341,6 +379,95 @@ def test_a_slow_channel_never_holds_up_the_run(monkeypatch, smtp, http,
     release.set()
     _join(sent)
     assert sent[0].results == {"desktop": "sent"}
+
+
+def test_a_generic_webhook_can_receive_without_a_bearer_token(http):
+    """A URL alone works and JSON preserves Unicode and multiline summaries.
+
+    :param http: the local HTTP notification receiver.
+    """
+    message = {"title": "spaCR: plåt 1", "body": "QC: 3 of 4\nOutput: /data/α",
+               "failed": False}
+    run_journal._notify_by_webhook(message, f"{http.url}/generic", "")
+    assert len(http.posts) == 1
+    assert json.loads(http.posts[0]["body"]) == message
+    assert "Authorization" not in http.posts[0]["headers"]
+
+
+@pytest.mark.parametrize("broken", ["teams", "webhook"])
+def test_a_broken_new_webhook_does_not_stop_other_channels(http, broken,
+                                                          caplog):
+    """A local failure is reported while the other new transport still sends.
+
+    :param http: the local HTTP notification receiver.
+    :param broken: the adapter whose URL returns a server error.
+    :param caplog: captured notification warnings.
+    """
+    urls = {channel: f"{http.url}/{'broken' if channel == broken else 'ok'}/"
+                     f"{channel}-secret" for channel in ("teams", "webhook")}
+    results = run_journal._send_notification(
+        {"title": "spaCR run finished: mask", "body": "Outcome: finished",
+         "failed": False},
+        {"teams": True, "webhook": True, "secrets": {
+            "teams_webhook": urls["teams"], "webhook_url": urls["webhook"],
+            "webhook_token": "bearer-secret"}})
+    other = "webhook" if broken == "teams" else "teams"
+    assert "500" in results[broken]
+    assert results[other] == "sent"
+    assert len(http.posts) == 2
+    assert f"run notification by {broken} failed" in caplog.text
+    for value in (*urls.values(), "teams-secret", "webhook-secret", "bearer-secret"):
+        assert value not in caplog.text + json.dumps(results)
+
+
+@pytest.mark.parametrize("channel,secret_name", [
+    ("teams", "teams_webhook"), ("webhook", "webhook_url")])
+@pytest.mark.parametrize("address", ["", "file:///tmp/local-secret"])
+def test_new_webhooks_report_missing_or_non_http_addresses(monkeypatch, channel,
+                                                          secret_name, address):
+    """An unconfigured or unsupported address fails without a network request.
+
+    :param monkeypatch: isolates the test from any previously stored secret.
+    :param channel: the notification adapter.
+    :param secret_name: the adapter's webhook address secret.
+    :param address: an empty address or unsupported URL scheme.
+    """
+    monkeypatch.setattr(run_journal, "_load_notify_secret", lambda name: "")
+    results = run_journal._send_notification(
+        {"title": "Done", "body": "QC", "failed": False},
+        {channel: True, "secrets": {secret_name: address}})
+    assert results[channel].startswith("ValueError:")
+    assert "local-secret" not in results[channel]
+
+
+def test_new_webhook_error_details_redact_addresses_and_tokens(monkeypatch,
+                                                              caplog):
+    """Failures mentioning credentials are scrubbed in results and warnings.
+
+    :param monkeypatch: replaces HTTP with a failing local fake.
+    :param caplog: captured notification warnings.
+    """
+    def fail(url, data, headers):
+        """Reject a fake request while echoing its credentials.
+
+        :param url: the fake receiving address.
+        :param data: unused JSON payload bytes.
+        :param headers: request headers containing the optional token.
+        """
+        raise RuntimeError(f"{url} rejected {headers.get('Authorization', '')}")
+
+    monkeypatch.setattr(run_journal, "_notify_http_post", fail)
+    credentials = {"teams_webhook": "http://127.0.0.1/teams-address-secret",
+                   "webhook_url": "http://127.0.0.1/webhook-address-secret",
+                   "webhook_token": "webhook-token-secret"}
+    results = run_journal._send_notification(
+        {"title": "Done", "body": "QC", "failed": False},
+        {"teams": True, "webhook": True, "secrets": credentials})
+    assert set(results) == {"teams", "webhook"}
+    assert all("RuntimeError" in result for result in results.values())
+    logged = caplog.text + json.dumps(results)
+    for value in credentials.values():
+        assert value not in logged
 
 
 def test_nothing_the_notifier_does_can_fail_a_run(monkeypatch):

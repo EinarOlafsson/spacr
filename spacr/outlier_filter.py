@@ -17,9 +17,6 @@ import pandas as pd
 LOG = logging.getLogger("spacr.outlier_filter")
 
 #: Supported filter criteria represented as ``(setting, display label)``.
-# Re-exported so every existing importer of `outlier_filter.CRITERIA` and
-# `.COLUMNS` keeps working. They live in `_outlier_criteria` because
-# `spacr.settings` needs them and must not pay for pandas to get them.
 from ._outlier_criteria import COLUMNS, CRITERIA           # noqa: E402,F401
 
 #: Default number of scaled MADs separating an outlier from the median.

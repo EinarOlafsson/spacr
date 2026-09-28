@@ -1,13 +1,14 @@
 {
   "lesson": "04_platform_installers",
-  "english_sha256": "67f5f50b34186ea7d27a9be6536fcc4fd4c7d6877dd0ad4bf2283093344441c0",
+  "english_sha256": "5733777916561df1997773e74a43ef023771a98798aa3d7a9fb2be87e92b4f63",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review (Codex insertion), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 original installer and Home translations retained; Codex checked reuse of unchanged Home Performance narration.",
+    "date": "2026-09-27",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Only the Performance scene was inserted before the Home handoff; all original ten scene translations and lesson metadata preserved."
   },
   "language": "is",
   "title": "Settu upp spaCR með uppsetningarforriti",
@@ -26,6 +27,7 @@
     "Eftir uppsetningu skráir uppsetningarsniðið valinn bakenda. Skoðaðu það þegar þú vilt staðfesta hvort keyrsluumhverfið notar CPU eða studdan hraðal.",
     "Athugaðu uppsettu spaCR-útgáfuna. Geymdu hana með greiningarglósunum þínum, sérstaklega þegar þú uppfærir forritið síðar.",
     "Uppsetningin spyr um valfrjálsa deilingu greiningargagna og uppsetningu aðgangs. Svaraðu y aðeins fyrir þá valkosti sem þú vilt; n, sjálfgefna svarið, heldur hverjum valkosti óvirkum. Uppsetningarforritið fyrir Windows sýnir sömu valkosti sem gátreiti.",
+    "Í Preferences velurðu Performance-snið fyrir tölvuna þína. Laptop notar minni tilföng; hærri sniðin leyfa meiri skyndiminnisnotkun og bakgrunnsvinnu. Byrjaðu á hóflegu sniði ef minni er takmarkað. Greiningarstillingarnar eru áfram á þínu valdi í hverri einingu.",
     "Þegar Home opnast heldurðu áfram með Home-kennsluna. Hún sýnir hvernig á að opna einingu, finna prófunargögn og velja greiningarferli fyrir tilraunina þína.",
     "Ef ræsing eða skráarsnið þarfnast athygli skaltu keyra spacr-doctor úr uppsetta keyrsluumhverfinu. Það listar hverja athugun ásamt tillögu að lagfæringu. Í þessari uppsetningu, sem notar aðeins CPU, mistekst GPU-athugunin eins og búast mátti við, og PATH-athugunin merkir eigin spacr-ræsi uppsetningarforritsins, sem ræsir þetta sama keyrsluumhverfi, svo hvorugt þarf að breyta hér.",
     "Ef vandamál koma upp við uppsetningu finnurðu install.log og install-profile.json í uppsetningarmöppunni. Farðu yfir annálana áður en þú deilir þeim í beiðni um aðstoð. Tilgreindu stýrikerfið og spaCR-útgáfuna svo auðveldara sé að greina vandann."

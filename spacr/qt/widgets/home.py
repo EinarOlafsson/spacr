@@ -2483,9 +2483,6 @@ class HomePage(QWidget):
 
         from ..i18n import tr
 
-        # GitHub #130: Home said what spaCR can do and nothing about where to
-        # begin. First in the column, above the panels, because it is the
-        # answer to the first question a new user has.
         start = QPushButton(tr("Pipeline overviews"), aside)
         start.setObjectName("PrimaryButton")
         start.setToolTip(tr(
@@ -2505,7 +2502,8 @@ class HomePage(QWidget):
         self._news.refresh_requested.connect(self.news_refresh_requested)
         self._totals = TotalsPanel()
         self._system = SystemPanel()
-        self._legend = StageLegend()
+        self._legend = StageLegend(self)
+        self._legend.hide()
 
         for panel in (self._queued, self._recent, self._news,
                       self._totals, self._system):

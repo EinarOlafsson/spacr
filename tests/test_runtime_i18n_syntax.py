@@ -12,10 +12,31 @@ if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
 
+def test_portuguese_well_locations_preserve_containers_and_repair_adverbs() -> None:
+    """Container positions retain poço; adverbial well still repairs to bem."""
+    from build_i18n_catalogs import _contextualize, _translation_rejection_reasons
+
+    cases = (
+        ("One well within a replicate, or one field within a well.",
+         "Um poço dentro de uma réplica ou um campo dentro de um poço.",
+         "Um poço dentro de uma réplica ou um campo dentro de um poço."),
+        ("The well below the control well.",
+         "O poço abaixo do poço de controle.",
+         "O poço abaixo do poço de controle."),
+        ("Values remain well within tolerance.",
+         "Os valores permanecem poço dentro da tolerância.",
+         "Os valores permanecem bem dentro da tolerância."),
+    )
+    for source, draft, expected in cases:
+        assert _contextualize(draft, "pt", source) == expected
+        assert _contextualize(expected, "pt", source) == expected
+        assert not _translation_rejection_reasons(source, expected, "pt", force=True)
+
+
 def _new_download_sources(language: str, reviewed: dict[str, str]) -> set[str]:
     """Account for the Import and synthetic Invasion review records separately."""
     sources: set[str] = set()
-    for filename, expected in (("import-examples", 9), ("synthetic-invasion", 2)):
+    for filename, expected in (("import-examples", 9), ("synthetic-invasion", 1)):
         document = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
                                f"2026-09-21-{filename}.json").read_text())
         added = {record["source"] for record in document["records"]}
@@ -23,7 +44,15 @@ def _new_download_sources(language: str, reviewed: dict[str, str]) -> set[str]:
         assert added <= reviewed.keys()
         assert not added & sources
         sources.update(added)
-    assert len(sources) == 11
+    # Item463 replaced the unsegmented-example tooltip. Preserve the original
+    # two-record evidence and prove that only the superseded tooltip retired.
+    archive = json.loads((ROOT / "features/data/463_retired_runtime_review_2026-09-27" /
+                          f"{language}.json").read_text())["records"]
+    old_invasion = {record["source"] for record in archive}
+    assert len(archive) == len(old_invasion) == 2
+    assert len(old_invasion - sources) == 1
+    assert not (old_invasion - sources) & reviewed.keys()
+    assert len(sources) == 10
     return sources
 
 
@@ -108,6 +137,19 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
     assert len(additions) == report["later_distinct_additions"] == 780
     assert hashlib.sha256(json.dumps(sorted(additions), ensure_ascii=False).encode()).hexdigest() == report["added_sources_sha256"]
     assert not sources & additions
+    for filename, record_count, source_count in (
+            ("2026-09-27-mask-cloud-category.json", 3, 2),
+            ("2026-09-28-runtime-577-585.json", 20, 20)):
+        document = json.loads((folder / filename).read_text())
+        records = document["records"]
+        values = {record["source"] for record in records}
+        assert len(records) == record_count and len(values) == source_count
+        assert values <= reviewed.keys()
+        assert not values & (sources | additions)
+        for record in records:
+            assert record["source_sha256"] == hashlib.sha256(record["source"].encode()).hexdigest()
+            assert reviewed[record["source"]] == record["translation"]
+        sources.update(values)
     return sources | additions
 
 
@@ -119,6 +161,39 @@ def _compact_tooltip_sources(language: str) -> set[str]:
     assert {record["table"] for record in records} == {"setting_tooltips"}
     assert {record["key"] for record in records} == {"annotation_source", "metadata_type"}
     return {record["source"] for record in records}
+
+
+def _with_training_sample_replacements(document, language, filename):
+    archive = ROOT / "features/data/450_451_retired_runtime_review_2026-09-27" / language / filename
+    if not archive.exists():
+        return document
+    original = json.loads(archive.read_text())["records"]
+    retained = document["records"]
+    retired = [row for row in original if row not in retained]
+    assert len(retired) == (2 if filename == "2026-09-21-runtime-ui-refresh.json" else 1)
+    replacements = {
+        "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.":
+            "A sample of a published model's training dataset. Sample sizes vary by dataset. Masks are included where available.",
+        "{name}: {count} fields and the masks the model was trained on":
+            "{name}: {count} example images ready",
+        "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.":
+            "Download example data for Plaque Analysis and point src at it. Choose segmented plaque fields or whole plate figures. Sample sizes vary by dataset. Cached after the first download.",
+    }
+    assert {row["source"] for row in retired} <= replacements.keys()
+    assert all(row in document["retired_records"] for row in retired)
+    assert retained == [row for row in original if row not in retired]
+    replacement = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
+                              "2026-09-27-training-samples.json").read_text())["records"]
+    assert len(replacement) == 3
+    assert {row["source"] for row in replacement} == set(replacements.values())
+    from build_i18n_catalogs import reviewed_runtime_translations
+    reviewed = reviewed_runtime_translations(language)
+    assert not {row["source"] for row in retired} & reviewed.keys()
+    assert all(reviewed[row["source"]] == row["translation"] for row in replacement)
+    wanted = {replacements[row["source"]] for row in retired}
+    replacement = [row for row in replacement if row["source"] in wanted]
+    assert len(retained + replacement) == len(original)
+    return {**document, "records": retained + replacement}
 
 
 def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int) -> set[str]:
@@ -181,6 +256,19 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     latest6 = {record["source"] for record in sixth}
     assert len(sixth) == len(latest6) and not latest6 & sources
     sources |= latest6
+    # Direct Codex-reviewed delta: 129 new sources plus11 extraction repairs,
+    # minus the Spotiflow identity; Hindi also resolves35 historical fallbacks.
+    seventh = json.loads((folder / "2026-09-27-runtime-codex-delta.json").read_text())["records"]
+    latest7 = {record["source"] for record in seventh}
+    assert len(seventh) == len(latest7) == (174 if language == "hi" else 139)
+    assert not latest7 & sources
+    sources |= latest7
+    discovery = json.loads((folder / "2026-09-27-gpu-discovery.json").read_text())["records"]
+    discovery_sources = {record["source"] for record in discovery}
+    assert len(discovery) == 1
+    assert discovery_sources == {"Checking compatible GPUs…"}
+    assert not discovery_sources & sources
+    sources |= discovery_sources
     assert sources <= reviewed.keys()
     return sources
 
@@ -212,6 +300,8 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # retired five source captions, preserving their records in the archive.
     ui_refresh = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
                               "2026-09-21-runtime-ui-refresh.json").read_text())
+    ui_refresh = _with_training_sample_replacements(
+        ui_refresh, "sv", "2026-09-21-runtime-ui-refresh.json")
     ui_sources = {record["source"] for record in ui_refresh["records"]}
     # Item 511 retired four Make Masks filter captions (the fixed bounds'
     # button, ledger, card and placeholder help): 263 -> 259, 260 -> 256.
@@ -390,6 +480,8 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert background_sources <= reviewed.keys()
     samples = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
                            "2026-09-21-dataset-sample-counts.json").read_text())
+    samples = _with_training_sample_replacements(
+        samples, "sv", "2026-09-21-dataset-sample-counts.json")
     sample_sources = {record["source"] for record in samples["records"]}
     assert len(sample_sources) == 3
     assert sample_sources <= reviewed.keys()
@@ -423,8 +515,10 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(older_all_sources - preview_sources - normalized_sources) == 607  # Item 511 retired four filter captions. Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
     assert len(older_all_sources - normalized_sources) == 612  # Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
     assert len(older_all_sources) == 617  # Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
-    assert len(all_reviewed.keys() - subsequent_sources - debt_sources) == 628  # Item 511 retired four filter captions. Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
-    assert len(all_reviewed.keys() - debt_sources) == 1667  # 931 - 9 - 4 + 782, less six filter captions item 511 retired, less 19 (316 retirement 18, psf-help 1). Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
+    # Item463 retired one superseded download tooltip; its full old evidence
+    # and exact set difference are checked by _new_download_sources above.
+    assert len(all_reviewed.keys() - subsequent_sources - debt_sources) == 627
+    assert len(all_reviewed.keys() - debt_sources) == 1688
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -457,6 +551,8 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert refresh_sources <= all_reviewed.keys()
     second = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                          "2026-09-21-runtime-second-slice.json").read_text())
+    second = _with_training_sample_replacements(
+        second, "fr", "2026-09-21-runtime-second-slice.json")
     second_sources = {record["source"] for record in second["records"]}
     assert len(second["records"]) == len(second_sources) == 64
     assert second_sources <= all_reviewed.keys()
@@ -466,6 +562,8 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     for filename, expected in (("third", 68), ("fourth", 71)):
         document = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                                f"2026-09-21-runtime-{filename}-slice.json").read_text())
+        document = _with_training_sample_replacements(
+            document, "fr", f"2026-09-21-runtime-{filename}-slice.json")
         added = {record["source"] for record in document["records"]}
         assert len(document["records"]) == len(added) == expected
         assert added <= all_reviewed.keys()
@@ -646,6 +744,8 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert background_sources <= reviewed.keys()
     samples = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                            "2026-09-21-dataset-sample-counts.json").read_text())
+    samples = _with_training_sample_replacements(
+        samples, "fr", "2026-09-21-dataset-sample-counts.json")
     sample_sources = {record["source"] for record in samples["records"]}
     assert len(sample_sources) == 3
     assert sample_sources <= reviewed.keys()
@@ -662,10 +762,11 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(older_all_sources - preview_sources - normalized_sources) == 318  # Item 511 retirement (2026-09-25): -12.
     assert len(older_all_sources - normalized_sources) == 323  # Item 511 retirement (2026-09-25): -12.
     assert len(older_all_sources) == 328  # Item 511 retirement (2026-09-25): -12.
-    assert len(all_reviewed.keys() - refresh_sources - subsequent_sources - debt_sources) == 339  # Item 511 retirement (2026-09-25): -12.
+    # Item463 retired the one superseded download tooltip, proven above.
+    assert len(all_reviewed.keys() - refresh_sources - subsequent_sources - debt_sources) == 338
     # 316 (71071b6c6) retired 17 setup and sign-in captions from the four slices to _ROWS.
-    assert len(all_reviewed.keys() - subsequent_sources - debt_sources) == 621  # Item 511 retired four filter captions. Item 511 retirement (2026-09-25): -12.
-    assert len(all_reviewed.keys() - debt_sources) == 1659  # 926 - 9 - 3 + 782, less six filter captions item 511 retired, less 19 (316 retirement 18, psf-help 1). Item 511 retirement (2026-09-25): -12.
+    assert len(all_reviewed.keys() - subsequent_sources - debt_sources) == 620
+    assert len(all_reviewed.keys() - debt_sources) == 1680
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

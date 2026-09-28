@@ -1,0 +1,146 @@
+{
+  "item": 575,
+  "passed": true,
+  "engines": {
+    "snakemake": {
+      "passed": true,
+      "jobs": [
+        {
+          "job": "plate",
+          "source": "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/inputs/first/plate",
+          "dst": "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/snakemake/outputs/plate",
+          "map_path": "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/snakemake/maps/plate/conversion.csv",
+          "map_sha256": "323dbf6d0f50fc017132cf26271c8802169c1bc95796a17434d5eef971fbd0ae",
+          "rows": 1,
+          "all_pixels_equal_reference": true,
+          "source_value": 101,
+          "db_path": "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/snakemake/outputs/plate/measurements/conversion.sqlite",
+          "db_integrity": "ok",
+          "database_matches_own_map": true,
+          "db_sha256": "859599a14196c54391b202c53f77b54aa729aecdf9c9b5c58a73e2aa8825152b",
+          "checkpoint_path": "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/snakemake/checkpoints/plate/progress.json",
+          "checkpoint_signature": "a6c556e4ffd002e0ada24c47f8848718b7f4ad8097182e4bd3bdf50f247b1388",
+          "checkpoint_sha256": "b29c16367eb883c740a2284ff8690cb0ec6e0f48e5dad71e5d22f2d18c7687ba",
+          "completed_fields": 1,
+          "completed_targets": 1
+        },
+        {
+          "job": "plate_2",
+          "source": "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/inputs/second/plate",
+          "dst": "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/snakemake/outputs/plate_2",
+          "map_path": "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/snakemake/maps/plate_2/conversion.csv",
+          "map_sha256": "2583e0289a6f85036dda730ede0a52108b0a91e680f49eb4b20e7c9d2ab1a3d8",
+          "rows": 1,
+          "all_pixels_equal_reference": true,
+          "source_value": 909,
+          "db_path": "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/snakemake/outputs/plate_2/measurements/conversion.sqlite",
+          "db_integrity": "ok",
+          "database_matches_own_map": true,
+          "db_sha256": "6e3c80b8751ead903acd503fefa5936bf7f1ac50a6fa2b094e70f20d994ae6c0",
+          "checkpoint_path": "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/snakemake/checkpoints/plate_2/progress.json",
+          "checkpoint_signature": "b8ead5291d30c5526fbb0ad32d2b801400d5c44e7cf58dc55a0531b04f13d6e2",
+          "checkpoint_sha256": "45bcde9446840e4b78fd419d4565e22227fc8503c040f8ff127af8866125bc6a",
+          "completed_fields": 1,
+          "completed_targets": 1
+        }
+      ],
+      "reference_run": "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/private/.spacr/runs/2026-09-28_101028_243e2033__convert",
+      "original_artifacts_unchanged": {
+        "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/snakemake/outputs/measurements/conversion.sqlite": "f0112f25170f279c94a3b0d3cd9bce6a37f2ad0e4ef3e8bcc45c4b5785895e63",
+        "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/snakemake/checkpoints/progress.json": "abafb757ce0888db2c9bd08f27e8f50d7ba9ba248529afed27cc6de5b91495d6",
+        "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/snakemake/outputs/../maps/conversion.csv": "d0a8e8b5d4b6fc0f8c7a04d9fb64060a4eb3ae2e7edadc91ab6f25cba9f994eb"
+      }
+    },
+    "nextflow": {
+      "passed": true,
+      "jobs": [
+        {
+          "job": "plate",
+          "source": "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/inputs/first/plate",
+          "dst": "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/nextflow/outputs/plate",
+          "map_path": "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/nextflow/maps/plate/conversion.csv",
+          "map_sha256": "77bf1390995209ad3b9611ea71a05c964181ad6bef3905643209ad902fa375bc",
+          "rows": 1,
+          "all_pixels_equal_reference": true,
+          "source_value": 101,
+          "db_path": "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/nextflow/outputs/plate/measurements/conversion.sqlite",
+          "db_integrity": "ok",
+          "database_matches_own_map": true,
+          "db_sha256": "c1163b124a4ea5480be9794ab1658827062010743f2955517f033981486c8fe1",
+          "checkpoint_path": "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/nextflow/checkpoints/plate/progress.json",
+          "checkpoint_signature": "19ad88177d75aa3b7b3630760860e476b2555308a07bd59f5844bd786330c7e7",
+          "checkpoint_sha256": "31fdae8fe6693d7e44b42cfa0f0151ca8c4a71015fba18034061ad6a20c9f8d2",
+          "completed_fields": 1,
+          "completed_targets": 1
+        },
+        {
+          "job": "plate_2",
+          "source": "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/inputs/second/plate",
+          "dst": "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/nextflow/outputs/plate_2",
+          "map_path": "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/nextflow/maps/plate_2/conversion.csv",
+          "map_sha256": "4286b6ff68c6a84f4a15c40598557d8f783c8338b06ddaa4f76cd468e8d2ca18",
+          "rows": 1,
+          "all_pixels_equal_reference": true,
+          "source_value": 909,
+          "db_path": "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/nextflow/outputs/plate_2/measurements/conversion.sqlite",
+          "db_integrity": "ok",
+          "database_matches_own_map": true,
+          "db_sha256": "303ecdb244d9ecd6f7dd3843d619bf73413833ad95cab2a958053ddfda9c37ca",
+          "checkpoint_path": "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/nextflow/checkpoints/plate_2/progress.json",
+          "checkpoint_signature": "96e802895b509596af729d1113ce3b61dcc2bfa712174af692b42dba15fe55a0",
+          "checkpoint_sha256": "367f07c209234c2cb8ef98a21ad101e32428916777ffb6ebabc7671e41b3550e",
+          "completed_fields": 1,
+          "completed_targets": 1
+        }
+      ],
+      "reference_run": "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/private/.spacr/runs/2026-09-28_101057_bd66ff95__convert",
+      "original_artifacts_unchanged": {
+        "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/nextflow/outputs/measurements/conversion.sqlite": "792f83f65f7c62b9a1b207c27568dd71ceccceedf8d5dbddd14168a27a2e1d3e",
+        "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/nextflow/checkpoints/progress.json": "421339b89b5f25207d2252ddb11d02601f08608bb9ef04a1ece15e2a89922365",
+        "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/nextflow/maps/conversion.csv": "befb3617850876507e764cf0156b41c07f5f377d273c720f372cdee39a5c68cd"
+      }
+    }
+  },
+  "scope": "Actual CPU Snakemake and Nextflow execution with explicit SQLite/checkpoint outputs compared with direct canonical Convert; no GUI, container, cluster or GPU acceptance",
+  "source_sha256": "b51ccfad4a6024b6d948ce4ea96d76d282dcc1bc0b187be224ee72cbe88848a2",
+  "commands": [
+    {
+      "command": [
+        "/mnt/firecuda2/codex/scratch-docs/575/venv/bin/snakemake",
+        "--cores",
+        "1"
+      ],
+      "cwd": "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/snakemake/workflow",
+      "log": "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/snakemake/engine.log",
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "bash",
+        "/mnt/firecuda2/codex/scratch-docs/575/nextflow",
+        "run",
+        "main.nf",
+        "-ansi-log",
+        "false",
+        "-process.maxForks",
+        "1"
+      ],
+      "cwd": "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/nextflow/workflow",
+      "log": "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928/nextflow/engine.log",
+      "exit_code": 0
+    }
+  ],
+  "private_evidence": "/mnt/wd4tb/scratch/spacr-completion/item575-file-outputs-20260928",
+  "tests": 41,
+  "baseline_collision_failures": 14,
+  "before_junit_sha256": "715a657dc7be8455718288a0bfebbb892d69dc2229bf20878e3de11963c0dcd9",
+  "after_junit_sha256": "a640380b1fb87c778f0a65cd033f1c04687125dd03617a273fe7bdfcde06a50b",
+  "acceptance_sha256": "68381bf43d5bee65223d52b005c7aa7ec7892e7d2e2990eae0294f013dfa76a9",
+  "acceptance_sources_sha256": "b1533c301ea8f02b472f74a51a6385fd4dc4e263aa76828f9e4f3b0b0f19bba3",
+  "tests_sha256": "6a457e099293023dd7d193791a49bbbebe33c0253791e414d7dc8767664f6a6e",
+  "gui_output_equivalence_verified": false,
+  "per_well_jobs": false,
+  "container_or_cluster_acceptance": false,
+  "gpu_used": false,
+  "feature_complete": false
+}

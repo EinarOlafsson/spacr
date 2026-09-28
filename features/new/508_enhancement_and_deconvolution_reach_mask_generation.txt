@@ -1,10 +1,10 @@
 EVERY ENHANCEMENT AND DECONVOLUTION OPTION REACHES MASK GENERATION
 
-Status: BUILT 2026-09-25, on nightly (5c207ad71 .. 2ca9d9a60, checked
+Status: DONE 2026-09-27; built on nightly (5c207ad71 .. 2ca9d9a60, checked
         2026-09-25); measured on real fields the same day (last note: a
         sensible chain moves pooled F1 by -0.04 to +0.01 on four Toxo PV
-        fields -- plumbing proven, no default change earned). Owed: docs
-        lane and catalog rows (see TESTS / FOR THE DOCS).
+        fields -- plumbing proven, no default change earned). The runtime
+        catalog rows named FOR THE DOCS passed in all nine locales.
 Owner: Claude (item 508 session). Related: 473 (the chain), 479, 489, 490 (PSF).
 
 REQUEST (the maintainer, 2026-09-24, verbatim)
@@ -164,3 +164,16 @@ missed vacuoles on plate2_N04_5 (57-66 of 109), a model/diameter question
 the chain does not answer.
 
 Status updated above; nothing in spacr/ changed in this pass.
+
+2026-09-27 — RUNTIME TRANSLATION TAIL ACCEPTED
+The current labels, help, categories and UI are source-current in all nine
+locales. The canonical audit passed; strict runtime checks passed 54 cases
+(51 on the first run, the 3 corrected test-cohort/context assumptions on the
+focused rerun). The advisory translation plugin was disabled. This closes
+this item's runtime catalog tail against the existing implementation and
+scientific evidence above; it adds no new efficacy or GPU claim. The shared
+API/publication work remains tracked separately under 411/358.
+
+Receipt: features/data/316_runtime_codex_delta_2026-09-27.json.
+Review: docs/i18n/2026-09-27-runtime-codex-delta.md.
+AI technical review (Codex), no native-speaker signoff.

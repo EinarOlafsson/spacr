@@ -52,6 +52,7 @@ def main() -> int:
     parser.add_argument('--font-scale', type=float, default=1.5, help='Use the actual app font preference for the recording')
     parser.add_argument('--capture-name', help='Preserve earlier accepted frames in a separate capture directory')
     parser.add_argument('--methods-review-export', action='store_true', help='Record unchanged Methods export plus explicit review findings; never approve its draft')
+    parser.add_argument('--methods-export-picker-only', action='store_true', help='Capture only the native Methods export picker while verifying the unchanged draft export')
     parser.add_argument('--hit-list-companion', action='store_true', help='Explicit external Hit List window after showing the hidden native panel; not a shortcut fix')
     parser.add_argument('--graph-review-handoff', action='store_true', help='Verify native graphs and explicitly record the broken annotation handoff, without repairing it')
     parser.add_argument('--mask-bounded-recapture', action='store_true', help='Use explicit 0.4 flow thresholds in a fresh two-field Mask recording; not a quality claim')
@@ -62,6 +63,9 @@ def main() -> int:
     parser.add_argument('--plaque-zoo-model', action='store_true', help='Try the actual plaque Model Zoo download and preview in private staging')
     parser.add_argument('--motility-screen-export-probe', action='store_true', help='Diagnose the real Screen PDF export preference; not a production tutorial workaround')
     parser.add_argument('--manager-execute', action='store_true', help='Demonstrate confirmed cleanup/archive on the independently verified private Data Manager clone')
+    parser.add_argument('--manager-source', type=Path, help='Existing real project inside the private stage; preserve its registry and operate only on a verified bound clone')
+    parser.add_argument('--external-input-root', type=Path, help='Private byte-identical copies of the retained Foreign inputs, preserving their original manifest and relative paths')
+    parser.add_argument('--external-preview-only', action='store_true', help='Stop after the real non-writing External Masks preview and its Preview only toggle; never run measurement')
     parser.add_argument('--test-data-route', choices=('load', 'stream'), default='load', help='Choose the real Annotate/Classify test-data route')
     parser.add_argument('--classifier-family', choices=('cv', 'ml'), default='cv', help='Choose the real merged Classify workflow')
     parser.add_argument('--classifier-existing-split', type=Path, help='Reuse the explicitly prepared, metadata-verified tutorial split; never rebuild it from legacy filenames')
@@ -86,11 +90,24 @@ def main() -> int:
     parser.add_argument('--diagnostics-from', type=Path, help='Existing private tutorial regression project to inspect')
     parser.add_argument('--evaluation-from', type=Path, help='Private prepared known-overlap classifier evaluation bundle')
     parser.add_argument('--sweep-from', type=Path, help='Replay this verified private two-trial sweep without refitting')
+    parser.add_argument('--sweep-input-root', type=Path, help='Private byte-identical copies of the original sweep CSVs; preserve the settings manifest and relative paths')
+    parser.add_argument('--pca-host-only', action='store_true',
+                        help='Recapture only the native Image UMAP PCA entry point; no data load or fit')
     parser.add_argument('--timeout', type=float, default=600)
     parser.add_argument('--preferences-alpha-toggle-scene', action='store_true',
                         help='Opt-in for a Preferences lesson scene that shows the Show alpha features toggle itself; '
                              'every other recording is refused while alpha features are on')
     args = parser.parse_args()
+    if args.manager_source is not None and args.module != 'data_manager':
+        parser.error('--manager-source requires --module data_manager')
+    if args.external_input_root is not None and args.module != 'external_masks':
+        parser.error('--external-input-root requires --module external_masks')
+    if args.external_preview_only and (args.module != 'external_masks' or args.run or args.download or args.preview):
+        parser.error('--external-preview-only requires external_masks without run/download/preview')
+    if args.sweep_input_root is not None and args.module != 'parameter_sweep':
+        parser.error('--sweep-input-root requires --module parameter_sweep')
+    if args.pca_host_only and (args.module != 'pca' or args.run or args.download or args.preview):
+        parser.error('--pca-host-only requires pca without run/download/preview')
     if args.preferences_alpha_toggle_scene and (args.run or args.download or args.preview):
         parser.error('--preferences-alpha-toggle-scene records only the Preferences toggle, without run/download/preview')
     if args.workflow_overview and (args.module != 'workflow_overview' or args.run or args.download or args.preview):
@@ -113,6 +130,8 @@ def main() -> int:
         parser.error('--graph-review-handoff requires --module graph_builder')
     if args.methods_review_export and (args.module != 'methods_export' or args.run or args.download):
         parser.error('--methods-review-export requires methods_export without a run or download')
+    if args.methods_export_picker_only and not args.methods_review_export:
+        parser.error('--methods-export-picker-only requires --methods-review-export')
     if args.mask_bounded_recapture and (args.module != 'mask' or not args.run or not args.download):
         parser.error('--mask-bounded-recapture requires mask with --download and --run')
     if args.mask_saved_plots and (args.module != 'mask' or args.run or args.download or args.preview):
@@ -198,7 +217,7 @@ def main() -> int:
             state = stage / 'data_manager_state' / f'{args.capture_name or args.module}.json'
             if state.exists():
                 raise RuntimeError('Use a new capture name for a fresh private Data Manager project')
-            prepared = prepare(stage)
+            prepared = prepare(stage, source=args.manager_source)
             write_json(state, prepared)
             # Keep the original readable at an immutable alias, then shadow
             # only its original pathname with the verified disposable copy.
@@ -489,7 +508,8 @@ def main() -> int:
     elif args.module == 'parameter_sweep':
         from capture_parameter_sweep import record_sweep
         record_sweep(app, window, stage, captures, capture,
-                     settle, write_json, args.timeout, existing=args.sweep_from)
+                     settle, write_json, args.timeout, existing=args.sweep_from,
+                     input_root=args.sweep_input_root)
     elif args.module == 'feature_dict':
         from capture_feature_dictionary import record_dictionary
         record_dictionary(app, window, stage, captures, capture,
@@ -540,7 +560,8 @@ def main() -> int:
     elif args.module == 'methods_export':
         from capture_methods import record_methods
         record_methods(app, window, stage, captures, capture,
-                       settle, write_json, args.timeout, review_export=args.methods_review_export)
+                       settle, write_json, args.timeout, review_export=args.methods_review_export,
+                       export_picker_only=args.methods_export_picker_only)
     elif args.module == 'timelapse':
         from capture_timelapse import record_timelapse
         record_timelapse(app, window, stage, captures, capture,
@@ -581,9 +602,17 @@ def main() -> int:
         record_anndata(app, window, stage, captures, capture,
                       settle, write_json, args.timeout, route_only=args.anndata_api_introduction)
     elif args.module == 'pca':
-        from capture_pca import record_pca
-        record_pca(app, window, stage, captures, capture,
-                   settle, write_json, args.timeout)
+        from capture_pca import capture_pca_host, record_pca
+        if args.pca_host_only:
+            capture_pca_host(window, capture, settle)
+            write_json(captures / 'desktop_acceptance.json', {
+                'accepted': True, 'capture_scope': 'PCA entry point only',
+                'opened_through_actual_home_tile': True,
+                'pca_fold_visible_and_enabled': True,
+                'analysis_run': False, 'application_source_modified': False})
+        else:
+            record_pca(app, window, stage, captures, capture,
+                       settle, write_json, args.timeout)
     elif args.module == 'trellis':
         from capture_trellis import record_trellis
         record_trellis(app, window, stage, captures, capture,
@@ -713,7 +742,9 @@ def main() -> int:
         if args.module == 'external_masks':
             from capture_external_masks import record_external_masks
             record_external_masks(app, window, screen, stage, captures, capture,
-                                  settle, write_json, args.timeout)
+                                  settle, write_json, args.timeout,
+                                  input_root=args.external_input_root,
+                                  stop_after_preview=args.external_preview_only)
         if args.module == 'model_zoo':
             if args.model_zoo_inventory:
                 from capture_model_inventory import record_inventory

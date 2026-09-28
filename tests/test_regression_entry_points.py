@@ -731,8 +731,12 @@ def test_regression_runs_end_to_end_from_the_cli_settings_path(tmp_path):
     # R-squared, residuals and the design that actually reached the fit, so
     # dropping either would silently take the diagnostics away again -- which
     # is why this stays an exact set rather than a subset check.
-    assert set(out) == {"results", "significant", "model", "model_data",
+    assert set(out) == {"results", "significant", "model", "model_data", "fit_designs",
                         "regression_type", "res_folder", "settings"}
+    observed_count = getattr(out["model"], "nobs", getattr(out["model"], "n_obs", None))
+    assert out["fit_designs"]["gene"]["n_rows_fitted"] == int(observed_count)
+    assert {"prc", "grna", "gene", "fraction"} <= set(out["model_data"].columns)
+    assert "coefficient" not in out["model_data"]
 
     # `settings` is the run's OWN dict, so a caller offering to re-fit the
     # same screen through a different model has it without reading a file --

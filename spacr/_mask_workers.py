@@ -585,16 +585,137 @@ def _compatible_mask_gpus():
 
 
 _CONTROL_GPU_COUNT = []
+_CONTROL_GPU_PROBE = None
+_CONTROL_GPU_TIMER = None
+
+
+def _probe_mask_gpu_count(connection):
+    """Send the compatible GPU count from an isolated child process.
+
+    :param connection: the child's sending end of the discovery pipe.
+    """
+    try:
+        connection.send(len(_compatible_mask_gpus()))
+    except Exception:
+        connection.send(0)
+    finally:
+        connection.close()
 
 
 def _mask_gpu_count_for_controls():
     """Count compatible GPUs once per process for greying the settings controls."""
-    if not _CONTROL_GPU_COUNT:
+    global _CONTROL_GPU_PROBE
+    if _CONTROL_GPU_COUNT:
+        _reap_mask_gpu_probe()
+        return _CONTROL_GPU_COUNT[0]
+    if _CONTROL_GPU_PROBE is None:
+        context = multiprocessing.get_context('spawn')
+        reader, writer = context.Pipe(duplex=False)
+        process = context.Process(target=_probe_mask_gpu_count,
+                                  args=(writer,), daemon=True)
         try:
-            _CONTROL_GPU_COUNT.append(len(_compatible_mask_gpus()))
+            process.start()
         except Exception:
+            reader.close()
+            writer.close()
             _CONTROL_GPU_COUNT.append(0)
-    return _CONTROL_GPU_COUNT[0]
+            return 0
+        writer.close()
+        _CONTROL_GPU_PROBE = {'process': process, 'reader': reader,
+                              'started': time.monotonic(), 'stopping': None,
+                              'killed': False}
+        return None
+    process = _CONTROL_GPU_PROBE['process']
+    reader = _CONTROL_GPU_PROBE['reader']
+    started = _CONTROL_GPU_PROBE['started']
+    count = None
+    try:
+        if reader.poll():
+            count = max(0, int(reader.recv()))
+        elif not process.is_alive() or time.monotonic() - started >= 60:
+            count = 0
+    except (EOFError, OSError, ValueError, TypeError):
+        count = 0
+    if count is None:
+        return None
+    reader.close()
+    _CONTROL_GPU_PROBE['reader'] = None
+    _CONTROL_GPU_COUNT.append(count)
+    _reap_mask_gpu_probe()
+    return count
+
+
+def _reap_mask_gpu_probe():
+    """Reap the discovery child without waiting, escalating after one second."""
+    global _CONTROL_GPU_PROBE
+    if _CONTROL_GPU_PROBE is None:
+        return
+    state = _CONTROL_GPU_PROBE
+    process = state['process']
+    if process.is_alive():
+        if state['stopping'] is None:
+            process.terminate()
+            state['stopping'] = time.monotonic()
+        elif not state['killed'] and time.monotonic() - state['stopping'] >= 1:
+            process.kill()
+            state['killed'] = True
+    process.join(timeout=0)
+    if not process.is_alive():
+        process.close()
+        _CONTROL_GPU_PROBE = None
+
+
+def _poll_mask_gpu_probe():
+    """Keep discovery timeout and reaping active independently of open panels."""
+    if _CONTROL_GPU_PROBE is not None:
+        _mask_gpu_count_for_controls()
+    if _CONTROL_GPU_PROBE is None and _CONTROL_GPU_TIMER is not None:
+        _CONTROL_GPU_TIMER.stop()
+
+
+def _stop_mask_gpu_probe():
+    """Bound discovery cleanup when the application event loop is shutting down."""
+    global _CONTROL_GPU_PROBE
+    if _CONTROL_GPU_TIMER is not None:
+        _CONTROL_GPU_TIMER.stop()
+    if _CONTROL_GPU_PROBE is None:
+        return
+    state = _CONTROL_GPU_PROBE
+    process = state['process']
+    if state['reader'] is not None:
+        state['reader'].close()
+        state['reader'] = None
+    if not _CONTROL_GPU_COUNT:
+        _CONTROL_GPU_COUNT.append(0)
+    if process.is_alive():
+        process.terminate()
+        process.join(timeout=0.2)
+    if process.is_alive():
+        process.kill()
+        process.join(timeout=0.2)
+    if not process.is_alive():
+        process.join(timeout=0)
+        process.close()
+        _CONTROL_GPU_PROBE = None
+
+
+def _watch_mask_gpu_probe():
+    """Own the discovery poller at application scope, including exit cleanup."""
+    global _CONTROL_GPU_TIMER
+    if _CONTROL_GPU_PROBE is None:
+        return
+    from PySide6.QtCore import QCoreApplication, QTimer
+
+    app = QCoreApplication.instance()
+    if app is None:
+        return
+    if _CONTROL_GPU_TIMER is None:
+        _CONTROL_GPU_TIMER = QTimer(app)
+        _CONTROL_GPU_TIMER.setInterval(100)
+        _CONTROL_GPU_TIMER.timeout.connect(_poll_mask_gpu_probe)
+        app.aboutToQuit.connect(_stop_mask_gpu_probe)
+    if not _CONTROL_GPU_TIMER.isActive():
+        _CONTROL_GPU_TIMER.start()
 
 
 def _selected_gpu_indices(value):

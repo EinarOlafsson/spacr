@@ -9,8 +9,8 @@ as in ``tests/test_anndata_export.py``, so the join, the suffixes and the
 Every table is written through :mod:`spacr.tabular`, read back with pandas
 and with pyarrow, and compared by dtype and by value -- against the frame
 that was written and, for the features, against the rows in SQLite. The R
-check runs only where ``Rscript`` with arrow and SingleCellExperiment is
-installed; anywhere else it is skipped and says so.
+check runs only where ``Rscript`` with arrow or nanoparquet and
+SingleCellExperiment is installed; anywhere else it is skipped and says so.
 
 CPU-only, offline, deterministic. ``anndata`` is not needed.
 """
@@ -388,28 +388,65 @@ def _r_with_packages():
     if rscript is None:
         return None
     probe = subprocess.run(
-        [rscript, "-e", "quit(status = as.integer(!all(vapply(c('arrow', "
-         "'SingleCellExperiment'), requireNamespace, logical(1), "
-         "quietly = TRUE))))"],
+        [rscript, "-e", "quit(status = as.integer(!("
+         "requireNamespace('SingleCellExperiment', quietly = TRUE) && "
+         "(requireNamespace('arrow', quietly = TRUE) || "
+         "requireNamespace('nanoparquet', quietly = TRUE)))))"],
         capture_output=True, timeout=120)
     return rscript if probe.returncode == 0 else None
+
+
+@pytest.mark.parametrize("nested_caller", [False, True])
+def test_the_sourced_r_loader_resolves_its_own_directory(exported, tmp_path,
+                                                        nested_caller):
+    """Resolve the export beside its loader, regardless of caller placement.
+
+    :param exported: the real keyed table export fixture.
+    :param tmp_path: independent script and working directories.
+    :param nested_caller: source through an additional caller when true.
+    :returns: ``None``; checks the native R-resolved export directory.
+    """
+    rscript = shutil.which("Rscript")
+    if rscript is None:
+        pytest.skip("Rscript is not installed on this machine")
+    out, _result, _parts, _keys = exported
+    working = tmp_path / "working"
+    caller = tmp_path / "caller"
+    working.mkdir()
+    caller.mkdir()
+    source = f'source({json.dumps(os.path.join(out, "load_spacr_export.R"))})\n'
+    if nested_caller:
+        nested = tmp_path / "nested"
+        nested.mkdir()
+        nested_script = nested / "source_loader.R"
+        nested_script.write_text(source, encoding="utf-8")
+        source = f'source({json.dumps(str(nested_script))})\n'
+    check = caller / "check.R"
+    check.write_text(
+        source + 'stopifnot(identical(.spacr_export_dir, '
+        f'normalizePath({json.dumps(out)})))\n', encoding="utf-8")
+    completed = subprocess.run([rscript, "--vanilla", str(check)],
+                               cwd=working, capture_output=True,
+                               text=True, timeout=120)
+    assert completed.returncode == 0, completed.stderr
 
 
 def test_the_r_loader_builds_a_single_cell_experiment(exported, tmp_path):
     rscript = _r_with_packages()
     if rscript is None:
-        pytest.skip("Rscript with arrow and SingleCellExperiment is not "
-                    "installed on this machine")
+        pytest.skip("Rscript with arrow or nanoparquet and "
+                    "SingleCellExperiment is not installed on this machine")
     out, _result, parts, _keys = exported
     check = tmp_path / "check.R"
     check.write_text(
         f'source("{os.path.join(out, "load_spacr_export.R")}")\n'
-        f'sce <- load_spacr_export("{out}")\n'
+        'sce <- load_spacr_export()\n'
         'values <- SummarizedExperiment::assay(sce, "measurements")\n'
         'cat(nrow(sce), ncol(sce), sum(values["cell_area", ]),\n'
         '    paste(SingleCellExperiment::reducedDimNames(sce)), "\\n")\n',
         encoding="utf-8")
-    completed = subprocess.run([rscript, str(check)], capture_output=True,
+    completed = subprocess.run([rscript, "--vanilla", str(check)],
+                               cwd=tmp_path, capture_output=True,
                                text=True, timeout=600)
     assert completed.returncode == 0, completed.stderr
     n_features, n_objects, total, name = completed.stdout.split()

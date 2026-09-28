@@ -28,73 +28,121 @@
       "id": "01_pypi_github",
       "number": 1,
       "slug": "pypi_github",
-      "title": "Find spaCR on GitHub, PyPI and conda-forge",
+      "title": "在GitHub、PyPI和conda-forge上找到spaCR",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Find the official package and installer sources, compare the release available on each channel, and choose the matching installation tutorial.",
+      "description": "找到官方软件包和安装程序的来源，比较各渠道提供的版本，并选择对应的安装教程。",
       "objectives": [
-        "Find the official download pages.",
-        "Choose the installation route for your computer.",
-        "Open the matching installation tutorial."
+        "找到官方下载页面。",
+        "为您的电脑选择安装方式。",
+        "打开对应的安装教程。"
       ],
-      "prerequisite": "Open a web browser and decide whether you want a desktop installer or a Python environment.",
+      "prerequisite": "打开网页浏览器，决定要使用桌面安装程序还是Python环境。",
       "scenes": [
         {
           "visual": "01_pypi_current_release",
-          "narration": "Choose how you want to install spaCR. Use a desktop installer for a ready-to-launch application, pip for a Python virtual environment, or conda-forge for a Conda environment. Start from the official spaCR links shown here.",
-          "hold_after": 0.7
+          "narration": "选择安装spaCR的方式。想要可以直接启动的应用程序，请使用桌面安装程序；需要Python虚拟环境，请使用pip；需要Conda环境，请使用conda-forge。请从这里显示的spaCR官方链接开始。",
+          "hold_after": 0.7,
+          "speech_text": "选择安装斯佩克尔的方式。想要可以直接启动的应用程序，请使用桌面安装程序；需要Python虚拟环境，请使用pip；需要Conda环境，请使用conda-forge。请从这里显示的斯佩克尔官方链接开始。"
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "On PyPI, find spaCR and read the installation command beside the current release. Copy that command when you are ready to install into your Python environment. The pip tutorial shows how to create and activate that environment first.",
-          "hold_after": 0.7
+          "narration": "在PyPI上找到spaCR，阅读当前版本旁边的安装命令。准备好安装到您的Python环境时，复制该命令。pip教程介绍了如何先创建并激活这个环境。",
+          "hold_after": 0.7,
+          "speech_text": "在派普上找到斯佩克尔，阅读当前版本旁边的安装命令。准备好安装到您的Python环境时，复制该命令。pip教程介绍了如何先创建并激活这个环境。"
         },
         {
           "visual": "02_pypi_project_links",
-          "narration": "Use Project links to open the documentation, source repository or issue tracker. Bookmark the documentation so you can return to the module walkthroughs while working in spaCR.",
-          "hold_after": 0.7
+          "narration": "使用Project links打开文档、源代码仓库或问题跟踪器。把文档加入书签，这样在使用spaCR时可以随时回到各模块的演示。",
+          "hold_after": 0.7,
+          "speech_text": "使用Project links打开文档、源代码仓库或问题跟踪器。把文档加入书签，这样在使用斯佩克尔时可以随时回到各模块的演示。"
         },
         {
           "visual": "03_github_main_branch",
-          "narration": "On GitHub, open the spaCR repository. Main contains the release source, and nightly contains the latest development work. For a packaged desktop installation, open Releases and choose a release.",
-          "hold_after": 0.7
+          "narration": "在GitHub上打开spaCR仓库。main包含发布版本的源代码，nightly包含最新的开发工作。如需打包好的桌面安装，请打开Releases并选择一个版本。",
+          "hold_after": 0.7,
+          "speech_text": "在GitHub上打开斯佩克尔仓库。main包含发布版本的源代码，nightly包含最新的开发工作。如需打包好的桌面安装，请打开Releases并选择一个版本。"
         },
         {
           "visual": "04_github_current_assets",
-          "narration": "Expand Assets and download the installer for Windows, macOS or Linux. Keep the checksum file from the same release if you want to verify the download. The Platform installers lesson walks through launching the installer and opening spaCR.",
+          "narration": "展开Assets，下载适用于Windows、macOS或Linux的安装程序。如果要验证下载，请保留同一版本中的校验和文件。Platform installers课程介绍了如何运行安装程序并打开spaCR。",
           "hold_after": 0.7,
           "related_lessons": [
             "04_platform_installers"
-          ]
+          ],
+          "speech_text": "展开Assets，下载适用于Windows、macOS或Linux的安装程序。如果要验证下载，请保留同一版本中的校验和文件。Platform installers课程介绍了如何运行安装程序并打开斯佩克尔。"
         },
         {
           "visual": "05_conda_current_package",
-          "narration": "On conda-forge, open the spaCR package page and check the available version. Package channels can update at different times, so select the version available through the route you choose.",
-          "hold_after": 0.7
+          "narration": "在conda-forge上打开spaCR软件包页面，查看可用的版本。不同的软件包渠道可能在不同时间更新，所以请选择您所用方式中可用的版本。",
+          "hold_after": 0.7,
+          "speech_text": "在conda-forge上打开斯佩克尔软件包页面，查看可用的版本。不同的软件包渠道可能在不同时间更新，所以请选择您所用方式中可用的版本。"
         },
         {
           "visual": "05_conda_current_package",
-          "narration": "The conda-forge command installs spaCR into your active Conda environment. Follow the Conda lesson to create that environment, install the package and launch the application.",
+          "narration": "conda-forge命令会把spaCR安装到当前激活的Conda环境中。请按照Conda课程创建该环境、安装软件包并启动应用程序。",
           "hold_after": 0.7,
           "related_lessons": [
             "02_conda_install"
-          ]
+          ],
+          "speech_text": "conda-forge命令会把斯佩克尔安装到当前激活的Conda环境中。请按照Conda课程创建该环境、安装软件包并启动应用程序。"
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "Continue with pip, Conda or Platform installers. Once spaCR opens, move to the Home lesson, then the pipeline overviews to choose a workflow for your data.",
+          "narration": "接下来选择pip、Conda或Platform installers。spaCR打开后，进入Home课程，再查看流程概览，为您的数据选择合适的工作流程。",
           "hold_after": 0.7,
           "related_lessons": [
             "02_conda_install",
             "03_pip_install",
             "04_platform_installers"
-          ]
+          ],
+          "speech_text": "接下来选择pip、Conda或Platform installers。斯佩克尔打开后，进入主页课程，再查看流程概览，为您的数据选择合适的工作流程。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -427,6 +475,12 @@
           "speech_text": "设置过程会询问是否可选地共享诊断信息以及是否设置账户。只对您想要的选项回答y；默认的n会让每一项保持关闭。Windows安装程序以复选框形式显示同样的选项。"
         },
         {
+          "visual": "09_performance",
+          "narration": "在Preferences中，为您的电脑选择一个Performance配置。Laptop占用的资源较少；更高的配置允许更多缓存和后台工作。如果内存有限，请从较低的配置开始。每个模块中的分析设置仍由您自己掌控。",
+          "hold_after": 0.7,
+          "speech_text": "在Preferences中，为您的电脑选择一个Performance配置。Laptop占用的资源较少；更高的配置允许更多缓存和后台工作。如果内存有限，请从较低的配置开始。每个模块中的分析设置仍由您自己掌控。"
+        },
+        {
           "visual": "06_installed_home",
           "narration": "Home打开后，继续学习Home教程。它介绍如何打开模块、查找测试数据，以及为您的实验选择流程。",
           "related_lessons": [
@@ -722,17 +776,17 @@
       "id": "06_api",
       "number": 6,
       "slug": "api",
-      "title": "Python API and batch commands",
+      "title": "Python API与批处理命令",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Find an analysis function, load saved settings, check the inputs and run spaCR from a terminal.",
+      "description": "找到分析函数，加载保存的设置，检查输入，并从终端运行spaCR。",
       "objectives": [
-        "Find the installed batch commands and their Python functions.",
-        "Inspect a function signature and its API reference.",
-        "Check saved settings before running an analysis."
+        "找到已安装的批处理命令及其对应的Python函数。",
+        "检查函数签名及其API参考。",
+        "在运行分析之前检查保存的设置。"
       ],
-      "prerequisite": "Install spaCR and activate its Python environment. Follow the Regression tutorial to prepare paired score/count tables and save the analysis settings. Use your own file paths in the commands.",
+      "prerequisite": "安装spaCR并激活其Python环境。按照Regression教程准备成对的分数与计数表，并保存分析设置。在命令中使用您自己的文件路径。",
       "scenes": [
         {
           "visual": "01_version",
@@ -742,13 +796,14 @@
             1900,
             650
           ],
-          "narration": "Activate the Python environment where you installed spaCR. Import spacr and print its version with the command shown. Keep the version with your analysis notes so you can reproduce the same run later.",
+          "narration": "激活安装了spaCR的Python环境。使用显示的命令导入spacr并打印其版本。把版本号与分析笔记一起保存，以便以后重现同样的运行。",
           "related_lessons": [
             "02_conda_install",
             "03_pip_install",
             "04_platform_installers"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "激活安装了斯佩克尔的Python环境。使用显示的命令导入斯佩克尔并打印其版本。把版本号与分析笔记一起保存，以便以后重现同样的运行。"
         },
         {
           "visual": "02_list",
@@ -758,8 +813,9 @@
             2800,
             1900
           ],
-          "narration": "Run spacr-run with dash dash list to find the available batch commands. The list shows each command key and its Python function. Choose the command for your task, such as mask, measure or regression. Use the desktop application for interactive tasks such as labelling images in Annotate.",
-          "hold_after": 0.7
+          "narration": "运行spacr-run加上横杠横杠list，查看可用的批处理命令。列表显示每个命令的键及其对应的Python函数。为您的任务选择命令，例如mask、measure或regression。在Annotate中给图像加标签这类交互式任务，请使用桌面应用程序。",
+          "hold_after": 0.7,
+          "speech_text": "运行斯佩克尔-run加上横杠横杠list，查看可用的批处理命令。列表显示每个命令的键及其对应的Python函数。为您的任务选择命令，例如mask、measure或regression。在Annotate中给图像加标签这类交互式任务，请使用桌面应用程序。"
         },
         {
           "visual": "03_describe",
@@ -769,12 +825,13 @@
             2250,
             900
           ],
-          "narration": "Run spacr-run with dash dash describe followed by regression. Read the required inputs, defaults and function name. Here, the batch command calls perform_regression in spacr.ml. Open that function in the API reference to read its parameters and returned results.",
+          "narration": "运行spacr-run加上横杠横杠describe，后面跟regression。阅读必需的输入、默认值和函数名称。这里，批处理命令调用的是spacr.ml中的perform_regression。在API参考中打开该函数，阅读它的参数和返回结果。",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "运行斯佩克尔-run加上横杠横杠describe，后面跟regression。阅读必需的输入、默认值和函数名称。这里，批处理命令调用的是斯佩克尔.ml中的perform_regression。在API参考中打开该函数，阅读它的参数和返回结果。"
         },
         {
           "visual": "05_report_api",
@@ -784,8 +841,9 @@
             2800,
             700
           ],
-          "narration": "In Python, import the function you need and inspect its signature. This example imports build_report from spacr.report. Look up the same name in the API reference, prepare the required arguments, and call the function from your script or notebook.",
-          "hold_after": 0.7
+          "narration": "在Python中导入您需要的函数并检查它的签名。本例从spacr.report导入build_report。在API参考中查找同一个名称，准备好必需的参数，然后在脚本或笔记本中调用该函数。",
+          "hold_after": 0.7,
+          "speech_text": "在Python中导入您需要的函数并检查它的签名。本例从斯佩克尔.report导入build_report。在API参考中查找同一个名称，准备好必需的参数，然后在脚本或笔记本中调用该函数。"
         },
         {
           "visual": "06_dry_run",
@@ -795,8 +853,9 @@
             3440,
             680
           ],
-          "narration": "Save the settings from your module workflow, then pass the file with dash dash settings. Add dash dash dry-run to check the configuration and input paths. In this Regression example, the settings pair phenotype scores with guide counts for each plate. Read the messages and correct any missing inputs before continuing.",
-          "hold_after": 0.7
+          "narration": "保存模块工作流程中的设置，然后用横杠横杠settings传入该文件。加上横杠横杠dry-run可以检查配置和输入路径。在这个Regression示例中，设置会把每块板的表型分数与向导计数配对。继续之前，请阅读提示信息并补齐缺失的输入。",
+          "hold_after": 0.7,
+          "speech_text": "保存模块工作流程中的设置，然后用横杠横杠settings传入该文件。加上横杠横杠dry-run可以检查配置和输入路径。在这个Regression示例中，设置会把每块板的表型分数与向导计数配对。继续之前，请阅读提示信息并补齐缺失的输入。"
         },
         {
           "visual": "03_describe",
@@ -806,17 +865,58 @@
             2250,
             900
           ],
-          "narration": "To execute the analysis, run the same command without dash dash dry-run. Follow the console until the command finishes, then inspect the outputs described by that module’s tutorial and API page. Keep the settings file, input tables, package version and console log with the results.",
+          "narration": "要执行分析，请去掉横杠横杠dry-run再运行同一条命令。在控制台中跟踪直到命令完成，然后检查该模块教程和API页面中描述的输出。把设置文件、输入表、软件包版本和控制台日志与结果一起保存。",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "要执行分析，请去掉横杠横杠dry-run再运行同一条命令。在控制台中跟踪直到命令完成，然后检查该模块教程和API页面中描述的输出。把设置文件、输入表、软件包版本和控制台日志与结果一起保存。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -10026,7 +10126,7 @@
         "在核对视野和对象类型的同时选择对象。",
         "打开对应的父细胞裁剪图像，并通过Python获取完整层级。"
       ],
-      "prerequisite": "下载完整的Annotate示例，其中包括测量数据库和对应的细胞裁剪图像。Graph Builder中仅含数据库的归档无法提供图像。本例只含细胞裁剪图像：请双击父细胞查看裁剪图像。当前针对家族的Open crops操作可能会用无关的细胞裁剪图像代替缺失的子对象裁剪图像；在本例中请避免使用该操作。",
+      "prerequisite": "下载完整的Annotate示例，其中包括测量数据库和对应的细胞裁剪图像。Graph Builder中仅含数据库的归档无法提供图像。本例只含细胞裁剪图像。对于这里展示的家族，Open crops只显示对应的父细胞裁剪图像，并报告两个子对象的裁剪图像不可用。",
       "example_files": [
         "Lineage_real_containment_review.zip",
         "Graph_Builder_real_measurements.zip"
@@ -10099,10 +10199,10 @@
           "speech_text": "使用完整下载的项目，其中包含细胞裁剪图像。把同一次运行的数据库和图像放在一起，使对象标识能够对应。"
         },
         {
-          "visual": "20_wrong_typed_children_are_unrelated_cell_crops",
-          "narration": "在本例中，请避免对整个家族使用Open crops。缺失的细胞核和病原体裁剪图像可能会被无关的细胞裁剪图像替代。请回到树形视图，只选择父细胞。",
+          "visual": "20_family_crop_identity_preserved",
+          "narration": "为所选家族点击Open crops。Annotate只打开对应的父细胞裁剪图像，并报告两个子对象的裁剪图像不可用。本例只含细胞裁剪图像；细胞核和病原体的裁剪图像不可用。",
           "hold_after": 0.7,
-          "speech_text": "在本例中，请避免对整个家族使用Open crops。缺失的细胞核和病原体裁剪图像可能会被无关的细胞裁剪图像替代。请回到树形视图，只选择父细胞。"
+          "speech_text": "为所选家族点击Open crops。Annotate只打开对应的父细胞裁剪图像，并报告两个子对象的裁剪图像不可用。本例只含细胞裁剪图像；细胞核和病原体的裁剪图像不可用。"
         },
         {
           "visual": "22_verified_parent_only_real_cell_crop",

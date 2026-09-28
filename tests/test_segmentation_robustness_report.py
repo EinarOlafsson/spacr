@@ -15,6 +15,8 @@ from skimage.measure import label as sk_label
 
 from spacr.seg_qc import (_match_fraction, _number_list, _robustness_grid,
                           _score_robustness)
+from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
+from tests.cellpose_api_contract import assert_declares_installed_eval_signature
 
 
 def _field(seed):
@@ -149,13 +151,20 @@ def test_each_grid_point_reaches_the_cellpose_call():
     calls = []
 
     class FakeModel:
-        def eval(self, x, batch_size, normalize, channel_axis, min_size, progress,
-                 diameter, flow_threshold, cellprob_threshold, resample):
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+                 rescale=None, diameter=None, flow_threshold=0.4,
+                 cellprob_threshold=0.0, do_3D=False, anisotropy=None,
+                 flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
+                 max_size_fraction=0.4, niter=None, augment=False,
+                 tile_overlap=0.1, bsize=None, compute_masks=True, progress=None):
+            check_cellpose_eval_call(x, channel_axis)
             calls.append(dict(diameter=diameter, flow=flow_threshold,
                               cellprob=cellprob_threshold, channel_axis=channel_axis,
                               image=x[0]))
             return [np.ones(x[0].shape[:2], np.uint16)], [None], None
 
+    assert_declares_installed_eval_signature(FakeModel.eval)
     image = np.stack([_field(0), _field(1)], axis=-1)
     point = dict(diameter=45.0, flow_threshold=0.6, cellprob_threshold=-2.0, enhance=False)
     labels = _robustness_segment(FakeModel(), dict(min_size=0, resample=True), "cell",

@@ -881,6 +881,7 @@ def _lenient_profile_json(text: str) -> Dict[str, Any]:
     quoted = re.sub(r'([{,]\s*)([A-Za-z_][\w ]*?)\s*:', r'\1"\2":', quoted)
 
     def _value(match):
+        """Quote a bare profile value while preserving JSON booleans and null."""
         word = match.group(2).strip()
         if word in ('true', 'false', 'null'):
             return match.group(0)

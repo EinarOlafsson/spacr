@@ -348,23 +348,9 @@ def _design_summary(output: Mapping[str, Any]) -> dict:
     raising the cell-count threshold change the answer, or just throw data
     away?" without opening the trial folder.
     """
-    summary: dict[str, Any] = {}
-    if not isinstance(output, Mapping):
-        return summary
-    for key, column in (("n_wells", "prc"), ("n_guides", "grna")):
-        frame = output.get("model_data")
-        if isinstance(frame, pd.DataFrame) and column in frame.columns:
-            summary[key] = int(frame[column].nunique())
-    for key in ("n_wells", "n_guides", "n_cells"):
-        if key not in summary and key in output:
-            try:
-                summary[key] = int(output[key])
-            except (TypeError, ValueError):
-                pass
-    frame = output.get("model_data")
-    if isinstance(frame, pd.DataFrame):
-        summary.setdefault("n_rows_fitted", int(len(frame)))
-    return summary
+    from .trial_metrics import design_summary
+
+    return design_summary(output)
 
 
 def correction_rows(output: Mapping[str, Any], methods: Sequence[str],
@@ -871,8 +857,6 @@ def _execute_trial(payload):
     from .ml import perform_regression
 
     try:
-        # 291: a `spawn` worker starts on matplotlib's stock default; the
-        # trial's figures follow the app or pipeline run that started it.
         with _open_sans_if_a_run_started_this():
             output = perform_regression(settings)
         row["status"] = "ok"

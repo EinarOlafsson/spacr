@@ -1413,10 +1413,6 @@ class SweepRunsPanel(QWidget):
         to take down -- leaving "Deleting…" up for the rest of the session.
         """
         deleted, failed = outcome if outcome else ([], [])
-        # A ROW AND ITS FOLDER ARE ONE CLAIM. A folder that would not delete
-        # is still on disk with the whole run in it, so its row has to stay
-        # on the table; `keep` is therefore built from the folder half of
-        # each failure, which is what the records carry.
         keep = {os.path.abspath(os.path.expanduser(_failed_folder(item)))
                 for item in failed}
         gone = [record for record in records

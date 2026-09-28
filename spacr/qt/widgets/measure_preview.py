@@ -1155,8 +1155,6 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
                 width = int(value)
         except (TypeError, ValueError, IndexError):
             return
-        # Loading a saved rectangle is not a user edit that requests a
-        # square. Keep its geometry while setting the displayed width.
         from PySide6.QtCore import QSignalBlocker
 
         with QSignalBlocker(self._crop_size):
@@ -1690,22 +1688,11 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         """
         settings = dict(settings or {})
 
-        # THE COUNT FIRST, because it is what brings the slot controls into
-        # existence: a value written into a slot whose control does not exist
-        # yet is a value dropped on the floor. Absent is still LEFT ALONE --
-        # a dict that mentions no slot and no count is not claiming the run
-        # has none, it is making no claim, which is the rule `_set` below
-        # follows for every other field.
         speaks_to_the_count = (
             settings.get("number_of_organelles") is not None
             or any(organelle_role_of(key) is not None for key in settings))
         if speaks_to_the_count:
             self.set_organelle_count(organelle_count(settings))
-        # AND THE SLOTS THE FILE CARRIES BEYOND IT. `declared_organelle_roles`
-        # is the wider of the two -- the slots shown, plus any further slot
-        # this dict already has keys for -- so a file written at seven and
-        # opened at two keeps controls for slots three to seven and hands
-        # their values back untouched instead of dropping them.
         self._build_slot_controls(_slots_the_settings_speak_for(settings))
         self._refresh_slot_rows()
 
@@ -2174,8 +2161,6 @@ class CropSettingsDialog(QDialog):
 
         :returns: whether anything was laid out.
         """
-        # The last of the three layouts this reaches, so a call made while
-        # the dialog is still being built finds nothing half-laid-out.
         if getattr(self, "_filter_form", None) is None:
             return False
         panel = self._panel

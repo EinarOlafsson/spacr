@@ -1,8 +1,10 @@
-RUN-FINISHED NOTIFICATIONS: EMAIL, SLACK, NTFY
+RUN-FINISHED NOTIFICATIONS: EMAIL, SLACK, NTFY, TEAMS, WEBHOOK
 
-Status: IMPLEMENTED AS ALPHA 2026-09-26 (see the note of that date). Desktop,
+Status: DONE AS ALPHA 2026-09-28 (see the notes of those dates). Desktop,
 email (SMTP), Slack webhook and ntfy notifications for finished and failed
 runs, configured in Preferences -> Notifications, off until configured.
+Teams workflow and generic webhook adapters added and verified 2026-09-28
+against local receivers (see the note of that date).
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -94,8 +96,6 @@ Tests
     turns the OS keyring off for every test.
 
 Not done
-    Microsoft Teams: current Teams workflow webhooks want an Adaptive Card,
-    not Slack's {"text"}; not built. Generic webhooks likewise.
     The notification text is English; it is not passed through tr() (it is
     built in the headless run journal, and mail goes to other people).
     The QC summary uses what the run recorded; pipelines that do not use
@@ -115,10 +115,58 @@ NotifyRunsMinMinutes, NotifyDesktop, NotifyEmail, NotifySmtpHost,
 NotifySmtpPort, NotifySmtpSecurity, NotifySmtpUser, NotifySmtpPassword,
 NotifyEmailFrom, NotifyEmailTo, NotifySlack, NotifySlackWebhook, NotifyNtfy,
 NotifyNtfyServer, NotifyNtfyTopic, NotifyNtfyToken, NotifySendTest,
-NotifyForgetSecrets, NotifyTestResult -- the whole Preferences ->
+NotifyForgetSecrets, NotifyTestResult, NotifyTeams, NotifyTeamsWebhook,
+NotifyWebhook, NotifyWebhookUrl, NotifyWebhookToken -- the whole Preferences ->
 Notifications tab; no settings keys, choices, apps or models. Registered as
 ALPHA_FEATURES[577]['widgets'] in spacr/settings.py. With Show alpha
 features off the tab is not built at all, and unlike other alpha features
 the configuration is also not acted on: _run_notification_config returns
 None, so neither app nor CLI runs send anything for a configuration the gate
 hides (the ALPHA_FEATURES docstring names this exception).
+
+NOTE 2026-09-28 -- TEAMS AND GENERIC WEBHOOK ADAPTERS VERIFIED
+
+    The existing run-journal sender now also sends to Microsoft Teams
+    workflow webhooks and generic HTTP(S) webhooks, with each adapter using
+    the existing ten-second timeout and independent error reporting.
+    Teams uses the current workflow envelope: type "message", one
+    application/vnd.microsoft.card.adaptive attachment, contentUrl null,
+    and an AdaptiveCard 1.2 with a wrapped title and one wrapped TextBlock
+    per summary line. The workflow must allow Anyone to call its generated
+    webhook URL; tenant-authenticated workflows are not supported.
+    Generic webhooks receive JSON {"title", "body", "failed"}, with an
+    optional Authorization: Bearer token. The body is the same run/QC
+    summary and output pointer used by the other notification channels.
+
+    Preferences -> Notifications adds Microsoft Teams and Webhook toggles,
+    Teams webhook, Webhook address and Webhook access token fields. Both
+    channels default off. Webhook addresses and the token join the existing
+    keyring/mode-600 secret store; QSettings records only saved names.
+    Blank fields retain saved values, Reset retains secrets, Forget saved
+    secrets deletes all channels' secrets, and Send a test uses typed or
+    saved credentials without saving. Hiding alpha features still suppresses
+    configured notifications from both the app and CLI.
+
+    Passing tests: tests/test_run_finished_notifications.py
+    extends finished/failed run tests to require exactly one Teams card and
+    one generic JSON message against the local receiver, and covers optional
+    authentication, missing/invalid addresses, per-channel HTTP failures
+    and secret scrubbing. tests/qt/test_run_finished_notifications_preferences.py
+    covers new controls, alpha gating, saving without altering existing
+    recipients/secrets, reopening, blank saves, Reset, Forget, configuration
+    readiness and asynchronous test sending with a fake HTTP helper.
+    New captions and changed help text have source-bound AI technical review
+    in all nine locales. All ten runtime catalogs were rebuilt and audited.
+
+    Payload reference: Microsoft Teams connector, When a Teams webhook
+    request is received, Request Body (Adaptive cards):
+    https://learn.microsoft.com/en-us/connectors/teams/#when-a-teams-webhook-request-is-received
+
+STATUS 2026-09-28 — acceptance recorded
+Finished and failed runs each deliver exactly one summary to the enabled
+local receivers. Cancellation, quiet filters, repeated close, failed channels,
+secret storage/redaction and preferences persistence are covered. Both
+notification test files pass in the 268-unique-check focused acceptance.
+Alpha gating remains active for the app and CLI. No external notification
+was sent during validation. Receipt: features/data/577_accepted_2026-09-28.json.
+Translation receipt: features/data/316_runtime_577_585_2026-09-28.json.

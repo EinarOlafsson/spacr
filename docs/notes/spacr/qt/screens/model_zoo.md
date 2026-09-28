@@ -161,3 +161,46 @@ self._jobs.append((thread, worker))
 ```
 
 Strong references: PySide6 will not keep the worker alive through the started→run connection alone, and a QThread garbage-collected while still running takes the process down with it.
+
+
+---
+
+# Notes from `spacr/qt/screens/model_zoo.py`
+
+Prose lifted out of `spacr/qt/screens/model_zoo.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## Contents
+
+- [group_entries](#group_entries) (2 entries)
+- [ModelZooScreen._build_ui](#modelzooscreen_build_ui) (1 entry)
+
+## group_entries
+
+### lines 212-215
+
+```python
+seen, unique = set(), []
+```
+
+One entry per version label. The same model can arrive twice -- the picker guarantees a stock row AND the catalogue lists the stock models -- and a version box offering "v2, v2" is a bug the user sees. First wins, which is the caller's preferred copy.
+
+### lines 223-225
+
+```python
+return out
+```
+
+Insertion order, not alphabetical: the caller's order is meaningful the picker puts the stock model first, and a listing that reordered it would move the row the user reaches for most.
+
+## ModelZooScreen._build_ui
+
+### lines 525-526  _(unsure)_
+
+```python
+self._table.itemClicked.connect(self._row_clicked)
+```
+
+A click on an uninstalled backend offers to install it, the same as the Make Masks Mode box and the Model Zoo button.

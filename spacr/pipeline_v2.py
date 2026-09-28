@@ -748,8 +748,6 @@ def stream_masks_from_stack(
             from .object import merge_split_filter_masks
             filter_images = intensity_per_field
             if filter_by_raw_intensity:
-                # Match the padded segmentation canvas while retaining the
-                # original values, before illumination and normalization.
                 filter_images = [
                     np.pad(raw, (
                         (0, image.shape[0] - raw.shape[0]),

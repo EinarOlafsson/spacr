@@ -191,8 +191,12 @@ def path_spans(text):
             start += anchor.start()
             token = token[anchor.start():]
         if is_path_token(token, text[:start]):
+            account = re.search(r'olafsson', token, re.I)
+            if neutral_cut(token)[0] is None and account and account.start() > 0:
+                # the account inside a name ("/tmp/pytest-of-<account>/..."): replace just it
+                start += account.start()
+                token = token[account.start():]
             spans.append((start, match.end(), token))
-    # Account label written as a bare word (file-dialog sidebar "olafsson").
     return spans
 
 
@@ -723,14 +727,22 @@ def _redact_span(pixels, line, start, end, token, shift_total, y0, y1, clip_righ
     cut, new_prefix, kind = neutral_cut(token)
     if cut is None:
         return 0
+    if line.get('continuation') and not token.startswith('/') and new_prefix == NEUTRAL_ROOT:
+        # a wrapped row continuing a path whose root the row above already shows: drop the
+        # private folders here instead of repeating the neutral root
+        new_prefix, kind = '', 'wrapped_local_root->(removed)'
+        if cut < len(token) and token[cut] == '/':
+            cut += 1
     if path_kinds(new_prefix + token[cut:]):
         raise ValueError(f'{kind} replacement would still name a local path')
     prefix_end = start + cut  # index in text of the first kept character
     tx0 = span_geometry(line, start, start + 1)[0] - shift_total
     tx1 = span_geometry(line, prefix_end - 1, prefix_end)[1] - shift_total
     prefix = text[:start].strip()
+    # a path whose start is cut off (scrolled field, panel edge): the partial glyphs before
+    # the first readable character belong to it
     clipped_left = ('/' in token and not token.startswith(('/', '~', '.'))
-                    and len(prefix) <= 1 and start <= 2)
+                    and len(prefix) <= 3 and ' ' not in prefix and not line.get('continuation'))
     pad = 24
     px0 = max(0, (min(tx0, lx0 - shift_total) if clipped_left else tx0) - pad)
     px1 = min(width, tx1 + pad)
@@ -867,10 +879,27 @@ def cmd_detect(args):
     return 0
 
 
+def is_continuation(line, lines):
+    """True when line starts with a path fragment and a path line sits right above it
+    (a path wrapped over several rows of a narrow panel or terminal)."""
+    spans = path_spans(line['text'])
+    if not spans or spans[0][0] > 2 or spans[0][2].startswith('/'):
+        return False
+    x0, y0, _, y1 = line['box']
+    height = y1 - y0
+    for other in lines:
+        ox0, oy0, _, oy1 = other['box']
+        if (other is not line and 0 < y0 - oy0 < 1.8 * height and abs(ox0 - x0) < 2 * height
+                and '/' in other['text']):
+            return True
+    return False
+
+
 def redact_image(pixels, regions):
     """Redact all regions of one frame. Returns (new pixels, records, problems)."""
     out = pixels.copy()
     records, problems = [], []
+    all_lines = [line for region in regions for line in (region.get('lines') or region.get('rows') or [])]
     for region in regions:
         box = region['box']
         seen = (region.get('rows') or []) + (region.get('lines') or [])
@@ -887,6 +916,7 @@ def redact_image(pixels, regions):
         for line in lines:
             if not path_kinds(line['text']):
                 continue  # detected under a broader earlier rule; names no local path
+            line['continuation'] = is_continuation(line, all_lines)
             if not path_spans(line['text']):
                 problems.append({'box': line['box'], 'problem': 'path kind without a path token'})
                 continue
@@ -920,23 +950,39 @@ def residual_paths(pixels, records):
     return left
 
 
-def sweep_rows(pixels):
-    """Path-naming OCR rows seen the way the acceptance sweep sees a frame (lifted, 1080p tiles)."""
+def sweep_rows(pixels, scales=(1.0, 2 / 3)):
+    """Path-naming OCR rows seen the way the acceptance sweep sees a frame (lifted, 1080p tiles),
+    at 4K and at the 1440p web-copy scale; OCR finds different lines at different scales."""
+    import cv2
     from sample_tutorial_frames import OCR_OVERLAP, OCR_TILE, lifted
     from PIL import Image
-    view = lifted(Image.fromarray(pixels))
-    height, width = view.shape[:2]
     rows = []
-    for top in range(0, max(1, height - OCR_OVERLAP[1]), OCR_TILE[1] - OCR_OVERLAP[1]):
-        for left in range(0, max(1, width - OCR_OVERLAP[0]), OCR_TILE[0] - OCR_OVERLAP[0]):
-            tile = np.ascontiguousarray(view[top:top + OCR_TILE[1], left:left + OCR_TILE[0]])
-            rows.extend(r for r in _rows(engine()(tile)[0], left, top) if path_kinds(r['text']))
+    for scale in scales:
+        view = lifted(Image.fromarray(pixels))
+        if scale != 1.0:
+            view = cv2.resize(view, None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
+        height, width = view.shape[:2]
+        for top in range(0, max(1, height - OCR_OVERLAP[1]), OCR_TILE[1] - OCR_OVERLAP[1]):
+            for left in range(0, max(1, width - OCR_OVERLAP[0]), OCR_TILE[0] - OCR_OVERLAP[0]):
+                tile = np.ascontiguousarray(view[top:top + OCR_TILE[1], left:left + OCR_TILE[0]])
+                for r in _rows(engine()(tile)[0], left, top):
+                    if path_kinds(r['text']):
+                        r['box'] = [int(round(v / scale)) for v in r['box']]
+                        rows.append(r)
     return rows
 
 
 def inside_box(box, outer, tolerance=4):
     return (box[0] >= outer[0] - tolerance and box[1] >= outer[1] - tolerance
             and box[2] <= outer[2] + tolerance and box[3] <= outer[3] + tolerance)
+
+
+def sliver(box, painted):
+    """A short OCR box straddling a painted line (halves of two rows read as one)."""
+    line_h = (painted[3] - painted[1]) / 2
+    overlap_x = min(box[2], painted[2]) - max(box[0], painted[0])
+    overlap_y = min(box[3], painted[3]) - max(box[1], painted[1])
+    return overlap_x > 0 and overlap_y > 0 and (box[3] - box[1]) < 0.75 * line_h
 
 
 def redact_until_clean(before, regions, rounds=3):
@@ -950,7 +996,8 @@ def redact_until_clean(before, regions, rounds=3):
             issues += problems
         rows = sweep_rows(after) + [dict(r, text='') for r in residual_paths(after, records)]
         # a sliver read inside a painted line is OCR noise on text we set ourselves
-        rows = [r for r in rows if not any(inside_box(r['box'], rec.box) for rec in records)]
+        rows = [r for r in rows if not any(inside_box(r['box'], rec.box) or sliver(r['box'], rec.box)
+                                           for rec in records)]
         boxes = merge_boxes([r['box'] for r in rows])
         # a box that could not be painted before is not retried forever
         tried = {tuple(p['box']) for p in issues}

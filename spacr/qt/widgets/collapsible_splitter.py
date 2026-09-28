@@ -550,8 +550,6 @@ class _PaneHandle(QSplitterHandle):
         painter.setRenderHint(QPainter.Antialiasing, True)
         tab = QColor(palette.get("surface_alt", palette.get("surface",
                                                             "#2a2e37")))
-        # Dark GREY, not the near-black the surfaces carry: the tab has to
-        # read as a control sitting on the page rather than a hole in it.
         tab = tab.lighter(165) if tab.lightness() < 128 else tab.darker(108)
         accent = QColor(palette.get("accent", "#4c8dff"))
         edge = accent if hovered else QColor(palette.get("border", "#3a3f4b"))

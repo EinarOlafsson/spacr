@@ -208,3 +208,25 @@ Not an app: it connects the pre-run cleanup to the run registry and performs wha
 ```
 
 Not an app either: it corrects the maturity label on the modules whose evidence no longer matches "alpha". Listed LAST, after every module that registers an app of its own, because it can only reassess apps that are in the registry by the time it runs — a module registered after it would keep whatever stage it declared.
+
+
+---
+
+# Notes from `spacr/qt/__init__.py`
+
+Prose lifted out of `spacr/qt/__init__.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## run
+
+### lines 409-419
+
+```python
+preferences = sys.modules.get(f"{__name__}.preferences")
+```
+
+291, decided 2026-09-15: "Global in the app only". Every GUI console script reaches the window through this line -- spacr, spacr-qt, spacr-nightly, spacr-server, spaceout, spacr-make-masks and `python -m spacr` -- so this is where Open Sans becomes matplotlib's default, and a plain `Figure()` anywhere in the application draws in the face the interface uses. Held around `launch`, which is the life of the process; see `spacr.figure_font._open_sans_is_the_default`.
+
+NOT IN SAFE MODE. `safespacr` is the least spaCR that can still change a setting (296), and this imports matplotlib and registers eight font files before the first window.

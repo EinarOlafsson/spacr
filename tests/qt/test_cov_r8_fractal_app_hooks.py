@@ -121,6 +121,108 @@ def widget(qapp, monkeypatch):
     made.deleteLater()
 
 
+@pytest.fixture
+def screen_with_cpu_backdrop(qtbot, monkeypatch):
+    """Own a real screen and CPU render thread with an inexpensive frame engine."""
+    import shiboken6
+
+    from spacr.qt import preferences, theme
+    from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt.widgets import ambient
+
+    made = []
+
+    def build(values, controls=None):
+        """Build the CPU backdrop for the supplied preferences and controls.
+
+        :param values: installation preferences; this fixture pins the CPU backend.
+        :param controls: optional live controls passed by the installer.
+        :returns: a canvas owning a real QThread.
+        """
+        backdrop = F._make_cpu_widget(
+            F.Settings(pattern="orbit", backend="cpu", cpu_threads=2),
+            controls or F.RuntimeControls(), F.HardwareProfile(logical_cpus=2))
+        made.append(backdrop)
+        return backdrop
+
+    monkeypatch.setattr(F, "OrbitEngine", _CheapEngine)
+    monkeypatch.setattr(theme, "spaceout_enabled", lambda: True)
+    monkeypatch.setattr(preferences, "get_ambient_enabled", lambda: True)
+    monkeypatch.setattr(ambient, "_build_the_spaceout_fractal", build)
+    screen = AppScreen("regression")
+    qtbot.addWidget(screen)
+    monkeypatch.setattr(screen, "_refresh_usage", lambda: None)
+    try:
+        assert screen._ambient is not None
+        assert screen._ambient._thread.isRunning()
+        yield screen
+    finally:
+        screen.close()
+        for backdrop in made:
+            if shiboken6.isValid(backdrop):
+                backdrop.shutdown()
+
+
+def test_closing_the_host_joins_its_cpu_backdrop_before_deferred_deletion(
+        screen_with_cpu_backdrop):
+    """Parent close must join the child worker without a later event-loop turn."""
+    screen = screen_with_cpu_backdrop
+    backdrop = screen._ambient
+    thread = backdrop._thread
+
+    assert screen.close()
+
+    assert not thread.isRunning()
+    assert backdrop._stopped
+    assert screen._ambient is None
+    assert screen._ambient_applied is None
+    assert not screen._backdrops_ready
+    screen._install_ambient()
+    assert screen._ambient is None
+
+
+def test_reopening_the_host_builds_a_fresh_cpu_backdrop(
+        screen_with_cpu_backdrop, qtbot):
+    """A reusable closed screen must not reopen with its stopped canvas."""
+    screen = screen_with_cpu_backdrop
+    original = screen._ambient
+    assert screen.close()
+    assert not original._thread.isRunning()
+
+    screen.show()
+    qtbot.waitUntil(lambda: screen._ambient is not None)
+    replacement = screen._ambient
+    assert replacement is not original
+    assert replacement._thread.isRunning()
+    assert not replacement._stopped
+    assert screen._backdrops_ready
+
+    assert screen.close()
+    assert not replacement._thread.isRunning()
+
+
+def test_a_deferred_pipeline_close_keeps_the_cpu_backdrop(
+        screen_with_cpu_backdrop, monkeypatch):
+    """A refused close preserves the live screen and its renderer."""
+    from types import SimpleNamespace
+
+    from PySide6.QtGui import QCloseEvent
+
+    screen = screen_with_cpu_backdrop
+    backdrop = screen._ambient
+    running = SimpleNamespace(requestInterruption=lambda: None,
+                              wait=lambda _timeout: False,
+                              isRunning=lambda: True)
+    with monkeypatch.context() as patch:
+        patch.setattr(screen, "_thread", running)
+        event = QCloseEvent()
+        screen.closeEvent(event)
+        assert not event.isAccepted()
+        assert screen._ambient is backdrop
+        assert backdrop._thread.isRunning()
+        assert screen._backdrops_ready
+
+
 class TestShuttingDown:
 
     def test_a_shutdown_stops_the_timer_and_joins_the_thread(self, widget):
@@ -174,10 +276,17 @@ class TestShuttingDown:
         live, and it should fail here rather than take the process down
         on a second shutdown.
         """
-        from PySide6.QtWidgets import QApplication
+        from PySide6.QtCore import QObject, Signal
 
-        application = QApplication.instance()
-        assert application is not None
+        class QuitSignalSource(QObject):
+            aboutToQuit = Signal()
+
+        application = QuitSignalSource()
+        received = []
+        application.aboutToQuit.connect(lambda: received.append("first"))
+        application.aboutToQuit.connect(lambda: received.append("second"))
+        application.aboutToQuit.emit()
+        assert received == ["first", "second"]
 
         assert application.aboutToQuit.disconnect(lambda: None) is False
 
@@ -190,6 +299,8 @@ class TestShuttingDown:
         assert application.aboutToQuit.disconnect(None) is True, (
             "there was no connection to remove, so this test proved "
             "nothing about what None does")
+        application.aboutToQuit.emit()
+        assert received == ["first", "second"]
 
         source = inspect.getsource(F._make_cpu_widget)
         assert "except (RuntimeError, TypeError):" in source
@@ -227,7 +338,7 @@ class TestTheApplicationHookItself:
         source = inspect.getsource(F._make_cpu_widget)
         assert source.count("application = QApplication.instance()") == 2, (
             "one of the two application lookups changed shape")
-        assert source.count("if application is not None:") == 2, (
+        assert source.count("if application is not None") == 2, (
             "an application lookup is no longer guarded against None")
 
     def test_a_backdrop_freed_with_its_screen_takes_its_quit_hook_along(

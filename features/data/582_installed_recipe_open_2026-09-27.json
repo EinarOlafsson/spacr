@@ -1,0 +1,54 @@
+{
+  "item": 582,
+  "date": "2026-09-27",
+  "scope": "Open an installed recipe in its spaCR module without running analysis",
+  "status": "implemented; focused runtime verification passed",
+  "implementation": {
+    "selection": "Installed registry module and settings path remain authoritative when an offered catalogue update differs.",
+    "navigation": "Existing MainWindow navigation and folded-screen resolution; installed plugin registry also supports apps added after window creation.",
+    "loading": "Existing load_settings_file and apply_settings_dict; no Run call. Close Preferences only after successful application; show failures in the existing status label.",
+    "visibility": "PluginCatalogueOpen is registered under ALPHA_FEATURES[582]; alpha and module maturity checks remain enforced.",
+    "captions": "Existing translated Open, Could not apply template, and {name} failed: {error} captions reused.",
+    "api": "No new public API symbol: _PluginCataloguePage is excluded by the canonical class filter; _open_selected has no enclosing function and is not a nested-helper API entry."
+  },
+  "checks": {
+    "git_diff_check": "passed",
+    "focused_file": "tests/qt/test_plugin_catalogue_alpha_gate.py",
+    "prepared_cases": 7,
+    "runtime_status": "passed",
+    "coverage": [
+      "Actual built-in module receives installed settings without starting a worker",
+      "Actual offline-installed plugin added after window creation receives installed settings",
+      "Offered update does not replace installed module, version, or settings",
+      "Missing settings fail without closing Preferences",
+      "Uninstalled recipes and plugin entries do not offer Open",
+      "Alpha visibility, catalogue sorting, install and uninstall remain covered"
+    ],
+    "result": {
+      "files": [
+        "tests/test_native_installer_workflow.py",
+        "tests/qt/test_plugin_catalogue_alpha_gate.py",
+        "tests/qt/test_a_hovered_setting_does_not_turn_the_chat_box_black.py"
+      ],
+      "cap": "4G",
+      "private_home": true,
+      "cuda_hidden": true,
+      "qt_platform": "offscreen",
+      "exit_status": 0,
+      "passed": 12,
+      "duration_seconds": 13.89,
+      "log": "/mnt/wd4tb/scratch/spacr-completion/cheap-fixes-check-20260927/pytest.log",
+      "log_sha256": "b3bd18e5a3ce8a88cf3d59c03405b3c93dc849d53821673dce8cc87715fdbc56"
+    },
+    "source_sha256": {
+      "spacr/qt/preferences.py": "09d8f074049d5e39ab6f84af8ff244540f180609a234fb02a85a09e48bccdb87",
+      "spacr/settings.py": "fe918cffdc18a47a6c61b21fa51c5a858e0d1327d816cc6179694a41fe195185",
+      "tests/qt/test_plugin_catalogue_alpha_gate.py": "4f12499f870f8855f1a777baab78c54d60f65e52068f40e72ebd4cec6999b1bf"
+    }
+  },
+  "remaining_item_work": [
+    "Isolation for conflicting plugin dependency versions",
+    "Hosted community catalogue and signing policy",
+    "Background installation with progress"
+  ]
+}

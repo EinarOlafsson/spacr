@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Download about {size} MB of SYNTHETIC test data: two-colour fields and object masks drawn by spaCR, not imaged or segmented, then measured by Measure. A staining-control column and two conditions with a known share of invaded parasites, with the truth beside them. Settings are filled in, so Run is the next step. Cached after the first download.",
+      "source": "Download about {size} MB of SYNTHETIC test data: two-colour fields and object masks drawn by spaCR, not imaged or segmented, then measured by Measure. A staining-control column and two conditions with a known share of invaded parasites, with the truth beside them. Settings are filled in, so Run is the next step. Cached after the first download.",
+      "source_sha256": "507d4d3281c7bca17f60d89a601d9e36305c25bb0ef5435258a9553c62b7c39e",
+      "translation": "लगभग {size} MB कृत्रिम परीक्षण डेटा डाउनलोड करें: दो रंगों वाले दृश्य-क्षेत्र और वस्तुओं के मास्क spaCR ने बनाए हैं; इन्हें माइक्रोस्कोप से चित्रित या विभाजित नहीं किया गया है। फिर इन्हें Measure से मापा गया है। इसमें रंगाई-नियंत्रण का एक कॉलम और दो स्थितियाँ हैं, जिनमें कोशिकाओं में प्रवेश कर चुके परजीवियों का अनुपात ज्ञात है; तुलना के लिए सही मान भी दिए गए हैं। सेटिंग अपने आप भर जाती हैं, इसलिए अगला चरण चलाना है। पहली बार डाउनलोड करने के बाद डेटा कैश में रखा जाता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Downloading the synthetic Invasion Assay test data",
+      "source": "Downloading the synthetic Invasion Assay test data",
+      "source_sha256": "f809593e31f76a60b85535ee278c87d8fb5673a0ab317c9ffb0eb1413486f27e",
+      "translation": "Invasion Assay का कृत्रिम परीक्षण डेटा डाउनलोड हो रहा है"
+    }
+  ]
+}

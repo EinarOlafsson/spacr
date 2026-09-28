@@ -1014,13 +1014,13 @@ def _dino_pretrain(crops: Any, path: str, *, arch: str = "resnet18",
     images, scale = _dino_planes(crops, channel_policy, channels)
     in_chans = int(images.shape[1])
     device = device or ("cuda" if torch.cuda.is_available() else "cpu")
-    config = {"arch": arch, "in_chans": in_chans, "size": int(size),
+    trained = {"arch": arch, "in_chans": in_chans, "size": int(size),
               "channel_policy": channel_policy, "out_dim": int(out_dim)}
     state = None
     if os.path.exists(path):
         state = torch.load(path, map_location="cpu", weights_only=False)
-        mismatch = {k: (state["config"].get(k), v) for k, v in config.items()
-                    if state["config"].get(k) != v}
+        mismatch = {k: (state["setup"].get(k), v) for k, v in trained.items()
+                    if state["setup"].get(k) != v}
         if mismatch:
             raise EmbeddingError(
                 f"{path} holds a DINO run with different settings "
@@ -1106,7 +1106,7 @@ def _dino_pretrain(crops: Any, path: str, *, arch: str = "resnet18",
                     dim=0, keepdim=True)
             running += float(loss.detach())
         losses.append(running / steps)
-        payload = {"config": config, "epoch": epoch + 1, "loss": losses,
+        payload = {"setup": trained, "epoch": epoch + 1, "loss": losses,
                    "scale": scale, "student": student.state_dict(),
                    "student_head": s_head.state_dict(),
                    "teacher": teacher.state_dict(),
@@ -1138,14 +1138,14 @@ def _dino_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
     if not os.path.exists(path):
         raise EmbeddingError(f"no DINO checkpoint at {path}")
     state = torch.load(path, map_location="cpu", weights_only=False)
-    config = state["config"]
-    if config["channel_policy"] != spec.channel_policy:
+    trained = state["setup"]
+    if trained["channel_policy"] != spec.channel_policy:
         raise EmbeddingError(
-            f"{path} was trained under the {config['channel_policy']} "
+            f"{path} was trained under the {trained['channel_policy']} "
             f"policy; embed with that policy")
-    size = int(config["size"])
-    model, _head = _dino_network(config["arch"], config["in_chans"], size,
-                                 False, config["out_dim"], torch)
+    size = int(trained["size"])
+    model, _head = _dino_network(trained["arch"], trained["in_chans"], size,
+                                 False, trained["out_dim"], torch)
     model.load_state_dict(state["teacher"])
     device = spec.device or ("cuda" if torch.cuda.is_available() else "cpu")
     model.eval().to(device)
@@ -1169,7 +1169,7 @@ def _dino_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
                 out.append(model(chunk).detach().float().cpu().numpy())
         return np.concatenate(out, axis=0)
 
-    run.in_channels = int(config["in_chans"])
+    run.in_channels = int(trained["in_chans"])
     return run
 
 
@@ -1331,7 +1331,10 @@ def _mil_fit(bags: Sequence[np.ndarray], labels: Sequence[int], *,
     width = stacked.shape[1]
 
     class _Attention(nn.Module):
+        """Pool cell embeddings into a well score with gated attention."""
+
         def __init__(self):
+            """Build the cell projection, attention gate and binary well head."""
             super().__init__()
             self.cell = nn.Sequential(nn.Linear(width, hidden), nn.ReLU(),
                                       nn.Dropout(dropout))
@@ -1341,6 +1344,7 @@ def _mil_fit(bags: Sequence[np.ndarray], labels: Sequence[int], *,
             self.head = nn.Linear(hidden, 1)
 
         def forward(self, x, mask):
+            """Return well logits, attention and cell evidence, excluding padding."""
             h = self.cell(x)
             logits = self.weight(torch.tanh(self.value(h))
                                  * torch.sigmoid(self.gate(h))).squeeze(-1)

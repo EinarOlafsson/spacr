@@ -220,3 +220,23 @@ if getattr(args, "hash_inputs", None) is not None:
 ```
 
 hash-inputs / --no-hash-inputs, applied AFTER the settings file so the flag wins. `None` means neither was given, in which case whatever the settings file says stands -- a settings file written by the GUI already carries the user's preference, and a CLI run of that file should reproduce the GUI run rather than silently differ.
+
+
+---
+
+# Notes from `spacr/cli.py`
+
+Prose lifted out of `spacr/cli.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## cmd_run
+
+### lines 1745-1749
+
+```python
+with _NoShow(), _open_sans_is_the_default():
+```
+
+291 ("Global in the app only"): a pipeline run draws every figure, a plain `Figure()` included, in Open Sans. Held for the run rather than set bare, because `main` is also called in-process -- by `spacr.batch.inprocess_runner` and by tests -- and the caller gets its matplotlib back when the run ends.

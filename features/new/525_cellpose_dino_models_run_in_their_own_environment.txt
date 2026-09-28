@@ -3,7 +3,7 @@ CELLPOSE-DINO MODELS RUN IN AN ENVIRONMENT OF THEIR OWN
 Status: BUILT 2026-09-25. Backend installed for real, ViT-B real CPU run done. Second pass
 (same day): v2, the Live and Timelapse previews and Make Masks' Mode box / Model list run
 cellpose_dino:; real v2 mask == V1 mask on plate1_A02_12 (see the trailing notes). Open:
-ViT-L run, a GPU run, i18n catalog rows.
+ViT-L run and a GPU run. The nine-locale catalog tail passed 2026-09-27.
 Owner: Claude (525 worktree). Related: 504 (bioimage.io lists Cellpose-DINO ViT-L and
 ViT-B but refuses them: Cellpose 4 needs the `dinov3` package, not installed),
 503/446 (Cellpose 3 in its own environment), 475 (SpotNet), 469 (figure
@@ -288,3 +288,15 @@ TESTS
 STILL OPEN
   * ViT-L (famous-sheep) not run; no GPU run of Cellpose-DINO yet.
   * i18n catalog rows for the first pass's strings (docs lane).
+
+2026-09-27 -- DOCUMENTATION TRANSLATION TAIL RESOLVED
+The current runtime catalogs cover all 8,726 source entries in all nine
+locales, including the Cellpose-DINO backend/install/model captions above;
+the strict runtime audit and caption gates pass. The API catalogs are also
+source-current at 11,865 symbols. Source-bound DINO caption reviews are in
+docs/i18n/reviewed/runtime/<locale>/2026-09-25-runtime-debt-second-pass-captions.json;
+current coverage and review counts are recorded in docs/i18n/COVERAGE.md and
+REVIEW_SCOPE_2026-09-04.md. Review is AI technical review, with no native-speaker
+signoff. This closes the catalog-row handoff only. The existing real backend
+installation and ViT-B CPU/V1-v2 evidence stand; ViT-L and GPU acceptance
+remain open and were not run for this documentation checkpoint.

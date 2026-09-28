@@ -55,18 +55,27 @@ def umap_screen(qtbot, tmp_path):
 def test_three_dropped_plates_are_three_sources(umap_screen, tmp_path):
     """The bug, reproduced and fixed: it used to leave ['plate3']."""
     from spacr.qt.dnd_handlers import get_handler
+    from spacr.qt.widgets.table_chip import TableChip
+    from PySide6.QtCore import QEvent
+    from PySide6.QtWidgets import QApplication
+    from shiboken6 import isValid
 
     handler = get_handler("umap")
     src = umap_screen._settings_model._widgets["src"]
     plates = [_plate(tmp_path, name) for name in ("plate1", "plate2", "plate3")]
 
+    replaced = []
     for plate in plates:
+        replaced.extend(src.findChildren(TableChip))
         handler.apply(plate, umap_screen)
 
     assert src.sources() == [str(plate) for plate in plates]
     # And it reaches what the run would be given, not only the widget.
     assert umap_screen._settings_model.collect()["src"] == [
         str(plate) for plate in plates]
+    assert replaced
+    QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+    assert not any(isValid(chip) for chip in replaced)
 
 
 def test_the_same_plate_twice_is_one_source_and_still_succeeds(

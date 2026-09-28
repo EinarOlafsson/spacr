@@ -2,14 +2,13 @@
 TEST DATA FOR THE REPLICATION, INVASION AND RECRUITMENT ASSAYS
 ================================================================================
 
-Status:    in progress. All three built, published and run on their
-           samples. Invasion's set is SYNTHETIC by the maintainer's decision
-           (see the section below); the PUBLISHED set's masks are drawn. The
-           --segment rebuild is done (2026-09-25, GPU, 3.5 min), verified,
-           and READY TO PUBLISH at /mnt/wd4tb/spacr_testdata/assays/
-           invasion_segmented/ -- not uploaded. Owed on publish: the drawn-
-           mask wording in spacr/example_archives.py and its catalog rows.
-           The nine-language captions for the current set are done.
+Status:    DONE 2026-09-27. All three examples are built
+           and published. Invasion's images remain SYNTHETIC; its masks now
+           come from Mask's Cellpose-SAM segmentation and its measurements
+           from Measure. Immutable publication readback and a real empty-cache
+           CLI download pass. The earlier drawn-mask cache is preserved.
+           Runtime and API translation tails are now source-current in all
+           nine locales; see the dated closure evidence below.
 
 Requested: 2026-09-21 -- the maintainer's decision, as the orchestrating
            session holds it: "Replication / Invasion / Recruitment" should get
@@ -262,3 +261,117 @@ and the INVASION_EXAMPLE_REPO comment in spacr/example_archives.py from
 "masks drawn by spaCR" to segmented (the summary is a translated caption,
 so its nine catalog rows move with it) and the byte count if it is pinned
 anywhere finer than 107 MB.
+
+2026-09-27 — CODEX: SEGMENTED PUBLICATION PREPARED; NOT YET UPLOADED
+--------------------------------------------------------------------------------
+Read-only CPU preflight verified the staged tar against the September25
+SHA-256 above: 106,885,120 bytes, all27 file members identical to the staged
+dataset, no absolute/traversing paths, settings last. SQLite integrity is
+OK: 1,535 cell, 1,536 nucleus, 1,700 pathogen and 1,535 cytoplasm rows.
+The pathogen path_name values remain relative merged/ paths. Across all24
+fields, the first four image planes are byte-identical to the earlier drawn
+release and all three mask planes differ. ground_truth.csv is unchanged,
+with1,713 drawn objects. No new inference or GPU execution was needed.
+
+Prepared runtime changes distinguish drawn synthetic images, Mask's
+Cellpose-SAM segmentations and Measure's measurements in both the example
+summary and the button tooltip. The cache folder becomes
+invasion_segmented_v1: existing invasion/ copies retain their drawn masks
+and are neither overwritten nor silently described as the segmented release.
+The ordinary CLI and GUI paths already use ExampleSet.folder, so both follow
+the new folder without another downloader. An offline GUI regression covers
+the first download, preservation of the old cache and reuse of the new one.
+
+Publication is still pending: root owns the atomic tar/card upload, immutable
+revision readback and real empty-cache download. The previous drawn tar is
+preserved locally with SHA-256
+881e512447079719d0465d31950bb33ed68ccc099ea7a3024e17f787fbb682d2.
+The changed summary/tooltip and public documentation need the phase2 catalog
+rebuild; no translated catalog was edited here. Preflight and exact publishing
+steps are in /mnt/wd4tb/scratch/spacr-completion/463-publication-preflight.json
+and 463-publication-plan.md. No publication or final completion is claimed.
+
+Validation: tests/qt/test_the_assay_modules_offer_test_data.py and
+tests/test_cli_download.py:76passed in7.95s, CPU-only/offscreen under a6G cap,
+with private HOME/config/cache/temp directories. The tests use no network.
+
+2026-09-27 — CODEX: PUBLISHED AT AN IMMUTABLE REVISION AND DOWNLOADED FOR REAL
+--------------------------------------------------------------------------------
+Published the verified tar and its matching README together in one guarded
+Hugging Face commit to einarolafsson/spacr-example-invasion:
+  old drawn revision: 5c90cb3bc8797ea41487d004fb58f7ec64a3f9dc
+  new segmented revision: 152e109f8b312724eadfc1cbf33f1b9e99728c72
+The old remote archive hash matched the preserved local drawn build before
+the change. The parent-commit guard required that exact old revision, so an
+intervening publication could not have been overwritten. Dataset history
+keeps the drawn release addressable at its original revision.
+
+Read both uploaded files back at the immutable new revision. The tar matched
+135ebf64cf3b5d7c3e77e3b64f73da9cc063bb237e0a41e13c65825ef834714b
+(106,885,120 bytes); README matched
+307b63aa29539237427c465e64d4e3d308e1fe26596b2b825c6071821b6809d9
+(3,264 bytes). Current dataset main matched that verified revision.
+
+Then ran the actual canonical spacr-download invasion command into an empty
+private destination. It downloaded and unpacked one set into
+invasion_segmented_v1, removed its temporary tar, and replaced the settings
+placeholder. All24 merged fields and ground truth match the verified archive;
+SQLite integrity/counts match, and all24 relative database paths resolve.
+The ordinary settings-pack loader applied21 settings with none dropped or
+malformed: outside channel3, total channel2, baseline c1 and vehicle/inhibitor
+conditions. No new segmentation, biological accuracy claim or GPU run.
+
+Durable receipt: features/data/463_segmented_publication_2026-09-27.json.
+The builder's opening documentation now describes both generated mask modes
+without calling the published segmented masks drawn. The new tooltip is
+listed in _AWAITING_CATALOG_REBUILD pending the phase2 translations; the
+English summary and public documentation also describe the segmented set.
+
+The generated-caption source-hash guard was run after adding the new tooltip
+to the awaiting list. It still fails on12 other captions (notification/mail
+settings, hit-scoring help and the no-source notice); the Invasion tooltip is
+not among them. That phase2 catalog failure is not claimed green here.
+
+2026-09-27 — RUNTIME TRANSLATION TAIL ACCEPTED
+The current labels, help, categories and UI are source-current in all nine
+locales. The canonical audit passed; strict runtime checks passed 54 cases
+(51 on the first run, the 3 corrected test-cohort/context assumptions on the
+focused rerun). The advisory translation plugin was disabled. This closes
+this item's runtime catalog tail against the existing implementation and
+scientific evidence above; it adds no new efficacy or GPU claim. The shared
+API/publication work remains tracked separately under 411/358.
+
+Receipt: features/data/316_runtime_codex_delta_2026-09-27.json.
+Review: docs/i18n/2026-09-27-runtime-codex-delta.md.
+AI technical review (Codex), no native-speaker signoff.
+
+2026-09-27 -- ITEM CLOSED AGAINST IMPLEMENTATION AND CURRENT TRANSLATIONS
+--------------------------------------------------------------------------------
+The original request was three published small example datasets and a
+Load test data button in each assay. The earlier Replication/Recruitment
+notes record real repository downloads, live GUI button/cache reuse and
+CPU execution with shipped settings. Invasion's durable publication receipt
+features/data/463_segmented_publication_2026-09-27.json records the atomic
+tar/card upload at revision 152e109f8b312724eadfc1cbf33f1b9e99728c72,
+immutable readback, an actual empty-cache canonical CLI download, preservation
+of the earlier cache, resolved relative paths and 76 offline regression tests.
+The current ExampleSet uses invasion_segmented_v1 and explicitly distinguishes
+synthetic images, Mask segmentation and Measure measurements.
+
+The publication receipt's remaining translation entry is now historical:
+features/data/316_runtime_codex_delta_2026-09-27.json records accepted canonical
+runtime audits in all nine locales and 54 strict runtime checks with the
+advisory plugin disabled. The current segmented Invasion tooltip's source
+hash c922848a8b7e2cd03b6ceb261c77b466aae137a3eec9912cc503873eed825c75
+is present in all nine runtime catalogs.
+
+All 17 public API entries under spacr.qt.assay_examples and
+spacr.example_archives have matching current English symbol and block hashes
+in all nine API catalogs. Commit 7d38d35d1 and
+features/data/411_api_delta3_2026-09-27.json record 207 passing API checks and
+zero API audit failures. Its separate README failures belong to the shared
+documentation lane, not this dataset requirement. Historical receipts and
+review records are preserved. No new segmentation, biological efficacy
+measurement or GPU execution is claimed by this closure.
+
+AI technical review (Codex), no native-speaker signoff.

@@ -199,41 +199,14 @@ def _awaiting_translation(screen) -> set:
     the moment the lane has done one, so the list empties itself rather
     than becoming a permanent hole.
 
-    Still owed since 2026-09-22 by item 473 (Make Masks offers every
-    detection method): the hysteresis low threshold, the ridge scales and
-    threshold, the U-Net model path, and propagation's minimum distance,
-    seed percentile and stop value. Still owed by item 473's Image
-    enhancement card: the CLAHE tile, gamma, morphology and sharpen help.
-    Owed again since 2026-09-26: the CLAHE help, whose wording 6fe2876fb
-    changed ("saturating" for a figurative phrase) after the lane had
-    translated the old one. Owed since 2026-09-26 by item 555's Segment
-    by prompt category, an alpha feature: its Overlap rule.
+    The remaining 13 detection, propagation, enhancement and prompt
+    captions have exact rows in every shipped catalog as of 2026-09-27.
+    None are exempt now; the panel-wide exact-row check covers them too.
 
-    Everything else once listed here -- the detection buttons, the other
-    method and propagation parameters, the rest of the enhancement card,
-    item 509's PSF fields and item 511's Filter property box -- arrived
-    with the catalog lane's 2026-09-25 rebuild (316) and left the list.
+    :param screen: the constructed panel, available for identifying any
+        future explicitly deferred captions.
     """
-    method = ("hysteresis_low", "ridge_sigmas", "ridge_threshold",
-              "unet_model_path")
-    propagate = ("propagate_min_distance", "propagate_seed_percentile",
-                 "propagate_stop_value")
-    widgets = [widget for key, widget in getattr(screen, "_method_widgets", {}).items()
-               if key in method]
-    widgets += [widget for key, widget in getattr(screen, "_propagate_widgets", {}).items()
-                if key in propagate]
-    for name in ("_enh_clahe", "_enh_clahe_tile", "_enh_gamma",
-                 "_enh_morphology", "_enh_sharpen", "_prompt_overlap"):
-        widget = getattr(screen, name, None)
-        if widget is not None:
-            widgets.append(widget)
-    owed = set()
-    for widget in widgets:
-        owed.add(widget.property("apiTooltipDescriptionSource") or widget.toolTip())
-        label = _sibling_label_for(widget)
-        if label is not None:
-            owed.add(label.property("apiTooltipDescriptionSource") or label.toolTip())
-    return {text for text in owed if text}
+    return set()
 
 
 def test_every_help_string_on_the_panel_has_an_exact_catalog_row(screen):

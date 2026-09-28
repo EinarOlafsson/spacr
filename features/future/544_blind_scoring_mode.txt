@@ -104,3 +104,18 @@ choices, apps or models. Registered as ALPHA_FEATURES[544]['widgets'] in
 spacr/settings.py (item 569's gate), applied when each button is built and
 live by the app when the preference changes. The API in spacr.run_journal
 is not gated (API, not GUI).
+
+STATUS 2026-09-28 — settings, retained history and failure dialogs blinded
+Annotate disables identifying Settings/console/AI entry controls and refuses
+direct settings opening, clipboard copy and report entry while blinded. Prior
+history is hidden and restored on unblinding. Make Masks replaces known source
+identifiers in statuses, tooltips, actual warning and folder-confirmation text
+with field codes/placeholders, and hides retained console history. Underlying
+paths and persisted history remain unchanged. Fold/shortcut restoration cannot
+reveal that history during blinding.
+All9 named blinding/logging and workflow-alpha checks pass. Two original test
+failures hit the global headless modal guard; corrected tests drive actual Qt
+dialogs with scoped real-call restoration, inspect their text and reject them
+through bounded timers. Failure logs remain retained. Manual-counting scope
+and whole544 completion are not claimed by this repair.
+Receipt: features/data/544_blind_identifier_repairs_2026-09-28.json.

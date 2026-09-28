@@ -127,10 +127,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "ingen upptäckt", "keine erkannt", "ninguno detectado", "未检测到", "nenhum detectado", "कोई नहीं मिला", "감지되지 않음", "ekkert greindist", "aucun détecté"),
     "detected, not used by spaCR": _row(
         "upptäckt, används inte av spaCR", "erkannt, wird von spaCR nicht verwendet", "detectado, no utilizado por spaCR", "已检测到，spaCR 未使用", "detectado, não utilizado pelo spaCR", "पाया गया, spaCR द्वारा उपयोग नहीं किया गया", "감지됨, spaCR에서 사용하지 않음", "greind, ekki notuð af spaCR", "détecté, non utilisé par spaCR"),
-    # The GPU slide's table captions. They reach `tr` through the loop over
-    # `setup_slides.GPU_TABLE_ROWS`, where no extractor rule can follow them,
-    # so four of them were English in every language (and "Torch models" came
-    # out of the composite as "Torch Modelle").
     "Torch models": _row(
         "Torch-modeller", "Torch-Modelle", "Modelos de Torch", "Torch 模型", "Modelos Torch", "Torch मॉडल", "Torch 모델", "Torch-líkön", "Modèles Torch"),
     "Live backdrop": _row(
@@ -3290,20 +3286,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
     "percentile": _row(
         "percentil", "Perzentil", "percentil", "百分位", "percentil",
         "प्रतिशतक", "백분위수", "hundraðsmark", "centile"),
-    # INSTRUCTION 316, 2026-09-25. Compact captions that reached the ratchet
-    # after the catalogs were last rebuilt: the setup installer and GitHub
-    # CLI prompts, the ten night-theme names and the Resonance backdrop,
-    # two keyboard-shortcut captions (item 427, Help) and Annotate's
-    # confirm/reject shortcuts (item 512). AI technical review (Claude Opus
-    # 5.5), no native-speaker signoff. Spanish is in the formal register.
-    # Eighteen of them already had source-bound records in
-    # docs/i18n/reviewed/runtime/ (the setup and sign-in captions and
-    # Resonance); those translations are carried over here and the records
-    # retired, since a caption may have only one owner. Corrected on the
-    # way: "under the marks" means under the provider logos, not markings
-    # (all seven locales that had it); Swedish "denna screening" for this
-    # screen; the Chinese menu path left in English; the Korean window title
-    # ending in a full stop; the German button written as a noun phrase.
     "An install is still running": _row("En installation körs fortfarande", "Eine Installation läuft noch", "Una instalación todavía se está ejecutando", "安装仍在运行", "Uma instalação ainda está em execução", "एक इंस्टॉलेशन अभी भी चल रहा है", "설치가 아직 진행 중입니다", "Uppsetning er enn í gangi", "Une installation est toujours en cours d'exécution"),
     "Another install is still running. Wait for it to finish, or press Cancel under the marks.": _row("En annan installation pågår fortfarande. Vänta tills den är klar, eller tryck på Avbryt under logotyperna.", "Eine andere Installation läuft noch. Warten Sie, bis sie abgeschlossen ist, oder klicken Sie unter den Logos auf „Abbrechen“.", "Otra instalación sigue en curso. Espere a que termine o pulse Cancelar debajo de los logotipos.", "另一个安装仍在进行。请等待其完成，或点击标志下方的“取消”。", "Outra instalação ainda está em andamento. Aguarde a conclusão ou clique em Cancelar abaixo dos logotipos.", "एक अन्य इंस्टॉलेशन अभी भी चल रहा है। उसके पूरा होने की प्रतीक्षा करें, या लोगो के नीचे रद्द करें दबाएँ।", "다른 설치가 아직 진행 중입니다. 완료될 때까지 기다리거나 로고 아래의 취소를 누르세요.", "Önnur uppsetning er enn í gangi. Bíddu þar til henni lýkur eða ýttu á Hætta við undir merkjunum.", "Une autre installation est toujours en cours. Attendez qu’elle se termine ou cliquez sur Annuler sous les logos."),
     "Aphelion": _row("Afelium", "Aphel", "Afelio", "远日点", "Afélio", "अपसौर", "원일점", "Sólfirð", "Aphélie"),
@@ -3379,17 +3361,6 @@ _TERM_ROWS: Dict[str, tuple[str, ...]] = {
     "Advanced": _row("Avancerat", "Erweitert", "Avanzado", "高级", "Avançado", "उन्नत", "고급", "Ítarlegt", "Avancé"),
     "General": _row("Allmänt", "Allgemein", "General", "常规", "Geral", "सामान्य", "일반", "Almennt", "Général"),
     "Paths": _row("Sökvägar", "Pfade", "Rutas", "路径", "Caminhos", "पथ", "경로", "Slóðir", "Chemins"),
-    # EXPERIMENTAL CONTROLS, NOT INTERFACE CONTROLS. This row is reached by
-    # exactly two kinds of text on screen, and both mean positive/negative
-    # controls: the exact caption -- the regression screen's "Controls" tab,
-    # its filtered-family tab name and its live tile, all ControlSeparation --
-    # and the word inside the section headings "Plate Layout & Controls",
-    # "Controls & Filters" and "Controls & Minimum Counts". No drawn caption
-    # uses "Controls" for widgets, yet zh_CN/ko/is carried the widget sense
-    # (控件, 컨트롤, Stýringar), so a Chinese reader saw "widgets" over the
-    # assay-window plot. They now match the singular "Control" row below,
-    # except Icelandic: the maintainer chose "Viðmiðunarsýni" (control
-    # samples) for this plural on 2026-09-15, asked with the question tool.
     "Controls": _row("Kontroller", "Kontrollen", "Controles", "对照", "Controles", "नियंत्रण", "대조군", "Viðmiðunarsýni", "Contrôles"),
     "Plate": _row("Platta", "Platte", "Placa", "孔板", "Placa", "प्लेट", "플레이트", "Plata", "Plaque"),
     "Plates": _row("Plattor", "Platten", "Placas", "板", "Placas", "प्लेट", "플레이트", "Plötur", "Plaques"),

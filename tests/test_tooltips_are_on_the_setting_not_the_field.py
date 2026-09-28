@@ -187,6 +187,68 @@ def test_each_setting_keeps_its_own_help_when_the_row_is_not_laid_out(qtbot):
         assert field.toolTip() == ""
 
 
+def test_a_pending_disabled_reason_follows_the_field_help_to_its_label(
+        qtbot, monkeypatch):
+    """Keep a pre-layout dependency reason through retargeting and refresh.
+
+    :param qtbot: Qt fixture owning the ordinary form widgets.
+    :param monkeypatch: fixture selecting English without changing preferences.
+    :returns: ``None``; asserts help, note restoration and a quiet editor.
+    """
+    from PySide6.QtWidgets import QFormLayout
+
+    from spacr.qt import i18n
+    from spacr.qt.screens import settings_model as sm
+
+    monkeypatch.setenv(i18n.ENV_LANGUAGE, "en")
+    host = QWidget()
+    qtbot.addWidget(host)
+    field = QComboBox(host)
+    field.addItems(["none", "ratio"])
+    source = "Correct measured intensity across timepoints. Default none."
+    base = sm.attach_api_tooltip(
+        field, "measure", "bleach_correction",
+        _descriptions={"bleach_correction": source})
+    note = "Bleach correction is only used for timelapse runs."
+    field.setEnabled(False)
+    sm._apply_greyed_note(field, note)
+    authored = field.toolTip()
+    assert note in authored
+    assert field.property("apiTooltipHtml") == base
+
+    form = QFormLayout(host)
+    form.addRow("Bleach correction", field)
+    label = form.labelForField(field)
+    assert sm.retarget_field_tooltips(host) == 1
+    assert field._spacr_setting_label is label
+    assert field.toolTip() == ""
+    assert label.toolTip() == authored
+    assert label.property(sm._NOTE_BACKUP_PROPERTY) == base
+    assert label.property(sm._LABEL_NOTE_PROPERTY) == note
+
+    sm.refresh_api_tooltips(host, "en")
+    assert label.toolTip() == authored
+    assert label.property(sm._NOTE_BACKUP_PROPERTY) == base
+    assert field.toolTip() == ""
+
+    sm.refresh_api_tooltips(host, "de")
+    translated_base = sm.format_tooltip(
+        source, "measure", "bleach_correction", "de")
+    assert translated_base != base
+    assert label.toolTip() == f"{translated_base}<br><i>{note}</i>"
+    assert label.property(sm._NOTE_BACKUP_PROPERTY) == translated_base
+    assert field.toolTip() == ""
+
+    field.setEnabled(True)
+    sm._clear_greyed_note(field)
+    assert label.isEnabled()
+    assert label.toolTip() == translated_base
+    assert label.property("apiTooltipHtml") == translated_base
+    assert label.property(sm._NOTE_BACKUP_PROPERTY) is None
+    assert label.property(sm._LABEL_NOTE_PROPERTY) is None
+    assert field.toolTip() == ""
+
+
 def test_no_screen_loses_a_setting_s_help_to_the_pass(qtbot):
     """The sweep version: help may move, but it may not disappear.
 

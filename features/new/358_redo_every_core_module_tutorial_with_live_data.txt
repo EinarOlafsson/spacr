@@ -2685,3 +2685,54 @@ REMAINS
  h. Human review. An agent cannot close this, and none has happened:
     native-speaker review in 13 languages and a listening review of every
     voice (owner: maintainer).
+
+STATUS 2026-09-27 — exact remaining narration gap
+The current catalog has 2,243 tracks, not a complete 85 × 27 matrix. Lessons
+01_pypi_github and 06_api have English narration only; their 26 translated
+caption entries fall back to English in the published catalogs. All 26
+source-current translation reviews are available and privately staged; the
+English scripts and existing English audio match. No source rewrite is needed.
+Generate the 52 missing non-English tracks on CPU, preserve the English
+anchors, and republish captions and voices to reach 2,295 tracks. Dependencies
+and all voice packs are present locally. Receipt:
+features/data/358_tutorial_01_06_translation_gap_2026-09-27.json.
+This is AI technical review (Codex), no native-speaker signoff. Human listening
+and native-speaker acceptance remain open as recorded above.
+
+STATUS 2026-09-27 — recovered narration adopted; CPU rendering underway
+The four-lesson batch has108 verified tracks, including106 newly generated CPU
+tracks and unchanged English anchors for01/06, with52 source-bound reviews.
+All476 planned files were adopted while preserving history. New masters for04
+and56 rendered successfully. Chrome then exposed a Unix socket-path limit in
+the long scratch TMPDIR; a short private directory fixes the harness, and the
+verifier now explicitly disables GPU rendering and accelerated video decoding.
+
+The original plan, scripts and failure logs are retained. Only the runner and
+verifier input hashes changed in the successor plan; adopted files, baseline
+and completed render checkpoints are unchanged. Actual English sentence-playback
+checks pass for01/04/06. Remaining web/language checks, OCR, visual review and
+publication continue. AI technical review only; no human listening or native
+speaker signoff. Receipt:
+features/data/358_four_lesson_render_environment_2026-09-27.json.
+
+STATUS 2026-09-27 — retain caption-only language reviews in later batches
+The candidate builder now retains earlier reviews for every catalog language,
+including caption-only catalogs whose filenames use a different prefix. The
+previous filename assumption dropped198 records across six caption languages.
+All53 named appended-candidate checks pass, with coverage for all13 non-English
+languages. This repairs candidate construction only; the saved four-lesson
+publication candidates remain unpublished and their failure evidence is retained.
+
+STATUS 2026-09-28 — four refreshed lessons published and verified live
+Lessons 01, 04, 06 and 56 were published in 4014dbdef with their 27 voices
+and 13-language captions retained. All 85 lessons passed hosted playback
+before publication. The 4,760 immutable hosted files passed complete SHA256
+readback; the other 81 lessons and previous path redactions were preserved.
+Documentation workflow 36379281659 passed for that exact commit. Live checks
+then verified the catalog hash, hosted video sizes, player cache hashes,
+voice inventories and eight synchronized playback cases: English and Spanish
+for each refreshed lesson. Receipt:
+features/data/358_four_lesson_live_2026-09-27.json.
+This closes the four-lesson publication action. Item 358 remains open while
+the remaining tutorial path-redaction batch is completed. Review remains AI
+technical review (Codex), no native-speaker signoff or human listening review.
