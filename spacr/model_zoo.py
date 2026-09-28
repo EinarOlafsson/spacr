@@ -2980,8 +2980,7 @@ def versioned_path(dest: Any, filename: str) -> Path:
     base = match.group("base") if match else p.stem
     n = int(match.group("n")) if match else 1
 
-    candidate = folder / (f"{base}{suffix}" if n == 1
-                          else f"{base}_v{n}{suffix}")
+    candidate = folder / p.name
     while candidate.exists():
         n += 1
         candidate = folder / f"{base}_v{n}{suffix}"
