@@ -75,3 +75,8 @@ LEFT FOR THE DOCS LANE. The nine translated READMEs in docs/i18n/readme/
 (de, es, fr, hi, is, ko, pt, sv, zh_CN) still point "Back" at pages/55.md,
 which exists but is now slide 55, not the last (56). The maintainer should
 confirm the categories on slides 3 and 4.
+
+2026-09-28 (evening): the nine translated READMEs in docs/i18n/readme/
+(de, es, fr, hi, is, ko, pt, sv, zh_CN) now point "Back" at pages/56.md,
+matching README.rst. The README/i18n/logo tests pass (46). Only the
+maintainer's confirmation of the categories on slides 3 and 4 is left.
