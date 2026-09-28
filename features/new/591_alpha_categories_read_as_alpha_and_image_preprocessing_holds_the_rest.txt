@@ -1,0 +1,27 @@
+ALPHA CATEGORIES READ AS ALPHA, AND IMAGE PREPROCESSING HOLDS THE REST
+
+Status:    FILED 2026-09-28. Not started.
+Requested: 2026-09-28, by the maintainer, verbatim:
+  "we need to add untested features to the alpha flag. and the settings
+  categories dont need to say alpha just make them the alpha color and add an
+  α at the end."
+  "mask modual: cloud, illumination correction, point spread function, image
+  enhance (point spread function and image enhance can be under a new
+  category called Image Deconvolution & Enhancement), illumination
+  corrections and point spread function should be folded into image
+  preprocessing (as alpha sub categories)"
+  Clarified 2026-09-28: "its all image preprocessing, but it can be in image
+  preprocessing, under a sub category called image deconvolution and the
+  enhansement under a image enhancement sub category".
+
+WHAT TO BUILD
+1. Every alpha settings category: drop "(Alpha)" from the name, append " α",
+   and draw the heading in the alpha colour (one theme token, both themes).
+2. Mask / Make Masks: cloud, illumination correction, point spread function
+   and image enhancement settings are alpha.
+3. Image Preprocessing gains alpha sub-categories: "Illumination Correction
+   α", "Image Deconvolution α" (point spread function) and "Image
+   Enhancement α". The separate top-level categories they came from go.
+4. Untested features: any feature whose item file says it was validated only
+   on synthetic data or misses its target on real data is behind the alpha
+   flag. List them in this file for the maintainer to review.

@@ -1167,7 +1167,18 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 574, 2026-09-27: the Report screen's Archive package button and form.
 # 579, 2026-09-27: the Report screen's Deposit on Zenodo button and form.
 # 316, 2026-09-27: all 76 resolved through their explicit owners.
-_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset()
+_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    # 558, 2026-09-27: the Cellpose workbench's Virtual staining button
+    # (alpha).
+    'Virtual staining…',
+    'Choose a folder of paired multichannel fields (.npy or .tif) and the channels to learn from and to predict, for example 1 > 0 to predict the nucleus stain from channel 1. A small U-Net is trained on the CPU, the last quarter of the fields is held out, and the real and predicted stains are segmented the same way and matched at IoU 0.5. The model, predictions and a score table are written to <folder>/virtual_stain. Default 20 epochs.',
+    'Choose a folder of paired multichannel fields',
+    'Virtual staining',
+    'Input channels > channel to predict:',
+    'Training the virtual stain…',
+    'Virtual stain on {fields} held-out fields: F1 {f1:.2f} at IoU 0.5 against the real stain\'s objects (input channel alone {base:.2f}), Pearson r {r:.2f}.',
+    'Virtual staining failed: {error}',
+})
 
 
 

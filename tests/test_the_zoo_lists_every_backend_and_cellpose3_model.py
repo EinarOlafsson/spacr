@@ -94,9 +94,11 @@ def test_every_backend_is_listed_with_its_state_reason_and_licence(tmp_path):
     rows = {e.key: e for e in zoo.installable_backend_entries()}
     # + cellprofiler_v1 (item 546, 2026-09-27): CellProfiler, which runs a
     # lab's .cppipe on Measure's fields, is an installable backend too.
+    # + sam2_v1 (item 556, 2026-09-27): SAM2's video predictor, installable
+    # for timelapse_mode='sam2'.
     assert set(rows) == {"cellpose3_v1", "cellpose_dino_v1", "dinocell_v1",
                          "microsam_v1", "papers_v1", "samcell_v1",
-                         "spotnet_v1", "cellprofiler_v1"} | {
+                         "spotnet_v1", "cellprofiler_v1", "sam2_v1"} | {
                              f"{name}_v1" for name in zoo.PREFIXED_KINDS}
     cellpose3 = rows["cellpose3_v1"]
     assert (cellpose3.kind, cellpose3.source) == ("backend", "installable")
@@ -200,7 +202,8 @@ def test_the_catalogue_lists_them_without_the_network(tmp_path):
                                            include_plugins=False)]
     assert kinds.count("cellpose3") == 4
     # 7 -> 8 (item 546, 2026-09-27): the CellProfiler backend's row.
-    assert kinds.count("backend") == 8 + len(zoo.PREFIXED_KINDS)
+    # 8 -> 9 (item 556, 2026-09-27): the SAM2 backend's row.
+    assert kinds.count("backend") == 9 + len(zoo.PREFIXED_KINDS)
 
 
 def test_a_row_names_the_backend_it_needs():

@@ -1,0 +1,26 @@
+MASK GENERATION IS PER-OBJECT ONLY
+
+Status:    FILED 2026-09-28. Not started.
+Requested: 2026-09-28, by the maintainer, verbatim:
+  "in mask generation, please make per object settings the default and only
+  mode (remove the preferences toggle.)
+  Advanced settings, image preprocessing, cell - remove background should be
+  in the per object table as a boolean (the other objects should have the
+  same)
+  cell segmentation - Adjust cells - should also be added to the per object
+  table as a setting but only for the cell object.
+  object filtrationshould also be baked int othe per object tables as new
+  rows that can be added so the user can add area filtration for one or
+  several object classes or mean intensity, etcetera.
+  output and storage can be merged with runtime and reliability and
+  segmentation robustness into quality controll."
+
+WHAT TO BUILD
+1. Per-object settings are the only Mask generation layout; the Preferences
+   toggle and the old flat layout go (settings files still load).
+2. The per-object table gains a "remove background" boolean row for every
+   object, and an "adjust cells" row for the cell object only.
+3. Object filtration becomes addable rows in the per-object table (area,
+   mean intensity, and the other filters), for one or several objects.
+4. Output & storage, Runtime & reliability and Segmentation robustness merge
+   into one category, "Quality control".
