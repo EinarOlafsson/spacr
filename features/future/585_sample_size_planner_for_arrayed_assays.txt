@@ -47,4 +47,17 @@ ALPHA: 2026-09-27 -- implemented as alpha (widget PowerArrayedPlanner in
 
     Left: cost weights and search limits are fixed in the GUI (engine takes
     them); normal-theory only (no count or proportion readouts, no
-    replicate-by-condition interaction term); the plan is not saved to disk.
+    replicate-by-condition interaction term).
+
+STATUS 2026-09-27 — saved-plan action verified
+The alpha planner now has Save plan… for an atomic JSON export of the last
+successful computation. Later form edits cannot relabel its pilot mapping,
+variance components, design inputs, candidates or simulation provenance.
+Unestimated variances use null plus estimation flags, rather than a false zero.
+Existing alpha gating, translated captions and public API remain unchanged.
+All nine focused UI cases passed in the combined 71-check batch under 4G.
+Caption/docstring guards and the English API inventory/hash check also passed.
+Cost weights/search limits remain fixed in the GUI, and the statistical-model
+limitations above remain. The export retains reloadable engine inputs/results;
+it does not add a GUI load-plan action. Whole item 585 remains open.
+Receipt: features/data/585_arrayed_plan_save_preparation_2026-09-27.json.
