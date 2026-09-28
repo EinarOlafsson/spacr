@@ -4,158 +4,236 @@
     {
       "lesson": "01_pypi_github",
       "language": "da",
-      "status": "english_fallback",
-      "reason": "English fallback retained from the published catalog; translation requires review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "01_pypi_github",
       "language": "de",
-      "status": "english_fallback",
-      "reason": "English fallback retained from the published catalog; translation requires review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "01_pypi_github",
       "language": "es",
-      "status": "english_fallback",
-      "reason": "English fallback retained from the published catalog; translation requires review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "01_pypi_github",
       "language": "fr",
-      "status": "english_fallback",
-      "reason": "English fallback retained from the published catalog; translation requires review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "01_pypi_github",
       "language": "hi",
-      "status": "english_fallback",
-      "reason": "English fallback retained from the published catalog; translation requires review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "01_pypi_github",
       "language": "is",
-      "status": "english_fallback",
-      "reason": "English fallback retained from the published catalog; translation requires review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "01_pypi_github",
       "language": "it",
-      "status": "english_fallback",
-      "reason": "English fallback retained from the published catalog; translation requires review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "01_pypi_github",
       "language": "ja",
-      "status": "english_fallback",
-      "reason": "English fallback retained from the published catalog; translation requires review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "01_pypi_github",
       "language": "ko",
-      "status": "english_fallback",
-      "reason": "English fallback retained from the published catalog; translation requires review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "01_pypi_github",
       "language": "nb",
-      "status": "english_fallback",
-      "reason": "English fallback retained from the published catalog; translation requires review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "01_pypi_github",
       "language": "pt-BR",
-      "status": "english_fallback",
-      "reason": "English fallback retained from the published catalog; translation requires review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "01_pypi_github",
       "language": "sv",
-      "status": "english_fallback",
-      "reason": "English fallback retained from the published catalog; translation requires review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "01_pypi_github",
       "language": "zh-CN",
-      "status": "english_fallback",
-      "reason": "English fallback retained from the published catalog; translation requires review"
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "06_api",
       "language": "da",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "06_api",
       "language": "de",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "06_api",
       "language": "es",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "06_api",
       "language": "fr",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "06_api",
       "language": "hi",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "06_api",
       "language": "is",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "06_api",
       "language": "it",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "06_api",
       "language": "ja",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "06_api",
       "language": "ko",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "06_api",
       "language": "nb",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "06_api",
       "language": "pt-BR",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "06_api",
       "language": "sv",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "06_api",
       "language": "zh-CN",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "07_mask",
@@ -2181,6 +2259,84 @@
     },
     {
       "lesson": "55_image_scatter",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "56_lineage",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "56_lineage",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "56_lineage",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "56_lineage",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "56_lineage",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "56_lineage",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "56_lineage",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "56_lineage",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "56_lineage",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "56_lineage",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "56_lineage",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "56_lineage",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "56_lineage",
       "language": "zh-CN",
       "status": "source_bound_review",
       "reason": null

@@ -28,73 +28,121 @@
       "id": "01_pypi_github",
       "number": 1,
       "slug": "pypi_github",
-      "title": "Find spaCR on GitHub, PyPI and conda-forge",
+      "title": "GitHub, PyPI और conda-forge पर spaCR खोजें",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Find the official package and installer sources, compare the release available on each channel, and choose the matching installation tutorial.",
+      "description": "आधिकारिक पैकेज और इंस्टॉलर के स्रोत खोजें, हर चैनल पर उपलब्ध रिलीज़ की तुलना करें और मेल खाता इंस्टॉलेशन ट्यूटोरियल चुनें।",
       "objectives": [
-        "Find the official download pages.",
-        "Choose the installation route for your computer.",
-        "Open the matching installation tutorial."
+        "आधिकारिक डाउनलोड पेज खोजें।",
+        "अपने कंप्यूटर के लिए इंस्टॉलेशन का तरीका चुनें।",
+        "मेल खाता इंस्टॉलेशन ट्यूटोरियल खोलें।"
       ],
-      "prerequisite": "Open a web browser and decide whether you want a desktop installer or a Python environment.",
+      "prerequisite": "एक वेब ब्राउज़र खोलें और तय करें कि आपको डेस्कटॉप इंस्टॉलर चाहिए या Python परिवेश।",
       "scenes": [
         {
           "visual": "01_pypi_current_release",
-          "narration": "Choose how you want to install spaCR. Use a desktop installer for a ready-to-launch application, pip for a Python virtual environment, or conda-forge for a Conda environment. Start from the official spaCR links shown here.",
-          "hold_after": 0.7
+          "narration": "तय करें कि आप spaCR कैसे इंस्टॉल करना चाहते हैं। तुरंत खुलने वाले ऐप्लिकेशन के लिए डेस्कटॉप इंस्टॉलर, Python वर्चुअल परिवेश के लिए pip, या Conda परिवेश के लिए conda-forge इस्तेमाल करें। यहाँ दिखाए गए spaCR के आधिकारिक लिंक से शुरू करें।",
+          "hold_after": 0.7,
+          "speech_text": "तय करें कि आप स्पेकर कैसे इंस्टॉल करना चाहते हैं। तुरंत खुलने वाले ऐप्लिकेशन के लिए डेस्कटॉप इंस्टॉलर, Python वर्चुअल परिवेश के लिए pip, या Conda परिवेश के लिए Conda Forge इस्तेमाल करें। यहाँ दिखाए गए स्पेकर के आधिकारिक लिंक से शुरू करें।"
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "On PyPI, find spaCR and read the installation command beside the current release. Copy that command when you are ready to install into your Python environment. The pip tutorial shows how to create and activate that environment first.",
-          "hold_after": 0.7
+          "narration": "PyPI पर spaCR खोजें और मौजूदा रिलीज़ के पास लिखा इंस्टॉलेशन कमांड पढ़ें। जब आप अपने Python परिवेश में इंस्टॉल करने को तैयार हों, तब वह कमांड कॉपी करें। pip ट्यूटोरियल दिखाता है कि पहले वह परिवेश कैसे बनाएँ और सक्रिय करें।",
+          "hold_after": 0.7,
+          "speech_text": "पाइप पर स्पेकर खोजें और मौजूदा रिलीज़ के पास लिखा इंस्टॉलेशन कमांड पढ़ें। जब आप अपने Python परिवेश में इंस्टॉल करने को तैयार हों, तब वह कमांड कॉपी करें। pip ट्यूटोरियल दिखाता है कि पहले वह परिवेश कैसे बनाएँ और सक्रिय करें।"
         },
         {
           "visual": "02_pypi_project_links",
-          "narration": "Use Project links to open the documentation, source repository or issue tracker. Bookmark the documentation so you can return to the module walkthroughs while working in spaCR.",
-          "hold_after": 0.7
+          "narration": "दस्तावेज़, सोर्स रिपॉज़िटरी या इश्यू ट्रैकर खोलने के लिए Project links इस्तेमाल करें। दस्तावेज़ को बुकमार्क करें, ताकि spaCR में काम करते हुए आप मॉड्यूल वॉकथ्रू पर लौट सकें।",
+          "hold_after": 0.7,
+          "speech_text": "दस्तावेज़, सोर्स रिपॉज़िटरी या इश्यू ट्रैकर खोलने के लिए Project links इस्तेमाल करें। दस्तावेज़ को बुकमार्क करें, ताकि स्पेकर में काम करते हुए आप मॉड्यूल वॉकथ्रू पर लौट सकें।"
         },
         {
           "visual": "03_github_main_branch",
-          "narration": "On GitHub, open the spaCR repository. Main contains the release source, and nightly contains the latest development work. For a packaged desktop installation, open Releases and choose a release.",
-          "hold_after": 0.7
+          "narration": "GitHub पर spaCR रिपॉज़िटरी खोलें। Main में रिलीज़ का सोर्स है, और nightly में सबसे नया विकास कार्य है। पैकेज किए गए डेस्कटॉप इंस्टॉलेशन के लिए Releases खोलें और कोई रिलीज़ चुनें।",
+          "hold_after": 0.7,
+          "speech_text": "GitHub पर स्पेकर रिपॉज़िटरी खोलें। Main में रिलीज़ का सोर्स है, और nightly में सबसे नया विकास कार्य है। पैकेज किए गए डेस्कटॉप इंस्टॉलेशन के लिए Releases खोलें और कोई रिलीज़ चुनें।"
         },
         {
           "visual": "04_github_current_assets",
-          "narration": "Expand Assets and download the installer for Windows, macOS or Linux. Keep the checksum file from the same release if you want to verify the download. The Platform installers lesson walks through launching the installer and opening spaCR.",
+          "narration": "Assets खोलें और Windows, macOS या Linux के लिए इंस्टॉलर डाउनलोड करें। अगर डाउनलोड की पुष्टि करनी हो, तो उसी रिलीज़ की चेकसम फ़ाइल रखें। Platform installers पाठ इंस्टॉलर चलाने और spaCR खोलने के बारे में बताता है।",
           "hold_after": 0.7,
           "related_lessons": [
             "04_platform_installers"
-          ]
+          ],
+          "speech_text": "Assets खोलें और Windows, macOS या Linux के लिए इंस्टॉलर डाउनलोड करें। अगर डाउनलोड की पुष्टि करनी हो, तो उसी रिलीज़ की चेकसम फ़ाइल रखें। Platform installers पाठ इंस्टॉलर चलाने और स्पेकर खोलने के बारे में बताता है।"
         },
         {
           "visual": "05_conda_current_package",
-          "narration": "On conda-forge, open the spaCR package page and check the available version. Package channels can update at different times, so select the version available through the route you choose.",
-          "hold_after": 0.7
+          "narration": "conda-forge पर spaCR पैकेज पेज खोलें और उपलब्ध संस्करण जाँचें। पैकेज चैनल अलग-अलग समय पर अपडेट हो सकते हैं, इसलिए आप जो तरीका चुनें, उस पर उपलब्ध संस्करण चुनें।",
+          "hold_after": 0.7,
+          "speech_text": "Conda Forge पर स्पेकर पैकेज पेज खोलें और उपलब्ध संस्करण जाँचें। पैकेज चैनल अलग-अलग समय पर अपडेट हो सकते हैं, इसलिए आप जो तरीका चुनें, उस पर उपलब्ध संस्करण चुनें।"
         },
         {
           "visual": "05_conda_current_package",
-          "narration": "The conda-forge command installs spaCR into your active Conda environment. Follow the Conda lesson to create that environment, install the package and launch the application.",
+          "narration": "conda-forge कमांड spaCR को आपके सक्रिय Conda परिवेश में इंस्टॉल करता है। वह परिवेश बनाने, पैकेज इंस्टॉल करने और ऐप्लिकेशन शुरू करने के लिए Conda पाठ देखें।",
           "hold_after": 0.7,
           "related_lessons": [
             "02_conda_install"
-          ]
+          ],
+          "speech_text": "Conda Forge कमांड स्पेकर को आपके सक्रिय Conda परिवेश में इंस्टॉल करता है। वह परिवेश बनाने, पैकेज इंस्टॉल करने और ऐप्लिकेशन शुरू करने के लिए Conda पाठ देखें।"
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "Continue with pip, Conda or Platform installers. Once spaCR opens, move to the Home lesson, then the pipeline overviews to choose a workflow for your data.",
+          "narration": "pip, Conda या Platform installers के साथ आगे बढ़ें। spaCR खुल जाने पर Home पाठ पर जाएँ, फिर अपने डेटा के लिए वर्कफ़्लो चुनने के लिए पाइपलाइन अवलोकन देखें।",
           "hold_after": 0.7,
           "related_lessons": [
             "02_conda_install",
             "03_pip_install",
             "04_platform_installers"
-          ]
+          ],
+          "speech_text": "pip, Conda या Platform installers के साथ आगे बढ़ें। स्पेकर खुल जाने पर Home पाठ पर जाएँ, फिर अपने डेटा के लिए वर्कफ़्लो चुनने के लिए पाइपलाइन अवलोकन देखें।"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -427,6 +475,12 @@
           "speech_text": "सेटअप वैकल्पिक डायग्नॉस्टिक साझा करने और खाता सेटअप के बारे में पूछता है। केवल उन्हीं विकल्पों के लिए y लिखें जो आप चाहते हैं; डिफ़ॉल्ट n हर विकल्प को बंद रखता है। Windows इंस्टॉलर यही विकल्प चेकबॉक्स के रूप में दिखाता है।"
         },
         {
+          "visual": "09_performance",
+          "narration": "Preferences में अपने कंप्यूटर के लिए कोई Performance प्रोफ़ाइल चुनें। Laptop कम संसाधन इस्तेमाल करता है; ऊँची प्रोफ़ाइल ज़्यादा कैशिंग और पृष्ठभूमि का काम करने देती हैं। अगर मेमोरी सीमित है, तो साधारण प्रोफ़ाइल से शुरू करें। हर मॉड्यूल में आपकी विश्लेषण सेटिंग आपके ही नियंत्रण में रहती हैं।",
+          "hold_after": 0.7,
+          "speech_text": "Preferences में अपने कंप्यूटर के लिए कोई Performance प्रोफ़ाइल चुनें। Laptop कम संसाधन इस्तेमाल करता है; ऊँची प्रोफ़ाइल ज़्यादा कैशिंग और पृष्ठभूमि का काम करने देती हैं। अगर मेमोरी सीमित है, तो साधारण प्रोफ़ाइल से शुरू करें। हर मॉड्यूल में आपकी विश्लेषण सेटिंग आपके ही नियंत्रण में रहती हैं।"
+        },
+        {
           "visual": "06_installed_home",
           "narration": "Home खुलने पर Home ट्यूटोरियल पर आगे बढ़ें। वह दिखाता है कि मॉड्यूल कैसे खोलें, परीक्षण डेटा कैसे खोजें और अपने प्रयोग के लिए पाइपलाइन कैसे चुनें।",
           "related_lessons": [
@@ -722,17 +776,17 @@
       "id": "06_api",
       "number": 6,
       "slug": "api",
-      "title": "Python API and batch commands",
+      "title": "Python API और बैच कमांड",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Find an analysis function, load saved settings, check the inputs and run spaCR from a terminal.",
+      "description": "कोई विश्लेषण फ़ंक्शन खोजें, सहेजी गई सेटिंग लोड करें, इनपुट जाँचें और टर्मिनल से spaCR चलाएँ।",
       "objectives": [
-        "Find the installed batch commands and their Python functions.",
-        "Inspect a function signature and its API reference.",
-        "Check saved settings before running an analysis."
+        "इंस्टॉल किए गए बैच कमांड और उनके Python फ़ंक्शन खोजें।",
+        "किसी फ़ंक्शन का सिग्नेचर और उसका API संदर्भ देखें।",
+        "विश्लेषण चलाने से पहले सहेजी गई सेटिंग जाँचें।"
       ],
-      "prerequisite": "Install spaCR and activate its Python environment. Follow the Regression tutorial to prepare paired score/count tables and save the analysis settings. Use your own file paths in the commands.",
+      "prerequisite": "spaCR इंस्टॉल करें और उसका Python परिवेश सक्रिय करें। जोड़ीदार स्कोर/गिनती तालिकाएँ तैयार करने और विश्लेषण सेटिंग सहेजने के लिए Regression ट्यूटोरियल का पालन करें। कमांड में अपने फ़ाइल पथ इस्तेमाल करें।",
       "scenes": [
         {
           "visual": "01_version",
@@ -742,13 +796,14 @@
             1900,
             650
           ],
-          "narration": "Activate the Python environment where you installed spaCR. Import spacr and print its version with the command shown. Keep the version with your analysis notes so you can reproduce the same run later.",
+          "narration": "वह Python परिवेश सक्रिय करें जिसमें आपने spaCR इंस्टॉल किया है। दिखाए गए कमांड से spacr आयात करें और उसका संस्करण प्रिंट करें। संस्करण को अपने विश्लेषण नोट्स के साथ रखें, ताकि आप बाद में वही रन दोहरा सकें।",
           "related_lessons": [
             "02_conda_install",
             "03_pip_install",
             "04_platform_installers"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "वह Python परिवेश सक्रिय करें जिसमें आपने स्पेकर इंस्टॉल किया है। दिखाए गए कमांड से स्पेकर आयात करें और उसका संस्करण प्रिंट करें। संस्करण को अपने विश्लेषण नोट्स के साथ रखें, ताकि आप बाद में वही रन दोहरा सकें।"
         },
         {
           "visual": "02_list",
@@ -758,8 +813,9 @@
             2800,
             1900
           ],
-          "narration": "Run spacr-run with dash dash list to find the available batch commands. The list shows each command key and its Python function. Choose the command for your task, such as mask, measure or regression. Use the desktop application for interactive tasks such as labelling images in Annotate.",
-          "hold_after": 0.7
+          "narration": "उपलब्ध बैच कमांड खोजने के लिए spacr-run को डैश डैश list के साथ चलाएँ। सूची हर कमांड की कुंजी और उसका Python फ़ंक्शन दिखाती है। अपने काम के लिए कमांड चुनें, जैसे mask, measure या regression। Annotate में इमेज पर लेबल लगाने जैसे इंटरैक्टिव कामों के लिए डेस्कटॉप ऐप्लिकेशन इस्तेमाल करें।",
+          "hold_after": 0.7,
+          "speech_text": "उपलब्ध बैच कमांड खोजने के लिए स्पेकर-run को डैश डैश list के साथ चलाएँ। सूची हर कमांड की कुंजी और उसका Python फ़ंक्शन दिखाती है। अपने काम के लिए कमांड चुनें, जैसे mask, measure या regression। Annotate में इमेज पर लेबल लगाने जैसे इंटरैक्टिव कामों के लिए डेस्कटॉप ऐप्लिकेशन इस्तेमाल करें।"
         },
         {
           "visual": "03_describe",
@@ -769,12 +825,13 @@
             2250,
             900
           ],
-          "narration": "Run spacr-run with dash dash describe followed by regression. Read the required inputs, defaults and function name. Here, the batch command calls perform_regression in spacr.ml. Open that function in the API reference to read its parameters and returned results.",
+          "narration": "spacr-run को डैश डैश describe और उसके बाद regression के साथ चलाएँ। ज़रूरी इनपुट, डिफ़ॉल्ट मान और फ़ंक्शन का नाम पढ़ें। यहाँ बैच कमांड spacr.ml में perform_regression को बुलाता है। उसके पैरामीटर और लौटाए गए परिणाम पढ़ने के लिए वह फ़ंक्शन API संदर्भ में खोलें।",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "स्पेकर-run को डैश डैश describe और उसके बाद regression के साथ चलाएँ। ज़रूरी इनपुट, डिफ़ॉल्ट मान और फ़ंक्शन का नाम पढ़ें। यहाँ बैच कमांड स्पेकर.ml में perform_regression को बुलाता है। उसके पैरामीटर और लौटाए गए परिणाम पढ़ने के लिए वह फ़ंक्शन API संदर्भ में खोलें।"
         },
         {
           "visual": "05_report_api",
@@ -784,8 +841,9 @@
             2800,
             700
           ],
-          "narration": "In Python, import the function you need and inspect its signature. This example imports build_report from spacr.report. Look up the same name in the API reference, prepare the required arguments, and call the function from your script or notebook.",
-          "hold_after": 0.7
+          "narration": "Python में अपना ज़रूरी फ़ंक्शन आयात करें और उसका सिग्नेचर देखें। यह उदाहरण spacr.report से build_report आयात करता है। API संदर्भ में वही नाम खोजें, ज़रूरी आर्ग्युमेंट तैयार करें, और अपनी स्क्रिप्ट या नोटबुक से फ़ंक्शन बुलाएँ।",
+          "hold_after": 0.7,
+          "speech_text": "Python में अपना ज़रूरी फ़ंक्शन आयात करें और उसका सिग्नेचर देखें। यह उदाहरण स्पेकर.report से build_report आयात करता है। API संदर्भ में वही नाम खोजें, ज़रूरी आर्ग्युमेंट तैयार करें, और अपनी स्क्रिप्ट या नोटबुक से फ़ंक्शन बुलाएँ।"
         },
         {
           "visual": "06_dry_run",
@@ -795,8 +853,9 @@
             3440,
             680
           ],
-          "narration": "Save the settings from your module workflow, then pass the file with dash dash settings. Add dash dash dry-run to check the configuration and input paths. In this Regression example, the settings pair phenotype scores with guide counts for each plate. Read the messages and correct any missing inputs before continuing.",
-          "hold_after": 0.7
+          "narration": "अपने मॉड्यूल वर्कफ़्लो की सेटिंग सहेजें, फिर फ़ाइल को डैश डैश settings के साथ दें। कॉन्फ़िगरेशन और इनपुट पथ जाँचने के लिए डैश डैश dry-run जोड़ें। इस Regression उदाहरण में सेटिंग हर प्लेट के लिए फ़ीनोटाइप स्कोर को गाइड गिनती से जोड़ती हैं। आगे बढ़ने से पहले संदेश पढ़ें और छूटे हुए इनपुट ठीक करें।",
+          "hold_after": 0.7,
+          "speech_text": "अपने मॉड्यूल वर्कफ़्लो की सेटिंग सहेजें, फिर फ़ाइल को डैश डैश settings के साथ दें। कॉन्फ़िगरेशन और इनपुट पथ जाँचने के लिए डैश डैश dry-run जोड़ें। इस Regression उदाहरण में सेटिंग हर प्लेट के लिए फ़ीनोटाइप स्कोर को गाइड गिनती से जोड़ती हैं। आगे बढ़ने से पहले संदेश पढ़ें और छूटे हुए इनपुट ठीक करें।"
         },
         {
           "visual": "03_describe",
@@ -806,17 +865,58 @@
             2250,
             900
           ],
-          "narration": "To execute the analysis, run the same command without dash dash dry-run. Follow the console until the command finishes, then inspect the outputs described by that module’s tutorial and API page. Keep the settings file, input tables, package version and console log with the results.",
+          "narration": "विश्लेषण चलाने के लिए वही कमांड डैश डैश dry-run के बिना चलाएँ। कमांड पूरा होने तक कंसोल देखें, फिर उस मॉड्यूल के ट्यूटोरियल और API पेज में बताए गए आउटपुट जाँचें। सेटिंग फ़ाइल, इनपुट तालिकाएँ, पैकेज संस्करण और कंसोल लॉग परिणामों के साथ रखें।",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "विश्लेषण चलाने के लिए वही कमांड डैश डैश dry-run के बिना चलाएँ। कमांड पूरा होने तक कंसोल देखें, फिर उस मॉड्यूल के ट्यूटोरियल और API पेज में बताए गए आउटपुट जाँचें। सेटिंग फ़ाइल, इनपुट तालिकाएँ, पैकेज संस्करण और कंसोल लॉग परिणामों के साथ रखें।"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -10026,7 +10126,7 @@
         "फ़ील्ड और वस्तु का प्रकार जाँचते हुए वस्तुएँ चुनें।",
         "मेल खाता पैरेंट कोशिका क्रॉप खोलें और Python से पूरा पदानुक्रम पाएँ।"
       ],
-      "prerequisite": "Annotate का पूरा उदाहरण उसके माप डेटाबेस और मेल खाते कोशिका क्रॉप के साथ डाउनलोड करें। Graph Builder का केवल डेटाबेस वाला आर्काइव इमेज नहीं दे सकता। इस उदाहरण में केवल कोशिका क्रॉप हैं: क्रॉप देखने के लिए पैरेंट कोशिका पर डबल-क्लिक करें। मौजूदा Open crops पारिवारिक क्रिया छूटे चाइल्ड क्रॉप की जगह असंबंधित कोशिका क्रॉप रख सकती है; इस उदाहरण में उससे बचें।",
+      "prerequisite": "Annotate का पूरा उदाहरण उसके माप डेटाबेस और मेल खाते कोशिका क्रॉप के साथ डाउनलोड करें। Graph Builder का केवल डेटाबेस वाला आर्काइव इमेज नहीं दे सकता। इस उदाहरण में केवल कोशिका क्रॉप हैं। दिखाई गई परिवार संरचना के लिए Open crops केवल मेल खाता पैरेंट कोशिका क्रॉप दिखाता है और दो चाइल्ड क्रॉप उपलब्ध न होने की सूचना देता है।",
       "example_files": [
         "Lineage_real_containment_review.zip",
         "Graph_Builder_real_measurements.zip"
@@ -10099,10 +10199,10 @@
           "speech_text": "पूरा डाउनलोड किया गया प्रोजेक्ट इस्तेमाल करें, जिसमें कोशिका क्रॉप हैं। एक ही रन का डेटाबेस और इमेज साथ रखें, ताकि वस्तुओं की पहचान मेल खाए।"
         },
         {
-          "visual": "20_wrong_typed_children_are_unrelated_cell_crops",
-          "narration": "इस उदाहरण में पूरे परिवार पर Open crops से बचें। छूटे नाभिक और रोगजनक क्रॉप की जगह असंबंधित कोशिका क्रॉप आ सकते हैं। ट्री पर लौटें और केवल पैरेंट कोशिका चुनें।",
+          "visual": "20_family_crop_identity_preserved",
+          "narration": "चुनी गई परिवार संरचना के लिए Open crops पर क्लिक करें। Annotate केवल मेल खाता पैरेंट कोशिका क्रॉप खोलता है और दो चाइल्ड क्रॉप उपलब्ध न होने की सूचना देता है। इस उदाहरण में केवल कोशिका क्रॉप हैं; नाभिक और रोगजनक के क्रॉप उपलब्ध नहीं हैं।",
           "hold_after": 0.7,
-          "speech_text": "इस उदाहरण में पूरे परिवार पर Open crops से बचें। छूटे नाभिक और रोगजनक क्रॉप की जगह असंबंधित कोशिका क्रॉप आ सकते हैं। ट्री पर लौटें और केवल पैरेंट कोशिका चुनें।"
+          "speech_text": "चुनी गई परिवार संरचना के लिए Open crops पर क्लिक करें। Annotate केवल मेल खाता पैरेंट कोशिका क्रॉप खोलता है और दो चाइल्ड क्रॉप उपलब्ध न होने की सूचना देता है। इस उदाहरण में केवल कोशिका क्रॉप हैं; नाभिक और रोगजनक के क्रॉप उपलब्ध नहीं हैं।"
         },
         {
           "visual": "22_verified_parent_only_real_cell_crop",

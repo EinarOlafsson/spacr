@@ -95,6 +95,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -397,6 +437,11 @@
         {
           "visual": "07_privacy_keep_off",
           "narration": "Setup asks about optional diagnostic sharing and account setup. Answer y only for the options you want; n, the default, keeps each one off. The Windows installer shows the same choices as checkboxes.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_performance",
+          "narration": "In Preferences, choose a Performance profile for your computer. Laptop uses fewer resources; the higher profiles allow more caching and background work. Start with a modest profile if memory is limited. Your analysis settings stay under your control in each module.",
           "hold_after": 0.7
         },
         {
@@ -776,6 +821,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9393,7 +9478,7 @@
         "Select objects while checking field and object type.",
         "Open a matching parent-cell crop and obtain the full hierarchy through Python."
       ],
-      "prerequisite": "Download the complete Annotate example with its measurements database and matching cell crops. The Graph Builder database-only archive cannot supply images. This example provides cell crops only: use a parent-cell double-click to inspect a crop. The current Open crops family action can substitute unrelated cell crops for missing child crops; avoid that action with this example.",
+      "prerequisite": "Download the complete Annotate example with its measurements database and matching cell crops. The Graph Builder database-only archive cannot supply images. This example provides cell crops only. For the family shown here, Open crops shows only the matching parent-cell crop and reports two unavailable child crops.",
       "example_files": [
         "Lineage_real_containment_review.zip",
         "Graph_Builder_real_measurements.zip"
@@ -9456,8 +9541,8 @@
           "hold_after": 0.7
         },
         {
-          "visual": "20_wrong_typed_children_are_unrelated_cell_crops",
-          "narration": "Avoid Open crops on a whole family in this example. Missing nucleus and pathogen crops can be replaced by unrelated cell crops. Return to the tree and choose the parent cell alone instead.",
+          "visual": "20_family_crop_identity_preserved",
+          "narration": "Click Open crops for the selected family. Annotate opens only the matching parent-cell crop and reports two unavailable child crops. This example includes cell crops only; nucleus and pathogen crops are not available.",
           "hold_after": 0.7
         },
         {
