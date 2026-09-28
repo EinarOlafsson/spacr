@@ -375,6 +375,7 @@ class EmbeddingsScreen(QWidget):
         self._run.clicked.connect(self.embed)
         controls.addWidget(self._run)
         self._add_well_mil_button(controls)
+        self._add_dino_button(controls)
         outer.addLayout(controls)
 
         self._table = install_sorting(QTableWidget(0, 0, self))
@@ -501,6 +502,80 @@ class EmbeddingsScreen(QWidget):
             "well probabilities were written beside the table.").format(
                 mil=card["mil_auroc"], mean=card["mean_auroc"],
                 wells=int(card["wells"])))
+
+    def _add_dino_button(self, controls) -> None:
+        """The alpha button that pretrains a backbone on the loaded crops."""
+        from ..preferences import _apply_alpha_widgets
+
+        self._dino = QPushButton(tr("Pretrain on these crops…"), self)
+        self._dino.setObjectName("EmbeddingsDinoPretrainButton")
+        self._dino.setToolTip(tr(
+            "Self-supervised (DINO) pretraining of a ResNet-18 on the loaded "
+            "crops, no labels needed, under the chosen channel policy. Choose "
+            "a checkpoint file; it is saved after every epoch, and choosing "
+            "the same file again resumes the run. When it finishes the "
+            "checkpoint is offered in the Foundation model picker. Slow "
+            "without a GPU. Default 20 epochs from random weights at 64 "
+            "px."))
+        self._dino.clicked.connect(lambda: self._pretrain_dino())
+        controls.addWidget(self._dino)
+        _apply_alpha_widgets(self._dino)
+
+    def _pretrain_dino(self, path: str = "", *, epochs: int = 20) -> str:
+        """Pretrain a backbone on the loaded crops and offer it as an encoder.
+
+        Training runs in the background and writes a resumable checkpoint to
+        ``path``; when it ends the checkpoint is added to the Foundation
+        model picker and chosen, so the next Embed uses it.
+
+        :param path: the checkpoint file; asks for one when empty.
+        :param epochs: epochs to train up to.
+        :returns: the checkpoint path, or ``''`` when nothing was started.
+        """
+        crops = getattr(self, "_crops", None)
+        if crops is None:
+            self._status.setText(tr("Load crops first."))
+            return ""
+        if not path:
+            path, _filter = QFileDialog.getSaveFileName(
+                self, tr("Save the pretrained backbone as"), "",
+                tr("PyTorch checkpoints (*.pt)"))
+        if not path:
+            return ""
+        path = str(path)
+        policy = str(self._policy.currentData())
+        self._status.setText(tr("Pretraining on {n} crops…").format(
+            n=crops.shape[0]))
+
+        def work():
+            """Train off the GUI thread."""
+            from ...embeddings import _dino_pretrain
+
+            return _dino_pretrain(crops, path, channel_policy=policy,
+                                  epochs=epochs, pretrained=False)
+
+        self._jobs.submit(work, self._on_dino_done)
+        return path
+
+    def _on_dino_done(self, summary) -> None:
+        """Offer the new checkpoint in the picker and choose it."""
+        from ...embeddings import _DINO_PREFIX
+
+        self._dino_summary = dict(summary)
+        data = _DINO_PREFIX + str(summary["path"])
+        index = self._foundation.findData(data)
+        if index < 0:
+            self._foundation.addItem(
+                tr("Own DINO: {name}").format(
+                    name=os.path.basename(str(summary["path"]))), data)
+            index = self._foundation.count() - 1
+        self._foundation.setCurrentIndex(index)
+        loss = summary["loss"][-1] if summary["loss"] else float("nan")
+        self._status.setText(tr(
+            "Pretrained {epochs} epochs (last loss {loss:.3f}). The "
+            "checkpoint is chosen in the Foundation model picker; press "
+            "Embed to use it.").format(epochs=int(summary["epochs"]),
+                                       loss=loss))
 
     def _fill_backbones(self) -> None:
         """Offer the engine's default first, and never an empty list."""

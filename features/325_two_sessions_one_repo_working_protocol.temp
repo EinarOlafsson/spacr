@@ -17421,3 +17421,13 @@ Continue implementation in private worktrees and commits; preserve it for
 publication afterward. Codex owns bounded 559 runtime/consumer integration
 and 475/545 acceptance receipts in followon-after-1511. GPU jobs, training,
 data and services remain untouched. The shared Claude checkout is unchanged.
+
+2026-09-28 — CODEX: MAINTAINER REQUESTED FINAL PUSH AND STOP
+Finished c356d4c0f: 564/576 runtime delta, 126 source-bound review records
+across nine locales, all prior translations preserved; English API refreshed
+for six changed entries. Nine named checks passed before the subsequent
+557/561 merge. That newer source is preserved, including its nine pending
+captions; its additional API/runtime/generated-reference integration remains
+open. No whole-source freshness or full feature-list completion is claimed.
+Main remains unpromoted; the release controller is inactive. No new release,
+GPU or training job is started. Codex is stopping after this final push.

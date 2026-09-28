@@ -23,6 +23,15 @@ correction, the PSF and the chain; the matrix joins the same record. Measure
 estimates its own over the measured channels and unmixes each field before
 its preprocessing hooks, recording the matrix in the saved run settings and
 ``measurements/bleed_through.json``.
+
+SELF-SUPERVISED DENOISING COMES BEFORE THE CHAIN. With ``n2v_denoise`` on,
+a Noise2Void (N2V2) model per segmentation channel is trained by CAREamics,
+in its own environment, on a sample of the run's own raw fields -- no clean
+images are needed -- or read from ``n2v_model``. Each field's selected
+channels are denoised after illumination correction and before the PSF and
+the chain, while the noise is still independent from pixel to pixel, which
+is what Noise2Void assumes. The checkpoints' hashes and the training record
+join the same provenance record.
 """
 from __future__ import annotations
 
@@ -310,13 +319,15 @@ def processing_requested(settings):
     A requested chain that cannot be built counts as requested: the run
     then refuses with the reason rather than reusing inputs made without it.
 
-    :param settings: the run's ``psf_*``, ``enhance_*`` and ``unmix``
-        settings.
+    :param settings: the run's ``psf_*``, ``enhance_*``, ``unmix`` and
+        ``n2v_denoise`` settings.
     :returns: True when any is switched on or the chain cannot be read.
     """
     if settings.get('psf_operation', 'none') != 'none':
         return True
     if settings.get('unmix', False):
+        return True
+    if _bool(settings.get('n2v_denoise', False)):
         return True
     try:
         return prepare_chain(settings) is not None
@@ -643,6 +654,163 @@ def _apply_recorded_unmixing(channel_arrays, settings):
     return out
 
 
+_N2V_TRAIN_FIELDS = 8
+_N2V_FOLDER = 'n2v'
+
+
+@dataclass(frozen=True)
+class _N2VPlan:
+    """Trained Noise2Void checkpoints, one per segmentation channel.
+
+    :param channels: the field's channel indices, in the order the session
+        is handed them.
+    :param checkpoints: ``{channel: checkpoint path}``.
+    :param records: ``{channel: training record}``: the checkpoint's sha256,
+        its losses, epochs, patch size, fields and device.
+    """
+
+    channels: tuple
+    checkpoints: dict
+    records: dict
+
+    def provenance(self):
+        """The plan as a JSON-safe record; paths are left out so a moved
+        experiment still matches, the hashes identify the models."""
+        return {
+            'method': 'Noise2Void (N2V2, CAREamics), self-supervised',
+            'stage': 'after illumination, before PSF and enhancement chain',
+            'channels': [int(channel) for channel in self.channels],
+            'models': {str(channel): {key: value for key, value
+                                      in self.records[channel].items()
+                                      if key not in ('checkpoint', 'seconds',
+                                                     'device')}
+                       for channel in self.channels},
+        }
+
+    def apply(self, image, denoise=None):
+        """Denoise every channel of one field with its own model.
+
+        :param image: YXC intensities, or planes of them stacked in front
+            (ZYXC, TYXC), channel ``i`` being ``channels[i]``.
+        :param denoise: :func:`spacr._segmentation_backends._n2v_denoise`,
+            or a stand-in for tests.
+        :returns: a float32 copy.
+        """
+        if denoise is None:
+            from ._segmentation_backends import _n2v_denoise as denoise
+        array = np.asarray(image)
+        out = np.array(array, dtype=np.float32, copy=True)
+        planes = out.reshape(-1, *out.shape[-3:])
+        for position, channel in enumerate(self.channels):
+            for plane in planes:
+                checkpoint()
+                plane[..., position] = denoise(plane[..., position],
+                                               self.checkpoints[channel])
+        return out
+
+
+def _n2v_training_planes(source_dir, channel, load=None,
+                         limit=_N2V_TRAIN_FIELDS):
+    """One channel's planes from up to ``limit`` raw fields, evenly spaced
+    through the sorted field names so every well and plate is sampled."""
+    load = load or np.load
+    names = sorted(path.name for path in Path(source_dir).glob('*.npy')
+                   if not path.name.startswith('.'))
+    if not names:
+        raise ValueError(f'n2v_denoise found no field to train on in {source_dir}')
+    picks = sorted({int(round(i)) for i in np.linspace(
+        0, len(names) - 1, min(limit, len(names)))})
+    planes, stems = [], []
+    for index in picks:
+        checkpoint()
+        field = np.asarray(load(Path(source_dir) / names[index]))
+        if not 0 <= channel < field.shape[-1]:
+            raise ValueError(f'n2v_denoise channel {channel} is outside the '
+                             f'{field.shape[-1]} channels of {names[index]}')
+        stack = field[..., channel]
+        planes.extend(np.asarray(stack, dtype=np.float32).reshape(
+            -1, *stack.shape[-2:]))
+        stems.append(Path(names[index]).stem)
+    return planes, stems
+
+
+def _prepare_n2v(settings, root, channels, *, stack_dir=None, load=None,
+                 train=None):
+    """Train, reuse or read the run's Noise2Void models.
+
+    With ``n2v_model`` blank, each channel's model is trained on the run's
+    own fields into ``<root>/n2v/channel_<c>.ckpt`` with its record beside
+    it, and a checkpoint already there from the same epochs is reused, so a
+    resumed run does not train again. With ``n2v_model`` set, that folder's
+    ``channel_<c>.ckpt`` files are used as they are.
+
+    :param settings: ``n2v_denoise``, ``n2v_model`` and ``n2v_epochs``.
+    :param root: experiment root.
+    :param channels: selected channel indices, in the session's order.
+    :param stack_dir: raw fields to train on; ``root/stack`` when None.
+    :param load: reads one field channel-last; ``np.load`` when None.
+    :param train: :func:`spacr._segmentation_backends._n2v_train`, or a
+        stand-in for tests.
+    :returns: a :class:`_N2VPlan`, or None when ``n2v_denoise`` is off.
+    :raises ValueError: for a missing model or bad settings.
+    :raises ImportError: when training is needed and CAREamics is not
+        installed.
+    """
+    if not _bool(settings.get('n2v_denoise', False)):
+        return None
+    epochs = int(settings.get('n2v_epochs', 20))
+    if epochs < 1:
+        raise ValueError('n2v_epochs must be at least 1')
+    given = str(settings.get('n2v_model') or '').strip()
+    folder = Path(given).expanduser() if given else Path(root) / _N2V_FOLDER
+    checkpoints, records = {}, {}
+    for channel in (int(c) for c in channels):
+        path = folder / f'channel_{channel}.ckpt'
+        sidecar = path.with_suffix('.json')
+        record = None
+        if path.is_file():
+            try:
+                record = json.loads(sidecar.read_text())
+            except (OSError, ValueError):
+                record = {}
+            if not given and record.get('epochs') != epochs:
+                record = None
+        if record is None and given:
+            raise ValueError(f'n2v_model has no model for channel {channel}: '
+                             f'{path} does not exist')
+        if record is None:
+            if train is None:
+                from ._segmentation_backends import _n2v_train as train
+            source = stack_dir if stack_dir is not None else Path(root) / 'stack'
+            planes, stems = _n2v_training_planes(source, channel, load)
+            print(f'Noise2Void: training channel {channel} on {len(planes)} '
+                  f'planes of {len(stems)} fields for {epochs} epochs')
+            path.parent.mkdir(parents=True, exist_ok=True)
+            record = dict(train(planes, str(path), epochs=epochs))
+            record['fields'] = stems
+            record['channel'] = channel
+            _write_json(sidecar, record)
+        record['sha256'] = _digest(path)
+        checkpoints[channel] = str(path)
+        records[channel] = record
+    return _N2VPlan(channels=tuple(int(c) for c in channels),
+                    checkpoints=checkpoints, records=records)
+
+
+def _write_json(path, record):
+    """Atomically replace one JSON file."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, temporary = tempfile.mkstemp(dir=path.parent, prefix='.n2v_')
+    try:
+        with os.fdopen(descriptor, 'w') as stream:
+            json.dump(record, stream, indent=2, allow_nan=False)
+        os.replace(temporary, path)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+
+
 def _record_path(root):
     """Return the application record below an experiment's PSF directory."""
     return Path(root) / 'psf' / 'segmentation_application.json'
@@ -658,12 +826,13 @@ def _digest(path):
     return result.hexdigest()
 
 
-def _configuration(plan, channels, pipeline_style, chain=None, unmix=None):
+def _configuration(plan, channels, pipeline_style, chain=None, unmix=None,
+                   n2v=None):
     """Describe the processing stage and source-channel order for later reuse.
 
     The chain's record is written ONLY when a chain step is on, and the
-    unmixing matrix only when unmixing is on, so a record made before either
-    existed still matches a run that asks for neither.
+    unmixing matrix only when unmixing is on and the Noise2Void models only
+    when denoising is on, so a record made before any of them existed still matches a run that asks for neither.
     """
     record = {
         'version': 1, 'pipeline_style': pipeline_style,
@@ -678,6 +847,8 @@ def _configuration(plan, channels, pipeline_style, chain=None, unmix=None):
         record['enhancement'] = provenance(chain)['enhancement']
     if unmix is not None:
         record['unmixing'] = unmix.provenance()
+    if n2v is not None:
+        record['n2v'] = n2v.provenance()
     return record
 
 
@@ -696,8 +867,10 @@ def validate_psf_resume(settings, root, channels, *, expected_fields):
     plan = prepare_psf(settings)
     chain = prepare_chain(settings, plan)
     unmix = _prepare_unmixing(settings, Path(root) / 'stack')
+    n2v = _prepare_n2v(settings, root, channels)
     path = _record_path(root)
-    if plan is None and chain is None and unmix is None and not path.exists():
+    if (plan is None and chain is None and unmix is None and n2v is None
+            and not path.exists()):
         return
     message = ('PSF or enhancement preprocessing does not match the saved '
                'Mask inputs. Enable preprocessing to rebuild the complete '
@@ -705,7 +878,7 @@ def validate_psf_resume(settings, root, channels, *, expected_fields):
     try:
         record = json.loads(path.read_text())
         if (record['configuration'] != _configuration(
-                plan, channels, 'v1', chain, unmix)
+                plan, channels, 'v1', chain, unmix, n2v)
                 or not record['complete']
                 or set(record['fields']) != set(expected_fields)):
             raise ValueError(message)
@@ -724,19 +897,20 @@ class _SegmentationPSFSession:
     channel goes through :func:`apply_chain`, whose PSF stage is the same
     kernel in the chain's order; without one, the PSF path is exactly what
     it was. Unmixing runs first, on the whole raw field, through
-    :meth:`unmix`.
+    :meth:`unmix`; Noise2Void denoising, when on, opens :meth:`correct`.
     """
 
     def __init__(self, plan, root, channels, pipeline_style, chain=None,
-                 unmix=None):
+                 unmix=None, n2v=None):
         """Start a captured application with an explicit incomplete record."""
         self.plan = plan
         self.chain = chain
         self.unmixing = unmix
+        self.n2v = n2v
         self.root = Path(root)
         self.pipeline_style = pipeline_style
         self.configuration = _configuration(plan, channels, pipeline_style,
-                                            chain, unmix)
+                                            chain, unmix, n2v)
         self.fields = set()
         self._write(False)
 
@@ -744,7 +918,7 @@ class _SegmentationPSFSession:
     def processes(self):
         """Whether :meth:`correct` changes intensities, so callers make float copies."""
         return (self.plan is not None or self.chain is not None
-                or self.unmixing is not None)
+                or self.unmixing is not None or self.n2v is not None)
 
     def unmix(self, field):
         """Unmix one whole raw field, or return it unchanged without a plan."""
@@ -754,8 +928,14 @@ class _SegmentationPSFSession:
         return self.unmixing.apply(field)
 
     def correct(self, image):
-        """Process one private field, or return it unchanged when switching off."""
+        """Process one private field, or return it unchanged when switching off.
+
+        Noise2Void denoising, when on, comes first; then the chain, or the
+        PSF alone.
+        """
         checkpoint()
+        if self.n2v is not None:
+            image = self.n2v.apply(image)
         if self.chain is not None:
             return apply_chain(image, self.chain)
         return self.plan.apply(image) if self.plan else image
@@ -805,7 +985,7 @@ def _prepare_segmentation_psf(settings, root, channels, *, pipeline_style='v1',
         are read from; ``root/stack`` when None.
     :param load: reads one raw field channel-last; ``np.load`` when None.
     :returns: a new session, or None for an untracked run with the PSF, the
-        chain and unmixing all off.
+        chain, unmixing and Noise2Void all off.
     """
     inferred = fill_psf_settings(settings, root)
     if inferred is not None:
@@ -819,8 +999,10 @@ def _prepare_segmentation_psf(settings, root, channels, *, pipeline_style='v1',
         load=load)
     if unmix is not None:
         _describe_unmixing(unmix)
-    if (plan is None and chain is None and unmix is None
+    n2v = _prepare_n2v(settings, root, channels, stack_dir=stack_dir,
+                       load=load)
+    if (plan is None and chain is None and unmix is None and n2v is None
             and not _record_path(root).exists()):
         return None
     return _SegmentationPSFSession(plan, root, channels, pipeline_style, chain,
-                                   unmix)
+                                   unmix, n2v)

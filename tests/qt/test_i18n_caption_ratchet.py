@@ -1177,7 +1177,18 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 574, 2026-09-27: the Report screen's Archive package button and form.
 # 579, 2026-09-27: the Report screen's Deposit on Zenodo button and form.
 # 316, 2026-09-27: all 76 resolved through their explicit owners.
-_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset()
+_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    # Incoming 557/561 captions remain pending source-bound review.
+    "Noise2Void denoising trained on the run's own noisy images, with no clean targets: one model per segmentation channel, applied after illumination correction and before the PSF and the enhancement chain. Needs the CAREamics backend from the Model Zoo.",
+    'Own DINO: {name}',
+    'Pretrain on these crops…',
+    'Pretrained {epochs} epochs (last loss {loss:.3f}). The checkpoint is chosen in the Foundation model picker; press Embed to use it.',
+    'Pretraining on {n} crops…',
+    'PyTorch checkpoints (*.pt)',
+    'Save the pretrained backbone as',
+    'Self-Supervised Denoising (Alpha)',
+    'Self-supervised (DINO) pretraining of a ResNet-18 on the loaded crops, no labels needed, under the chosen channel policy. Choose a checkpoint file; it is saved after every epoch, and choosing the same file again resumes the run. When it finishes the checkpoint is offered in the Foundation model picker. Slow without a GPU. Default 20 epochs from random weights at 64 px.',
+})
 
 
 
