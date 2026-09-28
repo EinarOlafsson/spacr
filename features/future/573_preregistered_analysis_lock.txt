@@ -106,3 +106,31 @@ models. Registered as ALPHA_FEATURES[573]['widgets'] in spacr/settings.py
 when the preference changes. The journal check itself is not gated: it acts
 only when a lock exists, and hiding is a display decision (headless and CLI
 runs never consult the registry).
+
+2026-09-27 — RECORDED VERDICTS IN HISTORY AND COMPARE (validation pending)
+    Run History and Run Compare now display a readable Lock / Status /
+    Summary line from the saved manifest's analysis_lock object. Details
+    retain its lock ID, digest, lock time and author, unblinding time and
+    deviations. History includes these in Overview; Compare includes both
+    identified runs in a read-only Environment tab, even when their result
+    comparison is blocked. Changing projects clears the old evidence.
+
+    Compare joins only an exact run ID to its journal directory, without
+    prefix matching. Neither view checks the current lock or infers a new
+    verdict. Missing legacy evidence shows the existing localized None
+    state; it never means verified or unlocked. This is passive provenance:
+    the existing alpha gate on lock creation remains unchanged.
+
+    Existing translated captions and presentation helpers are reused. New
+    helpers are private top-level functions with documented parameters and
+    returns, excluded by the canonical API extractor's name filter; neither
+    qualifies as a nested-function API helper.
+
+    Receipt: features/data/573_recorded_verdict_views_2026-09-27.json.
+    Static diff check passed. Eight new focused cases are prepared in
+    tests/qt/test_run_history_screen.py and
+    tests/qt/test_run_compare_screen.py; all 47 cases in those two files passed.
+    The combined 71-check batch also passed caption, docstring and English
+    API inventory/hash guards under 4G.
+    No full-item closure is claimed. The Gate Editor/model capture and
+    cross-pipeline limitations documented above remain unchanged.
