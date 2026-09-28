@@ -515,3 +515,17 @@ original child error text remains unavailable and its failure cause unproven.
 Artifact digest/head binding and executed-driver CRLF source binding verified.
 This validates the diagnostic, not the failed historical installer or upgrade.
 Receipt: features/data/53_historical_windows_child_diagnostic_native_2026-09-27.json.
+
+STATUS 2026-09-27 — exact embedded NSIS package fallback verified locally
+Run36368240823 retained three official NSIS responses that are demonstrably
+HTML download pages. After those unchanged attempts, the workflow now permits
+one exact-version, checksum-pinned Chocolatey package download with bounded
+time and bytes. Only its known installer entry is read; the unchanged inner
+installer checksum and executable-header gate still precede execution.
+
+A fresh package matches the earlier independently verified package, and its
+embedded installer is byte-identical to the verified official installer.
+ZIP identity/size, YAML and static gate checks passed. The capped focused
+batch passed all 12 checks, including the three native-workflow checks. No
+installer executed locally; native Windows acceptance remains pending.
+Receipt: features/data/53_nsis_exact_package_fallback_2026-09-27.json.

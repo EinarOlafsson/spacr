@@ -110,6 +110,95 @@ jobs:
               if ($number -lt $urls.Count) { Start-Sleep -Seconds 5 }
             }
             if (-not (Test-Path -LiteralPath $installer -PathType Leaf)) {
+              $packageUrl = 'https://community.chocolatey.org/api/v2/package/nsis.install/3.13.0'
+              $packageExpected = 'cefd57d4ebbc56d3ab104034044f54d61918642d51f6fcc44ff8d6c960533f91'
+              $packagePath = Join-Path $evidence 'nsis.install.3.13.0.nupkg'
+              $entryPath = 'tools/nsis-3.13-setup.exe'
+              $entryBytes = 1567985
+              $entryPayload = Join-Path $evidence 'package-installer.bin'
+              $fallback = [ordered]@{url=$packageUrl; payload=$packagePath; expected_sha256=$packageExpected; expected_bytes=1553581; entry=$entryPath; entry_expected_bytes=$entryBytes; verified=$false; started_utc=[DateTime]::UtcNow.ToString('o')}
+              $receipt.package_fallback = $fallback
+              try {
+                $handler = [Net.Http.HttpClientHandler]::new()
+                $handler.MaxAutomaticRedirections = 5
+                $client = [Net.Http.HttpClient]::new($handler)
+                $client.Timeout = [TimeSpan]::FromSeconds(120)
+                $deadline = [Threading.CancellationTokenSource]::new(120000)
+                $response = $null
+                try {
+                  $response = $client.GetAsync($packageUrl, [Net.Http.HttpCompletionOption]::ResponseHeadersRead, $deadline.Token).GetAwaiter().GetResult()
+                  $fallback.http_status = [int]$response.StatusCode
+                  $fallback.final_url = $response.RequestMessage.RequestUri.AbsoluteUri
+                  $fallback.headers = [ordered]@{}
+                  foreach ($header in @($response.Headers) + @($response.Content.Headers)) { $fallback.headers[$header.Key] = $header.Value -join ', ' }
+                  $downloadStream = $response.Content.ReadAsStreamAsync($deadline.Token).GetAwaiter().GetResult()
+                  try {
+                    $downloadOutput = [IO.File]::Open((Join-Path (Get-Location).Path $packagePath), [IO.FileMode]::CreateNew, [IO.FileAccess]::Write)
+                    try {
+                      $downloadBuffer = [byte[]]::new(65536)
+                      $downloadTotal = 0
+                      while (($downloadCount = $downloadStream.ReadAsync($downloadBuffer, 0, [Math]::Min($downloadBuffer.Length, $fallback.expected_bytes - $downloadTotal + 1), $deadline.Token).GetAwaiter().GetResult()) -gt 0) {
+                        $downloadOutput.Write($downloadBuffer, 0, $downloadCount)
+                        $downloadTotal += $downloadCount
+                        if ($downloadTotal -gt $fallback.expected_bytes) { $fallback.download_limit_exceeded = $true; throw 'NSIS package download exceeded its exact byte bound.' }
+                      }
+                      $fallback.download_complete = $true
+                    } finally { $downloadOutput.Dispose() }
+                  } finally { $downloadStream.Dispose() }
+                } finally {
+                  if ($response) { $response.Dispose() }
+                  $deadline.Dispose()
+                  $client.Dispose()
+                }
+                $fallback.bytes = (Get-Item -LiteralPath $packagePath).Length
+                $fallback.actual_sha256 = (Get-FileHash -LiteralPath $packagePath -Algorithm SHA256).Hash.ToLowerInvariant()
+                if ($fallback.http_status -ne 200 -or $fallback.bytes -ne $fallback.expected_bytes -or $fallback.actual_sha256 -ne $packageExpected) { throw 'Exact NSIS package status, size or checksum mismatch.' }
+                $archive = [IO.Compression.ZipFile]::OpenRead((Resolve-Path -LiteralPath $packagePath).Path)
+                try {
+                  if ($archive.Entries.Count -gt 32) { throw 'NSIS package entry count exceeds its bound.' }
+                  $entryMatches = @($archive.Entries | Where-Object { $_.FullName -ieq $entryPath })
+                  if ($entryMatches.Count -ne 1 -or $entryMatches[0].FullName -cne $entryPath) { throw 'NSIS package installer entry is absent, duplicated or differently cased.' }
+                  $entry = $entryMatches[0]
+                  $entryType = ($entry.ExternalAttributes -shr 16) -band 0xf000
+                  if ($entry.Length -ne $entryBytes -or $entry.CompressedLength -le 0 -or $entry.CompressedLength -gt $fallback.expected_bytes -or $entryType -notin @(0,0x8000)) { throw 'NSIS package installer entry has an unexpected size or file type.' }
+                  $entryStream = $entry.Open()
+                  try {
+                    $entryOutput = [IO.File]::Open((Join-Path (Get-Location).Path $entryPayload), [IO.FileMode]::CreateNew, [IO.FileAccess]::Write)
+                    try {
+                      $buffer = [byte[]]::new(65536)
+                      $total = 0
+                      while (($count = $entryStream.Read($buffer, 0, [Math]::Min($buffer.Length, $entryBytes - $total + 1))) -gt 0) {
+                        if ($total + $count -gt $entryBytes) { throw 'NSIS package installer exceeded its exact byte bound.' }
+                        $entryOutput.Write($buffer, 0, $count)
+                        $total += $count
+                      }
+                      if ($total -ne $entryBytes) { throw 'NSIS package installer was truncated.' }
+                    } finally { $entryOutput.Dispose() }
+                  } finally { $entryStream.Dispose() }
+                } finally { $archive.Dispose() }
+                $fallback.entry_payload = $entryPayload
+                $fallback.entry_actual_sha256 = (Get-FileHash -LiteralPath $entryPayload -Algorithm SHA256).Hash.ToLowerInvariant()
+                $stream = [IO.File]::OpenRead((Resolve-Path -LiteralPath $entryPayload).Path)
+                try { $fallback.pe_magic = ($stream.ReadByte() -eq 77 -and $stream.ReadByte() -eq 90) }
+                finally { $stream.Dispose() }
+                $fallback.verified = ($fallback.entry_actual_sha256 -eq $expected -and $fallback.pe_magic)
+                if (-not $fallback.verified) { throw 'Embedded NSIS installer failed the unchanged checksum and executable-header gate.' }
+                Copy-Item -LiteralPath $entryPayload -Destination $installer
+                $receipt.selected_source = 'exact-package-entry'
+                $receipt.url = $packageUrl
+              } catch {
+                $fallback.error = $_.Exception.Message
+                throw
+              } finally {
+                if (Test-Path -LiteralPath $packagePath -PathType Leaf) {
+                  $fallback.bytes = (Get-Item -LiteralPath $packagePath).Length
+                  $fallback.actual_sha256 = (Get-FileHash -LiteralPath $packagePath -Algorithm SHA256).Hash.ToLowerInvariant()
+                }
+                $fallback.completed_utc = [DateTime]::UtcNow.ToString('o')
+                $fallback | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $evidence 'package-fallback.json') -Encoding utf8
+              }
+            }
+            if (-not (Test-Path -LiteralPath $installer -PathType Leaf)) {
               throw 'No NSIS download matched the pinned version, checksum and executable header; diagnostic payloads were retained.'
             }
             $receipt.actual_sha256 = (Get-FileHash -LiteralPath $installer -Algorithm SHA256).Hash.ToLowerInvariant()
