@@ -1348,12 +1348,12 @@ class _DistributionSmokeController(QObject):
     @staticmethod
     def _read_result(database):
         """Require a real terminal database and release its handle on Windows."""
-        import sqlite3
+        from ..database_concurrency import connect
         from contextlib import closing
 
         if not database.is_file():
             raise RuntimeError('Measure did not produce measurements.db')
-        with closing(sqlite3.connect(database)) as connection:
+        with closing(connect(database, readonly=True)) as connection:
             status = connection.execute(
                 'SELECT status,n_succeeded,n_failed FROM run_status ORDER BY rowid DESC LIMIT 1'
             ).fetchone()

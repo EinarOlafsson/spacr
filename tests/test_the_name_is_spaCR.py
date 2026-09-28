@@ -119,8 +119,9 @@ ASSET = re.compile(
 #: still fails. ``\\+`` also recognizes doubled backslashes inside Python
 #: string literals without widening the Windows path exemption.
 LEGACY_IDENTIFIERS = re.compile(
-    r"Application Support/SpaCR/"
+    r"Application Support/SpaCR(?:/|['\"])"
     r"|\$env:LOCALAPPDATA\\+SpaCR\\+"
+    r"|Join-Path \$env:LOCALAPPDATA ['\"]SpaCR['\"]"
     r'|"Olafsson Lab", "SpaCR"'
 )
 
@@ -209,6 +210,20 @@ def _offenders():
             for match in WRONG.finditer(line):
                 out.append(f"{rel}:{number} {match.group(0)}")
     return out
+
+
+@pytest.mark.parametrize("literal", [
+    "Join-Path $env:LOCALAPPDATA 'SpaCR'",
+    'Join-Path $env:LOCALAPPDATA "SpaCR"',
+    "Join-Path $HOME 'Library/Application Support/SpaCR'",
+])
+def test_legacy_directory_identifiers_preserve_the_spelling_guard(literal):
+    """Exempt historical directory bytes while still rejecting prose on the line.
+
+    :param literal: exact released-install directory expression.
+    """
+    assert not WRONG.search(LEGACY_IDENTIFIERS.sub("", literal))
+    assert WRONG.findall(LEGACY_IDENTIFIERS.sub("", literal + " SpaCR")) == ["SpaCR"]
 
 
 def test_no_file_mis_cases_the_name():

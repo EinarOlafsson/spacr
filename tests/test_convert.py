@@ -744,9 +744,9 @@ def test_current_czi_scenes_keep_their_own_dimensions_and_pixels(
         tmp_path, monkeypatch):
     """Real CZI scenes retain absolute keys, distinct shapes and every plane.
 
-    The current czifile API exposes dimensions on scene images rather than
-    CziFile. The CZI extra supplies the native writer; no fake extension or
-    skipped optional writer can make this acceptance pass.
+    Both supported czifile APIs must preserve this same real file. The CZI
+    extra supplies the native writer; no fake extension or skipped optional
+    writer can make this acceptance pass.
 
     :param tmp_path: isolated input and conversion output directory.
     :param monkeypatch: prevents pixel decoding during the header-only scan.
@@ -771,7 +771,9 @@ def test_current_czi_scenes_keep_their_own_dimensions_and_pixels(
                                      scene=scene)
 
     with monkeypatch.context() as headers_only:
-        headers_only.setattr(czifile.CziImage, "asarray", lambda *a, **kw:
+        pixel_reader = (czifile.CziImage if hasattr(czifile, "CziImage")
+                        else czifile.CziFile)
+        headers_only.setattr(pixel_reader, "asarray", lambda *a, **kw:
                              pytest.fail("header scan decoded CZI pixels"))
         sources = cv.scan(str(root))
     assert not any(source.error for source in sources)

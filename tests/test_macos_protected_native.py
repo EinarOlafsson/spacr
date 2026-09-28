@@ -15,9 +15,12 @@ pytestmark = pytest.mark.skipif(
     reason="requires an explicitly assigned native macOS acceptance scope")
 
 
-def test_native_apple_script_string_encoding_cannot_execute_the_embedded_transaction():
-    """Ask AppleScript to return the exact string, never to run it or request authorization."""
-    path = "/Users/test/O'Brien;$(touch SHOULD_NOT_EXIST)/spaCR-1.5.1.1.dmg"
+def test_native_apple_script_string_encoding_cannot_execute_the_embedded_transaction(tmp_path):
+    """Ask AppleScript to return the exact string without authorization.
+
+    :param tmp_path: isolated download directory with adversarial spelling.
+    """
+    path = str(tmp_path / "O'Brien;$(touch SHOULD_NOT_EXIST)" / "spaCR-1.5.1.1.dmg")
     argv = cleanup._macos_protected_command("1.5.1.1", "a" * 64, image=path, original_identity=(1, 42))
     expression = argv[2]
     literal = expression[len("do shell script "):-len(" with administrator privileges without altering line endings")]

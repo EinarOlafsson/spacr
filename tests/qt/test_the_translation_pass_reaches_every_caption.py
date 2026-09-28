@@ -107,7 +107,7 @@ def _language(code):
 
 
 @pytest.mark.parametrize("code", NON_ENGLISH)
-def test_a_full_pass_over_a_built_screen_changes_nothing(qtbot, code):
+def test_a_full_pass_over_a_built_screen_changes_nothing(qtbot, code, monkeypatch):
     """THE guard. If the build translated everything, another pass is a no-op.
 
     This is the invariant to hold while the build's three near-root passes
@@ -132,7 +132,26 @@ def test_a_full_pass_over_a_built_screen_changes_nothing(qtbot, code):
     """
     from PySide6.QtWidgets import QAbstractButton, QGroupBox, QLabel, QWidget
 
+    from spacr import _mask_workers
     from spacr.qt.i18n import retranslate_widget_tree
+
+    def stable_gpu_count():
+        """Keep hardware availability constant across the caption snapshots.
+
+        :returns: zero compatible GPUs for this screen construction.
+        """
+        return 0
+
+    def skip_gpu_probe():
+        """Avoid starting discovery when the test supplies the GPU count.
+
+        :returns: ``None``.
+        """
+        return None
+
+    monkeypatch.setattr(_mask_workers, "_mask_gpu_count_for_controls",
+                        stable_gpu_count)
+    monkeypatch.setattr(_mask_workers, "_watch_mask_gpu_probe", skip_gpu_probe)
 
     def snapshot(root):
         out = {}

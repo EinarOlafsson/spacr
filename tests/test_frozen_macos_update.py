@@ -512,11 +512,14 @@ def _protected_script(argv):
     return ast.literal_eval(expression[len(prefix):-len(suffix)])
 
 
-def test_protected_boundary_quotes_paths_as_data_and_never_executes_our_helper():
-    """Shell metacharacters in a download directory stay inside one assignment value."""
+def test_protected_boundary_quotes_paths_as_data_and_never_executes_our_helper(tmp_path):
+    """Shell metacharacters stay inside one assignment value.
+
+    :param tmp_path: isolated download directory with adversarial spelling.
+    """
     import shlex
 
-    path = "/Users/test/O'Brien;$(touch SHOULD_NOT_EXIST)/spaCR-1.5.1.1.dmg"
+    path = str(tmp_path / "O'Brien;$(touch SHOULD_NOT_EXIST)" / "spaCR-1.5.1.1.dmg")
     argv = cleanup._macos_protected_command("1.5.1.1", "a" * 64, image=path, original_identity=(1, 42))
     script = _protected_script(argv)
     assignments = dict(shlex.split(line)[0].split("=", 1) for line in script.splitlines()[:8])

@@ -2605,6 +2605,8 @@ class _SpatialTranscriptomicsPanel(QWidget):
         self._loaded_key = None
         self.summary = None
         self._build_ui()
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     def _path_row(self, form, caption: str, hint: str, *, folder=False,
                   save=False):

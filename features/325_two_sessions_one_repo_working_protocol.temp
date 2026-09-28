@@ -17389,3 +17389,9 @@ abort is not declared fixed until the serial process reaches its summary.
 API regeneration, runtime translation and tutorial-redaction recovery are
 owned by this Codex session while that acceptance runs. The primary Claude
 checkout and all live_cell services, data and GPU jobs remain untouched.
+
+2026-09-28 — CODEX: MINIMUM PROFILE MATCHES DECLARED PYWavelets FLOOR (43)
+Claiming .github/constraints/minimum-py39.txt for the missing PyWavelets1.4.0
+pin, matching setup.py's declared >=1.4 floor. Official PyPI metadata confirms
+the Python3.9 Linux wheels and NumPy>=1.17.3 compatibility. No workflow or
+shared environment changes; focused profile checks follow the CPU audio job.

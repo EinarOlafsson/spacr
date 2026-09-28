@@ -46,13 +46,13 @@ PLATFORM_ASSETS = {
 }
 ALL_ICON_STEMS = (*PLATFORM_ASSETS, "legacy")
 
-#: github/markup renders ``.rst`` with docutils configured like this. Raw HTML
-#: is off, which is why the README cannot use the ``<picture>`` +
-#: ``prefers-color-scheme`` trick that a Markdown README would use for "white".
+#: Match github/markup's rest2html raw-HTML support while retaining strict
+#: diagnostics; its downstream sanitizer still governs allowed HTML.
+#: https://github.com/github/markup/blob/master/lib/github/commands/rest2html
 GITHUB_RST_SETTINGS = {
-    "cloak_email_addresses": True,
+    "cloak_email_addresses": False,
     "file_insertion_enabled": False,
-    "raw_enabled": False,
+    "raw_enabled": True,
     "strip_comments": True,
     "doctitle_xform": True,
     "report_level": 2,

@@ -2360,3 +2360,18 @@ the no-scorable-well test (one failed, one passed). The import test now restores
 both references and asserts their identities. Both complete named files pass:
 18 tests, CPU/offscreen. The frozen serial run remains untouched and running;
 this does not claim a green full suite or completed item47 acceptance.
+
+2026-09-28 — Focused CI repairs verified
+The explicit CPU/offscreen selection passes478 tests with21 skips. A private
+readme_renderer install then passes all3 README cases, including the one
+previously skipped. Twenty native-macOS tests remain correctly skipped on
+Linux. Real CZI header/plane regression checks pass2 cases with each of
+czifile2019.7.2.3 and2026.8.16, retaining sparse scene IDs and per-scene shapes.
+The minimum Py39 profile now pins the already-declared PyWavelets floor;
+database smoke reads use the shared read-only timeout connection. Field-help
+retargeting preserves disabled reasons and label associations. Test fixtures
+retain translation, branding, preview and adversarial path checks without
+changing historical installation roots or removing assertions.
+Full serial Qt acceptance and green final-source CI remain open. The earlier
+CI Qt worker crash still has no established cause; no memory limit was raised.
+Receipt: features/data/43_focused_ci_repairs_2026-09-28.json.

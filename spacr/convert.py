@@ -1097,6 +1097,42 @@ def _describe_nd2(path: str) -> Dict[str, Any]:
             'axes_assumed': '', 'reader': 'nd2reader'}
 
 
+def _legacy_czi_series(handle: Any) -> list:
+    """Describe actual legacy CZI scenes from subblock headers.
+
+    :param handle: an open legacy reader with a filtered subblock directory.
+    :returns: scene descriptions with absolute coordinates and their own bounds.
+    """
+    groups = {}
+    for entry in handle.filtered_subblock_directory:
+        dimensions = {
+            axis: (int(start), int(start) + int(size))
+            for axis, start, size in zip(entry.axes, entry.start, entry.shape)}
+        first, stop = dimensions.get('S', (0, 1))
+        for scene in range(first, stop):
+            bounds = groups.setdefault(scene, {})
+            for axis, (start, end) in dimensions.items():
+                if axis == 'S':
+                    continue
+                previous = bounds.get(axis, (start, end))
+                bounds[axis] = (min(previous[0], start), max(previous[1], end))
+    axes = str(handle.axes or '').upper()
+    series = []
+    for scene, bounds in sorted(groups.items()):
+        own_axes = ''.join(axis for axis in axes if axis != 'S' and
+                           not (axis == '0' and bounds[axis][1] - bounds[axis][0] == 1))
+        sizes = {axis: end - start for axis, (start, end) in bounds.items()}
+        series.append({
+            'czi_scene': scene, 'czi_bounds': bounds,
+            'shape': tuple(sizes[axis] for axis in own_axes),
+            'axes': own_axes, 'dtype': str(handle.dtype),
+            'n_t': max(sizes.get('T', 1), 1),
+            'n_z': max(sizes.get('Z', 1), 1),
+            'n_c': max(sizes.get('C', 1), 1),
+            'axes_assumed': '', 'reader': 'czifile'})
+    return series
+
+
 def _describe_czi(path: str) -> Dict[str, Any]:
     """Read a CZI's dimensions via ``czifile`` (header only)."""
     module = _import_reader('.czi')
@@ -1114,6 +1150,11 @@ def _describe_czi(path: str) -> Dict[str, Any]:
                     'n_z': max(int(sizes.get('Z', 1) or 1), 1),
                     'n_c': max(int(sizes.get('C', 1) or 1), 1),
                     'axes_assumed': '', 'reader': 'czifile'})
+            if not series:
+                raise ConfigurationError(f'{path} contains no images')
+            return dict(series[0], n_series=len(series), per_series=series)
+        if hasattr(handle, 'filtered_subblock_directory'):
+            series = _legacy_czi_series(handle)
             if not series:
                 raise ConfigurationError(f'{path} contains no images')
             return dict(series[0], n_series=len(series), per_series=series)
@@ -1906,6 +1947,22 @@ def _read_czi(source: SourceImage) -> np.ndarray:
                           source.t, source.z, source.n_channels)
         array = np.asarray(handle.asarray())
         axes = str(handle.axes or '').upper()
+        if 'czi_bounds' in source.meta:
+            bounds = source.meta['czi_bounds']
+            starts = dict(zip(axes, handle.start))
+            selection = []
+            for axis in axes:
+                if axis == 'S':
+                    selection.append(int(source.meta['czi_scene']) - int(starts[axis]))
+                elif axis in bounds:
+                    start, end = bounds[axis]
+                    selection.append(slice(int(start) - int(starts[axis]),
+                                           int(end) - int(starts[axis])))
+                else:
+                    selection.append(slice(None))
+            array = array[tuple(selection)]
+            axes = axes.replace('S', '')
+            return _to_5d(array, axes, source.t, source.z, source.n_channels)
     if 'S' in axes:
         index = axes.index('S')
         array = np.take(array, series, axis=index)

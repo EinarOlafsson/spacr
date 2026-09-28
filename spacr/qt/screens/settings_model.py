@@ -11600,6 +11600,11 @@ def retarget_field_tooltips(root: QWidget) -> int:
             carried = field.property(prop)
             if carried:
                 label.setProperty(prop, carried)
+        field._spacr_setting_label = label
+        pending = str(field.property(_PENDING_NOTE_PROPERTY) or "")
+        if pending:
+            label.setEnabled(field.isEnabled())
+            _note_on_label(label, pending)
         label.removeEventFilter(event_filter)
         label.installEventFilter(event_filter)
         field.setToolTip("")
