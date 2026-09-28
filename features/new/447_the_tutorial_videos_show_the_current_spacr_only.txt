@@ -640,3 +640,15 @@ is unchanged. AI technical review (Codex), no native-speaker signoff; no human
 listening signoff. Rendering, browser/path checks, publication and live
 verification remain pending, so this does not close447.
 Receipt: features/data/447_lesson73_audio_acceptance_2026-09-28.json.
+
+STATUS 2026-09-28 — lesson73 media technically accepted
+All27 voice tracks and13 reviews are adopted; each catalog changes only lesson73.
+Master/web playback, English sentence cues and caption-only locales pass.
+All22 sampled frames/posters pass path OCR and dark-theme checks. The84 other
+entries,106 prior new tracks,2 English anchors and historical originals remain
+unchanged. Large rendering outputs stay on WD. The original Chrome socket-path
+failure is preserved; a separate shorter WD temporary launcher resumes the
+unchanged frozen scripts and accepted checkpoints.
+AI technical review (Codex), no human listening or native-speaker signoff.
+Candidate build, publication and live verification remain pending;447 stays open.
+Receipt: features/data/447_lesson73_media_acceptance_2026-09-28.json.
