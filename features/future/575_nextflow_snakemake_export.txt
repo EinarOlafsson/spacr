@@ -45,10 +45,11 @@ WHAT WAS BUILT (2026-09-27)
     mask export passes `snakemake -n`, `snakemake --lint` and
     `nextflow lint` cleanly.
 
-WHAT IS LEFT
-    Per-well jobs (no pipeline takes a well filter yet); a per-plate dst
-    for modules that write to one dst; container runs (docker/apptainer)
-    not exercised here; a real Cellpose plate on a cluster not run.
+WHAT IS LEFT (updated 2026-09-28)
+    Per-well jobs (no pipeline takes a well filter yet); isolating other
+    explicit file destinations such as db_path/checkpoint_path; container
+    runs (docker/apptainer) not exercised here; a real Cellpose plate on a
+    cluster not run. Explicit dst/dst_root directories are now isolated.
 
 STATUS 2026-09-28 — explicit per-plate output roots isolated
 Multiple exported plate jobs now place explicit dst/dst_root outputs in unique

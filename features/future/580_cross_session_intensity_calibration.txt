@@ -44,10 +44,10 @@ ALPHA: 2026-09-27
     (gains 1/2.5 within 2%). The median statistic on a uniform well gives the
     same gain.
 
-    LEFT: sessions are plates only (no separate session column or bead
-    folder outside the plate); a changed calibration does not invalidate
-    resumed fields; no GUI preview of the gains; the reference plate is
-    always the first by name.
+    LEFT (updated 2026-09-28): sessions are plates only (no separate session
+    column or bead folder outside the plate); no GUI preview of the gains;
+    the reference plate is always the first by name. Incompatible calibration
+    and changed reference content now refuse reuse of retained measurements.
 
 STATUS 2026-09-28 — reference-content identity checked before reuse
 Measure now resolves gains and reference-file SHA256 identities before WAL,
