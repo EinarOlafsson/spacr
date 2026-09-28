@@ -1413,3 +1413,18 @@ was already declared in the czi extra and blocking CI. No public signatures or
 runtime docstrings changed. The settings overlay and uninterrupted serial/memory
 acceptance remain open; the frozen suffix continues unchanged. Receipt:
 features/data/47_current_czi_and_stale_contract_repairs_2026-09-27.json.
+
+STATUS 2026-09-27 — stray settings overlay repaired
+The failed transmission probe identified an unmounted timelapse pathogen_model
+editor covering the visible Mask settings. Folded sections omitted that row
+after building its control; direct ownership by the visible form caused Qt to
+paint it at default geometry. SettingsWidgets now keeps unmounted eager and
+deferred controls under a hidden Qt-owned host. Actual form rows reparent their
+controls when mounted. The detached lazy-category owner remains unchanged.
+
+Seven focused checks pass in19.22 seconds, including the original transmission
+and animation-cycle calibration, eager/deferred visibility and destruction,
+lazy reveal and settings collection. Opacity and thresholds are unchanged.
+This repairs the reproduced overlay; it does not establish the interrupted
+full serial/memory acceptance or clear unrelated order-dependent failures.
+Receipt: features/data/47_unmounted_settings_overlay_repair_2026-09-27.json.

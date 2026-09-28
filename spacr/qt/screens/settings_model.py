@@ -8715,6 +8715,11 @@ class SettingsWidgets:
         """
         self.app_key = app_key
         self._parent = parent
+        self._unmounted_control_owner = None
+        if parent is not None:
+            self._unmounted_control_owner = QWidget(parent)
+            self._unmounted_control_owner.setObjectName("UnmountedSettingsControls")
+            self._unmounted_control_owner.hide()
         #: Settings to build no widget for. See __init__'s docstring.
         self._skip_keys = frozenset(str(k) for k in (skip_keys or ()))
         from spacr.settings import organelle_slots_beyond_the_count
@@ -9516,6 +9521,15 @@ class SettingsWidgets:
 
         See :meth:`_route_control` for how it is chosen.
 
+        A parented model keeps unmounted controls under a hidden Qt-owned
+        host. Folded forms may omit rows after building them; parenting those
+        controls directly to the visible form would paint them over its rows.
+        A row layout reparents its control when it is actually mounted.
+
+        :param kind: the setting's declared control kind.
+        :param options: allowed choices or constraints from its declaration.
+        :param default: initial value for the control.
+        :param key: the setting name used to choose specialized controls.
         :returns: the control, or ``None`` when the kind has none.
         """
         route, what = self._route_control(kind, options, default, key)

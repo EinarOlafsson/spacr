@@ -191,6 +191,11 @@ def test_writing_a_waiting_setting_builds_that_control_alone(owned_model):
 
 @pytest.mark.parametrize("waiting", [False, True])
 def test_unmounted_controls_are_deleted_with_the_model_owner(qtbot, waiting):
+    """Owned controls stay off the page until mounted, then die with it.
+
+    :param qtbot: owns the test window and observes its Qt widgets.
+    :param waiting: build one deferred control as well as eager controls.
+    """
     from PySide6.QtCore import QEvent
     from shiboken6 import isValid
 
@@ -210,11 +215,32 @@ def test_unmounted_controls_are_deleted_with_the_model_owner(qtbot, waiting):
     for _, control in controls:
         qtbot.addWidget(control)
 
+    owner.show()
+    QApplication.processEvents()
+    assert controls
+    assert not [key for key, control in controls if control.isVisible()]
+    key = pending[0] if waiting else controls[0][0]
+    mounted = model._widgets.built(key)
+    assert mounted is not None
+    model._set_row_visible(key, True)
+    mounted.show()
+    QApplication.processEvents()
+    assert not mounted.isVisible(), "a visibility pass exposed an unmounted row"
+
+    form = QFormLayout(owner)
+    form.addRow("Mounted setting", mounted)
+    QApplication.processEvents()
+    assert mounted.isVisible(), "mounting a real row left its control hidden"
+    assert not [key for key, control in controls
+                if control is not mounted and control.isVisible()]
+    descendants = owner.findChildren(QWidget)
+
     # Keep the Python model and wrappers alive: Qt ownership alone must
     # delete controls that have not yet joined a category's layout.
     owner.deleteLater()
     QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
     assert not [key for key, control in controls if isValid(control)]
+    assert not [widget for widget in descendants if isValid(widget)]
 
 
 # -- on a real window ---------------------------------------------------------
