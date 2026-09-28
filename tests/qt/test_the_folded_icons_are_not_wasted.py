@@ -148,7 +148,7 @@ def test_mask_generations_own_time_category_carries_timelapses_icon(qtbot):
 def test_measures_illumination_category_carries_illuminations_icon(qtbot):
     """Illumination is a button here AND a category; both wear its mark."""
     screen = _screen(qtbot, "measure")
-    section = _by_title(screen)["ILLUMINATION CORRECTION"]
+    section = _by_title(screen)["ILLUMINATION CORRECTION \u0391"]
     assert section.source_app() == "illumination"
     drawn = _drawn(section)
     assert drawn == _icon_image("illumination", _mark(section))

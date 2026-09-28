@@ -2,7 +2,7 @@
 
 Everything built from the future-features list is hidden until Preferences ->
 Show alpha features is turned on. For bleach correction that is its one
-setting on the Measure form, under its own "Bleach Correction (Alpha)"
+setting on the Measure form, under its own "Bleach Correction α"
 heading; a value saved while hidden still reaches the run.
 """
 from __future__ import annotations
@@ -36,7 +36,7 @@ def test_the_setting_is_registered_under_its_item():
     from spacr.settings import ALPHA_FEATURES, _is_alpha, categories
 
     assert ALPHA_FEATURES[539] == {"settings": (KEY,)}
-    assert tuple(categories["Bleach Correction (Alpha)"]) == (KEY,)
+    assert tuple(categories["Bleach Correction α"]) == (KEY,)
     assert _is_alpha("settings", KEY)
 
 

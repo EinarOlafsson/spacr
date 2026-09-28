@@ -1525,36 +1525,138 @@ def qc_banner(screen) -> Optional[SegQCBanner]:
     return found if isinstance(found, SegQCBanner) else None
 
 
-def _insert_above_actions(screen, widget) -> bool:
-    """Put ``widget`` in the runtime panel just above the Run row.
+class SegQCDialog(QDialog):
+    """The segmentation verdict in a popup, opened from Measure's QC button.
 
-    Both anchors (``_runtime_wrap`` and ``_actions_row``) are attributes
-    ``AppScreen`` keeps for exactly this kind of reach, so nothing here
-    depends on that panel's internal layout order. Above the actions row is
-    the last thing the eye crosses on its way to Run, which is the whole
-    point: a panel the user would have to go and open is a panel nobody opens.
+    The banner used to sit above the Run row, where it pushed Run, Stop and
+    the other actions up the panel whenever it had something to say. It is
+    opt-in now: the verdict is read as before, but it is shown only when the
+    user presses QC. Being a ``QDialog`` is what dresses it: the translucent
+    card, the rounded corners and the rim of :mod:`spacr.qt.widgets.glass`.
+
+    :param screen: the Measure screen the verdict is about.
+    :param banner: the :class:`SegQCBanner` to hold.
+    :param parent: the window that opens it; the screen when omitted.
     """
-    wrap = getattr(screen, "_runtime_wrap", None)
+
+    def __init__(self, screen: QWidget, banner: "SegQCBanner",
+                 parent: Optional[QWidget] = None) -> None:
+        """Build the popup around ``banner``.
+
+        :param screen: the screen the verdict is about.
+        :param banner: the banner to show.
+        :param parent: parent widget.
+        """
+        super().__init__(parent or screen)
+        from .i18n import tr
+
+        self.setObjectName("SegQCDialog")
+        self.setWindowTitle(tr("Segmentation QC"))
+        self._screen = screen
+        self.banner = banner
+        column = QVBoxLayout(self)
+        self._empty = _label(
+            tr("No segmentation QC to show yet. Choose a source folder whose "
+               "masks Mask generation made; its QC cards are read from "
+               "there."), "PrerunSub")
+        column.addWidget(self._empty)
+        banner.setParent(self)
+        column.addWidget(banner)
+        column.addStretch(1)
+
+        row = QHBoxLayout()
+        row.addStretch(1)
+        self.close_button = QPushButton(tr("Close"), self)
+        self.close_button.setObjectName("DangerButton")
+        self.close_button.setAutoDefault(False)
+        self.close_button.clicked.connect(self.reject)
+        row.addWidget(self.close_button)
+        column.addLayout(row)
+
+        banner.refreshed.connect(self._say_what_there_is)
+        self._say_what_there_is()
+        from .preferences import scaled_px
+        self.resize(scaled_px(640), max(self.sizeHint().height(),
+                                        scaled_px(240)))
+
+    def _say_what_there_is(self, *_args) -> None:
+        """Show the empty-state line only while the banner has nothing."""
+        try:
+            self._empty.setVisible(self.banner.isHidden())
+        except RuntimeError:
+            pass
+
+    def showEvent(self, event) -> None:                  # noqa: N802
+        """Re-read the verdict each time the popup opens."""
+        super().showEvent(event)
+        self._say_what_there_is()
+        try:
+            self.banner.schedule_refresh()
+        except RuntimeError:
+            pass
+
+
+def qc_dialog(screen) -> Optional[SegQCDialog]:
+    """The QC popup installed on ``screen``, or None.
+
+    :param screen: the screen widget whose ``_seg_qc_dialog`` is read.
+    """
+    found = getattr(screen, "_seg_qc_dialog", None)
+    return found if isinstance(found, SegQCDialog) else None
+
+
+def _add_qc_button(screen, dialog: SegQCDialog) -> Optional[QPushButton]:
+    """Put the QC button in ``screen``'s action row, left of 3D and Time.
+
+    Placed in front of the first dimension switch; without one, in front of
+    the Live preview switch, then the AI switch, then at the end of the row.
+
+    :param screen: the Measure screen.
+    :param dialog: the popup the button opens.
+    :returns: the button, or None when the screen has no action row.
+    """
+    from .i18n import tr
+
     actions = getattr(screen, "_actions_row", None)
-    if wrap is None or actions is None:
-        return False
-    layout = wrap.layout()
-    holder = actions.parentWidget()
-    if (holder is not None and holder is not wrap
-            and wrap.isAncestorOf(holder)
-            and holder.layout() is not None
-            and holder.layout().indexOf(actions) >= 0):
-        layout = holder.layout()
+    layout = actions.layout() if actions is not None else None
     if layout is None:
-        return False
-    index = layout.indexOf(actions)
-    layout.insertWidget(index if index >= 0 else layout.count(), widget)
-    return True
+        return None
+    button = QPushButton(tr("QC"), actions)
+    button.setObjectName("GhostButton")
+    button.setProperty("spacrRole", "MeasureQcButton")
+    button.setAccessibleName(tr("Segmentation QC"))
+    button.setCursor(Qt.PointingHandCursor)
+    button.setToolTip(tr(
+        "Open the segmentation QC verdict for the masks in the source "
+        "folder: the plate, the wells and the likely cause, read from the "
+        "QC cards Mask generation wrote. Advisory only; it never stops "
+        "Measure. Default closed."))
+    button.clicked.connect(dialog.show)
+    button.clicked.connect(dialog.raise_)
+    anchors = list((getattr(screen, "_dimension_switches", None) or {})
+                   .values())
+    anchors += [getattr(screen, "_preview_switch", None),
+                getattr(screen, "_ai_switch", None)]
+    index = -1
+    for anchor in anchors:
+        if anchor is None:
+            continue
+        found = layout.indexOf(anchor)
+        if found >= 0:
+            index = found if index < 0 else min(index, found)
+            if anchor in (getattr(screen, "_preview_switch", None),
+                          getattr(screen, "_ai_switch", None)):
+                break
+    layout.insertWidget(index if index >= 0 else layout.count(), button)
+    return button
 
 
 def install_qc_banner(screen, *, reader=None,
                       threaded: bool = True) -> Optional[SegQCBanner]:
-    """Put a :class:`SegQCBanner` above ``screen``'s Run row.
+    """Put a :class:`SegQCBanner` behind a QC button on ``screen``.
+
+    The banner lives in a :class:`SegQCDialog` the button opens; nothing is
+    added above the Run row, so the actions stay where they are.
 
     :param screen: an ``AppScreen``.
     :param reader: digest reader, for tests.
@@ -1568,11 +1670,15 @@ def install_qc_banner(screen, *, reader=None,
         if existing is not None:
             return existing
         banner = SegQCBanner(screen, reader=reader, threaded=threaded)
-        if not _insert_above_actions(screen, banner):
-            banner.setParent(None)
-            banner.deleteLater()
+        dialog = SegQCDialog(screen, banner)
+        button = _add_qc_button(screen, dialog)
+        if button is None:
+            dialog.setParent(None)
+            dialog.deleteLater()
             return None
         screen._seg_qc_banner = banner
+        screen._seg_qc_dialog = dialog
+        screen._btn_qc = button
         banner.schedule_refresh()
         return banner
     except Exception:

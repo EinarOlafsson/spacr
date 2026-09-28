@@ -2,7 +2,7 @@
 
 Everything built from the future-features list is hidden until Preferences ->
 Show alpha features is turned on. For event detection that is its six
-settings under the "Event Detection (Alpha)" heading of the Timelapse form; a
+settings under the "Event Detection α" heading of the Timelapse form; a
 value saved while hidden still reaches the run.
 """
 from __future__ import annotations

@@ -1,6 +1,6 @@
 """The segmentation-robustness report sits behind Preferences -> Show alpha features.
 
-Make Masks' "Segmentation Robustness (Alpha)" card and its eight settings are
+Make Masks' "Segmentation Robustness α" card and its eight settings are
 off the form and out of the settings search with the switch off (the
 default), come back when it is turned on, and a value set while hidden still
 reaches the run.
@@ -66,7 +66,7 @@ def test_the_mask_form_hides_and_shows_the_robustness_settings(qtbot, prefs):
         screen._refresh_alpha_visibility()
         assert prefs._is_alpha_visible("settings", "robustness_report") is False
         assert not any(screen.setting_row_is_visible(k) for k in KEYS)
-        assert _heading(screen, "Segmentation Robustness (Alpha)").isHidden()
+        assert _heading(screen, "Segmentation Robustness α").isHidden()
         assert not _heading(screen, "Quality Control").isHidden()
         if bar is not None:
             assert not set(KEYS) & set(bar.indexed_keys())
@@ -82,14 +82,14 @@ def test_the_mask_form_hides_and_shows_the_robustness_settings(qtbot, prefs):
         screen._refresh_alpha_visibility()
         assert prefs._is_alpha_visible("settings", "robustness_report") is True
         assert all(screen.setting_row_is_visible(k) for k in KEYS)
-        assert not _heading(screen, "Segmentation Robustness (Alpha)").isHidden()
+        assert not _heading(screen, "Segmentation Robustness α").isHidden()
         if bar is not None:
             assert set(KEYS) <= set(bar.indexed_keys())
 
         prefs._set_show_alpha_features(False)
         screen._refresh_alpha_visibility()
         assert not any(screen.setting_row_is_visible(k) for k in KEYS)
-        assert _heading(screen, "Segmentation Robustness (Alpha)").isHidden()
+        assert _heading(screen, "Segmentation Robustness α").isHidden()
     finally:
         retire_pyqtgraph_menus(screen)
         screen.close()

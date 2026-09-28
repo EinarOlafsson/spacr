@@ -95,13 +95,10 @@ def test_no_control_on_a_row_is_left_hidden_after_a_reopen(qtbot):
 
 @pytest.fixture
 def grid_on():
-    """The per-object table on, as the maintainer had it; restored after."""
+    """The per-object table, which is Mask generation's only layout (592)."""
     from spacr.qt import preferences as prefs
 
-    was = prefs.get_object_grid_enabled()
-    prefs.set_object_grid_enabled(True)
     yield prefs
-    prefs.set_object_grid_enabled(was)
 
 
 def test_a_pathogen_channel_set_in_live_settings_reaches_the_run(

@@ -261,9 +261,6 @@ def test_the_per_object_table_gains_the_new_organelle_as_a_column(
     """With 364's table mounted, the new slot is a COLUMN, still no reload."""
     window, screen = mask_window
     calls = _count_rebuilds(window, monkeypatch)
-    monkeypatch.setattr("spacr.qt.preferences.get_object_grid_enabled",
-                        lambda: True)
-    screen.apply_object_grid_preference()
     grid = getattr(screen, "_object_grid", None)
     if grid is None:
         pytest.skip("Mask did not mount the per-object table")

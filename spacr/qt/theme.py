@@ -256,6 +256,15 @@ STAGE_HOVER = {
     "alpha":  "#00CEC8",
 }
 
+#: The mark an alpha settings category ends with, in place of "(Alpha)".
+ALPHA_MARK = "\u03b1"
+
+#: The one colour an alpha category's heading is written in, in every theme.
+#:
+#: Darker than the alpha hover hue so it still reads on the light theme's
+#: white cards (3.7:1) while keeping at least 4:1 on every dark surface.
+ALPHA_INK = "#00948F"
+
 #: What the legend writes next to each swatch.
 STAGE_LABEL = {
     "stable": "Stable",
@@ -4377,7 +4386,10 @@ QToolButton#SectionHeader[maturity="{stage}"]:hover,
 QToolButton#SectionHeader[maturity="{stage}"]:checked {{
     background-color: {css_color(hue, 0.14)};
 }}"""
-        for stage, hue in STAGE_HOVER.items())
+        for stage, hue in STAGE_HOVER.items()) + f"""
+QToolButton#SectionHeader[maturity="alpha"] {{
+    color: {ALPHA_INK};
+}}"""
     TILE_MIN_H = max(1, int(round(TILE_H * font_scale)))
     TILE_MIN_W_PX = max(1, int(round(TILE_W * font_scale)))
     F = {k: max(_QT_MIN_FONT_PX, int(round(v * font_scale)))

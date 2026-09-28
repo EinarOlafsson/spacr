@@ -50,6 +50,7 @@ from PySide6.QtWidgets import (
 )
 
 from .. import timing as _timing
+from ..theme import ALPHA_MARK
 from ..widgets.availability_panel import (AvailabilityPanel,
                                          disable_combo_row,
                                          run_install_offer)
@@ -1179,7 +1180,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "channels", "magnification",
             "metadata_type", "custom_regex",
         )),
-        ("Cloud", (
+        ("Cloud α", (
             "cloud_anonymous", "cloud_profile", "cloud_endpoint",
             "cloud_cache", "cloud_wells", "cloud_fields", "cloud_level",
             "cloud_results",
@@ -1199,8 +1200,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "normalize", "lower_percentile", "randomize", "batch_fields",
             "consolidate",
         )),
-        ("Image Quality", ("@Image Quality",)),
-        ("Illumination Correction", (
+        ("Illumination Correction α", (
             "illumination_correction", "illumination_model",
             "illumination_estimator", "illumination_degree",
             "illumination_dark", "illumination_per_plate",
@@ -1208,9 +1208,10 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_on_missing",
             "illumination_vendor_profile",
         )),
-        ("Spectral Unmixing (Alpha)", ("@Spectral Unmixing (Alpha)",)),
-        ("Point Spread Function", ("@Point Spread Function",)),
-        ("Image Enhancement", ("@Image Enhancement",)),
+        ("Image Deconvolution α", ("@Point Spread Function",)),
+        ("Image Enhancement α", ("@Image Enhancement",)),
+        ("Image Quality", ("@Image Quality",)),
+        ("Spectral Unmixing α", ("@Spectral Unmixing α",)),
         ("Cell Segmentation", ("@Cell",)),
         ("Nucleus Segmentation", ("@Nucleus",)),
         ("Pathogen Segmentation", ("@Pathogen",)),
@@ -1220,30 +1221,31 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Image Preprocessing (per object)",
          ("@Image preprocessing (per object)",)),
         ("Object Filtration (all objects)", ("@Object filtration",)),
-        ("Quality Control", ("@Segmentation QC",)),
-        ("Segmentation Robustness (Alpha)",
-         ("@Segmentation Robustness (Alpha)",)),
-        ("Volumetric Processing (Beta)", ("@3D Settings (Beta)",)),
-        ("Time Axes & Tracking (Beta)", ("@4D Settings (Beta)",)),
-        ("Visualization & Diagnostics", (
-            "plot", "cmap", "figuresize", "examples_to_plot",
-        )),
-        ("Output & Storage", (
+        ("Quality Control", (
+            "@Segmentation QC",
             "save", "delete_intermediate", "keep_intermediate",
             "keep_original_images", "save_original_images", "keep_npz",
             "filter", "merge_pathogens",
-        )),
-        ("Runtime & Reliability", (
             "strict_errors", "max_failure_rate", "on_error",
             "on_error_attempts", "on_error_backoff", "random_seed", "verbose", "n_jobs",
             "batch_size", "pipeline_style", "diameter_estimate_n_fields",
             "mask_parallel", "mask_gpu_indices",
         )),
+        ("Segmentation Robustness α",
+         ("@Segmentation Robustness α",)),
+        ("Volumetric Processing (Beta)", ("@3D Settings (Beta)",)),
+        ("Time Axes & Tracking (Beta)", ("@4D Settings (Beta)",)),
+        ("Visualization & Diagnostics", (
+            "plot", "cmap", "figuresize", "examples_to_plot",
+        )),
     ),
     "measure": (
         ("Input & Experiment", (
-            "src", "cloud_anonymous", "cloud_profile", "cloud_endpoint",
-            "cloud_cache", "cloud_results", "experiment",
+            "src", "experiment", "plot", "test_mode", "test_nr",
+        )),
+        ("Cloud α", (
+            "cloud_anonymous", "cloud_profile", "cloud_endpoint",
+            "cloud_cache", "cloud_results",
         )),
         ("Mask & Channel Mapping", (
             "channels", "cell_mask_dim", "nucleus_mask_dim",
@@ -1255,7 +1257,10 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "cytoplasm",
             "timelapse", "timelapse_objects",
         )),
-        ("Illumination Correction", (
+        ("Bleach Correction α", ("@Bleach Correction α",)),
+        ("Spectral Unmixing α", ("@Spectral Unmixing α",)),
+        ("Image Deconvolution α", ("@Point Spread Function",)),
+        ("Illumination Correction α", (
             "illumination_correction", "illumination_model",
             "illumination_estimator", "illumination_degree",
             "illumination_dark",
@@ -1263,10 +1268,10 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_qc", "illumination_on_missing",
             "illumination_vendor_profile",
         )),
-        ("Spectral Unmixing (Alpha)", ("@Spectral Unmixing (Alpha)",)),
-        ("Point Spread Function", ("@Point Spread Function",)),
-        ("Intensity Calibration (Alpha)", ("@Intensity Calibration (Alpha)",)),
-        ("Measurement Features", (
+        ("Image Enhancement α", ("@Image Enhancement",)),
+        ("Plate Barcode Linkage α", ("@Plate Barcode Linkage α",)),
+        ("Intensity Calibration α", ("@Intensity Calibration α",)),
+        ("Features", (
             "save_measurements", "calculate_correlation",
             "spatial_measurements",
             "spatial_neighbor_radius",
@@ -1277,15 +1282,13 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "object_distance_intensity",
             "summarize_organelles_by",
         )),
-        ("Confluency (Alpha)", ("@Confluency (Alpha)",)),
-        ("Cell Cycle (Alpha)", ("@Cell Cycle (Alpha)",)),
-        ("Bleach Correction (Alpha)", ("@Bleach Correction (Alpha)",)),
-        ("GPU Measurement (Alpha)", ("@GPU Measurement (Alpha)",)),
-        ("Wound Closure (Alpha)", ("@Wound Closure (Alpha)",)),
-        ("Time To Event (Alpha)", ("@Time To Event (Alpha)",)),
-        ("Plate Barcode Linkage (Alpha)", ("@Plate Barcode Linkage (Alpha)",)),
-        ("Viability (Alpha)", ("@Viability (Alpha)",)),
-        ("CellProfiler (Alpha)", ("@CellProfiler (Alpha)",)),
+        ("Confluency α", ("@Confluency α",)),
+        ("Cell Cycle α", ("@Cell Cycle α",)),
+        ("Wound Closure α", ("@Wound Closure α",)),
+        ("Viability α", ("@Viability α",)),
+        ("CellProfiler α", ("@CellProfiler α",)),
+        ("GPU Measurement α", ("@GPU Measurement α",)),
+        ("Time To Event α", ("@Time To Event α",)),
         ("Object Filtering", (
             "uninfected", "cell_min_size", "cell_max_size",
             "cytoplasm_min_size",
@@ -1300,8 +1303,6 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "dialate_pngs", "dialate_png_ratios", "use_bounding_box",
             "normalize", "normalize_by",
         )),
-        ("Profiling (Alpha)", ("@Profiling (Alpha)",)),
-        ("Preview & Diagnostics", ("plot", "test_mode", "test_nr")),
         ("3D Calibration (Beta)", (
             "anisotropy", "voxel_size_z_um", "voxel_size_xy_um",
         )),
@@ -1310,6 +1311,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "on_error_attempts", "on_error_backoff", "random_seed", "dry_run",
             "verbose", "n_jobs",
         )),
+        ("Profiling α", ("@Profiling α",)),
     ),
     "timelapse": (
         ("Input & Metadata", (
@@ -1331,8 +1333,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "normalize", "lower_percentile", "randomize", "batch_fields",
             "consolidate",
         )),
-        ('Image Quality', ('@Image Quality',)),
-        ("Illumination Correction", (
+        ("Illumination Correction α", (
             "illumination_correction", "illumination_model",
             "illumination_estimator", "illumination_degree",
             "illumination_dark", "illumination_per_plate",
@@ -1340,9 +1341,10 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_on_missing",
             "illumination_vendor_profile",
         )),
-        ("Spectral Unmixing (Alpha)", ("@Spectral Unmixing (Alpha)",)),
-        ("Point Spread Function", ("@Point Spread Function",)),
-        ("Image Enhancement", ("@Image Enhancement",)),
+        ("Image Deconvolution α", ("@Point Spread Function",)),
+        ("Image Enhancement α", ("@Image Enhancement",)),
+        ("Image Quality", ("@Image Quality",)),
+        ("Spectral Unmixing α", ("@Spectral Unmixing α",)),
         ("Cell Segmentation", ("@Cell",)),
         ("Nucleus Segmentation", ("@Nucleus",)),
         ("Pathogen Segmentation", ("@Pathogen",)),
@@ -1367,11 +1369,11 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "t_max_displacement_px", "t_max_displacement_um",
             "t_project_for_tracking",
         )),
-        ("Lineage Trees (Alpha)", (
+        ("Lineage Trees α", (
             "timelapse_lineage", "timelapse_lineage_color_by",
             "timelapse_lineage_max_distance",
         )),
-        ("Event Detection (Alpha)", (
+        ("Event Detection α", (
             "timelapse_events", "timelapse_events_annotations",
             "timelapse_events_model", "timelapse_events_window",
             "timelapse_events_threshold", "timelapse_events_conditions",
@@ -1593,7 +1595,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
     "analyze_plaques": (
         ("Input & Channels", ("src", "masks")),
         ("Scale & Time", ("plate_format", "well_diameter_mm", "plaque_pixels_per_um", "plaque_formation_hours")),
-        ("Colony Counting (Alpha)", ("@Colony Counting (Alpha)",)),
+        ("Colony Counting α", ("@Colony Counting α",)),
         ("Experimental Growth Estimates", ("plaque_estimate_growth", "plaque_growth_reference_um", "plaque_growth_reference_hours")),
         ("Model", ("diameter",)),
         ("Detection Thresholds", (
@@ -1974,6 +1976,53 @@ def _shared_category_parents() -> Dict[str, str]:
     return parents
 
 
+#: Categories one module draws INSIDE another of its categories.
+#:
+#: Keyed by module, then by the nested category's title, giving the title of
+#: the heading it sits in. Unlike :data:`spacr.settings.CATEGORY_PARENTS`,
+#: whose parents are empty umbrellas shared by every module, the parent here
+#: is usually a category with settings of its own -- Mask generation's
+#: "Image Preprocessing" keeps its normalisation rows and gains the
+#: illumination, deconvolution and enhancement headings below them.
+_APP_CATEGORY_PARENTS: Dict[str, Dict[str, str]] = {
+    app_key: {
+        "Illumination Correction α": "Image Preprocessing",
+        "Image Deconvolution α": "Image Preprocessing",
+        "Image Enhancement α": "Image Preprocessing",
+    }
+    for app_key in ("mask", "timelapse")
+}
+_APP_CATEGORY_PARENTS["mask"]["Segmentation Robustness α"] = "Quality Control"
+_APP_CATEGORY_PARENTS["mask"]["Cloud α"] = "Input & Metadata"
+_APP_CATEGORY_PARENTS["measure"] = {
+    "Cloud α": "Input & Experiment",
+    **{title: "Image Preprocessing" for title in (
+        "Bleach Correction α", "Spectral Unmixing α", "Image Deconvolution α",
+        "Illumination Correction α", "Image Enhancement α",
+        "Plate Barcode Linkage α")},
+    **{title: "Features" for title in (
+        "Confluency α", "Cell Cycle α", "Wound Closure α", "Viability α",
+        "CellProfiler α", "GPU Measurement α")},
+    "Runtime & Reliability": "Postprocessing",
+    "Profiling α": "Postprocessing",
+}
+
+
+def _category_parents_for(app_key) -> Dict[str, str]:
+    """Which heading each category nests under on one module's panel.
+
+    The shared parents of :func:`_shared_category_parents`, plus the ones
+    the module declares in :data:`_APP_CATEGORY_PARENTS`.
+
+    :param app_key: the module's registry key, or ``None`` for the shared
+        parents alone.
+    :returns: ``{category title: parent title}``.
+    """
+    parents = _shared_category_parents()
+    parents.update(_APP_CATEGORY_PARENTS.get(str(app_key or ""), {}))
+    return parents
+
+
 def _object_subheading(obj: str) -> str:
     """The heading one object's rows are drawn under.
 
@@ -2024,35 +2073,50 @@ def _split_rows_by_object(rows, keys):
     return own, children
 
 
-def _nest_sections(flat) -> List[SettingsSection]:
+def _nest_sections(flat, app_key=None) -> List[SettingsSection]:
     """Hang each flat section under the parent its category declares.
 
-    THE PARENT TAKES THE PLACE OF ITS FIRST CHILD, so the running order of a
-    panel is the one its layout wrote. Hoisting the umbrella to the top or
-    dropping it to the bottom would move a block of settings the layout
-    deliberately put between two others.
+    A parent that is itself one of the panel's categories keeps its own rows
+    and place, and its children are drawn below those rows. A parent that is
+    not -- an umbrella such as "Advanced settings" -- TAKES THE PLACE OF ITS
+    FIRST CHILD, so the running order of a panel is the one its layout wrote.
+    Hoisting the umbrella to the top or dropping it to the bottom would move
+    a block of settings the layout deliberately put between two others.
 
     A parent whose children all vanished -- every key hidden, or none
     offered by this module -- is not emitted, the same rule an empty
     category has always followed.
+
+    :param flat: the panel's sections in layout order, none nested yet.
+    :param app_key: the module, whose own nesting
+        (:data:`_APP_CATEGORY_PARENTS`) applies on top of the shared one.
+    :returns: the top-level sections, children attached.
     """
-    parents = _shared_category_parents()
-    order: List[str] = []
-    umbrellas: Dict[str, List[SettingsSection]] = {}
-    out: List[object] = []
+    parents = _category_parents_for(app_key)
+    kids: Dict[str, List[SettingsSection]] = {}
+    for section in flat:
+        parent = parents.get(section.title)
+        if parent is not None:
+            kids.setdefault(parent, []).append(section)
+    present = {section.title for section in flat
+               if parents.get(section.title) is None}
+    out: List[SettingsSection] = []
+    placed = set()
     for section in flat:
         parent = parents.get(section.title)
         if parent is None:
+            below = kids.get(section.title)
+            if below:
+                section = SettingsSection(
+                    section.title, section.own_rows,
+                    tuple(section.children) + tuple(below))
             out.append(section)
             continue
-        if parent not in umbrellas:
-            umbrellas[parent] = []
-            order.append(parent)
-            out.append(parent)
-        umbrellas[parent].append(section)
-    return [SettingsSection(item, (), umbrellas[item])
-            if isinstance(item, str) else item
-            for item in out]
+        if parent in present or parent in placed:
+            continue
+        placed.add(parent)
+        out.append(SettingsSection(parent, (), kids[parent]))
+    return out
 
 
 #: Below this many settings a module cannot render as an undifferentiated
@@ -2684,27 +2748,27 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "out, the interval between frames, which backend links objects, and "
         "how far one may move between frames. For data that is both a "
         "z-stack and a time series.",
-    "LINEAGE TREES (ALPHA)":
+    "LINEAGE TREES Α":
         "Lineage trees drawn from the tracker's division links after each "
         "field is tracked, coloured by a measurement, with Newick and CSV "
         "export and per-lineage generation times and sibling correlation.",
-    "EVENT DETECTION (ALPHA)":
+    "EVENT DETECTION Α":
         "Mitosis, egress, invasion and host death detected on tracks by a "
         "small network trained on annotated events, with held-out precision "
         "and recall, division links re-made from mitoses and time to each "
         "event per condition.",
-    "BLEACH CORRECTION (ALPHA)":
+    "BLEACH CORRECTION Α":
         "Photobleaching correction for timelapse intensities, per field and "
         "channel: a simple ratio to the first timepoint, a fitted exponential "
         "decay, or histogram matching. Corrected intensities are written "
         "beside the measured ones with the method, and the fitted decay is "
         "plotted.",
-    "GPU MEASUREMENT (ALPHA)":
+    "GPU MEASUREMENT Α":
         "Per-object intensity statistics, GLCM homogeneity and Zernike "
         "moments computed for all objects of a field at once on a CUDA GPU, "
         "matching the CPU values within float tolerance. Without a GPU the "
         "CPU path runs.",
-    "PROFILING (ALPHA)":
+    "PROFILING Α":
         "Image-based profiling after Measure: one profile per well from the "
         "object tables, annotated from a plate map, normalised per plate "
         "against the negative controls, feature-selected, collapsed into one "
@@ -2712,56 +2776,56 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "reproducibility as mean average precision and percent replicating. "
         "Written as CSV, Parquet and GCT files that pycytominer, copairs and "
         "Morpheus read.",
-    "PLATE BARCODE LINKAGE (ALPHA)":
+    "PLATE BARCODE LINKAGE Α":
         "Fill the plate map from sample records by plate barcode: each "
         "imaged plate is looked up by its barcode in a table or a LIMS "
         "service, its wells get the strain, compound, concentration, "
         "passage and operator recorded there, and every mismatch between "
         "the records and the images is listed.",
-    "INTENSITY CALIBRATION (ALPHA)":
+    "INTENSITY CALIBRATION Α":
         "Scale every imaging session to the same intensities before "
         "measuring, from fluorescent beads or reference wells imaged "
         "on every plate: each plate's intensity channels are "
         "multiplied by the gain that makes its reference wells match "
         "the first plate's, and the gains are recorded in "
         "measurements.db.",
-    "TIME TO EVENT (ALPHA)":
+    "TIME TO EVENT Α":
         "How long each tracked object of a timelapse lasts until an event "
         "such as death, lysis, egress, division or first detection, with "
         "objects still waiting at the end of their track censored there. "
         "Conditions are compared with Kaplan-Meier curves, median times, "
         "log-rank tests and a Cox model, written to measurements.db and "
         "drawn under results/time_to_event.",
-    "CELL CYCLE (ALPHA)":
+    "CELL CYCLE Α":
         "The cell-cycle phase of every nucleus, called after measuring from "
         "the DNA stain in one of three interchangeable ways: gates on each "
         "plate's fitted DNA-content histogram, a boosted classifier on the "
         "nucleus measurements, or an image classifier on nucleus crops. Each "
         "writes the same phase column to measurements.db, with the phase "
         "fractions per well among infected and uninfected cells.",
-    "COLONY COUNTING (ALPHA)":
+    "COLONY COUNTING Α":
         "Count bacterial or fungal colonies on plate or dish photos instead "
         "of plaques: the dish is found, colonies are thresholded against the "
         "agar and touching ones split, and each plate gets a count, CFU/mL "
         "from the dilution and plated volume, a too-many or too-few flag, "
         "and colony areas and diameters, in millimetres when Scale & Time "
         "says how large the dish is.",
-    "SEGMENTATION ROBUSTNESS (ALPHA)":
+    "SEGMENTATION ROBUSTNESS Α":
         "Re-segments a few sampled fields with the diameter, the thresholds "
         "and contrast enhancement each moved a little, and reports how much "
         "object counts, areas and intensities change, flagging the settings "
         "the results are fragile to.",
-    "SPECTRAL UNMIXING (ALPHA)":
+    "SPECTRAL UNMIXING Α":
         "Bleed-through correction: how much of each dye is read in the other "
         "channels is estimated from single-stain control wells, and every "
         "field is unmixed with that matrix before it is segmented or "
         "measured. The matrix is printed and recorded with the run.",
-    "CELLPROFILER (ALPHA)":
+    "CELLPROFILER Α":
         "Runs a lab's own CellProfiler pipeline on this run's fields after "
         "measuring, headless in CellProfiler's own environment from the "
         "Model Zoo, and writes its per-object measurements beside spaCR's, "
         "matched to spaCR's objects, so existing pipelines keep working.",
-    "VIABILITY (ALPHA)":
+    "VIABILITY Α":
         "Live and dead cells, called after measuring from a dead stain, a "
         "live stain, both, or nuclear morphology, with thresholds fitted "
         "per plate or set by hand. Writes per-well viability, a live-cell "
@@ -2769,14 +2833,14 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "plate's Z', and with a plate map the dose-response of viability "
         "beside that of infection, so parasite killing can be told from "
         "host toxicity.",
-    "CONFLUENCY (ALPHA)":
+    "CONFLUENCY Α":
         "How much of each field is covered by cells, measured per field and "
         "per well into measurements.db with a monolayer QC flag: from the "
         "cell masks, from the texture of a brightfield or phase channel, or "
         "from a fluorescent stain. Plaque and infection results from a thin "
         "or torn monolayer can then be dropped or divided by the covered "
         "fraction.",
-    "WOUND CLOSURE (ALPHA)":
+    "WOUND CLOSURE Α":
         "A scratch or wound-healing assay measured over a time-lapse: the "
         "open wound in every frame, from the texture of a brightfield or "
         "phase channel, a fluorescent stain or the cell masks; its area, "
@@ -2977,15 +3041,15 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "to whichever you pick. Switch backends when cells swap identities "
         "or tracks break at division.",
     "INPUT & EXPERIMENT":
-        "The folder holding the masked images and the experiment name the "
-        "measurements are filed under. Set once at the start of a "
-        "measurement run.",
+        "The folder holding the masked images, the experiment name the "
+        "measurements are filed under, and the small test run and plots "
+        "used to check a configuration before committing to a whole plate.",
     "MASK & CHANNEL MAPPING":
         "Which plane of the stack holds each mask and each intensity "
         "channel, whether a cytoplasm compartment is derived, and whether "
         "the data is a time series. A wrong index here quietly measures the "
         "wrong object, so it is worth checking twice.",
-    "MEASUREMENT FEATURES":
+    "FEATURES":
         "Which families of measurement are computed for every object — "
         "intensity, morphology, texture, radial distribution and "
         "colocalisation, with their parameters. More features means a wider "
@@ -2999,10 +3063,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "— crop mode and size, which channels and masks are included, "
         "dilation, and how they are normalised. These are the images "
         "Annotate and the CV classifier read later.",
-    "PREVIEW & DIAGNOSTICS":
-        "The small test run and the plots used to check a configuration "
-        "before committing to a whole plate. The fastest way to find out "
-        "that a channel index is wrong.",
+    "POSTPROCESSING":
+        "What happens after the measurements are written: how the run "
+        "resumes, tolerates failures and uses the machine, and the "
+        "image-based profiles built from the finished tables.",
     "3D CALIBRATION (BETA)":
         "The physical size of a voxel and the anisotropy between z and xy. "
         "Only these turn volumetric measurements from pixel counts into "
@@ -3235,6 +3299,13 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "Richardson–Lucy attempts deconvolution and can amplify noise. Raw "
         "images and measurement intensities remain unchanged. Leave this off "
         "unless the same kernel and pixel calibration fit every selected channel.",
+    "IMAGE DECONVOLUTION \u0391":
+        "Deconvolution or convolution with the microscope's point spread "
+        "function, applied to the segmentation channels before "
+        "normalization: a calibrated measured PSF, one inferred from the "
+        "objective, or an explicit Gaussian. Richardson-Lucy deconvolution "
+        "sharpens and can amplify noise. Raw images and measurement "
+        "intensities remain unchanged.",
     "IMAGE ENHANCEMENT":
         "The image enhancement chain Make Masks tunes, applied unchanged to "
         "every selected segmentation channel after illumination correction "
@@ -3359,6 +3430,15 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
 #: Per-module overrides for headings that mean different things per module.
 #: Missing entries fall through to :data:`CATEGORY_TOOLTIPS`.
 CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
+    "mask": {
+        "QUALITY CONTROL":
+            "Automatic pass/fail checks on the finished masks, what the run "
+            "keeps on disk, and how it behaves when something fails: object "
+            "count, size and border checks, the files and intermediates "
+            "saved, error handling, workers, batch size, GPUs and the random "
+            "seed. Tighten the checks once you know what a good field looks "
+            "like.",
+    },
     "classify": {
         "RUNTIME & RELIABILITY":
             "The random seed that fixes the split and the initialisation, "
@@ -3374,7 +3454,12 @@ CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
             "tolerates. Fix the seed when two runs have to be compared.",
     },
     "measure": {
-        "POINT SPREAD FUNCTION": "Choose normal Measure intensities or calibrated PSF-processed intensities for quantitative features. PSF processing follows standard rescaling and registered preprocessing hooks. Source files and exported crops retain their existing pixels; database provenance records the choice and exact kernel. A changed kernel cannot be mixed with existing measurements.",
+        "IMAGE PREPROCESSING":
+            "Corrections applied to the pixels before any feature is "
+            "measured: photobleaching, spectral bleed-through, the point "
+            "spread function, uneven illumination and enhancement, and the "
+            "plate map linked by barcode.",
+        "IMAGE DECONVOLUTION \u0391": "Choose normal Measure intensities or calibrated PSF-processed intensities for quantitative features. PSF processing follows standard rescaling and registered preprocessing hooks. Source files and exported crops retain their existing pixels; database provenance records the choice and exact kernel. A changed kernel cannot be mixed with existing measurements.",
     },
     "train_cellpose": {
         "TRAINING DATA": "Pair microscopy images with integer object-label masks, and optionally supply a separate validation set.",
@@ -3573,12 +3658,18 @@ def _category_blurb(app_key: str, title: str) -> str:
     """The written blurb for a category title, or ``""`` if there is none.
 
     Tries the module's own override then the shared table, first for the
-    title as rendered and then for the title with a family prefix removed.
+    title as rendered, then for the title with a family prefix removed, and
+    for an alpha category ("ILLUMINATION CORRECTION α") last for the same
+    name without the mark, so a category that turned alpha on one module
+    keeps the blurb it has on the others.
     """
     key = str(title or "").upper().strip()
     if not key:
         return ""
     candidates = [key]
+    mark = ALPHA_MARK.upper()
+    if key.endswith(mark) and key[:-len(mark)].strip():
+        candidates.append(key[:-len(mark)].strip())
     for prefix in _CATEGORY_FAMILY_PREFIXES:
         for dash in _CATEGORY_PREFIX_DASHES:
             marker = f"{prefix} {dash} "
@@ -8980,7 +9071,7 @@ class SettingsWidgets:
             timer.timeout.connect(timer.deleteLater)
             timer.start(0)
 
-        return _nest_sections(sections)
+        return _nest_sections(sections, self.app_key)
 
     def _keys_that_may_wait(self, cats, hidden, variables,
                             hidden_keys) -> set:
@@ -8998,7 +9089,7 @@ class SettingsWidgets:
         judge = self.categories_may_wait
         if judge is None:
             return set()
-        parents = _shared_category_parents()
+        parents = _category_parents_for(self.app_key)
         owner: Dict[str, str] = {}
         for cat_name, keys in cats.items():
             if cat_name in hidden:

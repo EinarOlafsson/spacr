@@ -48,7 +48,7 @@ from ..bridge import make_thread, resolve_pipeline_entry
 from ..hidpi import device_ratio, scaled_for
 from ..i18n import tr
 from ..job_runner import JobRunner
-from ..theme import (SPACING, ensure_widget_qss_applied,
+from ..theme import (ALPHA_MARK, SPACING, ensure_widget_qss_applied,
                      register_widget_qss,
                      set_a_sheeted_widgets_own_rule)
 from ..widgets import ApiHelpLabel, Card, Divider, Section, UsageBar
@@ -626,20 +626,24 @@ def settings_section_maturity(app_key: str, title: str) -> str:
     """Return the least-mature stage applying to one settings section.
 
     An alpha or beta module colours every one of its settings. A stable
-    module can still contain an explicitly experimental ``(Beta)``/``(Alpha)``
-    category, in which case that section receives the more cautious stage.
+    module can still contain an explicitly experimental category -- an alpha
+    one is named with a trailing ``α`` ("Confluency α"), a beta one with
+    ``(Beta)`` -- in which case that section receives the more cautious
+    stage.
 
     :param app_key: the module's registry key, whose stage comes from
         :func:`module_maturity`.
     :param title: the section heading; compared case-insensitively, it is
-        alpha when it is ``"alpha"`` or contains ``"(alpha)"``, beta
-        likewise, and stable otherwise.
+        alpha when it is ``"alpha"``, ends with ``α`` or contains
+        ``"(alpha)"``, beta when it is ``"beta"`` or contains ``"(beta)"``,
+        and stable otherwise.
     :returns: ``"alpha"``, ``"beta"`` or ``"stable"``.
     """
     module_stage = module_maturity(app_key)
     normalized = str(title or "").strip().lower()
     section_stage = "stable"
-    if normalized == "alpha" or "(alpha)" in normalized:
+    if (normalized == "alpha" or "(alpha)" in normalized
+            or normalized.endswith(ALPHA_MARK)):
         section_stage = "alpha"
     elif normalized == "beta" or "(beta)" in normalized:
         section_stage = "beta"
@@ -2678,22 +2682,28 @@ class AppScreen(QWidget):
     #: see :meth:`_mount_the_object_grid`.
     MIN_GRID_QUESTIONS = 3
 
+    #: The modules whose per-object settings are ALWAYS the table: Mask
+    #: generation and Timelapse, which shares its settings. There is no flat
+    #: layout of those settings on these forms and no preference to ask for
+    #: one; every other module keeps its flat form.
+    OBJECT_GRID_APPS = frozenset({"mask", "timelapse"})
+
     def _mount_the_object_grid(self, layout) -> None:
-        """Show the per-object settings as one table, if preferences ask.
+        """Show the per-object settings as one table on Mask generation.
 
         78 of Mask's 201 settings are the same twenty-odd questions asked once
         per object type. This puts them in a grid -- one row per question, one
-        column per object -- and hides the flat rows they came from.
+        column per object -- and hides the flat rows they came from. It also
+        holds each object's "remove background" switch, the cell's "adjust
+        cells", and the object filters as rows that can be added.
 
-        OFF UNLESS CHOSEN. This is the most-used screen in the application, so
-        the grid arrives as an offer rather than as a change to what everyone
-        already knows: `get_object_grid_enabled` is False by default and this
-        method returns before touching anything.
+        THE ONLY LAYOUT on the modules in :data:`OBJECT_GRID_APPS`; every
+        other module returns before touching anything.
 
         NOTHING DOWNSTREAM LEARNS THE GRID EXISTS. It writes through to the
-        same widgets the flat rows do, so `collect()` is unchanged and a
-        settings file written with this on is the same file written with it
-        off. The flat rows are HIDDEN, not dropped, so the settings search
+        same widgets the flat rows do, so `collect()` is unchanged and the
+        settings file it writes uses the same keys every older file does.
+        The flat rows are HIDDEN, not dropped, so the settings search
         still indexes them and every check that walks the form still finds
         them holding their values.
 
@@ -2704,9 +2714,7 @@ class AppScreen(QWidget):
         that distinction.
         """
         try:
-            from ..preferences import get_object_grid_enabled
-
-            if not get_object_grid_enabled():
+            if str(self.app_key) not in self.OBJECT_GRID_APPS:
                 return
             model = getattr(self, "_settings_model", None)
             if model is None or not getattr(model, "_widgets", None):
@@ -2729,7 +2737,7 @@ class AppScreen(QWidget):
             self._object_grid = grid
             self._object_grid_binding = binding
             model.hide_the_rows_the_grid_speaks_for(owned)
-            layout.insertWidget(self._index_before_the_stretch(layout),
+            layout.insertWidget(self._index_for_the_object_grid(layout),
                                 section)
             self._settings_sections.append(section)
             section.set_expanded(True)
@@ -2739,44 +2747,28 @@ class AppScreen(QWidget):
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not mount the per-object grid", exc_info=True)
 
-    def apply_object_grid_preference(self) -> bool:
-        """Mount or unmount the per-object table to match preferences.
+    #: The heading the per-object table is drawn in front of, where the
+    #: per-object questions begin on Mask generation's form.
+    OBJECT_GRID_BEFORE = "Cell Segmentation"
 
-        WHAT THIS FIXES: the switch in Preferences was read once, while the
-        settings panel was being built, so turning it on did nothing to a
-        module already open and turning it off left the table on screen with
-        the rows it speaks for still hidden. The preference is a view of the
-        same settings either way -- nothing downstream knows the grid exists
-        -- so there is no reason it should need the module reopened.
+    def _index_for_the_object_grid(self, layout) -> int:
+        """Where the per-object table goes in the settings column.
 
-        IDEMPOTENT, and safe on a screen whose panel was never built: both
-        directions check what is actually mounted rather than trusting a
-        flag, so a repeated call is a no-op and the two states cannot drift
-        apart.
+        In front of :data:`OBJECT_GRID_BEFORE` when the form has that
+        heading, so the table sits where the segmentation questions start;
+        otherwise at the end, above the trailing spring.
 
-        :returns: True if the screen changed, False if it was already right.
+        :param layout: the settings column's layout.
         """
-        try:
-            from ..preferences import get_object_grid_enabled
-
-            wanted = get_object_grid_enabled()
-        except Exception:                                    # noqa: BLE001
-            return False
-        grid = getattr(self, "_object_grid", None)
-        try:
-            mounted = grid is not None and grid.parent() is not None
-        except RuntimeError:
-            mounted = False
-        if wanted == mounted:
-            return False
-        if wanted:
-            layout = getattr(self, "_settings_layout", None)
-            if layout is None:
-                return False
-            self._mount_the_object_grid(layout)
-            return getattr(self, "_object_grid", None) is not grid
-        self._unmount_the_object_grid()
-        return True
+        for index in range(layout.count()):
+            item = layout.itemAt(index)
+            widget = item.widget() if item is not None else None
+            if widget is None:
+                continue
+            if str(widget.property("settingsCategorySource") or "") \
+                    == self.OBJECT_GRID_BEFORE:
+                return index
+        return self._index_before_the_stretch(layout)
 
     @staticmethod
     def _index_before_the_stretch(layout) -> int:
@@ -2791,42 +2783,6 @@ class AppScreen(QWidget):
             if item is not None and item.spacerItem() is not None:
                 return index
         return layout.count()
-
-    def _unmount_the_object_grid(self) -> None:
-        """Take the table off the screen and give the flat rows back.
-
-        THE ROWS COME BACK FIRST. They were hidden, not dropped, so all it
-        takes is telling the model the grid speaks for nothing -- but if the
-        section were deleted first and that call then raised, the settings it
-        holds would be on no screen at all: not in a table, and not in a
-        form. Neither the values nor `collect()` are touched either way.
-        """
-        model = getattr(self, "_settings_model", None)
-        unhide = getattr(model, "hide_the_rows_the_grid_speaks_for", None)
-        if callable(unhide):
-            try:
-                unhide(())
-            except Exception:                                # noqa: BLE001
-                LOG.debug("could not give the flat rows back", exc_info=True)
-        grid = getattr(self, "_object_grid", None)
-        section = None
-        try:
-            section = grid.parent() if grid is not None else None
-            while section is not None and not hasattr(
-                    section, "add_prose_row"):
-                section = section.parent()
-        except RuntimeError:
-            section = None
-        self._object_grid = None
-        self._object_grid_binding = None
-        if section is None:
-            return
-        try:
-            self._settings_sections.remove(section)
-        except (AttributeError, ValueError):
-            pass
-        section.setParent(None)
-        section.deleteLater()
 
     def _widget_key_index(self) -> dict:
         """``id(widget) -> setting key`` for this panel's settings model.
@@ -6261,7 +6217,8 @@ class AppScreen(QWidget):
             return set()
         widgets = getattr(getattr(self, "_settings_model", None),
                           "_widgets", None) or {}
-        return {key for key in _alpha_names("settings") if key in widgets}
+        return {key for key in _alpha_names("settings", self.app_key)
+                if key in widgets}
 
     def _alpha_hidden_sections(self) -> set:
         """``id()`` of every category made only of settings the alpha gate hides.
@@ -6278,7 +6235,7 @@ class AppScreen(QWidget):
 
         if _is_alpha_visible():
             return set()
-        alpha = _alpha_names("settings")
+        alpha = _alpha_names("settings", self.app_key)
         model = getattr(self, "_settings_model", None)
         widgets = getattr(model, "_widgets", None) or {}
         built = getattr(widgets, "built_items", None)
@@ -6301,7 +6258,31 @@ class AppScreen(QWidget):
                             for _label, widget in spec[1])
             if keys and all(key in alpha for key in keys):
                 hidden.add(id(section))
+                continue
+            if not any(keys) and self._every_heading_below_is_hidden(
+                    section, hidden):
+                hidden.add(id(section))
         return hidden
+
+    @staticmethod
+    def _every_heading_below_is_hidden(section, hidden) -> bool:
+        """Whether a heading with no rows of its own nests only hidden ones.
+
+        An umbrella such as Measure's "Image Preprocessing", whose every
+        sub-heading is alpha, would otherwise stay on screen empty while the
+        alpha gate is shut. Headings are recorded deepest first, so the
+        sub-headings are already decided when their umbrella is.
+
+        :param section: the heading being decided.
+        :param hidden: ``id()`` of the headings already hidden.
+        """
+        try:
+            from ..widgets.section import Section, _sections_below
+            below = [child for child in _sections_below(section)
+                     if isinstance(child, Section)]
+        except Exception:                                    # noqa: BLE001
+            return False
+        return bool(below) and all(id(child) in hidden for child in below)
 
     def _apply_alpha_rows(self) -> None:
         """Hide alpha settings rows and alpha dropdown entries (item 569).

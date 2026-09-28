@@ -247,27 +247,6 @@ def test_with_no_application_no_icon_is_resized(monkeypatch):
     monkeypatch.setattr(QApplication, "instance", staticmethod(lambda: None))
 
     assert prefs._rescale_icon_sizes() == 0
-    assert prefs._tell_the_screens_the_object_grid_changed() == 0
-
-
-def test_a_screen_that_will_not_retake_the_grid_switch_is_skipped(
-        qapp, monkeypatch):
-    from spacr.qt.screens import app_screen
-
-    class _Screen(app_screen.AppScreen):
-        def __init__(self, answer):
-            QWidget.__init__(self)
-            self._answer = answer
-
-        def apply_object_grid_preference(self):
-            return self._answer()
-
-    refuses, takes = _Screen(_boom), _Screen(lambda: True)
-    try:
-        assert prefs._tell_the_screens_the_object_grid_changed() >= 1
-    finally:
-        refuses.deleteLater()
-        takes.deleteLater()
 
 
 # ---------------------------------------------------------------------------

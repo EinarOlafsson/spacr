@@ -777,19 +777,19 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "mask_parallel", "mask_gpu_indices",
     # NEW SETTINGS, not a regrouping (item 541, 2026-09-26): Measure's
     # confluency switch, its source, channel, texture window and monolayer
-    # QC cut, under their own "Confluency (Alpha)" heading.
+    # QC cut, under their own "Confluency α" heading.
     "confluency", "confluency_source", "confluency_channel",
     "confluency_window", "confluency_qc_threshold",
     # NEW SETTINGS, not a regrouping (item 538, 2026-09-26): spectral
     # unmixing's switch, its single-stain control wells and background
-    # percentile, under a "Spectral Unmixing (Alpha)" heading in Mask,
+    # percentile, under a "Spectral Unmixing α" heading in Mask,
     # Timelapse and Measure.
     "unmix", "unmix_controls", "unmix_background_percentile",
     # NEW SETTINGS, not a regrouping (item 547, 2026-09-26): image-based
     # profiling at the end of Measure -- the switch, plate map, treatment
     # and control, normalisation, feature selection and its correlation
     # cut, phenotype label and further plates -- under their own
-    # "Profiling (Alpha)" heading.
+    # "Profiling α" heading.
     "profiling", "profiling_metadata", "profiling_treatment_column",
     "profiling_negative_control", "profiling_normalization",
     "profiling_feature_selection", "profiling_correlation_threshold",
@@ -797,27 +797,27 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # NEW SETTINGS, not a regrouping (item 535, 2026-09-26): Measure's
     # cell-cycle phase call -- the switch, the method, the DNA channel, the
     # gates, the mitotic cut, FUCCI, the training labels, a trained model
-    # and the torch epochs -- under their own "Cell Cycle (Alpha)" heading.
+    # and the torch epochs -- under their own "Cell Cycle α" heading.
     "cell_cycle", "cell_cycle_method", "cell_cycle_channel",
     "cell_cycle_gates", "cell_cycle_mitotic_ratio",
     "cell_cycle_fucci_channels", "cell_cycle_labels", "cell_cycle_model",
     "cell_cycle_epochs",
     # A NEW SETTING, not a regrouping (item 539, 2026-09-26): photobleaching
     # correction of a timelapse run's intensities, under its own
-    # "Bleach Correction (Alpha)" heading.
+    # "Bleach Correction α" heading.
     "bleach_correction",
     # A NEW SETTING, not a regrouping (item 566, 2026-09-27): per-object
-    # measurement on a CUDA GPU, under its own "GPU Measurement (Alpha)"
+    # measurement on a CUDA GPU, under its own "GPU Measurement α"
     # heading.
     "measure_gpu",
     # A NEW SETTING GROUP, not a regrouping (item 537, 2026-09-27): lineage
     # trees from the tracker's division links, appended to the Timelapse
-    # category and shown under "Lineage Trees (Alpha)" on the Timelapse app.
+    # category and shown under "Lineage Trees α" on the Timelapse app.
     "timelapse_lineage", "timelapse_lineage_color_by",
     "timelapse_lineage_max_distance",
     # A NEW SETTING GROUP, not a regrouping (item 567, 2026-09-27): event
     # detection on tracks, appended to the Timelapse category and shown under
-    # "Event Detection (Alpha)" on the Timelapse app.
+    # "Event Detection α" on the Timelapse app.
     "timelapse_events", "timelapse_events_annotations",
     "timelapse_events_model", "timelapse_events_window",
     "timelapse_events_threshold", "timelapse_events_conditions",
@@ -830,7 +830,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # NEW SETTINGS, not a regrouping (item 580, 2026-09-27): Measure's
     # cross-plate intensity calibration from beads or reference wells -- the
     # switch, the reference wells, the statistic and the camera offset --
-    # under their own "Intensity Calibration (Alpha)" heading.
+    # under their own "Intensity Calibration α" heading.
     "intensity_calibration", "intensity_calibration_wells",
     "intensity_calibration_statistic", "intensity_calibration_offset",
     # NEW SETTINGS, not a regrouping (item 583, 2026-09-27): Measure's
@@ -845,7 +845,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # table, the event mode, its column, threshold and persistence, the
     # clock's origin, the shortest track, the frame interval, the grouping,
     # the named conditions, the reference and the Cox covariates -- under
-    # their own "Time To Event (Alpha)" heading.
+    # their own "Time To Event α" heading.
     "time_to_event", "time_to_event_object", "time_to_event_mode",
     "time_to_event_column", "time_to_event_threshold",
     "time_to_event_persist", "time_to_event_origin",
@@ -855,12 +855,12 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # NEW SETTINGS, not a regrouping (item 540, 2026-09-26): Measure's
     # live/dead call -- the switch, the dead and live stain channels, manual
     # thresholds, the negative and positive control wells and a plate map
-    # for dose-response -- under their own "Viability (Alpha)" heading.
+    # for dose-response -- under their own "Viability α" heading.
     "viability", "viability_dead_channel", "viability_live_channel",
     "viability_thresholds", "viability_negative_wells",
     "viability_positive_wells", "viability_plate_map",
     # A NEW SETTING, not a regrouping (item 546, 2026-09-27): a CellProfiler
-    # pipeline run on Measure's fields, under "CellProfiler (Alpha)".
+    # pipeline run on Measure's fields, under "CellProfiler α".
     "cellprofiler_pipeline",
     # A NEW SETTING GROUP, not a regrouping: Make Masks can keep watching
     # `src` and analyse each field as it arrives (`watch_folder`), with the
@@ -887,7 +887,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # colony-counting switch, the dilution and plated volume that turn a
     # count into CFU/mL, the too-many and too-few flags, and the polarity,
     # threshold and minimum area of the colony segmentation, under their own
-    # "Colony Counting (Alpha)" heading.
+    # "Colony Counting α" heading.
     "colony_counting", "colony_dilution", "colony_plated_volume_ul",
     "colony_too_many", "colony_too_few", "colony_polarity",
     "colony_threshold", "colony_min_area_px",
@@ -895,7 +895,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # segmentation-robustness report switch, its sample size and crop, the
     # diameter factors, flow and cell-probability thresholds and enhancement
     # it tries, and the tolerance beyond which a setting is fragile, under
-    # their own "Segmentation Robustness (Alpha)" heading.
+    # their own "Segmentation Robustness α" heading.
     "robustness_report", "robustness_fields", "robustness_crop",
     "robustness_diameter_factors", "robustness_flow_thresholds",
     "robustness_cellprob_thresholds", "robustness_enhancement",
@@ -1476,6 +1476,15 @@ def test_every_qt_section_hint_names_a_real_category():
     # the advanced families, so they appear on no module's category map and
     # would read as dead blurbs without this.
     known.update(p.upper().strip() for p in S.CATEGORY_PARENTS.values())
+    # Items 591-593: umbrellas one module declares for itself.
+    from spacr.qt.screens.settings_model import _APP_CATEGORY_PARENTS
+    known.update(p.upper().strip() for parents in
+                 _APP_CATEGORY_PARENTS.values() for p in parents.values())
+    # Item 591, 2026-09-28: an alpha heading ("CLOUD α") falls back to the
+    # blurb of its plain name, so that name is live through it.
+    mark = "\u0391"
+    known.update(k[:-len(mark)].strip() for k in list(known)
+                 if k.endswith(mark))
     dead = sorted(set(hints) - known)
     assert not dead, (
         f"SECTION_HINTS entries that match no settings section: {dead}"
@@ -1543,14 +1552,17 @@ def _rendered_sections(app_key):
             "Runtime & Reliability",
         ]),
             ("mask", [
-                "Input & Metadata", "Cloud", "Workflow & Test Run", "Image Preprocessing",
+                # Item 591, 2026-09-28: Cloud is alpha; illumination
+                # correction, the PSF (as Image Deconvolution) and the
+                # enhancement chain are alpha sub-categories that
+                # `build_sections` nests under Image Preprocessing.
+                "Input & Metadata", "Cloud α", "Workflow & Test Run", "Image Preprocessing",
+                "Illumination Correction α",
+                "Image Deconvolution α",
+                "Image Enhancement α",
                 'Image Quality',
-                "Illumination Correction",
-                # Item 538, 2026-09-26: unmixing runs on the raw field
-                # before the PSF and the chain, so its heading comes first.
-                "Spectral Unmixing (Alpha)",
-                "Point Spread Function",
-                "Image Enhancement",
+                # Item 538, 2026-09-26: unmixing runs on the raw field.
+                "Spectral Unmixing α",
                 "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
             "Organelle Segmentation (advanced)",
@@ -1566,10 +1578,12 @@ def _rendered_sections(app_key):
             "Quality Control",
             # Item 578, 2026-09-27: the robustness report re-segments after
             # the masks and their QC exist.
-            "Segmentation Robustness (Alpha)",
+            "Segmentation Robustness α",
             "Volumetric Processing (Beta)",
+            # Item 592, 2026-09-28: Output & Storage and Runtime &
+            # Reliability merged into Quality Control, which also holds the
+            # robustness report as a nested alpha sub-category.
             "Time Axes & Tracking (Beta)", "Visualization & Diagnostics",
-            "Output & Storage", "Runtime & Reliability",
         ]),
         # "Illumination Correction" joined the Measure panel when the
         # illumination settings were folded into the measure defaults. The
@@ -1580,60 +1594,32 @@ def _rendered_sections(app_key):
         # It sits after the channel mapping and before the features for the
         # same reason: that is the order the run executes them in.
         ("measure", [
-            "Input & Experiment", "Mask & Channel Mapping",
-            "Illumination Correction",
-            # Item 538, 2026-09-26: the measured channels are unmixed
-            # before the PSF and the features.
-            "Spectral Unmixing (Alpha)",
-            "Point Spread Function",
-            # Item 580, 2026-09-27: cross-plate intensity calibration
-            # rescales the pixels the features are computed from, so it
-            # follows the other image corrections, as an Alpha heading.
-            "Intensity Calibration (Alpha)",
-            "Measurement Features",
-            # Item 541, 2026-09-26: confluency sits after the features it
-            # is measured beside, as an Alpha heading of its own.
-            "Confluency (Alpha)",
-            # Item 535, 2026-09-26: the cell-cycle phase call follows, read
-            # from the nuclei the features above measured.
-            "Cell Cycle (Alpha)",
-            # Item 539, 2026-09-26: bleach correction rescales the
-            # intensities the features above measured.
-            "Bleach Correction (Alpha)",
-            # Item 566, 2026-09-27: GPU measurement computes the features
-            # above on the device, as an Alpha heading of its own.
-            "GPU Measurement (Alpha)",
-            # Item 536, 2026-09-26: wound closure follows confluency, whose
-            # texture and intensity methods it builds on.
-            "Wound Closure (Alpha)",
-            # Item 571, 2026-09-26: time to event follows, read from the
-            # tracked objects measured above, after the run.
-            "Time To Event (Alpha)",
-            # Item 583, 2026-09-27: the plate map filled by plate barcode
-            # feeds the viability and profiling steps, so it comes first.
-            "Plate Barcode Linkage (Alpha)",
-            # Item 540, 2026-09-26: live/dead viability, read from the same
-            # measured nuclei, after the cell-cycle call.
-            "Viability (Alpha)",
-            # Item 546, 2026-09-27: a lab's CellProfiler pipeline runs on
-            # the measured fields and its tables land beside spaCR's.
-            "CellProfiler (Alpha)",
-            "Object Filtering", "Crop Output",
-            # Item 547, 2026-09-26: profiling runs on the finished tables,
-            # so its Alpha heading follows the outputs it reads.
-            "Profiling (Alpha)",
-            "Preview & Diagnostics", "3D Calibration (Beta)",
-            "Runtime & Reliability",
+            # Item 593, 2026-09-28: Preview & Diagnostics' settings joined
+            # Input & Experiment; Cloud is an alpha sub-category of it. The
+            # image corrections are alpha sub-categories of an Image
+            # Preprocessing umbrella, the per-object analyses nest under
+            # Features (was Measurement Features), and Runtime & Reliability
+            # and Profiling nest under a Postprocessing umbrella. This
+            # mirror is the FLAT map, in layout order.
+            "Input & Experiment", "Cloud α", "Mask & Channel Mapping",
+            "Bleach Correction α", "Spectral Unmixing α",
+            "Image Deconvolution α", "Illumination Correction α",
+            "Plate Barcode Linkage α", "Intensity Calibration α",
+            "Features", "Confluency α", "Cell Cycle α", "Wound Closure α",
+            "Viability α", "CellProfiler α", "GPU Measurement α",
+            "Time To Event α",
+            "Object Filtering", "Crop Output", "3D Calibration (Beta)",
+            "Runtime & Reliability", "Profiling α",
         ]),
             ("timelapse", [
                 "Input & Metadata", "Acquisition & Axes", "Image Preprocessing",
+                # Item 591, 2026-09-28: as on Mask generation.
+                "Illumination Correction α",
+                "Image Deconvolution α",
+                "Image Enhancement α",
                 'Image Quality',
-                "Illumination Correction",
-                # Item 538, 2026-09-26: unmixing runs on the raw field
-                # before the PSF and the chain, so its heading comes first.
-                "Spectral Unmixing (Alpha)",
-                "Point Spread Function",
-                "Image Enhancement",
+                # Item 538, 2026-09-26: unmixing runs on the raw field.
+                "Spectral Unmixing α",
                 "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
             "Organelle Segmentation (advanced)",
@@ -1649,9 +1635,9 @@ def _rendered_sections(app_key):
             "Quality Control", "Tracking Setup", "Tracking Backends",
             # Item 537, 2026-09-27: lineage trees are built from the tracks
             # the backends above produce.
-            "Lineage Trees (Alpha)",
+            "Lineage Trees α",
             # Item 567, 2026-09-27: events are detected on the same tracks.
-            "Event Detection (Alpha)",
+            "Event Detection α",
             "Visualization & Diagnostics", "Output & Storage",
             "Runtime & Reliability",
         ]),

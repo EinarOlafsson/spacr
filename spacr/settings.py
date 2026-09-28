@@ -5444,7 +5444,7 @@ categories = {
                               "psf_path", "psf_image_sampling_um", "psf_kernel_sampling_um",
                               "psf_fwhm_um", "psf_iterations"],
 
-    "Spectral Unmixing (Alpha)": ["unmix", "unmix_controls",
+    "Spectral Unmixing α": ["unmix", "unmix_controls",
                                   "unmix_background_percentile"],
 
     "Image Enhancement": ["enhance_background", "enhance_background_radius",
@@ -5468,7 +5468,7 @@ categories = {
 
     "Segmentation QC": ["seg_qc", "seg_qc_min_objects", "seg_qc_count_ratio", "seg_qc_size_ratio", "seg_qc_border_fraction", "seg_qc_outlier_mad", "seg_qc_outlier_fraction", "seg_qc_foreground_fraction", "seg_qc_split_ratio", "seg_qc_min_diameter", "seg_qc_tiny_fraction", "seg_qc_max_object_fraction", "seg_qc_plate_fail_fraction"],
 
-    "Segmentation Robustness (Alpha)": ["robustness_report", "robustness_fields",
+    "Segmentation Robustness α": ["robustness_report", "robustness_fields",
                                         "robustness_crop", "robustness_diameter_factors",
                                         "robustness_flow_thresholds",
                                         "robustness_cellprob_thresholds",
@@ -5595,55 +5595,55 @@ categories = {
         "t_max_displacement_um", "t_project_for_tracking",
     ],
 
-    "Confluency (Alpha)": [
+    "Confluency α": [
         "confluency", "confluency_source", "confluency_channel",
         "confluency_window", "confluency_qc_threshold",
     ],
 
-    "Colony Counting (Alpha)": [
+    "Colony Counting α": [
         "colony_counting", "colony_dilution", "colony_plated_volume_ul",
         "colony_too_many", "colony_too_few", "colony_polarity",
         "colony_threshold", "colony_min_area_px",
     ],
 
-    "Bleach Correction (Alpha)": [
+    "Bleach Correction α": [
         "bleach_correction",
     ],
 
-    "GPU Measurement (Alpha)": [
+    "GPU Measurement α": [
         "measure_gpu",
     ],
 
-    "Profiling (Alpha)": [
+    "Profiling α": [
         "profiling", "profiling_metadata", "profiling_treatment_column",
         "profiling_negative_control", "profiling_normalization",
         "profiling_feature_selection", "profiling_correlation_threshold",
         "profiling_phenotype_column", "profiling_databases",
     ],
 
-    "Cell Cycle (Alpha)": [
+    "Cell Cycle α": [
         "cell_cycle", "cell_cycle_method", "cell_cycle_channel",
         "cell_cycle_gates", "cell_cycle_mitotic_ratio",
         "cell_cycle_fucci_channels", "cell_cycle_labels", "cell_cycle_model",
         "cell_cycle_epochs",
     ],
 
-    "Wound Closure (Alpha)": [
+    "Wound Closure α": [
         "wound_closure", "wound_source", "wound_channel", "wound_window",
         "wound_hours_per_frame", "wound_conditions",
     ],
 
-    "Intensity Calibration (Alpha)": [
+    "Intensity Calibration α": [
         "intensity_calibration", "intensity_calibration_wells",
         "intensity_calibration_statistic", "intensity_calibration_offset",
     ],
 
-    "Plate Barcode Linkage (Alpha)": [
+    "Plate Barcode Linkage α": [
         "plate_barcode_source", "plate_barcodes", "plate_barcode_column",
         "plate_barcode_token_env",
     ],
 
-    "Time To Event (Alpha)": [
+    "Time To Event α": [
         "time_to_event", "time_to_event_object", "time_to_event_mode",
         "time_to_event_column", "time_to_event_threshold",
         "time_to_event_persist", "time_to_event_origin",
@@ -5652,13 +5652,13 @@ categories = {
         "time_to_event_reference", "time_to_event_covariates",
     ],
 
-    "Viability (Alpha)": [
+    "Viability α": [
         "viability", "viability_dead_channel", "viability_live_channel",
         "viability_thresholds", "viability_negative_wells",
         "viability_positive_wells", "viability_plate_map",
     ],
 
-    "CellProfiler (Alpha)": [
+    "CellProfiler α": [
         "cellprofiler_pipeline",
     ],
 
@@ -6276,6 +6276,16 @@ def get_setting_dependencies():
         lambda settings, context: (
             "Bleach correction is only used for timelapse runs. The value is kept and saved."),
     )
+
+    for _key in categories.get('Time To Event \u03b1', ()):
+        setting_dependencies[_key] = rule(
+            ('timelapse',),
+            lambda settings, context: bool(settings.get('timelapse', False)),
+            lambda settings, context: (
+                "Time to event reads tracked objects over time, so it is "
+                "only used when timelapse is on. The value is kept and "
+                "saved."),
+        )
 
     return setting_dependencies
 
@@ -7177,7 +7187,8 @@ tooltips.update({
 })
 
 
-ALPHA_KINDS = ('settings', 'choices', 'widgets', 'apps', 'models')
+ALPHA_KINDS = ('settings', 'choices', 'widgets', 'apps', 'models',
+               'module_settings')
 
 
 ALPHA_FEATURES = {
@@ -7399,10 +7410,59 @@ ALPHA_FEATURES = {
     534: {
         'widgets': ('MapBarcodesSpatialToggle', 'MapBarcodesSpatialCard'),
     },
+    591: {
+        'module_settings': {
+            app_key: (
+                'illumination_correction', 'illumination_model',
+                'illumination_estimator', 'illumination_degree',
+                'illumination_dark', 'illumination_per_plate',
+                'illumination_max_fields', 'illumination_qc',
+                'illumination_on_missing',
+                'psf_measurement_source', 'psf_operation', 'psf_source',
+                'psf_objective', 'psf_path', 'psf_image_sampling_um',
+                'psf_kernel_sampling_um', 'psf_fwhm_um', 'psf_iterations',
+                'enhance_background', 'enhance_background_radius',
+                'enhance_background_scale', 'enhance_denoise',
+                'enhance_denoise_strength', 'enhance_percentile_clip',
+                'enhance_percentile_low', 'enhance_percentile_high',
+                'enhance_gamma', 'enhance_log', 'enhance_log_gain',
+                'enhance_sqrt', 'enhance_clahe', 'enhance_clahe_tile',
+                'enhance_clahe_clip', 'enhance_equalize', 'enhance_sharpen',
+                'enhance_sharpen_radius', 'enhance_sharpen_amount',
+            )
+            for app_key in ('mask', 'timelapse')
+        },
+    },
+    593: {
+        'module_settings': {
+            'measure': (
+                'illumination_correction', 'illumination_model',
+                'illumination_estimator', 'illumination_degree',
+                'illumination_dark', 'illumination_per_plate',
+                'illumination_max_fields', 'illumination_qc',
+                'illumination_on_missing',
+                'psf_measurement_source', 'psf_operation', 'psf_source',
+                'psf_objective', 'psf_path', 'psf_image_sampling_um',
+                'psf_kernel_sampling_um', 'psf_fwhm_um', 'psf_iterations',
+            ),
+        },
+    },
+    405: {
+        'choices': {'segmentation_backend': ('samcell',)},
+        'models': ('samcell_v1',),
+    },
+    475: {
+        'choices': {'ops_spot_detector': ('spotnet',)},
+        'models': ('spotnet_v1',),
+    },
+    501: {
+        'settings': ('plaque_estimate_growth', 'plaque_growth_reference_um',
+                     'plaque_growth_reference_hours'),
+    },
 }
 
 
-def _alpha_names(kind):
+def _alpha_names(kind, app_key=None):
     """Every name registered as alpha under ``kind``, across all items.
 
     ``ALPHA_FEATURES`` is the one registry of everything built from
@@ -7414,8 +7474,11 @@ def _alpha_names(kind):
     and its counts), ``choices`` (``{key: (dropdown values,)}``), ``widgets``
     (Qt object names of buttons, checkboxes, labels, menu actions or
     panels), ``apps`` (module keys: tile, sidebar, menu and palette together)
-    and ``models`` (Model Zoo keys, names or family stems). A feature is
-    marked in this one place and promoted out of alpha by deleting its entry.
+    ``models`` (Model Zoo keys, names or family stems) and
+    ``module_settings`` (``{module key: (settings keys,)}``, settings that are
+    alpha on those modules' forms only, where the same key is an ordinary
+    setting of another module). A feature is marked in this one place and
+    promoted out of alpha by deleting its entry.
 
     Hiding is a display decision only: a saved or typed alpha setting still
     reaches the run, and headless and command-line runs never consult the
@@ -7424,8 +7487,12 @@ def _alpha_names(kind):
     line, only while the gate shows them.
 
     :param kind: one of ``ALPHA_KINDS``.
+    :param app_key: with ``kind='settings'``, the module whose form is asked
+        about, so its ``module_settings`` are included; without it only the
+        settings alpha on every module.
     :returns: a frozenset of names; for ``choices`` the settings keys that
-        carry alpha entries.
+        carry alpha entries, for ``module_settings`` every settings key alpha
+        on some module.
     :raises ValueError: for a kind that is not in ``ALPHA_KINDS``.
     """
     if kind not in ALPHA_KINDS:
@@ -7433,7 +7500,14 @@ def _alpha_names(kind):
             f'unknown alpha kind {kind!r}; expected one of {ALPHA_KINDS}')
     names = set()
     for entry in ALPHA_FEATURES.values():
+        if kind == 'module_settings':
+            for keys in (entry.get(kind) or {}).values():
+                names.update(keys or ())
+            continue
         names.update(entry.get(kind, ()) or ())
+        if kind == 'settings' and app_key is not None:
+            scoped = entry.get('module_settings') or {}
+            names.update(scoped.get(str(app_key), ()) or ())
     return frozenset(str(name) for name in names)
 
 

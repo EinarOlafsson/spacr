@@ -26,7 +26,7 @@ from typing import Any, Dict, FrozenSet, Mapping, Optional
 
 from PySide6.QtCore import QObject
 
-from spacr.object_settings_table import to_table
+from spacr.object_settings_table import _FILTER_PREFIX, _settings_key, to_table
 
 #: The change signals a settings widget might carry, most specific first.
 #:
@@ -84,8 +84,12 @@ class ObjectGridBinding(QObject):
         """
         owned = set()
         for question, row in self._grid.table().items():
+            if question.startswith(_FILTER_PREFIX):
+                continue
             for obj in row:
-                owned.add(f"{obj}_{question}")
+                owned.add(_settings_key(obj, question))
+        if "object_filters" in getattr(self._grid, "_base", {}):
+            owned.add("object_filters")
         return frozenset(owned)
 
 
@@ -173,6 +177,10 @@ class ObjectGridBinding(QObject):
                 continue
             if key in shown and _same(shown[key], current[key]):
                 continue
+            if key == "object_filters":
+                self._grid.set_filters(current[key])
+                moved += 1
+                continue
             value = current[key]
             for question, row in to_table({key: value}).items():
                 for obj in row:
@@ -247,8 +255,30 @@ def _same(a: Any, b: Any) -> bool:
     """
     if a is b:
         return True
+    if isinstance(a, (dict, str)) and isinstance(b, (dict, str)) and (
+            isinstance(a, dict) or isinstance(b, dict)):
+        return _filters_of(a) == _filters_of(b)
     if isinstance(a, bool) or isinstance(b, bool):
         return bool(a) == bool(b)
     if isinstance(a, (int, float)) and isinstance(b, (int, float)):
         return float(a) == float(b)
     return a == b
+
+
+def _filters_of(value: Any) -> Any:
+    """``object_filters`` in one canonical shape, for comparing two spellings.
+
+    The form may hold the mapping as text and the table as a dict; both are
+    read into ``{object: [{property, min, max}, ...]}`` with empty lists
+    dropped. A value that is not an ``object_filters`` mapping comes back
+    unchanged.
+    """
+    try:
+        from spacr.qt.mask_engine import (normalise_filters,
+                                          parse_object_filters)
+
+        parsed = parse_object_filters(value)
+        return {str(obj): normalise_filters(rows, strict=False)
+                for obj, rows in sorted(parsed.items()) if rows}
+    except Exception:                                        # noqa: BLE001
+        return value

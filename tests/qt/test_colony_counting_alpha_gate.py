@@ -1,6 +1,6 @@
 """Colony counting sits behind Preferences -> Show alpha features.
 
-Plaque Assay's "Colony Counting (Alpha)" card and its eight settings are off
+Plaque Assay's "Colony Counting α" card and its eight settings are off
 the form and out of the settings search with the switch off (the default),
 come back when it is turned on, and a value set while hidden still reaches
 the run.
@@ -66,7 +66,7 @@ def test_the_plaque_form_hides_and_shows_the_colony_settings(qtbot, prefs):
         screen._refresh_alpha_visibility()
         assert prefs._is_alpha_visible("settings", "colony_counting") is False
         assert not any(screen.setting_row_is_visible(k) for k in KEYS)
-        assert _heading(screen, "Colony Counting (Alpha)").isHidden()
+        assert _heading(screen, "Colony Counting α").isHidden()
         assert not _heading(screen, "Scale & Time").isHidden()
         if bar is not None:
             assert not set(KEYS) & set(bar.indexed_keys())
@@ -82,14 +82,14 @@ def test_the_plaque_form_hides_and_shows_the_colony_settings(qtbot, prefs):
         screen._refresh_alpha_visibility()
         assert prefs._is_alpha_visible("settings", "colony_counting") is True
         assert all(screen.setting_row_is_visible(k) for k in KEYS)
-        assert not _heading(screen, "Colony Counting (Alpha)").isHidden()
+        assert not _heading(screen, "Colony Counting α").isHidden()
         if bar is not None:
             assert set(KEYS) <= set(bar.indexed_keys())
 
         prefs._set_show_alpha_features(False)
         screen._refresh_alpha_visibility()
         assert not any(screen.setting_row_is_visible(k) for k in KEYS)
-        assert _heading(screen, "Colony Counting (Alpha)").isHidden()
+        assert _heading(screen, "Colony Counting α").isHidden()
     finally:
         retire_pyqtgraph_menus(screen)
         screen.close()

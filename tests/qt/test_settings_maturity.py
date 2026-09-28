@@ -50,7 +50,9 @@ def test_full_width_section_widgets_receive_the_same_maturity(qtbot):
     section.add_widget(field)
 
     assert field.property("settingMaturity") == "alpha"
-    assert "ALPHA" in section._header.text()
+    # Item 591, 2026-09-28: an alpha heading ends with the alpha mark
+    # rather than spelling "ALPHA".
+    assert section._header.text().endswith("\u03b1")
 
 
 def test_maturity_badge_is_not_duplicated_in_section_header(qtbot):
@@ -105,7 +107,8 @@ def test_beta_module_colours_every_settings_section(
     assert sections
     assert {section.maturity() for section in sections} == {"alpha", "beta"}
     for section in sections:
-        expected = "alpha" if "(ALPHA)" in section.title() else "beta"
+        expected = ("alpha" if section.title().endswith("\u0391")
+                    else "beta")
         assert section.maturity() == expected, section.title()
         assert all(
             widget.property("settingMaturity") == expected

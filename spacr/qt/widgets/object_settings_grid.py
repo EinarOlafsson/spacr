@@ -56,7 +56,11 @@ from PySide6.QtWidgets import (
 LOG = logging.getLogger(__name__)
 
 from ...object_roles import setting_label
-from ...object_settings_table import OBJECT_ORDER, column_label, from_table, to_table, widen
+from ...object_settings_table import (OBJECT_ORDER, _FILTER_PREFIX,
+                                      _SINGLE_OBJECT_QUESTIONS, _filter_text,
+                                      _parse_filter_text, _settings_key,
+                                      column_label, from_table, to_table,
+                                      widen)
 from ...organelle_types import MAX_ORGANELLES, organelle_role
 from ..theme import SPACING
 from .sortable_table import install_sorting
@@ -90,7 +94,30 @@ MODEL_QUESTION = "model_name"
 
 def _unset_text(question: str) -> str:
     """How an unset value reads for ``question``."""
-    return OFF_TEXT if question in _OFF_QUESTIONS else AUTO_TEXT
+    if question in _OFF_QUESTIONS or _is_filter(question):
+        return OFF_TEXT
+    return AUTO_TEXT
+
+
+def _is_filter(question: str) -> bool:
+    """Whether ``question`` is an object-filter row (``filter:area``)."""
+    return str(question).startswith(_FILTER_PREFIX)
+
+
+def _cell_key(obj: str, question: str) -> str:
+    """The settings key a cell edits; ``object_filters`` for a filter row."""
+    if _is_filter(question):
+        return "object_filters"
+    return _settings_key(obj, question)
+
+
+def _filter_objects():
+    """The objects an object filter may be set for, in table order.
+
+    Cytoplasm is left out: it is derived from the other masks at measure
+    time, and a Mask run filters only the objects it segments.
+    """
+    return tuple(obj for obj in OBJECT_ORDER if obj != "cytoplasm")
 
 
 def _question_help(question: str, obj: str) -> str:
@@ -111,7 +138,21 @@ def _question_help(question: str, obj: str) -> str:
         from ...settings import tooltips
     except Exception:                                        # noqa: BLE001
         return ""
-    return str(tooltips.get(f"{obj}_{question}", "") or "")
+    return str(tooltips.get(_cell_key(obj, question), "") or "")
+
+
+def _checked(value) -> bool:
+    """Whether a check-state value from a view means checked.
+
+    :param value: a ``Qt.CheckState``, its integer, or a bool.
+    """
+    if isinstance(value, bool):
+        return value
+    try:
+        return int(getattr(value, "value", value)) == int(
+            Qt.CheckState.Checked.value)
+    except (TypeError, ValueError):
+        return str(value).strip().lower() in ("1", "true", "yes", "on")
 
 
 def _coerce(text: str, like: Any) -> Any:
@@ -262,6 +303,8 @@ class ObjectSettingsModel(QAbstractTableModel):
         obj = self._objects[index.column()]
         if not self.asks(question, obj):
             return Qt.ItemIsSelectable
+        if isinstance(self.value_at(question, obj), bool):
+            return base | Qt.ItemIsEditable | Qt.ItemIsUserCheckable
         return base | Qt.ItemIsEditable
 
     def data(self, index, role=Qt.DisplayRole):
@@ -282,12 +325,21 @@ class ObjectSettingsModel(QAbstractTableModel):
             return None
         value = self.value_at(question, obj)
         unset = _unset_text(question)
+        if role == Qt.CheckStateRole and isinstance(value, bool):
+            return Qt.Checked if value else Qt.Unchecked
         if role == Qt.DisplayRole:
             return unset if value is None else str(value)
         if role == Qt.EditRole:
             return "" if value is None else str(value)
         if role == Qt.ToolTipRole:
-            head = f"{obj}_{question}  =  {unset if value is None else value!r}"
+            head = (f"{_cell_key(obj, question)}  =  "
+                    f"{unset if value is None else value!r}")
+            if _is_filter(question):
+                head += (f"\n\nKeep only {column_label(obj)} objects whose "
+                         f"{question[len(_FILTER_PREFIX):]} is within "
+                         f"min \u2013 max. Type one number for a minimum "
+                         f"alone, \u2013 then a number for a maximum alone, "
+                         f"or clear the cell to switch the filter off.")
             if question == MODEL_QUESTION:
                 head += (f"\n\nClick this cell to choose {column_label(obj)}'s "
                          f"model from the zoo. Double-click to type a path.")
@@ -306,7 +358,8 @@ class ObjectSettingsModel(QAbstractTableModel):
         :param role: the Qt edit role.
         :returns: True when the value was taken.
         """
-        if not index.isValid() or role != Qt.EditRole:
+        if not index.isValid() or role not in (Qt.EditRole,
+                                               Qt.CheckStateRole):
             return False
         question = self.question_at(index.row())
         obj = self._objects[index.column()]
@@ -314,6 +367,20 @@ class ObjectSettingsModel(QAbstractTableModel):
             return False
         row = self._table[question]
         current = row.get(obj)
+        if _is_filter(question):
+            try:
+                low, high = _parse_filter_text(value)
+            except ValueError:
+                return False
+            new = _filter_text({"min": low, "max": high})
+            if new == current:
+                return False
+            row[obj] = new
+            self.dataChanged.emit(index, index, [Qt.DisplayRole, Qt.EditRole])
+            self.edited.emit()
+            return True
+        if role == Qt.CheckStateRole:
+            value = "true" if _checked(value) else "false"
         like = current
         if like is None:
             like = next((v for o, v in row.items()
@@ -337,7 +404,11 @@ class ObjectSettingsModel(QAbstractTableModel):
         if role == Qt.DisplayRole:
             if orientation == Qt.Horizontal:
                 return column_label(self._objects[section])
-            return setting_label(self._questions[section])
+            question = self._questions[section]
+            if _is_filter(question):
+                return (f"Filter: {question[len(_FILTER_PREFIX):]} "
+                        f"(min \u2013 max)")
+            return setting_label(question)
         if role == Qt.ToolTipRole:
             if orientation == Qt.Vertical:
                 return None
@@ -428,6 +499,19 @@ def _kind_of(obj: str) -> str:
     """
     from ...organelle_types import organelle_role_of
     return "organelle" if organelle_role_of(obj) else obj
+
+
+def _parsed_filters(raw) -> Dict[str, Any]:
+    """``object_filters`` as a mapping, or empty when it cannot be read.
+
+    :param raw: the setting's value, a mapping or its JSON/literal text.
+    """
+    try:
+        from ..mask_engine import parse_object_filters
+
+        return parse_object_filters(raw)
+    except Exception:                                        # noqa: BLE001
+        return {}
 
 
 class ObjectSettingsGrid(QWidget):
@@ -566,9 +650,22 @@ class ObjectSettingsGrid(QWidget):
             "vocabulary it was twenty new settings, which is why the count "
             "could not be arbitrary before this table existed.")
         self._add.clicked.connect(self.add_organelle)
+        self._add_filter = QPushButton("Add a filter", self)
+        self._add_filter.setObjectName("ObjectGridAddFilter")
+        self._add_filter.setToolTip(
+            "Add a row that keeps only the objects whose measurement -- "
+            "area, mean intensity, solidity or any other scalar region "
+            "property -- falls between a minimum and a maximum. Fill in the "
+            "column of every object it should apply to; a blank cell leaves "
+            "that object unfiltered. Default no filters.")
+        self._add_filter.clicked.connect(self._offer_filters)
         row.addWidget(self._status, 1)
+        row.addWidget(self._add_filter)
         row.addWidget(self._add)
         outer.addLayout(row)
+        #: Filter rows the user added and has not filled in yet, which the
+        #: settings alone cannot show because an empty filter is no entry.
+        self._added_filters: list = []
 
         #: Fires once the pointer has rested on a cell long enough.
         self._help_show_timer = QTimer(self)
@@ -659,7 +756,8 @@ class ObjectSettingsGrid(QWidget):
         if not question or source.column() >= len(objects):
             return ""
         obj = objects[source.column()]
-        return f"{obj}_{question}" if self._model.asks(question, obj) else ""
+        return (_cell_key(obj, question) if self._model.asks(question, obj)
+                else "")
 
     def eventFilter(self, watched, event):               # noqa: N802
         """Show the same sticky, linked tooltip the form shows.
@@ -968,7 +1066,45 @@ class ObjectSettingsGrid(QWidget):
                 continue
             table = widen(table, role,
                           like=live[index - 1] if index else None)
-        return self._only_the_shared_questions(table)
+        table = self._only_the_shared_questions(table)
+        objects = {obj for row in table.values() for obj in row}
+        table.update(self._filter_rows(objects))
+        return table
+
+    def _filter_rows(self, objects) -> Dict[str, Dict[str, Any]]:
+        """``object_filters`` as table rows, one per filtered property.
+
+        Rows appear for every property any shown object filters on, and for
+        each property added with :meth:`add_filter` and not yet filled in.
+        Every segmented object on screen has a cell in each row.
+
+        :param objects: the object columns the table shows.
+        """
+        if "object_filters" not in self._base:
+            return {}
+        filters = _parsed_filters(self._base.get("object_filters"))
+        columns = [obj for obj in _filter_objects() if obj in objects]
+        order = []
+        for obj in columns:
+            for entry in filters.get(obj) or ():
+                name = str(entry.get("property", ""))
+                if name and name not in order:
+                    order.append(name)
+        for name in self._added_filters:
+            if name not in order:
+                order.append(name)
+        rows: Dict[str, Dict[str, Any]] = {}
+        for name in order:
+            row = {}
+            for obj in columns:
+                cell = None
+                for entry in filters.get(obj) or ():
+                    if str(entry.get("property", "")) == name:
+                        cell = _filter_text(entry)
+                        break
+                row[obj] = cell
+            rows[f"{_FILTER_PREFIX}{name}"] = row
+        return rows
 
     @staticmethod
     def _only_the_shared_questions(
@@ -1006,11 +1142,107 @@ class ObjectSettingsGrid(QWidget):
         return {
             question: row for question, row in table.items()
             if len({_kind_of(obj) for obj in row}) > 1
+            or question in _SINGLE_OBJECT_QUESTIONS
         }
 
     def settings(self) -> Dict[str, Any]:
-        """The whole settings dict, with the table's answers written back."""
-        return from_table(self._model.table(), self._base)
+        """The whole settings dict, with the table's answers written back.
+
+        The filter rows are written back into ``object_filters``: each shown
+        object's list is rebuilt from its cells, in row order, and an object
+        the table does not show keeps the list it had.
+        """
+        table = self._model.table()
+        plain = {q: row for q, row in table.items() if not _is_filter(q)}
+        out = from_table(plain, self._base)
+        if "object_filters" not in self._base:
+            return out
+        filters = {obj: [dict(entry) for entry in entries or ()]
+                   for obj, entries in _parsed_filters(
+                       self._base.get("object_filters")).items()}
+        shown = [obj for obj in _filter_objects()
+                 if obj in set(self._model.objects())]
+        for obj in shown:
+            rows = []
+            for question, row in table.items():
+                if not _is_filter(question):
+                    continue
+                low, high = _parse_filter_text(row.get(obj))
+                if low is None and high is None:
+                    continue
+                rows.append({"property": question[len(_FILTER_PREFIX):],
+                             "min": low, "max": high})
+            if rows:
+                filters[obj] = rows
+            else:
+                filters.pop(obj, None)
+        out["object_filters"] = filters
+        return out
+
+    def filter_properties(self) -> Tuple[str, ...]:
+        """The properties the table has a filter row for, in order."""
+        return tuple(q[len(_FILTER_PREFIX):] for q in self._model.table()
+                     if _is_filter(q))
+
+    def add_filter(self, name: str) -> bool:
+        """Add a filter row for regionprop ``name``, every cell empty.
+
+        :param name: a scalar scikit-image regionprop, e.g. ``"area"`` or
+            ``"intensity_mean"``; legacy spellings are accepted.
+        :returns: False when the name is not a filterable property or the row
+            is already there.
+        """
+        try:
+            from ..mask_engine import canonical_property
+
+            name = canonical_property(name)
+        except Exception:                                    # noqa: BLE001
+            self._status.setText(
+                f"'{name}' is not a region property an object filter can "
+                f"use.")
+            return False
+        if name in self.filter_properties():
+            return False
+        self._base = self.settings()
+        self._added_filters.append(name)
+        self._model.set_table(self._visible_table())
+        self._announce()
+        return True
+
+    def set_filters(self, value) -> None:
+        """Show ``object_filters`` as it now stands, e.g. after a file load.
+
+        :param value: the setting's value, a mapping or its text.
+        """
+        self._base = self.settings()
+        self._base["object_filters"] = value
+        self._model.set_table(self._visible_table())
+        self._announce()
+
+    def _offer_filters(self) -> None:
+        """Open the list of properties a new filter row can measure."""
+        from PySide6.QtWidgets import QMenu
+
+        try:
+            from ..mask_engine import filter_properties
+            names = filter_properties(intensity=True)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("no filter catalogue", exc_info=True)
+            names = ("area", "intensity_mean")
+        menu = QMenu(self)
+        menu.setObjectName("ObjectGridFilterMenu")
+        first = [n for n in ("area", "intensity_mean") if n in names]
+        for name in first + [n for n in names if n not in first]:
+            action = menu.addAction(name)
+            action.triggered.connect(
+                lambda _checked=False, n=name: self._added(n))
+        menu.popup(self._add_filter.mapToGlobal(
+            self._add_filter.rect().bottomLeft()))
+
+    def _added(self, name: str) -> None:
+        """Add the chosen filter row and tell the form."""
+        if self.add_filter(name):
+            self.settings_changed.emit()
 
     def table(self) -> Dict[str, Dict[str, Any]]:
         """The table itself, for a caller that wants the shape."""

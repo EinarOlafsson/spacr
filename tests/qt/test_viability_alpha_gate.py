@@ -1,6 +1,6 @@
 """The live/dead viability settings sit behind Preferences -> Show alpha features.
 
-Measure's "Viability (Alpha)" card and its seven settings are off the form
+Measure's "Viability α" card and its seven settings are off the form
 and out of the settings search with the switch off (the default), come back
 when it is turned on, and a value set while hidden still reaches the run.
 """
@@ -66,7 +66,7 @@ def test_the_measure_form_hides_and_shows_the_viability_settings(qtbot,
         screen._refresh_alpha_visibility()
         assert prefs._is_alpha_visible("settings", "viability") is False
         assert not any(screen.setting_row_is_visible(k) for k in KEYS)
-        assert _heading(screen, "Viability (Alpha)").isHidden()
+        assert _heading(screen, "Viability α").isHidden()
         assert not _heading(screen, "Measurement Features").isHidden()
         assert screen.setting_row_is_visible("radial_dist")
         if bar is not None:
@@ -83,14 +83,14 @@ def test_the_measure_form_hides_and_shows_the_viability_settings(qtbot,
         screen._refresh_alpha_visibility()
         assert prefs._is_alpha_visible("settings", "viability") is True
         assert all(screen.setting_row_is_visible(k) for k in KEYS)
-        assert not _heading(screen, "Viability (Alpha)").isHidden()
+        assert not _heading(screen, "Viability α").isHidden()
         if bar is not None:
             assert set(KEYS) <= set(bar.indexed_keys())
 
         prefs._set_show_alpha_features(False)
         screen._refresh_alpha_visibility()
         assert not any(screen.setting_row_is_visible(k) for k in KEYS)
-        assert _heading(screen, "Viability (Alpha)").isHidden()
+        assert _heading(screen, "Viability α").isHidden()
     finally:
         retire_pyqtgraph_menus(screen)
         screen.close()

@@ -56,12 +56,58 @@ OBJECT_ORDER: Tuple[str, ...] = (
 _PREFIXES = tuple(sorted(OBJECT_ORDER, key=len, reverse=True))
 
 
+#: Questions spelled with the object LAST (``remove_background_cell``).
+#:
+#: spaCR names the same relationship both ways round; a table that only saw
+#: ``<object>_<question>`` would leave these rows in the flat form.
+_OBJECT_LAST_QUESTIONS: Tuple[str, ...] = ("remove_background",)
+
+#: Settings that are a per-object question for ONE object and carry no
+#: object in their name: ``{key: (object, question)}``.
+_SINGLE_OBJECT_KEYS: Dict[str, Tuple[str, str]] = {
+    "adjust_cells": ("cell", "adjust_cells"),
+}
+
+#: The questions of :data:`_SINGLE_OBJECT_KEYS`, which the table keeps as a
+#: row although only one object asks them.
+_SINGLE_OBJECT_QUESTIONS = frozenset(
+    question for _obj, question in _SINGLE_OBJECT_KEYS.values())
+
+
 def _split(key: str) -> Optional[Tuple[str, str]]:
-    """``('cell', 'min_area')`` for ``'cell_min_area'``, else ``None``."""
+    """``('cell', 'min_area')`` for ``'cell_min_area'``, else ``None``.
+
+    Also ``('cell', 'remove_background')`` for ``'remove_background_cell'``
+    and ``('cell', 'adjust_cells')`` for ``'adjust_cells'``.
+    """
+    if key in _SINGLE_OBJECT_KEYS:
+        return _SINGLE_OBJECT_KEYS[key]
+    for question in _OBJECT_LAST_QUESTIONS:
+        head = question + "_"
+        if key.startswith(head) and key[len(head):] in OBJECT_ORDER:
+            return key[len(head):], question
     for prefix in _PREFIXES:
         if key.startswith(prefix + "_"):
             return prefix, key[len(prefix) + 1:]
     return None
+
+
+def _settings_key(obj: str, question: str) -> str:
+    """The flat settings key one table cell stands for.
+
+    The inverse of the split: ``('cell', 'min_area')`` is ``cell_min_area``,
+    ``('cell', 'remove_background')`` is ``remove_background_cell`` and
+    ``('cell', 'adjust_cells')`` is ``adjust_cells``.
+
+    :param obj: the object, a column of the table.
+    :param question: the row.
+    """
+    for key, pair in _SINGLE_OBJECT_KEYS.items():
+        if pair == (obj, question):
+            return key
+    if question in _OBJECT_LAST_QUESTIONS:
+        return f"{question}_{obj}"
+    return f"{obj}_{question}"
 
 
 def questions(keys: Iterable[str]) -> "List[str]":
@@ -97,6 +143,73 @@ def families(keys: Iterable[str]) -> "Dict[str, List[str]]":
     order = {name: index for index, name in enumerate(OBJECT_ORDER)}
     return {question: sorted(objects, key=lambda o: order.get(o, len(order)))
             for question, objects in found.items()}
+
+
+#: What a filter row's question starts with: ``filter:area`` is the row of
+#: ``object_filters`` bounds on the ``area`` regionprop, one cell per object.
+_FILTER_PREFIX = "filter:"
+
+#: Between a filter cell's minimum and maximum.
+_FILTER_DASH = "\u2013"
+
+
+def _filter_text(entry) -> Optional[str]:
+    """One ``object_filters`` row as a cell: ``"200 – 5000"``, ``"200 –"``.
+
+    :param entry: a ``{'property', 'min', 'max'}`` mapping.
+    :returns: the text, or ``None`` when neither side is set.
+    """
+    low, high = entry.get("min"), entry.get("max")
+
+    def _num(value):
+        if value is None or (isinstance(value, str) and not value.strip()):
+            return ""
+        number = float(value)
+        return f"{number:g}"
+
+    left, right = _num(low), _num(high)
+    if not left and not right:
+        return None
+    return f"{left} {_FILTER_DASH} {right}".strip()
+
+
+def _parse_filter_text(text) -> Tuple[Optional[float], Optional[float]]:
+    """A filter cell's ``(min, max)``; blank or ``off`` is ``(None, None)``.
+
+    Accepts ``"200 – 5000"``, ``"200-5000"``, ``"200, 5000"``, ``"200 to
+    5000"``, ``"200"`` (a minimum alone) and ``"– 5000"`` (a maximum alone).
+
+    :param text: what the cell holds or the user typed.
+    :raises ValueError: when a side is not a number, or the minimum is above
+        the maximum.
+    """
+    raw = str(text if text is not None else "").strip()
+    if not raw or raw.lower() in ("off", "none", "auto"):
+        return None, None
+    for separator in (_FILTER_DASH, "\u2014", ",", " to ", ".."):
+        if separator in raw:
+            left, _sep, right = raw.partition(separator)
+            break
+    else:
+        match = re.match(r"^\s*(-?[\d.eE+]*)\s*-\s*(-?[\d.eE+]*)\s*$", raw)
+        if match and (match.group(1) or match.group(2)) and raw[0] != "-":
+            left, right = match.group(1), match.group(2)
+        elif raw.startswith("-") and raw[1:].strip() and not re.match(
+                r"^-\s*\d", raw):
+            left, right = "", raw[1:]
+        else:
+            left, right = raw, ""
+
+    def _side(value):
+        value = value.strip()
+        return float(value) if value else None
+
+    low, high = _side(left), _side(right)
+    if low is not None and high is not None and low > high:
+        raise ValueError(
+            f"The minimum {low:g} is above the maximum {high:g}, which "
+            f"would remove every object.")
+    return low, high
 
 
 def column_label(obj: str) -> str:
@@ -165,7 +278,7 @@ def from_table(table: Mapping[str, Mapping[str, object]],
     out: "Dict[str, object]" = dict(base or {})
     for question, row in table.items():
         for obj, value in row.items():
-            out[f"{obj}_{question}"] = value
+            out[_settings_key(obj, question)] = value
     return out
 
 

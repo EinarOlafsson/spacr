@@ -57,12 +57,16 @@ def test_mask_cloud_controls_have_one_dedicated_category():
     from spacr.qt.screens.settings_model import categories_for_app
 
     sections = categories_for_app("mask", categories)
-    assert tuple(sections["Cloud"]) == MASK_SETTINGS
+    # Item 591, 2026-09-28: an alpha category ends with the alpha mark.
+    assert tuple(sections["Cloud α"]) == MASK_SETTINGS
     assert "src" in sections["Input & Metadata"]
     for key in MASK_SETTINGS:
         assert [title for title, keys in sections.items() if key in keys] == [
-            "Cloud"]
-    assert "Cloud" not in categories_for_app("measure", categories)
+            "Cloud α"]
+    # Item 593, 2026-09-28: Measure's cloud settings have the same alpha
+    # sub-category, under its inputs.
+    measure = categories_for_app("measure", categories)
+    assert tuple(measure["Cloud α"]) == MEASURE_SETTINGS
 
 
 @pytest.mark.parametrize("language", ["sv", "de", "es", "zh_CN", "pt",
@@ -77,10 +81,14 @@ def test_cloud_heading_and_help_are_translated(language):
         category_tooltip, category_tooltip_is_curated,
     )
 
+    from spacr.qt.widgets.section import Section
+
     assert tr("Cloud", language=language) != "Cloud"
-    assert category_tooltip_is_curated("mask", "Cloud")
-    assert category_tooltip("mask", "Cloud", language) != category_tooltip(
-        "mask", "Cloud", "en")
+    assert category_tooltip_is_curated("mask", "Cloud α")
+    assert category_tooltip("mask", "Cloud α", language) != category_tooltip(
+        "mask", "Cloud α", "en")
+    heading = Section._translated_alpha_name("Cloud α", language)
+    assert heading.endswith(" α") and heading != "Cloud α"
 
 
 def _browse_action(screen):

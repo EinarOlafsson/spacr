@@ -60,18 +60,12 @@ def _read(report) -> dict:
 @pytest.fixture
 def mask_window(qapp, qtbot):
     """A real MainWindow on Mask, themed the way `launch` themes it, with the
-    per-object table on screen.
-
-    The grid is switched on AFTER Mask is open. Switched on before, a fresh
-    Mask builds the table inside a section that is hidden until the form
-    asks for it, so it is not visible and a dump of visible widgets would
-    not name it. The live switch is the preference path the maintainer uses.
+    per-object table on screen, which is Mask generation's only layout
+    since item 592.
     """
     from spacr.qt import preferences as prefs
     from spacr.qt.app import MainWindow
 
-    grid_was = prefs.get_object_grid_enabled()
-    prefs.set_object_grid_enabled(False)
     prefs.apply_preferences_to_app(qapp)
     window = MainWindow()
     qtbot.addWidget(window)
@@ -80,12 +74,8 @@ def mask_window(qapp, qtbot):
         window.show()
         window._on_nav_selected("mask")
         _settle(qapp)
-        prefs.set_object_grid_enabled(True)
-        window._stack.currentWidget().apply_object_grid_preference()
-        _settle(qapp)
         yield window
     finally:
-        prefs.set_object_grid_enabled(grid_was)
         window.close()
 
 

@@ -1,6 +1,7 @@
 MASK GENERATION IS PER-OBJECT ONLY
 
-Status:    FILED 2026-09-28. Not started.
+Status:    DONE 2026-09-28 (see the note below). Not an alpha feature: it
+           reshapes existing settings and adds none.
 Requested: 2026-09-28, by the maintainer, verbatim:
   "in mask generation, please make per object settings the default and only
   mode (remove the preferences toggle.)
@@ -24,3 +25,38 @@ WHAT TO BUILD
    mean intensity, and the other filters), for one or several objects.
 4. Output & storage, Runtime & reliability and Segmentation robustness merge
    into one category, "Quality control".
+
+2026-09-28: what was built.
+  1. The per-object table is Mask generation's (and Timelapse's, which
+     shares its settings) only layout of the per-object settings:
+     AppScreen.OBJECT_GRID_APPS, mounted on every build, drawn in front of
+     "Cell Segmentation". The Preferences switch ("Per-object settings as a
+     table"), get/set_object_grid_enabled, DEFAULT_OBJECT_GRID, the
+     broadcast to open screens and AppScreen.apply_object_grid_preference /
+     _unmount_the_object_grid are gone. Other modules (Measure) keep their
+     flat form. The stored keys are unchanged, so every settings file loads;
+     the retired {object}_min_area bounds still fold into object_filters and
+     now show as filter rows.
+  2. "Remove background" is a boolean row for every object
+     (remove_background_<object>, spelled object-last, now understood by
+     spacr.object_settings_table), drawn as a check box. "Adjust cells" is a
+     row for the cell column only (adjust_cells). The table keeps a question
+     one object asks only for these declared single-object keys.
+  3. Object filtration is addable rows: "Add a filter" offers every scalar
+     regionprop (area and mean intensity first); a row "Filter: <property>
+     (min – max)" has a cell per segmented object (not cytoplasm), taking
+     "200 – 5000", "200" (minimum only), "– 5000" (maximum only) or blank
+     (off). The rows write the one object_filters mapping; a filter loaded
+     from a file or typed elsewhere shows as its row. The flat
+     object_filters row is hidden behind the table.
+  4. Mask generation's "Quality Control" now holds the segmentation QC
+     checks, Output & Storage and Runtime & Reliability; "Segmentation
+     Robustness α" is nested inside it.
+  Tests: tests/qt/test_the_object_grid_is_the_only_mask_layout.py (replaces
+  test_the_object_grid_can_be_switched_on.py); the tests that toggled the
+  preference now take the table as given.
+
+LEFT: the Timelapse layout keeps its separate Output & Storage and Runtime
+& Reliability headings (the request named Mask generation); a filter row
+cannot be deleted in one click -- clearing its cells removes it on the next
+reload; captions for the new help texts wait for the catalog lane.

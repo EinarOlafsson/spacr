@@ -1168,6 +1168,26 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 579, 2026-09-27: the Report screen's Deposit on Zenodo button and form.
 # 316, 2026-09-27: all 76 resolved through their explicit owners.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    # 592, 2026-09-28: the per-object table's Add a filter tooltip and Mask
+    # generation's merged Quality Control help.
+    'Add a row that keeps only the objects whose measurement -- area, mean '
+    'intensity, solidity or any other scalar region property -- falls '
+    'between a minimum and a maximum. Fill in the column of every object it '
+    'should apply to; a blank cell leaves that object unfiltered. Default no '
+    'filters.',
+    'Automatic pass/fail checks on the finished masks, what the run keeps on '
+    'disk, and how it behaves when something fails: object count, size and '
+    'border checks, the files and intermediates saved, error handling, '
+    'workers, batch size, GPUs and the random seed. Tighten the checks once '
+    'you know what a good field looks like.',
+    # 591, 2026-09-28: the Image Deconvolution α category help (the PSF
+    # settings nested under Mask generation's Image Preprocessing).
+    "Deconvolution or convolution with the microscope's point spread "
+    "function, applied to the segmentation channels before normalization: "
+    "a calibrated measured PSF, one inferred from the objective, or an "
+    "explicit Gaussian. Richardson-Lucy deconvolution sharpens and can "
+    "amplify noise. Raw images and measurement intensities remain "
+    "unchanged.",
     # 558, 2026-09-27: the Cellpose workbench's Virtual staining button
     # (alpha).
     'Virtual staining…',

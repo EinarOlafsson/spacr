@@ -1,6 +1,6 @@
 """The plate barcode linkage settings sit behind Show alpha features.
 
-Measure's "Plate Barcode Linkage (Alpha)" card and its four settings are off
+Measure's "Plate Barcode Linkage α" card and its four settings are off
 the form and out of the settings search with the switch off (the default),
 come back when it is turned on, and a value set while hidden still reaches
 the run.
@@ -65,7 +65,7 @@ def test_the_measure_form_hides_and_shows_the_barcode_settings(
     src.mkdir(parents=True)
     np.save(src / "plate1_A01_1.npy", np.zeros((2, 2, 1)))
 
-    title = "Plate Barcode Linkage (Alpha)"
+    title = "Plate Barcode Linkage α"
     screen = AppScreen("measure")
     try:
         bar = install(screen) or getattr(screen, "_settings_search", None)

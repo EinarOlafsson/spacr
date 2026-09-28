@@ -32,7 +32,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..i18n import tr
-from ..theme import SPACING, STAGE_LABEL, STAGE_NOTE
+from ..theme import ALPHA_MARK, SPACING, STAGE_LABEL, STAGE_NOTE
 
 #: Edge of the module mark drawn beside a category heading, in logical px.
 #:
@@ -641,14 +641,38 @@ class Section(QFrame):
         """Rebuild the header caption from its translated parts.
 
         The caption is composed -- the category name, plus a badge for beta or
-        alpha -- so the generic language pass would look up the finished line as
-        one key and never find it. That pass is kept off the button and the
-        caption rebuilt here whenever the language changes.
+        an ``α`` for alpha -- so the generic language pass would look up the
+        finished line as one key and never find it. That pass is kept off the
+        button and the caption rebuilt here whenever the language changes.
+
+        An alpha heading reads "CONFLUENCY α": the name upper-cased and the
+        mark kept lower-case, because an upper-cased ``α`` is the Greek
+        capital, which is indistinguishable from a Latin A. A spelled-out
+        "(Alpha)" in the name is dropped in favour of the mark, and the
+        heading's colour (the theme's alpha ink) says the rest.
 
         :param language: the language to build for; ``None`` uses the current
             one.
         """
-        text = tr(self._title_source, language).upper()
+        source = self._title_source.strip()
+        text = tr(source, language).strip()
+        if source.endswith(ALPHA_MARK) and text == source:
+            text = self._translated_alpha_name(source, language)
+        if self._maturity == "alpha" or text.endswith(ALPHA_MARK):
+            base = text[:-len(ALPHA_MARK)] if text.endswith(ALPHA_MARK) else text
+            base = base.upper().strip()
+            stage = tr(STAGE_LABEL["alpha"], language).upper()
+            for badge in dict.fromkeys((stage, STAGE_LABEL["alpha"].upper())):
+                base = re.sub(
+                    rf"\s*(?:\(\s*{re.escape(badge)}\s*\)|{re.escape(badge)})\s*$",
+                    "",
+                    base,
+                    flags=re.IGNORECASE,
+                ).strip()
+            text = f"{base} {ALPHA_MARK}" if base else ALPHA_MARK
+            self._header.setText(text.replace("&", "&&"))
+            return
+        text = text.upper()
         if self._maturity != "stable":
             stage = tr(STAGE_LABEL[self._maturity], language).upper()
             for badge in dict.fromkeys(
@@ -662,6 +686,30 @@ class Section(QFrame):
             text = f"{text}   ·   {stage}" if text else f"·   {stage}"
         text = text.replace("&", "&&")
         self._header.setText(text)
+
+    @staticmethod
+    def _translated_alpha_name(source: str, language: Optional[str]) -> str:
+        """``"Cloud α"`` in ``language`` from the rows its name already has.
+
+        An alpha category's catalog row may not exist yet, but the plain
+        name ("Cloud") or the name it had before the mark replaced
+        "(Alpha)" ("Confluency (Alpha)") usually does; either is used, with
+        the badge dropped, before falling back to the English title.
+
+        :param source: the English title, ending with the alpha mark.
+        :param language: the language to translate into; ``None`` is the
+            current one.
+        :returns: the translated name followed by the mark.
+        """
+        base = source[:-len(ALPHA_MARK)].strip()
+        for candidate in (base, f"{base} (Alpha)"):
+            translated = tr(candidate, language).strip()
+            if translated != candidate:
+                translated = re.sub(r"\s*[(\uff08][^()\uff08\uff09]*[)\uff09]\s*$",
+                                    "", translated).strip() \
+                    if candidate.endswith("(Alpha)") else translated
+                return f"{translated} {ALPHA_MARK}"
+        return source
 
     def eventFilter(self, watched, event):                   # noqa: N802
         """Swallow the header's tooltip request; pass everything else on.

@@ -2,7 +2,7 @@
 
 Everything built from the future-features list is hidden until Preferences ->
 Show alpha features is turned on. For profiling that is its nine settings on
-the Measure form, under their own "Profiling (Alpha)" heading; a profiling
+the Measure form, under their own "Profiling α" heading; a profiling
 value saved while hidden still reaches the run.
 """
 from __future__ import annotations
@@ -43,7 +43,7 @@ def test_every_profiling_setting_is_registered_under_its_item():
     entry = ALPHA_FEATURES[547]
     assert set(entry) == {"settings"}
     assert set(entry["settings"]) == set(PROFILING_SETTINGS)
-    assert tuple(categories["Profiling (Alpha)"]) == PROFILING_SETTINGS
+    assert tuple(categories["Profiling α"]) == PROFILING_SETTINGS
     for key in PROFILING_SETTINGS:
         assert _is_alpha("settings", key)
 

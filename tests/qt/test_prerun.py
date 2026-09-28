@@ -215,11 +215,13 @@ def test_the_banner_is_reached_through_the_registered_factory(qtbot, registered)
     assert isinstance(found, prerun.SegQCBanner)
     assert found.objectName() == prerun.QC_OBJECT_NAME
 
-    # Immediately above the Run row: the last thing the eye crosses on its
-    # way to the button. A panel the user has to go and open is a panel
-    # nobody opens.
+    # Item 593, 2026-09-28: opt-in, in a popup behind the QC button in the
+    # action row, so the Run row stays where it was.
     layout = screen._actions_row.parentWidget().layout()
-    assert layout.indexOf(found) == layout.indexOf(screen._actions_row) - 1
+    assert layout.indexOf(found) < 0
+    assert isinstance(found.window(), prerun.SegQCDialog)
+    button = screen._btn_qc
+    assert screen._actions_row.layout().indexOf(button) >= 0
 
 
 @pytest.mark.parametrize("order", ["chaining_first", "prerun_first"])

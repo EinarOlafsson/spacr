@@ -25,7 +25,7 @@ import pytest
 pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QEvent
-from PySide6.QtWidgets import QLabel, QLineEdit, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QLabel, QLineEdit, QHBoxLayout, QVBoxLayout, QWidget
 
 from spacr.qt import prerun
 
@@ -65,6 +65,7 @@ class _Screen(QWidget):
             self._runtime_wrap = QWidget(self)
             QVBoxLayout(self._runtime_wrap)
             self._actions_row = QWidget(self._runtime_wrap)
+            QHBoxLayout(self._actions_row)
             self._runtime_wrap.layout().addWidget(self._actions_row)
 
     def _apply_value(self, widget, value):
@@ -932,28 +933,33 @@ def test_use_all_with_nothing_usable_says_nothing_new(diameter, tmp_path):
 # Installation
 # ---------------------------------------------------------------------------
 
-def test_a_screen_with_no_anchors_cannot_carry_a_panel(qtbot):
-    screen = _Screen(with_anchors=False)
-    qtbot.addWidget(screen)
-    assert prerun._insert_above_actions(screen, QWidget()) is False
-
-
-def test_a_runtime_panel_with_no_layout_cannot_carry_a_panel(qtbot):
+def test_an_action_row_with_no_layout_cannot_carry_the_button(qtbot):
     screen = _Screen()
     qtbot.addWidget(screen)
-    screen._runtime_wrap = QWidget(screen)          # no layout on it
-    assert prerun._insert_above_actions(screen, QWidget()) is False
+    screen._actions_row = QWidget(screen)           # no layout on it
+    dialog = prerun.SegQCDialog(screen, prerun.SegQCBanner(screen))
+    assert prerun._add_qc_button(screen, dialog) is None
 
 
-def test_the_banner_goes_immediately_above_the_run_row(qtbot):
+def test_the_banner_is_in_a_popup_behind_the_qc_button(qtbot):
+    """Item 593: opt-in, and nothing is added above the Run row."""
     screen = _Screen(widgets={"src": _src_field("")})
     qtbot.addWidget(screen)
+    before = screen._runtime_wrap.layout().count()
 
     banner = prerun.install_qc_banner(screen, reader=lambda src: _Digest())
 
     assert banner is not None
-    layout = screen._runtime_wrap.layout()
-    assert layout.indexOf(banner) == layout.indexOf(screen._actions_row) - 1
+    assert screen._runtime_wrap.layout().count() == before
+    dialog = prerun.qc_dialog(screen)
+    assert isinstance(banner.window(), prerun.SegQCDialog)
+    assert banner.window() is dialog
+    button = screen._btn_qc
+    assert screen._actions_row.layout().indexOf(button) >= 0
+    assert not dialog.isVisible()
+    button.click()
+    assert dialog.isVisible()
+    dialog.close()
     # Installing twice hands back the one that is already there.
     assert prerun.install_qc_banner(screen) is banner
 

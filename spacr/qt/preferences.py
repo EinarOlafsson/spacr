@@ -209,7 +209,6 @@ _KEY_SETTING_ANIMATIONS = "prefs/setting_animations"
 #: both off, or either alone are all legal, which is why they are two
 #: booleans and not a three-way choice wearing two checkboxes.
 _KEY_TOOLTIPS_BOX = "prefs/tooltips_box"
-_KEY_OBJECT_GRID = "prefs/object_settings_grid"
 _KEY_TOOLTIPS_BOTTOM = "prefs/tooltips_bottom"
 #: The master switch over every ordinary Qt tooltip in the application --
 #: buttons, toolbars, table headers, the lot. It is not one of the two
@@ -3637,11 +3636,6 @@ DEFAULT_TOOLTIPS_BOTTOM = True
 #: window on it; the switch exists for the person who already knows.
 DEFAULT_TOOLTIPS_ENABLED = True
 
-#: OFF until someone chooses it. The grid is a different way to read
-#: the most-used screen in the application, so it arrives as an offer
-#: rather than as a change to what everyone already knows.
-DEFAULT_OBJECT_GRID = False
-
 
 def get_tooltips_box_enabled() -> bool:
     """Whether hovering a setting's title opens the tooltip box.
@@ -3662,32 +3656,6 @@ def set_tooltips_box_enabled(on: bool) -> None:
     :param on: true to turn it on, false to turn it off; stored as a ``bool``.
     """
     _settings().setValue(_KEY_TOOLTIPS_BOX, bool(on))
-    _settings().sync()
-
-
-def get_object_grid_enabled() -> bool:
-    """Whether the per-object settings are shown as one table.
-
-    78 of Mask's 201 settings are the same twenty-odd questions asked once
-    per object type, so a form that lists them flat asks 203 questions before
-    anything is segmented. Set, those rows are hidden and a grid takes their
-    place -- one row per question, one column per object.
-
-    THE STORED KEYS DO NOT CHANGE either way. The grid edits the same widgets
-    the flat rows do, so a settings file written with this on is the same file
-    written with it off.
-    """
-    return _as_bool(_settings().value(_KEY_OBJECT_GRID, DEFAULT_OBJECT_GRID),
-                    DEFAULT_OBJECT_GRID)
-
-
-def set_object_grid_enabled(on: bool) -> None:
-    """Turn the per-object grid on or off, effective at the next form build.
-
-    :param on: true to show the per-object settings as one table, false to list
-        them flat; stored as a ``bool``.
-    """
-    _settings().setValue(_KEY_OBJECT_GRID, bool(on))
     _settings().sync()
 
 
@@ -7107,20 +7075,6 @@ class PreferencesDialog:
         tooltips_bottom_check.setChecked(get_tooltips_bottom_enabled())
         appearance.addRow(tr("Tooltips bottom"), tooltips_bottom_check)
 
-        object_grid_check = Toggle(tr("Per-object settings as a table"))
-        object_grid_check.setObjectName("ObjectSettingsGrid")
-        object_grid_check.setToolTip(
-            "78 of Mask's 201 settings are the same twenty-odd questions "
-            "asked once per object type. Set, those rows are replaced by one "
-            "table: a row per question, a column per object. The stored "
-            "settings are identical either way, so a file written with this "
-            "on is the same file written with it off. Takes effect the next "
-            "time a module's form is built."
-        )
-        object_grid_check.setChecked(get_object_grid_enabled())
-        appearance.addRow(tr("Per-object settings as a table"),
-                          object_grid_check)
-
         def _warn_when_both_are_off() -> None:
             """Say what turning both off costs, on the rows themselves.
 
@@ -8492,9 +8446,7 @@ class PreferencesDialog:
             set_tooltips_box_enabled(tooltips_box_check.isChecked())
             set_tooltips_bottom_enabled(
                 tooltips_bottom_check.isChecked())
-            set_object_grid_enabled(object_grid_check.isChecked())
             set_preferred_provider(ai_provider_combo.currentData() or "")
-            _tell_the_screens_the_object_grid_changed()
             scale_settle.stop()
             set_font_scale(scale_slider.value() / 100.0)
             set_gui_scale(gui_scale_slider.value() / 100.0)
@@ -8721,36 +8673,6 @@ def _tell_the_cards_the_rim_changed() -> int:
             except Exception:                                # noqa: BLE001
                 LOG.debug("a card would not reread the rim", exc_info=True)
     return told
-
-
-def _tell_the_screens_the_object_grid_changed() -> int:
-    """Mount or unmount the per-object table on every open module.
-
-    A PREFERENCE THE USER CANNOT SEE TAKE EFFECT is a preference they will
-    set twice. Every screen decides for itself -- a module with too few
-    shared questions still declines the table -- so this only has to ask.
-
-    :returns: how many screens changed.
-    """
-    try:
-        from PySide6.QtWidgets import QApplication
-
-        from .screens.app_screen import AppScreen
-    except Exception:                                        # noqa: BLE001
-        return 0
-    application = QApplication.instance()
-    if application is None:
-        return 0
-    changed = 0
-    for widget in application.allWidgets():
-        if not isinstance(widget, AppScreen):
-            continue
-        try:
-            changed += bool(widget.apply_object_grid_preference())
-        except Exception:                                    # noqa: BLE001
-            LOG.debug("a screen would not retake the grid switch",
-                      exc_info=True)
-    return changed
 
 
 def _hbox_wrap(layout):

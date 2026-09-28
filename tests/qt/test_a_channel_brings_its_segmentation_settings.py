@@ -46,12 +46,11 @@ def _fresh_disclosure():
 
 @pytest.fixture
 def grid_preference():
-    """Restore the per-object table preference whatever a test does."""
+    """The preferences module; the per-object table has no preference of its
+    own since item 592 made it Mask generation's only layout."""
     from spacr.qt import preferences as prefs
 
-    was = prefs.get_object_grid_enabled()
     yield prefs
-    prefs.set_object_grid_enabled(was)
 
 
 def _open_mask(qtbot, level=None, app="mask"):
@@ -201,7 +200,6 @@ def test_the_per_object_table_stays_on_screen_under_essentials(
     from PySide6.QtCore import Qt
     from PySide6.QtWidgets import QApplication
 
-    grid_preference.set_object_grid_enabled(True)
     window = _open_mask(qtbot)
     screen = _screen(window)
     assert getattr(screen, "_object_grid", None) is not None
@@ -221,18 +219,14 @@ def test_the_per_object_table_stays_on_screen_under_essentials(
     assert not _grid_section(screen).isHidden()
 
 
-def test_switching_the_table_on_later_keeps_it_on_screen(
+def test_the_search_strip_decides_the_tables_section(
         qtbot, grid_preference):
-    """Mounted by Preferences after the search strip was built."""
+    """The strip hides and restores the table's section like any other."""
     from PySide6.QtWidgets import QApplication
 
-    grid_preference.set_object_grid_enabled(False)
     window = _open_mask(qtbot)
     screen = _screen(window)
-    assert getattr(screen, "_object_grid", None) is None
-
-    grid_preference.set_object_grid_enabled(True)
-    assert screen.apply_object_grid_preference()
+    assert getattr(screen, "_object_grid", None) is not None
     QApplication.processEvents()
     section = _grid_section(screen)
     assert not section.isHidden()
@@ -242,12 +236,6 @@ def test_switching_the_table_on_later_keeps_it_on_screen(
     assert section.isHidden(), "the strip is not deciding the table's section"
     bar.set_query("")
     assert not section.isHidden()
-
-    grid_preference.set_object_grid_enabled(False)
-    assert screen.apply_object_grid_preference()
-    QApplication.processEvents()
-    bar.apply()
-    assert screen.setting_row_is_visible("pathogen_channel")
 
 
 def test_a_section_the_user_shut_stays_shut(qtbot):

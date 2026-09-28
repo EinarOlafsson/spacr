@@ -53,8 +53,10 @@ def screen(qtbot):
 
 
 def _grid_on(monkeypatch, value=True):
-    monkeypatch.setattr("spacr.qt.preferences.get_object_grid_enabled",
-                        lambda: value)
+    """Let the regression screen take the per-object table (item 592: the
+    table is otherwise Mask generation's and Timelapse's only)."""
+    apps = {"mask", "timelapse"} | ({"regression"} if value else set())
+    monkeypatch.setattr(AppScreen, "OBJECT_GRID_APPS", frozenset(apps))
 
 
 # --------------------------------------------------------------------------
@@ -133,82 +135,6 @@ def test_a_grid_that_cannot_be_built_leaves_the_form(screen, monkeypatch):
     screen._mount_the_object_grid(layout)
     assert getattr(screen, "_object_grid", None) is None
     assert layout.count() == 0
-
-
-# --------------------------------------------------------------------------
-# the Preferences switch
-
-
-def test_an_unreadable_preference_changes_nothing(screen, monkeypatch):
-    def unreadable():
-        raise OSError("settings file locked")
-
-    monkeypatch.setattr("spacr.qt.preferences.get_object_grid_enabled",
-                        unreadable)
-    assert screen.apply_object_grid_preference() is False
-
-
-def test_a_destroyed_grid_counts_as_unmounted(screen, monkeypatch):
-    class _GoneGrid:
-        def parent(self):
-            raise RuntimeError("Internal C++ object already deleted.")
-
-    _grid_on(monkeypatch, False)
-    screen._object_grid = _GoneGrid()
-    assert screen.apply_object_grid_preference() is False
-
-
-def test_no_layout_to_mount_into_changes_nothing(screen, monkeypatch):
-    _grid_on(monkeypatch, True)
-    screen._object_grid = None
-    screen._settings_layout = None
-    assert screen.apply_object_grid_preference() is False
-    assert screen._object_grid is None
-
-
-# --------------------------------------------------------------------------
-# unmounting
-
-
-def test_the_grid_comes_off_even_when_the_model_cannot_give_rows_back(
-        screen):
-    asked = []
-
-    def refuse(keys):
-        asked.append(tuple(keys))
-        raise ValueError("model busy")
-
-    section = Section("Per-object settings", screen)
-    grid = QWidget(section)
-    screen._object_grid = grid
-    was = screen._settings_model
-    screen._settings_model = types.SimpleNamespace(
-        hide_the_rows_the_grid_speaks_for=refuse)
-    try:
-        screen._unmount_the_object_grid()
-    finally:
-        screen._settings_model = was
-    assert asked == [()]
-    assert screen._object_grid is None
-    assert screen._object_grid_binding is None
-    assert section.parent() is None
-
-
-def test_a_model_that_cannot_unhide_and_a_gone_grid_are_survived(screen):
-    class _GoneGrid:
-        def parent(self):
-            raise RuntimeError("Internal C++ object already deleted.")
-
-    was = screen._settings_model
-    sections = list(screen._settings_sections)
-    screen._settings_model = types.SimpleNamespace()
-    screen._object_grid = _GoneGrid()
-    try:
-        screen._unmount_the_object_grid()
-    finally:
-        screen._settings_model = was
-    assert screen._object_grid is None
-    assert list(screen._settings_sections) == sections
 
 
 # --------------------------------------------------------------------------

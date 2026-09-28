@@ -476,14 +476,14 @@ def setting_entries() -> List[HelpEntry]:
     except Exception:
         LOG.debug("no setting categories could be read", exc_info=True)
 
-    hidden_alpha: frozenset = frozenset()
+    alpha_for = None
     try:
         from .preferences import _is_alpha_visible
 
         if not _is_alpha_visible():
             from ..settings import _alpha_names
 
-            hidden_alpha = _alpha_names("settings")
+            alpha_for = _alpha_names
     except Exception:
         LOG.debug("could not ask the alpha gate", exc_info=True)
 
@@ -499,6 +499,8 @@ def setting_entries() -> List[HelpEntry]:
         except Exception:
             LOG.debug("no categories for %r", key, exc_info=True)
             categories = {}
+        hidden_alpha = (alpha_for("settings", key) if alpha_for is not None
+                        else frozenset())
         placed: Dict[str, str] = {}
         for title, keys in categories.items():
             for setting in keys:

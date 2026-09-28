@@ -2400,8 +2400,7 @@ def _collect_paint_diagnostics(window, out_dir, report) -> None:
     for name in ("ambient_enabled", "ambient_animation", "ambient_theme",
                  "ambient_palette", "pane_opacity", "theme",
                  "tooltips_enabled",
-                 "tooltips_box_enabled", "tooltips_bottom_enabled",
-                 "object_grid_enabled"):
+                 "tooltips_box_enabled", "tooltips_bottom_enabled"):
         try:
             wanted[name] = _plain(getattr(preferences, f"get_{name}")())
         except Exception:                                    # noqa: BLE001

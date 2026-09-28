@@ -1,6 +1,6 @@
 """The intensity calibration settings sit behind Show alpha features.
 
-Measure's "Intensity Calibration (Alpha)" card and its four settings are off
+Measure's "Intensity Calibration α" card and its four settings are off
 the form and out of the settings search with the switch off (the default),
 come back when it is turned on, and a value set while hidden still reaches
 the run.
@@ -58,7 +58,7 @@ def test_the_measure_form_hides_and_shows_the_calibration_settings(
     from spacr.qt.settings_search import ALL, install
     from spacr.qt.widget_cleanup import retire_pyqtgraph_menus
 
-    title = "Intensity Calibration (Alpha)"
+    title = "Intensity Calibration α"
     screen = AppScreen("measure")
     try:
         bar = install(screen) or getattr(screen, "_settings_search", None)

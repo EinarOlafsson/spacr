@@ -317,7 +317,7 @@ def test_the_wound_settings_are_alpha():
     from spacr.settings import ALPHA_FEATURES, _is_alpha, categories
 
     entry = ALPHA_FEATURES[536]
-    assert set(entry["settings"]) == set(categories["Wound Closure (Alpha)"])
+    assert set(entry["settings"]) == set(categories["Wound Closure α"])
     for key in entry["settings"]:
         assert _is_alpha("settings", key)
     assert entry["widgets"] == ("MeasureWoundToggle",)

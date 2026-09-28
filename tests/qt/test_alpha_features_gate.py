@@ -43,18 +43,18 @@ FUTURE = ROOT / "features" / "future"
 RELEASED_BEFORE_THE_ALPHA_RULE = {
     59: "released before the alpha rule of 2026-09-26",
     404: "released before the alpha rule of 2026-09-26",
-    405: "released before the alpha rule of 2026-09-26",
     407: "released before the alpha rule of 2026-09-26",
     423: "released before the alpha rule of 2026-09-26",
     424: "released before the alpha rule of 2026-09-26",
     425: "released before the alpha rule of 2026-09-26",
     474: "released before the alpha rule of 2026-09-26",
-    475: "released before the alpha rule of 2026-09-26",
     476: "released before the alpha rule of 2026-09-26",
     489: "released before the alpha rule of 2026-09-26",
     490: "released before the alpha rule of 2026-09-26",
     491: "released before the alpha rule of 2026-09-26",
-    501: "released before the alpha rule of 2026-09-26",
+    # 405, 475 and 501 left this list on 2026-09-28 (item 591): SAMCell, SpotNet
+    # and the plaque growth estimate are validated only on synthetic data or
+    # miss their real-data target, so they register with the gate instead.
     586: "packaging only (Apptainer definition and recipes): nothing in the app to hide",
     587: "packaging only (offline installer bundle): nothing in the app to hide",
 }

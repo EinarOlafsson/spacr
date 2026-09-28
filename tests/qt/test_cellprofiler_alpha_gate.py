@@ -2,7 +2,7 @@
 
 Everything built from the future-features list is hidden until Preferences ->
 Show alpha features is turned on. For CellProfiler that is its one setting
-on the Measure form, under its own "CellProfiler (Alpha)" heading, and its
+on the Measure form, under its own "CellProfiler α" heading, and its
 Model Zoo row; a value saved while hidden still reaches the run.
 """
 from __future__ import annotations
@@ -37,7 +37,7 @@ def test_the_setting_is_registered_under_its_item():
 
     assert ALPHA_FEATURES[546] == {"settings": (KEY,),
                                    "models": ("cellprofiler_v1",)}
-    assert tuple(categories["CellProfiler (Alpha)"]) == (KEY,)
+    assert tuple(categories["CellProfiler α"]) == (KEY,)
     assert _is_alpha("settings", KEY)
     assert _is_alpha("models", "cellprofiler_v1")
 

@@ -898,7 +898,8 @@ class SettingsSearchBar(QWidget):
         if not _is_alpha_visible():
             from ..settings import _alpha_names
 
-            for key in _alpha_names("settings"):
+            app_key = getattr(self._screen, "app_key", None)
+            for key in _alpha_names("settings", app_key):
                 self._index.pop(key, None)
 
     def _apply_section_state(self, shown: Dict[int, int],
