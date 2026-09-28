@@ -276,10 +276,17 @@ class TestShuttingDown:
         live, and it should fail here rather than take the process down
         on a second shutdown.
         """
-        from PySide6.QtWidgets import QApplication
+        from PySide6.QtCore import QObject, Signal
 
-        application = QApplication.instance()
-        assert application is not None
+        class QuitSignalSource(QObject):
+            aboutToQuit = Signal()
+
+        application = QuitSignalSource()
+        received = []
+        application.aboutToQuit.connect(lambda: received.append("first"))
+        application.aboutToQuit.connect(lambda: received.append("second"))
+        application.aboutToQuit.emit()
+        assert received == ["first", "second"]
 
         assert application.aboutToQuit.disconnect(lambda: None) is False
 
@@ -292,6 +299,8 @@ class TestShuttingDown:
         assert application.aboutToQuit.disconnect(None) is True, (
             "there was no connection to remove, so this test proved "
             "nothing about what None does")
+        application.aboutToQuit.emit()
+        assert received == ["first", "second"]
 
         source = inspect.getsource(F._make_cpu_widget)
         assert "except (RuntimeError, TypeError):" in source
@@ -329,7 +338,7 @@ class TestTheApplicationHookItself:
         source = inspect.getsource(F._make_cpu_widget)
         assert source.count("application = QApplication.instance()") == 2, (
             "one of the two application lookups changed shape")
-        assert source.count("if application is not None:") == 2, (
+        assert source.count("if application is not None") == 2, (
             "an application lookup is no longer guarded against None")
 
     def test_a_backdrop_freed_with_its_screen_takes_its_quit_hook_along(

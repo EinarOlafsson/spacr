@@ -1483,3 +1483,24 @@ sweep check remains. All 12 focused checks passed under 4G; no runtime
 source changed for this correction. Preserve the failed run and repair
 the scratch observer before attempting full acceptance again.
 Receipt: features/data/47_hover_contract_2026-09-27.json.
+
+STATUS 2026-09-28 — queued preview results and shared quit hooks verified
+The frozen full run exposed a completion callback executing on its worker
+thread. Five queued QObject slots now deliver provenance, masks, flows,
+probability maps and completion on the panel's GUI thread. The original
+thread assertion and a regression covering every payload and real overlay
+rendering pass. Dynamic handler spies still observe the actual callbacks.
+A cleared backdrop quit callback previously passed None to disconnect and
+removed every application exit hook. Shutdown now guards that callback;
+blanket-disconnect semantics are exercised on a private signal. The original
+GPU-discovery lifecycle failure passes after its original predecessors,
+without resetting the global timer or clearing shared connections.
+All 199 named Qt/gate/API checks pass. The Zeiss fixture also passes using
+the declared CZI extra in a private dependency folder; the shared Python
+environment is unchanged. The layout observer fixture retains actual themed
+geometry and clipping and passed in the separate 268-check acceptance.
+Receipt: features/data/47_queued_preview_and_quit_hooks_2026-09-28.json.
+The uninterrupted full run remains active on its older frozen source, with
+its failures preserved. Item 47 still requires a complete final-source run;
+these focused checks do not establish full acceptance or resolve sustained
+memory growth. No forced GC, global cache clearing or memory-guard change.

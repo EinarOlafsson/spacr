@@ -56,7 +56,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
-from PySide6.QtCore import QPointF, QRectF, Qt, QThread, QTimer, Signal
+from PySide6.QtCore import QPointF, QRectF, Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QImage, QPainter, QPixmap
 from PySide6.QtWidgets import (
     QComboBox, QDoubleSpinBox, QFileDialog, QGraphicsPixmapItem,
@@ -3791,13 +3791,67 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         req = self._build_request()
         self._status.setText(PREVIEW_RUNNING_MESSAGE)
         worker = _PreviewWorker(req, self, token=self._run_token)
-        worker.provenance_ready.connect(self._on_processing_provenance)
-        worker.finished_masks.connect(self._on_worker_done)
-        worker.flows_ready.connect(self._on_flows_ready)
-        worker.cellprob_ready.connect(self._on_cellprob_ready)
-        worker.finished.connect(self._on_worker_finished)
+        worker.provenance_ready.connect(
+            self._receive_processing_provenance, Qt.QueuedConnection)
+        worker.finished_masks.connect(
+            self._receive_worker_done, Qt.QueuedConnection)
+        worker.flows_ready.connect(
+            self._receive_flows_ready, Qt.QueuedConnection)
+        worker.cellprob_ready.connect(
+            self._receive_cellprob_ready, Qt.QueuedConnection)
+        worker.finished.connect(
+            self._receive_worker_finished, Qt.QueuedConnection)
         self._worker = worker
         worker.start()
+
+    @Slot(object, int)
+    def _receive_processing_provenance(self, record, token: int) -> None:
+        """Forward captured settings on the panel's thread.
+
+        :param record: processing settings captured by the worker.
+        :param token: the run token carried by the result.
+        :returns: None.
+        """
+        self._on_processing_provenance(record, token)
+
+    @Slot(object, str, int)
+    def _receive_worker_done(self, masks, err: str, token: int) -> None:
+        """Forward completed masks on the panel's thread.
+
+        :param masks: the worker's masks by compartment, or None on failure.
+        :param err: the failure message, or an empty string on success.
+        :param token: the run token carried by the result.
+        :returns: None.
+        """
+        self._on_worker_done(masks, err, token)
+
+    @Slot(object, int)
+    def _receive_flows_ready(self, flows, token: int) -> None:
+        """Forward flow images on the panel's thread.
+
+        :param flows: flow RGB images by compartment.
+        :param token: the run token carried by the result.
+        :returns: None.
+        """
+        self._on_flows_ready(flows, token)
+
+    @Slot(object, int)
+    def _receive_cellprob_ready(self, cellprob, token: int) -> None:
+        """Forward probability maps on the panel's thread.
+
+        :param cellprob: cell probability logits by compartment.
+        :param token: the run token carried by the result.
+        :returns: None.
+        """
+        self._on_cellprob_ready(cellprob, token)
+
+    @Slot()
+    def _receive_worker_finished(self) -> None:
+        """Forward thread completion on the panel's thread.
+
+        :returns: None.
+        """
+        self._on_worker_finished()
 
     def cancel_preview(self) -> bool:
         """Cancel PSF work cooperatively and discard any native inference result."""
@@ -3838,11 +3892,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         old.setParent(None)
 
     def _on_worker_finished(self) -> None:
-        """Relay for the worker thread's own ``finished`` signal.
+        """Return controls to idle after the worker thread finishes.
 
-        A bound method on purpose (see :meth:`run_preview`). Returning the
-        buttons to the idle state here as well as in :meth:`_on_worker_done`
-        is what keeps them usable after a run whose result was discarded as
+        Returning the buttons to the idle state here as well as in
+        :meth:`_on_worker_done` keeps them usable after a run discarded as
         stale, or a worker that died without emitting a result at all.
         """
         if not self.preview_running():

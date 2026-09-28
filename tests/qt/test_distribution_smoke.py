@@ -210,6 +210,16 @@ def test_layout_snapshot_retains_actual_clipping_without_resizing(qtbot):
     narrow.setGeometry(20, 90, 5, 30)
     window.show()
     qtbot.waitUntil(window.isVisible)
+    # Showing the window polishes its controls; the shared application QSS
+    # can raise the requested 30 px button height to its styled minimum.
+    # Capture that real geometry before the observer reads anything.
+    widgets = [window, *window.findChildren(QWidget)]
+    geometry_before = [widget.geometry() for widget in widgets]
+    clipped_rect = clipped.geometry().translated(panes[2].pos())
+    assert clipped.x() < panes[2].width() < clipped.x() + clipped.width()
+    narrow_hint = narrow.minimumSizeHint()
+    narrow_minimum = narrow.minimumSize()
+    assert narrow.width() < max(narrow_hint.width(), narrow_minimum.width())
     runtime = SimpleNamespace(
         count=lambda: len(panes), widget=lambda index: panes[index],
         _pane_of=lambda pane: SimpleNamespace(name=pane.objectName()),
@@ -218,9 +228,12 @@ def test_layout_snapshot_retains_actual_clipping_without_resizing(qtbot):
         _runtime_splitter=runtime, _settings_panel=settings,
         _body_splitter=SimpleNamespace(sizes=lambda: [400, 880])))
     measured = Controller._layout_snapshot(fake)
+    assert [widget.geometry() for widget in widgets] == geometry_before
     row = next(control for control in measured['controls']
                if control['object_name'] == 'deliberately_clipped')
-    assert row['rect'] == [1250, 440, 100, 30]
+    assert row['rect'] == [clipped_rect.x(), clipped_rect.y(),
+                           clipped_rect.width(), clipped_rect.height()]
+    assert row['rect'][:3] == [1250, 440, 100]
     assert row['clipped'] is True
     assert row['visible_clip'][0] + row['visible_clip'][2] == 1280
     internal = next(control for control in measured['controls']
@@ -234,6 +247,8 @@ def test_layout_snapshot_retains_actual_clipping_without_resizing(qtbot):
     standalone = next(control for control in measured['controls']
                       if control['object_name'] == 'undersized_standalone_editor')
     assert standalone['acceptance_control'] is True
+    assert standalone['minimum_hint'] == [narrow_hint.width(), narrow_hint.height()]
+    assert standalone['minimum'] == [narrow_minimum.width(), narrow_minimum.height()]
     assert standalone['undersized'] is True
     assert measured['window_size'] == [1280, 720]
     assert window.width() == 1280 and window.height() == 720

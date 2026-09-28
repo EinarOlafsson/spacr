@@ -1335,7 +1335,7 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
             self._stopped = True
             self._timer.stop()
             application = QApplication.instance()
-            if application is not None:
+            if application is not None and self._app_quit_join is not None:
                 try:
                     application.aboutToQuit.disconnect(self._app_quit_join)
                 except (RuntimeError, TypeError):
