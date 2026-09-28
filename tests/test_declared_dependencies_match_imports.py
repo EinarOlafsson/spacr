@@ -223,6 +223,9 @@ ISOLATED_WORKER_IMPORTS = {
     # micro-SAM (item 555) is imported only where its worker builds the
     # predictor, embeds a field and answers a prompt.
     "micro_sam": ("_sam_predictor", "_worker_sam_embed", "_worker_sam_prompt"),
+    # SAM2 (item 556) is imported only where its worker builds the video
+    # predictor for timelapse propagation.
+    "sam2": ("_sam2_video_predictor", "_worker_sam2_propagate"),
 }
 BACKEND_SOURCE = PKG / "_segmentation_backends.py"
 
@@ -334,7 +337,8 @@ def _isolated_declaration(mod, files, tree=None):
         assert ("in_process" not in fields
                 or ast.literal_eval(fields["in_process"]) is False)
         requirements = [Requirement(value)
-                        for key in ("requirements", "without_dependencies")
+                        for key in ("requirements", "without_dependencies",
+                                    "built_here")
                         if key in fields
                         for value in ast.literal_eval(fields[key])]
         pinned = pinned or any(

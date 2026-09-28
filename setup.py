@@ -233,6 +233,7 @@ setup(
                    'pdfplumber>=0.11,<1'],
         'umap': ['umap-learn>=0.5.11,<1.0'],
         'anndata': ['anndata>=0.10,<0.13'],
+        'databases': ['duckdb>=1.1,<2', 'psycopg[binary]>=3.1,<4'],
         'dinocell': ['dinocell>=0.74,<1.0'],
         'samcell': ['samcell>=1.2,<2.0'],
         'napari': ['napari>=0.5,<1.0'],

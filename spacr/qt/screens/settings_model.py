@@ -1281,6 +1281,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Cell Cycle (Alpha)", ("@Cell Cycle (Alpha)",)),
         ("Bleach Correction (Alpha)", ("@Bleach Correction (Alpha)",)),
         ("GPU Measurement (Alpha)", ("@GPU Measurement (Alpha)",)),
+        ("Measurement Backend (Alpha)", ("@Measurement Backend (Alpha)",)),
         ("Wound Closure (Alpha)", ("@Wound Closure (Alpha)",)),
         ("Time To Event (Alpha)", ("@Time To Event (Alpha)",)),
         ("Plate Barcode Linkage (Alpha)", ("@Plate Barcode Linkage (Alpha)",)),
@@ -2699,6 +2700,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "decay, or histogram matching. Corrected intensities are written "
         "beside the measured ones with the method, and the fitted decay is "
         "plotted.",
+    "MEASUREMENT BACKEND (ALPHA)":
+        "Copies a finished run's measurements into DuckDB or Parquet for "
+        "very large screens, or into PostgreSQL for labs that share one "
+        "server. measurements.db stays the working copy.",
     "GPU MEASUREMENT (ALPHA)":
         "Per-object intensity statistics, GLCM homogeneity and Zernike "
         "moments computed for all objects of a field at once on a CUDA GPU, "

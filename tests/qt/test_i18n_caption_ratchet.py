@@ -1177,6 +1177,19 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'Pretraining on {n} crops…',
     'Own DINO: {name}',
     'Pretrained {epochs} epochs (last loss {loss:.3f}). The checkpoint is chosen in the Foundation model picker; press Embed to use it.',
+    # 576, 2026-09-28: the Measurement Backend (Alpha) category help on
+    # Measure.
+    "Copies a finished run's measurements into DuckDB or Parquet for very large screens, or into PostgreSQL for labs that share one server. measurements.db stays the working copy.",
+    # 558, 2026-09-27: the Cellpose workbench's Virtual staining button
+    # (alpha).
+    'Virtual staining…',
+    'Choose a folder of paired multichannel fields (.npy or .tif) and the channels to learn from and to predict, for example 1 > 0 to predict the nucleus stain from channel 1. A small U-Net is trained on the CPU, the last quarter of the fields is held out, and the real and predicted stains are segmented the same way and matched at IoU 0.5. The model, predictions and a score table are written to <folder>/virtual_stain. Default 20 epochs.',
+    'Choose a folder of paired multichannel fields',
+    'Virtual staining',
+    'Input channels > channel to predict:',
+    'Training the virtual stain…',
+    'Virtual stain on {fields} held-out fields: F1 {f1:.2f} at IoU 0.5 against the real stain\'s objects (input channel alone {base:.2f}), Pearson r {r:.2f}.',
+    'Virtual staining failed: {error}',
 })
 
 
