@@ -143,6 +143,27 @@ def read_both(path, **kwargs):
     return through_funnel, through_arrow
 
 
+def _assert_same_table(read, written):
+    """Equal frames, where a text column may come back as pandas' str dtype.
+
+    Under pandas 3 Parquet text is read as the ``str`` dtype while the frame
+    that was written may still hold it as ``object``. Such a column must hold
+    only strings or missing values and be equal value for value; every other
+    column, and every dtype that is not text, is compared exactly.
+    """
+    read = read.copy()
+    for column in written.columns:
+        if (written[column].dtype == object and column in read
+                and pd.api.types.is_string_dtype(read[column].dtype)
+                and read[column].dtype != object):
+            assert all(isinstance(v, str) or pd.isna(v)
+                       for v in written[column]), column
+            assert (read[column].isna() == written[column].isna()).all(), column
+            read[column] = read[column].astype(object).where(
+                read[column].notna(), written[column])
+    pd.testing.assert_frame_equal(read, written)
+
+
 def test_the_export_writes_every_table_and_the_loader(exported):
     out, result, _parts, _keys = exported
     names = sorted(os.path.basename(path) for path in result.files)
@@ -160,7 +181,7 @@ def test_objects_round_trip_with_their_dtypes_and_values(exported):
     written = ax._objects_table(parts, "float64")
     funnel, arrow = read_both(os.path.join(out, "objects.parquet"))
     for frame in (funnel, arrow):
-        pd.testing.assert_frame_equal(frame, written)
+        _assert_same_table(frame, written)
     for column in KEY_COLUMNS + (schema.OBJECT_TYPE_KEY,):
         assert isinstance(funnel[column].dtype, pd.CategoricalDtype), column
     assert funnel["infected"].dtype == np.int64
@@ -197,7 +218,10 @@ def test_the_arrow_schema_keeps_dictionaries_and_numbers(exported):
     assert pa.types.is_dictionary(table_schema.field(schema.WELL_KEY).type)
     assert table_schema.field("cell_area").type == pa.float64()
     assert table_schema.field(schema.OBJECT_LABEL_KEY).type == pa.int64()
-    assert table_schema.field("object_key").type == pa.string()
+    # pandas 3's default string dtype is written as large_string; either is
+    # a plain (non-dictionary) string column.
+    key_type = table_schema.field("object_key").type
+    assert pa.types.is_string(key_type) or pa.types.is_large_string(key_type)
 
 
 def test_every_file_carries_its_description_and_the_provenance(exported):

@@ -180,7 +180,9 @@ def test_consensus_median_and_modz():
                                  operation="modz")
     assert modz.loc[1, ["x", "y", "z"]].tolist() == [4.0, 5.0, 1.0]
     replicates = frame.loc[frame.t == "a", ["x", "y", "z"]]
-    corr = replicates.T.corr(method="spearman").to_numpy()
+    # A copy, as _consensus_profiles takes: pandas 3 hands back a read-only
+    # view, and fill_diagonal writes.
+    corr = replicates.T.corr(method="spearman").to_numpy(copy=True)
     np.fill_diagonal(corr, np.nan)
     weights = np.maximum(np.nanmean(np.clip(corr, 0, None), axis=1), 0.01)
     weights = np.round(weights / weights.sum(), 4)

@@ -601,7 +601,19 @@ class _ClearFiguresLabel(QLabel):
         """Light the text briefly, then return it to its resting colour."""
         self._flash.trigger()
         self._restyle()
-        QTimer.singleShot(FLASH_MS + 10, self._restyle)
+        QTimer.singleShot(FLASH_MS + 10, self._restyle_after_flash)
+
+    def _restyle_after_flash(self) -> None:
+        """Return to the resting colour once the flash has gone out.
+
+        Qt's coarse timers may fire this before the flash's own end timer,
+        which would repaint the accent again and leave it lit; until the
+        flash reports it is over, look again shortly.
+        """
+        if self._flash.active:
+            QTimer.singleShot(20, self._restyle_after_flash)
+            return
+        self._restyle()
 
     def mouseReleaseEvent(self, event):        # noqa: N802 (Qt naming)
         """Clear the figures on a click inside the label.
