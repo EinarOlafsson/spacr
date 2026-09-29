@@ -162,6 +162,7 @@ def _filter_text(entry) -> Optional[str]:
     low, high = entry.get("min"), entry.get("max")
 
     def _num(value):
+        """One bound as compact text; blank for an unset bound."""
         if value is None or (isinstance(value, str) and not value.strip()):
             return ""
         number = float(value)
@@ -201,6 +202,7 @@ def _parse_filter_text(text) -> Tuple[Optional[float], Optional[float]]:
             left, right = raw, ""
 
     def _side(value):
+        """One side of the range as a number; ``None`` when left blank."""
         value = value.strip()
         return float(value) if value else None
 

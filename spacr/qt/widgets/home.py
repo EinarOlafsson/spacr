@@ -1782,7 +1782,9 @@ def _scale_text_under(root: QWidget, ratio: float,
     from ..live_zoom import scaled_font_sheet
 
     def scaled(sheet: str) -> str:
+        """``sheet`` with every font-size in it multiplied by ``ratio``."""
         def one(match):
+            """One ``font-size`` declaration, scaled and floored."""
             size = float(match.group(1)) * ratio
             if match.group(2).lower() == "px":
                 return f"font-size: {max(_MIN_PX, int(round(size)))}px"
