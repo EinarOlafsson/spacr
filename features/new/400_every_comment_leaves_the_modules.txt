@@ -288,3 +288,28 @@ RECEIPTS (under /mnt/wd4tb/scratch/spacr-completion):
 
 No GPU, training data, running services, generated translation catalog
 entries or package behavior were changed by this pass.
+
+
+--------------------------------------------------------------------------------
+2026-09-28 -- tools/strip_comments.py BUILT, NOT YET APPLIED TO spacr/
+--------------------------------------------------------------------------------
+
+A plain tokenize-based stripper for comments that creep back in after the
+extraction above. It keeps shebangs, PEP 263 lines, `#:` Sphinx attribute
+docs, every directive DIRECTIVE_PATTERNS in extract_source_notes.py protects
+(noqa, type:, pragma, fmt, isort, yapf, nosec, pylint/mypy/ruff...) and a
+licence header before the first code token. It refuses to write a file whose
+AST changed or whose protected comments moved. No notes are written: run
+extract_source_notes.py first if a comment deserves keeping.
+Tests: tests/test_strip_comments_tool.py (13 passed).
+
+DRY RUN on a copy of nightly's spacr/ (/mnt/wd4tb/scratch/400/copy): 16
+comments removed in 2 files (channel_sorting.py 15 banner lines,
+qt/screens/make_masks.py 1); 18,863 protected comments kept; 655 files parse
+with identical AST; compileall clean; import smoke OK; tests/test_593_* (33)
+pass against the stripped copy.
+
+FINAL PASS, to run last, once no other session is editing spacr/:
+
+    python tools/strip_comments.py spacr --apply
+    python tools/strip_comments.py spacr --check     # must exit 0
