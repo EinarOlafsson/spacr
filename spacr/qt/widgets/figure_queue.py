@@ -14,6 +14,7 @@ figure required about 815 ms to rasterize synchronously.
 """
 from __future__ import annotations
 
+import functools
 import logging
 import shutil
 import sys
@@ -641,6 +642,39 @@ class _ClearFiguresLabel(QLabel):
         super().keyPressEvent(event)
 
 
+def _close_pyplot_figures(figures) -> None:
+    """Release Figures from pyplot's registry, which otherwise keeps them.
+
+    ``plt.figure()`` registers every Figure with pyplot, and pyplot holds it
+    until ``plt.close`` -- long after the queue that showed it is gone.
+
+    :param figures: the Figures to release; errors on any one are ignored.
+    """
+    figures = tuple(figures)
+    if not figures:
+        return
+    try:
+        import matplotlib.pyplot as plt
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not import pyplot to close queued figures",
+                  exc_info=True)
+        return
+    for figure in figures:
+        try:
+            with FIGURE_LOCK:
+                plt.close(figure)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not close a queued figure", exc_info=True)
+
+
+def _release_queue_figures(figures, *_args) -> None:
+    """Release every Figure a destroyed queue still held.
+
+    :param figures: the queue's own ``{index: Figure}`` mapping.
+    """
+    _close_pyplot_figures(figures.values())
+
+
 class FigureQueue(QWidget):
     """Scrollable, RAM-bounded gallery of pipeline figures.
 
@@ -672,6 +706,8 @@ class FigureQueue(QWidget):
         self._fig_index: Dict[int, int] = {}
         self._png_paths: Dict[int, str] = {}
         self._figures: "OrderedDict[int, object]" = OrderedDict()
+        self.destroyed.connect(
+            functools.partial(_release_queue_figures, self._figures))
         self._figure_last_used: Dict[int, float] = {}
         self._figure_bytes: Dict[int, int] = {}
         self._titles: Dict[int, str] = {}
@@ -1285,7 +1321,12 @@ class FigureQueue(QWidget):
                 out[index - count if index >= end else index] = value
             return out
 
-        self._figures = _shift(self._figures)
+        dropped = [figure for index, figure in self._figures.items()
+                   if start <= index < end]
+        shifted = _shift(self._figures)
+        self._figures.clear()
+        self._figures.update(shifted)
+        _close_pyplot_figures(dropped)
         self._titles = _shift(self._titles)
         self._png_paths = _shift(self._png_paths)
         self._ram = _shift(self._ram)
@@ -1413,18 +1454,7 @@ class FigureQueue(QWidget):
         """Drop everything and delete the temp dir."""
         self._shutdown_jobs()
         self._show_raster()
-        if self._figures:
-            try:
-                import matplotlib.pyplot as plt
-                for figure in tuple(self._figures.values()):
-                    try:
-                        plt.close(figure)
-                    except Exception:                         # noqa: BLE001
-                        LOG.debug("could not close a queued figure",
-                                  exc_info=True)
-            except Exception:                                # noqa: BLE001
-                LOG.debug("could not import pyplot to close queued figures",
-                          exc_info=True)
+        _close_pyplot_figures(self._figures.values())
         self._list.clear()
         self._ram.clear()
         self._ram_last_used.clear()
@@ -2389,6 +2419,7 @@ class FigureQueue(QWidget):
         self._teardown_canvas()
         self._shutdown_jobs()
         self._delete_tempdir()
+        _close_pyplot_figures(self._figures.values())
         super().closeEvent(event)
 
     def __del__(self):
