@@ -13628,7 +13628,7 @@
         },
         {
           "visual": "12_saved_guide_family_restored",
-          "narration": "Torna a Guide. Leggi il supporto campionario nei file di input e di diagnostica: nell’esempio, il riepilogo delle righe adattate conta le righe dei coefficienti in output, non i pozzetti.",
+          "narration": "Torna a Guide. Confronta le righe usate per l’adattamento del modello e i pozzetti distinti nel riepilogo della prova. I conteggi sono registrati separatamente per gli adattamenti a livello di guida e a livello di gene. Questi conteggi descrivono i dati a sostegno dell’adattamento, non la qualità dell’inferenza.",
           "focus": [
             1545,
             555,
@@ -13636,7 +13636,7 @@
             995
           ],
           "hold_after": 0.7,
-          "speech_text": "Torna a Guide. Leggi il supporto campionario nei file di input e di diagnostica: nell’esempio, il riepilogo delle righe adattate conta le righe dei coefficienti in output, non i pozzetti."
+          "speech_text": "Torna a Guide. Confronta le righe usate per l’adattamento del modello e i pozzetti distinti nel riepilogo della prova. I conteggi sono registrati separatamente per gli adattamenti a livello di guida e a livello di gene. Questi conteggi descrivono i dati a sostegno dell’adattamento, non la qualità dell’inferenza."
         },
         {
           "visual": "13_actual_saved_model_summary",

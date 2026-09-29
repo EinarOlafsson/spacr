@@ -12696,7 +12696,7 @@
         },
         {
           "visual": "12_saved_guide_family_restored",
-          "narration": "Byt tillbaka till Guide. Läs urvalsstödet i indata- och diagnostikfilerna: exemplets sammanfattning av anpassade rader räknar utdatarader för koefficienter, inte brunnar.",
+          "narration": "Växla tillbaka till Guide. Jämför antalet rader som användes vid modellanpassningen och antalet unika brunnar i sammanfattningen av körningen. Antalen registreras separat för modellanpassningen på guide-nivå och på gennivå. Dessa antal beskriver dataunderlaget, inte kvaliteten på den statistiska inferensen.",
           "focus": [
             1545,
             555,

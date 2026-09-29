@@ -12696,7 +12696,7 @@
         },
         {
           "visual": "12_saved_guide_family_restored",
-          "narration": "Skiptu aftur í Guide. Lestu stuðning úrtaks úr inntaks- og greiningarskrám: samantekt aðlagaðra lína í dæminu telur úttakslínur stuðla, ekki brunna.",
+          "narration": "Skiptu aftur yfir í Guide. Berðu saman fjölda raða sem voru notaðar við aðlögun líkansins og fjölda einstakra brunna í samantekt keyrslunnar. Fjöldatölurnar eru skráðar sérstaklega fyrir aðlögun líkans á gRNA-stigi og á genastigi. Þessar tölur lýsa gagnamagninu sem styður aðlögunina, ekki gæðum tölfræðilegrar ályktunar.",
           "focus": [
             1545,
             555,

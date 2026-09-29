@@ -13628,7 +13628,7 @@
         },
         {
           "visual": "12_saved_guide_family_restored",
-          "narration": "Vuelve a Guide. Lee el respaldo muestral en los archivos de entrada y de diagnóstico: en el ejemplo, el resumen de filas ajustadas cuenta filas de coeficientes de salida, no pozos.",
+          "narration": "Vuelva a Guide. Compare las filas usadas en el ajuste y los pocillos únicos en el resumen del ensayo. Los recuentos se registran por separado para los ajustes a nivel de guía y a nivel de gen. Estos recuentos describen los datos que sustentan el ajuste, no la calidad de la inferencia.",
           "focus": [
             1545,
             555,
@@ -13636,7 +13636,7 @@
             995
           ],
           "hold_after": 0.7,
-          "speech_text": "Vuelve a Guide. Lee el respaldo muestral en los archivos de entrada y de diagnóstico: en el ejemplo, el resumen de filas ajustadas cuenta filas de coeficientes de salida, no pozos."
+          "speech_text": "Vuelva a Guide. Compare las filas usadas en el ajuste y los pocillos únicos en el resumen del ensayo. Los recuentos se registran por separado para los ajustes a nivel de guía y a nivel de gen. Estos recuentos describen los datos que sustentan el ajuste, no la calidad de la inferencia."
         },
         {
           "visual": "13_actual_saved_model_summary",

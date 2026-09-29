@@ -12696,7 +12696,7 @@
         },
         {
           "visual": "12_saved_guide_family_restored",
-          "narration": "Bytt tilbake til Guide. Les utvalgsstøtten fra inndata- og diagnosefilene: eksemplets oppsummering av tilpassede rader teller utdatarader for koeffisienter, ikke brønner.",
+          "narration": "Bytt tilbake til Guide. Sammenlign antall rader brukt i modelltilpasningen og unike brønner i sammendraget av kjøringen. Antallene registreres separat for modelltilpasningen på guide-nivå og på gennivå. Disse tallene beskriver datagrunnlaget, ikke kvaliteten på den statistiske inferensen.",
           "focus": [
             1545,
             555,

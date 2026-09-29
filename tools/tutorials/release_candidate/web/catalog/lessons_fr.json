@@ -13628,7 +13628,7 @@
         },
         {
           "visual": "12_saved_guide_family_restored",
-          "narration": "Revenez à Guide. Lisez le soutien des échantillons dans les fichiers d’entrée et de diagnostic : dans l’exemple, le résumé des lignes ajustées compte des lignes de coefficients en sortie, et non des puits.",
+          "narration": "Revenez à Guide. Comparez les lignes utilisées pour l’ajustement et les puits distincts dans le résumé de l’essai. Les effectifs sont enregistrés séparément pour les ajustements au niveau des guides et au niveau des gènes. Ces effectifs décrivent les données qui étayent l’ajustement, pas la qualité de l’inférence.",
           "focus": [
             1545,
             555,
@@ -13636,7 +13636,7 @@
             995
           ],
           "hold_after": 0.7,
-          "speech_text": "Revenez à Guide. Lisez le soutien des échantillons dans les fichiers d’entrée et de diagnostic : dans l’exemple, le résumé des lignes ajustées compte des lignes de coefficients en sortie, et non des puits."
+          "speech_text": "Revenez à Guide. Comparez les lignes utilisées pour l’ajustement et les puits distincts dans le résumé de l’essai. Les effectifs sont enregistrés séparément pour les ajustements au niveau des guides et au niveau des gènes. Ces effectifs décrivent les données qui étayent l’ajustement, pas la qualité de l’inférence."
         },
         {
           "visual": "13_actual_saved_model_summary",

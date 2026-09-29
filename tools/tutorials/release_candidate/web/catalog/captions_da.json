@@ -12696,7 +12696,7 @@
         },
         {
           "visual": "12_saved_guide_family_restored",
-          "narration": "Skift tilbage til Guide. Læs stikprøvestøtten i input- og diagnosefilerne: eksemplets oversigt over tilpassede rækker tæller outputrækker for koefficienter, ikke brønde.",
+          "narration": "Skift tilbage til Guide. Sammenlign rækker brugt i modeltilpasningen og unikke brønde i forsøgets oversigt. Antallene registreres separat for modeltilpasningen på guide-niveau og på gen-niveau. Disse antal beskriver datagrundlaget, ikke kvaliteten af den statistiske inferens.",
           "focus": [
             1545,
             555,

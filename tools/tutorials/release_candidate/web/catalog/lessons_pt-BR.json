@@ -13628,7 +13628,7 @@
         },
         {
           "visual": "12_saved_guide_family_restored",
-          "narration": "Volte para Guide. Leia o suporte amostral nos arquivos de entrada e de diagnóstico: no exemplo, o resumo de linhas ajustadas conta linhas de coeficientes de saída, e não poços.",
+          "narration": "Volte para Guide. Compare as linhas usadas no ajuste e os poços distintos no resumo do ensaio. As contagens são registradas separadamente para os ajustes no nível de guia e no nível de gene. Essas contagens descrevem os dados que sustentam o ajuste, não a qualidade da inferência.",
           "focus": [
             1545,
             555,
@@ -13636,7 +13636,7 @@
             995
           ],
           "hold_after": 0.7,
-          "speech_text": "Volte para Guide. Leia o suporte amostral nos arquivos de entrada e de diagnóstico: no exemplo, o resumo de linhas ajustadas conta linhas de coeficientes de saída, e não poços."
+          "speech_text": "Volte para Guide. Compare as linhas usadas no ajuste e os poços distintos no resumo do ensaio. As contagens são registradas separadamente para os ajustes no nível de guia e no nível de gene. Essas contagens descrevem os dados que sustentam o ajuste, não a qualidade da inferência."
         },
         {
           "visual": "13_actual_saved_model_summary",

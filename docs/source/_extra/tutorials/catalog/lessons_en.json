@@ -12717,7 +12717,7 @@
         },
         {
           "visual": "12_saved_guide_family_restored",
-          "narration": "Switch back to Guide. Read sample support from the input and diagnostic files: the example’s rows-fitted summary counts output coefficient rows rather than wells.",
+          "narration": "Switch back to Guide. Compare fitted rows and unique wells in the trial summary. Counts are recorded separately for the guide-level and gene-level fits. These counts describe sample support, not inference quality.",
           "focus": [
             1545,
             555,

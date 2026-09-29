@@ -12696,7 +12696,7 @@
         },
         {
           "visual": "12_saved_guide_family_restored",
-          "narration": "Wechseln Sie zurück zu Guide. Lesen Sie die Stichprobenunterstützung aus den Eingabe- und Diagnosedateien: Die Übersicht der angepassten Zeilen im Beispiel zählt ausgegebene Koeffizientenzeilen, nicht Wells.",
+          "narration": "Wechseln Sie zurück zu Guide. Vergleichen Sie in der Versuchszusammenfassung die für die Modellanpassung verwendeten Zeilen und die eindeutigen Wells. Die Anzahlen werden für die Modellanpassungen auf Guide-Ebene und auf Gen-Ebene getrennt erfasst. Diese Zahlen beschreiben die Datengrundlage, nicht die Qualität der statistischen Inferenz.",
           "focus": [
             1545,
             555,
