@@ -5568,3 +5568,5 @@ scan no longer counts prose. Local re-run of every affected file: 1024 passed,
 the next CI run: test_libraries_load_when_called [cellpose, torchvision] and
 test_text_reads_in_dark_and_light (Figures tab), which pass locally in CI's
 order and look order- or PySide6 6.11.2-dependent.
+
+2026-09-29 (work, Claude), the maintainer's decision: release 1.5.1.1 as soon as one full nightly CI run is green: tag it, merge nightly into main, then check PyPI, the installers, the Zenodo DOI and the live docs. (work) spacr owns it.

@@ -640,3 +640,5 @@ Measure and are asserted above, and build_relationships_frame called after
 Measure returns both slots' links. What is missing is the persisted table,
 for every object type, not only the organelle slots. Whoever picks this up
 should decide whether Measure writes it at its end or Mask stops trying.
+
+2026-09-29 (work, Claude), the maintainer's decision: the relationships table is written by MASK, as its own database table (which organelle object sits in which cell/nucleus/pathogen object). Measure does not own it. Not built yet.
