@@ -645,7 +645,7 @@ class _ClearFiguresLabel(QLabel):
 def _close_pyplot_figures(figures) -> None:
     """Release Figures from pyplot's registry, which otherwise keeps them.
 
-    ``plt.figure()`` registers every Figure with pyplot, and pyplot holds it
+    ``plt.figure`` registers every Figure with pyplot, and pyplot holds it
     until ``plt.close`` -- long after the queue that showed it is gone.
 
     :param figures: the Figures to release; errors on any one are ignored.
