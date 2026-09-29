@@ -5558,3 +5558,13 @@ Landed on nightly from lane-ci-work: batches 1-3 (6aecb96da, acdb8ebc4, 6b7da216
     Residual growth is about 6 MB per test file, which looks like import/cache warm-up; some
     tests never close their own matplotlib figures.
   * Never use `git stash` in worktrees: the stash list is shared.
+
+2026-09-29 (work, Claude): the 61 failures of run 36575090267 (6b7da216a,
+after 591/592/595) are fixed in the 43: commits b736ca691..06884cf61: stale
+tests follow 592's per-object table and 591/595's headings, Help's search
+index and the English API manifest regenerated, four docstrings, the raw-figure
+scan no longer counts prose. Local re-run of every affected file: 1024 passed,
+1 failed (the news-panel test, which passes once 1.5.1.1 is released). Watch on
+the next CI run: test_libraries_load_when_called [cellpose, torchvision] and
+test_text_reads_in_dark_and_light (Figures tab), which pass locally in CI's
+order and look order- or PySide6 6.11.2-dependent.
