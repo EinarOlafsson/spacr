@@ -1,6 +1,16 @@
 {
   "schema": 1,
   "sources": {
+    "194f611146231ace6a6870618f0e6f871293c956866361ce29ce6e8cf29412d3": {
+      "source_blocks_sha256": [
+        "27c31dca684fc745d56646837e91ea2f34aa210da4968b243a54de3012890548",
+        "e67cdc07933b94f3c4a3837b4f683e4abed148964efb2cb21076044782bf9ec3",
+        "76eca9267f2d3069951e34a58592e6cd918d3402d8134c34edcb6c163ca2694d",
+        "198d422627c044b5e7ddab68874a5cc9c9253336eb22634ef799242de4990acf"
+      ],
+      "source_sha256": "194f611146231ace6a6870618f0e6f871293c956866361ce29ce6e8cf29412d3",
+      "text": "Mount or unmount the per-object table to match preferences.\n\nWHAT THIS FIXES: the switch in Preferences was read once, while the\nsettings panel was being built, so turning it on did nothing to a\nmodule already open and turning it off left the table on screen with\nthe rows it speaks for still hidden. The preference is a view of the\nsame settings either way -- nothing downstream knows the grid exists\n-- so there is no reason it should need the module reopened.\n\nIDEMPOTENT, and safe on a screen whose panel was never built: both\ndirections check what is actually mounted rather than trusting a\nflag, so a repeated call is a no-op and the two states cannot drift\napart.\n\n:returns: True if the screen changed, False if it was already right."
+    },
     "1e571373dd4a758b04c3df25efa5770c86bfd27d7f6fc433f86020c21269e374": {
       "source_blocks_sha256": [
         "343fe32113944eb9a2b943ea049f035002cae5d92e88c0258a2a4bc29fe8d8c8",
@@ -32,6 +42,15 @@
       ],
       "source_sha256": "2dbc15440ab214e76ca142362c58e55555fc052ca23128152c2f3aba4e000efc",
       "text": "Whether these settings ask for a PSF or an enhancement step at all.\n\nA requested chain that cannot be built counts as requested: the run\nthen refuses with the reason rather than reusing inputs made without it.\n\n:param settings: the run's ``psf_*``, ``enhance_*`` and ``unmix``\n    settings.\n:returns: True when any is switched on or the chain cannot be read."
+    },
+    "3df019f506da48b836028da5b9c9ebcb994379b63b20f9fd3be3fbb6485a0887": {
+      "source_blocks_sha256": [
+        "b2a24897cfac7596664bb13259d11719311ba9cad17269a1e2e28e5418d978ac",
+        "9bc650fb8b31c8518e284286c61982825ca5900a4587ce94d75b989f26198b33",
+        "1c9f4ae1cfc9c68b73460370c7d4c2d7320fc614a9031c546d164e9606eebe02"
+      ],
+      "source_sha256": "3df019f506da48b836028da5b9c9ebcb994379b63b20f9fd3be3fbb6485a0887",
+      "text": "Whether the per-object settings are shown as one table.\n\n78 of Mask's 201 settings are the same twenty-odd questions asked once\nper object type, so a form that lists them flat asks 203 questions before\nanything is segmented. Set, those rows are hidden and a grid takes their\nplace -- one row per question, one column per object.\n\nTHE STORED KEYS DO NOT CHANGE either way. The grid edits the same widgets\nthe flat rows do, so a settings file written with this on is the same file\nwritten with it off."
     },
     "4f76d2c6da871b3a103dbd0f0e0861bbe953aa89b508d7bef0f984faa0dbf9e5": {
       "source_blocks_sha256": [
@@ -119,6 +138,25 @@
       "source_sha256": "6f357005b1fae1b0bf232a1a70cb9ffb398040fd1813b12eb2ded837352d2716",
       "text": "Read one or more tables out of a SQLite database.\n\nExpands ``~``, validates identifiers before opening the database, runs the\nschema migration when requested, and reads in chunks to limit peak memory.\nA missing table raises :class:`ValueError` with its name.\n\n:param db: path to the database.\n:param tables: a table name, or a sequence of them.\n:param canonicalise: apply the vocabulary to each frame.\n:param report: see :func:`read_table`.\n:param warn: see :func:`read_table`.\n:param repair_plate_ids: collapse a doubled ``pp`` plate prefix.\n:param migrate: run the schema migration on open.\n:param read_only: open through ``file:...?mode=ro``, so the read cannot\n    write to the user's database. Incompatible with ``migrate``.\n:param limit: read at most this many rows per table. ``None`` reads all\n    of them.\n:param chunksize: rows per chunk.\n:param kwargs: passed to :func:`pandas.read_sql_query`.\n:returns: one frame per requested table, in the order asked for.\n:raises ValueError: when a table is not in the database."
     },
+    "73f42bb19686e77aea5eef307a9acca155baec635f1adc381e9ea1ba91bcdfab": {
+      "source_blocks_sha256": [
+        "6b40fd6e391504738c79a898795f30b9640f4a109a89abaf03f7398bb13f7446",
+        "5a493aba01313d4cd9c99076e4ba3430f22c10482090f0312f12818cda135439",
+        "4ae0ce5a67d7061ee536a0e03cf3ea86dd9163c60549074eb8eb4d6f92f493d6",
+        "356d41706743ff8f9a99cf9f8eae045ea5c947595ef09896d6564e8aced85f45",
+        "7d5468e72b90f9e20d01224a1f9e8d0f945f1f441f006fcee1b4b99a7dc1c854"
+      ],
+      "source_sha256": "73f42bb19686e77aea5eef307a9acca155baec635f1adc381e9ea1ba91bcdfab",
+      "text": "Return the least-mature stage applying to one settings section.\n\nAn alpha or beta module colours every one of its settings. A stable\nmodule can still contain an explicitly experimental ``(Beta)``/``(Alpha)``\ncategory, in which case that section receives the more cautious stage.\n\n:param app_key: the module's registry key, whose stage comes from\n    :func:`module_maturity`.\n:param title: the section heading; compared case-insensitively, it is\n    alpha when it is ``\"alpha\"`` or contains ``\"(alpha)\"``, beta\n    likewise, and stable otherwise.\n:returns: ``\"alpha\"``, ``\"beta\"`` or ``\"stable\"``."
+    },
+    "b9046c93d0224f1d6aeaaae900fcf78841787825fa07af20b0f47a618491862f": {
+      "source_blocks_sha256": [
+        "3a6390010d5ad2a25b84a247e24a6fd261cb59f6a47ecb9b04510a318c8e5fdd",
+        "c21b45a353d7a1eac19dd337534f86f44093a3e020c5ce872908364e3fb0432b"
+      ],
+      "source_sha256": "b9046c93d0224f1d6aeaaae900fcf78841787825fa07af20b0f47a618491862f",
+      "text": "Turn the per-object grid on or off, effective at the next form build.\n\n:param on: true to show the per-object settings as one table, false to list\n    them flat; stored as a ``bool``."
+    },
     "e2de39098c2ae01a0a65e09c8e506442b27066b070e05c114f90dbf77600efa8": {
       "source_blocks_sha256": [
         "b5d0fe421467e3f7b12b949224dac639154ac604eb0345d01bce2dae4433a434",
@@ -139,6 +177,13 @@
       ],
       "source_sha256": "ea501670396ed9589423e28d2b80c551309325768a1036b9119990dc19c27b75",
       "text": "Put a :class:`SegQCBanner` above ``screen``'s Run row.\n\n:param screen: an ``AppScreen``.\n:param reader: digest reader, for tests.\n:param threaded: ``False`` to read inline, for tests.\n:returns: the banner, or None when this screen cannot carry one. Never\n    raises: a screen that opens without the banner is the old behaviour,\n    and that is always better than a screen that does not open."
+    },
+    "fb744fbda77a6463af12ca147f2f392f9228e6ac5c603d59d960c477a1aa3ffa": {
+      "source_blocks_sha256": [
+        "fb744fbda77a6463af12ca147f2f392f9228e6ac5c603d59d960c477a1aa3ffa"
+      ],
+      "source_sha256": "fb744fbda77a6463af12ca147f2f392f9228e6ac5c603d59d960c477a1aa3ffa",
+      "text": "The whole settings dict, with the table's answers written back."
     }
   }
 }

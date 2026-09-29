@@ -50903,15 +50903,6 @@
       "source_sha256": "795462c4ea155bd7bc23599d2b480ddfbee91acd1e2bfa3229bf8cc1b24b6c58",
       "text": "The remembered height of Home's release-notes list, or 0.\n\nStored in FONT-SCALE-INDEPENDENT px, so a reader who drags the box tall\nand then raises the interface zoom gets a box that is still the same\nsize relative to the text in it, rather than one that keeps the pixel\ncount and loses two of its four visible lines."
     },
-    "spacr.qt.preferences.get_object_grid_enabled": {
-      "source_blocks_sha256": [
-        "b2a24897cfac7596664bb13259d11719311ba9cad17269a1e2e28e5418d978ac",
-        "9bc650fb8b31c8518e284286c61982825ca5900a4587ce94d75b989f26198b33",
-        "1c9f4ae1cfc9c68b73460370c7d4c2d7320fc614a9031c546d164e9606eebe02"
-      ],
-      "source_sha256": "3df019f506da48b836028da5b9c9ebcb994379b63b20f9fd3be3fbb6485a0887",
-      "text": "Whether the per-object settings are shown as one table.\n\n78 of Mask's 201 settings are the same twenty-odd questions asked once\nper object type, so a form that lists them flat asks 203 questions before\nanything is segmented. Set, those rows are hidden and a grid takes their\nplace -- one row per question, one column per object.\n\nTHE STORED KEYS DO NOT CHANGE either way. The grid edits the same widgets\nthe flat rows do, so a settings file written with this on is the same file\nwritten with it off."
-    },
     "spacr.qt.preferences.get_pane_opacity": {
       "source_blocks_sha256": [
         "6119460966e874aeb1cbab8d0f403b8c83e9b498825144b52adc475dc3a8a5b2",
@@ -51721,14 +51712,6 @@
       ],
       "source_sha256": "c31cf364b011c6e81619e097fb99e4e9ad3bf93223c2f54d5786d54a2c9600d0",
       "text": "Remember how tall Home's release-notes list was dragged.\n\n:param px: the list height in font-scale-independent pixels; negative\n    values store 0, and an unparseable value stores nothing and returns 0."
-    },
-    "spacr.qt.preferences.set_object_grid_enabled": {
-      "source_blocks_sha256": [
-        "3a6390010d5ad2a25b84a247e24a6fd261cb59f6a47ecb9b04510a318c8e5fdd",
-        "c21b45a353d7a1eac19dd337534f86f44093a3e020c5ce872908364e3fb0432b"
-      ],
-      "source_sha256": "b9046c93d0224f1d6aeaaae900fcf78841787825fa07af20b0f47a618491862f",
-      "text": "Turn the per-object grid on or off, effective at the next form build.\n\n:param on: true to show the per-object settings as one table, false to list\n    them flat; stored as a ``bool``."
     },
     "spacr.qt.preferences.set_pane_opacity": {
       "source_blocks_sha256": [
@@ -54244,16 +54227,6 @@
       "source_sha256": "98cdeb8f0f74b2fec49e5c6b8e9414afb1a01ab342f3023ff43e793834f94036",
       "text": "The shared example plate folder, which is where `data/` belongs."
     },
-    "spacr.qt.screens.app_screen.AppScreen.apply_object_grid_preference": {
-      "source_blocks_sha256": [
-        "27c31dca684fc745d56646837e91ea2f34aa210da4968b243a54de3012890548",
-        "e67cdc07933b94f3c4a3837b4f683e4abed148964efb2cb21076044782bf9ec3",
-        "76eca9267f2d3069951e34a58592e6cd918d3402d8134c34edcb6c163ca2694d",
-        "198d422627c044b5e7ddab68874a5cc9c9253336eb22634ef799242de4990acf"
-      ],
-      "source_sha256": "194f611146231ace6a6870618f0e6f871293c956866361ce29ce6e8cf29412d3",
-      "text": "Mount or unmount the per-object table to match preferences.\n\nWHAT THIS FIXES: the switch in Preferences was read once, while the\nsettings panel was being built, so turning it on did nothing to a\nmodule already open and turning it off left the table on screen with\nthe rows it speaks for still hidden. The preference is a view of the\nsame settings either way -- nothing downstream knows the grid exists\n-- so there is no reason it should need the module reopened.\n\nIDEMPOTENT, and safe on a screen whose panel was never built: both\ndirections check what is actually mounted rather than trusting a\nflag, so a repeated call is a no-op and the two states cannot drift\napart.\n\n:returns: True if the screen changed, False if it was already right."
-    },
     "spacr.qt.screens.app_screen.AppScreen.apply_settings_dict": {
       "source_blocks_sha256": [
         "ea668f2ec5af454a98c1fff789fafdf60bc4b8889e2687607d82bb828be414d5",
@@ -54835,13 +54808,13 @@
     "spacr.qt.screens.app_screen.settings_section_maturity": {
       "source_blocks_sha256": [
         "6b40fd6e391504738c79a898795f30b9640f4a109a89abaf03f7398bb13f7446",
-        "5a493aba01313d4cd9c99076e4ba3430f22c10482090f0312f12818cda135439",
+        "6ae1a111029f0c7b00467fcf35924614cdf2c17b7042b29cf5e35307c0b80bb2",
         "4ae0ce5a67d7061ee536a0e03cf3ea86dd9163c60549074eb8eb4d6f92f493d6",
-        "356d41706743ff8f9a99cf9f8eae045ea5c947595ef09896d6564e8aced85f45",
+        "d8bf2920971d132b38c6c8c64d3a1f864deef7df5b11eb8af28e46781d3da929",
         "7d5468e72b90f9e20d01224a1f9e8d0f945f1f441f006fcee1b4b99a7dc1c854"
       ],
-      "source_sha256": "73f42bb19686e77aea5eef307a9acca155baec635f1adc381e9ea1ba91bcdfab",
-      "text": "Return the least-mature stage applying to one settings section.\n\nAn alpha or beta module colours every one of its settings. A stable\nmodule can still contain an explicitly experimental ``(Beta)``/``(Alpha)``\ncategory, in which case that section receives the more cautious stage.\n\n:param app_key: the module's registry key, whose stage comes from\n    :func:`module_maturity`.\n:param title: the section heading; compared case-insensitively, it is\n    alpha when it is ``\"alpha\"`` or contains ``\"(alpha)\"``, beta\n    likewise, and stable otherwise.\n:returns: ``\"alpha\"``, ``\"beta\"`` or ``\"stable\"``."
+      "source_sha256": "fbed1cd402ee935744301bf9332d49c6eeea7ecaa440f6fe4ff7dcde1596f8a2",
+      "text": "Return the least-mature stage applying to one settings section.\n\nAn alpha or beta module colours every one of its settings. A stable\nmodule can still contain an explicitly experimental category -- an alpha\none is named with a trailing ``α`` (\"Confluency α\"), a beta one with\n``(Beta)`` -- in which case that section receives the more cautious\nstage.\n\n:param app_key: the module's registry key, whose stage comes from\n    :func:`module_maturity`.\n:param title: the section heading; compared case-insensitively, it is\n    alpha when it is ``\"alpha\"``, ends with ``α`` or contains\n    ``\"(alpha)\"``, beta when it is ``\"beta\"`` or contains ``\"(beta)\"``,\n    and stable otherwise.\n:returns: ``\"alpha\"``, ``\"beta\"`` or ``\"stable\"``."
     },
     "spacr.qt.screens.app_screen.uses_ambient_background": {
       "source_blocks_sha256": [
@@ -91972,6 +91945,15 @@
       "source_sha256": "33541718e6e655bdecc62b08b7761bae53cb8b283306777ac298e78743681a07",
       "text": "The per-object settings table, and the button that widens it.\n\n:param parent: parent widget.\nBuild the per-object settings grid.\n\nSorting is installed after the model is set, as the contract requires --\nthe view is wrapped in a proxy, so the selection model has to be taken\nafterwards. Sorting the questions on screen reorders nothing on disk,\nbecause the stored answers are read from the model rather than the view.\n\nThe table opens tall enough to show its rows and can be dragged from the\ngrip: inside a settings panel it is one row of a scrolling form, and a\nplain ``QTableView`` default put twenty-odd questions behind an inner\nscrollbar inside an outer one.\n\n:param parent: parent widget, or ``None``."
     },
+    "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.add_filter": {
+      "source_blocks_sha256": [
+        "b82dc728f624555ebc67f6b45c5a47ec2f5bf09b70407692bd7704c470b96681",
+        "c5265f16228c6399bae94f1c10102b8d4dfd3da5c0105e9d0d5a19535ae7ff9e",
+        "38cedd18b410dcb4ca0cbdbb991cfc0830cb4bbf20636c8506c98489f64d3970"
+      ],
+      "source_sha256": "c76ec6722ae5c1bdee79c10647518ed8f4ede6b7f3a1fd6e9a76bdda895b6458",
+      "text": "Add a filter row for regionprop ``name``, every cell empty.\n\n:param name: a scalar scikit-image regionprop, e.g. ``\"area\"`` or\n    ``\"intensity_mean\"``; legacy spellings are accepted.\n:returns: False when the name is not a filterable property or the row\n    is already there."
+    },
     "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.add_organelle": {
       "source_blocks_sha256": [
         "e73b3ec7b587b8ecf5d3e7b101e3290f09af500053f09732d469381b2b716110",
@@ -92006,6 +91988,13 @@
       ],
       "source_sha256": "6d4fb20c300691ed371ec2874e1d8a1fd12714e9d19e51f125ff1b19729b3b92",
       "text": "Show the same sticky, linked tooltip the form shows.\n\nTHE SAME POPUP, NOT A SECOND ONE. The flat form puts rich help on a\nwidget and lets `HoverTooltip` draw it: a typed body, an API link,\nand the setting's animation when it has one. A table has no widget\nper cell, so the anchor is the view and the cell under the pointer\ndecides which setting it is speaking for.\n\nThe native tooltip is swallowed for the same reason the form\nswallows it -- it disappears the moment the pointer moves toward the\nAPI link, and that link is the point.\n\n:param watched: the object the filter is installed on: this widget\n    (font changes), the help band (enter and leave) or the table's\n    viewport (tooltip, mouse move and leave).\n:param event: the event; a tooltip event on the viewport is swallowed\n    and every other event is passed on to the base class."
+    },
+    "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.filter_properties": {
+      "source_blocks_sha256": [
+        "f51c533c12699430380adf7a451ca233e890cd79c76e02de87ecb4c7c2b373b3"
+      ],
+      "source_sha256": "f51c533c12699430380adf7a451ca233e890cd79c76e02de87ecb4c7c2b373b3",
+      "text": "The properties the table has a filter row for, in order."
     },
     "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.next_organelle": {
       "source_blocks_sha256": [
@@ -92045,6 +92034,14 @@
       "source_sha256": "e9faec10935b9226191d54dd9c461704c66e4a074c782dedfb6d8b6607313949",
       "text": "Say which module's API documentation the tooltips should link to.\n\n:param app_key: registry key of the module, e.g. ``\"mask\"``; ``None``\n    or empty clears it."
     },
+    "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.set_filters": {
+      "source_blocks_sha256": [
+        "2ab7f9ad0082668696ca59253081e99fefaf2ec62c14a7f807f0b9b1daae96c6",
+        "2b394f47bfee2a64c3bbcf5b94029fb95b57905c409602353a6cb8d223fddbd1"
+      ],
+      "source_sha256": "41e4ca0385eadc7e6f6e01a1fdd6eb63265aae856ebc27a198c85f45e4c2e971",
+      "text": "Show ``object_filters`` as it now stands, e.g. after a file load.\n\n:param value: the setting's value, a mapping or its text."
+    },
     "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.set_settings": {
       "source_blocks_sha256": [
         "bd7cb62b4d76bbd1beea8cdd9e946fe9d32a0bb8d1615c71d30799da71f3c5a8",
@@ -92075,10 +92072,11 @@
     },
     "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.settings": {
       "source_blocks_sha256": [
-        "fb744fbda77a6463af12ca147f2f392f9228e6ac5c603d59d960c477a1aa3ffa"
+        "fb744fbda77a6463af12ca147f2f392f9228e6ac5c603d59d960c477a1aa3ffa",
+        "fb2e34371e7e2e84b030934935782c6528aad45e4be896160595bea8efedf000"
       ],
-      "source_sha256": "fb744fbda77a6463af12ca147f2f392f9228e6ac5c603d59d960c477a1aa3ffa",
-      "text": "The whole settings dict, with the table's answers written back."
+      "source_sha256": "b6df2afa1873b2faa3ed1bc33cd7e939ad1876b586b9ec13c8c93154a402a933",
+      "text": "The whole settings dict, with the table's answers written back.\n\nThe filter rows are written back into ``object_filters``: each shown\nobject's list is rebuilt from its cells, in row order, and an object\nthe table does not show keeps the list it had."
     },
     "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.status_text": {
       "source_blocks_sha256": [
