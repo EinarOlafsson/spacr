@@ -4821,7 +4821,9 @@
       "source_sha256": "356d41706743ff8f9a99cf9f8eae045ea5c947595ef09896d6564e8aced85f45",
       "context": "the section heading; compared case-insensitively, it is alpha when it is ``\"alpha\"`` or contains ``\"(alpha)\"``, beta likewise, and stable otherwise.",
       "translation": "分区标题；不区分大小写地比较，当它为 ``\"alpha\"`` 或包含 ``\"(alpha)\"`` 时为 alpha，beta 同理，否则为 stable。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-28: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
     }
   ]
 }
