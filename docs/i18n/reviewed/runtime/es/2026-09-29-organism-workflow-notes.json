@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Item 474, 2026-09-29: the eight organism tile usage notes ('Opens ...') shown as tile tooltips through tr(route[2]); they were missing from the runtime inventory and are added to it in tools/build_i18n_catalogs.py. Written and technically reviewed by AI against the English source and its code context; no human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Opens the Motility Assay with infection QC off, because extracellular parasites have no host cell. Segment the parasites as the tracked cell objects; it reports track speed and straightness per well.",
+      "source": "Opens the Motility Assay with infection QC off, because extracellular parasites have no host cell. Segment the parasites as the tracked cell objects; it reports track speed and straightness per well.",
+      "source_sha256": "41204350836735dd45a14b2b958adfa937e5744b8b7f0b64ad06e8eab48d2ae3",
+      "translation": "Abre el Ensayo de motilidad con el QC de infección desactivado, porque los parásitos extracelulares no tienen célula huésped. Segmente los parásitos como los objetos celulares rastreados; informa la velocidad y la rectitud de las trayectorias por pocillo."
+    },
+    {
+      "table": "ui",
+      "key": "Opens Host–Pathogen Analysis. Measure red blood cells as host cells, including uninfected ones, and parasites as pathogen objects; its infection fraction per well is the parasitaemia.",
+      "source": "Opens Host–Pathogen Analysis. Measure red blood cells as host cells, including uninfected ones, and parasites as pathogen objects; its infection fraction per well is the parasitaemia.",
+      "source_sha256": "dcb4957b15b0239dd211f7b0f827c57d8f1d5cc739a1ec762924d494e8708447",
+      "translation": "Abre el Análisis huésped–patógeno. Mida los glóbulos rojos como células huésped, incluidos los no infectados, y los parásitos como objetos patógenos; su fracción de infección por pocillo es la parasitemia."
+    },
+    {
+      "table": "ui",
+      "key": "Opens the Motility Assay with infection QC off, because gliding sporozoites have no host cell. Segment the sporozoites as the tracked cell objects; it reports track speed and straightness per well.",
+      "source": "Opens the Motility Assay with infection QC off, because gliding sporozoites have no host cell. Segment the sporozoites as the tracked cell objects; it reports track speed and straightness per well.",
+      "source_sha256": "15e102e8a5a03ab9b26a4eb3982906b5888721edf3fb8855ab22cdf2238e351a",
+      "translation": "Abre el Ensayo de motilidad con el QC de infección desactivado, porque los esporozoítos en deslizamiento no tienen célula huésped. Segmente los esporozoítos como los objetos celulares rastreados; informa la velocidad y la rectitud de las trayectorias por pocillo."
+    },
+    {
+      "table": "ui",
+      "key": "Opens Dose–Response. Fit a four-parameter logistic curve and EC50 to a per-well image readout, such as parasitaemia, against compound concentration.",
+      "source": "Opens Dose–Response. Fit a four-parameter logistic curve and EC50 to a per-well image readout, such as parasitaemia, against compound concentration.",
+      "source_sha256": "149d4087fe2b74b4d0e8b2371b7ae4bf9f266c330d8bef87b95e1e507eb6d3fc",
+      "translation": "Abre Dosis–respuesta. Ajuste una curva logística de cuatro parámetros y la EC50 a una lectura de imagen por pocillo, como la parasitemia, frente a la concentración del compuesto."
+    },
+    {
+      "table": "ui",
+      "key": "Opens the Invasion Assay. With two-colour differential staining, its attached plus invaded counts per well are the fungi bound to the monolayer.",
+      "source": "Opens the Invasion Assay. With two-colour differential staining, its attached plus invaded counts per well are the fungi bound to the monolayer.",
+      "source_sha256": "4b506bbad9c49a17ad88bb8a0ac25bbd76c23f67e9f28dcec339e3c389f50f29",
+      "translation": "Abre el Invasion Assay. Con tinción diferencial de dos colores, sus recuentos de adheridos más invasores por pocillo son los hongos unidos a la monocapa."
+    },
+    {
+      "table": "ui",
+      "key": "Opens the Invasion Assay. Two-colour differential staining separates extracellular from internalised fungi, as for Toxoplasma invasion.",
+      "source": "Opens the Invasion Assay. Two-colour differential staining separates extracellular from internalised fungi, as for Toxoplasma invasion.",
+      "source_sha256": "34cbccceb9e7aff7da19fb7d4d64f9306aea96e9e4919533ca6a32565285038e",
+      "translation": "Abre el Invasion Assay. La tinción diferencial de dos colores separa los hongos extracelulares de los internalizados, como en la invasión de Toxoplasma."
+    },
+    {
+      "table": "ui",
+      "key": "Opens Host–Pathogen Analysis. Measure phagocytes as host cells and fungi as pathogen objects; it reports the fraction of phagocytes containing fungi and fungi per phagocyte. Killing is not measured.",
+      "source": "Opens Host–Pathogen Analysis. Measure phagocytes as host cells and fungi as pathogen objects; it reports the fraction of phagocytes containing fungi and fungi per phagocyte. Killing is not measured.",
+      "source_sha256": "937e097f5c01893662ecc326a1c8a1dde095b48cdf4fd0d684e25d58b6c0a5f1",
+      "translation": "Abre el Análisis huésped–patógeno. Mida los fagocitos como células huésped y los hongos como objetos patógenos; informa la fracción de fagocitos que contienen hongos y los hongos por fagocito. No se mide la eliminación."
+    },
+    {
+      "table": "ui",
+      "key": "Opens Dose–Response. Fit a four-parameter logistic curve and EC50 to fungal growth or a morphology score per well against drug concentration.",
+      "source": "Opens Dose–Response. Fit a four-parameter logistic curve and EC50 to fungal growth or a morphology score per well against drug concentration.",
+      "source_sha256": "b76da5ad598bb2e1f7539c57b3b46e61fbc60d79ac611d21eae08e3b15ed55d6",
+      "translation": "Abre Dosis–respuesta. Ajuste una curva logística de cuatro parámetros y la EC50 al crecimiento fúngico o a una puntuación morfológica por pocillo frente a la concentración del fármaco."
+    }
+  ]
+}

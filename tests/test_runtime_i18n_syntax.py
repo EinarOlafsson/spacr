@@ -305,6 +305,13 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     latest_p7 = {record["source"] for record in pass7}
     assert len(pass7) == len(latest_p7) and not latest_p7 & sources
     sources |= latest_p7
+    # 2026-09-29 (474): the eight organism tile usage notes ("Opens ..."),
+    # which entered the runtime inventory only now; another disjoint slice.
+    notes = json.loads((folder / "2026-09-29-organism-workflow-notes.json")
+                       .read_text())["records"]
+    note_sources = {record["source"] for record in notes}
+    assert len(notes) == len(note_sources) == 8 and not note_sources & sources
+    sources |= note_sources
     assert sources <= reviewed.keys()
     return sources
 

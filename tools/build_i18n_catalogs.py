@@ -3875,6 +3875,10 @@ def _indirect_runtime_ui_sources() -> set[str]:
         for _route, title, description, _icon in organism["modules"]:
             found.update((title, description))
         found.update(label for label, _url in organism["links"])
+        # 474: each live tile's "Opens ..." usage note, which the organism
+        # screen shows as tr(route[2]) in the tile's tooltip.
+        found.update(note for _app, _preset, note
+                     in organism.get("workflows", {}).values())
     for compartment_labels in (COMPARTMENT_SL, APICOMPLEXAN_LABELS, YEAST_LABELS):
         found.update(compartment_labels)
     # Hover explanations are class data, passed to Qt through loop variables.
