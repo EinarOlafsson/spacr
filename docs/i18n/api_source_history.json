@@ -11,6 +11,18 @@
       "source_sha256": "1e571373dd4a758b04c3df25efa5770c86bfd27d7f6fc433f86020c21269e374",
       "text": "Opt-in PSF and enhancement-chain preparation and provenance for segmentation inputs.\n\nKernels are captured once per run. Only private intensity arrays are processed;\nraw stacks and mask labels are never rewritten by this module. V1 reuse checks\nboth the requested kernel/settings and the exact completed archive bytes.\n\nTHE ENHANCEMENT CHAIN TRAVELS THE SAME ROUTE. Make Masks' chain\n(:mod:`spacr.qt.detect_chain`) is written into a settings file as the\n``enhance_*`` keys and read back here by :func:`prepare_chain`, with the\n``psf_*`` settings folded in as the chain's PSF stage, so one plate run\napplies exactly the steps a curator tuned, in the chain's own order:\nbackground, PSF, denoise, contrast, sharpen. The session applies it per\nselected channel at the stage the PSF already ran -- after illumination\ncorrection and before normalization -- and its provenance goes into the\nsame ``psf/segmentation_application.json`` record, so a changed chain is\nrefused on resume the way a changed kernel is. With no chain step on, a\nrun is byte for byte what it was before the chain existed.\n\nSPECTRAL UNMIXING COMES FIRST. With ``unmix`` on, a bleed-through matrix is\nestimated from the single-stain control wells ``unmix_controls`` names and\nevery raw field is unmixed across all its channels before illumination\ncorrection, the PSF and the chain; the matrix joins the same record. Measure\nestimates its own over the measured channels and unmixes each field before\nits preprocessing hooks, recording the matrix in the saved run settings and\n``measurements/bleed_through.json``."
     },
+    "238912d4542619e61714e6244b7b67fc6b6b3eb7c8206e73ee819039ccca9885": {
+      "source_blocks_sha256": [
+        "82cf9411b890f441e152641d0189fbd59d1fbe4e37d6f5584f9d82266bec1fc7",
+        "8da0cabd2d6a53d1c61407ef1ebd5687a1e0e01d64314b65737d5fae962e3f35",
+        "e99cdc96419c207476eb7985502cf200cb51c35d5ed700b9ec350602ae17b6bc",
+        "e6481dc2ad7e1b8accd17e6f13ea18db90ac814dfabf709dede2fa1cc7f0921b",
+        "24f3dbd38186a5794376cc6161a3d245081b70cee8bf1264f97b9135feb5385c",
+        "f06f268ba632c5503437884e3c63f93779672bc476d165a1da8d6a97b8d6f56e"
+      ],
+      "source_sha256": "238912d4542619e61714e6244b7b67fc6b6b3eb7c8206e73ee819039ccca9885",
+      "text": "The settings a first-time user of ``app_key`` should meet first.\n\nProgressive disclosure needs a defensible answer to \"which of these 190\nmatter?\", and a hand-written list per module would rot the first time a\nlayout changed. So it is *derived*: the first group of the module's\ncurated layout, which is always its inputs, plus whatever\n:data:`_APP_ESSENTIAL_EXTRAS` adds for that module.\n\nA module with no curated layout gets the first shared category, which is\n\"Paths\" — still the right answer, just a thinner one.\n\n:param app_key: the module's app key.\n:param categories: optional pre-computed :func:`categories_for_app`\n    output, to save recomputing it.\n:returns: setting keys in display order, without duplicates."
+    },
     "2dbc15440ab214e76ca142362c58e55555fc052ca23128152c2f3aba4e000efc": {
       "source_blocks_sha256": [
         "264ee25f9242e2db6f8a2b5c761f5fd5b3321d464424dffaf144495d25df75b2",
@@ -116,6 +128,17 @@
       ],
       "source_sha256": "e2de39098c2ae01a0a65e09c8e506442b27066b070e05c114f90dbf77600efa8",
       "text": "The table names in a database, sorted.\n\n:param db: path to the database. ``~`` and ``$VARS`` are expanded.\n:param migrate: run the schema migration first. ``False``, because\n    listing what is there must not rewrite it.\n:returns: the table names."
+    },
+    "ea501670396ed9589423e28d2b80c551309325768a1036b9119990dc19c27b75": {
+      "source_blocks_sha256": [
+        "6f3d4648e5f86ef7b6fd034a0444c5f31adc5e49f17a33c0092ecd284358a2bd",
+        "1ee1e7ad4879577818e90a7937796cec5d14725ad06cc526967835446152f2c7",
+        "7bccbf27121d8a39bf02ab1507bcab5f9da0f83f7f20992bd201a14555c61190",
+        "55919f3fd8be8431a7ece53cd47afb2c52a85748abf109326cfcfd4566e02c8a",
+        "82602f1644ba2fb31932ea2ddb59b6c730b2bdc3325d935fb247c15237217929"
+      ],
+      "source_sha256": "ea501670396ed9589423e28d2b80c551309325768a1036b9119990dc19c27b75",
+      "text": "Put a :class:`SegQCBanner` above ``screen``'s Run row.\n\n:param screen: an ``AppScreen``.\n:param reader: digest reader, for tests.\n:param threaded: ``False`` to read inline, for tests.\n:returns: the banner, or None when this screen cannot carry one. Never\n    raises: a screen that opens without the banner is the old behaviour,\n    and that is always better than a screen that does not open."
     }
   }
 }

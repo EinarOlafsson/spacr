@@ -16955,11 +16955,11 @@
         "49d79b30728e105050438986a645748b5da6b0bdc4059177bc6a492cf22a9385",
         "0bbdc3a960a8dad1e516a89957347a7b755196539554281770ff2bdaeea695a0",
         "97d612ede5ea20d959e2428d9f8749662f08dcbcf157cac4654487e8cfc3be19",
-        "32b24ef34adbe610121a60bcf24cee35195135cab6f67353e44bdcaa3890a778",
+        "e54c9034fbc1ef8add9ccf0a6283d4bc82d04734bc668584c9bda815b536e985",
         "d1410bfc5063793653b1c83c5ac4ac3029b7e847cff3f45f45853d4a653f492d"
       ],
-      "source_sha256": "962fd472e8ceb77759850f3ffa2281dfdc8751a36df06adaf43ea7a750f493e4",
-      "text": "Copy a folder tree into ONE folder, naming each copy after its folder path.\n\nA tree like::\n\n    exp/\n      nucleus/  a.tif  b.tif\n      cell/     a.tif  b.tif\n\nbecomes ``exp_renamed/`` holding ``exp_nucleus.tif``, ``exp_nucleus_2.tif``,\n``exp_cell.tif`` and ``exp_cell_2.tif``: every copy is named after the folders\nit sat in, joined by ``_``, and a second file from the same folder is\nnumbered. A ``rename_manifest.csv`` beside the copies maps each original path\nto its new name, so nothing about where a file came from is lost.\n\nThis is a port of the maintainer's stand-alone ``rename_by_folders.py``\n(standard library only) with its behaviour kept: the originals are COPIED,\nnever moved; symbolic links, to files or folders, are skipped and listed;\nnames are made safe for Windows; a name too long for a typical filesystem is\nshortened with a hash of the full name so two long names cannot collide; and\nthe output folder must not exist yet. Two options were added for Make Masks,\nwhich offers this on a dropped folder: ``extensions`` limits the copy to\nimage files and ``skip_dirs`` leaves out folders such as ``masks`` whose\ncontents are not images to edit. With neither, every file is copied, as the\nscript did.\n\nRun as a program::\n\n    python -m spacr.folder_consolidation /path/to/source [/path/to/new_output]"
+      "source_sha256": "26dca5a2c5121a000144979f4466149d5c0b35feb66d903165edb7a46cd8d058",
+      "text": "Copy a folder tree into ONE folder, naming each copy after its folder path.\n\nA tree like::\n\n    exp/\n      nucleus/  a.tif  b.tif\n      cell/     a.tif  b.tif\n\nbecomes ``exp_renamed/`` holding ``exp_nucleus.tif``, ``exp_nucleus_2.tif``,\n``exp_cell.tif`` and ``exp_cell_2.tif``: every copy is named after the folders\nit sat in, joined by ``_``, and a second file from the same folder is\nnumbered. A ``rename_manifest.csv`` beside the copies maps each original path\nto its new name, so nothing about where a file came from is lost.\n\nIt needs only the standard library. The originals are COPIED,\nnever moved; symbolic links, to files or folders, are skipped and listed;\nnames are made safe for Windows; a name too long for a typical filesystem is\nshortened with a hash of the full name so two long names cannot collide; and\nthe output folder must not exist yet. Two options were added for Make Masks,\nwhich offers this on a dropped folder: ``extensions`` limits the copy to\nimage files and ``skip_dirs`` leaves out folders such as ``masks`` whose\ncontents are not images to edit. With neither, every file is copied, as the\nscript did.\n\nRun as a program::\n\n    python -m spacr.folder_consolidation /path/to/source [/path/to/new_output]"
     },
     "spacr.folder_consolidation.ConsolidationResult": {
       "source_blocks_sha256": [
@@ -52328,14 +52328,15 @@
     },
     "spacr.qt.prerun.install_qc_banner": {
       "source_blocks_sha256": [
-        "6f3d4648e5f86ef7b6fd034a0444c5f31adc5e49f17a33c0092ecd284358a2bd",
+        "8053ef0a2c0de301207113ca1bf92ce2540c0daaf3ca4cd99d13c3a66b390285",
+        "4ae3d89a22e65b1a5ed09fec04d461f4f01c98fb2895f186f270d9419731f128",
         "1ee1e7ad4879577818e90a7937796cec5d14725ad06cc526967835446152f2c7",
         "7bccbf27121d8a39bf02ab1507bcab5f9da0f83f7f20992bd201a14555c61190",
         "55919f3fd8be8431a7ece53cd47afb2c52a85748abf109326cfcfd4566e02c8a",
         "82602f1644ba2fb31932ea2ddb59b6c730b2bdc3325d935fb247c15237217929"
       ],
-      "source_sha256": "ea501670396ed9589423e28d2b80c551309325768a1036b9119990dc19c27b75",
-      "text": "Put a :class:`SegQCBanner` above ``screen``'s Run row.\n\n:param screen: an ``AppScreen``.\n:param reader: digest reader, for tests.\n:param threaded: ``False`` to read inline, for tests.\n:returns: the banner, or None when this screen cannot carry one. Never\n    raises: a screen that opens without the banner is the old behaviour,\n    and that is always better than a screen that does not open."
+      "source_sha256": "7658bef465106ba8a5e640c07d61b37210a507cc645304d8454217e0c9114d8f",
+      "text": "Put a QC switch on ``screen``'s action row that opens the verdict.\n\nThe switch sits left of the 3D and Time switches; the banner lives in\nits popup, so the Run row keeps its place whatever the verdict says.\n\n:param screen: an ``AppScreen``.\n:param reader: digest reader, for tests.\n:param threaded: ``False`` to read inline, for tests.\n:returns: the banner, or None when this screen cannot carry one. Never\n    raises: a screen that opens without the banner is the old behaviour,\n    and that is always better than a screen that does not open."
     },
     "spacr.qt.prerun.qc_banner": {
       "source_blocks_sha256": [
@@ -64455,12 +64456,13 @@
         "82cf9411b890f441e152641d0189fbd59d1fbe4e37d6f5584f9d82266bec1fc7",
         "8da0cabd2d6a53d1c61407ef1ebd5687a1e0e01d64314b65737d5fae962e3f35",
         "e99cdc96419c207476eb7985502cf200cb51c35d5ed700b9ec350602ae17b6bc",
+        "e176b8e2748dfa8182c17f642ff2209408fbbe523c9c925a100a157d277804fc",
         "e6481dc2ad7e1b8accd17e6f13ea18db90ac814dfabf709dede2fa1cc7f0921b",
         "24f3dbd38186a5794376cc6161a3d245081b70cee8bf1264f97b9135feb5385c",
         "f06f268ba632c5503437884e3c63f93779672bc476d165a1da8d6a97b8d6f56e"
       ],
-      "source_sha256": "238912d4542619e61714e6244b7b67fc6b6b3eb7c8206e73ee819039ccca9885",
-      "text": "The settings a first-time user of ``app_key`` should meet first.\n\nProgressive disclosure needs a defensible answer to \"which of these 190\nmatter?\", and a hand-written list per module would rot the first time a\nlayout changed. So it is *derived*: the first group of the module's\ncurated layout, which is always its inputs, plus whatever\n:data:`_APP_ESSENTIAL_EXTRAS` adds for that module.\n\nA module with no curated layout gets the first shared category, which is\n\"Paths\" — still the right answer, just a thinner one.\n\n:param app_key: the module's app key.\n:param categories: optional pre-computed :func:`categories_for_app`\n    output, to save recomputing it.\n:returns: setting keys in display order, without duplicates."
+      "source_sha256": "3873b4b6b8badd100c843e9d96a6ec8ce914b7720aca853dfd01927b05b6c54b",
+      "text": "The settings a first-time user of ``app_key`` should meet first.\n\nProgressive disclosure needs a defensible answer to \"which of these 190\nmatter?\", and a hand-written list per module would rot the first time a\nlayout changed. So it is *derived*: the first group of the module's\ncurated layout, which is always its inputs, plus whatever\n:data:`_APP_ESSENTIAL_EXTRAS` adds for that module.\n\nA module with no curated layout gets the first shared category, which is\n\"Paths\" — still the right answer, just a thinner one.\n\nClassify's first group is only the family switch, so its extras carry\nwhat training either family needs: the classes, the splits, the image\nmodel and its schedule, and the tabular algorithm and its main\nhyperparameters. The family switch greys whichever half does not apply.\n\n:param app_key: the module's app key.\n:param categories: optional pre-computed :func:`categories_for_app`\n    output, to save recomputing it.\n:returns: setting keys in display order, without duplicates."
     },
     "spacr.qt.screens.settings_model.explainer_width": {
       "source_blocks_sha256": [
