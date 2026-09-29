@@ -36,6 +36,7 @@ WORKER_MODULES = (
     "spacr/qt/widgets/sra_picker.py",
     "spacr/qt/starplast.py",
     "spacr/qt/widgets/primary_mask_selector.py",
+    "spacr/qt/widgets/channel_sort_dialog.py",
 )
 
 #: Calls that reach the worker's own C++ half and so can raise once it is

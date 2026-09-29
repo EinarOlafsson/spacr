@@ -28,11 +28,13 @@ from PySide6.QtGui import QIcon, QImage, QPixmap
 from PySide6.QtWidgets import (
     QAbstractItemView, QComboBox, QDialog, QGridLayout, QHBoxLayout, QLabel,
     QLineEdit, QListWidget, QListWidgetItem, QMessageBox, QPushButton,
-    QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
+    QTableWidget, QVBoxLayout, QWidget,
 )
 
 from ... import channel_sorting as cs
+from ..bridge import emit_safely
 from ..i18n import tr
+from .sortable_table import install_sorting, table_item
 
 #: Thumbnail side in the image list, in pixels.
 THUMB = 64
@@ -101,10 +103,15 @@ class _ThumbWorker(QThread):
         for name in self._names:
             if self._stop:
                 return
-            image = cs.thumbnail(os.path.join(self._folder, name), THUMB)
-            mask_path = cs.mask_for(self._folder, name, self._masks_dir)
-            mask = cs.mask_thumbnail(mask_path, THUMB) if mask_path else None
-            self.ready.emit(name, image, mask)
+            try:
+                image = cs.thumbnail(os.path.join(self._folder, name), THUMB)
+                mask_path = cs.mask_for(self._folder, name, self._masks_dir)
+                mask = (cs.mask_thumbnail(mask_path, THUMB)
+                        if mask_path else None)
+            except Exception:
+                image, mask = None, None
+            if not emit_safely(self.ready, name, image, mask):
+                return
 
 
 class ExampleSetsDialog(QDialog):
@@ -226,6 +233,7 @@ class RegexWindow(QDialog):
             tr("File"), tr("Matched"), tr("Channel"), tr("Set"), tr("Groups")])
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.table.horizontalHeader().setStretchLastSection(True)
+        install_sorting(self.table)
         layout.addWidget(self.table, 1)
         self.summary = QLabel()
         self.summary.setWordWrap(True)
@@ -276,7 +284,7 @@ class RegexWindow(QDialog):
                 " ".join(f"{k}={v}" for k, v in item.groups.items()),
             ]
             for column, value in enumerate(values):
-                self.table.setItem(row, column, QTableWidgetItem(value))
+                self.table.setItem(row, column, table_item(value))
         if error:
             self.summary.setText(tr("The regex is not valid: {error}",
                                     error=error))
