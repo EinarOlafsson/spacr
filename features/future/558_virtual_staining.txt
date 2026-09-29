@@ -1,6 +1,6 @@
 VIRTUAL STAINING: PREDICT A FLUORESCENT CHANNEL FROM BRIGHTFIELD/PHASE
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27 (CPU-validated; no GPU run).
+Status: IMPLEMENTED AS ALPHA 2026-09-27 (CPU-validated; GPU run 2026-09-28).
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -80,8 +80,8 @@ CPU RUN (2026-09-27; GPU held by another session, none queued)
   channel); the segmenter is a threshold watershed, weaker than Cellpose.
   Script: /mnt/wd4tb/scratch/558/run.py (outside the repo).
 
-FULL GPU TRAINING NEEDS (written 2026-09-28; not run)
-  Script: /mnt/wd4tb/scratch/558/gpu_train.sh (ready, not run). Queue it
+FULL GPU TRAINING (written 2026-09-28; run the same evening, see GPU RUN)
+  Script: /mnt/wd4tb/scratch/558/gpu_train.sh. Queue it
   through tools/gpu_turn.sh; it asserts CUDA, caps RAM at 24 GB and writes
   to /mnt/wd4tb/scratch/558/gpu_s<src>_e<epochs>_x<scale>/.
   Settings: device cuda, scale 2 (half resolution, nuclei ~42 px) instead
@@ -94,8 +94,32 @@ FULL GPU TRAINING NEEDS (written 2026-09-28; not run)
   segment=<Cellpose callable> to _virtual_stain_scorecard) as well as the
   threshold watershed, and report F1@0.5 against curated nucleus masks.
 
+GPU RUN (2026-09-28 20:33-21:06, via tools/gpu_turn.sh 558-virtual-stain)
+  Same data and well split as the CPU run (train E01/E02/L01 12 fields,
+  test L02 4 fields), settings from gpu_train.sh: scale 2, crop 256, 128
+  crops/field/epoch, batch 32, base 32, depth 4, lr 1e-3, 200 epochs.
+  1,964 s wall (~9.7 s/epoch), torch peak 8.8 GB GPU (the 4 GB estimate
+  was low), final L1 0.0089. Log /mnt/wd4tb/scratch/558/gpu.log, outputs
+  /mnt/wd4tb/scratch/558/gpu_s1_e200_x2/.
+  Held-out mean over 4 fields (same Otsu/watershed segmenter):
+                          Pearson  SSIM   F1@0.5  F1@0.75
+    GPU predicted          0.934   0.927  0.814   0.669
+    CPU predicted          0.879   0.833  0.701   0.370
+    input channel alone    0.634   0.756  0.262   0.015
+  Per field F1@0.5 GPU predicted: L02_10 0.807, L02_11 0.708, L02_1 0.933,
+  L02_9 0.807 (CPU 0.684/0.612/0.735/0.774).
+  Against the Cellpose-SAM nucleus reference (plane 5), F1@0.5: real stain
+  mean 0.710 (0.601/0.643/0.808/0.786), GPU predicted mean 0.770
+  (0.657/0.769/0.824/0.828), input 0.381. The GPU prediction now matches
+  the reference slightly better than the real stain does with this
+  segmenter (it is smoother, so the watershed splits it more cleanly).
+  Conclusion: the GPU run lifts F1@0.5 from 0.70 to 0.81 and nearly
+  doubles F1@0.75 over the CPU run (0.37 -> 0.67), so
+  outlines are no longer the weak point. The caveats of the CPU run still
+  hold (one plate, one test well, fluorescence input, simple segmenter).
+
 WHAT IS LEFT
-  A GPU run of the script above; a label-free paired data set; a Cellpose
+  A label-free paired data set; a Cellpose
   segmenter in the scorecard by default; applying a saved model from the
   Timelapse or Make Masks screens (only the Cellpose workbench button runs
   it now); a pix2pix / published-model option.
