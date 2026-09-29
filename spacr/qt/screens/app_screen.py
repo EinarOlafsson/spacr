@@ -2526,6 +2526,7 @@ class AppScreen(QWidget):
         from ..theme import clear_container_surfaces, make_transparent
 
         clear_container_surfaces(self)
+        self._page_surfaces_swept = True
 
         make_transparent(
             getattr(self, "_header", None),
@@ -2748,9 +2749,10 @@ class AppScreen(QWidget):
                                 section)
             self._settings_sections.append(section)
             section.set_expanded(True)
-            from ..theme import clear_container_surfaces
+            if getattr(self, "_page_surfaces_swept", False):
+                from ..theme import clear_container_surfaces
 
-            clear_container_surfaces(section)
+                clear_container_surfaces(section)
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not mount the per-object grid", exc_info=True)
 
