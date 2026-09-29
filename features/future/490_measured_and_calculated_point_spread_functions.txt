@@ -270,3 +270,17 @@ Live preview. What stays, all docs lane: the guide does not yet describe
 509's objective/camera/fluorophore inference and Infer button; the PSF
 captions 509 added are still on _awaiting_translation; a PSF tutorial/
 animation. No optical-resolution or biological-improvement claim is made.
+
+2026-09-29 — Docs lane closed; no PSF tutorial (alpha)
+* point_spread.rst now describes 509's Objective / Infer from images…
+  inference (2026-09-27, Sphinx -W clean).
+* The PSF captions 509 added have exact rows in all nine catalogs
+  (_awaiting_translation empty; every psf_controls.py tr() literal has a
+  row); reviewed runtime/API evidence checkers report nothing stale.
+* Tutorial: not made. Item 591 (2026-09-28, maintainer's request) put the
+  PSF settings behind Show alpha features on Mask generation and Timelapse
+  ("Image Deconvolution α"), and alpha features get no tutorial. The
+  existing psf_fwhm_um settings animation stays. Noted for the runtime
+  lane, not changed here: the Make Masks Image enhancement card's PSF row
+  and Measure's "Image Deconvolution (PSF)" are not gated, so if the
+  maintainer wants PSF out of alpha, the tutorial can be re-opened.

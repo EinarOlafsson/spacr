@@ -396,3 +396,21 @@ For the docs/translation lane:
   OrganismScreen.open_workflow(). Reviewed API records in
   docs/i18n/reviewed/api/*/2026-09-22-organism-guides.json and
   -starplast-and-diagram.json are stale for those docstrings (report-only).
+
+2026-09-29 — Docs/translation lane closed
+* The eight retired organism-paragraph runtime records stayed retired; the
+  rewritten paragraphs have exact reviewed rows in all nine languages
+  (tools/audit_i18n_coverage.py: runtime and API fully current, 0 orphans).
+* The organism API records named above are no longer stale:
+  tools/check_reviewed_api_evidence.py reports every reviewed API record
+  matching its docstring (API delta 3, 82d84c7c1).
+* Gap found and closed: the eight "Opens ..." tile usage notes reach the
+  screen as tr(route[2]) but were missing from the runtime inventory, so
+  they fell back to word-by-word translation. tools/build_i18n_catalogs.py
+  now inventories organism["workflows"] notes; 8 x 9 reviewed records in
+  docs/i18n/reviewed/runtime/*/2026-09-29-organism-workflow-notes.json
+  (AI technical review (Claude Opus 5.5), no native-speaker signoff;
+  "Invasion Assay" kept in English as a protected screen name). Catalogs
+  rebuilt without model inference (+8 rows per language);
+  tests/test_runtime_i18n_syntax.py subtracts the new slice. Nothing left
+  for the docs lane on this item.

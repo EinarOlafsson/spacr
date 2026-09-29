@@ -183,3 +183,22 @@ folds.py, tests/test_psf_optics_inference.py and test_psf_mask_pipeline.py,
   * a restoration tutorial/animation.
 CARE/Noise2Void stay suggestions: they need acquisition-specific trained
 models the maintainer would supply.
+
+2026-09-29 — Docs lane: text closed, tutorial scenes staged
+* make_masks.rst Restoration section: done 2026-09-27 (Sphinx -W clean,
+  features/data/489_490_guides_2026-09-27.json).
+* The restoration help strings ("Load the selected Cellpose 3 restoration
+  weights on the CPU/GPU…", "On the CPU a whole field takes tens of
+  seconds…"): every tr() literal in restoration_controls.py and
+  psf_controls.py now has an exact row in all nine catalogs (107 checked,
+  0 missing); _awaiting_translation is empty; the reviewed runtime and API
+  evidence checkers report no stale record.
+* Alpha check: RestorationControls is not behind Show alpha features (591
+  gated only the Mask/Timelapse psf_*/enhance_* settings), so a tutorial is
+  allowed. Five native-4K scenes recorded with alpha OFF and the CPU forced
+  (denoise_cyto3: load 10.9 s, compare 22.3 s, apply 22.6 s) by
+  tools/tutorials/authoring/tools/capture_make_masks_restoration.py; staged
+  in scratch-docs/t489/keyframes with English captions, NOT published.
+  Receipt features/data/489_restoration_scenes_2026-09-29.json. Left for
+  the publisher/narration lane: voices, caption translations, web
+  renditions, insertion into lesson 14 and publication.
