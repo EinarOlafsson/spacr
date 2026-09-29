@@ -184,6 +184,8 @@ _KEY_DB_EDIT     = "prefs/db_browser_editable"
 _KEY_DOCK_MODE   = "prefs/dock_mode"
 _KEY_DOCK_WIDTH  = "prefs/dock_width"
 _KEY_RUNTIME_TEXT_SCALE = "prefs/runtime_text_scale"
+_KEY_HOME_ASIDE_SIZE = "prefs/home_aside_size"
+_KEY_HOME_ASIDE_TEXT = "prefs/home_aside_text"
 _KEY_PANE_OPACITY = "prefs/pane_opacity"
 _KEY_FIELD_FADE = "prefs/field_fade"
 _KEY_SHOW_ALPHA = "prefs/show_alpha"
@@ -3865,6 +3867,38 @@ def set_runtime_text_scale(scale: float) -> float:
     scale = round(max(RUNTIME_TEXT_SCALE_MIN,
                       min(RUNTIME_TEXT_SCALE_MAX, float(scale))), 4)
     _settings().setValue(_KEY_RUNTIME_TEXT_SCALE, scale)
+    return scale
+
+
+def _home_aside_scale(key: str, low: float, high: float) -> float:
+    """A Home right-column size stored under ``key``, clamped to its bounds.
+
+    :param key: the preference key.
+    :param low: the smallest factor allowed.
+    :param high: the largest factor allowed.
+    :returns: the factor, 1.0 when nothing usable is stored.
+    """
+    try:
+        raw = float(_settings().value(key, 1.0))
+    except (TypeError, ValueError):
+        raw = 1.0
+    if raw != raw:
+        raw = 1.0
+    return max(low, min(high, raw))
+
+
+def _set_home_aside_scale(key: str, scale: float, low: float,
+                          high: float) -> float:
+    """Store a Home right-column size under ``key``, clamped to its bounds.
+
+    :param key: the preference key.
+    :param scale: the factor, 1.0 for the designed size.
+    :param low: the smallest factor allowed.
+    :param high: the largest factor allowed.
+    :returns: the value stored.
+    """
+    scale = round(max(low, min(high, float(scale))), 4)
+    _settings().setValue(key, scale)
     return scale
 
 
