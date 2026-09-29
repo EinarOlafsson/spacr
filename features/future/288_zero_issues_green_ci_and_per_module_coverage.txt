@@ -5543,3 +5543,18 @@ too and were not in CI's list (two Portuguese API-repair cases, the
 indented-literal shape test, Swedish and French reviewed runtime text); left
 for CI to confirm. Stale wip-branch runs were cancelled with the
 maintainer's approval so nightly gets runners. Still needed: one green run.
+
+2026-09-29 12:35 — HANDOFF FROM spacr-3f (home) TO (work) spacr, which now owns CI.
+Landed on nightly from lane-ci-work: batches 1-3 (6aecb96da, acdb8ebc4, 6b7da216a) and
+47's figure-queue leak fix (bbdcee5d4 via f64c7a574). Still open:
+  * Dispatch CI run 36571049555 on f64c7a574 (not cancellable): triage its failures.
+  * Coverage gate: ~111 modules below baseline could not be compared (the last complete
+    report came from an older commit). Some are measurement gaps: CI's coverage job lacks
+    rdkit (sp_stats chemistry) and duckdb (tabular database backends). Compare against
+    36571049555 or 36562380484.
+  * The news-bundle test passes only once 1.5.1.1 is released.
+  * Item 47: a detached serial tests/qt run is going on the home box
+    (log /mnt/wd4tb/scratch/ci/serial_run.log, about 7 h, started ~11:30); record its result.
+    Residual growth is about 6 MB per test file, which looks like import/cache warm-up; some
+    tests never close their own matplotlib figures.
+  * Never use `git stash` in worktrees: the stash list is shared.
