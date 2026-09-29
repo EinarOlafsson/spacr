@@ -300,32 +300,20 @@ def test_pressing_measure_writes_a_measure_project(qtbot, drawn, tmp_path):
     assert "Database:" in screen._log.toPlainText()
 
 
-def test_make_masks_has_a_features_button_that_opens_the_table(qtbot,
-                                                               drawn):
-    """The button exists on the screen it was asked for, and it opens this."""
+def test_make_masks_no_longer_has_a_features_button(qtbot):
+    """Item 600b (2026-09-29): "Organize for Measure…" replaced FEATURES.
+
+    The maintainer: "remove the feature button in make masks this new
+    button is replacingit." The Measure-inputs window itself stays (it is
+    reached from Measure); only Make Masks' button and its handler went.
+    """
     from spacr.qt.screens.make_masks import MakeMasksScreen
 
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
-
-    assert screen._btn_features.text() == "Features"
-    assert screen._btn_features.toolTip()
-
-    screen._folder = str(drawn)
-    window = screen._on_open_features()
-    qtbot.addWidget(window)
-
-    assert isinstance(window, MeasureInputsScreen)
-    assert window.destination() == os.path.join(str(drawn), "features")
-
-    assert window.inputs.table().rows == [], (
-        "the folder must not have been read on the GUI thread; pressing "
-        "FEATURES on a folder living on a sleeping automount is the freeze "
-        "this walk was moved to a worker to remove")
-    qtbot.waitUntil(lambda: not window.inputs.is_scanning(), timeout=5000)
-    assert [row.label for row in window.inputs.table().rows] == [
-        "fov001", "fov002"]
-    window.close()
+    assert not hasattr(screen, "_btn_features")
+    assert not hasattr(screen, "_on_open_features")
+    assert screen._btn_organize.text().startswith("Organize for Measure")
 
 
 @pytest.fixture

@@ -9889,18 +9889,6 @@ class MakeMasksScreen(QWidget):
         self._btn_redo.clicked.connect(self._on_redo)
         row.addWidget(self._btn_redo)
 
-        self._btn_features = QPushButton("Features")
-        self._btn_features.setIcon(iconset.icon("run"))
-        self._btn_features.setMinimumHeight(32)
-        self._btn_features.setCursor(Qt.PointingHandCursor)
-        self._btn_features.setToolTip(
-            "Measure the masks you drew. Opens a table where each row is a "
-            "field and each column is a channel or a mask type; the run "
-            "goes through the Measure module itself, so the folders and the "
-            "measurements database are the ones a Measure run produces.")
-        self._btn_features.clicked.connect(self._on_open_features)
-        row.addWidget(self._btn_features)
-
         self._btn_settings = QPushButton("Settings")
         self._btn_settings.setIcon(iconset.icon("settings"))
         self._btn_settings.setCheckable(True)
@@ -9946,21 +9934,6 @@ class MakeMasksScreen(QWidget):
         line.addWidget(pinned, 0, Qt.AlignTop)
         strip.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         return strip
-
-    def _on_open_features(self, _checked: bool = False):
-        """Open the measurement-input window on the folder being drawn in.
-
-        The whole of this screen's part in measuring: the window, the
-        table and the run live in
-        :mod:`spacr.qt.screens.measure_inputs`, so Make Masks holds a button
-        and a folder and nothing else about measuring.
-
-        :param _checked: Qt's toggled flag, unused.
-        :returns: the window, so a test can drive it.
-        """
-        from .measure_inputs import open_measure_inputs
-
-        return open_measure_inputs(self, folder=self._folder or None)
 
     def _curation_paths(self):
         """The field being judged and the mask it is judged with.

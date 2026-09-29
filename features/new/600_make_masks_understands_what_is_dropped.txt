@@ -239,3 +239,45 @@ Left: the maintainer's own run in the GUI on his folder (the scripted run
 on a copy passed, see above); translation rows at the next
 catalog rebuild; deleting 593's now-unused ChannelSortDialog/RegexWindow if
 he agrees.
+
+--------------------------------------------------------------------------------
+NOTE 2026-09-29 (600b, follow-up)
+--------------------------------------------------------------------------------
+
+The maintainer, verbatim: "remove the feature button in make masks this new
+button is replacingit. and there should be an option to view the images in
+te table instead of just seeing the image name. so an aditional dropdown that
+conntrolls image or text adn an additioanl image and text where the text is
+overlayed on the top of theimage. also the user should easily be able to
+choose the color of the text and drag and drop image into different tavble
+slots. if the user drags an image to a sn ocupied spot the two images swap.
+there should also be an elegant white x in the top right of each image to
+delete it (x turns red when hovered.) and the user should be able to drow in
+multiple images into a column at thesame time as files or as a folder."
+
+Done:
+* Make Masks' "Features" button (MakeMasksScreen._btn_features and
+  _on_open_features, which opened spacr.qt.screens.measure_inputs'
+  measurement-input table) is removed; "Organize for Measure…" replaces it.
+  The measure_inputs window itself is untouched. Its test now asserts the
+  button is gone.
+* The Organize table has a "Show" dropdown -- Text, Image, Image + text --
+  and a "Text colour" swatch button (QColorDialog) for the overlay; both
+  are remembered per viewer in the Qt preferences
+  (organize_for_measure/view, organize_for_measure/text_color).
+  Thumbnails are read off the GUI thread (593's _ThumbWorker) and cached.
+* Any cell can be dragged onto any slot: an occupied slot swaps the two, an
+  empty one takes it, below the last row makes a new row; when both slots
+  are channel columns with mask columns, the masks swap with their images
+  (_swap_cells, pure).
+* Every filled cell has a painted white x in its top-right corner (drawn by
+  the delegate, not a widget), red under the mouse; clicking it, or Delete /
+  Backspace on selected cells, removes the file (and its mask) from the
+  table (_clear_cell, pure); the x has a tooltip.
+* Several files or whole folders dropped on a column fill it, sorted by
+  name and matched by row (as before; now tested).
+
+Tests: tests/qt/test_600_organize_for_measure.py 36 (8 new: the pure swap
+and clear, slot drag onto an occupied and an empty slot, x hover and click
+through real mouse events, Delete, views/thumbnails/colour/preferences,
+multi-file and folder drops), plus the Features test file.

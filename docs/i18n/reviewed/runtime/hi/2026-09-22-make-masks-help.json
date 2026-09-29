@@ -18,13 +18,6 @@
     },
     {
       "table": "ui",
-      "key": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
-      "source": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
-      "source_sha256": "86d3eb9598ad455ef91762b1c2f06387310120a4c2b4fec1362d90ddd3c40986",
-      "translation": "आपके बनाए मास्क मापें। एक तालिका खुलती है जिसमें प्रत्येक पंक्ति एक दृश्य क्षेत्र और प्रत्येक स्तंभ एक चैनल या मास्क का प्रकार है। प्रक्रिया मापन मॉड्यूल से ही चलती है, इसलिए वही फ़ोल्डर और मापन डेटाबेस बनते हैं जो उस मॉड्यूल को चलाने पर बनते हैं।"
-    },
-    {
-      "table": "ui",
       "key": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
       "source": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
       "source_sha256": "dbabdc7febc500744ec183d083bf98d31f6b3035fd3dc60ff132ebe9bdec1fe4",

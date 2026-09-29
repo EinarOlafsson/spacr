@@ -417,13 +417,6 @@
     },
     {
       "table": "ui",
-      "key": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
-      "source": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
-      "translation": "Medir as máscaras que você desenhou. Abre uma tabela em que cada linha é um campo e cada coluna é um canal ou tipo de máscara. A execução passa pelo próprio módulo Measure; portanto, as pastas e o banco de dados de medidas são os mesmos que uma execução de Measure produz.",
-      "source_sha256": "86d3eb9598ad455ef91762b1c2f06387310120a4c2b4fec1362d90ddd3c40986"
-    },
-    {
-      "table": "ui",
       "key": "Midnight",
       "source": "Midnight",
       "translation": "Meia-noite",

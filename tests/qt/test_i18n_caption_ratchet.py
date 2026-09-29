@@ -1185,6 +1185,8 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 600, 2026-09-29: Make Masks' "Organize for Measure…" button and popup
 # (spacr/qt/widgets/organize_for_measure.py) and the drop-classification
 # console lines and mask-pairing prompt on the Make Masks screen.
+# 600b, 2026-09-29: the popup table's Text / Image / Image + text view,
+# overlay colour, slot-drag tooltip and the ×'s tooltip.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     '(nothing)',
     'A folder of images; drop one here',
@@ -1197,9 +1199,11 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'Copied {n} mask(s) beside their images.',
     'Could not copy {mask}: {error}',
     'Detect sets needs at least two channel columns with images: drop them into the columns, or sort by a regex with chanID.',
+    'Drag it to another slot to move it (an occupied slot swaps); the × or Delete removes it.',
     'Drop images or folders here for a new channel',
     'Find a regex that puts every image in exactly one complete set, put it in custom_regex and sort by it.',
     "Ignore the names' structure: match every column's files by similarity, order and size, then show three sets to check.",
+    'Image + text',
     "Images whose names have “{marker}” here look like {kind}. Does this part of the name mark a channel or a mask, or is it only part of the field's name?",
     'It is a mask',
     "It is part of the field's name",
@@ -1220,14 +1224,19 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "Ready for Measure: open Measure and use {dest} as its source (it is first in Measure's recent sources). Its merged arrays hold the images first, then the mask planes in the order cell, nucleus, pathogen, organelle.",
     'Regex with named groups: chanID, and wellID, fieldID...',
     "Regex: the same filename conventions as Mask generation. 'auto' lets spaCR propose one; 'custom' uses the regex below.",
+    'Remove from the table (Delete); the file is not touched.',
     'Remove selected files',
     'Remove this column and its files from the table.',
+    'Show each cell as its file name, its image, or its image with the name written over it.',
     'Show one image at a time and ask which channel (or mask) it is, learning a regex from the answers until every image is placed.',
     'Skip this image',
     'Sort by regex',
     'Stop: the rest are not needed',
     "Take the selected cells' files out of the table; the files themselves are not touched.",
     'Teach me…',
+    'Text',
+    'Text colour',
+    'The colour of the names written over the images.',
     'The detected sets were not used.',
     'Use the dropped masks?',
     'What does this part of the name mean?',

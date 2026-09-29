@@ -44,11 +44,13 @@ from dataclasses import dataclass
 from typing import Dict, Iterable, List, Optional, Sequence
 
 import numpy as np
-from PySide6.QtCore import QByteArray, QMimeData, Qt, Signal
+from PySide6.QtCore import QByteArray, QEvent, QMimeData, QSize, Qt, Signal
+from PySide6.QtGui import QColor, QImage, QPainter, QPen, QPixmap
 from PySide6.QtWidgets import (
-    QAbstractItemView, QApplication, QCheckBox, QComboBox, QDialog,
-    QFileDialog, QFrame, QHBoxLayout, QLabel, QLineEdit, QMessageBox,
-    QPushButton, QTableWidget, QTableWidgetItem, QVBoxLayout,
+    QAbstractItemView, QApplication, QCheckBox, QColorDialog, QComboBox,
+    QDialog, QFileDialog, QFrame, QHBoxLayout, QLabel, QLineEdit,
+    QMessageBox, QPushButton, QStyle, QStyledItemDelegate, QTableWidget,
+    QTableWidgetItem, QToolTip, QVBoxLayout,
 )
 
 from ... import channel_sorting as cs
@@ -97,6 +99,21 @@ def _mime_cells(mime: Optional[QMimeData]):
         return int(data["column"]), [str(p) for p in data["paths"]]
     except (ValueError, KeyError, TypeError, UnicodeDecodeError):
         return None, []
+
+
+def _mime_slots(mime: Optional[QMimeData]) -> List[List[int]]:
+    """The table slots a drag out of the table carries.
+
+    :param mime: the drag's data.
+    :returns: ``[[row, column], ...]``, empty for any other drag.
+    """
+    if mime is None or not mime.hasFormat(_CELLS_MIME):
+        return []
+    try:
+        data = json.loads(bytes(mime.data(_CELLS_MIME)).decode("utf-8"))
+        return [[int(r), int(c)] for r, c in data.get("cells", [])]
+    except (ValueError, TypeError, AttributeError, UnicodeDecodeError):
+        return []
 
 
 def _images_in(paths: Iterable[str]):
@@ -176,14 +193,219 @@ class _PathEdit(QLineEdit):
         self.setText(folders[0])
 
 
+#: How the table shows a cell: its name, its thumbnail, or both.
+_VIEWS = ("text", "image", "both")
+
+#: The thumbnail side in the table's image views, in pixels.
+_CELL_THUMB = 96
+
+#: The side of the × that clears a cell, in pixels.
+_CLOSE_SIZE = 14
+
+
+def _swap_cells(rows: List[List[Optional[str]]], mask_of: Dict[int, int],
+                source, target) -> List[List[Optional[str]]]:
+    """Swap two table slots; the images' masks move with them.
+
+    Dropping on an empty slot is the same swap with nothing. A target row
+    one past the last makes a new row. When both slots are in channel
+    columns that have a mask column, the masks in those rows swap too, so
+    an image never leaves its mask behind.
+
+    :param rows: the table, one list per row, changed in place.
+    :param mask_of: ``{channel column: its mask column}``.
+    :param source: ``(row, column)`` dragged.
+    :param target: ``(row, column)`` dropped on.
+    :returns: ``rows``.
+    """
+    (r1, c1), (r2, c2) = source, target
+    width = len(rows[0]) if rows else max(c1, c2) + 1
+    while r2 >= len(rows):
+        rows.append([None] * width)
+    rows[r1][c1], rows[r2][c2] = rows[r2][c2], rows[r1][c1]
+    if c1 in mask_of and c2 in mask_of and (r1, c1) != (r2, c2):
+        m1, m2 = mask_of[c1], mask_of[c2]
+        rows[r1][m1], rows[r2][m2] = rows[r2][m2], rows[r1][m1]
+    return rows
+
+
+def _clear_cell(rows: List[List[Optional[str]]], mask_of: Dict[int, int],
+                cell) -> Optional[str]:
+    """Empty one slot; an image's mask leaves the table with it.
+
+    :param rows: the table, changed in place.
+    :param mask_of: ``{channel column: its mask column}``.
+    :param cell: ``(row, column)``.
+    :returns: the file that was there, or None.
+    """
+    row, column = cell
+    if not 0 <= row < len(rows):
+        return None
+    removed, rows[row][column] = rows[row][column], None
+    if removed and column in mask_of:
+        rows[row][mask_of[column]] = None
+    return removed
+
+
+def _close_rect(cell_rect):
+    """Where a cell's × sits: its top-right corner.
+
+    :param cell_rect: the cell's QRect.
+    :returns: the × QRect.
+    """
+    from PySide6.QtCore import QRect
+
+    return QRect(cell_rect.right() - _CLOSE_SIZE - 3, cell_rect.top() + 3,
+                 _CLOSE_SIZE, _CLOSE_SIZE)
+
+
+class _CellDelegate(QStyledItemDelegate):
+    """Draws a table cell as text, thumbnail or both, with its ×.
+
+    The × is painted, not a widget per cell: white with a dark outline, red
+    while the mouse is over it (the table tracks the mouse and the click).
+    """
+
+    def __init__(self, table, parent=None):
+        """Remember the table whose view, colour and thumbnails it reads.
+
+        :param table: the :class:`_OrganizeTable`.
+        :param parent: the Qt parent.
+        """
+        super().__init__(parent)
+        self._table = table
+        self.view = "text"
+        self.text_color = QColor("white")
+        self.pixmaps: Dict[str, QPixmap] = {}
+        #: The (row, column) whose × the mouse is over, or None.
+        self.hover = None
+
+    def paint(self, painter, option, index) -> None:
+        """Draw the cell in the chosen view, then its ×.
+
+        :param painter: the painter.
+        :param option: the style option.
+        :param index: the cell.
+        """
+        path = index.data(Qt.UserRole)
+        pixmap = self.pixmaps.get(path) if path else None
+        if self.view == "text" or pixmap is None:
+            super().paint(painter, option, index)
+        else:
+            painter.save()
+            if option.state & QStyle.State_Selected:
+                painter.fillRect(option.rect, option.palette.highlight())
+            scaled = pixmap.scaled(option.rect.size() - QSize(4, 4),
+                                   Qt.KeepAspectRatio,
+                                   Qt.SmoothTransformation)
+            x = option.rect.x() + (option.rect.width() - scaled.width()) // 2
+            y = option.rect.y() + (option.rect.height() - scaled.height()) // 2
+            painter.drawPixmap(x, y, scaled)
+            if self.view == "both":
+                text = os.path.basename(path)
+                box = option.rect.adjusted(4, 4, -4, -4)
+                painter.setPen(QColor(0, 0, 0, 200))
+                painter.drawText(box.translated(1, 1),
+                                 Qt.AlignBottom | Qt.AlignLeft | Qt.TextWordWrap,
+                                 text)
+                painter.setPen(self.text_color)
+                painter.drawText(box, Qt.AlignBottom | Qt.AlignLeft
+                                 | Qt.TextWordWrap, text)
+            painter.restore()
+        if path:
+            self._paint_close(painter, _close_rect(option.rect),
+                              self.hover == (index.row(), index.column()))
+
+    @staticmethod
+    def _paint_close(painter, rect, hovered: bool) -> None:
+        """Draw the × in ``rect``: white, red when hovered.
+
+        :param painter: the painter.
+        :param rect: where.
+        :param hovered: whether the mouse is over it.
+        """
+        painter.save()
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        inset = rect.adjusted(3, 3, -3, -3)
+        outline = QPen(QColor(0, 0, 0, 170), 4, Qt.SolidLine, Qt.RoundCap)
+        stroke = QPen(QColor(220, 40, 40) if hovered else QColor("white"),
+                      2, Qt.SolidLine, Qt.RoundCap)
+        for pen in (outline, stroke):
+            painter.setPen(pen)
+            painter.drawLine(inset.topLeft(), inset.bottomRight())
+            painter.drawLine(inset.topRight(), inset.bottomLeft())
+        painter.restore()
+
+    def helpEvent(self, event, view, option, index) -> bool:
+        """The ×'s tooltip.
+
+        :param event: the help event.
+        :param view: the view.
+        :param option: the style option.
+        :param index: the cell.
+        :returns: True when a tooltip was shown.
+        """
+        if index.data(Qt.UserRole) and _close_rect(option.rect).contains(
+                event.pos()):
+            QToolTip.showText(event.globalPos(), tr(
+                "Remove from the table (Delete); the file is not touched."),
+                view)
+            return True
+        return super().helpEvent(event, view, option, index)
+
+
+#: Where the table's view and overlay colour are remembered, per viewer.
+_PREFS_VIEW = "organize_for_measure/view"
+_PREFS_COLOR = "organize_for_measure/text_color"
+
+
+def _load_view_prefs():
+    """The remembered view and overlay colour.
+
+    :returns: ``(view, colour name)``; ``("text", "#ffffff")`` when nothing
+        is stored or the preferences cannot be read.
+    """
+    try:
+        from ..prefs import _s
+
+        store = _s()
+        view = str(store.value(_PREFS_VIEW, "text") or "text")
+        color = str(store.value(_PREFS_COLOR, "#ffffff") or "#ffffff")
+    except Exception:
+        return "text", "#ffffff"
+    return (view if view in _VIEWS else "text"), color
+
+
+def _save_view_prefs(view: str, color: str) -> None:
+    """Remember the view and overlay colour for the next popup.
+
+    :param view: one of :data:`_VIEWS`.
+    :param color: a colour name.
+    """
+    try:
+        from ..prefs import _s
+
+        store = _s()
+        store.setValue(_PREFS_VIEW, view)
+        store.setValue(_PREFS_COLOR, color)
+    except Exception:
+        pass
+
+
 class _OrganizeTable(QTableWidget):
     """The channel/mask table; every column is a drop target.
 
     :ivar dropped: ``(column, paths, from_column)`` -- files dropped on a
         column; ``from_column`` is -1 for a drop from the file manager.
+    :ivar cell_moved: ``(from row, from column, to row, to column)`` -- one
+        cell dragged onto a slot; the dialog swaps the two.
+    :ivar clear_requested: ``([[row, column], ...])`` -- cells whose × was
+        clicked, or that were selected when Delete was pressed.
     """
 
     dropped = Signal(int, list, int)
+    cell_moved = Signal(int, int, int, int)
+    clear_requested = Signal(list)
 
     def __init__(self, parent=None):
         """A table that drags cells out and takes drops on any column.
@@ -197,6 +419,86 @@ class _OrganizeTable(QTableWidget):
         self.setDefaultDropAction(Qt.MoveAction)
         self.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.setMouseTracking(True)
+        self._pressed_close = None
+
+    def _close_hit(self, pos):
+        """The cell whose × is under ``pos``, or None.
+
+        :param pos: a point in the viewport.
+        :returns: ``(row, column)`` or None.
+        """
+        index = self.indexAt(pos)
+        if index.isValid() and index.data(Qt.UserRole) and _close_rect(
+                self.visualRect(index)).contains(pos):
+            return index.row(), index.column()
+        return None
+
+    def _set_hover(self, hit) -> None:
+        """Turn the × under the mouse red, and the last one white again.
+
+        :param hit: ``(row, column)`` or None.
+        """
+        delegate = self.itemDelegate()
+        if getattr(delegate, "hover", None) != hit:
+            delegate.hover = hit
+            self.viewport().update()
+
+    def mouseMoveEvent(self, event) -> None:
+        """Follow the mouse over the ×s.
+
+        :param event: the mouse event.
+        """
+        self._set_hover(self._close_hit(event.position().toPoint()))
+        super().mouseMoveEvent(event)
+
+    def leaveEvent(self, event) -> None:
+        """No × is hovered once the mouse leaves.
+
+        :param event: the leave event.
+        """
+        self._set_hover(None)
+        super().leaveEvent(event)
+
+    def mousePressEvent(self, event) -> None:
+        """A press on a × is the ×'s, not the start of a drag.
+
+        :param event: the mouse event.
+        """
+        hit = self._close_hit(event.position().toPoint())
+        self._pressed_close = hit
+        if hit is not None and event.button() == Qt.LeftButton:
+            event.accept()
+            return
+        super().mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event) -> None:
+        """Releasing on the × that was pressed clears its cell.
+
+        :param event: the mouse event.
+        """
+        hit = self._close_hit(event.position().toPoint())
+        pressed, self._pressed_close = self._pressed_close, None
+        if hit is not None and hit == pressed:
+            event.accept()
+            self.clear_requested.emit([list(hit)])
+            return
+        super().mouseReleaseEvent(event)
+
+    def keyPressEvent(self, event) -> None:
+        """Delete or Backspace clears the selected cells.
+
+        :param event: the key event.
+        """
+        if event.key() in (Qt.Key_Delete, Qt.Key_Backspace):
+            cells = [[item.row(), item.column()]
+                     for item in self.selectedItems()
+                     if item.data(Qt.UserRole)]
+            if cells:
+                self.clear_requested.emit(cells)
+                event.accept()
+                return
+        super().keyPressEvent(event)
 
     def mimeTypes(self) -> List[str]:
         """The formats a drag out of the table offers.
@@ -217,10 +519,12 @@ class _OrganizeTable(QTableWidget):
         mime = QMimeData()
         items = [item for item in items if item.data(Qt.UserRole)]
         column = items[0].column() if items else -1
-        paths = [item.data(Qt.UserRole) for item in items
-                 if item.column() == column]
+        chosen = [item for item in items if item.column() == column]
         mime.setData(_CELLS_MIME, QByteArray(json.dumps(
-            {"column": column, "paths": paths}).encode("utf-8")))
+            {"column": column,
+             "paths": [item.data(Qt.UserRole) for item in chosen],
+             "cells": [[item.row(), item.column()] for item in chosen]}
+        ).encode("utf-8")))
         return mime
 
     def _accepts(self, event) -> bool:
@@ -263,6 +567,13 @@ class _OrganizeTable(QTableWidget):
         source, cells = _mime_cells(event.mimeData())
         event.setDropAction(Qt.CopyAction)
         event.accept()
+        slots = _mime_slots(event.mimeData())
+        if len(slots) == 1:
+            row = self.rowAt(int(event.position().y()))
+            if row < 0:
+                row = self.rowCount()
+            self.cell_moved.emit(slots[0][0], slots[0][1], row, column)
+            return
         if cells:
             self.dropped.emit(column, cells, -1 if source is None else source)
         else:
@@ -538,6 +849,21 @@ class OrganizeForMeasureDialog(QDialog):
                        self.remove_button):
             dims_row.addWidget(button)
         dims_row.addStretch(1)
+        show_label = QLabel(tr("Show"))
+        show_label.setToolTip(tr(
+            "Show each cell as its file name, its image, or its image with "
+            "the name written over it."))
+        dims_row.addWidget(show_label)
+        self.view_box = QComboBox()
+        for value, caption in (("text", tr("Text")), ("image", tr("Image")),
+                               ("both", tr("Image + text"))):
+            self.view_box.addItem(caption, value)
+        dims_row.addWidget(self.view_box)
+        self.color_button = QPushButton(tr("Text colour"))
+        self.color_button.setToolTip(tr(
+            "The colour of the names written over the images."))
+        self.color_button.clicked.connect(lambda: self._pick_text_color())
+        dims_row.addWidget(self.color_button)
         layout.addLayout(dims_row)
         self._editors_row = QHBoxLayout()
         layout.addLayout(self._editors_row)
@@ -545,6 +871,13 @@ class OrganizeForMeasureDialog(QDialog):
         table_row = QHBoxLayout()
         self.table = _OrganizeTable()
         self.table.dropped.connect(self._on_table_drop)
+        self.table.cell_moved.connect(self._swap_slots)
+        self.table.clear_requested.connect(self._clear_slots)
+        self.delegate = _CellDelegate(self.table, self.table)
+        self.table.setItemDelegate(self.delegate)
+        self._thumb_workers: list = []
+        self._thumb_pending: set = set()
+        self.finished.connect(lambda _code: self._stop_thumbs())
         table_row.addWidget(self.table, 1)
         self.new_zone = _NewColumnZone()
         self.new_zone.setMaximumWidth(150)
@@ -582,7 +915,16 @@ class OrganizeForMeasureDialog(QDialog):
         if channel_folders:
             self._rematch()
         self._suggest_output()
+        stored = _load_view_prefs()
+        self._set_text_color(stored[1])
+        self.view_box.setCurrentIndex(max(0, self.view_box.findData(stored[0])))
+        self.view_box.currentIndexChanged.connect(
+            lambda _i: self._set_view(self.view_box.currentData()))
+        self._set_view(stored[0], remember=False)
         self._refresh()
+        from ..screens.settings_model import retarget_field_tooltips
+
+        retarget_field_tooltips(self)
 
     # -- columns -----------------------------------------------------------
 
@@ -1438,6 +1780,123 @@ class OrganizeForMeasureDialog(QDialog):
         self._rebuild_editors()
         self._refresh_table()
 
+    # -- the table's view, slots and × ---------------------------------------
+
+    def _mask_of(self) -> Dict[int, int]:
+        """``{channel column: its mask column}``, for moving masks along."""
+        return {channel: mask for mask, channel in self._partners().items()}
+
+    def _swap_slots(self, from_row: int, from_column: int, to_row: int,
+                   to_column: int) -> None:
+        """Move one cell to another slot; an occupied slot swaps with it.
+
+        The images' masks move with them. Rows left with nothing are dropped.
+
+        :param from_row: the dragged cell's row.
+        :param from_column: its column.
+        :param to_row: the slot's row; one past the last makes a new row.
+        :param to_column: the slot's column.
+        """
+        if not (0 <= from_row < len(self.rows)
+                and 0 <= from_column < len(self.columns)
+                and 0 <= to_column < len(self.columns) and to_row >= 0):
+            return
+        before = len(self.rows)
+        _swap_cells(self.rows, self._mask_of(), (from_row, from_column),
+                    (to_row, to_column))
+        self.row_keys.extend([None] * (len(self.rows) - before))
+        self._drop_empty_rows()
+        self._refresh_table()
+
+    def _clear_slots(self, cells) -> int:
+        """Empty cells (the × or Delete); their images' masks go too.
+
+        :param cells: ``[[row, column], ...]``.
+        :returns: how many files left the table.
+        """
+        mask_of = self._mask_of()
+        removed = sum(1 for row, column in cells
+                      if _clear_cell(self.rows, mask_of, (row, column)))
+        self._drop_empty_rows()
+        self._refresh_table()
+        return removed
+
+    def _set_view(self, view: str, remember: bool = True) -> None:
+        """Show cells as ``text``, ``image`` or ``both``.
+
+        :param view: one of :data:`_VIEWS`.
+        :param remember: store it in the preferences.
+        """
+        view = view if view in _VIEWS else "text"
+        self.delegate.view = view
+        self.color_button.setEnabled(view == "both")
+        if remember:
+            _save_view_prefs(view, self.delegate.text_color.name())
+        self._refresh_table()
+
+    def _set_text_color(self, color, remember: bool = False) -> None:
+        """The colour of the names written over the images.
+
+        :param color: a QColor or a colour name such as ``#ffff00``.
+        :param remember: store it in the preferences.
+        """
+        color = QColor(color)
+        if not color.isValid():
+            color = QColor("white")
+        self.delegate.text_color = color
+        self.color_button.setStyleSheet(
+            f"QPushButton {{ border-left: 14px solid {color.name()}; }}")
+        if remember:
+            _save_view_prefs(self.delegate.view, color.name())
+        self.table.viewport().update()
+
+    def _pick_text_color(self) -> None:
+        """Choose the overlay colour in a colour dialog (not headless)."""
+        if _headless():
+            return
+        color = QColorDialog.getColor(self.delegate.text_color, self,
+                                      tr("Text colour"))
+        if color.isValid():
+            self._set_text_color(color, remember=True)
+
+    def _load_thumbnails(self) -> None:
+        """Read the thumbnails the table shows but has not got, off-thread."""
+        wanted = [p for row in self.rows for p in row
+                  if p and p not in self.delegate.pixmaps
+                  and p not in self._thumb_pending]
+        if not wanted:
+            return
+        from .channel_sort_dialog import _ThumbWorker
+
+        self._thumb_pending.update(wanted)
+        worker = _ThumbWorker("", wanted, None, self)
+        worker.ready.connect(self._take_thumbnail)
+        self._thumb_workers.append(worker)
+        worker.start()
+
+    def _take_thumbnail(self, path: str, image, _mask) -> None:
+        """Cache one thumbnail and redraw.
+
+        :param path: the file.
+        :param image: its 2-D ``uint8`` thumbnail, or None.
+        :param _mask: its mask thumbnail, unused here.
+        """
+        self._thumb_pending.discard(path)
+        if image is None:
+            return
+        array = np.ascontiguousarray(image)
+        qimage = QImage(array.data, array.shape[1], array.shape[0],
+                        array.shape[1], QImage.Format_Grayscale8)
+        self.delegate.pixmaps[path] = QPixmap.fromImage(qimage.copy())
+        self.table.viewport().update()
+
+    def _stop_thumbs(self) -> None:
+        """End the thumbnail threads and wait for them."""
+        for worker in self._thumb_workers:
+            if worker.isRunning():
+                worker.stop()
+                worker.wait(5000)
+
     def _refresh_table(self) -> None:
         """Fill the table from the rows, empty cells flagged."""
         from PySide6.QtGui import QBrush, QColor
@@ -1453,16 +1912,27 @@ class OrganizeForMeasureDialog(QDialog):
             for c, path in enumerate(row):
                 item = QTableWidgetItem(os.path.basename(path) if path else "—")
                 item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable
+                              | Qt.ItemIsDropEnabled
                               | (Qt.ItemIsDragEnabled if path else Qt.NoItemFlags))
                 if path:
                     item.setData(Qt.UserRole, path)
-                    item.setToolTip(path)
+                    item.setToolTip(path + "\n" + tr(
+                        "Drag it to another slot to move it (an occupied "
+                        "slot swaps); the \u00d7 or Delete removes it."))
                 else:
                     item.setToolTip(tr("Nothing matched here"))
                     if c in channels:
                         item.setBackground(flag)
                 self.table.setItem(r, c, item)
-        self.table.resizeColumnsToContents()
+        if self.delegate.view == "text":
+            self.table.resizeColumnsToContents()
+            self.table.resizeRowsToContents()
+        else:
+            for column in range(self.table.columnCount()):
+                self.table.setColumnWidth(column, _CELL_THUMB + 24)
+            for row in range(self.table.rowCount()):
+                self.table.setRowHeight(row, _CELL_THUMB + 8)
+            self._load_thumbnails()
         missing = len(self._incomplete_rows())
         lines = [tr("{rows} row(s) in {channels} channel(s) and {masks} "
                     "mask column(s); {missing} row(s) incomplete.",

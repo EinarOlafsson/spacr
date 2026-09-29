@@ -172,13 +172,6 @@
     },
     {
       "table": "ui",
-      "key": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
-      "source": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
-      "translation": "测量您绘制的掩膜。打开一个表格，其中每行对应一个视野，每列对应一个通道或掩膜类型；运行由 Measure 模块本身执行，因此输出文件夹和测量数据库与正常 Measure 运行生成的一致。",
-      "source_sha256": "86d3eb9598ad455ef91762b1c2f06387310120a4c2b4fec1362d90ddd3c40986"
-    },
-    {
-      "table": "ui",
       "key": "Midnight",
       "source": "Midnight",
       "translation": "午夜",

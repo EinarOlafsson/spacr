@@ -165,12 +165,28 @@ def _compact_tooltip_sources(language: str) -> set[str]:
     return {record["source"] for record in records}
 
 
+#: Sources retired by item 600b (the Features button's tooltip).
+_RETIRED_BY_600B = {
+    "Measure the masks you drew. Opens a table where each row is a field and "
+    "each column is a channel or a mask type; the run goes through the "
+    "Measure module itself, so the folders and the measurements database "
+    "are the ones a Measure run produces.",
+}
+
+
 def _with_training_sample_replacements(document, language, filename):
     archive = ROOT / "features/data/450_451_retired_runtime_review_2026-09-27" / language / filename
     if not archive.exists():
         return document
     original = json.loads(archive.read_text())["records"]
     retained = document["records"]
+    # 600b, 2026-09-29: Make Masks' Features button was removed, so its
+    # tooltip's reviewed record was deleted (key gone); it is not one of the
+    # training-sample replacements below.
+    features = {row for row in (json.dumps(r, sort_keys=True) for r in original)
+                if json.loads(row)["source"] in _RETIRED_BY_600B}
+    features = [json.loads(row) for row in features]
+    original = [row for row in original if row not in features]
     retired = [row for row in original if row not in retained]
     assert len(retired) == (2 if filename == "2026-09-21-runtime-ui-refresh.json" else 1)
     replacements = {
@@ -350,8 +366,10 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # button, ledger, card and placeholder help): 263 -> 259, 260 -> 256.
     # Instruction 316 then retired the 17 setup and sign-in captions that
     # moved to _ROWS (kept under retired_records): 259 -> 242, 256 -> 239.
-    assert len(ui_refresh["records"]) == 242  # Three old threshold/histogram reviews archived.
-    assert len(ui_sources) == 239
+    # 600b, 2026-09-29: the Features button's tooltip was retired (Make
+    # Masks' button removed): 242 -> 241, 239 -> 238.
+    assert len(ui_refresh["records"]) == 241  # Three old threshold/histogram reviews archived.
+    assert len(ui_sources) == 238
     assert ui_sources <= reviewed.keys()
     all_reviewed = reviewed
     examples = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
@@ -558,14 +576,14 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # The new panel cohort also reuses the earlier whole-field model tooltip.
     # 316 (71071b6c6) retired 17 setup and sign-in captions to _ROWS: -17 below;
     # the total also loses its sign-in-status record and a superseded psf-help record.
-    assert len(older_all_sources - example_sources - preview_sources - normalized_sources) == 600  # Item 511 retired four filter captions. Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
-    assert len(older_all_sources - preview_sources - normalized_sources) == 607  # Item 511 retired four filter captions. Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
-    assert len(older_all_sources - normalized_sources) == 612  # Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
-    assert len(older_all_sources) == 617  # Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
+    assert len(older_all_sources - example_sources - preview_sources - normalized_sources) == 599  # 600b (2026-09-29): -1, the Features tooltip retired.  # Item 511 retired four filter captions. Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
+    assert len(older_all_sources - preview_sources - normalized_sources) == 606  # 600b (2026-09-29): -1, the Features tooltip retired.  # Item 511 retired four filter captions. Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
+    assert len(older_all_sources - normalized_sources) == 611  # 600b (2026-09-29): -1, the Features tooltip retired.  # Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).  # 600b (2026-09-29): -1, the Features tooltip retired.
+    assert len(older_all_sources) == 616  # 600b (2026-09-29): -1, the Features tooltip retired.  # Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).  # 600b (2026-09-29): -1, the Features tooltip retired.
     # Item463 retired one superseded download tooltip; its full old evidence
     # and exact set difference are checked by _new_download_sources above.
-    assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) == 627
-    assert len(all_reviewed.keys() - debt_sources - inherited_sources) == 1687  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.
+    assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) == 626  # 600b (2026-09-29): -1, the Features tooltip retired.
+    assert len(all_reviewed.keys() - debt_sources - inherited_sources) == 1686  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -601,7 +619,8 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     second = _with_training_sample_replacements(
         second, "fr", "2026-09-21-runtime-second-slice.json")
     second_sources = {record["source"] for record in second["records"]}
-    assert len(second["records"]) == len(second_sources) == 64
+    # 64 -> 63 on 2026-09-29: 600b retired the Features button's tooltip.
+    assert len(second["records"]) == len(second_sources) == 63
     assert second_sources <= all_reviewed.keys()
     assert not refresh_sources & second_sources
     refresh_sources |= second_sources
@@ -616,7 +635,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
         assert added <= all_reviewed.keys()
         assert not added & refresh_sources
         refresh_sources |= added
-    assert len(refresh_sources) == 278  # Three superseded threshold/histogram sources.
+    assert len(refresh_sources) == 277  # 600b (2026-09-29): -1, the Features tooltip retired.  # Three superseded threshold/histogram sources.
     actions = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                           "2026-09-21-action-labels.json").read_text())
     action_sources = {record["source"] for record in actions["records"]}
@@ -816,8 +835,8 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # Item463 retired the one superseded download tooltip, proven above.
     assert len(all_reviewed.keys() - refresh_sources - subsequent_sources - debt_sources - inherited_sources) == 338
     # 316 (71071b6c6) retired 17 setup and sign-in captions from the four slices to _ROWS.
-    assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) == 620
-    assert len(all_reviewed.keys() - debt_sources - inherited_sources) == 1679  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.
+    assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) == 619  # 600b (2026-09-29): -1, the Features tooltip retired.
+    assert len(all_reviewed.keys() - debt_sources - inherited_sources) == 1678  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

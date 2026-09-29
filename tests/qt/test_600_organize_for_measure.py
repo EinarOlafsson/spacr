@@ -15,7 +15,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 import tifffile
-from PySide6.QtCore import QMimeData, QPoint, QPointF, Qt, QUrl
+from PySide6.QtCore import QEvent, QMimeData, QPoint, QPointF, Qt, QUrl
 from PySide6.QtGui import QDragEnterEvent, QDropEvent
 
 from spacr import channel_sorting as cs
@@ -534,3 +534,157 @@ def test_the_question_box_answers(qtbot, qt_theme_applied, tmp_path):
     box._choose(("channel", 2))
     assert box.answer == ("channel", 2)
     assert box.mask_channel.count() == 1
+
+
+# -- 600b: the table's views, slots, swaps and × ------------------------------
+
+def test_swap_and_clear_are_pure_and_move_masks():
+    rows = [["a1", "b1", "ma1"], ["a2", None, "ma2"]]
+    mask_of = {0: 2}
+    ofm._swap_cells(rows, mask_of, (0, 0), (1, 0))
+    assert rows == [["a2", "b1", "ma2"], ["a1", None, "ma1"]]
+    ofm._swap_cells(rows, mask_of, (0, 1), (1, 1))
+    assert rows == [["a2", None, "ma2"], ["a1", "b1", "ma1"]]
+    ofm._swap_cells(rows, mask_of, (0, 1), (3, 1))
+    assert len(rows) == 4 and rows[3] == [None, None, None]
+    assert ofm._clear_cell(rows, mask_of, (1, 0)) == "a1"
+    assert rows[1] == [None, "b1", None]
+    assert ofm._clear_cell(rows, mask_of, (9, 0)) is None
+
+
+def _two_channels(dialog, tmp_path):
+    """Fill two channel columns from ``_tree``.
+
+    :param dialog: the popup.
+    :param tmp_path: where the tree goes.
+    """
+    exp = _tree(tmp_path)
+    dialog.add_files(dialog.add_column("channel"), [exp / "DAPI"])
+    dialog.add_files(dialog.add_column("channel"), [exp / "GFP"])
+    return exp
+
+
+def _slot_drop(table, source_item, row, column):
+    """Drag one table cell onto a slot.
+
+    :param table: the table.
+    :param source_item: the dragged item.
+    :param row: the slot's row (the row count for a new row).
+    :param column: the slot's column.
+    """
+    mime = table.mimeData([source_item])
+    x = _x_of(table, column)
+    if row < table.rowCount():
+        y = table.rowViewportPosition(row) + table.rowHeight(row) // 2
+    else:
+        y = table.viewport().height() - 2
+    enter = QDragEnterEvent(QPoint(x, y), Qt.MoveAction, mime, Qt.LeftButton,
+                            Qt.NoModifier)
+    table.dragEnterEvent(enter)
+    assert enter.isAccepted()
+    table.dropEvent(QDropEvent(QPointF(x, y), Qt.MoveAction, mime,
+                               Qt.LeftButton, Qt.NoModifier))
+
+
+def test_dragging_a_cell_onto_an_occupied_slot_swaps_with_masks(dialog,
+                                                                tmp_path):
+    _two_channels(dialog, tmp_path)
+    table = dialog.table
+    first, second = dialog.rows[0][0], dialog.rows[1][0]
+    mask_first = dialog.rows[0][1]
+    _slot_drop(table, table.item(0, 0), 1, 0)
+    assert dialog.rows[1][0] == first and dialog.rows[0][0] == second
+    assert dialog.rows[1][1] == mask_first
+
+
+def test_dragging_a_cell_onto_an_empty_slot_moves_it(dialog, tmp_path):
+    _two_channels(dialog, tmp_path)
+    table = dialog.table
+    moved, its_mask = dialog.rows[0][2], dialog.rows[0][3]
+    assert dialog._clear_slots([[1, 2]]) == 1
+    assert dialog.rows[1][2] is None and dialog.rows[1][3] is None
+    _slot_drop(table, table.item(0, 2), 1, 2)
+    assert dialog.rows[1][2] == moved and dialog.rows[1][3] == its_mask
+    assert dialog.rows[0][2] is None and dialog.rows[0][3] is None
+
+
+def test_the_close_mark_turns_red_on_hover_and_clears_on_click(
+        qtbot, dialog, tmp_path):
+    from PySide6.QtCore import QPointF as P
+    from PySide6.QtGui import QMouseEvent
+
+    _two_channels(dialog, tmp_path)
+    dialog.resize(1000, 700)
+    table = dialog.table
+    rect = ofm._close_rect(table.visualRect(table.model().index(0, 0)))
+    centre = P(rect.center())
+    move = QMouseEvent(QEvent.MouseMove, centre, Qt.NoButton, Qt.NoButton,
+                       Qt.NoModifier)
+    table.mouseMoveEvent(move)
+    assert dialog.delegate.hover == (0, 0)
+    elsewhere = QMouseEvent(QEvent.MouseMove, P(2, 2), Qt.NoButton,
+                            Qt.NoButton, Qt.NoModifier)
+    table.mouseMoveEvent(elsewhere)
+    assert dialog.delegate.hover is None
+    gone = dialog.rows[0][0]
+    table.mousePressEvent(QMouseEvent(QEvent.MouseButtonPress, centre,
+                                      Qt.LeftButton, Qt.LeftButton,
+                                      Qt.NoModifier))
+    table.mouseReleaseEvent(QMouseEvent(QEvent.MouseButtonRelease, centre,
+                                        Qt.LeftButton, Qt.NoButton,
+                                        Qt.NoModifier))
+    assert gone not in [p for row in dialog.rows for p in row]
+    # Its mask went with it.
+    assert len(dialog._column_files(1)) == 2
+
+
+def test_delete_key_clears_the_selected_cells(dialog, tmp_path):
+    from PySide6.QtGui import QKeyEvent
+
+    _two_channels(dialog, tmp_path)
+    dialog.table.item(0, 2).setSelected(True)
+    gone = dialog.rows[0][2]
+    dialog.table.keyPressEvent(QKeyEvent(QEvent.KeyPress, Qt.Key_Delete,
+                                         Qt.NoModifier))
+    assert gone not in dialog._column_files(2)
+
+
+def test_views_thumbnails_colour_and_preferences(qtbot, dialog, tmp_path):
+    _two_channels(dialog, tmp_path)
+    dialog.view_box.setCurrentIndex(dialog.view_box.findData("both"))
+    assert dialog.delegate.view == "both"
+    assert dialog.color_button.isEnabled()
+    qtbot.waitUntil(lambda: len(dialog.delegate.pixmaps) == 12, timeout=10000)
+    assert dialog.table.rowHeight(0) == ofm._CELL_THUMB + 8
+    dialog._set_text_color("#ffff00", remember=True)
+    assert dialog.delegate.text_color.name() == "#ffff00"
+    dialog.table.viewport().grab()  # paints every view path without error
+    dialog._set_view("image")
+    dialog.table.viewport().grab()
+    assert ofm._load_view_prefs() == ("image", "#ffff00")
+    again = ofm.OrganizeForMeasureDialog()
+    qtbot.addWidget(again)
+    assert again.delegate.view == "image"
+    assert again.view_box.currentData() == "image"
+    again._set_view("nonsense")
+    assert again.delegate.view == "text" and not again.color_button.isEnabled()
+    dialog._stop_thumbs()
+
+
+def test_many_files_and_folders_fill_one_column_sorted(dialog, tmp_path):
+    exp = _tree(tmp_path, masks=False)
+    dialog.add_column("channel")
+    dialog.add_column("channel")
+    files = [exp / "GFP" / f"field{i}.tif" for i in (3, 1, 2)]
+    assert _drop(dialog.table, _urls(*files), _x_of(dialog.table, 1))
+    assert _drop(dialog.table, _urls(exp / "DAPI"), _x_of(dialog.table, 0))
+    names = [os.path.basename(r[1]) for r in dialog.rows]
+    assert names == ["field1.tif", "field2.tif", "field3.tif"]
+    assert not dialog._incomplete_rows()
+
+
+def test_slot_helpers_ignore_other_drags():
+    assert ofm._mime_slots(None) == []
+    mime = QMimeData()
+    mime.setData(ofm._CELLS_MIME, b"{bad")
+    assert ofm._mime_slots(mime) == []
