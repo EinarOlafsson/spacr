@@ -196,6 +196,27 @@ def _with_training_sample_replacements(document, language, filename):
     return {**document, "records": retained + replacement}
 
 
+#: The three reviewed files 316 added on 2026-09-28 for inherited alpha
+#: captions (2eee4bf3e, c356d4c0f): 8 QC-classifier, 11 SAM2/virtual-staining
+#: and 12 distinct counterfactual/database sources, none of them shared with
+#: an older file. The per-file pins below predate them, so each test takes
+#: these out first and checks them here, whole.
+INHERITED_2026_09_28 = ("2026-09-28-qc-classifier.json",
+                        "2026-09-28-sam2-virtual-staining.json",
+                        "2026-09-28-counterfactual-databases.json")
+
+
+def _inherited_2026_09_28_sources(language: str, reviewed) -> set[str]:
+    sources = set()
+    for name in INHERITED_2026_09_28:
+        document = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language
+                               / name).read_text())
+        sources |= {record["source"] for record in document["records"]}
+    assert len(sources) == 31
+    assert sources <= reviewed.keys()
+    return sources
+
+
 def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int) -> set[str]:
     """The 2026-09-25 runtime translation debt (instruction 316), one cohort.
 
@@ -338,11 +359,15 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # now says "saturating" where it said "blowing out", so its first-pass
     # record left 2026-09-25-runtime-debt-messages.json; the new wording is
     # a fourth-pass record.
-    debt_sources = _runtime_debt_sources("sv", all_reviewed, 711)
+    # 711 -> 710 on 2026-09-28: 595 removed the "Measurement Features"
+    # caption, so its record left 2026-09-25-runtime-debt-captions.json.
+    debt_sources = _runtime_debt_sources("sv", all_reviewed, 710)
     assert not debt_sources & (ui_sources | example_sources | preview_sources | normalized_sources | download_sources | subsequent_sources)
-    older_all_sources = all_reviewed.keys() - download_sources - subsequent_sources - debt_sources
+    inherited_sources = _inherited_2026_09_28_sources("sv", all_reviewed)
+    assert not inherited_sources & (debt_sources | ui_sources | download_sources | subsequent_sources)
+    older_all_sources = all_reviewed.keys() - download_sources - subsequent_sources - debt_sources - inherited_sources
     reviewed = {source: value for source, value in all_reviewed.items()
-                if source not in ui_sources | example_sources | preview_sources | normalized_sources | download_sources | subsequent_sources | debt_sources}
+                if source not in ui_sources | example_sources | preview_sources | normalized_sources | download_sources | subsequent_sources | debt_sources | inherited_sources}
     sources = canonical_sources()
     current_values = set(sources["setting_labels"].values())
     current_values.update(sources["setting_tooltips"].values())
@@ -517,8 +542,8 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(older_all_sources) == 617  # Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
     # Item463 retired one superseded download tooltip; its full old evidence
     # and exact set difference are checked by _new_download_sources above.
-    assert len(all_reviewed.keys() - subsequent_sources - debt_sources) == 627
-    assert len(all_reviewed.keys() - debt_sources) == 1688
+    assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) == 627
+    assert len(all_reviewed.keys() - debt_sources - inherited_sources) == 1688
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -605,11 +630,15 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # now says "saturating" where it said "blowing out", so its first-pass
     # record left 2026-09-25-runtime-debt-messages.json; the new wording is
     # a fourth-pass record.
-    debt_sources = _runtime_debt_sources("fr", all_reviewed, 711)
+    # 711 -> 710 on 2026-09-28: 595 removed the "Measurement Features"
+    # caption, so its record left 2026-09-25-runtime-debt-captions.json.
+    debt_sources = _runtime_debt_sources("fr", all_reviewed, 710)
     assert not debt_sources & (example_sources | preview_sources | normalized_sources | download_sources | refresh_sources | subsequent_sources)
-    older_all_sources = all_reviewed.keys() - download_sources - refresh_sources - subsequent_sources - debt_sources
+    inherited_sources = _inherited_2026_09_28_sources("fr", all_reviewed)
+    assert not inherited_sources & (debt_sources | refresh_sources | download_sources | subsequent_sources)
+    older_all_sources = all_reviewed.keys() - download_sources - refresh_sources - subsequent_sources - debt_sources - inherited_sources
     reviewed = {source: value for source, value in all_reviewed.items()
-                if source not in example_sources | preview_sources | normalized_sources | download_sources | refresh_sources | subsequent_sources | debt_sources}
+                if source not in example_sources | preview_sources | normalized_sources | download_sources | refresh_sources | subsequent_sources | debt_sources | inherited_sources}
     sources = canonical_sources()
     current_values = set(sources["setting_labels"].values())
     current_values.update(sources["setting_tooltips"].values())
@@ -763,10 +792,10 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(older_all_sources - normalized_sources) == 323  # Item 511 retirement (2026-09-25): -12.
     assert len(older_all_sources) == 328  # Item 511 retirement (2026-09-25): -12.
     # Item463 retired the one superseded download tooltip, proven above.
-    assert len(all_reviewed.keys() - refresh_sources - subsequent_sources - debt_sources) == 338
+    assert len(all_reviewed.keys() - refresh_sources - subsequent_sources - debt_sources - inherited_sources) == 338
     # 316 (71071b6c6) retired 17 setup and sign-in captions from the four slices to _ROWS.
-    assert len(all_reviewed.keys() - subsequent_sources - debt_sources) == 620
-    assert len(all_reviewed.keys() - debt_sources) == 1680
+    assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) == 620
+    assert len(all_reviewed.keys() - debt_sources - inherited_sources) == 1680
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
