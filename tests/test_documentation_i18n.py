@@ -818,6 +818,8 @@ def test_reviewed_genus_name_may_equal_english_only_where_listed():
     )
     assert not builder._reviewed_api_block_valid("plasmodium", "plasmodium", "fr")
     assert not builder._reviewed_api_block_valid("Plasmodium", " Plasmodium", "fr")
+    assert builder._reviewed_api_block_valid("no", "no", "es")
+    assert not builder._reviewed_api_block_valid("no", "no", "pt")
     # The gate is otherwise unchanged: ordinary prose copied as English fails.
     assert not builder._reviewed_api_block_valid("Public API", "Public API", "fr")
     assert all(

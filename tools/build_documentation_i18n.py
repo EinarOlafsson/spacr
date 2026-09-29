@@ -236,6 +236,9 @@ API_REVIEWED_EXACT_IDENTITY_BY_LANGUAGE: Mapping[str, frozenset[str]] = {
     "Plasmodium": frozenset({"sv", "de", "es", "pt", "is", "fr"}),
     "Candida": frozenset({"sv", "de", "es", "pt", "is", "fr"}),
     "Toxoplasma": frozenset({"sv", "de", "es", "pt", "is", "fr"}),
+    # The answer cell "no" in the preview_contract tables is spelt "no" in
+    # Spanish; the exact-English gate left it owed with no valid target.
+    "no": frozenset({"es"}),
 }
 
 
