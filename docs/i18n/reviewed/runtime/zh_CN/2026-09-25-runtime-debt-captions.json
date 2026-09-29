@@ -713,13 +713,6 @@
     },
     {
       "table": "ui",
-      "key": "Measurement Features",
-      "source": "Measurement Features",
-      "source_sha256": "3b91603e188dd2fc2b38e6c1f0d1781b73182e92f0c1e2a9042a4cf59ef0daaa",
-      "translation": "测量特征"
-    },
-    {
-      "table": "ui",
       "key": "Measurement column(s)",
       "source": "Measurement column(s)",
       "source_sha256": "b3c34524ae2629754dc8dcf38fcc904feb1ab441e306939b885fdf56e63ba96d",

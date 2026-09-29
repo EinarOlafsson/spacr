@@ -12,8 +12,7 @@ it sat in, joined by ``_``, and a second file from the same folder is
 numbered. A ``rename_manifest.csv`` beside the copies maps each original path
 to its new name, so nothing about where a file came from is lost.
 
-This is a port of a stand-alone ``rename_by_folders.py``
-(standard library only) with its behaviour kept: the originals are COPIED,
+It needs only the standard library. The originals are COPIED,
 never moved; symbolic links, to files or folders, are skipped and listed;
 names are made safe for Windows; a name too long for a typical filesystem is
 shortened with a hash of the full name so two long names cannot collide; and

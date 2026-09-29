@@ -926,12 +926,11 @@ def test_a_crop_row_that_names_two_object_types_claims_neither(tmp_path):
 
     assert al.crops_for_object_keys(db, ["p1_r1_c1_f1_3"]) == \
         [("/crops/p1_r1_c1_f1_o3.png", None)]
-    # The typed keys fall back to the untyped one rather than resolving a
-    # type the row never stated.
-    assert al.crops_for_object_keys(db, ["p1_r1_c1_f1_nucleus3"]) == \
-        [("/crops/p1_r1_c1_f1_o3.png", None)]
-    assert al.crops_for_object_keys(db, ["p1_r1_c1_f1_pathogen3"]) == \
-        [("/crops/p1_r1_c1_f1_o3.png", None)]
+    # A typed key resolves neither type from it: the typed fallback serves
+    # only rows that declare no type at all (9359607f4), and this row
+    # declares two, so a typed key finds no crop rather than a guessed one.
+    assert al.crops_for_object_keys(db, ["p1_r1_c1_f1_nucleus3"]) == []
+    assert al.crops_for_object_keys(db, ["p1_r1_c1_f1_pathogen3"]) == []
 
 
 # ---------------------------------------------------------------------------
