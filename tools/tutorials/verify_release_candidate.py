@@ -199,7 +199,13 @@ def verify(root, *, placeholders_only=False, published=None):
                 for position, lesson in enumerate(ready):
                     identity = lesson['id']
                     page.evaluate('(id) => selectLesson(id)', identity)
-                    page.wait_for_function('narrationAudioAvailable && elements.audio.readyState >= 1 && chapterData.length > 0', timeout=60000)
+                    # Wait for THIS lesson's narration and chapters: on a slow
+                    # host the previous lesson's state can satisfy a generic check.
+                    page.wait_for_function('''([identity, scenes]) => activeLesson?.id === identity &&
+                        narrationAudioAvailable && elements.audio.readyState >= 1 &&
+                        chapterData.length === scenes &&
+                        document.querySelectorAll('.chapter-button').length === scenes''',
+                        arg=[identity, len(lesson['scenes'])], timeout=60000 if media_root is None else 180000)
                     assert page.locator('#ready-player').is_visible()
                     assert not page.locator('#planned-card').is_visible()
                     assert page.locator('#complete-button').is_visible()
