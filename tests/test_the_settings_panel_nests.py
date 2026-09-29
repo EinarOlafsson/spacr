@@ -107,10 +107,13 @@ def test_a_flat_reader_sees_every_row_exactly_once(mask_tree):
 
 def test_a_category_with_no_parent_is_still_one_flat_section(mask_tree):
     """The nesting is opt-in per category, not a reshuffle of the panel."""
-    plain = _named(mask_tree, "Runtime & Reliability")
+    # 2026-09-29 (item 592): Runtime & Reliability was merged into Mask's
+    # "Quality Control", which now nests Segmentation Robustness α; a heading
+    # that still has no parent and no children is Visualization & Diagnostics.
+    plain = _named(mask_tree, "Visualization & Diagnostics")
     assert plain.children == ()
     assert plain.own_rows == plain.rows
-    assert plain.path == ("Runtime & Reliability",)
+    assert plain.path == ("Visualization & Diagnostics",)
 
 
 # ---------------------------------------------------------------------------

@@ -537,8 +537,19 @@ def test_measures_settings_have_the_measure_modules_headings(qtbot):
     body = screen._settings_area.widget()
     shown = [s.title() if callable(getattr(s, "title", None)) else
              getattr(s, "_title", "") for s in body.findChildren(CollapsibleSection)]
-    expected = [getattr(section, "title", section[0]) for section in
-                SettingsWidgets(SETTINGS_APP_KEY).build_sections()]
+    # 2026-09-29 (item 595): Measure is nested now (Cloud α under Input &
+    # Experiment, Image Preprocessing, Features and Postprocessing hold
+    # sub-headings), so the headings are compared depth first, children
+    # after their parent, which is the order the window draws them in.
+    def _depth_first(sections):
+        """Every heading title, each followed by its children's."""
+        out = []
+        for section in sections:
+            out.append(getattr(section, "title", None) or section[0])
+            out.extend(_depth_first(getattr(section, "children", ()) or ()))
+        return out
+
+    expected = _depth_first(SettingsWidgets(SETTINGS_APP_KEY).build_sections())
     assert [str(t) for t in shown if t] == [str(t) for t in expected] or \
         len(body.findChildren(CollapsibleSection)) == len(expected)
     widgets = list(screen.settings._widgets.values())

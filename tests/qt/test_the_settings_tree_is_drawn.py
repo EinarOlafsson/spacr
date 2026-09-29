@@ -222,7 +222,11 @@ def test_every_heading_of_the_tree_has_an_exact_translation(code):
                 "word-by-word fallback will half-translate it")
 
 
-@pytest.mark.parametrize("app_key", ["measure", "regression", "umap"])
+# 2026-09-29 (item 595): Measure is no longer flat -- its settings were
+# regrouped into Input & Experiment, Image Preprocessing, Features and
+# Postprocessing with sub-headings, as the maintainer asked -- so it left this
+# list; tests/qt/test_measure_settings_regrouped.py holds its tree.
+@pytest.mark.parametrize("app_key", ["regression", "umap"])
 def test_a_module_with_no_nesting_is_drawn_exactly_as_before(qtbot, app_key):
     """The tree is additive: a flat module gains no headings from it."""
     screen = _screen(qtbot, app_key)

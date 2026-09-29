@@ -1729,8 +1729,10 @@ def test_the_mask_panel_places_illumination_under_one_heading():
     assert illumination_keys
     homes = {name for name, keys in sections.items()
              if illumination_keys & set(keys)}
-    assert homes == {'Illumination Correction'}
-    assert illumination_keys <= set(sections['Illumination Correction'])
+    # 2026-09-29 (item 591): on Mask the heading is the alpha sub-category
+    # "Illumination Correction α" under Image Preprocessing.
+    assert homes == {'Illumination Correction α'}
+    assert illumination_keys <= set(sections['Illumination Correction α'])
 
 
 def test_the_measure_panel_shows_them_under_one_heading():
