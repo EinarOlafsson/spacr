@@ -35,8 +35,12 @@ def test_the_bare_role_word_is_not_an_organelle_object():
 def test_a_missing_screen_label_takes_the_default_screen():
     frame = pd.DataFrame({schema.SCREEN_KEY: [None, "screenB", float("nan"),
                                               " "]})
+    before = frame.copy()
     out = schema.add_screen_column(frame)
     assert list(out[schema.SCREEN_KEY]) == [
         schema.DEFAULT_SCREEN, "screenB", schema.DEFAULT_SCREEN,
         schema.DEFAULT_SCREEN]
-    assert frame[schema.SCREEN_KEY].iloc[0] is None, "the input is not edited"
+    # pandas 3 stores the None of a string column as its own missing value,
+    # so the input is compared with a copy taken before the call.
+    pd.testing.assert_frame_equal(frame, before, obj="the input is not edited")
+    assert pd.isna(frame[schema.SCREEN_KEY].iloc[0])
