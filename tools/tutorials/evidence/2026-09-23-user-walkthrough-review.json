@@ -138,6 +138,8 @@
     "33_plate_viewer",
     "35_converter",
     "36_import",
+    "56_lineage",
+    "73_parameter_sweep",
     "75_regression_diagnostics",
     "76_ops",
     "78_spacr_screens",
@@ -189,8 +191,8 @@
     },
     {
       "lesson": "04_platform_installers",
-      "english_sha256": "67f5f50b34186ea7d27a9be6536fcc4fd4c7d6877dd0ad4bf2283093344441c0",
-      "scene_count": 10,
+      "english_sha256": "5733777916561df1997773e74a43ef023771a98798aa3d7a9fb2be87e92b4f63",
+      "scene_count": 11,
       "source_revised": true,
       "newly_authored": false,
       "manual_review": "source rewrite; media publication pending",
@@ -823,15 +825,15 @@
     },
     {
       "lesson": "56_lineage",
-      "english_sha256": "7fcbf79152a032546ff9ec5c185ab283c7c8f2a495b89d073fbf60cfa0c2014d",
+      "english_sha256": "495593daa307987beb6a264dc2850109813057ef21e2a025eaf0a00bba2964ed",
       "scene_count": 14,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewritten; live narration aligned",
+      "manual_review": "source rewrite; media publication pending",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": false
     },
     {
       "lesson": "57_layer_viewer",
@@ -1037,15 +1039,15 @@
     },
     {
       "lesson": "73_parameter_sweep",
-      "english_sha256": "8f164d56e7d6d48b866022bb05940e29cf343154681c65517a51ce2676825346",
+      "english_sha256": "44292936fb6b522935dc2402151ddb2bba49786333975d2b8a683e271411e2a4",
       "scene_count": 10,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewritten; live narration aligned",
+      "manual_review": "source rewrite; media publication pending",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
-      "prepared_rewrite": true,
-      "published_rewrite": true
+      "prepared_rewrite": false,
+      "published_rewrite": false
     },
     {
       "lesson": "74_import_images",

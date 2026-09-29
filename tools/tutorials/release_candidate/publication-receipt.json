@@ -1,19 +1,19 @@
 {
   "repository": "datasets/einarolafsson/spacr-tutorials",
-  "branch": "candidate-four-lessons-20260927-lcunb10r",
+  "branch": "candidate-redact-b1b-20260929-uu_642vq",
   "base_commit": "003f4c8e88e6050dab5aad7750fb2f990974b636",
-  "commit": "73373db53118be2bc8bb6236a7eab635eb0a04a7",
-  "tag": "tutorials-four-lessons-20260927-lcunb10r",
-  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/73373db53118be2bc8bb6236a7eab635eb0a04a7",
-  "manifest_sha256": "9c38ec515af5a7556dcf87107c9981c628429aa8aa9367a064c53865132a6860",
+  "commit": "cd1de23e36598f803799d0222144f6852f9e806b",
+  "tag": "tutorials-redact-b1b-20260929-uu_642vq",
+  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/cd1de23e36598f803799d0222144f6852f9e806b",
+  "manifest_sha256": "a674866c753806fa417418d70938b727aa51efd4567888564dd8bf6d3289ac17",
   "media_files": 4760,
-  "media_bytes": 4696762326,
+  "media_bytes": 4699181941,
   "readback": {
-    "commit": "73373db53118be2bc8bb6236a7eab635eb0a04a7",
+    "commit": "cd1de23e36598f803799d0222144f6852f9e806b",
     "files_expected": 4760,
     "metadata_matched": 4760,
     "metadata_failures": [],
-    "bytes_read_back": 4696762326,
+    "bytes_read_back": 4699181941,
     "downloaded_sha256_matched": 4760,
     "download_failures": [],
     "files_on_revision_not_in_candidate": [
@@ -3378,18 +3378,19 @@
       "73_parameter_sweep/audio/en/bm_lewis.m4a",
       "README.md"
     ],
-    "seconds": 4546.8,
+    "seconds": 1163.3,
     "passed": true
   },
   "pages": {
     "destination": "docs/source/_extra/tutorials",
     "files_from_candidate": 143,
     "bundled_tutorial_index_sha256": "078fb06eb1437c2ac406f5efda69e1f7112163970ae095b68b7e1bda243aabe6",
-    "index_sha256": "51dc02757720a92db6ea35fce2ba60c656903117495c0e9b2a488d52b826d4a3",
-    "candidate_index_sha256": "1bdb07d279fd073d0a43e1831bf0d1dbe51130ff61ed9a92f0c761dd622be42b",
-    "cache_key": "four-lessons-20260927-lcunb10r",
+    "index_sha256": "86763269a7e48df4f4d0860ca535718324d8083409de8d426ef745245ed8687e",
+    "candidate_index_sha256": "ca60aaf742246ecd1b104dc4ac9fbc720b1c2e503b8bf8102883c02bbad93b7c",
+    "cache_key": "redact-b1b-20260929-uu_642vq",
     "unchanged_versioned_assets": [
       "app_v2.js",
+      "lesson_catalog.js",
       "styles.css",
       "voice_catalog.js"
     ],
@@ -3397,14 +3398,11 @@
       "app_v2.js": "voices-b4p-20260926-5bd5m2eg",
       "styles.css": "20260911-coming-soon",
       "lesson_catalog.js": "four-lessons-20260927-lcunb10r",
-      "module_navigation.js": "four-lessons-20260927-lcunb10r",
+      "module_navigation.js": "redact-b1b-20260929-uu_642vq",
       "voice_catalog.js": "20260811-50-voices"
     },
     "hosted_web_copies": 85,
-    "removed_local_web_copies": [
-      "production/01_pypi_github/video/01_pypi_github_silent.mp4",
-      "production/06_api/video/06_api_silent.mp4"
-    ],
+    "removed_local_web_copies": [],
     "ready": 85,
     "routes": 85
   }

@@ -157,6 +157,8 @@ def neutral_cut(token):
         # a wrapped console row continuing a path whose root was already replaced
         return extend_private(token, 1 + len(first)), '', 'wrapped_local_root->(removed)'
     home = HOME.search(token)
+    if home and home.group(2).lower().startswith('user'):
+        return None, None, None  # already the neutral account (or an OCR misread of it)
     if home and not re.search(r'/mnt/|toxoplasma|firecuda|refresh', token, re.I):
         return home.end(), home.group(1) + NEUTRAL_HOME, 'account_home->/home/user'
     for pattern in PREFIXES:
@@ -182,6 +184,9 @@ def neutral_path(token):
 def path_spans(text):
     """(start, end, token) of every local path token in an OCR line string."""
     spans = []
+    # OCR can read the stage folder's underscore as a space ("refresh 2026-09-09"); tokenise as if
+    # it were an underscore (same length, so indices still address the OCR text)
+    text = re.sub(r'(?i)(refresh) (20\d\d)', r'\1_\2', text)
     for match in TOKEN.finditer(text):
         token, start = match.group(0), match.start()
         # OCR can drop the space before a path ("saved to/home/..."): start at the root.
@@ -329,6 +334,9 @@ def read_region(pixels, box):
         for line in rec_line(pixels, box):
             if path_kinds(line['text']) and 'chars' in line:
                 best.append(line)
+    # Whole-row readings from the detector too: it sometimes splits one line in two.
+    if not best or all(line['box'][0] > box[0] + 40 or line['box'][2] < box[2] - 40 for line in best):
+        best += [line for line in rec_line(pixels, box) if path_kinds(line['text']) and 'chars' in line]
     # One line per row: keep the longest reading.
     best.sort(key=lambda line: -len(line['text']))
     chosen = []
@@ -698,6 +706,7 @@ def redact_line(pixels, line, clip_right=None):
     y0, y1 = max(0, ly0 - line_h // 2), min(height, ly1 + line_h // 2)
     shift_total = 0
     failures = []
+    saved_line = pixels[y0:y1].copy()
     for start, end, token in path_spans(line['text']):
         try:
             shift = _redact_span(pixels, line, start, end, token, shift_total, y0, y1, clip_right, records)
@@ -705,6 +714,13 @@ def redact_line(pixels, line, clip_right=None):
             failures.append(str(exc))
             continue
         shift_total += shift
+    if records and not failures:
+        # read the whole painted line back; on a bad result undo every span of it
+        try:
+            check_painted(pixels, records, line)
+        except ValueError as exc:
+            pixels[y0:y1] = saved_line
+            raise SpanFailures([], [str(exc)])
     if failures:
         raise SpanFailures(records, failures)
     return records
@@ -719,6 +735,57 @@ class SpanFailures(ValueError):
 
 
 def _redact_span(pixels, line, start, end, token, shift_total, y0, y1, clip_right, records):
+    """Paint one path span, then read the painted line back; undo and raise on a bad result."""
+    saved = pixels[y0:y1].copy()
+    count = len(records)
+    try:
+        return _paint_span(pixels, line, start, end, token, shift_total, y0, y1, clip_right, records)
+    except ValueError:
+        pixels[y0:y1] = saved
+        del records[count:]
+        raise
+
+
+def fuzzy_find(text, part, threshold=0.75):
+    """Index just after the best approximate occurrence of part in text, or -1."""
+    import difflib
+    best, where = 0.0, -1
+    n = len(part)
+    for i in range(0, max(1, len(text) - n + 1)):
+        ratio = difflib.SequenceMatcher(None, text[i:i + n], part).ratio()
+        if ratio > best:
+            best, where = ratio, i + n
+    return where if best >= threshold else -1
+
+
+def check_painted(pixels, records, line):
+    """The painted line must read with no local path and with each neutral root in place."""
+    lx0, ly0, lx1, ly1 = line['box']
+    box = [max(0, min([lx0] + [r.box[0] for r in records])), ly0, max([lx1] + [r.box[2] for r in records]), ly1]
+    middle = (ly0 + ly1) / 2
+    texts = []
+    for pad in ((30, 14), (12, 24), (60, 30)):
+        rows = [r for r in ocr_crop(pixels, box, pad) if r['box'][1] <= middle <= r['box'][3]]
+        texts.append(squeeze(''.join(r['text'] for r in sorted(rows, key=lambda r: r['box'][0]))))
+    texts += [squeeze(r['text']) for r in rec_line(pixels, box, pad=(4, 4))]
+    for text in texts:
+        if path_kinds(text) and not neutral_misread(text):
+            raise ValueError('the painted line still reads as a local path')
+    text = max(texts, key=len)
+    if len(text) < 0.5 * len(squeeze(line['text'])):
+        return  # the detector cannot read this crop; the frame re-read and visual pass decide
+    if line.get('continuation'):
+        return  # its roots were removed, not replaced
+    for start, end, token in path_spans(line['text']):
+        cut, new_prefix, _ = neutral_cut(token)
+        if cut is None or not new_prefix:
+            continue
+        where = fuzzy_find(text, squeeze(new_prefix))
+        if where < 0:
+            raise ValueError('the painted line does not read as the neutral root')
+
+
+def _paint_span(pixels, line, start, end, token, shift_total, y0, y1, clip_right, records):
     """Paint one path span (see redact_line); appends its record and returns its shift."""
     from PIL import ImageFont
     text = line['text']
@@ -743,6 +810,15 @@ def _redact_span(pixels, line, start, end, token, shift_total, y0, y1, clip_righ
     # the first readable character belong to it
     clipped_left = ('/' in token and not token.startswith(('/', '~', '.'))
                     and len(prefix) <= 3 and ' ' not in prefix and not line.get('continuation'))
+    if not token.startswith(('/', '~', '.')) and not line.get('continuation') and clipped_left:
+        # a clipped start must sit at a field edge: ink just left of it means OCR split the line
+        size_px = max(8, ly1 - ly0)
+        left = pixels[ly0:ly1, max(0, lx0 - shift_total - int(0.6 * size_px)):max(1, lx0 - shift_total - 2)]
+        lmask = glyph_mask(left)[0] if left.size else None
+        if lmask is not None:
+            lmask = lmask & ~(lmask.mean(0) >= 0.7)[None, :]  # a field border is not text
+        if lmask is not None and lmask.sum() > 0.04 * lmask.size:
+            raise ValueError('path fragment continues text on its left (OCR split the line)')
     pad = 24
     px0 = max(0, (min(tx0, lx0 - shift_total) if clipped_left else tx0) - pad)
     px1 = min(width, tx1 + pad)
@@ -889,7 +965,7 @@ def is_continuation(line, lines):
     height = y1 - y0
     for other in lines:
         ox0, oy0, _, oy1 = other['box']
-        if (other is not line and 0 < y0 - oy0 < 1.8 * height and abs(ox0 - x0) < 2 * height
+        if (other is not line and 0.6 * height < y0 - oy0 < 1.8 * height and abs(ox0 - x0) < 2 * height
                 and '/' in other['text']):
             return True
     return False
@@ -916,6 +992,8 @@ def redact_image(pixels, regions):
         for line in lines:
             if not path_kinds(line['text']):
                 continue  # detected under a broader earlier rule; names no local path
+            if any(same_line(line['box'], rec.box) for rec in records):
+                continue  # another reading of a line already painted in this frame
             line['continuation'] = is_continuation(line, all_lines)
             if not path_spans(line['text']):
                 problems.append({'box': line['box'], 'problem': 'path kind without a path token'})
@@ -972,17 +1050,30 @@ def sweep_rows(pixels, scales=(1.0, 2 / 3)):
     return rows
 
 
-def inside_box(box, outer, tolerance=4):
-    return (box[0] >= outer[0] - tolerance and box[1] >= outer[1] - tolerance
-            and box[2] <= outer[2] + tolerance and box[3] <= outer[3] + tolerance)
-
-
 def sliver(box, painted):
     """A short OCR box straddling a painted line (halves of two rows read as one)."""
     line_h = (painted[3] - painted[1]) / 2
     overlap_x = min(box[2], painted[2]) - max(box[0], painted[0])
     overlap_y = min(box[3], painted[3]) - max(box[1], painted[1])
     return overlap_x > 0 and overlap_y > 0 and (box[3] - box[1]) < 0.75 * line_h
+
+
+def neutral_misread(text):
+    """An OCR row whose only local-path reading is the neutral /home/user run into the next
+    characters ("/home/usercache"), which the account check already treats as neutral."""
+    if not text:
+        return False
+    kinds = set(path_kinds(text))
+    squeezed = squeeze(text)
+    homes = re.findall(r'/home/([a-z0-9_]*)', squeezed)
+    return kinds == {'unix_home'} and all(h.startswith('user') or 'user'.startswith(h) for h in homes)
+
+
+def same_line(box, painted):
+    """True when box lies on a painted line (overlapping it in both directions)."""
+    overlap_y = min(box[3], painted[3]) - max(box[1], painted[1])
+    overlap_x = min(box[2], painted[2]) - max(box[0], painted[0])
+    return overlap_x > 0 and overlap_y > 0.5 * min(box[3] - box[1], painted[3] - painted[1])
 
 
 def redact_until_clean(before, regions, rounds=3):
@@ -995,14 +1086,17 @@ def redact_until_clean(before, regions, rounds=3):
             records += found
             issues += problems
         rows = sweep_rows(after) + [dict(r, text='') for r in residual_paths(after, records)]
-        # a sliver read inside a painted line is OCR noise on text we set ourselves
-        rows = [r for r in rows if not any(inside_box(r['box'], rec.box) or sliver(r['box'], rec.box)
-                                           for rec in records)]
+        # a short box straddling two painted rows is OCR noise; anything else is a real residual
+        rows = [r for r in rows if not any(sliver(r['box'], rec.box) for rec in records)
+                and not neutral_misread(r['text'])]
         boxes = merge_boxes([r['box'] for r in rows])
-        # a box that could not be painted before is not retried forever
+        # a box that could not be painted before is not retried forever, and a line that was
+        # already painted is never painted again (repainting drifts and clips the kept text):
+        # what is left there stays a residual and the frame is reported as a problem
         tried = {tuple(p['box']) for p in issues}
         regions = [{'box': b, 'rows': [r for r in rows if r['text'] and r['box'][0] >= b[0] - 1
-                                       and r['box'][2] <= b[2] + 1]} for b in boxes if tuple(b) not in tried]
+                                       and r['box'][2] <= b[2] + 1]} for b in boxes
+                   if tuple(b) not in tried and not any(same_line(b, rec.box) for rec in records)]
         if not regions:
             break
     residual = [{'box': r['box'], 'kinds': path_kinds(r['text']) if r['text'] else r.get('kinds', [])}
@@ -1086,6 +1180,8 @@ def save_review(before, after, records, stem):
         x1, y1 = min(before.shape[1], x1 + 30), min(before.shape[0], y1 + 14)
         strips.append(np.vstack([before[y0:y1, x0:x1], np.full((4, x1 - x0, 3), 255, np.uint8),
                                  after[y0:y1, x0:x1], np.full((10, x1 - x0, 3), 128, np.uint8)]))
+    if not strips:
+        return
     width = max(s.shape[1] for s in strips)
     sheet = np.vstack([np.pad(s, ((0, 0), (0, width - s.shape[1]), (0, 0))) for s in strips])
     Image.fromarray(sheet).save(f'{stem}.review.png')

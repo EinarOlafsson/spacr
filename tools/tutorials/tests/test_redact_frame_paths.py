@@ -122,3 +122,10 @@ def test_account_inside_a_name_and_wrapped_rows():
     below = {'text': 'plasma_projects/tutorials/refresh_2026-09-09/runs/a', 'box': [100, 128, 900, 153]}
     assert redact.is_continuation(below, [above, below])
     assert not redact.is_continuation(above, [above, below])
+
+
+def test_neutral_account_is_never_repainted():
+    assert redact.neutral_path('/home/user/.cache/spacr')[0] is None
+    assert redact.neutral_path('/home/usercache/spacr')[0] is None  # OCR misread of /home/user/.cache
+    assert redact.same_line([100, 10, 300, 30], [50, 8, 900, 34])
+    assert not redact.same_line([100, 40, 300, 60], [50, 8, 900, 34])
