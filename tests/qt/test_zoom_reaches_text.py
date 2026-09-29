@@ -160,14 +160,15 @@ def test_zoom_reaches_the_home_tab_strip(qtbot, app_theme_restored):
 # ---------------------------------------------------------------------------
 
 def _aside_labels(page):
-    """Every label with text in Home's fixed-width right-hand column."""
-    width = prefs.scaled_px(type(page).ASIDE_W)
-    for widget in page.findChildren(QWidget):
-        if widget.minimumWidth() == widget.maximumWidth() == width:
-            labels = [lab for lab in widget.findChildren(QLabel)
-                      if lab.text().strip()]
-            if labels:
-                return labels
+    """Every label with text in Home's right-hand column.
+
+    Item 597 made the column a resizable pane, so it is found by name.
+    """
+    for widget in page.findChildren(QWidget, "HomeAside"):
+        labels = [lab for lab in widget.findChildren(QLabel)
+                  if lab.text().strip()]
+        if labels:
+            return labels
     raise AssertionError("could not find Home's aside column")
 
 

@@ -1181,10 +1181,7 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # buttons, their prompts and console lines, and the channel-sort dialog,
 # regex window and example-sets check (spacr/qt/widgets/channel_sort_dialog.py).
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
-    # 597, 2026-09-29: Home's right-column size and text sliders.
-    'Widget size',
-    'Make the panels in this column wider or narrower. The setting is '
-    'remembered. Default 100%.',
+    # 597, 2026-09-29: Home's right-column text slider.
     "Make the text in this column's panels larger or smaller. The setting "
     'is remembered. Default 100%.',
     # 592, 2026-09-28: the per-object table's Add a filter tooltip and Mask

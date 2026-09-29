@@ -15,13 +15,20 @@ nothing overlaps or clips at the extremes (Qt tests).
 
 Status: IMPLEMENTED 2026-09-29
 
-Notes (2026-09-29): spacr/qt/widgets/home.py. The panels now sit in a scroll
-area over the sliders (HomeAsideSizeSlider 80-160 %, HomeAsideTextSlider
-70-160 %), stored as prefs/home_aside_size and prefs/home_aside_text through
-private helpers in spacr/qt/preferences.py. Text reuses
-live_zoom.scaled_font_sheet for inherited sizes and rewrites each label's own
-font-size from the size it was built with, again after every refresh. The
-column's width never drops below its content's minimum, so large text widens
-it instead of clipping. Tests: tests/qt/test_597_home_aside_size_and_text_sliders.py.
+Correction from the maintainer (2026-09-29), verbatim:
+"no the widgets should have the same gui elements as the settings container has in the moduals with the arrow and the font slider should be the only slider right bellow the lowest widget."
+
+Notes (2026-09-29, after the correction): spacr/qt/widgets/home.py. The
+Widget size slider is gone. The right-hand column is an EDGE pane
+("Widgets") of a CollapsibleSplitter, the class and handle the module screens
+use for their settings column: drag the arrow handle to resize, click it to
+fold the column away or bring it back. The width is stored under the pane
+extents key home::body and the fold under home/Widgets. One slider,
+HomeAsideTextSlider (70-160 %), sits right below the lowest panel, saved as
+prefs/home_aside_text through private helpers in spacr/qt/preferences.py.
+Text reuses live_zoom.scaled_font_sheet for inherited sizes and rewrites each
+label's own font-size from its built size after every refresh. The column's
+minimum width follows its content, so large text widens it instead of
+clipping. Tests: tests/qt/test_597_home_aside_handle_and_text_slider.py.
 
 Left: nothing.

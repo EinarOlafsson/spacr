@@ -1,4 +1,4 @@
-"""Item 597: two sliders under Home's right-hand column size its widgets and text.
+"""Item 597: Home's right column resizes by the settings handle; one slider sizes text.
 
 The maintainer, 2026-09-29: "add to new list, a slider on the home screen that
 lets the user change the size of the rwidgets on the right on the bottom of
@@ -11,7 +11,8 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QRect, QSettings                        # noqa: E402
+from PySide6.QtCore import QEvent, QPointF, QRect, QSettings, Qt   # noqa: E402
+from PySide6.QtGui import QMouseEvent                                # noqa: E402
 from PySide6.QtWidgets import QApplication, QLabel, QSlider, QWidget  # noqa: E402
 
 from spacr.qt.widgets import home as home_mod                        # noqa: E402
@@ -48,11 +49,34 @@ def _home():
     return page
 
 
-def _sliders(page):
-    size = page.findChild(QSlider, "HomeAsideSizeSlider")
-    text = page.findChild(QSlider, "HomeAsideTextSlider")
-    assert size is not None and text is not None
-    return size, text
+def _text_slider(page) -> QSlider:
+    sliders = page.findChildren(QSlider)
+    assert [w.objectName() for w in sliders] == ["HomeAsideTextSlider"]
+    return sliders[0]
+
+
+def _handle(page):
+    split = page._aside_split
+    return split.handle(split.indexOf(page._aside))
+
+
+def _drag_handle(page, dx: int) -> None:
+    split = page._aside_split
+    handle = _handle(page)
+    split.moveSplitter(handle.geometry().x() + dx, split.indexOf(page._aside))
+    _pump()
+
+
+def _click_handle(page) -> None:
+    handle = _handle(page)
+    centre = QPointF(handle.rect().center())
+    for kind, button, buttons in (
+            (QEvent.MouseButtonPress, Qt.LeftButton, Qt.LeftButton),
+            (QEvent.MouseButtonRelease, Qt.LeftButton, Qt.NoButton)):
+        QApplication.sendEvent(handle, QMouseEvent(
+            kind, centre, QPointF(handle.mapToGlobal(centre.toPoint())),
+            button, buttons, Qt.NoModifier))
+    _pump()
 
 
 def _row_label(page) -> QLabel:
@@ -68,42 +92,55 @@ def _px(label: QLabel) -> int:
     return label.fontInfo().pixelSize()
 
 
-def test_the_sliders_sit_at_the_foot_of_the_column(store):
+def test_one_slider_sits_right_below_the_lowest_widget(store):
     page = _home()
-    size, text = _sliders(page)
+    _text_slider(page)
     controls = page.findChild(QWidget, "HomeAsideScaleControls")
-    scroll = page.findChild(QWidget, "HomeAsideScroll")
-    assert controls.parentWidget() is page._aside
-    assert controls.geometry().top() >= scroll.geometry().bottom()
-    assert (size.value(), text.value()) == (100, 100)
+    assert controls.parentWidget() is page._aside_panels
+    lowest = page._system.geometry()
+    assert 0 <= controls.geometry().top() - lowest.bottom() <= 40
     page.close()
 
 
-def test_widget_size_changes_width_persists_and_restores(store):
+def test_the_column_resizes_by_the_settings_columns_handle(store):
+    from spacr.qt.widgets.collapsible_splitter import (EDGE,
+                                                       CollapsibleSplitter)
+
     page = _home()
-    size, _text = _sliders(page)
+    split = page._aside_split
+    assert isinstance(split, CollapsibleSplitter)
+    assert split.pane("Widgets").mode == EDGE
+    assert _handle(page).edge_pane() is split.pane("Widgets")
     before = page._aside.width()
-    size.setValue(150)
-    _pump()
+    _drag_handle(page, -120)
     wider = page._aside.width()
     assert wider > before
-    size.setValue(size.minimum())
-    _pump()
-    assert page._aside.width() < wider
-    size.setValue(140)
-    _pump()
-    assert float(store._settings().value("prefs/home_aside_size")) == 1.4
     page.close()
 
     again = _home()
-    assert _sliders(again)[0].value() == 140
-    assert again._aside.width() == wider or again._aside.width() > before
+    assert abs(again._aside.width() - wider) <= 2
+    again.close()
+
+
+def test_the_handle_arrow_folds_the_column_and_it_stays_folded(store):
+    page = _home()
+    assert page._aside.width() > 0
+    _click_handle(page)
+    assert page._aside_split.is_collapsed("Widgets")
+    assert page._aside_split.sizes()[-1] == 0
+    page.close()
+
+    again = _home()
+    assert again._aside_split.is_collapsed("Widgets")
+    _click_handle(again)
+    assert not again._aside_split.is_collapsed("Widgets")
+    assert again._aside.width() > 0
     again.close()
 
 
 def test_text_size_changes_text_persists_and_restores(store):
     page = _home()
-    _size, text = _sliders(page)
+    text = _text_slider(page)
     label = _row_label(page)
     base = _px(label)
     text.setValue(160)
@@ -119,14 +156,14 @@ def test_text_size_changes_text_persists_and_restores(store):
     page.close()
 
     again = _home()
-    assert _sliders(again)[1].value() == 130
+    assert _text_slider(again).value() == 130
     assert _px(_row_label(again)) > base
     again.close()
 
 
 def test_a_rebuilt_row_takes_the_size_without_compounding(store):
     page = _home()
-    _size, text = _sliders(page)
+    text = _text_slider(page)
     text.setValue(150)
     _pump()
     first = _px(_row_label(page))
@@ -153,30 +190,32 @@ def _check_no_overlap(page) -> None:
     for a, b in zip(boxes, boxes[1:]):
         assert not a.geometry().intersects(b.geometry())
     controls = page.findChild(QWidget, "HomeAsideScaleControls")
-    scroll = page.findChild(QWidget, "HomeAsideScroll")
-    assert not controls.geometry().intersects(scroll.geometry())
-    assert QRect(0, 0, aside.width(), aside.height()).contains(
-        controls.geometry())
-    assert aside.geometry().left() >= page._tabs.geometry().right()
+    for box in boxes:
+        assert not controls.geometry().intersects(box.geometry())
+    assert inside.contains(controls.geometry())
+    assert aside.width() >= aside.minimumWidth() > 0
+    assert panels.width() <= aside.width()
 
 
-@pytest.mark.parametrize("size_end, text_end", [
-    ("minimum", "minimum"), ("minimum", "maximum"),
-    ("maximum", "minimum"), ("maximum", "maximum")])
-def test_nothing_overlaps_or_clips_at_the_extremes(store, size_end, text_end):
+@pytest.mark.parametrize("drag, text_end", [
+    (400, "minimum"), (400, "maximum"),
+    (-500, "minimum"), (-500, "maximum")])
+def test_nothing_overlaps_or_clips_at_the_extremes(store, drag, text_end):
     page = _home()
-    size, text = _sliders(page)
-    size.setValue(getattr(size, size_end)())
+    text = _text_slider(page)
     text.setValue(getattr(text, text_end)())
+    _pump()
+    _drag_handle(page, drag)
     _pump(10)
+    if page._aside_split.is_collapsed("Widgets"):
+        _click_handle(page)
+        _pump(10)
     _check_no_overlap(page)
     page.close()
 
 
 def test_junk_in_the_store_reads_back_the_default(store):
-    store._settings().setValue("prefs/home_aside_size", "junk")
     store._settings().setValue("prefs/home_aside_text", "nan")
     page = _home()
-    size, text = _sliders(page)
-    assert (size.value(), text.value()) == (100, 100)
+    assert _text_slider(page).value() == 100
     page.close()

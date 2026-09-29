@@ -1754,10 +1754,15 @@ _HeightGrip = HeightGrip
 
 
 
-#: Bounds of the Home right-hand column's two sliders, as factors of the
-#: designed size: the column's width, and the size of the text in it.
-_ASIDE_SIZE_RANGE = (0.8, 1.6)
+#: Bounds of the Home right-hand column's text slider, as factors of the
+#: designed size.
 _ASIDE_TEXT_RANGE = (0.7, 1.6)
+
+#: The right-hand column's pane in Home's splitter: its name, where its
+#: dragged width is stored, and where its folded state is.
+_ASIDE_PANE = "Widgets"
+_ASIDE_PERSIST_KEY = "home::body"
+_ASIDE_FOLD_KEY = "home/Widgets"
 
 #: Dynamic properties holding a label's own sheet as it was built, and the
 #: sheet last written from it, so a rebuilt sheet is taken as the new base.
@@ -1765,11 +1770,13 @@ _BASE_SHEET = "_spacrAsideBaseSheet"
 _SCALED_SHEET = "_spacrAsideScaledSheet"
 
 
-def _scale_text_under(root: QWidget, ratio: float) -> None:
+def _scale_text_under(root: QWidget, ratio: float,
+                      exempt: Optional[QWidget] = None) -> None:
     """Size the text inside ``root`` by ``ratio`` of what it was built with.
 
     :param root: the container; its descendants follow.
     :param ratio: 1.0 for the built size.
+    :param exempt: a descendant whose own text keeps its built size.
     """
     from ..live_zoom import _FONT_SIZE, _MIN_PX, _MIN_PT, ColumnTextScale
     from ..live_zoom import scaled_font_sheet
@@ -1787,7 +1794,8 @@ def _scale_text_under(root: QWidget, ratio: float) -> None:
         root.setStyleSheet(host)
     for widget in root.findChildren(QWidget):
         own = str(widget.styleSheet() or "")
-        if not own:
+        if not own or (exempt is not None and (
+                widget is exempt or exempt.isAncestorOf(widget))):
             continue
         base = widget.property(_BASE_SHEET)
         if base is None or own != widget.property(_SCALED_SHEET):
@@ -1924,12 +1932,19 @@ class HomePage(QWidget):
         self._banner = self._new_running_banner()
         col.addWidget(self._running_host)
 
-        split = QHBoxLayout()
-        split.setContentsMargins(0, 0, 0, 0)
-        split.setSpacing(SPACING["lg"])
-        split.addWidget(self._build_tabs(), 1)
-        split.addWidget(self._build_aside())
-        col.addLayout(split, 1)
+        from .collapsible_splitter import EDGE, CollapsibleSplitter
+        from ..preferences import scaled_px
+        split = CollapsibleSplitter(Qt.Horizontal,
+                                    persist_key=_ASIDE_PERSIST_KEY)
+        split.setChildrenCollapsible(False)
+        split.add_pane(self._build_tabs(), "Apps", stretch=1)
+        split.add_pane(self._build_aside(), _ASIDE_PANE, mode=EDGE,
+                       fold_key=_ASIDE_FOLD_KEY, stretch=0,
+                       extent=scaled_px(self.ASIDE_W))
+        split.splitterMoved.connect(lambda *_a: self._rewrap_grids())
+        split.pane_toggled.connect(lambda *_a: self._rewrap_grids())
+        self._aside_split = split
+        col.addWidget(split, 1)
 
         outer.addWidget(body, 1)
 
@@ -2496,8 +2511,12 @@ class HomePage(QWidget):
         """
         from ..preferences import scaled_px
         aside = getattr(self, "_aside", None)
-        aside_w = (aside.minimumWidth() if aside is not None
-                   else scaled_px(self.ASIDE_W))
+        if aside is None:
+            aside_w = scaled_px(self.ASIDE_W)
+        elif aside.isHidden() or self._aside_collapsed():
+            aside_w = 0
+        else:
+            aside_w = max(aside.width(), aside.minimumWidth())
         available = max(1, width - aside_w
                         - SPACING["xl"] * 2 - SPACING["lg"]
                         - SPACING["md"] * 2 - 4)
@@ -2520,13 +2539,15 @@ class HomePage(QWidget):
             return 1.0
 
     def _build_aside(self) -> QWidget:
-        """Build the right-hand column: status panels over two size sliders.
+        """Build the right-hand column: status panels, then the text slider.
 
-        The panels sit in a scroll area so large text scrolls instead of
-        squeezing a card; the sliders stay pinned under it at their own size.
+        The column is an EDGE pane of Home's splitter, the same handle the
+        module screens give their settings column: drag it to resize, click
+        its arrow to hide or show the column; both are remembered. The panels
+        and the slider under the lowest one sit in a scroll area, so large
+        text scrolls instead of squeezing a card.
         """
-        from ..preferences import (_KEY_HOME_ASIDE_SIZE, _KEY_HOME_ASIDE_TEXT,
-                                   _home_aside_scale)
+        from ..preferences import _KEY_HOME_ASIDE_TEXT, _home_aside_scale
         from ..theme import make_transparent
         aside = QWidget()
         aside.setObjectName("HomeAside")
@@ -2534,7 +2555,7 @@ class HomePage(QWidget):
         self._aside = aside
         outer = QVBoxLayout(aside)
         outer.setContentsMargins(0, 0, 0, 0)
-        outer.setSpacing(SPACING["sm"])
+        outer.setSpacing(0)
 
         panels = QWidget()
         panels.setObjectName("HomeAsidePanels")
@@ -2570,23 +2591,20 @@ class HomePage(QWidget):
         for panel in (self._queued, self._recent, self._news,
                       self._totals, self._system):
             col.addWidget(panel)
+        self._aside_text = _home_aside_scale(
+            _KEY_HOME_ASIDE_TEXT, *_ASIDE_TEXT_RANGE)
+        col.addWidget(self._build_aside_slider())
         col.addStretch(1)
 
         scroll = self._scrolled(panels)
         scroll.setObjectName("HomeAsideScroll")
         self._aside_scroll = scroll
         outer.addWidget(scroll, 1)
-
-        self._aside_size = _home_aside_scale(
-            _KEY_HOME_ASIDE_SIZE, *_ASIDE_SIZE_RANGE)
-        self._aside_text = _home_aside_scale(
-            _KEY_HOME_ASIDE_TEXT, *_ASIDE_TEXT_RANGE)
-        outer.addWidget(self._build_aside_sliders())
-        self._fit_aside_width()
+        self._fit_aside_minimum()
         return aside
 
-    def _build_aside_sliders(self) -> QWidget:
-        """The two compact sliders under the right-hand column."""
+    def _build_aside_slider(self) -> QWidget:
+        """The compact Text size slider under the lowest panel."""
         from PySide6.QtWidgets import QSlider
 
         from ..i18n import tr
@@ -2594,56 +2612,43 @@ class HomePage(QWidget):
         box = QWidget()
         box.setObjectName("HomeAsideScaleControls")
         make_transparent(box)
-        grid = QGridLayout(box)
-        grid.setContentsMargins(0, 0, 0, 0)
-        grid.setHorizontalSpacing(SPACING["sm"])
-        grid.setVerticalSpacing(2)
-        rows = (
-            ("HomeAsideSizeSlider", tr("Widget size"), tr(
-                "Make the panels in this column wider or narrower. The "
-                "setting is remembered. Default 100%."),
-             _ASIDE_SIZE_RANGE, self._aside_size, self._on_aside_size),
-            ("HomeAsideTextSlider", tr("Text size"), tr(
-                "Make the text in this column's panels larger or smaller. "
-                "The setting is remembered. Default 100%."),
-             _ASIDE_TEXT_RANGE, self._aside_text, self._on_aside_text),
-        )
+        self._aside_controls = box
+        row = QHBoxLayout(box)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(SPACING["sm"])
+        tip = tr("Make the text in this column's panels larger or smaller. "
+                 "The setting is remembered. Default 100%.")
         P = self._P
-        for row, (name, caption, tip, bounds, value, slot) in enumerate(rows):
-            label = QLabel(caption, box)
-            label.setStyleSheet(f"color: {P['fg_muted']};"
-                                f" font-size: {font_px(11)}px;"
-                                " background: transparent;")
-            slider = QSlider(Qt.Horizontal, box)
-            slider.setObjectName(name)
-            slider.setRange(int(round(bounds[0] * 100)),
-                            int(round(bounds[1] * 100)))
-            slider.setSingleStep(5)
-            slider.setPageStep(10)
-            slider.setValue(int(round(value * 100)))
-            readout = QLabel(f"{slider.value()}%", box)
-            readout.setProperty("i18nSkipText", True)
-            readout.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-            readout.setStyleSheet(label.styleSheet())
-            readout.setMinimumWidth(QLabel("200%").sizeHint().width())
-            for widget in (label, slider, readout):
-                widget.setToolTip(tip)
-            slider.valueChanged.connect(
-                lambda v, r=readout: r.setText(f"{v}%"))
-            slider.valueChanged.connect(slot)
-            grid.addWidget(label, row, 0)
-            grid.addWidget(slider, row, 1)
-            grid.addWidget(readout, row, 2)
-            setattr(self, "_" + name[0].lower() + name[1:], slider)
-        grid.setColumnStretch(1, 1)
+        label = QLabel(tr("Text size"), box)
+        label.setStyleSheet(f"color: {P['fg_muted']};"
+                            f" font-size: {font_px(11)}px;"
+                            " background: transparent;")
+        slider = QSlider(Qt.Horizontal, box)
+        slider.setObjectName("HomeAsideTextSlider")
+        slider.setRange(int(round(_ASIDE_TEXT_RANGE[0] * 100)),
+                        int(round(_ASIDE_TEXT_RANGE[1] * 100)))
+        slider.setSingleStep(5)
+        slider.setPageStep(10)
+        slider.setValue(int(round(self._aside_text * 100)))
+        readout = QLabel(f"{slider.value()}%", box)
+        readout.setProperty("i18nSkipText", True)
+        readout.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        readout.setStyleSheet(label.styleSheet())
+        readout.setMinimumWidth(QLabel("200%").sizeHint().width())
+        for widget in (label, slider, readout):
+            widget.setToolTip(tip)
+        slider.valueChanged.connect(lambda v: readout.setText(f"{v}%"))
+        slider.valueChanged.connect(self._on_aside_text)
+        row.addWidget(label)
+        row.addWidget(slider, 1)
+        row.addWidget(readout)
+        self._homeAsideTextSlider = slider
         return box
 
-    def _on_aside_size(self, percent: int) -> None:
-        """Resize the right-hand column and remember the size."""
-        from ..preferences import _KEY_HOME_ASIDE_SIZE, _set_home_aside_scale
-        self._aside_size = _set_home_aside_scale(
-            _KEY_HOME_ASIDE_SIZE, percent / 100.0, *_ASIDE_SIZE_RANGE)
-        self._fit_aside_width()
+    def _aside_collapsed(self) -> bool:
+        """Whether the right-hand column is folded away by its handle."""
+        split = getattr(self, "_aside_split", None)
+        return bool(split is not None and split.is_collapsed(_ASIDE_PANE))
 
     def _on_aside_text(self, percent: int) -> None:
         """Resize the right-hand column's text and remember the size."""
@@ -2669,30 +2674,33 @@ class HomePage(QWidget):
                 self, "_aside_text_applied", False):
             return
         self._aside_text_applied = True
-        _scale_text_under(panels, self._aside_text)
-        self._fit_aside_width()
+        _scale_text_under(panels, self._aside_text,
+                          exempt=getattr(self, "_aside_controls", None))
+        self._fit_aside_minimum()
 
-    def _fit_aside_width(self) -> None:
-        """Set the column's width: its size setting, never below its content.
+    def _fit_aside_minimum(self) -> None:
+        """Keep the column at least as wide as its content needs.
 
-        The floor is the panels' minimum width, so large text widens the
-        column instead of clipping a row.
+        Large text raises the floor, so a row widens the column instead of
+        clipping; dragging the handle past the floor folds the column away,
+        as it does the module screens' settings column.
         """
-        from ..preferences import scaled_px
         aside = getattr(self, "_aside", None)
         panels = getattr(self, "_aside_panels", None)
         if aside is None or panels is None:
             return
-        panels.adjustSize()
         layout = panels.layout()
-        floor = layout.totalMinimumSize().width() if layout else 0
+        layout.activate()
+        floor = layout.totalMinimumSize().width()
         scroll = getattr(self, "_aside_scroll", None)
         if scroll is not None:
             floor += scroll.verticalScrollBar().sizeHint().width()
-        width = max(int(round(scaled_px(self.ASIDE_W) * self._aside_size)),
-                    floor)
-        if aside.width() != width or aside.minimumWidth() != width:
-            aside.setFixedWidth(width)
+        if aside.minimumWidth() != floor:
+            aside.setMinimumWidth(floor)
+            split = getattr(self, "_aside_split", None)
+            pane = split.pane(_ASIDE_PANE) if split is not None else None
+            if pane is not None:
+                pane.minimum = floor
             self._rewrap_grids()
 
     def _rewrap_grids(self) -> None:
