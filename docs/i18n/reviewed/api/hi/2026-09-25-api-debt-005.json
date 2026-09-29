@@ -1073,7 +1073,9 @@
       "source_sha256": "356d41706743ff8f9a99cf9f8eae045ea5c947595ef09896d6564e8aced85f45",
       "context": "the section heading; compared case-insensitively, it is alpha when it is ``\"alpha\"`` or contains ``\"(alpha)\"``, beta likewise, and stable otherwise.",
       "translation": "खंड का शीर्षक; बड़े-छोटे अक्षरों का भेद किए बिना तुलना की जाती है, यह alpha है जब यह ``\"alpha\"`` हो या इसमें ``\"(alpha)\"`` हो, beta इसी तरह, और अन्यथा stable।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-28: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.batch.BatchScreen.load_queue_from#1",
