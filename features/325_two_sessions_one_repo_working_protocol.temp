@@ -17431,3 +17431,11 @@ captions; its additional API/runtime/generated-reference integration remains
 open. No whole-source freshness or full feature-list completion is claimed.
 Main remains unpromoted; the release controller is inactive. No new release,
 GPU or training job is started. Codex is stopping after this final push.
+
+2026-09-29 — CLAUDE: 358/447/472 CLOSE-OUT CHECK
+Checked after 663123618. 472 stays DONE (f1d621a74). 447 paths met: the
+published sweep finds 0 offenders in 85 lessons; the 13 light frames are
+content, not theme. 447 stays open for a rendered-audio pype re-check and
+the maintainer's lesson 02 confirmation. 358 stays open for a live
+mobile-viewport case, stale walkthrough-audit flags and the human reviews.
+Only status notes in features/new changed; no media, GPU or release work.

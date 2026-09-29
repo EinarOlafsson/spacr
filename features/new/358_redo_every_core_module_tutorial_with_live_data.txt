@@ -2,14 +2,12 @@
 REDO EVERY CORE-MODULE TUTORIAL WITH LIVE DATA AND THE FOLDED-IN ACTIONS
 ================================================================================
 
-Status:    OPEN, re-checked 2026-09-26 (CLAUDE-DOCS). All 85 lessons are live
-           on nightly with no Coming soon route. All 85 scripts are
-           walkthroughs, and 84 have matching live media. Still open: the
-           lesson 19 re-recording, translated
-           captions and voices going live lesson by lesson, one red audit
-           assertion, and the human listening and native-speaker reviews. The
-           dated note "2026-09-26 — CLAUDE-DOCS: STATUS" at the end lists what
-           is done and what remains, requirement by requirement.
+Status:    OPEN, re-checked 2026-09-29 (CLAUDE). All 85 lessons are live
+           with the full 2,295-track voice matrix, and the path-redaction
+           batch is published (663123618). Still open: a live mobile-viewport
+           playback case, the stale walkthrough-audit flags, and the manual
+           catalog-order, listening and native-speaker reviews. See
+           "2026-09-29 — CLAUDE: STATUS" at the end.
 Requested: 2026-09-02 — "the tutorials for all of the core moduals need to be
            redone. there is now live data for all core moduals that should be
            used in the tutorials, there are also several buttons that have been
@@ -2736,3 +2734,33 @@ features/data/358_four_lesson_live_2026-09-27.json.
 This closes the four-lesson publication action. Item 358 remains open while
 the remaining tutorial path-redaction batch is completed. Review remains AI
 technical review (Codex), no native-speaker signoff or human listening review.
+
+2026-09-29 — CLAUDE: STATUS
+Checked at nightly after 663123618 (candidate wnvvqg06: lessons 16 25 28 29
+31 32 40 42 44 45 49 56 58 60 64 67 70 73 74 re-recorded and republished;
+media revision 5e9dad5f, 4760/4760 files read back, 85 local and hosted
+playback cases pass). Receipts:
+tools/tutorials/evidence/2026-09-29-rerecorded-publication.json and
+2026-09-29-published-path-sweep.json (0 path offenders in 85 lessons).
+
+NOW MET, against the 2026-09-26 REMAINS list
+ a. Lesson 19 is published on its final recording (60bf4c588).
+ b, c. release-manifest.json: 85 ready lessons, 85 routes, 0 Coming soon,
+    0 outstanding module tutorials, 2,295 narration tracks (85 x 27), and
+    all 650 translation rows are source_bound_review (no english_fallback).
+ d. tests/test_tutorial_release_audit.py and
+    tools/tutorials/tests/test_release_candidate_routes.py: 14 passed.
+ The path-redaction batch named in the 2026-09-28 note is published.
+
+NOT MET (why this item stays open)
+ e. tools/tutorials/evidence/2026-09-23-user-walkthrough-review.json still
+    has published_rewrite false for 26 live lessons (02-05, 14, 17, 19,
+    26-28, 33, 35, 36, 56, 71, 73, 75, 76, 78-85) and manual_review
+    "pending" for 5. Regenerate it from the live receipts.
+ f. No live receipt includes a mobile-viewport playback case; neither
+    663123618 receipt mentions one. The acceptance names "mobile player
+    checks ... against the exact published artifacts".
+ g. main still serves main's catalog until the release merge (maintainer).
+ h. The manual catalog-order review, the listening review of every voice
+    and native-speaker review in 13 languages have not happened (maintainer).
+

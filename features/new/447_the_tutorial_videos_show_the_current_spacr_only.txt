@@ -3,10 +3,11 @@ THE TUTORIAL VIDEOS: DARK MODE AND BLOBS, THE CURRENT spaCR ONLY, AND NO PATHS
 OF THE MAINTAINER'S
 ================================================================================
 
-Status:    OPEN, re-checked 2026-09-26 (CLAUDE-DOCS). Requirements 4 and 5 are
-           met and live. Still open: a maintainer path is visible in the
-           published lesson 53 poster, no library-wide frame sweep exists yet,
-           and nobody has listened to "pype". See "2026-09-26 — CLAUDE-DOCS:
+Status:    OPEN, re-checked 2026-09-29 (CLAUDE). Requirements 1 and 3-5 are
+           met and live: the published-media sweep of all 85 lessons finds 0
+           path offenders (663123618). Still open: nobody has listened to
+           "pype" in the rendered audio, and the maintainer has not confirmed
+           the lesson 02 "nested setup" wording. See "2026-09-29 — CLAUDE:
            STATUS" at the end.
 
 Requested: 2026-09-20 -- "some tutorial videos need to be redone. all tutorial
@@ -664,3 +665,32 @@ undecoded inputs still reject. All70 named candidate/receipt checks pass. The
 original partial candidate and failed build log remain preserved; publication
 and live verification remain open.
 Receipt: features/data/447_current_web_receipt_selection_2026-09-28.json.
+
+2026-09-29 — CLAUDE: STATUS
+Checked at nightly after 663123618 (19 re-recorded path-leak lessons
+republished, media revision 5e9dad5f, 4760/4760 files read back).
+
+MET
+ 3. Paths. tools/tutorials/evidence/2026-09-29-published-path-sweep.json
+    OCRs the poster plus evenly spaced frames of the hosted web copy of all
+    85 lessons (510 images, 0 errors): path_offenders is empty. 15 lessons
+    show only the generic "/home/user" of the neutral capture root, which
+    is not a maintainer path. This closes remains a (lesson 53 poster,
+    frame sweep, run over every pre-09-21 capture).
+ 1. Theme, from sampled frames. The same sweep flags 13 frames in 5 lessons
+    (01, 29, 47, 72, 75) as light. The first flagged frame of each was
+    inspected: the spaCR window is dark Blobs in all five, and the light
+    area is content the lesson shows -- a white-background plot (72, 47), the HTML report (29), the
+    system file dialog (75) and the anaconda.org page (01). No lesson was
+    captured in a light theme.
+ 4, 5. Unchanged from 2026-09-26 and still true.
+
+NOT MET (why this item stays open)
+ c. The acceptance asks that "the rendered audio is re-checked" for pype.
+    Only the phoneme rule and its test are checked; no listening or ASR
+    pass over the rendered pype audio exists (owner: maintainer, or an ASR
+    receipt over every lesson that says it).
+ b. The maintainer has not confirmed that lesson 02's current conda-forge
+    route (it never says "nested") is what was asked for (owner:
+    maintainer).
+
