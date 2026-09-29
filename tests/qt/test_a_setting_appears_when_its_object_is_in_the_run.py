@@ -31,6 +31,8 @@ pytest.importorskip("PySide6")
 
 pytestmark = pytest.mark.qt
 
+from tests.qt.per_object_table import table_value, the_table_answers  # noqa: E402
+
 
 def _screen(qtbot, app_key: str):
     """Build a visibility-rule harness containing the rows it will toggle.
@@ -136,55 +138,80 @@ def _set(model, key, value) -> None:
 # ---------------------------------------------------------------------------
 
 def test_cell_is_never_gated_by_its_channel(qtbot):
-    screen, model = _screen(qtbot, "mask")
-
     # Instruction 300 superseded the earlier all-object rule for cell: it is
     # what every other object is measured against, so a fresh form must keep
     # its family available even while its channel is empty.
+    #
+    # 2026-09-29 (item 592): the per-object table is Mask generation's only
+    # layout of these questions, so "available" is the cell COLUMN of the
+    # table; the flat rows are hidden behind it on either channel.
+    screen, model = _screen(qtbot, "mask")
+
     assert model.collect()["cell_channel"] is None
-    assert _row_shown(screen, "cell_channel") is True
-    assert _row_shown(screen, "cell_diameter") is True
-    assert _row_shown(screen, "cell_cellprob_threshold") is True
+    for key in ("cell_channel", "cell_diameter", "cell_cellprob_threshold"):
+        assert the_table_answers(screen, key) is True, key
+        assert _row_shown(screen, key) is False, (
+            f"{key} is on the flat form as well as in the table")
 
     _set(model, "cell_channel", 1)
-    assert _row_shown(screen, "cell_diameter") is True
-    assert _row_shown(screen, "cell_cellprob_threshold") is True
-    # ONE OBJECT AT A TIME. Turning the cell on says nothing about a nucleus.
-    assert _row_shown(screen, "nucleus_diameter") is False
+    assert the_table_answers(screen, "cell_diameter") is True
+    assert the_table_answers(screen, "cell_cellprob_threshold") is True
+    assert table_value(screen, "cell_channel") == 1
 
 
 def test_each_optional_object_is_switched_by_its_own_channel(qtbot):
+    """Each object's channel is its own cell, and moves only its column.
+
+    2026-09-29 (item 592): nucleus and pathogen have no flat rows left on
+    Mask generation -- every question they ask is a table cell -- so their
+    column stays while the channel reads "off" and the channel is the one
+    cell that says whether the run has them. The flat-row gate is still
+    measured on the organelle slots below and on Measure.
+    """
     screen, model = _screen(qtbot, "mask")
 
     for role in ("nucleus", "pathogen"):
         _set(model, f"{role}_channel", 2)
-        assert _row_shown(screen, f"{role}_diameter") is True
+        assert table_value(screen, f"{role}_channel") == 2
+        assert the_table_answers(screen, f"{role}_diameter") is True
         others = [r for r in ("nucleus", "pathogen") if r != role]
         for other in others:
-            assert _row_shown(screen, f"{other}_diameter") is False
-        assert _row_shown(screen, "cell_diameter") is True
+            assert table_value(screen, f"{other}_channel") is None
+        assert the_table_answers(screen, "cell_diameter") is True
         _set(model, f"{role}_channel", None)
+        assert table_value(screen, f"{role}_channel") is None
         assert _row_shown(screen, f"{role}_diameter") is False
 
 
 def test_the_switch_itself_is_never_hidden(qtbot):
-    """Hiding the channel would leave nothing to turn the object back on."""
+    """Hiding the channel would leave nothing to turn the object back on.
+
+    2026-09-29 (item 592): every object's channel is a cell of the
+    per-object table, so the switch is the table's channel row.
+    """
     screen, model = _screen(qtbot, "mask")
 
     for role in ("cell", "nucleus", "pathogen", "organelle", "organelleb"):
-        assert _row_shown(screen, f"{role}_channel") is True
+        assert the_table_answers(screen, f"{role}_channel") is True, role
 
 
 def test_the_screen_agrees_that_cell_remains_on_the_form(qtbot):
-    """Read back through the screen's own answer, not through the rule."""
+    """Read back through the screen's own answer, not through the rule.
+
+    2026-09-29 (item 592): the screen reports the flat cell rows as off the
+    form because the table answers them; the table keeps the cell column.
+    """
     screen, model = _screen(qtbot, "mask")
     screen.show()
     qtbot.wait(1)
 
-    assert screen.setting_row_is_visible("cell_channel") is True
-    assert screen.setting_row_is_visible("cell_diameter") is True
+    assert screen.setting_row_is_visible("cell_channel") is False
+    assert screen.setting_row_is_visible("cell_diameter") is False
+    assert the_table_answers(screen, "cell_channel") is True
+    assert the_table_answers(screen, "cell_diameter") is True
     _set(model, "cell_channel", 0)
-    assert screen.setting_row_is_visible("cell_diameter") is True
+    assert the_table_answers(screen, "cell_diameter") is True
+    assert table_value(screen, "cell_channel") == 0
 
 
 # ---------------------------------------------------------------------------
@@ -208,6 +235,8 @@ def test_a_hidden_setting_keeps_its_value_and_is_still_saved(qtbot):
 
 
 def test_changing_the_channel_back_brings_the_old_answers_with_it(qtbot):
+    # 2026-09-29 (item 592): the nucleus diameter is a cell of the
+    # per-object table, which shows the kept answer when the channel returns.
     screen, model = _screen(qtbot, "mask")
 
     _set(model, "nucleus_channel", 1)
@@ -215,18 +244,24 @@ def test_changing_the_channel_back_brings_the_old_answers_with_it(qtbot):
     _set(model, "nucleus_channel", None)
     _set(model, "nucleus_channel", 3)
 
-    assert _row_shown(screen, "nucleus_diameter") is True
+    assert the_table_answers(screen, "nucleus_diameter") is True
     assert model.collect()["nucleus_diameter"] == 77
+    assert table_value(screen, "nucleus_diameter") == 77
 
 
 def test_importing_a_settings_file_brings_its_objects_back(qtbot):
-    """The bulk apply is the path an imported CSV takes."""
+    """The bulk apply is the path an imported CSV takes.
+
+    2026-09-29 (item 592): the pathogen's questions are its table column,
+    and the imported channel is what that column's channel cell shows.
+    """
     screen, model = _screen(qtbot, "mask")
-    assert _row_shown(screen, "pathogen_diameter") is False
+    assert table_value(screen, "pathogen_channel") is None
 
     screen.apply_settings_dict({"pathogen_channel": 2})
 
-    assert _row_shown(screen, "pathogen_diameter") is True
+    assert table_value(screen, "pathogen_channel") == 2
+    assert the_table_answers(screen, "pathogen_diameter") is True
 
 
 def test_bulk_import_rebuilds_once_and_applies_every_slot_value(qapp, qtbot):
@@ -493,7 +528,8 @@ def test_a_setting_no_morphology_claims_is_shown_for_all_of_them(qtbot):
     for type_name in ("punctate", "filamentous", "cisternal", "toroidal"):
         _set(model, "organelle_type", type_name)
         assert _row_shown(screen, "organelle_adaptive_block_size") is True
-        assert _row_shown(screen, "organelle_model_name") is True
+        # 2026-09-29 (item 592): the model is a per-object table cell.
+        assert the_table_answers(screen, "organelle_model_name") is True
 
 
 # ---------------------------------------------------------------------------
@@ -501,21 +537,24 @@ def test_a_setting_no_morphology_claims_is_shown_for_all_of_them(qtbot):
 # ---------------------------------------------------------------------------
 
 def test_lowering_the_count_hides_whole_slots_and_keeps_their_values(qtbot):
+    # 2026-09-29 (item 592): a slot's channel and diameter are its column
+    # of the per-object table, so the count adds and takes away COLUMNS.
     screen, model = _screen(qtbot, "mask")
     _set(model, "organellec_channel", 5)
     _set(model, "organellec_diameter", 41)
-    assert _row_shown(screen, "organellec_channel") is True
+    assert the_table_answers(screen, "organellec_channel") is True
 
     _set(model, "number_of_organelles", 2)
 
     # A slot the run does not have is not a slot with its channel showing.
+    assert the_table_answers(screen, "organellec_channel") is False
+    assert the_table_answers(screen, "organellec_diameter") is False
     assert _row_shown(screen, "organellec_channel") is False
-    assert _row_shown(screen, "organellec_diameter") is False
-    assert _row_shown(screen, "organelleb_channel") is True
+    assert the_table_answers(screen, "organelleb_channel") is True
     # Its answers ride along and come back with it.
     assert model.collect()["organellec_diameter"] == 41
     _set(model, "number_of_organelles", 4)
-    assert _row_shown(screen, "organellec_diameter") is True
+    assert the_table_answers(screen, "organellec_diameter") is True
     assert model.collect()["organellec_diameter"] == 41
 
 

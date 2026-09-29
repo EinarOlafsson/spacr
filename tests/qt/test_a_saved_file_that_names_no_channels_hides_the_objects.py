@@ -30,6 +30,8 @@ pytest.importorskip("PySide6")
 
 pytestmark = pytest.mark.qt
 
+from tests.qt.per_object_table import table_value, the_table_answers  # noqa: E402
+
 #: One row per object that names a plane, and one setting of that object's
 #: that must follow the plane on and off the form.
 FOLLOWERS = {
@@ -71,7 +73,14 @@ def _write_and_read_back(tmp_path, settings: dict) -> dict:
 
 def test_a_file_that_names_no_channel_leaves_optional_objects_off_the_form(
         qtbot, tmp_path):
-    """The whole route: save a panel with nothing switched on, open it."""
+    """The whole route: save a panel with nothing switched on, open it.
+
+    2026-09-29 (item 592): on Mask generation every object's channel and
+    diameter are cells of the per-object table, the only layout of them. A
+    file naming no channel therefore opens with every channel cell "off"
+    (``None``), the flat rows behind the table, and no organelle column when
+    it also says zero organelles.
+    """
     screen, model = _screen(qtbot)
     loaded = _write_and_read_back(tmp_path, dict(model.collect()))
     for role in FOLLOWERS:
@@ -84,43 +93,47 @@ def test_a_file_that_names_no_channel_leaves_optional_objects_off_the_form(
     qtbot.wait(1)
 
     for role, follower in FOLLOWERS.items():
-        expected = role == "cell"
-        assert reopened.setting_row_is_visible(follower) is expected, (
-            f"{follower} visibility disagrees with the saved "
-            f"{role}_channel")
+        assert reopened.setting_row_is_visible(follower) is False, (
+            f"{follower} is on the flat form beside the table")
         if role == "organelle":
             # This file also says there are zero organelles. The optimized
             # form therefore builds no slot at all; the count is the control
             # that can ask for its first slot.
             assert reopened_model.collect()["number_of_organelles"] == 0
             assert f"{role}_channel" not in reopened_model._widgets
+            assert "organelle" not in reopened._object_grid.objects()
             assert reopened.setting_row_is_visible(
                 "number_of_organelles") is True
         else:
-            # Non-slot switches stay -- there would be nothing left to turn
-            # the object back on with.
-            assert reopened.setting_row_is_visible(
-                f"{role}_channel") is True
+            # The switch stays -- there would be nothing left to turn the
+            # object back on with -- and it reads "off".
+            assert the_table_answers(reopened, f"{role}_channel") is True
+            assert table_value(reopened, f"{role}_channel") is None
     assert reopened_model.collect()["cell_channel"] is None
 
 
 def test_a_file_that_omits_channels_keeps_only_the_reference_object(
         qtbot, tmp_path):
-    """Absence is not a channel; cell alone remains available by design."""
+    """Absence is not a channel; cell alone remains available by design.
+
+    2026-09-29 (item 592): the objects are table columns; an omitted channel
+    reads "off" in its column rather than taking the column away.
+    """
     screen, model = _screen(qtbot)
     settings = {k: v for k, v in model.collect().items()
                 if not k.endswith("_channel")}
     loaded = _write_and_read_back(tmp_path, settings)
     assert "cell_channel" not in loaded
 
-    reopened, _model = _screen(qtbot)
+    reopened, reopened_model = _screen(qtbot)
     reopened.apply_settings_dict(loaded)
     qtbot.wait(1)
 
-    assert reopened.setting_row_is_visible("cell_diameter") is True
-    assert reopened.setting_row_is_visible("cell_channel") is True
-    assert reopened.setting_row_is_visible("nucleus_diameter") is False
-    assert reopened.setting_row_is_visible("nucleus_channel") is True
+    assert the_table_answers(reopened, "cell_diameter") is True
+    assert the_table_answers(reopened, "cell_channel") is True
+    assert the_table_answers(reopened, "nucleus_channel") is True
+    assert reopened_model.collect()["nucleus_channel"] is None
+    assert table_value(reopened, "nucleus_channel") is None
 
 
 # ---------------------------------------------------------------------------
@@ -128,7 +141,11 @@ def test_a_file_that_omits_channels_keeps_only_the_reference_object(
 # ---------------------------------------------------------------------------
 
 def test_a_stored_channel_of_zero_puts_its_object_back(qtbot, tmp_path):
-    """Plane zero is the first plane, not an object that is not there."""
+    """Plane zero is the first plane, not an object that is not there.
+
+    2026-09-29 (item 592): read back from the per-object table, whose cell
+    channel must show plane 0 rather than "off".
+    """
     screen, model = _screen(qtbot)
     settings = dict(model.collect())
     settings["cell_channel"] = 0
@@ -140,9 +157,10 @@ def test_a_stored_channel_of_zero_puts_its_object_back(qtbot, tmp_path):
     qtbot.wait(1)
 
     assert reopened_model.collect()["cell_channel"] == 0
-    assert reopened.setting_row_is_visible("cell_diameter") is True
+    assert table_value(reopened, "cell_channel") == 0
+    assert the_table_answers(reopened, "cell_diameter") is True
     # And it says nothing about the objects the same file left unset.
-    assert reopened.setting_row_is_visible("nucleus_diameter") is False
+    assert table_value(reopened, "nucleus_channel") is None
 
 
 def test_the_rule_reads_a_saved_none_as_absent_and_a_saved_zero_as_present():
