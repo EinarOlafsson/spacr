@@ -88,3 +88,10 @@ def test_generic_sandbox_home_is_reported_apart_from_offenders():
     assert [h['kind'] for h in hits] == ['generic_home'] and sweep.offending(hits) == []
     assert sweep.offending([{'kind': k, 'text': t} for k, t in
                             sweep.path_hits(['/home/olafsson/.cache/spacr'])])
+
+
+@pytest.mark.parametrize('text, generic', [('found measurements-db from measure at /home/u', True),
+                                           ('at /home/us', True), ('at /home/u/x', False), ('/home/ulla/data', False)])
+def test_home_cut_inside_user_at_line_end_is_generic(text, generic):
+    kinds = {k for k, _ in sweep.path_hits([text])}
+    assert ('generic_home' in kinds) == generic and ('unix_home' in kinds) != generic

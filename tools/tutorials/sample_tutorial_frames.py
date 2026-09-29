@@ -65,7 +65,8 @@ PUBLIC_URL = re.compile(r'olafsson\.g[il1]thub\.io|g[il1]thub\.com/einarolafsson
 LOCAL_ACCOUNT = re.compile(r'(?<!einar)(?<!birnir)olafsson')
 # OCR often reads the slash after it as a dot or drops it at a line end, so
 # "/home/user" counts as generic whatever non-alphanumeric character follows.
-GENERIC_HOME = re.compile(r'/home/user(?![a-z0-9_])')
+# also a line cut inside 'user' (a path straddling an OCR tile edge reads '/home/u')
+GENERIC_HOME = re.compile(r'/home/user(?![a-z0-9_])|/home/u(?:s(?:e)?)?$')
 NEUTRAL_KINDS = {'generic_home'}
 
 
