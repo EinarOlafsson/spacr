@@ -1786,7 +1786,6 @@ def test_canonical_indented_literal_shapes_are_never_translation_blocks():
         "spacr.classify_classes": '{"infected":',
         "spacr.mask_io": 'np.save("foo_mask.npy"',
         "spacr.pipeline_v2": "→ renamed + split into channel folders",
-        "spacr.qt": "python -m spacr.qt",
         "spacr.qt.verbose_logger.log_call": "[class.func] args=",
         "spacr.qt.widgets": "670 ms  spacr.qt.app",
         "spacr.power_simulate": "Permission is hereby granted",
@@ -1794,6 +1793,13 @@ def test_canonical_indented_literal_shapes_are_never_translation_blocks():
     for key, fragment in forbidden.items():
         blocks, _layout = translatable_blocks(docs[key])
         assert not any(fragment in block for block in blocks), (key, fragment)
+    # spacr.qt's launch commands were an indented literal; since 411
+    # (31000d98b) they are inline literals in a prose sentence, which is a
+    # translation block. The command may reach a block only inside ``...``.
+    blocks, _layout = translatable_blocks(docs["spacr.qt"])
+    for block in blocks:
+        if "python -m spacr.qt" in block:
+            assert "``python -m spacr.qt``" in block, block
 
 
 def test_code_definition_shape_inside_explicit_literal_block_stays_exact():
