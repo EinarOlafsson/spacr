@@ -71,10 +71,11 @@ def test_mask_cloud_controls_have_one_dedicated_category():
 
 @pytest.mark.parametrize("language", ["sv", "de", "es", "zh_CN", "pt",
                                      "hi", "ko", "is", "fr"])
-def test_cloud_heading_and_help_are_translated(language):
+def test_cloud_heading_and_help_are_translated(language, qtbot):
     """Render a translated heading and curated help for each shipped locale.
 
     :param language: supported non-English interface language.
+    :param qtbot: pytest-qt fixture that owns the section widget.
     """
     from spacr.qt.i18n import tr
     from spacr.qt.screens.settings_model import (
@@ -83,12 +84,20 @@ def test_cloud_heading_and_help_are_translated(language):
 
     from spacr.qt.widgets.section import Section
 
-    assert tr("Cloud", language=language) != "Cloud"
+    # 2026-09-29 (item 591, catalog pass 316 be1f13b52): the heading is
+    # "Cloud α" and has its own exact catalog row in every language, which
+    # the section header reads before any fallback. The bare word "Cloud"
+    # never had a row; it was only the fallback's first guess.
+    exact = tr("Cloud α", language=language)
+    assert exact != "Cloud α" and exact.endswith(" α"), exact
     assert category_tooltip_is_curated("mask", "Cloud α")
     assert category_tooltip("mask", "Cloud α", language) != category_tooltip(
         "mask", "Cloud α", "en")
-    heading = Section._translated_alpha_name("Cloud α", language)
-    assert heading.endswith(" α") and heading != "Cloud α"
+    section = Section("Cloud α")
+    qtbot.addWidget(section)
+    section._refresh_header_text(language)
+    header = section._header.text().replace("&&", "&")
+    assert header.endswith(" α") and header != "CLOUD α", header
 
 
 def _browse_action(screen):

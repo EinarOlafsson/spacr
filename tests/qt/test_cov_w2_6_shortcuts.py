@@ -640,16 +640,23 @@ def test_a_narrow_window_wraps_the_categories_instead_of_widening(window):
     wide.dismiss()
 
 
-def test_the_overlay_dims_whatever_is_behind_the_card(window, qapp):
-    """That is what makes it an answer laid over the window rather than a
-    mode the user has to leave."""
-    from PySide6.QtGui import QColor
+def test_the_overlay_leaves_the_window_around_the_card_as_it_was(window, qapp):
+    """An answer laid over the window rather than a mode to leave.
 
+    2026-09-29: item 497 (7db91200c) removed the full-window dimming layer
+    and gave the card its own rounded translucent surface, so outside the
+    card the window must look exactly as it did. This asserted a dark corner
+    and passed only when the theme behind happened to be dark (CI's run on
+    6b7da216a drew the light theme's #EFEFEF there and failed).
+    """
+    qapp.processEvents()
+    x, y = 2, window.height() - 3
+    before = window.grab().toImage().pixel(x, y)
     overlay = sc.show_cheat_sheet(window)
     qapp.processEvents()
-    shot = overlay.grab().toImage()
-    corner = QColor(shot.pixel(2, overlay.height() - 3))
-    assert corner.red() < 120 and corner.green() < 120 and corner.blue() < 120
+    assert not overlay._card.geometry().contains(x, y)
+    after = window.grab().toImage().pixel(x, y)
+    assert after == before
     overlay.dismiss()
 
 
