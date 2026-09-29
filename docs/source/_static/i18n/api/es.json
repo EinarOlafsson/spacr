@@ -9528,6 +9528,622 @@
         "b38d49056640f639b69b805790be8cd09658ef22537b3a87eb9367369d0fd28c"
       ]
     },
+    "spacr.channel_sorting": {
+      "source_blocks_sha256": [
+        "458486111a916fa7f202695e21a73c8a966addc639b4f85fedced23026a42feb",
+        "1434b3d91d4e9a6b2d0a0b02c5dd84aad621be24cdc3bc9f182b24d1a49a3db3",
+        "0336d5e9eaf39d7e23221368495964995f8d2aad7b920afe462d0e1fd0a68b48",
+        "d5befb1360f1394b0ee9ab328fd16c648a682117f96041ecd2d89ac63d8f3b8d",
+        "56bf30057b1bd4c91b78b73e1297955ec3d9606b193049ede87afcc859d56685"
+      ],
+      "source_sha256": "afdd13909d96f15e947e86c2b05c5104472899daf298ccdedf7db799c1bff08c",
+      "text": "Ordena una carpeta de imágenes (y sus máscaras) en canales, les cambia el nombre y las fusiona.\n\nEl caso para el que existe este módulo: se dibujaron máscaras en Make Masks sobre una carpeta que contiene dos tipos de imagen a la vez -- por ejemplo, imágenes con tinción nuclear y máscaras de núcleos e imágenes con tinción celular y máscaras de células --, y eso tiene que convertirse en un campo de visión multicanal por posición, con la estructura que lee la pipeline Mask/Measure de spaCR.\n\nOcurre en tres pasos separados, y no se mueve nada hasta el último:\n\n1. **Canales y conjuntos.** Cada imagen recibe un CANAL, y las imágenes que muestran el mismo campo de visión en canales distintos comparten un CONJUNTO. Los canales proceden de la selección del usuario (:func:`parse_names` ``channels=``) o del grupo ``chanID`` de una expresión regular; los conjuntos proceden de los demás grupos con nombre de la expresión regular (:func:`parse_names`, comprobados por :func:`check_sets`), de una expresión regular que propone spaCR (:func:`infer_regex`) o, sin tener en cuenta los nombres, de emparejar cada imagen con la imagen más parecida del mismo tamaño en cada uno de los demás canales (:func:`detect_sets`). 2. **El plan.** :func:`build_plan` nombra cada conjunto con la forma Yokogawa / CellVoyager ``plate1_A01_T0001F001L01A01Z01C01.tif`` -- exactamente lo que analiza ``spacr.utils._get_regex('cellvoyager', ...)`` -- y enumera cada movimiento. No escribe nada. 3. **Aplicar.** :func:`apply_plan` mueve cada imagen a ``C01/``, ``C02/``... bajo una carpeta nueva, su máscara al ``masks/`` de esa carpeta de canal con el nombre nuevo (y su registro ``.curation.json`` con ella, para que el emparejamiento se conserve), anota cada movimiento en ``channel_sorting_manifest.csv`` y después :func:`merge_sorted` construye ``stack/``, ``masks/<role>_mask_stack/`` y ``merged/`` con las funciones propias de spaCR (:func:`spacr.utils._extract_filename_metadata`, :func:`spacr.io._escaped_field_stem` y :func:`spacr.io._load_and_concatenate_arrays`), de modo que cada matriz fusionada tiene la estructura propia de la pipeline: primero los canales de intensidad y después un plano de etiquetas por papel de máscara en el orden célula, núcleo, patógeno.\n\nConvenciones de expresiones regulares: ``chanID`` es el canal; ``plateID``, ``wellID``, ``fieldID`` y ``timeID`` indican adónde va un conjunto; cualquier otro grupo con nombre solo ayuda a distinguir conjuntos. Un grupo que no participó en una coincidencia cuenta como la cadena vacía, así que un ``(?:_(?P<fieldID>\\d+))?`` opcional lee las copias numeradas que crea :mod:`spacr.folder_consolidation`.",
+      "translation_source_blocks_sha256": [
+        "9faf94ac6edbeb272131a83e7e9bebd89084a4e013bf8f0841cd69e916e64742",
+        "1301e575dadfc900e85f7b3081bbfd44e6217843436658901f304fd9a725339d",
+        "0336d5e9eaf39d7e23221368495964995f8d2aad7b920afe462d0e1fd0a68b48",
+        "aff113c0faabf6218f0b5afc9206c4525f90ad1c58e77f1aabdcb763d4be07b8",
+        "56bf30057b1bd4c91b78b73e1297955ec3d9606b193049ede87afcc859d56685"
+      ]
+    },
+    "spacr.channel_sorting.ApplyResult": {
+      "source_blocks_sha256": [
+        "90477d55cb26b1a9986a6668ff4e6d077c2a3feb8375cc741acbeb8112d25a6e",
+        "6a8e2856439fbdadc0e6aa818324bbe5fe2b1a401e86dd047e82c294343ec8fa",
+        "0340678cb12ae9ed1a71ba972d0cad25cc37508e93c460cee5825afc011c9190",
+        "65f1f7d074d5e1ded795ffe1e3e4217a15f3873980832a88c61e608630e49574",
+        "f272dbcb8b6307c55afa36956f61a949145f0eb12a83bfa7202804176e813555",
+        "9942dcfc9a2604567dd386208bbe44bda76e2657347b59304f593a5fe80b4d11"
+      ],
+      "source_sha256": "d855d0ba7dc9c20d94dfc158e3a24cf18e8e435b0bfa933035dfe555d996cbd5",
+      "text": "Lo que hizo :func:`apply_plan`.\n\n:ivar dest: la carpeta escrita.\n:ivar manifest: el registro de movimientos y cambios de nombre.\n:ivar moved: archivos movidos (imágenes, máscaras y registros).\n:ivar stacks: ``stack/*.npy`` escritos.\n:ivar merged: ``merged/*.npy`` escritos.",
+      "translation_source_blocks_sha256": [
+        "90477d55cb26b1a9986a6668ff4e6d077c2a3feb8375cc741acbeb8112d25a6e",
+        "6a8e2856439fbdadc0e6aa818324bbe5fe2b1a401e86dd047e82c294343ec8fa",
+        "0340678cb12ae9ed1a71ba972d0cad25cc37508e93c460cee5825afc011c9190",
+        "65f1f7d074d5e1ded795ffe1e3e4217a15f3873980832a88c61e608630e49574",
+        "f272dbcb8b6307c55afa36956f61a949145f0eb12a83bfa7202804176e813555",
+        "9942dcfc9a2604567dd386208bbe44bda76e2657347b59304f593a5fe80b4d11"
+      ]
+    },
+    "spacr.channel_sorting.DetectedSets": {
+      "source_blocks_sha256": [
+        "c71eef9afa1dc57fae88e6678160741152450c9a3bac0b37729be532386e6356",
+        "a9b74a246e5ab8bbd8883957a4149829b5b149d128696d338f4c983fc72384bc",
+        "0f1fbe5b2695ea02260205298bad78a95cee4ea45442b6565821f07904f4d96f",
+        "d18ca06cab2ffe0f689b55c93f55d364320b3aa9f06fa870d9369b184c1b2f4a"
+      ],
+      "source_sha256": "c8c0c43c7f1537d679cf80406a3ecfbb035c948cbd522acb888ea1800e2e93a7",
+      "text": "Lo que emparejó :func:`detect_sets`.\n\n:ivar sets: ``{set key: {channel: name}}``, con claves ``((\"set\", \"000001\"),)``.\n:ivar unpaired: imágenes que quedaron sin pareja en algún canal.\n:ivar problems: motivos por los que el emparejamiento no puede usarse tal cual.",
+      "translation_source_blocks_sha256": [
+        "c71eef9afa1dc57fae88e6678160741152450c9a3bac0b37729be532386e6356",
+        "a9b74a246e5ab8bbd8883957a4149829b5b149d128696d338f4c983fc72384bc",
+        "d4d01ff0063fc4623ad765b5ff55b9c6e8bef181802cddddcdb2b8cbc2c40dd1",
+        "d18ca06cab2ffe0f689b55c93f55d364320b3aa9f06fa870d9369b184c1b2f4a"
+      ]
+    },
+    "spacr.channel_sorting.ParsedName": {
+      "source_blocks_sha256": [
+        "6f1d9cc0ab2be05fb75ed49260c4eedd624b5535b029e97db6c5ed4defcbe418",
+        "984ff85dca71135cfe899d5268967048467c5263f66252c94aabeb06bf728333",
+        "4590707f4c7f60df9680c624f8a4501d6624a871a05b8db2964c44778f17e7d4",
+        "68a9e1b701354398d0315e348cc07b55cbb63197323eed2de17a5b559e7dee0e",
+        "e4ec6b68aa18e0907527b7f5c6a6855791db18c2a4af808077fd8e5285a9e4e4",
+        "3f3e78ebaf1d2e57167e56fca69089eb61ad8c6d3f90f0bc76c36cb3f3bb2fca"
+      ],
+      "source_sha256": "e4a0e581de449995021d78dece198c939d5c5b4f2b7640db7b7ea17c4e15b914",
+      "text": "Un nombre de imagen leído mediante una expresión regular.\n\n:ivar name: el nombre del archivo.\n:ivar matched: si la expresión regular coincidió con él.\n:ivar groups: el valor de cada grupo con nombre; uno que no participó es la cadena vacía.\n:ivar channel: el canal, contado desde 1, de la selección o de ``chanID``; None cuando ninguno lo da.\n:ivar set_key: el conjunto al que pertenece la imagen; None si no coincidió.",
+      "translation_source_blocks_sha256": [
+        "6f1d9cc0ab2be05fb75ed49260c4eedd624b5535b029e97db6c5ed4defcbe418",
+        "984ff85dca71135cfe899d5268967048467c5263f66252c94aabeb06bf728333",
+        "4590707f4c7f60df9680c624f8a4501d6624a871a05b8db2964c44778f17e7d4",
+        "68a9e1b701354398d0315e348cc07b55cbb63197323eed2de17a5b559e7dee0e",
+        "e4ec6b68aa18e0907527b7f5c6a6855791db18c2a4af808077fd8e5285a9e4e4",
+        "3f3e78ebaf1d2e57167e56fca69089eb61ad8c6d3f90f0bc76c36cb3f3bb2fca"
+      ]
+    },
+    "spacr.channel_sorting.PlanRow": {
+      "source_blocks_sha256": [
+        "2c06b49eee676f7b73d7ba4d3ef99dc71fafb14d90486b08267ff405787e18a5",
+        "f9b85205a521c8b78d55322be64e766a83972789f54fc28e7834dc714009ed5d",
+        "5853d75e7105622c7e1021adae830466adb9b67a41fd898828f8bde15656a57c",
+        "53b7dd7a7246224f4ba3dfc2b430ebd0e963f08eb51d682093499db519732f94",
+        "3016071957a2806f20ff98f29071af1d90b41fdeeb159484807600e94a1eb87c",
+        "33831bee7a9e78464fbd7503df8522b1d205fce7da415b3123107f7b366c6aad",
+        "65d0bccb8efb9116009324ba4facefb49f833760a3f43eb9b04040f288daaec6",
+        "a0c6e24419f745c52cc2a10a1874c4ee86d14b6d91a7f46ec0220c6ab267ae68",
+        "10484b5526c41557b5e92888836c03cfde7a3f541aafb1a98a34513494239e3f",
+        "0353d9672c27d58b4057366015f793fb0a3e503a6eb4d4395afc771fed6a75b6",
+        "f621f5a3acf1478b90563db5517900225e5c163e92139602dce88d3796205fcc"
+      ],
+      "source_sha256": "25df457356a3765d056a5a274c55bf43a1cda7a0be4e31f8a398e4d555c9c5df",
+      "text": "Una imagen que mover, con su máscara y el registro de la máscara.\n\n:ivar channel: canal contado desde 1.\n:ivar name: el lugar del conjunto.\n:ivar set_key: el conjunto en el que está la imagen.\n:ivar source_image: ruta actual de la imagen.\n:ivar target_image: adónde va.\n:ivar source_mask: ruta actual de la máscara, o None.\n:ivar target_mask: adónde va la máscara, o None.\n:ivar source_ledger: el ``.curation.json`` de la máscara, o None.\n:ivar target_ledger: adónde va el registro, o None.\n:ivar convert: ``\"rgb\"`` o ``\"zstack\"`` cuando la imagen se escribe como un único plano 2-D convertido (el original se guarda en ``originals/``).",
+      "translation_source_blocks_sha256": [
+        "2c06b49eee676f7b73d7ba4d3ef99dc71fafb14d90486b08267ff405787e18a5",
+        "f9b85205a521c8b78d55322be64e766a83972789f54fc28e7834dc714009ed5d",
+        "5853d75e7105622c7e1021adae830466adb9b67a41fd898828f8bde15656a57c",
+        "53b7dd7a7246224f4ba3dfc2b430ebd0e963f08eb51d682093499db519732f94",
+        "3016071957a2806f20ff98f29071af1d90b41fdeeb159484807600e94a1eb87c",
+        "33831bee7a9e78464fbd7503df8522b1d205fce7da415b3123107f7b366c6aad",
+        "65d0bccb8efb9116009324ba4facefb49f833760a3f43eb9b04040f288daaec6",
+        "a0c6e24419f745c52cc2a10a1874c4ee86d14b6d91a7f46ec0220c6ab267ae68",
+        "10484b5526c41557b5e92888836c03cfde7a3f541aafb1a98a34513494239e3f",
+        "0353d9672c27d58b4057366015f793fb0a3e503a6eb4d4395afc771fed6a75b6",
+        "661a9699ba22f2ba605a6e649e789dae546d10bc2e404ce20acbe7df963c7fb3"
+      ]
+    },
+    "spacr.channel_sorting.SetName": {
+      "source_blocks_sha256": [
+        "1a9aceb126aff211f6f2cd19a3750e03ac924768927d31d41cd754f8c6d1d1e1",
+        "c271aae260b307c480bee7992690adc17ec559e47d6586895fad4d5dd084fe9c",
+        "28619cce2fbc0a31c11d1b6b64bb4faa528553d81a29c8bb9b14d3cec7827ab5",
+        "ed478660d8fa9467a2cb0ca052fe16b0705451e4e5f413fd69cfe44fe9854114",
+        "b929bd5886ecd32a67096c98062d34badffcf7c48abb8e02cd49ad82793fe111"
+      ],
+      "source_sha256": "427a863f1dac9d0fc14f7ecaf6de9dac283102869aab4e119365d3a91ee8badd",
+      "text": "Adónde va un conjunto en la nomenclatura Yokogawa.\n\n:ivar plate: el identificador de la placa, sin guion bajo.\n:ivar well: e.g. ``A01``.\n:ivar field: campo de visión contado desde 1.\n:ivar time: punto temporal contado desde 1.",
+      "translation_source_blocks_sha256": [
+        "1a9aceb126aff211f6f2cd19a3750e03ac924768927d31d41cd754f8c6d1d1e1",
+        "c271aae260b307c480bee7992690adc17ec559e47d6586895fad4d5dd084fe9c",
+        "28619cce2fbc0a31c11d1b6b64bb4faa528553d81a29c8bb9b14d3cec7827ab5",
+        "ed478660d8fa9467a2cb0ca052fe16b0705451e4e5f413fd69cfe44fe9854114",
+        "b929bd5886ecd32a67096c98062d34badffcf7c48abb8e02cd49ad82793fe111"
+      ]
+    },
+    "spacr.channel_sorting.SetReport": {
+      "source_blocks_sha256": [
+        "1df44e54e74ad587726f61da20f83fddab66f9ad4b6ec0aa080d4d93726dddf8",
+        "830087af73577638d0dd6483f4f4bd7357a75c85b6bff1c74ecdb744b2197f95",
+        "1c9fbe92bb387f05625615f89c923ce68185a9777bb29b7d0c1eda8b855d1657",
+        "9fcb26073bd4d88e039cbcc0bd54f151bf118430f4ca466551c4553462ded447",
+        "a682cd1fe2a15697b1c1c2628bbc6a97bb852de89380e9a265775df83512bfd6",
+        "271e0a04123a0369f04673cb4c7fdd52b7101f8329ae1d6204c276427cbcad83",
+        "a6faa9069bb07496a266bdc962c70333bf901251c8f05a7f9053bd1310826b67"
+      ],
+      "source_sha256": "f3effde46bd6a002d5fd7f2738d828e49073e7f3c0070d01dba9bcf3fc7e1715",
+      "text": "Si un conjunto de nombres analizados forma conjuntos completos y únicos.\n\n:ivar channels: los canales presentes, ordenados.\n:ivar complete: ``{set key: {channel: name}}`` para los conjuntos con exactamente una imagen en cada canal.\n:ivar incomplete: ``{set key: [missing channels]}``.\n:ivar duplicated: ``{(set key, channel): [names]}`` -- dos imágenes que reclaman el mismo lugar.\n:ivar unmatched: nombres con los que la expresión regular no coincidió.\n:ivar no_channel: nombres coincidentes sin canal.",
+      "translation_source_blocks_sha256": [
+        "1df44e54e74ad587726f61da20f83fddab66f9ad4b6ec0aa080d4d93726dddf8",
+        "830087af73577638d0dd6483f4f4bd7357a75c85b6bff1c74ecdb744b2197f95",
+        "f216eca184c49c652d9e014ef8625d0c83325b6025bd81b35356318f3932d812",
+        "9fcb26073bd4d88e039cbcc0bd54f151bf118430f4ca466551c4553462ded447",
+        "a682cd1fe2a15697b1c1c2628bbc6a97bb852de89380e9a265775df83512bfd6",
+        "271e0a04123a0369f04673cb4c7fdd52b7101f8329ae1d6204c276427cbcad83",
+        "a6faa9069bb07496a266bdc962c70333bf901251c8f05a7f9053bd1310826b67"
+      ]
+    },
+    "spacr.channel_sorting.SetReport.ok": {
+      "source_blocks_sha256": [
+        "b556f7c7439955a4b311efa2b57a3273a8b1be65e99a04454947c37a92dbd0b7"
+      ],
+      "source_sha256": "b556f7c7439955a4b311efa2b57a3273a8b1be65e99a04454947c37a92dbd0b7",
+      "text": "True cuando cada imagen está en exactamente un conjunto completo.",
+      "translation_source_blocks_sha256": [
+        "b556f7c7439955a4b311efa2b57a3273a8b1be65e99a04454947c37a92dbd0b7"
+      ]
+    },
+    "spacr.channel_sorting.SetReport.summary": {
+      "source_blocks_sha256": [
+        "611d695256be70f7e171f6718b596c633ad25697a2b210d1c159565c9c4fd622"
+      ],
+      "source_sha256": "611d695256be70f7e171f6718b596c633ad25697a2b210d1c159565c9c4fd622",
+      "text": "Unas pocas líneas sencillas que dicen qué está bien y qué no.",
+      "translation_source_blocks_sha256": [
+        "611d695256be70f7e171f6718b596c633ad25697a2b210d1c159565c9c4fd622"
+      ]
+    },
+    "spacr.channel_sorting.SortPlan": {
+      "source_blocks_sha256": [
+        "00b7c899bc315c108addc02e2113ee9be18958bd699e5c6b2bb5eef34dd8f6f0",
+        "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
+        "f3bb66bd32cd74675df52cf3dfa919c284df43a3eee51fcae739d557256552d9",
+        "c9c9c7bd76336bdf8cbc99e2f75a1281fb8027e70bb197e5f667cf17c706843e",
+        "b29d1877be33def0a3f0489ebf16630a17487afd874a466686d315dc34082aa4",
+        "c960491cebcac2488ab96a021f0186cc6d4eb8bd6c7aa5e289361e43c36b6b43",
+        "f36d4ede262bf84048aa9c123ff72a9e6c7862cf93cea075ff319c74939ae80a",
+        "f3b1687c55cc4cb4ab0921f2d25783f4dedf97b2cef335d4b95cf1a91d7866cc",
+        "9fe0cdb630b97ba90463a7cb01b94795995928a57ab6d029796f9bb5ef067d32"
+      ],
+      "source_sha256": "4f9b09ee4dee59805bd97c0ad4bab10375aa1e4fe9a1b059afa61de8f7c3760e",
+      "text": "Todo lo que hará :func:`apply_plan`, decidido antes de hacer nada.\n\n:ivar folder: la carpeta de imágenes.\n:ivar dest: la carpeta nueva en la que van los canales, las pilas y ``merged/``.\n:ivar rows: uno por imagen.\n:ivar channels: canales, ordenados.\n:ivar mask_roles: ``{channel: role}`` para los canales cuyas máscaras se fusionan.\n:ivar problems: motivos por los que el plan no puede aplicarse.\n:ivar warnings: cosas que el usuario debe saber antes de aplicarlo.\n:ivar convertible: imágenes RGB y pilas z que :func:`build_plan` convertiría si se le pide (``convert=True``).",
+      "translation_source_blocks_sha256": [
+        "00b7c899bc315c108addc02e2113ee9be18958bd699e5c6b2bb5eef34dd8f6f0",
+        "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
+        "f3bb66bd32cd74675df52cf3dfa919c284df43a3eee51fcae739d557256552d9",
+        "c9c9c7bd76336bdf8cbc99e2f75a1281fb8027e70bb197e5f667cf17c706843e",
+        "b29d1877be33def0a3f0489ebf16630a17487afd874a466686d315dc34082aa4",
+        "da7e25d0f2108b620f10cc569ffb99fe183ea2beaef2bba980a081fa2030ce10",
+        "f36d4ede262bf84048aa9c123ff72a9e6c7862cf93cea075ff319c74939ae80a",
+        "f3b1687c55cc4cb4ab0921f2d25783f4dedf97b2cef335d4b95cf1a91d7866cc",
+        "9fe0cdb630b97ba90463a7cb01b94795995928a57ab6d029796f9bb5ef067d32"
+      ]
+    },
+    "spacr.channel_sorting.SortPlan.n_sets": {
+      "source_blocks_sha256": [
+        "8875d59ceb04b8a5cdbb2d3a3c874eac4d02d4669b34309cda418db6ea3af874"
+      ],
+      "source_sha256": "8875d59ceb04b8a5cdbb2d3a3c874eac4d02d4669b34309cda418db6ea3af874",
+      "text": "Cuántos conjuntos contiene el plan.",
+      "translation_source_blocks_sha256": [
+        "8875d59ceb04b8a5cdbb2d3a3c874eac4d02d4669b34309cda418db6ea3af874"
+      ]
+    },
+    "spacr.channel_sorting.SortPlan.ok": {
+      "source_blocks_sha256": [
+        "548496a9ed91d86260889b50d60ad4c27e1553b905c3af08e4ca5b95b6778e86"
+      ],
+      "source_sha256": "548496a9ed91d86260889b50d60ad4c27e1553b905c3af08e4ca5b95b6778e86",
+      "text": "True cuando hay algo que hacer y nada lo impide.",
+      "translation_source_blocks_sha256": [
+        "548496a9ed91d86260889b50d60ad4c27e1553b905c3af08e4ca5b95b6778e86"
+      ]
+    },
+    "spacr.channel_sorting.SortPlan.summary": {
+      "source_blocks_sha256": [
+        "7d26a047d111c56705ea146362e8def7fd7cebcc268291ab8568cbcbb80ef5c2"
+      ],
+      "source_sha256": "7d26a047d111c56705ea146362e8def7fd7cebcc268291ab8568cbcbb80ef5c2",
+      "text": "Líneas sencillas que dicen qué hará aplicar el plan.",
+      "translation_source_blocks_sha256": [
+        "7d26a047d111c56705ea146362e8def7fd7cebcc268291ab8568cbcbb80ef5c2"
+      ]
+    },
+    "spacr.channel_sorting.apply_plan": {
+      "source_blocks_sha256": [
+        "146c0eae586d5ec99dd028c688bb6398ef7b1740aa9a69d1981a9d40eab49308",
+        "29e95e789da46b73db83881f87758d927a88132bfdbf975d3addbef5b47efc79",
+        "6bd783ca5a7672e861143095394733fc9e7ff1b070dceeea311dec1bba64a113",
+        "b8fdc5843edc99fc4edf71528d753be7b1a73b18a99e37c7f2b582c0f5217ed1",
+        "7db6a5d784a8d50ce0ccef93d7fa6d2b21e2d9e096079a1e6fed6a260d4f5fea",
+        "479b727ee55be1220949048fd894f24e9d46599869499d51133865145a200ec9",
+        "198dfe1289bda4c083fec92fa4a3c937fbf9957a63a93ba531f9d941b9a9f760",
+        "81bc508e57c25673eed13005edc46e6b5faf1a6cf1dab33914121d000b8a48a1"
+      ],
+      "source_sha256": "dc5500b89a8053fef02c10bb92c2159a9f80441e0c603f0efee73a79677487fa",
+      "text": "MUEVE las imágenes y máscaras según el plan y después fusiona.\n\nCada movimiento se escribe en ``<dest>/channel_sorting_manifest.csv`` en el momento en que ocurre, así que una ejecución que se detiene a medias sigue indicando qué archivo fue adónde. No se sobrescribe nada: antes del primer movimiento se comprueba que cada destino esté libre.\n\n:param plan: un plan ``ok`` de :func:`build_plan`.\n:param merge: ejecuta :func:`merge_sorted` después.\n:param log: se llama con líneas de progreso; por defecto las imprime.\n:returns: an :class:`ApplyResult`.\n:raises ValueError: cuando el plan tiene problemas, falta un origen o un destino está ocupado.\n:raises OSError: cuando falla un movimiento; el manifiesto lo registra junto con cada movimiento anterior.",
+      "translation_source_blocks_sha256": [
+        "146c0eae586d5ec99dd028c688bb6398ef7b1740aa9a69d1981a9d40eab49308",
+        "29e95e789da46b73db83881f87758d927a88132bfdbf975d3addbef5b47efc79",
+        "6bd783ca5a7672e861143095394733fc9e7ff1b070dceeea311dec1bba64a113",
+        "b8fdc5843edc99fc4edf71528d753be7b1a73b18a99e37c7f2b582c0f5217ed1",
+        "7db6a5d784a8d50ce0ccef93d7fa6d2b21e2d9e096079a1e6fed6a260d4f5fea",
+        "479b727ee55be1220949048fd894f24e9d46599869499d51133865145a200ec9",
+        "198dfe1289bda4c083fec92fa4a3c937fbf9957a63a93ba531f9d941b9a9f760",
+        "81bc508e57c25673eed13005edc46e6b5faf1a6cf1dab33914121d000b8a48a1"
+      ]
+    },
+    "spacr.channel_sorting.build_plan": {
+      "source_blocks_sha256": [
+        "a4878591d46edd1a888afa468dcea279bb5a76e69222a995801d21e23e401987",
+        "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
+        "2361736aef7fa63deaec9192bdd5133b7327747c69b9093a1b49a11ba8453b88",
+        "03d9ff28d57d5453ff99df39aa4e590eba57d1831246b380b43a22730c5c816e",
+        "f011c1f5a9daa343616645b60eb89f588c990bbc270384ae28621846dc27a5a1",
+        "f4e6a46f4fba0f5d82c2a794dddbd6efd63779d65a04e2552f6201b4286570d8",
+        "d5ec331991d19d64869eb3b1a422dd5c23c09f03def5404e799d913e04c4091e",
+        "ea3bd380a00d79b11341a3863a9d3b4ab4d88d1ecdd52bf5eb716a8d9f768202",
+        "a89332de24fb787ed65f2d099a9ffcd11684ed342db68c883cd7117062eaf1cd"
+      ],
+      "source_sha256": "2a450af570bab49d1ea619f21f07db28cddd21d6d302fee40ac695bf521f15cb",
+      "text": "Decide cada movimiento, nombre y comprobación antes de tocar nada.\n\n:param folder: la carpeta de imágenes.\n:param sets: ``{set key: {channel: name}}``, solo conjuntos completos.\n:param masks_dir: una carpeta de máscaras indicada explícitamente.\n:param mask_roles: ``{channel: role}``; ``None`` adivina (:func:`default_mask_roles`); un canal que falta en él, o que recibe ``\"none\"``, ve sus máscaras movidas pero no fusionadas.\n:param dest: la carpeta nueva; por defecto, ``<folder>/sorted_channels``.\n:param check_shapes: lee el tamaño de cada imagen y de cada máscara y rechaza un conjunto cuyas imágenes tengan tamaños distintos, una máscara que no tenga el tamaño de su imagen o una imagen que no sea 2-D.\n:param convert: escribe las imágenes RGB en escala de grises y las pilas z como su proyección máxima en lugar de rechazarlas; sin esta opción se enumeran en :attr:`SortPlan.convertible` para que quien llama pueda preguntar.\n:returns: a :class:`SortPlan`.",
+      "translation_source_blocks_sha256": [
+        "a4878591d46edd1a888afa468dcea279bb5a76e69222a995801d21e23e401987",
+        "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
+        "2361736aef7fa63deaec9192bdd5133b7327747c69b9093a1b49a11ba8453b88",
+        "03d9ff28d57d5453ff99df39aa4e590eba57d1831246b380b43a22730c5c816e",
+        "9ea2f69ceb2b8f96bce334886755530fcef97e4a79be1a0256ebb9e17e009af9",
+        "f4e6a46f4fba0f5d82c2a794dddbd6efd63779d65a04e2552f6201b4286570d8",
+        "d5ec331991d19d64869eb3b1a422dd5c23c09f03def5404e799d913e04c4091e",
+        "ea3bd380a00d79b11341a3863a9d3b4ab4d88d1ecdd52bf5eb716a8d9f768202",
+        "a89332de24fb787ed65f2d099a9ffcd11684ed342db68c883cd7117062eaf1cd"
+      ]
+    },
+    "spacr.channel_sorting.canonical_well": {
+      "source_blocks_sha256": [
+        "73f7258541a9b7c9ee26ceb32cc3e4c7b423593684397f119354222427a60783",
+        "d77d1af5cdd15ce1518ae4a02dbe1a5e905783c9a03ce114b2bcc8189cbc3c8f"
+      ],
+      "source_sha256": "698e831e91924f400b718953edcc9d86d7bf62f783de01365d1e5c4b0587f5dc",
+      "text": "``A1``, ``a01`` o ``r01c01`` como ``A01``; None para cualquier otra cosa.\n\n:param text: un identificador de pocillo.",
+      "translation_source_blocks_sha256": [
+        "73f7258541a9b7c9ee26ceb32cc3e4c7b423593684397f119354222427a60783",
+        "b2cc843f41f2650607758331b16ff94230149504fa13a908422ec359d0f2917b"
+      ]
+    },
+    "spacr.channel_sorting.check_sets": {
+      "source_blocks_sha256": [
+        "87a6faab11c3cb5374f04d6132ded08777fe346fbc15364f40cb8d4bd484bca9",
+        "fb0c1977dcf105a63a130577cdafe0255515d75ee60eb16d0957d55e642ef864",
+        "963ff35893dbe32ff74faf4616694d1ea683cdb312a00b86a30f964ede8099d8"
+      ],
+      "source_sha256": "a5e698e07d727c6f0f81026556afe1d4ec2b25392ce8a8399c0d20b0f8cc0cc9",
+      "text": "Agrupa los nombres analizados en conjuntos e informa de cada forma en que no encajan.\n\n:param parsed: la salida de :func:`parse_names`.\n:returns: a :class:`SetReport`.",
+      "translation_source_blocks_sha256": [
+        "87a6faab11c3cb5374f04d6132ded08777fe346fbc15364f40cb8d4bd484bca9",
+        "fb0c1977dcf105a63a130577cdafe0255515d75ee60eb16d0957d55e642ef864",
+        "963ff35893dbe32ff74faf4616694d1ea683cdb312a00b86a30f964ede8099d8"
+      ]
+    },
+    "spacr.channel_sorting.compile_regex": {
+      "source_blocks_sha256": [
+        "8c5ed2493404ad3aa4facb11375b8e12112825aa5c1a36beb41577a5d0b14d35",
+        "e993152778207493e9524d9759f22b5f8f0cd4a60bb45b1146cd5e6d76412595",
+        "5e51075ccdc7efc3a21cf1e7584b0530b9d07c24a1815b6f004f84c7c6bba4a3"
+      ],
+      "source_sha256": "a93258d0647890540e897b6628368f292c9fdb8d54a224ced4c59994adb9ae13",
+      "text": "Compila ``pattern`` o devuelve el mensaje de error.\n\n:param pattern: el texto de la expresión regular.\n:returns: ``(compiled, None)`` o ``(None, message)``.",
+      "translation_source_blocks_sha256": [
+        "8c5ed2493404ad3aa4facb11375b8e12112825aa5c1a36beb41577a5d0b14d35",
+        "e993152778207493e9524d9759f22b5f8f0cd4a60bb45b1146cd5e6d76412595",
+        "5e51075ccdc7efc3a21cf1e7584b0530b9d07c24a1815b6f004f84c7c6bba4a3"
+      ]
+    },
+    "spacr.channel_sorting.default_mask_roles": {
+      "source_blocks_sha256": [
+        "f244e57c58ef4dcda34d41ce41a522c8254e33adb8dc57bfa93e9e041dc5bd87",
+        "4b2428cdcdbf1972b9b4c99a95889c8e15d12a7985ed4b33a16c35244e275c0a",
+        "013d5a1e9d542989b764510144d3de83c9896ed92585abf10d8e6d3bb152e404",
+        "1607faaee5736e94371dfe9dd60d3d2c0ac3f0542abe0e262b40b30473b14398",
+        "f6aa06d1ff7451eca90569d8d280d64a5c2500b245412d0988123cbe210221aa"
+      ],
+      "source_sha256": "f43766625e0332d491ff78df97cb02fda0dcaf95e9075ddf0c2995babd225fed",
+      "text": "Adivina qué papel tienen las máscaras de cada canal con máscaras.\n\nUn canal cuyos nombres dicen ``nuc``/``dapi``/``hoechst`` es ``nucleus``, ``cell``/``cyto`` es ``cell``, ``parasite``/``pathogen`` es ``pathogen``; el resto toma el primero sin usar de célula, núcleo, patógeno.\n\n:param members: ``{channel: [names]}``.\n:param with_masks: los canales que tienen máscaras.\n:returns: ``{channel: role}`` para esos canales, con papeles distintos.",
+      "translation_source_blocks_sha256": [
+        "b29a7c63360a2ca01c6ff60a44aae2f8909688ddee7b9541a45aaa28fe4af074",
+        "4b2428cdcdbf1972b9b4c99a95889c8e15d12a7985ed4b33a16c35244e275c0a",
+        "013d5a1e9d542989b764510144d3de83c9896ed92585abf10d8e6d3bb152e404",
+        "d55dee956e79c05033db13758923c88a2cb07633f882552d71c1ed3a7d22c432",
+        "f6aa06d1ff7451eca90569d8d280d64a5c2500b245412d0988123cbe210221aa"
+      ]
+    },
+    "spacr.channel_sorting.detect_sets": {
+      "source_blocks_sha256": [
+        "1920afd86b004ff6ea2fd6f030b41c48cd8d474dae8b2e5cd5067f3935b64fb6",
+        "5968d486cfbbdc170803a4bf11729f3d05e7fbca7fa6a4b7d66491f9a25aab3f",
+        "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
+        "5517301b321ea3987a4d3cc263f55d461e7fb917bd5fe838ac5afffefd337fe3",
+        "03d9ff28d57d5453ff99df39aa4e590eba57d1831246b380b43a22730c5c816e",
+        "4d16b2a984bbe53670b24226253e64679926d633048c17a5ce4775956c33b97f",
+        "f5028445e122c6dc703e0a845816f6f2558290922b7d9d47d3b95ea2aee28c72"
+      ],
+      "source_sha256": "51fa28fa1ac8b9f0fd748b1f363d7c6f329ab34af312b01944d0de2447333873",
+      "text": "Empareja imágenes entre canales por semejanza de nombre, orden y tamaño.\n\nEl canal con más imágenes es la referencia. Las imágenes de cada uno de los demás canales se emparejan una a una con las imágenes de referencia con el menor coste total, donde el coste es :func:`name_distance` más un pequeño término por lo lejos que están las dos en el orden de su canal, y no se permite un par cuyas imágenes tengan tamaños distintos. Los nombres no intervienen de otro modo: cada conjunto resultante tiene como clave solo su número. Una máscara cuyo tamaño no es el de su imagen se notifica como problema.\n\n:param folder: la carpeta de imágenes.\n:param channels: ``{name: channel}`` para cada imagen que emparejar.\n:param masks_dir: una carpeta de máscaras indicada explícitamente.\n:param shapes: ``{name: shape}`` ya leído; si no, se lee aquí.\n:returns: a :class:`DetectedSets`.",
+      "translation_source_blocks_sha256": [
+        "f6ff6a7f651a55142ddd4ae4d6a9a7c8418ade35709d7456d2e683f6c91f980a",
+        "d1fcdc4c5ec88cb04afed00288d11046688e8b3fa93cea4e276e5d76dab71574",
+        "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
+        "5517301b321ea3987a4d3cc263f55d461e7fb917bd5fe838ac5afffefd337fe3",
+        "03d9ff28d57d5453ff99df39aa4e590eba57d1831246b380b43a22730c5c816e",
+        "4d16b2a984bbe53670b24226253e64679926d633048c17a5ce4775956c33b97f",
+        "f5028445e122c6dc703e0a845816f6f2558290922b7d9d47d3b95ea2aee28c72"
+      ]
+    },
+    "spacr.channel_sorting.image_shape": {
+      "source_blocks_sha256": [
+        "52ececac93c1d260398500e120df3c6fd4deb17b213e7daefd7bcac169a1ffa4",
+        "0dd22743ce78b3421195a6cd1a0abe6da3654cbe75a1829652b91de9c140234b",
+        "b1b9371f7b8de2eb0074dd89574bb5cde631d19150b21963e927795cdbbf2202",
+        "aad02169536c1c17428acfa3370c91f00582681cd7d76207b05111ad78f8f025"
+      ],
+      "source_sha256": "78564b29e1db299fb1371bee6473189868696df113bee359eee3499f73f5232c",
+      "text": "Lee la forma en píxeles de una imagen desde su cabecera, sin leer sus píxeles.\n\nSe eliminan los ejes de tamaño uno, así que un TIFF ``(1, H, W)`` y un PNG ``(H, W)`` se comparan como iguales.\n\n:param path: un archivo de imagen.\n:returns: la forma, o None cuando el archivo no se puede leer.",
+      "translation_source_blocks_sha256": [
+        "52ececac93c1d260398500e120df3c6fd4deb17b213e7daefd7bcac169a1ffa4",
+        "0dd22743ce78b3421195a6cd1a0abe6da3654cbe75a1829652b91de9c140234b",
+        "b1b9371f7b8de2eb0074dd89574bb5cde631d19150b21963e927795cdbbf2202",
+        "aad02169536c1c17428acfa3370c91f00582681cd7d76207b05111ad78f8f025"
+      ]
+    },
+    "spacr.channel_sorting.infer_regex": {
+      "source_blocks_sha256": [
+        "300206768e4e9f0bb5d788194a6c44ad6f6125e5f7373436d30a9706754cf070",
+        "6c67fca6f45364075dbfb42ff14a0728aebb8069fa4632f9eb9ff9815c3a7366",
+        "9fc1e60082e3b59380b1a2ffe027609650fb4412615f2ee8aa826348c4f04242",
+        "f58656d665ee2aa2f2c061411c7ac790b00d29aa6151c13e3fe93058d2eb294d",
+        "af5fd94f3da97b7b7cfee3269c527b158678ed30469ae914d25b422bee4ee791"
+      ],
+      "source_sha256": "013dc7ac833926328c475993701fc1c4d5a765e8651da3390c4219056d1bdf1e",
+      "text": "Propone una expresión regular que asigna cada imagen a un conjunto único y completo.\n\nLos nombres se dividen en fragmentos (en ``_ - . space`` y, si eso falla, en tramos de dígitos y de letras); se buscan los fragmentos que varían; se prueba uno como canal -- o, cuando el usuario asignó canales, se apartan los fragmentos que solo siguen al canal -- y el resto debe identificar un conjunto que contenga exactamente una imagen por canal. Cada candidata se comprueba con :func:`check_sets` antes de devolverla. Primero se prueba el patrón Yokogawa propio de spaCR y al final :func:`spacr.regex_infer.propose`. De las candidatas que pasan, gana la que tiene MENOS canales: cualquier nombre puede leerse como un canal propio en un único conjunto, lo cual pasa y no significa nada.\n\n:param names: nombres de archivos de imagen.\n:param channels: ``{name: channel}`` de la estrategia de selección; cuando todos los nombres tienen canal, la expresión regular no necesita un grupo ``chanID``.\n:returns: la primera expresión regular que pasa, o None.",
+      "translation_source_blocks_sha256": [
+        "300206768e4e9f0bb5d788194a6c44ad6f6125e5f7373436d30a9706754cf070",
+        "e00f68fe6a3a6b40168a98f370037f1c4fd779dcdc2e40397c8c7280e5f213d2",
+        "9fc1e60082e3b59380b1a2ffe027609650fb4412615f2ee8aa826348c4f04242",
+        "f58656d665ee2aa2f2c061411c7ac790b00d29aa6151c13e3fe93058d2eb294d",
+        "af5fd94f3da97b7b7cfee3269c527b158678ed30469ae914d25b422bee4ee791"
+      ]
+    },
+    "spacr.channel_sorting.list_folder_images": {
+      "source_blocks_sha256": [
+        "b79e04ddd944ecdc7a05a2554fe1a061b477f32e4284d4ebf473ad6eeca8e545",
+        "0836ada670697d679cb99cf7e5c7eae699c3226d23435073a58dfd072f1ab931"
+      ],
+      "source_sha256": "55e033b9cee17149911b52c4dcb24a0a0a3bf345ecfc2467ffba538ae0779055",
+      "text": "Devuelve los nombres de archivos de imagen situados directamente en ``folder``, en orden natural.\n\n:param folder: la carpeta; una que no existe no contiene ninguno.",
+      "translation_source_blocks_sha256": [
+        "b79e04ddd944ecdc7a05a2554fe1a061b477f32e4284d4ebf473ad6eeca8e545",
+        "0836ada670697d679cb99cf7e5c7eae699c3226d23435073a58dfd072f1ab931"
+      ]
+    },
+    "spacr.channel_sorting.mask_for": {
+      "source_blocks_sha256": [
+        "3f60fea989d2144394e9ab9f1355f4ec274fdef66c60e9f501fdcb86a93a6ced",
+        "cc247a3038010bdcb359ad9ed4187c4df5217f0b6b60b6466e224d4cb5229923",
+        "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
+        "295bc1804dac96cf8a9c75de5cafe5496c163eff3e68e61d59c8400f5967d55c",
+        "03d9ff28d57d5453ff99df39aa4e590eba57d1831246b380b43a22730c5c816e"
+      ],
+      "source_sha256": "12dcacc04ca37d38b5280e6bdb92ecb1996c1f8ae007efa5de7526523b8435ff",
+      "text": "Devuelve la ruta de la máscara guardada de la imagen ``name``, o None.\n\nMake Masks guarda cada máscara como ``<masks folder>/<stem>.tif`` (:func:`spacr.qt.mask_engine.mask_save_path`).\n\n:param folder: la carpeta de imágenes.\n:param name: el nombre del archivo de imagen.\n:param masks_dir: una carpeta de máscaras indicada explícitamente.",
+      "translation_source_blocks_sha256": [
+        "3f60fea989d2144394e9ab9f1355f4ec274fdef66c60e9f501fdcb86a93a6ced",
+        "cc247a3038010bdcb359ad9ed4187c4df5217f0b6b60b6466e224d4cb5229923",
+        "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
+        "295bc1804dac96cf8a9c75de5cafe5496c163eff3e68e61d59c8400f5967d55c",
+        "03d9ff28d57d5453ff99df39aa4e590eba57d1831246b380b43a22730c5c816e"
+      ]
+    },
+    "spacr.channel_sorting.mask_thumbnail": {
+      "source_blocks_sha256": [
+        "4f351d5edd65ef7e8e492d7c9d2a150e3ff4fbc1afcc73ebd65b65779d2c1ebf",
+        "d188a54dceae17fb3ac90948c18a69c9568cc18071af399a81d6bc8e580d7efe",
+        "70f5dab4f5133d102f1c5d1bce6e32049dd6728958baff6691a1caed01b1459e",
+        "1d138b9df4463f630aefa59dc510193964accfdce83f3805c1b5090d03f2e228"
+      ],
+      "source_sha256": "d58ed82d2fc7c3205bceb289aed735a6785460ef9bba9f19fd04039275943e5d",
+      "text": "Una pequeña vista previa de una máscara de etiquetas: 255 donde hay algún objeto, 0 en el resto.\n\n:param path: el archivo de máscara.\n:param size: el lado más largo, en píxeles.\n:returns: una matriz 2-D ``uint8``, o None cuando no se puede leer.",
+      "translation_source_blocks_sha256": [
+        "4f351d5edd65ef7e8e492d7c9d2a150e3ff4fbc1afcc73ebd65b65779d2c1ebf",
+        "d188a54dceae17fb3ac90948c18a69c9568cc18071af399a81d6bc8e580d7efe",
+        "70f5dab4f5133d102f1c5d1bce6e32049dd6728958baff6691a1caed01b1459e",
+        "1d138b9df4463f630aefa59dc510193964accfdce83f3805c1b5090d03f2e228"
+      ]
+    },
+    "spacr.channel_sorting.masks_folder": {
+      "source_blocks_sha256": [
+        "8cb00d31f62ff762b71776aa9354cfd89472265e44be819b86754455c0dae44e",
+        "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
+        "f11ee1e19937390f66c259eb008b021803c5e598b66937c5ea4c20a20db5ddfc"
+      ],
+      "source_sha256": "c6669641454eef718324dd4bf7fdd3e1da0756d29cbda2325edfd43f1e05a413",
+      "text": "Dónde guarda Make Masks las máscaras de las imágenes de ``folder``.\n\n:param folder: la carpeta de imágenes.\n:param masks_dir: una carpeta de máscaras indicada explícitamente, cuando no es ``<folder>/masks``.",
+      "translation_source_blocks_sha256": [
+        "8cb00d31f62ff762b71776aa9354cfd89472265e44be819b86754455c0dae44e",
+        "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
+        "f11ee1e19937390f66c259eb008b021803c5e598b66937c5ea4c20a20db5ddfc"
+      ]
+    },
+    "spacr.channel_sorting.merge_sorted": {
+      "source_blocks_sha256": [
+        "876c5666d20a4c091ef3f4d5afb6dfe24b2b1432b5f0f26071ee78f9d3c8feee",
+        "cd30c90d72b008acf1c788c6b961a79391844ec4cddf9b8eb3926141ece3af1d",
+        "467e5c8e0d8b30d2fe01f90201764bc06e752d8467404d50cf2ee53f0e1d801b",
+        "3d744db1af35e7a3f06c951cb7cf410b9a724751a85edad00bfd9302b1b27a9a",
+        "af180464f5ebfea75d9e56d72c11bffddd7076d26203a4795a1c157ff419a14c",
+        "e606bfb679768dde72050500850a64705fa1c065b5fae510122c8aeccf819d1f"
+      ],
+      "source_sha256": "2cbbcd670f7573e0556eee48a15b5c9c6aca94d896926b4c26788ad8c41de529",
+      "text": "Construye ``stack/``, las pilas de máscaras y ``merged/`` a partir de canales ordenados.\n\nLos nombres Yokogawa de ``C01/``, ``C02/``... se leen con el patrón ``cellvoyager`` propio de spaCR y :func:`spacr.utils._extract_filename_metadata`, la raíz de cada campo de visión es :func:`spacr.io._escaped_field_stem` -- la raíz que le da la pipeline -- y sus canales se apilan en orden de canal en ``stack/<stem>.npy``. Las máscaras de cada canal se copian a ``masks/<role>_mask_stack/<stem>.tif``, y :func:`spacr.io._load_and_concatenate_arrays` escribe ``merged/``.\n\n:param dest: la carpeta que llenó :func:`apply_plan`.\n:param mask_roles: ``{channel: role}``.\n:param log: se llama con líneas de progreso.\n:returns: ``(stack files, merged files)``.",
+      "translation_source_blocks_sha256": [
+        "e91cff68850247bbf1ccd4b5a29132cbe942c8e7f66de966dd79c29b6c56efa4",
+        "d4df503b735ee41854ed7b39a532aab8b97873bab03e2bc7b28e1c4af234e76b",
+        "467e5c8e0d8b30d2fe01f90201764bc06e752d8467404d50cf2ee53f0e1d801b",
+        "3d744db1af35e7a3f06c951cb7cf410b9a724751a85edad00bfd9302b1b27a9a",
+        "af180464f5ebfea75d9e56d72c11bffddd7076d26203a4795a1c157ff419a14c",
+        "e606bfb679768dde72050500850a64705fa1c065b5fae510122c8aeccf819d1f"
+      ]
+    },
+    "spacr.channel_sorting.name_distance": {
+      "source_blocks_sha256": [
+        "690f081719d4745a85dfcb9f139beb93d8438e33a2597ee064faec8bbdc1620f",
+        "86608a7bd77f1988e802f8bbd89a0d5d1d8d9a9d2c915c161e7c7b84a012105d",
+        "b2ae3b35a2cf24018c375f618fee617d0d562d4be32250c6398450418dd05b36"
+      ],
+      "source_sha256": "51f9c55ad505dd0f6640f88ee247ae98f58d84edc31643833071eb9f380d2442",
+      "text": "Cuán distintos son dos nombres, de 0 (mismos fragmentos) a 1 (nada en común).\n\n:param a: un nombre de archivo.\n:param b: otro.",
+      "translation_source_blocks_sha256": [
+        "690f081719d4745a85dfcb9f139beb93d8438e33a2597ee064faec8bbdc1620f",
+        "86608a7bd77f1988e802f8bbd89a0d5d1d8d9a9d2c915c161e7c7b84a012105d",
+        "b2ae3b35a2cf24018c375f618fee617d0d562d4be32250c6398450418dd05b36"
+      ]
+    },
+    "spacr.channel_sorting.name_sets": {
+      "source_blocks_sha256": [
+        "766c925c14d11b16e734485815618926e3ad104dcbbf4e9d7e7fb51a6359dbcd",
+        "62af1d1797c84a5f5068a473b6cf7bcaf58dec6b3016c18d4fc6687930df9efb",
+        "b4b4600a7831a0335b08789f0d9c06a9e5fbd16ccd943a3bf66c0bd44d804940",
+        "7bcf6779e0939351fe7b1e0cdcdf0477bdc506cd99b3efa47b937569e54c5ba8",
+        "e1ff2328f1cf090fc31d6fe044233e587f5a2f1dd974f56baf657047b76d4e48"
+      ],
+      "source_sha256": "5749acf699b551d1d1bf221a0b7cb724d5cf28c29b68bc3d5aecf33788fcd65f",
+      "text": "Da a cada conjunto una placa, un pocillo, un campo de visión y un tiempo únicos.\n\nLos conjuntos con claves de :func:`detect_sets` reciben un pocillo cada uno, de ``A01`` en adelante, campo de visión 1, 384 pocillos por placa. En otro caso, la placa es ``plateID`` (o ``plate1``); el pocillo es ``wellID`` cuando todos los valores se leen como pocillos y, si no, los pocillos se numeran en orden natural; el campo de visión es ``fieldID`` cuando es el único otro grupo y todos los valores son enteros de 1 a 999 y, si no, los campos se numeran dentro de su pocillo; sin un grupo ``wellID`` los campos llenan ``A01`` hasta 999 y luego pasan a ``A02``. El tiempo es ``timeID`` cuando todos los valores son enteros desde 1 y, si no, se numera; 1 si no hay ninguno.\n\n:param keys: claves de conjunto, tal como las devuelven :func:`check_sets` o :func:`detect_sets`.\n:returns: ``{key: SetName}``.\n:raises ValueError: cuando dos conjuntos recibirían el mismo nombre.",
+      "translation_source_blocks_sha256": [
+        "bedac9de65744fd154656b730772334a613af227d81a51f8a3669da9442664d0",
+        "0ab57f31af57c0c6b101cc669bd0b86d8d303b07f49ee63fb6dd7eace4a25c99",
+        "b4b4600a7831a0335b08789f0d9c06a9e5fbd16ccd943a3bf66c0bd44d804940",
+        "7bcf6779e0939351fe7b1e0cdcdf0477bdc506cd99b3efa47b937569e54c5ba8",
+        "e1ff2328f1cf090fc31d6fe044233e587f5a2f1dd974f56baf657047b76d4e48"
+      ]
+    },
+    "spacr.channel_sorting.natural_key": {
+      "source_blocks_sha256": [
+        "588ffefa0368d6ed340f041cfa5cef2a0a42933beb2dc05c4c28df05645db61e",
+        "7e33a7be63ba84a14eb94de960afb77da917fa9b6d9e7cfc8d09d3f0aea8d58b",
+        "332e6cf528c29fb091eb324c972c5b433940d150c26c97bde7cc15360b936568"
+      ],
+      "source_sha256": "b2c4643eb8a514ecd1fb23e3f91d8db97b3c2bc89f5c0829ca8807f215186c3d",
+      "text": "Clave de ordenación que pone ``img2`` antes que ``img10``.\n\n:param text: un nombre.\n:returns: una tupla que compara los números numéricamente y el texto sin distinguir mayúsculas.",
+      "translation_source_blocks_sha256": [
+        "588ffefa0368d6ed340f041cfa5cef2a0a42933beb2dc05c4c28df05645db61e",
+        "7e33a7be63ba84a14eb94de960afb77da917fa9b6d9e7cfc8d09d3f0aea8d58b",
+        "332e6cf528c29fb091eb324c972c5b433940d150c26c97bde7cc15360b936568"
+      ]
+    },
+    "spacr.channel_sorting.parse_names": {
+      "source_blocks_sha256": [
+        "56311c12a57ec81ed05b83917f7d0b26c88cfc57316ec37a5917d6091eff0be0",
+        "b53c94632baea7fba0f0d31d8c50399bb2a63eaef639956aa3a318140861885b",
+        "9fc1e60082e3b59380b1a2ffe027609650fb4412615f2ee8aa826348c4f04242",
+        "9c6bc6d3b2d34146a64bfdca1c59740f1c941b8ae9928ab8e10d4daf35fe8472",
+        "3aec1d760fc41c58075bedf3b6bfee93d5091c8bce41cc1576fb9f0838281043",
+        "514259c61036debd3fc830490d2a8731e4b2413961783e7527abba3066ff939e"
+      ],
+      "source_sha256": "b7f6ac214b949efd152e02ba36a527c9bbb341efe3321adc335701109b55fd40",
+      "text": "Lee el canal y el conjunto de cada nombre mediante ``pattern``.\n\nEl canal de un nombre que el usuario asignó (``channels``) es esa asignación; si no, es la posición de su valor ``chanID`` entre todos los valores ``chanID``, en orden natural, contando desde 1. La clave del conjunto son todos los demás grupos con nombre, en el orden del patrón. Un nombre que no coincide con el patrón no tiene conjunto.\n\n:param names: nombres de archivos de imagen.\n:param pattern: la expresión regular, aplicada desde el inicio de cada nombre; vacía o None no coincide con nada.\n:param channels: ``{name: channel}`` de la estrategia de selección.\n:returns: un :class:`ParsedName` por nombre, en orden.",
+      "translation_source_blocks_sha256": [
+        "56311c12a57ec81ed05b83917f7d0b26c88cfc57316ec37a5917d6091eff0be0",
+        "5bf39bb9db4da139f853606f5ae8e43c4738f6f737f443801b0e840f4e1ccedb",
+        "9fc1e60082e3b59380b1a2ffe027609650fb4412615f2ee8aa826348c4f04242",
+        "9c6bc6d3b2d34146a64bfdca1c59740f1c941b8ae9928ab8e10d4daf35fe8472",
+        "3aec1d760fc41c58075bedf3b6bfee93d5091c8bce41cc1576fb9f0838281043",
+        "514259c61036debd3fc830490d2a8731e4b2413961783e7527abba3066ff939e"
+      ]
+    },
+    "spacr.channel_sorting.set_label": {
+      "source_blocks_sha256": [
+        "3bfed329d65f70c5b33dcbdd8a745ec4a2f200cfc4698d8e46ce888ca96aa044",
+        "89d19183b8564f538b3c293d0850f89613f115b8324475f4d3f4e26f136da75b"
+      ],
+      "source_sha256": "c0422e2cd4bbab81655635833bc9ab1cb32b83cd52bc0b87a60029dbc6ae949d",
+      "text": "Una clave de conjunto como texto breve, ``wellID=A01 fieldID=2``.\n\n:param key: la clave del conjunto.",
+      "translation_source_blocks_sha256": [
+        "3bfed329d65f70c5b33dcbdd8a745ec4a2f200cfc4698d8e46ce888ca96aa044",
+        "89d19183b8564f538b3c293d0850f89613f115b8324475f4d3f4e26f136da75b"
+      ]
+    },
+    "spacr.channel_sorting.split_extension": {
+      "source_blocks_sha256": [
+        "249403f564bc3ff84af60bc175dc8e35d35d999523482e0e9201bdad377d9801",
+        "86608a7bd77f1988e802f8bbd89a0d5d1d8d9a9d2c915c161e7c7b84a012105d",
+        "952832eadb2db786496f53e41975b809dd7c4e1aca277231639a2cf9483f5c66"
+      ],
+      "source_sha256": "0100087acb616922ac09987152def06df829e552497908d7ee862146a7be70e6",
+      "text": "Divide ``name`` en raíz y extensión, manteniendo ``.ome.tif`` entero.\n\n:param name: un nombre de archivo.\n:returns: ``(stem, extension)``; la extensión conserva su punto.",
+      "translation_source_blocks_sha256": [
+        "249403f564bc3ff84af60bc175dc8e35d35d999523482e0e9201bdad377d9801",
+        "86608a7bd77f1988e802f8bbd89a0d5d1d8d9a9d2c915c161e7c7b84a012105d",
+        "952832eadb2db786496f53e41975b809dd7c4e1aca277231639a2cf9483f5c66"
+      ]
+    },
+    "spacr.channel_sorting.thumbnail": {
+      "source_blocks_sha256": [
+        "7b2b0309faa45ba0f7eddef6063af65e9c38edbc18b6fe992ce217d776d2d262",
+        "cfee20e0f1533a4073e5bec8b7908914deb70f198312fa7f7540897a843995d9",
+        "70f5dab4f5133d102f1c5d1bce6e32049dd6728958baff6691a1caed01b1459e",
+        "1d138b9df4463f630aefa59dc510193964accfdce83f3805c1b5090d03f2e228"
+      ],
+      "source_sha256": "cfc89e68219f14a3f939e22dbf6265828852e19a4584dc867f49d5e8ddda3017",
+      "text": "Una pequeña vista previa en gris de 8 bits de una imagen, con contraste estirado.\n\n:param path: el archivo de imagen.\n:param size: el lado más largo, en píxeles.\n:returns: una matriz 2-D ``uint8``, o None cuando no se puede leer.",
+      "translation_source_blocks_sha256": [
+        "7b2b0309faa45ba0f7eddef6063af65e9c38edbc18b6fe992ce217d776d2d262",
+        "cfee20e0f1533a4073e5bec8b7908914deb70f198312fa7f7540897a843995d9",
+        "70f5dab4f5133d102f1c5d1bce6e32049dd6728958baff6691a1caed01b1459e",
+        "1d138b9df4463f630aefa59dc510193964accfdce83f3805c1b5090d03f2e228"
+      ]
+    },
+    "spacr.channel_sorting.unused_folder": {
+      "source_blocks_sha256": [
+        "b65ef497225b7f10afd3c2c1b2eed87909f9b23405e118f89b9ba9aa17e88720",
+        "f1410ec00870000a995b714810daa4bb8ceeff4cf6d441547b47897ac0180250",
+        "548e0b26bdd1d74286db31a21116dd524d1b259007662c232fee600e0f32dc2a"
+      ],
+      "source_sha256": "1a135368535dd9538160b4b4be4febff9d5f9bc1e3801f80f88a9e199cb1a2c9",
+      "text": "``parent/name``, o ``name_2``, ``name_3``... cuando ya existe.\n\n:param parent: la carpeta en la que crear.\n:param name: el nombre deseado.",
+      "translation_source_blocks_sha256": [
+        "b65ef497225b7f10afd3c2c1b2eed87909f9b23405e118f89b9ba9aa17e88720",
+        "f1410ec00870000a995b714810daa4bb8ceeff4cf6d441547b47897ac0180250",
+        "548e0b26bdd1d74286db31a21116dd524d1b259007662c232fee600e0f32dc2a"
+      ]
+    },
+    "spacr.channel_sorting.well_name": {
+      "source_blocks_sha256": [
+        "e02937db95dc0741552a76a88333f031d00f8ec8252e12ffdd2de117fccc8402",
+        "62e8b2a556fdb8a9ab5acf2707cd540d5ab88328a4f33a054363739fe15977f9"
+      ],
+      "source_sha256": "e623e65cbcabfff5d8b2315d001481d9525ca9d039ac5fded5d405f149fc2978",
+      "text": "El pocillo número ``index`` de una placa de 384 pocillos, fila a fila: 0 es ``A01``.\n\n:param index: contado desde 0, por debajo de :data:`WELLS_PER_PLATE`.",
+      "translation_source_blocks_sha256": [
+        "4cacaf578a37a87c1636aed35a9716de504622d588854bc1e149ade645923213",
+        "62e8b2a556fdb8a9ab5acf2707cd540d5ab88328a4f33a054363739fe15977f9"
+      ]
+    },
+    "spacr.channel_sorting.yokogawa_name": {
+      "source_blocks_sha256": [
+        "ef301ec27d623573fe7a97095350fe8dcd5618249a35172f61983f6119dbcc10",
+        "70acb511f1b2d3540d3b2f48d38657b770cd8c2e958b4d56deea228aca4f89e7",
+        "5853d75e7105622c7e1021adae830466adb9b67a41fd898828f8bde15656a57c",
+        "f9b85205a521c8b78d55322be64e766a83972789f54fc28e7834dc714009ed5d",
+        "6cc340a7296d2c258357d68319a831dc271e1e37c91fd24dc4f31128d4493627"
+      ],
+      "source_sha256": "5c8ce5d1fd870c4d500db070d1b4ab5ab1f749e4e4c9e13eaac26cc44d723720",
+      "text": "El nombre de archivo Yokogawa de un canal de un conjunto.\n\nLo construye :func:`spacr.convert.target_name`, así que es exactamente la forma que analiza ``spacr.utils._get_regex('cellvoyager', ...)``.\n\n:param name: el lugar del conjunto.\n:param channel: canal contado desde 1.\n:param extension: la extensión propia de la imagen, conservada.",
+      "translation_source_blocks_sha256": [
+        "ef301ec27d623573fe7a97095350fe8dcd5618249a35172f61983f6119dbcc10",
+        "70acb511f1b2d3540d3b2f48d38657b770cd8c2e958b4d56deea228aca4f89e7",
+        "5853d75e7105622c7e1021adae830466adb9b67a41fd898828f8bde15656a57c",
+        "f9b85205a521c8b78d55322be64e766a83972789f54fc28e7834dc714009ed5d",
+        "6cc340a7296d2c258357d68319a831dc271e1e37c91fd24dc4f31128d4493627"
+      ]
+    },
     "spacr.checkpoint": {
       "source_blocks_sha256": [
         "6d9930ef14d5a52452537b2fd62c57de9b445f6a819f7305aeedd456745cec9d",
@@ -19462,15 +20078,15 @@
       "source_blocks_sha256": [
         "2a22c5035140b48fd8e1d8f2cdf969eebe152014179c2a9b5bf52d242eb54e6e",
         "6fdd2b321845e7586ddab96488b07fe5d180fa4a3c504aa3c32197b09fff1d58",
-        "9f725835f5248f68dee7ed057a22baeaff35c271040f94336c911ef3721f5bac",
+        "b3dd69507a77b03f78ff76dbe97552d3268883ad31189f02fe0349e85a98a4df",
         "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
       ],
-      "source_sha256": "53f84b97800a0f2b2021d34e05c39142854226cf5822dc60cbd48ec15bcd8a24",
-      "text": "Generar mapas de activación de la saliencia o Grad-CAM para cada imagen en un conjunto de datos tar.\n\nCarga el modelo, itera el conjunto de datos, calcula el tipo de mapa solicitado por lote, guarda mapas por imagen en carpetas de posición de muestra clase/microplaca/micoplaca de laboratorio, opcionalmente traza cuadrículas por lotes, calcula correlaciones de activación-imagen y empuja ambos mapas y correlativas en la base de datos de medición.\n\n:param settings: Configuración de la asignación de valor clave — véase ``settings.get_default_generate_activation_map_settings`` para los nombres de datos estructurados (``dataset``, ``model_path``, ``cam_type``, ``target_layer``, ``image_size``, ``batch_size``, ``channels``, ``normalize``, ``save``, ``plot``, ``correlation``, ...).\n:returns: None",
+      "source_sha256": "873c512910d4bb14ac4576f844c7b5b94548a3865fb63101c659d335552c5f6b",
+      "text": "Generar mapas de activación de la saliencia o Grad-CAM para cada imagen en un conjunto de datos tar.\n\nCarga el modelo, itera el conjunto de datos, calcula el tipo de mapa solicitado por lote, guarda mapas por imagen en carpetas de posición de muestra clase/microplaca/micoplaca de laboratorio, opcionalmente traza cuadrículas por lotes, calcula correlaciones de activación-imagen y empuja ambos mapas y correlativas en la base de datos de medición.\n\n:param settings: Diccionario de configuración — consulta ``settings.get_default_generate_activation_map_settings`` para las claves (``dataset``, ``model_path``, ``cam_type``, ``target_layer``, ``image_size``, ``batch_size``, ``channels``, ``normalize``, ``save``, ``plot``, ``correlation``, ...). Con ``counterfactuals`` activado, hasta ``counterfactual_crops`` de los recortes entrenan además un pequeño generador condicionado por clase frente al modelo cargado, y los recortes reservados se transforman hacia la otra clase escribiendo la puntuación del clasificador en cada paso (véase ``_run_counterfactuals``).\n:returns: None",
       "translation_source_blocks_sha256": [
         "2a22c5035140b48fd8e1d8f2cdf969eebe152014179c2a9b5bf52d242eb54e6e",
         "2c5418ea1c2b0b6bc6b9c206243148c5f107ceb9a0800ab054ea770e30baaeb9",
-        "adf24574f743beb52826c0efb08d193374ccb447c4a8c90b5b16dbb781b76aac",
+        "bf230eba81b364dc830f88193bff8fa3925c2d7dd2556d5435134fc0d28213b0",
         "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
       ]
     },
@@ -26872,6 +27488,204 @@
         "b2870dd7080d99ca26e480ebd5e87af95b168220bd9062b7717dd5de2431f611",
         "b32251f80f52906f1a0ccdd43dcadb2d324885bd7e107be7030f8811f4c2f479",
         "7b4234b7473c7921f00df4db07dc2b93c0cb967e4d64730adbd88a3053dd4611"
+      ]
+    },
+    "spacr.folder_consolidation": {
+      "source_blocks_sha256": [
+        "49d79b30728e105050438986a645748b5da6b0bdc4059177bc6a492cf22a9385",
+        "0bbdc3a960a8dad1e516a89957347a7b755196539554281770ff2bdaeea695a0",
+        "97d612ede5ea20d959e2428d9f8749662f08dcbcf157cac4654487e8cfc3be19",
+        "e54c9034fbc1ef8add9ccf0a6283d4bc82d04734bc668584c9bda815b536e985",
+        "d1410bfc5063793653b1c83c5ac4ac3029b7e847cff3f45f45853d4a653f492d"
+      ],
+      "source_sha256": "26dca5a2c5121a000144979f4466149d5c0b35feb66d903165edb7a46cd8d058",
+      "text": "Copia un árbol de carpetas en UNA carpeta, nombrando cada copia según su ruta de carpetas.\n\nUn árbol como::\n\n    exp/\n      nucleus/  a.tif  b.tif\n      cell/     a.tif  b.tif\n\nse convierte en ``exp_renamed/`` con ``exp_nucleus.tif``, ``exp_nucleus_2.tif``, ``exp_cell.tif`` y ``exp_cell_2.tif``: cada copia se nombra según las carpetas en las que estaba, unidas con ``_``, y un segundo archivo de la misma carpeta se numera. Un ``rename_manifest.csv`` junto a las copias relaciona cada ruta original con su nombre nuevo, así que no se pierde nada sobre la procedencia de un archivo.\n\nSolo necesita la biblioteca estándar. Los originales se COPIAN, nunca se mueven; los enlaces simbólicos, a archivos o carpetas, se omiten y se enumeran; los nombres se hacen seguros para Windows; un nombre demasiado largo para un sistema de archivos típico se acorta con un hash del nombre completo para que dos nombres largos no puedan coincidir; y la carpeta de salida aún no debe existir. Se añadieron dos opciones para Make Masks, que lo ofrece al soltar una carpeta: ``extensions`` limita la copia a archivos de imagen y ``skip_dirs`` omite carpetas como ``masks`` cuyo contenido no son imágenes que editar. Sin ninguna de las dos se copia cada archivo, como hacía el script.\n\nEjecutar como programa::\n\n    python -m spacr.folder_consolidation /path/to/source [/path/to/new_output]",
+      "translation_source_blocks_sha256": [
+        "49d79b30728e105050438986a645748b5da6b0bdc4059177bc6a492cf22a9385",
+        "0bbdc3a960a8dad1e516a89957347a7b755196539554281770ff2bdaeea695a0",
+        "97d612ede5ea20d959e2428d9f8749662f08dcbcf157cac4654487e8cfc3be19",
+        "e54c9034fbc1ef8add9ccf0a6283d4bc82d04734bc668584c9bda815b536e985",
+        "d1410bfc5063793653b1c83c5ac4ac3029b7e847cff3f45f45853d4a653f492d"
+      ]
+    },
+    "spacr.folder_consolidation.ConsolidationResult": {
+      "source_blocks_sha256": [
+        "7fbd2840be89d34315e4a63ddab52d36eb5310bdb8e70e2401e1e0fe17717729",
+        "dc3870ef28358fb8c993060bcda4feaddfb8a20b6345dc8a94d7f888d8bb5e34",
+        "e942d925cca908c8d9b6f8805f9cab0b6413cf137ba919d971f581d1e192c429",
+        "b09a29ad1e3db6aaa6f63c1a437c27a1787149755f79068f7d063bb42f35c6b8",
+        "e46c7e22cf367eca997f7bb8f020737834dc16d41b50a3a511384119d0a85746",
+        "ab575276aa559b5ce37359b97b89126b15520b8f47c02d1f937679954f23da07",
+        "035a53e3a28a83fc8fc7de68c39827f249724f60b4fef5a35bdee847d92dd31d"
+      ],
+      "source_sha256": "182935c9b9b68eb0201f83c12df83cb29c600c80d18f6affa2dc7771215b660d",
+      "text": "Lo que hizo :func:`consolidate_folder`.\n\n:ivar output: la carpeta nueva que contiene las copias.\n:ivar manifest: el ``rename_manifest.csv`` que hay dentro.\n:ivar copied: archivos copiados.\n:ivar failed: archivos o carpetas que no se pudieron leer o copiar.\n:ivar skipped_links: enlaces simbólicos omitidos.\n:ivar rows: las filas del manifiesto, ``(original, new name, status, error)``.",
+      "translation_source_blocks_sha256": [
+        "7fbd2840be89d34315e4a63ddab52d36eb5310bdb8e70e2401e1e0fe17717729",
+        "dc3870ef28358fb8c993060bcda4feaddfb8a20b6345dc8a94d7f888d8bb5e34",
+        "e942d925cca908c8d9b6f8805f9cab0b6413cf137ba919d971f581d1e192c429",
+        "b09a29ad1e3db6aaa6f63c1a437c27a1787149755f79068f7d063bb42f35c6b8",
+        "e46c7e22cf367eca997f7bb8f020737834dc16d41b50a3a511384119d0a85746",
+        "ab575276aa559b5ce37359b97b89126b15520b8f47c02d1f937679954f23da07",
+        "035a53e3a28a83fc8fc7de68c39827f249724f60b4fef5a35bdee847d92dd31d"
+      ]
+    },
+    "spacr.folder_consolidation.available_filename": {
+      "source_blocks_sha256": [
+        "4c4cf8d0cbceed599596995a5b890d61c15c84894262041f226d27686ce8d4ea",
+        "d0242cdc327547c90698f929be5a7e4564d907143b1bc27a5ffb7037eb9e08c2",
+        "abd7566a9b76a9d5e92b91426b9bb15dc374b41d618c17768c53049a69f70d0c",
+        "f2d76e7bb4c8e37fd1af180a83cbd2f2ea2c9cb45d993dcff064cb3aab08d2fa",
+        "79980a2a4574379974a60f20c7fe82baa5f5becdae0ab44668208991f5d0c98d",
+        "b23ce30daacd3521f7d58ce036a437175bca1e02f425e94583308ede38c5b011",
+        "7672223e78b0e1fa52734e9e1074a34513c99dd9353af1e7e6255d96be234e61",
+        "868a26285a2313fbd4ca84f12994459f06f24596570d04690113092a335f9730",
+        "6ccae8299b97de8c20bc437f5d51c198f36bdba03e8db38d1163218e48fc9211"
+      ],
+      "source_sha256": "3ecfdbfd672370575d5403806e51b103298c613d07106aec715a051f8f3ff2d3",
+      "text": "Elige el siguiente nombre libre para ``stem`` en ``output``.\n\nLas colisiones se numeran ``_2``, ``_3`` y así sucesivamente; los nombres se comparan sin distinguir mayúsculas para que la carpeta sobreviva a un traslado a Windows o macOS. Un nombre de más de 240 bytes se recorta y termina en un hash de 12 caracteres de la raíz completa. A los nombres de dispositivo reservados de Windows se les antepone ``_``.\n\n:param output: la carpeta de salida.\n:param stem: el nombre deseado, sin extensión.\n:param extension: la extensión, con su punto.\n:param used: nombres en minúsculas ya asignados; se actualiza.\n:param counters: el siguiente número por ``(stem, extension)``; se actualiza.\n:returns: la ruta a la que copiar.\n:raises ValueError: cuando la extensión sola no deja espacio para un nombre.",
+      "translation_source_blocks_sha256": [
+        "4c4cf8d0cbceed599596995a5b890d61c15c84894262041f226d27686ce8d4ea",
+        "d0242cdc327547c90698f929be5a7e4564d907143b1bc27a5ffb7037eb9e08c2",
+        "abd7566a9b76a9d5e92b91426b9bb15dc374b41d618c17768c53049a69f70d0c",
+        "f2d76e7bb4c8e37fd1af180a83cbd2f2ea2c9cb45d993dcff064cb3aab08d2fa",
+        "79980a2a4574379974a60f20c7fe82baa5f5becdae0ab44668208991f5d0c98d",
+        "b23ce30daacd3521f7d58ce036a437175bca1e02f425e94583308ede38c5b011",
+        "7672223e78b0e1fa52734e9e1074a34513c99dd9353af1e7e6255d96be234e61",
+        "868a26285a2313fbd4ca84f12994459f06f24596570d04690113092a335f9730",
+        "6ccae8299b97de8c20bc437f5d51c198f36bdba03e8db38d1163218e48fc9211"
+      ]
+    },
+    "spacr.folder_consolidation.consolidate_folder": {
+      "source_blocks_sha256": [
+        "22109e86e59c3e9a38b5ebf5af1fba59e8dda3845e37a4ca862d9c0ad004f67a",
+        "3cbc514729cf686ff05895c8a4c060fd2e87a149479aabaf83e48917538a2db7",
+        "9cefdeaf2bc4ef6b9f238b391336f9d14e81c8747ea64396784c356577a69fe1",
+        "c13576f065150c47f7c54b32a9dc335313ab5a2b5cf373aedb3b903720ae6de7",
+        "f391b1dc17b67aea517aab7ed8a542db018a24f2f7870d0b27ab1a174fb54415",
+        "bdc8023e8f99cc8437cefb81189f5f1ad08db7edf24ddc48665ae2b490dc6180",
+        "97371ab6955aa002845b3a4526c365963a36aead7429a0d339f706ad9daf2c70",
+        "c6307bcbc527349addd8b4898ed5e22767ccc758ff27e0038b7b33c49f767c7e",
+        "bc953981765e6b4dc27f61e5bb7fb94cf20ceff5e9805075855da142e2ba6c08"
+      ],
+      "source_sha256": "385ffd21193a996871fba4838c5cf35fe624f2477f38ccee71ac6aa2065d9887",
+      "text": "Copia cada archivo bajo ``source`` en una carpeta nueva, nombrado según su ruta de carpetas.\n\nCada copia se nombra según la ruta de carpetas de la que procede, desde el nombre de ``source`` hacia abajo, con las partes unidas por ``_``; un archivo situado directamente en ``source`` se nombra según ``source``. Varios archivos de una carpeta se numeran ``_2``, ``_3``..., en orden de nombre de archivo. Los originales nunca se tocan.\n\n:param source: la carpeta que consolidar.\n:param output: la carpeta NUEVA que crear; por defecto, :func:`default_output_folder`.\n:param extensions: copia solo estas extensiones (p. ej., tipos de imagen); None, el comportamiento del script, copia todos los archivos.\n:param skip_dirs: nombres de carpetas en las que no se entra, sin distinguir mayúsculas y con o sin un sufijo numerado ``_2``.\n:param log: se llama con líneas de progreso; por defecto las imprime.\n:returns: a :class:`ConsolidationResult`.\n:raises ValueError: cuando ``source`` no es una carpeta o ``output`` existe.",
+      "translation_source_blocks_sha256": [
+        "22109e86e59c3e9a38b5ebf5af1fba59e8dda3845e37a4ca862d9c0ad004f67a",
+        "3cbc514729cf686ff05895c8a4c060fd2e87a149479aabaf83e48917538a2db7",
+        "9cefdeaf2bc4ef6b9f238b391336f9d14e81c8747ea64396784c356577a69fe1",
+        "c13576f065150c47f7c54b32a9dc335313ab5a2b5cf373aedb3b903720ae6de7",
+        "f391b1dc17b67aea517aab7ed8a542db018a24f2f7870d0b27ab1a174fb54415",
+        "bdc8023e8f99cc8437cefb81189f5f1ad08db7edf24ddc48665ae2b490dc6180",
+        "97371ab6955aa002845b3a4526c365963a36aead7429a0d339f706ad9daf2c70",
+        "c6307bcbc527349addd8b4898ed5e22767ccc758ff27e0038b7b33c49f767c7e",
+        "bc953981765e6b4dc27f61e5bb7fb94cf20ceff5e9805075855da142e2ba6c08"
+      ]
+    },
+    "spacr.folder_consolidation.copy_and_rename": {
+      "source_blocks_sha256": [
+        "5e5ceaf941a2131e3a7e9404f9588d3ccb77e1777dfc7a64ad02f31f7b25f855",
+        "9cefdeaf2bc4ef6b9f238b391336f9d14e81c8747ea64396784c356577a69fe1",
+        "1fe1c7601bc6abdc1a6b9cd58e3f10a9ca9206dc5ad304e203ab48dc23f0be7d",
+        "388d6c5c41bd9876c344ea7499505f3eb777716227912f4fe19cb6bc11ea6bab"
+      ],
+      "source_sha256": "9842a27db4ed31d3430920a91f5ed834b8a07a6510aacd75fd3560263e9fc073",
+      "text": "El punto de entrada del script: consolida y devuelve un estado de salida.\n\n:param source: la carpeta que consolidar.\n:param output: la carpeta de salida NUEVA.\n:returns: 1 cuando algún archivo falló; si no, 0.",
+      "translation_source_blocks_sha256": [
+        "5e5ceaf941a2131e3a7e9404f9588d3ccb77e1777dfc7a64ad02f31f7b25f855",
+        "9cefdeaf2bc4ef6b9f238b391336f9d14e81c8747ea64396784c356577a69fe1",
+        "1fe1c7601bc6abdc1a6b9cd58e3f10a9ca9206dc5ad304e203ab48dc23f0be7d",
+        "388d6c5c41bd9876c344ea7499505f3eb777716227912f4fe19cb6bc11ea6bab"
+      ]
+    },
+    "spacr.folder_consolidation.default_output_folder": {
+      "source_blocks_sha256": [
+        "6a1a5d33616dcd76ccfd2c60556f1ba979f9c46939030c598385aa6130610915",
+        "9cefdeaf2bc4ef6b9f238b391336f9d14e81c8747ea64396784c356577a69fe1"
+      ],
+      "source_sha256": "7b5b56c2c389cd0889802e019da8dc2828865586d561e452443871ac1611e944",
+      "text": "Devuelve el ``<parent>/<name>_renamed`` sin usar junto a ``source``.\n\n:param source: la carpeta que consolidar.",
+      "translation_source_blocks_sha256": [
+        "6a1a5d33616dcd76ccfd2c60556f1ba979f9c46939030c598385aa6130610915",
+        "9cefdeaf2bc4ef6b9f238b391336f9d14e81c8747ea64396784c356577a69fe1"
+      ]
+    },
+    "spacr.folder_consolidation.file_extension": {
+      "source_blocks_sha256": [
+        "273c809d1578454e19b5d58cd283dee43a506ab8b0dae00a06af3cef1d1ab79e",
+        "1c3215b7bee4ffee22dffea163459d36d3fc83a738b4f399beb3783fb47c1032",
+        "f2bc1ccb893f96a67c524e59aba85772a56adb39fe5155273e9c4d7d6b94d3cb"
+      ],
+      "source_sha256": "c4d45f2491a5e3206b319528760286341e138e162b0d7091f8356ab527febe36",
+      "text": "Devuelve la extensión de ``path``, manteniendo entera una extensión compuesta.\n\n:param path: una ruta de archivo.\n:returns: p. ej., ``.ome.tif`` para ``x.ome.tif`` y ``.tif`` para ``x.tif``.",
+      "translation_source_blocks_sha256": [
+        "273c809d1578454e19b5d58cd283dee43a506ab8b0dae00a06af3cef1d1ab79e",
+        "1c3215b7bee4ffee22dffea163459d36d3fc83a738b4f399beb3783fb47c1032",
+        "f2bc1ccb893f96a67c524e59aba85772a56adb39fe5155273e9c4d7d6b94d3cb"
+      ]
+    },
+    "spacr.folder_consolidation.main": {
+      "source_blocks_sha256": [
+        "bfcdbbd918652aad7d3a28306266ae5a7c015a15abc457320bb8999316fb3cb4",
+        "dd20436de1483a6cc9f48a7248b1f81a0c99606cb37bd604905a5f19afd75fc1",
+        "2d44c0f8dbc37f05718876b9e77baed951fd197b6160aa9cb7102e02ccbefbb4"
+      ],
+      "source_sha256": "65f426e069bfcb394fa5d25bc3fa5e02a2b686c08970acc54bc2787dcefe4675",
+      "text": "Línea de comandos: ``python -m spacr.folder_consolidation SOURCE [OUTPUT]``.\n\n:param argv: los argumentos; por defecto, ``sys.argv[1:]``.\n:returns: el código de salida.",
+      "translation_source_blocks_sha256": [
+        "bfcdbbd918652aad7d3a28306266ae5a7c015a15abc457320bb8999316fb3cb4",
+        "dd20436de1483a6cc9f48a7248b1f81a0c99606cb37bd604905a5f19afd75fc1",
+        "2d44c0f8dbc37f05718876b9e77baed951fd197b6160aa9cb7102e02ccbefbb4"
+      ]
+    },
+    "spacr.folder_consolidation.nested_file_count": {
+      "source_blocks_sha256": [
+        "669feae1b1a6ff61599ca1fcf2adcb3078a574834633970dd0fa78399453ebe1",
+        "c8db997d9b72cc1d14bc853804eac0064d3744712a8ca6dbd223b5e56d4c8771",
+        "5e22414e4a4036e539cc040ecaee95575d10695d62f9582657f869c5ce488d50",
+        "9b6b87182cc69b3f747aa73c54ff78c3b084ae37a7e85ca6e39e4f63fd976170",
+        "d11715be701d1c58867e18c38536dccce5e4b5bbfada04978779946fecc1a1bd",
+        "ed6b40e942f41e85a8ecdc9ab84313f8ffe137bbccf192b20860baabb8b5de3f"
+      ],
+      "source_sha256": "3bfa2bda2aa02c08d849849a6f6ab2b64a5abed81e212a605306dbb250213187",
+      "text": "Cuenta los archivos que están en SUBCARPETAS de ``source``, de forma recursiva.\n\nMake Masks pregunta si consolidar solo cuando esto no es cero: los archivos situados directamente en ``source`` se abren tal cual.\n\n:param source: la carpeta.\n:param extensions: cuenta solo estas extensiones; None cuenta todos los archivos.\n:param skip_dirs: nombres de carpetas en las que no se entra (sin distinguir mayúsculas), como ``masks``; nunca se entra en las carpetas ocultas.\n:returns: ``(files, folders)`` -- cuántos archivos hay por debajo del nivel superior y cuántas subcarpetas distintas los contienen. Los enlaces simbólicos no se cuentan ni se siguen.",
+      "translation_source_blocks_sha256": [
+        "669feae1b1a6ff61599ca1fcf2adcb3078a574834633970dd0fa78399453ebe1",
+        "c8db997d9b72cc1d14bc853804eac0064d3744712a8ca6dbd223b5e56d4c8771",
+        "5e22414e4a4036e539cc040ecaee95575d10695d62f9582657f869c5ce488d50",
+        "9b6b87182cc69b3f747aa73c54ff78c3b084ae37a7e85ca6e39e4f63fd976170",
+        "d11715be701d1c58867e18c38536dccce5e4b5bbfada04978779946fecc1a1bd",
+        "ed6b40e942f41e85a8ecdc9ab84313f8ffe137bbccf192b20860baabb8b5de3f"
+      ]
+    },
+    "spacr.folder_consolidation.safe_part": {
+      "source_blocks_sha256": [
+        "2d155c52bda8ebab5ac5cd146f41e5d4f68d757fbe5f1f8454171f5fc2e551fc",
+        "9aa0208a3c31c5876434ddd7d5d9f1ccb173e3fc443e54fda178ecd1e5443795",
+        "697b2740c5d9b9e8852bb22e1dc0f6f814f2217a6fb65d9e810779d8c67b2b97"
+      ],
+      "source_sha256": "3d76fd1faf4dd931880ce652fcb4d58b90f9ea8693bb2e916bae2db06f333c17",
+      "text": "Sustituye los caracteres que Windows prohíbe en un nombre de archivo; conserva los espacios.\n\n:param name: un nombre de carpeta.\n:returns: el nombre con ``<>:\"/\\|?*`` y los caracteres de control sustituidos por ``_`` y sin espacios ni puntos finales; ``folder`` cuando no queda nada.",
+      "translation_source_blocks_sha256": [
+        "2d155c52bda8ebab5ac5cd146f41e5d4f68d757fbe5f1f8454171f5fc2e551fc",
+        "9aa0208a3c31c5876434ddd7d5d9f1ccb173e3fc443e54fda178ecd1e5443795",
+        "697b2740c5d9b9e8852bb22e1dc0f6f814f2217a6fb65d9e810779d8c67b2b97"
+      ]
+    },
+    "spacr.folder_consolidation.unused_output_folder": {
+      "source_blocks_sha256": [
+        "d3ffd10136b4da79605fbcf9d981f989f74a81ce2b58f52c4da84023d5bf5586",
+        "e0f8d66b7b7e96ad6a6d88c21ba4362beb8f689bad4300a17d3a7087932a2991",
+        "548e0b26bdd1d74286db31a21116dd524d1b259007662c232fee600e0f32dc2a",
+        "cd83d1e909378720c01c7ebdc67f1df41b746a18699c5a8b067e4e1ba5b045b0"
+      ],
+      "source_sha256": "cbf09bc375372757c81b0e22a4717497f6cc7eb159e791847f5e8026fdba2958",
+      "text": "Devuelve ``parent/name``, o ``name_2``, ``name_3``... cuando ya existe.\n\n:param parent: la carpeta en la que crear la salida.\n:param name: el nombre deseado.\n:returns: una ruta que todavía no existe.",
+      "translation_source_blocks_sha256": [
+        "d3ffd10136b4da79605fbcf9d981f989f74a81ce2b58f52c4da84023d5bf5586",
+        "e0f8d66b7b7e96ad6a6d88c21ba4362beb8f689bad4300a17d3a7087932a2991",
+        "548e0b26bdd1d74286db31a21116dd524d1b259007662c232fee600e0f32dc2a",
+        "cd83d1e909378720c01c7ebdc67f1df41b746a18699c5a8b067e4e1ba5b045b0"
       ]
     },
     "spacr.foreign": {
@@ -46862,7 +47676,7 @@
         "cd83d1e909378720c01c7ebdc67f1df41b746a18699c5a8b067e4e1ba5b045b0"
       ],
       "source_sha256": "f85a16ba0a33e34d6b165e2bd19f09ab1c59cb9b8f95431a4a3253f72a024de9",
-      "text": "El primer destino gratuito para ``filename`` en ``dest``.\n\n``foo.CP_model`` -> ``foo.CP_model``, luego ``foo_v2.CP_model``, ``foo_v3.CP_model``... Un puesto de control existente nunca se sobrescribe: dos modelos con el mismo nombre de archivo son una cosa normal a tener (el mismo autor reentrenó, o dos personas escogieron el mismo apellido), y el modo de fallo de la sobreescritura — una sesión de procesamiento que utilizó los pesos viejos convirtiéndose en irreproducible sin rastro — es silencioso.\n\nUna entrada que ya lleva ``_vN`` cuenta desde allí en lugar de convertirse en ``foo_v2_v2``.\n\n:param dest: directorio de destino.\n:param filename: el nombre para colocar allí.\n:returns: un camino que aún no existe.",
+      "text": "El primer destino gratuito para ``filename`` en ``dest``.\n\n``foo.CP_model`` -> ``foo.CP_model``, luego ``foo_v2.CP_model``, ``foo_v3.CP_model``... Un puesto de control existente nunca se sobrescribe: dos modelos con el mismo nombre de archivo son una cosa normal a tener (el mismo autor reentrenó, o dos personas escogieron el mismo apellido), y el modo de fallo de la sobreescritura — una sesión de procesamiento que utilizó los pesos viejos convirtiéndose en irreproducible sin rastro — es silencioso.\n\nUna entrada que ya lleva ``_vN`` cuenta desde allí en lugar de convertirse en ``foo_v2_v2``.\n\n:param dest: directorio de destino.\n:param filename: el nombre para colocar allí.\n:returns: una ruta que todavía no existe.",
       "translation_source_blocks_sha256": [
         "14c8951bf426bce9f93dcaf20aba1486711917ee8d9a8322b6f6e28e7ee12127",
         "e62eacd00c513dd182d59d817d1b5ba563d8020eb3ee30c39b4dcd69405a8af9",
@@ -62359,15 +63173,17 @@
         "343fe32113944eb9a2b943ea049f035002cae5d92e88c0258a2a4bc29fe8d8c8",
         "b55ee15c1cec5f8ee686fedde07b50efa6e2d5347a163e4cbf8d5c8b6753ce25",
         "c9b8abe78b419bb3892111c9a5cc7e2f4fa7af17bd7400d54d3f972534d2e882",
-        "f222dfd579604639ea1be03958180542182f5d8d6067ae15c7456f53c881b158"
+        "f222dfd579604639ea1be03958180542182f5d8d6067ae15c7456f53c881b158",
+        "053a6f3ea879abe3f0597364d142db70df217b383995dcc2b937bb41187efb63"
       ],
-      "source_sha256": "1e571373dd4a758b04c3df25efa5770c86bfd27d7f6fc433f86020c21269e374",
-      "text": "Preparación y procedencia opcionales (opt-in) de PSF y de la cadena de mejora para las entradas de segmentación.\n\nLos kernels se capturan una vez por ejecución. Solo se procesan matrices de intensidad privadas; este módulo nunca reescribe las pilas sin procesar ni las etiquetas de máscara. La reutilización de V1 comprueba tanto el kernel/los ajustes solicitados como los bytes exactos de los archivos comprimidos completados.\n\nLA CADENA DE MEJORA SIGUE LA MISMA RUTA. La cadena de Make Masks (:mod:`spacr.qt.detect_chain`) se escribe en un archivo de ajustes como las claves ``enhance_*`` y aquí la vuelve a leer :func:`prepare_chain`, con los ajustes ``psf_*`` incorporados como la etapa de PSF de la cadena, de modo que una ejecución de placa aplica exactamente los pasos que ajustó un curador, en el orden propio de la cadena: fondo, PSF, eliminación de ruido, contraste, enfoque. La sesión la aplica por canal seleccionado en la etapa en la que ya se ejecutaba la PSF -- después de la corrección de iluminación y antes de la normalización -- y su procedencia va al mismo registro ``psf/segmentation_application.json``, de modo que una cadena cambiada se rechaza al reanudar igual que un kernel cambiado. Sin ningún paso de la cadena activado, una ejecución es byte a byte lo que era antes de que existiera la cadena.\n\nLA SEPARACIÓN ESPECTRAL SE REALIZA PRIMERO. Con ``unmix`` activado, se estima una matriz de contaminación entre canales a partir de los pocillos de control con tinción única indicados por ``unmix_controls`` y se separan todos los canales de cada campo sin procesar antes de la corrección de iluminación, la PSF y la cadena; la matriz se añade al mismo registro. Measure estima su propia matriz sobre los canales medidos y separa cada campo antes de sus operaciones de preprocesamiento, registrando la matriz en los ajustes de ejecución guardados y en ``measurements/bleed_through.json``.",
+      "source_sha256": "7d87eadb32dd9187a2ad70ade32372b85cc88737cfcc4204bbcb49d4ae632977",
+      "text": "Preparación y procedencia opcionales (opt-in) de PSF y de la cadena de mejora para las entradas de segmentación.\n\nLos kernels se capturan una vez por ejecución. Solo se procesan matrices de intensidad privadas; este módulo nunca reescribe las pilas sin procesar ni las etiquetas de máscara. La reutilización de V1 comprueba tanto el kernel/los ajustes solicitados como los bytes exactos de los archivos comprimidos completados.\n\nLA CADENA DE MEJORA SIGUE LA MISMA RUTA. La cadena de Make Masks (:mod:`spacr.qt.detect_chain`) se escribe en un archivo de ajustes como las claves ``enhance_*`` y aquí la vuelve a leer :func:`prepare_chain`, con los ajustes ``psf_*`` incorporados como la etapa de PSF de la cadena, de modo que una ejecución de placa aplica exactamente los pasos que ajustó un curador, en el orden propio de la cadena: fondo, PSF, eliminación de ruido, contraste, enfoque. La sesión la aplica por canal seleccionado en la etapa en la que ya se ejecutaba la PSF -- después de la corrección de iluminación y antes de la normalización -- y su procedencia va al mismo registro ``psf/segmentation_application.json``, de modo que una cadena cambiada se rechaza al reanudar igual que un kernel cambiado. Sin ningún paso de la cadena activado, una ejecución es byte a byte lo que era antes de que existiera la cadena.\n\nLA SEPARACIÓN ESPECTRAL SE REALIZA PRIMERO. Con ``unmix`` activado, se estima una matriz de contaminación entre canales a partir de los pocillos de control con tinción única indicados por ``unmix_controls`` y se separan todos los canales de cada campo sin procesar antes de la corrección de iluminación, la PSF y la cadena; la matriz se añade al mismo registro. Measure estima su propia matriz sobre los canales medidos y separa cada campo antes de sus operaciones de preprocesamiento, registrando la matriz en los ajustes de ejecución guardados y en ``measurements/bleed_through.json``.\n\nLA ELIMINACIÓN DE RUIDO AUTOSUPERVISADA VA ANTES DE LA CADENA. Con ``n2v_denoise`` activado, CAREamics entrena un modelo Noise2Void (N2V2) por canal de segmentación, en su propio entorno, con una muestra de los campos de visión en bruto de la propia ejecución -- no hacen falta imágenes limpias --, o lo lee de ``n2v_model``. Los canales seleccionados de cada campo de visión se limpian de ruido después de la corrección de iluminación y antes de la PSF y la cadena, mientras el ruido sigue siendo independiente de un píxel a otro, que es lo que supone Noise2Void. Los hashes de los puntos de control y el registro del entrenamiento se incorporan al mismo registro de procedencia.",
       "translation_source_blocks_sha256": [
         "343fe32113944eb9a2b943ea049f035002cae5d92e88c0258a2a4bc29fe8d8c8",
         "979580e0fa1690da9ba407ea050c23943aef9d497a7741cdaaf5efee361ae3bf",
         "230fe3cb3ede2aeb1ea70013bb0febe6fbcd77b88a6e0755a6912be502693a95",
-        "f6a1ab6f48a1d13e437c630c67c00d83220dd32adf1f938f032855815820dda9"
+        "f6a1ab6f48a1d13e437c630c67c00d83220dd32adf1f938f032855815820dda9",
+        "898f346e924ef0e9e52e874d7058e7a4278079abcbc698698ea76819a682278b"
       ]
     },
     "spacr.psf_pipeline.PSFPlan": {
@@ -62490,15 +63306,15 @@
       "source_blocks_sha256": [
         "264ee25f9242e2db6f8a2b5c761f5fd5b3321d464424dffaf144495d25df75b2",
         "bc4ba6241be71569e20bc94ecabf0c9227e95266b1633a503263b333558e1c37",
-        "020ed299519d4a96466f449c51fce3e7ded116aa8465c8f16223cc082a25e525",
+        "229b6786bd16520e9192474e27a864aa92c75af0624df37f2b9629d3dcbcd04c",
         "a0d4a87dc2658f77c707a59b0b867d4323ad037fa23627efc1dd99eb0ed09634"
       ],
-      "source_sha256": "2dbc15440ab214e76ca142362c58e55555fc052ca23128152c2f3aba4e000efc",
-      "text": "Indica si estos ajustes piden siquiera una PSF o un paso de mejora.\n\nUna cadena solicitada que no se puede construir cuenta como solicitada: la ejecución se niega entonces con el motivo, en lugar de reutilizar entradas hechas sin ella.\n\n:param settings: los ajustes ``psf_*``, ``enhance_*`` y ``unmix`` de la ejecución.\n:returns: True cuando cualquiera está activado o no se puede leer la cadena.",
+      "source_sha256": "078442c43bc1fa6b9d74a3f1aad7383381974121f3844b2f3c6927529dbe38a1",
+      "text": "Indica si estos ajustes piden siquiera una PSF o un paso de mejora.\n\nUna cadena solicitada que no se puede construir cuenta como solicitada: la ejecución se niega entonces con el motivo, en lugar de reutilizar entradas hechas sin ella.\n\n:param settings: los ajustes ``psf_*``, ``enhance_*``, ``unmix`` y ``n2v_denoise`` de la ejecución.\n:returns: True cuando cualquiera está activado o no se puede leer la cadena.",
       "translation_source_blocks_sha256": [
         "264ee25f9242e2db6f8a2b5c761f5fd5b3321d464424dffaf144495d25df75b2",
         "bc4ba6241be71569e20bc94ecabf0c9227e95266b1633a503263b333558e1c37",
-        "ad43c2312cad6702ce12a62caaaf4fbfebe9db91868c67367166e9f1d6e98be9",
+        "098f5fd1648c810ee28dfcfbc4dc64f002aae75e9f5b0099081bb2758423a8f5",
         "a0d4a87dc2658f77c707a59b0b867d4323ad037fa23627efc1dd99eb0ed09634"
       ]
     },
@@ -81596,20 +82412,6 @@
         "2f4f8b50842a8495b56972c2d179a6f9fcab9ca5d13cf8ae305adf7b206b551f"
       ]
     },
-    "spacr.qt.preferences.get_object_grid_enabled": {
-      "source_blocks_sha256": [
-        "b2a24897cfac7596664bb13259d11719311ba9cad17269a1e2e28e5418d978ac",
-        "9bc650fb8b31c8518e284286c61982825ca5900a4587ce94d75b989f26198b33",
-        "1c9f4ae1cfc9c68b73460370c7d4c2d7320fc614a9031c546d164e9606eebe02"
-      ],
-      "source_sha256": "3df019f506da48b836028da5b9c9ebcb994379b63b20f9fd3be3fbb6485a0887",
-      "text": "Si la configuración por objeto se muestra como una tabla.\n\n78 de la configuración 201 de Mask son las mismas preguntas de veinte y tantos una vez por tipo de objeto, por lo que un formulario que los lista plana hace 203 preguntas antes de segmentar cualquier cosa. Set, esas filas están ocultas y una cuadrícula toma su lugar -- una fila por pregunta, una columna por objeto.\n\nLos nombres de datos estructurados almacenados no cambian de ninguna manera. La cuadrícula edita los mismos widgets que las filas planas, por lo que un archivo de configuración escrito con esto en es el mismo archivo escrito con él apagado.",
-      "translation_source_blocks_sha256": [
-        "b2a24897cfac7596664bb13259d11719311ba9cad17269a1e2e28e5418d978ac",
-        "9bc650fb8b31c8518e284286c61982825ca5900a4587ce94d75b989f26198b33",
-        "14fa599dfd721dd2cb22683ceba73fc53358daa41dca4299f00aea1624241310"
-      ]
-    },
     "spacr.qt.preferences.get_pane_opacity": {
       "source_blocks_sha256": [
         "6119460966e874aeb1cbab8d0f403b8c83e9b498825144b52adc475dc3a8a5b2",
@@ -82854,18 +83656,6 @@
         "edc2d3f9fae88f4d4e6c214a39cf13525764f74a3548dcd9e5061de49fb38bba"
       ]
     },
-    "spacr.qt.preferences.set_object_grid_enabled": {
-      "source_blocks_sha256": [
-        "3a6390010d5ad2a25b84a247e24a6fd261cb59f6a47ecb9b04510a318c8e5fdd",
-        "c21b45a353d7a1eac19dd337534f86f44093a3e020c5ce872908364e3fb0432b"
-      ],
-      "source_sha256": "b9046c93d0224f1d6aeaaae900fcf78841787825fa07af20b0f47a618491862f",
-      "text": "Activa o desactiva la cuadrícula por objeto, efectiva en la siguiente compilación de formulario.\n\n:param on: true para mostrar los ajustes por objeto como una sola tabla, false para enumerarlos de forma plana; se guarda como ``bool``.",
-      "translation_source_blocks_sha256": [
-        "3a6390010d5ad2a25b84a247e24a6fd261cb59f6a47ecb9b04510a318c8e5fdd",
-        "c21b45a353d7a1eac19dd337534f86f44093a3e020c5ce872908364e3fb0432b"
-      ]
-    },
     "spacr.qt.preferences.set_pane_opacity": {
       "source_blocks_sha256": [
         "2aaec9f7cdb27a988450dc5665664ffa71057d1ae5776d8fa2892cf6ff10a83a",
@@ -83808,16 +84598,18 @@
     },
     "spacr.qt.prerun.install_qc_banner": {
       "source_blocks_sha256": [
-        "6f3d4648e5f86ef7b6fd034a0444c5f31adc5e49f17a33c0092ecd284358a2bd",
+        "8053ef0a2c0de301207113ca1bf92ce2540c0daaf3ca4cd99d13c3a66b390285",
+        "4ae3d89a22e65b1a5ed09fec04d461f4f01c98fb2895f186f270d9419731f128",
         "1ee1e7ad4879577818e90a7937796cec5d14725ad06cc526967835446152f2c7",
         "7bccbf27121d8a39bf02ab1507bcab5f9da0f83f7f20992bd201a14555c61190",
         "55919f3fd8be8431a7ece53cd47afb2c52a85748abf109326cfcfd4566e02c8a",
         "82602f1644ba2fb31932ea2ddb59b6c730b2bdc3325d935fb247c15237217929"
       ],
-      "source_sha256": "ea501670396ed9589423e28d2b80c551309325768a1036b9119990dc19c27b75",
-      "text": "Ponga una :class:`SegQCBanner` por encima de la fila Ejecutar de ``screen``.\n\n:param screen: an ``AppScreen``.\n:param reader: lector de digest, para pruebas.\n:param threaded: ``False`` para leer en línea, para las pruebas.\n:returns: el banner, o None cuando esta cribado no puede llevar uno. Nunca lanza: una cribado que se abre sin la bandera es el comportamiento antiguo, y que es siempre mejor que una cribado no se abre.",
+      "source_sha256": "7658bef465106ba8a5e640c07d61b37210a507cc645304d8454217e0c9114d8f",
+      "text": "Pone en la fila de acciones de ``screen`` un interruptor de QC que abre el veredicto.\n\nEl interruptor queda a la izquierda de los de 3D y tiempo; el aviso vive en su ventana emergente, así que la fila de Run conserva su lugar diga lo que diga el veredicto.\n\n:param screen: an ``AppScreen``.\n:param reader: lector de digest, para pruebas.\n:param threaded: ``False`` para leer en línea, para las pruebas.\n:returns: el banner, o None cuando esta cribado no puede llevar uno. Nunca lanza: una cribado que se abre sin la bandera es el comportamiento antiguo, y que es siempre mejor que una cribado no se abre.",
       "translation_source_blocks_sha256": [
-        "6f3d4648e5f86ef7b6fd034a0444c5f31adc5e49f17a33c0092ecd284358a2bd",
+        "8053ef0a2c0de301207113ca1bf92ce2540c0daaf3ca4cd99d13c3a66b390285",
+        "4ae3d89a22e65b1a5ed09fec04d461f4f01c98fb2895f186f270d9419731f128",
         "1ee1e7ad4879577818e90a7937796cec5d14725ad06cc526967835446152f2c7",
         "7bccbf27121d8a39bf02ab1507bcab5f9da0f83f7f20992bd201a14555c61190",
         "55919f3fd8be8431a7ece53cd47afb2c52a85748abf109326cfcfd4566e02c8a",
@@ -86812,22 +87604,6 @@
         "98cdeb8f0f74b2fec49e5c6b8e9414afb1a01ab342f3023ff43e793834f94036"
       ]
     },
-    "spacr.qt.screens.app_screen.AppScreen.apply_object_grid_preference": {
-      "source_blocks_sha256": [
-        "27c31dca684fc745d56646837e91ea2f34aa210da4968b243a54de3012890548",
-        "e67cdc07933b94f3c4a3837b4f683e4abed148964efb2cb21076044782bf9ec3",
-        "76eca9267f2d3069951e34a58592e6cd918d3402d8134c34edcb6c163ca2694d",
-        "198d422627c044b5e7ddab68874a5cc9c9253336eb22634ef799242de4990acf"
-      ],
-      "source_sha256": "194f611146231ace6a6870618f0e6f871293c956866361ce29ce6e8cf29412d3",
-      "text": "Montar o desmontar la tabla por objeto para que coincida con las preferencias.\n\nLo que esto corrige: el conmutador en Preferencias se leyó una vez, mientras se construía el panel de ajustes, así que encenderlo no le hizo nada a un módulo ya abierto y apagarlo dejó la tabla en la vista de la aplicación con las filas por las que habla todavía ocultas. La preferencia es una vista de los mismos ajustes de cualquier manera -- nada aguas abajo sabe que existe la cuadrícula -- así que no hay razón para que deba reabrirse el módulo.\n\nIDEMPOTENTE, y seguro en una cribado cuyo panel nunca fue construido: ambas direcciones comprueban lo que realmente está montado en lugar de confiar en una bandera, por lo que una llamada repetida es un sin efecto y los dos estados no pueden separarse.\n\n:returns: True si la cribado cambió, False si ya estaba bien.",
-      "translation_source_blocks_sha256": [
-        "27c31dca684fc745d56646837e91ea2f34aa210da4968b243a54de3012890548",
-        "e518b24026e924b532bfbc3d4ff20af84b14296bb7713cd16521a35814bd6148",
-        "76eca9267f2d3069951e34a58592e6cd918d3402d8134c34edcb6c163ca2694d",
-        "198d422627c044b5e7ddab68874a5cc9c9253336eb22634ef799242de4990acf"
-      ]
-    },
     "spacr.qt.screens.app_screen.AppScreen.apply_settings_dict": {
       "source_blocks_sha256": [
         "ea668f2ec5af454a98c1fff789fafdf60bc4b8889e2687607d82bb828be414d5",
@@ -87743,18 +88519,18 @@
     "spacr.qt.screens.app_screen.settings_section_maturity": {
       "source_blocks_sha256": [
         "6b40fd6e391504738c79a898795f30b9640f4a109a89abaf03f7398bb13f7446",
-        "5a493aba01313d4cd9c99076e4ba3430f22c10482090f0312f12818cda135439",
+        "6ae1a111029f0c7b00467fcf35924614cdf2c17b7042b29cf5e35307c0b80bb2",
         "4ae0ce5a67d7061ee536a0e03cf3ea86dd9163c60549074eb8eb4d6f92f493d6",
-        "356d41706743ff8f9a99cf9f8eae045ea5c947595ef09896d6564e8aced85f45",
+        "d8bf2920971d132b38c6c8c64d3a1f864deef7df5b11eb8af28e46781d3da929",
         "7d5468e72b90f9e20d01224a1f9e8d0f945f1f441f006fcee1b4b99a7dc1c854"
       ],
-      "source_sha256": "73f42bb19686e77aea5eef307a9acca155baec635f1adc381e9ea1ba91bcdfab",
-      "text": "Devuelve la etapa menos madura aplicando a una sección de configuración.\n\nUn módulo alfa o beta colorea cada uno de sus ajustes. Un módulo estable puede contener una categoría explícitamente experimental ``(Beta)``/``(Alpha)``, en cuyo caso esa sección recibe la etapa más cautelosa.\n\n:param app_key: la clave de registro del módulo, cuya etapa proviene de :func:`module_maturity`.\n:param title: el encabezado de la sección; comparado sin distinguir mayúsculas, es alpha cuando es ``\"alpha\"`` o contiene ``\"(alpha)\"``, beta del mismo modo, y estable en otro caso.\n:returns: ``\"alpha\"``, ``\"beta\"`` o ``\"stable\"``.",
+      "source_sha256": "fbed1cd402ee935744301bf9332d49c6eeea7ecaa440f6fe4ff7dcde1596f8a2",
+      "text": "Devuelve la etapa menos madura aplicando a una sección de configuración.\n\nUn módulo alfa o beta colorea todos sus ajustes. Un módulo estable puede contener aun así una categoría explícitamente experimental -- una alfa se nombra con una ``α`` final (\"Confluency α\"), una beta con ``(Beta)`` --, y en ese caso esa sección recibe la etapa más prudente.\n\n:param app_key: la clave de registro del módulo, cuya etapa proviene de :func:`module_maturity`.\n:param title: el encabezado de la sección; comparado sin distinguir mayúsculas, es alfa cuando es ``\"alpha\"``, termina en ``α`` o contiene ``\"(alpha)\"``, beta cuando es ``\"beta\"`` o contiene ``\"(beta)\"``, y estable en cualquier otro caso.\n:returns: ``\"alpha\"``, ``\"beta\"`` o ``\"stable\"``.",
       "translation_source_blocks_sha256": [
         "6b40fd6e391504738c79a898795f30b9640f4a109a89abaf03f7398bb13f7446",
-        "5a493aba01313d4cd9c99076e4ba3430f22c10482090f0312f12818cda135439",
+        "6ae1a111029f0c7b00467fcf35924614cdf2c17b7042b29cf5e35307c0b80bb2",
         "4ae0ce5a67d7061ee536a0e03cf3ea86dd9163c60549074eb8eb4d6f92f493d6",
-        "356d41706743ff8f9a99cf9f8eae045ea5c947595ef09896d6564e8aced85f45",
+        "d8bf2920971d132b38c6c8c64d3a1f864deef7df5b11eb8af28e46781d3da929",
         "7d5468e72b90f9e20d01224a1f9e8d0f945f1f441f006fcee1b4b99a7dc1c854"
       ]
     },
@@ -102691,16 +103467,18 @@
         "82cf9411b890f441e152641d0189fbd59d1fbe4e37d6f5584f9d82266bec1fc7",
         "8da0cabd2d6a53d1c61407ef1ebd5687a1e0e01d64314b65737d5fae962e3f35",
         "e99cdc96419c207476eb7985502cf200cb51c35d5ed700b9ec350602ae17b6bc",
+        "e176b8e2748dfa8182c17f642ff2209408fbbe523c9c925a100a157d277804fc",
         "e6481dc2ad7e1b8accd17e6f13ea18db90ac814dfabf709dede2fa1cc7f0921b",
         "24f3dbd38186a5794376cc6161a3d245081b70cee8bf1264f97b9135feb5385c",
         "f06f268ba632c5503437884e3c63f93779672bc476d165a1da8d6a97b8d6f56e"
       ],
-      "source_sha256": "238912d4542619e61714e6244b7b67fc6b6b3eb7c8206e73ee819039ccca9885",
-      "text": "Los ajustes de un usuario por primera vez de ``app_key`` deben reunirse primero.\n\nLa revelación progresiva necesita una respuesta defendible a \"¿cuál de estos 190 es la materia?\", y una lista manuscrita por módulo se pudriría la primera vez que un diseño cambiase. Así que es *derivado*: el primer grupo de la disposición comisariada del módulo, que es siempre sus entradas, más lo que :data:`_APP_ESSENTIAL_EXTRAS` añada para ese módulo.\n\nUn módulo sin diseño comisariado obtiene la primera categoría compartida, que es \"Paths\" — todavía la respuesta correcta, sólo una más delgada.\n\n:param app_key: la clave de la aplicación del módulo.\n:param categories: pre-computado opcional :func:`categories_for_app` salida, para guardar recomputing.\n:returns: establecer nombres en orden de visualización, sin duplicados.",
+      "source_sha256": "3873b4b6b8badd100c843e9d96a6ec8ce914b7720aca853dfd01927b05b6c54b",
+      "text": "Los ajustes de un usuario por primera vez de ``app_key`` deben reunirse primero.\n\nLa revelación progresiva necesita una respuesta defendible a \"¿cuál de estos 190 es la materia?\", y una lista manuscrita por módulo se pudriría la primera vez que un diseño cambiase. Así que es *derivado*: el primer grupo de la disposición comisariada del módulo, que es siempre sus entradas, más lo que :data:`_APP_ESSENTIAL_EXTRAS` añada para ese módulo.\n\nUn módulo sin diseño comisariado obtiene la primera categoría compartida, que es \"Paths\" — todavía la respuesta correcta, sólo una más delgada.\n\nEl primer grupo de Classify es solo el selector de familia, así que sus extras llevan lo que necesita el entrenamiento de cualquiera de las dos familias: las clases, las particiones, el modelo de imagen y su calendario, y el algoritmo tabular y sus principales hiperparámetros. El selector de familia atenúa la mitad que no se aplica.\n\n:param app_key: la clave de la aplicación del módulo.\n:param categories: pre-computado opcional :func:`categories_for_app` salida, para guardar recomputing.\n:returns: establecer nombres en orden de visualización, sin duplicados.",
       "translation_source_blocks_sha256": [
         "82cf9411b890f441e152641d0189fbd59d1fbe4e37d6f5584f9d82266bec1fc7",
         "8da0cabd2d6a53d1c61407ef1ebd5687a1e0e01d64314b65737d5fae962e3f35",
         "e99cdc96419c207476eb7985502cf200cb51c35d5ed700b9ec350602ae17b6bc",
+        "e176b8e2748dfa8182c17f642ff2209408fbbe523c9c925a100a157d277804fc",
         "e6481dc2ad7e1b8accd17e6f13ea18db90ac814dfabf709dede2fa1cc7f0921b",
         "24f3dbd38186a5794376cc6161a3d245081b70cee8bf1264f97b9135feb5385c",
         "43316aa6d8f94a65d3c92cab76e36cb7982da71617f6d34b90b8da7b8eaf971f"
@@ -115134,6 +115912,232 @@
       "translation_source_blocks_sha256": [
         "87f217c55ebda59962b5ca6b94780a1fda2cf95c606fbb89d6f0fad42fcf6c02",
         "0dee345c6ef3cc44877e07705ac3c734d42ab76b706d2ed1d73629d5828fa022"
+      ]
+    },
+    "spacr.qt.widgets.channel_sort_dialog": {
+      "source_blocks_sha256": [
+        "8f5d2f64eb10bc685ef72f8261fb87602302e11fac6d2db8f4c670dd3d702d68",
+        "38a92d896bd02d1ee365ac19101402041ee66a5d06a7cb215e56f6458a99a8c8",
+        "94f3cc9027bc8055bd60bdb1bb9d6c2fc87ffe82342ef00dc089ee04f2411741",
+        "07f8795ade366f95d91a6a943e7407d7a3518da2f629f63be48e6f8671029d19",
+        "3ae268dbc3a757fde425a28c99e6ffdbad3757470d17741af8e6f3449004e57b",
+        "468d8bebcd4980752b4eebfed956ce4258ac3c5a2a83b2600f864602233d2c33"
+      ],
+      "source_sha256": "fe785517ee6b83683f575fc7d5761ae3edf212a3d95fed0a5eac3f693fc7575a",
+      "text": "El diálogo \"Sort into channels…\" de Make Masks, su ventana de expresiones regulares y su comprobación de conjuntos.\n\nCapa fina de Qt sobre :mod:`spacr.channel_sorting`, que toma todas las decisiones:\n\n* :class:`ChannelSortDialog` enumera las imágenes de la carpeta abierta con miniaturas e indica si cada una tiene máscara. Las imágenes se seleccionan (clic, Mayús, Ctrl, Seleccionar todo) y se asignan a un canal -- la estrategia de SELECCIÓN --, y en su lugar una expresión regular puede asignar cada imagen -- la estrategia REGEX. Apply construye un :class:`spacr.channel_sorting.SortPlan`; cuando los nombres no pueden convertirse en conjuntos, se pide al usuario que cambie la expresión regular.\n* :class:`RegexWindow` explica los grupos con nombre, prueba una expresión regular en directo contra cada nombre de archivo, propone una (\"Auto regex\") o empareja las imágenes por semejanza y tamaño, sin tener en cuenta los nombres (\"Detect sets\").\n* :class:`ExampleSetsDialog` muestra tres conjuntos detectados uno junto a otro, cada canal con su máscara, y pregunta si son correctos.\n\nNada aquí mueve un archivo. El diálogo devuelve un plan; la vista lo aplica fuera del hilo de la GUI.",
+      "translation_source_blocks_sha256": [
+        "8f5d2f64eb10bc685ef72f8261fb87602302e11fac6d2db8f4c670dd3d702d68",
+        "38a92d896bd02d1ee365ac19101402041ee66a5d06a7cb215e56f6458a99a8c8",
+        "0735d09f5b73275a2c8557b67b966a043cce4e84de161da406980b99cf4b2d27",
+        "07f8795ade366f95d91a6a943e7407d7a3518da2f629f63be48e6f8671029d19",
+        "cdcaa7524ecd759114535d6389fabac40522045cc026502a0adb1c3ac5061fec",
+        "ec1e4266c0e7f3977e057de26edee52b4200734390a16cf3c69c82b68ad3a770"
+      ]
+    },
+    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog": {
+      "source_blocks_sha256": [
+        "69d8a6d49fbf27e2f72823f13a87b5aaee37cb7544adccffe12f35d53e9b6370",
+        "7ee838bf58d9792485c18c0718ae75b87afe0f8b4d5fe89a0842a269d30f4341",
+        "38ef8aa67cbb3947298d01fff71fe35123c3086263bf500b49c7edd303fe60a8",
+        "bde9edcb091e3c4b46fbd326c5744444f9a71d185be697a17120c4ff7163d25c",
+        "c4b6fc70669ef7259feec3d1cdc375b673767a229c1bbe57a9e6172e36aa8bb1",
+        "36dbf6c3c4c25be8f2680dc5d420957758f46935e4f07ee97f4b6e452e75713b"
+      ],
+      "source_sha256": "1eb2db48146f7cc475e8ee79a40a391f5ea943c9b2e7f19ed4e3da9ef0d61685",
+      "text": "Asigna las imágenes de la carpeta a canales, comprueba los conjuntos y planifica el movimiento.\n\n:ivar plan: el :class:`spacr.channel_sorting.SortPlan` confirmado una vez aceptado el diálogo; si no, None.\nEnumera la carpeta y propone una expresión regular.\n\n:param folder: la carpeta que Make Masks tiene abierta.\n:param masks_dir: su carpeta de máscaras, cuando no es ``<folder>/masks``.\n:param parent: el padre de Qt.",
+      "translation_source_blocks_sha256": [
+        "a51ce99c1fe5e54638838deae49b2810f1cef53f58da88a577f7da39d4792132",
+        "7ee838bf58d9792485c18c0718ae75b87afe0f8b4d5fe89a0842a269d30f4341",
+        "38ef8aa67cbb3947298d01fff71fe35123c3086263bf500b49c7edd303fe60a8",
+        "bde9edcb091e3c4b46fbd326c5744444f9a71d185be697a17120c4ff7163d25c",
+        "c4b6fc70669ef7259feec3d1cdc375b673767a229c1bbe57a9e6172e36aa8bb1",
+        "36dbf6c3c4c25be8f2680dc5d420957758f46935e4f07ee97f4b6e452e75713b"
+      ]
+    },
+    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.add_channel": {
+      "source_blocks_sha256": [
+        "9b18349e02774ce8ad0070d9f47b70f221e13358a9a37faf0f51c68b83c33550",
+        "3e22cca5152c29889a0c813bfd77eb11d262f5d8dc261f15accf75dbf1ff538f"
+      ],
+      "source_sha256": "68e7d3ec5b69367e66eeb0df56bef6eee11a197c4bc579b9d3d3bb11a223176f",
+      "text": "Ofrece un canal más.\n\n:returns: el número del canal nuevo.",
+      "translation_source_blocks_sha256": [
+        "9b18349e02774ce8ad0070d9f47b70f221e13358a9a37faf0f51c68b83c33550",
+        "3e22cca5152c29889a0c813bfd77eb11d262f5d8dc261f15accf75dbf1ff538f"
+      ]
+    },
+    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.assign_selected": {
+      "source_blocks_sha256": [
+        "f6c17c1c6947b31146963d9d88de33226c4650a05a623b14d4c2231e6e05ce05",
+        "c7b6129de5657c7736777210e5d1fce00ef2c9cfa338253de354c362fcabe404",
+        "3b8677fd02d8759158bdeb460391f04af4b82bc3511dbdfed958a2aad3392b08"
+      ],
+      "source_sha256": "21ba167751401f07c62d36e3ab665d1d734cd4fdad2a5eee0fe9c2ac0b8d8f76",
+      "text": "Asigna las imágenes seleccionadas a ``channel``; None las desasigna.\n\nAsignar a mano sustituye los conjuntos que haya encontrado \"Detect sets\".\n\n:param channel: el canal contado desde 1, o None.",
+      "translation_source_blocks_sha256": [
+        "f6c17c1c6947b31146963d9d88de33226c4650a05a623b14d4c2231e6e05ce05",
+        "c7b6129de5657c7736777210e5d1fce00ef2c9cfa338253de354c362fcabe404",
+        "3b8677fd02d8759158bdeb460391f04af4b82bc3511dbdfed958a2aad3392b08"
+      ]
+    },
+    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.current_sets": {
+      "source_blocks_sha256": [
+        "d41fd81a3bba9f43b2490955c001fd10c1a149a706dd0b9f8b7f821e470d0856",
+        "f665741cf3de350053902b4d02c7361a40dbcef4f7f6736ab1c44bac133e9a34"
+      ],
+      "source_sha256": "aa57d9fd408e9ec6485dbf45f85c47a63c39a392e3714501725591972be69498",
+      "text": "Los conjuntos que usaría Apply, y qué falla cuando no hay ninguno.\n\n:returns: ``(sets or None, report text)``.",
+      "translation_source_blocks_sha256": [
+        "d41fd81a3bba9f43b2490955c001fd10c1a149a706dd0b9f8b7f821e470d0856",
+        "f665741cf3de350053902b4d02c7361a40dbcef4f7f6736ab1c44bac133e9a34"
+      ]
+    },
+    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.mask_roles": {
+      "source_blocks_sha256": [
+        "7bbff65b6cda04d1f551366139bc790fa2b6fff782fbdcb70b7b6fa8a5d97b7a"
+      ],
+      "source_sha256": "7bbff65b6cda04d1f551366139bc790fa2b6fff782fbdcb70b7b6fa8a5d97b7a",
+      "text": "``{channel: role}`` según lo elegido, sin ``none``.",
+      "translation_source_blocks_sha256": [
+        "7bbff65b6cda04d1f551366139bc790fa2b6fff782fbdcb70b7b6fa8a5d97b7a"
+      ]
+    },
+    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.parsed": {
+      "source_blocks_sha256": [
+        "8bb54aedae13e4989097a4041698a9bc3eb76a8d35ee681c5102e161e4cb3d1d"
+      ],
+      "source_sha256": "8bb54aedae13e4989097a4041698a9bc3eb76a8d35ee681c5102e161e4cb3d1d",
+      "text": "Cada imagen leída mediante la expresión regular, con los canales de la selección.",
+      "translation_source_blocks_sha256": [
+        "dedb611e0087968efa6650fe3f8e3cb419cb43be3ab219b5c4f348f61ffcbce6"
+      ]
+    },
+    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.prepare_plan": {
+      "source_blocks_sha256": [
+        "2bd52c6680719917979df604164efe23969826ecfdf7206e86fe0d994842e2f8",
+        "4b415e01f3f299799068a41ac06a10ee2360d49c1a4b92b6bdb25780831a1da7",
+        "ee34f95d670f4acd170c298e14397d489fa5f0d5a88dcac9588072f9106ba6f9"
+      ],
+      "source_sha256": "b1050511b7763467d507fd735090e090bb95f30fdda4014b734468a7fe2258c1",
+      "text": "Construye el plan a partir de los conjuntos actuales, o None cuando no hay ninguno.\n\n:param convert: convierte las imágenes RGB y las pilas z en un único plano.\n:returns: el plan, que aún puede tener problemas.",
+      "translation_source_blocks_sha256": [
+        "2bd52c6680719917979df604164efe23969826ecfdf7206e86fe0d994842e2f8",
+        "4d8beba79b5a664643693178d4f756fc82114a24e9d46d808ae72cc4ff080bd4",
+        "ee34f95d670f4acd170c298e14397d489fa5f0d5a88dcac9588072f9106ba6f9"
+      ]
+    },
+    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.refresh": {
+      "source_blocks_sha256": [
+        "0e1e67bf9fff672514f32602b6cc9dff31f7f293123760d49c42f8e1b301c444"
+      ],
+      "source_sha256": "0e1e67bf9fff672514f32602b6cc9dff31f7f293123760d49c42f8e1b301c444",
+      "text": "Vuelve a dibujar los textos de la lista, las opciones de papel de máscara y la línea de estado.",
+      "translation_source_blocks_sha256": [
+        "0e1e67bf9fff672514f32602b6cc9dff31f7f293123760d49c42f8e1b301c444"
+      ]
+    },
+    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.selected_names": {
+      "source_blocks_sha256": [
+        "b729d7adc763a59d30e813cad522e24209d3c7229b4495ea25c58eab490ffff3"
+      ],
+      "source_sha256": "b729d7adc763a59d30e813cad522e24209d3c7229b4495ea25c58eab490ffff3",
+      "text": "Los nombres de las imágenes seleccionadas, en el orden de la lista.",
+      "translation_source_blocks_sha256": [
+        "b729d7adc763a59d30e813cad522e24209d3c7229b4495ea25c58eab490ffff3"
+      ]
+    },
+    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.set_regex": {
+      "source_blocks_sha256": [
+        "430b091f9ccde3afa3d507b9d961965b9c47756665612ef76ee14495e3d46476",
+        "f2bb5e9e9ca4f92a7a87c8a6c6bda96762df65a7c8a95928287f3b601e24cc8d"
+      ],
+      "source_sha256": "a99305ba986bbe1a54710e5be4e54beee02106c88f07f4380dfe29fe4e271fab",
+      "text": "Usa ``regex`` para canales y conjuntos a partir de ahora.\n\n:param regex: el patrón.",
+      "translation_source_blocks_sha256": [
+        "430b091f9ccde3afa3d507b9d961965b9c47756665612ef76ee14495e3d46476",
+        "f2bb5e9e9ca4f92a7a87c8a6c6bda96762df65a7c8a95928287f3b601e24cc8d"
+      ]
+    },
+    "spacr.qt.widgets.channel_sort_dialog.ExampleSetsDialog": {
+      "source_blocks_sha256": [
+        "dd2e726e1cde5d46efc870a113c92884a8c2754136bee3681e0161ec1e1ea844",
+        "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
+        "c676e8c5a6377668bd0a40f6184a6a9cc4e728c5cf994fd274d072a36b510530",
+        "03d9ff28d57d5453ff99df39aa4e590eba57d1831246b380b43a22730c5c816e",
+        "36dbf6c3c4c25be8f2680dc5d420957758f46935e4f07ee97f4b6e452e75713b"
+      ],
+      "source_sha256": "0aed207b721d76fc430d28b0af838d2ace596c2278b1df3401d1d306d59f6bc4",
+      "text": "Tres conjuntos uno junto a otro -- cada canal y su máscara -- y una pregunta. Dispone hasta tres conjuntos: el primero, el del medio y el último.\n\n:param folder: la carpeta de imágenes.\n:param sets: ``{set key: {channel: name}}``.\n:param masks_dir: una carpeta de máscaras indicada explícitamente.\n:param parent: el padre de Qt.",
+      "translation_source_blocks_sha256": [
+        "a8011a4a2d76912a18b47a7373b3127c35806b99499ef0582ac519e1e89832d1",
+        "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
+        "c676e8c5a6377668bd0a40f6184a6a9cc4e728c5cf994fd274d072a36b510530",
+        "03d9ff28d57d5453ff99df39aa4e590eba57d1831246b380b43a22730c5c816e",
+        "36dbf6c3c4c25be8f2680dc5d420957758f46935e4f07ee97f4b6e452e75713b"
+      ]
+    },
+    "spacr.qt.widgets.channel_sort_dialog.RegexWindow": {
+      "source_blocks_sha256": [
+        "795a733b8cbd01d897c01bfd1581905066538a0e7e2f158462e7456495f82969",
+        "f5b1a51ab1c9f25518654e89962f20c313b2f0c27899cc78ff9bcaa27af37641",
+        "107482455e6b6402654997e09ca5e54c0698839afc77df9c2f062308538db195",
+        "9231afb40f7ab7299acc6514eb246b633f0ad9cffda95150bd8e16846cd1ba83",
+        "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
+        "0f9aec885e9cd40d7f4a084b55aa87f03447eba70799cde091d63d2a6d709b1d",
+        "2b008a15ca6df83ec6832997cf999264afe449c717193b145508e370ef19ce18",
+        "548ed99ee975f3f085bce90e8830fb18bdac46769a62d1882427619e880e8f10",
+        "03d9ff28d57d5453ff99df39aa4e590eba57d1831246b380b43a22730c5c816e",
+        "36dbf6c3c4c25be8f2680dc5d420957758f46935e4f07ee97f4b6e452e75713b"
+      ],
+      "source_sha256": "a328d5ba2f6f6663f7cecff42c6fecbefdda856946e685dfdb72663b4f8af360",
+      "text": "Escribe, prueba, infiere o prescinde de la expresión regular que ordena las imágenes en conjuntos.\n\n:ivar regex: la expresión regular cuando la ventana se acepta con \"Use this regex\".\n:ivar detected: los conjuntos que encontró \"Detect sets\" y confirmó el usuario, o None.\nConstruye la ventana y ejecuta la prueba una vez.\n\n:param folder: la carpeta de imágenes.\n:param names: los nombres de imagen con los que probar.\n:param channels: ``{name: channel}`` de la selección.\n:param regex: la expresión regular de partida.\n:param masks_dir: una carpeta de máscaras indicada explícitamente.\n:param parent: el padre de Qt.",
+      "translation_source_blocks_sha256": [
+        "795a733b8cbd01d897c01bfd1581905066538a0e7e2f158462e7456495f82969",
+        "f5b1a51ab1c9f25518654e89962f20c313b2f0c27899cc78ff9bcaa27af37641",
+        "107482455e6b6402654997e09ca5e54c0698839afc77df9c2f062308538db195",
+        "9231afb40f7ab7299acc6514eb246b633f0ad9cffda95150bd8e16846cd1ba83",
+        "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
+        "0f9aec885e9cd40d7f4a084b55aa87f03447eba70799cde091d63d2a6d709b1d",
+        "2b008a15ca6df83ec6832997cf999264afe449c717193b145508e370ef19ce18",
+        "548ed99ee975f3f085bce90e8830fb18bdac46769a62d1882427619e880e8f10",
+        "03d9ff28d57d5453ff99df39aa4e590eba57d1831246b380b43a22730c5c816e",
+        "36dbf6c3c4c25be8f2680dc5d420957758f46935e4f07ee97f4b6e452e75713b"
+      ]
+    },
+    "spacr.qt.widgets.channel_sort_dialog.RegexWindow.auto_regex": {
+      "source_blocks_sha256": [
+        "4e2293e6dff9a897bb51f0ef1512d7dff623562dbbc56a80bf1c2eb3e403ca28",
+        "d19406193a833a7f5fb2384d12f2a6c8f6d04d93ec964a2b083ff324ef2ad896"
+      ],
+      "source_sha256": "8aea25dc6c9b06cc7d519c4e7d0a97c946af76266b6a91fad5786f8d34748140",
+      "text": "Propone una expresión regular, la pone en el campo y la prueba.\n\n:returns: la expresión regular, o None cuando no se encontró ninguna.",
+      "translation_source_blocks_sha256": [
+        "4e2293e6dff9a897bb51f0ef1512d7dff623562dbbc56a80bf1c2eb3e403ca28",
+        "d19406193a833a7f5fb2384d12f2a6c8f6d04d93ec964a2b083ff324ef2ad896"
+      ]
+    },
+    "spacr.qt.widgets.channel_sort_dialog.RegexWindow.detect": {
+      "source_blocks_sha256": [
+        "fa84d183b8ee0b474a291a2160e5e1f8b6cf630af1606fb18b6a06065e9c21fd",
+        "3be796ad37238353afe4825b02f6d7ae75227f1a48e41d70b6464beb44223585"
+      ],
+      "source_sha256": "5dcafa2e380dd72b0440fa44069d857fcc27477a8abe9987f9087358374146d5",
+      "text": "Empareja imágenes en conjuntos, muestra tres y los conserva si se confirman.\n\n:returns: los conjuntos cuando el usuario dijo que son correctos; si no, None.",
+      "translation_source_blocks_sha256": [
+        "fa84d183b8ee0b474a291a2160e5e1f8b6cf630af1606fb18b6a06065e9c21fd",
+        "3be796ad37238353afe4825b02f6d7ae75227f1a48e41d70b6464beb44223585"
+      ]
+    },
+    "spacr.qt.widgets.channel_sort_dialog.RegexWindow.run_test": {
+      "source_blocks_sha256": [
+        "a7acd577cbbe584a5fc6cabac27569d6f15413aa0154bcdec249e8ec75b3beb0",
+        "b676266db7f4d328ad22edd4d7b3c7ef63deef3a77ce407ae6b8384356001737"
+      ],
+      "source_sha256": "b2b7355afd4fded0838af8a6d4d4d5bdec8b17eff6f2eaae9954ce79b38bc9d5",
+      "text": "Analiza cada nombre con la expresión regular y rellena la tabla y el resumen.\n\n:returns: el informe de conjuntos.",
+      "translation_source_blocks_sha256": [
+        "a7acd577cbbe584a5fc6cabac27569d6f15413aa0154bcdec249e8ec75b3beb0",
+        "b676266db7f4d328ad22edd4d7b3c7ef63deef3a77ce407ae6b8384356001737"
       ]
     },
     "spacr.qt.widgets.class_editor": {
@@ -145808,6 +146812,20 @@
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ]
     },
+    "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.add_filter": {
+      "source_blocks_sha256": [
+        "b82dc728f624555ebc67f6b45c5a47ec2f5bf09b70407692bd7704c470b96681",
+        "c5265f16228c6399bae94f1c10102b8d4dfd3da5c0105e9d0d5a19535ae7ff9e",
+        "38cedd18b410dcb4ca0cbdbb991cfc0830cb4bbf20636c8506c98489f64d3970"
+      ],
+      "source_sha256": "c76ec6722ae5c1bdee79c10647518ed8f4ede6b7f3a1fd6e9a76bdda895b6458",
+      "text": "Añade una fila de filtro para la regionprop ``name``, con todas las celdas vacías.\n\n:param name: una regionprop escalar de scikit-image, p. ej., ``\"area\"`` o ``\"intensity_mean\"``; se aceptan las grafías antiguas.\n:returns: False cuando el nombre no es una propiedad filtrable o la fila ya existe.",
+      "translation_source_blocks_sha256": [
+        "b82dc728f624555ebc67f6b45c5a47ec2f5bf09b70407692bd7704c470b96681",
+        "c5265f16228c6399bae94f1c10102b8d4dfd3da5c0105e9d0d5a19535ae7ff9e",
+        "38cedd18b410dcb4ca0cbdbb991cfc0830cb4bbf20636c8506c98489f64d3970"
+      ]
+    },
     "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.add_organelle": {
       "source_blocks_sha256": [
         "e73b3ec7b587b8ecf5d3e7b101e3290f09af500053f09732d469381b2b716110",
@@ -145860,6 +146878,16 @@
         "eb21793f415e44009ceb21f57e56daef90115c0d70d49f4437a0f5201afbd74d",
         "ee650cea5ac6be3bd67e13874c1dbf92e654754674bdfe65cddc72b6942c42a3",
         "881e91cd02a622b4d06518684eb31b3d53867568d687f6aa89cb976af30dc53c"
+      ]
+    },
+    "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.filter_properties": {
+      "source_blocks_sha256": [
+        "f51c533c12699430380adf7a451ca233e890cd79c76e02de87ecb4c7c2b373b3"
+      ],
+      "source_sha256": "f51c533c12699430380adf7a451ca233e890cd79c76e02de87ecb4c7c2b373b3",
+      "text": "Las propiedades para las que la tabla tiene una fila de filtro, en orden.",
+      "translation_source_blocks_sha256": [
+        "f51c533c12699430380adf7a451ca233e890cd79c76e02de87ecb4c7c2b373b3"
       ]
     },
     "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.next_organelle": {
@@ -145918,6 +146946,18 @@
         "039f53c8c805314e080b86c1d22bf22ea27119fcb4987b7dba7627984b843cce"
       ]
     },
+    "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.set_filters": {
+      "source_blocks_sha256": [
+        "2ab7f9ad0082668696ca59253081e99fefaf2ec62c14a7f807f0b9b1daae96c6",
+        "2b394f47bfee2a64c3bbcf5b94029fb95b57905c409602353a6cb8d223fddbd1"
+      ],
+      "source_sha256": "41e4ca0385eadc7e6f6e01a1fdd6eb63265aae856ebc27a198c85f45e4c2e971",
+      "text": "Muestra ``object_filters`` tal como está ahora, p. ej., después de cargar un archivo.\n\n:param value: el valor del ajuste, una correspondencia o su texto.",
+      "translation_source_blocks_sha256": [
+        "2ab7f9ad0082668696ca59253081e99fefaf2ec62c14a7f807f0b9b1daae96c6",
+        "2b394f47bfee2a64c3bbcf5b94029fb95b57905c409602353a6cb8d223fddbd1"
+      ]
+    },
     "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.set_settings": {
       "source_blocks_sha256": [
         "bd7cb62b4d76bbd1beea8cdd9e946fe9d32a0bb8d1615c71d30799da71f3c5a8",
@@ -145964,12 +147004,14 @@
     },
     "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.settings": {
       "source_blocks_sha256": [
-        "fb744fbda77a6463af12ca147f2f392f9228e6ac5c603d59d960c477a1aa3ffa"
+        "fb744fbda77a6463af12ca147f2f392f9228e6ac5c603d59d960c477a1aa3ffa",
+        "fb2e34371e7e2e84b030934935782c6528aad45e4be896160595bea8efedf000"
       ],
-      "source_sha256": "fb744fbda77a6463af12ca147f2f392f9228e6ac5c603d59d960c477a1aa3ffa",
-      "text": "Toda la asignación de valores clave, con las respuestas de la tabla escritas de nuevo.",
+      "source_sha256": "b6df2afa1873b2faa3ed1bc33cd7e939ad1876b586b9ec13c8c93154a402a933",
+      "text": "Toda la asignación de valores clave, con las respuestas de la tabla escritas de nuevo.\n\nLas filas de filtro se vuelven a escribir en ``object_filters``: la lista de cada objeto mostrado se reconstruye a partir de sus celdas, en el orden de las filas, y un objeto que la tabla no muestra conserva la lista que tenía.",
       "translation_source_blocks_sha256": [
-        "1b22cb1be64f414276de8c1868992c870aef1dd4d85b3a91b9c4dfba87f5306d"
+        "1b22cb1be64f414276de8c1868992c870aef1dd4d85b3a91b9c4dfba87f5306d",
+        "fb2e34371e7e2e84b030934935782c6528aad45e4be896160595bea8efedf000"
       ]
     },
     "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.status_text": {
@@ -151564,7 +152606,7 @@
         "cecbe231434c8203dd00361d7a3f2c4ca4463b91fb026f5971e1e7ec148876a7"
       ],
       "source_sha256": "95e6b5a274616abb6944da3c8090549b85e33d1278af0557905fa0fe05dcb6af",
-      "text": "Un contrato para cada vista en vivo, escrito una vez.\n\nCuatro módulos envían una vista en vivo — Máscara (:mod:`~spacr.qt.widgets.live_preview`), Timelapse (:mod:`~spacr.qt.widgets.timelapse_preview`), Measure (:mod:`~spacr.qt.widgets.measure_preview`) y Motility (:mod:`~spacr.qt.widgets.motility_preview`) — y cada uno de ellos creció su propia respuesta al mismo puñado de preguntas. El inventario tomado antes de este módulo fue escrito, una columna por vista en directo:\n\n=================================================================  ==========================  ==============================  ================================================================  ==========================\npregunta                                                           Máscaras                    Serie temporal                  Medición                                                          Motilidad\n=================================================================  ==========================  ==============================  ================================================================  ==========================\nlo que dice el botón de ejecución                                  Ejecutar vista previa       Ejecutar vista previa           Actualizar las regiones de imágenes extraídas                     Ejecutar vista previa\npunto de entrada público                                           run_preview                 run_preview                     Actualizar                                                        run_preview\npuede el usuario cancelarlo                                        método únicamente           no.                             no.                                                               no.\n¿Dice por qué no puede                                             sí                          sí                              NO — silencio                                                     sí\nlo que \"busy\" lee como                                             \"Preview already running.\"  \"Preview already running.\"      n/a                                                               \"Preview already running.\"\nworker freed on ``finished``                                       sí                          no - deleteLater                n/a                                                               no - deleteLater\nanuncia su resultado                                               listo                       listo                           NO — Ninguno                                                      listo\nel trabajo se ejecuta fuera de la ruta principal de ejecución GUI  QThread                     QThread                         JobRunner                                                         QThread\nlo que cuesta un cambio de perilla                                 nada — ejecución explícita  un reenlace, máscaras en caché  extracción de regiones de imagen de nuevo, reemplazado por token  un rescore de la caché\ndonde va la foto                                                   lienzos de doble zoom       lienzos de doble zoom           cuadrícula de la región de imagen extraída                        Gráfico matplotlib\n=================================================================  ==========================  ==============================  ================================================================  ==========================\n\nLas tres últimas filas son diferencias de sustancia — una cuadrícula de región de imagen extraída no es un par de lienzos de zoom, y una vista previa que re-enlaces de una caché no se debe hacer para exigir una pulsación de botón por el bien de la simetría. Se quedan. Las filas por encima de ellos son los que no tenían razón para diferir, y cada uno de ellos es ahora una sola implementación.\n\nTres de esas filas eran errores en lugar de diferencias de gusto. Medida devuelta después de extraer regiones de imagen de nuevo sin una palabra cuando no se cargaba ningún array, por lo que el botón no hizo nada y no dijo nada. Timelapse y Motility cableado ``QThread.finished`` a ``worker.deleteLater`` y dejó su propia referencia en la ranura de resultados — el patrón :func:`spacr.qt.bridge.make_thread` documentos como una ejecución, y el que el panel de máscara ya se había fijado — que deja un running ``QThread`` propiedad de nadie cuando el usuario cierra la vista de la aplicación medio-pass. Y Measure nunca le dijo a nadie que su pase había aterrizado, así que ninguna vista de aplicación podía reaccionar a una región de imagen extraída vista previa de la forma en que reacciona a los otros tres.\n\n:class:`LivePreviewContract` es lo que ahora heredan los cuatro paneles. Posee el vocabulario (:data:`PREVIEW_RUN_TEXT` y las constantes de mensaje), el guardia de sesión de procesamiento, el token de cancelación y el estado del botón ocupado/inactivo, por lo que un cambio a cualquiera de ellos es un cambio en lugar de cuatro.\n\nLas palabras\n------------\nUna vista **live** es un panel que vuelve a renderizar la propia salida del módulo desde la configuración actual, en la entrada real, antes de una sesión de procesamiento. Es decir, Mask, Timelapse, Measure y Motility, y es lo que se abre la palanca **Live**. El explorador Image UMAP no es uno: hace un clic de incrustación ya computado, y ninguna configuración cambia lo que dibuja. Por lo tanto, su conmutador dice **Interactive**, no Live — la misma palabra había estado en ambos.\n\n**Cancel** y **Stop** son también dos palabras a propósito. Cancel de una vista en vivo arroja el pase: no se guarda nada producido, porque un campo segmentado medio no es un resultado. Stop de una búsqueda hiperparamétrica (:class:`spacr.qt.screens.hyperparam.HyperparamPanel`) termina la prueba en vuelo y mantiene cada prueba ya marcada, marcando el resultado parcial. La misma posición del botón, verbos deliberadamente diferentes, porque el usuario que presiona uno que espera al otro no pierde nada u horas.\n\nEl progreso del panel de búsqueda ya se ha informado de la forma en que este contrato quiere que una vista en vivo sea — ``on_trial`` se llama con ``idx + 1`` *después de* se ha anotado un ensayo, por lo que \"12 de 40 configuraciones evaluadas\" cuenta el trabajo realizado en lugar de comenzar el trabajo.\n\nCellpose\n--------\n:func:`preview_cellpose_model` es la otra mitad del compartir. ``model_type=`` es aceptado e IGNORADO por Cellpose 4, por lo que una vista previa que pasó silenciosamente segmentado con ``cpsam`` — incluyendo para un usuario que acababa de entrenar su propio punto de control en el módulo Train Cellpose de spaCR. Ese defecto se escribió dos veces, en dos archivos de vista previa, y se fijó dos veces. Un constructor aquí significa que el siguiente cambio Cellpose API es una solución.",
+      "text": "Un contrato para cada vista en vivo, escrito una vez.\n\nCuatro módulos envían una vista en vivo — Máscara (:mod:`~spacr.qt.widgets.live_preview`), Timelapse (:mod:`~spacr.qt.widgets.timelapse_preview`), Measure (:mod:`~spacr.qt.widgets.measure_preview`) y Motility (:mod:`~spacr.qt.widgets.motility_preview`) — y cada uno de ellos creció su propia respuesta al mismo puñado de preguntas. El inventario tomado antes de este módulo fue escrito, una columna por vista en directo:\n\n=================================================================  ==========================  ==============================  ================================================================  ==========================\npregunta                                                           Máscaras                    Serie temporal                  Medición                                                          Motilidad\n=================================================================  ==========================  ==============================  ================================================================  ==========================\nlo que dice el botón de ejecución                                  Ejecutar vista previa       Ejecutar vista previa           Actualizar las regiones de imágenes extraídas                     Ejecutar vista previa\npunto de entrada público                                           run_preview                 run_preview                     Actualizar                                                        run_preview\npuede el usuario cancelarlo                                        método únicamente           no                              no                                                                no\n¿Dice por qué no puede                                             sí                          sí                              NO — silencio                                                     sí\nlo que \"busy\" lee como                                             \"Preview already running.\"  \"Preview already running.\"      n/a                                                               \"Preview already running.\"\nworker freed on ``finished``                                       sí                          no - deleteLater                n/a                                                               no - deleteLater\nanuncia su resultado                                               listo                       listo                           NO — Ninguno                                                      listo\nel trabajo se ejecuta fuera de la ruta principal de ejecución GUI  QThread                     QThread                         JobRunner                                                         QThread\nlo que cuesta un cambio de perilla                                 nada — ejecución explícita  un reenlace, máscaras en caché  extracción de regiones de imagen de nuevo, reemplazado por token  un rescore de la caché\ndonde va la foto                                                   lienzos de doble zoom       lienzos de doble zoom           cuadrícula de la región de imagen extraída                        Gráfico matplotlib\n=================================================================  ==========================  ==============================  ================================================================  ==========================\n\nLas tres últimas filas son diferencias de sustancia — una cuadrícula de región de imagen extraída no es un par de lienzos de zoom, y una vista previa que re-enlaces de una caché no se debe hacer para exigir una pulsación de botón por el bien de la simetría. Se quedan. Las filas por encima de ellos son los que no tenían razón para diferir, y cada uno de ellos es ahora una sola implementación.\n\nTres de esas filas eran errores en lugar de diferencias de gusto. Medida devuelta después de extraer regiones de imagen de nuevo sin una palabra cuando no se cargaba ningún array, por lo que el botón no hizo nada y no dijo nada. Timelapse y Motility cableado ``QThread.finished`` a ``worker.deleteLater`` y dejó su propia referencia en la ranura de resultados — el patrón :func:`spacr.qt.bridge.make_thread` documentos como una ejecución, y el que el panel de máscara ya se había fijado — que deja un running ``QThread`` propiedad de nadie cuando el usuario cierra la vista de la aplicación medio-pass. Y Measure nunca le dijo a nadie que su pase había aterrizado, así que ninguna vista de aplicación podía reaccionar a una región de imagen extraída vista previa de la forma en que reacciona a los otros tres.\n\n:class:`LivePreviewContract` es lo que ahora heredan los cuatro paneles. Posee el vocabulario (:data:`PREVIEW_RUN_TEXT` y las constantes de mensaje), el guardia de sesión de procesamiento, el token de cancelación y el estado del botón ocupado/inactivo, por lo que un cambio a cualquiera de ellos es un cambio en lugar de cuatro.\n\nLas palabras\n------------\nUna vista **live** es un panel que vuelve a renderizar la propia salida del módulo desde la configuración actual, en la entrada real, antes de una sesión de procesamiento. Es decir, Mask, Timelapse, Measure y Motility, y es lo que se abre la palanca **Live**. El explorador Image UMAP no es uno: hace un clic de incrustación ya computado, y ninguna configuración cambia lo que dibuja. Por lo tanto, su conmutador dice **Interactive**, no Live — la misma palabra había estado en ambos.\n\n**Cancel** y **Stop** son también dos palabras a propósito. Cancel de una vista en vivo arroja el pase: no se guarda nada producido, porque un campo segmentado medio no es un resultado. Stop de una búsqueda hiperparamétrica (:class:`spacr.qt.screens.hyperparam.HyperparamPanel`) termina la prueba en vuelo y mantiene cada prueba ya marcada, marcando el resultado parcial. La misma posición del botón, verbos deliberadamente diferentes, porque el usuario que presiona uno que espera al otro no pierde nada u horas.\n\nEl progreso del panel de búsqueda ya se ha informado de la forma en que este contrato quiere que una vista en vivo sea — ``on_trial`` se llama con ``idx + 1`` *después de* se ha anotado un ensayo, por lo que \"12 de 40 configuraciones evaluadas\" cuenta el trabajo realizado en lugar de comenzar el trabajo.\n\nCellpose\n--------\n:func:`preview_cellpose_model` es la otra mitad del compartir. ``model_type=`` es aceptado e IGNORADO por Cellpose 4, por lo que una vista previa que pasó silenciosamente segmentado con ``cpsam`` — incluyendo para un usuario que acababa de entrenar su propio punto de control en el módulo Train Cellpose de spaCR. Ese defecto se escribió dos veces, en dos archivos de vista previa, y se fijó dos veces. Un constructor aquí significa que el siguiente cambio Cellpose API es una solución.",
       "translation_source_blocks_sha256": [
         "ce370466786a2821c3dff1793ddd326b3fac1f7f7dbf9b6ab54a3ba70946d6fa",
         "8d6953cd9b7271e7597bb0025700d57707dab2be9b2aaa30b5604625c317ccc2",
@@ -179542,10 +180584,10 @@
         "2b276d0c5c366d8a8d9bcdccd2e8ef753e06e72c51437ec42107f96dc840f9de",
         "558689d48d9f318f7533c5e47eae8aace51b69fa10f847160ae8e33fc633fa67",
         "2e41b118eb209c139f2bcbf690486f6e1509ab978aa96feb053877a70a1a5a09",
-        "18980982936878f37fd3725179f4368d6d7ccd10d75dbb31366fc71e30c34158"
+        "310ef96d74acab287944d13d7e99c17e93a8c87d2d0a4aea8f2d1e883224ab58"
       ],
-      "source_sha256": "5ec45f031cd7de5686d14decc85c9800dc2b8b510a8d0b4559a5e8784d431b79",
-      "text": "Un lector y un escritor para cada tabla spaCR abre o guarda.\n\nPor qué existe este módulo\n--------------------------\nUna auditoría a través de ``spacr/`` encontró 248 tabular lee y escribe -- ``pd.read_csv``, ``pd.read_sql*``, ``.to_csv``, ``.to_sql`` -- y **treinte** sitios de llamadas que normalizaron un nombre de columna en absoluto. No había embudo; había 248 puertas, y con qué ortografía de un nombre de datos estructurados terminó un marco dependía de la puerta por la que entró.\n\nEl fallo resultante tiene una forma consistente: ``columnID`` funcionó como filtro, porque *some* ruta renombrada río abajo en el camino al ajuste, mientras que el selector CSV leyó el encabezado en bruto y ofreció ``column_name`` y ``column`` -- los nombres un usuario no debe tener que saber.\n\nPor lo tanto: un lugar se normaliza, y cada lector pasa por él. Hacerlo en el embudo es el punto. El selector se vuelve correcto de forma gratuita, porque lee a través de la misma puerta y por lo tanto ve ``columnID``.\n\nQué garantías de lectura\n------------------------\nCada marco que sale :func:`read_table` / :func:`read_database` tiene\n\n* nombres de columna de metadatos canónicos (:func:`spacr.schema.canonical_column_name`, que pliega el caso *y* puntuación);\n* **una columna** por metadatos nombre de datos estructurados, con la colisión notificada -- impreso cuando los duplicados estuvieron de acuerdo, advertido con un recuento de filas cuando no lo hicieron (:func:`spacr.schema.resolve_metadata_collisions`);\n* la reparación del valor de microplaca de laboratorio ``pplate1`` aplicada a cada columna microplacas de laboratorio (:func:`spacr.schema.normalise_plate_columns`).\n\nEscribiendo\n-----------\n**Decided, no accidental: spaCR escribe nombres canónicos.** ``write_table`` y ``write_database`` canonicalise en la salida por defecto, por lo que un marco montado a mano no puede reexportar ``column_name`` e iniciar el ciclo de nuevo. El encabezado de un archivo exportado por lo tanto cambia para cualquier persona cuyo script aguas abajo lee ``column_name`` -- que es una nota de liberación, y es la mitad deliberada de esta compensación de compatibilidad. ``canonicalise=False`` está allí para un llamante que debe un formato externo un encabezado exacto.\n\nLos guardias que se mudaron aquí en lugar de quedarse atrás\n-----------------------------------------------------------\n* Una ruta ``~`` se expande, una sola vez, para cada lector -- incidencia de GitHub #108, en la que un ``src`` que empezaba por ``~`` se resolvía respecto al directorio de trabajo y se rechazaba con ``FileNotFoundError: ~<DB>``. ``$HOME`` y ``%USERPROFILE%`` también: un CSV de configuración que se lleva de una máquina a otra suele contener alguna.\n* **La migración del esquema de mediciones se ejecuta en open**, exactamente como lo hace ``io._read_db``, por lo que cualquier lector repara una base de datos heredada en lugar de solo la que recuerda.\n\nDependencias\n------------\n``pandas``, ``sqlite3`` y :mod:`spacr.schema`. Nada más en el alcance del módulo -- no ``spacr.utils``, no matplotlib, no torch. Eso es un requisito en lugar de la tidyness: el selector CSV y la lista de columnas SQL tienen que ser capaces de importar esto para obtener nombres canónicos, y no pueden pagar por una importación torch para hacerlo.",
+      "source_sha256": "7a0f1cc05347dbdc7d85dff39533a23f868e9af5c88a28b810d6b08c1ad6ad39",
+      "text": "Un lector y un escritor para cada tabla spaCR abre o guarda.\n\nPor qué existe este módulo\n--------------------------\nUna auditoría a través de ``spacr/`` encontró 248 tabular lee y escribe -- ``pd.read_csv``, ``pd.read_sql*``, ``.to_csv``, ``.to_sql`` -- y **treinte** sitios de llamadas que normalizaron un nombre de columna en absoluto. No había embudo; había 248 puertas, y con qué ortografía de un nombre de datos estructurados terminó un marco dependía de la puerta por la que entró.\n\nEl fallo resultante tiene una forma consistente: ``columnID`` funcionó como filtro, porque *some* ruta renombrada río abajo en el camino al ajuste, mientras que el selector CSV leyó el encabezado en bruto y ofreció ``column_name`` y ``column`` -- los nombres un usuario no debe tener que saber.\n\nPor lo tanto: un lugar se normaliza, y cada lector pasa por él. Hacerlo en el embudo es el punto. El selector se vuelve correcto de forma gratuita, porque lee a través de la misma puerta y por lo tanto ve ``columnID``.\n\nQué garantías de lectura\n------------------------\nCada marco que sale :func:`read_table` / :func:`read_database` tiene\n\n* nombres de columna de metadatos canónicos (:func:`spacr.schema.canonical_column_name`, que pliega el caso *y* puntuación);\n* **una columna** por metadatos nombre de datos estructurados, con la colisión notificada -- impreso cuando los duplicados estuvieron de acuerdo, advertido con un recuento de filas cuando no lo hicieron (:func:`spacr.schema.resolve_metadata_collisions`);\n* la reparación del valor de microplaca de laboratorio ``pplate1`` aplicada a cada columna microplacas de laboratorio (:func:`spacr.schema.normalise_plate_columns`).\n\nEscribiendo\n-----------\n**Decided, no accidental: spaCR escribe nombres canónicos.** ``write_table`` y ``write_database`` canonicalise en la salida por defecto, por lo que un marco montado a mano no puede reexportar ``column_name`` e iniciar el ciclo de nuevo. El encabezado de un archivo exportado por lo tanto cambia para cualquier persona cuyo script aguas abajo lee ``column_name`` -- que es una nota de liberación, y es la mitad deliberada de esta compensación de compatibilidad. ``canonicalise=False`` está allí para un llamante que debe un formato externo un encabezado exacto.\n\nLos guardias que se mudaron aquí en lugar de quedarse atrás\n-----------------------------------------------------------\n* Una ruta ``~`` se expande, una sola vez, para cada lector -- incidencia de GitHub #108, en la que un ``src`` que empezaba por ``~`` se resolvía respecto al directorio de trabajo y se rechazaba con ``FileNotFoundError: ~<DB>``. ``$HOME`` y ``%USERPROFILE%`` también: un CSV de configuración que se lleva de una máquina a otra suele contener alguna.\n* **La migración del esquema de mediciones se ejecuta en open**, exactamente como lo hace ``io._read_db``, por lo que cualquier lector repara una base de datos heredada en lugar de solo la que recuerda.\n\nDependencias\n------------\n``pandas``, ``sqlite3`` y :mod:`spacr.schema`. Los almacenes de mediciones alternativos importan ``duckdb`` o ``psycopg`` solo cuando se abre un almacén DuckDB, Parquet o PostgreSQL. Nada más en el ámbito del módulo -- ni ``spacr.utils``, ni matplotlib, ni torch. Es un requisito y no una cuestión de orden: el selector de CSV y la lista de columnas SQL tienen que poder importar esto para obtener los nombres canónicos, y no pueden pagar una importación de torch para ello.",
       "translation_source_blocks_sha256": [
         "f43b982974719119b39e3f9b0d5e81eed077078d650b8c1b3e36b7af8f7a5a4b",
         "99ad0b50c742d0f9eed8ff64acf9fe8ccdead8d25941e9827f7854cd48fdd110",
@@ -179563,7 +180605,7 @@
         "2b276d0c5c366d8a8d9bcdccd2e8ef753e06e72c51437ec42107f96dc840f9de",
         "558689d48d9f318f7533c5e47eae8aace51b69fa10f847160ae8e33fc633fa67",
         "2e41b118eb209c139f2bcbf690486f6e1509ab978aa96feb053877a70a1a5a09",
-        "18980982936878f37fd3725179f4368d6d7ccd10d75dbb31366fc71e30c34158"
+        "310ef96d74acab287944d13d7e99c17e93a8c87d2d0a4aea8f2d1e883224ab58"
       ]
     },
     "spacr.tabular.TabularFormatError": {
@@ -179579,24 +180621,25 @@
     "spacr.tabular.database_tables": {
       "source_blocks_sha256": [
         "b5d0fe421467e3f7b12b949224dac639154ac604eb0345d01bce2dae4433a434",
-        "79b2f4b446f7d4610e43572ed44497cfb6d8f3876db1a61edc8e6aa193f22050",
+        "370c2c69e8d397bbf0327cfd4e97db9061f5b666592f84afc854fdfda670f5be",
         "c5a5c82f297ecbea67c64d4aac77d95eb0d4b398758fb9124e21af6c73291385",
         "e97e6666a03954e30a3610b1ef94042886a5327afde79a208813f06acb500a6d"
       ],
-      "source_sha256": "e2de39098c2ae01a0a65e09c8e506442b27066b070e05c114f90dbf77600efa8",
-      "text": "Los nombres de la tabla en una base de datos, ordenados.\n\n:param db: ruta a la base de datos. ``~`` y ``$VARS`` se expanden.\n:param migrate: ejecutar la migración del esquema primero. ``False``, porque enumerar lo que hay no debe reescribirlo.\n:returns: los nombres de la mesa.",
+      "source_sha256": "405b9453ef353939e02c2731dd3aa86cb1ee047a6e2c9eab9f3f1b0c3b3cdef5",
+      "text": "Los nombres de la tabla en una base de datos, ordenados.\n\n:param db: ruta a la base de datos, o cualquier almacén que lea :func:`read_database`. ``~`` y ``$VARS`` se expanden.\n:param migrate: ejecutar la migración del esquema primero. ``False``, porque enumerar lo que hay no debe reescribirlo.\n:returns: los nombres de la mesa.",
       "translation_source_blocks_sha256": [
         "b5d0fe421467e3f7b12b949224dac639154ac604eb0345d01bce2dae4433a434",
-        "79b2f4b446f7d4610e43572ed44497cfb6d8f3876db1a61edc8e6aa193f22050",
+        "370c2c69e8d397bbf0327cfd4e97db9061f5b666592f84afc854fdfda670f5be",
         "c5a5c82f297ecbea67c64d4aac77d95eb0d4b398758fb9124e21af6c73291385",
         "e97e6666a03954e30a3610b1ef94042886a5327afde79a208813f06acb500a6d"
       ]
     },
     "spacr.tabular.read_database": {
       "source_blocks_sha256": [
-        "86758dec6682dca13331797d75ecc66789f9ace67701019f127b6cc4e3c9f044",
+        "eb907b4863e0f587e88670c516346a060305bf9311af586600eb08b80767eea7",
         "308f102fda1826f4793aeae3be6d181097195b27b3000d4ba9879dcac4208088",
-        "7319b5778f6d826cf31a7bd5a65223025a64e0214a1348cd4badf0d61501b9d9",
+        "1787c9c2bb11571bf276f2d53dbf652598ee2a72532a6f693b505dd5be46a5a3",
+        "35c9bc9bcd414fa2270f7982384da08e73c9675a7b5f6b23384d0767e769a825",
         "cef37a82e84c6f4fb6396502a4e1ec9a55f92455025aabbb918ddf9097eee657",
         "04407334e54b8504ac4d43d1ac611ca25e78ee1d93d0441969a786331c89f4ee",
         "5c2fffc8495d182ffd692f058925b5f0b13bf3cd7bc93b605ccbc5dfc8994555",
@@ -179610,12 +180653,13 @@
         "1d35f11113539651a428a0aa2703909677914739cc6b858b160c6da16dc327f8",
         "3071fac032a4db15c6042c6aa2cabe30723581466231104ddbcbeff8103520c8"
       ],
-      "source_sha256": "6f357005b1fae1b0bf232a1a70cb9ffb398040fd1813b12eb2ded837352d2716",
-      "text": "Lea una o más tablas de una base de datos SQLite.\n\nExpande ``~``, valida los identificadores antes de abrir la base de datos, ejecuta la migración del esquema cuando se solicita, y lee en bloques para limitar la memoria de pico. Una tabla faltante levanta :class:`ValueError` con su nombre.\n\n:param db: ruta a la base de datos.\n:param tables: un nombre de tabla, o una secuencia de ellos.\n:param canonicalise: aplicar el vocabulario a cada marco.\n:param report: ver :func:`read_table`.\n:param warn: ver :func:`read_table`.\n:param repair_plate_ids: colapso de un prefijo de placa doble ``pp``.\n:param migrate: ejecutar la migración del esquema en abierto.\n:param read_only: abrir a través de ``file:...?mode=ro``, por lo que la lectura no puede escribir en la base de datos del usuario. Incompatible con ``migrate``.\n:param limit: leer a lo sumo estas muchas filas por tabla. ``None`` lee todas ellas.\n:param chunksize: filas por bloque.\n:param kwargs: pasado a :func:`pandas.read_sql_query`.\n:returns: un marco por mesa solicitada, en el orden solicitado.\n:raises ValueError: cuando una tabla no está en la base de datos.",
+      "source_sha256": "5536d3d2ee118c7f1e6af4ada540e6e44c0540bba6fe11cf16c21bf6fb6bc6f2",
+      "text": "Lee una o varias tablas de una base de datos de mediciones.\n\nExpande ``~``, valida los identificadores antes de abrir la base de datos, ejecuta la migración del esquema cuando se solicita, y lee en bloques para limitar la memoria de pico. Una tabla faltante levanta :class:`ValueError` con su nombre.\n\nSQLite es el almacén por defecto. Un archivo ``.duckdb``, una carpeta ``.parquetdb`` de partes Parquet o una cadena de conexión ``postgresql://`` se leen del mismo modo, mediante duckdb o psycopg, importados solo entonces; la migración del esquema, ``read_only`` y ``kwargs`` se aplican solo a SQLite.\n\n:param db: ruta a la base de datos, o una cadena de conexión de PostgreSQL.\n:param tables: un nombre de tabla, o una secuencia de ellos.\n:param canonicalise: aplicar el vocabulario a cada marco.\n:param report: ver :func:`read_table`.\n:param warn: ver :func:`read_table`.\n:param repair_plate_ids: colapso de un prefijo de placa doble ``pp``.\n:param migrate: ejecutar la migración del esquema en abierto.\n:param read_only: abrir a través de ``file:...?mode=ro``, por lo que la lectura no puede escribir en la base de datos del usuario. Incompatible con ``migrate``.\n:param limit: leer a lo sumo estas muchas filas por tabla. ``None`` lee todas ellas.\n:param chunksize: filas por bloque.\n:param kwargs: pasado a :func:`pandas.read_sql_query`.\n:returns: un marco por mesa solicitada, en el orden solicitado.\n:raises ValueError: cuando una tabla no está en la base de datos.",
       "translation_source_blocks_sha256": [
-        "86758dec6682dca13331797d75ecc66789f9ace67701019f127b6cc4e3c9f044",
+        "eb907b4863e0f587e88670c516346a060305bf9311af586600eb08b80767eea7",
         "308f102fda1826f4793aeae3be6d181097195b27b3000d4ba9879dcac4208088",
-        "7319b5778f6d826cf31a7bd5a65223025a64e0214a1348cd4badf0d61501b9d9",
+        "1787c9c2bb11571bf276f2d53dbf652598ee2a72532a6f693b505dd5be46a5a3",
+        "35c9bc9bcd414fa2270f7982384da08e73c9675a7b5f6b23384d0767e769a825",
         "cef37a82e84c6f4fb6396502a4e1ec9a55f92455025aabbb918ddf9097eee657",
         "04407334e54b8504ac4d43d1ac611ca25e78ee1d93d0441969a786331c89f4ee",
         "5c2fffc8495d182ffd692f058925b5f0b13bf3cd7bc93b605ccbc5dfc8994555",
@@ -179633,7 +180677,7 @@
     "spacr.tabular.read_table": {
       "source_blocks_sha256": [
         "7da6ec2bf0364f9b13444c9eb8713ae43691da3d7b13a54aaef2decebb6517a8",
-        "ca5b3f181df1a3bec9789597fa47baf5eaf4413a546871dc50034d2a28a9cead",
+        "7b8a5a108ef08e81c6ea4037d836c9638cfaa6eb667f3beb3b38a4b888cb9194",
         "d3628131341f819c95e27b6b1716fc91d00e91d5013b2aa36872a9b31f8870dc",
         "81918d2eda50486ab20c71eb56908307672266bd3b77e833dd9a0d469ad69143",
         "f0ad79e43ee9794c2ad7268f998bc06f8ffd43382e239df846cb871c049f7a3a",
@@ -179643,11 +180687,11 @@
         "363c2d1f6aa42181692a14da418f154184f3e0532c486644f9c322d537146ae1",
         "826f82993ba50bc9424886992fb8b880b4b2bf4c1733d930b3722ccd03b2f156"
       ],
-      "source_sha256": "67ac68baf1b7855ed9e6b277adbee700c0777c4dc651fc31f1aa0e37c76d4096",
-      "text": "Lea una tabla, lo que sea que se almacena en, con nombres de columnas canónicas.\n\nCSV, TSV, SQLite, Parquet, Pluma y Excel, elegidos por sufijo. Una ruta SQLite necesita ``table``; cualquier otro formato lo ignora.\n\n:param source: ruta al archivo. ``~`` y ``$VARS`` se expanden. Una dirección en la nube (``s3://``, ``gs://``, ``az://``, ``https://``) se lee de una copia local en caché.\n:param table: el nombre de la tabla, para una base de datos.\n:param canonicalise: aplicar el vocabulario. **No hay razón para desactivar esto en la ruta ordinaria** -- es lo que hace que el selector y la ejecución estén de acuerdo sobre lo que se llama una columna. Off es para un llamante que inspecciona un archivo exactamente como está escrito.\n:param report: llamada con cada mensaje de concordancia-colisión; ``print`` por defecto, ``None`` a silencio.\n:param warn: se llama con cada mensaje de desacuerdo-colisión; ``None`` rutas a :func:`warnings.warn`.\n:param repair_plate_ids: colapso de un prefijo de placa doble ``pp``.\n:param kwargs: pasado al lector subyacente pandas.\n:returns: a :class:`pandas.DataFrame`.",
+      "source_sha256": "e26135acfda3cbc4ff143db83321be11fc30809761d4ba5fef605cea1e5e2a8a",
+      "text": "Lea una tabla, lo que sea que se almacena en, con nombres de columnas canónicas.\n\nCSV, TSV, SQLite, Parquet, Feather y Excel, elegidos por la extensión. Una base de datos -- SQLite, un archivo ``.duckdb``, un almacén ``.parquetdb`` o una cadena ``postgresql://`` -- necesita ``table``; los demás formatos lo ignoran.\n\n:param source: ruta al archivo. ``~`` y ``$VARS`` se expanden. Una dirección en la nube (``s3://``, ``gs://``, ``az://``, ``https://``) se lee de una copia local en caché.\n:param table: el nombre de la tabla, para una base de datos.\n:param canonicalise: aplicar el vocabulario. **No hay razón para desactivar esto en la ruta ordinaria** -- es lo que hace que el selector y la ejecución estén de acuerdo sobre lo que se llama una columna. Off es para un llamante que inspecciona un archivo exactamente como está escrito.\n:param report: llamada con cada mensaje de concordancia-colisión; ``print`` por defecto, ``None`` a silencio.\n:param warn: se llama con cada mensaje de desacuerdo-colisión; ``None`` rutas a :func:`warnings.warn`.\n:param repair_plate_ids: colapso de un prefijo de placa doble ``pp``.\n:param kwargs: pasado al lector subyacente pandas.\n:returns: a :class:`pandas.DataFrame`.",
       "translation_source_blocks_sha256": [
         "7da6ec2bf0364f9b13444c9eb8713ae43691da3d7b13a54aaef2decebb6517a8",
-        "ca5b3f181df1a3bec9789597fa47baf5eaf4413a546871dc50034d2a28a9cead",
+        "7b8a5a108ef08e81c6ea4037d836c9638cfaa6eb667f3beb3b38a4b888cb9194",
         "d3628131341f819c95e27b6b1716fc91d00e91d5013b2aa36872a9b31f8870dc",
         "81918d2eda50486ab20c71eb56908307672266bd3b77e833dd9a0d469ad69143",
         "f0ad79e43ee9794c2ad7268f998bc06f8ffd43382e239df846cb871c049f7a3a",
@@ -179714,9 +180758,10 @@
     },
     "spacr.tabular.write_database": {
       "source_blocks_sha256": [
-        "88dca51dcf4f3b46f99de8ab83f91265abbce5951da01f1ae71b4fb64fdbdbb8",
+        "8bc9607578d8c0e61f0df9e5a85e8124b72e9ecc5bd5766fb1d1c05dd70298fe",
+        "ca159092c99aa585d9402b7033d5d70bce5f8d1da2520632f79f3c0a84dedac5",
         "168d9a425776b11c397957bbfcf3fb11b5508e0e315ed1c9cfb5f4fc3e2e993a",
-        "ad9c79f5506ed88dc6f959900bf1720b59e16424a2813f678ab05b6b9e3d190f",
+        "712d7de416953159084c363aa825659c0be1df1457ae8108beb63ebd46a300f9",
         "59b9b256c731da5934e2ed6dc6903ddc3170791a17c15c3026e9555b1f7ee1a4",
         "182418cb9ac1cbd7cf14bde3df48109e752a189d41eb8f429d17decaa4b6fa74",
         "8ff4f2a6c37e2e3d0fff228271a0a977e1f9afd4e94c947d61cc84cbb152bb8f",
@@ -179725,12 +180770,13 @@
         "45f16bb3f3f76c27839b1ef97c92058764daa8828ce4b6ea7cf88afaa1692067",
         "9619bbcabca18c2f3e4dd41b569694f242ce1954a5e5f6af5da92c200127e196"
       ],
-      "source_sha256": "4f76d2c6da871b3a103dbd0f0e0861bbe953aa89b508d7bef0f984faa0dbf9e5",
-      "text": "Escriba un marco en una tabla SQLite, con nombres de columnas canónicas.\n\n:param frame: el marco.\n:param db: ruta a la base de datos; creada si no existe, ``~`` expandida.\n:param table: el nombre de la mesa.\n:param if_exists: ``'append'`` (spaCR usual), ``'replace'``, ``'fail'``.\n:param canonicalise: renombrar ortografías heredadas al salir. Por defecto, un marco montado a mano no puede volver a poner ``column_name`` en una base de datos que el lector tendrá que reparar.\n:param index: escribir el índice. ``False``.\n:param migrate: ejecutar la migración del esquema primero. ``False``: escribir una tabla de rascar no debe migrar las mediciones del usuario.\n:param kwargs: pasado a :meth:`pandas.DataFrame.to_sql`.\n:returns: la ruta de la base de datos resuelta.",
+      "source_sha256": "510209f9e7708d5d83195d3583cd5733a87c2fe31776e5feb6a5f862906d7938",
+      "text": "Escribe un data frame en una tabla de base de datos, con nombres de columna canónicos.\n\nSQLite por defecto; una ruta ``.duckdb``, una ruta ``.parquetdb`` o una cadena ``postgresql://`` escribe en ese almacén en su lugar, donde ``append`` también añade las columnas que le faltan a la tabla y ``migrate`` y ``kwargs`` se ignoran.\n\n:param frame: el marco.\n:param db: ruta a la base de datos, o una cadena de conexión de PostgreSQL; se crea si no existe, ``~`` se expande.\n:param table: el nombre de la mesa.\n:param if_exists: ``'append'`` (spaCR usual), ``'replace'``, ``'fail'``.\n:param canonicalise: renombrar ortografías heredadas al salir. Por defecto, un marco montado a mano no puede volver a poner ``column_name`` en una base de datos que el lector tendrá que reparar.\n:param index: escribir el índice. ``False``.\n:param migrate: ejecutar la migración del esquema primero. ``False``: escribir una tabla de rascar no debe migrar las mediciones del usuario.\n:param kwargs: pasado a :meth:`pandas.DataFrame.to_sql`.\n:returns: la ruta de la base de datos resuelta.",
       "translation_source_blocks_sha256": [
-        "88dca51dcf4f3b46f99de8ab83f91265abbce5951da01f1ae71b4fb64fdbdbb8",
+        "8bc9607578d8c0e61f0df9e5a85e8124b72e9ecc5bd5766fb1d1c05dd70298fe",
+        "ca159092c99aa585d9402b7033d5d70bce5f8d1da2520632f79f3c0a84dedac5",
         "168d9a425776b11c397957bbfcf3fb11b5508e0e315ed1c9cfb5f4fc3e2e993a",
-        "ad9c79f5506ed88dc6f959900bf1720b59e16424a2813f678ab05b6b9e3d190f",
+        "712d7de416953159084c363aa825659c0be1df1457ae8108beb63ebd46a300f9",
         "59b9b256c731da5934e2ed6dc6903ddc3170791a17c15c3026e9555b1f7ee1a4",
         "182418cb9ac1cbd7cf14bde3df48109e752a189d41eb8f429d17decaa4b6fa74",
         "8ff4f2a6c37e2e3d0fff228271a0a977e1f9afd4e94c947d61cc84cbb152bb8f",
