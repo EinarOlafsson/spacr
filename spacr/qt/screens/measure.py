@@ -99,7 +99,7 @@ FOLD_FALLBACK = {
 #: PAGES, and a page is already marked with its module's icon on its tab --
 #: see :func:`spacr.qt.screens.map_barcodes.show_as_page`.
 FOLD_CATEGORIES: Dict[str, Tuple[str, ...]] = {
-    "illumination": ("Illumination Correction α",),
+    "illumination": ("Illumination Correction",),
 }
 
 

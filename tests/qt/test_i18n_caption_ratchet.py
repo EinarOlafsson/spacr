@@ -356,6 +356,16 @@ COMPACT_CAPTION_SHA256 = (
 # extracted captions. Exact diff and review scope are recorded in
 # features/data/316_runtime_inventory_delta_2026-09-27.json.
 # AI technical review (Codex), no native-speaker signoff.
+# 316, 2026-09-28: +19/-0 identities (559: four labels and four tooltips;
+# 558: eight UI captions; 556: three SAM2 UI captions). All nine locales
+# have source-bound AI technical review, no native-speaker signoff.
+# Every existing translation is preserved; exact additions and prior
+# fingerprint: features/data/316_runtime_alpha_delta_2026-09-28.json.
+# 316, 2026-09-28: +14/-0 identities (564/576: five labels, five tooltips;
+# one category help and three UI captions). All nine locales
+# have source-bound AI technical review, no native-speaker signoff.
+# Every existing translation is preserved; exact additions and prior
+# fingerprint: features/data/316_runtime_counterfactual_databases_delta_2026-09-28.json.
 EXTERNAL_SOURCE_COUNTS = {
     # 2026-09-15, the old OPS engine deleted (372): -116 / +0 by SET
     # DIFFERENCE of the identities against the tree before the deletion,
@@ -366,15 +376,15 @@ EXTERNAL_SOURCE_COUNTS = {
     # to the fingerprint below.
     # `recursive` keeps its row: its English now comes from
     # spacr.external_masks, which reads it, so its identity is unchanged.
-    "SETTING_LABELS": 1194,
-    "SETTING_TOOLTIPS": 1216,
+    "SETTING_LABELS": 1203,
+    "SETTING_TOOLTIPS": 1225,
     # 192 -> 201 on 2026-09-08, +9/-0: the nine OPS section headings that
     # fold onto Align & Stitch. Each needed a curated CATEGORY_TOOLTIPS
     # entry or its panel drew the generic fallback -- a heading whose
     # tooltip says nothing about the settings under it, which costs the
     # reader the hover and tells them nothing. 201 -> 200 on 2026-09-11
     # with `save_to_db`, whose help text was one of them.
-    "CATEGORY_HELP": 230,
+    "CATEGORY_HELP": 231,
     # 2,988 -> 3,291 on 2026-09-14, and reviewed record by record against
     # 49c1189f7, where every count in this dict still reproduces exactly.
     # +304 / -1, NOT a flat +303: the four other tables did not move at all,
@@ -480,7 +490,7 @@ EXTERNAL_SOURCE_COUNTS = {
     # plus the product names DINOCell/SAMCell arrive; five old tooltips leave.
     # Every new prose row has a reviewed record in each of the nine locales.
     # The runtime pass preserved every pre-existing translated value.
-    "UI": 6035,
+    "UI": 6049,
     "MODULE_SUMMARIES": 72,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
@@ -592,7 +602,7 @@ EXTERNAL_SOURCE_KEY_SHA256 = (
     # EXTERNAL_SOURCE_COUNTS give this current source digest.
     # 47: one reviewed UI arrival, "Checking compatible GPUs…", no removals.
     # Exact subtraction reproduces the preceding 5a560d33...ef0091b pin.
-    'fe5315235280c69d30649341cfb60caa3793a4ae282cda6acc4b4bb0768a9178'
+    'dd0cf27603efe193d0102d0e63f734d27fe464a66a2a9478617dac212891b9b3'
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the
@@ -1167,6 +1177,9 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 574, 2026-09-27: the Report screen's Archive package button and form.
 # 579, 2026-09-27: the Report screen's Deposit on Zenodo button and form.
 # 316, 2026-09-27: all 76 resolved through their explicit owners.
+# 593, 2026-09-28: Make Masks' Consolidate folders and Sort into channels
+# buttons, their prompts and console lines, and the channel-sort dialog,
+# regex window and example-sets check (spacr/qt/widgets/channel_sort_dialog.py).
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     # 592, 2026-09-28: the per-object table's Add a filter tooltip and Mask
     # generation's merged Quality Control help.
@@ -1188,16 +1201,79 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "explicit Gaussian. Richardson-Lucy deconvolution sharpens and can "
     "amplify noise. Raw images and measurement intensities remain "
     "unchanged.",
-    # 558, 2026-09-27: the Cellpose workbench's Virtual staining button
-    # (alpha).
-    'Virtual staining…',
-    'Choose a folder of paired multichannel fields (.npy or .tif) and the channels to learn from and to predict, for example 1 > 0 to predict the nucleus stain from channel 1. A small U-Net is trained on the CPU, the last quarter of the fields is held out, and the real and predicted stains are segmented the same way and matched at IoU 0.5. The model, predictions and a score table are written to <folder>/virtual_stain. Default 20 epochs.',
-    'Choose a folder of paired multichannel fields',
-    'Virtual staining',
-    'Input channels > channel to predict:',
-    'Training the virtual stain…',
-    'Virtual stain on {fields} held-out fields: F1 {f1:.2f} at IoU 0.5 against the real stain\'s objects (input channel alone {base:.2f}), Pearson r {r:.2f}.',
-    'Virtual staining failed: {error}',
+    # 595: Measure's QC popup and its regrouped category blurbs.
+    'Choose the plate folder in src to read the segmentation QC its mask run wrote.',
+    'Click to open the segmentation QC the mask run wrote for this plate: the verdict, the wells it flags and the likely cause. It is advisory and never stops Measure from running.',
+    'Read the plate straight from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Leave it alone for a plate on local disk.',
+    'The folder holding the masked images, the experiment name the measurements are filed under, and the small test run and plots used to check a configuration before committing to a whole plate.',
+    'What happens around and after the measurement: how the run recovers from failures and how many workers it uses, profiling of the finished tables, and copying them to a database backend.',
+    'What is done to the pixels of each field before a single feature is measured -- bleach, spectral and illumination correction, deconvolution with a point spread function and cross-plate intensity calibration -- and which barcode links each plate to its plate map. The masks are not changed.',
+    'Which families of measurement are computed for every object -- intensity, morphology, texture, radial distribution and colocalisation -- and the assays read from them, such as confluency, cell cycle, wound closure, viability and time to event. More features means a wider table and a longer run.',
+    # Incoming 557/561 captions remain pending source-bound review.
+    # 593: consolidate folders and sort into channels.
+    'A folder job is still running.',
+    "A regex with named groups sorts every image into a channel and a set (one field across all channels). chanID is the channel; plateID, wellID, fieldID and timeID say where a set goes; any other named group only tells sets apart. Images assigned to a channel by selection keep that channel.\nExamples:\nspaCR's Yokogawa default: {cellvoyager}\nwell, field and channel: {typical}\nnames made by Consolidate folders: {consolidated}",
+    'Add channel',
+    'Are these sets right?',
+    'Assign the selected images to channel {n}.',
+    "Assign this folder's images to channels, by selection or by a regex, then move them with their masks into one folder per channel, rename them in Yokogawa format and merge them into merged/ for Measure.",
+    'Auto regex',
+    'Busy',
+    'Cannot sort',
+    'Change the regex?',
+    'Channel {channel}: {name}',
+    'Channel {n} masks are',
+    'Clear channel',
+    'Consolidate folders?',
+    'Consolidate folders…',
+    'Consolidating {folder} into {output}…',
+    'Consolidation failed',
+    'Copied {n} image(s) into {output}; the mapping is in {manifest}.',
+    'Detect sets',
+    'Detect sets needs at least two channels: assign images to channels first, by selection or with a chanID group.',
+    'Edit regex…',
+    'File',
+    'Find a regex that puts every image in exactly one complete set: the token that changes with the channel, and the tokens that name the field.',
+    'Groups',
+    "Ignore the names' structure: pair each image with the most similar image of the same size in every other channel, then show three sets to check.",
+    'Move and merge?',
+    'Moved {moved} file(s); {stacks} stack(s) and {merged} merged array(s) written under {dest}. Every move is in {manifest}.',
+    'No',
+    'No folder',
+    'No images were found in subfolders of {folder}.',
+    'Nothing to consolidate',
+    'Open one folder of images to sort into channels.',
+    'Pick a folder whose images sit in subfolders, and copy them all into one new folder, each named after the folders it was in. The originals are not touched.',
+    'Pick the folder to consolidate',
+    'Regex for channels and sets',
+    'Regex with named groups',
+    'Select all',
+    'Select images and assign them to a channel, or let a regex assign every image. On Apply the images and their masks are MOVED into one folder per channel under {dest}, renamed in Yokogawa format, and merged into merged/. Every move is written to a manifest.',
+    'Set',
+    'Sort into channels',
+    'Sort into channels…',
+    'Sorting failed',
+    'Sorting {n} image(s) into channels under {dest}…',
+    'Take the selected images out of their channel, so the regex decides theirs.',
+    'The names cannot be turned into Yokogawa names with the current regex: not every image maps to a unique set of plate, well and field plus a channel.\n\n{why}\n\nChange the regex?',
+    'The regex is not valid: {error}',
+    'Use this regex',
+    'Yes, these are right',
+    'mask',
+    'no',
+    'no mask',
+    'not merged',
+    'spaCR found no regex that puts every image in exactly one complete set. Assign channels by selection and try again, or use Detect sets.',
+    'spaCR paired each image with the most similar image of the same size in every other channel. Here are three of the {n} sets it found, each channel with its mask in red. Are they right?',
+    '{error}\nEvery move made before the failure is listed in the manifest.',
+    '{folder} has {n} image(s) in {m} subfolder(s). Copy them into one new folder, each named after the folders it was in (for example exp_nucleus_2.tif)? The originals are not touched. No opens the folder as it is.',
+    '{name}\n{mask} · channel {channel}',
+    '{n} file(s) could not be copied; see the manifest.',
+    '{n} set(s) detected by pairing.',
+    '{n} set(s) detected.',
+    '…and {n} more',
+    'Convert RGB images and z-stacks?',
+    '{n} image(s) are not a single grey plane:\n{names}\n\nConvert them? RGB images become grey (the mean of their colours) and z-stacks become their maximum projection. The originals are kept in originals/ of the sorted folder.',
 })
 
 

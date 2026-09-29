@@ -297,8 +297,9 @@ def _encoded_channels(available: int, spec: EmbeddingSpec) -> Tuple[int, ...]:
             raise EmbeddingError(
                 f"channel {channel} is not in the crops, which have "
                 f"{available}")
-    adaptive = (spec.backbone in _FOUNDATION_MODELS
-                and _FOUNDATION_MODELS[spec.backbone]["in_channels"] is None)
+    adaptive = spec.backbone.startswith(_DINO_PREFIX) or (
+        spec.backbone in _FOUNDATION_MODELS
+        and _FOUNDATION_MODELS[spec.backbone]["in_channels"] is None)
     if (spec.channel_policy == CHANNEL_PROJECT and len(channels) > 3
             and not adaptive):
         raise EmbeddingError(
@@ -620,7 +621,10 @@ def _foundation_names() -> Tuple[str, ...]:
 
 
 def _backbone_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
-    """The encoder ``spec.backbone`` names: a foundation model or a timm one."""
+    """The encoder ``spec.backbone`` names: a DINO checkpoint, a foundation
+    model or a timm backbone."""
+    if spec.backbone.startswith(_DINO_PREFIX):
+        return _dino_encoder(spec)
     if spec.backbone in _FOUNDATION_MODELS:
         return _foundation_encoder(spec)
     return _timm_encoder(spec)
@@ -844,6 +848,368 @@ def _retrieval_scorecard(features: Any, labels: Mapping[Any, Any],
         "n": float(len(pairs)),
         "classes": float(len(freq)),
     }
+
+
+_DINO_PREFIX = "dino:"
+
+
+def _dino_planes(crops: Any, channel_policy: str,
+                 channels: Optional[Sequence[int]] = None
+                 ) -> Tuple[np.ndarray, Tuple[float, ...]]:
+    """The training images DINO sees, laid out as :func:`embed_array` feeds them.
+
+    Each encoded channel is divided by the plate's fixed scale and clipped to
+    [0, 1]. Under the per-channel policy every channel of every crop is its
+    own one-plane image, so the backbone learns one stain at a time, as it is
+    later used; under the projection policy each crop is one image with all
+    its encoded channels.
+
+    :returns: ``(images, scale)``: ``(m, k, h, w)`` float32 and the scale
+        per encoded channel.
+    """
+    spec = EmbeddingSpec(backbone=_DINO_PREFIX, channel_policy=channel_policy,
+                         channels=None if channels is None else tuple(channels))
+    array, chosen = _prepare(crops, spec)
+    scale = _estimate_channel_scale(array, chosen)
+    planes = [_scaled(array[..., c], s) for c, s in zip(chosen, scale)]
+    if channel_policy == CHANNEL_PROJECT:
+        images = np.stack(planes, axis=1)
+    else:
+        images = np.concatenate([p[:, None] for p in planes], axis=0)
+    return np.ascontiguousarray(images, dtype=np.float32), tuple(scale)
+
+
+def _dino_views(batch: Any, size: int, scale: Tuple[float, float],
+                generator: Any, torch: Any) -> Any:
+    """One randomly augmented view of every image in ``batch``.
+
+    A random crop covering ``scale`` of the image's area, turned by a random
+    angle (cells have no up), mirrored half the time, resampled to ``size``
+    pixels, then given a random gain and offset per channel and a little
+    noise. Done with an affine grid so it runs batched on the training device.
+
+    :param batch: ``(b, k, h, w)`` tensor in [0, 1].
+    :returns: ``(b, k, size, size)`` tensor in [0, 1].
+    """
+    b, k = batch.shape[:2]
+    dev = batch.device
+
+    def uniform(low, high, *shape):
+        """Uniform draws from the run's generator, on the batch's device."""
+        return (torch.rand(*shape, generator=generator) * (high - low)
+                + low).to(dev)
+
+    side = torch.sqrt(uniform(scale[0], scale[1], b))
+    angle = uniform(0.0, 2 * np.pi, b)
+    flip = (torch.rand(b, generator=generator) < 0.5).float().to(dev) * 2 - 1
+    shift = (1 - side)[:, None] * uniform(-1.0, 1.0, b, 2)
+    cos, sin = torch.cos(angle) * side, torch.sin(angle) * side
+    theta = torch.stack([
+        torch.stack([cos * flip, -sin, shift[:, 0]], dim=1),
+        torch.stack([sin * flip, cos, shift[:, 1]], dim=1)], dim=1)
+    grid = torch.nn.functional.affine_grid(theta, (b, k, size, size),
+                                           align_corners=False)
+    view = torch.nn.functional.grid_sample(batch, grid, mode="bilinear",
+                                           padding_mode="zeros",
+                                           align_corners=False)
+    gain = uniform(0.6, 1.4, b, k, 1, 1)
+    offset = uniform(-0.1, 0.1, b, k, 1, 1)
+    noise = torch.randn(view.shape, generator=generator).to(dev) * 0.02
+    return (view * gain + offset + noise).clamp(0.0, 1.0)
+
+
+def _dino_network(arch: str, in_chans: int, size: int, pretrained: bool,
+                  out_dim: int, torch: Any):
+    """A timm backbone and the DINO projection head that sits on it.
+
+    The head is a three-layer MLP to a 128-dimensional bottleneck, L2
+    normalised, then a weight-normalised linear layer onto ``out_dim``
+    prototypes, as in DINO.
+
+    :returns: ``(backbone, head)`` modules.
+    """
+    try:
+        import timm
+    except ImportError as exc:
+        raise EmbeddingError(
+            "DINO pretraining needs torch and timm; install the "
+            "`spacr[embeddings]` extra") from exc
+    nn = torch.nn
+    kwargs: Dict[str, Any] = {"pretrained": pretrained, "num_classes": 0,
+                              "in_chans": in_chans}
+    if arch.startswith(("vit", "deit")):
+        kwargs.update(img_size=size, dynamic_img_size=True)
+    backbone = timm.create_model(arch, **kwargs)
+    dim = backbone.num_features
+
+    class Head(nn.Module):
+        """MLP, L2 normalisation, then cosine scores against prototypes."""
+
+        def __init__(self):
+            """Build the MLP and the prototype layer."""
+            super().__init__()
+            self.mlp = nn.Sequential(nn.Linear(dim, 512), nn.GELU(),
+                                     nn.Linear(512, 512), nn.GELU(),
+                                     nn.Linear(512, 128))
+            self.prototypes = nn.Parameter(torch.randn(out_dim, 128) * 0.02)
+
+        def forward(self, x):
+            """``(n, dim)`` features to ``(n, out_dim)`` prototype scores."""
+            z = nn.functional.normalize(self.mlp(x), dim=-1)
+            return z @ nn.functional.normalize(self.prototypes, dim=-1).T
+
+    return backbone, Head()
+
+
+def _dino_pretrain(crops: Any, path: str, *, arch: str = "resnet18",
+                   channel_policy: str = CHANNEL_PER_CHANNEL,
+                   channels: Optional[Sequence[int]] = None, size: int = 64,
+                   epochs: int = 10, batch_size: int = 64,
+                   lr: float = 5e-4, out_dim: int = 1024, n_local: int = 4,
+                   momentum: float = 0.996, teacher_temp: float = 0.04,
+                   student_temp: float = 0.1, pretrained: bool = False,
+                   device: Optional[str] = None, seed: int = 0,
+                   progress: Optional[Callable[[int, int, float], None]] = None
+                   ) -> Dict[str, Any]:
+    """Pretrain a backbone on unlabelled crops by self-distillation (DINO).
+
+    A student network learns to match, from small local views and large
+    global views of a crop, what a teacher -- its own slowly moving average
+    -- outputs on the global views. The teacher's outputs are centred and
+    sharpened so the two cannot agree by collapsing to one answer. No labels
+    are used. The teacher's backbone is what is kept: pass
+    ``"dino:" + path`` as :attr:`EmbeddingSpec.backbone` to embed with it.
+
+    Training is resumable: the checkpoint at ``path`` is rewritten after
+    every epoch, and a later call with the same ``path`` continues from the
+    last finished epoch up to ``epochs`` (a finished run returns at once).
+    A checkpoint made with another architecture, input width, crop size or
+    channel policy is refused rather than overwritten.
+
+    :param crops: ``(n, height, width, channels)``, channels last.
+    :param path: the checkpoint file to write, and to resume from.
+    :param arch: a timm architecture, e.g. ``resnet18`` or
+        ``vit_tiny_patch16_224``.
+    :param channel_policy: :data:`CHANNEL_PER_CHANNEL` trains on one stain
+        at a time; :data:`CHANNEL_PROJECT` on all encoded channels together.
+    :param channels: the channels to train on; all when ``None``.
+    :param size: side of the global views in pixels; local views are half.
+    :param pretrained: start from the architecture's ImageNet weights rather
+        than from random ones.
+    :param progress: called with ``(epoch, epochs, mean_loss)`` after each
+        epoch.
+    :returns: ``path``, ``epochs`` done, the per-epoch ``loss`` list and the
+        seconds this call trained.
+    :raises EmbeddingError: when torch or timm is missing, or ``path`` holds
+        an incompatible checkpoint.
+    """
+    try:
+        import torch
+    except ImportError as exc:
+        raise EmbeddingError(
+            "DINO pretraining needs torch; install the `spacr[embeddings]` "
+            "extra") from exc
+    import time
+
+    images, scale = _dino_planes(crops, channel_policy, channels)
+    in_chans = int(images.shape[1])
+    device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+    trained = {"arch": arch, "in_chans": in_chans, "size": int(size),
+              "channel_policy": channel_policy, "out_dim": int(out_dim)}
+    state = None
+    if os.path.exists(path):
+        state = torch.load(path, map_location="cpu", weights_only=False)
+        mismatch = {k: (state["setup"].get(k), v) for k, v in trained.items()
+                    if state["setup"].get(k) != v}
+        if mismatch:
+            raise EmbeddingError(
+                f"{path} holds a DINO run with different settings "
+                f"({mismatch}); choose another file to start a new run")
+        if state["epoch"] >= epochs:
+            return {"path": path, "epochs": state["epoch"],
+                    "loss": list(state["loss"]), "seconds": 0.0}
+
+    torch.manual_seed(seed)
+    student, s_head = _dino_network(arch, in_chans, size, pretrained,
+                                    out_dim, torch)
+    teacher, t_head = _dino_network(arch, in_chans, size, False, out_dim,
+                                    torch)
+    teacher.load_state_dict(student.state_dict())
+    t_head.load_state_dict(s_head.state_dict())
+    for module in (student, s_head, teacher, t_head):
+        module.to(device)
+    for p in list(teacher.parameters()) + list(t_head.parameters()):
+        p.requires_grad_(False)
+    params = list(student.parameters()) + list(s_head.parameters())
+    optimizer = torch.optim.AdamW(params, lr=lr, weight_decay=0.04)
+    center = torch.zeros(1, out_dim, device=device)
+    losses: List[float] = []
+    start = 0
+    generator = torch.Generator().manual_seed(seed)
+    if state is not None:
+        student.load_state_dict(state["student"])
+        s_head.load_state_dict(state["student_head"])
+        teacher.load_state_dict(state["teacher"])
+        t_head.load_state_dict(state["teacher_head"])
+        optimizer.load_state_dict(state["optimizer"])
+        center = state["center"].to(device)
+        losses = list(state["loss"])
+        start = int(state["epoch"])
+        generator.set_state(state["generator"])
+
+    data = torch.from_numpy(images)
+    steps = max(1, int(np.ceil(len(data) / batch_size)))
+    total = steps * epochs
+    began = time.time()
+    for epoch in range(start, epochs):
+        student.train()
+        s_head.train()
+        order = torch.randperm(len(data), generator=generator)
+        running = 0.0
+        for step in range(steps):
+            done = epoch * steps + step
+            rate = lr * min(1.0, (done + 1) / max(1, steps))
+            rate *= 0.5 * (1 + np.cos(np.pi * done / total))
+            for group in optimizer.param_groups:
+                group["lr"] = rate
+            batch = data[order[step * batch_size:(step + 1) * batch_size]]
+            batch = batch.to(device)
+            globals_ = [_dino_views(batch, size, (0.4, 1.0), generator, torch)
+                        for _ in range(2)]
+            locals_ = [_dino_views(batch, max(8, size // 2), (0.1, 0.4),
+                                   generator, torch) for _ in range(n_local)]
+            with torch.no_grad():
+                t_out = [t_head(teacher(v)) for v in globals_]
+                t_prob = [torch.softmax((t - center) / teacher_temp, dim=-1)
+                          for t in t_out]
+            s_out = [s_head(student(v)) for v in globals_ + locals_]
+            loss, pairs = 0.0, 0
+            for ti, tp in enumerate(t_prob):
+                for si, so in enumerate(s_out):
+                    if si == ti:
+                        continue
+                    loss = loss + torch.sum(
+                        -tp * torch.log_softmax(so / student_temp, dim=-1),
+                        dim=-1).mean()
+                    pairs += 1
+            loss = loss / pairs
+            optimizer.zero_grad()
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(params, 3.0)
+            optimizer.step()
+            with torch.no_grad():
+                m = 1 - (1 - momentum) * (np.cos(np.pi * done / total) + 1) / 2
+                for net_s, net_t in ((student, teacher), (s_head, t_head)):
+                    for ps, pt in zip(net_s.parameters(), net_t.parameters()):
+                        pt.mul_(m).add_(ps.detach(), alpha=1 - m)
+                center = 0.9 * center + 0.1 * torch.cat(t_out).mean(
+                    dim=0, keepdim=True)
+            running += float(loss.detach())
+        losses.append(running / steps)
+        payload = {"setup": trained, "epoch": epoch + 1, "loss": losses,
+                   "scale": scale, "student": student.state_dict(),
+                   "student_head": s_head.state_dict(),
+                   "teacher": teacher.state_dict(),
+                   "teacher_head": t_head.state_dict(),
+                   "optimizer": optimizer.state_dict(),
+                   "center": center.cpu(), "generator": generator.get_state()}
+        os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+        torch.save(payload, path + ".part")
+        os.replace(path + ".part", path)
+        if progress is not None:
+            progress(epoch + 1, epochs, losses[-1])
+    return {"path": path, "epochs": epochs, "loss": losses,
+            "seconds": time.time() - began}
+
+
+def _dino_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
+    """The teacher backbone of a :func:`_dino_pretrain` checkpoint, as an encoder.
+
+    ``spec.backbone`` is ``"dino:"`` followed by the checkpoint's path. The
+    encoder takes as many planes as the backbone was trained on (one under
+    the per-channel policy) and resizes crops to the training size.
+
+    :raises EmbeddingError: when the checkpoint is missing or was trained
+        under the other channel policy.
+    """
+    import torch
+
+    path = spec.backbone[len(_DINO_PREFIX):]
+    if not os.path.exists(path):
+        raise EmbeddingError(f"no DINO checkpoint at {path}")
+    state = torch.load(path, map_location="cpu", weights_only=False)
+    trained = state["setup"]
+    if trained["channel_policy"] != spec.channel_policy:
+        raise EmbeddingError(
+            f"{path} was trained under the {trained['channel_policy']} "
+            f"policy; embed with that policy")
+    size = int(trained["size"])
+    model, _head = _dino_network(trained["arch"], trained["in_chans"], size,
+                                 False, trained["out_dim"], torch)
+    model.load_state_dict(state["teacher"])
+    device = spec.device or ("cuda" if torch.cuda.is_available() else "cpu")
+    model.eval().to(device)
+
+    def run(stack: np.ndarray) -> np.ndarray:
+        """Encode ``(n, h, w, k)`` crops in batches at the training size.
+
+        :param stack: float32 in [0, 1], channels last.
+        :returns: ``(n, dims)`` float32 features.
+        """
+        out: List[np.ndarray] = []
+        with torch.no_grad():
+            for begin in range(0, stack.shape[0], spec.batch_size):
+                chunk = torch.from_numpy(np.ascontiguousarray(
+                    stack[begin:begin + spec.batch_size].transpose(0, 3, 1, 2)
+                )).float().to(device)
+                if chunk.shape[-2:] != (size, size):
+                    chunk = torch.nn.functional.interpolate(
+                        chunk, size=(size, size), mode="bilinear",
+                        align_corners=False)
+                out.append(model(chunk).detach().float().cpu().numpy())
+        return np.concatenate(out, axis=0)
+
+    run.in_channels = int(trained["in_chans"])
+    return run
+
+
+def _backbone_scorecards(crops: Any, labels: Sequence[Any],
+                         specs: Mapping[str, EmbeddingSpec], *,
+                         k: int = 10) -> Any:
+    """Embed one labelled crop stack with several backbones and score each.
+
+    Every backbone sees the same crops scaled by the same per-channel scale,
+    and is scored by :func:`_retrieval_scorecard` on the same labels, so the
+    rows compare like with like -- e.g. a :func:`_dino_pretrain` checkpoint
+    against the ImageNet backbone it started from.
+
+    :param crops: ``(n, height, width, channels)``.
+    :param labels: one class per crop, in order.
+    :param specs: row name to the spec to embed with.
+    :returns: a frame with one row per backbone: ``dims``, the scorecard
+        metrics and ``seconds``.
+    """
+    import time
+
+    import pandas as pd
+
+    array = np.asarray(crops, dtype=np.float32)
+    keys = [f"crop{i}" for i in range(array.shape[0])]
+    named = dict(zip(keys, labels))
+    rows = []
+    for name, spec in specs.items():
+        began = time.time()
+        if spec.normalize and spec.channel_scale is None:
+            chosen = _encoded_channels(array.shape[3], spec)
+            spec = replace(spec, channel_scale=_estimate_channel_scale(
+                array, chosen))
+        result = embed_array(array, spec)
+        frame = pd.DataFrame(result.values, index=keys,
+                             columns=list(result.columns))
+        card = _retrieval_scorecard(frame, named, k=k)
+        rows.append({"backbone": name, "dims": result.values.shape[1],
+                     **card, "seconds": round(time.time() - began, 1)})
+    return pd.DataFrame(rows).set_index("backbone")
 
 
 _MIL_WELL_COLUMN = "wellID"

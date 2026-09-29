@@ -67,7 +67,7 @@ def test_the_measure_form_hides_and_shows_the_viability_settings(qtbot,
         assert prefs._is_alpha_visible("settings", "viability") is False
         assert not any(screen.setting_row_is_visible(k) for k in KEYS)
         assert _heading(screen, "Viability α").isHidden()
-        assert not _heading(screen, "Measurement Features").isHidden()
+        assert not _heading(screen, "Features").isHidden()
         assert screen.setting_row_is_visible("radial_dist")
         if bar is not None:
             assert not set(KEYS) & set(bar.indexed_keys())

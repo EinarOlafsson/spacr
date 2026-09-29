@@ -109,14 +109,14 @@ def test_one_alpha_heading_colour_in_both_themes(theme_name):
 
 
 def test_the_mask_layout_nests_the_three_under_image_preprocessing():
-    from spacr.qt.screens.settings_model import (_category_parents_for,
+    from spacr.qt.screens.settings_model import (_category_parents,
                                                  _nest_sections,
                                                  SettingsSection)
 
-    parents = _category_parents_for("mask")
+    parents = _category_parents("mask")
     for title in SUBCATEGORIES:
         assert parents[title] == "Image Preprocessing"
-    assert "Illumination Correction α" not in _category_parents_for("measure")
+    assert "Illumination Correction α" not in _category_parents("measure")
 
     flat = [SettingsSection("Input & Metadata", [("a", None)]),
             SettingsSection("Image Preprocessing", [("b", None)]),

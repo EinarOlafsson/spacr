@@ -322,7 +322,21 @@ def test_opening_a_module_leaves_its_closed_categories_unbuilt(qtbot, monkeypatc
     _window_, screen = _window(qtbot, "classify_merged")
     model = screen._settings_model
     assert len(_waiting(screen)) >= 5
-    assert len(model._widgets.keys_to_come()) > len(model._widgets) // 2
+    # Classify's Essentials names both families' training settings, so the
+    # categories it reaches are built on opening; every row of every other
+    # category is still to come, except a control a state pass reads.
+    from spacr.qt.screens.settings_model import (
+        categories_for_app, get_categories,
+    )
+    cats = categories_for_app("classify_merged", get_categories())
+    to_come = set(model._widgets.keys_to_come())
+    expected = set()
+    for section in _waiting(screen):
+        title = section.property("settingsCategorySource")
+        expected.update(k for k in cats.get(title, ()) if k in model._widgets
+                        and k not in model._decided_by_a_pass())
+    assert expected and expected <= to_come, sorted(expected - to_come)
+    assert len(to_come) >= 30
     for section in _waiting(screen):
         assert section._form.rowCount() == 0
 

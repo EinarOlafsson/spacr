@@ -425,6 +425,7 @@ def _qc_network():
         """Tile and whole-field branches joined by one linear layer."""
 
         def __init__(self):
+            """Build the two convolutional trunks and the shared head."""
             super().__init__()
             self.tile = trunk()
             self.field = trunk()

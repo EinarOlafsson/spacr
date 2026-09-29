@@ -1,0 +1,105 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (GPT-6), no native-speaker signoff",
+  "records": [
+    {
+      "table": "categories",
+      "key": "Copies a finished run's measurements into DuckDB or Parquet for very large screens, or into PostgreSQL for labs that share one server. measurements.db stays the working copy.",
+      "source": "Copies a finished run's measurements into DuckDB or Parquet for very large screens, or into PostgreSQL for labs that share one server. measurements.db stays the working copy.",
+      "source_sha256": "c6b2d1134cfbef98dd5a899c03594d06a3249fdd87e1ba210f09ff6958834da8",
+      "translation": "将已完成运行的测量结果复制到 DuckDB 或 Parquet，以支持超大规模筛选；或复制到 PostgreSQL，供共用一台服务器的实验室使用。measurements.db 仍是工作副本。"
+    },
+    {
+      "table": "setting_labels",
+      "key": "counterfactual_crops",
+      "source": "Counterfactual crops",
+      "source_sha256": "1e377e2b752dfb5f8b4c4b1c4b3cac2b476a8abccbbc2db2c3243e64822e933e",
+      "translation": "反事实裁剪图像"
+    },
+    {
+      "table": "setting_labels",
+      "key": "counterfactual_epochs",
+      "source": "Counterfactual epochs",
+      "source_sha256": "13ea116e0f4efddc4b7047966842520eee7cd11112664cc10520dd2543e57c0d",
+      "translation": "反事实训练轮次"
+    },
+    {
+      "table": "setting_labels",
+      "key": "counterfactuals",
+      "source": "Counterfactuals",
+      "source_sha256": "31791e3021fd87a745a0fb14619e6ec684bdc1e0e2ff928152f7791693b69cc8",
+      "translation": "反事实示例"
+    },
+    {
+      "table": "setting_labels",
+      "key": "measurement_backend",
+      "source": "Measurement backend",
+      "source_sha256": "931b190eeccd23c9fc750aba0ba476365b2b6206150f2db284e3b818021872e1",
+      "translation": "测量数据后端"
+    },
+    {
+      "table": "setting_labels",
+      "key": "measurement_backend_target",
+      "source": "Measurement backend target",
+      "source_sha256": "668bf910a9e28fd1458cb0a81a38cb0fa073be5ac5d662c5ba864de7e73db94e",
+      "translation": "测量数据后端目标"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "counterfactual_crops",
+      "source": "How many crops, taken in dataset order, train and test the counterfactual generator; a quarter is held out for scoring. More crops give a steadier estimate and a slower run. Ignored unless counterfactuals is on. Default 256.",
+      "source_sha256": "f5cf67cdd8021849c067befc67830f006753f4c4883ea6ecbe5f293944d94481",
+      "translation": "按数据集顺序选取、用于训练和测试反事实生成器的裁剪图像数量；其中四分之一保留用于评分。更多裁剪图像可提供更稳定的估计，但运行更慢。仅在 counterfactuals 开启时生效。默认值：256。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "counterfactual_epochs",
+      "source": "Training passes of the counterfactual generator over its crops. Ignored unless counterfactuals is on. Default 30.",
+      "source_sha256": "a7326aa8780add27f044e7e318579173a916bb631faf05376cd276ed1fc9a44b",
+      "translation": "反事实生成器遍历其裁剪图像的训练次数。仅在 counterfactuals 开启时生效。默认值：30。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "counterfactuals",
+      "source": "Also train a small class-conditional generator on the crops, guided by the loaded classifier, and morph held-out crops toward the other class in steps. Writes each crop's classifier score along its sequence, the flip rate, how far the edit moved the crop, a class-mean-shift baseline and a figure to counterfactuals/ next to the maps. The same classifier guides and scores the edits, so read the flip rate with the edit size. Default False.",
+      "source_sha256": "082b41d3b4b60689eb586adfb34fee82aeb80953ab854b828492f0bf0577eb49",
+      "translation": "同时在已加载分类器的引导下，用裁剪图像训练一个小型类别条件生成器，将保留测试的裁剪图像逐步变换为另一类别。在图谱旁的 counterfactuals/ 中写入每个裁剪图像沿变换序列的分类器评分、类别翻转率、编辑幅度、类别均值偏移基线及图表。同一分类器既引导编辑又为其评分，因此请结合编辑幅度解读翻转率。默认值：False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measurement_backend",
+      "source": "Where a finished run's measurements are also stored. sqlite keeps only measurements.db. duckdb copies every table into a DuckDB file and parquet into a folder of Parquet files, both for very large screens; postgres copies them into a PostgreSQL database that several users can write at once. measurements.db stays the working copy every later step reads. Needs pip install spacr[databases]. Default sqlite.",
+      "source_sha256": "0874ac79f681027dbbae8c5660bb2f0ed81215ecdf5e0cbeb8fe1e4944ad8b94",
+      "translation": "已完成运行的测量结果的额外存储位置。sqlite 仅保留 measurements.db。duckdb 将每张表复制到一个 DuckDB 文件，parquet 则复制到包含 Parquet 文件的文件夹，两者均面向超大规模筛选；postgres 将其复制到可供多用户同时写入的 PostgreSQL 数据库。measurements.db 仍是所有后续步骤读取的工作副本。需要执行 pip install spacr[databases] 命令。默认值：sqlite。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measurement_backend_target",
+      "source": "The DuckDB file, Parquet folder or PostgreSQL connection string the measurements are copied to. Blank puts measurements.duckdb or measurements.parquetdb beside measurements.db, and reaches PostgreSQL through the PGHOST, PGDATABASE, PGUSER and PGPASSWORD environment variables. Keep passwords in ~/.pgpass, not here. Ignored for sqlite. Default blank.",
+      "source_sha256": "098da339a4ecbd0da3aa01abbdf3735dbd898b4afb4676abbd253bebc4fb7c97",
+      "translation": "测量结果复制到的 DuckDB 文件、Parquet 文件夹或 PostgreSQL 连接字符串。留空时，将 measurements.duckdb 或 measurements.parquetdb 放在 measurements.db 旁，并通过环境变量 PGHOST、PGDATABASE、PGUSER 和 PGPASSWORD 连接 PostgreSQL。密码应保存在 ~/.pgpass 中，不要填在这里。sqlite 忽略此项。默认值：留空。"
+    },
+    {
+      "table": "ui",
+      "key": "Copies a finished run's measurements into DuckDB or Parquet for very large screens, or into PostgreSQL for labs that share one server. measurements.db stays the working copy.",
+      "source": "Copies a finished run's measurements into DuckDB or Parquet for very large screens, or into PostgreSQL for labs that share one server. measurements.db stays the working copy.",
+      "source_sha256": "c6b2d1134cfbef98dd5a899c03594d06a3249fdd87e1ba210f09ff6958834da8",
+      "translation": "将已完成运行的测量结果复制到 DuckDB 或 Parquet，以支持超大规模筛选；或复制到 PostgreSQL，供共用一台服务器的实验室使用。measurements.db 仍是工作副本。"
+    },
+    {
+      "table": "ui",
+      "key": "Counterfactuals",
+      "source": "Counterfactuals",
+      "source_sha256": "31791e3021fd87a745a0fb14619e6ec684bdc1e0e2ff928152f7791693b69cc8",
+      "translation": "反事实示例"
+    },
+    {
+      "table": "ui",
+      "key": "Measurement Backend (Alpha)",
+      "source": "Measurement Backend (Alpha)",
+      "source_sha256": "59d2718cd27d4cab2e3822275a83cf88cd13b7e39c81a6e5eb756764eab11dac",
+      "translation": "测量数据后端（Alpha）"
+    }
+  ]
+}

@@ -211,7 +211,7 @@ def test_an_old_settings_file_still_loads(qtbot, qt_theme_applied):
 
 def test_quality_control_holds_output_runtime_and_robustness():
     from spacr.settings import categories
-    from spacr.qt.screens.settings_model import (_category_parents_for,
+    from spacr.qt.screens.settings_model import (_category_parents,
                                                  categories_for_app)
 
     sections = categories_for_app("mask", categories)
@@ -221,5 +221,5 @@ def test_quality_control_holds_output_runtime_and_robustness():
     for key in ("seg_qc", "save", "keep_npz", "n_jobs", "strict_errors",
                 "mask_parallel"):
         assert key in qc, key
-    assert _category_parents_for("mask")["Segmentation Robustness α"] \
+    assert _category_parents("mask")["Segmentation Robustness α"] \
         == "Quality Control"

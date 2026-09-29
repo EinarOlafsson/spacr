@@ -80,7 +80,8 @@ FAMILY_SETTINGS: Dict[str, Tuple[str, ...]] = {
         "label_smoothing", "logit_adjust_tau", "train", "test",
         "generate_training_dataset", "apply_model_to_dataset",
         "generate_full_dataset", "tar_path", "n_top_examples", "path_string",
-        "file_type", "crop_source",
+        "file_type", "crop_source", "batch_size", "val_split",
+        "image_source", "mixed_precision",
     ),
     "ml": (
         "model_type_ml", "n_estimators", "reg_alpha", "reg_lambda",

@@ -1208,6 +1208,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_on_missing",
             "illumination_vendor_profile",
         )),
+        ("Self-Supervised Denoising α",
+         ("@Self-Supervised Denoising α",)),
         ("Image Deconvolution α", ("@Point Spread Function",)),
         ("Image Enhancement α", ("@Image Enhancement",)),
         ("Image Quality", ("@Image Quality",)),
@@ -1259,8 +1261,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Bleach Correction α", ("@Bleach Correction α",)),
         ("Spectral Unmixing α", ("@Spectral Unmixing α",)),
-        ("Image Deconvolution α", ("@Point Spread Function",)),
-        ("Illumination Correction α", (
+        ("Image Deconvolution (PSF)", ("@Point Spread Function",)),
+        ("Illumination Correction", (
             "illumination_correction", "illumination_model",
             "illumination_estimator", "illumination_degree",
             "illumination_dark",
@@ -1268,9 +1270,9 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_qc", "illumination_on_missing",
             "illumination_vendor_profile",
         )),
-        ("Image Enhancement α", ("@Image Enhancement",)),
-        ("Plate Barcode Linkage α", ("@Plate Barcode Linkage α",)),
+        ("Image Enhancement", ("@Image Enhancement",)),
         ("Intensity Calibration α", ("@Intensity Calibration α",)),
+        ("Plate Barcode Linkage α", ("@Plate Barcode Linkage α",)),
         ("Features", (
             "save_measurements", "calculate_correlation",
             "spatial_measurements",
@@ -1312,6 +1314,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "verbose", "n_jobs",
         )),
         ("Profiling α", ("@Profiling α",)),
+        ("Measurement Backend α", ("@Measurement Backend α",)),
     ),
     "timelapse": (
         ("Input & Metadata", (
@@ -1341,6 +1344,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_on_missing",
             "illumination_vendor_profile",
         )),
+        ("Self-Supervised Denoising α",
+         ("@Self-Supervised Denoising α",)),
         ("Image Deconvolution α", ("@Point Spread Function",)),
         ("Image Enhancement α", ("@Image Enhancement",)),
         ("Image Quality", ("@Image Quality",)),
@@ -1512,6 +1517,9 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "normalize", "normalize_input", "overlay", "plot",
         )),
         ("Map Quantification", ("correlation", "manders_thresholds")),
+        ("Counterfactuals", (
+            "counterfactuals", "counterfactual_crops", "counterfactual_epochs",
+        )),
         ("Output & Runtime", (
             "save", "shuffle", "batch_size", "n_jobs",
         )),
@@ -1750,6 +1758,16 @@ _APP_ESSENTIAL_EXTRAS: Dict[str, Tuple[str, ...]] = {
     "illumination": ("illumination_correction", "illumination_model"),
     "anndata_export": ("anndata_out",),
     "classify": ("@Labels & Classes", "model_type", "train_channels"),
+    "classify_merged": (
+        "src", "experiment", "generate_training_dataset", "train", "test",
+        "dataset_mode", "classes", "metadata_item_1_name",
+        "metadata_item_1_value", "metadata_item_2_name",
+        "metadata_item_2_value", "test_split", "val_split",
+        "image_source", "channel_of_interest", "train_channels",
+        "image_size", "model_type", "init_weights", "epochs", "batch_size",
+        "learning_rate", "optimizer_type", "mixed_precision",
+        "model_type_ml", "n_estimators", "reg_alpha", "reg_lambda",
+    ),
     "umap": ("tables", "reduction_method", "color_by"),
     "external_masks": ("channels", "experiment"),
 }
@@ -1803,6 +1821,11 @@ def essential_keys(
 
     A module with no curated layout gets the first shared category, which is
     "Paths" — still the right answer, just a thinner one.
+
+    Classify's first group is only the family switch, so its extras carry
+    what training either family needs: the classes, the splits, the image
+    model and its schedule, and the tabular algorithm and its main
+    hyperparameters. The family switch greys whichever half does not apply.
 
     :param app_key: the module's app key.
     :param categories: optional pre-computed :func:`categories_for_app`
@@ -1987,6 +2010,7 @@ def _shared_category_parents() -> Dict[str, str]:
 _APP_CATEGORY_PARENTS: Dict[str, Dict[str, str]] = {
     app_key: {
         "Illumination Correction α": "Image Preprocessing",
+        "Self-Supervised Denoising α": "Image Preprocessing",
         "Image Deconvolution α": "Image Preprocessing",
         "Image Enhancement α": "Image Preprocessing",
     }
@@ -1997,18 +2021,19 @@ _APP_CATEGORY_PARENTS["mask"]["Cloud α"] = "Input & Metadata"
 _APP_CATEGORY_PARENTS["measure"] = {
     "Cloud α": "Input & Experiment",
     **{title: "Image Preprocessing" for title in (
-        "Bleach Correction α", "Spectral Unmixing α", "Image Deconvolution α",
-        "Illumination Correction α", "Image Enhancement α",
+        "Bleach Correction α", "Spectral Unmixing α",
+        "Image Deconvolution (PSF)", "Illumination Correction",
+        "Image Enhancement", "Intensity Calibration α",
         "Plate Barcode Linkage α")},
     **{title: "Features" for title in (
         "Confluency α", "Cell Cycle α", "Wound Closure α", "Viability α",
-        "CellProfiler α", "GPU Measurement α")},
-    "Runtime & Reliability": "Postprocessing",
-    "Profiling α": "Postprocessing",
+        "CellProfiler α", "GPU Measurement α", "Time To Event α")},
+    **{title: "Postprocessing" for title in (
+        "Runtime & Reliability", "Profiling α", "Measurement Backend α")},
 }
 
 
-def _category_parents_for(app_key) -> Dict[str, str]:
+def _category_parents(app_key) -> Dict[str, str]:
     """Which heading each category nests under on one module's panel.
 
     The shared parents of :func:`_shared_category_parents`, plus the ones
@@ -2092,7 +2117,7 @@ def _nest_sections(flat, app_key=None) -> List[SettingsSection]:
         (:data:`_APP_CATEGORY_PARENTS`) applies on top of the shared one.
     :returns: the top-level sections, children attached.
     """
-    parents = _category_parents_for(app_key)
+    parents = _category_parents(app_key)
     kids: Dict[str, List[SettingsSection]] = {}
     for section in flat:
         parent = parents.get(section.title)
@@ -2763,6 +2788,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "decay, or histogram matching. Corrected intensities are written "
         "beside the measured ones with the method, and the fitted decay is "
         "plotted.",
+    "MEASUREMENT BACKEND Α":
+        "Copies a finished run's measurements into DuckDB or Parquet for "
+        "very large screens, or into PostgreSQL for labs that share one "
+        "server. measurements.db stays the working copy.",
     "GPU MEASUREMENT Α":
         "Per-object intensity statistics, GLCM homogeneity and Zernike "
         "moments computed for all objects of a field at once on a CUDA GPU, "
@@ -2815,6 +2844,11 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "and contrast enhancement each moved a little, and reports how much "
         "object counts, areas and intensities change, flagging the settings "
         "the results are fragile to.",
+    "SELF-SUPERVISED DENOISING Α":
+        "Noise2Void denoising trained on the run's own noisy images, with no "
+        "clean targets: one model per segmentation channel, applied after "
+        "illumination correction and before the PSF and the enhancement "
+        "chain. Needs the CAREamics backend from the Model Zoo.",
     "SPECTRAL UNMIXING Α":
         "Bleed-through correction: how much of each dye is read in the other "
         "channels is estimated from single-stain control wells, and every "
@@ -2958,6 +2992,16 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "reads plate, well and field out of the file names. Nothing "
         "segments correctly until the channel assignment and the naming "
         "convention here are right.",
+    "FEATURES":
+        "Which families of measurement are computed for every object -- "
+        "intensity, morphology, texture, radial distribution and "
+        "colocalisation -- and the assays read from them, such as "
+        "confluency, cell cycle, wound closure, viability and time to "
+        "event. More features means a wider table and a longer run.",
+    "POSTPROCESSING":
+        "What happens around and after the measurement: how the run "
+        "recovers from failures and how many workers it uses, profiling of "
+        "the finished tables, and copying them to a database backend.",
     "CLOUD":
         "Cloud storage access, local cache, selected wells and fields, image "
         "resolution, and result uploads. Use these settings when the source "
@@ -3049,11 +3093,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "channel, whether a cytoplasm compartment is derived, and whether "
         "the data is a time series. A wrong index here quietly measures the "
         "wrong object, so it is worth checking twice.",
-    "FEATURES":
-        "Which families of measurement are computed for every object — "
-        "intensity, morphology, texture, radial distribution and "
-        "colocalisation, with their parameters. More features means a wider "
-        "table and a longer run, so enable what the analysis needs.",
     "OBJECT FILTERING":
         "Which objects are large enough, infected enough or clean enough to "
         "be measured at all. Raise the minimum sizes when debris is being "
@@ -3063,10 +3102,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "— crop mode and size, which channels and masks are included, "
         "dilation, and how they are normalised. These are the images "
         "Annotate and the CV classifier read later.",
-    "POSTPROCESSING":
-        "What happens after the measurements are written: how the run "
-        "resumes, tolerates failures and uses the machine, and the "
-        "image-based profiles built from the finished tables.",
     "3D CALIBRATION (BETA)":
         "The physical size of a voxel and the anisotropy between z and xy. "
         "Only these turn volumetric measurements from pixel counts into "
@@ -3454,12 +3489,17 @@ CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
             "tolerates. Fix the seed when two runs have to be compared.",
     },
     "measure": {
+        "CLOUD \u0391":
+            "Read the plate straight from cloud storage: credentials, endpoint "
+            "and local cache, and the cloud folder the measurements are copied "
+            "to when the run finishes. Leave it alone for a plate on local disk.",
         "IMAGE PREPROCESSING":
-            "Corrections applied to the pixels before any feature is "
-            "measured: photobleaching, spectral bleed-through, the point "
-            "spread function, uneven illumination and enhancement, and the "
-            "plate map linked by barcode.",
-        "IMAGE DECONVOLUTION \u0391": "Choose normal Measure intensities or calibrated PSF-processed intensities for quantitative features. PSF processing follows standard rescaling and registered preprocessing hooks. Source files and exported crops retain their existing pixels; database provenance records the choice and exact kernel. A changed kernel cannot be mixed with existing measurements.",
+            "What is done to the pixels of each field before a single "
+            "feature is measured -- bleach, spectral and illumination "
+            "correction, deconvolution with a point spread function and "
+            "cross-plate intensity calibration -- and which barcode links "
+            "each plate to its plate map. The masks are not changed.",
+        "IMAGE DECONVOLUTION (PSF)": "Choose normal Measure intensities or calibrated PSF-processed intensities for quantitative features. PSF processing follows standard rescaling and registered preprocessing hooks. Source files and exported crops retain their existing pixels; database provenance records the choice and exact kernel. A changed kernel cannot be mixed with existing measurements.",
     },
     "train_cellpose": {
         "TRAINING DATA": "Pair microscopy images with integer object-label masks, and optionally supply a separate validation set.",
@@ -8945,7 +8985,10 @@ class SettingsWidgets:
         import time as _time
 
         cats = categories_for_app(self.app_key, get_categories())
-        hidden = _APP_HIDDEN_CATEGORIES.get(self.app_key, set())
+        hidden = set(_APP_HIDDEN_CATEGORIES.get(self.app_key, set()))
+        own_parents = _APP_CATEGORY_PARENTS.get(str(self.app_key or ""), {})
+        hidden.update(child for child, parent in own_parents.items()
+                      if parent in hidden)
         may_wait = self._keys_that_may_wait(cats, hidden, variables,
                                             hidden_keys)
         _BREATH = 0.025
@@ -9089,7 +9132,7 @@ class SettingsWidgets:
         judge = self.categories_may_wait
         if judge is None:
             return set()
-        parents = _category_parents_for(self.app_key)
+        parents = _category_parents(self.app_key)
         owner: Dict[str, str] = {}
         for cat_name, keys in cats.items():
             if cat_name in hidden:

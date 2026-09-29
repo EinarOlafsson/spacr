@@ -977,6 +977,13 @@ def _set_unmix_defaults(settings):
     settings.setdefault('unmix_background_percentile', 5.0)
 
 
+def _set_n2v_defaults(settings):
+    """Populate the dormant Noise2Void settings, denoising off."""
+    settings.setdefault('n2v_denoise', False)
+    settings.setdefault('n2v_model', '')
+    settings.setdefault('n2v_epochs', 20)
+
+
 def _set_enhancement_defaults(settings):
     """Populate the dormant enhancement-chain settings, every step off.
 
@@ -1022,6 +1029,7 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     _set_psf_defaults(settings)
     settings.setdefault('psf_objective', 'auto')
     _set_unmix_defaults(settings)
+    _set_n2v_defaults(settings)
     _set_enhancement_defaults(settings)
     from .image_quality import DEFAULTS as image_quality_defaults
     for key, value in image_quality_defaults.items():
@@ -1720,6 +1728,8 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('confluency_qc_threshold', 0.8)
     settings.setdefault('bleach_correction', 'none')
     settings.setdefault('measure_gpu', False)
+    settings.setdefault('measurement_backend', 'sqlite')
+    settings.setdefault('measurement_backend_target', '')
     settings.setdefault('profiling', False)
     settings.setdefault('profiling_metadata', '')
     settings.setdefault('profiling_treatment_column', 'columnID')
@@ -3277,6 +3287,7 @@ expected_types = {
     "psf_fwhm_um": (list, type(None)), "psf_iterations": int,
     "unmix": bool, "unmix_controls": str,
     "unmix_background_percentile": (float, int),
+    "n2v_denoise": bool, "n2v_model": str, "n2v_epochs": int,
     "enhance_background": str, "enhance_background_radius": int,
     "enhance_background_scale": float,
     "enhance_denoise": str, "enhance_denoise_strength": float,
@@ -3583,6 +3594,8 @@ expected_types = {
     "confluency_qc_threshold": (float, int, type(None)),
     "bleach_correction": str,
     "measure_gpu": bool,
+    "measurement_backend": str,
+    "measurement_backend_target": str,
     "profiling": bool,
     "profiling_metadata": str,
     "profiling_treatment_column": (str, list),
@@ -3826,6 +3839,9 @@ expected_types = {
     'attribution_steps':int,
     'attribution_baseline':str,
     'sanity_check':bool,
+    'counterfactuals':bool,
+    'counterfactual_crops':int,
+    'counterfactual_epochs':int,
     'object_type':str,
     "parasite_table": str,
     "compartment": str,
@@ -4297,6 +4313,9 @@ tooltips = {
     'unmix': "(bool) - Spectral unmixing: estimate how much of each dye bleeds into the other channels from single-stain control wells, then unmix every field before it is segmented or measured. Make Masks unmixes each raw field across all its channels before illumination correction, the PSF and the enhancement chain; Measure unmixes the measured channels before its preprocessing. The matrix is printed and recorded with the run. Needs unmix_controls. Default False.",
     'unmix_controls': "(str) - The single-stain control wells, as channel:well[,well] entries separated by semicolons, for example 0:A01,A02; 1:B01. The channel is the dye's own channel, counted as in the stack or merged array; its wells hold that dye alone. Channels without controls are taken to bleed into nothing. Up to 24 fields per dye are read. Ignored unless unmix is on. Default blank.",
     'unmix_background_percentile': "(float) - Percentile of each channel's pixels taken as its background, from 0 up to but not including 100. It is set aside before each field is unmixed and added back after, so a channel with no dye stays at its own background level rather than being pulled below it. Keep it below the fraction of the field that is empty. Default 5.0.",
+    'n2v_denoise': "(bool) - Self-supervised denoising: train a Noise2Void (N2V2) network per segmentation channel on this run's own noisy fields, with no clean images, and denoise every field with it after illumination correction and before the PSF and the enhancement chain. Needs the CAREamics backend from the Model Zoo; training wants a GPU. The models' hashes and training losses are recorded with the run. Default False.",
+    'n2v_model': "(str) - Folder of trained Noise2Void models, one channel_<c>.ckpt per segmentation channel, such as the n2v folder of an earlier run on the same microscope. Blank trains new models on up to eight of this run's fields into its own n2v folder and reuses them when the run is resumed. Ignored unless n2v_denoise is on. Default blank.",
+    'n2v_epochs': "(int) - Training passes over the Noise2Void patches, at least 1. More epochs denoise better up to a point and take longer: on a CPU, 30 epochs over ten 512 x 512 crops took under four minutes, and eight full 2000 x 2000 fields take about twelve times as long per epoch, so train on a GPU. Changing it trains new models. Ignored when n2v_model names trained models. Default 20.",
     'enhance_background': "(str) - Background subtraction for every selected segmentation channel after illumination correction and before normalization, the first step of the enhancement chain Make Masks tunes. rolling_ball removes a fitted surface of the radius below and flattens uneven illumination; tophat keeps what is brighter than its surroundings and is faster; none is off. Set the radius larger than the largest object. A resumed run refuses Mask inputs made with a different chain. Default 'none'.",
     'enhance_background_radius': "(int) - Radius in pixels of the rolling ball or the top-hat disk. Make it larger than the largest object and smaller than the scale the illumination varies on; a radius under the object size removes the objects with the background. Default 50.",
     'enhance_background_scale': "(float) - Fraction of full size the background is estimated at, above 0 and at most 1. The surface is scaled back up before subtraction, so only the estimate is smaller; 1.0 is scikit-image's exact answer and is slow on large fields. Default 0.5.",
@@ -4878,6 +4897,8 @@ tooltips = {
     "confluency_window": "(int) - Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. Ignored by the masks and intensity sources. Default 15.",
     "bleach_correction": "(str) - Photobleaching correction for a timelapse run, applied after measuring and per field and channel. ratio rescales each timepoint so the median object mean intensity equals the first timepoint's; exponential does the same with a fitted a*exp(-b*t)+c decay; histogram maps each timepoint's intensities onto the first timepoint's distribution. Writes <object>_bleach_corrected and the fits to measurements.db and plots the decay; the measured tables stay unchanged. Ignored unless timelapse. Default none.",
     "measure_gpu": "(bool) - Compute the per-object intensity statistics, GLCM homogeneity and Zernike moments on a CUDA GPU through PyTorch, all objects of a field at once instead of one at a time. Values match the CPU run within float tolerance. Covers 2-D masks without voxel spacing; anything else, a missing PyTorch or no visible CUDA device measures on the CPU as usual. Default False.",
+    "measurement_backend": "(str) - Where a finished run's measurements are also stored. sqlite keeps only measurements.db. duckdb copies every table into a DuckDB file and parquet into a folder of Parquet files, both for very large screens; postgres copies them into a PostgreSQL database that several users can write at once. measurements.db stays the working copy every later step reads. Needs pip install spacr[databases]. Default sqlite.",
+    "measurement_backend_target": "(str) - The DuckDB file, Parquet folder or PostgreSQL connection string the measurements are copied to. Blank puts measurements.duckdb or measurements.parquetdb beside measurements.db, and reaches PostgreSQL through the PGHOST, PGDATABASE, PGUSER and PGPASSWORD environment variables. Keep passwords in ~/.pgpass, not here. Ignored for sqlite. Default blank.",
     "wound_closure": "(bool) - Measure a scratch or wound-healing assay: find the open wound in every frame of every field, then write its area, mean and minimum width, the closure rate and the half-closure time per field, per well and per condition to measurements.db and results/wound_closure, with closure curves and a plate map. Frames are grouped by plate, well and field and ordered by timepoint; the first frame decides where the scratch is. Default False.",
     "wound_source": "(str) - How the open wound is told apart from the monolayer. texture reads the local variation of wound_channel, for brightfield and phase. intensity thresholds wound_channel, for a fluorescent cytoplasm or membrane stain. masks takes every pixel outside the segmented cells as open. The cut is decided on each field's first frame and kept for its later frames. Default texture.",
     "wound_channel": "(int or None) - The merged-array channel the texture and intensity wound sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, the stain for intensity. Ignored by the masks source. Default None.",
@@ -5241,6 +5262,9 @@ tooltips = {
     'object_type': "(str) - Mask used to define an object when the pointing game scores an attribution map: 'cell', 'nucleus', 'pathogen' or 'cytoplasm'. The metric checks only whether the map's maximum-valued pixel lies inside that mask. It has low computational cost but does not evaluate the rest of the map, so a method can score 1.0 while assigning spurious attribution elsewhere. Default 'cell'.",
     'occlusion_stride': '(int) - How far the occlusion patch moves between evaluations. Equal to occlusion_window it tiles without overlap and is fastest; half of it doubles the passes and halves the blockiness. A stride larger than the window leaves unmeasured gaps that appear as an artificial grid in the map. Default 4.',
     'occlusion_window': "(int) - Side length in pixels of the patch moved across the image during occlusion analysis. Larger windows reduce runtime but spatial resolution and can miss features smaller than the window; smaller windows resolve finer structure with quadratically more forward passes. Occlusion provides a gradient-independent comparison for gradient-based attribution methods. Default 8.",
+    'counterfactuals': '(bool) - Also train a small class-conditional generator on the crops, guided by the loaded classifier, and morph held-out crops toward the other class in steps. Writes each crop\'s classifier score along its sequence, the flip rate, how far the edit moved the crop, a class-mean-shift baseline and a figure to counterfactuals/ next to the maps. The same classifier guides and scores the edits, so read the flip rate with the edit size. Default False.',
+    'counterfactual_crops': '(int) - How many crops, taken in dataset order, train and test the counterfactual generator; a quarter is held out for scoring. More crops give a steadier estimate and a slower run. Ignored unless counterfactuals is on. Default 256.',
+    'counterfactual_epochs': '(int) - Training passes of the counterfactual generator over its crops. Ignored unless counterfactuals is on. Default 30.',
     'sanity_check': "(bool) - Randomize the model's weights layer by layer, recompute attribution and report the similarity between maps. A method that produces nearly the same map for a randomized model is responding to image structure rather than the trained decision function. On a small CNN, the CAM family, including spaCR's default Grad-CAM, fails this test while saliency and integrated gradients pass. The resulting similarity is reported for the selected model rather than inferred from benchmark behavior. This costs one additional attribution per randomized layer. Default True.",
     'smoothgrad_samples': "(int) - Number of noise-perturbed image copies averaged into one attribution map. Using 8-50 samples reduces local gradient variability and improves between-image comparability. A value of 0, the default, evaluates the method once and minimizes computation during method selection. Applies to every method, including the CAM family, where maps are averaged explicitly rather than through Captum.",
     'smoothgrad_sigma': "(float) - Standard deviation of the noise added by SmoothGrad, expressed as a fraction of the image intensity range. Values that are too small produce nearly identical samples and little averaging effect; values that are too large move samples outside the training distribution, causing the average to characterize responses to noise rather than the experimental images. Values of 0.1-0.2 are typical. Ignored when smoothgrad_samples is 0. Default 0.15.",
@@ -5447,6 +5471,9 @@ categories = {
     "Spectral Unmixing α": ["unmix", "unmix_controls",
                                   "unmix_background_percentile"],
 
+    "Self-Supervised Denoising α": ["n2v_denoise", "n2v_model",
+                                          "n2v_epochs"],
+
     "Image Enhancement": ["enhance_background", "enhance_background_radius",
                           "enhance_background_scale",
                           "enhance_denoise", "enhance_denoise_strength",
@@ -5553,7 +5580,7 @@ categories = {
     ],
     "Regression: Diagnostics": ["regression_qc"],
 
-    "Activation Maps": ["smoothgrad_samples", "smoothgrad_sigma", "occlusion_window", "occlusion_stride", "ig_steps", "ig_baseline", "attribution_steps", "attribution_baseline", "sanity_check", "object_type", "cam_type", "target_layer", "overlay", "correlation", "manders_thresholds", "normalize_input"],
+    "Activation Maps": ["smoothgrad_samples", "smoothgrad_sigma", "occlusion_window", "occlusion_stride", "ig_steps", "ig_baseline", "attribution_steps", "attribution_baseline", "sanity_check", "object_type", "cam_type", "target_layer", "overlay", "correlation", "manders_thresholds", "normalize_input", "counterfactuals", "counterfactual_crops", "counterfactual_epochs"],
 
     "Sequencing": ["mode", "single_direction", "target_sequence", "regex", "offset_start", "window_length", "barcode_mismatches", "chunk_size", "fill_na", "save_h5", "comp_type", "comp_level"],
 
@@ -5612,6 +5639,10 @@ categories = {
 
     "GPU Measurement α": [
         "measure_gpu",
+    ],
+
+    "Measurement Backend α": [
+        "measurement_backend", "measurement_backend_target",
     ],
 
     "Profiling α": [
@@ -6277,14 +6308,14 @@ def get_setting_dependencies():
             "Bleach correction is only used for timelapse runs. The value is kept and saved."),
     )
 
-    for _key in categories.get('Time To Event \u03b1', ()):
-        setting_dependencies[_key] = rule(
+    for _key in categories.get("Time To Event α", ()):
+        setting_dependencies[_key] = _combined(
+            setting_dependencies.get(_key),
             ('timelapse',),
             lambda settings, context: bool(settings.get('timelapse', False)),
-            lambda settings, context: (
-                "Time to event reads tracked objects over time, so it is "
-                "only used when timelapse is on. The value is kept and "
-                "saved."),
+            lambda settings, context, key=_key: (
+                f"{key} follows tracked objects, so it is only read when "
+                f"timelapse is on. The value is kept and saved."),
         )
 
     return setting_dependencies
@@ -6596,6 +6627,9 @@ def get_default_generate_activation_map_settings(settings):
     settings.setdefault('attribution_baseline', 'blur')
     settings.setdefault('sanity_check', True)
     settings.setdefault('object_type', 'cell')
+    settings.setdefault('counterfactuals', False)
+    settings.setdefault('counterfactual_crops', 256)
+    settings.setdefault('counterfactual_epochs', 30)
     return settings
 
 def get_analyze_plaque_settings(settings):
@@ -7212,6 +7246,9 @@ ALPHA_FEATURES = {
     566: {
         'settings': ('measure_gpu',),
     },
+    576: {
+        'settings': ('measurement_backend', 'measurement_backend_target'),
+    },
     540: {
         'settings': ('viability', 'viability_dead_channel',
                      'viability_live_channel', 'viability_thresholds',
@@ -7308,6 +7345,9 @@ ALPHA_FEATURES = {
     562: {
         'widgets': ('EmbeddingsWellMilButton',),
     },
+    561: {
+        'widgets': ('EmbeddingsDinoPretrainButton',),
+    },
     558: {
         'widgets': ('CellposeWorkbenchVirtualStain',),
     },
@@ -7351,6 +7391,10 @@ ALPHA_FEATURES = {
     },
     538: {
         'settings': ('unmix', 'unmix_controls', 'unmix_background_percentile'),
+    },
+    557: {
+        'settings': ('n2v_denoise', 'n2v_model', 'n2v_epochs'),
+        'models': ('careamics_v1',),
     },
     574: {
         'widgets': ('ReportArchivePackage',),
@@ -7433,20 +7477,6 @@ ALPHA_FEATURES = {
             for app_key in ('mask', 'timelapse')
         },
     },
-    593: {
-        'module_settings': {
-            'measure': (
-                'illumination_correction', 'illumination_model',
-                'illumination_estimator', 'illumination_degree',
-                'illumination_dark', 'illumination_per_plate',
-                'illumination_max_fields', 'illumination_qc',
-                'illumination_on_missing',
-                'psf_measurement_source', 'psf_operation', 'psf_source',
-                'psf_objective', 'psf_path', 'psf_image_sampling_um',
-                'psf_kernel_sampling_um', 'psf_fwhm_um', 'psf_iterations',
-            ),
-        },
-    },
     405: {
         'choices': {'segmentation_backend': ('samcell',)},
         'models': ('samcell_v1',),
@@ -7458,6 +7488,10 @@ ALPHA_FEATURES = {
     501: {
         'settings': ('plaque_estimate_growth', 'plaque_growth_reference_um',
                      'plaque_growth_reference_hours'),
+    },
+    564: {
+        'settings': ('counterfactuals', 'counterfactual_crops',
+                     'counterfactual_epochs'),
     },
 }
 

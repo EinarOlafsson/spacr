@@ -42,6 +42,7 @@ pytest.importorskip("PySide6")
 
 from PySide6.QtWidgets import (
     QApplication,
+    QHBoxLayout,
     QLineEdit,
     QVBoxLayout,
     QWidget,
@@ -88,6 +89,7 @@ class _Screen(QWidget):
         self._runtime_wrap = QWidget(self)
         QVBoxLayout(self._runtime_wrap)
         self._actions_row = QWidget(self._runtime_wrap)
+        QHBoxLayout(self._actions_row)
         self._runtime_wrap.layout().addWidget(self._actions_row)
 
 

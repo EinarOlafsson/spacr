@@ -85,5 +85,14 @@ FEATURES VALIDATED ONLY ON SYNTHETIC DATA OR MISSING THEIR REAL-DATA TARGET
   accuracy not claimed; alpha on Mask generation by point 2 above), 404
   DINOCell (ran for real on one field, ~85%).
 
+MERGED WITH NIGHTLY, 2026-09-28: 557's "Self-Supervised Denoising α" is
+  nested under Image Preprocessing on Mask generation and Timelapse (after
+  Illumination Correction α, before Image Deconvolution α, the order the
+  run applies them); 576's "Measurement Backend α" nests under Measure's
+  Postprocessing. Measure keeps 595's grouping: its Illumination
+  Correction, Image Deconvolution (PSF) and Image Enhancement stay ordinary
+  (the WIP's Measure-only alpha entry was dropped), and its Cloud α blurb
+  is a Measure override so Mask's Cloud α keeps the translated shared one.
+
 LEFT: the i18n catalog rows for the renamed categories (catalog lane); the
 Plaque Figure preview's growth-estimate control as a registered widget.

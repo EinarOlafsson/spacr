@@ -2190,7 +2190,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # export_hits.
     # 9,833 -> 9,837 with items 544 and 573 (blind scoring, analysis
     # lock): spacr.run_journal's start_blinding, unblind, lock_analysis and check_analysis_lock.
-    assert len(callables) == len(by_symbol) == 9_837
+    # 9,837 -> 9,895 on 2026-09-28, +58 / -0, item 593 (consolidate folders,
+    # sort into channels): the callables of spacr.folder_consolidation,
+    # spacr.channel_sorting and spacr.qt.widgets.channel_sort_dialog.
+    assert len(callables) == len(by_symbol) == 9_895
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -2264,18 +2267,21 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # (MedianPolish, ArrayedHitResult), +1 exception_constructor
         # (HitScoringError); see the callable total.
         # Items 544 and 573: +4 function (spacr.run_journal).
-        "function": 4_399,
+        # Item 593: +33 function, +14 method, +3 constructor (the three
+        # dialogs of qt.widgets.channel_sort_dialog), +8 dataclass_constructor
+        # (channel_sorting and folder_consolidation result records).
+        "function": 4_432,
         # -9 on 2026-09-15: the seven spacrStitcher methods,
         # StitchedMultiAligner.align and FOVAlignAndCropper.run.
-        "method": 4_245,
+        "method": 4_259,
         # -3 on 2026-09-15: spacrStitcher, StitchedMultiAligner and
         # FOVAlignAndCropper.
-        "constructor": 452,
+        "constructor": 455,
         # 473 -> 474 on 2026-09-15, +1: `SearchThresholds` is a frozen
         # dataclass, so it lands here and in no other category.
         # +2 on 2026-09-15: spacr.install_cleanup.InstallRecord and
         # RemovalReport. Subtracted, 474.
-        "dataclass_constructor": 508,
+        "dataclass_constructor": 516,
         "namedtuple_constructor": 24,
         "exception_constructor": 149,
         "inherited_or_default_constructor": 60,
@@ -2325,7 +2331,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 9,802 -> 9,803 with item 588's mask_engine.fill_label_holes.
         # 9,803 -> 9,828 with item 570's 25, as the total.
         # 9,828 -> 9,832 with items 544 and 573's four, as the total.
-        "autoapi": 9_832,
+        # 9,832 -> 9,890 with item 593's 58, as the total.
+        "autoapi": 9_890,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -2378,7 +2385,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 9,814 -> 9,815 with item 588's mask_engine.fill_label_holes.
     # 9,815 -> 9,840 with item 570's 25, one prose variant each.
     # 9,840 -> 9,844 with items 544 and 573's four, one prose variant each.
-    assert sum(item.variant_count for item in callables) == 9_844
+    # 9,844 -> 9,902 with item 593's 58, one prose variant each.
+    assert sum(item.variant_count for item in callables) == 9_902
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
@@ -2396,7 +2404,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 9,800 -> 9,801 with item 588's mask_engine.fill_label_holes.
         # 9,801 -> 9,826 with item 570, as the sum above.
         # 9,826 -> 9,830 with items 544 and 573, as the sum above.
-        1: 9_830,
+        # 9,830 -> 9,888 with item 593, as the sum above.
+        1: 9_888,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -2441,13 +2450,14 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # with ObjectFilterList; 447 with ContributeDialog and ConsentDialog (523);
     # after merging nightly (503/507/525/526), 448; 449 with
     # ContributeMasksDialog (528); 452 on 2026-09-26 with ColumnTextScale,
-    # DockEdge (529) and DiameterDialog (533).
+    # DockEdge (529) and DiameterDialog (533); 455 on 2026-09-28 with item
+    # 593's ExampleSetsDialog, RegexWindow and ChannelSortDialog.
     assert sum(
         item.constructor_prose_variant_count for item in callables
-    ) == 452
+    ) == 455
     assert sum(
         item.constructor_prose_variant_count > 0 for item in callables
-    ) == 452
+    ) == 455
     # RE-RECORDED 2026-09-07, and the direction check still holds: every
     # figure moved UP with the nine new callables and not one fell.
     # 16,654 -> 16,681 parameters and 8,436 -> 8,452 required. The
@@ -2619,7 +2629,12 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # and write_run_summary each gain optional `fit_designs`; no required
     # parameter or callable changes. Full-inventory subtraction proof is
     # recorded in features/data/411_api_delta4_07_53_2026-09-27.json.
-    assert sum(len(item.parameters) for item in callables) == 19_542
+    # 19,542 -> 19,672 on 2026-09-28, +130 / -0: the parameters of item
+    # 593's 58 new callables (folder_consolidation, channel_sorting and
+    # qt.widgets.channel_sort_dialog); no existing signature changed.
+    # 593, 2026-09-28: +4 for the RGB/z-stack conversion (build_plan and
+    # prepare_plan take convert; PlanRow.convert, SortPlan.convertible).
+    assert sum(len(item.parameters) for item in callables) == 19_676
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2662,7 +2677,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 10,016 -> 10,017 with item 588's mask_engine.fill_label_holes.
     # 10,017 -> 10,049, +32, all on item 570's 25 hit-scoring callables.
     # 10,049 -> 10,056, +7, the required ones among them.
-    assert sum(len(item.required_parameters) for item in callables) == 10_056
+    # 10,056 -> 10,126 on 2026-09-28, +70, all on item 593's 58 callables.
+    assert sum(len(item.required_parameters) for item in callables) == 10_126
     # Moved again 2026-09-15 for 333's `LivePreviewPanel.module`, proved by
     # subtraction on the full inventory: without that one parameter the digest
     # is 5b30fe1f... (410's pin, byte for byte); without it AND 410's
@@ -2812,7 +2828,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # and write_run_summary restores 6cb9955461... byte for byte across
     # all 9,837 rows; source signatures at b38aea05b^ prove both additions
     # are optional. All other inventory fields remain unchanged.
-) == "bafdafefba5aa913f78af993ebc2c7875f9840d8559ba11cd9fb705231d9c241"
+    # Moved 2026-09-28 for item 593, proved by subtraction: dropping the rows
+    # of spacr.channel_sorting, spacr.folder_consolidation and
+    # spacr.qt.widgets.channel_sort_dialog restores bafdafefba5a... byte for
+    # byte; no existing row changed.
+) == "bd5124b7ab2fbb48d73de7b14fd4d78617b4ead2f1e77a5d98fab7fbf845443e"
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -3321,7 +3341,11 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 11,835 -> 11,861 with item 570's 26 (25 callables and
     # ControlChartScreen.hit_result), named at the callable inventory.
     # 11,861 -> 11,865 with items 544 and 573: spacr.run_journal's start_blinding, unblind, lock_analysis and check_analysis_lock.
-    assert len(docs) == 11_865
+    # 11,865 -> 11,929 on 2026-09-28, +64 / -0, item 593: its 58 callables
+    # (named at the callable inventory) plus the modules, classes and
+    # constants of folder_consolidation, channel_sorting and
+    # qt.widgets.channel_sort_dialog.
+    assert len(docs) == 11_929
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
@@ -3655,8 +3679,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 9,481 -> 9,506 with item 570's 25 hit-scoring callables, named at the
     # callable total.
     # +4 each with items 544 and 573's four spacr.run_journal callables.
-    assert len(prior - pipeline_callables) == 9_510
-    assert len(prior - pipeline_callables - validation_functions) == 9_504
+    # +58 each with item 593's callables, named at the callable total.
+    assert len(prior - pipeline_callables) == 9_568
+    assert len(prior - pipeline_callables - validation_functions) == 9_562
     # 9,522 -> 9,630 on 2026-09-25: +109 session_callables, -1 render_cellprob;
     # 9,640 with the ten rebase_callables; 9,687 with merged_callables.
     # 9,727 with item 528's eleven; 9,784 on 2026-09-26, +59 / -2.
@@ -3664,7 +3689,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 9,802 -> 9,803 with item 588's mask_engine.fill_label_holes.
     # 9,803 -> 9,828 with item 570's 25.
     # 9,828 -> 9,832 with items 544 and 573's four.
-    assert len(rendered_documented_callables) == 9_832
+    # 9,832 -> 9,890 with item 593's 58.
+    assert len(rendered_documented_callables) == 9_890
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 
@@ -3743,7 +3769,10 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     # 58 -> 60 on 2026-09-25, +2 / -0 by set difference against b84c3441c:
     # item 511's namedtuples mask_engine.FailedBound (5 required fields) and
     # ObjectRemoval (3), both in the GENERATED half; no other field set moved.
-    assert len(required_ivars) == 60
+    # 60 -> 66 on 2026-09-28, +6 / -0, item 593's dataclasses with required
+    # fields: channel_sorting's ParsedName, SetName, PlanRow, SortPlan and
+    # ApplyResult, and folder_consolidation's ConsolidationResult.
+    assert len(required_ivars) == 66
     # 156 -> 165 on 2026-09-10: nine fields across Alignment and
     # StitchedWell, the two dataclasses the count above admitted.
     # 165 -> 171, +6: the six fields of `BarcodeSearchPlan` named above.
@@ -3761,7 +3790,9 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     # 198 -> 217 on 2026-09-20, the fields of the nine new documented
     # dataclass constructors.
     # 238 -> 246, +8: FailedBound's and ObjectRemoval's fields.
-    assert sum(map(len, required_ivars.values())) == 246
+    # 246 -> 262, +16: item 593's ParsedName (2), SetName (3), PlanRow (5),
+    # SortPlan (2), ApplyResult (2) and ConsolidationResult (2).
+    assert sum(map(len, required_ivars.values())) == 262
     # 30 -> 32 and 145 -> 154: Alignment and StitchedWell again, with
     # their nine fields between them.
     # 32 -> 33 and 154 -> 160: `BarcodeSearchPlan` and its six fields. The
@@ -3778,12 +3809,15 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     # 39 -> 40 on 2026-09-15: AlignedField, wholly in the GENERATED half.
     # 40 -> 48 on 2026-09-20, the new documented dataclass constructors.
     # 52 -> 54 on 2026-09-25: FailedBound and ObjectRemoval.
-    assert len(generated) == 54
+    # 54 -> 60 on 2026-09-28: item 593's six dataclasses with required
+    # fields, wholly in the GENERATED half.
+    assert len(generated) == 60
     # 161 -> 181, the 20 fields of the five curation_queue dataclasses.
     # 181 -> 187 on 2026-09-15, +6: the same six AlignedField fields.
     # 187 -> 204 on 2026-09-20, moving with the generated constructors.
     # 224 -> 232, the same eight fields.
-    assert sum(map(len, generated.values())) == 232
+    # 232 -> 248, the same sixteen fields.
+    assert sum(map(len, generated.values())) == 248
     # `dataclass_constructor` 31 -> 32: `BarcodeSearchPlan`. The namedtuple
     # bucket is unchanged, which is the part worth asserting -- a namedtuple
     # arriving here would be a different event.
@@ -3795,7 +3829,8 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         # namedtuple arriving here would be a different event.
         # 38 -> 39 on 2026-09-15: spacr.ops_cycles.AlignedField.
         # 39 -> 44 on 2026-09-20, five more dataclasses.
-        "dataclass_constructor": 46,
+        # 46 -> 52 on 2026-09-28: item 593's six dataclasses.
+        "dataclass_constructor": 52,
         # 1 -> 4 on 2026-09-20. THE BUCKET THE COMMENT ABOVE SAYS IS THE
         # PART WORTH ASSERTING HAS MOVED: three namedtuples now generate
         # ivar prose where one did. That is a different event from a
@@ -3817,7 +3852,8 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         # 182 -> 190 on 2026-09-20, and the namedtuple bucket moved too
         # (5 -> 14), which the comments above say is the part worth
         # asserting: these are namedtuple fields, not dataclass ones.
-        "dataclass_constructor": 200,
+        # 200 -> 216 on 2026-09-28: item 593's sixteen required fields.
+        "dataclass_constructor": 216,
         # 24 -> 32 on 2026-09-25: the eight namedtuple fields above.
         "namedtuple_constructor": 32,
     }
@@ -3851,7 +3887,9 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     # the eight new constructors documents every required field.
     # 52 -> 54 on 2026-09-25, tracking `generated`: FailedBound and
     # ObjectRemoval document every required field; the zeros still hold.
-    assert sum(not names for names in remaining.values()) == 54
+    # 54 -> 60 on 2026-09-28, tracking `generated`: item 593's six
+    # dataclasses document every required field; the zeros still hold.
+    assert sum(not names for names in remaining.values()) == 60
     assert sum(bool(names) for names in remaining.values()) == 0
     assert sum(map(len, remaining.values())) == 0
     assert all(

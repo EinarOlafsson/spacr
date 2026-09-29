@@ -218,7 +218,9 @@ TOOLS = ROOT / "tools"
 # 11,860 with item 570's hit scoring, +26, named in test_api_i18n_extractor.
 # 11,861 with item 588's mask_engine.fill_label_holes.
 # 11,865 with items 544 and 573's four spacr.run_journal callables.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_865
+# 593, 2026-09-28: +64 (spacr.folder_consolidation, spacr.channel_sorting and
+# spacr.qt.widgets.channel_sort_dialog).
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_929
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

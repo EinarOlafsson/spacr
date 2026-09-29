@@ -110,6 +110,18 @@ def test_attribution_protection_is_bound_to_the_english_source(monkeypatch):
     assert builder._contextualize(target, "es", "Compare accuracy and efficiency.") == "'accurate y efficient spot detection in microscopy'"
 
 
+@pytest.mark.parametrize("citation", ["arXiv:2408.00714", "ARXIV:2408.00714v2"])
+def test_spanish_cleanup_preserves_verbatim_arxiv_title(monkeypatch, citation):
+    import build_i18n_catalogs as builder
+    monkeypatch.setattr(builder, "_reviewed_translation", lambda *_: None)
+    title = "'SAM 2: Segment Anything in Images and Videos'"
+    source = f"Published results: Ravi et al., {title}, ICLR 2025 ({citation})."
+    target = f"Resultados publicados: Ravi et al., {title}, ICLR 2025 ({citation}), and otros."
+    expected = target.removesuffix("and otros.") + "y otros."
+    assert builder._contextualize(target, "es", source) == expected
+    assert builder._contextualize(expected, "es", source) == expected
+
+
 def test_citation_nested_inside_rst_code_restores_every_literal(monkeypatch):
     import build_i18n_catalogs as builder
     monkeypatch.setattr(builder, "_reviewed_translation", lambda *_: None)

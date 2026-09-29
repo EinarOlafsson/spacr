@@ -1345,3 +1345,18 @@ focused checks have passing final outcomes; original failures and reruns are
 retained in the acceptance receipt. Review remains AI technical review
 (Codex), no native-speaker signoff. Receipt:
 features/data/316_runtime_577_585_2026-09-28.json.
+
+2026-09-28 — INHERITED 556/558/559 RUNTIME DELTA REVIEWED
+Added exactly 19 source identities and removed none: four classifier labels,
+four classifier tooltips, eight virtual-staining captions and three SAM2
+captions. All nine runtime locales have 171 source-bound review records,
+labelled AI technical review (GPT-6), no native-speaker signoff. Every old
+translation is byte-for-byte preserved. No models were downloaded or run.
+The builder now protects quoted arXiv paper titles during lexical cleanup,
+as it already did DOI titles; regression checks retain title text while
+still correcting surrounding Spanish prose. Eight catalog/inventory/hash/
+placeholder checks pass; the translated virtual-staining captions have left
+the awaiting set. English API remains current at 11,865 symbols, with zero
+required-parameter omissions (two source-bound checks passed).
+Receipt: features/data/316_runtime_alpha_delta_2026-09-28.json and .xml.
+This closes this bounded source delta, not human or native-speaker review.

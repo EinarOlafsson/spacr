@@ -1,4 +1,121 @@
 {
   "schema": 1,
-  "sources": {}
+  "sources": {
+    "1e571373dd4a758b04c3df25efa5770c86bfd27d7f6fc433f86020c21269e374": {
+      "source_blocks_sha256": [
+        "343fe32113944eb9a2b943ea049f035002cae5d92e88c0258a2a4bc29fe8d8c8",
+        "b55ee15c1cec5f8ee686fedde07b50efa6e2d5347a163e4cbf8d5c8b6753ce25",
+        "c9b8abe78b419bb3892111c9a5cc7e2f4fa7af17bd7400d54d3f972534d2e882",
+        "f222dfd579604639ea1be03958180542182f5d8d6067ae15c7456f53c881b158"
+      ],
+      "source_sha256": "1e571373dd4a758b04c3df25efa5770c86bfd27d7f6fc433f86020c21269e374",
+      "text": "Opt-in PSF and enhancement-chain preparation and provenance for segmentation inputs.\n\nKernels are captured once per run. Only private intensity arrays are processed;\nraw stacks and mask labels are never rewritten by this module. V1 reuse checks\nboth the requested kernel/settings and the exact completed archive bytes.\n\nTHE ENHANCEMENT CHAIN TRAVELS THE SAME ROUTE. Make Masks' chain\n(:mod:`spacr.qt.detect_chain`) is written into a settings file as the\n``enhance_*`` keys and read back here by :func:`prepare_chain`, with the\n``psf_*`` settings folded in as the chain's PSF stage, so one plate run\napplies exactly the steps a curator tuned, in the chain's own order:\nbackground, PSF, denoise, contrast, sharpen. The session applies it per\nselected channel at the stage the PSF already ran -- after illumination\ncorrection and before normalization -- and its provenance goes into the\nsame ``psf/segmentation_application.json`` record, so a changed chain is\nrefused on resume the way a changed kernel is. With no chain step on, a\nrun is byte for byte what it was before the chain existed.\n\nSPECTRAL UNMIXING COMES FIRST. With ``unmix`` on, a bleed-through matrix is\nestimated from the single-stain control wells ``unmix_controls`` names and\nevery raw field is unmixed across all its channels before illumination\ncorrection, the PSF and the chain; the matrix joins the same record. Measure\nestimates its own over the measured channels and unmixes each field before\nits preprocessing hooks, recording the matrix in the saved run settings and\n``measurements/bleed_through.json``."
+    },
+    "2dbc15440ab214e76ca142362c58e55555fc052ca23128152c2f3aba4e000efc": {
+      "source_blocks_sha256": [
+        "264ee25f9242e2db6f8a2b5c761f5fd5b3321d464424dffaf144495d25df75b2",
+        "bc4ba6241be71569e20bc94ecabf0c9227e95266b1633a503263b333558e1c37",
+        "020ed299519d4a96466f449c51fce3e7ded116aa8465c8f16223cc082a25e525",
+        "a0d4a87dc2658f77c707a59b0b867d4323ad037fa23627efc1dd99eb0ed09634"
+      ],
+      "source_sha256": "2dbc15440ab214e76ca142362c58e55555fc052ca23128152c2f3aba4e000efc",
+      "text": "Whether these settings ask for a PSF or an enhancement step at all.\n\nA requested chain that cannot be built counts as requested: the run\nthen refuses with the reason rather than reusing inputs made without it.\n\n:param settings: the run's ``psf_*``, ``enhance_*`` and ``unmix``\n    settings.\n:returns: True when any is switched on or the chain cannot be read."
+    },
+    "4f76d2c6da871b3a103dbd0f0e0861bbe953aa89b508d7bef0f984faa0dbf9e5": {
+      "source_blocks_sha256": [
+        "88dca51dcf4f3b46f99de8ab83f91265abbce5951da01f1ae71b4fb64fdbdbb8",
+        "168d9a425776b11c397957bbfcf3fb11b5508e0e315ed1c9cfb5f4fc3e2e993a",
+        "ad9c79f5506ed88dc6f959900bf1720b59e16424a2813f678ab05b6b9e3d190f",
+        "59b9b256c731da5934e2ed6dc6903ddc3170791a17c15c3026e9555b1f7ee1a4",
+        "182418cb9ac1cbd7cf14bde3df48109e752a189d41eb8f429d17decaa4b6fa74",
+        "8ff4f2a6c37e2e3d0fff228271a0a977e1f9afd4e94c947d61cc84cbb152bb8f",
+        "b8ab347e5c5b20f199e0d025cf8e0daeb07e59ef1b4c9cc4776be35fbfa5e422",
+        "1538386b71edea2d00b6ec2d9f98cb895562b81a4b5769285d78523adbf414dd",
+        "45f16bb3f3f76c27839b1ef97c92058764daa8828ce4b6ea7cf88afaa1692067",
+        "9619bbcabca18c2f3e4dd41b569694f242ce1954a5e5f6af5da92c200127e196"
+      ],
+      "source_sha256": "4f76d2c6da871b3a103dbd0f0e0861bbe953aa89b508d7bef0f984faa0dbf9e5",
+      "text": "Write one frame into a SQLite table, with canonical column names.\n\n:param frame: the frame.\n:param db: path to the database; created if absent, ``~`` expanded.\n:param table: the table name.\n:param if_exists: ``'append'`` (spaCR's usual), ``'replace'``, ``'fail'``.\n:param canonicalise: rename legacy spellings on the way out. On by\n    default so a frame assembled by hand cannot put ``column_name`` back\n    into a database the reader will then have to repair.\n:param index: write the index. ``False``.\n:param migrate: run the schema migration first. ``False``: writing a\n    scratch table must not migrate the user's measurements.\n:param kwargs: passed to :meth:`pandas.DataFrame.to_sql`.\n:returns: the resolved database path."
+    },
+    "53f84b97800a0f2b2021d34e05c39142854226cf5822dc60cbd48ec15bcd8a24": {
+      "source_blocks_sha256": [
+        "2a22c5035140b48fd8e1d8f2cdf969eebe152014179c2a9b5bf52d242eb54e6e",
+        "6fdd2b321845e7586ddab96488b07fe5d180fa4a3c504aa3c32197b09fff1d58",
+        "9f725835f5248f68dee7ed057a22baeaff35c271040f94336c911ef3721f5bac",
+        "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
+      ],
+      "source_sha256": "53f84b97800a0f2b2021d34e05c39142854226cf5822dc60cbd48ec15bcd8a24",
+      "text": "Generate saliency or Grad-CAM activation maps for every image in a tar dataset.\n\nLoads the model, iterates the dataset, computes the requested map\ntype per batch, saves per-image maps into class/plate/well folders,\noptionally plots batch grids, computes activation-image correlations,\nand pushes both maps and correlations into the measurement database.\n\n:param settings: Settings dict — see\n    ``settings.get_default_generate_activation_map_settings`` for\n    keys (``dataset``, ``model_path``, ``cam_type``, ``target_layer``,\n    ``image_size``, ``batch_size``, ``channels``, ``normalize``,\n    ``save``, ``plot``, ``correlation``, ...).\n:returns: None"
+    },
+    "5ec45f031cd7de5686d14decc85c9800dc2b8b510a8d0b4559a5e8784d431b79": {
+      "source_blocks_sha256": [
+        "f43b982974719119b39e3f9b0d5e81eed077078d650b8c1b3e36b7af8f7a5a4b",
+        "99ad0b50c742d0f9eed8ff64acf9fe8ccdead8d25941e9827f7854cd48fdd110",
+        "8ba1ec3129ad3fb03834dd12b9253d3fad60a6d2572db8852cd90ebebfe4d7ff",
+        "497ca80896aad3b5b1d155a8967108ef8f4fac08c35d8d1bda9932a79e415267",
+        "442999d460bb8be4bb925fa8ba8cef455176b27d9cf9a34538a4b2704daefad9",
+        "74fd7500087187ad8d95171d0e6289658acd6c8fc9cd2d63f45e6f1c88353b9b",
+        "94a732648a5d3e3b325f8ff3688f2464365e078c6ad9948121bdd605ef7c4239",
+        "916625e89b79fdacd5048f059eec4ac9a125db64aec2072bb1df3be3c69b5f98",
+        "30ab5b1c0a6dba667236e89cadc4fb7adf73dbea4f0c645046f1eb81f2fceb92",
+        "9c4f5f298617b998e2bc80e73639ee906f22793c1d711a8641f31fefbbfdbba3",
+        "a8bfae3eee941527f2568d7e1ae4d526cc1c764fd09ee1e62deb13e5f00c6078",
+        "c1a83f52fcaa6baadd09ae0d598cae85839bbabe5732df2242104a99ebbfcd80",
+        "8848a8d17dd44f9f72b19bc8fc6b4456b330d017955456fa8ae55c436720a29a",
+        "2b276d0c5c366d8a8d9bcdccd2e8ef753e06e72c51437ec42107f96dc840f9de",
+        "558689d48d9f318f7533c5e47eae8aace51b69fa10f847160ae8e33fc633fa67",
+        "2e41b118eb209c139f2bcbf690486f6e1509ab978aa96feb053877a70a1a5a09",
+        "18980982936878f37fd3725179f4368d6d7ccd10d75dbb31366fc71e30c34158"
+      ],
+      "source_sha256": "5ec45f031cd7de5686d14decc85c9800dc2b8b510a8d0b4559a5e8784d431b79",
+      "text": "One reader and one writer for every table spaCR opens or saves.\n\nWhy this module exists\n----------------------\nAn audit across ``spacr/`` found 248\ntabular reads and writes -- ``pd.read_csv``, ``pd.read_sql*``, ``.to_csv``,\n``.to_sql`` -- and **thirteen** call sites that normalised a column name at\nall. There was no funnel; there were 248 doors, and which spelling of a key a\nframe ended up with depended on which door it came through.\n\nThe resulting failure has a consistent shape: ``columnID``\nworked as a filter, because *some* path downstream renamed on the way to the\nfit, while the CSV picker read the raw header and offered ``column_name`` and\n``column`` -- the names a user must not have to know.\n\nSo: one place normalises, and every reader goes through it. Doing it at the\nfunnel is the point. The picker becomes correct for free, because it reads\nthrough the same door and therefore sees ``columnID``.\n\nWhat a read guarantees\n----------------------\nEvery frame that leaves :func:`read_table` / :func:`read_database` has\n\n* canonical metadata column names (:func:`spacr.schema.canonical_column_name`,\n  which folds case *and* punctuation);\n* **one** column per metadata key, with the collision reported -- printed\n  when the duplicates agreed, warned with a row count when they did not\n  (:func:`spacr.schema.resolve_metadata_collisions`);\n* the ``pplate1`` plate-value repair applied to every plate-bearing column\n  (:func:`spacr.schema.normalise_plate_columns`).\n\nWriting\n-------\n**Decided, not accidental: spaCR writes canonical names.** ``write_table``\nand ``write_database`` canonicalise on the way out by default, so a frame\nassembled by hand cannot re-export ``column_name`` and start the cycle again.\nThe header of an exported file therefore changes for anyone whose downstream\nscript reads ``column_name`` -- that is a release note, and it is the\ndeliberate half of this compatibility trade-off.\n``canonicalise=False`` is there for a caller who owes an external format an\nexact header.\n\nThe guards that moved here rather than being left behind\n--------------------------------------------------------\n* A ``~`` path is expanded, once, for every reader -- GitHub issue #108,\n  where a ``src`` beginning with ``~`` was resolved against the working\n  directory and refused with ``FileNotFoundError: ~<DB>``. ``$HOME`` and\n  ``%USERPROFILE%`` too: a settings CSV carried between machines routinely\n  holds one.\n* **The measurements schema migration runs on open**, exactly as\n  ``io._read_db`` does it, so a legacy database is repaired by any reader\n  rather than only by the one that remembered.\n\nDependencies\n------------\n``pandas``, ``sqlite3`` and :mod:`spacr.schema`. Nothing else at module\nscope -- no ``spacr.utils``, no matplotlib, no torch. That is a requirement\nrather than tidiness: the CSV picker and the SQL column list have to be able\nto import this to get canonical names, and they cannot pay for a torch\nimport to do it."
+    },
+    "67ac68baf1b7855ed9e6b277adbee700c0777c4dc651fc31f1aa0e37c76d4096": {
+      "source_blocks_sha256": [
+        "7da6ec2bf0364f9b13444c9eb8713ae43691da3d7b13a54aaef2decebb6517a8",
+        "ca5b3f181df1a3bec9789597fa47baf5eaf4413a546871dc50034d2a28a9cead",
+        "d3628131341f819c95e27b6b1716fc91d00e91d5013b2aa36872a9b31f8870dc",
+        "81918d2eda50486ab20c71eb56908307672266bd3b77e833dd9a0d469ad69143",
+        "f0ad79e43ee9794c2ad7268f998bc06f8ffd43382e239df846cb871c049f7a3a",
+        "52cd23d381650120a31e2e2e2b7dc5f06e7d9a10f7b1ba06691bea728e4659dd",
+        "bf22821bec21a94802cc6246399b8d093cdcb969fa77f161374d78cba04fae37",
+        "7abde142d45cb5d9c75e6d03115ae363d4dea8ea6978213eb5a4a28922fd6d6d",
+        "363c2d1f6aa42181692a14da418f154184f3e0532c486644f9c322d537146ae1",
+        "826f82993ba50bc9424886992fb8b880b4b2bf4c1733d930b3722ccd03b2f156"
+      ],
+      "source_sha256": "67ac68baf1b7855ed9e6b277adbee700c0777c4dc651fc31f1aa0e37c76d4096",
+      "text": "Read one table, whatever it is stored in, with canonical column names.\n\nCSV, TSV, SQLite, Parquet, Feather and Excel, chosen by suffix. A SQLite\npath needs ``table``; every other format ignores it.\n\n:param source: path to the file. ``~`` and ``$VARS`` are expanded. A\n    cloud address (``s3://``, ``gs://``, ``az://``, ``https://``) is read\n    from a cached local copy.\n:param table: the table name, for a database.\n:param canonicalise: apply the vocabulary. **There is no reason to turn\n    this off on the ordinary path** -- it is what makes the picker and\n    the run agree about what a column is called. Off is for a caller\n    inspecting a file exactly as written.\n:param report: called with each agreeing-collision message; ``print`` by\n    default, ``None`` to silence.\n:param warn: called with each disagreeing-collision message; ``None``\n    routes to :func:`warnings.warn`.\n:param repair_plate_ids: collapse a doubled ``pp`` plate prefix.\n:param kwargs: passed to the underlying pandas reader.\n:returns: a :class:`pandas.DataFrame`."
+    },
+    "6f357005b1fae1b0bf232a1a70cb9ffb398040fd1813b12eb2ded837352d2716": {
+      "source_blocks_sha256": [
+        "86758dec6682dca13331797d75ecc66789f9ace67701019f127b6cc4e3c9f044",
+        "308f102fda1826f4793aeae3be6d181097195b27b3000d4ba9879dcac4208088",
+        "7319b5778f6d826cf31a7bd5a65223025a64e0214a1348cd4badf0d61501b9d9",
+        "cef37a82e84c6f4fb6396502a4e1ec9a55f92455025aabbb918ddf9097eee657",
+        "04407334e54b8504ac4d43d1ac611ca25e78ee1d93d0441969a786331c89f4ee",
+        "5c2fffc8495d182ffd692f058925b5f0b13bf3cd7bc93b605ccbc5dfc8994555",
+        "5c2fffc8495d182ffd692f058925b5f0b13bf3cd7bc93b605ccbc5dfc8994555",
+        "7abde142d45cb5d9c75e6d03115ae363d4dea8ea6978213eb5a4a28922fd6d6d",
+        "e566dda653b370a158598373c07498ca3813ee88323cd0050443c4df6844a01a",
+        "df04b453444994f66bb7cc080c463b9c5094a0676fc67775e06852b164fc9872",
+        "eeb03aaf000f8a3acd8ca9f4f87cc8bc5e71a3c3f96bf630beb099fbe4baeab3",
+        "e8aa962a4e593777d9ac66c23c8d00c94c5a1f7bcd44f39cff8ac141e9be3dda",
+        "fa459100c2fb05b80c9796b9e757e03437d071d3b3bc81897a048ed7ce795fa6",
+        "1d35f11113539651a428a0aa2703909677914739cc6b858b160c6da16dc327f8",
+        "3071fac032a4db15c6042c6aa2cabe30723581466231104ddbcbeff8103520c8"
+      ],
+      "source_sha256": "6f357005b1fae1b0bf232a1a70cb9ffb398040fd1813b12eb2ded837352d2716",
+      "text": "Read one or more tables out of a SQLite database.\n\nExpands ``~``, validates identifiers before opening the database, runs the\nschema migration when requested, and reads in chunks to limit peak memory.\nA missing table raises :class:`ValueError` with its name.\n\n:param db: path to the database.\n:param tables: a table name, or a sequence of them.\n:param canonicalise: apply the vocabulary to each frame.\n:param report: see :func:`read_table`.\n:param warn: see :func:`read_table`.\n:param repair_plate_ids: collapse a doubled ``pp`` plate prefix.\n:param migrate: run the schema migration on open.\n:param read_only: open through ``file:...?mode=ro``, so the read cannot\n    write to the user's database. Incompatible with ``migrate``.\n:param limit: read at most this many rows per table. ``None`` reads all\n    of them.\n:param chunksize: rows per chunk.\n:param kwargs: passed to :func:`pandas.read_sql_query`.\n:returns: one frame per requested table, in the order asked for.\n:raises ValueError: when a table is not in the database."
+    },
+    "e2de39098c2ae01a0a65e09c8e506442b27066b070e05c114f90dbf77600efa8": {
+      "source_blocks_sha256": [
+        "b5d0fe421467e3f7b12b949224dac639154ac604eb0345d01bce2dae4433a434",
+        "79b2f4b446f7d4610e43572ed44497cfb6d8f3876db1a61edc8e6aa193f22050",
+        "c5a5c82f297ecbea67c64d4aac77d95eb0d4b398758fb9124e21af6c73291385",
+        "e97e6666a03954e30a3610b1ef94042886a5327afde79a208813f06acb500a6d"
+      ],
+      "source_sha256": "e2de39098c2ae01a0a65e09c8e506442b27066b070e05c114f90dbf77600efa8",
+      "text": "The table names in a database, sorted.\n\n:param db: path to the database. ``~`` and ``$VARS`` are expanded.\n:param migrate: run the schema migration first. ``False``, because\n    listing what is there must not rewrite it.\n:returns: the table names."
+    }
+  }
 }

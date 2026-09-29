@@ -363,6 +363,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # image-quality classifier, appended to the Image Quality category.
     "image_qc_classifier", "image_qc_classifier_model",
     "image_qc_classifier_labels", "image_qc_classifier_threshold",
+    # NEW SETTINGS, not a regrouping (item 564, 2026-09-28): the generative
+    # counterfactuals, appended to the Activation Maps category.
+    "counterfactuals", "counterfactual_crops", "counterfactual_epochs",
     "plaque_pixels_per_um", "plaque_formation_hours", "plaque_estimate_growth",
     "plaque_growth_reference_um", "plaque_growth_reference_hours",
     "replication_method", "tta_enabled", "tta_rotations", "tta_horizontal_flip",
@@ -785,6 +788,10 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # percentile, under a "Spectral Unmixing α" heading in Mask,
     # Timelapse and Measure.
     "unmix", "unmix_controls", "unmix_background_percentile",
+    # NEW SETTINGS, not a regrouping (item 557, 2026-09-27): Noise2Void
+    # denoising's switch, its model folder and training epochs, under a
+    # "Self-Supervised Denoising α" heading in Mask and Timelapse.
+    "n2v_denoise", "n2v_model", "n2v_epochs",
     # NEW SETTINGS, not a regrouping (item 547, 2026-09-26): image-based
     # profiling at the end of Measure -- the switch, plate map, treatment
     # and control, normalisation, feature selection and its correlation
@@ -810,6 +817,10 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # measurement on a CUDA GPU, under its own "GPU Measurement α"
     # heading.
     "measure_gpu",
+    # NEW SETTINGS, not a regrouping (item 576, 2026-09-28): a DuckDB,
+    # Parquet or PostgreSQL copy of the measurements, under their own
+    # "Measurement Backend α" heading.
+    "measurement_backend", "measurement_backend_target",
     # A NEW SETTING GROUP, not a regrouping (item 537, 2026-09-27): lineage
     # trees from the tracker's division links, appended to the Timelapse
     # category and shown under "Lineage Trees α" on the Timelapse app.
@@ -1558,6 +1569,8 @@ def _rendered_sections(app_key):
                 # `build_sections` nests under Image Preprocessing.
                 "Input & Metadata", "Cloud α", "Workflow & Test Run", "Image Preprocessing",
                 "Illumination Correction α",
+                # Item 557: Noise2Void denoises before the PSF and the chain.
+                "Self-Supervised Denoising α",
                 "Image Deconvolution α",
                 "Image Enhancement α",
                 'Image Quality',
@@ -1593,28 +1606,32 @@ def _rendered_sections(app_key):
         # `prepare_illumination_correction` returned None on every GUI run.
         # It sits after the channel mapping and before the features for the
         # same reason: that is the order the run executes them in.
+        # Item 595, 2026-09-28: the maintainer's regroup. Cloud nests under
+        # Input & Experiment; the corrections nest under Image
+        # Preprocessing, the assays under Features, and Runtime,
+        # Profiling and the backend under Postprocessing
+        # (_APP_CATEGORY_PARENTS). This is the flat order they are drawn
+        # in; Image Enhancement offers no measure key, so it is not drawn.
         ("measure", [
-            # Item 593, 2026-09-28: Preview & Diagnostics' settings joined
-            # Input & Experiment; Cloud is an alpha sub-category of it. The
-            # image corrections are alpha sub-categories of an Image
-            # Preprocessing umbrella, the per-object analyses nest under
-            # Features (was Measurement Features), and Runtime & Reliability
-            # and Profiling nest under a Postprocessing umbrella. This
-            # mirror is the FLAT map, in layout order.
             "Input & Experiment", "Cloud α", "Mask & Channel Mapping",
             "Bleach Correction α", "Spectral Unmixing α",
-            "Image Deconvolution α", "Illumination Correction α",
-            "Plate Barcode Linkage α", "Intensity Calibration α",
-            "Features", "Confluency α", "Cell Cycle α", "Wound Closure α",
-            "Viability α", "CellProfiler α", "GPU Measurement α",
+            "Image Deconvolution (PSF)", "Illumination Correction",
+            "Intensity Calibration α", "Plate Barcode Linkage α",
+            "Features",
+            "Confluency α", "Cell Cycle α",
+            "Wound Closure α", "Viability α",
+            "CellProfiler α", "GPU Measurement α",
             "Time To Event α",
             "Object Filtering", "Crop Output", "3D Calibration (Beta)",
             "Runtime & Reliability", "Profiling α",
+            "Measurement Backend α",
         ]),
             ("timelapse", [
                 "Input & Metadata", "Acquisition & Axes", "Image Preprocessing",
                 # Item 591, 2026-09-28: as on Mask generation.
                 "Illumination Correction α",
+                # Item 557: Noise2Void denoises before the PSF and the chain.
+                "Self-Supervised Denoising α",
                 "Image Deconvolution α",
                 "Image Enhancement α",
                 'Image Quality',
@@ -1681,7 +1698,9 @@ def _rendered_sections(app_key):
         ]),
         ("activation", [
             "Model & Data", "Attribution Method", "Attribution Validation",
-            "Map Display", "Map Quantification", "Output & Runtime",
+            "Map Display", "Map Quantification",
+            # item 564 (2026-09-28): alpha-only heading, hidden with the gate.
+            "Counterfactuals", "Output & Runtime",
         ]),
         ("replication", [
             "Replication Method", "Assay Inputs", "Size Proxy (Legacy)",

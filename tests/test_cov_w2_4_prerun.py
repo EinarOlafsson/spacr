@@ -933,33 +933,34 @@ def test_use_all_with_nothing_usable_says_nothing_new(diameter, tmp_path):
 # Installation
 # ---------------------------------------------------------------------------
 
-def test_an_action_row_with_no_layout_cannot_carry_the_button(qtbot):
+def test_a_screen_with_no_anchors_cannot_carry_a_panel(qtbot):
+    screen = _Screen(with_anchors=False)
+    qtbot.addWidget(screen)
+    assert prerun._insert_before_dimension_switches(screen, QWidget()) is False
+
+
+def test_an_action_row_with_no_layout_cannot_carry_a_panel(qtbot):
     screen = _Screen()
     qtbot.addWidget(screen)
-    screen._actions_row = QWidget(screen)           # no layout on it
-    dialog = prerun.SegQCDialog(screen, prerun.SegQCBanner(screen))
-    assert prerun._add_qc_button(screen, dialog) is None
+    screen._actions_row = QWidget(screen)          # no layout on it
+    assert prerun._insert_before_dimension_switches(screen, QWidget()) is False
 
 
-def test_the_banner_is_in_a_popup_behind_the_qc_button(qtbot):
-    """Item 593: opt-in, and nothing is added above the Run row."""
+def test_the_qc_switch_goes_left_of_the_dimension_switches(qtbot):
     screen = _Screen(widgets={"src": _src_field("")})
     qtbot.addWidget(screen)
-    before = screen._runtime_wrap.layout().count()
+    row = screen._actions_row.layout()
+    run, z_switch, t_switch = QWidget(), QWidget(), QWidget()
+    for widget in (run, z_switch, t_switch):
+        row.addWidget(widget)
+    screen.dimension_switch = {"z": z_switch, "t": t_switch}.get
 
     banner = prerun.install_qc_banner(screen, reader=lambda src: _Digest())
 
     assert banner is not None
-    assert screen._runtime_wrap.layout().count() == before
-    dialog = prerun.qc_dialog(screen)
-    assert isinstance(banner.window(), prerun.SegQCDialog)
-    assert banner.window() is dialog
-    button = screen._btn_qc
-    assert screen._actions_row.layout().indexOf(button) >= 0
-    assert not dialog.isVisible()
-    button.click()
-    assert dialog.isVisible()
-    dialog.close()
+    assert row.indexOf(screen._seg_qc_toggle) == row.indexOf(z_switch) - 1
+    assert row.indexOf(banner) < 0
+    assert prerun._qc_dialog(screen).isAncestorOf(banner)
     # Installing twice hands back the one that is already there.
     assert prerun.install_qc_banner(screen) is banner
 

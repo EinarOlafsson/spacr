@@ -1,0 +1,39 @@
+CLASSIFY'S ESSENTIALS ARE ENOUGH TO PICK AND TRAIN A MODEL
+
+Status:    DONE 2026-09-28.
+Requested: 2026-09-28, by the maintainer, verbatim:
+  "for classify the essentialls category only includes the classifier
+  category. this is not enough. essentialls should include enough to pick
+  and train a computer vision mode (resnet or Maxvit, etc) or a tabular
+  based algorithm"
+
+WHAT TO BUILD
+1. The Essentials view of Classify (app key classify_merged) shows what is
+   needed to choose and train either family:
+   a. an image model: source, workflow steps, classes/annotation column,
+      crops/channels, model type (resnet, maxvit, ...), epochs, batch size,
+      learning rate, train/val split, device-related settings;
+   b. a tabular model: the algorithm (xgboost, random forest, ...), the
+      measurement source, the target (class definition) and the key
+      hyperparameters.
+2. Only the settings of the chosen family are live, through the existing
+   classifier-family greying (spacr.classify.FAMILY_SETTINGS).
+3. Advanced settings stay in their categories.
+
+DONE WHEN a Qt test shows the Essentials view of Classify holds both
+families' training settings and greys the other family's.
+
+DONE 2026-09-28
+- _APP_ESSENTIAL_EXTRAS["classify_merged"] (spacr/qt/screens/settings_model.py)
+  adds the source and workflow steps, the class definition (dataset_mode,
+  classes, metadata items), test/val split, the image inputs, model_type,
+  init_weights, epochs, batch_size, learning_rate, optimizer_type,
+  mixed_precision, and model_type_ml, n_estimators, reg_alpha, reg_lambda.
+- batch_size, val_split, image_source and mixed_precision joined
+  spacr.classify.FAMILY_SETTINGS["cv"], so the tabular family greys them.
+  learning_rate stays shared (XGBoost reads it).
+- Test: tests/qt/test_classify_essentials_train_either_family.py. The lazy
+  build test now checks that every category Essentials does not reach waits.
+LEFT: there is no per-run device setting; the GPU/CPU choice is automatic
+(deep_spacr.pick_device, Preferences accelerator). The tabular family reads
+its measurements from src/measurements/measurements.db; no table selector.

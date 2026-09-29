@@ -70,7 +70,7 @@ def test_the_measure_form_hides_and_shows_the_calibration_settings(
         assert prefs._is_alpha_visible("settings", KEYS[0]) is False
         assert not any(screen.setting_row_is_visible(k) for k in KEYS)
         assert _heading(screen, title).isHidden()
-        assert not _heading(screen, "Measurement Features").isHidden()
+        assert not _heading(screen, "Features").isHidden()
         if bar is not None:
             assert not set(KEYS) & set(bar.indexed_keys())
         model = screen._settings_model
