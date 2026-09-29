@@ -35,6 +35,8 @@ pytest.importorskip("PySide6")
 
 pytestmark = pytest.mark.qt
 
+from tests.qt.per_object_table import the_table_answers  # noqa: E402
+
 #: The key each module switches an organelle slot with: Mask and Timelapse
 #: segment, so they ask for a channel; Measure reads masks somebody else
 #: made, so it asks which plane they are on.
@@ -73,8 +75,11 @@ def _slots_on_screen(screen, app_key: str) -> list:
     from spacr.organelle_types import ALL_ORGANELLE_ROLES
 
     suffix = SWITCH[app_key]
+    # 2026-09-29 (item 592): on Mask generation and Timelapse a slot's
+    # channel is a column of the per-object table, not a flat row.
     return [role for role in ALL_ORGANELLE_ROLES
-            if screen.setting_row_is_visible(f"{role}_{suffix}")]
+            if screen.setting_row_is_visible(f"{role}_{suffix}")
+            or the_table_answers(screen, f"{role}_{suffix}")]
 
 
 # ---------------------------------------------------------------------------

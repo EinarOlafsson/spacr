@@ -27,16 +27,22 @@ pytest.importorskip("PySide6")
 
 pytestmark = pytest.mark.qt
 
+from tests.qt.per_object_table import the_table_answers  # noqa: E402
+
 #: One setting per object, none of which is that object's own switch.
 OBJECT_ROWS = ("cell_diameter", "nucleus_diameter", "pathogen_diameter",
                "organelle_diameter", "cell_cellprob_threshold")
 
+#: 2026-09-29 (item 592): the per-object table is Mask generation's only
+#: layout of these questions, so on a fresh panel NONE of them is a flat row
+#: -- cell's included, whose column the table keeps. Every route below must
+#: leave them behind the table rather than put the flat wall back.
 FRESH_VISIBILITY = {
-    "cell_diameter": True,
+    "cell_diameter": False,
     "nucleus_diameter": False,
     "pathogen_diameter": False,
     "organelle_diameter": False,
-    "cell_cellprob_threshold": True,
+    "cell_cellprob_threshold": False,
 }
 
 
@@ -148,14 +154,18 @@ def test_cell_is_never_gated_even_under_all_settings(qtbot):
     bar.set_level(ALL)
     qtbot.wait(1)
 
-    assert screen.setting_row_is_visible("cell_diameter") is True
-    assert screen.setting_row_is_visible("cell_cellprob_threshold") is True
-    # Optional objects are omitted until their own switch is committed.
+    # 2026-09-29 (item 592): the cell column of the per-object table is
+    # where the reference object stays available; its flat rows stay behind
+    # the table even under All settings.
+    assert the_table_answers(screen, "cell_diameter") is True
+    assert the_table_answers(screen, "cell_cellprob_threshold") is True
+    assert screen.setting_row_is_visible("cell_diameter") is False
     assert screen.setting_row_is_visible("nucleus_diameter") is False
 
     model._widgets["cell_channel"].clear()
     qtbot.wait(1)
-    assert screen.setting_row_is_visible("cell_diameter") is True
+    assert the_table_answers(screen, "cell_diameter") is True
+    assert screen.setting_row_is_visible("cell_diameter") is False
 
 
 def test_the_panel_says_which_rows_the_run_has_no_object_for(qtbot):
@@ -163,8 +173,12 @@ def test_the_panel_says_which_rows_the_run_has_no_object_for(qtbot):
     screen, model = _screen(qtbot, "mask")
 
     hidden = set(model.keys_hidden_by_the_run())
-    assert "cell_diameter" not in hidden
-    assert "cell_channel" not in hidden, "the switch is never one of them"
+    # 2026-09-29 (item 592): every key the per-object table answers is off
+    # the flat form -- cell's and every switch included, since they are
+    # table cells now -- so the seam names them for a filter to subtract.
+    owned = set(screen._object_grid_binding.owned_keys())
+    assert {"cell_diameter", "cell_channel"} <= owned
+    assert owned <= hidden
     assert {"remove_background_nucleus",
             "remove_background_pathogen"} <= hidden
     # BUILT AND HIDDEN, NOT ABSENT. This asserted `not in model._widgets`,

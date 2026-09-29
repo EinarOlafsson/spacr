@@ -23,6 +23,8 @@ pytest.importorskip("PySide6")
 
 pytestmark = pytest.mark.qt
 
+from tests.qt.per_object_table import table_value, the_table_answers  # noqa: E402
+
 #: The key each module switches an organelle slot with: Mask segments, so it
 #: asks for a channel; Measure reads masks somebody else made, so it asks
 #: which plane they are on.
@@ -55,8 +57,11 @@ def _slots_on_screen(screen, app_key: str) -> list:
     from spacr.organelle_types import ALL_ORGANELLE_ROLES
 
     suffix = SWITCH[app_key]
+    # 2026-09-29 (item 592): on Mask generation and Timelapse a slot's
+    # channel is a column of the per-object table, not a flat row.
     return [role for role in ALL_ORGANELLE_ROLES
-            if screen.setting_row_is_visible(f"{role}_{suffix}")]
+            if screen.setting_row_is_visible(f"{role}_{suffix}")
+            or the_table_answers(screen, f"{role}_{suffix}")]
 
 
 # ---------------------------------------------------------------------------
@@ -106,9 +111,12 @@ def test_a_committed_slot_channel_brings_its_whole_settings_family(
         screen = window._screens["mask"]
         model = screen._settings_model
         # A slot's own settings still wait on its channel: the count says the
-        # slot EXISTS, the channel says the run has it.
-        assert screen.setting_row_is_visible("organelle_channel") is True
-        assert screen.setting_row_is_visible("organelle_diameter") is False
+        # slot EXISTS, the channel says the run has it. 2026-09-29 (item
+        # 592): the slot's channel and diameter are its column of the
+        # per-object table; its type and size rows stay on the flat form.
+        assert the_table_answers(screen, "organelle_channel") is True
+        assert the_table_answers(screen, "organelle_diameter") is True
+        assert screen.setting_row_is_visible("organelle_type") is False
 
         channel = model._widgets["organelle_channel"]
         channel.setText("2")
@@ -116,9 +124,10 @@ def test_a_committed_slot_channel_brings_its_whole_settings_family(
         qapp.processEvents()
 
         rebuilt = window._screens["mask"]
-        assert rebuilt.setting_row_is_visible("organelle_diameter") is True
+        assert the_table_answers(rebuilt, "organelle_diameter") is True
         assert rebuilt.setting_row_is_visible("organelle_type") is True
         assert rebuilt._settings_model.collect()["organelle_channel"] == 2
+        assert table_value(rebuilt, "organelle_channel") == 2
     finally:
         window.close()
         remember_disclosure("mask", previous)

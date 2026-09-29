@@ -22,7 +22,11 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from spacr.object_settings_table import to_table  # noqa: E402
+# 2026-09-29 (item 592): a cell names its key through _settings_key, since
+# "remove background" is spelled object-last (remove_background_cell) and
+# "adjust cells" names no object (adjust_cells).
+from spacr.object_settings_table import (  # noqa: E402
+    _SINGLE_OBJECT_QUESTIONS, _settings_key, to_table)
 from spacr.organelle_types import NUMBER_OF_ORGANELLES, organelle_role  # noqa: E402
 from spacr.qt.widgets.object_settings_grid import (  # noqa: E402
     AUTO_TEXT,
@@ -102,6 +106,11 @@ def test_the_table_claims_only_what_more_than_one_kind_asks(
     """
     roles = {_kind_of(obj) for obj in grid.objects()}
     for question, row in grid.table().items():
+        if question in _SINGLE_OBJECT_QUESTIONS:
+            # 2026-09-29 (item 592): "adjust cells" is asked of the cell
+            # alone, and the maintainer asked for it in the table anyway.
+            assert set(row) == {"cell"}, (question, sorted(row))
+            continue
         asking = {_kind_of(obj) for obj in row}
         assert len(asking) > 1, (
             f"{question!r} is in the table but only {sorted(asking)} asks it")
@@ -191,7 +200,7 @@ def test_a_question_an_object_does_not_ask_cannot_be_typed_into(grid):
 
     assert not (model.flags(index) & Qt.ItemIsEditable)
     assert grid.set_value(question, obj, "3") is False
-    assert f"{obj}_{question}" not in grid.settings()
+    assert _settings_key(obj, question) not in grid.settings()
 
 
 # ---------------------------------------------------------------------------
@@ -231,7 +240,8 @@ def test_a_new_organelle_starts_where_the_first_one_is(grid):
     grid.add_organelle()
 
     out = grid.settings()
-    assert out[f"organelleb_{question}"] == out[f"organelle_{question}"] == 11
+    assert (out[_settings_key("organelleb", question)]
+            == out[_settings_key("organelle", question)] == 11)
 
 
 def test_the_columns_are_numbered_and_never_lettered(grid):
@@ -384,15 +394,19 @@ class TestTheCountDecidesTheColumns:
         destructive edit disguised as a display change."""
         from spacr.organelle_types import NUMBER_OF_ORGANELLES
         grid = self._grid_at(qtbot, 2)
+        # A numeric question: since 592 the first row is the "remove
+        # background" check box, which a typed 17 does not fit.
         question = next(q for q in grid.questions()
-                        if grid._model.asks(q, "organelleb"))
+                        if grid._model.asks(q, "organelleb")
+                        and not isinstance(
+                            grid._model.value_at(q, "organelleb"), bool))
         grid.set_value(question, "organelleb", "17")
         kept = grid.settings()
 
         kept[NUMBER_OF_ORGANELLES] = 1
         grid.set_settings(kept)
         assert self._organelles(grid) == ["organelle"]
-        assert grid.settings()[f"organelleb_{question}"] == 17
+        assert grid.settings()[_settings_key("organelleb", question)] == 17
 
     def test_adding_an_organelle_raises_the_count(self, qtbot,
                                                   qt_theme_applied):
@@ -411,10 +425,12 @@ class TestTheCountDecidesTheColumns:
         reverts every cell the user has typed into."""
         grid = self._grid_at(qtbot, 1)
         question = next(q for q in grid.questions()
-                        if grid._model.asks(q, "cell"))
+                        if grid._model.asks(q, "cell")
+                        and not isinstance(
+                            grid._model.value_at(q, "cell"), bool))
         grid.set_value(question, "cell", "23")
         grid.add_organelle()
-        assert grid.settings()[f"cell_{question}"] == 23
+        assert grid.settings()[_settings_key("cell", question)] == 23
 
 
 # ---------------------------------------------------------------------------
@@ -467,7 +483,7 @@ class TestAnUnsetChannelSaysOffNotAuto:
                 tip = str(grid._model.data(grid._model.index(row, column),
                                            Qt.ToolTipRole) or "")
                 if len(tip) <= 40:
-                    thin.append(f"{obj}_{question}")
+                    thin.append(_settings_key(obj, question))
         assert not thin, f"cells with no real help: {thin[:5]}"
 
     def test_the_row_header_does_not_repeat_the_cells(self, grid):
@@ -798,7 +814,7 @@ class TestTheHelpSitsAboveTheTable:
         question, obj = next(
             ((q, o) for q in grid.questions() for o in grid.objects()
              if grid._model.asks(q, o)
-             and animation_for_setting(f"{o}_{q}") is not None),
+             and animation_for_setting(_settings_key(o, q)) is not None),
             (None, None))
         if question is None:
             pytest.skip("no per-object setting in this panel has an animation")
@@ -823,7 +839,7 @@ class TestTheHelpSitsAboveTheTable:
         question, obj = next(
             ((q, o) for q in grid.questions() for o in grid.objects()
              if grid._model.asks(q, o)
-             and animation_for_setting(f"{o}_{q}") is None),
+             and animation_for_setting(_settings_key(o, q)) is None),
             (None, None))
         if question is None:
             pytest.skip("every per-object setting has an animation")
