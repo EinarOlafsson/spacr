@@ -927,8 +927,11 @@ def _integration_review_record(language, label):
 
 @pytest.mark.parametrize("catalog_state", ["missing", "current"])
 @pytest.mark.parametrize("language,label,rewrite_passes", [
-    pytest.param("pt", "spacr.qt.widgets.outlier_model#27", False,
-                 id="portuguese-rewrite-rejected"),
+    # None: 577 (5c8b55b7a) stopped the Portuguese well-as-adverb rewrite
+    # when every English "well" is the noun, so this review now survives
+    # contextualizing unchanged; it must still be published verbatim.
+    pytest.param("pt", "spacr.qt.widgets.outlier_model#27", None,
+                 id="portuguese-no-longer-rewritten"),
     pytest.param("de", "spacr.schema.add_screen_column#3", True,
                  id="german-rewrite-still-passes"),
 ])
@@ -970,13 +973,16 @@ def test_api_repair_publishes_reviewed_target_verbatim_after_contextual_rewrite(
 
     assert builder.reviewed_api_block_translations(docs, language) == {source: target}
     rewritten = builder._contextualize(target, language, source)
-    assert rewritten != target
-    assert all(builder._reviewed_api_block_valid(text, rewritten, language)
-               for text in (source, context)) is rewrite_passes
-    if not rewrite_passes:
-        assert "scientific-well-as-adverb" in builder._semantic_false_friends(
-            source, rewritten, language,
-        )
+    if rewrite_passes is None:
+        assert rewritten == target
+    else:
+        assert rewritten != target
+        assert all(builder._reviewed_api_block_valid(text, rewritten, language)
+                   for text in (source, context)) is rewrite_passes
+        if not rewrite_passes:
+            assert "scientific-well-as-adverb" in builder._semantic_false_friends(
+                source, rewritten, language,
+            )
     if catalog_state == "current":
         builder.write_language(docs, language, {key: target})
 
