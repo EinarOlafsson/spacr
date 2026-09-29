@@ -220,7 +220,9 @@ TOOLS = ROOT / "tools"
 # 11,865 with items 544 and 573's four spacr.run_journal callables.
 # 593, 2026-09-28: +64 (spacr.folder_consolidation, spacr.channel_sorting and
 # spacr.qt.widgets.channel_sort_dialog).
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_929
+# 600, 2026-09-29: +13 (spacr.drop_classification and
+# spacr.qt.widgets.organize_for_measure).
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_942
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

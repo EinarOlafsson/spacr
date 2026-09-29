@@ -591,7 +591,8 @@ class ChannelSortDialog(QDialog):
                                                 n=channel)))
             box = QComboBox()
             captions = {"none": tr("not merged"), "cell": tr("cell"),
-                        "nucleus": tr("nucleus"), "pathogen": tr("pathogen")}
+                        "nucleus": tr("nucleus"), "pathogen": tr("pathogen"),
+                        "organelle": tr("organelle")}
             for role in ROLE_CHOICES:
                 box.addItem(captions[role], role)
             box.setCurrentIndex(ROLE_CHOICES.index(guess.get(channel, "none")))

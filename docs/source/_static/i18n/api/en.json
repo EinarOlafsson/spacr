@@ -5990,11 +5990,12 @@
         "f011c1f5a9daa343616645b60eb89f588c990bbc270384ae28621846dc27a5a1",
         "f4e6a46f4fba0f5d82c2a794dddbd6efd63779d65a04e2552f6201b4286570d8",
         "d5ec331991d19d64869eb3b1a422dd5c23c09f03def5404e799d913e04c4091e",
+        "6467c122ba95cbd8a1ce59c9da016c3861359485632fdaefee0b661778576c4e",
         "ea3bd380a00d79b11341a3863a9d3b4ab4d88d1ecdd52bf5eb716a8d9f768202",
         "a89332de24fb787ed65f2d099a9ffcd11684ed342db68c883cd7117062eaf1cd"
       ],
-      "source_sha256": "2a450af570bab49d1ea619f21f07db28cddd21d6d302fee40ac695bf521f15cb",
-      "text": "Decide every move, name and check before anything is touched.\n\n:param folder: the image folder.\n:param sets: ``{set key: {channel: name}}``, complete sets only.\n:param masks_dir: an explicit masks folder.\n:param mask_roles: ``{channel: role}``; ``None`` guesses\n    (:func:`default_mask_roles`); a channel missing from it, or given\n    ``\"none\"``, has its masks moved but not merged.\n:param dest: the new folder; default ``<folder>/sorted_channels``.\n:param check_shapes: read each image's and mask's size and refuse a set\n    whose images differ in size, a mask that is not its image's size or\n    an image that is not 2-D.\n:param convert: write RGB images as grey and z-stacks as their maximum\n    projection instead of refusing them; without it they are listed in\n    :attr:`SortPlan.convertible` so the caller can ask.\n:returns: a :class:`SortPlan`."
+      "source_sha256": "1642cc36de6f1e904e1e6aafe1c00a2617954a2c603b465000c692bdb553bb9a",
+      "text": "Decide every move, name and check before anything is touched.\n\n:param folder: the image folder.\n:param sets: ``{set key: {channel: name}}``, complete sets only.\n:param masks_dir: an explicit masks folder.\n:param mask_roles: ``{channel: role}``; ``None`` guesses\n    (:func:`default_mask_roles`); a channel missing from it, or given\n    ``\"none\"``, has its masks moved but not merged.\n:param dest: the new folder; default ``<folder>/sorted_channels``.\n:param check_shapes: read each image's and mask's size and refuse a set\n    whose images differ in size, a mask that is not its image's size or\n    an image that is not 2-D.\n:param masks: ``{image: mask path}`` naming each image's mask outright\n    (item 600's mask columns); an image missing from it has none. None\n    looks each mask up with :func:`mask_for`.\n:param convert: write RGB images as grey and z-stacks as their maximum\n    projection instead of refusing them; without it they are listed in\n    :attr:`SortPlan.convertible` so the caller can ask.\n:returns: a :class:`SortPlan`."
     },
     "spacr.channel_sorting.canonical_well": {
       "source_blocks_sha256": [
@@ -6078,13 +6079,13 @@
     "spacr.channel_sorting.mask_for": {
       "source_blocks_sha256": [
         "3f60fea989d2144394e9ab9f1355f4ec274fdef66c60e9f501fdcb86a93a6ced",
-        "cc247a3038010bdcb359ad9ed4187c4df5217f0b6b60b6466e224d4cb5229923",
+        "2024a32aad49966055d3f9c20062bc546394f12034822774a95726a749aedd53",
         "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
-        "295bc1804dac96cf8a9c75de5cafe5496c163eff3e68e61d59c8400f5967d55c",
-        "03d9ff28d57d5453ff99df39aa4e590eba57d1831246b380b43a22730c5c816e"
+        "b7cf1b59b49693743ff79dacf8fff5f4e7fc9810df50ed5073dd0a9ddceb3276",
+        "41ed8cb0f3b3cde8d616b01fa25b490b0bcfad7b341bb4705b15ffdec64b07c1"
       ],
-      "source_sha256": "12dcacc04ca37d38b5280e6bdb92ecb1996c1f8ae007efa5de7526523b8435ff",
-      "text": "Return the path of the saved mask of image ``name``, or None.\n\nMake Masks saves every mask as ``<masks folder>/<stem>.tif``\n(:func:`spacr.qt.mask_engine.mask_save_path`).\n\n:param folder: the image folder.\n:param name: the image file name.\n:param masks_dir: an explicit masks folder."
+      "source_sha256": "f7e5e90763bcdb8a9b9e31b848d66da4ed63f98f78de42c65d102ddc1c9ee32e",
+      "text": "Return the path of the saved mask of image ``name``, or None.\n\nMake Masks saves every mask as ``<masks folder>/<stem>.tif``\n(:func:`spacr.qt.mask_engine.mask_save_path`). An image named by an\nabsolute path outside ``folder`` -- one dropped into the sort dialog\nfrom elsewhere, or a channel subfolder's -- has its mask in its own\nfolder's ``masks/``.\n\n:param folder: the image folder.\n:param name: the image file name, or an absolute path.\n:param masks_dir: an explicit masks folder, for images in ``folder``."
     },
     "spacr.channel_sorting.mask_thumbnail": {
       "source_blocks_sha256": [
@@ -6150,13 +6151,13 @@
       "source_blocks_sha256": [
         "56311c12a57ec81ed05b83917f7d0b26c88cfc57316ec37a5917d6091eff0be0",
         "b53c94632baea7fba0f0d31d8c50399bb2a63eaef639956aa3a318140861885b",
-        "9fc1e60082e3b59380b1a2ffe027609650fb4412615f2ee8aa826348c4f04242",
+        "9968bd6109910b5855971d698697622f2348350e802cb613b81fdfcd062994b6",
         "9c6bc6d3b2d34146a64bfdca1c59740f1c941b8ae9928ab8e10d4daf35fe8472",
         "3aec1d760fc41c58075bedf3b6bfee93d5091c8bce41cc1576fb9f0838281043",
         "514259c61036debd3fc830490d2a8731e4b2413961783e7527abba3066ff939e"
       ],
-      "source_sha256": "b7f6ac214b949efd152e02ba36a527c9bbb341efe3321adc335701109b55fd40",
-      "text": "Read each name's channel and set through ``pattern``.\n\nThe channel of a name the user assigned (``channels``) is that\nassignment; otherwise it is its ``chanID`` value's position among all\n``chanID`` values, naturally sorted, from 1. The set key is every other\nnamed group, in the pattern's order. A name the pattern does not match\nhas no set.\n\n:param names: image file names.\n:param pattern: the regex, matched from the start of each name; empty or\n    None matches nothing.\n:param channels: ``{name: channel}`` from the selection strategy.\n:returns: one :class:`ParsedName` per name, in order."
+      "source_sha256": "735f0ad402edfa9f1e3554849311b48767916178b2012c3ad8935d16e24ec2a6",
+      "text": "Read each name's channel and set through ``pattern``.\n\nThe channel of a name the user assigned (``channels``) is that\nassignment; otherwise it is its ``chanID`` value's position among all\n``chanID`` values, naturally sorted, from 1. The set key is every other\nnamed group, in the pattern's order. A name the pattern does not match\nhas no set.\n\n:param names: image file names, or absolute paths for images outside\n    the folder; the regex reads the file name alone.\n:param pattern: the regex, matched from the start of each name; empty or\n    None matches nothing.\n:param channels: ``{name: channel}`` from the selection strategy.\n:returns: one :class:`ParsedName` per name, in order."
     },
     "spacr.channel_sorting.set_label": {
       "source_blocks_sha256": [
@@ -13095,6 +13096,42 @@
       ],
       "source_sha256": "ccfd2a7fd44a860ed9d78898cdc40f6854cec46336f1735ad7e302f51696bd06",
       "text": "Download spaCR's optional model files on first use.\n\nThe implementation is imported only when called, keeping ``import spacr``\nand wildcard imports lightweight."
+    },
+    "spacr.drop_classification": {
+      "source_blocks_sha256": [
+        "ad9a9cf4fda80d7d095ebfafa9a6942726431b812f474cc00e614e3b89c22901",
+        "b24e354801f91a030e12c0d067448976a7fc8906225a1cd2e76972b5968436cb",
+        "8a7bb619524ce62d6abd7f064acc35f22a4ba1ca6725cf90381ab1fb7fc51c91",
+        "ea98616928439da96f4e5fa522ec7301974f265f312e34516a250ae766edc46a"
+      ],
+      "source_sha256": "20b6daa20e47d02088623057aac16fefef995ff30e17e045b80de154e77ea562",
+      "text": "What was dropped on Make Masks, decided before anything is opened.\n\nItem 600. Make Masks takes a drop of files, folders or both, and what the\nuser means depends on what they dropped. :func:`classify_drop` reads the\npaths -- names, folder layout and, for a few TIFFs, their pixels -- and says\nwhich of these it is, without a single question or widget:\n\n``images``\n    Image files (and possibly folders) to open as one queue, in drop order.\n``folder``\n    One folder of images, opened as it is (masks in its ``masks/``).\n``nested``\n    One folder whose images sit in subfolders: when the subfolders look like\n    channels (:attr:`channel_like`), \"Organize for Measure\" with one channel\n    column per subfolder; otherwise the consolidation question.\n``folders``\n    Several folders, each holding images: Make Masks opens \"Organize for\n    Measure\" with one channel column per folder.\n``images_with_masks``\n    Images dropped together with their masks (a masks folder, files whose\n    name says mask, or integer label TIFFs named after a dropped image):\n    :attr:`masks` pairs them.\n``spacr_output``\n    A folder spaCR wrote (``merged/*.npy``, a ``sorted_channels`` folder, or\n    a ``merged`` folder itself): :attr:`description` says what it is and\n    :attr:`open_folder` is the images folder to open, if any.\n``nothing``\n    Nothing Make Masks can use.\n\nWhatever the drop held that is none of these -- a ``.npy``, a text file, an\nempty folder, a mask no image claims -- is in :attr:`unrecognised` or\n:attr:`unpaired_masks`, so the screen can list it instead of losing it."
+    },
+    "spacr.drop_classification.DropClassification": {
+      "source_blocks_sha256": [
+        "c390879ae8d79d0cbc295f392c8bc8b28fec7a992819f21f16cb86a3d7470b2d",
+        "7414bbfc5dddcef62f69d9f0876244d84980fd437b704f273c898a2d7eade8a7",
+        "72b95df792c0743d0d49bcfccd2d6d59dab0800cee69d123097e2a5044a171d2",
+        "a4b77b71e707cbcb74eec0f1cbdd74d7c1592f140ef1d2ed7acf53812280bc20",
+        "b52d9daaf5cf388035188c1bfbb6dd47d235a333ce79c6d29534c3eabe34081d",
+        "1dae919a6e8bca76ab74a1c4e39a77ab57b2a301150733107652e17697152d85",
+        "c14f0b6bc13c0be7cd085787def914566656f6facc0bef24cc6774e7cbe8bda6",
+        "4020a1877a88a9f9dad51ea8eec2e4076ddb6e8d787383e28a2c8ea7890b9895",
+        "64da7e723f1d23c072e2c7138c88aa6bb3271e922c93123cf61eb5e4377ab28b",
+        "c3d5dec4df2fe348a03c039a640574353a73745c8949f9593a7d96b3ff165ea1",
+        "29cdf3f85d5a93da2d533c501d758624b87f861ae7eb7f089b664e92a1bae790"
+      ],
+      "source_sha256": "4cb3c873659ff25ef81cfa7e53f515ef8adc84383e551489fe9e8ef5696b142a",
+      "text": "What a drop on Make Masks is, and everything needed to act on it.\n\n:ivar kind: one of ``images``, ``folder``, ``nested``, ``folders``,\n    ``images_with_masks``, ``spacr_output`` or ``nothing``.\n:ivar images: image files, absolute, in drop order (``images`` and\n    ``images_with_masks``).\n:ivar folders: the folder dropped (``folder``, ``nested``), the folders\n    (``folders``) or the folders dropped with loose images (``images``).\n:ivar channel_folders: the subfolders of a ``nested`` folder that hold\n    images, naturally sorted; for ``folders``, the dropped folders.\n:ivar channel_like: whether :attr:`channel_folders` look like one\n    channel each -- names such as DAPI or ch1, or the same fields in\n    every one.\n:ivar masks: ``{image path: mask path}`` for ``images_with_masks``.\n:ivar unpaired_masks: masks that no dropped image claims.\n:ivar open_folder: for ``spacr_output``, the image folder to open, or\n    None when there is none.\n:ivar description: one plain sentence saying what a ``spacr_output``\n    drop is.\n:ivar unrecognised: dropped paths used for nothing, each with the reason."
+    },
+    "spacr.drop_classification.classify_drop": {
+      "source_blocks_sha256": [
+        "7cb2a9f3c889ee1826224517d43a6d8f2a2e513eda16a6643bcbe47851ff40df",
+        "6670706f8db19a67a59025bd2be84af4f25d6446a507927474c16f987977c5e4",
+        "2ba4395a4e25ed0d8e7d343fca5e065929c5ef249b404062f9665d72cb929334"
+      ],
+      "source_sha256": "2c059b51bbc9d1a514f1a3ca1b9592176dcaa01cf8387317b6b29d983f5a3cac",
+      "text": "Say what a drop on Make Masks is, without asking or opening anything.\n\n:param paths: the dropped files and folders, in drop order.\n:returns: a :class:`DropClassification`."
     },
     "spacr.embeddings": {
       "source_blocks_sha256": [
@@ -43936,13 +43973,13 @@
     },
     "spacr.qt.dnd_handlers.MakeMasksDropHandler.can_accept": {
       "source_blocks_sha256": [
-        "df310dd753f35e5e3ca37f84440ec37b1f0d4a924ec4a75592f92b19eed53c6b",
-        "4e0c3296a77271f0f3fe4f37d7812c41d161963d1a5ae93e1fec99d5ec3d84e9",
+        "66c961c2404c26e30cbb9dc2a374f3adb6d22dc64ac1c66005179ef33fa79ed9",
+        "0b463bfe023187936515c9f5f78594a1a516a222e11fa84d56c3f93baa7d842b",
         "1f800f7819df1dab2291037c2ed19a7e327af6aa03c46a42b5915f92048a45f9",
         "c104664a16c2336b1ec431168ed28b672d42347d783cafd1a1c712819bfd8cfb"
       ],
-      "source_sha256": "7923f308e7f5f5ae571cf9e0fbc043150b6efdaa038bcbd4664d99a009a9b536",
-      "text": "An image file Make Masks opens, or a folder with images in it.\n\nPairs are found later, not required here.\n\n:param path: the dropped file or folder.\n:returns: True when this handler can use ``path`` as-is."
+      "source_sha256": "22a0eb4e1d74c1451170df04cdbb9afa55b5202704cd568ee7d265ee38ec817a",
+      "text": "An image file, a ``.npy``, or a folder with images or spaCR output.\n\nItem 600: a folder whose images sit only in subfolders, and a folder\nspaCR wrote (``merged/*.npy``, ``sorted_channels``), are taken too,\nand a ``.npy`` so the screen can say what it is;\n:func:`spacr.drop_classification.classify_drop` decides what the\ndrop means. Pairs are found later, not required here.\n\n:param path: the dropped file or folder.\n:returns: True when this handler can use ``path`` as-is."
     },
     "spacr.qt.dnd_handlers.MakeMasksDropHandler.error_message": {
       "source_blocks_sha256": [
@@ -60074,13 +60111,21 @@
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths": {
       "source_blocks_sha256": [
-        "78506f7bb027b6cbb03601fab8ca9b1fefaea01878a039a46b8dff62bc304b8d",
-        "688d7aed215a292b1d16cc482c05294c6fe3857388d45bca79692b30344d0e50",
+        "6b0579156a6c584df9096cab9f7b7211c548aaa35b80fbb997ea450b5476e1a9",
+        "69334d1a082d3f29421c9886c5b3eaffe80c893614f2310e735a8415bf32cc75",
+        "20bc27c6efd19fd2293d239b2032995610f1090b591b2f0055f945f87742e346",
+        "e8345bf2a6043263e97fc76701af792bf6a6a7c7c1bfab70711470f4fd8eb3c7",
+        "d6cfe7dc8f5efd9740d06ece07a39d601c18295bf1f4f87dbbe487802815feab",
+        "83b830594fc1c09a8572c7800550ccea8ad86e430a4c1cbf45127014f0c2d624",
+        "eb8b8981479f0c97da1cfd8abd5a38ef8b31ffe10d80ad6e636ca4ced9d72923",
+        "2fedcff00ed01718e70950e47986bcd38b062c74019d0a8647cb9abf473c3655",
+        "12013c1dad79f5e94c4de1e807050e6ae5e3f427773748601c9a5df2a1e16d84",
+        "76ddbfea745401621562b270d01fbe8ea4d1a133e0e085ab1a545bdcc37c4d40",
         "9baca7f3c139b3f19666cad2093c0fb906c930002a2b075fe06c91b876ed10e0",
-        "dcaa7600d687ff5164ffe3ea2c79aa76139153b9de822a610c86ad99f59f8632"
+        "cd563a28ad5739f67a3a5a5f193336cf4f639280ab55ddd5a51a1fe479d5cbc7"
       ],
-      "source_sha256": "68a3e43a785d70d8f658ed68de2b73b30d999e078b997b4e910f4d6bfbd30266",
-      "text": "Open dropped image files and folders as one queue, in drop order.\n\nOne folder alone is what it always was, :meth:`_open_folder` on it.\nAnything else -- one file, several, or files and folders together --\nbecomes a queue of the fields named, a folder standing for its\nimages, each field edited where it lies with its mask in its own\n``<folder>/masks``. Nothing is copied.\n\n:param paths: the dropped files and folders, in the order dropped.\n:returns: whether a queue was opened."
+      "source_sha256": "3037be6aa43fbc632a134190b5a9b87e0243085e9371bd717e3308a76b23e431",
+      "text": "Open a drop the way its contents say, asking where there is a choice.\n\nItem 600. :func:`spacr.drop_classification.classify_drop` says what\nwas dropped, and:\n\n* image files (with or without folders) open as one queue, in drop\n  order, each field edited where it lies with its mask in its own\n  ``<folder>/masks`` -- :meth:`_open_queue`;\n* one folder of images opens as it is;\n* one folder whose subfolders look like channels (DAPI/, GFP/..., or\n  the same fields in each) opens \"Organize for Measure\" with a\n  channel column per subfolder; any other folder whose images sit in\n  subfolders is offered for consolidation (item 593);\n* several folders of images open \"Organize for Measure\" with a\n  channel column per folder;\n* when that popup is cancelled (or nobody can see it), the drop\n  opens as it always did: the folder as it is, or a queue;\n* images dropped with their masks open with those masks\n  (:meth:`_open_with_masks`);\n* a folder spaCR wrote is named in the console and its images, if\n  any, open -- a ``.npy`` is never opened as an image.\n\nEverything the drop held that is used for nothing is listed in the\nconsole.\n\n:param paths: the dropped files and folders, in the order dropped.\n:returns: whether something was opened or a job started."
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.open_queue": {
       "source_blocks_sha256": [
@@ -92287,6 +92332,111 @@
       ],
       "source_sha256": "b67c3179d03df095c53c366af73aff8af64e6edbeef9cec6493244b5098fd18a",
       "text": "Generic budding-yeast compartment labels mapped to UniProt SL identifiers."
+    },
+    "spacr.qt.widgets.organize_for_measure": {
+      "source_blocks_sha256": [
+        "6cb4ef09b5cdf634a7b8d12853f34f8e76ea887498be2266b929e2bec41f6796",
+        "4145d60284cd1c41324b691b5ceb3a7b1e50f5918b463f4cdfb711ecf8072e33",
+        "9d111e1d9a8ee2f9eef5767008047ac51afa9eb6bc97e1c337baf45afedfce9f",
+        "6d8587d4ae76e72a79c7014dee17ff01439a7f2b577816891e0a85f00c4bec42",
+        "4ff01b34b6bfcb85a3de600d0806f7aeef29b14e0550bddcc26aed63c2284865",
+        "41ea8b601e3b5fa7c1b65944416e770f4909ab6bcbb0e5111b0175b5475732b1",
+        "d94e3d62d3ee1ba13d3fa35dfd88a2560d6e07f69cdabe851e4d0453a237ae2d"
+      ],
+      "source_sha256": "2db3bf33d280f5cf88216d3a5ec058b59bb7e48cd4e8e8611fab47e6ad3f65ce",
+      "text": "Make Masks' \"Organize for Measure…\" popup: images and masks into merged/.\n\nItem 600, replacing item 593's string of prompts and its separate \"Sort into\nchannels\" dialog as the entry point. ONE popup puts images and their masks\ninto the layout Measure reads -- Yokogawa-named channel folders, the masks,\nand ``merged/*.npy`` -- through :mod:`spacr.channel_sorting` and\n:mod:`spacr.folder_consolidation`, which hold every decision:\n\n* a SOURCE folder (typed, browsed or dropped), optionally consolidated\n  first (its subfolders' images copied into one folder, named after their\n  folders);\n* the REGEX box: Mask generation's own ``metadata_type`` field -- the same\n  grouped convention menu, example and \"Test on my folder\" -- with its\n  ``custom_regex``, plus \"Sort by regex\", \"Auto regex\" and \"Detect sets\";\n* the DIMENSIONS: which columns are image channels and which are masks,\n  each mask with its role (cell, nucleus, pathogen) and the channel whose\n  images it outlines;\n* a TABLE with one column per channel and per mask and one row per field.\n  Every column takes files and folders dropped from the file manager (a\n  folder brings its images, recursively) and cells dragged from another\n  column. Dropped files sort themselves by name and are matched across the\n  columns the way Detect sets pairs images -- file-name tokens, then order,\n  never two images of different size (:func:`spacr.channel_sorting.\n  _match_columns`). A cell nothing matched stays empty and flagged.\n\nMode 1: fill the source, choose or test the regex, press \"Sort by regex\",\nApply. Mode 2: fill the columns by dropping, Apply. Mode 3, \"Teach me…\":\nanswer \"Which channel is this?\" for one image at a time while spaCR learns\na regex from the answers (:func:`spacr.channel_sorting._teach_step`), until\nevery image is placed. Each works without the others. A folder made by\nfolder consolidation is read under its files' ORIGINAL names, from its\n``rename_manifest.csv``, because the copies' names may have lost what told\nthe channels apart. Apply builds a :class:`spacr.channel_sorting.SortPlan`; incomplete\nrows block it (the regex box is where to fix them), RGB images and z-stacks\nare offered for conversion, and detected sets are shown three at a time\nbefore they are used. Nothing moves before Apply; the screen applies the\nplan off the GUI thread and every move is written to the manifest."
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog": {
+      "source_blocks_sha256": [
+        "1f5bb1a631f9832bcc2f85b17cea30bd164acf5c5a713bb14bc83476d81a79e4",
+        "7ee838bf58d9792485c18c0718ae75b87afe0f8b4d5fe89a0842a269d30f4341",
+        "d6aafdbd667cab426269e95e66de4be7299cca05461ec6c06b06721f1a58d59c",
+        "0bb4337e35954672b73822e6318891bf40672273437bc4ec06979d012695be80",
+        "c0d50783d54de8fe4ef572ca6834debeece4b21278651c1f86d0f4b05178dec2",
+        "4d4eda03aac613dbdc47dfafe4fcd371e521bfd627313feecb6471f8abf1d7b2",
+        "36dbf6c3c4c25be8f2680dc5d420957758f46935e4f07ee97f4b6e452e75713b",
+        "2facb0e5ff8aad94c303616963c1b9c26fa93314472c23b42414a9934b267838",
+        "a29ee4e01cd895f219234770e0346394dc467bac4021ee201a27a54c9e15a04a"
+      ],
+      "source_sha256": "6743d358f60f4cae531330030c38531bc0ae1d25ae0198f520a584780525ac2c",
+      "text": "Put images and masks into channel folders and ``merged/`` for Measure.\n\n:ivar plan: the confirmed :class:`spacr.channel_sorting.SortPlan` once the\n    dialog is accepted, else None.\n:ivar columns: the table's columns, in order.\n:ivar rows: one list per field, one path or None per column.\nBuild the popup, prefilled from a drop when there was one.\n\n:param source: the source folder, if known.\n:param parent: the Qt parent.\n:param channel_folders: folders to put in the table, one channel\n    column each (their masks from each folder's ``masks/``) -- the\n    Make Masks drop of several folders or of channel-like\n    subfolders.\n:param masks_dir: the source's masks folder, when not its ``masks/``."
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_column": {
+      "source_blocks_sha256": [
+        "2641b634df46e3385037ab7d8a77569cf1039dbfa65a56576d08d2ce50e7ce67",
+        "864b7ee05625d04120c4ffc847149a370175bd329cf45805d0e35f4690773607",
+        "7a6d1b0d485bddb32e9057db9dabcf738354442c717e2f2534161f6b545f4b2b",
+        "f019173af7e388dcab2b4f00269989de516de9433e0ee1b4a3f0d80ac4d995b1",
+        "540fb85407c8b0d458f43d9964400a8fda7f08ca91846dcf3f7d3326c6d00e30"
+      ],
+      "source_sha256": "26049d6de954322b95fe3d43af8bf71520b61e7c0eb7d6fa249f1f002854901b",
+      "text": "Add a channel or mask column at the end.\n\n:param kind: ``\"channel\"`` or ``\"mask\"``.\n:param role: a mask's role; default the first role no mask has.\n:param of_channel: a mask's channel; default the first channel with\n    no mask column, else 1.\n:returns: the new column's index."
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_files": {
+      "source_blocks_sha256": [
+        "50ebb0e149d514dcf3cda6d7ebb396cee7f9a65345063815713762a74870d54d",
+        "2cceb8ec59a9aa679d44e507771b2650a34e09cfc64506e731de7ada4074ad5a",
+        "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
+        "0c0e0d1bf62e16a58806f2b6ba607ddfae14596fa5873316930dd850310f4346",
+        "257ee22b60c38f1f6f06e9426816c63e55450a4322172495f7d803963259cb0f",
+        "9c509e9a13c633b3381d27774e7ce1c2b4c5cf2058a268a89c8164ffdb124b28"
+      ],
+      "source_sha256": "5cd887c739876df1cba534ae2330b55e7449ccb39e7800ec434d598af6bbb853",
+      "text": "Put dropped files and folders into a column, and match the rows.\n\nA folder brings its images, recursively, not its ``masks/``. Images\ndropped into a channel column bring the masks Make Masks saved for\nthem (``<their folder>/masks/<stem>.tif``) into that channel's mask\ncolumn, which is made when there is none. A file already in the\ntable moves to this column. Nothing on disk changes.\n\n:param column: the column index.\n:param paths: files and folders.\n:param rematch: match the rows afterwards (off while prefilling).\n:returns: the image files added."
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.auto_regex": {
+      "source_blocks_sha256": [
+        "e375aa07c953c6e44115664a813acd061bee5445c7f0fa12da10a4a52d6134b3",
+        "d19406193a833a7f5fb2384d12f2a6c8f6d04d93ec964a2b083ff324ef2ad896"
+      ],
+      "source_sha256": "831da0d321fdbda1d4ef60fbc451c0b5bb6e5636fc94a08fbf7fcd35de374a39",
+      "text": "Propose a regex, put it in custom_regex, and sort by it.\n\n:returns: the regex, or None when none was found."
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.detect_sets": {
+      "source_blocks_sha256": [
+        "de00bf943a71e8f1ecc988e5eff7126ce2c3eb10dab495a4ee72cba4a4870a40",
+        "19fe6675bc9ab8c20dfc3f07ee94d1b247bfcddea2addb9af12145607041c555",
+        "b75284420f01f5b0606735b93f9a794d9f0d9ab18da07518e9c3ab44218cec81"
+      ],
+      "source_sha256": "a29515f501f7a7b717853ab082e82b27e6b834dea08b9ba145bed5fbef0d71fb",
+      "text": "Match the columns' files by name, order and size, and check three.\n\nWith an empty table and a source folder, the source is sorted by the\nregex first, for its channels. The sets are shown three at a time\n(:class:`spacr.qt.widgets.channel_sort_dialog.ExampleSetsDialog`)\nand kept only when the user says they are right.\n\n:returns: whether the detected sets were kept."
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.prepare_plan": {
+      "source_blocks_sha256": [
+        "7565a3846eac9b1e672b01183b9d19900a09aa3ff4bda2449edd55234fe25b5d",
+        "4b415e01f3f299799068a41ac06a10ee2360d49c1a4b92b6bdb25780831a1da7",
+        "ee34f95d670f4acd170c298e14397d489fa5f0d5a88dcac9588072f9106ba6f9"
+      ],
+      "source_sha256": "f58883cc58cb21d2c96efa0a751b0f16bd7c6b78bb37672452a249c14e58503a",
+      "text": "Build the plan from the table, or None while rows are incomplete.\n\n:param convert: convert RGB images and z-stacks to one plane.\n:returns: the plan, which may still carry problems."
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.remove_column": {
+      "source_blocks_sha256": [
+        "9d07705f2db4150a8646bbce1bdd3012a374243e90a0de1b9b94fde2c049cb76",
+        "1292b0b4037eddcee0242184c4b73a894c7b993d634f028768e10593fd984a6c"
+      ],
+      "source_sha256": "3acfa134a96b4919f5607edd816c0fcaf34de6258965db6dc4cae44e1733ae09",
+      "text": "Remove a column and its files from the table.\n\n:param index: the column."
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.sort_by_regex": {
+      "source_blocks_sha256": [
+        "8b0f39440497d1c599b815a9a795730da94ec11c270acb8345423011053573c1",
+        "7c2f533c4c899b17ab32b3f0ff84b402b90792be327b6cd6d8892fed5313d128",
+        "7a48da9dc7a2ecce085f8ceb9bc8ab2e2a0fa861b4061f06eddd500b16ca80a2",
+        "ab0376b6557e1870089c7de4ce9e67825cd5ab16df97984dae13d62623583689",
+        "56214aaa5e6d9ecb5b3ced90b75fb16011476abec1dd20375ef5333af5b97015"
+      ],
+      "source_sha256": "cee9c78b689bf5558eff2b0b78f9104b82574d37e6391d7a048348e38905746c",
+      "text": "Fill the table from the regex: chanID is the column, the rest the row.\n\nWith a source folder its images are read (consolidated first when\nasked), and their masks found where Make Masks saves them; with none,\nthe files already in the channel columns are re-sorted, keeping the\ncolumn each is in. Masks go into a mask column per channel. A mask\ntwo images share (two files with one stem) is left out and named.\n\n:param pattern: the regex; default what the regex box stands for.\n:param chan_map: ``{chanID value: label}`` learned by \"Teach me\",\n    a label being ``(\"channel\", n)`` or ``(\"mask\", n, role)``; by\n    default the regex's chanID values are channels in natural order.\n:returns: the set report, or None when there was nothing to read."
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.teach": {
+      "source_blocks_sha256": [
+        "d25a2ecbec156ca244d1a52aed362848f4c6bd4c165513e91f7bede06b37516c",
+        "f7d2dd8c178d87a019144521ac33a3c2c1ec36effa3fd4138ea514ebb17f0b2b",
+        "a781a71325a8e99dddb2a81975c4fd4a59f8120ec64619494e2e317ee4efe511"
+      ],
+      "source_sha256": "ae44f14014355ef9639767f7eb5fa781be94c84cbd2f82baa5cd071121784adf",
+      "text": "\"Teach me\": ask what images are until a regex places all of them.\n\nOne image is shown at a time with \"Which channel is this?\"\n(:attr:`ask_label`). From the answers\n:func:`spacr.channel_sorting._teach_step` learns what in the names\nmarks each channel or mask and writes a regex; each new marker is\nconfirmed with :attr:`ask_marker` (a channel, a mask, or only part\nof the field's name). The table fills as it goes, and the regex is\nput in custom_regex, where it can be edited. It ends when every\nimage is placed, or when the user says stop.\n\n:returns: the learned regex, or None when none was learned."
     },
     "spacr.qt.widgets.outlier_model": {
       "source_blocks_sha256": [

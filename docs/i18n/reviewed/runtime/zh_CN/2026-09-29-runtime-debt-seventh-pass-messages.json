@@ -27,13 +27,6 @@
     },
     {
       "table": "ui",
-      "key": "Assign this folder's images to channels, by selection or by a regex, then move them with their masks into one folder per channel, rename them in Yokogawa format and merge them into merged/ for Measure.",
-      "source": "Assign this folder's images to channels, by selection or by a regex, then move them with their masks into one folder per channel, rename them in Yokogawa format and merge them into merged/ for Measure.",
-      "source_sha256": "71eb8463cf6462b2002034b4befd141333f7e13b3bae52028b322704c090c542",
-      "translation": "通过选择或正则表达式将此文件夹的图像分配到通道，然后连同掩膜移动到每个通道一个文件夹中，按 Yokogawa 格式重命名，并合并到 merged/ 供 Measure 使用。"
-    },
-    {
-      "table": "ui",
       "key": "CAREamics 0.3.4 is BSD-3-Clause (Copyright 2023, CAREamics contributors). It downloads no weights: every Noise2Void model is trained here, on the run's own images, and stays with the experiment.",
       "source": "CAREamics 0.3.4 is BSD-3-Clause (Copyright 2023, CAREamics contributors). It downloads no weights: every Noise2Void model is trained here, on the run's own images, and stays with the experiment.",
       "source_sha256": "adb0cb3cda2269eecf065b223313fa0405cc9eebea96b1b144f5f357f9946e64",
@@ -94,27 +87,6 @@
       "source": "Moved {moved} file(s); {stacks} stack(s) and {merged} merged array(s) written under {dest}. Every move is in {manifest}.",
       "source_sha256": "09f77bbaa78d450e5fbe8c8a930fcd4e9423655842bf43d576c9f1879efce1aa",
       "translation": "已移动 {moved} 个文件；{stacks} 个堆栈和 {merged} 个合并数组已写入 {dest} 下。每次移动都记录在 {manifest} 中。"
-    },
-    {
-      "table": "ui",
-      "key": "No images were found in subfolders of {folder}.",
-      "source": "No images were found in subfolders of {folder}.",
-      "source_sha256": "4227c4192cf5a8e0d13b630f9a1d07c952bfb0b892ff67cac96ff04c9bfc3dfc",
-      "translation": "在 {folder} 的子文件夹中未找到图像。"
-    },
-    {
-      "table": "ui",
-      "key": "Open one folder of images to sort into channels.",
-      "source": "Open one folder of images to sort into channels.",
-      "source_sha256": "1986d8159e81df58cfb5194f0384e95921dca17952ec3196ce3e8f9097ccee56",
-      "translation": "请打开一个图像文件夹以按通道排序。"
-    },
-    {
-      "table": "ui",
-      "key": "Pick a folder whose images sit in subfolders, and copy them all into one new folder, each named after the folders it was in. The originals are not touched.",
-      "source": "Pick a folder whose images sit in subfolders, and copy them all into one new folder, each named after the folders it was in. The originals are not touched.",
-      "source_sha256": "8d93f3d444bb050659803b3a715c24677e3baedecde21a187fe254c7dc16d38d",
-      "translation": "选择一个图像位于子文件夹中的文件夹，并将它们全部复制到一个新文件夹，每张图像以其所在文件夹命名。原始文件不会改动。"
     },
     {
       "table": "ui",

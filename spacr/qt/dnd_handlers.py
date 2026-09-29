@@ -1434,18 +1434,20 @@ class MakeMasksDropHandler(DropHandler):
         return True
 
     def can_accept(self, path: Path) -> bool:
-        """An image file Make Masks opens, or a folder with images in it.
+        """An image file, a ``.npy``, or a folder with images or spaCR output.
 
-        Pairs are found later, not required here.
+        Item 600: a folder whose images sit only in subfolders, and a folder
+        spaCR wrote (``merged/*.npy``, ``sorted_channels``), are taken too,
+        and a ``.npy`` so the screen can say what it is;
+        :func:`spacr.drop_classification.classify_drop` decides what the
+        drop means. Pairs are found later, not required here.
 
         :param path: the dropped file or folder.
         :returns: True when this handler can use ``path`` as-is.
         """
-        if path.is_file():
-            from .mask_engine import IMAGE_EXTS as MASK_IMAGE_EXTS
+        from ..drop_classification import _accepts
 
-            return path.name.lower().endswith(MASK_IMAGE_EXTS)
-        return path.is_dir() and has_images_in(path)
+        return _accepts(os.fspath(path))
 
     def suggest_alternatives(self, path: Path) -> List[Path]:
         """Nearby folders that do hold images, for the 'did you mean' prompt.

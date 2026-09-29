@@ -27,13 +27,6 @@
     },
     {
       "table": "ui",
-      "key": "Assign this folder's images to channels, by selection or by a regex, then move them with their masks into one folder per channel, rename them in Yokogawa format and merge them into merged/ for Measure.",
-      "source": "Assign this folder's images to channels, by selection or by a regex, then move them with their masks into one folder per channel, rename them in Yokogawa format and merge them into merged/ for Measure.",
-      "source_sha256": "71eb8463cf6462b2002034b4befd141333f7e13b3bae52028b322704c090c542",
-      "translation": "이 폴더의 이미지를 선택이나 정규식으로 채널에 할당한 뒤, 마스크와 함께 채널별 폴더로 옮기고 Yokogawa 형식으로 이름을 바꾸어 Measure용 merged/ 폴더로 병합합니다."
-    },
-    {
-      "table": "ui",
       "key": "CAREamics 0.3.4 is BSD-3-Clause (Copyright 2023, CAREamics contributors). It downloads no weights: every Noise2Void model is trained here, on the run's own images, and stays with the experiment.",
       "source": "CAREamics 0.3.4 is BSD-3-Clause (Copyright 2023, CAREamics contributors). It downloads no weights: every Noise2Void model is trained here, on the run's own images, and stays with the experiment.",
       "source_sha256": "adb0cb3cda2269eecf065b223313fa0405cc9eebea96b1b144f5f357f9946e64",
@@ -94,27 +87,6 @@
       "source": "Moved {moved} file(s); {stacks} stack(s) and {merged} merged array(s) written under {dest}. Every move is in {manifest}.",
       "source_sha256": "09f77bbaa78d450e5fbe8c8a930fcd4e9423655842bf43d576c9f1879efce1aa",
       "translation": "파일 {moved}개를 이동했습니다. 스택 {stacks}개와 병합 배열 {merged}개를 {dest} 아래에 기록했습니다. 모든 이동은 {manifest}에 있습니다."
-    },
-    {
-      "table": "ui",
-      "key": "No images were found in subfolders of {folder}.",
-      "source": "No images were found in subfolders of {folder}.",
-      "source_sha256": "4227c4192cf5a8e0d13b630f9a1d07c952bfb0b892ff67cac96ff04c9bfc3dfc",
-      "translation": "{folder}의 하위 폴더에서 이미지를 찾지 못했습니다."
-    },
-    {
-      "table": "ui",
-      "key": "Open one folder of images to sort into channels.",
-      "source": "Open one folder of images to sort into channels.",
-      "source_sha256": "1986d8159e81df58cfb5194f0384e95921dca17952ec3196ce3e8f9097ccee56",
-      "translation": "채널별로 정렬할 이미지 폴더를 여세요."
-    },
-    {
-      "table": "ui",
-      "key": "Pick a folder whose images sit in subfolders, and copy them all into one new folder, each named after the folders it was in. The originals are not touched.",
-      "source": "Pick a folder whose images sit in subfolders, and copy them all into one new folder, each named after the folders it was in. The originals are not touched.",
-      "source_sha256": "8d93f3d444bb050659803b3a715c24677e3baedecde21a187fe254c7dc16d38d",
-      "translation": "이미지가 하위 폴더에 있는 폴더를 골라, 모든 이미지를 새 폴더 하나에 복사하며 각각 원래 있던 폴더 이름을 붙입니다. 원본은 건드리지 않습니다."
     },
     {
       "table": "ui",

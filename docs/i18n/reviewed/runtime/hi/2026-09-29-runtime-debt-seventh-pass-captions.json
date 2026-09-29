@@ -118,13 +118,6 @@
     },
     {
       "table": "ui",
-      "key": "Consolidate folders…",
-      "source": "Consolidate folders…",
-      "source_sha256": "762ea3d3ce1c0be983ce8d203a2b03a5b5d5921d704a57f97b86a84f3ff49708",
-      "translation": "फ़ोल्डर समेकित करें…"
-    },
-    {
-      "table": "ui",
       "key": "Consolidating {folder} into {output}…",
       "source": "Consolidating {folder} into {output}…",
       "source_sha256": "5a773341a294c683b0fe6fa4992948ba4e4a9685a352733dc2bdf2a8b2c7ed4d",
@@ -251,31 +244,10 @@
     },
     {
       "table": "ui",
-      "key": "No folder",
-      "source": "No folder",
-      "source_sha256": "ca98f4c7bf9dab8a67b8678ce3f696bbf6abdfad313f89e958e93b19eeb31465",
-      "translation": "कोई फ़ोल्डर नहीं"
-    },
-    {
-      "table": "ui",
-      "key": "Nothing to consolidate",
-      "source": "Nothing to consolidate",
-      "source_sha256": "879b1c2f7924e432a4517d974c1c0f32c7d9b0a0a44719f5d92b9b3162b0213c",
-      "translation": "समेकित करने को कुछ नहीं"
-    },
-    {
-      "table": "ui",
       "key": "Own DINO: {name}",
       "source": "Own DINO: {name}",
       "source_sha256": "145054ccbde75f278b4f436fa6596939ff85bacf5f353e4b7140547ae0b35817",
       "translation": "अपना DINO: {name}"
-    },
-    {
-      "table": "ui",
-      "key": "Pick the folder to consolidate",
-      "source": "Pick the folder to consolidate",
-      "source_sha256": "d2910a9dedb8d55ba70cff8df0fe3d58726d2032798c7981949e3b200c37c268",
-      "translation": "समेकित करने के लिए फ़ोल्डर चुनें"
     },
     {
       "table": "ui",
@@ -367,13 +339,6 @@
       "source": "Sort into channels",
       "source_sha256": "e335ef681b41fa310de84c1236e40a19a6442b05be8b2b31b2bcbb049298b19e",
       "translation": "चैनलों में क्रमबद्ध करें"
-    },
-    {
-      "table": "ui",
-      "key": "Sort into channels…",
-      "source": "Sort into channels…",
-      "source_sha256": "11f738dd3355f3886e1c678dda8e3fd51ff72a78a35e9dff84124a8ff02221c4",
-      "translation": "चैनलों में क्रमबद्ध करें…"
     },
     {
       "table": "ui",

@@ -55,7 +55,7 @@ import numpy as np
 IMAGE_EXTS = (".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp")
 
 #: The mask roles a channel's masks can take, in the pipeline's plane order.
-MASK_ROLES = ("cell", "nucleus", "pathogen")
+MASK_ROLES = ("cell", "nucleus", "pathogen", "organelle")
 
 #: The regex group that names the channel.
 CHANNEL_GROUP = "chanID"
@@ -133,14 +133,21 @@ def mask_for(folder: str, name: str,
     """Return the path of the saved mask of image ``name``, or None.
 
     Make Masks saves every mask as ``<masks folder>/<stem>.tif``
-    (:func:`spacr.qt.mask_engine.mask_save_path`).
+    (:func:`spacr.qt.mask_engine.mask_save_path`). An image named by an
+    absolute path outside ``folder`` -- one dropped into the sort dialog
+    from elsewhere, or a channel subfolder's -- has its mask in its own
+    folder's ``masks/``.
 
     :param folder: the image folder.
-    :param name: the image file name.
-    :param masks_dir: an explicit masks folder.
+    :param name: the image file name, or an absolute path.
+    :param masks_dir: an explicit masks folder, for images in ``folder``.
     """
-    path = os.path.join(masks_folder(folder, masks_dir),
-                        split_extension(name)[0] + ".tif")
+    base = masks_folder(folder, masks_dir)
+    if os.path.isabs(name) and (os.path.normpath(os.path.dirname(name))
+                                != os.path.normpath(os.path.abspath(folder))):
+        base = os.path.join(os.path.dirname(name), "masks")
+    path = os.path.join(base,
+                        split_extension(os.path.basename(name))[0] + ".tif")
     return path if os.path.isfile(path) else None
 
 
@@ -313,7 +320,8 @@ def parse_names(names: Sequence[str], pattern: Optional[str],
     named group, in the pattern's order. A name the pattern does not match
     has no set.
 
-    :param names: image file names.
+    :param names: image file names, or absolute paths for images outside
+        the folder; the regex reads the file name alone.
     :param pattern: the regex, matched from the start of each name; empty or
         None matches nothing.
     :param channels: ``{name: channel}`` from the selection strategy.
@@ -323,7 +331,8 @@ def parse_names(names: Sequence[str], pattern: Optional[str],
     compiled = compile_regex(pattern)[0] if pattern else None
     parsed: List[ParsedName] = []
     for name in names:
-        match = compiled.match(name) if compiled is not None else None
+        match = (compiled.match(os.path.basename(name))
+                 if compiled is not None else None)
         if match is None:
             parsed.append(ParsedName(name, False, {}, channels.get(name), None))
             continue
@@ -571,7 +580,7 @@ def _candidate_regexes(names: Sequence[str], channels: Optional[Dict[str, int]]
     :param names: image file names.
     :param channels: the selection's channels, when every name has one.
     """
-    stems, exts = zip(*(split_extension(n) for n in names))
+    stems, exts = zip(*(split_extension(os.path.basename(n)) for n in names))
     ext_values = sorted({e for e in exts}, key=str.lower)
     ext_regex = (re.escape(ext_values[0]) if len(ext_values) == 1 else
                  "(?:" + "|".join(re.escape(e) for e in ext_values) + ")")
@@ -607,7 +616,8 @@ def _regexes_for_family(names, tokenised, channels, tail, ext_regex) -> List[str
     tail_values = None
     if tail:
         tail_values = [m.group(1) if m else "" for m in
-                       (re.match(r"^.*?_(\d+)$", split_extension(n)[0])
+                       (re.match(r"^.*?_(\d+)$",
+                                 split_extension(os.path.basename(n))[0])
                         for n in names)]
 
     def function_of(position: int, labels: Sequence) -> bool:
@@ -759,7 +769,8 @@ def infer_regex(names: Sequence[str],
     try:
         from .regex_infer import propose
 
-        candidates += [p.pattern for p in propose(names)]
+        candidates += [p.pattern for p in propose(
+            [os.path.basename(n) for n in names])]
     except Exception:
         pass
     passing = []
@@ -777,7 +788,7 @@ def _name_tokens(name: str) -> List[str]:
 
     :param name: a file name.
     """
-    stem = split_extension(name)[0]
+    stem = split_extension(os.path.basename(name))[0]
     return [str(int(t)) if t.isdigit() else t.lower()
             for t in re.findall(r"\d+|[A-Za-z]+", stem)]
 
@@ -1185,12 +1196,16 @@ class SortPlan:
 def _word_role(names: Sequence[str]) -> str:
     """The mask role the names of a channel's images suggest, if any.
 
-    :param names: the channel's file names.
+    :param names: the channel's file names; a path counts with its folder's
+        name, so ``DAPI/f1.tif`` says nucleus.
     """
-    text = " ".join(names).lower()
+    text = " ".join(
+        os.path.join(os.path.basename(os.path.dirname(n)), os.path.basename(n))
+        for n in names).lower()
     for role, words in (("nucleus", ("nuc", "dapi", "hoechst", "h2b")),
                         ("pathogen", ("pathogen", "parasite", "bact", "virus")),
-                        ("cell", ("cell", "cyto", "membrane", "actin"))):
+                        ("organelle", ("punct", "autophag", "lc3", "vesicle", "organelle")),
+                        ("cell", ("cell", "cyto", "membrane", "actin", "cyst"))):
         if any(word in text for word in words):
             return role
     return ""
@@ -1236,12 +1251,105 @@ def unused_folder(parent: str, name: str) -> str:
     return candidate
 
 
+def _plan_mask(folder: str, image: str, masks_dir: Optional[str],
+               masks: Optional[Dict[str, Optional[str]]]) -> Optional[str]:
+    """The mask :func:`build_plan` moves with ``image``, or None.
+
+    :param folder: the image folder.
+    :param image: the image's name or path.
+    :param masks_dir: an explicit masks folder.
+    :param masks: explicit ``{image: mask}``, or None to look it up.
+    """
+    if masks is None:
+        return mask_for(folder, image, masks_dir)
+    mask = masks.get(image)
+    return mask if mask and os.path.isfile(mask) else None
+
+
+def _match_columns(columns: Sequence[Sequence[str]],
+                   partners: Optional[Dict[int, int]] = None,
+                   shapes: Optional[Dict[str, Optional[tuple]]] = None
+                   ) -> List[List[Optional[str]]]:
+    """Line files up in rows across columns, the way Detect sets pairs them.
+
+    Item 600's organise table: each column is a channel or a mask, each row
+    one field. The column with the most files is the reference; its files,
+    naturally sorted, start one row each. Every other column is matched to
+    the rows one-to-one at the least total cost -- :func:`name_distance`
+    plus a small term for how far apart two files sit in their sorted
+    order -- and a pair of different image size is never made. A column in
+    ``partners`` (a mask column) is matched against its partner column's
+    file in each row (the image it outlines) rather than the reference.
+    Files no row takes start rows of their own, so nothing dropped is lost.
+
+    :param columns: the files of each column, absolute paths.
+    :param partners: ``{column: column it is matched against}``.
+    :param shapes: ``{path: shape}`` already read; read here otherwise.
+    :returns: rows, each a list with one path or None per column.
+    """
+    columns = [sorted(dict.fromkeys(c), key=natural_key) for c in columns]
+    partners = dict(partners or {})
+    width = len(columns)
+    if not width or not any(columns):
+        return []
+    shapes = dict(shapes or {})
+    for files in columns:
+        for path in files:
+            if path not in shapes:
+                shapes[path] = image_shape(path)
+
+    def plane(path: Optional[str]):
+        """A file's 2-D size, for comparing an image with a mask.
+
+        :param path: a file, or None.
+        """
+        shape = shapes.get(path) if path else None
+        return tuple(shape[:2]) if shape else None
+
+    order = sorted(range(width), key=lambda c: (c in partners, -len(columns[c]), c))
+    reference = order[0]
+    rows: List[List[Optional[str]]] = []
+    for path in columns[reference]:
+        row: List[Optional[str]] = [None] * width
+        row[reference] = path
+        rows.append(row)
+    forbidden = 1e6
+    for column in order[1:]:
+        files = columns[column]
+        if not files:
+            continue
+        against = partners.get(column, reference)
+        anchors = [row[against] for row in rows]
+        cost = np.full((len(rows), len(files)), forbidden)
+        for i, anchor in enumerate(anchors):
+            if anchor is None or rows[i][column] is not None:
+                continue
+            for j, path in enumerate(files):
+                if plane(anchor) is None or plane(anchor) != plane(path):
+                    continue
+                spread = abs(i / max(len(rows), 1) - j / max(len(files), 1))
+                cost[i, j] = name_distance(anchor, path) + 0.01 * spread
+        taken = set()
+        if rows:
+            for i, j in zip(*_assign(cost)):
+                if cost[i, j] < forbidden:
+                    rows[i][column] = files[j]
+                    taken.add(j)
+        for j, path in enumerate(files):
+            if j not in taken:
+                row = [None] * width
+                row[column] = path
+                rows.append(row)
+    return rows
+
+
 def build_plan(folder: str, sets: Dict[SetKey, Dict[int, str]], *,
                masks_dir: Optional[str] = None,
                mask_roles: Optional[Dict[int, str]] = None,
                dest: Optional[str] = None,
                check_shapes: bool = True,
-               convert: bool = False) -> SortPlan:
+               convert: bool = False,
+               masks: Optional[Dict[str, Optional[str]]] = None) -> SortPlan:
     """Decide every move, name and check before anything is touched.
 
     :param folder: the image folder.
@@ -1254,6 +1362,9 @@ def build_plan(folder: str, sets: Dict[SetKey, Dict[int, str]], *,
     :param check_shapes: read each image's and mask's size and refuse a set
         whose images differ in size, a mask that is not its image's size or
         an image that is not 2-D.
+    :param masks: ``{image: mask path}`` naming each image's mask outright
+        (item 600's mask columns); an image missing from it has none. None
+        looks each mask up with :func:`mask_for`.
     :param convert: write RGB images as grey and z-stacks as their maximum
         projection instead of refusing them; without it they are listed in
         :attr:`SortPlan.convertible` so the caller can ask.
@@ -1277,7 +1388,7 @@ def build_plan(folder: str, sets: Dict[SetKey, Dict[int, str]], *,
     for key, members in sets.items():
         for channel, image in members.items():
             members_by_channel[channel].append(image)
-            if mask_for(folder, image, masks_dir):
+            if _plan_mask(folder, image, masks_dir, masks):
                 masked.add(channel)
     if mask_roles is None:
         plan.mask_roles = default_mask_roles(members_by_channel, masked)
@@ -1300,7 +1411,7 @@ def build_plan(folder: str, sets: Dict[SetKey, Dict[int, str]], *,
             channel_dir = os.path.join(plan.dest, f"C{channel:02d}")
             target = os.path.join(channel_dir, yokogawa_name(place, channel, ext))
             row = PlanRow(channel, place, key, source, target)
-            mask = mask_for(folder, image, masks_dir)
+            mask = _plan_mask(folder, image, masks_dir, masks)
             if mask:
                 row.source_mask = mask
                 row.target_mask = os.path.join(
@@ -1552,3 +1663,229 @@ def merge_sorted(dest: str, mask_roles: Dict[int, str], *,
                     if n.endswith(".npy")) if os.path.isdir(merged_dir) else []
     say(f"Wrote {len(merged)} merged array(s) to {merged_dir}.")
     return stacks, merged
+
+
+# -- item 600: names before consolidation, and the "Teach me" mode ------------
+
+#: The file :mod:`spacr.folder_consolidation` writes beside its copies.
+CONSOLIDATION_MANIFEST = "rename_manifest.csv"
+
+
+def _original_names(folder: str) -> Dict[str, str]:
+    """The names a consolidated folder's files had before they were copied.
+
+    :mod:`spacr.folder_consolidation` names each copy after its folders and
+    numbers collisions, which can drop what told two channels apart -- a
+    ``1.tif`` / ``1c.tif`` pair becomes ``exp_KO.tif`` / ``exp_KO_2.tif``.
+    Its ``rename_manifest.csv`` still has the original paths; this gives
+    each copy the original path below the common root, joined by ``_``
+    (``Experiment 1_ATG2 KO_1c.tif``), so a regex can read the channel.
+
+    :param folder: a folder that may hold ``rename_manifest.csv``.
+    :returns: ``{current file name: original name}``; empty without a
+        readable manifest.
+    """
+    path = os.path.join(folder, CONSOLIDATION_MANIFEST)
+    if not os.path.isfile(path):
+        return {}
+    try:
+        with open(path, newline="", encoding="utf-8") as handle:
+            rows = [r for r in csv.DictReader(handle)
+                    if r.get("original_path") and r.get("new_filename")]
+    except (OSError, csv.Error, UnicodeDecodeError):
+        return {}
+    if not rows:
+        return {}
+    originals = [os.path.normpath(r["original_path"]) for r in rows]
+    root = (os.path.commonpath([os.path.dirname(p) for p in originals])
+            if len(originals) > 1 else os.path.dirname(originals[0]))
+    names = {}
+    for row, original in zip(rows, originals):
+        relative = os.path.relpath(original, root)
+        names[row["new_filename"]] = "_".join(
+            part for part in relative.replace("\\", "/").split("/") if part)
+    return names
+
+
+def _diff_region(a: str, b: str):
+    """The one place two file names differ, with what follows it.
+
+    :param a: a file name.
+    :param b: another.
+    :returns: ``(a's text, b's text, text after)`` over the stems, or None
+        when the names differ in more than one place or not at all.
+    """
+    stem_a, stem_b = split_extension(a)[0], split_extension(b)[0]
+    ops = [op for op in difflib.SequenceMatcher(
+        None, stem_a, stem_b, autojunk=False).get_opcodes() if op[0] != "equal"]
+    if not ops:
+        return None
+    _tag, i1, _i2, j1, _j2 = ops[0]
+    _tag, _i1, i2, _j1, j2 = ops[-1]
+    # Several edits inside one word (DAPI/GFP share a P) are one region;
+    # edits separated by a separator are two, and no marker.
+    if len(ops) > 1 and (re.search(r"[-_. ]", stem_a[i1:i2])
+                         or re.search(r"[-_. ]", stem_b[j1:j2])):
+        return None
+    # Grow the region to whole letter runs, so DAPI/GFP is not "DA"/"GF".
+    while (i1 > 0 and j1 > 0 and stem_a[i1 - 1].isalpha()
+           and stem_a[i1 - 1] == stem_b[j1 - 1]
+           and ((i1 < i2 and stem_a[i1].isalpha())
+                or (j1 < j2 and stem_b[j1].isalpha()))):
+        i1 -= 1
+        j1 -= 1
+    while (i2 < len(stem_a) and j2 < len(stem_b) and stem_a[i2].isalpha()
+           and stem_a[i2] == stem_b[j2]
+           and ((i1 < i2 and stem_a[i2 - 1].isalpha())
+                or (j1 < j2 and stem_b[j2 - 1].isalpha()))):
+        i2 += 1
+        j2 += 1
+    return stem_a[i1:i2], stem_b[j1:j2], stem_a[i2:]
+
+
+def _teach_markers(answers: Dict[str, object]) -> Dict[object, set]:
+    """What in the names marks each answered label.
+
+    Each answered name is compared with the nearest answered name of
+    another label; when they differ in one place, that text is a marker of
+    its label (``""`` counts: a name with nothing where the other has
+    ``c``).
+
+    :param answers: ``{name: label}`` -- the user's answers.
+    :returns: ``{label: {marker texts}}``.
+    """
+    markers: Dict[object, set] = defaultdict(set)
+    names = list(answers)
+    for name in names:
+        others = sorted((n for n in names if answers[n] != answers[name]),
+                        key=lambda n: (name_distance(name, n), natural_key(n)))
+        for other in others:
+            region = _diff_region(os.path.basename(name),
+                                  os.path.basename(other))
+            if region is not None:
+                markers[answers[name]].add(region[0])
+                break
+    return dict(markers)
+
+
+def _teach_regex(answers: Dict[str, object], extensions: Iterable[str]):
+    """A regex whose ``chanID`` group reads the markers the answers show.
+
+    The marker sits either at the end of the stem (``1c.tif``) or before
+    fixed text; what comes before it (and after it) names the set.
+
+    :param answers: ``{name: label}``.
+    :param extensions: every extension among the names, with its dot.
+    :returns: ``(regex, {marker: label})``, or ``(None, {})`` while the
+        answers show no marker yet, or show one text for two labels.
+    """
+    markers = _teach_markers(answers)
+    by_marker: Dict[str, object] = {}
+    for label, texts in markers.items():
+        for text in texts:
+            if by_marker.setdefault(text, label) != label:
+                return None, {}
+    if len(set(by_marker.values())) < 2:
+        return None, {}
+    after = set()
+    before = set()
+    names = list(answers)
+    for name in names:
+        for other in names:
+            if answers[other] != answers[name]:
+                region = _diff_region(os.path.basename(name),
+                                      os.path.basename(other))
+                if region is not None:
+                    after.add(region[2])
+                    stem = split_extension(os.path.basename(name))[0]
+                    prefix = stem[:len(stem) - len(region[2]) - len(region[0])]
+                    before.add(prefix[-1:])
+    # What sits just before the marker, so an empty marker cannot swallow
+    # an unknown one ("7C" is not "7" + nothing).
+    if before and all(c.isdigit() for c in before):
+        edge = r"\d"
+    elif before and all(c.isalpha() for c in before):
+        edge = "[A-Za-z]"
+    elif len(before) == 1 and before != {""}:
+        edge = re.escape(next(iter(before)))
+    else:
+        edge = ""
+    alternation = "|".join(re.escape(m) for m in
+                           sorted(by_marker, key=lambda m: (-len(m), m)))
+    exts = "|".join(sorted({re.escape(str(e).lstrip("."))
+                            for e in extensions if e}))
+    tail = r"\.(?:" + (exts or "[A-Za-z0-9]+") + ")$"
+    head = r"(?P<wellID>.*?" + edge + ")(?P<chanID>" + alternation + ")"
+    if not after or after == {""}:
+        return head + tail, by_marker
+    anchor = sorted(after, key=len)[0][:1]
+    return (head + r"(?P<fieldID>" + re.escape(anchor) + ".*?)" + tail,
+            by_marker)
+
+
+def _teach_step(names: Sequence[str], answers: Dict[str, object]):
+    """One round of "Teach me": the regex so far, and which image to ask about.
+
+    Without a regex yet, the next image is the unanswered one most like an
+    answered one -- most often the same field in another channel. With a
+    regex, it is the first name the regex does not read, or the first
+    unanswered one when the regex reads an answered name as another label;
+    None means every name is placed.
+
+    :param names: every image name (as the regex will read them).
+    :param answers: ``{name: label}`` so far; a label is anything hashable,
+        e.g. ``("channel", 1)`` or ``("mask", 1, "cell")``, or ``"skip"``
+        for an image the user does not want placed.
+    :returns: ``(regex or None, {marker: label}, next name or None)``.
+    """
+    names = list(names)
+    placed = {n: label for n, label in answers.items() if label != "skip"}
+    unanswered = [n for n in names if n not in answers]
+    if not placed:
+        return None, {}, (unanswered[0] if unanswered else None)
+    extensions = {split_extension(os.path.basename(n))[1] for n in names}
+    pattern, by_marker = _teach_regex(placed, extensions)
+    if pattern is None:
+        if not unanswered:
+            return None, {}, None
+        nearest = min(unanswered, key=lambda n: (
+            min(name_distance(n, a) for a in placed), natural_key(n)))
+        return None, {}, nearest
+    compiled = re.compile(pattern)
+    unread: List[str] = []
+    for name in names:
+        if answers.get(name) == "skip":
+            continue
+        match = compiled.match(os.path.basename(name))
+        if match is None:
+            if name not in answers:
+                return pattern, by_marker, name
+            unread.append(name)
+            continue
+        if name in placed and by_marker.get(match.group(CHANNEL_GROUP)) \
+                != placed[name]:
+            unread.append(name)
+    if unread and unanswered:
+        # An answer the regex cannot explain needs its neighbour: the same
+        # field in another channel shows what marks it.
+        return pattern, by_marker, min(unanswered, key=lambda n: (
+            name_distance(n, unread[0]), natural_key(n)))
+    return pattern, by_marker, None
+
+
+def _teach_labels(names: Sequence[str], pattern: str,
+                  by_marker: Dict[str, object]) -> Dict[str, object]:
+    """Each name's label, as the learned regex reads it.
+
+    :param names: image names.
+    :param pattern: a regex from :func:`_teach_step`.
+    :param by_marker: ``{marker: label}`` from :func:`_teach_step`.
+    :returns: ``{name: label}`` for the names the regex reads.
+    """
+    compiled = re.compile(pattern)
+    labels = {}
+    for name in names:
+        match = compiled.match(os.path.basename(name))
+        if match is not None and match.group(CHANNEL_GROUP) in by_marker:
+            labels[name] = by_marker[match.group(CHANNEL_GROUP)]
+    return labels

@@ -46,20 +46,25 @@ def screen(qtbot, qt_theme_applied):
 def _nested(root: Path) -> Path:
     """``exp/`` with one top image, two subfolders of images and a masks folder.
 
+    The subfolders do not look like channels (item 600 opens "Organize for
+    Measure" for those): their names are not channel names and their
+    fields differ.
+
     :param root: the parent.
     """
     src = root / "exp"
     _tif(src / "top.tif", np.zeros((16, 16), np.uint16))
-    _tif(src / "nuc" / "a.tif", np.zeros((16, 16), np.uint16))
-    _tif(src / "cell" / "a.tif", np.zeros((16, 16), np.uint16))
+    _tif(src / "run1" / "a.tif", np.zeros((16, 16), np.uint16))
+    _tif(src / "run2" / "b.tif", np.zeros((16, 16), np.uint16))
     _tif(src / "masks" / "top.tif", np.zeros((16, 16), np.uint16))
     return src
 
 
-def test_the_two_buttons_are_on_the_screen(screen):
-    """Both item-593 buttons are built, with names a test can find."""
-    assert screen.findChild(type(screen._btn_open), "MakeMasksConsolidateButton")
-    assert screen.findChild(type(screen._btn_open), "MakeMasksSortChannelsButton")
+def test_the_organize_button_is_on_the_screen(screen):
+    """Item 600 replaced 593's two buttons with one "Organize for Measure…"."""
+    assert screen.findChild(type(screen._btn_open), "MakeMasksOrganizeButton")
+    assert not screen.findChild(type(screen._btn_open),
+                                "MakeMasksSortChannelsButton")
 
 
 def test_a_headless_drop_opens_the_folder_as_it_is(screen, tmp_path):
@@ -91,8 +96,8 @@ def test_yes_consolidates_off_thread_and_opens_the_new_folder(
     assert "2 image(s) in 2 subfolder(s)" in asked[0][1]
     output = tmp_path / "exp_renamed"
     qtbot.waitUntil(lambda: screen._folder == str(output), timeout=20000)
-    assert sorted(screen._image_files) == ["exp.tif", "exp_cell.tif", "exp_nuc.tif"]
-    assert (src / "nuc" / "a.tif").is_file()
+    assert sorted(screen._image_files) == ["exp.tif", "exp_run1.tif", "exp_run2.tif"]
+    assert (src / "run1" / "a.tif").is_file()
 
 
 def _drawn(root: Path) -> Path:

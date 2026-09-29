@@ -598,6 +598,31 @@ class _MaskLoadWorker(QThread):
 _NOT_CONSOLIDATED = ("masks", "orig", "sorted_channels")
 
 
+def _copy_mask_as_tiff(source: str, target: str) -> None:
+    """Copy a dropped mask to where Make Masks looks for it (item 600).
+
+    A TIFF is copied as it is; a mask saved in another format is read and
+    written as a TIFF, because Make Masks keeps every mask as
+    ``<masks folder>/<stem>.tif``.
+
+    :param source: the dropped mask.
+    :param target: ``<image folder>/masks/<image stem>.tif``.
+    :raises OSError: when it cannot be read or written.
+    """
+    import shutil
+
+    os.makedirs(os.path.dirname(target), exist_ok=True)
+    if source.lower().endswith((".tif", ".tiff")):
+        shutil.copy2(source, target)
+        return
+    from PIL import Image
+
+    from ...tiff_io import write_tiff
+
+    with Image.open(source) as image:
+        write_tiff(target, np.asarray(image))
+
+
 class _FolderJobWorker(QThread):
     """Run one folder job -- consolidating or sorting -- off the GUI thread.
 
@@ -8416,8 +8441,7 @@ class MakeMasksScreen(QWidget):
         self._btn_open.setCursor(Qt.PointingHandCursor)
         self._btn_open.clicked.connect(self._on_pick_folder)
         nav_row.addWidget(self._btn_open)
-        nav_row.addWidget(self._build_consolidate_button())
-        nav_row.addWidget(self._build_sort_channels_button())
+        nav_row.addWidget(self._build_organize_button())
         from ..make_masks_demo import install_test_data_button
         nav_row.addWidget(install_test_data_button(self))
         from ..make_masks_datasets import install_dataset_button
@@ -14774,61 +14798,27 @@ class MakeMasksScreen(QWidget):
         self._open_folder(d)
 
 
-    def _build_consolidate_button(self) -> QPushButton:
-        """The "Consolidate folders…" button beside "Open folder…"."""
+    def _build_organize_button(self) -> QPushButton:
+        """The "Organize for Measure…" button beside "Open folder…" (item 600)."""
         from ..i18n import tr
 
-        button = QPushButton(tr("Consolidate folders…"), self)
-        button.setObjectName("MakeMasksConsolidateButton")
+        button = QPushButton(tr("Organize for Measure…"), self)
+        button.setObjectName("MakeMasksOrganizeButton")
         button.setCursor(Qt.PointingHandCursor)
         button.setToolTip(tr(
-            "Pick a folder whose images sit in subfolders, and copy them all "
-            "into one new folder, each named after the folders it was in. "
-            "The originals are not touched."))
-        button.clicked.connect(
-            lambda _checked=False: self._on_consolidate_folders())
-        self._btn_consolidate = button
-        return button
-
-    def _build_sort_channels_button(self) -> QPushButton:
-        """The "Sort into channels…" button, for the folder that is open."""
-        from ..i18n import tr
-
-        button = QPushButton(tr("Sort into channels…"), self)
-        button.setObjectName("MakeMasksSortChannelsButton")
-        button.setCursor(Qt.PointingHandCursor)
-        button.setToolTip(tr(
-            "Assign this folder's images to channels, by selection or by a "
-            "regex, then move them with their masks into one folder per "
-            "channel, rename them in Yokogawa format and merge them into "
-            "merged/ for Measure."))
-        button.clicked.connect(lambda _checked=False: self._on_sort_channels())
-        self._btn_sort_channels = button
+            "Put images and their masks into the layout Measure reads: one "
+            "popup with the source folder, Mask generation's regex options "
+            "and a table with a column per channel and per mask, which takes "
+            "dropped files and folders. Apply moves them into Yokogawa-named "
+            "channel folders and merges them into merged/."))
+        button.clicked.connect(lambda _checked=False: self._on_organize())
+        self._btn_organize = button
         return button
 
     def _folder_job_running(self) -> bool:
         """Whether a consolidation or channel sort is still running."""
         worker = getattr(self, "_folder_job", None)
         return worker is not None and worker.isRunning()
-
-    def _on_consolidate_folders(self) -> bool:
-        """Pick a folder and consolidate it, asking first.
-
-        :returns: whether a consolidation was started.
-        """
-        from ..i18n import tr
-
-        d = QFileDialog.getExistingDirectory(
-            self, tr("Pick the folder to consolidate"),
-            self._folder or os.getcwd())
-        if not d:
-            return False
-        if self._offer_consolidation(d):
-            return True
-        self._warn(tr("Nothing to consolidate"),
-                   tr("No images were found in subfolders of {folder}.",
-                      folder=d))
-        return False
 
     def _offer_consolidation(self, folder: str) -> bool:
         """Ask whether to consolidate ``folder`` when its images sit in subfolders.
@@ -14906,24 +14896,45 @@ class MakeMasksScreen(QWidget):
                 n=result.failed), "warning")
         self._open_folder(str(result.output))
 
-    def _on_sort_channels(self):
-        """Open "Sort into channels…" on the open folder and apply its plan.
+    def _on_organize(self):
+        """Open "Organize for Measure" on the open folder, if one is open.
 
-        :returns: the dialog, or None when no single folder is open.
+        :returns: the dialog.
         """
-        from ..i18n import tr
-        from ..widgets.channel_sort_dialog import ChannelSortDialog
+        folder = self._folder if self._folder and not self._field_folders else ""
+        return self._open_organize(folder, masks_dir=self._masks_dir)
 
-        if not self._folder or self._field_folders:
-            self._warn(tr("No folder"),
-                       tr("Open one folder of images to sort into channels."))
+    def _open_organize(self, source: str = "", channel_folders=None,
+                       masks_dir: Optional[str] = None):
+        """Open the "Organize for Measure" popup and apply what it plans.
+
+        :param source: the source folder to prefill, or ``""``.
+        :param channel_folders: folders to prefill as one channel column
+            each, from a drop.
+        :param masks_dir: the source's masks folder, when not its ``masks/``.
+        :returns: the dialog when it was accepted and its plan started, else
+            None. It is kept as :attr:`_organize_dialog` either way.
+        """
+        from ..widgets.organize_for_measure import OrganizeForMeasureDialog
+
+        dialog = OrganizeForMeasureDialog(source, self,
+                                          channel_folders=channel_folders,
+                                          masks_dir=masks_dir)
+        self._organize_dialog = dialog
+        if not self._run_organize(dialog) or dialog.plan is None:
             return None
-        dialog = ChannelSortDialog(self._folder, self._masks_dir, self)
-        if is_headless():
-            return dialog
-        if dialog.exec() == QDialog.Accepted and dialog.plan is not None:
-            self._start_channel_sort(dialog.plan)
+        self._start_channel_sort(dialog.plan)
         return dialog
+
+    def _run_organize(self, dialog) -> bool:
+        """Show the popup modally; headless nobody can, so it is not run.
+
+        :param dialog: the popup.
+        :returns: whether it was accepted.
+        """
+        if is_headless():
+            return False
+        return dialog.exec() == QDialog.Accepted
 
     def _start_channel_sort(self, plan) -> bool:
         """Move, rename and merge as ``plan`` says, off the GUI thread.
@@ -14965,28 +14976,155 @@ class MakeMasksScreen(QWidget):
             moved=result.moved, stacks=len(result.stacks),
             merged=len(result.merged), dest=result.dest,
             manifest=result.manifest))
+        # Item 600: point Measure at the result, so features are one step away.
+        prefs.push_recent_source("measure", str(result.dest))
+        self._masks_console.post(tr(
+            "Ready for Measure: open Measure and use {dest} as its source (it "
+            "is first in Measure's recent sources). Its merged arrays hold the "
+            "images first, then the mask planes in the order cell, nucleus, "
+            "pathogen, organelle.", dest=result.dest))
         first = os.path.join(result.dest, "C01")
         if os.path.isdir(first):
             self._open_folder(first)
 
     def open_paths(self, paths) -> bool:
-        """Open dropped image files and folders as one queue, in drop order.
+        """Open a drop the way its contents say, asking where there is a choice.
 
-        One folder alone is what it always was, :meth:`_open_folder` on it.
-        Anything else -- one file, several, or files and folders together --
-        becomes a queue of the fields named, a folder standing for its
-        images, each field edited where it lies with its mask in its own
-        ``<folder>/masks``. Nothing is copied.
+        Item 600. :func:`spacr.drop_classification.classify_drop` says what
+        was dropped, and:
+
+        * image files (with or without folders) open as one queue, in drop
+          order, each field edited where it lies with its mask in its own
+          ``<folder>/masks`` -- :meth:`_open_queue`;
+        * one folder of images opens as it is;
+        * one folder whose subfolders look like channels (DAPI/, GFP/..., or
+          the same fields in each) opens "Organize for Measure" with a
+          channel column per subfolder; any other folder whose images sit in
+          subfolders is offered for consolidation (item 593);
+        * several folders of images open "Organize for Measure" with a
+          channel column per folder;
+        * when that popup is cancelled (or nobody can see it), the drop
+          opens as it always did: the folder as it is, or a queue;
+        * images dropped with their masks open with those masks
+          (:meth:`_open_with_masks`);
+        * a folder spaCR wrote is named in the console and its images, if
+          any, open -- a ``.npy`` is never opened as an image.
+
+        Everything the drop held that is used for nothing is listed in the
+        console.
 
         :param paths: the dropped files and folders, in the order dropped.
+        :returns: whether something was opened or a job started.
+        """
+        from ..i18n import tr
+        from ... import drop_classification as dc
+
+        paths = [os.path.abspath(str(p)) for p in paths]
+        found = dc.classify_drop(paths)
+        for line in found.unrecognised:
+            self._masks_console.post(
+                tr("Not used from this drop: {item}", item=line), "warning")
+        if found.description:
+            self._masks_console.post(found.description)
+        if found.kind == "spacr_output":
+            if found.open_folder:
+                return self._open_folder(found.open_folder)
+            self._warn(tr("Nothing to open"), found.description)
+            return False
+        if found.kind == "images_with_masks":
+            return self._open_with_masks(found)
+        if found.kind in ("folder", "nested"):
+            folder = found.folders[0]
+            if found.channel_like and len(found.channel_folders) > 1:
+                if self._open_organize(folder, found.channel_folders):
+                    return True
+            elif self._offer_consolidation(folder):
+                return True
+            return self._open_folder(folder)
+        if found.kind == "folders":
+            if self._open_organize("", found.folders):
+                return True
+        wanted = set(found.images) | set(found.folders)
+        return self._open_queue([p for p in paths if p in wanted])
+
+    def _open_with_masks(self, found) -> bool:
+        """Open dropped images with the masks dropped with them.
+
+        When the images share one folder and the masks one folder, named as
+        Make Masks names masks (``<stem>.tif``), that masks folder is used
+        as it is. Otherwise the user is asked to copy each mask into
+        ``masks/`` beside its image under that name -- a mask already there
+        is kept -- and the images open either way.
+
+        :param found: an ``images_with_masks``
+            :class:`spacr.drop_classification.DropClassification`.
+        :returns: whether the images were opened.
+        """
+        from ..i18n import tr
+        from ... import channel_sorting as cs
+
+        post = self._masks_console.post
+        for mask in found.unpaired_masks:
+            post(tr("Not used from this drop: {item}",
+                    item=tr("{path} (no dropped image has this name)",
+                            path=mask)), "warning")
+        images, masks = list(found.images), dict(found.masks)
+        folders = {os.path.dirname(image) for image in images}
+        mask_dirs = {os.path.dirname(mask) for mask in masks.values()}
+        named = all(os.path.basename(mask)
+                    == cs.split_extension(os.path.basename(image))[0] + ".tif"
+                    for image, mask in masks.items())
+        if len(folders) == 1 and len(mask_dirs) == 1 and named:
+            folder, masks_dir = folders.pop(), mask_dirs.pop()
+            if os.path.normpath(masks_dir) == os.path.normpath(
+                    os.path.join(folder, "masks")):
+                masks_dir = None
+            post(tr("Opening {n} image(s) with {k} dropped mask(s).",
+                    n=len(images), k=len(masks)))
+            return self._open_folder(
+                folder, files=[os.path.basename(i) for i in images],
+                masks_dir=masks_dir)
+        copies = []
+        for image, mask in masks.items():
+            target = os.path.join(
+                os.path.dirname(image), "masks",
+                cs.split_extension(os.path.basename(image))[0] + ".tif")
+            if os.path.normpath(target) != os.path.normpath(mask):
+                copies.append((mask, target))
+        kept = [target for _mask, target in copies if os.path.exists(target)]
+        if copies and self._confirm(
+                tr("Use the dropped masks?"),
+                tr("{n} dropped mask(s) belong to dropped images. Copy them "
+                   "into masks/ beside their images, named as Make Masks "
+                   "names masks, so they open with them? {k} image(s) already "
+                   "have a mask there, which is kept. No opens the images "
+                   "without them.", n=len(copies), k=len(kept))):
+            copied = 0
+            for mask, target in copies:
+                if os.path.exists(target):
+                    continue
+                try:
+                    _copy_mask_as_tiff(mask, target)
+                    copied += 1
+                except (OSError, ValueError) as exc:
+                    post(tr("Could not copy {mask}: {error}", mask=mask,
+                            error=str(exc)), "warning")
+            post(tr("Copied {n} mask(s) beside their images.", n=copied))
+        return self._open_queue(images)
+
+    def _open_queue(self, paths) -> bool:
+        """Open image files and folders as one queue, in the order given.
+
+        One folder alone opens as a folder; anything else becomes a queue of
+        the fields named, a folder standing for its images, each field
+        edited where it lies. Nothing is copied.
+
+        :param paths: absolute image files and folders.
         :returns: whether a queue was opened.
         """
         from ..i18n import tr
 
-        paths = [os.path.abspath(str(p)) for p in paths]
         if len(paths) == 1 and os.path.isdir(paths[0]):
-            if self._offer_consolidation(paths[0]):
-                return True
             return self._open_folder(paths[0])
         fields: list = []
         for path in paths:
@@ -15723,8 +15861,4 @@ class MakeMasksScreen(QWidget):
                    *self._mode_buttons.values()):
             b.setEnabled(editable)
         self._btn_skip.setEnabled(editable and self._queue is not None)
-        sort_button = getattr(self, "_btn_sort_channels", None)
-        if sort_button is not None:
-            sort_button.setEnabled(has_files and not getattr(
-                self, "_field_folders", None))
         self._btn_prompt.setEnabled(editable)

@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-514 in features/new, 74 in features/future. NEITHER LIST BLOCKS A RELEASE.
+515 in features/new, 74 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -782,3 +782,4 @@ NEW FEATURES
   595  MEASURE SETTINGS REGROUPED, AND THE MASK QC BEHIND A BUTTON
   596  596. Spectral unmixing is a sub-category of Image Preprocessing in Mask generation
   597  597. Home screen sliders size the right-hand widgets and their text
+  600  MAKE MASKS UNDERSTANDS WHAT IS DROPPED, AND ONE POPUP ORGANIZES FOR MEASURE

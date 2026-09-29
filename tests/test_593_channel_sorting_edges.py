@@ -271,10 +271,13 @@ def test_two_sets_with_one_name_are_refused(monkeypatch):
 # -------------------------------------------------------------- planning
 
 def test_default_mask_roles_fill_in_and_run_out():
+    # Item 600 added "organelle" as a fourth role, so a fifth channel is the
+    # one that runs out.
     roles = cs.default_mask_roles(
-        {1: ["x_dapi.tif"], 2: ["y.tif"], 3: ["z_dapi.tif"], 4: ["w.tif"]},
-        [1, 2, 3, 4])
-    assert roles == {1: "nucleus", 2: "cell", 3: "pathogen"}
+        {1: ["x_dapi.tif"], 2: ["y.tif"], 3: ["z_dapi.tif"], 4: ["w.tif"],
+         5: ["v.tif"]},
+        [1, 2, 3, 4, 5])
+    assert roles == {1: "nucleus", 2: "cell", 3: "pathogen", 4: "organelle"}
     assert cs._word_role(["virus.tif"]) == "pathogen"
 
 

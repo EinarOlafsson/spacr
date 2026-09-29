@@ -1,4 +1,63 @@
 {
   "schema": 1,
-  "sources": {}
+  "sources": {
+    "12dcacc04ca37d38b5280e6bdb92ecb1996c1f8ae007efa5de7526523b8435ff": {
+      "source_blocks_sha256": [
+        "3f60fea989d2144394e9ab9f1355f4ec274fdef66c60e9f501fdcb86a93a6ced",
+        "cc247a3038010bdcb359ad9ed4187c4df5217f0b6b60b6466e224d4cb5229923",
+        "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
+        "295bc1804dac96cf8a9c75de5cafe5496c163eff3e68e61d59c8400f5967d55c",
+        "03d9ff28d57d5453ff99df39aa4e590eba57d1831246b380b43a22730c5c816e"
+      ],
+      "source_sha256": "12dcacc04ca37d38b5280e6bdb92ecb1996c1f8ae007efa5de7526523b8435ff",
+      "text": "Return the path of the saved mask of image ``name``, or None.\n\nMake Masks saves every mask as ``<masks folder>/<stem>.tif``\n(:func:`spacr.qt.mask_engine.mask_save_path`).\n\n:param folder: the image folder.\n:param name: the image file name.\n:param masks_dir: an explicit masks folder."
+    },
+    "2a450af570bab49d1ea619f21f07db28cddd21d6d302fee40ac695bf521f15cb": {
+      "source_blocks_sha256": [
+        "a4878591d46edd1a888afa468dcea279bb5a76e69222a995801d21e23e401987",
+        "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
+        "2361736aef7fa63deaec9192bdd5133b7327747c69b9093a1b49a11ba8453b88",
+        "03d9ff28d57d5453ff99df39aa4e590eba57d1831246b380b43a22730c5c816e",
+        "f011c1f5a9daa343616645b60eb89f588c990bbc270384ae28621846dc27a5a1",
+        "f4e6a46f4fba0f5d82c2a794dddbd6efd63779d65a04e2552f6201b4286570d8",
+        "d5ec331991d19d64869eb3b1a422dd5c23c09f03def5404e799d913e04c4091e",
+        "ea3bd380a00d79b11341a3863a9d3b4ab4d88d1ecdd52bf5eb716a8d9f768202",
+        "a89332de24fb787ed65f2d099a9ffcd11684ed342db68c883cd7117062eaf1cd"
+      ],
+      "source_sha256": "2a450af570bab49d1ea619f21f07db28cddd21d6d302fee40ac695bf521f15cb",
+      "text": "Decide every move, name and check before anything is touched.\n\n:param folder: the image folder.\n:param sets: ``{set key: {channel: name}}``, complete sets only.\n:param masks_dir: an explicit masks folder.\n:param mask_roles: ``{channel: role}``; ``None`` guesses\n    (:func:`default_mask_roles`); a channel missing from it, or given\n    ``\"none\"``, has its masks moved but not merged.\n:param dest: the new folder; default ``<folder>/sorted_channels``.\n:param check_shapes: read each image's and mask's size and refuse a set\n    whose images differ in size, a mask that is not its image's size or\n    an image that is not 2-D.\n:param convert: write RGB images as grey and z-stacks as their maximum\n    projection instead of refusing them; without it they are listed in\n    :attr:`SortPlan.convertible` so the caller can ask.\n:returns: a :class:`SortPlan`."
+    },
+    "68a3e43a785d70d8f658ed68de2b73b30d999e078b997b4e910f4d6bfbd30266": {
+      "source_blocks_sha256": [
+        "78506f7bb027b6cbb03601fab8ca9b1fefaea01878a039a46b8dff62bc304b8d",
+        "688d7aed215a292b1d16cc482c05294c6fe3857388d45bca79692b30344d0e50",
+        "9baca7f3c139b3f19666cad2093c0fb906c930002a2b075fe06c91b876ed10e0",
+        "dcaa7600d687ff5164ffe3ea2c79aa76139153b9de822a610c86ad99f59f8632"
+      ],
+      "source_sha256": "68a3e43a785d70d8f658ed68de2b73b30d999e078b997b4e910f4d6bfbd30266",
+      "text": "Open dropped image files and folders as one queue, in drop order.\n\nOne folder alone is what it always was, :meth:`_open_folder` on it.\nAnything else -- one file, several, or files and folders together --\nbecomes a queue of the fields named, a folder standing for its\nimages, each field edited where it lies with its mask in its own\n``<folder>/masks``. Nothing is copied.\n\n:param paths: the dropped files and folders, in the order dropped.\n:returns: whether a queue was opened."
+    },
+    "7923f308e7f5f5ae571cf9e0fbc043150b6efdaa038bcbd4664d99a009a9b536": {
+      "source_blocks_sha256": [
+        "df310dd753f35e5e3ca37f84440ec37b1f0d4a924ec4a75592f92b19eed53c6b",
+        "4e0c3296a77271f0f3fe4f37d7812c41d161963d1a5ae93e1fec99d5ec3d84e9",
+        "1f800f7819df1dab2291037c2ed19a7e327af6aa03c46a42b5915f92048a45f9",
+        "c104664a16c2336b1ec431168ed28b672d42347d783cafd1a1c712819bfd8cfb"
+      ],
+      "source_sha256": "7923f308e7f5f5ae571cf9e0fbc043150b6efdaa038bcbd4664d99a009a9b536",
+      "text": "An image file Make Masks opens, or a folder with images in it.\n\nPairs are found later, not required here.\n\n:param path: the dropped file or folder.\n:returns: True when this handler can use ``path`` as-is."
+    },
+    "b7f6ac214b949efd152e02ba36a527c9bbb341efe3321adc335701109b55fd40": {
+      "source_blocks_sha256": [
+        "56311c12a57ec81ed05b83917f7d0b26c88cfc57316ec37a5917d6091eff0be0",
+        "b53c94632baea7fba0f0d31d8c50399bb2a63eaef639956aa3a318140861885b",
+        "9fc1e60082e3b59380b1a2ffe027609650fb4412615f2ee8aa826348c4f04242",
+        "9c6bc6d3b2d34146a64bfdca1c59740f1c941b8ae9928ab8e10d4daf35fe8472",
+        "3aec1d760fc41c58075bedf3b6bfee93d5091c8bce41cc1576fb9f0838281043",
+        "514259c61036debd3fc830490d2a8731e4b2413961783e7527abba3066ff939e"
+      ],
+      "source_sha256": "b7f6ac214b949efd152e02ba36a527c9bbb341efe3321adc335701109b55fd40",
+      "text": "Read each name's channel and set through ``pattern``.\n\nThe channel of a name the user assigned (``channels``) is that\nassignment; otherwise it is its ``chanID`` value's position among all\n``chanID`` values, naturally sorted, from 1. The set key is every other\nnamed group, in the pattern's order. A name the pattern does not match\nhas no set.\n\n:param names: image file names.\n:param pattern: the regex, matched from the start of each name; empty or\n    None matches nothing.\n:param channels: ``{name: channel}`` from the selection strategy.\n:returns: one :class:`ParsedName` per name, in order."
+    }
+  }
 }
