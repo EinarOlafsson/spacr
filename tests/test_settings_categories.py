@@ -1571,14 +1571,15 @@ def _rendered_sections(app_key):
                 # enhancement chain are alpha sub-categories that
                 # `build_sections` nests under Image Preprocessing.
                 "Input & Metadata", "Cloud α", "Workflow & Test Run", "Image Preprocessing",
+                # Item 596, 2026-09-29: unmixing runs on the raw field, so it
+                # is the first sub-category of Image Preprocessing.
+                "Spectral Unmixing α",
                 "Illumination Correction α",
                 # Item 557: Noise2Void denoises before the PSF and the chain.
                 "Self-Supervised Denoising α",
                 "Image Deconvolution α",
                 "Image Enhancement α",
                 'Image Quality',
-                # Item 538, 2026-09-26: unmixing runs on the raw field.
-                "Spectral Unmixing α",
                 "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
             "Organelle Segmentation (advanced)",
@@ -1631,6 +1632,9 @@ def _rendered_sections(app_key):
         ]),
             ("timelapse", [
                 "Input & Metadata", "Acquisition & Axes", "Image Preprocessing",
+                # Item 596, 2026-09-29: unmixing runs on the raw field, so it
+                # is the first sub-category of Image Preprocessing.
+                "Spectral Unmixing α",
                 # Item 591, 2026-09-28: as on Mask generation.
                 "Illumination Correction α",
                 # Item 557: Noise2Void denoises before the PSF and the chain.
@@ -1638,8 +1642,6 @@ def _rendered_sections(app_key):
                 "Image Deconvolution α",
                 "Image Enhancement α",
                 'Image Quality',
-                # Item 538, 2026-09-26: unmixing runs on the raw field.
-                "Spectral Unmixing α",
                 "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
             "Organelle Segmentation (advanced)",

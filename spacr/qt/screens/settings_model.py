@@ -1200,6 +1200,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "normalize", "lower_percentile", "randomize", "batch_fields",
             "consolidate",
         )),
+        ("Spectral Unmixing α", ("@Spectral Unmixing α",)),
         ("Illumination Correction α", (
             "illumination_correction", "illumination_model",
             "illumination_estimator", "illumination_degree",
@@ -1213,7 +1214,6 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Image Deconvolution α", ("@Point Spread Function",)),
         ("Image Enhancement α", ("@Image Enhancement",)),
         ("Image Quality", ("@Image Quality",)),
-        ("Spectral Unmixing α", ("@Spectral Unmixing α",)),
         ("Cell Segmentation", ("@Cell",)),
         ("Nucleus Segmentation", ("@Nucleus",)),
         ("Pathogen Segmentation", ("@Pathogen",)),
@@ -1336,6 +1336,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "normalize", "lower_percentile", "randomize", "batch_fields",
             "consolidate",
         )),
+        ("Spectral Unmixing α", ("@Spectral Unmixing α",)),
         ("Illumination Correction α", (
             "illumination_correction", "illumination_model",
             "illumination_estimator", "illumination_degree",
@@ -1349,7 +1350,6 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Image Deconvolution α", ("@Point Spread Function",)),
         ("Image Enhancement α", ("@Image Enhancement",)),
         ("Image Quality", ("@Image Quality",)),
-        ("Spectral Unmixing α", ("@Spectral Unmixing α",)),
         ("Cell Segmentation", ("@Cell",)),
         ("Nucleus Segmentation", ("@Nucleus",)),
         ("Pathogen Segmentation", ("@Pathogen",)),
@@ -2006,9 +2006,10 @@ def _shared_category_parents() -> Dict[str, str]:
 #: whose parents are empty umbrellas shared by every module, the parent here
 #: is usually a category with settings of its own -- Mask generation's
 #: "Image Preprocessing" keeps its normalisation rows and gains the
-#: illumination, deconvolution and enhancement headings below them.
+#: unmixing, illumination, deconvolution and enhancement headings below them.
 _APP_CATEGORY_PARENTS: Dict[str, Dict[str, str]] = {
     app_key: {
+        "Spectral Unmixing α": "Image Preprocessing",
         "Illumination Correction α": "Image Preprocessing",
         "Self-Supervised Denoising α": "Image Preprocessing",
         "Image Deconvolution α": "Image Preprocessing",

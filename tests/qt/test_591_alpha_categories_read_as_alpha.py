@@ -34,8 +34,9 @@ from PySide6.QtCore import QSettings                              # noqa: E402
 from spacr import settings as S                                   # noqa: E402
 
 ALPHA = "α"
-SUBCATEGORIES = ("Illumination Correction α", "Image Deconvolution α",
-                 "Image Enhancement α")
+# Item 596, 2026-09-29: Spectral Unmixing α joined them.
+SUBCATEGORIES = ("Spectral Unmixing α", "Illumination Correction α",
+                 "Image Deconvolution α", "Image Enhancement α")
 MASK_ALPHA = S.ALPHA_FEATURES[591]["module_settings"]["mask"]
 
 
