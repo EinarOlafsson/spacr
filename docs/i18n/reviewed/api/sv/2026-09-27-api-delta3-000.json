@@ -170,7 +170,9 @@
       "source_sha256": "020ed299519d4a96466f449c51fce3e7ded116aa8465c8f16223cc082a25e525",
       "context": "the processing session's ``psf_*``, ``enhance_*`` and ``unmix`` settings.",
       "translation": "körningens inställningar för ``psf_*``, ``enhance_*`` och ``unmix``.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-28: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.processing_requested#3",
