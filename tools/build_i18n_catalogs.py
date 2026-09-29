@@ -283,7 +283,7 @@ _IDENTITY_TEXT = {
     # rows (item 577).
     "ntfy", "Slack", "Microsoft Teams",
     # 316, 2026-09-27: backend and workflow-engine names shown alone.
-    "CellProfiler", "CellProfiler (Alpha)", "Nextflow…", "Snakemake…",
+    "CellProfiler", "CellProfiler (Alpha)", "CellProfiler α", "CAREamics Noise2Void", "Nextflow…", "Snakemake…",
     "Visium", "Visium HD", "Xenium",
     "PNG", "QC", "RGB",
     "RNA", "ROI", "SAM", "SHAP", "SQL", "TIFF", "UMAP", "ViT", "X",
@@ -2796,6 +2796,10 @@ MANUAL_UI: dict[str, dict[str, str]] = {
     # reviewed records, so it would override the zh_CN, hi, ko and is records
     # already written for this label.
     "Concentration": {"fr": "Concentration"},
+    # 316, 2026-09-29: the channel-sort dialog's No button and its no
+    # column value are the same word in Spanish.
+    "No": {"es": "No"},
+    "no": {"es": "no"},
     # These scientific labels are also correctly spelt English words in
     # the listed languages. Keep the actual terminology rather than adding
     # artificial qualifiers solely to make an exact-copy audit pass.

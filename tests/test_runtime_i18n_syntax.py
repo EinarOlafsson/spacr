@@ -138,7 +138,9 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
     assert hashlib.sha256(json.dumps(sorted(additions), ensure_ascii=False).encode()).hexdigest() == report["added_sources_sha256"]
     assert not sources & additions
     for filename, record_count, source_count in (
-            ("2026-09-27-mask-cloud-category.json", 3, 2),
+            # 3 -> 2 records on 2026-09-29: items 591-597 renamed the "Cloud"
+            # category, so its caption record was deleted (key gone).
+            ("2026-09-27-mask-cloud-category.json", 2, 1),
             ("2026-09-28-runtime-577-585.json", 20, 20)):
         document = json.loads((folder / filename).read_text())
         records = document["records"]
@@ -212,7 +214,9 @@ def _inherited_2026_09_28_sources(language: str, reviewed) -> set[str]:
         document = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language
                                / name).read_text())
         sources |= {record["source"] for record in document["records"]}
-    assert len(sources) == 31
+    # 31 -> 30 on 2026-09-29: the "Measurement Backend (Alpha)" caption was
+    # renamed to its "α" form (591-597); the old record was deleted.
+    assert len(sources) == 30
     assert sources <= reviewed.keys()
     return sources
 
@@ -281,7 +285,10 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     # minus the Spotiflow identity; Hindi also resolves35 historical fallbacks.
     seventh = json.loads((folder / "2026-09-27-runtime-codex-delta.json").read_text())["records"]
     latest7 = {record["source"] for record in seventh}
-    assert len(seventh) == len(latest7) == (174 if language == "hi" else 139)
+    # 139 -> 136 (hi 174 -> 171) on 2026-09-29: items 591-597 renamed the
+    # Event Detection, GPU Measurement and Segmentation Robustness categories
+    # to their "α" captions, so those three records were deleted (key gone).
+    assert len(seventh) == len(latest7) == (171 if language == "hi" else 136)
     assert not latest7 & sources
     sources |= latest7
     discovery = json.loads((folder / "2026-09-27-gpu-discovery.json").read_text())["records"]
@@ -290,6 +297,14 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     assert discovery_sources == {"Checking compatible GPUs…"}
     assert not discovery_sources & sources
     sources |= discovery_sources
+    # The 2026-09-29 seventh runtime pass: the renamed "α" categories, the
+    # channel-sort and consolidate dialogs, Noise2Void and the new category
+    # help (items 591-597), one more slice that overlaps nothing earlier.
+    pass7 = [record for path in sorted(folder.glob("2026-09-29-runtime-debt-seventh-pass-*.json"))
+             for record in json.loads(path.read_text())["records"]]
+    latest_p7 = {record["source"] for record in pass7}
+    assert len(pass7) == len(latest_p7) and not latest_p7 & sources
+    sources |= latest_p7
     assert sources <= reviewed.keys()
     return sources
 
@@ -361,7 +376,7 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # a fourth-pass record.
     # 711 -> 710 on 2026-09-28: 595 removed the "Measurement Features"
     # caption, so its record left 2026-09-25-runtime-debt-captions.json.
-    debt_sources = _runtime_debt_sources("sv", all_reviewed, 710)
+    debt_sources = _runtime_debt_sources("sv", all_reviewed, 709)  # 710 -> 709 on 2026-09-29: the "Point Spread Function" category caption was renamed (591-597)
     assert not debt_sources & (ui_sources | example_sources | preview_sources | normalized_sources | download_sources | subsequent_sources)
     inherited_sources = _inherited_2026_09_28_sources("sv", all_reviewed)
     assert not inherited_sources & (debt_sources | ui_sources | download_sources | subsequent_sources)
@@ -543,7 +558,7 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # Item463 retired one superseded download tooltip; its full old evidence
     # and exact set difference are checked by _new_download_sources above.
     assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) == 627
-    assert len(all_reviewed.keys() - debt_sources - inherited_sources) == 1688
+    assert len(all_reviewed.keys() - debt_sources - inherited_sources) == 1687  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -632,7 +647,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # a fourth-pass record.
     # 711 -> 710 on 2026-09-28: 595 removed the "Measurement Features"
     # caption, so its record left 2026-09-25-runtime-debt-captions.json.
-    debt_sources = _runtime_debt_sources("fr", all_reviewed, 710)
+    debt_sources = _runtime_debt_sources("fr", all_reviewed, 709)  # 710 -> 709 on 2026-09-29: the "Point Spread Function" category caption was renamed (591-597)
     assert not debt_sources & (example_sources | preview_sources | normalized_sources | download_sources | refresh_sources | subsequent_sources)
     inherited_sources = _inherited_2026_09_28_sources("fr", all_reviewed)
     assert not inherited_sources & (debt_sources | refresh_sources | download_sources | subsequent_sources)
@@ -795,7 +810,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(all_reviewed.keys() - refresh_sources - subsequent_sources - debt_sources - inherited_sources) == 338
     # 316 (71071b6c6) retired 17 setup and sign-in captions from the four slices to _ROWS.
     assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) == 620
-    assert len(all_reviewed.keys() - debt_sources - inherited_sources) == 1680
+    assert len(all_reviewed.keys() - debt_sources - inherited_sources) == 1679  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

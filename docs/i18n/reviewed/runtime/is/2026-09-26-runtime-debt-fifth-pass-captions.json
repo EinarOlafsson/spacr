@@ -20,13 +20,6 @@
     },
     {
       "table": "ui",
-      "key": "Cell Cycle (Alpha)",
-      "source": "Cell Cycle (Alpha)",
-      "source_sha256": "b506b3a01ea8b35739b874b2f3b3f4782dab65c7efa5606b88bebfb1ab803235",
-      "translation": "Frumuhringur (alfa)"
-    },
-    {
-      "table": "ui",
       "key": "Could not forget the saved secrets.",
       "source": "Could not forget the saved secrets.",
       "source_sha256": "dd005b39ada4e02018607dee02b71c231a4d52778d8d45b50e461f75ce7efdfd",
@@ -87,13 +80,6 @@
       "source": "Only when a run fails",
       "source_sha256": "569b08fab3fdd217fe6cdf50d5c444d2d14ada88a5fc88a5e3e70eada301eb09",
       "translation": "Aðeins þegar keyrsla mistekst"
-    },
-    {
-      "table": "ui",
-      "key": "Profiling (Alpha)",
-      "source": "Profiling (Alpha)",
-      "source_sha256": "f121d9e3e46c4b60f8bf5555e2097fc258ed9b8832ba79658b88a11b77974745",
-      "translation": "Prófílgreining (alfa)"
     },
     {
       "table": "ui",
@@ -234,13 +220,6 @@
       "source": "Wound",
       "source_sha256": "d65e2bcd794b2834437ee7b9555151145968d2768987fa4670d399f1dab5f119",
       "translation": "Sár"
-    },
-    {
-      "table": "ui",
-      "key": "Wound Closure (Alpha)",
-      "source": "Wound Closure (Alpha)",
-      "source_sha256": "7ea3bc00f5ccb0b5da914ee57356be7e13b317986f544dc03e5d3da4c2933cc6",
-      "translation": "Lokun sárs (alfa)"
     },
     {
       "table": "ui",

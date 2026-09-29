@@ -62,13 +62,6 @@
     },
     {
       "table": "ui",
-      "key": "Bleach Correction (Alpha)",
-      "source": "Bleach Correction (Alpha)",
-      "source_sha256": "d16aaf960ed389174ded165bee341d53db9c74813c6174c10a3115f6b1eef362",
-      "translation": "Corrección del fotoblanqueo (Alfa)"
-    },
-    {
-      "table": "ui",
       "key": "Both conditions on every replicate",
       "source": "Both conditions on every replicate",
       "source_sha256": "611576469a4aa367af82a3851c5a9d3a37ce650870a42da94cb4c437054f71fd",
@@ -115,13 +108,6 @@
       "source": "Cluster similarity",
       "source_sha256": "c0390c18924deea5ddf827088f565491eb2c7ac86c682eff71c034a2c44d70c2",
       "translation": "Similitud de agrupación"
-    },
-    {
-      "table": "ui",
-      "key": "Colony Counting (Alpha)",
-      "source": "Colony Counting (Alpha)",
-      "source_sha256": "81dc0466d21f5e6b23dcded3ed36aeb84f4ae8c5ef1baed0e0899c7051661e28",
-      "translation": "Recuento de colonias (Alfa)"
     },
     {
       "table": "ui",
@@ -293,13 +279,6 @@
     },
     {
       "table": "ui",
-      "key": "Intensity Calibration (Alpha)",
-      "source": "Intensity Calibration (Alpha)",
-      "source_sha256": "eab14c9e0f49d2dafd98c099c80c06e5319bce25ef4463fa621ef18a24d04265",
-      "translation": "Calibración de intensidad (Alfa)"
-    },
-    {
-      "table": "ui",
       "key": "Its settings are in {path}.",
       "source": "Its settings are in {path}.",
       "source_sha256": "37d2f92355adbf0cd0c3fb83ad14547771518aa600d2f2b7c93b581dac541857",
@@ -332,13 +311,6 @@
       "source": "Like this",
       "source_sha256": "552d2eaeacb34b4beddee630f57a255b0810a09f068cc7255bc33d37eb263ceb",
       "translation": "Similares"
-    },
-    {
-      "table": "ui",
-      "key": "Lineage Trees (Alpha)",
-      "source": "Lineage Trees (Alpha)",
-      "source_sha256": "04352994ed56099732517d5a42d9a2f0f35616a9cc6c6a392199926f56578a1d",
-      "translation": "Árboles de linaje (Alfa)"
     },
     {
       "table": "ui",
@@ -388,13 +360,6 @@
       "source": "Plan the design",
       "source_sha256": "0b0bc13df78e3bb5bc7af9514692e66f0bcf9544d65a79f26e062a7056fd20e4",
       "translation": "Planificar el diseño"
-    },
-    {
-      "table": "ui",
-      "key": "Plate Barcode Linkage (Alpha)",
-      "source": "Plate Barcode Linkage (Alpha)",
-      "source_sha256": "83d31e59d179b544384fc2054c682a923f79123746cafd7772011c7a95de3b5b",
-      "translation": "Vínculo por código de barras de placa (Alfa)"
     },
     {
       "table": "ui",
@@ -482,13 +447,6 @@
     },
     {
       "table": "ui",
-      "key": "Spectral Unmixing (Alpha)",
-      "source": "Spectral Unmixing (Alpha)",
-      "source_sha256": "d3553f77f4c77b6cce30c39f8a70676df9d09ad4e11d0c5aa569a8ef2749e0a2",
-      "translation": "Desmezcla espectral (Alfa)"
-    },
-    {
-      "table": "ui",
       "key": "Stage the files in",
       "source": "Stage the files in",
       "source_sha256": "dc6030d53e8a52cfa795b45326528363377e96a566dafa5aadd9ff6de6853d5f",
@@ -517,13 +475,6 @@
     },
     {
       "table": "ui",
-      "key": "Time To Event (Alpha)",
-      "source": "Time To Event (Alpha)",
-      "source_sha256": "2bd734209806f011d69c46579e198221df8b042ace02103a0408836d7cd29b5c",
-      "translation": "Tiempo hasta el evento (Alfa)"
-    },
-    {
-      "table": "ui",
       "key": "Treatment protocol",
       "source": "Treatment protocol",
       "source_sha256": "e3a1d90fa009d738daafccc240a334df01cd5bd6bcffef80ef3b22d79d48b8c1",
@@ -535,13 +486,6 @@
       "source": "Uninstalled {name}.",
       "source_sha256": "73f0c26200e603ccc9cb40a1fe324e7a0225140886a1fe086829dbc40df3aeca",
       "translation": "{name} desinstalado."
-    },
-    {
-      "table": "ui",
-      "key": "Viability (Alpha)",
-      "source": "Viability (Alpha)",
-      "source_sha256": "973b649b47ea88f6a46954898ba1ef899c5e28dc5d5e5cd836a7f8b3d665258f",
-      "translation": "Viabilidad (Alfa)"
     },
     {
       "table": "ui",

@@ -1,0 +1,491 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26, sixth pass 2026-09-27, seventh pass 2026-09-29: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "A folder job is still running.",
+      "source": "A folder job is still running.",
+      "source_sha256": "33d20214850500fdfc16b050ab61491a25af4363fa358f227f5ae576197fcbed",
+      "translation": "Ett mappjobb körs fortfarande."
+    },
+    {
+      "table": "ui",
+      "key": "Add channel",
+      "source": "Add channel",
+      "source_sha256": "62f66a6abadc953ab2e40d86b61d70ffbac8b9919da19ffa22e945e69df9a998",
+      "translation": "Lägg till kanal"
+    },
+    {
+      "table": "ui",
+      "key": "Are these sets right?",
+      "source": "Are these sets right?",
+      "source_sha256": "b1ffd6aeaef65ecfcc21a6740f1ea83f879988edcbc9d26144c8f81344688571",
+      "translation": "Stämmer dessa uppsättningar?"
+    },
+    {
+      "table": "ui",
+      "key": "Auto regex",
+      "source": "Auto regex",
+      "source_sha256": "384fe9e88f45fd7a8edba924b66d16644843cdea1f060482bcc52db434eb84db",
+      "translation": "Automatiskt regex"
+    },
+    {
+      "table": "ui",
+      "key": "Bleach Correction α",
+      "source": "Bleach Correction α",
+      "source_sha256": "ea9986cff8e2df068eaafb2816f91204c8de163803717dee54a561016f9679c5",
+      "translation": "Blekningskorrigering α"
+    },
+    {
+      "table": "ui",
+      "key": "Busy",
+      "source": "Busy",
+      "source_sha256": "2b9cf77b67940911033d20da888c871c41dc5052fc13be9b8cb892662a555d72",
+      "translation": "Upptagen"
+    },
+    {
+      "table": "ui",
+      "key": "Cannot sort",
+      "source": "Cannot sort",
+      "source_sha256": "431a150024af0810d03a01223b72b295eec8908b78c2139ea21b76cc3994fe34",
+      "translation": "Kan inte sortera"
+    },
+    {
+      "table": "ui",
+      "key": "Cell Cycle α",
+      "source": "Cell Cycle α",
+      "source_sha256": "30bc796f955cc312d4457d14e5a89b98487726b240699a6e5c63a8ff6b223165",
+      "translation": "Cellcykel α"
+    },
+    {
+      "table": "ui",
+      "key": "Change the regex?",
+      "source": "Change the regex?",
+      "source_sha256": "9d811676106384d2637a8a17ab8e1af39c0a2f361e88fa130da2d548c6611a92",
+      "translation": "Ändra regex?"
+    },
+    {
+      "table": "ui",
+      "key": "Channel {channel}: {name}",
+      "source": "Channel {channel}: {name}",
+      "source_sha256": "71c43016810b2779a8e99f0726ec30ec82a699ae4e02ab5a27b11728dc8a69ec",
+      "translation": "Kanal {channel}: {name}"
+    },
+    {
+      "table": "ui",
+      "key": "Channel {n} masks are",
+      "source": "Channel {n} masks are",
+      "source_sha256": "7aab87a2cda87868e90d76b03c7076c7fd17ef03132068eafd5547b5a8023dc9",
+      "translation": "Masker för kanal {n} är"
+    },
+    {
+      "table": "ui",
+      "key": "Clear channel",
+      "source": "Clear channel",
+      "source_sha256": "0baa5ebd44b38f662e6652ed0e6ca49ed4a5b5cb7d1deb59585b9015b1997c62",
+      "translation": "Töm kanal"
+    },
+    {
+      "table": "ui",
+      "key": "Cloud α",
+      "source": "Cloud α",
+      "source_sha256": "7ce52e94272bc34fc8fc61711d297961015db1a271c0352647f2e7475e9ede5a",
+      "translation": "Moln α"
+    },
+    {
+      "table": "ui",
+      "key": "Colony Counting α",
+      "source": "Colony Counting α",
+      "source_sha256": "02e07c0e3f80b5f975cb91e4a92ff397f2b68af24e1300e71ce22f0737a3325e",
+      "translation": "Koloniräkning α"
+    },
+    {
+      "table": "ui",
+      "key": "Confluency α",
+      "source": "Confluency α",
+      "source_sha256": "44104125219552ed3768d48f760f740ef2c10955b53b0e53bd200a20b26856ba",
+      "translation": "Konfluens α"
+    },
+    {
+      "table": "ui",
+      "key": "Consolidate folders?",
+      "source": "Consolidate folders?",
+      "source_sha256": "6e3da665264eff10a51c1087389afc8711242bd79790db09ae811444b31462e2",
+      "translation": "Konsolidera mappar?"
+    },
+    {
+      "table": "ui",
+      "key": "Consolidate folders…",
+      "source": "Consolidate folders…",
+      "source_sha256": "762ea3d3ce1c0be983ce8d203a2b03a5b5d5921d704a57f97b86a84f3ff49708",
+      "translation": "Konsolidera mappar…"
+    },
+    {
+      "table": "ui",
+      "key": "Consolidating {folder} into {output}…",
+      "source": "Consolidating {folder} into {output}…",
+      "source_sha256": "5a773341a294c683b0fe6fa4992948ba4e4a9685a352733dc2bdf2a8b2c7ed4d",
+      "translation": "Konsoliderar {folder} till {output}…"
+    },
+    {
+      "table": "ui",
+      "key": "Consolidation failed",
+      "source": "Consolidation failed",
+      "source_sha256": "8b7335cbdd94c3fe491750b05cba24d3991c0ca4a0cf9f82d5625ce2b587d2e7",
+      "translation": "Konsolideringen misslyckades"
+    },
+    {
+      "table": "ui",
+      "key": "Convert RGB images and z-stacks?",
+      "source": "Convert RGB images and z-stacks?",
+      "source_sha256": "830583a26f35d939228ff0253bf7267b11ac77b343c8668df05840670d54eb5c",
+      "translation": "Konvertera RGB-bilder och z-stackar?"
+    },
+    {
+      "table": "ui",
+      "key": "Detect sets",
+      "source": "Detect sets",
+      "source_sha256": "f887a1d0478e7e6a1b44051c5720ec9d30dbcbf52faec01aaab91f3c9a04000a",
+      "translation": "Hitta uppsättningar"
+    },
+    {
+      "table": "ui",
+      "key": "Edit regex…",
+      "source": "Edit regex…",
+      "source_sha256": "c3dffe1c2dd0b093e412a53ad66bd50b709dbd8b1098b0329b89f71548e19825",
+      "translation": "Redigera regex…"
+    },
+    {
+      "table": "ui",
+      "key": "Event Detection α",
+      "source": "Event Detection α",
+      "source_sha256": "4461fea4af107f21b94fbf462acc4d2b4a2310ccfaaace6aac793035a2086bbe",
+      "translation": "Händelsedetektering α"
+    },
+    {
+      "table": "ui",
+      "key": "File",
+      "source": "File",
+      "source_sha256": "50009ce1da4d15e1c4a04024df691eed5f0d598e2c4c67092f205366d0adf99e",
+      "translation": "Fil"
+    },
+    {
+      "table": "ui",
+      "key": "GPU Measurement α",
+      "source": "GPU Measurement α",
+      "source_sha256": "5ba3496ac8e8437712669d15f54eb51fb205d4d871f6b8ddfd1f7b349c5e120b",
+      "translation": "GPU-mätning α"
+    },
+    {
+      "table": "ui",
+      "key": "Groups",
+      "source": "Groups",
+      "source_sha256": "39bbb719fa2b9d2251039cbf2cd072e1120a414278263e2f11d99af0236c4262",
+      "translation": "Grupper"
+    },
+    {
+      "table": "ui",
+      "key": "Illumination Correction α",
+      "source": "Illumination Correction α",
+      "source_sha256": "23b32cea3650ffa7936c303c64b9f7f065b66c88051954e96c82d4161f3be6ed",
+      "translation": "Belysningskorrigering α"
+    },
+    {
+      "table": "ui",
+      "key": "Image Deconvolution (PSF)",
+      "source": "Image Deconvolution (PSF)",
+      "source_sha256": "1d1de3e5b0aacbedb8ffdf932d6d7789e8396092eb2be6e7dbc5c146c3ab7ed3",
+      "translation": "Bilddekonvolution (PSF)"
+    },
+    {
+      "table": "ui",
+      "key": "Image Deconvolution α",
+      "source": "Image Deconvolution α",
+      "source_sha256": "acc823836c554408b2bad494752366b604cffcf3337c6e863de1dd16116b6caa",
+      "translation": "Bilddekonvolution α"
+    },
+    {
+      "table": "ui",
+      "key": "Image Enhancement α",
+      "source": "Image Enhancement α",
+      "source_sha256": "182e1d103911ddcdf8de29136f6738940e06f696313eec34b9b3b34bd8730f1d",
+      "translation": "Bildförbättring α"
+    },
+    {
+      "table": "ui",
+      "key": "Intensity Calibration α",
+      "source": "Intensity Calibration α",
+      "source_sha256": "4e4b612e62bda4b87f7ee87f3579bf3e31458495b7079a6ff3ab8d722173a33b",
+      "translation": "Intensitetskalibrering α"
+    },
+    {
+      "table": "ui",
+      "key": "Lineage Trees α",
+      "source": "Lineage Trees α",
+      "source_sha256": "a0ef74cde2279f43f3157e6026532de6289ec971c807b1f7989dcc9cd97b0824",
+      "translation": "Härstamningsträd α"
+    },
+    {
+      "table": "ui",
+      "key": "Measurement Backend α",
+      "source": "Measurement Backend α",
+      "source_sha256": "da7f2445d9ab9514a1a35362d8a4bcd3a42b7d1094f363ca2a735fbfce5126cc",
+      "translation": "Backend för mätningar α"
+    },
+    {
+      "table": "ui",
+      "key": "Move and merge?",
+      "source": "Move and merge?",
+      "source_sha256": "978278b2e2f5c23f7c665d95242bcb7fe01f1cd29fef4b6edade7b388cabf0c2",
+      "translation": "Flytta och slå samman?"
+    },
+    {
+      "table": "ui",
+      "key": "No",
+      "source": "No",
+      "source_sha256": "1ea442a134b2a184bd5d40104401f2a37fbc09ccf3f4bc9da161c6099be3691d",
+      "translation": "Nej"
+    },
+    {
+      "table": "ui",
+      "key": "No folder",
+      "source": "No folder",
+      "source_sha256": "ca98f4c7bf9dab8a67b8678ce3f696bbf6abdfad313f89e958e93b19eeb31465",
+      "translation": "Ingen mapp"
+    },
+    {
+      "table": "ui",
+      "key": "Nothing to consolidate",
+      "source": "Nothing to consolidate",
+      "source_sha256": "879b1c2f7924e432a4517d974c1c0f32c7d9b0a0a44719f5d92b9b3162b0213c",
+      "translation": "Inget att konsolidera"
+    },
+    {
+      "table": "ui",
+      "key": "Own DINO: {name}",
+      "source": "Own DINO: {name}",
+      "source_sha256": "145054ccbde75f278b4f436fa6596939ff85bacf5f353e4b7140547ae0b35817",
+      "translation": "Egen DINO: {name}"
+    },
+    {
+      "table": "ui",
+      "key": "Pick the folder to consolidate",
+      "source": "Pick the folder to consolidate",
+      "source_sha256": "d2910a9dedb8d55ba70cff8df0fe3d58726d2032798c7981949e3b200c37c268",
+      "translation": "Välj mappen som ska konsolideras"
+    },
+    {
+      "table": "ui",
+      "key": "Plate Barcode Linkage α",
+      "source": "Plate Barcode Linkage α",
+      "source_sha256": "c904973fa2c94e7ab6845ef5cd11d3bb2b84d73692995512294b0f16546ac9e2",
+      "translation": "Koppling via plattstreckkod α"
+    },
+    {
+      "table": "ui",
+      "key": "Pretrain on these crops…",
+      "source": "Pretrain on these crops…",
+      "source_sha256": "573819b234f1af3c90bcb6fed1363fded2a1f3e8d1bf45ddf7d53bc6e1a1e0b0",
+      "translation": "Förträna på dessa utsnitt…"
+    },
+    {
+      "table": "ui",
+      "key": "Pretraining on {n} crops…",
+      "source": "Pretraining on {n} crops…",
+      "source_sha256": "ec1a172b6e8493423f2c346d683d55d8f3ad67ce9d27dda5ec31b40cba966c6b",
+      "translation": "Förtränar på {n} utsnitt…"
+    },
+    {
+      "table": "ui",
+      "key": "Profiling α",
+      "source": "Profiling α",
+      "source_sha256": "a193f3ee893f5177e0485e119876eae7fa36a31fa3bb8b109bb959bd0c062252",
+      "translation": "Profilering α"
+    },
+    {
+      "table": "ui",
+      "key": "PyTorch checkpoints (*.pt)",
+      "source": "PyTorch checkpoints (*.pt)",
+      "source_sha256": "8fea3d9c57640bdc0027fa7a97c9917b8ad87a2695ccfddc7181cbd28c887a21",
+      "translation": "PyTorch-kontrollpunkter (*.pt)"
+    },
+    {
+      "table": "ui",
+      "key": "Regex for channels and sets",
+      "source": "Regex for channels and sets",
+      "source_sha256": "b8dc3c363b5e710464eff7fe5e3b2686a6e448bae9378fdd86e0b75a24760f4b",
+      "translation": "Regex för kanaler och uppsättningar"
+    },
+    {
+      "table": "ui",
+      "key": "Regex with named groups",
+      "source": "Regex with named groups",
+      "source_sha256": "2e0b078dc6e3c92767508aeb18b93081e3b4ab7661ce63024206c3c5cc4f7bd7",
+      "translation": "Regex med namngivna grupper"
+    },
+    {
+      "table": "ui",
+      "key": "Save the pretrained backbone as",
+      "source": "Save the pretrained backbone as",
+      "source_sha256": "bf702060d91979267c874515985ba5c2bab15d052cba46abd929e484a3c8a55f",
+      "translation": "Spara det förtränade stamnätet som"
+    },
+    {
+      "table": "ui",
+      "key": "Segmentation Robustness α",
+      "source": "Segmentation Robustness α",
+      "source_sha256": "bbe85f6d1455e4abe5c9010add146b7fae3a5d9fee2b0bec53459f7f83b64770",
+      "translation": "Segmenteringsrobusthet α"
+    },
+    {
+      "table": "ui",
+      "key": "Select all",
+      "source": "Select all",
+      "source_sha256": "1fc9a387654d410febd202b81bddbe62d38368260b69b9f73ee6630164536bdf",
+      "translation": "Markera alla"
+    },
+    {
+      "table": "ui",
+      "key": "Self-Supervised Denoising α",
+      "source": "Self-Supervised Denoising α",
+      "source_sha256": "a7378861fd1be59dfdf8fbcd0ac00a2f6020906d97f3cde50edc7536d714c9c1",
+      "translation": "Självövervakad brusreducering α"
+    },
+    {
+      "table": "ui",
+      "key": "Set",
+      "source": "Set",
+      "source_sha256": "b6f6f3ad07b3c05fa0bbbbf2e3d257ff1e3e31a83efbe2c9369cd008594f94e0",
+      "translation": "Uppsättning"
+    },
+    {
+      "table": "ui",
+      "key": "Sort into channels",
+      "source": "Sort into channels",
+      "source_sha256": "e335ef681b41fa310de84c1236e40a19a6442b05be8b2b31b2bcbb049298b19e",
+      "translation": "Sortera i kanaler"
+    },
+    {
+      "table": "ui",
+      "key": "Sort into channels…",
+      "source": "Sort into channels…",
+      "source_sha256": "11f738dd3355f3886e1c678dda8e3fd51ff72a78a35e9dff84124a8ff02221c4",
+      "translation": "Sortera i kanaler…"
+    },
+    {
+      "table": "ui",
+      "key": "Sorting failed",
+      "source": "Sorting failed",
+      "source_sha256": "77155aedc7b5929039ba6496c472e704e14d57d710392f9ad31fea3e1bbc283c",
+      "translation": "Sorteringen misslyckades"
+    },
+    {
+      "table": "ui",
+      "key": "Spectral Unmixing α",
+      "source": "Spectral Unmixing α",
+      "source_sha256": "5dd2aa33b0109c49560da3742b78c1a64d5525845ea87648f3f37a7941b0c1da",
+      "translation": "Spektral avblandning α"
+    },
+    {
+      "table": "ui",
+      "key": "The regex is not valid: {error}",
+      "source": "The regex is not valid: {error}",
+      "source_sha256": "8894a4d7fbd95d86262e4f42972cfa21e40dc8adfcaff39b7ccf0e9cf064653a",
+      "translation": "Regex är ogiltigt: {error}"
+    },
+    {
+      "table": "ui",
+      "key": "Time To Event α",
+      "source": "Time To Event α",
+      "source_sha256": "dc7990cedee4dc0346ea0f07a3aecaa963acfc059a975268de6fd15cc6f45795",
+      "translation": "Tid till händelse α"
+    },
+    {
+      "table": "ui",
+      "key": "Use this regex",
+      "source": "Use this regex",
+      "source_sha256": "6438d6a6c2e7866fc578e6708a1c27bc5a1e01af091f0ae319d04fdd9a901e94",
+      "translation": "Använd detta regex"
+    },
+    {
+      "table": "ui",
+      "key": "Viability α",
+      "source": "Viability α",
+      "source_sha256": "836df7c8cb40865ff40c18590d08497d4562cf53e651563a78fd64b5b0536e99",
+      "translation": "Viabilitet α"
+    },
+    {
+      "table": "ui",
+      "key": "Wound Closure α",
+      "source": "Wound Closure α",
+      "source_sha256": "c612fe1c7f4cb7b2084fa2d3e3fbc13f21880d85be602d4b42811217016ac020",
+      "translation": "Sårslutning α"
+    },
+    {
+      "table": "ui",
+      "key": "Yes, these are right",
+      "source": "Yes, these are right",
+      "source_sha256": "de21812805390a9f4f570d3b4364da5ccd195379f72fe9317cb7f66783e1dfcc",
+      "translation": "Ja, de stämmer"
+    },
+    {
+      "table": "ui",
+      "key": "mask",
+      "source": "mask",
+      "source_sha256": "48bf9b4f142ab45cac6f33cf99415bca6ca8e07608a031237aa76560fec2204b",
+      "translation": "maskfil"
+    },
+    {
+      "table": "ui",
+      "key": "no",
+      "source": "no",
+      "source_sha256": "9390298f3fb0c5b160498935d79cb139aef28e1c47358b4bbba61862b9c26e59",
+      "translation": "nej"
+    },
+    {
+      "table": "ui",
+      "key": "no mask",
+      "source": "no mask",
+      "source_sha256": "b12f2deb8e06183a26bb16aa99944ddcf51248aa12c601e33fcd4449ed5ff1e5",
+      "translation": "ingen mask"
+    },
+    {
+      "table": "ui",
+      "key": "not merged",
+      "source": "not merged",
+      "source_sha256": "cee6d33d36eb9f27b815b49328942bb3a9029953e506406640789809e5cf4fda",
+      "translation": "inte sammanslagen"
+    },
+    {
+      "table": "ui",
+      "key": "{name}\n{mask} · channel {channel}",
+      "source": "{name}\n{mask} · channel {channel}",
+      "source_sha256": "a3724e46e519a9ee2b567d29b4a16e404c5541f0d060a7425ac7e6daefb81d8f",
+      "translation": "{name}\n{mask} · kanal {channel}"
+    },
+    {
+      "table": "ui",
+      "key": "{n} set(s) detected by pairing.",
+      "source": "{n} set(s) detected by pairing.",
+      "source_sha256": "304bf2488e2cf2fd53d7d0b37b36269784bc186c45bb39a4b6484b3faab30744",
+      "translation": "{n} uppsättning(ar) hittade genom parning."
+    },
+    {
+      "table": "ui",
+      "key": "{n} set(s) detected.",
+      "source": "{n} set(s) detected.",
+      "source_sha256": "157ccbfcb6b9be5e88ef7724dea1a9e213ac103535bc84ec1beb2cb38b10cabd",
+      "translation": "{n} uppsättning(ar) hittade."
+    },
+    {
+      "table": "ui",
+      "key": "…and {n} more",
+      "source": "…and {n} more",
+      "source_sha256": "57d7792445fba153f5c5e495ed30bc47b6b747778a6b9f5085f3d67d9514eca4",
+      "translation": "…och {n} till"
+    }
+  ]
+}

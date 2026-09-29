@@ -145,13 +145,6 @@
       "translation": "약 {size} MB의 합성 테스트 데이터를 다운로드합니다. spaCR이 그린 두 색상 이미지를 Mask에서 Cellpose-SAM으로 분할한 뒤 Measure로 측정했습니다. 실제 세포는 촬영하지 않았습니다. 염색 대조군 열과 두 조건에는 침입한 기생충의 알려진 비율이 있으며, 정답 데이터는 분할 마스크가 아닌 그려진 객체를 기록합니다. 설정이 채워지므로 다음 단계는 실행입니다. 첫 다운로드 후 캐시에 저장합니다."
     },
     {
-      "table": "ui",
-      "key": "Event Detection (Alpha)",
-      "source": "Event Detection (Alpha)",
-      "source_sha256": "460b9b85c82ea7c2e5db4c41c28f50fad49af1521780f8c561a39b7faac81499",
-      "translation": "이벤트 검출(Alpha)"
-    },
-    {
       "table": "setting_tooltips",
       "key": "robustness_flow_thresholds",
       "source": "Flow thresholds the robustness report tries in place of the run's own, one at a time. Higher keeps objects whose flows are less consistent. Default [0.2, 0.6].",
@@ -178,13 +171,6 @@
       "source": "Frames the detector sees around each frame of a track, centred on it; an even number is raised by one. Longer windows see slower changes but blur events close together. Only read when training. Default 9.",
       "source_sha256": "25ba9b52009fd9fb771b0d6d1723fcc1dcb448000a83976c09c976d668dc0dec",
       "translation": "궤적의 각 프레임을 중심으로 검출기가 보는 주변 프레임 수입니다. 짝수이면 하나를 더합니다. 긴 구간은 느린 변화를 볼 수 있지만 가까운 이벤트를 흐리게 만듭니다. 학습할 때만 읽습니다. 기본값: 9."
-    },
-    {
-      "table": "ui",
-      "key": "GPU Measurement (Alpha)",
-      "source": "GPU Measurement (Alpha)",
-      "source_sha256": "7aa096a77e726728bdae92c8dd521a6664afb5527a73b3681361cec989f4923c",
-      "translation": "GPU 측정(Alpha)"
     },
     {
       "table": "ui",
@@ -570,13 +556,6 @@
       "source": "Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field.",
       "source_sha256": "e0cf5ba8422790530547833acc9f5e31162c2415de0de8804c4414a055a0928f",
       "translation": "객체 검출 설정으로 각 시야를 원본, 두 방향으로 뒤집은 이미지, 90도 회전한 이미지의 네 가지로 분할하고 네 결과가 불일치하는 위치를 측정합니다. 이 시야 매핑은 별도 탭에 불일치를 히트맵으로 표시합니다. 시야 정렬은 가장 불확실한 시야를 먼저 배치하고 spacr-make-masks --order uncertain에 사용할 점수를 “curate_uncertainty.csv”로 저장합니다. 시야당 검출 네 번이 필요합니다."
-    },
-    {
-      "table": "ui",
-      "key": "Segmentation Robustness (Alpha)",
-      "source": "Segmentation Robustness (Alpha)",
-      "source_sha256": "8d994eb6f9334219c2dd31a9f31d11cc5c39738567d53f8bd9abb9f7caf647ef",
-      "translation": "분할 강건성(Alpha)"
     },
     {
       "table": "ui",

@@ -1182,13 +1182,6 @@
     },
     {
       "table": "ui",
-      "key": "Point Spread Function",
-      "source": "Point Spread Function",
-      "source_sha256": "d9f979c8867a43b304908f6a5f4983635079b7eb241bce41321a81131fe6e9f4",
-      "translation": "Função de espalhamento pontual"
-    },
-    {
-      "table": "ui",
       "key": "Point rendering",
       "source": "Point rendering",
       "source_sha256": "354127c1268b7b994b2bfc37c388eae1149f644fa3afbf27d5f97ca3c132607b",

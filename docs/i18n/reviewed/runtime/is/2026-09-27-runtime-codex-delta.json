@@ -145,13 +145,6 @@
       "translation": "Sækir um {size} MB af TILBÚNUM prófunargögnum: tvílita myndir teiknaðar af spaCR, hlutagreindar af Mask með Cellpose-SAM og síðan mældar með Measure. Engar raunverulegar frumur voru myndaðar. Dálkur með litunarviðmiði og tvö skilyrði hafa þekkt hlutfall sníkjudýra sem hafa ráðist inn; sannleiksgögnin lýsa teiknuðu hlutunum, ekki hlutagreindu grímunum. Stillingarnar eru fylltar út svo næsta skref er Keyra. Gögnin eru skyndivistuð eftir fyrsta niðurhal."
     },
     {
-      "table": "ui",
-      "key": "Event Detection (Alpha)",
-      "source": "Event Detection (Alpha)",
-      "source_sha256": "460b9b85c82ea7c2e5db4c41c28f50fad49af1521780f8c561a39b7faac81499",
-      "translation": "Atburðagreining (Alpha)"
-    },
-    {
       "table": "setting_tooltips",
       "key": "robustness_flow_thresholds",
       "source": "Flow thresholds the robustness report tries in place of the run's own, one at a time. Higher keeps objects whose flows are less consistent. Default [0.2, 0.6].",
@@ -178,13 +171,6 @@
       "source": "Frames the detector sees around each frame of a track, centred on it; an even number is raised by one. Longer windows see slower changes but blur events close together. Only read when training. Default 9.",
       "source_sha256": "25ba9b52009fd9fb771b0d6d1723fcc1dcb448000a83976c09c976d668dc0dec",
       "translation": "Fjöldi ramma sem greinirinn sér í kringum hvern ramma ferilslóðar, með þann ramma í miðju; slétt tala er hækkuð um einn. Lengri gluggar sjá hægari breytingar en þoka út atburðum sem eru nærri hver öðrum. Aðeins lesið við þjálfun. Sjálfgefið: 9."
-    },
-    {
-      "table": "ui",
-      "key": "GPU Measurement (Alpha)",
-      "source": "GPU Measurement (Alpha)",
-      "source_sha256": "7aa096a77e726728bdae92c8dd521a6664afb5527a73b3681361cec989f4923c",
-      "translation": "GPU-mæling (Alpha)"
     },
     {
       "table": "ui",
@@ -570,13 +556,6 @@
       "source": "Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field.",
       "source_sha256": "e0cf5ba8422790530547833acc9f5e31162c2415de0de8804c4414a055a0928f",
       "translation": "Hlutagreindu hvern myndreit fjórum sinnum, óbreyttan, speglaðan á tvo vegu og snúinn um fjórðung úr hring, með stillingum hlutgreiningar, og mældu hvar niðurstöðurnar fjórar eru ósammála. Kortleggja þennan myndreit sýnir ósamræmið sem hitakort á eigin flipa; Raða myndreitum setur óvissustu myndreitina fremst og vistar stigin sem curate_uncertainty.csv fyrir spacr-make-masks --order uncertain. Krefst fjögurra greiningarkeyrslna fyrir hvern myndreit."
-    },
-    {
-      "table": "ui",
-      "key": "Segmentation Robustness (Alpha)",
-      "source": "Segmentation Robustness (Alpha)",
-      "source_sha256": "8d994eb6f9334219c2dd31a9f31d11cc5c39738567d53f8bd9abb9f7caf647ef",
-      "translation": "Þol hlutagreiningar (Alpha)"
     },
     {
       "table": "ui",

@@ -145,13 +145,6 @@
       "translation": "Baixa cerca de {size} MB de dados de teste SINTÉTICOS: imagens de duas cores desenhadas pelo spaCR, segmentadas por Mask com Cellpose-SAM e depois medidas por Measure. Nenhuma célula real foi fotografada. Uma coluna de controle de marcação e duas condições têm uma proporção conhecida de parasitas que invadiram; a referência verdadeira registra os objetos desenhados, não as máscaras segmentadas. As configurações são preenchidas, então o próximo passo é Executar. Armazenados em cache após o primeiro download."
     },
     {
-      "table": "ui",
-      "key": "Event Detection (Alpha)",
-      "source": "Event Detection (Alpha)",
-      "source_sha256": "460b9b85c82ea7c2e5db4c41c28f50fad49af1521780f8c561a39b7faac81499",
-      "translation": "Detecção de eventos (Alpha)"
-    },
-    {
       "table": "setting_tooltips",
       "key": "robustness_flow_thresholds",
       "source": "Flow thresholds the robustness report tries in place of the run's own, one at a time. Higher keeps objects whose flows are less consistent. Default [0.2, 0.6].",
@@ -178,13 +171,6 @@
       "source": "Frames the detector sees around each frame of a track, centred on it; an even number is raised by one. Longer windows see slower changes but blur events close together. Only read when training. Default 9.",
       "source_sha256": "25ba9b52009fd9fb771b0d6d1723fcc1dcb448000a83976c09c976d668dc0dec",
       "translation": "Quadros que o detector vê ao redor de cada quadro de uma trajetória, centrados nele; um número par é aumentado em um. Janelas mais longas percebem mudanças mais lentas, mas confundem eventos próximos. Lido apenas no treinamento. Padrão: 9."
-    },
-    {
-      "table": "ui",
-      "key": "GPU Measurement (Alpha)",
-      "source": "GPU Measurement (Alpha)",
-      "source_sha256": "7aa096a77e726728bdae92c8dd521a6664afb5527a73b3681361cec989f4923c",
-      "translation": "Medição com GPU (Alpha)"
     },
     {
       "table": "ui",
@@ -570,13 +556,6 @@
       "source": "Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field.",
       "source_sha256": "e0cf5ba8422790530547833acc9f5e31162c2415de0de8804c4414a055a0928f",
       "translation": "Segmente cada campo quatro vezes, como está, espelhado de duas formas e girado um quarto de volta, com as configurações de Detecção de objetos, e meça onde os quatro resultados divergem. Mapear este campo mostra a divergência como mapa de calor em uma aba própria; Ordenar os campos coloca os campos mais incertos primeiro e salva as pontuações como curate_uncertainty.csv para spacr-make-masks --order uncertain. Requer quatro execuções de detecção por campo."
-    },
-    {
-      "table": "ui",
-      "key": "Segmentation Robustness (Alpha)",
-      "source": "Segmentation Robustness (Alpha)",
-      "source_sha256": "8d994eb6f9334219c2dd31a9f31d11cc5c39738567d53f8bd9abb9f7caf647ef",
-      "translation": "Robustez de segmentação (Alpha)"
     },
     {
       "table": "ui",

@@ -3,13 +3,6 @@
   "language": "is",
   "records": [
     {
-      "table": "ui",
-      "key": "Cloud",
-      "source_sha256": "b977b950c1ae31e5aeb9ef778cc20a66fc034eb81e738e0206104b677962c465",
-      "source": "Cloud",
-      "translation": "Ský"
-    },
-    {
       "table": "categories",
       "key": "Cloud storage access, local cache, selected wells and fields, image resolution, and result uploads. Use these settings when the source is a remote storage address.",
       "source_sha256": "24a001745dccbfe5d65f0701b9abed5fd2c35297fbd1139c0102ff0445896aa6",

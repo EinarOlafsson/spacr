@@ -93,13 +93,6 @@
       "source": "Counterfactuals",
       "source_sha256": "31791e3021fd87a745a0fb14619e6ec684bdc1e0e2ff928152f7791693b69cc8",
       "translation": "Contrafactuales"
-    },
-    {
-      "table": "ui",
-      "key": "Measurement Backend (Alpha)",
-      "source": "Measurement Backend (Alpha)",
-      "source_sha256": "59d2718cd27d4cab2e3822275a83cf88cd13b7e39c81a6e5eb756764eab11dac",
-      "translation": "Backend de mediciones (alfa)"
     }
   ]
 }

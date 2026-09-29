@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26, sixth pass 2026-09-27, seventh pass 2026-09-29: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "n2v_denoise",
+      "source": "Self-supervised denoising: train a Noise2Void (N2V2) network per segmentation channel on this run's own noisy fields, with no clean images, and denoise every field with it after illumination correction and before the PSF and the enhancement chain. Needs the CAREamics backend from the Model Zoo; training wants a GPU. The models' hashes and training losses are recorded with the run. Default False.",
+      "source_sha256": "efc3b7b0dc720a3935d90ad2379074396b6ebc091ebc11480954a3a10c59cc45",
+      "translation": "Remoção de ruído autossupervisionada: treina uma rede Noise2Void (N2V2) por canal de segmentação nos próprios campos ruidosos desta execução, sem imagens limpas, e remove com ela o ruído de cada campo após a correção de iluminação e antes da PSF e da cadeia de realce. Requer o backend CAREamics da Biblioteca de modelos; o treinamento pede uma GPU. Os hashes e as perdas de treinamento dos modelos são registrados com a execução. Padrão False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "n2v_epochs",
+      "source": "Training passes over the Noise2Void patches, at least 1. More epochs denoise better up to a point and take longer: on a CPU, 30 epochs over ten 512 x 512 crops took under four minutes, and eight full 2000 x 2000 fields take about twelve times as long per epoch, so train on a GPU. Changing it trains new models. Ignored when n2v_model names trained models. Default 20.",
+      "source_sha256": "8f357aff7eee3f55efe583a9c8da3e25f4d88a4a74b8f77080465b96229c23ca",
+      "translation": "Passadas de treinamento sobre os patches do Noise2Void, pelo menos 1. Mais épocas removem melhor o ruído até certo ponto e demoram mais: em uma CPU, 30 épocas sobre dez recortes de 512 x 512 levaram menos de quatro minutos, e oito campos completos de 2000 x 2000 levam cerca de doze vezes mais por época, então treine em uma GPU. Alterar isto treina novos modelos. Ignorado quando n2v_model indica modelos treinados. Padrão 20."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "n2v_model",
+      "source": "Folder of trained Noise2Void models, one channel_<c>.ckpt per segmentation channel, such as the n2v folder of an earlier run on the same microscope. Blank trains new models on up to eight of this run's fields into its own n2v folder and reuses them when the run is resumed. Ignored unless n2v_denoise is on. Default blank.",
+      "source_sha256": "52a63c9477812252033191ae738f531aab048877758f24e624baf39c5bd01e8a",
+      "translation": "Pasta de modelos Noise2Void treinados, um channel_<c>.ckpt por canal de segmentação, como a pasta n2v de uma execução anterior no mesmo microscópio. Em branco treina novos modelos em até oito campos desta execução na sua própria pasta n2v e os reutiliza quando a execução é retomada. Ignorado a menos que n2v_denoise esteja ativado. Padrão em branco."
+    }
+  ]
+}

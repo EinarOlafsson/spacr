@@ -55,13 +55,6 @@
     },
     {
       "table": "ui",
-      "key": "Confluency (Alpha)",
-      "source": "Confluency (Alpha)",
-      "source_sha256": "7323ff17a90c34a08e58eba9992bdd5849c5c1ae5135ac28fb30ca9ee61c4843",
-      "translation": "Confluence (Alpha)"
-    },
-    {
-      "table": "ui",
       "key": "Confluency failed: {error}",
       "source": "Confluency failed: {error}",
       "source_sha256": "41c6332ef89a38ae04fbf2dd5dc14a403523eb14181dece3debbf480488b5aae",
