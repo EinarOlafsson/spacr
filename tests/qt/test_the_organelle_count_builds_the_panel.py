@@ -114,8 +114,10 @@ def test_a_committed_slot_channel_brings_its_whole_settings_family(
         # slot EXISTS, the channel says the run has it. 2026-09-29 (item
         # 592): the slot's channel and diameter are its column of the
         # per-object table; its type and size rows stay on the flat form.
-        assert the_table_answers(screen, "organelle_channel") is True
-        assert the_table_answers(screen, "organelle_diameter") is True
+        # 2026-09-29 (item 592, "hide unset objects"): the slot's column is
+        # not drawn until its channel is set; the channel is a form row.
+        assert screen.setting_row_is_visible("organelle_channel") is True
+        assert "organelle" not in screen._object_grid.objects()
         assert screen.setting_row_is_visible("organelle_type") is False
 
         channel = model._widgets["organelle_channel"]
@@ -127,7 +129,7 @@ def test_a_committed_slot_channel_brings_its_whole_settings_family(
         assert the_table_answers(rebuilt, "organelle_diameter") is True
         assert rebuilt.setting_row_is_visible("organelle_type") is True
         assert rebuilt._settings_model.collect()["organelle_channel"] == 2
-        assert table_value(rebuilt, "organelle_channel") == 2
+        assert "organelle" in rebuilt._object_grid.objects()
     finally:
         window.close()
         remember_disclosure("mask", previous)

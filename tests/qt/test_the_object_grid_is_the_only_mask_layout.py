@@ -115,6 +115,12 @@ def test_remove_background_is_a_row_for_every_object(qtbot,
     from PySide6.QtCore import Qt
 
     screen = _screen(qtbot)
+    # 2026-09-29 (item 592, "hide unset objects"): a column is drawn only
+    # for an object whose channel is set, so the nucleus and pathogen are
+    # switched on first.
+    for number, obj in enumerate(("nucleus", "pathogen"), start=1):
+        assert screen._settings_model.set_value_for_key(
+            f"{obj}_channel", number)
     grid = screen._object_grid
     row = grid.table()["remove_background"]
     assert {"cell", "nucleus", "pathogen"} <= set(row)
@@ -149,6 +155,12 @@ def test_adjust_cells_is_a_row_for_the_cell_only(qtbot, qt_theme_applied):
 def test_filters_are_rows_that_can_be_added_for_several_objects(
         qtbot, qt_theme_applied):
     screen = _screen(qtbot)
+    # 2026-09-29 (item 592, "hide unset objects"): a column is drawn only
+    # for an object whose channel is set, so the nucleus and pathogen are
+    # switched on first.
+    for number, obj in enumerate(("nucleus", "pathogen"), start=1):
+        assert screen._settings_model.set_value_for_key(
+            f"{obj}_channel", number)
     grid = screen._object_grid
     model = screen._settings_model
     assert screen.setting_row_is_visible("object_filters") is False

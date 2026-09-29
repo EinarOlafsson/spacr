@@ -62,3 +62,38 @@ LEFT: the Timelapse layout keeps its separate Output & Storage and Runtime
 & Reliability headings (the request named Mask generation); a filter row
 cannot be deleted in one click -- clearing its cells removes it on the next
 reload; captions for the new help texts wait for the catalog lane.
+
+2026-09-29: decision "hide unset objects" (the maintainer). The table had
+  drawn a column for cell, nucleus, pathogen and every organelle slot even
+  with its channel unset (the channel cell read "off"), which reopened the
+  old complaint that object settings showed while the channels were none.
+  What changed (Mask generation and Timelapse, which mirror the table):
+  1. A column is drawn only for an object whose channel names a plane
+     (plane 0 counts). Cell is always drawn, as the reference object -- the
+     form's existing rule "cell is never gated by its channel". An organelle
+     slot needs both the count to reach it and its channel set.
+  2. HIDDEN, NEVER DELETED. The grid keeps every object's answers
+     (ObjectSettingsGrid._claimed_table) and writes them back unchanged, so
+     a hidden object's values survive hiding, saving and reloading, and
+     setting its channel again brings the column back with them. The
+     binding still claims a hidden object's keys, so their flat rows stay
+     off the form.
+  3. HOW A HIDDEN OBJECT'S CHANNEL IS SET: the channel is no longer a table
+     row (a hidden object has no column to hold it). Every object's
+     <object>_channel stays a row of the ordinary form, where it always was
+     before the table claimed it: the binding no longer claims the channel
+     keys, and the form's object rule never hides a switch (slots beyond
+     the count excepted). The binding follows those channel fields and
+     redraws the columns when a channel switches an object on or off.
+  4. Under Essentials, a form with no channel set has only the cell column,
+     none of whose questions is essential, so the table's section is hidden
+     there like any heading over no essential rows; All settings shows it.
+  5. "Add organelle" in the table adds the slot; when its channel is unset
+     the status line says to give it a channel to show its column.
+  Tests: the 592 tests that expected every column (and a channel row) were
+  updated with dated comments; new tests cover a hidden unset column, the
+  channel bringing back old values, save/reload of hidden values, cell
+  always shown and the Timelapse mirror
+  (tests/qt/test_a_saved_file_that_names_no_channels_hides_the_objects.py,
+  tests/qt/test_the_per_object_settings_are_one_table.py
+  TestAnUnsetObjectIsHidden, tests/qt/test_object_grid_binding_recovers.py).

@@ -161,7 +161,12 @@ def test_clearing_the_channel_keeps_the_table(qtbot, level, app):
     assert screen._settings_model.collect()["pathogen_channel"] is None
     assert not _heading_shown(screen, "Pathogen Segmentation"), (
         "a heading over no rows is left on the form")
-    assert _grid_shown(screen)
+    # 2026-09-29 (item 592, "hide unset objects"): with no channel
+    # set only the cell column is drawn, and under Essentials none of its
+    # questions is essential, so the table's section goes the way any
+    # heading over no essential rows goes. All settings keeps it.
+    assert _grid_shown(screen) is (level == "all")
+    assert "pathogen" not in screen._object_grid.objects()
 
     _commit(qtbot, screen, "pathogen_channel", "2")
     assert screen._settings_model.collect()["pathogen_channel"] == 2
@@ -188,35 +193,37 @@ def _grid_section(screen):
 
 def test_the_per_object_table_stays_on_screen_under_essentials(
         qtbot, grid_preference):
-    """With the table on, it is the only place a channel can be set."""
-    from PySide6.QtCore import Qt
-    from PySide6.QtWidgets import QApplication
+    """The channel stays reachable under Essentials, and brings the table.
 
+    2026-09-29 (item 592, "hide unset objects"): a hidden object has
+    no column, so its channel is a row of the ordinary form, never a table
+    cell; Essentials must not hide that row.
+    """
     window = _open_mask(qtbot)
     screen = _screen(window)
     assert getattr(screen, "_object_grid", None) is not None
-    assert not screen.setting_row_is_visible("pathogen_channel"), (
-        "the table answers for the channel, so its flat row is hidden")
-    section = _grid_section(screen)
-    assert not section.isHidden(), (
-        "Essentials hid the table, and with it every object channel")
+    assert screen.setting_row_is_visible("pathogen_channel"), (
+        "Essentials hid the only control that shows the pathogen column")
+    assert "channel" not in screen._object_grid.questions()
 
-    table = screen._object_grid._model
-    row = list(table.table()).index("channel")
-    column = list(table.objects()).index("pathogen")
-    assert table.setData(table.index(row, column), "2", Qt.EditRole)
-    QApplication.processEvents()
+    _commit(qtbot, screen, "pathogen_channel", "2")
 
     assert screen._settings_model.collect()["pathogen_channel"] == 2
+    assert "pathogen" in screen._object_grid.objects()
     assert not _grid_section(screen).isHidden()
 
 
 def test_the_search_strip_decides_the_tables_section(
         qtbot, grid_preference):
-    """The strip hides and restores the table's section like any other."""
+    """The strip hides and restores the table's section like any other.
+
+    2026-09-29 (item 592, "hide unset objects"): measured under All
+    settings, since under Essentials a form with no channel set has no
+    essential question in the table and the section starts hidden.
+    """
     from PySide6.QtWidgets import QApplication
 
-    window = _open_mask(qtbot)
+    window = _open_mask(qtbot, "all")
     screen = _screen(window)
     assert getattr(screen, "_object_grid", None) is not None
     QApplication.processEvents()

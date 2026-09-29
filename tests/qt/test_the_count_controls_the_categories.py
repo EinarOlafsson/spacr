@@ -244,10 +244,14 @@ def test_a_committed_channel_brings_its_settings_back(qapp):
         nucleus = [k for k in widgets if k.startswith("nucleus_")]
         assert len(nucleus) >= NUCLEUS_ROWS, (
             f"only {len(nucleus)} nucleus rows built")
+        # 2026-09-29 (item 592, "hide unset objects"): the nucleus channel
+        # is the one nucleus row on the form -- it is what draws the
+        # nucleus column -- and the column is not drawn until it is set.
+        assert not widgets["nucleus_channel"].isHidden()
+        nucleus = [k for k in nucleus if k != "nucleus_channel"]
         shown = [k for k in nucleus if not widgets[k].isHidden()]
         assert shown == [], shown
-        assert all(the_table_answers(screen, k) for k in nucleus), [
-            k for k in nucleus if not the_table_answers(screen, k)]
+        assert "nucleus" not in screen._object_grid.objects()
 
         field = widgets["nucleus_channel"]
         field.setText("1")
@@ -259,7 +263,9 @@ def test_a_committed_channel_brings_its_settings_back(qapp):
         # uncommitted value, scroll position and expanded fold with it.
         assert win._screens["mask"] is screen, "the commit reloaded the module"
 
-        assert table_value(screen, "nucleus_channel") == 1
+        assert "nucleus" in screen._object_grid.objects()
+        assert all(the_table_answers(screen, k) for k in nucleus), [
+            k for k in nucleus if not the_table_answers(screen, k)]
         shown = [k for k in nucleus if not widgets[k].isHidden()]
         assert shown == [], f"flat nucleus rows beside the table: {shown}"
         assert str((screen._settings_model.collect() or {}).get(
@@ -269,7 +275,7 @@ def test_a_committed_channel_brings_its_settings_back(qapp):
         field.setText("")
         field.editingFinished.emit()
         qapp.processEvents()
-        assert table_value(screen, "nucleus_channel") is None
+        assert "nucleus" not in screen._object_grid.objects()
         shown = [k for k in nucleus if not widgets[k].isHidden()]
         assert shown == [], shown
     finally:

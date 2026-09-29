@@ -111,6 +111,57 @@ def _cell_key(obj: str, question: str) -> str:
     return _settings_key(obj, question)
 
 
+#: The questions that say whether an object is in the run at all.
+#:
+#: 2026-09-29 (item 592): not drawn as a table row. A column is hidden while
+#: its object's channel is unset, and a hidden column cannot hold the cell
+#: that would bring it back, so the channel stays on the ordinary form.
+_SWITCH_QUESTIONS = frozenset({"channel", "mask_dim"})
+
+
+def _names_a_plane(value) -> bool:
+    """Whether a channel value names a plane of the stack.
+
+    The form's rule (:func:`spacr.qt.screens.settings_model._names_a_plane`),
+    restated so the grid does not import the settings panel: ``None``,
+    ``False``, blank and ``"none"`` name no plane; ``0`` is the first plane.
+
+    :param value: the channel setting's value.
+    """
+    if value is None or isinstance(value, bool):
+        return False
+    if isinstance(value, (int, float)):
+        return True
+    text = str(value).strip()
+    if not text or text.lower() == "none":
+        return False
+    try:
+        float(text)
+    except ValueError:
+        return False
+    return True
+
+
+def _object_is_in_the_run(obj: str, settings: Mapping[str, Any]) -> bool:
+    """Whether ``obj`` gets a column: cell always, others once a channel is set.
+
+    2026-09-29 (item 592, "hide unset objects"). Cell is the reference
+    object and is never gated by its channel, the same rule the flat form
+    keeps. An object with no switch in ``settings`` at all (cytoplasm, which
+    is derived) cannot be switched off and keeps its column.
+
+    :param obj: an object column, e.g. ``"nucleus"`` or ``"organelleb"``.
+    :param settings: the flat settings the table was read from.
+    """
+    if obj == "cell":
+        return True
+    switches = [f"{obj}_{question}" for question in sorted(_SWITCH_QUESTIONS)
+                if f"{obj}_{question}" in settings]
+    if not switches:
+        return True
+    return any(_names_a_plane(settings.get(key)) for key in switches)
+
+
 def _filter_objects():
     """The objects an object filter may be set for, in table order.
 
@@ -666,6 +717,9 @@ class ObjectSettingsGrid(QWidget):
         #: Filter rows the user added and has not filled in yet, which the
         #: settings alone cannot show because an empty filter is no entry.
         self._added_filters: list = []
+        #: The table with EVERY object's column, before the objects whose
+        #: channel is unset are hidden; what the grid claims from the form.
+        self._claimed: Dict[str, Dict[str, Any]] = {}
 
         #: Fires once the pointer has rested on a cell long enough.
         self._help_show_timer = QTimer(self)
@@ -1036,6 +1090,78 @@ class ObjectSettingsGrid(QWidget):
         self._announce()
 
     def _visible_table(self) -> Dict[str, Dict[str, Any]]:
+        """The table as drawn: the claimed table less the objects the run lacks.
+
+        2026-09-29 (item 592, the maintainer's decision "hide unset
+        objects"): a column is drawn only for an object whose channel names
+        a plane, and cell always (see :func:`_object_is_in_the_run`). The
+        channel row itself is not drawn -- a hidden object has no column to
+        hold it -- so every object's channel stays a row of the ordinary
+        form, where it can always be set. HIDDEN, NEVER DELETED: the hidden
+        columns' answers stay in ``self._base``, which :meth:`settings`
+        writes back unchanged, so setting the channel again brings the
+        column back with them.
+        """
+        full = self._every_column_table()
+        self._claimed = full
+        shown = {obj for row in full.values() for obj in row
+                 if _object_is_in_the_run(obj, self._base)}
+        table: Dict[str, Dict[str, Any]] = {}
+        for question, row in full.items():
+            if question in _SWITCH_QUESTIONS:
+                continue
+            kept = {obj: value for obj, value in row.items() if obj in shown}
+            if kept:
+                table[question] = kept
+        table.update(self._filter_rows(shown))
+        return table
+
+    def _claimed_objects(self) -> Tuple[str, ...]:
+        """Every object column the table holds, drawn or hidden, in order."""
+        order = {name: index for index, name in enumerate(OBJECT_ORDER)}
+        present = {obj for row in self._claimed.values() for obj in row}
+        return tuple(sorted(present, key=lambda o: order.get(o, len(order))))
+
+    def _claimed_table(self) -> Dict[str, Dict[str, Any]]:
+        """Every object's answers the table holds, drawn or hidden.
+
+        The columns of objects whose channel is unset are in here although
+        they are not on screen, and so is the channel row, which is never
+        drawn. The binding claims its keys from this, so a hidden object's
+        settings stay off the flat form too.
+        """
+        return {q: dict(row) for q, row in self._claimed.items()}
+
+    def _shows_the_same_objects_as(self, settings: Mapping[str, Any]) -> bool:
+        """Whether ``settings`` would draw the columns drawn now.
+
+        Cheap enough to ask on every change of a channel field: only the
+        channel values are read, and the table is rebuilt only when this
+        says no.
+
+        :param settings: the flat settings as the form now holds them.
+        """
+        objects = {obj for row in self._claimed.values() for obj in row}
+        wanted = {obj for obj in objects
+                  if _object_is_in_the_run(obj, settings)}
+        return wanted == set(self._model.objects())
+
+    def _keep_the_switches(self, settings: Mapping[str, Any]) -> None:
+        """Hold the form's channel values without redrawing anything.
+
+        The channels are not cells, so a channel moved between two planes
+        changes no column; it is kept so that :meth:`settings` hands back
+        what the form holds rather than the channel of the last redraw.
+
+        :param settings: the flat settings as the form now holds them.
+        """
+        for question in _SWITCH_QUESTIONS:
+            for obj in self._claimed.get(question, {}):
+                key = _settings_key(obj, question)
+                if key in settings:
+                    self._base[key] = settings[key]
+
+    def _every_column_table(self) -> Dict[str, Dict[str, Any]]:
         """The table with the organelle slots the count does not ask for cut.
 
         `number_of_organelles` IS THE SOURCE OF TRUTH FOR THE COLUMNS. The
@@ -1066,10 +1192,7 @@ class ObjectSettingsGrid(QWidget):
                 continue
             table = widen(table, role,
                           like=live[index - 1] if index else None)
-        table = self._only_the_shared_questions(table)
-        objects = {obj for row in table.values() for obj in row}
-        table.update(self._filter_rows(objects))
-        return table
+        return self._only_the_shared_questions(table)
 
     def _filter_rows(self, objects) -> Dict[str, Dict[str, Any]]:
         """``object_filters`` as table rows, one per filtered property.
@@ -1270,7 +1393,9 @@ class ObjectSettingsGrid(QWidget):
         and the caller that presses Add repeatedly turned an O(slots) scan
         into an O(slots squared) one.
         """
-        used = {obj for obj in self.objects() if obj.startswith("organelle")}
+        # 2026-09-29 (item 592): hidden slots are in use too.
+        used = {obj for row in self._claimed.values() for obj in row
+                if obj.startswith("organelle")}
         for number in range(len(used) + 1, MAX_ORGANELLES + 1):
             role = organelle_role(number)
             if role not in used:
@@ -1292,16 +1417,21 @@ class ObjectSettingsGrid(QWidget):
                 f"lettered and carry past 'z', so that is where two "
                 f"letters run out.")
             return False
-        self._base = from_table(self._model.table(), self._base)
+        self._base = self.settings()
         self._base[NUMBER_OF_ORGANELLES] = organelle_count(self._base) + 1
-        table = self._visible_table()
-        if not any(role in row for row in table.values()):
-            previous = [o for o in self._model.objects()
+        full = self._every_column_table()
+        if not any(role in row for row in full.values()):
+            previous = [o for o in self._claimed_objects()
                         if o.startswith("organelle")]
-            table = widen(table, role, like=previous[-1] if previous else None)
-            self._base = from_table(table, self._base)
-        self._model.set_table(table)
+            full = widen(full, role, like=previous[-1] if previous else None)
+            self._base = from_table(full, self._base)
+        self._model.set_table(self._visible_table())
         self._announce()
+        if role not in self.objects():
+            # 2026-09-29 (item 592): a slot whose channel is unset is hidden.
+            self._status.setText(
+                f"{column_label(role)} added. Give it a channel to show its "
+                f"column.")
         self.settings_changed.emit()
         return True
 

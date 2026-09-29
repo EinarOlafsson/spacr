@@ -174,11 +174,16 @@ def test_the_panel_says_which_rows_the_run_has_no_object_for(qtbot):
 
     hidden = set(model.keys_hidden_by_the_run())
     # 2026-09-29 (item 592): every key the per-object table answers is off
-    # the flat form -- cell's and every switch included, since they are
-    # table cells now -- so the seam names them for a filter to subtract.
+    # the flat form -- cell's included -- so the seam names them for a
+    # filter to subtract. Since the same day's "hide unset objects"
+    # decision the channels are NOT table cells: they stay on the form, as
+    # the control that draws a hidden object's column.
     owned = set(screen._object_grid_binding.owned_keys())
-    assert {"cell_diameter", "cell_channel"} <= owned
+    assert "cell_diameter" in owned
     assert owned <= hidden
+    for role in ("cell", "nucleus", "pathogen"):
+        assert f"{role}_channel" not in owned
+        assert f"{role}_channel" not in hidden
     assert {"remove_background_nucleus",
             "remove_background_pathogen"} <= hidden
     # BUILT AND HIDDEN, NOT ABSENT. This asserted `not in model._widgets`,

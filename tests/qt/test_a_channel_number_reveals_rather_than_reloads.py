@@ -271,6 +271,12 @@ def test_the_per_object_table_gains_the_new_organelle_as_a_column(
     qtbot.wait(50)
 
     assert calls == []
+    # 2026-09-29 (item 592, "hide unset objects"): the new slot's column is
+    # drawn once its channel is set, still without a reload.
+    assert model.set_value_for_key("organelle_channel", 3)
+    assert model.set_value_for_key("organelleb_channel", 4)
+    qtbot.wait(50)
+    assert calls == []
     assert {"organelle", "organelleb"} <= set(grid.objects())
 
 

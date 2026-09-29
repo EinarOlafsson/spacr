@@ -212,11 +212,17 @@ def test_a_shape_built_for_seven_captions_the_seven_slots(qtbot):
 
     screen, _model = _screen(
         qtbot, current={"number_of_organelles": 7})
-    columns = [role for role in ALL_ORGANELLE_ROLES
-               if role in screen._object_grid.objects()]
+    # 2026-09-29 (item 592, "hide unset objects"): a slot's column is drawn
+    # only once its channel is set, so the seven slots are seven CLAIMED
+    # columns, and each slot's channel is a form row the count reveals.
+    claimed = {obj for row in screen._object_grid._claimed_table().values()
+               for obj in row}
+    columns = [role for role in ALL_ORGANELLE_ROLES if role in claimed]
     assert columns == list(ALL_ORGANELLE_ROLES[:7]), columns
-    for role in ALL_ORGANELLE_ROLES:
-        assert not screen.setting_row_is_visible(f"{role}_channel"), role
+    for index, role in enumerate(ALL_ORGANELLE_ROLES):
+        assert screen.setting_row_is_visible(f"{role}_channel") is (
+            index < 7), role
+        assert role not in screen._object_grid.objects(), role
 
 
 def test_a_revealed_row_keeps_the_place_it_was_declared_in(qtbot):
