@@ -753,7 +753,9 @@
       "source_sha256": "356d41706743ff8f9a99cf9f8eae045ea5c947595ef09896d6564e8aced85f45",
       "context": "the section heading; compared case-insensitively, it is alpha when it is ``\"alpha\"`` or contains ``\"(alpha)\"``, beta likewise, and stable otherwise.",
       "translation": "die Abschnittsüberschrift; ohne Beachtung der Groß-/Kleinschreibung verglichen ist sie alpha, wenn sie ``\"alpha\"`` ist oder ``\"(alpha)\"`` enthält, beta entsprechend, und sonst stabil.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-28: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.batch.BatchScreen.load_queue_from#1",
