@@ -269,9 +269,6 @@ def mask_thumbnail(path: str, size: int = 96) -> Optional[np.ndarray]:
     return ((array[::step, ::step] > 0) * 255).astype(np.uint8)
 
 
-# ---------------------------------------------------------------------------
-# Channels and sets from a regex
-# ---------------------------------------------------------------------------
 
 
 @dataclass
@@ -452,9 +449,6 @@ def check_sets(parsed: Sequence[ParsedName]) -> SetReport:
     return report
 
 
-# ---------------------------------------------------------------------------
-# Regex inference
-# ---------------------------------------------------------------------------
 
 _SEPARATORS = re.compile(r"([_\-. ]+)")
 _RUNS = re.compile(r"\d+|[A-Za-z]+|[^A-Za-z\d]+")
@@ -776,9 +770,6 @@ def infer_regex(names: Sequence[str],
     return min(passing)[2] if passing else None
 
 
-# ---------------------------------------------------------------------------
-# Sets by pairing
-# ---------------------------------------------------------------------------
 
 
 def _name_tokens(name: str) -> List[str]:
@@ -925,9 +916,6 @@ def _assign(cost: np.ndarray):
         return np.array(rows), np.array(cols)
 
 
-# ---------------------------------------------------------------------------
-# Yokogawa names
-# ---------------------------------------------------------------------------
 
 
 @dataclass(frozen=True)
@@ -1113,9 +1101,6 @@ def yokogawa_name(name: SetName, channel: int, extension: str = ".tif") -> str:
     return base[:-len(".tif")] + extension.lower()
 
 
-# ---------------------------------------------------------------------------
-# Plan and apply
-# ---------------------------------------------------------------------------
 
 
 @dataclass

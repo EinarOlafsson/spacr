@@ -14773,7 +14773,6 @@ class MakeMasksScreen(QWidget):
             return
         self._open_folder(d)
 
-    # -- item 593: consolidate folders, sort into channels -----------------
 
     def _build_consolidate_button(self) -> QPushButton:
         """The "Consolidate folders…" button beside "Open folder…"."""
