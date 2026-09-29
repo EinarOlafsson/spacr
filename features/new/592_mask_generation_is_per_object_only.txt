@@ -52,6 +52,8 @@ WHAT TO BUILD
   4. Mask generation's "Quality Control" now holds the segmentation QC
      checks, Output & Storage and Runtime & Reliability; "Segmentation
      Robustness α" is nested inside it.
+  5. The table's "Per-object settings" heading has its own help on hover
+     and takes the module's maturity colour (beta on Timelapse).
   Tests: tests/qt/test_the_object_grid_is_the_only_mask_layout.py (replaces
   test_the_object_grid_can_be_switched_on.py); the tests that toggled the
   preference now take the table as given.

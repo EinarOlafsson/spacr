@@ -1193,6 +1193,11 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'border checks, the files and intermediates saved, error handling, '
     'workers, batch size, GPUs and the random seed. Tighten the checks once '
     'you know what a good field looks like.',
+    # 592, 2026-09-28: the per-object table's heading help.
+    'One column per object -- cell, nucleus, pathogen, cytoplasm -- and one '
+    'row per question: channel, model, diameter, thresholds, remove '
+    'background, adjust cells, and any filters added with Add a filter. '
+    'Fill a column for every object the run segments.',
     # 591, 2026-09-28: the Image Deconvolution α category help (the PSF
     # settings nested under Mask generation's Image Preprocessing).
     "Deconvolution or convolution with the microscope's point spread "

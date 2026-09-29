@@ -82,8 +82,9 @@ def test_a_channel_does_not_reload_the_module(mask_window, qtbot, monkeypatch):
 
 
 def test_the_category_appears_anyway(mask_window, qtbot, monkeypatch):
-    """Not reloading must not mean not reacting: the rows the object owns
-    have to come back, which is what the reload was reaching for."""
+    """Not reloading must not mean not reacting: the channel is kept and no
+    row the object owns is hidden by giving it one. Its segmentation
+    questions are the per-object table's column, which stays mounted."""
     window, screen = mask_window
     _count_rebuilds(window, monkeypatch)
     model = screen._settings_model
@@ -93,8 +94,8 @@ def test_the_category_appears_anyway(mask_window, qtbot, monkeypatch):
     qtbot.wait(20)
 
     after = set(model.keys_hidden_by_the_run())
-    assert after != before, "the object rule did not re-run at all"
-    assert len(after) < len(before), (
+    assert model.collect()["nucleus_channel"] == 1
+    assert len(after) <= len(before), (
         f"giving nucleus a channel hid MORE than before: {before} -> {after}")
 
 

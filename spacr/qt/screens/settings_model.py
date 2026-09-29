@@ -2987,6 +2987,11 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "The older area-bin approximation of replication state, kept so "
         "historical analyses still reproduce. New runs should use the "
         "direct parasite-per-vacuole counts instead.",
+    "PER-OBJECT SETTINGS":
+        "One column per object -- cell, nucleus, pathogen, cytoplasm -- and "
+        "one row per question: channel, model, diameter, thresholds, remove "
+        "background, adjust cells, and any filters added with Add a filter. "
+        "Fill a column for every object the run segments.",
     "INPUT & METADATA":
         "The image folder, which channel holds which object, and how spaCR "
         "reads plate, well and field out of the file names. Nothing "

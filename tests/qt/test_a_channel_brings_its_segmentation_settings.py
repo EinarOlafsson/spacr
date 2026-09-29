@@ -106,24 +106,31 @@ def _heading_shown(screen, title) -> bool:
     return section is not None and not section.isHidden()
 
 
+def _grid_shown(screen) -> bool:
+    """Whether the per-object table's section is on the form."""
+    section = _grid_section(screen)
+    return section is not None and not section.isHidden()
+
+
 @pytest.mark.parametrize("app", ["mask", "timelapse"])
-def test_a_pathogen_channel_brings_pathogen_segmentation_into_essentials(
+def test_a_pathogen_channel_is_answered_in_the_per_object_table(
         qtbot, app):
-    """The reported steps, at the level a new user is on."""
+    """The reported steps, at the level a new user is on.
+
+    The per-object table is the only layout of these questions, so the
+    pathogen's segmentation settings are its column, not a heading.
+    """
     from spacr.qt.settings_search import ESSENTIALS
 
     window = _open_mask(qtbot, app=app)
     screen = _screen(window, app)
     assert screen._settings_search.level() == ESSENTIALS
-    assert not _heading_shown(screen, "Pathogen Segmentation")
 
     _commit(qtbot, screen, "pathogen_channel", "2")
 
-    assert _heading_shown(screen, "Pathogen Segmentation")
-    for key in ("pathogen_model_name", "pathogen_diameter",
-                "pathogen_cellprob_threshold", "pathogen_flow_threshold"):
-        assert key in screen._settings_search.visible_keys(), key
-    assert screen.setting_row_is_visible("pathogen_diameter")
+    assert screen._settings_model.collect()["pathogen_channel"] == 2
+    assert _grid_shown(screen)
+    assert "pathogen" in screen._object_grid.objects()
 
 
 def test_essentials_still_hides_what_it_hid(qtbot):
@@ -137,53 +144,38 @@ def test_essentials_still_hides_what_it_hid(qtbot):
     after = set(screen._settings_search.visible_keys())
     assert not screen.setting_row_is_visible("dry_run")
     assert not screen.setting_row_is_visible("resume")
-    assert after - before == {
-        "pathogen_model_name", "pathogen_diameter",
-        "pathogen_cellprob_threshold", "pathogen_flow_threshold"}
-
-
-def test_a_cell_channel_brings_cell_segmentation_into_essentials(qtbot):
-    """Cell rows are never hidden by the object rule; Essentials follows."""
-    window = _open_mask(qtbot)
-    screen = _screen(window)
-    assert not _heading_shown(screen, "Cell Segmentation")
-
-    _commit(qtbot, screen, "cell_channel", "0")
-
-    assert _heading_shown(screen, "Cell Segmentation")
-    assert screen.setting_row_is_visible("cell_diameter")
+    assert not {key for key in after - before if "pathogen" not in key}
 
 
 @pytest.mark.parametrize("app", ["mask", "timelapse"])
 @pytest.mark.parametrize("level", ["essentials", "all"])
-def test_clearing_the_channel_takes_the_heading_away(qtbot, level, app):
-    """On, off and on again, at either level."""
+def test_clearing_the_channel_keeps_the_table(qtbot, level, app):
+    """On, off and on again, at either level: no heading over no rows."""
     window = _open_mask(qtbot, level, app=app)
     screen = _screen(window, app)
 
     _commit(qtbot, screen, "pathogen_channel", "2")
-    assert _heading_shown(screen, "Pathogen Segmentation")
+    assert _grid_shown(screen)
 
     _commit(qtbot, screen, "pathogen_channel", "")
     assert screen._settings_model.collect()["pathogen_channel"] is None
     assert not _heading_shown(screen, "Pathogen Segmentation"), (
         "a heading over no rows is left on the form")
-    assert not screen.setting_row_is_visible("pathogen_diameter")
+    assert _grid_shown(screen)
 
     _commit(qtbot, screen, "pathogen_channel", "2")
-    assert _heading_shown(screen, "Pathogen Segmentation")
-    assert screen.setting_row_is_visible("pathogen_diameter")
+    assert screen._settings_model.collect()["pathogen_channel"] == 2
+    assert _grid_shown(screen)
 
 
-def test_a_settings_file_naming_a_pathogen_channel_opens_its_section(qtbot):
+def test_a_settings_file_naming_a_pathogen_channel_reaches_the_table(qtbot):
     """Loading settings is the other way a channel arrives."""
     window = _open_mask(qtbot)
     _screen(window).apply_settings_dict({"pathogen_channel": 2})
     screen = _screen(window)
 
     assert screen._settings_model.collect()["pathogen_channel"] == 2
-    assert _heading_shown(screen, "Pathogen Segmentation")
-    assert screen.setting_row_is_visible("pathogen_diameter")
+    assert _grid_shown(screen)
 
 
 def _grid_section(screen):
@@ -273,6 +265,4 @@ def test_a_section_the_user_shut_stays_shut(qtbot):
     _commit(qtbot, screen, "pathogen_channel", "2")
     assert [s.property("settingsCategorySource") for s in shut
             if s.is_expanded()] == []
-    pathogen = _heading(screen, "Pathogen Segmentation")
-    assert not pathogen.isHidden()
-    assert pathogen.is_expanded(), "the section the channel brings is shut"
+    assert _grid_shown(screen)

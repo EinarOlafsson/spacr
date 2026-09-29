@@ -1493,6 +1493,9 @@ def test_every_qt_section_hint_names_a_real_category():
                  _APP_CATEGORY_PARENTS.values() for p in parents.values())
     # Item 591, 2026-09-28: an alpha heading ("CLOUD α") falls back to the
     # blurb of its plain name, so that name is live through it.
+    # Item 592: Mask generation's per-object table has its own heading,
+    # drawn by AppScreen rather than by a category.
+    known.add("PER-OBJECT SETTINGS")
     mark = "\u0391"
     known.update(k[:-len(mark)].strip() for k in list(known)
                  if k.endswith(mark))

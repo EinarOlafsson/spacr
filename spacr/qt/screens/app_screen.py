@@ -2724,7 +2724,14 @@ class AppScreen(QWidget):
             from ..widgets.object_settings_grid import ObjectSettingsGrid
             from ..widgets.section import Section
 
-            section = Section("Per-object settings", self)
+            title = "Per-object settings"
+            section = Section(title, self)
+            section.setProperty("settingsCategorySource", title)
+            section.set_maturity(settings_section_maturity(self.app_key,
+                                                           title))
+            blurb = category_tooltip(self.app_key, title)
+            section.set_hint(blurb)
+            self._category_blurbs.setdefault(title, blurb)
             grid = ObjectSettingsGrid(section)
             grid.set_app_key(self.app_key)
             binding = ObjectGridBinding(grid, model, self)

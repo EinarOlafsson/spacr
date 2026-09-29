@@ -2270,10 +2270,13 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # Item 593: +33 function, +14 method, +3 constructor (the three
         # dialogs of qt.widgets.channel_sort_dialog), +8 dataclass_constructor
         # (channel_sorting and folder_consolidation result records).
-        "function": 4_432,
+        # Item 592: -2 function (preferences.get/set_object_grid_enabled).
+        "function": 4_430,
         # -9 on 2026-09-15: the seven spacrStitcher methods,
         # StitchedMultiAligner.align and FOVAlignAndCropper.run.
-        "method": 4_259,
+        # Items 591-592: +2 method (the object grid's filter rows and the
+        # alpha section heading).
+        "method": 4_261,
         # -3 on 2026-09-15: spacrStitcher, StitchedMultiAligner and
         # FOVAlignAndCropper.
         "constructor": 455,
@@ -2634,7 +2637,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # qt.widgets.channel_sort_dialog); no existing signature changed.
     # 593, 2026-09-28: +4 for the RGB/z-stack conversion (build_plan and
     # prepare_plan take convert; PlanRow.convert, SortPlan.convertible).
-    assert sum(len(item.parameters) for item in callables) == 19_676
+    # 591-592, 2026-09-28: +1 net, preferences.get/set_object_grid_enabled
+    # gone and the object grid's filter-row and alpha-heading methods added.
+    assert sum(len(item.parameters) for item in callables) == 19_677
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2678,7 +2683,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 10,017 -> 10,049, +32, all on item 570's 25 hit-scoring callables.
     # 10,049 -> 10,056, +7, the required ones among them.
     # 10,056 -> 10,126 on 2026-09-28, +70, all on item 593's 58 callables.
-    assert sum(len(item.required_parameters) for item in callables) == 10_126
+    # 591-592: +1 required, with the +1 parameter above.
+    assert sum(len(item.required_parameters) for item in callables) == 10_127
     # Moved again 2026-09-15 for 333's `LivePreviewPanel.module`, proved by
     # subtraction on the full inventory: without that one parameter the digest
     # is 5b30fe1f... (410's pin, byte for byte); without it AND 410's
@@ -2832,7 +2838,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # of spacr.channel_sorting, spacr.folder_consolidation and
     # spacr.qt.widgets.channel_sort_dialog restores bafdafefba5a... byte for
     # byte; no existing row changed.
-) == "bd5124b7ab2fbb48d73de7b14fd4d78617b4ead2f1e77a5d98fab7fbf845443e"
+    # Moved 2026-09-28 for items 591-592: preferences.get/set_object_grid_
+    # enabled removed, the object grid's filter-row methods and Section's
+    # alpha-heading method added.
+) == "298cc0ce7389208f2a23c98018773f8c262a52965ff0d809af6337870b07b7e2"
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
