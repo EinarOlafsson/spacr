@@ -408,3 +408,11 @@ source/timing/decode/peak and caption/player checks, and paired publication.
 This source correction does not turn the historical published omission into
 accepted media. English source digest after insertion:
 5733777916561df1997773e74a43ef023771a98798aa3d7a9fb2be87e92b4f63.
+
+2026-09-29 — Docs lane check
+No text or translation gap is left on this item: the Performance scene's
+captions reuse reviewed Home translations, and the runtime/API evidence
+checkers and coverage audit are clean. Lessons 04/05 still wait only on
+media work that belongs to the publisher (a2fd5eb): composite media
+staging, the 27-track narration, decode/peak/caption/player checks and
+paired publication. Nothing staged here.
