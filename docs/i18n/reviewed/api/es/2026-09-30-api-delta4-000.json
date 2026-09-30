@@ -1,0 +1,608 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.channel_sorting.build_plan#7",
+      "source": "``{image: mask path}`` naming each image's mask outright (item 600's mask columns); an image missing from it has none. None looks each mask up with :func:`mask_for`.",
+      "source_sha256": "6467c122ba95cbd8a1ce59c9da016c3861359485632fdaefee0b661778576c4e",
+      "context": "``{image: mask path}`` naming each image's mask outright (item 600's mask columns); an image missing from it has none. None looks each mask up with :func:`mask_for`.",
+      "translation": "``{image: mask path}`` que indica directamente la máscara de cada imagen (las columnas de máscara del item 600); una imagen que no figura en él no tiene ninguna. None busca cada máscara con :func:`mask_for`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.mask_for#1",
+      "source": "Make Masks saves every mask as ``<masks folder>/<stem>.tif`` (:func:`spacr.qt.mask_engine.mask_save_path`). An image named by an absolute path outside ``folder`` -- one dropped into the sort dialog from elsewhere, or a channel subfolder's -- has its mask in its own folder's ``masks/``.",
+      "source_sha256": "2024a32aad49966055d3f9c20062bc546394f12034822774a95726a749aedd53",
+      "context": "Make Masks saves every mask as ``<masks folder>/<stem>.tif`` (:func:`spacr.qt.mask_engine.mask_save_path`). An image named by an absolute path outside ``folder`` -- one dropped into the sort dialog from elsewhere, or an image data channel subfolder's -- has its mask in its own folder's ``masks/``.",
+      "translation": "Make Masks guarda cada máscara como ``<masks folder>/<stem>.tif`` (:func:`spacr.qt.mask_engine.mask_save_path`). Una imagen indicada por una ruta absoluta fuera de ``folder`` -- una soltada en el diálogo de ordenación desde otro lugar, o una de una subcarpeta de canal -- tiene su máscara en el ``masks/`` de su propia carpeta.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.mask_for#3",
+      "source": "the image file name, or an absolute path.",
+      "source_sha256": "b7cf1b59b49693743ff79dacf8fff5f4e7fc9810df50ed5073dd0a9ddceb3276",
+      "context": "the image file name, or an absolute path.",
+      "translation": "el nombre de archivo de la imagen, o una ruta absoluta.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.mask_for#4",
+      "source": "an explicit masks folder, for images in ``folder``.",
+      "source_sha256": "41ed8cb0f3b3cde8d616b01fa25b490b0bcfad7b341bb4705b15ffdec64b07c1",
+      "context": "an explicit masks folder, for images in ``folder``.",
+      "translation": "una carpeta de máscaras indicada explícitamente, para imágenes en ``folder``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.parse_names#2",
+      "source": "image file names, or absolute paths for images outside the folder; the regex reads the file name alone.",
+      "source_sha256": "9968bd6109910b5855971d698697622f2348350e802cb613b81fdfcd062994b6",
+      "context": "image file names, or absolute paths for images outside the folder; the regex reads the file name alone.",
+      "translation": "nombres de archivo de imagen, o rutas absolutas para imágenes fuera de la carpeta; la expresión regular lee solo el nombre de archivo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification#0",
+      "source": "What was dropped on Make Masks, decided before anything is opened.",
+      "source_sha256": "ad9a9cf4fda80d7d095ebfafa9a6942726431b812f474cc00e614e3b89c22901",
+      "context": "What was dropped on Make Masks, decided before anything is opened.",
+      "translation": "Lo que se soltó en Make Masks, decidido antes de abrir nada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification#1",
+      "source": "Item 600. Make Masks takes a drop of files, folders or both, and what the user means depends on what they dropped. :func:`classify_drop` reads the paths -- names, folder layout and, for a few TIFFs, their pixels -- and says which of these it is, without a single question or widget:",
+      "source_sha256": "b24e354801f91a030e12c0d067448976a7fc8906225a1cd2e76972b5968436cb",
+      "context": "Item 600. Make Masks takes a drop of files, folders or both, and what the user means depends on what they dropped. :func:`classify_drop` reads the paths -- names, folder layout and, for a few TIFFs, their pixels -- and says which of these it is, without a single question or widget:",
+      "translation": "Item 600. Make Masks acepta que se suelten archivos, carpetas o ambos, y lo que el usuario quiere decir depende de lo que soltó. :func:`classify_drop` lee las rutas -- nombres, estructura de carpetas y, para algunos TIFFs, sus píxeles -- e indica cuál de los siguientes casos es, sin una sola pregunta ni widget:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification#2",
+      "source": "``images`` Image files (and possibly folders) to open as one queue, in drop order. ``folder`` One folder of images, opened as it is (masks in its ``masks/``). ``nested`` One folder whose images sit in subfolders: when the subfolders look like channels (:attr:`channel_like`), \"Organize for Measure\" with one channel column per subfolder; otherwise the consolidation question. ``folders`` Several folders, each holding images: Make Masks opens \"Organize for Measure\" with one channel column per folder. ``images_with_masks`` Images dropped together with their masks (a masks folder, files whose name says mask, or integer label TIFFs named after a dropped image): :attr:`masks` pairs them. ``spacr_output`` A folder spaCR wrote (``merged/*.npy``, a ``sorted_channels`` folder, or a ``merged`` folder itself): :attr:`description` says what it is and :attr:`open_folder` is the images folder to open, if any. ``nothing`` Nothing Make Masks can use.",
+      "source_sha256": "8a7bb619524ce62d6abd7f064acc35f22a4ba1ca6725cf90381ab1fb7fc51c91",
+      "context": "``images`` Image files (and possibly folders) to open as one work list, in drop order. ``folder`` One folder of images, opened as it is (masks in its ``masks/``). ``nested`` One folder whose images sit in subfolders: when the subfolders look like image data channels (:attr:`channel_like`), \"Organize for Measure\" with one image data channel column per subfolder; otherwise the consolidation question. ``folders`` Several folders, each holding images: Make Masks opens \"Organize for Measure\" with one image data channel column per folder. ``images_with_masks`` Images dropped together with their masks (a masks folder, files whose name says mask, or integer label TIFFs named after a dropped image): :attr:`masks` pairs them. ``spacr_output`` A folder spaCR wrote (``merged/*.npy``, a ``sorted_channels`` folder, or a ``merged`` folder itself): :attr:`description` says what it is and :attr:`open_folder` is the images folder to open, if any. ``nothing`` Nothing Make Masks can use.",
+      "translation": "``images`` Archivos de imagen (y posiblemente carpetas) que se abren como una cola, en el orden en que se soltaron. ``folder`` Una carpeta de imágenes, abierta tal como está (máscaras en su ``masks/``). ``nested`` Una carpeta cuyas imágenes están en subcarpetas: cuando las subcarpetas parecen canales (:attr:`channel_like`), \"Organize for Measure\" con una columna de canal por subcarpeta; si no, la pregunta de consolidación. ``folders`` Varias carpetas, cada una con imágenes: Make Masks abre \"Organize for Measure\" con una columna de canal por carpeta. ``images_with_masks`` Imágenes soltadas junto con sus máscaras (una carpeta de máscaras, archivos cuyo nombre dice máscara, o TIFFs de etiquetas enteras con el nombre de una imagen soltada): :attr:`masks` los empareja. ``spacr_output`` Una carpeta que escribió spaCR (``merged/*.npy``, una carpeta ``sorted_channels`` o la propia carpeta ``merged``): :attr:`description` dice qué es y :attr:`open_folder` es la carpeta de imágenes que se abrirá, si la hay. ``nothing`` Nada que Make Masks pueda usar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification#3",
+      "source": "Whatever the drop held that is none of these -- a ``.npy``, a text file, an empty folder, a mask no image claims -- is in :attr:`unrecognised` or :attr:`unpaired_masks`, so the screen can list it instead of losing it.",
+      "source_sha256": "ea98616928439da96f4e5fa522ec7301974f265f312e34516a250ae766edc46a",
+      "context": "Whatever the drop held that is none of these -- a ``.npy``, a text file, an empty folder, a mask no image claims -- is in :attr:`unrecognised` or :attr:`unpaired_masks`, so the screen can list it instead of losing it.",
+      "translation": "Todo lo que contenía lo soltado y no es ninguno de estos casos -- un ``.npy``, un archivo de texto, una carpeta vacía, una máscara que ninguna imagen reclama -- está en :attr:`unrecognised` o :attr:`unpaired_masks`, para que la pantalla pueda listarlo en lugar de perderlo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification.DropClassification#0",
+      "source": "What a drop on Make Masks is, and everything needed to act on it.",
+      "source_sha256": "c390879ae8d79d0cbc295f392c8bc8b28fec7a992819f21f16cb86a3d7470b2d",
+      "context": "What a drop on Make Masks is, and everything needed to act on it.",
+      "translation": "Qué es lo soltado en Make Masks, y todo lo necesario para actuar en consecuencia.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification.DropClassification#1",
+      "source": "one of ``images``, ``folder``, ``nested``, ``folders``, ``images_with_masks``, ``spacr_output`` or ``nothing``.",
+      "source_sha256": "7414bbfc5dddcef62f69d9f0876244d84980fd437b704f273c898a2d7eade8a7",
+      "context": "one of ``images``, ``folder``, ``nested``, ``folders``, ``images_with_masks``, ``spacr_output`` or ``nothing``.",
+      "translation": "uno de ``images``, ``folder``, ``nested``, ``folders``, ``images_with_masks``, ``spacr_output`` o ``nothing``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification.DropClassification#10",
+      "source": "dropped paths used for nothing, each with the reason.",
+      "source_sha256": "29cdf3f85d5a93da2d533c501d758624b87f861ae7eb7f089b664e92a1bae790",
+      "context": "dropped paths used for nothing, each with the reason.",
+      "translation": "rutas soltadas que no se usan para nada, cada una con el motivo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification.DropClassification#2",
+      "source": "image files, absolute, in drop order (``images`` and ``images_with_masks``).",
+      "source_sha256": "72b95df792c0743d0d49bcfccd2d6d59dab0800cee69d123097e2a5044a171d2",
+      "context": "image files, absolute, in drop order (``images`` and ``images_with_masks``).",
+      "translation": "archivos de imagen, absolutos, en el orden en que se soltaron (``images`` e ``images_with_masks``).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification.DropClassification#3",
+      "source": "the folder dropped (``folder``, ``nested``), the folders (``folders``) or the folders dropped with loose images (``images``).",
+      "source_sha256": "a4b77b71e707cbcb74eec0f1cbdd74d7c1592f140ef1d2ed7acf53812280bc20",
+      "context": "the folder dropped (``folder``, ``nested``), the folders (``folders``) or the folders dropped with loose images (``images``).",
+      "translation": "la carpeta soltada (``folder``, ``nested``), las carpetas (``folders``) o las carpetas soltadas junto con imágenes sueltas (``images``).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification.DropClassification#4",
+      "source": "the subfolders of a ``nested`` folder that hold images, naturally sorted; for ``folders``, the dropped folders.",
+      "source_sha256": "b52d9daaf5cf388035188c1bfbb6dd47d235a333ce79c6d29534c3eabe34081d",
+      "context": "the subfolders of a ``nested`` folder that hold images, naturally sorted; for ``folders``, the dropped folders.",
+      "translation": "las subcarpetas de una carpeta ``nested`` que contienen imágenes, en orden natural; para ``folders``, las carpetas soltadas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification.DropClassification#5",
+      "source": "whether :attr:`channel_folders` look like one channel each -- names such as DAPI or ch1, or the same fields in every one.",
+      "source_sha256": "1dae919a6e8bca76ab74a1c4e39a77ab57b2a301150733107652e17697152d85",
+      "context": "whether :attr:`channel_folders` look like one image data channel each -- names such as DAPI or ch1, or the same microscope fields of view in every one.",
+      "translation": "si cada una de :attr:`channel_folders` parece un canal -- nombres como DAPI o ch1, o los mismos campos de visión en todas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification.DropClassification#6",
+      "source": "``{image path: mask path}`` for ``images_with_masks``.",
+      "source_sha256": "c14f0b6bc13c0be7cd085787def914566656f6facc0bef24cc6774e7cbe8bda6",
+      "context": "``{image path: mask path}`` for ``images_with_masks``.",
+      "translation": "``{image path: mask path}`` para ``images_with_masks``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification.DropClassification#7",
+      "source": "masks that no dropped image claims.",
+      "source_sha256": "4020a1877a88a9f9dad51ea8eec2e4076ddb6e8d787383e28a2c8ea7890b9895",
+      "context": "masks that no dropped image claims.",
+      "translation": "máscaras que ninguna imagen soltada reclama.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification.DropClassification#8",
+      "source": "for ``spacr_output``, the image folder to open, or None when there is none.",
+      "source_sha256": "64da7e723f1d23c072e2c7138c88aa6bb3271e922c93123cf61eb5e4377ab28b",
+      "context": "for ``spacr_output``, the image folder to open, or None when there is none.",
+      "translation": "para ``spacr_output``, la carpeta de imágenes que se abrirá, o None si no hay ninguna.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification.DropClassification#9",
+      "source": "one plain sentence saying what a ``spacr_output`` drop is.",
+      "source_sha256": "c3d5dec4df2fe348a03c039a640574353a73745c8949f9593a7d96b3ff165ea1",
+      "context": "one plain sentence saying what a ``spacr_output`` drop is.",
+      "translation": "una frase sencilla que dice qué es lo soltado de tipo ``spacr_output``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification.classify_drop#0",
+      "source": "Say what a drop on Make Masks is, without asking or opening anything.",
+      "source_sha256": "7cb2a9f3c889ee1826224517d43a6d8f2a2e513eda16a6643bcbe47851ff40df",
+      "context": "Say what a drop on Make Masks is, without asking or opening anything.",
+      "translation": "Indicar qué es lo soltado en Make Masks, sin preguntar ni abrir nada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification.classify_drop#1",
+      "source": "the dropped files and folders, in drop order.",
+      "source_sha256": "6670706f8db19a67a59025bd2be84af4f25d6446a507927474c16f987977c5e4",
+      "context": "the dropped files and folders, in drop order.",
+      "translation": "los archivos y carpetas soltados, en el orden en que se soltaron.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MakeMasksDropHandler.can_accept#0",
+      "source": "An image file, a ``.npy``, or a folder with images or spaCR output.",
+      "source_sha256": "66c961c2404c26e30cbb9dc2a374f3adb6d22dc64ac1c66005179ef33fa79ed9",
+      "context": "An image file, a ``.npy``, or a folder with images or spaCR output.",
+      "translation": "Un archivo de imagen, un ``.npy`` o una carpeta con imágenes o con salida de spaCR.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MakeMasksDropHandler.can_accept#1",
+      "source": "Item 600: a folder whose images sit only in subfolders, and a folder spaCR wrote (``merged/*.npy``, ``sorted_channels``), are taken too, and a ``.npy`` so the screen can say what it is; :func:`spacr.drop_classification.classify_drop` decides what the drop means. Pairs are found later, not required here.",
+      "source_sha256": "0b463bfe023187936515c9f5f78594a1a516a222e11fa84d56c3f93baa7d842b",
+      "context": "Item 600: a folder whose images sit only in subfolders, and a folder spaCR wrote (``merged/*.npy``, ``sorted_channels``), are taken too, and a ``.npy`` so the screen can say what it is; :func:`spacr.drop_classification.classify_drop` decides what the drop means. Pairs are found later, not required here.",
+      "translation": "Item 600: también se aceptan una carpeta cuyas imágenes están solo en subcarpetas y una carpeta que escribió spaCR (``merged/*.npy``, ``sorted_channels``), y un ``.npy`` para que la pantalla pueda decir qué es; :func:`spacr.drop_classification.classify_drop` decide qué significa lo soltado. Los pares se buscan después y aquí no son obligatorios.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#0",
+      "source": "Open a drop the way its contents say, asking where there is a choice.",
+      "source_sha256": "6b0579156a6c584df9096cab9f7b7211c548aaa35b80fbb997ea450b5476e1a9",
+      "context": "Open a drop the way its contents say, asking where there is a choice.",
+      "translation": "Abrir lo soltado según indique su contenido, preguntando donde haya una elección.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#1",
+      "source": "Item 600. :func:`spacr.drop_classification.classify_drop` says what was dropped, and:",
+      "source_sha256": "69334d1a082d3f29421c9886c5b3eaffe80c893614f2310e735a8415bf32cc75",
+      "context": "Item 600. :func:`spacr.drop_classification.classify_drop` says what was dropped, and:",
+      "translation": "Item 600. :func:`spacr.drop_classification.classify_drop` indica qué se soltó, y:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#11",
+      "source": "whether something was opened or a job started.",
+      "source_sha256": "cd563a28ad5739f67a3a5a5f193336cf4f639280ab55ddd5a51a1fe479d5cbc7",
+      "context": "whether something was opened or a job started.",
+      "translation": "si se abrió algo o se inició un trabajo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#2",
+      "source": "image files (with or without folders) open as one queue, in drop order, each field edited where it lies with its mask in its own ``<folder>/masks`` -- :meth:`_open_queue`;",
+      "source_sha256": "20bc27c6efd19fd2293d239b2032995610f1090b591b2f0055f945f87742e346",
+      "context": "image files (with or without folders) open as one work list, in drop order, each microscope field of view edited where it lies with its mask in its own ``<folder>/masks`` -- :meth:`_open_queue`;",
+      "translation": "los archivos de imagen (con o sin carpetas) se abren como una cola, en el orden en que se soltaron, y cada campo de visión se edita donde está, con su máscara en su propio ``<folder>/masks`` -- :meth:`_open_queue`;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#3",
+      "source": "one folder of images opens as it is;",
+      "source_sha256": "e8345bf2a6043263e97fc76701af792bf6a6a7c7c1bfab70711470f4fd8eb3c7",
+      "context": "one folder of images opens as it is;",
+      "translation": "una carpeta de imágenes se abre tal como está;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#4",
+      "source": "one folder whose subfolders look like channels (DAPI/, GFP/..., or the same fields in each) opens \"Organize for Measure\" with a channel column per subfolder; any other folder whose images sit in subfolders is offered for consolidation (item 593);",
+      "source_sha256": "d6cfe7dc8f5efd9740d06ece07a39d601c18295bf1f4f87dbbe487802815feab",
+      "context": "one folder whose subfolders look like image data channels (DAPI/, GFP/..., or the same microscope fields of view in each) opens \"Organize for Measure\" with an image data channel column per subfolder; any other folder whose images sit in subfolders is offered for consolidation (item 593);",
+      "translation": "una carpeta cuyas subcarpetas parecen canales (DAPI/, GFP/... o los mismos campos de visión en cada una) abre \"Organize for Measure\" con una columna de canal por subcarpeta; cualquier otra carpeta cuyas imágenes estén en subcarpetas se ofrece para consolidación (item 593);",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#5",
+      "source": "several folders of images open \"Organize for Measure\" with a channel column per folder;",
+      "source_sha256": "83b830594fc1c09a8572c7800550ccea8ad86e430a4c1cbf45127014f0c2d624",
+      "context": "several folders of images open \"Organize for Measure\" with an image data channel column per folder;",
+      "translation": "varias carpetas de imágenes abren \"Organize for Measure\" con una columna de canal por carpeta;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#6",
+      "source": "when that popup is cancelled (or nobody can see it), the drop opens as it always did: the folder as it is, or a queue;",
+      "source_sha256": "eb8b8981479f0c97da1cfd8abd5a38ef8b31ffe10d80ad6e636ca4ced9d72923",
+      "context": "when that popup is cancelled (or nobody can see it), the drop opens as it always did: the folder as it is, or a work list;",
+      "translation": "cuando se cancela esa ventana emergente (o nadie puede verla), lo soltado se abre como siempre: la carpeta tal como está, o una cola;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#7",
+      "source": "images dropped with their masks open with those masks (:meth:`_open_with_masks`);",
+      "source_sha256": "2fedcff00ed01718e70950e47986bcd38b062c74019d0a8647cb9abf473c3655",
+      "context": "images dropped with their masks open with those masks (:meth:`_open_with_masks`);",
+      "translation": "las imágenes soltadas con sus máscaras se abren con esas máscaras (:meth:`_open_with_masks`);",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#8",
+      "source": "a folder spaCR wrote is named in the console and its images, if any, open -- a ``.npy`` is never opened as an image.",
+      "source_sha256": "12013c1dad79f5e94c4de1e807050e6ae5e3f427773748601c9a5df2a1e16d84",
+      "context": "a folder spaCR wrote is named in the console and its images, if any, open -- a ``.npy`` is never opened as an image.",
+      "translation": "una carpeta que escribió spaCR se nombra en la consola y sus imágenes, si las hay, se abren -- un ``.npy`` nunca se abre como imagen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#9",
+      "source": "Everything the drop held that is used for nothing is listed in the console.",
+      "source_sha256": "76ddbfea745401621562b270d01fbe8ea4d1a133e0e085ab1a545bdcc37c4d40",
+      "context": "Everything the drop held that is used for nothing is listed in the console.",
+      "translation": "Todo lo que contenía lo soltado y no se usa para nada se lista en la consola.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure#0",
+      "source": "Make Masks' \"Organize for Measure…\" popup: images and masks into merged/.",
+      "source_sha256": "6cb4ef09b5cdf634a7b8d12853f34f8e76ea887498be2266b929e2bec41f6796",
+      "context": "Make Masks' \"Organize for Measure…\" popup: images and masks into merged/.",
+      "translation": "La ventana emergente \"Organize for Measure…\" de Make Masks: imágenes y máscaras a merged/.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure#1",
+      "source": "Item 600, replacing item 593's string of prompts and its separate \"Sort into channels\" dialog as the entry point. ONE popup puts images and their masks into the layout Measure reads -- Yokogawa-named channel folders, the masks, and ``merged/*.npy`` -- through :mod:`spacr.channel_sorting` and :mod:`spacr.folder_consolidation`, which hold every decision:",
+      "source_sha256": "4145d60284cd1c41324b691b5ceb3a7b1e50f5918b463f4cdfb711ecf8072e33",
+      "context": "Item 600, replacing item 593's string of prompts and its separate \"Sort into channels\" dialog as the entry point. ONE popup puts images and their masks into the layout Measure reads -- Yokogawa-named image data channel folders, the masks, and ``merged/*.npy`` -- through :mod:`spacr.channel_sorting` and :mod:`spacr.folder_consolidation`, which hold every decision:",
+      "translation": "Item 600, que sustituye como punto de entrada la serie de preguntas del item 593 y su diálogo aparte \"Sort into channels\". UNA sola ventana emergente coloca las imágenes y sus máscaras en la estructura que lee Measure -- carpetas de canal con nombres Yokogawa, las máscaras y ``merged/*.npy`` -- mediante :mod:`spacr.channel_sorting` y :mod:`spacr.folder_consolidation`, que toman todas las decisiones:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure#2",
+      "source": "a SOURCE folder (typed, browsed or dropped), optionally consolidated first (its subfolders' images copied into one folder, named after their folders);",
+      "source_sha256": "9d111e1d9a8ee2f9eef5767008047ac51afa9eb6bc97e1c337baf45afedfce9f",
+      "context": "a SOURCE folder (typed, browsed or dropped), optionally consolidated first (its subfolders' images copied into one folder, named after their folders);",
+      "translation": "una carpeta de ORIGEN (escrita, elegida con el explorador o soltada), opcionalmente consolidada primero (las imágenes de sus subcarpetas se copian a una sola carpeta, con el nombre de sus carpetas);",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure#3",
+      "source": "the REGEX box: Mask generation's own ``metadata_type`` field -- the same grouped convention menu, example and \"Test on my folder\" -- with its ``custom_regex``, plus \"Sort by regex\", \"Auto regex\" and \"Detect sets\";",
+      "source_sha256": "6d8587d4ae76e72a79c7014dee17ff01439a7f2b577816891e0a85f00c4bec42",
+      "context": "the REGEX box: Mask generation's own ``metadata_type`` microscope field of view -- the same grouped convention menu, example and \"Test on my folder\" -- with its ``custom_regex``, plus \"Sort by regex\", \"Auto regex\" and \"Detect sets\";",
+      "translation": "el cuadro REGEX: el propio campo ``metadata_type`` de la generación de máscaras -- el mismo menú agrupado de convenciones, ejemplo y \"Test on my folder\" -- con su ``custom_regex``, además de \"Sort by regex\", \"Auto regex\" y \"Detect sets\";",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure#4",
+      "source": "the DIMENSIONS: which columns are image channels and which are masks, each mask with its role (cell, nucleus, pathogen) and the channel whose images it outlines;",
+      "source_sha256": "4ff01b34b6bfcb85a3de600d0806f7aeef29b14e0550bddcc26aed63c2284865",
+      "context": "the DIMENSIONS: which columns are image data channels and which are masks, each mask with its role (cell, nucleus, pathogen) and the image data channel whose images it outlines;",
+      "translation": "las DIMENSIONES: qué columnas son canales de imagen y cuáles son máscaras, cada máscara con su función (célula, núcleo, patógeno) y el canal cuyas imágenes delimita;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure#5",
+      "source": "a TABLE with one column per channel and per mask and one row per field. Every column takes files and folders dropped from the file manager (a folder brings its images, recursively) and cells dragged from another column. Dropped files sort themselves by name and are matched across the columns the way Detect sets pairs images -- file-name tokens, then order, never two images of different size (:func:`spacr.channel_sorting. _match_columns`). A cell nothing matched stays empty and flagged.",
+      "source_sha256": "41ea8b601e3b5fa7c1b65944416e770f4909ab6bcbb0e5111b0175b5475732b1",
+      "context": "a TABLE with one column per image data channel and per mask and one row per microscope field of view. Every column takes files and folders dropped from the file manager (a folder brings its images, recursively) and cells dragged from another column. Dropped files sort themselves by name and are matched across the columns the way Detect sets pairs images -- file-name tokens, then order, never two images of different size (:func:`spacr.channel_sorting. _match_columns`). A cell nothing matched stays empty and flagged.",
+      "translation": "una TABLA con una columna por canal y por máscara y una fila por campo de visión. Cada columna acepta archivos y carpetas soltados desde el gestor de archivos (una carpeta aporta sus imágenes, de forma recursiva) y celdas arrastradas desde otra columna. Los archivos soltados se ordenan solos por nombre y se emparejan entre columnas del mismo modo en que Detect sets empareja imágenes -- tokens del nombre de archivo, después el orden, nunca dos imágenes de distinto tamaño (:func:`spacr.channel_sorting. _match_columns`). Una celda sin coincidencia queda vacía y marcada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure#6",
+      "source": "Mode 1: fill the source, choose or test the regex, press \"Sort by regex\", Apply. Mode 2: fill the columns by dropping, Apply. Mode 3, \"Teach me…\": answer \"Which channel is this?\" for one image at a time while spaCR learns a regex from the answers (:func:`spacr.channel_sorting._teach_step`), until every image is placed. Each works without the others. A folder made by folder consolidation is read under its files' ORIGINAL names, from its ``rename_manifest.csv``, because the copies' names may have lost what told the channels apart. Apply builds a :class:`spacr.channel_sorting.SortPlan`; incomplete rows block it (the regex box is where to fix them), RGB images and z-stacks are offered for conversion, and detected sets are shown three at a time before they are used. Nothing moves before Apply; the screen applies the plan off the GUI thread and every move is written to the manifest.",
+      "source_sha256": "d94e3d62d3ee1ba13d3fa35dfd88a2560d6e07f69cdabe851e4d0453a237ae2d",
+      "context": "Mode 1: fill the source, choose or test the regex, press \"Sort by regex\", Apply. Mode 2: fill the columns by dropping, Apply. Mode 3, \"Teach me…\": answer \"Which image data channel is this?\" for one image at a time while spaCR learns a regex from the answers (:func:`spacr.channel_sorting._teach_step`), until every image is placed. Each works without the others. A folder made by folder consolidation is read under its files' ORIGINAL names, from its ``rename_manifest.csv``, because the copies' names may have lost what told the image data channels apart. Apply builds a :class:`spacr.channel_sorting.SortPlan`; incomplete rows block it (the regex box is where to fix them), RGB images and z-stacks are offered for conversion, and detected sets are shown three at a time before they are used. Nothing moves before Apply; the application view applies the plan off the main GUI execution path and every move is written to the manifest.",
+      "translation": "Modo 1: rellenar el origen, elegir o probar la expresión regular, pulsar \"Sort by regex\", Apply. Modo 2: rellenar las columnas soltando archivos, Apply. Modo 3, \"Teach me…\": responder \"¿Qué canal es este?\" para una imagen cada vez mientras spaCR aprende una expresión regular de las respuestas (:func:`spacr.channel_sorting._teach_step`), hasta que todas las imágenes estén colocadas. Cada modo funciona sin los demás. Una carpeta creada por consolidación de carpetas se lee con los nombres ORIGINALES de sus archivos, a partir de su ``rename_manifest.csv``, porque los nombres de las copias pueden haber perdido lo que distinguía los canales. Apply construye un :class:`spacr.channel_sorting.SortPlan`; las filas incompletas lo bloquean (se corrigen en el cuadro de regex), se ofrece convertir las imágenes RGB y las pilas z, y los conjuntos detectados se muestran de tres en tres antes de usarse. Nada se mueve antes de Apply; la pantalla aplica el plan fuera del hilo de la GUI y cada movimiento se escribe en el manifiesto.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog#0",
+      "source": "Put images and masks into channel folders and ``merged/`` for Measure.",
+      "source_sha256": "1f5bb1a631f9832bcc2f85b17cea30bd164acf5c5a713bb14bc83476d81a79e4",
+      "context": "Put images and masks into image data channel folders and ``merged/`` for Measure.",
+      "translation": "Colocar imágenes y máscaras en carpetas de canal y en ``merged/`` para Measure.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog#2",
+      "source": "the table's columns, in order.",
+      "source_sha256": "d6aafdbd667cab426269e95e66de4be7299cca05461ec6c06b06721f1a58d59c",
+      "context": "the table's columns, in order.",
+      "translation": "las columnas de la tabla, en orden.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog#3",
+      "source": "one list per field, one path or None per column.",
+      "source_sha256": "0bb4337e35954672b73822e6318891bf40672273437bc4ec06979d012695be80",
+      "context": "one list per field, one path or None per column.",
+      "translation": "una lista por campo de visión, una ruta o None por columna.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog#4",
+      "source": "Build the popup, prefilled from a drop when there was one.",
+      "source_sha256": "c0d50783d54de8fe4ef572ca6834debeece4b21278651c1f86d0f4b05178dec2",
+      "context": "Build the popup, prefilled from a drop when there was one.",
+      "translation": "Construir la ventana emergente, rellenada de antemano a partir de lo soltado cuando lo hubo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog#5",
+      "source": "the source folder, if known.",
+      "source_sha256": "4d4eda03aac613dbdc47dfafe4fcd371e521bfd627313feecb6471f8abf1d7b2",
+      "context": "the source folder, if known.",
+      "translation": "la carpeta de origen, si se conoce.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog#7",
+      "source": "folders to put in the table, one channel column each (their masks from each folder's ``masks/``) -- the Make Masks drop of several folders or of channel-like subfolders.",
+      "source_sha256": "2facb0e5ff8aad94c303616963c1b9c26fa93314472c23b42414a9934b267838",
+      "context": "folders to put in the table, one image data channel column each (their masks from each folder's ``masks/``) -- the Make Masks drop of several folders or of image data channel-like subfolders.",
+      "translation": "carpetas que se ponen en la tabla, una columna de canal cada una (sus máscaras del ``masks/`` de cada carpeta) -- lo soltado en Make Masks de varias carpetas o de subcarpetas con aspecto de canal.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog#8",
+      "source": "the source's masks folder, when not its ``masks/``.",
+      "source_sha256": "a29ee4e01cd895f219234770e0346394dc467bac4021ee201a27a54c9e15a04a",
+      "context": "the source's masks folder, when not its ``masks/``.",
+      "translation": "la carpeta de máscaras del origen, cuando no es su ``masks/``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_column#0",
+      "source": "Add a channel or mask column at the end.",
+      "source_sha256": "2641b634df46e3385037ab7d8a77569cf1039dbfa65a56576d08d2ce50e7ce67",
+      "context": "Add an image data channel or mask column at the end.",
+      "translation": "Añadir una columna de canal o de máscara al final.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_column#1",
+      "source": "``\"channel\"`` or ``\"mask\"``.",
+      "source_sha256": "864b7ee05625d04120c4ffc847149a370175bd329cf45805d0e35f4690773607",
+      "context": "``\"channel\"`` or ``\"mask\"``.",
+      "translation": "``\"channel\"`` o ``\"mask\"``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_column#2",
+      "source": "a mask's role; default the first role no mask has.",
+      "source_sha256": "7a6d1b0d485bddb32e9057db9dabcf738354442c717e2f2534161f6b545f4b2b",
+      "context": "a mask's role; default the first role no mask has.",
+      "translation": "la función de una máscara; por defecto, la primera función que ninguna máscara tiene.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_column#3",
+      "source": "a mask's channel; default the first channel with no mask column, else 1.",
+      "source_sha256": "f019173af7e388dcab2b4f00269989de516de9433e0ee1b4a3f0d80ac4d995b1",
+      "context": "a mask's image data channel; default the first image data channel with no mask column, else 1.",
+      "translation": "el canal de una máscara; por defecto, el primer canal sin columna de máscara, o si no 1.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_column#4",
+      "source": "the new column's index.",
+      "source_sha256": "540fb85407c8b0d458f43d9964400a8fda7f08ca91846dcf3f7d3326c6d00e30",
+      "context": "the new column's index.",
+      "translation": "el índice de la nueva columna.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_files#0",
+      "source": "Put dropped files and folders into a column, and match the rows.",
+      "source_sha256": "50ebb0e149d514dcf3cda6d7ebb396cee7f9a65345063815713762a74870d54d",
+      "context": "Put dropped files and folders into a column, and match the rows.",
+      "translation": "Poner archivos y carpetas soltados en una columna y emparejar las filas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_files#1",
+      "source": "A folder brings its images, recursively, not its ``masks/``. Images dropped into a channel column bring the masks Make Masks saved for them (``<their folder>/masks/<stem>.tif``) into that channel's mask column, which is made when there is none. A file already in the table moves to this column. Nothing on disk changes.",
+      "source_sha256": "2cceb8ec59a9aa679d44e507771b2650a34e09cfc64506e731de7ada4074ad5a",
+      "context": "A folder brings its images, recursively, not its ``masks/``. Images dropped into an image data channel column bring the masks Make Masks saved for them (``<their folder>/masks/<stem>.tif``) into that image data channel's mask column, which is made when there is none. A file already in the table moves to this column. Nothing on disk changes.",
+      "translation": "Una carpeta aporta sus imágenes, de forma recursiva, no su ``masks/``. Las imágenes soltadas en una columna de canal traen las máscaras que Make Masks guardó para ellas (``<their folder>/masks/<stem>.tif``) a la columna de máscara de ese canal, que se crea si no existe. Un archivo que ya está en la tabla se mueve a esta columna. No cambia nada en el disco.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_files#2",
+      "source": "the column index.",
+      "source_sha256": "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
+      "context": "the column index.",
+      "translation": "el índice de la columna.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_files#3",
+      "source": "files and folders.",
+      "source_sha256": "0c0e0d1bf62e16a58806f2b6ba607ddfae14596fa5873316930dd850310f4346",
+      "context": "files and folders.",
+      "translation": "archivos y carpetas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_files#4",
+      "source": "match the rows afterwards (off while prefilling).",
+      "source_sha256": "257ee22b60c38f1f6f06e9426816c63e55450a4322172495f7d803963259cb0f",
+      "context": "match the rows afterwards (off while prefilling).",
+      "translation": "emparejar las filas después (desactivado durante el prerrelleno).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_files#5",
+      "source": "the image files added.",
+      "source_sha256": "9c509e9a13c633b3381d27774e7ce1c2b4c5cf2058a268a89c8164ffdb124b28",
+      "context": "the image files added.",
+      "translation": "los archivos de imagen añadidos.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.auto_regex#0",
+      "source": "Propose a regex, put it in custom_regex, and sort by it.",
+      "source_sha256": "e375aa07c953c6e44115664a813acd061bee5445c7f0fa12da10a4a52d6134b3",
+      "context": "Propose a regex, put it in custom_regex, and sort by it.",
+      "translation": "Proponer una expresión regular, ponerla en custom_regex y ordenar según ella.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.detect_sets#0",
+      "source": "Match the columns' files by name, order and size, and check three.",
+      "source_sha256": "de00bf943a71e8f1ecc988e5eff7126ce2c3eb10dab495a4ee72cba4a4870a40",
+      "context": "Match the columns' files by name, order and size, and check three.",
+      "translation": "Emparejar los archivos de las columnas por nombre, orden y tamaño, y comprobar tres.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.detect_sets#1",
+      "source": "With an empty table and a source folder, the source is sorted by the regex first, for its channels. The sets are shown three at a time (:class:`spacr.qt.widgets.channel_sort_dialog.ExampleSetsDialog`) and kept only when the user says they are right.",
+      "source_sha256": "19fe6675bc9ab8c20dfc3f07ee94d1b247bfcddea2addb9af12145607041c555",
+      "context": "With an empty table and a source folder, the source is sorted by the regex first, for its channels. The sets are shown three at a time (:class:`spacr.qt.widgets.channel_sort_dialog.ExampleSetsDialog`) and kept only when the user says they are right.",
+      "translation": "Con la tabla vacía y una carpeta de origen, primero se ordena el origen con la expresión regular, para obtener sus canales. Los conjuntos se muestran de tres en tres (:class:`spacr.qt.widgets.channel_sort_dialog.ExampleSetsDialog`) y solo se conservan cuando el usuario confirma que son correctos.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.detect_sets#2",
+      "source": "whether the detected sets were kept.",
+      "source_sha256": "b75284420f01f5b0606735b93f9a794d9f0d9ab18da07518e9c3ab44218cec81",
+      "context": "whether the detected sets were kept.",
+      "translation": "si se conservaron los conjuntos detectados.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.prepare_plan#0",
+      "source": "Build the plan from the table, or None while rows are incomplete.",
+      "source_sha256": "7565a3846eac9b1e672b01183b9d19900a09aa3ff4bda2449edd55234fe25b5d",
+      "context": "Build the plan from the table, or None while rows are incomplete.",
+      "translation": "Construir el plan a partir de la tabla, o None mientras haya filas incompletas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.remove_column#0",
+      "source": "Remove a column and its files from the table.",
+      "source_sha256": "9d07705f2db4150a8646bbce1bdd3012a374243e90a0de1b9b94fde2c049cb76",
+      "context": "Remove a column and its files from the table.",
+      "translation": "Quitar una columna y sus archivos de la tabla.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.remove_column#1",
+      "source": "the column.",
+      "source_sha256": "1292b0b4037eddcee0242184c4b73a894c7b993d634f028768e10593fd984a6c",
+      "context": "the column.",
+      "translation": "la columna.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.sort_by_regex#0",
+      "source": "Fill the table from the regex: chanID is the column, the rest the row.",
+      "source_sha256": "8b0f39440497d1c599b815a9a795730da94ec11c270acb8345423011053573c1",
+      "context": "Fill the table from the regex: chanID is the column, the rest the row.",
+      "translation": "Rellenar la tabla a partir de la expresión regular: chanID es la columna, el resto la fila.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.sort_by_regex#1",
+      "source": "With a source folder its images are read (consolidated first when asked), and their masks found where Make Masks saves them; with none, the files already in the channel columns are re-sorted, keeping the column each is in. Masks go into a mask column per channel. A mask two images share (two files with one stem) is left out and named.",
+      "source_sha256": "7c2f533c4c899b17ab32b3f0ff84b402b90792be327b6cd6d8892fed5313d128",
+      "context": "With a source folder its images are read (consolidated first when asked), and their masks found where Make Masks saves them; with none, the files already in the image data channel columns are re-sorted, keeping the column each is in. Masks go into a mask column per image data channel. A mask two images share (two files with one stem) is left out and named.",
+      "translation": "Con una carpeta de origen se leen sus imágenes (consolidadas primero si se pide) y sus máscaras se buscan donde Make Masks las guarda; sin ella, los archivos que ya están en las columnas de canal se reordenan, y cada uno conserva su columna. Las máscaras van a una columna de máscara por canal. Una máscara que comparten dos imágenes (dos archivos con la misma raíz) se omite y se nombra.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.sort_by_regex#2",
+      "source": "the regex; default what the regex box stands for.",
+      "source_sha256": "7a48da9dc7a2ecce085f8ceb9bc8ab2e2a0fa861b4061f06eddd500b16ca80a2",
+      "context": "the regex; default what the regex box stands for.",
+      "translation": "la expresión regular; por defecto, la que representa el cuadro de regex.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.sort_by_regex#3",
+      "source": "``{chanID value: label}`` learned by \"Teach me\", a label being ``(\"channel\", n)`` or ``(\"mask\", n, role)``; by default the regex's chanID values are channels in natural order.",
+      "source_sha256": "ab0376b6557e1870089c7de4ce9e67825cd5ab16df97984dae13d62623583689",
+      "context": "``{chanID value: label}`` learned by \"Teach me\", a label being ``(\"channel\", n)`` or ``(\"mask\", n, role)``; by default the regex's chanID values are channels in natural order.",
+      "translation": "``{chanID value: label}`` aprendido con \"Teach me\", donde una etiqueta es ``(\"channel\", n)`` o ``(\"mask\", n, role)``; por defecto, los valores chanID de la expresión regular son canales en orden natural.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.sort_by_regex#4",
+      "source": "the set report, or None when there was nothing to read.",
+      "source_sha256": "56214aaa5e6d9ecb5b3ced90b75fb16011476abec1dd20375ef5333af5b97015",
+      "context": "the set report, or None when there was nothing to read.",
+      "translation": "el informe de conjuntos, o None cuando no había nada que leer.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.teach#0",
+      "source": "\"Teach me\": ask what images are until a regex places all of them.",
+      "source_sha256": "d25a2ecbec156ca244d1a52aed362848f4c6bd4c165513e91f7bede06b37516c",
+      "context": "\"Teach me\": ask what images are until a regex places all of them.",
+      "translation": "\"Teach me\": preguntar qué son las imágenes hasta que una expresión regular las coloque todas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.teach#1",
+      "source": "One image is shown at a time with \"Which channel is this?\" (:attr:`ask_label`). From the answers :func:`spacr.channel_sorting._teach_step` learns what in the names marks each channel or mask and writes a regex; each new marker is confirmed with :attr:`ask_marker` (a channel, a mask, or only part of the field's name). The table fills as it goes, and the regex is put in custom_regex, where it can be edited. It ends when every image is placed, or when the user says stop.",
+      "source_sha256": "f7d2dd8c178d87a019144521ac33a3c2c1ec36effa3fd4138ea514ebb17f0b2b",
+      "context": "One image is shown at a time with \"Which image data channel is this?\" (:attr:`ask_label`). From the answers :func:`spacr.channel_sorting._teach_step` learns what in the names marks each image data channel or mask and writes a regex; each new marker is confirmed with :attr:`ask_marker` (an image data channel, a mask, or only part of the microscope field of view's name). The table fills as it goes, and the regex is put in custom_regex, where it can be edited. It ends when every image is placed, or when the user says stop.",
+      "translation": "Se muestra una imagen cada vez con \"¿Qué canal es este?\" (:attr:`ask_label`). A partir de las respuestas, :func:`spacr.channel_sorting._teach_step` aprende qué parte de los nombres marca cada canal o máscara y escribe una expresión regular; cada marcador nuevo se confirma con :attr:`ask_marker` (un canal, una máscara o solo parte del nombre del campo de visión). La tabla se va rellenando, y la expresión regular se pone en custom_regex, donde se puede editar. Termina cuando todas las imágenes están colocadas o cuando el usuario dice que pare.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.teach#2",
+      "source": "the learned regex, or None when none was learned.",
+      "source_sha256": "a781a71325a8e99dddb2a81975c4fd4a59f8120ec64619494e2e317ee4efe511",
+      "context": "the learned regex, or None when none was learned.",
+      "translation": "la expresión regular aprendida, o None si no se aprendió ninguna.",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}
