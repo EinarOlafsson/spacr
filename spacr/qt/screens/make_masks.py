@@ -599,7 +599,7 @@ _NOT_CONSOLIDATED = ("masks", "orig", "sorted_channels")
 
 
 def _copy_mask_as_tiff(source: str, target: str) -> None:
-    """Copy a dropped mask to where Make Masks looks for it (item 600).
+    """Copy a dropped mask to where Make Masks looks for it.
 
     A TIFF is copied as it is; a mask saved in another format is read and
     written as a TIFF, because Make Masks keeps every mask as
@@ -14859,7 +14859,7 @@ class MakeMasksScreen(QWidget):
 
 
     def _build_organize_button(self) -> QPushButton:
-        """The "Organize for Measure…" button beside "Open folder…" (item 600)."""
+        """The "Organize for Measure…" button beside "Open folder…"."""
         from ..i18n import tr
 
         button = QPushButton(tr("Organize for Measure…"), self)
@@ -15036,7 +15036,7 @@ class MakeMasksScreen(QWidget):
             moved=result.moved, stacks=len(result.stacks),
             merged=len(result.merged), dest=result.dest,
             manifest=result.manifest))
-        # Item 600: point Measure at the result, so features are one step away.
+        # Point Measure at the result, so features are one step away.
         prefs.push_recent_source("measure", str(result.dest))
         self._masks_console.post(tr(
             "Ready for Measure: open Measure and use {dest} as its source (it "
@@ -15050,7 +15050,7 @@ class MakeMasksScreen(QWidget):
     def open_paths(self, paths) -> bool:
         """Open a drop the way its contents say, asking where there is a choice.
 
-        Item 600. :func:`spacr.drop_classification.classify_drop` says what
+        :func:`spacr.drop_classification.classify_drop` says what
         was dropped, and:
 
         * image files (with or without folders) open as one queue, in drop

@@ -2,8 +2,8 @@
 MAKE MASKS UNDERSTANDS WHAT IS DROPPED, AND ONE POPUP ORGANIZES FOR MEASURE
 ================================================================================
 
-Status:    done 2026-09-29, on local branch item-600 (not pushed). See the note
-           at the end.
+Status:    DONE 2026-09-30. All three parts (600, 600b, 600c) are on nightly;
+           see the notes at the end.
 Requested: 2026-09-29, by the maintainer, relayed by the session that
            dispatched this item. His words:
 
@@ -327,3 +327,47 @@ Done:
 
 Tests: tests/qt/test_600_popup_layout_and_selection.py (10), plus the two
 updated in test_600_organize_for_measure.py.
+
+--------------------------------------------------------------------------------
+NOTE 2026-09-30 (take-600, audit against nightly)
+--------------------------------------------------------------------------------
+
+The status said "on local branch item-600 (not pushed)", but that branch no
+longer exists and its three commits are on nightly (81c9b6262, cd68db836,
+4b0d38b57). Every request above was checked against nightly: drop
+classification and the open_paths routes; the popup's source, consolidate,
+Mask generation's regex field, custom_regex, Sort by regex, Auto regex,
+Detect sets, Teach me, channel and mask columns, drop into columns with
+name sorting and cross-column matching, Apply to merged/*.npy and Measure's
+recent sources; 600b's removed Features button, Show (Text / Image /
+Image + text), text colour, drag-to-swap, the x (red on hover) and
+multi-file and folder drops; 600c's one-line action buttons with the fields
+above, Text colour left of Show as text only, the Size slider, rubber-band
+and header selection, block moves and deletes, and the in-table drop hint.
+The 600 test files (110) and the 593 file pass on nightly.
+
+Seen in an offscreen screenshot of the popup and fixed:
+* Rebuilding the column editors left the old ones on screen, stacked over
+  the custom_regex and Output folder rows, until Qt's deferred delete ran;
+  they are now hidden and unparented first.
+* "Text colour" is written in the chosen colour, so the default white was
+  invisible on a light window (and black on a dark one). Below a 3:1
+  contrast ratio it now gets a translucent chip of the opposite shade
+  (_legible_backdrop).
+* In Image + text the name was drawn at the cell's corner, partly off the
+  image; it is now drawn over the image itself.
+* In the image views a mask column was clipped to the thumbnail width
+  ("ucleus mask (channel"); a column is now never narrower than its
+  heading.
+* Item numbers were removed from the 600 docstrings and comments in
+  drop_classification, organize_for_measure, channel_sorting, dnd_handlers
+  and make_masks (one "600c:" comment over Make Masks' nav groups is left
+  for the session re-laying out those buttons).
+
+Tests: three new ones in tests/qt/test_600_popup_layout_and_selection.py
+(legible backdrop, no stale editor on screen -- fails without the fix --
+and headings never clipped).
+
+Still for the maintainer (unchanged): his own GUI run on his folder; the
+translation rows at the next catalog rebuild; deleting 593's unused
+ChannelSortDialog/RegexWindow if he agrees.

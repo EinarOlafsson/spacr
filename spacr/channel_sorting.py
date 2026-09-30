@@ -1272,7 +1272,7 @@ def _match_columns(columns: Sequence[Sequence[str]],
                    ) -> List[List[Optional[str]]]:
     """Line files up in rows across columns, the way Detect sets pairs them.
 
-    Item 600's organise table: each column is a channel or a mask, each row
+    The Organize for Measure table: each column is a channel or a mask, each row
     one field. The column with the most files is the reference; its files,
     naturally sorted, start one row each. Every other column is matched to
     the rows one-to-one at the least total cost -- :func:`name_distance`
@@ -1363,7 +1363,7 @@ def build_plan(folder: str, sets: Dict[SetKey, Dict[int, str]], *,
         whose images differ in size, a mask that is not its image's size or
         an image that is not 2-D.
     :param masks: ``{image: mask path}`` naming each image's mask outright
-        (item 600's mask columns); an image missing from it has none. None
+        (the organise table's mask columns); an image missing from it has none. None
         looks each mask up with :func:`mask_for`.
     :param convert: write RGB images as grey and z-stacks as their maximum
         projection instead of refusing them; without it they are listed in
@@ -1665,7 +1665,7 @@ def merge_sorted(dest: str, mask_roles: Dict[int, str], *,
     return stacks, merged
 
 
-# -- item 600: names before consolidation, and the "Teach me" mode ------------
+# -- names before consolidation, and the "Teach me" mode ------------
 
 #: The file :mod:`spacr.folder_consolidation` writes beside its copies.
 CONSOLIDATION_MANIFEST = "rename_manifest.csv"
