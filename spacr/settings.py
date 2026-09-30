@@ -2063,8 +2063,8 @@ def _renamed_background_switch(key):
     """The numbered name of a lettered slot background switch, or ``None``.
 
     ``remove_background_organelleb`` (2026-09-21 to 2026-09-30) is
-    ``remove_background_organelle_2`` today, by the maintainer's 2026-09-30
-    naming (item 76). A rule rather than 701 table rows, like
+    ``remove_background_organelle_2`` today, by the numbered
+    slot naming. A rule rather than 701 table rows, like
     :func:`_renamed_suffix_name`.
 
     :param key: the key a settings file carries.

@@ -618,7 +618,7 @@ _BACKGROUND_SWITCH = "remove_background_"
 def _background_switch_key(role: str) -> str:
     """The background-removal switch of one organelle slot.
 
-    The maintainer's name, 2026-09-30 (item 76): the first slot keeps
+    Naming: the first slot keeps
     ``remove_background_organelle`` and slot N is
     ``remove_background_organelle_N`` -- numbered as the user counts, not
     lettered as the storage prefix is. From 2026-09-21 to 2026-09-30 these
