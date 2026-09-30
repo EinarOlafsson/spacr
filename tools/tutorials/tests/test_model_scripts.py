@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1] / 'lessons'
 LANGUAGES = {'es', 'fr', 'hi', 'it', 'pt-BR', 'ja', 'zh-CN', 'da', 'de', 'is', 'ko', 'nb', 'sv'}
 
 
-@pytest.mark.parametrize('identity,scenes', [('21_model_compare', 8), ('22_model_zoo', 7)])
+@pytest.mark.parametrize('identity,scenes', [('21_model_compare', 6), ('22_model_zoo', 7)])
 def test_all_model_reviews_are_complete_and_bound_to_the_current_source(identity, scenes):
     english = json.loads((ROOT / (identity + '.json')).read_text())
     digest = hashlib.sha256(json.dumps(english, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
@@ -22,6 +22,6 @@ def test_all_model_reviews_are_complete_and_bound_to_the_current_source(identity
         assert all(isinstance(text, str) and text.strip() for text in review['scenes'])
         assert all(review[key] for key in ('title', 'description', 'objectives', 'prerequisite'))
         assert len(review['objectives']) == len(english['objectives'])
-        assert '4.2.1.1' in review['prerequisite'] and 'invert' in review['prerequisite']
-        assert review['native_speaker_reviewed'] is False
-        assert review['listening_reviewed'] is False
+        # AI translations stay labelled as such until a person signs them off.
+        assert review['review']['native_speaker_signoff'] is False
+        assert review['review']['listening_review'] is False

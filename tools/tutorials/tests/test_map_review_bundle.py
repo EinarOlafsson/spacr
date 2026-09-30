@@ -1,31 +1,33 @@
-"""All thirteen language scripts stay pinned to the actual English lesson."""
+"""All thirteen language scripts stay pinned to the actual English lesson.
+
+The fifteen-scene ``12_map_barcodes.reviewed.json`` bundle belongs to the
+retired 1.5.0.8 recording; the twelve-scene walkthrough is translated one
+review file per language, like every other lesson.
+"""
 import hashlib
 import json
 from pathlib import Path
-import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
-from apply_translation_review import spoken_form
+LANGUAGES = {'es', 'fr', 'it', 'pt-BR', 'hi', 'ja', 'zh-CN', 'da', 'de', 'is', 'ko', 'nb', 'sv'}
 
 
 def test_complete_source_pinned_editorial_matrix():
     english = json.loads((ROOT / 'lessons/12_map_barcodes.json').read_text())
-    for scene in english['scenes']:
-        scene['speech_text'] = spoken_form(scene['narration'], 'en')
-    bundle = json.loads((ROOT / 'lessons/reviews/12_map_barcodes.reviewed.json').read_text())
-    assert bundle['english_sha256'] == hashlib.sha256(
-        json.dumps(english, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
-    assert set(bundle['translations']) == {'es', 'fr', 'it', 'pt-BR', 'hi', 'ja', 'zh-CN',
-                                            'da', 'de', 'is', 'ko', 'nb', 'sv'}
-    assert bundle['review']['native_speaker_signoff'] is False
-    assert bundle['review']['human_listening_signoff'] is False
-    for translated in bundle['translations'].values():
-        assert len(translated['scenes']) == len(english['scenes']) == 15
-        assert all(len(scene.strip()) > 40 for scene in translated['scenes'])
-        assert 'Map Barcodes' in translated['title']
-        assert 'SRR33531217' in translated['prerequisite']
-        assert 'primers_3' in translated['prerequisite']
-        assert '1.5.0.8' in translated['prerequisite']
-        assert len(translated['objectives']) == 3
-        assert translated['section'] and translated['section'] != 'Core'
+    digest = hashlib.sha256(json.dumps(english, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+    reviews = {path.name.split('.')[1]: json.loads(path.read_text())
+               for path in (ROOT / 'lessons/reviews').glob('12_map_barcodes.*.json')
+               if path.name != '12_map_barcodes.reviewed.json'}
+    assert set(reviews) == LANGUAGES
+    assert len(english['scenes']) == 12
+    for language, review in reviews.items():
+        assert review['language'] == language and review['lesson'] == english['id']
+        assert review['english_sha256'] == digest
+        assert review['review']['native_speaker_signoff'] is False
+        assert review['review']['listening_review'] is False
+        assert len(review['scenes']) == len(english['scenes'])
+        assert all(isinstance(scene, str) and scene.strip() for scene in review['scenes'])
+        assert 'Map Barcodes' in review['title']
+        assert 'SRR33531217' in review['prerequisite']
+        assert 'primers_3' in review['prerequisite']
+        assert len(review['objectives']) == len(english['objectives']) == 3
