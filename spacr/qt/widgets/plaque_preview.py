@@ -3521,6 +3521,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._growth_btn = QPushButton(tr("Estimate scale / time (experimental)"))
         self._growth_btn.setCheckable(True)
         self._growth_btn.setToolTip(tr("Suggest missing values from the largest 25% of plaques. Assumes RH/HFF control growth; existing measurements are retained. API: spacr.plaque_growth.estimate_page"))
+        self._growth_btn.setObjectName("PlaqueEstimateScaleTime")
         self._growth_btn.toggled.connect(self._on_growth_toggled)
         save_row.addWidget(self._growth_btn)
         save_row.addStretch(1)
@@ -3530,8 +3531,11 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._growth_note = QLabel(tr("Published RH/HFF reference: 7 days, largest-quarter diameter 894 µm; about 40 hours error across three held-out experiments. Linear growth is assumed, not validated across times. Without a ruler or entered time, the reference duration is assumed. Change the reference in Experimental Growth Estimates settings. Suggestions are saved separately from measurements. <a href='https://doi.org/10.1371/journal.pbio.3002110'>Reference data</a>"))
         self._growth_note.setOpenExternalLinks(True)
         self._growth_note.setWordWrap(True)
+        self._growth_note.setObjectName("PlaqueEstimateScaleTimeNote")
         self._growth_note.hide()
         outer.addWidget(self._growth_note)
+        from ..preferences import _apply_alpha_widgets
+        _apply_alpha_widgets(self._growth_btn)
 
     def _stow_free_widgets(self) -> int:
         """Put every child that is in no layout into the holder that never shows.
@@ -3745,7 +3749,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._paper_note.setVisible(figure and bool(self._paper_note.text()))
         self._all_btn.setVisible(figure)
         self._save_row.setVisible(figure)
-        self._growth_note.setVisible(figure and self._growth_btn.isChecked())
+        self._growth_note.setVisible(figure and self._growth_btn.isChecked()
+                                      and not self._growth_btn.isHidden())
         self._confirm_note.setVisible(figure and self._confirm.isChecked())
         if not figure:
             self._legend_box.hide()
@@ -4697,7 +4702,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
     def _on_growth_toggled(self, enabled: bool) -> None:
         """Expose optional estimates without changing entered calibration."""
-        self._growth_note.setVisible(enabled and self.mode() == FIGURE_MODE)
+        self._growth_note.setVisible(enabled and self.mode() == FIGURE_MODE
+                                      and not self._growth_btn.isHidden())
         self._fill_table()
         self._fill_plaque_table()
 

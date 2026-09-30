@@ -7492,6 +7492,7 @@ ALPHA_FEATURES = {
     501: {
         'settings': ('plaque_estimate_growth', 'plaque_growth_reference_um',
                      'plaque_growth_reference_hours'),
+        'widgets': ('PlaqueEstimateScaleTime', 'PlaqueEstimateScaleTimeNote'),
     },
     564: {
         'settings': ('counterfactuals', 'counterfactual_crops',

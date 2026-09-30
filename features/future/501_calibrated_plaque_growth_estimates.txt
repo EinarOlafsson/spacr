@@ -52,3 +52,10 @@ Validation: 123 regression tests passed, one optional pdfplumber skip.
 Final estimator + Qt controls + real-data receipt + complete folder/SQL
 persistence cohort: 10 passed. No GPU or synthetic biological training used;
 small generated images in software tests exercise I/O and calibration only.
+
+ALPHA: gated 2026-09-30 by the maintainer. The Figure-preview button
+"Estimate scale / time (experimental)" (objectName PlaqueEstimateScaleTime)
+and its reference note (PlaqueEstimateScaleTimeNote) are registered under
+ALPHA_FEATURES[501] widgets, beside the three plaque growth settings already
+registered there; all hide unless Preferences -> Show alpha features is on.
+Test: tests/qt/test_plaque_growth_estimate_alpha_gate.py.
