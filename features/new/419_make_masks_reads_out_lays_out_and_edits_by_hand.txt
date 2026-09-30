@@ -2,18 +2,8 @@
 MAKE MASKS: A HOVER READOUT, THE LAYOUT, INSTALLABLE MODELS, AND HAND EDITING
 ================================================================================
 
-Status:    OPEN, ~99%, filed 2026-09-16; re-read 2026-09-25. ALL NINE
-           POINTS ARE BUILT, REVIEWED AND ON NIGHTLY (parts A-C, 2026-09-19
-           and -20). The stale Help-search summary is fixed (65c0bef2b,
-           30bb9fac0). The translations are the translation lane's, under
-           future/411: de, es, fr and sv carry reviewed rows for this item's
-           strings; hi, is, ko, pt and zh_CN do not yet. An offscreen look at
-           1280, 1600 and 1920 px was taken 2026-09-25 and found the
-           Magnifier and Settings pair scrolled off the right end of the
-           tool row below ~1790 px. The maintainer chose (a) the same day:
-           the pair is now PINNED outside the scroller at the right end.
-           What is left is the maintainer's own look on a real display. See
-           the 2026-09-25 notes.
+Status:    DONE 2026-09-30. The maintainer's display check on a real
+           display passed ("419 OK"). See the 2026-09-25 notes.
 Requested: 2026-09-16, by the maintainer, in these words, numbered as he wrote
            them:
 

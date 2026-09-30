@@ -1,9 +1,10 @@
 COLONY / CFU COUNTING
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27. DONE WHEN met on held-out public
-photos with the colony detector (2026-09-30, median error 2.4 % in 30-300,
-see DETECTOR); NOT met by thresholding (14.4 %). The detector weights are not
-published yet (see WHAT IS LEFT).
+Status: DONE 2026-09-30 (alpha). The colony detector is published at
+datasets/einarolafsson/models/colony_detector/v1, Model Zoo key
+colony_yolo11n_makrai_v1. DONE WHEN met on held-out public photos with the
+colony detector (median error 2.4 % in 30-300, see DETECTOR); NOT met by
+thresholding (14.4 %).
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 
