@@ -356,6 +356,27 @@ def test_the_torch_index_reads_spacrs_torch_or_none(monkeypatch):
     assert SB._torch_index_url() is None
 
 
+def test_a_plain_torch_version_uses_the_build_it_states(monkeypatch, tmp_path):
+    """Item 557: conda's torch records 2.6.0 while it is a cu124 build."""
+    import importlib.metadata as metadata
+    import importlib.util
+
+    folder = tmp_path / "torch"
+    folder.mkdir()
+    spec = type("S", (), {"submodule_search_locations": [str(folder)]})()
+    monkeypatch.delenv(SB._TORCH_INDEX_ENV, raising=False)
+    monkeypatch.setattr(metadata, "version", lambda name: "2.6.0")
+    monkeypatch.setattr(importlib.util, "find_spec", lambda name: spec)
+    (folder / "version.py").write_text("__version__ = '2.6.0+cu124'\n")
+    assert SB._torch_index_url() == SB._TORCH_WHEELS + "cu124"
+    (folder / "version.py").write_text(
+        "__version__ = '2.6.0'\ncuda: Optional[str] = '12.8'\n")
+    assert SB._torch_index_url() == SB._TORCH_WHEELS + "cu128"
+    (folder / "version.py").write_text(
+        "__version__ = '2.6.0'\ncuda: Optional[str] = None\n")
+    assert SB._torch_index_url() is None
+
+
 def test_the_plan_runs_pip_only_inside_the_environment():
     spec = SB._SPECS["dinocell"]
     env = "/b/dinocell"

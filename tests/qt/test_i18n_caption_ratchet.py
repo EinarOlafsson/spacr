@@ -1192,7 +1192,13 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 600c, 2026-09-30: the popup's empty-table drop hint and Size slider.
 # 316, 2026-09-30 (eighth pass follow-up): 600c's two captions have rows;
 # empty again.
-_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset()
+# 598, 2026-09-30: the contribute dialogs' dataset-link caption and the
+# thank-you caption before the pull request's link.
+_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    "Goes to this dataset on Hugging Face (a new one appears with its "
+    "first upload):",
+    "Thank you. Your contribution is waiting for review:",
+})
 
 
 

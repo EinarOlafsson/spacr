@@ -138,3 +138,30 @@ GPU RUN 2026-09-30
     SPACR_BACKENDS_DIR in gpu_run.sh if it is not ~/.spacr/backends, rerun.
     Conclusion: unanswered -- the GPU run never trained, so whether a
     converged N2V beats raw images on F1 is still open.
+
+GPU RUN 2026-09-30 (second attempt, trained on the GPU)
+    FIX. The backend install sent CAREamics to PyPI whenever spaCR's own
+    torch recorded a plain version in its metadata (conda's 2.6.0 is a
+    cu124 build), so a local wheelhouse or a PyPI torch newer than the
+    driver could leave it on the CPU. _torch_index_url now reads the build
+    torch/version.py states (_built_torch_version: '2.6.0+cu124', or its
+    cuda field) and uses that wheel index; users get the same fix. The
+    reinstalled ~/.spacr/backends/careamics has careamics 0.3.4 and torch
+    2.6.0+cu124, self-test device cuda (driver 580.178, CUDA 13.0, RTX 3090).
+    Test: tests/test_backends_live_in_their_own_environment.py (122 pass).
+    RUN. /mnt/wd4tb/scratch/557/gpu_run.sh via gpu_turn.sh (10:40-11:00,
+    rc 0): EPOCHS 150, all ten full toxo_pv fields (9,610 patches), PEAK
+    10, device cuda. Training 916 s; train loss 1.087 -> 1.037, val 1.268
+    -> 1.173. Pooled over 910 true objects:
+                     F1@.5   P@.5    R@.5   FP    F1@.75  mean field F1@.5
+      raw (off)      0.543   0.839   0.401   70   0.418   0.583
+      N2V            0.540   0.538   0.542  423   0.375   0.630
+      clip_gauss     0.441   0.807   0.303   66   0.321   0.389
+    Does F1 improve over raw images? No. Pooled F1@.5 is a tie (0.540 vs
+    0.543) and F1@.75 is lower. The converged N2V model recovers 128 more
+    true cells (recall 0.40 -> 0.54) but adds 353 false positives, so the
+    speckle-FP problem of the CPU runs persists after convergence; mean
+    per-field F1 rises (0.58 -> 0.63) because the sparse fields gain most.
+    Next, as planned: N2V + background subtraction or a minimum object
+    size before calling the done-when failed. Output:
+    /mnt/wd4tb/scratch/557/out_gpu_e150/results_p10_e150.json.

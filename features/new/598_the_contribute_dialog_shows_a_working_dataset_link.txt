@@ -1,0 +1,41 @@
+598. The contribute dialog shows a working dataset link
+
+Requested by the maintainer (2026-09-30), verbatim:
+"it tells me to got tp huggingface.co/datasets/einarolafssoncommunity_toxoplasma_datasets but i cant find that link? also that text should be a link or at least copyable."
+
+Brief:
+Make Masks' "Contribute images and masks" dialog names its destination as
+"Goes to huggingface.co/datasets/{repo} (made if it is new).", read as the
+repo without the "/" between owner and name. Find why and fix it at the
+cause. Make the destination a clickable https link that can also be
+selected and copied, and do the same for the dataset and pull-request links
+in Plaque Assay's contribute dialog and in the thank-you after sending.
+
+Done when: the label text contains "einarolafsson/community_<name>", the
+label is a link, and the same holds in Plaque Assay and after sending (Qt
+tests).
+
+Status: IMPLEMENTED 2026-09-30
+
+Cause (2026-09-30): the text always held the slash. tr() formatting, every
+language's catalog and community_repo() all give
+"einarolafsson/community_toxoplasma_datasets". The word-wrapped label broke
+the address right after "einarolafsson/" (measured with QTextLayout at the
+dialog's 447 px width), leaving the slash at a line end, and the label could
+not be clicked or selected, so the address had to be retyped. Also, a
+community dataset is made by its first upload, so before that the address
+finds nothing (einarolafsson/community_toxoplasma_datasets does not exist
+yet on Hugging Face).
+
+Fix: the destination is now a caption, "Goes to this dataset on Hugging
+Face (a new one appears with its first upload):", followed by the https
+address as a link on a line of its own that does not wrap. The label opens
+the link in the browser and can be selected and copied. Plaque Assay's
+contribute dialog gained the same destination link (objectName
+ContributeTarget), and the thank-you in both dialogs puts the pull request's
+link on its own line. Plain status messages are HTML-escaped. Tests:
+tests/qt/test_598_contribute_dialog_dataset_link.py.
+
+Left: the two new captions wait in _AWAITING_CATALOG_REBUILD for the next
+catalog pass. Until then the report-only external-caption count check
+xfails because the two old captions were removed.
