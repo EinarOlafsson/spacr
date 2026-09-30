@@ -155,7 +155,7 @@ PLAQUE_ONLY_KEYS = ("well_detection", "well_confidence", "well_pad",
                     "colony_counting", "colony_dilution",
                     "colony_plated_volume_ul", "colony_too_many",
                     "colony_too_few", "colony_polarity", "colony_threshold",
-                    "colony_min_area_px")
+                    "colony_min_area_px", "colony_detector")
 
 PAPERS_REQUIREMENT = "spacr[papers]"
 

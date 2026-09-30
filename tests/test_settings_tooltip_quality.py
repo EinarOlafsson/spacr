@@ -952,7 +952,11 @@ def test_real_default_claims_have_no_unrecorded_drift():
     item_557 = {("mask", key) for key in (
         "n2v_denoise", "n2v_model", "n2v_epochs")}
     assert item_557 <= compared_pairs
-    assert comparisons == 898
+    # 898 -> 899 on 2026-09-30, +1/-0 (item 542): colony_detector (None),
+    # the colony detector checkpoint, resolved by Plaque Assay only.
+    item_542_detector = {("analyze_plaques", "colony_detector")}
+    assert item_542_detector <= compared_pairs
+    assert comparisons == 899
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
@@ -990,7 +994,8 @@ def test_real_default_claims_have_no_unrecorded_drift():
             + len(item_580) + len(item_543) + len(item_546)
             + len(item_583) + len(item_542) + len(item_578)
             + len(item_549) + len(item_566) + len(item_559)
-            + len(item_576) + len(item_557) == comparisons)
+            + len(item_576) + len(item_557) + len(item_542_detector)
+            == comparisons)
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs
     assert len(census_508['added_pairs']) == 19

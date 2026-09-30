@@ -2,7 +2,7 @@
 SAMCELL, TRAINED ON LIVECELL, FOR TIMELAPSE
 ================================================================================
 
-Status:    INTEGRATED; real isolated CPU install and pretrained synthetic
+Status: CLOSED 2026-09-30 by the maintainer: removed from spaCR's lists; the live-cell model is trained and scored in the separate live_cell session.
            inference verified2026-09-23. Install through the Model Zoo into
            SAMCell's own environment, not spaCR's environment. The isolated
            installer now includes the plotting dependency imported by

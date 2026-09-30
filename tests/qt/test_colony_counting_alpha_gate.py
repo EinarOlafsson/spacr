@@ -1,6 +1,6 @@
 """Colony counting sits behind Preferences -> Show alpha features.
 
-Plaque Assay's "Colony Counting α" card and its eight settings are off
+Plaque Assay's "Colony Counting α" card and its nine settings are off
 the form and out of the settings search with the switch off (the default),
 come back when it is turned on, and a value set while hidden still reaches
 the run.
@@ -45,7 +45,8 @@ def prefs(tmp_path, monkeypatch):
 
 
 def test_every_colony_setting_is_registered_as_alpha():
-    assert len(KEYS) == 8
+    assert len(KEYS) == 9
+    assert "colony_detector" in KEYS
     assert all(key.startswith("colony_") for key in KEYS)
     assert all(_is_alpha("settings", key) for key in KEYS)
     assert not _is_alpha("settings", "well_diameter_mm")
@@ -73,9 +74,11 @@ def test_the_plaque_form_hides_and_shows_the_colony_settings(qtbot, prefs):
         model = screen._settings_model
         assert model.set_value_for_key("colony_counting", True)
         assert model.set_value_for_key("colony_polarity", "dark")
+        assert model.set_value_for_key("colony_detector", "colonies.pt")
         collected = model.collect()
         assert collected["colony_counting"] is True
         assert collected["colony_polarity"] == "dark"
+        assert collected["colony_detector"] == "colonies.pt"
         assert set(KEYS) <= set(collected)
 
         prefs._set_show_alpha_features(True)

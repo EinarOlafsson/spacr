@@ -902,6 +902,10 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "colony_counting", "colony_dilution", "colony_plated_volume_ul",
     "colony_too_many", "colony_too_few", "colony_polarity",
     "colony_threshold", "colony_min_area_px",
+    # NEW SETTING, not a regrouping (item 542, 2026-09-30): the colony
+    # detector checkpoint that replaces thresholding, under the same
+    # "Colony Counting α" heading.
+    "colony_detector",
     # NEW SETTINGS, not a regrouping (item 578, 2026-09-27): Make Masks'
     # segmentation-robustness report switch, its sample size and crop, the
     # diameter factors, flow and cell-probability thresholds and enhancement

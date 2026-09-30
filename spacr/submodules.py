@@ -1313,7 +1313,18 @@ def _resolve_well_detector(settings):
         return None
     if requested is True:
         requested = 'toxoplasma_well_detector_v1'
-    requested = str(requested)
+    return _resolve_detector_weights(str(requested), 'well_detection')
+
+
+def _resolve_detector_weights(requested, setting):
+    """A detector checkpoint on disk, from a path or a model-zoo key.
+
+    :param requested: a checkpoint path, or a :mod:`spacr.model_zoo` key,
+        fetched into ``~/.spacr/models`` on first use.
+    :param setting: the setting it came from, named in the error.
+    :returns: the checkpoint path.
+    :raises ValueError: when it is neither a file nor a model-zoo key.
+    """
     if os.path.isfile(requested):
         return requested
     from . import model_zoo
@@ -1321,7 +1332,7 @@ def _resolve_well_detector(settings):
                   if e.key == requested), None)
     if entry is None:
         raise ValueError(
-            f"well_detection={requested!r} is neither a file nor a model_zoo "
+            f"{setting}={requested!r} is neither a file nor a model_zoo "
             f"key")
     dest = os.path.join(os.path.expanduser('~'), '.spacr', 'models')
     os.makedirs(dest, exist_ok=True)
@@ -1717,6 +1728,9 @@ def _analyze_colony_plates(settings):
     and measured by :func:`spacr.plaque._count_colony_plate`, and the count
     becomes CFU/mL with ``colony_dilution`` and ``colony_plated_volume_ul``
     and is flagged against ``colony_too_many`` and ``colony_too_few``.
+    ``colony_detector``, a checkpoint path or model-zoo key, finds the
+    colonies with a YOLO detector instead of thresholding; without
+    ``ultralytics`` installed the run warns and thresholds.
 
     :param settings: the plaque settings dict, defaults applied.
     :returns: the per-plate table as a DataFrame.
@@ -1736,6 +1750,16 @@ def _analyze_colony_plates(settings):
     out_dir = os.path.join(src, 'colonies')
     os.makedirs(out_dir, exist_ok=True)
     weights = _resolve_well_detector(settings)
+    settings = dict(settings)
+    if settings.get('colony_detector'):
+        settings['colony_detector'] = _resolve_detector_weights(
+            str(settings['colony_detector']), 'colony_detector')
+        import importlib.util
+        if importlib.util.find_spec('ultralytics') is None:
+            LOG_PLAQUE.warning(
+                "colony_detector needs the 'ultralytics' package (pip install "
+                "\"spacr[plaque]\"); counting by thresholding instead")
+            settings['colony_detector'] = None
     names = [f for f in sorted(os.listdir(src))
              if os.path.isfile(os.path.join(src, f))
              and f.lower().endswith(('.tif', '.tiff', '.png', '.jpg', '.jpeg'))]
