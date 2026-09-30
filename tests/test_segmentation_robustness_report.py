@@ -178,3 +178,76 @@ def test_each_grid_point_reaches_the_cellpose_call():
     assert calls[-1]["diameter"] is None
     assert calls[-1]["image"].shape == image.shape
     assert not np.allclose(calls[-1]["image"], image)
+
+
+# ---------------------------------------------------------------------------
+# Edges the coverage ratchet found untested (dispatch 36739819315)
+# ---------------------------------------------------------------------------
+
+def test_a_single_number_is_a_list_of_one():
+    assert _number_list(1.5) == [1.5]
+    assert _number_list(2, (9.0,)) == [2.0]
+
+
+def test_a_grid_value_equal_to_the_run_setting_is_not_repeated():
+    grid = _robustness_grid({"cell_flow_threshold": 0.6,
+                             "robustness_flow_thresholds": "0.4, 0.6",
+                             "robustness_cellprob_thresholds": [0.0],
+                             "robustness_diameter_factors": [1.0],
+                             "robustness_enhancement": False}, "cell")
+    moved = [(p["parameter"], p["value"]) for p in grid[1:]]
+    assert moved == [("flow_threshold", "0.4")]
+
+
+def test_objects_that_never_overlap_are_none_found_again():
+    reference = np.zeros((6, 6), int)
+    reference[:2, :2] = 1
+    other = np.zeros((6, 6), int)
+    other[4:, 4:] = 1
+    assert _match_fraction(reference, other) == 0.0
+
+
+def test_relative_changes_at_their_edges():
+    from spacr.seg_qc import _relative_change
+
+    assert _relative_change(float("nan"), float("nan")) == 0.0
+    assert _relative_change(3.0, float("nan")) == float("inf")
+    assert _relative_change(0.0, 0.0) == 0.0
+    assert _relative_change(2.0, 0.0) == float("inf")
+
+
+def test_a_setting_that_loses_the_objects_is_fragile_and_one_that_keeps_them_is_not():
+    """Same count, area and intensity but in other places: only the matched
+    fraction can say the objects are not the ones the baseline found. An
+    image with no intensity channel still scores count and area."""
+    from spacr.seg_qc import _format_robustness
+
+    left = np.zeros((10, 10), int)
+    left[1:4, 1:4] = 1
+    right = np.zeros((10, 10), int)
+    right[6:9, 6:9] = 1
+
+    def segment(image, point):
+        return right if point["parameter"] == "moved" else left
+
+    grid = [{"parameter": "baseline", "value": "run settings"},
+            {"parameter": "moved", "value": "x"}]
+    _per_field, summary = _score_robustness(
+        [("f1", np.ones((10, 10)))], segment, grid)
+    moved = summary.set_index("parameter").loc["moved"]
+    assert moved["fragile"] and "baseline objects found again" in moved["reason"]
+
+    _per_field, steady = _score_robustness(
+        [("f1", np.ones((10, 10)))], lambda image, point: left, grid)
+    assert not steady["fragile"].any()
+    text = _format_robustness(steady, "cell", 0.2)
+    assert text.endswith("No setting in the grid moved the results beyond "
+                         "the tolerance.")
+
+
+def test_a_field_with_no_objects_has_no_intensity_to_report():
+    from spacr.seg_qc import _robustness_stats
+
+    stats = _robustness_stats(np.zeros((4, 4), int), np.ones((4, 4)))
+    assert stats["object_count"] == 0.0
+    assert np.isnan(stats["median_area"]) and np.isnan(stats["mean_intensity"])

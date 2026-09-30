@@ -1,0 +1,93 @@
+# spaCR user guide translation (fr).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: fr\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Process images with a point-spread function"
+msgstr "Traiter des images avec une fonction d’étalement du point"
+
+msgid "Use :mod:`spacr.point_spread` from Python to convolve an image with a point-spread function (PSF), or to deconvolve it with Richardson–Lucy. Prepare a two-dimensional image or three-dimensional volume and a measured PSF sampled at the same pixel or voxel spacing. Supply intensity images; keep object-label masks separate."
+msgstr "Utilisez :mod:`spacr.point_spread` depuis Python pour convoluer une image avec une fonction d’étalement du point (PSF), ou pour la déconvoluer avec Richardson–Lucy. Préparez une image bidimensionnelle ou un volume tridimensionnel et une PSF mesurée échantillonnée au même pas de pixel ou de voxel. Fournissez des images d’intensité ; gardez séparés les masques d’étiquettes d’objets."
+
+msgid "Use the desktop controls"
+msgstr "Utiliser les contrôles de l’application de bureau"
+
+msgid "In **Make Masks**, open **Image enhancement** and select **Convolve (blur)** or **Deconvolve (Richardson–Lucy)** under **Point spread function**. Choose your **Objective**, or use **Infer from images…** to read the current image's optical metadata. With no image open, the button asks you to choose a TIFF. The summary shows pixel spacing, Gaussian width and where those values came from."
+msgstr "Dans **Créer des masques**, ouvrez **Amélioration de l’image** et sélectionnez **Convoluer (flouter)** ou **Déconvoluer (Richardson–Lucy)** sous **Fonction d’étalement du point**. Choisissez votre **Objectif**, ou utilisez **Déduire des images…** pour lire les métadonnées optiques de l’image courante. Si aucune image n’est ouverte, le bouton vous demande de choisir un TIFF. Le résumé indique le pas de pixel, la largeur gaussienne et l’origine de ces valeurs."
+
+msgid "Open **PSF optics and kernel** to inspect the remaining controls. **Camera** sets the camera pixel pitch; **Fluorophore** sets the emission wavelength. Magnification, numerical aperture, immersion refractive index, wavelength, pixel spacing and Gaussian widths remain editable. Labels identify metadata, objective-table values, calculations, defaults and values you entered. Review these after using **Infer from images…**, which repopulates the optics and recalculates Gaussian widths."
+msgstr "Ouvrez **PSF optics and kernel** pour examiner les autres contrôles. **Caméra** définit le pas des pixels de la caméra ; **Fluorochrome** définit la longueur d’onde d’émission. Le grandissement, l’ouverture numérique, l’indice de réfraction du milieu d’immersion, la longueur d’onde, le pas de pixel et les largeurs gaussiennes restent modifiables. Des étiquettes distinguent les métadonnées, les valeurs de la table des objectifs, les calculs, les valeurs par défaut et les valeurs que vous avez saisies. Vérifiez-les après avoir utilisé **Déduire des images…**, qui renseigne à nouveau l’optique et recalcule les largeurs gaussiennes."
+
+msgid "Without image-specific information, the starting approximation uses a 20×/0.75 air objective, a 6.5 µm camera pixel and 520 nm emission. It gives 0.325 µm image pixels and approximately 0.354 µm Gaussian FWHM. Pixel spacing is camera pixel pitch divided by magnification; the lateral Gaussian FWHM is approximated by 0.51 × emission wavelength / numerical aperture. These defaults permit a calculation; they are not measured calibration or proof of your microscope's resolution. Check them against the acquisition."
+msgstr "Sans information propre à l’image, l’approximation initiale utilise un objectif à air 20×/0,75, un pixel de caméra de 6,5 µm et une émission à 520 nm. Elle donne des pixels d’image de 0,325 µm et une largeur à mi-hauteur (FWHM) gaussienne d’environ 0,354 µm. Le pas de pixel est le pas des pixels de la caméra divisé par le grandissement ; la FWHM gaussienne latérale est approchée par 0,51 × longueur d’onde d’émission / ouverture numérique. Ces valeurs par défaut permettent un calcul ; elles ne constituent ni un étalonnage mesuré ni une preuve de la résolution de votre microscope. Comparez-les à l’acquisition."
+
+msgid "In the same fold, choose **Measured kernel (TIFF/NPY)** and load your calibrated two-dimensional PSF, or keep **Gaussian approximation**. For a measured kernel, enter its pixel spacing too; it must match the image. Neither mode silently resamples a mismatched kernel."
+msgstr "Dans la même section, choisissez **Noyau mesuré (TIFF/NPY)** et chargez votre PSF bidimensionnelle étalonnée, ou conservez l’**Approximation gaussienne**. Pour un noyau mesuré, saisissez aussi son pas de pixel ; il doit correspondre à celui de l’image. Aucun des deux modes ne rééchantillonne silencieusement un noyau non concordant."
+
+msgid "Wait for the kernel to load, then use **Compare** to inspect its effect. Set **Deconvolution iterations** when using Richardson–Lucy and choose **Apply** to use the result for detection. Start with a modest iteration count and inspect noise as well as object boundaries. **Reload** rereads a kernel file after you change it. **Off** disables PSF processing."
+msgstr "Attendez le chargement du noyau, puis utilisez **Comparer** pour examiner son effet. Définissez les **Itérations de déconvolution** lorsque vous utilisez Richardson–Lucy et choisissez **Appliquer** pour utiliser le résultat pour la détection. Commencez avec un nombre d’itérations modeste et examinez le bruit ainsi que les contours des objets. **Recharger** relit un fichier de noyau après modification. **Désactivé** désactive le traitement PSF."
+
+msgid "A wider Gaussian PSF spreads two fixed intensity peaks while preserving total intensity."
+msgstr "Une PSF gaussienne plus large étale deux pics d’intensité fixes tout en conservant l’intensité totale."
+
+msgid "White shows a fixed input profile; teal shows the convolved result. The blue bar indicates the Gaussian kernel's full width at half maximum. Increasing that width spreads the signal and reduces peak intensity while preserving the integrated intensity. This illustrates convolution with a Gaussian approximation. For your microscope, enter measured calibration values and inspect the resulting image with **Compare**."
+msgstr "Le blanc montre un profil d’entrée fixe ; le bleu-vert montre le résultat convolué. La barre bleue indique la largeur à mi-hauteur du noyau gaussien. Augmenter cette largeur étale le signal et réduit l’intensité maximale tout en conservant l’intensité intégrée. Cela illustre la convolution avec une approximation gaussienne. Pour votre microscope, saisissez des valeurs d’étalonnage mesurées et examinez l’image obtenue avec **Comparer**."
+
+msgid "Choose the intensities used by Measure"
+msgstr "Choisir les intensités utilisées par Mesure"
+
+msgid "In **Measure**, open **Image Preprocessing → Image Deconvolution (PSF)** and set ``psf_measurement_source``. Keep ``original`` for the standard measurement intensities, including Measure's normal rescaling and preprocessing, without additional PSF processing. Choose ``processed`` to measure intensities after convolution or deconvolution, then configure ``psf_operation``, the kernel source and its calibration."
+msgstr "Dans **Mesure**, ouvrez **Prétraitement des images → Déconvolution d’image (PSF)** et définissez ``psf_measurement_source``. Conservez ``original`` pour les intensités de mesure standard, y compris la remise à l’échelle et le prétraitement habituels de Mesure, sans traitement PSF supplémentaire. Choisissez ``processed`` pour mesurer les intensités après convolution ou déconvolution, puis configurez ``psf_operation``, la source du noyau et son étalonnage."
+
+msgid "Measure does not infer optics from image metadata: enter the calibration explicitly. For a two-dimensional field, enter image sampling and Gaussian widths in ``[Y, X]`` order. For a volume, use ``[Z, Y, X]`` and a matching three-dimensional kernel. Volume sampling must agree with Measure's voxel calibration or anisotropy settings. A measured kernel must have the same sampling as the image. Use a kernel appropriate for every selected intensity channel."
+msgstr "Mesure ne déduit pas l’optique à partir des métadonnées de l’image : saisissez l’étalonnage explicitement. Pour un champ bidimensionnel, saisissez l’échantillonnage de l’image et les largeurs gaussiennes dans l’ordre ``[Y, X]``. Pour un volume, utilisez ``[Z, Y, X]`` et un noyau tridimensionnel correspondant. L’échantillonnage du volume doit concorder avec l’étalonnage des voxels ou les paramètres d’anisotropie de Mesure. Un noyau mesuré doit avoir le même échantillonnage que l’image. Utilisez un noyau adapté à chaque canal d’intensité sélectionné."
+
+msgid "Run Measure and inspect the resulting object-feature tables in ``measurements.db``. PSF processing changes the intensity stream used for quantitative features; source files and exported crops retain their usual behavior. The ``intensity_rescale`` table records the selected source and PSF processing details. Keep the database with the settings and kernel file."
+msgstr "Exécutez Mesure et examinez les tables objets-caractéristiques obtenues dans ``measurements.db``. Le traitement PSF modifie le flux d’intensités utilisé pour les caractéristiques quantitatives ; les fichiers sources et les vignettes exportées conservent leur comportement habituel. La table ``intensity_rescale`` enregistre la source choisie et les détails du traitement PSF. Conservez la base de données avec les paramètres et le fichier du noyau."
+
+msgid "To compare different kernels or original and processed measurements, use separate projects or output databases. An existing database cannot mix measurements made with different PSF configurations. Restore the recorded configuration when resuming a run. See :func:`spacr.psf_measurement.prepare_measurement_psf` for the Python settings contract."
+msgstr "Pour comparer différents noyaux, ou des mesures d’origine et traitées, utilisez des projets ou des bases de données de sortie distincts. Une base de données existante ne peut pas mélanger des mesures effectuées avec des configurations PSF différentes. Rétablissez la configuration enregistrée lors de la reprise d’une exécution. Consultez :func:`spacr.psf_measurement.prepare_measurement_psf` pour le contrat des paramètres Python."
+
+msgid "Load the image and PSF"
+msgstr "Charger l’image et la PSF"
+
+msgid "The example below reads a single-channel image and a measured PSF from TIFF files. Replace the example spacing of 0.11 µm with your calibrated Y and X pixel spacing. A three-dimensional input uses Z, Y and X spacing in that order. The PSF must have odd spatial dimensions, a central origin and nonnegative signal after background removal."
+msgstr "L’exemple ci-dessous lit une image monocanal et une PSF mesurée à partir de fichiers TIFF. Remplacez le pas d’exemple de 0,11 µm par votre pas de pixel étalonné en Y et en X. Une entrée tridimensionnelle utilise les pas en Z, Y et X, dans cet ordre. La PSF doit avoir des dimensions spatiales impaires, une origine centrale et un signal non négatif après soustraction du fond."
+
+msgid "Choose the operation and save the result"
+msgstr "Choisir l’opération et enregistrer le résultat"
+
+msgid "Set ``operation=\"deconvolve\"`` to perform Richardson–Lucy deconvolution. Start with a modest iteration count and compare the result with the input; more iterations can amplify noise. ``operation=\"convolve\"`` instead blurs the image with the PSF. It does not use the iteration count."
+msgstr "Définissez ``operation=\"deconvolve\"`` pour effectuer une déconvolution de Richardson–Lucy. Commencez avec un nombre d’itérations modeste et comparez le résultat à l’entrée ; davantage d’itérations peuvent amplifier le bruit. ``operation=\"convolve\"`` floute plutôt l’image avec la PSF. Cette opération n’utilise pas le nombre d’itérations."
+
+msgid "The output preserves the image shape and uses float32 values in the original intensity units. Inspect its range before converting it to an integer image. Keep the JSON record with the result; it contains the kernel identity, sampling and processing settings."
+msgstr "La sortie conserve la forme de l’image et utilise des valeurs float32 dans les unités d’intensité d’origine. Examinez sa plage de valeurs avant de la convertir en image entière. Conservez l’enregistrement JSON avec le résultat ; il contient l’identité du noyau, l’échantillonnage et les paramètres de traitement."
+
+msgid "For multichannel images, set ``channel_axis`` explicitly: ``-1`` selects a final channel dimension, while ``0`` selects a first channel dimension. Each intensity channel is processed independently. Image and PSF sampling must match; the function rejects mismatched spacing."
+msgstr "Pour les images multicanaux, définissez ``channel_axis`` explicitement : ``-1`` sélectionne une dimension de canal en dernière position, tandis que ``0`` sélectionne une dimension de canal en première position. Chaque canal d’intensité est traité indépendamment. L’échantillonnage de l’image et celui de la PSF doivent concorder ; la fonction rejette des pas non concordants."
+
+msgid "Use a calculated approximation"
+msgstr "Utiliser une approximation calculée"
+
+msgid "If your workflow calls for a Gaussian approximation, construct it with :func:`spacr.point_spread.gaussian_psf`. Supply the full width at half maximum in micrometres and the image spacing. These are example values to replace with the values appropriate to your analysis:"
+msgstr "Si votre workflow requiert une approximation gaussienne, construisez-la avec :func:`spacr.point_spread.gaussian_psf`. Fournissez la largeur à mi-hauteur en micromètres et le pas de l’image. Voici des valeurs d’exemple à remplacer par celles qui conviennent à votre analyse :"
+
+msgid "Pass this kernel to ``apply_psf`` as above. A Gaussian kernel is an approximation; retain that distinction when comparing it with a measured PSF. See :func:`spacr.point_spread.apply_psf` for cancellation, progress callbacks and the complete parameter reference."
+msgstr "Passez ce noyau à ``apply_psf`` comme ci-dessus. Un noyau gaussien est une approximation ; conservez cette distinction lorsque vous le comparez à une PSF mesurée. Consultez :func:`spacr.point_spread.apply_psf` pour l’annulation, les rappels de progression et la référence complète des paramètres."
+

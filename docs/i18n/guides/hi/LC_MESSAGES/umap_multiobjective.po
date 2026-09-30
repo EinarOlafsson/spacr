@@ -1,0 +1,96 @@
+# spaCR user guide translation (hi).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: hi\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Resumable multi-objective UMAP search"
+msgstr "फिर से शुरू की जा सकने वाली बहु-उद्देश्य UMAP खोज"
+
+msgid "Image UMAP can search ``n_neighbors``, ``min_dist`` and the other structural UMAP parameters using one criterion or a multi-objective mode. Open **UMAP settings…** from the Hyperparameter search panel on the Image UMAP screen; ``multi_objective`` is the default criterion."
+msgstr "इमेज UMAP एक मानदंड या बहु-उद्देश्य मोड का उपयोग करके ``n_neighbors``, ``min_dist`` और अन्य संरचनात्मक UMAP पैरामीटर खोज सकता है। इमेज UMAP स्क्रीन के हाइपरपैरामीटर खोज पैनल से **UMAP सेटिंग्स ...** खोलें; ``multi_objective`` डिफ़ॉल्ट मानदंड है।"
+
+msgid "Why several objectives?"
+msgstr "कई उद्देश्य क्यों?"
+
+msgid "No score proves that a UMAP contains biologically meaningful structure. The multi-objective mode therefore retains three separate measurements:"
+msgstr "कोई भी स्कोर यह सिद्ध नहीं करता कि किसी UMAP में जैविक रूप से सार्थक संरचना है। इसलिए बहु-उद्देश्य मोड तीन अलग-अलग मापन बनाए रखता है:"
+
+msgid "``neighborhood_preservation``"
+msgstr "``neighborhood_preservation``"
+
+msgid "The geometric mean of trustworthiness and continuity. Trustworthiness penalizes neighbours invented by the two-dimensional embedding; continuity penalizes true feature-space neighbours that the embedding tears apart. Requiring both prevents either failure from being hidden."
+msgstr "विश्वसनीयता (trustworthiness) और निरंतरता (continuity) का ज्यामितीय माध्य। विश्वसनीयता द्विविमीय एम्बेडिंग द्वारा गढ़े गए पड़ोसियों को दंडित करती है; निरंतरता उन वास्तविक विशेषता-स्थान पड़ोसियों को दंडित करती है जिन्हें एम्बेडिंग अलग कर देती है। दोनों की माँग करने से किसी भी विफलता को छिपने से रोका जाता है।"
+
+msgid "``stability``"
+msgstr "``stability``"
+
+msgid "The mean fraction of nearest neighbours shared by embeddings fitted with different reproducible seeds. It is invariant to rotations and reflections. A visually striking feature that disappears between repeats is not stable structure."
+msgstr "अलग-अलग पुनरुत्पादनीय सीड से फ़िट की गई एम्बेडिंग द्वारा साझा किए गए निकटतम पड़ोसियों का औसत अंश। यह घुमाव और परावर्तन से अप्रभावित रहता है। दोहरावों के बीच गायब हो जाने वाली कोई आकर्षक विशेषता स्थिर संरचना नहीं है।"
+
+msgid "``cluster_structure``"
+msgstr "``cluster_structure``"
+
+msgid "Positive silhouette structure on a scale from zero to one. When labels are supplied through the Python API they define the partition. Otherwise spaCR fits reproducible K-means partitions from 2 through 8 clusters and reports the strongest silhouette together with the selected cluster counts. This is evidence of geometric structure, not proof that a cluster is biological."
+msgstr "शून्य से एक के पैमाने पर धनात्मक सिल्हूट संरचना। जब Python API के माध्यम से लेबल दिए जाते हैं तो वे विभाजन को परिभाषित करते हैं। अन्यथा spaCR 2 से 8 क्लस्टर तक पुनरुत्पादनीय K-means विभाजन फ़िट करता है और चुनी गई क्लस्टर संख्याओं के साथ सबसे प्रबल सिल्हूट की सूचना देता है। यह ज्यामितीय संरचना का साक्ष्य है, इस बात का प्रमाण नहीं कि कोई क्लस्टर जैविक है।"
+
+msgid "The three weights are normalized to sum to one. Their weighted geometric mean is called ``multi_objective`` and guides the grid or adaptive search. The geometric mean penalizes a collapsed objective more strongly than an arithmetic average."
+msgstr "तीनों भारों को इस तरह सामान्यीकृत किया जाता है कि उनका योग एक हो। उनका भारित ज्यामितीय माध्य ``multi_objective`` कहलाता है और ग्रिड या अनुकूली खोज का मार्गदर्शन करता है। ज्यामितीय माध्य अंकगणितीय औसत की तुलना में ढहे हुए उद्देश्य को अधिक कड़ाई से दंडित करता है।"
+
+msgid "Pareto front"
+msgstr "पैरेटो अग्रभाग"
+
+msgid "The composite score is not presented as the only answer. spaCR also marks the Pareto front in the result table. A configuration is Pareto-optimal when no other tested configuration improves one objective without making another worse. Inspect the embedding panels and objective tooltips for every non-dominated row before propagating a configuration."
+msgstr "संयुक्त स्कोर को एकमात्र उत्तर के रूप में प्रस्तुत नहीं किया जाता। spaCR परिणाम तालिका में पैरेटो अग्रभाग को भी चिह्नित करता है। कोई विन्यास पैरेटो-इष्टतम होता है जब कोई अन्य परीक्षित विन्यास किसी दूसरे उद्देश्य को बदतर किए बिना एक उद्देश्य में सुधार नहीं करता। किसी विन्यास को आगे बढ़ाने से पहले हर गैर-प्रभुत्व वाली पंक्ति के एम्बेडिंग पैनल और उद्देश्य टूलटिप की जाँच करें।"
+
+msgid "The neighborhood, stability and cluster objectives, normalized weights, repeat count, raw silhouette, cluster source and discovered cluster counts are stored in each trial's ``extra_metrics``."
+msgstr "पड़ोस, स्थिरता और क्लस्टर उद्देश्य, सामान्यीकृत भार, दोहराव संख्या, कच्चा सिल्हूट, क्लस्टर स्रोत और खोजी गई क्लस्टर संख्याएँ हर परीक्षण के ``extra_metrics`` में संग्रहीत होती हैं।"
+
+msgid "Repeated fits and runtime"
+msgstr "दोहराए गए फ़िट और रनटाइम"
+
+msgid "``stability repeats`` controls how many seeded embeddings are fitted per configuration. The minimum is 2 and the default is 3. Runtime scales roughly as:"
+msgstr "``stability repeats`` नियंत्रित करता है कि हर विन्यास के लिए कितनी सीड-आधारित एम्बेडिंग फ़िट की जाएँ। न्यूनतम 2 और डिफ़ॉल्ट 3 है। रनटाइम मोटे तौर पर इस प्रकार बढ़ता है:"
+
+msgid "``configurations × stability repeats × one UMAP fit``"
+msgstr "``configurations × stability repeats × one UMAP fit``"
+
+msgid "Use three repeats for routine searches and increase the count when the leading Pareto configurations have similar stability or when a final analysis must be especially reproducible."
+msgstr "सामान्य खोजों के लिए तीन दोहराव उपयोग करें, और जब अग्रणी पैरेटो विन्यासों की स्थिरता समान हो या अंतिम विश्लेषण विशेष रूप से पुनरुत्पादनीय होना चाहिए, तब संख्या बढ़ाएँ।"
+
+msgid "Walk search and stopping"
+msgstr "चलना खोज और रोकना"
+
+msgid "Switch on **Walk** to search locally from the values in the parameter fields instead of sweeping a grid. Each round scores the neighbourhood around the current centre and moves to the best configuration in it; with the default axes, ``n_neighbors`` and ``min_dist`` at resolution 2, that is the four diagonal corners. **Axes…** adds other structural parameters and sets each axis's step and resolution. The weighted multi-objective score chooses the direction of the next move. Search stops at **maximum rounds**, when a round fails to exceed **minimum improvement**, or after **Stop** is requested. A stopped result is explicitly marked partial."
+msgstr "ग्रिड को पूरा छानने के बजाय पैरामीटर फ़ील्ड के मानों से स्थानीय रूप से खोजने के लिए **चलना** चालू करें। हर दौर वर्तमान केंद्र के आसपास के पड़ोस को स्कोर करता है और उसमें सबसे अच्छे विन्यास पर चला जाता है; डिफ़ॉल्ट अक्षों ``n_neighbors`` और ``min_dist`` के साथ रिज़ॉल्यूशन 2 पर ये चार विकर्ण कोने होते हैं। **अक्ष…** अन्य संरचनात्मक पैरामीटर जोड़ता है और हर अक्ष का चरण और रिज़ॉल्यूशन सेट करता है। भारित बहु-उद्देश्य स्कोर अगली चाल की दिशा चुनता है। खोज **maximum rounds** पर, जब कोई दौर **minimum improvement** से आगे नहीं बढ़ता, या **रोकें** का अनुरोध होने पर रुक जाती है। रोका गया परिणाम स्पष्ट रूप से आंशिक के रूप में चिह्नित होता है।"
+
+msgid "Resume behavior"
+msgstr "फिर से शुरू करने का व्यवहार"
+
+msgid "Enable **Resume checkpoint** to continue from ``results/.spacr_checkpoints/umap_search.json`` under the current project (or from an explicit ``checkpoint_path`` in the Python API). Each completed trial is written atomically and its primary embedding is stored beside the JSON. An interrupted Walk round evaluates only its missing candidates before choosing a direction."
+msgstr "वर्तमान प्रोजेक्ट के अंतर्गत ``results/.spacr_checkpoints/umap_search.json`` (या Python API में स्पष्ट ``checkpoint_path``) से जारी रखने के लिए **चेकपॉइंट से फिर शुरू करें** सक्षम करें। हर पूर्ण परीक्षण परमाणु रूप से लिखा जाता है और उसकी प्राथमिक एम्बेडिंग JSON के बगल में संग्रहीत होती है। बाधित चलना दौर दिशा चुनने से पहले केवल अपने अनुपस्थित उम्मीदवारों का मूल्यांकन करता है।"
+
+msgid "Resume refuses to combine incompatible work. Feature and label hashes, search space, criterion, seed, output dimensions, neighborhood size, the ``n_neighbors``/``min_dist`` increments, stopping threshold, stability repeat count, objective weights, embedder identity, backend and the cluster-during-search settings must match the checkpoint."
+msgstr "फिर से शुरू करना असंगत काम को जोड़ने से इनकार करता है। विशेषता और लेबल हैश, खोज स्थान, मानदंड, सीड, आउटपुट आयाम, पड़ोस का आकार, ``n_neighbors``/``min_dist`` वृद्धि, रुकने की सीमा, स्थिरता दोहराव संख्या, उद्देश्य भार, एम्बेडर पहचान, बैकएंड और खोज के दौरान क्लस्टरिंग सेटिंग्स चेकपॉइंट से मेल खाने चाहिए।"
+
+msgid "Python API"
+msgstr "Python API"
+
+msgid "Use :func:`spacr.hyperparam.umap_search` for a full search, :func:`spacr.hyperparam.umap_objective_scores` to score repeated embeddings, :func:`spacr.hyperparam.embedding_stability` for stability alone, and :meth:`spacr.hyperparam.SearchResult.pareto_front` to retrieve non-dominated trials."
+msgstr "पूरी खोज के लिए :func:`spacr.hyperparam.umap_search`, दोहराई गई एम्बेडिंग को स्कोर करने के लिए :func:`spacr.hyperparam.umap_objective_scores`, केवल स्थिरता के लिए :func:`spacr.hyperparam.embedding_stability`, और गैर-प्रभुत्व वाले परीक्षण प्राप्त करने के लिए :meth:`spacr.hyperparam.SearchResult.pareto_front` का उपयोग करें।"
+

@@ -1,0 +1,90 @@
+# spaCR user guide translation (es).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: es\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Recruitment: compartment ratios and channel identity"
+msgstr "Reclutamiento: proporciones entre compartimentos e identidad de canal"
+
+msgid "From **Home → Assays → Toxoplasma**, open **Recruitment** after segmentation and measurement. Supply the project containing ``measurements/measurements.db`` and verify that its cell, nucleus, pathogen and cytoplasm measurements refer to the intended objects and channels. See :ref:`Recruitment in the module map <workflow-module-recruitment>`, the `Recruitment tutorial <tutorials/#lesson=25_recruitment>`_ and :func:`spacr.submodules.analyze_recruitment` for the surrounding workflow."
+msgstr "Desde **Inicio → Ensayos → Toxoplasma**, abra **Ensayo de reclutamiento** después de la segmentación y la medición. Indique el proyecto que contiene ``measurements/measurements.db`` y compruebe que sus mediciones de célula, núcleo, patógeno y citoplasma se refieren a los objetos y canales previstos. Para el flujo de trabajo en su conjunto, consulte :ref:`Ensayo de reclutamiento en el mapa de módulos <workflow-module-recruitment>`, el `tutorial de Ensayo de reclutamiento <tutorials/#lesson=25_recruitment>`_ y :func:`spacr.submodules.analyze_recruitment`."
+
+msgid "For whole-vacuole marker states, explicit host infection denominators and optional parasite counts, see :doc:`Host–Pathogen Analysis <host_pathogen>`. The two modules remain separate analysis choices."
+msgstr "Para los estados de marcadores de la vacuola completa, los denominadores explícitos de infección del huésped y los recuentos opcionales de parásitos, consulte :doc:`Análisis huésped–patógeno <host_pathogen>`. Los dos módulos siguen siendo opciones de análisis separadas."
+
+msgid "Select ``channel_of_interest`` for the fluorescent marker whose recruitment you want to measure. The primary ``recruitment`` column is the pathogen mean intensity divided by the cytoplasm mean intensity in that channel. Configure the condition metadata, object size/intensity filters and minimum objects per well before comparing results. Inspect compartment identities and denominator intensities; an absent or zero denominator does not establish recruitment."
+msgstr "Seleccione ``channel_of_interest`` para el marcador fluorescente cuyo reclutamiento quiere medir. La columna principal ``recruitment`` es la intensidad media del patógeno dividida por la intensidad media del citoplasma en ese canal. Configure los metadatos de condición, los filtros de tamaño e intensidad de los objetos y el número mínimo de objetos por pocillo antes de comparar resultados. Revise la identidad de los compartimentos y las intensidades del denominador; un denominador ausente o igual a cero no demuestra reclutamiento."
+
+msgid "Auxiliary ratios retain their channel"
+msgstr "Las proporciones auxiliares conservan su canal"
+
+msgid "``channel_dims`` selects image-channel indices for overlays and auxiliary recruitment measurements. The auxiliary calculation also includes ``channel_of_interest`` if it was omitted from that list. Output names follow this pattern::"
+msgstr "``channel_dims`` selecciona los índices de canal de imagen para las superposiciones y las mediciones auxiliares de reclutamiento. El cálculo auxiliar también incluye ``channel_of_interest`` si se omitió de esa lista. Los nombres de salida siguen este patrón::"
+
+msgid "``compartment`` is ``cell``, ``cytoplasm`` or ``nucleus``. Each denominator is the mean intensity of that compartment in the same channel. ``statistic`` identifies the pathogen numerator:"
+msgstr "``compartment`` es ``cell``, ``cytoplasm`` o ``nucleus``. Cada denominador es la intensidad media de ese compartimento en el mismo canal. ``statistic`` identifica el numerador del patógeno:"
+
+msgid "Statistic"
+msgstr "Estadístico"
+
+msgid "Measurement used as numerator"
+msgstr "Medición usada como numerador"
+
+msgid "``mean``"
+msgstr "``mean``"
+
+msgid "``pathogen_channel_<channel>_mean_intensity``"
+msgstr "``pathogen_channel_<channel>_mean_intensity``"
+
+msgid "``q75``"
+msgstr "``q75``"
+
+msgid "``pathogen_channel_<channel>_percentile_75``"
+msgstr "``pathogen_channel_<channel>_percentile_75``"
+
+msgid "``outside_mean``"
+msgstr "``outside_mean``"
+
+msgid "``pathogen_channel_<channel>_outside_mean``"
+msgstr "``pathogen_channel_<channel>_outside_mean``"
+
+msgid "``outside_q75``"
+msgstr "``outside_q75``"
+
+msgid "``pathogen_channel_<channel>_outside_percentile_75``"
+msgstr "``pathogen_channel_<channel>_outside_percentile_75``"
+
+msgid "``periphery_mean``"
+msgstr "``periphery_mean``"
+
+msgid "``pathogen_channel_<channel>_periphery_mean``"
+msgstr "``pathogen_channel_<channel>_periphery_mean``"
+
+msgid "For example, a channel 2 pathogen mean of 12 and cytoplasm mean of 4 produces ``pathogen_channel_2_cytoplasm_mean_ratio = 3``. If channel 3 has means of 100 and 4, its separate column is ``pathogen_channel_3_cytoplasm_mean_ratio = 25``. Calculating channel 3 retains the channel 2 result. These are illustrative intensities, not experiment data."
+msgstr "Por ejemplo, una media del patógeno de 12 y una media del citoplasma de 4 en el canal 2 producen ``pathogen_channel_2_cytoplasm_mean_ratio = 3``. Si el canal 3 tiene medias de 100 y 4, su columna separada es ``pathogen_channel_3_cytoplasm_mean_ratio = 25``. El cálculo del canal 3 conserva el resultado del canal 2. Son intensidades ilustrativas, no datos experimentales."
+
+msgid "The calculation produces fifteen auxiliary ratios per channel. It does not creates constant-one pathogen/nucleus slope columns; these ratios do not estimate a spatial slope. Genuine slope columns already supplied by the caller are preserved. When comparing historical exports, check whether their auxiliary column names identify a channel before combining runs."
+msgstr "El cálculo produce quince proporciones auxiliares por canal. No crea columnas de pendiente patógeno/núcleo constantes e iguales a uno; estas proporciones no estiman una pendiente espacial. Las columnas de pendiente reales que ya proporcione quien llama se conservan. Al comparar exportaciones históricas, compruebe si los nombres de sus columnas auxiliares identifican un canal antes de combinar ejecuciones."
+
+msgid "Saved results"
+msgstr "Resultados guardados"
+
+msgid "The run writes ``cells.csv`` with the retained per-PV rows and ``wells.csv`` with per-well summaries, alongside recruitment plots. The historical ``cells.csv`` filename does not change the per-PV unit of these rows. Verify condition assignments, filtering and the selected channel when comparing these two aggregation levels."
+msgstr "La ejecución escribe ``cells.csv`` con las filas por PV conservadas y ``wells.csv`` con los resúmenes por pocillo, junto con los gráficos de reclutamiento. El nombre de archivo histórico ``cells.csv`` no cambia la unidad por PV de estas filas. Verifique la asignación de condiciones, el filtrado y el canal seleccionado al comparar estos dos niveles de agregación."
+

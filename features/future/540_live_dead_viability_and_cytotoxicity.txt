@@ -6,8 +6,10 @@ with thresholds fitted per plate or set by hand, and reports per well
 viability, a live-cell index and a cytotoxicity index scaled to the control
 wells, each plate's Z', and with a plate map the dose-response of viability,
 cytotoxicity and infection with a selectivity index. Scored on synthetic
-plates of known viability; no live/dead-stained real plate was available.
-Hidden with Alpha features.
+plates of known viability and (2026-09-30) on one public real stained
+plate: per-cell calls agree with blind hand calls on 95-97 % of random
+cells after a fix, but Z' > 0.5 is NOT met on the real plate (see
+2026-09-30 below). Hidden with Alpha features.
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 
@@ -148,7 +150,8 @@ DONE WHEN
     dead stain (viability 0.92-0.95, index 0.52-0.95 depending on seeding
     evenness and depth), with the limits above: the index needs about 50+
     cells per well and even seeding; morphology alone does not meet it on
-    an unevenly seeded plate. Not yet shown on a real stained plate.
+    an unevenly seeded plate. On a real stained plate it is not met:
+    see 2026-09-30.
 
     Real data: no live/dead-stained plate is in the example data and the
     brief's forum thread (image.sc 112723) could not be fetched (HTTP 403),
@@ -189,10 +192,11 @@ button, which lives inside their rows).
     page and index, the setting consumer map and API targets, and the
     02_measure_and_crop notebook's settings list.
 
-    Not done / left: (1) accuracy on a real live/dead-stained plate -- next
-    is one control plate (untreated vs digitonin or saponin, PI + calcein +
-    Hoechst) scored against a few hundred hand-called cells, which DONE
-    WHEN needs on real data. (2) Thresholds are overridden by number in
+    Not done / left: (1) DONE WHEN on real data: the one public real
+    control plate found (2026-09-30 below) cannot show Z' > 0.5 (single
+    40x fields, 2 % vs 8-10 % dead); still needed is a real plate with
+    replicate wells of a strong cytotoxic control (digitonin/saponin,
+    PI + calcein + Hoechst) and a field-to-well map. (2) Thresholds are overridden by number in
     viability_thresholds, per stain for all plates at once; there is no
     per-plate manual cut and no dragging the cut on the histogram in the
     GUI. (3) Stains are read on the nucleus; calcein on the cell table is
@@ -205,3 +209,102 @@ button, which lives inside their rows).
     its plateau in the tested range. (6) No button to recompute viability on
     an existing database without re-measuring (the helper takes a db path);
     a refused dose-response panel shows "refused" without its points.
+
+2026-09-30 -- Real-data validation (CPU; worktree val-540)
+    Dataset: Trizna et al. 2023, Sci Data 10:160, "VirtualStaining
+    Dataset" (figshare 10.6084/m9.figshare.21971558, CC BY 4.0, 506 MB).
+    Caco-2 cells, untreated vs camptothecin 6 uM 24 h, 40x, 1388x1040
+    JPEG; four series (plates here): sets 1/3 acridine orange + PI, sets
+    2/4 DiOC6 + PI; sets 1-2 imaged 2019-02-16, sets 3-4 2019-11-15; 252
+    fields (20-41 per condition per set). The files are the other way
+    round from the paper's text: <k>.1.jpg is green, <k>.2.jpg is red
+    (PI). Ground truth given with it: the condition of every field and
+    flow-cytometry dead fractions per series (ctrl 1.8 +- 0.2 %, cam
+    8.0 +- 1.0 % for sets 1-2; 2.4 +- 0.8 % and 10.1 +- 1.2 % for 3-4).
+    No per-cell labels and no field-to-well map are published.
+    Pipeline: images binned 2x, cells segmented classically (Otsu on the
+    smoothed green+red sum with a low-background floor, watershed from
+    intensity peaks; not validated, merged/edge objects occur), written
+    as spaCR merged stacks (plate = set, control fields rows A-D, cam
+    fields rows E-H, one field per well), measured by measure_crop with
+    the mask as nuclei (so the ring background exists), then
+    _classify_viability with negative wells r1-r4, positive r5-r8.
+    Per-cell reference: 300 objects (per set 50 random + 25 from the top
+    fifth of the PI signal), shuffled and hand-called BLIND to spaCR's
+    call by the validating agent (Claude, not a biologist) from red/green
+    crops: D = a PI-bright body inside the object, L = none, U =
+    unscoreable (fragment, edge sliver, a neighbour's PI, diffuse
+    textured red); 65 U excluded, 235 scored (171 random; 20 D).
+    Before (the 2026-09-27 method): the two-population fit was never
+    accepted on a real plate (Ashman's D 1.7-2.0, no dip: the PI-negative
+    population has a long bright tail, not a Gaussian), so every plate
+    used the one-population cut, median + 5 robust SD, which falls inside
+    that tail. PI only, random cells: accuracy 88.3 % (sets 1-2 86.7 %,
+    sets 3-4 90.1 %), dead sensitivity 0.75, live specificity 0.90;
+    both stains 87.7 %. Dead % ctrl/cam per set: 16.2/35.1, 7.6/28.4,
+    1.5/11.4, 6.6/32.2 (flow 1.8/8.0, 1.8/8.0, 2.4/10.1, 2.4/10.1).
+    Live stain only: one population on sets 1, 2 and 4, cut 5 robust SD
+    below the median, so nothing was called dead (accuracy 88 % = the
+    share of live cells, dead sensitivity 0.20).
+    The PI signal (mean minus ring median) ranks the hand calls well
+    within a plate (AUC 0.98-1.00); the cut was the problem. Rules
+    compared leave-one-plate-out on the hand calls (mean held-out
+    accuracy all / random): median + 5 robust SD 0.81 / 0.88; 95th-99th
+    percentile of the negative-control objects 0.88 / 0.95 (but it fixes
+    the untreated dead fraction by construction, and a plate whose
+    untreated wells hold dead cells, set 4, collapses at the 99th);
+    object mean >= F x its ring median 0.94 / 0.97 (F chosen 1.55-1.65
+    in every fold); one fixed manual cut 0.95 / 0.98 (same microscope).
+    Change (spacr/measure.py, _split_by_plate + _object_background): a
+    DEAD stain on a plate the fit calls one population is now cut per
+    object against its own ring: dead when its mean is at least
+    _VIABILITY_BACKGROUND_FOLD = 1.65 x the ring median (source
+    'background' in viability_qc; the plate threshold shown is 0.65 x the
+    plate's median ring). F = 1.65 was fitted on sets 1-2 only (first
+    value of the plateau of their accuracy) and then scored on sets 3-4.
+    Unchanged: the mixture cut when two populations are found (all
+    synthetic plates), manual cuts, plates under 20 objects (pooled),
+    tables without ring columns or with a ring at or below zero
+    (background-subtracted images), live stains and morphology.
+    After, per-cell vs hand calls (random cells; top-fifth stratum):
+        PI only, sets 1-2 (tuning)   98.9 %  (86.5 %)
+        PI only, sets 3-4 (held out) 95.1 %  (85.2 %); was 90.1 % (77.8 %)
+                                     dead sens 0.83 (was 0.58), live
+                                     spec 0.97 (was 0.96)
+        both stains, held out        91.4 %  (88.9 %); was 88.9 % (85.2 %)
+        PI only, all 171 random      97.1 %; dead sens 0.90, live spec 0.98
+    Dead % ctrl/cam per set: 1.0/25.6, 0.8/16.1, 0.7/20.0, 4.2/27.6. The
+    untreated wells now sit near flow cytometry (1.8-2.4 %); the
+    camptothecin wells read 2-3x flow's 8-10 %, as did the hand calls
+    on random cam cells (7-30 %): attached, imaged cells are not the
+    trypsinised suspension flow counted, as the paper notes.
+    Z' (DONE WHEN) -- NOT MET on this plate:
+      each 40x field as a well (the only unit the data defines), PI only,
+      viability: -0.91 / -1.35 / -2.11 / -1.68 per set (before -7.26 /
+      -4.69 / -1.97 / -1.83). No single cut does better than -1.07 (cut
+      searched for the best Z' directly). The live-cell and cytotoxicity
+      indices are worse (-2 to -10): objects per field range 18-267
+      (10th-90th percentile 39-155).
+      Consecutive fields pooled into three pseudo-wells per condition
+      (the paper imaged three wells per condition, map unpublished):
+      viability Z' 0.59 / 0.66 on sets 1-2 but -2.06 / -0.50 on held-out
+      sets 3-4 (before -3.66 / -1.34 / -1.20 / -0.19). So the fix sharpens
+      per-cell calls but does not deliver Z' > 0.5 here.
+      Ceiling: the dataset's own flow-cytometry dead fractions give Z'
+      0.42 (sets 1-2) and 0.22 (sets 3-4) from their 3-well SDs; a 2 %
+      vs 8-10 % dead contrast on ~40-150 cells per field cannot reach 0.5.
+      The DONE WHEN needs a stronger cytotoxic control (near-total kill)
+      and replicate wells, which this public set does not have.
+    Also tried: BBBC010 (C. elegans live/dead, 100 wells, ampicillin vs
+    untreated): its channel 2 is GFP, not a dead stain (per-worm mean
+    964 vs 880, SDs ~250), and death there is read from worm shape, which
+    this nuclear step does not do; not usable.
+    Scripts, hand calls (handcall/sample.csv, calls.txt, montages) and
+    outputs: /mnt/wd4tb/scratch/540 (images deleted; re-download from
+    figshare). Test added: a dead stain with one heavy-tailed population
+    is cut against its ring, and the old rule, a zero ring and a live
+    stain keep the robust-SD cut.
+    Left from this: live-stain-only calls on real plates (the one-
+    population cut calls nothing dead; acridine orange also stains dead
+    cells, so it is not a live-only stain), segmentation of dense
+    monolayers, and a real plate that can test DONE WHEN.

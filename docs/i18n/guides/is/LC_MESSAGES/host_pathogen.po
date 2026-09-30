@@ -1,0 +1,105 @@
+# spaCR user guide translation (is).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: is\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Host–Pathogen Analysis"
+msgstr "Greining hýsils og sýkils"
+
+msgid "From **Home → Assays → Toxoplasma**, open **Host–Pathogen Analysis**. This alpha module combines vacuole-level marker recruitment with host and well summaries. Existing :doc:`Recruitment <recruitment>` remains available."
+msgstr "Frá **Heim → Prófanir → Toxoplasma** skaltu opna **Greining hýsils og sýkils**. Þessi alfa-eining sameinar söfnun merkis á bólustigi við samantektir á hýsilfrumum og brunnum. Fyrirliggjandi :doc:`Söfnunargreining <recruitment>` er áfram tiltæk."
+
+msgid "Try the real microscopy test data"
+msgstr "Prófaðu raunverulegu smásjárprófunargögnin"
+
+msgid "Open **Home → Assays → Toxoplasma → Host–Pathogen Analysis** and select **Load test data…**. The download is approximately 114 MB."
+msgstr "Opnaðu **Heim → Prófanir → Toxoplasma → Greining hýsils og sýkils** og veldu **Hlaða prófunargögnum...**. Niðurhalið er um 114 MB."
+
+msgid "Enable **Live** beside the bottom action controls, then select **Run preview**. Choose either measured field and select vacuoles in the image or table to inspect their host links and marker ratios."
+msgstr "Virkjaðu **Beint** við hlið aðgerðastýringanna neðst og veldu síðan **Keyra forskoðun**. Veldu annað hvort mældu sjónsviðanna og veldu bólur í myndinni eða töflunni til að skoða tengsl þeirra við hýsil og hlutföll merkja."
+
+msgid "Set **Image channel** to 2 for Toxoplasma, 1 for RNF213 or 3 for CellMask. Leave the mask-plane selectors on **Auto**; the dataset includes the plane manifest. These display choices do not change the analysis channels."
+msgstr "Stilltu **Myndrás** á 2 fyrir Toxoplasma, 1 fyrir RNF213 eða 3 fyrir CellMask. Láttu val á grímuplönum vera á **Sjálfvirkt**; gagnasafnið inniheldur planaskrána. Þessi birtingarval breyta ekki greiningarrásunum."
+
+msgid "Turn **Live** off and expand **Actions** if the run controls are collapsed. Select **Run** to analyze both fields. Compare the results with the supplied ``example_cells.csv``, ``example_vacuoles.csv`` and ``example_wells.csv``."
+msgstr "Slökktu á **Beint** og opnaðu **Aðgerðir** ef keyrslustýringarnar eru felldar saman. Veldu **Keyra** til að greina bæði sjónsviðin. Berðu niðurstöðurnar saman við meðfylgjandi ``example_cells.csv``, ``example_vacuoles.csv`` og ``example_wells.csv``."
+
+msgid "Follow the `Host–Pathogen video walkthrough <tutorials/#lesson=85_host_pathogen>`_ for the complete example."
+msgstr "Fylgdu `myndbandsleiðsögninni um hýsil og sýkil <tutorials/#lesson=85_host_pathogen>`_ til að sjá heildardæmið."
+
+msgid "The `Host–Pathogen dataset <https://huggingface.co/datasets/einarolafsson/spacr-example-host-pathogen/tree/83b73d7a0c4f8a9ea145304c2ba90acc16768031>`_ contains two acquired THP-1/RNF213 fields, four intensity channels and prepared automatic masks. Its measurements cover 164 host cells, 189 nuclei, 97 whole vacuoles and 164 cytoplasm objects across the two fields. The acquired intensity planes are unchanged; the masks underwent Measure's normal parent/child reconciliation so the distributed outlines match measured objects. The dataset card and ``example_manifest.json`` describe the source fields, preparation and checks. These masks are not manually validated ground truth."
+msgstr "`Gagnasafnið um hýsil og sýkil <https://huggingface.co/datasets/einarolafsson/spacr-example-host-pathogen/tree/83b73d7a0c4f8a9ea145304c2ba90acc16768031>`_ inniheldur tvö mynduð THP-1/RNF213-sjónsvið, fjórar styrkleikarásir og tilbúnar sjálfvirkar grímur. Mælingar þess ná yfir 164 hýsilfrumur, 189 kjarna, 97 heilar bólur og 164 umfrymishluti í sjónsviðunum tveimur. Mynduðu styrkleikaplönin eru óbreytt; grímurnar fóru í gegnum venjulega samræmingu Mælingar á móður- og undirhlutum þannig að dreifðu útlínurnar passa við mælda hluti. Gagnasafnslýsingin og ``example_manifest.json`` lýsa upprunasjónsviðunum, undirbúningi og athugunum. Þessar grímur eru ekki handstaðfest viðmiðunargögn (ground truth)."
+
+msgid "The supplied settings compare vacuole RNF213 means with their associated host cytoplasm means in channel 1. Marker thresholds are deliberately unset: ratios are available, while positive/negative marker states remain unknown until you choose suitable control-calibrated thresholds. Individual-parasite counts are not supplied, so replication remains ``not_measured``. This small sample does not establish biological differences between its control conditions."
+msgstr "Meðfylgjandi stillingar bera saman meðalgildi RNF213 í bólum við meðalgildi tengds umfrymis hýsils í rás 1. Merkjaþröskuldar eru vísvitandi óstilltir: hlutföll eru tiltæk, en jákvætt/neikvætt ástand merkis er óþekkt þar til þú velur viðeigandi þröskulda sem kvarðaðir eru með viðmiðum. Talningar einstakra sníkjudýra fylgja ekki með, þannig að fjölgun er áfram ``not_measured``. Þetta litla úrtak staðfestir ekki líffræðilegan mun milli viðmiðunarskilyrða þess."
+
+msgid "The command-line download is ``spacr-download host_pathogen``. The prepared measurements let you use this example directly; your own image project needs the Mask and Measure preparation described below."
+msgstr "Niðurhal á skipanalínu er ``spacr-download host_pathogen``. Tilbúnu mælingarnar gera þér kleift að nota þetta dæmi beint; þitt eigið myndaverkefni þarf undirbúning með Grímur og Mæling sem lýst er hér að neðan."
+
+msgid "Inspect one field before running"
+msgstr "Skoðaðu eitt sjónsvið fyrir keyrslu"
+
+msgid "After selecting a measured project in **Source**, enable the bottom **Live** control. The preview uses the current form settings and the same analysis functions as a full run. Select **Run preview** for the initial calculation. While the panel remains visible, later settings changes refresh that preview. Use **Refresh** to reload the field choices and **Cancel** to cancel a pending preview. Preview reads the measurements database without writing result files."
+msgstr "Eftir að þú hefur valið mælt verkefni í **Uppruni** skaltu virkja stýringuna **Beint** neðst. Forskoðunin notar núverandi stillingar eyðublaðsins og sömu greiningarföll og heil keyrsla. Veldu **Keyra forskoðun** fyrir fyrsta útreikninginn. Á meðan spjaldið er sýnilegt uppfæra síðari breytingar á stillingum forskoðunina. Notaðu **Endurnýja** til að hlaða aftur sjónsviðavalinu og **Hætta við** til að hætta við forskoðun í bið. Forskoðun les mæligagnagrunninn án þess að skrifa niðurstöðuskrár."
+
+msgid "Its host counts and infection fractions describe the selected field only. They are not whole-well denominators. Fields containing vacuoles without measured host cells remain available. Missing or zero reference intensities produce unknown marker states; an unknown state must not be read as negative."
+msgstr "Fjöldi hýsla og sýkingarhlutföll hennar lýsa aðeins völdu sjónsviði. Þau eru ekki nefnarar fyrir heilan brunn. Sjónsvið sem innihalda bólur án mældra hýsilfrumna eru áfram tiltæk. Viðmiðunarstyrkur sem vantar eða er núll gefur óþekkt ástand merkis; óþekkt ástand má ekki lesa sem neikvætt."
+
+msgid "Overlay plane selection defaults to **Auto**, using the recorded ``.spacr_plane_layout.json`` metadata. Select explicit host, vacuole and parasite plane indices when metadata is absent, or use ``-1`` to hide an overlay. Changing the displayed intensity channel does not change the analysis marker settings. If an image cannot be loaded, the measured results remain available in the table."
+msgstr "Val á yfirlagsplani er sjálfgefið **Sjálfvirkt** og notar skráðu lýsigögnin í ``.spacr_plane_layout.json``. Veldu sérstaklega vísa plana fyrir hýsil, bólu og sníkjudýr þegar lýsigögn vantar, eða notaðu ``-1`` til að fela yfirlag. Breyting á birtri styrkleikarás breytir ekki stillingum greiningarmerkja. Ef ekki er hægt að hlaða mynd eru mældu niðurstöðurnar áfram tiltækar í töflunni."
+
+msgid "For scripted previews, :func:`spacr.host_pathogen_preview.preview_fields` offers at most 50 fields by default and reports whether more exist. :func:`spacr.host_pathogen_preview.preview_field` analyzes one selected field, refusing input tables with more than 100,000 rows for that field by default. These bounds keep the preview limited; use the full analysis for project-wide reports."
+msgstr "Fyrir forskoðanir í skriftum býður :func:`spacr.host_pathogen_preview.preview_fields` sjálfgefið upp í mesta lagi 50 sjónsvið og tilkynnir hvort fleiri séu til. :func:`spacr.host_pathogen_preview.preview_field` greinir eitt valið sjónsvið og hafnar sjálfgefið inntakstöflum með fleiri en 100.000 röðum fyrir það sjónsvið. Þessi mörk halda forskoðuninni takmarkaðri; notaðu fulla greiningu fyrir skýrslur um heil verkefni."
+
+msgid "Prepare the counting units"
+msgstr "Undirbúðu talningareiningarnar"
+
+msgid "Run Mask and Measure first. Keep uninfected host cells in Measure (``uninfected=True``) when the intended infection denominator is all measured hosts. Previously discarded host cells cannot be reconstructed here."
+msgstr "Keyrðu fyrst Grímur og Mæling. Haltu ósýktum hýsilfrumum í Mæling (``uninfected=True``) þegar fyrirhugaður sýkingarnefnari er allir mældir hýslar. Ekki er hægt að endurbyggja hýsilfrumur sem áður var hent hér."
+
+msgid "Supply a cell table, a table with one object per whole vacuole (default: ``pathogen``), and a host reference compartment table (default: ``cytoplasm``). Individual-parasite masks cannot substitute for whole-vacuole masks. Select marker channels and per-channel ratio thresholds calibrated with appropriate controls; the module does not learn these thresholds."
+msgstr "Leggðu til frumutöflu, töflu með einum hlut fyrir hverja heila bólu (sjálfgefið: ``pathogen``) og töflu fyrir viðmiðunarhólf hýsils (sjálfgefið: ``cytoplasm``). Grímur einstakra sníkjudýra geta ekki komið í stað gríma heilla bóla. Veldu merkjarásir og hlutfallsþröskulda fyrir hverja rás sem kvarðaðir eru með viðeigandi viðmiðum; einingin lærir ekki þessa þröskulda."
+
+msgid "Replication counts require either a parasite table with explicit parent-vacuole identities or an existing count column. Choose one count source. Without one, replication remains unmeasured rather than being inferred from vacuole area. Host identity alone is insufficient when a host contains multiple vacuoles."
+msgstr "Fjölgunartalningar krefjast annaðhvort sníkjudýratöflu með skýrum auðkennum móðurbólu eða fyrirliggjandi talningardálks. Veldu eina talningaruppsprettu. Án hennar er fjölgun áfram ómæld í stað þess að vera ályktuð út frá flatarmáli bólu. Auðkenni hýsils eitt og sér nægir ekki þegar hýsill inniheldur margar bólur."
+
+msgid "When Measure links individual organelle-role objects to whole-vacuole masks, one parent must cover strictly more than half of a child's pixels. Outside objects and ambiguous overlaps retain a missing parent. The stored parent is ``pathogen_id``; the stored overlap feature is role-prefixed, for example ``organelle_pathogen_overlap_fraction``. Use such an object table as parasites only when those masks actually represent individual parasites."
+msgstr "Þegar Mæling tengir einstaka hluti í frumulíffærahlutverki við grímur heilla bóla verður eitt foreldri að ná yfir meira en helming pixla undirhlutarins. Hlutir utan og tvíræð skörun halda foreldri sem vantar. Vistaða foreldrið er ``pathogen_id``; vistaði skörunareiginleikinn er með forskeyti hlutverksins, til dæmis ``organelle_pathogen_overlap_fraction``. Notaðu slíka hlutatöflu sem sníkjudýr aðeins þegar þessar grímur tákna í raun einstök sníkjudýr."
+
+msgid "Interpret the reports"
+msgstr "Túlka skýrslurnar"
+
+msgid "The output directory ``results/host_pathogen`` contains ``vacuoles.csv``, ``cells.csv``, ``wells.csv``, ``marker_states.csv``, ``replication_distribution.csv``, ``orphan_parasites.csv`` and the exact ``settings.json``. With multiple input projects, the combined report is saved under the first project. Database paths separate sources even when plate or field identifiers repeat."
+msgstr "Úttaksmappan ``results/host_pathogen`` inniheldur ``vacuoles.csv``, ``cells.csv``, ``wells.csv``, ``marker_states.csv``, ``replication_distribution.csv``, ``orphan_parasites.csv`` og nákvæma ``settings.json``. Með mörgum inntaksverkefnum er sameinaða skýrslan vistuð undir fyrsta verkefninu. Slóðir gagnagrunna aðgreina uppruna jafnvel þegar auðkenni platna eða sjónsviða endurtaka sig."
+
+msgid "Unlinked vacuoles and missing, invalid or zero host-reference intensities yield unknown marker states. Joint marker fractions include unknown vacuoles in their denominator; replication fractions use only vacuoles with counts. Host infection fractions describe retained measured host cells. These denominators answer different questions and should be reported explicitly."
+msgstr "Ótengdar bólur og viðmiðunarstyrkur hýsils sem vantar, er ógildur eða núll gefa óþekkt ástand merkis. Sameiginleg merkjahlutföll telja óþekktar bólur með í nefnaranum; fjölgunarhlutföll nota aðeins bólur með talningum. Sýkingarhlutföll hýsla lýsa varðveittum mældum hýsilfrumum. Þessir nefnarar svara ólíkum spurningum og ætti að tilgreina þá skýrt í skýrslum."
+
+msgid "For scripted use, see :func:`spacr.host_pathogen.analyze_host_pathogen` and :func:`spacr.host_pathogen.summarize_tables`. The headless module name is ``host_pathogen`` in ``spacr-run``."
+msgstr "Fyrir notkun í skriftum, sjá :func:`spacr.host_pathogen.analyze_host_pathogen` og :func:`spacr.host_pathogen.summarize_tables`. Heiti einingarinnar án myndræns viðmóts er ``host_pathogen`` í ``spacr-run``."
+
+msgid "Choosing a Replication Assay method"
+msgstr "Val á aðferð í Fjölgunarprófi"
+
+msgid "The separate **Replication Assay → Method** selector defaults to ``direct_count``, which counts individually segmented parasites per assigned vacuole. ``size_proxy`` uses the existing endodyogeny analysis and its **Size Proxy (Legacy)** controls. That readout aggregates pathogen area per host cell; multiple vacuoles in one host are combined. It is an area-derived proxy, not a parasite count or measured volume."
+msgstr "Sérstakur valreitur **Fjölgunarpróf → Aðferð** er sjálfgefið ``direct_count``, sem telur einstök hlutuð sníkjudýr á hverja úthlutaða bólu. ``size_proxy`` notar fyrirliggjandi endodyogeny-greiningu og stýringar hennar í **Stærðarnálgun (eldri)**. Sú mæling tekur saman flatarmál sýkla á hverja hýsilfrumu; margar bólur í einum hýsli eru sameinaðar. Hún er nálgun byggð á flatarmáli, ekki talning sníkjudýra eða mælt rúmmál."
+
+msgid "Both available routes return ``replication_method`` metadata. The whole-vacuole deep-learning option is marked coming soon and cannot run before its model is available. See :func:`spacr.submodules.analyze_replication` and :func:`spacr.submodules.analyze_endodyogeny` for the exact settings and outputs."
+msgstr "Báðar tiltæku leiðirnar skila lýsigögnunum ``replication_method``. Djúpnámsvalkosturinn fyrir heilar bólur er merktur væntanlegur og getur ekki keyrt fyrr en líkan hans er tiltækt. Sjá :func:`spacr.submodules.analyze_replication` og :func:`spacr.submodules.analyze_endodyogeny` fyrir nákvæmar stillingar og úttök."
+

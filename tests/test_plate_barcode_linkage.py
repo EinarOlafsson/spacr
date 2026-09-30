@@ -194,3 +194,88 @@ def test_an_unreachable_service_is_reported_and_the_run_goes_on(tmp_path,
     settings["plate_barcode_source"] = records
     assert _run_plate_barcode_step(settings) is None
     assert "no barcode column" in capsys.readouterr().out
+
+
+# ---------------------------------------------------------------------------
+# Edges the coverage ratchet found untested (dispatch 36739819315)
+# ---------------------------------------------------------------------------
+
+def test_barcode_assignments_skip_blank_halves():
+    assert _parse_barcode_assignments("plate1=BC1, plate2= ,=BC3") == {
+        "plate1": "BC1"}
+
+
+def test_only_readable_field_arrays_count_as_imaged_wells(tmp_path):
+    from spacr.plate_qc import _imaged_wells
+
+    src = _imaged(tmp_path, wells=((1, 1),))
+    (src / "notes.txt").write_text("not an array")
+    np.save(src / "not_a_field.npy", np.zeros(1))
+    np.save(src / "plate1_A00_1.npy", np.zeros(1))
+    wells = _imaged_wells(str(src))
+    assert wells.values.tolist() == [["plate1", 1, 1]]
+
+
+def test_a_barcode_file_for_several_plates_needs_plate_names(tmp_path):
+    """One bare barcode is only meaningful for a folder of one plate."""
+    src = _imaged(tmp_path)
+    (tmp_path / "plate1" / "barcode.txt").write_text("BC001\n")
+    assert _plate_barcodes(str(src), ["plate1", "plate2"]) == {
+        "plate1": "plate1", "plate2": "plate2"}
+
+
+@pytest.mark.parametrize("answer,match", [
+    ({"plate": "BC1"}, "has no list of well records"),
+    ("just text", "is not a list of well records"),
+])
+def test_a_lims_answer_without_well_records_is_refused(answer, match):
+    from spacr.plate_qc import _lims_payload_records
+
+    with pytest.raises(ValueError, match=match):
+        _lims_payload_records(answer, "BC1", "barcode")
+
+
+def test_non_record_entries_in_a_lims_answer_are_skipped():
+    from spacr.plate_qc import _lims_payload_records
+
+    records = _lims_payload_records([{"well": "A01"}, "noise", 7], "BC1",
+                                    "barcode")
+    assert records == [{"well": "A01", "barcode": "BC1"}]
+
+
+def test_a_text_answer_is_read_as_json_and_blank_values_agree():
+    from spacr.plate_qc import _lims_records, _same_value
+
+    frame = _lims_records("https://lims.invalid/", ["BC1"],
+                          fetch=lambda url, headers: '[{"well": "A01"}]')
+    assert frame["well"].tolist() == ["A01"]
+    assert _same_value(None, float("nan")) is True
+    assert _same_value("", 3) is False
+
+
+def test_a_folder_with_no_field_arrays_has_nothing_to_link(tmp_path):
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    with pytest.raises(ValueError, match="No merged field arrays"):
+        _link_plate_barcodes(str(empty), _records(tmp_path, ROWS))
+
+
+def test_records_for_other_plates_only_leave_every_plate_unknown(tmp_path):
+    src = _imaged(tmp_path, wells=((1, 1),))
+    only_other = [row for row in ROWS if row["barcode"] == "BC777"]
+    plate_map, mismatches = _link_plate_barcodes(
+        str(src), _records(tmp_path, only_other), barcodes="plate1=BC001")
+    assert plate_map.empty
+    assert set(mismatches["kind"]) == {"barcode_not_found"}
+
+
+def test_a_plate_map_that_shares_no_column_has_no_differences(tmp_path):
+    from spacr.plate_qc import _plate_map_differences
+
+    theirs = tmp_path / "theirs.csv"
+    write_table(pd.DataFrame({"well": ["A01"], "treatment": ["x"]}),
+                str(theirs))
+    linked = pd.DataFrame({"plateID": ["plate1"], "_row": [1], "_col": [1],
+                           "strain": ["RH"]})
+    assert _plate_map_differences(linked, str(theirs), ["strain"],
+                                  {"plate1": "BC001"}) == []

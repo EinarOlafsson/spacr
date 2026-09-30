@@ -3,6 +3,13 @@ name: tests
 on:
   push:
     branches: [main, nightly, "**"]
+    # A push that only touches documentation or item notes starts no run, so
+    # it cannot cancel the code run in flight (item 101: on 2026-09-30 every
+    # nightly push run was cancelled by the docs push after it). The next
+    # code push or a dispatched run still tests the whole tree, docs included.
+    paths-ignore:
+      - "docs/**"
+      - "features/**"
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -64,8 +71,18 @@ jobs:
   # declared floors instead. Both are blocking, and
   # tests/test_optimal_dependency_versions.py fails if either stops being so.
   fast:
-    name: Fast / Full suite control (ubuntu-24.04, py3.12)
+    name: Fast / Full suite control (ubuntu-24.04, py3.12) shard ${{ matrix.shard }} of 3
     runs-on: ubuntu-24.04
+    # THREE FILE SHARDS (item 43, 2026-09-30). One job had outgrown even
+    # the 150-minute budget below: dispatch 36739819315 reached batch 94 of
+    # 110 at 2:30 and was killed, and every dispatched run since 09-28 but
+    # one ended the same way, so the blocking job never reported. Each shard
+    # runs the same marker selection on a deterministic third of the files
+    # (tests/conftest.py, SPACR_PYTEST_FILE_SHARD_*), as the Qt job does.
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2]
     # 90 -> 150. THIS JOB WAS BEING KILLED BY ITS OWN BUDGET, not by a push:
     # 1:30:32 on dispatch 34639565357 and 1:30:17 on 34618149518 a day
     # earlier, both reported as "cancelled", which reads exactly like a
@@ -162,6 +179,8 @@ jobs:
 
       - name: Run fast tests
         env:
+          SPACR_PYTEST_FILE_SHARD_INDEX: ${{ matrix.shard }}
+          SPACR_PYTEST_FILE_SHARD_COUNT: "3"
           QT_QPA_PLATFORM: offscreen
           PYTHONPATH: ${{ github.workspace }}
           OMP_NUM_THREADS: "1"
@@ -472,7 +491,7 @@ jobs:
           python tools/verify_module_coverage.py \
             --coverage-json "$SPACR_COVERAGE_REPORT/coverage.json" \
             --root . \
-            --expected-file-count 650 \
+            --expected-file-count 652 \
             --baseline tools/coverage_baseline.json \
             --floor-exemptions tools/coverage_floor_exemptions.txt \
             --shard-integrity "$SPACR_COVERAGE_INPUT" \
@@ -568,11 +587,17 @@ jobs:
           if-no-files-found: ignore
 
   minimum-dependencies:
-    name: Minimum dependencies (ubuntu-24.04, py3.9)
+    name: Minimum dependencies (ubuntu-24.04, py3.9) shard ${{ matrix.shard }} of 3
     runs-on: ubuntu-24.04
     # 120 -> 180, same finding as `fast` above: killed by its own budget at
     # about 2:01 on two separate dispatches. Also blocking.
     timeout-minutes: 180
+    # Three file shards, like `fast` and for the same reason: dispatch
+    # 36739819315 was still at batch 102 of 110 after 2:32 of its 3:00.
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2]
 
     steps:
       - uses: actions/checkout@v7
@@ -661,6 +686,8 @@ jobs:
 
       - name: Run tests at minimum direct versions
         env:
+          SPACR_PYTEST_FILE_SHARD_INDEX: ${{ matrix.shard }}
+          SPACR_PYTEST_FILE_SHARD_COUNT: "3"
           QT_QPA_PLATFORM: offscreen
           PYTHONPATH: ${{ github.workspace }}
           OMP_NUM_THREADS: "1"

@@ -1,4 +1,4 @@
-# spaCR under Apptainer / Singularity (alpha)
+# spaCR under Apptainer / Singularity
 
 The Docker images in `packaging/docker/`, repackaged as single `.sif` files
 for clusters where Docker is not allowed and Apptainer (or SingularityCE) is.

@@ -1,0 +1,87 @@
+# spaCR user guide translation (ko).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: ko\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Export measurements to AnnData"
+msgstr "측정값을 AnnData로 내보내기"
+
+msgid "Create an ``.h5ad`` file containing measured features and object metadata for analysis in AnnData or Scanpy. Start with a spaCR project containing ``measurements/measurements.db``. For a worked example, download the project from the `Annotate tutorial <tutorials/#lesson=09_annotate>`__."
+msgstr "측정된 특징과 객체 메타데이터를 담은 ``.h5ad`` 파일을 만들어 AnnData 또는 Scanpy에서 분석합니다. ``measurements/measurements.db`` 파일이 있는 spaCR 프로젝트에서 시작합니다. 완성된 예제가 필요하면 `어노테이션 튜토리얼 <tutorials/#lesson=09_annotate>`__ 에서 프로젝트를 다운로드합니다."
+
+msgid "Export from the application"
+msgstr "애플리케이션에서 내보내기"
+
+msgid "From **Home**, open **Measure**, then **AnnData Export**."
+msgstr "**홈** 화면에서 **측정** 모듈을 열고 **AnnData 내보내기** 를 엽니다."
+
+msgid "Select the measured project as the source."
+msgstr "측정이 끝난 프로젝트를 소스로 선택합니다."
+
+msgid "Set **Anndata out** to a new ``.h5ad`` filename. Leaving it empty writes beneath the project's ``results`` folder. A successful export replaces an existing file at the chosen path; use separate names to keep both versions."
+msgstr "**Anndata 출력** 항목에 새 ``.h5ad`` 파일 이름을 지정합니다. 비워 두면 프로젝트의 ``results`` 폴더 아래에 파일이 기록됩니다. 내보내기에 성공하면 선택한 경로의 기존 파일이 대체되므로, 두 버전을 모두 보관하려면 서로 다른 이름을 사용합니다."
+
+msgid "Set **Anndata single table** to ``cell`` for one row per cell using that table's features. Use ``nucleus`` or ``pathogen`` for those object types. Leave it empty for a cell-level joined export, where child measurements are aggregated onto their parent cells."
+msgstr "**싱글 테이블** 항목을 ``cell`` 값으로 설정하면 해당 테이블의 특징을 사용하여 세포당 한 행을 내보냅니다. 해당 객체 유형에는 ``nucleus`` 또는 ``pathogen`` 값을 사용합니다. 비워 두면 세포 수준의 결합 내보내기가 수행되며, 하위 객체의 측정값이 상위 세포로 집계됩니다."
+
+msgid "Choose **Anndata nan policy**, then click **Run**. Read the completion message and open the output file to check its shape and feature names."
+msgstr "**Anndata NaN 정책** 을 선택한 다음 **실행** 을 클릭합니다. 완료 메시지를 읽고 출력 파일을 열어 형태와 특징 이름을 확인합니다."
+
+msgid "Choose how to handle missing features"
+msgstr "누락된 특징의 처리 방법 선택"
+
+msgid "``keep`` retains missing values. Choose this when you want to decide how to handle them in the downstream analysis."
+msgstr "``keep`` 옵션은 누락값을 그대로 유지합니다. 후속 분석에서 누락값 처리 방법을 직접 결정하려는 경우에 선택합니다."
+
+msgid "``drop_features`` removes feature columns containing missing values."
+msgstr "``drop_features`` 옵션은 누락값이 있는 특징 열을 제거합니다."
+
+msgid "``drop_objects`` removes object rows containing missing feature values."
+msgstr "``drop_objects`` 옵션은 누락된 특징값이 있는 객체 행을 제거합니다."
+
+msgid "``mean`` replaces missing values with the observed feature mean."
+msgstr "``mean`` 옵션은 누락값을 관측된 특징 평균으로 대체합니다."
+
+msgid "``zero`` replaces missing values with zero. Use it only when zero is an appropriate value for the intended analysis."
+msgstr "``zero`` 옵션은 누락값을 0으로 대체합니다. 0이 의도한 분석에 적합한 값일 때만 사용합니다."
+
+msgid "The imputing policies retain the original missing positions in ``layers['missing']``. These choices apply to the feature matrix, not to unknown metadata such as unavailable calibration values. Check object and feature counts after choosing a dropping policy. Scanpy operations such as scaling and PCA need missing feature values to be handled before use."
+msgstr "대체(imputation) 정책은 원래의 누락 위치를 ``layers['missing']`` 에 보존합니다. 이 선택은 특징 행렬에 적용되며, 사용할 수 없는 보정값과 같은 알 수 없는 메타데이터에는 적용되지 않습니다. 제거 정책을 선택한 후에는 객체 수와 특징 수를 확인합니다. 스케일링이나 PCA 같은 Scanpy 연산을 사용하려면 먼저 누락된 특징값을 처리해야 합니다."
+
+msgid "Inspect the output"
+msgstr "출력 검토"
+
+msgid "``X`` contains the object-by-feature matrix, ``obs`` contains object metadata, and ``var`` describes the features. Keep the source images and their paths: image pixels are not embedded in the export. With the Annotate example, a cell-only export using ``keep`` has 2,341 objects, 261 features and 28 missing feature values."
+msgstr "``X`` 에는 객체×특징 행렬이, ``obs`` 에는 객체 메타데이터가 들어 있으며, ``var`` 는 특징을 설명합니다. 원본 이미지와 그 경로를 보관합니다. 이미지 픽셀은 내보낸 파일에 포함되지 않습니다. 어노테이션 예제에서 ``keep`` 옵션을 사용한 세포 전용 내보내기에는 객체 2,341개, 특징 261개, 누락된 특징값 28개가 있습니다."
+
+msgid "Export from Python"
+msgstr "Python에서 내보내기"
+
+msgid "The following uses the same entry point as the application's **Run** button:"
+msgstr "다음 코드는 애플리케이션의 **실행** 버튼과 같은 진입점을 사용합니다."
+
+msgid "For explicit function arguments, see :func:`spacr.anndata_export.export_anndata`."
+msgstr "명시적인 함수 인수는 :func:`spacr.anndata_export.export_anndata` 를 참조합니다."
+
+msgid "Follow the video"
+msgstr "동영상 따라 하기"
+
+msgid "The `AnnData video <tutorials/#lesson=59_anndata_export>`__ walks through these controls using the downloadable measurement example. It shows joined, cell-only and nucleus-only exports and compares the missing-value policies. The normal exporter handles entirely missing metadata directly. If writing a replacement fails, an existing completed output is preserved."
+msgstr "`AnnData 동영상 <tutorials/#lesson=59_anndata_export>`__ 은 다운로드 가능한 측정 예제를 사용하여 이 컨트롤을 차례로 설명합니다. 결합 내보내기, 세포 전용 및 핵 전용 내보내기를 보여 주고 누락값 정책을 비교합니다. 일반 내보내기 도구는 완전히 누락된 메타데이터를 직접 처리합니다. 대체 파일 쓰기에 실패하면 기존의 완성된 출력이 보존됩니다."
+

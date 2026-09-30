@@ -508,3 +508,51 @@ def test_a_late_part_of_a_glassed_dialog_is_glassed_too(qtbot):
     assert holder.property(TRANSPARENT_PROPERTY) is True
     assert button.property(TRANSPARENT_PROPERTY) is None
     assert button.property(glass.SPINS) is True
+
+
+def test_a_late_opaque_part_keeps_its_paint_and_no_card_means_no_spin(qtbot):
+    """A control that paints itself (a line edit) is not made transparent,
+    and a glassed dialog with no setup card has no rim to send round."""
+    from PySide6.QtWidgets import QDialog, QLineEdit, QVBoxLayout
+
+    from spacr.qt.theme import TRANSPARENT_PROPERTY
+    from spacr.qt.widgets import glass
+
+    dialog = QDialog()
+    qtbot.addWidget(dialog)
+    dialog.setProperty(glass.GLASSED, True)
+    line = QLineEdit()
+    QVBoxLayout(dialog).addWidget(line)
+    assert glass._glass_a_part_that_came_later(dialog, line) == 0
+    assert line.property(TRANSPARENT_PROPERTY) is None
+    assert line.property(glass.SPINS) is None
+
+
+def test_a_late_part_that_will_not_go_transparent_is_only_logged(
+        qtbot, monkeypatch, caplog):
+    """Neither a theme that refuses nor a card search that fails costs the
+    dialog its new part; each is a DEBUG line."""
+    import logging
+
+    from PySide6.QtWidgets import QDialog, QVBoxLayout
+
+    from spacr.qt import theme
+    from spacr.qt.widgets import glass
+
+    def refuse(*widgets):
+        raise RuntimeError("no transparency here")
+
+    dialog = QDialog()
+    qtbot.addWidget(dialog)
+    dialog.setProperty(glass.GLASSED, True)
+    part = QWidget()
+    QVBoxLayout(dialog).addWidget(part)
+    monkeypatch.setattr(theme, "make_transparent", refuse)
+
+    def no_children(*args, **kwargs):
+        raise RuntimeError("the dialog is being torn down")
+
+    monkeypatch.setattr(dialog, "findChildren", no_children)
+    with caplog.at_level(logging.DEBUG, logger=glass.LOG.name):
+        assert glass._glass_a_part_that_came_later(dialog, part) == 0
+    assert "a late part would not go transparent" in caplog.text

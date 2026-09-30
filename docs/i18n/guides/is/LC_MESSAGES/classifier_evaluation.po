@@ -1,0 +1,207 @@
+# spaCR user guide translation (is).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: is\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Classifier evaluation workbench"
+msgstr "Vinnuborð fyrir mat á flokkurum"
+
+msgid "Classifier cross-validation retains every out-of-fold probability instead of reducing a fold to one accuracy number. The workbench has no tile of its own: it opens from the **Classify** masthead, because judging a classifier is the sentence after training one. Press **Classifier Evaluation** there and drop a model/results folder onto the page. The scan runs in the background and finds every ``evaluation_manifest.json`` below that folder."
+msgstr "Víxlsannprófun flokkara varðveitir allar líkur utan hluta (out-of-fold) í stað þess að draga hvern hluta saman í eina nákvæmnistölu. Vinnuborðið hefur engan eigin reit: það opnast úr haus **Flokkun**, því að mat á flokkara er næsta skref eftir að hann er þjálfaður. Ýttu þar á **Mat á flokkara** og slepptu möppu með líkani/niðurstöðum á síðuna. Skönnunin keyrir í bakgrunni og finnur allar ``evaluation_manifest.json`` undir þeirri möppu."
+
+msgid "The workbench shows:"
+msgstr "Vinnuborðið sýnir:"
+
+msgid "overall accuracy, balanced accuracy, macro precision/recall/F1, log loss, and expected calibration error;"
+msgstr "heildarnákvæmni, jafnaða nákvæmni, fjölva-nákvæmni/-heimt/-F1, lograftap og vænta kvörðunarskekkju;"
+
+msgid "raw counts and row-normalized confusion matrices for any number of classes;"
+msgstr "hráar talningar og raðstöðluð ruglingsfylki fyrir hvaða fjölda flokka sem er;"
+
+msgid "the same metrics separately for every plate;"
+msgstr "sömu mælikvarða sérstaklega fyrir hverja plötu;"
+
+msgid "cross-fitted calibration curves and per-class reliability bins;"
+msgstr "víxlmátaða kvörðunarferla og áreiðanleikabil fyrir hvern flokk;"
+
+msgid "searchable held-out predictions with plate, well, field, object, confidence, and raw/calibrated class probabilities; and"
+msgstr "leitanlegar spár á geymdum gögnum með plötu, brunni, sjónsviði, hlut, öryggi og hráum/kvörðuðum flokkalíkum; og"
+
+msgid "an explicit leakage report for every outer and inner split."
+msgstr "skýra lekaskýrslu fyrir hverja ytri og innri skiptingu."
+
+msgid "Crop decoding and existing models"
+msgstr "Afkóðun myndskurða og fyrirliggjandi líkön"
+
+msgid "Image classifiers must see the same channel order and intensity conversion during training and prediction. New training runs use ``declared_uint8_v1`` and save it in the checkpoint's ``preprocessing.crop_loading_policy`` record. Folder and tar inputs use the same decoder: crop formats 1 and 3 already have declared channel order; format 2 has its channels reversed. EXIF orientation is applied before decoding."
+msgstr "Myndflokkarar verða að sjá sömu röð rása og styrkleikaumbreytingu við þjálfun og spá. Nýjar þjálfunarkeyrslur nota ``declared_uint8_v1`` og vista það í skráningunni ``preprocessing.crop_loading_policy`` í vistunarpunktinum. Möppu- og tar-inntök nota sama afkóðara: myndskurðarsnið 1 og 3 hafa þegar uppgefna röð rása; í sniði 2 er röð rásanna snúið við. EXIF-stefnu er beitt fyrir afkóðun."
+
+msgid "For unsigned 16-bit crops, decoding keeps the high byte instead of clipping every value above 255. For example, intensities ``[0, 256, 1024, 32768, 65535]`` become ``[0, 1, 4, 128, 255]``. This converts the classifier input to eight bits; it does not preserve the full precision of the original scientific image or modify that source file."
+msgstr "Fyrir 16 bita myndskurði án formerkis heldur afkóðunin hærra bætinu í stað þess að klippa öll gildi yfir 255. Til dæmis verður styrkurinn ``[0, 256, 1024, 32768, 65535]`` að ``[0, 1, 4, 128, 255]``. Þetta breytir inntaki flokkarans í átta bita; það varðveitir ekki fulla nákvæmni upphaflegu vísindamyndarinnar né breytir þeirri upprunaskrá."
+
+msgid "Existing checkpoints without a decoding record keep ``stored_pil_v1``, the historical PIL RGB conversion and stored channel order. spaCR reports this fallback when loading the model. This policy can clip high-bit-depth crops, but changing it for an already trained model would change its inputs. Retrain and evaluate a new model to adopt the new decoding policy. Resuming or fine-tuning retains the checkpoint's policy. Training and validation policies must agree, and fusion or teacher models with conflicting policies cannot be combined."
+msgstr "Fyrirliggjandi vistunarpunktar án afkóðunarskráningar halda ``stored_pil_v1``, sögulegu PIL RGB-umbreytingunni og vistaðri röð rása. spaCR tilkynnir þetta varaúrræði þegar líkanið er hlaðið. Þessi stefna getur klippt myndskurði með mikla bitadýpt, en ef henni væri breytt fyrir þegar þjálfað líkan myndu inntök þess breytast. Þjálfaðu og mettu nýtt líkan til að taka upp nýju afkóðunarstefnuna. Framhald eða fínstilling heldur stefnu vistunarpunktsins. Stefnur fyrir þjálfun og sannprófun verða að samræmast, og ekki er hægt að sameina samrunalíkön eða kennaralíkön með ósamrýmanlegum stefnum."
+
+msgid "When constructing loaders through the API, pass the checkpoint policy to ``crop_loading_policy`` in :func:`spacr.io.generate_loaders` or :func:`spacr.io.generate_cv_loaders`. Use :func:`spacr.classification_pixels.checkpoint_policy` to read that contract; :func:`spacr.classification_pixels.read_classification_image` and :func:`spacr.crops.decode_crop_image` document the decoding operations."
+msgstr "Þegar hleðslutæki eru smíðuð í gegnum API skaltu senda stefnu vistunarpunktsins í ``crop_loading_policy`` í :func:`spacr.io.generate_loaders` eða :func:`spacr.io.generate_cv_loaders`. Notaðu :func:`spacr.classification_pixels.checkpoint_policy` til að lesa þann samning; :func:`spacr.classification_pixels.read_classification_image` og :func:`spacr.crops.decode_crop_image` skjalfesta afkóðunaraðgerðirnar."
+
+msgid "Grouped and nested cross-validation"
+msgstr "Hópuð og hreiðruð víxlsannprófun"
+
+msgid "``cross_validation_folds`` controls the outer folds and ``cv_group_by`` keeps related fields, wells, or plates together. The default is well-grouped CV. Set ``nested_cv_inner_folds`` to two or more to enable true nested CV."
+msgstr "``cross_validation_folds`` stjórnar ytri hlutunum og ``cv_group_by`` heldur tengdum sjónsviðum, brunnum eða plötum saman. Sjálfgildið er víxlsannprófun hópuð eftir brunnum. Stilltu ``nested_cv_inner_folds`` á tvo eða fleiri til að virkja raunverulega hreiðraða víxlsannprófun."
+
+msgid "In ordinary CV, the outer validation fold is used for checkpoint selection and reported performance. This is fast and useful for routine comparisons, but can give a slightly optimistic estimate when many choices are made against that fold."
+msgstr "Í venjulegri víxlsannprófun er ytri sannprófunarhlutinn notaður bæði til að velja vistunarpunkt og til að tilkynna frammistöðu. Þetta er fljótlegt og gagnlegt fyrir venjubundinn samanburð en getur gefið örlítið bjartsýnt mat þegar mörg val eru gerð gagnvart þeim hluta."
+
+msgid "In nested CV, each outer training partition is split again. Models select checkpoints only against an inner validation fold; the untouched outer fold is used once for final scoring. The inner models form an ensemble for that outer fold. This costs ``cross_validation_folds * nested_cv_inner_folds`` training runs, but keeps model selection separate from performance estimation."
+msgstr "Í hreiðraðri víxlsannprófun er hverri ytri þjálfunarskiptingu skipt aftur. Líkön velja vistunarpunkta aðeins gagnvart innri sannprófunarhluta; ósnerti ytri hlutinn er notaður einu sinni fyrir lokaskor. Innri líkönin mynda samstæðu fyrir þann ytri hluta. Þetta kostar ``cross_validation_folds * nested_cv_inner_folds`` þjálfunarkeyrslur en heldur vali líkans aðskildu frá mati á frammistöðu."
+
+msgid "Leakage protection"
+msgstr "Vörn gegn leka"
+
+msgid "Before training, spaCR checks exact paths, augmentation families, objects and the configured grouping level on both sides of every split. With ``evaluation_fail_on_leakage=True`` (the default), any protected overlap raises an actionable error before model fitting. Augmentations are generated after splitting so transformed copies cannot enter a held-out fold."
+msgstr "Fyrir þjálfun athugar spaCR nákvæmar slóðir, gagnaaukningarfjölskyldur, hluti og stillt hópunarstig báðum megin við hverja skiptingu. Með ``evaluation_fail_on_leakage=True`` (sjálfgildið) kastar öll vernduð skörun villu sem hægt er að bregðast við áður en líkanið er mátað. Gagnaaukningar eru búnar til eftir skiptingu þannig að umbreytt afrit komast ekki inn í geymdan hluta."
+
+msgid "Temperature calibration"
+msgstr "Hitastigskvörðun"
+
+msgid "``evaluation_calibration=temperature`` fits a scalar temperature without using a prediction to calibrate itself. For each held-out outer fold, the temperature is fit only from the other folds. Set it to ``none`` to retain raw model probabilities. ``evaluation_bins`` controls the reliability table and expected calibration error resolution."
+msgstr "``evaluation_calibration=temperature`` mátar einvítt hitastig án þess að spá sé notuð til að kvarða sjálfa sig. Fyrir hvern geymdan ytri hluta er hitastigið aðeins mátað út frá hinum hlutunum. Stilltu það á ``none`` til að halda hráum líkum líkansins. ``evaluation_bins`` stjórnar áreiðanleikatöflunni og upplausn væntrar kvörðunarskekkju."
+
+msgid "Evaluation bundle"
+msgstr "Matspakki"
+
+msgid "The ``evaluation`` folder contains:"
+msgstr "Mappan ``evaluation`` inniheldur:"
+
+msgid "``oof_predictions.csv``"
+msgstr "``oof_predictions.csv``"
+
+msgid "One held-out row per crop, including identities and class probabilities."
+msgstr "Eina röð á geymdum gögnum fyrir hvern myndskurð, þar á meðal auðkenni og flokkalíkur."
+
+msgid "``confusion_counts.csv`` and ``confusion_normalized.csv``"
+msgstr "``confusion_counts.csv`` og ``confusion_normalized.csv``"
+
+msgid "Arbitrary-class confusion matrices."
+msgstr "Ruglingsfylki fyrir hvaða flokka sem er."
+
+msgid "``per_plate_metrics.csv`` and ``calibration.csv``"
+msgstr "``per_plate_metrics.csv`` og ``calibration.csv``"
+
+msgid "Plate-specific quality and reliability-bin statistics."
+msgstr "Plötusértæk gæði og tölfræði áreiðanleikabila."
+
+msgid "``leakage.json``"
+msgstr "``leakage.json``"
+
+msgid "The auditable split checks, overlap counts, examples and warnings."
+msgstr "Úttektarhæfar athuganir á skiptingum, fjöldi skarana, dæmi og viðvaranir."
+
+msgid "``summary.json`` and ``evaluation_manifest.json``"
+msgstr "``summary.json`` og ``evaluation_manifest.json``"
+
+msgid "Machine-readable overall results and the stable bundle schema."
+msgstr "Vélalæsilegar heildarniðurstöður og stöðugt skema pakkans."
+
+msgid "The Python entry points are :func:`spacr.classifier_evaluation.evaluate_predictions`, :func:`spacr.classifier_evaluation.audit_split_leakage`, :func:`spacr.classifier_evaluation.nested_group_folds`, :func:`spacr.classifier_evaluation.write_evaluation_bundle`, and :func:`spacr.classifier_evaluation.load_evaluation_bundle`."
+msgstr "Python-inngangspunktarnir eru :func:`spacr.classifier_evaluation.evaluate_predictions`, :func:`spacr.classifier_evaluation.audit_split_leakage`, :func:`spacr.classifier_evaluation.nested_group_folds`, :func:`spacr.classifier_evaluation.write_evaluation_bundle` og :func:`spacr.classifier_evaluation.load_evaluation_bundle`."
+
+msgid "Orientation stability during inference"
+msgstr "Stöðugleiki stefnu við ályktun"
+
+msgid "In **Classify**, with ``classifier_family`` set to ``cv``, the **Test-time augmentation** settings apply selected rotations and reflections when scoring phenotype crops. This is an inference option; it does not change training augmentation or the held-out evaluation procedure described above. Leave it disabled when orientation is biologically meaningful."
+msgstr "Í **Flokkun**, með ``classifier_family`` stillt á ``cv``, beita stillingarnar í **Gagnaaukning við ályktun** völdum snúningum og speglunum þegar skor eru reiknuð fyrir svipgerðarmyndskurði. Þetta er ályktunarvalkostur; hann breytir hvorki gagnaaukningu í þjálfun né matsferlinu á geymdum gögnum sem lýst er hér að ofan. Hafðu hann óvirkan þegar stefna hefur líffræðilega merkingu."
+
+msgid "Enable ``tta_enabled`` and choose the transformations to evaluate:"
+msgstr "Virkjaðu ``tta_enabled`` og veldu umbreytingarnar sem á að meta:"
+
+msgid "``tta_rotations`` adds 90, 180 and 270 degree rotations without pixel interpolation."
+msgstr "``tta_rotations`` bætir við snúningum um 90, 180 og 270 gráður án pixlabrúunar."
+
+msgid "``tta_horizontal_flip`` adds horizontal reflections of the selected rotations; ``tta_vertical_flip`` adds vertical reflections."
+msgstr "``tta_horizontal_flip`` bætir við láréttum speglunum valinna snúninga; ``tta_vertical_flip`` bætir við lóðréttum speglunum."
+
+msgid "The original orientation is always included. Equivalent orientations are evaluated once, giving at most eight views when all options are enabled. Enabling the feature without selecting transformations evaluates only the original view."
+msgstr "Upphaflega stefnan er alltaf tekin með. Jafngildar stefnur eru metnar einu sinni, sem gefur að hámarki átta sjónarhorn þegar allir valkostir eru virkir. Ef eiginleikinn er virkjaður án þess að velja umbreytingar er aðeins upphaflega sjónarhornið metið."
+
+msgid "``tta_aggregation=probability_mean`` selects a label from the mean class probabilities. ``majority_vote`` instead counts the labels of individual views; ties prefer the higher mean probability, then the lower class index. For binary predictions, ``score_threshold`` labels each view before agreement and voting are calculated."
+msgstr "``tta_aggregation=probability_mean`` velur merki út frá meðaltali flokkalíkna. ``majority_vote`` telur í staðinn merki einstakra sjónarhorna; við jafntefli er hærri meðallíkum gefinn forgangur og síðan lægri flokkavísi. Fyrir tvíundarspár merkir ``score_threshold`` hvert sjónarhorn áður en samræmi og atkvæði eru reiknuð."
+
+msgid "The enabled output retains both the original prediction and the aggregated result:"
+msgstr "Virkt úttak varðveitir bæði upphaflegu spána og samantekna niðurstöðu:"
+
+msgid "Column"
+msgstr "Fólkið"
+
+msgid "Meaning"
+msgstr "Merking"
+
+msgid "``pred``, ``prediction_mean``"
+msgstr "``pred``, ``prediction_mean``"
+
+msgid "Mean positive-class probability for binary output, or mean probability of the selected class for multiclass output."
+msgstr "Meðallíkur jákvæða flokksins fyrir tvíundarúttak, eða meðallíkur valda flokksins fyrir fjölflokkaúttak."
+
+msgid "``predicted_label``"
+msgstr "``predicted_label``"
+
+msgid "Class selected by the configured aggregation method. The tar workflow's ``cv_predictions`` uses this label too."
+msgstr "Flokkur sem stillta samantektaraðferðin velur. ``cv_predictions`` í tar-verkflæðinu notar einnig þetta merki."
+
+msgid "``original_pred``, ``original_predicted_label``"
+msgstr "``original_pred``, ``original_predicted_label``"
+
+msgid "Score and label from the original orientation before aggregation."
+msgstr "Skor og merki úr upphaflegu stefnunni fyrir samantekt."
+
+msgid "``prediction_std``"
+msgstr "``prediction_std``"
+
+msgid "Population standard deviation across views of the positive-class probability for binary output, or the selected-class probability for multiclass output."
+msgstr "Þýðisstaðalfrávik yfir sjónarhorn fyrir líkur jákvæða flokksins í tvíundarúttaki, eða líkur valda flokksins í fjölflokkaúttaki."
+
+msgid "``transform_agreement``"
+msgstr "``transform_agreement``"
+
+msgid "Fraction of view labels matching the selected label."
+msgstr "Hlutfall merkja sjónarhorna sem passa við valda merkið."
+
+msgid "``review_flag``, ``tta_views``"
+msgstr "``review_flag``, ``tta_views``"
+
+msgid "Whether the stability thresholds request review, and the number of distinct views scored."
+msgstr "Hvort stöðugleikaþröskuldarnir kalla á yfirferð og fjöldi ólíkra sjónarhorna sem fengu skor."
+
+msgid "``prob_class_<i>``, ``original_prob_class_<i>``, ``prob_class_<i>_std``"
+msgstr "``prob_class_<i>``, ``original_prob_class_<i>``, ``prob_class_<i>_std``"
+
+msgid "Mean probability, original probability and population standard deviation for each class index."
+msgstr "Meðallíkur, upphaflegar líkur og þýðisstaðalfrávik fyrir hvern flokkavísi."
+
+msgid "With majority voting, retain ``predicted_label`` or ``cv_predictions`` as the selected result. Thresholding ``pred`` again can produce a different label because ``pred`` still stores a mean probability."
+msgstr "Með meirihlutakosningu skaltu halda ``predicted_label`` eða ``cv_predictions`` sem valinni niðurstöðu. Ef ``pred`` er aftur borið við þröskuld getur það gefið annað merki því að ``pred`` geymir enn meðallíkur."
+
+msgid "An object is flagged when agreement is below ``tta_min_agreement`` (default 0.75) or probability standard deviation exceeds ``tta_max_std`` (default 0.15). Agreement measures stability across orientations, not calibrated confidence or accuracy on independent data. Compare results on a separate validation set before choosing these options for an experiment."
+msgstr "Hlutur er merktur þegar samræmi er undir ``tta_min_agreement`` (sjálfgildi 0,75) eða staðalfrávik líkna fer yfir ``tta_max_std`` (sjálfgildi 0,15). Samræmi mælir stöðugleika yfir stefnur, ekki kvarðað öryggi eða nákvæmni á óháðum gögnum. Berðu saman niðurstöður á aðskildu sannprófunarsafni áður en þú velur þessa valkosti fyrir tilraun."
+
+msgid "For directory input, pass the options as keyword arguments to :func:`spacr.deep_spacr.apply_model`. For tar input, supply the same keys in the settings passed to :func:`spacr.deep_spacr.apply_model_to_tar`. :func:`spacr.inference_augmentation.transforms_for` defines the distinct views and :func:`spacr.inference_augmentation.predict_augmented` documents the aggregation contract. Disabled augmentation preserves ordinary inference."
+msgstr "Fyrir möppuinntak skaltu senda valkostina sem lykilorðsviðföng til :func:`spacr.deep_spacr.apply_model`. Fyrir tar-inntak skaltu leggja til sömu lykla í stillingunum sem sendar eru til :func:`spacr.deep_spacr.apply_model_to_tar`. :func:`spacr.inference_augmentation.transforms_for` skilgreinir ólíku sjónarhornin og :func:`spacr.inference_augmentation.predict_augmented` skjalfestir samantektarsamninginn. Óvirk gagnaaukning varðveitir venjulega ályktun."
+

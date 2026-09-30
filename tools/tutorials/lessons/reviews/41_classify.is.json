@@ -1,10 +1,10 @@
 {
   "lesson": "41_classify",
-  "english_sha256": "5b39387350fde1fe2b622ffe6160d4e301eef74ccdb0f41045f95219d0ee7b69",
+  "english_sha256": "4485df04c4ce5e1db32e2d619de962f72cd60ad1d2c8391358d33540c552f7c6",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -21,9 +21,10 @@
   "scenes": [
     "Opnaðu Classify frá Home. Byrjaðu á því að velja flokkarafjölskyldu. Kennslustundirnar um myndir og töflugögn sem tengt er í hér fara hvor um sig í gegnum heilt dæmi.",
     "Veldu Computer Vision til að læra af myndum af hlutum. Veldu Tabular Machine Learning til að læra af dálkum mældra eiginleika. Measure leggur til þessi inntök og í Annotate geturðu bætt merkjum við hluti.",
+    "Essentials-yfirlitið geymir stillingarnar sem báðar fjölskyldurnar þurfa til þjálfunar. Þegar þú skiptir yfir í Tabular Machine Learning verða Computer Vision-stillingarnar gráar, svo þú fyllir aðeins út það sem valin fjölskylda notar.",
     "Fyrir töfludæmið smellirðu á Load test data og velur Load. Veldu flokkamerki og stillingar eiginleika og fylgdu svo töflukennslustundinni til að þjálfa líkanið og vista spár.",
     "Eftir töflukeyrsluna skoðarðu hitakort spánna og vistuð stig hluta. Hlutir sem vantar nauðsynlegar mælingar geta verið án stiga. Farðu yfir matsniðurstöðurnar til að ákveða hvort breyta þurfi merkjum, eiginleikum eða stillingum líkans.",
-    "Fyrir myndflokkun fylgirðu Computer Vision-kennslustundinni til að útbúa merkt úrklipp, velja líkan og stilla skiptingu í þjálfun, staðfestingu og prófun. Eftir þjálfun skoðarðu matsmyndritin og vistuðu spárnar.",
+    "Fyrir myndflokkun fylgir þú Computer Vision-kennslustundinni til að undirbúa merktar úrklippur, velja líkan og stilla skiptingu í þjálfun, sannprófun og prófun. Eftir þjálfun skoðar þú tap- og nákvæmniferlana og síðan matsmyndirnar og vistaðar spár.",
     "Opnaðu Classifier Evaluation úr tólunum efst til hægri. Veldu vistaðan matspakka til að skoða spár, mælikvarða og skiptingu gagna.",
     "Opnaðu Explain CV til að tengja spár myndflokkara við mælda eiginleika. Leggðu fram spániðurstöður mynda og samsvarandi mælingar og skoðaðu svo hvaða eiginleikar skýra stigin.",
     "Opnaðu Activation til að sjá hvaða svæði myndar hafa áhrif á svörun líkansins. Veldu þjálfaða vistunarpunktinn og notaðu sömu myndrásir og forvinnslu og í þjálfuninni.",

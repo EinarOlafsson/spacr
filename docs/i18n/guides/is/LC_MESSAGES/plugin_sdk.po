@@ -1,0 +1,308 @@
+# spaCR user guide translation (is).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: is\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "spaCR plugin SDK"
+msgstr "Viðbóta-SDK spaCR"
+
+msgid "The plugin SDK lets a separately installed Python package add assays, importers, analysis utilities, settings panels, model-zoo entries and report sections without editing spaCR. Plugins use Python package entry points, so spaCR discovers them at startup and keeps them available to both the Qt application and ``spacr-run``."
+msgstr "Viðbóta-SDK gerir sérstaklega uppsettum Python-pakka kleift að bæta við prófunum, innflytjendum, greiningartólum, stillingaspjöldum, færslum í líkanasafnið og skýrsluköflum án þess að breyta spaCR. Viðbætur nota inngangspunkta Python-pakka, svo spaCR finnur þær við ræsingu og heldur þeim tiltækum bæði fyrir Qt-forritið og ``spacr-run``."
+
+msgid "The current SDK API is ``1.0``. Only the major version controls compatibility: a plugin declaring API ``1.x`` works with spaCR's ``1.x`` SDK. A malformed or failing plugin is isolated and reported by ``spacr-plugins doctor``; it cannot replace a built-in module or prevent spaCR from starting."
+msgstr "Núverandi SDK-API er ``1.0``. Aðeins aðalútgáfan stjórnar samhæfni: viðbót sem gefur upp API ``1.x`` virkar með ``1.x``-SDK spaCR. Gölluð viðbót eða viðbót sem bilar er einangruð og tilkynnt af ``spacr-plugins doctor``; hún getur ekki komið í stað innbyggðrar einingar eða hindrað að spaCR ræsist."
+
+msgid "Minimal plugin"
+msgstr "Lágmarksviðbót"
+
+msgid "Declare the entry point in the plugin package's ``pyproject.toml``:"
+msgstr "Lýstu inngangspunktinum yfir í ``pyproject.toml`` viðbótapakkans:"
+
+msgid "Then expose a manifest:"
+msgstr "Birtu síðan skrá (manifest):"
+
+msgid "The pipeline callable receives one settings dictionary. The defaults callable must accept an optional settings dictionary and return a dictionary. A validator returns :class:`spacr.validate.Problem` objects (or equivalent mappings). All processing still runs through spaCR's worker, journal, cancellation and reproducibility paths."
+msgstr "Kallanlega vinnslukeðjan tekur við einni stillingaorðabók. Kallanlega sjálfgildafallið verður að taka við valkvæðri stillingaorðabók og skila orðabók. Sannprófari skilar :class:`spacr.validate.Problem`-hlutum (eða jafngildum vörpunum). Öll vinnsla fer samt í gegnum vinnsluþráð, dagbók, afturköllun og endurtakanleikaleiðir spaCR."
+
+msgid "Settings and custom screens"
+msgstr "Stillingar og sérsniðnir skjáir"
+
+msgid "The generic settings screen is preferred: declare ``categories``, ``tooltips`` and optional ``labels`` on :class:`spacr.plugins.AppContribution`. The UI then provides the normal Run/Stop controls, console, progress reporting, API links, drag-and-drop fallback and remote-submit action."
+msgstr "Almenni stillingaskjárinn er æskilegri: lýstu yfir ``categories``, ``tooltips`` og valkvæðum ``labels`` á :class:`spacr.plugins.AppContribution`. Viðmótið býður þá upp á venjulegu Run/Stop-stýringarnar, stjórnborð, framvinduskýrslur, API-tengla, varaúrræði fyrir draga-og-sleppa og aðgerð fyrir fjarsendingu."
+
+msgid "For a layout the generic screen cannot express, set ``screen_factory`` to a ``module:callable``. The callable is invoked as ``factory(app_key=...)`` and must return a ``PySide6.QtWidgets.QWidget``. A custom ``drop_handler`` must be a subclass of ``spacr.qt.dnd_handlers.DropHandler``. ``icon`` may name a spaCR semantic icon or an absolute image path; otherwise the normal puzzle piece fallback is used."
+msgstr "Fyrir uppsetningu sem almenni skjárinn getur ekki tjáð skaltu stilla ``screen_factory`` á ``module:callable``. Kallað er á hið kallanlega sem ``factory(app_key=...)`` og það verður að skila ``PySide6.QtWidgets.QWidget``. Sérsniðinn ``drop_handler`` verður að vera undirklasi ``spacr.qt.dnd_handlers.DropHandler``. ``icon`` má nefna merkingarbært tákn spaCR eða algilda myndslóð; annars er venjulega púslbitatáknið notað."
+
+msgid "Model providers"
+msgstr "Líkanaveitur"
+
+msgid "Add a :class:`spacr.plugins.ModelProviderContribution`. Its zero-argument callable returns an iterable of :class:`spacr.model_zoo.ModelEntry` objects or the mappings accepted by spaCR's JSON model catalogue."
+msgstr "Bættu við :class:`spacr.plugins.ModelProviderContribution`. Kallanlegt fall hennar án viðfanga skilar ítranlegu safni af :class:`spacr.model_zoo.ModelEntry`-hlutum eða vörpunum sem JSON-líkanaskrá spaCR tekur við."
+
+msgid "Providers must be read-only during catalogue discovery. Downloads remain an explicit Model Zoo action. A provider exception is shown by ``spacr-plugins doctor`` and built-in models remain available."
+msgstr "Veitur verða að vera eingöngu til lesturs meðan leitað er í líkanaskránni. Niðurhal er áfram skýr aðgerð í Líkanasafni. ``spacr-plugins doctor`` sýnir undantekningu frá veitu og innbyggð líkön eru áfram tiltæk."
+
+msgid "Report sections"
+msgstr "Skýrslukaflar"
+
+msgid "A :class:`spacr.plugins.ReportSectionContribution` builder receives a read-only :class:`spacr.plugins.ReportContext` and returns a :class:`spacr.report.Section`:"
+msgstr "Smiður :class:`spacr.plugins.ReportSectionContribution` tekur við :class:`spacr.plugins.ReportContext` sem er eingöngu til lesturs og skilar :class:`spacr.report.Section`:"
+
+msgid "If the builder raises, the generated report contains a visible problem chapter with the exception instead of silently omitting the section."
+msgstr "Ef smiðurinn kastar undantekningu inniheldur útbúna skýrslan sýnilegan vandamálakafla með undantekningunni í stað þess að kaflanum sé sleppt án þess að láta vita."
+
+msgid "Translations"
+msgstr "Þýðingar"
+
+msgid "``SpacrPlugin.translations`` maps spaCR language codes to English-source / translated-text mappings. Supported codes are ``sv``, ``de``, ``es``, ``zh_CN``, ``pt``, ``hi``, ``ko``, ``is`` and ``fr``. Missing strings fall back to English."
+msgstr "``SpacrPlugin.translations`` varpar tungumálakóðum spaCR á vörpun frá enskum upprunatexta í þýddan texta. Studdir kóðar eru ``sv``, ``de``, ``es``, ``zh_CN``, ``pt``, ``hi``, ``ko``, ``is`` og ``fr``. Strengir sem vantar falla aftur á ensku."
+
+msgid "Development and diagnostics"
+msgstr "Þróun og greining"
+
+msgid "During local development only, point ``SPACR_PLUGIN_MODULES`` at a comma-separated list of ``module:attribute`` references. Set ``SPACR_DISABLE_PLUGINS=1`` to start spaCR without third-party plugins."
+msgstr "Aðeins við staðbundna þróun skaltu láta ``SPACR_PLUGIN_MODULES`` vísa á kommuaðgreindan lista af ``module:attribute``-tilvísunum. Stilltu ``SPACR_DISABLE_PLUGINS=1`` til að ræsa spaCR án viðbóta frá þriðja aðila."
+
+msgid "The public SDK lives in :mod:`spacr.plugins`; the diagnostics command lives in :mod:`spacr.cli_plugins`."
+msgstr "Opinbera SDK-ið er í :mod:`spacr.plugins`; greiningarskipunin er í :mod:`spacr.cli_plugins`."
+
+msgid "API reference"
+msgstr "API-tilvísun"
+
+msgid "Versioned extension SDK for third-party spaCR plugins."
+msgstr "Útgáfumerkt viðbóta-SDK fyrir spaCR-viðbætur frá þriðja aðila."
+
+msgid "Plugins are ordinary Python distributions exposing one entry point in the ``spacr.plugins`` group.  The entry point may resolve to a :class:`SpacrPlugin`, a mapping accepted by :func:`plugin_from_mapping`, or a zero-argument factory returning either.  Discovery is lazy, deterministic and failure-isolated: one malformed plugin is recorded in :func:`diagnostics` without preventing spaCR or the remaining plugins from loading."
+msgstr "Viðbætur eru venjulegar Python-dreifingar sem birta einn inngangspunkt í hópnum ``spacr.plugins``.  Inngangspunkturinn getur leyst í :class:`SpacrPlugin`, vörpun sem :func:`plugin_from_mapping` tekur við, eða smiðju án viðfanga sem skilar öðru hvoru.  Leit er löt, ákvörðunarbundin og einangruð gagnvart villum: ein gölluð viðbót er skráð í :func:`diagnostics` án þess að hindra að spaCR eða hinar viðbæturnar hlaðist."
+
+msgid "For editable/local development, ``SPACR_PLUGIN_MODULES`` may contain a comma-separated list of ``module`` or ``module:attribute`` references. Installed plugins should always use package entry points instead."
+msgstr "Fyrir breytanlega/staðbundna þróun getur ``SPACR_PLUGIN_MODULES`` innihaldið kommuaðgreindan lista af ``module``- eða ``module:attribute``-tilvísunum. Uppsettar viðbætur ættu alltaf að nota inngangspunkta pakka í staðinn."
+
+msgid "Plugins and assay recipes can also be installed from a catalogue, a JSON file listing each entry's version, author and licence. A catalogue plugin is installed into its own folder under ``~/.spacr/plugins`` (or ``SPACR_PLUGIN_HOME``), together with the libraries it asks for, so it never replaces or upgrades a package spaCR itself uses; it is discovered like any other plugin until it is uninstalled."
+msgstr "Viðbætur og prófunaruppskriftir er einnig hægt að setja upp úr vörulista, JSON-skrá sem tilgreinir útgáfu, höfund og leyfi hverrar færslu. Viðbót úr vörulista er sett upp í eigin möppu undir ``~/.spacr/plugins`` (eða ``SPACR_PLUGIN_HOME``), ásamt söfnunum sem hún biður um, svo hún kemur aldrei í stað né uppfærir pakka sem spaCR notar sjálft; hún finnst eins og hver önnur viðbót þar til hún er fjarlægð."
+
+msgid "Setting ``SPACR_DISABLE_PLUGINS`` to ``1``, ``true``, ``yes`` or ``on`` (case-insensitively) skips discovery entirely, so no plugin loads from either source."
+msgstr "Ef ``SPACR_DISABLE_PLUGINS`` er stillt á ``1``, ``true``, ``yes`` eða ``on`` (óháð há- og lágstöfum) er leit sleppt alfarið, svo engin viðbót hleðst frá hvorugum uppruna."
+
+msgid "One runnable GUI/headless application contributed by a plugin."
+msgstr "Eitt keyranlegt forrit með eða án myndræns viðmóts sem viðbót leggur til."
+
+#, python-brace-format
+msgid "Discovery rejects the contribution with :exc:`ValueError` when ``section``, ``stage``, ``kind`` or ``call_style`` falls outside the fixed vocabulary listed below, when ``key`` does not match ``^[a-z][a-z0-9_]{1,63}$``, or when any non-empty ``module:callable`` reference is malformed."
+msgstr "Leitin hafnar framlaginu með :exc:`ValueError` þegar ``section``, ``stage``, ``kind`` eða ``call_style`` falla utan fasta orðaforðans sem talinn er upp hér að neðan, þegar ``key`` passar ekki við ``^[a-z][a-z0-9_]{1,63}$``, eða þegar einhver ``module:callable``-tilvísun sem er ekki tóm er gölluð."
+
+msgid "Variables"
+msgstr "Breytur"
+
+#, python-brace-format
+msgid "identifier the CLI accepts and the GUI registers under; must match ``^[a-z][a-z0-9_]{1,63}$``. Reusing another plugin's key fails that plugin's load; colliding with a built-in app skips the contribution and records a diagnostic."
+msgstr "auðkenni sem CLI tekur við og GUI skráir undir; verður að passa við ``^[a-z][a-z0-9_]{1,63}$``. Endurnotkun lykils annarrar viðbótar veldur því að hleðsla þeirrar viðbótar mistekst; árekstur við innbyggt forrit sleppir framlaginu og skráir greiningu."
+
+msgid "human-readable title shown in the sidebar and screen header; cannot be blank."
+msgstr "læsilegur titill sem sýndur er í hliðarstikunni og haus skjásins; má ekki vera auður."
+
+msgid "one-line blurb used as the app intro and the ``spacr-run --list`` summary; cannot be blank."
+msgstr "einnar línu lýsing sem notuð er sem kynning forritsins og samantekt ``spacr-run --list``; má ekki vera auð."
+
+msgid "``\"module:callable\"`` reference to the callable that does the work."
+msgstr "``\"module:callable\"``-tilvísun í hið kallanlega sem vinnur verkið."
+
+#, python-brace-format
+msgid "``\"module:callable\"`` reference to a helper returning the settings dictionary; called with ``{}`` and retried with no argument."
+msgstr "``\"module:callable\"``-tilvísun í hjálparfall sem skilar stillingaorðabókinni; kallað með ``{}`` og reynt aftur án viðfangs."
+
+msgid "sidebar group; one of ``\"core\"``, ``\"data\"``, ``\"models\"``, ``\"results\"`` or ``\"toxo\"``."
+msgstr "hópur í hliðarstiku; einn af ``\"core\"``, ``\"data\"``, ``\"models\"``, ``\"results\"`` eða ``\"toxo\"``."
+
+msgid "maturity annotation; one of ``\"alpha\"``, ``\"beta\"`` or ``\"stable\"``."
+msgstr "þroskamerking; ein af ``\"alpha\"``, ``\"beta\"`` eða ``\"stable\"``."
+
+msgid "what the app is; one of ``\"assay\"``, ``\"importer\"``, ``\"analysis\"`` or ``\"utility\"``."
+msgstr "hvað forritið er; eitt af ``\"assay\"``, ``\"importer\"``, ``\"analysis\"`` eða ``\"utility\"``."
+
+msgid "settings-screen tabs, mapping a tab name to the setting keys it holds; empty means the generic ungrouped layout."
+msgstr "flipar stillingaskjásins, varpar heiti flipa á stillingalyklana sem hann geymir; tómt þýðir almenna óhópaða uppsetningu."
+
+msgid "hover text per setting key."
+msgstr "svifatexti fyrir hvern stillingalykil."
+
+msgid "display label per setting key, overriding the generated one."
+msgstr "birtingarmerki fyrir hvern stillingalykil, sem hnekkir því sem búið er til sjálfvirkt."
+
+msgid "address the settings screen's API link opens."
+msgstr "slóð sem API-tengill stillingaskjásins opnar."
+
+msgid "extra names the CLI and :mod:`spacr.validate` resolve to :attr:`key`."
+msgstr "aukaheiti sem CLI og :mod:`spacr.validate` leysa í :attr:`key`."
+
+msgid "optional ``\"module:callable\"`` reference to a callable taking the settings dict and returning ``spacr.validate.Problem`` objects or equivalent mappings."
+msgstr "valkvæð ``\"module:callable\"``-tilvísun í kallanlegt fall sem tekur stillingaorðabókina og skilar ``spacr.validate.Problem``-hlutum eða jafngildum vörpunum."
+
+msgid "optional ``\"module:callable\"`` reference to a factory returning a ``QWidget``, replacing the generic settings screen; it is always invoked as ``factory(app_key=...)`` and so must accept that keyword."
+msgstr "valkvæð ``\"module:callable\"``-tilvísun í smiðju sem skilar ``QWidget`` og kemur í stað almenna stillingaskjásins; alltaf er kallað á hana sem ``factory(app_key=...)`` og hún verður því að taka við því lykilorði."
+
+msgid "optional ``\"module:callable\"`` reference to a ``spacr.qt.dnd_handlers.DropHandler`` subclass."
+msgstr "valkvæð ``\"module:callable\"``-tilvísun í undirklasa ``spacr.qt.dnd_handlers.DropHandler``."
+
+msgid "absolute image path, or the name of a spaCR semantic icon; empty falls back to the puzzle-piece icon."
+msgstr "algild myndslóð eða heiti merkingarbærs tákns spaCR; tómt fellur aftur á púslbitatáknið."
+
+msgid "settings the user must supply, phrased for a human."
+msgstr "stillingar sem notandinn verður að leggja til, orðaðar fyrir manneskju."
+
+msgid "what the app leaves on disk."
+msgstr "hvað forritið skilur eftir á diski."
+
+msgid "``\"settings\"`` for ``fn(settings_dict)``; ``\"folder\"`` for a callable taking a bare path."
+msgstr "``\"settings\"`` fyrir ``fn(settings_dict)``; ``\"folder\"`` fyrir kallanlegt fall sem tekur bera slóð."
+
+msgid "Immutable record naming a plugin's model-zoo provider."
+msgstr "Óbreytanleg skráning sem nefnir líkanasafnsveitu viðbótar."
+
+msgid "Parameters"
+msgstr "Færibreytur"
+
+#, python-brace-format
+msgid "identifier for the provider; must match ``^[a-z][a-z0-9_]{1,63}$`` and be unique across all loaded plugins."
+msgstr "auðkenni veitunnar; verður að passa við ``^[a-z][a-z0-9_]{1,63}$`` og vera einkvæmt yfir allar hlaðnar viðbætur."
+
+msgid "``\"module:callable\"`` reference string -- not the callable itself -- resolved at catalogue time to a zero-argument callable returning model-zoo entries or entry mappings."
+msgstr "``\"module:callable\"``-tilvísunarstrengur -- ekki hið kallanlega sjálft -- sem leyst er úr þegar vörulistinn er settur saman í kallanlegt fall án viðfanga sem skilar færslum líkanasafns eða færsluvörpunum."
+
+msgid "One discovery or contribution error visible to users and logs."
+msgstr "Ein villa við leit eða framlag sem er sýnileg notendum og í annálum."
+
+msgid "entry-point or manifest name identifying the plugin that could not be loaded."
+msgstr "heiti inngangspunkts eða skrár sem auðkennir viðbótina sem ekki var hægt að hlaða."
+
+msgid "diagnostic level, such as ``\"error\"`` or ``\"warning\"``."
+msgstr "greiningarstig, svo sem ``\"error\"`` eða ``\"warning\"``."
+
+msgid "concise user-facing account of the failed operation."
+msgstr "hnitmiðuð lýsing fyrir notanda á aðgerðinni sem mistókst."
+
+msgid "captured exception text with the technical cause; empty when no exception accompanied the diagnostic."
+msgstr "gripinn undantekningartexti með tæknilegu orsökinni; tómur þegar engin undantekning fylgdi greiningunni."
+
+msgid "Read-only inputs passed to plugin report-section builders."
+msgstr "Inntök eingöngu til lesturs sem send eru smiðum skýrslukafla viðbóta."
+
+msgid "source folder or object from which the core report is built."
+msgstr "upprunamappa eða hlutur sem kjarnaskýrslan er byggð úr."
+
+msgid "named core report artifacts available for reuse by the plugin section."
+msgstr "nefndar afurðir kjarnaskýrslunnar sem kafli viðbótarinnar getur endurnýtt."
+
+msgid "immutable sequence of recorded run summaries associated with the report source."
+msgstr "óbreytanleg runa skráðra keyrslusamantekta sem tengjast uppruna skýrslunnar."
+
+msgid "report-generation options supplied by the caller."
+msgstr "valkostir fyrir skýrslugerð sem kallandinn leggur til."
+
+msgid "Immutable record naming a builder that adds one report section."
+msgstr "Óbreytanleg skráning sem nefnir smið sem bætir við einum skýrslukafla."
+
+msgid ":func:`spacr.report.collect_report` resolves and calls the builder, and substitutes a visible problem section if it fails."
+msgstr ":func:`spacr.report.collect_report` leysir og kallar á smiðinn og setur sýnilegan vandamálakafla í staðinn ef hann bilar."
+
+#, python-brace-format
+msgid "stable section identifier; plugin validation requires ``^[a-z][a-z0-9_]{1,63}$`` and discovery rejects duplicate contribution keys."
+msgstr "stöðugt auðkenni kafla; sannprófun viðbóta krefst ``^[a-z][a-z0-9_]{1,63}$`` og leitin hafnar tvíteknum lyklum framlaga."
+
+msgid "fallback section heading used when the builder returns no title and when the builder fails; cannot be blank."
+msgstr "varafyrirsögn kafla sem notuð er þegar smiðurinn skilar engum titli og þegar smiðurinn bilar; má ekki vera auð."
+
+msgid "``\"module:callable\"`` reference resolved at report collection to a callable taking :class:`ReportContext` and returning a :class:`spacr.report.Section`."
+msgstr "``\"module:callable\"``-tilvísun sem leyst er við söfnun skýrslu í kallanlegt fall sem tekur :class:`ReportContext` og skilar :class:`spacr.report.Section`."
+
+msgid "existing section key after which this section is inserted; an unmatched key appends it to the report."
+msgstr "lykill fyrirliggjandi kafla sem þessum kafla er skeytt inn á eftir; lykill sem passar ekki bætir honum aftast í skýrsluna."
+
+msgid "Validated plugin manifest returned by a ``spacr.plugins`` entry point."
+msgstr "Sannprófuð viðbótaskrá sem ``spacr.plugins``-inngangspunktur skilar."
+
+msgid "human-readable plugin name used in diagnostics and discovery output."
+msgstr "læsilegt heiti viðbótar sem notað er í greiningum og leitarúttaki."
+
+msgid "version of the plugin distribution, reported to users without being interpreted by spaCR."
+msgstr "útgáfa viðbótadreifingarinnar, tilkynnt notendum án þess að spaCR túlki hana."
+
+msgid "plugin SDK version the manifest targets; its major version must match :data:`PLUGIN_API_VERSION`."
+msgstr "útgáfa viðbóta-SDK sem skráin miðar við; aðalútgáfa hennar verður að passa við :data:`PLUGIN_API_VERSION`."
+
+msgid "runnable applications the plugin adds to the GUI and headless registry."
+msgstr "keyranleg forrit sem viðbótin bætir við GUI og skrána án myndræns viðmóts."
+
+msgid "providers that extend the model-zoo catalogue."
+msgstr "veitur sem víkka út líkanasafnsskrána."
+
+msgid "builders that insert plugin-owned sections into generated reports."
+msgstr "smiðir sem skeyta köflum í eigu viðbótarinnar inn í útbúnar skýrslur."
+
+msgid "locale-to-message mappings that translate the plugin's own visible strings."
+msgstr "varpanir frá tungumáli til skilaboða sem þýða sýnilega strengi viðbótarinnar sjálfrar."
+
+msgid "Return discovery and runtime contribution failures."
+msgstr "Skila villum við leit og framlög við keyrslu."
+
+msgid "Return every valid discovered plugin in deterministic order."
+msgstr "Skila hverri gildri fundinni viðbót í ákvörðunarbundinni röð."
+
+msgid "Returns an empty tuple, with no diagnostic recorded, when ``SPACR_DISABLE_PLUGINS`` is set to ``1``, ``true``, ``yes`` or ``on`` (case-insensitively): nothing is imported at all. The result is cached; :func:`reload_plugins` discards the cache and discovers again."
+msgstr "Skilar tómri túplu, án skráðrar greiningar, þegar ``SPACR_DISABLE_PLUGINS`` er stillt á ``1``, ``true``, ``yes`` eða ``on`` (óháð há- og lágstöfum): alls ekkert er flutt inn. Niðurstaðan er geymd í skyndiminni; :func:`reload_plugins` hendir skyndiminninu og leitar aftur."
+
+msgid "Return a contributed app by key, or ``None``."
+msgstr "Skila framlögðu forriti eftir lykli, eða ``None``."
+
+msgid "``key`` of an installed plugin's :class:`AppContribution`; converted with ``str()`` before the registry lookup."
+msgstr "``key`` fyrir :class:`AppContribution` uppsettrar viðbótar; umbreytt með ``str()`` fyrir uppflettingu í skránni."
+
+msgid "Import and return ``module:attribute`` (nested attributes supported)."
+msgstr "Flytja inn og skila ``module:attribute`` (hreiðraðir eiginleikar studdir)."
+
+msgid "string of the form ``\"package.module:attribute\"``; the attribute part may be dotted to reach nested objects. Anything else raises ``ValueError``."
+msgstr "strengur á forminu ``\"package.module:attribute\"``; eiginleikahlutinn má innihalda punkta til að ná í hreiðraða hluti. Allt annað kastar ``ValueError``."
+
+msgid "Return ``(plugin_name, provider)`` model-zoo contributions."
+msgstr "Skila ``(plugin_name, provider)``-framlögum til líkanasafnsins."
+
+msgid "Return all contributed applications."
+msgstr "Skila öllum framlögðum forritum."
+
+msgid "Validate a mapping and return its immutable :class:`SpacrPlugin`."
+msgstr "Sannprófa vörpun og skila óbreytanlegu :class:`SpacrPlugin` hennar."
+
+msgid "manifest mapping whose keys are the :class:`SpacrPlugin` fields; ``apps``, ``model_providers`` and ``report_sections`` may hold mappings or contribution objects, and ``translations`` must map language codes to string mappings. A non-mapping raises ``TypeError``."
+msgstr "skráarvörpun þar sem lyklarnir eru reitir :class:`SpacrPlugin`; ``apps``, ``model_providers`` og ``report_sections`` geta geymt varpanir eða framlagshluti, og ``translations`` verður að varpa tungumálakóðum á strengjavarpanir. Annað en vörpun kastar ``TypeError``."
+
+msgid "Record a model/report/runtime plugin failure without aborting spaCR."
+msgstr "Skrá villu í líkana-/skýrslu-/keyrsluviðbót án þess að stöðva spaCR."
+
+msgid "name of the plugin that failed, stored on the :class:`PluginDiagnostic` and written to the log."
+msgstr "heiti viðbótarinnar sem bilaði, geymt á :class:`PluginDiagnostic` og skrifað í annálinn."
+
+msgid "user-facing account of the failed operation."
+msgstr "lýsing fyrir notanda á aðgerðinni sem mistókst."
+
+msgid "Clear the discovery cache and discover again (primarily for tests/dev)."
+msgstr "Hreinsa skyndiminni leitarinnar og leita aftur (aðallega fyrir prófanir/þróun)."
+
+msgid "Return ``(plugin_name, section)`` report contributions."
+msgstr "Skila ``(plugin_name, section)``-framlögum til skýrslna."
+

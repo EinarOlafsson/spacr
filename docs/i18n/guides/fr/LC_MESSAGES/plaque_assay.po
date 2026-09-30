@@ -1,0 +1,153 @@
+# spaCR user guide translation (fr).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: fr\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Plaque Assay: fields, figures and reviewed conditions"
+msgstr "Test de plaques : champs, figures et conditions vérifiées"
+
+msgid "Open **Home → Assays → Toxoplasma → Plaque Assay**. Choose **Plaque** for plaque fields or **Figure** for published figures containing wells, panels and surrounding text. These inputs do not require a preceding Measure run. See the :ref:`module map <workflow-module-analyze_plaques>`, the `Plaque Assay tutorial <tutorials/#lesson=24_plaque>`_ and :func:`spacr.submodules.analyze_plaques` for the surrounding workflow."
+msgstr "Ouvrez **Accueil → Essais → Toxoplasma → Test de plaques**. Choisissez **Plaque** pour des champs de plages de lyse ou **Figure** pour des figures publiées contenant des puits, des panneaux et du texte environnant. Ces entrées ne nécessitent pas d’exécution préalable de Mesure. Pour le workflow environnant, consultez la :ref:`carte des modules <workflow-module-analyze_plaques>`, le `tutoriel Test de plaques <tutorials/#lesson=24_plaque>`_ et :func:`spacr.submodules.analyze_plaques`."
+
+msgid "Preview a plaque field"
+msgstr "Aperçu d’un champ de plages de lyse"
+
+msgid "Choose the source folder and select an image in the preview picker."
+msgstr "Choisissez le dossier source et sélectionnez une image dans le sélecteur d’aperçu."
+
+msgid "Select **Plaque** mode. In **Settings… → Plaque detection**, choose the plaque checkpoint, diameter, flow threshold and cell-probability threshold. Use **Model zoo…** to inspect available models or **Browse…** for a local checkpoint. A model key is different from a detector backend: both the checkpoint and a compatible runtime must be available."
+msgstr "Sélectionnez le mode **Plaque**. Dans **Paramètres… → Détection des plages de lyse**, choisissez le point de contrôle des plages, le diamètre, le seuil de flux et le seuil de probabilité cellulaire. Utilisez **Bibliothèque de modèles…** pour consulter les modèles disponibles ou **Parcourir…** pour un point de contrôle local. Une clé de modèle est différente d’un backend de détection : le point de contrôle et un environnement d’exécution compatible doivent tous deux être disponibles."
+
+msgid "Run the preview and inspect the labels against the image. Counts and mean areas describe the proposed segmentation, so check merged plaques, missed plaques and non-plaque regions before interpreting them."
+msgstr "Exécutez l’aperçu et comparez les étiquettes à l’image. Les comptages et les surfaces moyennes décrivent la segmentation proposée ; vérifiez donc les plages fusionnées, les plages manquées et les régions qui ne sont pas des plages avant de les interpréter."
+
+msgid "Inspect the object, probability and flow views when the chosen segmenter supplies those outputs. Missing flow output is not a zero-valued result."
+msgstr "Examinez les vues des objets, des probabilités et des flux lorsque l’outil de segmentation choisi fournit ces sorties. Une sortie de flux manquante n’est pas un résultat de valeur nulle."
+
+msgid "Choose **Use these settings** to copy the tuned values into the form that the analysis run reads. A preview alone does not run the folder analysis."
+msgstr "Choisissez **Utiliser ces paramètres** pour copier les valeurs ajustées dans le formulaire lu par l’exécution de l’analyse. Un aperçu seul n’exécute pas l’analyse du dossier."
+
+msgid "The preview resolves local checkpoints without downloading them implicitly. When a model is absent, the panel explains what is missing and offers the appropriate download. Keep the selected model and settings with the results; ``bundled`` names the historical packaged checkpoint, not an alias for the current Model Zoo model."
+msgstr "L’aperçu résout les points de contrôle locaux sans les télécharger implicitement. Lorsqu’un modèle est absent, le panneau explique ce qui manque et propose le téléchargement approprié. Conservez le modèle et les paramètres choisis avec les résultats ; ``bundled`` désigne le point de contrôle historique fourni avec le paquet, et non un alias du modèle actuel de la bibliothèque de modèles."
+
+msgid "Read a published figure"
+msgstr "Lire une figure publiée"
+
+msgid "Select **Figure** mode. Supply a folder of figures, or use **From a paper…** to retrieve figures and legends from a DOI, PMID, PMC identifier or PDF into a new folder."
+msgstr "Sélectionnez le mode **Figure**. Fournissez un dossier de figures, ou utilisez **Depuis un article scientifique…** pour récupérer les figures et les légendes à partir d’un DOI, d’un PMID, d’un identifiant PMC ou d’un PDF dans un nouveau dossier."
+
+msgid "If the figure reader is missing, use the panel's **Install** action. It installs the YOLO/OCR reader in its own backend environment under ``~/.spacr/backends``. Inspect the installation result before previewing."
+msgstr "Si le lecteur de figures est absent, utilisez l’action **Installer** du panneau. Elle installe le lecteur YOLO/OCR dans son propre environnement de backend sous ``~/.spacr/backends``. Examinez le résultat de l’installation avant l’aperçu."
+
+msgid "In **Settings… → Figure**, choose the well detector, inference sizes and confidence cutoff; the text-reading settings are on the **Text detection** tab. **Run preview** finds wells and reads the figure text; this first pass does not segment the plaques."
+msgstr "Dans **Paramètres… → Figure**, choisissez le détecteur de puits, les tailles d’inférence et le seuil de confiance ; les paramètres de lecture du texte se trouvent dans l’onglet **Détection de texte**. **Exécuter l'aperçu** trouve les puits et lit le texte de la figure ; ce premier passage ne segmente pas les plages de lyse."
+
+msgid "Click a well in the image or a table row. **Plaque preview** segments that well with the plaque settings. **Find plaques in all wells** processes the detected wells in sequence; Cancel stops after the current well."
+msgstr "Cliquez sur un puits dans l’image ou sur une ligne du tableau. **Aperçu des plages de lyse** segmente ce puits avec les paramètres des plages. **Rechercher les plages de lyse dans tous les puits** traite les puits détectés l’un après l’autre ; Annuler s’arrête après le puits en cours."
+
+msgid "Compare the proposed condition with the nearby label and the relevant legend passage. Correct the condition, mark reviewed entries **OK**, and save the annotations. With **Confirm annotations** enabled, the run measures only the saved approved entries."
+msgstr "Comparez la condition proposée avec l’étiquette voisine et le passage pertinent de la légende. Corrigez la condition, marquez les entrées vérifiées **OK** et enregistrez les annotations. Lorsque **Confirmer les annotations** est activé, l’exécution ne mesure que les entrées approuvées enregistrées."
+
+msgid "Copy the tuned settings into the form before starting the analysis run. Retain the original figure, legend, annotation review and calibration information alongside the measurements."
+msgstr "Copiez les paramètres ajustés dans le formulaire avant de lancer l’exécution de l’analyse. Conservez la figure d’origine, la légende, l’examen des annotations et les informations d’étalonnage avec les mesures."
+
+msgid "The preview saves condition reviews in ``figure_annotations.csv`` and pasted legends in ``legends.csv`` in the source folder, preserving other figures' entries. The batch figure workflow uses these files and writes its database under ``<src>/plaque_figures/plaque_figures.db`` by default. Reprocessing a figure replaces its previous rows; duplicate image content is recorded rather than counted as an independent image. See :func:`spacr.plaque_papers.measure_figure_folder` for the full file contract."
+msgstr "L’aperçu enregistre les vérifications des conditions dans ``figure_annotations.csv`` et les légendes collées dans ``legends.csv`` dans le dossier source, en préservant les entrées des autres figures. Le workflow par lots des figures utilise ces fichiers et écrit sa base de données par défaut sous ``<src>/plaque_figures/plaque_figures.db``. Le retraitement d’une figure remplace ses lignes précédentes ; un contenu d’image en double est consigné au lieu d’être compté comme une image indépendante. Consultez :func:`spacr.plaque_papers.measure_figure_folder` pour le contrat de fichiers complet."
+
+msgid "Areas in pixels and calibrated areas are different quantities. Verify the reported scale and its source before comparing physical areas between images. A detector box or an automatically read condition is a proposal to inspect, not evidence that the experimental identity or calibration is correct."
+msgstr "Les surfaces en pixels et les surfaces étalonnées sont des grandeurs différentes. Vérifiez l’échelle indiquée et sa source avant de comparer des surfaces physiques entre images. Un cadre de détection ou une condition lue automatiquement est une proposition à examiner, et non la preuve que l’identité expérimentale ou l’étalonnage est correct."
+
+msgid "For a figure crop, its own labeled scale bar takes priority, followed by its own unlabeled bar whose length is stated in the legend. A crop without its own bar can share an agreeing calibration from similarly sized crops in the same grid. Conflicting peer bars leave that crop in pixels with a conflict note. Whole-well calibration is a later fallback when the plate format is known; stated magnification alone does not calibrate a rescaled figure."
+msgstr "Pour un recadrage de figure, sa propre barre d’échelle légendée a la priorité, suivie de sa propre barre non légendée dont la longueur est indiquée dans la légende. Un recadrage sans barre propre peut partager un étalonnage concordant provenant de recadrages de taille similaire dans la même grille. Des barres voisines contradictoires laissent ce recadrage en pixels avec une note de conflit. L’étalonnage sur le puits entier est un repli ultérieur lorsque le format de plaque est connu ; un grandissement indiqué ne suffit pas à étalonner une figure redimensionnée."
+
+msgid "Drop images, PDFs and folders"
+msgstr "Déposer des images, des PDF et des dossiers"
+
+msgid "Drop any number of images, PDFs or folders onto Plaque Assay. Images are read in **Plaque** mode and PDFs in **Figure** mode; every PDF is read in turn, with progress naming the paper being read, and a paper that cannot be read is reported by name without stopping the others. Files that are neither images nor PDFs are left out and counted once. When the drop does not match the current mode, a prompt offers to switch; when it holds both images and PDFs, choose which mode to run. If the figure reader needs installing or reinstalling, the prompt installs it in place and reports the result."
+msgstr "Déposez un nombre quelconque d’images, de PDF ou de dossiers sur Test de plaques. Les images sont lues en mode **Plaque** et les PDF en mode **Figure** ; chaque PDF est lu à son tour, la progression indiquant l’article en cours de lecture, et un article illisible est signalé par son nom sans arrêter les autres. Les fichiers qui ne sont ni des images ni des PDF sont ignorés et comptés une fois. Lorsque le dépôt ne correspond pas au mode actuel, une invite propose de changer de mode ; lorsqu’il contient à la fois des images et des PDF, choisissez le mode à exécuter. Si le lecteur de figures doit être installé ou réinstallé, l’invite l’installe sur place et indique le résultat."
+
+msgid "Inspect the result views"
+msgstr "Examiner les vues de résultats"
+
+msgid "The view selector above the preview offers **Overlay**, **Masks**, **Flows** and **Cell probability** in both modes. In Figure mode, each segmented well's outputs are placed at its box on the figure. Right-click the image for the overlay options: outlines or filled objects, random colours, **Overlay settings…** and **Save picture…**. The overlay settings include the outline and fill colours, fill opacity and the **Line weight** of the **Well boxes**. **Ruler** measures a distance on the image, in µm when the pixel size is known and in pixels otherwise; right-click clears it."
+msgstr "Le sélecteur de vue au-dessus de l’aperçu propose **Superposition**, **Masques**, **Flux** et **Probabilité cellulaire** dans les deux modes. En mode Figure, les sorties de chaque puits segmenté sont placées dans son cadre sur la figure. Faites un clic droit sur l’image pour les options de superposition : contours ou objets pleins, couleurs aléatoires, **Paramètres de superposition…** et **Enregistrer l’image…**. Les paramètres de superposition incluent les couleurs de contour et de remplissage, l’opacité du remplissage et l’**Épaisseur de trait** des **Cadres des puits**. **Règle** mesure une distance sur l’image, en µm lorsque la taille des pixels est connue et en pixels sinon ; un clic droit l’efface."
+
+msgid "Contribute training data"
+msgstr "Contribuer des données d’entraînement"
+
+msgid "**Contribute training data…** sends an annotated image to spaCR's community training data on Hugging Face. In Figure mode, box every well for the well detector; in Plaque mode, paint every plaque for the next plaque model. An image without annotations is not sent, and you must agree to the licence before uploading. The dialog shows the destination dataset as a link that can be opened, selected and copied. A contribution is reviewed before it is used for training, so draw the annotations carefully."
+msgstr "**Contribuer des données d’entraînement…** envoie une image annotée aux données d’entraînement communautaires de spaCR sur Hugging Face. En mode Figure, encadrez chaque puits pour le détecteur de puits ; en mode Plaque, peignez chaque plage de lyse pour le prochain modèle de plages. Une image sans annotations n’est pas envoyée, et vous devez accepter la licence avant l’envoi. La boîte de dialogue affiche le jeu de données de destination sous forme de lien que l’on peut ouvrir, sélectionner et copier. Une contribution est examinée avant d’être utilisée pour l’entraînement ; tracez donc soigneusement les annotations."
+
+msgid "Changing selections while a preview runs"
+msgstr "Modifier la sélection pendant l’exécution d’un aperçu"
+
+msgid "Changing the source, selected image or mode abandons the previous preview. Its late result cannot replace the newly selected view. An empty source folder clears the prior mask, object views and figure tables. Start a new preview for the intended selection after it loads. Cancellation discards the old result; the current model call finishes before **Run preview** and the well controls become available again. Wait for those controls before rerunning with changed settings."
+msgstr "Changer la source, l’image sélectionnée ou le mode abandonne l’aperçu précédent. Son résultat tardif ne peut pas remplacer la vue nouvellement sélectionnée. Un dossier source vide efface le masque, les vues d’objets et les tableaux de figures précédents. Lancez un nouvel aperçu pour la sélection voulue après son chargement. L’annulation abandonne l’ancien résultat ; l’appel de modèle en cours se termine avant que **Exécuter l'aperçu** et les contrôles des puits redeviennent disponibles. Attendez ces contrôles avant de relancer avec des paramètres modifiés."
+
+msgid "After choosing **Save annotations**, wait for the saved confirmation in the preview status before starting the batch analysis. Saving happens in the background so the image remains responsive; a queued save is not yet a completed write."
+msgstr "Après avoir choisi **Enregistrer les annotations**, attendez la confirmation d’enregistrement dans l’état de l’aperçu avant de lancer l’analyse par lots. L’enregistrement a lieu en arrière-plan pour que l’image reste réactive ; un enregistrement en file d’attente n’est pas encore une écriture terminée."
+
+msgid "Python preview contracts"
+msgstr "Contrats d’aperçu Python"
+
+msgid "The same operations are available as worker-safe functions; they do not touch widgets. Their returned data is preview output, separate from the batch analysis database."
+msgstr "Les mêmes opérations sont disponibles sous forme de fonctions sûres pour les workers ; elles ne touchent pas aux widgets. Les données qu’elles renvoient sont des sorties d’aperçu, distinctes de la base de données de l’analyse par lots."
+
+msgid "Function"
+msgstr "Fonction"
+
+msgid "Result and scope"
+msgstr "Résultat et portée"
+
+msgid ":func:`spacr.qt.widgets.plaque_preview.plaque_pass`"
+msgstr ":func:`spacr.qt.widgets.plaque_preview.plaque_pass`"
+
+msgid "Segment one plaque image and return labels, counts, areas and available flow outputs."
+msgstr "Segmente une image de plages de lyse et renvoie les étiquettes, les comptages, les surfaces et les sorties de flux disponibles."
+
+msgid ":func:`spacr.qt.widgets.plaque_preview.detect_figure`"
+msgstr ":func:`spacr.qt.widgets.plaque_preview.detect_figure`"
+
+msgid "Find figure regions and read text without segmenting plaques."
+msgstr "Trouve les régions de la figure et lit le texte sans segmenter les plages de lyse."
+
+msgid ":func:`spacr.qt.widgets.plaque_preview.prepare_figure_review`"
+msgstr ":func:`spacr.qt.widgets.plaque_preview.prepare_figure_review`"
+
+msgid "Read saved review information and propose ruler calibration for the detected figure while preserving supplied manual edits."
+msgstr "Lit les informations de vérification enregistrées et propose un étalonnage par barre d’échelle pour la figure détectée tout en préservant les modifications manuelles fournies."
+
+msgid ":func:`spacr.qt.widgets.plaque_preview.segment_well`"
+msgstr ":func:`spacr.qt.widgets.plaque_preview.segment_well`"
+
+msgid "Segment a selected well crop with the plaque settings."
+msgstr "Segmente un recadrage de puits sélectionné avec les paramètres des plages."
+
+msgid ":func:`spacr.qt.widgets.plaque_preview.figure_pass`"
+msgstr ":func:`spacr.qt.widgets.plaque_preview.figure_pass`"
+
+msgid "Find, read and segment a figure in one function call. This differs from the GUI's initial detection-only preview."
+msgstr "Trouve, lit et segmente une figure en un seul appel de fonction. Cela diffère de l’aperçu initial de l’interface, limité à la détection."
+
+msgid "With the default segmenter, ``plaque_pass``, ``segment_well`` and ``figure_pass`` use :func:`spacr.plaque.segment_plaque_image`, including the configured ``diameter``, ``flow_threshold``, ``CP_prob`` and channel-axis policy. A custom ``segment`` callback supplies its own segmentation behavior. Keep those settings explicit when comparing Python results with the GUI."
+msgstr "Avec l’outil de segmentation par défaut, ``plaque_pass``, ``segment_well`` et ``figure_pass`` utilisent :func:`spacr.plaque.segment_plaque_image`, y compris ``diameter``, ``flow_threshold``, ``CP_prob`` et la politique d’axe des canaux configurés. Un rappel ``segment`` personnalisé fournit son propre comportement de segmentation. Gardez ces paramètres explicites lorsque vous comparez des résultats Python à ceux de l’interface."
+
+msgid "For GUI integrations, ``PlaquePreviewPanel.preview_running()`` remains true while a cancelled worker is finishing. ``set_preview_busy(False)`` therefore keeps rerun controls disabled until that worker exits. ``save_annotations()`` returns the queued destination; observe the preview status for completion or failure before consuming the file."
+msgstr "Pour les intégrations d’interface, ``PlaquePreviewPanel.preview_running()`` reste vrai tant qu’un worker annulé se termine. ``set_preview_busy(False)`` garde donc les contrôles de relance désactivés jusqu’à la sortie de ce worker. ``save_annotations()`` renvoie la destination mise en file ; surveillez l’état de l’aperçu pour savoir si l’opération a réussi ou échoué avant d’utiliser le fichier."
+

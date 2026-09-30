@@ -1,0 +1,486 @@
+# spaCR user guide translation (hi).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: hi\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Model zoo"
+msgstr "जानवरों का मॉडल"
+
+msgid "spaCR ships a catalogue of trained models and fetches them on demand. Name a key in a settings file — ``pathogen_model: toxoplasma_pv_v1`` — and the model is downloaded and checksum-verified the first time it is needed, or open **Model Zoo** from the **Make Masks** masthead to browse and install them."
+msgstr "spaCR प्रशिक्षित मॉडलों का एक कैटलॉग देता है और आवश्यकता पड़ने पर उन्हें लाता है। किसी सेटिंग फ़ाइल में कुंजी का नाम दें — ``pathogen_model: toxoplasma_pv_v1`` — और पहली बार आवश्यकता पड़ने पर मॉडल डाउनलोड होकर चेकसम से सत्यापित होता है, या उन्हें देखने और स्थापित करने के लिए **मास्क बनाएँ** शीर्षपट्टी से **मॉडल संग्रह** खोलें।"
+
+msgid "Every published entry carries a SHA-256. An entry without one is refused rather than installed, because a truncated or substituted checkpoint cannot be told from the real one."
+msgstr "हर प्रकाशित प्रविष्टि में SHA-256 होता है। जिस प्रविष्टि में यह नहीं होता उसे स्थापित करने के बजाय अस्वीकार किया जाता है, क्योंकि कटे हुए या बदले हुए चेकपॉइंट को असली से अलग नहीं पहचाना जा सकता।"
+
+msgid "Model"
+msgstr "मॉडल"
+
+msgid "Training data"
+msgstr "प्रशिक्षण डेटा"
+
+msgid "Hold-out performance"
+msgstr "अलग रखे गए डेटा पर प्रदर्शन"
+
+msgid "``toxoplasma_pv_v1`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``toxoplasma_pv_v1`` (Cellpose-SAM (cpsam_v2))"
+
+msgid "anti-Toxoplasma-biotin and DsRed PV lumen; 229 images from 2 datasets, 104 round-1 and 125 newly curated"
+msgstr "एंटी-टोक्सोप्लाज़्मा-बायोटिन और DsRed PV ल्यूमेन; 2 डेटासेट से 229 छवियाँ, 104 पहले दौर की और 125 नई क्यूरेट की गईं"
+
+msgid "F1 0.864 against 0.713 for stock cpsam on 11 held-out in-house wells, at IoU 0.5; literature hold-out pending"
+msgstr "11 अलग रखे गए आंतरिक कूपों पर IoU 0.5 पर F1 0.864, जबकि मानक cpsam के लिए 0.713; साहित्य पर अलग रखा गया मूल्यांकन लंबित"
+
+msgid "``toxoplasma_plaque_v1`` (Cellpose-SAM (cpsam))"
+msgstr "``toxoplasma_plaque_v1`` (Cellpose-SAM (cpsam))"
+
+msgid "crystal violet plaque wells; 184 wells from 3 datasets, 95 in-house and 89 literature"
+msgstr "क्रिस्टल वायलेट प्लाक कूप; 3 डेटासेट से 184 कूप, 95 आंतरिक और 89 साहित्य से"
+
+msgid "F1 0.856 in-domain; 0.806 on literature (3-fold cross-validated, SD 0.020)"
+msgstr "डोमेन के भीतर F1 0.856; साहित्य पर 0.806 (3-गुना क्रॉस-वैलिडेशन, SD 0.020)"
+
+msgid "``toxoplasma_plaque_v2`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``toxoplasma_plaque_v2`` (Cellpose-SAM (cpsam_v2))"
+
+msgid "488 curated fields across four domains -- 298 wells cropped from published figures, 96 phone-camera wells, 67 PFA and 27 methanol-fixed whole-well microscope scans; 27,582 plaques"
+msgstr "चार डोमेन के 488 क्यूरेट किए गए फ़ील्ड -- प्रकाशित चित्रों से काटे गए 298 कूप, फ़ोन कैमरे से लिए गए 96 कूप, 67 PFA-स्थिरीकृत और 27 मेथनॉल-स्थिरीकृत पूरे-कूप सूक्ष्मदर्शी स्कैन; 27,582 प्लाक"
+
+msgid "not scored against stock; on 81 held-out fields it ties round 3 on literature (0.819 vs 0.820) and beats it by 0.166 on phone-camera wells (0.415 vs 0.249)"
+msgstr "मानक मॉडल से तुलना में स्कोर नहीं किया गया; 81 अलग रखे गए फ़ील्ड पर यह साहित्य पर तीसरे दौर के बराबर है (0.819 बनाम 0.820) और फ़ोन कैमरे वाले कूपों पर उसे 0.166 से पीछे छोड़ता है (0.415 बनाम 0.249)"
+
+msgid "``toxoplasma_well_detector_v1`` (YOLO11n)"
+msgstr "``toxoplasma_well_detector_v1`` (YOLO11n)"
+
+msgid "whole-plate and multi-well crystal violet images; 562 images from 1 dataset, 190 of them with no well in them"
+msgstr "पूरी प्लेट और बहु-कूप क्रिस्टल वायलेट छवियाँ; 1 डेटासेट से 562 छवियाँ, जिनमें से 190 में कोई कूप नहीं"
+
+msgid "mAP50 0.993 on its own held-out split; on the test set shared with v2 it scores mAP50 0.8838, against v2's 0.9457"
+msgstr "अपने अलग रखे गए विभाजन पर mAP50 0.993; v2 के साथ साझा परीक्षण सेट पर यह mAP50 0.8838 स्कोर करता है, जबकि v2 0.9457"
+
+msgid "``toxoplasma_well_detector_v2`` (YOLO26n (ultralytics 8.4.155))"
+msgstr "``toxoplasma_well_detector_v2`` (YOLO26n (ultralytics 8.4.155))"
+
+msgid "plate images and literature figures; 1,070 train / 254 val / 129 test, split by PMC article so no paper is in two sets; training data at einarolafsson/toxoplasma-plaque-well-detector-dataset"
+msgstr "प्लेट छवियाँ और साहित्य चित्र; 1,070 प्रशिक्षण / 254 सत्यापन / 129 परीक्षण, PMC लेख के अनुसार विभाजित ताकि कोई शोधपत्र दो सेट में न हो; प्रशिक्षण डेटा einarolafsson/toxoplasma-plaque-well-detector-dataset पर"
+
+msgid "mAP50 0.9457 and mAP50-95 0.8341 against v1's (yolo_welldetect_v3.pt) 0.8838 and 0.7630 on the SAME test set; stock YOLO has no plaque-well class, so v1 is the baseline"
+msgstr "उसी (SAME) परीक्षण सेट पर mAP50 0.9457 और mAP50-95 0.8341, जबकि v1 (yolo_welldetect_v3.pt) के 0.8838 और 0.7630; मानक YOLO में प्लाक-कूप वर्ग नहीं है, इसलिए v1 आधार रेखा है"
+
+msgid "``toxoplasma_from_cellmask_v1`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``toxoplasma_from_cellmask_v1`` (Cellpose-SAM (cpsam_v2))"
+
+msgid "Toxoplasma PV masks predicted from the HOST CELL MASK channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1"
+msgstr "केवल मेज़बान कोशिका मास्क (HOST CELL MASK) चैनल से अनुमानित टोक्सोप्लाज़्मा PV मास्क; 2567 प्रशिक्षण और 463 अलग रखे गए फ़ील्ड, कूप के अनुसार विभाजित, मेज़बान HFF/HeLa/THP1"
+
+msgid "F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "463 कूप-समूहित अलग रखे गए फ़ील्ड पर IoU 0.5 पर F1 0.606, जबकि मानक cpsam_v2 के लिए 0.021"
+
+msgid "``toxoplasma_pv_v2`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``toxoplasma_pv_v2`` (Cellpose-SAM (cpsam_v2))"
+
+msgid "anti-Toxoplasma-biotin and DsRed PV lumen; 556 curated images accumulated over five rounds"
+msgstr "एंटी-टोक्सोप्लाज़्मा-बायोटिन और DsRed PV ल्यूमेन; पाँच दौरों में एकत्र 556 क्यूरेट की गई छवियाँ"
+
+msgid "F1 0.817 +/- 0.036 by 5-fold cross-validation over 619 pairs; ~0.86 against 0.713 for stock on the 11 in-house held-out wells"
+msgstr "619 जोड़ों पर 5-गुना क्रॉस-वैलिडेशन से F1 0.817 +/- 0.036; 11 आंतरिक अलग रखे गए कूपों पर ~0.86, जबकि मानक के लिए 0.713"
+
+msgid "``toxoplasma_pv_v3`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``toxoplasma_pv_v3`` (Cellpose-SAM (cpsam_v2))"
+
+msgid "the 556 curated PV fields of round 5, split 437 train / 108 validation / 11 test; training data at einarolafsson/toxoplasma-pv-segmentation-dataset"
+msgstr "पाँचवें दौर के 556 क्यूरेट किए गए PV फ़ील्ड, 437 प्रशिक्षण / 108 सत्यापन / 11 परीक्षण में विभाजित; प्रशिक्षण डेटा einarolafsson/toxoplasma-pv-segmentation-dataset पर"
+
+msgid "F1 0.860 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.803 against 0.505"
+msgstr "11 एंकर कूपों पर IoU 0.5 पर F1 0.860, जबकि मानक cpsam_v2 का 0.765; AJI 0.803 बनाम 0.505"
+
+msgid "``live_cell_v1`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``live_cell_v1`` (Cellpose-SAM (cpsam_v2))"
+
+msgid "11,007 transmitted-light fields from 14 public datasets, split by acquisition 6,778 train / 2,030 validation / 2,199 test; training data at einarolafsson/live-cell-segmentation-dataset"
+msgstr "14 सार्वजनिक डेटासेट से 11,007 पारगत-प्रकाश फ़ील्ड, अधिग्रहण के अनुसार 6,778 प्रशिक्षण / 2,030 सत्यापन / 2,199 परीक्षण में विभाजित; प्रशिक्षण डेटा einarolafsson/live-cell-segmentation-dataset पर"
+
+msgid "on the datasets stock cpsam_v2 never trained on, F1 0.960 against 0.885 at IoU 0.5; over all 2,199 test fields, 0.694 against 0.738, because stock trained on LIVECell and YeaZ and wins on LIVECell"
+msgstr "उन डेटासेट पर जिन पर मानक cpsam_v2 कभी प्रशिक्षित नहीं हुआ, IoU 0.5 पर F1 0.960 बनाम 0.885; सभी 2,199 परीक्षण फ़ील्ड पर 0.694 बनाम 0.738, क्योंकि मानक मॉडल LIVECell और YeaZ पर प्रशिक्षित है और LIVECell पर आगे रहता है"
+
+msgid "``nuclei_from_cellmask_v1`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``nuclei_from_cellmask_v1`` (Cellpose-SAM (cpsam_v2))"
+
+msgid "nuclei predicted from the HOST CELL MASK channel alone; 453 well-grouped held-out fields, hosts HFF/HeLa/THP1"
+msgstr "केवल मेज़बान कोशिका मास्क (HOST CELL MASK) चैनल से अनुमानित केंद्रक; 453 कूप-समूहित अलग रखे गए फ़ील्ड, मेज़बान HFF/HeLa/THP1"
+
+msgid "F1 0.888 against 0.201 for stock cpsam_v2 on 453 well-grouped held-out fields, at IoU 0.5"
+msgstr "453 कूप-समूहित अलग रखे गए फ़ील्ड पर IoU 0.5 पर F1 0.888, जबकि मानक cpsam_v2 के लिए 0.201"
+
+msgid "``cell_from_hoechst_v1`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``cell_from_hoechst_v1`` (Cellpose-SAM (cpsam_v2))"
+
+msgid "the HOST CELL outline predicted from the Hoechst (nuclear) channel alone; 2,578 training fields and 451 held-out test fields, split by well so no well is on both sides"
+msgstr "केवल Hoechst (केंद्रकीय) चैनल से अनुमानित मेज़बान कोशिका (HOST CELL) रूपरेखा; 2,578 प्रशिक्षण फ़ील्ड और 451 अलग रखे गए परीक्षण फ़ील्ड, कूप के अनुसार विभाजित ताकि कोई कूप दोनों ओर न हो"
+
+msgid "F1 0.870 against stock cpsam_v2's 0.301 on 451 held-out fields at IoU 0.5 -- a delta of 0.569"
+msgstr "451 अलग रखे गए फ़ील्ड पर IoU 0.5 पर F1 0.870, जबकि मानक cpsam_v2 का 0.301 -- 0.569 का अंतर"
+
+msgid "``toxoplasma_from_hoechst_v1`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``toxoplasma_from_hoechst_v1`` (Cellpose-SAM (cpsam_v2))"
+
+msgid "Toxoplasma PV masks predicted from the HOECHST channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1"
+msgstr "केवल HOECHST चैनल से अनुमानित टोक्सोप्लाज़्मा PV मास्क; 2567 प्रशिक्षण और 463 अलग रखे गए फ़ील्ड, कूप के अनुसार विभाजित, मेज़बान HFF/HeLa/THP1"
+
+msgid "F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "463 कूप-समूहित अलग रखे गए फ़ील्ड पर IoU 0.5 पर F1 0.569, जबकि मानक cpsam_v2 के लिए 0.002"
+
+msgid "Models are hosted on their author's own Hugging Face account, so contributing one does not mean handing write access to anyone else's. ``spacr.model_zoo``'s ``publish_model`` performs the upload and prints the catalogue row to add."
+msgstr "मॉडल उनके लेखक के अपने Hugging Face खाते पर होस्ट किए जाते हैं, इसलिए कोई मॉडल योगदान करने का अर्थ किसी और को लेखन पहुँच सौंपना नहीं है। ``spacr.model_zoo`` का ``publish_model`` अपलोड करता है और जोड़ी जाने वाली कैटलॉग पंक्ति छापता है।"
+
+msgid "Choose a model from a form"
+msgstr "किसी फ़ॉर्म से मॉडल चुनें"
+
+msgid "A model setting in Mask generation, Make Masks and Plaque Assay has a **Model zoo…** button. Its list is grouped by origin under five headings — the stock Cellpose-SAM weights, spaCR's own models, unvetted spaCR community uploads, Cellpose models published on bioimage.io, and the Cellpose 3 backend's cyto, cyto2, cyto3 and nuclei models. Click a heading to show or fold its rows. **Download** fetches the selected model, or **Install** its backend; **Use this model** then writes the model into the setting. A model that needs another backend, such as Cellpose 3 or Cellpose-DINO, says so on its row and offers to install that backend into its own environment under ``~/.spacr/backends``; spaCR's own environment is not changed. A row spaCR cannot run says so instead of being offered."
+msgstr "मास्क निर्माण, मास्क बनाएँ और प्लाक परीक्षण में मॉडल सेटिंग का एक **मॉडल संग्रह…** बटन होता है। इसकी सूची उद्गम के अनुसार पाँच शीर्षकों में समूहित है — मानक Cellpose-SAM भार, spaCR के अपने मॉडल, असत्यापित spaCR सामुदायिक अपलोड, bioimage.io पर प्रकाशित Cellpose मॉडल, और Cellpose 3 बैकएंड के cyto, cyto2, cyto3 और nuclei मॉडल। किसी शीर्षक की पंक्तियाँ दिखाने या मोड़ने के लिए उस पर क्लिक करें। **डाउनलोड करें** चुना गया मॉडल लाता है, या **स्थापित करें** उसका बैकएंड; फिर **Use this model** मॉडल को सेटिंग में लिखता है। जिस मॉडल को Cellpose 3 या Cellpose-DINO जैसे दूसरे बैकएंड की आवश्यकता हो, वह अपनी पंक्ति में यह बताता है और उस बैकएंड को ``~/.spacr/backends`` के अंतर्गत उसके अपने परिवेश में स्थापित करने का प्रस्ताव देता है; spaCR का अपना परिवेश नहीं बदलता। जो पंक्ति spaCR नहीं चला सकता वह प्रस्तुत किए जाने के बजाय यह बताती है।"
+
+msgid "Opened from Mask generation, the popup also has **Measure diameters…**: it estimates the cell, nucleus and pathogen diameters from a few fields of your own images and can write them into the settings. See :class:`spacr.qt.prerun.DiameterDialog`."
+msgstr "मास्क निर्माण से खोलने पर पॉपअप में **व्यास मापें…** भी होता है: यह आपकी अपनी छवियों के कुछ फ़ील्ड से कोशिका, केंद्रक और रोगजनक के व्यास का अनुमान लगाता है और उन्हें सेटिंग्स में लिख सकता है। :class:`spacr.qt.prerun.DiameterDialog` देखें।"
+
+msgid "Per-model detail"
+msgstr "प्रति-मॉडल विवरण"
+
+msgid "Toxoplasma PV v1"
+msgstr "Toxoplasma PV v1"
+
+msgid "**Architecture.** Cellpose-SAM (cpsam_v2)"
+msgstr "**संरचना।** Cellpose-SAM (cpsam_v2)"
+
+msgid "**Trained on.** Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV lumen. Round 2: 229 training images (round 1's 104 plus 125 newly curated RH and ME49 fields), 100 epochs, base cpsam_v2"
+msgstr "**प्रशिक्षण डेटा।** बकरी एंटी-टोक्सोप्लाज़्मा-बायोटिन से अभिरंजित टोक्सोप्लाज़्मा टैकीज़ॉइट परजीवीधानी रिक्तिकाएँ, और PV ल्यूमेन में DsRed व्यक्त करने वाले टैकीज़ॉइट। दूसरा दौर: 229 प्रशिक्षण छवियाँ (पहले दौर की 104 और 125 नए क्यूरेट किए गए RH और ME49 फ़ील्ड), 100 एपोक, आधार cpsam_v2"
+
+msgid "**Measured.** F1 0.864 against 0.713 for stock cpsam on 11 held-out in-house wells, at IoU 0.5; literature hold-out pending"
+msgstr "**मापा गया।** 11 अलग रखे गए आंतरिक कूपों पर IoU 0.5 पर F1 0.864, जबकि मानक cpsam के लिए 0.713; साहित्य पर अलग रखा गया मूल्यांकन लंबित"
+
+msgid "F1 0.864 at IoU 0.5 against 0.713 for stock cpsam on the 11 wells round 1 also held out (round 1 scored 0.867); AJI 0.809 against 0.426"
+msgstr "उन 11 कूपों पर जिन्हें पहले दौर ने भी अलग रखा था, IoU 0.5 पर F1 0.864, जबकि मानक cpsam के लिए 0.713 (पहले दौर का स्कोर 0.867); AJI 0.809 बनाम 0.426"
+
+msgid "accuracy falls sharply above IoU 0.8 -- suited to counting and area rather than precise morphometry"
+msgstr "IoU 0.8 से ऊपर सटीकता तेज़ी से गिरती है -- सटीक आकृतिमिति के बजाय गिनती और क्षेत्रफल के लिए उपयुक्त"
+
+msgid "the held-out literature scorecard is pending a stock-seeded re-curation; on the current literature set, whose truth leans toward this model's lineage, it ties stock Cellpose-SAM on detection (F1 0.403 against 0.400)"
+msgstr "साहित्य पर अलग रखा गया स्कोरकार्ड मानक मॉडल से शुरू होने वाली पुनः-क्यूरेशन की प्रतीक्षा में है; वर्तमान साहित्य सेट पर, जिसका ग्राउंड ट्रुथ इस मॉडल की वंशावली की ओर झुका है, यह पहचान में मानक Cellpose-SAM के बराबर है (F1 0.403 बनाम 0.400)"
+
+msgid "Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam>`_, as ``cpsam_v2_toxo_r2``."
+msgstr "`einarolafsson/toxoplasma-pv-segmentation-cpsam <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam>`_ के रूप में, ``cpsam_v2_toxo_r2`` नाम से प्रकाशित।"
+
+msgid "SHA-256 ``182d8cf6b32c7b9ef2917c85870d188486e5e119f05e9c5c1f07652f6859f2d0``."
+msgstr "SHA-256 ``182d8cf6b32c7b9ef2917c85870d188486e5e119f05e9c5c1f07652f6859f2d0``।"
+
+msgid "Toxoplasma Plaque v1"
+msgstr "Toxoplasma Plaque v1"
+
+msgid "**Architecture.** Cellpose-SAM (cpsam)"
+msgstr "**संरचना।** Cellpose-SAM (cpsam)"
+
+msgid "**Trained on.** Toxoplasma gondii plaque assays; round 3, evaluated in-domain (NAS) and against a literature generalisation set"
+msgstr "**प्रशिक्षण डेटा।** टोक्सोप्लाज़्मा गोंडी प्लाक परीक्षण; तीसरा दौर, डोमेन के भीतर (NAS) और साहित्य सामान्यीकरण सेट पर मूल्यांकित"
+
+msgid "**Measured.** F1 0.856 in-domain; 0.806 on literature (3-fold cross-validated, SD 0.020)"
+msgstr "**मापा गया।** डोमेन के भीतर F1 0.856; साहित्य पर 0.806 (3-गुना क्रॉस-वैलिडेशन, SD 0.020)"
+
+msgid "F1 0.856 in-domain and 0.806 on the literature set (3-fold cross-validated, SD 0.020), against 0.718 for round 1"
+msgstr "डोमेन के भीतर F1 0.856 और साहित्य सेट पर 0.806 (3-गुना क्रॉस-वैलिडेशन, SD 0.020), जबकि पहले दौर के लिए 0.718"
+
+msgid "round 3 trades precision (0.939 down to 0.858) for recall (0.631 up to 0.811) on the literature set, which is the right direction for a counting assay"
+msgstr "साहित्य सेट पर तीसरा दौर परिशुद्धता (0.939 से घटकर 0.858) के बदले रिकॉल (0.631 से बढ़कर 0.811) लेता है, जो गिनती परीक्षण के लिए सही दिशा है"
+
+msgid "PREFER THIS ONE FOR MICROSCOPE-ONLY WORK. On the round-5 test split it scores 0.836 on PFA-fixed wells against round 5's 0.808, at precision 0.93 against 0.81. For mixed sources, or any phone-camera image, use toxoplasma_plaque_v2, which round 3 cannot handle at all (0.249 there)"
+msgstr "केवल सूक्ष्मदर्शी वाले काम के लिए इसे प्राथमिकता दें। पाँचवें दौर के परीक्षण विभाजन पर यह PFA-स्थिरीकृत कूपों पर 0.836 स्कोर करता है, जबकि पाँचवें दौर का 0.808, परिशुद्धता 0.93 बनाम 0.81। मिश्रित स्रोतों, या किसी भी फ़ोन-कैमरा छवि के लिए toxoplasma_plaque_v2 का उपयोग करें, जिसे तीसरा दौर बिल्कुल नहीं संभाल सकता (वहाँ 0.249)"
+
+msgid "Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam>`_, as ``cpsam_plaque_r3``."
+msgstr "`einarolafsson/toxoplasma-plaque-segmentation-cpsam <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam>`_ के रूप में, ``cpsam_plaque_r3`` नाम से प्रकाशित।"
+
+msgid "SHA-256 ``eeecd2d6cd5cbb4dddee71564d5f460d26bb07ac125e0b494b7502fea4292d5d``."
+msgstr "SHA-256 ``eeecd2d6cd5cbb4dddee71564d5f460d26bb07ac125e0b494b7502fea4292d5d``।"
+
+msgid "Toxoplasma Plaque v2 (round 5)"
+msgstr "Toxoplasma Plaque v2 (पाँचवाँ दौर)"
+
+msgid "**Trained on.** Toxoplasma plaque assays stained with crystal violet, from three microscopes and from published figures. Round 5: 332 training fields grouped by figure and by plate so none straddles the split, 100 epochs, base cpsam_v2, empty wells kept as negatives"
+msgstr "**प्रशिक्षण डेटा।** क्रिस्टल वायलेट से अभिरंजित टोक्सोप्लाज़्मा प्लाक परीक्षण, तीन सूक्ष्मदर्शियों और प्रकाशित चित्रों से। पाँचवाँ दौर: चित्र और प्लेट के अनुसार समूहित 332 प्रशिक्षण फ़ील्ड ताकि कोई विभाजन के दोनों ओर न हो, 100 एपोक, आधार cpsam_v2, खाली कूप ऋणात्मक उदाहरणों के रूप में रखे गए"
+
+msgid "**Measured.** not scored against stock; on 81 held-out fields it ties round 3 on literature (0.819 vs 0.820) and beats it by 0.166 on phone-camera wells (0.415 vs 0.249)"
+msgstr "**मापा गया।** मानक मॉडल से तुलना में स्कोर नहीं किया गया; 81 अलग रखे गए फ़ील्ड पर यह साहित्य पर तीसरे दौर के बराबर है (0.819 बनाम 0.820) और फ़ोन कैमरे वाले कूपों पर उसे 0.166 से पीछे छोड़ता है (0.415 बनाम 0.249)"
+
+msgid "COMPLEMENTS toxoplasma_plaque_v1 rather than replacing it: prefer v1 (round 3) for microscope-only work, where it scores 0.836 against this model's 0.808 on PFA-fixed wells and is far more precise; prefer this one for mixed or unknown sources"
+msgstr "toxoplasma_plaque_v1 का स्थान लेने के बजाय उसका पूरक (COMPLEMENTS) है: केवल सूक्ष्मदर्शी वाले काम के लिए v1 (तीसरा दौर) को प्राथमिकता दें, जहाँ वह PFA-स्थिरीकृत कूपों पर इस मॉडल के 0.808 के मुकाबले 0.836 स्कोर करता है और कहीं अधिक सटीक है; मिश्रित या अज्ञात स्रोतों के लिए इसे प्राथमिकता दें"
+
+msgid "the only plaque model trained on phone-camera wells -- F1 0.415 against round 3's 0.249, though recall there is 0.296, so it still misses most plaques on phone images and is not yet a counting tool"
+msgstr "फ़ोन-कैमरा कूपों पर प्रशिक्षित एकमात्र प्लाक मॉडल -- तीसरे दौर के 0.249 के मुकाबले F1 0.415, हालाँकि वहाँ रिकॉल 0.296 है, इसलिए यह फ़ोन छवियों पर अब भी अधिकांश प्लाक चूकता है और अभी गिनती का उपकरण नहीं है"
+
+msgid "it did NOT clear the promotion bar of 0.02 literature F1 fixed before the run (it came in at -0.001), so round 3 remains production"
+msgstr "यह रन से पहले तय साहित्य F1 में 0.02 की पदोन्नति सीमा पार नहीं (NOT) कर सका (परिणाम -0.001 रहा), इसलिए तीसरा दौर उत्पादन में बना रहता है"
+
+msgid "balanced precision/recall (0.81/0.83) where round 3 is lopsided (0.93/0.73): round 3's low recall systematically UNDERCOUNTS, which matters more than F1 for a counting assay"
+msgstr "संतुलित परिशुद्धता/रिकॉल (0.81/0.83), जबकि तीसरा दौर असंतुलित है (0.93/0.73): तीसरे दौर का कम रिकॉल व्यवस्थित रूप से कम गिनता (UNDERCOUNTS) है, जो गिनती परीक्षण के लिए F1 से अधिक मायने रखता है"
+
+msgid "hallucinates 2 objects across 6 blank-lawn wells where round 3 hallucinates 19"
+msgstr "6 खाली-परत कूपों में 2 काल्पनिक ऑब्जेक्ट बनाता है, जबकि तीसरा दौर 19"
+
+msgid "first plaque model on cpsam_v2; rounds 1-4 used cpsam v1, so base and data changed together and the gap to round 3 is not attributable to the extra curation alone"
+msgstr "cpsam_v2 पर पहला प्लाक मॉडल; दौर 1-4 ने cpsam v1 का उपयोग किया, इसलिए आधार और डेटा एक साथ बदले और तीसरे दौर से अंतर केवल अतिरिक्त क्यूरेशन के कारण नहीं माना जा सकता"
+
+msgid "training data: https://huggingface.co/datasets/einarolafsson/toxoplasma-plaque-dataset"
+msgstr "प्रशिक्षण डेटा: https://huggingface.co/datasets/einarolafsson/toxoplasma-plaque-dataset"
+
+msgid "Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5 <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5>`_, as ``cpsam_plaque_r5``."
+msgstr "`einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5 <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5>`_ के रूप में, ``cpsam_plaque_r5`` नाम से प्रकाशित।"
+
+msgid "SHA-256 ``0927023a745ac6a19bae0ec72c89b7b864a4ff8d047a41f3f1e9767e1a4d0600``."
+msgstr "SHA-256 ``0927023a745ac6a19bae0ec72c89b7b864a4ff8d047a41f3f1e9767e1a4d0600``।"
+
+msgid "Toxoplasma Plaque Well Detector v1"
+msgstr "Toxoplasma Plaque Well Detector v1"
+
+msgid "**Architecture.** YOLO11n"
+msgstr "**संरचना।** YOLO11n"
+
+msgid "**Trained on.** whole-plate and multi-well Toxoplasma plaque-assay images; yolo11n base, 150 epochs, batch 16, imgsz 640"
+msgstr "**प्रशिक्षण डेटा।** पूरी प्लेट और बहु-कूप टोक्सोप्लाज़्मा प्लाक-परीक्षण छवियाँ; आधार yolo11n, 150 एपोक, बैच 16, imgsz 640"
+
+msgid "**Measured.** mAP50 0.993 on its own held-out split; on the test set shared with v2 it scores mAP50 0.8838, against v2's 0.9457"
+msgstr "**मापा गया।** अपने अलग रखे गए विभाजन पर mAP50 0.993; v2 के साथ साझा परीक्षण सेट पर यह mAP50 0.8838 स्कोर करता है, जबकि v2 0.9457"
+
+msgid "the 0.993 is measured on v3's OWN split, which is easier than the set v2 is measured on; on that shared set this model scores mAP50 0.8838 against v2's 0.9457, so v2 is the better detector"
+msgstr "0.993 v3 के अपने (OWN) विभाजन पर मापा गया है, जो v2 वाले सेट से आसान है; उस साझा सेट पर यह मॉडल mAP50 0.8838 स्कोर करता है जबकि v2 0.9457, इसलिए v2 बेहतर डिटेक्टर है"
+
+msgid "kept because the published plaque corpus was measured with these weights, so results in the paper trace back to this row"
+msgstr "रखा गया है क्योंकि प्रकाशित प्लाक संग्रह इन्हीं भारों से मापा गया था, इसलिए शोधपत्र के परिणाम इसी पंक्ति तक खोजे जा सकते हैं"
+
+msgid "locates WELLS, not plaques; it is the front half of a two-stage pipeline with toxoplasma_plaque_v1, and the well it finds also gives the diameter that makes areas comparable across microscopes"
+msgstr "प्लाक नहीं, कूप (WELLS) खोजता है; यह toxoplasma_plaque_v1 के साथ दो-चरणीय पाइपलाइन का अगला आधा भाग है, और इसके द्वारा खोजा गया कूप वह व्यास भी देता है जिससे विभिन्न सूक्ष्मदर्शियों के क्षेत्रफल तुलनीय बनते हैं"
+
+msgid "Published as `einarolafsson/toxoplasma-plaque-well-detector-yolo11 <https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo11>`_, as ``yolo_welldetect_v3.pt``."
+msgstr "`einarolafsson/toxoplasma-plaque-well-detector-yolo11 <https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo11>`_ के रूप में, ``yolo_welldetect_v3.pt`` नाम से प्रकाशित।"
+
+msgid "SHA-256 ``b826058754fb5d4df36c3a7283aac049015cbb044b5ef096c55d19f37172a50c``."
+msgstr "SHA-256 ``b826058754fb5d4df36c3a7283aac049015cbb044b5ef096c55d19f37172a50c``।"
+
+msgid "Toxoplasma Plaque Well Detector v2"
+msgstr "Toxoplasma Plaque Well Detector v2"
+
+msgid "**Architecture.** YOLO26n (ultralytics 8.4.155)"
+msgstr "**संरचना।** YOLO26n (ultralytics 8.4.155)"
+
+msgid "**Trained on.** whole-plate and multi-well Toxoplasma plaque-assay images plus 939 newly reviewed PMC figures, accepted boxes and confirmed negatives alike; yolo26n base, best validation mAP50-95 at epoch 28"
+msgstr "**प्रशिक्षण डेटा।** पूरी प्लेट और बहु-कूप टोक्सोप्लाज़्मा प्लाक-परीक्षण छवियाँ और 939 नए समीक्षित PMC चित्र, स्वीकृत बॉक्स और पुष्ट ऋणात्मक दोनों; आधार yolo26n, सर्वश्रेष्ठ सत्यापन mAP50-95 एपोक 28 पर"
+
+msgid "**Measured.** mAP50 0.9457 and mAP50-95 0.8341 against v1's (yolo_welldetect_v3.pt) 0.8838 and 0.7630 on the SAME test set; stock YOLO has no plaque-well class, so v1 is the baseline"
+msgstr "**मापा गया।** उसी (SAME) परीक्षण सेट पर mAP50 0.9457 और mAP50-95 0.8341, जबकि v1 (yolo_welldetect_v3.pt) के 0.8838 और 0.7630; मानक YOLO में प्लाक-कूप वर्ग नहीं है, इसलिए v1 आधार रेखा है"
+
+msgid "on the shared test set it beats v1 (the v3 weights) on every measure, and cuts false boxes on no-well figures from 152 to 49"
+msgstr "साझा परीक्षण सेट पर यह हर माप में v1 (v3 भार) से बेहतर है, और बिना कूप वाले चित्रों पर गलत बॉक्स 152 से घटाकर 49 करता है"
+
+msgid "84 of the 129 test images contain no well at all, which is what the false-box count is measured on"
+msgstr "129 परीक्षण छवियों में से 84 में कोई कूप नहीं है, और गलत-बॉक्स गिनती इन्हीं पर मापी जाती है"
+
+msgid "locates WELLS, not plaques; the front half of a two-stage pipeline with the plaque segmentation model"
+msgstr "प्लाक नहीं, कूप (WELLS) खोजता है; प्लाक विभाजन मॉडल के साथ दो-चरणीय पाइपलाइन का अगला आधा भाग"
+
+msgid "the repository publishes this weight as weights/best.pt; spaCR saves it under the name above so two detectors cannot both land as best.pt"
+msgstr "रिपॉज़िटरी इस भार को weights/best.pt के रूप में प्रकाशित करती है; spaCR इसे ऊपर दिए नाम से सहेजता है ताकि दो डिटेक्टर दोनों best.pt के रूप में न आ जाएँ"
+
+msgid "Published as `einarolafsson/toxoplasma-plaque-well-detector-yolo26 <https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo26>`_, as ``yolo_welldetect_v4.pt``."
+msgstr "`einarolafsson/toxoplasma-plaque-well-detector-yolo26 <https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo26>`_ के रूप में, ``yolo_welldetect_v4.pt`` नाम से प्रकाशित।"
+
+msgid "SHA-256 ``f2a1e1110f09b2a1d5ef5545adaba7c57f1158669d0bfc50d8fabe9f86da30c7``."
+msgstr "SHA-256 ``f2a1e1110f09b2a1d5ef5545adaba7c57f1158669d0bfc50d8fabe9f86da30c7``।"
+
+msgid "Toxoplasma from Cell Mask (cross-channel)"
+msgstr "कोशिका मास्क से टोक्सोप्लाज़्मा (क्रॉस-चैनल)"
+
+msgid "**Trained on.** cross-channel: given the host cell image, predicts where the Toxoplasma parasitophorous vacuoles are, with no parasite stain. 100 epochs, base cpsam_v2, AdamW lr 1e-5, targets are PV-regenerated masks"
+msgstr "**प्रशिक्षण डेटा।** क्रॉस-चैनल: मेज़बान कोशिका छवि दिए जाने पर, परजीवी अभिरंजन के बिना, यह अनुमान लगाता है कि टोक्सोप्लाज़्मा परजीवीधानी रिक्तिकाएँ कहाँ हैं। 100 एपोक, आधार cpsam_v2, AdamW lr 1e-5, लक्ष्य PV से पुनः बनाए गए मास्क हैं"
+
+msgid "**Measured.** F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "**मापा गया।** 463 कूप-समूहित अलग रखे गए फ़ील्ड पर IoU 0.5 पर F1 0.606, जबकि मानक cpsam_v2 के लिए 0.021"
+
+msgid "F1 0.606, AJI 0.494, Dice 0.610 at IoU 0.5 against stock cpsam_v2's 0.021/0.008/0.020 -- stock cannot do this task at all"
+msgstr "IoU 0.5 पर F1 0.606, AJI 0.494, Dice 0.610, जबकि मानक cpsam_v2 के 0.021/0.008/0.020 -- मानक मॉडल यह कार्य बिल्कुल नहीं कर सकता"
+
+msgid "per host: HeLa 0.711, HFF 0.557, THP1 0.465; THP1 is the weak case"
+msgstr "प्रति मेज़बान: HeLa 0.711, HFF 0.557, THP1 0.465; THP1 कमज़ोर मामला है"
+
+msgid "the held-out split selects the checkpoint, so it is validation data rather than an independent test set"
+msgstr "अलग रखा गया विभाजन चेकपॉइंट चुनता है, इसलिए यह स्वतंत्र परीक्षण सेट के बजाय सत्यापन डेटा है"
+
+msgid "accuracy falls above IoU 0.8 -- suited to counting, occupancy and area rather than precise morphometry"
+msgstr "IoU 0.8 से ऊपर सटीकता गिरती है -- सटीक आकृतिमिति के बजाय गिनती, अधिभोग और क्षेत्रफल के लिए उपयुक्त"
+
+msgid "Published as `einarolafsson/toxoplasma-from-cellmask-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-cellmask-cpsam>`_, as ``toxoplasma_from_cellmask_pv``."
+msgstr "`einarolafsson/toxoplasma-from-cellmask-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-cellmask-cpsam>`_ के रूप में, ``toxoplasma_from_cellmask_pv`` नाम से प्रकाशित।"
+
+msgid "SHA-256 ``481dfccc1a68cc594aafcb71088efc25b5f5c6a6240e52902c0089759b3149ab``."
+msgstr "SHA-256 ``481dfccc1a68cc594aafcb71088efc25b5f5c6a6240e52902c0089759b3149ab``।"
+
+msgid "Toxoplasma PV v2 (round 5)"
+msgstr "Toxoplasma PV v2 (पाँचवाँ दौर)"
+
+msgid "**Trained on.** Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV lumen (RH and ME49). Round 5: 556 images, 100 epochs, base cpsam_v2"
+msgstr "**प्रशिक्षण डेटा।** बकरी एंटी-टोक्सोप्लाज़्मा-बायोटिन से अभिरंजित टोक्सोप्लाज़्मा टैकीज़ॉइट परजीवीधानी रिक्तिकाएँ, और PV ल्यूमेन में DsRed व्यक्त करने वाले टैकीज़ॉइट (RH और ME49)। पाँचवाँ दौर: 556 छवियाँ, 100 एपोक, आधार cpsam_v2"
+
+msgid "**Measured.** F1 0.817 +/- 0.036 by 5-fold cross-validation over 619 pairs; ~0.86 against 0.713 for stock on the 11 in-house held-out wells"
+msgstr "**मापा गया।** 619 जोड़ों पर 5-गुना क्रॉस-वैलिडेशन से F1 0.817 +/- 0.036; 11 आंतरिक अलग रखे गए कूपों पर ~0.86, जबकि मानक के लिए 0.713"
+
+msgid "supersedes toxoplasma_pv_v1 (round 2, 229 images): more than twice the training data and cross-validated rather than single-split"
+msgstr "toxoplasma_pv_v1 (दूसरा दौर, 229 छवियाँ) का स्थान लेता है: दोगुने से अधिक प्रशिक्षण डेटा और एकल विभाजन के बजाय क्रॉस-वैलिडेटेड"
+
+msgid "5-fold CV over 619 pairs: F1 0.817 (SD 0.036), AJI 0.714, Dice 0.802"
+msgstr "619 जोड़ों पर 5-गुना क्रॉस-वैलिडेशन: F1 0.817 (SD 0.036), AJI 0.714, Dice 0.802"
+
+msgid "per-dataset variance is real -- F1 ranges ~0.74 to ~0.93 by screen"
+msgstr "डेटासेट के बीच भिन्नता वास्तविक है -- स्क्रीन के अनुसार F1 लगभग 0.74 से लगभग 0.93 तक"
+
+msgid "accuracy falls above IoU 0.8 -- suited to counting and area rather than precise morphometry"
+msgstr "IoU 0.8 से ऊपर सटीकता गिरती है -- सटीक आकृतिमिति के बजाय गिनती और क्षेत्रफल के लिए उपयुक्त"
+
+msgid "Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r5 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r5>`_, as ``cpsam_v2_toxo_r5``."
+msgstr "`einarolafsson/toxoplasma-pv-segmentation-cpsam-r5 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r5>`_ के रूप में, ``cpsam_v2_toxo_r5`` नाम से प्रकाशित।"
+
+msgid "SHA-256 ``17c689e3b117745561e20a885c2a2a998ed360fa97cac8c0446316ae5905c10f``."
+msgstr "SHA-256 ``17c689e3b117745561e20a885c2a2a998ed360fa97cac8c0446316ae5905c10f``।"
+
+msgid "Toxoplasma PV v3 (round 6)"
+msgstr "Toxoplasma PV v3 (छठा दौर)"
+
+msgid "**Trained on.** Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV lumen (RH and ME49). Round 6 retrains round 5's data with cellpose 4.2.1.1, 100 epochs, base cpsam_v2"
+msgstr "**प्रशिक्षण डेटा।** बकरी एंटी-टोक्सोप्लाज़्मा-बायोटिन से अभिरंजित टोक्सोप्लाज़्मा टैकीज़ॉइट परजीवीधानी रिक्तिकाएँ, और PV ल्यूमेन में DsRed व्यक्त करने वाले टैकीज़ॉइट (RH और ME49)। छठा दौर पाँचवें दौर के डेटा को cellpose 4.2.1.1 से फिर से प्रशिक्षित करता है, 100 एपोक, आधार cpsam_v2"
+
+msgid "**Measured.** F1 0.860 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.803 against 0.505"
+msgstr "**मापा गया।** 11 एंकर कूपों पर IoU 0.5 पर F1 0.860, जबकि मानक cpsam_v2 का 0.765; AJI 0.803 बनाम 0.505"
+
+msgid "NEWEST IS NOT BEST HERE: round 6 does not beat round 2 on the anchor wells -- 0.8602 against 0.8648 -- and the PV project still promotes round 5"
+msgstr "यहाँ नवीनतम सर्वश्रेष्ठ नहीं है: छठा दौर एंकर कूपों पर दूसरे दौर से आगे नहीं है -- 0.8602 बनाम 0.8648 -- और PV प्रोजेक्ट अब भी पाँचवें दौर को पदोन्नत करता है"
+
+msgid "it is the first PV round whose checkpoint was chosen on a held-out validation set (108 fields) instead of on the test wells"
+msgstr "यह पहला PV दौर है जिसका चेकपॉइंट परीक्षण कूपों के बजाय अलग रखे गए सत्यापन सेट (108 फ़ील्ड) पर चुना गया"
+
+msgid "5-fold cross-validation, grouped by source: F1 0.8168 +/- 0.028, AJI 0.7516, Dice 0.8424"
+msgstr "स्रोत के अनुसार समूहित 5-गुना क्रॉस-वैलिडेशन: F1 0.8168 +/- 0.028, AJI 0.7516, Dice 0.8424"
+
+msgid "the 11 anchor wells have been held out since round 1, so they are the only fields no PV round has ever trained on"
+msgstr "11 एंकर कूप पहले दौर से अलग रखे गए हैं, इसलिए वे ऐसे एकमात्र फ़ील्ड हैं जिन पर किसी भी PV दौर ने कभी प्रशिक्षण नहीं लिया"
+
+msgid "Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r6 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r6>`_, as ``cpsam_v2_toxo_r6``."
+msgstr "`einarolafsson/toxoplasma-pv-segmentation-cpsam-r6 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r6>`_ के रूप में, ``cpsam_v2_toxo_r6`` नाम से प्रकाशित।"
+
+msgid "SHA-256 ``146ef269979b1d1ab45c11039b0ab164f68001adaa8f73f1f8f18be6fcfd060e``."
+msgstr "SHA-256 ``146ef269979b1d1ab45c11039b0ab164f68001adaa8f73f1f8f18be6fcfd060e``।"
+
+msgid "Live cell v1 (phase, brightfield, DIC)"
+msgstr "जीवित कोशिका v1 (फ़ेज़, ब्राइटफ़ील्ड, DIC)"
+
+msgid "**Trained on.** unstained cells in phase contrast, brightfield and DIC: LIVECell, DeepSea, YeaZ, yeast microstructures, five Cell Tracking Challenge sets, BBBC009, BBBC030, QPI and Revvity. Base cpsam_v2, cellpose 4.2.1.1, lr 1e-5, batch 4; stopped at epoch 37 of 100"
+msgstr "**प्रशिक्षण डेटा।** फ़ेज़ कंट्रास्ट, ब्राइटफ़ील्ड और DIC में अनभिरंजित कोशिकाएँ: LIVECell, DeepSea, YeaZ, यीस्ट सूक्ष्म संरचनाएँ, पाँच Cell Tracking Challenge सेट, BBBC009, BBBC030, QPI और Revvity। आधार cpsam_v2, cellpose 4.2.1.1, lr 1e-5, बैच 4; 100 में से एपोक 37 पर रोका गया"
+
+msgid "**Measured.** on the datasets stock cpsam_v2 never trained on, F1 0.960 against 0.885 at IoU 0.5; over all 2,199 test fields, 0.694 against 0.738, because stock trained on LIVECell and YeaZ and wins on LIVECell"
+msgstr "**मापा गया।** उन डेटासेट पर जिन पर मानक cpsam_v2 कभी प्रशिक्षित नहीं हुआ, IoU 0.5 पर F1 0.960 बनाम 0.885; सभी 2,199 परीक्षण फ़ील्ड पर 0.694 बनाम 0.738, क्योंकि मानक मॉडल LIVECell और YeaZ पर प्रशिक्षित है और LIVECell पर आगे रहता है"
+
+msgid "TWO STOCK COMPARISONS, NOT ONE: stock cpsam_v2 trained on LIVECell and YeaZ, so its score there is partly memorisation. On the datasets it never saw (DeepSea, the CTC sets, BBBC009, BBBC030, QPI, Revvity, yeast microstructures) this model scores F1 0.960 against 0.885"
+msgstr "मानक मॉडल से दो तुलनाएँ, एक नहीं: मानक cpsam_v2 LIVECell और YeaZ पर प्रशिक्षित है, इसलिए वहाँ उसका स्कोर आंशिक रूप से याद रखने का परिणाम है। उन डेटासेट पर जिन्हें उसने कभी नहीं देखा (DeepSea, CTC सेट, BBBC009, BBBC030, QPI, Revvity, यीस्ट सूक्ष्म संरचनाएँ) यह मॉडल F1 0.960 बनाम 0.885 स्कोर करता है"
+
+msgid "it does NOT replace stock on LIVECell-style Incucyte phase: 0.671 against 0.724 there, and it missed its own pre-registered promotion bar"
+msgstr "LIVECell-शैली की Incucyte फ़ेज़ छवियों पर यह मानक मॉडल का स्थान नहीं (NOT) लेता: वहाँ 0.671 बनाम 0.724, और यह अपनी पूर्व-पंजीकृत पदोन्नति सीमा से चूक गया"
+
+msgid "by modality at IoU 0.5: brightfield 0.964 (stock 0.912), DIC +0.026 over stock, phase 0.689 (stock 0.735)"
+msgstr "IoU 0.5 पर प्रतिबिंबन विधि के अनुसार: ब्राइटफ़ील्ड 0.964 (मानक 0.912), DIC मानक से +0.026, फ़ेज़ 0.689 (मानक 0.735)"
+
+msgid "F1 0.865 on a train sample, 0.696 on validation and 0.694 on test; no per-epoch loss was recorded"
+msgstr "प्रशिक्षण नमूने पर F1 0.865, सत्यापन पर 0.696 और परीक्षण पर 0.694; प्रति-एपोक हानि दर्ज नहीं की गई"
+
+msgid "Published as `einarolafsson/live-cell-segmentation-cpsam <https://huggingface.co/einarolafsson/live-cell-segmentation-cpsam>`_, as ``live_cell_v1``."
+msgstr "`einarolafsson/live-cell-segmentation-cpsam <https://huggingface.co/einarolafsson/live-cell-segmentation-cpsam>`_ के रूप में, ``live_cell_v1`` नाम से प्रकाशित।"
+
+msgid "SHA-256 ``7ade69377093fe81830ddc7c52ba8618bef1fefe7d1243c01b9c1beed7fcb090``."
+msgstr "SHA-256 ``7ade69377093fe81830ddc7c52ba8618bef1fefe7d1243c01b9c1beed7fcb090``।"
+
+msgid "Cross-channel nuclei-from-cellmask"
+msgstr "क्रॉस-चैनल: कोशिका मास्क से केंद्रक"
+
+msgid "**Trained on.** cross-channel: given the cell image, predicts where the nuclei are, with no nuclear stain -- which frees the DAPI/Hoechst channel for another marker. 100 epochs, base cpsam_v2"
+msgstr "**प्रशिक्षण डेटा।** क्रॉस-चैनल: कोशिका छवि दिए जाने पर, केंद्रकीय अभिरंजन के बिना, यह अनुमान लगाता है कि केंद्रक कहाँ हैं -- जिससे DAPI/Hoechst चैनल किसी अन्य मार्कर के लिए मुक्त हो जाता है। 100 एपोक, आधार cpsam_v2"
+
+msgid "**Measured.** F1 0.888 against 0.201 for stock cpsam_v2 on 453 well-grouped held-out fields, at IoU 0.5"
+msgstr "**मापा गया।** 453 कूप-समूहित अलग रखे गए फ़ील्ड पर IoU 0.5 पर F1 0.888, जबकि मानक cpsam_v2 के लिए 0.201"
+
+msgid "F1 0.888, AJI 0.792, Dice 0.877 at IoU 0.5 against stock cpsam_v2's 0.201/0.286/0.449"
+msgstr "IoU 0.5 पर F1 0.888, AJI 0.792, Dice 0.877, जबकि मानक cpsam_v2 के 0.201/0.286/0.449"
+
+msgid "per host: HFF 0.932, HeLa 0.860, THP1 0.861"
+msgstr "प्रति मेज़बान: HFF 0.932, HeLa 0.860, THP1 0.861"
+
+msgid "predicts nuclei from cell morphology -- expect degraded accuracy on unusual or highly confluent morphologies"
+msgstr "कोशिका आकृति से केंद्रकों का अनुमान लगाता है -- असामान्य या अत्यधिक सघन आकृतियों पर कम सटीकता की अपेक्षा करें"
+
+msgid "Published as `einarolafsson/cross-channel-nuclei-from-cellmask-cpsam <https://huggingface.co/einarolafsson/cross-channel-nuclei-from-cellmask-cpsam>`_, as ``nuclei_from_cellmask_best``."
+msgstr "`einarolafsson/cross-channel-nuclei-from-cellmask-cpsam <https://huggingface.co/einarolafsson/cross-channel-nuclei-from-cellmask-cpsam>`_ के रूप में, ``nuclei_from_cellmask_best`` नाम से प्रकाशित।"
+
+msgid "SHA-256 ``2675553a46e97a7bc4bd2bfe3e954954194fe71ca4e94261e752a02bf0b6eb47``."
+msgstr "SHA-256 ``2675553a46e97a7bc4bd2bfe3e954954194fe71ca4e94261e752a02bf0b6eb47``।"
+
+msgid "Cross-channel cell-from-hoechst"
+msgstr "क्रॉस-चैनल: Hoechst से कोशिका"
+
+msgid "**Trained on.** Hoechst-stained nuclei paired with curated host-cell masks; fine-tuned from stock cpsam_v2, 100 epochs, best epoch 70"
+msgstr "**प्रशिक्षण डेटा।** क्यूरेट किए गए मेज़बान-कोशिका मास्क के साथ जोड़े गए Hoechst-अभिरंजित केंद्रक; मानक cpsam_v2 से फ़ाइन-ट्यून, 100 एपोक, सर्वश्रेष्ठ एपोक 70"
+
+msgid "**Measured.** F1 0.870 against stock cpsam_v2's 0.301 on 451 held-out fields at IoU 0.5 -- a delta of 0.569"
+msgstr "**मापा गया।** 451 अलग रखे गए फ़ील्ड पर IoU 0.5 पर F1 0.870, जबकि मानक cpsam_v2 का 0.301 -- 0.569 का अंतर"
+
+msgid "the counterpart of nuclei_from_cellmask_v1: that one predicts nuclei from the cell mask, this one predicts the cell from the nucleus"
+msgstr "nuclei_from_cellmask_v1 का प्रतिरूप: वह कोशिका मास्क से केंद्रकों का अनुमान लगाता है, यह केंद्रक से कोशिका का"
+
+msgid "precision 0.944 against recall 0.806 -- it misses cells rather than inventing them, which is the safer direction for counting"
+msgstr "परिशुद्धता 0.944 बनाम रिकॉल 0.806 -- यह कोशिकाएँ गढ़ने के बजाय चूकता है, जो गिनती के लिए अधिक सुरक्षित दिशा है"
+
+msgid "quote the DELTA over stock (0.569), not the ratio: stock's mAP of 0.0575 is a near-zero denominator that makes any ratio look huge"
+msgstr "मानक मॉडल पर अंतर (DELTA, 0.569) उद्धृत करें, अनुपात नहीं: मानक मॉडल का 0.0575 mAP शून्य के निकट हर है, जिससे कोई भी अनुपात बहुत बड़ा दिखता है"
+
+msgid "Published as `einarolafsson/cross-channel-cell-from-hoechst-cpsam <https://huggingface.co/einarolafsson/cross-channel-cell-from-hoechst-cpsam>`_, as ``cell_from_hoechst_best``."
+msgstr "`einarolafsson/cross-channel-cell-from-hoechst-cpsam <https://huggingface.co/einarolafsson/cross-channel-cell-from-hoechst-cpsam>`_ के रूप में, ``cell_from_hoechst_best`` नाम से प्रकाशित।"
+
+msgid "SHA-256 ``d1992433b4f2f291f73738830bb953198165fdc10719e54dae9b8c2bd430e0eb``."
+msgstr "SHA-256 ``d1992433b4f2f291f73738830bb953198165fdc10719e54dae9b8c2bd430e0eb``।"
+
+msgid "Toxoplasma from Hoechst (cross-channel)"
+msgstr "Hoechst से टोक्सोप्लाज़्मा (क्रॉस-चैनल)"
+
+msgid "**Trained on.** cross-channel: given the Hoechst/nuclear image, predicts where the Toxoplasma parasitophorous vacuoles are, with no parasite stain. 100 epochs, base cpsam_v2, AdamW lr 1e-05, targets are PV-regenerated masks"
+msgstr "**प्रशिक्षण डेटा।** क्रॉस-चैनल: Hoechst/केंद्रकीय छवि दिए जाने पर, परजीवी अभिरंजन के बिना, यह अनुमान लगाता है कि टोक्सोप्लाज़्मा परजीवीधानी रिक्तिकाएँ कहाँ हैं। 100 एपोक, आधार cpsam_v2, AdamW lr 1e-05, लक्ष्य PV से पुनः बनाए गए मास्क हैं"
+
+msgid "**Measured.** F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "**मापा गया।** 463 कूप-समूहित अलग रखे गए फ़ील्ड पर IoU 0.5 पर F1 0.569, जबकि मानक cpsam_v2 के लिए 0.002"
+
+msgid "F1 0.569, AJI 0.421, Dice 0.546 at IoU 0.5 against stock cpsam_v2's 0.002/0.006/0.016"
+msgstr "IoU 0.5 पर F1 0.569, AJI 0.421, Dice 0.546, जबकि मानक cpsam_v2 के 0.002/0.006/0.016"
+
+msgid "the Hoechst route is harder than the cell-mask route -- compare toxoplasma_from_cellmask_v1"
+msgstr "Hoechst मार्ग कोशिका-मास्क मार्ग से कठिन है -- toxoplasma_from_cellmask_v1 से तुलना करें"
+
+msgid "Published as `einarolafsson/toxoplasma-from-hoechst-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-hoechst-cpsam>`_, as ``toxoplasma_from_hoechst_pv``."
+msgstr "`einarolafsson/toxoplasma-from-hoechst-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-hoechst-cpsam>`_ के रूप में, ``toxoplasma_from_hoechst_pv`` नाम से प्रकाशित।"
+
+msgid "SHA-256 ``8dc05ebced3550d1a418c13d24d319e0482c742988df29a525520026cb2f0d96``."
+msgstr "SHA-256 ``8dc05ebced3550d1a418c13d24d319e0482c742988df29a525520026cb2f0d96``।"
+

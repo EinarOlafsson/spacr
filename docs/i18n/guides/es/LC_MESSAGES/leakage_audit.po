@@ -1,0 +1,285 @@
+# spaCR user guide translation (es).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: es\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Train/test leakage audit"
+msgstr "Auditoría de fugas entre entrenamiento y prueba"
+
+msgid "Classifier accuracy is invalid when related crops occur on both sides of an evaluation boundary. spaCR audits the permanent ``train/``/``test/`` split, the ordinary train/validation holdout, every outer and inner CV boundary, and the CV partition as a whole before fitting."
+msgstr "La exactitud de un clasificador no es válida cuando hay recortes relacionados a ambos lados de un límite de evaluación. Antes del ajuste, spaCR audita la partición permanente ``train/``/``test/``, la reserva ordinaria de entrenamiento/validación, cada límite externo e interno de la validación cruzada y la partición de la validación cruzada en su conjunto."
+
+msgid "What is verified"
+msgstr "Qué se verifica"
+
+msgid "The audit checks:"
+msgstr "La auditoría comprueba que:"
+
+msgid "the same path or crop identity never crosses a boundary;"
+msgstr "la misma ruta o identidad de recorte nunca cruza un límite;"
+
+msgid "exported augmentations such as ``_rot90``, ``_flip_h`` and ``_aug3`` remain with their source object;"
+msgstr "los aumentos exportados, como ``_rot90``, ``_flip_h`` y ``_aug3``, permanecen con su objeto de origen;"
+
+msgid "byte-identical crops are detected by streaming SHA-256 even if renamed;"
+msgstr "los recortes idénticos byte a byte se detectan mediante SHA-256 en flujo aunque se hayan renombrado;"
+
+msgid "the requested ``cv_group_by`` identity (field, well or plate) stays intact;"
+msgstr "la identidad ``cv_group_by`` solicitada (campo, pocillo o placa) se mantiene intacta;"
+
+msgid "every CV sample is held out exactly once;"
+msgstr "cada muestra de la validación cruzada se reserva exactamente una vez;"
+
+msgid "no related family is assigned to more than one held-out fold; and"
+msgstr "ninguna familia relacionada se asigna a más de un pliegue reservado; y"
+
+msgid "related crops do not carry conflicting class labels."
+msgstr "los recortes relacionados no tienen etiquetas de clase contradictorias."
+
+msgid "Filename identities follow spaCR's ``<plate>_<well>_<field>_..._<object>.png`` crop convention. With ``leakage_require_identity=True`` (the default), a filename that cannot prove its requested identity fails the audit; an unknown relationship is not reported as independent."
+msgstr "Las identidades a partir del nombre de archivo siguen la convención de recortes ``<plate>_<well>_<field>_..._<object>.png`` de spaCR. Con ``leakage_require_identity=True`` (el valor predeterminado), un nombre de archivo que no puede demostrar la identidad solicitada hace fallar la auditoría; una relación desconocida no se declara independiente."
+
+msgid "Ordinary validation is group-aware too. ``cv_group_by='well'`` uses the same group-stratified partitioner as CV and selects the candidate fold closest to ``val_split`` and the full dataset's class distribution. Augmentation is applied only after the split and only to training."
+msgstr "La validación ordinaria también tiene en cuenta los grupos. ``cv_group_by='well'`` usa el mismo particionador estratificado por grupos que la validación cruzada y selecciona el pliegue candidato más cercano a ``val_split`` y a la distribución de clases del conjunto de datos completo. El aumento se aplica solo después de la partición y solo al entrenamiento."
+
+msgid "Run the audit directly"
+msgstr "Ejecutar la auditoría directamente"
+
+msgid "The command prints JSON and exits ``0`` for a verified split, ``1`` when leakage or unverifiable identities are found, and ``2`` when the dataset cannot be audited. ``--no-content-hash`` reduces I/O but cannot detect renamed copies. ``--allow-unverifiable`` is intended for diagnosing legacy datasets; it does not make their performance estimate trustworthy."
+msgstr "El comando imprime JSON y termina con ``0`` para una partición verificada, ``1`` cuando se encuentran fugas o identidades no verificables, y ``2`` cuando el conjunto de datos no puede auditarse. ``--no-content-hash`` reduce la E/S, pero no puede detectar copias renombradas. ``--allow-unverifiable`` está pensado para diagnosticar conjuntos de datos antiguos; no hace fiable su estimación de rendimiento."
+
+msgid "Classify settings"
+msgstr "Ajustes de Clasificar"
+
+msgid "``leakage_audit_train_test``"
+msgstr "``leakage_audit_train_test``"
+
+msgid "Audit ``train/`` against ``test/`` before fitting. Default ``True``."
+msgstr "Audita ``train/`` frente a ``test/`` antes del ajuste. Predeterminado ``True``."
+
+msgid "``leakage_hash_content``"
+msgstr "``leakage_hash_content``"
+
+msgid "Stream SHA-256 for copy/rename detection. Default ``True``."
+msgstr "Calcula SHA-256 en flujo para detectar copias y renombrados. Predeterminado ``True``."
+
+msgid "``leakage_require_identity``"
+msgstr "``leakage_require_identity``"
+
+msgid "Fail when protected identity or content cannot be verified. Default ``True``."
+msgstr "Falla cuando no se puede verificar la identidad o el contenido protegidos. Predeterminado ``True``."
+
+msgid "``evaluation_fail_on_leakage``"
+msgstr "``evaluation_fail_on_leakage``"
+
+msgid "Stop before fitting when an audit fails. Default ``True``. Setting it to ``False`` records a failed audit but cannot make the resulting metric valid."
+msgstr "Se detiene antes del ajuste cuando falla una auditoría. Predeterminado ``True``. Establecerlo en ``False`` registra una auditoría fallida, pero no puede hacer válida la métrica resultante."
+
+msgid "Reports are written beside the classifier run as ``train_test_leakage_audit.json`` and ``train_validation_leakage_audit.json``. CV audit records are also included in the Classifier Evaluation workbench's ``leakage.json``."
+msgstr "Los informes se escriben junto a la ejecución del clasificador como ``train_test_leakage_audit.json`` y ``train_validation_leakage_audit.json``. Los registros de auditoría de la validación cruzada también se incluyen en el ``leakage.json`` del banco Evaluación del clasificador."
+
+msgid "API"
+msgstr "API"
+
+msgid "Classifier evaluation, calibration, and split-leakage diagnostics."
+msgstr "Evaluación de clasificadores, calibración y diagnóstico de fugas entre particiones."
+
+msgid "The module is model-agnostic: it consumes labels, probabilities, fold ids, and sample paths. Deep-learning CV and future classical-ML pipelines can therefore write the same evaluation bundle and the Qt workbench can display one stable artifact format."
+msgstr "El módulo es independiente del modelo: consume etiquetas, probabilidades, identificadores de pliegue y rutas de muestras. Por tanto, la validación cruzada de aprendizaje profundo y las futuras canalizaciones de ML clásico pueden escribir el mismo conjunto de evaluación, y el banco de Qt puede mostrar un único formato de artefacto estable."
+
+msgid "Whole-CV proof that each related sample family belongs to one fold."
+msgstr "Prueba, sobre toda la validación cruzada, de que cada familia de muestras relacionadas pertenece a un solo pliegue."
+
+msgid "Parameters"
+msgstr "Parámetros"
+
+msgid "canonical identity level required to remain within one validation fold."
+msgstr "nivel de identidad canónico que debe permanecer dentro de un único pliegue de validación."
+
+msgid "number of source paths whose fold membership was audited."
+msgstr "número de rutas de origen cuya pertenencia a pliegues se auditó."
+
+msgid "number of train/validation fold pairs inspected."
+msgstr "número de pares de pliegues de entrenamiento/validación inspeccionados."
+
+msgid "up to twenty sample indexes that were never held out for validation."
+msgstr "hasta veinte índices de muestras que nunca se reservaron para validación."
+
+msgid "up to twenty sample indexes held out in more than one fold."
+msgstr "hasta veinte índices de muestras reservadas en más de un pliegue."
+
+msgid "identities assigned to multiple validation folds, counted at each exact, content, family, object, and acquisition level."
+msgstr "identidades asignadas a varios pliegues de validación, contadas en cada nivel: exacto, contenido, familia, objeto y adquisición."
+
+msgid "up to ten conflicting identities per level, annotated with the folds that contain them."
+msgstr "hasta diez identidades contradictorias por nivel, anotadas con los pliegues que las contienen."
+
+msgid "completeness, overlap, identity, or label failures that make :attr:`passed` false."
+msgstr "fallos de completitud, solapamiento, identidad o etiqueta que hacen falso :attr:`passed`."
+
+msgid "non-fatal caveats and explanations accompanying failures."
+msgstr "salvedades no fatales y explicaciones que acompañan a los fallos."
+
+msgid "samples whose requested identity or optional byte-content hash could not be checked, counted by level."
+msgstr "muestras cuya identidad solicitada o hash opcional de contenido no pudo comprobarse, contadas por nivel."
+
+msgid "up to twenty file-specific content-hashing failures."
+msgstr "hasta veinte fallos de cálculo del hash de contenido específicos de un archivo."
+
+msgid "stable label for this whole-CV audit record."
+msgstr "etiqueta estable de este registro de auditoría de toda la validación cruzada."
+
+msgid "Return True only when the fold partition is complete and isolated."
+msgstr "Devuelve True solo cuando la partición en pliegues está completa y aislada."
+
+msgid "Return a JSON-serializable audit record."
+msgstr "Devuelve un registro de auditoría serializable en JSON."
+
+msgid "Overlap counts and examples for one train/validation boundary."
+msgstr "Recuentos de solapamiento y ejemplos para un límite de entrenamiento/validación."
+
+msgid "protected split level (``cell``, ``field``, ``well``, or ``plate``); the legacy ``none`` spelling is normalized to ``cell``."
+msgstr "nivel de partición protegido (``cell``, ``field``, ``well`` o ``plate``); la grafía antigua ``none`` se normaliza como ``cell``."
+
+msgid "number of training paths."
+msgstr "número de rutas de entrenamiento."
+
+msgid "number of validation paths."
+msgstr "número de rutas de validación."
+
+msgid "overlap count at each identity level."
+msgstr "recuento de solapamientos en cada nivel de identidad."
+
+msgid "up to ten shared identities per level."
+msgstr "hasta diez identidades compartidas por nivel."
+
+msgid "caller-supplied label for the audited boundary."
+msgstr "etiqueta proporcionada por quien llama para el límite auditado."
+
+msgid "levels that invalidate the requested split."
+msgstr "niveles que invalidan la partición solicitada."
+
+msgid "non-fatal caveats."
+msgstr "salvedades no fatales."
+
+msgid "samples lacking a requested identity or content hash, counted by the level that could not be verified."
+msgstr "muestras sin la identidad o el hash de contenido solicitados, contadas según el nivel que no pudo verificarse."
+
+msgid "up to twenty file-specific failures from optional byte-content hashing."
+msgstr "hasta veinte fallos específicos de un archivo del cálculo opcional del hash de contenido."
+
+msgid "Return True when no protected identity crosses the boundary."
+msgstr "Devuelve True cuando ninguna identidad protegida cruza el límite."
+
+msgid "Return a JSON-serializable report."
+msgstr "Devuelve un informe serializable en JSON."
+
+msgid "Verify partition coverage and identity isolation across every CV fold."
+msgstr "Verifica la cobertura de la partición y el aislamiento de identidades en todos los pliegues de la validación cruzada."
+
+msgid "This checks the fold assignment as one object, rather than trusting a sample of pairwise boundaries. Each index must be validation exactly once; exact paths, byte-identical content, source/augmentation families and the requested plate/well/field group must map to one held-out fold only."
+msgstr "Comprueba la asignación de pliegues como un todo, en lugar de confiar en una muestra de límites por pares. Cada índice debe estar en validación exactamente una vez; las rutas exactas, el contenido idéntico byte a byte, las familias de origen/aumento y el grupo de placa/pocillo/campo solicitado deben corresponder a un solo pliegue reservado."
+
+msgid "one source path per sample, indexed by the fold indices."
+msgstr "una ruta de origen por muestra, indexada por los índices de los pliegues."
+
+msgid "``(train_indices, validation_indices)`` per fold. Indices outside ``range(len(paths))`` are reported rather than ignored."
+msgstr "``(train_indices, validation_indices)`` por pliegue. Los índices fuera de ``range(len(paths))`` se notifican en lugar de ignorarse."
+
+msgid "optional class per path, one value per path. Only used to describe the folds; it does not affect leakage detection."
+msgstr "clase opcional por ruta, un valor por ruta. Solo se usa para describir los pliegues; no afecta a la detección de fugas."
+
+msgid "identity level that may not cross a fold boundary -- ``none``, ``field``, ``well`` or ``plate``. A well-grouped split permits the same plate on both sides but never the same well."
+msgstr "nivel de identidad que no puede cruzar un límite de pliegue -- ``none``, ``field``, ``well`` o ``plate``. Una partición agrupada por pocillo permite la misma placa a ambos lados, pero nunca el mismo pocillo."
+
+msgid "also compare file CONTENT, so a byte-identical copy under a different name is caught. Costs one read per file."
+msgstr "compara también el CONTENIDO de los archivos, de modo que se detecta una copia idéntica byte a byte con otro nombre. Cuesta una lectura por archivo."
+
+msgid "treat UNVERIFIABLE as critical. A filename that does not encode the requested identity, or a file that cannot be hashed, is otherwise only a warning -- so leaving this False means a clean report can still hide leakage nobody could check for."
+msgstr "trata lo NO VERIFICABLE como crítico. Un nombre de archivo que no codifica la identidad solicitada, o un archivo cuyo hash no puede calcularse, es en otro caso solo una advertencia -- dejar esto en False significa que un informe limpio aún puede ocultar fugas que nadie pudo comprobar."
+
+msgid "raise :class:`LeakageError` instead of returning a report whose ``passed`` is False."
+msgstr "lanza :class:`LeakageError` en lugar de devolver un informe cuyo ``passed`` sea False."
+
+msgid "Returns"
+msgstr "Devuelve"
+
+msgid "a :class:`FoldLeakageAudit` carrying the per-level overlap counts, examples, and which levels were critical."
+msgstr "un :class:`FoldLeakageAudit` con los recuentos de solapamiento por nivel, ejemplos y qué niveles fueron críticos."
+
+msgid "Raises"
+msgstr "Excepciones"
+
+msgid "for an unsupported ``group_by``, or ``labels`` whose length does not match ``paths``."
+msgstr "para un ``group_by`` no admitido, o unas ``labels`` cuya longitud no coincide con ``paths``."
+
+msgid "Audit the permanent ``train/`` versus ``test/`` dataset boundary."
+msgstr "Audita el límite permanente del conjunto de datos entre ``train/`` y ``test/``."
+
+msgid "dataset directory holding ``train/`` and ``test/``. Both are searched recursively, and only ``.png``, ``.jpg``, ``.jpeg``, ``.tif``, ``.tiff``, ``.bmp`` and ``.npy`` files are collected, so a folder of any other format audits as empty."
+msgstr "carpeta del conjunto de datos que contiene ``train/`` y ``test/``. Ambas se recorren de forma recursiva y solo se recogen archivos ``.png``, ``.jpg``, ``.jpeg``, ``.tif``, ``.tiff``, ``.bmp`` y ``.npy``, por lo que una carpeta de cualquier otro formato se audita como vacía."
+
+msgid "identity level that may not appear on both sides -- ``none``, ``field``, ``well`` or ``plate``. The default ``well`` still permits the same plate in train and test. It is validated only after the images are found, so a bad value over an empty tree reports the missing images instead."
+msgstr "nivel de identidad que no puede aparecer a ambos lados -- ``none``, ``field``, ``well`` o ``plate``. El valor predeterminado ``well`` sigue permitiendo la misma placa en entrenamiento y en prueba. Se valida solo después de encontrar las imágenes, por lo que un valor incorrecto sobre un árbol vacío informa en cambio de la falta de imágenes."
+
+msgid "defaults to True here, unlike :func:`audit_split_leakage`, so a byte-identical copy saved under a different name fails the audit -- at the cost of one read per file."
+msgstr "aquí es True de forma predeterminada, a diferencia de :func:`audit_split_leakage`, de modo que una copia idéntica byte a byte guardada con otro nombre hace fallar la auditoría -- a costa de una lectura por archivo."
+
+msgid "defaults to True here: filenames that do not encode the ``group_by`` level, and files that cannot be hashed, become critical instead of a warning, so an unverifiable split cannot report as clean."
+msgstr "aquí es True de forma predeterminada: los nombres de archivo que no codifican el nivel ``group_by`` y los archivos cuyo hash no puede calcularse pasan a ser críticos en lugar de una advertencia, de modo que una partición no verificable no puede declararse limpia."
+
+msgid "when either side collects no image -- a missing or unreadable folder is never treated as a passing split."
+msgstr "cuando alguno de los dos lados no recoge ninguna imagen -- una carpeta ausente o ilegible nunca se trata como una partición superada."
+
+msgid "a :class:`LeakageReport` whose ``split_name`` is always ``train_vs_test``; the ``test/`` side is counted as ``validation_samples``."
+msgstr "un :class:`LeakageReport` cuyo ``split_name`` es siempre ``train_vs_test``; el lado ``test/`` se cuenta como ``validation_samples``."
+
+msgid "Detect related images crossing a train/validation boundary."
+msgstr "Detecta imágenes relacionadas que cruzan un límite de entrenamiento/validación."
+
+msgid "Exact/object/augmentation-family overlap is always critical. The requested ``group_by`` level is also critical: a well-grouped split permits the same plate on both sides but never the same well."
+msgstr "El solapamiento a nivel exacto, de objeto o de familia de aumento es siempre crítico. El nivel ``group_by`` solicitado también es crítico: una partición agrupada por pocillo permite la misma placa a ambos lados, pero nunca el mismo pocillo."
+
+msgid "source paths used to fit the model."
+msgstr "rutas de origen usadas para ajustar el modelo."
+
+msgid "paths used only for evaluation."
+msgstr "rutas usadas solo para la evaluación."
+
+msgid "``cell``, ``field``, ``well``, or ``plate``. Legacy ``none`` aliases ``cell``."
+msgstr "``cell``, ``field``, ``well`` o ``plate``. El antiguo ``none`` es un alias de ``cell``."
+
+msgid "raise :class:`LeakageError` on a critical overlap."
+msgstr "lanza :class:`LeakageError` ante un solapamiento crítico."
+
+msgid "optional fold/split label stored in the report."
+msgstr "etiqueta opcional de pliegue o partición guardada en el informe."
+
+msgid ":class:`LeakageReport`."
+msgstr ":class:`LeakageReport`."
+
+msgid "Atomically write a leakage report/audit as JSON and return its path."
+msgstr "Escribe de forma atómica un informe o una auditoría de fugas como JSON y devuelve su ruta."
+
+msgid "destination JSON file; ``~`` is expanded and missing parent folders are created. It is replaced atomically."
+msgstr "archivo JSON de destino; ``~`` se expande y se crean las carpetas padre que falten. Se sustituye de forma atómica."
+
+msgid "leakage report or audit to write: any object with a ``to_dict()`` method, or a mapping."
+msgstr "informe o auditoría de fugas que se va a escribir: cualquier objeto con un método ``to_dict()``, o un mapeo."
+

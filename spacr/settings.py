@@ -7498,6 +7498,9 @@ ALPHA_FEATURES = {
         'settings': ('counterfactuals', 'counterfactual_crops',
                      'counterfactual_epochs'),
     },
+    508: {
+        'widgets': ('MakeMasksUseInMaskGeneration',),
+    },
 }
 
 

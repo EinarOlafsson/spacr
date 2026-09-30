@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, tenth pass 2026-09-30: item 598's contribute-dialog captions (the thank-you and the dataset destination, whose links now sit on their own line), written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Thank you. Your contribution is waiting for review:",
+      "source": "Thank you. Your contribution is waiting for review:",
+      "source_sha256": "429f5eeba16d7f56e7d80fd78c2c5b68e8554b4d5e904cf70009d79fbf28249a",
+      "translation": "Gracias. Su contribución está pendiente de revisión:"
+    },
+    {
+      "table": "ui",
+      "key": "Goes to this dataset on Hugging Face (a new one appears with its first upload):",
+      "source": "Goes to this dataset on Hugging Face (a new one appears with its first upload):",
+      "source_sha256": "8b61f3195a034df0378706b50633d1766b5aab7897d43524cbf2ee81a19edb07",
+      "translation": "Va a este conjunto de datos en Hugging Face (uno nuevo aparece con su primera subida):"
+    }
+  ]
+}

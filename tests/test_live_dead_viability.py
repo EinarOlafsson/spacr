@@ -251,6 +251,43 @@ def test_a_plate_with_no_dead_cells_is_cut_above_its_one_population():
     assert manual.source == 'manual' and manual.threshold == 1000.0
 
 
+def test_a_dead_stain_with_one_population_is_cut_against_its_ring():
+    # Real stained plates (Caco-2 AO/DiOC6 + PI, 2026-09-30 validation):
+    # the PI-negative population has a long bright tail that a cut five
+    # robust SDs above the median falls inside.
+    rng = np.random.default_rng(1)
+    tail = 100 + rng.gamma(1.0, 6.0, 400)
+    dead = rng.normal(300, 20, 6)
+    objects = pd.DataFrame({
+        'plateID': 'p1', 'rowID': 'r1', 'columnID': 'c1', 'fieldID': 'f1',
+        'object_label': np.arange(406) + 1,
+        'nucleus_channel_1_mean_intensity': np.r_[tail, dead],
+        'nucleus_channel_1_outside_percentile_50': 100.0})
+    signal = measure._object_signal(objects, 'nucleus', 1)
+    ring = measure._object_background(objects, 'nucleus', 1)
+    positive, thresholds, cuts = measure._split_by_plate(
+        objects, signal, single_is_positive=False, background=ring)
+    cut = cuts[('p1',)]
+    assert cut.source == 'background'
+    assert cut.threshold == pytest.approx(65.0)
+    assert positive[400:].all() and not positive[:400].any()
+    assert np.allclose(thresholds, 65.0)
+    old, _t, old_cuts = measure._split_by_plate(
+        objects, signal, single_is_positive=False)
+    assert old_cuts[('p1',)].source == 'single' and old[:400].any()
+    dark = objects.assign(
+        nucleus_channel_1_mean_intensity=np.r_[tail, dead] - 100,
+        nucleus_channel_1_outside_percentile_50=0.0)
+    _p, _t, dark_cuts = measure._split_by_plate(
+        dark, measure._object_signal(dark, 'nucleus', 1),
+        single_is_positive=False,
+        background=measure._object_background(dark, 'nucleus', 1))
+    assert dark_cuts[('p1',)].source == 'single'
+    _p, _t, live_cuts = measure._split_by_plate(
+        objects, signal, single_is_positive=True, background=ring)
+    assert live_cuts[('p1',)].source == 'single'
+
+
 def test_manual_thresholds_parse_and_bad_ones_are_refused():
     assert _viability_manual(None) == (None, None)
     assert _viability_manual([150, None]) == (150.0, None)

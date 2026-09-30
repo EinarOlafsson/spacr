@@ -644,6 +644,229 @@ def write_relationships(db_path: str) -> pd.DataFrame:
     return ensure_relationships_table(db_path, rebuild=True)
 
 
+#: The Mask step's own table: which object sits inside which, read from the
+#: label planes themselves rather than from Measure's per-object tables.
+#: Decided 2026-09-29 (item 76): "i want masks to wirete it and it should be
+#: its own database table!" -- so it is written by Mask, before Measure has
+#: run, and is separate from :data:`RELATIONSHIPS_TABLE`, which is derived
+#: from Measure's tables and feeds the filters table.
+_OBJECT_RELATIONSHIPS_TABLE = "object_relationships"
+
+#: Columns of :data:`_OBJECT_RELATIONSHIPS_TABLE`, in stored order.
+_OBJECT_RELATIONSHIPS_COLUMNS: Tuple[str, ...] = (
+    "plateID", "rowID", "columnID", "fieldID", "timeID", "prcf", "file_name",
+    "child_type", "child_label", "parent_type", "parent_label",
+    "overlap_pixels", "child_pixels", "overlap_fraction",
+)
+
+
+def _object_relationship_pairs(roles: Sequence[str]) -> List[Tuple[str, str]]:
+    """The (child, parent) object-type pairs a set of mask planes supports.
+
+    Every organelle slot is placed in cell, nucleus and pathogen; nucleus and
+    pathogen are placed in cell. Organelle slots are never parents, and no
+    type is its own parent.
+
+    :param roles: object types that have a mask plane in this run.
+    :returns: pairs in a stable order (children, then parents, as listed).
+    """
+    present = list(dict.fromkeys(roles))
+    pairs: List[Tuple[str, str]] = []
+    for child in present:
+        if child in ORGANELLE_ROLES:
+            parents: Tuple[str, ...] = ("cell", "nucleus", "pathogen")
+        elif child in ("nucleus", "pathogen"):
+            parents = ("cell",)
+        else:
+            continue
+        pairs.extend((child, parent) for parent in parents
+                     if parent in present)
+    return pairs
+
+
+def _label_plane(array: np.ndarray, dim: int) -> np.ndarray:
+    """One mask plane of a merged stack as integer labels.
+
+    :param array: the merged stack, channels last.
+    :param dim: index of the mask plane on the last axis.
+    :returns: an ``int64`` array of the plane's shape; merged stacks can be
+        float when the intensity channels are, so values are rounded first.
+    """
+    plane = np.asarray(array[..., dim])
+    if not np.issubdtype(plane.dtype, np.integer):
+        plane = np.rint(plane)
+    return plane.astype(np.int64, copy=False)
+
+
+def _object_overlap_rows(child: np.ndarray, parent: np.ndarray
+                         ) -> List[Tuple[int, Optional[int], int, int]]:
+    """Every child object's overlap with every parent object it touches.
+
+    :param child: child label plane; 0 is background.
+    :param parent: parent label plane of the same shape.
+    :returns: ``(child_label, parent_label, overlap_pixels, child_pixels)``
+        per overlapping pair. A child that touches no parent object gets one
+        row with ``parent_label`` None and 0 overlapping pixels, so "sits in
+        no nucleus" is stated rather than left to an absent row.
+    """
+    inside = child > 0
+    labels, areas = np.unique(child[inside], return_counts=True)
+    area_of = {int(k): int(v) for k, v in zip(labels, areas)}
+    both = inside & (parent > 0)
+    rows: List[Tuple[int, Optional[int], int, int]] = []
+    placed = set()
+    if both.any():
+        pairs, counts = np.unique(
+            np.stack([child[both], parent[both]], axis=1),
+            axis=0, return_counts=True)
+        for (c, p), n in zip(pairs, counts):
+            rows.append((int(c), int(p), int(n), area_of[int(c)]))
+            placed.add(int(c))
+    for c in area_of:
+        if c not in placed:
+            rows.append((c, None, 0, area_of[c]))
+    rows.sort(key=lambda r: (r[0], -1 if r[1] is None else r[1]))
+    return rows
+
+
+def _object_relationships_frame(merged_dir: str, *,
+                                timelapse: bool = False) -> pd.DataFrame:
+    """Build the Mask step's object-relationships table from ``merged/``.
+
+    Reads the plane layout sidecar that
+    :func:`spacr.io._load_and_concatenate_arrays` writes, then every merged
+    field's mask planes (memory-mapped, so only those planes are read).
+
+    :param merged_dir: the run's ``merged`` folder.
+    :param timelapse: parse field names with their timepoint, as Measure does.
+    :returns: one row per (child object, parent object) overlap, with the
+        columns in :data:`_OBJECT_RELATIONSHIPS_COLUMNS`. Empty when the
+        folder has no layout sidecar or no related pair of mask planes.
+    """
+    import json
+    import os
+
+    from . import schema
+    from .crops import MERGED_LAYOUT_SIDECAR
+
+    empty = pd.DataFrame(columns=list(_OBJECT_RELATIONSHIPS_COLUMNS))
+    layout_path = os.path.join(merged_dir, MERGED_LAYOUT_SIDECAR)
+    if not os.path.isfile(layout_path):
+        return empty
+    with open(layout_path, "r", encoding="utf-8") as handle:
+        mask_dims = dict(json.load(handle).get("mask_dims") or {})
+    pairs = _object_relationship_pairs(list(mask_dims))
+    if not pairs:
+        return empty
+
+    records: List[Dict[str, object]] = []
+    names = sorted(n for n in os.listdir(merged_dir)
+                   if n.endswith(".npy") and not n.startswith("."))
+    roles = sorted({role for pair in pairs for role in pair})
+    for name in names:
+        stem = os.path.splitext(name)[0]
+        try:
+            identity: Dict[str, object] = dict(schema.parse_field_stem(
+                stem, timelapse=timelapse).to_dict(include_prcf=True))
+        except Exception:
+            identity = {}
+        array = np.load(os.path.join(merged_dir, name), mmap_mode="r")
+        planes = {role: _label_plane(array, int(mask_dims[role]))
+                  for role in roles
+                  if int(mask_dims[role]) < array.shape[-1]}
+        del array
+        for child_type, parent_type in pairs:
+            if child_type not in planes or parent_type not in planes:
+                continue
+            for c, p, n, area in _object_overlap_rows(
+                    planes[child_type], planes[parent_type]):
+                records.append({
+                    "plateID": identity.get("plateID"),
+                    "rowID": identity.get("rowID"),
+                    "columnID": identity.get("columnID"),
+                    "fieldID": identity.get("fieldID"),
+                    "timeID": identity.get("timeID"),
+                    "prcf": identity.get("prcf"),
+                    "file_name": stem,
+                    "child_type": child_type, "child_label": c,
+                    "parent_type": parent_type, "parent_label": p,
+                    "overlap_pixels": n, "child_pixels": area,
+                    "overlap_fraction": (n / area) if area else 0.0,
+                })
+    if not records:
+        return empty
+    frame = pd.DataFrame.from_records(
+        records, columns=list(_OBJECT_RELATIONSHIPS_COLUMNS))
+    frame["parent_label"] = frame["parent_label"].astype("Int64")
+    return frame
+
+
+def _write_object_relationships(src: str, *,
+                                timelapse: bool = False) -> Optional[int]:
+    """Store the object-relationships table in the run's measurement database.
+
+    Called by the Mask step once ``merged/`` is complete. The table goes into
+    ``<src>/measurements/measurements.db``, the database Measure reads and
+    writes, under :data:`_OBJECT_RELATIONSHIPS_TABLE`. It is replaced whole in
+    one transaction, so a re-run leaves exactly one copy of each row and a
+    failed write leaves the previous table in place. No other table is read
+    or changed.
+
+    :param src: the run root holding ``merged/``.
+    :param timelapse: passed to :func:`_object_relationships_frame`.
+    :returns: the number of rows stored, or None when the run has no merged
+        plane layout to read (nothing is written then).
+    """
+    import os
+
+    from .crops import MERGED_LAYOUT_SIDECAR
+    from .database_concurrency import connect, transaction
+
+    merged_dir = os.path.join(src, "merged")
+    if not os.path.isfile(os.path.join(merged_dir, MERGED_LAYOUT_SIDECAR)):
+        return None
+    frame = _object_relationships_frame(merged_dir, timelapse=timelapse)
+    db_dir = os.path.join(src, "measurements")
+    os.makedirs(db_dir, exist_ok=True)
+    db_path = os.path.join(db_dir, "measurements.db")
+    types = {"child_label": "INTEGER", "parent_label": "INTEGER",
+             "overlap_pixels": "INTEGER", "child_pixels": "INTEGER",
+             "overlap_fraction": "REAL"}
+    declared = ", ".join(f'"{c}" {types.get(c, "TEXT")}'
+                         for c in _OBJECT_RELATIONSHIPS_COLUMNS)
+    quoted = ", ".join(f'"{c}"' for c in _OBJECT_RELATIONSHIPS_COLUMNS)
+    marks = ", ".join("?" for _ in _OBJECT_RELATIONSHIPS_COLUMNS)
+    rows = [tuple(_sqlite_value(v) for v in row)
+            for row in frame.itertuples(index=False, name=None)]
+    conn = connect(db_path, timeout=30)
+    try:
+        with transaction(conn, attempts=8, busy_timeout=30):
+            conn.execute(
+                f'DROP TABLE IF EXISTS "{_OBJECT_RELATIONSHIPS_TABLE}"')
+            conn.execute(
+                f'CREATE TABLE "{_OBJECT_RELATIONSHIPS_TABLE}" ({declared})')
+            conn.executemany(
+                f'INSERT INTO "{_OBJECT_RELATIONSHIPS_TABLE}" ({quoted}) '
+                f'VALUES ({marks})', rows)
+    finally:
+        conn.close()
+    return len(rows)
+
+
+def _sqlite_value(value: object) -> object:
+    """A frame cell as a value sqlite3 can bind.
+
+    :param value: a pandas/numpy scalar, a Python scalar, or a missing value.
+    :returns: None for any missing value, a plain Python scalar otherwise.
+    """
+    try:
+        if pd.isna(value):
+            return None
+    except (TypeError, ValueError):
+        pass
+    return value.item() if hasattr(value, "item") else value
+
+
 def ensure_filters_table(db_path: str, *, rebuild: bool = False) -> pd.DataFrame:
     """Return the ``filters`` table, building it the first time.
 

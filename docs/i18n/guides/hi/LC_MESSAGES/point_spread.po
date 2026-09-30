@@ -1,0 +1,93 @@
+# spaCR user guide translation (hi).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: hi\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Process images with a point-spread function"
+msgstr "बिंदु प्रसार फलन से छवियाँ संसाधित करें"
+
+msgid "Use :mod:`spacr.point_spread` from Python to convolve an image with a point-spread function (PSF), or to deconvolve it with Richardson–Lucy. Prepare a two-dimensional image or three-dimensional volume and a measured PSF sampled at the same pixel or voxel spacing. Supply intensity images; keep object-label masks separate."
+msgstr "Python से :mod:`spacr.point_spread` का उपयोग करके किसी छवि का बिंदु प्रसार फलन (PSF) के साथ कन्वोल्यूशन करें, या Richardson–Lucy से उसका डीकन्वोल्यूशन करें। एक द्विविमीय छवि या त्रिविमीय आयतन और उसी पिक्सेल या वॉक्सेल अंतराल पर नमूना लिया गया एक मापा गया PSF तैयार करें। तीव्रता छवियाँ दें; ऑब्जेक्ट-लेबल मास्क अलग रखें।"
+
+msgid "Use the desktop controls"
+msgstr "डेस्कटॉप नियंत्रणों का उपयोग करें"
+
+msgid "In **Make Masks**, open **Image enhancement** and select **Convolve (blur)** or **Deconvolve (Richardson–Lucy)** under **Point spread function**. Choose your **Objective**, or use **Infer from images…** to read the current image's optical metadata. With no image open, the button asks you to choose a TIFF. The summary shows pixel spacing, Gaussian width and where those values came from."
+msgstr "**मास्क बनाएँ** में **छवि संवर्धन** खोलें और **बिंदु प्रसार फलन** के अंतर्गत **कन्वोल्यूशन करें (धुंधला करें)** या **डीकन्वोल्यूशन करें (Richardson–Lucy)** चुनें। अपना **ऑब्जेक्टिव** चुनें, या वर्तमान छवि का प्रकाशीय मेटाडेटा पढ़ने के लिए **छवियों से अनुमान लगाएँ…** का उपयोग करें। कोई छवि खुली न होने पर बटन आपसे एक TIFF चुनने को कहता है। सारांश पिक्सेल अंतराल, गॉसियन चौड़ाई और उन मानों का स्रोत दिखाता है।"
+
+msgid "Open **PSF optics and kernel** to inspect the remaining controls. **Camera** sets the camera pixel pitch; **Fluorophore** sets the emission wavelength. Magnification, numerical aperture, immersion refractive index, wavelength, pixel spacing and Gaussian widths remain editable. Labels identify metadata, objective-table values, calculations, defaults and values you entered. Review these after using **Infer from images…**, which repopulates the optics and recalculates Gaussian widths."
+msgstr "शेष नियंत्रण देखने के लिए **PSF optics and kernel** खोलें। **कैमरा** कैमरा पिक्सेल पिच सेट करता है; **फ़्लोरोफ़ोर** उत्सर्जन तरंगदैर्ध्य सेट करता है। आवर्धन, संख्यात्मक द्वारक, निमज्जन अपवर्तनांक, तरंगदैर्ध्य, पिक्सेल अंतराल और गॉसियन चौड़ाइयाँ संपादन योग्य रहती हैं। लेबल बताते हैं कि कौन-से मान मेटाडेटा, ऑब्जेक्टिव तालिका, गणना, डिफ़ॉल्ट या आपकी प्रविष्टि से आए हैं। **छवियों से अनुमान लगाएँ…** का उपयोग करने के बाद इनकी समीक्षा करें; यह प्रकाशिकी को फिर से भरता है और गॉसियन चौड़ाइयों की पुनर्गणना करता है।"
+
+msgid "Without image-specific information, the starting approximation uses a 20×/0.75 air objective, a 6.5 µm camera pixel and 520 nm emission. It gives 0.325 µm image pixels and approximately 0.354 µm Gaussian FWHM. Pixel spacing is camera pixel pitch divided by magnification; the lateral Gaussian FWHM is approximated by 0.51 × emission wavelength / numerical aperture. These defaults permit a calculation; they are not measured calibration or proof of your microscope's resolution. Check them against the acquisition."
+msgstr "छवि-विशिष्ट जानकारी के बिना प्रारंभिक सन्निकटन 20×/0.75 वायु ऑब्जेक्टिव, 6.5 µm कैमरा पिक्सेल और 520 nm उत्सर्जन का उपयोग करता है। इससे 0.325 µm छवि पिक्सेल और लगभग 0.354 µm गॉसियन FWHM मिलता है। पिक्सेल अंतराल कैमरा पिक्सेल पिच को आवर्धन से भाग देने पर मिलता है; पार्श्व गॉसियन FWHM का सन्निकटन 0.51 × उत्सर्जन तरंगदैर्ध्य / संख्यात्मक द्वारक से किया जाता है। ये डिफ़ॉल्ट गणना संभव बनाते हैं; ये न तो मापा गया अंशांकन हैं और न ही आपके सूक्ष्मदर्शी के विभेदन का प्रमाण। इन्हें अधिग्रहण से मिलाकर जाँचें।"
+
+msgid "In the same fold, choose **Measured kernel (TIFF/NPY)** and load your calibrated two-dimensional PSF, or keep **Gaussian approximation**. For a measured kernel, enter its pixel spacing too; it must match the image. Neither mode silently resamples a mismatched kernel."
+msgstr "उसी फ़ोल्ड में **मापा गया कर्नेल (TIFF/NPY)** चुनें और अपना अंशांकित द्विविमीय PSF लोड करें, या **गॉसियन सन्निकटन** रखें। मापे गए कर्नेल के लिए उसका पिक्सेल अंतराल भी दर्ज करें; यह छवि से मेल खाना चाहिए। कोई भी मोड बेमेल कर्नेल को चुपचाप पुनः नमूनित नहीं करता।"
+
+msgid "Wait for the kernel to load, then use **Compare** to inspect its effect. Set **Deconvolution iterations** when using Richardson–Lucy and choose **Apply** to use the result for detection. Start with a modest iteration count and inspect noise as well as object boundaries. **Reload** rereads a kernel file after you change it. **Off** disables PSF processing."
+msgstr "कर्नेल लोड होने की प्रतीक्षा करें, फिर उसका प्रभाव देखने के लिए **तुलना करें** का उपयोग करें। Richardson–Lucy का उपयोग करते समय **डीकन्वोल्यूशन पुनरावृत्तियाँ** सेट करें और परिणाम को पहचान के लिए उपयोग करने हेतु **लागू करें** चुनें। मध्यम पुनरावृत्ति संख्या से शुरू करें और ऑब्जेक्ट सीमाओं के साथ-साथ शोर की भी जाँच करें। कर्नेल फ़ाइल बदलने के बाद **फिर से लोड करें** उसे दोबारा पढ़ता है। **बंद** PSF प्रसंस्करण को निष्क्रिय करता है।"
+
+msgid "A wider Gaussian PSF spreads two fixed intensity peaks while preserving total intensity."
+msgstr "अधिक चौड़ा गॉसियन PSF कुल तीव्रता बनाए रखते हुए दो स्थिर तीव्रता शिखरों को फैला देता है।"
+
+msgid "White shows a fixed input profile; teal shows the convolved result. The blue bar indicates the Gaussian kernel's full width at half maximum. Increasing that width spreads the signal and reduces peak intensity while preserving the integrated intensity. This illustrates convolution with a Gaussian approximation. For your microscope, enter measured calibration values and inspect the resulting image with **Compare**."
+msgstr "सफ़ेद रंग स्थिर इनपुट प्रोफ़ाइल दिखाता है; टील रंग कन्वोल्व किया गया परिणाम दिखाता है। नीली पट्टी गॉसियन कर्नेल की अर्ध-अधिकतम पर पूरी चौड़ाई दर्शाती है। उस चौड़ाई को बढ़ाने से संकेत फैलता है और शिखर तीव्रता घटती है, जबकि समाकलित तीव्रता बनी रहती है। यह गॉसियन सन्निकटन के साथ कन्वोल्यूशन को दर्शाता है। अपने सूक्ष्मदर्शी के लिए मापे गए अंशांकन मान दर्ज करें और परिणामी छवि की जाँच **तुलना करें** से करें।"
+
+msgid "Choose the intensities used by Measure"
+msgstr "मापन द्वारा उपयोग की जाने वाली तीव्रताएँ चुनें"
+
+msgid "In **Measure**, open **Image Preprocessing → Image Deconvolution (PSF)** and set ``psf_measurement_source``. Keep ``original`` for the standard measurement intensities, including Measure's normal rescaling and preprocessing, without additional PSF processing. Choose ``processed`` to measure intensities after convolution or deconvolution, then configure ``psf_operation``, the kernel source and its calibration."
+msgstr "**मापन** में **छवि पूर्वप्रसंस्करण → छवि डीकन्वोल्यूशन (PSF)** खोलें और ``psf_measurement_source`` सेट करें। बिना अतिरिक्त PSF प्रसंस्करण के, मापन के सामान्य पुनर्मापन और पूर्वप्रसंस्करण सहित मानक मापन तीव्रताओं के लिए ``original`` रखें। कन्वोल्यूशन या डीकन्वोल्यूशन के बाद तीव्रताएँ मापने के लिए ``processed`` चुनें, फिर ``psf_operation``, कर्नेल स्रोत और उसका अंशांकन विन्यस्त करें।"
+
+msgid "Measure does not infer optics from image metadata: enter the calibration explicitly. For a two-dimensional field, enter image sampling and Gaussian widths in ``[Y, X]`` order. For a volume, use ``[Z, Y, X]`` and a matching three-dimensional kernel. Volume sampling must agree with Measure's voxel calibration or anisotropy settings. A measured kernel must have the same sampling as the image. Use a kernel appropriate for every selected intensity channel."
+msgstr "मापन छवि मेटाडेटा से प्रकाशिकी का अनुमान नहीं लगाता: अंशांकन स्पष्ट रूप से दर्ज करें। द्विविमीय फ़ील्ड के लिए छवि नमूनाकरण और गॉसियन चौड़ाइयाँ ``[Y, X]`` क्रम में दर्ज करें। आयतन के लिए ``[Z, Y, X]`` और मेल खाता त्रिविमीय कर्नेल उपयोग करें। आयतन नमूनाकरण मापन के वॉक्सेल अंशांकन या विषमदिशिकता सेटिंग्स से मेल खाना चाहिए। मापे गए कर्नेल का नमूनाकरण छवि के समान होना चाहिए। हर चुने गए तीव्रता चैनल के लिए उपयुक्त कर्नेल का उपयोग करें।"
+
+msgid "Run Measure and inspect the resulting object-feature tables in ``measurements.db``. PSF processing changes the intensity stream used for quantitative features; source files and exported crops retain their usual behavior. The ``intensity_rescale`` table records the selected source and PSF processing details. Keep the database with the settings and kernel file."
+msgstr "मापन चलाएँ और ``measurements.db`` में बनी ऑब्जेक्ट-विशेषता तालिकाओं की जाँच करें। PSF प्रसंस्करण मात्रात्मक विशेषताओं के लिए उपयोग होने वाली तीव्रता धारा को बदलता है; स्रोत फ़ाइलें और निर्यात किए गए क्रॉप अपना सामान्य व्यवहार बनाए रखते हैं। ``intensity_rescale`` तालिका चुने गए स्रोत और PSF प्रसंस्करण का विवरण दर्ज करती है। डेटाबेस को सेटिंग्स और कर्नेल फ़ाइल के साथ रखें।"
+
+msgid "To compare different kernels or original and processed measurements, use separate projects or output databases. An existing database cannot mix measurements made with different PSF configurations. Restore the recorded configuration when resuming a run. See :func:`spacr.psf_measurement.prepare_measurement_psf` for the Python settings contract."
+msgstr "विभिन्न कर्नेल, या मूल और संसाधित मापनों की तुलना करने के लिए अलग प्रोजेक्ट या आउटपुट डेटाबेस उपयोग करें। मौजूदा डेटाबेस विभिन्न PSF विन्यासों से किए गए मापनों को मिला नहीं सकता। रन फिर से शुरू करते समय दर्ज विन्यास बहाल करें। Python सेटिंग अनुबंध के लिए :func:`spacr.psf_measurement.prepare_measurement_psf` देखें।"
+
+msgid "Load the image and PSF"
+msgstr "छवि और PSF लोड करें"
+
+msgid "The example below reads a single-channel image and a measured PSF from TIFF files. Replace the example spacing of 0.11 µm with your calibrated Y and X pixel spacing. A three-dimensional input uses Z, Y and X spacing in that order. The PSF must have odd spatial dimensions, a central origin and nonnegative signal after background removal."
+msgstr "नीचे दिया गया उदाहरण TIFF फ़ाइलों से एक एकल-चैनल छवि और एक मापा गया PSF पढ़ता है। उदाहरण के 0.11 µm अंतराल को अपने अंशांकित Y और X पिक्सेल अंतराल से बदलें। त्रिविमीय इनपुट Z, Y और X अंतराल इसी क्रम में उपयोग करता है। PSF के स्थानिक आयाम विषम, मूल बिंदु केंद्र में, और पृष्ठभूमि हटाने के बाद संकेत अऋणात्मक होना चाहिए।"
+
+msgid "Choose the operation and save the result"
+msgstr "संक्रिया चुनें और परिणाम सहेजें"
+
+msgid "Set ``operation=\"deconvolve\"`` to perform Richardson–Lucy deconvolution. Start with a modest iteration count and compare the result with the input; more iterations can amplify noise. ``operation=\"convolve\"`` instead blurs the image with the PSF. It does not use the iteration count."
+msgstr "Richardson–Lucy डीकन्वोल्यूशन करने के लिए ``operation=\"deconvolve\"`` सेट करें। मध्यम पुनरावृत्ति संख्या से शुरू करें और परिणाम की तुलना इनपुट से करें; अधिक पुनरावृत्तियाँ शोर को बढ़ा सकती हैं। ``operation=\"convolve\"`` इसके बजाय PSF से छवि को धुंधला करता है। यह पुनरावृत्ति संख्या का उपयोग नहीं करता।"
+
+msgid "The output preserves the image shape and uses float32 values in the original intensity units. Inspect its range before converting it to an integer image. Keep the JSON record with the result; it contains the kernel identity, sampling and processing settings."
+msgstr "आउटपुट छवि का आकार बनाए रखता है और मूल तीव्रता इकाइयों में float32 मानों का उपयोग करता है। इसे पूर्णांक छवि में बदलने से पहले इसकी सीमा जाँचें। JSON रिकॉर्ड को परिणाम के साथ रखें; इसमें कर्नेल की पहचान, नमूनाकरण और प्रसंस्करण सेटिंग्स होती हैं।"
+
+msgid "For multichannel images, set ``channel_axis`` explicitly: ``-1`` selects a final channel dimension, while ``0`` selects a first channel dimension. Each intensity channel is processed independently. Image and PSF sampling must match; the function rejects mismatched spacing."
+msgstr "बहु-चैनल छवियों के लिए ``channel_axis`` स्पष्ट रूप से सेट करें: ``-1`` अंतिम आयाम को चैनल आयाम के रूप में चुनता है, जबकि ``0`` पहले आयाम को चुनता है। हर तीव्रता चैनल स्वतंत्र रूप से संसाधित होता है। छवि और PSF का नमूनाकरण मेल खाना चाहिए; फ़ंक्शन बेमेल अंतराल अस्वीकार करता है।"
+
+msgid "Use a calculated approximation"
+msgstr "गणना किए गए सन्निकटन का उपयोग करें"
+
+msgid "If your workflow calls for a Gaussian approximation, construct it with :func:`spacr.point_spread.gaussian_psf`. Supply the full width at half maximum in micrometres and the image spacing. These are example values to replace with the values appropriate to your analysis:"
+msgstr "यदि आपके कार्यप्रवाह में गॉसियन सन्निकटन आवश्यक है, तो इसे :func:`spacr.point_spread.gaussian_psf` से बनाएँ। अर्ध-अधिकतम पर पूरी चौड़ाई माइक्रोमीटर में और छवि अंतराल दें। ये उदाहरण मान हैं जिन्हें आपके विश्लेषण के उपयुक्त मानों से बदलना है:"
+
+msgid "Pass this kernel to ``apply_psf`` as above. A Gaussian kernel is an approximation; retain that distinction when comparing it with a measured PSF. See :func:`spacr.point_spread.apply_psf` for cancellation, progress callbacks and the complete parameter reference."
+msgstr "इस कर्नेल को ऊपर की तरह ``apply_psf`` को दें। गॉसियन कर्नेल एक सन्निकटन है; मापे गए PSF से तुलना करते समय यह अंतर ध्यान में रखें। रद्दीकरण, प्रगति कॉलबैक और पूरे पैरामीटर संदर्भ के लिए :func:`spacr.point_spread.apply_psf` देखें।"
+

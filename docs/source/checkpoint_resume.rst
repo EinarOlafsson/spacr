@@ -28,7 +28,7 @@ Mask
    measurements from the current masks rather than reusing an earlier table.
 
 Measure
-   Enable ``resume`` under **Runtime & Reliability**. A field is skipped only when every
+   Enable ``resume`` under **Postprocessing → Runtime & Reliability**. A field is skipped only when every
    Measure-owned table in ``measurements.db`` is complete. Partial field rows
    are cleared in one transaction before remeasurement, while tables owned by
    conversion, alignment, or other modules are never deleted.

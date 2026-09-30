@@ -1547,3 +1547,15 @@ two-worker Qt execution passes all80 selected checks under8GB. No GUI source,
 assertion, GC policy or memory ceiling was changed. Long serial accumulation
 and uninterrupted acceptance remain open; final CI is pending. Receipt:
 features/data/47_ci_qt_process_batches_2026-09-28.json.
+
+2026-09-30 (work, Claude, take-ci) -- the detached serial run did not finish
+The detached serial tests/qt run on the home box (frozen copy of 79df84b81 at
+/mnt/wd4tb/scratch/ci/serial, run_capped 12G, -p no:randomly, leakprobe
+plugin) started 2026-09-29 09:24 and ended 22:04 EDT, exit 3: the tests/
+conftest.py memory guard stopped it at 11.1 GB, over its 10.8 GB ceiling, at
+[71%] after 19,724 reported outcomes (25 F, no E). No pytest summary was
+printed, so the failing ids are not recorded; the leakprobe output file was
+never written (it writes at session end). Same stop as the 09-28 frozen run
+(exit 3 at the guard, 11.4 GiB), a little later in the order. Log:
+/mnt/wd4tb/scratch/ci/serial_run.log. Nothing is claimed green; a serial
+rerun on the current source follows (recorded below when it ends).

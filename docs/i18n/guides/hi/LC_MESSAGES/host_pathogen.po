@@ -1,0 +1,105 @@
+# spaCR user guide translation (hi).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: hi\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Host–Pathogen Analysis"
+msgstr "मेज़बान–रोगजनक विश्लेषण"
+
+msgid "From **Home → Assays → Toxoplasma**, open **Host–Pathogen Analysis**. This alpha module combines vacuole-level marker recruitment with host and well summaries. Existing :doc:`Recruitment <recruitment>` remains available."
+msgstr "**मुखपृष्ठ → एसे → टोक्सोप्लाज़्मा** से **मेज़बान–रोगजनक विश्लेषण** खोलें। यह अल्फ़ा मॉड्यूल रिक्तिका-स्तरीय मार्कर रिक्रूटमेंट को मेज़बान और कूप सारांशों के साथ जोड़ता है। मौजूदा :doc:`रिक्रूटमेंट विश्लेषण <recruitment>` उपलब्ध रहता है।"
+
+msgid "Try the real microscopy test data"
+msgstr "वास्तविक सूक्ष्मदर्शी परीक्षण डेटा आज़माएँ"
+
+msgid "Open **Home → Assays → Toxoplasma → Host–Pathogen Analysis** and select **Load test data…**. The download is approximately 114 MB."
+msgstr "**मुखपृष्ठ → एसे → टोक्सोप्लाज़्मा → मेज़बान–रोगजनक विश्लेषण** खोलें और **परीक्षण डेटा लोड करें...** चुनें। डाउनलोड लगभग 114 MB का है।"
+
+msgid "Enable **Live** beside the bottom action controls, then select **Run preview**. Choose either measured field and select vacuoles in the image or table to inspect their host links and marker ratios."
+msgstr "नीचे के क्रिया नियंत्रणों के बगल में **लाइव** सक्षम करें, फिर **पूर्वावलोकन चलाएँ** चुनें। मापे गए किसी भी फ़ील्ड को चुनें और छवि या तालिका में रिक्तिकाएँ चुनकर उनके मेज़बान संबंध और मार्कर अनुपात जाँचें।"
+
+msgid "Set **Image channel** to 2 for Toxoplasma, 1 for RNF213 or 3 for CellMask. Leave the mask-plane selectors on **Auto**; the dataset includes the plane manifest. These display choices do not change the analysis channels."
+msgstr "**छवि चैनल** को टोक्सोप्लाज़्मा के लिए 2, RNF213 के लिए 1 या CellMask के लिए 3 पर सेट करें। मास्क-तल चयनकर्ताओं को **स्वतः** पर छोड़ें; डेटासेट में तल मैनिफ़ेस्ट शामिल है। ये प्रदर्शन विकल्प विश्लेषण चैनलों को नहीं बदलते।"
+
+msgid "Turn **Live** off and expand **Actions** if the run controls are collapsed. Select **Run** to analyze both fields. Compare the results with the supplied ``example_cells.csv``, ``example_vacuoles.csv`` and ``example_wells.csv``."
+msgstr "**लाइव** बंद करें और यदि रन नियंत्रण सिकुड़े हुए हों तो **क्रियाएँ** का विस्तार करें। दोनों फ़ील्ड का विश्लेषण करने के लिए **चलाएँ** चुनें। परिणामों की तुलना साथ दी गई ``example_cells.csv``, ``example_vacuoles.csv`` और ``example_wells.csv`` से करें।"
+
+msgid "Follow the `Host–Pathogen video walkthrough <tutorials/#lesson=85_host_pathogen>`_ for the complete example."
+msgstr "पूरे उदाहरण के लिए `मेज़बान–रोगजनक वीडियो मार्गदर्शिका <tutorials/#lesson=85_host_pathogen>`_ का पालन करें।"
+
+msgid "The `Host–Pathogen dataset <https://huggingface.co/datasets/einarolafsson/spacr-example-host-pathogen/tree/83b73d7a0c4f8a9ea145304c2ba90acc16768031>`_ contains two acquired THP-1/RNF213 fields, four intensity channels and prepared automatic masks. Its measurements cover 164 host cells, 189 nuclei, 97 whole vacuoles and 164 cytoplasm objects across the two fields. The acquired intensity planes are unchanged; the masks underwent Measure's normal parent/child reconciliation so the distributed outlines match measured objects. The dataset card and ``example_manifest.json`` describe the source fields, preparation and checks. These masks are not manually validated ground truth."
+msgstr "`मेज़बान–रोगजनक डेटासेट <https://huggingface.co/datasets/einarolafsson/spacr-example-host-pathogen/tree/83b73d7a0c4f8a9ea145304c2ba90acc16768031>`_ में दो प्राप्त THP-1/RNF213 फ़ील्ड, चार तीव्रता चैनल और तैयार स्वचालित मास्क हैं। इसके मापन दोनों फ़ील्ड में 164 मेज़बान कोशिकाएँ, 189 केंद्रक, 97 पूरी रिक्तिकाएँ और 164 कोशिकाद्रव्य ऑब्जेक्ट कवर करते हैं। प्राप्त तीव्रता तल अपरिवर्तित हैं; मास्क मापन के सामान्य पैरेंट/चाइल्ड मिलान से गुज़रे हैं ताकि वितरित रूपरेखाएँ मापे गए ऑब्जेक्ट से मेल खाएँ। डेटासेट कार्ड और ``example_manifest.json`` स्रोत फ़ील्ड, तैयारी और जाँचों का वर्णन करते हैं। ये मास्क मैन्युअल रूप से सत्यापित ग्राउंड ट्रुथ नहीं हैं।"
+
+msgid "The supplied settings compare vacuole RNF213 means with their associated host cytoplasm means in channel 1. Marker thresholds are deliberately unset: ratios are available, while positive/negative marker states remain unknown until you choose suitable control-calibrated thresholds. Individual-parasite counts are not supplied, so replication remains ``not_measured``. This small sample does not establish biological differences between its control conditions."
+msgstr "साथ दी गई सेटिंग्स चैनल 1 में रिक्तिका के RNF213 औसत की तुलना उससे जुड़े मेज़बान कोशिकाद्रव्य के औसत से करती हैं। मार्कर सीमाएँ जानबूझकर सेट नहीं की गई हैं: अनुपात उपलब्ध हैं, जबकि धनात्मक/ऋणात्मक मार्कर स्थितियाँ तब तक अज्ञात रहती हैं जब तक आप नियंत्रण से अंशांकित उपयुक्त सीमाएँ नहीं चुनते। अलग-अलग परजीवियों की गिनती नहीं दी गई है, इसलिए प्रतिकृति ``not_measured`` रहती है। यह छोटा नमूना इसकी नियंत्रण स्थितियों के बीच जैविक अंतर सिद्ध नहीं करता।"
+
+msgid "The command-line download is ``spacr-download host_pathogen``. The prepared measurements let you use this example directly; your own image project needs the Mask and Measure preparation described below."
+msgstr "कमांड-लाइन डाउनलोड ``spacr-download host_pathogen`` है। तैयार मापन से आप इस उदाहरण का सीधे उपयोग कर सकते हैं; आपके अपने छवि प्रोजेक्ट को नीचे वर्णित मास्क और मापन तैयारी की आवश्यकता है।"
+
+msgid "Inspect one field before running"
+msgstr "चलाने से पहले एक फ़ील्ड की जाँच करें"
+
+msgid "After selecting a measured project in **Source**, enable the bottom **Live** control. The preview uses the current form settings and the same analysis functions as a full run. Select **Run preview** for the initial calculation. While the panel remains visible, later settings changes refresh that preview. Use **Refresh** to reload the field choices and **Cancel** to cancel a pending preview. Preview reads the measurements database without writing result files."
+msgstr "**स्रोत** में मापा गया प्रोजेक्ट चुनने के बाद नीचे का **लाइव** नियंत्रण सक्षम करें। पूर्वावलोकन वर्तमान फ़ॉर्म सेटिंग्स और पूरे रन वाले ही विश्लेषण फ़ंक्शनों का उपयोग करता है। प्रारंभिक गणना के लिए **पूर्वावलोकन चलाएँ** चुनें। पैनल दिखाई देते रहने तक बाद के सेटिंग परिवर्तन उस पूर्वावलोकन को ताज़ा करते हैं। फ़ील्ड विकल्प फिर से लोड करने के लिए **ताज़ा करें** और लंबित पूर्वावलोकन रद्द करने के लिए **रद्द करें** का उपयोग करें। पूर्वावलोकन परिणाम फ़ाइलें लिखे बिना मापन डेटाबेस पढ़ता है।"
+
+msgid "Its host counts and infection fractions describe the selected field only. They are not whole-well denominators. Fields containing vacuoles without measured host cells remain available. Missing or zero reference intensities produce unknown marker states; an unknown state must not be read as negative."
+msgstr "इसकी मेज़बान गिनतियाँ और संक्रमण अंश केवल चुने गए फ़ील्ड का वर्णन करते हैं। वे पूरे कूप के हर नहीं हैं। मापी गई मेज़बान कोशिकाओं के बिना रिक्तिकाओं वाले फ़ील्ड उपलब्ध रहते हैं। अनुपस्थित या शून्य संदर्भ तीव्रताएँ अज्ञात मार्कर स्थितियाँ उत्पन्न करती हैं; अज्ञात स्थिति को ऋणात्मक नहीं पढ़ना चाहिए।"
+
+msgid "Overlay plane selection defaults to **Auto**, using the recorded ``.spacr_plane_layout.json`` metadata. Select explicit host, vacuole and parasite plane indices when metadata is absent, or use ``-1`` to hide an overlay. Changing the displayed intensity channel does not change the analysis marker settings. If an image cannot be loaded, the measured results remain available in the table."
+msgstr "ओवरले तल चयन डिफ़ॉल्ट रूप से **स्वतः** होता है और दर्ज ``.spacr_plane_layout.json`` मेटाडेटा का उपयोग करता है। मेटाडेटा न होने पर मेज़बान, रिक्तिका और परजीवी तल सूचकांक स्पष्ट रूप से चुनें, या किसी ओवरले को छिपाने के लिए ``-1`` का उपयोग करें। प्रदर्शित तीव्रता चैनल बदलने से विश्लेषण मार्कर सेटिंग्स नहीं बदलतीं। यदि कोई छवि लोड नहीं हो पाती, तो मापे गए परिणाम तालिका में उपलब्ध रहते हैं।"
+
+msgid "For scripted previews, :func:`spacr.host_pathogen_preview.preview_fields` offers at most 50 fields by default and reports whether more exist. :func:`spacr.host_pathogen_preview.preview_field` analyzes one selected field, refusing input tables with more than 100,000 rows for that field by default. These bounds keep the preview limited; use the full analysis for project-wide reports."
+msgstr "स्क्रिप्ट किए गए पूर्वावलोकनों के लिए :func:`spacr.host_pathogen_preview.preview_fields` डिफ़ॉल्ट रूप से अधिकतम 50 फ़ील्ड देता है और बताता है कि और हैं या नहीं। :func:`spacr.host_pathogen_preview.preview_field` एक चुने गए फ़ील्ड का विश्लेषण करता है और डिफ़ॉल्ट रूप से उस फ़ील्ड के लिए 100,000 से अधिक पंक्तियों वाली इनपुट तालिकाएँ अस्वीकार करता है। ये सीमाएँ पूर्वावलोकन को सीमित रखती हैं; प्रोजेक्ट-व्यापी रिपोर्ट के लिए पूरे विश्लेषण का उपयोग करें।"
+
+msgid "Prepare the counting units"
+msgstr "गिनती इकाइयाँ तैयार करें"
+
+msgid "Run Mask and Measure first. Keep uninfected host cells in Measure (``uninfected=True``) when the intended infection denominator is all measured hosts. Previously discarded host cells cannot be reconstructed here."
+msgstr "पहले मास्क और मापन चलाएँ। जब इच्छित संक्रमण हर सभी मापे गए मेज़बान हों, तो मापन में असंक्रमित मेज़बान कोशिकाएँ बनाए रखें (``uninfected=True``)। पहले त्यागी गई मेज़बान कोशिकाएँ यहाँ दोबारा नहीं बनाई जा सकतीं।"
+
+msgid "Supply a cell table, a table with one object per whole vacuole (default: ``pathogen``), and a host reference compartment table (default: ``cytoplasm``). Individual-parasite masks cannot substitute for whole-vacuole masks. Select marker channels and per-channel ratio thresholds calibrated with appropriate controls; the module does not learn these thresholds."
+msgstr "एक कोशिका तालिका, हर पूरी रिक्तिका के लिए एक ऑब्जेक्ट वाली तालिका (डिफ़ॉल्ट: ``pathogen``) और एक मेज़बान संदर्भ कंपार्टमेंट तालिका (डिफ़ॉल्ट: ``cytoplasm``) दें। अलग-अलग परजीवियों के मास्क पूरी रिक्तिका के मास्क का स्थान नहीं ले सकते। उपयुक्त नियंत्रणों से अंशांकित मार्कर चैनल और प्रति-चैनल अनुपात सीमाएँ चुनें; मॉड्यूल ये सीमाएँ नहीं सीखता।"
+
+msgid "Replication counts require either a parasite table with explicit parent-vacuole identities or an existing count column. Choose one count source. Without one, replication remains unmeasured rather than being inferred from vacuole area. Host identity alone is insufficient when a host contains multiple vacuoles."
+msgstr "प्रतिकृति गिनतियों के लिए या तो स्पष्ट पैरेंट-रिक्तिका पहचान वाली परजीवी तालिका या मौजूदा गिनती स्तंभ आवश्यक है। एक गिनती स्रोत चुनें। इसके बिना प्रतिकृति रिक्तिका क्षेत्रफल से अनुमानित होने के बजाय अमापी रहती है। जब किसी मेज़बान में कई रिक्तिकाएँ हों, तो केवल मेज़बान पहचान पर्याप्त नहीं है।"
+
+msgid "When Measure links individual organelle-role objects to whole-vacuole masks, one parent must cover strictly more than half of a child's pixels. Outside objects and ambiguous overlaps retain a missing parent. The stored parent is ``pathogen_id``; the stored overlap feature is role-prefixed, for example ``organelle_pathogen_overlap_fraction``. Use such an object table as parasites only when those masks actually represent individual parasites."
+msgstr "जब मापन अलग-अलग कोशिकांग-भूमिका ऑब्जेक्ट को पूरी रिक्तिका के मास्क से जोड़ता है, तो एक पैरेंट को चाइल्ड के आधे से अधिक पिक्सेल कवर करने चाहिए। बाहर के ऑब्जेक्ट और अस्पष्ट अधिव्यापन का पैरेंट अनुपस्थित रहता है। संग्रहीत पैरेंट ``pathogen_id`` है; संग्रहीत अधिव्यापन विशेषता पर भूमिका का उपसर्ग लगा होता है, उदाहरण के लिए ``organelle_pathogen_overlap_fraction``। ऐसी ऑब्जेक्ट तालिका को परजीवियों के रूप में केवल तब उपयोग करें जब वे मास्क वास्तव में अलग-अलग परजीवियों को दर्शाते हों।"
+
+msgid "Interpret the reports"
+msgstr "रिपोर्ट की व्याख्या करें"
+
+msgid "The output directory ``results/host_pathogen`` contains ``vacuoles.csv``, ``cells.csv``, ``wells.csv``, ``marker_states.csv``, ``replication_distribution.csv``, ``orphan_parasites.csv`` and the exact ``settings.json``. With multiple input projects, the combined report is saved under the first project. Database paths separate sources even when plate or field identifiers repeat."
+msgstr "आउटपुट निर्देशिका ``results/host_pathogen`` में ``vacuoles.csv``, ``cells.csv``, ``wells.csv``, ``marker_states.csv``, ``replication_distribution.csv``, ``orphan_parasites.csv`` और सटीक ``settings.json`` होते हैं। कई इनपुट प्रोजेक्ट होने पर संयुक्त रिपोर्ट पहले प्रोजेक्ट के अंतर्गत सहेजी जाती है। प्लेट या फ़ील्ड पहचानकर्ता दोहराए जाने पर भी डेटाबेस पथ स्रोतों को अलग रखते हैं।"
+
+msgid "Unlinked vacuoles and missing, invalid or zero host-reference intensities yield unknown marker states. Joint marker fractions include unknown vacuoles in their denominator; replication fractions use only vacuoles with counts. Host infection fractions describe retained measured host cells. These denominators answer different questions and should be reported explicitly."
+msgstr "असंबद्ध रिक्तिकाएँ तथा अनुपस्थित, अमान्य या शून्य मेज़बान-संदर्भ तीव्रताएँ अज्ञात मार्कर स्थितियाँ देती हैं। संयुक्त मार्कर अंशों के हर में अज्ञात रिक्तिकाएँ शामिल होती हैं; प्रतिकृति अंश केवल गिनती वाली रिक्तिकाओं का उपयोग करते हैं। मेज़बान संक्रमण अंश सुरक्षित रखी गई मापी गई मेज़बान कोशिकाओं का वर्णन करते हैं। ये हर अलग-अलग प्रश्नों का उत्तर देते हैं और रिपोर्ट में इन्हें स्पष्ट रूप से बताया जाना चाहिए।"
+
+msgid "For scripted use, see :func:`spacr.host_pathogen.analyze_host_pathogen` and :func:`spacr.host_pathogen.summarize_tables`. The headless module name is ``host_pathogen`` in ``spacr-run``."
+msgstr "स्क्रिप्ट में उपयोग के लिए :func:`spacr.host_pathogen.analyze_host_pathogen` और :func:`spacr.host_pathogen.summarize_tables` देखें। ``spacr-run`` में हेडलेस मॉड्यूल का नाम ``host_pathogen`` है।"
+
+msgid "Choosing a Replication Assay method"
+msgstr "प्रतिकृति परीक्षण विधि चुनना"
+
+msgid "The separate **Replication Assay → Method** selector defaults to ``direct_count``, which counts individually segmented parasites per assigned vacuole. ``size_proxy`` uses the existing endodyogeny analysis and its **Size Proxy (Legacy)** controls. That readout aggregates pathogen area per host cell; multiple vacuoles in one host are combined. It is an area-derived proxy, not a parasite count or measured volume."
+msgstr "अलग **प्रतिकृति परीक्षण → विधि** चयनकर्ता डिफ़ॉल्ट रूप से ``direct_count`` होता है, जो हर निर्धारित रिक्तिका में अलग-अलग विभाजित परजीवियों की गिनती करता है। ``size_proxy`` मौजूदा एंडोडायोजेनी विश्लेषण और उसके **आकार प्रॉक्सी (पुराना)** नियंत्रणों का उपयोग करता है। वह रीडआउट प्रति मेज़बान कोशिका रोगजनक क्षेत्रफल को समेकित करता है; एक मेज़बान की कई रिक्तिकाएँ मिला दी जाती हैं। यह क्षेत्रफल से निकला प्रतिनिधि माप है, परजीवी गिनती या मापा गया आयतन नहीं।"
+
+msgid "Both available routes return ``replication_method`` metadata. The whole-vacuole deep-learning option is marked coming soon and cannot run before its model is available. See :func:`spacr.submodules.analyze_replication` and :func:`spacr.submodules.analyze_endodyogeny` for the exact settings and outputs."
+msgstr "दोनों उपलब्ध मार्ग ``replication_method`` मेटाडेटा लौटाते हैं। पूरी रिक्तिका वाला डीप लर्निंग विकल्प जल्द आने वाला चिह्नित है और उसका मॉडल उपलब्ध होने से पहले नहीं चल सकता। सटीक सेटिंग्स और आउटपुट के लिए :func:`spacr.submodules.analyze_replication` और :func:`spacr.submodules.analyze_endodyogeny` देखें।"
+

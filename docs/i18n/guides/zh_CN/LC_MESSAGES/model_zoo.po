@@ -1,0 +1,486 @@
+# spaCR user guide translation (zh_CN).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: zh_CN\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Model zoo"
+msgstr "动物园模型"
+
+msgid "spaCR ships a catalogue of trained models and fetches them on demand. Name a key in a settings file — ``pathogen_model: toxoplasma_pv_v1`` — and the model is downloaded and checksum-verified the first time it is needed, or open **Model Zoo** from the **Make Masks** masthead to browse and install them."
+msgstr "spaCR 附带一个已训练模型目录，并按需获取模型。在设置文件中指定一个键——``pathogen_model: toxoplasma_pv_v1``——首次需要时就会下载该模型并验证其校验和；也可以从 **创建掩膜** 标题栏打开 **模型库** 浏览并安装模型。"
+
+msgid "Every published entry carries a SHA-256. An entry without one is refused rather than installed, because a truncated or substituted checkpoint cannot be told from the real one."
+msgstr "每个已发布的条目都带有 SHA-256。没有 SHA-256 的条目会被拒绝而不会被安装，因为被截断或替换的检查点无法与真实的检查点区分开来。"
+
+msgid "Model"
+msgstr "模型"
+
+msgid "Training data"
+msgstr "训练数据"
+
+msgid "Hold-out performance"
+msgstr "留出数据上的性能"
+
+msgid "``toxoplasma_pv_v1`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``toxoplasma_pv_v1`` （Cellpose-SAM (cpsam_v2)）"
+
+msgid "anti-Toxoplasma-biotin and DsRed PV lumen; 229 images from 2 datasets, 104 round-1 and 125 newly curated"
+msgstr "抗弓形虫-生物素和 DsRed 纳虫泡腔；来自 2 个数据集的 229 张图像，其中 104 张来自第 1 轮，125 张为新整理"
+
+msgid "F1 0.864 against 0.713 for stock cpsam on 11 held-out in-house wells, at IoU 0.5; literature hold-out pending"
+msgstr "在 11 个留出的内部孔上，IoU 0.5 时 F1 为 0.864，而原版 cpsam 为 0.713；文献留出评估待定"
+
+msgid "``toxoplasma_plaque_v1`` (Cellpose-SAM (cpsam))"
+msgstr "``toxoplasma_plaque_v1`` （Cellpose-SAM (cpsam)）"
+
+msgid "crystal violet plaque wells; 184 wells from 3 datasets, 95 in-house and 89 literature"
+msgstr "结晶紫染色的空斑孔；来自 3 个数据集的 184 个孔，其中 95 个为内部数据，89 个来自文献"
+
+msgid "F1 0.856 in-domain; 0.806 on literature (3-fold cross-validated, SD 0.020)"
+msgstr "领域内 F1 为 0.856；文献数据上为 0.806（3 折交叉验证，SD 0.020）"
+
+msgid "``toxoplasma_plaque_v2`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``toxoplasma_plaque_v2`` （Cellpose-SAM (cpsam_v2)）"
+
+msgid "488 curated fields across four domains -- 298 wells cropped from published figures, 96 phone-camera wells, 67 PFA and 27 methanol-fixed whole-well microscope scans; 27,582 plaques"
+msgstr "来自四个领域的 488 个整理后的视野——298 个从已发表图中裁剪的孔、96 个手机相机拍摄的孔、67 个 PFA 固定和 27 个甲醇固定的整孔显微镜扫描；共 27,582 个空斑"
+
+msgid "not scored against stock; on 81 held-out fields it ties round 3 on literature (0.819 vs 0.820) and beats it by 0.166 on phone-camera wells (0.415 vs 0.249)"
+msgstr "未与原版模型对比评分；在 81 个留出视野上，它在文献数据上与第 3 轮持平（0.819 对 0.820），在手机相机拍摄的孔上比第 3 轮高 0.166（0.415 对 0.249）"
+
+msgid "``toxoplasma_well_detector_v1`` (YOLO11n)"
+msgstr "``toxoplasma_well_detector_v1`` （YOLO11n）"
+
+msgid "whole-plate and multi-well crystal violet images; 562 images from 1 dataset, 190 of them with no well in them"
+msgstr "整板和多孔结晶紫图像；来自 1 个数据集的 562 张图像，其中 190 张不含孔"
+
+msgid "mAP50 0.993 on its own held-out split; on the test set shared with v2 it scores mAP50 0.8838, against v2's 0.9457"
+msgstr "在其自身的留出划分上 mAP50 为 0.993；在与 v2 共享的测试集上 mAP50 为 0.8838，而 v2 为 0.9457"
+
+msgid "``toxoplasma_well_detector_v2`` (YOLO26n (ultralytics 8.4.155))"
+msgstr "``toxoplasma_well_detector_v2`` （YOLO26n (ultralytics 8.4.155)）"
+
+msgid "plate images and literature figures; 1,070 train / 254 val / 129 test, split by PMC article so no paper is in two sets; training data at einarolafsson/toxoplasma-plaque-well-detector-dataset"
+msgstr "孔板图像和文献图；训练 1,070 / 验证 254 / 测试 129，按 PMC 文章划分，因此没有论文同时出现在两个集合中；训练数据位于 einarolafsson/toxoplasma-plaque-well-detector-dataset"
+
+msgid "mAP50 0.9457 and mAP50-95 0.8341 against v1's (yolo_welldetect_v3.pt) 0.8838 and 0.7630 on the SAME test set; stock YOLO has no plaque-well class, so v1 is the baseline"
+msgstr "在同一（SAME）测试集上 mAP50 为 0.9457、mAP50-95 为 0.8341，而 v1（yolo_welldetect_v3.pt）分别为 0.8838 和 0.7630；原版 YOLO 没有空斑孔类别，因此以 v1 为基线"
+
+msgid "``toxoplasma_from_cellmask_v1`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``toxoplasma_from_cellmask_v1`` （Cellpose-SAM (cpsam_v2)）"
+
+msgid "Toxoplasma PV masks predicted from the HOST CELL MASK channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1"
+msgstr "仅根据宿主细胞掩膜（HOST CELL MASK）通道预测的弓形虫纳虫泡掩膜；2567 个训练视野和 463 个留出视野，按孔划分，宿主为 HFF/HeLa/THP1"
+
+msgid "F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "在 463 个按孔分组的留出视野上，IoU 0.5 时 F1 为 0.606，而原版 cpsam_v2 为 0.021"
+
+msgid "``toxoplasma_pv_v2`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``toxoplasma_pv_v2`` （Cellpose-SAM (cpsam_v2)）"
+
+msgid "anti-Toxoplasma-biotin and DsRed PV lumen; 556 curated images accumulated over five rounds"
+msgstr "抗弓形虫-生物素和 DsRed 纳虫泡腔；经过五轮积累的 556 张整理后图像"
+
+msgid "F1 0.817 +/- 0.036 by 5-fold cross-validation over 619 pairs; ~0.86 against 0.713 for stock on the 11 in-house held-out wells"
+msgstr "对 619 对样本进行 5 折交叉验证，F1 为 0.817 +/- 0.036；在 11 个内部留出孔上约为 0.86，而原版为 0.713"
+
+msgid "``toxoplasma_pv_v3`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``toxoplasma_pv_v3`` （Cellpose-SAM (cpsam_v2)）"
+
+msgid "the 556 curated PV fields of round 5, split 437 train / 108 validation / 11 test; training data at einarolafsson/toxoplasma-pv-segmentation-dataset"
+msgstr "第 5 轮的 556 个整理后纳虫泡视野，划分为训练 437 / 验证 108 / 测试 11；训练数据位于 einarolafsson/toxoplasma-pv-segmentation-dataset"
+
+msgid "F1 0.860 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.803 against 0.505"
+msgstr "在 11 个锚定孔上，IoU 0.5 时 F1 为 0.860，而原版 cpsam_v2 为 0.765；AJI 为 0.803，对比 0.505"
+
+msgid "``live_cell_v1`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``live_cell_v1`` （Cellpose-SAM (cpsam_v2)）"
+
+msgid "11,007 transmitted-light fields from 14 public datasets, split by acquisition 6,778 train / 2,030 validation / 2,199 test; training data at einarolafsson/live-cell-segmentation-dataset"
+msgstr "来自 14 个公开数据集的 11,007 个透射光视野，按采集划分为训练 6,778 / 验证 2,030 / 测试 2,199；训练数据位于 einarolafsson/live-cell-segmentation-dataset"
+
+msgid "on the datasets stock cpsam_v2 never trained on, F1 0.960 against 0.885 at IoU 0.5; over all 2,199 test fields, 0.694 against 0.738, because stock trained on LIVECell and YeaZ and wins on LIVECell"
+msgstr "在原版 cpsam_v2 从未训练过的数据集上，IoU 0.5 时 F1 为 0.960，对比 0.885；在全部 2,199 个测试视野上为 0.694，对比 0.738，因为原版模型在 LIVECell 和 YeaZ 上训练过，并在 LIVECell 上胜出"
+
+msgid "``nuclei_from_cellmask_v1`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``nuclei_from_cellmask_v1`` （Cellpose-SAM (cpsam_v2)）"
+
+msgid "nuclei predicted from the HOST CELL MASK channel alone; 453 well-grouped held-out fields, hosts HFF/HeLa/THP1"
+msgstr "仅根据宿主细胞掩膜（HOST CELL MASK）通道预测的细胞核；453 个按孔分组的留出视野，宿主为 HFF/HeLa/THP1"
+
+msgid "F1 0.888 against 0.201 for stock cpsam_v2 on 453 well-grouped held-out fields, at IoU 0.5"
+msgstr "在 453 个按孔分组的留出视野上，IoU 0.5 时 F1 为 0.888，而原版 cpsam_v2 为 0.201"
+
+msgid "``cell_from_hoechst_v1`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``cell_from_hoechst_v1`` （Cellpose-SAM (cpsam_v2)）"
+
+msgid "the HOST CELL outline predicted from the Hoechst (nuclear) channel alone; 2,578 training fields and 451 held-out test fields, split by well so no well is on both sides"
+msgstr "仅根据 Hoechst（细胞核）通道预测的宿主细胞（HOST CELL）轮廓；2,578 个训练视野和 451 个留出测试视野，按孔划分，因此没有孔同时出现在两侧"
+
+msgid "F1 0.870 against stock cpsam_v2's 0.301 on 451 held-out fields at IoU 0.5 -- a delta of 0.569"
+msgstr "在 451 个留出视野上，IoU 0.5 时 F1 为 0.870，而原版 cpsam_v2 为 0.301——差值为 0.569"
+
+msgid "``toxoplasma_from_hoechst_v1`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``toxoplasma_from_hoechst_v1`` （Cellpose-SAM (cpsam_v2)）"
+
+msgid "Toxoplasma PV masks predicted from the HOECHST channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1"
+msgstr "仅根据 HOECHST 通道预测的弓形虫纳虫泡掩膜；2567 个训练视野和 463 个留出视野，按孔划分，宿主为 HFF/HeLa/THP1"
+
+msgid "F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "在 463 个按孔分组的留出视野上，IoU 0.5 时 F1 为 0.569，而原版 cpsam_v2 为 0.002"
+
+msgid "Models are hosted on their author's own Hugging Face account, so contributing one does not mean handing write access to anyone else's. ``spacr.model_zoo``'s ``publish_model`` performs the upload and prints the catalogue row to add."
+msgstr "模型托管在其作者自己的 Hugging Face 账户上，因此贡献模型并不意味着要把写入权限交给他人。``spacr.model_zoo`` 的 ``publish_model`` 负责上传，并输出需要添加的目录行。"
+
+msgid "Choose a model from a form"
+msgstr "从表单中选择模型"
+
+msgid "A model setting in Mask generation, Make Masks and Plaque Assay has a **Model zoo…** button. Its list is grouped by origin under five headings — the stock Cellpose-SAM weights, spaCR's own models, unvetted spaCR community uploads, Cellpose models published on bioimage.io, and the Cellpose 3 backend's cyto, cyto2, cyto3 and nuclei models. Click a heading to show or fold its rows. **Download** fetches the selected model, or **Install** its backend; **Use this model** then writes the model into the setting. A model that needs another backend, such as Cellpose 3 or Cellpose-DINO, says so on its row and offers to install that backend into its own environment under ``~/.spacr/backends``; spaCR's own environment is not changed. A row spaCR cannot run says so instead of being offered."
+msgstr "掩膜生成、创建掩膜和空斑分析中的模型设置都有一个 **模型库…** 按钮。其列表按来源分为五个标题——原版 Cellpose-SAM 权重、spaCR 自己的模型、未经审核的 spaCR 社区上传、发布在 bioimage.io 上的 Cellpose 模型，以及 Cellpose 3 后端的 cyto、cyto2、cyto3 和 nuclei 模型。单击标题可显示或折叠其各行。**下载** 获取所选模型，或 **安装** 其后端；然后 **Use this model** 会将该模型写入设置。需要其他后端（例如 Cellpose 3 或 Cellpose-DINO）的模型会在其行中注明，并提供将该后端安装到 ``~/.spacr/backends`` 下其自身环境中的选项；spaCR 自己的环境不会改变。spaCR 无法运行的行会注明这一点，而不会被提供。"
+
+msgid "Opened from Mask generation, the popup also has **Measure diameters…**: it estimates the cell, nucleus and pathogen diameters from a few fields of your own images and can write them into the settings. See :class:`spacr.qt.prerun.DiameterDialog`."
+msgstr "从掩膜生成打开时，弹出窗口还有 **测量直径…**：它根据您自己图像中的几个视野估计细胞、细胞核和病原体的直径，并可将其写入设置。参见 :class:`spacr.qt.prerun.DiameterDialog`。"
+
+msgid "Per-model detail"
+msgstr "各模型详情"
+
+msgid "Toxoplasma PV v1"
+msgstr "Toxoplasma PV v1"
+
+msgid "**Architecture.** Cellpose-SAM (cpsam_v2)"
+msgstr "**架构。** Cellpose-SAM (cpsam_v2)"
+
+msgid "**Trained on.** Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV lumen. Round 2: 229 training images (round 1's 104 plus 125 newly curated RH and ME49 fields), 100 epochs, base cpsam_v2"
+msgstr "**训练数据。** 用山羊抗弓形虫-生物素染色的弓形虫速殖子纳虫泡，以及在纳虫泡腔中表达 DsRed 的速殖子。第 2 轮：229 张训练图像（第 1 轮的 104 张加上 125 个新整理的 RH 和 ME49 视野），100 个 epoch，基础模型 cpsam_v2"
+
+msgid "**Measured.** F1 0.864 against 0.713 for stock cpsam on 11 held-out in-house wells, at IoU 0.5; literature hold-out pending"
+msgstr "**测量结果。** 在 11 个留出的内部孔上，IoU 0.5 时 F1 为 0.864，而原版 cpsam 为 0.713；文献留出评估待定"
+
+msgid "F1 0.864 at IoU 0.5 against 0.713 for stock cpsam on the 11 wells round 1 also held out (round 1 scored 0.867); AJI 0.809 against 0.426"
+msgstr "在第 1 轮也留出的 11 个孔上，IoU 0.5 时 F1 为 0.864，而原版 cpsam 为 0.713（第 1 轮得分 0.867）；AJI 为 0.809，对比 0.426"
+
+msgid "accuracy falls sharply above IoU 0.8 -- suited to counting and area rather than precise morphometry"
+msgstr "IoU 高于 0.8 时准确率急剧下降——适用于计数和面积，而非精确的形态测量"
+
+msgid "the held-out literature scorecard is pending a stock-seeded re-curation; on the current literature set, whose truth leans toward this model's lineage, it ties stock Cellpose-SAM on detection (F1 0.403 against 0.400)"
+msgstr "留出的文献评分待以原版模型为起点重新整理后给出；在当前文献集（其真值偏向此模型的谱系）上，它在检测方面与原版 Cellpose-SAM 持平（F1 0.403 对 0.400）"
+
+msgid "Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam>`_, as ``cpsam_v2_toxo_r2``."
+msgstr "发布为 `einarolafsson/toxoplasma-pv-segmentation-cpsam <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam>`_，名称为 ``cpsam_v2_toxo_r2``。"
+
+msgid "SHA-256 ``182d8cf6b32c7b9ef2917c85870d188486e5e119f05e9c5c1f07652f6859f2d0``."
+msgstr "SHA-256 ``182d8cf6b32c7b9ef2917c85870d188486e5e119f05e9c5c1f07652f6859f2d0``。"
+
+msgid "Toxoplasma Plaque v1"
+msgstr "Toxoplasma Plaque v1"
+
+msgid "**Architecture.** Cellpose-SAM (cpsam)"
+msgstr "**架构。** Cellpose-SAM (cpsam)"
+
+msgid "**Trained on.** Toxoplasma gondii plaque assays; round 3, evaluated in-domain (NAS) and against a literature generalisation set"
+msgstr "**训练数据。** 刚地弓形虫空斑实验；第 3 轮，在领域内（NAS）以及文献泛化集上评估"
+
+msgid "**Measured.** F1 0.856 in-domain; 0.806 on literature (3-fold cross-validated, SD 0.020)"
+msgstr "**测量结果。** 领域内 F1 为 0.856；文献数据上为 0.806（3 折交叉验证，SD 0.020）"
+
+msgid "F1 0.856 in-domain and 0.806 on the literature set (3-fold cross-validated, SD 0.020), against 0.718 for round 1"
+msgstr "领域内 F1 为 0.856，文献集上为 0.806（3 折交叉验证，SD 0.020），而第 1 轮为 0.718"
+
+msgid "round 3 trades precision (0.939 down to 0.858) for recall (0.631 up to 0.811) on the literature set, which is the right direction for a counting assay"
+msgstr "在文献集上，第 3 轮以精确率（从 0.939 降至 0.858）换取召回率（从 0.631 升至 0.811），这对计数型实验而言是正确的方向"
+
+msgid "PREFER THIS ONE FOR MICROSCOPE-ONLY WORK. On the round-5 test split it scores 0.836 on PFA-fixed wells against round 5's 0.808, at precision 0.93 against 0.81. For mixed sources, or any phone-camera image, use toxoplasma_plaque_v2, which round 3 cannot handle at all (0.249 there)"
+msgstr "仅使用显微镜的工作请优先选择此模型。在第 5 轮测试划分上，它在 PFA 固定孔上得分 0.836，而第 5 轮为 0.808，精确率为 0.93 对 0.81。对于混合来源或任何手机相机图像，请使用 toxoplasma_plaque_v2，第 3 轮完全无法处理这类图像（此处为 0.249）"
+
+msgid "Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam>`_, as ``cpsam_plaque_r3``."
+msgstr "发布为 `einarolafsson/toxoplasma-plaque-segmentation-cpsam <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam>`_，名称为 ``cpsam_plaque_r3``。"
+
+msgid "SHA-256 ``eeecd2d6cd5cbb4dddee71564d5f460d26bb07ac125e0b494b7502fea4292d5d``."
+msgstr "SHA-256 ``eeecd2d6cd5cbb4dddee71564d5f460d26bb07ac125e0b494b7502fea4292d5d``。"
+
+msgid "Toxoplasma Plaque v2 (round 5)"
+msgstr "Toxoplasma Plaque v2（第 5 轮）"
+
+msgid "**Trained on.** Toxoplasma plaque assays stained with crystal violet, from three microscopes and from published figures. Round 5: 332 training fields grouped by figure and by plate so none straddles the split, 100 epochs, base cpsam_v2, empty wells kept as negatives"
+msgstr "**训练数据。** 结晶紫染色的弓形虫空斑实验，来自三台显微镜以及已发表的图。第 5 轮：332 个训练视野，按图和孔板分组，因此没有视野跨越划分，100 个 epoch，基础模型 cpsam_v2，空孔作为阴性样本保留"
+
+msgid "**Measured.** not scored against stock; on 81 held-out fields it ties round 3 on literature (0.819 vs 0.820) and beats it by 0.166 on phone-camera wells (0.415 vs 0.249)"
+msgstr "**测量结果。** 未与原版模型对比评分；在 81 个留出视野上，它在文献数据上与第 3 轮持平（0.819 对 0.820），在手机相机拍摄的孔上比第 3 轮高 0.166（0.415 对 0.249）"
+
+msgid "COMPLEMENTS toxoplasma_plaque_v1 rather than replacing it: prefer v1 (round 3) for microscope-only work, where it scores 0.836 against this model's 0.808 on PFA-fixed wells and is far more precise; prefer this one for mixed or unknown sources"
+msgstr "它是对 toxoplasma_plaque_v1 的补充（COMPLEMENTS），而不是替代：仅使用显微镜的工作优先选择 v1（第 3 轮），它在 PFA 固定孔上得分 0.836，而本模型为 0.808，且精确得多；混合或未知来源优先选择本模型"
+
+msgid "the only plaque model trained on phone-camera wells -- F1 0.415 against round 3's 0.249, though recall there is 0.296, so it still misses most plaques on phone images and is not yet a counting tool"
+msgstr "唯一在手机相机拍摄的孔上训练过的空斑模型——F1 为 0.415，而第 3 轮为 0.249，但其召回率仅为 0.296，因此在手机图像上仍会漏掉大多数空斑，尚不能作为计数工具"
+
+msgid "it did NOT clear the promotion bar of 0.02 literature F1 fixed before the run (it came in at -0.001), so round 3 remains production"
+msgstr "它没有（NOT）达到运行前设定的文献 F1 提升 0.02 的晋级门槛（实际为 -0.001），因此第 3 轮仍用于生产"
+
+msgid "balanced precision/recall (0.81/0.83) where round 3 is lopsided (0.93/0.73): round 3's low recall systematically UNDERCOUNTS, which matters more than F1 for a counting assay"
+msgstr "精确率/召回率平衡（0.81/0.83），而第 3 轮失衡（0.93/0.73）：第 3 轮的低召回率会系统性地少计（UNDERCOUNTS），对于计数型实验而言这比 F1 更重要"
+
+msgid "hallucinates 2 objects across 6 blank-lawn wells where round 3 hallucinates 19"
+msgstr "在 6 个空白菌苔孔中虚构出 2 个对象，而第 3 轮虚构出 19 个"
+
+msgid "first plaque model on cpsam_v2; rounds 1-4 used cpsam v1, so base and data changed together and the gap to round 3 is not attributable to the extra curation alone"
+msgstr "第一个基于 cpsam_v2 的空斑模型；第 1–4 轮使用 cpsam v1，因此基础模型和数据同时发生了变化，与第 3 轮的差距不能仅归因于额外的整理"
+
+msgid "training data: https://huggingface.co/datasets/einarolafsson/toxoplasma-plaque-dataset"
+msgstr "训练数据：https://huggingface.co/datasets/einarolafsson/toxoplasma-plaque-dataset"
+
+msgid "Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5 <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5>`_, as ``cpsam_plaque_r5``."
+msgstr "发布为 `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5 <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5>`_，名称为 ``cpsam_plaque_r5``。"
+
+msgid "SHA-256 ``0927023a745ac6a19bae0ec72c89b7b864a4ff8d047a41f3f1e9767e1a4d0600``."
+msgstr "SHA-256 ``0927023a745ac6a19bae0ec72c89b7b864a4ff8d047a41f3f1e9767e1a4d0600``。"
+
+msgid "Toxoplasma Plaque Well Detector v1"
+msgstr "Toxoplasma Plaque Well Detector v1"
+
+msgid "**Architecture.** YOLO11n"
+msgstr "**架构。** YOLO11n"
+
+msgid "**Trained on.** whole-plate and multi-well Toxoplasma plaque-assay images; yolo11n base, 150 epochs, batch 16, imgsz 640"
+msgstr "**训练数据。** 整板和多孔弓形虫空斑实验图像；基础模型 yolo11n，150 个 epoch，批大小 16，imgsz 640"
+
+msgid "**Measured.** mAP50 0.993 on its own held-out split; on the test set shared with v2 it scores mAP50 0.8838, against v2's 0.9457"
+msgstr "**测量结果。** 在其自身的留出划分上 mAP50 为 0.993；在与 v2 共享的测试集上 mAP50 为 0.8838，而 v2 为 0.9457"
+
+msgid "the 0.993 is measured on v3's OWN split, which is easier than the set v2 is measured on; on that shared set this model scores mAP50 0.8838 against v2's 0.9457, so v2 is the better detector"
+msgstr "0.993 是在 v3 自己的（OWN）划分上测得的，该划分比 v2 所用的测试集更容易；在共享测试集上，本模型 mAP50 为 0.8838，而 v2 为 0.9457，因此 v2 是更好的检测器"
+
+msgid "kept because the published plaque corpus was measured with these weights, so results in the paper trace back to this row"
+msgstr "之所以保留，是因为已发布的空斑语料库是用这些权重测得的，论文中的结果可以追溯到这一行"
+
+msgid "locates WELLS, not plaques; it is the front half of a two-stage pipeline with toxoplasma_plaque_v1, and the well it finds also gives the diameter that makes areas comparable across microscopes"
+msgstr "定位的是孔（WELLS），而不是空斑；它是与 toxoplasma_plaque_v1 组成的两阶段流程的前半部分，它找到的孔还提供了使不同显微镜之间面积可比的直径"
+
+msgid "Published as `einarolafsson/toxoplasma-plaque-well-detector-yolo11 <https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo11>`_, as ``yolo_welldetect_v3.pt``."
+msgstr "发布为 `einarolafsson/toxoplasma-plaque-well-detector-yolo11 <https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo11>`_，名称为 ``yolo_welldetect_v3.pt``。"
+
+msgid "SHA-256 ``b826058754fb5d4df36c3a7283aac049015cbb044b5ef096c55d19f37172a50c``."
+msgstr "SHA-256 ``b826058754fb5d4df36c3a7283aac049015cbb044b5ef096c55d19f37172a50c``。"
+
+msgid "Toxoplasma Plaque Well Detector v2"
+msgstr "Toxoplasma Plaque Well Detector v2"
+
+msgid "**Architecture.** YOLO26n (ultralytics 8.4.155)"
+msgstr "**架构。** YOLO26n (ultralytics 8.4.155)"
+
+msgid "**Trained on.** whole-plate and multi-well Toxoplasma plaque-assay images plus 939 newly reviewed PMC figures, accepted boxes and confirmed negatives alike; yolo26n base, best validation mAP50-95 at epoch 28"
+msgstr "**训练数据。** 整板和多孔弓形虫空斑实验图像，以及 939 张新审阅的 PMC 图，包括被接受的框和已确认的阴性样本；基础模型 yolo26n，最佳验证 mAP50-95 出现在第 28 个 epoch"
+
+msgid "**Measured.** mAP50 0.9457 and mAP50-95 0.8341 against v1's (yolo_welldetect_v3.pt) 0.8838 and 0.7630 on the SAME test set; stock YOLO has no plaque-well class, so v1 is the baseline"
+msgstr "**测量结果。** 在同一（SAME）测试集上 mAP50 为 0.9457、mAP50-95 为 0.8341，而 v1（yolo_welldetect_v3.pt）分别为 0.8838 和 0.7630；原版 YOLO 没有空斑孔类别，因此以 v1 为基线"
+
+msgid "on the shared test set it beats v1 (the v3 weights) on every measure, and cuts false boxes on no-well figures from 152 to 49"
+msgstr "在共享测试集上，它在所有指标上都优于 v1（v3 权重），并将无孔图上的错误框从 152 个减少到 49 个"
+
+msgid "84 of the 129 test images contain no well at all, which is what the false-box count is measured on"
+msgstr "129 张测试图像中有 84 张完全不含孔，错误框数量就是在这些图像上测得的"
+
+msgid "locates WELLS, not plaques; the front half of a two-stage pipeline with the plaque segmentation model"
+msgstr "定位的是孔（WELLS），而不是空斑；是与空斑分割模型组成的两阶段流程的前半部分"
+
+msgid "the repository publishes this weight as weights/best.pt; spaCR saves it under the name above so two detectors cannot both land as best.pt"
+msgstr "仓库将此权重发布为 weights/best.pt；spaCR 以上述名称保存它，以免两个检测器都落为 best.pt"
+
+msgid "Published as `einarolafsson/toxoplasma-plaque-well-detector-yolo26 <https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo26>`_, as ``yolo_welldetect_v4.pt``."
+msgstr "发布为 `einarolafsson/toxoplasma-plaque-well-detector-yolo26 <https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo26>`_，名称为 ``yolo_welldetect_v4.pt``。"
+
+msgid "SHA-256 ``f2a1e1110f09b2a1d5ef5545adaba7c57f1158669d0bfc50d8fabe9f86da30c7``."
+msgstr "SHA-256 ``f2a1e1110f09b2a1d5ef5545adaba7c57f1158669d0bfc50d8fabe9f86da30c7``。"
+
+msgid "Toxoplasma from Cell Mask (cross-channel)"
+msgstr "由细胞掩膜推断弓形虫（跨通道）"
+
+msgid "**Trained on.** cross-channel: given the host cell image, predicts where the Toxoplasma parasitophorous vacuoles are, with no parasite stain. 100 epochs, base cpsam_v2, AdamW lr 1e-5, targets are PV-regenerated masks"
+msgstr "**训练数据。** 跨通道：给定宿主细胞图像，在没有寄生虫染色的情况下预测弓形虫纳虫泡的位置。100 个 epoch，基础模型 cpsam_v2，AdamW lr 1e-5，目标为由纳虫泡重新生成的掩膜"
+
+msgid "**Measured.** F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "**测量结果。** 在 463 个按孔分组的留出视野上，IoU 0.5 时 F1 为 0.606，而原版 cpsam_v2 为 0.021"
+
+msgid "F1 0.606, AJI 0.494, Dice 0.610 at IoU 0.5 against stock cpsam_v2's 0.021/0.008/0.020 -- stock cannot do this task at all"
+msgstr "IoU 0.5 时 F1 0.606、AJI 0.494、Dice 0.610，而原版 cpsam_v2 为 0.021/0.008/0.020——原版模型根本无法完成此任务"
+
+msgid "per host: HeLa 0.711, HFF 0.557, THP1 0.465; THP1 is the weak case"
+msgstr "按宿主：HeLa 0.711、HFF 0.557、THP1 0.465；THP1 是较弱的情形"
+
+msgid "the held-out split selects the checkpoint, so it is validation data rather than an independent test set"
+msgstr "留出划分用于选择检查点，因此它属于验证数据，而不是独立的测试集"
+
+msgid "accuracy falls above IoU 0.8 -- suited to counting, occupancy and area rather than precise morphometry"
+msgstr "IoU 高于 0.8 时准确率下降——适用于计数、占位和面积，而非精确的形态测量"
+
+msgid "Published as `einarolafsson/toxoplasma-from-cellmask-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-cellmask-cpsam>`_, as ``toxoplasma_from_cellmask_pv``."
+msgstr "发布为 `einarolafsson/toxoplasma-from-cellmask-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-cellmask-cpsam>`_，名称为 ``toxoplasma_from_cellmask_pv``。"
+
+msgid "SHA-256 ``481dfccc1a68cc594aafcb71088efc25b5f5c6a6240e52902c0089759b3149ab``."
+msgstr "SHA-256 ``481dfccc1a68cc594aafcb71088efc25b5f5c6a6240e52902c0089759b3149ab``。"
+
+msgid "Toxoplasma PV v2 (round 5)"
+msgstr "Toxoplasma PV v2（第 5 轮）"
+
+msgid "**Trained on.** Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV lumen (RH and ME49). Round 5: 556 images, 100 epochs, base cpsam_v2"
+msgstr "**训练数据。** 用山羊抗弓形虫-生物素染色的弓形虫速殖子纳虫泡，以及在纳虫泡腔中表达 DsRed 的速殖子（RH 和 ME49）。第 5 轮：556 张图像，100 个 epoch，基础模型 cpsam_v2"
+
+msgid "**Measured.** F1 0.817 +/- 0.036 by 5-fold cross-validation over 619 pairs; ~0.86 against 0.713 for stock on the 11 in-house held-out wells"
+msgstr "**测量结果。** 对 619 对样本进行 5 折交叉验证，F1 为 0.817 +/- 0.036；在 11 个内部留出孔上约为 0.86，而原版为 0.713"
+
+msgid "supersedes toxoplasma_pv_v1 (round 2, 229 images): more than twice the training data and cross-validated rather than single-split"
+msgstr "取代 toxoplasma_pv_v1（第 2 轮，229 张图像）：训练数据多出一倍以上，并经过交叉验证而非单一划分"
+
+msgid "5-fold CV over 619 pairs: F1 0.817 (SD 0.036), AJI 0.714, Dice 0.802"
+msgstr "对 619 对样本进行 5 折交叉验证：F1 0.817（SD 0.036）、AJI 0.714、Dice 0.802"
+
+msgid "per-dataset variance is real -- F1 ranges ~0.74 to ~0.93 by screen"
+msgstr "数据集之间的差异是真实存在的——不同筛选的 F1 范围约为 0.74 到 0.93"
+
+msgid "accuracy falls above IoU 0.8 -- suited to counting and area rather than precise morphometry"
+msgstr "IoU 高于 0.8 时准确率下降——适用于计数和面积，而非精确的形态测量"
+
+msgid "Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r5 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r5>`_, as ``cpsam_v2_toxo_r5``."
+msgstr "发布为 `einarolafsson/toxoplasma-pv-segmentation-cpsam-r5 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r5>`_，名称为 ``cpsam_v2_toxo_r5``。"
+
+msgid "SHA-256 ``17c689e3b117745561e20a885c2a2a998ed360fa97cac8c0446316ae5905c10f``."
+msgstr "SHA-256 ``17c689e3b117745561e20a885c2a2a998ed360fa97cac8c0446316ae5905c10f``。"
+
+msgid "Toxoplasma PV v3 (round 6)"
+msgstr "Toxoplasma PV v3（第 6 轮）"
+
+msgid "**Trained on.** Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV lumen (RH and ME49). Round 6 retrains round 5's data with cellpose 4.2.1.1, 100 epochs, base cpsam_v2"
+msgstr "**训练数据。** 用山羊抗弓形虫-生物素染色的弓形虫速殖子纳虫泡，以及在纳虫泡腔中表达 DsRed 的速殖子（RH 和 ME49）。第 6 轮使用 cellpose 4.2.1.1 重新训练第 5 轮的数据，100 个 epoch，基础模型 cpsam_v2"
+
+msgid "**Measured.** F1 0.860 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.803 against 0.505"
+msgstr "**测量结果。** 在 11 个锚定孔上，IoU 0.5 时 F1 为 0.860，而原版 cpsam_v2 为 0.765；AJI 为 0.803，对比 0.505"
+
+msgid "NEWEST IS NOT BEST HERE: round 6 does not beat round 2 on the anchor wells -- 0.8602 against 0.8648 -- and the PV project still promotes round 5"
+msgstr "此处最新并非最佳：第 6 轮在锚定孔上并未超过第 2 轮——0.8602 对 0.8648——纳虫泡项目仍推荐第 5 轮"
+
+msgid "it is the first PV round whose checkpoint was chosen on a held-out validation set (108 fields) instead of on the test wells"
+msgstr "这是第一个在留出验证集（108 个视野）而不是测试孔上选择检查点的纳虫泡轮次"
+
+msgid "5-fold cross-validation, grouped by source: F1 0.8168 +/- 0.028, AJI 0.7516, Dice 0.8424"
+msgstr "按来源分组的 5 折交叉验证：F1 0.8168 +/- 0.028、AJI 0.7516、Dice 0.8424"
+
+msgid "the 11 anchor wells have been held out since round 1, so they are the only fields no PV round has ever trained on"
+msgstr "这 11 个锚定孔自第 1 轮起一直被留出，因此它们是任何纳虫泡轮次都从未训练过的唯一视野"
+
+msgid "Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r6 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r6>`_, as ``cpsam_v2_toxo_r6``."
+msgstr "发布为 `einarolafsson/toxoplasma-pv-segmentation-cpsam-r6 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r6>`_，名称为 ``cpsam_v2_toxo_r6``。"
+
+msgid "SHA-256 ``146ef269979b1d1ab45c11039b0ab164f68001adaa8f73f1f8f18be6fcfd060e``."
+msgstr "SHA-256 ``146ef269979b1d1ab45c11039b0ab164f68001adaa8f73f1f8f18be6fcfd060e``。"
+
+msgid "Live cell v1 (phase, brightfield, DIC)"
+msgstr "活细胞 v1（相差、明场、DIC）"
+
+msgid "**Trained on.** unstained cells in phase contrast, brightfield and DIC: LIVECell, DeepSea, YeaZ, yeast microstructures, five Cell Tracking Challenge sets, BBBC009, BBBC030, QPI and Revvity. Base cpsam_v2, cellpose 4.2.1.1, lr 1e-5, batch 4; stopped at epoch 37 of 100"
+msgstr "**训练数据。** 相差、明场和 DIC 下的未染色细胞：LIVECell、DeepSea、YeaZ、酵母微结构、五个 Cell Tracking Challenge 数据集、BBBC009、BBBC030、QPI 和 Revvity。基础模型 cpsam_v2，cellpose 4.2.1.1，lr 1e-5，批大小 4；在 100 个 epoch 中的第 37 个停止"
+
+msgid "**Measured.** on the datasets stock cpsam_v2 never trained on, F1 0.960 against 0.885 at IoU 0.5; over all 2,199 test fields, 0.694 against 0.738, because stock trained on LIVECell and YeaZ and wins on LIVECell"
+msgstr "**测量结果。** 在原版 cpsam_v2 从未训练过的数据集上，IoU 0.5 时 F1 为 0.960，对比 0.885；在全部 2,199 个测试视野上为 0.694，对比 0.738，因为原版模型在 LIVECell 和 YeaZ 上训练过，并在 LIVECell 上胜出"
+
+msgid "TWO STOCK COMPARISONS, NOT ONE: stock cpsam_v2 trained on LIVECell and YeaZ, so its score there is partly memorisation. On the datasets it never saw (DeepSea, the CTC sets, BBBC009, BBBC030, QPI, Revvity, yeast microstructures) this model scores F1 0.960 against 0.885"
+msgstr "与原版模型的比较有两种，而不是一种：原版 cpsam_v2 在 LIVECell 和 YeaZ 上训练过，因此它在这些数据上的得分部分来自记忆。在它从未见过的数据集（DeepSea、CTC 数据集、BBBC009、BBBC030、QPI、Revvity、酵母微结构）上，本模型 F1 为 0.960，对比 0.885"
+
+msgid "it does NOT replace stock on LIVECell-style Incucyte phase: 0.671 against 0.724 there, and it missed its own pre-registered promotion bar"
+msgstr "在 LIVECell 风格的 Incucyte 相差图像上，它并不能（NOT）取代原版模型：此处为 0.671 对 0.724，并且未达到其自身预先登记的晋级门槛"
+
+msgid "by modality at IoU 0.5: brightfield 0.964 (stock 0.912), DIC +0.026 over stock, phase 0.689 (stock 0.735)"
+msgstr "按成像方式，IoU 0.5 时：明场 0.964（原版 0.912），DIC 比原版高 0.026，相差 0.689（原版 0.735）"
+
+msgid "F1 0.865 on a train sample, 0.696 on validation and 0.694 on test; no per-epoch loss was recorded"
+msgstr "训练样本上 F1 为 0.865，验证集上为 0.696，测试集上为 0.694；未记录每个 epoch 的损失"
+
+msgid "Published as `einarolafsson/live-cell-segmentation-cpsam <https://huggingface.co/einarolafsson/live-cell-segmentation-cpsam>`_, as ``live_cell_v1``."
+msgstr "发布为 `einarolafsson/live-cell-segmentation-cpsam <https://huggingface.co/einarolafsson/live-cell-segmentation-cpsam>`_，名称为 ``live_cell_v1``。"
+
+msgid "SHA-256 ``7ade69377093fe81830ddc7c52ba8618bef1fefe7d1243c01b9c1beed7fcb090``."
+msgstr "SHA-256 ``7ade69377093fe81830ddc7c52ba8618bef1fefe7d1243c01b9c1beed7fcb090``。"
+
+msgid "Cross-channel nuclei-from-cellmask"
+msgstr "跨通道：由细胞掩膜推断细胞核"
+
+msgid "**Trained on.** cross-channel: given the cell image, predicts where the nuclei are, with no nuclear stain -- which frees the DAPI/Hoechst channel for another marker. 100 epochs, base cpsam_v2"
+msgstr "**训练数据。** 跨通道：给定细胞图像，在没有细胞核染色的情况下预测细胞核的位置——从而将 DAPI/Hoechst 通道腾出来用于其他标记。100 个 epoch，基础模型 cpsam_v2"
+
+msgid "**Measured.** F1 0.888 against 0.201 for stock cpsam_v2 on 453 well-grouped held-out fields, at IoU 0.5"
+msgstr "**测量结果。** 在 453 个按孔分组的留出视野上，IoU 0.5 时 F1 为 0.888，而原版 cpsam_v2 为 0.201"
+
+msgid "F1 0.888, AJI 0.792, Dice 0.877 at IoU 0.5 against stock cpsam_v2's 0.201/0.286/0.449"
+msgstr "IoU 0.5 时 F1 0.888、AJI 0.792、Dice 0.877，而原版 cpsam_v2 为 0.201/0.286/0.449"
+
+msgid "per host: HFF 0.932, HeLa 0.860, THP1 0.861"
+msgstr "按宿主：HFF 0.932、HeLa 0.860、THP1 0.861"
+
+msgid "predicts nuclei from cell morphology -- expect degraded accuracy on unusual or highly confluent morphologies"
+msgstr "根据细胞形态预测细胞核——在不寻常或高度汇合的形态上准确率可能下降"
+
+msgid "Published as `einarolafsson/cross-channel-nuclei-from-cellmask-cpsam <https://huggingface.co/einarolafsson/cross-channel-nuclei-from-cellmask-cpsam>`_, as ``nuclei_from_cellmask_best``."
+msgstr "发布为 `einarolafsson/cross-channel-nuclei-from-cellmask-cpsam <https://huggingface.co/einarolafsson/cross-channel-nuclei-from-cellmask-cpsam>`_，名称为 ``nuclei_from_cellmask_best``。"
+
+msgid "SHA-256 ``2675553a46e97a7bc4bd2bfe3e954954194fe71ca4e94261e752a02bf0b6eb47``."
+msgstr "SHA-256 ``2675553a46e97a7bc4bd2bfe3e954954194fe71ca4e94261e752a02bf0b6eb47``。"
+
+msgid "Cross-channel cell-from-hoechst"
+msgstr "跨通道：由 Hoechst 推断细胞"
+
+msgid "**Trained on.** Hoechst-stained nuclei paired with curated host-cell masks; fine-tuned from stock cpsam_v2, 100 epochs, best epoch 70"
+msgstr "**训练数据。** 与整理后的宿主细胞掩膜配对的 Hoechst 染色细胞核；从原版 cpsam_v2 微调，100 个 epoch，最佳 epoch 为 70"
+
+msgid "**Measured.** F1 0.870 against stock cpsam_v2's 0.301 on 451 held-out fields at IoU 0.5 -- a delta of 0.569"
+msgstr "**测量结果。** 在 451 个留出视野上，IoU 0.5 时 F1 为 0.870，而原版 cpsam_v2 为 0.301——差值为 0.569"
+
+msgid "the counterpart of nuclei_from_cellmask_v1: that one predicts nuclei from the cell mask, this one predicts the cell from the nucleus"
+msgstr "nuclei_from_cellmask_v1 的对应模型：前者根据细胞掩膜预测细胞核，本模型根据细胞核预测细胞"
+
+msgid "precision 0.944 against recall 0.806 -- it misses cells rather than inventing them, which is the safer direction for counting"
+msgstr "精确率 0.944，召回率 0.806——它宁可漏掉细胞也不会凭空生成细胞，这对计数而言是更安全的方向"
+
+msgid "quote the DELTA over stock (0.569), not the ratio: stock's mAP of 0.0575 is a near-zero denominator that makes any ratio look huge"
+msgstr "请引用相对原版模型的差值（DELTA，0.569），而不是比值：原版模型的 mAP 为 0.0575，这个接近零的分母会使任何比值都显得极大"
+
+msgid "Published as `einarolafsson/cross-channel-cell-from-hoechst-cpsam <https://huggingface.co/einarolafsson/cross-channel-cell-from-hoechst-cpsam>`_, as ``cell_from_hoechst_best``."
+msgstr "发布为 `einarolafsson/cross-channel-cell-from-hoechst-cpsam <https://huggingface.co/einarolafsson/cross-channel-cell-from-hoechst-cpsam>`_，名称为 ``cell_from_hoechst_best``。"
+
+msgid "SHA-256 ``d1992433b4f2f291f73738830bb953198165fdc10719e54dae9b8c2bd430e0eb``."
+msgstr "SHA-256 ``d1992433b4f2f291f73738830bb953198165fdc10719e54dae9b8c2bd430e0eb``。"
+
+msgid "Toxoplasma from Hoechst (cross-channel)"
+msgstr "由 Hoechst 推断弓形虫（跨通道）"
+
+msgid "**Trained on.** cross-channel: given the Hoechst/nuclear image, predicts where the Toxoplasma parasitophorous vacuoles are, with no parasite stain. 100 epochs, base cpsam_v2, AdamW lr 1e-05, targets are PV-regenerated masks"
+msgstr "**训练数据。** 跨通道：给定 Hoechst/细胞核图像，在没有寄生虫染色的情况下预测弓形虫纳虫泡的位置。100 个 epoch，基础模型 cpsam_v2，AdamW lr 1e-05，目标为由纳虫泡重新生成的掩膜"
+
+msgid "**Measured.** F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "**测量结果。** 在 463 个按孔分组的留出视野上，IoU 0.5 时 F1 为 0.569，而原版 cpsam_v2 为 0.002"
+
+msgid "F1 0.569, AJI 0.421, Dice 0.546 at IoU 0.5 against stock cpsam_v2's 0.002/0.006/0.016"
+msgstr "IoU 0.5 时 F1 0.569、AJI 0.421、Dice 0.546，而原版 cpsam_v2 为 0.002/0.006/0.016"
+
+msgid "the Hoechst route is harder than the cell-mask route -- compare toxoplasma_from_cellmask_v1"
+msgstr "Hoechst 路线比细胞掩膜路线更难——请与 toxoplasma_from_cellmask_v1 比较"
+
+msgid "Published as `einarolafsson/toxoplasma-from-hoechst-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-hoechst-cpsam>`_, as ``toxoplasma_from_hoechst_pv``."
+msgstr "发布为 `einarolafsson/toxoplasma-from-hoechst-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-hoechst-cpsam>`_，名称为 ``toxoplasma_from_hoechst_pv``。"
+
+msgid "SHA-256 ``8dc05ebced3550d1a418c13d24d319e0482c742988df29a525520026cb2f0d96``."
+msgstr "SHA-256 ``8dc05ebced3550d1a418c13d24d319e0482c742988df29a525520026cb2f0d96``。"
+

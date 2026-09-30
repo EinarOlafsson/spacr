@@ -673,7 +673,11 @@ def preprocess_generate_masks(settings):
                                                 save_pdf=True,
                                                 outline_palette=settings.get(
                                                     'outline_palette',
-                                                    'default')
+                                                    'default'),
+                                                organelle_channels={
+                                                    role: settings.get(f'{role}_channel')
+                                                    for role in ORGANELLE_ROLES[1:]
+                                                    if settings.get(f'{role}_channel') is not None}
                                             )
                                             stop = time.time()
                                             duration = stop-start
@@ -688,6 +692,17 @@ def preprocess_generate_masks(settings):
 
                     torch.cuda.empty_cache()
                     gc.collect()
+
+                    # Item 76, decided 2026-09-29: Mask writes which object
+                    # sits in which as its own table in measurements.db.
+                    try:
+                        from .filters import _write_object_relationships
+                        _write_object_relationships(
+                            src, timelapse=bool(settings.get('timelapse')))
+                    except Exception as exc:
+                        print(f"WARNING: could not write the object "
+                              f"relationships table for {src}: "
+                              f"{type(exc).__name__}: {exc}")
 
                     from .utils import cleanup_pipeline_folders
                     keep_intermediate = settings.get('keep_intermediate', False) and not settings.get('delete_intermediate', False)
@@ -705,8 +720,12 @@ def preprocess_generate_masks(settings):
             if os.path.isfile(db_path):
                 ledger.stamp(db_path)
                 try:
-                    from .filters import write_relationships
-                    write_relationships(db_path)
+                    from .filters import object_tables, write_relationships
+                    # The filters' relationships table is built from
+                    # Measure's object tables; before Measure has run there
+                    # are none, and that is not a failure (item 76).
+                    if object_tables(db_path):
+                        write_relationships(db_path)
                 except Exception as exc:
                     print(f"WARNING: could not write the relationships "
                           f"table for {db_path}: "

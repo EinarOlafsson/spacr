@@ -80,3 +80,16 @@ def test_a_table_given_while_hidden_still_reaches_the_run(
     assert "mil_attention" in cells.columns
     assert (tmp_path / "cells_mil_wells.csv").exists()
     assert "AUROC 1.00" in screen._status.text()
+
+
+def test_a_dismissed_table_dialog_starts_nothing(screen, monkeypatch):
+    import spacr.embeddings as emb
+    from PySide6.QtWidgets import QFileDialog
+
+    called = []
+    monkeypatch.setattr(emb, "_mil_from_table", called.append)
+    asked = []
+    monkeypatch.setattr(QFileDialog, "getOpenFileName",
+                        staticmethod(lambda *a, **k: asked.append(a) or ("", "")))
+    assert screen._learn_from_well_labels() == ""
+    assert len(asked) == 1 and called == []

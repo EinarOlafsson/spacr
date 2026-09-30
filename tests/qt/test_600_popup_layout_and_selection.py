@@ -323,3 +323,35 @@ def test_the_drop_hint_is_in_the_table_until_something_is_in_it(
     table.viewport().grab()
     dialog._clear_slots([[r, 0] for r in range(len(dialog.rows))])
     assert table._is_empty() and not dialog.new_zone.isVisibleTo(dialog)
+
+
+def test_the_text_colour_caption_stays_legible_on_any_window():
+    light, dark = QColor("#f0f0f0"), QColor("#202020")
+    assert ofm._legible_backdrop(QColor("white"), light) != "transparent"
+    assert ofm._legible_backdrop(QColor("black"), dark) != "transparent"
+    assert ofm._legible_backdrop(QColor("white"), dark) == "transparent"
+    assert ofm._legible_backdrop(QColor("black"), light) == "transparent"
+    assert ofm._legible_backdrop(QColor("#ffff00"), light).startswith("rgba(0")
+
+
+def test_rebuilt_column_editors_leave_no_stale_widget_on_screen(filled):
+    from PySide6.QtWidgets import QApplication, QPushButton
+
+    dialog = filled
+    dialog.show()
+    for _ in range(3):
+        dialog._refresh()
+        QApplication.processEvents()
+    removes = [b for b in dialog.findChildren(QPushButton)
+               if b.text() == ofm.tr("Remove") and b.isVisibleTo(dialog)]
+    assert len(removes) == len(dialog.columns)
+
+
+def test_image_view_columns_are_never_narrower_than_their_heading(filled):
+    dialog = filled
+    dialog._set_view("image")
+    dialog.size_slider.setValue(ofm._THUMB_RANGE[0])
+    header = dialog.table.horizontalHeader()
+    for column in range(dialog.table.columnCount()):
+        assert dialog.table.columnWidth(column) >= header.sectionSizeHint(column)
+    assert dialog.table.columnWidth(1) > ofm._THUMB_RANGE[0] + 24
