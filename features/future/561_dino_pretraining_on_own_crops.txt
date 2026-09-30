@@ -86,3 +86,11 @@ WHAT IS LEFT
     - A picker entry for loading an existing checkpoint (today only the
       run just trained is offered), and progress/epoch controls in the GUI.
     - Fine-tuned classifiers from the DINO backbone (the brief's third use).
+
+2026-09-30 GPU RUN (resnet18, 64 px, 100 epochs, from random weights; 10 min on the RTX 3090).
+Retrieval on the 307-crop plate1 set, DINO vs ImageNet resnet18 at 64 px:
+  6 classes: kNN 0.687 vs 0.573, mAP 0.444 vs 0.355 (chance 0.227)
+  3 classes: kNN 0.785 vs 0.658, mAP 0.576 vs 0.469 (chance 0.341)
+The GPU run widens the CPU run's lead (6-class kNN 0.632 vs 0.586) at a larger backbone and
+crop size. Scorecard: /mnt/wd4tb/scratch/561/scorecard_64px.csv; weights
+dino_scratch_resnet18_64_gpu.pt next to it.
