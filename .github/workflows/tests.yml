@@ -587,11 +587,17 @@ jobs:
           if-no-files-found: ignore
 
   minimum-dependencies:
-    name: Minimum dependencies (ubuntu-24.04, py3.9)
+    name: Minimum dependencies (ubuntu-24.04, py3.9) shard ${{ matrix.shard }} of 3
     runs-on: ubuntu-24.04
     # 120 -> 180, same finding as `fast` above: killed by its own budget at
     # about 2:01 on two separate dispatches. Also blocking.
     timeout-minutes: 180
+    # Three file shards, like `fast` and for the same reason: dispatch
+    # 36739819315 was still at batch 102 of 110 after 2:32 of its 3:00.
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2]
 
     steps:
       - uses: actions/checkout@v7
@@ -680,6 +686,8 @@ jobs:
 
       - name: Run tests at minimum direct versions
         env:
+          SPACR_PYTEST_FILE_SHARD_INDEX: ${{ matrix.shard }}
+          SPACR_PYTEST_FILE_SHARD_COUNT: "3"
           QT_QPA_PLATFORM: offscreen
           PYTHONPATH: ${{ github.workspace }}
           OMP_NUM_THREADS: "1"
