@@ -62,3 +62,27 @@ WHAT IS LEFT
       .github (maintainer), then flip the spacr-sif GHCR package public.
     * Not tried: SingularityCE, and a real Slurm cluster.
 
+
+GPU RUN 2026-09-30
+`apptainer run --nv spacr-cuda.sif spacr-doctor` plus a torch.cuda check,
+via gpu_turn.sh. First run (10:01): rc 1, 12 passed, 2 failed.
+  * qt extra -- a real image bug. --nv binds the host's libglvnd
+    dispatchers (libEGL.so.1, libGL.so.1, libGLX.so.0, libGLdispatch.so.0)
+    into /.singularity.d/libs, which is on LD_LIBRARY_PATH and so shadows the
+    image's copies. Host glibc 2.39, image (Ubuntu 22.04) 2.35, so
+    `import PySide6.QtGui` failed: "GLIBC_2.38 not found (required by
+    /.singularity.d/libs/libEGL.so.1)". Fix: spacr.def %environment puts the
+    image's /usr/lib/<arch>-linux-gnu first on LD_LIBRARY_PATH. Only those
+    four of the bound names exist there, so libcuda and libnvidia-* still
+    come from the host. New test in
+    tests/test_the_apptainer_image_is_the_docker_image.py (15 pass).
+  * running checkout -- a smoke-script artefact, not an image bug. The script
+    cd'd into the spaCR worktree and Apptainer starts in $PWD, so the
+    doctor correctly flagged a source tree whose edits the image ignores.
+    /mnt/wd4tb/scratch/586/gpu_run.sh now starts in its own folder.
+Rebuilt the CUDA SIF from spacr:cuda-425-3bcac5fd6 (3 min 40 s, %test 7/7;
+old one kept as spacr-cuda.pre-glvnd.sif). Rerun (10:26): rc 0, 13 passed,
+0 failed (1 warning: czi extra half-installed), qt extra PASS (PySide6
+6.11.2), gpu PASS, "cuda ok NVIDIA GeForce RTX 3090 12.4".
+Conclusion: --nv now works on a newer host; the --nv Mask + Measure run
+(smoke_pipeline.py --mask) is still the open GPU half of DONE WHEN.

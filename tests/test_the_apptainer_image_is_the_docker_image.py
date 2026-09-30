@@ -177,6 +177,27 @@ def test_the_entrypoint_hands_a_bound_models_folder_to_cellpose():
         assert "CELLPOSE_LOCAL_MODELS_PATH" in text
 
 
+def test_the_image_libraries_come_before_the_nv_bound_host_libraries(tmp_path):
+    """--nv binds a host libEGL that can need a newer glibc than the image's.
+
+    The image's library directory is prepended so its own libglvnd copies win
+    over /.singularity.d/libs, while existing entries are kept after it.
+    """
+    script = tmp_path / "env.sh"
+    script.write_text(_sections()["environment"]
+                      + '\nprintf %s "$LD_LIBRARY_PATH"\n', encoding="utf-8")
+    shell = shutil.which("dash") or shutil.which("sh")
+    result = subprocess.run(
+        [shell, str(script)], capture_output=True, text=True, check=True,
+        env={"PATH": os.environ.get("PATH", ""),
+             "LD_LIBRARY_PATH": "/usr/local/nvidia/lib"})
+    entries = result.stdout.split(":")
+    assert entries[-1] == "/usr/local/nvidia/lib"
+    libdirs = [d for d in ("/usr/lib/x86_64-linux-gnu",
+                           "/usr/lib/aarch64-linux-gnu") if os.path.isdir(d)]
+    assert set(entries[:-1]) == set(libdirs)
+
+
 def test_the_slurm_recipe_is_a_valid_array_job():
     """The batch recipe parses, uses the GPU flag and caps the workers."""
     script = APPTAINER_DIR / "spacr_slurm.sh"

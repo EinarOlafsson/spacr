@@ -68,6 +68,19 @@ From: {{ IMAGE }}
        && grep -qs ' /models ' /proc/self/mountinfo; then
         export CELLPOSE_LOCAL_MODELS_PATH=/models
     fi
+    # --nv also binds the host's libglvnd dispatchers (libEGL.so.1, libGL.so.1,
+    # libGLX.so.0, libGLdispatch.so.0) into /.singularity.d/libs, which is on
+    # LD_LIBRARY_PATH and so shadows the image's copies. A host newer than the
+    # image (glibc 2.39 host, 2.35 image) then breaks `import PySide6.QtGui`
+    # with "GLIBC_2.38 not found". The image's own library directory goes
+    # first; of the bound names it holds only those four, so the NVIDIA
+    # driver libraries (libcuda, libnvidia-*) still come from the host.
+    for _spacr_libdir in /usr/lib/x86_64-linux-gnu /usr/lib/aarch64-linux-gnu; do
+        if [ -d "$_spacr_libdir" ]; then
+            export LD_LIBRARY_PATH="$_spacr_libdir${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+        fi
+    done
+    unset _spacr_libdir
 
 %runscript
     if [ "$#" -eq 0 ]; then
