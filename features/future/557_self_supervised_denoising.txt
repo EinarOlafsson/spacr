@@ -121,3 +121,20 @@ WHAT IS LEFT
       not preview N2V yet; the step runs in the plate run only.
     - Multi-channel N2V (one joint model) and structN2V for correlated
       camera noise are not offered.
+
+GPU RUN 2026-09-30
+    /mnt/wd4tb/scratch/557/gpu_run.sh (DEVICE=cuda, EPOCHS 150, CROP 4096,
+    PEAK 10, CHAINS off,n2v,clip_gauss) got its gpu_turn.sh slot at 08:36:46
+    and stopped 5 s later, rc 1, before any training:
+        ImportError: CAREamics Noise2Void is not installed
+    Two causes. (1) The script did not set SPACR_BACKENDS_DIR, so it looked in
+    ~/.spacr/backends, which has no careamics env; the one used for the CPU
+    checks is /mnt/wd4tb/scratch-557/backends/careamics. (2) That env has
+    torch 2.11.0+cpu (torch.version.cuda None), so pointing at it would still
+    have trained on the CPU. No segmentation F1 was produced; the last
+    numbers are still the CPU ones above (F1@.5 0.354 raw vs 0.274 N2V, 5
+    epochs).
+    Next: install CAREamics from the Model Zoo with a CUDA torch build, set
+    SPACR_BACKENDS_DIR in gpu_run.sh if it is not ~/.spacr/backends, rerun.
+    Conclusion: unanswered -- the GPU run never trained, so whether a
+    converged N2V beats raw images on F1 is still open.
