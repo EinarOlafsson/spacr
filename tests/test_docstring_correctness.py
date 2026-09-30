@@ -2652,7 +2652,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # gone and the object grid's filter-row and alpha-heading methods added.
     # 600, 2026-09-29: +26, item 600's eleven callables and build_plan's
     # new masks= argument.
-    assert sum(len(item.parameters) for item in callables) == 19_703
+    # 573, 2026-09-30: +4, all optional: lock_analysis's gates=, models=
+    # and pipelines=, and check_analysis_lock's gates=; no new public
+    # callable and no required parameter.
+    assert sum(len(item.parameters) for item in callables) == 19_707
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2858,7 +2861,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Moved 2026-09-29 for item 600: spacr.drop_classification and
     # spacr.qt.widgets.organize_for_measure added, and build_plan
     # gained masks=.
-) == "fb9b71fe5569cc51e98527631792f5cd8a61be3a99c33a1c14bffefca2b309b9"
+    # Moved 2026-09-30 for item 573 (was fb9b71fe...): lock_analysis gained
+    # the optional gates=, models= and pipelines=, check_analysis_lock the
+    # optional gates=; no row added or removed.
+) == "bb1c78a98156456b97a8847f0e18bb47274adf36c4b3c6a817a125168f445609"
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
