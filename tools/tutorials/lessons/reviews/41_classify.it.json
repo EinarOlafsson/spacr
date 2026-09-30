@@ -1,10 +1,10 @@
 {
   "lesson": "41_classify",
-  "english_sha256": "5b39387350fde1fe2b622ffe6160d4e301eef74ccdb0f41045f95219d0ee7b69",
+  "english_sha256": "4485df04c4ce5e1db32e2d619de962f72cd60ad1d2c8391358d33540c552f7c6",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -21,9 +21,10 @@
   "scenes": [
     "Apri Classify da Home. Inizia scegliendo la famiglia di classificatori. Le lezioni su immagini e dati tabellari collegate qui presentano ciascuna un esempio completo.",
     "Scegli Computer Vision per imparare dalle immagini degli oggetti. Scegli Tabular Machine Learning per imparare da colonne di caratteristiche misurate. Measure fornisce questi input e Annotate ti permette di aggiungere etichette agli oggetti.",
+    "La vista Essentials raccoglie le impostazioni di cui entrambe le famiglie hanno bisogno per l’addestramento. Quando passa a Tabular Machine Learning, le impostazioni di Computer Vision diventano grigie, così compila solo ciò che usa la famiglia scelta.",
     "Per l’esempio tabellare, fai clic su Load test data e scegli Load. Seleziona le etichette di classe e le impostazioni delle caratteristiche, poi segui la lezione tabellare per addestrare il modello e salvare le previsioni.",
     "Dopo l’esecuzione tabellare, esamina la mappa di calore delle previsioni e i punteggi salvati per oggetto. Gli oggetti privi di misure necessarie possono restare senza punteggio. Controlla i risultati della valutazione per decidere se rivedere etichette, caratteristiche o impostazioni del modello.",
-    "Per la classificazione di immagini, segui la lezione su Computer Vision per preparare ritagli etichettati, scegliere un modello e impostare le suddivisioni di addestramento, validazione e test. Dopo l’addestramento, esamina le figure di valutazione e le previsioni salvate.",
+    "Per la classificazione di immagini, segua la lezione Computer Vision per preparare ritagli etichettati, scegliere un modello e impostare le suddivisioni di addestramento, validazione e test. Dopo l’addestramento, controlli le curve di perdita e di accuratezza, poi esamini le figure di valutazione e le previsioni salvate.",
     "Apri Classifier Evaluation dagli strumenti in alto a destra. Seleziona un pacchetto di valutazione salvato per esaminare previsioni, metriche e suddivisione dei dati.",
     "Apri Explain CV per collegare le previsioni di un classificatore di immagini alle caratteristiche misurate. Fornisci i risultati delle previsioni sulle immagini e le misure corrispondenti, poi esamina quali caratteristiche spiegano i punteggi.",
     "Apri Activation per vedere quali regioni dell’immagine influenzano le risposte del modello. Seleziona il checkpoint addestrato e usa gli stessi canali e la stessa preelaborazione dell’addestramento.",

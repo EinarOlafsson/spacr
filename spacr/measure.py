@@ -3327,6 +3327,7 @@ _CONFLUENCY_WELL_TABLE = 'confluency_well'
 _CONFLUENCY_WELL_KEYS = ('plateID', 'rowID', 'columnID')
 _CONFLUENCY_SEPARATION_MIN = 3.2
 _CONFLUENCY_TEXTURE_RATIO_MIN = 3.0
+_CONFLUENCY_PHASE_RATIO_MIN = 1.8
 _CONFLUENCY_INTENSITY_FRACTION = 0.25
 
 
@@ -3432,7 +3433,11 @@ def _texture_ratio(x, window):
     About 1 on an empty, flat field and several times that on one covered
     by cells, whatever the stain. It decides a field whose pixels do not
     separate into two classes, because such a field is either all
-    background or all monolayer.
+    background or all monolayer. A confluent phase-contrast monolayer
+    (LIVECell) reads only about 2 to 3, because its fine texture raises the
+    noise estimate too, while bare plastic reads 1.1 to 1.7; the texture
+    source therefore calls such a field covered from 1.8, and the intensity
+    source keeps the stricter 3.
 
     :param x: 0-1 scaled plane.
     :param window: window side in pixels.
@@ -3494,7 +3499,7 @@ def _texture_coverage(image, window=15):
     lo, hi = np.percentile(log_sd, [0.5, 99.5])
     cut, separation = _otsu_separation(np.clip(log_sd, lo, hi))
     if separation < _CONFLUENCY_SEPARATION_MIN:
-        full = _texture_ratio(x, window) >= _CONFLUENCY_TEXTURE_RATIO_MIN
+        full = _texture_ratio(x, window) >= _CONFLUENCY_PHASE_RATIO_MIN
         covered = np.full(x.shape, bool(full))
         return _ConfluencyResult(covered, float(full), 'texture', None,
                                 separation, True)
@@ -6463,6 +6468,7 @@ _VIABILITY_MIN_SEPARATION = 2.0
 _VIABILITY_MIN_MINOR = 3
 _VIABILITY_MIN_FIT = 20
 _VIABILITY_ROBUST_MADS = 5.0
+_VIABILITY_BACKGROUND_FOLD = 1.65
 _VIABILITY_ZPRIME_PASS = 0.5
 _VIABILITY_LAYOUT = 1536
 _VIABILITY_COMPOUND_COLUMNS = ('compound', 'treatment', 'drug', 'condition')
@@ -6478,11 +6484,16 @@ class _PopulationCut:
     subtracted mean intensity, or the condensation ratio for morphology);
     ``source`` says how it was found: ``mixture`` (two fitted populations,
     cut where they cross), ``single`` (one population, cut
-    :data:`_VIABILITY_ROBUST_MADS` robust SDs from its median), ``pooled``
-    (a plate too small to fit, cut with every plate's objects together),
-    ``manual`` (the user's number) or ``none`` (no signal).
-    ``separation`` is Ashman's D between the two fitted populations and
-    ``positive_fraction`` the share of objects above the cut.
+    :data:`_VIABILITY_ROBUST_MADS` robust SDs from its median),
+    ``background`` (one population of a dead stain measured with the ring
+    around each object: an object is positive when its mean is
+    :data:`_VIABILITY_BACKGROUND_FOLD` times its ring's median, so the
+    threshold differs per object and the one given here is the plate's
+    median), ``pooled`` (a plate too small to fit, cut with every plate's
+    objects together), ``manual`` (the user's number) or ``none`` (no
+    signal). ``separation`` is Ashman's D between the two fitted
+    populations and ``positive_fraction`` the share of objects above the
+    cut.
     """
 
     threshold: float
@@ -6694,11 +6705,25 @@ def _object_signal(objects, object_type, column):
             f"The {object_type} table has no {name} column; add the stain's "
             f"channel to channels so Measure measures it.")
     mean = pd.to_numeric(objects[name], errors='coerce').astype(float)
+    background = _object_background(objects, object_type, column)
+    if background is None:
+        return mean
+    return mean - background.fillna(background.median())
+
+
+def _object_background(objects, object_type, column):
+    """The median of the ring Measure samples just outside each object.
+
+    :param objects: a ``nucleus`` or ``cell`` table.
+    :param object_type: its object name, the prefix of its columns.
+    :param column: the ``channel_<i>`` index of the stain.
+    :returns: a float Series, or None when the table has no ring columns.
+    """
+    prefix = f'{object_type}_channel_{column}_'
     for ring in (prefix + 'outside_percentile_50', prefix + 'outside_mean'):
         if ring in objects.columns:
-            background = pd.to_numeric(objects[ring], errors='coerce')
-            return mean - background.fillna(background.median())
-    return mean
+            return pd.to_numeric(objects[ring], errors='coerce').astype(float)
+    return None
 
 
 def _condensation_score(nuclei, column):
@@ -6827,21 +6852,36 @@ def _viability_states(dead_positive, live_positive, *, dead, live):
 
 
 def _split_by_plate(objects, signal, *, single_is_positive, log_scale=False,
-                    manual=None):
+                    manual=None, background=None):
     """Cut a signal per plate (and time point) and say where.
 
     A plate with fewer than :data:`_VIABILITY_MIN_FIT` objects borrows the
     cut fitted on every plate together.
+
+    A dead stain on a plate that holds one population is cut per object
+    against its own surroundings when ``background`` is given and the
+    plate's background is above zero: positive when the object's mean is
+    at least :data:`_VIABILITY_BACKGROUND_FOLD` times its ring's median.
+    On real stained plates the stain-negative population has a long
+    bright tail (autofluorescence, dye spill-over, light from neighbours),
+    which a cut a few robust SDs above the median falls inside; the ratio
+    to the local background does not depend on how bright a plate is.
+    Objects without a usable ring keep the plate cut.
 
     :param objects: the object table (for the plate columns).
     :param signal: the per-object signal.
     :param single_is_positive: see :func:`_stain_cut`.
     :param log_scale: see :func:`_stain_cut`.
     :param manual: a user threshold, or None.
+    :param background: the per-object ring median of a dead stain's
+        channel (:func:`_object_background`), or None.
     :returns: ``(positive, thresholds, cuts)``: a boolean array, the
         per-object threshold and ``{plate: _PopulationCut}``.
     """
     values = signal.to_numpy(dtype=float)
+    rings = (None if background is None or single_is_positive
+             else pd.to_numeric(background, errors='coerce')
+             .to_numpy(dtype=float))
     positive = np.zeros(len(objects), dtype=bool)
     thresholds = np.full(len(objects), np.nan)
     pooled = None
@@ -6861,10 +6901,23 @@ def _split_by_plate(objects, signal, *, single_is_positive, log_scale=False,
         else:
             cut = _stain_cut(block, single_is_positive=single_is_positive,
                              log_scale=log_scale, manual=manual)
+        local = np.full(block.shape, cut.threshold)
+        if rings is not None and cut.source == 'single':
+            ring = rings[where]
+            usable = np.isfinite(ring) & (ring > 0)
+            if usable.any() and np.median(ring[usable]) > 0:
+                fold = _VIABILITY_BACKGROUND_FOLD - 1.0
+                local[usable] = fold * ring[usable]
+                finite = np.isfinite(block)
+                cut = _PopulationCut(
+                    float(fold * np.median(ring[usable])), 'background',
+                    cut.separation,
+                    float((block[finite] > local[finite]).mean())
+                    if finite.any() else np.nan, cut.n)
         cuts[name] = cut
-        thresholds[where] = cut.threshold
+        thresholds[where] = local
         with np.errstate(invalid='ignore'):
-            positive[where] = np.isfinite(block) & (block > cut.threshold)
+            positive[where] = np.isfinite(block) & (block > local)
     return positive, thresholds, cuts
 
 
@@ -7376,7 +7429,10 @@ def _classify_viability(db_path, settings, *, plot=None):
     ``viability_live_channel`` each object's background-subtracted mean
     intensity of the stain is cut per plate (and time point) into
     positive and negative: two fitted populations split where they cross,
-    or the user's ``viability_thresholds``. A dead stain positive is dead,
+    or the user's ``viability_thresholds``; a dead stain on a plate with
+    one population is positive where an object's mean is at least
+    :data:`_VIABILITY_BACKGROUND_FOLD` times the ring around it. A dead
+    stain positive is dead,
     a live stain positive is live, and with both a cell positive for
     neither is unstained. Without stain channels, nuclei are called dead
     from their morphology: a pyknotic nucleus is small and bright, and its
@@ -7459,7 +7515,8 @@ def _classify_viability(db_path, settings, *, plot=None):
             signal = _object_signal(objects, unit, column)
             dead_positive, thresholds, cuts['dead'] = _split_by_plate(
                 objects, signal, single_is_positive=False,
-                manual=manual_dead)
+                manual=manual_dead,
+                background=_object_background(objects, unit, column))
             table['dead_signal'] = signal
             table['dead_threshold'] = thresholds
         if live_channel is not None:

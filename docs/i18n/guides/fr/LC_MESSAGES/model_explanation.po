@@ -1,0 +1,123 @@
+# spaCR user guide translation (fr).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: fr\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Explain CV models and investigate hits"
+msgstr "Expliquer les modèles CV et examiner les résultats positifs"
+
+msgid "spaCR separates three questions that are easy to blur together:"
+msgstr "spaCR distingue trois questions faciles à confondre :"
+
+msgid "activation or occlusion maps show **where** a vision model attended;"
+msgstr "les cartes d’activation ou d’occlusion montrent **où** un modèle de vision a porté son attention ;"
+
+msgid "the **Explain CV Model** module shows which measured morphology can reproduce the model's decisions; and"
+msgstr "le module **Expliquer le modèle CV** montre quelle morphologie mesurée peut reproduire les décisions du modèle ; et"
+
+msgid "**Investigate Hit** asks which cells in wells supporting a regression hit have morphology consistent with that hit."
+msgstr "**Investigate Hit** cherche quelles cellules, dans les puits qui soutiennent un résultat positif de régression, ont une morphologie compatible avec ce résultat."
+
+msgid "The last result is weakly supervised evidence, not a cell-resolved barcode. The UI and exports therefore use ``EAF1-hit-like`` and ``hit_like_probability`` rather than calling a cell ``EAF1-KO``."
+msgstr "Le dernier résultat est une preuve faiblement supervisée, pas un code-barres résolu à l’échelle de la cellule. L’interface et les exports utilisent donc ``EAF1-hit-like`` et ``hit_like_probability`` au lieu de qualifier une cellule de ``EAF1-KO``."
+
+msgid "Explain CV Model"
+msgstr "Expliquer le modèle CV"
+
+msgid "The module opens from the **Classify** masthead rather than from a tile of its own, next to **Classifier Evaluation**: both ask what a trained classifier actually did."
+msgstr "Le module s’ouvre depuis l’en-tête de **Classification** plutôt que depuis une tuile propre, à côté de **Évaluation du classificateur** : tous deux cherchent ce qu’un classifieur entraîné a réellement fait."
+
+msgid "Choose the exact ``measurements.db`` and an existing per-object CV prediction CSV. The module never reruns or silently substitutes the original classifier. It joins predictions one-to-one to measured objects and excludes identifiers, prediction/class columns, scores, annotations, and user exclusions from the surrogate feature matrix."
+msgstr "Choisissez le fichier ``measurements.db`` exact et un CSV existant de prédictions CV par objet. Le module ne réexécute jamais le classifieur d’origine et ne le remplace pas silencieusement. Il joint les prédictions un à un aux objets mesurés et exclut de la matrice de caractéristiques du substitut les identifiants, les colonnes de prédiction et de classe, les scores, les annotations et les exclusions définies par l’utilisateur."
+
+msgid "The surrogate family is a fixed choice: Random Forest, scikit-learn histogram gradient boosting, or XGBoost when that optional dependency is installed. The exact backend and package version are saved. Wells are held intact by default; plate-held-out validation is available when the experiment has enough plates."
+msgstr "La famille de substituts est un choix fixe : Random Forest, gradient boosting par histogrammes de scikit-learn, ou XGBoost lorsque cette dépendance facultative est installée. Le backend exact et la version du paquet sont enregistrés. Les puits sont conservés intacts par défaut ; une validation avec plaques mises de côté est disponible lorsque l’expérience comporte suffisamment de plaques."
+
+msgid "Read the output in this order:"
+msgstr "Lisez la sortie dans cet ordre :"
+
+msgid "held-out fidelity, the majority-class baseline, and improvement over it;"
+msgstr "la fidélité sur les données mises de côté, la référence de la classe majoritaire et l’amélioration par rapport à celle-ci ;"
+
+msgid "class-wise precision/recall/F1 and the confusion matrix; then"
+msgstr "la précision/le rappel/le F1 par classe et la matrice de confusion ; puis"
+
+msgid "gain, held-out permutation importance, and mean absolute SHAP."
+msgstr "le gain, l’importance par permutation sur les données mises de côté et le SHAP absolu moyen."
+
+msgid "If fidelity does not clear the configured improvement over the majority baseline, spaCR withholds the importance table. This means the surrogate did not reproduce the CV model well enough for its feature ranking to explain that model. Per-cell signed SHAP values, correlated-feature pairs, exact feature and leakage-exclusion lists, split units, random seed, model parameters, and sampled object IDs are retained in the artifacts."
+msgstr "Si la fidélité ne dépasse pas l’amélioration configurée par rapport à la référence majoritaire, spaCR ne publie pas le tableau des importances. Cela signifie que le substitut n’a pas reproduit le modèle CV assez bien pour que son classement des caractéristiques explique ce modèle. Les valeurs SHAP signées par cellule, les paires de caractéristiques corrélées, les listes exactes de caractéristiques et d’exclusions pour fuite, les unités de partition, la graine aléatoire, les paramètres du modèle et les identifiants des objets échantillonnés sont conservés dans les artefacts."
+
+msgid "Investigate Hit"
+msgstr "Investigate Hit"
+
+msgid "From the **Regression** masthead open **Hit List**, select the exact gene result, and choose **Investigate selected…**. The hand-off carries the result folder, gene, effect direction, FDR, phenotype, and agreeing guides; it does not search for the newest results file. Investigate Hit hashes the selected regression CSV/JSON bytes into its provenance."
+msgstr "Depuis l’en-tête de **Régression**, ouvrez **Liste des résultats**, sélectionnez le résultat de gène exact et choisissez **Investigate selected…**. Le transfert comprend le dossier de résultats, le gène, le sens de l’effet, le FDR, le phénotype et les guides concordants ; il ne recherche pas le fichier de résultats le plus récent. Investigate Hit intègre à sa provenance une empreinte des octets du CSV/JSON de régression sélectionné."
+
+msgid "Supply the measurements database, the original per-object prediction CSV, and the per-well guide-fraction CSV. Joins use explicit object and plate/row/column keys. Duplicate object keys or duplicate well/guide fractions stop the run."
+msgstr "Fournissez la base de données de mesures, le CSV d’origine des prédictions par objet et le CSV des fractions de guides par puits. Les jointures utilisent des clés explicites d’objet et de plaque/ligne/colonne. Des clés d’objet en double ou des fractions puits/guide en double arrêtent l’exécution."
+
+msgid "The first output is an honest review queue: cells in target-containing wells ranked in the regression's effect direction, with the well-level target-guide fraction shown beside them. The optional attribution model then:"
+msgstr "La première sortie est une file d’examen honnête : les cellules des puits contenant la cible, classées dans le sens de l’effet de la régression, avec la fraction du guide ciblant au niveau du puits affichée à côté. Le modèle d’attribution facultatif ensuite :"
+
+msgid "treats wells as bags and cells as instances;"
+msgstr "traite les puits comme des sacs et les cellules comme des instances ;"
+
+msgid "learns background and target-like morphology across many wells;"
+msgstr "apprend la morphologie de fond et la morphologie de type cible sur de nombreux puits ;"
+
+msgid "uses guide fraction as a noisy learned prior, never as a forced cell prevalence;"
+msgstr "utilise la fraction de guides comme a priori appris et bruité, jamais comme une prévalence cellulaire imposée ;"
+
+msgid "scores every cell with a model that excluded its well, or its plate when the design supports plate cross-fitting; and"
+msgstr "évalue chaque cellule avec un modèle qui a exclu son puits, ou sa plaque lorsque le plan expérimental permet un ajustement croisé par plaque ; et"
+
+msgid "keeps independent guides visible before reporting gene-level consensus."
+msgstr "garde les guides indépendants visibles avant de rapporter un consensus au niveau du gène."
+
+msgid "The original phenotype score is excluded from the morphology model by default. Including it is an explicit, warned setting because selecting, embedding, and validating with the same score would be circular."
+msgstr "Le score phénotypique d’origine est exclu par défaut du modèle morphologique. L’inclure est un paramètre explicite assorti d’un avertissement, car sélectionner, plonger et valider avec le même score serait circulaire."
+
+msgid "Quantitative evidence"
+msgstr "Preuves quantitatives"
+
+msgid "The report uses wells, not cells, as the independent experimental unit. It reports target-versus-control candidate prevalence, a well-bootstrap interval, a plate-blocked permutation test, guide-dose response, guide-specific effects, and two stricter nulls. The stricter guide-fraction and well-label nulls repeat the cross-fitting pipeline inside every permutation rather than shuffling only the final summary labels."
+msgstr "Le rapport utilise les puits, et non les cellules, comme unité expérimentale indépendante. Il rapporte la prévalence des candidats entre cible et contrôle, un intervalle bootstrap sur les puits, un test de permutation bloqué par plaque, la relation dose-réponse des guides, les effets propres à chaque guide et deux hypothèses nulles plus strictes. Les nulles plus strictes sur les fractions de guides et les étiquettes de puits répètent le pipeline d’ajustement croisé à l’intérieur de chaque permutation au lieu de ne permuter que les étiquettes du résumé final."
+
+msgid "The two-dimensional comparison is a PCA fit only on target-free control-cell morphology and then used to transform all cells. Guide identity, target-well status, and the original classifier output are excluded. The exported table contains exact object keys and sample counts so a visual cluster can be traced back to its wells and images; the quantitative enrichment remains the primary claim."
+msgstr "La comparaison bidimensionnelle est une ACP ajustée uniquement sur la morphologie des cellules de contrôle sans cible, puis utilisée pour transformer toutes les cellules. L’identité des guides, le statut de puits cible et la sortie du classifieur d’origine sont exclus. Le tableau exporté contient les clés d’objet exactes et le nombre d’échantillons, de sorte qu’un cluster visuel peut être rattaché à ses puits et à ses images ; l’enrichissement quantitatif reste l’affirmation principale."
+
+msgid "A stratified gallery samples high, borderline, low, and false-looking control objects. The reviewer CSV is shuffled and reveals only a random review ID and image path. Its separate analyst-only key retains the stratum and probability. After one or more blinded reviewers return binary calls, ``evaluate_blinded_reviews`` reports calibration error, precision, recall, ROC AUC when defined, and pairwise Cohen's kappa."
+msgstr "Une galerie stratifiée échantillonne des objets de contrôle élevés, limites, faibles et d’apparence trompeuse. Le CSV destiné aux relecteurs est mélangé et ne révèle qu’un identifiant d’examen aléatoire et le chemin de l’image. Sa clé distincte, réservée aux analystes, conserve la strate et la probabilité. Une fois qu’un ou plusieurs relecteurs en aveugle ont rendu des appréciations binaires, ``evaluate_blinded_reviews`` rapporte l’erreur de calibration, la précision, le rappel, l’AUC ROC lorsqu’elle est définie et le kappa de Cohen par paires."
+
+msgid "Database annotations are versioned in dedicated provenance tables. Existing hand annotations are unchanged. **Promote calls to annotation** is a separate action that accepts only a fresh column name, and **Undo promotion** clears exactly the values written by that promotion while preserving its audit row."
+msgstr "Les annotations de la base de données sont versionnées dans des tables de provenance dédiées. Les annotations manuelles existantes restent inchangées. **Convertir les appels en annotations** est une action distincte qui n’accepte qu’un nouveau nom de colonne, et **Annuler la conversion** efface exactement les valeurs écrites par cette conversion tout en conservant sa ligne d’audit."
+
+msgid "Evidence ladder"
+msgstr "Échelle des preuves"
+
+msgid "A coherent UMAP/PCA population is useful exploratory evidence but is not ground truth. Confidence increases with negative and positive controls, independent guides, replicate plates, well/plate cross-fitting, refitted nulls, bootstrap stability, blinded review, and agreement between measured-feature SHAP and pixel-level attribution. The strongest validation is an orthogonal experiment that assigns perturbation identity per cell, such as an arrayed perturbation/rescue or direct in-situ guide-barcode readout."
+msgstr "Une population UMAP/ACP cohérente est une preuve exploratoire utile, mais pas une vérité terrain. La confiance augmente avec les contrôles négatifs et positifs, des guides indépendants, des plaques répliquées, l’ajustement croisé par puits/plaque, des nulles réajustées, la stabilité bootstrap, l’examen en aveugle et l’accord entre le SHAP des caractéristiques mesurées et l’attribution au niveau des pixels. La validation la plus solide est une expérience orthogonale qui attribue l’identité de la perturbation par cellule, comme une perturbation/un sauvetage en format arrayé ou une lecture directe in situ des codes-barres des guides."
+
+msgid "Headless entry points"
+msgstr "Points d’entrée sans interface graphique"
+
+msgid "The statistical APIs are :mod:`spacr.surrogate`, :mod:`spacr.hit_attribution`, and :mod:`spacr.hit_investigation`."
+msgstr "Les API statistiques sont :mod:`spacr.surrogate`, :mod:`spacr.hit_attribution` et :mod:`spacr.hit_investigation`."
+

@@ -716,3 +716,43 @@ def test_the_dialog_reads_a_settings_csv_off_disk(qapp, qtbot, tmp_path):
     assert table.rowCount() == 1
     assert table.item(0, 0).text() == "cell_diameter"
     dialog.reject()
+
+
+@pytest.mark.parametrize("run_id", ["artifact:17", "..", "a/b", "a\\b"])
+def test_lock_evidence_is_not_read_for_an_id_that_is_not_a_run_folder(
+        tmp_path, monkeypatch, run_id):
+    """An unstamped output or an id that could walk out of the journal is
+    reported without touching the disk."""
+    from spacr import run_journal as journal
+    from spacr.run_compare import RunRef
+
+    monkeypatch.setattr(journal, "runs_root",
+                        lambda: pytest.fail("must not look in the journal"))
+    assert screen._recorded_lock_evidence(RunRef(run_id)) == {
+        "run_id": run_id, "analysis_lock": None}
+
+
+def test_lock_evidence_carries_an_unreadable_or_damaged_manifest(
+        tmp_path, monkeypatch):
+    import json
+
+    from spacr import run_journal as journal
+    from spacr.run_compare import RunRef
+
+    monkeypatch.setattr(journal, "runs_root", lambda: tmp_path)
+    (tmp_path / "damaged").mkdir()
+    (tmp_path / "damaged" / "manifest.json").write_text(
+        json.dumps({"analysis_lock": "not a record"}))
+    evidence = screen._recorded_lock_evidence(RunRef("damaged"))
+    assert evidence["analysis_lock"] is None
+    assert any("settings" in error for error in evidence["manifest_errors"])
+
+    (tmp_path / "locked").mkdir()
+
+    def unreadable(directory):
+        raise PermissionError(f"{directory} is not readable")
+
+    monkeypatch.setattr(journal, "_read_run_record", unreadable)
+    evidence = screen._recorded_lock_evidence(RunRef("locked"))
+    assert evidence["analysis_lock"] is None
+    assert "is not readable" in evidence["manifest_errors"][0]

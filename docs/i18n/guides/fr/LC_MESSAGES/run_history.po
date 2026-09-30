@@ -1,0 +1,63 @@
+# spaCR user guide translation (fr).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: fr\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Unified run history"
+msgstr "Historique unifié des exécutions"
+
+msgid "Open **Help → Run History** (or type *Run History* in the command palette, Ctrl+K) to search every pipeline recorded by spaCR. Refreshing a large journal happens on a background worker and does not create another run record."
+msgstr "Ouvrez **Aide → Historique des exécutions** (ou tapez *Historique des exécutions* dans la palette de commandes, Ctrl+K) pour rechercher dans chaque pipeline enregistré par spaCR. L’actualisation d’un journal volumineux s’effectue dans un worker en arrière-plan et ne crée pas de nouvel enregistrement d’exécution."
+
+msgid "The dashboard combines:"
+msgstr "Le tableau de bord regroupe :"
+
+msgid "module, status, start/end time, wall time and process CPU time;"
+msgstr "le module, le statut, l’heure de début et de fin, la durée réelle et le temps CPU du processus ;"
+
+msgid "exact resolved settings;"
+msgstr "les paramètres résolus exacts ;"
+
+msgid "SHA-256 records for inputs, outputs and models;"
+msgstr "les empreintes SHA-256 des entrées, des sorties et des modèles ;"
+
+msgid "structured warnings, provenance warnings and failure tracebacks;"
+msgstr "les avertissements structurés, les avertissements de provenance et les traces d’erreur ;"
+
+msgid "package, spaCR, Git and platform versions;"
+msgstr "les versions des paquets, de spaCR, de Git et de la plateforme ;"
+
+msgid "declared seeds and runtime random-state identifiers."
+msgstr "les graines déclarées et les identifiants d’état aléatoire à l’exécution."
+
+msgid "Search terms are combined: ``adamw plate_03 warning`` shows only records containing all three terms anywhere in settings, paths, warnings, failures or environment data. Module and status filters can be applied at the same time. Interrupted and corrupt folders stay visible rather than disappearing."
+msgstr "Les termes de recherche sont combinés : ``adamw plate_03 warning`` n’affiche que les enregistrements contenant les trois termes, où que ce soit dans les paramètres, les chemins, les avertissements, les échecs ou les données d’environnement. Les filtres par module et par statut peuvent être appliqués simultanément. Les dossiers interrompus ou corrompus restent visibles au lieu de disparaître."
+
+msgid "Select a row to inspect its details. **Load settings in module** opens the original module and propagates the exact recorded settings into its controls; it does not start a run. **Open run folder** and **Copy path** expose the underlying ``~/.spacr/runs/...`` folder."
+msgstr "Sélectionnez une ligne pour en examiner les détails. **Charger les paramètres dans le module** ouvre le module d’origine et reporte les paramètres exacts enregistrés dans ses contrôles ; aucune exécution n’est lancée. **Ouvrir le dossier d’exécution** et **Copier le chemin** donnent accès au dossier ``~/.spacr/runs/...`` sous-jacent."
+
+msgid "Right-click selected rows to open their folders or delete them; **Clear all** deletes every run the table lists. Deleting asks first and removes only the journal folders; outputs written into your projects are not touched."
+msgstr "Faites un clic droit sur les lignes sélectionnées pour ouvrir leurs dossiers ou les supprimer ; **Tout effacer** supprime toutes les exécutions listées dans le tableau. La suppression demande d’abord confirmation et ne retire que les dossiers du journal ; les sorties écrites dans vos projets ne sont pas touchées."
+
+msgid "Headless search"
+msgstr "Recherche sans interface graphique"
+
+msgid ":func:`spacr.run_journal.search_runs` provides the same resilient records without Qt:"
+msgstr ":func:`spacr.run_journal.search_runs` fournit les mêmes enregistrements robustes sans Qt :"
+

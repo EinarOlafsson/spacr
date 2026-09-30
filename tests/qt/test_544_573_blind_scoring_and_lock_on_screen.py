@@ -424,3 +424,55 @@ def test_lock_analysis_dialog_locks_then_verifies(qtbot, qt_theme_applied,
     result = rj.check_analysis_lock(settings, app_key="measure")
     assert result["status"] == "verified", result["deviations"]
     screen.close()
+
+
+def test_the_lock_dialog_locks_gate_files_and_the_gate_editor_says_so(
+        qtbot, qt_theme_applied, journal, alpha, tmp_path, monkeypatch):
+    import json
+
+    from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt.screens.gate_editor import GateEditorScreen
+    from spacr.qt.widgets.gate_spec import GateSet, gate_from_dict
+
+    def gates(low):
+        return GateSet([gate_from_dict({
+            "kind": "threshold", "name": "big", "parent": None,
+            "column": "cell_area", "low": low, "high": None})])
+
+    strategy = tmp_path / "strategy.json"
+    gates(100.0).save(str(strategy))
+    model = tmp_path / "cyto.pt"
+    model.write_bytes(b"weights")
+    src = tmp_path / "p"
+    with rj.open_run("measure", {"src": str(src)}) as earlier:
+        earlier.record_model("cellpose_cyto", model)
+
+    screen = AppScreen("measure")
+    qtbot.addWidget(screen)
+    assert screen._settings_model.set_value_for_key("src", str(src))
+    dialog = screen._analysis_lock_dialog()
+    qtbot.addWidget(dialog)
+    parts = dialog._spacr_lock_parts
+    warned = []
+    monkeypatch.setattr(QMessageBox, "warning",
+                        lambda *a, **k: warned.append(a[-1]))
+    parts["gate_files"].setText(str(tmp_path / "missing.json"))
+    parts["lock"].click()
+    assert warned and rj._find_lock("measure", src) is None
+    parts["gate_files"].setText(f" {strategy} ; ")
+    parts["lock"].click()
+    lock = rj._find_lock("measure", src)
+    assert list(lock["gates"]) == [str(strategy.resolve())]
+    assert lock["models"]["cellpose_cyto"]["path"] == str(model.resolve())
+
+    editor = GateEditorScreen()
+    qtbot.addWidget(editor)
+    editor.load_gates(str(strategy))
+    assert f"match analysis lock {lock['sha256'][:16]}" in (
+        editor._source.text())
+    editor.gates.set_gates(gates(150.0))
+    editor.save_gates(str(strategy))
+    text = editor._source.text()
+    assert "differ from analysis lock" in text and "changed big" in text
+    assert json.loads(strategy.read_text())["gates"][0]["low"] == 150.0
+    screen.close()

@@ -1,0 +1,93 @@
+# spaCR user guide translation (ko).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: ko\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Process images with a point-spread function"
+msgstr "점 확산 함수로 이미지 처리하기"
+
+msgid "Use :mod:`spacr.point_spread` from Python to convolve an image with a point-spread function (PSF), or to deconvolve it with Richardson–Lucy. Prepare a two-dimensional image or three-dimensional volume and a measured PSF sampled at the same pixel or voxel spacing. Supply intensity images; keep object-label masks separate."
+msgstr "Python에서 :mod:`spacr.point_spread` 를 사용하여 이미지를 점 확산 함수(PSF)로 컨볼루션하거나 Richardson–Lucy로 디컨볼루션합니다. 2차원 이미지나 3차원 볼륨과, 같은 픽셀 또는 복셀 간격으로 샘플링된 측정 PSF를 준비합니다. 강도 이미지를 제공하고, 객체 레이블 마스크는 별도로 보관합니다."
+
+msgid "Use the desktop controls"
+msgstr "데스크톱 컨트롤 사용"
+
+msgid "In **Make Masks**, open **Image enhancement** and select **Convolve (blur)** or **Deconvolve (Richardson–Lucy)** under **Point spread function**. Choose your **Objective**, or use **Infer from images…** to read the current image's optical metadata. With no image open, the button asks you to choose a TIFF. The summary shows pixel spacing, Gaussian width and where those values came from."
+msgstr "**마스크 만들기** 에서 **이미지 향상** 을 열고 **점 확산 함수** 아래에서 **컨볼루션 (흐림)** 또는 **디컨볼루션 (Richardson–Lucy)** 을 선택합니다. **대물렌즈** 를 선택하거나 **이미지에서 추론…** 을 사용하여 현재 이미지의 광학 메타데이터를 읽습니다. 열린 이미지가 없으면 이 버튼은 TIFF를 선택하라고 요청합니다. 요약에는 픽셀 간격, 가우스 폭, 그리고 각 값의 출처가 표시됩니다."
+
+msgid "Open **PSF optics and kernel** to inspect the remaining controls. **Camera** sets the camera pixel pitch; **Fluorophore** sets the emission wavelength. Magnification, numerical aperture, immersion refractive index, wavelength, pixel spacing and Gaussian widths remain editable. Labels identify metadata, objective-table values, calculations, defaults and values you entered. Review these after using **Infer from images…**, which repopulates the optics and recalculates Gaussian widths."
+msgstr "**PSF optics and kernel** 을 열어 나머지 컨트롤을 검사합니다. **카메라** 는 카메라 픽셀 크기를, **형광체** 는 방출 파장을 설정합니다. 배율, 개구수, 침지 굴절률, 파장, 픽셀 간격, 가우스 폭은 계속 편집할 수 있습니다. 레이블은 메타데이터, 대물렌즈 표 값, 계산값, 기본값, 사용자가 입력한 값을 구분합니다. **이미지에서 추론…** 을 사용한 뒤에는 이 값들을 검토합니다. 이 기능은 광학 값을 다시 채우고 가우스 폭을 다시 계산합니다."
+
+msgid "Without image-specific information, the starting approximation uses a 20×/0.75 air objective, a 6.5 µm camera pixel and 520 nm emission. It gives 0.325 µm image pixels and approximately 0.354 µm Gaussian FWHM. Pixel spacing is camera pixel pitch divided by magnification; the lateral Gaussian FWHM is approximated by 0.51 × emission wavelength / numerical aperture. These defaults permit a calculation; they are not measured calibration or proof of your microscope's resolution. Check them against the acquisition."
+msgstr "이미지별 정보가 없으면 초기 근사는 20×/0.75 공기 대물렌즈, 6.5 µm 카메라 픽셀, 520 nm 방출을 사용합니다. 이렇게 하면 이미지 픽셀은 0.325 µm, 가우스 FWHM은 약 0.354 µm가 됩니다. 픽셀 간격은 카메라 픽셀 크기를 배율로 나눈 값이며, 횡방향 가우스 FWHM은 0.51 × 방출 파장 / 개구수로 근사합니다. 이 기본값은 계산을 가능하게 할 뿐, 측정된 보정값이나 현미경 해상도의 증거가 아닙니다. 획득 조건과 대조해 확인합니다."
+
+msgid "In the same fold, choose **Measured kernel (TIFF/NPY)** and load your calibrated two-dimensional PSF, or keep **Gaussian approximation**. For a measured kernel, enter its pixel spacing too; it must match the image. Neither mode silently resamples a mismatched kernel."
+msgstr "같은 접힌 영역에서 **측정된 커널 (TIFF/NPY)** 을 선택하여 보정된 2차원 PSF를 불러오거나 **가우스 근사** 를 유지합니다. 측정된 커널에는 픽셀 간격도 입력하며, 이 값은 이미지와 일치해야 합니다. 어느 모드도 맞지 않는 커널을 몰래 리샘플링하지 않습니다."
+
+msgid "Wait for the kernel to load, then use **Compare** to inspect its effect. Set **Deconvolution iterations** when using Richardson–Lucy and choose **Apply** to use the result for detection. Start with a modest iteration count and inspect noise as well as object boundaries. **Reload** rereads a kernel file after you change it. **Off** disables PSF processing."
+msgstr "커널이 로드될 때까지 기다린 다음 **비교하기** 로 효과를 검사합니다. Richardson–Lucy를 사용할 때는 **디컨볼루션 반복 횟수** 를 설정하고, 결과를 검출에 사용하려면 **적용** 을 선택합니다. 적당한 반복 횟수로 시작하고 객체 경계뿐 아니라 잡음도 검사합니다. **다시 불러오기** 는 커널 파일을 변경한 후 다시 읽습니다. **꺼짐** 은 PSF 처리를 끕니다."
+
+msgid "A wider Gaussian PSF spreads two fixed intensity peaks while preserving total intensity."
+msgstr "더 넓은 가우스 PSF는 총 강도를 유지하면서 두 개의 고정된 강도 봉우리를 퍼뜨립니다."
+
+msgid "White shows a fixed input profile; teal shows the convolved result. The blue bar indicates the Gaussian kernel's full width at half maximum. Increasing that width spreads the signal and reduces peak intensity while preserving the integrated intensity. This illustrates convolution with a Gaussian approximation. For your microscope, enter measured calibration values and inspect the resulting image with **Compare**."
+msgstr "흰색은 고정된 입력 프로파일을, 청록색은 컨볼루션된 결과를 나타냅니다. 파란색 막대는 가우스 커널의 반치전폭을 나타냅니다. 이 폭을 늘리면 적분 강도는 유지되지만 신호가 퍼지고 최대 강도가 낮아집니다. 이 그림은 가우스 근사를 사용한 컨볼루션을 보여 줍니다. 사용하는 현미경에 대해서는 측정한 보정값을 입력하고 **비교하기** 로 결과 이미지를 검사합니다."
+
+msgid "Choose the intensities used by Measure"
+msgstr "측정에 사용할 강도 선택"
+
+msgid "In **Measure**, open **Image Preprocessing → Image Deconvolution (PSF)** and set ``psf_measurement_source``. Keep ``original`` for the standard measurement intensities, including Measure's normal rescaling and preprocessing, without additional PSF processing. Choose ``processed`` to measure intensities after convolution or deconvolution, then configure ``psf_operation``, the kernel source and its calibration."
+msgstr "**측정** 에서 **이미지 전처리 → 이미지 디컨볼루션(PSF)** 을 열고 ``psf_measurement_source`` 를 설정합니다. 측정 모듈의 일반적인 재조정과 전처리를 포함한 표준 측정 강도를 추가 PSF 처리 없이 사용하려면 ``original`` 을 유지합니다. 컨볼루션이나 디컨볼루션 후의 강도를 측정하려면 ``processed`` 를 선택한 다음 ``psf_operation``, 커널 출처와 그 보정값을 구성합니다."
+
+msgid "Measure does not infer optics from image metadata: enter the calibration explicitly. For a two-dimensional field, enter image sampling and Gaussian widths in ``[Y, X]`` order. For a volume, use ``[Z, Y, X]`` and a matching three-dimensional kernel. Volume sampling must agree with Measure's voxel calibration or anisotropy settings. A measured kernel must have the same sampling as the image. Use a kernel appropriate for every selected intensity channel."
+msgstr "측정 모듈은 이미지 메타데이터에서 광학 정보를 추론하지 않으므로 보정값을 명시적으로 입력합니다. 2차원 시야에서는 이미지 샘플링과 가우스 폭을 ``[Y, X]`` 순서로 입력합니다. 볼륨에서는 ``[Z, Y, X]`` 와 이에 맞는 3차원 커널을 사용합니다. 볼륨 샘플링은 측정 모듈의 복셀 보정 또는 이방성 설정과 일치해야 합니다. 측정된 커널은 이미지와 샘플링이 같아야 합니다. 선택한 모든 강도 채널에 적합한 커널을 사용합니다."
+
+msgid "Run Measure and inspect the resulting object-feature tables in ``measurements.db``. PSF processing changes the intensity stream used for quantitative features; source files and exported crops retain their usual behavior. The ``intensity_rescale`` table records the selected source and PSF processing details. Keep the database with the settings and kernel file."
+msgstr "측정을 실행하고 ``measurements.db`` 에 생성된 객체 특징 표를 검사합니다. PSF 처리는 정량 특징에 쓰이는 강도 흐름을 바꾸지만, 원본 파일과 내보낸 크롭은 평소와 같이 동작합니다. ``intensity_rescale`` 표에는 선택한 출처와 PSF 처리 세부 정보가 기록됩니다. 데이터베이스를 설정 및 커널 파일과 함께 보관합니다."
+
+msgid "To compare different kernels or original and processed measurements, use separate projects or output databases. An existing database cannot mix measurements made with different PSF configurations. Restore the recorded configuration when resuming a run. See :func:`spacr.psf_measurement.prepare_measurement_psf` for the Python settings contract."
+msgstr "서로 다른 커널이나 원본 측정값과 처리된 측정값을 비교하려면 별도의 프로젝트나 출력 데이터베이스를 사용합니다. 기존 데이터베이스에는 서로 다른 PSF 구성으로 얻은 측정값을 섞을 수 없습니다. 실행을 재개할 때는 기록된 구성을 복원합니다. Python 설정 규약은 :func:`spacr.psf_measurement.prepare_measurement_psf` 를 참조합니다."
+
+msgid "Load the image and PSF"
+msgstr "이미지와 PSF 불러오기"
+
+msgid "The example below reads a single-channel image and a measured PSF from TIFF files. Replace the example spacing of 0.11 µm with your calibrated Y and X pixel spacing. A three-dimensional input uses Z, Y and X spacing in that order. The PSF must have odd spatial dimensions, a central origin and nonnegative signal after background removal."
+msgstr "아래 예제는 TIFF 파일에서 단일 채널 이미지와 측정된 PSF를 읽습니다. 예제 간격 0.11 µm를 보정된 Y 및 X 픽셀 간격으로 바꿉니다. 3차원 입력은 Z, Y, X 순서의 간격을 사용합니다. PSF는 공간 차원이 홀수이고, 원점이 중앙에 있으며, 배경 제거 후 신호가 음수가 아니어야 합니다."
+
+msgid "Choose the operation and save the result"
+msgstr "연산을 선택하고 결과 저장하기"
+
+msgid "Set ``operation=\"deconvolve\"`` to perform Richardson–Lucy deconvolution. Start with a modest iteration count and compare the result with the input; more iterations can amplify noise. ``operation=\"convolve\"`` instead blurs the image with the PSF. It does not use the iteration count."
+msgstr "Richardson–Lucy 디컨볼루션을 수행하려면 ``operation=\"deconvolve\"`` 를 설정합니다. 적당한 반복 횟수로 시작하고 결과를 입력과 비교합니다. 반복을 늘리면 잡음이 증폭될 수 있습니다. ``operation=\"convolve\"`` 는 대신 PSF로 이미지를 흐리게 하며, 반복 횟수는 사용하지 않습니다."
+
+msgid "The output preserves the image shape and uses float32 values in the original intensity units. Inspect its range before converting it to an integer image. Keep the JSON record with the result; it contains the kernel identity, sampling and processing settings."
+msgstr "출력은 이미지 형태를 유지하며 원래 강도 단위의 float32 값을 사용합니다. 정수 이미지로 변환하기 전에 값의 범위를 검사합니다. JSON 기록을 결과와 함께 보관합니다. 여기에는 커널 식별 정보, 샘플링, 처리 설정이 들어 있습니다."
+
+msgid "For multichannel images, set ``channel_axis`` explicitly: ``-1`` selects a final channel dimension, while ``0`` selects a first channel dimension. Each intensity channel is processed independently. Image and PSF sampling must match; the function rejects mismatched spacing."
+msgstr "다중 채널 이미지에서는 ``channel_axis`` 를 명시적으로 설정합니다. ``-1`` 은 마지막 차원을, ``0`` 은 첫 번째 차원을 채널 차원으로 선택합니다. 각 강도 채널은 독립적으로 처리됩니다. 이미지와 PSF의 샘플링이 일치해야 하며, 함수는 간격이 맞지 않으면 거부합니다."
+
+msgid "Use a calculated approximation"
+msgstr "계산된 근사 사용"
+
+msgid "If your workflow calls for a Gaussian approximation, construct it with :func:`spacr.point_spread.gaussian_psf`. Supply the full width at half maximum in micrometres and the image spacing. These are example values to replace with the values appropriate to your analysis:"
+msgstr "워크플로에 가우스 근사가 필요하면 :func:`spacr.point_spread.gaussian_psf` 로 만듭니다. 마이크로미터 단위의 반치전폭과 이미지 간격을 지정합니다. 다음은 예제 값이며, 분석에 맞는 값으로 바꿔야 합니다."
+
+msgid "Pass this kernel to ``apply_psf`` as above. A Gaussian kernel is an approximation; retain that distinction when comparing it with a measured PSF. See :func:`spacr.point_spread.apply_psf` for cancellation, progress callbacks and the complete parameter reference."
+msgstr "위와 같이 이 커널을 ``apply_psf`` 에 전달합니다. 가우스 커널은 근사이므로, 측정된 PSF와 비교할 때 이 차이를 유념합니다. 취소, 진행 콜백, 전체 매개변수 설명은 :func:`spacr.point_spread.apply_psf` 를 참조합니다."
+

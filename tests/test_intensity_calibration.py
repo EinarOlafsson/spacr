@@ -321,3 +321,50 @@ def test_unverified_calibrated_history_refuses_before_resume_clears_rows(
             assert conn.execute("SELECT changes()").fetchone()[0] == 1
     _assert_refused_before_database_writes(monkeypatch, _settings(
         merged, intensity_calibration=True, resume=True), database)
+
+
+def test_blank_well_names_are_skipped_and_an_empty_plane_has_no_statistic():
+    assert sorted(_calibration_wells(
+        {"intensity_calibration_wells": ["A01", "  ", ""]})) == [("r1", "c1")]
+    assert np.isnan(_reference_statistic(np.full((3, 3), np.nan), 0,
+                                         "foreground"))
+
+
+def test_an_unknown_calibration_statistic_is_refused(tmp_path):
+    merged = _write_sessions(tmp_path)
+    with pytest.raises(ValueError, match="intensity_calibration_statistic"):
+        _build_calibration_plan(
+            merged, sorted(p.name for p in merged.iterdir()),
+            _settings(merged, intensity_calibration_statistic="mode"))
+
+
+def test_a_reference_well_with_no_signal_above_the_offset_stops_the_run(
+        tmp_path):
+    """A plate whose reference wells sit at the camera offset has no
+    positive reference intensity, so no gain can be computed for it."""
+    merged = _write_sessions(tmp_path)
+    for field in (1, 2):
+        dark = np.stack([np.full((SIZE, SIZE), OFFSET),
+                         np.full((SIZE, SIZE), OFFSET),
+                         np.zeros((SIZE, SIZE))], axis=-1)
+        np.save(merged / f"plate2_A01_{field}.npy", dark.astype(np.uint16))
+    with pytest.raises(ValueError, match="no positive reference intensity"):
+        _build_calibration_plan(merged, sorted(p.name for p in merged.iterdir()),
+                                _settings(merged))
+
+
+def test_a_field_on_an_uncalibrated_plate_is_refused_and_float_data_is_not_clipped():
+    plan = {"reference_plate": "plate1", "statistic": "median",
+            "offset": 0.0, "wells": ["A01"], "plates": {
+                "plate1": {"gain": {"0": 3.0, "5": 2.0},
+                           "reference_statistic": {"0": 1.0, "5": 1.0},
+                           "n_reference_fields": 1}}}
+    settings = {"cell_mask_dim": None, CALIBRATION_SETTINGS_KEY: plan}
+    with pytest.raises(ValueError, match="has no calibration gain"):
+        _apply_calibration(np.zeros((2, 2, 1), np.uint16), "plate9_A01_1.npy",
+                           settings)
+    data = np.full((2, 2, 1), 0.5, dtype=np.float32)
+    out, record = _apply_calibration(data, "plate1_A01_1.npy", settings)
+    assert out.dtype == np.float32
+    assert np.allclose(out[..., 0], 1.5)
+    assert set(record["gain"]) == {"0", "5"}

@@ -599,7 +599,7 @@ _NOT_CONSOLIDATED = ("masks", "orig", "sorted_channels")
 
 
 def _copy_mask_as_tiff(source: str, target: str) -> None:
-    """Copy a dropped mask to where Make Masks looks for it (item 600).
+    """Copy a dropped mask to where Make Masks looks for it.
 
     A TIFF is copied as it is; a mask saved in another format is read and
     written as a TIFF, because Make Masks keeps every mask as
@@ -9405,6 +9405,7 @@ class MakeMasksScreen(QWidget):
         self._console_section.setProperty(
             "_spacr_blind_visible", not self._console_section.isHidden())
         self._console_section.hide()
+        self._blind_lock_rois(True)
         self._set_field_pairs([pairs[i] for i in order])
         self._current_index = 0
         self._set_blind_checked(True)
@@ -9456,6 +9457,26 @@ class MakeMasksScreen(QWidget):
         _close_blinding(self._blind["key_id"], reason=reason)
         self._restore_blind_order()
 
+    def _blind_lock_rois(self, on: bool) -> None:
+        """Disable the ROIs menu while blinded, and give it back afterwards.
+
+        Its exports are named after the field (``<stem>.geojson``,
+        ``<stem>_RoiSet.zip``) and carry the image's file name inside, and
+        its file pickers open in the source folder, so each would show the
+        name blinding hides.
+
+        :param on: true when blinding starts.
+        """
+        button = getattr(self, "_btn_rois", None)
+        if button is None:
+            return
+        if on:
+            button.setProperty("_spacr_blind_was", button.isEnabled())
+            button.setEnabled(False)
+        elif button.property("_spacr_blind_was") is not None:
+            button.setEnabled(bool(button.property("_spacr_blind_was")))
+            button.setProperty("_spacr_blind_was", None)
+
     def _restore_blind_order(self) -> None:
         """Put the fields back in their own order and show their names again.
 
@@ -9468,6 +9489,7 @@ class MakeMasksScreen(QWidget):
         self._console_section.setVisible(bool(
             self._console_section.property("_spacr_blind_visible")))
         self._console_section.setProperty("_spacr_blind_visible", None)
+        self._blind_lock_rois(False)
         self._set_blind_checked(False)
         pairs = self._field_pairs()
         current = (pairs[self._current_index]
@@ -13107,9 +13129,13 @@ class MakeMasksScreen(QWidget):
             "plate run applies these steps to every selected channel after "
             "illumination correction and before normalization. Morphology "
             "and split reshape a detector's labels and stay here."))
+        self._btn_to_mask.setObjectName("MakeMasksUseInMaskGeneration")
         self._btn_to_mask.clicked.connect(self._send_chain_to_mask)
         actions.addWidget(self._btn_to_mask)
         card.body_layout.addLayout(actions)
+        from ..preferences import _apply_alpha_widgets
+
+        _apply_alpha_widgets(self._btn_to_mask)
 
         for widget in (self._enh_background, self._enh_denoise,
                        self._enh_morphology):
@@ -14849,8 +14875,11 @@ class MakeMasksScreen(QWidget):
 
     def _on_pick_folder(self):
         """Ask for a folder of images and open it."""
-        d = QFileDialog.getExistingDirectory(self, "Pick images folder",
-                                              self._folder or os.getcwd())
+        # Blinded, the picker opens at home: in the source its path bar would
+        # name the plate.
+        start = (os.path.expanduser("~") if self._blind is not None
+                 else self._folder or os.getcwd())
+        d = QFileDialog.getExistingDirectory(self, "Pick images folder", start)
         if not d:
             return
         if self._offer_consolidation(d):
@@ -14859,7 +14888,7 @@ class MakeMasksScreen(QWidget):
 
 
     def _build_organize_button(self) -> QPushButton:
-        """The "Organize for Measure…" button beside "Open folder…" (item 600)."""
+        """The "Organize for Measure…" button beside "Open folder…"."""
         from ..i18n import tr
 
         button = QPushButton(tr("Organize for Measure…"), self)
@@ -15036,7 +15065,7 @@ class MakeMasksScreen(QWidget):
             moved=result.moved, stacks=len(result.stacks),
             merged=len(result.merged), dest=result.dest,
             manifest=result.manifest))
-        # Item 600: point Measure at the result, so features are one step away.
+        # Point Measure at the result, so features are one step away.
         prefs.push_recent_source("measure", str(result.dest))
         self._masks_console.post(tr(
             "Ready for Measure: open Measure and use {dest} as its source (it "

@@ -1,0 +1,84 @@
+# spaCR user guide translation (ko).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: ko\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Plate and batch-effect correction"
+msgstr "플레이트 및 배치 효과 보정"
+
+msgid "spaCR can normalize acquisition-batch effects before Image UMAP, Classify (ML), and phenotype regression. Correction is disabled by default because a plate effect can be real biology when treatments and plates are confounded."
+msgstr "spaCR은 이미지 UMAP, 분류(ML), 표현형 회귀 전에 획득 배치 효과를 정규화할 수 있습니다. 처리와 플레이트가 교란되어 있을 때는 플레이트 효과가 실제 생물학적 차이일 수 있으므로 보정은 기본적으로 꺼져 있습니다."
+
+msgid "Choosing a method"
+msgstr "방법 선택"
+
+msgid "``none``"
+msgstr "``none``"
+
+msgid "Leave measurements unchanged."
+msgstr "측정값을 변경하지 않습니다."
+
+msgid "``control_center``"
+msgstr "``control_center``"
+
+msgid "Recommended when every plate contains the same negative/reference control. spaCR estimates the median reference shift on each plate and subtracts only that shift. Treatment dispersion and treatment-to-control differences are retained."
+msgstr "모든 플레이트에 동일한 음성/기준 대조군이 있을 때 권장됩니다. spaCR은 각 플레이트에서 기준 대조군의 중앙값 이동을 추정하고 그 이동만 뺍니다. 처리군의 분산과 처리군-대조군 간 차이는 유지됩니다."
+
+msgid "``robust_zscore``"
+msgstr "``robust_zscore``"
+
+msgid "Align plate medians and median absolute deviations. This is resilient to outliers, but can remove genuine differences if biological conditions are unevenly distributed across plates."
+msgstr "플레이트별 중앙값과 중앙값 절대 편차를 맞춥니다. 이상값에 강하지만, 생물학적 조건이 플레이트 간에 고르지 않게 분포하면 실제 차이를 제거할 수 있습니다."
+
+msgid "``center``"
+msgstr "``center``"
+
+msgid "Align plate means while preserving the overall mean."
+msgstr "전체 평균을 유지하면서 플레이트 평균을 맞춥니다."
+
+msgid "``zscore``"
+msgstr "``zscore``"
+
+msgid "Align both plate means and standard deviations. This is the strongest of the per-plate rescalings and should be used only when plate composition is comparable."
+msgstr "플레이트 평균과 표준편차를 모두 맞춥니다. 플레이트별 재조정 중 가장 강력한 방법이며, 플레이트 구성이 비슷할 때만 사용해야 합니다."
+
+msgid "``combat``"
+msgstr "``combat``"
+
+msgid "Empirical-Bayes ComBat (Johnson, Li & Rabinovich, 2007). Each feature is modelled on batch *and* on the biology named in ``batch_covariate_column``, and only the batch part is removed; per-batch estimates are shrunk across features, which keeps small plates usable. It refuses to run until the covariate is answered: name the column(s) to preserve, or pass ``no_covariate`` to record that every batch holds the same mixture of conditions. ``batch_combat_mean_only=True`` corrects only the additive shift and leaves each batch's spread alone."
+msgstr "경험적 베이즈 ComBat(Johnson, Li & Rabinovich, 2007). 각 특징은 배치 *와* ``batch_covariate_column`` 에 지정된 생물학적 요인을 함께 사용하여 모델링되며, 배치 부분만 제거됩니다. 배치별 추정치는 특징 전체에 걸쳐 축소되므로 작은 플레이트도 사용할 수 있습니다. 공변량에 대한 답이 주어지기 전에는 실행을 거부합니다. 보존할 열을 지정하거나, 모든 배치가 같은 조건 조합을 포함한다는 사실을 기록하려면 ``no_covariate`` 값을 전달합니다. ``batch_combat_mean_only=True`` 는 가법적 이동만 보정하고 각 배치의 산포는 그대로 둡니다."
+
+msgid "Settings"
+msgstr "설정"
+
+msgid "Set ``batch_correction`` to a method above and use ``batch_column`` to name the batch identifier (normally ``plateID``). ``batch_min_samples`` rejects unstable estimates from undersized batches."
+msgstr "``batch_correction`` 항목을 위의 방법 중 하나로 설정하고 ``batch_column`` 항목으로 배치 식별자(보통 ``plateID``)를 지정합니다. ``batch_min_samples`` 는 크기가 너무 작은 배치에서 나온 불안정한 추정치를 거부합니다."
+
+msgid "For ``control_center``, ``batch_control_column`` identifies the metadata field that contains the controls and ``batch_control_values`` selects one or more reference values. When blank, Image UMAP follows ``col_to_compare``/``neg`` and Classify's ML family follows ``location_column`` (or ``annotation_column`` when annotations define the classes) and ``negative_control_id``. Regression requires an explicit reference value. ``batch_missing_control=error`` is the safe default; ``skip`` leaves an affected plate unchanged and records a warning."
+msgstr "``control_center`` 방법에서는 ``batch_control_column`` 이 대조군이 들어 있는 메타데이터 필드를 지정하고, ``batch_control_values`` 가 하나 이상의 기준값을 선택합니다. 비워 두면 이미지 UMAP은 ``col_to_compare``/``neg`` 를 따르고, 분류의 ML 계열은 ``location_column`` (어노테이션이 클래스를 정의하는 경우 ``annotation_column``) 및 ``negative_control_id`` 를 따릅니다. 회귀에는 명시적인 기준값이 필요합니다. ``batch_missing_control=error`` 가 안전한 기본값이며, ``skip`` 은 해당 플레이트를 변경하지 않고 경고를 기록합니다."
+
+msgid "Every regression correction writes ``batch_correction.json`` next to the regression outputs. Image UMAP and Classify print before/after batch-centroid spread in the run log, while the reproducibility manifest records the exact settings used."
+msgstr "모든 회귀 보정은 회귀 출력 옆에 ``batch_correction.json`` 파일을 씁니다. 이미지 UMAP과 분류는 보정 전후의 배치 중심 산포를 실행 로그에 출력하며, 재현성 매니페스트에는 사용된 정확한 설정이 기록됩니다."
+
+msgid "Python API"
+msgstr "Python API"
+
+msgid "The shared implementation is :func:`spacr.batch_correction.correct_batch_effects`. Most integrations use :func:`spacr.batch_correction.correct_from_metadata`, which ensures metadata columns never enter the numeric feature matrix."
+msgstr "공통 구현은 :func:`spacr.batch_correction.correct_batch_effects` 입니다. 대부분의 통합 기능은 메타데이터 열이 숫자 특징 행렬에 들어가지 않도록 보장하는 :func:`spacr.batch_correction.correct_from_metadata` 를 사용합니다."
+

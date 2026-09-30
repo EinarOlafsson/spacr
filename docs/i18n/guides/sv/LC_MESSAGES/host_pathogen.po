@@ -1,0 +1,105 @@
+# spaCR user guide translation (sv).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: sv\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Host–Pathogen Analysis"
+msgstr "Värd–patogenanalys"
+
+msgid "From **Home → Assays → Toxoplasma**, open **Host–Pathogen Analysis**. This alpha module combines vacuole-level marker recruitment with host and well summaries. Existing :doc:`Recruitment <recruitment>` remains available."
+msgstr "Från **Hem → Analyser → Toxoplasma** öppnar du **Värd–patogenanalys**. Den här alfamodulen kombinerar markörrekrytering på vakuolnivå med sammanfattningar per värdcell och brunn. Den befintliga :doc:`Rekryteringsanalysen <recruitment>` finns kvar."
+
+msgid "Try the real microscopy test data"
+msgstr "Prova de verkliga mikroskopitestdata"
+
+msgid "Open **Home → Assays → Toxoplasma → Host–Pathogen Analysis** and select **Load test data…**. The download is approximately 114 MB."
+msgstr "Öppna **Hem → Analyser → Toxoplasma → Värd–patogenanalys** och välj **Ladda testdata...**. Nedladdningen är ungefär 114 MB."
+
+msgid "Enable **Live** beside the bottom action controls, then select **Run preview**. Choose either measured field and select vacuoles in the image or table to inspect their host links and marker ratios."
+msgstr "Aktivera **Live** bredvid åtgärdskontrollerna längst ned och välj sedan **Kör förhandsgranskning**. Välj något av de uppmätta fälten och markera vakuoler i bilden eller tabellen för att granska deras kopplingar till värdceller och markörkvoter."
+
+msgid "Set **Image channel** to 2 for Toxoplasma, 1 for RNF213 or 3 for CellMask. Leave the mask-plane selectors on **Auto**; the dataset includes the plane manifest. These display choices do not change the analysis channels."
+msgstr "Sätt **Bildkanal** till 2 för Toxoplasma, 1 för RNF213 eller 3 för CellMask. Lämna väljarna för maskplan på **Automatiskt**; datamängden innehåller planmanifestet. Dessa visningsval ändrar inte analyskanalerna."
+
+msgid "Turn **Live** off and expand **Actions** if the run controls are collapsed. Select **Run** to analyze both fields. Compare the results with the supplied ``example_cells.csv``, ``example_vacuoles.csv`` and ``example_wells.csv``."
+msgstr "Stäng av **Live** och fäll ut **Åtgärder** om körkontrollerna är ihopfällda. Välj **Kör** för att analysera båda fälten. Jämför resultaten med de medföljande ``example_cells.csv``, ``example_vacuoles.csv`` och ``example_wells.csv``."
+
+msgid "Follow the `Host–Pathogen video walkthrough <tutorials/#lesson=85_host_pathogen>`_ for the complete example."
+msgstr "Följ `videogenomgången av Värd–patogenanalys <tutorials/#lesson=85_host_pathogen>`_ för hela exemplet."
+
+msgid "The `Host–Pathogen dataset <https://huggingface.co/datasets/einarolafsson/spacr-example-host-pathogen/tree/83b73d7a0c4f8a9ea145304c2ba90acc16768031>`_ contains two acquired THP-1/RNF213 fields, four intensity channels and prepared automatic masks. Its measurements cover 164 host cells, 189 nuclei, 97 whole vacuoles and 164 cytoplasm objects across the two fields. The acquired intensity planes are unchanged; the masks underwent Measure's normal parent/child reconciliation so the distributed outlines match measured objects. The dataset card and ``example_manifest.json`` describe the source fields, preparation and checks. These masks are not manually validated ground truth."
+msgstr "`Värd–patogendatamängden <https://huggingface.co/datasets/einarolafsson/spacr-example-host-pathogen/tree/83b73d7a0c4f8a9ea145304c2ba90acc16768031>`_ innehåller två insamlade THP-1/RNF213-fält, fyra intensitetskanaler och förberedda automatiska masker. Mätningarna omfattar 164 värdceller, 189 kärnor, 97 hela vakuoler och 164 cytoplasmaobjekt i de två fälten. De insamlade intensitetsplanen är oförändrade; maskerna har genomgått Mätnings vanliga avstämning mellan över- och underordnade objekt, så att de distribuerade konturerna stämmer med de uppmätta objekten. Datamängdens informationskort och ``example_manifest.json`` beskriver källfälten, förberedelserna och kontrollerna. Maskerna är inte manuellt validerat facit."
+
+msgid "The supplied settings compare vacuole RNF213 means with their associated host cytoplasm means in channel 1. Marker thresholds are deliberately unset: ratios are available, while positive/negative marker states remain unknown until you choose suitable control-calibrated thresholds. Individual-parasite counts are not supplied, so replication remains ``not_measured``. This small sample does not establish biological differences between its control conditions."
+msgstr "De medföljande inställningarna jämför vakuolernas RNF213-medelvärden med medelvärdena för tillhörande värdcytoplasma i kanal 1. Markörtrösklarna är avsiktligt inte satta: kvoterna finns tillgängliga, medan positiva/negativa markörtillstånd förblir okända tills du väljer lämpliga trösklar kalibrerade mot kontroller. Antal enskilda parasiter medföljer inte, så replikationen förblir ``not_measured``. Det här lilla urvalet visar inga biologiska skillnader mellan dess kontrollbetingelser."
+
+msgid "The command-line download is ``spacr-download host_pathogen``. The prepared measurements let you use this example directly; your own image project needs the Mask and Measure preparation described below."
+msgstr "Nedladdningen från kommandoraden är ``spacr-download host_pathogen``. De förberedda mätningarna gör att du kan använda exemplet direkt; ditt eget bildprojekt behöver den förberedelse med Masker och Mätning som beskrivs nedan."
+
+msgid "Inspect one field before running"
+msgstr "Granska ett fält före körningen"
+
+msgid "After selecting a measured project in **Source**, enable the bottom **Live** control. The preview uses the current form settings and the same analysis functions as a full run. Select **Run preview** for the initial calculation. While the panel remains visible, later settings changes refresh that preview. Use **Refresh** to reload the field choices and **Cancel** to cancel a pending preview. Preview reads the measurements database without writing result files."
+msgstr "När du har valt ett uppmätt projekt i **Källa** aktiverar du kontrollen **Live** längst ned. Förhandsvisningen använder de aktuella formulärinställningarna och samma analysfunktioner som en fullständig körning. Välj **Kör förhandsgranskning** för den första beräkningen. Medan panelen är synlig uppdaterar senare ändringar av inställningarna förhandsvisningen. Använd **Uppdatera** för att läsa in fältvalen igen och **Avbryt** för att avbryta en väntande förhandsvisning. Förhandsvisningen läser mätdatabasen utan att skriva resultatfiler."
+
+msgid "Its host counts and infection fractions describe the selected field only. They are not whole-well denominators. Fields containing vacuoles without measured host cells remain available. Missing or zero reference intensities produce unknown marker states; an unknown state must not be read as negative."
+msgstr "Dess antal värdceller och infektionsandelar beskriver bara det valda fältet. De är inte nämnare för hela brunnen. Fält som innehåller vakuoler utan uppmätta värdceller förblir tillgängliga. Saknade referensintensiteter eller referensintensiteter som är noll ger okända markörtillstånd; ett okänt tillstånd får inte tolkas som negativt."
+
+msgid "Overlay plane selection defaults to **Auto**, using the recorded ``.spacr_plane_layout.json`` metadata. Select explicit host, vacuole and parasite plane indices when metadata is absent, or use ``-1`` to hide an overlay. Changing the displayed intensity channel does not change the analysis marker settings. If an image cannot be loaded, the measured results remain available in the table."
+msgstr "Valet av överlagringsplan är som standard **Automatiskt** och använder de registrerade metadata i ``.spacr_plane_layout.json``. Välj uttryckliga planindex för värdcell, vakuol och parasit när metadata saknas, eller använd ``-1`` för att dölja en överlagring. Att byta den visade intensitetskanalen ändrar inte analysens markörinställningar. Om en bild inte kan läsas in finns de uppmätta resultaten fortfarande i tabellen."
+
+msgid "For scripted previews, :func:`spacr.host_pathogen_preview.preview_fields` offers at most 50 fields by default and reports whether more exist. :func:`spacr.host_pathogen_preview.preview_field` analyzes one selected field, refusing input tables with more than 100,000 rows for that field by default. These bounds keep the preview limited; use the full analysis for project-wide reports."
+msgstr "För skriptade förhandsvisningar erbjuder :func:`spacr.host_pathogen_preview.preview_fields` som standard högst 50 fält och rapporterar om det finns fler. :func:`spacr.host_pathogen_preview.preview_field` analyserar ett valt fält och vägrar som standard indatatabeller med fler än 100 000 rader för det fältet. Dessa gränser håller förhandsvisningen begränsad; använd den fullständiga analysen för rapporter över hela projektet."
+
+msgid "Prepare the counting units"
+msgstr "Förbered räkneenheterna"
+
+msgid "Run Mask and Measure first. Keep uninfected host cells in Measure (``uninfected=True``) when the intended infection denominator is all measured hosts. Previously discarded host cells cannot be reconstructed here."
+msgstr "Kör Masker och Mätning först. Behåll oinfekterade värdceller i Mätning (``uninfected=True``) när den avsedda nämnaren för infektion är alla uppmätta värdceller. Värdceller som tidigare kasserats kan inte återskapas här."
+
+msgid "Supply a cell table, a table with one object per whole vacuole (default: ``pathogen``), and a host reference compartment table (default: ``cytoplasm``). Individual-parasite masks cannot substitute for whole-vacuole masks. Select marker channels and per-channel ratio thresholds calibrated with appropriate controls; the module does not learn these thresholds."
+msgstr "Ange en celltabell, en tabell med ett objekt per hel vakuol (standard: ``pathogen``) och en tabell för värdcellens referenskompartment (standard: ``cytoplasm``). Masker för enskilda parasiter kan inte ersätta masker för hela vakuoler. Välj markörkanaler och kvottrösklar per kanal som kalibrerats med lämpliga kontroller; modulen lär sig inte dessa trösklar."
+
+msgid "Replication counts require either a parasite table with explicit parent-vacuole identities or an existing count column. Choose one count source. Without one, replication remains unmeasured rather than being inferred from vacuole area. Host identity alone is insufficient when a host contains multiple vacuoles."
+msgstr "Replikationsantal kräver antingen en parasittabell med uttryckliga identiteter för överordnad vakuol eller en befintlig kolumn med antal. Välj en källa för antal. Utan en sådan förblir replikationen omätt i stället för att härledas från vakuolens area. Värdcellens identitet räcker inte när en värdcell innehåller flera vakuoler."
+
+msgid "When Measure links individual organelle-role objects to whole-vacuole masks, one parent must cover strictly more than half of a child's pixels. Outside objects and ambiguous overlaps retain a missing parent. The stored parent is ``pathogen_id``; the stored overlap feature is role-prefixed, for example ``organelle_pathogen_overlap_fraction``. Use such an object table as parasites only when those masks actually represent individual parasites."
+msgstr "När Mätning kopplar enskilda objekt med organellroll till masker för hela vakuoler måste en överordnad täcka strikt mer än hälften av det underordnade objektets pixlar. Objekt utanför och tvetydiga överlapp behåller en saknad överordnad. Den lagrade överordnade är ``pathogen_id``; den lagrade överlappsegenskapen har rollen som prefix, till exempel ``organelle_pathogen_overlap_fraction``. Använd en sådan objekttabell som parasiter bara när maskerna faktiskt representerar enskilda parasiter."
+
+msgid "Interpret the reports"
+msgstr "Tolka rapporterna"
+
+msgid "The output directory ``results/host_pathogen`` contains ``vacuoles.csv``, ``cells.csv``, ``wells.csv``, ``marker_states.csv``, ``replication_distribution.csv``, ``orphan_parasites.csv`` and the exact ``settings.json``. With multiple input projects, the combined report is saved under the first project. Database paths separate sources even when plate or field identifiers repeat."
+msgstr "Utdatakatalogen ``results/host_pathogen`` innehåller ``vacuoles.csv``, ``cells.csv``, ``wells.csv``, ``marker_states.csv``, ``replication_distribution.csv``, ``orphan_parasites.csv`` och den exakta ``settings.json``. Med flera indataprojekt sparas den kombinerade rapporten under det första projektet. Databassökvägar skiljer källorna åt även när identifierare för platta eller fält upprepas."
+
+msgid "Unlinked vacuoles and missing, invalid or zero host-reference intensities yield unknown marker states. Joint marker fractions include unknown vacuoles in their denominator; replication fractions use only vacuoles with counts. Host infection fractions describe retained measured host cells. These denominators answer different questions and should be reported explicitly."
+msgstr "Okopplade vakuoler och saknade, ogiltiga eller nollvärda referensintensiteter för värdceller ger okända markörtillstånd. Andelar för kombinerade markörer räknar in okända vakuoler i nämnaren; replikationsandelar använder bara vakuoler med antal. Infektionsandelar för värdceller beskriver behållna uppmätta värdceller. Dessa nämnare besvarar olika frågor och bör rapporteras uttryckligen."
+
+msgid "For scripted use, see :func:`spacr.host_pathogen.analyze_host_pathogen` and :func:`spacr.host_pathogen.summarize_tables`. The headless module name is ``host_pathogen`` in ``spacr-run``."
+msgstr "För skriptad användning, se :func:`spacr.host_pathogen.analyze_host_pathogen` och :func:`spacr.host_pathogen.summarize_tables`. Modulnamnet utan grafiskt gränssnitt är ``host_pathogen`` i ``spacr-run``."
+
+msgid "Choosing a Replication Assay method"
+msgstr "Välja metod för replikationsanalys"
+
+msgid "The separate **Replication Assay → Method** selector defaults to ``direct_count``, which counts individually segmented parasites per assigned vacuole. ``size_proxy`` uses the existing endodyogeny analysis and its **Size Proxy (Legacy)** controls. That readout aggregates pathogen area per host cell; multiple vacuoles in one host are combined. It is an area-derived proxy, not a parasite count or measured volume."
+msgstr "Den separata väljaren **Replikationsanalys → Metod** är som standard ``direct_count``, som räknar individuellt segmenterade parasiter per tilldelad vakuol. ``size_proxy`` använder den befintliga endodyogenianalysen och dess kontroller för **Storleksproxy (äldre)**. Den avläsningen aggregerar patogenarea per värdcell; flera vakuoler i en värdcell kombineras. Det är ett areabaserat närmevärde, inte ett parasitantal eller en uppmätt volym."
+
+msgid "Both available routes return ``replication_method`` metadata. The whole-vacuole deep-learning option is marked coming soon and cannot run before its model is available. See :func:`spacr.submodules.analyze_replication` and :func:`spacr.submodules.analyze_endodyogeny` for the exact settings and outputs."
+msgstr "Båda tillgängliga vägarna returnerar metadata för ``replication_method``. Alternativet med djupinlärning för hela vakuoler är markerat som kommer snart och kan inte köras innan dess modell finns tillgänglig. Se :func:`spacr.submodules.analyze_replication` och :func:`spacr.submodules.analyze_endodyogeny` för exakta inställningar och utdata."
+

@@ -1,10 +1,10 @@
 {
   "lesson": "41_classify",
-  "english_sha256": "5b39387350fde1fe2b622ffe6160d4e301eef74ccdb0f41045f95219d0ee7b69",
+  "english_sha256": "4485df04c4ce5e1db32e2d619de962f72cd60ad1d2c8391358d33540c552f7c6",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -21,9 +21,10 @@
   "scenes": [
     "HomeからClassifyを開きます。まず、分類器のファミリーを選びます。ここにリンクされている画像と表形式のレッスンでは、それぞれ一通りの例を最後まで説明しています。",
     "物体の画像から学習させるにはComputer Visionを選びます。測定した特徴量の列から学習させるにはTabular Machine Learningを選びます。これらの入力はMeasureが作り、Annotateで物体にラベルを付けられます。",
+    "Essentials ビューには、両方のファミリーの学習に必要な設定がまとめられています。Tabular Machine Learning に切り替えると Computer Vision の設定がグレー表示になり、選んだファミリーが使う項目だけを入力できます。",
     "表形式の例では、Load test dataをクリックしてLoadを選びます。クラスのラベルと特徴量の設定を選び、表形式のレッスンに従ってモデルを学習させ、予測を保存します。",
     "表形式の実行の後、予測のヒートマップと、保存された物体ごとのスコアを確認します。必要な測定値が欠けている物体は、スコアが付かないことがあります。評価結果を見て、ラベル、特徴量、モデルの設定を見直すかどうかを決めます。",
-    "画像の分類では、Computer Visionのレッスンに従って、ラベル付きの切り出し画像を用意し、モデルを選び、学習、検証、テストの分割を設定します。学習の後、評価の図と保存された予測を確認します。",
+    "画像の分類では、Computer Visionのレッスンに従って、ラベル付きの切り出し画像を用意し、モデルを選び、学習、検証、テストの分割を設定します。学習の後、損失と正解率の曲線を確認し、続いて評価の図と保存された予測を確認します。",
     "右上のツールからClassifier Evaluationを開きます。保存された評価バンドルを選ぶと、予測、指標、データの分割を確認できます。",
     "Explain CVを開くと、画像分類器の予測を測定した特徴量と関連付けられます。画像の予測結果と対応する測定値を用意し、どの特徴量がスコアを説明するかを確認します。",
     "Activationを開くと、画像のどの領域がモデルの反応に影響するかを確認できます。学習済みのチェックポイントを選び、学習時と同じ画像チャネルと前処理を使います。",

@@ -1,0 +1,153 @@
+# spaCR user guide translation (is).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: is\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Plaque Assay: fields, figures and reviewed conditions"
+msgstr "Skellugreining: sjónsvið, myndir og yfirfarin skilyrði"
+
+msgid "Open **Home → Assays → Toxoplasma → Plaque Assay**. Choose **Plaque** for plaque fields or **Figure** for published figures containing wells, panels and surrounding text. These inputs do not require a preceding Measure run. See the :ref:`module map <workflow-module-analyze_plaques>`, the `Plaque Assay tutorial <tutorials/#lesson=24_plaque>`_ and :func:`spacr.submodules.analyze_plaques` for the surrounding workflow."
+msgstr "Opnaðu **Heim → Prófanir → Toxoplasma → Skellugreining**. Veldu **Skella** fyrir skellusjónsvið eða **Mynd** fyrir birtar myndir sem innihalda brunna, spjöld og texta í kring. Þessi inntök krefjast ekki undanfarandi keyrslu Mælingar. Sjá :ref:`einingakortið <workflow-module-analyze_plaques>`, `kennsluna um skellugreiningu <tutorials/#lesson=24_plaque>`_ og :func:`spacr.submodules.analyze_plaques` fyrir verkflæðið í kring."
+
+msgid "Preview a plaque field"
+msgstr "Forskoða skellusjónsvið"
+
+msgid "Choose the source folder and select an image in the preview picker."
+msgstr "Veldu upprunamöppuna og veldu mynd í forskoðunarvalinu."
+
+msgid "Select **Plaque** mode. In **Settings… → Plaque detection**, choose the plaque checkpoint, diameter, flow threshold and cell-probability threshold. Use **Model zoo…** to inspect available models or **Browse…** for a local checkpoint. A model key is different from a detector backend: both the checkpoint and a compatible runtime must be available."
+msgstr "Veldu **Skella**-ham. Í **Stillingar… → Skellugreining** skaltu velja vistunarpunkt skellulíkans, þvermál, flæðisþröskuld og þröskuld fyrir líkur á frumu. Notaðu **Líkanasafn…** til að skoða tiltæk líkön eða **Fletta…** fyrir staðbundinn vistunarpunkt. Lykill líkans er annað en greiningarbakendi: bæði vistunarpunkturinn og samhæft keyrsluumhverfi verða að vera tiltæk."
+
+msgid "Run the preview and inspect the labels against the image. Counts and mean areas describe the proposed segmentation, so check merged plaques, missed plaques and non-plaque regions before interpreting them."
+msgstr "Keyrðu forskoðunina og berðu merkin saman við myndina. Talningar og meðalflatarmál lýsa fyrirhugaðri hlutun, svo athugaðu samrunnar skellur, skellur sem misstust og svæði sem eru ekki skellur áður en þú túlkar þau."
+
+msgid "Inspect the object, probability and flow views when the chosen segmenter supplies those outputs. Missing flow output is not a zero-valued result."
+msgstr "Skoðaðu hluta-, líkinda- og flæðisýnirnar þegar valinn hlutari leggur til þau úttök. Flæðisúttak sem vantar er ekki niðurstaða með gildið núll."
+
+msgid "Choose **Use these settings** to copy the tuned values into the form that the analysis run reads. A preview alone does not run the folder analysis."
+msgstr "Veldu **Nota þessar stillingar** til að afrita stilltu gildin í eyðublaðið sem greiningarkeyrslan les. Forskoðun ein og sér keyrir ekki greiningu möppunnar."
+
+msgid "The preview resolves local checkpoints without downloading them implicitly. When a model is absent, the panel explains what is missing and offers the appropriate download. Keep the selected model and settings with the results; ``bundled`` names the historical packaged checkpoint, not an alias for the current Model Zoo model."
+msgstr "Forskoðunin finnur staðbundna vistunarpunkta án þess að sækja þá sjálfkrafa. Þegar líkan vantar útskýrir spjaldið hvað vantar og býður upp á viðeigandi niðurhal. Geymdu valið líkan og stillingar með niðurstöðunum; ``bundled`` vísar til sögulega meðfylgjandi vistunarpunktsins, ekki samnefnis fyrir núverandi líkan í Líkanasafni."
+
+msgid "Read a published figure"
+msgstr "Lesa birta mynd"
+
+msgid "Select **Figure** mode. Supply a folder of figures, or use **From a paper…** to retrieve figures and legends from a DOI, PMID, PMC identifier or PDF into a new folder."
+msgstr "Veldu **Mynd**-ham. Leggðu til möppu með myndum eða notaðu **Úr vísindagrein…** til að sækja myndir og myndatexta út frá DOI, PMID, PMC-auðkenni eða PDF í nýja möppu."
+
+msgid "If the figure reader is missing, use the panel's **Install** action. It installs the YOLO/OCR reader in its own backend environment under ``~/.spacr/backends``. Inspect the installation result before previewing."
+msgstr "Ef myndalesarann vantar skaltu nota aðgerðina **Setja upp** á spjaldinu. Hún setur upp YOLO/OCR-lesarann í eigin bakendaumhverfi undir ``~/.spacr/backends``. Skoðaðu niðurstöðu uppsetningarinnar áður en þú forskoðar."
+
+msgid "In **Settings… → Figure**, choose the well detector, inference sizes and confidence cutoff; the text-reading settings are on the **Text detection** tab. **Run preview** finds wells and reads the figure text; this first pass does not segment the plaques."
+msgstr "Í **Stillingar… → Mynd** skaltu velja brunnaskynjarann, ályktunarstærðir og öryggismörk; stillingar fyrir textalestur eru á flipanum **Textagreining**. **Keyra forskoðun** finnur brunna og les texta myndarinnar; þessi fyrsta umferð hlutar ekki skellurnar."
+
+msgid "Click a well in the image or a table row. **Plaque preview** segments that well with the plaque settings. **Find plaques in all wells** processes the detected wells in sequence; Cancel stops after the current well."
+msgstr "Smelltu á brunn í myndinni eða á röð í töflunni. **Forskoðun sýkingarskella** hlutar þann brunn með skellustillingunum. **Finna sýkingarskellur í öllum brunnum** vinnur greindu brunnana í röð; Cancel stöðvar eftir núverandi brunn."
+
+msgid "Compare the proposed condition with the nearby label and the relevant legend passage. Correct the condition, mark reviewed entries **OK**, and save the annotations. With **Confirm annotations** enabled, the run measures only the saved approved entries."
+msgstr "Berðu fyrirhugaða skilyrðið saman við nálægt merki og viðeigandi kafla myndatextans. Leiðréttu skilyrðið, merktu yfirfarnar færslur **OK** og vistaðu merkingarnar. Með **Staðfesta merkingar** virkt mælir keyrslan aðeins vistaðar samþykktar færslur."
+
+msgid "Copy the tuned settings into the form before starting the analysis run. Retain the original figure, legend, annotation review and calibration information alongside the measurements."
+msgstr "Afritaðu stilltu stillingarnar í eyðublaðið áður en greiningarkeyrslan hefst. Varðveittu upphaflegu myndina, myndatextann, yfirferð merkinga og kvörðunarupplýsingar ásamt mælingunum."
+
+msgid "The preview saves condition reviews in ``figure_annotations.csv`` and pasted legends in ``legends.csv`` in the source folder, preserving other figures' entries. The batch figure workflow uses these files and writes its database under ``<src>/plaque_figures/plaque_figures.db`` by default. Reprocessing a figure replaces its previous rows; duplicate image content is recorded rather than counted as an independent image. See :func:`spacr.plaque_papers.measure_figure_folder` for the full file contract."
+msgstr "Forskoðunin vistar yfirferð skilyrða í ``figure_annotations.csv`` og límda myndatexta í ``legends.csv`` í upprunamöppunni og varðveitir færslur annarra mynda. Lotuverkflæðið fyrir myndir notar þessar skrár og skrifar gagnagrunn sinn sjálfgefið undir ``<src>/plaque_figures/plaque_figures.db``. Endurvinnsla myndar kemur í stað fyrri raða hennar; tvítekið myndefni er skráð frekar en talið sem óháð mynd. Sjá :func:`spacr.plaque_papers.measure_figure_folder` fyrir heildarskráasamninginn."
+
+msgid "Areas in pixels and calibrated areas are different quantities. Verify the reported scale and its source before comparing physical areas between images. A detector box or an automatically read condition is a proposal to inspect, not evidence that the experimental identity or calibration is correct."
+msgstr "Flatarmál í pixlum og kvarðað flatarmál eru ólíkar stærðir. Staðfestu tilkynntan kvarða og uppruna hans áður en efnislegt flatarmál er borið saman milli mynda. Rammi frá skynjara eða sjálfvirkt lesið skilyrði er tillaga til skoðunar, ekki sönnun þess að tilraunaauðkenni eða kvörðun sé rétt."
+
+msgid "For a figure crop, its own labeled scale bar takes priority, followed by its own unlabeled bar whose length is stated in the legend. A crop without its own bar can share an agreeing calibration from similarly sized crops in the same grid. Conflicting peer bars leave that crop in pixels with a conflict note. Whole-well calibration is a later fallback when the plate format is known; stated magnification alone does not calibrate a rescaled figure."
+msgstr "Fyrir myndskurð úr mynd hefur eigin merktur kvarðastrik hans forgang, síðan eigin ómerkt strik hans sem lengd er gefin upp fyrir í myndatextanum. Myndskurður án eigin striks getur deilt samhljóða kvörðun frá svipað stórum myndskurðum í sömu grind. Ósamrýmanleg strik í nágrannaskurðum skilja þann myndskurð eftir í pixlum með athugasemd um ósamræmi. Kvörðun út frá heilum brunni er síðara varaúrræði þegar plötusnið er þekkt; uppgefin stækkun ein og sér kvarðar ekki mynd sem hefur verið skalað."
+
+msgid "Drop images, PDFs and folders"
+msgstr "Sleppa myndum, PDF-skrám og möppum"
+
+msgid "Drop any number of images, PDFs or folders onto Plaque Assay. Images are read in **Plaque** mode and PDFs in **Figure** mode; every PDF is read in turn, with progress naming the paper being read, and a paper that cannot be read is reported by name without stopping the others. Files that are neither images nor PDFs are left out and counted once. When the drop does not match the current mode, a prompt offers to switch; when it holds both images and PDFs, choose which mode to run. If the figure reader needs installing or reinstalling, the prompt installs it in place and reports the result."
+msgstr "Slepptu hvaða fjölda mynda, PDF-skráa eða mappa sem er á Skellugreining. Myndir eru lesnar í **Skella**-ham og PDF-skrár í **Mynd**-ham; hver PDF-skrá er lesin í röð, framvindan nefnir greinina sem verið er að lesa og tilkynnt er um grein sem ekki er hægt að lesa með nafni án þess að stöðva hinar. Skrár sem eru hvorki myndir né PDF eru skildar eftir og taldar einu sinni. Þegar það sem er sleppt passar ekki við núverandi ham býður gluggi upp á að skipta; þegar það inniheldur bæði myndir og PDF-skrár velur þú hvaða ham á að keyra. Ef setja þarf upp myndalesarann eða setja hann upp aftur setur glugginn hann upp á staðnum og tilkynnir niðurstöðuna."
+
+msgid "Inspect the result views"
+msgstr "Skoða niðurstöðusýnirnar"
+
+msgid "The view selector above the preview offers **Overlay**, **Masks**, **Flows** and **Cell probability** in both modes. In Figure mode, each segmented well's outputs are placed at its box on the figure. Right-click the image for the overlay options: outlines or filled objects, random colours, **Overlay settings…** and **Save picture…**. The overlay settings include the outline and fill colours, fill opacity and the **Line weight** of the **Well boxes**. **Ruler** measures a distance on the image, in µm when the pixel size is known and in pixels otherwise; right-click clears it."
+msgstr "Sýnarvalið fyrir ofan forskoðunina býður upp á **Yfirlag**, **Grímur**, **Flæði** og **Líkur á frumu** í báðum hömum. Í Figure-ham eru úttök hvers hlutaðs brunns sett á ramma hans á myndinni. Hægrismelltu á myndina fyrir valkosti yfirlags: útlínur eða fylltir hlutir, slembilitir, **Stillingar yfirlags…** og **Vista mynd…**. Stillingar yfirlags innihalda útlínu- og fyllingarliti, ógegnsæi fyllingar og **Línuþykkt** fyrir **Brunnarammar**. **Reglustika** mælir fjarlægð á myndinni, í µm þegar pixlastærð er þekkt og annars í pixlum; hægrismellur hreinsar hana."
+
+msgid "Contribute training data"
+msgstr "Leggja til þjálfunargögn"
+
+msgid "**Contribute training data…** sends an annotated image to spaCR's community training data on Hugging Face. In Figure mode, box every well for the well detector; in Plaque mode, paint every plaque for the next plaque model. An image without annotations is not sent, and you must agree to the licence before uploading. The dialog shows the destination dataset as a link that can be opened, selected and copied. A contribution is reviewed before it is used for training, so draw the annotations carefully."
+msgstr "**Leggja til þjálfunargögn…** sendir merkta mynd í samfélagsþjálfunargögn spaCR á Hugging Face. Í Figure-ham skaltu setja ramma utan um hvern brunn fyrir brunnaskynjarann; í Plaque-ham skaltu mála hverja skellu fyrir næsta skellulíkan. Mynd án merkinga er ekki send og þú verður að samþykkja leyfið áður en upphleðsla fer fram. Glugginn sýnir áfangagagnasafnið sem tengil sem hægt er að opna, velja og afrita. Framlag er yfirfarið áður en það er notað til þjálfunar, svo teiknaðu merkingarnar vandlega."
+
+msgid "Changing selections while a preview runs"
+msgstr "Breyta vali á meðan forskoðun keyrir"
+
+msgid "Changing the source, selected image or mode abandons the previous preview. Its late result cannot replace the newly selected view. An empty source folder clears the prior mask, object views and figure tables. Start a new preview for the intended selection after it loads. Cancellation discards the old result; the current model call finishes before **Run preview** and the well controls become available again. Wait for those controls before rerunning with changed settings."
+msgstr "Ef uppruna, valinni mynd eða ham er breytt er fyrri forskoðun yfirgefin. Síðbúin niðurstaða hennar getur ekki komið í stað nývalinnar sýnar. Tóm upprunamappa hreinsar fyrri grímu, hlutasýnir og myndatöflur. Ræstu nýja forskoðun fyrir ætlað val eftir að það hleðst. Afturköllun hendir gömlu niðurstöðunni; núverandi kall í líkanið klárast áður en **Keyra forskoðun** og brunnastýringarnar verða aftur tiltækar. Bíddu eftir þeim stýringum áður en þú keyrir aftur með breyttum stillingum."
+
+msgid "After choosing **Save annotations**, wait for the saved confirmation in the preview status before starting the batch analysis. Saving happens in the background so the image remains responsive; a queued save is not yet a completed write."
+msgstr "Eftir að þú velur **Vista merkingar** skaltu bíða eftir staðfestingu á vistun í forskoðunarstöðunni áður en lotugreiningin hefst. Vistun fer fram í bakgrunni svo myndin haldist svörun; vistun í biðröð er ekki enn fullgerð ritun."
+
+msgid "Python preview contracts"
+msgstr "Forskoðunarsamningar í Python"
+
+msgid "The same operations are available as worker-safe functions; they do not touch widgets. Their returned data is preview output, separate from the batch analysis database."
+msgstr "Sömu aðgerðir eru tiltækar sem föll sem eru örugg í vinnsluþráðum; þau snerta ekki viðmótshluta. Gögnin sem þau skila eru forskoðunarúttak, aðskilið frá gagnagrunni lotugreiningarinnar."
+
+msgid "Function"
+msgstr "Fall"
+
+msgid "Result and scope"
+msgstr "Niðurstaða og umfang"
+
+msgid ":func:`spacr.qt.widgets.plaque_preview.plaque_pass`"
+msgstr ":func:`spacr.qt.widgets.plaque_preview.plaque_pass`"
+
+msgid "Segment one plaque image and return labels, counts, areas and available flow outputs."
+msgstr "Hluta eina skellumynd og skila merkjum, talningum, flatarmáli og tiltækum flæðisúttökum."
+
+msgid ":func:`spacr.qt.widgets.plaque_preview.detect_figure`"
+msgstr ":func:`spacr.qt.widgets.plaque_preview.detect_figure`"
+
+msgid "Find figure regions and read text without segmenting plaques."
+msgstr "Finna svæði myndar og lesa texta án þess að hluta skellur."
+
+msgid ":func:`spacr.qt.widgets.plaque_preview.prepare_figure_review`"
+msgstr ":func:`spacr.qt.widgets.plaque_preview.prepare_figure_review`"
+
+msgid "Read saved review information and propose ruler calibration for the detected figure while preserving supplied manual edits."
+msgstr "Lesa vistaðar yfirferðarupplýsingar og leggja til kvörðun með reglustiku fyrir greindu myndina en varðveita handvirkar breytingar sem lagðar eru til."
+
+msgid ":func:`spacr.qt.widgets.plaque_preview.segment_well`"
+msgstr ":func:`spacr.qt.widgets.plaque_preview.segment_well`"
+
+msgid "Segment a selected well crop with the plaque settings."
+msgstr "Hluta valinn brunnskurð með skellustillingunum."
+
+msgid ":func:`spacr.qt.widgets.plaque_preview.figure_pass`"
+msgstr ":func:`spacr.qt.widgets.plaque_preview.figure_pass`"
+
+msgid "Find, read and segment a figure in one function call. This differs from the GUI's initial detection-only preview."
+msgstr "Finna, lesa og hluta mynd í einu fallskalli. Þetta er frábrugðið fyrstu forskoðun myndræna viðmótsins sem aðeins greinir."
+
+msgid "With the default segmenter, ``plaque_pass``, ``segment_well`` and ``figure_pass`` use :func:`spacr.plaque.segment_plaque_image`, including the configured ``diameter``, ``flow_threshold``, ``CP_prob`` and channel-axis policy. A custom ``segment`` callback supplies its own segmentation behavior. Keep those settings explicit when comparing Python results with the GUI."
+msgstr "Með sjálfgefna hlutaranum nota ``plaque_pass``, ``segment_well`` og ``figure_pass`` :func:`spacr.plaque.segment_plaque_image`, þar á meðal stillt ``diameter``, ``flow_threshold``, ``CP_prob`` og stefnu um rásaás. Sérsniðið ``segment``-afturkall leggur til eigin hlutunarhegðun. Hafðu þessar stillingar skýrar þegar Python-niðurstöður eru bornar saman við myndræna viðmótið."
+
+msgid "For GUI integrations, ``PlaquePreviewPanel.preview_running()`` remains true while a cancelled worker is finishing. ``set_preview_busy(False)`` therefore keeps rerun controls disabled until that worker exits. ``save_annotations()`` returns the queued destination; observe the preview status for completion or failure before consuming the file."
+msgstr "Fyrir samþættingar við myndræna viðmótið er ``PlaquePreviewPanel.preview_running()`` áfram satt á meðan afturkallaður vinnsluþráður er að klárast. ``set_preview_busy(False)`` heldur því endurkeyrslustýringum óvirkum þar til sá vinnsluþráður hættir. ``save_annotations()`` skilar áfangastaðnum í biðröð; fylgstu með forskoðunarstöðunni hvort það tókst eða mistókst áður en skráin er notuð."
+

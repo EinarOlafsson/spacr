@@ -1,0 +1,285 @@
+# spaCR user guide translation (hi).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: hi\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Train/test leakage audit"
+msgstr "प्रशिक्षण/परीक्षण रिसाव ऑडिट"
+
+msgid "Classifier accuracy is invalid when related crops occur on both sides of an evaluation boundary. spaCR audits the permanent ``train/``/``test/`` split, the ordinary train/validation holdout, every outer and inner CV boundary, and the CV partition as a whole before fitting."
+msgstr "जब संबंधित क्रॉप किसी मूल्यांकन सीमा के दोनों ओर दिखाई दें तो वर्गीकारक सटीकता अमान्य होती है। फ़िट करने से पहले spaCR स्थायी ``train/``/``test/`` विभाजन, सामान्य प्रशिक्षण/सत्यापन होल्डआउट, हर बाहरी और आंतरिक क्रॉस-वैलिडेशन सीमा, और पूरे क्रॉस-वैलिडेशन विभाजन का ऑडिट करता है।"
+
+msgid "What is verified"
+msgstr "क्या सत्यापित किया जाता है"
+
+msgid "The audit checks:"
+msgstr "ऑडिट ये जाँच करता है:"
+
+msgid "the same path or crop identity never crosses a boundary;"
+msgstr "एक ही पथ या क्रॉप पहचान कभी सीमा पार नहीं करती;"
+
+msgid "exported augmentations such as ``_rot90``, ``_flip_h`` and ``_aug3`` remain with their source object;"
+msgstr "``_rot90``, ``_flip_h`` और ``_aug3`` जैसे निर्यात किए गए संवर्धन अपने स्रोत ऑब्जेक्ट के साथ रहते हैं;"
+
+msgid "byte-identical crops are detected by streaming SHA-256 even if renamed;"
+msgstr "बाइट-समान क्रॉप का पता स्ट्रीमिंग SHA-256 से लगाया जाता है, भले ही उनका नाम बदला गया हो;"
+
+msgid "the requested ``cv_group_by`` identity (field, well or plate) stays intact;"
+msgstr "अनुरोधित ``cv_group_by`` पहचान (फ़ील्ड, कूप या प्लेट) अखंड रहती है;"
+
+msgid "every CV sample is held out exactly once;"
+msgstr "हर क्रॉस-वैलिडेशन नमूना ठीक एक बार अलग रखा जाता है;"
+
+msgid "no related family is assigned to more than one held-out fold; and"
+msgstr "कोई भी संबंधित परिवार एक से अधिक अलग रखे गए फ़ोल्ड को नहीं दिया जाता; और"
+
+msgid "related crops do not carry conflicting class labels."
+msgstr "संबंधित क्रॉप परस्पर विरोधी वर्ग लेबल नहीं रखते।"
+
+msgid "Filename identities follow spaCR's ``<plate>_<well>_<field>_..._<object>.png`` crop convention. With ``leakage_require_identity=True`` (the default), a filename that cannot prove its requested identity fails the audit; an unknown relationship is not reported as independent."
+msgstr "फ़ाइल नाम पहचान spaCR के क्रॉप नियम ``<plate>_<well>_<field>_..._<object>.png`` का पालन करती है। ``leakage_require_identity=True`` (डिफ़ॉल्ट) के साथ जो फ़ाइल नाम अपनी अनुरोधित पहचान सिद्ध नहीं कर सकता वह ऑडिट में विफल होता है; अज्ञात संबंध को स्वतंत्र नहीं बताया जाता।"
+
+msgid "Ordinary validation is group-aware too. ``cv_group_by='well'`` uses the same group-stratified partitioner as CV and selects the candidate fold closest to ``val_split`` and the full dataset's class distribution. Augmentation is applied only after the split and only to training."
+msgstr "सामान्य सत्यापन भी समूह-सजग है। ``cv_group_by='well'`` क्रॉस-वैलिडेशन वाले ही समूह-स्तरित विभाजक का उपयोग करता है और वह उम्मीदवार फ़ोल्ड चुनता है जो ``val_split`` और पूरे डेटासेट के वर्ग वितरण के सबसे निकट हो। संवर्धन केवल विभाजन के बाद और केवल प्रशिक्षण पर लागू होता है।"
+
+msgid "Run the audit directly"
+msgstr "ऑडिट सीधे चलाएँ"
+
+msgid "The command prints JSON and exits ``0`` for a verified split, ``1`` when leakage or unverifiable identities are found, and ``2`` when the dataset cannot be audited. ``--no-content-hash`` reduces I/O but cannot detect renamed copies. ``--allow-unverifiable`` is intended for diagnosing legacy datasets; it does not make their performance estimate trustworthy."
+msgstr "कमांड JSON छापती है और सत्यापित विभाजन के लिए ``0``, रिसाव या असत्यापनीय पहचान मिलने पर ``1``, और डेटासेट का ऑडिट संभव न होने पर ``2`` के साथ बाहर निकलती है। ``--no-content-hash`` I/O घटाता है लेकिन नाम बदली गई प्रतियों का पता नहीं लगा सकता। ``--allow-unverifiable`` पुराने डेटासेट के निदान के लिए है; यह उनके प्रदर्शन अनुमान को भरोसेमंद नहीं बनाता।"
+
+msgid "Classify settings"
+msgstr "वर्गीकरण सेटिंग्स"
+
+msgid "``leakage_audit_train_test``"
+msgstr "``leakage_audit_train_test``"
+
+msgid "Audit ``train/`` against ``test/`` before fitting. Default ``True``."
+msgstr "फ़िट करने से पहले ``test/`` के विरुद्ध ``train/`` का ऑडिट करें। डिफ़ॉल्ट ``True``।"
+
+msgid "``leakage_hash_content``"
+msgstr "``leakage_hash_content``"
+
+msgid "Stream SHA-256 for copy/rename detection. Default ``True``."
+msgstr "प्रति/नाम-परिवर्तन पहचान के लिए SHA-256 स्ट्रीम करें। डिफ़ॉल्ट ``True``।"
+
+msgid "``leakage_require_identity``"
+msgstr "``leakage_require_identity``"
+
+msgid "Fail when protected identity or content cannot be verified. Default ``True``."
+msgstr "जब संरक्षित पहचान या सामग्री सत्यापित न हो सके तो विफल करें। डिफ़ॉल्ट ``True``।"
+
+msgid "``evaluation_fail_on_leakage``"
+msgstr "``evaluation_fail_on_leakage``"
+
+msgid "Stop before fitting when an audit fails. Default ``True``. Setting it to ``False`` records a failed audit but cannot make the resulting metric valid."
+msgstr "ऑडिट विफल होने पर फ़िट करने से पहले रुकें। डिफ़ॉल्ट ``True``। इसे ``False`` पर सेट करने से विफल ऑडिट दर्ज होता है, लेकिन परिणामी मेट्रिक वैध नहीं बन सकता।"
+
+msgid "Reports are written beside the classifier run as ``train_test_leakage_audit.json`` and ``train_validation_leakage_audit.json``. CV audit records are also included in the Classifier Evaluation workbench's ``leakage.json``."
+msgstr "रिपोर्ट वर्गीकारक रन के बगल में ``train_test_leakage_audit.json`` और ``train_validation_leakage_audit.json`` के रूप में लिखी जाती हैं। क्रॉस-वैलिडेशन ऑडिट रिकॉर्ड वर्गीकारक मूल्यांकन वर्कबेंच की ``leakage.json`` में भी शामिल होते हैं।"
+
+msgid "API"
+msgstr "API"
+
+msgid "Classifier evaluation, calibration, and split-leakage diagnostics."
+msgstr "वर्गीकारक मूल्यांकन, अंशांकन और विभाजन-रिसाव निदान।"
+
+msgid "The module is model-agnostic: it consumes labels, probabilities, fold ids, and sample paths. Deep-learning CV and future classical-ML pipelines can therefore write the same evaluation bundle and the Qt workbench can display one stable artifact format."
+msgstr "यह मॉड्यूल मॉडल-निरपेक्ष है: यह लेबल, संभावनाएँ, फ़ोल्ड ID और नमूना पथ लेता है। इसलिए डीप-लर्निंग क्रॉस-वैलिडेशन और भविष्य की पारंपरिक-ML पाइपलाइन एक ही मूल्यांकन संग्रह लिख सकती हैं और Qt वर्कबेंच एक स्थिर फ़ाइल प्रारूप दिखा सकता है।"
+
+msgid "Whole-CV proof that each related sample family belongs to one fold."
+msgstr "पूरे क्रॉस-वैलिडेशन के स्तर पर प्रमाण कि हर संबंधित नमूना परिवार एक ही फ़ोल्ड से संबंधित है।"
+
+msgid "Parameters"
+msgstr "पैरामीटर"
+
+msgid "canonical identity level required to remain within one validation fold."
+msgstr "वह मानक पहचान स्तर जिसे एक सत्यापन फ़ोल्ड के भीतर रहना आवश्यक है।"
+
+msgid "number of source paths whose fold membership was audited."
+msgstr "उन स्रोत पथों की संख्या जिनकी फ़ोल्ड सदस्यता का ऑडिट किया गया।"
+
+msgid "number of train/validation fold pairs inspected."
+msgstr "जाँचे गए प्रशिक्षण/सत्यापन फ़ोल्ड युग्मों की संख्या।"
+
+msgid "up to twenty sample indexes that were never held out for validation."
+msgstr "अधिकतम बीस नमूना सूचकांक जिन्हें सत्यापन के लिए कभी अलग नहीं रखा गया।"
+
+msgid "up to twenty sample indexes held out in more than one fold."
+msgstr "अधिकतम बीस नमूना सूचकांक जो एक से अधिक फ़ोल्ड में अलग रखे गए।"
+
+msgid "identities assigned to multiple validation folds, counted at each exact, content, family, object, and acquisition level."
+msgstr "कई सत्यापन फ़ोल्ड को दी गई पहचानें, जिन्हें सटीक, सामग्री, परिवार, ऑब्जेक्ट और अधिग्रहण स्तर पर गिना जाता है।"
+
+msgid "up to ten conflicting identities per level, annotated with the folds that contain them."
+msgstr "प्रति स्तर अधिकतम दस परस्पर विरोधी पहचानें, उन्हें रखने वाले फ़ोल्ड के साथ चिह्नित।"
+
+msgid "completeness, overlap, identity, or label failures that make :attr:`passed` false."
+msgstr "पूर्णता, अधिव्यापन, पहचान या लेबल विफलताएँ जो :attr:`passed` को असत्य बनाती हैं।"
+
+msgid "non-fatal caveats and explanations accompanying failures."
+msgstr "विफलताओं के साथ आने वाली गैर-घातक सावधानियाँ और व्याख्याएँ।"
+
+msgid "samples whose requested identity or optional byte-content hash could not be checked, counted by level."
+msgstr "वे नमूने जिनकी अनुरोधित पहचान या वैकल्पिक बाइट-सामग्री हैश की जाँच नहीं हो सकी, स्तर के अनुसार गिने गए।"
+
+msgid "up to twenty file-specific content-hashing failures."
+msgstr "अधिकतम बीस फ़ाइल-विशिष्ट सामग्री-हैशिंग विफलताएँ।"
+
+msgid "stable label for this whole-CV audit record."
+msgstr "इस पूरे क्रॉस-वैलिडेशन ऑडिट रिकॉर्ड का स्थिर लेबल।"
+
+msgid "Return True only when the fold partition is complete and isolated."
+msgstr "केवल तब True लौटाएँ जब फ़ोल्ड विभाजन पूर्ण और पृथक हो।"
+
+msgid "Return a JSON-serializable audit record."
+msgstr "JSON में क्रमबद्ध किया जा सकने वाला ऑडिट रिकॉर्ड लौटाएँ।"
+
+msgid "Overlap counts and examples for one train/validation boundary."
+msgstr "एक प्रशिक्षण/सत्यापन सीमा के लिए अधिव्यापन गिनतियाँ और उदाहरण।"
+
+msgid "protected split level (``cell``, ``field``, ``well``, or ``plate``); the legacy ``none`` spelling is normalized to ``cell``."
+msgstr "संरक्षित विभाजन स्तर (``cell``, ``field``, ``well`` या ``plate``); पुरानी वर्तनी ``none`` को ``cell`` में सामान्यीकृत किया जाता है।"
+
+msgid "number of training paths."
+msgstr "प्रशिक्षण पथों की संख्या।"
+
+msgid "number of validation paths."
+msgstr "सत्यापन पथों की संख्या।"
+
+msgid "overlap count at each identity level."
+msgstr "हर पहचान स्तर पर अधिव्यापन गिनती।"
+
+msgid "up to ten shared identities per level."
+msgstr "प्रति स्तर अधिकतम दस साझा पहचानें।"
+
+msgid "caller-supplied label for the audited boundary."
+msgstr "ऑडिट की गई सीमा के लिए कॉलर द्वारा दिया गया लेबल।"
+
+msgid "levels that invalidate the requested split."
+msgstr "वे स्तर जो अनुरोधित विभाजन को अमान्य करते हैं।"
+
+msgid "non-fatal caveats."
+msgstr "गैर-घातक सावधानियाँ।"
+
+msgid "samples lacking a requested identity or content hash, counted by the level that could not be verified."
+msgstr "अनुरोधित पहचान या सामग्री हैश से रहित नमूने, उस स्तर के अनुसार गिने गए जिसकी पुष्टि नहीं हो सकी।"
+
+msgid "up to twenty file-specific failures from optional byte-content hashing."
+msgstr "वैकल्पिक बाइट-सामग्री हैशिंग से अधिकतम बीस फ़ाइल-विशिष्ट विफलताएँ।"
+
+msgid "Return True when no protected identity crosses the boundary."
+msgstr "जब कोई संरक्षित पहचान सीमा पार न करे तो True लौटाएँ।"
+
+msgid "Return a JSON-serializable report."
+msgstr "JSON में क्रमबद्ध की जा सकने वाली रिपोर्ट लौटाएँ।"
+
+msgid "Verify partition coverage and identity isolation across every CV fold."
+msgstr "हर क्रॉस-वैलिडेशन फ़ोल्ड में विभाजन कवरेज और पहचान पृथक्करण की पुष्टि करें।"
+
+msgid "This checks the fold assignment as one object, rather than trusting a sample of pairwise boundaries. Each index must be validation exactly once; exact paths, byte-identical content, source/augmentation families and the requested plate/well/field group must map to one held-out fold only."
+msgstr "यह युग्मवार सीमाओं के किसी नमूने पर भरोसा करने के बजाय फ़ोल्ड आवंटन को एक वस्तु के रूप में जाँचता है। हर सूचकांक ठीक एक बार सत्यापन में होना चाहिए; सटीक पथ, बाइट-समान सामग्री, स्रोत/संवर्धन परिवार और अनुरोधित प्लेट/कूप/फ़ील्ड समूह केवल एक अलग रखे गए फ़ोल्ड से मैप होने चाहिए।"
+
+msgid "one source path per sample, indexed by the fold indices."
+msgstr "प्रति नमूना एक स्रोत पथ, फ़ोल्ड सूचकांकों द्वारा अनुक्रमित।"
+
+msgid "``(train_indices, validation_indices)`` per fold. Indices outside ``range(len(paths))`` are reported rather than ignored."
+msgstr "प्रति फ़ोल्ड ``(train_indices, validation_indices)``। ``range(len(paths))`` से बाहर के सूचकांकों को अनदेखा करने के बजाय सूचित किया जाता है।"
+
+msgid "optional class per path, one value per path. Only used to describe the folds; it does not affect leakage detection."
+msgstr "प्रति पथ वैकल्पिक वर्ग, हर पथ के लिए एक मान। केवल फ़ोल्ड का वर्णन करने के लिए उपयोग होता है; यह रिसाव पहचान को प्रभावित नहीं करता।"
+
+msgid "identity level that may not cross a fold boundary -- ``none``, ``field``, ``well`` or ``plate``. A well-grouped split permits the same plate on both sides but never the same well."
+msgstr "वह पहचान स्तर जो फ़ोल्ड सीमा पार नहीं कर सकता -- ``none``, ``field``, ``well`` या ``plate``। कूप-समूहित विभाजन एक ही प्लेट को दोनों ओर होने देता है, लेकिन एक ही कूप को कभी नहीं।"
+
+msgid "also compare file CONTENT, so a byte-identical copy under a different name is caught. Costs one read per file."
+msgstr "फ़ाइल सामग्री (CONTENT) की भी तुलना करें, ताकि अलग नाम वाली बाइट-समान प्रति पकड़ी जाए। हर फ़ाइल के लिए एक बार पढ़ना पड़ता है।"
+
+msgid "treat UNVERIFIABLE as critical. A filename that does not encode the requested identity, or a file that cannot be hashed, is otherwise only a warning -- so leaving this False means a clean report can still hide leakage nobody could check for."
+msgstr "असत्यापनीय (UNVERIFIABLE) को गंभीर मानें। अन्यथा अनुरोधित पहचान को एन्कोड न करने वाला फ़ाइल नाम, या हैश न हो सकने वाली फ़ाइल, केवल चेतावनी होती है -- इसलिए इसे False छोड़ने का अर्थ है कि साफ़ रिपोर्ट भी ऐसा रिसाव छिपा सकती है जिसकी कोई जाँच नहीं कर सका।"
+
+msgid "raise :class:`LeakageError` instead of returning a report whose ``passed`` is False."
+msgstr "``passed`` के False होने वाली रिपोर्ट लौटाने के बजाय :class:`LeakageError` उत्पन्न करें।"
+
+msgid "Returns"
+msgstr "लौटाता है"
+
+msgid "a :class:`FoldLeakageAudit` carrying the per-level overlap counts, examples, and which levels were critical."
+msgstr "एक :class:`FoldLeakageAudit` जिसमें प्रति-स्तर अधिव्यापन गिनतियाँ, उदाहरण और यह जानकारी होती है कि कौन-से स्तर गंभीर थे।"
+
+msgid "Raises"
+msgstr "उत्पन्न करता है"
+
+msgid "for an unsupported ``group_by``, or ``labels`` whose length does not match ``paths``."
+msgstr "असमर्थित ``group_by`` के लिए, या ऐसे ``labels`` के लिए जिनकी लंबाई ``paths`` से मेल नहीं खाती।"
+
+msgid "Audit the permanent ``train/`` versus ``test/`` dataset boundary."
+msgstr "स्थायी ``train/`` बनाम ``test/`` डेटासेट सीमा का ऑडिट करें।"
+
+msgid "dataset directory holding ``train/`` and ``test/``. Both are searched recursively, and only ``.png``, ``.jpg``, ``.jpeg``, ``.tif``, ``.tiff``, ``.bmp`` and ``.npy`` files are collected, so a folder of any other format audits as empty."
+msgstr "``train/`` और ``test/`` वाली डेटासेट निर्देशिका। दोनों को पुनरावर्ती रूप से खोजा जाता है, और केवल ``.png``, ``.jpg``, ``.jpeg``, ``.tif``, ``.tiff``, ``.bmp`` और ``.npy`` फ़ाइलें एकत्र की जाती हैं, इसलिए किसी अन्य प्रारूप वाला फ़ोल्डर ऑडिट में खाली माना जाता है।"
+
+msgid "identity level that may not appear on both sides -- ``none``, ``field``, ``well`` or ``plate``. The default ``well`` still permits the same plate in train and test. It is validated only after the images are found, so a bad value over an empty tree reports the missing images instead."
+msgstr "वह पहचान स्तर जो दोनों ओर दिखाई नहीं दे सकता -- ``none``, ``field``, ``well`` या ``plate``। डिफ़ॉल्ट ``well`` फिर भी एक ही प्लेट को प्रशिक्षण और परीक्षण दोनों में होने देता है। इसका सत्यापन छवियाँ मिलने के बाद ही होता है, इसलिए खाली ट्री पर गलत मान होने पर इसके बजाय अनुपस्थित छवियों की सूचना मिलती है।"
+
+msgid "defaults to True here, unlike :func:`audit_split_leakage`, so a byte-identical copy saved under a different name fails the audit -- at the cost of one read per file."
+msgstr "यहाँ डिफ़ॉल्ट True है, :func:`audit_split_leakage` के विपरीत, इसलिए अलग नाम से सहेजी गई बाइट-समान प्रति ऑडिट में विफल होती है -- हर फ़ाइल के एक बार पढ़े जाने की कीमत पर।"
+
+msgid "defaults to True here: filenames that do not encode the ``group_by`` level, and files that cannot be hashed, become critical instead of a warning, so an unverifiable split cannot report as clean."
+msgstr "यहाँ डिफ़ॉल्ट True है: ``group_by`` स्तर को एन्कोड न करने वाले फ़ाइल नाम और हैश न हो सकने वाली फ़ाइलें चेतावनी के बजाय गंभीर बन जाती हैं, इसलिए असत्यापनीय विभाजन साफ़ नहीं बताया जा सकता।"
+
+msgid "when either side collects no image -- a missing or unreadable folder is never treated as a passing split."
+msgstr "जब किसी भी ओर कोई छवि एकत्र न हो -- अनुपस्थित या न पढ़ा जा सकने वाला फ़ोल्डर कभी भी उत्तीर्ण विभाजन नहीं माना जाता।"
+
+msgid "a :class:`LeakageReport` whose ``split_name`` is always ``train_vs_test``; the ``test/`` side is counted as ``validation_samples``."
+msgstr "एक :class:`LeakageReport` जिसका ``split_name`` हमेशा ``train_vs_test`` होता है; ``test/`` पक्ष को ``validation_samples`` के रूप में गिना जाता है।"
+
+msgid "Detect related images crossing a train/validation boundary."
+msgstr "प्रशिक्षण/सत्यापन सीमा पार करने वाली संबंधित छवियों का पता लगाएँ।"
+
+msgid "Exact/object/augmentation-family overlap is always critical. The requested ``group_by`` level is also critical: a well-grouped split permits the same plate on both sides but never the same well."
+msgstr "सटीक/ऑब्जेक्ट/संवर्धन-परिवार अधिव्यापन हमेशा गंभीर होता है। अनुरोधित ``group_by`` स्तर भी गंभीर है: कूप-समूहित विभाजन एक ही प्लेट को दोनों ओर होने देता है, लेकिन एक ही कूप को कभी नहीं।"
+
+msgid "source paths used to fit the model."
+msgstr "मॉडल फ़िट करने के लिए उपयोग किए गए स्रोत पथ।"
+
+msgid "paths used only for evaluation."
+msgstr "केवल मूल्यांकन के लिए उपयोग किए गए पथ।"
+
+msgid "``cell``, ``field``, ``well``, or ``plate``. Legacy ``none`` aliases ``cell``."
+msgstr "``cell``, ``field``, ``well`` या ``plate``। पुराना ``none`` ``cell`` का उपनाम है।"
+
+msgid "raise :class:`LeakageError` on a critical overlap."
+msgstr "गंभीर अधिव्यापन पर :class:`LeakageError` उत्पन्न करें।"
+
+msgid "optional fold/split label stored in the report."
+msgstr "रिपोर्ट में संग्रहीत वैकल्पिक फ़ोल्ड/विभाजन लेबल।"
+
+msgid ":class:`LeakageReport`."
+msgstr ":class:`LeakageReport`."
+
+msgid "Atomically write a leakage report/audit as JSON and return its path."
+msgstr "रिसाव रिपोर्ट/ऑडिट को परमाणु रूप से JSON के रूप में लिखें और उसका पथ लौटाएँ।"
+
+msgid "destination JSON file; ``~`` is expanded and missing parent folders are created. It is replaced atomically."
+msgstr "गंतव्य JSON फ़ाइल; ``~`` का विस्तार किया जाता है और अनुपस्थित पैरेंट फ़ोल्डर बनाए जाते हैं। इसे परमाणु रूप से बदला जाता है।"
+
+msgid "leakage report or audit to write: any object with a ``to_dict()`` method, or a mapping."
+msgstr "लिखने के लिए रिसाव रिपोर्ट या ऑडिट: ``to_dict()`` विधि वाली कोई भी वस्तु, या एक मैपिंग।"
+

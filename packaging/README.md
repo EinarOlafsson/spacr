@@ -84,7 +84,7 @@ if one glyph drifts outside the shared weight band, so no platform can quietly
 become the loud one. Re-run it only when the artwork changes; `release.py
 collect` moves the links forward without touching the icons.
 
-## Offline (air-gapped) bundles (alpha)
+## Offline (air-gapped) bundles
 
 For microscope PCs with no network access. The online installers stay the
 default download; a bundle is built on request, on a machine that is online,

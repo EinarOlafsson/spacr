@@ -74,8 +74,10 @@ from __future__ import annotations
 import inspect
 import logging
 import os
+import re
 import threading
 import time
+import weakref
 from copy import deepcopy
 from collections import deque
 from functools import partial
@@ -1751,6 +1753,93 @@ def _blinded_total(outcome: dict, s: AnnotateSettings,
                           s.image_type, table=s.png_table)
     ordered = _blind_order(list(rows), rank)
     return dict(outcome, filtered_rows=ordered, total=len(ordered), note="")
+
+
+#: What separates one identifier from the next in a message: whitespace,
+#: quotes, brackets and commas. Colons and dots are kept inside the token so
+#: a Windows drive or a file suffix stays part of the path it belongs to.
+_BLIND_TOKEN = re.compile(r"[^\s'\"()\[\]{}<>,;]+")
+
+
+def _blind_lookup(codes: Dict[str, str], src: str) -> Dict[str, str]:
+    """Every name a blinded crop or its source can be written as, and its stand-in.
+
+    :param codes: the key's ``{png_path: code}``.
+    :param src: the experiment folder; its own name is often the condition.
+    :returns: ``{identifier: replacement}``. A crop's full path, file name
+        and stem map to its code; a name two crops share, and the source
+        folder's name, map to the neutral word "Blind".
+    """
+    lookup: Dict[str, str] = {}
+    for path, code in codes.items():
+        base = os.path.basename(str(path))
+        for identifier in (str(path), os.path.abspath(str(path)), base,
+                           os.path.splitext(base)[0]):
+            if not identifier:
+                continue
+            previous = lookup.get(identifier, code)
+            lookup[identifier] = code if previous == code else tr("Blind")
+    name = os.path.basename(os.path.normpath(src)) if src else ""
+    if name:
+        lookup[name] = tr("Blind")
+    return lookup
+
+
+def _blind_scrub(text: str, lookup: Dict[str, str],
+                 folders: Sequence[str]) -> str:
+    """``text`` with every crop, folder and source name replaced for blinding.
+
+    Tokens are looked up whole rather than searched for inside the text,
+    because a population is often hundreds of thousands of crops -- one
+    alternation over all of them would be slow to build and slower to run --
+    and a short stem searched as a substring would eat ordinary words.
+    Folders are few and hold a separator, so they are replaced as substrings.
+
+    :param text: any message about to be shown.
+    :param lookup: what :func:`_blind_lookup` built.
+    :param folders: folder paths to hide wherever they appear.
+    :returns: the scrubbed text.
+    """
+    text = str(text or "")
+    if not text:
+        return text
+
+    def token(match):
+        """One token's stand-in, keeping trailing punctuation outside it."""
+        word = match.group()
+        core = word.rstrip(".:!?")
+        tail = word[len(core):]
+        hit = lookup.get(core)
+        if hit is None and ("/" in core or "\\" in core):
+            leaf = core.replace("\\", "/").rstrip("/").rsplit("/", 1)[-1]
+            hit = lookup.get(leaf)
+        return word if hit is None else hit + tail
+
+    text = _BLIND_TOKEN.sub(token, text)
+    for folder in sorted({f for f in folders if f and len(f) > 1},
+                         key=len, reverse=True):
+        text = text.replace(folder, tr("Blind"))
+    return text
+
+
+class _BlindStatusLabel(QLabel):
+    """The status line, which a blinded screen scrubs of crop and folder names.
+
+    Messages reach the status line from many places -- a failed save, a
+    suggestion run, a search -- and any of them may quote an exception that
+    names a file. Scrubbing where the text lands, rather than at each caller,
+    is what keeps a message added later from reopening the leak.
+
+    :ivar _blind_owner: a ``weakref`` to the screen, set once it is built.
+    """
+
+    def setText(self, text: str) -> None:
+        """Show ``text``, scrubbed while the owning screen is blinded."""
+        owner_ref = getattr(self, "_blind_owner", None)
+        owner = owner_ref() if owner_ref is not None else None
+        if owner is not None:
+            text = owner._blind_text(text)
+        super().setText(text)
 
 
 def _read_example_settings(path) -> Dict[str, str]:
@@ -3429,7 +3518,8 @@ class AnnotateScreen(QWidget):
         bottom_row = QHBoxLayout(bottom)
         bottom_row.setContentsMargins(0, 0, 0, 0)
         bottom_row.setSpacing(SPACING["sm"])
-        self._status_label = QLabel(tr("Ready."))
+        self._status_label = _BlindStatusLabel(tr("Ready."))
+        self._status_label._blind_owner = weakref.ref(self)
         self._status_label.setObjectName("SubtitleSmall")
         bottom_row.addWidget(self._status_label, 1)
 
@@ -4175,9 +4265,14 @@ class AnnotateScreen(QWidget):
         re-asked in the background by :func:`_vouched_dir` itself and is
         offered again on the press after next.
 
+        While blinded the picker opens in the home folder instead: opened in
+        the source, its path bar and listing would name the plate.
+
         :returns: a folder to open the picker in, falling back to the
             working directory, which is local by construction.
         """
+        if getattr(self, "_blind", None) is not None:
+            return os.path.expanduser("~")
         for candidate in (self._settings.src, self._suggested_source):
             if _vouched_dir(candidate):
                 return candidate
@@ -4490,15 +4585,51 @@ class AnnotateScreen(QWidget):
         self._blind = None
         self._apply_blind_chrome(False)
 
+    def _blind_text(self, text: str) -> str:
+        """``text`` as it may be shown: scrubbed of crop and folder names while blinded.
+
+        :param text: a status line or a failure message.
+        :returns: ``text`` unchanged when not blinded; otherwise every crop
+            path, file name and stem replaced by its code, and the source,
+            database and crop folders by the word "Blind".
+        """
+        blind = getattr(self, "_blind", None)
+        if blind is None:
+            return str(text or "")
+        if "lookup" not in blind:
+            src = self._settings.src or ""
+            db_path = self._settings.db_path or ""
+            folders = {src, db_path, os.path.dirname(db_path)}
+            folders.update(os.path.dirname(str(path))
+                           for path in blind["codes"])
+            blind["lookup"] = _blind_lookup(blind["codes"], src)
+            blind["folders"] = sorted(f for f in folders if f)
+        return _blind_scrub(text, blind["lookup"], blind["folders"])
+
+    def _blind_warning(self, title: str, text: str) -> None:
+        """A warning box whose text is scrubbed while blinded.
+
+        Failures quote their exception, and an exception quotes the file it
+        failed on.
+
+        :param title: the box's title.
+        :param text: the message.
+        """
+        QMessageBox.warning(self, title, self._blind_text(text))
+
     def _apply_blind_chrome(self, on: bool) -> None:
         """Hide or restore what on this screen says where the crops are from.
 
         :param on: true while blinded.
         """
         self._set_blind_checked(on)
+        # Train hands the source path to Classify or ML Analyze, and Generate
+        # writes a table named after the source and reports its folder, so
+        # both would carry the source onto a screen while it is hidden here.
         for button in (self._btn_coverage, self._btn_auto,
                        self._btn_browse_db, self._btn_settings,
-                       self._console_switch, self._ai_switch):
+                       self._console_switch, self._ai_switch,
+                       self._btn_train, self._btn_generate):
             if on:
                 button.setProperty("_spacr_blind_was", button.isEnabled())
                 button.setEnabled(False)
@@ -4768,7 +4899,7 @@ class AnnotateScreen(QWidget):
                 self._settings.db_path, self._settings.annotation_column)
             body = al.format_coverage_summary(coverage)
         except Exception as exc:
-            QMessageBox.warning(self, "Coverage unavailable",
+            self._blind_warning("Coverage unavailable",
                                 f"{type(exc).__name__}: {exc}")
             return
         self._show_report("Annotation coverage", body)
@@ -4787,7 +4918,7 @@ class AnnotateScreen(QWidget):
             verdict = al.should_stop(curve)
             body = al.format_learning_curve(curve, verdict)
         except Exception as exc:
-            QMessageBox.warning(self, "Learning curve unavailable",
+            self._blind_warning("Learning curve unavailable",
                                 f"{type(exc).__name__}: {exc}")
             return
         self._show_report("Active-learning rounds", body)
@@ -4848,8 +4979,8 @@ class AnnotateScreen(QWidget):
         """A round could not be fitted — say why rather than going quiet."""
         self._console.append_notice("Retrain failed: {msg}\n", msg=message)
         self._status_label.setText(f"Retrain failed — {message}")
-        QMessageBox.warning(
-            self, "Retrain failed",
+        self._blind_warning(
+            "Retrain failed",
             f"{message}\n\nThe annotations are untouched. The usual causes "
             f"are too few labels, only one class annotated so far, or no "
             f"measurement tables to build features from.")
@@ -5151,8 +5282,8 @@ class AnnotateScreen(QWidget):
         self._console.append_notice(
             "Suggest failed: {msg}\n", msg=message)
         self._status_label.setText(f"Suggest failed — {message}")
-        QMessageBox.warning(
-            self, "Suggest failed",
+        self._blind_warning(
+            "Suggest failed",
             f"{message}\n\nNothing was written; your annotations are "
             f"untouched. The usual causes are too few labels, only one class "
             f"annotated so far — a classifier needs an example of both — or "
@@ -5339,8 +5470,8 @@ class AnnotateScreen(QWidget):
             ensure_annotation_column(self._settings.db_path, column,
                                      table=self._settings.png_table)
         except Exception as exc:
-            QMessageBox.warning(
-                self, "Could not write",
+            self._blind_warning(
+                "Could not write",
                 f"The annotation column {column!r} could not be created:\n{exc}")
             return 0
 

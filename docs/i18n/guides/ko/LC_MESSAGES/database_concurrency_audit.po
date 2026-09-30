@@ -1,0 +1,417 @@
+# spaCR user guide translation (ko).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: ko\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Database concurrency audit"
+msgstr "데이터베이스 동시성 감사"
+
+msgid "spaCR's measurement workers, annotation writer, run-status ledger, schema migrations, and Database Browser can access the same SQLite file from different processes or threads. The shared :mod:`spacr.database_concurrency` contract makes those accesses explicit:"
+msgstr "spaCR의 측정 작업자, 어노테이션 기록기, 실행 상태 원장, 스키마 마이그레이션, 데이터베이스 브라우저는 서로 다른 프로세스나 스레드에서 같은 SQLite 파일에 접근할 수 있습니다. 공유 규약 :mod:`spacr.database_concurrency` 는 이러한 접근을 명시적으로 만듭니다."
+
+msgid "every thread or process owns and closes its own connection;"
+msgstr "각 스레드나 프로세스는 자체 연결을 소유하고 닫습니다."
+
+msgid "every connection has a finite ``busy_timeout`` and foreign-key enforcement;"
+msgstr "모든 연결에는 유한한 ``busy_timeout`` 과 외래 키 강제 적용이 있습니다."
+
+msgid "read-only work uses SQLite ``mode=ro`` plus ``query_only``;"
+msgstr "읽기 전용 작업은 SQLite ``mode=ro`` 와 ``query_only`` 를 사용합니다."
+
+msgid "multi-statement writes use ``BEGIN IMMEDIATE`` and roll back completely on a body or commit failure;"
+msgstr "여러 문장으로 된 쓰기는 ``BEGIN IMMEDIATE`` 를 사용하며, 본문이나 커밋이 실패하면 완전히 롤백합니다."
+
+msgid "only lock/busy failures while acquiring a transaction are retried, with a bounded exponential backoff;"
+msgstr "트랜잭션을 획득하는 동안 발생한 잠금/바쁨 실패만 제한된 지수 백오프로 재시도합니다."
+
+msgid "an exhausted lock budget raises :class:`spacr.database_concurrency.DatabaseBusy` instead of dropping a write or continuing silently."
+msgstr "잠금 예산이 소진되면 쓰기를 버리거나 조용히 계속하지 않고 :class:`spacr.database_concurrency.DatabaseBusy` 를 발생시킵니다."
+
+msgid "Measurement writes retain their specialized recovery for concurrent ``CREATE TABLE`` and schema-widening races. Run-status table creation and row insertion are one atomic transaction. Database Browser edit validation and its single-row update also share one transaction, so a row address cannot change between the check and the write. Resume's multi-table delete-before-remeasure validates and deletes under one retried write transaction. Annotate preserves the configured journal mode, rolls back a failed coalesced batch, retains an unsaved/error state, and reports that state in the module instead of marking a failed commit as saved."
+msgstr "측정 쓰기는 동시 ``CREATE TABLE`` 과 스키마 확장 경쟁에 대한 전용 복구 기능을 유지합니다. 실행 상태 테이블 생성과 행 삽입은 하나의 원자적 트랜잭션입니다. 데이터베이스 브라우저의 편집 검증과 단일 행 업데이트도 하나의 트랜잭션을 공유하므로, 검사와 쓰기 사이에 행 주소가 바뀔 수 없습니다. 재측정 전 여러 테이블을 삭제하는 재개 작업은 재시도되는 하나의 쓰기 트랜잭션 안에서 검증과 삭제를 수행합니다. 어노테이션 모듈은 구성된 저널 모드를 유지하고, 실패한 병합 배치를 롤백하며, 미저장/오류 상태를 유지하고, 실패한 커밋을 저장된 것으로 표시하는 대신 그 상태를 모듈에 보고합니다."
+
+msgid "Journal mode and network storage"
+msgstr "저널 모드와 네트워크 저장소"
+
+msgid "spaCR enables WAL only where it is known to be safe. WAL lets readers proceed without blocking a committing writer, but SQLite's WAL index requires shared-memory coordination and is not safe on many NFS, SMB, NAS, or distributed filesystems. Before a Measure run, :func:`spacr.database_concurrency.enable_wal_where_safe` switches ``measurements/measurements.db`` to WAL only when its filesystem is positively identified as a local type on an allowlist (ext4, XFS, Btrfs, ZFS, APFS, tmpfs and similar); network, unrecognised and undetectable filesystems keep the rollback (``DELETE``) journal. Other databases retain their journal mode unless a caller explicitly requests ``WAL`` or ``DELETE``."
+msgstr "spaCR은 안전하다고 알려진 곳에서만 WAL을 사용합니다. WAL은 읽기 작업이 커밋 중인 쓰기 작업을 막지 않고 진행할 수 있게 하지만, SQLite의 WAL 인덱스는 공유 메모리 조정이 필요하므로 많은 NFS, SMB, NAS 또는 분산 파일 시스템에서 안전하지 않습니다. 측정 실행 전에 :func:`spacr.database_concurrency.enable_wal_where_safe` 는 ``measurements/measurements.db`` 가 있는 파일 시스템이 허용 목록의 로컬 유형(ext4, XFS, Btrfs, ZFS, APFS, tmpfs 등)으로 확실히 식별될 때만 WAL로 전환합니다. 네트워크, 인식되지 않는, 감지할 수 없는 파일 시스템은 롤백(``DELETE``) 저널을 유지합니다. 다른 데이터베이스는 호출자가 ``WAL`` 또는 ``DELETE`` 를 명시적으로 요청하지 않는 한 저널 모드를 유지합니다."
+
+msgid ":func:`spacr.database_concurrency.inspect_database` reports the active journal mode, filesystem type, lock timeout, SQLite threading level, sidecar sizes, and optional ``PRAGMA quick_check`` result. It emits a warning when it detects WAL on a known network filesystem. Filesystem detection is advisory: storage inside a container or automounter can conceal its actual backing system, so vendor guidance remains authoritative."
+msgstr ":func:`spacr.database_concurrency.inspect_database` 는 현재 저널 모드, 파일 시스템 유형, 잠금 제한 시간, SQLite 스레딩 수준, 보조 파일 크기, 선택적 ``PRAGMA quick_check`` 결과를 보고합니다. 알려진 네트워크 파일 시스템에서 WAL이 감지되면 경고를 표시합니다. 파일 시스템 감지는 참고용일 뿐입니다. 컨테이너나 자동 마운터 안의 저장소는 실제 기반 시스템을 숨길 수 있으므로 공급업체 지침이 여전히 우선합니다."
+
+msgid "Command-line audit"
+msgstr "명령줄 감사"
+
+msgid "Inspect an existing database without modifying it::"
+msgstr "기존 데이터베이스를 수정하지 않고 검사합니다::"
+
+msgid "Run simultaneous readers and writers against a new disposable database::"
+msgstr "새로운 일회용 데이터베이스에 대해 읽기 작업과 쓰기 작업을 동시에 실행합니다::"
+
+msgid "Use ``--json`` for CI or monitoring. ``--scratch PATH`` is accepted only when ``PATH`` does not exist; the audit deliberately refuses to place probe tables inside scientific results. Without ``--scratch``, its temporary database is removed after metrics are collected. The command returns nonzero for corrupt input, failed integrity checks, thread errors, timeouts, or a row-count mismatch."
+msgstr "CI나 모니터링에는 ``--json`` 을 사용합니다. ``--scratch PATH`` 는 ``PATH`` 가 존재하지 않을 때만 허용됩니다. 감사는 과학 결과 안에 탐색용 테이블을 두는 것을 의도적으로 거부합니다. ``--scratch`` 가 없으면 지표를 수집한 뒤 임시 데이터베이스를 삭제합니다. 입력이 손상되었거나, 무결성 검사가 실패했거나, 스레드 오류, 시간 초과, 행 수 불일치가 있으면 명령은 0이 아닌 값을 반환합니다."
+
+msgid "Transaction API"
+msgstr "트랜잭션 API"
+
+msgid "Plugin and pipeline writers should use the same primitives::"
+msgstr "플러그인과 파이프라인의 쓰기 작업도 같은 기본 요소를 사용해야 합니다::"
+
+msgid "Connections must never be passed between threads. Do not retry statements from inside a transaction: earlier statements might already have run. The context manager retries only transaction acquisition, then either commits the complete body once or rolls it back."
+msgstr "연결을 스레드 사이에 절대 넘겨서는 안 됩니다. 트랜잭션 안에서 문장을 재시도하지 않습니다. 이전 문장이 이미 실행되었을 수 있기 때문입니다. 컨텍스트 관리자는 트랜잭션 획득만 재시도한 다음, 전체 본문을 한 번 커밋하거나 롤백합니다."
+
+msgid "Stress coverage"
+msgstr "스트레스 테스트 범위"
+
+msgid "``tests/test_database_concurrency.py`` uses real database files to verify:"
+msgstr "``tests/test_database_concurrency.py`` 는 실제 데이터베이스 파일을 사용하여 다음을 검증합니다."
+
+msgid "exact row counts under simultaneous reader/writer pressure;"
+msgstr "동시 읽기/쓰기 부하에서의 정확한 행 수;"
+
+msgid "lock release and bounded lock exhaustion;"
+msgstr "잠금 해제와 제한된 잠금 소진;"
+
+msgid "atomic success, rollback, and nested-transaction refusal;"
+msgstr "원자적 성공, 롤백, 중첩 트랜잭션 거부;"
+
+msgid "enforced read-only connections and WAL snapshot visibility;"
+msgstr "읽기 전용 연결 강제와 WAL 스냅샷 가시성;"
+
+msgid "concurrent run-ledger stamps with no lost rows;"
+msgstr "손실 행 없는 동시 실행 원장 기록;"
+
+msgid "integrity/network-storage diagnostics and CLI exit behavior;"
+msgstr "무결성/네트워크 저장소 진단과 CLI 종료 동작;"
+
+msgid "refusal to run a destructive probe against an existing database, and removal of a probe's scratch database when it fails."
+msgstr "기존 데이터베이스에 대한 파괴적 탐색 실행 거부와, 탐색 실패 시 임시 데이터베이스 삭제."
+
+msgid "Annotation-batch rollback and fail-loud status are covered in ``tests/qt/test_annotate.py``, and resume cleanup across every measure-owned table in ``tests/test_resume.py``. The existing Measure multiprocessing, schema migration, unreadable run-status, and Qt Database Browser suites provide integration coverage for their respective production paths."
+msgstr "어노테이션 배치 롤백과 명시적 실패 상태는 ``tests/qt/test_annotate.py`` 에서, 측정 모듈이 소유한 모든 테이블에 걸친 재개 정리는 ``tests/test_resume.py`` 에서 다룹니다. 기존의 측정 다중 처리, 스키마 마이그레이션, 읽을 수 없는 실행 상태, Qt 데이터베이스 브라우저 테스트 모음이 각각의 운영 경로에 대한 통합 테스트를 제공합니다."
+
+msgid "API reference"
+msgstr "API 참조"
+
+msgid "SQLite connection, transaction, and concurrency-audit primitives."
+msgstr "SQLite 연결, 트랜잭션, 동시성 감사의 기본 요소입니다."
+
+msgid "spaCR uses one SQLite database as the meeting point for Measure worker processes, the annotator writer thread, read-only GUI queries, run-status stamps, and schema migrations.  This module provides the rules those paths share:"
+msgstr "spaCR은 하나의 SQLite 데이터베이스를 측정 작업자 프로세스, 어노테이션 기록 스레드, 읽기 전용 GUI 쿼리, 실행 상태 기록, 스키마 마이그레이션이 만나는 지점으로 사용합니다. 이 모듈은 이 경로들이 공유하는 규칙을 제공합니다."
+
+msgid "every thread/process opens and closes its own connection;"
+msgstr "각 스레드/프로세스는 자체 연결을 열고 닫습니다."
+
+msgid "busy timeouts are explicit and write transactions retry only lock errors;"
+msgstr "바쁨 제한 시간은 명시적이며 쓰기 트랜잭션은 잠금 오류만 재시도합니다."
+
+msgid "multi-statement writes use ``BEGIN IMMEDIATE`` with rollback on every error;"
+msgstr "여러 문장으로 된 쓰기는 ``BEGIN IMMEDIATE`` 를 사용하고 오류가 나면 모두 롤백합니다."
+
+msgid "WAL is opt-in because SQLite WAL shared memory is unsafe on many network filesystems;"
+msgstr "SQLite WAL 공유 메모리는 많은 네트워크 파일 시스템에서 안전하지 않으므로 WAL은 명시적으로 켜야 합니다."
+
+msgid "a real reader/writer probe can verify the local SQLite/filesystem behavior."
+msgstr "실제 읽기/쓰기 탐색으로 로컬 SQLite/파일 시스템 동작을 검증할 수 있습니다."
+
+msgid "Only the Python standard library is imported, so image workers can use it without pulling in pandas, Qt, torch, or Cellpose."
+msgstr "Python 표준 라이브러리만 가져오므로, 이미지 작업자가 pandas, Qt, torch, Cellpose를 불러오지 않고도 사용할 수 있습니다."
+
+msgid "Outcome of a disposable simultaneous reader/writer stress probe."
+msgstr "일회용 동시 읽기/쓰기 스트레스 탐색의 결과입니다."
+
+msgid "Parameters"
+msgstr "매개변수"
+
+msgid "scratch database path; a clean temporary probe removes it, while explicit or stalled probes retain it for inspection."
+msgstr "임시 데이터베이스 경로입니다. 깨끗한 임시 탐색은 이를 삭제하지만, 명시적이거나 멈춘 탐색은 검사를 위해 보존합니다."
+
+msgid "actual uppercase journal mode read after the run."
+msgstr "실행 후 읽은 실제 대문자 저널 모드입니다."
+
+msgid "validated number of writer threads launched."
+msgstr "시작된 쓰기 스레드의 검증된 개수입니다."
+
+msgid "validated number of polling reader threads launched."
+msgstr "시작된 폴링 읽기 스레드의 검증된 개수입니다."
+
+msgid "one-row committed transactions each writer tries."
+msgstr "각 쓰기 작업이 시도하는 한 행짜리 커밋 트랜잭션 수입니다."
+
+msgid "``writers * writes_per_writer``, independent of any worker failures."
+msgstr "``writers * writes_per_writer`` 이며, 작업자 실패와 무관합니다."
+
+msgid "final row count verified after the bounded joins."
+msgstr "제한된 join 이후 검증된 최종 행 수입니다."
+
+msgid "total successful ``COUNT`` queries across readers."
+msgstr "모든 읽기 작업에서 성공한 ``COUNT`` 쿼리의 총수입니다."
+
+msgid "monotonic worker start-to-join elapsed time, excluding setup and final verification."
+msgstr "설정과 최종 검증을 제외한, 작업자 시작부터 join까지의 단조 경과 시간입니다."
+
+msgid "immutable worker exceptions and surviving-thread timeout messages collected by the probe."
+msgstr "탐색이 수집한 불변의 작업자 예외와 살아남은 스레드의 시간 초과 메시지입니다."
+
+msgid "True when no thread failed and every committed row exists."
+msgstr "실패한 스레드가 없고 커밋된 모든 행이 존재하면 True입니다."
+
+msgid "Return a JSON-serializable result including :attr:`ok`."
+msgstr ":attr:`ok` 를 포함하여 JSON으로 직렬화할 수 있는 결과를 반환합니다."
+
+msgid "A lock remained busy after the configured retry budget."
+msgstr "구성된 재시도 예산이 지난 뒤에도 잠금이 여전히 바쁜 상태입니다."
+
+msgid "SQLite could not apply a requested safety configuration."
+msgstr "SQLite가 요청된 안전 구성을 적용하지 못했습니다."
+
+msgid "Read-only SQLite configuration and integrity snapshot."
+msgstr "읽기 전용 SQLite 구성 및 무결성 스냅샷입니다."
+
+msgid "normalized absolute path of the inspected database."
+msgstr "검사한 데이터베이스의 정규화된 절대 경로입니다."
+
+msgid "SQLite runtime version exposed by Python."
+msgstr "Python이 노출하는 SQLite 런타임 버전입니다."
+
+msgid "DB-API thread-safety level reported by :data:`sqlite3.threadsafety`."
+msgstr ":data:`sqlite3.threadsafety` 가 보고하는 DB-API 스레드 안전 수준입니다."
+
+msgid "actual uppercase journal mode read from the database."
+msgstr "데이터베이스에서 읽은 실제 대문자 저널 모드입니다."
+
+msgid "whether enforcement is enabled on the audit connection, not a persistent database-wide promise."
+msgstr "감사 연결에서 강제 적용이 켜져 있는지 여부로, 데이터베이스 전체에 대한 영구적인 보장은 아닙니다."
+
+msgid "audit connection's effective busy timeout in milliseconds."
+msgstr "감사 연결의 유효 바쁨 제한 시간(밀리초)입니다."
+
+msgid "detected filesystem type, or ``None`` when unavailable."
+msgstr "감지된 파일 시스템 유형이며, 알 수 없으면 ``None`` 입니다."
+
+msgid "whether the detected type is in the known network-filesystem set; false with an unknown type does not prove the storage is local."
+msgstr "감지된 유형이 알려진 네트워크 파일 시스템 집합에 속하는지 여부입니다. 유형을 알 수 없어서 거짓인 경우 저장소가 로컬이라는 증거는 아닙니다."
+
+msgid "joined ``PRAGMA quick_check`` result when requested, otherwise ``None``."
+msgstr "요청 시 합쳐진 ``PRAGMA quick_check`` 결과이며, 그렇지 않으면 ``None`` 입니다."
+
+msgid "main database-file size at inspection time."
+msgstr "검사 시점의 주 데이터베이스 파일 크기입니다."
+
+msgid "``-wal`` sidecar size at inspection time, or zero when it is absent."
+msgstr "검사 시점의 ``-wal`` 보조 파일 크기이며, 없으면 0입니다."
+
+msgid "``-shm`` sidecar size at inspection time, or zero when it is absent."
+msgstr "검사 시점의 ``-shm`` 보조 파일 크기이며, 없으면 0입니다."
+
+msgid "actionable integrity or unsafe network-WAL findings."
+msgstr "조치할 수 있는 무결성 문제나 안전하지 않은 네트워크 WAL 발견 사항입니다."
+
+msgid "Return a JSON-serializable snapshot."
+msgstr "JSON으로 직렬화할 수 있는 스냅샷을 반환합니다."
+
+msgid "Filesystems on which WAL is known to behave. An ALLOWLIST, not the complement of :data:`NETWORK_FILESYSTEMS`: \"not a type I recognise as networked\" is a weaker claim than \"local\", and the gap between them is someone's corrupted database on a cluster nobody here has seen. An unrecognised type stays on DELETE, which is what shipped."
+msgstr "WAL이 올바르게 동작한다고 알려진 파일 시스템입니다. 이는 :data:`NETWORK_FILESYSTEMS` 의 여집합이 아니라 허용 목록(ALLOWLIST)입니다. “네트워크로 인식되는 유형이 아니다”는 “로컬이다”보다 약한 주장이며, 그 사이의 틈은 여기 누구도 본 적 없는 클러스터에서 누군가의 데이터베이스가 손상되는 일입니다. 인식되지 않는 유형은 배포된 기본값인 DELETE에 머뭅니다."
+
+msgid "exFAT and vfat are deliberately absent: neither has the byte-range locking WAL's shared-memory index depends on."
+msgstr "exFAT와 vfat는 의도적으로 제외됩니다. 둘 다 WAL 공유 메모리 인덱스가 의존하는 바이트 범위 잠금을 지원하지 않습니다."
+
+msgid "Open one configured connection owned by the calling thread."
+msgstr "호출 스레드가 소유하는 구성된 연결 하나를 엽니다."
+
+msgid "SQLite database path."
+msgstr "SQLite 데이터베이스 경로입니다."
+
+msgid "open with URI ``mode=ro`` and ``query_only=ON``."
+msgstr "URI ``mode=ro`` 와 ``query_only=ON`` 으로 엽니다."
+
+msgid "seconds SQLite waits inside a lock operation."
+msgstr "SQLite가 잠금 작업 안에서 기다리는 초 단위 시간입니다."
+
+msgid "optional explicit ``\"WAL\"`` or ``\"DELETE\"``. Omit to preserve the database's current mode. WAL must not be enabled blindly on shared/NFS storage; use :func:`filesystem_type` or the concurrency probe first."
+msgstr "선택적으로 명시하는 ``\"WAL\"`` 또는 ``\"DELETE\"`` 입니다. 생략하면 데이터베이스의 현재 모드를 유지합니다. 공유/NFS 저장소에서 WAL을 무작정 켜서는 안 되며, 먼저 :func:`filesystem_type` 이나 동시성 탐색을 사용합니다."
+
+msgid "enable SQLite foreign-key enforcement on this connection. SQLite defaults it off per connection."
+msgstr "이 연결에서 SQLite 외래 키 강제 적용을 켭니다. SQLite는 연결마다 기본적으로 이를 끕니다."
+
+msgid "Returns"
+msgstr "반환값"
+
+msgid "connection in autocommit mode; use :func:`transaction` for multi-statement writes."
+msgstr "자동 커밋 모드의 연결입니다. 여러 문장으로 된 쓰기에는 :func:`transaction` 을 사용합니다."
+
+msgid "Raises"
+msgstr "예외"
+
+msgid "for an unsafe/unsupported requested journal mode or when SQLite refuses to apply it."
+msgstr "요청한 저널 모드가 안전하지 않거나 지원되지 않을 때, 또는 SQLite가 이를 적용하지 않을 때 발생합니다."
+
+msgid "Put ``path`` into WAL when the filesystem allows it. Never raises."
+msgstr "파일 시스템이 허용하면 ``path`` 를 WAL로 전환합니다. 예외를 발생시키지 않습니다."
+
+msgid "WHY THIS EXISTS (issue #15, \"measurements sometimes hangs\"). Measure runs one worker per field and every append goes through pandas' ``DataFrame.to_sql``, which issues a ``has_table`` probe -- a READ -- before writing. So each worker alternates read, write, read, write against one file."
+msgstr "이 기능이 존재하는 이유(이슈 #15, “measurements sometimes hangs”). 측정 모듈은 시야마다 작업자 하나를 실행하고, 모든 추가 작업은 pandas의 ``DataFrame.to_sql`` 을 거치는데, 이 함수는 쓰기 전에 ``has_table`` 탐색, 즉 읽기(READ)를 수행합니다. 따라서 각 작업자는 한 파일에 대해 읽기, 쓰기, 읽기, 쓰기를 번갈아 합니다."
+
+msgid "Under the shipped rollback journal that combination starves the writer. A reader holds SHARED for the length of its statement, and a writer cannot COMMIT until every SHARED lock is gone, so with enough workers there is almost always someone reading and the committing worker waits out its busy timeout and raises \"database is locked\" -- usually surfacing on the next process's ``has_table``, which is the statement in the reporter's traceback."
+msgstr "배포된 롤백 저널에서는 이 조합이 쓰기 작업을 굶깁니다. 읽기 작업은 문장이 실행되는 동안 SHARED 잠금을 보유하고, 쓰기 작업은 모든 SHARED 잠금이 사라져야 COMMIT할 수 있습니다. 작업자가 충분히 많으면 거의 항상 누군가 읽고 있으므로, 커밋하려는 작업자는 바쁨 제한 시간을 다 기다린 뒤 “database is locked” 를 발생시킵니다. 이 오류는 보통 다음 프로세스의 ``has_table`` 에서 나타나며, 이는 보고자의 트레이스백에 있던 문장입니다."
+
+msgid "Measured on this exact shape, a commit attempted while one reader holds an open SELECT:"
+msgstr "바로 이 형태에서, 읽기 작업 하나가 열린 SELECT를 보유한 동안 커밋을 시도하여 측정한 결과:"
+
+msgid "journal_mode=delete    writer waited 1.037 s journal_mode=wal       writer waited 0.002 s"
+msgstr "journal_mode=delete    쓰기 대기 1.037 s journal_mode=wal       쓰기 대기 0.002 s"
+
+msgid "WAL readers do not block a writer at all, which removes the starvation. It does NOT make two WRITERS concurrent -- SQLite still serialises those -- so this fixes the reader-blocks-writer half, which is the half the traceback is in."
+msgstr "WAL 읽기 작업은 쓰기 작업을 전혀 막지 않으므로 기아 현상이 사라집니다. 그렇다고 두 쓰기 작업(WRITERS)이 동시에 실행되는 것은 아니며(SQLite는 여전히 이를 직렬화합니다), 이 수정은 트레이스백이 있던 쪽인 ‘읽기가 쓰기를 막는’ 절반을 해결합니다."
+
+msgid "(The first version of this note had the direction backwards, claiming reads were blocked by writes. The test written to prove it measured 0.000 s and refuted it: in rollback-journal mode a writer holding RESERVED does not block readers, only its brief EXCLUSIVE commit does.)"
+msgstr "(이 메모의 첫 버전은 방향을 거꾸로 적어, 쓰기가 읽기를 막는다고 주장했습니다. 이를 증명하려고 작성한 테스트는 0.000 s를 측정하여 그 주장을 반박했습니다. 롤백 저널 모드에서 RESERVED를 보유한 쓰기 작업은 읽기 작업을 막지 않으며, 짧은 EXCLUSIVE 커밋만이 막습니다.)"
+
+msgid "Called once when a database is opened for a run rather than per write: the mode is a property of the FILE and persists, so paying for it per connection would buy nothing."
+msgstr "쓰기마다가 아니라 실행을 위해 데이터베이스를 열 때 한 번 호출합니다. 모드는 파일(FILE)의 속성이며 유지되므로, 연결마다 비용을 치러도 얻는 것이 없습니다."
+
+msgid "the database to switch. A file that does not exist yet is created by the connection, which is fine -- the mode persists."
+msgstr "전환할 데이터베이스입니다. 아직 없는 파일은 연결이 생성하며, 이는 문제없습니다. 모드는 유지됩니다."
+
+msgid "the journal mode in force afterwards, or ``None`` when the database could not be opened at all."
+msgstr "이후 적용되는 저널 모드이며, 데이터베이스를 전혀 열 수 없으면 ``None`` 입니다."
+
+msgid "Best-effort filesystem type for ``path``, or None when unknowable."
+msgstr "``path`` 의 파일 시스템 유형에 대한 최선의 추정이며, 알 수 없으면 None입니다."
+
+msgid "Reads ``/proc/mounts`` on Linux and falls back to psutil's partition table elsewhere, so macOS and Windows get a real answer rather than None. The longest matching mount point wins on both paths. Advisory only--containers and automounters can hide the real backing store."
+msgstr "Linux에서는 ``/proc/mounts`` 를 읽고, 그 밖의 시스템에서는 psutil의 파티션 표로 대체하므로 macOS와 Windows에서도 None이 아닌 실제 답을 얻습니다. 두 경로 모두 가장 길게 일치하는 마운트 지점이 우선합니다. 참고용일 뿐이며, 컨테이너와 자동 마운터는 실제 기반 저장소를 숨길 수 있습니다."
+
+msgid "file or directory to look up. ``~`` is expanded and the path resolved; on Linux a path that does not exist yet is walked up to its nearest existing parent before the mount table is searched."
+msgstr "조회할 파일 또는 디렉터리입니다. ``~`` 는 확장되고 경로가 해석됩니다. Linux에서는 아직 없는 경로의 경우 마운트 표를 검색하기 전에 가장 가까운 기존 상위 디렉터리까지 올라갑니다."
+
+msgid "Inspect journal/locking configuration without changing the database."
+msgstr "데이터베이스를 변경하지 않고 저널/잠금 구성을 검사합니다."
+
+msgid "the SQLite database file (``~`` is expanded). It must already exist and is opened read-only."
+msgstr "SQLite 데이터베이스 파일입니다(``~`` 는 확장됨). 이미 존재해야 하며 읽기 전용으로 열립니다."
+
+msgid "also run ``PRAGMA quick_check`` and add a warning unless it reports ``ok``."
+msgstr "``PRAGMA quick_check`` 도 실행하고, 결과가 ``ok`` 가 아니면 경고를 추가합니다."
+
+msgid "when ``path`` is not an existing file."
+msgstr "``path`` 가 기존 파일이 아닐 때 발생합니다."
+
+msgid "Return True only for SQLite lock/busy errors worth retrying."
+msgstr "재시도할 가치가 있는 SQLite 잠금/바쁨 오류에 대해서만 True를 반환합니다."
+
+msgid "the exception to classify. Only a :class:`sqlite3.OperationalError` whose message contains \"locked\" or \"busy\" (case-insensitively) counts."
+msgstr "분류할 예외입니다. 메시지에 “locked” 또는 “busy” 가 포함된(대소문자 구분 없음) :class:`sqlite3.OperationalError` 만 해당합니다."
+
+msgid "Stress a new disposable database with simultaneous readers/writers."
+msgstr "동시 읽기/쓰기 작업으로 새 일회용 데이터베이스에 부하를 줍니다."
+
+msgid "An explicit ``path`` must not exist: the probe never adds audit tables to scientific data. When omitted, a temporary database is created and removed after its metrics are collected."
+msgstr "명시적 ``path`` 는 존재하지 않아야 합니다. 탐색은 과학 데이터에 감사 테이블을 절대 추가하지 않습니다. 생략하면 임시 데이터베이스를 만들고 지표를 수집한 뒤 삭제합니다."
+
+msgid "scratch database to create. It must not already exist (:exc:`FileExistsError`); missing parent directories are created, and a run that FINISHES leaves the file on disk along with any ``-wal`` and ``-shm`` sidecars, so every explicit run needs a fresh path. Omit it to probe a temporary database instead, which is removed after a clean finish. A run that RAISES -- a ``journal_mode`` :func:`connect` refuses, most often -- removes its scratch database either way: it never ran, so there is nothing in it to keep, and leaving one at an explicit path made the next run on it fail with :exc:`FileExistsError`. The one deliberate survivor is a worker that outlives the 30-second join deadline, whose database is kept for inspection."
+msgstr "만들 임시 데이터베이스입니다. 이미 존재하면 안 되며(:exc:`FileExistsError`), 누락된 상위 디렉터리는 생성됩니다. 완료(FINISHES)된 실행은 ``-wal`` 및 ``-shm`` 보조 파일과 함께 파일을 디스크에 남기므로, 명시적 실행마다 새 경로가 필요합니다. 생략하면 임시 데이터베이스를 대신 탐색하며, 이는 깨끗하게 끝나면 삭제됩니다. 예외를 발생시킨(RAISES) 실행(대개 :func:`connect` 가 거부한 ``journal_mode`` 때문)은 어떤 경우든 임시 데이터베이스를 삭제합니다. 실행된 적이 없으니 보관할 내용이 없고, 명시적 경로에 남겨 두면 그 경로의 다음 실행이 :exc:`FileExistsError` 로 실패했기 때문입니다. 의도적으로 남기는 유일한 경우는 30초 join 마감 시간을 넘겨 살아 있는 작업자이며, 그 데이터베이스는 검사를 위해 보존됩니다."
+
+msgid "concurrent writer threads. Each owns a connection opened with a 50 ms busy timeout and commits one transaction per row, so ``expected_rows`` is ``writers * writes_per_writer``. Must be a genuine positive integer; booleans, text and floats are refused."
+msgstr "동시 쓰기 스레드입니다. 각각 50 ms 바쁨 제한 시간으로 연 연결을 소유하고 행마다 트랜잭션 하나를 커밋하므로 ``expected_rows`` 는 ``writers * writes_per_writer`` 입니다. 실제 양의 정수여야 하며, 불리언, 텍스트, 부동소수점은 거부됩니다."
+
+msgid "concurrent read-only threads polling ``COUNT(*)`` until the last writer exits. They move only ``reader_queries``, never ``expected_rows``; at least one is required, so a writers-only probe cannot be expressed. Must be a genuine positive integer."
+msgstr "마지막 쓰기 작업이 끝날 때까지 ``COUNT(*)`` 를 폴링하는 동시 읽기 전용 스레드입니다. ``reader_queries`` 에만 영향을 주고 ``expected_rows`` 에는 영향을 주지 않습니다. 최소 하나가 필요하므로 쓰기 작업만 있는 탐색은 표현할 수 없습니다. 실제 양의 정수여야 합니다."
+
+msgid "rows each writer inserts, one row per transaction. Must be a genuine positive integer."
+msgstr "각 쓰기 작업이 삽입하는 행 수로, 트랜잭션당 한 행입니다. 실제 양의 정수여야 합니다."
+
+msgid "mode applied once by the setup connection and then inherited by every worker connection. Only ``\"WAL\"`` (the default) and ``\"DELETE\"`` are accepted, case-insensitively; anything else raises :exc:`DatabaseConfigurationError` after the scratch database has already been created. ``None`` is refused: a stress result must state which locking mode it actually intended to exercise."
+msgstr "설정 연결이 한 번 적용한 뒤 모든 작업자 연결이 물려받는 모드입니다. ``\"WAL\"`` (기본값)과 ``\"DELETE\"`` 만 대소문자 구분 없이 허용되며, 그 밖의 값은 임시 데이터베이스가 이미 만들어진 뒤 :exc:`DatabaseConfigurationError` 를 발생시킵니다. ``None`` 은 거부됩니다. 스트레스 결과에는 실제로 시험하려던 잠금 모드가 명시되어야 합니다."
+
+msgid "result whose ``journal_mode`` is read back from the finished database rather than echoed from this argument, and whose ``errors`` carry per-thread failures instead of raising."
+msgstr "``journal_mode`` 를 이 인수에서 그대로 가져오지 않고 완료된 데이터베이스에서 다시 읽으며, ``errors`` 에 예외를 발생시키는 대신 스레드별 실패를 담은 결과입니다."
+
+msgid "when ``writers``, ``readers``, or ``writes_per_writer`` is below 1."
+msgstr "``writers``, ``readers`` 또는 ``writes_per_writer`` 가 1보다 작을 때 발생합니다."
+
+msgid "when one of the work sizes is not an integer. In particular, ``2.9`` is not silently truncated and ``\"2\"`` is not accepted merely because the CLI parser would have converted it."
+msgstr "작업 크기 중 하나가 정수가 아닐 때 발생합니다. 특히 ``2.9`` 는 조용히 잘리지 않으며, CLI 구문 분석기라면 변환했을 것이라는 이유만으로 ``\"2\"`` 를 받아들이지 않습니다."
+
+msgid "when ``journal_mode`` is not an explicit ``\"WAL\"`` or ``\"DELETE\"`` string."
+msgstr "``journal_mode`` 가 명시적인 ``\"WAL\"`` 또는 ``\"DELETE\"`` 문자열이 아닐 때 발생합니다."
+
+msgid "Run an all-or-nothing transaction with bounded lock retry."
+msgstr "제한된 잠금 재시도로 전부 아니면 전무 방식의 트랜잭션을 실행합니다."
+
+msgid "Only ``BEGIN`` is retried. Once a transaction starts, retrying individual statements could duplicate earlier writes. Any body or commit error rolls the complete transaction back and propagates."
+msgstr "``BEGIN`` 만 재시도합니다. 트랜잭션이 시작된 후 개별 문장을 재시도하면 이전 쓰기가 중복될 수 있습니다. 본문이나 커밋에서 오류가 나면 트랜잭션 전체를 롤백하고 오류를 전파합니다."
+
+msgid "calling thread's open autocommit connection."
+msgstr "호출 스레드가 연 자동 커밋 연결입니다."
+
+msgid "``DEFERRED``, ``IMMEDIATE`` (default), or ``EXCLUSIVE``."
+msgstr "``DEFERRED``, ``IMMEDIATE`` (기본값) 또는 ``EXCLUSIVE`` 입니다."
+
+msgid "maximum attempts to acquire the transaction."
+msgstr "트랜잭션 획득 최대 시도 횟수입니다."
+
+msgid "first backoff between lock failures."
+msgstr "잠금 실패 사이의 첫 번째 백오프입니다."
+
+msgid "backoff cap."
+msgstr "백오프 상한입니다."
+
+msgid "total seconds this transaction may spend waiting on locks inside SQLite, shared over ``attempts`` and floored at ``MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS`` per attempt. Omit to inherit the connection's configured ``busy_timeout``; pass it when the write's own tolerance differs from whatever ``timeout`` the connection happened to be opened with."
+msgstr "이 트랜잭션이 SQLite 안에서 잠금을 기다리며 보낼 수 있는 총 초 단위 시간으로, ``attempts`` 에 걸쳐 나뉘며 시도당 ``MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS`` 가 하한입니다. 생략하면 연결에 구성된 ``busy_timeout`` 을 물려받습니다. 쓰기 자체의 허용 범위가 연결을 열 때 사용한 ``timeout`` 과 다를 때 전달합니다."
+
+msgid "when the lock outlives the retry budget."
+msgstr "잠금이 재시도 예산보다 오래 지속될 때 발생합니다."
+
+msgid "when asked to nest inside an active transaction."
+msgstr "활성 트랜잭션 안에 중첩하도록 요청될 때 발생합니다."
+
+msgid "Is ``path`` on a filesystem where WAL is known to behave?"
+msgstr "``path`` 가 WAL이 올바르게 동작한다고 알려진 파일 시스템에 있습니까?"
+
+msgid "``True`` only for a POSITIVELY IDENTIFIED local filesystem. Anything else -- a network type, an unrecognised type, or a platform where :func:`filesystem_type` cannot tell (it reads ``/proc/mounts``, so macOS and Windows always answer ``None``) -- is ``False``."
+msgstr "확실히 식별된(POSITIVELY IDENTIFIED) 로컬 파일 시스템에만 ``True`` 입니다. 그 밖의 모든 경우, 즉 네트워크 유형, 인식되지 않는 유형, :func:`filesystem_type` 이 판단할 수 없는 플랫폼(``/proc/mounts`` 를 읽으므로 macOS와 Windows는 항상 ``None`` 을 반환함)은 ``False`` 입니다."
+
+msgid "That asymmetry is the point. The cost of a wrong ``False`` is the lock contention this project already survives; the cost of a wrong ``True`` is WAL shared memory on storage that cannot support it, which is a corrupted database."
+msgstr "이 비대칭이 핵심입니다. 잘못된 ``False`` 의 대가는 이 프로젝트가 이미 견디고 있는 잠금 경합이지만, 잘못된 ``True`` 의 대가는 이를 지원할 수 없는 저장소 위의 WAL 공유 메모리, 즉 손상된 데이터베이스입니다."
+
+msgid "the database file (or its directory) whose filesystem is looked up with :func:`filesystem_type`."
+msgstr ":func:`filesystem_type` 으로 파일 시스템을 조회할 데이터베이스 파일(또는 그 디렉터리)입니다."
+
+msgid "Command-line SQLite health and concurrency audit."
+msgstr "명령줄 SQLite 상태 및 동시성 감사입니다."
+
+msgid "Build the ``spacr-db-audit`` argument parser."
+msgstr "``spacr-db-audit`` 인수 구문 분석기를 만듭니다."
+
+msgid "parser for read-only database checks and disposable concurrency probes."
+msgstr "읽기 전용 데이터베이스 검사와 일회용 동시성 탐색을 위한 구문 분석기입니다."
+
+msgid "Inspect or probe SQLite and report one combined audit result."
+msgstr "SQLite를 검사하거나 탐색하고, 결합된 감사 결과 하나를 보고합니다."
+
+msgid "command-line arguments without the program name; ``None`` reads the process arguments."
+msgstr "프로그램 이름을 제외한 명령줄 인수입니다. ``None`` 이면 프로세스 인수를 읽습니다."
+
+msgid "``0`` when every requested integrity check and probe passes, or ``1`` when any requested operation fails or raises an exception."
+msgstr "요청한 모든 무결성 검사와 탐색이 통과하면 ``0``, 요청한 작업 중 하나라도 실패하거나 예외를 발생시키면 ``1`` 입니다."
+
+msgid "with status ``2`` for invalid arguments or when neither a database nor ``--probe`` is supplied."
+msgstr "잘못된 인수이거나 데이터베이스와 ``--probe`` 가 모두 제공되지 않으면 상태 ``2`` 로 종료합니다."
+

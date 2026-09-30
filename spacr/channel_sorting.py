@@ -1272,9 +1272,9 @@ def _match_columns(columns: Sequence[Sequence[str]],
                    ) -> List[List[Optional[str]]]:
     """Line files up in rows across columns, the way Detect sets pairs them.
 
-    Item 600's organise table: each column is a channel or a mask, each row
-    one field. The column with the most files is the reference; its files,
-    naturally sorted, start one row each. Every other column is matched to
+    The Organize for Measure table: each column is a channel or a mask,
+    each row one field. The column with the most files is the reference;
+    its files, naturally sorted, start one row each. Every other column is matched to
     the rows one-to-one at the least total cost -- :func:`name_distance`
     plus a small term for how far apart two files sit in their sorted
     order -- and a pair of different image size is never made. A column in
@@ -1665,7 +1665,7 @@ def merge_sorted(dest: str, mask_roles: Dict[int, str], *,
     return stacks, merged
 
 
-# -- item 600: names before consolidation, and the "Teach me" mode ------------
+# -- names before consolidation, and the "Teach me" mode ---------------------
 
 #: The file :mod:`spacr.folder_consolidation` writes beside its copies.
 CONSOLIDATION_MANIFEST = "rename_manifest.csv"

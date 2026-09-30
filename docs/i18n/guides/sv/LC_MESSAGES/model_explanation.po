@@ -1,0 +1,123 @@
+# spaCR user guide translation (sv).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: sv\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Explain CV models and investigate hits"
+msgstr "Förklara CV-modeller och undersöka träffar"
+
+msgid "spaCR separates three questions that are easy to blur together:"
+msgstr "spaCR skiljer på tre frågor som lätt flyter ihop:"
+
+msgid "activation or occlusion maps show **where** a vision model attended;"
+msgstr "aktiverings- eller ocklusionskartor visar **var** en bildmodell fäste uppmärksamheten;"
+
+msgid "the **Explain CV Model** module shows which measured morphology can reproduce the model's decisions; and"
+msgstr "modulen **Förklara CV-modell** visar vilken uppmätt morfologi som kan återskapa modellens beslut; och"
+
+msgid "**Investigate Hit** asks which cells in wells supporting a regression hit have morphology consistent with that hit."
+msgstr "**Investigate Hit** frågar vilka celler i brunnar som stöder en regressionsträff som har en morfologi som stämmer med den träffen."
+
+msgid "The last result is weakly supervised evidence, not a cell-resolved barcode. The UI and exports therefore use ``EAF1-hit-like`` and ``hit_like_probability`` rather than calling a cell ``EAF1-KO``."
+msgstr "Det sista resultatet är svagt övervakade belägg, inte en streckkod upplöst per cell. Gränssnittet och exporterna använder därför ``EAF1-hit-like`` och ``hit_like_probability`` i stället för att kalla en cell ``EAF1-KO``."
+
+msgid "Explain CV Model"
+msgstr "Förklara CV-modell"
+
+msgid "The module opens from the **Classify** masthead rather than from a tile of its own, next to **Classifier Evaluation**: both ask what a trained classifier actually did."
+msgstr "Modulen öppnas från huvudraden i **Klassificering** i stället för från en egen ruta, bredvid **Klassificerarutvärdering**: båda frågar vad en tränad klassificerare faktiskt gjorde."
+
+msgid "Choose the exact ``measurements.db`` and an existing per-object CV prediction CSV. The module never reruns or silently substitutes the original classifier. It joins predictions one-to-one to measured objects and excludes identifiers, prediction/class columns, scores, annotations, and user exclusions from the surrogate feature matrix."
+msgstr "Välj den exakta ``measurements.db`` och en befintlig CSV-fil med CV-prediktioner per objekt. Modulen kör aldrig om den ursprungliga klassificeraren och byter aldrig ut den i tysthet. Den kopplar prediktionerna ett-till-ett till uppmätta objekt och utesluter identifierare, prediktions- och klasskolumner, poäng, annoteringar och användarens uteslutningar ur surrogatmodellens egenskapsmatris."
+
+msgid "The surrogate family is a fixed choice: Random Forest, scikit-learn histogram gradient boosting, or XGBoost when that optional dependency is installed. The exact backend and package version are saved. Wells are held intact by default; plate-held-out validation is available when the experiment has enough plates."
+msgstr "Surrogatfamiljen är ett fast val: Random Forest, histogrambaserad gradient boosting i scikit-learn eller XGBoost när det valfria beroendet är installerat. Den exakta backend och paketversionen sparas. Brunnar hålls intakta som standard; validering där hela plattor hålls utanför finns tillgänglig när experimentet har tillräckligt många plattor."
+
+msgid "Read the output in this order:"
+msgstr "Läs utdata i den här ordningen:"
+
+msgid "held-out fidelity, the majority-class baseline, and improvement over it;"
+msgstr "trohet på utelämnade data, baslinjen för majoritetsklassen och förbättringen jämfört med den;"
+
+msgid "class-wise precision/recall/F1 and the confusion matrix; then"
+msgstr "precision, täckning (recall) och F1 per klass samt förväxlingsmatrisen; därefter"
+
+msgid "gain, held-out permutation importance, and mean absolute SHAP."
+msgstr "förstärkning (gain), permutationsbetydelse på utelämnade data och medelabsolut SHAP."
+
+msgid "If fidelity does not clear the configured improvement over the majority baseline, spaCR withholds the importance table. This means the surrogate did not reproduce the CV model well enough for its feature ranking to explain that model. Per-cell signed SHAP values, correlated-feature pairs, exact feature and leakage-exclusion lists, split units, random seed, model parameters, and sampled object IDs are retained in the artifacts."
+msgstr "Om troheten inte når den konfigurerade förbättringen jämfört med majoritetsbaslinjen håller spaCR inne betydelsetabellen. Det betyder att surrogatmodellen inte återskapade CV-modellen tillräckligt väl för att dess rangordning av egenskaper ska kunna förklara den modellen. SHAP-värden med tecken per cell, par av korrelerade egenskaper, exakta listor över egenskaper och läckageuteslutningar, delningsenheter, slumpfrö, modellparametrar och ID för samplade objekt behålls i artefakterna."
+
+msgid "Investigate Hit"
+msgstr "Investigate Hit"
+
+msgid "From the **Regression** masthead open **Hit List**, select the exact gene result, and choose **Investigate selected…**. The hand-off carries the result folder, gene, effect direction, FDR, phenotype, and agreeing guides; it does not search for the newest results file. Investigate Hit hashes the selected regression CSV/JSON bytes into its provenance."
+msgstr "Från huvudraden i **Regression** öppnar du **Träfflista**, väljer det exakta genresultatet och väljer **Investigate selected…**. Överlämningen för med sig resultatmappen, genen, effektriktningen, FDR, fenotypen och de guider som stämmer överens; den söker inte efter den senaste resultatfilen. Investigate Hit hashar byten i den valda regressionens CSV/JSON in i sin härkomstinformation."
+
+msgid "Supply the measurements database, the original per-object prediction CSV, and the per-well guide-fraction CSV. Joins use explicit object and plate/row/column keys. Duplicate object keys or duplicate well/guide fractions stop the run."
+msgstr "Ange mätdatabasen, den ursprungliga CSV-filen med prediktioner per objekt och CSV-filen med guidefraktioner per brunn. Kopplingar använder uttryckliga nycklar för objekt och för platta/rad/kolumn. Dubblerade objektnycklar eller dubblerade fraktioner för brunn/guide stoppar körningen."
+
+msgid "The first output is an honest review queue: cells in target-containing wells ranked in the regression's effect direction, with the well-level target-guide fraction shown beside them. The optional attribution model then:"
+msgstr "Den första utdatan är en ärlig granskningskö: celler i brunnar som innehåller målet, rangordnade i regressionens effektriktning, med brunnens fraktion av målguider visad bredvid. Den valfria attributionsmodellen sedan:"
+
+msgid "treats wells as bags and cells as instances;"
+msgstr "behandlar brunnar som påsar (bags) och celler som instanser;"
+
+msgid "learns background and target-like morphology across many wells;"
+msgstr "lär sig bakgrundsmorfologi och målliknande morfologi över många brunnar;"
+
+msgid "uses guide fraction as a noisy learned prior, never as a forced cell prevalence;"
+msgstr "använder guidefraktionen som en brusig inlärd prior, aldrig som en påtvingad förekomst bland celler;"
+
+msgid "scores every cell with a model that excluded its well, or its plate when the design supports plate cross-fitting; and"
+msgstr "poängsätter varje cell med en modell som uteslöt dess brunn, eller dess platta när designen stöder korsanpassning över plattor; och"
+
+msgid "keeps independent guides visible before reporting gene-level consensus."
+msgstr "håller oberoende guider synliga innan konsensus på gennivå rapporteras."
+
+msgid "The original phenotype score is excluded from the morphology model by default. Including it is an explicit, warned setting because selecting, embedding, and validating with the same score would be circular."
+msgstr "Den ursprungliga fenotyppoängen utesluts som standard ur morfologimodellen. Att inkludera den är en uttrycklig inställning med varning, eftersom det vore cirkulärt att välja ut, bädda in och validera med samma poäng."
+
+msgid "Quantitative evidence"
+msgstr "Kvantitativa belägg"
+
+msgid "The report uses wells, not cells, as the independent experimental unit. It reports target-versus-control candidate prevalence, a well-bootstrap interval, a plate-blocked permutation test, guide-dose response, guide-specific effects, and two stricter nulls. The stricter guide-fraction and well-label nulls repeat the cross-fitting pipeline inside every permutation rather than shuffling only the final summary labels."
+msgstr "Rapporten använder brunnar, inte celler, som oberoende experimentell enhet. Den rapporterar förekomsten av kandidater i mål- jämfört med kontrollbrunnar, ett bootstrapintervall över brunnar, ett permutationstest blockerat per platta, dos–respons för guider, guidespecifika effekter och två striktare nollhypoteser. De striktare nollhypoteserna för guidefraktion och brunnsetikett upprepar korsanpassningen inuti varje permutation i stället för att bara blanda om de slutliga sammanfattningsetiketterna."
+
+msgid "The two-dimensional comparison is a PCA fit only on target-free control-cell morphology and then used to transform all cells. Guide identity, target-well status, and the original classifier output are excluded. The exported table contains exact object keys and sample counts so a visual cluster can be traced back to its wells and images; the quantitative enrichment remains the primary claim."
+msgstr "Den tvådimensionella jämförelsen är en PCA som bara anpassas på morfologin hos kontrollceller utan mål och sedan används för att transformera alla celler. Guidens identitet, målbrunnsstatus och den ursprungliga klassificerarens utdata utesluts. Den exporterade tabellen innehåller exakta objektnycklar och provantal, så att ett visuellt kluster kan spåras tillbaka till sina brunnar och bilder; den kvantitativa anrikningen förblir det primära påståendet."
+
+msgid "A stratified gallery samples high, borderline, low, and false-looking control objects. The reviewer CSV is shuffled and reveals only a random review ID and image path. Its separate analyst-only key retains the stratum and probability. After one or more blinded reviewers return binary calls, ``evaluate_blinded_reviews`` reports calibration error, precision, recall, ROC AUC when defined, and pairwise Cohen's kappa."
+msgstr "Ett stratifierat galleri samplar höga, gränsfall, låga och falskt utseende kontrollobjekt. Granskarens CSV blandas och visar bara ett slumpmässigt gransknings-ID och en bildsökväg. Dess separata nyckel, som bara analytikern har, behåller stratum och sannolikhet. När en eller flera blindade granskare har lämnat binära bedömningar rapporterar ``evaluate_blinded_reviews`` kalibreringsfel, precision, täckning, ROC AUC när den är definierad samt Cohens kappa parvis."
+
+msgid "Database annotations are versioned in dedicated provenance tables. Existing hand annotations are unchanged. **Promote calls to annotation** is a separate action that accepts only a fresh column name, and **Undo promotion** clears exactly the values written by that promotion while preserving its audit row."
+msgstr "Annoteringar i databasen versioneras i särskilda härkomsttabeller. Befintliga handgjorda annoteringar ändras inte. **Promote calls to annotation** är en separat åtgärd som bara accepterar ett nytt kolumnnamn, och **Undo promotion** rensar exakt de värden som den befordran skrev men behåller dess granskningsrad."
+
+msgid "Evidence ladder"
+msgstr "Beläggstege"
+
+msgid "A coherent UMAP/PCA population is useful exploratory evidence but is not ground truth. Confidence increases with negative and positive controls, independent guides, replicate plates, well/plate cross-fitting, refitted nulls, bootstrap stability, blinded review, and agreement between measured-feature SHAP and pixel-level attribution. The strongest validation is an orthogonal experiment that assigns perturbation identity per cell, such as an arrayed perturbation/rescue or direct in-situ guide-barcode readout."
+msgstr "En sammanhängande population i UMAP/PCA är användbara explorativa belägg men är inte facit. Tilltron ökar med negativa och positiva kontroller, oberoende guider, replikatplattor, korsanpassning över brunnar och plattor, omanpassade nollhypoteser, bootstrapstabilitet, blindad granskning och överensstämmelse mellan SHAP för uppmätta egenskaper och attribution på pixelnivå. Den starkaste valideringen är ett ortogonalt experiment som tilldelar perturbationsidentitet per cell, till exempel en arrayad perturbation/räddning eller direkt avläsning av guidestreckkoder in situ."
+
+msgid "Headless entry points"
+msgstr "Ingångspunkter utan grafiskt gränssnitt"
+
+msgid "The statistical APIs are :mod:`spacr.surrogate`, :mod:`spacr.hit_attribution`, and :mod:`spacr.hit_investigation`."
+msgstr "De statistiska API:erna är :mod:`spacr.surrogate`, :mod:`spacr.hit_attribution` och :mod:`spacr.hit_investigation`."
+

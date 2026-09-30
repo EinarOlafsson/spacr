@@ -1,0 +1,162 @@
+# spaCR user guide translation (is).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: is\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Train a Cellpose model"
+msgstr "Þjálfa Cellpose-líkan"
+
+msgid "Use your corrected image masks to fine-tune Cellpose-SAM, then apply the saved model to another image folder. From **Home → Tools → Make Masks**, open **Cellpose Workbench** and choose **Train**."
+msgstr "Notaðu leiðréttar myndgrímur þínar til að fínstilla Cellpose-SAM og beittu síðan vistaða líkaninu á aðra myndamöppu. Frá **Heim → Verkfæri → Búa til grímur** skaltu opna **Cellpose-vinnuborð** og velja **Þjálfa**."
+
+msgid "To follow along, download the `six example image/mask pairs <tutorials/examples/Cellpose_training_images_masks.zip>`__ and extract them. Set Source to the extracted ``training`` folder. Review the supplied cell masks in Make Masks, then follow the settings and Run steps below. The archive's ``apply`` folder holds three more images from wells that are not in the training set; use it to try the trained checkpoint in Apply."
+msgstr "Til að fylgja með skaltu sækja `sex dæmi um mynd/grímu-pör <tutorials/examples/Cellpose_training_images_masks.zip>`__ og afþjappa þau. Stilltu Uppruni á afþjöppuðu möppuna ``training``. Yfirfarðu meðfylgjandi frumugrímur í Búa til grímur og fylgdu síðan stillingunum og Keyra-skrefunum hér að neðan. Mappan ``apply`` í safninu geymir þrjár myndir til viðbótar úr brunnum sem eru ekki í þjálfunarsafninu; notaðu hana til að prófa þjálfaða vistunarpunktinn í Beita."
+
+msgid "Prepare images and masks"
+msgstr "Undirbúa myndir og grímur"
+
+msgid "Place training images in one folder and their masks in its ``masks`` subfolder::"
+msgstr "Settu þjálfunarmyndir í eina möppu og grímur þeirra í undirmöppu hennar ``masks``::"
+
+msgid "Each mask must have the same height and width as its image. Use integer object labels: zero for background and a different positive number for each object. A mask filename can match its image or add ``_masks`` before the extension, such as ``field_01_masks.tif``. Keep one matching mask per image."
+msgstr "Hver gríma verður að hafa sömu hæð og breidd og myndin hennar. Notaðu heiltölumerki fyrir hluti: núll fyrir bakgrunn og mismunandi jákvæða tölu fyrir hvern hlut. Skráarheiti grímu getur verið það sama og myndarinnar eða bætt ``_masks`` við á undan endingunni, t.d. ``field_01_masks.tif``. Hafðu eina samsvarandi grímu fyrir hverja mynd."
+
+msgid "Use Make Masks to inspect and correct object boundaries before training. Keep separate fields for validation. You can reuse a legacy project containing ``train/images`` and ``train/masks`` by selecting that project as Source."
+msgstr "Notaðu Búa til grímur til að skoða og leiðrétta hlutamörk fyrir þjálfun. Haltu aðskildum sjónsviðum fyrir sannprófun. Þú getur endurnýtt eldra verkefni sem inniheldur ``train/images`` og ``train/masks`` með því að velja það verkefni sem Uppruna."
+
+msgid "Choose inputs and settings"
+msgstr "Velja inntök og stillingar"
+
+msgid "Set **Source** (``src``) to the training image folder."
+msgstr "Stilltu **Uppruni** (``src``) á möppu þjálfunarmyndanna."
+
+msgid "Leave ``mask_src`` empty to use ``<src>/masks``, or select another mask folder."
+msgstr "Skildu ``mask_src`` eftir autt til að nota ``<src>/masks`` eða veldu aðra grímumöppu."
+
+msgid "For validation, set ``test_src`` to a separate image folder. Its masks belong in ``<test_src>/masks`` unless you select ``test_mask_src``."
+msgstr "Fyrir sannprófun skaltu stilla ``test_src`` á aðskilda myndamöppu. Grímur hennar eiga heima í ``<test_src>/masks`` nema þú veljir ``test_mask_src``."
+
+msgid "Choose ``base_model``: ``cpsam`` starts from Cellpose-SAM; a model-zoo key or checkpoint path continues training an existing model."
+msgstr "Veldu ``base_model``: ``cpsam`` byrjar frá Cellpose-SAM; lykill úr líkanasafninu eða slóð að vistunarpunkti heldur áfram þjálfun fyrirliggjandi líkans."
+
+msgid "Enter ``model_name`` as a filename prefix. Use ``save_path`` to choose an output folder, or leave it empty to save under the training project."
+msgstr "Sláðu inn ``model_name`` sem forskeyti skráarheitis. Notaðu ``save_path`` til að velja úttaksmöppu eða skildu reitinn eftir auðan til að vista undir þjálfunarverkefninu."
+
+msgid "For multichannel images, ``channels`` selects up to three zero-based channel indices. For example, ``[0, 2]`` selects the first and third channels. Leave ``channel_axis`` empty for automatic detection, or set it explicitly when the image layout is ambiguous. Training accepts two-dimensional images with optional channels."
+msgstr "Fyrir fjölrása myndir velur ``channels`` allt að þrjá rásavísa sem byrja á núlli. Til dæmis velur ``[0, 2]`` fyrstu og þriðju rásina. Skildu ``channel_axis`` eftir autt fyrir sjálfvirka greiningu eða stilltu það sérstaklega þegar uppsetning myndarinnar er tvíræð. Þjálfun tekur við tvívíðum myndum með valkvæðum rásum."
+
+msgid "Main training controls"
+msgstr "Helstu þjálfunarstillingar"
+
+msgid "Setting"
+msgstr "Stilling"
+
+msgid "Default"
+msgstr "Sjálfgildi"
+
+msgid "What it controls"
+msgstr "Hverju hún stjórnar"
+
+msgid "``n_epochs``"
+msgstr "``n_epochs``"
+
+msgid "100"
+msgstr "100"
+
+msgid "Number of training epochs."
+msgstr "Fjöldi þjálfunarlotna (epochs)."
+
+msgid "``batch_size``"
+msgstr "``batch_size``"
+
+msgid "1"
+msgstr "1"
+
+msgid "Images per training minibatch. Larger batches require more memory."
+msgstr "Myndir í hverri þjálfunarsmálotu. Stærri lotur krefjast meira minnis."
+
+msgid "``learning_rate``"
+msgstr "``learning_rate``"
+
+msgid "0.00001"
+msgstr "0.00001"
+
+msgid "Size of the model's training updates."
+msgstr "Stærð þjálfunaruppfærslna líkansins."
+
+msgid "``weight_decay``"
+msgstr "``weight_decay``"
+
+msgid "0.1"
+msgstr "0.1"
+
+msgid "Strength of weight regularization during training."
+msgstr "Styrkur reglunar á vægi meðan á þjálfun stendur."
+
+msgid "``normalize`` / ``percentiles``"
+msgstr "``normalize`` / ``percentiles``"
+
+msgid "On / [1, 99]"
+msgstr "Kveikt / [1, 99]"
+
+msgid "Percentile normalization of each image channel."
+msgstr "Hundraðsmarksstöðlun hverrar myndrásar."
+
+msgid "``min_train_masks``"
+msgstr "``min_train_masks``"
+
+msgid "5"
+msgstr "5"
+
+msgid "Minimum labelled objects in an image included in training."
+msgstr "Lágmarksfjöldi merktra hluta í mynd sem tekin er með í þjálfun."
+
+msgid "``scale_range``"
+msgstr "``scale_range``"
+
+msgid "0.5"
+msgstr "0.5"
+
+msgid "Variation in image scale during training augmentation."
+msgstr "Breytileiki í kvarða mynda við gagnaaukningu í þjálfun."
+
+msgid "``save_every`` / ``save_each``"
+msgstr "``save_every`` / ``save_each``"
+
+msgid "100 / Off"
+msgstr "100 / Slökkt"
+
+msgid "Checkpoint interval and whether periodic checkpoints get separate names."
+msgstr "Bil milli vistunarpunkta og hvort reglubundnir vistunarpunktar fá aðskilin heiti."
+
+msgid "For a smaller initial run, ``max_train_images`` limits the loaded training images. ``nimg_per_epoch`` and ``nimg_test_per_epoch`` limit how many images are used per epoch. Leave these limits empty to use all available images."
+msgstr "Fyrir minni fyrstu keyrslu takmarkar ``max_train_images`` fjölda hlaðinna þjálfunarmynda. ``nimg_per_epoch`` og ``nimg_test_per_epoch`` takmarka hve margar myndir eru notaðar í hverri lotu. Skildu þessi mörk eftir auð til að nota allar tiltækar myndir."
+
+msgid "Run and use the output"
+msgstr "Keyra og nota úttakið"
+
+msgid "Click **Run** and follow progress in the console. When training finishes, the console reports the saved checkpoint path. With the default output location, checkpoints are under ``<src>/models/cellpose_model/models``. With a chosen ``save_path``, they are under ``<save_path>/models``."
+msgstr "Smelltu á **Keyra** og fylgstu með framvindu í stjórnborðinu. Þegar þjálfun lýkur birtir stjórnborðið slóð vistaða vistunarpunktsins. Með sjálfgefinni úttaksstaðsetningu eru vistunarpunktar undir ``<src>/models/cellpose_model/models``. Með völdu ``save_path`` eru þeir undir ``<save_path>/models``."
+
+msgid "Open **Apply**, select a separate image folder, such as the example's ``apply`` folder, and check that **Custom model** points to the checkpoint you want. Turn on **Save**, which is off by default. Inspect a preview before processing the folder. Apply writes label masks into that image folder's ``masks`` subfolder. Use separate labelled images to evaluate segmentation before applying the model to an entire experiment."
+msgstr "Opnaðu **Beita**, veldu aðskilda myndamöppu, t.d. möppuna ``apply`` úr dæminu, og athugaðu að **Sérsniðið líkan** vísi á vistunarpunktinn sem þú vilt. Kveiktu á **Vista**, sem er sjálfgefið slökkt. Skoðaðu forskoðun áður en mappan er unnin. Beita skrifar merkjagrímur í undirmöppuna ``masks`` í þeirri myndamöppu. Notaðu aðskildar merktar myndir til að meta hlutun áður en líkaninu er beitt á heila tilraun."
+
+msgid "The Python entry point :func:`spacr.submodules.train_cellpose` accepts the same settings and returns the checkpoint path, training losses and validation losses. Continue with :doc:`Make Masks <make_masks>` to inspect or edit masks, or :ref:`Mask <workflow-module-mask>` to use the model in an image pipeline."
+msgstr "Python-inngangspunkturinn :func:`spacr.submodules.train_cellpose` tekur við sömu stillingum og skilar slóð vistunarpunktsins, þjálfunartöpum og sannprófunartöpum. Haltu áfram með :doc:`Búa til grímur <make_masks>` til að skoða eða breyta grímum, eða :ref:`Mask <workflow-module-mask>` til að nota líkanið í myndvinnslukeðju."
+
