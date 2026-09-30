@@ -96,3 +96,34 @@ def test_ranking_is_refused_while_blind(screen):
     assert not screen._on_rank_uncertainty(segment=_blind_corner,
                                            threaded=False)
     assert "Unblind" in screen._status_label.text()
+
+
+def test_cellpose_passes_add_near_misses_and_flow_errors(screen, monkeypatch):
+    from spacr.qt.screens import make_masks as mm
+
+    seen = []
+
+    def fake_detect(image, model, *, diameter=0, normalize=True,
+                    flow_threshold=0.4, cellprob_threshold=0.0, min_size=0,
+                    channel_axis=None):
+        seen.append(True)
+        labels = ndi.label(np.asarray(image) > 1000)[0].astype(np.int32)
+        logit = np.where(labels > 0, 5.0, -8.0).astype(np.float32)
+        logit[(np.asarray(image) > 100) & (labels == 0)] = -1.0
+        vectors = np.zeros((2,) + labels.shape, np.float32)
+        return labels, logit, None, vectors
+
+    monkeypatch.setattr(mm, "_cellpose_detect_with_vectors", fake_detect)
+    image = np.zeros((48, 48), np.uint16)
+    image[20:30, 20:30] = 5000
+    image[40:46, 2:10] = 500
+    request = dict(detect=screen._uncertainty_detect_request(), kind="field",
+                   image=image)
+    model = request["detect"]["model"]
+    result = mm._uncertainty_snapshot(request, {model: object()})
+    assert seen == [True] * 4
+    assert result["missed"] > 0.0 and result["area"] == 0.0
+    assert result["field"] == result["missed"]
+    assert result["map"][42, 5] > 0.5
+    assert set(result["flow_errors"]) == {1}
+    assert result["objects"][1] > 0.5

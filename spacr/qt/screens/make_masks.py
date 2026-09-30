@@ -2983,6 +2983,28 @@ def cellpose_detect(image: np.ndarray, model, *,
     :returns: ``(labels, cellprob, flow_rgb)`` — an int32 label image, and
         the two maps as :func:`cellpose_intermediates` reads them.
     """
+    return _cellpose_detect_with_vectors(
+        image, model, diameter=diameter, normalize=normalize,
+        flow_threshold=flow_threshold,
+        cellprob_threshold=cellprob_threshold, min_size=min_size)[:3]
+
+
+def _cellpose_detect_with_vectors(image: np.ndarray, model, *,
+                                  diameter: int = 0,
+                                  normalize: bool = True,
+                                  flow_threshold: float = FLOW_THRESHOLD,
+                                  cellprob_threshold: float =
+                                  CELLPROB_THRESHOLD,
+                                  min_size: int = 0) -> tuple:
+    """:func:`cellpose_detect` with the network's flow vectors fourth.
+
+    The vectors are the ``(2, H, W)`` float32 flows a flow-error check
+    compares an outline with, or None when this Cellpose gave none.
+
+    :param image: one 2-D field.
+    :param model: a loaded ``CellposeModel`` or anything with its ``eval``.
+    :returns: ``(labels, cellprob, flow_rgb, vectors)``.
+    """
     import inspect
 
     from ...spacr_cellpose import cellpose_channel_axis, parse_cellpose4_output
@@ -3012,7 +3034,12 @@ def cellpose_detect(image: np.ndarray, model, *,
         [flows0[0] if flows0 else None,
          flows1[0] if flows1 else None,
          flows2[0] if flows2 else None])
-    return labels, cellprob, rgb
+    vectors = flows1[0] if flows1 else None
+    if vectors is not None:
+        vectors = np.asarray(vectors, dtype=np.float32)
+        if vectors.shape != (2,) + labels.shape:
+            vectors = None
+    return labels, cellprob, rgb, vectors
 
 
 
@@ -4334,7 +4361,12 @@ def _single_object(result: _MagnifierResult, label: int) -> _MagnifierResult:
 
 
 def _detect_cellpose_snapshot(request, models):
-    """Prepare and segment a captured field without reading any Qt object."""
+    """Prepare and segment a captured field without reading any Qt object.
+
+    Returns what :func:`cellpose_detect` returns, the labels after the
+    detection chain's finishing steps; with ``request['vectors']`` set, the
+    flow vectors come fourth.
+    """
     image = request['image']
     if request['invert']:
         image = engine.invert_normalized(image)
@@ -4345,20 +4377,24 @@ def _detect_cellpose_snapshot(request, models):
         name = request['model']
         if name not in models:
             models[name] = load_cellpose_model(name)
-        labels, cellprob, flow = cellpose_detect(image, models[name], **request['parameters'])
-    labels = detect_chain.finish(labels, request['chain'], intensity=image)
-    return labels, cellprob, flow
+        detect = (_cellpose_detect_with_vectors if request.get('vectors')
+                  else cellpose_detect)
+        output = detect(image, models[name], **request['parameters'])
+    labels = detect_chain.finish(output[0], request['chain'], intensity=image)
+    return (labels,) + tuple(output[1:])
 
 
 def _uncertainty_snapshot(request, models):
     """Segment captured fields under flips and a turn, and score the spread.
 
     Each field is segmented once per test-time transform of
-    :func:`spacr.active_learning._tta_label_sets` with the detection
-    settings captured in ``request['detect']``, or with
-    ``request['segment']`` when one is given, and the passes are scored by
-    :func:`spacr.active_learning._segmentation_uncertainty`. Reads no Qt
-    object, so it runs on a worker thread.
+    :func:`spacr.active_learning._tta_passes` with the detection settings
+    captured in ``request['detect']``, keeping Cellpose's cell probability
+    and flow vectors, or with ``request['segment']`` when one is given, and
+    the passes are scored by
+    :func:`spacr.active_learning._segmentation_uncertainty`: disagreement
+    area plus near misses per field, disagreement or flow error per
+    object. Reads no Qt object, so it runs on a worker thread.
 
     :param request: ``kind`` is ``field`` (with ``image``) or ``rank`` (with
         ``fields``, ``(folder, file name)`` pairs, and ``layout``, the mask
@@ -4369,27 +4405,42 @@ def _uncertainty_snapshot(request, models):
         ``rank``, ``{(folder, file name): score dictionary}`` without the
         maps, a field that cannot be read or segmented being left out.
     """
-    from ...active_learning import _segmentation_uncertainty, _tta_label_sets
+    from ...active_learning import _segmentation_uncertainty, _tta_passes
 
     segment = request.get('segment')
+    threshold = 0.0
     if segment is None:
+        threshold = float(request['detect'].get('parameters', {}).get(
+            'cellprob_threshold', 0.0))
+
         def segment(image):
             """:param image: one transformed field.
 
-            :returns: its labels under the captured detection settings.
+            :returns: its labels, cell probability and flow vectors under
+                the captured detection settings.
             """
-            return _detect_cellpose_snapshot(
-                dict(request['detect'], image=image), models)[0]
+            labels, cellprob, _rgb, vectors = _detect_cellpose_snapshot(
+                dict(request['detect'], image=image, vectors=True), models)
+            return labels, cellprob, vectors
+
+    def _score(image):
+        """:param image: one field.
+
+        :returns: its uncertainty over the test-time passes.
+        """
+        passes = _tta_passes(image, segment)
+        return _segmentation_uncertainty(
+            passes['labels'], probabilities=passes['probabilities'],
+            vectors=passes['vectors'], probability_threshold=threshold)
 
     if request['kind'] == 'field':
-        return _segmentation_uncertainty(
-            _tta_label_sets(request['image'], segment))
+        return _score(request['image'])
     scores = {}
     for folder, name in request['fields']:
         try:
             image, _mask = engine.load_image_and_mask(folder, name,
                                                       **request['layout'])
-            result = _segmentation_uncertainty(_tta_label_sets(image, segment))
+            result = _score(image)
         except Exception:                                    # noqa: BLE001
             LOG.warning("uncertainty of %s could not be scored", name,
                         exc_info=True)

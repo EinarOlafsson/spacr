@@ -67,11 +67,68 @@ VALIDATION (CPU only, 2026-09-27; GPU was held by another session)
     object score, map over foreground, count spread, all pairs) were no
     better than 0.34, so the shipped score was not tuned to these 30 crops.
 
+IMPROVED SCORING (2026-09-30)
+    Built:
+    * _segmentation_uncertainty takes optional cell-probability logit maps
+      and the reference pass's Cellpose flow vectors. New readings: "area"
+      (fraction of the drawn foreground whose disagreement is >= 0.5),
+      "missed" (pixels with mean logit above the threshold less 2 lying
+      more than 2 px from anything any pass drew, as a fraction of the
+      foreground: the consistent misses TTA cannot see), "flow_errors"
+      (Cellpose's own flow error per object). "field" is now area +
+      missed; the old 1 - mean PQ is kept as "spread". A reference
+      object's score is the larger of its TTA disagreement and its flow
+      error / 0.4, capped at 1. The map also shows near misses.
+    * _tta_passes keeps each pass's cell probability (turned back) and the
+      identity pass's flow vectors; Make Masks' Uncertainty button now
+      segments through the private _cellpose_detect_with_vectors, so both
+      "Map" and "Rank" use them. No new settings or captions.
+    * tools/segment_uncertainty_crops.py caches r5 x 4 TTA (labels, cell
+      probability, flows) plus stock Cellpose-SAM, r2 and Cellpose 3 cyto3
+      (its own env); tools/validate_segmentation_uncertainty.py scores
+      eleven field readings and four object readings with a held-out split.
+      Result: features/data/568_segmentation_uncertainty_2026-09-30.json.
+
+    Validation (CPU, loaded machine, ~70 min): the ten toxo_pv test fields,
+    6 x 256 px crops each (60 crops, 469 truth vacuoles, 335 r5 objects,
+    37 wrong at IoU 0.5). Held out = two halves of five fields, all of a
+    field's crops on one side; choose/fit on one half, score the other,
+    both ways. Crop error = 1 - PQ of r5 against the truth; k = a quarter.
+      Field ranking                       Spearman  worst k in top k
+      old TTA 1-mean-PQ, all 60 crops     0.30      6 of 15 (3.75 by chance)
+        per half                          0.53/0.18 4/7, 2/7
+      held out: best pair of readings
+        (rank mean) chosen on the other
+        half, pooled                      0.48      8 of 15
+        (95% field bootstrap 0.23-0.63; old score 0.03-0.52)
+        per half                          0.62/0.38 4/7, 2/7
+      held out: non-negative LS of five
+        readings, pooled                  0.33      6 of 15 (overfits)
+      shipped area + missed, all 60       0.52      8 of 15
+        per half                          0.72/0.34 4/7, 2/7
+      single readings, all 60: near misses 0.47 (9/15), ensemble 1-PQ
+      0.41, ensemble area 0.39, TTA area 0.38, flow mean 0.31.
+      Per object (AUROC of wrong)          all      per half
+      old TTA disagreement                0.68     0.71/0.66
+      ensemble disagreement               0.72     0.68/0.76
+      Cellpose flow error                 0.80     0.81/0.78
+      held-out logistic of all four       0.76
+      shipped max(TTA, flow/0.4)          0.79     0.81/0.78
+    Honest reading: both held-out pair choices included near misses
+    (paired with ensemble area, then TTA area), so the shipped score
+    (TTA area + near misses, computable from r5 alone) was chosen after
+    that result and its numbers are post hoc; the held-out 0.48 / 8 of 15
+    is the fair figure. The ensemble helps (0.41 vs 0.30) but less than the
+    cell probability, and is not wired into Make Masks. The five-field
+    half with plate1/N04/I10/G12/D05 stays hard for every score (<= 0.40).
+    r5 missed 171 of 469 truth vacuoles here, and these ten fields were in
+    r5's training pool (README), so errors are training-set errors.
+    Field-level "done when" is now moderately met, not strongly.
+
 WHAT IS LEFT
-    * Field-level "done when" is only weakly met. Next: a model ensemble
-      (r2/r5/r6, or r5 + cpsam) through the same _segmentation_uncertainty,
-      which can see misses one model makes consistently; whole 1994 px
-      fields on the GPU; more fields than ten.
-    * Cellpose flow/cellprob disagreement is not used (labels only, so any
-      backend works); the map is not saved to disk; the CLI cannot compute
-      scores itself (only Make Masks writes curate_uncertainty.csv).
+    * A model ensemble in Make Masks (a second-model setting, alpha) — the
+      function accepts ensemble passes already; validation says +0.1 rho.
+    * Whole 1994 px fields on the GPU and fields outside r5's training pool
+      (item 532 set) to confirm the crop-level result; more than ten fields.
+    * The map is not saved to disk; the CLI cannot compute scores itself
+      (only Make Masks writes curate_uncertainty.csv).

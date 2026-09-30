@@ -13,9 +13,9 @@ import numpy as np
 import pytest
 from scipy import ndimage as ndi
 
-from spacr.active_learning import (_TTA_TRANSFORMS, _segmentation_uncertainty,
-                                   _tta_forward, _tta_inverse,
-                                   _tta_label_sets)
+from spacr.active_learning import (_TTA_TRANSFORMS, _flow_errors,
+                                   _segmentation_uncertainty, _tta_forward,
+                                   _tta_inverse, _tta_label_sets, _tta_passes)
 from spacr.curation_queue import ORDERS, build_queue, order_items
 from spacr.curation_queue import _load_uncertainty, _write_uncertainty
 
@@ -91,6 +91,82 @@ def test_an_object_only_some_orientations_find_raises_the_field_score():
     assert result["n_objects"] == 1
     assert result["field"] > 0.2
     assert result["map"][10, 10] > 0.5
+
+
+def test_field_score_is_the_uncertain_fraction_of_the_foreground():
+    reference = _threshold(_field())
+    large = int(reference[30, 37])
+    sets = [reference, reference.copy(), reference.copy(), reference.copy()]
+    for other in sets[1:]:
+        other[other == large] = 0
+    result = _segmentation_uncertainty(sets)
+    drawn = int((reference > 0).sum())
+    assert result["area"] == pytest.approx(140 / drawn)
+    assert result["missed"] == 0.0
+    assert result["field"] == pytest.approx(result["area"])
+    assert 0.0 < result["spread"] < 1.0
+
+
+def test_a_blob_every_pass_missed_is_found_by_its_cell_probability():
+    reference = _threshold(_field())
+    sets = [reference] * 4
+    logit = np.full(reference.shape, -8.0, np.float32)
+    logit[reference > 0] = 4.0
+    logit[2:8, 40:50] = -1.0
+    certain = _segmentation_uncertainty(sets)
+    assert certain["field"] == pytest.approx(0.0)
+    result = _segmentation_uncertainty(sets, probabilities=[logit] * 4)
+    assert result["area"] == pytest.approx(0.0)
+    assert result["missed"] == pytest.approx(60 / int((reference > 0).sum()))
+    assert result["field"] == pytest.approx(result["missed"])
+    assert result["map"][4, 45] > 0.5
+    assert result["map"][20, 20] == 0.0
+    stricter = _segmentation_uncertainty(sets, probabilities=[logit] * 4,
+                                         probability_threshold=2.0)
+    assert stricter["missed"] == pytest.approx(0.0)
+    with pytest.raises(ValueError):
+        _segmentation_uncertainty(sets, probabilities=[logit[:10]])
+
+
+def test_an_object_whose_flows_disagree_with_its_outline_is_uncertain():
+    dynamics = pytest.importorskip("cellpose.dynamics")
+    reference = _threshold(_field())
+    small = int(reference[10, 10])
+    large = int(reference[30, 37])
+    implied, _ = dynamics.masks_to_flows_gpu(
+        reference.astype(np.int32), device=None)
+    vectors = (5.0 * implied).astype(np.float32)
+    vectors[:, reference == large] *= -1.0
+    errors = _flow_errors(reference, vectors)
+    assert errors[small] == pytest.approx(0.0, abs=1e-3)
+    assert errors[large] > 0.4
+    result = _segmentation_uncertainty([reference] * 4, vectors=vectors)
+    assert result["objects"][small] == pytest.approx(0.0, abs=1e-2)
+    assert result["objects"][large] == pytest.approx(1.0)
+    assert result["flow_errors"] == errors
+    assert result["field"] == pytest.approx(0.0)
+    assert _flow_errors(np.zeros((4, 4), np.int32),
+                        np.zeros((2, 4, 4), np.float32)) == {}
+
+
+def test_the_passes_keep_each_probability_map_turned_back():
+    image = _field()
+
+    def cellpose_like(field):
+        labels = _threshold(field)
+        logit = np.where(labels > 0, 3.0, -3.0).astype(np.float32)
+        logit[0, 0] = 9.0
+        return labels, logit, np.zeros((2,) + labels.shape, np.float32)
+
+    passes = _tta_passes(image, cellpose_like)
+    assert len(passes["labels"]) == len(passes["probabilities"]) == 4
+    for labels, logit in zip(passes["labels"], passes["probabilities"]):
+        assert np.array_equal(labels > 0, passes["labels"][0] > 0)
+        assert logit.shape == image.shape
+        assert np.array_equal(logit[1:, 1:] > 0, labels[1:, 1:] > 0)
+    assert passes["vectors"].shape == (2,) + image.shape
+    plain = _tta_passes(image, _threshold)
+    assert plain["probabilities"] is None and plain["vectors"] is None
 
 
 def test_uncertainty_needs_two_passes_of_one_shape():

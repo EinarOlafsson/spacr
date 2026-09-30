@@ -3414,6 +3414,14 @@ _TTA_TRANSFORMS: Tuple[str, ...] = ("identity", "flip_lr", "flip_ud", "rot90")
 
 _UNCERTAINTY_MATCH_IOU = 0.5
 
+_UNCERTAIN_PIXEL = 0.5
+
+_NEAR_MISS_MARGIN = 2.0
+
+_NEAR_MISS_RING = 2
+
+_FLOW_ERROR_LIMIT = 0.4
+
 
 def _spatial_axes(image: np.ndarray) -> Tuple[int, int]:
     """The two image axes a flip or a rotation acts on.
@@ -3491,47 +3499,133 @@ def _tta_label_sets(image: Any, segment: Callable[[np.ndarray], Any],
     :returns: one int32 label image per transform, each in the field's own
         orientation.
     """
+    return _tta_passes(image, segment, transforms)["labels"]
+
+
+def _tta_passes(image: Any, segment: Callable[[np.ndarray], Any],
+                transforms: Sequence[str] = _TTA_TRANSFORMS
+                ) -> Dict[str, Any]:
+    """Every test-time pass of one field, with Cellpose's maps when given.
+
+    As :func:`_tta_label_sets`, but a segmenter that returns
+    ``(labels, cell probability)`` or ``(labels, cell probability, flow
+    vectors)`` has those kept too: each probability map turned back onto
+    the field, and the flow vectors of the first pass only, since turning
+    vectors back would also mean turning the vectors themselves.
+
+    :param image: the field, 2-D or with one channel axis.
+    :param segment: ``image -> labels`` or a tuple as above.
+    :param transforms: the transforms to run; the first is the reference.
+    :returns: ``{"labels": [...], "probabilities": [...] or None,
+        "vectors": (2, H, W) array or None}``.
+    """
     field = np.asarray(image)
-    sets = []
-    for name in transforms:
-        labels = segment(_tta_forward(field, name))
-        if isinstance(labels, tuple):
-            labels = labels[0]
-        sets.append(_tta_inverse(np.asarray(labels), name).astype(np.int32))
-    return sets
+    labels_out: List[np.ndarray] = []
+    probabilities: List[np.ndarray] = []
+    vectors = None
+    for index, name in enumerate(transforms):
+        output = segment(_tta_forward(field, name))
+        parts = output if isinstance(output, tuple) else (output,)
+        labels = _tta_inverse(np.asarray(parts[0]), name).astype(np.int32)
+        labels_out.append(labels)
+        if len(parts) > 1 and parts[1] is not None:
+            probability = _tta_inverse(np.asarray(parts[1], np.float32), name)
+            if probability.shape == labels.shape:
+                probabilities.append(probability)
+        if index == 0 and len(parts) > 2 and parts[2] is not None:
+            flow = np.asarray(parts[2], np.float32)
+            if flow.shape == (2,) + labels.shape:
+                vectors = flow
+    return {"labels": labels_out,
+            "probabilities": (probabilities if len(probabilities)
+                              == len(labels_out) else None),
+            "vectors": vectors}
+
+
+def _flow_errors(labels: np.ndarray, vectors: np.ndarray
+                 ) -> Dict[int, float]:
+    """Cellpose's own flow error of every object, by label.
+
+    The flows an object's outline implies are compared with the flows the
+    network predicted, as Cellpose does before discarding an object at its
+    flow threshold (0.4 by default).
+
+    :param labels: the reference label image.
+    :param vectors: the network's ``(2, H, W)`` flow vectors for it.
+    :returns: ``{label: error}``, empty when Cellpose is not importable or
+        there are no objects.
+    """
+    ids = np.unique(labels)
+    ids = ids[ids != 0]
+    if not ids.size:
+        return {}
+    try:
+        from cellpose.dynamics import flow_error
+    except Exception:                                        # noqa: BLE001
+        return {}
+    compact = np.searchsorted(np.concatenate([[0], ids]), labels)
+    errors, _ = flow_error(compact.astype(np.int32), np.asarray(vectors))
+    return {int(label): float(error) for label, error in zip(ids, errors)}
 
 
 def _segmentation_uncertainty(label_sets: Sequence[Any],
-                              match_iou: float = _UNCERTAINTY_MATCH_IOU
+                              match_iou: float = _UNCERTAINTY_MATCH_IOU,
+                              probabilities: Optional[Sequence[Any]] = None,
+                              vectors: Optional[Any] = None,
+                              probability_threshold: float = 0.0
                               ) -> Dict[str, Any]:
     """How much repeated segmentations of one field disagree.
 
-    Three readings of the same disagreement:
+    The passes may be test-time transforms of one model or several models
+    (an ensemble); a model can repeat an error under every transform, and
+    only another model, or its own cell probability, can show it.
 
     ``map``
-        Per pixel, in ``[0, 1]``: the larger of how split the passes are on
-        foreground against background (``4 p (1 - p)``, 1 when half the
-        passes call a pixel an object) and the uncertainty of the reference
-        object the pixel belongs to.
+        Per pixel, in ``[0, 1]``: the largest of how split the passes are
+        on foreground against background (``4 p (1 - p)``, 1 when half the
+        passes call a pixel an object), the uncertainty of the reference
+        object the pixel belongs to and, with ``probabilities``, ``4 q (1 -
+        q)`` of the cell probability ``q`` of a near miss (below).
     ``objects``
         Per object of the first (reference) pass: one minus its mean best
-        IoU with any object of each other pass. 0 is an object every pass
-        drew identically; 1 is one no other pass drew at all.
+        IoU with any object of each other pass (0 is an object every pass
+        drew identically, 1 one no other pass drew), or, with ``vectors``,
+        its Cellpose flow error divided by 0.4 (Cellpose's own discard
+        threshold, capped at 1) when that is larger.
+    ``area``
+        The fraction of the foreground (every pixel any pass drew) whose
+        disagreement, the first two readings of ``map``, is at least 0.5.
+    ``missed``
+        With ``probabilities`` (one cell-probability logit map per pass),
+        the pixels whose mean logit is above ``probability_threshold``
+        less 2 and that lie more than 2 pixels from anything a pass drew,
+        as a fraction of the foreground (capped at 1): objects every pass
+        missed the same way, which disagreement cannot see. 0 without
+        probabilities.
     ``field``
+        ``area + missed``, the field score the curation queue sorts on.
+    ``spread``
         One minus the mean panoptic quality of each other pass against the
-        reference, matching objects one to one at ``match_iou``. Objects the
-        reference missed but another pass drew count here, which the
-        per-object reading cannot see.
+        reference, matching objects one to one at ``match_iou``.
 
     These are orderings, not probabilities of error: use them to rank
     objects and fields for review.
 
     :param label_sets: two or more label images of one field, same shape.
     :param match_iou: the IoU at which two passes' objects are one object.
-    :returns: ``{"map", "objects", "field", "n_objects", "n_passes"}``,
-        ``objects`` being ``{label: uncertainty}`` for the reference pass.
+    :param probabilities: optional cell-probability logit maps, one per pass
+        or any number, each the field's shape.
+    :param vectors: optional ``(2, H, W)`` Cellpose flow vectors of the
+        reference pass.
+    :param probability_threshold: the cell-probability threshold the passes
+        were drawn at. Default 0.0.
+    :returns: ``{"map", "objects", "area", "missed", "field", "spread",
+        "flow_errors", "n_objects", "n_passes"}``, ``objects`` and
+        ``flow_errors`` being ``{label: value}`` for the reference pass.
     :raises ValueError: for fewer than two passes or mismatched shapes.
     """
+    from scipy import ndimage as ndi
+
     from .scorecard import iou_matrix, match_objects
 
     sets = [np.asarray(labels) for labels in label_sets]
@@ -3560,19 +3654,58 @@ def _segmentation_uncertainty(label_sets: Sequence[Any],
         qualities.append(sum(match.ious) / denominator if denominator
                          else 1.0)
     per_object = 1.0 - best.mean(axis=1) if ref_ids.size else np.zeros(0)
+
+    def _paint(values: np.ndarray) -> np.ndarray:
+        """:param values: one value per reference object, in id order.
+
+        :returns: each object's pixels set to its value, 0 elsewhere.
+        """
+        if not ref_ids.size:
+            return np.zeros(shape, dtype=np.float32)
+        lookup = np.zeros(int(reference.max()) + 1, dtype=np.float32)
+        lookup[ref_ids] = values
+        return lookup[np.where(reference > 0, reference, 0)] * (reference > 0)
+
+    disagreement = np.maximum(pixel, _paint(per_object))
+    drawn = foreground > 0
+    extent = int(drawn.sum())
+    area = (float((disagreement >= _UNCERTAIN_PIXEL).sum() / extent)
+            if extent else 0.0)
+
+    flows = _flow_errors(reference, vectors) if vectors is not None else {}
+    if flows:
+        flow_score = np.array([min(1.0, flows.get(int(label), 0.0)
+                                   / _FLOW_ERROR_LIMIT) for label in ref_ids])
+        per_object = np.maximum(per_object, flow_score)
     objects = {int(label): float(value)
                for label, value in zip(ref_ids, per_object)}
+    uncertainty = np.maximum(pixel, _paint(per_object))
 
-    painted = np.zeros(shape, dtype=np.float32)
-    if ref_ids.size:
-        lookup = np.zeros(int(reference.max()) + 1, dtype=np.float32)
-        lookup[ref_ids] = per_object
-        painted = lookup[np.where(reference > 0, reference, 0)]
-        painted[reference == 0] = 0.0
+    missed = 0.0
+    if probabilities is not None and len(probabilities):
+        logit = np.mean([np.asarray(p, np.float32) for p in probabilities],
+                        axis=0)
+        if logit.shape != shape:
+            raise ValueError("every probability map must have the field's "
+                             "shape")
+        cut = float(probability_threshold)
+        near = ((logit > cut - _NEAR_MISS_MARGIN)
+                & ~ndi.binary_dilation(drawn, iterations=_NEAR_MISS_RING))
+        count = int(near.sum())
+        if count:
+            missed = float(count / max(extent, count))
+            q = 1.0 / (1.0 + np.exp(-(logit - cut)))
+            uncertainty = np.where(
+                near, np.maximum(uncertainty, 4.0 * q * (1.0 - q)),
+                uncertainty).astype(np.float32)
     return {
-        "map": np.maximum(pixel, painted),
+        "map": uncertainty.astype(np.float32),
         "objects": objects,
-        "field": float(1.0 - np.mean(qualities)),
+        "area": area,
+        "missed": missed,
+        "field": float(area + missed),
+        "spread": float(1.0 - np.mean(qualities)),
+        "flow_errors": flows,
         "n_objects": int(ref_ids.size),
         "n_passes": len(sets),
     }
