@@ -133,7 +133,9 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # 11,929: +67 (spacr.channel_sorting, spacr.folder_consolidation,
 # qt.widgets.channel_sort_dialog, three ObjectSettingsGrid filter methods),
 # -3 object-grid preference helpers; named in test_api_i18n_extractor.
-REAL_SYMBOL_COUNT = 11_929
+# 11,942: +13 (spacr.drop_classification, qt.widgets.organize_for_measure,
+# item 600); named in test_api_i18n_extractor.
+REAL_SYMBOL_COUNT = 11_942
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64
