@@ -1,6 +1,6 @@
 A SAMPLE-SIZE PLANNER FOR ARRAYED ASSAYS
 
-Status: IMPLEMENTED AS ALPHA 2026-09-28.
+Status: IMPLEMENTED AS ALPHA 2026-09-28; audit gaps closed and checked on a real pilot 2026-09-30.
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -77,3 +77,38 @@ closed. Normal-theory outcomes and the previously documented model scope
 remain; this receipt records simulation validation, not real-plate acceptance.
 Receipt: features/data/585_accepted_2026-09-28.json. All new captions have
 AI technical review (Codex), no native-speaker signoff, in all nine locales.
+
+STATUS 2026-09-30 — audit gaps closed; checked on a real pilot (still alpha)
+    Readouts: continuous, proportion (0/1 per cell) and count. A proportion's
+    cell variance is p(1-p) less the field-level spread above it; a count's
+    is the pilot's variance/mean ratio (at least 1, Poisson) times the mean.
+    Each condition keeps its own variance at baseline and baseline+effect,
+    so the effect is signed. Power equals statsmodels TTestIndPower /
+    TTestPower to 1e-6 for the unequal variances; cell-level simulation
+    (0/1 and negative-binomial draws) agrees within 0.035 in 3000 sims for
+    all readouts, paired and unpaired.
+    Replicate x condition term: with replicate and condition columns it is
+    estimated from the residual of a two-way additive fit to the replicate-
+    by-condition means and taken out of the replicate component; it never
+    cancels in a paired design. Recovered unbiased over 20 simulated pilots.
+    Cells per field now default to the pilot's harmonic mean (unequal fields
+    average out less than the plain mean suggests).
+    GUI: Readout and Condition column pickers, signed effect, and Load plan…
+    beside Save plan… (restores the form, table and summary from a saved
+    plan without re-reading the pilot; bad files change nothing).
+    Real pilot (tools/validate_arrayed_planner_pilot.py): TSG101 screen, 4
+    plates as replicates, negative-control wells (114 wells, 14,200 cells),
+    cell_area / parasites per cell / >1 parasite, effect ~10% of the mean.
+    Parametric simulation of the planner's cheapest design matched planned
+    power within 0.021 for all five reachable designs (DONE WHEN; the
+    unpaired proportion needs more than 24 replicates). A
+    model-free hierarchical resampling of the real fields brackets it for
+    area and count (distinct draws 0.88-0.92, with replacement 0.61-0.78,
+    planned 0.80-0.84); for the proportion, paired, planned 0.813 sits 0.033
+    above the optimistic bound 0.78, so treat proportion plans as up to ~0.03
+    optimistic. Estimated with both controls, the real replicate x
+    condition term of the proportion (8.7e-4) drops that design's power to
+    0.37: plan from a two-condition pilot with the condition column set.
+    Receipt: features/data/585_real_pilot_check_2026-09-30.json.
+    Open: the new captions await the catalog lane (_AWAITING_CATALOG_REBUILD);
+    promotion out of alpha is the maintainer's call.

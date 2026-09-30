@@ -1202,6 +1202,9 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 422, 2026-09-30: the Help search result-row templates in help_index.py,
 # now extractable through `_template`. The list's new "and {count} more" row
 # reuses a caption the catalogs already carry, so it owes nothing.
+# 585, 2026-09-30: the arrayed-assay planner's readout and condition
+# pickers and its plan/load error lines (alpha); "Load plan…" already has
+# a row.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "Control percentile",
     "Gate files",
@@ -1211,6 +1214,21 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "Preferences ▸ {tab}",
     "Reads {settings}.",
     "{summary} Reads {settings}.",
+    "Column naming the treatment when the pilot holds more than one: "
+    "components are pooled within conditions, and with a replicate column "
+    "the replicate-by-condition variance, which pairing does not cancel, is "
+    "estimated. Default empty.",
+    "Condition column",
+    "Continuous",
+    "Could not load the plan: {error}",
+    "Could not plan the design: {error}",
+    "Count per cell",
+    "How the measurement behaves. A proportion's or a count's cell variance "
+    "follows its mean, so the effect is the signed change from the pilot "
+    "mean. Default Continuous.",
+    "Proportion (0 or 1 per cell)",
+    "Readout",
+    "Replicate-by-condition variance {value}.",
 })
 
 

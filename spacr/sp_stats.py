@@ -3764,7 +3764,12 @@ def _cox_regression(frame, duration, event, covariates, *, alpha=0.05,
                    'engine': engine}
 
 
-_NESTED_LEVELS = ('replicate', 'well', 'field', 'cell')
+_NESTED_LEVELS = ('replicate', 'replicate_condition', 'well', 'field', 'cell')
+
+#: Readouts the arrayed planner models: a per-cell measurement analysed on its
+#: own scale, a per-cell 0/1 call whose mean is a proportion, and a per-cell
+#: count whose variance grows with its mean.
+_ARRAYED_READOUTS = ('continuous', 'proportion', 'count')
 
 
 def _pooled_variance(values: pd.Series, groups) -> Tuple[float, int]:
@@ -3787,6 +3792,40 @@ def _pooled_variance(values: pd.Series, groups) -> Tuple[float, int]:
     return float(((counts[keep] - 1) * variances[keep]).sum() / dof), dof
 
 
+def _additive_residual_variance(means: pd.Series, rows: pd.Series,
+                                columns: pd.Series) -> Tuple[float, int]:
+    """Residual mean square of a two-way additive fit without replication.
+
+    Fits ``mean ~ row + column`` by least squares to one value per
+    (replicate, condition) cell, keeping only replicates seen under at
+    least two conditions, and returns the residual variance: what the
+    replicate-by-condition interaction and the noise below it add.
+
+    :param means: one value per (replicate, condition) cell.
+    :param rows: the replicate of each value.
+    :param columns: the condition of each value.
+    :returns: ``(residual mean square, residual degrees of freedom)``;
+        ``(nan, 0)`` when the fit leaves no residual degrees of freedom.
+    """
+    frame = pd.DataFrame({'y': np.asarray(means, dtype=float),
+                          'r': np.asarray(rows), 'c': np.asarray(columns)})
+    seen = frame.groupby('r')['c'].transform('nunique')
+    frame = frame[seen >= 2]
+    if frame.empty:
+        return float('nan'), 0
+    design = pd.get_dummies(frame[['r', 'c']].astype(str), drop_first=True,
+                            dtype=float)
+    design.insert(0, 'intercept', 1.0)
+    x = design.to_numpy()
+    rank = int(np.linalg.matrix_rank(x))
+    dof = len(frame) - rank
+    if dof <= 0:
+        return float('nan'), 0
+    coef, *_ = np.linalg.lstsq(x, frame['y'].to_numpy(), rcond=None)
+    residual = frame['y'].to_numpy() - x @ coef
+    return float(residual @ residual / dof), dof
+
+
 def _nested_variance_components(frame: pd.DataFrame, value: str, *,
                                 well: str = 'prc', field: str = 'fieldID',
                                 replicate: Optional[str] = None,
@@ -3803,6 +3842,17 @@ def _nested_variance_components(frame: pd.DataFrame, value: str, *,
     within conditions, so treatment differences do not inflate the
     components.
 
+    With both ``replicate`` and ``condition`` the replicate-by-condition
+    interaction (how much the treatment effect itself moves from replicate
+    to replicate) is estimated from the residual of a two-way additive fit
+    to the replicate-by-condition means, and taken out of the replicate
+    component. Without both it is not estimated: it is then folded into the
+    replicate component, or absent from a one-replicate pilot.
+
+    Proportion readouts (one 0 or 1 per cell) and count readouts use the
+    same split on the measurement's own scale; the planner then models how
+    their cell-level variance changes with the mean.
+
     :param frame: one row per cell.
     :param value: the per-cell measurement column.
     :param well: the column naming the well, unique across plates.
@@ -3811,14 +3861,18 @@ def _nested_variance_components(frame: pd.DataFrame, value: str, *,
         when the pilot has one; the replicate component is then not
         estimated and reported as NaN.
     :param condition: an optional treatment column to pool within.
-    :returns: a dict with ``replicate``, ``well``, ``field`` and ``cell``
-        variances, ``mean``, ``cells_per_field``, ``fields_per_well``,
-        ``wells_per_replicate``, ``n_replicates``, ``n_wells``, ``n_cells``
-        and ``estimated`` (level -> whether the pilot could estimate it).
+    :returns: a dict with ``replicate``, ``replicate_condition``, ``well``,
+        ``field`` and ``cell`` variances, ``mean``, ``cells_per_field``,
+        ``cells_per_field_effective`` (the harmonic mean, which sets how
+        much cells average out when fields hold unequal numbers),
+        ``fields_per_well``, ``wells_per_replicate``, ``n_replicates``,
+        ``n_conditions``, ``n_wells``, ``n_cells`` and ``estimated`` (level
+        -> whether the pilot could estimate it).
     :raises KeyError: when a named column is missing.
     :raises ValueError: when no finite values remain.
     """
-    columns = [c for c in (value, well, field, replicate, condition) if c]
+    columns = list(dict.fromkeys(
+        c for c in (value, well, field, replicate, condition) if c))
     missing = [c for c in columns if c not in frame.columns]
     if missing:
         raise KeyError(f'columns not in the table: {missing}')
@@ -3835,11 +3889,12 @@ def _nested_variance_components(frame: pd.DataFrame, value: str, *,
                       ('_f', field_key)):
         data[name] = (data[key].astype(str).agg('|'.join, axis=1)
                       if key else '')
+    data['_rid'] = data[replicate].astype(str) if replicate else ''
 
     cell_var, _ = _pooled_variance(data[value], data['_f'])
     fields = data.groupby('_f', sort=False).agg(
         mean=(value, 'mean'), n=(value, 'size'), w=('_w', 'first'),
-        r=('_r', 'first'), c=('_c', 'first'))
+        r=('_r', 'first'), c=('_c', 'first'), rid=('_rid', 'first'))
     fields['q'] = (0.0 if not np.isfinite(cell_var) else cell_var) / fields['n']
     field_obs, _ = _pooled_variance(fields['mean'], fields['w'])
     field_var = (max(0.0, field_obs - float(fields['q'].mean()))
@@ -3848,7 +3903,7 @@ def _nested_variance_components(frame: pd.DataFrame, value: str, *,
 
     wells = fields.groupby('w', sort=False).agg(
         mean=('mean', 'mean'), k=('mean', 'size'), qsum=('q', 'sum'),
-        r=('r', 'first'), c=('c', 'first'))
+        r=('r', 'first'), c=('c', 'first'), rid=('rid', 'first'))
     wells['q'] = below_field / wells['k'] + wells['qsum'] / wells['k'] ** 2
     well_obs, _ = _pooled_variance(wells['mean'], wells['r'])
     well_var = (max(0.0, well_obs - float(wells['q'].mean()))
@@ -3856,23 +3911,33 @@ def _nested_variance_components(frame: pd.DataFrame, value: str, *,
     below_well = 0.0 if not np.isfinite(well_var) else well_var
 
     rep_var = float('nan')
+    rc_var = float('nan')
     reps = wells.groupby('r', sort=False).agg(
         mean=('mean', 'mean'), k=('mean', 'size'), qsum=('q', 'sum'),
-        c=('c', 'first'))
+        c=('c', 'first'), rid=('rid', 'first'))
     if replicate:
         reps['q'] = below_well / reps['k'] + reps['qsum'] / reps['k'] ** 2
+        noise = float(reps['q'].mean())
+        if condition:
+            resid, _ = _additive_residual_variance(reps['mean'], reps['rid'],
+                                                   reps['c'])
+            if np.isfinite(resid):
+                rc_var = max(0.0, resid - noise)
         rep_obs, _ = _pooled_variance(reps['mean'], reps['c'])
         if np.isfinite(rep_obs):
-            rep_var = max(0.0, rep_obs - float(reps['q'].mean()))
-    components = {'replicate': rep_var, 'well': well_var,
-                  'field': field_var, 'cell': cell_var}
+            rep_var = max(0.0, rep_obs - noise
+                          - (rc_var if np.isfinite(rc_var) else 0.0))
+    components = {'replicate': rep_var, 'replicate_condition': rc_var,
+                  'well': well_var, 'field': field_var, 'cell': cell_var}
     return {
         **components,
         'mean': float(data[value].mean()),
         'cells_per_field': float(fields['n'].mean()),
+        'cells_per_field_effective': float(1.0 / (1.0 / fields['n']).mean()),
         'fields_per_well': float(wells['k'].mean()),
         'wells_per_replicate': float(reps['k'].mean()),
-        'n_replicates': int(len(reps)) if replicate else 1,
+        'n_replicates': (int(data['_rid'].nunique()) if replicate else 1),
+        'n_conditions': (int(data['_c'].nunique()) if condition else 1),
         'n_wells': int(len(wells)),
         'n_cells': int(len(data)),
         'estimated': {k: bool(np.isfinite(v)) for k, v in components.items()},
@@ -3881,23 +3946,105 @@ def _nested_variance_components(frame: pd.DataFrame, value: str, *,
 
 def _component(components: Dict[str, Any], level: str) -> float:
     """One variance component, with an unestimated level counted as zero."""
-    value = float(components.get(level, 0.0) or 0.0)
+    value = components.get(level, 0.0)
+    value = float(0.0 if value is None else value)
     return value if np.isfinite(value) else 0.0
+
+
+def _default_cells(components: Dict[str, Any]) -> float:
+    """Cells per field the planner assumes when none is given.
+
+    The pilot's harmonic mean of cells per field when known: an unweighted
+    average of fields holding ``n`` cells each has cell variance
+    ``cell * mean(1 / n)``, so sparse fields weigh more than the plain mean
+    suggests. Otherwise the plain mean, and 1 when neither is known.
+    """
+    for key in ('cells_per_field_effective', 'cells_per_field'):
+        value = components.get(key)
+        if value is not None and np.isfinite(float(value)) and value > 0:
+            return float(value)
+    return 1.0
+
+
+def _upper_variance(components: Dict[str, Any]) -> float:
+    """Variance of a field's true mean: every component above the cell."""
+    return sum(_component(components, k)
+               for k in ('replicate', 'replicate_condition', 'well', 'field'))
+
+
+def _count_dispersion(components: Dict[str, Any], baseline: float) -> float:
+    """Cell variance over the mean of a count readout, at least Poisson's 1."""
+    return max(1.0, _component(components, 'cell') / baseline)
+
+
+def _condition_cell_variances(components: Dict[str, Any], effect: float,
+                              readout: str = 'continuous',
+                              baseline: Optional[float] = None
+                              ) -> Tuple[float, float]:
+    """Cell-level variance in the control and the treated condition.
+
+    ``continuous`` keeps the pilot's cell variance in both. ``proportion``
+    takes each cell as 0 or 1: its variance within a field is the binomial
+    ``p (1 - p)`` less the spread of the field proportions above it, with
+    ``p`` the baseline in the control and ``baseline + effect`` in the
+    treated condition. ``count`` takes cells as counts overdispersed by the
+    pilot's ratio of cell variance to mean (at least 1, Poisson), so the
+    variance scales with ``baseline`` and ``baseline + effect``.
+
+    :param components: variance components.
+    :param effect: the signed change of the treated condition's mean.
+    :param readout: one of :data:`_ARRAYED_READOUTS`.
+    :param baseline: the control mean; the pilot's mean when None.
+    :returns: ``(control cell variance, treated cell variance)``.
+    :raises ValueError: for an unknown readout or a mean outside the
+        readout's range.
+    """
+    if readout not in _ARRAYED_READOUTS:
+        raise ValueError(f'unknown readout {readout!r}; '
+                         f'use one of {_ARRAYED_READOUTS}')
+    cell = _component(components, 'cell')
+    if readout == 'continuous':
+        return cell, cell
+    base = float(components.get('mean') if baseline is None else baseline)
+    treated = base + float(effect)
+    if readout == 'proportion':
+        if not (0.0 < base < 1.0 and 0.0 <= treated <= 1.0):
+            raise ValueError('a proportion readout needs a baseline between '
+                             '0 and 1 and a treated proportion within 0-1')
+        upper = _upper_variance(components)
+        return (max(0.0, base * (1.0 - base) - upper),
+                max(0.0, treated * (1.0 - treated) - upper))
+    if not (base > 0.0 and treated >= 0.0):
+        raise ValueError('a count readout needs a positive baseline and a '
+                         'treated mean of at least 0')
+    phi = _count_dispersion(components, base)
+    return phi * base, phi * treated
 
 
 def _replicate_mean_variance(components: Dict[str, Any], wells: int,
                              fields: int, cells: float, *,
-                             paired: bool = False) -> float:
+                             paired: bool = False,
+                             cell: Optional[float] = None) -> float:
     """Variance of one condition's mean within one biological replicate.
 
     That mean averages ``cells`` per field, ``fields`` per well and
     ``wells`` per condition. In a paired design both conditions share the
     replicate, so its component cancels from their difference and is left
-    out here.
+    out here; the replicate-by-condition component never cancels.
+
+    :param components: variance components.
+    :param wells: wells per condition per replicate.
+    :param fields: fields per well.
+    :param cells: cells per field.
+    :param paired: leave the shared replicate component out.
+    :param cell: the cell-level variance to use instead of the pilot's.
+    :returns: the variance.
     """
-    var = (_component(components, 'well') / wells
+    cell_var = _component(components, 'cell') if cell is None else cell
+    var = (_component(components, 'replicate_condition')
+           + _component(components, 'well') / wells
            + _component(components, 'field') / (wells * fields)
-           + _component(components, 'cell') / (wells * fields * cells))
+           + cell_var / (wells * fields * cells))
     if not paired:
         var += _component(components, 'replicate')
     return var
@@ -3906,39 +4053,50 @@ def _replicate_mean_variance(components: Dict[str, Any], wells: int,
 def _arrayed_power(components: Dict[str, Any], effect: float, *,
                    replicates: int, wells: int, fields: int,
                    cells: Optional[float] = None, alpha: float = 0.05,
-                   paired: bool = False) -> float:
+                   paired: bool = False, readout: str = 'continuous',
+                   baseline: Optional[float] = None) -> float:
     """Power of a two-sided t-test on replicate means for two conditions.
 
     Each biological replicate contributes one mean per condition. Unpaired,
     the test is a two-sample t-test with ``2 * replicates - 2`` degrees of
     freedom; paired (both conditions on every replicate), a paired t-test
-    with ``replicates - 1``. Power comes from the noncentral t distribution.
+    with ``replicates - 1``. Power comes from the noncentral t distribution
+    with noncentrality ``effect / sqrt((v0 + v1) / replicates)``, where
+    ``v0`` and ``v1`` are the two conditions' replicate-mean variances;
+    they differ only for proportion and count readouts, whose cell
+    variance follows the mean (:func:`_condition_cell_variances`).
 
     :param components: variance components from
         :func:`_nested_variance_components`.
     :param effect: the difference between condition means to detect, in the
-        measurement's units.
+        measurement's units; signed for proportion and count readouts.
     :param replicates: biological replicates per condition.
     :param wells: wells per condition per replicate.
     :param fields: fields imaged per well.
-    :param cells: cells per field; the pilot's mean when None.
+    :param cells: cells per field; the pilot's harmonic mean when None.
     :param alpha: two-sided significance level.
     :param paired: analyse replicates as pairs.
+    :param readout: ``continuous``, ``proportion`` or ``count``.
+    :param baseline: the control mean for proportion and count readouts;
+        the pilot's mean when None.
     :returns: the probability of a significant result, from 0 to 1.
     """
     from scipy.stats import nct, t as student_t
 
     if cells is None:
-        cells = float(components.get('cells_per_field') or 1.0)
+        cells = _default_cells(components)
     replicates = int(replicates)
     if replicates < 2:
         return float('nan')
-    var = _replicate_mean_variance(components, wells, fields, cells,
-                                   paired=paired)
+    cell0, cell1 = _condition_cell_variances(components, effect, readout,
+                                             baseline)
+    var = sum(_replicate_mean_variance(components, wells, fields, cells,
+                                       paired=paired, cell=c)
+              for c in (cell0, cell1))
     dof = replicates - 1 if paired else 2 * replicates - 2
     if var <= 0:
         return 1.0 if effect else alpha
-    ncp = abs(float(effect)) / np.sqrt(2.0 * var / replicates)
+    ncp = abs(float(effect)) / np.sqrt(var / replicates)
     crit = student_t.ppf(1.0 - alpha / 2.0, dof)
     with _warnings.catch_warnings():
         _warnings.simplefilter('ignore', RuntimeWarning)
@@ -3951,8 +4109,9 @@ def _plan_arrayed_design(components: Dict[str, Any], effect: float, *,
                          cells: Optional[float] = None, paired: bool = False,
                          max_replicates: int = 12, max_wells: int = 12,
                          max_fields: int = 25,
-                         costs: Tuple[float, float, float] = (20.0, 1.0, 0.1)
-                         ) -> pd.DataFrame:
+                         costs: Tuple[float, float, float] = (20.0, 1.0, 0.1),
+                         readout: str = 'continuous',
+                         baseline: Optional[float] = None) -> pd.DataFrame:
     """Designs that reach the target power, cheapest first.
 
     For every wells-per-condition and fields-per-well pair the smallest
@@ -3965,19 +4124,24 @@ def _plan_arrayed_design(components: Dict[str, Any], effect: float, *,
     :param effect: the difference between condition means to detect.
     :param power: the target power.
     :param alpha: two-sided significance level.
-    :param cells: cells per field; the pilot's mean when None.
+    :param cells: cells per field; the pilot's harmonic mean when None.
     :param paired: analyse replicates as pairs.
     :param max_replicates: largest replicate count considered.
     :param max_wells: largest wells-per-condition count considered.
     :param max_fields: largest fields-per-well count considered.
     :param costs: cost of one replicate, one well and one field.
+    :param readout: ``continuous``, ``proportion`` or ``count``.
+    :param baseline: the control mean for proportion and count readouts;
+        the pilot's mean when None.
     :returns: one row per reachable design with ``replicates``, ``wells``,
         ``fields``, ``cells_per_field``, ``cells_per_condition``, ``power``
         and ``cost``, sorted by cost then total cells; empty when nothing
         within the limits reaches the target.
+    :raises ValueError: for an unknown readout or an impossible mean.
     """
     if cells is None:
-        cells = float(components.get('cells_per_field') or 1.0)
+        cells = _default_cells(components)
+    _condition_cell_variances(components, effect, readout, baseline)
     rep_cost, well_cost, field_cost = (float(c) for c in costs)
     rows = []
     for wells in range(1, int(max_wells) + 1):
@@ -3985,7 +4149,8 @@ def _plan_arrayed_design(components: Dict[str, Any], effect: float, *,
             for replicates in range(2, int(max_replicates) + 1):
                 achieved = _arrayed_power(
                     components, effect, replicates=replicates, wells=wells,
-                    fields=fields, cells=cells, alpha=alpha, paired=paired)
+                    fields=fields, cells=cells, alpha=alpha, paired=paired,
+                    readout=readout, baseline=baseline)
                 if achieved >= power:
                     rows.append({
                         'replicates': replicates, 'wells': wells,
@@ -4005,20 +4170,60 @@ def _plan_arrayed_design(components: Dict[str, Any], effect: float, *,
             .reset_index(drop=True))
 
 
+def _simulated_field_means(rng, true_means: np.ndarray, cells: int,
+                           readout: str, cell_sd: float,
+                           dispersion: float) -> np.ndarray:
+    """Draw the mean of ``cells`` cells in every field.
+
+    ``continuous`` cells are normal around the field's true mean;
+    ``proportion`` cells are 0/1 draws with the field's true mean (clipped
+    to 0-1) as probability; ``count`` cells are Poisson, or negative
+    binomial with variance ``dispersion`` times the mean, around the
+    field's true mean clipped at 0. The sum of the cells is drawn directly,
+    which has the same distribution as drawing each cell.
+
+    :param rng: a numpy random generator.
+    :param true_means: each field's true mean.
+    :param cells: cells per field.
+    :param readout: ``continuous``, ``proportion`` or ``count``.
+    :param cell_sd: the cell standard deviation of a continuous readout.
+    :param dispersion: variance over mean of a count readout, at least 1.
+    :returns: the observed field means, shaped like ``true_means``.
+    """
+    if readout == 'continuous':
+        return true_means + rng.normal(0.0, cell_sd / np.sqrt(cells),
+                                       true_means.shape)
+    if readout == 'proportion':
+        return rng.binomial(cells, np.clip(true_means, 0.0, 1.0)) / cells
+    lam = np.clip(true_means, 0.0, None)
+    if dispersion <= 1.0 + 1e-9:
+        return rng.poisson(cells * lam) / cells
+    # A negative binomial with n = lam / (phi - 1) and p = 1 / phi has mean
+    # lam and variance phi * lam; a sum of cells of them adds the n's.
+    n = np.maximum(cells * lam / (dispersion - 1.0), 1e-12)
+    draws = rng.negative_binomial(n, 1.0 / dispersion)
+    return np.where(lam > 0, draws, 0) / cells
+
+
 def _simulate_arrayed_power(components: Dict[str, Any], effect: float, *,
                             replicates: int, wells: int, fields: int,
                             cells: Optional[float] = None,
                             alpha: float = 0.05, paired: bool = False,
                             n_sim: int = 1000, seed: int = 0,
-                            chunk_cells: int = 4_000_000) -> float:
+                            chunk_cells: int = 4_000_000,
+                            readout: str = 'continuous',
+                            baseline: Optional[float] = None) -> float:
     """Estimate the same power by simulating whole experiments.
 
-    Every simulated experiment draws replicate, well, field and cell
-    effects from normal distributions with the given variances, averages
-    cells to fields, fields to wells and wells to one mean per condition
-    per replicate, and runs the same t-test on those means as
-    :func:`_arrayed_power` assumes. Replicate effects are shared by both
-    conditions when ``paired`` and drawn separately otherwise.
+    Every simulated experiment draws replicate, replicate-by-condition,
+    well and field effects from normal distributions with the given
+    variances, draws each field's cells around the resulting true mean
+    (normal, 0/1 or count, see :func:`_simulated_field_means`), averages
+    fields to wells and wells to one mean per condition per replicate, and
+    runs the same t-test on those means as :func:`_arrayed_power` assumes.
+    Replicate effects are shared by both conditions when ``paired`` and
+    drawn separately otherwise; replicate-by-condition effects are always
+    drawn separately.
 
     :param components: variance components.
     :param effect: the true difference between condition means.
@@ -4026,43 +4231,213 @@ def _simulate_arrayed_power(components: Dict[str, Any], effect: float, *,
     :param wells: wells per condition per replicate.
     :param fields: fields per well.
     :param cells: cells per field, rounded to a whole number; the pilot's
-        mean when None.
+        harmonic mean when None.
     :param alpha: two-sided significance level.
     :param paired: share replicate effects and use a paired test.
     :param n_sim: simulated experiments.
     :param seed: random seed.
-    :param chunk_cells: simulated cells held in memory at once.
+    :param chunk_cells: simulated fields held in memory at once.
+    :param readout: ``continuous``, ``proportion`` or ``count``.
+    :param baseline: the control mean for proportion and count readouts;
+        the pilot's mean when None.
     :returns: the fraction of simulated experiments that were significant.
     """
     from scipy.stats import ttest_ind, ttest_rel
 
+    _condition_cell_variances(components, effect, readout, baseline)
     if cells is None:
-        cells = float(components.get('cells_per_field') or 1.0)
+        cells = _default_cells(components)
     cells = max(1, int(round(cells)))
     sd = {k: np.sqrt(_component(components, k)) for k in _NESTED_LEVELS}
+    base = float(components.get('mean', 0.0) if baseline is None
+                 else baseline)
+    if readout == 'continuous':
+        base = 0.0
+    dispersion = (_count_dispersion(components, base)
+                  if readout == 'count' else 1.0)
     rng = np.random.default_rng(seed)
-    per_sim = 2 * replicates * wells * fields * cells
+    per_sim = 2 * replicates * wells * fields
     step = max(1, int(chunk_cells) // per_sim)
     hits = 0
     done = 0
-    shift = np.array([0.0, float(effect)])[None, :, None]
+    shift = np.array([base, base + float(effect)])[None, :, None]
     while done < n_sim:
         n = min(step, n_sim - done)
-        rep_shape = (n, 1 if paired else 2, replicates)
-        rep = rng.normal(0.0, sd['replicate'], rep_shape)
+        rep = rng.normal(0.0, sd['replicate'],
+                         (n, 1 if paired else 2, replicates))
         rep = np.broadcast_to(rep, (n, 2, replicates))
-        well = rng.normal(0.0, sd['well'], (n, 2, replicates, wells))
-        field = rng.normal(0.0, sd['field'],
-                           (n, 2, replicates, wells, fields))
-        cell = rng.normal(0.0, sd['cell'],
-                          (n, 2, replicates, wells, fields, cells))
-        field_means = field + cell.mean(axis=-1)
-        well_means = well + field_means.mean(axis=-1)
-        means = rep + well_means.mean(axis=-1) + shift
-        if paired:
-            p = ttest_rel(means[:, 1], means[:, 0], axis=1).pvalue
+        top = (rep + shift
+               + rng.normal(0.0, sd['replicate_condition'],
+                            (n, 2, replicates)))
+        well = top[..., None] + rng.normal(0.0, sd['well'],
+                                           (n, 2, replicates, wells))
+        truth = well[..., None] + rng.normal(
+            0.0, sd['field'], (n, 2, replicates, wells, fields))
+        field_means = _simulated_field_means(rng, truth, cells, readout,
+                                             sd['cell'], dispersion)
+        means = field_means.mean(axis=-1).mean(axis=-1)
+        with _warnings.catch_warnings():
+            _warnings.simplefilter('ignore', RuntimeWarning)
+            if paired:
+                p = ttest_rel(means[:, 1], means[:, 0], axis=1).pvalue
+            else:
+                p = ttest_ind(means[:, 1], means[:, 0], axis=1).pvalue
+        hits += int(np.count_nonzero(p < alpha))
+        done += n
+    return hits / float(n_sim)
+
+
+def _resample_arrayed_power(frame: pd.DataFrame, value: str,
+                            effect: float, *, replicates: int, wells: int,
+                            fields: int, well: str = 'prc',
+                            field: str = 'fieldID', replicate: str = 'plateID',
+                            alpha: float = 0.05, paired: bool = False,
+                            readout: str = 'continuous', n_sim: int = 1000,
+                            seed: int = 0, chunk_fields: int = 2_000_000,
+                            replace: bool = False) -> float:
+    """Power of a design by resampling a real pilot instead of a model.
+
+    A check on :func:`_arrayed_power` that assumes nothing about the shape
+    of the pilot's distributions. Each simulated experiment draws, per
+    replicate, a pilot replicate for each condition (with replacement; the
+    same one for both conditions when ``paired``), ``wells`` distinct wells
+    per condition from it (never a well both conditions use) and
+    ``fields`` distinct whole fields from each well; only wells with at
+    least ``fields`` fields are drawn from. Fields keep their own cells, so
+    the real spread of cells per field is kept too.
+
+    Neither way of resampling a finite pilot is exact, and the two bracket
+    the truth: drawing distinct wells and fields (the default) leaves out
+    the variation of wells and fields the pilot never had, so it is
+    optimistic, most of all when a design uses most of a well's fields;
+    drawing them with replacement (``replace=True``) counts each pilot
+    field's own noise once for the pilot and again for every repeat, so it
+    is pessimistic.
+
+    The treated condition is then shifted by ``effect``: added to a
+    continuous readout, cells turned 0 to 1 at random (1 to 0 for a
+    negative effect) at the rate that moves a proportion by ``effect``, or
+    Poisson extra counts averaging ``effect`` per cell (a negative effect
+    removes each count at the matching rate). The same t-test as the
+    planner runs on the replicate means of the unweighted field means. The
+    pilot should hold one condition, such as the controls.
+
+    :param frame: one row per pilot cell.
+    :param value: the per-cell measurement column.
+    :param effect: the change of the treated condition's mean.
+    :param replicates: biological replicates per condition.
+    :param wells: wells per condition per replicate.
+    :param fields: fields per well.
+    :param well: the column naming the well.
+    :param field: the column naming the field within its well.
+    :param replicate: the column naming the biological replicate.
+    :param alpha: two-sided significance level.
+    :param paired: draw both conditions from the same replicates and use a
+        paired test.
+    :param readout: ``continuous``, ``proportion`` or ``count``.
+    :param n_sim: simulated experiments.
+    :param seed: random seed.
+    :param chunk_fields: simulated fields held in memory at once.
+    :param replace: draw wells and fields with replacement.
+    :returns: the fraction of simulated experiments that were significant.
+    :raises ValueError: for an unknown readout, or when (without
+        replacement) a pilot replicate has fewer than ``2 * wells`` wells
+        with ``fields`` fields.
+    """
+    from scipy.stats import ttest_ind, ttest_rel
+
+    if readout not in _ARRAYED_READOUTS:
+        raise ValueError(f'unknown readout {readout!r}; '
+                         f'use one of {_ARRAYED_READOUTS}')
+    data = frame[[value, well, field, replicate]].copy()
+    data[value] = pd.to_numeric(data[value], errors='coerce')
+    data = data[np.isfinite(data[value])]
+    level_mean = float(data[value].mean())
+    per_field = (data.groupby([replicate, well, field], sort=True)[value]
+                 .agg(['size', 'sum']).reset_index())
+    per_field['k'] = per_field.groupby([replicate, well])['size'].transform(
+        'size')
+    if not replace:
+        per_field = per_field[per_field['k'] >= fields].reset_index(
+            drop=True)
+    size = per_field['size'].to_numpy(dtype=float)
+    total = per_field['sum'].to_numpy(dtype=float)
+    heads = per_field.drop_duplicates([replicate, well])
+    well_start = heads.index.to_numpy()
+    well_len = heads['k'].to_numpy()
+    well_rep = heads[replicate].astype(str).to_numpy()
+    rep_names, well_rep = np.unique(well_rep, return_inverse=True)
+    per_rep = np.bincount(well_rep, minlength=len(rep_names))
+    if len(rep_names) == 0 or (not replace and per_rep.min() < 2 * wells):
+        raise ValueError(
+            f'every pilot replicate needs {2 * wells} wells with at least '
+            f'{fields} fields; the fewest has '
+            f'{int(per_rep.min()) if len(per_rep) else 0}')
+    # Wells ordered by replicate: the k-th well of replicate r sits at
+    # rep_first[r] + k in a per-draw random order.
+    rep_first = np.r_[0, np.cumsum(per_rep)[:-1]]
+    n_wells = len(well_start)
+    k_max = int(well_len.max())
+
+    rng = np.random.default_rng(seed)
+    per_sim = 2 * replicates * wells * max(fields, k_max)
+    step = max(1, int(chunk_fields) // per_sim)
+    hits = done = 0
+    while done < n_sim:
+        n = min(step, n_sim - done)
+        reps = rng.integers(0, len(rep_names),
+                            (n, 1 if paired else 2, replicates))
+        reps = np.broadcast_to(reps, (n, 2, replicates))
+        # A random order of the wells within each replicate, per draw.
+        if replace:
+            chosen = rep_first[reps][..., None] + (
+                rng.random((n, 2, replicates, wells))
+                * per_rep[reps][..., None]).astype(np.int64)
+            order = np.argsort(well_rep, kind='stable')
+            chosen = order[chosen]
+            pick = (rng.random(chosen.shape + (fields,))
+                    * well_len[chosen][..., None]).astype(np.int64)
         else:
-            p = ttest_ind(means[:, 1], means[:, 0], axis=1).pvalue
+            order = np.argsort(
+                well_rep + rng.random((n, replicates, n_wells)), axis=-1,
+                kind='stable')
+            rank = (np.arange(wells)[None, None, None, :]
+                    + np.array([0, wells])[None, :, None, None])
+            slot = rep_first[reps][..., None] + rank
+            chosen = np.take_along_axis(
+                np.broadcast_to(order[:, None], (n, 2, replicates, n_wells)),
+                slot, axis=-1)
+            # Distinct fields within each chosen well.
+            u = rng.random(chosen.shape + (k_max,))
+            u[np.arange(k_max) >= well_len[chosen][..., None]] = np.inf
+            pick = np.argsort(u, axis=-1)[..., :fields]
+        f = well_start[chosen][..., None] + pick
+        cells, sums = size[f], total[f].copy()
+        treated = sums[:, 1]
+        if readout == 'continuous':
+            treated += effect * cells[:, 1]
+        elif readout == 'proportion':
+            ones = np.round(treated).astype(np.int64)
+            zeros = np.round(cells[:, 1]).astype(np.int64) - ones
+            if effect >= 0:
+                rate = min(1.0, effect / max(1e-12, 1.0 - level_mean))
+                treated += rng.binomial(zeros, rate)
+            else:
+                rate = min(1.0, -effect / max(1e-12, level_mean))
+                treated -= rng.binomial(ones, rate)
+        elif effect >= 0:
+            treated += rng.poisson(effect * cells[:, 1])
+        else:
+            keep = max(0.0, 1.0 + effect / max(1e-12, level_mean))
+            treated[...] = rng.binomial(
+                np.round(treated).astype(np.int64), keep)
+        means = (sums / cells).mean(axis=(-1, -2))
+        with _warnings.catch_warnings():
+            _warnings.simplefilter('ignore', RuntimeWarning)
+            if paired:
+                p = ttest_rel(means[:, 1], means[:, 0], axis=1).pvalue
+            else:
+                p = ttest_ind(means[:, 1], means[:, 0], axis=1).pvalue
         hits += int(np.count_nonzero(p < alpha))
         done += n
     return hits / float(n_sim)
