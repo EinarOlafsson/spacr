@@ -1092,7 +1092,7 @@ class ObjectSettingsGrid(QWidget):
     def _visible_table(self) -> Dict[str, Dict[str, Any]]:
         """The table as drawn: the claimed table less the objects the run lacks.
 
-        2026-09-29 (item 592, the maintainer's decision "hide unset
+        2026-09-29 (item 592, the decision "hide unset
         objects"): a column is drawn only for an object whose channel names
         a plane, and cell always (see :func:`_object_is_in_the_run`). The
         channel row itself is not drawn -- a hidden object has no column to
