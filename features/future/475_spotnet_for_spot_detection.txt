@@ -197,3 +197,22 @@ The earlier notes above are history. GPU execution, FISH/SMFISH per-cell
 counting and labelled accuracy remain unproven extensions; they were not in
 the original DONE WHEN. The two-field comparison establishes agreement and
 runtime, not ground-truth accuracy. No original acceptance criterion changed.
+
+GPU RUN 2026-09-30
+tools/compare_spotnet_ops.py through gpu_turn.sh (09:17-09:21, rc 0), plate
+20200202_6W-LaC024A, well A1, sites 331 and 332, 20,445-barcode library.
+                          native     SpotNet
+  spots                   22,733     18,557
+  reads owned             17,668     15,290
+  objects assigned         3,476      2,523
+  assigned library-exact   0.9534     0.9532
+  seconds (2 fields)        47.6       55.3 (+17.4 s startup)
+Agreement: 69.3 % of native reads are matched by SpotNet, 79.6 % of SpotNet
+reads by native (2 px). Did it use the GPU? No. The report says "gpu": false:
+the command was queued without --gpu, and the SpotNet env still has no CUDA
+11 runtime (TensorFlow cannot load libcudart.so.11.0; torch 2.14.0+cpu), so
+it would have run on the CPU anyway. Output:
+/mnt/wd4tb/scratch/475/475_spotnet_gpu_vs_native.json.
+Conclusion: same result as the CPU baseline, 27 % fewer assignments at equal
+accuracy; native stays default, and a GPU SpotNet still needs CUDA 11.2 /
+cuDNN 8.1 in its env.
