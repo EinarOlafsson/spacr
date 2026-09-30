@@ -58,7 +58,8 @@ def test_every_section_links_to_hugging_face():
         repo = str(entry.get("repo_id") or "")
         if not repo:
             continue
-        assert f"https://huggingface.co/{repo}" in text, (
+        where = "datasets/" if entry.get("repo_type") == "dataset" else ""
+        assert f"https://huggingface.co/{where}{repo}" in text, (
             f"{repo} is not linked, so a reader cannot check the model")
 
 

@@ -473,3 +473,44 @@ def test_a_colony_detector_that_is_neither_file_nor_zoo_key_is_refused(
         submodules._analyze_colony_plates({
             "src": str(tmp_path), "save": False,
             "colony_detector": "no_such_detector"})
+
+
+def test_the_published_colony_detector_is_fetched_by_its_zoo_key(
+        tmp_path, monkeypatch):
+    """The zoo key downloads the checkpoint once, from the dataset repo."""
+    import dataclasses
+    import hashlib
+
+    from spacr import model_zoo, submodules
+
+    record = next(r for r in model_zoo.BUNDLED_REMOTE_MODELS
+                  if r["key"] == "colony_yolo11n_makrai_v1")
+    entry = model_zoo._entry_from_mapping(record)
+    assert entry.kind == "detector"
+    assert entry.uri.startswith(
+        "https://huggingface.co/datasets/einarolafsson/models/resolve/main/"
+        "colony_detector/v1/colony_yolo11n_makrai_v1.pt")
+    assert len(entry.sha256) == 64
+    payload = b"fake colony weights"
+    stand_in = dataclasses.replace(
+        entry, sha256=hashlib.sha256(payload).hexdigest(), size_bytes=0)
+    monkeypatch.setattr(model_zoo, "catalogue",
+                        lambda remote=True: [stand_in])
+    asked = []
+    monkeypatch.setattr(model_zoo, "open_uri", lambda uri, **kw: (
+        asked.append(uri) or iter([payload])))
+    monkeypatch.setenv("HOME", str(tmp_path))
+    path = submodules._resolve_detector_weights(
+        "colony_yolo11n_makrai_v1", "colony_detector")
+    assert asked == [entry.uri]
+    assert path.startswith(str(tmp_path / ".spacr" / "models"))
+    with open(path, "rb") as handle:
+        assert handle.read() == payload
+    assert submodules._resolve_detector_weights(path, "colony_detector") == path
+    assert asked == [entry.uri]
+
+
+def test_the_colony_detector_zoo_row_is_alpha():
+    from spacr.settings import ALPHA_FEATURES
+
+    assert "colony_yolo11n_makrai_v1" in ALPHA_FEATURES[542]["models"]

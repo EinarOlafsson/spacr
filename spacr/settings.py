@@ -7268,6 +7268,7 @@ ALPHA_FEATURES = {
                      'colony_plated_volume_ul', 'colony_too_many',
                      'colony_too_few', 'colony_polarity', 'colony_threshold',
                      'colony_min_area_px', 'colony_detector'),
+        'models': ('colony_yolo11n_makrai_v1',),
     },
     536: {
         'settings': ('wound_closure', 'wound_source', 'wound_channel',
