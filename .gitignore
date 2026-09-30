@@ -204,7 +204,6 @@ tutorial_colab.ipynb
 !/docs/source/image_quality.rst
 !/docs/source/host_pathogen.rst
 !/docs/source/plaque_assay.rst
-!/docs/source/timeflows_training.rst
 !/docs/source/python_api.rst
 !/docs/source/anndata_export.rst
 !/docs/source/workflows.rst
