@@ -190,3 +190,29 @@ def test_detection_without_annotations_or_model_is_refused(tmp_path):
         tmp_path / 'tracks' / 'trackpy_tracks_cell_p_r1_c1_f1.csv', index=False)
     with pytest.raises(ValueError, match='timelapse_events_annotations'):
         tl._event_detection(str(tmp_path / 'tracks'), 'cell', 'trackpy')
+
+
+def test_a_track_carried_through_its_divisions_is_split_into_cell_cycles():
+    spans = pd.DataFrame({'field': ['f', 'f'], 'track_id': [1, 2],
+                          'start': [0, 5], 'end': [29, 12]})
+    cycles = tl._event_cycles(spans, {('f', 1): [9, 19], ('f', 2): [12]})
+    one = cycles[cycles['track_id'] == 1]
+    assert one['duration'].tolist() == [10.0, 10.0, 9.0]
+    assert one['event'].tolist() == [1, 1, 0]
+    assert one['start'].tolist() == [0, 10, 20]
+    two = cycles[cycles['track_id'] == 2]
+    assert two['duration'].tolist() == [8.0] and two['event'].tolist() == [1]
+
+
+def test_mitosis_timing_counts_cell_cycles_and_death_the_first_event():
+    table = pd.DataFrame({'frame': list(range(30)), 'track_id': 1,
+                          'x': 0.0, 'y': 0.0})
+    events = pd.DataFrame({'field': ['plate1_r1_c1_f1'] * 3,
+                           'track_id': [1, 1, 1], 'frame': [9, 19, 25],
+                           'event': ['mitosis', 'mitosis', 'death']})
+    timing = tl._event_timing({'plate1_r1_c1_f1': table}, events)
+    mitosis = timing['mitosis'][0]
+    assert sorted(mitosis['duration'].tolist()) == [9.0, 10.0, 10.0]
+    assert int(mitosis['event'].sum()) == 2
+    death = timing['death'][0]
+    assert death['duration'].tolist() == [25.0] and death['event'].tolist() == [1]

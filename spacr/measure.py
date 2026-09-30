@@ -8946,6 +8946,8 @@ def _run_bleach_correction_step(db_path, settings):
     Runs :func:`spacr.timelapse._correct_timelapse_bleaching` with the
     ``bleach_correction`` method. A failure is reported and does not fail
     the run: the measured tables are already written and are not changed.
+    With ``histogram``, series whose trend rises more than 10% above its
+    first timepoint are reported, since matching removes that rise too.
 
     :param db_path: the ``measurements.db`` the run produced.
     :param settings: Measure settings.
@@ -8963,6 +8965,12 @@ def _run_bleach_correction_step(db_path, settings):
     print(f"Bleach correction ({method}): {len(fits)} field-channel series in "
           f"{', '.join(f'{t}_bleach_corrected' for t in tables)}; fits in "
           f"measurements.db:bleach_correction")
+    rising = fits['trend_peak_rise'] > 0.1 if 'trend_peak_rise' in fits else pd.Series([], dtype=bool)
+    if method == 'histogram' and rising.any():
+        print(f"Bleach correction: {int(rising.sum())} of {len(fits)} series "
+              f"brighten by more than 10% at some point, which bleaching "
+              f"cannot do; histogram matching maps that rise away with the "
+              f"decay, so compare intensities after ratio or exponential.")
     return fits
 
 

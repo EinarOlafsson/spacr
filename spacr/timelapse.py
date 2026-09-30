@@ -2629,8 +2629,45 @@ def _event_correct_divisions(tracks, events, *, mitosis='mitosis',
     return df, pd.DataFrame(links, columns=['track_id', 'parent_track_id', 'mitosis_frame'])
 
 
+def _event_cycles(spans, marks):
+    """Split tracks into the intervals between repeated events such as mitoses.
+
+    A mitosis is stamped on the mother's last frame before her daughters
+    appear; when the tracker carries one daughter on under the mother's id,
+    the track holds several cell cycles. Each interval runs from its first
+    frame to the frame after its mitosis (the event) or to the track's last
+    frame (censored), so consecutive intervals add up to the track.
+
+    :param spans: one row per track with ``field``, ``track_id``, ``start``
+        and ``end``.
+    :param marks: ``{(field, track_id): sorted event frames}``.
+    :returns: one row per interval with the columns of ``spans`` (``start``
+        moved to the interval's first frame), ``event_frame``, ``event`` and
+        ``duration`` in frames.
+    """
+    rows = []
+    for span in spans.to_dict('records'):
+        start, end = int(span['start']), int(span['end'])
+        for frame in marks.get((span['field'], span['track_id']), []):
+            if start <= frame <= end:
+                rows.append(dict(span, start=start, event_frame=float(frame),
+                                 event=1, duration=float(frame + 1 - start)))
+                start = frame + 1
+        if start <= end:
+            rows.append(dict(span, start=start, event_frame=np.nan, event=0,
+                             duration=float(end - start)))
+    return pd.DataFrame(rows)
+
+
 def _event_timing(tables, events, conditions=None):
-    """Time from each track's first frame to its first event of each kind.
+    """Time to each kind of event, per track or, for mitosis, per cell cycle.
+
+    For every event but mitosis this is the time from each track's first
+    frame to its first event of that kind, censored at the track's last
+    frame. Mitosis repeats and a tracker often carries one daughter on
+    under her mother's id, so a track is split at each detected mitosis
+    (:func:`_event_cycles`) and every interval is one cell cycle: the time
+    from its first frame to its division, or censored where the track ends.
 
     :param tables: ``{field: track table}``.
     :param events: detected events with ``field``.
@@ -2638,8 +2675,8 @@ def _event_timing(tables, events, conditions=None):
         by well.
     :returns: ``{event: objects}`` in the form
         :func:`spacr.measure._time_to_event_statistics` reads: one row per
-        track with ``duration`` (frames), ``event`` (1 or 0, censored at the
-        track's last frame), ``condition`` and ``well``, plus the order of
+        track (per cell cycle for mitosis) with ``duration`` (frames),
+        ``event`` (1 or 0), ``condition`` and ``well``, plus the order of
         conditions under key ``'_order'`` per event.
     """
     from .measure import _time_to_event_groups
@@ -2661,13 +2698,19 @@ def _event_timing(tables, events, conditions=None):
               'time_to_event_covariates': []}
     result = {}
     for name in sorted(pd.unique(events['event'])) if len(events) else []:
-        first = (events[events['event'] == name].groupby(['field', 'track_id'])['frame']
-                 .min().rename('event_frame').reset_index())
-        objects = spans.merge(first, on=['field', 'track_id'], how='left')
-        objects['event'] = objects['event_frame'].notna().astype(int)
-        objects['duration'] = np.where(objects['event'] == 1,
-                                       objects['event_frame'] - objects['start'],
-                                       objects['end'] - objects['start']).astype(float)
+        found = events[events['event'] == name]
+        if name == 'mitosis':
+            marks = {key: sorted(int(f) for f in pd.unique(group['frame']))
+                     for key, group in found.groupby(['field', 'track_id'])}
+            objects = _event_cycles(spans, marks)
+        else:
+            first = (found.groupby(['field', 'track_id'])['frame']
+                     .min().rename('event_frame').reset_index())
+            objects = spans.merge(first, on=['field', 'track_id'], how='left')
+            objects['event'] = objects['event_frame'].notna().astype(int)
+            objects['duration'] = np.where(objects['event'] == 1,
+                                           objects['event_frame'] - objects['start'],
+                                           objects['end'] - objects['start']).astype(float)
         objects['time_unit'] = 'frames'
         grouped, order = _time_to_event_groups(objects, config)
         if len(grouped):
@@ -2943,16 +2986,64 @@ def _bleach_channel_columns(df, object_type):
     return result
 
 
-def _bleach_trend(frame, time_key, column):
+def _bleach_times(values):
+    """Timepoint numbers from a ``timeID`` column such as ``t4``, ``t04`` or ``4``.
+
+    Measure writes ``timeID`` as text (``t12``), which neither sorts nor
+    fits as a number; the trailing integer is the frame.
+
+    :param values: the timepoint column.
+    :returns: a float Series on the same index, NaN where no number ends
+        the value.
+    """
+    series = pd.Series(values)
+    if pd.api.types.is_numeric_dtype(series):
+        return series.astype(float)
+    text = series.astype(str).str.extract(r'(-?\d+(?:\.\d+)?)\s*$')[0]
+    return pd.to_numeric(text, errors='coerce')
+
+
+def _bleach_ring_column(df, object_type, channel):
+    """The ring-background column Measure wrote for one channel, if any.
+
+    :returns: ``<object>_channel_<n>_outside_percentile_50`` or
+        ``..._outside_mean`` when present, else None.
+    """
+    for stat in ('outside_percentile_50', 'outside_mean'):
+        name = f'{object_type}_channel_{channel}_{stat}'
+        if name in df.columns:
+            return name
+    return None
+
+
+def _bleach_signal(frame, column, ring=None):
+    """One level column, less the object's ring background when there is one.
+
+    :param frame: object rows.
+    :param column: the level column.
+    :param ring: the ring-background column, or None.
+    :returns: a float Series.
+    """
+    values = pd.to_numeric(frame[column], errors='coerce').astype(float)
+    if ring is not None:
+        values = values - pd.to_numeric(frame[ring], errors='coerce')
+    return values
+
+
+def _bleach_trend(frame, time_key, column, ring=None):
     """Return the median of ``column`` at each timepoint, in time order.
 
     The median over every object in the frame is the background trend a
     bleaching series shows: one bright or dying object does not move it.
+    With ``ring``, each object's ring background is subtracted first, so
+    the trend follows the fluorescence that bleaches rather than the
+    camera offset under it.
 
-    :returns: ``pandas.Series`` indexed by timepoint, NaN frames dropped.
+    :returns: ``pandas.Series`` indexed by timepoint number, NaN frames
+        dropped.
     """
-    values = pd.to_numeric(frame[column], errors='coerce')
-    trend = values.groupby(frame[time_key]).median().sort_index()
+    values = _bleach_signal(frame, column, ring)
+    trend = values.groupby(_bleach_times(frame[time_key]).to_numpy()).median().sort_index()
     return trend.dropna()
 
 
@@ -2991,10 +3082,14 @@ def _bleach_factors(trend, method):
     """Return the multiplicative correction at each timepoint of one series.
 
     ``ratio`` divides each timepoint by its own trend value and multiplies by
-    the first: the simple ratio method. ``exponential`` does the same with
-    the fitted decay in place of the measured trend, which ignores
-    frame-to-frame noise; when the fit fails or the curve reaches zero it
-    falls back to the ratio and reports ``ratio_fallback``.
+    the first: the simple ratio method. Bleaching only dims, so a timepoint
+    whose trend is above the first is left as measured (factor 1) rather
+    than darkened: a rise of the median is biology, focus or illumination,
+    and dividing it away would erase it. ``exponential`` rescales by the
+    fitted decay in place of the measured trend, which ignores
+    frame-to-frame noise and, being a decay, never darkens either; when
+    the fit fails or the curve reaches zero it falls back to the ratio and
+    reports ``ratio_fallback``.
 
     :param trend: ``pandas.Series`` of the background trend by timepoint.
     :param method: ``'ratio'`` or ``'exponential'``.
@@ -3014,7 +3109,8 @@ def _bleach_factors(trend, method):
         method = 'ratio_fallback'
     reference = trend.to_numpy(dtype=float)
     with np.errstate(divide='ignore', invalid='ignore'):
-        factors = np.where(reference > 0, reference[0] / reference, np.nan)
+        factors = np.where(reference > 0, np.maximum(reference[0] / reference, 1.0),
+                           np.nan)
     return pd.Series(factors, index=trend.index), method, params
 
 
@@ -3040,12 +3136,22 @@ def _bleach_correct_table(df, object_type, method):
     """Correct every intensity level of one timelapse object table for bleaching.
 
     Each field (plate, row, column, field) is its own bleaching series and
-    each channel is corrected on its own. The background trend of a channel
-    is the per-timepoint median of ``<object>_channel_<n>_mean_intensity``;
-    ``ratio`` and ``exponential`` rescale every level column of that channel
-    by the factor that brings the trend back to its first timepoint.
+    each channel is corrected on its own, in timepoint order (``t2`` before
+    ``t10``). The background trend of a channel is the per-timepoint median
+    of ``<object>_channel_<n>_mean_intensity``; ``ratio`` and
+    ``exponential`` rescale every level column of that channel by the
+    factor that brings the trend back to its first timepoint.
     ``histogram`` instead maps each column at each timepoint onto that
     column's distribution at the first timepoint.
+
+    When Measure wrote a ring background for the channel
+    (``outside_percentile_50``, else ``outside_mean``), the trend and the
+    correction work on the signal above it: each level less the ring
+    (the ring times the area for an integrated intensity) is corrected and
+    the ring is added back. A camera offset, which does not bleach, is then
+    neither counted in the trend nor rescaled, so the ratio between two
+    objects' signals in one frame is kept. Without a ring the levels are
+    rescaled whole.
 
     :param df: the object table as Measure wrote it, with a timepoint column.
     :param object_type: its object prefix, e.g. ``'cell'``.
@@ -3053,10 +3159,13 @@ def _bleach_correct_table(df, object_type, method):
     :returns: ``(corrected, fits)``. ``corrected`` has the identifier
         columns, every corrected column under its measured name, and
         ``bleach_correction_method``. ``fits`` has one row per field and
-        channel: the method applied, the timepoints, the trend at the first
-        and last timepoint before and after correction, and for an
-        exponential fit ``decay_a``, ``decay_b``, ``decay_c`` and
-        ``half_life`` in timepoint units.
+        channel: the method applied, the ring column used (``background``,
+        empty without one), the timepoints, the trend at the first and last
+        timepoint before and after correction, how far the trend ever rises
+        above its first value (``trend_peak_rise``, a fraction; bleaching
+        alone never raises it), and for an exponential fit
+        ``decay_a``, ``decay_b``, ``decay_c`` and ``half_life`` in timepoint
+        units.
     :raises ValueError: an unknown method, or a table with no timepoint column.
     """
     if method not in _BLEACH_METHODS[1:]:
@@ -3072,49 +3181,81 @@ def _bleach_correct_table(df, object_type, method):
     ids = [c for c in ('object_label', 'cell_id', *_OBJECT_WELL_KEYS,
                        time_key, 'prcf', 'file_name') if c in df.columns]
     corrected = df[ids].copy()
+    times = _bleach_times(df[time_key])
+    area_column = f'{object_type}_area'
+    area = (pd.to_numeric(df[area_column], errors='coerce')
+            if area_column in df.columns else None)
     fields = [k for k in _OBJECT_WELL_KEYS if k in df.columns]
     groups = (df.groupby(fields, sort=True, dropna=False).groups if fields
               else {(): df.index})
     fit_rows = []
     for channel, columns in channels.items():
         reference = columns[0]
+        ring_column = _bleach_ring_column(df, object_type, channel)
         for column in columns:
             corrected[column] = np.nan
         for key, index in groups.items():
             frame = df.loc[index]
-            trend = _bleach_trend(frame, time_key, reference)
+            when = times.loc[index]
+            ring = (pd.to_numeric(frame[ring_column], errors='coerce')
+                    if ring_column else None)
+            offsets = {}
+            for column in columns:
+                if ring is None:
+                    offsets[column] = 0.0
+                elif column.endswith('_integrated_intensity'):
+                    offsets[column] = (ring * area.loc[index]
+                                       if area is not None else None)
+                else:
+                    offsets[column] = ring
+            trend = _bleach_trend(frame, time_key, reference, ring_column)
             if trend.empty:
                 continue
             key = key if isinstance(key, tuple) else (key,)
             row = dict(zip(fields, key), object_type=object_type,
-                       channel=channel, n_timepoints=int(len(trend)),
+                       channel=channel, background=ring_column or '',
+                       n_timepoints=int(len(trend)),
                        trend_first=float(trend.iloc[0]),
                        trend_last=float(trend.iloc[-1]),
+                       trend_peak_rise=(float(trend.max() / trend.iloc[0] - 1.0)
+                                        if trend.iloc[0] > 0 else np.nan),
                        decay_a=np.nan, decay_b=np.nan, decay_c=np.nan,
                        half_life=np.nan)
             if method == 'histogram':
-                first = (frame[time_key] == trend.index[0]).to_numpy()
+                first = (when == trend.index[0]).to_numpy()
                 for column in columns:
-                    values = pd.to_numeric(frame[column], errors='coerce')
+                    offset = offsets[column]
+                    values = pd.to_numeric(frame[column], errors='coerce').astype(float)
+                    if offset is not None:
+                        values = values - offset
                     target = values.to_numpy()[first]
                     matched = values.copy()
-                    for _, part in values.groupby(frame[time_key]):
+                    for _, part in values.groupby(when.to_numpy()):
                         matched.loc[part.index] = _histogram_match(
                             part.to_numpy(), target)
-                    corrected.loc[index, column] = matched
+                    corrected.loc[index, column] = (
+                        matched + offset if offset is not None else matched)
                 row['method'] = 'histogram'
             else:
                 factors, applied, params = _bleach_factors(trend, method)
-                scale = frame[time_key].map(factors).astype(float)
+                scale = when.map(factors).astype(float)
                 for column in columns:
-                    corrected.loc[index, column] = (
-                        pd.to_numeric(frame[column], errors='coerce') * scale)
+                    values = pd.to_numeric(frame[column], errors='coerce')
+                    offset = offsets[column]
+                    if offset is None:
+                        corrected.loc[index, column] = values * scale
+                    else:
+                        corrected.loc[index, column] = (
+                            (values - offset) * scale + offset)
                 row['method'] = applied
                 if params is not None:
                     a, b, c = params
                     row.update(decay_a=a, decay_b=b, decay_c=c,
                                half_life=(np.log(2) / b) if b > 0 else np.inf)
-            after = _bleach_trend(corrected.loc[index], time_key, reference)
+            after = corrected.loc[index].copy()
+            if ring_column:
+                after[ring_column] = frame[ring_column]
+            after = _bleach_trend(after, time_key, reference, ring_column)
             row['corrected_first'] = float(after.iloc[0]) if len(after) else np.nan
             row['corrected_last'] = float(after.iloc[-1]) if len(after) else np.nan
             fit_rows.append(row)
@@ -3127,7 +3268,8 @@ def _bleach_decay_figure(df, corrected, fits, object_type, time_key,
     """Draw each channel's background trend, the fitted decay and the corrected trend.
 
     One panel per channel; one series per field, at most ``max_fields`` of
-    them. The measured trend is drawn as points, the fitted exponential (or,
+    them. The trend is the signal above the ring background when the fit
+    used one. The measured trend is drawn as points, the fitted exponential (or,
     for the ratio and histogram methods, the measured trend) as a line, and
     the corrected trend dashed in the highlight colour.
 
@@ -3144,8 +3286,12 @@ def _bleach_decay_figure(df, corrected, fits, object_type, time_key,
             mask = np.ones(len(df), dtype=bool)
             for k in fields:
                 mask &= (df[k] == row[k]).to_numpy()
-            raw = _bleach_trend(df[mask], time_key, reference)
-            fixed = _bleach_trend(corrected[mask], time_key, reference)
+            ring = row.get('background') or None
+            raw = _bleach_trend(df[mask], time_key, reference, ring)
+            after = corrected[mask].copy()
+            if ring:
+                after[ring] = df.loc[mask, ring].to_numpy()
+            fixed = _bleach_trend(after, time_key, reference, ring)
             t = np.asarray(raw.index, dtype=float)
             ax.plot(t, raw.to_numpy(), 'o', ms=2.5, color=ROLES['data'])
             if np.isfinite(row['decay_b']):
@@ -3160,7 +3306,8 @@ def _bleach_decay_figure(df, corrected, fits, object_type, time_key,
                     '--', lw=1, color=ROLES['highlight'])
         ax.set_title(f'{object_type} channel {channel}')
         ax.set_xlabel(time_key)
-        ax.set_ylabel('median mean intensity')
+        above = bool(rows['background'].astype(str).str.len().gt(0).any()) if 'background' in rows else False
+        ax.set_ylabel('median mean intensity above ring' if above else 'median mean intensity')
     fig.tight_layout()
     return fig
 
