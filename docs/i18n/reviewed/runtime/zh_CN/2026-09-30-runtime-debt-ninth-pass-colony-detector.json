@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, ninth pass 2026-09-30: the colony_detector setting label and tooltip (item 542), written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "colony_detector",
+      "source": "Colony detector",
+      "source_sha256": "68beea6aa1d0b2ea9eb4f3cc498e2b290aa8cab4fe933d6173b59636693715a4",
+      "translation": "菌落检测器"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_detector",
+      "source": "A YOLO colony detector to find the colonies with, in place of thresholding: a checkpoint path or a Model Zoo key. It needs the ultralytics package. Detection counts colonies in chains and at the dish rim that thresholding merges or loses; polarity, threshold and minimum area are then not used. Blank thresholds. Default None.",
+      "source_sha256": "715e9aa717e6aead1dcdb1df63413b1db968a50e249118e910a1a7570505ae20",
+      "translation": "用于查找菌落以代替阈值分割的 YOLO 菌落检测器：检查点路径或 Model Zoo 键。它需要 ultralytics 包。检测能计数阈值分割会合并或遗漏的链状菌落和培养皿边缘的菌落；此时不再使用极性、阈值和最小面积。留空则使用阈值分割。默认 None。"
+    }
+  ]
+}
