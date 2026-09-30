@@ -777,6 +777,46 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "area rather than precise morphometry",
         ),
     },
+    {
+        "key": "colony_yolo11n_makrai_v1",
+        "name": "colony_yolo11n_makrai_v1.pt",
+        "kind": "detector",
+        "repo_id": HF_MODELS_REPO,
+        "repo_type": "dataset",
+        "uri": "https://huggingface.co/datasets/einarolafsson/models/"
+               "resolve/main/colony_detector/v1/"
+               "colony_yolo11n_makrai_v1.pt?download=true",
+        "sha256":
+            "1bd99599c1d78fb0841216b798cfc61665be7c2aa8b356b970d0d06ae4b57557",
+        "size_bytes": 5641114,
+        "metrics": {'n_train': '369 photos (train/val/test split)', 'train_objects': '56,865 colony boxes in all', 'n_test': '39 held-out plates with 30-300 colonies', 'test_objects': 'not recorded', 'cv': 'no (one split)', 'f1': 'median count error 2.4%', 'aji': '69% of plates within 5%', 'dice': '87% of plates within 10%', 'stock_f1': 'thresholding: median count error 16.5%', 'stock_aji': 'not recorded', 'stock_dice': 'not recorded', 'train_loss': 'not recorded', 'val_loss': 'not recorded', 'best_epoch': 'not recorded'},
+        "display_name": "Colony Detector v1 (alpha)",
+        "architecture": "YOLO11n (ultralytics), one class 'colony'",
+        "dataset": "smartphone plate photos of 24 bacterial and fungal "
+                   "species; 369 photos, 56,865 colony boxes, from Makrai "
+                   "et al. 2023 (Scientific Data, CC BY 4.0)",
+        "versus_stock": "median count error 2.4% on 39 held-out plates with "
+                        "30-300 colonies, against 16.5% for spaCR's "
+                        "thresholding counter on the same plates",
+        "trained_on": (
+            "plate photos from Makrai et al. 2023, Scientific Data, figshare "
+            "doi:10.6084/m9.figshare.22022540 (CC BY 4.0): 369 smartphone "
+            "photos of 24 species with 56,865 colony boxes"
+        ),
+        "trained_by": "einarolafsson",
+        "licence": "CC BY 4.0",
+        "notes": (
+            "counts colonies for colony_counting when colony_detector names "
+            "this key; ultralytics is needed",
+            "69% of held-out plates within 5% of the hand count and 87% "
+            "within 10%",
+            "one dataset and one split: photos from another lab, agar or "
+            "species may score worse, and confluent swarming colonies stay "
+            "hard",
+            "published in the einarolafsson/models dataset repo under "
+            "colony_detector/v1/",
+        ),
+    },
 )
 
 #: Models that are no longer OFFERED, by filename.
