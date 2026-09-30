@@ -1,22 +1,13 @@
 {
   "lesson": "05_home",
-  "english_sha256": "a004499c8b6d66f2ccc1e816f2dcb1ae838009a397704bdbfd612b0e1692558c",
+  "english_sha256": "11f042d6858da357f4657d8bde6b98825981c2985932cdf6ac2105f307689679",
   "review": {
-    "kind": "AI technical draft; new Appearance scenes independently peer reviewed",
-    "translator": "Codex AI, three new Appearance scenes adapted from current English source; prior scenes retained",
-    "date": "2026-10-01",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false,
-    "new_scene_peer_review": {
-      "indices": [
-        10,
-        11,
-        12
-      ],
-      "reviewer": "Independent Codex AI technical review",
-      "receipt": "/tmp/spacr-ui-evidence/601/appearance-translations/shared-ui-peer-review.json"
-    }
+    "listening_review": false
   },
   "language": "fr",
   "title": "Écran Home et navigation",
@@ -24,7 +15,8 @@
   "objectives": [
     "Choisir un module de départ pour des images, des mesures ou des lectures de séquençage.",
     "Trouver les outils associés et les essais propres à chaque organisme.",
-    "Charger un exemple, trouver de l’aide et ouvrir une vue d’ensemble de pipeline."
+    "Adapter la colonne de Home et les panneaux des modules à votre écran.",
+    "Charger un exemple, trouver de l’aide avec la recherche ou Control-K, et régler Preferences."
   ],
   "prerequisite": "Installez spaCR et ouvrez l’application de bureau.",
   "scenes": [
@@ -36,22 +28,13 @@
     "Ouvrez Classify et utilisez Classifier family pour choisir votre entrée. Sélectionnez Computer Vision pour des images d’objets, ou Tabular Machine Learning pour des colonnes de caractéristiques mesurées. Les tutoriels liés vous guident dans l’entraînement, l’évaluation et le calcul des scores pour chaque famille.",
     "Une fois un modèle entraîné, la barre d’outils de Classify vous aide à l’examiner. Classifier Evaluation montre ses performances sur des données mises de côté, Explain CV Model et Activation montrent ce qui guide ses décisions, Training Runs compare les historiques d’entraînement, et Feature Explorer classe les caractéristiques qui séparent vos groupes. Survolez une icône pour voir son nom.",
     "Pour essayer un module, cliquez sur Load test data lorsqu’il est disponible. Attendez la fin du téléchargement, puis vérifiez les entrées et les paramètres remplis. Dans Mask, cliquez sur Live pour inspecter un champ avant d’appuyer sur Run. Activez Time pour une série temporelle ou 3D pour une image volumique.",
+    "Chaque écran de module s’adapte à votre écran. Faites glisser la poignée entre les réglages et les panneaux de droite pour donner plus de place à un côté, ou cliquez sur sa flèche pour replier les réglages. Maintenez Control et faites défiler la molette sur les panneaux de droite pour agrandir ou réduire leur texte, puis appuyez sur Control-0 pour le rétablir.",
+    "De retour sur Home, la colonne de droite suit votre travail. Recent runs liste ce que vous avez exécuté, Totals compte les exécutions, les masques et les mesures, et System montre la charge de votre ordinateur. Une exécution en cours ou en attente apparaît aussi ici. Le curseur Text size, sous le dernier panneau, agrandit ou réduit le texte de cette colonne.",
+    "La poignée fléchée du bord gauche de la colonne fonctionne comme celles des modules. Faites-la glisser pour élargir ou rétrécir la colonne, ou cliquez dessus pour replier la colonne et donner toute la largeur aux tuiles. Cliquez de nouveau sur la flèche pour faire revenir la colonne.",
     "Tapez le nom d’un module, d’un paramètre ou d’une fonction dans le champ de recherche à côté de Help. Ici, la recherche de Performance trouve la page correspondante de Preferences. Cliquez sur un résultat pour ouvrir sa destination. Les résultats API ouvrent la documentation de la fonction sélectionnée.",
+    "Appuyez sur Control-K n’importe où pour ouvrir la palette de commandes. Commencez à taper un nom, comme Measure, et la liste se réduit au fil de la saisie. Appuyez sur Entrée pour aller au module, à l’exécution récente ou à l’action de menu surlignée sans prendre la souris.",
     "Dans Preferences, choisissez un profil Performance adapté à votre ordinateur. Laptop utilise moins de ressources ; les profils plus élevés permettent davantage de cache et de travail en arrière-plan. Commencez par un profil modeste si la mémoire est limitée. Les paramètres de vos analyses restent sous votre contrôle dans chaque module.",
-    "Ouvrez Appearance dans Preferences pour régler l'interface. Theme et Animation sont des sections repliables sur cette page. Cliquez sur l'en-tête d'une section pour afficher ses commandes ou la replier.",
-    "Ouvrez Theme pour choisir le thème de l'interface et l'opacité des pages. Cette section contient aussi les réglages du pourtour de la fenêtre, notamment sa longueur, son alignement et son mode lumineux.",
-    "Ouvrez Animation pour choisir l'arrière-plan animé et sa palette. Réglez ici son niveau de détail, son flou, sa vitesse, sa taille et sa densité. Vous pouvez aussi choisir d'animer ou non les infobulles des réglages et sélectionner un arrière-plan pour les réglages.",
+    "L’onglet General de Preferences règle la langue de l’interface, l’échelle de police et de l’interface, le maintien ouvert du dock d’applications et une palette adaptée au daltonisme pour les graphiques. L’onglet Figures choisit le format et la résolution des figures enregistrées, et Appearance détermine quand les infobulles apparaissent.",
     "Revenez à Home et cliquez sur Pipeline overviews pour choisir un flux de travail. Commencez par spaCR screens pour un criblage groupé basé sur l’image, ou choisissez un parcours d’analyse d’images ou de séquençage adapté à vos données. Les tutoriels suivants montrent comment ces modules s’enchaînent, puis les leçons de chaque module détaillent chaque tâche."
-  ],
-  "prior_review": {
-    "english_sha256": "63d9c5df087686dfdcab76b19809465c2f21940a0cf63c565d485985259215e5",
-    "review": {
-      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-      "date": "2026-09-25",
-      "independent_peer_review": false,
-      "native_speaker_signoff": false,
-      "listening_review": false
-    }
-  }
+  ]
 }

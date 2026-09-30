@@ -1,22 +1,13 @@
 {
   "lesson": "05_home",
-  "english_sha256": "a004499c8b6d66f2ccc1e816f2dcb1ae838009a397704bdbfd612b0e1692558c",
+  "english_sha256": "11f042d6858da357f4657d8bde6b98825981c2985932cdf6ac2105f307689679",
   "review": {
-    "kind": "AI technical draft; new Appearance scenes independently peer reviewed",
-    "translator": "Codex AI, three new Appearance scenes adapted from current English source; prior scenes retained",
-    "date": "2026-10-01",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false,
-    "new_scene_peer_review": {
-      "indices": [
-        10,
-        11,
-        12
-      ],
-      "reviewer": "Independent Codex AI technical review",
-      "receipt": "/tmp/spacr-ui-evidence/601/appearance-translations/shared-ui-peer-review.json"
-    }
+    "listening_review": false
   },
   "language": "nb",
   "title": "Home-skjermen og navigering",
@@ -24,7 +15,8 @@
   "objectives": [
     "Velge en startmodul for bilder, målinger eller sekvenseringslesninger.",
     "Finne tilhørende verktøy og organismespesifikke analyser.",
-    "Laste inn et eksempel, finne hjelp og åpne en pipelineoversikt."
+    "Tilpasse Home-kolonnen og modulpanelene til skjermen din.",
+    "Laste inn et eksempel, finne hjelp med søk eller Control-K og stille inn Preferences."
   ],
   "prerequisite": "Installer spaCR og åpne skrivebordsprogrammet.",
   "scenes": [
@@ -36,22 +28,13 @@
     "Åpne Classify og velg inndata med Classifier family. Velg Computer Vision for objektbilder eller Tabular Machine Learning for kolonner med målte egenskaper. De lenkede veiledningene tar deg gjennom trening, evaluering og poengsetting for hver familie.",
     "Når en modell er trent, hjelper verktøylinjen i Classify deg med å granske den. Classifier Evaluation viser hvordan den gjorde det på tilbakeholdte data, Explain CV Model og Activation viser hva som styrer avgjørelsene, Training Runs sammenligner treningshistorikk, og Feature Explorer rangerer egenskapene som skiller gruppene dine. Hold pekeren over et ikon for å se navnet.",
     "For å prøve en modul klikker du på Load test data når det finnes. Vent til nedlastingen er ferdig, og gå deretter gjennom de utfylte inndataene og innstillingene. I Mask klikker du på Live for å undersøke et synsfelt før du trykker på Run. Slå på Time for en tidsserie eller 3D for et volumbilde.",
+    "Hver modulskjerm kan tilpasses skjermen din. Dra håndtaket mellom innstillingene og panelene til høyre for å gi den ene siden mer plass, eller klikk på pilen for å brette innstillingene bort. Hold inne Control og rull over panelene til høyre for å gjøre teksten deres større eller mindre, og trykk Control-0 for å tilbakestille den.",
+    "Tilbake på Home holder kolonnen til høyre oversikt over arbeidet ditt. Recent runs viser hva du har kjørt, Totals teller kjøringer, masker og målinger, og System viser belastningen på datamaskinen. En kjøring som pågår eller venter, vises også her. Glidebryteren Text size under det nederste panelet gjør teksten i kolonnen større eller mindre.",
+    "Pilhåndtaket på kolonnens venstre kant virker som håndtakene i modulene. Dra i det for å gjøre kolonnen bredere eller smalere, eller klikk på det for å brette kolonnen bort slik at flisene får hele bredden. Klikk på pilen igjen for å få kolonnen tilbake.",
     "Skriv navnet på en modul, en innstilling eller en funksjon i søkefeltet ved siden av Help. Her finner et søk etter Performance den tilsvarende siden i Preferences. Klikk på et resultat for å åpne målet. API-resultater åpner dokumentasjonen for den valgte funksjonen.",
+    "Trykk Control-K hvor som helst for å åpne kommandopaletten. Begynn å skrive et navn, for eksempel Measure, og listen blir kortere mens du skriver. Trykk Enter for å gå til den uthevede modulen, en nylig kjøring eller en menyhandling uten å ta musen.",
     "I Preferences velger du en Performance-profil for datamaskinen din. Laptop bruker færre ressurser; de høyere profilene tillater mer mellomlagring og bakgrunnsarbeid. Begynn med en moderat profil hvis minnet er begrenset. Analyseinnstillingene dine forblir under din kontroll i hver modul.",
-    "Åpne Appearance i Preferences for å tilpasse grensesnittet. Theme og Animation er seksjoner på denne siden som kan foldes ut og sammen. Klikk på en seksjonsoverskrift for å åpne kontrollene eller folde dem sammen igjen.",
-    "Åpne Theme for å velge tema for grensesnittet og sidenes ugjennomsiktighet. Den samme seksjonen inneholder kontrollene for vinduskanten, blant annet lengde, justering og glødemodus.",
-    "Åpne Animation for å velge animert bakgrunn og fargepalett. Juster detaljnivå, uskarphet, hastighet, størrelse og tetthet her. Du kan også velge om verktøytips for innstillinger skal animeres, og velge bakgrunn for innstillingene.",
+    "Fanen General i Preferences stiller inn språket i grensesnittet, skrift- og GUI-skalering, om app-dokken holdes åpen, og en fargeblindvennlig palett for plott. Fanen Figures velger format og oppløsning for lagrede figurer, og Appearance styrer når verktøytips vises.",
     "Gå tilbake til Home og klikk på Pipeline overviews for å velge en arbeidsflyt. Begynn med spaCR screens for en samlet bildebasert screening, eller velg en vei for bildeanalyse eller sekvensering for dataene dine. De neste veiledningene viser hvordan modulene henger sammen, og modulleksjonene går deretter gjennom hver oppgave."
-  ],
-  "prior_review": {
-    "english_sha256": "63d9c5df087686dfdcab76b19809465c2f21940a0cf63c565d485985259215e5",
-    "review": {
-      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-      "date": "2026-09-25",
-      "independent_peer_review": false,
-      "native_speaker_signoff": false,
-      "listening_review": false
-    }
-  }
+  ]
 }

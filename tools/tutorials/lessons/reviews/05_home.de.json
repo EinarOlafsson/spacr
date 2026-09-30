@@ -1,22 +1,13 @@
 {
   "lesson": "05_home",
-  "english_sha256": "a004499c8b6d66f2ccc1e816f2dcb1ae838009a397704bdbfd612b0e1692558c",
+  "english_sha256": "11f042d6858da357f4657d8bde6b98825981c2985932cdf6ac2105f307689679",
   "review": {
-    "kind": "AI technical draft; new Appearance scenes independently peer reviewed",
-    "translator": "Codex AI, three new Appearance scenes adapted from current English source; prior scenes retained",
-    "date": "2026-10-01",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false,
-    "new_scene_peer_review": {
-      "indices": [
-        10,
-        11,
-        12
-      ],
-      "reviewer": "Independent Codex AI technical review",
-      "receipt": "/tmp/spacr-ui-evidence/601/appearance-translations/shared-ui-peer-review.json"
-    }
+    "listening_review": false
   },
   "language": "de",
   "title": "Home-Bildschirm und Navigation",
@@ -24,7 +15,8 @@
   "objectives": [
     "Ein Startmodul für Bilder, Messwerte oder Sequenzier-Reads wählen.",
     "Zugehörige Werkzeuge und organismusspezifische Assays finden.",
-    "Ein Beispiel laden, Hilfe finden und eine Pipeline-Übersicht öffnen."
+    "Die Home-Spalte und die Modulbereiche an Ihren Bildschirm anpassen.",
+    "Ein Beispiel laden, Hilfe über die Suche oder Control-K finden und Preferences einstellen."
   ],
   "prerequisite": "Installieren Sie spaCR und öffnen Sie die Desktop-Anwendung.",
   "scenes": [
@@ -36,22 +28,13 @@
     "Öffnen Sie Classify und wählen Sie über Classifier family Ihre Eingabe. Wählen Sie Computer Vision für Objektbilder oder Tabular Machine Learning für gemessene Merkmalsspalten. Die verlinkten Tutorials führen Sie für jede Familie durch Training, Bewertung und Scoring.",
     "Ist ein Modell trainiert, hilft Ihnen die Werkzeugleiste von Classify, es zu hinterfragen. Classifier Evaluation zeigt seine Leistung auf zurückgehaltenen Daten, Explain CV Model und Activation zeigen, was seine Entscheidungen bestimmt, Training Runs vergleicht Trainingsverläufe, und Feature Explorer ordnet die Merkmale, die Ihre Gruppen trennen. Fahren Sie mit der Maus über ein Symbol, um seinen Namen zu sehen.",
     "Um ein Modul auszuprobieren, klicken Sie auf Load test data, sofern vorhanden. Warten Sie, bis der Download abgeschlossen ist, und prüfen Sie dann die ausgefüllten Eingaben und Einstellungen. Klicken Sie in Mask auf Live, um ein Bildfeld zu prüfen, bevor Sie Run drücken. Schalten Sie Time für eine Zeitreihe oder 3D für ein Volumenbild ein.",
+    "Jeder Modulbildschirm lässt sich an Ihren Bildschirm anpassen. Ziehen Sie den Griff zwischen den Einstellungen und den rechten Bereichen, um einer Seite mehr Platz zu geben, oder klicken Sie auf seinen Pfeil, um die Einstellungen einzuklappen. Halten Sie Control gedrückt und scrollen Sie über den rechten Bereichen, um deren Text zu vergrößern oder zu verkleinern; mit Control-0 setzen Sie ihn zurück.",
+    "Zurück in Home behält die rechte Spalte Ihre Arbeit im Blick. Recent runs listet Ihre Läufe, Totals zählt Läufe, Masken und Messungen, und System zeigt die Auslastung Ihres Computers. Ein laufender oder wartender Lauf erscheint ebenfalls hier. Der Regler Text size unter dem untersten Bereich macht den Text dieser Spalte größer oder kleiner.",
+    "Der Pfeilgriff am linken Rand der Spalte funktioniert wie die Griffe der Module. Ziehen Sie ihn, um die Spalte breiter oder schmaler zu machen, oder klicken Sie darauf, um die Spalte einzuklappen, damit die Kacheln die ganze Breite erhalten. Ein weiterer Klick auf den Pfeil holt die Spalte zurück.",
     "Geben Sie den Namen eines Moduls, einer Einstellung oder einer Funktion in das Suchfeld neben Help ein. Hier findet die Suche nach Performance die passende Seite in Preferences. Klicken Sie auf ein Ergebnis, um das Ziel zu öffnen. API-Ergebnisse öffnen die Dokumentation der ausgewählten Funktion.",
+    "Drücken Sie überall Control-K, um die Befehlspalette zu öffnen. Beginnen Sie, einen Namen wie Measure einzugeben, und die Liste wird beim Tippen kürzer. Mit Enter springen Sie zum markierten Modul, Lauf oder Menübefehl, ohne zur Maus zu greifen.",
     "Wählen Sie in Preferences ein Performance-Profil für Ihren Computer. Laptop verbraucht weniger Ressourcen; die höheren Profile erlauben mehr Caching und Hintergrundarbeit. Beginnen Sie mit einem bescheidenen Profil, wenn der Arbeitsspeicher begrenzt ist. Ihre Analyseeinstellungen bleiben in jedem Modul unter Ihrer Kontrolle.",
-    "Öffnen Sie Appearance in Preferences, um die Oberfläche anzupassen. Theme und Animation sind auf dieser Seite einklappbare Bereiche. Klicken Sie auf eine Bereichsüberschrift, um ihre Einstellungen zu öffnen oder wieder einzuklappen.",
-    "Öffnen Sie Theme, um das Oberflächendesign und die Deckkraft der Seiten zu wählen. Im selben Bereich finden Sie die Einstellungen für den Fensterrand, darunter Länge, Ausrichtung und Leuchtmodus.",
-    "Öffnen Sie Animation, um den animierten Hintergrund und seine Farbpalette zu wählen. Passen Sie hier Detailgrad, Unschärfe, Geschwindigkeit, Größe und Dichte an. Sie können auch festlegen, ob Einstellungshinweise animiert werden, und einen Hintergrund für die Einstellungen wählen.",
+    "Die Registerkarte General in Preferences legt die Sprache der Oberfläche, die Schrift- und GUI-Skalierung, das dauerhafte Offenhalten des App-Docks und eine farbenblindenfreundliche Palette für Diagramme fest. Die Registerkarte Figures wählt Format und Auflösung gespeicherter Abbildungen, und Appearance steuert, wann Tooltips erscheinen.",
     "Kehren Sie zu Home zurück und klicken Sie auf Pipeline overviews, um einen Workflow zu wählen. Beginnen Sie mit spaCR screens für einen gepoolten bildbasierten Screen, oder wählen Sie einen Bildanalyse- oder Sequenzierpfad für Ihre Daten. Die nächsten Tutorials zeigen, wie diese Module zusammenhängen, und die Modul-Lektionen führen anschließend durch jede Aufgabe."
-  ],
-  "prior_review": {
-    "english_sha256": "63d9c5df087686dfdcab76b19809465c2f21940a0cf63c565d485985259215e5",
-    "review": {
-      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-      "date": "2026-09-25",
-      "independent_peer_review": false,
-      "native_speaker_signoff": false,
-      "listening_review": false
-    }
-  }
+  ]
 }

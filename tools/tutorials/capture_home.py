@@ -102,3 +102,134 @@ def record_performance(window, capture, settle, *, dialog_size=(1200, 1200)):
         dialog.close()
         dialog.deleteLater()
         settle()
+
+
+def record_resize_panels(app, window, capture, settle, key="mask"):
+    """Drag a module screen's settings handle wider and enlarge its right column's text.
+
+    Moves the real splitter the way a drag does and applies the Ctrl + wheel
+    column scale (item 529) through its own filter, then restores both.
+    """
+    from capture_geometry import capture_rect
+
+    from spacr.qt.live_zoom import _COLUMN_FILTER_ATTRIBUTE
+
+    screen = window._screens.get(key)
+    body = getattr(screen, "_body_splitter", None)
+    if body is None or not body.isVisible():
+        raise RuntimeError(f"{key} has no visible settings splitter")
+    sizes = body.sizes()
+    column = getattr(app, _COLUMN_FILTER_ATTRIBUTE, None)
+    if column is None:
+        raise RuntimeError("The Ctrl + wheel column text filter is not installed")
+    scale = column.scale()
+    try:
+        body.moveSplitter(sizes[0] + 420, 1)
+        column.set_scale(1.25)
+        settle(1.2)
+        handle = body.handle(1)
+        runtime = getattr(screen, "_runtime_wrap", None)
+        regions = {"handle": capture_rect(handle, window),
+                   "column": capture_rect(runtime, window) if runtime is not None else None}
+        capture("14_resize_panels")
+    finally:
+        column.set_scale(scale)
+        body.setSizes(sizes)
+        settle()
+    return regions
+
+
+def record_home_column(window, capture, settle):
+    """Show the Home right-hand column, its Text size slider and its fold handle."""
+    from capture_geometry import capture_rect
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+
+    home = window._startup
+    split = home._aside_split
+    slider = home._homeAsideTextSlider
+    if home._aside_collapsed():
+        raise RuntimeError("The Home column starts folded")
+    original = slider.value()
+    regions = {}
+    try:
+        # The slider stays at its default: above 100 % the System panel
+        # currently paints its old rows under the new ones (reported, not
+        # patched here), and a recording must not show that defect.
+        settle(1.2)
+        regions["column"] = capture_rect(home._aside, window)
+        regions["slider"] = capture_rect(home._aside_controls, window)
+        capture("10_home_column")
+    finally:
+        slider.setValue(original)
+        settle()
+    index = split.indexOf(home._aside)
+    handle = split.handle(index)
+    regions["handle"] = capture_rect(handle, window)
+    QTest.mouseClick(handle, Qt.LeftButton, pos=handle.rect().center())
+    settle(1.2)
+    if not home._aside_collapsed():
+        raise RuntimeError("Clicking the Home column handle did not fold it")
+    regions["folded_handle"] = capture_rect(split.handle(index), window)
+    capture("11_column_folded")
+    QTest.mouseClick(split.handle(index), Qt.LeftButton,
+                     pos=split.handle(index).rect().center())
+    settle(1.2)
+    if home._aside_collapsed():
+        raise RuntimeError("Clicking the handle again did not restore the Home column")
+    return regions
+
+
+def record_command_palette(window, capture, settle, text="Meas"):
+    """Open the Ctrl+K command palette and filter it by typing."""
+    from capture_geometry import capture_rect
+    from PySide6.QtTest import QTest
+
+    from spacr.qt.command_palette import CommandPalette
+
+    palette = CommandPalette(window)
+    try:
+        palette.show()
+        settle()
+        QTest.keyClicks(palette._input, text)
+        settle(1.0)
+        if palette._list.count() == 0:
+            raise RuntimeError("The command palette listed nothing for its filter")
+        region = capture_rect(palette, window)
+        capture("12_command_palette")
+    finally:
+        palette.close()
+        palette.deleteLater()
+        settle()
+    return region
+
+
+def record_preferences_page(window, capture, settle, object_name="PreferencesTabGeneral",
+                            name="13_preferences_general"):
+    """Show one Preferences tab; never the Modules tab with the alpha toggle."""
+    from PySide6.QtWidgets import QTabWidget, QWidget
+
+    from spacr.qt.preferences import PreferencesDialog
+
+    if object_name == "PreferencesTabModules":
+        raise ValueError("The Modules tab holds the alpha toggle; not recorded here")
+    dialog = PreferencesDialog(window)
+    try:
+        tabs = dialog.findChild(QTabWidget, "PreferencesTabs")
+        page = dialog.findChild(QWidget, object_name)
+        if tabs is None or page is None:
+            raise RuntimeError(f"Preferences has no {object_name}")
+        for index in range(tabs.count()):
+            if tabs.widget(index).isAncestorOf(page):
+                tabs.setCurrentIndex(index)
+                break
+        dialog.resize(1200, 1200)
+        dialog.show()
+        settle()
+        if not page.isVisible():
+            raise RuntimeError(f"{object_name} is not visible")
+        capture(name)
+    finally:
+        dialog.close()
+        dialog.deleteLater()
+        settle()

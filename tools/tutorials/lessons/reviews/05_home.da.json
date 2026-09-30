@@ -1,22 +1,13 @@
 {
   "lesson": "05_home",
-  "english_sha256": "a004499c8b6d66f2ccc1e816f2dcb1ae838009a397704bdbfd612b0e1692558c",
+  "english_sha256": "11f042d6858da357f4657d8bde6b98825981c2985932cdf6ac2105f307689679",
   "review": {
-    "kind": "AI technical draft; new Appearance scenes independently peer reviewed",
-    "translator": "Codex AI, three new Appearance scenes adapted from current English source; prior scenes retained",
-    "date": "2026-10-01",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false,
-    "new_scene_peer_review": {
-      "indices": [
-        10,
-        11,
-        12
-      ],
-      "reviewer": "Independent Codex AI technical review",
-      "receipt": "/tmp/spacr-ui-evidence/601/appearance-translations/shared-ui-peer-review.json"
-    }
+    "listening_review": false
   },
   "language": "da",
   "title": "Home-skærmen og navigation",
@@ -24,7 +15,8 @@
   "objectives": [
     "Vælge et startmodul til billeder, målinger eller sekventeringslæsninger.",
     "Finde relaterede værktøjer og organismespecifikke analyser.",
-    "Indlæse et eksempel, finde hjælp og åbne en pipelineoversigt."
+    "Indrette Home-kolonnen og modulpanelerne efter din skærm.",
+    "Indlæse et eksempel, finde hjælp med søgning eller Control-K og indstille Preferences."
   ],
   "prerequisite": "Installer spaCR, og åbn skrivebordsprogrammet.",
   "scenes": [
@@ -36,22 +28,13 @@
     "Åbn Classify, og vælg dit input med Classifier family. Vælg Computer Vision til objektbilleder eller Tabular Machine Learning til kolonner med målte egenskaber. De linkede vejledninger fører dig gennem træning, evaluering og scoring for hver familie.",
     "Når en model er trænet, hjælper værktøjslinjen i Classify dig med at undersøge den. Classifier Evaluation viser, hvordan den klarede sig på tilbageholdte data, Explain CV Model og Activation viser, hvad der styrer dens afgørelser, Training Runs sammenligner træningshistorik, og Feature Explorer rangerer de egenskaber, der adskiller dine grupper. Hold markøren over et ikon for at se dets navn.",
     "For at prøve et modul klikker du på Load test data, når det findes. Vent, til downloaden er færdig, og gennemgå derefter de udfyldte input og indstillinger. I Mask klikker du på Live for at undersøge et synsfelt, før du trykker på Run. Slå Time til for en tidsserie eller 3D for et volumenbillede.",
+    "Hver modulskærm kan indrettes efter din skærm. Træk håndtaget mellem indstillingerne og panelerne til højre for at give den ene side mere plads, eller klik på dens pil for at folde indstillingerne væk. Hold Control nede og rul over panelerne til højre for at gøre deres tekst større eller mindre, og tryk Control-0 for at nulstille den.",
+    "Tilbage i Home holder kolonnen til højre styr på dit arbejde. Recent runs viser, hvad du har kørt, Totals tæller kørsler, masker og målinger, og System viser belastningen på din computer. En kørsel, der er i gang eller venter, vises også her. Skyderen Text size under det nederste panel gør kolonnens tekst større eller mindre.",
+    "Pilehåndtaget i kolonnens venstre kant virker som modulernes håndtag. Træk i det for at gøre kolonnen bredere eller smallere, eller klik på det for at folde kolonnen væk, så fliserne får hele bredden. Klik på pilen igen for at få kolonnen tilbage.",
     "Skriv navnet på et modul, en indstilling eller en funktion i søgefeltet ved siden af Help. Her finder en søgning efter Performance den tilsvarende side i Preferences. Klik på et resultat for at åbne dets destination. API-resultater åbner dokumentationen for den valgte funktion.",
+    "Tryk Control-K hvor som helst for at åbne kommandopaletten. Begynd at skrive et navn, for eksempel Measure, og listen bliver kortere, mens du skriver. Tryk Enter for at springe til det markerede modul, en nylig kørsel eller en menuhandling uden at tage musen.",
     "I Preferences vælger du en Performance-profil til din computer. Laptop bruger færre ressourcer; de højere profiler tillader mere caching og baggrundsarbejde. Start med en beskeden profil, hvis hukommelsen er begrænset. Dine analyseindstillinger forbliver under din kontrol i hvert modul.",
-    "Åbn Appearance i Preferences for at tilpasse brugerfladen. Theme og Animation er sektioner på siden, som kan foldes ud og sammen. Klik på en sektionsoverskrift for at åbne dens kontroller eller folde dem sammen igen.",
-    "Åbn Theme for at vælge brugerfladens tema og sidernes opacitet. Samme sektion indeholder kontroller til vindueskanten, herunder længde, placering og glødtilstand.",
-    "Åbn Animation for at vælge den animerede baggrund og dens farvepalet. Juster detaljegrad, sløring, hastighed, størrelse og tæthed her. Du kan også vælge, om indstillingernes værktøjstip skal animeres, og vælge en baggrund til indstillingerne.",
+    "Fanen General i Preferences indstiller brugerfladens sprog, skrift- og GUI-skalering, om app-docken forbliver åben, og en farveblindvenlig palet til plots. Fanen Figures vælger format og opløsning for gemte figurer, og Appearance styrer, hvornår værktøjstip vises.",
     "Vend tilbage til Home, og klik på Pipeline overviews for at vælge et workflow. Begynd med spaCR screens til en poolet billedbaseret screening, eller vælg en vej for billedanalyse eller sekventering til dine data. De næste vejledninger viser, hvordan modulerne hænger sammen, og modullektionerne gennemgår derefter hver opgave."
-  ],
-  "prior_review": {
-    "english_sha256": "63d9c5df087686dfdcab76b19809465c2f21940a0cf63c565d485985259215e5",
-    "review": {
-      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-      "date": "2026-09-25",
-      "independent_peer_review": false,
-      "native_speaker_signoff": false,
-      "listening_review": false
-    }
-  }
+  ]
 }

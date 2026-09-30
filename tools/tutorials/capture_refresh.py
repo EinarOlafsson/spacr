@@ -98,6 +98,7 @@ def main() -> int:
     parser.add_argument('--openings', action='store_true', help='Record only the shared Home, Help-menu and host openings of the tool lessons')
     parser.add_argument('--openings-set', choices=('home', 'illumination_apply', 'align_test_data', 'mask_source_channels'), default='home',
                         help='With --openings: which shared or lesson-extension frames to record')
+    parser.add_argument('--measure-qc-tour', action='store_true', help='Record the QC switch popup and the Image Preprocessing category after loading Measure data')
     parser.add_argument('--timeout', type=float, default=600)
     parser.add_argument('--preferences-alpha-toggle-scene', action='store_true',
                         help='Opt-in for a Preferences lesson scene that shows the Show alpha features toggle itself; '
@@ -454,8 +455,12 @@ def main() -> int:
         window._on_nav_selected('mask')
         settle(3)
         capture('06_mask_host')
+        from capture_home import (record_command_palette, record_home_column,
+                                  record_preferences_page, record_resize_panels)
+        home_focus = {'14_resize_panels': record_resize_panels(app, window, capture, settle)}
         window._on_nav_selected('__home__')
         settle()
+        home_focus.update(record_home_column(window, capture, settle))
         help_menu = next(a.menu() for a in window.menuBar().actions()
                          if a.text().replace('&', '') == 'Help')
         help_menu.popup(window.menuBar().mapToGlobal(QPoint(110, 30)))
@@ -464,7 +469,10 @@ def main() -> int:
         help_menu.hide()
         from capture_home import record_help_search, record_performance
         record_help_search(app, window, capture, settle)
+        home_focus['12_command_palette'] = record_command_palette(window, capture, settle)
         record_performance(window, capture, settle)
+        record_preferences_page(window, capture, settle)
+        write_json(captures / 'home_focus.json', home_focus)
     if args.workflow_overview:
         from capture_workflow_overview import record_overview
         browser = None
@@ -911,7 +919,14 @@ def main() -> int:
                 source = settings['src']
                 source = Path(source[0] if isinstance(source, list) else source)
                 choose_existing_folder(app, screen, source, capture, settle)
+            if args.module == 'measure' and args.measure_qc_tour:
+                from capture_mask_table import record_measure_qc, record_section
+                record_measure_qc(app, window, screen, captures, capture, settle, write_json)
+                record_section(app, window, screen, captures, capture, settle, write_json,
+                               'Image Preprocessing', '09b_image_preprocessing')
             if args.module == 'mask':
+                from capture_mask_table import record_object_table
+                record_object_table(app, window, screen, captures, capture, settle, write_json)
                 images = list((stage / 'example_data/plate1').glob('*.tif'))
                 if not images:
                     raise RuntimeError('The UI did not download any real images')
@@ -1420,6 +1435,12 @@ def main() -> int:
                 queue.show_index(queue.count() - 1)
                 settle()
                 capture('24_batch_figure')
+            if args.module == 'mask':
+                # The run's own overlay figures, as the figure panel shows them.
+                for index in range(min(3, queue.count())):
+                    queue.show_index(index)
+                    settle(2)
+                    capture(f'25_mask_figure_{index:02d}')
             if args.module == 'classify_merged' and args.classifier_family == 'ml':
                 # Make room for the complete native charts through the same
                 # splitter a user can drag. Let each live canvas settle after

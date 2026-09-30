@@ -10,7 +10,8 @@
   "objectives": [
     "Choose a starting module for images, measurements or sequencing reads.",
     "Find related tools and organism-specific assays.",
-    "Load an example, find help and open a pipeline overview."
+    "Arrange the Home column and module panels to suit your screen.",
+    "Load an example, find help with search or Control-K, and set Preferences."
   ],
   "prerequisite": "Install spaCR and open the desktop application.",
   "scenes": [
@@ -128,9 +129,53 @@
       ]
     },
     {
+      "visual": "14_resize_panels",
+      "narration": "Every module screen can be arranged to suit your screen. Drag the handle between the settings and the right-hand panels to give either side more room, or click its arrow to fold the settings away. Hold Control and scroll over the right-hand panels to make their text larger or smaller, and press Control-0 to reset it.",
+      "hold_after": 0.7,
+      "focus": [
+        2700,
+        171,
+        300,
+        1950
+      ]
+    },
+    {
+      "visual": "10_home_column",
+      "narration": "Back on Home, the column on the right keeps track of your work. Recent runs lists what you ran, Totals counts runs, masks and measurements, and System shows the load on your computer. While a run is going or waiting, it appears here too. The Text size slider under the lowest panel makes this column's text larger or smaller.",
+      "hold_after": 0.7,
+      "focus": [
+        3138,
+        205,
+        678,
+        1874
+      ]
+    },
+    {
+      "visual": "11_column_folded",
+      "narration": "The arrow handle on the column's left edge works like the module handles. Drag it to make the column wider or narrower, or click it to fold the column away so the tiles get the whole width. Click the arrow again to bring the column back.",
+      "hold_after": 0.7,
+      "focus": [
+        3700,
+        205,
+        140,
+        1874
+      ]
+    },
+    {
       "visual": "08_help_search",
       "narration": "Type a module, setting or function name into the search field beside Help. Here, searching for Performance finds the matching Preferences page. Click a result to open its destination. API results open the documentation for the selected function.",
       "hold_after": 0.7
+    },
+    {
+      "visual": "12_command_palette",
+      "narration": "Press Control-K anywhere to open the command palette. Start typing a name, such as Measure, and the list narrows as you type. Press Enter to jump to the highlighted module, recent run or menu action without reaching for the mouse.",
+      "hold_after": 0.7,
+      "focus": [
+        1490,
+        830,
+        840,
+        420
+      ]
     },
     {
       "visual": "09_performance",
@@ -138,22 +183,15 @@
       "hold_after": 0.7
     },
     {
-      "visual": "10_appearance_categories",
-      "narration": "Open Appearance in Preferences to adjust the interface. Theme and Animation are collapsible sections on this page. Click a section heading to open its controls or fold them away.",
+      "visual": "13_preferences_general",
+      "narration": "The General tab of Preferences sets the interface language, the font and GUI scale, whether the app dock stays open, and a palette for plots that suits colour vision deficiency. The Figures tab chooses the format and resolution of saved figures, and Appearance controls when tooltips appear.",
       "hold_after": 0.7,
-      "focus": [960, 200, 1920, 1080]
-    },
-    {
-      "visual": "11_appearance_theme",
-      "narration": "Open Theme to choose the interface theme and page opacity. The same section holds the window rim controls, including its length, alignment and glow mode.",
-      "hold_after": 0.7,
-      "focus": [960, 200, 1920, 1080]
-    },
-    {
-      "visual": "12_appearance_animation",
-      "narration": "Open Animation to choose the animated backdrop and its palette. Adjust its detail, blur, speed, size and density here. You can also choose whether setting tooltips animate and select a settings backdrop.",
-      "hold_after": 0.7,
-      "focus": [960, 200, 1920, 1080]
+      "focus": [
+        1310,
+        440,
+        1200,
+        1200
+      ]
     },
     {
       "visual": "00_home",
@@ -165,10 +203,10 @@
         "81_sequencing_pathways"
       ],
       "focus": [
-        3341,
-        180,
-        499,
-        96
+        3150,
+        205,
+        666,
+        46
       ]
     }
   ]

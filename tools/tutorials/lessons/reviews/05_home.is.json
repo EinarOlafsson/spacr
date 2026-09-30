@@ -1,22 +1,13 @@
 {
   "lesson": "05_home",
-  "english_sha256": "a004499c8b6d66f2ccc1e816f2dcb1ae838009a397704bdbfd612b0e1692558c",
+  "english_sha256": "11f042d6858da357f4657d8bde6b98825981c2985932cdf6ac2105f307689679",
   "review": {
-    "kind": "AI technical draft; new Appearance scenes independently peer reviewed",
-    "translator": "Codex AI, three new Appearance scenes adapted from current English source; prior scenes retained",
-    "date": "2026-10-01",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false,
-    "new_scene_peer_review": {
-      "indices": [
-        10,
-        11,
-        12
-      ],
-      "reviewer": "Independent Codex AI technical review",
-      "receipt": "/tmp/spacr-ui-evidence/601/appearance-translations/shared-ui-peer-review.json"
-    }
+    "listening_review": false
   },
   "language": "is",
   "title": "Home-skjárinn og leiðsögn",
@@ -24,7 +15,8 @@
   "objectives": [
     "Velja upphafseiningu fyrir myndir, mælingar eða raðgreiningarlestra.",
     "Finna tengd verkfæri og greiningar fyrir einstakar lífverur.",
-    "Hlaða inn dæmi, finna hjálp og opna yfirlit yfir greiningarferli."
+    "Laga Home-dálkinn og einingaspjöldin að skjánum þínum.",
+    "Hlaða inn dæmi, finna hjálp með leit eða Control-K og stilla Preferences."
   ],
   "prerequisite": "Settu upp spaCR og opnaðu skjáborðsforritið.",
   "scenes": [
@@ -36,22 +28,13 @@
     "Opnaðu Classify og veldu inntakið með Classifier family. Veldu Computer Vision fyrir myndir af hlutum eða Tabular Machine Learning fyrir dálka með mældum eiginleikum. Tengdu kennslurnar leiða þig í gegnum þjálfun, mat og stigagjöf fyrir hvora fjölskyldu.",
     "Þegar líkan hefur verið þjálfað hjálpar verkfærastika Classify þér að rýna í það. Classifier Evaluation sýnir hvernig því gekk á gögnum sem haldið var til hliðar, Explain CV Model og Activation sýna hvað ræður niðurstöðum þess, Training Runs ber saman þjálfunarsögu og Feature Explorer raðar þeim eiginleikum sem aðgreina hópana. Haltu bendlinum yfir tákni til að sjá heiti þess.",
     "Til að prófa einingu smellirðu á Load test data þegar það er í boði. Bíddu þar til niðurhalinu lýkur og farðu svo yfir útfyllt inntök og stillingar. Í Mask smellirðu á Live til að skoða sjónsvið áður en þú ýtir á Run. Kveiktu á Time fyrir tímaröð eða 3D fyrir rúmmálsmynd.",
+    "Hægt er að laga hvern einingarskjá að skjánum þínum. Dragðu handfangið milli stillinganna og spjaldanna hægra megin til að gefa annarri hliðinni meira pláss, eða smelltu á örina til að fella stillingarnar frá. Haltu Control niðri og skrunaðu yfir spjöldunum hægra megin til að stækka eða minnka textann í þeim, og ýttu á Control-0 til að núllstilla hann.",
+    "Aftur á Home heldur dálkurinn hægra megin utan um vinnuna þína. Recent runs sýnir það sem þú keyrðir, Totals telur keyrslur, grímur og mælingar, og System sýnir álagið á tölvunni. Keyrsla sem er í gangi eða bíður birtist hér líka. Sleðinn Text size undir neðsta spjaldinu stækkar eða minnkar textann í dálkinum.",
+    "Örvarhandfangið á vinstri brún dálksins virkar eins og handföng eininganna. Dragðu það til að breikka eða mjókka dálkinn, eða smelltu á það til að fella dálkinn frá svo reitirnir fái alla breiddina. Smelltu aftur á örina til að fá dálkinn til baka.",
     "Sláðu inn heiti einingar, stillingar eða falls í leitarreitinn við hliðina á Help. Hér finnur leit að Performance samsvarandi síðu í Preferences. Smelltu á niðurstöðu til að opna áfangastað hennar. API-niðurstöður opna skjölun valins falls.",
+    "Ýttu á Control-K hvar sem er til að opna skipanaspjaldið. Byrjaðu að slá inn nafn, til dæmis Measure, og listinn styttist á meðan þú skrifar. Ýttu á Enter til að fara í valda einingu, nýlega keyrslu eða valmyndaraðgerð án þess að grípa í músina.",
     "Í Preferences velurðu Performance-snið fyrir tölvuna þína. Laptop notar minni tilföng; hærri sniðin leyfa meiri skyndiminnisnotkun og bakgrunnsvinnu. Byrjaðu á hóflegu sniði ef minni er takmarkað. Greiningarstillingarnar eru áfram á þínu valdi í hverri einingu.",
-    "Opnaðu Appearance í Preferences til að stilla viðmótið. Theme og Animation eru hlutar á þessari síðu sem hægt er að fella út og saman. Smelltu á fyrirsögn hluta til að opna stýringarnar eða fella þær saman aftur.",
-    "Opnaðu Theme til að velja þema viðmótsins og ógagnsæi síðna. Þar eru einnig stýringar fyrir gluggabrúnina, meðal annars lengd hennar, jöfnun og ljómahátt.",
-    "Opnaðu Animation til að velja hreyfanlegan bakgrunn og litavalið hans. Stilltu hér smáatriði, óskerpu, hraða, stærð og þéttleika. Þú getur líka valið hvort ábendingar við stillingar séu hreyfðar og valið bakgrunn fyrir stillingarnar.",
+    "Flipinn General í Preferences stillir tungumál viðmótsins, leturstærð og kvörðun viðmótsins, hvort forritabryggjan haldist opin og litaspjald fyrir litblinda í gröfum. Flipinn Figures velur snið og upplausn vistaðra mynda, og Appearance ræður hvenær vísbendingar birtast.",
     "Farðu aftur í Home og smelltu á Pipeline overviews til að velja verkferli. Byrjaðu á spaCR screens fyrir samsafnaða myndgreiningarskimun, eða veldu leið fyrir myndgreiningu eða raðgreiningu sem hentar gögnunum þínum. Næstu kennslur sýna hvernig þessar einingar tengjast og kennslur einstakra eininga fara síðan í gegnum hvert verk."
-  ],
-  "prior_review": {
-    "english_sha256": "63d9c5df087686dfdcab76b19809465c2f21940a0cf63c565d485985259215e5",
-    "review": {
-      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-      "date": "2026-09-25",
-      "independent_peer_review": false,
-      "native_speaker_signoff": false,
-      "listening_review": false
-    }
-  }
+  ]
 }
