@@ -61,3 +61,32 @@ English API inventory and docstring correctness checks also pass. This repairs
 reuse consistency only; reference-selection/gain-preview UI and real acquisition
 acceptance are not claimed complete. Item580 remains implemented as alpha.
 Receipt: features/data/580_calibration_resume_identity_2026-09-28.json.
+
+REAL-DATA VALIDATION 2026-09-30 (CPU; no code change)
+    Data: cpg0002-jump-scope (Cell Painting Gallery; Tromans-Coia & Jamali
+    et al. 2023). Plate P1 (JUMP-MOA, U2OS, 5-channel Cell Painting) on a
+    PerkinElmer Phenix, confocal, one plane, imaged in two sessions:
+    2020-11-09 with 2x2 binning and 2020-11-11 unbinned. Field f01 of 60
+    wells in each, the same field in both. Session gains differ by channel
+    (0.4-1.0x). Reference = 12 of the 24 DMSO wells. Evaluated = the other
+    12 DMSO wells + 36 random compound wells: whole-field mean above the
+    camera offset, session B / session A per field and channel. Run
+    through _build_calibration_plan and _apply_calibration, foreground
+    statistic. Script: /mnt/wd4tb/scratch/538/580/val580.py. Receipt:
+    features/data/538_541_580_real_data_validation_2026-09-30.json.
+    - Offset 100 (Andor Zyla): compound wells, median |B/A - 1| per channel
+      41, 35, 3.3, 60, 7.6 % uncalibrated -> 7.2, 6.6, 7.6, 7.0, 5.9 %
+      calibrated. Held-out DMSO: 2.8-7.8 %. Fields within 10 % on every
+      channel: 31 % -> 70 % (DMSO 35 % -> 83 %). p90 13-22 %.
+    - Offset 0: the Hoechst channel is left 11 % off (vs 7 %). Set
+      intensity_calibration_offset to the camera offset.
+    - Residual bias: channels that already matched (ratio 0.98) are pulled
+      to 0.92-0.93. The median-above-Otsu reference statistic is not
+      invariant to the binning (resolution) change. A whole-field mean
+      statistic fixed two channels and worsened two. Not adopted, because
+      the gain from 12 reference fields is limited by field-to-field
+      scatter (focus, bleaching between sessions).
+    Verdict: on real sessions the calibrated intensities agree to about
+    6-8 % median per field (not the 2 % of the synthetic check). A
+    resolution change between sessions is the main limit. Still left: a
+    bead-plate check (no public bead plate imaged twice was found).

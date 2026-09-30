@@ -3327,6 +3327,7 @@ _CONFLUENCY_WELL_TABLE = 'confluency_well'
 _CONFLUENCY_WELL_KEYS = ('plateID', 'rowID', 'columnID')
 _CONFLUENCY_SEPARATION_MIN = 3.2
 _CONFLUENCY_TEXTURE_RATIO_MIN = 3.0
+_CONFLUENCY_PHASE_RATIO_MIN = 1.8
 _CONFLUENCY_INTENSITY_FRACTION = 0.25
 
 
@@ -3432,7 +3433,11 @@ def _texture_ratio(x, window):
     About 1 on an empty, flat field and several times that on one covered
     by cells, whatever the stain. It decides a field whose pixels do not
     separate into two classes, because such a field is either all
-    background or all monolayer.
+    background or all monolayer. A confluent phase-contrast monolayer
+    (LIVECell) reads only about 2 to 3, because its fine texture raises the
+    noise estimate too, while bare plastic reads 1.1 to 1.7; the texture
+    source therefore calls such a field covered from 1.8, and the intensity
+    source keeps the stricter 3.
 
     :param x: 0-1 scaled plane.
     :param window: window side in pixels.
@@ -3494,7 +3499,7 @@ def _texture_coverage(image, window=15):
     lo, hi = np.percentile(log_sd, [0.5, 99.5])
     cut, separation = _otsu_separation(np.clip(log_sd, lo, hi))
     if separation < _CONFLUENCY_SEPARATION_MIN:
-        full = _texture_ratio(x, window) >= _CONFLUENCY_TEXTURE_RATIO_MIN
+        full = _texture_ratio(x, window) >= _CONFLUENCY_PHASE_RATIO_MIN
         covered = np.full(x.shape, bool(full))
         return _ConfluencyResult(covered, float(full), 'texture', None,
                                 separation, True)
