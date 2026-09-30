@@ -1,0 +1,162 @@
+# spaCR user guide translation (zh_CN).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: zh_CN\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Train a Cellpose model"
+msgstr "训练 Cellpose 模型"
+
+msgid "Use your corrected image masks to fine-tune Cellpose-SAM, then apply the saved model to another image folder. From **Home → Tools → Make Masks**, open **Cellpose Workbench** and choose **Train**."
+msgstr "使用校正后的图像掩膜对 Cellpose-SAM 进行微调，然后将保存的模型应用于另一个图像文件夹。在 **主页 → 工具 → 创建掩膜** 中打开 **Cellpose 工作台**，然后选择 **训练**。"
+
+msgid "To follow along, download the `six example image/mask pairs <tutorials/examples/Cellpose_training_images_masks.zip>`__ and extract them. Set Source to the extracted ``training`` folder. Review the supplied cell masks in Make Masks, then follow the settings and Run steps below. The archive's ``apply`` folder holds three more images from wells that are not in the training set; use it to try the trained checkpoint in Apply."
+msgstr "如需跟随操作，请下载 `六组示例图像/掩膜对 <tutorials/examples/Cellpose_training_images_masks.zip>`__ 并解压。将来源设置为解压后的 ``training`` 文件夹。在创建掩膜中检查随附的细胞掩膜，然后按照下面的设置和运行步骤操作。压缩包中的 ``apply`` 文件夹另有三张来自训练集以外孔的图像；可在应用中用它们试用训练好的检查点。"
+
+msgid "Prepare images and masks"
+msgstr "准备图像和掩膜"
+
+msgid "Place training images in one folder and their masks in its ``masks`` subfolder::"
+msgstr "将训练图像放在一个文件夹中，并将对应掩膜放在其 ``masks`` 子文件夹中::"
+
+msgid "Each mask must have the same height and width as its image. Use integer object labels: zero for background and a different positive number for each object. A mask filename can match its image or add ``_masks`` before the extension, such as ``field_01_masks.tif``. Keep one matching mask per image."
+msgstr "每个掩膜的高度和宽度必须与其图像相同。请使用整数对象标签：背景为零，每个对象使用不同的正整数。掩膜文件名可以与图像相同，也可以在扩展名前加上 ``_masks``，例如 ``field_01_masks.tif``。每张图像保留一个匹配的掩膜。"
+
+msgid "Use Make Masks to inspect and correct object boundaries before training. Keep separate fields for validation. You can reuse a legacy project containing ``train/images`` and ``train/masks`` by selecting that project as Source."
+msgstr "训练前，请使用创建掩膜检查并校正对象边界。为验证保留独立的视野。选择包含 ``train/images`` 和 ``train/masks`` 的旧版项目作为来源，即可重用该项目。"
+
+msgid "Choose inputs and settings"
+msgstr "选择输入和设置"
+
+msgid "Set **Source** (``src``) to the training image folder."
+msgstr "将 **来源** （``src``）设置为训练图像文件夹。"
+
+msgid "Leave ``mask_src`` empty to use ``<src>/masks``, or select another mask folder."
+msgstr "将 ``mask_src`` 留空以使用 ``<src>/masks``，或选择其他掩膜文件夹。"
+
+msgid "For validation, set ``test_src`` to a separate image folder. Its masks belong in ``<test_src>/masks`` unless you select ``test_mask_src``."
+msgstr "如需验证，请将 ``test_src`` 设置为单独的图像文件夹。除非选择了 ``test_mask_src``，其掩膜应放在 ``<test_src>/masks`` 中。"
+
+msgid "Choose ``base_model``: ``cpsam`` starts from Cellpose-SAM; a model-zoo key or checkpoint path continues training an existing model."
+msgstr "选择 ``base_model``：``cpsam`` 从 Cellpose-SAM 开始；模型库键或检查点路径则在现有模型基础上继续训练。"
+
+msgid "Enter ``model_name`` as a filename prefix. Use ``save_path`` to choose an output folder, or leave it empty to save under the training project."
+msgstr "输入 ``model_name`` 作为文件名前缀。使用 ``save_path`` 选择输出文件夹，或留空以保存在训练项目下。"
+
+msgid "For multichannel images, ``channels`` selects up to three zero-based channel indices. For example, ``[0, 2]`` selects the first and third channels. Leave ``channel_axis`` empty for automatic detection, or set it explicitly when the image layout is ambiguous. Training accepts two-dimensional images with optional channels."
+msgstr "对于多通道图像，``channels`` 最多选择三个从零开始的通道索引。例如，``[0, 2]`` 选择第一和第三个通道。将 ``channel_axis`` 留空可自动检测；当图像布局不明确时请显式设置。训练接受带可选通道的二维图像。"
+
+msgid "Main training controls"
+msgstr "主要训练控件"
+
+msgid "Setting"
+msgstr "设置"
+
+msgid "Default"
+msgstr "默认值"
+
+msgid "What it controls"
+msgstr "控制内容"
+
+msgid "``n_epochs``"
+msgstr "``n_epochs``"
+
+msgid "100"
+msgstr "100"
+
+msgid "Number of training epochs."
+msgstr "训练轮数（epoch）。"
+
+msgid "``batch_size``"
+msgstr "``batch_size``"
+
+msgid "1"
+msgstr "1"
+
+msgid "Images per training minibatch. Larger batches require more memory."
+msgstr "每个训练小批次中的图像数。批次越大，所需内存越多。"
+
+msgid "``learning_rate``"
+msgstr "``learning_rate``"
+
+msgid "0.00001"
+msgstr "0.00001"
+
+msgid "Size of the model's training updates."
+msgstr "模型每次训练更新的幅度。"
+
+msgid "``weight_decay``"
+msgstr "``weight_decay``"
+
+msgid "0.1"
+msgstr "0.1"
+
+msgid "Strength of weight regularization during training."
+msgstr "训练期间权重正则化的强度。"
+
+msgid "``normalize`` / ``percentiles``"
+msgstr "``normalize`` / ``percentiles``"
+
+msgid "On / [1, 99]"
+msgstr "开启 / [1, 99]"
+
+msgid "Percentile normalization of each image channel."
+msgstr "对每个图像通道进行百分位归一化。"
+
+msgid "``min_train_masks``"
+msgstr "``min_train_masks``"
+
+msgid "5"
+msgstr "5"
+
+msgid "Minimum labelled objects in an image included in training."
+msgstr "纳入训练的图像中最少的已标注对象数。"
+
+msgid "``scale_range``"
+msgstr "``scale_range``"
+
+msgid "0.5"
+msgstr "0.5"
+
+msgid "Variation in image scale during training augmentation."
+msgstr "训练数据增强期间图像尺度的变化范围。"
+
+msgid "``save_every`` / ``save_each``"
+msgstr "``save_every`` / ``save_each``"
+
+msgid "100 / Off"
+msgstr "100 / 关闭"
+
+msgid "Checkpoint interval and whether periodic checkpoints get separate names."
+msgstr "检查点保存间隔，以及定期检查点是否使用不同名称。"
+
+msgid "For a smaller initial run, ``max_train_images`` limits the loaded training images. ``nimg_per_epoch`` and ``nimg_test_per_epoch`` limit how many images are used per epoch. Leave these limits empty to use all available images."
+msgstr "如需先进行较小规模的运行，``max_train_images`` 可限制加载的训练图像数。``nimg_per_epoch`` 和 ``nimg_test_per_epoch`` 限制每轮使用的图像数。将这些限制留空即可使用所有可用图像。"
+
+msgid "Run and use the output"
+msgstr "运行并使用输出"
+
+msgid "Click **Run** and follow progress in the console. When training finishes, the console reports the saved checkpoint path. With the default output location, checkpoints are under ``<src>/models/cellpose_model/models``. With a chosen ``save_path``, they are under ``<save_path>/models``."
+msgstr "单击 **运行** 并在控制台中查看进度。训练完成后，控制台会报告已保存检查点的路径。使用默认输出位置时，检查点位于 ``<src>/models/cellpose_model/models`` 下。选择了 ``save_path`` 时，检查点位于 ``<save_path>/models`` 下。"
+
+msgid "Open **Apply**, select a separate image folder, such as the example's ``apply`` folder, and check that **Custom model** points to the checkpoint you want. Turn on **Save**, which is off by default. Inspect a preview before processing the folder. Apply writes label masks into that image folder's ``masks`` subfolder. Use separate labelled images to evaluate segmentation before applying the model to an entire experiment."
+msgstr "打开 **应用**，选择一个单独的图像文件夹（例如示例中的 ``apply`` 文件夹），并确认 **定制模型** 指向所需的检查点。打开默认关闭的 **保存**。在处理整个文件夹前先检查预览。应用会将标签掩膜写入该图像文件夹的 ``masks`` 子文件夹。在将模型应用于整个实验之前，请使用单独的已标注图像评估分割效果。"
+
+msgid "The Python entry point :func:`spacr.submodules.train_cellpose` accepts the same settings and returns the checkpoint path, training losses and validation losses. Continue with :doc:`Make Masks <make_masks>` to inspect or edit masks, or :ref:`Mask <workflow-module-mask>` to use the model in an image pipeline."
+msgstr "Python 入口点 :func:`spacr.submodules.train_cellpose` 接受相同的设置，并返回检查点路径、训练损失和验证损失。接下来可使用 :doc:`创建掩膜 <make_masks>` 检查或编辑掩膜，或使用 :ref:`掩膜 <workflow-module-mask>` 在图像流程中使用该模型。"
+

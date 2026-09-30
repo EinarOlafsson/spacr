@@ -1,0 +1,135 @@
+# spaCR user guide translation (is).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: is\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Threading and cancellation audit"
+msgstr "Úttekt á þráðum og afturköllun"
+
+msgid "spaCR runs analysis entry points through :class:`spacr.qt.bridge.PipelineWorker` on a dedicated ``QThread``. Large imports, image decoding, model fitting and plate processing therefore do not run on Qt's GUI thread. Stop is cooperative: spaCR never uses ``QThread.terminate()`` on an analysis that may be writing an array, TIFF, database transaction, or checkpoint."
+msgstr "spaCR keyrir inngangspunkta greininga í gegnum :class:`spacr.qt.bridge.PipelineWorker` á sérstökum ``QThread``. Stórir innflutningar, afkóðun mynda, mátun líkana og vinnsla platna keyra því ekki á GUI-þræði Qt. Stöðvun er samvinnuþýð: spaCR notar aldrei ``QThread.terminate()`` á greiningu sem gæti verið að skrifa fylki, TIFF, gagnagrunnsfærslu eða vistunarpunkt."
+
+msgid "Safe cancellation boundaries"
+msgstr "Örugg afturköllunarmörk"
+
+msgid "The worker installs a thread-local :class:`spacr.cancellation.CancellationToken`. Long workflows call :func:`spacr.cancellation.checkpoint` only after a durable unit, or before the next unit begins:"
+msgstr "Vinnsluþráðurinn setur upp þráðstaðbundið :class:`spacr.cancellation.CancellationToken`. Löng verkflæði kalla á :func:`spacr.cancellation.checkpoint` aðeins eftir varanlega einingu, eða áður en næsta eining hefst:"
+
+msgid "Mask checks between source plates, object types, and Cellpose batches."
+msgstr "Einingin Grímur athugar milli upprunaplatna, hlutagerða og Cellpose-lota."
+
+msgid "Measure keeps at most one pool-width field batch outstanding and checks after every batch has returned and saved its results."
+msgstr "Einingin Mæling heldur að hámarki einni sjónsviðalotu af breidd safnsins útistandandi og athugar eftir að hver lota hefur skilað og vistað niðurstöður sínar."
+
+msgid "Format Converter checks before source groups; its atomic :class:`spacr.checkpoint.CheckpointStore` record checks after each complete field."
+msgstr "Sniðbreytir athugar á undan upprunahópum; frumeindarleg :class:`spacr.checkpoint.CheckpointStore`-skráning hans athugar eftir hvert fullgert sjónsvið."
+
+msgid "UMAP checks before each grid/adaptive trial. Completed trial artifacts and adaptive state are persisted before cancellation is raised."
+msgstr "UMAP athugar fyrir hverja grindar-/aðlögunartilraun. Afurðir fullgerðra tilrauna og aðlögunarstaða eru vistaðar áður en afturköllun er kastað."
+
+msgid "Batch Runner checks between jobs. While a child ``spacr-run`` process is active it polls the token, terminates that child, persists the current job as resumable, and then stops the queue."
+msgstr "Lotukeyrsla athugar milli verka. Á meðan undirferli ``spacr-run`` er virkt kannar hún tókann, stöðvar það undirferli, vistar núverandi verk sem hægt er að halda áfram með og stöðvar síðan röðina."
+
+msgid "Stop first asks how to stop. **Finish current work** requests cancellation and waits for the current unit; if the run has not reached a boundary after five minutes, the question is asked again. The console reports ``Stopped safely`` when the boundary is reached, and the reproducibility manifest records ``status: cancelled`` rather than a failure traceback."
+msgstr "Stöðvun spyr fyrst hvernig á að stöðva. **Finish current work** biður um afturköllun og bíður eftir núverandi einingu; ef keyrslan hefur ekki náð mörkum eftir fimm mínútur er spurningin spurð aftur. Stjórnborðið tilkynnir ``Stopped safely`` þegar mörkunum er náð og endurtakanleikaskráin skráir ``status: cancelled`` frekar en rakningu villu."
+
+msgid "**Force stop** gives the window back at once. A worker that does not respond -- typically one inside a long Cellpose or PyTorch call -- is parked rather than terminated: its references are kept and it finishes in the background, so anything it is writing may be left half-written. **Force restart** saves the module and its settings, then starts spaCR again and reopens that module."
+msgstr "**Force stop** skilar glugganum strax. Vinnsluþráður sem svarar ekki -- yfirleitt einn sem er inni í löngu Cellpose- eða PyTorch-kalli -- er lagður til hliðar frekar en stöðvaður: tilvísunum í hann er haldið og hann klárast í bakgrunni, þannig að allt sem hann er að skrifa getur orðið hálfskrifað. **Force restart** vistar eininguna og stillingar hennar, ræsir síðan spaCR aftur og opnar þá einingu á ný."
+
+msgid "Shutdown behavior"
+msgstr "Hegðun við lokun"
+
+msgid "The process-wide :class:`spacr.qt.bridge.RunRegistry` owns strong references to every active worker and thread. On application shutdown it requests cancellation for all jobs and waits against one bounded deadline. If any job that writes results has not reached a safe boundary, the close event is refused and the live references are retained. Read-only housekeeping jobs, such as a Run History refresh, are cancelled the same way but never block closing. The user can close again after the current unit finishes. The same rule applies when an individual module screen is closed."
+msgstr "Ferlisvíða :class:`spacr.qt.bridge.RunRegistry` á sterkar tilvísanir í hvern virkan vinnsluþráð og þráð. Við lokun forritsins biður hún um afturköllun allra verka og bíður gegn einum takmörkuðum fresti. Ef eitthvert verk sem skrifar niðurstöður hefur ekki náð öruggum mörkum er lokunaratburðinum hafnað og lifandi tilvísunum haldið. Tiltektarverkum sem aðeins lesa, svo sem endurnýjun á Keyrslusögu, er hætt á sama hátt en þau hindra aldrei lokun. Notandinn getur lokað aftur eftir að núverandi eining klárast. Sama regla gildir þegar einstökum einingaskjá er lokað."
+
+msgid "``PipelineWorker.finished`` invokes ``QThread.quit`` directly because that Qt method is thread-safe. This avoids a shutdown deadlock in which the GUI thread waits for a worker while the worker's queued quit request waits for the GUI event loop."
+msgstr "``PipelineWorker.finished`` kallar beint á ``QThread.quit`` vegna þess að sú Qt-aðferð er þráðörugg. Þetta kemur í veg fyrir sjálfheldu við lokun þar sem GUI-þráðurinn bíður eftir vinnsluþræði á meðan hætta-beiðni vinnsluþráðarins í biðröð bíður eftir atburðalykkju GUI."
+
+msgid "API usage"
+msgstr "Notkun API"
+
+msgid "Headless and plugin pipelines use the same small API::"
+msgstr "Vinnslukeðjur án myndræns viðmóts og viðbóta nota sama litla API::"
+
+msgid "Calling ``checkpoint()`` outside a managed GUI worker is a no-op. Code that catches broad ``Exception`` values must re-raise :class:`spacr.cancellation.PipelineCancelled`; treating it as a failed field would defeat the worker's distinct cancellation status."
+msgstr "Kall á ``checkpoint()`` utan stýrðs GUI-vinnsluþráðar gerir ekkert. Kóði sem grípur víðtæk ``Exception``-gildi verður að kasta :class:`spacr.cancellation.PipelineCancelled` aftur; ef farið er með hana sem misheppnað sjónsvið eyðileggur það aðgreinda afturköllunarstöðu vinnsluþráðarins."
+
+msgid "Stress coverage"
+msgstr "Álagsprófanir"
+
+msgid "``tests/qt/test_threading_cancellation_audit.py`` exercises fifty rapid Start/Stop cycles, registry-wide shutdown, repeated cancellation, screen close while active, and refusal to destroy a stubborn worker. ``tests/test_cancellation.py`` verifies thread isolation, idempotence, durability-before-cancel, resumable queues, and termination of an active batch subprocess."
+msgstr "``tests/qt/test_threading_cancellation_audit.py`` prófar fimmtíu hraðar Start/Stop-lotur, lokun alls skráningarsafnsins, endurtekna afturköllun, lokun skjás á meðan hann er virkur og synjun um að eyða þrjóskum vinnsluþræði. ``tests/test_cancellation.py`` staðfestir einangrun þráða, sömuáhrif (idempotence), varanleika fyrir afturköllun, raðir sem hægt er að halda áfram með og stöðvun virks undirferlis í lotu."
+
+msgid "Cooperative cancellation for long-running spaCR pipelines."
+msgstr "Samvinnuþýð afturköllun fyrir langvinnar spaCR-vinnslukeðjur."
+
+msgid "Qt cannot safely kill a Python thread that may be writing a TIFF, committing a SQLite transaction, or updating several related artifacts.  Instead, the GUI installs one :class:`CancellationToken` in each worker thread and pipeline code calls :func:`checkpoint` only at boundaries where the previous unit is fully durable and the next unit has not started."
+msgstr "Qt getur ekki á öruggan hátt drepið Python-þráð sem gæti verið að skrifa TIFF, staðfesta SQLite-færslu eða uppfæra nokkrar tengdar afurðir.  Þess í stað setur myndræna viðmótið upp einn :class:`CancellationToken` í hverjum vinnsluþræði og kóði vinnslukeðjunnar kallar á :func:`checkpoint` aðeins við mörk þar sem fyrri einingin er að fullu varanleg og næsta eining er ekki hafin."
+
+msgid "The module is intentionally standard-library only.  Core workflows may import it without importing Qt, torch, or any GUI dependency."
+msgstr "Einingin notar vísvitandi aðeins staðalsafnið.  Kjarnaverkflæði geta flutt hana inn án þess að flytja inn Qt, torch eða nokkurn GUI-pakka."
+
+msgid "Thread-safe, idempotent cancellation request shared with one worker."
+msgstr "Þráðörugg afturköllunarbeiðni með sömuáhrifum sem deilt er með einum vinnsluþræði."
+
+msgid "Parameters"
+msgstr "Færibreytur"
+
+msgid "default user-facing reason raised by :meth:`checkpoint`."
+msgstr "sjálfgefin ástæða fyrir notanda sem :meth:`checkpoint` kastar."
+
+msgid "Request cancellation and return True only for the first request."
+msgstr "Biðja um afturköllun og skila True aðeins fyrir fyrstu beiðnina."
+
+msgid "Repeated Stop clicks are harmless and do not replace the original reason, which keeps logs and manifests deterministic."
+msgstr "Endurteknir Stop-smellir eru skaðlausir og koma ekki í stað upphaflegu ástæðunnar, sem heldur annálum og skrám ákvörðunarbundnum."
+
+msgid "Whether cancellation has been requested."
+msgstr "Hvort beðið hafi verið um afturköllun."
+
+msgid "Raise :class:`PipelineCancelled` when cancellation was requested."
+msgstr "Kasta :class:`PipelineCancelled` þegar beðið var um afturköllun."
+
+msgid "The first cancellation reason supplied to :meth:`cancel`."
+msgstr "Fyrsta afturköllunarástæðan sem gefin var :meth:`cancel`."
+
+msgid "Raised at a safe boundary after cancellation has been requested."
+msgstr "Kastað við örugg mörk eftir að beðið hefur verið um afturköllun."
+
+msgid "This is a normal control-flow outcome, not a pipeline failure.  Callers that catch broad :class:`Exception` values must re-raise it so the worker can record the run as ``cancelled`` rather than as a failed item."
+msgstr "Þetta er eðlileg niðurstaða stýriflæðis, ekki villa í vinnslukeðju.  Kallendur sem grípa víðtæk :class:`Exception`-gildi verða að kasta henni aftur svo vinnsluþráðurinn geti skráð keyrsluna sem ``cancelled`` frekar en sem misheppnaðan lið."
+
+msgid "Return whether the calling worker has a pending cancellation request."
+msgstr "Skila hvort kallandi vinnsluþráður hafi afturköllunarbeiðni í bið."
+
+msgid "Stop at this safe boundary when requested; otherwise do nothing."
+msgstr "Stöðva við þessi öruggu mörk þegar beðið er um það; annars gera ekkert."
+
+msgid "Calls outside a managed worker are intentionally no-ops, so the same pipeline functions work through the GUI, CLI, notebooks, and tests."
+msgstr "Köll utan stýrðs vinnsluþráðar gera vísvitandi ekkert, svo sömu föll vinnslukeðjunnar virka í gegnum GUI, CLI, fartölvur og prófanir."
+
+msgid "Return the token installed for the calling thread, if any."
+msgstr "Skila tókanum sem settur var upp fyrir kallandi þráð, ef einhver er."
+
+msgid "Install ``token`` for this thread and restore any prior token on exit."
+msgstr "Setja upp ``token`` fyrir þennan þráð og endurheimta fyrri tóka við útgöngu."
+
+msgid "cancellation token to expose within the context."
+msgstr "afturköllunartóki sem gera á aðgengilegan innan samhengisins."
+

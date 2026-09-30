@@ -1,0 +1,285 @@
+# spaCR user guide translation (zh_CN).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: zh_CN\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Train/test leakage audit"
+msgstr "训练/测试泄漏审查"
+
+msgid "Classifier accuracy is invalid when related crops occur on both sides of an evaluation boundary. spaCR audits the permanent ``train/``/``test/`` split, the ordinary train/validation holdout, every outer and inner CV boundary, and the CV partition as a whole before fitting."
+msgstr "当相关的裁剪图出现在评估边界两侧时，分类器准确率是无效的。在拟合之前，spaCR 会审查永久性的 ``train/``/``test/`` 划分、普通的训练/验证留出、每个外层和内层交叉验证边界，以及整个交叉验证分区。"
+
+msgid "What is verified"
+msgstr "验证内容"
+
+msgid "The audit checks:"
+msgstr "审查检查："
+
+msgid "the same path or crop identity never crosses a boundary;"
+msgstr "相同的路径或裁剪图标识绝不会跨越边界；"
+
+msgid "exported augmentations such as ``_rot90``, ``_flip_h`` and ``_aug3`` remain with their source object;"
+msgstr "导出的数据增强（例如 ``_rot90``、``_flip_h`` 和 ``_aug3``）与其源对象保持在一起；"
+
+msgid "byte-identical crops are detected by streaming SHA-256 even if renamed;"
+msgstr "即使重命名，也能通过流式 SHA-256 检测出字节完全相同的裁剪图；"
+
+msgid "the requested ``cv_group_by`` identity (field, well or plate) stays intact;"
+msgstr "请求的 ``cv_group_by`` 标识（视野、孔或孔板）保持完整；"
+
+msgid "every CV sample is held out exactly once;"
+msgstr "每个交叉验证样本恰好被留出一次；"
+
+msgid "no related family is assigned to more than one held-out fold; and"
+msgstr "没有任何相关族被分配到一个以上的留出折；以及"
+
+msgid "related crops do not carry conflicting class labels."
+msgstr "相关的裁剪图不带有相互冲突的类别标签。"
+
+msgid "Filename identities follow spaCR's ``<plate>_<well>_<field>_..._<object>.png`` crop convention. With ``leakage_require_identity=True`` (the default), a filename that cannot prove its requested identity fails the audit; an unknown relationship is not reported as independent."
+msgstr "文件名标识遵循 spaCR 的裁剪图命名约定 ``<plate>_<well>_<field>_..._<object>.png``。使用 ``leakage_require_identity=True`` （默认）时，无法证明其所需标识的文件名会导致审查失败；未知关系不会被报告为独立。"
+
+msgid "Ordinary validation is group-aware too. ``cv_group_by='well'`` uses the same group-stratified partitioner as CV and selects the candidate fold closest to ``val_split`` and the full dataset's class distribution. Augmentation is applied only after the split and only to training."
+msgstr "普通验证同样考虑分组。``cv_group_by='well'`` 使用与交叉验证相同的分组分层划分器，并选择最接近 ``val_split`` 和整个数据集类别分布的候选折。数据增强仅在划分之后应用，且只应用于训练数据。"
+
+msgid "Run the audit directly"
+msgstr "直接运行审查"
+
+msgid "The command prints JSON and exits ``0`` for a verified split, ``1`` when leakage or unverifiable identities are found, and ``2`` when the dataset cannot be audited. ``--no-content-hash`` reduces I/O but cannot detect renamed copies. ``--allow-unverifiable`` is intended for diagnosing legacy datasets; it does not make their performance estimate trustworthy."
+msgstr "该命令输出 JSON，验证通过的划分退出码为 ``0``，发现泄漏或无法验证的标识时为 ``1``，无法审查数据集时为 ``2``。``--no-content-hash`` 可减少 I/O，但无法检测重命名的副本。``--allow-unverifiable`` 用于诊断旧版数据集；它并不能使其性能估计变得可信。"
+
+msgid "Classify settings"
+msgstr "分类设置"
+
+msgid "``leakage_audit_train_test``"
+msgstr "``leakage_audit_train_test``"
+
+msgid "Audit ``train/`` against ``test/`` before fitting. Default ``True``."
+msgstr "拟合前审查 ``train/`` 与 ``test/``。默认 ``True``。"
+
+msgid "``leakage_hash_content``"
+msgstr "``leakage_hash_content``"
+
+msgid "Stream SHA-256 for copy/rename detection. Default ``True``."
+msgstr "流式计算 SHA-256 以检测复制/重命名。默认 ``True``。"
+
+msgid "``leakage_require_identity``"
+msgstr "``leakage_require_identity``"
+
+msgid "Fail when protected identity or content cannot be verified. Default ``True``."
+msgstr "无法验证受保护的标识或内容时判定失败。默认 ``True``。"
+
+msgid "``evaluation_fail_on_leakage``"
+msgstr "``evaluation_fail_on_leakage``"
+
+msgid "Stop before fitting when an audit fails. Default ``True``. Setting it to ``False`` records a failed audit but cannot make the resulting metric valid."
+msgstr "审查失败时在拟合前停止。默认 ``True``。将其设为 ``False`` 会记录失败的审查，但无法使所得指标有效。"
+
+msgid "Reports are written beside the classifier run as ``train_test_leakage_audit.json`` and ``train_validation_leakage_audit.json``. CV audit records are also included in the Classifier Evaluation workbench's ``leakage.json``."
+msgstr "报告以 ``train_test_leakage_audit.json`` 和 ``train_validation_leakage_audit.json`` 的形式写在分类器运行旁边。交叉验证审查记录也包含在分类器评估工作台的 ``leakage.json`` 中。"
+
+msgid "API"
+msgstr "API"
+
+msgid "Classifier evaluation, calibration, and split-leakage diagnostics."
+msgstr "分类器评估、校准以及划分泄漏诊断。"
+
+msgid "The module is model-agnostic: it consumes labels, probabilities, fold ids, and sample paths. Deep-learning CV and future classical-ML pipelines can therefore write the same evaluation bundle and the Qt workbench can display one stable artifact format."
+msgstr "该模块与模型无关：它使用标签、概率、折 ID 和样本路径。因此，深度学习交叉验证和未来的经典机器学习流程都可以写入相同的评估文件集，Qt 工作台可以显示一种稳定的产物格式。"
+
+msgid "Whole-CV proof that each related sample family belongs to one fold."
+msgstr "整个交叉验证范围内每个相关样本族只属于一个折的证明。"
+
+msgid "Parameters"
+msgstr "参数"
+
+msgid "canonical identity level required to remain within one validation fold."
+msgstr "要求保持在同一验证折内的规范标识层级。"
+
+msgid "number of source paths whose fold membership was audited."
+msgstr "审查了折归属的源路径数量。"
+
+msgid "number of train/validation fold pairs inspected."
+msgstr "检查的训练/验证折对数量。"
+
+msgid "up to twenty sample indexes that were never held out for validation."
+msgstr "最多二十个从未被留作验证的样本索引。"
+
+msgid "up to twenty sample indexes held out in more than one fold."
+msgstr "最多二十个在多个折中被留出的样本索引。"
+
+msgid "identities assigned to multiple validation folds, counted at each exact, content, family, object, and acquisition level."
+msgstr "被分配到多个验证折的标识，按精确、内容、族、对象和采集各层级分别计数。"
+
+msgid "up to ten conflicting identities per level, annotated with the folds that contain them."
+msgstr "每个层级最多十个冲突标识，并注明包含它们的折。"
+
+msgid "completeness, overlap, identity, or label failures that make :attr:`passed` false."
+msgstr "使 :attr:`passed` 为假的完整性、重叠、标识或标签失败。"
+
+msgid "non-fatal caveats and explanations accompanying failures."
+msgstr "伴随失败的非致命注意事项和说明。"
+
+msgid "samples whose requested identity or optional byte-content hash could not be checked, counted by level."
+msgstr "无法检查其所需标识或可选字节内容哈希的样本，按层级计数。"
+
+msgid "up to twenty file-specific content-hashing failures."
+msgstr "最多二十个特定文件的内容哈希失败。"
+
+msgid "stable label for this whole-CV audit record."
+msgstr "此整个交叉验证审查记录的稳定标签。"
+
+msgid "Return True only when the fold partition is complete and isolated."
+msgstr "仅当折分区完整且相互隔离时返回 True。"
+
+msgid "Return a JSON-serializable audit record."
+msgstr "返回可 JSON 序列化的审查记录。"
+
+msgid "Overlap counts and examples for one train/validation boundary."
+msgstr "单个训练/验证边界的重叠计数和示例。"
+
+msgid "protected split level (``cell``, ``field``, ``well``, or ``plate``); the legacy ``none`` spelling is normalized to ``cell``."
+msgstr "受保护的划分层级（``cell``、``field``、``well`` 或 ``plate``）；旧版写法 ``none`` 会被规范化为 ``cell``。"
+
+msgid "number of training paths."
+msgstr "训练路径数量。"
+
+msgid "number of validation paths."
+msgstr "验证路径数量。"
+
+msgid "overlap count at each identity level."
+msgstr "每个标识层级的重叠计数。"
+
+msgid "up to ten shared identities per level."
+msgstr "每个层级最多十个共享标识。"
+
+msgid "caller-supplied label for the audited boundary."
+msgstr "调用方为所审查边界提供的标签。"
+
+msgid "levels that invalidate the requested split."
+msgstr "使所请求划分无效的层级。"
+
+msgid "non-fatal caveats."
+msgstr "非致命注意事项。"
+
+msgid "samples lacking a requested identity or content hash, counted by the level that could not be verified."
+msgstr "缺少所需标识或内容哈希的样本，按无法验证的层级计数。"
+
+msgid "up to twenty file-specific failures from optional byte-content hashing."
+msgstr "最多二十个来自可选字节内容哈希的特定文件失败。"
+
+msgid "Return True when no protected identity crosses the boundary."
+msgstr "当没有受保护的标识跨越边界时返回 True。"
+
+msgid "Return a JSON-serializable report."
+msgstr "返回可 JSON 序列化的报告。"
+
+msgid "Verify partition coverage and identity isolation across every CV fold."
+msgstr "验证每个交叉验证折的分区覆盖和标识隔离。"
+
+msgid "This checks the fold assignment as one object, rather than trusting a sample of pairwise boundaries. Each index must be validation exactly once; exact paths, byte-identical content, source/augmentation families and the requested plate/well/field group must map to one held-out fold only."
+msgstr "它将折分配作为一个整体进行检查，而不是依赖对成对边界的抽样。每个索引必须恰好作为验证一次；精确路径、字节完全相同的内容、源/数据增强族以及所请求的孔板/孔/视野分组都只能映射到一个留出折。"
+
+msgid "one source path per sample, indexed by the fold indices."
+msgstr "每个样本一个源路径，由折索引进行索引。"
+
+msgid "``(train_indices, validation_indices)`` per fold. Indices outside ``range(len(paths))`` are reported rather than ignored."
+msgstr "每个折的 ``(train_indices, validation_indices)``。``range(len(paths))`` 之外的索引会被报告而不是忽略。"
+
+msgid "optional class per path, one value per path. Only used to describe the folds; it does not affect leakage detection."
+msgstr "每个路径可选的类别，每个路径一个值。仅用于描述各折；不影响泄漏检测。"
+
+msgid "identity level that may not cross a fold boundary -- ``none``, ``field``, ``well`` or ``plate``. A well-grouped split permits the same plate on both sides but never the same well."
+msgstr "不得跨越折边界的标识层级——``none``、``field``、``well`` 或 ``plate``。按孔分组的划分允许同一孔板出现在两侧，但绝不允许同一个孔。"
+
+msgid "also compare file CONTENT, so a byte-identical copy under a different name is caught. Costs one read per file."
+msgstr "同时比较文件内容（CONTENT），以便发现名称不同但字节完全相同的副本。每个文件需读取一次。"
+
+msgid "treat UNVERIFIABLE as critical. A filename that does not encode the requested identity, or a file that cannot be hashed, is otherwise only a warning -- so leaving this False means a clean report can still hide leakage nobody could check for."
+msgstr "将无法验证（UNVERIFIABLE）视为严重问题。否则，未编码所请求标识的文件名或无法计算哈希的文件只会产生警告——因此若将其保持为 False，一份干净的报告仍可能隐藏无人能够检查的泄漏。"
+
+msgid "raise :class:`LeakageError` instead of returning a report whose ``passed`` is False."
+msgstr "抛出 :class:`LeakageError`，而不是返回 ``passed`` 为 False 的报告。"
+
+msgid "Returns"
+msgstr "返回"
+
+msgid "a :class:`FoldLeakageAudit` carrying the per-level overlap counts, examples, and which levels were critical."
+msgstr "一个 :class:`FoldLeakageAudit`，包含每个层级的重叠计数、示例以及哪些层级为严重。"
+
+msgid "Raises"
+msgstr "抛出"
+
+msgid "for an unsupported ``group_by``, or ``labels`` whose length does not match ``paths``."
+msgstr "当 ``group_by`` 不受支持，或 ``labels`` 的长度与 ``paths`` 不匹配时。"
+
+msgid "Audit the permanent ``train/`` versus ``test/`` dataset boundary."
+msgstr "审查永久性的 ``train/`` 与 ``test/`` 数据集边界。"
+
+msgid "dataset directory holding ``train/`` and ``test/``. Both are searched recursively, and only ``.png``, ``.jpg``, ``.jpeg``, ``.tif``, ``.tiff``, ``.bmp`` and ``.npy`` files are collected, so a folder of any other format audits as empty."
+msgstr "包含 ``train/`` 和 ``test/`` 的数据集目录。两者都会被递归搜索，并且只收集 ``.png``、``.jpg``、``.jpeg``、``.tif``、``.tiff``、``.bmp`` 和 ``.npy`` 文件，因此任何其他格式的文件夹在审查中都视为空。"
+
+msgid "identity level that may not appear on both sides -- ``none``, ``field``, ``well`` or ``plate``. The default ``well`` still permits the same plate in train and test. It is validated only after the images are found, so a bad value over an empty tree reports the missing images instead."
+msgstr "不得同时出现在两侧的标识层级——``none``、``field``、``well`` 或 ``plate``。默认值 ``well`` 仍允许同一孔板同时出现在训练和测试中。它仅在找到图像之后才被验证，因此空目录树上的错误值会改为报告缺少图像。"
+
+msgid "defaults to True here, unlike :func:`audit_split_leakage`, so a byte-identical copy saved under a different name fails the audit -- at the cost of one read per file."
+msgstr "此处默认为 True，与 :func:`audit_split_leakage` 不同，因此以不同名称保存的字节完全相同的副本会导致审查失败——代价是每个文件需读取一次。"
+
+msgid "defaults to True here: filenames that do not encode the ``group_by`` level, and files that cannot be hashed, become critical instead of a warning, so an unverifiable split cannot report as clean."
+msgstr "此处默认为 True：未编码 ``group_by`` 层级的文件名以及无法计算哈希的文件会被视为严重问题而非警告，因此无法验证的划分不会被报告为干净。"
+
+msgid "when either side collects no image -- a missing or unreadable folder is never treated as a passing split."
+msgstr "当任一侧未收集到图像时——缺失或不可读的文件夹绝不会被视为通过的划分。"
+
+msgid "a :class:`LeakageReport` whose ``split_name`` is always ``train_vs_test``; the ``test/`` side is counted as ``validation_samples``."
+msgstr "一个 :class:`LeakageReport`，其 ``split_name`` 始终为 ``train_vs_test``；``test/`` 一侧计为 ``validation_samples``。"
+
+msgid "Detect related images crossing a train/validation boundary."
+msgstr "检测跨越训练/验证边界的相关图像。"
+
+msgid "Exact/object/augmentation-family overlap is always critical. The requested ``group_by`` level is also critical: a well-grouped split permits the same plate on both sides but never the same well."
+msgstr "精确路径/对象/数据增强族的重叠始终为严重问题。所请求的 ``group_by`` 层级同样为严重问题：按孔分组的划分允许同一孔板出现在两侧，但绝不允许同一个孔。"
+
+msgid "source paths used to fit the model."
+msgstr "用于拟合模型的源路径。"
+
+msgid "paths used only for evaluation."
+msgstr "仅用于评估的路径。"
+
+msgid "``cell``, ``field``, ``well``, or ``plate``. Legacy ``none`` aliases ``cell``."
+msgstr "``cell``、``field``、``well`` 或 ``plate``。旧版 ``none`` 是 ``cell`` 的别名。"
+
+msgid "raise :class:`LeakageError` on a critical overlap."
+msgstr "出现严重重叠时抛出 :class:`LeakageError`。"
+
+msgid "optional fold/split label stored in the report."
+msgstr "存储在报告中的可选折/划分标签。"
+
+msgid ":class:`LeakageReport`."
+msgstr ":class:`LeakageReport`."
+
+msgid "Atomically write a leakage report/audit as JSON and return its path."
+msgstr "以原子方式将泄漏报告/审查写为 JSON，并返回其路径。"
+
+msgid "destination JSON file; ``~`` is expanded and missing parent folders are created. It is replaced atomically."
+msgstr "目标 JSON 文件；``~`` 会被展开，缺失的父文件夹会被创建。该文件以原子方式替换。"
+
+msgid "leakage report or audit to write: any object with a ``to_dict()`` method, or a mapping."
+msgstr "要写入的泄漏报告或审查：任何具有 ``to_dict()`` 方法的对象，或一个映射。"
+

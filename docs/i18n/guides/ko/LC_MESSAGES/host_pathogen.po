@@ -1,0 +1,105 @@
+# spaCR user guide translation (ko).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: ko\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Host–Pathogen Analysis"
+msgstr "숙주–병원체 분석"
+
+msgid "From **Home → Assays → Toxoplasma**, open **Host–Pathogen Analysis**. This alpha module combines vacuole-level marker recruitment with host and well summaries. Existing :doc:`Recruitment <recruitment>` remains available."
+msgstr "**홈 → 어세이 → 톡소플라스마** 에서 **숙주–병원체 분석** 을 엽니다. 이 알파 모듈은 액포 수준의 마커 리크루트먼트와 숙주 및 웰 요약을 결합합니다. 기존 :doc:`리크루트먼트 분석 <recruitment>` 도 계속 사용할 수 있습니다."
+
+msgid "Try the real microscopy test data"
+msgstr "실제 현미경 테스트 데이터 사용해 보기"
+
+msgid "Open **Home → Assays → Toxoplasma → Host–Pathogen Analysis** and select **Load test data…**. The download is approximately 114 MB."
+msgstr "**홈 → 어세이 → 톡소플라스마 → 숙주–병원체 분석** 을 열고 **테스트 데이터 불러오기...** 를 선택합니다. 다운로드 크기는 약 114 MB입니다."
+
+msgid "Enable **Live** beside the bottom action controls, then select **Run preview**. Choose either measured field and select vacuoles in the image or table to inspect their host links and marker ratios."
+msgstr "하단 작업 컨트롤 옆의 **실시간** 을 켜고 **미리보기 실행** 을 선택합니다. 측정된 시야 중 하나를 고르고, 이미지나 표에서 액포를 선택하여 숙주 연결과 마커 비율을 검사합니다."
+
+msgid "Set **Image channel** to 2 for Toxoplasma, 1 for RNF213 or 3 for CellMask. Leave the mask-plane selectors on **Auto**; the dataset includes the plane manifest. These display choices do not change the analysis channels."
+msgstr "**이미지 채널** 을 톡소플라스마는 2, RNF213은 1, CellMask는 3으로 설정합니다. 마스크 평면 선택기는 **자동** 으로 둡니다. 데이터 세트에 평면 매니페스트가 포함되어 있습니다. 이 표시 선택은 분석 채널을 바꾸지 않습니다."
+
+msgid "Turn **Live** off and expand **Actions** if the run controls are collapsed. Select **Run** to analyze both fields. Compare the results with the supplied ``example_cells.csv``, ``example_vacuoles.csv`` and ``example_wells.csv``."
+msgstr "**실시간** 을 끄고, 실행 컨트롤이 접혀 있으면 **작업** 을 펼칩니다. **실행** 을 선택하여 두 시야를 모두 분석합니다. 결과를 함께 제공된 ``example_cells.csv``, ``example_vacuoles.csv``, ``example_wells.csv`` 와 비교합니다."
+
+msgid "Follow the `Host–Pathogen video walkthrough <tutorials/#lesson=85_host_pathogen>`_ for the complete example."
+msgstr "전체 예제는 `숙주–병원체 동영상 안내 <tutorials/#lesson=85_host_pathogen>`_ 를 따라 합니다."
+
+msgid "The `Host–Pathogen dataset <https://huggingface.co/datasets/einarolafsson/spacr-example-host-pathogen/tree/83b73d7a0c4f8a9ea145304c2ba90acc16768031>`_ contains two acquired THP-1/RNF213 fields, four intensity channels and prepared automatic masks. Its measurements cover 164 host cells, 189 nuclei, 97 whole vacuoles and 164 cytoplasm objects across the two fields. The acquired intensity planes are unchanged; the masks underwent Measure's normal parent/child reconciliation so the distributed outlines match measured objects. The dataset card and ``example_manifest.json`` describe the source fields, preparation and checks. These masks are not manually validated ground truth."
+msgstr "`숙주–병원체 데이터 세트 <https://huggingface.co/datasets/einarolafsson/spacr-example-host-pathogen/tree/83b73d7a0c4f8a9ea145304c2ba90acc16768031>`_ 에는 획득한 THP-1/RNF213 시야 2개, 강도 채널 4개, 미리 준비된 자동 마스크가 들어 있습니다. 측정값은 두 시야에 걸쳐 숙주 세포 164개, 핵 189개, 전체 액포 97개, 세포질 객체 164개를 다룹니다. 획득한 강도 평면은 변경되지 않았으며, 배포된 윤곽이 측정된 객체와 일치하도록 마스크에는 측정 모듈의 일반적인 상위/하위 객체 조정이 적용되었습니다. 데이터 세트 카드와 ``example_manifest.json`` 에 원본 시야, 준비 과정, 검사가 설명되어 있습니다. 이 마스크는 수동으로 검증된 정답 데이터가 아닙니다."
+
+msgid "The supplied settings compare vacuole RNF213 means with their associated host cytoplasm means in channel 1. Marker thresholds are deliberately unset: ratios are available, while positive/negative marker states remain unknown until you choose suitable control-calibrated thresholds. Individual-parasite counts are not supplied, so replication remains ``not_measured``. This small sample does not establish biological differences between its control conditions."
+msgstr "함께 제공된 설정은 채널 1에서 액포의 RNF213 평균과 연결된 숙주 세포질 평균을 비교합니다. 마커 임계값은 의도적으로 설정하지 않았습니다. 비율은 사용할 수 있지만, 대조군으로 보정한 적절한 임계값을 선택하기 전까지 양성/음성 마커 상태는 알 수 없습니다. 개별 기생충 수는 제공되지 않으므로 복제는 ``not_measured`` 로 남습니다. 이 작은 표본으로는 대조 조건 간의 생물학적 차이를 입증할 수 없습니다."
+
+msgid "The command-line download is ``spacr-download host_pathogen``. The prepared measurements let you use this example directly; your own image project needs the Mask and Measure preparation described below."
+msgstr "명령줄 다운로드 명령은 ``spacr-download host_pathogen`` 입니다. 미리 준비된 측정값 덕분에 이 예제는 바로 사용할 수 있지만, 직접 만든 이미지 프로젝트에는 아래에 설명된 마스크 및 측정 준비가 필요합니다."
+
+msgid "Inspect one field before running"
+msgstr "실행 전에 시야 하나 검사하기"
+
+msgid "After selecting a measured project in **Source**, enable the bottom **Live** control. The preview uses the current form settings and the same analysis functions as a full run. Select **Run preview** for the initial calculation. While the panel remains visible, later settings changes refresh that preview. Use **Refresh** to reload the field choices and **Cancel** to cancel a pending preview. Preview reads the measurements database without writing result files."
+msgstr "**소스** 에서 측정된 프로젝트를 선택한 후 하단의 **실시간** 컨트롤을 켭니다. 미리보기는 현재 양식 설정과 전체 실행과 같은 분석 함수를 사용합니다. 처음 계산하려면 **미리보기 실행** 을 선택합니다. 패널이 표시되어 있는 동안에는 이후 설정 변경이 미리보기를 새로 고칩니다. **새로 고침** 으로 시야 선택지를 다시 불러오고, **취소** 로 대기 중인 미리보기를 취소합니다. 미리보기는 측정 데이터베이스를 읽기만 하며 결과 파일을 쓰지 않습니다."
+
+msgid "Its host counts and infection fractions describe the selected field only. They are not whole-well denominators. Fields containing vacuoles without measured host cells remain available. Missing or zero reference intensities produce unknown marker states; an unknown state must not be read as negative."
+msgstr "미리보기의 숙주 수와 감염 비율은 선택한 시야만 설명하며, 웰 전체의 분모가 아닙니다. 측정된 숙주 세포 없이 액포만 있는 시야도 계속 사용할 수 있습니다. 기준 강도가 없거나 0이면 마커 상태를 알 수 없게 되며, 알 수 없는 상태를 음성으로 해석해서는 안 됩니다."
+
+msgid "Overlay plane selection defaults to **Auto**, using the recorded ``.spacr_plane_layout.json`` metadata. Select explicit host, vacuole and parasite plane indices when metadata is absent, or use ``-1`` to hide an overlay. Changing the displayed intensity channel does not change the analysis marker settings. If an image cannot be loaded, the measured results remain available in the table."
+msgstr "오버레이 평면 선택의 기본값은 **자동** 이며, 기록된 ``.spacr_plane_layout.json`` 메타데이터를 사용합니다. 메타데이터가 없으면 숙주, 액포, 기생충 평면 인덱스를 명시적으로 선택하거나, ``-1`` 로 오버레이를 숨깁니다. 표시되는 강도 채널을 바꿔도 분석 마커 설정은 바뀌지 않습니다. 이미지를 불러올 수 없어도 측정된 결과는 표에서 계속 볼 수 있습니다."
+
+msgid "For scripted previews, :func:`spacr.host_pathogen_preview.preview_fields` offers at most 50 fields by default and reports whether more exist. :func:`spacr.host_pathogen_preview.preview_field` analyzes one selected field, refusing input tables with more than 100,000 rows for that field by default. These bounds keep the preview limited; use the full analysis for project-wide reports."
+msgstr "스크립트로 미리보기를 할 때 :func:`spacr.host_pathogen_preview.preview_fields` 는 기본적으로 시야를 최대 50개까지 제공하고 더 있는지 알려 줍니다. :func:`spacr.host_pathogen_preview.preview_field` 는 선택한 시야 하나를 분석하며, 기본적으로 해당 시야의 행이 100,000개를 넘는 입력 표는 거부합니다. 이러한 제한으로 미리보기가 가볍게 유지되므로, 프로젝트 전체 보고서에는 전체 분석을 사용합니다."
+
+msgid "Prepare the counting units"
+msgstr "계수 단위 준비"
+
+msgid "Run Mask and Measure first. Keep uninfected host cells in Measure (``uninfected=True``) when the intended infection denominator is all measured hosts. Previously discarded host cells cannot be reconstructed here."
+msgstr "먼저 마스크와 측정을 실행합니다. 감염 분모를 측정된 모든 숙주로 하려면 측정에서 감염되지 않은 숙주 세포를 유지합니다(``uninfected=True``). 이전에 버린 숙주 세포는 여기서 다시 만들 수 없습니다."
+
+msgid "Supply a cell table, a table with one object per whole vacuole (default: ``pathogen``), and a host reference compartment table (default: ``cytoplasm``). Individual-parasite masks cannot substitute for whole-vacuole masks. Select marker channels and per-channel ratio thresholds calibrated with appropriate controls; the module does not learn these thresholds."
+msgstr "세포 표, 전체 액포당 객체 하나가 있는 표(기본값: ``pathogen``), 숙주 기준 구획 표(기본값: ``cytoplasm``)를 제공합니다. 개별 기생충 마스크로 전체 액포 마스크를 대신할 수 없습니다. 적절한 대조군으로 보정한 마커 채널과 채널별 비율 임계값을 선택합니다. 이 모듈은 임계값을 학습하지 않습니다."
+
+msgid "Replication counts require either a parasite table with explicit parent-vacuole identities or an existing count column. Choose one count source. Without one, replication remains unmeasured rather than being inferred from vacuole area. Host identity alone is insufficient when a host contains multiple vacuoles."
+msgstr "복제 계수에는 명시적인 상위 액포 식별 정보가 있는 기생충 표나 기존 개수 열이 필요합니다. 개수 출처를 하나 선택합니다. 출처가 없으면 복제는 액포 면적에서 추론되지 않고 측정되지 않은 상태로 남습니다. 숙주 하나에 액포가 여러 개 있으면 숙주 식별 정보만으로는 충분하지 않습니다."
+
+msgid "When Measure links individual organelle-role objects to whole-vacuole masks, one parent must cover strictly more than half of a child's pixels. Outside objects and ambiguous overlaps retain a missing parent. The stored parent is ``pathogen_id``; the stored overlap feature is role-prefixed, for example ``organelle_pathogen_overlap_fraction``. Use such an object table as parasites only when those masks actually represent individual parasites."
+msgstr "측정 모듈이 개별 세포소기관 역할 객체를 전체 액포 마스크에 연결할 때, 상위 객체 하나가 하위 객체 픽셀의 절반을 초과해야 합니다. 바깥쪽 객체와 모호한 겹침은 상위 객체가 없는 상태로 남습니다. 저장되는 상위 객체는 ``pathogen_id`` 이며, 저장되는 겹침 특징에는 역할 접두사가 붙습니다(예: ``organelle_pathogen_overlap_fraction``). 이러한 객체 표는 해당 마스크가 실제로 개별 기생충을 나타낼 때만 기생충으로 사용합니다."
+
+msgid "Interpret the reports"
+msgstr "보고서 해석"
+
+msgid "The output directory ``results/host_pathogen`` contains ``vacuoles.csv``, ``cells.csv``, ``wells.csv``, ``marker_states.csv``, ``replication_distribution.csv``, ``orphan_parasites.csv`` and the exact ``settings.json``. With multiple input projects, the combined report is saved under the first project. Database paths separate sources even when plate or field identifiers repeat."
+msgstr "출력 디렉터리 ``results/host_pathogen`` 에는 ``vacuoles.csv``, ``cells.csv``, ``wells.csv``, ``marker_states.csv``, ``replication_distribution.csv``, ``orphan_parasites.csv``, 정확한 ``settings.json`` 이 들어 있습니다. 입력 프로젝트가 여러 개이면 결합된 보고서는 첫 번째 프로젝트 아래에 저장됩니다. 플레이트나 시야 식별자가 반복되더라도 데이터베이스 경로로 출처가 구분됩니다."
+
+msgid "Unlinked vacuoles and missing, invalid or zero host-reference intensities yield unknown marker states. Joint marker fractions include unknown vacuoles in their denominator; replication fractions use only vacuoles with counts. Host infection fractions describe retained measured host cells. These denominators answer different questions and should be reported explicitly."
+msgstr "연결되지 않은 액포와 숙주 기준 강도가 없거나, 유효하지 않거나, 0인 경우 마커 상태를 알 수 없게 됩니다. 공동 마커 비율의 분모에는 상태를 알 수 없는 액포가 포함되며, 복제 비율은 개수가 있는 액포만 사용합니다. 숙주 감염 비율은 보존된 측정 숙주 세포를 설명합니다. 이 분모들은 서로 다른 질문에 답하므로 보고서에 명시해야 합니다."
+
+msgid "For scripted use, see :func:`spacr.host_pathogen.analyze_host_pathogen` and :func:`spacr.host_pathogen.summarize_tables`. The headless module name is ``host_pathogen`` in ``spacr-run``."
+msgstr "스크립트에서 사용하려면 :func:`spacr.host_pathogen.analyze_host_pathogen` 과 :func:`spacr.host_pathogen.summarize_tables` 를 참조합니다. ``spacr-run`` 에서 헤드리스 모듈 이름은 ``host_pathogen`` 입니다."
+
+msgid "Choosing a Replication Assay method"
+msgstr "복제 분석 방법 선택"
+
+msgid "The separate **Replication Assay → Method** selector defaults to ``direct_count``, which counts individually segmented parasites per assigned vacuole. ``size_proxy`` uses the existing endodyogeny analysis and its **Size Proxy (Legacy)** controls. That readout aggregates pathogen area per host cell; multiple vacuoles in one host are combined. It is an area-derived proxy, not a parasite count or measured volume."
+msgstr "별도의 **복제 분석 → 방법** 선택기의 기본값은 ``direct_count`` 이며, 할당된 액포별로 개별 분할된 기생충을 셉니다. ``size_proxy`` 는 기존 내출아(endodyogeny) 분석과 **크기 대리 지표 (레거시)** 컨트롤을 사용합니다. 이 판독값은 숙주 세포별로 병원체 면적을 집계하므로 한 숙주 안의 여러 액포가 합쳐집니다. 이는 면적에서 유도한 대리 지표이지 기생충 수나 측정된 부피가 아닙니다."
+
+msgid "Both available routes return ``replication_method`` metadata. The whole-vacuole deep-learning option is marked coming soon and cannot run before its model is available. See :func:`spacr.submodules.analyze_replication` and :func:`spacr.submodules.analyze_endodyogeny` for the exact settings and outputs."
+msgstr "사용 가능한 두 방법 모두 ``replication_method`` 메타데이터를 반환합니다. 전체 액포 딥러닝 옵션은 출시 예정으로 표시되어 있으며, 모델을 사용할 수 있게 되기 전에는 실행할 수 없습니다. 정확한 설정과 출력은 :func:`spacr.submodules.analyze_replication` 과 :func:`spacr.submodules.analyze_endodyogeny` 를 참조합니다."
+

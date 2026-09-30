@@ -1,0 +1,84 @@
+# spaCR user guide translation (hi).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: hi\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Plate and batch-effect correction"
+msgstr "प्लेट और बैच प्रभाव सुधार"
+
+msgid "spaCR can normalize acquisition-batch effects before Image UMAP, Classify (ML), and phenotype regression. Correction is disabled by default because a plate effect can be real biology when treatments and plates are confounded."
+msgstr "spaCR इमेज UMAP, वर्गीकरण (ML) और फ़ेनोटाइप प्रतिगमन से पहले अधिग्रहण बैच प्रभावों को सामान्यीकृत कर सकता है। सुधार डिफ़ॉल्ट रूप से बंद है, क्योंकि जब उपचार और प्लेटें एक-दूसरे से उलझी हों तो प्लेट प्रभाव वास्तविक जैविक अंतर हो सकता है।"
+
+msgid "Choosing a method"
+msgstr "विधि चुनना"
+
+msgid "``none``"
+msgstr "``none``"
+
+msgid "Leave measurements unchanged."
+msgstr "मापन को अपरिवर्तित छोड़ें।"
+
+msgid "``control_center``"
+msgstr "``control_center``"
+
+msgid "Recommended when every plate contains the same negative/reference control. spaCR estimates the median reference shift on each plate and subtracts only that shift. Treatment dispersion and treatment-to-control differences are retained."
+msgstr "जब हर प्लेट में एक ही नकारात्मक/संदर्भ नियंत्रण हो तब अनुशंसित। spaCR हर प्लेट पर संदर्भ नियंत्रण के माध्यिका विस्थापन का अनुमान लगाता है और केवल उसी विस्थापन को घटाता है। उपचारों का प्रसार और उपचार तथा नियंत्रण के बीच के अंतर बने रहते हैं।"
+
+msgid "``robust_zscore``"
+msgstr "``robust_zscore``"
+
+msgid "Align plate medians and median absolute deviations. This is resilient to outliers, but can remove genuine differences if biological conditions are unevenly distributed across plates."
+msgstr "प्लेट माध्यिकाओं और माध्यिका निरपेक्ष विचलनों को संरेखित करें। यह बाहरी मानों के प्रति मज़बूत है, लेकिन यदि जैविक स्थितियाँ प्लेटों में असमान रूप से वितरित हों तो वास्तविक अंतर भी हटा सकता है।"
+
+msgid "``center``"
+msgstr "``center``"
+
+msgid "Align plate means while preserving the overall mean."
+msgstr "समग्र माध्य को बनाए रखते हुए प्लेट माध्यों को संरेखित करें।"
+
+msgid "``zscore``"
+msgstr "``zscore``"
+
+msgid "Align both plate means and standard deviations. This is the strongest of the per-plate rescalings and should be used only when plate composition is comparable."
+msgstr "प्लेट माध्य और मानक विचलन दोनों को संरेखित करें। यह प्रति-प्लेट पुनर्मापन में सबसे प्रबल है और इसका उपयोग केवल तब करना चाहिए जब प्लेटों की संरचना तुलनीय हो।"
+
+msgid "``combat``"
+msgstr "``combat``"
+
+msgid "Empirical-Bayes ComBat (Johnson, Li & Rabinovich, 2007). Each feature is modelled on batch *and* on the biology named in ``batch_covariate_column``, and only the batch part is removed; per-batch estimates are shrunk across features, which keeps small plates usable. It refuses to run until the covariate is answered: name the column(s) to preserve, or pass ``no_covariate`` to record that every batch holds the same mixture of conditions. ``batch_combat_mean_only=True`` corrects only the additive shift and leaves each batch's spread alone."
+msgstr "एम्पिरिकल-बेज़ ComBat (Johnson, Li & Rabinovich, 2007)। हर विशेषता को बैच *और* ``batch_covariate_column`` में नामित जीवविज्ञान दोनों पर मॉडल किया जाता है, और केवल बैच वाला भाग हटाया जाता है; प्रति-बैच अनुमानों को विशेषताओं के पार संकुचित किया जाता है, जिससे छोटी प्लेटें भी उपयोगी रहती हैं। सहचर का उत्तर मिलने तक यह चलने से इनकार करता है: सुरक्षित रखे जाने वाले स्तंभ(ों) का नाम दें, या यह दर्ज करने के लिए ``no_covariate`` पास करें कि हर बैच में स्थितियों का एक ही मिश्रण है। ``batch_combat_mean_only=True`` केवल योगात्मक विस्थापन को सुधारता है और हर बैच के प्रसार को नहीं छेड़ता।"
+
+msgid "Settings"
+msgstr "सेटिंग्स"
+
+msgid "Set ``batch_correction`` to a method above and use ``batch_column`` to name the batch identifier (normally ``plateID``). ``batch_min_samples`` rejects unstable estimates from undersized batches."
+msgstr "``batch_correction`` को ऊपर दी गई किसी विधि पर सेट करें और बैच पहचानकर्ता (आमतौर पर ``plateID``) का नाम देने के लिए ``batch_column`` का उपयोग करें। ``batch_min_samples`` बहुत छोटे बैचों से आने वाले अस्थिर अनुमानों को अस्वीकार करता है।"
+
+msgid "For ``control_center``, ``batch_control_column`` identifies the metadata field that contains the controls and ``batch_control_values`` selects one or more reference values. When blank, Image UMAP follows ``col_to_compare``/``neg`` and Classify's ML family follows ``location_column`` (or ``annotation_column`` when annotations define the classes) and ``negative_control_id``. Regression requires an explicit reference value. ``batch_missing_control=error`` is the safe default; ``skip`` leaves an affected plate unchanged and records a warning."
+msgstr "``control_center`` के लिए ``batch_control_column`` उस मेटाडेटा फ़ील्ड की पहचान करता है जिसमें नियंत्रण हैं, और ``batch_control_values`` एक या अधिक संदर्भ मान चुनता है। खाली होने पर इमेज UMAP ``col_to_compare``/``neg`` का अनुसरण करता है और वर्गीकरण का ML परिवार ``location_column`` (या जब एनोटेशन वर्ग परिभाषित करते हों तब ``annotation_column``) तथा ``negative_control_id`` का अनुसरण करता है। प्रतिगमन के लिए स्पष्ट संदर्भ मान आवश्यक है। ``batch_missing_control=error`` सुरक्षित डिफ़ॉल्ट है; ``skip`` प्रभावित प्लेट को अपरिवर्तित छोड़ता है और एक चेतावनी दर्ज करता है।"
+
+msgid "Every regression correction writes ``batch_correction.json`` next to the regression outputs. Image UMAP and Classify print before/after batch-centroid spread in the run log, while the reproducibility manifest records the exact settings used."
+msgstr "हर प्रतिगमन सुधार प्रतिगमन आउटपुट के बगल में ``batch_correction.json`` लिखता है। इमेज UMAP और वर्गीकरण रन लॉग में सुधार से पहले और बाद का बैच-केंद्रक प्रसार छापते हैं, जबकि पुनरुत्पादकता मैनिफ़ेस्ट उपयोग की गई सटीक सेटिंग्स दर्ज करता है।"
+
+msgid "Python API"
+msgstr "Python API"
+
+msgid "The shared implementation is :func:`spacr.batch_correction.correct_batch_effects`. Most integrations use :func:`spacr.batch_correction.correct_from_metadata`, which ensures metadata columns never enter the numeric feature matrix."
+msgstr "साझा कार्यान्वयन :func:`spacr.batch_correction.correct_batch_effects` है। अधिकांश एकीकरण :func:`spacr.batch_correction.correct_from_metadata` का उपयोग करते हैं, जो सुनिश्चित करता है कि मेटाडेटा स्तंभ कभी भी संख्यात्मक विशेषता मैट्रिक्स में प्रवेश न करें।"
+
