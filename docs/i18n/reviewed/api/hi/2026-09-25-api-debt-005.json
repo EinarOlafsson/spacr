@@ -2653,7 +2653,9 @@
       "source_sha256": "78506f7bb027b6cbb03601fab8ca9b1fefaea01878a039a46b8dff62bc304b8d",
       "context": "Open dropped image files and folders as one work list, in drop order.",
       "translation": "गिराई गई छवि फ़ाइलें और फ़ोल्डर एक कतार के रूप में, ड्रॉप क्रम में, खोलें।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#1",
@@ -2661,15 +2663,18 @@
       "source_sha256": "688d7aed215a292b1d16cc482c05294c6fe3857388d45bca79692b30344d0e50",
       "context": "One folder alone is what it always was, :meth:`_open_folder` on it. Anything else -- one file, several, or files and folders together -- becomes a work list of the microscope fields of view named, a folder standing for its images, each microscope field of view edited where it lies with its mask in its own ``<folder>/masks``. Nothing is copied.",
       "translation": "अकेला एक फ़ोल्डर वैसा ही है जैसा हमेशा था, उस पर :meth:`_open_folder`। बाकी कुछ भी -- एक फ़ाइल, कई, या फ़ाइलें और फ़ोल्डर साथ -- नामित फ़ील्ड की कतार बनता है, जिसमें फ़ोल्डर अपनी छवियों का प्रतिनिधि है, हर फ़ील्ड वहीं संपादित होता है जहाँ वह है, उसका मास्क उसके अपने ``<folder>/masks`` में। कुछ भी कॉपी नहीं होता।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
-      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#2",
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#10",
       "source": "the dropped files and folders, in the order dropped.",
       "source_sha256": "9baca7f3c139b3f19666cad2093c0fb906c930002a2b075fe06c91b876ed10e0",
       "context": "the dropped files and folders, in the order dropped.",
       "translation": "गिराई गई फ़ाइलें और फ़ोल्डर, गिराए जाने के क्रम में।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "rebound_from": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#2"
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#3",
@@ -2677,7 +2682,9 @@
       "source_sha256": "dcaa7600d687ff5164ffe3ea2c79aa76139153b9de822a610c86ad99f59f8632",
       "context": "whether a work list was opened.",
       "translation": "क्या कोई कतार खोली गई।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_queue#1",
