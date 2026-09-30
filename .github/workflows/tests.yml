@@ -71,8 +71,18 @@ jobs:
   # declared floors instead. Both are blocking, and
   # tests/test_optimal_dependency_versions.py fails if either stops being so.
   fast:
-    name: Fast / Full suite control (ubuntu-24.04, py3.12)
+    name: Fast / Full suite control (ubuntu-24.04, py3.12) shard ${{ matrix.shard }} of 3
     runs-on: ubuntu-24.04
+    # THREE FILE SHARDS (item 43, 2026-09-30). One job had outgrown even
+    # the 150-minute budget below: dispatch 36739819315 reached batch 94 of
+    # 110 at 2:30 and was killed, and every dispatched run since 09-28 but
+    # one ended the same way, so the blocking job never reported. Each shard
+    # runs the same marker selection on a deterministic third of the files
+    # (tests/conftest.py, SPACR_PYTEST_FILE_SHARD_*), as the Qt job does.
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2]
     # 90 -> 150. THIS JOB WAS BEING KILLED BY ITS OWN BUDGET, not by a push:
     # 1:30:32 on dispatch 34639565357 and 1:30:17 on 34618149518 a day
     # earlier, both reported as "cancelled", which reads exactly like a
@@ -169,6 +179,8 @@ jobs:
 
       - name: Run fast tests
         env:
+          SPACR_PYTEST_FILE_SHARD_INDEX: ${{ matrix.shard }}
+          SPACR_PYTEST_FILE_SHARD_COUNT: "3"
           QT_QPA_PLATFORM: offscreen
           PYTHONPATH: ${{ github.workspace }}
           OMP_NUM_THREADS: "1"
