@@ -790,8 +790,10 @@ def test_a_journalled_run_says_what_its_analysis_lock_found(monkeypatch):
     right after its manifest line, so a deviation is seen before the run."""
     from spacr import run_journal
 
+    monkeypatch.setattr(run_journal, "_find_lock",
+                        lambda app_key, src: {"lock_id": "lock-1"})
     monkeypatch.setattr(run_journal, "check_analysis_lock",
-                        lambda settings, app_key=None: {
+                        lambda settings, app_key=None, lock=None: {
                             "status": "deviation", "deviations": [],
                             "summary": "threshold changed after the lock"})
     ran = []
