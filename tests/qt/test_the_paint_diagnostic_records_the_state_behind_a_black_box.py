@@ -65,7 +65,13 @@ def mask_window(qapp, qtbot):
     """
     from spacr.qt import preferences as prefs
     from spacr.qt.app import MainWindow
+    from spacr.qt.settings_search import forget_disclosure, remember_disclosure
 
+    # 2026-09-30 (item 592, "hide unset objects", decided 2026-09-29): with
+    # no channel set only the cell column is drawn, none of its questions is
+    # essential, and so under Essentials -- where a first visit opens -- the
+    # table's section is hidden on purpose. All settings keeps it on screen.
+    remember_disclosure("mask", "all")
     prefs.apply_preferences_to_app(qapp)
     window = MainWindow()
     qtbot.addWidget(window)
@@ -77,6 +83,7 @@ def mask_window(qapp, qtbot):
         yield window
     finally:
         window.close()
+        forget_disclosure()
 
 
 def test_without_the_variable_no_key_is_bound(qapp, qtbot, monkeypatch):

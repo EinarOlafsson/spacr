@@ -618,18 +618,23 @@ class TestTheApplicabilityRefreshStillLands:
 
         # Since 592 the per-object table is Mask's only layout of these
         # questions: every flat per-object row is off the form, and the
-        # objects are offered as the table's columns instead -- the three
-        # channelled objects, and no organelle while none is counted.
+        # objects are offered as the table's columns instead.
+        # 2026-09-30 (item 592, "hide unset objects", decided 2026-09-29):
+        # each object's channel is no longer a table row but stays ONE row
+        # of the ordinary form, the control that draws the object's column;
+        # while every channel is None only cell, the reference object, has
+        # a column. Organelles are not offered while none is counted.
         owned = set(scr._object_grid_binding.owned_keys())
         assert owned and owned <= hidden, sorted(owned - hidden)[:5]
         shown = {key for key in model._widgets if key not in hidden}
-        assert not any(key.endswith("_channel") and key[:-8] in roles
-                       for key in shown), sorted(shown)[:10]
+        for role in sm.CHANNELLED_OBJECTS:
+            assert f"{role}_channel" in shown, (role, sorted(shown)[:10])
+            assert f"{role}_channel" not in owned, role
         offered = [role for role in scr._object_grid.objects()
                    if role in roles]
-        assert offered == list(sm.CHANNELLED_OBJECTS), (
-            f"the offered mask roles {offered} no longer match the canonical "
-            f"channelled roles {list(sm.CHANNELLED_OBJECTS)}")
+        assert offered == ["cell"], (
+            f"with every channel None only cell should be offered, "
+            f"not {offered}")
 
     def test_no_object_detail_row_survives_a_channel_of_none(self, qtbot):
         """The failure mode the deferral must never reintroduce."""
