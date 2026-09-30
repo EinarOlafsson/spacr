@@ -2653,7 +2653,9 @@
       "source_sha256": "78506f7bb027b6cbb03601fab8ca9b1fefaea01878a039a46b8dff62bc304b8d",
       "context": "Open dropped image files and folders as one work list, in drop order.",
       "translation": "Ouvre les fichiers d’images et dossiers déposés comme une seule file d’attente, dans l’ordre du dépôt.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#1",
@@ -2661,15 +2663,18 @@
       "source_sha256": "688d7aed215a292b1d16cc482c05294c6fe3857388d45bca79692b30344d0e50",
       "context": "One folder alone is what it always was, :meth:`_open_folder` on it. Anything else -- one file, several, or files and folders together -- becomes a work list of the microscope fields of view named, a folder standing for its images, each microscope field of view edited where it lies with its mask in its own ``<folder>/masks``. Nothing is copied.",
       "translation": "Un dossier seul reste ce qu’il a toujours été : :meth:`_open_folder` appliqué à ce dossier. Tout le reste -- un fichier, plusieurs, ou des fichiers et des dossiers ensemble -- devient une file d’attente des champs nommés, un dossier valant pour ses images, chaque champ étant modifié sur place avec son masque dans son propre ``<folder>/masks``. Rien n’est copié.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
-      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#2",
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#10",
       "source": "the dropped files and folders, in the order dropped.",
       "source_sha256": "9baca7f3c139b3f19666cad2093c0fb906c930002a2b075fe06c91b876ed10e0",
       "context": "the dropped files and folders, in the order dropped.",
       "translation": "les fichiers et dossiers déposés, dans l’ordre du dépôt.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "rebound_from": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#2"
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#3",
@@ -2677,7 +2682,9 @@
       "source_sha256": "dcaa7600d687ff5164ffe3ea2c79aa76139153b9de822a610c86ad99f59f8632",
       "context": "whether a work list was opened.",
       "translation": "si une file d’attente a été ouverte.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_queue#1",

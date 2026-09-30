@@ -4204,7 +4204,9 @@
       "source_sha256": "df310dd753f35e5e3ca37f84440ec37b1f0d4a924ec4a75592f92b19eed53c6b",
       "context": "An image file Make Masks opens, or a folder with images in it.",
       "translation": "Un fichier image qu’ouvre Make Masks, ou un dossier contenant des images.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.MakeMasksDropHandler.can_accept#1",
@@ -4212,7 +4214,9 @@
       "source_sha256": "4e0c3296a77271f0f3fe4f37d7812c41d161963d1a5ae93e1fec99d5ec3d84e9",
       "context": "Pairs are found later, not required here.",
       "translation": "Les paires sont trouvées plus tard ; elles ne sont pas requises ici.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.PlaqueDropHandler#0",
