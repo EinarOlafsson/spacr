@@ -1,10 +1,10 @@
 {
   "lesson": "41_classify",
-  "english_sha256": "5b39387350fde1fe2b622ffe6160d4e301eef74ccdb0f41045f95219d0ee7b69",
+  "english_sha256": "4485df04c4ce5e1db32e2d619de962f72cd60ad1d2c8391358d33540c552f7c6",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -21,9 +21,10 @@
   "scenes": [
     "Abre Classify desde Home. Empieza eligiendo la familia de clasificadores. Las lecciones de imágenes y tabular enlazadas aquí recorren cada una un ejemplo completo.",
     "Elige Computer Vision para aprender de imágenes de objetos. Elige Tabular Machine Learning para aprender de columnas de características medidas. Measure proporciona estas entradas, y Annotate te permite añadir etiquetas a los objetos.",
+    "La vista Essentials reúne los ajustes que ambas familias necesitan para entrenar. Al cambiar a Tabular Machine Learning, los ajustes de Computer Vision se atenúan, de modo que solo rellena lo que usa la familia elegida.",
     "Para el ejemplo tabular, haz clic en Load test data y elige Load. Selecciona las etiquetas de clase y los ajustes de características, y sigue la lección tabular para entrenar el modelo y guardar las predicciones.",
     "Después de la ejecución tabular, revisa el mapa de calor de predicciones y las puntuaciones guardadas por objeto. Los objetos a los que les faltan mediciones necesarias pueden quedar sin puntuación. Revisa los resultados de evaluación para decidir si cambias las etiquetas, las características o los ajustes del modelo.",
-    "Para la clasificación de imágenes, sigue la lección de Computer Vision para preparar recortes etiquetados, elegir un modelo y fijar las divisiones de entrenamiento, validación y prueba. Después del entrenamiento, revisa las figuras de evaluación y las predicciones guardadas.",
+    "Para la clasificación de imágenes, siga la lección de Computer Vision para preparar recortes etiquetados, elegir un modelo y definir las divisiones de entrenamiento, validación y prueba. Tras el entrenamiento, revise las curvas de pérdida y de exactitud y, después, las figuras de evaluación y las predicciones guardadas.",
     "Abre Classifier Evaluation desde las herramientas de arriba a la derecha. Selecciona un paquete de evaluación guardado para revisar las predicciones, las métricas y la división de los datos.",
     "Abre Explain CV para relacionar las predicciones de un clasificador de imágenes con las características medidas. Aporta los resultados de predicción de imágenes y las mediciones correspondientes, y revisa qué características explican las puntuaciones.",
     "Abre Activation para ver qué regiones de la imagen influyen en las respuestas del modelo. Selecciona el punto de control entrenado y usa los mismos canales de imagen y el mismo preprocesamiento que en el entrenamiento.",

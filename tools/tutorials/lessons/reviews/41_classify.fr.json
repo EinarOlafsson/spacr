@@ -1,10 +1,10 @@
 {
   "lesson": "41_classify",
-  "english_sha256": "5b39387350fde1fe2b622ffe6160d4e301eef74ccdb0f41045f95219d0ee7b69",
+  "english_sha256": "4485df04c4ce5e1db32e2d619de962f72cd60ad1d2c8391358d33540c552f7c6",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -21,9 +21,10 @@
   "scenes": [
     "Ouvrez Classify depuis Home. Commencez par choisir la famille de classificateurs. Les leçons sur les images et les données tabulaires indiquées ici présentent chacune un exemple complet.",
     "Choisissez Computer Vision pour apprendre à partir d’images d’objets. Choisissez Tabular Machine Learning pour apprendre à partir de colonnes de caractéristiques mesurées. Measure fournit ces entrées, et Annotate permet d’ajouter des étiquettes aux objets.",
+    "La vue Essentials regroupe les réglages dont les deux familles ont besoin pour l’entraînement. Quand vous passez à Tabular Machine Learning, les réglages de Computer Vision sont grisés : vous ne remplissez que ce que la famille choisie utilise.",
     "Pour l’exemple tabulaire, cliquez sur Load test data et choisissez Load. Sélectionnez vos étiquettes de classe et les paramètres de caractéristiques, puis suivez la leçon tabulaire pour entraîner le modèle et enregistrer les prédictions.",
     "Après l’exécution tabulaire, examinez la carte thermique des prédictions et les scores enregistrés par objet. Les objets auxquels il manque des mesures nécessaires peuvent rester sans score. Consultez les résultats d’évaluation pour décider s’il faut revoir les étiquettes, les caractéristiques ou les paramètres du modèle.",
-    "Pour la classification d’images, suivez la leçon Computer Vision pour préparer des vignettes étiquetées, choisir un modèle et définir les séparations d’entraînement, de validation et de test. Après l’entraînement, examinez les figures d’évaluation et les prédictions enregistrées.",
+    "Pour la classification d’images, suivez la leçon Computer Vision pour préparer des découpes étiquetées, choisir un modèle et définir les partitions d’entraînement, de validation et de test. Après l’entraînement, vérifiez les courbes de perte et d’exactitude, puis examinez les figures d’évaluation et les prédictions enregistrées.",
     "Ouvrez Classifier Evaluation depuis les outils en haut à droite. Sélectionnez un paquet d’évaluation enregistré pour examiner les prédictions, les métriques et la séparation des données.",
     "Ouvrez Explain CV pour relier les prédictions d’un classificateur d’images à des caractéristiques mesurées. Fournissez les résultats de prédiction sur images et les mesures correspondantes, puis examinez quelles caractéristiques expliquent les scores.",
     "Ouvrez Activation pour voir quelles régions de l’image influencent les réponses du modèle. Sélectionnez le point de contrôle entraîné et utilisez les mêmes canaux d’image et le même prétraitement qu’à l’entraînement.",

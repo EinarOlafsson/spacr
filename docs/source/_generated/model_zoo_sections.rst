@@ -212,21 +212,3 @@ Toxoplasma from Hoechst (cross-channel)
 Published as `einarolafsson/toxoplasma-from-hoechst-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-hoechst-cpsam>`_, as ``toxoplasma_from_hoechst_pv``.
 
 SHA-256 ``8dc05ebced3550d1a418c13d24d319e0482c742988df29a525520026cb2f0d96``.
-
-Colony Detector v1 (alpha)
---------------------------
-
-**Architecture.** YOLO11n (ultralytics), one class 'colony'
-
-**Trained on.** plate photos from Makrai et al. 2023, Scientific Data, figshare doi:10.6084/m9.figshare.22022540 (CC BY 4.0): 369 smartphone photos of 24 species with 56,865 colony boxes
-
-**Measured.** median count error 2.4% on 39 held-out plates with 30-300 colonies, against 16.5% for spaCR's thresholding counter on the same plates
-
-* counts colonies for colony_counting when colony_detector names this key; ultralytics is needed
-* 69% of held-out plates within 5% of the hand count and 87% within 10%
-* one dataset and one split: photos from another lab, agar or species may score worse, and confluent swarming colonies stay hard
-* published in the einarolafsson/models dataset repo under colony_detector/v1/
-
-Published as `einarolafsson/models <https://huggingface.co/datasets/einarolafsson/models>`_, as ``colony_yolo11n_makrai_v1.pt``.
-
-SHA-256 ``1bd99599c1d78fb0841216b798cfc61665be7c2aa8b356b970d0d06ae4b57557``.

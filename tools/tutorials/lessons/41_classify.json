@@ -37,6 +37,20 @@
       "hold_after": 0.7
     },
     {
+      "visual": "main_03_tabular_family",
+      "narration": "The Essentials view holds the settings that both families need to train. When you switch to Tabular Machine Learning, the Computer Vision settings grey out, so you only fill in what the chosen family uses.",
+      "focus": [
+        350,
+        520,
+        1150,
+        1600
+      ],
+      "related_lessons": [
+        "11_classify_ml"
+      ],
+      "hold_after": 0.7
+    },
+    {
       "visual": "ml_02_data_choice_load",
       "narration": "For the tabular example, click Load test data and choose Load. Select your class labels and feature settings, then follow the tabular lesson to train the model and save predictions.",
       "related_lessons": [
@@ -49,10 +63,10 @@
       "visual": "ml_25_ml_figure_02",
       "narration": "After the tabular run, inspect the prediction heatmap and saved object scores. Objects with missing required measurements may remain unscored. Check the evaluation results to decide whether to revise your labels, features or model settings.",
       "focus": [
-        2090,
-        190,
-        1720,
-        1200
+        1250,
+        330,
+        2050,
+        1520
       ],
       "related_lessons": [
         "11_classify_ml"
@@ -61,12 +75,12 @@
     },
     {
       "visual": "cv_24_batch_figure",
-      "narration": "For image classification, follow the Computer Vision lesson to prepare labelled crops, choose a model, and set the training, validation and test splits. After training, inspect the evaluation figures and saved predictions.",
+      "narration": "For image classification, follow the Computer Vision lesson to prepare labelled crops, choose a model, and set the training, validation and test splits. After training, check the loss and accuracy curves, then inspect the evaluation figures and saved predictions.",
       "focus": [
-        2090,
-        180,
-        1720,
-        1320
+        360,
+        300,
+        3460,
+        1440
       ],
       "related_lessons": [
         "10_classify_cv"
@@ -77,10 +91,10 @@
       "visual": "main_05_classifier_evaluation_tooltip",
       "narration": "Open Classifier Evaluation from the top-right tools. Select a saved evaluation bundle to inspect predictions, metrics and the data split.",
       "focus": [
-        2690,
-        65,
-        1120,
-        280
+        2880,
+        60,
+        950,
+        160
       ],
       "related_lessons": [
         "39_classifier_evaluation"
@@ -91,10 +105,10 @@
       "visual": "main_05_explain_cv_tooltip",
       "narration": "Open Explain CV to relate an image classifier’s predictions to measured features. Supply the image prediction results and the corresponding measurements, then inspect which features explain the scores.",
       "focus": [
-        2480,
-        65,
-        1330,
-        280
+        2880,
+        60,
+        950,
+        160
       ],
       "related_lessons": [
         "70_explain_cv"
@@ -105,10 +119,10 @@
       "visual": "main_05_activation_tooltip",
       "narration": "Open Activation to view which image regions influence model responses. Select the trained checkpoint and use the same image channels and preprocessing as during training.",
       "focus": [
-        2930,
-        65,
-        880,
-        280
+        2880,
+        60,
+        950,
+        160
       ],
       "related_lessons": [
         "16_activation"
@@ -119,10 +133,10 @@
       "visual": "main_05_train_compare_tooltip",
       "narration": "Open Training Runs to compare saved training histories. Select runs with compatible metrics and data splits, then inspect their learning curves and settings.",
       "focus": [
-        2600,
-        65,
-        1210,
-        300
+        2880,
+        60,
+        950,
+        160
       ],
       "related_lessons": [
         "28_training_runs"
@@ -141,10 +155,10 @@
       "visual": "ml_25_ml_figure_02",
       "narration": "Keep your trained model, predictions and evaluation results in the run folder. You can use object scores in Regression together with matching guide counts. The linked module lessons show the next steps.",
       "focus": [
-        2090,
-        190,
-        1720,
-        1200
+        1250,
+        330,
+        2050,
+        1520
       ],
       "related_lessons": [
         "06_api",

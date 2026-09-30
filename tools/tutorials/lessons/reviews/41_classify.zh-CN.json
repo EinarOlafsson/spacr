@@ -1,10 +1,10 @@
 {
   "lesson": "41_classify",
-  "english_sha256": "5b39387350fde1fe2b622ffe6160d4e301eef74ccdb0f41045f95219d0ee7b69",
+  "english_sha256": "4485df04c4ce5e1db32e2d619de962f72cd60ad1d2c8391358d33540c552f7c6",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -21,9 +21,10 @@
   "scenes": [
     "从Home打开Classify。首先选择分类器系列。这里链接的图像课程和表格课程各自演示一个完整的示例。",
     "选择Computer Vision，从对象图像中学习。选择Tabular Machine Learning，从测量特征列中学习。这些输入由Measure提供，Annotate可以为对象添加标签。",
+    "Essentials 视图汇集了两类分类器训练所需的设置。切换到 Tabular Machine Learning 后，Computer Vision 的设置会变灰，您只需填写所选类别用到的内容。",
     "对于表格示例，点击Load test data并选择Load。选择类别标签和特征设置，然后按照表格课程训练模型并保存预测。",
     "表格运行完成后，检查预测热图和保存的对象分数。缺少必要测量值的对象可能没有分数。查看评估结果，决定是否需要修改标签、特征或模型设置。",
-    "对于图像分类，请按照Computer Vision课程准备带标签的裁剪图像，选择模型，并设置训练、验证和测试的划分。训练完成后，检查评估图和保存的预测。",
+    "对于图像分类，请按照 Computer Vision 课程准备带标签的裁剪图像、选择模型，并设置训练、验证和测试划分。训练完成后，先查看损失和准确率曲线，再检查评估图和保存的预测结果。",
     "从右上角的工具打开Classifier Evaluation。选择一个保存的评估包，检查预测、指标和数据划分。",
     "打开Explain CV，把图像分类器的预测与测量特征联系起来。提供图像预测结果和对应的测量数据，然后查看哪些特征能解释这些分数。",
     "打开Activation，查看哪些图像区域影响模型的响应。选择训练好的检查点，并使用与训练时相同的图像通道和预处理。",
