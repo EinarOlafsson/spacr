@@ -9781,11 +9781,12 @@
         "f011c1f5a9daa343616645b60eb89f588c990bbc270384ae28621846dc27a5a1",
         "f4e6a46f4fba0f5d82c2a794dddbd6efd63779d65a04e2552f6201b4286570d8",
         "d5ec331991d19d64869eb3b1a422dd5c23c09f03def5404e799d913e04c4091e",
+        "6467c122ba95cbd8a1ce59c9da016c3861359485632fdaefee0b661778576c4e",
         "ea3bd380a00d79b11341a3863a9d3b4ab4d88d1ecdd52bf5eb716a8d9f768202",
         "a89332de24fb787ed65f2d099a9ffcd11684ed342db68c883cd7117062eaf1cd"
       ],
-      "source_sha256": "2a450af570bab49d1ea619f21f07db28cddd21d6d302fee40ac695bf521f15cb",
-      "text": "아무것도 건드리기 전에 모든 이동, 이름, 검사를 정합니다.\n\n:param folder: 이미지 폴더입니다.\n:param sets: ``{set key: {channel: name}}`` 이며, 완전한 세트만 포함합니다.\n:param masks_dir: 명시적으로 지정한 마스크 폴더입니다.\n:param mask_roles: ``{channel: role}`` 입니다. ``None`` 이면 추측합니다(:func:`default_mask_roles`). 여기에 없는 채널, 또는 ``\"none\"`` 이 지정된 채널은 마스크를 옮기기만 하고 병합하지 않습니다.\n:param dest: 새 폴더이며, 기본값은 ``<folder>/sorted_channels`` 입니다.\n:param check_shapes: 각 이미지와 마스크의 크기를 읽고, 이미지 크기가 서로 다른 세트, 이미지와 크기가 다른 마스크, 2-D 가 아닌 이미지를 거부합니다.\n:param convert: RGB 이미지는 회색조로, z 스택은 최대 투영으로 기록하며 거부하지 않습니다. 이 옵션이 없으면 호출자가 물어볼 수 있도록 :attr:`SortPlan.convertible` 에 나열됩니다.\n:returns: a :class:`SortPlan`.",
+      "source_sha256": "1642cc36de6f1e904e1e6aafe1c00a2617954a2c603b465000c692bdb553bb9a",
+      "text": "아무것도 건드리기 전에 모든 이동, 이름, 검사를 정합니다.\n\n:param folder: 이미지 폴더입니다.\n:param sets: ``{set key: {channel: name}}`` 이며, 완전한 세트만 포함합니다.\n:param masks_dir: 명시적으로 지정한 마스크 폴더입니다.\n:param mask_roles: ``{channel: role}`` 입니다. ``None`` 이면 추측합니다(:func:`default_mask_roles`). 여기에 없는 채널, 또는 ``\"none\"`` 이 지정된 채널은 마스크를 옮기기만 하고 병합하지 않습니다.\n:param dest: 새 폴더이며, 기본값은 ``<folder>/sorted_channels`` 입니다.\n:param check_shapes: 각 이미지와 마스크의 크기를 읽고, 이미지 크기가 서로 다른 세트, 이미지와 크기가 다른 마스크, 2-D 가 아닌 이미지를 거부합니다.\n:param masks: ``{image: mask path}`` 로 각 이미지의 마스크를 직접 지정합니다(item 600 의 마스크 열). 여기에 없는 이미지에는 마스크가 없습니다. None 이면 각 마스크를 :func:`mask_for` 로 찾습니다.\n:param convert: RGB 이미지는 회색조로, z 스택은 최대 투영으로 기록하며 거부하지 않습니다. 이 옵션이 없으면 호출자가 물어볼 수 있도록 :attr:`SortPlan.convertible` 에 나열됩니다.\n:returns: a :class:`SortPlan`.",
       "translation_source_blocks_sha256": [
         "a4878591d46edd1a888afa468dcea279bb5a76e69222a995801d21e23e401987",
         "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
@@ -9794,6 +9795,7 @@
         "9ea2f69ceb2b8f96bce334886755530fcef97e4a79be1a0256ebb9e17e009af9",
         "f4e6a46f4fba0f5d82c2a794dddbd6efd63779d65a04e2552f6201b4286570d8",
         "d5ec331991d19d64869eb3b1a422dd5c23c09f03def5404e799d913e04c4091e",
+        "6467c122ba95cbd8a1ce59c9da016c3861359485632fdaefee0b661778576c4e",
         "ea3bd380a00d79b11341a3863a9d3b4ab4d88d1ecdd52bf5eb716a8d9f768202",
         "a89332de24fb787ed65f2d099a9ffcd11684ed342db68c883cd7117062eaf1cd"
       ]
@@ -9927,19 +9929,19 @@
     "spacr.channel_sorting.mask_for": {
       "source_blocks_sha256": [
         "3f60fea989d2144394e9ab9f1355f4ec274fdef66c60e9f501fdcb86a93a6ced",
-        "cc247a3038010bdcb359ad9ed4187c4df5217f0b6b60b6466e224d4cb5229923",
+        "2024a32aad49966055d3f9c20062bc546394f12034822774a95726a749aedd53",
         "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
-        "295bc1804dac96cf8a9c75de5cafe5496c163eff3e68e61d59c8400f5967d55c",
-        "03d9ff28d57d5453ff99df39aa4e590eba57d1831246b380b43a22730c5c816e"
+        "b7cf1b59b49693743ff79dacf8fff5f4e7fc9810df50ed5073dd0a9ddceb3276",
+        "41ed8cb0f3b3cde8d616b01fa25b490b0bcfad7b341bb4705b15ffdec64b07c1"
       ],
-      "source_sha256": "12dcacc04ca37d38b5280e6bdb92ecb1996c1f8ae007efa5de7526523b8435ff",
-      "text": "이미지 ``name`` 의 저장된 마스크 경로, 또는 None 을 반환합니다.\n\nMake Masks 는 모든 마스크를 ``<masks folder>/<stem>.tif`` 로 저장합니다(:func:`spacr.qt.mask_engine.mask_save_path`).\n\n:param folder: 이미지 폴더입니다.\n:param name: 이미지 파일 이름입니다.\n:param masks_dir: 명시적으로 지정한 마스크 폴더입니다.",
+      "source_sha256": "f7e5e90763bcdb8a9b9e31b848d66da4ed63f98f78de42c65d102ddc1c9ee32e",
+      "text": "이미지 ``name`` 의 저장된 마스크 경로, 또는 None 을 반환합니다.\n\nMake Masks 는 모든 마스크를 ``<masks folder>/<stem>.tif`` 로 저장합니다(:func:`spacr.qt.mask_engine.mask_save_path`). ``folder`` 밖의 절대 경로로 지정된 이미지(다른 곳에서 정렬 대화 상자로 끌어 놓은 이미지나 채널 하위 폴더의 이미지)는 마스크가 자기 폴더의 ``masks/`` 에 있습니다.\n\n:param folder: 이미지 폴더입니다.\n:param name: 이미지 파일 이름 또는 절대 경로.\n:param masks_dir: 명시적으로 지정한 마스크 폴더로, ``folder`` 에 있는 이미지에 사용합니다.",
       "translation_source_blocks_sha256": [
         "3f60fea989d2144394e9ab9f1355f4ec274fdef66c60e9f501fdcb86a93a6ced",
-        "cc247a3038010bdcb359ad9ed4187c4df5217f0b6b60b6466e224d4cb5229923",
+        "db5f4993543f8fd2e9e4ff319905f0d7d584082d931192eab351a0ce1ef8c1f1",
         "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
-        "295bc1804dac96cf8a9c75de5cafe5496c163eff3e68e61d59c8400f5967d55c",
-        "03d9ff28d57d5453ff99df39aa4e590eba57d1831246b380b43a22730c5c816e"
+        "b7cf1b59b49693743ff79dacf8fff5f4e7fc9810df50ed5073dd0a9ddceb3276",
+        "41ed8cb0f3b3cde8d616b01fa25b490b0bcfad7b341bb4705b15ffdec64b07c1"
       ]
     },
     "spacr.channel_sorting.mask_thumbnail": {
@@ -10042,17 +10044,17 @@
       "source_blocks_sha256": [
         "56311c12a57ec81ed05b83917f7d0b26c88cfc57316ec37a5917d6091eff0be0",
         "b53c94632baea7fba0f0d31d8c50399bb2a63eaef639956aa3a318140861885b",
-        "9fc1e60082e3b59380b1a2ffe027609650fb4412615f2ee8aa826348c4f04242",
+        "9968bd6109910b5855971d698697622f2348350e802cb613b81fdfcd062994b6",
         "9c6bc6d3b2d34146a64bfdca1c59740f1c941b8ae9928ab8e10d4daf35fe8472",
         "3aec1d760fc41c58075bedf3b6bfee93d5091c8bce41cc1576fb9f0838281043",
         "514259c61036debd3fc830490d2a8731e4b2413961783e7527abba3066ff939e"
       ],
-      "source_sha256": "b7f6ac214b949efd152e02ba36a527c9bbb341efe3321adc335701109b55fd40",
-      "text": "``pattern`` 으로 각 이름의 채널과 세트를 읽습니다.\n\n사용자가 지정한 이름(``channels``)의 채널은 그 지정 값입니다. 그렇지 않으면 모든 ``chanID`` 값을 자연 순서로 정렬했을 때 그 ``chanID`` 값의 위치(1 부터)입니다. 세트 키는 패턴 순서대로 나열한 나머지 모든 이름 있는 그룹입니다. 패턴과 일치하지 않는 이름에는 세트가 없습니다.\n\n:param names: 이미지 파일 이름입니다.\n:param pattern: 각 이름의 처음부터 맞춰 보는 정규식입니다. 비어 있거나 None 이면 아무것도 일치하지 않습니다.\n:param channels: 선택 전략에서 온 ``{name: channel}`` 입니다.\n:returns: 이름마다 :class:`ParsedName` 하나이며, 순서대로입니다.",
+      "source_sha256": "735f0ad402edfa9f1e3554849311b48767916178b2012c3ad8935d16e24ec2a6",
+      "text": "``pattern`` 으로 각 이름의 채널과 세트를 읽습니다.\n\n사용자가 지정한 이름(``channels``)의 채널은 그 지정 값입니다. 그렇지 않으면 모든 ``chanID`` 값을 자연 순서로 정렬했을 때 그 ``chanID`` 값의 위치(1 부터)입니다. 세트 키는 패턴 순서대로 나열한 나머지 모든 이름 있는 그룹입니다. 패턴과 일치하지 않는 이름에는 세트가 없습니다.\n\n:param names: 이미지 파일 이름, 또는 폴더 밖 이미지의 절대 경로. 정규식은 파일 이름만 읽습니다.\n:param pattern: 각 이름의 처음부터 맞춰 보는 정규식입니다. 비어 있거나 None 이면 아무것도 일치하지 않습니다.\n:param channels: 선택 전략에서 온 ``{name: channel}`` 입니다.\n:returns: 이름마다 :class:`ParsedName` 하나이며, 순서대로입니다.",
       "translation_source_blocks_sha256": [
         "56311c12a57ec81ed05b83917f7d0b26c88cfc57316ec37a5917d6091eff0be0",
         "5bf39bb9db4da139f853606f5ae8e43c4738f6f737f443801b0e840f4e1ccedb",
-        "9fc1e60082e3b59380b1a2ffe027609650fb4412615f2ee8aa826348c4f04242",
+        "9968bd6109910b5855971d698697622f2348350e802cb613b81fdfcd062994b6",
         "9c6bc6d3b2d34146a64bfdca1c59740f1c941b8ae9928ab8e10d4daf35fe8472",
         "3aec1d760fc41c58075bedf3b6bfee93d5091c8bce41cc1576fb9f0838281043",
         "514259c61036debd3fc830490d2a8731e4b2413961783e7527abba3066ff939e"
@@ -21332,6 +21334,66 @@
       "translation_source_blocks_sha256": [
         "d0e503ddd4211e0947a9a828f139dd5c2399e30bb91dab598c1d2aa06a42b904",
         "dcd08951ca90816f7dd96d53fe6936290eee8db2725255121fbe1ea75b845894"
+      ]
+    },
+    "spacr.drop_classification": {
+      "source_blocks_sha256": [
+        "ad9a9cf4fda80d7d095ebfafa9a6942726431b812f474cc00e614e3b89c22901",
+        "b24e354801f91a030e12c0d067448976a7fc8906225a1cd2e76972b5968436cb",
+        "8a7bb619524ce62d6abd7f064acc35f22a4ba1ca6725cf90381ab1fb7fc51c91",
+        "ea98616928439da96f4e5fa522ec7301974f265f312e34516a250ae766edc46a"
+      ],
+      "source_sha256": "20b6daa20e47d02088623057aac16fefef995ff30e17e045b80de154e77ea562",
+      "text": "Make Masks 에 무엇을 끌어 놓았는지를 무엇이든 열기 전에 판정합니다.\n\nItem 600. Make Masks 는 파일, 폴더 또는 둘 다를 끌어 놓기로 받으며, 사용자의 의도는 무엇을 끌어 놓았는지에 따라 달라집니다. :func:`classify_drop` 는 경로(이름, 폴더 구조, 그리고 일부 TIFFs 의 경우 픽셀)를 읽고, 질문이나 위젯 하나 없이 다음 중 어느 경우인지 알려 줍니다.\n\n``images`` 끌어 놓은 순서대로 하나의 대기열로 여는 이미지 파일(폴더가 포함될 수도 있음). ``folder`` 있는 그대로 여는 이미지 폴더 하나(마스크는 그 ``masks/`` 에 있음). ``nested`` 이미지가 하위 폴더에 들어 있는 폴더 하나: 하위 폴더가 채널처럼 보이면(:attr:`channel_like`) 하위 폴더마다 채널 열 하나로 \"Organize for Measure\" 를 열고, 그렇지 않으면 통합 여부를 묻습니다. ``folders`` 각각 이미지를 담은 여러 폴더: Make Masks 는 폴더마다 채널 열 하나로 \"Organize for Measure\" 를 엽니다. ``images_with_masks`` 마스크와 함께 끌어 놓은 이미지(마스크 폴더, 이름에 mask 가 들어간 파일, 또는 끌어 놓은 이미지의 이름을 딴 정수 레이블 TIFFs): :attr:`masks` 가 이들을 짝지어 줍니다. ``spacr_output`` spaCR 가 쓴 폴더(``merged/*.npy``, ``sorted_channels`` 폴더 또는 ``merged`` 폴더 자체): :attr:`description` 은 그것이 무엇인지 알려 주고 :attr:`open_folder` 는 열 이미지 폴더입니다(있는 경우). ``nothing`` Make Masks 가 사용할 수 있는 것이 없습니다.\n\n끌어 놓은 것 중 위의 어느 것에도 해당하지 않는 항목(``.npy``, 텍스트 파일, 빈 폴더, 어떤 이미지도 차지하지 않는 마스크)은 :attr:`unrecognised` 또는 :attr:`unpaired_masks` 에 들어가므로, 화면이 이를 잃어버리지 않고 목록으로 보여 줄 수 있습니다.",
+      "translation_source_blocks_sha256": [
+        "ad9a9cf4fda80d7d095ebfafa9a6942726431b812f474cc00e614e3b89c22901",
+        "b24e354801f91a030e12c0d067448976a7fc8906225a1cd2e76972b5968436cb",
+        "2fcd90eec56c6dc09cb1dbcecd6a7ab4140a72729c2042df5bff430697ff0afc",
+        "ea98616928439da96f4e5fa522ec7301974f265f312e34516a250ae766edc46a"
+      ]
+    },
+    "spacr.drop_classification.DropClassification": {
+      "source_blocks_sha256": [
+        "c390879ae8d79d0cbc295f392c8bc8b28fec7a992819f21f16cb86a3d7470b2d",
+        "7414bbfc5dddcef62f69d9f0876244d84980fd437b704f273c898a2d7eade8a7",
+        "72b95df792c0743d0d49bcfccd2d6d59dab0800cee69d123097e2a5044a171d2",
+        "a4b77b71e707cbcb74eec0f1cbdd74d7c1592f140ef1d2ed7acf53812280bc20",
+        "b52d9daaf5cf388035188c1bfbb6dd47d235a333ce79c6d29534c3eabe34081d",
+        "1dae919a6e8bca76ab74a1c4e39a77ab57b2a301150733107652e17697152d85",
+        "c14f0b6bc13c0be7cd085787def914566656f6facc0bef24cc6774e7cbe8bda6",
+        "4020a1877a88a9f9dad51ea8eec2e4076ddb6e8d787383e28a2c8ea7890b9895",
+        "64da7e723f1d23c072e2c7138c88aa6bb3271e922c93123cf61eb5e4377ab28b",
+        "c3d5dec4df2fe348a03c039a640574353a73745c8949f9593a7d96b3ff165ea1",
+        "29cdf3f85d5a93da2d533c501d758624b87f861ae7eb7f089b664e92a1bae790"
+      ],
+      "source_sha256": "4cb3c873659ff25ef81cfa7e53f515ef8adc84383e551489fe9e8ef5696b142a",
+      "text": "Make Masks 에 끌어 놓은 것이 무엇인지, 그리고 그에 따라 처리하는 데 필요한 모든 정보.\n\n:ivar kind: ``images``, ``folder``, ``nested``, ``folders``, ``images_with_masks``, ``spacr_output`` 또는 ``nothing`` 중 하나.\n:ivar images: 끌어 놓은 순서대로의 이미지 파일 절대 경로(``images`` 및 ``images_with_masks``).\n:ivar folders: 끌어 놓은 폴더(``folder``, ``nested``), 폴더들(``folders``) 또는 개별 이미지와 함께 끌어 놓은 폴더들(``images``).\n:ivar channel_folders: 이미지를 담고 있는 ``nested`` 폴더의 하위 폴더들로, 자연 순서로 정렬됩니다. ``folders`` 의 경우 끌어 놓은 폴더들입니다.\n:ivar channel_like: :attr:`channel_folders` 가 각각 하나의 채널처럼 보이는지 여부. DAPI 나 ch1 같은 이름이거나 모든 폴더에 같은 시야가 있는 경우입니다.\n:ivar masks: ``{image path: mask path}``, ``images_with_masks`` 용.\n:ivar unpaired_masks: 끌어 놓은 어떤 이미지도 차지하지 않는 마스크.\n:ivar open_folder: ``spacr_output`` 의 경우 열 이미지 폴더이며, 없으면 None.\n:ivar description: ``spacr_output`` 끌어 놓기가 무엇인지 말해 주는 평이한 문장 하나.\n:ivar unrecognised: 아무 데도 쓰이지 않은 끌어 놓은 경로와 각각의 이유.",
+      "translation_source_blocks_sha256": [
+        "c390879ae8d79d0cbc295f392c8bc8b28fec7a992819f21f16cb86a3d7470b2d",
+        "7414bbfc5dddcef62f69d9f0876244d84980fd437b704f273c898a2d7eade8a7",
+        "72b95df792c0743d0d49bcfccd2d6d59dab0800cee69d123097e2a5044a171d2",
+        "a4b77b71e707cbcb74eec0f1cbdd74d7c1592f140ef1d2ed7acf53812280bc20",
+        "b52d9daaf5cf388035188c1bfbb6dd47d235a333ce79c6d29534c3eabe34081d",
+        "6a3fd11b86c3a8674b934476cba9c8667850275ffd92b73bb56429c776ab1b98",
+        "c14f0b6bc13c0be7cd085787def914566656f6facc0bef24cc6774e7cbe8bda6",
+        "4020a1877a88a9f9dad51ea8eec2e4076ddb6e8d787383e28a2c8ea7890b9895",
+        "64da7e723f1d23c072e2c7138c88aa6bb3271e922c93123cf61eb5e4377ab28b",
+        "c3d5dec4df2fe348a03c039a640574353a73745c8949f9593a7d96b3ff165ea1",
+        "29cdf3f85d5a93da2d533c501d758624b87f861ae7eb7f089b664e92a1bae790"
+      ]
+    },
+    "spacr.drop_classification.classify_drop": {
+      "source_blocks_sha256": [
+        "7cb2a9f3c889ee1826224517d43a6d8f2a2e513eda16a6643bcbe47851ff40df",
+        "6670706f8db19a67a59025bd2be84af4f25d6446a507927474c16f987977c5e4",
+        "2ba4395a4e25ed0d8e7d343fca5e065929c5ef249b404062f9665d72cb929334"
+      ],
+      "source_sha256": "2c059b51bbc9d1a514f1a3ca1b9592176dcaa01cf8387317b6b29d983f5a3cac",
+      "text": "Make Masks 에 끌어 놓은 것이 무엇인지 묻거나 열지 않고 판정합니다.\n\n:param paths: 끌어 놓은 순서대로의 파일과 폴더.\n:returns: a :class:`DropClassification`.",
+      "translation_source_blocks_sha256": [
+        "7cb2a9f3c889ee1826224517d43a6d8f2a2e513eda16a6643bcbe47851ff40df",
+        "6670706f8db19a67a59025bd2be84af4f25d6446a507927474c16f987977c5e4",
+        "2ba4395a4e25ed0d8e7d343fca5e065929c5ef249b404062f9665d72cb929334"
       ]
     },
     "spacr.embeddings": {
@@ -52666,7 +52728,7 @@
         "5c2ede49c270e3cacec8e74a093d9f8f56c5231df11b8c19e52d1220c707e05e"
       ],
       "source_sha256": "c9b42659fd7136d663bd74ffb2901ffcecc88d4379d564a95f895d03cfd07a5a",
-      "text": "네트워크 위치에 위치한 사이트 인덱스, 또는 None 텅 비어있을 때\n\n:param column: 콜럼 인덱스 입니다.\n:param row: 절대적인 네트워크 라인.\n:returns: 사이트 인덱스, 또는 None 서클 밖에서.",
+      "text": "네트워크 위치에 위치한 사이트 인덱스, 또는 None 텅 비어있을 때\n\n:param column: 열 인덱스.\n:param row: 절대적인 네트워크 라인.\n:returns: 사이트 인덱스, 또는 None 서클 밖에서.",
       "translation_source_blocks_sha256": [
         "cbc795c42947639e4d823c957c0a26406f1bb43858e12c79e07f6f599271be00",
         "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
@@ -52691,7 +52753,7 @@
         "d77615f3844acc7c09a54d943d69b162328c176cfda972687c5a161de66ffbb4"
       ],
       "source_sha256": "1c9c10d3538b324c4f83220737486ee98761f76f1a800008384a01392f58cee6",
-      "text": "``(first row, last row)`` 하나의 열, 또는 None 빈 경우.\n\n:param column: 콜럼 인덱스 입니다.\n:returns: 타일 전체가 원 안에 있는 사이트들의 양 끝을 포함한 절대 행 범위 -- :attr:`half_tile` 참조.",
+      "text": "``(first row, last row)`` 하나의 열, 또는 None 빈 경우.\n\n:param column: 열 인덱스.\n:returns: 타일 전체가 원 안에 있는 사이트들의 양 끝을 포함한 절대 행 범위 -- :attr:`half_tile` 참조.",
       "translation_source_blocks_sha256": [
         "250fe641c3b1c854e8b7b196c5e79921800a40b4c87e4d9a1c1e63fb6f854f40",
         "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
@@ -71336,16 +71398,16 @@
     },
     "spacr.qt.dnd_handlers.MakeMasksDropHandler.can_accept": {
       "source_blocks_sha256": [
-        "df310dd753f35e5e3ca37f84440ec37b1f0d4a924ec4a75592f92b19eed53c6b",
-        "4e0c3296a77271f0f3fe4f37d7812c41d161963d1a5ae93e1fec99d5ec3d84e9",
+        "66c961c2404c26e30cbb9dc2a374f3adb6d22dc64ac1c66005179ef33fa79ed9",
+        "0b463bfe023187936515c9f5f78594a1a516a222e11fa84d56c3f93baa7d842b",
         "1f800f7819df1dab2291037c2ed19a7e327af6aa03c46a42b5915f92048a45f9",
         "c104664a16c2336b1ec431168ed28b672d42347d783cafd1a1c712819bfd8cfb"
       ],
-      "source_sha256": "7923f308e7f5f5ae571cf9e0fbc043150b6efdaa038bcbd4664d99a009a9b536",
-      "text": "Make Masks 가 여는 이미지 파일, 또는 이미지가 들어 있는 폴더입니다.\n\n쌍은 나중에 찾으며, 여기서는 필요하지 않습니다.\n\n:param path: 드롭된 파일 또는 폴더입니다.\n:returns: 이 핸들러가 ``path`` 를 그대로 사용할 수 있으면 True 입니다.",
+      "source_sha256": "22a0eb4e1d74c1451170df04cdbb9afa55b5202704cd568ee7d265ee38ec817a",
+      "text": "이미지 파일, ``.npy``, 또는 이미지나 spaCR 출력이 있는 폴더.\n\nItem 600: 이미지가 하위 폴더에만 있는 폴더와 spaCR 가 쓴 폴더(``merged/*.npy``, ``sorted_channels``)도 받으며, ``.npy`` 도 받아서 화면이 그것이 무엇인지 알려 줄 수 있게 합니다. 끌어 놓은 것의 의미는 :func:`spacr.drop_classification.classify_drop` 가 결정합니다. 짝은 나중에 찾으며 여기서는 필요하지 않습니다.\n\n:param path: 드롭된 파일 또는 폴더입니다.\n:returns: 이 핸들러가 ``path`` 를 그대로 사용할 수 있으면 True 입니다.",
       "translation_source_blocks_sha256": [
-        "df310dd753f35e5e3ca37f84440ec37b1f0d4a924ec4a75592f92b19eed53c6b",
-        "4e0c3296a77271f0f3fe4f37d7812c41d161963d1a5ae93e1fec99d5ec3d84e9",
+        "66c961c2404c26e30cbb9dc2a374f3adb6d22dc64ac1c66005179ef33fa79ed9",
+        "0b463bfe023187936515c9f5f78594a1a516a222e11fa84d56c3f93baa7d842b",
         "1f800f7819df1dab2291037c2ed19a7e327af6aa03c46a42b5915f92048a45f9",
         "c104664a16c2336b1ec431168ed28b672d42347d783cafd1a1c712819bfd8cfb"
       ]
@@ -96664,18 +96726,34 @@
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths": {
       "source_blocks_sha256": [
-        "78506f7bb027b6cbb03601fab8ca9b1fefaea01878a039a46b8dff62bc304b8d",
-        "688d7aed215a292b1d16cc482c05294c6fe3857388d45bca79692b30344d0e50",
+        "6b0579156a6c584df9096cab9f7b7211c548aaa35b80fbb997ea450b5476e1a9",
+        "69334d1a082d3f29421c9886c5b3eaffe80c893614f2310e735a8415bf32cc75",
+        "20bc27c6efd19fd2293d239b2032995610f1090b591b2f0055f945f87742e346",
+        "e8345bf2a6043263e97fc76701af792bf6a6a7c7c1bfab70711470f4fd8eb3c7",
+        "d6cfe7dc8f5efd9740d06ece07a39d601c18295bf1f4f87dbbe487802815feab",
+        "83b830594fc1c09a8572c7800550ccea8ad86e430a4c1cbf45127014f0c2d624",
+        "eb8b8981479f0c97da1cfd8abd5a38ef8b31ffe10d80ad6e636ca4ced9d72923",
+        "2fedcff00ed01718e70950e47986bcd38b062c74019d0a8647cb9abf473c3655",
+        "12013c1dad79f5e94c4de1e807050e6ae5e3f427773748601c9a5df2a1e16d84",
+        "76ddbfea745401621562b270d01fbe8ea4d1a133e0e085ab1a545bdcc37c4d40",
         "9baca7f3c139b3f19666cad2093c0fb906c930002a2b075fe06c91b876ed10e0",
-        "dcaa7600d687ff5164ffe3ea2c79aa76139153b9de822a610c86ad99f59f8632"
+        "cd563a28ad5739f67a3a5a5f193336cf4f639280ab55ddd5a51a1fe479d5cbc7"
       ],
-      "source_sha256": "68a3e43a785d70d8f658ed68de2b73b30d999e078b997b4e910f4d6bfbd30266",
-      "text": "드롭된 이미지 파일과 폴더를 드롭 순서대로 하나의 대기열로 엽니다.\n\n폴더 하나만 있으면 예전과 같이 그 폴더에 :meth:`_open_folder` 를 실행합니다. 그 밖의 경우(파일 하나, 여러 개, 또는 파일과 폴더를 함께)는 지정된 현미경 시야의 대기열이 되며, 폴더는 그 이미지들을 나타내고, 각 현미경 시야는 있는 위치에서 자체 ``<folder>/masks`` 의 마스크와 함께 편집됩니다. 아무것도 복사하지 않습니다.\n\n:param paths: 드롭된 파일과 폴더이며, 드롭 순서를 따릅니다.\n:returns: 대기열을 열었는지 여부입니다.",
+      "source_sha256": "3037be6aa43fbc632a134190b5a9b87e0243085e9371bd717e3308a76b23e431",
+      "text": "끌어 놓은 내용이 가리키는 방식대로 열고, 선택지가 있는 곳에서는 묻습니다.\n\nItem 600. :func:`spacr.drop_classification.classify_drop` 가 무엇을 끌어 놓았는지 알려 주고, 그에 따라\n\n* 이미지 파일(폴더 포함 여부와 관계없이)은 끌어 놓은 순서대로 하나의 대기열로 열리며, 각 시야는 있는 자리에서 편집되고 마스크는 자기 ``<folder>/masks`` 에 있습니다 -- :meth:`_open_queue`;\n* 이미지 폴더 하나는 있는 그대로 열립니다;\n* 하위 폴더가 채널처럼 보이는 폴더 하나(DAPI/, GFP/..., 또는 각 하위 폴더에 같은 시야)는 하위 폴더마다 채널 열 하나로 \"Organize for Measure\" 를 엽니다. 이미지가 하위 폴더에 들어 있는 그 밖의 폴더는 통합을 제안합니다(item 593);\n* 여러 이미지 폴더는 폴더마다 채널 열 하나로 \"Organize for Measure\" 를 엽니다;\n* 그 팝업이 취소되면(또는 아무도 볼 수 없으면) 끌어 놓은 것은 늘 하던 대로 열립니다. 폴더는 있는 그대로, 아니면 대기열로 열립니다;\n* 마스크와 함께 끌어 놓은 이미지는 그 마스크와 함께 열립니다(:meth:`_open_with_masks`);\n* spaCR 가 쓴 폴더는 콘솔에 이름이 표시되고, 이미지가 있으면 열립니다 -- ``.npy`` 는 결코 이미지로 열리지 않습니다.\n\n끌어 놓은 것 중 아무 데도 쓰이지 않은 것은 모두 콘솔에 나열됩니다.\n\n:param paths: 드롭된 파일과 폴더이며, 드롭 순서를 따릅니다.\n:returns: 무언가를 열었거나 작업을 시작했는지 여부.",
       "translation_source_blocks_sha256": [
-        "333e1cb760f025ab2ff41d25f0033a4199ab0ae3e524b81e444b348359dc3fa9",
-        "4c9d9b206185094e7ca231f5c38303e20dc44a0710545f04cd7c1785c82862de",
+        "6b0579156a6c584df9096cab9f7b7211c548aaa35b80fbb997ea450b5476e1a9",
+        "69334d1a082d3f29421c9886c5b3eaffe80c893614f2310e735a8415bf32cc75",
+        "d003e3e8b18874112ef412ff58cb649caa2cee9fe6fc9fc6187b5ccf0665727d",
+        "e8345bf2a6043263e97fc76701af792bf6a6a7c7c1bfab70711470f4fd8eb3c7",
+        "00b412b6b001e45efe09acb860196dcc868c285c18cdfedab168b4d5e168238f",
+        "35c6e90be20daa5d4ff6c44dc8de329d72e5874fd853ce7def77c29039175fbd",
+        "047cbc25693460da9f386f05aec2698bce6075774959d9dda48bd4c9751e8f45",
+        "2fedcff00ed01718e70950e47986bcd38b062c74019d0a8647cb9abf473c3655",
+        "12013c1dad79f5e94c4de1e807050e6ae5e3f427773748601c9a5df2a1e16d84",
+        "76ddbfea745401621562b270d01fbe8ea4d1a133e0e085ab1a545bdcc37c4d40",
         "9baca7f3c139b3f19666cad2093c0fb906c930002a2b075fe06c91b876ed10e0",
-        "e1a4623e3752d8513cb732717c3ec93417687dfa5cfacdd3a94a65000a1eba17"
+        "cd563a28ad5739f67a3a5a5f193336cf4f639280ab55ddd5a51a1fe479d5cbc7"
       ]
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.open_queue": {
@@ -147336,6 +147414,176 @@
       "text": "UniProt SL 식별자에 매핑된 일반적인 출아 효모 구획 레이블.",
       "translation_source_blocks_sha256": [
         "b67c3179d03df095c53c366af73aff8af64e6edbeef9cec6493244b5098fd18a"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure": {
+      "source_blocks_sha256": [
+        "6cb4ef09b5cdf634a7b8d12853f34f8e76ea887498be2266b929e2bec41f6796",
+        "4145d60284cd1c41324b691b5ceb3a7b1e50f5918b463f4cdfb711ecf8072e33",
+        "9d111e1d9a8ee2f9eef5767008047ac51afa9eb6bc97e1c337baf45afedfce9f",
+        "6d8587d4ae76e72a79c7014dee17ff01439a7f2b577816891e0a85f00c4bec42",
+        "4ff01b34b6bfcb85a3de600d0806f7aeef29b14e0550bddcc26aed63c2284865",
+        "41ea8b601e3b5fa7c1b65944416e770f4909ab6bcbb0e5111b0175b5475732b1",
+        "d94e3d62d3ee1ba13d3fa35dfd88a2560d6e07f69cdabe851e4d0453a237ae2d"
+      ],
+      "source_sha256": "2db3bf33d280f5cf88216d3a5ec058b59bb7e48cd4e8e8611fab47e6ad3f65ce",
+      "text": "Make Masks 의 \"Organize for Measure…\" 팝업: 이미지와 마스크를 merged/ 로 정리합니다.\n\nItem 600 으로, item 593 의 연속된 프롬프트와 별도의 \"Sort into channels\" 대화 상자를 진입점으로서 대체합니다. 팝업 단 하나가 이미지와 그 마스크를 Measure 가 읽는 구조(Yokogawa 이름의 채널 폴더, 마스크, ``merged/*.npy``)로 배치하며, 모든 결정은 :mod:`spacr.channel_sorting` 과 :mod:`spacr.folder_consolidation` 이 내립니다:\n\n* 소스 폴더(직접 입력, 찾아보기 또는 끌어 놓기). 선택적으로 먼저 통합할 수 있습니다(하위 폴더의 이미지를 한 폴더로 복사하고 원래 폴더 이름을 붙임);\n* 정규식 상자: 마스크 생성 자체의 ``metadata_type`` 필드(같은 그룹별 명명 규칙 메뉴, 예시, \"Test on my folder\")와 그 ``custom_regex``, 그리고 \"Sort by regex\", \"Auto regex\", \"Detect sets\";\n* 차원: 어떤 열이 이미지 채널이고 어떤 열이 마스크인지, 그리고 각 마스크의 역할(세포, 핵, 병원체)과 그 마스크가 윤곽을 그리는 이미지의 채널;\n* 채널마다, 마스크마다 열이 하나씩 있고 시야마다 행이 하나씩 있는 표. 모든 열은 파일 관리자에서 끌어 놓은 파일과 폴더(폴더는 그 안의 이미지를 재귀적으로 가져옴), 그리고 다른 열에서 끌어 온 셀을 받습니다. 끌어 놓은 파일은 이름순으로 저절로 정렬되고, Detect sets 가 이미지를 짝짓는 방식대로 열 사이에서 매칭됩니다. 먼저 파일 이름 토큰, 그다음 순서로 매칭하며, 크기가 다른 두 이미지는 절대 매칭하지 않습니다(:func:`spacr.channel_sorting. _match_columns`). 아무것도 매칭되지 않은 셀은 비어 있는 채로 표시됩니다.\n\n모드 1: 소스를 채우고, 정규식을 고르거나 테스트한 뒤 \"Sort by regex\" 를 누르고 Apply 합니다. 모드 2: 끌어 놓기로 열을 채우고 Apply 합니다. 모드 3, \"Teach me…\": spaCR 가 답변에서 정규식을 학습하는 동안(:func:`spacr.channel_sorting._teach_step`) 한 번에 이미지 하나씩 \"이것은 어느 채널입니까?\" 에 답하며, 모든 이미지가 배치될 때까지 계속합니다. 각 모드는 다른 모드 없이도 작동합니다. 폴더 통합으로 만든 폴더는 ``rename_manifest.csv`` 에서 가져온 파일의 원래 이름으로 읽습니다. 복사본의 이름에서는 채널을 구분하던 정보가 사라졌을 수 있기 때문입니다. Apply 는 :class:`spacr.channel_sorting.SortPlan` 을 만듭니다. 불완전한 행이 있으면 만들 수 없고(정규식 상자에서 고칩니다), RGB 이미지와 z 스택은 변환을 제안하며, 감지된 세트는 사용하기 전에 한 번에 세 개씩 보여 줍니다. Apply 전에는 아무것도 이동하지 않습니다. 화면은 GUI 스레드 밖에서 계획을 적용하고 모든 이동을 매니페스트에 기록합니다.",
+      "translation_source_blocks_sha256": [
+        "6cb4ef09b5cdf634a7b8d12853f34f8e76ea887498be2266b929e2bec41f6796",
+        "d35590b78f8bf25b5d3d4ba86fb5633f36bfc76ba6d000a9ef706aa82ab9a548",
+        "9d111e1d9a8ee2f9eef5767008047ac51afa9eb6bc97e1c337baf45afedfce9f",
+        "887556b35044dbeb745bdf7fd04ac055f65385b81f73e54e6cf44092446af8a3",
+        "2246ac0ebcebcc13660ebb0e6c13732413bb3820b023b86236ab602fec49a5c8",
+        "b826e41739fdb98f46d8f5a2a85a1d4e570470331c3757c5ae5f0ac5d3d4e301",
+        "5767c39e8e7115f0d9abd3e402c2ff2db1f591c5804cefbc08b4a4c1b76d1629"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog": {
+      "source_blocks_sha256": [
+        "1f5bb1a631f9832bcc2f85b17cea30bd164acf5c5a713bb14bc83476d81a79e4",
+        "7ee838bf58d9792485c18c0718ae75b87afe0f8b4d5fe89a0842a269d30f4341",
+        "d6aafdbd667cab426269e95e66de4be7299cca05461ec6c06b06721f1a58d59c",
+        "0bb4337e35954672b73822e6318891bf40672273437bc4ec06979d012695be80",
+        "c0d50783d54de8fe4ef572ca6834debeece4b21278651c1f86d0f4b05178dec2",
+        "4d4eda03aac613dbdc47dfafe4fcd371e521bfd627313feecb6471f8abf1d7b2",
+        "36dbf6c3c4c25be8f2680dc5d420957758f46935e4f07ee97f4b6e452e75713b",
+        "2facb0e5ff8aad94c303616963c1b9c26fa93314472c23b42414a9934b267838",
+        "a29ee4e01cd895f219234770e0346394dc467bac4021ee201a27a54c9e15a04a"
+      ],
+      "source_sha256": "6743d358f60f4cae531330030c38531bc0ae1d25ae0198f520a584780525ac2c",
+      "text": "Measure 를 위해 이미지와 마스크를 채널 폴더와 ``merged/`` 에 배치합니다.\n\n:ivar plan: 대화 상자가 승인되면 확정된 :class:`spacr.channel_sorting.SortPlan`, 아니면 None 입니다.\n:ivar columns: 표의 열들(순서대로).\n:ivar rows: 시야마다 목록 하나, 열마다 경로 하나 또는 None.\n팝업을 만들고, 끌어 놓은 것이 있으면 그것으로 미리 채웁니다.\n\n:param source: 소스 폴더(알고 있는 경우).\n:param parent: Qt 부모입니다.\n:param channel_folders: 표에 넣을 폴더로, 각각 채널 열 하나가 됩니다(마스크는 각 폴더의 ``masks/`` 에서 가져옴). 여러 폴더나 채널처럼 보이는 하위 폴더를 Make Masks 에 끌어 놓은 경우입니다.\n:param masks_dir: 소스의 마스크 폴더로, 소스의 ``masks/`` 가 아닐 때 사용합니다.",
+      "translation_source_blocks_sha256": [
+        "e4b443dab79e828474848717ca2410d0b49b3fcf55501a231eec454c1e04d196",
+        "7ee838bf58d9792485c18c0718ae75b87afe0f8b4d5fe89a0842a269d30f4341",
+        "d6aafdbd667cab426269e95e66de4be7299cca05461ec6c06b06721f1a58d59c",
+        "0bb4337e35954672b73822e6318891bf40672273437bc4ec06979d012695be80",
+        "c0d50783d54de8fe4ef572ca6834debeece4b21278651c1f86d0f4b05178dec2",
+        "4d4eda03aac613dbdc47dfafe4fcd371e521bfd627313feecb6471f8abf1d7b2",
+        "36dbf6c3c4c25be8f2680dc5d420957758f46935e4f07ee97f4b6e452e75713b",
+        "96ab7d937a69535c41db4abc5967d077c8f2dc38d1f4804174b5eb5417f09229",
+        "a29ee4e01cd895f219234770e0346394dc467bac4021ee201a27a54c9e15a04a"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_column": {
+      "source_blocks_sha256": [
+        "2641b634df46e3385037ab7d8a77569cf1039dbfa65a56576d08d2ce50e7ce67",
+        "864b7ee05625d04120c4ffc847149a370175bd329cf45805d0e35f4690773607",
+        "7a6d1b0d485bddb32e9057db9dabcf738354442c717e2f2534161f6b545f4b2b",
+        "f019173af7e388dcab2b4f00269989de516de9433e0ee1b4a3f0d80ac4d995b1",
+        "540fb85407c8b0d458f43d9964400a8fda7f08ca91846dcf3f7d3326c6d00e30"
+      ],
+      "source_sha256": "26049d6de954322b95fe3d43af8bf71520b61e7c0eb7d6fa249f1f002854901b",
+      "text": "채널 열 또는 마스크 열을 끝에 추가합니다.\n\n:param kind: ``\"channel\"`` 또는 ``\"mask\"``.\n:param role: 마스크의 역할. 기본값은 아직 어떤 마스크도 갖지 않은 첫 번째 역할입니다.\n:param of_channel: 마스크의 채널. 기본값은 마스크 열이 없는 첫 번째 채널이며, 없으면 1 입니다.\n:returns: 새 열의 인덱스.",
+      "translation_source_blocks_sha256": [
+        "b0e32794f5b6fd327549b67fc65c7104df1e906b35ca40383bd0fbe1832b5471",
+        "864b7ee05625d04120c4ffc847149a370175bd329cf45805d0e35f4690773607",
+        "7a6d1b0d485bddb32e9057db9dabcf738354442c717e2f2534161f6b545f4b2b",
+        "7f23542436b05cf8bf88884ebb93c10602dabaee922ce235f9f3a15bea66d891",
+        "540fb85407c8b0d458f43d9964400a8fda7f08ca91846dcf3f7d3326c6d00e30"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_files": {
+      "source_blocks_sha256": [
+        "50ebb0e149d514dcf3cda6d7ebb396cee7f9a65345063815713762a74870d54d",
+        "2cceb8ec59a9aa679d44e507771b2650a34e09cfc64506e731de7ada4074ad5a",
+        "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
+        "0c0e0d1bf62e16a58806f2b6ba607ddfae14596fa5873316930dd850310f4346",
+        "257ee22b60c38f1f6f06e9426816c63e55450a4322172495f7d803963259cb0f",
+        "9c509e9a13c633b3381d27774e7ce1c2b4c5cf2058a268a89c8164ffdb124b28"
+      ],
+      "source_sha256": "5cd887c739876df1cba534ae2330b55e7449ccb39e7800ec434d598af6bbb853",
+      "text": "끌어 놓은 파일과 폴더를 열에 넣고 행을 매칭합니다.\n\n폴더는 그 안의 이미지를 재귀적으로 가져오지만 ``masks/`` 는 가져오지 않습니다. 채널 열에 끌어 놓은 이미지는 Make Masks 가 저장해 둔 마스크(``<their folder>/masks/<stem>.tif``)를 그 채널의 마스크 열로 가져오며, 마스크 열이 없으면 새로 만듭니다. 이미 표에 있는 파일은 이 열로 이동합니다. 디스크에서는 아무것도 바뀌지 않습니다.\n\n:param column: 열 인덱스.\n:param paths: 파일과 폴더.\n:param rematch: 나중에 행을 매칭할지 여부(미리 채우는 동안에는 꺼 둠).\n:returns: 추가된 이미지 파일.",
+      "translation_source_blocks_sha256": [
+        "50ebb0e149d514dcf3cda6d7ebb396cee7f9a65345063815713762a74870d54d",
+        "06c1b0c1bf423dae4c25a5836698da2e77fda3ba0917459edc909d208bad9860",
+        "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
+        "0c0e0d1bf62e16a58806f2b6ba607ddfae14596fa5873316930dd850310f4346",
+        "257ee22b60c38f1f6f06e9426816c63e55450a4322172495f7d803963259cb0f",
+        "9c509e9a13c633b3381d27774e7ce1c2b4c5cf2058a268a89c8164ffdb124b28"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.auto_regex": {
+      "source_blocks_sha256": [
+        "e375aa07c953c6e44115664a813acd061bee5445c7f0fa12da10a4a52d6134b3",
+        "d19406193a833a7f5fb2384d12f2a6c8f6d04d93ec964a2b083ff324ef2ad896"
+      ],
+      "source_sha256": "831da0d321fdbda1d4ef60fbc451c0b5bb6e5636fc94a08fbf7fcd35de374a39",
+      "text": "정규식을 제안하여 custom_regex 에 넣고, 그 정규식으로 정렬합니다.\n\n:returns: 정규식이며, 찾지 못하면 None 입니다.",
+      "translation_source_blocks_sha256": [
+        "e375aa07c953c6e44115664a813acd061bee5445c7f0fa12da10a4a52d6134b3",
+        "d19406193a833a7f5fb2384d12f2a6c8f6d04d93ec964a2b083ff324ef2ad896"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.detect_sets": {
+      "source_blocks_sha256": [
+        "de00bf943a71e8f1ecc988e5eff7126ce2c3eb10dab495a4ee72cba4a4870a40",
+        "19fe6675bc9ab8c20dfc3f07ee94d1b247bfcddea2addb9af12145607041c555",
+        "b75284420f01f5b0606735b93f9a794d9f0d9ab18da07518e9c3ab44218cec81"
+      ],
+      "source_sha256": "a29515f501f7a7b717853ab082e82b27e6b834dea08b9ba145bed5fbef0d71fb",
+      "text": "열의 파일을 이름, 순서, 크기로 매칭하고 세 개를 확인합니다.\n\n표가 비어 있고 소스 폴더가 있으면, 채널을 얻기 위해 먼저 정규식으로 소스를 정렬합니다. 세트는 한 번에 세 개씩 표시되며(:class:`spacr.qt.widgets.channel_sort_dialog.ExampleSetsDialog`) 사용자가 맞다고 확인한 경우에만 유지됩니다.\n\n:returns: 감지된 세트가 유지되었는지 여부.",
+      "translation_source_blocks_sha256": [
+        "de00bf943a71e8f1ecc988e5eff7126ce2c3eb10dab495a4ee72cba4a4870a40",
+        "19fe6675bc9ab8c20dfc3f07ee94d1b247bfcddea2addb9af12145607041c555",
+        "b75284420f01f5b0606735b93f9a794d9f0d9ab18da07518e9c3ab44218cec81"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.prepare_plan": {
+      "source_blocks_sha256": [
+        "7565a3846eac9b1e672b01183b9d19900a09aa3ff4bda2449edd55234fe25b5d",
+        "4b415e01f3f299799068a41ac06a10ee2360d49c1a4b92b6bdb25780831a1da7",
+        "ee34f95d670f4acd170c298e14397d489fa5f0d5a88dcac9588072f9106ba6f9"
+      ],
+      "source_sha256": "f58883cc58cb21d2c96efa0a751b0f16bd7c6b78bb37672452a249c14e58503a",
+      "text": "표에서 계획을 만듭니다. 불완전한 행이 있는 동안에는 None 입니다.\n\n:param convert: RGB 이미지와 z 스택을 하나의 평면으로 변환합니다.\n:returns: 아직 문제가 남아 있을 수 있는 계획입니다.",
+      "translation_source_blocks_sha256": [
+        "7565a3846eac9b1e672b01183b9d19900a09aa3ff4bda2449edd55234fe25b5d",
+        "4d8beba79b5a664643693178d4f756fc82114a24e9d46d808ae72cc4ff080bd4",
+        "ee34f95d670f4acd170c298e14397d489fa5f0d5a88dcac9588072f9106ba6f9"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.remove_column": {
+      "source_blocks_sha256": [
+        "9d07705f2db4150a8646bbce1bdd3012a374243e90a0de1b9b94fde2c049cb76",
+        "1292b0b4037eddcee0242184c4b73a894c7b993d634f028768e10593fd984a6c"
+      ],
+      "source_sha256": "3acfa134a96b4919f5607edd816c0fcaf34de6258965db6dc4cae44e1733ae09",
+      "text": "열과 그 파일을 표에서 제거합니다.\n\n:param index: 해당 열.",
+      "translation_source_blocks_sha256": [
+        "9d07705f2db4150a8646bbce1bdd3012a374243e90a0de1b9b94fde2c049cb76",
+        "1292b0b4037eddcee0242184c4b73a894c7b993d634f028768e10593fd984a6c"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.sort_by_regex": {
+      "source_blocks_sha256": [
+        "8b0f39440497d1c599b815a9a795730da94ec11c270acb8345423011053573c1",
+        "7c2f533c4c899b17ab32b3f0ff84b402b90792be327b6cd6d8892fed5313d128",
+        "7a48da9dc7a2ecce085f8ceb9bc8ab2e2a0fa861b4061f06eddd500b16ca80a2",
+        "ab0376b6557e1870089c7de4ce9e67825cd5ab16df97984dae13d62623583689",
+        "56214aaa5e6d9ecb5b3ced90b75fb16011476abec1dd20375ef5333af5b97015"
+      ],
+      "source_sha256": "cee9c78b689bf5558eff2b0b78f9104b82574d37e6391d7a048348e38905746c",
+      "text": "정규식으로 표를 채웁니다. chanID 가 열이고 나머지가 행입니다.\n\n소스 폴더가 있으면 그 이미지를 읽고(요청하면 먼저 통합), Make Masks 가 마스크를 저장하는 위치에서 마스크를 찾습니다. 소스 폴더가 없으면 이미 채널 열에 있는 파일을 다시 정렬하되 각 파일은 원래 열에 그대로 둡니다. 마스크는 채널마다 마스크 열 하나에 들어갑니다. 두 이미지가 공유하는 마스크(stem 이 같은 두 파일)는 제외되고 이름이 표시됩니다.\n\n:param pattern: 정규식. 기본값은 정규식 상자가 나타내는 식입니다.\n:param chan_map: \"Teach me\" 로 학습한 ``{chanID value: label}`` 이며, 레이블은 ``(\"channel\", n)`` 또는 ``(\"mask\", n, role)`` 입니다. 기본적으로 정규식의 chanID 값은 자연 순서의 채널입니다.\n:returns: 세트 보고서. 읽을 것이 없었으면 None 입니다.",
+      "translation_source_blocks_sha256": [
+        "8b0f39440497d1c599b815a9a795730da94ec11c270acb8345423011053573c1",
+        "d5fa89a15afc858970a9a108392a24b0036b5e1d4cf4734fed696ecacc27d3f6",
+        "7a48da9dc7a2ecce085f8ceb9bc8ab2e2a0fa861b4061f06eddd500b16ca80a2",
+        "ab0376b6557e1870089c7de4ce9e67825cd5ab16df97984dae13d62623583689",
+        "56214aaa5e6d9ecb5b3ced90b75fb16011476abec1dd20375ef5333af5b97015"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.teach": {
+      "source_blocks_sha256": [
+        "d25a2ecbec156ca244d1a52aed362848f4c6bd4c165513e91f7bede06b37516c",
+        "f7d2dd8c178d87a019144521ac33a3c2c1ec36effa3fd4138ea514ebb17f0b2b",
+        "a781a71325a8e99dddb2a81975c4fd4a59f8120ec64619494e2e317ee4efe511"
+      ],
+      "source_sha256": "ae44f14014355ef9639767f7eb5fa781be94c84cbd2f82baa5cd071121784adf",
+      "text": "\"Teach me\": 정규식이 모든 이미지를 배치할 수 있을 때까지 이미지가 무엇인지 묻습니다.\n\n한 번에 이미지 하나를 \"이것은 어느 채널입니까?\" 와 함께 보여 줍니다(:attr:`ask_label`). 답변으로부터 :func:`spacr.channel_sorting._teach_step` 가 이름에서 각 채널이나 마스크를 표시하는 부분을 학습하여 정규식을 작성합니다. 새 표지는 각각 :attr:`ask_marker` 로 확인합니다(채널, 마스크, 또는 시야 이름의 일부일 뿐인지). 진행하면서 표가 채워지고, 정규식은 custom_regex 에 들어가 편집할 수 있습니다. 모든 이미지가 배치되거나 사용자가 중지하라고 하면 끝납니다.\n\n:returns: 학습된 정규식. 학습된 것이 없으면 None 입니다.",
+      "translation_source_blocks_sha256": [
+        "d25a2ecbec156ca244d1a52aed362848f4c6bd4c165513e91f7bede06b37516c",
+        "3a5d983aba14e296d3b558c90f5d580e39a921e20661572bf9dbb9bb8a8c87a0",
+        "a781a71325a8e99dddb2a81975c4fd4a59f8120ec64619494e2e317ee4efe511"
       ]
     },
     "spacr.qt.widgets.outlier_model": {
