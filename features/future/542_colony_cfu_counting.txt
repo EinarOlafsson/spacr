@@ -1,9 +1,10 @@
 COLONY / CFU COUNTING
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27. DONE WHEN met on held-out public
-photos with the colony detector (2026-09-30, median error 2.4 % in 30-300,
-see DETECTOR); NOT met by thresholding (14.4 %). The detector weights are not
-published yet (see WHAT IS LEFT).
+Status: DONE 2026-09-30 (alpha). The colony detector is published at
+datasets/einarolafsson/models/colony_detector/v1, Model Zoo key
+colony_yolo11n_makrai_v1. DONE WHEN met on held-out public photos with the
+colony detector (median error 2.4 % in 30-300, see DETECTOR); NOT met by
+thresholding (14.4 %).
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 
@@ -140,8 +141,8 @@ VALIDATION (CPU only)
     photos from another lab, other agar or other colonies may score worse;
     the 5 % is a within-dataset figure. Hand counts are the published
     boxes, not recounted. Swarming and spreading species stay poor.
-    Use: set colony_detector to the checkpoint path (or a Model Zoo key once
-    one is published); ultralytics is needed (spacr[plaque]); without it
+    Use: set colony_detector to the checkpoint path (or the Model Zoo key
+    colony_yolo11n_makrai_v1); ultralytics is needed (spacr[plaque]); without it
     the run warns and thresholds. Count and sizes come from the boxes (the
     ellipse inscribed in each box); polarity, threshold and min area are
     unused, and per_plate.polarity reads 'detector'.
@@ -157,13 +158,13 @@ colony_min_area_px, and colony_detector (2026-09-30) (Plaque Assay category
 Registered as ALPHA_FEATURES[542] in spacr/settings.py; hidden with
 Preferences -> Show alpha features off, and a saved value still reaches the
 run (tests/qt/test_colony_counting_alpha_gate.py). 2026-09-27.
+ALPHA: Model Zoo row colony_yolo11n_makrai_v1 (kind detector), published
+in the einarolafsson/models DATASET repo at colony_detector/v1/, sha256
+1bd99599...57557; colony_detector='colony_yolo11n_makrai_v1' downloads it
+into ~/.spacr/models on first use. Registered in
+ALPHA_FEATURES[542]['models']. 2026-09-30.
 
 WHAT IS LEFT
-    - Publish the colony detector (maintainer): upload
-      ~/.spacr/models/colony_yolo11n_makrai_v1.pt to Hugging Face with the
-      CC BY 4.0 attribution to Makrai et al. 2023, add a Model Zoo row
-      (kind detector) and register it in ALPHA_FEATURES[542]['models'];
-      until then colony_detector takes a path only.
     - Cross-validate the detector (e.g. 5 folds) and test it on photos
       from another lab before claiming 5 % beyond this dataset.
     - Thresholding stays at ~14 % on real photos: glare rejection and rim

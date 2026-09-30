@@ -1,7 +1,7 @@
 COMMUNITY IMAGES AND MASKS UPLOAD FROM MAKE MASKS
 
-Status: IMPLEMENTED 2026-09-25 (awaiting the maintainer's check; nothing
-real was uploaded, see the note at the end). Filed 2026-09-25. Builds on 523 (community plaque
+Status: DONE 2026-09-30. A test contribution opened a pull request on
+einarolafsson/community_toxoplasma_datasets. Filed 2026-09-25. Builds on 523 (community plaque
 training data uploads to Hugging Face): reuse its upload plumbing, consent
 step and conscience text rather than a second copy.
 Owner: 528 agent.

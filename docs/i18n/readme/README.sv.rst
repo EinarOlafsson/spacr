@@ -547,6 +547,10 @@ spaCR skickar en katalog med utbildade modeller och hämtar dem på begäran. Ö
        (Cellpose-SAM (cpsam_v2))
      - Toxoplasma PV masks predicted from the HOECHST channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1
      - F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5
+   * - ``colony_yolo11n_makrai_v1``
+       (YOLO11n (ultralytics), one class 'colony')
+     - smartphone plate photos of 24 bacterial and fungal species; 369 photos, 56,865 colony boxes, from Makrai et al. 2023 (Scientific Data, CC BY 4.0)
+     - median count error 2.4% on 39 held-out plates with 30-300 colonies, against 16.5% for spaCR's thresholding counter on the same plates
 
 .. spacr-model-zoo-end
 

@@ -1,6 +1,6 @@
 ONE-CLICK ZENODO ARCHIVE OF A RUN, WITH A DOI
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27.
+Status: DONE 2026-09-30 (alpha). A Zenodo sandbox deposit succeeded.
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

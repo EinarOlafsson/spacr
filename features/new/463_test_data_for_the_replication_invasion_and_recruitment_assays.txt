@@ -2,8 +2,8 @@
 TEST DATA FOR THE REPLICATION, INVASION AND RECRUITMENT ASSAYS
 ================================================================================
 
-Status:    DONE 2026-09-27. All three examples are built
-           and published. Invasion's images remain SYNTHETIC; its masks now
+Status:    DONE 2026-09-30. Published at einarolafsson/spacr-example-invasion.
+           All three examples are built and published. Invasion's images remain SYNTHETIC; its masks now
            come from Mask's Cellpose-SAM segmentation and its measurements
            from Measure. Immutable publication readback and a real empty-cache
            CLI download pass. The earlier drawn-mask cache is preserved.
