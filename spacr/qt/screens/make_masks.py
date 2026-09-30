@@ -9405,6 +9405,7 @@ class MakeMasksScreen(QWidget):
         self._console_section.setProperty(
             "_spacr_blind_visible", not self._console_section.isHidden())
         self._console_section.hide()
+        self._blind_lock_rois(True)
         self._set_field_pairs([pairs[i] for i in order])
         self._current_index = 0
         self._set_blind_checked(True)
@@ -9456,6 +9457,26 @@ class MakeMasksScreen(QWidget):
         _close_blinding(self._blind["key_id"], reason=reason)
         self._restore_blind_order()
 
+    def _blind_lock_rois(self, on: bool) -> None:
+        """Disable the ROIs menu while blinded, and give it back afterwards.
+
+        Its exports are named after the field (``<stem>.geojson``,
+        ``<stem>_RoiSet.zip``) and carry the image's file name inside, and
+        its file pickers open in the source folder, so each would show the
+        name blinding hides.
+
+        :param on: true when blinding starts.
+        """
+        button = getattr(self, "_btn_rois", None)
+        if button is None:
+            return
+        if on:
+            button.setProperty("_spacr_blind_was", button.isEnabled())
+            button.setEnabled(False)
+        elif button.property("_spacr_blind_was") is not None:
+            button.setEnabled(bool(button.property("_spacr_blind_was")))
+            button.setProperty("_spacr_blind_was", None)
+
     def _restore_blind_order(self) -> None:
         """Put the fields back in their own order and show their names again.
 
@@ -9468,6 +9489,7 @@ class MakeMasksScreen(QWidget):
         self._console_section.setVisible(bool(
             self._console_section.property("_spacr_blind_visible")))
         self._console_section.setProperty("_spacr_blind_visible", None)
+        self._blind_lock_rois(False)
         self._set_blind_checked(False)
         pairs = self._field_pairs()
         current = (pairs[self._current_index]
@@ -14853,8 +14875,11 @@ class MakeMasksScreen(QWidget):
 
     def _on_pick_folder(self):
         """Ask for a folder of images and open it."""
-        d = QFileDialog.getExistingDirectory(self, "Pick images folder",
-                                              self._folder or os.getcwd())
+        # Blinded, the picker opens at home: in the source its path bar would
+        # name the plate.
+        start = (os.path.expanduser("~") if self._blind is not None
+                 else self._folder or os.getcwd())
+        d = QFileDialog.getExistingDirectory(self, "Pick images folder", start)
         if not d:
             return
         if self._offer_consolidation(d):
