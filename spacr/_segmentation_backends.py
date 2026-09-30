@@ -1710,8 +1710,11 @@ def _torch_index_url(version=None):
     install should not download three gigabytes of CUDA libraries, so the
     backend gets the same kind of PyTorch spaCR has: ``2.5.1+cu124`` means
     the ``cu124`` index, ``+cpu`` the ``cpu`` one, and a plain version (PyPI's
-    own build) means PyPI. ``$SPACR_BACKEND_TORCH_INDEX`` overrides it, and
-    ``pypi`` there means PyPI.
+    own build) means PyPI -- unless ``torch/version.py`` shows that plain
+    version is a CUDA build (conda's, PyPI's Linux wheels), when that build's
+    index is used; see :func:`_built_torch_version`.
+    ``$SPACR_BACKEND_TORCH_INDEX`` overrides it, and ``pypi`` there means
+    PyPI.
 
     :param version: spaCR's torch version; read from its metadata when None.
     :returns: an index URL, or None for PyPI.
@@ -1727,10 +1730,48 @@ def _torch_index_url(version=None):
             version = _version("torch")
         except PackageNotFoundError:
             return None
+        if "+" not in str(version):
+            version = _built_torch_version() or version
     local = str(version).partition("+")[2].strip().lower()
     if re.fullmatch(r"cpu|cu\d+|rocm[\d.]+|xpu", local):
         return _TORCH_WHEELS + local
     return None
+
+
+def _built_torch_version():
+    """spaCR's torch version as the build itself states it, or ''.
+
+    A conda PyTorch, and PyPI's own Linux wheels, record a plain version
+    (``2.6.0``) in their package metadata while the build is a CUDA one;
+    ``torch/version.py`` says what it really is (``2.6.0+cu124``, or its
+    ``cuda = '12.4'``). Without this a backend on such an install was sent
+    to PyPI, and a PyPI torch newer than the driver, or a CPU one from a
+    local wheelhouse, left a GPU backend on the CPU (item 557, 2026-09-30).
+    The file is read, not imported, so installing never loads torch.
+    """
+    import importlib.util
+
+    try:
+        found = importlib.util.find_spec("torch")
+    except (ImportError, ValueError):
+        return ""
+    if not found or not found.submodule_search_locations:
+        return ""
+    for folder in found.submodule_search_locations:
+        try:
+            with open(os.path.join(folder, "version.py"),
+                      encoding="utf-8") as handle:
+                text = handle.read()
+        except OSError:
+            continue
+        stated = re.search(r"__version__\s*=\s*['\"]([^'\"]+)", text)
+        if stated and "+" in stated.group(1):
+            return stated.group(1)
+        cuda = re.search(r"^cuda\s*(?::[^=]*)?=\s*['\"](\d+)\.(\d+)", text,
+                         re.MULTILINE)
+        if cuda and stated:
+            return f"{stated.group(1)}+cu{cuda.group(1)}{cuda.group(2)}"
+    return ""
 
 
 @dataclass(frozen=True)
