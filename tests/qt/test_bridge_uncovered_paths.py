@@ -783,3 +783,30 @@ def test_the_pyplot_pre_import_leaves_the_collector_as_it_found_it(monkeypatch):
     assert isinstance(thread, QThread)
     assert isinstance(worker, B.PipelineWorker)
     assert thread.isRunning() is False
+
+
+def test_a_journalled_run_says_what_its_analysis_lock_found(monkeypatch):
+    """A run under an analysis lock prints the lock's verdict in the console
+    right after its manifest line, so a deviation is seen before the run."""
+    from spacr import run_journal
+
+    monkeypatch.setattr(run_journal, "check_analysis_lock",
+                        lambda settings, app_key=None: {
+                            "status": "deviation", "deviations": [],
+                            "summary": "threshold changed after the lock"})
+    ran = []
+
+    def analysis(settings):
+        ran.append(dict(settings))
+
+    worker = B.PipelineWorker(analysis, {"src": "/plate"},
+                              app_key="measure", journal=True)
+    lines = []
+    worker.line_ready.connect(lines.append)
+    worker.run()
+    assert ran == [{"src": "/plate"}]
+    text = "".join(lines)
+    assert "Reproducibility manifest:" in text
+    assert "threshold changed after the lock\n" in text
+    assert text.index("Reproducibility manifest:") < text.index(
+        "threshold changed after the lock")
