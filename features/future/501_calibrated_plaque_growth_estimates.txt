@@ -1,6 +1,6 @@
 501 — EXPERIMENTAL PLAQUE GROWTH TIME AND SCALE ESTIMATES
 ========================================================
-Status: initial approximation implemented and evaluated 2026-09-23.
+Status: CLOSED 2026-09-30 by the maintainer, without a multi-time series: the endpoint-only validation (168 h) stands.
 Future validation: a matched multi-time growth curve remains to be collected;
 this implementation makes no temporal-validation claim.
 

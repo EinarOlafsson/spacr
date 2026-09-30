@@ -265,3 +265,5 @@ i18n: nothing user-facing changed. No new or changed caption, tooltip or
 public docstring -- `_segmentation_backends` is a private module and is in
 AUTOAPI_NON_RENDERED_MODULES -- so nothing is owed to the consolidated
 catalog pass from this item.
+
+2026-09-30 MAINTAINER DECISION: score DINOCell on the 370 PV hold-out AND on the live_cell (mammalian/bacteria/yeast) hold-out, to test its zero-shot claim beyond Toxoplasma.
