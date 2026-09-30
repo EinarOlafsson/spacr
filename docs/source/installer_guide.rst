@@ -28,7 +28,10 @@ Use a :ref:`container image <container-images>` when the install itself is the
 problem: a cluster node, a cloud instance, a shared machine you cannot change,
 or an analysis that has to be re-runnable years from now. The images are for
 the CLI and the pipelines; the desktop interface in a container is a Linux-only
-extra and is documented as one.
+extra and is documented as one. On a cluster without Docker, build the same
+image as an :ref:`Apptainer or SingularityCE file <apptainer-images>`. For a
+workstation that has no network access at all, use an
+:ref:`offline installer bundle <offline-bundle>`.
 
 Desktop installers
 ------------------
@@ -184,11 +187,66 @@ results. User preferences, run records and logs under ``~/.spacr`` are also
 left in place so they can be inspected or reused. Remove that directory
 separately only if those records are no longer needed.
 
+.. _offline-bundle:
+
 Offline installation
 --------------------
 
 The small desktop installers are online installers and cannot complete
-without network access. For an offline workstation, prepare a wheel directory
+without network access. For a locked-down microscope PC, build an offline
+bundle on a networked machine. It holds everything the installer would
+download: the pinned ``uv`` tool, the managed Python 3.12 runtime, every wheel
+of the locked environment, Cellpose weights (``cpsam`` by default), optional
+Mask test data, ``bundle.json`` and a ``SHA256SUMS`` file. Bundles target
+``linux-x86_64``, ``windows-x86_64`` or ``macos-arm64`` and can be built for
+another platform than the one building them. The PyTorch wheel line is fixed
+when the bundle is built: ``cpu``, or a CUDA line such as ``cu126``.
+
+From a spaCR checkout, on the networked machine:
+
+.. code-block:: bash
+
+   python packaging/offline/build_offline_bundle.py --platform linux-x86_64 \
+       --torch-backend cpu --out dist/offline \
+       --test-data ~/.cache/spacr/example_data/plate1 --archive
+
+This writes the folder ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` under
+``dist/offline`` and, with ``--archive``, the same folder as one ``.tar``.
+``--extras`` chooses the spaCR extras (default ``qt``), ``--cellpose-model``
+adds Cellpose weights and can be repeated, ``--test-fields`` limits the
+number of test fields, and ``--from-source .`` packs spaCR built from the
+checkout instead of the PyPI release.
+
+Copy the bundle to the offline machine and run its installer with the bundle
+folder. On Linux or macOS:
+
+.. code-block:: bash
+
+   ./install.sh --offline-bundle "$PWD" --check-mask
+
+On Windows, in PowerShell inside the bundle folder:
+
+.. code-block:: powershell
+
+   .\install.ps1 -OfflineBundle . -CheckMask
+
+The installer checks every file against ``SHA256SUMS``, installs Python and
+the wheels with no package index, and copies the Cellpose weights without
+overwriting existing ones. ``--check-mask`` (``-CheckMask``) then runs Mask on
+a scratch copy of the bundled test data and passes when masks and merged
+stacks are written; on a CPU this can take an hour for two fields.
+
+What the bundle does not contain: the separate environments of optional
+segmentation backends such as Cellpose 3 or StarDist, and Model Zoo models
+other than the Cellpose weights you chose; those still need a network. On
+Linux the system Qt libraries are not bundled, so a minimal system without
+them runs spaCR headless only. ``SHA256SUMS`` detects damaged files, but the
+bundle is not signed, so transfer it through a channel you trust.
+
+Install into an existing Python environment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To install spaCR into an existing Python environment offline, prepare a wheel directory
 on a networked machine with the same operating system, architecture and Python
 minor version, replacing ``VERSION`` with the release to install:
 
@@ -442,6 +500,57 @@ it:
 
 The second command runs a real pipeline on a synthetic field and reports one
 line per check; it needs no model, no GPU and no network.
+
+.. _apptainer-images:
+
+Apptainer and SingularityCE on a cluster
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Where a cluster allows Apptainer or SingularityCE but not Docker, repackage
+the Docker image as one read-only ``.sif`` file. Build from the repository
+root as an ordinary user, with Apptainer 1.2 or newer or SingularityCE 4.0 or
+newer:
+
+.. code-block:: bash
+
+   apptainer build --build-arg IMAGE=ghcr.io/einarolafsson/spacr:1.5.1.0 \
+       spacr-cpu.sif packaging/apptainer/spacr.def
+   apptainer build --build-arg IMAGE=ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4 \
+       spacr-cuda.sif packaging/apptainer/spacr.def
+
+To start from an image you built yourself, add
+``--build-arg BOOTSTRAP=docker-daemon --build-arg IMAGE=spacr:cpu``. The build
+runs the image's smoke test. If a login node has no user namespaces, build on
+a workstation and copy the ``.sif`` file over. Where ``/etc/subuid`` lists you
+but ``newuidmap`` is not installed, add ``--ignore-subuid``.
+
+.. code-block:: bash
+
+   apptainer run spacr-cpu.sif                          # list the modules
+   apptainer run spacr-cpu.sif spacr-run mask --settings mask.csv
+   apptainer run --nv spacr-cuda.sif spacr-doctor       # check the GPU
+
+``--nv`` binds the host NVIDIA driver; the CUDA image needs driver 550 or
+newer. Unlike Docker, the container runs as you, with your real home
+mounted: models already in ``~/.cellpose/models`` are found, and run manifests
+go to ``~/.spacr/runs/``. ``$HOME``, the current folder and ``/tmp`` are
+available by default; add other data folders with ``--bind``. To use a shared
+model folder, bind it read-only to ``/models``:
+``--bind /shared/cellpose_models:/models:ro``. If a host ``PYTHONPATH`` from
+a conda or module setup leaks into the container, add ``--cleanenv``.
+
+``packaging/apptainer/spacr_slurm.sh`` is a Slurm array job that runs Mask
+then Measure on one plate per task, from one pair of settings files. Copy it,
+set ``SIF``, ``PLATES`` (a file with one plate folder per line),
+``MASK_SETTINGS`` and ``MEASURE_SETTINGS`` and the ``#SBATCH`` lines for your
+cluster, then submit it:
+
+.. code-block:: bash
+
+   sbatch --array=0-$(( $(wc -l < plates.txt) - 1 )) spacr_slurm.sh
+
+For a CPU partition, remove the ``--gres`` line, replace the ``GPU_FLAG``
+line with ``GPU_FLAG=`` and point ``SIF`` at the CPU image.
 
 Troubleshooting
 ---------------

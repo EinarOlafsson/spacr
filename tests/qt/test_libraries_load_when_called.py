@@ -56,15 +56,27 @@ def test_opening_a_window_builds_no_preloader(qtbot, sandbox):
     assert win._preloader is None
 
 
-def test_eager_still_builds_one(qtbot, sandbox):
+def test_eager_still_builds_one(qtbot, sandbox, monkeypatch):
     """The old behaviour stays reachable for a machine that would rather
-    wait once at the beginning."""
+    wait once at the beginning.
+
+    The window schedules the preloader's start on a timer. Left to fire, it
+    would import the heavy libraries on a worker thread while the NEXT test
+    runs, and the checks below would see that thread's imports, not the
+    window's. So the start is recorded here instead of run; that it really
+    imports is :func:`test_the_preloader_still_works_when_asked`.
+    """
     import spacr.qt.app as A
 
+    started = []
+    monkeypatch.setattr(A._PipelinePreloader, "start",
+                        lambda preloader: started.append(preloader))
     prefs.set_preload_policy("eager")
     win = A.MainWindow()
     qtbot.addWidget(win)
     assert win._preloader is not None
+    qtbot.waitUntil(lambda: bool(started), timeout=10_000)
+    assert started == [win._preloader]
 
 
 @pytest.mark.parametrize("module", HEAVY)

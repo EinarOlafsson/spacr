@@ -2,8 +2,9 @@ ARRAYED-SCREEN HIT STATISTICS: SSMD, ROBUST Z AGAINST NEGATIVE CONTROLS, B-SCORE
 
 Status: IMPLEMENTED AS ALPHA 2026-09-26. Statistics, report writer and the
 Control Charts option are built and tested against hand-computed values, R's
-medpolish example and pycytominer's RobustMAD. Still open: the DONE WHEN run
-on a public arrayed screen with known hits (no such dataset on this machine).
+medpolish example and pycytominer's RobustMAD. Checked on a public screen
+with known actives on 2026-09-30 (CPJUMP1; see the end of this file). Still
+open: a B-score comparison with cellHTS2 (no R here).
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -75,3 +76,49 @@ new tr() captions wait in _AWAITING_CATALOG_REBUILD for the catalog lane;
 the API surface pins move 11,834 -> 11,860 (callables 9,807 -> 9,832),
 each addition named where the pin is, and the documentation locale
 catalogs are not regenerated here.
+
+2026-09-30 -- real-screen check (CPJUMP1); no code change
+Data: Cell Painting Gallery cpg0000 CPJUMP1, U2OS 48 h compound plates
+BR00117010-13, well profiles (1,536 wells). Known actives: the annotated
+poscon_diverse wells (112). Negatives: DMSO negcon wells (256). The DMSO
+wells were split two ways per plate: one half is the reference, the other
+half is scored as samples, so false positives are counted on wells the
+reference never saw. Published list: CPJUMP1 replicability (Chandrasekaran
+et al. 2024, compound_U2OS_long, 202 of 306 compounds active at corrected
+p < 0.05). This is a multivariate profile call, so a single readout can
+only recover part of it. Defaults: rank by SSMD, threshold 3 for every
+method, direction both, per-plate reference, SSMD estimator mm.
+Readout: cell count (CellProfiler Cells_Number_Object_Number well mean).
+  SSMD: recall 0.63 (71/112), precision 1.00, 0/256 DMSO called.
+  robust z: recall 0.79, precision 0.94, DMSO false-positive rate 2.3%
+  (a normal control would give 0.27% at |z| >= 3; real DMSO wells have
+  heavier tails).
+  B-score: recall 0.57, precision 1.00, 0 DMSO called.
+  |SSMD| AUROC positive controls vs DMSO 0.96, so the default SSMD 3
+  (Zhang's "very strong") is conservative; a lower cut trades precision
+  for recall.
+  Against the published list (a compound counts as called when most of
+  its replicate wells are hits): SSMD calls 61 compounds, all published
+  actives (precision 1.00, recall 0.30); robust z 71 (1.00, 0.35);
+  replicate SSMD per treatment 81 (1.00, 0.40).
+Readout: nuclear area. SSMD recall 0.43, precision 0.98; robust z 0.57,
+  0.88 (DMSO rate 3.5%); B-score 0.49, 0.97; against the published list
+  precision 1.00, recall 0.25-0.31.
+Reference implementation on the real readout: spaCR's robust z equals
+pycytominer 1.7.1 normalize(method="mad_robustize", samples=negcon) per
+plate to 1.5e-6 relative, Spearman 1.0, and both call the same 351 wells
+at |z| >= 3.
+Readout choice: item 563's old anomaly distance (skewed, heavy right
+tail) inflated robust z false positives to 11-14% of DMSO wells. Its
+score is now a bounded control percentile and is not meant as a 570
+value. Score a measured feature here, and use 563 for multivariate
+ranking.
+Verdict: the hit calls recover the known actives that change the chosen
+readout, with very few false positives. None of the 570 code was weak on this data, so it
+is unchanged. Receipt:
+features/data/563_570_real_screen_validation_2026-09-30.json (scripts in
+/mnt/wd4tb/scratch/563/scripts). Plots: write_hit_report on the cell-count
+readout wrote the SSMD, robust z and B-score heatmaps of all four plates
+and the tables. Per-plate Z' is -0.8 to -1.3 with the fourteen positive
+controls pooled, because their effects on cell count range from none to
+total loss. LEFT: cellHTS2 B-score parity.

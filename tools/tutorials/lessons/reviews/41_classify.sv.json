@@ -1,10 +1,10 @@
 {
   "lesson": "41_classify",
-  "english_sha256": "5b39387350fde1fe2b622ffe6160d4e301eef74ccdb0f41045f95219d0ee7b69",
+  "english_sha256": "4485df04c4ce5e1db32e2d619de962f72cd60ad1d2c8391358d33540c552f7c6",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -21,9 +21,10 @@
   "scenes": [
     "Öppna Classify från Home. Börja med att välja klassificerarfamilj. Lektionerna om bilder och tabelldata som länkas här går var och en igenom ett komplett exempel.",
     "Välj Computer Vision för att lära från objektbilder. Välj Tabular Machine Learning för att lära från kolumner med uppmätta egenskaper. Measure ger dessa indata, och i Annotate kan du lägga till objektetiketter.",
+    "Vyn Essentials samlar de inställningar som båda familjerna behöver för träning. När du byter till Tabular Machine Learning blir Computer Vision-inställningarna grå, så att du bara fyller i det som den valda familjen använder.",
     "För tabellexemplet klickar du på Load test data och väljer Load. Välj klassetiketter och egenskapsinställningar och följ sedan tabellektionen för att träna modellen och spara prediktioner.",
     "Efter tabellkörningen granskar du prediktionsvärmekartan och de sparade objektpoängen. Objekt som saknar nödvändiga mätningar kan förbli utan poäng. Granska utvärderingsresultaten för att avgöra om du ska ändra etiketter, egenskaper eller modellinställningar.",
-    "För bildklassificering följer du Computer Vision-lektionen för att förbereda märkta utsnitt, välja modell och ställa in uppdelningen i träning, validering och test. Efter träningen granskar du utvärderingsfigurerna och de sparade prediktionerna.",
+    "För bildklassificering följer du Computer Vision-lektionen för att förbereda märkta utsnitt, välja en modell och ange uppdelningen i träning, validering och test. Efter träningen kontrollerar du förlust- och noggrannhetskurvorna och granskar sedan utvärderingsfigurerna och de sparade prediktionerna.",
     "Öppna Classifier Evaluation från verktygen uppe till höger. Välj ett sparat utvärderingspaket för att granska prediktioner, mått och datauppdelning.",
     "Öppna Explain CV för att relatera en bildklassificerares prediktioner till uppmätta egenskaper. Ange bildprediktionerna och motsvarande mätningar och granska sedan vilka egenskaper som förklarar poängen.",
     "Öppna Activation för att se vilka bildområden som påverkar modellens svar. Välj den tränade kontrollpunkten och använd samma bildkanaler och förbehandling som vid träningen.",

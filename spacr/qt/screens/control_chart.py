@@ -146,6 +146,7 @@ _ANOMALY_METHOD_CHOICES = (
 _ANOMALY_COLUMNS = (
     ("rank", "Rank"), ("plateID", "Plate"), ("well", "Well"),
     ("treatment", "Treatment"), ("n", "Objects"),
+    ("mean_percentile", "Control percentile"),
     ("outlier_fraction", "Outliers"), ("enrichment", "Enrichment"),
     ("median_score", "Median score"), ("known_hit", "Known hit"),
 )

@@ -1,10 +1,10 @@
 {
   "lesson": "41_classify",
-  "english_sha256": "5b39387350fde1fe2b622ffe6160d4e301eef74ccdb0f41045f95219d0ee7b69",
+  "english_sha256": "4485df04c4ce5e1db32e2d619de962f72cd60ad1d2c8391358d33540c552f7c6",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -21,9 +21,10 @@
   "scenes": [
     "Åbn Classify fra Home. Begynd med at vælge klassifikatorfamilie. Lektionerne om billeder og tabeldata, der linkes til her, gennemgår hver et komplet eksempel.",
     "Vælg Computer Vision for at lære af objektbilleder. Vælg Tabular Machine Learning for at lære af kolonner med målte egenskaber. Measure leverer disse input, og i Annotate kan du tilføje objektlabels.",
+    "Visningen Essentials samler de indstillinger, som begge familier skal bruge til træning. Når du skifter til Tabular Machine Learning, bliver Computer Vision-indstillingerne grå, så du kun udfylder det, den valgte familie bruger.",
     "Til tabeleksemplet klikker du på Load test data og vælger Load. Vælg dine klasselabels og egenskabsindstillinger, og følg derefter tabellektionen for at træne modellen og gemme forudsigelser.",
     "Efter tabelkørslen undersøger du forudsigelsesheatmappet og de gemte objektscorer. Objekter, der mangler nødvendige målinger, kan stå uden score. Gennemgå evalueringsresultaterne for at afgøre, om du skal ændre labels, egenskaber eller modelindstillinger.",
-    "Til billedklassifikation følger du Computer Vision-lektionen for at forberede mærkede udsnit, vælge en model og indstille opdelingen i træning, validering og test. Efter træningen undersøger du evalueringsfigurerne og de gemte forudsigelser.",
+    "Til billedklassifikation følger du Computer Vision-lektionen for at forberede mærkede udsnit, vælge en model og angive opdelingen i træning, validering og test. Efter træningen tjekker du tabs- og nøjagtighedskurverne og gennemgår derefter evalueringsfigurerne og de gemte forudsigelser.",
     "Åbn Classifier Evaluation fra værktøjerne øverst til højre. Vælg en gemt evalueringspakke for at undersøge forudsigelser, mål og dataopdeling.",
     "Åbn Explain CV for at knytte en billedklassifikators forudsigelser til målte egenskaber. Angiv billedforudsigelserne og de tilsvarende målinger, og undersøg derefter, hvilke egenskaber der forklarer scorerne.",
     "Åbn Activation for at se, hvilke billedområder der påvirker modellens svar. Vælg det trænede checkpoint, og brug de samme billedkanaler og samme forbehandling som under træningen.",

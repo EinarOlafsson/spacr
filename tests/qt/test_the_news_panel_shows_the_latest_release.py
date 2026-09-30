@@ -68,14 +68,36 @@ def _titles(panel) -> list:
 
 # -- the panel ---------------------------------------------------------------
 
+def _following_release(version: tuple) -> tuple:
+    """The release numbered after ``version`` in spaCR's scheme, where each
+    of the last three places counts 0-9 and carries (1.5.0.9 -> 1.5.1.0)."""
+    major, *places = version
+    count = int("".join(str(place) for place in places)) + 1
+    digits = str(count).zfill(len(places))
+    if len(digits) > len(places):
+        return (major + 1,) + (0,) * len(places)
+    return (major,) + tuple(int(digit) for digit in digits)
+
+
+def test_following_release_counts_like_the_tags():
+    assert _following_release((1, 5, 1, 0)) == (1, 5, 1, 1)
+    assert _following_release((1, 5, 0, 9)) == (1, 5, 1, 0)
+    assert _following_release((1, 4, 9, 9)) == (1, 5, 0, 0)
+    assert _following_release((1, 9, 9, 9)) == (2, 0, 0, 0)
+
+
 def test_the_bundle_is_current_through_the_running_version(news):
     """The resource itself must be rebuilt, not only refreshable.
 
     The stale file is half the defect: 1.5.1.0 shipped with a bundle that
-    stopped at 1.5.0.7. A build whose newest bundled release is older than
-    the version in ``setup.py`` fails here, which is the reminder to run
-    ``tools/build_release_notes.py`` -- and, from now on, the sign that the
-    release workflow's ``release-notes`` job did not run.
+    stopped at 1.5.0.7. The bundle may lag the version in ``setup.py`` by
+    exactly one release and no more: the note for version X is written when
+    X is published, after the commit that is tagged X has passed CI, so that
+    commit can only carry the release before it (see
+    ``tools/build_release_notes.py``). A bundle two or more releases behind
+    fails here, which is the reminder to run ``tools/build_release_notes.py``
+    -- and the sign that the release workflow's ``release-notes`` job did
+    not run.
     """
     from spacr import __version__
 
@@ -85,7 +107,7 @@ def test_the_bundle_is_current_through_the_running_version(news):
     running = tuple(int(part) for part in __version__.split(".")
                     if part.isdigit())
     running = running + (0,) * (4 - len(running))
-    assert newest >= running, (
+    assert newest >= running or _following_release(newest) == running, (
         f"the bundle stops at {releases[0]['tag']} on a {__version__} "
         f"build; run tools/build_release_notes.py")
 

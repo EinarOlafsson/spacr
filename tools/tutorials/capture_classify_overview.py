@@ -55,7 +55,7 @@ def record_overview(app, window, captures, capture, settle, write_json):
     for index, key in enumerate(FOLDED_APPS):
         button = next(w for w in buttons if w.app_key == key)
         QTest.mouseMove(window, QPoint(400, 800)); settle(.15)
-        QTest.mouseMove(button, button.rect().center()); settle(1.4)
+        QTest.mouseMove(button, button.rect().center()); settle(2.6)  # tooltip_policy waits ~2 s
         # Private Xvfb has no window manager to activate native hover timers.
         # Deliver Qt's real help event to the real button; its production
         # filters, text and popup rendering remain in charge. No popup text
@@ -64,7 +64,7 @@ def record_overview(app, window, captures, capture, settle, write_json):
         if simulated_help_event:
             point = button.rect().center()
             app.sendEvent(button, QHelpEvent(QEvent.ToolTip, point, button.mapToGlobal(point)))
-            settle(.4)
+            settle(2.6)
         if not QToolTip.isVisible() or QToolTip.text() != button.toolTip():
             raise ValueError('The actual hover tooltip did not appear: ' + key)
         capture('05_' + key + '_tooltip', desktop=True)

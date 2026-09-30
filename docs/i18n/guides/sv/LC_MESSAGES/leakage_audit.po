@@ -1,0 +1,285 @@
+# spaCR user guide translation (sv).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: sv\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Train/test leakage audit"
+msgstr "Granskning av läckage mellan tränings- och testdata"
+
+msgid "Classifier accuracy is invalid when related crops occur on both sides of an evaluation boundary. spaCR audits the permanent ``train/``/``test/`` split, the ordinary train/validation holdout, every outer and inner CV boundary, and the CV partition as a whole before fitting."
+msgstr "En klassificerares noggrannhet är ogiltig när relaterade utsnitt förekommer på båda sidor om en utvärderingsgräns. spaCR granskar den permanenta uppdelningen ``train/``/``test/``, den vanliga utelämningen för träning/validering, varje yttre och inre korsvalideringsgräns och korsvalideringens partition som helhet före anpassningen."
+
+msgid "What is verified"
+msgstr "Vad som verifieras"
+
+msgid "The audit checks:"
+msgstr "Granskningen kontrollerar att:"
+
+msgid "the same path or crop identity never crosses a boundary;"
+msgstr "samma sökväg eller utsnittsidentitet aldrig korsar en gräns;"
+
+msgid "exported augmentations such as ``_rot90``, ``_flip_h`` and ``_aug3`` remain with their source object;"
+msgstr "exporterade augmenteringar som ``_rot90``, ``_flip_h`` och ``_aug3`` stannar hos sitt källobjekt;"
+
+msgid "byte-identical crops are detected by streaming SHA-256 even if renamed;"
+msgstr "byteidentiska utsnitt upptäcks genom strömmande SHA-256 även om de har bytt namn;"
+
+msgid "the requested ``cv_group_by`` identity (field, well or plate) stays intact;"
+msgstr "den begärda identiteten för ``cv_group_by`` (fält, brunn eller platta) förblir intakt;"
+
+msgid "every CV sample is held out exactly once;"
+msgstr "varje korsvalideringsprov hålls utanför exakt en gång;"
+
+msgid "no related family is assigned to more than one held-out fold; and"
+msgstr "ingen relaterad familj tilldelas mer än ett utelämnat veck; och"
+
+msgid "related crops do not carry conflicting class labels."
+msgstr "relaterade utsnitt inte har motstridiga klassetiketter."
+
+msgid "Filename identities follow spaCR's ``<plate>_<well>_<field>_..._<object>.png`` crop convention. With ``leakage_require_identity=True`` (the default), a filename that cannot prove its requested identity fails the audit; an unknown relationship is not reported as independent."
+msgstr "Filnamnsidentiteter följer spaCR:s konvention för utsnitt, ``<plate>_<well>_<field>_..._<object>.png``. Med ``leakage_require_identity=True`` (standard) underkänns granskningen för ett filnamn som inte kan visa sin begärda identitet; en okänd relation rapporteras inte som oberoende."
+
+msgid "Ordinary validation is group-aware too. ``cv_group_by='well'`` uses the same group-stratified partitioner as CV and selects the candidate fold closest to ``val_split`` and the full dataset's class distribution. Augmentation is applied only after the split and only to training."
+msgstr "Även vanlig validering tar hänsyn till grupper. ``cv_group_by='well'`` använder samma gruppstratifierade partitionerare som korsvalideringen och väljer det kandidatveck som ligger närmast ``val_split`` och hela datamängdens klassfördelning. Augmentering tillämpas först efter uppdelningen och bara på träningsdata."
+
+msgid "Run the audit directly"
+msgstr "Kör granskningen direkt"
+
+msgid "The command prints JSON and exits ``0`` for a verified split, ``1`` when leakage or unverifiable identities are found, and ``2`` when the dataset cannot be audited. ``--no-content-hash`` reduces I/O but cannot detect renamed copies. ``--allow-unverifiable`` is intended for diagnosing legacy datasets; it does not make their performance estimate trustworthy."
+msgstr "Kommandot skriver ut JSON och avslutas med ``0`` för en verifierad uppdelning, ``1`` när läckage eller identiteter som inte kan verifieras hittas, och ``2`` när datamängden inte kan granskas. ``--no-content-hash`` minskar I/O men kan inte upptäcka kopior med nya namn. ``--allow-unverifiable`` är avsett för felsökning av äldre datamängder; det gör inte deras prestandaskattning pålitlig."
+
+msgid "Classify settings"
+msgstr "Inställningar i Klassificering"
+
+msgid "``leakage_audit_train_test``"
+msgstr "``leakage_audit_train_test``"
+
+msgid "Audit ``train/`` against ``test/`` before fitting. Default ``True``."
+msgstr "Granska ``train/`` mot ``test/`` före anpassningen. Standard ``True``."
+
+msgid "``leakage_hash_content``"
+msgstr "``leakage_hash_content``"
+
+msgid "Stream SHA-256 for copy/rename detection. Default ``True``."
+msgstr "Strömmande SHA-256 för att upptäcka kopior och namnbyten. Standard ``True``."
+
+msgid "``leakage_require_identity``"
+msgstr "``leakage_require_identity``"
+
+msgid "Fail when protected identity or content cannot be verified. Default ``True``."
+msgstr "Underkänn när skyddad identitet eller skyddat innehåll inte kan verifieras. Standard ``True``."
+
+msgid "``evaluation_fail_on_leakage``"
+msgstr "``evaluation_fail_on_leakage``"
+
+msgid "Stop before fitting when an audit fails. Default ``True``. Setting it to ``False`` records a failed audit but cannot make the resulting metric valid."
+msgstr "Stoppa före anpassningen när en granskning underkänns. Standard ``True``. Att sätta den till ``False`` registrerar en underkänd granskning men kan inte göra det resulterande måttet giltigt."
+
+msgid "Reports are written beside the classifier run as ``train_test_leakage_audit.json`` and ``train_validation_leakage_audit.json``. CV audit records are also included in the Classifier Evaluation workbench's ``leakage.json``."
+msgstr "Rapporterna skrivs bredvid klassificerarkörningen som ``train_test_leakage_audit.json`` och ``train_validation_leakage_audit.json``. Granskningsposter för korsvalideringen ingår också i ``leakage.json`` i arbetsbänken Klassificerarutvärdering."
+
+msgid "API"
+msgstr "API"
+
+msgid "Classifier evaluation, calibration, and split-leakage diagnostics."
+msgstr "Utvärdering, kalibrering och läckagediagnostik för uppdelningar av klassificerare."
+
+msgid "The module is model-agnostic: it consumes labels, probabilities, fold ids, and sample paths. Deep-learning CV and future classical-ML pipelines can therefore write the same evaluation bundle and the Qt workbench can display one stable artifact format."
+msgstr "Modulen är modelloberoende: den tar emot etiketter, sannolikheter, veck-ID och provsökvägar. Korsvalidering med djupinlärning och framtida pipelines för klassisk maskininlärning kan därför skriva samma utvärderingspaket, och Qt-arbetsbänken kan visa ett enda stabilt artefaktformat."
+
+msgid "Whole-CV proof that each related sample family belongs to one fold."
+msgstr "Bevis för hela korsvalideringen att varje relaterad provfamilj tillhör ett enda veck."
+
+msgid "Parameters"
+msgstr "Parametrar"
+
+msgid "canonical identity level required to remain within one validation fold."
+msgstr "kanonisk identitetsnivå som måste stanna inom ett valideringsveck."
+
+msgid "number of source paths whose fold membership was audited."
+msgstr "antal källsökvägar vars veckmedlemskap granskades."
+
+msgid "number of train/validation fold pairs inspected."
+msgstr "antal par av tränings- och valideringsveck som granskades."
+
+msgid "up to twenty sample indexes that were never held out for validation."
+msgstr "upp till tjugo provindex som aldrig hölls utanför för validering."
+
+msgid "up to twenty sample indexes held out in more than one fold."
+msgstr "upp till tjugo provindex som hölls utanför i mer än ett veck."
+
+msgid "identities assigned to multiple validation folds, counted at each exact, content, family, object, and acquisition level."
+msgstr "identiteter som tilldelats flera valideringsveck, räknade på varje nivå: exakt, innehåll, familj, objekt och insamling."
+
+msgid "up to ten conflicting identities per level, annotated with the folds that contain them."
+msgstr "upp till tio motstridiga identiteter per nivå, annoterade med de veck som innehåller dem."
+
+msgid "completeness, overlap, identity, or label failures that make :attr:`passed` false."
+msgstr "fel i fullständighet, överlapp, identitet eller etiketter som gör :attr:`passed` falskt."
+
+msgid "non-fatal caveats and explanations accompanying failures."
+msgstr "icke-fatala förbehåll och förklaringar som åtföljer fel."
+
+msgid "samples whose requested identity or optional byte-content hash could not be checked, counted by level."
+msgstr "prov vars begärda identitet eller valfria hash av byteinnehåll inte kunde kontrolleras, räknade per nivå."
+
+msgid "up to twenty file-specific content-hashing failures."
+msgstr "upp till tjugo filspecifika fel vid innehållshashning."
+
+msgid "stable label for this whole-CV audit record."
+msgstr "stabil etikett för denna granskningspost för hela korsvalideringen."
+
+msgid "Return True only when the fold partition is complete and isolated."
+msgstr "Returnera True bara när veckpartitionen är fullständig och isolerad."
+
+msgid "Return a JSON-serializable audit record."
+msgstr "Returnera en JSON-serialiserbar granskningspost."
+
+msgid "Overlap counts and examples for one train/validation boundary."
+msgstr "Antal överlapp och exempel för en gräns mellan träning och validering."
+
+msgid "protected split level (``cell``, ``field``, ``well``, or ``plate``); the legacy ``none`` spelling is normalized to ``cell``."
+msgstr "skyddad uppdelningsnivå (``cell``, ``field``, ``well`` eller ``plate``); den äldre stavningen ``none`` normaliseras till ``cell``."
+
+msgid "number of training paths."
+msgstr "antal träningssökvägar."
+
+msgid "number of validation paths."
+msgstr "antal valideringssökvägar."
+
+msgid "overlap count at each identity level."
+msgstr "antal överlapp på varje identitetsnivå."
+
+msgid "up to ten shared identities per level."
+msgstr "upp till tio delade identiteter per nivå."
+
+msgid "caller-supplied label for the audited boundary."
+msgstr "etikett från anroparen för den granskade gränsen."
+
+msgid "levels that invalidate the requested split."
+msgstr "nivåer som ogiltigförklarar den begärda uppdelningen."
+
+msgid "non-fatal caveats."
+msgstr "icke-fatala förbehåll."
+
+msgid "samples lacking a requested identity or content hash, counted by the level that could not be verified."
+msgstr "prov som saknar en begärd identitet eller innehållshash, räknade per den nivå som inte kunde verifieras."
+
+msgid "up to twenty file-specific failures from optional byte-content hashing."
+msgstr "upp till tjugo filspecifika fel från den valfria hashningen av byteinnehåll."
+
+msgid "Return True when no protected identity crosses the boundary."
+msgstr "Returnera True när ingen skyddad identitet korsar gränsen."
+
+msgid "Return a JSON-serializable report."
+msgstr "Returnera en JSON-serialiserbar rapport."
+
+msgid "Verify partition coverage and identity isolation across every CV fold."
+msgstr "Verifiera partitionens täckning och identitetsisolering över alla korsvalideringsveck."
+
+msgid "This checks the fold assignment as one object, rather than trusting a sample of pairwise boundaries. Each index must be validation exactly once; exact paths, byte-identical content, source/augmentation families and the requested plate/well/field group must map to one held-out fold only."
+msgstr "Detta kontrollerar vecktilldelningen som ett enda objekt, i stället för att lita på ett urval av parvisa gränser. Varje index måste vara validering exakt en gång; exakta sökvägar, byteidentiskt innehåll, käll- och augmenteringsfamiljer och den begärda platt-, brunns- eller fältgruppen får bara höra till ett utelämnat veck."
+
+msgid "one source path per sample, indexed by the fold indices."
+msgstr "en källsökväg per prov, indexerad av veckindexen."
+
+msgid "``(train_indices, validation_indices)`` per fold. Indices outside ``range(len(paths))`` are reported rather than ignored."
+msgstr "``(train_indices, validation_indices)`` per veck. Index utanför ``range(len(paths))`` rapporteras i stället för att ignoreras."
+
+msgid "optional class per path, one value per path. Only used to describe the folds; it does not affect leakage detection."
+msgstr "valfri klass per sökväg, ett värde per sökväg. Används bara för att beskriva vecken; påverkar inte upptäckten av läckage."
+
+msgid "identity level that may not cross a fold boundary -- ``none``, ``field``, ``well`` or ``plate``. A well-grouped split permits the same plate on both sides but never the same well."
+msgstr "identitetsnivå som inte får korsa en veckgräns -- ``none``, ``field``, ``well`` eller ``plate``. En uppdelning grupperad per brunn tillåter samma platta på båda sidor men aldrig samma brunn."
+
+msgid "also compare file CONTENT, so a byte-identical copy under a different name is caught. Costs one read per file."
+msgstr "jämför också filernas INNEHÅLL, så att en byteidentisk kopia med ett annat namn upptäcks. Kostar en läsning per fil."
+
+msgid "treat UNVERIFIABLE as critical. A filename that does not encode the requested identity, or a file that cannot be hashed, is otherwise only a warning -- so leaving this False means a clean report can still hide leakage nobody could check for."
+msgstr "behandla ICKE VERIFIERBART som kritiskt. Ett filnamn som inte kodar den begärda identiteten, eller en fil som inte kan hashas, är annars bara en varning -- så om detta lämnas False kan en ren rapport fortfarande dölja läckage som ingen kunde kontrollera."
+
+msgid "raise :class:`LeakageError` instead of returning a report whose ``passed`` is False."
+msgstr "utlös :class:`LeakageError` i stället för att returnera en rapport vars ``passed`` är False."
+
+msgid "Returns"
+msgstr "Returnerar"
+
+msgid "a :class:`FoldLeakageAudit` carrying the per-level overlap counts, examples, and which levels were critical."
+msgstr "en :class:`FoldLeakageAudit` med antal överlapp och exempel per nivå samt vilka nivåer som var kritiska."
+
+msgid "Raises"
+msgstr "Utlöser"
+
+msgid "for an unsupported ``group_by``, or ``labels`` whose length does not match ``paths``."
+msgstr "för en ``group_by`` som inte stöds, eller ``labels`` vars längd inte stämmer med ``paths``."
+
+msgid "Audit the permanent ``train/`` versus ``test/`` dataset boundary."
+msgstr "Granska den permanenta datamängdsgränsen mellan ``train/`` och ``test/``."
+
+msgid "dataset directory holding ``train/`` and ``test/``. Both are searched recursively, and only ``.png``, ``.jpg``, ``.jpeg``, ``.tif``, ``.tiff``, ``.bmp`` and ``.npy`` files are collected, so a folder of any other format audits as empty."
+msgstr "datamängdskatalog som innehåller ``train/`` och ``test/``. Båda genomsöks rekursivt, och bara filer av typerna ``.png``, ``.jpg``, ``.jpeg``, ``.tif``, ``.tiff``, ``.bmp`` och ``.npy`` samlas in, så en mapp med något annat format granskas som tom."
+
+msgid "identity level that may not appear on both sides -- ``none``, ``field``, ``well`` or ``plate``. The default ``well`` still permits the same plate in train and test. It is validated only after the images are found, so a bad value over an empty tree reports the missing images instead."
+msgstr "identitetsnivå som inte får förekomma på båda sidor -- ``none``, ``field``, ``well`` eller ``plate``. Standardvärdet ``well`` tillåter fortfarande samma platta i träning och test. Värdet valideras först när bilderna har hittats, så ett felaktigt värde över ett tomt träd rapporterar i stället de saknade bilderna."
+
+msgid "defaults to True here, unlike :func:`audit_split_leakage`, so a byte-identical copy saved under a different name fails the audit -- at the cost of one read per file."
+msgstr "är här som standard True, till skillnad från :func:`audit_split_leakage`, så att en byteidentisk kopia som sparats under ett annat namn underkänns -- på bekostnad av en läsning per fil."
+
+msgid "defaults to True here: filenames that do not encode the ``group_by`` level, and files that cannot be hashed, become critical instead of a warning, so an unverifiable split cannot report as clean."
+msgstr "är här som standard True: filnamn som inte kodar nivån ``group_by`` och filer som inte kan hashas blir kritiska i stället för en varning, så att en uppdelning som inte kan verifieras inte kan rapporteras som ren."
+
+msgid "when either side collects no image -- a missing or unreadable folder is never treated as a passing split."
+msgstr "när någon sida inte samlar in någon bild -- en saknad eller oläsbar mapp behandlas aldrig som en godkänd uppdelning."
+
+msgid "a :class:`LeakageReport` whose ``split_name`` is always ``train_vs_test``; the ``test/`` side is counted as ``validation_samples``."
+msgstr "en :class:`LeakageReport` vars ``split_name`` alltid är ``train_vs_test``; sidan ``test/`` räknas som ``validation_samples``."
+
+msgid "Detect related images crossing a train/validation boundary."
+msgstr "Upptäck relaterade bilder som korsar en gräns mellan träning och validering."
+
+msgid "Exact/object/augmentation-family overlap is always critical. The requested ``group_by`` level is also critical: a well-grouped split permits the same plate on both sides but never the same well."
+msgstr "Överlapp på exakt nivå, objektnivå och augmenteringsfamilj är alltid kritiskt. Den begärda nivån ``group_by`` är också kritisk: en uppdelning grupperad per brunn tillåter samma platta på båda sidor men aldrig samma brunn."
+
+msgid "source paths used to fit the model."
+msgstr "källsökvägar som används för att anpassa modellen."
+
+msgid "paths used only for evaluation."
+msgstr "sökvägar som bara används för utvärdering."
+
+msgid "``cell``, ``field``, ``well``, or ``plate``. Legacy ``none`` aliases ``cell``."
+msgstr "``cell``, ``field``, ``well`` eller ``plate``. Det äldre ``none`` är ett alias för ``cell``."
+
+msgid "raise :class:`LeakageError` on a critical overlap."
+msgstr "utlös :class:`LeakageError` vid ett kritiskt överlapp."
+
+msgid "optional fold/split label stored in the report."
+msgstr "valfri veck- eller uppdelningsetikett som lagras i rapporten."
+
+msgid ":class:`LeakageReport`."
+msgstr ":class:`LeakageReport`."
+
+msgid "Atomically write a leakage report/audit as JSON and return its path."
+msgstr "Skriv atomiskt en läckagerapport eller granskning som JSON och returnera dess sökväg."
+
+msgid "destination JSON file; ``~`` is expanded and missing parent folders are created. It is replaced atomically."
+msgstr "mål-JSON-fil; ``~`` expanderas och saknade överordnade mappar skapas. Den ersätts atomiskt."
+
+msgid "leakage report or audit to write: any object with a ``to_dict()`` method, or a mapping."
+msgstr "läckagerapport eller granskning att skriva: ett objekt med metoden ``to_dict()``, eller en mappning."
+
