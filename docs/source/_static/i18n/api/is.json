@@ -9781,11 +9781,12 @@
         "f011c1f5a9daa343616645b60eb89f588c990bbc270384ae28621846dc27a5a1",
         "f4e6a46f4fba0f5d82c2a794dddbd6efd63779d65a04e2552f6201b4286570d8",
         "d5ec331991d19d64869eb3b1a422dd5c23c09f03def5404e799d913e04c4091e",
+        "6467c122ba95cbd8a1ce59c9da016c3861359485632fdaefee0b661778576c4e",
         "ea3bd380a00d79b11341a3863a9d3b4ab4d88d1ecdd52bf5eb716a8d9f768202",
         "a89332de24fb787ed65f2d099a9ffcd11684ed342db68c883cd7117062eaf1cd"
       ],
-      "source_sha256": "2a450af570bab49d1ea619f21f07db28cddd21d6d302fee40ac695bf521f15cb",
-      "text": "Ákveður hverja færslu, heiti og athugun áður en nokkuð er snert.\n\n:param folder: myndamappan.\n:param sets: ``{set key: {channel: name}}``, aðeins fullkomin mengi.\n:param masks_dir: beinlínis tilgreind grímumappa.\n:param mask_roles: ``{channel: role}``; ``None`` giskar (:func:`default_mask_roles`); rás sem vantar í hana, eða fær ``\"none\"``, fær grímurnar sínar færðar en ekki sameinaðar.\n:param dest: nýja mappan; sjálfgefið ``<folder>/sorted_channels``.\n:param check_shapes: les stærð hverrar myndar og grímu og hafnar mengi þar sem myndirnar eru misstórar, grímu sem er ekki af stærð myndar sinnar eða mynd sem er ekki 2-D.\n:param convert: skrifar RGB-myndir sem grátóna og z-stafla sem hámarksvörpun sína í stað þess að hafna þeim; án þessa eru þær taldar upp í :attr:`SortPlan.convertible` svo kallandinn geti spurt.\n:returns: a :class:`SortPlan`.",
+      "source_sha256": "1642cc36de6f1e904e1e6aafe1c00a2617954a2c603b465000c692bdb553bb9a",
+      "text": "Ákveður hverja færslu, heiti og athugun áður en nokkuð er snert.\n\n:param folder: myndamappan.\n:param sets: ``{set key: {channel: name}}``, aðeins fullkomin mengi.\n:param masks_dir: beinlínis tilgreind grímumappa.\n:param mask_roles: ``{channel: role}``; ``None`` giskar (:func:`default_mask_roles`); rás sem vantar í hana, eða fær ``\"none\"``, fær grímurnar sínar færðar en ekki sameinaðar.\n:param dest: nýja mappan; sjálfgefið ``<folder>/sorted_channels``.\n:param check_shapes: les stærð hverrar myndar og grímu og hafnar mengi þar sem myndirnar eru misstórar, grímu sem er ekki af stærð myndar sinnar eða mynd sem er ekki 2-D.\n:param masks: ``{image: mask path}`` sem tilgreinir grímu hverrar myndar beint (grímudálkarnir úr item 600); mynd sem vantar þar hefur enga. None flettir hverri grímu upp með :func:`mask_for`.\n:param convert: skrifar RGB-myndir sem grátóna og z-stafla sem hámarksvörpun sína í stað þess að hafna þeim; án þessa eru þær taldar upp í :attr:`SortPlan.convertible` svo kallandinn geti spurt.\n:returns: a :class:`SortPlan`.",
       "translation_source_blocks_sha256": [
         "a4878591d46edd1a888afa468dcea279bb5a76e69222a995801d21e23e401987",
         "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
@@ -9794,6 +9795,7 @@
         "9ea2f69ceb2b8f96bce334886755530fcef97e4a79be1a0256ebb9e17e009af9",
         "f4e6a46f4fba0f5d82c2a794dddbd6efd63779d65a04e2552f6201b4286570d8",
         "d5ec331991d19d64869eb3b1a422dd5c23c09f03def5404e799d913e04c4091e",
+        "6467c122ba95cbd8a1ce59c9da016c3861359485632fdaefee0b661778576c4e",
         "ea3bd380a00d79b11341a3863a9d3b4ab4d88d1ecdd52bf5eb716a8d9f768202",
         "a89332de24fb787ed65f2d099a9ffcd11684ed342db68c883cd7117062eaf1cd"
       ]
@@ -9927,19 +9929,19 @@
     "spacr.channel_sorting.mask_for": {
       "source_blocks_sha256": [
         "3f60fea989d2144394e9ab9f1355f4ec274fdef66c60e9f501fdcb86a93a6ced",
-        "cc247a3038010bdcb359ad9ed4187c4df5217f0b6b60b6466e224d4cb5229923",
+        "2024a32aad49966055d3f9c20062bc546394f12034822774a95726a749aedd53",
         "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
-        "295bc1804dac96cf8a9c75de5cafe5496c163eff3e68e61d59c8400f5967d55c",
-        "03d9ff28d57d5453ff99df39aa4e590eba57d1831246b380b43a22730c5c816e"
+        "b7cf1b59b49693743ff79dacf8fff5f4e7fc9810df50ed5073dd0a9ddceb3276",
+        "41ed8cb0f3b3cde8d616b01fa25b490b0bcfad7b341bb4705b15ffdec64b07c1"
       ],
-      "source_sha256": "12dcacc04ca37d38b5280e6bdb92ecb1996c1f8ae007efa5de7526523b8435ff",
-      "text": "Skilar slóð vistuðu grímunnar fyrir myndina ``name``, eða None.\n\nMake Masks vistar hverja grímu sem ``<masks folder>/<stem>.tif`` (:func:`spacr.qt.mask_engine.mask_save_path`).\n\n:param folder: myndamappan.\n:param name: skráarheiti myndarinnar.\n:param masks_dir: beinlínis tilgreind grímumappa.",
+      "source_sha256": "f7e5e90763bcdb8a9b9e31b848d66da4ed63f98f78de42c65d102ddc1c9ee32e",
+      "text": "Skilar slóð vistuðu grímunnar fyrir myndina ``name``, eða None.\n\nMake Masks vistar hverja grímu sem ``<masks folder>/<stem>.tif`` (:func:`spacr.qt.mask_engine.mask_save_path`). Mynd sem er tilgreind með algildri slóð utan ``folder`` -- mynd sem var sleppt í flokkunarglugganum annars staðar frá, eða mynd úr rásarundirmöppu -- hefur grímuna sína í ``masks/`` sinnar eigin möppu.\n\n:param folder: myndamappan.\n:param name: skráarheiti myndarinnar, eða algild slóð.\n:param masks_dir: sérstaklega tilgreind grímumappa, fyrir myndir í ``folder``.",
       "translation_source_blocks_sha256": [
         "3f60fea989d2144394e9ab9f1355f4ec274fdef66c60e9f501fdcb86a93a6ced",
-        "cc247a3038010bdcb359ad9ed4187c4df5217f0b6b60b6466e224d4cb5229923",
+        "db5f4993543f8fd2e9e4ff319905f0d7d584082d931192eab351a0ce1ef8c1f1",
         "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
-        "295bc1804dac96cf8a9c75de5cafe5496c163eff3e68e61d59c8400f5967d55c",
-        "03d9ff28d57d5453ff99df39aa4e590eba57d1831246b380b43a22730c5c816e"
+        "b7cf1b59b49693743ff79dacf8fff5f4e7fc9810df50ed5073dd0a9ddceb3276",
+        "41ed8cb0f3b3cde8d616b01fa25b490b0bcfad7b341bb4705b15ffdec64b07c1"
       ]
     },
     "spacr.channel_sorting.mask_thumbnail": {
@@ -10042,17 +10044,17 @@
       "source_blocks_sha256": [
         "56311c12a57ec81ed05b83917f7d0b26c88cfc57316ec37a5917d6091eff0be0",
         "b53c94632baea7fba0f0d31d8c50399bb2a63eaef639956aa3a318140861885b",
-        "9fc1e60082e3b59380b1a2ffe027609650fb4412615f2ee8aa826348c4f04242",
+        "9968bd6109910b5855971d698697622f2348350e802cb613b81fdfcd062994b6",
         "9c6bc6d3b2d34146a64bfdca1c59740f1c941b8ae9928ab8e10d4daf35fe8472",
         "3aec1d760fc41c58075bedf3b6bfee93d5091c8bce41cc1576fb9f0838281043",
         "514259c61036debd3fc830490d2a8731e4b2413961783e7527abba3066ff939e"
       ],
-      "source_sha256": "b7f6ac214b949efd152e02ba36a527c9bbb341efe3321adc335701109b55fd40",
-      "text": "Les rás og mengi hvers heitis gegnum ``pattern``.\n\nRás heitis sem notandinn úthlutaði (``channels``) er sú úthlutun; annars er hún staða ``chanID``-gildis þess meðal allra ``chanID``-gilda, í náttúrulegri röð, talið frá 1. Lykill mengisins er allir hinir nefndu hóparnir, í röð mynstursins. Heiti sem mynstrið samsvarar ekki hefur ekkert mengi.\n\n:param names: myndskráaheiti.\n:param pattern: reglulega segðin, borin saman frá upphafi hvers heitis; tóm eða None samsvarar engu.\n:param channels: ``{name: channel}`` úr valaðferðinni.\n:returns: einn :class:`ParsedName` á hvert heiti, í röð.",
+      "source_sha256": "735f0ad402edfa9f1e3554849311b48767916178b2012c3ad8935d16e24ec2a6",
+      "text": "Les rás og mengi hvers heitis gegnum ``pattern``.\n\nRás heitis sem notandinn úthlutaði (``channels``) er sú úthlutun; annars er hún staða ``chanID``-gildis þess meðal allra ``chanID``-gilda, í náttúrulegri röð, talið frá 1. Lykill mengisins er allir hinir nefndu hóparnir, í röð mynstursins. Heiti sem mynstrið samsvarar ekki hefur ekkert mengi.\n\n:param names: skráarheiti mynda, eða algildar slóðir fyrir myndir utan möppunnar; reglulega segðin les eingöngu skráarheitið.\n:param pattern: reglulega segðin, borin saman frá upphafi hvers heitis; tóm eða None samsvarar engu.\n:param channels: ``{name: channel}`` úr valaðferðinni.\n:returns: einn :class:`ParsedName` á hvert heiti, í röð.",
       "translation_source_blocks_sha256": [
         "56311c12a57ec81ed05b83917f7d0b26c88cfc57316ec37a5917d6091eff0be0",
         "5bf39bb9db4da139f853606f5ae8e43c4738f6f737f443801b0e840f4e1ccedb",
-        "9fc1e60082e3b59380b1a2ffe027609650fb4412615f2ee8aa826348c4f04242",
+        "9968bd6109910b5855971d698697622f2348350e802cb613b81fdfcd062994b6",
         "9c6bc6d3b2d34146a64bfdca1c59740f1c941b8ae9928ab8e10d4daf35fe8472",
         "3aec1d760fc41c58075bedf3b6bfee93d5091c8bce41cc1576fb9f0838281043",
         "514259c61036debd3fc830490d2a8731e4b2413961783e7527abba3066ff939e"
@@ -21332,6 +21334,66 @@
       "translation_source_blocks_sha256": [
         "d0e503ddd4211e0947a9a828f139dd5c2399e30bb91dab598c1d2aa06a42b904",
         "dcd08951ca90816f7dd96d53fe6936290eee8db2725255121fbe1ea75b845894"
+      ]
+    },
+    "spacr.drop_classification": {
+      "source_blocks_sha256": [
+        "ad9a9cf4fda80d7d095ebfafa9a6942726431b812f474cc00e614e3b89c22901",
+        "b24e354801f91a030e12c0d067448976a7fc8906225a1cd2e76972b5968436cb",
+        "8a7bb619524ce62d6abd7f064acc35f22a4ba1ca6725cf90381ab1fb7fc51c91",
+        "ea98616928439da96f4e5fa522ec7301974f265f312e34516a250ae766edc46a"
+      ],
+      "source_sha256": "20b6daa20e47d02088623057aac16fefef995ff30e17e045b80de154e77ea562",
+      "text": "Hvað var sleppt á Make Masks, ákveðið áður en nokkuð er opnað.\n\nItem 600. Make Masks tekur við sleppingu skráa, mappa eða hvors tveggja, og hvað notandinn á við fer eftir því hverju var sleppt. :func:`classify_drop` les slóðirnar -- heiti, möppuskipan og, fyrir nokkrar TIFFs, pixla þeirra -- og segir hvert eftirfarandi tilvika það er, án einnar einustu spurningar eða græju:\n\n``images`` Myndaskrár (og hugsanlega möppur) sem eru opnaðar sem ein biðröð, í sleppiröð. ``folder`` Ein mappa af myndum, opnuð eins og hún er (grímur í ``masks/`` hennar). ``nested`` Ein mappa þar sem myndirnar liggja í undirmöppum: þegar undirmöppurnar líta út eins og rásir (:attr:`channel_like`), \"Organize for Measure\" með einum rásardálki fyrir hverja undirmöppu; annars spurningin um sameiningu. ``folders`` Nokkrar möppur sem hver geymir myndir: Make Masks opnar \"Organize for Measure\" með einum rásardálki fyrir hverja möppu. ``images_with_masks`` Myndir sem var sleppt ásamt grímum sínum (grímumappa, skrár þar sem heitið segir gríma, eða TIFFs með heiltölumerkjum nefndar eftir sleppri mynd): :attr:`masks` parar þær saman. ``spacr_output`` Mappa sem spaCR skrifaði (``merged/*.npy``, ``sorted_channels``-mappa eða sjálf ``merged``-mappa): :attr:`description` segir hvað hún er og :attr:`open_folder` er myndamappan sem á að opna, ef einhver er. ``nothing`` Ekkert sem Make Masks getur notað.\n\nAllt sem sleppingin innihélt og er ekkert af þessu -- ``.npy``, textaskrá, tóm mappa, gríma sem engin mynd gerir tilkall til -- er í :attr:`unrecognised` eða :attr:`unpaired_masks`, svo að skjámyndin geti listað það í stað þess að týna því.",
+      "translation_source_blocks_sha256": [
+        "ad9a9cf4fda80d7d095ebfafa9a6942726431b812f474cc00e614e3b89c22901",
+        "b24e354801f91a030e12c0d067448976a7fc8906225a1cd2e76972b5968436cb",
+        "2fcd90eec56c6dc09cb1dbcecd6a7ab4140a72729c2042df5bff430697ff0afc",
+        "ea98616928439da96f4e5fa522ec7301974f265f312e34516a250ae766edc46a"
+      ]
+    },
+    "spacr.drop_classification.DropClassification": {
+      "source_blocks_sha256": [
+        "c390879ae8d79d0cbc295f392c8bc8b28fec7a992819f21f16cb86a3d7470b2d",
+        "7414bbfc5dddcef62f69d9f0876244d84980fd437b704f273c898a2d7eade8a7",
+        "72b95df792c0743d0d49bcfccd2d6d59dab0800cee69d123097e2a5044a171d2",
+        "a4b77b71e707cbcb74eec0f1cbdd74d7c1592f140ef1d2ed7acf53812280bc20",
+        "b52d9daaf5cf388035188c1bfbb6dd47d235a333ce79c6d29534c3eabe34081d",
+        "1dae919a6e8bca76ab74a1c4e39a77ab57b2a301150733107652e17697152d85",
+        "c14f0b6bc13c0be7cd085787def914566656f6facc0bef24cc6774e7cbe8bda6",
+        "4020a1877a88a9f9dad51ea8eec2e4076ddb6e8d787383e28a2c8ea7890b9895",
+        "64da7e723f1d23c072e2c7138c88aa6bb3271e922c93123cf61eb5e4377ab28b",
+        "c3d5dec4df2fe348a03c039a640574353a73745c8949f9593a7d96b3ff165ea1",
+        "29cdf3f85d5a93da2d533c501d758624b87f861ae7eb7f089b664e92a1bae790"
+      ],
+      "source_sha256": "4cb3c873659ff25ef81cfa7e53f515ef8adc84383e551489fe9e8ef5696b142a",
+      "text": "Hvað slepping á Make Masks er, og allt sem þarf til að bregðast við henni.\n\n:ivar kind: eitt af ``images``, ``folder``, ``nested``, ``folders``, ``images_with_masks``, ``spacr_output`` eða ``nothing``.\n:ivar images: myndaskrár, algildar, í sleppiröð (``images`` og ``images_with_masks``).\n:ivar folders: mappan sem var sleppt (``folder``, ``nested``), möppurnar (``folders``) eða möppurnar sem var sleppt með stökum myndum (``images``).\n:ivar channel_folders: undirmöppur ``nested``-möppu sem geyma myndir, í náttúrulegri röð; fyrir ``folders`` möppurnar sem var sleppt.\n:ivar channel_like: hvort :attr:`channel_folders` líta hver um sig út eins og ein rás -- heiti á borð við DAPI eða ch1, eða sömu sjónsvið í hverri og einni.\n:ivar masks: ``{image path: mask path}`` fyrir ``images_with_masks``.\n:ivar unpaired_masks: grímur sem engin slepp mynd gerir tilkall til.\n:ivar open_folder: fyrir ``spacr_output`` myndamappan sem á að opna, eða None þegar engin er.\n:ivar description: ein einföld setning sem segir hvað ``spacr_output``-slepping er.\n:ivar unrecognised: slepptar slóðir sem eru ekki notaðar til neins, hver með ástæðunni.",
+      "translation_source_blocks_sha256": [
+        "c390879ae8d79d0cbc295f392c8bc8b28fec7a992819f21f16cb86a3d7470b2d",
+        "7414bbfc5dddcef62f69d9f0876244d84980fd437b704f273c898a2d7eade8a7",
+        "72b95df792c0743d0d49bcfccd2d6d59dab0800cee69d123097e2a5044a171d2",
+        "a4b77b71e707cbcb74eec0f1cbdd74d7c1592f140ef1d2ed7acf53812280bc20",
+        "b52d9daaf5cf388035188c1bfbb6dd47d235a333ce79c6d29534c3eabe34081d",
+        "6a3fd11b86c3a8674b934476cba9c8667850275ffd92b73bb56429c776ab1b98",
+        "c14f0b6bc13c0be7cd085787def914566656f6facc0bef24cc6774e7cbe8bda6",
+        "4020a1877a88a9f9dad51ea8eec2e4076ddb6e8d787383e28a2c8ea7890b9895",
+        "64da7e723f1d23c072e2c7138c88aa6bb3271e922c93123cf61eb5e4377ab28b",
+        "c3d5dec4df2fe348a03c039a640574353a73745c8949f9593a7d96b3ff165ea1",
+        "29cdf3f85d5a93da2d533c501d758624b87f861ae7eb7f089b664e92a1bae790"
+      ]
+    },
+    "spacr.drop_classification.classify_drop": {
+      "source_blocks_sha256": [
+        "7cb2a9f3c889ee1826224517d43a6d8f2a2e513eda16a6643bcbe47851ff40df",
+        "6670706f8db19a67a59025bd2be84af4f25d6446a507927474c16f987977c5e4",
+        "2ba4395a4e25ed0d8e7d343fca5e065929c5ef249b404062f9665d72cb929334"
+      ],
+      "source_sha256": "2c059b51bbc9d1a514f1a3ca1b9592176dcaa01cf8387317b6b29d983f5a3cac",
+      "text": "Segja hvað slepping á Make Masks er, án þess að spyrja eða opna nokkuð.\n\n:param paths: skrárnar og möppurnar sem var sleppt, í sleppiröð.\n:returns: a :class:`DropClassification`.",
+      "translation_source_blocks_sha256": [
+        "7cb2a9f3c889ee1826224517d43a6d8f2a2e513eda16a6643bcbe47851ff40df",
+        "6670706f8db19a67a59025bd2be84af4f25d6446a507927474c16f987977c5e4",
+        "2ba4395a4e25ed0d8e7d343fca5e065929c5ef249b404062f9665d72cb929334"
       ]
     },
     "spacr.embeddings": {
@@ -52666,7 +52728,7 @@
         "5c2ede49c270e3cacec8e74a093d9f8f56c5231df11b8c19e52d1220c707e05e"
       ],
       "source_sha256": "c9b42659fd7136d663bd74ffb2901ffcecc88d4379d564a95f895d03cfd07a5a",
-      "text": "Síðastaðilinn er á einum síða stöðu, eða None þegar það er leitt.\n\n:param column: Sjálf er kolumn index.\n:param row: fullkomna síð.\n:returns: staðsetningu, eða None fyrir utan hjólina.",
+      "text": "Síðastaðilinn er á einum síða stöðu, eða None þegar það er leitt.\n\n:param column: vísir dálksins.\n:param row: fullkomna síð.\n:returns: staðsetningu, eða None fyrir utan hjólina.",
       "translation_source_blocks_sha256": [
         "cbc795c42947639e4d823c957c0a26406f1bb43858e12c79e07f6f599271be00",
         "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
@@ -52691,7 +52753,7 @@
         "d77615f3844acc7c09a54d943d69b162328c176cfda972687c5a161de66ffbb4"
       ],
       "source_sha256": "1c9c10d3538b324c4f83220737486ee98761f76f1a800008384a01392f58cee6",
-      "text": "``(first row, last row)`` af einum stefnu, eða None ef það er leitt.\n\n:param column: Sjálf er kolumn index.\n:returns: algilt raðasvið, með endapunktum, fyrir þá staði þar sem öll flísin liggur innan hringsins -- sjá :attr:`half_tile`.",
+      "text": "``(first row, last row)`` af einum stefnu, eða None ef það er leitt.\n\n:param column: vísir dálksins.\n:returns: algilt raðasvið, með endapunktum, fyrir þá staði þar sem öll flísin liggur innan hringsins -- sjá :attr:`half_tile`.",
       "translation_source_blocks_sha256": [
         "250fe641c3b1c854e8b7b196c5e79921800a40b4c87e4d9a1c1e63fb6f854f40",
         "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
@@ -71336,16 +71398,16 @@
     },
     "spacr.qt.dnd_handlers.MakeMasksDropHandler.can_accept": {
       "source_blocks_sha256": [
-        "df310dd753f35e5e3ca37f84440ec37b1f0d4a924ec4a75592f92b19eed53c6b",
-        "4e0c3296a77271f0f3fe4f37d7812c41d161963d1a5ae93e1fec99d5ec3d84e9",
+        "66c961c2404c26e30cbb9dc2a374f3adb6d22dc64ac1c66005179ef33fa79ed9",
+        "0b463bfe023187936515c9f5f78594a1a516a222e11fa84d56c3f93baa7d842b",
         "1f800f7819df1dab2291037c2ed19a7e327af6aa03c46a42b5915f92048a45f9",
         "c104664a16c2336b1ec431168ed28b672d42347d783cafd1a1c712819bfd8cfb"
       ],
-      "source_sha256": "7923f308e7f5f5ae571cf9e0fbc043150b6efdaa038bcbd4664d99a009a9b536",
-      "text": "Myndskrá sem Make Masks opnar, eða mappa með myndum í.\n\nPör eru fundin síðar, ekki krafist hér.\n\n:param path: skráin eða mappan sem sleppt var.\n:returns: True þegar þessi meðhöndlari getur notað ``path`` eins og hún er.",
+      "source_sha256": "22a0eb4e1d74c1451170df04cdbb9afa55b5202704cd568ee7d265ee38ec817a",
+      "text": "Myndaskrá, ``.npy``, eða mappa með myndum eða spaCR-úttaki.\n\nItem 600: mappa þar sem myndirnar liggja eingöngu í undirmöppum, og mappa sem spaCR skrifaði (``merged/*.npy``, ``sorted_channels``), eru líka teknar gildar, og ``.npy`` svo að skjámyndin geti sagt hvað hún er; :func:`spacr.drop_classification.classify_drop` ákveður hvað sleppingin merkir. Pör finnast síðar og er ekki krafist hér.\n\n:param path: skráin eða mappan sem sleppt var.\n:returns: True þegar þessi meðhöndlari getur notað ``path`` eins og hún er.",
       "translation_source_blocks_sha256": [
-        "df310dd753f35e5e3ca37f84440ec37b1f0d4a924ec4a75592f92b19eed53c6b",
-        "4e0c3296a77271f0f3fe4f37d7812c41d161963d1a5ae93e1fec99d5ec3d84e9",
+        "66c961c2404c26e30cbb9dc2a374f3adb6d22dc64ac1c66005179ef33fa79ed9",
+        "0b463bfe023187936515c9f5f78594a1a516a222e11fa84d56c3f93baa7d842b",
         "1f800f7819df1dab2291037c2ed19a7e327af6aa03c46a42b5915f92048a45f9",
         "c104664a16c2336b1ec431168ed28b672d42347d783cafd1a1c712819bfd8cfb"
       ]
@@ -96664,18 +96726,34 @@
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths": {
       "source_blocks_sha256": [
-        "78506f7bb027b6cbb03601fab8ca9b1fefaea01878a039a46b8dff62bc304b8d",
-        "688d7aed215a292b1d16cc482c05294c6fe3857388d45bca79692b30344d0e50",
+        "6b0579156a6c584df9096cab9f7b7211c548aaa35b80fbb997ea450b5476e1a9",
+        "69334d1a082d3f29421c9886c5b3eaffe80c893614f2310e735a8415bf32cc75",
+        "20bc27c6efd19fd2293d239b2032995610f1090b591b2f0055f945f87742e346",
+        "e8345bf2a6043263e97fc76701af792bf6a6a7c7c1bfab70711470f4fd8eb3c7",
+        "d6cfe7dc8f5efd9740d06ece07a39d601c18295bf1f4f87dbbe487802815feab",
+        "83b830594fc1c09a8572c7800550ccea8ad86e430a4c1cbf45127014f0c2d624",
+        "eb8b8981479f0c97da1cfd8abd5a38ef8b31ffe10d80ad6e636ca4ced9d72923",
+        "2fedcff00ed01718e70950e47986bcd38b062c74019d0a8647cb9abf473c3655",
+        "12013c1dad79f5e94c4de1e807050e6ae5e3f427773748601c9a5df2a1e16d84",
+        "76ddbfea745401621562b270d01fbe8ea4d1a133e0e085ab1a545bdcc37c4d40",
         "9baca7f3c139b3f19666cad2093c0fb906c930002a2b075fe06c91b876ed10e0",
-        "dcaa7600d687ff5164ffe3ea2c79aa76139153b9de822a610c86ad99f59f8632"
+        "cd563a28ad5739f67a3a5a5f193336cf4f639280ab55ddd5a51a1fe479d5cbc7"
       ],
-      "source_sha256": "68a3e43a785d70d8f658ed68de2b73b30d999e078b997b4e910f4d6bfbd30266",
-      "text": "Opna myndskrár og möppur sem var sleppt sem eina biðröð, í sleppingarröð.\n\nEin mappa ein og sér er það sem hún hefur alltaf verið, :meth:`_open_folder` á hana. Allt annað -- ein skrá, nokkrar, eða skrár og möppur saman -- verður að biðröð nefndu sjónsviðanna, þar sem mappa stendur fyrir myndir sínar, og hverju sjónsviði er breytt þar sem það liggur með grímu sína í eigin ``<folder>/masks``. Ekkert er afritað.\n\n:param paths: skrárnar og möppurnar sem var sleppt, í þeirri röð sem þeim var sleppt.\n:returns: hvort biðröð var opnuð.",
+      "source_sha256": "3037be6aa43fbc632a134190b5a9b87e0243085e9371bd717e3308a76b23e431",
+      "text": "Opna sleppingu eins og innihald hennar segir til um, og spyrja þar sem um val er að ræða.\n\nItem 600. :func:`spacr.drop_classification.classify_drop` segir hverju var sleppt, og:\n\n* myndaskrár (með eða án mappa) opnast sem ein biðröð, í sleppiröð, og hvert sjónsvið er breytt þar sem það liggur með grímuna sína í eigin ``<folder>/masks`` -- :meth:`_open_queue`;\n* ein mappa af myndum opnast eins og hún er;\n* ein mappa þar sem undirmöppurnar líta út eins og rásir (DAPI/, GFP/... eða sömu sjónsvið í hverri) opnar \"Organize for Measure\" með rásardálki fyrir hverja undirmöppu; hver önnur mappa þar sem myndirnar liggja í undirmöppum er boðin til sameiningar (item 593);\n* nokkrar möppur af myndum opna \"Organize for Measure\" með rásardálki fyrir hverja möppu;\n* þegar hætt er við þann sprettiglugga (eða enginn getur séð hann) opnast sleppingin eins og hún hefur alltaf gert: mappan eins og hún er, eða biðröð;\n* myndir sem var sleppt með grímum sínum opnast með þeim grímum (:meth:`_open_with_masks`);\n* mappa sem spaCR skrifaði er nefnd í stjórnborðinu og myndir hennar, ef einhverjar eru, opnast -- ``.npy`` er aldrei opnuð sem mynd.\n\nAllt sem sleppingin innihélt og er ekki notað til neins er listað í stjórnborðinu.\n\n:param paths: skrárnar og möppurnar sem var sleppt, í þeirri röð sem þeim var sleppt.\n:returns: hvort eitthvað var opnað eða verk ræst.",
       "translation_source_blocks_sha256": [
-        "333e1cb760f025ab2ff41d25f0033a4199ab0ae3e524b81e444b348359dc3fa9",
-        "4c9d9b206185094e7ca231f5c38303e20dc44a0710545f04cd7c1785c82862de",
+        "6b0579156a6c584df9096cab9f7b7211c548aaa35b80fbb997ea450b5476e1a9",
+        "69334d1a082d3f29421c9886c5b3eaffe80c893614f2310e735a8415bf32cc75",
+        "d003e3e8b18874112ef412ff58cb649caa2cee9fe6fc9fc6187b5ccf0665727d",
+        "e8345bf2a6043263e97fc76701af792bf6a6a7c7c1bfab70711470f4fd8eb3c7",
+        "00b412b6b001e45efe09acb860196dcc868c285c18cdfedab168b4d5e168238f",
+        "35c6e90be20daa5d4ff6c44dc8de329d72e5874fd853ce7def77c29039175fbd",
+        "047cbc25693460da9f386f05aec2698bce6075774959d9dda48bd4c9751e8f45",
+        "2fedcff00ed01718e70950e47986bcd38b062c74019d0a8647cb9abf473c3655",
+        "12013c1dad79f5e94c4de1e807050e6ae5e3f427773748601c9a5df2a1e16d84",
+        "76ddbfea745401621562b270d01fbe8ea4d1a133e0e085ab1a545bdcc37c4d40",
         "9baca7f3c139b3f19666cad2093c0fb906c930002a2b075fe06c91b876ed10e0",
-        "e1a4623e3752d8513cb732717c3ec93417687dfa5cfacdd3a94a65000a1eba17"
+        "cd563a28ad5739f67a3a5a5f193336cf4f639280ab55ddd5a51a1fe479d5cbc7"
       ]
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.open_queue": {
@@ -147336,6 +147414,176 @@
       "text": "Almenn frumuhólfaheiti hjá gerfrumum sem fjölga sér með knappskotum vörpuð á UniProt SL-auðkenni.",
       "translation_source_blocks_sha256": [
         "b67c3179d03df095c53c366af73aff8af64e6edbeef9cec6493244b5098fd18a"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure": {
+      "source_blocks_sha256": [
+        "6cb4ef09b5cdf634a7b8d12853f34f8e76ea887498be2266b929e2bec41f6796",
+        "4145d60284cd1c41324b691b5ceb3a7b1e50f5918b463f4cdfb711ecf8072e33",
+        "9d111e1d9a8ee2f9eef5767008047ac51afa9eb6bc97e1c337baf45afedfce9f",
+        "6d8587d4ae76e72a79c7014dee17ff01439a7f2b577816891e0a85f00c4bec42",
+        "4ff01b34b6bfcb85a3de600d0806f7aeef29b14e0550bddcc26aed63c2284865",
+        "41ea8b601e3b5fa7c1b65944416e770f4909ab6bcbb0e5111b0175b5475732b1",
+        "d94e3d62d3ee1ba13d3fa35dfd88a2560d6e07f69cdabe851e4d0453a237ae2d"
+      ],
+      "source_sha256": "2db3bf33d280f5cf88216d3a5ec058b59bb7e48cd4e8e8611fab47e6ad3f65ce",
+      "text": "Sprettigluggi Make Masks, \"Organize for Measure…\": myndir og grímur í merged/.\n\nItem 600, kemur í stað runu fyrirspurna úr item 593 og sérstaks glugga hennar, \"Sort into channels\", sem inngangspunktur. EINN sprettigluggi setur myndir og grímur þeirra í þá skipan sem Measure les -- rásamöppur með Yokogawa-heitum, grímurnar og ``merged/*.npy`` -- í gegnum :mod:`spacr.channel_sorting` og :mod:`spacr.folder_consolidation`, sem taka hverja ákvörðun:\n\n* UPPRUNAmappa (slegin inn, valin með vafra eða sleppt), valfrjálst sameinuð fyrst (myndir undirmappa hennar afritaðar í eina möppu, nefndar eftir möppum sínum);\n* REGLULEGU SEGÐAR-reiturinn: eigin ``metadata_type``-reitur grímugerðar -- sama flokkaða venjuvalmynd, dæmi og \"Test on my folder\" -- með ``custom_regex`` sínu, auk \"Sort by regex\", \"Auto regex\" og \"Detect sets\";\n* VÍDDIRNAR: hvaða dálkar eru myndrásir og hverjir eru grímur, hver gríma með hlutverk sitt (fruma, kjarni, sýkill) og rásina sem myndirnar sem hún afmarkar tilheyra;\n* TAFLA með einum dálki fyrir hverja rás og hverja grímu og einni línu fyrir hvert sjónsvið. Hver dálkur tekur við skrám og möppum sem er sleppt úr skráastjóranum (mappa kemur með myndirnar sínar, endurkvæmt) og hólfum sem eru dregin úr öðrum dálki. Skrár sem er sleppt raða sér sjálfar eftir heiti og eru paraðar þvert á dálkana á sama hátt og Detect sets parar myndir -- tókar í skráarheiti, síðan röð, aldrei tvær myndir af ólíkri stærð (:func:`spacr.channel_sorting. _match_columns`). Hólf sem ekkert paraðist við helst tómt og merkt.\n\nHáttur 1: fylla út upprunann, velja eða prófa reglulegu segðina, ýta á \"Sort by regex\", Apply. Háttur 2: fylla dálkana með því að sleppa, Apply. Háttur 3, \"Teach me…\": svara \"Hvaða rás er þetta?\" fyrir eina mynd í einu á meðan spaCR lærir reglulega segð af svörunum (:func:`spacr.channel_sorting._teach_step`), þar til hver mynd er komin á sinn stað. Hver háttur virkar án hinna. Mappa sem varð til við möppusameiningu er lesin undir UPPRUNALEGUM heitum skráa sinna, úr ``rename_manifest.csv`` hennar, því heiti afritanna kunna að hafa glatað því sem greindi rásirnar að. Apply smíðar :class:`spacr.channel_sorting.SortPlan`; ófullgerðar línur hindra hana (í reglulegu segðar-reitnum eru þær lagaðar), boðið er upp á umbreytingu RGB-mynda og z-stafla, og greind sett eru sýnd þrjú í einu áður en þau eru notuð. Ekkert er fært fyrir Apply; skjámyndin beitir áætluninni utan GUI-þráðarins og hver flutningur er skráður í skrána yfir flutninga.",
+      "translation_source_blocks_sha256": [
+        "6cb4ef09b5cdf634a7b8d12853f34f8e76ea887498be2266b929e2bec41f6796",
+        "d35590b78f8bf25b5d3d4ba86fb5633f36bfc76ba6d000a9ef706aa82ab9a548",
+        "9d111e1d9a8ee2f9eef5767008047ac51afa9eb6bc97e1c337baf45afedfce9f",
+        "887556b35044dbeb745bdf7fd04ac055f65385b81f73e54e6cf44092446af8a3",
+        "2246ac0ebcebcc13660ebb0e6c13732413bb3820b023b86236ab602fec49a5c8",
+        "b826e41739fdb98f46d8f5a2a85a1d4e570470331c3757c5ae5f0ac5d3d4e301",
+        "5767c39e8e7115f0d9abd3e402c2ff2db1f591c5804cefbc08b4a4c1b76d1629"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog": {
+      "source_blocks_sha256": [
+        "1f5bb1a631f9832bcc2f85b17cea30bd164acf5c5a713bb14bc83476d81a79e4",
+        "7ee838bf58d9792485c18c0718ae75b87afe0f8b4d5fe89a0842a269d30f4341",
+        "d6aafdbd667cab426269e95e66de4be7299cca05461ec6c06b06721f1a58d59c",
+        "0bb4337e35954672b73822e6318891bf40672273437bc4ec06979d012695be80",
+        "c0d50783d54de8fe4ef572ca6834debeece4b21278651c1f86d0f4b05178dec2",
+        "4d4eda03aac613dbdc47dfafe4fcd371e521bfd627313feecb6471f8abf1d7b2",
+        "36dbf6c3c4c25be8f2680dc5d420957758f46935e4f07ee97f4b6e452e75713b",
+        "2facb0e5ff8aad94c303616963c1b9c26fa93314472c23b42414a9934b267838",
+        "a29ee4e01cd895f219234770e0346394dc467bac4021ee201a27a54c9e15a04a"
+      ],
+      "source_sha256": "6743d358f60f4cae531330030c38531bc0ae1d25ae0198f520a584780525ac2c",
+      "text": "Setja myndir og grímur í rásamöppur og ``merged/`` fyrir Measure.\n\n:ivar plan: staðfesta :class:`spacr.channel_sorting.SortPlan` þegar glugginn hefur verið samþykktur, annars None.\n:ivar columns: dálkar töflunnar, í röð.\n:ivar rows: einn listi fyrir hvert sjónsvið, ein slóð eða None fyrir hvern dálk.\nSmíða sprettigluggann, fylltan út fyrir fram úr sleppingu þegar hún var til staðar.\n\n:param source: upprunamappan, ef hún er þekkt.\n:param parent: Qt-foreldrið.\n:param channel_folders: möppur til að setja í töfluna, einn rásardálkur hver (grímur þeirra úr ``masks/`` hverrar möppu) -- slepping nokkurra mappa eða rásarlíkra undirmappa á Make Masks.\n:param masks_dir: grímumappa upprunans, þegar hún er ekki ``masks/`` hans.",
+      "translation_source_blocks_sha256": [
+        "e4b443dab79e828474848717ca2410d0b49b3fcf55501a231eec454c1e04d196",
+        "7ee838bf58d9792485c18c0718ae75b87afe0f8b4d5fe89a0842a269d30f4341",
+        "d6aafdbd667cab426269e95e66de4be7299cca05461ec6c06b06721f1a58d59c",
+        "0bb4337e35954672b73822e6318891bf40672273437bc4ec06979d012695be80",
+        "c0d50783d54de8fe4ef572ca6834debeece4b21278651c1f86d0f4b05178dec2",
+        "4d4eda03aac613dbdc47dfafe4fcd371e521bfd627313feecb6471f8abf1d7b2",
+        "36dbf6c3c4c25be8f2680dc5d420957758f46935e4f07ee97f4b6e452e75713b",
+        "96ab7d937a69535c41db4abc5967d077c8f2dc38d1f4804174b5eb5417f09229",
+        "a29ee4e01cd895f219234770e0346394dc467bac4021ee201a27a54c9e15a04a"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_column": {
+      "source_blocks_sha256": [
+        "2641b634df46e3385037ab7d8a77569cf1039dbfa65a56576d08d2ce50e7ce67",
+        "864b7ee05625d04120c4ffc847149a370175bd329cf45805d0e35f4690773607",
+        "7a6d1b0d485bddb32e9057db9dabcf738354442c717e2f2534161f6b545f4b2b",
+        "f019173af7e388dcab2b4f00269989de516de9433e0ee1b4a3f0d80ac4d995b1",
+        "540fb85407c8b0d458f43d9964400a8fda7f08ca91846dcf3f7d3326c6d00e30"
+      ],
+      "source_sha256": "26049d6de954322b95fe3d43af8bf71520b61e7c0eb7d6fa249f1f002854901b",
+      "text": "Bæta rásar- eða grímudálki við aftast.\n\n:param kind: ``\"channel\"`` eða ``\"mask\"``.\n:param role: hlutverk grímu; sjálfgefið er fyrsta hlutverkið sem engin gríma hefur.\n:param of_channel: rás grímu; sjálfgefið er fyrsta rásin án grímudálks, annars 1.\n:returns: vísir nýja dálksins.",
+      "translation_source_blocks_sha256": [
+        "b0e32794f5b6fd327549b67fc65c7104df1e906b35ca40383bd0fbe1832b5471",
+        "864b7ee05625d04120c4ffc847149a370175bd329cf45805d0e35f4690773607",
+        "7a6d1b0d485bddb32e9057db9dabcf738354442c717e2f2534161f6b545f4b2b",
+        "7f23542436b05cf8bf88884ebb93c10602dabaee922ce235f9f3a15bea66d891",
+        "540fb85407c8b0d458f43d9964400a8fda7f08ca91846dcf3f7d3326c6d00e30"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_files": {
+      "source_blocks_sha256": [
+        "50ebb0e149d514dcf3cda6d7ebb396cee7f9a65345063815713762a74870d54d",
+        "2cceb8ec59a9aa679d44e507771b2650a34e09cfc64506e731de7ada4074ad5a",
+        "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
+        "0c0e0d1bf62e16a58806f2b6ba607ddfae14596fa5873316930dd850310f4346",
+        "257ee22b60c38f1f6f06e9426816c63e55450a4322172495f7d803963259cb0f",
+        "9c509e9a13c633b3381d27774e7ce1c2b4c5cf2058a268a89c8164ffdb124b28"
+      ],
+      "source_sha256": "5cd887c739876df1cba534ae2330b55e7449ccb39e7800ec434d598af6bbb853",
+      "text": "Setja skrár og möppur sem var sleppt í dálk og para línurnar.\n\nMappa kemur með myndirnar sínar, endurkvæmt, en ekki ``masks/`` sína. Myndir sem er sleppt í rásardálk koma með grímurnar sem Make Masks vistaði fyrir þær (``<their folder>/masks/<stem>.tif``) í grímudálk þeirrar rásar, sem er búinn til þegar enginn er fyrir. Skrá sem er þegar í töflunni færist í þennan dálk. Ekkert breytist á diskinum.\n\n:param column: vísir dálksins.\n:param paths: skrár og möppur.\n:param rematch: para línurnar á eftir (slökkt á meðan fyllt er út fyrir fram).\n:returns: myndaskrárnar sem var bætt við.",
+      "translation_source_blocks_sha256": [
+        "50ebb0e149d514dcf3cda6d7ebb396cee7f9a65345063815713762a74870d54d",
+        "06c1b0c1bf423dae4c25a5836698da2e77fda3ba0917459edc909d208bad9860",
+        "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
+        "0c0e0d1bf62e16a58806f2b6ba607ddfae14596fa5873316930dd850310f4346",
+        "257ee22b60c38f1f6f06e9426816c63e55450a4322172495f7d803963259cb0f",
+        "9c509e9a13c633b3381d27774e7ce1c2b4c5cf2058a268a89c8164ffdb124b28"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.auto_regex": {
+      "source_blocks_sha256": [
+        "e375aa07c953c6e44115664a813acd061bee5445c7f0fa12da10a4a52d6134b3",
+        "d19406193a833a7f5fb2384d12f2a6c8f6d04d93ec964a2b083ff324ef2ad896"
+      ],
+      "source_sha256": "831da0d321fdbda1d4ef60fbc451c0b5bb6e5636fc94a08fbf7fcd35de374a39",
+      "text": "Stinga upp á reglulegri segð, setja hana í custom_regex og raða eftir henni.\n\n:returns: reglulega segðin, eða None þegar engin fannst.",
+      "translation_source_blocks_sha256": [
+        "e375aa07c953c6e44115664a813acd061bee5445c7f0fa12da10a4a52d6134b3",
+        "d19406193a833a7f5fb2384d12f2a6c8f6d04d93ec964a2b083ff324ef2ad896"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.detect_sets": {
+      "source_blocks_sha256": [
+        "de00bf943a71e8f1ecc988e5eff7126ce2c3eb10dab495a4ee72cba4a4870a40",
+        "19fe6675bc9ab8c20dfc3f07ee94d1b247bfcddea2addb9af12145607041c555",
+        "b75284420f01f5b0606735b93f9a794d9f0d9ab18da07518e9c3ab44218cec81"
+      ],
+      "source_sha256": "a29515f501f7a7b717853ab082e82b27e6b834dea08b9ba145bed5fbef0d71fb",
+      "text": "Para skrár dálkanna eftir heiti, röð og stærð, og athuga þrjú.\n\nMeð tóma töflu og upprunamöppu er upprunanum fyrst raðað eftir reglulegu segðinni, til að fá rásir hans. Settin eru sýnd þrjú í einu (:class:`spacr.qt.widgets.channel_sort_dialog.ExampleSetsDialog`) og aðeins haldið ef notandinn segir að þau séu rétt.\n\n:returns: hvort greindu settunum var haldið.",
+      "translation_source_blocks_sha256": [
+        "de00bf943a71e8f1ecc988e5eff7126ce2c3eb10dab495a4ee72cba4a4870a40",
+        "19fe6675bc9ab8c20dfc3f07ee94d1b247bfcddea2addb9af12145607041c555",
+        "b75284420f01f5b0606735b93f9a794d9f0d9ab18da07518e9c3ab44218cec81"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.prepare_plan": {
+      "source_blocks_sha256": [
+        "7565a3846eac9b1e672b01183b9d19900a09aa3ff4bda2449edd55234fe25b5d",
+        "4b415e01f3f299799068a41ac06a10ee2360d49c1a4b92b6bdb25780831a1da7",
+        "ee34f95d670f4acd170c298e14397d489fa5f0d5a88dcac9588072f9106ba6f9"
+      ],
+      "source_sha256": "f58883cc58cb21d2c96efa0a751b0f16bd7c6b78bb37672452a249c14e58503a",
+      "text": "Smíða áætlunina úr töflunni, eða None meðan línur eru ófullgerðar.\n\n:param convert: umbreytir RGB-myndum og z-stöflum í eitt lag.\n:returns: áætlunin, sem getur enn borið vandamál.",
+      "translation_source_blocks_sha256": [
+        "7565a3846eac9b1e672b01183b9d19900a09aa3ff4bda2449edd55234fe25b5d",
+        "4d8beba79b5a664643693178d4f756fc82114a24e9d46d808ae72cc4ff080bd4",
+        "ee34f95d670f4acd170c298e14397d489fa5f0d5a88dcac9588072f9106ba6f9"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.remove_column": {
+      "source_blocks_sha256": [
+        "9d07705f2db4150a8646bbce1bdd3012a374243e90a0de1b9b94fde2c049cb76",
+        "1292b0b4037eddcee0242184c4b73a894c7b993d634f028768e10593fd984a6c"
+      ],
+      "source_sha256": "3acfa134a96b4919f5607edd816c0fcaf34de6258965db6dc4cae44e1733ae09",
+      "text": "Fjarlægja dálk og skrár hans úr töflunni.\n\n:param index: dálkurinn.",
+      "translation_source_blocks_sha256": [
+        "9d07705f2db4150a8646bbce1bdd3012a374243e90a0de1b9b94fde2c049cb76",
+        "1292b0b4037eddcee0242184c4b73a894c7b993d634f028768e10593fd984a6c"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.sort_by_regex": {
+      "source_blocks_sha256": [
+        "8b0f39440497d1c599b815a9a795730da94ec11c270acb8345423011053573c1",
+        "7c2f533c4c899b17ab32b3f0ff84b402b90792be327b6cd6d8892fed5313d128",
+        "7a48da9dc7a2ecce085f8ceb9bc8ab2e2a0fa861b4061f06eddd500b16ca80a2",
+        "ab0376b6557e1870089c7de4ce9e67825cd5ab16df97984dae13d62623583689",
+        "56214aaa5e6d9ecb5b3ced90b75fb16011476abec1dd20375ef5333af5b97015"
+      ],
+      "source_sha256": "cee9c78b689bf5558eff2b0b78f9104b82574d37e6391d7a048348e38905746c",
+      "text": "Fylla töfluna út frá reglulegu segðinni: chanID er dálkurinn, afgangurinn línan.\n\nMeð upprunamöppu eru myndir hennar lesnar (sameinaðar fyrst ef beðið er um það), og grímur þeirra fundnar þar sem Make Masks vistar þær; án hennar er skránum sem þegar eru í rásardálkunum raðað upp á nýtt, og hver heldur sínum dálki. Grímur fara í einn grímudálk fyrir hverja rás. Gríma sem tvær myndir deila (tvær skrár með sama stofn) er skilin út undan og nefnd.\n\n:param pattern: reglulega segðin; sjálfgefið er það sem reglulegu segðar-reiturinn stendur fyrir.\n:param chan_map: ``{chanID value: label}`` lært með \"Teach me\", þar sem merki er ``(\"channel\", n)`` eða ``(\"mask\", n, role)``; sjálfgefið eru chanID-gildi reglulegu segðarinnar rásir í náttúrulegri röð.\n:returns: skýrslan um settin, eða None þegar ekkert var að lesa.",
+      "translation_source_blocks_sha256": [
+        "8b0f39440497d1c599b815a9a795730da94ec11c270acb8345423011053573c1",
+        "d5fa89a15afc858970a9a108392a24b0036b5e1d4cf4734fed696ecacc27d3f6",
+        "7a48da9dc7a2ecce085f8ceb9bc8ab2e2a0fa861b4061f06eddd500b16ca80a2",
+        "ab0376b6557e1870089c7de4ce9e67825cd5ab16df97984dae13d62623583689",
+        "56214aaa5e6d9ecb5b3ced90b75fb16011476abec1dd20375ef5333af5b97015"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.teach": {
+      "source_blocks_sha256": [
+        "d25a2ecbec156ca244d1a52aed362848f4c6bd4c165513e91f7bede06b37516c",
+        "f7d2dd8c178d87a019144521ac33a3c2c1ec36effa3fd4138ea514ebb17f0b2b",
+        "a781a71325a8e99dddb2a81975c4fd4a59f8120ec64619494e2e317ee4efe511"
+      ],
+      "source_sha256": "ae44f14014355ef9639767f7eb5fa781be94c84cbd2f82baa5cd071121784adf",
+      "text": "\"Teach me\": spyrja hvað myndirnar eru þar til regluleg segð kemur þeim öllum fyrir.\n\nEin mynd er sýnd í einu með \"Hvaða rás er þetta?\" (:attr:`ask_label`). Út frá svörunum lærir :func:`spacr.channel_sorting._teach_step` hvað í heitunum auðkennir hverja rás eða grímu og skrifar reglulega segð; hvert nýtt auðkenni er staðfest með :attr:`ask_marker` (rás, gríma, eða aðeins hluti af heiti sjónsviðsins). Taflan fyllist jafnóðum, og reglulega segðin er sett í custom_regex, þar sem hægt er að breyta henni. Þessu lýkur þegar hver mynd er komin á sinn stað, eða þegar notandinn segir stopp.\n\n:returns: reglulega segðin sem var lærð, eða None þegar engin var lærð.",
+      "translation_source_blocks_sha256": [
+        "d25a2ecbec156ca244d1a52aed362848f4c6bd4c165513e91f7bede06b37516c",
+        "3a5d983aba14e296d3b558c90f5d580e39a921e20661572bf9dbb9bb8a8c87a0",
+        "a781a71325a8e99dddb2a81975c4fd4a59f8120ec64619494e2e317ee4efe511"
       ]
     },
     "spacr.qt.widgets.outlier_model": {
