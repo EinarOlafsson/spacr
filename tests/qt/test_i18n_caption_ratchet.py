@@ -1199,10 +1199,18 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # column (alpha), after the real-screen check ranked wells by it.
 # 573, 2026-09-30: the analysis lock dialog's Gate files row and its
 # placeholder (alpha).
+# 422, 2026-09-30: the Help search result-row templates in help_index.py,
+# now extractable through `_template`. The list's new "and {count} more" row
+# reuses a caption the catalogs already carry, so it owes nothing.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "Control percentile",
     "Gate files",
     "Saved Gate Editor gate files, separated by semicolons.",
+    "API reference",
+    "API reference — reads {settings}",
+    "Preferences ▸ {tab}",
+    "Reads {settings}.",
+    "{summary} Reads {settings}.",
 })
 
 

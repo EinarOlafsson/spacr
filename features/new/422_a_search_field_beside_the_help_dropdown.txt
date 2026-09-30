@@ -4,17 +4,12 @@ A SEARCH FIELD BESIDE THE HELP DROPDOWN
 
 Filed as 413 on 2026-09-18; renumbered 2026-09-19 because 413 also names features/new/413_the_font_zoom_floor_is_ten_percent.txt.
 
-Status:    BUILT 2026-09-19, reviewed and corrected the same day. All five
-           result behaviours work and are driven by tests that type into the
-           real field; the three new modules are at 100% statement and branch
-           coverage. Four should-fix defects came out of review -- the i18n
-           seam, an English-only result list, a coverage claim that was not
-           true, and the Essentials choice still being rewritten by a lookup
-           -- and all four are fixed. NOT DONE: values are not searched (v1,
-           as decided), and the nine-language catalogs owe rows for the
-           field's captions and for the words a result row is built from -- a
-           consolidated pass runs at the end of the day's work. See both
-           2026-09-19 notes at the end.
+Status:    DONE 2026-09-30. Built 2026-09-19; the three leftovers the
+           ledger audit named are closed: the result-row words are now
+           extractable into the catalogs, the "and N more" row is built, and
+           searching setting VALUES stays out by the maintainer's v1 decision
+           (recorded in the 2026-09-30 note). The five new row templates sit
+           in _AWAITING_CATALOG_REBUILD for the catalog lane.
 
 Shape:     A search box beside the Help dropdown. The user types the name of a
            module, a function, a setting or a preference and gets a list of
@@ -482,3 +477,64 @@ against the broken build. Checked both ways: with the fix reverted, the second
 test fails with `assert '#1d2229' != '#1d2229'` -- the pixel with the popup up
 is the same pixel as with it down, which is what "you can read the log through
 the results" looks like when it is measured.
+
+--------------------------------------------------------------------------------
+2026-09-30 -- THE ROW WORDS REACH THE CATALOG, "AND N MORE" IS BUILT, VALUES
+STAY OUT
+--------------------------------------------------------------------------------
+
+What the ledger audit left open, and what was done with each:
+
+1. THE RESULT-ROW WORDS WERE IN NO CATALOG. The six templates in
+   spacr/qt/help_index.py were plain assignments, so no tr() call named them
+   and tools/build_i18n_catalogs.py never collected them. help_index still
+   imports no Qt and no catalog (a subprocess test pins that), so the fix is
+   an identity marker: each template is now `_template("...")`, and the
+   extractor has a keyed _HELPER_CAPTION_RULES entry for
+   ("help_index.py", "_template") that reads argument 0 like a tr literal.
+   extract_static_ui_sources() now returns "API reference",
+   "API reference — reads {settings}", "Preferences ▸ {tab}",
+   "Reads {settings}." and "{summary} Reads {settings}.". "Module" was
+   already a compact-catalog (_ROWS) row and stays there. The five are in
+   tests/qt/test_i18n_caption_ratchet.py's _AWAITING_CATALOG_REBUILD for the
+   catalog lane; nothing was regenerated here. The setting subtitle
+   "{module} ▸ {category}" is still deliberately not a source -- both halves
+   are registry names with rows of their own.
+
+2. "AND N MORE" IS BUILT. help_index._search_with_overflow returns the list
+   plus, per kind, how many matches are NOT shown (whichever limit dropped
+   them), and search() is now a thin wrapper over it. The field draws a row
+   reading tr("and {count} more") directly under the last shown row of each
+   clipped kind; that caption was already a catalog row elsewhere, so it owes
+   nothing. Opening it (click or Return) lifts that kind's cap by MORE_STEP =
+   40 and re-searches with the popup kept up and the selection on the first
+   revealed row; it never emits `opened`. The refresh is deferred with
+   QTimer.singleShot(0) because it clears the list inside the list's own
+   activation signal. A lifted cap belongs to one query and is dropped on the
+   next keystroke. `src` now gets an "and N more" row under its eight module
+   rows (N counts the 28 other `src` modules plus any other setting the
+   query matches), and one Return on it shows every `src` module. The API kind pages 40 at a time rather than
+   drawing thousands of rows on the GUI thread. The "more" row carries its
+   kind under MORE_ROLE, never a fake HelpEntry, so no opener can be handed
+   one; results() still returns entries only.
+
+3. VALUES ARE NOT SEARCHED -- DECISION KEPT, NOT BUILT. This file has no
+   done-when that asks for it, and the maintainer's 2026-09-19 answer to the
+   open question was explicit: "values are not searched in v1". Searching
+   values would also mean indexing every module's CURRENT form state, which
+   changes per keystroke on another screen and cannot live in an index built
+   once a session on a worker. If it is wanted, it is a new item: a
+   provider over the live screens in MainWindow._screens, rebuilt on demand.
+
+Tests: tests/qt/test_the_help_search_says_what_it_left_out.py (7, new; each
+drives the real field), three more in
+tests/test_the_help_index_is_generated_not_typed.py (the overflow count, the
+real `src` case against the built index, and the extractor collecting the
+templates), and the existing mixed-language row test now skips "more" rows
+when pairing rows with results. Both new helpers are private, so the public
+API and documentation inventories did not move.
+
+Measured after rebasing onto nightly 92d41477f: the four help-search files,
+the background test, the caption ratchet, the helper ratchet, the five
+docstring files and the documentation inventory test ran 353 passed /
+10 xfailed / 0 failed.
