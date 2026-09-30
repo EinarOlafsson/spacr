@@ -9781,11 +9781,12 @@
         "f011c1f5a9daa343616645b60eb89f588c990bbc270384ae28621846dc27a5a1",
         "f4e6a46f4fba0f5d82c2a794dddbd6efd63779d65a04e2552f6201b4286570d8",
         "d5ec331991d19d64869eb3b1a422dd5c23c09f03def5404e799d913e04c4091e",
+        "6467c122ba95cbd8a1ce59c9da016c3861359485632fdaefee0b661778576c4e",
         "ea3bd380a00d79b11341a3863a9d3b4ab4d88d1ecdd52bf5eb716a8d9f768202",
         "a89332de24fb787ed65f2d099a9ffcd11684ed342db68c883cd7117062eaf1cd"
       ],
-      "source_sha256": "2a450af570bab49d1ea619f21f07db28cddd21d6d302fee40ac695bf521f15cb",
-      "text": "Decide cada movimentação, nome e verificação antes de mexer em qualquer coisa.\n\n:param folder: a pasta de imagens.\n:param sets: ``{set key: {channel: name}}``, apenas conjuntos completos.\n:param masks_dir: uma pasta de máscaras indicada explicitamente.\n:param mask_roles: ``{channel: role}``; ``None`` adivinha (:func:`default_mask_roles`); um canal ausente dele, ou que recebe ``\"none\"``, tem suas máscaras movidas, mas não mescladas.\n:param dest: a pasta nova; por padrão, ``<folder>/sorted_channels``.\n:param check_shapes: lê o tamanho de cada imagem e de cada máscara e recusa um conjunto cujas imagens tenham tamanhos diferentes, uma máscara que não tenha o tamanho da sua imagem ou uma imagem que não seja 2-D.\n:param convert: grava imagens RGB em tons de cinza e pilhas z como sua projeção máxima em vez de recusá-las; sem isso, elas são listadas em :attr:`SortPlan.convertible` para que quem chama possa perguntar.\n:returns: a :class:`SortPlan`.",
+      "source_sha256": "1642cc36de6f1e904e1e6aafe1c00a2617954a2c603b465000c692bdb553bb9a",
+      "text": "Decide cada movimentação, nome e verificação antes de mexer em qualquer coisa.\n\n:param folder: a pasta de imagens.\n:param sets: ``{set key: {channel: name}}``, apenas conjuntos completos.\n:param masks_dir: uma pasta de máscaras indicada explicitamente.\n:param mask_roles: ``{channel: role}``; ``None`` adivinha (:func:`default_mask_roles`); um canal ausente dele, ou que recebe ``\"none\"``, tem suas máscaras movidas, mas não mescladas.\n:param dest: a pasta nova; por padrão, ``<folder>/sorted_channels``.\n:param check_shapes: lê o tamanho de cada imagem e de cada máscara e recusa um conjunto cujas imagens tenham tamanhos diferentes, uma máscara que não tenha o tamanho da sua imagem ou uma imagem que não seja 2-D.\n:param masks: ``{image: mask path}`` que indica diretamente a máscara de cada imagem (as colunas de máscara do item 600); uma imagem ausente dele não tem nenhuma. None procura cada máscara com :func:`mask_for`.\n:param convert: grava imagens RGB em tons de cinza e pilhas z como sua projeção máxima em vez de recusá-las; sem isso, elas são listadas em :attr:`SortPlan.convertible` para que quem chama possa perguntar.\n:returns: a :class:`SortPlan`.",
       "translation_source_blocks_sha256": [
         "a4878591d46edd1a888afa468dcea279bb5a76e69222a995801d21e23e401987",
         "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
@@ -9794,6 +9795,7 @@
         "9ea2f69ceb2b8f96bce334886755530fcef97e4a79be1a0256ebb9e17e009af9",
         "f4e6a46f4fba0f5d82c2a794dddbd6efd63779d65a04e2552f6201b4286570d8",
         "d5ec331991d19d64869eb3b1a422dd5c23c09f03def5404e799d913e04c4091e",
+        "6467c122ba95cbd8a1ce59c9da016c3861359485632fdaefee0b661778576c4e",
         "ea3bd380a00d79b11341a3863a9d3b4ab4d88d1ecdd52bf5eb716a8d9f768202",
         "a89332de24fb787ed65f2d099a9ffcd11684ed342db68c883cd7117062eaf1cd"
       ]
@@ -9927,19 +9929,19 @@
     "spacr.channel_sorting.mask_for": {
       "source_blocks_sha256": [
         "3f60fea989d2144394e9ab9f1355f4ec274fdef66c60e9f501fdcb86a93a6ced",
-        "cc247a3038010bdcb359ad9ed4187c4df5217f0b6b60b6466e224d4cb5229923",
+        "2024a32aad49966055d3f9c20062bc546394f12034822774a95726a749aedd53",
         "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
-        "295bc1804dac96cf8a9c75de5cafe5496c163eff3e68e61d59c8400f5967d55c",
-        "03d9ff28d57d5453ff99df39aa4e590eba57d1831246b380b43a22730c5c816e"
+        "b7cf1b59b49693743ff79dacf8fff5f4e7fc9810df50ed5073dd0a9ddceb3276",
+        "41ed8cb0f3b3cde8d616b01fa25b490b0bcfad7b341bb4705b15ffdec64b07c1"
       ],
-      "source_sha256": "12dcacc04ca37d38b5280e6bdb92ecb1996c1f8ae007efa5de7526523b8435ff",
-      "text": "Retorna o caminho da máscara salva da imagem ``name``, ou None.\n\nO Make Masks salva cada máscara como ``<masks folder>/<stem>.tif`` (:func:`spacr.qt.mask_engine.mask_save_path`).\n\n:param folder: a pasta de imagens.\n:param name: o nome do arquivo de imagem.\n:param masks_dir: uma pasta de máscaras indicada explicitamente.",
+      "source_sha256": "f7e5e90763bcdb8a9b9e31b848d66da4ed63f98f78de42c65d102ddc1c9ee32e",
+      "text": "Retorna o caminho da máscara salva da imagem ``name``, ou None.\n\nO Make Masks salva cada máscara como ``<masks folder>/<stem>.tif`` (:func:`spacr.qt.mask_engine.mask_save_path`). Uma imagem indicada por um caminho absoluto fora de ``folder`` -- uma solta no diálogo de ordenação vinda de outro lugar, ou uma de uma subpasta de canal -- tem sua máscara no ``masks/`` da sua própria pasta.\n\n:param folder: a pasta de imagens.\n:param name: o nome do arquivo da imagem, ou um caminho absoluto.\n:param masks_dir: uma pasta de máscaras indicada explicitamente, para imagens em ``folder``.",
       "translation_source_blocks_sha256": [
         "3f60fea989d2144394e9ab9f1355f4ec274fdef66c60e9f501fdcb86a93a6ced",
-        "cc247a3038010bdcb359ad9ed4187c4df5217f0b6b60b6466e224d4cb5229923",
+        "db5f4993543f8fd2e9e4ff319905f0d7d584082d931192eab351a0ce1ef8c1f1",
         "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
-        "295bc1804dac96cf8a9c75de5cafe5496c163eff3e68e61d59c8400f5967d55c",
-        "03d9ff28d57d5453ff99df39aa4e590eba57d1831246b380b43a22730c5c816e"
+        "b7cf1b59b49693743ff79dacf8fff5f4e7fc9810df50ed5073dd0a9ddceb3276",
+        "41ed8cb0f3b3cde8d616b01fa25b490b0bcfad7b341bb4705b15ffdec64b07c1"
       ]
     },
     "spacr.channel_sorting.mask_thumbnail": {
@@ -10042,17 +10044,17 @@
       "source_blocks_sha256": [
         "56311c12a57ec81ed05b83917f7d0b26c88cfc57316ec37a5917d6091eff0be0",
         "b53c94632baea7fba0f0d31d8c50399bb2a63eaef639956aa3a318140861885b",
-        "9fc1e60082e3b59380b1a2ffe027609650fb4412615f2ee8aa826348c4f04242",
+        "9968bd6109910b5855971d698697622f2348350e802cb613b81fdfcd062994b6",
         "9c6bc6d3b2d34146a64bfdca1c59740f1c941b8ae9928ab8e10d4daf35fe8472",
         "3aec1d760fc41c58075bedf3b6bfee93d5091c8bce41cc1576fb9f0838281043",
         "514259c61036debd3fc830490d2a8731e4b2413961783e7527abba3066ff939e"
       ],
-      "source_sha256": "b7f6ac214b949efd152e02ba36a527c9bbb341efe3321adc335701109b55fd40",
-      "text": "Lê o canal e o conjunto de cada nome por meio de ``pattern``.\n\nO canal de um nome que o usuário atribuiu (``channels``) é essa atribuição; caso contrário, é a posição do seu valor ``chanID`` entre todos os valores ``chanID``, em ordem natural, contando a partir de 1. A chave do conjunto são todos os outros grupos nomeados, na ordem do padrão. Um nome ao qual o padrão não corresponde não tem conjunto.\n\n:param names: nomes de arquivos de imagem.\n:param pattern: a expressão regular, aplicada a partir do início de cada nome; vazia ou None não corresponde a nada.\n:param channels: ``{name: channel}`` da estratégia de seleção.\n:returns: um :class:`ParsedName` por nome, em ordem.",
+      "source_sha256": "735f0ad402edfa9f1e3554849311b48767916178b2012c3ad8935d16e24ec2a6",
+      "text": "Lê o canal e o conjunto de cada nome por meio de ``pattern``.\n\nO canal de um nome que o usuário atribuiu (``channels``) é essa atribuição; caso contrário, é a posição do seu valor ``chanID`` entre todos os valores ``chanID``, em ordem natural, contando a partir de 1. A chave do conjunto são todos os outros grupos nomeados, na ordem do padrão. Um nome ao qual o padrão não corresponde não tem conjunto.\n\n:param names: nomes de arquivo de imagem, ou caminhos absolutos para imagens fora da pasta; a expressão regular lê apenas o nome do arquivo.\n:param pattern: a expressão regular, aplicada a partir do início de cada nome; vazia ou None não corresponde a nada.\n:param channels: ``{name: channel}`` da estratégia de seleção.\n:returns: um :class:`ParsedName` por nome, em ordem.",
       "translation_source_blocks_sha256": [
         "56311c12a57ec81ed05b83917f7d0b26c88cfc57316ec37a5917d6091eff0be0",
         "5bf39bb9db4da139f853606f5ae8e43c4738f6f737f443801b0e840f4e1ccedb",
-        "9fc1e60082e3b59380b1a2ffe027609650fb4412615f2ee8aa826348c4f04242",
+        "9968bd6109910b5855971d698697622f2348350e802cb613b81fdfcd062994b6",
         "9c6bc6d3b2d34146a64bfdca1c59740f1c941b8ae9928ab8e10d4daf35fe8472",
         "3aec1d760fc41c58075bedf3b6bfee93d5091c8bce41cc1576fb9f0838281043",
         "514259c61036debd3fc830490d2a8731e4b2413961783e7527abba3066ff939e"
@@ -21332,6 +21334,66 @@
       "translation_source_blocks_sha256": [
         "d0e503ddd4211e0947a9a828f139dd5c2399e30bb91dab598c1d2aa06a42b904",
         "dcd08951ca90816f7dd96d53fe6936290eee8db2725255121fbe1ea75b845894"
+      ]
+    },
+    "spacr.drop_classification": {
+      "source_blocks_sha256": [
+        "ad9a9cf4fda80d7d095ebfafa9a6942726431b812f474cc00e614e3b89c22901",
+        "b24e354801f91a030e12c0d067448976a7fc8906225a1cd2e76972b5968436cb",
+        "8a7bb619524ce62d6abd7f064acc35f22a4ba1ca6725cf90381ab1fb7fc51c91",
+        "ea98616928439da96f4e5fa522ec7301974f265f312e34516a250ae766edc46a"
+      ],
+      "source_sha256": "20b6daa20e47d02088623057aac16fefef995ff30e17e045b80de154e77ea562",
+      "text": "O que foi solto no Make Masks, decidido antes de qualquer coisa ser aberta.\n\nItem 600. O Make Masks aceita que se soltem arquivos, pastas ou ambos, e o que o usuário quer dizer depende do que foi solto. :func:`classify_drop` lê os caminhos -- nomes, estrutura de pastas e, para alguns TIFFs, seus pixels -- e diz qual dos casos a seguir é, sem uma única pergunta ou widget:\n\n``images`` Arquivos de imagem (e possivelmente pastas) a abrir como uma fila, na ordem em que foram soltos. ``folder`` Uma pasta de imagens, aberta como está (máscaras no seu ``masks/``). ``nested`` Uma pasta cujas imagens ficam em subpastas: quando as subpastas parecem canais (:attr:`channel_like`), \"Organize for Measure\" com uma coluna de canal por subpasta; caso contrário, a pergunta de consolidação. ``folders`` Várias pastas, cada uma com imagens: o Make Masks abre \"Organize for Measure\" com uma coluna de canal por pasta. ``images_with_masks`` Imagens soltas junto com suas máscaras (uma pasta de máscaras, arquivos cujo nome diz máscara, ou TIFFs de rótulos inteiros com o nome de uma imagem solta): :attr:`masks` as emparelha. ``spacr_output`` Uma pasta que o spaCR escreveu (``merged/*.npy``, uma pasta ``sorted_channels`` ou a própria pasta ``merged``): :attr:`description` diz o que ela é e :attr:`open_folder` é a pasta de imagens a abrir, se houver. ``nothing`` Nada que o Make Masks possa usar.\n\nTudo o que o conteúdo solto trazia e não é nenhum desses casos -- um ``.npy``, um arquivo de texto, uma pasta vazia, uma máscara que nenhuma imagem reivindica -- fica em :attr:`unrecognised` ou :attr:`unpaired_masks`, para que a tela possa listá-lo em vez de perdê-lo.",
+      "translation_source_blocks_sha256": [
+        "ad9a9cf4fda80d7d095ebfafa9a6942726431b812f474cc00e614e3b89c22901",
+        "b24e354801f91a030e12c0d067448976a7fc8906225a1cd2e76972b5968436cb",
+        "2fcd90eec56c6dc09cb1dbcecd6a7ab4140a72729c2042df5bff430697ff0afc",
+        "ea98616928439da96f4e5fa522ec7301974f265f312e34516a250ae766edc46a"
+      ]
+    },
+    "spacr.drop_classification.DropClassification": {
+      "source_blocks_sha256": [
+        "c390879ae8d79d0cbc295f392c8bc8b28fec7a992819f21f16cb86a3d7470b2d",
+        "7414bbfc5dddcef62f69d9f0876244d84980fd437b704f273c898a2d7eade8a7",
+        "72b95df792c0743d0d49bcfccd2d6d59dab0800cee69d123097e2a5044a171d2",
+        "a4b77b71e707cbcb74eec0f1cbdd74d7c1592f140ef1d2ed7acf53812280bc20",
+        "b52d9daaf5cf388035188c1bfbb6dd47d235a333ce79c6d29534c3eabe34081d",
+        "1dae919a6e8bca76ab74a1c4e39a77ab57b2a301150733107652e17697152d85",
+        "c14f0b6bc13c0be7cd085787def914566656f6facc0bef24cc6774e7cbe8bda6",
+        "4020a1877a88a9f9dad51ea8eec2e4076ddb6e8d787383e28a2c8ea7890b9895",
+        "64da7e723f1d23c072e2c7138c88aa6bb3271e922c93123cf61eb5e4377ab28b",
+        "c3d5dec4df2fe348a03c039a640574353a73745c8949f9593a7d96b3ff165ea1",
+        "29cdf3f85d5a93da2d533c501d758624b87f861ae7eb7f089b664e92a1bae790"
+      ],
+      "source_sha256": "4cb3c873659ff25ef81cfa7e53f515ef8adc84383e551489fe9e8ef5696b142a",
+      "text": "O que é o conteúdo solto no Make Masks, e tudo o que é preciso para agir sobre ele.\n\n:ivar kind: um de ``images``, ``folder``, ``nested``, ``folders``, ``images_with_masks``, ``spacr_output`` ou ``nothing``.\n:ivar images: arquivos de imagem, absolutos, na ordem em que foram soltos (``images`` e ``images_with_masks``).\n:ivar folders: a pasta solta (``folder``, ``nested``), as pastas (``folders``) ou as pastas soltas junto com imagens avulsas (``images``).\n:ivar channel_folders: as subpastas de uma pasta ``nested`` que contêm imagens, em ordem natural; para ``folders``, as pastas soltas.\n:ivar channel_like: se cada uma de :attr:`channel_folders` parece um canal -- nomes como DAPI ou ch1, ou os mesmos campos de visão em todas.\n:ivar masks: ``{image path: mask path}`` para ``images_with_masks``.\n:ivar unpaired_masks: máscaras que nenhuma imagem solta reivindica.\n:ivar open_folder: para ``spacr_output``, a pasta de imagens a abrir, ou None quando não há nenhuma.\n:ivar description: uma frase simples que diz o que é um conteúdo solto do tipo ``spacr_output``.\n:ivar unrecognised: caminhos soltos que não são usados para nada, cada um com o motivo.",
+      "translation_source_blocks_sha256": [
+        "c390879ae8d79d0cbc295f392c8bc8b28fec7a992819f21f16cb86a3d7470b2d",
+        "7414bbfc5dddcef62f69d9f0876244d84980fd437b704f273c898a2d7eade8a7",
+        "72b95df792c0743d0d49bcfccd2d6d59dab0800cee69d123097e2a5044a171d2",
+        "a4b77b71e707cbcb74eec0f1cbdd74d7c1592f140ef1d2ed7acf53812280bc20",
+        "b52d9daaf5cf388035188c1bfbb6dd47d235a333ce79c6d29534c3eabe34081d",
+        "6a3fd11b86c3a8674b934476cba9c8667850275ffd92b73bb56429c776ab1b98",
+        "c14f0b6bc13c0be7cd085787def914566656f6facc0bef24cc6774e7cbe8bda6",
+        "4020a1877a88a9f9dad51ea8eec2e4076ddb6e8d787383e28a2c8ea7890b9895",
+        "64da7e723f1d23c072e2c7138c88aa6bb3271e922c93123cf61eb5e4377ab28b",
+        "c3d5dec4df2fe348a03c039a640574353a73745c8949f9593a7d96b3ff165ea1",
+        "29cdf3f85d5a93da2d533c501d758624b87f861ae7eb7f089b664e92a1bae790"
+      ]
+    },
+    "spacr.drop_classification.classify_drop": {
+      "source_blocks_sha256": [
+        "7cb2a9f3c889ee1826224517d43a6d8f2a2e513eda16a6643bcbe47851ff40df",
+        "6670706f8db19a67a59025bd2be84af4f25d6446a507927474c16f987977c5e4",
+        "2ba4395a4e25ed0d8e7d343fca5e065929c5ef249b404062f9665d72cb929334"
+      ],
+      "source_sha256": "2c059b51bbc9d1a514f1a3ca1b9592176dcaa01cf8387317b6b29d983f5a3cac",
+      "text": "Dizer o que é o conteúdo solto no Make Masks, sem perguntar nem abrir nada.\n\n:param paths: os arquivos e pastas soltos, na ordem em que foram soltos.\n:returns: a :class:`DropClassification`.",
+      "translation_source_blocks_sha256": [
+        "7cb2a9f3c889ee1826224517d43a6d8f2a2e513eda16a6643bcbe47851ff40df",
+        "6670706f8db19a67a59025bd2be84af4f25d6446a507927474c16f987977c5e4",
+        "2ba4395a4e25ed0d8e7d343fca5e065929c5ef249b404062f9665d72cb929334"
       ]
     },
     "spacr.embeddings": {
@@ -52666,7 +52728,7 @@
         "5c2ede49c270e3cacec8e74a093d9f8f56c5231df11b8c19e52d1220c707e05e"
       ],
       "source_sha256": "c9b42659fd7136d663bd74ffb2901ffcecc88d4379d564a95f895d03cfd07a5a",
-      "text": "O índice do site em uma posição de grade, ou None quando está vazio.\n\n:param column: O índice da coluna.\n:param row: A linha de grade absoluta.\n:returns: o índice do site, ou None fora do círculo.",
+      "text": "O índice do site em uma posição de grade, ou None quando está vazio.\n\n:param column: o índice da coluna.\n:param row: A linha de grade absoluta.\n:returns: o índice do site, ou None fora do círculo.",
       "translation_source_blocks_sha256": [
         "cbc795c42947639e4d823c957c0a26406f1bb43858e12c79e07f6f599271be00",
         "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
@@ -52691,7 +52753,7 @@
         "d77615f3844acc7c09a54d943d69b162328c176cfda972687c5a161de66ffbb4"
       ],
       "source_sha256": "1c9c10d3538b324c4f83220737486ee98761f76f1a800008384a01392f58cee6",
-      "text": "``(first row, last row)`` de uma coluna, ou  None se estiver vazia.\n\n:param column: O índice da coluna.\n:returns: o intervalo absoluto e inclusivo de linhas dos sítios cujo ladrilho inteiro está dentro do círculo -- veja :attr:`half_tile`.",
+      "text": "``(first row, last row)`` de uma coluna, ou  None se estiver vazia.\n\n:param column: o índice da coluna.\n:returns: o intervalo absoluto e inclusivo de linhas dos sítios cujo ladrilho inteiro está dentro do círculo -- veja :attr:`half_tile`.",
       "translation_source_blocks_sha256": [
         "250fe641c3b1c854e8b7b196c5e79921800a40b4c87e4d9a1c1e63fb6f854f40",
         "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
@@ -71336,16 +71398,16 @@
     },
     "spacr.qt.dnd_handlers.MakeMasksDropHandler.can_accept": {
       "source_blocks_sha256": [
-        "df310dd753f35e5e3ca37f84440ec37b1f0d4a924ec4a75592f92b19eed53c6b",
-        "4e0c3296a77271f0f3fe4f37d7812c41d161963d1a5ae93e1fec99d5ec3d84e9",
+        "66c961c2404c26e30cbb9dc2a374f3adb6d22dc64ac1c66005179ef33fa79ed9",
+        "0b463bfe023187936515c9f5f78594a1a516a222e11fa84d56c3f93baa7d842b",
         "1f800f7819df1dab2291037c2ed19a7e327af6aa03c46a42b5915f92048a45f9",
         "c104664a16c2336b1ec431168ed28b672d42347d783cafd1a1c712819bfd8cfb"
       ],
-      "source_sha256": "7923f308e7f5f5ae571cf9e0fbc043150b6efdaa038bcbd4664d99a009a9b536",
-      "text": "Um arquivo de imagem que o Make Masks abre, ou uma pasta com imagens dentro.\n\nOs pares são encontrados depois; não são exigidos aqui.\n\n:param path: o arquivo ou a pasta arrastada.\n:returns: True quando este manipulador pode usar ``path`` como está.",
+      "source_sha256": "22a0eb4e1d74c1451170df04cdbb9afa55b5202704cd568ee7d265ee38ec817a",
+      "text": "Um arquivo de imagem, um ``.npy`` ou uma pasta com imagens ou saída do spaCR.\n\nItem 600: uma pasta cujas imagens ficam só em subpastas e uma pasta que o spaCR escreveu (``merged/*.npy``, ``sorted_channels``) também são aceitas, assim como um ``.npy``, para que a tela possa dizer o que ele é; :func:`spacr.drop_classification.classify_drop` decide o que o conteúdo solto significa. Os pares são encontrados depois e não são exigidos aqui.\n\n:param path: o arquivo ou a pasta arrastada.\n:returns: True quando este manipulador pode usar ``path`` como está.",
       "translation_source_blocks_sha256": [
-        "df310dd753f35e5e3ca37f84440ec37b1f0d4a924ec4a75592f92b19eed53c6b",
-        "4e0c3296a77271f0f3fe4f37d7812c41d161963d1a5ae93e1fec99d5ec3d84e9",
+        "66c961c2404c26e30cbb9dc2a374f3adb6d22dc64ac1c66005179ef33fa79ed9",
+        "0b463bfe023187936515c9f5f78594a1a516a222e11fa84d56c3f93baa7d842b",
         "1f800f7819df1dab2291037c2ed19a7e327af6aa03c46a42b5915f92048a45f9",
         "c104664a16c2336b1ec431168ed28b672d42347d783cafd1a1c712819bfd8cfb"
       ]
@@ -96664,18 +96726,34 @@
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths": {
       "source_blocks_sha256": [
-        "78506f7bb027b6cbb03601fab8ca9b1fefaea01878a039a46b8dff62bc304b8d",
-        "688d7aed215a292b1d16cc482c05294c6fe3857388d45bca79692b30344d0e50",
+        "6b0579156a6c584df9096cab9f7b7211c548aaa35b80fbb997ea450b5476e1a9",
+        "69334d1a082d3f29421c9886c5b3eaffe80c893614f2310e735a8415bf32cc75",
+        "20bc27c6efd19fd2293d239b2032995610f1090b591b2f0055f945f87742e346",
+        "e8345bf2a6043263e97fc76701af792bf6a6a7c7c1bfab70711470f4fd8eb3c7",
+        "d6cfe7dc8f5efd9740d06ece07a39d601c18295bf1f4f87dbbe487802815feab",
+        "83b830594fc1c09a8572c7800550ccea8ad86e430a4c1cbf45127014f0c2d624",
+        "eb8b8981479f0c97da1cfd8abd5a38ef8b31ffe10d80ad6e636ca4ced9d72923",
+        "2fedcff00ed01718e70950e47986bcd38b062c74019d0a8647cb9abf473c3655",
+        "12013c1dad79f5e94c4de1e807050e6ae5e3f427773748601c9a5df2a1e16d84",
+        "76ddbfea745401621562b270d01fbe8ea4d1a133e0e085ab1a545bdcc37c4d40",
         "9baca7f3c139b3f19666cad2093c0fb906c930002a2b075fe06c91b876ed10e0",
-        "dcaa7600d687ff5164ffe3ea2c79aa76139153b9de822a610c86ad99f59f8632"
+        "cd563a28ad5739f67a3a5a5f193336cf4f639280ab55ddd5a51a1fe479d5cbc7"
       ],
-      "source_sha256": "68a3e43a785d70d8f658ed68de2b73b30d999e078b997b4e910f4d6bfbd30266",
-      "text": "Abre arquivos de imagem e pastas soltos como uma única fila, na ordem em que foram soltos.\n\nUma única pasta sozinha continua sendo o que sempre foi, :meth:`_open_folder` sobre ela. Qualquer outra coisa -- um arquivo, vários, ou arquivos e pastas juntos -- vira uma fila dos campos nomeados, com uma pasta valendo por suas imagens, e cada campo editado onde está, com sua máscara no próprio ``<folder>/masks``. Nada é copiado.\n\n:param paths: os arquivos e pastas soltos, na ordem em que foram soltos.\n:returns: se uma fila foi aberta.",
+      "source_sha256": "3037be6aa43fbc632a134190b5a9b87e0243085e9371bd717e3308a76b23e431",
+      "text": "Abrir o conteúdo solto da forma que ele indica, perguntando onde houver uma escolha.\n\nItem 600. :func:`spacr.drop_classification.classify_drop` diz o que foi solto, e:\n\n* arquivos de imagem (com ou sem pastas) abrem como uma fila, na ordem em que foram soltos, e cada campo de visão é editado onde está, com sua máscara no seu próprio ``<folder>/masks`` -- :meth:`_open_queue`;\n* uma pasta de imagens abre como está;\n* uma pasta cujas subpastas parecem canais (DAPI/, GFP/... ou os mesmos campos de visão em cada uma) abre \"Organize for Measure\" com uma coluna de canal por subpasta; qualquer outra pasta cujas imagens fiquem em subpastas é oferecida para consolidação (item 593);\n* várias pastas de imagens abrem \"Organize for Measure\" com uma coluna de canal por pasta;\n* quando essa janela pop-up é cancelada (ou ninguém pode vê-la), o conteúdo solto abre como sempre abriu: a pasta como está, ou uma fila;\n* imagens soltas com suas máscaras abrem com essas máscaras (:meth:`_open_with_masks`);\n* uma pasta que o spaCR escreveu é nomeada no console e suas imagens, se houver, são abertas -- um ``.npy`` nunca é aberto como imagem.\n\nTudo o que o conteúdo solto trazia e não é usado para nada é listado no console.\n\n:param paths: os arquivos e pastas soltos, na ordem em que foram soltos.\n:returns: se algo foi aberto ou um trabalho foi iniciado.",
       "translation_source_blocks_sha256": [
-        "333e1cb760f025ab2ff41d25f0033a4199ab0ae3e524b81e444b348359dc3fa9",
-        "4c9d9b206185094e7ca231f5c38303e20dc44a0710545f04cd7c1785c82862de",
+        "6b0579156a6c584df9096cab9f7b7211c548aaa35b80fbb997ea450b5476e1a9",
+        "69334d1a082d3f29421c9886c5b3eaffe80c893614f2310e735a8415bf32cc75",
+        "d003e3e8b18874112ef412ff58cb649caa2cee9fe6fc9fc6187b5ccf0665727d",
+        "e8345bf2a6043263e97fc76701af792bf6a6a7c7c1bfab70711470f4fd8eb3c7",
+        "00b412b6b001e45efe09acb860196dcc868c285c18cdfedab168b4d5e168238f",
+        "35c6e90be20daa5d4ff6c44dc8de329d72e5874fd853ce7def77c29039175fbd",
+        "047cbc25693460da9f386f05aec2698bce6075774959d9dda48bd4c9751e8f45",
+        "2fedcff00ed01718e70950e47986bcd38b062c74019d0a8647cb9abf473c3655",
+        "12013c1dad79f5e94c4de1e807050e6ae5e3f427773748601c9a5df2a1e16d84",
+        "76ddbfea745401621562b270d01fbe8ea4d1a133e0e085ab1a545bdcc37c4d40",
         "9baca7f3c139b3f19666cad2093c0fb906c930002a2b075fe06c91b876ed10e0",
-        "e1a4623e3752d8513cb732717c3ec93417687dfa5cfacdd3a94a65000a1eba17"
+        "cd563a28ad5739f67a3a5a5f193336cf4f639280ab55ddd5a51a1fe479d5cbc7"
       ]
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.open_queue": {
@@ -147336,6 +147414,176 @@
       "text": "Rótulos genéricos de compartimentos de levedura em gemulação associados a identificadores UniProt SL.",
       "translation_source_blocks_sha256": [
         "b67c3179d03df095c53c366af73aff8af64e6edbeef9cec6493244b5098fd18a"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure": {
+      "source_blocks_sha256": [
+        "6cb4ef09b5cdf634a7b8d12853f34f8e76ea887498be2266b929e2bec41f6796",
+        "4145d60284cd1c41324b691b5ceb3a7b1e50f5918b463f4cdfb711ecf8072e33",
+        "9d111e1d9a8ee2f9eef5767008047ac51afa9eb6bc97e1c337baf45afedfce9f",
+        "6d8587d4ae76e72a79c7014dee17ff01439a7f2b577816891e0a85f00c4bec42",
+        "4ff01b34b6bfcb85a3de600d0806f7aeef29b14e0550bddcc26aed63c2284865",
+        "41ea8b601e3b5fa7c1b65944416e770f4909ab6bcbb0e5111b0175b5475732b1",
+        "d94e3d62d3ee1ba13d3fa35dfd88a2560d6e07f69cdabe851e4d0453a237ae2d"
+      ],
+      "source_sha256": "2db3bf33d280f5cf88216d3a5ec058b59bb7e48cd4e8e8611fab47e6ad3f65ce",
+      "text": "A janela pop-up \"Organize for Measure…\" do Make Masks: imagens e máscaras para merged/.\n\nItem 600, que substitui como ponto de entrada a sequência de perguntas do item 593 e seu diálogo separado \"Sort into channels\". UMA única janela pop-up coloca as imagens e suas máscaras na estrutura que o Measure lê -- pastas de canal com nomes Yokogawa, as máscaras e ``merged/*.npy`` -- por meio de :mod:`spacr.channel_sorting` e :mod:`spacr.folder_consolidation`, que tomam todas as decisões:\n\n* uma pasta de ORIGEM (digitada, escolhida pelo navegador de arquivos ou solta), opcionalmente consolidada antes (as imagens das suas subpastas copiadas para uma só pasta, com o nome das suas pastas);\n* a caixa REGEX: o próprio campo ``metadata_type`` da geração de máscaras -- o mesmo menu agrupado de convenções, exemplo e \"Test on my folder\" -- com seu ``custom_regex``, mais \"Sort by regex\", \"Auto regex\" e \"Detect sets\";\n* as DIMENSÕES: quais colunas são canais de imagem e quais são máscaras, cada máscara com seu papel (célula, núcleo, patógeno) e o canal cujas imagens ela contorna;\n* uma TABELA com uma coluna por canal e por máscara e uma linha por campo de visão. Cada coluna aceita arquivos e pastas soltos a partir do gerenciador de arquivos (uma pasta traz suas imagens, recursivamente) e células arrastadas de outra coluna. Os arquivos soltos se ordenam sozinhos por nome e são emparelhados entre as colunas do mesmo modo que Detect sets emparelha imagens -- tokens do nome do arquivo, depois a ordem, nunca duas imagens de tamanhos diferentes (:func:`spacr.channel_sorting. _match_columns`). Uma célula sem correspondência fica vazia e marcada.\n\nModo 1: preencher a origem, escolher ou testar a expressão regular, clicar em \"Sort by regex\", Apply. Modo 2: preencher as colunas soltando arquivos, Apply. Modo 3, \"Teach me…\": responder \"Que canal é este?\" para uma imagem por vez enquanto o spaCR aprende uma expressão regular a partir das respostas (:func:`spacr.channel_sorting._teach_step`), até que todas as imagens estejam posicionadas. Cada modo funciona sem os outros. Uma pasta criada por consolidação de pastas é lida pelos nomes ORIGINAIS dos seus arquivos, a partir do seu ``rename_manifest.csv``, porque os nomes das cópias podem ter perdido o que distinguia os canais. Apply constrói um :class:`spacr.channel_sorting.SortPlan`; linhas incompletas o bloqueiam (é na caixa de regex que se corrigem), imagens RGB e pilhas z são oferecidas para conversão, e os conjuntos detectados são mostrados de três em três antes de serem usados. Nada é movido antes de Apply; a tela aplica o plano fora da thread da GUI e cada movimentação é gravada no manifesto.",
+      "translation_source_blocks_sha256": [
+        "6cb4ef09b5cdf634a7b8d12853f34f8e76ea887498be2266b929e2bec41f6796",
+        "d35590b78f8bf25b5d3d4ba86fb5633f36bfc76ba6d000a9ef706aa82ab9a548",
+        "9d111e1d9a8ee2f9eef5767008047ac51afa9eb6bc97e1c337baf45afedfce9f",
+        "887556b35044dbeb745bdf7fd04ac055f65385b81f73e54e6cf44092446af8a3",
+        "2246ac0ebcebcc13660ebb0e6c13732413bb3820b023b86236ab602fec49a5c8",
+        "b826e41739fdb98f46d8f5a2a85a1d4e570470331c3757c5ae5f0ac5d3d4e301",
+        "5767c39e8e7115f0d9abd3e402c2ff2db1f591c5804cefbc08b4a4c1b76d1629"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog": {
+      "source_blocks_sha256": [
+        "1f5bb1a631f9832bcc2f85b17cea30bd164acf5c5a713bb14bc83476d81a79e4",
+        "7ee838bf58d9792485c18c0718ae75b87afe0f8b4d5fe89a0842a269d30f4341",
+        "d6aafdbd667cab426269e95e66de4be7299cca05461ec6c06b06721f1a58d59c",
+        "0bb4337e35954672b73822e6318891bf40672273437bc4ec06979d012695be80",
+        "c0d50783d54de8fe4ef572ca6834debeece4b21278651c1f86d0f4b05178dec2",
+        "4d4eda03aac613dbdc47dfafe4fcd371e521bfd627313feecb6471f8abf1d7b2",
+        "36dbf6c3c4c25be8f2680dc5d420957758f46935e4f07ee97f4b6e452e75713b",
+        "2facb0e5ff8aad94c303616963c1b9c26fa93314472c23b42414a9934b267838",
+        "a29ee4e01cd895f219234770e0346394dc467bac4021ee201a27a54c9e15a04a"
+      ],
+      "source_sha256": "6743d358f60f4cae531330030c38531bc0ae1d25ae0198f520a584780525ac2c",
+      "text": "Colocar imagens e máscaras em pastas de canal e em ``merged/`` para o Measure.\n\n:ivar plan: o :class:`spacr.channel_sorting.SortPlan` confirmado quando o diálogo é aceito; senão, None.\n:ivar columns: as colunas da tabela, em ordem.\n:ivar rows: uma lista por campo de visão, um caminho ou None por coluna.\nConstruir a janela pop-up, pré-preenchida a partir do conteúdo solto quando houver.\n\n:param source: a pasta de origem, se conhecida.\n:param parent: o pai no Qt.\n:param channel_folders: pastas a colocar na tabela, uma coluna de canal cada (suas máscaras do ``masks/`` de cada pasta) -- o conteúdo solto no Make Masks de várias pastas ou de subpastas com aspecto de canal.\n:param masks_dir: a pasta de máscaras da origem, quando não é o seu ``masks/``.",
+      "translation_source_blocks_sha256": [
+        "e4b443dab79e828474848717ca2410d0b49b3fcf55501a231eec454c1e04d196",
+        "7ee838bf58d9792485c18c0718ae75b87afe0f8b4d5fe89a0842a269d30f4341",
+        "d6aafdbd667cab426269e95e66de4be7299cca05461ec6c06b06721f1a58d59c",
+        "0bb4337e35954672b73822e6318891bf40672273437bc4ec06979d012695be80",
+        "c0d50783d54de8fe4ef572ca6834debeece4b21278651c1f86d0f4b05178dec2",
+        "4d4eda03aac613dbdc47dfafe4fcd371e521bfd627313feecb6471f8abf1d7b2",
+        "36dbf6c3c4c25be8f2680dc5d420957758f46935e4f07ee97f4b6e452e75713b",
+        "96ab7d937a69535c41db4abc5967d077c8f2dc38d1f4804174b5eb5417f09229",
+        "a29ee4e01cd895f219234770e0346394dc467bac4021ee201a27a54c9e15a04a"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_column": {
+      "source_blocks_sha256": [
+        "2641b634df46e3385037ab7d8a77569cf1039dbfa65a56576d08d2ce50e7ce67",
+        "864b7ee05625d04120c4ffc847149a370175bd329cf45805d0e35f4690773607",
+        "7a6d1b0d485bddb32e9057db9dabcf738354442c717e2f2534161f6b545f4b2b",
+        "f019173af7e388dcab2b4f00269989de516de9433e0ee1b4a3f0d80ac4d995b1",
+        "540fb85407c8b0d458f43d9964400a8fda7f08ca91846dcf3f7d3326c6d00e30"
+      ],
+      "source_sha256": "26049d6de954322b95fe3d43af8bf71520b61e7c0eb7d6fa249f1f002854901b",
+      "text": "Adicionar uma coluna de canal ou de máscara no final.\n\n:param kind: ``\"channel\"`` ou ``\"mask\"``.\n:param role: o papel de uma máscara; por padrão, o primeiro papel que nenhuma máscara tem.\n:param of_channel: o canal de uma máscara; por padrão, o primeiro canal sem coluna de máscara, senão 1.\n:returns: o índice da nova coluna.",
+      "translation_source_blocks_sha256": [
+        "b0e32794f5b6fd327549b67fc65c7104df1e906b35ca40383bd0fbe1832b5471",
+        "864b7ee05625d04120c4ffc847149a370175bd329cf45805d0e35f4690773607",
+        "7a6d1b0d485bddb32e9057db9dabcf738354442c717e2f2534161f6b545f4b2b",
+        "7f23542436b05cf8bf88884ebb93c10602dabaee922ce235f9f3a15bea66d891",
+        "540fb85407c8b0d458f43d9964400a8fda7f08ca91846dcf3f7d3326c6d00e30"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_files": {
+      "source_blocks_sha256": [
+        "50ebb0e149d514dcf3cda6d7ebb396cee7f9a65345063815713762a74870d54d",
+        "2cceb8ec59a9aa679d44e507771b2650a34e09cfc64506e731de7ada4074ad5a",
+        "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
+        "0c0e0d1bf62e16a58806f2b6ba607ddfae14596fa5873316930dd850310f4346",
+        "257ee22b60c38f1f6f06e9426816c63e55450a4322172495f7d803963259cb0f",
+        "9c509e9a13c633b3381d27774e7ce1c2b4c5cf2058a268a89c8164ffdb124b28"
+      ],
+      "source_sha256": "5cd887c739876df1cba534ae2330b55e7449ccb39e7800ec434d598af6bbb853",
+      "text": "Colocar arquivos e pastas soltos em uma coluna e emparelhar as linhas.\n\nUma pasta traz suas imagens, recursivamente, mas não o seu ``masks/``. Imagens soltas em uma coluna de canal trazem as máscaras que o Make Masks salvou para elas (``<their folder>/masks/<stem>.tif``) para a coluna de máscara desse canal, que é criada quando não existe. Um arquivo que já está na tabela é movido para esta coluna. Nada muda no disco.\n\n:param column: o índice da coluna.\n:param paths: arquivos e pastas.\n:param rematch: emparelhar as linhas depois (desativado durante o pré-preenchimento).\n:returns: os arquivos de imagem adicionados.",
+      "translation_source_blocks_sha256": [
+        "50ebb0e149d514dcf3cda6d7ebb396cee7f9a65345063815713762a74870d54d",
+        "06c1b0c1bf423dae4c25a5836698da2e77fda3ba0917459edc909d208bad9860",
+        "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
+        "0c0e0d1bf62e16a58806f2b6ba607ddfae14596fa5873316930dd850310f4346",
+        "257ee22b60c38f1f6f06e9426816c63e55450a4322172495f7d803963259cb0f",
+        "9c509e9a13c633b3381d27774e7ce1c2b4c5cf2058a268a89c8164ffdb124b28"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.auto_regex": {
+      "source_blocks_sha256": [
+        "e375aa07c953c6e44115664a813acd061bee5445c7f0fa12da10a4a52d6134b3",
+        "d19406193a833a7f5fb2384d12f2a6c8f6d04d93ec964a2b083ff324ef2ad896"
+      ],
+      "source_sha256": "831da0d321fdbda1d4ef60fbc451c0b5bb6e5636fc94a08fbf7fcd35de374a39",
+      "text": "Propor uma expressão regular, colocá-la em custom_regex e ordenar por ela.\n\n:returns: a expressão regular, ou None quando nenhuma foi encontrada.",
+      "translation_source_blocks_sha256": [
+        "e375aa07c953c6e44115664a813acd061bee5445c7f0fa12da10a4a52d6134b3",
+        "d19406193a833a7f5fb2384d12f2a6c8f6d04d93ec964a2b083ff324ef2ad896"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.detect_sets": {
+      "source_blocks_sha256": [
+        "de00bf943a71e8f1ecc988e5eff7126ce2c3eb10dab495a4ee72cba4a4870a40",
+        "19fe6675bc9ab8c20dfc3f07ee94d1b247bfcddea2addb9af12145607041c555",
+        "b75284420f01f5b0606735b93f9a794d9f0d9ab18da07518e9c3ab44218cec81"
+      ],
+      "source_sha256": "a29515f501f7a7b717853ab082e82b27e6b834dea08b9ba145bed5fbef0d71fb",
+      "text": "Emparelhar os arquivos das colunas por nome, ordem e tamanho, e conferir três.\n\nCom a tabela vazia e uma pasta de origem, a origem é primeiro ordenada pela expressão regular, para obter seus canais. Os conjuntos são mostrados de três em três (:class:`spacr.qt.widgets.channel_sort_dialog.ExampleSetsDialog`) e só são mantidos quando o usuário confirma que estão corretos.\n\n:returns: se os conjuntos detectados foram mantidos.",
+      "translation_source_blocks_sha256": [
+        "de00bf943a71e8f1ecc988e5eff7126ce2c3eb10dab495a4ee72cba4a4870a40",
+        "19fe6675bc9ab8c20dfc3f07ee94d1b247bfcddea2addb9af12145607041c555",
+        "b75284420f01f5b0606735b93f9a794d9f0d9ab18da07518e9c3ab44218cec81"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.prepare_plan": {
+      "source_blocks_sha256": [
+        "7565a3846eac9b1e672b01183b9d19900a09aa3ff4bda2449edd55234fe25b5d",
+        "4b415e01f3f299799068a41ac06a10ee2360d49c1a4b92b6bdb25780831a1da7",
+        "ee34f95d670f4acd170c298e14397d489fa5f0d5a88dcac9588072f9106ba6f9"
+      ],
+      "source_sha256": "f58883cc58cb21d2c96efa0a751b0f16bd7c6b78bb37672452a249c14e58503a",
+      "text": "Construir o plano a partir da tabela, ou None enquanto houver linhas incompletas.\n\n:param convert: converte imagens RGB e pilhas z em um único plano.\n:returns: o plano, que ainda pode ter problemas.",
+      "translation_source_blocks_sha256": [
+        "7565a3846eac9b1e672b01183b9d19900a09aa3ff4bda2449edd55234fe25b5d",
+        "4d8beba79b5a664643693178d4f756fc82114a24e9d46d808ae72cc4ff080bd4",
+        "ee34f95d670f4acd170c298e14397d489fa5f0d5a88dcac9588072f9106ba6f9"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.remove_column": {
+      "source_blocks_sha256": [
+        "9d07705f2db4150a8646bbce1bdd3012a374243e90a0de1b9b94fde2c049cb76",
+        "1292b0b4037eddcee0242184c4b73a894c7b993d634f028768e10593fd984a6c"
+      ],
+      "source_sha256": "3acfa134a96b4919f5607edd816c0fcaf34de6258965db6dc4cae44e1733ae09",
+      "text": "Remover uma coluna e seus arquivos da tabela.\n\n:param index: a coluna.",
+      "translation_source_blocks_sha256": [
+        "9d07705f2db4150a8646bbce1bdd3012a374243e90a0de1b9b94fde2c049cb76",
+        "1292b0b4037eddcee0242184c4b73a894c7b993d634f028768e10593fd984a6c"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.sort_by_regex": {
+      "source_blocks_sha256": [
+        "8b0f39440497d1c599b815a9a795730da94ec11c270acb8345423011053573c1",
+        "7c2f533c4c899b17ab32b3f0ff84b402b90792be327b6cd6d8892fed5313d128",
+        "7a48da9dc7a2ecce085f8ceb9bc8ab2e2a0fa861b4061f06eddd500b16ca80a2",
+        "ab0376b6557e1870089c7de4ce9e67825cd5ab16df97984dae13d62623583689",
+        "56214aaa5e6d9ecb5b3ced90b75fb16011476abec1dd20375ef5333af5b97015"
+      ],
+      "source_sha256": "cee9c78b689bf5558eff2b0b78f9104b82574d37e6391d7a048348e38905746c",
+      "text": "Preencher a tabela a partir da expressão regular: chanID é a coluna, o resto a linha.\n\nCom uma pasta de origem, suas imagens são lidas (consolidadas antes, quando solicitado) e suas máscaras são encontradas onde o Make Masks as salva; sem ela, os arquivos que já estão nas colunas de canal são reordenados, cada um mantendo sua coluna. As máscaras vão para uma coluna de máscara por canal. Uma máscara compartilhada por duas imagens (dois arquivos com a mesma raiz) é deixada de fora e nomeada.\n\n:param pattern: a expressão regular; por padrão, a que a caixa de regex representa.\n:param chan_map: ``{chanID value: label}`` aprendido por \"Teach me\", sendo um rótulo ``(\"channel\", n)`` ou ``(\"mask\", n, role)``; por padrão, os valores chanID da expressão regular são canais em ordem natural.\n:returns: o relatório de conjuntos, ou None quando não havia nada para ler.",
+      "translation_source_blocks_sha256": [
+        "8b0f39440497d1c599b815a9a795730da94ec11c270acb8345423011053573c1",
+        "d5fa89a15afc858970a9a108392a24b0036b5e1d4cf4734fed696ecacc27d3f6",
+        "7a48da9dc7a2ecce085f8ceb9bc8ab2e2a0fa861b4061f06eddd500b16ca80a2",
+        "ab0376b6557e1870089c7de4ce9e67825cd5ab16df97984dae13d62623583689",
+        "56214aaa5e6d9ecb5b3ced90b75fb16011476abec1dd20375ef5333af5b97015"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.teach": {
+      "source_blocks_sha256": [
+        "d25a2ecbec156ca244d1a52aed362848f4c6bd4c165513e91f7bede06b37516c",
+        "f7d2dd8c178d87a019144521ac33a3c2c1ec36effa3fd4138ea514ebb17f0b2b",
+        "a781a71325a8e99dddb2a81975c4fd4a59f8120ec64619494e2e317ee4efe511"
+      ],
+      "source_sha256": "ae44f14014355ef9639767f7eb5fa781be94c84cbd2f82baa5cd071121784adf",
+      "text": "\"Teach me\": perguntar o que são as imagens até que uma expressão regular posicione todas.\n\nUma imagem é mostrada por vez com \"Que canal é este?\" (:attr:`ask_label`). A partir das respostas, :func:`spacr.channel_sorting._teach_step` aprende o que nos nomes marca cada canal ou máscara e escreve uma expressão regular; cada novo marcador é confirmado com :attr:`ask_marker` (um canal, uma máscara ou apenas parte do nome do campo de visão). A tabela vai sendo preenchida, e a expressão regular é colocada em custom_regex, onde pode ser editada. Termina quando todas as imagens estão posicionadas ou quando o usuário manda parar.\n\n:returns: a expressão regular aprendida, ou None quando nenhuma foi aprendida.",
+      "translation_source_blocks_sha256": [
+        "d25a2ecbec156ca244d1a52aed362848f4c6bd4c165513e91f7bede06b37516c",
+        "3a5d983aba14e296d3b558c90f5d580e39a921e20661572bf9dbb9bb8a8c87a0",
+        "a781a71325a8e99dddb2a81975c4fd4a59f8120ec64619494e2e317ee4efe511"
       ]
     },
     "spacr.qt.widgets.outlier_model": {
