@@ -1195,7 +1195,11 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 598, 2026-09-30: the contribute dialogs' dataset-link caption and the
 # thank-you caption before the pull request's link.
 # 316, 2026-09-30 (tenth pass): 598's two captions have rows; empty again.
-_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset()
+# 563, 2026-09-30: the Control Charts anomaly table's Control percentile
+# column (alpha), after the real-screen check ranked wells by it.
+_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    "Control percentile",
+})
 
 
 

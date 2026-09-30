@@ -4087,16 +4087,20 @@ class _AnomalyResult:
     control it is.
 
     ``cells`` has one row per object: ``plateID``, ``well``, ``role``,
-    ``score`` (larger is less like the controls), ``control_percentile``
+    ``score`` (the larger of the object's control percentiles inside and
+    off the controls' principal subspace; larger is less like the
+    controls), ``control_percentile``
     (the share of control objects scoring lower), ``outlier`` (beyond the
     controls' ``quantile``), ``pc1``/``pc2`` (the first two principal
     components of the control population) and ``source_row`` (the row of
     the input table), plus whichever identity columns the input carried.
-    ``wells`` has one row per well: ``n``, ``median_score``,
+    ``wells`` has one row per well: ``n``, ``mean_percentile`` (the mean
+    control percentile of its objects, 0.5 for a control-like well),
+    ``median_score``,
     ``outlier_fraction``, ``enrichment`` (outlier fraction over the rate
     expected in controls), ``anomaly_z`` (robust z of the median score
     against the control wells), ``known_hit`` and ``rank`` (non-control
-    wells, most unlike the controls first).
+    wells by ``mean_percentile``, most unlike the controls first).
     """
 
     cells: pd.DataFrame
@@ -4137,6 +4141,7 @@ class _AnomalyResult:
             top = ranked.iloc[0]
             lines.append(
                 f"Most unlike the controls: {top['plateID']} {top['well']}, "
+                f"mean control percentile {top['mean_percentile']:.2f}, "
                 f"{100 * top['outlier_fraction']:.1f}% outliers "
                 f"({top['enrichment']:.2g}x the control rate).")
         if self.auroc is not None:
@@ -4207,6 +4212,44 @@ def _anomaly_detector(method: str, reference: np.ndarray, *,
     return lambda points: -model.score_samples(points)
 
 
+def _anomaly_halves(control_index: np.ndarray, plates, rows, cols,
+                    rng) -> Tuple[np.ndarray, np.ndarray]:
+    """Split the control objects in two for cross-fitting, whole wells apart.
+
+    Objects of one well share its image, focus and density, so a well split
+    across both halves would let a model see a control's well-mates. Wells
+    are dealt, largest first in random order, to the half with fewer
+    objects. With a single control well, or when whole wells leave a half
+    with fewer than two objects, the objects are split at random instead.
+
+    :param control_index: row positions of the control objects.
+    :param plates: plate of every row.
+    :param rows: plate row of every row.
+    :param cols: plate column of every row.
+    :param rng: a numpy random generator.
+    :returns: the two halves as sorted row positions.
+    """
+    keys = np.asarray([f"{plates[i]}|{rows[i]}|{cols[i]}"
+                       for i in control_index], dtype=object)
+    names, counts = np.unique(keys, return_counts=True)
+    if len(names) >= 2:
+        order = rng.permutation(len(names))
+        order = order[np.argsort(-counts[order], kind="stable")]
+        side = {}
+        sizes = [0, 0]
+        for position in order:
+            half = 0 if sizes[0] <= sizes[1] else 1
+            side[names[position]] = half
+            sizes[half] += int(counts[position])
+        first = np.asarray([side[k] == 0 for k in keys], dtype=bool)
+        if min(sizes) >= 2:
+            return (np.sort(control_index[first]),
+                    np.sort(control_index[~first]))
+    shuffled = rng.permutation(control_index)
+    return (np.sort(shuffled[: len(shuffled) // 2]),
+            np.sort(shuffled[len(shuffled) // 2:]))
+
+
 def _auroc(positive: np.ndarray, negative: np.ndarray) -> Optional[float]:
     """Area under the ROC curve of ``positive`` scored above ``negative``.
 
@@ -4247,18 +4290,31 @@ def _score_anomalies(frame: pd.DataFrame, *,
     (``emb_...``) are used when the table has them, measurement features
     otherwise.
 
-    The control objects are scored cross-fitted: the controls are split in
-    two, a detector is fitted on each half and each half is scored by the
-    other half's detector, so a control is never scored by a model that saw
-    it. Every other object gets the mean of the two detectors' scores. The
-    outlier threshold is the ``quantile`` of the cross-fitted control
-    scores, which makes the control outlier rate ``1 - quantile`` by
-    construction and every well's ``enrichment`` a ratio to that rate.
+    Each object gets two scores: the detector's, inside the controls'
+    principal subspace, and its distance off that subspace (the part of the
+    object the controls' components cannot reconstruct), because a
+    phenotype can change features the controls hardly vary in. The object's
+    ``score`` is the larger of its two control percentiles, so it lies in
+    [0, 1] and a control-like object sits near 0.5; ties between objects
+    beyond every control are broken by their distances.
 
-    Wells are ranked by outlier fraction, then by median score. Known hits
-    (positive-control wells, and wells whose well name, ``prc``, treatment
-    or control label is in ``known_hits``) give the AUROC of the ranking
-    against the negative-control wells.
+    The control objects are scored cross-fitted: the control wells are split
+    in two (objects are split when there is a single control well), the
+    principal components and a detector are fitted on each half and each
+    half is scored by the other half's model, so a control is never scored
+    by a model that saw it or its well-mates. Every other object gets the
+    mean of the two models' scores. The outlier threshold is the
+    ``quantile`` of the cross-fitted control scores, which makes the control
+    outlier rate ``1 - quantile`` by construction and every well's
+    ``enrichment`` a ratio to that rate.
+
+    Wells are ranked by the mean control percentile of their objects
+    (``mean_percentile``; 0.5 for a well like the controls), then by median
+    score. The mean uses every object, so it separates wells more reliably
+    than the outlier fraction when a well has a few dozen objects. Known
+    hits (positive-control wells, and wells whose well name, ``prc``,
+    treatment or control label is in ``known_hits``) give the AUROC of the
+    ranking against the negative-control wells.
 
     All detectors are classical and run on the CPU: ``mahalanobis`` (a
     minimum-covariance-determinant robust Mahalanobis distance), ``knn``
@@ -4391,21 +4447,45 @@ def _score_anomalies(frame: pd.DataFrame, *,
     if len(control_index) > int(max_reference):
         control_index = np.sort(rng.choice(control_index, int(max_reference),
                                            replace=False))
-    n_keep = int(max(1, min(int(components), scaled.shape[1],
-                            len(control_index) // 2 - 1)))
-    pca = PCA(n_components=n_keep, random_state=seed)
-    pca.fit(scaled[control_index])
-    embedded = pca.transform(scaled)
+    view = PCA(n_components=int(min(2, scaled.shape[1])),
+               random_state=seed).fit(scaled[control_index])
+    embedded = view.transform(scaled)
 
-    shuffled = rng.permutation(control_index)
-    halves = (np.sort(shuffled[: len(shuffled) // 2]),
-              np.sort(shuffled[len(shuffled) // 2:]))
-    detectors = [_anomaly_detector(method, embedded[half],
-                                   neighbours=neighbours, seed=seed)
-                 for half in halves]
-    scores = 0.5 * (detectors[0](embedded) + detectors[1](embedded))
-    scores[halves[1]] = detectors[0](embedded[halves[1]])
-    scores[halves[0]] = detectors[1](embedded[halves[0]])
+    halves = _anomaly_halves(control_index, plates, rows, cols, rng)
+    n_keep = int(max(1, min(int(components), scaled.shape[1],
+                            min(len(h) for h in halves) - 1)))
+    squared = np.einsum("ij,ij->i", scaled, scaled)
+    inside, outside = [], []
+    for half in halves:
+        pca = PCA(n_components=n_keep, random_state=seed).fit(scaled[half])
+        coords = pca.transform(scaled)
+        detector = _anomaly_detector(method, coords[half],
+                                     neighbours=neighbours, seed=seed)
+        inside.append(detector(coords))
+        mean = pca.mean_
+        off = (squared - 2.0 * scaled @ mean + float(mean @ mean)
+               - np.einsum("ij,ij->i", coords, coords))
+        outside.append(np.sqrt(np.maximum(off, 0.0)))
+
+    def _cross_fitted(pair):
+        joined = 0.5 * (pair[0] + pair[1])
+        joined[halves[1]] = pair[0][halves[1]]
+        joined[halves[0]] = pair[1][halves[0]]
+        return joined
+
+    parts = [_cross_fitted(inside), _cross_fitted(outside)]
+    ranked_parts = []
+    beyond = np.zeros(len(scaled))
+    for part in parts:
+        reference = np.sort(part[control_index])
+        ranked_parts.append(np.searchsorted(reference, part, side="left")
+                            / float(len(reference)))
+        top = float(reference[-1])
+        spread_part = top - float(np.median(reference))
+        excess = (part - top) / (spread_part if spread_part > 0 else 1.0)
+        beyond = np.maximum(beyond, np.maximum(excess, 0.0))
+    scores = (np.maximum(ranked_parts[0], ranked_parts[1])
+              + 1e-6 * beyond / (1.0 + beyond))
     reference_scores = np.sort(scores[control_index])
     threshold = float(np.quantile(reference_scores, float(quantile)))
     percentile = (np.searchsorted(reference_scores, scores, side="left")
@@ -4439,6 +4519,7 @@ def _score_anomalies(frame: pd.DataFrame, *,
         "prc": grouped["prc"].first(),
         "n": grouped.size(),
         "role": grouped["role"].agg(_well_mode),
+        "mean_percentile": grouped["control_percentile"].mean(),
         "median_score": grouped["score"].median(),
         "outlier_fraction": grouped["outlier"].mean(),
     })
@@ -4466,12 +4547,14 @@ def _score_anomalies(frame: pd.DataFrame, *,
                 known |= wells[column].astype(str).isin(wanted).to_numpy()
     wells["known_hit"] = known & ~is_negative
     order = (wells[~is_negative]
-             .sort_values(["outlier_fraction", "median_score"],
+             .sort_values(["mean_percentile", "median_score"],
                           ascending=False).index)
     wells["rank"] = np.nan
     wells.loc[order, "rank"] = np.arange(1, len(order) + 1, dtype=float)
 
-    well_key = wells["outlier_fraction"] + 1e-9 * wells["median_score"].rank()
+    well_key = pd.Series(np.lexsort((wells["median_score"].to_numpy(),
+                                     wells["mean_percentile"].to_numpy()))
+                         .argsort().astype(float), index=wells.index)
     auroc = _auroc(well_key[wells["known_hit"]], well_key[is_negative])
     cell_auroc = None
     if auroc is not None:

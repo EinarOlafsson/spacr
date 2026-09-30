@@ -1,0 +1,417 @@
+# spaCR user guide translation (sv).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: sv\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Database concurrency audit"
+msgstr "Granskning av samtidighet i databasen"
+
+msgid "spaCR's measurement workers, annotation writer, run-status ledger, schema migrations, and Database Browser can access the same SQLite file from different processes or threads. The shared :mod:`spacr.database_concurrency` contract makes those accesses explicit:"
+msgstr "spaCR:s mätprocesser, annoteringsskrivare, statusliggare för körningar, schemamigreringar och Databasutforskare kan komma åt samma SQLite-fil från olika processer eller trådar. Det gemensamma kontraktet i :mod:`spacr.database_concurrency` gör dessa åtkomster uttryckliga:"
+
+msgid "every thread or process owns and closes its own connection;"
+msgstr "varje tråd eller process äger och stänger sin egen anslutning;"
+
+msgid "every connection has a finite ``busy_timeout`` and foreign-key enforcement;"
+msgstr "varje anslutning har en ändlig ``busy_timeout`` och kontroll av främmande nycklar;"
+
+msgid "read-only work uses SQLite ``mode=ro`` plus ``query_only``;"
+msgstr "skrivskyddat arbete använder SQLite ``mode=ro`` plus ``query_only``;"
+
+msgid "multi-statement writes use ``BEGIN IMMEDIATE`` and roll back completely on a body or commit failure;"
+msgstr "skrivningar med flera satser använder ``BEGIN IMMEDIATE`` och rullas tillbaka helt vid fel i kroppen eller vid commit;"
+
+msgid "only lock/busy failures while acquiring a transaction are retried, with a bounded exponential backoff;"
+msgstr "bara lås- och upptagetfel när en transaktion påbörjas försöks igen, med en begränsad exponentiell backoff;"
+
+msgid "an exhausted lock budget raises :class:`spacr.database_concurrency.DatabaseBusy` instead of dropping a write or continuing silently."
+msgstr "en uttömd låsbudget utlöser :class:`spacr.database_concurrency.DatabaseBusy` i stället för att en skrivning tappas eller körningen fortsätter i tysthet."
+
+msgid "Measurement writes retain their specialized recovery for concurrent ``CREATE TABLE`` and schema-widening races. Run-status table creation and row insertion are one atomic transaction. Database Browser edit validation and its single-row update also share one transaction, so a row address cannot change between the check and the write. Resume's multi-table delete-before-remeasure validates and deletes under one retried write transaction. Annotate preserves the configured journal mode, rolls back a failed coalesced batch, retains an unsaved/error state, and reports that state in the module instead of marking a failed commit as saved."
+msgstr "Mätskrivningar behåller sin specialiserade återhämtning vid samtidiga kapplöpningar kring ``CREATE TABLE`` och schemautvidgning. Skapandet av statustabellen för körningar och infogningen av rader är en enda atomisk transaktion. Databasutforskarens validering av redigeringar och dess uppdatering av en rad delar också en transaktion, så att en radadress inte kan ändras mellan kontrollen och skrivningen. Återupptagningens borttagning i flera tabeller före ommätning validerar och tar bort under en enda skrivtransaktion som försöks igen. Annotering behåller det konfigurerade journalläget, rullar tillbaka en misslyckad sammanslagen batch, behåller ett osparat tillstånd eller feltillstånd och rapporterar det tillståndet i modulen i stället för att markera en misslyckad commit som sparad."
+
+msgid "Journal mode and network storage"
+msgstr "Journalläge och nätverkslagring"
+
+msgid "spaCR enables WAL only where it is known to be safe. WAL lets readers proceed without blocking a committing writer, but SQLite's WAL index requires shared-memory coordination and is not safe on many NFS, SMB, NAS, or distributed filesystems. Before a Measure run, :func:`spacr.database_concurrency.enable_wal_where_safe` switches ``measurements/measurements.db`` to WAL only when its filesystem is positively identified as a local type on an allowlist (ext4, XFS, Btrfs, ZFS, APFS, tmpfs and similar); network, unrecognised and undetectable filesystems keep the rollback (``DELETE``) journal. Other databases retain their journal mode unless a caller explicitly requests ``WAL`` or ``DELETE``."
+msgstr "spaCR aktiverar WAL bara där det är känt att vara säkert. WAL låter läsare fortsätta utan att blockera en skrivare som gör commit, men SQLite:s WAL-index kräver samordning via delat minne och är inte säkert på många NFS-, SMB-, NAS- eller distribuerade filsystem. Före en körning av Mätning växlar :func:`spacr.database_concurrency.enable_wal_where_safe` ``measurements/measurements.db`` till WAL bara när dess filsystem positivt har identifierats som en lokal typ på en godkänd lista (ext4, XFS, Btrfs, ZFS, APFS, tmpfs och liknande); nätverksfilsystem, okända filsystem och filsystem som inte kan identifieras behåller återställningsjournalen (``DELETE``). Andra databaser behåller sitt journalläge om inte en anropare uttryckligen begär ``WAL`` eller ``DELETE``."
+
+msgid ":func:`spacr.database_concurrency.inspect_database` reports the active journal mode, filesystem type, lock timeout, SQLite threading level, sidecar sizes, and optional ``PRAGMA quick_check`` result. It emits a warning when it detects WAL on a known network filesystem. Filesystem detection is advisory: storage inside a container or automounter can conceal its actual backing system, so vendor guidance remains authoritative."
+msgstr ":func:`spacr.database_concurrency.inspect_database` rapporterar aktivt journalläge, filsystemstyp, låstidsgräns, SQLite:s trådningsnivå, storlek på sidofiler och ett valfritt resultat från ``PRAGMA quick_check``. Den ger en varning när den upptäcker WAL på ett känt nätverksfilsystem. Identifieringen av filsystem är vägledande: lagring i en container eller via en automonterare kan dölja det faktiska underliggande systemet, så leverantörens anvisningar är fortfarande auktoritativa."
+
+msgid "Command-line audit"
+msgstr "Granskning från kommandoraden"
+
+msgid "Inspect an existing database without modifying it::"
+msgstr "Granska en befintlig databas utan att ändra den::"
+
+msgid "Run simultaneous readers and writers against a new disposable database::"
+msgstr "Kör samtidiga läsare och skrivare mot en ny databas för engångsbruk::"
+
+msgid "Use ``--json`` for CI or monitoring. ``--scratch PATH`` is accepted only when ``PATH`` does not exist; the audit deliberately refuses to place probe tables inside scientific results. Without ``--scratch``, its temporary database is removed after metrics are collected. The command returns nonzero for corrupt input, failed integrity checks, thread errors, timeouts, or a row-count mismatch."
+msgstr "Använd ``--json`` för CI eller övervakning. ``--scratch PATH`` accepteras bara när ``PATH`` inte finns; granskningen vägrar avsiktligt att lägga testtabeller i vetenskapliga resultat. Utan ``--scratch`` tas den temporära databasen bort när måtten har samlats in. Kommandot returnerar ett nollskilt värde för skadad indata, underkända integritetskontroller, trådfel, tidsgränser eller avvikande radantal."
+
+msgid "Transaction API"
+msgstr "Transaktions-API"
+
+msgid "Plugin and pipeline writers should use the same primitives::"
+msgstr "Skrivare i tillägg och pipelines bör använda samma primitiver::"
+
+msgid "Connections must never be passed between threads. Do not retry statements from inside a transaction: earlier statements might already have run. The context manager retries only transaction acquisition, then either commits the complete body once or rolls it back."
+msgstr "Anslutningar får aldrig skickas mellan trådar. Försök inte köra satser igen inifrån en transaktion: tidigare satser kan redan ha körts. Kontexthanteraren försöker bara igen att påbörja transaktionen och gör sedan antingen commit av hela kroppen en gång eller rullar tillbaka den."
+
+msgid "Stress coverage"
+msgstr "Stresstäckning"
+
+msgid "``tests/test_database_concurrency.py`` uses real database files to verify:"
+msgstr "``tests/test_database_concurrency.py`` använder verkliga databasfiler för att verifiera:"
+
+msgid "exact row counts under simultaneous reader/writer pressure;"
+msgstr "exakta radantal under samtidigt tryck från läsare och skrivare;"
+
+msgid "lock release and bounded lock exhaustion;"
+msgstr "frisläppning av lås och begränsad låsuttömning;"
+
+msgid "atomic success, rollback, and nested-transaction refusal;"
+msgstr "atomisk framgång, återställning och vägran av nästlade transaktioner;"
+
+msgid "enforced read-only connections and WAL snapshot visibility;"
+msgstr "påtvingat skrivskyddade anslutningar och synlighet för WAL-ögonblicksbilder;"
+
+msgid "concurrent run-ledger stamps with no lost rows;"
+msgstr "samtidiga stämplar i körningsliggaren utan förlorade rader;"
+
+msgid "integrity/network-storage diagnostics and CLI exit behavior;"
+msgstr "diagnostik för integritet och nätverkslagring samt CLI:ts slutbeteende;"
+
+msgid "refusal to run a destructive probe against an existing database, and removal of a probe's scratch database when it fails."
+msgstr "vägran att köra ett destruktivt test mot en befintlig databas, och borttagning av ett tests tillfälliga databas när testet misslyckas."
+
+msgid "Annotation-batch rollback and fail-loud status are covered in ``tests/qt/test_annotate.py``, and resume cleanup across every measure-owned table in ``tests/test_resume.py``. The existing Measure multiprocessing, schema migration, unreadable run-status, and Qt Database Browser suites provide integration coverage for their respective production paths."
+msgstr "Återställning av annoteringsbatcher och tydlig felstatus täcks i ``tests/qt/test_annotate.py``, och rensning vid återupptagning i varje tabell som Mätning äger täcks i ``tests/test_resume.py``. De befintliga testsviterna för multiprocessning i Mätning, schemamigrering, oläsbar körningsstatus och Qt-Databasutforskaren ger integrationstäckning för sina respektive produktionsvägar."
+
+msgid "API reference"
+msgstr "API-referens"
+
+msgid "SQLite connection, transaction, and concurrency-audit primitives."
+msgstr "Primitiver för SQLite-anslutningar, transaktioner och granskning av samtidighet."
+
+msgid "spaCR uses one SQLite database as the meeting point for Measure worker processes, the annotator writer thread, read-only GUI queries, run-status stamps, and schema migrations.  This module provides the rules those paths share:"
+msgstr "spaCR använder en SQLite-databas som mötesplats för Mätnings arbetsprocesser, annotatorns skrivartråd, skrivskyddade GUI-frågor, statusstämplar för körningar och schemamigreringar.  Den här modulen tillhandahåller de regler som dessa vägar delar:"
+
+msgid "every thread/process opens and closes its own connection;"
+msgstr "varje tråd/process öppnar och stänger sin egen anslutning;"
+
+msgid "busy timeouts are explicit and write transactions retry only lock errors;"
+msgstr "tidsgränser för upptaget är uttryckliga och skrivtransaktioner försöker bara igen vid låsfel;"
+
+msgid "multi-statement writes use ``BEGIN IMMEDIATE`` with rollback on every error;"
+msgstr "skrivningar med flera satser använder ``BEGIN IMMEDIATE`` med återställning vid varje fel;"
+
+msgid "WAL is opt-in because SQLite WAL shared memory is unsafe on many network filesystems;"
+msgstr "WAL är frivilligt eftersom SQLite:s delade WAL-minne är osäkert på många nätverksfilsystem;"
+
+msgid "a real reader/writer probe can verify the local SQLite/filesystem behavior."
+msgstr "ett verkligt test med läsare och skrivare kan verifiera beteendet hos den lokala SQLite-installationen och filsystemet."
+
+msgid "Only the Python standard library is imported, so image workers can use it without pulling in pandas, Qt, torch, or Cellpose."
+msgstr "Bara Pythons standardbibliotek importeras, så bildprocesser kan använda modulen utan att dra in pandas, Qt, torch eller Cellpose."
+
+msgid "Outcome of a disposable simultaneous reader/writer stress probe."
+msgstr "Utfall av ett stresstest för engångsbruk med samtidiga läsare och skrivare."
+
+msgid "Parameters"
+msgstr "Parametrar"
+
+msgid "scratch database path; a clean temporary probe removes it, while explicit or stalled probes retain it for inspection."
+msgstr "sökväg till den tillfälliga databasen; ett rent temporärt test tar bort den, medan uttryckliga eller fastnade test behåller den för granskning."
+
+msgid "actual uppercase journal mode read after the run."
+msgstr "faktiskt journalläge i versaler, läst efter körningen."
+
+msgid "validated number of writer threads launched."
+msgstr "validerat antal skrivartrådar som startades."
+
+msgid "validated number of polling reader threads launched."
+msgstr "validerat antal avfrågande läsartrådar som startades."
+
+msgid "one-row committed transactions each writer tries."
+msgstr "transaktioner med en rad som varje skrivare försöker göra commit på."
+
+msgid "``writers * writes_per_writer``, independent of any worker failures."
+msgstr "``writers * writes_per_writer``, oberoende av eventuella fel i arbetsprocesserna."
+
+msgid "final row count verified after the bounded joins."
+msgstr "slutligt radantal som verifierats efter de begränsade sammanfogningarna."
+
+msgid "total successful ``COUNT`` queries across readers."
+msgstr "totalt antal lyckade ``COUNT``-frågor för alla läsare."
+
+msgid "monotonic worker start-to-join elapsed time, excluding setup and final verification."
+msgstr "monoton förfluten tid från start till sammanfogning av arbetsprocesserna, utan förberedelse och slutlig verifiering."
+
+msgid "immutable worker exceptions and surviving-thread timeout messages collected by the probe."
+msgstr "oföränderliga undantag från arbetsprocesser och tidsgränsmeddelanden för överlevande trådar som testet samlat in."
+
+msgid "True when no thread failed and every committed row exists."
+msgstr "True när ingen tråd misslyckades och varje rad som skrivits med commit finns."
+
+msgid "Return a JSON-serializable result including :attr:`ok`."
+msgstr "Returnera ett JSON-serialiserbart resultat inklusive :attr:`ok`."
+
+msgid "A lock remained busy after the configured retry budget."
+msgstr "Ett lås förblev upptaget efter den konfigurerade budgeten för nya försök."
+
+msgid "SQLite could not apply a requested safety configuration."
+msgstr "SQLite kunde inte tillämpa en begärd säkerhetskonfiguration."
+
+msgid "Read-only SQLite configuration and integrity snapshot."
+msgstr "Skrivskyddad ögonblicksbild av SQLite-konfiguration och integritet."
+
+msgid "normalized absolute path of the inspected database."
+msgstr "normaliserad absolut sökväg till den granskade databasen."
+
+msgid "SQLite runtime version exposed by Python."
+msgstr "SQLite-version vid körning som Python exponerar."
+
+msgid "DB-API thread-safety level reported by :data:`sqlite3.threadsafety`."
+msgstr "trådsäkerhetsnivå enligt DB-API som rapporteras av :data:`sqlite3.threadsafety`."
+
+msgid "actual uppercase journal mode read from the database."
+msgstr "faktiskt journalläge i versaler, läst från databasen."
+
+msgid "whether enforcement is enabled on the audit connection, not a persistent database-wide promise."
+msgstr "om kontrollen är aktiverad på granskningsanslutningen, inte ett beständigt löfte för hela databasen."
+
+msgid "audit connection's effective busy timeout in milliseconds."
+msgstr "granskningsanslutningens faktiska tidsgräns för upptaget i millisekunder."
+
+msgid "detected filesystem type, or ``None`` when unavailable."
+msgstr "identifierad filsystemstyp, eller ``None`` när den inte finns tillgänglig."
+
+msgid "whether the detected type is in the known network-filesystem set; false with an unknown type does not prove the storage is local."
+msgstr "om den identifierade typen finns i mängden kända nätverksfilsystem; falskt med en okänd typ bevisar inte att lagringen är lokal."
+
+msgid "joined ``PRAGMA quick_check`` result when requested, otherwise ``None``."
+msgstr "sammanfogat resultat från ``PRAGMA quick_check`` när det begärts, annars ``None``."
+
+msgid "main database-file size at inspection time."
+msgstr "storlek på huvuddatabasfilen vid granskningstillfället."
+
+msgid "``-wal`` sidecar size at inspection time, or zero when it is absent."
+msgstr "storlek på sidofilen ``-wal`` vid granskningstillfället, eller noll när den saknas."
+
+msgid "``-shm`` sidecar size at inspection time, or zero when it is absent."
+msgstr "storlek på sidofilen ``-shm`` vid granskningstillfället, eller noll när den saknas."
+
+msgid "actionable integrity or unsafe network-WAL findings."
+msgstr "åtgärdbara fynd om integritet eller osäker WAL på nätverk."
+
+msgid "Return a JSON-serializable snapshot."
+msgstr "Returnera en JSON-serialiserbar ögonblicksbild."
+
+msgid "Filesystems on which WAL is known to behave. An ALLOWLIST, not the complement of :data:`NETWORK_FILESYSTEMS`: \"not a type I recognise as networked\" is a weaker claim than \"local\", and the gap between them is someone's corrupted database on a cluster nobody here has seen. An unrecognised type stays on DELETE, which is what shipped."
+msgstr "Filsystem där WAL är känt att fungera. En GODKÄND LISTA, inte komplementet till :data:`NETWORK_FILESYSTEMS`: \"inte en typ jag känner igen som nätverk\" är ett svagare påstående än \"lokal\", och glappet mellan dem är någons skadade databas på ett kluster som ingen här har sett. En okänd typ stannar på DELETE, som är det som levererades."
+
+msgid "exFAT and vfat are deliberately absent: neither has the byte-range locking WAL's shared-memory index depends on."
+msgstr "exFAT och vfat saknas avsiktligt: ingen av dem har den byteintervallslåsning som WAL:s index i delat minne är beroende av."
+
+msgid "Open one configured connection owned by the calling thread."
+msgstr "Öppna en konfigurerad anslutning som ägs av den anropande tråden."
+
+msgid "SQLite database path."
+msgstr "sökväg till SQLite-databasen."
+
+msgid "open with URI ``mode=ro`` and ``query_only=ON``."
+msgstr "öppna med URI ``mode=ro`` och ``query_only=ON``."
+
+msgid "seconds SQLite waits inside a lock operation."
+msgstr "sekunder som SQLite väntar inne i en låsoperation."
+
+msgid "optional explicit ``\"WAL\"`` or ``\"DELETE\"``. Omit to preserve the database's current mode. WAL must not be enabled blindly on shared/NFS storage; use :func:`filesystem_type` or the concurrency probe first."
+msgstr "valfritt uttryckligt ``\"WAL\"`` eller ``\"DELETE\"``. Utelämna för att behålla databasens aktuella läge. WAL får inte aktiveras blint på delad lagring/NFS; använd :func:`filesystem_type` eller samtidighetstestet först."
+
+msgid "enable SQLite foreign-key enforcement on this connection. SQLite defaults it off per connection."
+msgstr "aktivera SQLite:s kontroll av främmande nycklar på den här anslutningen. SQLite har den avstängd som standard per anslutning."
+
+msgid "Returns"
+msgstr "Returnerar"
+
+msgid "connection in autocommit mode; use :func:`transaction` for multi-statement writes."
+msgstr "anslutning i autocommit-läge; använd :func:`transaction` för skrivningar med flera satser."
+
+msgid "Raises"
+msgstr "Utlöser"
+
+msgid "for an unsafe/unsupported requested journal mode or when SQLite refuses to apply it."
+msgstr "för ett osäkert eller ej stött begärt journalläge, eller när SQLite vägrar tillämpa det."
+
+msgid "Put ``path`` into WAL when the filesystem allows it. Never raises."
+msgstr "Sätt ``path`` i WAL när filsystemet tillåter det. Utlöser aldrig undantag."
+
+msgid "WHY THIS EXISTS (issue #15, \"measurements sometimes hangs\"). Measure runs one worker per field and every append goes through pandas' ``DataFrame.to_sql``, which issues a ``has_table`` probe -- a READ -- before writing. So each worker alternates read, write, read, write against one file."
+msgstr "VARFÖR DETTA FINNS (ärende #15, \"measurements sometimes hangs\"). Mätning kör en arbetsprocess per fält och varje tillägg går genom pandas ``DataFrame.to_sql``, som gör ett ``has_table``-test -- en LÄSNING -- före skrivningen. Varje arbetsprocess växlar alltså mellan läsning, skrivning, läsning, skrivning mot en och samma fil."
+
+msgid "Under the shipped rollback journal that combination starves the writer. A reader holds SHARED for the length of its statement, and a writer cannot COMMIT until every SHARED lock is gone, so with enough workers there is almost always someone reading and the committing worker waits out its busy timeout and raises \"database is locked\" -- usually surfacing on the next process's ``has_table``, which is the statement in the reporter's traceback."
+msgstr "Med den levererade återställningsjournalen svälter den kombinationen ut skrivaren. En läsare håller SHARED under hela sin sats, och en skrivare kan inte göra COMMIT förrän varje SHARED-lås är borta, så med tillräckligt många arbetsprocesser läser nästan alltid någon, och den arbetsprocess som gör commit väntar ut sin tidsgräns och utlöser \"database is locked\" -- som oftast syns i nästa process ``has_table``, vilket är satsen i rapportörens traceback."
+
+msgid "Measured on this exact shape, a commit attempted while one reader holds an open SELECT:"
+msgstr "Uppmätt på exakt denna form, en commit som försöks medan en läsare håller en öppen SELECT:"
+
+msgid "journal_mode=delete    writer waited 1.037 s journal_mode=wal       writer waited 0.002 s"
+msgstr "journal_mode=delete    skrivaren väntade 1,037 s journal_mode=wal       skrivaren väntade 0,002 s"
+
+msgid "WAL readers do not block a writer at all, which removes the starvation. It does NOT make two WRITERS concurrent -- SQLite still serialises those -- so this fixes the reader-blocks-writer half, which is the half the traceback is in."
+msgstr "WAL-läsare blockerar inte en skrivare alls, vilket tar bort utsvältningen. Det gör INTE två SKRIVARE samtidiga -- SQLite serialiserar fortfarande dem -- så detta åtgärdar halvan där läsaren blockerar skrivaren, som är den halva som tracebacken gäller."
+
+msgid "(The first version of this note had the direction backwards, claiming reads were blocked by writes. The test written to prove it measured 0.000 s and refuted it: in rollback-journal mode a writer holding RESERVED does not block readers, only its brief EXCLUSIVE commit does.)"
+msgstr "(Den första versionen av denna anteckning hade riktningen baklänges och påstod att läsningar blockerades av skrivningar. Testet som skrevs för att bevisa det mätte 0,000 s och motbevisade det: i återställningsjournalläge blockerar en skrivare som håller RESERVED inte läsare, bara dess korta EXCLUSIVE-commit gör det.)"
+
+msgid "Called once when a database is opened for a run rather than per write: the mode is a property of the FILE and persists, so paying for it per connection would buy nothing."
+msgstr "Anropas en gång när en databas öppnas för en körning snarare än per skrivning: läget är en egenskap hos FILEN och består, så att betala för det per anslutning skulle inte ge någonting."
+
+msgid "the database to switch. A file that does not exist yet is created by the connection, which is fine -- the mode persists."
+msgstr "databasen som ska växlas. En fil som ännu inte finns skapas av anslutningen, vilket är i sin ordning -- läget består."
+
+msgid "the journal mode in force afterwards, or ``None`` when the database could not be opened at all."
+msgstr "journalläget som gäller efteråt, eller ``None`` när databasen inte kunde öppnas alls."
+
+msgid "Best-effort filesystem type for ``path``, or None when unknowable."
+msgstr "Filsystemstyp för ``path`` efter bästa förmåga, eller None när den inte kan fastställas."
+
+msgid "Reads ``/proc/mounts`` on Linux and falls back to psutil's partition table elsewhere, so macOS and Windows get a real answer rather than None. The longest matching mount point wins on both paths. Advisory only--containers and automounters can hide the real backing store."
+msgstr "Läser ``/proc/mounts`` på Linux och faller tillbaka på psutils partitionstabell på andra system, så att macOS och Windows får ett verkligt svar i stället för None. Den längsta matchande monteringspunkten vinner i båda fallen. Endast vägledande -- containrar och automonterare kan dölja den verkliga underliggande lagringen."
+
+msgid "file or directory to look up. ``~`` is expanded and the path resolved; on Linux a path that does not exist yet is walked up to its nearest existing parent before the mount table is searched."
+msgstr "fil eller katalog att slå upp. ``~`` expanderas och sökvägen löses upp; på Linux följs en sökväg som ännu inte finns uppåt till närmaste befintliga överordnade katalog innan monteringstabellen genomsöks."
+
+msgid "Inspect journal/locking configuration without changing the database."
+msgstr "Granska journal- och låskonfigurationen utan att ändra databasen."
+
+msgid "the SQLite database file (``~`` is expanded). It must already exist and is opened read-only."
+msgstr "SQLite-databasfilen (``~`` expanderas). Den måste redan finnas och öppnas skrivskyddad."
+
+msgid "also run ``PRAGMA quick_check`` and add a warning unless it reports ``ok``."
+msgstr "kör också ``PRAGMA quick_check`` och lägg till en varning om den inte rapporterar ``ok``."
+
+msgid "when ``path`` is not an existing file."
+msgstr "när ``path`` inte är en befintlig fil."
+
+msgid "Return True only for SQLite lock/busy errors worth retrying."
+msgstr "Returnera True bara för lås- och upptagetfel i SQLite som är värda att försöka igen."
+
+msgid "the exception to classify. Only a :class:`sqlite3.OperationalError` whose message contains \"locked\" or \"busy\" (case-insensitively) counts."
+msgstr "undantaget som ska klassificeras. Bara en :class:`sqlite3.OperationalError` vars meddelande innehåller \"locked\" eller \"busy\" (oavsett skiftläge) räknas."
+
+msgid "Stress a new disposable database with simultaneous readers/writers."
+msgstr "Stresstesta en ny databas för engångsbruk med samtidiga läsare och skrivare."
+
+msgid "An explicit ``path`` must not exist: the probe never adds audit tables to scientific data. When omitted, a temporary database is created and removed after its metrics are collected."
+msgstr "En uttrycklig ``path`` får inte finnas: testet lägger aldrig till granskningstabeller i vetenskapliga data. När den utelämnas skapas en temporär databas som tas bort när måtten har samlats in."
+
+msgid "scratch database to create. It must not already exist (:exc:`FileExistsError`); missing parent directories are created, and a run that FINISHES leaves the file on disk along with any ``-wal`` and ``-shm`` sidecars, so every explicit run needs a fresh path. Omit it to probe a temporary database instead, which is removed after a clean finish. A run that RAISES -- a ``journal_mode`` :func:`connect` refuses, most often -- removes its scratch database either way: it never ran, so there is nothing in it to keep, and leaving one at an explicit path made the next run on it fail with :exc:`FileExistsError`. The one deliberate survivor is a worker that outlives the 30-second join deadline, whose database is kept for inspection."
+msgstr "tillfällig databas som ska skapas. Den får inte redan finnas (:exc:`FileExistsError`); saknade överordnade kataloger skapas, och en körning som AVSLUTAS lämnar filen kvar på disken tillsammans med eventuella sidofiler ``-wal`` och ``-shm``, så varje uttrycklig körning behöver en ny sökväg. Utelämna den för att i stället testa en temporär databas, som tas bort efter ett rent avslut. En körning som UTLÖSER ett undantag -- oftast ett ``journal_mode`` som :func:`connect` vägrar -- tar bort sin tillfälliga databas i vilket fall som helst: den kördes aldrig, så det finns inget i den att behålla, och att lämna en kvar på en uttrycklig sökväg fick nästa körning mot den att misslyckas med :exc:`FileExistsError`. Den enda avsiktliga överlevaren är en arbetsprocess som överlever tidsgränsen på 30 sekunder för sammanfogning, vars databas behålls för granskning."
+
+msgid "concurrent writer threads. Each owns a connection opened with a 50 ms busy timeout and commits one transaction per row, so ``expected_rows`` is ``writers * writes_per_writer``. Must be a genuine positive integer; booleans, text and floats are refused."
+msgstr "samtidiga skrivartrådar. Var och en äger en anslutning som öppnats med en tidsgräns för upptaget på 50 ms och gör commit av en transaktion per rad, så ``expected_rows`` är ``writers * writes_per_writer``. Måste vara ett äkta positivt heltal; booleska värden, text och flyttal avvisas."
+
+msgid "concurrent read-only threads polling ``COUNT(*)`` until the last writer exits. They move only ``reader_queries``, never ``expected_rows``; at least one is required, so a writers-only probe cannot be expressed. Must be a genuine positive integer."
+msgstr "samtidiga skrivskyddade trådar som avfrågar ``COUNT(*)`` tills den sista skrivaren avslutas. De påverkar bara ``reader_queries``, aldrig ``expected_rows``; minst en krävs, så ett test med bara skrivare kan inte uttryckas. Måste vara ett äkta positivt heltal."
+
+msgid "rows each writer inserts, one row per transaction. Must be a genuine positive integer."
+msgstr "rader som varje skrivare infogar, en rad per transaktion. Måste vara ett äkta positivt heltal."
+
+msgid "mode applied once by the setup connection and then inherited by every worker connection. Only ``\"WAL\"`` (the default) and ``\"DELETE\"`` are accepted, case-insensitively; anything else raises :exc:`DatabaseConfigurationError` after the scratch database has already been created. ``None`` is refused: a stress result must state which locking mode it actually intended to exercise."
+msgstr "läge som tillämpas en gång av förberedelseanslutningen och sedan ärvs av varje arbetsanslutning. Bara ``\"WAL\"`` (standard) och ``\"DELETE\"`` accepteras, oavsett skiftläge; allt annat utlöser :exc:`DatabaseConfigurationError` efter att den tillfälliga databasen redan har skapats. ``None`` avvisas: ett stressresultat måste ange vilket låsläge det faktiskt var avsett att prova."
+
+msgid "result whose ``journal_mode`` is read back from the finished database rather than echoed from this argument, and whose ``errors`` carry per-thread failures instead of raising."
+msgstr "resultat vars ``journal_mode`` läses tillbaka från den avslutade databasen i stället för att upprepas från detta argument, och vars ``errors`` innehåller fel per tråd i stället för att utlösa undantag."
+
+msgid "when ``writers``, ``readers``, or ``writes_per_writer`` is below 1."
+msgstr "när ``writers``, ``readers`` eller ``writes_per_writer`` är mindre än 1."
+
+msgid "when one of the work sizes is not an integer. In particular, ``2.9`` is not silently truncated and ``\"2\"`` is not accepted merely because the CLI parser would have converted it."
+msgstr "när någon av arbetsstorlekarna inte är ett heltal. I synnerhet trunkeras inte ``2.9`` i tysthet, och ``\"2\"`` accepteras inte bara för att CLI-tolken skulle ha konverterat det."
+
+msgid "when ``journal_mode`` is not an explicit ``\"WAL\"`` or ``\"DELETE\"`` string."
+msgstr "när ``journal_mode`` inte är en uttrycklig sträng ``\"WAL\"`` eller ``\"DELETE\"``."
+
+msgid "Run an all-or-nothing transaction with bounded lock retry."
+msgstr "Kör en allt-eller-inget-transaktion med begränsade nya försök vid lås."
+
+msgid "Only ``BEGIN`` is retried. Once a transaction starts, retrying individual statements could duplicate earlier writes. Any body or commit error rolls the complete transaction back and propagates."
+msgstr "Bara ``BEGIN`` försöks igen. När en transaktion har börjat kan nya försök med enskilda satser duplicera tidigare skrivningar. Varje fel i kroppen eller vid commit rullar tillbaka hela transaktionen och förs vidare."
+
+msgid "calling thread's open autocommit connection."
+msgstr "den anropande trådens öppna autocommit-anslutning."
+
+msgid "``DEFERRED``, ``IMMEDIATE`` (default), or ``EXCLUSIVE``."
+msgstr "``DEFERRED``, ``IMMEDIATE`` (standard) eller ``EXCLUSIVE``."
+
+msgid "maximum attempts to acquire the transaction."
+msgstr "högsta antal försök att påbörja transaktionen."
+
+msgid "first backoff between lock failures."
+msgstr "första backoff mellan låsfel."
+
+msgid "backoff cap."
+msgstr "tak för backoff."
+
+msgid "total seconds this transaction may spend waiting on locks inside SQLite, shared over ``attempts`` and floored at ``MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS`` per attempt. Omit to inherit the connection's configured ``busy_timeout``; pass it when the write's own tolerance differs from whatever ``timeout`` the connection happened to be opened with."
+msgstr "totalt antal sekunder som transaktionen får vänta på lås inne i SQLite, fördelat över ``attempts`` och med golvet ``MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS`` per försök. Utelämna för att ärva anslutningens konfigurerade ``busy_timeout``; ange den när skrivningens egen tolerans skiljer sig från den ``timeout`` som anslutningen råkade öppnas med."
+
+msgid "when the lock outlives the retry budget."
+msgstr "när låset varar längre än budgeten för nya försök."
+
+msgid "when asked to nest inside an active transaction."
+msgstr "när den ombeds nästlas inuti en aktiv transaktion."
+
+msgid "Is ``path`` on a filesystem where WAL is known to behave?"
+msgstr "Ligger ``path`` på ett filsystem där WAL är känt att fungera?"
+
+msgid "``True`` only for a POSITIVELY IDENTIFIED local filesystem. Anything else -- a network type, an unrecognised type, or a platform where :func:`filesystem_type` cannot tell (it reads ``/proc/mounts``, so macOS and Windows always answer ``None``) -- is ``False``."
+msgstr "``True`` bara för ett POSITIVT IDENTIFIERAT lokalt filsystem. Allt annat -- en nätverkstyp, en okänd typ eller en plattform där :func:`filesystem_type` inte kan avgöra (den läser ``/proc/mounts``, så macOS och Windows svarar alltid ``None``) -- är ``False``."
+
+msgid "That asymmetry is the point. The cost of a wrong ``False`` is the lock contention this project already survives; the cost of a wrong ``True`` is WAL shared memory on storage that cannot support it, which is a corrupted database."
+msgstr "Den asymmetrin är poängen. Kostnaden för ett felaktigt ``False`` är den låskonkurrens som projektet redan klarar av; kostnaden för ett felaktigt ``True`` är delat WAL-minne på lagring som inte kan hantera det, vilket blir en skadad databas."
+
+msgid "the database file (or its directory) whose filesystem is looked up with :func:`filesystem_type`."
+msgstr "databasfilen (eller dess katalog) vars filsystem slås upp med :func:`filesystem_type`."
+
+msgid "Command-line SQLite health and concurrency audit."
+msgstr "Hälso- och samtidighetsgranskning av SQLite från kommandoraden."
+
+msgid "Build the ``spacr-db-audit`` argument parser."
+msgstr "Bygg argumenttolken för ``spacr-db-audit``."
+
+msgid "parser for read-only database checks and disposable concurrency probes."
+msgstr "tolk för skrivskyddade databaskontroller och samtidighetstester för engångsbruk."
+
+msgid "Inspect or probe SQLite and report one combined audit result."
+msgstr "Granska eller testa SQLite och rapportera ett samlat granskningsresultat."
+
+msgid "command-line arguments without the program name; ``None`` reads the process arguments."
+msgstr "kommandoradsargument utan programnamnet; ``None`` läser processens argument."
+
+msgid "``0`` when every requested integrity check and probe passes, or ``1`` when any requested operation fails or raises an exception."
+msgstr "``0`` när varje begärd integritetskontroll och varje begärt test går igenom, eller ``1`` när någon begärd åtgärd misslyckas eller utlöser ett undantag."
+
+msgid "with status ``2`` for invalid arguments or when neither a database nor ``--probe`` is supplied."
+msgstr "med status ``2`` för ogiltiga argument eller när varken en databas eller ``--probe`` anges."
+

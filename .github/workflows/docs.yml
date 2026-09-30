@@ -141,6 +141,21 @@ jobs:
             exit "$rc"
           fi
           touch docs/_build/html/.nojekyll
+      - name: Build translated user guides
+        # One Sphinx gettext build per language into docs/_build/html/<lang>/,
+        # with -W. A message whose English changed renders in English; the
+        # audit register below records coverage and staleness per page.
+        run: |
+          if [ -f tools/build_guide_i18n.py ]; then
+            tools/run_capped.sh 4G python tools/build_guide_i18n.py extract \
+              --output docs/_build/guide-gettext
+            tools/run_capped.sh 4G python tools/build_guide_i18n.py audit \
+              --pot docs/_build/guide-gettext \
+              --output docs/_build/html/guide-translations.json
+            GITHUB_REF_NAME="$DOCS_BRANCH" tools/run_capped.sh 4G python \
+              tools/build_guide_i18n.py build --html docs/_build/html \
+              --doctrees docs/_build/guide-doctrees
+          fi
       - name: Verify generated tooltip API links
         env:
           SPACR_DOCS_BUILT: "1"
