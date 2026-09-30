@@ -227,3 +227,40 @@ def test_the_report_and_the_methods_text_flag_a_post_hoc_change(journal):
     assert "analysis_lock" not in build_digest(run_dir=plain.dir)["run"]
     assert not any("preregistered" in c
                    for c in caveats_for(build_digest(run_dir=plain.dir)))
+
+
+@pytest.mark.parametrize("status,phrase", [
+    ("verified", "exactly as preregistered"),
+    ("post_hoc", "are post-hoc"),
+    ("deviation", "threshold, channel changed after the lock"),
+    ("not_preregistered", "was not preregistered"),
+    ("tampered", "no longer matches its own hash"),
+])
+def test_a_methods_section_says_what_the_lock_found(status, phrase):
+    """One sentence per verdict, naming what changed where that matters."""
+    from spacr.methods_export import _lock_caveats
+
+    (sentence,) = _lock_caveats({"status": status,
+                                 "changed": ["threshold", "channel"]})
+    assert phrase in sentence
+
+
+def test_no_lock_means_no_sentence():
+    from spacr.methods_export import _lock_caveats
+
+    assert _lock_caveats(None) == []
+    assert _lock_caveats({"status": ""}) == []
+
+
+def test_a_methods_section_names_uncovered_models_and_early_changes():
+    from spacr.methods_export import _lock_caveats
+
+    (verified,) = _lock_caveats({"status": "verified",
+                                 "uncovered_models": ["classifier.pt"]})
+    assert "does not cover the models classifier.pt" in verified
+    (late,) = _lock_caveats({"status": "post_hoc",
+                             "changed": ["threshold", "channel"],
+                             "post_hoc": ["channel"]})
+    assert "the changes to channel are post-hoc" in late
+    assert "The changes to threshold were made before the key was opened" \
+        in late
