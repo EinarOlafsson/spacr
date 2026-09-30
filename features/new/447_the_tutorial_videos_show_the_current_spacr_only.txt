@@ -739,3 +739,11 @@ Receipt: tools/tutorials/evidence/2026-09-29-pype-rendered-audio-asr.json.
     test_tutorial_release_audit ran in the spacr env. Two playwright files
     could not be collected. 48 failures are the same set that origin/nightly
     fails without this change, and nothing new fails.
+
+2026-09-30 — CLOSED. Maintainer (relayed by spacr-3f): lesson 02 must
+describe only current spaCR, with no old setup and no "new nested setup"
+wording. A scan of tools/tutorials/lessons/02_conda_install.json for
+old/older/new/nested/previous/earlier/used to/replaces/legacy/no longer finds
+no match, so lesson 02 meets the instruction. The standing rule (tutorials
+never show or mention an old layout) continues under the 2026-09-30 layout
+audit.

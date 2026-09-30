@@ -2803,3 +2803,8 @@ technical review (Claude Opus 5.5 / Codex), no native-speaker signoff".
 Still waiting on the maintainer: lesson 02 wording, catalog order, voice
 listening and a tap test on a real phone. The release goes by PR (nightly ->
 main, "Release 1.5.1.1"), which the maintainer's session will open.
+
+2026-09-30 — Maintainer sign-offs (relayed by spacr-3f): "order ok, voices ok,
+phone ok"; the native-speaker review is waived. Every review item is closed.
+The only remaining step is the release PR (nightly -> main, "Release
+1.5.1.1"), which the maintainer's session opens once CI is green.
