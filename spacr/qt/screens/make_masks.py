@@ -8451,18 +8451,24 @@ class MakeMasksScreen(QWidget):
         nav_row.addWidget(self._build_blind_toggle())
         nav_row.addWidget(self._build_uncertainty_button())
 
+        # 600c: Prev / Next / Save / Skip travel as ONE group, so the
+        # wrapping strip can never put Skip on a row of its own, and Keep /
+        # Discard are a second group set apart by a separator and a gap.
+        self._nav_step_group, step_row = self._nav_button_group()
+        self._nav_curate_group, curate_row = self._nav_button_group(
+            separated=True)
         self._btn_prev = QPushButton("Prev image")
         self._btn_prev.setIcon(iconset.icon("prev"))
         self._btn_prev.setCursor(Qt.PointingHandCursor)
         self._btn_prev.clicked.connect(self._on_prev)
-        nav_row.addWidget(self._btn_prev)
+        step_row.addWidget(self._btn_prev)
 
         self._btn_next = QPushButton("Next image")
         self._btn_next.setIcon(iconset.icon("next"))
         self._btn_next.setLayoutDirection(Qt.RightToLeft)
         self._btn_next.setCursor(Qt.PointingHandCursor)
         self._btn_next.clicked.connect(self._on_next)
-        nav_row.addWidget(self._btn_next)
+        step_row.addWidget(self._btn_next)
 
         self._btn_discard = QPushButton("Discard")
         self._btn_discard.setIcon(iconset.icon("trash"))
@@ -8474,7 +8480,7 @@ class MakeMasksScreen(QWidget):
             "beside the images, and the field, its mask and its objects "
             "stay as they are.")
         self._btn_discard.clicked.connect(lambda: self._on_curate(False))
-        nav_row.addWidget(self._btn_discard)
+        curate_row.addWidget(self._btn_discard)
 
         self._btn_keep = QPushButton("Keep")
         self._btn_keep.setIcon(iconset.icon("check"))
@@ -8486,14 +8492,14 @@ class MakeMasksScreen(QWidget):
             "with the image, its mask and the number of objects the mask "
             "holds right now.")
         self._btn_keep.clicked.connect(lambda: self._on_curate(True))
-        nav_row.addWidget(self._btn_keep)
+        curate_row.addWidget(self._btn_keep)
 
         self._btn_save = QPushButton("Save mask")
         self._btn_save.setObjectName("PrimaryButton")
         self._btn_save.setIcon(iconset.contrast_icon("save"))
         self._btn_save.setCursor(Qt.PointingHandCursor)
         self._btn_save.clicked.connect(self._on_save)
-        nav_row.addWidget(self._btn_save)
+        step_row.addWidget(self._btn_save)
 
         from ..i18n import tr
 
@@ -8505,7 +8511,10 @@ class MakeMasksScreen(QWidget):
             "next. It is written to the session's curate_status.csv as skip, "
             "so the next session does not offer it again. No mask is written."))
         self._btn_skip.clicked.connect(self._on_skip)
-        nav_row.addWidget(self._btn_skip)
+        step_row.addWidget(self._btn_skip)
+
+        nav_row.addWidget(self._nav_step_group)
+        nav_row.addWidget(self._nav_curate_group)
 
         outer_row.addStretch(1)
         self._status_label = _StatusLabel("Ready.")
@@ -8514,6 +8523,33 @@ class MakeMasksScreen(QWidget):
         self._status_label.said.connect(self._report_status)
         outer_row.addWidget(self._status_label)
         outer.addWidget(nav)
+
+    def _nav_button_group(self, separated: bool = False):
+        """A widget holding a row of navigation buttons that never wraps apart.
+
+        The navigation strip wraps widget by widget, so buttons that must stay
+        on one line are put in one of these and the group is added instead.
+        With ``separated`` the group opens with a gap and a vertical line, which
+        is how Keep / Discard are set apart from Prev / Next / Save / Skip.
+
+        :param separated: lead the group with a visible gap and separator.
+        :returns: ``(widget, layout)``; add the buttons to ``layout``.
+        """
+        from PySide6.QtWidgets import QFrame
+
+        group = QWidget()
+        row = QHBoxLayout(group)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(SPACING["sm"])
+        if separated:
+            row.addSpacing(SPACING["lg"])
+            line = QFrame(group)
+            line.setObjectName("NavGroupSeparator")
+            line.setFrameShape(QFrame.Shape.VLine)
+            line.setFrameShadow(QFrame.Shadow.Sunken)
+            row.addWidget(line)
+            row.addSpacing(SPACING["lg"])
+        return group, row
 
     def _build_fold_strip(self) -> FoldStrip:
         """The masthead's strip of folded modules.

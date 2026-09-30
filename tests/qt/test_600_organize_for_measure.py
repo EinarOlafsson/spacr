@@ -219,7 +219,11 @@ def test_cells_dragged_between_columns_move(dialog, tmp_path):
     assert _drop(dialog.table, mime, _x_of(dialog.table, 1))
     assert sorted(os.path.basename(p) for p in dialog._column_files(1)) == [
         "nuc_img01.tif", "nuc_img02.tif", "nuc_img03.tif"]
-    assert len(dialog.rows) == 3 and not dialog._incomplete_rows()
+    # 600c: several cells move as a block, keeping their shape.
+    assert [os.path.basename(r[1]) for r in dialog.rows[:3]] == [
+        "nuc_img01.tif", "nuc_img02.tif", "nuc_img03.tif"]
+    assert [os.path.basename(r[0]) for r in dialog.rows[:3]] == [
+        "cell_img01.tif", "cell_img02.tif", "cell_img03.tif"]
 
 
 def test_the_new_channel_zone_and_column_buttons(dialog, tmp_path):
@@ -240,9 +244,12 @@ def test_the_new_channel_zone_and_column_buttons(dialog, tmp_path):
     assert not _drop(dialog.table, text)
 
 
-def test_a_drop_on_a_table_without_columns_is_refused(dialog, tmp_path):
+def test_a_drop_on_the_empty_table_makes_a_channel(dialog, tmp_path):
+    # 600c: the drop hint is the table itself, so it takes the drop.
     exp = _tree(tmp_path)
-    assert not _drop(dialog.table, _urls(exp / "DAPI"))
+    assert _drop(dialog.table, _urls(exp / "DAPI"))
+    assert dialog.columns[0].kind == "channel"
+    assert len(dialog._column_files(0)) == 3
 
 
 def test_non_images_are_left_out_and_named(dialog, tmp_path):

@@ -116,6 +116,23 @@ def _mime_slots(mime: Optional[QMimeData]) -> List[List[int]]:
         return []
 
 
+def _mime_anchor(mime: Optional[QMimeData]) -> Optional[List[int]]:
+    """The slot a drag out of the table started on (600c).
+
+    :param mime: the drag's data.
+    :returns: ``[row, column]``, or None for any other drag.
+    """
+    if mime is None or not mime.hasFormat(_CELLS_MIME):
+        return None
+    try:
+        data = json.loads(bytes(mime.data(_CELLS_MIME)).decode("utf-8"))
+        anchor = data.get("anchor")
+        return [int(anchor[0]), int(anchor[1])] if anchor else None
+    except (ValueError, TypeError, AttributeError, IndexError, KeyError,
+            UnicodeDecodeError):
+        return None
+
+
 def _images_in(paths: Iterable[str]):
     """Expand dropped files and folders into image files.
 
@@ -199,6 +216,9 @@ _VIEWS = ("text", "image", "both")
 #: The thumbnail side in the table's image views, in pixels.
 _CELL_THUMB = 96
 
+#: The thumbnail-size slider's range, in pixels (600c).
+_THUMB_RANGE = (32, 320)
+
 #: The side of the × that clears a cell, in pixels.
 _CLOSE_SIZE = 14
 
@@ -245,6 +265,92 @@ def _clear_cell(rows: List[List[Optional[str]]], mask_of: Dict[int, int],
     if removed and column in mask_of:
         rows[row][mask_of[column]] = None
     return removed
+
+
+def _block_moves(cells, anchor, target, width: int,
+                 mask_of: Dict[int, int]) -> Dict[tuple, tuple]:
+    """Where each cell of a dragged block lands (600c).
+
+    The block keeps its shape: every cell moves by the offset from the cell
+    the drag started on (``anchor``) to the slot it was dropped on. A cell
+    in a channel column with a mask column takes its mask along, into the
+    target channel's mask column, unless that mask slot is already spoken
+    for. A block that would leave the table sideways or above row 0 does
+    not move at all.
+
+    :param cells: ``[(row, column), ...]`` the dragged cells.
+    :param anchor: ``(row, column)`` the cell the drag started on.
+    :param target: ``(row, column)`` the slot it was dropped on.
+    :param width: the number of columns.
+    :param mask_of: ``{channel column: its mask column}``.
+    :returns: ``{source slot: target slot}``, empty when the block cannot
+        move.
+    """
+    dr, dc = target[0] - anchor[0], target[1] - anchor[1]
+    moves: Dict[tuple, tuple] = {}
+    for row, column in cells:
+        to = (row + dr, column + dc)
+        if to[0] < 0 or not 0 <= to[1] < width:
+            return {}
+        moves[(row, column)] = to
+    taken = set(moves.values())
+    for (row, column), (to_row, to_column) in list(moves.items()):
+        if column in mask_of and to_column in mask_of:
+            source = (row, mask_of[column])
+            to = (to_row, mask_of[to_column])
+            if source not in moves and to not in taken and source != to:
+                moves[source] = to
+                taken.add(to)
+    return {s: t for s, t in moves.items() if s != t}
+
+
+def _move_block(rows: List[List[Optional[str]]], moves: Dict[tuple, tuple]
+                ) -> List[List[Optional[str]]]:
+    """Move several slots at once; what they land on swaps back (600c).
+
+    Every source's file goes to its target. A file already on a target that
+    is not itself moving goes to the slot freed at the start of that chain
+    of moves -- for a block dropped clear of itself that is exactly a
+    pairwise swap, and for a block shifted onto part of itself nothing is
+    lost. Rows past the end are added.
+
+    :param rows: the table, changed in place.
+    :param moves: ``{(row, column): (row, column)}`` from :func:`_block_moves`.
+    :returns: ``rows``.
+    """
+    if not moves:
+        return rows
+    width = len(rows[0]) if rows else 1 + max(
+        c for pair in moves.items() for _r, c in pair)
+    last = max(r for pair in moves.items() for r, _c in pair)
+    while last >= len(rows):
+        rows.append([None] * width)
+    before = {slot: rows[slot[0]][slot[1]]
+              for pair in moves.items() for slot in pair}
+    back = {t: s for s, t in moves.items()}
+    for source in moves:
+        rows[source[0]][source[1]] = None
+    for source, to in moves.items():
+        rows[to[0]][to[1]] = before[source]
+    for to in moves.values():
+        if to in moves or before[to] is None:
+            continue
+        free = back[to]
+        while free in back:
+            free = back[free]
+        rows[free[0]][free[1]] = before[to]
+    return rows
+
+
+def _selection_cells(indexes) -> List[List[int]]:
+    """The filled cells among selected indexes, in reading order (600c).
+
+    :param indexes: model indexes (or anything with ``row``, ``column`` and
+        ``data``).
+    :returns: ``[[row, column], ...]`` of the cells holding a file.
+    """
+    return sorted([index.row(), index.column()] for index in indexes
+                  if index.data(Qt.UserRole))
 
 
 def _close_rect(cell_rect):
@@ -392,6 +498,46 @@ def _save_view_prefs(view: str, color: str) -> None:
         pass
 
 
+#: Where the thumbnail size is remembered (600c).
+_PREFS_THUMB = "organize_for_measure/thumb_size"
+
+
+def _clamp_thumb(value) -> int:
+    """A thumbnail size inside :data:`_THUMB_RANGE`.
+
+    :param value: anything ``int()`` takes; junk gives :data:`_CELL_THUMB`.
+    :returns: the size in pixels.
+    """
+    try:
+        value = int(value)
+    except (TypeError, ValueError):
+        return _CELL_THUMB
+    return max(_THUMB_RANGE[0], min(_THUMB_RANGE[1], value))
+
+
+def _load_thumb_pref() -> int:
+    """The remembered thumbnail size, or :data:`_CELL_THUMB`."""
+    try:
+        from ..prefs import _s
+
+        return _clamp_thumb(_s().value(_PREFS_THUMB, _CELL_THUMB))
+    except Exception:
+        return _CELL_THUMB
+
+
+def _save_thumb_pref(size: int) -> None:
+    """Remember the thumbnail size for the next popup.
+
+    :param size: pixels.
+    """
+    try:
+        from ..prefs import _s
+
+        _s().setValue(_PREFS_THUMB, _clamp_thumb(size))
+    except Exception:
+        pass
+
+
 class _OrganizeTable(QTableWidget):
     """The channel/mask table; every column is a drop target.
 
@@ -401,11 +547,16 @@ class _OrganizeTable(QTableWidget):
         cell dragged onto a slot; the dialog swaps the two.
     :ivar clear_requested: ``([[row, column], ...])`` -- cells whose × was
         clicked, or that were selected when Delete was pressed.
+    :ivar block_moved: ``([[row, column], ...], [anchor row, column],
+        [to row, column])`` -- several cells dragged together (600c).
+    :ivar placeholder: the hint painted over the table while it holds no
+        file (600c).
     """
 
     dropped = Signal(int, list, int)
     cell_moved = Signal(int, int, int, int)
     clear_requested = Signal(list)
+    block_moved = Signal(list, list, list)
 
     def __init__(self, parent=None):
         """A table that drags cells out and takes drops on any column.
@@ -421,6 +572,68 @@ class _OrganizeTable(QTableWidget):
         self.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.setMouseTracking(True)
         self._pressed_close = None
+        self.placeholder = tr("Drag images or folders here")
+        #: Where a rubber-band selection started, and its band (600c).
+        self._band_origin = None
+        self._band = None
+        self._band_extend = False
+        self._drag_anchor = None
+
+    def _is_empty(self) -> bool:
+        """Whether no cell holds a file (the placeholder is shown)."""
+        for row in range(self.rowCount()):
+            for column in range(self.columnCount()):
+                item = self.item(row, column)
+                if item is not None and item.data(Qt.UserRole):
+                    return False
+        return True
+
+    def paintEvent(self, event) -> None:
+        """Paint the table, and the drop hint over it while it is empty.
+
+        :param event: the paint event.
+        """
+        super().paintEvent(event)
+        if not self._is_empty():
+            return
+        painter = QPainter(self.viewport())
+        color = QColor(self.palette().color(self.foregroundRole()))
+        color.setAlpha(150)
+        painter.setPen(color)
+        font = painter.font()
+        font.setPointSizeF(font.pointSizeF() * 1.4)
+        painter.setFont(font)
+        painter.drawText(self.viewport().rect(), Qt.AlignCenter
+                         | Qt.TextWordWrap, self.placeholder)
+        painter.end()
+
+    def _select_band(self, pos) -> None:
+        """Select every cell the band from its origin to ``pos`` touches.
+
+        :param pos: a point in the viewport.
+        """
+        from PySide6.QtCore import QItemSelectionModel, QRect
+        from PySide6.QtWidgets import QRubberBand
+
+        rect = QRect(self._band_origin, pos).normalized()
+        if self._band is None:
+            self._band = QRubberBand(QRubberBand.Rectangle, self.viewport())
+        self._band.setGeometry(rect)
+        self._band.show()
+        flag = (QItemSelectionModel.Select if self._band_extend
+                else QItemSelectionModel.ClearAndSelect)
+        self.setSelection(rect, flag)
+
+    def _end_band(self) -> bool:
+        """Hide the rubber band and forget its origin.
+
+        :returns: whether a band was showing.
+        """
+        showing = self._band is not None and self._band.isVisible()
+        self._band_origin = None
+        if self._band is not None:
+            self._band.hide()
+        return showing
 
     def _close_hit(self, pos):
         """The cell whose × is under ``pos``, or None.
@@ -449,7 +662,15 @@ class _OrganizeTable(QTableWidget):
 
         :param event: the mouse event.
         """
-        self._set_hover(self._close_hit(event.position().toPoint()))
+        pos = event.position().toPoint()
+        self._set_hover(self._close_hit(pos))
+        if self._band_origin is not None and event.buttons() & Qt.LeftButton:
+            if (self._band is not None and self._band.isVisible()) or (
+                    pos - self._band_origin).manhattanLength() >= \
+                    QApplication.startDragDistance():
+                self._select_band(pos)
+            event.accept()
+            return
         super().mouseMoveEvent(event)
 
     def leaveEvent(self, event) -> None:
@@ -465,11 +686,24 @@ class _OrganizeTable(QTableWidget):
 
         :param event: the mouse event.
         """
-        hit = self._close_hit(event.position().toPoint())
+        pos = event.position().toPoint()
+        hit = self._close_hit(pos)
         self._pressed_close = hit
         if hit is not None and event.button() == Qt.LeftButton:
             event.accept()
             return
+        index = self.indexAt(pos)
+        self._drag_anchor = ([index.row(), index.column()]
+                             if index.isValid() else None)
+        extend = bool(event.modifiers()
+                      & (Qt.ControlModifier | Qt.ShiftModifier))
+        if event.button() == Qt.LeftButton and (
+                extend or not index.isValid()
+                or not index.data(Qt.UserRole)):
+            # A band starts from an empty slot, from outside the cells, or
+            # with Ctrl/Shift held; a plain press on a file drags it (600c).
+            self._band_origin = pos
+            self._band_extend = extend
         super().mousePressEvent(event)
 
     def mouseReleaseEvent(self, event) -> None:
@@ -477,11 +711,17 @@ class _OrganizeTable(QTableWidget):
 
         :param event: the mouse event.
         """
+        if self._end_band():
+            self._pressed_close = None
+            event.accept()
+            return
         hit = self._close_hit(event.position().toPoint())
         pressed, self._pressed_close = self._pressed_close, None
         if hit is not None and hit == pressed:
             event.accept()
-            self.clear_requested.emit([list(hit)])
+            chosen = _selection_cells(self.selectedIndexes())
+            self.clear_requested.emit(chosen if list(hit) in chosen
+                                      else [list(hit)])
             return
         super().mouseReleaseEvent(event)
 
@@ -508,22 +748,29 @@ class _OrganizeTable(QTableWidget):
         return [_CELLS_MIME]
 
     def mimeData(self, items) -> QMimeData:
-        """Put the dragged cells' files into the drag, with their column.
+        """Put the dragged cells' files and slots into the drag.
 
-        Cells from several columns drag the first column's only: a drag
-        moves files from one column to another.
+        ``column`` is the column of the cell the drag started on (or of the
+        first cell) and ``paths`` that column's files, which a drop on the
+        "new channel" strip moves; ``cells`` are every dragged slot and
+        ``anchor`` the one the drag started on, which a drop on the table
+        moves as a block (600c).
 
         :param items: the dragged items.
         :returns: the drag's data.
         """
         mime = QMimeData()
-        items = [item for item in items if item.data(Qt.UserRole)]
-        column = items[0].column() if items else -1
+        items = sorted((item for item in items if item.data(Qt.UserRole)),
+                       key=lambda item: (item.row(), item.column()))
+        cells = [[item.row(), item.column()] for item in items]
+        anchor = self._drag_anchor if self._drag_anchor in cells else (
+            cells[0] if cells else None)
+        column = anchor[1] if anchor else -1
         chosen = [item for item in items if item.column() == column]
         mime.setData(_CELLS_MIME, QByteArray(json.dumps(
             {"column": column,
              "paths": [item.data(Qt.UserRole) for item in chosen],
-             "cells": [[item.row(), item.column()] for item in chosen]}
+             "cells": cells, "anchor": anchor}
         ).encode("utf-8")))
         return mime
 
@@ -533,8 +780,9 @@ class _OrganizeTable(QTableWidget):
         :param event: the drag event.
         """
         mime = event.mimeData()
-        return bool((_mime_paths(mime) or _mime_cells(mime)[1])
-                    and self.columnCount())
+        if _mime_cells(mime)[1]:
+            return bool(self.columnCount())
+        return bool(_mime_paths(mime))
 
     def dragEnterEvent(self, event) -> None:
         """Accept files from outside and cells from another column.
@@ -561,18 +809,27 @@ class _OrganizeTable(QTableWidget):
         if not self._accepts(event):
             event.ignore()
             return
+        event.setDropAction(Qt.CopyAction)
+        event.accept()
+        if not self.columnCount():
+            # The empty table's placeholder: the drop makes the first
+            # channel column (600c).
+            self.dropped.emit(-1, _mime_paths(event.mimeData()), -1)
+            return
         column = self.columnAt(int(event.position().x()))
         if column < 0:
             column = self.columnCount() - 1
         source, cells = _mime_cells(event.mimeData())
-        event.setDropAction(Qt.CopyAction)
-        event.accept()
         slots = _mime_slots(event.mimeData())
-        if len(slots) == 1:
+        if slots:
             row = self.rowAt(int(event.position().y()))
             if row < 0:
                 row = self.rowCount()
-            self.cell_moved.emit(slots[0][0], slots[0][1], row, column)
+            if len(slots) == 1:
+                self.cell_moved.emit(slots[0][0], slots[0][1], row, column)
+            else:
+                anchor = _mime_anchor(event.mimeData()) or slots[0]
+                self.block_moved.emit(slots, anchor, [row, column])
             return
         if cells:
             self.dropped.emit(column, cells, -1 if source is None else source)
@@ -767,45 +1024,51 @@ class OrganizeForMeasureDialog(QDialog):
         intro.setWordWrap(True)
         layout.addWidget(intro)
 
-        source_row = QHBoxLayout()
-        source_row.addWidget(QLabel(tr("Source folder")))
+        # 600c: the fields on aligned rows above, every action button on
+        # one line below them, then the view controls over the table.
+        from PySide6.QtWidgets import QGridLayout, QSlider
+
+        fields = QGridLayout()
+        fields.setColumnStretch(1, 1)
+        fields.addWidget(QLabel(tr("Source folder")), 0, 0)
         self.source_edit = _PathEdit()
         self.source_edit.setPlaceholderText(tr(
             "A folder of images; drop one here"))
         self.source_edit.setText(source or "")
         self.source_edit.textChanged.connect(lambda _t: self._suggest_output())
-        source_row.addWidget(self.source_edit, 1)
+        fields.addWidget(self.source_edit, 0, 1)
         self.browse_button = QPushButton(tr("Browse…"))
         self.browse_button.clicked.connect(self._browse)
-        source_row.addWidget(self.browse_button)
-        layout.addLayout(source_row)
+        fields.addWidget(self.browse_button, 0, 2)
         self.consolidate_check = QCheckBox(tr(
             "Consolidate subfolders into filenames first (copies the images "
             "into a new folder, each named after its folders; the originals "
             "are not touched)"))
-        layout.addWidget(self.consolidate_check)
+        fields.addWidget(self.consolidate_check, 1, 1, 1, 2)
 
-        regex_box = QFrame()
-        regex_box.setFrameShape(QFrame.StyledPanel)
-        regex_layout = QVBoxLayout(regex_box)
-        regex_layout.addWidget(QLabel(tr(
-            "Regex: the same filename conventions as Mask generation. "
-            "'auto' lets spaCR propose one; 'custom' uses the regex below.")))
         from ..screens.settings_model import _MetadataTypeField
 
+        regex_label = QLabel(tr("Regex"))
+        regex_label.setToolTip(tr(
+            "Regex: the same filename conventions as Mask generation. "
+            "'auto' lets spaCR propose one; 'custom' uses the regex below."))
+        fields.addWidget(regex_label, 2, 0)
         self.metadata_field = _MetadataTypeField(
             _DEFAULT_METADATA_TYPE,
             source_folder=lambda: self.source_edit.text(),
-            custom_regex=lambda: self.custom_edit.text(), parent=regex_box)
-        regex_layout.addWidget(self.metadata_field)
-        custom_row = QHBoxLayout()
-        custom_row.addWidget(QLabel(tr("custom_regex")))
+            custom_regex=lambda: self.custom_edit.text(), parent=self)
+        fields.addWidget(self.metadata_field, 2, 1, 1, 2)
+        fields.addWidget(QLabel(tr("custom_regex")), 3, 0)
         self.custom_edit = QLineEdit()
         self.custom_edit.setPlaceholderText(tr(
             "Regex with named groups: chanID, and wellID, fieldID..."))
-        custom_row.addWidget(self.custom_edit, 1)
-        regex_layout.addLayout(custom_row)
-        regex_buttons = QHBoxLayout()
+        fields.addWidget(self.custom_edit, 3, 1, 1, 2)
+        fields.addWidget(QLabel(tr("Output folder")), 4, 0)
+        self.output_edit = QLineEdit()
+        self.output_edit.textEdited.connect(self._output_edited)
+        fields.addWidget(self.output_edit, 4, 1, 1, 2)
+        layout.addLayout(fields)
+
         self.sort_button = QPushButton(tr("Sort by regex"))
         self.sort_button.setToolTip(tr(
             "Read the source folder (or the files in the table) with the "
@@ -826,15 +1089,6 @@ class OrganizeForMeasureDialog(QDialog):
             "Show one image at a time and ask which channel (or mask) it is, "
             "learning a regex from the answers until every image is placed."))
         self.teach_button.clicked.connect(lambda: self.teach())
-        for button in (self.sort_button, self.auto_button, self.detect_button,
-                       self.teach_button):
-            regex_buttons.addWidget(button)
-        regex_buttons.addStretch(1)
-        regex_layout.addLayout(regex_buttons)
-        layout.addWidget(regex_box)
-
-        dims_row = QHBoxLayout()
-        dims_row.addWidget(QLabel(tr("Channels and masks")))
         self.add_channel_button = QPushButton(tr("Add channel"))
         self.add_channel_button.clicked.connect(
             lambda: self.add_column("channel"))
@@ -845,26 +1099,50 @@ class OrganizeForMeasureDialog(QDialog):
             "Take the selected cells' files out of the table; the files "
             "themselves are not touched."))
         self.remove_button.clicked.connect(self._remove_selected)
+        #: The one line of action buttons, in order (600c).
+        self.action_row = QHBoxLayout()
+        for button in (self.sort_button, self.auto_button, self.detect_button,
+                       self.teach_button):
+            self.action_row.addWidget(button)
+        self.action_row.addSpacing(12)
         for button in (self.add_channel_button, self.add_mask_button,
                        self.remove_button):
-            dims_row.addWidget(button)
-        dims_row.addStretch(1)
+            self.action_row.addWidget(button)
+        self.action_row.addStretch(1)
+        layout.addLayout(self.action_row)
+
+        view_row = QHBoxLayout()
+        view_row.addWidget(QLabel(tr("Channels and masks")))
+        view_row.addStretch(1)
+        self.color_button = QPushButton(tr("Text colour"))
+        self.color_button.setFlat(True)
+        self.color_button.setCursor(Qt.PointingHandCursor)
+        self.color_button.setToolTip(tr(
+            "The colour of the names written over the images."))
+        self.color_button.clicked.connect(lambda: self._pick_text_color())
+        view_row.addWidget(self.color_button)
         show_label = QLabel(tr("Show"))
         show_label.setToolTip(tr(
             "Show each cell as its file name, its image, or its image with "
             "the name written over it."))
-        dims_row.addWidget(show_label)
+        view_row.addWidget(show_label)
         self.view_box = QComboBox()
         for value, caption in (("text", tr("Text")), ("image", tr("Image")),
                                ("both", tr("Image + text"))):
             self.view_box.addItem(caption, value)
-        dims_row.addWidget(self.view_box)
-        self.color_button = QPushButton(tr("Text colour"))
-        self.color_button.setToolTip(tr(
-            "The colour of the names written over the images."))
-        self.color_button.clicked.connect(lambda: self._pick_text_color())
-        dims_row.addWidget(self.color_button)
-        layout.addLayout(dims_row)
+        view_row.addWidget(self.view_box)
+        size_label = QLabel(tr("Size"))
+        size_label.setToolTip(tr("The size of the images in the table."))
+        view_row.addWidget(size_label)
+        self.size_slider = QSlider(Qt.Horizontal)
+        self.size_slider.setRange(*_THUMB_RANGE)
+        self.size_slider.setFixedWidth(140)
+        self.size_slider.setToolTip(tr("The size of the images in the table."))
+        self.thumb_size = _load_thumb_pref()
+        self.size_slider.setValue(self.thumb_size)
+        self.size_slider.valueChanged.connect(self._set_thumb_size)
+        view_row.addWidget(self.size_slider)
+        layout.addLayout(view_row)
         self._editors_row = QHBoxLayout()
         layout.addLayout(self._editors_row)
 
@@ -872,6 +1150,7 @@ class OrganizeForMeasureDialog(QDialog):
         self.table = _OrganizeTable()
         self.table.dropped.connect(self._on_table_drop)
         self.table.cell_moved.connect(self._swap_slots)
+        self.table.block_moved.connect(self._move_slots)
         self.table.clear_requested.connect(self._clear_slots)
         self.delegate = _CellDelegate(self.table, self.table)
         self.table.setItemDelegate(self.delegate)
@@ -884,13 +1163,6 @@ class OrganizeForMeasureDialog(QDialog):
         self.new_zone.dropped.connect(self._on_new_zone_drop)
         table_row.addWidget(self.new_zone)
         layout.addLayout(table_row, 1)
-
-        output_row = QHBoxLayout()
-        output_row.addWidget(QLabel(tr("Output folder")))
-        self.output_edit = QLineEdit()
-        self.output_edit.textEdited.connect(self._output_edited)
-        output_row.addWidget(self.output_edit, 1)
-        layout.addLayout(output_row)
 
         self.status = QLabel()
         self.status.setWordWrap(True)
@@ -1135,6 +1407,9 @@ class OrganizeForMeasureDialog(QDialog):
         :param paths: the files or folders.
         :param source: the column they were dragged from, or -1.
         """
+        if column < 0:
+            self._on_new_zone_drop(paths, source)
+            return
         if source >= 0:
             if source != column:
                 self._move_files(paths, column)
@@ -1808,6 +2083,52 @@ class OrganizeForMeasureDialog(QDialog):
         self._drop_empty_rows()
         self._refresh_table()
 
+    def _move_slots(self, cells, anchor, target) -> int:
+        """Move several cells together as a block (600c).
+
+        Each cell moves by the offset from ``anchor`` to ``target``; what
+        they land on swaps back into the slots they left, and images keep
+        their masks. Rows left with nothing are dropped.
+
+        :param cells: ``[[row, column], ...]``.
+        :param anchor: ``[row, column]`` the drag started on.
+        :param target: ``[row, column]`` dropped on.
+        :returns: how many slots moved.
+        """
+        cells = [(int(r), int(c)) for r, c in cells
+                 if 0 <= int(r) < len(self.rows)
+                 and 0 <= int(c) < len(self.columns)]
+        moves = _block_moves(cells, tuple(anchor), tuple(target),
+                             len(self.columns), self._mask_of())
+        before = len(self.rows)
+        _move_block(self.rows, moves)
+        self.row_keys.extend([None] * (len(self.rows) - before))
+        self._drop_empty_rows()
+        self._refresh_table()
+        return len(moves)
+
+    def _set_thumb_size(self, size: int, remember: bool = True) -> None:
+        """Resize the table's images live (the Size slider, 600c).
+
+        :param size: pixels; clamped to :data:`_THUMB_RANGE`.
+        :param remember: store it in the preferences.
+        """
+        self.thumb_size = _clamp_thumb(size)
+        if remember:
+            _save_thumb_pref(self.thumb_size)
+        self._size_cells()
+
+    def _size_cells(self) -> None:
+        """Size the rows and columns for the view and the thumbnail size."""
+        if self.delegate.view == "text":
+            self.table.resizeColumnsToContents()
+            self.table.resizeRowsToContents()
+            return
+        for column in range(self.table.columnCount()):
+            self.table.setColumnWidth(column, self.thumb_size + 24)
+        for row in range(self.table.rowCount()):
+            self.table.setRowHeight(row, self.thumb_size + 8)
+
     def _clear_slots(self, cells) -> int:
         """Empty cells (the × or Delete); their images' masks go too.
 
@@ -1830,6 +2151,7 @@ class OrganizeForMeasureDialog(QDialog):
         view = view if view in _VIEWS else "text"
         self.delegate.view = view
         self.color_button.setEnabled(view == "both")
+        self.size_slider.setEnabled(view != "text")
         if remember:
             _save_view_prefs(view, self.delegate.text_color.name())
         self._refresh_table()
@@ -1844,8 +2166,11 @@ class OrganizeForMeasureDialog(QDialog):
         if not color.isValid():
             color = QColor("white")
         self.delegate.text_color = color
+        # Plain text in the chosen colour, no swatch (600c).
         self.color_button.setStyleSheet(
-            f"QPushButton {{ border-left: 14px solid {color.name()}; }}")
+            f"QPushButton {{ color: {color.name()}; border: none; "
+            f"background: transparent; padding: 2px 4px; }}"
+            f"QPushButton:disabled {{ color: {color.name()}80; }}")
         if remember:
             _save_view_prefs(self.delegate.view, color.name())
         self.table.viewport().update()
@@ -1924,15 +2249,13 @@ class OrganizeForMeasureDialog(QDialog):
                     if c in channels:
                         item.setBackground(flag)
                 self.table.setItem(r, c, item)
-        if self.delegate.view == "text":
-            self.table.resizeColumnsToContents()
-            self.table.resizeRowsToContents()
-        else:
-            for column in range(self.table.columnCount()):
-                self.table.setColumnWidth(column, _CELL_THUMB + 24)
-            for row in range(self.table.rowCount()):
-                self.table.setRowHeight(row, _CELL_THUMB + 8)
+        self._size_cells()
+        if self.delegate.view != "text":
             self._load_thumbnails()
+        # The drop hint lives in the table while it is empty; the "new
+        # channel" strip only once there is something beside it (600c).
+        self.new_zone.setVisible(not self.table._is_empty())
+        self.table.viewport().update()
         missing = len(self._incomplete_rows())
         lines = [tr("{rows} row(s) in {channels} channel(s) and {masks} "
                     "mask column(s); {missing} row(s) incomplete.",

@@ -281,3 +281,49 @@ Tests: tests/qt/test_600_organize_for_measure.py 36 (8 new: the pure swap
 and clear, slot drag onto an occupied and an empty slot, x hover and click
 through real mouse events, Delete, views/thumbnails/colour/preferences,
 multi-file and folder drops), plus the Features test file.
+
+--------------------------------------------------------------------------------
+NOTE 2026-09-30 (600c, layout and selection)
+--------------------------------------------------------------------------------
+
+The maintainer, verbatim: "in amke masks the skip button should be on the
+same row as the othe rbuttons and the keep and discard buttons should be
+farther away fron the save, next and preveous buttons. text color should be
+to the left of the show field and just show the text if clicked the user
+cand change the text color. there needs to be a slider for controlling the
+size of the images inthe popup. there should be a mechanism to drag and
+select many images or click the column to select all in the column and same
+for row to move them or delete them. the drag images or folders here text
+should be where the table is then dissapearwhen images are dropped there.
+the settings could be organized more cleanly in the top of the popup . try
+hand have the buttons on one line and the fields above."
+
+Done:
+* Make Masks: Prev / Next / Save / Skip are one group widget in the wrapping
+  strip (MakeMasksScreen._nav_step_group), so Skip never wraps alone; Keep /
+  Discard are a second group (_nav_curate_group) led by a gap and a
+  vertical separator. Behaviour unchanged.
+* Popup: source, consolidate, regex type, custom_regex and output folder
+  on aligned grid rows at the top (the regex explanation is the "Regex"
+  label's tooltip); Sort by regex, Auto regex, Detect sets, Teach me, Add
+  channel, Add mask, Remove selected on ONE line (action_row); Apply /
+  Cancel stay at the bottom.
+* "Text colour" is a flat text-only button in the chosen colour, left of
+  Show; clicking it opens QColorDialog.
+* Size slider (32-320 px) resizes rows and columns live in the image
+  views; remembered as organize_for_measure/thumb_size.
+* Selection: rubber band from an empty slot or with Ctrl/Shift held;
+  header clicks select a column/row (Ctrl/Shift extend). Delete or the x
+  on any selected cell clears them all; several cells dragged together
+  move as a block (pure _block_moves/_move_block): occupied targets swap
+  pairwise back, masks travel with their images. A plain drag of one cell
+  still moves just it.
+* The "Drag images or folders here" hint is painted inside the empty
+  table (and the empty table takes the drop as a new channel); the "new
+  channel" strip shows only once the table has a file.
+* Behaviour change: a multi-cell drag onto the table now moves as a block
+  instead of moving files into a column and rematching (test updated);
+  the "new channel" strip still moves a column's files.
+
+Tests: tests/qt/test_600_popup_layout_and_selection.py (10), plus the two
+updated in test_600_organize_for_measure.py.
