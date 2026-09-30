@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import functools
+import hashlib
 import http.server
 import json
 from pathlib import Path
@@ -326,15 +327,154 @@ def verify(root, *, placeholders_only=False, published=None):
         server.server_close()
 
 
+MOBILE_LESSONS = ('01_pypi_github', '04_platform_installers', '14_make_masks', '19_train_cellpose',
+                  '53_prediction_profiler', '76_ops', '85_host_pathogen')
+
+
+def verify_live_mobile(url, *, width=390, height=844, lessons=MOBILE_LESSONS):
+    """Play lessons on the LIVE Pages site at a phone viewport (touch, 3x DPR).
+
+    Reads nothing local: the deployed index must pin one immutable media root,
+    every media request must go to that root (or the host's download
+    redirects), each lesson's narration bytes must hash to its own sidecar's
+    ``media_sha256``, a tap on the video must start playback with narration
+    advancing, a chapter seek must keep video and narration within the
+    unchanged 0.5 s tolerance, and the page must not scroll sideways with the
+    video inside the viewport.
+    """
+    import urllib.request
+    url = url.rstrip('/') + '/'
+    index = urllib.request.urlopen(url, timeout=60).read().decode('utf-8')
+    roots = set(re.findall(r'data-(?:audio|video4k|web)-root="([^"]+)"', index))
+    if len(roots) != 1 or not re.fullmatch(PINNED_ROOT, next(iter(roots))):
+        raise ValueError(f'The live index must pin one immutable media root, found {roots}')
+    media_root = next(iter(roots))
+    site = urlparse(url).hostname
+    errors, foreign, hosted, cases = [], [], [], []
+
+    def route(r):
+        target = r.request.url
+        host = urlparse(target).hostname or ''
+        if host == site or target.startswith(('data:', 'blob:')):
+            r.continue_()
+        elif target.startswith(media_root + '/') or (host != 'huggingface.co' and host.endswith(REDIRECT_HOSTS)):
+            hosted.append(target)
+            r.continue_()
+        else:
+            foreign.append(target)
+            r.abort()
+
+    with sync_playwright() as engine:
+        browser = engine.chromium.launch(executable_path='/opt/google/chrome/chrome', headless=True,
+                                         args=['--disable-gpu', '--disable-accelerated-video-decode'])
+        ctx = browser.new_context(viewport={'width': width, 'height': height}, is_mobile=True,
+                                  has_touch=True, device_scale_factor=3)
+        ctx.route('**/*', route)
+        ctx.add_init_script("localStorage.setItem('spacr-tutorial-language-v2','en');"
+                            "localStorage.setItem('spacr-tutorial-voice-v2','af_heart');")
+        page = ctx.new_page()
+        page.on('pageerror', lambda error: errors.append(str(error)))
+        requested_urls = []
+        page.on('request', lambda req: requested_urls.append(req.url))
+        page.goto(url + '#lesson=' + lessons[0], wait_until='networkidle', timeout=120000)
+        for identity in lessons:
+            page.evaluate('(id) => selectLesson(id)', identity)
+            page.wait_for_function("""(identity) => activeLesson?.id === identity &&
+                narrationAudioAvailable && elements.audio.readyState >= 1 && chapterData.length > 0 &&
+                document.querySelectorAll('.chapter-button').length === chapterData.length""",
+                arg=identity, timeout=180000)
+            page.evaluate('closeSidebar()')
+            page.wait_for_timeout(400)
+            layout = page.evaluate("""() => {
+                const r = elements.video.getBoundingClientRect();
+                return {scroll_width: document.documentElement.scrollWidth, inner_width: innerWidth,
+                        video_box: [r.x, r.y, r.width, r.height], player_visible: !elements.player.hidden};
+            }""")
+            assert layout['scroll_width'] <= layout['inner_width'], (identity, layout)
+            x, _, w, h = layout['video_box']
+            assert layout['player_visible'] and w > 0 and h > 0 and x >= 0 and x + w <= width + .5, (identity, layout)
+            loaded = page.evaluate("""async () => {
+                const bytes = await (await fetch(elements.audio.src)).arrayBuffer();
+                const hash = await crypto.subtle.digest('SHA-256', bytes);
+                return Array.from(new Uint8Array(hash), b => b.toString(16).padStart(2,'0')).join('');
+            }""")
+            paired = page.evaluate('() => ({voice: audioTimings.voice, hash: audioTimings.media_sha256, src: elements.audio.currentSrc})')
+            assert paired['voice'] == 'af_heart' and paired['hash'] == loaded, (identity, paired, loaded)
+            # The player plays narration from a blob it fetched from the pinned host.
+            narration_url = f'{media_root}/{identity}/audio/en/af_heart.m4a'
+            assert narration_url in requested_urls, (identity, 'narration not loaded from the pinned host')
+            # A real touch on the video, as a phone viewer starts a lesson.
+            page.locator('#tutorial-video').scroll_into_view_if_needed()
+            page.tap('#tutorial-video')
+            start = 'tap'
+            try:
+                page.wait_for_function('!elements.audio.paused && elements.audio.currentTime > 1.0', timeout=90000)
+            except Exception:
+                page.evaluate('elements.video.play()')
+                start = 'video.play() after the tap did not start playback'
+                page.wait_for_function('!elements.audio.paused && elements.audio.currentTime > 1.0', timeout=90000)
+            playing = page.evaluate("""() => ({audio: elements.audio.currentTime, video: elements.video.currentTime,
+                expected: videoTimeFromAudio(elements.audio.currentTime), video_paused: elements.video.paused})""")
+            requested = page.evaluate('chapterData[Math.min(2, chapterData.length - 1)].start')
+            seek_started = time.monotonic()
+            page.evaluate('(seconds) => seekTo(seconds)', requested)
+            page.wait_for_timeout(1500)
+            page.wait_for_function("""!videoClockCorrectionPending && !elements.video.seeking && !elements.audio.seeking &&
+                Math.abs(elements.video.currentTime - videoTimeFromAudio(elements.audio.currentTime)) < .5""",
+                timeout=90000, polling=50)
+            clocks = page.evaluate("""() => ({audio: elements.audio.currentTime, video: elements.video.currentTime,
+                expected: videoTimeFromAudio(elements.audio.currentTime),
+                width: elements.video.videoWidth, height: elements.video.videoHeight,
+                error: elements.video.error?.message || elements.audio.error?.message || null,
+                video_src: elements.video.currentSrc})""")
+            clocks['requested_audio_time'] = requested
+            clocks['seek_elapsed_seconds'] = time.monotonic() - seek_started
+            assert clocks['error'] is None and clocks['width'] > 0, (identity, clocks)
+            assert abs(clocks['video'] - clocks['expected']) < .5, (identity, clocks)
+            assert clocks['video_src'].startswith(media_root + '/'), (identity, clocks)
+            page.evaluate('elements.video.pause()')
+            cases.append({'lesson': identity, 'audio_sha256': loaded, 'narration_url': narration_url, 'start': start,
+                          'playing_after_start': playing, 'clocks_after_seek': clocks,
+                          'layout': layout, 'passed': True})
+            print(identity, f'live mobile {width}x{height} playback PASS', flush=True)
+            assert not errors, errors
+        ctx.close()
+        browser.close()
+    if foreign or errors:
+        raise ValueError(f'Unexpected external requests/errors: {foreign}, {errors}')
+    return {'scope': f'Live Pages playback at a {width}x{height} phone viewport (touch, 3x DPR) against '
+                     'the deployed index and its pinned hosted media; not a listening review',
+            'url': url, 'index_sha256': hashlib.sha256(index.encode('utf-8')).hexdigest(),
+            'media_root': media_root,
+            'viewport': {'width': width, 'height': height, 'is_mobile': True,
+                         'has_touch': True, 'device_scale_factor': 3},
+            'hosted_requests': len(hosted), 'hosted_hosts': sorted({urlparse(u).hostname for u in hosted}),
+            'cases': cases, 'passed': True}
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('candidate', type=Path)
+    parser.add_argument('candidate', type=Path, nargs='?')
     parser.add_argument('--placeholders-only', action='store_true')
     parser.add_argument('--published', type=Path,
                         help='Pages tree pinned to hosted media; plays it against the host')
     parser.add_argument('--serve', action='store_true', help='Preview locally until Ctrl-C; never uploads')
+    parser.add_argument('--live-mobile', metavar='URL',
+                        help='Play lessons on the live Pages site at a phone viewport; needs no candidate')
+    parser.add_argument('--viewport', default='390x844', help='WIDTHxHEIGHT for --live-mobile')
+    parser.add_argument('--lessons', default=','.join(MOBILE_LESSONS), help='Comma-separated lessons for --live-mobile')
+    parser.add_argument('--receipt', type=Path, help='Where --live-mobile writes its JSON receipt')
     args = parser.parse_args()
-    if args.serve:
+    if args.live_mobile:
+        width, height = (int(v) for v in args.viewport.lower().split('x'))
+        result = verify_live_mobile(args.live_mobile, width=width, height=height,
+                                    lessons=tuple(args.lessons.split(',')))
+        if args.receipt:
+            write(args.receipt, result)
+        print(json.dumps({k: v for k, v in result.items() if k != 'cases'}))
+    elif args.candidate is None:
+        parser.error('candidate is required unless --live-mobile is given')
+    elif args.serve:
         root = args.candidate.resolve()
         manifest = read(root / 'release-manifest.json')
         for record in manifest['files']:

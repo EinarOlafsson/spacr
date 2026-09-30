@@ -3,13 +3,14 @@ THE TUTORIAL VIDEOS: DARK MODE AND BLOBS, THE CURRENT spaCR ONLY, AND NO PATHS
 OF THE MAINTAINER'S
 ================================================================================
 
-Status:    OPEN, re-checked 2026-09-29 (CLAUDE). Requirements 1 and 3-5 are
-           met and live: the published-media sweep of all 85 lessons finds 0
-           path offenders (663123618). Still open: nobody has listened to
-           "pype" in the rendered audio, and the maintainer has not confirmed
-           the lesson 02 "nested setup" wording. See "2026-09-29 — CLAUDE:
-           STATUS" at the end.
-
+Status:    DONE, closed 2026-09-29 (CLAUDE). All five requirements are met
+           and live. The last automatable check, "pype" in the rendered
+           audio, now has an ASR receipt: the only lesson that says PyPI (01)
+           is heard as one-syllable "pipe". Waiting on the maintainer, and
+           not claimed: a human listening review and confirmation that
+           lesson 02's conda-forge route (it never says "nested") is the
+           "nested setup" wording asked for. See "2026-09-29 (later) —
+           CLAUDE: CLOSE" at the end.
 Requested: 2026-09-20 -- "some tutorial videos need to be redone. all tutorial
            videos should be in dark mode with blobs theme. pype is now
            sometimes pronounced incorrectly . make sure no paths from my
@@ -694,3 +695,21 @@ NOT MET (why this item stays open)
     route (it never says "nested") is what was asked for (owner:
     maintainer).
 
+2026-09-29 (later) — CLAUDE: CLOSE
+Receipt: tools/tutorials/evidence/2026-09-29-pype-rendered-audio-asr.json.
+ c. Now met by machine. The hosted en/af_heart sidecars of all 85 lessons
+    (media root 5e9dad5f) were searched: only 01_pypi_github scene 2 says
+    PyPI, spoken as [pype](/pˈIp/). That scene's rendered audio (sha256
+    ae049364..., the same bytes nightly's cd1de23e and main's f0ded2a7 roots
+    serve) was cut to its speech window and transcribed on the CPU with
+    faster-whisper small.en and medium.en: both hear "On pipe, find spacer
+    ...". Control: the tracked 08-04 "pie pee" render of the same scene is
+    heard as "PyP", so the check does tell the two forms apart.
+ Side finding, not a blocker. docs/source/_extra/tutorials/production/
+    01_pypi_github/audio/en/ still tracks 27 older English voices whose
+    sidecars say "pie pee". They are not served (Pages 404, not in the
+    release manifest) and _REJECTED_PYPI_ALIAS does not match "pie pee".
+ b. Waiting on the maintainer: whether lesson 02's current conda-forge
+    route is the "nested setup" wording. A human listening pass is also
+    his, and neither is claimed here.
+ Item closed: every requirement that can be checked by machine is met.

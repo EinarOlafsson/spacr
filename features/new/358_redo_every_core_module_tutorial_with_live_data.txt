@@ -3,11 +3,13 @@ REDO EVERY CORE-MODULE TUTORIAL WITH LIVE DATA AND THE FOLDED-IN ACTIONS
 ================================================================================
 
 Status:    OPEN, re-checked 2026-09-29 (CLAUDE). All 85 lessons are live
-           with the full 2,295-track voice matrix, and the path-redaction
-           batch is published (663123618). Still open: a live mobile-viewport
-           playback case, the stale walkthrough-audit flags, and the manual
+           with the full 2,295-track voice matrix. The last automatable gaps
+           are now closed: all 85 lessons play on the live nightly Pages site
+           at a 390x844 phone viewport, and the walkthrough audit, re-run
+           against the live catalog, shows 0 unpublished and 0 pending.
+           Waiting on the maintainer: the release merge to main and the
            catalog-order, listening and native-speaker reviews. See
-           "2026-09-29 — CLAUDE: STATUS" at the end.
+           "2026-09-29 (later) — CLAUDE: STATUS" at the end.
 Requested: 2026-09-02 — "the tutorials for all of the core moduals need to be
            redone. there is now live data for all core moduals that should be
            used in the tutorials, there are also several buttons that have been
@@ -2764,3 +2766,33 @@ NOT MET (why this item stays open)
  h. The manual catalog-order review, the listening review of every voice
     and native-speaker review in 13 languages have not happened (maintainer).
 
+2026-09-29 (later) — CLAUDE: STATUS
+ f. Met. verify_release_candidate.py has a new --live-mobile URL mode. It
+    reads the DEPLOYED index, requires it to pin one immutable media root,
+    and allows no media request outside it. At 390x844 (touch, 3x DPR) it
+    checks, for each lesson: no sideways scroll, the video inside the
+    viewport, narration bytes from the pinned host hashing to the
+    sidecar's media_sha256 (voice af_heart), playback advancing, and the
+    video within 0.5 s of narration after a chapter seek. Run against
+    https://einarolafsson.github.io/spacr/nightly/tutorials/ (media root
+    5e9dad5f): 85/85 pass, 405 hosted requests. Receipt:
+    tools/tutorials/evidence/2026-09-29-live-mobile-playback.json.
+    Caveat: in headless phone emulation a touch on the native video
+    controls does not start playback, so it was started with video.play().
+    A touch test on a real phone is still a manual check.
+ e. Met; the flags were stale. The generator
+    (workflow-authoring-20260922/audit_user_walkthroughs.py, outside the
+    repo) read a saved 09-23 snapshot of MAIN's Pages catalog (sha256
+    c395980a) as "live". The 26 lessons it flagged are exactly the ones
+    main's catalog still differs on until the release merge. It also
+    marked as "pending" every lesson missing from its hard-coded rewrite
+    list: 71 (rewritten 09-25, e1e6a23d7) and the newly authored 82-85.
+    The generator is now tools/tutorials/audit_user_walkthroughs.py. It
+    fetches the deployed nightly catalog (sha256 5b5d407b, identical to the
+    repo) and still reports main's differences separately
+    (main_catalog_differs_until_release_merge: 26). Re-run: 0 lessons
+    needing a narration or caption refresh, 0 pending manual review,
+    0 stale translation reviews, and 7 lessons with automated wording
+    prompts. Those prompts are review aids, not blockers.
+ g, h. Unchanged and waiting on the maintainer: the release merge to main,
+    and the manual catalog-order, listening and native-speaker reviews.

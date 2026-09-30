@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "date": "2026-09-23",
+  "date": "2026-09-29",
   "scope": "Authoring triage against user walkthrough principles; automated flags are review prompts, not proof of a bad tutorial or publication blockers.",
   "translation_policy": "Register stale reviews; ready English may publish without translated audio.",
   "required_sequence": [
@@ -83,6 +83,7 @@
     "68_power_design",
     "69_dose_response",
     "70_explain_cv",
+    "71_investigate_hit",
     "72_volcano_explorer",
     "73_parameter_sweep",
     "74_import_images",
@@ -119,12 +120,12 @@
     "84_candida",
     "85_host_pathogen"
   ],
-  "remaining_existing_scripts": [
-    "71_investigate_hit"
-  ],
-  "live_verified_commit": "f33805514a0baae336c947468569bedde8b1a955",
-  "live_catalog_sha256": "c395980afeba74bbd69b50f14e1bcbe560109e26170776901bad20a11de1b21f",
-  "narration_and_caption_refresh_required": [
+  "remaining_existing_scripts": [],
+  "live_catalog_url": "https://einarolafsson.github.io/spacr/nightly/tutorials/catalog/lessons_en.json",
+  "live_catalog_sha256": "5b5d407bec498c5d94036f4ee8cc645f04dfdd9f53a4711b529d69f643a907b4",
+  "main_catalog_url": "https://einarolafsson.github.io/spacr/tutorials/catalog/lessons_en.json",
+  "main_catalog_sha256": "c395980afeba74bbd69b50f14e1bcbe560109e26170776901bad20a11de1b21f",
+  "main_catalog_differs_until_release_merge": [
     "02_conda_install",
     "03_pip_install",
     "04_platform_installers",
@@ -139,14 +140,21 @@
     "35_converter",
     "36_import",
     "56_lineage",
+    "71_investigate_hit",
     "73_parameter_sweep",
     "75_regression_diagnostics",
     "76_ops",
     "78_spacr_screens",
     "79_module_inputs_outputs",
     "80_image_analysis_pathways",
-    "81_sequencing_pathways"
+    "81_sequencing_pathways",
+    "82_toxoplasma",
+    "83_plasmodium",
+    "84_candida",
+    "85_host_pathogen"
   ],
+  "manual_review_pending": [],
+  "narration_and_caption_refresh_required": [],
   "rows": [
     {
       "lesson": "01_pypi_github",
@@ -163,7 +171,8 @@
       ],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "02_conda_install",
@@ -171,11 +180,12 @@
       "scene_count": 9,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true,
+      "main_catalog_matches": false
     },
     {
       "lesson": "03_pip_install",
@@ -183,11 +193,12 @@
       "scene_count": 11,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true,
+      "main_catalog_matches": false
     },
     {
       "lesson": "04_platform_installers",
@@ -195,11 +206,12 @@
       "scene_count": 11,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true,
+      "main_catalog_matches": false
     },
     {
       "lesson": "05_home",
@@ -207,11 +219,12 @@
       "scene_count": 11,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true,
+      "main_catalog_matches": false
     },
     {
       "lesson": "06_api",
@@ -223,7 +236,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "07_mask",
@@ -235,7 +249,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "08_measure",
@@ -247,7 +262,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "09_annotate",
@@ -259,7 +275,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "10_classify_cv",
@@ -271,7 +288,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "11_classify_ml",
@@ -283,7 +301,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "12_map_barcodes",
@@ -295,7 +314,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "13_regression",
@@ -307,7 +327,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "14_make_masks",
@@ -315,11 +336,12 @@
       "scene_count": 32,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true,
+      "main_catalog_matches": false
     },
     {
       "lesson": "15_image_umap",
@@ -331,7 +353,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "16_activation",
@@ -343,7 +366,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "17_timelapse",
@@ -351,11 +375,12 @@
       "scene_count": 12,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true,
+      "main_catalog_matches": false
     },
     {
       "lesson": "18_motility",
@@ -367,7 +392,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "19_train_cellpose",
@@ -375,11 +401,12 @@
       "scene_count": 13,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true,
+      "main_catalog_matches": false
     },
     {
       "lesson": "20_cellpose_masks",
@@ -391,7 +418,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "21_model_compare",
@@ -403,7 +431,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "22_model_zoo",
@@ -415,7 +444,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "23_agreement",
@@ -427,7 +457,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "24_plaque",
@@ -439,7 +470,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "25_recruitment",
@@ -451,7 +483,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "26_invasion",
@@ -459,11 +492,12 @@
       "scene_count": 13,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true,
+      "main_catalog_matches": false
     },
     {
       "lesson": "27_replication",
@@ -471,11 +505,12 @@
       "scene_count": 12,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true,
+      "main_catalog_matches": false
     },
     {
       "lesson": "28_training_runs",
@@ -483,11 +518,12 @@
       "scene_count": 17,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true,
+      "main_catalog_matches": false
     },
     {
       "lesson": "29_report",
@@ -499,7 +535,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "30_plate_queue",
@@ -511,7 +548,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "31_external_masks",
@@ -523,7 +561,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "32_align_stitch",
@@ -535,7 +574,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "33_plate_viewer",
@@ -543,11 +583,12 @@
       "scene_count": 10,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true,
+      "main_catalog_matches": false
     },
     {
       "lesson": "34_database",
@@ -559,7 +600,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "35_converter",
@@ -567,11 +609,12 @@
       "scene_count": 12,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true,
+      "main_catalog_matches": false
     },
     {
       "lesson": "36_import",
@@ -579,11 +622,12 @@
       "scene_count": 16,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true,
+      "main_catalog_matches": false
     },
     {
       "lesson": "37_batch",
@@ -595,7 +639,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "38_distributed_jobs",
@@ -607,7 +652,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "39_classifier_evaluation",
@@ -619,7 +665,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "40_run_history",
@@ -631,7 +678,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "41_classify",
@@ -643,7 +691,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "42_curate",
@@ -655,7 +704,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "43_illumination",
@@ -667,7 +717,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "44_data_manager",
@@ -679,7 +730,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "45_project_browser",
@@ -691,7 +743,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "46_napari_bridge",
@@ -703,7 +756,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "47_barcode_qc",
@@ -720,7 +774,8 @@
       ],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "48_hit_list",
@@ -737,7 +792,8 @@
       ],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "49_methods_results",
@@ -749,7 +805,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "50_run_compare",
@@ -761,7 +818,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "51_control_charts",
@@ -773,7 +831,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "52_pipeline_graph",
@@ -785,7 +844,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "53_prediction_profiler",
@@ -797,7 +857,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "54_qc_dashboard",
@@ -809,7 +870,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "55_image_scatter",
@@ -821,7 +883,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "56_lineage",
@@ -829,11 +892,12 @@
       "scene_count": 14,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true,
+      "main_catalog_matches": false
     },
     {
       "lesson": "57_layer_viewer",
@@ -845,7 +909,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "58_graph_builder",
@@ -857,7 +922,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "59_anndata_export",
@@ -870,6 +936,7 @@
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
       "published_rewrite": true,
+      "main_catalog_matches": true,
       "current_workflow_followup": "Normal exporter and six native GUI exports verified; current recording replaces the older helper route."
     },
     {
@@ -882,7 +949,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "61_tabulate",
@@ -894,7 +962,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "62_feature_dictionary",
@@ -906,7 +975,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "63_small_multiples",
@@ -918,7 +988,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "64_gate_editor",
@@ -930,7 +1001,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "65_feature_explorer",
@@ -942,7 +1014,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "66_outliers",
@@ -954,7 +1027,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "67_experiment_design",
@@ -966,7 +1040,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "68_power_design",
@@ -978,7 +1053,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "69_dose_response",
@@ -990,7 +1066,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "70_explain_cv",
@@ -1002,15 +1079,16 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "71_investigate_hit",
       "english_sha256": "33c50f8138627fad82401bb62af5f6e386536045275074685bcd5bc13bf13620",
       "scene_count": 18,
-      "source_revised": false,
+      "source_revised": true,
       "newly_authored": false,
-      "manual_review": "pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [
         {
           "field": "prerequisite",
@@ -1022,8 +1100,9 @@
         }
       ],
       "incompatible_translation_reviews": [],
-      "prepared_rewrite": false,
-      "published_rewrite": false
+      "prepared_rewrite": true,
+      "published_rewrite": true,
+      "main_catalog_matches": false
     },
     {
       "lesson": "72_volcano_explorer",
@@ -1035,7 +1114,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "73_parameter_sweep",
@@ -1043,11 +1123,12 @@
       "scene_count": 10,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true,
+      "main_catalog_matches": false
     },
     {
       "lesson": "74_import_images",
@@ -1059,7 +1140,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "75_regression_diagnostics",
@@ -1067,11 +1149,12 @@
       "scene_count": 10,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true,
+      "main_catalog_matches": false
     },
     {
       "lesson": "76_ops",
@@ -1079,11 +1162,12 @@
       "scene_count": 12,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true,
+      "main_catalog_matches": false
     },
     {
       "lesson": "77_embeddings",
@@ -1095,7 +1179,8 @@
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "main_catalog_matches": true
     },
     {
       "lesson": "78_spacr_screens",
@@ -1103,11 +1188,12 @@
       "scene_count": 8,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true,
+      "main_catalog_matches": false
     },
     {
       "lesson": "79_module_inputs_outputs",
@@ -1115,7 +1201,7 @@
       "scene_count": 80,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [
         {
           "field": "scenes[6].narration",
@@ -1156,7 +1242,8 @@
       ],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true,
+      "main_catalog_matches": false
     },
     {
       "lesson": "80_image_analysis_pathways",
@@ -1164,7 +1251,7 @@
       "scene_count": 19,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [
         {
           "field": "scenes[1].narration",
@@ -1193,7 +1280,8 @@
       ],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true,
+      "main_catalog_matches": false
     },
     {
       "lesson": "81_sequencing_pathways",
@@ -1201,7 +1289,7 @@
       "scene_count": 11,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [
         {
           "field": "scenes[3].narration",
@@ -1218,7 +1306,8 @@
       ],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true,
+      "main_catalog_matches": false
     },
     {
       "lesson": "82_toxoplasma",
@@ -1226,11 +1315,12 @@
       "scene_count": 7,
       "source_revised": false,
       "newly_authored": true,
-      "manual_review": "pending",
+      "manual_review": "newly authored; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
-      "prepared_rewrite": false,
-      "published_rewrite": false
+      "prepared_rewrite": true,
+      "published_rewrite": true,
+      "main_catalog_matches": false
     },
     {
       "lesson": "83_plasmodium",
@@ -1238,11 +1328,12 @@
       "scene_count": 5,
       "source_revised": false,
       "newly_authored": true,
-      "manual_review": "pending",
+      "manual_review": "newly authored; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
-      "prepared_rewrite": false,
-      "published_rewrite": false
+      "prepared_rewrite": true,
+      "published_rewrite": true,
+      "main_catalog_matches": false
     },
     {
       "lesson": "84_candida",
@@ -1250,11 +1341,12 @@
       "scene_count": 5,
       "source_revised": false,
       "newly_authored": true,
-      "manual_review": "pending",
+      "manual_review": "newly authored; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
-      "prepared_rewrite": false,
-      "published_rewrite": false
+      "prepared_rewrite": true,
+      "published_rewrite": true,
+      "main_catalog_matches": false
     },
     {
       "lesson": "85_host_pathogen",
@@ -1262,11 +1354,12 @@
       "scene_count": 12,
       "source_revised": false,
       "newly_authored": true,
-      "manual_review": "pending",
+      "manual_review": "newly authored; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
-      "prepared_rewrite": false,
-      "published_rewrite": false
+      "prepared_rewrite": true,
+      "published_rewrite": true,
+      "main_catalog_matches": false
     }
   ]
 }
