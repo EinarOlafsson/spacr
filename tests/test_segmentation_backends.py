@@ -455,6 +455,56 @@ def test_a_2d_image_is_its_own_plane_and_a_batch_of_one(stub_backends):
     np.testing.assert_array_equal(seen, SB._to_uint8(plane))
 
 
+def test_one_rgb_field_is_one_image_not_a_batch_of_its_rows(stub_backends):
+    """``eval`` given ONE bare ``(H, W, C)`` array -- a colour field, read
+    straight from a TIFF -- must segment it as one image, the way Cellpose
+    reads it. Iterating it sent H "images" of shape ``(W, C)`` to the model,
+    each three pixels wide; on a 1032x1376 RGB field that was 1032 requests
+    for tiles hundreds of times the field's size, and the run never
+    finished. A list, and an array with a batch axis, stay batches."""
+    field = np.random.default_rng(4).random((40, 56, 3), dtype=np.float32)
+    model = SB._load_backend("dinocell")
+
+    masks, flows, _styles = model.eval(field, channel_axis=-1)
+
+    assert len(masks) == len(flows) == 1
+    assert masks[0].shape == (40, 56)
+    [seen] = model.planes
+    np.testing.assert_array_equal(seen, SB._to_uint8(field[:, :, 0]))
+    assert len(SB._eval_images([field, field])) == 2
+    assert len(SB._eval_images(np.stack([field, field]))) == 2
+    assert len(SB._eval_images(field[:, :, 0])) == 1
+
+
+def test_the_remote_backend_sends_one_rgb_field_as_one_image(tmp_path):
+    """The same rule on the out-of-process path, which is the one a real
+    DINOCell or SAMCell install uses: one ``(H, W, C)`` array is one input
+    file for the worker."""
+    sent = []
+
+    class _Worker:
+        def request(self, op, **payload):
+            sent.append(payload["inputs"])
+            outputs = []
+            for index, path in enumerate(payload["inputs"]):
+                mask_path = f"{payload['outputs']}/mask_{index}.npy"
+                np.save(mask_path, np.zeros(np.load(path).shape[:2], np.uint16))
+                outputs.append({"mask": mask_path, "flows": []})
+            return {"outputs": outputs}
+
+    backend = SB._RemoteBackend.__new__(SB._RemoteBackend)
+    backend.name, backend.label, backend.model = "dinocell", "DINOCell", ""
+    backend.env, backend.device, backend.options = str(tmp_path), "cpu", {}
+    backend._worker_for = lambda name, env: _Worker()
+    backend._said = set()
+
+    masks, _flows, _styles = backend.eval(
+        np.zeros((24, 30, 3), np.uint8), channel_axis=-1)
+
+    assert [len(inputs) for inputs in sent] == [1]
+    assert len(masks) == 1 and masks[0].shape == (24, 30)
+
+
 def test_a_backend_without_a_segmenter_fails_loudly():
     """``_PlaneBackend`` is only the batch half of a backend. A subclass
     that forgets ``_segment_plane`` must raise, not return an empty mask."""

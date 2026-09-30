@@ -3347,8 +3347,7 @@ class _RemoteBackend:
         :returns: ``(masks, flows, None)`` with one entry per image.
         :raises _BackendError: with the backend's own message.
         """
-        images = ([x] if isinstance(x, np.ndarray) and x.ndim == 2
-                  else list(x))
+        images = _eval_images(x)
         params = {"channel_axis": channel_axis, "normalize": normalize,
                   "diameter": diameter, "flow_threshold": flow_threshold,
                   "cellprob_threshold": cellprob_threshold,
@@ -3448,6 +3447,24 @@ def _import_samcell():
             f"unaffected. The import failed with: {exc}"
         ) from exc
     return FinetunedSAM, SlidingWindowPipeline
+
+
+def _eval_images(x):
+    """The images of one ``eval`` call, as a list, read the way Cellpose
+    reads ``x``.
+
+    A list or tuple is a batch, and so is an array of four or more
+    dimensions. One array of two or three dimensions is ONE image --
+    ``(H, W)`` or ``(H, W, C)`` -- and never a batch of its rows: iterating
+    an ``(H, W, C)`` field would send H images of shape ``(W, C)``, each
+    three pixels wide, to the model.
+
+    :param x: what ``eval`` was given.
+    :returns: list of arrays.
+    """
+    if isinstance(x, np.ndarray) and x.ndim <= 3:
+        return [x]
+    return list(x)
 
 
 def _object_plane(image, channel_axis=-1):
@@ -3588,8 +3605,7 @@ class _PlaneBackend:
             Cellpose arguments; accepted so the call site is unchanged.
         :returns: ``(masks, flows, None)`` with one entry per image.
         """
-        images = ([x] if isinstance(x, np.ndarray) and x.ndim == 2
-                  else list(x))
+        images = _eval_images(x)
         masks, flows = [], []
         for image in images:
             plane = _object_plane(image, channel_axis)
@@ -3666,24 +3682,26 @@ class _DinoCellBackend(_PlaneBackend):
     def _segment_plane(self, image, cellprob_threshold=None):
         """Predict flows, then label them with Cellpose's dynamics.
 
-        A plane narrower than one tile is upscaled (aspect ratio kept, where
-        DINOCell's own ``_resize`` would make it square) and the labels are
-        resampled back to the plane's own shape.
+        A plane narrower than one tile is mirror-padded up to the tile on
+        its bottom and right edges and the prediction is cropped back, so
+        the model sees the cells at their own pixel size and a small field
+        costs one tile. Upscaling it until its short side is a tile, as
+        DINOCell's own ``_resize`` does, multiplies both the work and the
+        cells' apparent size by the same factor: a 256 x 32 mother-machine
+        channel became 4096 x 512, fifteen tiles instead of one, with each
+        bacterium sixteen times the size the model knows.
         """
-        import cv2
         from cellpose.dynamics import compute_masks
         from cellpose.plot import dx_to_circ
 
         height, width = image.shape
-        scale = _DINOCELL_CROP / min(height, width)
-        if scale > 1:
-            size = (max(_DINOCELL_CROP, math.ceil(width * scale)),
-                    max(_DINOCELL_CROP, math.ceil(height * scale)))
-            work = cv2.resize(image, size, interpolation=cv2.INTER_CUBIC)
-        else:
-            work = image
+        pad = ((0, max(0, _DINOCELL_CROP - height)),
+               (0, max(0, _DINOCELL_CROP - width)))
+        work = np.pad(image, pad, mode="reflect") if any(
+            after for _before, after in pad) else image
         dx, dy, probability = self._predict(work)
-        d_p = np.stack([dy, dx])
+        d_p = np.ascontiguousarray(np.stack([dy, dx])[:, :height, :width])
+        probability = np.ascontiguousarray(probability[:height, :width])
         labels = compute_masks(
             dP=d_p, cellprob=probability, niter=_DINOCELL_NITER,
             cellprob_threshold=_probability_threshold(cellprob_threshold),
@@ -3691,12 +3709,8 @@ class _DinoCellBackend(_PlaneBackend):
             min_size=_DINOCELL_MIN_SIZE,
             max_size_fraction=_DINOCELL_MAX_SIZE_FRACTION,
             device=self.device)
-        shape = (height, width)
-        display = np.moveaxis(
-            _resize_nearest(np.moveaxis(dx_to_circ(d_p), -1, 0), shape), 0, -1)
-        flow = [display, _resize_nearest(d_p, shape),
-                _resize_nearest(probability, shape), None]
-        return _resize_nearest(labels, shape), flow
+        flow = [dx_to_circ(d_p), d_p, probability, None]
+        return labels, flow
 
 
 def _samcell_weights_path(variant="generalist", download=False):
