@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "date": "2026-09-29",
+  "date": "2026-09-30",
   "scope": "Authoring triage against user walkthrough principles; automated flags are review prompts, not proof of a bad tutorial or publication blockers.",
   "translation_policy": "Register stale reviews; ready English may publish without translated audio.",
   "required_sequence": [
@@ -122,7 +122,7 @@
   ],
   "remaining_existing_scripts": [],
   "live_catalog_url": "https://einarolafsson.github.io/spacr/nightly/tutorials/catalog/lessons_en.json",
-  "live_catalog_sha256": "5b5d407bec498c5d94036f4ee8cc645f04dfdd9f53a4711b529d69f643a907b4",
+  "live_catalog_sha256": "05cbf8cbc475c7c318a8edcc56b355c751e1e2b5a395bf8fd6beef68e8059b5c",
   "main_catalog_url": "https://einarolafsson.github.io/spacr/tutorials/catalog/lessons_en.json",
   "main_catalog_sha256": "c395980afeba74bbd69b50f14e1bcbe560109e26170776901bad20a11de1b21f",
   "main_catalog_differs_until_release_merge": [

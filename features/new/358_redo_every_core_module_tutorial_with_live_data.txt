@@ -2789,7 +2789,7 @@ NOT MET (why this item stays open)
     list: 71 (rewritten 09-25, e1e6a23d7) and the newly authored 82-85.
     The generator is now tools/tutorials/audit_user_walkthroughs.py. It
     fetches the deployed nightly catalog (sha256 5b5d407b, identical to the
-    repo) and still reports main's differences separately
+    repo at 648b87bb5; 05cbf8cb by 09-30) and still reports main's differences separately
     (main_catalog_differs_until_release_merge: 26). Re-run: 0 lessons
     needing a narration or caption refresh, 0 pending manual review,
     0 stale translation reviews, and 7 lessons with automated wording
