@@ -2796,3 +2796,10 @@ NOT MET (why this item stays open)
     prompts. Those prompts are review aids, not blockers.
  g, h. Unchanged and waiting on the maintainer: the release merge to main,
     and the manual catalog-order, listening and native-speaker reviews.
+
+2026-09-30 — Maintainer decision (relayed by spacr-3f): the native-speaker
+review is waived for this release; translations ship with the label "AI
+technical review (Claude Opus 5.5 / Codex), no native-speaker signoff".
+Still waiting on the maintainer: lesson 02 wording, catalog order, voice
+listening and a tap test on a real phone. The release goes by PR (nightly ->
+main, "Release 1.5.1.1"), which the maintainer's session will open.
