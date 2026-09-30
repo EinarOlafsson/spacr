@@ -713,3 +713,29 @@ Receipt: tools/tutorials/evidence/2026-09-29-pype-rendered-audio-asr.json.
     route is the "nested setup" wording. A human listening pass is also
     his, and neither is claimed here.
  Item closed: every requirement that can be checked by machine is met.
+
+2026-09-30 — CLAUDE: side finding of 2026-09-29 fixed
+ Removed with git rm the 27 retired English voices of lesson 01 (54 files:
+    .m4a and .json for af_alloy, af_aoede, af_bella, af_jessica, af_kore,
+    af_nicole, af_nova, af_river, af_sarah, af_sky, am_*, bf_*, bm_*) from
+    docs/source/_extra/tutorials/production/01_pypi_github/audio/en/.
+    af_heart.m4a/.json stay: they are the ASR control named in the receipt.
+ Nothing referenced them. The lesson catalogs (docs, authoring, and
+    release_candidate) declare narration_voices en = ["af_heart"] for
+    01_pypi_github, so the player offers no other English voice there. The
+    release manifest lists only af_heart for 01 en. The served data-audio-root
+    is the HF commit 6d8def47, not this tree. The other matches were voice
+    names in other lessons' evidence, the generic "retired" globs in
+    publish_tutorials.py, and publication-receipt.json's readback list
+    files_on_revision_not_in_candidate. That list shows that 23 of these
+    voices (not the 4 retired ones) still exist on the HF revision as
+    unlisted, unoffered files. They are left alone here.
+ _REJECTED_PYPI_ALIAS now also rejects "pie pee", "pie-pee", "pypee" and
+    "piepee", matching case-insensitively. The retired list in
+    tests/test_tutorial_release_audit.py covers them. pipe, pype, peep and
+    [pype](/pˈIp/) still pass. PRONUNCIATION_VERSION is not changed, because
+    the approved speech is the same.
+ Tests: tools/tutorials/tests plus test_tutorial_catalog_i18n and
+    test_tutorial_release_audit ran in the spacr env. Two playwright files
+    could not be collected. 48 failures are the same set that origin/nightly
+    fails without this change, and nothing new fails.

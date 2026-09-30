@@ -365,7 +365,9 @@ def test_every_spoken_pypi_is_the_reviewed_single_syllable_pype():
                  "tools/tutorials/authoring/tools/pronunciation.py")
     assert rule.PRONUNCIATION_VERSION == "2026-08-28-pype-v11"
     assert rule.PYPI_SPEECH["en"] == "[pype](/pˈIp/)"
-    for retired in ("pypie", "PyPie", "PyPI", "P Y P I", "P-Y-P-I", "pie pi"):
+    for retired in ("pypie", "PyPie", "PyPI", "P Y P I", "P-Y-P-I", "pie pi",
+                    "pie pee", "Pie Pee", "pie-pee", "pypee", "PyPee",
+                    "piepee", "on pie pee shows"):
         assert rule._REJECTED_PYPI_ALIAS.search(retired), retired
     for approved in rule.PYPI_SPEECH.values():
         assert not rule._REJECTED_PYPI_ALIAS.search(approved), approved
