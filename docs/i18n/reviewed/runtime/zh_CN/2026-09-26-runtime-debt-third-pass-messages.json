@@ -244,10 +244,10 @@
     },
     {
       "table": "ui",
-      "key": "Thank you. Your contribution is waiting for review: <a href=\"{url}\">{url}</a>",
-      "source": "Thank you. Your contribution is waiting for review: <a href=\"{url}\">{url}</a>",
-      "source_sha256": "5e505544e69aab4e83bfb1f672a6c37fa4676dc3b3fc05e4be2d672244c2c02b",
-      "translation": "谢谢。您的贡献正在等待审核：<a href=\"{url}\">{url}</a>"
+      "key": "Thank you. Your contribution is waiting for review:",
+      "source": "Thank you. Your contribution is waiting for review:",
+      "source_sha256": "429f5eeba16d7f56e7d80fd78c2c5b68e8554b4d5e904cf70009d79fbf28249a",
+      "translation": "谢谢。您的贡献正在等待审核："
     },
     {
       "table": "ui",
