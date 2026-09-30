@@ -11178,8 +11178,13 @@ class AppScreen(QWidget):
         thresholds.setPlaceholderText(tr(
             "The thresholds and gates that decide a call, one per line."))
         note = QLineEdit(dialog)
+        gate_files = QLineEdit(dialog)
+        gate_files.setObjectName("AnalysisLockGateFiles")
+        gate_files.setPlaceholderText(tr(
+            "Saved Gate Editor gate files, separated by semicolons."))
         form.addRow(tr("Hypotheses"), hypotheses)
         form.addRow(tr("Thresholds and gates"), thresholds)
+        form.addRow(tr("Gate files"), gate_files)
         form.addRow(tr("Note"), note)
         layout.addLayout(form)
         buttons = QDialogButtonBox(QDialogButtonBox.Close, dialog)
@@ -11189,9 +11194,15 @@ class AppScreen(QWidget):
 
         def _lock():
             """Persist the displayed analysis plan and show its immutable identity."""
-            record = self._lock_analysis_now(
-                settings, hypotheses.toPlainText(), thresholds.toPlainText(),
-                note.text())
+            try:
+                record = self._lock_analysis_now(
+                    settings, hypotheses.toPlainText(),
+                    thresholds.toPlainText(), note.text(),
+                    gate_files=[part.strip() for part in
+                                gate_files.text().split(";") if part.strip()])
+            except (OSError, ValueError) as exc:
+                QMessageBox.warning(dialog, tr("Lock analysis"), str(exc))
+                return
             status.setText(tr(
                 "Locked {sha} at {time}. Runs of these settings on this "
                 "source are checked against it.",
@@ -11202,24 +11213,39 @@ class AppScreen(QWidget):
         layout.addWidget(buttons)
         dialog._spacr_lock_parts = {
             "status": status, "hypotheses": hypotheses,
-            "thresholds": thresholds, "note": note, "lock": lock}
+            "thresholds": thresholds, "note": note, "lock": lock,
+            "gate_files": gate_files}
         return dialog
 
     def _lock_analysis_now(self, settings, hypotheses: str = "",
-                           thresholds: str = "", note: str = "") -> dict:
+                           thresholds: str = "", note: str = "",
+                           gate_files=()) -> dict:
         """Freeze ``settings`` and the plan, and say so in the console.
+
+        The models the newest journalled run of this module on this source
+        recorded are locked with them, so a changed checkpoint is caught
+        when the next run records it.
 
         :param settings: the settings to lock.
         :param hypotheses: the hypotheses, in words.
         :param thresholds: the thresholds and gates, in words.
         :param note: anything else to keep with the plan.
+        :param gate_files: saved Gate Editor gate files the plan depends on.
         :returns: the lock :func:`spacr.run_journal.lock_analysis` wrote.
+        :raises ValueError: when a gate file is not a gating strategy.
+        :raises FileNotFoundError: when a gate file does not exist.
         """
-        from ...run_journal import lock_analysis
+        from ...run_journal import _recorded_models, lock_analysis
 
+        missing = [path for path in gate_files
+                   if not os.path.isfile(os.path.expanduser(path))]
+        if missing:
+            raise FileNotFoundError(", ".join(missing))
         record = lock_analysis(settings, app_key=self.app_key,
                                hypotheses=hypotheses, thresholds=thresholds,
-                               note=note)
+                               note=note, gates=list(gate_files) or None,
+                               models=_recorded_models(
+                                   self.app_key, settings.get("src")))
         try:
             self._console.append_notice(
                 "Analysis locked: {sha} at {time}.\n",

@@ -1,0 +1,96 @@
+# spaCR user guide translation (ko).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: ko\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Resumable multi-objective UMAP search"
+msgstr "재개 가능한 다중 목표 UMAP 검색"
+
+msgid "Image UMAP can search ``n_neighbors``, ``min_dist`` and the other structural UMAP parameters using one criterion or a multi-objective mode. Open **UMAP settings…** from the Hyperparameter search panel on the Image UMAP screen; ``multi_objective`` is the default criterion."
+msgstr "이미지 UMAP은 단일 기준이나 다중 목표 모드로 ``n_neighbors``, ``min_dist`` 및 기타 구조적 UMAP 매개변수를 검색할 수 있습니다. 이미지 UMAP 화면의 하이퍼파라미터 검색 패널에서 **UMAP 설정 ...** 을 엽니다. ``multi_objective`` 가 기본 기준입니다."
+
+msgid "Why several objectives?"
+msgstr "왜 여러 목표가 필요할까요?"
+
+msgid "No score proves that a UMAP contains biologically meaningful structure. The multi-objective mode therefore retains three separate measurements:"
+msgstr "어떤 점수도 UMAP이 생물학적으로 의미 있는 구조를 담고 있음을 증명하지는 못합니다. 따라서 다중 목표 모드는 세 가지 측정값을 따로 유지합니다."
+
+msgid "``neighborhood_preservation``"
+msgstr "``neighborhood_preservation``"
+
+msgid "The geometric mean of trustworthiness and continuity. Trustworthiness penalizes neighbours invented by the two-dimensional embedding; continuity penalizes true feature-space neighbours that the embedding tears apart. Requiring both prevents either failure from being hidden."
+msgstr "신뢰도(trustworthiness)와 연속성(continuity)의 기하 평균입니다. 신뢰도는 2차원 임베딩이 만들어 낸 가짜 이웃에 벌점을 주고, 연속성은 임베딩이 떼어 놓은 실제 특징 공간 이웃에 벌점을 줍니다. 둘을 모두 요구하면 어느 한쪽의 실패도 숨겨지지 않습니다."
+
+msgid "``stability``"
+msgstr "``stability``"
+
+msgid "The mean fraction of nearest neighbours shared by embeddings fitted with different reproducible seeds. It is invariant to rotations and reflections. A visually striking feature that disappears between repeats is not stable structure."
+msgstr "서로 다른 재현 가능 시드로 적합한 임베딩들이 공유하는 최근접 이웃의 평균 비율입니다. 회전과 반사에 영향을 받지 않습니다. 반복 사이에 사라지는 눈에 띄는 특징은 안정적인 구조가 아닙니다."
+
+msgid "``cluster_structure``"
+msgstr "``cluster_structure``"
+
+msgid "Positive silhouette structure on a scale from zero to one. When labels are supplied through the Python API they define the partition. Otherwise spaCR fits reproducible K-means partitions from 2 through 8 clusters and reports the strongest silhouette together with the selected cluster counts. This is evidence of geometric structure, not proof that a cluster is biological."
+msgstr "0에서 1 사이 척도의 양의 실루엣 구조입니다. Python API로 레이블을 제공하면 레이블이 분할을 정의합니다. 그렇지 않으면 spaCR이 클러스터 2~8개의 재현 가능한 K-means 분할을 적합하고, 가장 강한 실루엣과 선택된 클러스터 수를 보고합니다. 이는 기하학적 구조의 증거이지 클러스터가 생물학적이라는 증명이 아닙니다."
+
+msgid "The three weights are normalized to sum to one. Their weighted geometric mean is called ``multi_objective`` and guides the grid or adaptive search. The geometric mean penalizes a collapsed objective more strongly than an arithmetic average."
+msgstr "세 가중치는 합이 1이 되도록 정규화됩니다. 이들의 가중 기하 평균을 ``multi_objective`` 라고 하며, 그리드 검색이나 적응형 검색을 이끕니다. 기하 평균은 산술 평균보다 무너진 목표에 더 큰 벌점을 줍니다."
+
+msgid "Pareto front"
+msgstr "파레토 프런트"
+
+msgid "The composite score is not presented as the only answer. spaCR also marks the Pareto front in the result table. A configuration is Pareto-optimal when no other tested configuration improves one objective without making another worse. Inspect the embedding panels and objective tooltips for every non-dominated row before propagating a configuration."
+msgstr "복합 점수를 유일한 답으로 제시하지 않습니다. spaCR은 결과 표에 파레토 프런트도 표시합니다. 다른 어떤 테스트된 구성도 다른 목표를 악화시키지 않고 한 목표를 개선할 수 없을 때 해당 구성은 파레토 최적입니다. 구성을 적용하기 전에 지배되지 않는 모든 행의 임베딩 패널과 목표 툴팁을 검사합니다."
+
+msgid "The neighborhood, stability and cluster objectives, normalized weights, repeat count, raw silhouette, cluster source and discovered cluster counts are stored in each trial's ``extra_metrics``."
+msgstr "이웃, 안정성, 클러스터 목표, 정규화된 가중치, 반복 횟수, 원시 실루엣, 클러스터 출처, 발견된 클러스터 수는 각 시행의 ``extra_metrics`` 에 저장됩니다."
+
+msgid "Repeated fits and runtime"
+msgstr "반복 적합과 실행 시간"
+
+msgid "``stability repeats`` controls how many seeded embeddings are fitted per configuration. The minimum is 2 and the default is 3. Runtime scales roughly as:"
+msgstr "``stability repeats`` 는 구성마다 시드가 지정된 임베딩을 몇 개 적합할지 제어합니다. 최솟값은 2이고 기본값은 3입니다. 실행 시간은 대략 다음과 같이 늘어납니다."
+
+msgid "``configurations × stability repeats × one UMAP fit``"
+msgstr "``configurations × stability repeats × one UMAP fit``"
+
+msgid "Use three repeats for routine searches and increase the count when the leading Pareto configurations have similar stability or when a final analysis must be especially reproducible."
+msgstr "일반적인 검색에는 반복 3회를 사용하고, 상위 파레토 구성의 안정성이 비슷하거나 최종 분석의 재현성이 특히 중요할 때는 횟수를 늘립니다."
+
+msgid "Walk search and stopping"
+msgstr "걷기 검색과 중지"
+
+msgid "Switch on **Walk** to search locally from the values in the parameter fields instead of sweeping a grid. Each round scores the neighbourhood around the current centre and moves to the best configuration in it; with the default axes, ``n_neighbors`` and ``min_dist`` at resolution 2, that is the four diagonal corners. **Axes…** adds other structural parameters and sets each axis's step and resolution. The weighted multi-objective score chooses the direction of the next move. Search stops at **maximum rounds**, when a round fails to exceed **minimum improvement**, or after **Stop** is requested. A stopped result is explicitly marked partial."
+msgstr "**걷기** 를 켜면 그리드를 훑는 대신 매개변수 필드의 값에서 출발하여 국소적으로 검색합니다. 각 라운드는 현재 중심 주변의 이웃에 점수를 매기고 그중 가장 좋은 구성으로 이동합니다. 기본 축(``n_neighbors`` 와 ``min_dist``, 해상도 2)에서는 대각선의 네 모서리가 이에 해당합니다. **축…** 은 다른 구조적 매개변수를 추가하고 각 축의 간격과 해상도를 설정합니다. 가중 다중 목표 점수가 다음 이동 방향을 정합니다. 검색은 **maximum rounds** 에 도달하거나, 한 라운드가 **minimum improvement** 를 넘지 못하거나, **중지** 가 요청되면 멈춥니다. 중지된 결과는 부분 결과로 명시적으로 표시됩니다."
+
+msgid "Resume behavior"
+msgstr "재개 동작"
+
+msgid "Enable **Resume checkpoint** to continue from ``results/.spacr_checkpoints/umap_search.json`` under the current project (or from an explicit ``checkpoint_path`` in the Python API). Each completed trial is written atomically and its primary embedding is stored beside the JSON. An interrupted Walk round evaluates only its missing candidates before choosing a direction."
+msgstr "**체크포인트에서 재개** 를 켜면 현재 프로젝트의 ``results/.spacr_checkpoints/umap_search.json`` (또는 Python API에서 명시한 ``checkpoint_path``)에서 이어서 진행합니다. 완료된 각 시행은 원자적으로 기록되고 주 임베딩은 JSON 옆에 저장됩니다. 중단된 걷기 라운드는 방향을 정하기 전에 누락된 후보만 평가합니다."
+
+msgid "Resume refuses to combine incompatible work. Feature and label hashes, search space, criterion, seed, output dimensions, neighborhood size, the ``n_neighbors``/``min_dist`` increments, stopping threshold, stability repeat count, objective weights, embedder identity, backend and the cluster-during-search settings must match the checkpoint."
+msgstr "재개는 호환되지 않는 작업을 합치지 않습니다. 특징 및 레이블 해시, 검색 공간, 기준, 시드, 출력 차원, 이웃 크기, ``n_neighbors``/``min_dist`` 증분, 중지 임계값, 안정성 반복 횟수, 목표 가중치, 임베더 식별 정보, 백엔드, 검색 중 클러스터링 설정이 체크포인트와 일치해야 합니다."
+
+msgid "Python API"
+msgstr "Python API"
+
+msgid "Use :func:`spacr.hyperparam.umap_search` for a full search, :func:`spacr.hyperparam.umap_objective_scores` to score repeated embeddings, :func:`spacr.hyperparam.embedding_stability` for stability alone, and :meth:`spacr.hyperparam.SearchResult.pareto_front` to retrieve non-dominated trials."
+msgstr "전체 검색에는 :func:`spacr.hyperparam.umap_search` 를, 반복 임베딩 점수 계산에는 :func:`spacr.hyperparam.umap_objective_scores` 를, 안정성만 볼 때는 :func:`spacr.hyperparam.embedding_stability` 를, 지배되지 않는 시행을 가져올 때는 :meth:`spacr.hyperparam.SearchResult.pareto_front` 를 사용합니다."
+

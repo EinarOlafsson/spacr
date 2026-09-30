@@ -1,0 +1,93 @@
+# spaCR user guide translation (is).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: is\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Process images with a point-spread function"
+msgstr "Vinna myndir með punktdreififalli"
+
+msgid "Use :mod:`spacr.point_spread` from Python to convolve an image with a point-spread function (PSF), or to deconvolve it with Richardson–Lucy. Prepare a two-dimensional image or three-dimensional volume and a measured PSF sampled at the same pixel or voxel spacing. Supply intensity images; keep object-label masks separate."
+msgstr "Notaðu :mod:`spacr.point_spread` úr Python til að falda mynd með punktdreififalli (PSF) eða til að affalda hana með Richardson–Lucy. Undirbúðu tvívíða mynd eða þrívítt rúmmál og mælt PSF sem er tekið með sama pixla- eða rúmpixlabili. Leggðu til styrkleikamyndir; haltu merkjagrímum hluta aðskildum."
+
+msgid "Use the desktop controls"
+msgstr "Nota stýringar skjáborðsins"
+
+msgid "In **Make Masks**, open **Image enhancement** and select **Convolve (blur)** or **Deconvolve (Richardson–Lucy)** under **Point spread function**. Choose your **Objective**, or use **Infer from images…** to read the current image's optical metadata. With no image open, the button asks you to choose a TIFF. The summary shows pixel spacing, Gaussian width and where those values came from."
+msgstr "Í **Búa til grímur** skaltu opna **Myndbæting** og velja **Falda (gera óskýrt)** eða **Affalda (Richardson–Lucy)** undir **Punktdreififall**. Veldu **Hlutgler** eða notaðu **Álykta út frá myndum…** til að lesa ljósfræðileg lýsigögn núverandi myndar. Ef engin mynd er opin biður hnappurinn þig um að velja TIFF-skrá. Samantektin sýnir pixlabil, Gauss-breidd og hvaðan þau gildi komu."
+
+msgid "Open **PSF optics and kernel** to inspect the remaining controls. **Camera** sets the camera pixel pitch; **Fluorophore** sets the emission wavelength. Magnification, numerical aperture, immersion refractive index, wavelength, pixel spacing and Gaussian widths remain editable. Labels identify metadata, objective-table values, calculations, defaults and values you entered. Review these after using **Infer from images…**, which repopulates the optics and recalculates Gaussian widths."
+msgstr "Opnaðu **PSF optics and kernel** til að skoða hinar stýringarnar. **Myndavél** stillir pixlabil myndavélarinnar; **Flúrljómunarefni** stillir útgeislunarbylgjulengdina. Stækkun, tölulegt ljósop, brotstuðull ídýfingarvökva, bylgjulengd, pixlabil og Gauss-breiddir eru áfram breytanleg. Merkingar auðkenna lýsigögn, gildi úr hlutglerjatöflu, útreikninga, sjálfgildi og gildi sem þú slóst inn. Yfirfarðu þau eftir að hafa notað **Álykta út frá myndum…**, sem fyllir ljósfræðina út að nýju og endurreiknar Gauss-breiddir."
+
+msgid "Without image-specific information, the starting approximation uses a 20×/0.75 air objective, a 6.5 µm camera pixel and 520 nm emission. It gives 0.325 µm image pixels and approximately 0.354 µm Gaussian FWHM. Pixel spacing is camera pixel pitch divided by magnification; the lateral Gaussian FWHM is approximated by 0.51 × emission wavelength / numerical aperture. These defaults permit a calculation; they are not measured calibration or proof of your microscope's resolution. Check them against the acquisition."
+msgstr "Án myndsértækra upplýsinga notar upphafsnálgunin 20×/0,75 lofthlutgler, 6,5 µm myndavélarpixil og 520 nm útgeislun. Hún gefur 0,325 µm myndpixla og um það bil 0,354 µm Gauss-FWHM. Pixlabil er pixlabil myndavélarinnar deilt með stækkun; hliðlæg Gauss-FWHM er nálguð með 0,51 × útgeislunarbylgjulengd / tölulegt ljósop. Þessi sjálfgildi gera útreikning mögulegan; þau eru ekki mæld kvörðun né sönnun á upplausn smásjárinnar þinnar. Berðu þau saman við myndatökuna."
+
+msgid "In the same fold, choose **Measured kernel (TIFF/NPY)** and load your calibrated two-dimensional PSF, or keep **Gaussian approximation**. For a measured kernel, enter its pixel spacing too; it must match the image. Neither mode silently resamples a mismatched kernel."
+msgstr "Í sama hluta skaltu velja **Mældur kjarni (TIFF/NPY)** og hlaða kvörðuðu tvívíðu PSF-inu þínu, eða halda **Gaussísk nálgun**. Fyrir mældan kjarna skaltu einnig slá inn pixlabil hans; það verður að passa við myndina. Hvorugur hamurinn endursamplar ósamrýmanlegan kjarna í kyrrþey."
+
+msgid "Wait for the kernel to load, then use **Compare** to inspect its effect. Set **Deconvolution iterations** when using Richardson–Lucy and choose **Apply** to use the result for detection. Start with a modest iteration count and inspect noise as well as object boundaries. **Reload** rereads a kernel file after you change it. **Off** disables PSF processing."
+msgstr "Bíddu eftir að kjarninn hlaðist og notaðu síðan **Bera saman** til að skoða áhrif hans. Stilltu **Ítranir afföldunar** þegar Richardson–Lucy er notað og veldu **Beita** til að nota niðurstöðuna við greiningu. Byrjaðu með hóflegan fjölda ítrana og skoðaðu suð jafnt sem hlutamörk. **Hlaða aftur** les kjarnaskrá aftur eftir að þú breytir henni. **Slökkt** gerir PSF-vinnslu óvirka."
+
+msgid "A wider Gaussian PSF spreads two fixed intensity peaks while preserving total intensity."
+msgstr "Breiðara Gauss-PSF dreifir tveimur föstum styrkleikatoppum en varðveitir heildarstyrk."
+
+msgid "White shows a fixed input profile; teal shows the convolved result. The blue bar indicates the Gaussian kernel's full width at half maximum. Increasing that width spreads the signal and reduces peak intensity while preserving the integrated intensity. This illustrates convolution with a Gaussian approximation. For your microscope, enter measured calibration values and inspect the resulting image with **Compare**."
+msgstr "Hvítt sýnir fast inntakssnið; blágrænt sýnir földuðu niðurstöðuna. Blái borðinn sýnir fulla breidd Gauss-kjarnans við hálft hámark. Aukin breidd dreifir merkinu og lækkar hámarksstyrk en varðveitir heildaðan styrk. Þetta sýnir földun með Gauss-nálgun. Fyrir smásjána þína skaltu slá inn mæld kvörðunargildi og skoða myndina sem verður til með **Bera saman**."
+
+msgid "Choose the intensities used by Measure"
+msgstr "Velja styrkinn sem Mæling notar"
+
+msgid "In **Measure**, open **Image Preprocessing → Image Deconvolution (PSF)** and set ``psf_measurement_source``. Keep ``original`` for the standard measurement intensities, including Measure's normal rescaling and preprocessing, without additional PSF processing. Choose ``processed`` to measure intensities after convolution or deconvolution, then configure ``psf_operation``, the kernel source and its calibration."
+msgstr "Í **Mæling** skaltu opna **Forvinnsla mynda → Myndafvöfnun (PSF)** og stilla ``psf_measurement_source``. Haltu ``original`` fyrir staðlaðan mælistyrk, þar á meðal venjulega endurkvörðun og forvinnslu Mælingar, án viðbótar-PSF-vinnslu. Veldu ``processed`` til að mæla styrk eftir földun eða afföldun og stilltu síðan ``psf_operation``, uppruna kjarnans og kvörðun hans."
+
+msgid "Measure does not infer optics from image metadata: enter the calibration explicitly. For a two-dimensional field, enter image sampling and Gaussian widths in ``[Y, X]`` order. For a volume, use ``[Z, Y, X]`` and a matching three-dimensional kernel. Volume sampling must agree with Measure's voxel calibration or anisotropy settings. A measured kernel must have the same sampling as the image. Use a kernel appropriate for every selected intensity channel."
+msgstr "Mæling ályktar ekki ljósfræði út frá lýsigögnum mynda: sláðu kvörðunina inn sérstaklega. Fyrir tvívítt sjónsvið skaltu slá inn sýnatöku myndar og Gauss-breiddir í röðinni ``[Y, X]``. Fyrir rúmmál skaltu nota ``[Z, Y, X]`` og samsvarandi þrívíðan kjarna. Sýnataka rúmmáls verður að samræmast rúmpixlakvörðun Mælingar eða stillingum fyrir misátta. Mældur kjarni verður að hafa sömu sýnatöku og myndin. Notaðu kjarna sem hentar hverri valinni styrkleikarás."
+
+msgid "Run Measure and inspect the resulting object-feature tables in ``measurements.db``. PSF processing changes the intensity stream used for quantitative features; source files and exported crops retain their usual behavior. The ``intensity_rescale`` table records the selected source and PSF processing details. Keep the database with the settings and kernel file."
+msgstr "Keyrðu Mæling og skoðaðu töflurnar yfir eiginleika hluta sem verða til í ``measurements.db``. PSF-vinnsla breytir styrkleikastraumnum sem notaður er fyrir megindlega eiginleika; upprunaskrár og útfluttir myndskurðir halda venjulegri hegðun sinni. Taflan ``intensity_rescale`` skráir valinn uppruna og upplýsingar um PSF-vinnslu. Geymdu gagnagrunninn með stillingunum og kjarnaskránni."
+
+msgid "To compare different kernels or original and processed measurements, use separate projects or output databases. An existing database cannot mix measurements made with different PSF configurations. Restore the recorded configuration when resuming a run. See :func:`spacr.psf_measurement.prepare_measurement_psf` for the Python settings contract."
+msgstr "Til að bera saman mismunandi kjarna eða upphaflegar og unnar mælingar skaltu nota aðskilin verkefni eða úttaksgagnagrunna. Fyrirliggjandi gagnagrunnur getur ekki blandað saman mælingum gerðum með mismunandi PSF-stillingum. Endurheimtu skráðu stillingarnar þegar keyrslu er haldið áfram. Sjá :func:`spacr.psf_measurement.prepare_measurement_psf` fyrir stillingasamning Python."
+
+msgid "Load the image and PSF"
+msgstr "Hlaða myndinni og PSF"
+
+msgid "The example below reads a single-channel image and a measured PSF from TIFF files. Replace the example spacing of 0.11 µm with your calibrated Y and X pixel spacing. A three-dimensional input uses Z, Y and X spacing in that order. The PSF must have odd spatial dimensions, a central origin and nonnegative signal after background removal."
+msgstr "Dæmið hér að neðan les einrása mynd og mælt PSF úr TIFF-skrám. Skiptu dæmabilinu 0,11 µm út fyrir kvarðað Y- og X-pixlabil þitt. Þrívítt inntak notar Z-, Y- og X-bil í þeirri röð. PSF verður að hafa oddatöluvíddir í rúmi, miðlægan upphafspunkt og merki sem er ekki neikvætt eftir að bakgrunnur hefur verið fjarlægður."
+
+msgid "Choose the operation and save the result"
+msgstr "Velja aðgerðina og vista niðurstöðuna"
+
+msgid "Set ``operation=\"deconvolve\"`` to perform Richardson–Lucy deconvolution. Start with a modest iteration count and compare the result with the input; more iterations can amplify noise. ``operation=\"convolve\"`` instead blurs the image with the PSF. It does not use the iteration count."
+msgstr "Stilltu ``operation=\"deconvolve\"`` til að framkvæma Richardson–Lucy-afföldun. Byrjaðu með hóflegan fjölda ítrana og berðu niðurstöðuna saman við inntakið; fleiri ítranir geta magnað suð. ``operation=\"convolve\"`` gerir myndina í staðinn óskýra með PSF-inu. Það notar ekki fjölda ítrana."
+
+msgid "The output preserves the image shape and uses float32 values in the original intensity units. Inspect its range before converting it to an integer image. Keep the JSON record with the result; it contains the kernel identity, sampling and processing settings."
+msgstr "Úttakið varðveitir lögun myndarinnar og notar float32-gildi í upphaflegu styrkleikaeiningunum. Skoðaðu gildissvið þess áður en því er breytt í heiltölumynd. Geymdu JSON-skráninguna með niðurstöðunni; hún inniheldur auðkenni kjarnans, sýnatöku og vinnslustillingar."
+
+msgid "For multichannel images, set ``channel_axis`` explicitly: ``-1`` selects a final channel dimension, while ``0`` selects a first channel dimension. Each intensity channel is processed independently. Image and PSF sampling must match; the function rejects mismatched spacing."
+msgstr "Fyrir fjölrása myndir skaltu stilla ``channel_axis`` sérstaklega: ``-1`` velur síðustu víddina sem rásavídd, en ``0`` velur fyrstu víddina sem rásavídd. Hver styrkleikarás er unnin óháð hinum. Sýnataka myndar og PSF verður að passa saman; fallið hafnar ósamrýmanlegu bili."
+
+msgid "Use a calculated approximation"
+msgstr "Nota reiknaða nálgun"
+
+msgid "If your workflow calls for a Gaussian approximation, construct it with :func:`spacr.point_spread.gaussian_psf`. Supply the full width at half maximum in micrometres and the image spacing. These are example values to replace with the values appropriate to your analysis:"
+msgstr "Ef verkflæðið þitt kallar á Gauss-nálgun skaltu búa hana til með :func:`spacr.point_spread.gaussian_psf`. Tilgreindu fulla breidd við hálft hámark í míkrómetrum og myndabilið. Þetta eru dæmagildi sem þú skalt skipta út fyrir gildi sem eiga við þína greiningu:"
+
+msgid "Pass this kernel to ``apply_psf`` as above. A Gaussian kernel is an approximation; retain that distinction when comparing it with a measured PSF. See :func:`spacr.point_spread.apply_psf` for cancellation, progress callbacks and the complete parameter reference."
+msgstr "Sendu þennan kjarna til ``apply_psf`` eins og að ofan. Gauss-kjarni er nálgun; haltu þeim greinarmun þegar hann er borinn saman við mælt PSF. Sjá :func:`spacr.point_spread.apply_psf` fyrir afturköllun, framvinduköll og heildartilvísun færibreyta."
+

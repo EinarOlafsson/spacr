@@ -1,0 +1,87 @@
+# spaCR user guide translation (is).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: is\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Export measurements to AnnData"
+msgstr "Flytja mælingar út í AnnData"
+
+msgid "Create an ``.h5ad`` file containing measured features and object metadata for analysis in AnnData or Scanpy. Start with a spaCR project containing ``measurements/measurements.db``. For a worked example, download the project from the `Annotate tutorial <tutorials/#lesson=09_annotate>`__."
+msgstr "Búðu til ``.h5ad``-skrá sem inniheldur mælda eiginleika og lýsigögn hluta til greiningar í AnnData eða Scanpy. Byrjaðu á spaCR-verkefni sem inniheldur ``measurements/measurements.db``. Til að fá unnið dæmi skaltu sækja verkefnið úr `kennslunni um merkingar <tutorials/#lesson=09_annotate>`__."
+
+msgid "Export from the application"
+msgstr "Útflutningur úr forritinu"
+
+msgid "From **Home**, open **Measure**, then **AnnData Export**."
+msgstr "Frá **Heim** skaltu opna **Mæling** og síðan **AnnData-útflutningur**."
+
+msgid "Select the measured project as the source."
+msgstr "Veldu mælda verkefnið sem uppruna."
+
+msgid "Set **Anndata out** to a new ``.h5ad`` filename. Leaving it empty writes beneath the project's ``results`` folder. A successful export replaces an existing file at the chosen path; use separate names to keep both versions."
+msgstr "Stilltu **Anndata út** á nýtt ``.h5ad``-skráarheiti. Ef reiturinn er skilinn eftir auður er skrifað undir möppuna ``results`` í verkefninu. Vel heppnaður útflutningur kemur í stað fyrirliggjandi skrár á valinni slóð; notaðu aðskilin heiti til að halda báðum útgáfum."
+
+msgid "Set **Anndata single table** to ``cell`` for one row per cell using that table's features. Use ``nucleus`` or ``pathogen`` for those object types. Leave it empty for a cell-level joined export, where child measurements are aggregated onto their parent cells."
+msgstr "Stilltu **Anndata stök tafla** á ``cell`` til að fá eina röð á hverja frumu með eiginleikum þeirrar töflu. Notaðu ``nucleus`` eða ``pathogen`` fyrir þær hlutagerðir. Skildu reitinn eftir auðan fyrir samtengdan útflutning á frumustigi, þar sem mælingar undirhluta eru teknar saman á móðurfrumur þeirra."
+
+msgid "Choose **Anndata nan policy**, then click **Run**. Read the completion message and open the output file to check its shape and feature names."
+msgstr "Veldu **Ákvarðanir NAN** og smelltu síðan á **Keyra**. Lestu lokaskilaboðin og opnaðu úttaksskrána til að athuga lögun hennar og heiti eiginleika."
+
+msgid "Choose how to handle missing features"
+msgstr "Veldu hvernig farið er með eiginleika sem vantar"
+
+msgid "``keep`` retains missing values. Choose this when you want to decide how to handle them in the downstream analysis."
+msgstr "``keep`` heldur gildum sem vantar. Veldu þetta þegar þú vilt sjálf(ur) ákveða hvernig farið er með þau í síðari greiningu."
+
+msgid "``drop_features`` removes feature columns containing missing values."
+msgstr "``drop_features`` fjarlægir eiginleikadálka sem innihalda gildi sem vantar."
+
+msgid "``drop_objects`` removes object rows containing missing feature values."
+msgstr "``drop_objects`` fjarlægir hlutaraðir sem innihalda eiginleikagildi sem vantar."
+
+msgid "``mean`` replaces missing values with the observed feature mean."
+msgstr "``mean`` kemur í stað gilda sem vantar með mældu meðaltali eiginleikans."
+
+msgid "``zero`` replaces missing values with zero. Use it only when zero is an appropriate value for the intended analysis."
+msgstr "``zero`` kemur í stað gilda sem vantar með núlli. Notaðu þetta aðeins þegar núll er viðeigandi gildi fyrir fyrirhugaða greiningu."
+
+msgid "The imputing policies retain the original missing positions in ``layers['missing']``. These choices apply to the feature matrix, not to unknown metadata such as unavailable calibration values. Check object and feature counts after choosing a dropping policy. Scanpy operations such as scaling and PCA need missing feature values to be handled before use."
+msgstr "Íbótarstefnurnar varðveita upphaflegar staðsetningar gilda sem vantar í ``layers['missing']``. Þessir valkostir eiga við eiginleikafylkið, ekki óþekkt lýsigögn eins og kvörðunargildi sem eru ekki tiltæk. Athugaðu fjölda hluta og eiginleika eftir að þú velur stefnu sem fjarlægir gögn. Scanpy-aðgerðir eins og kvörðun og PCA krefjast þess að búið sé að meðhöndla eiginleikagildi sem vantar áður en þær eru notaðar."
+
+msgid "Inspect the output"
+msgstr "Yfirfarðu úttakið"
+
+msgid "``X`` contains the object-by-feature matrix, ``obs`` contains object metadata, and ``var`` describes the features. Keep the source images and their paths: image pixels are not embedded in the export. With the Annotate example, a cell-only export using ``keep`` has 2,341 objects, 261 features and 28 missing feature values."
+msgstr "``X`` inniheldur fylki hluta og eiginleika, ``obs`` inniheldur lýsigögn hluta og ``var`` lýsir eiginleikunum. Haltu upprunamyndunum og slóðum þeirra: myndpixlar eru ekki felldir inn í útflutninginn. Með merkingardæminu hefur útflutningur eingöngu á frumum með ``keep`` 2.341 hlut, 261 eiginleika og 28 eiginleikagildi sem vantar."
+
+msgid "Export from Python"
+msgstr "Útflutningur úr Python"
+
+msgid "The following uses the same entry point as the application's **Run** button:"
+msgstr "Eftirfarandi notar sama inngangspunkt og hnappurinn **Keyra** í forritinu:"
+
+msgid "For explicit function arguments, see :func:`spacr.anndata_export.export_anndata`."
+msgstr "Sjá :func:`spacr.anndata_export.export_anndata` fyrir skýr fallsviðföng."
+
+msgid "Follow the video"
+msgstr "Fylgdu myndbandinu"
+
+msgid "The `AnnData video <tutorials/#lesson=59_anndata_export>`__ walks through these controls using the downloadable measurement example. It shows joined, cell-only and nucleus-only exports and compares the missing-value policies. The normal exporter handles entirely missing metadata directly. If writing a replacement fails, an existing completed output is preserved."
+msgstr "`AnnData-myndbandið <tutorials/#lesson=59_anndata_export>`__ fer yfir þessar stýringar með niðurhalanlega mælingardæminu. Það sýnir samtengdan útflutning, útflutning eingöngu á frumum og eingöngu á kjörnum og ber saman stefnurnar fyrir gildi sem vantar. Venjulegi útflytjandinn meðhöndlar lýsigögn sem vantar alfarið beint. Ef ritun staðgengilsskrár mistekst er fyrirliggjandi fullgert úttak varðveitt."
+

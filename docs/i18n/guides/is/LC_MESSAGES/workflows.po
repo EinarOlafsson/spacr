@@ -1,0 +1,1845 @@
+# spaCR user guide translation (is).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: is\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Choose a workflow after installation"
+msgstr "Veldu verkflæði eftir uppsetningu"
+
+msgid "Start on Home with the first module for your experiment. Use that module's example-data control when available, inspect the inputs and preview, then run a bounded example before your own data."
+msgstr "Byrjaðu á Heim með fyrstu einingunni fyrir tilraunina þína. Notaðu stýringu einingarinnar fyrir dæmagögn þegar hún er tiltæk, skoðaðu inntökin og forskoðunina og keyrðu síðan afmarkað dæmi áður en þú notar eigin gögn."
+
+msgid "These routes and the API handoffs share the bundled module workflow map. A walkthrough explains the steps; it does not run an experiment automatically."
+msgstr "Þessar leiðir og API-afhendingarnar deila meðfylgjandi korti yfir verkflæði eininga. Leiðsögn útskýrir skrefin; hún keyrir ekki tilraun sjálfkrafa."
+
+msgid "Open **Pipeline overviews** to choose a pathway. Its graph includes external input nodes that explain the files you supply; these are not runnable modules. Persistent explanation cards describe modules and connections below the graph, with API links at the end of module cards. Select a graph element to outline its card, and drag the blue divider to adjust the space between graph and explanations. **Start example** opens the pathway's first real module; **Walkthrough** keeps the route available afterward. Alternative input and annotation branches do not require you to execute every listed step."
+msgstr "Opnaðu **Yfirlit vinnslukeðja** til að velja leið. Graf hennar inniheldur ytri inntakshnúta sem útskýra skrárnar sem þú leggur til; þeir eru ekki keyranlegar einingar. Varanleg skýringarspjöld lýsa einingum og tengingum fyrir neðan grafið, með API-tenglum aftast á spjöldum eininga. Veldu þátt í grafinu til að draga útlínu um spjald hans og dragðu bláa skilrúmið til að breyta rýminu milli grafs og skýringa. **Ræsa dæmi** opnar fyrstu raunverulegu einingu leiðarinnar; **Leiðsögn** heldur leiðinni tiltækri eftir á. Aðrar inntaks- og merkingagreinar krefjast þess ekki að þú framkvæmir hvert skref sem talið er upp."
+
+msgid "A pooled spaCR screen"
+msgstr "spaCR-skimun í sameinuðu safni"
+
+msgid "Combine image-derived phenotypes with guide abundance to rank perturbations. Segment and measure images, create reviewed labels with Annotate, Gate Editor or Image UMAP, and train and validate a classifier. Map the matching sequencing reads on an independent branch. Join compatible phenotype scores and guide counts by experimental identity for Regression. Annotation and segmentation routes are alternatives, not requirements to run every branch."
+msgstr "Sameinaðu svipgerðir úr myndum og magn leiðsögu-RNA til að raða inngripum. Hlutaðu og mældu myndir, búðu til yfirfarin merki með Annotate, Gate Editor eða Image UMAP og þjálfaðu og sannreyndu flokkara. Varpaðu samsvarandi raðgreiningarlestrum í sjálfstæðri grein. Tengdu samhæf svipgerðarstig og talningar leiðsögu-RNA eftir auðkenni tilraunar fyrir Regression. Merkingar- og hlutunarleiðirnar eru valkostir; ekki þarf að keyra allar greinar."
+
+msgid "**Choose an input route:**"
+msgstr "**Veldu inntaksleið:**"
+
+msgid "**Microscopy images**: Supply the original microscopy images with channel identities and field naming. For a time series, preserve frame order and timing. Choose segmentation settings appropriate for the objects in this experiment. Continue with :ref:`Mask <workflow-module-mask>`."
+msgstr "**Smásjármyndir**: Leggðu til upphaflegu smásjármyndirnar með auðkennum rása og nafngiftum sjónsviða. Fyrir tímaröð skaltu varðveita röð og tímasetningu ramma. Veldu hlutunarstillingar sem henta hlutunum í þessari tilraun. Haltu áfram með :ref:`Grímur <workflow-module-mask>`."
+
+msgid "**Existing masks and matching images**: Import source images together with matching integer object-label masks. Preserve object classes and field identities. This is an alternative to generating new masks; inspect the imported project before measuring. Continue with :ref:`Import <workflow-module-foreign>`."
+msgstr "**Fyrirliggjandi grímur og samsvarandi myndir**: Flyttu inn upprunamyndir ásamt samsvarandi grímum með heiltölumerkjum hluta. Varðveittu flokka hluta og auðkenni sjónsviða. Þetta er valkostur við að búa til nýjar grímur; skoðaðu innflutta verkefnið áður en þú mælir. Haltu áfram með :ref:`Flytja inn <workflow-module-foreign>`."
+
+msgid "**FASTQ: R1/R2, R1 only or R2 only**: Supply gzipped FASTQ files and the barcode reference CSVs. Use paired mode for R1/R2. For single-end reads, choose single mode and set single_direction to R1 or R2 to match the files and extraction orientation. Continue with :ref:`Map Barcodes <workflow-module-map_barcodes>`."
+msgstr "**FASTQ: R1/R2, aðeins R1 eða aðeins R2**: Leggðu til gzip-þjappaðar FASTQ-skrár og CSV-skrárnar með strikamerkjaviðmiðum. Notaðu paraðan ham fyrir R1/R2. Fyrir einenda lestra skaltu velja einfaldan ham og stilla single_direction á R1 eða R2 í samræmi við skrárnar og stefnu útdráttarins. Haltu áfram með :ref:`Varpa strikamerkjum <workflow-module-map_barcodes>`."
+
+msgid "**Module steps and alternatives:**"
+msgstr "**Skref eininga og valkostir:**"
+
+msgid ":ref:`Mask <workflow-module-mask>`: Start on Home and open Mask. Load the example data, check channels and segmentation, then run."
+msgstr ":ref:`Mask <workflow-module-mask>`: Byrjaðu á «Heim (Home)» og opnaðu «Grímur (Mask)». Hladdu inn sýnigögnum, athugaðu rásir og hlutaskiptingu og ræstu síðan vinnsluna."
+
+msgid ":ref:`Map Barcodes <workflow-module-map_barcodes>`: Return Home and open Map Barcodes for the matching sequencing reads and references."
+msgstr ":ref:`Map Barcodes <workflow-module-map_barcodes>`: Farðu aftur á «Heim (Home)» og opnaðu «Varpa strikamerkjum (Map Barcodes)» fyrir samsvarandi raðgreiningarlestra og viðmiðunargögn."
+
+msgid ":ref:`Import <workflow-module-foreign>`: If segmentation already exists, import the matching images and external masks into a spaCR project and inspect the resulting object identities. Skip segmentation and proceed to Measure when its required arrays are present."
+msgstr ":ref:`Import <workflow-module-foreign>`: Ef hlutun liggur þegar fyrir skaltu flytja samsvarandi myndir og ytri grímur inn í spaCR-verkefni og skoða hlutauðkennin sem verða til. Slepptu hlutun og farðu í Measure þegar nauðsynleg fylki eru til staðar."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Open Measure with the Mask project and create measurements and object crops."
+msgstr ":ref:`Measure <workflow-module-measure>`: Opnaðu «Mæling (Measure)» með verkefninu úr «Grímur (Mask)» og búðu til mælingar og myndútskurði af hlutum."
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Open Annotate, inspect representative objects and save phenotype labels."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: Opnaðu «Merking (Annotate)», skoðaðu dæmigerða hluti og vistaðu svipgerðarmerkingar."
+
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: Skilgreindu þröskulds- eða marghyrningslaga valmörk út frá raunverulegum eiginda- eða hnitadálkum og beittu síðan vistuðu valmörkunum á samhæfa hluti. Notaðu Annotate til að skrifa sýnd valmörk í merkingardálk; farðu yfir valda hluti og veldu tvíflokka eða fjölflokka merki."
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: Varpaðu mældum eigindum eða fyrirliggjandi eigindum úr kóðara og skoðaðu dæmigerða myndskurði. Klasi er tillaga að hópun, ekki staðfest svipgerð. Notaðu lassó- og merkingartólin til að skrifa yfirfarið val í merkingardálk í samsvarandi mæligagnagrunni. Rúmfræðilegt val eitt og sér staðfestir ekki líffræðilega svipgerð."
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Open Classify, choose images or measured features, and inspect held-out predictions."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: Opnaðu «Flokkun (Classify)», veldu myndir eða mælda eiginleika og skoðaðu spár fyrir gögn sem voru ekki notuð við þjálfun."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Open Regression with compatible phenotype scores and per-well guide counts; inspect hits and diagnostics."
+msgstr ":ref:`Regression <workflow-module-regression>`: Opnaðu «Aðhvarf (Regression)» með samhæfum svipgerðarskorum og talningum leiðsöguraða fyrir hvern brunn; skoðaðu niðurstöður skimunar og greiningu á líkaninu."
+
+msgid "High-content image analysis"
+msgstr "Fjölþátta myndgreining"
+
+msgid "Quantify an imaging experiment without sequencing. Start with microscopy images or import existing masks with their source images, measure the objects, then explore embeddings, define gated populations or build figures. These downstream branches answer different questions and can be used independently."
+msgstr "Magngreindu myndatökutilraun án raðgreiningar. Byrjaðu á smásjármyndum eða flyttu inn fyrirliggjandi grímur ásamt upprunamyndum, mældu hlutina og kannaðu síðan innfellingar, skilgreindu hópa með valmörkum eða búðu til myndrit. Þessar áframhaldandi greinar svara ólíkum spurningum og má nota óháð hver annarri."
+
+msgid ":ref:`Mask <workflow-module-mask>`: Start on Home with Mask and inspect segmentation on representative fields."
+msgstr ":ref:`Mask <workflow-module-mask>`: Byrjaðu á «Heim (Home)» með «Grímur (Mask)» og skoðaðu hlutaskiptingu á dæmigerðum sjónsviðum."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Open Measure on the resulting project and quantify objects."
+msgstr ":ref:`Measure <workflow-module-measure>`: Opnaðu «Mæling (Measure)» fyrir verkefnið sem varð til og mældu hlutina."
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Open Image UMAP to explore measured phenotypes and inspect crops."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: Opnaðu «Image UMAP» til að kanna mældar svipgerðir og skoða myndútskurði."
+
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Open Gate Editor to define an explicit population filter."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: Opnaðu «Gate-ritill (Gate Editor)» til að skilgreina skýra síu fyrir hóp hluta."
+
+msgid ":ref:`Graph Builder <workflow-module-graph_builder>`: Open Graph Builder to compare the chosen measurements and groups."
+msgstr ":ref:`Graph Builder <workflow-module-graph_builder>`: Opnaðu «Grafasmiður (Graph Builder)» til að bera saman valdar mælingar og hópa."
+
+msgid "Other routes for the appropriate question: :ref:`Classify <workflow-module-classify_merged>`, :ref:`Recruitment <workflow-module-recruitment>`, :ref:`Invasion Assay <workflow-module-invasion>`, :ref:`Replication Assay <workflow-module-replication>`."
+msgstr "Aðrar leiðir fyrir viðeigandi spurningu: :ref:`Flokkun <workflow-module-classify_merged>`, :ref:`Söfnunargreining <workflow-module-recruitment>`, :ref:`Innrásarpróf <workflow-module-invasion>`, :ref:`Fjölgunarpróf <workflow-module-replication>`."
+
+msgid "Train a segmentation model"
+msgstr "Þjálfa líkan fyrir hlutaskiptingu"
+
+msgid "Build a segmentation model from curated image and integer-mask pairs. Correct representative images in Make Masks, train in Cellpose Workbench, and select the resulting checkpoint in Mask. Evaluate independent fields before processing the full experiment; training images are not a held-out accuracy test."
+msgstr "Búðu til hlutunarlíkan úr yfirförnum pörum mynda og heiltölugríma. Leiðréttu dæmigerðar myndir í Make Masks, þjálfaðu í Cellpose Workbench og veldu varðveislupunktinn sem fæst í Mask. Metið óháð myndsvið áður en allt tilraunagagnasafnið er unnið; þjálfunarmyndir koma ekki í stað nákvæmnisprófs á fráteknum gögnum."
+
+msgid "**Microscopy images and optional starting masks**: Open representative images and optionally import existing integer masks for correction. Save matching curated pairs; keep separate validation images outside the training set. Continue with :ref:`Make Masks <workflow-module-make_masks>`."
+msgstr "**Smásjármyndir og valkvæðar upphafsgrímur**: Opnaðu dæmigerðar myndir og flyttu valkvætt inn fyrirliggjandi heiltölugrímur til leiðréttingar. Vistaðu samsvarandi grisjuð pör; haltu aðskildum sannprófunarmyndum utan þjálfunarsafnsins. Haltu áfram með :ref:`Búa til grímur <workflow-module-make_masks>`."
+
+msgid "**Independent microscopy images**: Apply the trained checkpoint to independent images with compatible channels. Check segmentation quality before processing the full experiment. Continue with :ref:`Mask <workflow-module-mask>`."
+msgstr "**Óháðar smásjármyndir**: Beittu þjálfaða vistunarpunktinum á óháðar myndir með samhæfum rásum. Athugaðu gæði hlutunar áður en öll tilraunin er unnin. Haltu áfram með :ref:`Grímur <workflow-module-mask>`."
+
+msgid ":ref:`Make Masks <workflow-module-make_masks>`: Start on Home with Make Masks and curate matching images and integer label masks."
+msgstr ":ref:`Make Masks <workflow-module-make_masks>`: Byrjaðu á «Heim (Home)» með «Búa til grímur (Make Masks)» og yfirfarðu og leiðréttu samsvarandi myndir og merkigrímur með heiltölugildum."
+
+msgid ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Inside Make Masks open Cellpose Workbench, choose Train and use the curated pairs."
+msgstr ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Opnaðu «Cellpose-vinnuborð» innan «Búa til grímur (Make Masks)», veldu «Train» og notaðu yfirförnu pörin."
+
+msgid ":ref:`Mask <workflow-module-mask>`: Return Home, open Mask and select the trained checkpoint; verify separate fields before a full run."
+msgstr ":ref:`Mask <workflow-module-mask>`: Farðu aftur á «Heim (Home)», opnaðu «Grímur (Mask)» og veldu vistað ástand þjálfaða líkansins; sannreyndu það á aðskildum sjónsviðum áður en þú keyrir allt verkefnið."
+
+msgid "Toxoplasma and parasite imaging assays"
+msgstr "Myndgreiningarpróf á Toxoplasma og sníkjudýrum"
+
+msgid "Choose the assay that matches the experiment. Recruitment, invasion and replication use measured objects with their required compartment identities and staining channels. Recruitment compares compartment intensities; invasion distinguishes internal and external parasites using differential staining; replication counts parasites within the appropriate vacuoles. Plaque Assay is an independent branch using plaque images or masks, with calibration for physical areas. The diagram groups these assays without implying that one assay must run before another."
+msgstr "Veldu mæliaðferð sem passar við tilraunina. Söfnunar-, innrásar- og fjölgunargreining nota mælda hluti með nauðsynlegum auðkennum hólfa og litunarrásum. Söfnunargreining ber saman styrk í hólfum; innrásargreining aðgreinir sníkjudýr innan og utan frumu með mismunalitun; fjölgunargreining telur sníkjudýr í viðeigandi safabólum. Plaque Assay er sjálfstæð grein sem notar skellumyndir eða grímur og kvörðun fyrir flatarmál í eðlisfræðilegum einingum. Skýringarmyndin flokkar þessar mæliaðferðir saman án þess að krefjast þess að ein sé keyrð á undan annarri."
+
+msgid "**Plaque images or existing plaque masks**: Choose plaque images for detection or existing plaque masks for analysis. Supply image calibration when physical plaque areas are required. This branch does not require the cell-compartment Measure workflow. Continue with :ref:`Plaque Assay <workflow-module-analyze_plaques>`."
+msgstr "**Skellumyndir eða fyrirliggjandi skellugrímur**: Veldu skellumyndir til greiningar eða fyrirliggjandi skellugrímur til úrvinnslu. Leggðu til kvörðun mynda þegar þörf er á efnislegu flatarmáli skellna. Þessi grein krefst ekki Mæling-verkflæðisins fyrir frumuhólf. Haltu áfram með :ref:`Skellugreining <workflow-module-analyze_plaques>`."
+
+msgid ":ref:`Mask <workflow-module-mask>`: Start on Home with Mask and configure the host, parasite and required compartment masks."
+msgstr ":ref:`Mask <workflow-module-mask>`: Byrjaðu á «Heim (Home)» með «Grímur (Mask)» og stilltu grímur fyrir hýsilfrumur, sníkjudýr og þau frumuhólf sem þarf."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Open Measure and collect the compartment or staining measurements needed by your assay."
+msgstr ":ref:`Measure <workflow-module-measure>`: Opnaðu «Mæling (Measure)» og safnaðu mælingum á frumuhólfum eða litun sem prófið þarf."
+
+msgid ":ref:`Recruitment <workflow-module-recruitment>`: For a recruitment question, open Recruitment and inspect compartment intensity ratios."
+msgstr ":ref:`Recruitment <workflow-module-recruitment>`: Til að kanna söfnun sameinda í frumuhólf skaltu opna «Söfnunargreining (Recruitment)» og skoða styrkhlutföll milli frumuhólfa."
+
+msgid ":ref:`Host–Pathogen Analysis <workflow-module-host_pathogen>`: Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown."
+msgstr ":ref:`Host–Pathogen Analysis <workflow-module-host_pathogen>`: Mældu heilar frymisbólur og viðmiðunarhólf hýsilfrumna og haltu ósýktum hýsilfrumum í nefnara sýkingarhlutfallsins. Veldu merkjarásir og hlutfallsþröskulda sem eru kvarðaðir með viðmiðunum. Teldu eftir þörfum sníkjudýr sem eru afmörkuð hvert fyrir sig út frá skýrum tengingum við frymisbólur eða dálki með mældum fjölda. Skoðaðu töflur fyrir frymisbólur, hýsilfrumur og brunna, sameiginleg merkjaástand, fjölgunardreifingar og tengingar sníkjudýra sem fundu enga samsvörun; óþekkt mæligildi haldast óþekkt."
+
+msgid ":ref:`Invasion Assay <workflow-module-invasion>`: Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion."
+msgstr ":ref:`Invasion Assay <workflow-module-invasion>`: Notaðu nauðsynlegar mælingar með tveggja lita aðgreinandi litun og viðmið fyrir grunnlitun til að greina á milli viðloðunar og innrásar."
+
+msgid ":ref:`Replication Assay <workflow-module-replication>`: Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole."
+msgstr ":ref:`Replication Assay <workflow-module-replication>`: Teldu sníkjudýr út frá skýrum auðkennum frymisbóla og berðu saman dreifingar milli skilyrða; auðkenni hýsilfrumu eitt og sér skilgreinir ekki frymisbólu."
+
+msgid ":ref:`Plaque Assay <workflow-module-analyze_plaques>`: For a plaque experiment, open Plaque Assay from Toxoplasma and supply plaque images or existing plaque masks. Inspect detection and calibration before comparing plaque counts and areas."
+msgstr ":ref:`Plaque Assay <workflow-module-analyze_plaques>`: Fyrir skellutilraun skaltu opna Plaque Assay frá Toxoplasma og gefa upp skellumyndir eða fyrirliggjandi skellugrímur. Skoðaðu greiningu og kvörðun áður en fjöldi og flatarmál skella eru borin saman."
+
+msgid "Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks. Open these assays from Home → Toxoplasma."
+msgstr "«Invasion» og «Replication» lesa þau mældu frumuhólf sem hvort próf þarf; «Skellugreining (Plaque Assay)» notar hins vegar myndir eða grímur af skellum. Opnaðu þessi próf frá «Heim (Home)» → «Toxoplasma»."
+
+msgid "An optical pooled screen"
+msgstr "Sjónræn skimun í sameinuðu safni"
+
+msgid "Decode an optical pooled screen from the original sequencing cycles and corresponding phenotype images. Enter OPS through Mask, inspect cycle/site alignment and barcode decoding, then join decoded object identities with phenotype responses and aggregate compatible inputs for Regression. Align & Stitch is optional; a stitched image alone cannot replace sequencing cycles."
+msgstr "Afkóðaðu ljósfræðilega samskimun úr upprunalegum raðgreiningarlotum og samsvarandi svipgerðarmyndum. Opnaðu OPS í gegnum Mask, athugaðu samstillingu lota og myndstaða og afkóðun strikamerkja, tengdu síðan afkóðuð hlutauðkenni við svipgerðarsvör og safnaðu saman samhæfum inntökum fyrir Regression. Align & Stitch er valkvætt; samsett mynd ein og sér kemur ekki í stað raðgreiningarlota."
+
+msgid "**Sequencing cycles and phenotype images**: Supply original cycle/site images, channel assignments and the corresponding phenotype alignment. Preserve cycle and site identities; mosaic output alone is insufficient for decoding. Continue with :ref:`OPS <workflow-module-ops>`."
+msgstr "**Raðgreiningarlotur og svipgerðarmyndir**: Leggðu til upphaflegar myndir fyrir hverja lotu/staðsetningu, úthlutun rása og samsvarandi jöfnun svipgerðar. Varðveittu auðkenni lotu og staðsetningar; mósaíkúttak eitt og sér nægir ekki til afkóðunar. Haltu áfram með :ref:`OPS <workflow-module-ops>`."
+
+msgid "**Compatible phenotype responses**: Join decoded object identities to phenotype responses and aggregate them to the analysis unit required by Regression. Verify object/well identity and guide assignment; OPS tables are not a direct FASTQ count CSV handoff. Continue with :ref:`Regression <workflow-module-regression>`."
+msgstr "**Samhæf svipgerðarsvör**: Tengdu afkóðuð auðkenni hluta við svipgerðarsvör og taktu þau saman á þá greiningareiningu sem Aðhvarf krefst. Staðfestu auðkenni hluta/brunns og úthlutun leiðara; OPS-töflur eru ekki bein afhending á CSV með FASTQ-talningum. Haltu áfram með :ref:`Aðhvarf <workflow-module-regression>`."
+
+msgid ":ref:`OPS <workflow-module-ops>`: Start on Home: open Mask, then OPS; supply original cycle/site images and phenotype alignment."
+msgstr ":ref:`OPS <workflow-module-ops>`: Byrjaðu á «Heim (Home)», opnaðu «Grímur (Mask)» og síðan «OPS»; tilgreindu upprunalegar myndir umferða og staðsetninga og samstillingu við svipgerðarmyndirnar."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Join and aggregate decoded object identities with compatible phenotype responses before opening Regression."
+msgstr ":ref:`Regression <workflow-module-regression>`: Tengdu og taktu saman afkóðuð auðkenni hluta með samhæfum svipgerðarsvörunum áður en þú opnar «Aðhvarf (Regression)»."
+
+msgid "Align & Stitch is optional when your images need tile-geometry inspection or coordinate mapping; it is not a prerequisite for the OPS example. A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically."
+msgstr "«Samstilla og sauma saman (Align & Stitch)» er valfrjálst þegar skoða þarf rúmfræði myndflísa eða varpa hnitum; það er ekki forsenda fyrir OPS-dæminu. Samsett mynd ein og sér kemur ekki í stað raðgreiningarumferðanna. OPS-töflur krefjast skýrrar tengingar og samantektar eftir auðkennum fyrir aðhvarfsgreiningu; leiðsögnin framkvæmir ekki þessa umbreytingu sjálfkrafa."
+
+msgid "Import existing data"
+msgstr "Flytja inn fyrirliggjandi gögn"
+
+msgid "Bring an existing experiment into spaCR using the route matching its contents. Image-only data need segmentation. Matching images and integer masks can be formatted into a project for measurement. Existing feature tables require explicit column and object mappings and may already be ready for exploration. Check identities, channels and crop paths before following a downstream branch."
+msgstr "Flyttu fyrirliggjandi tilraun inn í spaCR eftir þeirri leið sem samsvarar innihaldi hennar. Gögn sem innihalda aðeins myndir þurfa hlutun. Samsvarandi myndir og heiltölugrímur má forsníða sem verkefni fyrir mælingar. Fyrirliggjandi eigindatöflur þurfa skýra vörpun dálka og hluta og gætu þegar verið tilbúnar til könnunar. Athugaðu auðkenni, rásir og slóðir myndskurða áður en farið er í áframhaldandi grein."
+
+msgid "**Microscopy images**: Supply the original microscopy images with channel identities and field naming. For a time series, preserve frame order and timing. Choose segmentation settings appropriate for the objects in this experiment. Continue with :ref:`Import <workflow-module-foreign>`."
+msgstr "**Smásjármyndir**: Leggðu til upphaflegu smásjármyndirnar með auðkennum rása og nafngiftum sjónsviða. Fyrir tímaröð skaltu varðveita röð og tímasetningu ramma. Veldu hlutunarstillingar sem henta hlutunum í þessari tilraun. Haltu áfram með :ref:`Flytja inn <workflow-module-foreign>`."
+
+msgid "**External measurements and object mappings**: Import existing feature tables with explicit object, field and column mappings. Provide matching crop paths when image exploration is needed. Avoid remeasuring rows already represented by imported features. Continue with :ref:`Import <workflow-module-foreign>`."
+msgstr "**Ytri mælingar og vörpun hluta**: Flyttu inn fyrirliggjandi eiginleikatöflur með skýrri vörpun hluta, sjónsviða og dálka. Leggðu til samsvarandi slóðir myndskurða þegar þörf er á könnun mynda. Forðastu að endurmæla raðir sem innfluttir eiginleikar ná þegar yfir. Haltu áfram með :ref:`Flytja inn <workflow-module-foreign>`."
+
+msgid ":ref:`Import <workflow-module-foreign>`: Start on Home with Import and select the route matching images, external masks or external measurements."
+msgstr ":ref:`Import <workflow-module-foreign>`: Byrjaðu á «Heim (Home)» með «Flytja inn (Import)» og veldu leiðina sem samsvarar myndum, ytri grímum eða ytri mælingum."
+
+msgid ":ref:`Mask <workflow-module-mask>`: For image-only imports, open Mask to add segmentation; skip this when valid masks already exist."
+msgstr ":ref:`Mask <workflow-module-mask>`: Þegar aðeins myndir eru fluttar inn skaltu opna «Grímur (Mask)» til að bæta við hlutaskiptingu; slepptu þessu ef gildar grímur eru þegar til."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Use Measure when features have not already been imported or computed by External Masks."
+msgstr ":ref:`Measure <workflow-module-measure>`: Notaðu «Mæling (Measure)» þegar eiginleikar hafa ekki þegar verið fluttir inn eða reiknaðir með «Ytri grímur (External Masks)»."
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Open Image UMAP to inspect the resulting measured objects and matching crops."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: Opnaðu «Image UMAP» til að skoða mældu hlutina sem urðu til og samsvarandi myndútskurði."
+
+msgid "Discover phenotypes without labels"
+msgstr "Finna svipgerðir án merkinga"
+
+msgid "Explore a measured, segmented experiment without initial phenotype labels. Compare measured features or encoded image features in Image UMAP, inspect representative crops and create reproducible selections in Gate Editor. Review candidate labels in Annotate before supervised training. A cluster or gate is a hypothesis about a phenotype, not its validation."
+msgstr "Kannaðu mælda og hlutaða tilraun án upphaflegra svipgerðarmerkja. Berðu saman mældar eigindir eða kóðaðar myndeigindir í Image UMAP, skoðaðu dæmigerða myndskurði og búðu til endurtakanlegt val í Gate Editor. Farðu yfir tillögur að merkjum í Annotate fyrir stýrt nám. Klasi eða valmörk eru tilgáta um svipgerð, ekki staðfesting á henni."
+
+msgid "**Segmented image project**: Use merged image arrays and matching object-label planes from Mask or Import. Check channel roles, object identities and crop settings before measuring. Continue with :ref:`Measure <workflow-module-measure>`."
+msgstr "**Hlutað myndaverkefni**: Notaðu samsett myndafylki og samsvarandi merkjaplön hluta úr Grímur eða Flytja inn. Athugaðu hlutverk rása, auðkenni hluta og stillingar myndskurða áður en þú mælir. Haltu áfram með :ref:`Mæling <workflow-module-measure>`."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Start on Home with Measure using an already segmented project, or use its example data."
+msgstr ":ref:`Measure <workflow-module-measure>`: Byrjaðu á «Heim (Home)» með «Mæling (Measure)» og verkefni sem hefur þegar verið hlutaskipt, eða notaðu sýnigögn einingarinnar."
+
+msgid ":ref:`Embeddings <workflow-module-embeddings>`: Open Embeddings to encode object images; retain the object IDs and encoder/channel settings."
+msgstr ":ref:`Embeddings <workflow-module-embeddings>`: Opnaðu «Innfellingar (Embeddings)» til að kóða myndir af hlutum; varðveittu auðkenni hlutanna og stillingar kóðarans og rásanna."
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Open Image UMAP with compatible measured or encoder feature columns and inspect candidate groups."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: Opnaðu «Image UMAP» með samhæfum dálkum fyrir mælda eiginleika eða eiginleika frá kóðara og skoðaðu mögulega hópa."
+
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Define a reproducible selection in Gate Editor using the matching feature or projection columns."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: Skilgreindu endurtakanlegt val í «Gate-ritill (Gate Editor)» með samsvarandi eiginleika- eða vörpunardálkum."
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Open Annotate and review candidate labels before using them as supervised training data."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: Opnaðu «Merking (Annotate)» og yfirfarðu tillögur að merkingum áður en þær eru notaðar sem gögn fyrir stýrða þjálfun."
+
+msgid "Plan a screen"
+msgstr "Skipuleggja skimun"
+
+msgid "Design conditions, controls, replicates and plate assignments before acquisition. Use Power / Design to explore sampling needs under explicit effect-size and variability assumptions; pilot measurements can inform these assumptions. The design handoff is a planning dependency, not an automatically executed experiment."
+msgstr "Skipuleggðu skilyrði, viðmið, endurtekningar og úthlutun á plötur áður en myndataka hefst. Notaðu Power / Design til að kanna sýnatökuþörf út frá skýrum forsendum um áhrifastærð og breytileika; forprófunarmælingar geta stutt þessar forsendur. Afhending hönnunar er háð skref í skipulagningu og keyrir ekki tilraun sjálfkrafa."
+
+msgid "**Conditions, controls and design assumptions**: Enter experimental conditions, controls, replicate requirements and plate constraints. These inputs may be entered directly; a pre-existing data file is not required. Continue with :ref:`Experiment Design <workflow-module-experiment_design>`."
+msgstr "**Skilyrði, viðmið og forsendur tilraunahönnunar**: Sláðu inn tilraunaskilyrði, viðmið, kröfur um endurtekningar og takmarkanir platna. Þessi inntök má slá inn beint; ekki er krafist fyrirliggjandi gagnaskrár. Haltu áfram með :ref:`Experiment Design <workflow-module-experiment_design>`."
+
+msgid "**Effect sizes, variability and optional pilot data**: Supply explicit assumptions for effect size and variability; optionally use compatible pilot measurements. Review how changing assumptions affects the required sampling effort. Continue with :ref:`Power / Design <workflow-module-power>`."
+msgstr "**Áhrifastærðir, breytileiki og valkvæð forprófunargögn**: Leggðu til skýrar forsendur um áhrifastærð og breytileika; notaðu valkvætt samhæfar forprófunarmælingar. Farðu yfir hvernig breyttar forsendur hafa áhrif á nauðsynlegt sýnatökuátak. Haltu áfram með :ref:`Power / Design <workflow-module-power>`."
+
+msgid ":ref:`Experiment Design <workflow-module-experiment_design>`: Start on Home with Experiment Design; assign conditions, controls, replicates and wells."
+msgstr ":ref:`Experiment Design <workflow-module-experiment_design>`: Byrjaðu á «Heim (Home)» með «Tilraunahönnun (Experiment Design)»; úthlutaðu skilyrðum, viðmiðum, endurtekningum og brunnum."
+
+msgid ":ref:`Power / Design <workflow-module-power>`: Open Power / Design and estimate sampling needs from explicit effect-size and variability assumptions."
+msgstr ":ref:`Power / Design <workflow-module-power>`: Opnaðu «Tölfræðilegt afl / hönnun (Power / Design)» og áætlaðu þörf á sýnatöku út frá skýrum forsendum um áhrifastærð og breytileika."
+
+msgid "Track live cells"
+msgstr "Rekja lifandi frumur"
+
+msgid "Follow segmented objects through an ordered image sequence, then quantify their measurements and motion. Check frame order, frame interval, object identity and pixel calibration. Import existing masks with their source images when available, and ensure that the tracked project has valid identities before interpreting motility."
+msgstr "Fylgdu hlutuðum hlutum í gegnum raðaða myndarunu og magngreindu síðan mælingar þeirra og hreyfingu. Athugaðu röð ramma, tímabil milli ramma, hlutauðkenni og kvörðun myndpunkta. Flyttu inn fyrirliggjandi grímur ásamt upprunamyndum þegar þær eru tiltækar og tryggðu að verkefnið með rakningunni hafi gild auðkenni áður en hreyfanleiki er túlkaður."
+
+msgid ":ref:`Mask <workflow-module-mask>`: Start on Home with Mask and point it at an ordered time-series project."
+msgstr ":ref:`Mask <workflow-module-mask>`: Byrjaðu á «Heim (Home)» með «Grímur (Mask)» og veldu verkefni með myndaröð í tímaröð."
+
+msgid ":ref:`Timelapse <workflow-module-timelapse>`: Open the Timelapse action in Mask, configure timing and inspect linked objects."
+msgstr ":ref:`Timelapse <workflow-module-timelapse>`: Opnaðu aðgerðina «Tímaraðir (Timelapse)» í «Grímur (Mask)», stilltu tímaupplýsingar og skoðaðu tengda hluti."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Open Measure on the tracked project to quantify the objects."
+msgstr ":ref:`Measure <workflow-module-measure>`: Opnaðu «Mæling (Measure)» fyrir verkefnið með rakningunni til að mæla hlutina."
+
+msgid ":ref:`Motility Assay <workflow-module-motility>`: Inside Measure open Motility Assay and check frame interval, pixel calibration and track filters."
+msgstr ":ref:`Motility Assay <workflow-module-motility>`: Opnaðu «Hreyfanleikapróf (Motility Assay)» innan «Mæling (Measure)» og athugaðu tímabil milli mynda, kvörðun myndpunkta og síur fyrir ferla."
+
+msgid "Module inputs, outputs and next steps"
+msgstr "Inntök, úttök og næstu skref eininga"
+
+msgid "Mask"
+msgstr "Grímur"
+
+msgid "Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table."
+msgstr "Veldu rásir og líkön, skoðaðu forskoðun og keyrðu svo Grímur. Mæling notar sameinuðu fylkin; talningagagnagrunnurinn er ekki enn eiginleikatafla."
+
+msgid "**Open:** Home → Mask."
+msgstr "**Opna:** Heim → Grímur."
+
+msgid "Inputs and outputs below include conditional alternatives. The guidance and handoff notes say which route applies."
+msgstr "Inntök og úttök hér að neðan innihalda skilyrta valkosti. Leiðbeiningarnar og afhendingarathugasemdirnar segja hvaða leið á við."
+
+msgid "**Inputs**"
+msgstr "**inntök**"
+
+msgid "**Microscope images** — Source image folder; original files, supported vendor files or imported TIFFs."
+msgstr "**Smásjármyndir** — Mappa upprunamynda; upprunalegar skrár, studdar framleiðandaskrár eða innfluttar TIFFs."
+
+msgid "**Segmentation checkpoint** — Saved Cellpose-compatible checkpoint or a compatible installed backend selected with its own configuration."
+msgstr "**Vistunarpunktur hlutunar** — Vistaður Cellpose-samrýmanlegur vistunarpunktur eða samrýmanlegur uppsettur bakendi valinn með eigin stillingum."
+
+msgid "**Outputs**"
+msgstr "**Úttök**"
+
+msgid "**Images and label masks** — merged/\\*.npy in the project; channels and integer label planes share each field array."
+msgstr "**Myndir og merkjagrímur** — merged/\\*.npy í verkefninu; rásir og heiltölumerkjaplön deila hverju sjónsviðsfylki."
+
+msgid "**Label masks** — masks/ when retained, or explicitly saved image/mask pairs. Intermediate masks may be removed by cleanup."
+msgstr "**Merkjagrímur** — masks/ þegar því er haldið, eða skýrt vistuð pör mynda/gríma. Millistigsgrímur geta verið fjarlægðar við hreinsun."
+
+msgid "**Object counts** — measurements/measurements.db; Mask counts alone are not per-object feature measurements."
+msgstr "**Fjöldi hluta** — measurements/measurements.db; talningar úr Grímum einar og sér eru ekki mælingar á eiginleikum hvers hlutar."
+
+msgid "**Before this module**"
+msgstr "**Á undan þessari einingu**"
+
+msgid ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Select the saved compatible checkpoint in Mask."
+msgstr ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Veldu vistaða samrýmanlega vistunarpunktinn í Grímur."
+
+msgid ":ref:`Import Images <workflow-module-import_images>`: Use imported image planes and identities; image-only imports still need segmentation."
+msgstr ":ref:`Import Images <workflow-module-import_images>`: Notaðu innflutt myndplön og auðkenni; innflutningur mynda eingöngu þarf enn hlutun."
+
+msgid ":ref:`Format Converter <workflow-module-convert>`: Use the converted layout and preserve source identity mappings."
+msgstr ":ref:`Format Converter <workflow-module-convert>`: Notaðu umbreyttu uppsetninguna og varðveittu varpanir á auðkennum upprunans."
+
+msgid ":ref:`Import <workflow-module-foreign>`: For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input."
+msgstr ":ref:`Import <workflow-module-foreign>`: Við innflutning mynda eingöngu skaltu nota Import Images eða Format Converter og beina Mask að forsniðna myndaverkefninu. Ytri mælingar einar og sér eru ekki inntak fyrir hlutun."
+
+msgid "**After this module**"
+msgstr "**Á eftir þessari einingu**"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Use the same project and the correct image/mask channel indices."
+msgstr ":ref:`Measure <workflow-module-measure>`: Notaðu sama verkefni og réttu rásavísana fyrir myndir/grímur."
+
+msgid ":ref:`Timelapse <workflow-module-timelapse>`: Enable the nested time-series route before generating linked labels."
+msgstr ":ref:`Timelapse <workflow-module-timelapse>`: Virkjaðu hreiðruðu tímaraðarleiðina áður en tengd merki eru búin til."
+
+msgid ":doc:`API reference </api/spacr/core/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/core/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=07_mask>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=07_mask>`__."
+
+msgid "Measure"
+msgstr "Mæling"
+
+msgid "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops."
+msgstr "Mæling les myndir og merkjaplön saman. Virkjaðu vistun myndskurða ef þú þarft PNG-skrár; haltu gagnagrunninum og upprunaverkefninu saman fyrir streymda myndskurði."
+
+msgid "**Open:** Home → Measure."
+msgstr "**Opna:** Heim → Mæling."
+
+msgid "**Measured objects** — measurements/measurements.db; object tables depend on the enabled cell, nucleus, pathogen and organelle masks. Relevant tables, depending on the route: ``cell``, ``nucleus``, ``pathogen``, ``cytoplasm``. Relevant columns, depending on the route: ``plateID``, ``rowID``, ``columnID``, ``fieldID``."
+msgstr "**Mældir hlutir** — measurements/measurements.db; töflur hluta ráðast af því hvaða grímur fyrir frumu, kjarna, sýkil og frumulíffæri eru virkar. Viðeigandi töflur, eftir leið: ``cell``, ``nucleus``, ``pathogen``, ``cytoplasm``. Viðeigandi dálkar, eftir leið: ``plateID``, ``rowID``, ``columnID``, ``fieldID``."
+
+msgid "**Object crops** — data/\\*\\*/\\*_png when save_png is enabled; png_list indexes saved crops. Supported workflows can instead stream crops from merged arrays and masks. Relevant tables, depending on the route: ``png_list``. Relevant columns, depending on the route: ``png_path``, ``prcfo``."
+msgstr "**Myndskurðir hluta** — data/\\*\\*/\\*_png þegar save_png er virkt; png_list heldur skrá yfir vistaða myndskurði. Studd verkflæði geta í staðinn streymt myndskurðum úr samsettum fylkjum og grímum. Viðeigandi töflur, eftir leið: ``png_list``. Viðeigandi dálkar, eftir leið: ``png_path``, ``prcfo``."
+
+msgid ":ref:`Mask <workflow-module-mask>`: Use the same project and the correct image/mask channel indices."
+msgstr ":ref:`Mask <workflow-module-mask>`: Notaðu sama verkefni og réttu rásavísana fyrir myndir/grímur."
+
+msgid ":ref:`Make Masks <workflow-module-make_masks>`: Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays."
+msgstr ":ref:`Make Masks <workflow-module-make_masks>`: Notaðu FEATURES til að para myndir og grímur og skrifa mælt verkefni; stakar grímur eru ekki sameinuð fylki."
+
+msgid ":ref:`External Masks <workflow-module-external_masks>`: Re-measure only when needed; External Masks can already perform measurement."
+msgstr ":ref:`External Masks <workflow-module-external_masks>`: Mældu aftur aðeins þegar þörf er á; External Masks getur þegar framkvæmt mælingar."
+
+msgid ":ref:`Timelapse <workflow-module-timelapse>`: Use the time-series project with stable frame/object identities."
+msgstr ":ref:`Timelapse <workflow-module-timelapse>`: Notaðu tímaraðarverkefnið með stöðugum auðkennum ramma/hluta."
+
+msgid ":ref:`Import <workflow-module-foreign>`: Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table."
+msgstr ":ref:`Import <workflow-module-foreign>`: Flyttu inn samsvarandi myndir og ytri heiltölugrímur til að búa til sameinuð verkefnisfylki og opnaðu síðan Measure fyrir verkefnið. Slepptu þessu skrefi ef samhæfar mælingar hafa þegar verið fluttar inn eða reiknaðar. Ekki bæta tvíteknum mælingum við fyrirliggjandi innflutta töflu."
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Save or stream crops with stable object identities."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: Vistaðu eða streymdu myndskurðum með stöðugum auðkennum hluta."
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Choose the image or tabular family to match your input."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: Veldu mynda- eða töflufjölskylduna sem passar við inntakið."
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Choose feature columns and inspect representative crops."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: Veldu eiginleikadálka og skoðaðu dæmigerða myndskurði."
+
+msgid ":ref:`Embeddings <workflow-module-embeddings>`: Retain encoder and channel-policy provenance."
+msgstr ":ref:`Embeddings <workflow-module-embeddings>`: Varðveittu uppruna kóðara og rásareglna."
+
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Use the actual measured feature definitions and units."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: Notaðu raunverulegar skilgreiningar og einingar mældu eiginleikanna."
+
+msgid ":ref:`Graph Builder <workflow-module-graph_builder>`: Choose explicit variables, groups and filters."
+msgstr ":ref:`Graph Builder <workflow-module-graph_builder>`: Veldu skýrar breytur, hópa og síur."
+
+msgid ":ref:`QC <workflow-module-qc_dashboard>`: Review available checks and missing evidence."
+msgstr ":ref:`QC <workflow-module-qc_dashboard>`: Yfirfarðu tiltækar athuganir og sönnunargögn sem vantar."
+
+msgid ":ref:`Recruitment <workflow-module-recruitment>`: Require the intended compartment intensities and identities."
+msgstr ":ref:`Recruitment <workflow-module-recruitment>`: Krefstu styrks og auðkenna réttu hólfanna."
+
+msgid ":ref:`Invasion Assay <workflow-module-invasion>`: Require two-colour stain measurements and appropriate baseline controls."
+msgstr ":ref:`Invasion Assay <workflow-module-invasion>`: Krefstu tvílita litunarmælinga og viðeigandi grunnlínuviðmiða."
+
+msgid ":ref:`Replication Assay <workflow-module-replication>`: Require explicit parasite-to-vacuole identities."
+msgstr ":ref:`Replication Assay <workflow-module-replication>`: Krefstu skýrra auðkenna sníkjudýra gagnvart safabólum."
+
+msgid ":ref:`Motility Assay <workflow-module-motility>`: Combine measured objects with matching tracks."
+msgstr ":ref:`Motility Assay <workflow-module-motility>`: Sameinaðu mælda hluti við samsvarandi ferla."
+
+msgid ":ref:`Feature Explorer <workflow-module-feature_explorer>`: Define the class comparison and inspect filtering."
+msgstr ":ref:`Feature Explorer <workflow-module-feature_explorer>`: Skilgreindu samanburð flokka og skoðaðu síun."
+
+msgid ":ref:`Database Browser <workflow-module-db_browser>`: Inspect actual tables before exporting."
+msgstr ":ref:`Database Browser <workflow-module-db_browser>`: Skoðaðu raunverulegar töflur áður en flutt er út."
+
+msgid ":ref:`AnnData Export <workflow-module-anndata_export>`: Export compatible feature and metadata columns."
+msgstr ":ref:`AnnData Export <workflow-module-anndata_export>`: Flyttu út samrýmanlega eiginleika- og lýsigagnadálka."
+
+msgid ":ref:`Dose–Response <workflow-module-dose_response>`: Join the measured response to explicit doses and controls."
+msgstr ":ref:`Dose–Response <workflow-module-dose_response>`: Tengdu mælda svörun við skýra skammta og viðmið."
+
+msgid ":ref:`Endodyogeny size proxy <workflow-module-endodyogeny>`: Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient."
+msgstr ":ref:`Endodyogeny size proxy <workflow-module-endodyogeny>`: Gefðu upp rætur mældra verkefna og nauðsynlegar töflur hluta/png_list. Staðfestu samantekt á hýsilfrumu og flatarmálseiningar áður en stærðarbil eru túlkuð; talningagagnagrunnur Grímur einn og sér dugar ekki."
+
+msgid ":ref:`Host–Pathogen Analysis <workflow-module-host_pathogen>`: Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole."
+msgstr ":ref:`Host–Pathogen Analysis <workflow-module-host_pathogen>`: Haltu ósýktum frumum í Mælingu. Gefðu upp grímur heilla safabóla, viðmiðunarstyrk hýsla og valfrjálsar skýrar tengingar sníkjudýra við safabólur; auðkenni hýsils eitt og sér skilgreinir ekki safabólu."
+
+msgid ":doc:`API reference </api/spacr/measure/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/measure/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=08_measure>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=08_measure>`__."
+
+msgid "Annotate"
+msgstr "Merking"
+
+msgid "Label representative objects in png_list before supervised training. Use separate annotations for different questions and keep training and evaluation groups independent."
+msgstr "Merktu dæmigerða hluti í png_list fyrir stýrða þjálfun. Notaðu aðskildar merkingar fyrir ólíkar spurningar og haltu þjálfunar- og matshópum óháðum."
+
+msgid "**Open:** Home → Annotate."
+msgstr "**Opna:** Heim → Merking."
+
+msgid "**Reusable gates** — Saved threshold/polygon gate definitions or a selected object set; apply a gate to the same feature definitions."
+msgstr "**Endurnýtanleg gates** — Vistaðar skilgreiningar þröskulda-/marghyrningsvalsvæða eða valið hlutamengi; beittu valsvæði á sömu skilgreiningar eiginleika."
+
+msgid "**Training annotations** — A chosen annotation column in measurements/measurements.db, table png_list; labels belong to object identities. Relevant tables, depending on the route: ``png_list``. Relevant columns, depending on the route: ``prcfo``."
+msgstr "**Þjálfunarmerkingar** — Valinn merkingadálkur í measurements/measurements.db, töflunni png_list; merki tilheyra auðkennum hluta. Viðeigandi töflur, eftir leið: ``png_list``. Viðeigandi dálkar, eftir leið: ``prcfo``."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Save or stream crops with stable object identities."
+msgstr ":ref:`Measure <workflow-module-measure>`: Vistaðu eða streymdu myndskurðum með stöðugum auðkennum hluta."
+
+msgid ":ref:`External Masks <workflow-module-external_masks>`: Keep the newly measured project and crop index together."
+msgstr ":ref:`External Masks <workflow-module-external_masks>`: Haltu nýmælda verkefninu og myndskurðaskránni saman."
+
+msgid ":ref:`Import <workflow-module-foreign>`: Imported tables require explicit column and object-identity mappings."
+msgstr ":ref:`Import <workflow-module-foreign>`: Innfluttar töflur krefjast skýrrar vörpunar á dálkum og auðkennum hluta."
+
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Apply compatible gates, then review candidate labels."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: Beittu samrýmanlegum valsvæðum og yfirfarðu svo tillögur að merkjum."
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Keep labelled training and evaluation groups separate."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: Haltu merktum þjálfunar- og matshópum aðskildum."
+
+msgid ":ref:`Annotator Agreement <workflow-module-agreement>`: Choose independent annotation columns for the same objects."
+msgstr ":ref:`Annotator Agreement <workflow-module-agreement>`: Veldu óháða merkingadálka fyrir sömu hluti."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/annotate/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/qt/screens/annotate/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=09_annotate>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=09_annotate>`__."
+
+msgid "Classify"
+msgstr "Flokkun"
+
+msgid "Choose Computer Vision for crops or streamed object images, or Tabular Machine Learning for measured feature columns. The two families consume different inputs."
+msgstr "Veldu Tölvusjón fyrir myndskurði eða streymdar myndir af hlutum, eða Vélnám á töflugögnum fyrir dálka mældra eiginleika. Fjölskyldurnar tvær nota ólík inntök."
+
+msgid "**Open:** Home → Classify."
+msgstr "**Opna:** Heim → Flokkun."
+
+msgid "**Object classification scores** — Saved score CSVs and, when merged, measurements/measurements.db, table png_list. Relevant tables, depending on the route: ``png_list``. Relevant columns, depending on the route: ``pred``, ``cv_predictions``, ``ml_pred``, ``predictions``."
+msgstr "**Flokkunarskor hluta** — Vistaðar CSV-skrár með skorum og, þegar þær eru sameinaðar, measurements/measurements.db, taflan png_list. Viðeigandi töflur, eftir leið: ``png_list``. Viðeigandi dálkar, eftir leið: ``pred``, ``cv_predictions``, ``ml_pred``, ``predictions``."
+
+msgid "**Trained image classifier** — Saved classifier checkpoint, model settings and matching channel/preprocessing configuration."
+msgstr "**Þjálfaður myndflokkari** — Vistaður vistunarpunktur flokkara, líkanastillingar og samsvarandi stillingar rása/forvinnslu."
+
+msgid "**Fitted feature classifier** — The fitted tabular classifier and its recorded feature list, training settings and validation results."
+msgstr "**Mátaður eiginleikaflokkari** — Mátaði töfluflokkarinn og skráður eiginleikalisti hans, þjálfunarstillingar og staðfestingarniðurstöður."
+
+msgid "**Classifier evaluation bundle** — Held-out predictions, labels, split metadata and calibration/leakage metrics for a saved classifier run."
+msgstr "**Matspakki flokkara** — Spár á útilokuðum gögnum, merki, lýsigögn skiptingar og mælikvarðar á kvörðun/leka fyrir vistaða flokkarakeyrslu."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Choose the image or tabular family to match your input."
+msgstr ":ref:`Measure <workflow-module-measure>`: Veldu mynda- eða töflufjölskylduna sem passar við inntakið."
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Keep labelled training and evaluation groups separate."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: Haltu merktum þjálfunar- og matshópum aðskildum."
+
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: Skrifaðu yfirfarið val innan valmarka í merkingardálk og veldu síðan sama dálk og sama hlutahóp í Classify. Haltu sannprófunarhlutum aðskildum frá þjálfunarmerkjum."
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: Skrifaðu yfirfarið lassóval í merkingardálk í samsvarandi hlutagagnagrunni og veldu síðan þann dálk í Classify. Skoðaðu myndskurði og sannreyndu merki; klasar í innfellingu eru ekki sannleiksgögn."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Select the intended CV or ML score column and preserve plate/well identity."
+msgstr ":ref:`Regression <workflow-module-regression>`: Veldu tilætlaðan CV- eða ML-skordálk og varðveittu auðkenni plötu/brunns."
+
+msgid ":ref:`Classifier Evaluation <workflow-module-classifier_evaluation>`: Use the matching held-out predictions and split metadata."
+msgstr ":ref:`Classifier Evaluation <workflow-module-classifier_evaluation>`: Notaðu samsvarandi spár á útilokuðum gögnum og lýsigögn skiptingar."
+
+msgid ":ref:`Activation <workflow-module-activation>`: Also provide the matching crops and channel preprocessing."
+msgstr ":ref:`Activation <workflow-module-activation>`: Gefðu einnig upp samsvarandi myndskurði og forvinnslu rása."
+
+msgid ":ref:`Explain CV Model <workflow-module-explain_cv>`: Select CV predictions and the matching measured objects."
+msgstr ":ref:`Explain CV Model <workflow-module-explain_cv>`: Veldu CV-spár og samsvarandi mælda hluti."
+
+msgid ":doc:`API reference </api/spacr/classify/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/classify/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=41_classify>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=41_classify>`__."
+
+msgid "Map Barcodes"
+msgstr "Varpa strikamerkjum"
+
+msgid "Supply the references that encode your experiment. Inspect mapped counts and barcode QC before pairing well-level guide counts with phenotype scores."
+msgstr "Gefðu upp viðmiðin sem kóða tilraunina þína. Skoðaðu varpaðar talningar og QC strikamerkja áður en talning leiðara á brunnstigi er pöruð við svipgerðarskor."
+
+msgid "**Open:** Home → Map Barcodes."
+msgstr "**Opna:** Heim → Varpa strikamerkjum."
+
+msgid "**Sequencing reads** — Single-end or paired FASTQ files, with the matching barcode reference tables."
+msgstr "**Raðgreiningarlestrar** — FASTQ-skrár, einhliða eða paraðar, ásamt samsvarandi viðmiðunartöflum strikamerkja."
+
+msgid "**Guide counts per well** — Map Barcodes run folder: unique_combinations.csv and annotated_reads.h5. Well identity requires the corresponding barcode references. Relevant columns, depending on the route: ``count``."
+msgstr "**Talning leiðara á brunn** — Keyrslumappa Varpa strikamerkjum: unique_combinations.csv og annotated_reads.h5. Auðkenni brunns krefst samsvarandi strikamerkjaviðmiða. Viðeigandi dálkar, eftir leið: ``count``."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Pair guide counts with phenotype scores using consistent plate/well keys."
+msgstr ":ref:`Regression <workflow-module-regression>`: Paraðu talningu leiðara við svipgerðarskor með samræmdum lyklum plötu/brunns."
+
+msgid ":ref:`Barcode QC <workflow-module-barcode_qc>`: Check mapping and coverage before guide filtering."
+msgstr ":ref:`Barcode QC <workflow-module-barcode_qc>`: Athugaðu vörpun og þekju áður en leiðarar eru síaðir."
+
+msgid ":doc:`API reference </api/spacr/sequencing/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/sequencing/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=12_map_barcodes>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=12_map_barcodes>`__."
+
+msgid "Regression"
+msgstr "Aðhvarf"
+
+msgid "Match plate and well identifiers across phenotype and guide-count inputs, select the response and controls, and inspect diagnostics before interpreting hits. Direct measured responses are also supported."
+msgstr "Paraðu auðkenni platna og brunna milli svipgerðar- og leiðaratalningarinntaka, veldu svörun og viðmið og skoðaðu greiningar áður en marktækar niðurstöður eru túlkaðar. Beinar mældar svaranir eru einnig studdar."
+
+msgid "**Open:** Home → Regression."
+msgstr "**Opna:** Heim → Aðhvarf."
+
+msgid "**Optical barcode assignments** — OPS destination measurements.db: per-well geometry, phenotype alignment, nuclei and barcode tables; optional per-cycle reads. Relevant tables, depending on the route: ``ops_geometry``, ``ops_phenotype``, ``ops_objects``, ``ops_barcodes``, ``ops_reads``."
+msgstr "**Úthlutun sjónrænna strikamerkja** — OPS-áfangastaður measurements.db: rúmfræði hvers brunns, jöfnun svipgerðar, töflur fyrir kjarna og strikamerki; valkvæðir lestrar fyrir hverja lotu. Viðeigandi töflur, eftir leið: ``ops_geometry``, ``ops_phenotype``, ``ops_objects``, ``ops_barcodes``, ``ops_reads``."
+
+msgid "**Regression results and hits** — Selected run results folder: coefficient/result CSVs, hit tables, settings and diagnostic figures."
+msgstr "**Aðhvarfsniðurstöður og marktækar niðurstöður** — Valin mappa keyrsluniðurstaðna: CSVs með stuðlum/niðurstöðum, töflur marktækra niðurstaðna, stillingar og greiningarmyndir."
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Select the intended CV or ML score column and preserve plate/well identity."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: Veldu tilætlaðan CV- eða ML-skordálk og varðveittu auðkenni plötu/brunns."
+
+msgid ":ref:`Map Barcodes <workflow-module-map_barcodes>`: Pair guide counts with phenotype scores using consistent plate/well keys."
+msgstr ":ref:`Map Barcodes <workflow-module-map_barcodes>`: Paraðu talningu leiðara við svipgerðarskor með samræmdum lyklum plötu/brunns."
+
+msgid ":ref:`OPS <workflow-module-ops>`: Join/aggregate decoded objects to phenotype and guide inputs explicitly before Regression; this is not a direct CSV handoff."
+msgstr ":ref:`OPS <workflow-module-ops>`: Tengdu/taktu saman afkóðaða hluti við svipgerðar- og leiðarainntök skýrt fyrir Aðhvarf; þetta er ekki bein CSV-afhending."
+
+msgid ":ref:`Run Compare <workflow-module-run_compare>`: Compare compatible saved result sets and their settings."
+msgstr ":ref:`Run Compare <workflow-module-run_compare>`: Berðu saman samrýmanleg vistuð niðurstöðusöfn og stillingar þeirra."
+
+msgid ":ref:`Hit List <workflow-module-hit_list>`: Inspect ranked hits and guide agreement."
+msgstr ":ref:`Hit List <workflow-module-hit_list>`: Skoðaðu raðaðar marktækar niðurstöður og samræmi leiðara."
+
+msgid ":ref:`Volcano Explorer <workflow-module-volcano_explorer>`: Inspect saved effects and adjusted significance."
+msgstr ":ref:`Volcano Explorer <workflow-module-volcano_explorer>`: Skoðaðu vistuð áhrif og leiðrétta marktækni."
+
+msgid ":ref:`Diagnostics <workflow-module-regression_diagnostics>`: Open the diagnostics actually written by this run."
+msgstr ":ref:`Diagnostics <workflow-module-regression_diagnostics>`: Opnaðu greiningargögnin sem þessi keyrsla skrifaði í raun."
+
+msgid ":ref:`Methods & Results <workflow-module-methods_export>`: Review exported prose and every traced result."
+msgstr ":ref:`Methods & Results <workflow-module-methods_export>`: Yfirfarðu útfluttan texta og hverja rakta niðurstöðu."
+
+msgid ":ref:`Investigate Hit <workflow-module-investigate_hit>`: Join compatible phenotype and object data for the chosen hit."
+msgstr ":ref:`Investigate Hit <workflow-module-investigate_hit>`: Tengdu samrýmanleg svipgerðar- og hlutagögn fyrir valda marktæka niðurstöðu."
+
+msgid ":doc:`API reference </api/spacr/ml/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/ml/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=13_regression>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=13_regression>`__."
+
+msgid "Feature Explorer"
+msgstr "Feature Explorer"
+
+msgid "Rank measured features for a chosen class comparison; review filtering and class definitions before interpreting the ranking."
+msgstr "Raðaðu mældum eiginleikum fyrir valinn flokkasamanburð; yfirfarðu síun og skilgreiningar flokka áður en röðunin er túlkuð."
+
+msgid "**Open:** Classify → Feature Explorer."
+msgstr "**Opna:** Flokkun → Feature Explorer."
+
+msgid "**Figures and table exports** — The output location chosen by the tool; exports describe the selected data and filters."
+msgstr "**Myndir og töfluútflutningur** — Úttaksstaðurinn sem tólið valdi; útflutningur lýsir völdum gögnum og síum."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Define the class comparison and inspect filtering."
+msgstr ":ref:`Measure <workflow-module-measure>`: Skilgreindu samanburð flokka og skoðaðu síun."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/feature_explorer/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/qt/screens/feature_explorer/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=65_feature_explorer>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=65_feature_explorer>`__."
+
+msgid "Format Converter"
+msgstr "Sniðbreytir"
+
+msgid "Convert supported microscope formats to a configured TIFF layout while preserving source mappings. Conversion does not generate object measurements."
+msgstr "Umbreyttu studdum smásjársniðum í stillta TIFF-uppsetningu og varðveittu varpanir upprunans. Umbreyting býr ekki til mælingar á hlutum."
+
+msgid "**Open:** Import → Format Converter."
+msgstr "**Opna:** Flytja inn → Sniðbreytir."
+
+msgid ":ref:`Mask <workflow-module-mask>`: Use the converted layout and preserve source identity mappings."
+msgstr ":ref:`Mask <workflow-module-mask>`: Notaðu umbreyttu uppsetninguna og varðveittu varpanir á auðkennum upprunans."
+
+msgid ":doc:`API reference </api/spacr/convert/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/convert/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=35_converter>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=35_converter>`__."
+
+msgid "Import"
+msgstr "Flytja inn"
+
+msgid "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run. With matching source images and external integer masks, Import builds the merged project arrays used by Measure. Choose the route matching your files and inspect object identities before measuring; imported feature tables can be used directly when they already contain the required measurements."
+msgstr "Flyttu inn ytri mælingar með skýrri vörpun hluta og dálka eða veldu Import Images, Format Converter eða External Masks. Innfluttar mælingar eru ekki ný Measure-keyrsla. Með samsvarandi upprunamyndum og ytri heiltölugrímum býr Import til sameinuðu verkefnisfylkin sem Measure notar. Veldu leiðina sem passar við skrárnar og athugaðu hlutauðkenni áður en mælt er; innfluttar eigindatöflur má nota beint þegar þær innihalda þegar nauðsynlegar mælingar."
+
+msgid "**Open:** Home → Import."
+msgstr "**Opna:** Heim → Flytja inn."
+
+msgid "**External measurements** — Third-party measurement CSV/database tables and their image, mask and object-identity mappings."
+msgstr "**Ytri mælingar** — Mælingatöflur þriðja aðila á CSV/gagnagrunnsformi og varpanir þeirra á myndir, grímur og auðkenni hluta."
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Imported tables require explicit column and object-identity mappings."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: Innfluttar töflur krefjast skýrrar vörpunar á dálkum og auðkennum hluta."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table."
+msgstr ":ref:`Measure <workflow-module-measure>`: Flyttu inn samsvarandi myndir og ytri heiltölugrímur til að búa til sameinuð verkefnisfylki og opnaðu síðan Measure fyrir verkefnið. Slepptu þessu skrefi ef samhæfar mælingar hafa þegar verið fluttar inn eða reiknaðar. Ekki bæta tvíteknum mælingum við fyrirliggjandi innflutta töflu."
+
+msgid ":ref:`Mask <workflow-module-mask>`: For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input."
+msgstr ":ref:`Mask <workflow-module-mask>`: Við innflutning mynda eingöngu skaltu nota Import Images eða Format Converter og beina Mask að forsniðna myndaverkefninu. Ytri mælingar einar og sér eru ekki inntak fyrir hlutun."
+
+msgid ":doc:`API reference </api/spacr/foreign/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/foreign/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=36_import>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=36_import>`__."
+
+msgid "External Masks"
+msgstr "Ytri grímur"
+
+msgid "Assign corresponding images and existing integer label masks, then create and measure a spaCR project without rerunning segmentation."
+msgstr "Tengdu samsvarandi myndir og fyrirliggjandi heiltölumerkjagrímur, búðu svo til og mældu spaCR-verkefni án þess að keyra hlutun aftur."
+
+msgid "**Open:** Import → External Masks."
+msgstr "**Opna:** Flytja inn → Ytri grímur."
+
+msgid ":ref:`Direct Cellpose mask generation <workflow-module-cellpose_masks>`: Provide the saved label TIFFs and their original images to External Masks, assign object roles and create the merged project before Measure."
+msgstr ":ref:`Direct Cellpose mask generation <workflow-module-cellpose_masks>`: Gefðu vistuðu merkja-TIFFs og upprunalegu myndir þeirra upp í External Masks, úthlutaðu hlutverkum hluta og búðu til sameinaða verkefnið fyrir Mælingu."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Re-measure only when needed; External Masks can already perform measurement."
+msgstr ":ref:`Measure <workflow-module-measure>`: Mældu aftur aðeins þegar þörf er á; External Masks getur þegar framkvæmt mælingar."
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Keep the newly measured project and crop index together."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: Haltu nýmælda verkefninu og myndskurðaskránni saman."
+
+msgid ":doc:`API reference </api/spacr/external_masks/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/external_masks/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=31_external_masks>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=31_external_masks>`__."
+
+msgid "Plate Queue"
+msgstr "Plöturöð"
+
+msgid "Run the chosen pipeline across plates. Outputs are those of each queued module; retain each plate and its settings separately."
+msgstr "Keyrðu valda vinnsluferlið yfir plötur. Úttökin eru úttök hverrar einingar í biðröðinni; haltu hverri plötu og stillingum hennar aðskildum."
+
+msgid "**Open:** the application's Help/tools menus."
+msgstr "**Opna:** hjálpar-/verkfæravalmyndir forritsins."
+
+msgid "**Run queue** — Saved module/plate/settings job definitions and dependency order."
+msgstr "**Farið í Queue** — Vistaðar skilgreiningar verka fyrir einingu/plötu/stillingar og röð ákvæða."
+
+msgid "**Run history and artifacts** — Project run records, settings, output paths, artifact provenance, status and logs."
+msgstr "**Keyrslusaga og afurðir** — Keyrsluskrár verkefnis, stillingar, úttaksslóðir, uppruni afurða, staða og annálar."
+
+msgid ":doc:`API reference </api/spacr/qt/plate_queue/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/qt/plate_queue/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=30_plate_queue>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=30_plate_queue>`__."
+
+msgid "Batch Runner"
+msgstr "Lotukeyrsla"
+
+msgid "Validate and execute module jobs in dependency order. Each job writes its own module outputs and log."
+msgstr "Staðfestu og keyrðu verk eininga í röð ákvæða. Hvert verk skrifar eigin úttök einingar og annál."
+
+msgid ":doc:`API reference </api/spacr/batch/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/batch/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=37_batch>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=37_batch>`__."
+
+msgid "Distributed Jobs"
+msgstr "Dreifð verk"
+
+msgid "Submit a configured run to a remote execution target and inspect its status and logs. Retrieve the actual module artifacts before downstream analysis."
+msgstr "Sendu stillta keyrslu á fjartengt keyrslumark og skoðaðu stöðu hennar og annála. Sæktu raunverulegar afurðir einingarinnar fyrir áframhaldandi greiningu."
+
+msgid ":doc:`API reference </api/spacr/remote_execution/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/remote_execution/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=38_distributed_jobs>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=38_distributed_jobs>`__."
+
+msgid "Database Browser"
+msgstr "Gagnagrunnsvafri"
+
+msgid "Browse selected tables and export rows; table inspection does not rerun image analysis."
+msgstr "Flettu í völdum töflum og fluttu út raðir; skoðun taflna keyrir myndgreiningu ekki aftur."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Inspect actual tables before exporting."
+msgstr ":ref:`Measure <workflow-module-measure>`: Skoðaðu raunverulegar töflur áður en flutt er út."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/db_browser/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/qt/screens/db_browser/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=34_database>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=34_database>`__."
+
+msgid "Run History"
+msgstr "Keyrslusaga"
+
+msgid "Inspect saved run status, settings, outputs and logs; a completed run does not establish biological validity."
+msgstr "Skoðaðu stöðu, stillingar, úttök og annála vistaðra keyrslna; lokin keyrsla staðfestir ekki líffræðilegt gildi."
+
+msgid ":doc:`API reference </api/spacr/run_journal/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/run_journal/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=40_run_history>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=40_run_history>`__."
+
+msgid "Report"
+msgstr "Skýrsla"
+
+msgid "Package recorded results, settings and QC into a shareable report without silently rerunning the analysis."
+msgstr "Settu skráðar niðurstöður, stillingar og QC saman í deilanlega skýrslu án þess að keyra greininguna aftur í hljóði."
+
+msgid "**Quality-control results** — Stored project checks and QC reports; a missing check is not a passing result."
+msgstr "**Niðurstöður gæðaeftirlits** — Vistaðar athuganir verkefnis og QC-skýrslur; athugun sem vantar er ekki staðin niðurstaða."
+
+msgid "**Shareable reports** — Exported HTML/PDF or methods/results documents derived from recorded analysis outputs."
+msgstr "**Deilanlegar skýrslur** — Útflutt HTML/PDF eða aðferða-/niðurstöðuskjöl unnin úr skráðum greiningarúttökum."
+
+msgid ":doc:`API reference </api/spacr/report/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/report/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=29_report>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=29_report>`__."
+
+msgid "Data Manager"
+msgstr "Gagnastjóri"
+
+msgid "Inspect project files and disk usage. Removing derived artifacts invalidates downstream uses of those files; original images must remain recoverable."
+msgstr "Skoðaðu verkefnisskrár og diskanotkun. Ef afleiddar afurðir eru fjarlægðar ógildir það síðari notkun þeirra skráa; upprunalegar myndir verða að vera endurheimtanlegar."
+
+msgid ":doc:`API reference </api/spacr/data_manager/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/data_manager/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=44_data_manager>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=44_data_manager>`__."
+
+msgid "Pipeline Graph"
+msgstr "Pipeline Graph"
+
+msgid "Read recorded artifact dependencies and stale/missing status. The graph describes provenance and does not regenerate missing artifacts."
+msgstr "Lesa skráð ákvæði afurða og stöðu úreltra/vantandi afurða. Grafið lýsir uppruna og endurgerir ekki afurðir sem vantar."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/pipeline_graph/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/qt/screens/pipeline_graph/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=52_pipeline_graph>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=52_pipeline_graph>`__."
+
+msgid "QC"
+msgstr "QC"
+
+msgid "Inspect stored segmentation, unit, leakage and plate-effect checks. Open its nested viewers for detailed inspection."
+msgstr "Skoðaðu vistaðar athuganir á hlutun, einingum, leka og plötuáhrifum. Opnaðu hreiðraða skoðara þess fyrir ítarlega skoðun."
+
+msgid "**Open:** Home → QC."
+msgstr "**Opna:** Heim → QC."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Review available checks and missing evidence."
+msgstr ":ref:`Measure <workflow-module-measure>`: Yfirfarðu tiltækar athuganir og sönnunargögn sem vantar."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/qc_dashboard/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/qt/screens/qc_dashboard/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=54_qc_dashboard>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=54_qc_dashboard>`__."
+
+msgid "Lineage"
+msgstr "Lineage"
+
+msgid "Inspect recorded cell/nucleus/pathogen/organelle containment links; this is object containment, not time-series lineage inference."
+msgstr "Skoðaðu skráð tengsl um innihald frumna/kjarna/sýkla/frumulíffæra; þetta er innihald hluta, ekki ályktun um ætterni í tímaröð."
+
+msgid "**Open:** Help search → Database Browser → Lineage."
+msgstr "**Opna:** Hjálparleit → Gagnagrunnsvafri → Lineage."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/lineage/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/qt/screens/lineage/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=56_lineage>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=56_lineage>`__."
+
+msgid "Experiment Design"
+msgstr "Experiment Design"
+
+msgid "Enter conditions, controls, replicates and plate constraints, then export the experimental layout before acquisition."
+msgstr "Sláðu inn aðstæður, viðmið, endurtekningar og takmarkanir platna og fluttu svo út tilraunauppsetninguna fyrir myndatöku."
+
+msgid "**Open:** Home → Experiment Design."
+msgstr "**Opna:** Heim → Experiment Design."
+
+msgid "**Screen design and power estimates** — Saved planning tables or figures based on explicitly chosen effect sizes, variability and sampling assumptions."
+msgstr "**Hönnun skimunar og mat á tölfræðilegum styrk** — Vistaðar áætlunartöflur eða myndir byggðar á skýrt völdum áhrifastærðum, breytileika og forsendum úrtaks."
+
+msgid "**Experimental layout** — Exported plate/condition/control/replicate map. Keep its plate and well identifiers consistent with the acquired data."
+msgstr "**Tilraunauppsetning** — Útflutt kort platna/aðstæðna/viðmiða/endurtekninga. Haltu auðkennum platna og brunna í samræmi við myndgögnin."
+
+msgid ":ref:`Power / Design <workflow-module-power>`: Use the experimental layout to define sampling assumptions, then revise the design."
+msgstr ":ref:`Power / Design <workflow-module-power>`: Notaðu tilraunauppsetninguna til að skilgreina forsendur úrtaks og endurskoðaðu svo hönnunina."
+
+msgid ":ref:`Dose–Response <workflow-module-dose_response>`: Acquire and measure the experiment first, preserving dose/condition identities."
+msgstr ":ref:`Dose–Response <workflow-module-dose_response>`: Taktu fyrst myndir og mældu tilraunina, og varðveittu auðkenni skammta/aðstæðna."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/experiment_design/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/qt/screens/experiment_design/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=67_experiment_design>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=67_experiment_design>`__."
+
+msgid "Layer Viewer"
+msgstr "Layer Viewer"
+
+msgid "Inspect aligned image, label and point/ROI layers for the selected field."
+msgstr "Skoðaðu jöfnuð lög mynda, merkja og punkta/ROI fyrir valið sjónsvið."
+
+msgid "**Open:** QC → Layer Viewer."
+msgstr "**Opna:** QC → Layer Viewer."
+
+msgid ":doc:`API reference </api/spacr/qt/layer_viewer/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/qt/layer_viewer/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=57_layer_viewer>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=57_layer_viewer>`__."
+
+msgid "Power / Design"
+msgstr "Power / Design"
+
+msgid "Estimate sampling needs from chosen effect sizes and variability; pilot measurements are optional evidence for assumptions."
+msgstr "Mettu þörf á úrtaki út frá völdum áhrifastærðum og breytileika; forkönnunarmælingar eru valfrjáls rök fyrir forsendum."
+
+msgid "**Open:** Home → Power / Design."
+msgstr "**Opna:** Heim → Power / Design."
+
+msgid ":ref:`Experiment Design <workflow-module-experiment_design>`: Use the experimental layout to define sampling assumptions, then revise the design."
+msgstr ":ref:`Experiment Design <workflow-module-experiment_design>`: Notaðu tilraunauppsetninguna til að skilgreina forsendur úrtaks og endurskoðaðu svo hönnunina."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/power/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/qt/screens/power/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=68_power_design>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=68_power_design>`__."
+
+msgid "Run Compare"
+msgstr "Run Compare"
+
+msgid "Compare compatible saved settings, counts and hit lists without treating changed input data as a controlled model comparison."
+msgstr "Berðu saman samrýmanlegar vistaðar stillingar, talningar og lista marktækra niðurstaðna án þess að meðhöndla breytt inntaksgögn sem stýrðan samanburð líkana."
+
+msgid "**Open:** Home → Run Compare."
+msgstr "**Opna:** Heim → Run Compare."
+
+msgid "**Run/model comparison** — Comparison tables and figures from compatible saved runs or masks; agreement is not ground-truth accuracy."
+msgstr "**Samanburður keyrslna/líkana** — Samanburðartöflur og myndir úr samrýmanlegum vistuðum keyrslum eða grímum; samræmi er ekki nákvæmni miðað við rétt svör."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Compare compatible saved result sets and their settings."
+msgstr ":ref:`Regression <workflow-module-regression>`: Berðu saman samrýmanleg vistuð niðurstöðusöfn og stillingar þeirra."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/run_compare/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/qt/screens/run_compare/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=50_run_compare>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=50_run_compare>`__."
+
+msgid "Tabulate"
+msgstr "Tabulate"
+
+msgid "Choose grouping variables and measurement columns, then inspect pivot tables and groupwise sample sizes."
+msgstr "Veldu flokkunarbreytur og mælingadálka og skoðaðu svo veltitöflur og úrtaksstærðir eftir hópum."
+
+msgid "**Open:** Help search → Database Browser → Tabulate."
+msgstr "**Opna:** Hjálparleit → Gagnagrunnsvafri → Tabulate."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/tabulate/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/qt/screens/tabulate/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=61_tabulate>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=61_tabulate>`__."
+
+msgid "Dose–Response"
+msgstr "Dose–Response"
+
+msgid "Supply dose and response columns, controls and units before curve fitting; this route does not require sequencing."
+msgstr "Gefðu upp dálka skammta og svörunar, viðmið og einingar áður en ferill er mátaður; þessi leið krefst ekki raðgreiningar."
+
+msgid "**Open:** Home → Dose–Response."
+msgstr "**Opna:** Heim → Dose–Response."
+
+msgid "**Assay results** — Assay-specific result tables and figures in the configured destination, preserving well and condition identities."
+msgstr "**Niðurstöður prófunar** — Prófsértækar niðurstöðutöflur og myndir á stilltum áfangastað, með auðkenni brunna og aðstæðna varðveitt."
+
+msgid ":ref:`Experiment Design <workflow-module-experiment_design>`: Acquire and measure the experiment first, preserving dose/condition identities."
+msgstr ":ref:`Experiment Design <workflow-module-experiment_design>`: Taktu fyrst myndir og mældu tilraunina, og varðveittu auðkenni skammta/aðstæðna."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Join the measured response to explicit doses and controls."
+msgstr ":ref:`Measure <workflow-module-measure>`: Tengdu mælda svörun við skýra skammta og viðmið."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/dose_response/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/qt/screens/dose_response/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=69_dose_response>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=69_dose_response>`__."
+
+msgid "Project Browser"
+msgstr "Project Browser"
+
+msgid "Locate projects and inspect their stage, last run, disk use and stale outputs."
+msgstr "Finndu verkefni og skoðaðu stig þeirra, síðustu keyrslu, diskanotkun og úrelt úttök."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/project_browser/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/qt/screens/project_browser/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=45_project_browser>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=45_project_browser>`__."
+
+msgid "Outliers"
+msgstr "Outliers"
+
+msgid "Review robust object/well outlier scores and the selected exclusion rule before carrying filtered data into analysis."
+msgstr "Yfirfarðu þolin útlagaskor hluta/brunna og valda útilokunarreglu áður en síuð gögn eru tekin inn í greiningu."
+
+msgid "**Open:** QC → Outliers."
+msgstr "**Opna:** QC → Outliers."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/outliers/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/qt/screens/outliers/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=66_outliers>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=66_outliers>`__."
+
+msgid "Embeddings"
+msgstr "Embeddings"
+
+msgid "Encode object images with a chosen model and channel policy. Retain object identities and encoder provenance when supplying the features to downstream exploration."
+msgstr "Kóðaðu myndir af hlutum með völdu líkani og rásareglu. Varðveittu auðkenni hluta og uppruna kóðara þegar eiginleikarnir eru afhentir til áframhaldandi könnunar."
+
+msgid "**Open:** Home → Embeddings."
+msgstr "**Opna:** Heim → Embeddings."
+
+msgid "**Image embeddings** — Object-indexed encoder features, with channel policy and encoder provenance. The encoding API returns features; persistence is caller-dependent."
+msgstr "**Myndinnfellingar** — Kóðaraeiginleikar raðaðir eftir hlut, með rásareglu og uppruna kóðara. Kóðunar-API skilar eiginleikum; vistun fer eftir kallanda."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Retain encoder and channel-policy provenance."
+msgstr ":ref:`Measure <workflow-module-measure>`: Varðveittu uppruna kóðara og rásareglna."
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Supply the encoder feature table with matching object IDs; do not assume every GUI route automatically persists it."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: Gefðu upp eiginleikatöflu kóðarans með samsvarandi auðkennum hluta; ekki gera ráð fyrir að allar GUI-leiðir vistu hana sjálfkrafa."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/embeddings/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/qt/screens/embeddings/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=77_embeddings>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=77_embeddings>`__."
+
+msgid "Control Charts"
+msgstr "Control Charts"
+
+msgid "Compare designated controls across plates and inspect drift; the definition of a control comes from the experiment."
+msgstr "Berðu saman tilgreind viðmið milli platna og skoðaðu rek; skilgreining viðmiðs kemur frá tilrauninni."
+
+msgid "**Open:** QC → Control Charts."
+msgstr "**Opna:** QC → Control Charts."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/control_chart/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/qt/screens/control_chart/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=51_control_charts>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=51_control_charts>`__."
+
+msgid "Training Runs"
+msgstr "Þjálfunarkeyrslur"
+
+msgid "Compare saved training histories, metrics and settings from compatible model runs."
+msgstr "Berðu saman vistaðar þjálfunarsögur, mælikvarða og stillingar úr samrýmanlegum líkanakeyrslum."
+
+msgid "**Open:** Classify → Training Runs."
+msgstr "**Opna:** Flokkun → Þjálfunarkeyrslur."
+
+msgid ":doc:`API reference </api/spacr/train_compare/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/train_compare/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=28_training_runs>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=28_training_runs>`__."
+
+msgid "Align & Stitch"
+msgstr "Jafna og sauma"
+
+msgid "Inspect tile geometry, overlap and channel mapping, then save the mosaic with coordinate records. OPS also needs the original cycle/site identities."
+msgstr "Skoðaðu rúmfræði reita, skörun og rásavörpun og vistaðu svo mósaíkmyndina með hnitaskrám. OPS þarf einnig upprunaleg auðkenni umferða/staðsetninga."
+
+msgid "**Open:** Home → Align & Stitch."
+msgstr "**Opna:** Heim → Jafna og sauma."
+
+msgid "**Aligned mosaic and coordinates** — Align & Stitch destination: composed image and the tile-coordinate/layout records needed to interpret it."
+msgstr "**Jöfnuð mósaíkmynd og hnit** — Áfangastaður Align & Stitch: samsett mynd og færslur um hnit/uppsetningu reita sem þarf til að túlka hana."
+
+msgid ":ref:`OPS <workflow-module-ops>`: Carry tile coordinates and original sequencing cycles into OPS; a flattened mosaic alone is insufficient."
+msgstr ":ref:`OPS <workflow-module-ops>`: Fluttu hnit reita og upprunalegar raðgreiningarumferðir inn í OPS; flöt mósaíkmynd ein og sér dugar ekki."
+
+msgid ":doc:`API reference </api/spacr/align/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/align/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=32_align_stitch>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=32_align_stitch>`__."
+
+msgid "Make Masks"
+msgstr "Búa til grímur"
+
+msgid "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier."
+msgstr "Veldu pör mynda/gríma fyrir þjálfun hlutunar, eða notaðu FEATURES til að úthluta myndum og grímum og kalla á mælingu. Vistun grímu þjálfar ekki flokkara."
+
+msgid "**Open:** Home → Make Masks."
+msgstr "**Opna:** Heim → Búa til grímur."
+
+msgid "**Curated training fields** — Separate image and integer-mask files with matching field identities; preserve original images and labels."
+msgstr "**Valin þjálfunarsjónsvið** — Aðskildar skrár mynda og heiltölugríma með samsvarandi auðkennum sjónsviða; varðveittu upprunalegar myndir og merki."
+
+msgid ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Use independently checked image/mask pairs."
+msgstr ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Notaðu óháð yfirfarin pör mynda og gríma."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays."
+msgstr ":ref:`Measure <workflow-module-measure>`: Notaðu FEATURES til að para myndir og grímur og skrifa mælt verkefni; stakar grímur eru ekki sameinuð fylki."
+
+msgid ":ref:`Plaque Assay <workflow-module-analyze_plaques>`: Use plaque masks with matching source images; cell masks are not automatically plaque labels."
+msgstr ":ref:`Plaque Assay <workflow-module-analyze_plaques>`: Notaðu skellugrímur með samsvarandi upprunamyndum; frumugrímur eru ekki sjálfkrafa skellumerki."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/make_masks/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/qt/screens/make_masks/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=14_make_masks>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=14_make_masks>`__."
+
+msgid "Plate Viewer"
+msgstr "Plötuskoðari"
+
+msgid "Aggregate the selected measurement by well and inspect plate patterns and controls."
+msgstr "Taktu valda mælingu saman eftir brunni og skoðaðu mynstur og viðmið á plötunni."
+
+msgid "**Open:** Graph Builder → Plate Viewer."
+msgstr "**Opna:** Graph Builder → Plötuskoðari."
+
+msgid ":doc:`API reference </api/spacr/plate_qc/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/plate_qc/index>`."
+
+msgid "Image UMAP"
+msgstr "Mynda-UMAP"
+
+msgid "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype."
+msgstr "Varpaðu mældum eigindum eða fyrirliggjandi eigindum úr kóðara og skoðaðu dæmigerða myndskurði. Klasi er tillaga að hópun, ekki staðfest svipgerð. Notaðu lassó- og merkingartólin til að skrifa yfirfarið val í merkingardálk í samsvarandi mæligagnagrunni. Rúmfræðilegt val eitt og sér staðfestir ekki líffræðilega svipgerð."
+
+msgid "**Open:** Home → Image UMAP."
+msgstr "**Opna:** Heim → Mynda-UMAP."
+
+msgid "**Projection and clusters** — Image UMAP/PCA coordinate tables, selected clusters and figures for the loaded measurement data."
+msgstr "**Vörpun og klasar** — Hnitatöflur Image UMAP/PCA, valdir klasar og myndir fyrir hlaðin mæligögn."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Choose feature columns and inspect representative crops."
+msgstr ":ref:`Measure <workflow-module-measure>`: Veldu eiginleikadálka og skoðaðu dæmigerða myndskurði."
+
+msgid ":ref:`Embeddings <workflow-module-embeddings>`: Supply the encoder feature table with matching object IDs; do not assume every GUI route automatically persists it."
+msgstr ":ref:`Embeddings <workflow-module-embeddings>`: Gefðu upp eiginleikatöflu kóðarans með samsvarandi auðkennum hluta; ekki gera ráð fyrir að allar GUI-leiðir vistu hana sjálfkrafa."
+
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Supply the matching coordinate/feature columns when defining a selection."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: Gefðu upp samsvarandi hnita-/eiginleikadálka þegar val er skilgreint."
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: Skrifaðu yfirfarið lassóval í merkingardálk í samsvarandi hlutagagnagrunni og veldu síðan þann dálk í Classify. Skoðaðu myndskurði og sannreyndu merki; klasar í innfellingu eru ekki sannleiksgögn."
+
+msgid "`Module tutorial <tutorials/#lesson=15_image_umap>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=15_image_umap>`__."
+
+msgid "Prediction Profiler"
+msgstr "Prediction Profiler"
+
+msgid "Inspect how a fitted model responds as an input feature changes; predictions do not establish causal effects."
+msgstr "Skoðaðu hvernig mátað líkan bregst við þegar inntakseiginleiki breytist; spár sýna ekki fram á orsakaáhrif."
+
+msgid "**Open:** Regression → Prediction Profiler."
+msgstr "**Opna:** Aðhvarf → Prediction Profiler."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/profiler/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/qt/screens/profiler/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=53_prediction_profiler>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=53_prediction_profiler>`__."
+
+msgid "Graph Builder"
+msgstr "Graph Builder"
+
+msgid "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context."
+msgstr "Veldu breytur, hópa og teiknistillingar úr hlaðinni töflu og fluttu svo út myndina ásamt greiningarsamhengi hennar."
+
+msgid "**Open:** Home → Graph Builder."
+msgstr "**Opna:** Heim → Graph Builder."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Choose explicit variables, groups and filters."
+msgstr ":ref:`Measure <workflow-module-measure>`: Veldu skýrar breytur, hópa og síur."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/graph_builder/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/qt/screens/graph_builder/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=58_graph_builder>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=58_graph_builder>`__."
+
+msgid "Investigate Hit"
+msgstr "Investigate Hit"
+
+msgid "Link a regression hit to candidate objects and quantitative well-level evidence. This does not independently validate the hit."
+msgstr "Tengdu marktæka niðurstöðu úr aðhvarfi við kandídatahluti og megindleg gögn á brunnstigi. Þetta staðfestir ekki niðurstöðuna á óháðan hátt."
+
+msgid "**Open:** Regression → Investigate Hit."
+msgstr "**Opna:** Aðhvarf → Investigate Hit."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Join compatible phenotype and object data for the chosen hit."
+msgstr ":ref:`Regression <workflow-module-regression>`: Tengdu samrýmanleg svipgerðar- og hlutagögn fyrir valda marktæka niðurstöðu."
+
+msgid ":doc:`API reference </api/spacr/hit_investigation/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/hit_investigation/index>`."
+
+msgid "Gate Editor"
+msgstr "Gate Editor"
+
+msgid "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
+msgstr "Skilgreindu þröskulds- eða marghyrningslaga valmörk út frá raunverulegum eiginda- eða hnitadálkum og beittu síðan vistuðu valmörkunum á samhæfa hluti. Notaðu Annotate til að skrifa sýnd valmörk í merkingardálk; farðu yfir valda hluti og veldu tvíflokka eða fjölflokka merki."
+
+msgid "**Open:** Home → Gate Editor."
+msgstr "**Opna:** Heim → Gate Editor."
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Supply the matching coordinate/feature columns when defining a selection."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: Gefðu upp samsvarandi hnita-/eiginleikadálka þegar val er skilgreint."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Use the actual measured feature definitions and units."
+msgstr ":ref:`Measure <workflow-module-measure>`: Notaðu raunverulegar skilgreiningar og einingar mældu eiginleikanna."
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Apply compatible gates, then review candidate labels."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: Beittu samrýmanlegum valsvæðum og yfirfarðu svo tillögur að merkjum."
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: Skrifaðu yfirfarið val innan valmarka í merkingardálk og veldu síðan sama dálk og sama hlutahóp í Classify. Haltu sannprófunarhlutum aðskildum frá þjálfunarmerkjum."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/gate_editor/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/qt/screens/gate_editor/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=64_gate_editor>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=64_gate_editor>`__."
+
+msgid "Feature Dictionary"
+msgstr "Eiginleikaorðabók"
+
+msgid "Look up feature definitions and units before choosing measurement columns."
+msgstr "Flettu upp skilgreiningum og einingum eiginleika áður en mælingadálkar eru valdir."
+
+msgid "**Feature definitions** — The installed feature dictionary; definitions describe existing measurements and do not compute them."
+msgstr "**Skilgreiningar eiginleika** — Uppsett eiginleikaorðabók; skilgreiningar lýsa fyrirliggjandi mælingum og reikna þær ekki."
+
+msgid ":doc:`API reference </api/spacr/feature_dict/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/feature_dict/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=62_feature_dictionary>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=62_feature_dictionary>`__."
+
+msgid "Small Multiples"
+msgstr "Small Multiples"
+
+msgid "Compare groups in small-multiple plots with explicit shared or independent axes."
+msgstr "Berðu saman hópa í smágrafaröðum með skýrum sameiginlegum eða óháðum ásum."
+
+msgid "**Open:** Graph Builder → Small Multiples."
+msgstr "**Opna:** Graph Builder → Small Multiples."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/trellis/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/qt/screens/trellis/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=63_small_multiples>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=63_small_multiples>`__."
+
+msgid "Plaque Assay"
+msgstr "Skellugreining"
+
+msgid "Analyse plaque images or existing masks with the configured plaque model. This route need not pass through Measure; use the dedicated plaque example."
+msgstr "Greindu skellumyndir eða fyrirliggjandi grímur með stilltu skellulíkani. Þessi leið þarf ekki að fara gegnum Mælingu; notaðu sérstaka skelludæmið."
+
+msgid "**Open:** Toxoplasma → Plaque Assay."
+msgstr "**Opna:** Toxoplasma → Skellugreining."
+
+msgid ":ref:`Make Masks <workflow-module-make_masks>`: Use plaque masks with matching source images; cell masks are not automatically plaque labels."
+msgstr ":ref:`Make Masks <workflow-module-make_masks>`: Notaðu skellugrímur með samsvarandi upprunamyndum; frumugrímur eru ekki sjálfkrafa skellumerki."
+
+msgid ":doc:`API reference </api/spacr/submodules/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/submodules/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=24_plaque>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=24_plaque>`__."
+
+msgid "Recruitment"
+msgstr "Söfnunargreining"
+
+msgid "Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios."
+msgstr "Notaðu styrkmælingar hólfa og samsvarandi auðkenni hýsla/sýkla til að reikna söfnunarhlutföll."
+
+msgid "**Open:** Toxoplasma → Recruitment."
+msgstr "**Opna:** Toxoplasma → Söfnunargreining."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Require the intended compartment intensities and identities."
+msgstr ":ref:`Measure <workflow-module-measure>`: Krefstu styrks og auðkenna réttu hólfanna."
+
+msgid "`Module tutorial <tutorials/#lesson=25_recruitment>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=25_recruitment>`__."
+
+msgid "Invasion Assay"
+msgstr "Innrásarpróf"
+
+msgid "Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion."
+msgstr "Notaðu nauðsynlegar mælingar með tveggja lita aðgreinandi litun og viðmið fyrir grunnlitun til að greina á milli viðloðunar og innrásar."
+
+msgid "**Open:** Toxoplasma → Invasion Assay."
+msgstr "**Opna:** Toxoplasma → Innrásarpróf."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Require two-colour stain measurements and appropriate baseline controls."
+msgstr ":ref:`Measure <workflow-module-measure>`: Krefstu tvílita litunarmælinga og viðeigandi grunnlínuviðmiða."
+
+msgid "`Module tutorial <tutorials/#lesson=26_invasion>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=26_invasion>`__."
+
+msgid "Replication Assay"
+msgstr "Fjölgunarpróf"
+
+msgid "Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole."
+msgstr "Teldu sníkjudýr út frá skýrum auðkennum frymisbóla og berðu saman dreifingar milli skilyrða; auðkenni hýsilfrumu eitt og sér skilgreinir ekki frymisbólu."
+
+msgid "**Open:** Toxoplasma → Replication Assay."
+msgstr "**Opna:** Toxoplasma → Fjölgunarpróf."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Require explicit parasite-to-vacuole identities."
+msgstr ":ref:`Measure <workflow-module-measure>`: Krefstu skýrra auðkenna sníkjudýra gagnvart safabólum."
+
+msgid "`Module tutorial <tutorials/#lesson=27_replication>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=27_replication>`__."
+
+msgid "Cellpose Workbench"
+msgstr "Cellpose-vinnuborð"
+
+msgid "Open Cellpose Workbench inside Make Masks and train from verified image/mask pairs. Evaluate on separate fields before selecting the checkpoint in Mask."
+msgstr "Opnaðu Cellpose-vinnuborð innan Make Masks og þjálfaðu út frá staðfestum pörum mynda og gríma. Mettu á aðskildum sjónsviðum áður en vistunarpunkturinn er valinn í Grímur."
+
+msgid "**Open:** Make Masks → Cellpose Workbench."
+msgstr "**Opna:** Búa til grímur → Cellpose-vinnuborð."
+
+msgid ":ref:`Make Masks <workflow-module-make_masks>`: Use independently checked image/mask pairs."
+msgstr ":ref:`Make Masks <workflow-module-make_masks>`: Notaðu óháð yfirfarin pör mynda og gríma."
+
+msgid ":ref:`Mask <workflow-module-mask>`: Select the saved compatible checkpoint in Mask."
+msgstr ":ref:`Mask <workflow-module-mask>`: Veldu vistaða samrýmanlega vistunarpunktinn í Grímur."
+
+msgid ":ref:`Direct Cellpose mask generation <workflow-module-cellpose_masks>`: Pass the trained checkpoint as custom_model with the matching image channels and preprocessing."
+msgstr ":ref:`Direct Cellpose mask generation <workflow-module-cellpose_masks>`: Gefðu þjálfaða vistunarpunktinn sem custom_model með samsvarandi myndrásum og forvinnslu."
+
+msgid "`Module tutorial <tutorials/#lesson=19_train_cellpose>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=19_train_cellpose>`__."
+
+msgid "Mask the whole folder"
+msgstr "Búa til grímur fyrir alla möppuna"
+
+msgid "Apply the selected segmentation model to the open image folder through Make Masks; inspect saved labels before measuring them."
+msgstr "Beittu valda hlutunarlíkaninu á opnu myndamöppuna gegnum Make Masks; skoðaðu vistuð merki áður en þau eru mæld."
+
+msgid "**Open:** Make Masks → Mask the whole folder."
+msgstr "**Opna:** Búa til grímur → Búa til grímur fyrir alla möppuna."
+
+msgid ":doc:`API reference </api/spacr/spacr_cellpose/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/spacr_cellpose/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=20_cellpose_masks>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=20_cellpose_masks>`__."
+
+msgid "Model Compare"
+msgstr "Líkansamanburður"
+
+msgid "Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy."
+msgstr "Berðu saman grímur líkana á sömu sjónsviðum. Án óháðra viðmiðunarmerkja mælir samræmi ekki nákvæmni hlutunar."
+
+msgid "**Open:** Make Masks → Model Compare."
+msgstr "**Opna:** Búa til grímur → Líkansamanburður."
+
+msgid ":doc:`API reference </api/spacr/model_compare/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/model_compare/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=21_model_compare>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=21_model_compare>`__."
+
+msgid "Model Zoo"
+msgstr "Líkanasafn"
+
+msgid "Inspect model provenance and download/install compatible checkpoints or backends. A listed backend is not itself a checkpoint file."
+msgstr "Skoðaðu uppruna líkana og sæktu/settu upp samrýmanlega vistunarpunkta eða bakenda. Skráður bakendi er ekki sjálfur vistunarpunktsskrá."
+
+msgid "**Open:** Make Masks → Model Zoo."
+msgstr "**Opna:** Búa til grímur → Líkanasafn."
+
+msgid ":doc:`API reference </api/spacr/model_zoo/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/model_zoo/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=22_model_zoo>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=22_model_zoo>`__."
+
+msgid "Curate"
+msgstr "Grisja"
+
+msgid "Correct labels and track assignments while retaining a record of the edits."
+msgstr "Leiðréttu merki og úthlutun ferla og haltu jafnframt skrá yfir breytingarnar."
+
+msgid "**Open:** Make Masks → Curate."
+msgstr "**Opna:** Búa til grímur → Grisja."
+
+msgid "**Linked time-series objects** — Tracked labels and frame/object associations from the time-series project, with frame interval and units."
+msgstr "**Tengdir hlutir í tímaröð** — Rakin merki og tengsl ramma/hluta úr tímaraðarverkefninu, með tímabili milli ramma og einingum."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/curate/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/qt/screens/curate/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=42_curate>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=42_curate>`__."
+
+msgid "Napari Bridge"
+msgstr "Napari-brú"
+
+msgid "Send the matching image/labels to napari and import the revised labels back with field identity preserved."
+msgstr "Sendu samsvarandi mynd/merki í napari og fluttu endurskoðuðu merkin aftur inn með auðkenni sjónsviðs varðveitt."
+
+msgid "**Open:** Make Masks → Napari Bridge."
+msgstr "**Opna:** Búa til grímur → Napari-brú."
+
+msgid ":doc:`API reference </api/spacr/napari_bridge/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/napari_bridge/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=46_napari_bridge>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=46_napari_bridge>`__."
+
+msgid "Import Images"
+msgstr "Flytja inn myndir"
+
+msgid "Review field identities, image channels and optional external masks before writing a separate project. Image-only imports still need segmentation before measurement."
+msgstr "Yfirfarðu auðkenni sjónsviða, myndrásir og valfrjálsar ytri grímur áður en sérstakt verkefni er skrifað. Innflutningur mynda eingöngu þarf enn hlutun fyrir mælingu."
+
+msgid "**Open:** Import → Import Images."
+msgstr "**Opna:** Flytja inn → Flytja inn myndir."
+
+msgid ":ref:`Mask <workflow-module-mask>`: Use imported image planes and identities; image-only imports still need segmentation."
+msgstr ":ref:`Mask <workflow-module-mask>`: Notaðu innflutt myndplön og auðkenni; innflutningur mynda eingöngu þarf enn hlutun."
+
+msgid ":doc:`API reference </api/spacr/image_import/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/image_import/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=74_import_images>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=74_import_images>`__."
+
+msgid "Barcode QC"
+msgstr "Strikamerkja-QC"
+
+msgid "Inspect mapping depth, coverage, collisions and positional effects before guide-count filtering."
+msgstr "Skoðaðu dýpt vörpunar, þekju, árekstra og staðsetningaráhrif áður en talning leiðara er síuð."
+
+msgid "**Open:** Map Barcodes → Barcode QC."
+msgstr "**Opna:** Varpa strikamerkjum → Strikamerkja-QC."
+
+msgid ":ref:`Map Barcodes <workflow-module-map_barcodes>`: Check mapping and coverage before guide filtering."
+msgstr ":ref:`Map Barcodes <workflow-module-map_barcodes>`: Athugaðu vörpun og þekju áður en leiðarar eru síaðir."
+
+msgid ":doc:`API reference </api/spacr/sequencing_qc/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/sequencing_qc/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=47_barcode_qc>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=47_barcode_qc>`__."
+
+msgid "Image Scatter"
+msgstr "Mynddreifirit"
+
+msgid "Plot selected measurement columns with object-crop inspection."
+msgstr "Teiknaðu valda mælingadálka ásamt skoðun á myndskurðum hluta."
+
+msgid "**Open:** Image UMAP → Image Scatter."
+msgstr "**Opna:** Mynda-UMAP → Mynddreifirit."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/image_scatter/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/qt/screens/image_scatter/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=55_image_scatter>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=55_image_scatter>`__."
+
+msgid "PCA"
+msgstr "PCA"
+
+msgid "Inspect principal components and feature loadings for the selected measured objects."
+msgstr "Skoðaðu höfuðþætti og hleðslur eiginleika fyrir valda mælda hluti."
+
+msgid "**Open:** Image UMAP → PCA."
+msgstr "**Opna:** Mynda-UMAP → PCA."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/pca/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/qt/screens/pca/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=60_pca>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=60_pca>`__."
+
+msgid "Volcano Explorer"
+msgstr "Eldfjallaritskönnun"
+
+msgid "Open a saved regression result and inspect effect sizes, adjusted significance and individual hit records."
+msgstr "Opnaðu vistaða aðhvarfsniðurstöðu og skoðaðu áhrifastærðir, leiðrétta marktækni og einstakar færslur marktækra niðurstaðna."
+
+msgid "**Open:** Regression → Volcano Explorer."
+msgstr "**Opna:** Aðhvarf → Eldfjallaritskönnun."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Inspect saved effects and adjusted significance."
+msgstr ":ref:`Regression <workflow-module-regression>`: Skoðaðu vistuð áhrif og leiðrétta marktækni."
+
+msgid ":doc:`API reference </api/spacr/volcano_style/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/volcano_style/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=72_volcano_explorer>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=72_volcano_explorer>`__."
+
+msgid "Hit List"
+msgstr "Niðurstöðulisti"
+
+msgid "Filter and rank saved hits with their effects, FDR and guide agreement."
+msgstr "Síaðu og raðaðu vistuðum marktækum niðurstöðum eftir áhrifum, FDR og samræmi leiðara."
+
+msgid "**Open:** Regression → Hit List."
+msgstr "**Opna:** Aðhvarf → Niðurstöðulisti."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Inspect ranked hits and guide agreement."
+msgstr ":ref:`Regression <workflow-module-regression>`: Skoðaðu raðaðar marktækar niðurstöður og samræmi leiðara."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/hit_list/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/qt/screens/hit_list/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=48_hit_list>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=48_hit_list>`__."
+
+msgid "Methods & Results"
+msgstr "Aðferðir og niðurstöður"
+
+msgid "Draft methods/results text from recorded settings and results; review every claim before publication."
+msgstr "Drög að texta um aðferðir/niðurstöður út frá skráðum stillingum og niðurstöðum; yfirfarðu hverja fullyrðingu fyrir birtingu."
+
+msgid "**Open:** Regression → Methods & Results."
+msgstr "**Opna:** Aðhvarf → Aðferðir og niðurstöður."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Review exported prose and every traced result."
+msgstr ":ref:`Regression <workflow-module-regression>`: Yfirfarðu útfluttan texta og hverja rakta niðurstöðu."
+
+msgid ":doc:`API reference </api/spacr/methods_export/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/methods_export/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=49_methods_results>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=49_methods_results>`__."
+
+msgid "Diagnostics"
+msgstr "Greining"
+
+msgid "Inspect the diagnostic panels saved by the chosen regression run; distinguish missing diagnostics from passed assumptions."
+msgstr "Skoðaðu greiningarspjöldin sem valin aðhvarfskeyrsla vistaði; greindu á milli greininga sem vantar og forsendna sem stóðust."
+
+msgid "**Open:** Regression → Diagnostics."
+msgstr "**Opna:** Aðhvarf → Greining."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Open the diagnostics actually written by this run."
+msgstr ":ref:`Regression <workflow-module-regression>`: Opnaðu greiningargögnin sem þessi keyrsla skrifaði í raun."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/regression/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/qt/screens/regression/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=75_regression_diagnostics>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=75_regression_diagnostics>`__."
+
+msgid "Illumination"
+msgstr "Lýsing"
+
+msgid "Estimate and apply flat-field correction at configured stages. Keep corrected display values distinct from raw measurements and record the applied policy."
+msgstr "Mettu og beittu flatsviðsleiðréttingu á stilltum stigum. Haltu leiðréttum birtingargildum aðskildum frá hráum mælingum og skráðu regluna sem var beitt."
+
+msgid "**Open:** Measure → Illumination."
+msgstr "**Opna:** Mæling → Lýsing."
+
+msgid ":doc:`API reference </api/spacr/illumination/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/illumination/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=43_illumination>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=43_illumination>`__."
+
+msgid "AnnData Export"
+msgstr "AnnData-útflutningur"
+
+msgid "Export an AnnData .h5ad file with object metadata and measured features for downstream single-cell analysis."
+msgstr "Flyttu út AnnData .h5ad-skrá með lýsigögnum hluta og mældum eiginleikum fyrir áframhaldandi greiningu einstakra frumna."
+
+msgid "**Open:** Measure → AnnData Export."
+msgstr "**Opna:** Mæling → AnnData-útflutningur."
+
+msgid "**AnnData export** — An exported .h5ad file containing measured features and object metadata."
+msgstr "**AnnData-útflutningur** — Útflutt .h5ad-skrá sem inniheldur mælda eiginleika og lýsigögn hluta."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Export compatible feature and metadata columns."
+msgstr ":ref:`Measure <workflow-module-measure>`: Flyttu út samrýmanlega eiginleika- og lýsigagnadálka."
+
+msgid ":doc:`API reference </api/spacr/anndata_export/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/anndata_export/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=59_anndata_export>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=59_anndata_export>`__."
+
+msgid "Motility Assay"
+msgstr "Hreyfanleikapróf"
+
+msgid "Inspect track speed and infection-related measurements with an explicit frame interval and pixel calibration."
+msgstr "Skoðaðu hraða ferla og sýkingartengdar mælingar með skýru tímabili milli ramma og pixlakvörðun."
+
+msgid "**Open:** Measure → Motility Assay."
+msgstr "**Opna:** Mæling → Hreyfanleikapróf."
+
+msgid ":ref:`Timelapse <workflow-module-timelapse>`: Supply frame interval and pixel calibration."
+msgstr ":ref:`Timelapse <workflow-module-timelapse>`: Gefðu upp tímabil milli ramma og pixlakvörðun."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Combine measured objects with matching tracks."
+msgstr ":ref:`Measure <workflow-module-measure>`: Sameinaðu mælda hluti við samsvarandi ferla."
+
+msgid ":doc:`API reference </api/spacr/timelapse/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/timelapse/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=18_motility>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=18_motility>`__."
+
+msgid "Timelapse"
+msgstr "Tímaraðir"
+
+msgid "Open Timelapse within Mask to segment and link objects across ordered frames; inspect links before downstream motility analysis."
+msgstr "Opnaðu Tímaraðir innan Grímur til að hluta og tengja hluti yfir raðaða ramma; skoðaðu tengingar fyrir áframhaldandi hreyfanleikagreiningu."
+
+msgid "**Open:** Mask → Timelapse."
+msgstr "**Opna:** Grímur → Tímaraðir."
+
+msgid ":ref:`Mask <workflow-module-mask>`: Enable the nested time-series route before generating linked labels."
+msgstr ":ref:`Mask <workflow-module-mask>`: Virkjaðu hreiðruðu tímaraðarleiðina áður en tengd merki eru búin til."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Use the time-series project with stable frame/object identities."
+msgstr ":ref:`Measure <workflow-module-measure>`: Notaðu tímaraðarverkefnið með stöðugum auðkennum ramma/hluta."
+
+msgid ":ref:`Motility Assay <workflow-module-motility>`: Supply frame interval and pixel calibration."
+msgstr ":ref:`Motility Assay <workflow-module-motility>`: Gefðu upp tímabil milli ramma og pixlakvörðun."
+
+msgid "`Module tutorial <tutorials/#lesson=17_timelapse>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=17_timelapse>`__."
+
+msgid "OPS"
+msgstr "OPS"
+
+msgid "Use sequencing-cycle images and phenotype alignment to decode barcodes per nucleus. Aggregate/join the decoded identities to compatible phenotype inputs before Regression; the OPS database is not a drop-in FASTQ count CSV."
+msgstr "Notaðu myndir úr raðgreiningarumferðum og jöfnun svipgerðar til að afkóða strikamerki fyrir hvern kjarna. Taktu saman/tengdu afkóðuðu auðkennin við samrýmanleg svipgerðarinntök fyrir Aðhvarf; OPS-gagnagrunnurinn kemur ekki beint í stað FASTQ-talningar-CSV."
+
+msgid "**Open:** Mask → OPS."
+msgstr "**Opna:** Grímur → OPS."
+
+msgid ":ref:`Align & Stitch <workflow-module-align>`: Carry tile coordinates and original sequencing cycles into OPS; a flattened mosaic alone is insufficient."
+msgstr ":ref:`Align & Stitch <workflow-module-align>`: Fluttu hnit reita og upprunalegar raðgreiningarumferðir inn í OPS; flöt mósaíkmynd ein og sér dugar ekki."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Join/aggregate decoded objects to phenotype and guide inputs explicitly before Regression; this is not a direct CSV handoff."
+msgstr ":ref:`Regression <workflow-module-regression>`: Tengdu/taktu saman afkóðaða hluti við svipgerðar- og leiðarainntök skýrt fyrir Aðhvarf; þetta er ekki bein CSV-afhending."
+
+msgid ":doc:`API reference </api/spacr/ops_engine/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/ops_engine/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=76_ops>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=76_ops>`__."
+
+msgid "Classifier Evaluation"
+msgstr "Mat á flokkara"
+
+msgid "Inspect held-out predictions, calibration and split/leakage evidence for the matching classifier."
+msgstr "Skoðaðu spár á útilokuðum gögnum, kvörðun og vísbendingar um skiptingu/leka fyrir samsvarandi flokkara."
+
+msgid "**Open:** Classify → Classifier Evaluation."
+msgstr "**Opna:** Flokkun → Mat á flokkara."
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Use the matching held-out predictions and split metadata."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: Notaðu samsvarandi spár á útilokuðum gögnum og lýsigögn skiptingar."
+
+msgid ":doc:`API reference </api/spacr/classifier_evaluation/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/classifier_evaluation/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=39_classifier_evaluation>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=39_classifier_evaluation>`__."
+
+msgid "Explain CV Model"
+msgstr "Skýra CV-líkan"
+
+msgid "Fit a measured-feature surrogate to existing computer-vision scores, preserving identity joins. A surrogate explanation is not causality."
+msgstr "Mátaðu staðgengil úr mældum eiginleikum við fyrirliggjandi skor tölvusjónar og varðveittu tengingar auðkenna. Útskýring staðgengils sýnir ekki orsakasamhengi."
+
+msgid "**Open:** Classify → Explain CV Model."
+msgstr "**Opna:** Flokkun → Skýra CV-líkan."
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Select CV predictions and the matching measured objects."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: Veldu CV-spár og samsvarandi mælda hluti."
+
+msgid ":doc:`API reference </api/spacr/surrogate/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/surrogate/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=70_explain_cv>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=70_explain_cv>`__."
+
+msgid "Activation"
+msgstr "Virkjun"
+
+msgid "Apply the matching image classifier and preprocessing to inspect saliency/model-response maps."
+msgstr "Beittu samsvarandi myndflokkara og forvinnslu til að skoða áberandi-/svörunarkort líkans."
+
+msgid "**Open:** Classify → Activation."
+msgstr "**Opna:** Flokkun → Virkjun."
+
+msgid "**Image attribution maps** — Saved model-response/saliency images for the matching classifier and input preprocessing."
+msgstr "**Eignunarkort mynda** — Vistaðar svörunar-/áberandi myndir líkans fyrir samsvarandi flokkara og forvinnslu inntaks."
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Also provide the matching crops and channel preprocessing."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: Gefðu einnig upp samsvarandi myndskurði og forvinnslu rása."
+
+msgid ":doc:`API reference </api/spacr/deep_spacr/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/deep_spacr/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=16_activation>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=16_activation>`__."
+
+msgid "Annotator Agreement"
+msgstr "Samræmi merkjara"
+
+msgid "Compare independent annotation columns and inspect discordant objects; agreement is separate from classification accuracy."
+msgstr "Berðu saman óháða merkingadálka og skoðaðu ósamræmda hluti; samræmi er aðskilið frá nákvæmni flokkunar."
+
+msgid "**Open:** Annotate → Annotator Agreement."
+msgstr "**Opna:** Merking → Samræmi merkjara."
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Choose independent annotation columns for the same objects."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: Veldu óháða merkingadálka fyrir sömu hluti."
+
+msgid ":doc:`API reference </api/spacr/agreement/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/agreement/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=23_agreement>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=23_agreement>`__."
+
+msgid "Computer Vision"
+msgstr "Tölvusjón"
+
+msgid "Train an image classifier from labelled object crops, archives or supported streamed crops. Match channels and preprocessing when applying its checkpoint."
+msgstr "Þjálfaðu myndflokkara út frá merktum myndskurðum hluta, söfnum eða studdum streymdum myndskurðum. Paraðu rásir og forvinnslu þegar vistunarpunkti hans er beitt."
+
+msgid "**Open:** Classify → Computer Vision."
+msgstr "**Opna:** Flokkun → Tölvusjón."
+
+msgid "`Module tutorial <tutorials/#lesson=10_classify_cv>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=10_classify_cv>`__."
+
+msgid "Tabular Machine Learning"
+msgstr "Vélnám á töflugögnum"
+
+msgid "Train a feature-based classifier from measured objects and labels. Inspect missing-feature exclusions and grouped held-out performance before using scores."
+msgstr "Þjálfaðu eiginleikabundinn flokkara út frá mældum hlutum og merkjum. Skoðaðu útilokanir vegna eiginleika sem vantar og hópaða frammistöðu á útilokuðum gögnum áður en skor eru notuð."
+
+msgid "**Open:** Classify → Tabular Machine Learning."
+msgstr "**Opna:** Flokkun → Vélnám á töflugögnum."
+
+msgid "`Module tutorial <tutorials/#lesson=11_classify_ml>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=11_classify_ml>`__."
+
+msgid "Parameter Sweep"
+msgstr "Færibreytusveip"
+
+msgid "Run explicitly selected regression settings and compare their diagnostics. Keep the input data and evaluation question fixed."
+msgstr "Keyrðu skýrt valdar aðhvarfsstillingar og berðu saman greiningar þeirra. Haltu inntaksgögnum og matsspurningu föstum."
+
+msgid "**Open:** Regression → Parameter Sweep."
+msgstr "**Opna:** Aðhvarf → Færibreytusveip."
+
+msgid ":doc:`API reference </api/spacr/parameter_sweep/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/parameter_sweep/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=73_parameter_sweep>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=73_parameter_sweep>`__."
+
+msgid "Toxoplasma"
+msgstr "Toxoplasma"
+
+msgid "Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table."
+msgstr "Opnaðu lífverulýsinguna af Heimaskjánum, skoðaðu skýringarmynd hólfanna og veldu svo Plaque Assay, Söfnunargreiningu, Invasion Assay eða Replication Assay. Reitirnir fjórir merktir Væntanlegt lýsa tillögum og geta ekki keyrt. Lýsingin sjálf greinir ekki verkefni né býr til mælingatöflu."
+
+msgid "**Open:** Home → Toxoplasma."
+msgstr "**Opna:** Heim → Toxoplasma."
+
+msgid "**Bundled organism reference** — Installed organism descriptions and SwissBioPics cell diagrams; no project input is required."
+msgstr "**Meðfylgjandi lífveruviðmið** — Uppsettar lýsingar lífvera og SwissBioPics-frumuskýringarmyndir; ekkert verkefnisinntak er nauðsynlegt."
+
+msgid "**Organism guide and assay selection** — GUI-only compartment highlights and navigation to available assays; no measurements or files are produced."
+msgstr "**Lífverulýsing og val á prófi** — Áherslur á hólf og leiðsögn að tiltækum prófum eingöngu í GUI; engar mælingar eða skrár verða til."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/organism_screen/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/qt/screens/organism_screen/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=82_toxoplasma>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=82_toxoplasma>`__."
+
+msgid "Plasmodium spp."
+msgstr "Plasmodium spp."
+
+msgid "Open the organism guide from Home to read the planned malaria imaging workflows and inspect the shared apicomplexan diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result."
+msgstr "Opnaðu lífverulýsinguna af Heimaskjánum til að lesa um fyrirhuguð verkflæði við myndgreiningu malaríu og skoða sameiginlegu Apicomplexa-skýringarmyndina. Allir átta prófreitirnir eru Væntanlegt; enginn þeirra hefur greiningu eða skilar niðurstöðu."
+
+msgid "**Open:** Home → Plasmodium spp.."
+msgstr "**Opna:** Heim → Plasmodium spp.."
+
+msgid "`Module tutorial <tutorials/#lesson=83_plasmodium>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=83_plasmodium>`__."
+
+msgid "Candida spp."
+msgstr "Candida spp."
+
+msgid "Open the organism guide from Home to read the planned fungal imaging workflows and inspect the generic budding-yeast diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result."
+msgstr "Opnaðu lífverulýsinguna af Heimaskjánum til að lesa um fyrirhuguð verkflæði við myndgreiningu sveppa og skoða almennu skýringarmyndina af knappskotsgeri. Allir átta prófreitirnir eru Væntanlegt; enginn þeirra hefur greiningu eða skilar niðurstöðu."
+
+msgid "**Open:** Home → Candida spp.."
+msgstr "**Opna:** Heim → Candida spp.."
+
+msgid "`Module tutorial <tutorials/#lesson=84_candida>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=84_candida>`__."
+
+msgid "Endodyogeny size proxy"
+msgstr "Stærðarnálgun innri tvískiptingar"
+
+msgid "Read measured compartment areas, annotate conditions and bin area ** 1.5 into log2 size doublings. Defaults aggregate pathogen area per host cell, not per vacuole: multiple vacuoles in one cell are combined. This is an area-derived size proxy, not measured volume or a parasite count. Use Replication Assay with explicit vacuole identity for parasites-per-vacuole counts. Configure compartment, area filters, calibration, conditions and grouping before calling the API; saving is optional."
+msgstr "Lesa mæld flatarmál hólfa, merkja aðstæður og flokka flatarmál ** 1.5 í log2-stærðartvöfaldanir. Sjálfgefið er flatarmál sýkla tekið saman fyrir hverja hýsilfrumu, ekki hverja safabólu: margar safabólur í einni frumu eru sameinaðar. Þetta er flatarmálsbundin stærðarnálgun, ekki mælt rúmmál eða talning sníkjudýra. Notaðu Replication Assay með skýru auðkenni safabóla fyrir talningu sníkjudýra í hverri safabólu. Stilltu hólf, flatarmálssíur, kvörðun, aðstæður og flokkun áður en kallað er á API; vistun er valfrjáls."
+
+msgid "**Use from Python:** :func:`spacr.submodules.analyze_endodyogeny`. This API-only workflow has no Home tile or menu entry."
+msgstr "**Nota úr Python:** :func:`spacr.submodules.analyze_endodyogeny`. Þetta verkflæði er eingöngu í API og hefur hvorki reit á Heim né valmyndarfærslu."
+
+msgid "**Host-cell-aggregated compartment areas** — Each src project root/measurements/measurements.db; tables defaults to cell, nucleus, pathogen and cytoplasm, with png_list added for merging. The compartment setting selects the area column; default pathogen_area is summed per host cell. Relevant tables, depending on the route: ``cell``, ``nucleus``, ``pathogen``, ``cytoplasm``, ``png_list``. Relevant columns, depending on the route: ``cell_id``, ``pathogen_area``."
+msgstr "**Flatarmál hólfa tekin saman á hýsilfrumu** — measurements/measurements.db í rót hvers src-verkefnis; töflur eru sjálfgefið cell, nucleus, pathogen og cytoplasm, með png_list bætt við fyrir samruna. Stillingin compartment velur flatarmálsdálkinn; sjálfgefið er pathogen_area lagt saman fyrir hverja hýsilfrumu. Viðeigandi töflur, eftir leið: ``cell``, ``nucleus``, ``pathogen``, ``cytoplasm``, ``png_list``. Viðeigandi dálkar, eftir leið: ``cell_id``, ``pathogen_area``."
+
+msgid "**Area-derived size-proxy results** — Returned data and chi_squared DataFrames; save=True also writes data.csv, chi_squared_results.csv, chi_squared_pairwise_results.csv and a figure under the first project root/results/analyze_endodyogeny/. Relevant columns, depending on the route: ``pathogen_area``, ``pathogen_volume``, ``pathogen_volume_bin``, ``bin_index``."
+msgstr "**Niðurstöður flatarmálsbundinnar stærðarnálgunar** — DataFrame-gögnin data og chi_squared sem skilað er; save=True skrifar einnig data.csv, chi_squared_results.csv, chi_squared_pairwise_results.csv og mynd undir rót fyrsta verkefnisins/results/analyze_endodyogeny/. Viðeigandi dálkar, eftir leið: ``pathogen_area``, ``pathogen_volume``, ``pathogen_volume_bin``, ``bin_index``."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient."
+msgstr ":ref:`Measure <workflow-module-measure>`: Gefðu upp rætur mældra verkefna og nauðsynlegar töflur hluta/png_list. Staðfestu samantekt á hýsilfrumu og flatarmálseiningar áður en stærðarbil eru túlkuð; talningagagnagrunnur Grímur einn og sér dugar ekki."
+
+msgid "Direct Cellpose mask generation"
+msgstr "Bein grímugerð með Cellpose"
+
+msgid "Run a stock or custom Cellpose model on TIFF fields through the Python API. Despite its historical identify_masks_finetune name, this function performs inference, not training. Review normalization, channels, resizing and model parameters; masks are written only when save is enabled. Import compatible image/mask pairs through External Masks before Measure, or curate the pairs before training. This call does not build a Measure-ready merged project."
+msgstr "Keyra staðlað eða sérsniðið Cellpose-líkan á TIFF-sjónsvið gegnum Python API. Þrátt fyrir sögulega heitið identify_masks_finetune framkvæmir þetta fall ályktun, ekki þjálfun. Yfirfarðu stöðlun, rásir, stærðarbreytingu og líkanstika; grímur eru aðeins skrifaðar þegar vistun er virk. Fluttu samrýmanleg pör mynda og gríma inn gegnum External Masks fyrir Mælingu, eða veldu pörin fyrir þjálfun. Þetta kall býr ekki til sameinað verkefni tilbúið fyrir Mælingu."
+
+msgid "**Use from Python:** :func:`spacr.spacr_cellpose.identify_masks_finetune`. This API-only workflow has no Home tile or menu entry."
+msgstr "**Nota úr Python:** :func:`spacr.spacr_cellpose.identify_masks_finetune`. Þetta verkflæði er eingöngu í API og hefur hvorki reit á Heim né valmyndarfærslu."
+
+msgid "**TIFF fields for direct Cellpose inference** — Top-level, lowercase .tif files in src; existing same-name files in src/masks are skipped. Supply the configured channels and a compatible stock model_name or custom_model checkpoint."
+msgstr "**TIFF-sjónsvið fyrir beina ályktun með Cellpose** — .tif-skrár með lágstöfum í efsta þrepi src; fyrirliggjandi skrám með sama heiti í src/masks er sleppt. Gefðu upp stilltar rásir og samrýmanlegt staðlað model_name eða custom_model-vistunarpunkt."
+
+msgid "**Direct Cellpose TIFF masks** — When save=True, src/masks/<image-name>.tif contains integer labels. The call returns None and does not produce merged arrays or measurements.db."
+msgstr "**Beinar Cellpose TIFF-grímur** — Þegar save=True inniheldur src/masks/<image-name>.tif heiltölumerki. Kallið skilar None og býr hvorki til sameinuð fylki né measurements.db."
+
+msgid ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Pass the trained checkpoint as custom_model with the matching image channels and preprocessing."
+msgstr ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Gefðu þjálfaða vistunarpunktinn sem custom_model með samsvarandi myndrásum og forvinnslu."
+
+msgid ":ref:`External Masks <workflow-module-external_masks>`: Provide the saved label TIFFs and their original images to External Masks, assign object roles and create the merged project before Measure."
+msgstr ":ref:`External Masks <workflow-module-external_masks>`: Gefðu vistuðu merkja-TIFFs og upprunalegu myndir þeirra upp í External Masks, úthlutaðu hlutverkum hluta og búðu til sameinaða verkefnið fyrir Mælingu."
+
+msgid "Pooled-screen simulation sweep"
+msgstr "Hermunarsveip samsafnsskimunar"
+
+msgid "Use the Python sweep API to explore stated screen-design assumptions. It expands combinations, runs simulations in a process pool and writes synthetic summary statistics; it returns None. Set a small explicit max_workers value and a bounded parameter grid before running. The output does not replace measurements or barcode counts for experimental Regression. Use the findings as planning evidence, with their assumptions recorded. Review the synthetic summaries when choosing planning assumptions; transfer those assumptions manually into Power / Design or Experiment Design. Neither tool imports this simulation database, and neither exports the simulation settings grid."
+msgstr "Notaðu sveip-API í Python til að kanna tilgreindar forsendur um hönnun skimunar. Það víkkar út samsetningar, keyrir hermanir í ferlasafni og skrifar hermdar samantektartölfræði; það skilar None. Stilltu lítið, skýrt max_workers-gildi og takmarkað stikanet áður en keyrt er. Úttakið kemur ekki í stað mælinga eða talningar strikamerkja fyrir Aðhvarf á tilraunagögnum. Notaðu niðurstöðurnar sem gögn við áætlanagerð, með forsendum þeirra skráðum. Yfirfarðu hermdu samantektirnar þegar forsendur áætlunar eru valdar; færðu þær forsendur handvirkt yfir í Power / Design eða Experiment Design. Hvorugt tólið flytur inn þennan hermunargagnagrunn og hvorugt flytur út stillinganet hermunarinnar."
+
+msgid "**Use from Python:** :func:`spacr.sim.run_multiple_simulations`. This API-only workflow has no Home tile or menu entry."
+msgstr "**Nota úr Python:** :func:`spacr.sim.run_multiple_simulations`. Þetta verkflæði er eingöngu í API og hefur hvorki reit á Heim né valmyndarfærslu."
+
+msgid "**Pooled-screen simulation assumptions** — Python settings dictionary: iterable sweep values for screen size, occupancy, classifier accuracy and sequencing assumptions, plus replicates, src, name, variable, plot and max_workers. generate_parameters expands their Cartesian product; begin with a small sweep and an explicit worker bound."
+msgstr "**Forsendur hermunar samsafnsskimunar** — Python-stillingaorðabók: ítranleg sveipgildi fyrir stærð skimunar, nýtingu, nákvæmni flokkara og forsendur raðgreiningar, auk endurtekninga, src, name, variable, plot og max_workers. generate_parameters víkkar út kartesíska margfeldi þeirra; byrjaðu með litlu sveipi og skýru hámarki á vinnsluþráðum."
+
+msgid "**Synthetic screen simulation summaries** — src/<YYMMDD>/<name>/simulations.db; the sweep appends summary rows to simulations and optionally writes plots. These are synthetic performance estimates, not measured experimental hits. Relevant tables, depending on the route: ``simulations``."
+msgstr "**Samantektir hermdrar skimunar** — src/<YYMMDD>/<name>/simulations.db; skönnunin bætir samantektarröðum við simulations og skrifar valkvætt myndrit. Þetta eru hermd mat á frammistöðu, ekki mældar marktækar niðurstöður úr tilraunum. Viðeigandi töflur, eftir leið: ``simulations``."
+
+msgid ":doc:`API reference </api/spacr/sim/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/sim/index>`."
+
+msgid "Host–Pathogen Analysis"
+msgstr "Greining hýsils og sýkils"
+
+msgid "Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown."
+msgstr "Mældu heilar frymisbólur og viðmiðunarhólf hýsilfrumna og haltu ósýktum hýsilfrumum í nefnara sýkingarhlutfallsins. Veldu merkjarásir og hlutfallsþröskulda sem eru kvarðaðir með viðmiðunum. Teldu eftir þörfum sníkjudýr sem eru afmörkuð hvert fyrir sig út frá skýrum tengingum við frymisbólur eða dálki með mældum fjölda. Skoðaðu töflur fyrir frymisbólur, hýsilfrumur og brunna, sameiginleg merkjaástand, fjölgunardreifingar og tengingar sníkjudýra sem fundu enga samsvörun; óþekkt mæligildi haldast óþekkt."
+
+msgid "**Open:** Toxoplasma → Host–Pathogen Analysis."
+msgstr "**Opna:** Toxoplasma → Greining hýsils og sýkils."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole."
+msgstr ":ref:`Measure <workflow-module-measure>`: Haltu ósýktum frumum í Mælingu. Gefðu upp grímur heilla safabóla, viðmiðunarstyrk hýsla og valfrjálsar skýrar tengingar sníkjudýra við safabólur; auðkenni hýsils eitt og sér skilgreinir ekki safabólu."
+
+msgid ":doc:`API reference </api/spacr/host_pathogen/index>`."
+msgstr ":doc:`API-tilvísun </api/spacr/host_pathogen/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=85_host_pathogen>`__."
+msgstr "`Kennsla um eininguna <tutorials/#lesson=85_host_pathogen>`__."
+

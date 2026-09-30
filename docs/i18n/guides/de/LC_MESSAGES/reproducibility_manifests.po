@@ -1,0 +1,78 @@
+# spaCR user guide translation (de).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: de\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Reproducibility manifests"
+msgstr "Reproduzierbarkeitsmanifeste"
+
+msgid "Every pipeline launched from the spaCR application or ``spacr-run`` creates a run folder below ``~/.spacr/runs``. Recording happens inside the pipeline worker, so inspecting and hashing a large plate does not block the desktop event loop."
+msgstr "Jede aus der spaCR-Anwendung oder mit ``spacr-run`` gestartete Pipeline legt unterhalb von ``~/.spacr/runs`` einen Ausführungsordner an. Die Aufzeichnung erfolgt im Pipeline-Worker, sodass das Untersuchen und Hashen einer großen Platte die Ereignisschleife der Desktopanwendung nicht blockiert."
+
+msgid "Each folder contains:"
+msgstr "Jeder Ordner enthält:"
+
+msgid "``settings.json`` and ``settings.csv``"
+msgstr "``settings.json`` und ``settings.csv``"
+
+msgid "The complete resolved settings used by the pipeline."
+msgstr "Die vollständigen aufgelösten Einstellungen, die von der Pipeline verwendet wurden."
+
+msgid "``manifest.json``"
+msgstr "``manifest.json``"
+
+msgid "A versioned, atomically written record of the module, timestamps, status, settings hash, declared random seeds, Python/NumPy/Torch random-state identifiers, spaCR and Git versions, all installed package versions, model hashes, input hashes, output hashes, warnings, and an exception traceback."
+msgstr "Einen versionierten, atomar geschriebenen Datensatz mit Modul, Zeitstempeln, Status, Einstellungs-Hash, deklarierten Zufalls-Seeds, Kennungen der Zufallszustände von Python/NumPy/Torch, spaCR- und Git-Versionen, allen installierten Paketversionen, Modell-Hashes, Eingabe-Hashes, Ausgabe-Hashes, Warnungen und einem Exception-Traceback."
+
+msgid "``log.txt``"
+msgstr "``log.txt``"
+
+msgid "The tail of the application log at completion."
+msgstr "Das Ende des Anwendungsprotokolls zum Zeitpunkt des Abschlusses."
+
+msgid "``outputs/``"
+msgstr "``outputs/``"
+
+msgid "Artifacts explicitly attached by pipeline code."
+msgstr "Artefakte, die vom Pipeline-Code explizit angehängt wurden."
+
+msgid "File provenance"
+msgstr "Dateiprovenienz"
+
+msgid "spaCR recursively discovers existing paths in settings, including paths nested inside plate lists. Every regular input file receives a full SHA-256 digest, size, modification timestamp, and the setting key that selected it. Files that are created or modified under those roots during the run are recorded as outputs. Symlinks, version-control folders, caches, and the run journal itself are excluded."
+msgstr "spaCR ermittelt rekursiv vorhandene Pfade in den Einstellungen, einschließlich Pfaden, die in Plattenlisten verschachtelt sind. Jede reguläre Eingabedatei erhält einen vollständigen SHA-256-Digest, ihre Größe, den Änderungszeitstempel und den Einstellungsschlüssel, der sie ausgewählt hat. Dateien, die während der Ausführung unterhalb dieser Wurzeln erstellt oder geändert werden, werden als Ausgaben erfasst. Symbolische Links, Versionskontrollordner, Caches und das Ausführungsjournal selbst sind ausgenommen."
+
+msgid "The manifest also includes deterministic aggregate ``input_tree_sha256`` and ``output_tree_sha256`` values. These make it cheap to establish whether two complete sets match while retaining the per-file records needed to locate a difference."
+msgstr "Das Manifest enthält außerdem deterministische Gesamtwerte ``input_tree_sha256`` und ``output_tree_sha256``. Damit lässt sich mit geringem Aufwand feststellen, ob zwei vollständige Dateisätze übereinstimmen, während die dateibezogenen Einträge erhalten bleiben, die zum Auffinden eines Unterschieds nötig sind."
+
+msgid "Crash and failure behavior"
+msgstr "Verhalten bei Abstürzen und Fehlern"
+
+msgid "A ``running`` manifest is written before the pipeline starts. It is replaced atomically when the run succeeds or fails. Exceptions are re-raised to the normal GUI/CLI error handling after their traceback is retained. Problems reading or hashing provenance are logged and listed under ``provenance_warnings``; they are not silently discarded."
+msgstr "Vor dem Start der Pipeline wird ein Manifest mit dem Status ``running`` geschrieben. Es wird atomar ersetzt, wenn die Ausführung erfolgreich ist oder fehlschlägt. Exceptions werden nach dem Sichern ihres Tracebacks erneut an die normale Fehlerbehandlung der GUI bzw. CLI weitergegeben. Probleme beim Lesen oder Hashen der Provenienz werden protokolliert und unter ``provenance_warnings`` aufgeführt; sie werden nicht stillschweigend verworfen."
+
+msgid "Public API"
+msgstr "Öffentliche API"
+
+msgid "Use :func:`spacr.run_journal.open_run` around a custom pipeline. Within the context, :meth:`spacr.run_journal.Run.record_input`, :meth:`spacr.run_journal.Run.record_model`, and :meth:`spacr.run_journal.Run.record_output` can add paths that are not present in settings."
+msgstr "Verwenden Sie :func:`spacr.run_journal.open_run` um eine eigene Pipeline herum. Innerhalb dieses Kontexts können :meth:`spacr.run_journal.Run.record_input`, :meth:`spacr.run_journal.Run.record_model` und :meth:`spacr.run_journal.Run.record_output` Pfade hinzufügen, die nicht in den Einstellungen enthalten sind."
+
+msgid "``spacr-repro <run-folder>`` replays supported modules with the recorded settings. The complete API is generated under :mod:`spacr.run_journal`."
+msgstr "``spacr-repro <run-folder>`` spielt unterstützte Module mit den aufgezeichneten Einstellungen erneut ab. Die vollständige API wird unter :mod:`spacr.run_journal` generiert."
+

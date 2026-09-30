@@ -1,0 +1,105 @@
+# spaCR user guide translation (zh_CN).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: zh_CN\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Host–Pathogen Analysis"
+msgstr "宿主–病原体分析"
+
+msgid "From **Home → Assays → Toxoplasma**, open **Host–Pathogen Analysis**. This alpha module combines vacuole-level marker recruitment with host and well summaries. Existing :doc:`Recruitment <recruitment>` remains available."
+msgstr "从 **主页 → 实验分析 → 弓形虫** 打开 **宿主–病原体分析**。这个 alpha 模块将纳虫泡水平的标记募集与宿主和孔的汇总结合起来。现有的 :doc:`募集分析 <recruitment>` 仍然可用。"
+
+msgid "Try the real microscopy test data"
+msgstr "试用真实的显微测试数据"
+
+msgid "Open **Home → Assays → Toxoplasma → Host–Pathogen Analysis** and select **Load test data…**. The download is approximately 114 MB."
+msgstr "打开 **主页 → 实验分析 → 弓形虫 → 宿主–病原体分析** 并选择 **加载测试数据...**。下载大小约为 114 MB。"
+
+msgid "Enable **Live** beside the bottom action controls, then select **Run preview**. Choose either measured field and select vacuoles in the image or table to inspect their host links and marker ratios."
+msgstr "启用底部操作控件旁的 **实时**，然后选择 **运行预览**。选择任一已测量视野，并在图像或表格中选择纳虫泡，以检查其宿主关联和标记比值。"
+
+msgid "Set **Image channel** to 2 for Toxoplasma, 1 for RNF213 or 3 for CellMask. Leave the mask-plane selectors on **Auto**; the dataset includes the plane manifest. These display choices do not change the analysis channels."
+msgstr "将 **图像通道** 设置为 2 查看弓形虫，1 查看 RNF213，3 查看 CellMask。将掩膜平面选择器保持为 **自动**；数据集包含平面清单。这些显示选项不会改变分析通道。"
+
+msgid "Turn **Live** off and expand **Actions** if the run controls are collapsed. Select **Run** to analyze both fields. Compare the results with the supplied ``example_cells.csv``, ``example_vacuoles.csv`` and ``example_wells.csv``."
+msgstr "关闭 **实时**，如果运行控件已折叠，请展开 **操作**。选择 **运行** 分析两个视野。将结果与随附的 ``example_cells.csv``、``example_vacuoles.csv`` 和 ``example_wells.csv`` 进行比较。"
+
+msgid "Follow the `Host–Pathogen video walkthrough <tutorials/#lesson=85_host_pathogen>`_ for the complete example."
+msgstr "完整示例请参阅 `宿主–病原体视频教程 <tutorials/#lesson=85_host_pathogen>`_。"
+
+msgid "The `Host–Pathogen dataset <https://huggingface.co/datasets/einarolafsson/spacr-example-host-pathogen/tree/83b73d7a0c4f8a9ea145304c2ba90acc16768031>`_ contains two acquired THP-1/RNF213 fields, four intensity channels and prepared automatic masks. Its measurements cover 164 host cells, 189 nuclei, 97 whole vacuoles and 164 cytoplasm objects across the two fields. The acquired intensity planes are unchanged; the masks underwent Measure's normal parent/child reconciliation so the distributed outlines match measured objects. The dataset card and ``example_manifest.json`` describe the source fields, preparation and checks. These masks are not manually validated ground truth."
+msgstr "`宿主–病原体数据集 <https://huggingface.co/datasets/einarolafsson/spacr-example-host-pathogen/tree/83b73d7a0c4f8a9ea145304c2ba90acc16768031>`_ 包含两个采集的 THP-1/RNF213 视野、四个强度通道和预先生成的自动掩膜。其测量覆盖两个视野中的 164 个宿主细胞、189 个细胞核、97 个完整纳虫泡和 164 个细胞质对象。采集的强度平面未作改动；掩膜经过了测量模块常规的父/子对象协调，使分发的轮廓与已测量对象一致。数据集卡片和 ``example_manifest.json`` 描述了源视野、准备过程和检查。这些掩膜并非经过人工验证的真值。"
+
+msgid "The supplied settings compare vacuole RNF213 means with their associated host cytoplasm means in channel 1. Marker thresholds are deliberately unset: ratios are available, while positive/negative marker states remain unknown until you choose suitable control-calibrated thresholds. Individual-parasite counts are not supplied, so replication remains ``not_measured``. This small sample does not establish biological differences between its control conditions."
+msgstr "随附设置比较通道 1 中纳虫泡 RNF213 均值与其相关宿主细胞质均值。标记阈值故意未设置：比值可用，但在您选择经对照校准的合适阈值之前，阳性/阴性标记状态仍为未知。未提供单个寄生虫计数，因此复制状态保持为 ``not_measured``。这个小样本不能确立其对照条件之间的生物学差异。"
+
+msgid "The command-line download is ``spacr-download host_pathogen``. The prepared measurements let you use this example directly; your own image project needs the Mask and Measure preparation described below."
+msgstr "命令行下载命令为 ``spacr-download host_pathogen``。预先准备的测量结果使您可以直接使用此示例；您自己的图像项目需要按下文所述进行掩膜和测量准备。"
+
+msgid "Inspect one field before running"
+msgstr "运行前检查单个视野"
+
+msgid "After selecting a measured project in **Source**, enable the bottom **Live** control. The preview uses the current form settings and the same analysis functions as a full run. Select **Run preview** for the initial calculation. While the panel remains visible, later settings changes refresh that preview. Use **Refresh** to reload the field choices and **Cancel** to cancel a pending preview. Preview reads the measurements database without writing result files."
+msgstr "在 **来源** 中选择已测量的项目后，启用底部的 **实时** 控件。预览使用当前表单设置以及与完整运行相同的分析函数。选择 **运行预览** 进行初次计算。面板保持可见时，之后的设置更改会刷新该预览。使用 **刷新** 重新加载视野选项，使用 **取消** 取消待处理的预览。预览只读取测量数据库，不写入结果文件。"
+
+msgid "Its host counts and infection fractions describe the selected field only. They are not whole-well denominators. Fields containing vacuoles without measured host cells remain available. Missing or zero reference intensities produce unknown marker states; an unknown state must not be read as negative."
+msgstr "其宿主数量和感染比例仅描述所选视野，并不是整孔的分母。包含纳虫泡但没有已测量宿主细胞的视野仍然可用。参照强度缺失或为零会产生未知的标记状态；未知状态不得被解读为阴性。"
+
+msgid "Overlay plane selection defaults to **Auto**, using the recorded ``.spacr_plane_layout.json`` metadata. Select explicit host, vacuole and parasite plane indices when metadata is absent, or use ``-1`` to hide an overlay. Changing the displayed intensity channel does not change the analysis marker settings. If an image cannot be loaded, the measured results remain available in the table."
+msgstr "叠加平面选择默认为 **自动**，使用记录的 ``.spacr_plane_layout.json`` 元数据。缺少元数据时，请显式选择宿主、纳虫泡和寄生虫的平面索引，或使用 ``-1`` 隐藏某个叠加层。更改显示的强度通道不会改变分析标记设置。如果无法加载图像，已测量的结果仍可在表格中查看。"
+
+msgid "For scripted previews, :func:`spacr.host_pathogen_preview.preview_fields` offers at most 50 fields by default and reports whether more exist. :func:`spacr.host_pathogen_preview.preview_field` analyzes one selected field, refusing input tables with more than 100,000 rows for that field by default. These bounds keep the preview limited; use the full analysis for project-wide reports."
+msgstr "对于脚本化预览，:func:`spacr.host_pathogen_preview.preview_fields` 默认最多提供 50 个视野，并报告是否还有更多。:func:`spacr.host_pathogen_preview.preview_field` 分析一个选定的视野，默认拒绝该视野超过 100,000 行的输入表。这些界限使预览保持受限；项目范围的报告请使用完整分析。"
+
+msgid "Prepare the counting units"
+msgstr "准备计数单元"
+
+msgid "Run Mask and Measure first. Keep uninfected host cells in Measure (``uninfected=True``) when the intended infection denominator is all measured hosts. Previously discarded host cells cannot be reconstructed here."
+msgstr "先运行掩膜和测量。当预期的感染分母为所有已测量宿主时，请在测量中保留未感染的宿主细胞（``uninfected=True``）。之前被丢弃的宿主细胞无法在此重建。"
+
+msgid "Supply a cell table, a table with one object per whole vacuole (default: ``pathogen``), and a host reference compartment table (default: ``cytoplasm``). Individual-parasite masks cannot substitute for whole-vacuole masks. Select marker channels and per-channel ratio thresholds calibrated with appropriate controls; the module does not learn these thresholds."
+msgstr "提供细胞表、每个完整纳虫泡对应一个对象的表（默认：``pathogen``），以及宿主参照区室表（默认：``cytoplasm``）。单个寄生虫的掩膜不能替代完整纳虫泡的掩膜。选择标记通道以及经适当对照校准的逐通道比值阈值；该模块不会学习这些阈值。"
+
+msgid "Replication counts require either a parasite table with explicit parent-vacuole identities or an existing count column. Choose one count source. Without one, replication remains unmeasured rather than being inferred from vacuole area. Host identity alone is insufficient when a host contains multiple vacuoles."
+msgstr "复制计数需要带有明确父纳虫泡标识的寄生虫表，或现有的计数列。请选择一个计数来源。没有计数来源时，复制情况保持为未测量，而不会根据纳虫泡面积推断。当一个宿主包含多个纳虫泡时，仅有宿主标识是不够的。"
+
+msgid "When Measure links individual organelle-role objects to whole-vacuole masks, one parent must cover strictly more than half of a child's pixels. Outside objects and ambiguous overlaps retain a missing parent. The stored parent is ``pathogen_id``; the stored overlap feature is role-prefixed, for example ``organelle_pathogen_overlap_fraction``. Use such an object table as parasites only when those masks actually represent individual parasites."
+msgstr "当测量模块将单个细胞器角色对象关联到完整纳虫泡掩膜时，一个父对象必须覆盖子对象一半以上的像素。位于外部的对象和存在歧义的重叠会保留缺失的父对象。存储的父对象为 ``pathogen_id``；存储的重叠特征带有角色前缀，例如 ``organelle_pathogen_overlap_fraction``。仅当这些掩膜确实代表单个寄生虫时，才将此类对象表用作寄生虫。"
+
+msgid "Interpret the reports"
+msgstr "解读报告"
+
+msgid "The output directory ``results/host_pathogen`` contains ``vacuoles.csv``, ``cells.csv``, ``wells.csv``, ``marker_states.csv``, ``replication_distribution.csv``, ``orphan_parasites.csv`` and the exact ``settings.json``. With multiple input projects, the combined report is saved under the first project. Database paths separate sources even when plate or field identifiers repeat."
+msgstr "输出目录 ``results/host_pathogen`` 包含 ``vacuoles.csv``、``cells.csv``、``wells.csv``、``marker_states.csv``、``replication_distribution.csv``、``orphan_parasites.csv`` 以及确切的 ``settings.json``。有多个输入项目时，合并报告保存在第一个项目下。即使孔板或视野标识重复，数据库路径也能区分来源。"
+
+msgid "Unlinked vacuoles and missing, invalid or zero host-reference intensities yield unknown marker states. Joint marker fractions include unknown vacuoles in their denominator; replication fractions use only vacuoles with counts. Host infection fractions describe retained measured host cells. These denominators answer different questions and should be reported explicitly."
+msgstr "未关联的纳虫泡以及缺失、无效或为零的宿主参照强度会产生未知的标记状态。联合标记比例的分母包含未知纳虫泡；复制比例只使用有计数的纳虫泡。宿主感染比例描述保留的已测量宿主细胞。这些分母回答的是不同的问题，应在报告中明确说明。"
+
+msgid "For scripted use, see :func:`spacr.host_pathogen.analyze_host_pathogen` and :func:`spacr.host_pathogen.summarize_tables`. The headless module name is ``host_pathogen`` in ``spacr-run``."
+msgstr "脚本化使用请参阅 :func:`spacr.host_pathogen.analyze_host_pathogen` 和 :func:`spacr.host_pathogen.summarize_tables`。在 ``spacr-run`` 中，无界面模块名称为 ``host_pathogen``。"
+
+msgid "Choosing a Replication Assay method"
+msgstr "选择复制分析方法"
+
+msgid "The separate **Replication Assay → Method** selector defaults to ``direct_count``, which counts individually segmented parasites per assigned vacuole. ``size_proxy`` uses the existing endodyogeny analysis and its **Size Proxy (Legacy)** controls. That readout aggregates pathogen area per host cell; multiple vacuoles in one host are combined. It is an area-derived proxy, not a parasite count or measured volume."
+msgstr "单独的 **复制分析 → 方法** 选择器默认为 ``direct_count``，它对分配到每个纳虫泡的单独分割寄生虫进行计数。``size_proxy`` 使用现有的内二芽殖（endodyogeny）分析及其 **Size Proxy (Legacy)** 控件。该读数按宿主细胞汇总病原体面积；一个宿主中的多个纳虫泡会被合并。它是由面积推导的代理指标，而不是寄生虫计数或测得的体积。"
+
+msgid "Both available routes return ``replication_method`` metadata. The whole-vacuole deep-learning option is marked coming soon and cannot run before its model is available. See :func:`spacr.submodules.analyze_replication` and :func:`spacr.submodules.analyze_endodyogeny` for the exact settings and outputs."
+msgstr "两种可用方法都会返回 ``replication_method`` 元数据。完整纳虫泡深度学习选项标记为即将推出，在其模型可用之前无法运行。确切的设置和输出请参阅 :func:`spacr.submodules.analyze_replication` 和 :func:`spacr.submodules.analyze_endodyogeny`。"
+

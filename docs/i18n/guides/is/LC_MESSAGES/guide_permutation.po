@@ -1,0 +1,48 @@
+# spaCR user guide translation (is).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: is\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Plate-aware guide permutation analysis"
+msgstr "Umröðunargreining leiðara sem tekur tillit til platna"
+
+msgid "Use the guide permutation analysis when the independent experimental unit is a well and a simultaneous guide model is not identifiable because there are more guide columns than wells or because guide fractions are highly correlated.  ``inference='nonparametric'`` (the default) runs it, and ``inference='auto'`` chooses it whenever the simultaneous fit would be unidentifiable; either way the run records ``analysis_mode='guide_permutation'``.  The mode uses the same paired per-cell score and sequencing-count CSV inputs (``paired_data``) as :func:`spacr.ml.perform_regression`."
+msgstr "Notaðu umröðunargreiningu leiðara þegar óháða tilraunaeiningin er brunnur og samtímis leiðaralíkan er ekki auðkennanlegt vegna þess að leiðaradálkar eru fleiri en brunnar eða vegna þess að hlutföll leiðara eru mjög fylgnibundin.  ``inference='nonparametric'`` (sjálfgildið) keyrir hana og ``inference='auto'`` velur hana hvenær sem samtímis mátun væri óauðkennanleg; í báðum tilvikum skráir keyrslan ``analysis_mode='guide_permutation'``.  Hamurinn notar sömu CSV-inntök með pöruðum frumuskorum og raðgreiningartalningum (``paired_data``) og :func:`spacr.ml.perform_regression`."
+
+msgid "Each guide is tested separately after its well-level fraction and the well-level phenotype have both been adjusted for plate (and any optional measured nuisance columns).  Two-sided empirical P values come from Freedman--Lane residual permutations restricted within plate.  Multiple-test correction is then applied separately within each requested minimum-support family.  These are marginal associations: co-occurring guides may share a signal, so the output is not a set of mutually adjusted causal coefficients."
+msgstr "Hver leiðari er prófaður sérstaklega eftir að hlutfall hans á brunnstigi og svipgerðin á brunnstigi hafa bæði verið leiðrétt fyrir plötu (og öllum valkvæðum mældum truflunardálkum).  Tvíhliða empírísk P-gildi koma úr Freedman--Lane-leifaumröðunum sem eru takmarkaðar innan plötu.  Leiðrétting fyrir fjölprófunum er síðan beitt sérstaklega innan hverrar umbeðinnar lágmarksstuðningsfjölskyldu.  Þetta eru jaðartengsl: leiðarar sem koma fyrir saman geta deilt merki, þannig að úttakið er ekki mengi innbyrðis leiðréttra orsakastuðla."
+
+msgid "Example"
+msgstr "Dæmi"
+
+msgid "The important output columns are ``wells_with_guide``, ``standardized_marginal_effect``, ``permutation_p_value``, ``adjusted_p_value`` and ``significant``.  ``guide_min_wells`` accepts either one positive integer or a list.  The empirical P value for a guide is computed once at the smallest requested threshold; only the multiple-testing family and adjusted value change across support thresholds. ``guide_primary_min_wells`` selects which requested family is returned in ``output['significant']``; when it is ``None``, spaCR uses the smallest family so the primary correction retains every tested guide."
+msgstr "Mikilvægu úttaksdálkarnir eru ``wells_with_guide``, ``standardized_marginal_effect``, ``permutation_p_value``, ``adjusted_p_value`` og ``significant``.  ``guide_min_wells`` tekur við annaðhvort einni jákvæðri heiltölu eða lista.  Empíríska P-gildið fyrir leiðara er reiknað einu sinni við minnsta umbeðna þröskuld; aðeins fjölprófunarfjölskyldan og leiðrétta gildið breytast milli stuðningsþröskulda. ``guide_primary_min_wells`` velur hvaða umbeðna fjölskylda er skilað í ``output['significant']``; þegar það er ``None`` notar spaCR minnstu fjölskylduna þannig að aðalleiðréttingin haldi öllum prófuðum leiðurum."
+
+msgid "Multiple-testing choices"
+msgstr "Val á fjölprófunaraðferð"
+
+msgid "``multiple_testing_method`` accepts ``fdr_bh`` (Benjamini--Hochberg), ``fdr_by``, ``bonferroni``, ``holm`` or ``none``.  ``fdr_bh`` is the default. For reproducibility, record the requested support families, permutation count, seed, blocking column, nuisance columns, presence threshold, correction method and alpha together with the input-file checksums."
+msgstr "``multiple_testing_method`` tekur við ``fdr_bh`` (Benjamini--Hochberg), ``fdr_by``, ``bonferroni``, ``holm`` eða ``none``.  ``fdr_bh`` er sjálfgildið. Til að tryggja endurtakanleika skaltu skrá umbeðnar stuðningsfjölskyldur, fjölda umraðana, fræ, blokkunardálk, truflunardálka, viðverumörk, leiðréttingaraðferð og alfa ásamt gátsummum inntaksskránna."
+
+msgid "Direct analysis of an existing long table"
+msgstr "Bein greining á fyrirliggjandi langri töflu"
+
+msgid "If a previous run already produced ``regression_data.csv``, it can be analyzed without re-reading the per-cell and sequencing inputs:"
+msgstr "Ef fyrri keyrsla hefur þegar búið til ``regression_data.csv`` er hægt að greina hana án þess að lesa aftur inntök á frumustigi og raðgreiningarinntök:"
+

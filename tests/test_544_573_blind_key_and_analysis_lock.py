@@ -121,7 +121,14 @@ def test_a_change_is_a_deviation_and_post_hoc_after_unblinding(journal):
     assert before["deviations"][0]["now"] == 0.4
 
     rj.unblind(key["key_id"])
-    after = rj.check_analysis_lock(changed, app_key="ml_analyze")
+    # 2026-09-30: an edit first seen while still blind stays a deviation
+    # after the key is opened; only an edit first seen after it is post-hoc.
+    kept = rj.check_analysis_lock(changed, app_key="ml_analyze")
+    assert kept["status"] == "deviation"
+    assert kept["deviations"][0]["first_seen_utc"] < kept["unblinded_utc"]
+    assert kept["deviations"][0]["post_hoc"] is False
+    late = _settings(journal, prediction_threshold=0.3)
+    after = rj.check_analysis_lock(late, app_key="ml_analyze")
     assert after["status"] == "post_hoc"
     assert after["unblinded_utc"] > after["locked_utc"]
     assert "POST-HOC" in after["summary"]

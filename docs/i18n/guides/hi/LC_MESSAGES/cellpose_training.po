@@ -1,0 +1,162 @@
+# spaCR user guide translation (hi).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: hi\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Train a Cellpose model"
+msgstr "Cellpose मॉडल प्रशिक्षित करें"
+
+msgid "Use your corrected image masks to fine-tune Cellpose-SAM, then apply the saved model to another image folder. From **Home → Tools → Make Masks**, open **Cellpose Workbench** and choose **Train**."
+msgstr "अपने सुधारे गए छवि मास्क से Cellpose-SAM को फ़ाइन-ट्यून करें, फिर सहेजे गए मॉडल को किसी दूसरे छवि फ़ोल्डर पर लागू करें। **मुखपृष्ठ → उपकरण → मास्क बनाएँ** से **Cellpose वर्कबेंच** खोलें और **प्रशिक्षण** चुनें।"
+
+msgid "To follow along, download the `six example image/mask pairs <tutorials/examples/Cellpose_training_images_masks.zip>`__ and extract them. Set Source to the extracted ``training`` folder. Review the supplied cell masks in Make Masks, then follow the settings and Run steps below. The archive's ``apply`` folder holds three more images from wells that are not in the training set; use it to try the trained checkpoint in Apply."
+msgstr "साथ-साथ अभ्यास करने के लिए `छह उदाहरण छवि/मास्क जोड़े <tutorials/examples/Cellpose_training_images_masks.zip>`__ डाउनलोड करके निकालें। स्रोत को निकाले गए ``training`` फ़ोल्डर पर सेट करें। मास्क बनाएँ में साथ दिए गए कोशिका मास्क की समीक्षा करें, फिर नीचे दिए गए सेटिंग्स और चलाने के चरणों का पालन करें। संग्रह के ``apply`` फ़ोल्डर में उन कूपों की तीन और छवियाँ हैं जो प्रशिक्षण सेट में नहीं हैं; लागू करें टैब में प्रशिक्षित चेकपॉइंट आज़माने के लिए इनका उपयोग करें।"
+
+msgid "Prepare images and masks"
+msgstr "छवियाँ और मास्क तैयार करें"
+
+msgid "Place training images in one folder and their masks in its ``masks`` subfolder::"
+msgstr "प्रशिक्षण छवियों को एक फ़ोल्डर में और उनके मास्क को उसके ``masks`` उप-फ़ोल्डर में रखें::"
+
+msgid "Each mask must have the same height and width as its image. Use integer object labels: zero for background and a different positive number for each object. A mask filename can match its image or add ``_masks`` before the extension, such as ``field_01_masks.tif``. Keep one matching mask per image."
+msgstr "हर मास्क की ऊँचाई और चौड़ाई उसकी छवि के समान होनी चाहिए। पूर्णांक ऑब्जेक्ट लेबल का उपयोग करें: पृष्ठभूमि के लिए शून्य और हर ऑब्जेक्ट के लिए अलग धनात्मक संख्या। मास्क फ़ाइल का नाम उसकी छवि के समान हो सकता है या एक्सटेंशन से पहले ``_masks`` जोड़ सकता है, जैसे ``field_01_masks.tif``। हर छवि के लिए एक मेल खाने वाला मास्क रखें।"
+
+msgid "Use Make Masks to inspect and correct object boundaries before training. Keep separate fields for validation. You can reuse a legacy project containing ``train/images`` and ``train/masks`` by selecting that project as Source."
+msgstr "प्रशिक्षण से पहले ऑब्जेक्ट सीमाओं की जाँच और सुधार के लिए मास्क बनाएँ का उपयोग करें। सत्यापन के लिए अलग फ़ील्ड रखें। ``train/images`` और ``train/masks`` वाले पुराने प्रोजेक्ट को स्रोत के रूप में चुनकर आप उसे दोबारा उपयोग कर सकते हैं।"
+
+msgid "Choose inputs and settings"
+msgstr "इनपुट और सेटिंग्स चुनें"
+
+msgid "Set **Source** (``src``) to the training image folder."
+msgstr "**स्रोत** (``src``) को प्रशिक्षण छवि फ़ोल्डर पर सेट करें।"
+
+msgid "Leave ``mask_src`` empty to use ``<src>/masks``, or select another mask folder."
+msgstr "``<src>/masks`` का उपयोग करने के लिए ``mask_src`` को खाली छोड़ें, या कोई दूसरा मास्क फ़ोल्डर चुनें।"
+
+msgid "For validation, set ``test_src`` to a separate image folder. Its masks belong in ``<test_src>/masks`` unless you select ``test_mask_src``."
+msgstr "सत्यापन के लिए ``test_src`` को एक अलग छवि फ़ोल्डर पर सेट करें। जब तक आप ``test_mask_src`` न चुनें, उसके मास्क ``<test_src>/masks`` में होने चाहिए।"
+
+msgid "Choose ``base_model``: ``cpsam`` starts from Cellpose-SAM; a model-zoo key or checkpoint path continues training an existing model."
+msgstr "``base_model`` चुनें: ``cpsam`` Cellpose-SAM से शुरू करता है; मॉडल संग्रह की कुंजी या चेकपॉइंट पथ किसी मौजूदा मॉडल का प्रशिक्षण जारी रखता है।"
+
+msgid "Enter ``model_name`` as a filename prefix. Use ``save_path`` to choose an output folder, or leave it empty to save under the training project."
+msgstr "फ़ाइल नाम उपसर्ग के रूप में ``model_name`` दर्ज करें। आउटपुट फ़ोल्डर चुनने के लिए ``save_path`` का उपयोग करें, या प्रशिक्षण प्रोजेक्ट के अंतर्गत सहेजने के लिए इसे खाली छोड़ें।"
+
+msgid "For multichannel images, ``channels`` selects up to three zero-based channel indices. For example, ``[0, 2]`` selects the first and third channels. Leave ``channel_axis`` empty for automatic detection, or set it explicitly when the image layout is ambiguous. Training accepts two-dimensional images with optional channels."
+msgstr "बहु-चैनल छवियों के लिए ``channels`` शून्य से शुरू होने वाले अधिकतम तीन चैनल सूचकांक चुनता है। उदाहरण के लिए, ``[0, 2]`` पहला और तीसरा चैनल चुनता है। स्वचालित पहचान के लिए ``channel_axis`` को खाली छोड़ें, या जब छवि का विन्यास अस्पष्ट हो तब इसे स्पष्ट रूप से सेट करें। प्रशिक्षण वैकल्पिक चैनलों वाली द्विविमीय छवियाँ स्वीकार करता है।"
+
+msgid "Main training controls"
+msgstr "मुख्य प्रशिक्षण नियंत्रण"
+
+msgid "Setting"
+msgstr "सेटिंग"
+
+msgid "Default"
+msgstr "डिफ़ॉल्ट"
+
+msgid "What it controls"
+msgstr "यह क्या नियंत्रित करता है"
+
+msgid "``n_epochs``"
+msgstr "``n_epochs``"
+
+msgid "100"
+msgstr "100"
+
+msgid "Number of training epochs."
+msgstr "प्रशिक्षण एपोक की संख्या।"
+
+msgid "``batch_size``"
+msgstr "``batch_size``"
+
+msgid "1"
+msgstr "1"
+
+msgid "Images per training minibatch. Larger batches require more memory."
+msgstr "प्रति प्रशिक्षण मिनीबैच छवियाँ। बड़े बैचों के लिए अधिक मेमोरी चाहिए।"
+
+msgid "``learning_rate``"
+msgstr "``learning_rate``"
+
+msgid "0.00001"
+msgstr "0.00001"
+
+msgid "Size of the model's training updates."
+msgstr "मॉडल के प्रशिक्षण अद्यतनों का आकार।"
+
+msgid "``weight_decay``"
+msgstr "``weight_decay``"
+
+msgid "0.1"
+msgstr "0.1"
+
+msgid "Strength of weight regularization during training."
+msgstr "प्रशिक्षण के दौरान भार नियमितीकरण की तीव्रता।"
+
+msgid "``normalize`` / ``percentiles``"
+msgstr "``normalize`` / ``percentiles``"
+
+msgid "On / [1, 99]"
+msgstr "चालू / [1, 99]"
+
+msgid "Percentile normalization of each image channel."
+msgstr "हर छवि चैनल का पर्सेंटाइल सामान्यीकरण।"
+
+msgid "``min_train_masks``"
+msgstr "``min_train_masks``"
+
+msgid "5"
+msgstr "5"
+
+msgid "Minimum labelled objects in an image included in training."
+msgstr "प्रशिक्षण में शामिल छवि में लेबल किए गए ऑब्जेक्ट की न्यूनतम संख्या।"
+
+msgid "``scale_range``"
+msgstr "``scale_range``"
+
+msgid "0.5"
+msgstr "0.5"
+
+msgid "Variation in image scale during training augmentation."
+msgstr "प्रशिक्षण संवर्धन के दौरान छवि पैमाने में भिन्नता।"
+
+msgid "``save_every`` / ``save_each``"
+msgstr "``save_every`` / ``save_each``"
+
+msgid "100 / Off"
+msgstr "100 / बंद"
+
+msgid "Checkpoint interval and whether periodic checkpoints get separate names."
+msgstr "चेकपॉइंट अंतराल, और क्या आवधिक चेकपॉइंट को अलग नाम मिलते हैं।"
+
+msgid "For a smaller initial run, ``max_train_images`` limits the loaded training images. ``nimg_per_epoch`` and ``nimg_test_per_epoch`` limit how many images are used per epoch. Leave these limits empty to use all available images."
+msgstr "छोटे प्रारंभिक रन के लिए ``max_train_images`` लोड की गई प्रशिक्षण छवियों को सीमित करता है। ``nimg_per_epoch`` और ``nimg_test_per_epoch`` प्रति एपोक उपयोग की जाने वाली छवियों की संख्या सीमित करते हैं। सभी उपलब्ध छवियों का उपयोग करने के लिए इन सीमाओं को खाली छोड़ें।"
+
+msgid "Run and use the output"
+msgstr "चलाएँ और आउटपुट का उपयोग करें"
+
+msgid "Click **Run** and follow progress in the console. When training finishes, the console reports the saved checkpoint path. With the default output location, checkpoints are under ``<src>/models/cellpose_model/models``. With a chosen ``save_path``, they are under ``<save_path>/models``."
+msgstr "**चलाएँ** पर क्लिक करें और कंसोल में प्रगति देखें। प्रशिक्षण पूरा होने पर कंसोल सहेजे गए चेकपॉइंट का पथ बताता है। डिफ़ॉल्ट आउटपुट स्थान के साथ चेकपॉइंट ``<src>/models/cellpose_model/models`` के अंतर्गत होते हैं। चुने गए ``save_path`` के साथ वे ``<save_path>/models`` के अंतर्गत होते हैं।"
+
+msgid "Open **Apply**, select a separate image folder, such as the example's ``apply`` folder, and check that **Custom model** points to the checkpoint you want. Turn on **Save**, which is off by default. Inspect a preview before processing the folder. Apply writes label masks into that image folder's ``masks`` subfolder. Use separate labelled images to evaluate segmentation before applying the model to an entire experiment."
+msgstr "**लागू करें** खोलें, कोई अलग छवि फ़ोल्डर चुनें (जैसे उदाहरण का ``apply`` फ़ोल्डर), और जाँचें कि **कस्टम मॉडल** इच्छित चेकपॉइंट की ओर संकेत करता है। **सहेजें** चालू करें, जो डिफ़ॉल्ट रूप से बंद है। फ़ोल्डर संसाधित करने से पहले पूर्वावलोकन की जाँच करें। लागू करें टैब उस छवि फ़ोल्डर के ``masks`` उप-फ़ोल्डर में लेबल मास्क लिखता है। पूरे प्रयोग पर मॉडल लागू करने से पहले अलग लेबल की गई छवियों से विभाजन का मूल्यांकन करें।"
+
+msgid "The Python entry point :func:`spacr.submodules.train_cellpose` accepts the same settings and returns the checkpoint path, training losses and validation losses. Continue with :doc:`Make Masks <make_masks>` to inspect or edit masks, or :ref:`Mask <workflow-module-mask>` to use the model in an image pipeline."
+msgstr "Python प्रवेश बिंदु :func:`spacr.submodules.train_cellpose` यही सेटिंग्स स्वीकार करता है और चेकपॉइंट पथ, प्रशिक्षण हानियाँ और सत्यापन हानियाँ लौटाता है। मास्क की जाँच या संपादन के लिए :doc:`मास्क बनाएँ <make_masks>` पर जाएँ, या छवि पाइपलाइन में मॉडल का उपयोग करने के लिए :ref:`मास्क <workflow-module-mask>` पर जाएँ।"
+

@@ -1,0 +1,78 @@
+# spaCR user guide translation (zh_CN).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: zh_CN\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Checkpoint and resume"
+msgstr "检查点与断点续跑"
+
+msgid "spaCR checkpoints long work only after a safe unit has finished. A checkpoint never means killing a write halfway through: it means that a later invocation can prove which fields, trials, or plate jobs settled and continue after them. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
+msgstr "spaCR 仅在一个安全单元完成后才为长时间任务保存检查点。检查点绝不意味着在写入中途强行终止：它意味着之后的调用能够证明哪些视野、试验或孔板作业已经完成，并在其后继续。Qt 的 **停止** 按钮使用相同的边界：它请求协作式取消，让当前安全单元完成，并为下一次运行保留检查点。参见 :doc:`threading_cancellation_audit`。"
+
+msgid "Supported workflows"
+msgstr "支持的工作流程"
+
+msgid "Mask"
+msgstr "掩膜"
+
+msgid "Masks are matched to fields by exact filename. An object role is skipped only when every ``.npy`` field in ``stack/`` has a structurally complete mask of the same name; a missing, empty, or truncated mask sends the role back through segmentation. An unrelated mask cannot stand in for a missing field, and extra masks do not force complete fields to run again. Enable ``resume`` under **Workflow & Test Run** to also keep verified ``merged/*.npy`` fields instead of rebuilding them. New mask arrays are written with temporary-file plus atomic replace semantics. Cell adjustment first checks that the pathogen, cell, and nucleus folders hold the same field filenames with complete masks of matching dimensions; if they differ, it stops before changing any mask. With ``timelapse`` and ``motility_analysis`` on, the motility assay runs once per plate, after every object role and merged frame is complete, and rebuilds its measurements from the current masks rather than reusing an earlier table."
+msgstr "掩膜按精确文件名与视野匹配。只有当 ``stack/`` 中的每个 ``.npy`` 视野都有一个结构完整的同名掩膜时，才会跳过该对象角色；缺失、为空或被截断的掩膜会使该角色重新进行分割。无关的掩膜不能代替缺失的视野，多余的掩膜也不会迫使完整的视野重新运行。在 **工作流程与测试运行** 下启用 ``resume``，还可以保留已验证的 ``merged/*.npy`` 视野而不必重建。新的掩膜数组通过临时文件加原子替换的方式写入。细胞调整会先检查病原体、细胞和细胞核文件夹是否包含相同的视野文件名以及尺寸匹配的完整掩膜；如果不一致，它会在修改任何掩膜之前停止。当 ``timelapse`` 和 ``motility_analysis`` 均开启时，运动性分析会在每个对象角色和合并帧都完成后对每块板运行一次，并根据当前掩膜重建其测量结果，而不是重用先前的表格。"
+
+msgid "Measure"
+msgstr "测量"
+
+msgid "Enable ``resume`` under **Postprocessing → Runtime & Reliability**. A field is skipped only when every Measure-owned table in ``measurements.db`` is complete. Partial field rows are cleared in one transaction before remeasurement, while tables owned by conversion, alignment, or other modules are never deleted."
+msgstr "在 **Postprocessing → 运行与可靠性** 下启用 ``resume``。只有当 ``measurements.db`` 中属于测量模块的每张表都完整时，才会跳过该视野。重新测量前，部分视野行会在一个事务中被清除，而属于转换、对齐或其他模块的表绝不会被删除。"
+
+msgid "Format Converter"
+msgstr "格式转换器"
+
+msgid "Enable the Apple-style **Resume** switch. The converter writes ``.spacr_conversion.checkpoint.json`` after a whole field is complete. Resume reopens each target's TIFF metadata before accepting the field and atomically repairs a missing or corrupt target. Source identity and the full mapping plan must match."
+msgstr "启用 Apple 风格的 **继续** 开关。转换器在整个视野完成后写入 ``.spacr_conversion.checkpoint.json``。继续运行时，会在接受视野之前重新打开每个目标的 TIFF 元数据，并以原子方式修复缺失或损坏的目标。源的标识和完整的映射计划必须一致。"
+
+msgid "Image UMAP search"
+msgstr "图像 UMAP 搜索"
+
+msgid "Open **UMAP settings**, then enable **Resume checkpoint**. Trial metadata is written after every trial and embeddings are stored as adjacent NumPy artifacts. Grid searches skip completed configurations. Adaptive 2×2 searches also persist their centre, best score, completed-round count, and partial-round corners, so only missing corners run after an interruption."
+msgstr "打开 **UMAP settings**，然后启用 **从检查点继续**。每次试验后都会写入试验元数据，嵌入结果作为相邻的 NumPy 产物存储。网格搜索会跳过已完成的配置。自适应 2×2 搜索还会保存其中心、最佳分数、已完成轮数和未完成轮次的角点，因此中断后只运行缺失的角点。"
+
+msgid "Batch Runner"
+msgstr "批处理运行器"
+
+msgid "A saved queue is written after every job transition. Loading and resuming it leaves successful jobs alone. A Mask, Measure, or Format Converter job that was running when the machine stopped is restarted with ``resume=True``, so its own verified field boundary is reused. Other jobs restart at the job boundary."
+msgstr "保存的队列会在每次作业状态变化后写入。加载并继续运行时，已成功的作业保持不变。机器停止时正在运行的掩膜、测量或格式转换器作业会以 ``resume=True`` 重新启动，从而重用其自身已验证的视野边界。其他作业在作业边界处重新开始。"
+
+msgid "Interrupted normalization archives"
+msgstr "中断的归一化存档"
+
+msgid "Mask also checks the normalized ``masks/*.npz`` archives before segmentation. It checks ZIP member extents, a readable numeric ``data.npy`` header, enough declared pixel bytes for the shape and dtype, and one filename per batch field. This structural check does not inflate every pixel array or perform a full pixel CRC scan."
+msgstr "掩膜模块还会在分割前检查归一化后的 ``masks/*.npz`` 存档。它检查 ZIP 成员范围、可读的数值型 ``data.npy`` 头、与形状和 dtype 相符的声明像素字节数，以及每个批次视野对应一个文件名。这种结构检查不会展开每个像素数组，也不会执行完整的像素 CRC 扫描。"
+
+msgid "Damaged archives are set aside as ``<name>.damaged``. With preprocessing disabled, the run stops and explains how to recover them. The same quarantine still prevents a later run from silently omitting those fields. It is resolved by a valid same-name replacement, or by readable archives covering every existing field in ``stack/``. Legacy object-valued filename arrays cannot prove that coverage. Enabling preprocessing lets recoverable fields be rebuilt from the available source data; valid archives and quarantined evidence are preserved."
+msgstr "损坏的存档会被移到一旁，命名为 ``<name>.damaged``。如果禁用了预处理，运行会停止并说明如何恢复。同样的隔离机制仍会阻止之后的运行悄然遗漏这些视野。通过有效的同名替换文件，或通过覆盖 ``stack/`` 中每个现有视野的可读存档，即可解除隔离。旧版的对象型文件名数组无法证明这种覆盖。启用预处理后，可根据可用的源数据重建可恢复的视野；有效存档和被隔离的证据都会保留。"
+
+msgid "Safety rules"
+msgstr "安全规则"
+
+msgid "Checkpoint files are atomic JSON documents with a workflow name, format version, boundary, timestamps, input/settings signature, status, completed units, and workflow state. spaCR refuses a resume when this signature differs; start with Resume disabled to create a fresh checkpoint. A corrupt checkpoint is reported and preserved for diagnosis rather than silently discarded."
+msgstr "检查点文件是以原子方式写入的 JSON 文档，包含工作流程名称、格式版本、边界、时间戳、输入/设置签名、状态、已完成单元和工作流程状态。当签名不同时，spaCR 拒绝继续运行；请在禁用继续的情况下开始，以创建新的检查点。损坏的检查点会被报告并保留以供诊断，而不会被悄然丢弃。"
+
+msgid "The persistence API is :class:`spacr.checkpoint.CheckpointStore`. Conversion uses :func:`spacr.convert.convert`, UMAP search uses :func:`spacr.hyperparam.umap_search`, Measure uses :func:`spacr.resume.plan_measure_resume`, and queues use :func:`spacr.batch.resume_queue`."
+msgstr "持久化 API 为 :class:`spacr.checkpoint.CheckpointStore`。转换使用 :func:`spacr.convert.convert`，UMAP 搜索使用 :func:`spacr.hyperparam.umap_search`，测量使用 :func:`spacr.resume.plan_measure_resume`，队列使用 :func:`spacr.batch.resume_queue`。"
+

@@ -1,0 +1,210 @@
+# spaCR user guide translation (zh_CN).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: zh_CN\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Language"
+msgstr "语言"
+
+msgid "Welcome to spaCR"
+msgstr "欢迎使用 spaCR"
+
+msgid "spaCR Logo"
+msgstr "spaCR 标志"
+
+msgid "**spaCR** — *Spatial phenotype analysis of CRISPR screens.*"
+msgstr "**spaCR** — *CRISPR 筛选的空间表型分析。*"
+
+msgid "You are reading the |docs-channel| documentation for spaCR |spacr-version|. The main site follows ``main``. The nightly preview follows ``nightly`` and may describe features not yet in a release. Each branch publishes its own API, guides and committed tutorial catalog automatically."
+msgstr "您正在阅读 spaCR |spacr-version| 的 |docs-channel| 文档。主站跟随 ``main``。夜间预览版跟随 ``nightly``，可能会描述尚未正式发布的功能。每个分支都会自动发布自己的 API、指南和已提交的教程目录。"
+
+msgid "A Python toolkit for quantifying and visualising phenotypic changes in high-throughput microscopy screens. Ships with a modern PySide6 GUI (``spacr``), a headless pipeline (:mod:`spacr.core`), and a plate-to-classification workflow that runs on top of PyTorch, Cellpose, scikit-image, and scipy."
+msgstr "一个用于量化和可视化高通量显微筛选中表型变化的 Python 工具包。它附带现代化的 PySide6 图形界面（``spacr``）、无界面流程（:mod:`spacr.core`），以及基于 PyTorch、Cellpose、scikit-image 和 scipy 的从孔板到分类的工作流程。"
+
+msgid "It is built for cell biologists running pooled or arrayed CRISPR screens who need per-cell measurements from plate images. The GUI route needs no programming; the same processing steps are available through the Python API for scripted and reproducible workflows."
+msgstr "它专为开展混合或阵列 CRISPR 筛选、需要从孔板图像中获得单细胞测量结果的细胞生物学家而构建。图形界面路线无需编程；同样的处理步骤也可通过 Python API 使用，以实现脚本化和可重复的工作流程。"
+
+msgid "The GUI groups its applications into four categories: *Core* for the segment-measure-classify pipeline, *Data* for getting images and tables in and running them at scale, *Tools* for the instruments you point at a project — hand mask correction, stitching, embeddings, gates, plots and quality control — and *Assays* for the Toxoplasma, Plasmodium and Candida organism guides. Choose an organism to see its available assays; planned analyses are marked Coming soon. The bands under \"Applications and workflow\" below are those categories, in that order, with the tiles each one holds."
+msgstr "图形界面将其应用分为四个类别：*核心* 用于分割-测量-分类流程，*数据* 用于导入图像和表格并进行大规模运行，*工具* 是您用于处理项目的工具——手动掩膜校正、拼接、嵌入、门控、绘图和质量控制——*实验分析* 用于弓形虫、疟原虫和念珠菌等生物体指南。选择一种生物体即可查看其可用的实验分析；计划中的分析标记为即将推出。下方“应用与工作流程”下的各个区块即这些类别，按此顺序排列，并包含各自的磁贴。"
+
+msgid "Not every screen is a tile, which is why no count of them is printed here. Work that only makes sense inside another step opens from that step's masthead instead — **Timelapse** from Mask, **Illumination** and the **Motility Assay** from Measure, **Classifier Evaluation** and **Explain CV Model** from Classify, **Annotator Agreement** from Annotate, and the **Cellpose Workbench**, **Model Compare**, **Model Zoo** and **Curate** from Make Masks, among them — so a screen with no tile below is one step further in rather than gone. Home lists whatever the running build offers."
+msgstr "并非每个屏幕都有磁贴，因此这里不列出其数量。仅在另一个步骤中才有意义的工作会从该步骤的标题栏打开——例如从掩膜打开 **延时成像**，从测量打开 **照明** 和 **运动性分析**，从分类打开 **分类器评估** 和 **解释 CV 模型**，从标注打开 **标注者一致性**，以及从创建掩膜打开 **Cellpose 工作台**、**模型比较**、**模型库** 和 **校正**——因此，下方没有磁贴的屏幕只是位于更深一层，而不是不存在。主页会列出当前运行版本提供的所有内容。"
+
+msgid "🚀 Get started"
+msgstr "🚀 快速开始"
+
+msgid "Install spaCR from PyPI and launch the Qt GUI in two commands."
+msgstr "通过两条命令从 PyPI 安装 spaCR 并启动 Qt 图形界面。"
+
+msgid "🎓 Interactive tutorials"
+msgstr "🎓 交互式教程"
+
+msgid "Narrated, step-by-step lessons for spaCR workflows and modules."
+msgstr "针对 spaCR 工作流程和模块的分步讲解课程，配有旁白。"
+
+msgid "📖 API reference"
+msgstr "📖 API 参考"
+
+msgid "Supported workflow entry points and the complete module reference."
+msgstr "受支持的工作流程入口点和完整的模块参考。"
+
+msgid "🎬 Video tutorials"
+msgstr "🎬 视频教程"
+
+msgid "Narrated walkthroughs of each pipeline module."
+msgstr "每个流程模块的讲解视频，配有旁白。"
+
+msgid "🐛 Report an issue"
+msgstr "🐛 报告问题"
+
+msgid "File a bug, request a feature, or ask a question."
+msgstr "提交错误报告、功能请求或提出问题。"
+
+msgid "Applications and workflow"
+msgstr "应用与工作流程"
+
+msgid "New to spaCR? :doc:`Choose a workflow after installation <workflows>` for the first Home tile, the inputs each step needs, and what to open next."
+msgstr "初次使用 spaCR？请 :doc:`在安装后选择工作流程 <workflows>`，了解主页上的第一个磁贴、每个步骤所需的输入以及下一步要打开什么。"
+
+msgid "Every tile links to the API page used by that application's in-product help."
+msgstr "每个磁贴都链接到该应用内置帮助所使用的 API 页面。"
+
+msgid "spaCR modules"
+msgstr "spaCR 模块"
+
+msgid "Core"
+msgstr "核心"
+
+msgid "Core sequence from microscopy images through segmentation, measurements, annotations, classification, barcode mapping and regression."
+msgstr "从微观图像的核心序列,通过分区,测量,标记,分类,条码地图和回归。"
+
+msgid "|DocModule_mask|\\ |DocModule_measure|\\ |DocModule_annotate|\\ |DocModule_classify_merged|\\ |DocModule_map_barcodes|\\ |DocModule_regression|"
+msgstr "|DocModule_mask|\\ |DocModule_measure|\\ |DocModule_annotate|\\ |DocModule_classify_merged|\\ |DocModule_map_barcodes|\\ |DocModule_regression|"
+
+msgid "Open the Mask API"
+msgstr "打开掩膜 API"
+
+msgid "Open the Measure API"
+msgstr "打开测量 API"
+
+msgid "Open the Annotate API"
+msgstr "打开标注 API"
+
+msgid "Open the Classify API"
+msgstr "打开分类 API"
+
+msgid "Open the Map Barcodes API"
+msgstr "打开映射条形码 API"
+
+msgid "Open the Regression API"
+msgstr "打开回归 API"
+
+msgid "Data"
+msgstr "数据"
+
+msgid "Import images and tables into spaCR projects and execute reproducible multi-plate workflows."
+msgstr "将图像和表输入到 spaCR 项目,并执行可重复的多盘工作流。"
+
+msgid "|DocModule_foreign|\\ |DocModule_embeddings|\\ |DocModule_run_compare|\\ |DocModule_experiment_design|\\ |DocModule_power|\\ |DocModule_dose_response|"
+msgstr "|DocModule_foreign|\\ |DocModule_embeddings|\\ |DocModule_run_compare|\\ |DocModule_experiment_design|\\ |DocModule_power|\\ |DocModule_dose_response|"
+
+msgid "Open the Import API"
+msgstr "打开导入 API"
+
+msgid "Open the Embeddings API"
+msgstr "打开 Embeddings API"
+
+msgid "Open the Run Compare API"
+msgstr "打开 Run Compare API"
+
+msgid "Open the Experiment Design API"
+msgstr "打开 Experiment Design API"
+
+msgid "Open the Power / Design API"
+msgstr "打开 Power / Design API"
+
+msgid "Open the Dose–Response API"
+msgstr "打开 Dose–Response API"
+
+msgid "|DocModule_qc_dashboard|"
+msgstr "|DocModule_qc_dashboard|"
+
+msgid "Open the QC API"
+msgstr "打开 QC API"
+
+msgid "Tools"
+msgstr "工具"
+
+msgid "Point these at a project: edit masks by hand, stitch tiles, read an embedding, draw a gate, build a plot, check quality."
+msgstr "点击这些在一个项目:手动编辑掩膜,粘贴板,阅读包装,绘制门控,构建一个架构,检查质量。"
+
+msgid "|DocModule_make_masks|\\ |DocModule_align|\\ |DocModule_umap|\\ |DocModule_gate_editor|\\ |DocModule_graph_builder|"
+msgstr "|DocModule_make_masks|\\ |DocModule_align|\\ |DocModule_umap|\\ |DocModule_gate_editor|\\ |DocModule_graph_builder|"
+
+msgid "Open the Make Masks API"
+msgstr "打开创建掩膜 API"
+
+msgid "Open the Align & Stitch API"
+msgstr "打开对齐与拼接 API"
+
+msgid "Open the Image UMAP API"
+msgstr "打开图像 UMAP API"
+
+msgid "Open the Gate Editor API"
+msgstr "打开 Gate Editor API"
+
+msgid "Open the Graph Builder API"
+msgstr "打开 Graph Builder API"
+
+msgid "Assays"
+msgstr "实验分析"
+
+msgid "Quantitative readouts for biological assays."
+msgstr "对生物分析的定量回报。"
+
+msgid "|DocModule_toxoplasma|\\ |DocModule_plasmodium|\\ |DocModule_candida|"
+msgstr "|DocModule_toxoplasma|\\ |DocModule_plasmodium|\\ |DocModule_candida|"
+
+msgid "Open the Toxoplasma API"
+msgstr "打开弓形虫 API"
+
+msgid "Open the Plasmodium spp. API"
+msgstr "打开 Plasmodium spp. API"
+
+msgid "Open the Candida spp. API"
+msgstr "打开 Candida spp. API"
+
+msgid "Installation"
+msgstr "安装"
+
+msgid "Install spaCR and launch the desktop application. The ``qt`` extra remains supported for desktop installations; current packages also include PySide6 among their base dependencies."
+msgstr "安装 spaCR 并启动桌面应用程序。``qt`` 附加组件仍支持桌面安装；当前软件包的基础依赖中也已包含 PySide6。"
+
+msgid "For a terminal workflow on a cluster or server, use ``spacr-run`` without opening the desktop application:"
+msgstr "如需在集群或服务器上使用终端工作流程，请使用 ``spacr-run``，无需打开桌面应用程序："
+
+msgid "Learn spaCR"
+msgstr "学习 spaCR"
+
+msgid "Start with installation, continue to Home and the pipeline overviews, then follow the module walkthrough for your task in the `interactive tutorial library <tutorials/>`_. Each lesson lists its available narration voices and captions. New English lessons can appear while their translations are being prepared. Open the library from the GUI through **Help → Tutorial**."
+msgstr "请从安装开始，接着了解主页和流程概览，然后在 `交互式教程库 <tutorials/>`_ 中按照您任务对应的模块讲解进行学习。每节课都会列出可用的旁白语音和字幕。新的英文课程可能会在其翻译准备期间先行出现。可在图形界面中通过 **帮助 → 教程** 打开教程库。"
+
+msgid "Contents"
+msgstr "目录"
+

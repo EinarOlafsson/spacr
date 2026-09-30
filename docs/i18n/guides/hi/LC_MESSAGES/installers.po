@@ -1,0 +1,240 @@
+# spaCR user guide translation (hi).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: hi\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Installer archive"
+msgstr "इंस्टॉलर संग्रह"
+
+msgid "Choose a platform icon to download that version of spaCR. Releases are listed newest first, and the current release is marked below."
+msgstr "spaCR का वह संस्करण डाउनलोड करने के लिए किसी प्लेटफ़ॉर्म आइकन को चुनें। रिलीज़ नवीनतम पहले क्रम में सूचीबद्ध हैं, और वर्तमान रिलीज़ नीचे चिह्नित है।"
+
+msgid "These are *online* installers. Each one installs the spaCR version shown in its row, even when a newer release is available."
+msgstr "ये *ऑनलाइन* इंस्टॉलर हैं। हर इंस्टॉलर अपनी पंक्ति में दिखाया गया spaCR संस्करण स्थापित करता है, भले ही कोई नई रिलीज़ उपलब्ध हो।"
+
+msgid "Version"
+msgstr "संस्करण"
+
+msgid "|Linux|"
+msgstr "|Linux|"
+
+msgid "64-bit Linux"
+msgstr "64-बिट Linux"
+
+msgid "|MacOS|"
+msgstr "|MacOS|"
+
+msgid "macOS 11+ (Intel and Apple silicon)"
+msgstr "macOS 11+ (Intel और Apple सिलिकॉन)"
+
+msgid "|Windows|"
+msgstr "|Windows|"
+
+msgid "Windows 10/11"
+msgstr "Windows 10/11"
+
+msgid "1.5.1.0 (current)"
+msgstr "1.5.1.0 (वर्तमान)"
+
+msgid "|Linux-1-5-1-0|"
+msgstr "|Linux-1-5-1-0|"
+
+msgid "Download spaCR 1.5.1.0 for 64-bit Linux"
+msgstr "64-बिट Linux के लिए spaCR 1.5.1.0 डाउनलोड करें"
+
+msgid "|MacOS-1-5-1-0|"
+msgstr "|MacOS-1-5-1-0|"
+
+msgid "Download spaCR 1.5.1.0 for macOS 11+ (Intel and Apple silicon)"
+msgstr "macOS 11+ (Intel और Apple सिलिकॉन) के लिए spaCR 1.5.1.0 डाउनलोड करें"
+
+msgid "|Windows-1-5-1-0|"
+msgstr "|Windows-1-5-1-0|"
+
+msgid "Download spaCR 1.5.1.0 for Windows 10/11"
+msgstr "Windows 10/11 के लिए spaCR 1.5.1.0 डाउनलोड करें"
+
+msgid "1.5.0.9"
+msgstr "1.5.0.9"
+
+msgid "|Linux-1-5-0-9|"
+msgstr "|Linux-1-5-0-9|"
+
+msgid "Download spaCR 1.5.0.9 for 64-bit Linux"
+msgstr "64-बिट Linux के लिए spaCR 1.5.0.9 डाउनलोड करें"
+
+msgid "|MacOS-1-5-0-9|"
+msgstr "|MacOS-1-5-0-9|"
+
+msgid "Download spaCR 1.5.0.9 for macOS 11+ (Intel and Apple silicon)"
+msgstr "macOS 11+ (Intel और Apple सिलिकॉन) के लिए spaCR 1.5.0.9 डाउनलोड करें"
+
+msgid "|Windows-1-5-0-9|"
+msgstr "|Windows-1-5-0-9|"
+
+msgid "Download spaCR 1.5.0.9 for Windows 10/11"
+msgstr "Windows 10/11 के लिए spaCR 1.5.0.9 डाउनलोड करें"
+
+msgid "1.5.0.8"
+msgstr "1.5.0.8"
+
+msgid "|Linux-1-5-0-8|"
+msgstr "|Linux-1-5-0-8|"
+
+msgid "Download spaCR 1.5.0.8 for 64-bit Linux"
+msgstr "64-बिट Linux के लिए spaCR 1.5.0.8 डाउनलोड करें"
+
+msgid "|MacOS-1-5-0-8|"
+msgstr "|MacOS-1-5-0-8|"
+
+msgid "Download spaCR 1.5.0.8 for macOS 11+ (Intel and Apple silicon)"
+msgstr "macOS 11+ (Intel और Apple सिलिकॉन) के लिए spaCR 1.5.0.8 डाउनलोड करें"
+
+msgid "|Windows-1-5-0-8|"
+msgstr "|Windows-1-5-0-8|"
+
+msgid "Download spaCR 1.5.0.8 for Windows 10/11"
+msgstr "Windows 10/11 के लिए spaCR 1.5.0.8 डाउनलोड करें"
+
+msgid "1.5.0.7"
+msgstr "1.5.0.7"
+
+msgid "|Linux-1-5-0-7|"
+msgstr "|Linux-1-5-0-7|"
+
+msgid "Download spaCR 1.5.0.7 for 64-bit Linux"
+msgstr "64-बिट Linux के लिए spaCR 1.5.0.7 डाउनलोड करें"
+
+msgid "|MacOS-1-5-0-7|"
+msgstr "|MacOS-1-5-0-7|"
+
+msgid "Download spaCR 1.5.0.7 for macOS 11+ (Intel and Apple silicon)"
+msgstr "macOS 11+ (Intel और Apple सिलिकॉन) के लिए spaCR 1.5.0.7 डाउनलोड करें"
+
+msgid "|Windows-1-5-0-7|"
+msgstr "|Windows-1-5-0-7|"
+
+msgid "Download spaCR 1.5.0.7 for Windows 10/11"
+msgstr "Windows 10/11 के लिए spaCR 1.5.0.7 डाउनलोड करें"
+
+msgid "1.5.0.6"
+msgstr "1.5.0.6"
+
+msgid "|Linux-1-5-0-6|"
+msgstr "|Linux-1-5-0-6|"
+
+msgid "Download spaCR 1.5.0.6 for 64-bit Linux"
+msgstr "64-बिट Linux के लिए spaCR 1.5.0.6 डाउनलोड करें"
+
+msgid "|MacOS-1-5-0-6|"
+msgstr "|MacOS-1-5-0-6|"
+
+msgid "Download spaCR 1.5.0.6 for macOS 11+ (Intel and Apple silicon)"
+msgstr "macOS 11+ (Intel और Apple सिलिकॉन) के लिए spaCR 1.5.0.6 डाउनलोड करें"
+
+msgid "|Windows-1-5-0-6|"
+msgstr "|Windows-1-5-0-6|"
+
+msgid "Download spaCR 1.5.0.6 for Windows 10/11"
+msgstr "Windows 10/11 के लिए spaCR 1.5.0.6 डाउनलोड करें"
+
+msgid "1.5.0.5"
+msgstr "1.5.0.5"
+
+msgid "|Linux-1-5-0-5|"
+msgstr "|Linux-1-5-0-5|"
+
+msgid "Download spaCR 1.5.0.5 for 64-bit Linux"
+msgstr "64-बिट Linux के लिए spaCR 1.5.0.5 डाउनलोड करें"
+
+msgid "|MacOS-1-5-0-5|"
+msgstr "|MacOS-1-5-0-5|"
+
+msgid "Download spaCR 1.5.0.5 for macOS 11+ (Intel and Apple silicon)"
+msgstr "macOS 11+ (Intel और Apple सिलिकॉन) के लिए spaCR 1.5.0.5 डाउनलोड करें"
+
+msgid "|Windows-1-5-0-5|"
+msgstr "|Windows-1-5-0-5|"
+
+msgid "Download spaCR 1.5.0.5 for Windows 10/11"
+msgstr "Windows 10/11 के लिए spaCR 1.5.0.5 डाउनलोड करें"
+
+msgid "1.5.0.4"
+msgstr "1.5.0.4"
+
+msgid "|Linux-1-5-0-4|"
+msgstr "|Linux-1-5-0-4|"
+
+msgid "Download spaCR 1.5.0.4 for 64-bit Linux"
+msgstr "64-बिट Linux के लिए spaCR 1.5.0.4 डाउनलोड करें"
+
+msgid "|MacOS-1-5-0-4|"
+msgstr "|MacOS-1-5-0-4|"
+
+msgid "Download spaCR 1.5.0.4 for macOS 11+ (Intel and Apple silicon)"
+msgstr "macOS 11+ (Intel और Apple सिलिकॉन) के लिए spaCR 1.5.0.4 डाउनलोड करें"
+
+msgid "|Windows-1-5-0-4|"
+msgstr "|Windows-1-5-0-4|"
+
+msgid "Download spaCR 1.5.0.4 for Windows 10/11"
+msgstr "Windows 10/11 के लिए spaCR 1.5.0.4 डाउनलोड करें"
+
+msgid "1.5.0.1"
+msgstr "1.5.0.1"
+
+msgid "|Linux-1-5-0-1|"
+msgstr "|Linux-1-5-0-1|"
+
+msgid "Download spaCR 1.5.0.1 for 64-bit Linux"
+msgstr "64-बिट Linux के लिए spaCR 1.5.0.1 डाउनलोड करें"
+
+msgid "|MacOS-1-5-0-1|"
+msgstr "|MacOS-1-5-0-1|"
+
+msgid "Download spaCR 1.5.0.1 for macOS 11+ (Intel and Apple silicon)"
+msgstr "macOS 11+ (Intel और Apple सिलिकॉन) के लिए spaCR 1.5.0.1 डाउनलोड करें"
+
+msgid "|Windows-1-5-0-1|"
+msgstr "|Windows-1-5-0-1|"
+
+msgid "Download spaCR 1.5.0.1 for Windows 10/11"
+msgstr "Windows 10/11 के लिए spaCR 1.5.0.1 डाउनलोड करें"
+
+msgid "1.4.9.9"
+msgstr "1.4.9.9"
+
+msgid "|Linux-1-4-9-9|"
+msgstr "|Linux-1-4-9-9|"
+
+msgid "Download spaCR 1.4.9.9 for 64-bit Linux"
+msgstr "64-बिट Linux के लिए spaCR 1.4.9.9 डाउनलोड करें"
+
+msgid "|MacOS-1-4-9-9|"
+msgstr "|MacOS-1-4-9-9|"
+
+msgid "Download spaCR 1.4.9.9 for macOS 11+ (Intel and Apple silicon)"
+msgstr "macOS 11+ (Intel और Apple सिलिकॉन) के लिए spaCR 1.4.9.9 डाउनलोड करें"
+
+msgid "|Windows-1-4-9-9|"
+msgstr "|Windows-1-4-9-9|"
+
+msgid "Download spaCR 1.4.9.9 for Windows 10/11"
+msgstr "Windows 10/11 के लिए spaCR 1.4.9.9 डाउनलोड करें"
+

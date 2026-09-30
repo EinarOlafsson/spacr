@@ -3468,6 +3468,12 @@ _HELPER_CAPTION_RULES: dict[
     # and 2 are a Qt setter name and an i18n property name.
     ("help_search.py", "_localize"):
         ("help_search.py", ((3, "text"),)),
+    # The words a Help search result ROW is built from. help_index imports
+    # no catalog, so it marks each template with an identity `_template`
+    # call and help_search renders it through `tr` when the row is drawn.
+    # Added 2026-09-30 (item 422): before it, no `tr()` named these six.
+    ("help_index.py", "_template"):
+        ("help_index.py", ((0, "text"),)),
     ("preferences.py", "_percent_row"):
         ("preferences.py", ((1, "label_text"), (5, "tip"))),
     ("preferences.py", "line"):

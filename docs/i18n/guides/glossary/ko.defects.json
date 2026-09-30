@@ -1,0 +1,30 @@
+{
+ "schema": 1,
+ "language": "ko",
+ "note": "Runtime UI rows whose translation is wrong in sense. The guides use a correct term; these rows need a runtime-catalog fix.",
+ "defects": {
+  "Anndata nan policy": "'안다타 나노 정책' reads 'Andata nano policy'; the field is 'Anndata NaN 정책'",
+  "Anndata out": "'안다타 밖으로' means 'Andata, outward'; the field is 'Anndata 출력'",
+  "Batch correction": "'배치 수정' means 'batch editing'; the term is '배치 보정'",
+  "Cell probability": "'셀 가능성' means 'cell (spreadsheet) possibility'; the view is '세포 확률'",
+  "Clear all": "'명확한 모든' means 'clear (lucid) all'; the button is '모두 지우기'",
+  "Model zoo…": "'동물원 모델...' means 'zoo (animal) model'; the screen is '모델 라이브러리…'",
+  "Open folder…": "'개방된 폴더' means 'an opened (publicly open) folder'; the action is '폴더 열기…'",
+  "Outputs": "'출구' means 'exit (doorway)'; the workflow card means '출력'",
+  "Parameter sweep": "'파라미터 스프레이' means 'parameter spray'; the term is '매개변수 탐색'",
+  "Preferences": "'우선순위' means 'priority'; the dialog is '환경설정'",
+  "Promote calls to annotation": "'Annotation에 대한 호출을 홍보하기' means 'advertise phone calls about Annotation'",
+  "Re-flood below the escape": "'탈출 아래로 다시 비가 내린다.' means 'it rains again below the escape.'",
+  "Resume checkpoint": "'체크 포인트' drops 'resume'; the switch is '체크포인트에서 재개'",
+  "Run queue": "'라운드 퀴즈' means 'round quiz'; the screen is '실행 대기열'",
+  "Save mask": "'마스크를 구하라' means 'rescue the mask!'; the button is '마스크 저장'",
+  "Taper onto the gradient": "'그라디언트를 향한 타이퍼' means 'a typer toward the gradient'",
+  "Train": "'기차' is a railway train; the Workbench tab is '학습'",
+  "Undo promotion": "'홍보도 안다' means 'also knows advertising'",
+  "Activation Maps": "'활성화 지도' uses 지도 (a geographic map); the screen is '활성화 맵'",
+  "Cell diameter": "'세포 다이아몬드' means 'cell diamond'; the setting is '세포 직경'",
+  "Nucleus diameter": "'핵 다이아몬드' means 'nucleus diamond'; the setting is '핵 직경'",
+  "Pathogen diameter": "'병성 다이아몬드' means 'pathological diamond'; the setting is '병원체 직경'",
+  "Z projection": "'Z 프로젝트' means 'Z project' (a work project); the setting is 'Z 투영'"
+ }
+}

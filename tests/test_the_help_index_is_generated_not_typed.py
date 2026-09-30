@@ -448,3 +448,79 @@ def test_the_list_stops_at_the_limit_and_skips_a_hidden_module():
         qt_app.app_is_visible = saved
     assert len(offered) == len(qt_app.APPS) - 1
     assert hidden not in [e.payload["app"] for e in offered]
+
+
+def test_the_list_counts_what_the_per_kind_cap_left_out():
+    """"and N more" is a count, never an estimate (2026-09-30).
+
+    ``src`` is taken by 36 modules and the cap is 8, so 28 module rows used
+    to vanish without the list saying so. The count covers every match of
+    the kind that is not shown, whichever limit dropped it.
+    """
+    from spacr.qt.help_index import PER_KIND_LIMIT, _search_with_overflow
+
+    rows = [entry(title=f"thing_{i}") for i in range(PER_KIND_LIMIT + 5)]
+    rows.append(entry(kind="module", title="Thing module"))
+    shown, left = _search_with_overflow(rows, "thing")
+    assert sum(e.kind == "setting" for e in shown) == PER_KIND_LIMIT
+    assert left == {"setting": 5}
+
+    shown, left = _search_with_overflow(rows, "thing", limit=3)
+    assert len(shown) == 3
+    assert sum(left.values()) + 3 == len(rows)
+
+    shown, left = _search_with_overflow(rows, "thing",
+                                       caps={"setting": 100})
+    assert left == {}
+    assert len(shown) == len(rows)
+    assert _search_with_overflow(rows, "   ") == ([], {})
+
+
+def test_the_real_src_query_says_how_many_modules_it_left_out():
+    """The measured case from the item file, against the real index."""
+    from spacr.qt.help_index import PER_KIND_LIMIT, _search_with_overflow
+
+    index = build_index(["setting"])
+    exposing = {e.payload["app"] for e in index if e.title == "src"}
+    assert len(exposing) > PER_KIND_LIMIT, sorted(exposing)
+    shown, left = _search_with_overflow(index, "src", limit=200)
+    offered = [e for e in shown if e.title == "src"]
+    assert len(offered) == PER_KIND_LIMIT
+    assert left["setting"] >= len(exposing) - PER_KIND_LIMIT
+    shown, left = _search_with_overflow(index, "src", limit=2000,
+                                       caps={"setting": 2000})
+    assert {e.payload["app"] for e in shown if e.title == "src"} == exposing
+    assert "setting" not in left
+
+
+def test_the_words_a_row_is_built_from_reach_the_catalog_extractor():
+    """Every result-row template is a source the catalog pass will collect.
+
+    Until 2026-09-30 these were plain assignments in help_index.py: no
+    ``tr()`` call named them, so the nine-language pass never saw the words
+    that make up every result row. ``_template`` plus its keyed rule in
+    ``tools/build_i18n_catalogs.py`` is how they are found now. "Module" is
+    already a compact-catalog row, which the extractor leaves in that layer.
+    """
+    import sys
+    from importlib import import_module
+
+    from spacr.qt import help_index
+    from spacr.qt.i18n import _ROWS
+
+    sys.path.insert(0, str(ROOT / "tools"))
+    try:
+        builder = import_module("build_i18n_catalogs")
+    finally:
+        sys.path.remove(str(ROOT / "tools"))
+    found = set(builder.extract_static_ui_sources())
+    templates = {
+        help_index.SUBTITLE_API, help_index.SUBTITLE_API_READS,
+        help_index.SUBTITLE_PREFERENCE, help_index.DESCRIPTION_READS,
+        help_index.DESCRIPTION_SUMMARY_READS,
+    }
+    assert templates <= found, sorted(templates - found)
+    assert help_index.SUBTITLE_MODULE in _ROWS
+    # The setting subtitle is two registry names, not words of ours.
+    assert help_index.SUBTITLE_SETTING not in found
+    assert help_index._template("x") == "x"

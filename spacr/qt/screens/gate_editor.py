@@ -1962,7 +1962,8 @@ class GateEditorScreen(QWidget):
             existing file is overwritten.
         """
         self.gates.gates.save(path)
-        self._source.setText(f"gates saved to {os.path.basename(path)}")
+        self._source.setText(_with_lock_notes(
+            f"gates saved to {os.path.basename(path)}", path))
         return path
 
     def choose_load_gates(self) -> None:
@@ -1989,8 +1990,9 @@ class GateEditorScreen(QWidget):
             LOG.info("could not load gates from %s: %s", path, exc)
             self._source.setText(f"could not load those gates: {exc}")
             return False
-        self._source.setText(
-            f"{len(self.gates.gates)} gate(s) from {os.path.basename(path)}")
+        self._source.setText(_with_lock_notes(
+            f"{len(self.gates.gates)} gate(s) from {os.path.basename(path)}",
+            path))
         return True
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
@@ -2001,6 +2003,27 @@ class GateEditorScreen(QWidget):
         self._jobs.shutdown()
         self.gates.close()
         super().closeEvent(event)
+
+
+def _with_lock_notes(text: str, path: str) -> str:
+    """``text``, followed by how the gate file stands against analysis locks.
+
+    A gate file an analysis lock (item 573) holds is compared with the lock
+    whenever it is saved or loaded, so moving a locked gate is seen here and
+    not first in the report. A file no lock holds adds nothing.
+
+    :param text: what the source line says about the save or load.
+    :param path: the gate file.
+    :returns: the source line text.
+    """
+    try:
+        from ...run_journal import _gate_file_lock_notes
+        notes = _gate_file_lock_notes(path)
+    except Exception:
+        LOG.debug("could not compare %s with the analysis locks", path,
+                  exc_info=True)
+        notes = []
+    return "; ".join([text, *notes])
 
 
 def make_gate_editor_screen(app_key: Optional[str] = None) -> QWidget:

@@ -1,0 +1,774 @@
+# spaCR user guide translation (ko).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: ko\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Setting animation gallery"
+msgstr "설정 애니메이션 갤러리"
+
+msgid "spaCR includes short, deterministic GIFs for settings whose effect is easier to understand visually. In the desktop interface, hovering a setting shows its explanation; pressing the teal **Animation** word in that tooltip's footer reveals the corresponding animation to the right of the text. It is revealed for that setting only — the next setting is text again until its own **Animation** is pressed, and nothing is decoded until it is. Set *Setting animations* in Preferences to show them without asking."
+msgstr "spaCR에는 효과를 눈으로 보는 편이 이해하기 쉬운 설정을 위한 짧고 결정적인 GIF 애니메이션이 포함되어 있습니다. 데스크톱 인터페이스에서 설정 위에 마우스를 올리면 설명이 표시되며, 툴팁 하단의 청록색 **Animation** 단어를 누르면 텍스트 오른쪽에 해당 애니메이션이 나타납니다. 애니메이션은 그 설정에서만 표시됩니다. 다음 설정은 자체 **Animation** 을 누르기 전까지 다시 텍스트만 보이며, 누르기 전에는 아무것도 디코딩되지 않습니다. 묻지 않고 바로 표시하려면 환경설정에서 *애니메이션 설정* 을 켭니다."
+
+msgid "The diagrams use a shared biological grammar: white fibroblast or motile immune-cell outlines, blue nuclei with unequal nucleoli, teal Toxoplasma tachyzoites inside an outline-only parasitophorous vacuole, and soft-magenta Golgi cisternae. Filled regions are translucent and the rounded field perimeter remains white on black."
+msgstr "도식은 공통된 생물학적 표현 방식을 사용합니다. 흰색 섬유아세포 또는 운동성 면역 세포 윤곽, 크기가 서로 다른 인을 가진 파란색 핵, 윤곽선으로만 표시된 기생포성 액포 안의 청록색 톡소플라스마 급속 증식형, 부드러운 자홍색 골지 시스터나입니다. 채워진 영역은 반투명하며, 둥근 시야 경계는 검은 바탕 위에 흰색으로 유지됩니다."
+
+msgid "The cell, nucleus and nucleoli, two-parasite vacuole, and Golgi use the reviewed, artist-authored SVG paths checked into ``tools/``. Qt renders those exact Bezier paths at high resolution before each animation frame is composited, keeping the outlines smooth at small sizes. Source-template SHA-256 hashes are recorded in the manifest."
+msgstr "세포, 핵과 인, 기생충 두 마리가 든 액포, 골지는 ``tools/`` 에 체크인된 검토된 아티스트 제작 SVG 경로를 사용합니다. Qt는 각 애니메이션 프레임을 합성하기 전에 이 정확한 베지어 경로를 고해상도로 렌더링하므로 작은 크기에서도 윤곽이 매끄럽게 유지됩니다. 원본 템플릿의 SHA-256 해시는 매니페스트에 기록됩니다."
+
+msgid "Animations are resolved by setting key, with numbered organelle slots reusing the primary slot's animation through :mod:`spacr.setting_animations`; the assets and manifest are generated reproducibly by ``tools/generate_setting_animations.py``."
+msgstr "애니메이션은 설정 키로 찾으며, 번호가 붙은 세포소기관 슬롯은 :mod:`spacr.setting_animations` 를 통해 기본 슬롯의 애니메이션을 재사용합니다. 에셋과 매니페스트는 ``tools/generate_setting_animations.py`` 로 재현 가능하게 생성됩니다."
+
+msgid "Mask filtering"
+msgstr "마스크 필터링"
+
+msgid "Cell — Remove border objects"
+msgstr "세포 — 경계 객체 제거"
+
+msgid "Cell — Remove border objects setting animation"
+msgstr "설정 애니메이션: 세포 — 경계 객체 제거"
+
+msgid "**Settings:** ``cell_remove_border_objects``"
+msgstr "**설정:** ``cell_remove_border_objects``"
+
+msgid "Cell — Minimum object area"
+msgstr "세포 — 최소 객체 면적"
+
+msgid "Cell — Minimum object area setting animation"
+msgstr "설정 애니메이션: 세포 — 최소 객체 면적"
+
+msgid "**Settings:** ``cell_min_size``, ``object_filters``"
+msgstr "**설정:** ``cell_min_size``, ``object_filters``"
+
+msgid "Nucleus — Remove border objects"
+msgstr "핵 — 경계 객체 제거"
+
+msgid "Nucleus — Remove border objects setting animation"
+msgstr "설정 애니메이션: 핵 — 경계 객체 제거"
+
+msgid "**Settings:** ``nucleus_remove_border_objects``"
+msgstr "**설정:** ``nucleus_remove_border_objects``"
+
+msgid "Nucleus — Minimum object area"
+msgstr "핵 — 최소 객체 면적"
+
+msgid "Nucleus — Minimum object area setting animation"
+msgstr "설정 애니메이션: 핵 — 최소 객체 면적"
+
+msgid "**Settings:** ``nucleus_min_size``"
+msgstr "**설정:** ``nucleus_min_size``"
+
+msgid "Pathogen — Remove border objects"
+msgstr "병원체 — 경계 객체 제거"
+
+msgid "Pathogen — Remove border objects setting animation"
+msgstr "설정 애니메이션: 병원체 — 경계 객체 제거"
+
+msgid "**Settings:** ``pathogen_remove_border_objects``"
+msgstr "**설정:** ``pathogen_remove_border_objects``"
+
+msgid "Pathogen — Minimum object area"
+msgstr "병원체 — 최소 객체 면적"
+
+msgid "Pathogen — Minimum object area setting animation"
+msgstr "설정 애니메이션: 병원체 — 최소 객체 면적"
+
+msgid "**Settings:** ``pathogen_min_size``"
+msgstr "**설정:** ``pathogen_min_size``"
+
+msgid "Organelle — Remove border objects"
+msgstr "세포소기관 — 경계 객체 제거"
+
+msgid "Organelle — Remove border objects setting animation"
+msgstr "설정 애니메이션: 세포소기관 — 경계 객체 제거"
+
+msgid "**Settings:** ``organelle_remove_border_objects``, ``organelle_remove_border``"
+msgstr "**설정:** ``organelle_remove_border_objects``, ``organelle_remove_border``"
+
+msgid "Organelle — Minimum object area"
+msgstr "세포소기관 — 최소 객체 면적"
+
+msgid "Organelle — Minimum object area setting animation"
+msgstr "설정 애니메이션: 세포소기관 — 최소 객체 면적"
+
+msgid "**Settings:** ``organelle_min_area``"
+msgstr "**설정:** ``organelle_min_area``"
+
+msgid "Organelle — Maximum object area"
+msgstr "세포소기관 — 최대 객체 면적"
+
+msgid "Organelle — Maximum object area setting animation"
+msgstr "설정 애니메이션: 세포소기관 — 최대 객체 면적"
+
+msgid "**Settings:** ``organelle_max_area``"
+msgstr "**설정:** ``organelle_max_area``"
+
+msgid "Organelle — Minimum mean intensity"
+msgstr "세포소기관 — 최소 평균 강도"
+
+msgid "Organelle — Minimum mean intensity setting animation"
+msgstr "설정 애니메이션: 세포소기관 — 최소 평균 강도"
+
+msgid "**Settings:** ``organelle_min_intensity``"
+msgstr "**설정:** ``organelle_min_intensity``"
+
+msgid "Organelle — Maximum mean intensity"
+msgstr "세포소기관 — 최대 평균 강도"
+
+msgid "Organelle — Maximum mean intensity setting animation"
+msgstr "설정 애니메이션: 세포소기관 — 최대 평균 강도"
+
+msgid "**Settings:** ``organelle_max_intensity``"
+msgstr "**설정:** ``organelle_max_intensity``"
+
+msgid "Mask repair"
+msgstr "마스크 복구"
+
+msgid "Merge edge-pathogen cells"
+msgstr "에드게 패토겐 세포의 합병"
+
+msgid "Merge edge-pathogen cells setting animation"
+msgstr "설정 애니메이션: 가장자리 병원체 세포 병합"
+
+msgid "**Settings:** ``merge_edge_pathogen_cells``"
+msgstr "**설정:** ``merge_edge_pathogen_cells``"
+
+msgid "Adjust fragmented cells"
+msgstr "조각난 세포 조정"
+
+msgid "Adjust fragmented cells setting animation"
+msgstr "설정 애니메이션: 조각난 세포 조정"
+
+msgid "**Settings:** ``adjust_cells``"
+msgstr "**설정:** ``adjust_cells``"
+
+msgid "Cell perimeter merge"
+msgstr "세포 둘레 병합"
+
+msgid "Cell perimeter merge setting animation"
+msgstr "설정 애니메이션: 세포 둘레 병합"
+
+msgid "**Settings:** ``cell_perimeter_fraction``"
+msgstr "**설정:** ``cell_perimeter_fraction``"
+
+msgid "Nucleus perimeter merge"
+msgstr "핵 둘레 병합"
+
+msgid "Nucleus perimeter merge setting animation"
+msgstr "설정 애니메이션: 핵 둘레 병합"
+
+msgid "**Settings:** ``nucleus_perimeter_fraction``"
+msgstr "**설정:** ``nucleus_perimeter_fraction``"
+
+msgid "Pathogen perimeter merge"
+msgstr "병원체 둘레 병합"
+
+msgid "Pathogen perimeter merge setting animation"
+msgstr "설정 애니메이션: 병원체 둘레 병합"
+
+msgid "**Settings:** ``pathogen_perimeter_fraction``"
+msgstr "**설정:** ``pathogen_perimeter_fraction``"
+
+msgid "Organelle perimeter merge"
+msgstr "세포소기관 둘레 병합"
+
+msgid "Organelle perimeter merge setting animation"
+msgstr "설정 애니메이션: 세포소기관 둘레 병합"
+
+msgid "**Settings:** ``organelle_perimeter_fraction``"
+msgstr "**설정:** ``organelle_perimeter_fraction``"
+
+msgid "Fill holes in masks"
+msgstr "마스크 구멍 채우기"
+
+msgid "Fill holes in masks setting animation"
+msgstr "설정 애니메이션: 마스크 구멍 채우기"
+
+msgid "**Settings:** ``fill_in``"
+msgstr "**설정:** ``fill_in``"
+
+msgid "Segmentation"
+msgstr "분할"
+
+msgid "Cell probability threshold"
+msgstr "세포 확률 임계값"
+
+msgid "Cell probability threshold setting animation"
+msgstr "설정 애니메이션: 세포 확률 임계값"
+
+msgid "**Settings:** ``cell_cellprob_threshold``"
+msgstr "**설정:** ``cell_cellprob_threshold``"
+
+msgid "Cell flow threshold"
+msgstr "세포 흐름 임계값"
+
+msgid "Cell flow threshold setting animation"
+msgstr "설정 애니메이션: 세포 흐름 임계값"
+
+msgid "**Settings:** ``cell_flow_threshold``"
+msgstr "**설정:** ``cell_flow_threshold``"
+
+msgid "Cell diameter"
+msgstr "세포 직경"
+
+msgid "Cell diameter setting animation"
+msgstr "설정 애니메이션: 세포 직경"
+
+msgid "**Settings:** ``cell_diameter``"
+msgstr "**설정:** ``cell_diameter``"
+
+msgid "Nucleus probability threshold"
+msgstr "핵 확률 임계값"
+
+msgid "Nucleus probability threshold setting animation"
+msgstr "설정 애니메이션: 핵 확률 임계값"
+
+msgid "**Settings:** ``nucleus_cellprob_threshold``"
+msgstr "**설정:** ``nucleus_cellprob_threshold``"
+
+msgid "Nucleus flow threshold"
+msgstr "핵 흐름 임계값"
+
+msgid "Nucleus flow threshold setting animation"
+msgstr "설정 애니메이션: 핵 흐름 임계값"
+
+msgid "**Settings:** ``nucleus_flow_threshold``"
+msgstr "**설정:** ``nucleus_flow_threshold``"
+
+msgid "Nucleus diameter"
+msgstr "핵 직경"
+
+msgid "Nucleus diameter setting animation"
+msgstr "설정 애니메이션: 핵 직경"
+
+msgid "**Settings:** ``nucleus_diameter``"
+msgstr "**설정:** ``nucleus_diameter``"
+
+msgid "Pathogen probability threshold"
+msgstr "병원체 확률 임계값"
+
+msgid "Pathogen probability threshold setting animation"
+msgstr "설정 애니메이션: 병원체 확률 임계값"
+
+msgid "**Settings:** ``pathogen_cellprob_threshold``"
+msgstr "**설정:** ``pathogen_cellprob_threshold``"
+
+msgid "Pathogen flow threshold"
+msgstr "병원체 흐름 임계값"
+
+msgid "Pathogen flow threshold setting animation"
+msgstr "설정 애니메이션: 병원체 흐름 임계값"
+
+msgid "**Settings:** ``pathogen_flow_threshold``"
+msgstr "**설정:** ``pathogen_flow_threshold``"
+
+msgid "Pathogen diameter"
+msgstr "병원체 직경"
+
+msgid "Pathogen diameter setting animation"
+msgstr "설정 애니메이션: 병원체 직경"
+
+msgid "**Settings:** ``pathogen_diameter``"
+msgstr "**설정:** ``pathogen_diameter``"
+
+msgid "Organelle diameter"
+msgstr "세포소기관 직경"
+
+msgid "Organelle diameter setting animation"
+msgstr "설정 애니메이션: 세포소기관 직경"
+
+msgid "**Settings:** ``organelle_diameter``"
+msgstr "**설정:** ``organelle_diameter``"
+
+msgid "Organelle probability threshold"
+msgstr "세포소기관 확률 임계값"
+
+msgid "Organelle probability threshold setting animation"
+msgstr "설정 애니메이션: 세포소기관 확률 임계값"
+
+msgid "**Settings:** ``organelle_cellprob_threshold``"
+msgstr "**설정:** ``organelle_cellprob_threshold``"
+
+msgid "Organelle flow threshold"
+msgstr "세포소기관 흐름 임계값"
+
+msgid "Organelle flow threshold setting animation"
+msgstr "설정 애니메이션: 세포소기관 흐름 임계값"
+
+msgid "**Settings:** ``organelle_flow_threshold``"
+msgstr "**설정:** ``organelle_flow_threshold``"
+
+msgid "Image preprocessing"
+msgstr "이미지 전처리"
+
+msgid "Cell background subtraction"
+msgstr "세포 배경 차감"
+
+msgid "Cell background subtraction setting animation"
+msgstr "설정 애니메이션: 세포 배경 차감"
+
+msgid "**Settings:** ``remove_background_cell``, ``cell_background``"
+msgstr "**설정:** ``remove_background_cell``, ``cell_background``"
+
+msgid "Cell signal-to-noise"
+msgstr "세포 신호 대 잡음비"
+
+msgid "Cell signal-to-noise setting animation"
+msgstr "설정 애니메이션: 세포 신호 대 잡음비"
+
+msgid "**Settings:** ``cell_signal_to_noise``"
+msgstr "**설정:** ``cell_signal_to_noise``"
+
+msgid "Nucleus background subtraction"
+msgstr "핵 배경 차감"
+
+msgid "Nucleus background subtraction setting animation"
+msgstr "설정 애니메이션: 핵 배경 차감"
+
+msgid "**Settings:** ``remove_background_nucleus``, ``nucleus_background``"
+msgstr "**설정:** ``remove_background_nucleus``, ``nucleus_background``"
+
+msgid "Nucleus signal-to-noise"
+msgstr "핵 신호 대 잡음비"
+
+msgid "Nucleus signal-to-noise setting animation"
+msgstr "설정 애니메이션: 핵 신호 대 잡음비"
+
+msgid "**Settings:** ``nucleus_signal_to_noise``"
+msgstr "**설정:** ``nucleus_signal_to_noise``"
+
+msgid "Pathogen background subtraction"
+msgstr "병원체 배경 차감"
+
+msgid "Pathogen background subtraction setting animation"
+msgstr "설정 애니메이션: 병원체 배경 차감"
+
+msgid "**Settings:** ``remove_background_pathogen``, ``pathogen_background``"
+msgstr "**설정:** ``remove_background_pathogen``, ``pathogen_background``"
+
+msgid "Pathogen signal-to-noise"
+msgstr "병원체 신호 대 잡음비"
+
+msgid "Pathogen signal-to-noise setting animation"
+msgstr "설정 애니메이션: 병원체 신호 대 잡음비"
+
+msgid "**Settings:** ``pathogen_signal_to_noise``"
+msgstr "**설정:** ``pathogen_signal_to_noise``"
+
+msgid "Image normalization percentiles"
+msgstr "이미지 정규화 백분위수"
+
+msgid "Image normalization percentiles setting animation"
+msgstr "설정 애니메이션: 이미지 정규화 백분위수"
+
+msgid "**Settings:** ``normalization_percentiles``, ``normalize``"
+msgstr "**설정:** ``normalization_percentiles``, ``normalize``"
+
+msgid "Organelle preprocessing"
+msgstr "세포소기관 전처리"
+
+msgid "Fill small organelle holes"
+msgstr "작은 세포소기관 구멍 채우기"
+
+msgid "Fill small organelle holes setting animation"
+msgstr "설정 애니메이션: 작은 세포소기관 구멍 채우기"
+
+msgid "**Settings:** ``organelle_fill_holes``"
+msgstr "**설정:** ``organelle_fill_holes``"
+
+msgid "Split touching organelle spots"
+msgstr "맞닿은 세포소기관 반점 분리"
+
+msgid "Split touching organelle spots setting animation"
+msgstr "설정 애니메이션: 맞닿은 세포소기관 반점 분리"
+
+msgid "**Settings:** ``organelle_watershed_spots``"
+msgstr "**설정:** ``organelle_watershed_spots``"
+
+msgid "Skeletonize organelle networks"
+msgstr "세포소기관 네트워크 골격화"
+
+msgid "Skeletonize organelle networks setting animation"
+msgstr "설정 애니메이션: 세포소기관 네트워크 골격화"
+
+msgid "**Settings:** ``organelle_skeletonize``"
+msgstr "**설정:** ``organelle_skeletonize``"
+
+msgid "Rolling-ball background correction"
+msgstr "롤링 볼 배경 보정"
+
+msgid "Rolling-ball background correction setting animation"
+msgstr "설정 애니메이션: 롤링 볼 배경 보정"
+
+msgid "**Settings:** ``organelle_rolling_ball``, ``organelle_rolling_ball_radius``"
+msgstr "**설정:** ``organelle_rolling_ball``, ``organelle_rolling_ball_radius``"
+
+msgid "Organelle local contrast (CLAHE)"
+msgstr "세포소기관 국소 대비 (CLAHE)"
+
+msgid "Organelle local contrast (CLAHE) setting animation"
+msgstr "설정 애니메이션: 세포소기관 국소 대비 (CLAHE)"
+
+msgid "**Settings:** ``organelle_clahe``, ``organelle_clahe_clip_limit``"
+msgstr "**설정:** ``organelle_clahe``, ``organelle_clahe_clip_limit``"
+
+msgid "Mask organelles within cells"
+msgstr "세포 안의 세포소기관만 마스킹"
+
+msgid "Mask organelles within cells setting animation"
+msgstr "설정 애니메이션: 세포 안의 세포소기관만 마스킹"
+
+msgid "**Settings:** ``organelle_mask_within_cells``"
+msgstr "**설정:** ``organelle_mask_within_cells``"
+
+msgid "Organelle segmentation threshold"
+msgstr "세포소기관 분할 임계값"
+
+msgid "Organelle segmentation threshold setting animation"
+msgstr "설정 애니메이션: 세포소기관 분할 임계값"
+
+msgid "**Settings:** ``organelle_log_threshold``, ``organelle_unet_threshold``"
+msgstr "**설정:** ``organelle_log_threshold``, ``organelle_unet_threshold``"
+
+msgid "Plot appearance"
+msgstr "그래프 모양"
+
+msgid "Mask outline thickness"
+msgstr "마스크 윤곽선 두께"
+
+msgid "Mask outline thickness setting animation"
+msgstr "설정 애니메이션: 마스크 윤곽선 두께"
+
+msgid "**Settings:** ``outline_thickness``"
+msgstr "**설정:** ``outline_thickness``"
+
+msgid "Crop output"
+msgstr "크롭 출력"
+
+msgid "Keep bounding-box context"
+msgstr "경계 상자 맥락 유지"
+
+msgid "Keep bounding-box context setting animation"
+msgstr "설정 애니메이션: 경계 상자 맥락 유지"
+
+msgid "**Settings:** ``use_bounding_box``"
+msgstr "**설정:** ``use_bounding_box``"
+
+msgid "Dilate crop masks"
+msgstr "이미지 조각 마스크 팽창"
+
+msgid "Dilate crop masks setting animation"
+msgstr "설정 애니메이션: 크롭 마스크 팽창"
+
+msgid "**Settings:** ``dialate_pngs``, ``dialate_png_ratios``"
+msgstr "**설정:** ``dialate_pngs``, ``dialate_png_ratios``"
+
+msgid "Choose crop target"
+msgstr "크롭 대상 선택"
+
+msgid "Choose crop target setting animation"
+msgstr "설정 애니메이션: 크롭 대상 선택"
+
+msgid "**Settings:** ``crop_mode``"
+msgstr "**설정:** ``crop_mode``"
+
+msgid "Crop canvas size"
+msgstr "크롭 캔버스 크기"
+
+msgid "Crop canvas size setting animation"
+msgstr "설정 애니메이션: 크롭 캔버스 크기"
+
+msgid "**Settings:** ``png_size``"
+msgstr "**설정:** ``png_size``"
+
+msgid "Measurement"
+msgstr "측정"
+
+msgid "Derive cytoplasm compartment"
+msgstr "세포질 구획 유도"
+
+msgid "Derive cytoplasm compartment setting animation"
+msgstr "설정 애니메이션: 세포질 구획 유도"
+
+msgid "**Settings:** ``cytoplasm``"
+msgstr "**설정:** ``cytoplasm``"
+
+msgid "Radial-distance shells"
+msgstr "방사 거리 껍질"
+
+msgid "Radial-distance shells setting animation"
+msgstr "설정 애니메이션: 방사 거리 껍질"
+
+msgid "**Settings:** ``radial_dist``, ``distance_gaussian_sigma``"
+msgstr "**설정:** ``radial_dist``, ``distance_gaussian_sigma``"
+
+msgid "Keep or remove uninfected cells"
+msgstr "비감염 세포 유지 또는 제거"
+
+msgid "Keep or remove uninfected cells setting animation"
+msgstr "설정 애니메이션: 비감염 세포 유지 또는 제거"
+
+msgid "**Settings:** ``uninfected``"
+msgstr "**설정:** ``uninfected``"
+
+msgid "Tracking & volumetric"
+msgstr "추적 및 볼륨"
+
+msgid "Remove transient tracks"
+msgstr "일시적 궤적 제거"
+
+msgid "Remove transient tracks setting animation"
+msgstr "설정 애니메이션: 일시적 궤적 제거"
+
+msgid "**Settings:** ``timelapse_remove_transient``, ``timelapse_frame_limits``"
+msgstr "**설정:** ``timelapse_remove_transient``, ``timelapse_frame_limits``"
+
+msgid "Maximum linking displacement"
+msgstr "최대 연결 변위"
+
+msgid "Maximum linking displacement setting animation"
+msgstr "설정 애니메이션: 최대 연결 변위"
+
+msgid "**Settings:** ``timelapse_displacement``, ``ultrack_max_distance``, ``t_max_displacement_px``, ``t_max_displacement_um``"
+msgstr "**설정:** ``timelapse_displacement``, ``ultrack_max_distance``, ``t_max_displacement_px``, ``t_max_displacement_um``"
+
+msgid "Tracking memory"
+msgstr "추적 메모리"
+
+msgid "Tracking memory setting animation"
+msgstr "설정 애니메이션: 추적 메모리"
+
+msgid "**Settings:** ``timelapse_memory``"
+msgstr "**설정:** ``timelapse_memory``"
+
+msgid "Timepoint overlap threshold"
+msgstr "시점 간 겹침 임계값"
+
+msgid "Timepoint overlap threshold setting animation"
+msgstr "설정 애니메이션: 시점 간 겹침 임계값"
+
+msgid "**Settings:** ``t_link_threshold``"
+msgstr "**설정:** ``t_link_threshold``"
+
+msgid "Z-plane stitch threshold"
+msgstr "Z 평면 스티칭 임계값"
+
+msgid "Z-plane stitch threshold setting animation"
+msgstr "설정 애니메이션: Z 평면 스티칭 임계값"
+
+msgid "**Settings:** ``stitch_threshold``"
+msgstr "**설정:** ``stitch_threshold``"
+
+msgid "Z projection"
+msgstr "Z 투영"
+
+msgid "Z projection setting animation"
+msgstr "설정 애니메이션: Z 투영"
+
+msgid "**Settings:** ``z_projection``"
+msgstr "**설정:** ``z_projection``"
+
+msgid "Project volumes for tracking"
+msgstr "추적용 볼륨 투영"
+
+msgid "Project volumes for tracking setting animation"
+msgstr "설정 애니메이션: 추적용 볼륨 투영"
+
+msgid "**Settings:** ``t_project_for_tracking``"
+msgstr "**설정:** ``t_project_for_tracking``"
+
+msgid "Remove overly straight tracks"
+msgstr "지나치게 곧은 궤적 제거"
+
+msgid "Remove overly straight tracks setting animation"
+msgstr "설정 애니메이션: 지나치게 곧은 궤적 제거"
+
+msgid "**Settings:** ``drop_straight_tracks``, ``straightness_threshold``"
+msgstr "**설정:** ``drop_straight_tracks``, ``straightness_threshold``"
+
+msgid "Smooth per-track outliers"
+msgstr "궤적별 이상값 평활화"
+
+msgid "Smooth per-track outliers setting animation"
+msgstr "설정 애니메이션: 궤적별 이상값 평활화"
+
+msgid "**Settings:** ``track_outlier_zscore``"
+msgstr "**설정:** ``track_outlier_zscore``"
+
+msgid "Cell-division linking"
+msgstr "세포 분열 연결"
+
+msgid "Cell-division linking setting animation"
+msgstr "설정 애니메이션: 세포 분열 연결"
+
+msgid "**Settings:** ``ultrack_division_weight``"
+msgstr "**설정:** ``ultrack_division_weight``"
+
+msgid "Contour smoothing"
+msgstr "윤곽 평활화"
+
+msgid "Contour smoothing setting animation"
+msgstr "설정 애니메이션: 윤곽 평활화"
+
+msgid "**Settings:** ``ultrack_contour_sigma``"
+msgstr "**설정:** ``ultrack_contour_sigma``"
+
+msgid "Image UMAP"
+msgstr "이미지 UMAP"
+
+msgid "UMAP neighborhood size"
+msgstr "UMAP 이웃 크기"
+
+msgid "UMAP neighborhood size setting animation"
+msgstr "설정 애니메이션: UMAP 이웃 크기"
+
+msgid "**Settings:** ``n_neighbors``"
+msgstr "**설정:** ``n_neighbors``"
+
+msgid "UMAP minimum distance"
+msgstr "UMAP 최소 거리"
+
+msgid "UMAP minimum distance setting animation"
+msgstr "설정 애니메이션: UMAP 최소 거리"
+
+msgid "**Settings:** ``min_dist``"
+msgstr "**설정:** ``min_dist``"
+
+msgid "Show object images"
+msgstr "객체 이미지 표시"
+
+msgid "Show object images setting animation"
+msgstr "설정 애니메이션: 객체 이미지 표시"
+
+msgid "**Settings:** ``plot_images``"
+msgstr "**설정:** ``plot_images``"
+
+msgid "Remove image canvas"
+msgstr "이미지 캔버스 제거"
+
+msgid "Remove image canvas setting animation"
+msgstr "설정 애니메이션: 이미지 캔버스 제거"
+
+msgid "**Settings:** ``remove_image_canvas``"
+msgstr "**설정:** ``remove_image_canvas``"
+
+msgid "Show cluster outlines"
+msgstr "클러스터 윤곽 표시"
+
+msgid "Show cluster outlines setting animation"
+msgstr "설정 애니메이션: 클러스터 윤곽 표시"
+
+msgid "**Settings:** ``plot_outlines``"
+msgstr "**설정:** ``plot_outlines``"
+
+msgid "Show embedding points"
+msgstr "임베딩 점 표시"
+
+msgid "Show embedding points setting animation"
+msgstr "설정 애니메이션: 임베딩 점 표시"
+
+msgid "**Settings:** ``plot_points``"
+msgstr "**설정:** ``plot_points``"
+
+msgid "Smooth cluster outlines"
+msgstr "클러스터 윤곽 평활화"
+
+msgid "Smooth cluster outlines setting animation"
+msgstr "설정 애니메이션: 클러스터 윤곽 평활화"
+
+msgid "**Settings:** ``smooth_lines``"
+msgstr "**설정:** ``smooth_lines``"
+
+msgid "Remove cluster noise"
+msgstr "클러스터 잡음 제거"
+
+msgid "Remove cluster noise setting animation"
+msgstr "설정 애니메이션: 클러스터 잡음 제거"
+
+msgid "**Settings:** ``remove_cluster_noise``"
+msgstr "**설정:** ``remove_cluster_noise``"
+
+msgid "Sample images by cluster"
+msgstr "클러스터별 이미지 표본 추출"
+
+msgid "Sample images by cluster setting animation"
+msgstr "설정 애니메이션: 클러스터별 이미지 표본 추출"
+
+msgid "**Settings:** ``plot_by_cluster``"
+msgstr "**설정:** ``plot_by_cluster``"
+
+msgid "Embedding point size"
+msgstr "임베딩 점 크기"
+
+msgid "Embedding point size setting animation"
+msgstr "설정 애니메이션: 임베딩 점 크기"
+
+msgid "**Settings:** ``dot_size``"
+msgstr "**설정:** ``dot_size``"
+
+msgid "Embedding image zoom"
+msgstr "임베딩 이미지 확대"
+
+msgid "Embedding image zoom setting animation"
+msgstr "설정 애니메이션: 임베딩 이미지 확대"
+
+msgid "**Settings:** ``img_zoom``"
+msgstr "**설정:** ``img_zoom``"
+
+msgid "Density clustering radius"
+msgstr "밀도 클러스터링 반경"
+
+msgid "Density clustering radius setting animation"
+msgstr "설정 애니메이션: 밀도 클러스터링 반경"
+
+msgid "**Settings:** ``eps``, ``min_samples``, ``clustering``"
+msgstr "**설정:** ``eps``, ``min_samples``, ``clustering``"
+
+msgid "Alignment & stitching"
+msgstr "정렬 및 스티칭"
+
+msgid "Tile overlap"
+msgstr "타일 겹침"
+
+msgid "Tile overlap setting animation"
+msgstr "설정 애니메이션: 타일 겹침"
+
+msgid "**Settings:** ``overlap``"
+msgstr "**설정:** ``overlap``"
+
+msgid "Tile seam blending"
+msgstr "타일 이음매 혼합"
+
+msgid "Tile seam blending setting animation"
+msgstr "설정 애니메이션: 타일 이음매 혼합"
+
+msgid "**Settings:** ``blend``"
+msgstr "**설정:** ``blend``"
+
+msgid "Point spread function"
+msgstr "점 확산 함수"
+
+msgid "PSF — Gaussian convolution width"
+msgstr "PSF — 가우스 컨볼루션 폭"
+
+msgid "PSF — Gaussian convolution width setting animation"
+msgstr "설정 애니메이션: PSF — 가우스 컨볼루션 폭"
+
+msgid "**Settings:** ``psf_fwhm_um``"
+msgstr "**설정:** ``psf_fwhm_um``"
+
