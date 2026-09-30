@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, ninth pass 2026-09-30: the colony_detector setting label and tooltip (item 542), written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "colony_detector",
+      "source": "Colony detector",
+      "source_sha256": "68beea6aa1d0b2ea9eb4f3cc498e2b290aa8cab4fe933d6173b59636693715a4",
+      "translation": "कॉलोनी डिटेक्टर"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_detector",
+      "source": "A YOLO colony detector to find the colonies with, in place of thresholding: a checkpoint path or a Model Zoo key. It needs the ultralytics package. Detection counts colonies in chains and at the dish rim that thresholding merges or loses; polarity, threshold and minimum area are then not used. Blank thresholds. Default None.",
+      "source_sha256": "715e9aa717e6aead1dcdb1df63413b1db968a50e249118e910a1a7570505ae20",
+      "translation": "थ्रेशोल्डिंग के बजाय कॉलोनियाँ खोजने वाला YOLO कॉलोनी डिटेक्टर: एक checkpoint पथ या Model Zoo कुंजी। इसके लिए ultralytics पैकेज चाहिए। डिटेक्शन उन कॉलोनियों को भी गिनता है जो शृंखलाओं में या डिश के किनारे पर होती हैं और जिन्हें थ्रेशोल्डिंग मिला देती है या खो देती है; तब ध्रुवता, थ्रेशोल्ड और न्यूनतम क्षेत्रफल उपयोग नहीं होते। खाली छोड़ने पर थ्रेशोल्डिंग होती है। डिफ़ॉल्ट None।"
+    }
+  ]
+}

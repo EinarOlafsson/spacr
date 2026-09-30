@@ -336,6 +336,13 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     latest_p8 = {record["source"] for record in pass8}
     assert len(pass8) == len(latest_p8) and not latest_p8 & sources
     sources |= latest_p8
+    # The 2026-09-30 ninth runtime pass: the colony_detector setting label
+    # and tooltip (item 542); another disjoint slice.
+    pass9 = [record for path in sorted(folder.glob("2026-09-30-runtime-debt-ninth-pass-*.json"))
+             for record in json.loads(path.read_text())["records"]]
+    latest_p9 = {record["source"] for record in pass9}
+    assert len(pass9) == len(latest_p9) and not latest_p9 & sources
+    sources |= latest_p9
     assert sources <= reviewed.keys()
     return sources
 
