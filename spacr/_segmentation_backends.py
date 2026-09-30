@@ -2009,6 +2009,9 @@ def _serve_env(name, env):
         token, _source = _deepcell_token()
         if token:
             environ[_DEEPCELL_TOKEN_ENV] = token
+        # TensorFlow otherwise takes nearly all of the card's memory at its
+        # first call, leaving none for spaCR's own Cellpose in the parent.
+        environ.setdefault("TF_FORCE_GPU_ALLOW_GROWTH", "true")
         folders = _nvidia_lib_folders(env)
         if folders:
             old = environ.get("LD_LIBRARY_PATH", "")
@@ -4537,7 +4540,11 @@ def _worker_hello(name):
             packages[distribution] = ""
     return {"backend": spec.name,
             "python": "%d.%d.%d" % tuple(sys.version_info[:3]),
-            "packages": packages, "device": _worker_device(),
+            "packages": packages,
+            # SpotNet's environment holds a CPU torch next to the TensorFlow
+            # it runs on; its device is TensorFlow's (item 475, 2026-09-30).
+            "device": (_tensorflow_device() if "tensorflow" in spec.probe
+                       else _worker_device()),
             "models": list(spec.models)}
 
 

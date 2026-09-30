@@ -225,3 +225,21 @@ def test_the_setting_is_registered_with_native_default_and_its_licence():
     tip = ops_settings.OPS_TOOLTIPS["ops_spot_detector"]
     assert "NON-COMMERCIAL ACADEMIC USE ONLY" in tip
     assert "deepcell_token" in tip
+
+
+def test_spotnets_worker_reports_tensorflows_device(monkeypatch):
+    """Item 475: its env's torch is a CPU build; TensorFlow is what runs."""
+    import importlib
+    import types
+
+    monkeypatch.setattr(importlib, "import_module", lambda name: types)
+    monkeypatch.setattr(SB, "_tensorflow_device", lambda: "gpu")
+    monkeypatch.setattr(SB, "_worker_device", lambda requested=None: "cpu")
+    assert SB._worker_hello("spotnet")["device"] == "gpu"
+    assert SB._worker_hello("careamics")["device"] == "cpu"
+
+
+def test_spotnets_tensorflow_grows_its_gpu_memory(home, tmp_path, monkeypatch):
+    monkeypatch.delenv("TF_FORCE_GPU_ALLOW_GROWTH", raising=False)
+    served = SB._serve_env("spotnet", str(tmp_path / "spotnet"))
+    assert served["TF_FORCE_GPU_ALLOW_GROWTH"] == "true"

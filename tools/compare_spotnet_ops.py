@@ -39,6 +39,15 @@ from spacr import ops_engine  # noqa: E402
 from spacr._segmentation_backends import (  # noqa: E402
     _detect_spots, _spotiflow_readiness, _spotiflow_spots, _spotnet_readiness)
 from spacr.ops_sbs import assign_reads_to_objects  # noqa: E402
+from spacr import _segmentation_backends as SB  # noqa: E402
+
+
+def _echo_device_lines(label, line):
+    """Print the worker's device lines (TensorFlow's ``Created device ...
+    GPU:0``, or a CUDA library it could not open) into this run's log."""
+    if any(key in line for key in ("GPU:0", "device:GPU", "libcud",
+                                   "Could not load dynamic library")):
+        print(f"[{label}] {line.rstrip()}", flush=True)
 
 
 def _tasks(tiles, db, plate, well, sites, reference, gpu=False):
@@ -141,6 +150,7 @@ def main(argv=None):
     parser.add_argument("--detectors", nargs="+", default=["spotnet"],
                         choices=["spotnet", "spotiflow"])
     args = parser.parse_args(argv)
+    SB._listen_to_workers(_echo_device_lines)
 
     library = ops_engine._load_library(args.library) if args.library else []
     tasks = _tasks(args.tiles, args.db, args.plate, args.well.upper(),
@@ -165,6 +175,11 @@ def main(argv=None):
         detect(np.zeros((64, 64), np.float32), threshold=threshold)
         report[f"{detector}_startup_seconds"] = round(
             time.perf_counter() - started, 1)
+        worker = SB._WORKERS.get(detector)
+        hello = getattr(worker, "hello", None) or {}
+        report[f"{detector}_device"] = hello.get("device", "")
+        print(f"{detector} worker device: {report[f'{detector}_device']!r}",
+              flush=True)
         found, found_at = _run(tasks, detector, library)
         report[detector] = found
         both = [s for s in native_at if s in found_at]

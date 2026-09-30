@@ -216,3 +216,32 @@ it would have run on the CPU anyway. Output:
 Conclusion: same result as the CPU baseline, 27 % fewer assignments at equal
 accuracy; native stays default, and a GPU SpotNet still needs CUDA 11.2 /
 cuDNN 8.1 in its env.
+
+GPU RUN 2026-09-30 (second attempt: SpotNet on GPU:0)
+Why the first run was on the CPU. LD_LIBRARY_PATH and CUDA_VISIBLE_DEVICES
+were not the cause: _serve_env already puts the env's CUDA 11 wheel folders
+on the worker's LD_LIBRARY_PATH, nothing sets CUDA_VISIBLE_DEVICES, and
+TensorFlow 2.8.4 in the SpotNet env lists GPU:0 with them. Two things hid
+it: the worker's hello reported the device of the env's CPU torch
+(2.14.0+cpu) instead of TensorFlow's, so the zoo and report said "cpu",
+and the worker's stderr (where TensorFlow names its device) went only to
+a debug log. The run's own "gpu" flag only governs the native aligner.
+Fixes: _worker_hello reports TensorFlow's device for a backend that
+probes tensorflow; SpotNet's worker gets TF_FORCE_GPU_ALLOW_GROWTH=true so
+TensorFlow does not take the whole card from spaCR's Cellpose;
+tools/compare_spotnet_ops.py echoes the worker's device lines and records
+spotnet_device. Tests: tests/test_spotnet_token_and_ops_spot_detector.py.
+Rerun (/mnt/wd4tb/scratch/475/gpu_run.sh, now with --gpu; 11:10-11:11,
+rc 0). The log shows:
+  Created device /job:localhost/replica:0/task:0/device:GPU:0 with
+  20247 MB memory: -> device: 0, name: NVIDIA GeForce RTX 3090
+  spotnet worker device: 'gpu'
+                          native     SpotNet
+  spots                   22,733     18,557
+  objects assigned         3,476      2,523
+  assigned library-exact   0.9534     0.9532
+  seconds (2 fields)         9.5       14.3 (+6.4 s startup)
+  spot step per field    1.7 s      5.2 / 4.7 s (CPU run: 11.6 / 10.4 s)
+Counts and agreement (69.3 % / 79.6 %) are identical to the CPU run, so
+the GPU changes only speed: SpotNet's spot step is 2.2x faster, still ~3x
+slower than native. Conclusion unchanged: native stays default.
