@@ -5273,6 +5273,12 @@ _WOUND_REOPEN_TOLERANCE = 0.15
 _WOUND_COLOR = (0, 190, 255)
 _WOUND_TEXTURE_PERCENTILE = 50
 _WOUND_TEXTURE_FRACTION = 0.2
+_WOUND_RELEVEL_MIN_CORE = 0.2
+_WOUND_RELEVEL_ROUNDS = 2
+_WOUND_RELEVEL_MIN_FAR = 0.05
+_WOUND_FRONT_SPAN = 0.3
+_WOUND_FRONT_MIN_WIDTH = 0.3
+_WOUND_FRONT_DEVIATION = 0.25
 
 
 @dataclass
@@ -5549,6 +5555,163 @@ def _wound_band(axis, shape):
     return np.abs((yy - cy) * (-dx) + (xx - cx) * dy) <= axis.half_band
 
 
+def _wound_across(axis, shape):
+    """Signed distance of every pixel from the scratch's centre line.
+
+    :param axis: the series' :class:`_WoundAxis`.
+    :param shape: the frame shape.
+    :returns: float64 plane, in pixels.
+    """
+    yy, xx = np.indices(shape, dtype=np.float64)
+    cy, cx = axis.centre
+    dy, dx = axis.direction
+    return (yy - cy) * (-dx) + (xx - cx) * dy
+
+
+def _wound_fronts(wound, window):
+    """A first frame's wound redrawn between two smooth fronts.
+
+    A freshly made scratch is one continuous band. Each one-pixel position
+    along its axis gets a left and a right front, the ends of the open run
+    nearest the centre line once gaps narrower than ``window`` are bridged.
+    A position whose run is missing or narrower than
+    :data:`_WOUND_FRONT_MIN_WIDTH` of the median width, and a front further
+    than ``max(2 * window, 0.25 * median width)`` from the running median,
+    take the running median instead: the median of the other positions'
+    fronts within :data:`_WOUND_FRONT_SPAN` of the scratch's length,
+    counting only positions whose run is wide enough. Debris floating in a fresh wound, which
+    carries texture, and a smooth patch of monolayer beside it, which does
+    not, are local bumps in one front and are drawn over.
+
+    :param wound: boolean first-frame wound; not empty.
+    :param window: texture window in pixels.
+    :returns: the boolean wound between the fronts, or ``wound`` itself
+        when too few positions have a front to draw from.
+    """
+    from scipy.ndimage import binary_closing, map_coordinates
+    axis = _wound_axis(wound, 0)
+    height, width = wound.shape
+    cy, cx = axis.centre
+    dy, dx = axis.direction
+    corners = np.array([[0, 0], [0, width - 1], [height - 1, 0],
+                        [height - 1, width - 1]], dtype=np.float64)
+    along_c = (corners[:, 0] - cy) * dy + (corners[:, 1] - cx) * dx
+    across_c = (corners[:, 0] - cy) * (-dx) + (corners[:, 1] - cx) * dy
+    reach = 3.0 * axis.half_band + 4.0 * window
+    along = np.arange(int(np.floor(along_c.min())),
+                      int(np.ceil(along_c.max())) + 1)
+    across = np.arange(int(np.floor(max(across_c.min(), -reach))),
+                       int(np.ceil(min(across_c.max(), reach))) + 1)
+    grid_a, grid_c = np.meshgrid(along, across, indexing='ij')
+    gy = cy + grid_a * dy - grid_c * dx
+    gx = cx + grid_a * dx + grid_c * dy
+    inside = ((gy >= -0.5) & (gy <= height - 0.5)
+              & (gx >= -0.5) & (gx <= width - 0.5))
+    grid = map_coordinates(wound.astype(np.float64), [gy, gx], order=0,
+                           cval=0.0) > 0.5
+    grid &= inside
+    grid |= binary_closing(grid, structure=np.ones((1, max(1, int(window))),
+                                                   dtype=bool))
+    size = across.size
+    columns = np.arange(size)
+    centre = int(np.argmin(np.abs(across)))
+    distance = np.where(grid, np.abs(columns - centre), size + 1)
+    nearest = np.argmin(distance, axis=1)
+    rows = np.arange(along.size)
+    closed_left = np.maximum.accumulate(np.where(~grid, columns, -1), axis=1)
+    closed_right = np.minimum.accumulate(
+        np.where(~grid, columns, size)[:, ::-1], axis=1)[:, ::-1]
+    has = grid.any(axis=1)
+    left = np.where(has, across[0] + closed_left[rows, nearest] + 1, np.nan)
+    right = np.where(has, across[0] + closed_right[rows, nearest] - 1,
+                     np.nan)
+    in_field = inside.any(axis=1)
+    widths = right - left
+    measured = np.isfinite(widths) & in_field
+    if not measured.any():
+        return wound
+    median_width = float(np.median(widths[measured]))
+    good = measured & (widths >= _WOUND_FRONT_MIN_WIDTH * median_width)
+    if median_width <= 0 or good.sum() < 3:
+        return wound
+    half_span = max(1, int(_WOUND_FRONT_SPAN * in_field.sum()) // 2)
+    kept = rows[good]
+    starts = np.searchsorted(kept, rows - half_span, side='left')
+    stops = np.searchsorted(kept, rows + half_span, side='right')
+    covered = stops > starts
+
+    def running(front):
+        """Running median of the good fronts, carried over rows with none."""
+        values = front[good]
+        median = np.full(rows.size, np.nan)
+        for row in np.nonzero(covered)[0]:
+            median[row] = np.median(values[starts[row]:stops[row]])
+        return np.interp(rows, rows[covered], median[covered])
+
+    tolerance = max(2.0 * window, _WOUND_FRONT_DEVIATION * median_width)
+    smooth_left, smooth_right = running(left), running(right)
+    left = np.where(good & (np.abs(left - smooth_left) <= tolerance), left,
+                    smooth_left)
+    right = np.where(good & (np.abs(right - smooth_right) <= tolerance),
+                     right, smooth_right)
+    yy, xx = np.indices(wound.shape, dtype=np.float64)
+    position = np.clip(np.round((yy - cy) * dy + (xx - cx) * dx).astype(
+        np.int64) - along[0], 0, along.size - 1)
+    offset = (yy - cy) * (-dx) + (xx - cx) * dy
+    return ((offset >= left[position] - 0.5)
+            & (offset < right[position] + 0.5))
+
+
+def _wound_relevel(plane, axis, level, start_area, window):
+    """The texture cut for a later frame, recalibrated on that frame.
+
+    A later time point is often imaged again rather than left on the stage,
+    so its focus and exposure differ from the first frame's and the first
+    frame's cut can open part of the monolayer or close part of the wound.
+    The frame's own open level is the median log texture of the pixels in
+    the first frame's band that the cut calls open, its covered level the
+    median outside the band, and the cut goes
+    :data:`_WOUND_TEXTURE_FRACTION` of the way between them, as on the
+    first frame; this is repeated :data:`_WOUND_RELEVEL_ROUNDS` times. The
+    first round starts from Otsu's split of the band when it separates two
+    classes (:data:`_CONFLUENCY_SEPARATION_MIN`), otherwise from the given
+    cut. A frame whose open pixels in the band cover less than
+    :data:`_WOUND_RELEVEL_MIN_CORE` of the first wound's area, a nearly
+    closed wound, keeps the cut it was given, since those few pixels do not
+    show the open level.
+
+    :param plane: the 2-D later frame.
+    :param axis: the series' :class:`_WoundAxis`.
+    :param level: the first frame's cut.
+    :param start_area: the first frame's wound area in pixels.
+    :param window: texture window in pixels.
+    :returns: the cut for this frame.
+    """
+    values = np.log(np.maximum(_wound_signal(plane, 'texture', window),
+                               1e-18))
+    distance = np.abs(_wound_across(axis, values.shape))
+    near = distance <= axis.half_band
+    far = distance > axis.half_band
+    if far.sum() < _WOUND_RELEVEL_MIN_FAR * values.size:
+        return level
+    covered = float(np.median(values[far]))
+    cut = float(np.log(level))
+    band = values[near]
+    if band.size > 100:
+        split, separation = _otsu_separation(band)
+        if (separation >= _CONFLUENCY_SEPARATION_MIN
+                and (band <= split).sum() >= _WOUND_RELEVEL_MIN_CORE
+                * start_area):
+            cut = split
+    for _round in range(_WOUND_RELEVEL_ROUNDS):
+        core = near & (values <= cut)
+        if core.sum() < _WOUND_RELEVEL_MIN_CORE * start_area:
+            break
+        opened = float(np.median(values[core]))
+        cut = opened + _WOUND_TEXTURE_FRACTION * (covered - opened)
+    return float(np.exp(cut))
+
+
 def _wound_series(planes, times, *, source='texture', window=15,
                   pixel_size_um=None, keep=()):
     """Open wound area and width of one field through time.
@@ -5559,7 +5722,10 @@ def _wound_series(planes, times, *, source='texture', window=15,
     along its axis, or the series is not a scratch and every metric is left
     blank. Later frames count the open regions inside the first frame's
     band. The cut between open and covered is decided on the first frame
-    and kept for the later ones (:func:`_wound_level`).
+    (:func:`_wound_level`); for ``texture`` each later frame recalibrates it
+    on its own open and covered levels (:func:`_wound_relevel`), and for
+    ``texture`` and ``intensity`` a first frame that is a scratch is
+    redrawn between smooth fronts (:func:`_wound_fronts`).
 
     :param planes: iterable of frames in time order (2-D, a ``(Z, Y, X)``
         stack, or a label image for ``masks``).
@@ -5586,8 +5752,14 @@ def _wound_series(planes, times, *, source='texture', window=15,
     for index, (plane, time) in enumerate(zip(planes, times)):
         if source != 'masks':
             plane = _confluency_plane(plane)
-        open_mask, level, share, separation = _wound_open(
-            plane, source, window, level, share)
+        frame_level = level
+        if index > 0 and status == 'ok' and source == 'texture':
+            frame_level = _wound_relevel(plane, axis, level, start_area,
+                                         window)
+        open_mask, frame_level, share, separation = _wound_open(
+            plane, source, window, frame_level, share)
+        if index == 0:
+            level = frame_level
         if index == 0:
             first_separation = separation
             wound, regions = _wound_select(open_mask)
@@ -5601,6 +5773,13 @@ def _wound_series(planes, times, *, source='texture', window=15,
                 axis = _wound_axis(wound, margin)
                 if (first_widths > 0).mean() < _WOUND_MIN_SPAN:
                     status = 'not_a_scratch'
+                elif source != 'masks':
+                    wound = _wound_fronts(wound, window)
+                    axis = _wound_axis(wound, window)
+                    first_widths = _wound_widths(wound, axis)
+                    margin = max(2.0 * window,
+                                 0.25 * float(first_widths.mean()))
+                    axis = _wound_axis(wound, margin)
             start_area = int(wound.sum())
         elif status == 'ok':
             wound, regions = _wound_select(open_mask, axis, window * window)
@@ -5613,7 +5792,8 @@ def _wound_series(planes, times, *, source='texture', window=15,
                'field_px': int(wound.size), 'open_area_px': area,
                'open_fraction': area / float(wound.size),
                'start_open_area_px': start_area, 'n_regions': regions,
-               'wound_level': level, 'first_separation': first_separation}
+               'wound_level': frame_level,
+               'first_separation': first_separation}
         if status == 'ok':
             widths = _wound_widths(wound, axis)
             relative = area / float(start_area) if start_area else np.nan
