@@ -859,3 +859,37 @@ there are no new v2-vs-v1 link counts; the latest remain the 09-26 table
 Conclusion: Huber narrows the loss range but gives no held-out evidence yet;
 score this checkpoint with evaluate_timeflows.py --pairs-from before any
 promotion call (maintainer's).
+
+HELD-OUT SCORING OF THE HUBER V2, 2026-09-30
+tools/evaluate_timeflows.py on the 09-26 hard held-out pairs, reused exactly
+(--pairs-from, selections rebuilt from the 09-26 receipt with the movies'
+new /nas_mnt paths), device cuda, one gpu_turn (11:21-11:39, rc 0;
+/mnt/wd4tb/scratch/426/gpu_eval.sh, outputs in scratch/426/eval_huber/).
+Checkpoint timeflows_v2_retrain.pt (sha256 49b6a7a4908f...). Evaluator
+sha 86a0444c, the same as 09-26; the IoU and zero-motion arms reproduce the
+09-26 counts exactly, so the columns below are comparable. v1 and v2-MSE
+are the 09-26 numbers. Correct links to the true successor:
+
+  movie        true succ.  v2-Huber  v2-MSE    v1     IoU   zero motion
+  C.glut g1       20216      19949    20003   20017  20007     20050
+  C.glut g4       19704      14107    14321   14583  14833     14641
+  C.glut g16      12481       2590     2819    2817   2848      2790
+  C.glut all      52401      36646    37143   37417  37688     37481
+  U373 (ST)         107         95       92      94     71        90
+  DIC-HeLa (ST)     172        166      166     164    168       168
+  SIM+ (synth)      214        194      195     195    165       191
+  Huh7 (GT)          83         83       81      83     83        83
+
+False links among objects with no successor: C. glutamicum (6,905)
+v2-Huber 6,466, v2-MSE 6,490, v1 6,458, IoU 6,351, zero motion 6,463;
+SIM+ (102) 69 / 69 / 68 / 44 / 63. Of the 8,033 C. glutamicum successors
+that moved at least 1 diameter, v2-Huber linked 3 (v2-MSE 5, v1 5, IoU
+59, zero motion 0). Oracle 100 %, random head abstains, and the
+copied-frame control is 100 % on every set.
+Conclusion: the Huber loss does not help. v2-Huber is the worst arm on
+the dense real movie (C. glut all: 1,042 fewer correct links than IoU,
+771 fewer than v1) and ties v1 and zero motion elsewhere (U373 +1, SIM+
+-1). It is not promoted; v1 stays the reference checkpoint and the time
+head has still not learned motion. The loss swap alone is ruled out; the
+causes listed on 09-26 (tile censoring, 1/8-resolution features, no
+correlation between frames) remain the next things to change.
