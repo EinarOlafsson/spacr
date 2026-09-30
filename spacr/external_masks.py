@@ -71,16 +71,33 @@ SUPPORTED_SUFFIXES = (
 OBJECT_TYPES = tuple(crops.MASK_PLANE_ORDER)
 ROLES = ("image", "mask", "ignore")
 
+#: What may sit either side of a name token. Path separators count, so a
+#: folder named only ``organelle_2/`` or ``cell_masks/`` (with plain
+#: ``fov001.tif`` files inside, or added as a subfolder of a project) names
+#: its object type. Before 2026-09-30 (item 76) only ``_-. `` and a space
+#: did, and such folders were proposed as nothing, or as the wrong slot.
+_B = r"[_\-. /\\]"
+
 _MASK_WORDS = re.compile(
-    r"(?i)(?:^|[_\-. ])(?:mask|masks|label|labels|labelled|labeled|"
-    r"instance|instances|seg|segmentation|outline)(?:$|[_\-. ])"
+    rf"(?i)(?:^|{_B})(?:mask|masks|label|labels|labelled|labeled|"
+    rf"instance|instances|seg|segmentation|outline)(?:$|{_B})"
 )
 _ORGANELLE_PATTERN = re.compile(
-    r"(?i)(?:^|[_\-. ])"
+    rf"(?i)(?:^|{_B})"
     r"(?:organelle(?:[_\-. ]?(?P<number>\d+)|(?P<letters>[a-z]+))?"
     r"|organell|mitochondria|mitochondrion)"
-    r"(?=$|[_\-. ])"
+    rf"(?={_B}|$)"
 )
+
+#: Excitation laser lines. ``organelle_488_masks`` names the 488 nm channel,
+#: not Organelle 488; such a token counts as a bare ``organelle`` (item 76,
+#: 2026-09-30). Only these numbers are read as wavelengths, so every other
+#: slot number from 1 to 702 still names its slot.
+_LASER_LINES = frozenset({
+    355, 375, 405, 440, 445, 457, 458, 473, 488, 491, 505, 514, 515, 532,
+    543, 552, 555, 561, 568, 588, 594, 633, 635, 637, 638, 640, 642, 647,
+    660, 685, 730, 750, 785,
+})
 _ORGANELLE_TAIL = re.compile(
     r"(?i)(?:^|[_\-. ])"
     r"(?:organelle(?:[_\-. ]?\d+|[a-z]+)?|organell|mitochondria|mitochondrion)$"
@@ -88,10 +105,10 @@ _ORGANELLE_TAIL = re.compile(
 _ORGANELLE_ROLE_SET = frozenset(ORGANELLE_ROLES)
 _ORGANELLE_PLURAL = "organelles"
 _OBJECT_PATTERNS = (
-    ("nucleus", re.compile(r"(?i)(?:^|[_\-. ])(?:nucleus|nuclei|nuclear|nuc)(?:$|[_\-. ])")),
-    ("pathogen", re.compile(r"(?i)(?:^|[_\-. ])(?:pathogen|parasite|bacteria|bacterial)(?:$|[_\-. ])")),
+    ("nucleus", re.compile(rf"(?i)(?:^|{_B})(?:nucleus|nuclei|nuclear|nuc)(?:$|{_B})")),
+    ("pathogen", re.compile(rf"(?i)(?:^|{_B})(?:pathogen|parasite|bacteria|bacterial)(?:$|{_B})")),
     ("organelle", _ORGANELLE_PATTERN),
-    ("cell", re.compile(r"(?i)(?:^|[_\-. ])(?:cell|cells|wholecell|cytoplasm)(?:$|[_\-. ])")),
+    ("cell", re.compile(rf"(?i)(?:^|{_B})(?:cell|cells|wholecell|cytoplasm)(?:$|{_B})")),
 )
 
 
@@ -320,7 +337,9 @@ def _suggest_organelle_slot(stem: str) -> Optional[str]:
     rather than the first four a fixed table of patterns listed. A numbered
     token that names no slot -- ``organelle_0``, ``organelle_2024`` -- and the
     English plural ``organelles`` propose nothing, because neither says which
-    slot is meant; the object type stays editable in the import table.
+    slot is meant; the object type stays editable in the import table. A
+    number that is a laser line (:data:`_LASER_LINES`, e.g. ``organelle_488``)
+    names a channel, so it counts as a bare token.
 
     A token that names a slot outranks a bare one wherever each sits in the
     path, so ``organelle_masks/fov001_organelle_2.tif`` and
@@ -336,6 +355,9 @@ def _suggest_organelle_slot(stem: str) -> Optional[str]:
         letters = match.group("letters")
         if number is not None:
             index = int(number)
+            if index in _LASER_LINES:
+                bare = True
+                continue
             if 1 <= index <= len(ORGANELLE_ROLES):
                 return ORGANELLE_ROLES[index - 1]
             continue

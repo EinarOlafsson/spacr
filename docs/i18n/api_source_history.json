@@ -1,6 +1,31 @@
 {
   "schema": 1,
   "sources": {
+    "0f5c68a8f3d1fc9e9b73b30158b5690065c52d2be0614ba4deb40ae436b17580": {
+      "source_blocks_sha256": [
+        "5030e42d22b328fd76334c053eb8ad1a8f846b7431a7d0bfaeb8af8125937851",
+        "d2c17c517d2f05d702c891ab5489299a4f90ab3bbc725b7b0cb973a2d759a6e8",
+        "7349d1795c170e6858a5cfba9476688a9476fb96261d52fa29dc46444217fff4",
+        "4d29b4f306b7b287e929556d60917ae29cb49ebae503602e06560fec422f70a0",
+        "cdd4a910bd968ecfa4a240aab1899738a4aeb740e00b38b70ea111aff9e7a352",
+        "533bbd05554970da02eef22380b8d29682190f560e3f9ecb0dd1d129d813c6a0",
+        "0dd1ac342583c3acf145e9af1acdcce76b05e9eba7306181ffd8ded7337e4ddf",
+        "5793de15bd4b9fefde8265827f8b58755dcff392cc8f3581e8e55c90b840f73a",
+        "5884bad0564e8011c621792803f2d516de7592c3c3a697bfa7f7bdd2344cd326",
+        "00a2c72532cc8de6c69615c9c6967ec335081554b5571237735e1a04532cf912",
+        "386ca14cc81046c27b1a8225b7546d45bd6560f60fc8a935d70c6fa9b8b5bcfe",
+        "929976ddb850e63c289f6e92ae9d720fb11d9d9b6eb79abe9547d40b70ed8d28",
+        "d7e5f52f0212518d91042caab0ebbc332aeb751852cc193c9af94aa501d02672",
+        "240a9ce2112250696d270834b20cab7caae990b7b5d1cb16fc046216308c1a54",
+        "63092115f89b3eaa9c440959fb075a4784d7a437bf8d8dcee94fd1f03bacdd64",
+        "a088041729e97d411e54f8ce0b883703c2e9bd8d7d43df7ef95b972cc5b1915c",
+        "dd6deb5e9a9aad6d699e612ae48919b3fe50aa04a95fa3f86c4bdec27a10d6dd",
+        "ebf0a8a39ff6e0e7eadf133da96b50c2662f7cf0871877f7234a8470d37f36d5",
+        "12579bb41462cc1623d7a12a0cac8cd597703c7025d34f236ecf2af6e453cf5d"
+      ],
+      "source_sha256": "0f5c68a8f3d1fc9e9b73b30158b5690065c52d2be0614ba4deb40ae436b17580",
+      "text": "Plot image and mask overlays.\n\nLoads the merged ``.npy`` stack, draws one panel per requested channel\nwith the object masks applied as contours or filled labels, and closes\nwith a panel showing every object combined.\n\n:param file: Path to the merged ``.npy`` stack for one field of view.\n:param channels: Indices of the image channels to draw, one panel each.\n:param cell_channel: Intensity channel the cell mask belongs to, or\n    ``None`` when there is no cell mask.\n:param nucleus_channel: Intensity channel the nucleus mask belongs to,\n    or ``None``.\n:param pathogen_channel: Intensity channel the pathogen mask belongs to,\n    or ``None``.\n:param organelle_channel: Intensity channel the organelle mask belongs\n    to, or ``None``. Default ``None``.\n:param figuresize: Figure height in inches; the figure is drawn four\n    times as wide. Default ``10``.\n:param percentiles: Two-element percentile pair used to normalise each\n    channel. Default ``(2, 98)``.\n:param thickness: Contour line width in pixels. Default ``3``.\n:param save_pdf: If True, save the figure into ``results/overlay/``\n    two directories above ``file``, in the configured figure format\n    rather than always as PDF. Default ``True``.\n:param mode: ``'outlines'`` draws mask contours; any other value\n    overlays filled, randomly coloured labels. Default ``'outlines'``.\n:param export_tiffs: If True, also write every stack plane as a\n    grayscale TIFF into ``results/<stem>/tiff/`` alongside it. Default\n    ``False``.\n:param all_on_all: If True, draw every mask on every channel. Default\n    ``False``.\n:param all_outlines: If True, draw every mask on the channels that own\n    no mask themselves. Default ``False``.\n:param filter_dict: Optional per-object limits keyed by ``'cell'``,\n    ``'nucleus'``, ``'pathogen'`` or ``'organelle'``, each holding\n    ``((min_area, max_area), (min_intensity, max_intensity))``; objects\n    outside the limits are dropped before plotting.\n:param outline_palette: which outline colours to draw, a key of\n    :data:`OUTLINE_PALETTES`. ``'default'`` is what spaCR has always\n    drawn; ``'colourblind'`` is legible under red-green and blue-yellow\n    deficiency, where the default's worst pair scores 27 out of 255 --\n    cell is drawn red and pathogen green, the one pair the commonest\n    deficiency removes. Default ``'default'``, because changing every\n    figure a user has already made would be worse than the defect.\n:returns: The generated matplotlib ``Figure``."
+    },
     "23700232877f4a709b5b5bdd2cdca0e07525c9bc3e14e03ca09e881f3a0e67e1": {
       "source_blocks_sha256": [
         "a814af9286c401fd23c822a779a1dbeacb4d1d3d9f20d57c9f1c83295a5f5d42",

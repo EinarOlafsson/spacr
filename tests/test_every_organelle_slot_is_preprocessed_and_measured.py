@@ -420,10 +420,10 @@ def test_the_relationships_frame_links_both_slots_to_their_cells(
     """Both slots' objects resolve to a parent cell after Measure.
 
     This builds the frame from the finished database. The stored
-    ``relationships`` table is not checked because it is not written: Mask
-    calls ``write_relationships`` before Measure has made the object tables,
-    and prints a warning. That is older than these slots and true of every
-    object type; item 76 records it.
+    ``relationships`` table is not checked because it is not written: it is
+    derived from Measure's object tables, which do not exist when Mask ends.
+    Since 2026-09-30 Mask skips it quietly there and writes its own
+    ``object_relationships`` table instead, checked below (item 76).
     """
     from spacr.filters import build_relationships_frame
 
@@ -434,6 +434,28 @@ def test_the_relationships_frame_links_both_slots_to_their_cells(
         assert len(rows) == 2 * len(SPOTS[role])
         assert set(rows["parent_type"]) == {"cell"}
         assert rows["parent_label"].notna().all()
+
+
+@pytest.mark.parametrize("role", ["organelle", "organelleb"])
+def test_masks_own_relationships_table_survives_measure(
+        two_organelle_plate, role):
+    """Item 76, 2026-09-30: Mask writes ``object_relationships``.
+
+    Written by Mask before Measure ran; Measure then wrote its own tables
+    into the same database. The table must still be there and place every
+    object of both slots wholly in the cell painted around it.
+    """
+    expected = _expected_parents(two_organelle_plate, role)
+    db = two_organelle_plate / "measurements" / "measurements.db"
+    with sqlite3.connect(db) as connection:
+        rows = connection.execute(
+            "SELECT prcf, child_label, parent_label, overlap_fraction "
+            "FROM object_relationships WHERE child_type=? "
+            "AND parent_type='cell'", (role,)).fetchall()
+    stored = {(prcf, int(child)): int(parent)
+              for prcf, child, parent, fraction in rows if fraction == 1.0}
+    assert stored == expected
+    assert len(rows) == len(expected)
 
 
 def test_measure_is_given_the_two_slots_the_run_has_and_no_others(

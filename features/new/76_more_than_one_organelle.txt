@@ -642,3 +642,63 @@ for every object type, not only the organelle slots. Whoever picks this up
 should decide whether Measure writes it at its end or Mask stops trying.
 
 2026-09-29 (work, Claude), the maintainer's decision: the relationships table is written by MASK, as its own database table (which organelle object sits in which cell/nucleus/pathogen object). Measure does not own it. Not built yet.
+
+--------------------------------------------------------------------------------
+2026-09-30 (work, Claude) -- MASK WRITES `object_relationships`; FOLDER NAMES,
+LASER LINES AND THE OVERLAY FIXED
+--------------------------------------------------------------------------------
+
+Built per the maintainer's 2026-09-29 decision ("i want masks to wirete it and
+it should be its own database table!").
+
+  * TABLE. spacr.filters._write_object_relationships(src) runs in Mask's
+    per-folder body after the merge (before cleanup), reads merged/*.npy
+    mask planes through the .spacr_plane_layout.json sidecar and stores
+    `object_relationships` in <src>/measurements/measurements.db -- the
+    database Measure writes. Columns: plateID rowID columnID fieldID timeID
+    prcf file_name child_type child_label parent_type parent_label
+    overlap_pixels child_pixels overlap_fraction. Children: every organelle
+    slot (parents cell, nucleus, pathogen) and nucleus/pathogen (parent
+    cell). One row per overlapping pair, so an organelle spanning two cells
+    has two rows (fractions 0.75/0.25 in the test); a child touching no
+    parent has one row with parent_label NULL and fraction 0. Replaced whole
+    in one transaction, so a re-run is idempotent; no other table is
+    touched; not in resume's MEASURE_OWNED_TABLES, so a Measure resume never
+    clears it. Labels are the mask labels (Measure's size filters may later
+    drop some objects; the table still lists them). A write failure warns
+    and does not fail the mask run.
+  * The old `relationships` (filters) write at the end of Mask now runs only
+    when Measure's object tables exist, so the "no object table" warning is
+    gone; the filters' on-demand build is unchanged.
+  * FOLDER-ONLY NAMES. `/` and `\` are now token boundaries in
+    external_masks (object words and mask words): organelle/, organelle_1/,
+    organelle_2/ with plain fov001.tif propose Organelle 1, 1, 2 (were
+    unassigned, 1, 1); a project folder with cell_masks/ and
+    organelle_2_masks/ subfolders proposes cell and Organelle 2 (was
+    nothing). organelle/ + organelle_1/ still collide on slot 1 by the
+    bare = slot 1 convention and the plan refuses until one is re-typed, as
+    with filenames.
+  * LASER LINES. A number in external_masks._LASER_LINES (405, 488, 561,
+    640, ... 33 common lines) after `organelle` is a channel, not a slot:
+    organelle_488_masks is Organelle 1 again (was Organelle 488). 702 and
+    703 are not laser lines, so the existing pins hold.
+  * OVERLAY. plot_image_mask_overlay gains optional organelle_channels
+    ({'organelleb': 3}); Mask passes every slot 2+ channel. Each slot gets a
+    panel and its own colour. Mask planes are now located through the plane
+    layout sidecar: before, with a second slot in the stack and not asked
+    for, every outline was one plane off (cell drawn from the nucleus
+    plane). Without a sidecar the old arithmetic is kept.
+
+Tests: tests/test_mask_writes_the_object_relationships_table.py (14),
+tests/test_mask_folders_name_their_organelle_slot.py (14; 8 of the 10
+naming rows fail on the old matcher), tests/test_mask_overlay_draws_every_
+organelle_slot.py (4), and 2 end-to-end rows in
+tests/test_every_organelle_slot_is_preprocessed_and_measured.py (real Mask
+then real Measure on the same database; the table survives and places
+every object of both slots in its painted cell). Filters, golden pipeline,
+resume, organelle and external-mask suites green. API pins moved with dated
+comments (parameter sum 19,707 -> 19,708 and the signature digest); English
+API manifest regenerated with --sources-only.
+
+STILL OPEN: the per-slot remove_background_<slot> switch (needs the
+maintainer's name; item 364 has the candidates).
