@@ -2800,6 +2800,9 @@ MANUAL_UI: dict[str, dict[str, str]] = {
     # column value are the same word in Spanish.
     "No": {"es": "No"},
     "no": {"es": "no"},
+    # 316, 2026-09-30: the Organize for Measure table's Text view option
+    # is the same word in Swedish and German.
+    "Text": {"sv": "Text", "de": "Text"},
     # These scientific labels are also correctly spelt English words in
     # the listed languages. Keep the actual terminology rather than adding
     # artificial qualifiers solely to make an exact-copy audit pass.
