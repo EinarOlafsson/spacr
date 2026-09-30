@@ -328,6 +328,14 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     note_sources = {record["source"] for record in notes}
     assert len(notes) == len(note_sources) == 8 and not note_sources & sources
     sources |= note_sources
+    # The 2026-09-30 eighth runtime pass: the Organize for Measure popup,
+    # its regex teaching and drop-classification dialogs and the popup
+    # table's view options (items 600 and 592); another disjoint slice.
+    pass8 = [record for path in sorted(folder.glob("2026-09-30-runtime-debt-eighth-pass-*.json"))
+             for record in json.loads(path.read_text())["records"]]
+    latest_p8 = {record["source"] for record in pass8}
+    assert len(pass8) == len(latest_p8) and not latest_p8 & sources
+    sources |= latest_p8
     assert sources <= reviewed.keys()
     return sources
 
