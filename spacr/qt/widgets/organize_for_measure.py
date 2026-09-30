@@ -47,14 +47,17 @@ import numpy as np
 from PySide6.QtCore import QByteArray, QEvent, QMimeData, QSize, Qt, Signal
 from PySide6.QtGui import QColor, QImage, QPainter, QPen, QPixmap
 from PySide6.QtWidgets import (
-    QAbstractItemView, QApplication, QCheckBox, QColorDialog, QComboBox,
+    QAbstractItemView, QApplication, QCheckBox, QComboBox,
     QDialog, QFileDialog, QFrame, QHBoxLayout, QLabel, QLineEdit,
     QMessageBox, QPushButton, QStyle, QStyledItemDelegate, QTableWidget,
-    QTableWidgetItem, QToolTip, QVBoxLayout,
+    QToolTip, QVBoxLayout,
 )
 
 from ... import channel_sorting as cs
+from ..hidpi import scaled_for
 from ..i18n import tr
+from .colour_picker import pick_colour
+from .sortable_table import SortableTableItem
 
 #: The drag format of cells dragged between the table's columns: JSON
 #: ``{"column": int, "paths": [str]}``.
@@ -401,11 +404,11 @@ class _CellDelegate(QStyledItemDelegate):
             painter.save()
             if option.state & QStyle.State_Selected:
                 painter.fillRect(option.rect, option.palette.highlight())
-            scaled = pixmap.scaled(option.rect.size() - QSize(4, 4),
-                                   Qt.KeepAspectRatio,
-                                   Qt.SmoothTransformation)
-            x = option.rect.x() + (option.rect.width() - scaled.width()) // 2
-            y = option.rect.y() + (option.rect.height() - scaled.height()) // 2
+            scaled = scaled_for(pixmap, self._table,
+                                option.rect.size() - QSize(4, 4))
+            shown = scaled.deviceIndependentSize()
+            x = option.rect.x() + int(option.rect.width() - shown.width()) // 2
+            y = option.rect.y() + int(option.rect.height() - shown.height()) // 2
             painter.drawPixmap(x, y, scaled)
             if self.view == "both":
                 text = os.path.basename(path)
@@ -2179,8 +2182,7 @@ class OrganizeForMeasureDialog(QDialog):
         """Choose the overlay colour in a colour dialog (not headless)."""
         if _headless():
             return
-        color = QColorDialog.getColor(self.delegate.text_color, self,
-                                      tr("Text colour"))
+        color = pick_colour(self, self.delegate.text_color, tr("Text colour"))
         if color.isValid():
             self._set_text_color(color, remember=True)
 
@@ -2235,7 +2237,8 @@ class OrganizeForMeasureDialog(QDialog):
         flag = QBrush(QColor(200, 60, 60, 60))
         for r, row in enumerate(self.rows):
             for c, path in enumerate(row):
-                item = QTableWidgetItem(os.path.basename(path) if path else "—")
+                item = SortableTableItem(
+                    os.path.basename(path) if path else "—")
                 item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable
                               | Qt.ItemIsDropEnabled
                               | (Qt.ItemIsDragEnabled if path else Qt.NoItemFlags))

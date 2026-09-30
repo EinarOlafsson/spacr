@@ -155,12 +155,15 @@ def test_text_colour_is_plain_text_left_of_show_and_opens_a_picker(
                                     .topLeft()).x())
     asked = []
 
-    def pick(initial, parent, title):
+    # 2026-09-30 (item 43): the popup asks through the shared
+    # ``pick_colour`` helper, not ``QColorDialog.getColor``, so the helper
+    # is what is stood in for.
+    def pick(parent, initial, title):
         asked.append(QColor(initial).name())
         return QColor("#00ff00")
 
     monkeypatch.setattr(ofm, "_headless", lambda: False)
-    monkeypatch.setattr(ofm.QColorDialog, "getColor", staticmethod(pick))
+    monkeypatch.setattr(ofm, "pick_colour", pick)
     dialog.color_button.click()
     assert asked
     assert dialog.delegate.text_color.name() == "#00ff00"
