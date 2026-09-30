@@ -426,9 +426,13 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         # channel-sorting core and its Qt dialog.
         'spacr/folder_consolidation.py', 'spacr/channel_sorting.py',
         'spacr/qt/widgets/channel_sort_dialog.py',
+        # 650 -> 652 on 2026-09-30 with item 600 (81c9b6262): what Make
+        # Masks understands of a drop, and the Organize for Measure popup.
+        'spacr/drop_classification.py',
+        'spacr/qt/widgets/organize_for_measure.py',
     }
     assert added_since_608 <= shipped
-    assert len(shipped) == 608 + len(added_since_608) == 650
+    assert len(shipped) == 608 + len(added_since_608) == 652
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the
