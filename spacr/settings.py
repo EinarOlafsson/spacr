@@ -7459,7 +7459,7 @@ ALPHA_FEATURES = {
         'widgets': ('ControlChartAnomaly', 'ControlChartAnomalySection'),
     },
     568: {
-        'widgets': ('MakeMasksUncertaintyButton',),
+        'widgets': ('MakeMasksUncertaintyButton', 'MakeMasksUncertaintySetting'),
     },
     578: {
         'settings': ('robustness_report', 'robustness_fields',
