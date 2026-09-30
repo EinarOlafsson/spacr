@@ -9782,11 +9782,12 @@
         "f011c1f5a9daa343616645b60eb89f588c990bbc270384ae28621846dc27a5a1",
         "f4e6a46f4fba0f5d82c2a794dddbd6efd63779d65a04e2552f6201b4286570d8",
         "d5ec331991d19d64869eb3b1a422dd5c23c09f03def5404e799d913e04c4091e",
+        "6467c122ba95cbd8a1ce59c9da016c3861359485632fdaefee0b661778576c4e",
         "ea3bd380a00d79b11341a3863a9d3b4ab4d88d1ecdd52bf5eb716a8d9f768202",
         "a89332de24fb787ed65f2d099a9ffcd11684ed342db68c883cd7117062eaf1cd"
       ],
-      "source_sha256": "2a450af570bab49d1ea619f21f07db28cddd21d6d302fee40ac695bf521f15cb",
-      "text": "在触动任何内容之前确定每次移动、每个名称和每项检查。\n\n:param folder: 图像文件夹。\n:param sets: ``{set key: {channel: name}}``，仅限完整的组。\n:param masks_dir: 显式指定的掩膜文件夹。\n:param mask_roles: ``{channel: role}``；``None`` 表示自动猜测（:func:`default_mask_roles`）；其中缺少的通道，或被设为 ``\"none\"`` 的通道，其掩膜会被移动但不会被合并。\n:param dest: 新文件夹；默认为 ``<folder>/sorted_channels``。\n:param check_shapes: 读取每张图像和每个掩膜的尺寸，并拒绝图像尺寸不一致的组、尺寸与其图像不同的掩膜，以及不是 2-D 的图像。\n:param convert: 将 RGB 图像写为灰度、将 z 堆栈写为其最大投影，而不是拒绝它们；不设此项时，它们会列在 :attr:`SortPlan.convertible` 中，供调用方询问。\n:returns: a :class:`SortPlan`.",
+      "source_sha256": "1642cc36de6f1e904e1e6aafe1c00a2617954a2c603b465000c692bdb553bb9a",
+      "text": "在触动任何内容之前确定每次移动、每个名称和每项检查。\n\n:param folder: 图像文件夹。\n:param sets: ``{set key: {channel: name}}``，仅限完整的组。\n:param masks_dir: 显式指定的掩膜文件夹。\n:param mask_roles: ``{channel: role}``；``None`` 表示自动猜测（:func:`default_mask_roles`）；其中缺少的通道，或被设为 ``\"none\"`` 的通道，其掩膜会被移动但不会被合并。\n:param dest: 新文件夹；默认为 ``<folder>/sorted_channels``。\n:param check_shapes: 读取每张图像和每个掩膜的尺寸，并拒绝图像尺寸不一致的组、尺寸与其图像不同的掩膜，以及不是 2-D 的图像。\n:param masks: ``{image: mask path}``，直接指定每张图像的掩膜（item 600 的掩膜列）；不在其中的图像没有掩膜。None 时用 :func:`mask_for` 查找每个掩膜。\n:param convert: 将 RGB 图像写为灰度、将 z 堆栈写为其最大投影，而不是拒绝它们；不设此项时，它们会列在 :attr:`SortPlan.convertible` 中，供调用方询问。\n:returns: a :class:`SortPlan`.",
       "translation_source_blocks_sha256": [
         "a4878591d46edd1a888afa468dcea279bb5a76e69222a995801d21e23e401987",
         "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
@@ -9795,6 +9796,7 @@
         "9ea2f69ceb2b8f96bce334886755530fcef97e4a79be1a0256ebb9e17e009af9",
         "f4e6a46f4fba0f5d82c2a794dddbd6efd63779d65a04e2552f6201b4286570d8",
         "d5ec331991d19d64869eb3b1a422dd5c23c09f03def5404e799d913e04c4091e",
+        "6467c122ba95cbd8a1ce59c9da016c3861359485632fdaefee0b661778576c4e",
         "ea3bd380a00d79b11341a3863a9d3b4ab4d88d1ecdd52bf5eb716a8d9f768202",
         "a89332de24fb787ed65f2d099a9ffcd11684ed342db68c883cd7117062eaf1cd"
       ]
@@ -9928,19 +9930,19 @@
     "spacr.channel_sorting.mask_for": {
       "source_blocks_sha256": [
         "3f60fea989d2144394e9ab9f1355f4ec274fdef66c60e9f501fdcb86a93a6ced",
-        "cc247a3038010bdcb359ad9ed4187c4df5217f0b6b60b6466e224d4cb5229923",
+        "2024a32aad49966055d3f9c20062bc546394f12034822774a95726a749aedd53",
         "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
-        "295bc1804dac96cf8a9c75de5cafe5496c163eff3e68e61d59c8400f5967d55c",
-        "03d9ff28d57d5453ff99df39aa4e590eba57d1831246b380b43a22730c5c816e"
+        "b7cf1b59b49693743ff79dacf8fff5f4e7fc9810df50ed5073dd0a9ddceb3276",
+        "41ed8cb0f3b3cde8d616b01fa25b490b0bcfad7b341bb4705b15ffdec64b07c1"
       ],
-      "source_sha256": "12dcacc04ca37d38b5280e6bdb92ecb1996c1f8ae007efa5de7526523b8435ff",
-      "text": "返回图像 ``name`` 已保存掩膜的路径，或 None。\n\nMake Masks 将每个掩膜保存为 ``<masks folder>/<stem>.tif``（:func:`spacr.qt.mask_engine.mask_save_path`）。\n\n:param folder: 图像文件夹。\n:param name: 图像文件名。\n:param masks_dir: 显式指定的掩膜文件夹。",
+      "source_sha256": "f7e5e90763bcdb8a9b9e31b848d66da4ed63f98f78de42c65d102ddc1c9ee32e",
+      "text": "返回图像 ``name`` 已保存掩膜的路径，或 None。\n\nMake Masks 将每个掩膜保存为 ``<masks folder>/<stem>.tif``（:func:`spacr.qt.mask_engine.mask_save_path`）。以 ``folder`` 之外的绝对路径指定的图像——从别处拖放到排序对话框中的图像，或某个通道子文件夹中的图像——其掩膜位于它自己所在文件夹的 ``masks/`` 中。\n\n:param folder: 图像文件夹。\n:param name: 图像文件名，或绝对路径。\n:param masks_dir: 显式指定的掩膜文件夹，用于 ``folder`` 中的图像。",
       "translation_source_blocks_sha256": [
         "3f60fea989d2144394e9ab9f1355f4ec274fdef66c60e9f501fdcb86a93a6ced",
-        "cc247a3038010bdcb359ad9ed4187c4df5217f0b6b60b6466e224d4cb5229923",
+        "db5f4993543f8fd2e9e4ff319905f0d7d584082d931192eab351a0ce1ef8c1f1",
         "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
-        "295bc1804dac96cf8a9c75de5cafe5496c163eff3e68e61d59c8400f5967d55c",
-        "03d9ff28d57d5453ff99df39aa4e590eba57d1831246b380b43a22730c5c816e"
+        "b7cf1b59b49693743ff79dacf8fff5f4e7fc9810df50ed5073dd0a9ddceb3276",
+        "41ed8cb0f3b3cde8d616b01fa25b490b0bcfad7b341bb4705b15ffdec64b07c1"
       ]
     },
     "spacr.channel_sorting.mask_thumbnail": {
@@ -10043,17 +10045,17 @@
       "source_blocks_sha256": [
         "56311c12a57ec81ed05b83917f7d0b26c88cfc57316ec37a5917d6091eff0be0",
         "b53c94632baea7fba0f0d31d8c50399bb2a63eaef639956aa3a318140861885b",
-        "9fc1e60082e3b59380b1a2ffe027609650fb4412615f2ee8aa826348c4f04242",
+        "9968bd6109910b5855971d698697622f2348350e802cb613b81fdfcd062994b6",
         "9c6bc6d3b2d34146a64bfdca1c59740f1c941b8ae9928ab8e10d4daf35fe8472",
         "3aec1d760fc41c58075bedf3b6bfee93d5091c8bce41cc1576fb9f0838281043",
         "514259c61036debd3fc830490d2a8731e4b2413961783e7527abba3066ff939e"
       ],
-      "source_sha256": "b7f6ac214b949efd152e02ba36a527c9bbb341efe3321adc335701109b55fd40",
-      "text": "通过 ``pattern`` 读取每个名称的通道和组。\n\n用户已分配的名称（``channels``），其通道即为该分配；否则为其 ``chanID`` 值在所有 ``chanID`` 值中按自然顺序排列后的位置，从 1 开始。组键是其余所有命名组，按模式中的顺序排列。模式未匹配的名称没有组。\n\n:param names: 图像文件名。\n:param pattern: 正则表达式，从每个名称的开头匹配；为空或 None 时不匹配任何内容。\n:param channels: 来自选择策略的 ``{name: channel}``。\n:returns: 每个名称一个 :class:`ParsedName`，按顺序排列。",
+      "source_sha256": "735f0ad402edfa9f1e3554849311b48767916178b2012c3ad8935d16e24ec2a6",
+      "text": "通过 ``pattern`` 读取每个名称的通道和组。\n\n用户已分配的名称（``channels``），其通道即为该分配；否则为其 ``chanID`` 值在所有 ``chanID`` 值中按自然顺序排列后的位置，从 1 开始。组键是其余所有命名组，按模式中的顺序排列。模式未匹配的名称没有组。\n\n:param names: 图像文件名，或文件夹之外图像的绝对路径；正则表达式只读取文件名本身。\n:param pattern: 正则表达式，从每个名称的开头匹配；为空或 None 时不匹配任何内容。\n:param channels: 来自选择策略的 ``{name: channel}``。\n:returns: 每个名称一个 :class:`ParsedName`，按顺序排列。",
       "translation_source_blocks_sha256": [
         "56311c12a57ec81ed05b83917f7d0b26c88cfc57316ec37a5917d6091eff0be0",
         "5bf39bb9db4da139f853606f5ae8e43c4738f6f737f443801b0e840f4e1ccedb",
-        "9fc1e60082e3b59380b1a2ffe027609650fb4412615f2ee8aa826348c4f04242",
+        "9968bd6109910b5855971d698697622f2348350e802cb613b81fdfcd062994b6",
         "9c6bc6d3b2d34146a64bfdca1c59740f1c941b8ae9928ab8e10d4daf35fe8472",
         "3aec1d760fc41c58075bedf3b6bfee93d5091c8bce41cc1576fb9f0838281043",
         "514259c61036debd3fc830490d2a8731e4b2413961783e7527abba3066ff939e"
@@ -21333,6 +21335,66 @@
       "translation_source_blocks_sha256": [
         "d0e503ddd4211e0947a9a828f139dd5c2399e30bb91dab598c1d2aa06a42b904",
         "dcd08951ca90816f7dd96d53fe6936290eee8db2725255121fbe1ea75b845894"
+      ]
+    },
+    "spacr.drop_classification": {
+      "source_blocks_sha256": [
+        "ad9a9cf4fda80d7d095ebfafa9a6942726431b812f474cc00e614e3b89c22901",
+        "b24e354801f91a030e12c0d067448976a7fc8906225a1cd2e76972b5968436cb",
+        "8a7bb619524ce62d6abd7f064acc35f22a4ba1ca6725cf90381ab1fb7fc51c91",
+        "ea98616928439da96f4e5fa522ec7301974f265f312e34516a250ae766edc46a"
+      ],
+      "source_sha256": "20b6daa20e47d02088623057aac16fefef995ff30e17e045b80de154e77ea562",
+      "text": "拖放到 Make Masks 上的是什么，在打开任何内容之前判定。\n\nItem 600。Make Masks 接受拖放的文件、文件夹或两者，用户的意图取决于拖放了什么。:func:`classify_drop` 读取这些路径——名称、文件夹布局，以及对少数 TIFFs 读取其像素——并判定属于以下哪一种情况，不提任何问题，也不使用任何控件：\n\n``images`` 作为一个队列按拖放顺序打开的图像文件（可能还有文件夹）。``folder`` 一个图像文件夹，按原样打开（掩膜在其 ``masks/`` 中）。``nested`` 一个图像位于子文件夹中的文件夹：当子文件夹看起来像通道时（:attr:`channel_like`），打开 \"Organize for Measure\"，每个子文件夹一个通道列；否则询问是否合并。``folders`` 多个各含图像的文件夹：Make Masks 打开 \"Organize for Measure\"，每个文件夹一个通道列。``images_with_masks`` 与其掩膜一起拖放的图像（一个掩膜文件夹、名称表明是掩膜的文件，或以某张拖放图像命名的整数标签 TIFFs）：由 :attr:`masks` 将它们配对。``spacr_output`` spaCR 写出的文件夹（``merged/*.npy``、一个 ``sorted_channels`` 文件夹，或 ``merged`` 文件夹本身）：:attr:`description` 说明它是什么，:attr:`open_folder` 是要打开的图像文件夹（如有）。``nothing`` 没有 Make Masks 能用的内容。\n\n拖放内容中不属于上述任何一种的——``.npy``、文本文件、空文件夹、没有图像认领的掩膜——都放在 :attr:`unrecognised` 或 :attr:`unpaired_masks` 中，以便界面列出它们而不是丢失。",
+      "translation_source_blocks_sha256": [
+        "ad9a9cf4fda80d7d095ebfafa9a6942726431b812f474cc00e614e3b89c22901",
+        "b24e354801f91a030e12c0d067448976a7fc8906225a1cd2e76972b5968436cb",
+        "2fcd90eec56c6dc09cb1dbcecd6a7ab4140a72729c2042df5bff430697ff0afc",
+        "ea98616928439da96f4e5fa522ec7301974f265f312e34516a250ae766edc46a"
+      ]
+    },
+    "spacr.drop_classification.DropClassification": {
+      "source_blocks_sha256": [
+        "c390879ae8d79d0cbc295f392c8bc8b28fec7a992819f21f16cb86a3d7470b2d",
+        "7414bbfc5dddcef62f69d9f0876244d84980fd437b704f273c898a2d7eade8a7",
+        "72b95df792c0743d0d49bcfccd2d6d59dab0800cee69d123097e2a5044a171d2",
+        "a4b77b71e707cbcb74eec0f1cbdd74d7c1592f140ef1d2ed7acf53812280bc20",
+        "b52d9daaf5cf388035188c1bfbb6dd47d235a333ce79c6d29534c3eabe34081d",
+        "1dae919a6e8bca76ab74a1c4e39a77ab57b2a301150733107652e17697152d85",
+        "c14f0b6bc13c0be7cd085787def914566656f6facc0bef24cc6774e7cbe8bda6",
+        "4020a1877a88a9f9dad51ea8eec2e4076ddb6e8d787383e28a2c8ea7890b9895",
+        "64da7e723f1d23c072e2c7138c88aa6bb3271e922c93123cf61eb5e4377ab28b",
+        "c3d5dec4df2fe348a03c039a640574353a73745c8949f9593a7d96b3ff165ea1",
+        "29cdf3f85d5a93da2d533c501d758624b87f861ae7eb7f089b664e92a1bae790"
+      ],
+      "source_sha256": "4cb3c873659ff25ef81cfa7e53f515ef8adc84383e551489fe9e8ef5696b142a",
+      "text": "拖放到 Make Masks 上的内容是什么，以及据此操作所需的一切。\n\n:ivar kind: ``images``、``folder``、``nested``、``folders``、``images_with_masks``、``spacr_output`` 或 ``nothing`` 之一。\n:ivar images: 图像文件，绝对路径，按拖放顺序（``images`` 和 ``images_with_masks``）。\n:ivar folders: 拖放的文件夹（``folder``、``nested``）、多个文件夹（``folders``），或与零散图像一起拖放的文件夹（``images``）。\n:ivar channel_folders: ``nested`` 文件夹中含有图像的子文件夹，按自然顺序排序；对于 ``folders``，为拖放的各文件夹。\n:ivar channel_like: :attr:`channel_folders` 是否各自看起来像一个通道——名称如 DAPI 或 ch1，或每个文件夹中都是相同的视野。\n:ivar masks: ``{image path: mask path}``，用于 ``images_with_masks``。\n:ivar unpaired_masks: 没有任何拖放图像认领的掩膜。\n:ivar open_folder: 对于 ``spacr_output``，要打开的图像文件夹；没有时为 None。\n:ivar description: 一句简明的话，说明 ``spacr_output`` 拖放是什么。\n:ivar unrecognised: 未被使用的拖放路径，各附原因。",
+      "translation_source_blocks_sha256": [
+        "c390879ae8d79d0cbc295f392c8bc8b28fec7a992819f21f16cb86a3d7470b2d",
+        "7414bbfc5dddcef62f69d9f0876244d84980fd437b704f273c898a2d7eade8a7",
+        "72b95df792c0743d0d49bcfccd2d6d59dab0800cee69d123097e2a5044a171d2",
+        "a4b77b71e707cbcb74eec0f1cbdd74d7c1592f140ef1d2ed7acf53812280bc20",
+        "b52d9daaf5cf388035188c1bfbb6dd47d235a333ce79c6d29534c3eabe34081d",
+        "6a3fd11b86c3a8674b934476cba9c8667850275ffd92b73bb56429c776ab1b98",
+        "c14f0b6bc13c0be7cd085787def914566656f6facc0bef24cc6774e7cbe8bda6",
+        "4020a1877a88a9f9dad51ea8eec2e4076ddb6e8d787383e28a2c8ea7890b9895",
+        "64da7e723f1d23c072e2c7138c88aa6bb3271e922c93123cf61eb5e4377ab28b",
+        "c3d5dec4df2fe348a03c039a640574353a73745c8949f9593a7d96b3ff165ea1",
+        "29cdf3f85d5a93da2d533c501d758624b87f861ae7eb7f089b664e92a1bae790"
+      ]
+    },
+    "spacr.drop_classification.classify_drop": {
+      "source_blocks_sha256": [
+        "7cb2a9f3c889ee1826224517d43a6d8f2a2e513eda16a6643bcbe47851ff40df",
+        "6670706f8db19a67a59025bd2be84af4f25d6446a507927474c16f987977c5e4",
+        "2ba4395a4e25ed0d8e7d343fca5e065929c5ef249b404062f9665d72cb929334"
+      ],
+      "source_sha256": "2c059b51bbc9d1a514f1a3ca1b9592176dcaa01cf8387317b6b29d983f5a3cac",
+      "text": "说明拖放到 Make Masks 上的是什么，不询问也不打开任何内容。\n\n:param paths: 拖放的文件和文件夹，按拖放顺序。\n:returns: a :class:`DropClassification`.",
+      "translation_source_blocks_sha256": [
+        "7cb2a9f3c889ee1826224517d43a6d8f2a2e513eda16a6643bcbe47851ff40df",
+        "6670706f8db19a67a59025bd2be84af4f25d6446a507927474c16f987977c5e4",
+        "2ba4395a4e25ed0d8e7d343fca5e065929c5ef249b404062f9665d72cb929334"
       ]
     },
     "spacr.embeddings": {
@@ -52667,7 +52729,7 @@
         "5c2ede49c270e3cacec8e74a093d9f8f56c5231df11b8c19e52d1220c707e05e"
       ],
       "source_sha256": "c9b42659fd7136d663bd74ffb2901ffcecc88d4379d564a95f895d03cfd07a5a",
-      "text": "网站指数在一个网路位置,或者当它是空的时 None。\n\n:param column: 列指数。\n:param row: 绝对的线路。\n:returns: 网站指数,或 None 在循环之外。",
+      "text": "网站指数在一个网路位置,或者当它是空的时 None。\n\n:param column: 列索引。\n:param row: 绝对的线路。\n:returns: 网站指数,或 None 在循环之外。",
       "translation_source_blocks_sha256": [
         "cbc795c42947639e4d823c957c0a26406f1bb43858e12c79e07f6f599271be00",
         "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
@@ -52692,7 +52754,7 @@
         "d77615f3844acc7c09a54d943d69b162328c176cfda972687c5a161de66ffbb4"
       ],
       "source_sha256": "1c9c10d3538b324c4f83220737486ee98761f76f1a800008384a01392f58cee6",
-      "text": "一个列的 ``(first row, last row)`` 或 None 如果它是空的。\n\n:param column: 列指数。\n:returns: 整个图块位于圆内的位点所占的绝对行范围（含两端） -- 参见 :attr:`half_tile`。",
+      "text": "一个列的 ``(first row, last row)`` 或 None 如果它是空的。\n\n:param column: 列索引。\n:returns: 整个图块位于圆内的位点所占的绝对行范围（含两端） -- 参见 :attr:`half_tile`。",
       "translation_source_blocks_sha256": [
         "250fe641c3b1c854e8b7b196c5e79921800a40b4c87e4d9a1c1e63fb6f854f40",
         "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
@@ -71337,16 +71399,16 @@
     },
     "spacr.qt.dnd_handlers.MakeMasksDropHandler.can_accept": {
       "source_blocks_sha256": [
-        "df310dd753f35e5e3ca37f84440ec37b1f0d4a924ec4a75592f92b19eed53c6b",
-        "4e0c3296a77271f0f3fe4f37d7812c41d161963d1a5ae93e1fec99d5ec3d84e9",
+        "66c961c2404c26e30cbb9dc2a374f3adb6d22dc64ac1c66005179ef33fa79ed9",
+        "0b463bfe023187936515c9f5f78594a1a516a222e11fa84d56c3f93baa7d842b",
         "1f800f7819df1dab2291037c2ed19a7e327af6aa03c46a42b5915f92048a45f9",
         "c104664a16c2336b1ec431168ed28b672d42347d783cafd1a1c712819bfd8cfb"
       ],
-      "source_sha256": "7923f308e7f5f5ae571cf9e0fbc043150b6efdaa038bcbd4664d99a009a9b536",
-      "text": "Make Masks 可以打开的图像文件，或包含图像的文件夹。\n\n配对会在之后查找，这里并不要求。\n\n:param path: 拖放的文件或文件夹。\n:returns: 当此处理器可以原样使用 ``path`` 时为 True。",
+      "source_sha256": "22a0eb4e1d74c1451170df04cdbb9afa55b5202704cd568ee7d265ee38ec817a",
+      "text": "一个图像文件、一个 ``.npy``，或一个包含图像或 spaCR 输出的文件夹。\n\nItem 600：图像只位于子文件夹中的文件夹，以及 spaCR 写出的文件夹（``merged/*.npy``、``sorted_channels``）也会被接受，``.npy`` 同样接受，以便界面说明它是什么；拖放的含义由 :func:`spacr.drop_classification.classify_drop` 决定。配对稍后查找，此处不要求。\n\n:param path: 拖放的文件或文件夹。\n:returns: 当此处理器可以原样使用 ``path`` 时为 True。",
       "translation_source_blocks_sha256": [
-        "df310dd753f35e5e3ca37f84440ec37b1f0d4a924ec4a75592f92b19eed53c6b",
-        "4e0c3296a77271f0f3fe4f37d7812c41d161963d1a5ae93e1fec99d5ec3d84e9",
+        "66c961c2404c26e30cbb9dc2a374f3adb6d22dc64ac1c66005179ef33fa79ed9",
+        "0b463bfe023187936515c9f5f78594a1a516a222e11fa84d56c3f93baa7d842b",
         "1f800f7819df1dab2291037c2ed19a7e327af6aa03c46a42b5915f92048a45f9",
         "c104664a16c2336b1ec431168ed28b672d42347d783cafd1a1c712819bfd8cfb"
       ]
@@ -96665,18 +96727,34 @@
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths": {
       "source_blocks_sha256": [
-        "78506f7bb027b6cbb03601fab8ca9b1fefaea01878a039a46b8dff62bc304b8d",
-        "688d7aed215a292b1d16cc482c05294c6fe3857388d45bca79692b30344d0e50",
+        "6b0579156a6c584df9096cab9f7b7211c548aaa35b80fbb997ea450b5476e1a9",
+        "69334d1a082d3f29421c9886c5b3eaffe80c893614f2310e735a8415bf32cc75",
+        "20bc27c6efd19fd2293d239b2032995610f1090b591b2f0055f945f87742e346",
+        "e8345bf2a6043263e97fc76701af792bf6a6a7c7c1bfab70711470f4fd8eb3c7",
+        "d6cfe7dc8f5efd9740d06ece07a39d601c18295bf1f4f87dbbe487802815feab",
+        "83b830594fc1c09a8572c7800550ccea8ad86e430a4c1cbf45127014f0c2d624",
+        "eb8b8981479f0c97da1cfd8abd5a38ef8b31ffe10d80ad6e636ca4ced9d72923",
+        "2fedcff00ed01718e70950e47986bcd38b062c74019d0a8647cb9abf473c3655",
+        "12013c1dad79f5e94c4de1e807050e6ae5e3f427773748601c9a5df2a1e16d84",
+        "76ddbfea745401621562b270d01fbe8ea4d1a133e0e085ab1a545bdcc37c4d40",
         "9baca7f3c139b3f19666cad2093c0fb906c930002a2b075fe06c91b876ed10e0",
-        "dcaa7600d687ff5164ffe3ea2c79aa76139153b9de822a610c86ad99f59f8632"
+        "cd563a28ad5739f67a3a5a5f193336cf4f639280ab55ddd5a51a1fe479d5cbc7"
       ],
-      "source_sha256": "68a3e43a785d70d8f658ed68de2b73b30d999e078b997b4e910f4d6bfbd30266",
-      "text": "将拖放的图像文件和文件夹按拖放顺序作为一个队列打开。\n\n单独一个文件夹的处理方式与以往相同，即对其调用 :meth:`_open_folder`。其他任何情况——一个文件、多个文件，或者文件和文件夹混合——都会成为由所指定视野组成的队列，文件夹代表其中的图像，每个视野都在原位编辑，其掩膜位于各自的 ``<folder>/masks`` 中。不会复制任何内容。\n\n:param paths: 拖放的文件和文件夹，按拖放顺序排列。\n:returns: 是否打开了队列。",
+      "source_sha256": "3037be6aa43fbc632a134190b5a9b87e0243085e9371bd717e3308a76b23e431",
+      "text": "按拖放内容本身的指示打开，在有选择的地方询问。\n\nItem 600。:func:`spacr.drop_classification.classify_drop` 说明拖放了什么，然后：\n\n* 图像文件（带或不带文件夹）作为一个队列按拖放顺序打开，每个视野在原位置编辑，其掩膜位于它自己的 ``<folder>/masks`` 中——:meth:`_open_queue`；\n* 一个图像文件夹按原样打开；\n* 子文件夹看起来像通道的文件夹（DAPI/、GFP/...，或每个子文件夹中都是相同的视野）会打开 \"Organize for Measure\"，每个子文件夹一个通道列；其他图像位于子文件夹中的文件夹则提供合并（item 593）；\n* 多个图像文件夹会打开 \"Organize for Measure\"，每个文件夹一个通道列；\n* 当该弹出窗口被取消（或没有人能看到它）时，拖放内容按以往的方式打开：文件夹按原样打开，或作为队列打开；\n* 与掩膜一起拖放的图像连同这些掩膜一起打开（:meth:`_open_with_masks`）；\n* spaCR 写出的文件夹会在控制台中注明，其中的图像（如有）会被打开——``.npy`` 绝不会作为图像打开。\n\n拖放内容中未被使用的一切都会在控制台中列出。\n\n:param paths: 拖放的文件和文件夹，按拖放顺序排列。\n:returns: 是否打开了内容或启动了作业。",
       "translation_source_blocks_sha256": [
-        "333e1cb760f025ab2ff41d25f0033a4199ab0ae3e524b81e444b348359dc3fa9",
-        "4c9d9b206185094e7ca231f5c38303e20dc44a0710545f04cd7c1785c82862de",
+        "6b0579156a6c584df9096cab9f7b7211c548aaa35b80fbb997ea450b5476e1a9",
+        "69334d1a082d3f29421c9886c5b3eaffe80c893614f2310e735a8415bf32cc75",
+        "d003e3e8b18874112ef412ff58cb649caa2cee9fe6fc9fc6187b5ccf0665727d",
+        "e8345bf2a6043263e97fc76701af792bf6a6a7c7c1bfab70711470f4fd8eb3c7",
+        "00b412b6b001e45efe09acb860196dcc868c285c18cdfedab168b4d5e168238f",
+        "35c6e90be20daa5d4ff6c44dc8de329d72e5874fd853ce7def77c29039175fbd",
+        "047cbc25693460da9f386f05aec2698bce6075774959d9dda48bd4c9751e8f45",
+        "2fedcff00ed01718e70950e47986bcd38b062c74019d0a8647cb9abf473c3655",
+        "12013c1dad79f5e94c4de1e807050e6ae5e3f427773748601c9a5df2a1e16d84",
+        "76ddbfea745401621562b270d01fbe8ea4d1a133e0e085ab1a545bdcc37c4d40",
         "9baca7f3c139b3f19666cad2093c0fb906c930002a2b075fe06c91b876ed10e0",
-        "e1a4623e3752d8513cb732717c3ec93417687dfa5cfacdd3a94a65000a1eba17"
+        "cd563a28ad5739f67a3a5a5f193336cf4f639280ab55ddd5a51a1fe479d5cbc7"
       ]
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.open_queue": {
@@ -147337,6 +147415,176 @@
       "text": "映射到 UniProt SL 标识符的通用出芽酵母区室标签。",
       "translation_source_blocks_sha256": [
         "b67c3179d03df095c53c366af73aff8af64e6edbeef9cec6493244b5098fd18a"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure": {
+      "source_blocks_sha256": [
+        "6cb4ef09b5cdf634a7b8d12853f34f8e76ea887498be2266b929e2bec41f6796",
+        "4145d60284cd1c41324b691b5ceb3a7b1e50f5918b463f4cdfb711ecf8072e33",
+        "9d111e1d9a8ee2f9eef5767008047ac51afa9eb6bc97e1c337baf45afedfce9f",
+        "6d8587d4ae76e72a79c7014dee17ff01439a7f2b577816891e0a85f00c4bec42",
+        "4ff01b34b6bfcb85a3de600d0806f7aeef29b14e0550bddcc26aed63c2284865",
+        "41ea8b601e3b5fa7c1b65944416e770f4909ab6bcbb0e5111b0175b5475732b1",
+        "d94e3d62d3ee1ba13d3fa35dfd88a2560d6e07f69cdabe851e4d0453a237ae2d"
+      ],
+      "source_sha256": "2db3bf33d280f5cf88216d3a5ec058b59bb7e48cd4e8e8611fab47e6ad3f65ce",
+      "text": "Make Masks 的 \"Organize for Measure…\" 弹出窗口：将图像和掩膜整理到 merged/。\n\nItem 600，取代 item 593 的一连串提示及其单独的 \"Sort into channels\" 对话框作为入口。只用一个弹出窗口就把图像及其掩膜放入 Measure 读取的布局——Yokogawa 命名的通道文件夹、掩膜以及 ``merged/*.npy``——途径是 :mod:`spacr.channel_sorting` 和 :mod:`spacr.folder_consolidation`，所有决定都由二者作出：\n\n* 一个源文件夹（输入、浏览选择或拖放），可选择先合并（将其子文件夹中的图像复制到一个文件夹中，并以其所在文件夹命名）；\n* 正则表达式框：掩膜生成自身的 ``metadata_type`` 字段——相同的分组命名约定菜单、示例和 \"Test on my folder\"——及其 ``custom_regex``，另加 \"Sort by regex\"、\"Auto regex\" 和 \"Detect sets\"；\n* 维度：哪些列是图像通道、哪些列是掩膜，每个掩膜带有其角色（细胞、细胞核、病原体）以及它所勾勒图像所属的通道；\n* 一个表格，每个通道和每个掩膜各占一列，每个视野占一行。每一列都接受从文件管理器拖放的文件和文件夹（文件夹会递归带入其中的图像），以及从另一列拖来的单元格。拖放的文件按名称自动排序，并以 Detect sets 配对图像的方式在各列之间匹配——先按文件名标记，再按顺序，绝不匹配两张大小不同的图像（:func:`spacr.channel_sorting. _match_columns`）。没有匹配到任何内容的单元格保持为空并被标记。\n\n模式 1：填写源，选择或测试正则表达式，点击 \"Sort by regex\"，然后 Apply。模式 2：通过拖放填充各列，然后 Apply。模式 3，\"Teach me…\"：逐张图像回答“这是哪个通道？”，同时 spaCR 从回答中学习正则表达式（:func:`spacr.channel_sorting._teach_step`），直到每张图像都有归属。每种模式都可独立使用。由文件夹合并生成的文件夹按其文件的原始名称读取（来自其 ``rename_manifest.csv``），因为副本的名称可能已丢失区分各通道的信息。Apply 会构建一个 :class:`spacr.channel_sorting.SortPlan`；不完整的行会阻止构建（在正则表达式框中修正），会提示转换 RGB 图像和 z 堆栈，检测到的图像组在使用前每次显示三组。Apply 之前不会移动任何文件；界面在 GUI 线程之外执行该计划，每次移动都写入清单。",
+      "translation_source_blocks_sha256": [
+        "6cb4ef09b5cdf634a7b8d12853f34f8e76ea887498be2266b929e2bec41f6796",
+        "d35590b78f8bf25b5d3d4ba86fb5633f36bfc76ba6d000a9ef706aa82ab9a548",
+        "9d111e1d9a8ee2f9eef5767008047ac51afa9eb6bc97e1c337baf45afedfce9f",
+        "887556b35044dbeb745bdf7fd04ac055f65385b81f73e54e6cf44092446af8a3",
+        "2246ac0ebcebcc13660ebb0e6c13732413bb3820b023b86236ab602fec49a5c8",
+        "b826e41739fdb98f46d8f5a2a85a1d4e570470331c3757c5ae5f0ac5d3d4e301",
+        "5767c39e8e7115f0d9abd3e402c2ff2db1f591c5804cefbc08b4a4c1b76d1629"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog": {
+      "source_blocks_sha256": [
+        "1f5bb1a631f9832bcc2f85b17cea30bd164acf5c5a713bb14bc83476d81a79e4",
+        "7ee838bf58d9792485c18c0718ae75b87afe0f8b4d5fe89a0842a269d30f4341",
+        "d6aafdbd667cab426269e95e66de4be7299cca05461ec6c06b06721f1a58d59c",
+        "0bb4337e35954672b73822e6318891bf40672273437bc4ec06979d012695be80",
+        "c0d50783d54de8fe4ef572ca6834debeece4b21278651c1f86d0f4b05178dec2",
+        "4d4eda03aac613dbdc47dfafe4fcd371e521bfd627313feecb6471f8abf1d7b2",
+        "36dbf6c3c4c25be8f2680dc5d420957758f46935e4f07ee97f4b6e452e75713b",
+        "2facb0e5ff8aad94c303616963c1b9c26fa93314472c23b42414a9934b267838",
+        "a29ee4e01cd895f219234770e0346394dc467bac4021ee201a27a54c9e15a04a"
+      ],
+      "source_sha256": "6743d358f60f4cae531330030c38531bc0ae1d25ae0198f520a584780525ac2c",
+      "text": "将图像和掩膜放入通道文件夹和 ``merged/``，供 Measure 使用。\n\n:ivar plan: 对话框被接受后确认的 :class:`spacr.channel_sorting.SortPlan`，否则为 None。\n:ivar columns: 表格的各列，按顺序。\n:ivar rows: 每个视野一个列表，每列一个路径或 None。\n构建弹出窗口；如有拖放内容，则据此预先填充。\n\n:param source: 源文件夹（如已知）。\n:param parent: Qt 父对象。\n:param channel_folders: 要放入表格的文件夹，每个文件夹一个通道列（其掩膜来自各文件夹的 ``masks/``）——即向 Make Masks 拖放多个文件夹或类似通道的子文件夹。\n:param masks_dir: 源的掩膜文件夹（当它不是源的 ``masks/`` 时）。",
+      "translation_source_blocks_sha256": [
+        "e4b443dab79e828474848717ca2410d0b49b3fcf55501a231eec454c1e04d196",
+        "7ee838bf58d9792485c18c0718ae75b87afe0f8b4d5fe89a0842a269d30f4341",
+        "d6aafdbd667cab426269e95e66de4be7299cca05461ec6c06b06721f1a58d59c",
+        "0bb4337e35954672b73822e6318891bf40672273437bc4ec06979d012695be80",
+        "c0d50783d54de8fe4ef572ca6834debeece4b21278651c1f86d0f4b05178dec2",
+        "4d4eda03aac613dbdc47dfafe4fcd371e521bfd627313feecb6471f8abf1d7b2",
+        "36dbf6c3c4c25be8f2680dc5d420957758f46935e4f07ee97f4b6e452e75713b",
+        "96ab7d937a69535c41db4abc5967d077c8f2dc38d1f4804174b5eb5417f09229",
+        "a29ee4e01cd895f219234770e0346394dc467bac4021ee201a27a54c9e15a04a"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_column": {
+      "source_blocks_sha256": [
+        "2641b634df46e3385037ab7d8a77569cf1039dbfa65a56576d08d2ce50e7ce67",
+        "864b7ee05625d04120c4ffc847149a370175bd329cf45805d0e35f4690773607",
+        "7a6d1b0d485bddb32e9057db9dabcf738354442c717e2f2534161f6b545f4b2b",
+        "f019173af7e388dcab2b4f00269989de516de9433e0ee1b4a3f0d80ac4d995b1",
+        "540fb85407c8b0d458f43d9964400a8fda7f08ca91846dcf3f7d3326c6d00e30"
+      ],
+      "source_sha256": "26049d6de954322b95fe3d43af8bf71520b61e7c0eb7d6fa249f1f002854901b",
+      "text": "在末尾添加一个通道列或掩膜列。\n\n:param kind: ``\"channel\"`` 或 ``\"mask\"``。\n:param role: 掩膜的角色；默认为尚无掩膜使用的第一个角色。\n:param of_channel: 掩膜对应的通道；默认为第一个没有掩膜列的通道，否则为 1。\n:returns: 新列的索引。",
+      "translation_source_blocks_sha256": [
+        "b0e32794f5b6fd327549b67fc65c7104df1e906b35ca40383bd0fbe1832b5471",
+        "864b7ee05625d04120c4ffc847149a370175bd329cf45805d0e35f4690773607",
+        "7a6d1b0d485bddb32e9057db9dabcf738354442c717e2f2534161f6b545f4b2b",
+        "7f23542436b05cf8bf88884ebb93c10602dabaee922ce235f9f3a15bea66d891",
+        "540fb85407c8b0d458f43d9964400a8fda7f08ca91846dcf3f7d3326c6d00e30"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_files": {
+      "source_blocks_sha256": [
+        "50ebb0e149d514dcf3cda6d7ebb396cee7f9a65345063815713762a74870d54d",
+        "2cceb8ec59a9aa679d44e507771b2650a34e09cfc64506e731de7ada4074ad5a",
+        "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
+        "0c0e0d1bf62e16a58806f2b6ba607ddfae14596fa5873316930dd850310f4346",
+        "257ee22b60c38f1f6f06e9426816c63e55450a4322172495f7d803963259cb0f",
+        "9c509e9a13c633b3381d27774e7ce1c2b4c5cf2058a268a89c8164ffdb124b28"
+      ],
+      "source_sha256": "5cd887c739876df1cba534ae2330b55e7449ccb39e7800ec434d598af6bbb853",
+      "text": "将拖放的文件和文件夹放入某一列，并匹配各行。\n\n文件夹会递归带入其中的图像，但不带入其 ``masks/``。拖放到通道列中的图像会把 Make Masks 为其保存的掩膜（``<their folder>/masks/<stem>.tif``）带入该通道的掩膜列，没有该列时会自动创建。已在表格中的文件会移到此列。磁盘上的内容不会改变。\n\n:param column: 列索引。\n:param paths: 文件和文件夹。\n:param rematch: 之后是否匹配各行（预填充期间关闭）。\n:returns: 已添加的图像文件。",
+      "translation_source_blocks_sha256": [
+        "50ebb0e149d514dcf3cda6d7ebb396cee7f9a65345063815713762a74870d54d",
+        "06c1b0c1bf423dae4c25a5836698da2e77fda3ba0917459edc909d208bad9860",
+        "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
+        "0c0e0d1bf62e16a58806f2b6ba607ddfae14596fa5873316930dd850310f4346",
+        "257ee22b60c38f1f6f06e9426816c63e55450a4322172495f7d803963259cb0f",
+        "9c509e9a13c633b3381d27774e7ce1c2b4c5cf2058a268a89c8164ffdb124b28"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.auto_regex": {
+      "source_blocks_sha256": [
+        "e375aa07c953c6e44115664a813acd061bee5445c7f0fa12da10a4a52d6134b3",
+        "d19406193a833a7f5fb2384d12f2a6c8f6d04d93ec964a2b083ff324ef2ad896"
+      ],
+      "source_sha256": "831da0d321fdbda1d4ef60fbc451c0b5bb6e5636fc94a08fbf7fcd35de374a39",
+      "text": "提出一个正则表达式，将其放入 custom_regex，并按其排序。\n\n:returns: 正则表达式；未找到时为 None。",
+      "translation_source_blocks_sha256": [
+        "e375aa07c953c6e44115664a813acd061bee5445c7f0fa12da10a4a52d6134b3",
+        "d19406193a833a7f5fb2384d12f2a6c8f6d04d93ec964a2b083ff324ef2ad896"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.detect_sets": {
+      "source_blocks_sha256": [
+        "de00bf943a71e8f1ecc988e5eff7126ce2c3eb10dab495a4ee72cba4a4870a40",
+        "19fe6675bc9ab8c20dfc3f07ee94d1b247bfcddea2addb9af12145607041c555",
+        "b75284420f01f5b0606735b93f9a794d9f0d9ab18da07518e9c3ab44218cec81"
+      ],
+      "source_sha256": "a29515f501f7a7b717853ab082e82b27e6b834dea08b9ba145bed5fbef0d71fb",
+      "text": "按名称、顺序和大小匹配各列的文件，并检查三组。\n\n表格为空且有源文件夹时，先按正则表达式对源进行排序，以得到其通道。图像组每次显示三组（:class:`spacr.qt.widgets.channel_sort_dialog.ExampleSetsDialog`），只有用户确认正确时才保留。\n\n:returns: 是否保留了检测到的图像组。",
+      "translation_source_blocks_sha256": [
+        "de00bf943a71e8f1ecc988e5eff7126ce2c3eb10dab495a4ee72cba4a4870a40",
+        "19fe6675bc9ab8c20dfc3f07ee94d1b247bfcddea2addb9af12145607041c555",
+        "b75284420f01f5b0606735b93f9a794d9f0d9ab18da07518e9c3ab44218cec81"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.prepare_plan": {
+      "source_blocks_sha256": [
+        "7565a3846eac9b1e672b01183b9d19900a09aa3ff4bda2449edd55234fe25b5d",
+        "4b415e01f3f299799068a41ac06a10ee2360d49c1a4b92b6bdb25780831a1da7",
+        "ee34f95d670f4acd170c298e14397d489fa5f0d5a88dcac9588072f9106ba6f9"
+      ],
+      "source_sha256": "f58883cc58cb21d2c96efa0a751b0f16bd7c6b78bb37672452a249c14e58503a",
+      "text": "根据表格构建计划；仍有不完整的行时返回 None。\n\n:param convert: 将 RGB 图像和 z 堆栈转换为单个平面。\n:returns: 计划，可能仍带有问题。",
+      "translation_source_blocks_sha256": [
+        "7565a3846eac9b1e672b01183b9d19900a09aa3ff4bda2449edd55234fe25b5d",
+        "4d8beba79b5a664643693178d4f756fc82114a24e9d46d808ae72cc4ff080bd4",
+        "ee34f95d670f4acd170c298e14397d489fa5f0d5a88dcac9588072f9106ba6f9"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.remove_column": {
+      "source_blocks_sha256": [
+        "9d07705f2db4150a8646bbce1bdd3012a374243e90a0de1b9b94fde2c049cb76",
+        "1292b0b4037eddcee0242184c4b73a894c7b993d634f028768e10593fd984a6c"
+      ],
+      "source_sha256": "3acfa134a96b4919f5607edd816c0fcaf34de6258965db6dc4cae44e1733ae09",
+      "text": "从表格中移除一列及其文件。\n\n:param index: 该列。",
+      "translation_source_blocks_sha256": [
+        "9d07705f2db4150a8646bbce1bdd3012a374243e90a0de1b9b94fde2c049cb76",
+        "1292b0b4037eddcee0242184c4b73a894c7b993d634f028768e10593fd984a6c"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.sort_by_regex": {
+      "source_blocks_sha256": [
+        "8b0f39440497d1c599b815a9a795730da94ec11c270acb8345423011053573c1",
+        "7c2f533c4c899b17ab32b3f0ff84b402b90792be327b6cd6d8892fed5313d128",
+        "7a48da9dc7a2ecce085f8ceb9bc8ab2e2a0fa861b4061f06eddd500b16ca80a2",
+        "ab0376b6557e1870089c7de4ce9e67825cd5ab16df97984dae13d62623583689",
+        "56214aaa5e6d9ecb5b3ced90b75fb16011476abec1dd20375ef5333af5b97015"
+      ],
+      "source_sha256": "cee9c78b689bf5558eff2b0b78f9104b82574d37e6391d7a048348e38905746c",
+      "text": "根据正则表达式填充表格：chanID 决定列，其余部分决定行。\n\n有源文件夹时读取其中的图像（如有要求则先合并），并在 Make Masks 保存掩膜的位置查找其掩膜；没有源文件夹时，重新排序已在通道列中的文件，每个文件保留在原来的列中。掩膜放入每个通道各自的掩膜列。两张图像共用的掩膜（两个文件主干名相同）会被排除并注明。\n\n:param pattern: 正则表达式；默认为正则表达式框所表示的表达式。\n:param chan_map: 由 \"Teach me\" 学到的 ``{chanID value: label}``，其中标签为 ``(\"channel\", n)`` 或 ``(\"mask\", n, role)``；默认情况下，正则表达式的 chanID 值按自然顺序作为通道。\n:returns: 图像组报告；没有可读取的内容时为 None。",
+      "translation_source_blocks_sha256": [
+        "8b0f39440497d1c599b815a9a795730da94ec11c270acb8345423011053573c1",
+        "d5fa89a15afc858970a9a108392a24b0036b5e1d4cf4734fed696ecacc27d3f6",
+        "7a48da9dc7a2ecce085f8ceb9bc8ab2e2a0fa861b4061f06eddd500b16ca80a2",
+        "ab0376b6557e1870089c7de4ce9e67825cd5ab16df97984dae13d62623583689",
+        "56214aaa5e6d9ecb5b3ced90b75fb16011476abec1dd20375ef5333af5b97015"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.teach": {
+      "source_blocks_sha256": [
+        "d25a2ecbec156ca244d1a52aed362848f4c6bd4c165513e91f7bede06b37516c",
+        "f7d2dd8c178d87a019144521ac33a3c2c1ec36effa3fd4138ea514ebb17f0b2b",
+        "a781a71325a8e99dddb2a81975c4fd4a59f8120ec64619494e2e317ee4efe511"
+      ],
+      "source_sha256": "ae44f14014355ef9639767f7eb5fa781be94c84cbd2f82baa5cd071121784adf",
+      "text": "\"Teach me\"：询问图像是什么，直到某个正则表达式能为所有图像定位。\n\n每次显示一张图像并询问“这是哪个通道？”（:attr:`ask_label`）。:func:`spacr.channel_sorting._teach_step` 从回答中学习名称中标识每个通道或掩膜的部分，并写出正则表达式；每个新标识都通过 :attr:`ask_marker` 确认（一个通道、一个掩膜，或仅是视野名称的一部分）。表格随之逐步填充，正则表达式放入 custom_regex，可在其中编辑。当每张图像都有归属，或用户要求停止时结束。\n\n:returns: 学到的正则表达式；未学到时为 None。",
+      "translation_source_blocks_sha256": [
+        "d25a2ecbec156ca244d1a52aed362848f4c6bd4c165513e91f7bede06b37516c",
+        "3a5d983aba14e296d3b558c90f5d580e39a921e20661572bf9dbb9bb8a8c87a0",
+        "a781a71325a8e99dddb2a81975c4fd4a59f8120ec64619494e2e317ee4efe511"
       ]
     },
     "spacr.qt.widgets.outlier_model": {
