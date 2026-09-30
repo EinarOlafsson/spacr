@@ -3358,6 +3358,7 @@ expected_types = {
     "colony_polarity": str,
     "colony_threshold": (float, int),
     "colony_min_area_px": (float, int, type(None)),
+    "colony_detector": (str, type(None)),
     "nucleus_channel": (int, type(None)),
     "nucleus_background": int,
     "nucleus_signal_to_noise": float,
@@ -4650,6 +4651,7 @@ tooltips = {
     "colony_polarity": "(str) - Whether colonies are brighter than the agar (bright: white or cream colonies on blood, chocolate or dark agar, or any plate photographed on a dark background) or darker (dark: on a light box or on pale agar). auto tries both and keeps the one whose round objects stand further above the agar. Set it when auto picks the wrong one on a sparse plate. Default auto.",
     "colony_threshold": "(float) - How far above the agar a pixel must be to count as colony, in multiples of the agar's own noise. Lower finds faint, small or translucent colonies but also picks up agar texture, bubbles and glare; higher keeps only clear colonies. Default 4.0.",
     "colony_min_area_px": "(float, int or None) - Smallest colony counted, in pixels of the original photo. Raise it to ignore dust, bubbles and pinpoint artefacts; lower it for pinpoint colonies. Blank uses 0.4 % of the dish diameter, squared: about 36 pixels for a dish 1500 pixels across. Default None.",
+    "colony_detector": "(str or None) - A YOLO colony detector to find the colonies with, in place of thresholding: a checkpoint path or a Model Zoo key. It needs the ultralytics package. Detection counts colonies in chains and at the dish rim that thresholding merges or loses; polarity, threshold and minimum area are then not used. Blank thresholds. Default None.",
     "well_diameter_mm": "(float, int or None) - Known interior diameter of a detected well in millimetres, overriding plate_format when both are set. It converts the detected pixel diameter into pixels per millimetre and therefore rescales every physical plaque area; use None when the diameter is unknown. Default None.",
     "metadata_type": "(str) - Raw-image filename convention, grouped by microscope vendor. Default 'cellvoyager' (Yokogawa CV7000/CV8000). 'custom' uses custom_regex; 'auto' first renames files to Yokogawa naming, using custom_regex when supplied or automatic detection. Provisional conventions come from public-dataset filenames, not vendor documentation. A wrong choice can misassign plate, well, field or channel IDs and channel folders. Use Test on my folder before running.",
     "n_jobs": "(int) - CPU workers for parallel stages: measurement, mask adjustment, DataLoader loading, and the sklearn/UMAP calls where -1 means every core. Raise it to shorten CPU-bound steps until RAM or disk I/O saturates. Note the measure-and-crop pipeline overrides your value with cpu_count()-4. Defaults vary by pipeline: cpu_count()-4, -1, or None.",
@@ -5630,7 +5632,7 @@ categories = {
     "Colony Counting α": [
         "colony_counting", "colony_dilution", "colony_plated_volume_ul",
         "colony_too_many", "colony_too_few", "colony_polarity",
-        "colony_threshold", "colony_min_area_px",
+        "colony_threshold", "colony_min_area_px", "colony_detector",
     ],
 
     "Bleach Correction α": [
@@ -6678,6 +6680,7 @@ def get_analyze_plaque_settings(settings):
     settings.setdefault('colony_polarity', 'auto')
     settings.setdefault('colony_threshold', 4.0)
     settings.setdefault('colony_min_area_px', None)
+    settings.setdefault('colony_detector', None)
     settings.setdefault('background', 200)
     settings.setdefault('Signal_to_noise', 10)
     settings.setdefault('CP_prob', 0)
@@ -7264,7 +7267,7 @@ ALPHA_FEATURES = {
         'settings': ('colony_counting', 'colony_dilution',
                      'colony_plated_volume_ul', 'colony_too_many',
                      'colony_too_few', 'colony_polarity', 'colony_threshold',
-                     'colony_min_area_px'),
+                     'colony_min_area_px', 'colony_detector'),
     },
     536: {
         'settings': ('wound_closure', 'wound_source', 'wound_channel',

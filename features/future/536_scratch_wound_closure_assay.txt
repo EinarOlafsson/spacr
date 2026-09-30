@@ -4,7 +4,8 @@ Status: IMPLEMENTED AS ALPHA 2026-09-26. Measure finds the scratch wound in
 every frame (texture, intensity or cell masks), writes area, mean/min width,
 closure rate and half-closure time per field, well and condition, with
 closure curves and a plate map; the Measure preview draws the wound edge.
-Hidden with Alpha features. DONE WHEN not met on the public data (below).
+Hidden with Alpha features. DONE WHEN not met on the public data (below);
+the 2026-09-30 accuracy pass narrowed the gap but did not close it.
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 
@@ -101,6 +102,60 @@ DONE WHEN
     (Measure still needs merged arrays); drift registration between
     frames; a manual threshold override; condition curves across plates
     are pooled by condition name only.
+2026-09-30 — Accuracy pass on the public data (DONE WHEN still not met)
+    Two changes shipped in spacr/measure.py (private helpers, no new
+    settings): _wound_fronts redraws a scratch's first frame (texture and
+    intensity sources, after the QC checks) between two fronts smoothed by
+    a running median over 30 % of its length, so floating debris or a
+    smooth patch of monolayer at one edge no longer cuts into or bulges
+    the starting wound; _wound_relevel recalibrates the texture cut on
+    every later frame from that frame's own open level (in the first
+    frame's band, seeded by an Otsu split of the band when it separates)
+    and covered level (outside the band), unless under 20 % of the first
+    area is open, so re-imaged time points with other focus or exposure
+    keep their wound. Two synthetic tests pin both (debris over a quarter
+    of a fresh wound; later frames at 1/3 contrast, 2.5x noise, 2.5x
+    contrast).
+    Held-out evaluation: the 24 series were split by experiment into two
+    folds of 12 (A: LUIS RAW, Originais (1), P1, Controle+Saudavel; B:
+    Migracao n2/n3, P2, Pre-Eclampsia, originais); each design choice was
+    picked on one fold by mean error and scored on the other, and both
+    folds picked the same configuration, so the pooled numbers are
+    out-of-fold. The shipped code then changed four details for the
+    synthetic cases (QC before the fronts, a running median of good fronts
+    only, the Otsu seed, the covered level from everything outside the
+    band) and was scored once more; those are the numbers below. 62 later
+    frames, P2|CARBO|F9 (still QC not_a_scratch)
+    counted as misses:
+                       within 5   within 10   median   mean
+        before (09-26)   45 %       61 %       6.7     16.7 points
+        now              47 %       65 %       5.9     12.0 points
+        fold A / B now  53/40 %    72/57 %   4.6/7.6  7.8/16.4
+    (Median over measured frames only, as reported on 09-26: 5.6 -> 5.3.)
+    First-frame IoU median 0.90 -> 0.91; t50 in both for 17 series (was
+    14), median difference 0.9 h (was 1.2), mean 1.8 h (was 2.6); 9 of 24
+    series with mean closure error within 5 points (unchanged).
+    Tried and not shipped (all scored the same way): a per-pixel logistic
+    or gradient-boosted edge model (texture at 3 scales, gradient energy,
+    4-window context, position across the band) trained on one fold:
+    92-95 % pixel accuracy but 16 % / 23 % within 5 / 10 points held out,
+    because each fold's calibration is biased by +-18 points on the other;
+    frame-to-frame drift registration: phase correlation of the monolayer
+    never locks (peak error ~1.0), the time points are separate fields of
+    view, and the hand wound moves by up to 160 px across the scratch;
+    re-centring the band on each frame's own wound, nearest-run tracking
+    of the fronts per cross-section, morphological opening of later open
+    masks, a lower later-frame cut, and a percentile-of-gradient texture:
+    each better on one fold and worse on the other.
+    What limits it: the hand masks call a sparse leading edge covered and
+    three LUIS/Pre-Eclampsia frames closed where a band of low texture is
+    still visible; several later frames are at another zoom. A true
+    same-position time-lapse with hand measurements is still the fair
+    test. Scripts and per-frame CSVs:
+    /mnt/firecuda2/codex/scratch-docs/536/improve (tools/, final.csv,
+    base.csv); cached arrays in /mnt/wd4tb/scratch/536.
+    Left: the 5 % DONE WHEN; relevelling for the intensity source; a
+    manual threshold override; the other items listed above.
 ALPHA: settings wound_closure, wound_source, wound_channel, wound_window,
 wound_hours_per_frame, wound_conditions (Measure category "Wound Closure
 (Alpha)"); widget MeasureWoundToggle (its MeasureWoundOverlay label shows

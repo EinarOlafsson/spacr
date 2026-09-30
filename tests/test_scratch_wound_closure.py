@@ -175,6 +175,42 @@ def test_a_field_without_a_scratch_is_flagged_not_measured():
     assert status == "not_a_scratch"
 
 
+def test_debris_floating_in_a_fresh_wound_is_drawn_over_by_its_fronts():
+    """Textured debris over a stretch of a fresh wound still counts as open."""
+    open_mask = _band(120)
+    image = _brightfield(open_mask).astype(float)
+    rng = np.random.default_rng(5)
+    debris = np.zeros(SHAPE, dtype=bool)
+    debris[40:140] = open_mask[40:140]
+    texture = ndi.gaussian_filter(rng.standard_normal(SHAPE), 1.5)
+    texture /= texture.std()
+    frame, status, _masks = _wound_series(
+        [image + debris * texture * 120], (0,), source="texture")
+    assert status == "ok"
+    found = frame["open_area_px"].iloc[0] / open_mask.sum()
+    assert 0.85 <= found <= 1.02, found
+
+
+@pytest.mark.parametrize("noise,contrast", [(8, 40), (20, 120), (4, 300)])
+def test_a_later_frame_imaged_again_keeps_its_wound(noise, contrast):
+    """A later time point with other exposure or focus is recalibrated.
+
+    With the first frame's cut, a monolayer imaged at a third of its first
+    contrast reads as wound-free; the later frame's own open and covered
+    levels put the cut back between them.
+    """
+    first, later = _band(160), _band(80)
+    rng = np.random.default_rng(11)
+    texture = ndi.gaussian_filter(rng.standard_normal(SHAPE), 1.5)
+    texture /= texture.std()
+    image = 1000 + rng.normal(0, noise, SHAPE) + (~later) * texture * contrast
+    frame, status, _masks = _wound_series(
+        [_brightfield(first, seed=10), image], (0, 1), source="texture")
+    assert status == "ok"
+    truth = later.sum() / first.sum()
+    assert abs(frame["relative_open_area"].iloc[1] - truth) <= 0.03
+
+
 def test_closure_metrics_on_a_known_curve():
     times = np.array([0, 4, 8, 12, 16, 20])
     relative = np.array([1.0, 0.8, 0.6, 0.4, 0.2, 0.0])
