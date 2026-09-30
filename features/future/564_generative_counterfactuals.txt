@@ -63,3 +63,20 @@ ALPHA: 2026-09-28
     own env for photorealistic counterfactuals at full crop size (the alpha
     uses a tiny autoencoder); a per-condition (plate/well metadata) target
     instead of the classifier's classes; a Qt viewer for the sequences.
+
+GPU RUN 2026-09-30
+    /mnt/wd4tb/scratch/564/gpu_train.sh through tools/gpu_turn.sh (08:24-08:26,
+    rc 0), same synthetic phenotype, 4,000 crops (3,000 train, 1,000
+    held-out), 100 epochs, 65.5 s training; classifier held-out accuracy 1.00,
+    reconstruction MSE 0.0027.
+        flip rate 0.918 (class-mean shift baseline 0.040)
+        monotone 0.999, mean Spearman 0.999
+        closeness: median edit 0.010 of the intensity range (baseline 0.018;
+        CPU run 0.062), 1.8% of pixels changed by >10% (CPU run 12%)
+    Control -> hit: flip rate 1.00, puncta energy rose in every sequence,
+    14.87 -> 18.08 (real hits 20.30), 59% of the way to real hits.
+    Outputs: /mnt/wd4tb/scratch/564/out_gpu_n4000_e100/ (validation.json,
+    counterfactual_{cells,summary}.csv, counterfactual_sequences.pdf).
+    Conclusion: with more data the edits are six times smaller, and now
+    smaller than the baseline's, for a flip rate that falls only from 0.99
+    to 0.92; real screen crops are still the open DONE WHEN step.
