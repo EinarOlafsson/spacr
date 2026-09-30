@@ -146,13 +146,32 @@ def _fading(widget, root) -> bool:
     return False
 
 
+def _cut_by_a_scroll_edge(widget) -> bool:
+    """Is ``widget`` only partly on screen, its text box cut by a viewport?
+
+    2026-09-30 (item 43, CI run 36675750311): the Figures tab's
+    ``background`` colour button and its ``Transparent`` box failed on CI in
+    BOTH modes with the other theme's ink, and passed locally. It was not a
+    theme leak: CI's fonts scroll the Figures form so that row straddles the
+    scroll area's bottom edge, and the audit sampled the whole widget rect
+    although most of it was clipped away -- scrolling the form here puts
+    the same two failures, the same ink on the same ground, on any row that
+    straddles an edge. A clipped widget's text cannot be read on screen or
+    measured in the render, so it is left out the way a wholly scrolled-off
+    one already is.
+    """
+    return not widget.visibleRegion().boundingRect().contains(
+        widget.rect().adjusted(3, 3, -3, -3))
+
+
 def _audit(root, image: QImage, where: str):
     """Every visible text-bearing widget under ``root`` below its floor."""
     failures, seen = [], 0
     for widget in root.findChildren(QWidget):
         if (not widget.isVisible() or widget.visibleRegion().isEmpty()
                 or widget.width() < 12 or widget.height() < 12
-                or not _carries_text(widget) or _fading(widget, root)):
+                or not _carries_text(widget) or _fading(widget, root)
+                or _cut_by_a_scroll_edge(widget)):
             continue
         measured = _sample(image, _text_box(widget, root))
         if measured is None:
