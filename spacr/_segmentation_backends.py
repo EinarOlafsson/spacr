@@ -300,23 +300,6 @@ _DEEPCELL_TOKEN_ENV = "DEEPCELL_ACCESS_TOKEN"
 #: The archive deepcell-spots 0.4.2 fetches its SpotNet weights as.
 _SPOTNET_ARCHIVE = "SpotDetection-8.tar.gz"
 
-#: The CUDA 11 runtime SpotNet's TensorFlow 2.8 was built against (CUDA 11.2,
-#: cuDNN 8), as NVIDIA's pip wheels, so it finds a GPU without a system CUDA
-#: 11 install. Linux only: the wheels exist nowhere else, and TensorFlow
-#: stopped supporting the GPU on native Windows after 2.10 and never on
-#: macOS. :func:`_serve_env` puts their ``lib`` folders on the worker's
-#: ``LD_LIBRARY_PATH``; without them TensorFlow quietly runs on the CPU.
-_LINUX = "; sys_platform == 'linux'"
-_SPOTNET_CUDA_WHEELS = tuple(pin + _LINUX for pin in (
-    "nvidia-cuda-runtime-cu11==11.8.89",
-    "nvidia-cublas-cu11==11.11.3.6",
-    "nvidia-cudnn-cu11==8.9.6.50",
-    "nvidia-cufft-cu11==10.9.0.58",
-    "nvidia-curand-cu11==10.3.0.86",
-    "nvidia-cusolver-cu11==11.4.1.48",
-    "nvidia-cusparse-cu11==11.7.5.86",
-))
-
 #: Variables that win over ``HF_HOME``, so pointing ``HF_HOME`` inside a
 #: backend's environment is not enough on its own. ``huggingface_hub``
 #: derives its caches from ``HF_HOME`` only when none of these is set:
@@ -796,8 +779,16 @@ _SPECS = {
         name=_SPOTNET, label="SpotNet (DeepCell)", module="deepcell_spots",
         probe=("deepcell_spots", "deepcell_spots.applications", "tensorflow"),
         distribution="deepcell-spots",
-        requirements=("trackpy==0.6.1", "deepcell==0.12.10",
-                      "deepcell-spots==0.4.2") + _SPOTNET_CUDA_WHEELS,
+        requirements=(
+            "trackpy==0.6.1", "deepcell==0.12.10",
+            "nvidia-cuda-runtime-cu11==11.8.89; sys_platform == 'linux'",
+            "nvidia-cublas-cu11==11.11.3.6; sys_platform == 'linux'",
+            "nvidia-cudnn-cu11==8.9.6.50; sys_platform == 'linux'",
+            "nvidia-cufft-cu11==10.9.0.58; sys_platform == 'linux'",
+            "nvidia-curand-cu11==10.3.0.86; sys_platform == 'linux'",
+            "nvidia-cusolver-cu11==11.4.1.48; sys_platform == 'linux'",
+            "nvidia-cusparse-cu11==11.7.5.86; sys_platform == 'linux'",
+            "deepcell-spots==0.4.2"),
         torch=("torch", "torchvision"), python=((3, 7), (3, 10)),
         licence="Modified Apache-2.0, NON-COMMERCIAL ACADEMIC USE ONLY",
         licence_note=(
@@ -2021,12 +2012,18 @@ def _serve_env(name, env):
 
 
 def _nvidia_lib_folders(env):
-    """The ``lib`` folders of the NVIDIA wheels installed in ``env``
-    (:data:`_SPOTNET_CUDA_WHEELS`), sorted; empty when there are none.
+    """The ``lib`` folders of the NVIDIA wheels installed in ``env``,
+    sorted; empty when there are none.
 
+    SpotNet's requirements pin the CUDA 11 runtime its TensorFlow 2.8 was
+    built against (CUDA 11.2, cuDNN 8) as NVIDIA's ``nvidia-*-cu11`` pip
+    wheels, so it finds a GPU without a system CUDA 11 install. They are
+    Linux only: the wheels exist nowhere else, and TensorFlow stopped
+    supporting the GPU on native Windows after 2.10 and never on macOS.
     TensorFlow 2.8 opens CUDA with ``dlopen`` by soname, which searches
     ``LD_LIBRARY_PATH`` but not ``site-packages``, so the worker must be
-    started with these folders on it.
+    started with these folders on it; without them TensorFlow quietly runs
+    on the CPU.
     """
     pattern = os.path.join(env, "lib*", "python*", "site-packages",
                            "nvidia", "*", "lib")
