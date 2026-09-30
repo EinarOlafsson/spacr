@@ -1,10 +1,10 @@
 {
   "lesson": "18_motility",
-  "english_sha256": "8a04ed0f7516a23ddfd70ffc4bceeadf78f277e0e2818e72352c08eac5353530",
+  "english_sha256": "009305aa904f81c6648e2b50c472910478079a514f510d04c48ba09581116dc1",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Timelapseの実行を完了するか、SYNTHETIC_motility_tracks.zipをダウンロードして展開します。mergedを含むフォルダーを選びます。この例には八フレームがあり、チャネル0に核の強度、チャネル1に細胞の強度、面2に追跡済みの細胞マスク、面3に核のマスクが入っています。病原体のマスクや物理的なキャリブレーションはありません。",
   "scenes": [
-    "HomeからMeasureを開き、TimeからMotility Assayを開きます。Timelapseで追跡した画像から始めるか、下の例のアーカイブをダウンロードして一緒に進めます。",
+    "HomeからMeasureを開き、右上のMotility Assayを選びます。Timelapseで追跡した画像から始めるか、下の例のアーカイブをダウンロードして一緒に進めます。",
     "例を展開し、Sourceにmergedを含むフォルダーを設定します。追跡する物体としてcellsを選び、核のチャネルをゼロ、細胞のチャネルを一にします。この例では病原体のチャネルは未設定のままにします。",
     "LiveをオンにしてMotility previewを開き、同じプロジェクトのフォルダーを選びます。解析全体を実行する前に、プレビューでトラックを確認し、フィルターを試します。一時的な選択を試している間は、Propagate settingsをオフのままにします。",
     "強度チャネルを二つ、追跡マスクの面を二、病原体マスクの面をマイナス一、つまりなしに設定します。八フレームすべてをプレビューします。プレビューでは、キャリブレーションのないこの例に合わせて二つのキャリブレーション値をゼロにし、Run previewをクリックします。",

@@ -27,6 +27,11 @@ capture_stage=$(realpath -- "$capture_stage")
 capture_python=$(realpath --no-symlinks -- "$capture_python")
 capture_mount=/tmp/spacr-tutorials
 capture_network=()
+# A fixed display (SPACR_TUTORIAL_XVFB_SERVER=93) keeps parallel recorders apart.
+capture_display=(-a)
+if [[ -n ${SPACR_TUTORIAL_XVFB_SERVER:-} ]]; then
+    capture_display=(-n "$SPACR_TUTORIAL_XVFB_SERVER")
+fi
 if [[ ${SPACR_TUTORIAL_OFFLINE:-0} == 1 ]]; then
     capture_network=(--unshare-net)
 fi
@@ -64,5 +69,5 @@ exec "$capture_repo/tools/run_capped.sh" "${SPACR_TUTORIAL_MEMORY_CAP:-6G}" \
     --unsetenv USERNAME --unsetenv SUDO_UID --unsetenv PKEXEC_UID -- \
     env CUDA_VISIBLE_DEVICES= PYTHONUNBUFFERED=1 \
     OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 MKL_NUM_THREADS=2 \
-    xvfb-run -a -s '-screen 0 3840x2160x24' "$capture_python" \
+    xvfb-run "${capture_display[@]}" -s '-screen 0 3840x2160x24' "$capture_python" \
     tools/tutorials/capture_refresh.py --stage "$capture_mount" --platform xcb "$@"

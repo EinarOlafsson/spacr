@@ -1,10 +1,10 @@
 {
   "lesson": "18_motility",
-  "english_sha256": "8a04ed0f7516a23ddfd70ffc4bceeadf78f277e0e2818e72352c08eac5353530",
+  "english_sha256": "009305aa904f81c6648e2b50c472910478079a514f510d04c48ba09581116dc1",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Completa una ejecución de Timelapse, o descarga y extrae SYNTHETIC_motility_tracks.zip. Selecciona la carpeta que contiene merged. El ejemplo tiene ocho fotogramas, la intensidad nuclear en el canal 0, la intensidad celular en el canal 1, las máscaras de células seguidas en el plano 2 y las máscaras de núcleos en el plano 3. No tiene máscara de patógenos ni calibración física.",
   "scenes": [
-    "Desde Home, abre Measure y luego usa Time para abrir Motility Assay. Empieza con imágenes seguidas de Timelapse, o descarga el archivo de ejemplo de abajo para seguir la lección.",
+    "Desde Home, abre Measure y luego elige Motility Assay arriba a la derecha. Empieza con imágenes seguidas de Timelapse, o descarga el archivo de ejemplo de abajo para seguir la lección.",
     "Extrae el ejemplo y pon en Source la carpeta que contiene merged. Elige cells como objetos seguidos, el canal nuclear cero y el canal celular uno. Deja sin asignar el canal de patógenos en este ejemplo.",
     "Activa Live para abrir Motility preview y elige la misma carpeta de proyecto. Usa la vista previa para revisar las trayectorias y probar filtros antes de ejecutar el análisis completo. Deja Propagate settings desactivado mientras exploras opciones temporales.",
     "Pon dos canales de intensidad, el plano de máscara seguida en dos y el plano de máscara de patógenos en menos uno, que significa ninguno. Previsualiza los ocho fotogramas. En la vista previa, pon ambos valores de calibración en cero para este ejemplo sin calibrar y haz clic en Run preview.",

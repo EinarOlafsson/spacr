@@ -20,12 +20,18 @@
   "scenes": [
     {
       "visual": "01_measure_host",
-      "narration": "From Home, open Measure, then use Time to open Motility Assay. Start with tracked images from Timelapse, or download the example archive below to follow along.",
+      "narration": "From Home, open Measure, then choose Motility Assay at the upper right. Start with tracked images from Timelapse, or download the example archive below to follow along.",
       "related_lessons": [
         "08_measure",
         "17_timelapse"
       ],
-      "hold_after": 0.7
+      "hold_after": 0.7,
+      "focus": [
+        3728,
+        56,
+        116,
+        116
+      ]
     },
     {
       "visual": "03_actual_setting_src",

@@ -1,10 +1,10 @@
 {
   "lesson": "43_illumination",
-  "english_sha256": "733c89c9161df491db3c40feedfcdde7908b25a629f43da184fe9e8f6ff66d99",
+  "english_sha256": "ee0a3f65a8187f139da932acdc05b47f690b1315c6409c4fb47b03498cf7e04d",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -15,7 +15,7 @@
   "objectives": [
     "Repräsentative Bildfelder und Intensitätskanäle auswählen.",
     "Ein Beleuchtungsmodell schätzen und prüfen.",
-    "Das Modell in Mask oder Measure wiederverwenden."
+    "Das gespeicherte Modell in Measure anwenden."
   ],
   "prerequisite": "Verwenden Sie einen Ordner zusammengeführter Bilder mit repräsentativen Bildfeldern aus jeder Aufnahmegruppe. Das Beispiel verwendet die sechzehn Bildfelder aus dem in Measure heruntergeladenen Plattenbeispiel. Sie sollten wissen, welche gespeicherten Ebenen Intensitäten und welche Labels enthalten.",
   "scenes": [
@@ -31,6 +31,7 @@
     "Öffnen Sie das gespeicherte Beleuchtungs-QC-PNG im Ordner illumination. Verwenden Sie einen Bildbetrachter, falls es nicht im Bereich Figures erscheint.",
     "Prüfen Sie das geschätzte Beleuchtungsfeld auf gleichmäßige Helligkeitsverläufe und unerwünschte zellförmige Strukturen. Die Korrektur zieht den Dunkel-Offset ab und teilt durch dieses Feld mit Mittelwert 1.",
     "Vergleichen Sie die radialen Profile vor und nach der Korrektur. Beurteilen Sie mit zusätzlichen Bildfeldern, wie gut die Korrektur über die zur Anpassung verwendeten Bilder hinaus wirkt.",
-    "Um das Modell wiederzuverwenden, geben Sie seinen Pfad an und aktivieren die Korrektur im vorgesehenen Mask- oder Measure-Ablauf. Bewahren Sie Kanäle, Plattenkennungen und Einstellungen damit auf und vermeiden Sie, dieselben Intensitäten zweimal zu korrigieren."
+    "Bewahren Sie das gespeicherte Modell mit seinen Kanälen, Plattenkennungen und Einstellungen auf. Wenden Sie es einmal auf einen Satz Intensitäten an; werden dieselben Intensitäten zweimal korrigiert, werden sie verfälscht.",
+    "Um das Modell anzuwenden, öffnen Sie Measure und suchen in den Einstellungen nach illumination. Aktivieren Sie unter Image Preprocessing Illumination correction und setzen Sie Illumination model auf die gespeicherte Datei. Measure dividiert dann die modellierten Kanäle vor dem Messen durch das Feld; die Masken bleiben unverändert."
   ]
 }

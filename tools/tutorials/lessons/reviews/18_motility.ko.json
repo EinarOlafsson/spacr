@@ -1,10 +1,10 @@
 {
   "lesson": "18_motility",
-  "english_sha256": "8a04ed0f7516a23ddfd70ffc4bceeadf78f277e0e2818e72352c08eac5353530",
+  "english_sha256": "009305aa904f81c6648e2b50c472910478079a514f510d04c48ba09581116dc1",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Timelapse 실행을 마치거나 SYNTHETIC_motility_tracks.zip을 내려받아 압축을 푸세요. merged가 들어 있는 폴더를 선택하세요. 예제에는 프레임 8개가 있으며, 채널 0에 핵 강도, 채널 1에 세포 강도, 평면 2에 추적된 세포 마스크, 평면 3에 핵 마스크가 있습니다. 병원체 마스크나 물리적 보정 값은 없습니다.",
   "scenes": [
-    "Home에서 Measure를 열고 Time을 통해 Motility Assay를 여세요. Timelapse에서 추적한 이미지로 시작하거나, 아래의 예제 아카이브를 내려받아 따라 하세요.",
+    "Home에서 Measure를 연 뒤 오른쪽 위의 Motility Assay를 고르세요. Timelapse에서 추적한 이미지로 시작하거나, 아래의 예제 아카이브를 내려받아 따라 하세요.",
     "예제의 압축을 풀고 Source를 merged가 들어 있는 폴더로 지정하세요. 추적 객체로 cells를 고르고, 핵 채널은 0, 세포 채널은 1로 두세요. 이 예제에서는 병원체 채널을 지정하지 마세요.",
     "Live를 켜서 Motility preview를 열고 같은 프로젝트 폴더를 고르세요. 전체 분석을 실행하기 전에 미리 보기로 트랙을 확인하고 필터를 시험해 보세요. 임시 선택을 시험하는 동안에는 Propagate settings를 끈 채로 두세요.",
     "강도 채널 2개, 추적 마스크 평면 2, 병원체 마스크 평면 −1(없음)로 설정하세요. 프레임 8개를 모두 미리 보세요. 미리 보기에서 보정되지 않은 이 예제에 맞게 두 보정 값을 모두 0으로 두고 Run preview를 클릭하세요.",

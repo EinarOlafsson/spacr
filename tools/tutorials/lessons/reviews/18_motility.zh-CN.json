@@ -1,10 +1,10 @@
 {
   "lesson": "18_motility",
-  "english_sha256": "8a04ed0f7516a23ddfd70ffc4bceeadf78f277e0e2818e72352c08eac5353530",
+  "english_sha256": "009305aa904f81c6648e2b50c472910478079a514f510d04c48ba09581116dc1",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "先完成一次Timelapse运行，或下载并解压SYNTHETIC_motility_tracks.zip。选择包含merged的文件夹。示例有八帧，通道0为细胞核强度，通道1为细胞强度，平面2为已追踪的细胞掩膜，平面3为细胞核掩膜。它没有病原体掩膜，也没有物理标定。",
   "scenes": [
-    "从Home打开Measure，然后通过Time打开Motility Assay。从Timelapse追踪过的图像开始，或下载下方的示例归档跟着操作。",
+    "从Home打开Measure，然后选择右上角的Motility Assay。从Timelapse追踪过的图像开始，或下载下方的示例归档跟着操作。",
     "解压示例，把Source设为包含merged的文件夹。选择cells作为追踪对象，细胞核通道为零，细胞通道为一。本例中病原体通道保持未设置。",
     "开启Live打开Motility preview，并选择同一个项目文件夹。在运行完整分析之前，用预览检查轨迹并尝试过滤器。尝试临时选项时，请保持Propagate settings关闭。",
     "设置两个强度通道，追踪掩膜平面为二，病原体掩膜平面为负一，表示没有。预览全部八帧。在预览中，针对这个未标定的示例把两个标定值都设为零，然后点击Run preview。",

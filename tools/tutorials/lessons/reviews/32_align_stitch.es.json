@@ -1,10 +1,10 @@
 {
   "lesson": "32_align_stitch",
-  "english_sha256": "66861407cfca015c4b796ed0848202ae64ee28cef5385b9f3a888b35f6674018",
+  "english_sha256": "27f9e618f9817f04594ab412127feb5838e54ca0b840abf32b25df5dceb5cbb3",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -21,6 +21,7 @@
   "scenes": [
     "En la categoría Tools de Home, abre Align and Stitch. Elige las teselas, revisa su disposición con Plan y luego usa Write stack para crear el mosaico.",
     "Descarga y descomprime el ejemplo de abajo y selecciona su carpeta tiles. Contiene nueve recortes solapados dispuestos en una cuadrícula de tres por tres. Con tu propia adquisición, conserva disponibles el orden original de las teselas y los metadatos de la platina.",
+    "Para practicar con datos publicados, pulsa Load test data. spaCR descarga nueve teselas solapadas de un cribado óptico agrupado y rellena la carpeta de teselas, la cuadrícula, el orden, el solapamiento y la carpeta de salida, así que puedes pulsar Plan de inmediato. Los pasos siguientes usan los ajustes del ejemplo descargable.",
     "En este ejemplo, pon la cuadrícula en tres por tres, orden por filas y solapamiento de cero coma dos cinco. Ajusta estos valores a tu adquisición; usa el orden en serpentina cuando las filas alternas se adquirieron en direcciones opuestas.",
     "Pon en Reference channel el plano de imagen usado para el registro. Este ejemplo usa el canal uno, que es el segundo plano con numeración desde cero. Elige un canal con estructuras visibles en los solapamientos; la colocación resultante se aplica a todos los canales de la imagen.",
     "Ajusta Minimum confidence para aceptar un registro y Neighbour radius para las teselas vecinas que se comparan. El ejemplo usa cero coma tres y uno, con fundido suave en los solapamientos. El presupuesto del búfer de bandas controla la memoria que usa el escritor de imágenes.",

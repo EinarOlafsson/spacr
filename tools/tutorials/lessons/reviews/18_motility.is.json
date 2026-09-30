@@ -1,10 +1,10 @@
 {
   "lesson": "18_motility",
-  "english_sha256": "8a04ed0f7516a23ddfd70ffc4bceeadf78f277e0e2818e72352c08eac5353530",
+  "english_sha256": "009305aa904f81c6648e2b50c472910478079a514f510d04c48ba09581116dc1",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Ljúktu Timelapse-keyrslu, eða sæktu og dragðu út SYNTHETIC_motility_tracks.zip. Veldu möppuna sem inniheldur merged. Dæmið hefur átta ramma, kjarnastyrk í rás 0, frumustyrk í rás 1, eltar frumugrímur í lagi 2 og kjarnagrímur í lagi 3. Það hefur hvorki sýklagrímu né eðlisfræðilega kvörðun.",
   "scenes": [
-    "Frá Home opnarðu Measure og notar svo Time til að opna Motility Assay. Byrjaðu á eltum myndum úr Timelapse, eða sæktu dæmasafnið hér fyrir neðan til að fylgja með.",
+    "Frá Home opnarðu Measure og velur svo Motility Assay efst til hægri. Byrjaðu á eltum myndum úr Timelapse, eða sæktu dæmasafnið hér fyrir neðan til að fylgja með.",
     "Dragðu dæmið út og stilltu Source á möppuna sem inniheldur merged. Veldu cells sem eltu hlutina, kjarnarás 0 og frumurás 1. Hafðu sýklarásina óstillta í þessu dæmi.",
     "Kveiktu á Live til að opna Motility preview og veldu sömu verkefnismöppu. Notaðu forskoðunina til að skoða ferla og prófa síur áður en þú keyrir alla greininguna. Hafðu slökkt á Propagate settings meðan þú prófar tímabundna valkosti.",
     "Stilltu tvær styrkleikarásir, eltu grímulagið á 2 og grímulag sýkla á −1, sem þýðir ekkert. Forskoðaðu alla átta rammana. Í forskoðuninni stillirðu bæði kvörðunargildin á 0 fyrir þetta ókvarðaða dæmi og smellir svo á Run preview.",
