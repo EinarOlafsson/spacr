@@ -2652,7 +2652,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # gone and the object grid's filter-row and alpha-heading methods added.
     # 600, 2026-09-29: +26, item 600's eleven callables and build_plan's
     # new masks= argument.
-    assert sum(len(item.parameters) for item in callables) == 19_703
+    # 426, 2026-09-30: +2, train_timeflows gains optional lr_schedule and
+    # consistency_weight; no new callable, the required sum does not move.
+    assert sum(len(item.parameters) for item in callables) == 19_705
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2858,7 +2860,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Moved 2026-09-29 for item 600: spacr.drop_classification and
     # spacr.qt.widgets.organize_for_measure added, and build_plan
     # gained masks=.
-) == "fb9b71fe5569cc51e98527631792f5cd8a61be3a99c33a1c14bffefca2b309b9"
+    # Moved 2026-09-30 for item 426: train_timeflows gained the optional
+    # lr_schedule and consistency_weight keywords; no row added or removed.
+) == "931f0ce2d72e64c189371a3da5f5d543fb2c59ca069cefd9adb94d116d6ab6c8"
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
