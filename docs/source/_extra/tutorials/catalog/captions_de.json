@@ -2216,6 +2216,31 @@
           ]
         },
         {
+          "visual": "restoration_01_restoration_row",
+          "narration": "Image enhancement endet mit Deep image enhancement. Es stellt den ausgewählten Kanal mit einem Cellpose-3-Modell in einer eigenen Umgebung wieder her; das Bild auf der Festplatte wird nie verändert.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "restoration_02_denoise_settings",
+          "narration": "Wählen Sie Denoise, Deblur oder One-click restoration und öffnen Sie dann Restoration model settings. Wählen Sie Gewichte für Zellen oder Zellkerne und legen Sie den typischen Objektdurchmesser in Pixeln fest.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "restoration_03_model_ready",
+          "narration": "Laden Sie das Modell. Auf der CPU dauert ein ganzes Bildfeld einige zehn Sekunden; die ursprünglichen Intensitäten bleiben für die Messungen erhalten.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "restoration_04_compare",
+          "narration": "Compare raw and enhanced zeigt beide Bilder nebeneinander. Das wiederhergestellte Bild ist eine Modellausgabe, keine neue Struktur: Prüfen Sie es, bevor Sie darauf gezeichneten Masken vertrauen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "restoration_05_apply",
+          "narration": "Apply verwendet das wiederhergestellte Bild nur für Anzeige und Erkennung. Die Messungen lesen weiterhin die ursprünglichen Pixel.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "14_cellpose_settings",
           "narration": "Um Objekte im aktuellen Bildfeld zu erkennen, wählen Sie das Cellpose-Modell und prüfen Sie seine Einstellungen. Dieses Beispiel verwendet cpsam, eingeschaltete Normalisierung, einen Zellwahrscheinlichkeits-Schwellenwert von 0 und einen Flow-Schwellenwert von 0,4. Prüfen Sie, ob die Erkennungen bestehende Labels ersetzen oder ergänzen.",
           "hold_after": 0.7

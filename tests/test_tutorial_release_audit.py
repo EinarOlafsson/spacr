@@ -61,7 +61,8 @@ def test_release_audit_parsers_pin_the_current_inventory():
     # native Timelapse has 12 scenes (was 16), native OPS 12 (was 9), Conda 9 (was 8);
     # Investigate Hit, no longer held, adds its 18; the final Train Cellpose has 13 (was 11);
     # the republished Platform Installers lesson (4014dbdef) has 11 (was 10).
-    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1101
+    # Make Masks gains the five item-489 restoration scenes (1101 -> 1106).
+    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1106
     assert len(languages) == 8
     assert len(voices) == 50
     assert not (live.RETIRED_VOICES & set(voices))

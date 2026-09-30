@@ -1,13 +1,25 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "034ad7fdc44be72e0730682e19d8e2dfe43cd6c146ed361e70081986a371a17b",
+  "english_sha256": "e3cdf17aba5d02c5a2eb47a1912e6ef6dff2cc775f504026819434cfbc1cc343",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "restoration_scenes_489": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated directly from the current English source",
+      "date": "2026-09-29",
+      "scenes": [
+        22,
+        23,
+        24,
+        25,
+        26
+      ]
+    }
   },
   "language": "fr",
   "title": "Make Masks : modifier les étiquettes et préparer des images d’entraînement",
@@ -41,6 +53,11 @@
     "L’en-tête ouvre aussi Model Compare, Model Zoo, Curate et Open in napari. Utilisez Model Compare pour examiner des masques côte à côte, Model Zoo pour choisir des poids, et les outils de révision pour revoir ou modifier d’autres exemples.",
     "Choisissez Recrop et tracez un cadre autour des objets que vous voulez dans un champ d’entraînement plus petit. Cela écrit une nouvelle image et son masque correspondant. Les objets coupés par le bord sont écartés ; laissez donc de l’espace autour des objets complets et inspectez la vignette.",
     "Cliquez sur Next pour ouvrir la nouvelle vignette. L’image et le masque d’origine sont conservés dans recropped_originals pour pouvoir les récupérer. Vérifiez la vignette et ses étiquettes avant de l’ajouter à votre jeu d’entraînement.",
+    "Image enhancement se termine par Deep image enhancement. Cette option restaure le canal sélectionné avec un modèle Cellpose 3 dans son propre environnement ; l’image sur le disque n’est jamais modifiée.",
+    "Choisissez Denoise, Deblur ou One-click restoration, puis ouvrez Restoration model settings. Sélectionnez des poids pour les cellules ou les noyaux et indiquez le diamètre typique des objets en pixels.",
+    "Chargez le modèle. Sur le CPU, un champ entier prend quelques dizaines de secondes ; les intensités d’origine sont conservées pour les mesures.",
+    "Compare raw and enhanced affiche les deux images côte à côte. L’image restaurée est une sortie du modèle, pas une nouvelle structure : vérifiez-la avant de vous fier aux masques tracés dessus.",
+    "Apply utilise l’image restaurée uniquement pour l’affichage et la détection. Les mesures lisent toujours les pixels d’origine.",
     "Pour détecter des objets dans le champ actuel, sélectionnez le modèle Cellpose et vérifiez ses paramètres. Cet exemple utilise cpsam, la normalisation activée, un seuil de probabilité cellulaire de zéro et un seuil de flux de zéro virgule quatre. Vérifiez si les détections remplaceront les étiquettes existantes ou s’y ajouteront.",
     "Cliquez sur Object detection et comparez les contours obtenus avec l’image. Ici, le modèle sélectionne l’objet partiel en haut à gauche au lieu de la cellule centrale. Annulez ce remplacement et ajustez les paramètres du modèle avant de réessayer.",
     "Ouvrez Cell probability pour inspecter la carte des scores de premier plan. Elle montre les régions que le modèle retient. Modifiez le seuil de premier plan si c’est utile, puis relancez la détection pour obtenir un nouveau résultat.",

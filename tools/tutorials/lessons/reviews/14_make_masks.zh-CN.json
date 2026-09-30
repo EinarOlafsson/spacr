@@ -1,13 +1,25 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "034ad7fdc44be72e0730682e19d8e2dfe43cd6c146ed361e70081986a371a17b",
+  "english_sha256": "e3cdf17aba5d02c5a2eb47a1912e6ef6dff2cc775f504026819434cfbc1cc343",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "restoration_scenes_489": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated directly from the current English source",
+      "date": "2026-09-29",
+      "scenes": [
+        22,
+        23,
+        24,
+        25,
+        26
+      ]
+    }
   },
   "language": "zh-CN",
   "title": "Make Masks：编辑标签并准备训练图像",
@@ -41,6 +53,11 @@
     "标题栏还可以打开Model Compare、Model Zoo、Curate和Open in napari。用Model Compare并排检查掩膜，用Model Zoo选择权重，用整理工具审阅或编辑更多示例。",
     "选择Recrop，拖出一个方框，框住您想放进较小训练视野中的对象。这会写出一张新图像和对应的掩膜。被边界切到的对象会被丢弃，所以请在完整对象周围留出空间，并检查裁剪结果。",
     "点击Next打开新的裁剪图。原始图像和掩膜保存在recropped_originals中，以便恢复。在加入训练数据集之前，请检查裁剪图及其标签。",
+    "Image enhancement 的最后一项是 Deep image enhancement。它在独立环境中用 Cellpose 3 模型恢复所选通道；磁盘上的图像不会被改动。",
+    "选择 Denoise、Deblur 或 One-click restoration，然后打开 Restoration model settings。选择适用于细胞或细胞核的权重，并以像素为单位设置物体的典型直径。",
+    "加载模型。在 CPU 上处理整个视野需要几十秒；原始强度值会保留用于测量。",
+    "Compare raw and enhanced 会并排显示两幅图像。恢复后的图像是模型输出，并非新的结构：在信任基于它绘制的掩膜之前请先检查。",
+    "Apply 仅将恢复后的图像用于显示和检测。测量仍读取原始像素。",
     "要在当前视野中检测对象，请选择Cellpose模型并检查其设置。本例使用cpsam，开启归一化，细胞概率阈值为零，流阈值为零点四。确认检测结果会替换现有标签，还是添加到现有标签中。",
     "点击Object detection，把得到的轮廓与图像进行比较。这里模型选中了左上角的不完整对象，而不是中央的细胞。撤销这次替换，调整模型设置后再试一次。",
     "打开Cell probability检查前景得分图。可以借此看出模型支持哪些区域。必要时调整前景阈值，然后再次运行检测以得到新结果。",

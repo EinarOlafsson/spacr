@@ -1,13 +1,25 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "034ad7fdc44be72e0730682e19d8e2dfe43cd6c146ed361e70081986a371a17b",
+  "english_sha256": "e3cdf17aba5d02c5a2eb47a1912e6ef6dff2cc775f504026819434cfbc1cc343",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "restoration_scenes_489": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated directly from the current English source",
+      "date": "2026-09-29",
+      "scenes": [
+        22,
+        23,
+        24,
+        25,
+        26
+      ]
+    }
   },
   "language": "es",
   "title": "Make Masks: editar etiquetas y preparar imágenes de entrenamiento",
@@ -41,6 +53,11 @@
     "La cabecera también abre Model Compare, Model Zoo, Curate y Open in napari. Usa Model Compare para revisar máscaras una al lado de la otra, Model Zoo para elegir pesos y las herramientas de revisión para inspeccionar o editar más ejemplos.",
     "Elige Recrop y arrastra un recuadro alrededor de los objetos que quieres en un campo de entrenamiento más pequeño. Así se escriben una imagen nueva y su máscara correspondiente. Los objetos cortados por el borde se descartan, así que deja espacio alrededor de los objetos completos y revisa el recorte.",
     "Haz clic en Next para abrir el nuevo recorte. La imagen y la máscara originales se conservan en recropped_originals para poder recuperarlas. Revisa el recorte y sus etiquetas antes de añadirlo a tu conjunto de entrenamiento.",
+    "Image enhancement termina con Deep image enhancement. Restaura el canal seleccionado con un modelo Cellpose 3 en su propio entorno; la imagen del disco nunca se modifica.",
+    "Elija Denoise, Deblur o One-click restoration y luego abra Restoration model settings. Elija pesos para células o núcleos y fije el diámetro típico de los objetos en píxeles.",
+    "Cargue el modelo. En la CPU, un campo completo tarda decenas de segundos; las intensidades originales se conservan para las mediciones.",
+    "Compare raw and enhanced muestra ambas imágenes una junto a otra. La imagen restaurada es un resultado del modelo, no una estructura nueva: revísela antes de confiar en máscaras dibujadas sobre ella.",
+    "Apply usa la imagen restaurada solo para la visualización y la detección. Las mediciones siguen leyendo los píxeles originales.",
     "Para detectar objetos en el campo actual, selecciona el modelo de Cellpose y revisa sus ajustes. Este ejemplo usa cpsam, la normalización activada, un umbral de probabilidad celular de cero y un umbral de flujo de cero coma cuatro. Comprueba si las detecciones sustituirán las etiquetas existentes o se añadirán a ellas.",
     "Haz clic en Object detection y compara los contornos obtenidos con la imagen. Aquí el modelo selecciona el objeto parcial de la esquina superior izquierda en lugar de la célula central. Deshaz esa sustitución y ajusta el modelo antes de volver a intentarlo.",
     "Abre Cell probability para revisar el mapa de puntuaciones del primer plano. Te sirve para ver qué regiones respalda el modelo. Cambia el umbral del primer plano si es útil y vuelve a ejecutar la detección para obtener un resultado nuevo.",

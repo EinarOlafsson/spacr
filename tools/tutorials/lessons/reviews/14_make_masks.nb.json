@@ -1,13 +1,25 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "034ad7fdc44be72e0730682e19d8e2dfe43cd6c146ed361e70081986a371a17b",
+  "english_sha256": "e3cdf17aba5d02c5a2eb47a1912e6ef6dff2cc775f504026819434cfbc1cc343",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "restoration_scenes_489": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated directly from the current English source",
+      "date": "2026-09-29",
+      "scenes": [
+        22,
+        23,
+        24,
+        25,
+        26
+      ]
+    }
   },
   "language": "nb",
   "title": "Make Masks: rediger merkelapper og forbered treningsbilder",
@@ -41,6 +53,11 @@
     "Toppfeltet åpner også Model Compare, Model Zoo, Curate og Open in napari. Bruk Model Compare til å undersøke masker side om side, Model Zoo til å velge vekter og kurasjonsverktøyene til å gå gjennom eller redigere flere eksempler.",
     "Velg Recrop og dra en boks rundt objektene du vil ha i et mindre treningsfelt. Dette skriver et nytt bilde og en tilhørende maske. Objekter som kuttes av kanten, forkastes, så la det være plass rundt hele objekter og undersøk utsnittet.",
     "Klikk på Next for å åpne det nye utsnittet. Det opprinnelige bildet og masken beholdes i recropped_originals for gjenoppretting. Gå gjennom utsnittet og merkelappene før du legger det til i treningsdatasettet ditt.",
+    "Image enhancement avsluttes med Deep image enhancement. Den gjenoppretter den valgte kanalen med en Cellpose 3-modell i sitt eget miljø; bildet på disken endres aldri.",
+    "Velg Denoise, Deblur eller One-click restoration, og åpne deretter Restoration model settings. Velg vekter for celler eller kjerner, og angi typisk objektdiameter i piksler.",
+    "Last inn modellen. På CPU-en tar et helt felt noen titalls sekunder; de opprinnelige intensitetene beholdes for målingene.",
+    "Compare raw and enhanced viser begge bildene side om side. Det gjenopprettede bildet er modellutdata, ikke ny struktur: kontroller det før du stoler på masker tegnet på det.",
+    "Apply bruker det gjenopprettede bildet bare til visning og deteksjon. Målingene leser fortsatt de opprinnelige pikslene.",
     "For å finne objekter i det gjeldende synsfeltet velger du Cellpose-modellen og går gjennom innstillingene. Dette eksemplet bruker cpsam, normalisering slått på, en terskel for cellesannsynlighet på 0 og en flytterskel på 0,4. Kontroller om deteksjonene skal erstatte eksisterende merkelapper eller legges til dem.",
     "Klikk på Object detection og sammenlign de resulterende omrissene med bildet. Her velger modellen det delvise objektet øverst til venstre i stedet for cellen i midten. Angre erstatningen og juster modellinnstillingene før du prøver igjen.",
     "Åpne Cell probability for å undersøke poengkartet for forgrunnen. Bruk det til å se hvilke områder modellen støtter. Endre forgrunnsterskelen når det er nyttig, og kjør deteksjonen på nytt for å få et nytt resultat.",

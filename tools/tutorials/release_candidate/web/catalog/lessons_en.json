@@ -2237,6 +2237,31 @@
           ]
         },
         {
+          "visual": "restoration_01_restoration_row",
+          "narration": "Image enhancement ends with Deep image enhancement. It restores the selected channel with a Cellpose 3 model in its own environment; the image on disk is never changed.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "restoration_02_denoise_settings",
+          "narration": "Choose Denoise, Deblur or One-click restoration, then open Restoration model settings. Pick weights for cells or nuclei and set the typical object diameter in pixels.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "restoration_03_model_ready",
+          "narration": "Load the model. On the CPU a whole field takes tens of seconds; the original intensities are kept for measurements.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "restoration_04_compare",
+          "narration": "Compare raw and enhanced shows both pictures side by side. The restored picture is model output, not new structure: check it before trusting masks drawn on it.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "restoration_05_apply",
+          "narration": "Apply uses the restored picture for display and detection only. Measurements still read the original pixels.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "14_cellpose_settings",
           "narration": "To detect objects in the current field, select the Cellpose model and review its settings. This example uses cpsam, normalization on, cell-probability threshold zero and flow threshold zero point four. Check whether detections will replace existing labels or be added to them.",
           "hold_after": 0.7

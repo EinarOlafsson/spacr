@@ -1,13 +1,25 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "034ad7fdc44be72e0730682e19d8e2dfe43cd6c146ed361e70081986a371a17b",
+  "english_sha256": "e3cdf17aba5d02c5a2eb47a1912e6ef6dff2cc775f504026819434cfbc1cc343",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "restoration_scenes_489": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated directly from the current English source",
+      "date": "2026-09-29",
+      "scenes": [
+        22,
+        23,
+        24,
+        25,
+        26
+      ]
+    }
   },
   "language": "it",
   "title": "Make Masks: modificare le etichette e preparare immagini di addestramento",
@@ -41,6 +53,11 @@
     "L’intestazione apre anche Model Compare, Model Zoo, Curate e Open in napari. Usa Model Compare per esaminare maschere una accanto all’altra, Model Zoo per scegliere i pesi e gli strumenti di revisione per rivedere o modificare altri esempi.",
     "Scegli Recrop e trascina un riquadro intorno agli oggetti che vuoi in un campo di addestramento più piccolo. Vengono scritte una nuova immagine e la maschera corrispondente. Gli oggetti tagliati dal bordo vengono scartati, quindi lascia spazio intorno agli oggetti completi ed esamina il ritaglio.",
     "Fai clic su Next per aprire il nuovo ritaglio. L’immagine e la maschera originali restano in recropped_originals per un eventuale recupero. Controlla il ritaglio e le sue etichette prima di aggiungerlo al set di addestramento.",
+    "Image enhancement termina con Deep image enhancement. Ripristina il canale selezionato con un modello Cellpose 3 nel proprio ambiente; l’immagine su disco non viene mai modificata.",
+    "Scegli Denoise, Deblur o One-click restoration, poi apri Restoration model settings. Scegli i pesi per cellule o nuclei e imposta il diametro tipico degli oggetti in pixel.",
+    "Carica il modello. Sulla CPU un intero campo richiede alcune decine di secondi; le intensità originali restano disponibili per le misurazioni.",
+    "Compare raw and enhanced mostra le due immagini affiancate. L’immagine ripristinata è un risultato del modello, non una nuova struttura: controllala prima di fidarti delle maschere disegnate su di essa.",
+    "Apply usa l’immagine ripristinata solo per la visualizzazione e il rilevamento. Le misurazioni leggono ancora i pixel originali.",
     "Per rilevare oggetti nel campo corrente, seleziona il modello Cellpose e controlla le sue impostazioni. Questo esempio usa cpsam, la normalizzazione attiva, una soglia di probabilità cellulare pari a zero e una soglia di flusso di zero virgola quattro. Verifica se i rilevamenti sostituiranno le etichette esistenti o si aggiungeranno a esse.",
     "Fai clic su Object detection e confronta i contorni ottenuti con l’immagine. Qui il modello seleziona l’oggetto parziale in alto a sinistra invece della cellula centrale. Annulla quella sostituzione e regola le impostazioni del modello prima di riprovare.",
     "Apri Cell probability per esaminare la mappa dei punteggi di primo piano. Ti mostra quali regioni sono sostenute dal modello. Cambia la soglia del primo piano quando è utile, poi esegui di nuovo il rilevamento per ottenere un nuovo risultato.",

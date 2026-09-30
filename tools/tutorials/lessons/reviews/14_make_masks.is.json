@@ -1,13 +1,25 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "034ad7fdc44be72e0730682e19d8e2dfe43cd6c146ed361e70081986a371a17b",
+  "english_sha256": "e3cdf17aba5d02c5a2eb47a1912e6ef6dff2cc775f504026819434cfbc1cc343",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "restoration_scenes_489": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated directly from the current English source",
+      "date": "2026-09-29",
+      "scenes": [
+        22,
+        23,
+        24,
+        25,
+        26
+      ]
+    }
   },
   "language": "is",
   "title": "Make Masks: breyttu merkingum og undirbúðu þjálfunarmyndir",
@@ -41,6 +53,11 @@
     "Hausinn opnar líka Model Compare, Model Zoo, Curate og Open in napari. Notaðu Model Compare til að skoða grímur hlið við hlið, Model Zoo til að velja vigtir og yfirferðartólin til að fara yfir eða breyta fleiri dæmum.",
     "Veldu Recrop og dragðu kassa utan um hlutina sem þú vilt hafa í minna þjálfunarsviði. Þá er skrifuð ný mynd og samsvarandi gríma. Hlutum sem jaðarinn sker er sleppt, svo skildu eftir pláss í kringum heila hluti og skoðaðu úrklippið.",
     "Smelltu á Next til að opna nýja úrklippið. Upprunalega myndin og gríman eru geymdar í recropped_originals svo hægt sé að endurheimta þær. Farðu yfir úrklippið og merkingar þess áður en þú bætir því við þjálfunargagnasafnið.",
+    "Image enhancement endar á Deep image enhancement. Það endurheimtir valda rás með Cellpose 3-líkani í eigin umhverfi; myndinni á disknum er aldrei breytt.",
+    "Veldu Denoise, Deblur eða One-click restoration og opnaðu síðan Restoration model settings. Veldu vigtir fyrir frumur eða kjarna og stilltu dæmigert þvermál hluta í dílum.",
+    "Hladdu líkaninu. Á örgjörvanum tekur heilt svið nokkra tugi sekúndna; upprunalegu styrkgildin haldast fyrir mælingarnar.",
+    "Compare raw and enhanced sýnir báðar myndirnar hlið við hlið. Endurheimta myndin er úttak líkans, ekki ný bygging: skoðaðu hana áður en þú treystir grímum sem teiknaðar eru á hana.",
+    "Apply notar endurheimtu myndina aðeins til birtingar og greiningar. Mælingar lesa enn upprunalegu dílana.",
     "Til að greina hluti í núverandi sjónsviði velurðu Cellpose-líkanið og ferð yfir stillingar þess. Þetta dæmi notar cpsam, kveikt á stöðlun, þröskuld frumulíkinda 0 og flæðisþröskuld 0,4. Athugaðu hvort greiningarnar komi í stað merkinga sem fyrir eru eða bætist við þær.",
     "Smelltu á Object detection og berðu útlínurnar sem fást saman við myndina. Hér velur líkanið hálfa hlutinn efst til vinstri í stað frumunnar í miðjunni. Afturkallaðu þau skipti og stilltu líkanið áður en þú reynir aftur.",
     "Opnaðu Cell probability til að skoða forgrunnsstigakortið. Notaðu það til að sjá hvaða svæði líkanið styður. Breyttu forgrunnsþröskuldinum þegar það hjálpar og keyrðu greininguna aftur til að fá nýja niðurstöðu.",

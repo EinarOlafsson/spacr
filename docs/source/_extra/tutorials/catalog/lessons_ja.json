@@ -2405,6 +2405,36 @@
           "speech_text": "Nextをクリックすると、新しい切り出しが開きます。元の画像とマスクは、復元できるようにrecropped_originalsに保存されます。学習用データセットに加える前に、切り出しとそのラベルを確認します。"
         },
         {
+          "visual": "restoration_01_restoration_row",
+          "narration": "Image enhancementの最後にあるのがDeep image enhancementです。選んだチャンネルを、専用の環境で動くCellpose 3モデルで復元します。ディスク上の画像は変更されません。",
+          "hold_after": 0.7,
+          "speech_text": "Image enhancementの最後にあるのがDeep image enhancementです。選んだチャンネルを、専用の環境で動くセルポーズ 3モデルで復元します。ディスク上の画像は変更されません。"
+        },
+        {
+          "visual": "restoration_02_denoise_settings",
+          "narration": "Denoise、Deblur、One-click restorationのいずれかを選び、Restoration model settingsを開きます。細胞用または核用の重みを選び、物体の典型的な直径をピクセルで設定します。",
+          "hold_after": 0.7,
+          "speech_text": "Denoise、Deblur、One-click restorationのいずれかを選び、Restoration model settingsを開きます。細胞用または核用の重みを選び、物体の典型的な直径をピクセルで設定します。"
+        },
+        {
+          "visual": "restoration_03_model_ready",
+          "narration": "モデルを読み込みます。CPUでは1つのフィールド全体に数十秒かかります。元の強度値は測定のために保たれます。",
+          "hold_after": 0.7,
+          "speech_text": "モデルを読み込みます。CPUでは1つのフィールド全体に数十秒かかります。元の強度値は測定のために保たれます。"
+        },
+        {
+          "visual": "restoration_04_compare",
+          "narration": "Compare raw and enhancedでは2つの画像が並んで表示されます。復元された画像はモデルの出力で、新しい構造ではありません。その上に描いたマスクを信頼する前に確認してください。",
+          "hold_after": 0.7,
+          "speech_text": "Compare raw and enhancedでは2つの画像が並んで表示されます。復元された画像はモデルの出力で、新しい構造ではありません。その上に描いたマスクを信頼する前に確認してください。"
+        },
+        {
+          "visual": "restoration_05_apply",
+          "narration": "Applyは復元画像を表示と検出だけに使います。測定では引き続き元のピクセルを読み取ります。",
+          "hold_after": 0.7,
+          "speech_text": "Applyは復元画像を表示と検出だけに使います。測定では引き続き元のピクセルを読み取ります。"
+        },
+        {
           "visual": "14_cellpose_settings",
           "narration": "現在のフィールドで物体を検出するには、Cellposeのモデルを選び、設定を確認します。この例では、cpsam、正規化オン、細胞確率のしきい値ゼロ、フローのしきい値零点四を使います。検出結果が既存のラベルを置き換えるのか、追加されるのかを確認します。",
           "hold_after": 0.7,

@@ -1,13 +1,25 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "034ad7fdc44be72e0730682e19d8e2dfe43cd6c146ed361e70081986a371a17b",
+  "english_sha256": "e3cdf17aba5d02c5a2eb47a1912e6ef6dff2cc775f504026819434cfbc1cc343",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "restoration_scenes_489": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated directly from the current English source",
+      "date": "2026-09-29",
+      "scenes": [
+        22,
+        23,
+        24,
+        25,
+        26
+      ]
+    }
   },
   "language": "ja",
   "title": "Make Masks：ラベルを編集し、学習用画像を準備する",
@@ -41,6 +53,11 @@
     "ヘッダーからは、Model Compare、Model Zoo、Curate、Open in napariも開けます。マスクを並べて確認するにはModel Compareを、重みを選ぶにはModel Zooを、さらに多くの例を確認・編集するにはキュレーション用のツールを使います。",
     "Recropを選び、小さな学習用フィールドに入れたい物体を囲むようにボックスをドラッグします。これで新しい画像と対応するマスクが書き出されます。境界で切れた物体は除かれるので、完全な物体の周りに余白を残し、切り出しを確認します。",
     "Nextをクリックすると、新しい切り出しが開きます。元の画像とマスクは、復元できるようにrecropped_originalsに保存されます。学習用データセットに加える前に、切り出しとそのラベルを確認します。",
+    "Image enhancementの最後にあるのがDeep image enhancementです。選んだチャンネルを、専用の環境で動くCellpose 3モデルで復元します。ディスク上の画像は変更されません。",
+    "Denoise、Deblur、One-click restorationのいずれかを選び、Restoration model settingsを開きます。細胞用または核用の重みを選び、物体の典型的な直径をピクセルで設定します。",
+    "モデルを読み込みます。CPUでは1つのフィールド全体に数十秒かかります。元の強度値は測定のために保たれます。",
+    "Compare raw and enhancedでは2つの画像が並んで表示されます。復元された画像はモデルの出力で、新しい構造ではありません。その上に描いたマスクを信頼する前に確認してください。",
+    "Applyは復元画像を表示と検出だけに使います。測定では引き続き元のピクセルを読み取ります。",
     "現在のフィールドで物体を検出するには、Cellposeのモデルを選び、設定を確認します。この例では、cpsam、正規化オン、細胞確率のしきい値ゼロ、フローのしきい値零点四を使います。検出結果が既存のラベルを置き換えるのか、追加されるのかを確認します。",
     "Object detectionをクリックし、得られた輪郭を画像と比べます。ここでは、モデルが中央の細胞ではなく、左上の一部だけ写った物体を選んでいます。その置き換えを取り消し、モデルの設定を調整してからもう一度試します。",
     "Cell probabilityを開くと、前景スコアのマップを確認できます。モデルがどの領域を支持しているかがわかります。必要に応じて前景のしきい値を変え、検出をもう一度実行して新しい結果を得ます。",

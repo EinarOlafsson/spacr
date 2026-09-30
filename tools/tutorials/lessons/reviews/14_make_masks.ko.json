@@ -1,13 +1,25 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "034ad7fdc44be72e0730682e19d8e2dfe43cd6c146ed361e70081986a371a17b",
+  "english_sha256": "e3cdf17aba5d02c5a2eb47a1912e6ef6dff2cc775f504026819434cfbc1cc343",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "restoration_scenes_489": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated directly from the current English source",
+      "date": "2026-09-29",
+      "scenes": [
+        22,
+        23,
+        24,
+        25,
+        26
+      ]
+    }
   },
   "language": "ko",
   "title": "Make Masks: 라벨 편집과 학습 이미지 준비",
@@ -41,6 +53,11 @@
     "헤더에서 Model Compare, Model Zoo, Curate, Open in napari도 열 수 있습니다. 마스크를 나란히 검토하려면 Model Compare를, 가중치를 고르려면 Model Zoo를, 더 많은 예제를 검토하거나 편집하려면 정리 도구를 사용하세요.",
     "Recrop을 선택하고 더 작은 학습 시야에 넣을 객체 주위로 상자를 드래그하세요. 새 이미지와 일치하는 마스크가 저장됩니다. 경계에 걸려 잘린 객체는 제외되므로, 완전한 객체 주위에 여백을 두고 크롭을 확인하세요.",
     "Next를 클릭해 새 크롭을 여세요. 원래 이미지와 마스크는 복구할 수 있도록 recropped_originals에 보관됩니다. 학습 데이터셋에 추가하기 전에 크롭과 라벨을 검토하세요.",
+    "Image enhancement의 마지막 항목은 Deep image enhancement입니다. 선택한 채널을 별도의 환경에서 Cellpose 3 모델로 복원하며, 디스크의 이미지는 바뀌지 않습니다.",
+    "Denoise, Deblur 또는 One-click restoration을 선택한 다음 Restoration model settings를 엽니다. 세포용 또는 핵용 가중치를 고르고 물체의 일반적인 지름을 픽셀 단위로 설정합니다.",
+    "모델을 불러옵니다. CPU에서는 필드 하나 전체에 수십 초가 걸리며, 원래 강도 값은 측정을 위해 그대로 유지됩니다.",
+    "Compare raw and enhanced는 두 이미지를 나란히 보여 줍니다. 복원된 이미지는 모델의 출력일 뿐 새로운 구조가 아니므로, 그 위에 그린 마스크를 믿기 전에 확인하세요.",
+    "Apply는 복원된 이미지를 표시와 검출에만 사용합니다. 측정은 여전히 원래 픽셀을 읽습니다.",
     "현재 시야에서 객체를 검출하려면 Cellpose 모델을 선택하고 설정을 검토하세요. 이 예제는 cpsam, 정규화 켜짐, 세포 확률 임곗값 0, 흐름 임곗값 0.4를 사용합니다. 검출 결과가 기존 라벨을 대체하는지 추가되는지 확인하세요.",
     "Object detection을 클릭하고 결과 윤곽을 이미지와 비교하세요. 여기서는 모델이 가운데 세포 대신 왼쪽 위의 일부만 보이는 객체를 선택합니다. 그 대체를 취소하고 모델 설정을 조정한 뒤 다시 시도하세요.",
     "Cell probability를 열어 전경 점수 지도를 확인하세요. 모델이 어떤 영역을 뒷받침하는지 볼 수 있습니다. 필요하면 전경 임곗값을 바꾸고 검출을 다시 실행해 새 결과를 얻으세요.",

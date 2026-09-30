@@ -2216,6 +2216,31 @@
           ]
         },
         {
+          "visual": "restoration_01_restoration_row",
+          "narration": "Image enhancement avsluttes med Deep image enhancement. Den gjenoppretter den valgte kanalen med en Cellpose 3-modell i sitt eget miljø; bildet på disken endres aldri.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "restoration_02_denoise_settings",
+          "narration": "Velg Denoise, Deblur eller One-click restoration, og åpne deretter Restoration model settings. Velg vekter for celler eller kjerner, og angi typisk objektdiameter i piksler.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "restoration_03_model_ready",
+          "narration": "Last inn modellen. På CPU-en tar et helt felt noen titalls sekunder; de opprinnelige intensitetene beholdes for målingene.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "restoration_04_compare",
+          "narration": "Compare raw and enhanced viser begge bildene side om side. Det gjenopprettede bildet er modellutdata, ikke ny struktur: kontroller det før du stoler på masker tegnet på det.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "restoration_05_apply",
+          "narration": "Apply bruker det gjenopprettede bildet bare til visning og deteksjon. Målingene leser fortsatt de opprinnelige pikslene.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "14_cellpose_settings",
           "narration": "For å finne objekter i det gjeldende synsfeltet velger du Cellpose-modellen og går gjennom innstillingene. Dette eksemplet bruker cpsam, normalisering slått på, en terskel for cellesannsynlighet på 0 og en flytterskel på 0,4. Kontroller om deteksjonene skal erstatte eksisterende merkelapper eller legges til dem.",
           "hold_after": 0.7

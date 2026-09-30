@@ -2216,6 +2216,31 @@
           ]
         },
         {
+          "visual": "restoration_01_restoration_row",
+          "narration": "Image enhancement avslutas med Deep image enhancement. Den återställer den valda kanalen med en Cellpose 3-modell i en egen miljö; bilden på disken ändras aldrig.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "restoration_02_denoise_settings",
+          "narration": "Välj Denoise, Deblur eller One-click restoration och öppna sedan Restoration model settings. Välj vikter för celler eller kärnor och ange den typiska objektdiametern i pixlar.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "restoration_03_model_ready",
+          "narration": "Läs in modellen. På CPU:n tar ett helt fält några tiotal sekunder; de ursprungliga intensiteterna behålls för mätningarna.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "restoration_04_compare",
+          "narration": "Compare raw and enhanced visar båda bilderna sida vid sida. Den återställda bilden är modellutdata, inte ny struktur: granska den innan du litar på masker som ritats på den.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "restoration_05_apply",
+          "narration": "Apply använder den återställda bilden enbart för visning och detektering. Mätningarna läser fortfarande de ursprungliga pixlarna.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "14_cellpose_settings",
           "narration": "För att hitta objekt i det aktuella synfältet väljer du Cellpose-modellen och granskar dess inställningar. Det här exemplet använder cpsam, normalisering påslagen, en tröskel för cellsannolikhet på 0 och en flödeströskel på 0,4. Kontrollera om detektionerna ersätter befintliga etiketter eller läggs till dem.",
           "hold_after": 0.7

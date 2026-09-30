@@ -2216,6 +2216,31 @@
           ]
         },
         {
+          "visual": "restoration_01_restoration_row",
+          "narration": "Image enhancement endar á Deep image enhancement. Það endurheimtir valda rás með Cellpose 3-líkani í eigin umhverfi; myndinni á disknum er aldrei breytt.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "restoration_02_denoise_settings",
+          "narration": "Veldu Denoise, Deblur eða One-click restoration og opnaðu síðan Restoration model settings. Veldu vigtir fyrir frumur eða kjarna og stilltu dæmigert þvermál hluta í dílum.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "restoration_03_model_ready",
+          "narration": "Hladdu líkaninu. Á örgjörvanum tekur heilt svið nokkra tugi sekúndna; upprunalegu styrkgildin haldast fyrir mælingarnar.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "restoration_04_compare",
+          "narration": "Compare raw and enhanced sýnir báðar myndirnar hlið við hlið. Endurheimta myndin er úttak líkans, ekki ný bygging: skoðaðu hana áður en þú treystir grímum sem teiknaðar eru á hana.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "restoration_05_apply",
+          "narration": "Apply notar endurheimtu myndina aðeins til birtingar og greiningar. Mælingar lesa enn upprunalegu dílana.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "14_cellpose_settings",
           "narration": "Til að greina hluti í núverandi sjónsviði velurðu Cellpose-líkanið og ferð yfir stillingar þess. Þetta dæmi notar cpsam, kveikt á stöðlun, þröskuld frumulíkinda 0 og flæðisþröskuld 0,4. Athugaðu hvort greiningarnar komi í stað merkinga sem fyrir eru eða bætist við þær.",
           "hold_after": 0.7

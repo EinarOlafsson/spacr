@@ -2405,6 +2405,36 @@
           "speech_text": "Fai clic su Next per aprire il nuovo ritaglio. L’immagine e la maschera originali restano in recropped_originals per un eventuale recupero. Controlla il ritaglio e le sue etichette prima di aggiungerlo al set di addestramento."
         },
         {
+          "visual": "restoration_01_restoration_row",
+          "narration": "Image enhancement termina con Deep image enhancement. Ripristina il canale selezionato con un modello Cellpose 3 nel proprio ambiente; l’immagine su disco non viene mai modificata.",
+          "hold_after": 0.7,
+          "speech_text": "Image enhancement termina con Deep image enhancement. Ripristina il canale selezionato con un modello sel pòus 3 nel proprio ambiente; l’immagine su disco non viene mai modificata."
+        },
+        {
+          "visual": "restoration_02_denoise_settings",
+          "narration": "Scegli Denoise, Deblur o One-click restoration, poi apri Restoration model settings. Scegli i pesi per cellule o nuclei e imposta il diametro tipico degli oggetti in pixel.",
+          "hold_after": 0.7,
+          "speech_text": "Scegli Denoise, Deblur o One-click restoration, poi apri Restoration model settings. Scegli i pesi per cellule o nuclei e imposta il diametro tipico degli oggetti in pixel."
+        },
+        {
+          "visual": "restoration_03_model_ready",
+          "narration": "Carica il modello. Sulla CPU un intero campo richiede alcune decine di secondi; le intensità originali restano disponibili per le misurazioni.",
+          "hold_after": 0.7,
+          "speech_text": "Carica il modello. Sulla CPU un intero campo richiede alcune decine di secondi; le intensità originali restano disponibili per le misurazioni."
+        },
+        {
+          "visual": "restoration_04_compare",
+          "narration": "Compare raw and enhanced mostra le due immagini affiancate. L’immagine ripristinata è un risultato del modello, non una nuova struttura: controllala prima di fidarti delle maschere disegnate su di essa.",
+          "hold_after": 0.7,
+          "speech_text": "Compare raw and enhanced mostra le due immagini affiancate. L’immagine ripristinata è un risultato del modello, non una nuova struttura: controllala prima di fidarti delle maschere disegnate su di essa."
+        },
+        {
+          "visual": "restoration_05_apply",
+          "narration": "Apply usa l’immagine ripristinata solo per la visualizzazione e il rilevamento. Le misurazioni leggono ancora i pixel originali.",
+          "hold_after": 0.7,
+          "speech_text": "Apply usa l’immagine ripristinata solo per la visualizzazione e il rilevamento. Le misurazioni leggono ancora i pixel originali."
+        },
+        {
           "visual": "14_cellpose_settings",
           "narration": "Per rilevare oggetti nel campo corrente, seleziona il modello Cellpose e controlla le sue impostazioni. Questo esempio usa cpsam, la normalizzazione attiva, una soglia di probabilità cellulare pari a zero e una soglia di flusso di zero virgola quattro. Verifica se i rilevamenti sostituiranno le etichette esistenti o si aggiungeranno a esse.",
           "hold_after": 0.7,

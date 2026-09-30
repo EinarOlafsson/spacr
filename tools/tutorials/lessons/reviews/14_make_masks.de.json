@@ -1,13 +1,25 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "034ad7fdc44be72e0730682e19d8e2dfe43cd6c146ed361e70081986a371a17b",
+  "english_sha256": "e3cdf17aba5d02c5a2eb47a1912e6ef6dff2cc775f504026819434cfbc1cc343",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "restoration_scenes_489": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated directly from the current English source",
+      "date": "2026-09-29",
+      "scenes": [
+        22,
+        23,
+        24,
+        25,
+        26
+      ]
+    }
   },
   "language": "de",
   "title": "Make Masks: Labels bearbeiten und Trainingsbilder vorbereiten",
@@ -41,6 +53,11 @@
     "Die Kopfzeile öffnet auch Model Compare, Model Zoo, Curate und Open in napari. Verwenden Sie Model Compare, um Masken nebeneinander zu prüfen, Model Zoo, um Gewichte zu wählen, und die Kurationswerkzeuge, um weitere Beispiele zu prüfen oder zu bearbeiten.",
     "Wählen Sie Recrop und ziehen Sie einen Rahmen um die Objekte, die Sie in einem kleineren Trainingsfeld haben möchten. Dabei werden ein neues Bild und die passende Maske geschrieben. Vom Rand angeschnittene Objekte werden verworfen; lassen Sie daher Platz um vollständige Objekte und prüfen Sie den Ausschnitt.",
     "Klicken Sie auf Next, um den neuen Ausschnitt zu öffnen. Das ursprüngliche Bild und die Maske bleiben zur Wiederherstellung in recropped_originals erhalten. Prüfen Sie den Ausschnitt und seine Labels, bevor Sie ihn Ihrem Trainingsdatensatz hinzufügen.",
+    "Image enhancement endet mit Deep image enhancement. Es stellt den ausgewählten Kanal mit einem Cellpose-3-Modell in einer eigenen Umgebung wieder her; das Bild auf der Festplatte wird nie verändert.",
+    "Wählen Sie Denoise, Deblur oder One-click restoration und öffnen Sie dann Restoration model settings. Wählen Sie Gewichte für Zellen oder Zellkerne und legen Sie den typischen Objektdurchmesser in Pixeln fest.",
+    "Laden Sie das Modell. Auf der CPU dauert ein ganzes Bildfeld einige zehn Sekunden; die ursprünglichen Intensitäten bleiben für die Messungen erhalten.",
+    "Compare raw and enhanced zeigt beide Bilder nebeneinander. Das wiederhergestellte Bild ist eine Modellausgabe, keine neue Struktur: Prüfen Sie es, bevor Sie darauf gezeichneten Masken vertrauen.",
+    "Apply verwendet das wiederhergestellte Bild nur für Anzeige und Erkennung. Die Messungen lesen weiterhin die ursprünglichen Pixel.",
     "Um Objekte im aktuellen Bildfeld zu erkennen, wählen Sie das Cellpose-Modell und prüfen Sie seine Einstellungen. Dieses Beispiel verwendet cpsam, eingeschaltete Normalisierung, einen Zellwahrscheinlichkeits-Schwellenwert von 0 und einen Flow-Schwellenwert von 0,4. Prüfen Sie, ob die Erkennungen bestehende Labels ersetzen oder ergänzen.",
     "Klicken Sie auf Object detection und vergleichen Sie die entstandenen Umrisse mit dem Bild. Hier wählt das Modell das angeschnittene Objekt oben links statt der mittleren Zelle. Machen Sie diese Ersetzung rückgängig und passen Sie die Modelleinstellungen an, bevor Sie es erneut versuchen.",
     "Öffnen Sie Cell probability, um die Vordergrund-Score-Karte zu prüfen. So sehen Sie, welche Regionen das Modell stützt. Ändern Sie bei Bedarf den Vordergrund-Schwellenwert und führen Sie die Erkennung erneut aus, um ein neues Ergebnis zu erhalten.",

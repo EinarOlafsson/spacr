@@ -311,8 +311,8 @@
     },
     {
       "lesson": "14_make_masks",
-      "english_sha256": "034ad7fdc44be72e0730682e19d8e2dfe43cd6c146ed361e70081986a371a17b",
-      "scene_count": 27,
+      "english_sha256": "e3cdf17aba5d02c5a2eb47a1912e6ef6dff2cc775f504026819434cfbc1cc343",
+      "scene_count": 32,
       "source_revised": true,
       "newly_authored": false,
       "manual_review": "source rewrite; media publication pending",

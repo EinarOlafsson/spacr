@@ -2216,6 +2216,31 @@
           ]
         },
         {
+          "visual": "restoration_01_restoration_row",
+          "narration": "Image enhancement의 마지막 항목은 Deep image enhancement입니다. 선택한 채널을 별도의 환경에서 Cellpose 3 모델로 복원하며, 디스크의 이미지는 바뀌지 않습니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "restoration_02_denoise_settings",
+          "narration": "Denoise, Deblur 또는 One-click restoration을 선택한 다음 Restoration model settings를 엽니다. 세포용 또는 핵용 가중치를 고르고 물체의 일반적인 지름을 픽셀 단위로 설정합니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "restoration_03_model_ready",
+          "narration": "모델을 불러옵니다. CPU에서는 필드 하나 전체에 수십 초가 걸리며, 원래 강도 값은 측정을 위해 그대로 유지됩니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "restoration_04_compare",
+          "narration": "Compare raw and enhanced는 두 이미지를 나란히 보여 줍니다. 복원된 이미지는 모델의 출력일 뿐 새로운 구조가 아니므로, 그 위에 그린 마스크를 믿기 전에 확인하세요.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "restoration_05_apply",
+          "narration": "Apply는 복원된 이미지를 표시와 검출에만 사용합니다. 측정은 여전히 원래 픽셀을 읽습니다.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "14_cellpose_settings",
           "narration": "현재 시야에서 객체를 검출하려면 Cellpose 모델을 선택하고 설정을 검토하세요. 이 예제는 cpsam, 정규화 켜짐, 세포 확률 임곗값 0, 흐름 임곗값 0.4를 사용합니다. 검출 결과가 기존 라벨을 대체하는지 추가되는지 확인하세요.",
           "hold_after": 0.7

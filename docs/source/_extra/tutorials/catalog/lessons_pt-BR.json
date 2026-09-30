@@ -2405,6 +2405,36 @@
           "speech_text": "Clique em Next para abrir o novo recorte. A imagem e a máscara originais ficam guardadas em recropped_originals para recuperação. Revise o recorte e os rótulos antes de adicioná-lo ao seu conjunto de treinamento."
         },
         {
+          "visual": "restoration_01_restoration_row",
+          "narration": "Image enhancement termina com Deep image enhancement. Ele restaura o canal selecionado com um modelo Cellpose 3 em seu próprio ambiente; a imagem no disco nunca é alterada.",
+          "hold_after": 0.7,
+          "speech_text": "Image enhancement termina com Deep image enhancement. Ele restaura o canal selecionado com um modelo cél pouz 3 em seu próprio ambiente; a imagem no disco nunca é alterada."
+        },
+        {
+          "visual": "restoration_02_denoise_settings",
+          "narration": "Escolha Denoise, Deblur ou One-click restoration e depois abra Restoration model settings. Escolha pesos para células ou núcleos e defina o diâmetro típico dos objetos em pixels.",
+          "hold_after": 0.7,
+          "speech_text": "Escolha Denoise, Deblur ou One-click restoration e depois abra Restoration model settings. Escolha pesos para células ou núcleos e defina o diâmetro típico dos objetos em pixels."
+        },
+        {
+          "visual": "restoration_03_model_ready",
+          "narration": "Carregue o modelo. Na CPU, um campo inteiro leva algumas dezenas de segundos; as intensidades originais são mantidas para as medições.",
+          "hold_after": 0.7,
+          "speech_text": "Carregue o modelo. Na CPU, um campo inteiro leva algumas dezenas de segundos; as intensidades originais são mantidas para as medições."
+        },
+        {
+          "visual": "restoration_04_compare",
+          "narration": "Compare raw and enhanced mostra as duas imagens lado a lado. A imagem restaurada é uma saída do modelo, não uma estrutura nova: confira-a antes de confiar em máscaras desenhadas sobre ela.",
+          "hold_after": 0.7,
+          "speech_text": "Compare raw and enhanced mostra as duas imagens lado a lado. A imagem restaurada é uma saída do modelo, não uma estrutura nova: confira-a antes de confiar em máscaras desenhadas sobre ela."
+        },
+        {
+          "visual": "restoration_05_apply",
+          "narration": "Apply usa a imagem restaurada apenas para exibição e detecção. As medições continuam lendo os pixels originais.",
+          "hold_after": 0.7,
+          "speech_text": "Apply usa a imagem restaurada apenas para exibição e detecção. As medições continuam lendo os pixels originais."
+        },
+        {
           "visual": "14_cellpose_settings",
           "narration": "Para detectar objetos no campo atual, selecione o modelo do Cellpose e revise as configurações. Este exemplo usa cpsam, normalização ativada, limiar de probabilidade celular zero e limiar de fluxo de zero vírgula quatro. Verifique se as detecções vão substituir os rótulos existentes ou ser adicionadas a eles.",
           "hold_after": 0.7,
