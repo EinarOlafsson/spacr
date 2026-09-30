@@ -3,6 +3,13 @@ name: tests
 on:
   push:
     branches: [main, nightly, "**"]
+    # A push that only touches documentation or item notes starts no run, so
+    # it cannot cancel the code run in flight (item 101: on 2026-09-30 every
+    # nightly push run was cancelled by the docs push after it). The next
+    # code push or a dispatched run still tests the whole tree, docs included.
+    paths-ignore:
+      - "docs/**"
+      - "features/**"
   pull_request:
     branches: [main]
   workflow_dispatch:
