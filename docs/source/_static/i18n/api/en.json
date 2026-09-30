@@ -111269,12 +111269,12 @@
     "spacr.sim.gini": {
       "source_blocks_sha256": [
         "74176b26b002b54e92aa082476381b47a593f0d5ad62bc4a45b69b74a62b3f68",
-        "8bcecc33e3408dcf77aadea0849d01752fe08b164b1db8e3982a19859e10b3a1",
+        "9b333733f94d94a5ed4d21accd878d60d26212480c91124851ce438bced2189d",
         "a5b6cff0dc4399b5e28ce5d3c81d87f230f98a61aeb8761e8ca77805108bb4b8",
         "1e7f2c405671d6ec30ab5a15fa9bd2d560086ed10217e622655705488e4d1603"
       ],
-      "source_sha256": "4ad31e08c656e39bf86d9de51afb3dc52fde2da49d7036309e9036a4ad57d525",
-      "text": "Return the Gini coefficient of ``x`` via the ranked-sum formulation.\n\nReference: StatsDirect non-parametric methods\n(http://www.statsdirect.com/help/default.htm#nonparametric_methods/gini.htm).\n\n:param x: 1-D array-like; all values treated equally.\n:returns: Gini coefficient in ``[0, 1]``."
+      "source_sha256": "33e3e80278699822ec11696b1f7ef63b448368f7eaec6b1f41aed9419a4dc970",
+      "text": "Return the Gini coefficient of ``x`` via the ranked-sum formulation.\n\nReference: StatsDirect non-parametric methods\n(https://www.statsdirect.com/help/nonparametric_methods/gini.htm).\n\n:param x: 1-D array-like; all values treated equally.\n:returns: Gini coefficient in ``[0, 1]``."
     },
     "spacr.sim.gini_coefficient": {
       "source_blocks_sha256": [

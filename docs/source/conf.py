@@ -77,6 +77,29 @@ intersphinx_mapping = {
     'matplotlib':  ('https://matplotlib.org/stable',                   None),
 }
 
+# -- Link check (``sphinx -b linkcheck``) ------------------------------------
+# The tutorial player is copied into the build root from html_extra_path
+# (docs/_build/extra_staged/tutorials), not from docs/source, so linkcheck's
+# local-file test cannot see it. Every ``tutorials/`` link (the player itself,
+# ``#lesson=<id>`` deep links from the API and workflow pages, and example
+# downloads) resolves to /tutorials/ on each published channel.
+# tests/test_module_workflow_map.py pins the relative depth of the API links;
+# all 73 linked lesson ids were matched to lesson_catalog.js on 2026-09-30.
+linkcheck_ignore = [
+    r'^(\.\./)*tutorials/',
+]
+# Anchors that exist in the page a browser shows but not in the HTML that
+# linkcheck downloads:
+# * docs.pytorch.org/docs/stable/* is a JavaScript redirect stub to the
+#   versioned tree (for example /docs/2.14/); the anchors are on that page.
+# * GitHub renders README headings as ``user-content-<slug>`` ids and maps the
+#   plain ``#<slug>`` fragment in JavaScript (Sphinx's own GitHub anchor rewrite
+#   is disabled upstream, sphinx-doc/sphinx#9435).
+linkcheck_anchors_ignore_for_url = [
+    r'^https://(docs\.)?pytorch\.org/docs/stable/',
+    r'^https://github\.com/EinarOlafsson/spacr/?$',
+]
+
 # Napoleon (Google / NumPy → reST bridge) — spaCR uses reST field
 # lists natively but napoleon stays on so any legacy Args/Returns
 # still render cleanly.
