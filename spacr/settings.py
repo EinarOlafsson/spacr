@@ -14,7 +14,9 @@ from .organelle_types import (ALL_ORGANELLE_ROLES,
                               apply_preset, declared_organelle_roles,
                               organelle_count, organelle_number,
                               organelle_slot_label,
-                              slot_setting)
+                              slot_setting,
+                              _background_switch_key,
+                              _legacy_background_switch_role)
 
 LOG = logging.getLogger(__name__)
 
@@ -2057,6 +2059,20 @@ def _renamed_suffix_name(key):
     return None if new is None else f"{role}_{new}"
 
 
+def _renamed_background_switch(key):
+    """The numbered name of a lettered slot background switch, or ``None``.
+
+    ``remove_background_organelleb`` (2026-09-21 to 2026-09-30) is
+    ``remove_background_organelle_2`` today, by the maintainer's 2026-09-30
+    naming (item 76). A rule rather than 701 table rows, like
+    :func:`_renamed_suffix_name`.
+
+    :param key: the key a settings file carries.
+    """
+    role = _legacy_background_switch_role(key)
+    return None if role is None else _background_switch_key(role)
+
+
 def _resolve_rename(key):
     """Walk ``key`` to the end of its rename chain.
 
@@ -2076,6 +2092,8 @@ def _resolve_rename(key):
             direct = RENAMED_SETTINGS.get(name)
             if direct is None:
                 direct = _renamed_suffix_name(name)
+            if direct is None:
+                direct = _renamed_background_switch(name)
             if direct is None:
                 step += (name,)
             elif isinstance(direct, str):
@@ -4168,8 +4186,11 @@ expected_types = {
 }
 
 _clone_organelle_registry(expected_types)
+#: The background switch of every slot after the first, numbered as the user
+#: counts: ``remove_background_organelle_2`` ... (item 76, the maintainer's
+#: name, 2026-09-30; lettered ``remove_background_organelleb`` before).
 SLOT_BACKGROUND_SWITCHES = tuple(
-    f'remove_background_{role}' for role in ORGANELLE_SLOT_ROLES[1:])
+    _background_switch_key(role) for role in ORGANELLE_SLOT_ROLES[1:])
 for _key in SLOT_BACKGROUND_SWITCHES:
     expected_types.setdefault(_key, bool)
 #: The slot prefixes, built ONCE. `str.startswith` takes a tuple and does the
@@ -5367,7 +5388,7 @@ tooltips = {
 _clone_organelle_registry(tooltips, tooltip=True)
 for _role in ORGANELLE_SLOT_ROLES[1:]:
     tooltips.setdefault(
-        f'remove_background_{_role}',
+        _background_switch_key(_role),
         tooltips['remove_background_organelle']
         .replace('organelle_', f'{_role}_')
         .replace('the organelle channel',
@@ -5886,7 +5907,7 @@ for _role in ORGANELLE_SLOT_ROLES[1:]:
         _organelle_slot_key(key, _role) for key in _organelle_basic_slots)
     categories['Organelle advanced'].extend(
         _organelle_slot_key(key, _role) for key in _organelle_advanced_slots)
-    categories['Organelle advanced'].append(f'remove_background_{_role}')
+    categories['Organelle advanced'].append(_background_switch_key(_role))
     for _suffix in ('channel', 'mask_dim', 'chann_dim'):
         _key = f'{_role}_{_suffix}'
         categories['General'].append(_key)
@@ -7198,7 +7219,10 @@ def _set_organelle_defaults(settings):
             slot_key = _organelle_slot_key(key, role)
             base_value = view.get(key, value)
             settings.setdefault(slot_key, deepcopy(base_value))
-        settings.setdefault(f'remove_background_{role}', False)
+        # An old file without the switch keeps the old shared behaviour: the
+        # slot's channel follows the generic remove_background (item 76).
+        settings.setdefault(_background_switch_key(role),
+                            settings.get('remove_background', False))
     return settings
 
 

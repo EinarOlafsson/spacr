@@ -611,6 +611,72 @@ def organelle_slot_label(role: str) -> str:
     return f"Organelle {organelle_number(role)}"
 
 
+#: The settings-key stem of every per-object background switch.
+_BACKGROUND_SWITCH = "remove_background_"
+
+
+def _background_switch_key(role: str) -> str:
+    """The background-removal switch of one organelle slot.
+
+    The maintainer's name, 2026-09-30 (item 76): the first slot keeps
+    ``remove_background_organelle`` and slot N is
+    ``remove_background_organelle_N`` -- numbered as the user counts, not
+    lettered as the storage prefix is. From 2026-09-21 to 2026-09-30 these
+    were ``remove_background_organelleb`` and so on; those spellings are
+    folded onto these by :func:`spacr.settings.surviving_setting_name`.
+
+    :param role: a slot prefix, ``'organelle'``, ``'organelleb'``, ...
+    :raises ValueError: when ``role`` is not an organelle slot.
+    """
+    number = organelle_number(role)
+    if number == 1:
+        return f"{_BACKGROUND_SWITCH}organelle"
+    return f"{_BACKGROUND_SWITCH}organelle_{number}"
+
+
+def _background_switch_role(key: str) -> Optional[str]:
+    """The slot whose background switch ``key`` is, or ``None``.
+
+    :param key: a settings key. ``remove_background_organelle`` is slot 1
+        and ``remove_background_organelle_7`` slot 7; a number outside
+        2..:data:`MAX_ORGANELLES`, the lettered spelling and every other key
+        answer ``None``.
+    """
+    text = str(key)
+    if not text.startswith(_BACKGROUND_SWITCH + "organelle"):
+        return None
+    tail = text[len(_BACKGROUND_SWITCH + "organelle"):]
+    if not tail:
+        return "organelle"
+    if not tail.startswith("_") or not tail[1:].isdigit() \
+            or tail[1] == "0":
+        return None
+    number = int(tail[1:])
+    if not 2 <= number <= MAX_ORGANELLES:
+        return None
+    return organelle_role(number)
+
+
+def _legacy_background_switch_role(key: str) -> Optional[str]:
+    """The slot a pre-2026-09-30 lettered switch named, or ``None``.
+
+    :param key: a settings key such as ``remove_background_organelleb``.
+        The first slot's ``remove_background_organelle`` is current, not
+        legacy, and answers ``None``.
+    """
+    text = str(key)
+    if not text.startswith(_BACKGROUND_SWITCH):
+        return None
+    tail = text[len(_BACKGROUND_SWITCH):]
+    if tail == "organelle":
+        return None
+    try:
+        organelle_number(tail)
+    except ValueError:
+        return None
+    return tail
+
+
 def organelle_role_of(key: str) -> Optional[str]:
     """Which slot a settings key belongs to, or None.
 
