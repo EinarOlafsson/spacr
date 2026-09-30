@@ -1,0 +1,2 @@
+# Sphinx compiles these from the .po catalogs at build time.
+*.mo

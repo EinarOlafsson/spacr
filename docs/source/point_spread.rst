@@ -55,57 +55,18 @@ the integrated intensity. This illustrates convolution with a Gaussian
 approximation. For your microscope, enter measured calibration values and
 inspect the resulting image with **Compare**.
 
-For a batch in **Mask**, including a run with the **Timelapse** switch on,
-open the **Point Spread Function** settings category. Set ``psf_operation`` to
-``convolve`` or ``deconvolve`` and ``psf_image_sampling_um`` to your calibrated
-``[Y, X]`` pixel spacing.
-For ``psf_source="measured"``, select ``psf_path`` and matching
-``psf_kernel_sampling_um``. For ``psf_source="gaussian"``, supply
-``psf_fwhm_um`` instead. ``psf_iterations`` controls deconvolution work.
-
-For Gaussian processing in Mask, Timelapse and Mask Live preview, unset
-image sampling and FWHM can be inferred from the first source image's
-metadata and ``psf_objective``. ``auto`` uses available image metadata,
-then the common defaults described above; an objective-table choice supplies
-that objective's values. Explicit sampling and FWHM take precedence. Review
-the reported values and their sources before accepting a run. Measured
-kernels and Measure still require explicit calibration.
-
-Run preprocessing to rebuild the segmentation inputs after changing these
-settings. One kernel is applied independently to each selected segmentation
-channel, after illumination correction and before normalization. Check that
-its calibration is appropriate for all selected channels. The batch operates
-on two-dimensional projected fields; time-series frames are processed
-independently. Original image intensities remain unchanged for measurement.
-Keep ``psf/segmentation_application.json`` with the results: it identifies the
-kernel and processing settings. Reusing existing preprocessing requires an
-exact completed match. See :func:`spacr.psf_pipeline.prepare_psf`.
-
-Inspect Mask Live preview
--------------------------
-
-After setting up the PSF, open **Live** in Mask and choose a representative
-field. The preview applies the selected kernel before background thresholding
-and model normalization. Inspect the mask boundaries and processing details,
-then try another field before running the batch. Raw-intensity object filters
-continue to use the original intensities.
-
-Live preview normalizes the selected field and does not apply the full
-pipeline's illumination correction. A full Mask run may normalize across a
-batch, so review its saved masks as well as the preview. Changing settings
-requires a new detection; processing details describe the accepted result.
-
 Choose the intensities used by Measure
 --------------------------------------
 
-In **Measure**, open **Point Spread Function** and set
-``psf_measurement_source``. Keep ``original`` for the standard measurement
+In **Measure**, open **Image Preprocessing → Image Deconvolution (PSF)** and
+set ``psf_measurement_source``. Keep ``original`` for the standard measurement
 intensities, including Measure's normal rescaling and preprocessing, without
 additional PSF processing. Choose ``processed`` to measure intensities after
 convolution or deconvolution, then configure ``psf_operation``, the kernel
 source and its calibration.
 
-For a two-dimensional field, enter image sampling and Gaussian widths in
+Measure does not infer optics from image metadata: enter the calibration
+explicitly. For a two-dimensional field, enter image sampling and Gaussian widths in
 ``[Y, X]`` order. For a volume, use ``[Z, Y, X]`` and a matching
 three-dimensional kernel. Volume sampling must agree with Measure's voxel
 calibration or anisotropy settings. A measured kernel must have the same
