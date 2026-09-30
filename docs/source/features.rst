@@ -26,6 +26,26 @@ filamentous, tubular, reticular, cisternal, toroidal, crescent, or custom --
 and the preset chooses the detection strategy, one of spots, network,
 irregular or ring.
 
+Mask generation lays out the per-object settings as one table under
+**Per-object settings**, with a column for each object whose channel is set;
+the cell column is always shown. An object's channel is set on the ordinary
+form, and a hidden object's answers are kept for when its channel is set
+again. Every object has a **Remove background** check box, and the cell
+column also has **Adjust cells**. **Add a filter** adds a row that filters
+objects on any scikit-image regionprop, such as area or mean intensity; each
+object's cell takes ``200 – 5000``, a minimum alone (``200``), a maximum
+alone (``– 5000``) or a blank for no filter. These rows are the
+``object_filters`` setting. Choosing a Cellpose 3 model for an object shows a
+**Cellpose 3** category with that backend's own settings. **Quality Control**
+holds the segmentation checks together with output, storage, runtime and
+reliability settings.
+
+Mask's **Live** preview shows the result as **Overlay**, **Masks**,
+**Flows** or **Cell probability**. Right-click a picture to **Save as PNG…**
+or **Save as PDF…**. Once a session has produced more than one mask,
+**Compare masks…** lays the masks and images you tick over one another,
+each with its own opacity and stacking order, in a panel of its own.
+
 Measure
 ~~~~~~~
 
@@ -34,14 +54,31 @@ colocalization features to ``measurements.db``. It can save classifier-ready
 object crops, estimate illumination correction from a plate, restrict work to
 a region of interest and report segmentation quality before a run.
 
+Measure's settings are grouped as **Input & Experiment**, **Mask & Channel
+Mapping**, **Image Preprocessing** (with **Image Deconvolution (PSF)** and
+**Illumination Correction**), **Features**, **Object Filtering**, **Crop
+Output**, **3D Calibration (Beta)** and **Postprocessing** (with **Runtime &
+Reliability**). The segmentation-quality verdict is opt-in: the **QC** switch
+beside **3D** and **Time** opens it in a popup, and closing the popup turns
+the switch off.
+
 Annotate and Classify
 ~~~~~~~~~~~~~~~~~~~~~
 
 Annotate provides a keyboard-driven crop grid, records labels directly in the
 project database and can rank an active-learning queue by uncertainty.
+A page holds as many crops as fit and never scrolls; the rest are on the next
+page. After **Suggest…**, suggested crops carry a **?** badge: click one or
+press **Y** to confirm it, right-click or press **N** to reject it, and **U**
+undoes. **Confirm the rest of the page** and **Reject the rest of the page**
+judge every remaining suggestion at once. Rejections are kept and inform the
+next round of training.
 Classify trains PyTorch image models or classical and boosted models from
 measurement tables. Checkpoints record their dataset, split rule, class
-balance and held-out metrics.
+balance and held-out metrics. The **Essentials** view of Classify holds what
+is needed to choose and train either family — an image model such as ResNet
+or MaxViT, or a tabular model such as XGBoost or a random forest — and greys
+the settings of the family not chosen.
 
 Classify CV also offers optional rotations and reflections at inference time.
 See :doc:`classifier_evaluation` for the aggregation methods, original and
@@ -141,6 +178,25 @@ Make Masks    Cellpose Workbench, Mask the whole folder, Model Compare,
 
 Parameter Sweep is reached a third way: it is a panel on the Regression
 screen, opened by the **Parameter sweep** switch on its settings form.
+
+Arranging the window
+--------------------
+
+- **Home** keeps its panels in a right-hand column. Drag the column's arrow
+  handle to resize it, or click it to fold the column away
+  and bring it back. The **Text size** slider below the lowest panel scales
+  the text in those panels.
+- **The dock**: while it is shown, drag its edge to make it wider or
+  narrower; double-click the edge to fit it to the module names again.
+- **A module's right-hand column** (console, actions and the other panels)
+  resizes as one by dragging its left edge. Hold **Ctrl** and scroll over it
+  to make its text larger or smaller; **Ctrl+0** over the column returns to
+  the default size.
+- **Tooltips** appear after the pointer rests for two seconds and stay
+  while the pointer is on them. Turn them all off with **Preferences →
+  Appearance → Tooltips**.
+
+These sizes are remembered between sessions.
 
 Make Masks
 ----------
