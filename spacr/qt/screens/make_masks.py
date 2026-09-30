@@ -13107,9 +13107,13 @@ class MakeMasksScreen(QWidget):
             "plate run applies these steps to every selected channel after "
             "illumination correction and before normalization. Morphology "
             "and split reshape a detector's labels and stay here."))
+        self._btn_to_mask.setObjectName("MakeMasksUseInMaskGeneration")
         self._btn_to_mask.clicked.connect(self._send_chain_to_mask)
         actions.addWidget(self._btn_to_mask)
         card.body_layout.addLayout(actions)
+        from ..preferences import _apply_alpha_widgets
+
+        _apply_alpha_widgets(self._btn_to_mask)
 
         for widget in (self._enh_background, self._enh_denoise,
                        self._enh_morphology):
