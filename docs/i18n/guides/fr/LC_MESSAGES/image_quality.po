@@ -1,0 +1,81 @@
+# spaCR user guide translation (fr).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: fr\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Image quality before segmentation"
+msgstr "Qualité d’image avant la segmentation"
+
+msgid "From **Home → Core → Mask**, open the **Image Quality** settings category before running segmentation. The same settings apply when Mask's **Timelapse** switch is on. Screening measures the raw, unnormalized image channels. Start in ``report`` mode to inspect acquisition problems before deciding which fields to exclude."
+msgstr "Depuis **Accueil → Cœur → Masques**, ouvrez la catégorie de paramètres **Qualité d’image** avant d’exécuter la segmentation. Les mêmes paramètres s’appliquent lorsque l’interrupteur **Série temporelle** de Masques est activé. Le contrôle mesure les canaux d’image bruts, non normalisés. Commencez en mode ``report`` pour examiner les problèmes d’acquisition avant de décider quels champs exclure."
+
+msgid "The policy"
+msgstr "La politique"
+
+msgid "``image_qc_mode``: ``off`` (default), ``report`` (flag fields but process them), or ``exclude`` (skip flagged fields downstream)."
+msgstr "``image_qc_mode`` : ``off`` (par défaut), ``report`` (signaler les champs mais les traiter) ou ``exclude`` (ignorer les champs signalés en aval)."
+
+msgid "``image_qc_channels``: acquisition-channel indices to screen; an empty list screens every available channel."
+msgstr "``image_qc_channels`` : indices des canaux d’acquisition à contrôler ; une liste vide contrôle tous les canaux disponibles."
+
+msgid "``image_qc_min_focus``: channel-to-threshold mapping for minimum Laplacian variance. A stack uses its best plane's score; an out-of-focus plane alone does not reject an otherwise usable stack. Choose thresholds from controls acquired with the same intensity scale and optics."
+msgstr "``image_qc_min_focus`` : correspondance canal → seuil pour la variance laplacienne minimale. Une pile utilise le score de son meilleur plan ; un plan flou à lui seul n’entraîne pas le rejet d’une pile par ailleurs utilisable. Choisissez les seuils à partir de contrôles acquis avec la même échelle d’intensité et la même optique."
+
+msgid "``image_qc_max_saturation``: channel-to-threshold mapping for the maximum fraction of saturated pixels, from zero to one."
+msgstr "``image_qc_max_saturation`` : correspondance canal → seuil pour la fraction maximale de pixels saturés, de zéro à un."
+
+msgid "``image_qc_saturation_level``: channel-to-intensity mapping for the acquisition saturation ceiling. For example, a 12-bit acquisition stored in ``uint16`` normally needs its acquisition ceiling rather than the ``uint16`` ceiling. Integer data otherwise use the dtype maximum; floating data require an explicit level when a saturation threshold is enabled."
+msgstr "``image_qc_saturation_level`` : correspondance canal → intensité pour le plafond de saturation de l’acquisition. Par exemple, une acquisition sur 12 bits stockée en ``uint16`` nécessite normalement son plafond d’acquisition plutôt que le plafond ``uint16``. Sinon, les données entières utilisent le maximum du type de données ; les données à virgule flottante exigent un niveau explicite lorsqu’un seuil de saturation est activé."
+
+msgid "``image_qc_max_nonfinite``: maximum fraction of nonfinite pixels, from zero to one; defaults to zero."
+msgstr "``image_qc_max_nonfinite`` : fraction maximale de pixels non finis, de zéro à un ; zéro par défaut."
+
+msgid "Focus thresholds use raw intensity units squared. These are acquisition checks: low object counts do not cause exclusion. The brightest observed pixel is never substituted for a calibrated saturation level."
+msgstr "Les seuils de netteté utilisent des unités d’intensité brute au carré. Il s’agit de contrôles d’acquisition : un faible nombre d’objets n’entraîne pas d’exclusion. Le pixel le plus brillant observé n’est jamais substitué à un niveau de saturation calibré."
+
+msgid "Review and outputs"
+msgstr "Examen et sorties"
+
+msgid "Open **Home → Data → QC** and choose **Review image quality** for a local thumbnail gallery. Flagged fields appear first, with at most 64 previews. Display contrast is stretched for inspection; the metrics still use raw intensities. Stack thumbnails are maximum projections."
+msgstr "Ouvrez **Accueil → Données → QC** et choisissez **Examiner la qualité d’image** pour une galerie locale de miniatures. Les champs signalés apparaissent en premier, avec au plus 64 aperçus. Le contraste d’affichage est étiré pour l’inspection ; les métriques utilisent toujours les intensités brutes. Les miniatures de piles sont des projections d’intensité maximale."
+
+msgid "The project's ``qc`` directory contains:"
+msgstr "Le dossier ``qc`` du projet contient :"
+
+msgid "``image_quality.csv``: every screened field and channel, its focus variance, saturation level/fraction, nonfinite fraction, status and reasons;"
+msgstr "``image_quality.csv`` : chaque champ et canal contrôlé, avec sa variance de netteté, son niveau et sa fraction de saturation, sa fraction de pixels non finis, son statut et ses motifs ;"
+
+msgid "``image_quality.json``: the exact policy and excluded field identities;"
+msgstr "``image_quality.json`` : la politique exacte et les identités des champs exclus ;"
+
+msgid "``image_quality.html``: the review gallery."
+msgstr "``image_quality.html`` : la galerie d’examen."
+
+msgid "Exclusion retains the original inputs. Segmentation, merge and Measure respect the saved exclusions; excluded fields are not represented as successful zero-object detections."
+msgstr "L’exclusion conserve les entrées d’origine. La segmentation, la fusion et Mesure respectent les exclusions enregistrées ; les champs exclus ne sont pas représentés comme des détections réussies sans aucun objet."
+
+msgid "Revisiting an analyzed project"
+msgstr "Revenir sur un projet déjà analysé"
+
+msgid "New exclusions are refused if the affected fields already have retained measurement rows. Use ``report`` to inspect that project without changing its inclusion policy, or run the exclusion policy in a fresh project. Existing measurements and the previous policy are retained when this check refuses a change. Turning screening ``off`` clears the active exclusion policy."
+msgstr "Les nouvelles exclusions sont refusées si les champs concernés ont déjà des lignes de mesure conservées. Utilisez ``report`` pour examiner ce projet sans modifier sa politique d’inclusion, ou appliquez la politique d’exclusion dans un nouveau projet. Les mesures existantes et la politique précédente sont conservées lorsque cette vérification refuse une modification. Régler le contrôle sur ``off`` efface la politique d’exclusion active."
+
+msgid "The Python entry points are :func:`spacr.image_quality.quality_policy`, :func:`spacr.image_quality.assess_image` and :func:`spacr.image_quality.screen_fields`."
+msgstr "Les points d’entrée Python sont :func:`spacr.image_quality.quality_policy`, :func:`spacr.image_quality.assess_image` et :func:`spacr.image_quality.screen_fields`."
+

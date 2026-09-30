@@ -1,0 +1,87 @@
+# spaCR user guide translation (de).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: de\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Export measurements to AnnData"
+msgstr "Messungen nach AnnData exportieren"
+
+msgid "Create an ``.h5ad`` file containing measured features and object metadata for analysis in AnnData or Scanpy. Start with a spaCR project containing ``measurements/measurements.db``. For a worked example, download the project from the `Annotate tutorial <tutorials/#lesson=09_annotate>`__."
+msgstr "Erstellen Sie eine ``.h5ad``-Datei mit gemessenen Merkmalen und Objektmetadaten für die Analyse in AnnData oder Scanpy. Beginnen Sie mit einem spaCR-Projekt, das ``measurements/measurements.db`` enthält. Für ein ausgearbeitetes Beispiel laden Sie das Projekt aus dem `Tutorial zum Annotieren <tutorials/#lesson=09_annotate>`__ herunter."
+
+msgid "Export from the application"
+msgstr "Aus der Anwendung exportieren"
+
+msgid "From **Home**, open **Measure**, then **AnnData Export**."
+msgstr "Öffnen Sie auf der **Startseite** zuerst **Messen** und dann **AnnData-Export**."
+
+msgid "Select the measured project as the source."
+msgstr "Wählen Sie das gemessene Projekt als Quelle aus."
+
+msgid "Set **Anndata out** to a new ``.h5ad`` filename. Leaving it empty writes beneath the project's ``results`` folder. A successful export replaces an existing file at the chosen path; use separate names to keep both versions."
+msgstr "Setzen Sie **Anndata-Ausgabe** auf einen neuen ``.h5ad``-Dateinamen. Bleibt das Feld leer, wird in den Ordner ``results`` des Projekts geschrieben. Ein erfolgreicher Export ersetzt eine vorhandene Datei unter dem gewählten Pfad; verwenden Sie unterschiedliche Namen, um beide Versionen zu behalten."
+
+msgid "Set **Anndata single table** to ``cell`` for one row per cell using that table's features. Use ``nucleus`` or ``pathogen`` for those object types. Leave it empty for a cell-level joined export, where child measurements are aggregated onto their parent cells."
+msgstr "Setzen Sie **Anndata-Einzeltabelle** auf ``cell``, um eine Zeile pro Zelle mit den Merkmalen dieser Tabelle zu erhalten. Verwenden Sie ``nucleus`` oder ``pathogen`` für diese Objekttypen. Lassen Sie das Feld leer für einen verknüpften Export auf Zellebene, bei dem die Messungen untergeordneter Objekte auf ihre übergeordneten Zellen aggregiert werden."
+
+msgid "Choose **Anndata nan policy**, then click **Run**. Read the completion message and open the output file to check its shape and feature names."
+msgstr "Wählen Sie die **Anndata-NaN-Richtlinie** und klicken Sie dann auf **Ausführen**. Lesen Sie die Abschlussmeldung und öffnen Sie die Ausgabedatei, um ihre Dimensionen und Merkmalsnamen zu prüfen."
+
+msgid "Choose how to handle missing features"
+msgstr "Den Umgang mit fehlenden Merkmalen wählen"
+
+msgid "``keep`` retains missing values. Choose this when you want to decide how to handle them in the downstream analysis."
+msgstr "``keep`` behält fehlende Werte bei. Wählen Sie diese Option, wenn Sie in der nachgelagerten Analyse selbst entscheiden möchten, wie sie behandelt werden."
+
+msgid "``drop_features`` removes feature columns containing missing values."
+msgstr "``drop_features`` entfernt Merkmalsspalten, die fehlende Werte enthalten."
+
+msgid "``drop_objects`` removes object rows containing missing feature values."
+msgstr "``drop_objects`` entfernt Objektzeilen, die fehlende Merkmalswerte enthalten."
+
+msgid "``mean`` replaces missing values with the observed feature mean."
+msgstr "``mean`` ersetzt fehlende Werte durch den beobachteten Mittelwert des Merkmals."
+
+msgid "``zero`` replaces missing values with zero. Use it only when zero is an appropriate value for the intended analysis."
+msgstr "``zero`` ersetzt fehlende Werte durch null. Verwenden Sie diese Option nur, wenn null für die vorgesehene Analyse ein geeigneter Wert ist."
+
+msgid "The imputing policies retain the original missing positions in ``layers['missing']``. These choices apply to the feature matrix, not to unknown metadata such as unavailable calibration values. Check object and feature counts after choosing a dropping policy. Scanpy operations such as scaling and PCA need missing feature values to be handled before use."
+msgstr "Die imputierenden Richtlinien bewahren die ursprünglichen Positionen fehlender Werte in ``layers['missing']``. Diese Optionen gelten für die Merkmalsmatrix, nicht für unbekannte Metadaten wie nicht verfügbare Kalibrierwerte. Prüfen Sie die Anzahl der Objekte und Merkmale, nachdem Sie eine entfernende Richtlinie gewählt haben. Scanpy-Operationen wie Skalierung und PCA setzen voraus, dass fehlende Merkmalswerte vorher behandelt wurden."
+
+msgid "Inspect the output"
+msgstr "Die Ausgabe prüfen"
+
+msgid "``X`` contains the object-by-feature matrix, ``obs`` contains object metadata, and ``var`` describes the features. Keep the source images and their paths: image pixels are not embedded in the export. With the Annotate example, a cell-only export using ``keep`` has 2,341 objects, 261 features and 28 missing feature values."
+msgstr "``X`` enthält die Objekt-mal-Merkmal-Matrix, ``obs`` enthält die Objektmetadaten und ``var`` beschreibt die Merkmale. Bewahren Sie die Quellbilder und ihre Pfade auf: Bildpixel werden nicht in den Export eingebettet. Mit dem Beispiel aus Annotieren hat ein reiner Zellexport mit ``keep`` 2.341 Objekte, 261 Merkmale und 28 fehlende Merkmalswerte."
+
+msgid "Export from Python"
+msgstr "Aus Python exportieren"
+
+msgid "The following uses the same entry point as the application's **Run** button:"
+msgstr "Das Folgende verwendet denselben Einstiegspunkt wie die Schaltfläche **Ausführen** der Anwendung:"
+
+msgid "For explicit function arguments, see :func:`spacr.anndata_export.export_anndata`."
+msgstr "Explizite Funktionsargumente finden Sie unter :func:`spacr.anndata_export.export_anndata`."
+
+msgid "Follow the video"
+msgstr "Dem Video folgen"
+
+msgid "The `AnnData video <tutorials/#lesson=59_anndata_export>`__ walks through these controls using the downloadable measurement example. It shows joined, cell-only and nucleus-only exports and compares the missing-value policies. The normal exporter handles entirely missing metadata directly. If writing a replacement fails, an existing completed output is preserved."
+msgstr "Das `AnnData-Video <tutorials/#lesson=59_anndata_export>`__ führt anhand des herunterladbaren Messbeispiels durch diese Bedienelemente. Es zeigt verknüpfte Exporte sowie reine Zell- und reine Zellkernexporte und vergleicht die Richtlinien für fehlende Werte. Der normale Exporter verarbeitet vollständig fehlende Metadaten direkt. Schlägt das Schreiben einer Ersatzdatei fehl, bleibt eine vorhandene, vollständige Ausgabe erhalten."
+
