@@ -1,0 +1,308 @@
+# spaCR user guide translation (sv).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: sv\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "spaCR plugin SDK"
+msgstr "spaCR:s SDK för tillägg"
+
+msgid "The plugin SDK lets a separately installed Python package add assays, importers, analysis utilities, settings panels, model-zoo entries and report sections without editing spaCR. Plugins use Python package entry points, so spaCR discovers them at startup and keeps them available to both the Qt application and ``spacr-run``."
+msgstr "SDK:t för tillägg låter ett separat installerat Python-paket lägga till analyser, importfunktioner, analysverktyg, inställningspaneler, poster i modellbiblioteket och rapportavsnitt utan att spaCR behöver ändras. Tillägg använder ingångspunkter i Python-paket, så spaCR hittar dem vid start och håller dem tillgängliga både för Qt-programmet och för ``spacr-run``."
+
+msgid "The current SDK API is ``1.0``. Only the major version controls compatibility: a plugin declaring API ``1.x`` works with spaCR's ``1.x`` SDK. A malformed or failing plugin is isolated and reported by ``spacr-plugins doctor``; it cannot replace a built-in module or prevent spaCR from starting."
+msgstr "Den aktuella SDK-API-versionen är ``1.0``. Bara huvudversionen styr kompatibiliteten: ett tillägg som deklarerar API ``1.x`` fungerar med spaCR:s SDK ``1.x``. Ett felformat eller felande tillägg isoleras och rapporteras av ``spacr-plugins doctor``; det kan inte ersätta en inbyggd modul eller hindra spaCR från att starta."
+
+msgid "Minimal plugin"
+msgstr "Minimalt tillägg"
+
+msgid "Declare the entry point in the plugin package's ``pyproject.toml``:"
+msgstr "Deklarera ingångspunkten i tilläggspaketets ``pyproject.toml``:"
+
+msgid "Then expose a manifest:"
+msgstr "Exponera sedan ett manifest:"
+
+msgid "The pipeline callable receives one settings dictionary. The defaults callable must accept an optional settings dictionary and return a dictionary. A validator returns :class:`spacr.validate.Problem` objects (or equivalent mappings). All processing still runs through spaCR's worker, journal, cancellation and reproducibility paths."
+msgstr "Pipelinefunktionen tar emot en ordlista med inställningar. Funktionen för standardvärden måste acceptera en valfri inställningsordlista och returnera en ordlista. En validerare returnerar :class:`spacr.validate.Problem`-objekt (eller motsvarande mappningar). All bearbetning går fortfarande genom spaCR:s arbetsprocess, journal, avbrytning och reproducerbarhetsvägar."
+
+msgid "Settings and custom screens"
+msgstr "Inställningar och egna skärmar"
+
+msgid "The generic settings screen is preferred: declare ``categories``, ``tooltips`` and optional ``labels`` on :class:`spacr.plugins.AppContribution`. The UI then provides the normal Run/Stop controls, console, progress reporting, API links, drag-and-drop fallback and remote-submit action."
+msgstr "Den generiska inställningsskärmen är att föredra: deklarera ``categories``, ``tooltips`` och valfria ``labels`` på :class:`spacr.plugins.AppContribution`. Gränssnittet tillhandahåller då de vanliga kontrollerna för Kör/Stoppa, konsol, förloppsrapportering, API-länkar, reservhantering för dra och släpp samt åtgärden för fjärrinskickning."
+
+msgid "For a layout the generic screen cannot express, set ``screen_factory`` to a ``module:callable``. The callable is invoked as ``factory(app_key=...)`` and must return a ``PySide6.QtWidgets.QWidget``. A custom ``drop_handler`` must be a subclass of ``spacr.qt.dnd_handlers.DropHandler``. ``icon`` may name a spaCR semantic icon or an absolute image path; otherwise the normal puzzle piece fallback is used."
+msgstr "För en layout som den generiska skärmen inte kan uttrycka sätter du ``screen_factory`` till en ``module:callable``. Funktionen anropas som ``factory(app_key=...)`` och måste returnera en ``PySide6.QtWidgets.QWidget``. En egen ``drop_handler`` måste vara en underklass till ``spacr.qt.dnd_handlers.DropHandler``. ``icon`` kan ange en semantisk spaCR-ikon eller en absolut bildsökväg; annars används den vanliga pusselbiten som reserv."
+
+msgid "Model providers"
+msgstr "Modelleverantörer"
+
+msgid "Add a :class:`spacr.plugins.ModelProviderContribution`. Its zero-argument callable returns an iterable of :class:`spacr.model_zoo.ModelEntry` objects or the mappings accepted by spaCR's JSON model catalogue."
+msgstr "Lägg till en :class:`spacr.plugins.ModelProviderContribution`. Dess funktion utan argument returnerar en itererbar samling av :class:`spacr.model_zoo.ModelEntry`-objekt eller de mappningar som spaCR:s JSON-modellkatalog accepterar."
+
+msgid "Providers must be read-only during catalogue discovery. Downloads remain an explicit Model Zoo action. A provider exception is shown by ``spacr-plugins doctor`` and built-in models remain available."
+msgstr "Leverantörer måste vara skrivskyddade medan katalogen genomsöks. Nedladdningar förblir en uttrycklig åtgärd i Modellbibliotek. Ett undantag från en leverantör visas av ``spacr-plugins doctor``, och de inbyggda modellerna förblir tillgängliga."
+
+msgid "Report sections"
+msgstr "Rapportavsnitt"
+
+msgid "A :class:`spacr.plugins.ReportSectionContribution` builder receives a read-only :class:`spacr.plugins.ReportContext` and returns a :class:`spacr.report.Section`:"
+msgstr "En byggare i :class:`spacr.plugins.ReportSectionContribution` tar emot en skrivskyddad :class:`spacr.plugins.ReportContext` och returnerar en :class:`spacr.report.Section`:"
+
+msgid "If the builder raises, the generated report contains a visible problem chapter with the exception instead of silently omitting the section."
+msgstr "Om byggaren utlöser ett undantag innehåller den genererade rapporten ett synligt problemkapitel med undantaget i stället för att avsnittet utelämnas i tysthet."
+
+msgid "Translations"
+msgstr "Översättningar"
+
+msgid "``SpacrPlugin.translations`` maps spaCR language codes to English-source / translated-text mappings. Supported codes are ``sv``, ``de``, ``es``, ``zh_CN``, ``pt``, ``hi``, ``ko``, ``is`` and ``fr``. Missing strings fall back to English."
+msgstr "``SpacrPlugin.translations`` mappar spaCR:s språkkoder till mappningar från engelsk källtext till översatt text. Koder som stöds är ``sv``, ``de``, ``es``, ``zh_CN``, ``pt``, ``hi``, ``ko``, ``is`` och ``fr``. Saknade strängar faller tillbaka på engelska."
+
+msgid "Development and diagnostics"
+msgstr "Utveckling och diagnostik"
+
+msgid "During local development only, point ``SPACR_PLUGIN_MODULES`` at a comma-separated list of ``module:attribute`` references. Set ``SPACR_DISABLE_PLUGINS=1`` to start spaCR without third-party plugins."
+msgstr "Bara under lokal utveckling kan du låta ``SPACR_PLUGIN_MODULES`` peka på en kommaseparerad lista med referenser av typen ``module:attribute``. Sätt ``SPACR_DISABLE_PLUGINS=1`` för att starta spaCR utan tillägg från tredje part."
+
+msgid "The public SDK lives in :mod:`spacr.plugins`; the diagnostics command lives in :mod:`spacr.cli_plugins`."
+msgstr "Det publika SDK:t finns i :mod:`spacr.plugins`; diagnostikkommandot finns i :mod:`spacr.cli_plugins`."
+
+msgid "API reference"
+msgstr "API-referens"
+
+msgid "Versioned extension SDK for third-party spaCR plugins."
+msgstr "Versionerat SDK för tillägg från tredje part till spaCR."
+
+msgid "Plugins are ordinary Python distributions exposing one entry point in the ``spacr.plugins`` group.  The entry point may resolve to a :class:`SpacrPlugin`, a mapping accepted by :func:`plugin_from_mapping`, or a zero-argument factory returning either.  Discovery is lazy, deterministic and failure-isolated: one malformed plugin is recorded in :func:`diagnostics` without preventing spaCR or the remaining plugins from loading."
+msgstr "Tillägg är vanliga Python-distributioner som exponerar en ingångspunkt i gruppen ``spacr.plugins``.  Ingångspunkten kan leda till en :class:`SpacrPlugin`, en mappning som godtas av :func:`plugin_from_mapping` eller en fabrik utan argument som returnerar något av dem.  Upptäckten är lat, deterministisk och felisolerad: ett felformat tillägg registreras i :func:`diagnostics` utan att hindra spaCR eller de övriga tilläggen från att läsas in."
+
+msgid "For editable/local development, ``SPACR_PLUGIN_MODULES`` may contain a comma-separated list of ``module`` or ``module:attribute`` references. Installed plugins should always use package entry points instead."
+msgstr "För redigerbar/lokal utveckling kan ``SPACR_PLUGIN_MODULES`` innehålla en kommaseparerad lista med referenser av typen ``module`` eller ``module:attribute``. Installerade tillägg bör alltid använda paketingångspunkter i stället."
+
+msgid "Plugins and assay recipes can also be installed from a catalogue, a JSON file listing each entry's version, author and licence. A catalogue plugin is installed into its own folder under ``~/.spacr/plugins`` (or ``SPACR_PLUGIN_HOME``), together with the libraries it asks for, so it never replaces or upgrades a package spaCR itself uses; it is discovered like any other plugin until it is uninstalled."
+msgstr "Tillägg och analysrecept kan också installeras från en katalog, en JSON-fil som anger varje posts version, upphovsperson och licens. Ett katalogtillägg installeras i en egen mapp under ``~/.spacr/plugins`` (eller ``SPACR_PLUGIN_HOME``) tillsammans med de bibliotek det begär, så att det aldrig ersätter eller uppgraderar ett paket som spaCR själv använder; det upptäcks som vilket annat tillägg som helst tills det avinstalleras."
+
+msgid "Setting ``SPACR_DISABLE_PLUGINS`` to ``1``, ``true``, ``yes`` or ``on`` (case-insensitively) skips discovery entirely, so no plugin loads from either source."
+msgstr "Om ``SPACR_DISABLE_PLUGINS`` sätts till ``1``, ``true``, ``yes`` eller ``on`` (oavsett skiftläge) hoppas upptäckten över helt, så att inget tillägg läses in från någon av källorna."
+
+msgid "One runnable GUI/headless application contributed by a plugin."
+msgstr "Ett körbart program för GUI eller utan grafiskt gränssnitt som ett tillägg bidrar med."
+
+#, python-brace-format
+msgid "Discovery rejects the contribution with :exc:`ValueError` when ``section``, ``stage``, ``kind`` or ``call_style`` falls outside the fixed vocabulary listed below, when ``key`` does not match ``^[a-z][a-z0-9_]{1,63}$``, or when any non-empty ``module:callable`` reference is malformed."
+msgstr "Upptäckten avvisar bidraget med :exc:`ValueError` när ``section``, ``stage``, ``kind`` eller ``call_style`` ligger utanför det fasta ordförråd som anges nedan, när ``key`` inte matchar ``^[a-z][a-z0-9_]{1,63}$``, eller när någon icke-tom referens av typen ``module:callable`` är felformad."
+
+msgid "Variables"
+msgstr "Variabler"
+
+#, python-brace-format
+msgid "identifier the CLI accepts and the GUI registers under; must match ``^[a-z][a-z0-9_]{1,63}$``. Reusing another plugin's key fails that plugin's load; colliding with a built-in app skips the contribution and records a diagnostic."
+msgstr "identifierare som CLI:t accepterar och som GUI:t registrerar under; måste matcha ``^[a-z][a-z0-9_]{1,63}$``. Om ett annat tilläggs nyckel återanvänds misslyckas inläsningen av det tillägget; en kollision med ett inbyggt program gör att bidraget hoppas över och en diagnostik registreras."
+
+msgid "human-readable title shown in the sidebar and screen header; cannot be blank."
+msgstr "läsbar titel som visas i sidofältet och skärmrubriken; får inte vara tom."
+
+msgid "one-line blurb used as the app intro and the ``spacr-run --list`` summary; cannot be blank."
+msgstr "kort beskrivning på en rad som används som programmets introduktion och som sammanfattning i ``spacr-run --list``; får inte vara tom."
+
+msgid "``\"module:callable\"`` reference to the callable that does the work."
+msgstr "referens av typen ``\"module:callable\"`` till den funktion som utför arbetet."
+
+#, python-brace-format
+msgid "``\"module:callable\"`` reference to a helper returning the settings dictionary; called with ``{}`` and retried with no argument."
+msgstr "referens av typen ``\"module:callable\"`` till en hjälpfunktion som returnerar inställningsordlistan; anropas med ``{}`` och försöks igen utan argument."
+
+msgid "sidebar group; one of ``\"core\"``, ``\"data\"``, ``\"models\"``, ``\"results\"`` or ``\"toxo\"``."
+msgstr "grupp i sidofältet; en av ``\"core\"``, ``\"data\"``, ``\"models\"``, ``\"results\"`` eller ``\"toxo\"``."
+
+msgid "maturity annotation; one of ``\"alpha\"``, ``\"beta\"`` or ``\"stable\"``."
+msgstr "mognadsmarkering; en av ``\"alpha\"``, ``\"beta\"`` eller ``\"stable\"``."
+
+msgid "what the app is; one of ``\"assay\"``, ``\"importer\"``, ``\"analysis\"`` or ``\"utility\"``."
+msgstr "vad programmet är; en av ``\"assay\"``, ``\"importer\"``, ``\"analysis\"`` eller ``\"utility\"``."
+
+msgid "settings-screen tabs, mapping a tab name to the setting keys it holds; empty means the generic ungrouped layout."
+msgstr "flikar på inställningsskärmen, som mappar ett fliknamn till de inställningsnycklar den innehåller; tomt betyder den generiska ogrupperade layouten."
+
+msgid "hover text per setting key."
+msgstr "hovringstext per inställningsnyckel."
+
+msgid "display label per setting key, overriding the generated one."
+msgstr "visningsetikett per inställningsnyckel, som åsidosätter den genererade."
+
+msgid "address the settings screen's API link opens."
+msgstr "adress som inställningsskärmens API-länk öppnar."
+
+msgid "extra names the CLI and :mod:`spacr.validate` resolve to :attr:`key`."
+msgstr "extra namn som CLI:t och :mod:`spacr.validate` löser upp till :attr:`key`."
+
+msgid "optional ``\"module:callable\"`` reference to a callable taking the settings dict and returning ``spacr.validate.Problem`` objects or equivalent mappings."
+msgstr "valfri referens av typen ``\"module:callable\"`` till en funktion som tar inställningsordlistan och returnerar ``spacr.validate.Problem``-objekt eller motsvarande mappningar."
+
+msgid "optional ``\"module:callable\"`` reference to a factory returning a ``QWidget``, replacing the generic settings screen; it is always invoked as ``factory(app_key=...)`` and so must accept that keyword."
+msgstr "valfri referens av typen ``\"module:callable\"`` till en fabrik som returnerar en ``QWidget`` och ersätter den generiska inställningsskärmen; den anropas alltid som ``factory(app_key=...)`` och måste därför acceptera det nyckelordet."
+
+msgid "optional ``\"module:callable\"`` reference to a ``spacr.qt.dnd_handlers.DropHandler`` subclass."
+msgstr "valfri referens av typen ``\"module:callable\"`` till en underklass av ``spacr.qt.dnd_handlers.DropHandler``."
+
+msgid "absolute image path, or the name of a spaCR semantic icon; empty falls back to the puzzle-piece icon."
+msgstr "absolut bildsökväg, eller namnet på en semantisk spaCR-ikon; tomt faller tillbaka på pusselbitsikonen."
+
+msgid "settings the user must supply, phrased for a human."
+msgstr "inställningar som användaren måste ange, formulerade för en människa."
+
+msgid "what the app leaves on disk."
+msgstr "vad programmet lämnar på disken."
+
+msgid "``\"settings\"`` for ``fn(settings_dict)``; ``\"folder\"`` for a callable taking a bare path."
+msgstr "``\"settings\"`` för ``fn(settings_dict)``; ``\"folder\"`` för en funktion som tar en ren sökväg."
+
+msgid "Immutable record naming a plugin's model-zoo provider."
+msgstr "Oföränderlig post som anger ett tilläggs leverantör till modellbiblioteket."
+
+msgid "Parameters"
+msgstr "Parametrar"
+
+#, python-brace-format
+msgid "identifier for the provider; must match ``^[a-z][a-z0-9_]{1,63}$`` and be unique across all loaded plugins."
+msgstr "identifierare för leverantören; måste matcha ``^[a-z][a-z0-9_]{1,63}$`` och vara unik bland alla inlästa tillägg."
+
+msgid "``\"module:callable\"`` reference string -- not the callable itself -- resolved at catalogue time to a zero-argument callable returning model-zoo entries or entry mappings."
+msgstr "referenssträng av typen ``\"module:callable\"`` -- inte själva funktionen -- som löses upp när katalogen byggs till en funktion utan argument som returnerar poster eller postmappningar för modellbiblioteket."
+
+msgid "One discovery or contribution error visible to users and logs."
+msgstr "Ett fel vid upptäckt eller bidrag som syns för användare och i loggar."
+
+msgid "entry-point or manifest name identifying the plugin that could not be loaded."
+msgstr "namn på ingångspunkten eller manifestet som identifierar tillägget som inte kunde läsas in."
+
+msgid "diagnostic level, such as ``\"error\"`` or ``\"warning\"``."
+msgstr "diagnostiknivå, till exempel ``\"error\"`` eller ``\"warning\"``."
+
+msgid "concise user-facing account of the failed operation."
+msgstr "kortfattad redogörelse för användaren om den misslyckade åtgärden."
+
+msgid "captured exception text with the technical cause; empty when no exception accompanied the diagnostic."
+msgstr "fångad undantagstext med den tekniska orsaken; tom när inget undantag åtföljde diagnostiken."
+
+msgid "Read-only inputs passed to plugin report-section builders."
+msgstr "Skrivskyddade indata som skickas till tilläggens byggare av rapportavsnitt."
+
+msgid "source folder or object from which the core report is built."
+msgstr "källmapp eller källobjekt som kärnrapporten byggs från."
+
+msgid "named core report artifacts available for reuse by the plugin section."
+msgstr "namngivna artefakter från kärnrapporten som tilläggsavsnittet kan återanvända."
+
+msgid "immutable sequence of recorded run summaries associated with the report source."
+msgstr "oföränderlig sekvens av registrerade körningssammanfattningar som hör till rapportkällan."
+
+msgid "report-generation options supplied by the caller."
+msgstr "alternativ för rapportgenereringen som anroparen angett."
+
+msgid "Immutable record naming a builder that adds one report section."
+msgstr "Oföränderlig post som anger en byggare som lägger till ett rapportavsnitt."
+
+msgid ":func:`spacr.report.collect_report` resolves and calls the builder, and substitutes a visible problem section if it fails."
+msgstr ":func:`spacr.report.collect_report` löser upp och anropar byggaren och ersätter med ett synligt problemavsnitt om den misslyckas."
+
+#, python-brace-format
+msgid "stable section identifier; plugin validation requires ``^[a-z][a-z0-9_]{1,63}$`` and discovery rejects duplicate contribution keys."
+msgstr "stabil avsnittsidentifierare; valideringen av tillägg kräver ``^[a-z][a-z0-9_]{1,63}$`` och upptäckten avvisar dubblerade bidragsnycklar."
+
+msgid "fallback section heading used when the builder returns no title and when the builder fails; cannot be blank."
+msgstr "reservrubrik för avsnittet som används när byggaren inte returnerar någon titel och när byggaren misslyckas; får inte vara tom."
+
+msgid "``\"module:callable\"`` reference resolved at report collection to a callable taking :class:`ReportContext` and returning a :class:`spacr.report.Section`."
+msgstr "referens av typen ``\"module:callable\"`` som löses upp vid rapportinsamlingen till en funktion som tar :class:`ReportContext` och returnerar en :class:`spacr.report.Section`."
+
+msgid "existing section key after which this section is inserted; an unmatched key appends it to the report."
+msgstr "befintlig avsnittsnyckel efter vilken detta avsnitt infogas; en nyckel som inte matchar lägger till avsnittet sist i rapporten."
+
+msgid "Validated plugin manifest returned by a ``spacr.plugins`` entry point."
+msgstr "Validerat tilläggsmanifest som returneras av en ingångspunkt i ``spacr.plugins``."
+
+msgid "human-readable plugin name used in diagnostics and discovery output."
+msgstr "läsbart tilläggsnamn som används i diagnostik och i upptäcktens utdata."
+
+msgid "version of the plugin distribution, reported to users without being interpreted by spaCR."
+msgstr "version av tilläggsdistributionen, som rapporteras till användarna utan att tolkas av spaCR."
+
+msgid "plugin SDK version the manifest targets; its major version must match :data:`PLUGIN_API_VERSION`."
+msgstr "SDK-version för tillägg som manifestet riktar sig mot; dess huvudversion måste stämma med :data:`PLUGIN_API_VERSION`."
+
+msgid "runnable applications the plugin adds to the GUI and headless registry."
+msgstr "körbara program som tillägget lägger till i GUI:t och i registret utan grafiskt gränssnitt."
+
+msgid "providers that extend the model-zoo catalogue."
+msgstr "leverantörer som utökar modellbibliotekets katalog."
+
+msgid "builders that insert plugin-owned sections into generated reports."
+msgstr "byggare som infogar avsnitt som ägs av tillägget i genererade rapporter."
+
+msgid "locale-to-message mappings that translate the plugin's own visible strings."
+msgstr "mappningar från språk till meddelanden som översätter tilläggets egna synliga strängar."
+
+msgid "Return discovery and runtime contribution failures."
+msgstr "Returnera fel vid upptäckt och vid bidrag under körning."
+
+msgid "Return every valid discovered plugin in deterministic order."
+msgstr "Returnera varje giltigt upptäckt tillägg i deterministisk ordning."
+
+msgid "Returns an empty tuple, with no diagnostic recorded, when ``SPACR_DISABLE_PLUGINS`` is set to ``1``, ``true``, ``yes`` or ``on`` (case-insensitively): nothing is imported at all. The result is cached; :func:`reload_plugins` discards the cache and discovers again."
+msgstr "Returnerar en tom tupel, utan att någon diagnostik registreras, när ``SPACR_DISABLE_PLUGINS`` är satt till ``1``, ``true``, ``yes`` eller ``on`` (oavsett skiftläge): ingenting importeras alls. Resultatet cachas; :func:`reload_plugins` kastar cachen och gör en ny upptäckt."
+
+msgid "Return a contributed app by key, or ``None``."
+msgstr "Returnera ett bidraget program via nyckel, eller ``None``."
+
+msgid "``key`` of an installed plugin's :class:`AppContribution`; converted with ``str()`` before the registry lookup."
+msgstr "``key`` för ett installerat tilläggs :class:`AppContribution`; konverteras med ``str()`` före uppslaget i registret."
+
+msgid "Import and return ``module:attribute`` (nested attributes supported)."
+msgstr "Importera och returnera ``module:attribute`` (nästlade attribut stöds)."
+
+msgid "string of the form ``\"package.module:attribute\"``; the attribute part may be dotted to reach nested objects. Anything else raises ``ValueError``."
+msgstr "sträng av formen ``\"package.module:attribute\"``; attributdelen kan innehålla punkter för att nå nästlade objekt. Allt annat utlöser ``ValueError``."
+
+msgid "Return ``(plugin_name, provider)`` model-zoo contributions."
+msgstr "Returnera bidrag till modellbiblioteket som ``(plugin_name, provider)``."
+
+msgid "Return all contributed applications."
+msgstr "Returnera alla bidragna program."
+
+msgid "Validate a mapping and return its immutable :class:`SpacrPlugin`."
+msgstr "Validera en mappning och returnera dess oföränderliga :class:`SpacrPlugin`."
+
+msgid "manifest mapping whose keys are the :class:`SpacrPlugin` fields; ``apps``, ``model_providers`` and ``report_sections`` may hold mappings or contribution objects, and ``translations`` must map language codes to string mappings. A non-mapping raises ``TypeError``."
+msgstr "manifestmappning vars nycklar är fälten i :class:`SpacrPlugin`; ``apps``, ``model_providers`` och ``report_sections`` kan innehålla mappningar eller bidragsobjekt, och ``translations`` måste mappa språkkoder till strängmappningar. Något annat än en mappning utlöser ``TypeError``."
+
+msgid "Record a model/report/runtime plugin failure without aborting spaCR."
+msgstr "Registrera ett fel i ett modell-, rapport- eller körtidstillägg utan att avbryta spaCR."
+
+msgid "name of the plugin that failed, stored on the :class:`PluginDiagnostic` and written to the log."
+msgstr "namnet på tillägget som misslyckades; lagras i :class:`PluginDiagnostic` och skrivs till loggen."
+
+msgid "user-facing account of the failed operation."
+msgstr "redogörelse för användaren om den misslyckade åtgärden."
+
+msgid "Clear the discovery cache and discover again (primarily for tests/dev)."
+msgstr "Töm upptäcktscachen och gör en ny upptäckt (främst för tester och utveckling)."
+
+msgid "Return ``(plugin_name, section)`` report contributions."
+msgstr "Returnera rapportbidrag som ``(plugin_name, section)``."
+

@@ -1,0 +1,210 @@
+# spaCR user guide translation (sv).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: sv\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Language"
+msgstr "Språk"
+
+msgid "Welcome to spaCR"
+msgstr "Välkommen till spaCR"
+
+msgid "spaCR Logo"
+msgstr "spaCR-logotyp"
+
+msgid "**spaCR** — *Spatial phenotype analysis of CRISPR screens.*"
+msgstr "**spaCR** — *Rumslig fenotypanalys av CRISPR-screener.*"
+
+msgid "You are reading the |docs-channel| documentation for spaCR |spacr-version|. The main site follows ``main``. The nightly preview follows ``nightly`` and may describe features not yet in a release. Each branch publishes its own API, guides and committed tutorial catalog automatically."
+msgstr "Du läser dokumentationen för |docs-channel| för spaCR |spacr-version|. Huvudwebbplatsen följer ``main``. Förhandsversionen nightly följer ``nightly`` och kan beskriva funktioner som ännu inte finns i någon version. Varje gren publicerar automatiskt sitt eget API, sina egna guider och sin egen incheckade handledningskatalog."
+
+msgid "A Python toolkit for quantifying and visualising phenotypic changes in high-throughput microscopy screens. Ships with a modern PySide6 GUI (``spacr``), a headless pipeline (:mod:`spacr.core`), and a plate-to-classification workflow that runs on top of PyTorch, Cellpose, scikit-image, and scipy."
+msgstr "Ett Python-verktyg för att kvantifiera och visualisera fenotypiska förändringar i mikroskopiscreener med hög genomströmning. Levereras med ett modernt PySide6-GUI (``spacr``), en pipeline utan grafiskt gränssnitt (:mod:`spacr.core`) och ett arbetsflöde från platta till klassificering som bygger på PyTorch, Cellpose, scikit-image och scipy."
+
+msgid "It is built for cell biologists running pooled or arrayed CRISPR screens who need per-cell measurements from plate images. The GUI route needs no programming; the same processing steps are available through the Python API for scripted and reproducible workflows."
+msgstr "Det är byggt för cellbiologer som kör poolade eller arrayade CRISPR-screener och behöver mätningar per cell från plattbilder. GUI-vägen kräver ingen programmering; samma bearbetningssteg finns tillgängliga via Python-API:t för skriptade och reproducerbara arbetsflöden."
+
+msgid "The GUI groups its applications into four categories: *Core* for the segment-measure-classify pipeline, *Data* for getting images and tables in and running them at scale, *Tools* for the instruments you point at a project — hand mask correction, stitching, embeddings, gates, plots and quality control — and *Assays* for the Toxoplasma, Plasmodium and Candida organism guides. Choose an organism to see its available assays; planned analyses are marked Coming soon. The bands under \"Applications and workflow\" below are those categories, in that order, with the tiles each one holds."
+msgstr "GUI:t grupperar sina program i fyra kategorier: *Kärna* för pipelinen segmentera–mäta–klassificera, *Data* för att få in bilder och tabeller och köra dem i stor skala, *Verktyg* för instrumenten du riktar mot ett projekt — manuell maskkorrigering, sammanfogning, inbäddningar, grindar, diagram och kvalitetskontroll — och *Analyser* för organismguiderna för Toxoplasma, Plasmodium och Candida. Välj en organism för att se dess tillgängliga analyser; planerade analyser är markerade med Kommer snart. Banden under ”Program och arbetsflöde” nedan är dessa kategorier, i den ordningen, med de rutor som var och en innehåller."
+
+msgid "Not every screen is a tile, which is why no count of them is printed here. Work that only makes sense inside another step opens from that step's masthead instead — **Timelapse** from Mask, **Illumination** and the **Motility Assay** from Measure, **Classifier Evaluation** and **Explain CV Model** from Classify, **Annotator Agreement** from Annotate, and the **Cellpose Workbench**, **Model Compare**, **Model Zoo** and **Curate** from Make Masks, among them — so a screen with no tile below is one step further in rather than gone. Home lists whatever the running build offers."
+msgstr "Alla skärmar är inte rutor, och därför anges inget antal här. Arbete som bara är meningsfullt inom ett annat steg öppnas i stället från det stegets huvudrad — bland annat **Tidsserie** från Masker, **Belysning** och **Motilitetsanalys** från Mätning, **Klassificerarutvärdering** och **Förklara CV-modell** från Klassificering, **Annotatörsöverensstämmelse** från Annotering, och **Cellpose-verkstad**, **Modelljämförelse**, **Modellbibliotek** och **Kurera** från Skapa masker — så en skärm utan ruta nedan ligger ett steg längre in snarare än att den saknas. Hem listar det som den körda versionen erbjuder."
+
+msgid "🚀 Get started"
+msgstr "🚀 Kom igång"
+
+msgid "Install spaCR from PyPI and launch the Qt GUI in two commands."
+msgstr "Installera spaCR från PyPI och starta Qt-GUI:t med två kommandon."
+
+msgid "🎓 Interactive tutorials"
+msgstr "🎓 Interaktiva handledningar"
+
+msgid "Narrated, step-by-step lessons for spaCR workflows and modules."
+msgstr "Berättade steg-för-steg-lektioner för spaCR:s arbetsflöden och moduler."
+
+msgid "📖 API reference"
+msgstr "📖 API-referens"
+
+msgid "Supported workflow entry points and the complete module reference."
+msgstr "Arbetsflödets ingångspunkter som stöds och den fullständiga modulreferensen."
+
+msgid "🎬 Video tutorials"
+msgstr "🎬 Videohandledningar"
+
+msgid "Narrated walkthroughs of each pipeline module."
+msgstr "Berättade genomgångar av varje pipelinemodul."
+
+msgid "🐛 Report an issue"
+msgstr "🐛 Rapportera ett problem"
+
+msgid "File a bug, request a feature, or ask a question."
+msgstr "Rapportera ett fel, önska en funktion eller ställ en fråga."
+
+msgid "Applications and workflow"
+msgstr "Program och arbetsflöde"
+
+msgid "New to spaCR? :doc:`Choose a workflow after installation <workflows>` for the first Home tile, the inputs each step needs, and what to open next."
+msgstr "Ny i spaCR? :doc:`Välj ett arbetsflöde efter installationen <workflows>` för den första rutan i Hem, de indata varje steg behöver och vad du ska öppna härnäst."
+
+msgid "Every tile links to the API page used by that application's in-product help."
+msgstr "Varje ruta länkar till den API-sida som programmets inbyggda hjälp använder."
+
+msgid "spaCR modules"
+msgstr "spaCR-moduler"
+
+msgid "Core"
+msgstr "Kärna"
+
+msgid "Core sequence from microscopy images through segmentation, measurements, annotations, classification, barcode mapping and regression."
+msgstr "Kärnsekvensen från mikroskopibilder via segmentering, mätningar, annoteringar, klassificering och streckkodskartläggning till regression."
+
+msgid "|DocModule_mask|\\ |DocModule_measure|\\ |DocModule_annotate|\\ |DocModule_classify_merged|\\ |DocModule_map_barcodes|\\ |DocModule_regression|"
+msgstr "|DocModule_mask|\\ |DocModule_measure|\\ |DocModule_annotate|\\ |DocModule_classify_merged|\\ |DocModule_map_barcodes|\\ |DocModule_regression|"
+
+msgid "Open the Mask API"
+msgstr "Öppna API:t för Masker"
+
+msgid "Open the Measure API"
+msgstr "Öppna API:t för Mätning"
+
+msgid "Open the Annotate API"
+msgstr "Öppna API:t för Annotering"
+
+msgid "Open the Classify API"
+msgstr "Öppna API:t för Klassificering"
+
+msgid "Open the Map Barcodes API"
+msgstr "Öppna API:t för Kartlägg streckkoder"
+
+msgid "Open the Regression API"
+msgstr "Öppna API:t för Regression"
+
+msgid "Data"
+msgstr "Data"
+
+msgid "Import images and tables into spaCR projects and execute reproducible multi-plate workflows."
+msgstr "Importera bilder och tabeller till spaCR-projekt och kör reproducerbara arbetsflöden över flera plattor."
+
+msgid "|DocModule_foreign|\\ |DocModule_embeddings|\\ |DocModule_run_compare|\\ |DocModule_experiment_design|\\ |DocModule_power|\\ |DocModule_dose_response|"
+msgstr "|DocModule_foreign|\\ |DocModule_embeddings|\\ |DocModule_run_compare|\\ |DocModule_experiment_design|\\ |DocModule_power|\\ |DocModule_dose_response|"
+
+msgid "Open the Import API"
+msgstr "Öppna API:t för Importera"
+
+msgid "Open the Embeddings API"
+msgstr "Öppna API:t för Embeddings"
+
+msgid "Open the Run Compare API"
+msgstr "Öppna API:t för Run Compare"
+
+msgid "Open the Experiment Design API"
+msgstr "Öppna API:t för Experiment Design"
+
+msgid "Open the Power / Design API"
+msgstr "Öppna API:t för Power / Design"
+
+msgid "Open the Dose–Response API"
+msgstr "Öppna API:t för Dose–Response"
+
+msgid "|DocModule_qc_dashboard|"
+msgstr "|DocModule_qc_dashboard|"
+
+msgid "Open the QC API"
+msgstr "Öppna API:t för QC"
+
+msgid "Tools"
+msgstr "Verktyg"
+
+msgid "Point these at a project: edit masks by hand, stitch tiles, read an embedding, draw a gate, build a plot, check quality."
+msgstr "Rikta dessa mot ett projekt: redigera masker för hand, sammanfoga plattor, läs en inbäddning, rita en grind, bygg ett diagram, kontrollera kvaliteten."
+
+msgid "|DocModule_make_masks|\\ |DocModule_align|\\ |DocModule_umap|\\ |DocModule_gate_editor|\\ |DocModule_graph_builder|"
+msgstr "|DocModule_make_masks|\\ |DocModule_align|\\ |DocModule_umap|\\ |DocModule_gate_editor|\\ |DocModule_graph_builder|"
+
+msgid "Open the Make Masks API"
+msgstr "Öppna API:t för Skapa masker"
+
+msgid "Open the Align & Stitch API"
+msgstr "Öppna API:t för Justera och sammanfoga"
+
+msgid "Open the Image UMAP API"
+msgstr "Öppna API:t för Bild-UMAP"
+
+msgid "Open the Gate Editor API"
+msgstr "Öppna API:t för Gate Editor"
+
+msgid "Open the Graph Builder API"
+msgstr "Öppna API:t för Graph Builder"
+
+msgid "Assays"
+msgstr "Analyser"
+
+msgid "Quantitative readouts for biological assays."
+msgstr "Kvantitativa avläsningar för biologiska analyser."
+
+msgid "|DocModule_toxoplasma|\\ |DocModule_plasmodium|\\ |DocModule_candida|"
+msgstr "|DocModule_toxoplasma|\\ |DocModule_plasmodium|\\ |DocModule_candida|"
+
+msgid "Open the Toxoplasma API"
+msgstr "Öppna API:t för Toxoplasma"
+
+msgid "Open the Plasmodium spp. API"
+msgstr "Öppna API:t för Plasmodium spp."
+
+msgid "Open the Candida spp. API"
+msgstr "Öppna API:t för Candida spp."
+
+msgid "Installation"
+msgstr "Installation"
+
+msgid "Install spaCR and launch the desktop application. The ``qt`` extra remains supported for desktop installations; current packages also include PySide6 among their base dependencies."
+msgstr "Installera spaCR och starta skrivbordsprogrammet. Tillägget ``qt`` stöds fortfarande för skrivbordsinstallationer; aktuella paket inkluderar också PySide6 bland sina grundberoenden."
+
+msgid "For a terminal workflow on a cluster or server, use ``spacr-run`` without opening the desktop application:"
+msgstr "För ett terminalarbetsflöde på ett kluster eller en server använder du ``spacr-run`` utan att öppna skrivbordsprogrammet:"
+
+msgid "Learn spaCR"
+msgstr "Lär dig spaCR"
+
+msgid "Start with installation, continue to Home and the pipeline overviews, then follow the module walkthrough for your task in the `interactive tutorial library <tutorials/>`_. Each lesson lists its available narration voices and captions. New English lessons can appear while their translations are being prepared. Open the library from the GUI through **Help → Tutorial**."
+msgstr "Börja med installationen, fortsätt till Hem och pipelineöversikterna och följ sedan modulgenomgången för din uppgift i det `interaktiva handledningsbiblioteket <tutorials/>`_. Varje lektion listar sina tillgängliga berättarröster och undertexter. Nya engelska lektioner kan dyka upp medan deras översättningar förbereds. Öppna biblioteket från GUI:t via **Hjälp → Handledning**."
+
+msgid "Contents"
+msgstr "Innehåll"
+
