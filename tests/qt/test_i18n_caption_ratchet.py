@@ -1190,10 +1190,9 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 316, 2026-09-30 (eighth pass): empty again; the catalog pass built rows
 # for every caption left here.
 # 600c, 2026-09-30: the popup's empty-table drop hint and Size slider.
-_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
-    'Drag images or folders here',
-    'The size of the images in the table.',
-})
+# 316, 2026-09-30 (eighth pass follow-up): 600c's two captions have rows;
+# empty again.
+_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset()
 
 
 
