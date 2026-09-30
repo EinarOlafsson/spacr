@@ -15054,7 +15054,7 @@ class MakeMasksScreen(QWidget):
     def open_paths(self, paths) -> bool:
         """Open a drop the way its contents say, asking where there is a choice.
 
-        :func:`spacr.drop_classification.classify_drop` says what
+        Item 600. :func:`spacr.drop_classification.classify_drop` says what
         was dropped, and:
 
         * image files (with or without folders) open as one queue, in drop

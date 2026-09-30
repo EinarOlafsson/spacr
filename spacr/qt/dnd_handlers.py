@@ -1436,7 +1436,7 @@ class MakeMasksDropHandler(DropHandler):
     def can_accept(self, path: Path) -> bool:
         """An image file, a ``.npy``, or a folder with images or spaCR output.
 
-        A folder whose images sit only in subfolders, and a folder
+        Item 600: a folder whose images sit only in subfolders, and a folder
         spaCR wrote (``merged/*.npy``, ``sorted_channels``), are taken too,
         and a ``.npy`` so the screen can say what it is;
         :func:`spacr.drop_classification.classify_drop` decides what the

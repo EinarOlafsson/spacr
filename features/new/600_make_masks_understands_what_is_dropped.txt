@@ -359,10 +359,14 @@ Seen in an offscreen screenshot of the popup and fixed:
 * In the image views a mask column was clipped to the thumbnail width
   ("ucleus mask (channel"); a column is now never narrower than its
   heading.
-* Item numbers were removed from the 600 docstrings and comments in
-  drop_classification, organize_for_measure, channel_sorting, dnd_handlers
-  and make_masks (one "600c:" comment over Make Masks' nav groups is left
-  for the session re-laying out those buttons).
+* Item numbers were removed from the private 600 docstrings and comments.
+  Five public docstrings still name the item (the drop_classification and
+  organize_for_measure module docstrings, build_plan's masks parameter,
+  MakeMasksDropHandler.can_accept, MakeMasksScreen.open_paths): their text
+  is hashed in the API documentation catalog, which only a catalog rebuild
+  may change -- drop "Item 600" from them at the next rebuild. One "600c:"
+  comment over Make Masks' nav groups is left for the session re-laying
+  out those buttons.
 
 Tests: three new ones in tests/qt/test_600_popup_layout_and_selection.py
 (legible backdrop, no stale editor on screen -- fails without the fix --

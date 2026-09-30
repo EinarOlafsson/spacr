@@ -1,7 +1,9 @@
 """Make Masks' "Organize for Measure…" popup: images and masks into merged/.
 
-ONE popup puts images and their masks into the layout Measure reads --
-Yokogawa-named channel folders, the masks, and ``merged/*.npy`` -- through :mod:`spacr.channel_sorting` and
+Item 600, replacing item 593's string of prompts and its separate "Sort into
+channels" dialog as the entry point. ONE popup puts images and their masks
+into the layout Measure reads -- Yokogawa-named channel folders, the masks,
+and ``merged/*.npy`` -- through :mod:`spacr.channel_sorting` and
 :mod:`spacr.folder_consolidation`, which hold every decision:
 
 * a SOURCE folder (typed, browsed or dropped), optionally consolidated
