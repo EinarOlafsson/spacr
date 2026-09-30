@@ -557,12 +557,13 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.channel_sorting.build_plan#7",
+      "label": "spacr.channel_sorting.build_plan#8",
       "source": "write RGB images as grey and z-stacks as their maximum projection instead of refusing them; without it they are listed in :attr:`SortPlan.convertible` so the caller can ask.",
       "source_sha256": "ea3bd380a00d79b11341a3863a9d3b4ab4d88d1ecdd52bf5eb716a8d9f768202",
       "context": "write RGB images as grey and z-stacks as their maximum projection instead of refusing them; without it they are listed in :attr:`SortPlan.convertible` so the caller can ask.",
       "translation": "skriv RGB-bilder som gråskala och z-stackar som deras maximiprojektion i stället för att vägra dem; utan detta listas de i :attr:`SortPlan.convertible` så att anroparen kan fråga.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "rebound_from": "spacr.channel_sorting.build_plan#7"
     },
     {
       "label": "spacr.channel_sorting.canonical_well#0",
@@ -786,7 +787,9 @@
       "source_sha256": "cc247a3038010bdcb359ad9ed4187c4df5217f0b6b60b6466e224d4cb5229923",
       "context": "Make Masks saves every mask as ``<masks folder>/<stem>.tif`` (:func:`spacr.qt.mask_engine.mask_save_path`).",
       "translation": "Make Masks sparar varje mask som ``<masks folder>/<stem>.tif`` (:func:`spacr.qt.mask_engine.mask_save_path`).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.channel_sorting.mask_for#3",
@@ -794,7 +797,9 @@
       "source_sha256": "295bc1804dac96cf8a9c75de5cafe5496c163eff3e68e61d59c8400f5967d55c",
       "context": "the image file name.",
       "translation": "bildens filnamn.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.channel_sorting.mask_thumbnail#0",
