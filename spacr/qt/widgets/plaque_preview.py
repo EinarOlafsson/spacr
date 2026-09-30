@@ -2723,7 +2723,8 @@ class ContributeDialog(QDialog):
 
         from .model_share import (FIGURES_KIND, PLAQUES_KIND, community_repo,
                                   conscience_for)
-        from .model_share_dialog import upload_with_own_login
+        from .model_share_dialog import (_dataset_html, _show_links,
+                                         upload_with_own_login)
 
         super().__init__(parent)
         self.setObjectName("ContributeDialog")
@@ -2793,6 +2794,11 @@ class ContributeDialog(QDialog):
         outer.addLayout(paper_row)
         for widget in (self._paper_label, self.paper_edit):
             widget.setVisible(figure)
+        self.target_label = QLabel(self)
+        self.target_label.setObjectName("ContributeTarget")
+        _show_links(self.target_label)
+        self.target_label.setText(_dataset_html(community_repo(self.target)))
+        outer.addWidget(self.target_label)
 
         bottom = QHBoxLayout()
         self.conscience = QLabel(tr(conscience_for(self.target)))
@@ -3058,10 +3064,10 @@ class ContributeDialog(QDialog):
     def _on_uploaded(self, url: Any) -> None:
         """The upload finished."""
         self._uploading = False
+        from .model_share_dialog import _sent_html
+
         url = str(url or "")
-        self.status.setText(tr(
-            "Thank you. Your contribution is waiting for review: "
-            "<a href=\"{url}\">{url}</a>", url=url))
+        self.status.setText(_sent_html(url))
         self._refresh()
         self.uploaded.emit(url)
 

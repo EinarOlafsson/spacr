@@ -7,6 +7,7 @@ images with their masks to a community dataset the user names.
 """
 from __future__ import annotations
 
+import html
 import logging
 import os
 from typing import Any, Callable, Dict, List, Optional
@@ -242,6 +243,42 @@ def _has_objects(labels: Any) -> bool:
     return labels is not None and bool(np.asarray(labels).any())
 
 
+def _show_links(label: QLabel) -> None:
+    """Let ``label`` open its links in the browser and be selected and copied."""
+    label.setTextFormat(Qt.RichText)
+    label.setOpenExternalLinks(True)
+    label.setTextInteractionFlags(Qt.TextBrowserInteraction)
+
+
+def _link_line(url: str) -> str:
+    """``url`` as a link on a line of its own that never wraps inside itself.
+
+    Wrapping breaks an address after a ``/``, which leaves the slash at the
+    end of a line where it is easy to miss when the address is typed again.
+    """
+    return ("<p style=\"white-space:nowrap; margin:0\"><a href=\"{0}\">{1}</a>"
+            "</p>").format(html.escape(url, quote=True), html.escape(url))
+
+
+def _plain_html(text: str) -> str:
+    """``text`` shown as it is in a rich-text label, line breaks kept."""
+    return html.escape(str(text)).replace("\n", "<br>")
+
+
+def _dataset_html(repo: str) -> str:
+    """Where a contribution goes: a caption and the dataset's clickable address."""
+    caption = tr("Goes to this dataset on Hugging Face (a new one appears "
+                 "with its first upload):")
+    return html.escape(caption) + _link_line(
+        f"https://huggingface.co/datasets/{repo}")
+
+
+def _sent_html(url: str) -> str:
+    """The thank-you after a contribution is sent, with its pull request's link."""
+    caption = tr("Thank you. Your contribution is waiting for review:")
+    return html.escape(caption) + _link_line(url)
+
+
 class ContributeMasksDialog(QDialog):
     """Send images and their masks to a community dataset the user names.
 
@@ -361,6 +398,8 @@ class ContributeMasksDialog(QDialog):
         about.addRow(tr("What is it?"), self.name_edit)
         self.target_label = QLabel(self)
         self.target_label.setWordWrap(True)
+        self.target_label.setObjectName("ContributeMasksTarget")
+        _show_links(self.target_label)
         about.addRow("", self.target_label)
         self.notes_edit = QPlainTextEdit(self)
         self.notes_edit.setPlaceholderText(tr(
@@ -377,7 +416,7 @@ class ContributeMasksDialog(QDialog):
         outer.addWidget(conscience)
         self.status = QLabel(self)
         self.status.setWordWrap(True)
-        self.status.setOpenExternalLinks(True)
+        _show_links(self.status)
         outer.addWidget(self.status)
         buttons = QDialogButtonBox(self)
         self.upload_button = buttons.addButton(tr("Upload"),
@@ -494,12 +533,10 @@ class ContributeMasksDialog(QDialog):
             why = self._check_folders()
         target = self.target()
         if target:
-            self.target_label.setText(tr(
-                "Goes to huggingface.co/datasets/{repo} (made if it is new).",
-                repo=community_repo(target)))
+            self.target_label.setText(_dataset_html(community_repo(target)))
         else:
-            self.target_label.setText(tr(
-                "Name the dataset: what the images show, and how."))
+            self.target_label.setText(_plain_html(tr(
+                "Name the dataset: what the images show, and how.")))
             why = why or tr("Name the dataset first.")
         return why
 
@@ -544,12 +581,13 @@ class ContributeMasksDialog(QDialog):
 
         why = self._not_ready()
         if why or self._uploading:
-            self.status.setText(tr("Not sent: {why}", why=why or tr(
-                "an upload is already running")))
+            self.status.setText(_plain_html(tr("Not sent: {why}", why=why or tr(
+                "an upload is already running"))))
             self._refresh()
             return False
         if not ask_community_consent(self, ask=self.ask_consent):
-            self.status.setText(tr("Not sent: the licence was not agreed to."))
+            self.status.setText(_plain_html(tr(
+                "Not sent: the licence was not agreed to.")))
             return False
         consent = {"rights_to_share": True, "licence": COMMUNITY_LICENCE}
         target = self.target()
@@ -559,7 +597,7 @@ class ContributeMasksDialog(QDialog):
                 tempfile.mkdtemp(prefix="spacr-contribution-"),
                 consent=consent, notes=self.notes_edit.toPlainText())
         except (OSError, ValueError) as exc:
-            self.status.setText(tr("Not sent: {why}", why=str(exc)))
+            self.status.setText(_plain_html(tr("Not sent: {why}", why=str(exc))))
             return False
         try:
             _preferences().setValue(LAST_MASKS_DATASET_KEY,
@@ -569,7 +607,7 @@ class ContributeMasksDialog(QDialog):
         self.contribution_folder = folder
         self._uploading = True
         self._refresh()
-        self.status.setText(tr("Uploading…"))
+        self.status.setText(_plain_html(tr("Uploading…")))
         upload = self._upload
         self._jobs.submit(lambda: upload(folder, target), self._on_uploaded)
         return True
@@ -578,14 +616,12 @@ class ContributeMasksDialog(QDialog):
         """The upload finished."""
         self._uploading = False
         url = str(url or "")
-        self.status.setText(tr(
-            "Thank you. Your contribution is waiting for review: "
-            "<a href=\"{url}\">{url}</a>", url=url))
+        self.status.setText(_sent_html(url))
         self._refresh()
         self.uploaded.emit(url)
 
     def _on_failed(self, message: str) -> None:
         """The upload raised."""
         self._uploading = False
-        self.status.setText(tr("Upload failed: {why}", why=message))
+        self.status.setText(_plain_html(tr("Upload failed: {why}", why=message)))
         self._refresh()
