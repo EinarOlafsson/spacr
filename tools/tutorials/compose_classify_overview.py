@@ -20,7 +20,7 @@ def check_navigation(proof):
 
 
 def compose(stage=DEFAULT_STAGE, *, main=None, ml=None, cv=None, destination=None,
-            ml_figure='24_batch_figure'):
+            ml_figure='24_batch_figure', ml_frames=None, cv_frames=None):
     stage = Path(stage).resolve()
     root = stage / 'captures'
     destination = Path(destination or root / 'classify_main_verified_overview_v2').resolve()
@@ -29,9 +29,9 @@ def compose(stage=DEFAULT_STAGE, *, main=None, ml=None, cv=None, destination=Non
     locations = [
         ('main', Path(main or root / 'classify_main_family_and_folds_v4').resolve(), None),
         ('ml', Path(ml or root / 'classify_ml_ten_percent_native').resolve(),
-         ['02_data_choice_load', '19_setting_classes', '23_batch_finished', ml_figure]),
+         ml_frames or ['02_data_choice_load', '19_setting_classes', '23_batch_finished', ml_figure]),
         ('cv', Path(cv or stage / 'classify_canonical_capture_v2/captures/classify_canonical_existing_v2').resolve(),
-         ['19_setting_generate_training_dataset', '24_batch_figure', '30_ai_unsent_question']),
+         cv_frames or ['19_setting_generate_training_dataset', '24_batch_figure', '30_ai_unsent_question']),
     ]
     hashes, frames, sources, proofs = {}, {}, [], {}
     for prefix, source, wanted in locations:
@@ -76,6 +76,9 @@ if __name__ == '__main__':
     for name in ('main', 'ml', 'cv', 'destination'):
         parser.add_argument('--' + name, type=Path)
     parser.add_argument('--ml-figure', default='24_batch_figure')
+    parser.add_argument('--ml-frames', nargs='+', help='ML frames to reuse (default: the v4 selection)')
+    parser.add_argument('--cv-frames', nargs='+', help='CV frames to reuse (default: the v4 selection)')
     args = parser.parse_args()
     compose(args.stage, main=args.main, ml=args.ml, cv=args.cv,
-            destination=args.destination, ml_figure=args.ml_figure)
+            destination=args.destination, ml_figure=args.ml_figure,
+            ml_frames=args.ml_frames, cv_frames=args.cv_frames)
