@@ -1,10 +1,10 @@
 {
   "lesson": "40_run_history",
-  "english_sha256": "b272778adcc85d26352dd32509c864bb7e2b5e22ab558e2ee1603b35453eb41c",
+  "english_sha256": "54ac331ddeb39cf4cd96dcdb51bd54580affd17586c7ced4f6c6724eece89d36",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Gennemfør et spaCR-job for at oprette en lokal kørselspost. Eksemplet gennemser poster fra konverterings-, Recruitment- og Regression-kørsler.",
   "scenes": [
-    "Åbn Help og derefter Run history for at gennemse de kørselsposter, der er gemt på denne computer.",
+    "Åbn Help og derefter Run History for at gennemse de kørselsposter, der er gemt på denne computer.",
     "Klik på Refresh for at indlæse de tilgængelige poster. Vælg en kørsel for at undersøge dens detaljer, og træk i skillelinjen, hvis du har brug for mere plads.",
     "Vælg et modul og en status, og indtast derefter et søgeord for at indsnævre listen. Vælg for eksempel convert og Success for at finde færdige konverteringer.",
     "Åbn Files and models for registrerede detaljer om input og output. Kørsler, der sprang filhashing over, kan have en tom oversigt; brug outputstierne i indstillinger eller logfiler til at finde deres resultater.",
