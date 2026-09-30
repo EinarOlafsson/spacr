@@ -4468,6 +4468,7 @@ def _score_anomalies(frame: pd.DataFrame, *,
         outside.append(np.sqrt(np.maximum(off, 0.0)))
 
     def _cross_fitted(pair):
+        """Join two half fits so each half is scored by the fit of the other half."""
         joined = 0.5 * (pair[0] + pair[1])
         joined[halves[1]] = pair[0][halves[1]]
         joined[halves[0]] = pair[1][halves[0]]

@@ -516,7 +516,9 @@ def _legible_backdrop(color: QColor, window: QColor) -> str:
     :returns: a style-sheet colour, ``transparent`` when none is needed.
     """
     def luminance(c: QColor) -> float:
+        """The colour's relative luminance (WCAG 2), 0 for black to 1 for white."""
         def linear(v: float) -> float:
+            """One sRGB channel, 0..1, converted to linear light."""
             return v / 12.92 if v <= 0.03928 else ((v + 0.055) / 1.055) ** 2.4
         c = QColor(c)
         return (0.2126 * linear(c.redF()) + 0.7152 * linear(c.greenF())
