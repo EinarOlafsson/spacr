@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-09-30 14:59-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: sv\n"
@@ -34,8 +34,8 @@ msgstr "Använd ett skrivbordsinstallationsprogram när du vill ha en programsta
 msgid "Use the official `conda-forge package <https://anaconda.org/conda-forge/spacr>`_ when Conda should install spaCR and resolve its desktop and dependencies. Use ``pip`` for the PyPI release when spaCR must live in an existing Python environment, notebook, server or cluster, or when you need a PyPI extra that is not part of the conda package. Python 3.12 currently offers the widest selection of optional scientific packages."
 msgstr "Använd det officiella `conda-forge-paketet <https://anaconda.org/conda-forge/spacr>`_ när Conda ska installera spaCR och lösa upp dess skrivbordsberoenden och övriga beroenden. Använd ``pip`` för PyPI-versionen när spaCR måste finnas i en befintlig Python-miljö, notebook, server eller ett kluster, eller när du behöver ett PyPI-tillägg som inte ingår i conda-paketet. Python 3.12 erbjuder för närvarande det bredaste urvalet av valfria vetenskapliga paket."
 
-msgid "Use a :ref:`container image <container-images>` when the install itself is the problem: a cluster node, a cloud instance, a shared machine you cannot change, or an analysis that has to be re-runnable years from now. The images are for the CLI and the pipelines; the desktop interface in a container is a Linux-only extra and is documented as one."
-msgstr "Använd en :ref:`containeravbild <container-images>` när själva installationen är problemet: en klusternod, en molninstans, en delad dator som du inte kan ändra, eller en analys som måste kunna köras om flera år framåt. Avbilderna är avsedda för CLI:t och pipelinerna; skrivbordsgränssnittet i en container är ett tillägg som bara fungerar på Linux och dokumenteras som ett sådant."
+msgid "Use a :ref:`container image <container-images>` when the install itself is the problem: a cluster node, a cloud instance, a shared machine you cannot change, or an analysis that has to be re-runnable years from now. The images are for the CLI and the pipelines; the desktop interface in a container is a Linux-only extra and is documented as one. On a cluster without Docker, build the same image as an :ref:`Apptainer or SingularityCE file <apptainer-images>`. For a workstation that has no network access at all, use an :ref:`offline installer bundle <offline-bundle>`."
+msgstr "Använd en :ref:`containeravbild <container-images>` när själva installationen är problemet: en klusternod, en molninstans, en delad dator som du inte kan ändra, eller en analys som måste kunna köras om flera år framåt. Avbilderna är avsedda för CLI:t och pipelinerna; skrivbordsgränssnittet i en container är ett tillägg som bara fungerar på Linux och dokumenteras som ett sådant. På ett kluster utan Docker bygger du samma avbild som en :ref:`Apptainer- eller SingularityCE-fil <apptainer-images>`. För en arbetsstation helt utan nätverksåtkomst använder du ett :ref:`offlinepaket för installation <offline-bundle>`."
 
 msgid "Desktop installers"
 msgstr "Skrivbordsinstallationsprogram"
@@ -139,8 +139,32 @@ msgstr "Avinstallationen raderar inte mikroskopiprojekt, databaser eller exporte
 msgid "Offline installation"
 msgstr "Offlineinstallation"
 
-msgid "The small desktop installers are online installers and cannot complete without network access. For an offline workstation, prepare a wheel directory on a networked machine with the same operating system, architecture and Python minor version, replacing ``VERSION`` with the release to install:"
-msgstr "De små skrivbordsinstallationsprogrammen är onlineinstallationsprogram och kan inte slutföras utan nätverksåtkomst. För en arbetsstation utan nätverk förbereder du en wheel-katalog på en dator med nätverk och samma operativsystem, arkitektur och Python-mindre version, och ersätter ``VERSION`` med den version som ska installeras:"
+msgid "The small desktop installers are online installers and cannot complete without network access. For a locked-down microscope PC, build an offline bundle on a networked machine. It holds everything the installer would download: the pinned ``uv`` tool, the managed Python 3.12 runtime, every wheel of the locked environment, Cellpose weights (``cpsam`` by default), optional Mask test data, ``bundle.json`` and a ``SHA256SUMS`` file. Bundles target ``linux-x86_64``, ``windows-x86_64`` or ``macos-arm64`` and can be built for another platform than the one building them. The PyTorch wheel line is fixed when the bundle is built: ``cpu``, or a CUDA line such as ``cu126``."
+msgstr "De små skrivbordsinstallationsprogrammen är onlineinstallationsprogram och kan inte slutföras utan nätverksåtkomst. För en låst mikroskopdator bygger du ett offlinepaket på en dator med nätverk. Det innehåller allt som installationsprogrammet skulle ladda ner: det låsta verktyget ``uv``, den hanterade Python 3.12-körmiljön, varje wheel i den låsta miljön, Cellpose-vikter (``cpsam`` som standard), valfria testdata för Masker, ``bundle.json`` och en fil ``SHA256SUMS``. Paketen riktar sig mot ``linux-x86_64``, ``windows-x86_64`` eller ``macos-arm64`` och kan byggas för en annan plattform än den som bygger dem. PyTorch-wheelns linje bestäms när paketet byggs: ``cpu``, eller en CUDA-linje som ``cu126``."
+
+msgid "From a spaCR checkout, on the networked machine:"
+msgstr "Från en utcheckning av spaCR, på datorn med nätverk:"
+
+msgid "This writes the folder ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` under ``dist/offline`` and, with ``--archive``, the same folder as one ``.tar``. ``--extras`` chooses the spaCR extras (default ``qt``), ``--cellpose-model`` adds Cellpose weights and can be repeated, ``--test-fields`` limits the number of test fields, and ``--from-source .`` packs spaCR built from the checkout instead of the PyPI release."
+msgstr "Detta skriver mappen ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` under ``dist/offline`` och, med ``--archive``, samma mapp som en enda ``.tar``. ``--extras`` väljer spaCR-tilläggen (standard ``qt``), ``--cellpose-model`` lägger till Cellpose-vikter och kan upprepas, ``--test-fields`` begränsar antalet testfält, och ``--from-source .`` paketerar spaCR byggt från utcheckningen i stället för PyPI-versionen."
+
+msgid "Copy the bundle to the offline machine and run its installer with the bundle folder. On Linux or macOS:"
+msgstr "Kopiera paketet till datorn utan nätverk och kör dess installationsprogram med paketmappen. På Linux eller macOS:"
+
+msgid "On Windows, in PowerShell inside the bundle folder:"
+msgstr "På Windows, i PowerShell i paketmappen:"
+
+msgid "The installer checks every file against ``SHA256SUMS``, installs Python and the wheels with no package index, and copies the Cellpose weights without overwriting existing ones. ``--check-mask`` (``-CheckMask``) then runs Mask on a scratch copy of the bundled test data and passes when masks and merged stacks are written; on a CPU this can take an hour for two fields."
+msgstr "Installationsprogrammet kontrollerar varje fil mot ``SHA256SUMS``, installerar Python och wheel-filerna utan paketindex och kopierar Cellpose-vikterna utan att skriva över befintliga. ``--check-mask`` (``-CheckMask``) kör sedan Masker på en tillfällig kopia av de medföljande testdata och godkänns när masker och sammanslagna stackar har skrivits; på en CPU kan det ta en timme för två fält."
+
+msgid "What the bundle does not contain: the separate environments of optional segmentation backends such as Cellpose 3 or StarDist, and Model Zoo models other than the Cellpose weights you chose; those still need a network. On Linux the system Qt libraries are not bundled, so a minimal system without them runs spaCR headless only. ``SHA256SUMS`` detects damaged files, but the bundle is not signed, so transfer it through a channel you trust."
+msgstr "Det här innehåller paketet inte: de separata miljöerna för valfria segmenteringsbakändar som Cellpose 3 eller StarDist, och modeller i Modellbibliotek utöver de Cellpose-vikter du valde; de kräver fortfarande nätverk. På Linux ingår inte systemets Qt-bibliotek, så ett minimalt system utan dem kör spaCR bara utan grafiskt gränssnitt. ``SHA256SUMS`` upptäcker skadade filer, men paketet är inte signerat, så överför det via en kanal du litar på."
+
+msgid "Install into an existing Python environment"
+msgstr "Installera i en befintlig Python-miljö"
+
+msgid "To install spaCR into an existing Python environment offline, prepare a wheel directory on a networked machine with the same operating system, architecture and Python minor version, replacing ``VERSION`` with the release to install:"
+msgstr "För att installera spaCR offline i en befintlig Python-miljö förbereder du en wheel-katalog på en dator med nätverk och samma operativsystem, arkitektur och Python-mindre version, och ersätter ``VERSION`` med den version som ska installeras:"
 
 msgid "Copy ``spacr-wheelhouse`` to the offline machine, create and activate a Python environment, then install without contacting a package index:"
 msgstr "Kopiera ``spacr-wheelhouse`` till datorn utan nätverk, skapa och aktivera en Python-miljö och installera sedan utan att kontakta något paketindex:"
@@ -318,6 +342,24 @@ msgstr "``--build-arg SPACR_UID=$(id -u) --build-arg SPACR_GID=$(id -g)`` bygger
 
 msgid "The second command runs a real pipeline on a synthetic field and reports one line per check; it needs no model, no GPU and no network."
 msgstr "Det andra kommandot kör en verklig pipeline på ett syntetiskt fält och rapporterar en rad per kontroll; det behöver ingen modell, ingen GPU och inget nätverk."
+
+msgid "Apptainer and SingularityCE on a cluster"
+msgstr "Apptainer och SingularityCE på ett kluster"
+
+msgid "Where a cluster allows Apptainer or SingularityCE but not Docker, repackage the Docker image as one read-only ``.sif`` file. Build from the repository root as an ordinary user, with Apptainer 1.2 or newer or SingularityCE 4.0 or newer:"
+msgstr "Där ett kluster tillåter Apptainer eller SingularityCE men inte Docker paketerar du om Docker-avbilden som en enda skrivskyddad ``.sif``-fil. Bygg från kodförrådets rot som en vanlig användare, med Apptainer 1.2 eller nyare eller SingularityCE 4.0 eller nyare:"
+
+msgid "To start from an image you built yourself, add ``--build-arg BOOTSTRAP=docker-daemon --build-arg IMAGE=spacr:cpu``. The build runs the image's smoke test. If a login node has no user namespaces, build on a workstation and copy the ``.sif`` file over. Where ``/etc/subuid`` lists you but ``newuidmap`` is not installed, add ``--ignore-subuid``."
+msgstr "För att utgå från en avbild som du själv har byggt lägger du till ``--build-arg BOOTSTRAP=docker-daemon --build-arg IMAGE=spacr:cpu``. Bygget kör avbildens röktest. Om en inloggningsnod saknar användarnamnrymder bygger du på en arbetsstation och kopierar över ``.sif``-filen. Där ``/etc/subuid`` listar dig men ``newuidmap`` inte är installerat lägger du till ``--ignore-subuid``."
+
+msgid "``--nv`` binds the host NVIDIA driver; the CUDA image needs driver 550 or newer. Unlike Docker, the container runs as you, with your real home mounted: models already in ``~/.cellpose/models`` are found, and run manifests go to ``~/.spacr/runs/``. ``$HOME``, the current folder and ``/tmp`` are available by default; add other data folders with ``--bind``. To use a shared model folder, bind it read-only to ``/models``: ``--bind /shared/cellpose_models:/models:ro``. If a host ``PYTHONPATH`` from a conda or module setup leaks into the container, add ``--cleanenv``."
+msgstr "``--nv`` binder värdens NVIDIA-drivrutin; CUDA-avbilden kräver drivrutin 550 eller nyare. Till skillnad från Docker körs containern som du, med din verkliga hemkatalog monterad: modeller som redan finns i ``~/.cellpose/models`` hittas, och körningsmanifest hamnar i ``~/.spacr/runs/``. ``$HOME``, den aktuella mappen och ``/tmp`` är tillgängliga som standard; lägg till andra datamappar med ``--bind``. För att använda en delad modellmapp binder du den skrivskyddat till ``/models``: ``--bind /shared/cellpose_models:/models:ro``. Om en ``PYTHONPATH`` från värdens conda- eller modulkonfiguration läcker in i containern lägger du till ``--cleanenv``."
+
+msgid "``packaging/apptainer/spacr_slurm.sh`` is a Slurm array job that runs Mask then Measure on one plate per task, from one pair of settings files. Copy it, set ``SIF``, ``PLATES`` (a file with one plate folder per line), ``MASK_SETTINGS`` and ``MEASURE_SETTINGS`` and the ``#SBATCH`` lines for your cluster, then submit it:"
+msgstr "``packaging/apptainer/spacr_slurm.sh`` är ett Slurm-arrayjobb som kör Masker och sedan Mätning på en platta per uppgift, utifrån ett par inställningsfiler. Kopiera det, ange ``SIF``, ``PLATES`` (en fil med en plattmapp per rad), ``MASK_SETTINGS`` och ``MEASURE_SETTINGS`` samt ``#SBATCH``-raderna för ditt kluster, och skicka sedan in det:"
+
+msgid "For a CPU partition, remove the ``--gres`` line, replace the ``GPU_FLAG`` line with ``GPU_FLAG=`` and point ``SIF`` at the CPU image."
+msgstr "För en CPU-partition tar du bort raden ``--gres``, ersätter raden ``GPU_FLAG`` med ``GPU_FLAG=`` och låter ``SIF`` peka på CPU-avbilden."
 
 msgid "Troubleshooting"
 msgstr "Felsökning"
