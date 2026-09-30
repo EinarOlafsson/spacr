@@ -14404,7 +14404,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "figure_confidence",
-    "line": 3089,
+    "line": 3095,
     "module": "spacr.qt.widgets.plaque_preview",
     "nested": false,
     "qualname": "seed_well_boxes"
@@ -14451,7 +14451,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "figure_detector",
-    "line": 3083,
+    "line": 3089,
     "module": "spacr.qt.widgets.plaque_preview",
     "nested": false,
     "qualname": "seed_well_boxes"
@@ -14498,7 +14498,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "figure_imgsz",
-    "line": 3088,
+    "line": 3094,
     "module": "spacr.qt.widgets.plaque_preview",
     "nested": false,
     "qualname": "seed_well_boxes"
@@ -37415,7 +37415,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plaque_formation_hours",
-    "line": 4713,
+    "line": 4719,
     "module": "spacr.qt.widgets.plaque_preview",
     "nested": false,
     "qualname": "PlaquePreviewPanel._growth_values"
@@ -47193,7 +47193,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 3083,
+    "line": 3089,
     "module": "spacr.qt.widgets.plaque_preview",
     "nested": false,
     "qualname": "seed_well_boxes"
