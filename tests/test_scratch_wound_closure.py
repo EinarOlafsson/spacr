@@ -211,6 +211,42 @@ def test_a_later_frame_imaged_again_keeps_its_wound(noise, contrast):
     assert abs(frame["relative_open_area"].iloc[1] - truth) <= 0.03
 
 
+def _straight(centre, half, shape=SHAPE):
+    """A straight horizontal scratch, rows ``centre - half`` to ``+ half``."""
+    rows = np.arange(shape[0])[:, None]
+    return np.broadcast_to(np.abs(rows - centre) < half, shape).copy()
+
+
+def test_a_flat_patch_of_monolayer_beside_a_closing_wound_is_not_wound():
+    """Open-looking monolayer outside the first wound is not counted later.
+
+    A later frame whose monolayer has a flat, textureless patch (glare or
+    an over-exposed stretch) inside the first frame's band, but outside
+    where the wound was, would otherwise add that patch to the wound.
+    """
+    first, later = _straight(192, 80), _straight(192, 30)
+    looks_open = later.copy()
+    looks_open[290:312, 60:330] = True
+    frame, status, masks = _wound_series(
+        [_brightfield(first, seed=10), _brightfield(looks_open, seed=11)],
+        (0, 1), source="texture", keep=(1,))
+    assert status == "ok"
+    truth = later.sum() / first.sum()
+    assert abs(frame["relative_open_area"].iloc[1] - truth) <= 0.02
+    assert not masks[1][1][294:308, 80:310].any()
+
+
+def test_a_later_frame_imaged_at_another_position_keeps_its_wound():
+    """A scratch re-imaged off-centre is followed across the field."""
+    first, later = _straight(192, 70), _straight(252, 40)
+    frame, status, _masks = _wound_series(
+        [_brightfield(first, seed=10), _brightfield(later, seed=11)],
+        (0, 1), source="texture")
+    assert status == "ok"
+    truth = later.sum() / first.sum()
+    assert abs(frame["relative_open_area"].iloc[1] - truth) <= 0.02
+
+
 def test_closure_metrics_on_a_known_curve():
     times = np.array([0, 4, 8, 12, 16, 20])
     relative = np.array([1.0, 0.8, 0.6, 0.4, 0.2, 0.0])
