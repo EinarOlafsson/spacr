@@ -4649,8 +4649,7 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
             contributing = df.loc[df['prc'].isin(fit_frame['prc'])]
         for name, column in (('n_wells', 'prc'), ('n_guides', 'grna'),
                              ('n_genes', 'gene')):
-            if column in contributing:
-                fit_counts[name] = int(contributing[column].nunique())
+            fit_counts[name] = int(contributing[column].nunique())
 
     if plot and legacy_volcano:
         volcano_plot(
