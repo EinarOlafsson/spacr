@@ -359,7 +359,14 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install --index-url https://download.pytorch.org/whl/cpu \
             "torch>=2.0" torchvision
-          python -m pip install -e ".[qt,dev,zernike,attribution,btrack,czi]"
+          # The optional stores (databases: DuckDB and psycopg), AnnData,
+          # RDKit (chem) and pyreadr are installed here and only here: the
+          # code that only runs with them (spacr.tabular's DuckDB and .rds
+          # paths, the AnnData export, the chemistry-aware hit view) is
+          # measured by the tests that exercise it with the real library,
+          # rather than read as untested because this job lacked it (288).
+          python -m pip install -e ".[qt,dev,zernike,attribution,btrack,czi,databases,anndata,chem]"
+          python -m pip install "pyreadr>=0.5,<1"
           # REQUIRED BY `--per-test-timeout` BELOW. The `dev` extra carries
           # pytest, pytest-qt and pytest-xdist and NOT pytest-timeout, so
           # passing `--timeout` without this makes pytest exit on
