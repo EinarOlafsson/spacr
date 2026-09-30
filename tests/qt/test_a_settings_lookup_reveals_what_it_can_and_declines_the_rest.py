@@ -225,3 +225,31 @@ def test_a_table_whose_section_is_gone_answers_for_nothing(screen):
     bar = SettingsSearchBar(screen)
 
     assert bar._grid_section() == (None, frozenset())
+
+
+def test_a_table_mounted_after_the_strip_brings_its_section_in_once(screen):
+    """Preferences can mount the per-object table after the strip was built;
+    the next lookup finds the table's section, counts it once, and answers
+    for the settings the table owns."""
+
+    class _TableSection(_Section):
+        def add_prose_row(self, text):
+            return QLabel(text, self)
+
+    class _Binding:
+        def owned_keys(self):
+            return ("cell_min_size", "cell_max_size")
+
+    bar = SettingsSearchBar(screen)
+    assert bar._grid_section() == (None, frozenset())
+    host = _TableSection(screen)
+    grid = QWidget(host)
+    screen._object_grid = grid
+    screen._object_grid_binding = _Binding()
+
+    section, keys = bar._grid_section()
+    assert section is host
+    assert keys == frozenset({"cell_min_size", "cell_max_size"})
+    assert sum(s is host for s in bar._sections) == 1
+    assert bar._grid_section()[0] is host
+    assert sum(s is host for s in bar._sections) == 1
