@@ -188,6 +188,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'col_to_compare',
     'collision_max_distance',
     'colony_counting',
+    'colony_detector',
     'colony_dilution',
     'colony_min_area_px',
     'colony_plated_volume_ul',

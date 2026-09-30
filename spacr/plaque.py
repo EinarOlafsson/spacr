@@ -873,6 +873,142 @@ def _segment_colonies(image: np.ndarray, *, centre=None, radius=None,
                 polarity=side)
 
 
+_COLONY_DETECTOR_CONFIDENCE = 0.25
+"""Score a colony detector's box must reach to be counted.
+
+Chosen on the validation plates of the detector's training split, never on
+its test plates, as the cut with the smallest mean absolute log ratio of
+count to hand count. A cut chosen by the median error alone sat on a flat
+optimum and lost most colonies of the species the detector scores lowest."""
+
+_COLONY_DETECTOR_PX = 1280
+"""Inference size of the colony detector, the size it was trained at."""
+
+_COLONY_DETECTOR_IOU = 0.5
+"""Overlap above which the detector keeps only the higher-scoring of two
+boxes. Colonies in a chain overlap, but less than this; at the ultralytics
+default of 0.7 one colony is often counted twice."""
+
+
+def _detect_colonies(image: np.ndarray, weights: str, *, centre=None,
+                     radius=None,
+                     confidence: float = _COLONY_DETECTOR_CONFIDENCE,
+                     imgsz: int = _COLONY_DETECTOR_PX,
+                     iou: float = _COLONY_DETECTOR_IOU) -> Dict[str, Any]:
+    """Colonies on one dish, found by a YOLO colony detector.
+
+    The photo is shrunk to :data:`_COLONY_WORKING_PX`, as for
+    :func:`_segment_colonies`, and every box scoring at least
+    ``confidence`` whose centre lies inside the dish is one colony.
+
+    :param image: the dish, grey or RGB.
+    :param weights: path to the detector checkpoint.
+    :param centre: the dish centre, ``(x, y)`` in the image's pixels; with
+        ``radius``, found by :func:`_find_dish` when not given.
+    :param radius: the dish radius in the image's pixels.
+    :param confidence: the lowest box score counted.
+    :param imgsz: the detector's inference size.
+    :param iou: the overlap above which two boxes are one colony.
+    :returns: the keys :func:`_segment_colonies` returns, with ``labels``
+        holding one filled ellipse per box (a higher-scoring box drawn over
+        a lower-scoring one), ``polarity`` set to ``'detector'``, and
+        ``boxes``, an ``N x 5`` array of ``x0, y0, x1, y1, score`` in working
+        pixels, highest score first.
+    :raises ImportError: when ``ultralytics`` is not installed.
+
+    COUNT AND SIZES COME FROM THE BOXES, NOT THE LABELS. Colonies in a chain
+    overlap, so their ellipses cover each other in the label image; the
+    boxes keep every colony whole.
+    """
+    import cv2
+
+    work, factor = _to_working_size(np.asarray(image))
+    method = "given"
+    if centre is None or radius is None:
+        well, method = _find_dish(work)
+        centre = ((well.x0 + well.x1) / 2.0, (well.y0 + well.y1) / 2.0)
+        radius = well.diameter_px / 2.0
+    else:
+        centre = (float(centre[0]) * factor, float(centre[1]) * factor)
+        radius = float(radius) * factor
+    source = np.asarray(work)
+    if source.ndim == 3 and source.shape[2] == 1:
+        source = source[..., 0]
+    if source.ndim == 2:
+        source = np.stack([source] * 3, axis=-1)
+    source = source[..., :3]
+    if source.dtype != np.uint8:
+        top = float(source.max()) or 1.0
+        source = np.clip(source.astype(np.float32) / top * 255.0, 0, 255
+                         ).astype(np.uint8)
+    model = _load_detector(weights)
+    results = model.predict(source=_to_detector_channel_order(source),
+                            conf=float(confidence), imgsz=int(imgsz),
+                            iou=float(iou), max_det=5000, verbose=False)
+    boxes = []
+    for result in results:
+        found = getattr(result, "boxes", None)
+        if found is None or not len(found):
+            continue
+        corners = _host_array(found.xyxy).reshape(-1, 4)
+        scores = _host_array(found.conf).reshape(-1)
+        for (x0, y0, x1, y1), score in zip(corners, scores):
+            if np.hypot((x0 + x1) / 2.0 - centre[0],
+                        (y0 + y1) / 2.0 - centre[1]) > radius:
+                continue
+            boxes.append((float(x0), float(y0), float(x1), float(y1),
+                          float(score)))
+    boxes = np.array(sorted(boxes, key=lambda b: -b[4]), np.float32
+                     ).reshape(-1, 5)
+    labels = np.zeros(work.shape[:2], np.int32)
+    for index in range(len(boxes) - 1, -1, -1):
+        x0, y0, x1, y1, _score = boxes[index]
+        axes = (max(1, int(round((x1 - x0) / 2.0))),
+                max(1, int(round((y1 - y0) / 2.0))))
+        middle = (int(round((x0 + x1) / 2.0)), int(round((y0 + y1) / 2.0)))
+        cv2.ellipse(labels, middle, axes, 0, 0, 360, int(index + 1), -1)
+    return dict(labels=labels, factor=factor,
+                signal=np.zeros(work.shape[:2], np.float32), cut=0.0,
+                noise=1.0, centre=centre, radius=radius, polarity="detector",
+                method=method, boxes=boxes)
+
+
+def _box_colonies(boxes: np.ndarray, factor: float,
+                  px_per_mm: Optional[float], *, offset=(0, 0)
+                  ) -> List[Dict[str, Any]]:
+    """One row per detected colony, the columns of :func:`_measure_colonies`.
+
+    Each box is read as the ellipse inscribed in it: its area is
+    pi/4 x width x height, its equivalent diameter the square root of
+    width x height, and its eccentricity that of the ellipse. Solidity is
+    1, an ellipse being convex.
+
+    :param boxes: ``N x 5`` boxes from :func:`_detect_colonies`, in working
+        pixels.
+    :param factor: working pixels per original pixel.
+    :param px_per_mm: original pixels per millimetre, or ``None``.
+    :param offset: ``(x, y)`` of the crop's corner in the original photo.
+    :returns: dicts with the keys :func:`_measure_colonies` writes.
+    """
+    rows = []
+    for index, (x0, y0, x1, y1, _score) in enumerate(np.asarray(boxes),
+                                                     start=1):
+        width = max(float(x1 - x0), 1e-6) / factor
+        height = max(float(y1 - y0), 1e-6) / factor
+        area = float(np.pi / 4.0 * width * height)
+        diameter = float(np.sqrt(width * height))
+        major, minor = max(width, height), min(width, height)
+        rows.append(dict(
+            colony_id=index, area_px=area, diameter_px=diameter,
+            area_mm2=area / px_per_mm ** 2 if px_per_mm else None,
+            diameter_mm=diameter / px_per_mm if px_per_mm else None,
+            centroid_x=float(x0 + x1) / 2.0 / factor + offset[0],
+            centroid_y=float(y0 + y1) / 2.0 / factor + offset[1],
+            eccentricity=float(np.sqrt(1.0 - (minor / major) ** 2)),
+            solidity=1.0))
+    return rows
+
+
 def _dilution_factor(dilution: Any) -> Optional[float]:
     """A dilution as the factor the count is multiplied by.
 
@@ -999,7 +1135,10 @@ def _count_colony_plate(image: np.ndarray, *, name: str = "",
         how large it is, and keeps pixels otherwise.
     :param settings: the plaque settings; the ``colony_*`` keys, and
         ``plate_format`` / ``well_diameter_mm`` / ``plaque_pixels_per_um``
-        for the scale.
+        for the scale. A ``colony_detector`` checkpoint path finds the
+        colonies with :func:`_detect_colonies` instead of
+        :func:`_segment_colonies`; the resolved path is expected here, not a
+        model-zoo key.
     :returns: ``{'summary', 'colonies', 'labels', 'image', 'well',
         'method', 'polarity', 'centre', 'radius', 'factor', 'offset'}``: a
         summary row, one row per colony, the label image, the working-size
@@ -1030,14 +1169,23 @@ def _count_colony_plate(image: np.ndarray, *, name: str = "",
                 well, plate_format=plate_format,
                 well_diameter_mm=_number(settings, "well_diameter_mm", None))
     polarity = str(settings.get("colony_polarity") or "auto")
-    found = _segment_colonies(
-        crop, centre=centre, radius=well.diameter_px / 2.0,
-        polarity=polarity,
-        threshold=_number(settings, "colony_threshold", 4.0) or 4.0,
-        min_area_px=_number(settings, "colony_min_area_px", None))
+    detector = settings.get("colony_detector") or None
+    if detector:
+        found = _detect_colonies(crop, str(detector), centre=centre,
+                                 radius=well.diameter_px / 2.0)
+    else:
+        found = _segment_colonies(
+            crop, centre=centre, radius=well.diameter_px / 2.0,
+            polarity=polarity,
+            threshold=_number(settings, "colony_threshold", 4.0) or 4.0,
+            min_area_px=_number(settings, "colony_min_area_px", None))
     px_per_mm = scale.px_per_mm if scale else None
-    colonies = _measure_colonies(found["labels"], found["factor"], px_per_mm,
+    if detector:
+        colonies = _box_colonies(found["boxes"], found["factor"], px_per_mm,
                                  offset=(x_off, y_off))
+    else:
+        colonies = _measure_colonies(found["labels"], found["factor"],
+                                     px_per_mm, offset=(x_off, y_off))
     count = len(colonies)
     areas = np.array([row["area_px"] for row in colonies], float)
     diameters = np.array([row["diameter_px"] for row in colonies], float)

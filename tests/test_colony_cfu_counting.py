@@ -341,3 +341,135 @@ def test_detected_wells_are_counted_one_row_each(tmp_path, monkeypatch):
     assert abs(table.loc[0, "colony_count"] - n_left) <= 1
     assert abs(table.loc[1, "colony_count"] - n_right) <= 1
     assert table.loc[0, "px_per_mm"] == pytest.approx(352 / 34.8)
+
+
+class _Boxes:
+    """The part of an ultralytics ``Boxes`` the colony detector reads."""
+
+    def __init__(self, rows):
+        rows = np.asarray(rows, np.float32).reshape(-1, 5)
+        self.xyxy, self.conf = rows[:, :4], rows[:, 4]
+
+    def __len__(self):
+        return len(self.conf)
+
+
+class _Result:
+    def __init__(self, rows):
+        self.boxes = _Boxes(rows)
+
+
+class _FakeColonyDetector:
+    """A detector that returns fixed boxes and records how it was asked."""
+
+    def __init__(self, rows):
+        self.rows, self.calls = rows, []
+
+    def predict(self, source, conf, imgsz, iou, max_det, verbose):
+        self.calls.append(dict(shape=np.asarray(source).shape, conf=conf,
+                               imgsz=imgsz, iou=iou, max_det=max_det))
+        return [_Result([r for r in self.rows if r[4] >= conf])]
+
+
+_DETECTED = [
+    (100, 100, 120, 120, 0.9),
+    (112, 100, 132, 120, 0.8),
+    (250, 250, 260, 280, 0.6),
+    (200, 200, 220, 220, 0.1),
+    (2, 2, 12, 12, 0.95),
+]
+"""Two overlapping colonies, an elongated one, one below the default score
+and one outside the dish, in the pixels of the dish crop."""
+
+
+def test_a_colony_detector_counts_every_box_inside_the_dish(monkeypatch):
+    fake = _FakeColonyDetector(_DETECTED)
+    monkeypatch.setattr(plaque, "_load_detector", lambda weights: fake)
+    image = np.full((400, 400, 3), 90, np.uint8)
+    result = _count_colony_plate(
+        image, well=Well(20, 20, 380, 380),
+        settings={"colony_detector": "colonies.pt",
+                  "plaque_pixels_per_um": 0.01})
+    summary = result["summary"]
+    assert summary["colony_count"] == 3
+    assert summary["polarity"] == "detector"
+    assert fake.calls[0]["shape"] == (360, 360, 3)
+    assert fake.calls[0]["max_det"] >= 1000
+    rows = sorted(result["colonies"], key=lambda r: r["centroid_x"])
+    assert rows[0]["area_px"] == pytest.approx(np.pi / 4 * 20 * 20)
+    assert rows[0]["diameter_px"] == pytest.approx(20)
+    assert rows[0]["centroid_x"] == pytest.approx(110 + 20)
+    assert rows[0]["diameter_mm"] == pytest.approx(20 / 10.0)
+    assert rows[2]["eccentricity"] == pytest.approx(np.sqrt(1 - (10 / 30) ** 2))
+    assert len(np.unique(result["labels"])) - 1 == 3
+
+
+def test_a_grey_photo_reaches_the_detector_as_three_byte_channels(monkeypatch):
+    fake = _FakeColonyDetector([(100, 100, 120, 120, 0.9)])
+    monkeypatch.setattr(plaque, "_load_detector", lambda weights: fake)
+    found = plaque._detect_colonies(np.full((400, 400), 3000, np.uint16),
+                                    "colonies.pt", centre=(200, 200),
+                                    radius=190)
+    assert fake.calls[0]["shape"] == (400, 400, 3)
+    assert len(found["boxes"]) == 1
+
+
+def test_the_run_counts_with_the_colony_detector_when_it_is_set(
+        tmp_path, monkeypatch):
+    import importlib.util
+    from cellpose import io as cp_io
+    from spacr import submodules
+
+    image, _truth, _dish, _radii = _plate(30, 0, size=400, seed=43)
+    cp_io.imsave(str(tmp_path / "plate.png"), image)
+    weights = tmp_path / "colonies.pt"
+    weights.write_bytes(b"weights")
+    real_find_spec = importlib.util.find_spec
+    monkeypatch.setattr(importlib.util, "find_spec", lambda name, *a: (
+        object() if name == "ultralytics" else real_find_spec(name, *a)))
+    loaded = []
+    fake = _FakeColonyDetector([(150, 150, 170, 170, 0.9),
+                                (200, 200, 216, 216, 0.7)])
+    monkeypatch.setattr(plaque, "_load_detector",
+                        lambda path: loaded.append(path) or fake)
+    table = submodules._analyze_colony_plates({
+        "src": str(tmp_path), "save": False,
+        "colony_detector": str(weights)})
+    assert loaded == [str(weights)]
+    assert table.loc[0, "colony_count"] == 2
+    assert table.loc[0, "polarity"] == "detector"
+
+
+def test_without_ultralytics_the_run_thresholds_instead(tmp_path, monkeypatch):
+    import importlib.util
+    from cellpose import io as cp_io
+    from spacr import submodules
+
+    image, truth, _dish, _radii = _plate(30, 0, seed=44)
+    cp_io.imsave(str(tmp_path / "plate.png"), image)
+    weights = tmp_path / "colonies.pt"
+    weights.write_bytes(b"weights")
+    real_find_spec = importlib.util.find_spec
+    monkeypatch.setattr(importlib.util, "find_spec", lambda name, *a: (
+        None if name == "ultralytics" else real_find_spec(name, *a)))
+
+    def never(path):
+        raise AssertionError("the detector must not be loaded")
+
+    monkeypatch.setattr(plaque, "_load_detector", never)
+    table = submodules._analyze_colony_plates({
+        "src": str(tmp_path), "save": False,
+        "colony_detector": str(weights)})
+    assert table.loc[0, "polarity"] in ("bright", "dark")
+    assert abs(table.loc[0, "colony_count"] - truth) <= 1
+
+
+def test_a_colony_detector_that_is_neither_file_nor_zoo_key_is_refused(
+        tmp_path, monkeypatch):
+    from spacr import model_zoo, submodules
+
+    monkeypatch.setattr(model_zoo, "catalogue", lambda remote=True: [])
+    with pytest.raises(ValueError, match="colony_detector="):
+        submodules._analyze_colony_plates({
+            "src": str(tmp_path), "save": False,
+            "colony_detector": "no_such_detector"})
