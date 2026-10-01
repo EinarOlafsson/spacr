@@ -235,7 +235,9 @@ def test_tracks_table_matches_the_trackpy_btrack_layout(monkeypatch, tmp_path):
     csv = tmp_path / "run" / "tracks" / "ultrack_tracks_cell_b1.csv"
     assert csv.exists(), "tracks CSV was not written"
     df = pd.read_csv(csv)
-    assert list(df.columns) == ["frame", "track_id", "original_label", "x", "y"]
+    assert list(df.columns[:5]) == ["frame", "track_id", "original_label", "x", "y"]
+    assert df.parent_track_id.eq(0).all()
+    assert df.parent_track_id_source.eq('ultrack').all()
     assert len(out) == masks.shape[0]   # _masks_to_masks_stack returns a list
 
 
@@ -256,8 +258,10 @@ def test_tracks_table_columns_agree_with_the_trackastra_backend(monkeypatch, tmp
 
     mine = pd.read_csv(tmp_path / "run" / "tracks" / "ultrack_tracks_cell_b.csv")
     theirs = _relabelled_stack_to_tracks_df(tracked)
-    assert list(mine.columns) == list(theirs.columns)
-    pd.testing.assert_frame_equal(mine, theirs, check_dtype=False)
+    assert list(mine.columns[:5]) == list(theirs.columns)
+    pd.testing.assert_frame_equal(mine[theirs.columns], theirs, check_dtype=False)
+    assert mine.parent_track_id.eq(0).all()
+    assert mine.parent_track_id_source.eq('ultrack').all()
 
 
 def test_ids_are_consistent_across_frames(monkeypatch, tmp_path):
@@ -543,7 +547,8 @@ def test_empty_masks_produce_an_empty_tracks_table(monkeypatch, tmp_path):
                                object_type="cell", masks=blank)
     df = pd.read_csv(tmp_path / "run" / "tracks" / "ultrack_tracks_cell_b.csv")
     assert df.empty
-    assert list(df.columns) == ["frame", "track_id", "original_label", "x", "y"]
+    assert list(df.columns) == ["frame", "track_id", "original_label", "x", "y",
+                                "parent_track_id", "parent_track_id_source"]
     assert len(out) == 3
 
 

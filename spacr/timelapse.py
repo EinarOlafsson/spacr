@@ -1043,6 +1043,36 @@ def _ultrack_track_kwargs(track_fn):
     )
 
 
+def _native_lineage_columns(tracks, parents, source):
+    """Keep native roots and filtered-out parents distinct from unknown links."""
+    tracks = tracks.copy()
+    present = set(tracks['track_id'].astype(int))
+    normalized = {}
+    for child, value in parents.items():
+        child = int(child)
+        if child not in present:
+            continue
+        values = value if isinstance(value, (list, tuple, set, np.ndarray)) else [value]
+        candidates = set()
+        for parent in values:
+            if parent is None or pd.isna(parent):
+                continue
+            number = int(parent)
+            if number != float(parent):
+                raise ValueError(f'{source}: non-integer parent for track {child}')
+            if number > 0 and number != child:
+                candidates.add(number)
+        if len(candidates) > 1:
+            raise ValueError(f'{source}: track {child} has multiple parents; '
+                             'a division lineage requires one parent')
+        parent = next(iter(candidates), 0)
+        normalized[child] = parent if parent in present else 0
+    tracks['parent_track_id'] = tracks['track_id'].map(normalized).fillna(0).astype(int)
+    tracks['parent_track_id_source'] = [source if int(t) in normalized else ''
+                                        for t in tracks['track_id']]
+    return tracks
+
+
 def _ultrack_track_cells(src, name, batch_filenames, object_type, masks, images=None,
                          timelapse_remove_transient=False, plot=False, save=False,
                          mode='ultrack', max_distance=25.0, division_weight=-0.1,
@@ -1140,7 +1170,7 @@ def _ultrack_track_cells(src, name, batch_filenames, object_type, masks, images=
             track_kwargs['images'] = [imgs]
         track(config, **track_kwargs)
 
-        tracks_table, _lineage = to_tracks_layer(config)
+        tracks_table, lineage = to_tracks_layer(config)
         masks_tracked = np.asarray(tracks_to_zarr(config, tracks_table))
     finally:
         shutil.rmtree(work_dir, ignore_errors=True)
@@ -1155,6 +1185,14 @@ def _ultrack_track_cells(src, name, batch_filenames, object_type, masks, images=
         tracks_df = tracks_df[tracks_df['track_id'].isin(kept_ids)].copy()
         print(f'Removed {before - len(tracks_df)} objects that were not present in all frames')
         masks_tracked = _relabel_masks_based_on_tracks(masks_tracked, tracks_df)
+
+    if lineage is not None:
+        # Napari lineage graph: child track ID -> parent track IDs. Missing
+        # entries are native roots, not invitations to infer nearby parents.
+        parents = {int(child): parent for child, parent in lineage.items()}
+        tracks_df = _native_lineage_columns(
+            tracks_df, {int(t): parents.get(int(t), [])
+                        for t in tracks_df['track_id'].unique()}, 'ultrack')
 
     tracks_path = os.path.join(os.path.dirname(src), 'tracks')
     os.makedirs(tracks_path, exist_ok=True)
@@ -1491,6 +1529,8 @@ def _btrack_track_cells(src, name, batch_filenames, object_type, plot, save, mas
 
         tracks = tracker.tracks
 
+    native_parents = {int(track.ID): track.parent for track in tracks
+                      if hasattr(track, 'parent')}
     track_data = []
     for track in tracks:
         for t, x, y, z in zip(track.t, track.x, track.y, track.z):
@@ -1541,6 +1581,7 @@ def _btrack_track_cells(src, name, batch_filenames, object_type, plot, save, mas
     logger.debug("merged_df shape: %s", merged_df.shape)
 
     final_df = merged_df[["track_id", "frame", "x", "y", "original_label"]].copy()
+    final_df = _native_lineage_columns(final_df, native_parents, 'btrack')
 
     if final_df.empty:
         logger.warning(
@@ -1693,8 +1734,14 @@ def _lineage_segments(tracks, max_distance=30.0):
     spans = df.groupby('track_id')['frame'].agg(start='min', end='max')
 
     explicit = _lineage_explicit_parents(df, spans)
+    known = set(explicit)
+    if 'parent_track_id_source' in df:
+        # A native root (including an orphan after filtering) must not be
+        # silently attached to whichever unrelated track is closest.
+        native = df['parent_track_id_source'].fillna('').isin(['ultrack', 'btrack'])
+        known.update(df.loc[native, 'track_id'].astype(int))
     inferred = _lineage_inferred_parents(df, spans, float(max_distance),
-                                         set(explicit))
+                                         known)
     parents = {**inferred, **explicit}
 
     segments = {}
