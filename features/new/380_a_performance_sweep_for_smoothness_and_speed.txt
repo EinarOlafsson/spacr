@@ -2208,3 +2208,37 @@ GUI loop gaps are recorded. Sixteen focused tests pass. Receipt:
 features/data/380_measurement_instruments_2026-09-27.json. These tests do not
 measure native physical presentation, input latency or dropped frames.
 Existing budgets and the outstanding lower-end/native acceptance remain.
+
+2026-10-01 — WITNESSED SECTION, TEXT AND SCROLL DIAGNOSTICS
+The existing perf_paint interaction path could select hidden/read-only fields
+or time a repeated scroll already clamped at its endpoint. It also called
+elapsed time divided by 16.7 ms "frames_dropped", although no compositor
+presentations were measured. Those diagnostic gaps are fixed without changing
+runtime Qt behavior or scientific settings.
+
+The harness now selects visible, enabled, editable controls, clicks the actual
+section heading, sends real text/scroll key events, and requires before/after
+state changes for every trial. Scroll direction reverses so all repeats move.
+Section preparation and restored text happen outside the measured interval;
+source text is never copied into the receipt. Missing eligible controls are
+explicitly unavailable, and failed witnesses raise instead of reporting fast
+success. Screen teardown runs even on failure.
+
+Schema 2 retains first_ms/repeat_ms and adds three witnessed samples per
+interaction using the existing independent GUI-loop/Qt-paint observer. The
+interaction rows no longer infer physical dropped frames from elapsed time.
+Qt subtree paints are not display presentations or physical input latency.
+
+Validation: 27 named tests passed under a 4 GiB cap with hidden CUDA and two
+CPU threads, including no-op rejection, endpoint scroll repeats, both section
+implementations, the actual Mask panel, injected GUI stalls, and existing
+pointer/paint calibration. A separate real CLI run completed all four actions
+with three changed-state samples each on Linux/offscreen. Reproduce with:
+  PYTHONNOUSERSITE=1 CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=2 \
+  OPENBLAS_NUM_THREADS=2 QT_QPA_PLATFORM=offscreen tools/run_capped.sh 4G \
+  python tools/perf_paint.py --only interaction --screen mask --out /tmp/380.json
+
+No runtime speedup, physical dropped-frame count, native compositor, Windows,
+macOS or lower-end hardware acceptance is claimed. Those existing acceptance
+boundaries remain open; this change makes the CPU diagnostic runnable and
+rejects misleading successful measurements.
