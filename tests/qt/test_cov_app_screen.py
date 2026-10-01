@@ -959,7 +959,7 @@ class TestHoverHints:
         tip = HoverTooltip.instance()
 
         assert scr._hint_strip.text() == scr._default_hint()
-        scr.eventFilter(label, QEvent(QEvent.Enter))
+        scr._show_hover_hint(label)
 
         assert tip._anchor is not label, "the popup was shown as well"
         shown = scr._hint_strip.text()
@@ -998,7 +998,7 @@ class TestHoverHints:
         strip = scr._hint_strip
         del scr._hint_strip
         try:
-            scr.eventFilter(label, QEvent(QEvent.Enter))
+            scr._show_hover_hint(label)
             assert HoverTooltip.instance()._anchor is label
             scr.eventFilter(label, QEvent(QEvent.Leave))
             assert HoverTooltip.instance()._hide_timer.isActive()
@@ -1026,7 +1026,7 @@ class TestHoverHints:
         # the hint goes to the bottom strip instead -- but this test is about
         # the popup surviving its anchor being deleted, which is still worth
         # holding. Driving it through the screen would test the routing.
-        tip.show_for(label, "<b>anything</b>")
+        tip.show_for(label, "<b>anything</b>", immediate=True)
         assert tip._anchor is label
         shiboken6.delete(scr)
         assert not shiboken6.isValid(label)

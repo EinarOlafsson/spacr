@@ -12,10 +12,31 @@ if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
 
+def test_portuguese_well_locations_preserve_containers_and_repair_adverbs() -> None:
+    """Container positions retain poço; adverbial well still repairs to bem."""
+    from build_i18n_catalogs import _contextualize, _translation_rejection_reasons
+
+    cases = (
+        ("One well within a replicate, or one field within a well.",
+         "Um poço dentro de uma réplica ou um campo dentro de um poço.",
+         "Um poço dentro de uma réplica ou um campo dentro de um poço."),
+        ("The well below the control well.",
+         "O poço abaixo do poço de controle.",
+         "O poço abaixo do poço de controle."),
+        ("Values remain well within tolerance.",
+         "Os valores permanecem poço dentro da tolerância.",
+         "Os valores permanecem bem dentro da tolerância."),
+    )
+    for source, draft, expected in cases:
+        assert _contextualize(draft, "pt", source) == expected
+        assert _contextualize(expected, "pt", source) == expected
+        assert not _translation_rejection_reasons(source, expected, "pt", force=True)
+
+
 def _new_download_sources(language: str, reviewed: dict[str, str]) -> set[str]:
     """Account for the Import and synthetic Invasion review records separately."""
     sources: set[str] = set()
-    for filename, expected in (("import-examples", 9), ("synthetic-invasion", 2)):
+    for filename, expected in (("import-examples", 9), ("synthetic-invasion", 1)):
         document = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
                                f"2026-09-21-{filename}.json").read_text())
         added = {record["source"] for record in document["records"]}
@@ -23,7 +44,15 @@ def _new_download_sources(language: str, reviewed: dict[str, str]) -> set[str]:
         assert added <= reviewed.keys()
         assert not added & sources
         sources.update(added)
-    assert len(sources) == 11
+    # Item463 replaced the unsegmented-example tooltip. Preserve the original
+    # two-record evidence and prove that only the superseded tooltip retired.
+    archive = json.loads((ROOT / "features/data/463_retired_runtime_review_2026-09-27" /
+                          f"{language}.json").read_text())["records"]
+    old_invasion = {record["source"] for record in archive}
+    assert len(archive) == len(old_invasion) == 2
+    assert len(old_invasion - sources) == 1
+    assert not (old_invasion - sources) & reviewed.keys()
+    assert len(sources) == 10
     return sources
 
 
@@ -69,7 +98,8 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
     assert not panel_sources & sources
     sources.update(panel_sources)
     assert len(sources) == (159 if language == "sv" else 158)
-    for filename, expected in (("form-labels-a", 78), ("sign-in-status", 1),
+    # Instruction 316 retired the one sign-in-status record to _ROWS.
+    for filename, expected in (("form-labels-a", 77), ("sign-in-status", 0),
                                ("enhancement-and-scale", 9),
                                ("organism-identities", 2),
                                ("threshold-and-histogram", 13)):
@@ -84,7 +114,7 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
             added.remove("Crop size")
         assert not added & sources
         sources.update(added)
-    assert len(sources) == (261 if language == "sv" else 260)
+    assert len(sources) == (259 if language == "sv" else 258)
     report = json.loads((ROOT / "tests/data/release_contracts/411_runtime_review_cohorts_2026-09-23.json").read_text())["languages"][language]
     folder = ROOT / "docs/i18n/reviewed/runtime" / language
     later_sources: set[str] = set()
@@ -102,9 +132,29 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
         for record in json.loads(path.read_text())["records"]
     }
     additions = later_sources - earlier_sources
-    assert len(additions) == report["later_distinct_additions"] == 782
+    # 781 -> 780 on 2026-09-25: nightly merge 5c03e8bda removed one retired PSF
+    # help record from 2026-09-23-psf-help.json (11 -> 10 records).
+    # 780 -> 778 on 2026-10-01: the Make Masks re-layout rewrote two
+    # FEATURES workflow-map phrases; their records were retired in place
+    # (2026-09-23-workflow-map-phrases.json, 208 -> 206 records).
+    assert len(additions) == report["later_distinct_additions"] == 778
     assert hashlib.sha256(json.dumps(sorted(additions), ensure_ascii=False).encode()).hexdigest() == report["added_sources_sha256"]
     assert not sources & additions
+    for filename, record_count, source_count in (
+            # 3 -> 2 records on 2026-09-29: items 591-597 renamed the "Cloud"
+            # category, so its caption record was deleted (key gone).
+            ("2026-09-27-mask-cloud-category.json", 2, 1),
+            ("2026-09-28-runtime-577-585.json", 20, 20)):
+        document = json.loads((folder / filename).read_text())
+        records = document["records"]
+        values = {record["source"] for record in records}
+        assert len(records) == record_count and len(values) == source_count
+        assert values <= reviewed.keys()
+        assert not values & (sources | additions)
+        for record in records:
+            assert record["source_sha256"] == hashlib.sha256(record["source"].encode()).hexdigest()
+            assert reviewed[record["source"]] == record["translation"]
+        sources.update(values)
     return sources | additions
 
 
@@ -116,6 +166,220 @@ def _compact_tooltip_sources(language: str) -> set[str]:
     assert {record["table"] for record in records} == {"setting_tooltips"}
     assert {record["key"] for record in records} == {"annotation_source", "metadata_type"}
     return {record["source"] for record in records}
+
+
+#: Sources retired by item 600b (the Features button's tooltip).
+_RETIRED_BY_600B = {
+    "Measure the masks you drew. Opens a table where each row is a field and "
+    "each column is a channel or a mask type; the run goes through the "
+    "Measure module itself, so the folders and the measurements database "
+    "are the ones a Measure run produces.",
+}
+
+
+def _with_training_sample_replacements(document, language, filename):
+    archive = ROOT / "features/data/450_451_retired_runtime_review_2026-09-27" / language / filename
+    if not archive.exists():
+        return document
+    original = json.loads(archive.read_text())["records"]
+    retained = document["records"]
+    # 600b, 2026-09-29: Make Masks' Features button was removed, so its
+    # tooltip's reviewed record was deleted (key gone); it is not one of the
+    # training-sample replacements below.
+    features = {row for row in (json.dumps(r, sort_keys=True) for r in original)
+                if json.loads(row)["source"] in _RETIRED_BY_600B}
+    features = [json.loads(row) for row in features]
+    original = [row for row in original if row not in features]
+    retired = [row for row in original if row not in retained]
+    assert len(retired) == (2 if filename == "2026-09-21-runtime-ui-refresh.json" else 1)
+    replacements = {
+        "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.":
+            "A sample of a published model's training dataset. Sample sizes vary by dataset. Masks are included where available.",
+        "{name}: {count} fields and the masks the model was trained on":
+            "{name}: {count} example images ready",
+        "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.":
+            "Download example data for Plaque Analysis and point src at it. Choose segmented plaque fields or whole plate figures. Sample sizes vary by dataset. Cached after the first download.",
+    }
+    assert {row["source"] for row in retired} <= replacements.keys()
+    assert all(row in document["retired_records"] for row in retired)
+    assert retained == [row for row in original if row not in retired]
+    replacement = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
+                              "2026-09-27-training-samples.json").read_text())["records"]
+    assert len(replacement) == 3
+    assert {row["source"] for row in replacement} == set(replacements.values())
+    from build_i18n_catalogs import reviewed_runtime_translations
+    reviewed = reviewed_runtime_translations(language)
+    assert not {row["source"] for row in retired} & reviewed.keys()
+    assert all(reviewed[row["source"]] == row["translation"] for row in replacement)
+    wanted = {replacements[row["source"]] for row in retired}
+    replacement = [row for row in replacement if row["source"] in wanted]
+    assert len(retained + replacement) == len(original)
+    return {**document, "records": retained + replacement}
+
+
+#: The three reviewed files 316 added on 2026-09-28 for inherited alpha
+#: captions (2eee4bf3e, c356d4c0f): 8 QC-classifier, 11 SAM2/virtual-staining
+#: and 12 distinct counterfactual/database sources, none of them shared with
+#: an older file. The per-file pins below predate them, so each test takes
+#: these out first and checks them here, whole.
+INHERITED_2026_09_28 = ("2026-09-28-qc-classifier.json",
+                        "2026-09-28-sam2-virtual-staining.json",
+                        "2026-09-28-counterfactual-databases.json")
+
+
+def _inherited_2026_09_28_sources(language: str, reviewed) -> set[str]:
+    sources = set()
+    for name in INHERITED_2026_09_28:
+        document = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language
+                               / name).read_text())
+        sources |= {record["source"] for record in document["records"]}
+    # 31 -> 30 on 2026-09-29: the "Measurement Backend (Alpha)" caption was
+    # renamed to its "α" form (591-597); the old record was deleted.
+    assert len(sources) == 30
+    assert sources <= reviewed.keys()
+    return sources
+
+
+def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int) -> set[str]:
+    """The 2026-09-25 runtime translation debt (instruction 316), one cohort.
+
+    Written and technically reviewed by AI against the English source, with no
+    native-speaker signoff, in 2026-09-25-runtime-debt-*.json. Every source
+    was missing from the catalog before, so the cohort shares no source with
+    any earlier record and the older counts below hold once it is subtracted.
+    """
+    folder = ROOT / "docs/i18n/reviewed/runtime" / language
+    paths = sorted(folder.glob("2026-09-25-runtime-debt-*.json"))
+    first = [record for path in paths if "-second-pass-" not in path.name
+             for record in json.loads(path.read_text())["records"]]
+    # The second pass covers sources added on nightly after the first pass
+    # was prepared (items 509-530); it is optional here so a locale can land
+    # its first pass alone, and it must not overlap the first.
+    second = [record for path in paths if "-second-pass-" in path.name
+              for record in json.loads(path.read_text())["records"]]
+    sources = {record["source"] for record in first}
+    assert len(first) == len(sources) == expected
+    later = {record["source"] for record in second}
+    assert len(second) == len(later) and not later & sources
+    sources |= later
+    # The third pass (2026-09-26) covers what nightly added or reworded after
+    # the second: items 426, 474, 511, 523, 528, 529, 531 and 533, and the
+    # shortened ops_spot_detector and cam_type tooltips (the stale
+    # ops_spot_detector second-pass record was deleted, as the loader
+    # directs). It is subtracted as one more slice of the same cohort, so
+    # the older counts are unchanged; every source was pending before, so
+    # it overlaps neither earlier pass.
+    third = [record for path in sorted(folder.glob("2026-09-26-runtime-debt-third-pass-*.json"))
+             for record in json.loads(path.read_text())["records"]]
+    latest = {record["source"] for record in third}
+    assert len(third) == len(latest) and not latest & sources
+    sources |= latest
+    # The fourth pass (2026-09-26, CI run 36276973443) is the same kind of
+    # slice: the captions 316 owed in _AWAITING_CATALOG_REBUILD (alpha items
+    # 541, 544/573, 545, 548, 551-553, 555, 570 and 493's GPU controls) and
+    # the tooltips whose English moved under them (percentiles, fill_in,
+    # enhance_clahe, timelapse_mode, Make Masks' CLAHE caption). The stale
+    # records those edits left were deleted, as the loader directs.
+    fourth = [record for path in sorted(folder.glob("2026-09-26-runtime-debt-fourth-pass-*.json"))
+              for record in json.loads(path.read_text())["records"]]
+    newest = {record["source"] for record in fourth}
+    assert len(fourth) == len(newest) and not newest & sources
+    sources |= newest
+    # The fifth pass (2026-09-26) is one more slice: items 536, 550, 577 and
+    # the profiling and cell-cycle settings that reached nightly after the
+    # fourth. Every source was pending, so it overlaps no earlier pass.
+    fifth = [record for path in sorted(folder.glob("2026-09-26-runtime-debt-fifth-pass-*.json"))
+             for record in json.loads(path.read_text())["records"]]
+    latest5 = {record["source"] for record in fifth}
+    assert len(fifth) == len(latest5) and not latest5 & sources
+    sources |= latest5
+    # The sixth pass (2026-09-27) is one more slice: items 539, 571, 579,
+    # 582 and the other captions nightly added after the fifth.
+    sixth = [record for path in sorted(folder.glob("2026-09-27-runtime-debt-sixth-pass-*.json"))
+             for record in json.loads(path.read_text())["records"]]
+    latest6 = {record["source"] for record in sixth}
+    assert len(sixth) == len(latest6) and not latest6 & sources
+    sources |= latest6
+    # Direct Codex-reviewed delta: 129 new sources plus11 extraction repairs,
+    # minus the Spotiflow identity; Hindi also resolves35 historical fallbacks.
+    seventh = json.loads((folder / "2026-09-27-runtime-codex-delta.json").read_text())["records"]
+    latest7 = {record["source"] for record in seventh}
+    # 139 -> 136 (hi 174 -> 171) on 2026-09-29: items 591-597 renamed the
+    # Event Detection, GPU Measurement and Segmentation Robustness categories
+    # to their "α" captions, so those three records were deleted (key gone).
+    assert len(seventh) == len(latest7) == (171 if language == "hi" else 136)
+    assert not latest7 & sources
+    sources |= latest7
+    discovery = json.loads((folder / "2026-09-27-gpu-discovery.json").read_text())["records"]
+    discovery_sources = {record["source"] for record in discovery}
+    assert len(discovery) == 1
+    assert discovery_sources == {"Checking compatible GPUs…"}
+    assert not discovery_sources & sources
+    sources |= discovery_sources
+    # The 2026-09-29 seventh runtime pass: the renamed "α" categories, the
+    # channel-sort and consolidate dialogs, Noise2Void and the new category
+    # help (items 591-597), one more slice that overlaps nothing earlier.
+    pass7 = [record for path in sorted(folder.glob("2026-09-29-runtime-debt-seventh-pass-*.json"))
+             for record in json.loads(path.read_text())["records"]]
+    latest_p7 = {record["source"] for record in pass7}
+    assert len(pass7) == len(latest_p7) and not latest_p7 & sources
+    sources |= latest_p7
+    # 2026-09-29 (474): the eight organism tile usage notes ("Opens ..."),
+    # which entered the runtime inventory only now; another disjoint slice.
+    notes = json.loads((folder / "2026-09-29-organism-workflow-notes.json")
+                       .read_text())["records"]
+    note_sources = {record["source"] for record in notes}
+    assert len(notes) == len(note_sources) == 8 and not note_sources & sources
+    sources |= note_sources
+    # The 2026-09-30 eighth runtime pass: the Organize for Measure popup,
+    # its regex teaching and drop-classification dialogs and the popup
+    # table's view options (items 600 and 592); another disjoint slice.
+    pass8 = [record for path in sorted(folder.glob("2026-09-30-runtime-debt-eighth-pass-*.json"))
+             for record in json.loads(path.read_text())["records"]]
+    latest_p8 = {record["source"] for record in pass8}
+    assert len(pass8) == len(latest_p8) and not latest_p8 & sources
+    sources |= latest_p8
+    # The 2026-09-30 ninth runtime pass: the colony_detector setting label
+    # and tooltip (item 542); another disjoint slice.
+    pass9 = [record for path in sorted(folder.glob("2026-09-30-runtime-debt-ninth-pass-*.json"))
+             for record in json.loads(path.read_text())["records"]]
+    latest_p9 = {record["source"] for record in pass9}
+    assert len(pass9) == len(latest_p9) and not latest_p9 & sources
+    sources |= latest_p9
+    # The 2026-09-30 tenth runtime pass: item 598's contribute-dialog
+    # captions (the third-pass record of the old linked thank-you was retired
+    # in place) and the Make Masks button re-layout (Upload data, the Load
+    # test data menu, the Uncertainty setting).
+    pass10 = [record for path in sorted(folder.glob("2026-09-30-runtime-debt-tenth-pass-*.json"))
+              for record in json.loads(path.read_text())["records"]]
+    latest_p10 = {record["source"] for record in pass10}
+    assert len(pass10) == len(latest_p10) and not latest_p10 & sources
+    sources |= latest_p10
+    # The 2026-09-30 eleventh runtime pass, first slice: the confluency
+    # tooltips item 536 rewrote (their fourth-pass records retired in place)
+    # and item 603's tooltip-delay row; disjoint from every earlier slice.
+    pass11a = [record for path in sorted(folder.glob("2026-09-30-runtime-debt-eleventh-pass-*.json"))
+               for record in json.loads(path.read_text())["records"]]
+    latest_p11a = {record["source"] for record in pass11a}
+    assert len(pass11a) == len(latest_p11a) and not latest_p11a & sources
+    sources |= latest_p11a
+    # The 2026-09-30 eleventh runtime pass: meaning fixes for machine-
+    # translated names (train, model zoo, batch, run, seed, hit, well, ...)
+    # that had no reviewed record before; another disjoint slice.
+    pass11 = [record for path in sorted(folder.glob("2026-09-30-runtime-meaning-fixes-eleventh-pass*.json"))
+              for record in json.loads(path.read_text())["records"]]
+    latest_p11 = {record["source"] for record in pass11}
+    assert len(pass11) == len(latest_p11) and not latest_p11 & sources
+    sources |= latest_p11
+    # The 2026-10-01 twelfth runtime pass: the AI meaning review of setting
+    # labels and tooltips that had only a machine translation; disjoint.
+    pass12 = [record for path in sorted(folder.glob("2026-10-01-runtime-review-twelfth-pass-*.json"))
+              for record in json.loads(path.read_text())["records"]]
+    latest_p12 = {record["source"] for record in pass12}
+    assert len(pass12) == len(latest_p12) and not latest_p12 & sources
+    sources |= latest_p12
+    assert sources <= reviewed.keys()
+    return sources
 
 
 def test_swedish_example_abbreviation_is_not_a_dotted_identifier() -> None:
@@ -145,9 +409,17 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # retired five source captions, preserving their records in the archive.
     ui_refresh = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
                               "2026-09-21-runtime-ui-refresh.json").read_text())
+    ui_refresh = _with_training_sample_replacements(
+        ui_refresh, "sv", "2026-09-21-runtime-ui-refresh.json")
     ui_sources = {record["source"] for record in ui_refresh["records"]}
-    assert len(ui_refresh["records"]) == 263  # Three old threshold/histogram reviews archived.
-    assert len(ui_sources) == 260
+    # Item 511 retired four Make Masks filter captions (the fixed bounds'
+    # button, ledger, card and placeholder help): 263 -> 259, 260 -> 256.
+    # Instruction 316 then retired the 17 setup and sign-in captions that
+    # moved to _ROWS (kept under retired_records): 259 -> 242, 256 -> 239.
+    # 600b, 2026-09-29: the Features button's tooltip was retired (Make
+    # Masks' button removed): 242 -> 241, 239 -> 238.
+    assert len(ui_refresh["records"]) == 241  # Three old threshold/histogram reviews archived.
+    assert len(ui_sources) == 238
     assert ui_sources <= reviewed.keys()
     all_reviewed = reviewed
     examples = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
@@ -170,9 +442,22 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert not normalized_sources & (example_sources | preview_sources)
     download_sources = _new_download_sources("sv", all_reviewed)
     subsequent_sources = _subsequent_review_sources("sv", all_reviewed)
-    older_all_sources = all_reviewed.keys() - download_sources - subsequent_sources
+    # +720/-0 on 2026-09-25: the runtime translation debt cohort (316).
+    # 720 -> 712 on 2026-09-25 (474): eight organism-page paragraphs were
+    # rewritten when twenty proposals became live or Coming soon tiles.
+    # 712 -> 711 on 2026-09-26 (316 fourth pass): Make Masks' CLAHE caption
+    # now says "saturating" where it said "blowing out", so its first-pass
+    # record left 2026-09-25-runtime-debt-messages.json; the new wording is
+    # a fourth-pass record.
+    # 711 -> 710 on 2026-09-28: 595 removed the "Measurement Features"
+    # caption, so its record left 2026-09-25-runtime-debt-captions.json.
+    debt_sources = _runtime_debt_sources("sv", all_reviewed, 709)  # 710 -> 709 on 2026-09-29: the "Point Spread Function" category caption was renamed (591-597)
+    assert not debt_sources & (ui_sources | example_sources | preview_sources | normalized_sources | download_sources | subsequent_sources)
+    inherited_sources = _inherited_2026_09_28_sources("sv", all_reviewed)
+    assert not inherited_sources & (debt_sources | ui_sources | download_sources | subsequent_sources)
+    older_all_sources = all_reviewed.keys() - download_sources - subsequent_sources - debt_sources - inherited_sources
     reviewed = {source: value for source, value in all_reviewed.items()
-                if source not in ui_sources | example_sources | preview_sources | normalized_sources | download_sources | subsequent_sources}
+                if source not in ui_sources | example_sources | preview_sources | normalized_sources | download_sources | subsequent_sources | debt_sources | inherited_sources}
     sources = canonical_sources()
     current_values = set(sources["setting_labels"].values())
     current_values.update(sources["setting_tooltips"].values())
@@ -310,6 +595,8 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert background_sources <= reviewed.keys()
     samples = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
                            "2026-09-21-dataset-sample-counts.json").read_text())
+    samples = _with_training_sample_replacements(
+        samples, "sv", "2026-09-21-dataset-sample-counts.json")
     sample_sources = {record["source"] for record in samples["records"]}
     assert len(sample_sources) == 3
     assert sample_sources <= reviewed.keys()
@@ -326,19 +613,27 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert not sample_sources & scientific_sources
     older_sources = reviewed.keys() - scientific_sources - sample_sources
     # Four retired chrome/template sources are preserved in the September 23 archive.
-    assert len(older_sources - added_sources - background_sources) == 313
+    # 313 -> 306 on 2026-09-25, item 511: the maintainer retired the cell,
+    # nucleus and pathogen mean-bound settings into object_filters rows, and
+    # the seven sv records of their labels and tooltips were deleted from
+    # 2026-09-15-mask-mean-bounds.json (the English is gone).
+    assert len(older_sources - added_sources - background_sources) == 305  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
     # +8/-0: four source-bound background labels and four scientific tooltips.
-    assert len(older_sources - background_sources) == 320
-    assert len(older_sources) == 328
-    assert len(reviewed.keys() - sample_sources) == 367  # +39 scientific sources.
-    assert len(reviewed) == 370  # Features, Controls and Quality use compact rows.
+    assert len(older_sources - background_sources) == 312  # Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
+    assert len(older_sources) == 320  # Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
+    assert len(reviewed.keys() - sample_sources) == 359  # +39 scientific sources. Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
+    assert len(reviewed) == 362  # Features, Controls and Quality use compact rows. Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
     # The new panel cohort also reuses the earlier whole-field model tooltip.
-    assert len(older_all_sources - example_sources - preview_sources - normalized_sources) == 629
-    assert len(older_all_sources - preview_sources - normalized_sources) == 636
-    assert len(older_all_sources - normalized_sources) == 641
-    assert len(older_all_sources) == 646
-    assert len(all_reviewed.keys() - subsequent_sources) == 657
-    assert len(all_reviewed) == 1700  # 931 - 9 - 4 + 782; source identities pinned above.
+    # 316 (71071b6c6) retired 17 setup and sign-in captions to _ROWS: -17 below;
+    # the total also loses its sign-in-status record and a superseded psf-help record.
+    assert len(older_all_sources - example_sources - preview_sources - normalized_sources) == 599  # 600b (2026-09-29): -1, the Features tooltip retired.  # Item 511 retired four filter captions. Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
+    assert len(older_all_sources - preview_sources - normalized_sources) == 606  # 600b (2026-09-29): -1, the Features tooltip retired.  # Item 511 retired four filter captions. Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
+    assert len(older_all_sources - normalized_sources) == 611  # 600b (2026-09-29): -1, the Features tooltip retired.  # Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).  # 600b (2026-09-29): -1, the Features tooltip retired.
+    assert len(older_all_sources) == 616  # 600b (2026-09-29): -1, the Features tooltip retired.  # Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).  # 600b (2026-09-29): -1, the Features tooltip retired.
+    # Item463 retired one superseded download tooltip; its full old evidence
+    # and exact set difference are checked by _new_download_sources above.
+    assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) == 626  # 600b (2026-09-29): -1, the Features tooltip retired.
+    assert len(all_reviewed.keys() - debt_sources - inherited_sources) == 1684  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -361,28 +656,36 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     refresh = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                           "2026-09-21-runtime-first-slice.json").read_text())
     refresh_sources = {record["source"] for record in refresh["records"]}
-    assert len(refresh["records"]) == len(refresh_sources) == 76
+    # Item 511 retired one filter caption from each of the four slices, and
+    # instruction 316 retired the setup and sign-in captions that moved to
+    # _ROWS (2, 7, 4 and 4 per slice, kept under retired_records).
+    assert len(refresh["records"]) == len(refresh_sources) == 73
     assert not refresh_sources & _compact_tooltip_sources("fr")
     refresh_sources |= _compact_tooltip_sources("fr")
-    assert len(refresh_sources) == 78
+    assert len(refresh_sources) == 75
     assert refresh_sources <= all_reviewed.keys()
     second = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                          "2026-09-21-runtime-second-slice.json").read_text())
+    second = _with_training_sample_replacements(
+        second, "fr", "2026-09-21-runtime-second-slice.json")
     second_sources = {record["source"] for record in second["records"]}
-    assert len(second["records"]) == len(second_sources) == 72
+    # 64 -> 63 on 2026-09-29: 600b retired the Features button's tooltip.
+    assert len(second["records"]) == len(second_sources) == 63
     assert second_sources <= all_reviewed.keys()
     assert not refresh_sources & second_sources
     refresh_sources |= second_sources
     # Two third-slice and three fourth-slice captions left with the old panel.
-    for filename, expected in (("third", 73), ("fourth", 76)):
+    for filename, expected in (("third", 68), ("fourth", 71)):
         document = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                                f"2026-09-21-runtime-{filename}-slice.json").read_text())
+        document = _with_training_sample_replacements(
+            document, "fr", f"2026-09-21-runtime-{filename}-slice.json")
         added = {record["source"] for record in document["records"]}
         assert len(document["records"]) == len(added) == expected
         assert added <= all_reviewed.keys()
         assert not added & refresh_sources
         refresh_sources |= added
-    assert len(refresh_sources) == 299  # Three superseded threshold/histogram sources.
+    assert len(refresh_sources) == 277  # 600b (2026-09-29): -1, the Features tooltip retired.  # Three superseded threshold/histogram sources.
     actions = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                           "2026-09-21-action-labels.json").read_text())
     action_sources = {record["source"] for record in actions["records"]}
@@ -411,9 +714,22 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert not refresh_sources & (download_sources | example_sources |
                                   preview_sources | normalized_sources)
     subsequent_sources = _subsequent_review_sources("fr", all_reviewed)
-    older_all_sources = all_reviewed.keys() - download_sources - refresh_sources - subsequent_sources
+    # +720/-0 on 2026-09-25: the runtime translation debt cohort (316).
+    # 720 -> 712 on 2026-09-25 (474): eight organism-page paragraphs were
+    # rewritten when twenty proposals became live or Coming soon tiles.
+    # 712 -> 711 on 2026-09-26 (316 fourth pass): Make Masks' CLAHE caption
+    # now says "saturating" where it said "blowing out", so its first-pass
+    # record left 2026-09-25-runtime-debt-messages.json; the new wording is
+    # a fourth-pass record.
+    # 711 -> 710 on 2026-09-28: 595 removed the "Measurement Features"
+    # caption, so its record left 2026-09-25-runtime-debt-captions.json.
+    debt_sources = _runtime_debt_sources("fr", all_reviewed, 709)  # 710 -> 709 on 2026-09-29: the "Point Spread Function" category caption was renamed (591-597)
+    assert not debt_sources & (example_sources | preview_sources | normalized_sources | download_sources | refresh_sources | subsequent_sources)
+    inherited_sources = _inherited_2026_09_28_sources("fr", all_reviewed)
+    assert not inherited_sources & (debt_sources | refresh_sources | download_sources | subsequent_sources)
+    older_all_sources = all_reviewed.keys() - download_sources - refresh_sources - subsequent_sources - debt_sources - inherited_sources
     reviewed = {source: value for source, value in all_reviewed.items()
-                if source not in example_sources | preview_sources | normalized_sources | download_sources | refresh_sources | subsequent_sources}
+                if source not in example_sources | preview_sources | normalized_sources | download_sources | refresh_sources | subsequent_sources | debt_sources | inherited_sources}
     sources = canonical_sources()
     current_values = set(sources["setting_labels"].values())
     current_values.update(sources["setting_tooltips"].values())
@@ -548,22 +864,29 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert background_sources <= reviewed.keys()
     samples = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                            "2026-09-21-dataset-sample-counts.json").read_text())
+    samples = _with_training_sample_replacements(
+        samples, "fr", "2026-09-21-dataset-sample-counts.json")
     sample_sources = {record["source"] for record in samples["records"]}
     assert len(sample_sources) == 3
     assert sample_sources <= reviewed.keys()
     assert not sample_sources & (added_sources | background_sources)
     # Three retired chrome/template sources are preserved in the September 23 archive.
-    assert len(reviewed.keys() - added_sources - background_sources - sample_sources) == 305
+    # 305 -> 293 on 2026-09-25, item 511: the twelve fr records of the
+    # retired cell, nucleus and pathogen mean bounds were deleted from
+    # 2026-09-15-mask-mean-bounds.json (the English is gone).
+    assert len(reviewed.keys() - added_sources - background_sources - sample_sources) == 293
     # +8/-0: four source-bound background labels and four scientific tooltips.
-    assert len(reviewed.keys() - background_sources - sample_sources) == 312
-    assert len(reviewed.keys() - sample_sources) == 320
-    assert len(reviewed) == 323  # Features, Controls and Quality use compact rows.
-    assert len(older_all_sources - preview_sources - normalized_sources) == 330
-    assert len(older_all_sources - normalized_sources) == 335
-    assert len(older_all_sources) == 340
-    assert len(all_reviewed.keys() - refresh_sources - subsequent_sources) == 351
-    assert len(all_reviewed.keys() - subsequent_sources) == 654
-    assert len(all_reviewed) == 1696  # 926 - 9 - 3 + 782; source identities pinned above.
+    assert len(reviewed.keys() - background_sources - sample_sources) == 300  # Item 511 retirement (2026-09-25): -12.
+    assert len(reviewed.keys() - sample_sources) == 308  # Item 511 retirement (2026-09-25): -12.
+    assert len(reviewed) == 311  # Features, Controls and Quality use compact rows. Item 511 retirement (2026-09-25): -12.
+    assert len(older_all_sources - preview_sources - normalized_sources) == 318  # Item 511 retirement (2026-09-25): -12.
+    assert len(older_all_sources - normalized_sources) == 323  # Item 511 retirement (2026-09-25): -12.
+    assert len(older_all_sources) == 328  # Item 511 retirement (2026-09-25): -12.
+    # Item463 retired the one superseded download tooltip, proven above.
+    assert len(all_reviewed.keys() - refresh_sources - subsequent_sources - debt_sources - inherited_sources) == 338
+    # 316 (71071b6c6) retired 17 setup and sign-in captions from the four slices to _ROWS.
+    assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) == 619  # 600b (2026-09-29): -1, the Features tooltip retired.
+    assert len(all_reviewed.keys() - debt_sources - inherited_sources) == 1676  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

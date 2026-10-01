@@ -45,13 +45,21 @@ def _index() -> Dict[str, dict]:
 
 
 def lesson_for(app_key: str) -> str:
-    """The lesson id that teaches ``app_key``, or ``""``."""
+    """The lesson id that teaches ``app_key``, or ``""``.
+
+    :param app_key: the app key looked up in the bundled
+        ``tutorial_index.json``; None or empty gives no lesson.
+    """
     entry = _index().get(str(app_key or ""))
     return str((entry or {}).get("lesson") or "")
 
 
 def lesson_title(app_key: str) -> str:
-    """The lesson's own title, for a tooltip. ``""`` when there is none."""
+    """The lesson's own title, for a tooltip. ``""`` when there is none.
+
+    :param app_key: the app key looked up in the bundled
+        ``tutorial_index.json``; None or empty gives no lesson.
+    """
     entry = _index().get(str(app_key or ""))
     return str((entry or {}).get("title") or "")
 
@@ -63,11 +71,18 @@ def tutorial_url(app_key: str) -> str:
     only when this answers, so a word that would have dropped the reader at
     an index of seventy-three lessons is simply not offered -- the rule the
     tooltip footer already follows for **Animation**.
+
+    :param app_key: the app key looked up in the bundled
+        ``tutorial_index.json``; None or empty gives no lesson.
     """
     lesson = lesson_for(app_key)
     return f"{TUTORIALS_URL}#lesson={lesson}" if lesson else ""
 
 
 def has_tutorial(app_key: str) -> bool:
-    """Whether ``app_key`` has a lesson to link to."""
+    """Whether ``app_key`` has a lesson to link to.
+
+    :param app_key: the app key looked up in the bundled
+        ``tutorial_index.json``; None or empty gives no lesson.
+    """
     return bool(lesson_for(app_key))

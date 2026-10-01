@@ -538,7 +538,13 @@ class CanvasSpec:
                 * int(np.dtype(self.dtype).itemsize))
 
     def canvas_yx(self, y: float, x: float) -> Tuple[int, int]:
-        """Map a global-frame position onto integer canvas indices."""
+        """Map a global-frame position onto integer canvas indices.
+
+        :param y: global-frame row position, in pixels; ``origin_y`` is
+            subtracted and the result rounded to the nearest integer.
+        :param x: global-frame column position, in pixels; ``origin_x`` is
+            subtracted and the result rounded to the nearest integer.
+        """
         return (int(round(y - self.origin_y)), int(round(x - self.origin_x)))
 
 
@@ -1177,6 +1183,9 @@ def group_tiles(tiles: Sequence[Tile]) -> "Dict[Tuple[str, str], List[Tile]]":
     registered against each other. Indices are renumbered within each
     group so the returned lists can go straight into
     :func:`estimate_offsets`.
+
+    :param tiles: tiles to split; each is grouped by its ``plate`` and ``well``
+        attributes and sorted by its original ``index`` within the group.
     """
     groups: "Dict[Tuple[str, str], List[Tile]]" = {}
     for tile in tiles:
@@ -2391,6 +2400,10 @@ def format_plan(plan: AlignPlan, *, max_rows: int = 12) -> str:
     Leads with what is *wrong* — nominal fallbacks, refused pairs, the
     worst residual — because that is the part a stitch summary usually
     buries.
+
+    :param plan: alignment plan to summarise: its canvas shape, origin,
+        placement and pair counts, nominal fallbacks, residuals, unplaced tiles
+        and warnings are listed.
     """
     height, width, channels = plan.canvas_shape
     lines = [

@@ -1599,6 +1599,10 @@ def test_the_citation_version_doi_is_the_one_for_the_version_it_claims():
     names that exact failure ("never substitute an older release's version
     DOI") and, until this test, nothing enforced it.
 
+    Since 2026-09-26 `release.yml`'s `release-metadata` job writes the new
+    DOI once Zenodo mints it (`release.py sync-release-metadata`). This test
+    is what notices when that job did not run or did not finish.
+
     The check is offline and needs no Zenodo call: the version DOI's own
     description states which release it belongs to, so the file is asked
     whether it agrees with itself.

@@ -169,3 +169,23 @@ if f.endswith(".npy") and not f.startswith(".")
 `merged/` on a macOS external volume holds a `._<field>.npy` AppleDouble sidecar beside every field (item 429). `selection_from_arrays` counted them as stacks: a folder holding only sidecars was reported as "1 .npy stack(s) ... hold no object labels" rather than as holding no stack, and every count was doubled. `_stack_for` resolved a stem that prefixes every name, such as the empty stem of a row with no identifiers, to the first name in sorted order, and a sidecar sorts before every field. Dot-files are left out inline, because this module does not import `spacr.io`. `_stack_for` now lists the folder once instead of three times.
 
 Not changed, and reported: `_stack_for` falls back to a prefix match, so a stem whose own field is missing (`plate1_A01_1`) can resolve to another field that starts with it (`plate1_A01_10.npy`), and the empty stem resolves to the first field. Both would cut crops from the wrong field.
+
+
+---
+
+# Notes from `spacr/stream_dataset.py`
+
+Prose lifted out of `spacr/stream_dataset.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## Module level
+
+### lines 21-25
+
+```python
+from . import _stream_selection  # noqa: E402
+```
+
+THE SELECTION TABLES LIVE IN `_stream_selection`, which imports nothing but typing: `spacr.settings` reads them while a settings panel is being laid out, and must not pay for pandas to read two dictionaries. They are re-exported here, and the two lookups below stay this module's public API and delegate, so there is one implementation and nothing moved for a caller.

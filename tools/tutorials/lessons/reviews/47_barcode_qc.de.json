@@ -1,30 +1,34 @@
 {
   "lesson": "47_barcode_qc",
-  "english_sha256": "faf91389430d4f90d8e26b9c30c08ad98cbfe88bcd20364cd1a3a6eb25887c6f",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "189d9466d15df859444f28e70fed0f6ef73597559efd8b96ef17b7e7e2930940",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "de",
-  "title": "Barcode QC: echte Zähldaten, Schwellenwertabwägungen und gespeicherte Grafiken",
-  "description": "Untersuchen Sie die veröffentlichte Zähltabelle, führen Sie Barcode QC aus und vergleichen Sie Lesetiefe und Schwellenwerte in den tatsächlich gespeicherten Grafiken.",
+  "title": "Barcode QC: Lesetiefe prüfen und einen Schwellenwert wählen",
+  "description": "Laden Sie zugeordnete Zählungen, prüfen Sie die Abdeckung von Wells und Guides und vergleichen Sie Häufigkeitsschwellen.",
   "objectives": [
-    "Barcode QC innerhalb von Map Barcodes finden und echte Zähldaten wählen.",
-    "Ein illustratives Ziel von einer experimentell begründeten Entscheidung unterscheiden.",
-    "Warnungen, gespeicherte Grafiken und unabhängig geprüfte Tabellen untersuchen.",
-    "Wells mit wenigen Reads, Wells über dem Ziel und Sequenzkollisionen unterscheiden."
+    "Zähleingaben und QC-Einstellungen wählen.",
+    "Abdeckung und Positionseffekte prüfen.",
+    "Schwellenwerte vergleichen und die entstandenen Tabellen und Diagramme aufbewahren."
   ],
-  "prerequisite": "Eine Kopie von plate_1_unique_combinations.csv aus dem heruntergeladenen Regression-Beispiel und einen neuen Ausgabeordner verwenden. Die Tabelle stammt nicht aus unserem fehlgeschlagenen FASTQ-Versuch. Sie enthält 172756 Zeilen, 49464341 zugeordnete Reads, 384 Wells und 1379 beobachtete Guides. Ziel 5/Median nur illustrativ, Niedrig-Read-Anteil 0.1, Plot/Save/Verbose aktiv. Optionale QC- und Referenzeingaben fehlen. 2884 Felder ohne numerischen Fehler geprüft. src-Warnung und leeres Figures-Panel bleiben ungelöst; PNGs werden im echten externen Bildbetrachter gezeigt. Keine Live-Vorschau, GPU-Berechnung, AI-Anfrage, biologische Validierung oder Veröffentlichung. API: spacr.sequencing_qc.barcode_qc, derive_threshold, threshold_sweep.",
+  "prerequisite": "Verwenden Sie plate_1_unique_combinations.csv aus den im Regression-Tutorial heruntergeladenen Beispiel-Screen-Daten oder Ihre eigene Tabelle zugeordneter Zählungen. Wählen Sie einen neuen Ausgabeordner. Stellen Sie Mapping-QC- und Barcode-Referenzdateien bereit, wenn Sie Prüfungen benötigen, die von nicht zugeordneten Reads oder der erwarteten Bibliothek abhängen.",
   "scenes": [
-    "Öffnen Sie Map Barcodes und anschließend das darin verschachtelte Werkzeug Barcode QC. Dieser Ablauf untersucht Zähldaten nach der Zuordnung; er ordnet FASTQ-Reads nicht erneut zu. Wir verwenden die veröffentlichte Beispieltabelle aus der verlinkten Regression-Lektion. Sie ist nicht das Ergebnis unseres früheren fehlgeschlagenen Versuchs mit Rohreads.",
-    "Wählen Sie unter Count data eine Kopie von plate one unique combinations. Prüfen Sie die ausgewählte Datei, statt einen Platzhalterpfad stehen zu lassen. Diese echte Tabelle enthält etwa 49,5 Millionen zugeordnete Reads aus 384 Wells. Lassen Sie das Original unverändert und wählen Sie ein neues Ziel für die QC-Ausgaben.",
-    "Target gRNAs per well bezeichnet das Ziel, aus dem eine Schwelle für die Read-Häufigkeit abgeleitet wird. Hier belassen wir den illustrativen Wert fünf und verwenden den Median. Das ist weder eine Empfehlung zur Versuchsplanung noch ein Beleg für die Zuordnung zu einem einzelnen Guide. Wählen Sie anhand Ihres Designs und prüfen Sie die Abwägungen, nicht nur den vorgeschlagenen Wert.",
-    "Der Anteil für readarme Wells erkennt Wells mit ungewöhnlich wenigen Reads im Verhältnis zum Plattenmedian. Hier beträgt er 0,1, und keines der 384 Wells fällt unter die daraus berechnete Grenze. Dies ist ein Lesetiefenindikator, keine Garantie für die Zuverlässigkeit jedes Wells, Guides oder biologischen Messwerts.",
-    "Aktivieren Sie Plot und Save, geben Sie das Ziel ausdrücklich an und drücken Sie Run. Dies ist eine kleine Tabellenanalyse, keine GPU-Segmentierung, und dieser Bildschirm hat keine Live-Vorschau. Wir lassen die optionalen Eingaben für Mapping-QC und Barcode-Referenzen leer. Aussagen, die diese Dateien benötigen, folgen nicht aus der Zähltabelle allein.",
-    "Lesen Sie die tatsächliche Konsole einschließlich ihrer Warnungen. Der Rechenprozess endet, aber diese Version meldet fälschlich fehlendes src, obwohl das Modul Count data verwendet. Wir haben echte Eingabe und gespeicherte Tabellen geprüft; die Vorprüfung wurde nicht repariert. Dieser diagnostizierte Widerspruch ist kein Freibrief, andere Fehler zu ignorieren.",
-    "Diese Version lässt außerdem das Figures-Panel leer, obwohl zwei PNG-Grafiken gespeichert wurden. Öffnen Sie barcode_qc.png und threshold_sweep.png aus dem Ausgabeordner in einem Bildbetrachter. Die nächsten Szenen zeigen den echten Systembetrachter, keine in spaCR eingefügten Bilder und keine Behauptung, die GUI sei repariert.",
-    "Untersuchen Sie Lesetiefe, Zeilen- und Spalteneffekte sowie die Verteilung der beobachteten Bibliothek. Die gestrichelte Tiefengrenze kennzeichnet readarme Wells; die Balken vergleichen Zeilen- oder Spaltenmediane mit dem Plattenmedian. Die Bibliothekskurve zeigt ungleiche Read-Repräsentation beobachteter Guides. Ohne Referenzbibliothek kann sie vollständig fehlende erwartete Guides nicht identifizieren.",
-    "Prüfen Sie den Schwellenwert-Sweep, statt eine Grenze blind zu übernehmen. Hier beträgt der abgeleitete Wert etwa 0,0121, also 1,21 Prozent der Reads eines Wells. Er ergibt einen Median von fünf Guides, erhält alle Wells und etwa 58 Prozent der zugeordneten Reads; dennoch überschreiten ungefähr 40 Prozent der Wells das Ziel.",
-    "Die rote Kurve zählt Wells über dem Ziel von fünf Guides. Sie misst keine Ähnlichkeit von Barcode-Sequenzen, und auch unterhalb des Ziels ist die Zuordnung zu einem einzelnen Guide nicht belegt. Ein lockerer Grenzwert erhöht hier den Anteil über dem Ziel, ohne Wells hinzuzugewinnen. Vergleichen Sie die gespeicherte Tabelle und begründen Sie Ihre Wahl; das Beispiel ist keine universelle Schwelle.",
-    "Bewahren Sie ursprüngliche Zähldaten, Einstellungen, Konsollog, Empfehlung, Tabellen und Grafiken gemeinsam auf. Unabhängige Prüfungen reproduzierten die gespeicherten Well-, Positions- und Sweep-Statistiken ohne numerische Abweichung. Das bestätigt die Berechnung, nicht ihre biologische Interpretation. AI-Hilfe ist optional und wurde hier nicht angefragt; gleichen Sie spätere Ratschläge mit echten Daten und API ab."
+    "Öffnen Sie Map Barcodes und dann Barcode QC. Beginnen Sie mit einer Tabelle zugeordneter Zählungen; das verlinkte Regression-Beispiel liefert eine zum Üben.",
+    "Setzen Sie Count data auf Ihre Zähltabelle und wählen Sie ein neues Ausgabeziel. Das Beispiel enthält zugeordnete Reads über 384 Wells.",
+    "Legen Sie Target gRNAs per well nach Ihrem Versuchsplan fest und wählen Sie die Zusammenfassungsmethode, aus der der Schwellenwert abgeleitet wird. Das Beispiel verwendet 5 und median.",
+    "Legen Sie Starved read fraction fest, um Wells mit wenigen Reads im Verhältnis zum Plattenmedian zu markieren. Das Beispiel verwendet 0,1. Prüfen Sie markierte Wells, bevor Sie sie ausschließen.",
+    "Aktivieren Sie Plot und Save und drücken Sie dann Run. Fügen Sie Mapping-QC- oder Referenzeingaben hinzu, wenn Sie die entsprechenden Prüfungen möchten; die Zähltabelle allein beschreibt die beobachteten zugeordneten Reads.",
+    "Lesen Sie das Abschlussprotokoll und die gespeicherten Ausgabepfade. Untersuchen Sie Fehler anhand der gewählten Eingaben, bevor Sie die Ergebnisse verwenden.",
+    "Öffnen Sie barcode_qc.png und threshold_sweep.png im Ausgabeordner. Verwenden Sie einen Bildbetrachter, wenn der Bereich Figures leer ist.",
+    "Prüfen Sie Lesetiefe, Zeilen- und Spalteneffekte und die Repräsentation der Guides. Vergleichen Sie mit einer Referenzbibliothek, wenn Sie erwartete Guides finden müssen, die vollständig fehlen.",
+    "Prüfen Sie den Schwellenwert-Sweep. In diesem Beispiel ergibt ein Schwellenwert von etwa 1,21 % der Reads jedes Wells einen Median von fünf Guides und behält etwa 58 % der zugeordneten Reads.",
+    "Vergleichen Sie beim Verändern des Schwellenwerts behaltene Reads, behaltene Wells und Wells oberhalb des Guide-Ziels. Wählen Sie einen für Ihr Design geeigneten Schwellenwert; das Guide-Ziel belegt keine Zuordnung zu einem einzelnen Guide.",
+    "Bewahren Sie Empfehlung, Sweep-Tabelle, Diagramme und Einstellungen zusammen mit den Quellzählungen auf. Verwenden Sie den gewählten Schwellenwert in der weiteren Analyse einheitlich und dokumentieren Sie den Grund Ihrer Wahl."
   ]
 }

@@ -1,9 +1,9 @@
 Unified run history
 ===================
 
-Open **Results & QC → Run History** to search every pipeline recorded by
-spaCR. Refreshing a large journal happens on a background worker and does not
-create another run record.
+Open **Help → Run History** (or type *Run History* in the command palette,
+Ctrl+K) to search every pipeline recorded by spaCR. Refreshing a large journal
+happens on a background worker and does not create another run record.
 
 The dashboard combines:
 
@@ -23,6 +23,10 @@ Select a row to inspect its details. **Load settings in module** opens the
 original module and propagates the exact recorded settings into its controls;
 it does not start a run. **Open run folder** and **Copy path** expose the
 underlying ``~/.spacr/runs/...`` folder.
+
+Right-click selected rows to open their folders or delete them; **Clear all**
+deletes every run the table lists. Deleting asks first and removes only the
+journal folders; outputs written into your projects are not touched.
 
 Headless search
 ---------------

@@ -34,9 +34,34 @@ builder = importlib.import_module("build_documentation_i18n")
 # and proved by subtraction on top of origin/nightly df1216b3f: the digest recomputed
 # without that one dunder returns 8b07b969..., the previous pin, byte for
 # byte. The 16 constant attributes did not move.
+# Moved 2026-09-25 for the nine documented constants below, which arrived with
+# the implementation session's preview/segmentation work (items 502-513). The
+# digest without them returns f1da16e8..., the previous pin; no dunder moved.
+# With the two mask_engine constants of 03a02c3b8 it moved 3f293714 -> bc6cd219.
+# With live_preview.BOUND_ROWS (2026-09-26) it moved bc6cd219 -> c894d34b; the
+# previous-surface digest below, without the added set, is unchanged.
 _NEW_VISIBLE_DIGEST = (
+    "c894d34b5cd1ee4d4341e82d42a1358d515f8db623a6c21fd165e5aba153fdb0"
+)
+_PREVIOUS_VISIBLE_DIGEST = (
     "f1da16e8943c80d31589172003964db63641f8bea219ff99385af929fcc51d70"
 )
+_ASSIGNMENTS_ADDED_2026_09_25 = frozenset({
+    "spacr.qt.widgets.live_preview.SESSION_MASK_LIMIT",
+    "spacr.qt.widgets.plaque_preview.AUTOMATIC_BOX_THICKNESS",
+    "spacr.qt.widgets.plaque_preview.IMAGE_TABS",
+    "spacr.qt.widgets.plaque_preview.OVERLAY_STYLE_KEY",
+    "spacr.qt.widgets.segmentation_views.CELLPROB_COLORMAP",
+    "spacr.qt.widgets.segmentation_views.DEFAULT_COLOURS",
+    "spacr.qt.widgets.segmentation_views.SegmentationViews.view_changed",
+    "spacr.qt.widgets.segmentation_views.VIEWS",
+    "spacr.qt.widgets.segmentation_views.VIEW_HINTS",
+    # Item 511's object-filter vocabulary, on nightly 03a02c3b8.
+    "spacr.qt.mask_engine.FILTER_BOUNDS",
+    "spacr.qt.mask_engine.FILTER_KEYS",
+    # Item 511's Mask bound-row map, on nightly 88a0ee002 (2026-09-26).
+    "spacr.qt.widgets.live_preview.BOUND_ROWS",
+})
 def _sha256_lines(lines) -> str:
     return hashlib.sha256("\n".join(sorted(lines)).encode()).hexdigest()
 
@@ -231,7 +256,16 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # Removing it reproduces the previous visible-member digest exactly.
     # Starplast's package identity is the only further assignment. Removing
     # it recovers the previous fingerprint, independently of the count.
-    assert len(assignments) == 23
+    # 23 -> 32 on 2026-09-25: exactly _ASSIGNMENTS_ADDED_2026_09_25 (+9 / -0
+    # by set difference against af6d77376). The historical digests below are
+    # checked on the surface without them.
+    # 32 -> 34 with mask_engine's FILTER_BOUNDS and FILTER_KEYS (03a02c3b8).
+    # 34 -> 35 on 2026-09-26 with live_preview.BOUND_ROWS (+1 / -0 against
+    # 4f6c58418).
+    assert len(assignments) == 35
+    assert _ASSIGNMENTS_ADDED_2026_09_25 <= assignments
+    new_assignments = assignments
+    assignments = assignments - _ASSIGNMENTS_ADDED_2026_09_25
     assert "spacr._starplast.PYPI_PACKAGE" in assignments
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders - {psf_validator}),
@@ -252,8 +286,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders),
          *(f"new_constant_attribute\0{key}" for key in assignments)]
+    ) == _PREVIOUS_VISIBLE_DIGEST
+    assert _sha256_lines(
+        [*(f"new_dunder\0{key}" for key in dunders),
+         *(f"new_constant_attribute\0{key}" for key in new_assignments)]
     ) == _NEW_VISIBLE_DIGEST
-    assert dunders | assignments <= docs.keys()
+    assert dunders | new_assignments <= docs.keys()
 
     # Freeze the complete public API surface together with its exact aliases.
     # Any intentional public docstring addition must update this count and
@@ -1229,7 +1267,56 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # Exact subtraction: 411_restoration_api_refresh_2026-09-24.json.
     # +1 private worker module overview; callable counts are unchanged.
     # Exact delta: 411_mask_batch_inventory_2026-09-24.json.
-    expected = 11_528
+    # 11,528 -> 11,651 on 2026-09-25, +124 / -1 by set difference against
+    # af6d77376, all from the implementation session (items 502-513): 109
+    # callables (named at the callable inventory in
+    # test_docstring_correctness), the tooltip_policy, mask_comparison,
+    # picture_export and segmentation_views module docstrings, and the eleven
+    # documented constants/attributes (the nine in
+    # _ASSIGNMENTS_ADDED_2026_09_25 plus HomePage.news_panel and
+    # NewsPanel.releases). -1: plaque_preview.render_cellprob, moved to
+    # segmentation_views. 11,651 -> 11,661 after rebasing on b84c3441c: ten
+    # callables from item 475 and the PSF/detect chain work, named at the
+    # callable inventory in test_docstring_correctness.
+    # 11,661 -> 11,710 on nightly 03a02c3b8, +49 / -0: 47 callables (named
+    # at the callable inventory) plus FILTER_BOUNDS and FILTER_KEYS.
+    # 11,710 -> 11,746 on 2026-09-25: item 523's community-contribution
+    # callables, classes and constants, measured after merging nightly
+    # b315c0342, whose 503/507/525/526 additions were unpinned there.
+    # 11,746 -> 11,758 on 2026-09-25: item 528's images-and-masks
+    # contribution from Make Masks (eleven callables, named at the callable
+    # inventory in test_docstring_correctness, and ContributeMasksDialog).
+    # 11,758 -> 11,816 on 2026-09-26, +60 / -2 by set difference against
+    # 4f6c58418 on nightly 88a0ee002: the 59 callables named as
+    # final_pass_callables in test_docstring_correctness (items 529, 18,
+    # 533, 523, 224, 511, 474, 356, 477) and live_preview.BOUND_ROWS, less
+    # prerun.diameter_panel and install_diameter_panel (533).
+    # 11,816 -> 11,834 on 2026-09-26, +18 / -0: item 545's ROI export and
+    # import callables, named at the callable inventory in
+    # test_docstring_correctness.
+    # 11,834 -> 11,860 on 2026-09-26, +26 / -0, item 570's hit scoring:
+    # spacr.sp_stats HitScoringError, mad, robust_z_scores,
+    # ssmd_unreplicated, ssmd_replicated, MedianPolish (and .fitted),
+    # median_polish, b_scores, call_hits, screen_wells, ArrayedHitResult (and
+    # .hits, .report), score_screen, treatment_ssmd, hit_table,
+    # score_arrayed_screen, hit_heatmap, write_hit_report;
+    # spacr.figures.plates.score_ramp; ControlChartScreen.hit_options,
+    # rescore_hits, choose_hit_export, export_hits, hit_result. The locale
+    # catalogs are not regenerated here (catalog lane).
+    # 11,860 -> 11,861 after merging nightly: item 588's
+    # spacr.qt.mask_engine.fill_label_holes.
+    # 11,861 -> 11,865 on 2026-09-26, +4 / -0, items 544 and 573 (blind
+    # scoring and the preregistered analysis lock): spacr.run_journal's start_blinding, unblind, lock_analysis and check_analysis_lock.
+    # 11,865 -> 11,929 on 2026-09-28, +64 / -0, item 593: the new modules
+    # spacr.folder_consolidation, spacr.channel_sorting and
+    # spacr.qt.widgets.channel_sort_dialog. English sources regenerated with
+    # --sources-only; the locale catalogs are not (catalog lane).
+    # 11,929 -> 11,942 on 2026-09-29, +13 / -0, item 600: spacr.drop_classification
+    # (module, DropClassification, classify_drop) and spacr.qt.widgets.
+    # organize_for_measure (module, OrganizeForMeasureDialog and eight methods).
+    # 2026-10-01: merge, uncertainty and condition APIs; exact source delta
+    # recorded in features/data/615_public_api_delta_2026-10-01.json.
+    expected = 12_034
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1271,7 +1358,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 10,539 -> 10,931 with `expected` above, for the same 392; the aliases
     # are still zero, so the two stay equal.
     # 10,931 -> 11,166 with `expected` above, for the same 235.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_528
+    # 11,528 -> 11,651 -> 11,661 with `expected` above, for the same moves.
+    # 11,758 -> 11,816 with `expected` above.
+    # 11,816 -> 11,834 with `expected` above.
+    # 11,865 -> 11,929 with `expected` above, for item 593's 64.
+    # 11,929 -> 11,942 with `expected` above, for item 600's 13.
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 12_034
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1683,8 +1775,11 @@ def test_assignment_docs_are_ast_source_text_without_show_value_artifact():
     assignment_keys = _visible_assignment_docs()
 
     # Four organism registries, Starplast's URL/package identity and the
-    # Make Masks animation registry add seven to the original sixteen.
-    assert len(assignment_keys) == 23
+    # Make Masks animation registry add seven to the original sixteen; the
+    # nine _ASSIGNMENTS_ADDED_2026_09_25 constants make 32.
+    # 34 with mask_engine's FILTER_BOUNDS and FILTER_KEYS; 35 with
+    # live_preview.BOUND_ROWS (2026-09-26).
+    assert len(assignment_keys) == 35
     assert assignment_keys <= docs.keys()
     assert all("Show Value" not in docs[key] for key in assignment_keys)
     assert docs["spacr.batch_correction.METHODS"] == (

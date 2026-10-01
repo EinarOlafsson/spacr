@@ -221,7 +221,7 @@ def test_a_model_frame_without_well_or_guide_columns_reports_its_row_count():
     """
     out = design_summary({"model_data": pd.DataFrame({"value": [1.0, 2.0, 3.0]})})
 
-    assert out == {"n_rows_fitted": 3}
+    assert out == {"n_rows_prepared": 3, "n_rows_fitted": 3}
 
 
 def test_a_model_frame_with_only_wells_counts_wells_and_not_guides():
@@ -229,7 +229,7 @@ def test_a_model_frame_with_only_wells_counts_wells_and_not_guides():
     out = design_summary(
         {"model_data": pd.DataFrame({"prc": ["p1_A_1", "p1_A_2", "p1_A_2"]})})
 
-    assert out == {"n_rows_fitted": 3, "n_wells": 2}
+    assert out == {"n_rows_prepared": 3, "n_rows_fitted": 3, "n_wells": 2}
 
 
 # ---------------------------------------------------------------------------

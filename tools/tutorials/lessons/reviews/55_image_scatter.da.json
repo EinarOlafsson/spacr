@@ -1,32 +1,35 @@
 {
   "lesson": "55_image_scatter",
-  "english_sha256": "798823e2d35d57282c656576ef4db433b8b8688539b72fe7c1230c5c14d01b40",
+  "english_sha256": "695e0f965dd1e3c92a6dfd5ce337981d5df0ac777aab824d81cd0e39ea67a401",
   "review": {
-    "kind": "Parent editorial translation against frozen English and independently verified real cell identities, native axis choices, exact RGB crop previews and single-cell Annotate handoff; visible controls and API identifiers retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
-    "native_speaker_signoff": false
+    "native_speaker_signoff": false,
+    "listening_review": false
   },
   "language": "da",
-  "title": "Image Scatter: rigtige målinger og billedet bag hvert punkt",
-  "description": "Udforsk Image Scatter i Image UMAP med downloadede cellemålinger, kontrollerede forhåndsvisninger og præcis overførsel af én celle til Annotate.",
+  "title": "Image Scatter: undersøg målinger og deres udsnit",
+  "description": "Plot to målekolonner, forhåndsvis objektudsnit, og send et valgt objekt til Annotate.",
   "objectives": [
-    "Find Image Scatter i Image UMAP og indlæs den rigtige cell-tabel.",
-    "Undersøg rå målepar og forstå manglende eller konstante koordinater.",
-    "Knyt et punkt til dets cellebillede uden at ændre etiketter eller kildedata."
+    "Indlæse målinger og vælge akser.",
+    "Undersøge udsnittet bag et punkt.",
+    "Sende et valgt objekt til Annotate."
   ],
-  "prerequisite": "Brug Annotates eksempel med måledatabase, celleudsnit og billedformatmarkører. Den private, byteidentiske kopi indeholder 2.341 celler og alle 2.341 PNG-filer. Uafhængig SQLite-kontrol omfatter hver kildeværdi, fuld celleidentitet med billedfelt og hver billedsti; skærmkoordinater og miniaturebilledernes RGB-pixel kontrolleres også. Kun celleudsnit er valideret, ikke kerne- eller patogenbilleder. Et usædvanligt punkt beviser hverken fænotype, infektion, behandling eller segmenteringsnøjagtighed. Ingen UMAP-tilpasning, træning, GPU-beregning, eksport eller etiketændring. Skærmen har ingen egen download, billedkolonnevælger, farve- eller gruppeindstillinger, aksetransformation, eksport eller AI-konsol. Plot indlæser tabellen; aksevalg tegner den igen. Grænsen på 200.000 rækker er ikke tilfældig stikprøvetagning eller garanti mod informationstab. Fælles filtre er ikke valideret her. API: spacr.qt.screens.image_scatter.load_scatter_frame, ImageScatterScreen.set_frame og ScatterCanvas.point_position.",
+  "prerequisite": "Brug en spaCR-måledatabase med tilsvarende objektudsnit og udsnitsformatfiler. Det downloadbare Annotate-eksempel indeholder disse input.",
   "scenes": [
-    "Åbn Image UMAP fra Home, og vælg Image Scatter. Denne underordnede visning tegner to eksisterende målinger; den tilpasser ikke en UMAP-indlejring. Vi genbruger Annotates rigtige eksempel og holder måledatabasen og celleudsnittene samlet. Annotate-vejledningen viser, hvor du henter det.",
-    "Vælg Browse, og åbn den kopierede måledatabase. Bevar mappen data og billedformatmarkørerne, når du flytter et projekt, for en tabel indeholder ikke selve billederne. Eksemplet bruger private kopier; oprindelige målinger og billedpixel er uændrede.",
-    "Vælg cell i tabellisten og derefter Plot. Plot læser tabellen; det er ikke segmentering eller træning. Eksemplet har 2.341 celler med tilhørende udsnit. En anden tabel kræver Plot igen; det er ikke nok blot at ændre tabelvælgeren.",
-    "Sæt x til cell_area og y til cell_channel_1_mean_intensity. Akseændringer gentegner straks de indlæste rækker. Dette er rå målinger, ikke transformerede indlejringskoordinater. Punkterne er enkelte celler, ikke uafhængige forsøgsreplikater, og et visuelt mønster er ikke en statistisk test.",
-    "Lad markøren hvile på cellen yderst til højre. Dens udsnit vises ved siden af grafen med fuld identitet for plade, række, kolonne, billedfelt og celle. Det er et gemt udsnit, ikke hele mikroskopfeltet eller en ny segmentering. Et usædvanligt udseende fastslår ikke i sig selv en fænotype.",
-    "Flyt markøren væk fra grafen: den midlertidige visning forsvinder. Vend tilbage til samme punkt, og det cachelagrede billede vises uden ny afkodning. Hover er midlertidig billedinspektion, ikke annotering eller vedvarende udvælgelse. Ingen kildeetiketter ændres.",
-    "Byt de to målinger mellem x og y. Cellen beholder identitet og billede, selv om dens placering ændres. Vælg meningsfulde akser i stedet for automatisk at acceptere de første numeriske kolonner; vælgerne tilbyder også numeriske identifikatorer og optagelsesmetadata.",
-    "Gendan cell_area på x, og vælg cell_channel_0_homogeneity_distance_32 på y. Syv celler mangler denne måling, så kun 2.334 koordinatpar kan tegnes. Antallet af indlæste rækker er stadig 2.341. Manglende værdier er ikke nuller, og skjulte koordinater ændrer ikke objekternes identiteter.",
-    "Vælg measurement_ndim på y. Alle rækker har værdien to, så punkterne ligger på en vandret linje. Det er en konstant metadatakolonne, ikke biologisk overensstemmelse. Gendan cell_channel_1_mean_intensity, før du undersøger en anden celle.",
-    "For at undersøge et klikket udsnit i Annotate skal du først åbne Annotate og indlæse det samme kopierede projekt. Vend tilbage via Home, Image UMAP og den eksisterende Image Scatter-fane. Annoteringssiden skal kende det rigtige projekt; en graf og et uvedkommende datasæt giver ikke en gyldig overførsel.",
-    "Klik på selve punktet, og skift derefter til Annotate. Hover alene viser kun billedet. Klikket sender den præcise cellenøgle og begge aksenavne til annoteringsvisningen. Det skifter ikke side automatisk, tildeler ikke en etiket og beviser ikke, at objektet er en afviger.",
-    "Annotate viser nu præcis den klikkede celle med det samme gemte udsnit. Undersøg billedet, før du beslutter at annotere; her er alle etiketter uændrede. Image Scatter har ingen særskilt eksport af graf eller udvalg. Brug Database Browser til tabeludtræk eller PCA-vejledningen til komponentanalyse og de dokumenterede CSV-filer."
+    "Åbn Image UMAP og derefter Image Scatter for at plotte to eksisterende målinger. Øv dig med databasen fra Annotate-eksemplet og de tilsvarende celleudsnit.",
+    "Klik på Browse, og åbn measurements.db. Hold projektets mappe data og udsnitsformatfilerne sammen med databasen, så miniaturerne kan findes.",
+    "Vælg cell i tabelvælgeren, og klik på Plot. Når du skifter til en anden tabel, klikker du på Plot igen for at indlæse dens rækker.",
+    "Sæt x til celleareal og y til cellens gennemsnitlige intensitet i kanal 1. Valg af akser tegner de indlæste rækker igen med det samme.",
+    "Hold markøren over et punkt for at se dets gemte udsnit og fulde objektidentitet. Brug billedet til at forstå målingen bag punktet.",
+    "Flyt markøren væk for at fjerne den midlertidige forhåndsvisning, og hold den derefter over et andet punkt for at undersøge det.",
+    "Byt om på x- og y-målingerne for at udforske sammenhængen fra en anden vinkel. Vælg meningsfulde egenskaber, og kontrollér deres enheder.",
+    "Vælg en anden måling, for eksempel homogenitetsegenskaben. Rækker uden koordinater udelades fra plottet, så antallet af plottede punkter kan afvige fra antallet af indlæste rækker.",
+    "En konstant kolonne, som måledimensionen i dette eksempel, lægger punkterne på en linje. Gå tilbage til en egenskab med brugbar variation for at undersøge objekter.",
+    "For at undersøge et valgt udsnit i Annotate åbner du først Annotate og indlæser det samme projekt. Vend derefter tilbage til den eksisterende Image Scatter-visning.",
+    "Klik på selve punktet for at sende dets objektidentitet til Annotate, og skift derefter til den side. Når du blot holder markøren over, vises kun en forhåndsvisning af udsnittet.",
+    "Undersøg det valgte objekt i Annotate, før du tildeler en label. Brug Database Browser til tabeleksport eller PCA til komponentanalyse."
   ]
 }

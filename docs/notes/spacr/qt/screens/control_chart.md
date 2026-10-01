@@ -169,3 +169,29 @@ Z' does not chart one control's level, so an empty tick list is not a missing an
 ```
 
 Abandon in-flight work rather than let it outlive the screen: Qt aborts the process if a running QThread is destroyed, and a worker delivering into a closed widget is a use-after-free.
+
+
+---
+
+# Notes from `spacr/qt/screens/control_chart.py`
+
+Prose lifted out of `spacr/qt/screens/control_chart.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## ControlChartScreen._build_controls
+
+### lines 568-586
+
+```python
+self._levels.setProperty("settingKey", "control_levels")
+```
+
+THE ONE ROW IN FORTY-FIVE SCREENS THAT KEPT ITS HELP ON THE FIELD.
+
+`retarget_field_tooltips` moves a setting's help onto the name the user hovers, and `_is_a_settings_field` decides what counts: an editor type, or anything carrying a `settingKey`. A QListWidget is neither, so this row was skipped -- measured across all forty-five registry screens, it was the last one left.
+
+THE KEY IS WHAT MARKS IT, NOT A WIDER PREDICATE. Adding QListWidget to the editor types, or dropping the key requirement, would change the rule for every screen to fix one row. `_is_a_settings_field` says outright that carrying a key is "the definitive mark of 'this widget is a setting's field', whatever it was built from" -- so the honest fix is to mark this one.
+
+`control_levels` is not a pipeline setting and has no entry in `spacr.settings`; it is screen-local. `format_tooltip` handles that: an unknown key yields the humanised name, the body, and a link to the API index rather than a broken deep link.

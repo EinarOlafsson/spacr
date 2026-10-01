@@ -463,6 +463,11 @@ def score_inference(report: Mapping) -> "object":
     A SPIKE OF SMALL p IS NOT A FAULT. It is what a screen with real hits looks
     like, and lambda is deliberately a MEDIAN so a handful of true hits barely
     move it. Scoring the spike itself would flag every successful screen.
+
+    :param report: inference summary with ``tests``, ``genomic_inflation`` and
+        optionally ``pi0`` and ``estimated_non_null``, as built by
+        :func:`plot_inference_diagnostics`. No tests, or a non-finite inflation
+        factor, scores ``unknown``.
     """
     if not report or not report.get("tests"):
         return _verdict("unknown", "no p-values were supplied")
@@ -570,6 +575,8 @@ def plot_design_identifiability(fractions: pd.DataFrame, *,
     This compact version is the publication-facing answer to a narrower
     question: can one coefficient per guide be identified from these wells?
 
+    :param fractions: well-by-guide fraction matrix, one row per analysed well,
+        as taken by :func:`design_report`.
     :returns: ``(written_path, report)`` in the same form as the other plotters.
     """
     import matplotlib.pyplot as plt
@@ -635,7 +642,11 @@ def plot_design_diagnostics(fractions: pd.DataFrame, *,
                             block: pd.Series | None = None,
                             save_path=None, save_format=None,
                             presence_threshold: float = 0.0):
-    """Six panels describing the design, before any model is fitted."""
+    """Six panels describing the design, before any model is fitted.
+
+    :param fractions: well-by-guide fraction matrix, one row per analysed well,
+        as taken by :func:`design_report`.
+    """
     import matplotlib.pyplot as plt
 
     report = design_report(fractions, block=block,
@@ -745,7 +756,12 @@ def plot_residual_diagnostics(observed, fitted, *,
                               design: np.ndarray | None = None,
                               save_path=None, save_format=None,
                               label: str = ""):
-    """The four classical residual panels, plus Cook's distance."""
+    """The four classical residual panels, plus Cook's distance.
+
+    :param observed: observed response per observation.
+    :param fitted: fitted value per observation, aligned with ``observed``; the
+        residuals are ``observed - fitted``.
+    """
     import matplotlib.pyplot as plt
     from scipy import stats
 
@@ -854,6 +870,9 @@ def plot_inference_diagnostics(p_values, *, adjusted=None, alpha: float = 0.05,
     A well-behaved screen gives a flat P-value histogram with a spike at zero.
     A histogram that slopes or humps in the middle means the test is
     mis-calibrated, and no correction repairs that.
+
+    :param p_values: raw P values of the tested family; non-finite values are
+        dropped before plotting.
     """
     import matplotlib.pyplot as plt
 

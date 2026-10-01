@@ -1,31 +1,33 @@
 {
   "lesson": "53_prediction_profiler",
-  "english_sha256": "e79348e5af21ca603ddc91a2de7b689558863b2ea4b34ff4f36533af1c54b34f",
+  "english_sha256": "a79c1ae2ddf6dcea39111e611e0212fdb31f4cba4c294b291bdc81578972dd9a",
   "review": {
-    "kind": "Editorial caption translation from frozen English; quantitative and synthetic-data caveats preserved",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "da",
-  "title": "Prædiktionsprofil",
-  "description": "Importér en model tilpasset syntetiske data, og undersøg hvordan fastholdte værdier og grafvalg påvirker prædiktionerne.",
+  "title": "Prediction Profiler: udforsk en tilpasset model",
+  "description": "Indlæs modelkoefficienter, variér ét input, mens de andre holdes fast, og undersøg de forudsagte responser.",
   "objectives": [
-    "Åbn Prediction Profiler i Regression og importér egnede koefficienter.",
-    "Skeln mellem modeltilpasning, invers linkfunktion, antagne intervaller og grafopløsning.",
-    "Sammenlign begge input, ændr faste værdier og gendan midtpunkterne."
+    "Indlæse koefficienter med den korrekte linkfunktion.",
+    "Gennemløbe ét input og justere de fastholdte værdier.",
+    "Undersøge responskurver og følsomhed."
   ],
-  "prerequisite": "Pak SYNTHETIC-eksemplet ud i en ny mappe. Det indeholder 121 konstruerede observationer, koefficienter fra en faktisk OLS-tilpasning med statsmodels, manifest og reproducerbart script. Der hævdes ingen biologisk validering eller validering på tilbageholdte data. GUI importerer feature/coefficient og Intercept, men tilpasser ikke modellen og læser ikke observationerne. Behold identity. Filimport antager to rækker med intervaller 0..1 og faste værdier 0.5. Rangeringen bruger 0.05..0.95; kurven dækker 0..1. 338 kurveværdier og tolv rangeringsværdier er kontrolleret uafhængigt. Separate marginale permutationseffekter erstatter ikke en samlet tilpasset prædiktionsmodel. API: spacr.profiler.from_coefficients, profile, sensitivity; ProfilerScreen.set_model/set_design er programmeringsgrænseflader, ikke filvælgere. Ingen konfidensintervaller, kausale konklusioner, offentliggørelse eller godkendelse efter gennemlytning hævdes.",
+  "prerequisite": "Hent det syntetiske koefficienteksempel, eller brug koefficienter fra en egnet tilpasset model. Afstem linkfunktion og kodning af input. Vejen via koefficientfil forudsætter inputintervaller fra 0 til 1; separate marginale effekter kan ikke erstatte en samlet tilpasset forudsigelsesmodel.",
   "scenes": [
-    "Åbn Regression og derefter Prediction Profiler blandt de indlejrede værktøjer. Lektionen bruger et tydeligt mærket syntetisk undervisningseksempel, ikke biologiske screeningsresultater. Vi undersøger en tilpasset model ved at variere ét input og holde det andet fast. Profilværktøjet læser modellen; det træner ikke en ny.",
-    "Hent og udpak det vedlagte eksempel, og brug Browse til at åbne filen med syntetiske OLS-koefficienter. Den indeholder et konstantled og to tilpassede inputkoefficienter. Arkivet indeholder også observationerne og forberedelsesscriptet. Koefficienterne kommer fra en faktisk mindste-kvadraters-tilpasning til konstruerede data, ikke opdigtede regressionsresultater.",
-    "Behold Link på identity, da eksemplet blev tilpasset med ordinær mindste kvadraters metode. Andre linkfunktioner hører til andre modelfamilier; vælgeren konverterer eller genoptræner ikke originalmodellen. En plausibel kurve på forkert responsskala er stadig forkert. Brug altid linkfunktionen fra tilpasningen.",
-    "Læs statusmeddelelsen: Ingen designmatrix er angivet, så filimporten antager, at alle input går fra nul til én. Vores syntetiske input har dette interval, men dine har det ikke nødvendigvis. Rangeringen bruger 5. og 95. percentil; Moves by er ikke forskellen mellem hele kurvens endepunkter.",
-    "Input A er valgt til gennemløbet. Flyt skyderen for B fra midtpunktet til én. Den forudsagte respons falder, fordi B har en negativ tilpasset koefficient. Det ændrer scenariet med faste værdier, ikke træningsdata eller koefficienter. Læs de numeriske endepunkter sammen med linjens form.",
-    "Flyt B til nul og sammenlign igen. Responsen stiger. Grafen skalerer sin lodrette akse om, så tilsyneladende parallelle linjer kan repræsentere forskellige responsniveauer. Det er prædiktioner inden for en antaget model, ikke bevis for at en ændring af B ville forårsage en eksperimentel effekt.",
-    "Reset held values fører skyderne tilbage til midtpunkterne i de antagne intervaller, her en halv. Modellen tilpasses ikke igen. Når kun koefficientfilen importeres, er midtpunktet ikke en median målt i originaldataene: De data blev aldrig indlæst i profilværktøjet.",
-    "Vælg B i den rangerede liste. Nu varierer B langs den vandrette akse, mens A holdes på en halv. Den faldende kurve svarer til Bs negative koefficient. Listen rangerer modellens følsomhed; den er ikke en signifikanstest, et konfidensinterval eller en liste over validerede biologiske fund.",
-    "Skift Points fra enogtres til elleve. Det vælger antallet af positioner, der beregnes til kurven; det ændrer ikke stikprøvestørrelse eller tilpasningskvalitet. Vores lineære eksempel beholder endepunkterne. Flere grafpunkter tilføjer ikke observationer, reducerer ikke usikkerhed og forbedrer ikke en allerede tilpasset model.",
-    "Med B stadig valgt flyttes A til én, og de nye responsendepunkter undersøges. Nulstil derefter værdierne. Brug koefficienter fra en egnet tilpasset model til egne analyser, og kontrollér linkfunktion, konstantled, kodning og intervaller. Erstat ikke en samlet tilpasset prædiktionsmodel med separate effekter fra permutationstest."
+    "Åbn Regression og derefter Prediction Profiler for at udforske forudsagte responser fra en tilpasset model. Det linkede eksempel bruger syntetiske data.",
+    "Hent og udpak eksemplet, og brug derefter Browse til at gå til den syntetiske CSV-fil med OLS-koefficienter. Medtag skæringspunktet, når du angiver dine egne tilpassede koefficienter.",
+    "Sæt Link til den funktion, den tilpassede model bruger. Behold identity i dette eksempel med almindelige mindste kvadrater.",
+    "Kontrollér intervaloplysningerne efter indlæsning. Vejen via koefficientfil forudsætter, at hvert input går fra 0 til 1. Bekræft, at det passer til den tiltænkte brug, før du fortolker kurverne.",
+    "Vælg Input A til gennemløbet. Flyt skyderen for det fastholdte Input B til 1, og undersøg den resulterende responskurve.",
+    "Flyt B til 0, og sammenlign responsværdierne. Hold øje med akseskalaen såvel som linjen, fordi plottet kan skaleres om.",
+    "Klik på Reset held values for at sætte skyderne tilbage til midtpunktet af deres antagne intervaller, 0,5 i dette eksempel.",
+    "Vælg Input B på den rangordnede liste for at gennemløbe B, mens A holdes fast. Rangordningen opsummerer modellens følsomhed over de konfigurerede inputintervaller.",
+    "Ændr Points for at vælge, hvor mange positioner langs kurven der beregnes. Elleve giver et grovere gitter end enogtres uden at ændre den tilpassede model.",
+    "Justér de fastholdte værdier for at udforske flere scenarier, og nulstil dem, når du er færdig. Fortolk kurverne som modelforudsigelser, og vurdér reelle eksperimentelle effekter med passende data."
   ]
 }

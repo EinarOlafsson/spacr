@@ -1,31 +1,34 @@
 {
   "lesson": "20_cellpose_masks",
-  "english_sha256": "a064e4d7ebc483b8020a43543e3ea982b1ab58a04af4fc9b72a08ca94350076f",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "8bb9d92ad26ef058c3b456df2ba6c86ea46c336cc677f6135bf111d8ea853754",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "it",
-  "title": "Applicare Cellpose: maschere salvate e filtri live",
-  "description": "Applica CPSAM a tre immagini reali scaricabili nel Workbench annidato, controlla figure e console e prova i filtri distinguendo anteprima e batch.",
+  "title": "Applicare Cellpose: segmentare una cartella ed esaminare le maschere",
+  "description": "Scegli un modello di segmentazione, elabora le immagini fornite ed esamina le maschere salvate e i filtri di dimensione dal vivo.",
   "objectives": [
-    "Trovare Apply in Make Masks e Cellpose Workbench.",
-    "Usare copie conservate e impostazioni registrate del modello standard.",
-    "Controllare tre maschere e figure di immagine, contorni e flusso.",
-    "Mostrare filtri reversibili e zoom sincronizzato.",
-    "Riconoscere la differenza tra anteprima e batch senza dichiarare accuratezza."
+    "Selezionare le immagini, i pesi del modello e le impostazioni di segmentazione.",
+    "Eseguire Apply e trovare i TIFF delle maschere salvate.",
+    "Esaminare i risultati dal vivo e confrontare i filtri sulla dimensione degli oggetti."
   ],
-  "prerequisite": "Estrai le tre immagini in una cartella nuova e imposta src su images. recorded_settings.json contiene valori storici, non dimostra un'importazione GUI portatile. I ritagli cellulari reali uint16 di 512 pixel per lato non sono verità di riferimento. Si usa CPSAM standard, non il modello Train. Impostazioni: channels=[0], normalize=True, percentiles=[2,99], diameter=30, CP_prob=0, flow_threshold=0.4, batch_size=1, save=True, verbose=True; rescale, resample, resize, fill_in, invert e remove_background sono False. Il batch CUDA salva 9/94/46 oggetti e tre figure native. Chiamate indipendenti riproducono tutti i pixel delle maschere e le matrici delle figure. I contorni esterni non separano ogni istanza a contatto; il flusso è un canale di visualizzazione, non moto misurato. L'anteprima dell'immagine 02 dà 95, non 94: usa i valori Cellpose predefiniti sull'immagine grezza, non il preprocessing e ricampionamento del batch. I valori visibili 2/99 non provano equivalenza. La soglia d'area 1838 produce 95→47→95 senza nuova inferenza; ogni pixel ripristinato è verificato e i TIFF restano invariati. Lo zoom sincronizza le viste ma ritaglia l'immagine senza correggere il pannello stretto. Dati e precedenti blocchi sono conservati. Nessuna certificazione biologica, richiesta IA, pubblicazione o modifica dell'app.",
+  "prerequisite": "Estrai l’esempio Apply Cellpose collegato in una nuova cartella. Contiene tre immagini di cellule a canale singolo e un riferimento delle impostazioni. Seleziona la sua cartella images come Source. Questa guida usa il modello standard cpsam; per un modello personalizzato, scegli pesi e impostazioni compatibili con le tue immagini.",
   "scenes": [
-    "Da Make Masks apri il Cellpose Workbench annidato e scegli Apply. Train e Apply condividono questo pannello; Apply non è un riquadro separato nella Home. Qui usiamo il modello standard su tre immagini reali, non il checkpoint dimostrativo della lezione Train collegata.",
-    "Estrai l'esempio collegato in una cartella nuova. Imposta come origine la sua directory images e conserva il download originale. Sono tre immagini cellulari monocanale, ciascuna di cinquecentododici pixel per lato. Sono esempi, non verità di riferimento. Consulta le impostazioni registrate sostituendo il percorso storico con il tuo.",
-    "Seleziona CPSAM e lascia vuoto il modello personalizzato. Per queste immagini il canale è zero, la normalizzazione usa il secondo e il novantanovesimo percentile, il diametro è trenta, la soglia di flusso zero virgola quattro e la probabilità cellulare zero. Sono scelte dimostrative, non consigli universali.",
-    "Attiva Save e Verbose, imposta una immagine per batch ed esegui Apply. Questa procedura crea figure senza un interruttore Plot separato. La console identifica una RTX trenta novanta con CUDA e completa le tre immagini. Controlla origine e impostazioni: Finished da solo non misura accuratezza.",
-    "Nella sottocartella masks dell'origine vengono salvati tre TIFF con gli stessi nomi. I conteggi sono nove, novantaquattro e quarantasei. Le figure reali mostrano l'immagine, i contorni esterni rossi e il flusso. I contorni non separano tutte le istanze adiacenti e i colori non misurano moto fisico o accuratezza.",
-    "Attiva Live preview e scegli cell pair zero due con il selettore reale. Comprimi Console e System per liberare spazio. L'anteprima ha controlli propri: verifica canale zero e percentili visibili in Live settings senza presumere che ogni opzione di Apply sia stata copiata.",
-    "L'anteprima trova novantacinque oggetti, mentre la maschera batch della stessa immagine ne contiene novantaquattro. Controlli indipendenti riproducono entrambi: l'anteprima usa le impostazioni Cellpose predefinite sull'immagine grezza, non il preprocessing e ricampionamento espliciti del batch. È esplorativa, non garantisce maschere salvate identiche.",
-    "Il pannello di anteprima rimane stretto in questa versione. La rotella ingrandisce un dettaglio in entrambe le viste insieme; non allarga il pannello e ora ritaglia l'immagine completa. È utile per i contorni locali, ma non sostituisce l'esame dell'intero campo.",
-    "Apri Live settings e imposta l'area cellulare minima a milleottocentotrentotto pixel. È una soglia dimostrativa, non un ottimo biologico. Chiudi il dialogo per vedere il risultato. Il filtro elimina quarantotto oggetti, lasciandone quarantasette, senza rieseguire Cellpose o modificare la segmentazione grezza.",
-    "Ecco l'anteprima filtrata con il dialogo chiuso e lo zoom riapplicato. L'immagine originale non cambia, mentre spariscono gli oggetti piccoli della maschera. Il contatore indica quarantasette. Le modifiche riguardano l'anteprima e non riscrivono i tre TIFF batch già salvati.",
-    "Riporta l'area minima a zero, chiudi il dialogo e controlla di nuovo. Tornano novantacinque oggetti e ogni pixel di etichetta coincide con il risultato iniziale. Conserva input, impostazioni e identità del modello insieme alle maschere. Qui spaCR AI non viene usato; serve una validazione indipendente prima di trarre conclusioni scientifiche."
+    "Da Home, apri Make Masks e poi il suo Cellpose Workbench. Scegli Apply per segmentare immagini con un modello esistente. Usa Train quando vuoi apprendere nuovi pesi da coppie immagine-maschera verificate.",
+    "Estrai l’esempio collegato e imposta Source sulla sua cartella images. Contiene tre immagini di cellule a canale singolo, ciascuna di cinquecentododici pixel di lato. Se usi il file di impostazioni registrato come riferimento, sostituisci il suo percorso di origine con la cartella che hai estratto.",
+    "Seleziona cpsam e lascia vuoto Custom model in questo esempio. Imposta Channels a zero, i percentili di normalizzazione a due e novantanove, Diameter a trenta, Flow threshold a zero virgola quattro e Cell probability a zero. Regola queste impostazioni dopo aver esaminato alcuni campi rappresentativi del tuo esperimento.",
+    "Attiva Save e Verbose, scegli una dimensione del batch di uno e fai clic su Run in Apply. Segui la console mentre viene elaborata ogni immagine. Esamina gli errori prima di passare alla misurazione.",
+    "Apri la sottocartella masks dentro Source. Ogni immagine ha un TIFF di maschera con lo stesso nome base. Esamina le figure accanto alle immagini originali, facendo attenzione agli oggetti mancati e alle cellule unite. Il pannello dei flussi mostra le direzioni usate dal modello per la segmentazione.",
+    "Attiva Live preview e scegli un’immagine con il selettore delle immagini. Apri Live settings e controlla i comandi di canale e di normalizzazione. Comprimi Console e System per dare più spazio all’anteprima, se serve.",
+    "Confronta l’anteprima con la maschera salvata del batch. In questo esempio anteprima e Apply seguono percorsi di elaborazione diversi, quindi possono produrre contorni e conteggi diversi. Esamina i TIFF salvati quando decidi se gli output del batch sono adatti alla misurazione.",
+    "Usa la rotella del mouse per ingrandire un’area su entrambe le aree di anteprima. Esamina gli oggetti che si toccano e i contorni deboli, poi riduci lo zoom per controllare l’intero campo.",
+    "Apri Live settings e aumenta Minimum cell area per rimuovere gli oggetti piccoli dall’anteprima. La soglia è in pixel; sceglila in base alla dimensione dei tuoi oggetti. Chiudi la finestra per esaminare il risultato filtrato.",
+    "Confronta i contorni filtrati con l’immagine originale. Cambiare questo filtro dal vivo aggiorna l’anteprima senza riscrivere le maschere già salvate da Apply. Riesegui il batch con le impostazioni volute quando ti servono nuovi output salvati.",
+    "Riporta Minimum cell area a zero per ripristinare l’anteprima non filtrata. Tieni insieme le immagini di input, l’identità del modello, le impostazioni e le maschere salvate. Usa Make Masks per le correzioni oppure Measure per estrarre le caratteristiche degli oggetti dalle maschere verificate."
   ]
 }

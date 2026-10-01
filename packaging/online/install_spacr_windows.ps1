@@ -14,6 +14,8 @@ param(
     [ValidateSet(0, 1)][int]$ShareDiagnostics = 0,
     [ValidateSet(0, 1)][int]$ReportIssues = 0,
     [ValidateSet(0, 1)][int]$SignInNow = 0,
+    [string]$OfflineBundle = $env:SPACR_OFFLINE_BUNDLE,
+    [switch]$CheckMask,
     [switch]$DryRun
 )
 
@@ -60,6 +62,17 @@ if ([string]::IsNullOrWhiteSpace($PackageSpec)) {
     } else {
         $PackageSpec = "spacr[$DefaultExtras]==$Version"
     }
+}
+
+# An offline bundle (packaging/offline/build_offline_bundle.py) carries uv,
+# the private Python, every wheel, Cellpose weights and Mask test data. It was
+# locked for one PyTorch wheel line when it was built, so that comes from it.
+if (-not [string]::IsNullOrWhiteSpace($OfflineBundle)) {
+    $OfflineBundle = (Resolve-Path $OfflineBundle).Path
+    $BundleInfo = Get-Content -Raw (Join-Path $OfflineBundle "bundle.json") | ConvertFrom-Json
+    $TorchBackend = $BundleInfo.torch_backend
+    $PackageSpec = $BundleInfo.package_spec
+    Write-Host "  Offline bundle: $OfflineBundle"
 }
 
 $FullInstallRoot = [System.IO.Path]::GetFullPath($InstallRoot).TrimEnd("\")
@@ -142,12 +155,29 @@ try {
     # runs an old version's own Uninstall.exe, keeps the settings stored under
     # the same registry key, and lists environments the user made without
     # touching them.
-    Write-Host (Get-SpacrInstallerMessage "downloading_uv") -ForegroundColor Cyan
-    Invoke-WebRequest -UseBasicParsing -Uri $UvInstallUrl -OutFile $InstallerScript
+    if ($OfflineBundle) {
+        # A bundle carried on a USB stick has no TLS to vouch for it: every
+        # file is checked against its SHA256SUMS before any of it is run.
+        Write-Host "Verifying the offline bundle..." -ForegroundColor Cyan
+        foreach ($line in Get-Content (Join-Path $OfflineBundle "SHA256SUMS")) {
+            $expected, $relative = $line -split "  ", 2
+            $actual = (Get-FileHash -Algorithm SHA256 (Join-Path $OfflineBundle $relative)).Hash
+            if ($actual -ne $expected.ToUpperInvariant()) {
+                throw "Offline bundle file does not match SHA256SUMS: $relative"
+            }
+        }
+        New-Item -ItemType Directory -Force -Path (Split-Path $WorkUv) | Out-Null
+        Copy-Item (Join-Path $OfflineBundle "uv\uv.exe") $WorkUv
+        $global:LASTEXITCODE = 0
+        $env:UV_PYTHON_INSTALL_MIRROR = "file:///" + ($OfflineBundle -replace "\\", "/") + "/python"
+    } else {
+        Write-Host (Get-SpacrInstallerMessage "downloading_uv") -ForegroundColor Cyan
+        Invoke-WebRequest -UseBasicParsing -Uri $UvInstallUrl -OutFile $InstallerScript
 
-    $env:UV_UNMANAGED_INSTALL = Join-Path $WorkDir "bootstrap"
-    $env:UV_NO_MODIFY_PATH = "1"
-    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $InstallerScript
+        $env:UV_UNMANAGED_INSTALL = Join-Path $WorkDir "bootstrap"
+        $env:UV_NO_MODIFY_PATH = "1"
+        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $InstallerScript
+    }
     if ($LASTEXITCODE -ne 0 -or -not (Test-Path $WorkUv)) {
         throw (Get-SpacrInstallerMessage "uv_missing" @($WorkUv))
     }
@@ -190,7 +220,13 @@ try {
     Invoke-Checked $UvExe venv $StageVenv --python $PythonVersion --managed-python --relocatable
 
     Write-Host (Get-SpacrInstallerMessage "downloading_dependencies") -ForegroundColor Cyan
-    Invoke-Checked $UvExe pip install --python $StagePython --torch-backend $TorchBackend $PackageSpec @ResolverGuards
+    if ($OfflineBundle) {
+        Invoke-Checked $UvExe pip install --python $StagePython --offline --no-index `
+            --find-links (Join-Path $OfflineBundle "wheels") `
+            -r (Join-Path $OfflineBundle "requirements.txt")
+    } else {
+        Invoke-Checked $UvExe pip install --python $StagePython --torch-backend $TorchBackend $PackageSpec @ResolverGuards
+    }
 
     Write-Host (Get-SpacrInstallerMessage "validating_install") -ForegroundColor Cyan
     Invoke-Checked $UvExe pip check --python $StagePython
@@ -242,6 +278,37 @@ try {
 
     $InstalledPython = Join-Path $VenvDir "Scripts\python.exe"
     Move-Item -Force $StageProfile (Join-Path $InstallRoot "install-profile.json")
+
+    if ($OfflineBundle) {
+        # Cellpose looks for its weights here before it would download them.
+        # Weights already present are left as they are.
+        $CellposeDir = $env:CELLPOSE_LOCAL_MODELS_PATH
+        if (-not $CellposeDir) {
+            $CellposeDir = Join-Path $env:USERPROFILE ".cellpose\models"
+        }
+        $BundledModels = Join-Path $OfflineBundle "models\cellpose"
+        if (Test-Path $BundledModels) {
+            New-Item -ItemType Directory -Force -Path $CellposeDir | Out-Null
+            foreach ($weights in Get-ChildItem $BundledModels) {
+                $target = Join-Path $CellposeDir $weights.Name
+                if (-not (Test-Path $target)) {
+                    Copy-Item $weights.FullName $target
+                }
+            }
+        }
+        $TestData = Join-Path $InstallRoot "test_data"
+        if (Test-Path (Join-Path $OfflineBundle "test_data")) {
+            Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $TestData
+            Copy-Item -Recurse (Join-Path $OfflineBundle "test_data") $TestData
+        }
+        $MaskCheck = Join-Path $InstallRoot "offline_mask_check.py"
+        Copy-Item (Join-Path $OfflineBundle "offline_mask_check.py") $MaskCheck
+        Copy-Item (Join-Path $OfflineBundle "bundle.json") (Join-Path $InstallRoot "offline-bundle.json")
+        if ($CheckMask) {
+            Invoke-Checked -Command $InstalledPython -Arguments @(
+                "-I", $MaskCheck, "--data", (Join-Path $TestData "plate1"))
+        }
+    }
 
     @"
 from spacr.qt import run

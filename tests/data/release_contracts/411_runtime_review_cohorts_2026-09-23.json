@@ -8,7 +8,7 @@
       "current_total": 1700,
       "historical_cohort_retired": 9,
       "older_cohort_retired": 4,
-      "later_distinct_additions": 782,
+      "later_distinct_additions": 778,
       "current_historical_cohort": 261,
       "files": [
         {
@@ -73,15 +73,15 @@
         },
         {
           "name": "2026-09-23-backend-installer.json",
-          "records": 45,
-          "sources": 45,
-          "sha256": "67ff63ebd969686783da0092a853e9f1af9b553dc594ea109a4e01489de99986"
+          "records": 44,
+          "sources": 44,
+          "sha256": "f96c968d9bba5e1cc5485490e81c342e05a7afa414ef8e7d628a26549842648d"
         },
         {
           "name": "2026-09-23-data-controls.json",
-          "records": 32,
-          "sources": 32,
-          "sha256": "1d1252525e4018e1ed97b73b04a101545829fcd73f7ba9e067662b10875ba29b"
+          "records": 31,
+          "sources": 31,
+          "sha256": "512b1961aaecdcc5493aa6a5e080a11c974b23cad037c424f41aa1f4a748795d"
         },
         {
           "name": "2026-09-23-flowchart-chrome.json",
@@ -157,9 +157,10 @@
         },
         {
           "name": "2026-09-23-psf-help.json",
-          "records": 11,
-          "sources": 11,
-          "sha256": "2b74b16add25765967adad4e629e20a689479fd02f3cbc4d0875440477dcbc54"
+          "records": 10,
+          "sources": 10,
+          "sha256": "452937b6dbb53788458a6c2f5d4a0abd5fb92178c81417bec92d81b9486d7ccb",
+          "note": "Re-pinned 2026-09-25 (maintainer-approved): nightly merge 5c03e8bda removed one retired PSF help record, 11 -> 10."
         },
         {
           "name": "2026-09-23-psf-measure-live.json",
@@ -217,9 +218,9 @@
         },
         {
           "name": "2026-09-23-workflow-map-phrases.json",
-          "records": 208,
-          "sources": 208,
-          "sha256": "db64546daf8d27be84b00c043a55148dbbdce61a6e7ce735083108354247055b"
+          "records": 206,
+          "sources": 206,
+          "sha256": "128d6e2e08511650fad6879e6a693af9a06cd3ca5d440b13c21cbc3b9e7798c5"
         },
         {
           "name": "2026-09-24-cellpose-inversion.json",
@@ -276,14 +277,14 @@
           "sha256": "2ad1f04060ecb740e69ba91e478d9d1b914a7e6576802d18201d61b5b64a1263"
         }
       ],
-      "added_sources_sha256": "358d85b2b92d9527719b305e2eb18a54115875f48cdd79fac06cfd3333ea7f25"
+      "added_sources_sha256": "76ee958e93efee7b6321a7c45168b0beb5f5912595a9d44cfc52967bb2ff0683"
     },
     "fr": {
       "previous_total": 926,
       "current_total": 1696,
       "historical_cohort_retired": 9,
       "older_cohort_retired": 3,
-      "later_distinct_additions": 782,
+      "later_distinct_additions": 778,
       "current_historical_cohort": 260,
       "files": [
         {
@@ -348,15 +349,15 @@
         },
         {
           "name": "2026-09-23-backend-installer.json",
-          "records": 45,
-          "sources": 45,
-          "sha256": "a154838e88a83046e261e43cf3389af057ab85be41f1b5cded2efd5a121e684c"
+          "records": 44,
+          "sources": 44,
+          "sha256": "bc6ab236e8b6014969d561fba6797cb087dc82ced9c672505ffe4d11b178b4a1"
         },
         {
           "name": "2026-09-23-data-controls.json",
-          "records": 32,
-          "sources": 32,
-          "sha256": "4108177eb5357ccdf74fff98333c6a31fb8bfca5ddbb3faf0575586541c68fe3"
+          "records": 31,
+          "sources": 31,
+          "sha256": "f1cefe43ba17f28a106ec3ace169db2b5f74524c8b41d6eeee18c02baa7996e8"
         },
         {
           "name": "2026-09-23-flowchart-chrome.json",
@@ -432,9 +433,10 @@
         },
         {
           "name": "2026-09-23-psf-help.json",
-          "records": 11,
-          "sources": 11,
-          "sha256": "1775a953e87b0a0525471be92b9d64f4c62e9ee4aa0b0d9dca2a08501515f41d"
+          "records": 10,
+          "sources": 10,
+          "sha256": "75abb2d1daaa062840600200949cd661ae7ada811ab1e2cb508c964308ad13d5",
+          "note": "Re-pinned 2026-09-25 (maintainer-approved): nightly merge 5c03e8bda removed one retired PSF help record, 11 -> 10."
         },
         {
           "name": "2026-09-23-psf-measure-live.json",
@@ -492,9 +494,9 @@
         },
         {
           "name": "2026-09-23-workflow-map-phrases.json",
-          "records": 208,
-          "sources": 208,
-          "sha256": "8be13f999c8c7e96e38fade87927f77e2997ed2cac6cf9c9920749964805757b"
+          "records": 206,
+          "sources": 206,
+          "sha256": "b7ccbf512b0733818f4853ffd64a88b779f151dc0fedfb42bf3f54d1485665b6"
         },
         {
           "name": "2026-09-24-cellpose-inversion.json",
@@ -551,7 +553,7 @@
           "sha256": "53917479df2ce0a03389ccd24e558ca7c32a5580fac313c766372750bd52b87c"
         }
       ],
-      "added_sources_sha256": "358d85b2b92d9527719b305e2eb18a54115875f48cdd79fac06cfd3333ea7f25"
+      "added_sources_sha256": "76ee958e93efee7b6321a7c45168b0beb5f5912595a9d44cfc52967bb2ff0683"
     }
   }
 }

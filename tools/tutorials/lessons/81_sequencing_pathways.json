@@ -16,7 +16,7 @@
   "scenes": [
     {
       "visual": "home",
-      "narration": "From Home, open Map Barcodes for sequencing reads, or open OPS inside Mask for optical sequencing images. Provide the references and experimental layout that connect barcode identities to your screen. Combine compatible guide counts and phenotype scores in Regression. Use Experiment Design and Power before acquisition; use Dose-Response and Run Compare when you have suitable results to inspect.",
+      "narration": "Sequencing is how a pooled screen learns which guide sits in which well or cell, and spaCR reads it two ways. Reads from a sequencer go into Map Barcodes. Barcodes imaged cycle by cycle go into OPS, which lives inside Mask. Either way, the barcode identities end up beside your phenotypes in Regression. Around that core sit the planning tools, Experiment Design and Power, for before you acquire, and Dose–Response and Run Compare for your results.",
       "hold_after": 0.7,
       "related_lessons": [
         "05_home"
@@ -24,7 +24,7 @@
     },
     {
       "visual": "module_map_barcodes",
-      "narration": "Open Map Barcodes from Home. Supply the references that encode your experiment. Inspect mapped counts and barcode QC before pairing well-level guide counts with phenotype scores. Input data: Sequencing reads. Output data: Guide counts per well. Map Barcodes to Regression: Pair guide counts with phenotype scores using consistent plate/well keys. Map Barcodes to Barcode QC: Check mapping and coverage before guide filtering.",
+      "narration": "Start with the sequencing reads. Open Map Barcodes from Home and give it your FASTQ files, single-end or paired, with the barcode reference tables that encode your experiment. Map Barcodes matches each read to its barcodes and counts the guides in every well, saving unique_combinations.csv and annotated_reads.h5 in its run folder. Before you trust those counts, open them in Barcode QC. Once they pass, they are the guide counts Regression pairs with phenotype scores, on the same plate and well keys.",
       "hold_after": 0.7,
       "related_lessons": [
         "12_map_barcodes",
@@ -34,7 +34,7 @@
     },
     {
       "visual": "module_barcode_qc",
-      "narration": "Open Map Barcodes from Home, then choose Barcode QC. Inspect mapping depth, coverage, collisions and positional effects before guide-count filtering. Input data: Guide counts per well. Output data: Quality-control results; Figures and table exports. Map Barcodes to Barcode QC: Check mapping and coverage before guide filtering.",
+      "narration": "Barcode QC lives inside Map Barcodes, so open Map Barcodes from Home and choose it there. It reads the guide counts you just made and shows mapping depth, coverage, barcode collisions and positional effects. It saves the QC results with exportable figures and tables, so you can decide which guides to filter before going further.",
       "hold_after": 0.7,
       "related_lessons": [
         "12_map_barcodes",
@@ -43,7 +43,7 @@
     },
     {
       "visual": "module_ops",
-      "narration": "Open Mask from Home, then choose OPS. Use sequencing-cycle images and phenotype alignment to decode barcodes per nucleus. Aggregate/join the decoded identities to compatible phenotype inputs before Regression; the OPS database is not a drop-in FASTQ count CSV. Input data: Microscope images; Aligned mosaic and coordinates. Output data: Optical barcode assignments. OPS to Regression: Join/aggregate decoded objects to phenotype and guide inputs explicitly before Regression; this is not a direct CSV handoff.",
+      "narration": "Optical screens take a different road. Open Mask from Home, then choose OPS. Instead of reads, OPS takes the images from each sequencing cycle, aligns them to the phenotype images and decodes a barcode for every nucleus. The results land in the OPS measurements.db, with tables for geometry, phenotype alignment, nuclei and barcodes. That database is not a FASTQ count table, though. To use it in Regression, first join and aggregate the decoded identities with your phenotype data, so each object or well carries both.",
       "hold_after": 0.7,
       "related_lessons": [
         "13_regression",
@@ -52,7 +52,7 @@
     },
     {
       "visual": "module_regression",
-      "narration": "Open Regression from Home. Match plate and well identifiers across phenotype and guide-count inputs, select the response and controls, and inspect diagnostics before interpreting hits. Direct measured responses are also supported. Input data: Object classification scores; Guide counts per well; Optical barcode assignments; Measured objects. Output data: Regression results and hits. Classify to Regression: Select the intended CV or ML score column and preserve plate/well identity. Map Barcodes to Regression: Pair guide counts with phenotype scores using consistent plate/well keys. OPS to Regression: Join/aggregate decoded objects to phenotype and guide inputs explicitly before Regression; this is not a direct CSV handoff. Regression to Run Compare: Compare compatible saved result sets and their settings.",
+      "narration": "Whichever way you sequenced, barcodes meet phenotypes in Regression. Open it from Home. For a pooled screen, it takes phenotype scores from Classify and guide counts from Map Barcodes. For an optical screen, it takes the decoded OPS objects once you have joined and aggregated them yourself; that is not a direct file handoff. It can also model a directly measured response. In every case, plate and well identifiers must agree across the inputs. Choose the response and the controls, run the fit, and read the diagnostics before you call anything a hit. The results folder it writes, with coefficients, hit tables, settings and figures, is what Run Compare opens when you want to line this run up against another.",
       "hold_after": 0.7,
       "related_lessons": [
         "12_map_barcodes",
@@ -64,7 +64,7 @@
     },
     {
       "visual": "module_power",
-      "narration": "Open Power / Design from Home. Estimate sampling needs from chosen effect sizes and variability; pilot measurements are optional evidence for assumptions. Input data: Screen design and power estimates; Measured objects; Experimental layout. Output data: Screen design and power estimates. Experiment Design to Power / Design: Use the experimental layout to define sampling assumptions, then revise the design.",
+      "narration": "Now step back to before the experiment. Open Power / Design from Home to estimate how much sampling you need to see an effect, based on the effect sizes and variability you choose. Pilot measurements can support those assumptions, but they are optional. The layout from Experiment Design feeds these estimates, and the estimates in turn may send you back to revise that design.",
       "hold_after": 0.7,
       "related_lessons": [
         "67_experiment_design",
@@ -73,7 +73,7 @@
     },
     {
       "visual": "module_experiment_design",
-      "narration": "Open Experiment Design from Home. Enter conditions, controls, replicates and plate constraints, then export the experimental layout before acquisition. Input data: Screen design and power estimates. Output data: Experimental layout. Experiment Design to Power / Design: Use the experimental layout to define sampling assumptions, then revise the design. Experiment Design to Dose–Response: Acquire and measure the experiment first, preserving dose/condition identities.",
+      "narration": "Open Experiment Design from Home to lay out the plates before you acquire anything. Enter the conditions, controls, replicates and plate constraints, with your power estimates in mind, and export the experimental layout. That layout travels far. Power / Design uses it to set sampling assumptions, and later, once the experiment is acquired and measured, Dose–Response uses its dose and condition identities, so keep them unchanged all the way through.",
       "hold_after": 0.7,
       "related_lessons": [
         "67_experiment_design",
@@ -83,7 +83,7 @@
     },
     {
       "visual": "module_dose_response",
-      "narration": "Open Dose–Response from Home. Supply dose and response columns, controls and units before curve fitting; this route does not require sequencing. Input data: Measured objects; Experimental layout. Output data: Assay results; Figures and table exports. Experiment Design to Dose–Response: Acquire and measure the experiment first, preserving dose/condition identities.",
+      "narration": "Dose–Response answers how much, not which guide, so it needs no sequencing at all. Open it from Home and bring your measured responses with the dose and condition identities from Experiment Design. Set the dose and response columns, controls and units, then fit the curves. It saves assay results with figures and tables to export.",
       "hold_after": 0.7,
       "related_lessons": [
         "67_experiment_design",
@@ -92,7 +92,7 @@
     },
     {
       "visual": "module_run_compare",
-      "narration": "Open Run Compare from Home. Compare compatible saved settings, counts and hit lists without treating changed input data as a controlled model comparison. Input data: Run history and artifacts; Regression results and hits. Output data: Run/model comparison. Regression to Run Compare: Compare compatible saved result sets and their settings.",
+      "narration": "Once you have more than one analysis, open Run Compare from Home. It reads your saved run records and Regression results and sets their settings, counts and hit lists side by side. If the input data changed between runs, the differences are not a controlled model comparison, so read them with that in mind.",
       "hold_after": 0.7,
       "related_lessons": [
         "13_regression",
@@ -101,13 +101,13 @@
     },
     {
       "visual": "module_simulation",
-      "narration": "Use Pooled-screen simulation sweep from Python through spacr.sim.run_multiple_simulations. This API-only workflow has no Home tile or menu entry. Use the Python sweep API to explore stated screen-design assumptions. It expands combinations, runs simulations in a process pool and writes synthetic summary statistics; it returns None. Set a small explicit max_workers value and a bounded parameter grid before running. The output does not replace measurements or barcode counts for experimental Regression. Use the findings as planning evidence, with their assumptions recorded. Review the synthetic summaries when choosing planning assumptions; transfer those assumptions manually into Power / Design or Experiment Design. Neither tool imports this simulation database, and neither exports the simulation settings grid. Input data: Pooled-screen simulation assumptions. Output data: Synthetic screen simulation summaries.",
+      "narration": "One more planning tool lives only in Python: the pooled-screen simulation sweep, spacr.sim.run_multiple_simulations, with no Home tile or menu entry. You give it a settings dictionary of assumptions, such as screen size, occupancy, classifier accuracy and sequencing. It expands every combination, simulates each in a process pool and appends synthetic summary rows to simulations.db; the call itself returns None. Keep the parameter grid small and set max_workers explicitly before you run it. What comes out is planning evidence, not data, and it cannot stand in for measurements or barcode counts in Regression. Read the summaries, record your assumptions, and carry them by hand into Power / Design or Experiment Design, since neither tool imports the simulation database.",
       "hold_after": 0.7,
       "related_lessons": []
     },
     {
       "visual": "home_summary",
-      "narration": "Keep barcode references and plate layouts with your count tables. Match those counts to phenotype scores by plate and well before Regression. For optical screening, join decoded object identities to the phenotypes and aggregate them for the chosen analysis. Follow the linked module lessons for data preparation, settings and outputs.",
+      "narration": "So the barcode side of a screen always ends the same way: identities joined to phenotypes by plate and well. Keep barcode references and plate layouts with your count tables, and for an optical screen, join the decoded objects to their phenotypes and aggregate them before Regression. The linked module lessons show the settings and outputs for each step.",
       "hold_after": 0.7
     }
   ]

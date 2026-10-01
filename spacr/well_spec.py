@@ -21,7 +21,8 @@ WELL_SETTINGS = (
     "negative_control_id", "pathogen_loc", "pathogen_plate_metadata", "pos",
     "positive_control_id", "treatment_loc", "treatment_plate_metadata",
     "positive_control_wells", "negative_control_wells",
-    "mixed_control_wells",
+    "mixed_control_wells", "viability_negative_wells",
+    "viability_positive_wells",
 )
 
 #: Settings whose complete value is a well specification and can therefore be
@@ -32,7 +33,8 @@ WELL_ONLY_SETTINGS = (
     "filter_value", "pathogen_loc",
     "treatment_loc",
     "positive_control_wells", "negative_control_wells",
-    "mixed_control_wells",
+    "mixed_control_wells", "viability_negative_wells",
+    "viability_positive_wells",
 )
 
 #: The three blocks of control wells, in the order a plate lays them out.

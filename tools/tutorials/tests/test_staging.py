@@ -157,3 +157,33 @@ def test_rejects_invalid_evidence_before_writing_any_catalog(project, defect):
         stage.stage_lesson(lesson, 'home', root)
     assert (root / 'catalog/lessons_en.json').read_bytes() == before
     assert not (root / 'production').exists()
+
+
+@pytest.mark.parametrize('defect', [None, 'unbound', 'other_capture', 'other_frame'])
+def test_recapture_focus_replaces_authored_spotlight_only_when_frame_pinned(project, defect):
+    import hashlib
+    root, capture, lesson, changed, retained = project
+    changed['scenes'][0].pop('focus_modules')
+    changed['scenes'][0]['focus'] = [0, 0, 10, 10]
+    stage.write(lesson, changed)
+    canonical = hashlib.sha256(json.dumps(changed, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+    frame = stage.read(capture / 'frames.json')['home']['sha256']
+    override = {'english_sha256': canonical, 'scenes': {'home': [50, 20, 100, 80]},
+                'recapture': {'capture_module': 'home', 'frames': {'home': frame}}}
+    if defect == 'unbound':
+        override.pop('recapture')
+    elif defect == 'other_capture':
+        override['recapture']['capture_module'] = 'elsewhere'
+    elif defect == 'other_frame':
+        override['recapture']['frames']['home'] = '0' * 64
+    focus_map = lesson.with_name('focus.json')
+    stage.write(focus_map, override)
+    before = (root / 'catalog/lessons_en.json').read_bytes()
+    if defect:
+        with pytest.raises(ValueError):
+            stage.stage_lesson(lesson, 'home', root, focus_map=focus_map)
+        assert (root / 'catalog/lessons_en.json').read_bytes() == before
+    else:
+        stage.stage_lesson(lesson, 'home', root, focus_map=focus_map)
+        assert stage.read(root / 'production/home/lesson.en.json') == changed
+        assert stage.read(root / 'production/home/visual.json')['scenes'][0]['focus'] == [50, 20, 100, 80]

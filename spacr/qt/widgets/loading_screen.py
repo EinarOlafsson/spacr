@@ -190,7 +190,12 @@ class LoadingScreen(QWidget):
         self._load_logo()
 
     def set_total(self, total: int) -> None:
-        """Set the denominator; repaints if it changed."""
+        """Set the denominator; repaints if it changed.
+
+        :param total: number of steps the progress counts towards; converted
+            to ``int`` and floored at 0, which means unknown and makes
+            :meth:`fraction` report 0.0.
+        """
         total = max(0, int(total))
         if total != self._total:
             self._total = total

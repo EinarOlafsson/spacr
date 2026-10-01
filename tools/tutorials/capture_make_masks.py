@@ -52,7 +52,8 @@ def prepare_fields(stage):
 
 
 def record_editor(app, window, screen, stage, captures, capture, settle, write_json, timeout,
-                  *, detect=False, readouts_only=False, include_readouts=False):
+                  *, detect=False, readouts_only=False, include_readouts=False,
+                  curation_organize=False):
     import numpy as np
     import tifffile
     from PySide6.QtCore import Qt, QTimer, QUrl
@@ -61,6 +62,20 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
     from scipy.ndimage import distance_transform_edt
 
     from spacr.qt.screens.make_masks import FOLD_ORDER
+
+    # Load test data is a split button: its arrow lists the test data and a
+    # sample of each training dataset. Open the menu only; nothing downloads.
+    from PySide6.QtCore import QPoint
+    test_data = screen._btn_test_data
+    QTest.mouseClick(test_data, Qt.LeftButton,
+                     pos=QPoint(test_data.width() - 8, test_data.height() // 2))
+    settle(0.6)
+    menu = test_data.split_menu()
+    if menu is None or not menu.isVisible():
+        raise RuntimeError('The Load test data arrow did not open its menu')
+    capture('01b_test_data_menu')
+    menu.hide()
+    settle()
 
     folder, evidence = prepare_fields(stage)
     write_json(captures / 'inputs.json', evidence)
@@ -91,6 +106,8 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
                 dialog.reject()
 
     def reject_stalled():
+        if accepted and not errors:
+            return  # the picker was answered; a later box is not this one's
         dialog = app.activeModalWidget()
         if isinstance(dialog, QMessageBox):
             errors.append(dialog.text())
@@ -272,21 +289,48 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
     number(screen._norm_lo, old_lower)
     if display_digest() != before_display:
         raise RuntimeError('Restoring contrast did not restore the original display')
+    # Item 511: the Filter category is a list of regionprop rows. Add an
+    # area row through the visible property box and Add a filter, type its
+    # minimum like a user, then press Filter; the ledger lists what it hid.
     threshold = int(np.median(counts[1:][counts[1:] > 0])) + 1
-    number(screen._filter_min_area, threshold)
+    filters = screen._filter_list
+    expose(filters.property_box)
+    index = filters.property_box.findText('area')
+    if index < 0:
+        raise RuntimeError('The Filter category does not offer area')
+    filters.property_box.setCurrentIndex(index)
+    settle()
+    QTest.mouseClick(filters.add_button, Qt.LeftButton)
+    settle()
+    rows = filters.rows()
+    if len(rows) != 1 or rows[0]['property'] != 'area':
+        raise RuntimeError('Add a filter did not add one area row')
+    low = rows[0]['min']
+    expose(low)
+    QTest.mouseClick(low, Qt.LeftButton)
+    QTest.keyClicks(low, str(threshold))
+    QTest.keyClick(low, Qt.Key_Tab)
+    settle()
     expose(screen._btn_filter)
     QTest.mouseClick(screen._btn_filter, Qt.LeftButton)
     settle()
     filtered_count = int(np.count_nonzero(np.unique(canvas.mask)))
     if not 0 < filtered_count < original_count:
-        raise RuntimeError('The measured area threshold did not remove some real objects')
+        raise RuntimeError('The area filter did not hide some real objects')
+    ledger = screen._filter_log.toPlainText().strip().splitlines()
+    if not ledger:
+        raise RuntimeError('The filter ledger does not list the hidden objects')
+    expose(screen._filter_log)
     capture('08c_filter_edits_labels')
-    steps.append({'action': 'area_filter', 'minimum_area': threshold,
+    steps.append({'action': 'area_filter_row', 'minimum_area': threshold,
                   'before': original_count, 'after': filtered_count,
-                  'model_rerun': False})
-    undo()
-    number(screen._filter_min_area, 0)
-    capture('08d_filter_undone_bounds_disabled')
+                  'ledger_rows': len(ledger), 'model_rerun': False})
+    expose(rows[0]['remove'])
+    QTest.mouseClick(rows[0]['remove'], Qt.LeftButton)
+    settle()
+    if filters.rows() or not np.array_equal(canvas.mask, original):
+        raise RuntimeError('Removing the filter row did not bring every hidden object back')
+    capture('08d_filter_removed')
 
     for key in FOLD_ORDER:
         button = screen._folds.button_for(key)
@@ -296,9 +340,6 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
         settle(0.7)
         capture('09_fold_' + key)
 
-    # Scroll the actual settings panel; no hidden control is operated.
-    expose(screen._cp_diameter)
-    capture('10_model_controls_not_run')
     QTest.mouseClick(screen._btn_save, Qt.LeftButton)
     settle()
     saved = tifffile.imread(evidence[0]['mask'])
@@ -339,10 +380,24 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
 
     inference = None
     if detect:
+        # Cellpose's settings show once Detection method is Cellpose.
+        expose(screen._mag_mode)
+        chosen = screen._mag_mode.findData('cellpose')
+        if chosen < 0:
+            raise RuntimeError('Detection method does not offer Cellpose')
+        screen._mag_mode.setCurrentIndex(chosen)
+        settle()
         expose(screen._cp_diameter)
         capture('14_cellpose_settings')
         initial_child_mask = canvas.mask.copy()
         QTest.mouseClick(screen._btn_cellpose, Qt.LeftButton)
+        settle()
+        # Detection runs on a worker thread; wait for the real result.
+        deadline = time.monotonic() + timeout
+        while screen._detection_request is not None:
+            if time.monotonic() >= deadline:
+                raise TimeoutError('Object detection did not finish')
+            settle(0.2)
         settle()
         if not screen._prob_pane.has_image() or not screen._flow_pane.has_image():
             raise RuntimeError('Real Cellpose inference did not produce its two intermediate views')
@@ -374,6 +429,19 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
 
     if not np.array_equal(canvas.image, child_image):
         raise RuntimeError('Editing masks changed source image pixels')
+    more = {}
+    if curation_organize:
+        import capture_make_masks_more as extra
+
+        extra.record_curation(app, window, screen, captures, capture, settle, write_json, timeout)
+        extra.record_upload(app, window, screen, captures, capture, settle, write_json)
+        sources = [Path(row['source']) for row in evidence]
+        _parent, by_well, export, masks, rows = extra.prepare_nested(stage, sources)
+        more['consolidation'] = extra.record_consolidation(
+            app, window, screen, stage, by_well, captures, capture, settle, write_json, timeout)
+        extra.record_organize(app, window, screen, export, masks, captures, capture,
+                              settle, write_json, timeout)
+        more['organize_inputs'] = rows
     if any(digest(Path(row['source'])) != row['source_sha256'] or
            digest(Path(row['image']) if Path(row['image']).is_file() else
                   folder / 'recropped_originals' / Path(row['image']).name) != row['image_sha256']
@@ -385,4 +453,4 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
         'saved_original_foreground_unchanged': True, 'original_images_unchanged': True,
         'folded_routes_shown': list(FOLD_ORDER), 'model_inference_requested': detect,
         'model_inference': inference,
-        'recrop_recorded': True, 'recrop': recrop})
+        'recrop_recorded': True, 'recrop': recrop, 'curation_organize': more})

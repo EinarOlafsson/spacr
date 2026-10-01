@@ -1,0 +1,143 @@
+{
+ "item": "447",
+ "lesson": "75_regression_diagnostics",
+ "date": "2026-09-27",
+ "scope": "Native CPU captures of Regression -> Diagnostics from the neutral root. The folder frame was recaptured with Nemo toolbar and location bar hidden through native preferences; five other neutral frames are retained from the earlier accepted capture. English, ten scene/visual IDs, all 27 voices and their timings/captions are unchanged. Silent 4K master, poster and 1440p web copy refreshed and checked. Not published.",
+ "recorder": "tools/tutorials/run_neutral_diagnostics.sh <stage> spacr-env python example-oxxx3xqj (run_neutral_capture.sh namespace, offline, entering capture_diagnostics.py for the private dbus session)",
+ "project": "byte copy of the 09-09 private regression project example-oxxx3xqj, visible as /tmp/spacr-tutorials/regression_runs/example-oxxx3xqj",
+ "capture": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/captures/regression_diagnostics_neutral_20260927",
+ "capture_provenance": {
+  "commit": "8a71787b5eb3cc3651da7893b31c866e0ab4543f",
+  "version": "1.5.1.0",
+  "module": "regression_diagnostics",
+  "download_requested": false,
+  "dataset_cache": "/tmp/spacr-tutorials/example_data",
+  "app_source_modified": false,
+  "cache_isolated_with_bind_mount": true,
+  "completed_capture": true
+ },
+ "desktop_acceptance": true,
+ "capture_sha256": {
+  "02_diagnostics_button": "6e11b544ab4ef50b06c5b00dbfc5d7965806ef40bca24478767205f5856175ca",
+  "03_diagnostics_folder": "6e4892fbd54ef39653212b59bed220cedde3ca399cd8c28ad912eb4c8ed23ad6",
+  "04_design_identifiability": "2a009b68bb5345ebbed810c5b9b0b12002c952c1bb48ee02f8f2ef51267c2ad9",
+  "05_design_diagnostics": "0557c809261d7603e60aa6ef9eb6ef1d8354fb96ac1918b8658fafbcbb7fb9b7",
+  "06_inference_diagnostics": "90b0152cf6acc0fd07ba240ed976b2318211653c898bdad0282476410b1a0b1d",
+  "07_back_to_regression": "835583792017dc3a4fa0a3d21083c0050d474ec80274f0c3eac08ac67d0fcc74"
+ },
+ "english": {
+  "lesson_sha256_canonical": "f5063f20ac388e58f2c086d2c3d555de7b543c91ae100f8274c1fcf161aa402c",
+  "unchanged": true,
+  "reviews_pinned": [
+   "f5063f20ac388e58f2c086d2c3d555de7b543c91ae100f8274c1fcf161aa402c"
+  ],
+  "reviews_valid": true,
+  "authored_spotlight_fits_new_frame": false,
+  "visual_spotlight_adjusted_for_native_toolbar_removal": true
+ },
+ "media": {
+  "af_heart_regenerated": false,
+  "af_heart_m4a_sha256": "c9310013e936814c8b32426932800515481d1b7d951afd9c12a0b0b07368b7ca",
+  "master_sha256": "2445112514e57535bc0d3c25e1967e411f257f8625793bf9b8d4efbb661a9357",
+  "poster_sha256": "e8a10cf4883d3fe47acecc86d957c3054b583272fd83c80a6c99255233679126",
+  "web_rendition_sha256": "fe8af06f7980910c5c61615cfb53b49e64974a39e192631d0cee32636ec23eac",
+  "web_bytes": 4595193,
+  "web_frames": 3900,
+  "all_27_voices_and_timings_and_caption_files_unchanged": true,
+  "preserved_files": 81
+ },
+ "checks": {
+  "english_track_decode_and_fingerprint": true,
+  "sentence_cues_passed": true,
+  "web_playback_passed": true,
+  "frame_sweep": {
+   "images_checked": 22,
+   "path_offenders": [],
+   "light_frames_note": "light frames are the external file manager and image viewer, as in the lesson design",
+   "receipt": "/mnt/firecuda2/codex/scratch-docs/t447/sweep_staged_75_no_toolbar.json",
+   "receipt_sha256": "5a8f290e71d97945091e5249bab87f9b81fb5471aac49e4784d0b63d0929753d"
+  },
+  "master_playback_receipt_sha256": "9e617146604f30f2eb8e8bced3d254a243b1acd57298b53b2481fb8ba02080bf",
+  "web_playback_receipt_sha256": "fea11302222f198b579685172cd1814288c7336cc97840a41fbc939955d490c4",
+  "visual_manifest_sha256": "3e5e6f4243200a9849487952313005decbb3f7c173d5b3b25d5dcfd7b8003877"
+ },
+ "superseded": {
+  "old_capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/regression_diagnostics (untouched)",
+  "old_stage_media_backup": "/mnt/firecuda2/codex/scratch-docs/t447/backup-75-before",
+  "old_web_rendition": "/mnt/firecuda2/codex/scratch-docs/t447/superseded-web-renditions/75_regression_diagnostics.before-20260927",
+  "pre_hidden_toolbar_backup": "/mnt/firecuda2/codex/scratch-docs/t447/backup-75-neutral-before-hidden-toolbar-20260927",
+  "pre_hidden_toolbar_web_rendition": "/mnt/firecuda2/codex/scratch-docs/t447/superseded-web-renditions/75_regression_diagnostics.before-hidden-toolbar-20260927"
+ },
+ "published": false,
+ "folder_recapture": {
+  "capture": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/captures/regression_diagnostics_folder_no_toolbar_20260927c",
+  "provenance": {
+   "commit": "8a04f776ea7c65575560e02f90b78fcf90898990",
+   "version": "1.5.1.0",
+   "module": "regression_diagnostics",
+   "download_requested": false,
+   "dataset_cache": "/tmp/spacr-tutorials/example_data",
+   "app_source_modified": false,
+   "cache_isolated_with_bind_mount": true,
+   "completed_capture": true
+  },
+  "desktop_acceptance": {
+   "accepted": true,
+   "capture_scope": "diagnostics folder only",
+   "folder_opened_by_actual_diagnostics_button": true,
+   "file_manager_title": "diagnostics",
+   "file_manager_settings": {
+    "org.nemo.window-state.start-with-toolbar": false,
+    "org.nemo.window-state.start-with-location-bar": false,
+    "org.nemo.preferences.show-full-path-titles": false
+   },
+   "system_viewer_panels": [],
+   "application_source_modified": false,
+   "private_display": ":99",
+   "new_regression_fitted_by_button": false
+  },
+  "frame_sha256": "6e4892fbd54ef39653212b59bed220cedde3ca399cd8c28ad912eb4c8ed23ad6",
+  "visual_scene_indices_zero_based": [
+   1,
+   7,
+   8
+  ],
+  "focus_changed_from": [
+   535,
+   230,
+   1420,
+   285
+  ],
+  "focus_changed_to": [
+   535,
+   170,
+   1420,
+   260
+  ],
+  "visual_review": "AI technical review: native folder view has no toolbar, location bar, warning banner or visible local path; the five existing diagnostic filenames remain readable. No native-speaker or listening signoff.",
+  "alpha_features_disabled": true,
+  "private_preferences_sha256": "8d329d88b995e55c5f686a6acd66c230d301b9484bc7b51427d4889a673ff8c8",
+  "recorder_sha256": "d5940789b92e7aa4230f387e995ed29d69d2b49a2b7634f8a8442ddd9769c738",
+  "namespace_wrapper_sha256": "6af8ad8abe979c01eaa2a8e8c31597783a18ff890ece1df85fe9d35329c19e28",
+  "native_settings_only": true,
+  "pixel_repainting": false,
+  "session_identity_environment_removed": [
+   "HOME",
+   "USER",
+   "LOGNAME",
+   "USERNAME",
+   "SUDO_UID",
+   "PKEXEC_UID"
+  ],
+  "discarded_attempts": [
+   {
+    "capture": "regression_diagnostics_folder_no_toolbar_20260927",
+    "reason": "Repository fast-forward overlapped capture; diagnostic attempt only. Also showed native thumbnail-cache warning."
+   },
+   {
+    "capture": "regression_diagnostics_folder_no_toolbar_20260927b",
+    "reason": "Rejected during visual review because inherited host USERNAME caused a native thumbnail-cache ownership warning."
+   }
+  ]
+ }
+}

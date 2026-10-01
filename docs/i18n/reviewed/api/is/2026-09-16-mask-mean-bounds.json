@@ -20,7 +20,9 @@
       "source": "Loads the ``cpsam`` pretrained model — or, when ``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint the user trained, that checkpoint — iterates over each pre-batched ``.npz`` file, applies perimeter merging and area/border filtering to 2-D masks, and optionally filters objects by their absolute mean intensity in the original own-channel image. It then optionally tracks timelapse objects, saves per-image ``.npy`` masks, and records per-object counts to the run's SQLite database. Time-stack archives must contain one filename per timepoint, regardless of the declared time-axis position; each raw filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its ``(Y, X, C)`` image for a flat ``TYX`` series.",
       "source_sha256": "4e378f5852d67604e49d42c5f742f45a092961a6e463e6c2c8bd12390e2c8141",
       "context": "Loads the ``cpsam`` pretrained model — or, when ``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint the user trained, that checkpoint — iterates over each pre-batched ``.npz`` file, applies perimeter merging and area/border filtering to 2-D masks, and optionally filters objects by their absolute mean intensity in the original own-image data channel image. It then optionally tracks timelapse objects, saves per-image ``.npy`` masks, and records per-object counts to the run's SQLite database. Time-stack archives must contain one filename per timepoint, regardless of the declared time-axis position; each raw filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its ``(Y, X, C)`` image for a flat ``TYX`` series.",
-      "translation": "Hleður forþjálfaða líkaninu ``cpsam`` — eða vistuðu líkansástandi sem notandinn þjálfaði þegar ``<object_type>_model_name`` (eða ``pathogen_model``) vísar á það — fer yfir hverja ``.npz``-skrá sem þegar hefur verið skipt í lotur, beitir samruna eftir ummáli og flatarmáls- og jaðarsíun á 2-D-grímur og síar valfrjálst hluti eftir meðalstyrk í upprunalegum einingum í upprunalegri mynd úr eigin rás hlutarins. Síðan getur fallið rakið hluti yfir tíma, vistað ``.npy``-grímur fyrir hverja mynd og skráð fjölda hluta í SQLite-gagnagrunn keyrslunnar. Skrár með tímastöflum verða að innihalda eitt skráarheiti fyrir hvert tímamark, óháð tilgreindri stöðu tímaássins; hvert hrámyndarskráarheiti auðkennir ``(Z, Y, X, C)``-rúmmálið á því tímamarki eða ``(Y, X, C)``-myndina fyrir flata ``TYX``-röð."
+      "translation": "Hleður forþjálfaða líkaninu ``cpsam`` — eða vistuðu líkansástandi sem notandinn þjálfaði þegar ``<object_type>_model_name`` (eða ``pathogen_model``) vísar á það — fer yfir hverja ``.npz``-skrá sem þegar hefur verið skipt í lotur, beitir samruna eftir ummáli og flatarmáls- og jaðarsíun á 2-D-grímur og síar valfrjálst hluti eftir meðalstyrk í upprunalegum einingum í upprunalegri mynd úr eigin rás hlutarins. Síðan getur fallið rakið hluti yfir tíma, vistað ``.npy``-grímur fyrir hverja mynd og skráð fjölda hluta í SQLite-gagnagrunn keyrslunnar. Skrár með tímastöflum verða að innihalda eitt skráarheiti fyrir hvert tímamark, óháð tilgreindri stöðu tímaássins; hvert hrámyndarskráarheiti auðkennir ``(Z, Y, X, C)``-rúmmálið á því tímamarki eða ``(Y, X, C)``-myndina fyrir flata ``TYX``-röð.",
+      "retired": true,
+      "retired_reason": "2026-09-25: the English block this record translated is no longer in the docstring (the :param: pass or a later edit rewrote it); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object.merge_split_filter_masks#0",
@@ -121,25 +123,28 @@
       "translation": "Afmarkar hluti í rás einnar hlutategundar fyrir allar ``.npz``-lotur undir ``src`` með Cellpose-SAM."
     },
     {
-      "label": "spacr.object.generate_cellpose_masks_sam#2",
+      "label": "spacr.object.generate_cellpose_masks_sam#3",
       "source": "Directory containing the pre-batched ``.npz`` image stacks.",
       "source_sha256": "29a1be2f9f32ead343bd5c3da14a47365d88f0bd7ef59e19650b57b940afc727",
       "context": "Directory containing the pre-batched ``.npz`` image stacks.",
-      "translation": "Mappa með ``.npz``-myndstöflum sem þegar hafa verið skipulagðir í lotur."
-    },
-    {
-      "label": "spacr.object.generate_cellpose_masks_sam#3",
-      "source": "Pipeline settings dict; canonicalized via :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.",
-      "source_sha256": "3b4741714fe14d6366d7ad3a28496a310ee4670705a5cfe56a6640d41a835468",
-      "context": "Workflow settings key-value mapping; canonicalized via :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.",
-      "translation": "Orðabók með stillingum vinnslunnar; færð á samræmt form með :func:`spacr.settings.set_default_settings_preprocess_generate_masks`."
+      "translation": "Mappa með ``.npz``-myndstöflum sem þegar hafa verið skipulagðir í lotur.",
+      "rebound_from": "spacr.object.generate_cellpose_masks_sam#2"
     },
     {
       "label": "spacr.object.generate_cellpose_masks_sam#4",
+      "source": "Pipeline settings dict; canonicalized via :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.",
+      "source_sha256": "3b4741714fe14d6366d7ad3a28496a310ee4670705a5cfe56a6640d41a835468",
+      "context": "Workflow settings key-value mapping; canonicalized via :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.",
+      "translation": "Orðabók með stillingum vinnslunnar; færð á samræmt form með :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.",
+      "rebound_from": "spacr.object.generate_cellpose_masks_sam#3"
+    },
+    {
+      "label": "spacr.object.generate_cellpose_masks_sam#5",
       "source": "``'cell'``, ``'nucleus'``, ``'pathogen'`` or ``'organelle'``; drives channel/threshold lookups and output folder name.",
       "source_sha256": "ff0e2dc365436dd7787b99f3fcab7443eac3792d34e42fa13f9efb206d7b8c64",
       "context": "``'cell'``, ``'nucleus'``, ``'pathogen'`` or ``'organelle'``; drives channel/threshold lookups and output folder name.",
-      "translation": "``'cell'``, ``'nucleus'``, ``'pathogen'`` eða ``'organelle'``; stýrir uppflettingu rása og þröskulda og heiti úttaksmöppunnar."
+      "translation": "``'cell'``, ``'nucleus'``, ``'pathogen'`` eða ``'organelle'``; stýrir uppflettingu rása og þröskulda og heiti úttaksmöppunnar.",
+      "rebound_from": "spacr.object.generate_cellpose_masks_sam#4"
     },
     {
       "label": "spacr.object.merge_split_filter_masks#1",

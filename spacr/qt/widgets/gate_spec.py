@@ -362,6 +362,11 @@ class Gate:
                     high: Optional[float]) -> "Gate":
         """Return this gate with ``column`` bounded to ``low..high``.
 
+        :param column: the measurement column to bound. The base class bounds
+            none, so it always raises :class:`GateError`; shapes with bounds
+            override it.
+        :param low: lower bound, or ``None`` for an open side.
+        :param high: upper bound, or ``None`` for an open side.
         :raises GateError: when this gate has no bound on ``column``. A gate
             that silently ignored the edit would leave the panel showing a
             number the gate does not honour.
@@ -959,6 +964,10 @@ class PolygonGate(Gate):
     The shape a real population needs: cell clouds are not rectangles, and
     approximating one with a bounding box is how the corner debris gets counted
     as cells.
+
+    :param name: unique name within a :class:`GateSet`, by which the hierarchy
+        and the filter clause identify this gate; surrounding whitespace is
+        stripped and an empty name raises :class:`GateError`.
     """
 
     x_column: str = ""
@@ -1097,7 +1106,11 @@ class PolygonGate(Gate):
 
     def handles(self, view: "View") -> Tuple["Handle", ...]:
         """One anchor per vertex. A polygon has no sides to pull that are not
-        already two vertices, so there are no side handles."""
+        already two vertices, so there are no side handles.
+
+        :param view: visible ``(x_low, x_high, y_low, y_high)`` axis limits;
+            not used, because every handle sits on the shape itself.
+        """
         return tuple(Handle(float(vx), float(vy), f"vertex:{i}", corner=True)
                      for i, (vx, vy) in enumerate(self.vertices))
 
@@ -1120,6 +1133,11 @@ class PolygonGate(Gate):
     def with_vertex(self, index: int, x: float, y: float) -> "PolygonGate":
         """Move ONE vertex -- the per-vertex drag handle.
 
+        :param index: position of the vertex to move; negative values count
+            from the end. An index outside the polygon raises
+            :class:`GateError`.
+        :param x: the vertex's new horizontal coordinate, in data units.
+        :param y: the vertex's new vertical coordinate, in data units.
         :raises GateError: an index outside the polygon, which would
             otherwise silently move a different corner than the one grabbed.
         """
@@ -1145,6 +1163,10 @@ class EllipseGate(Gate):
     because a "circle" that cannot be squashed is a shape the user has to
     delete and redraw the moment the axes are not comparable — and on a
     scatter of two different measurements they never are.
+
+    :param name: unique name within a :class:`GateSet`, by which the hierarchy
+        and the filter clause identify this gate; surrounding whitespace is
+        stripped and an empty name raises :class:`GateError`.
     """
 
     x_column: str = ""
@@ -1256,6 +1278,9 @@ class EllipseGate(Gate):
         are placed on the bounding box rather than on the curve because that
         is where the user reaches for them -- the curve at 45 degrees is
         inside the box and feels like a miss.
+
+        :param view: visible ``(x_low, x_high, y_low, y_high)`` axis limits;
+            not used, because every handle sits on the shape itself.
         """
         cx, cy = float(self.x_centre), float(self.y_centre)
         rx, ry = float(self.x_radius), float(self.y_radius)
@@ -1319,6 +1344,15 @@ class EllipseGate(Gate):
         Inscribed rather than circumscribed, so the shape ends where the
         pointer did. A user who drags a box expects the shape to touch the
         corner they released at, not to extend past it.
+
+        :param name: the new gate's name.
+        :param x_column: measurement on the horizontal axis.
+        :param y_column: measurement on the vertical axis.
+        :param x0: horizontal coordinate where the drag started, in data units.
+        :param y0: vertical coordinate where the drag started.
+        :param x1: horizontal coordinate where the drag was released.
+        :param y1: vertical coordinate where the drag was released. A drag with
+            no extent on an axis gets a radius of ``1e-12`` there.
         """
         return cls(name=name, parent=parent,
                    x_column=x_column, y_column=y_column,
@@ -1391,6 +1425,10 @@ class BoxGate(Gate):
     A box whose z range is unbounded is a RECTANGLE extended through the
     volume, which is what a 2D gate already is when seen in 3D -- so the two
     agree rather than being different answers to the same question.
+
+    :param name: unique name within a :class:`GateSet`, by which the hierarchy
+        and the filter clause identify this gate; surrounding whitespace is
+        stripped and an empty name raises :class:`GateError`.
     """
 
     x_column: str = ""
@@ -1556,7 +1594,14 @@ class BoxGate(Gate):
 
     def with_threshold(self, column: str, low: Optional[float],
                     high: Optional[float]) -> "BoxGate":
-        """Any of the three sides, by name."""
+        """Any of the three sides, by name.
+
+        :param column: one of the box's three columns; any other column raises
+            :class:`GateError`.
+        :param low: lower bound, or ``None`` to leave that side open. The two
+            bounds are swapped if given in reverse.
+        :param high: upper bound, or ``None`` to leave that side open.
+        """
         field_of = {self.x_column: ("x_low", "x_high"),
                     self.y_column: ("y_low", "y_high"),
                     self.z_column: ("z_low", "z_high")}
@@ -1613,6 +1658,13 @@ class BoxGate(Gate):
         zooming, then keep what you framed. The view is already the gesture --
         asking the user to also drag a shape on a rotated projection would be
         asking them to aim at something that is not flat.
+
+        :param name: the new gate's name.
+        :param columns: the x, y and z measurements, in that order; only the
+            first three are used.
+        :param limits: one ``(low, high)`` range per column, in the same order;
+            only the first three are used. Fewer than three columns or ranges
+            raise :class:`GateError`.
         """
         if len(columns) < 3 or len(limits) < 3:
             raise GateError(
@@ -1651,6 +1703,10 @@ class CylinderGate(Gate):
     the 2D ellipse on that plane already meant, so drawing one in 3D and
     drawing one in 2D agree; narrowing it is then an explicit act rather
     than something the user has to undo.
+
+    :param name: unique name within a :class:`GateSet`, by which the hierarchy
+        and the filter clause identify this gate; surrounding whitespace is
+        stripped and an empty name raises :class:`GateError`.
     """
 
     u_column: str = ""
@@ -1825,6 +1881,12 @@ class CylinderGate(Gate):
 
         This is how the user bounds the cylinder's height, which is what point 4
         of the design asks for.
+
+        :param column: must be :attr:`axis_column`, the cylinder's normal; any
+            other column raises :class:`GateError`.
+        :param low: lower bound, or ``None`` to leave that side open. The two
+            bounds are swapped if given in reverse.
+        :param high: upper bound, or ``None`` to leave that side open.
         """
         if column != self.axis_column:
             return super().with_threshold(column, low, high)
@@ -1853,6 +1915,10 @@ class CylinderGate(Gate):
         This is what "translated to 3 dims when the gate is generated"
         means: the drawing stays 2D and reuses the existing geometry, and
         the third dimension is added at the end.
+
+        :param ellipse: the drawn oval; its name, parent, columns, centre and
+            radii become the cylinder's cross-section.
+        :param axis_column: the measurement the oval is extended along.
         """
         return cls(name=ellipse.name, parent=ellipse.parent,
                    u_column=ellipse.x_column, v_column=ellipse.y_column,
@@ -1870,6 +1936,10 @@ class PrismGate(Gate):
     every respect -- the plane is named by its columns, the normal is
     unbounded by default so it agrees with the 2D polygon, and the drawing
     stays 2D.
+
+    :param name: unique name within a :class:`GateSet`, by which the hierarchy
+        and the filter clause identify this gate; surrounding whitespace is
+        stripped and an empty name raises :class:`GateError`.
     """
 
     u_column: str = ""
@@ -2021,6 +2091,12 @@ class PrismGate(Gate):
 
         This is how the user bounds the prism's height, which is what point 4
         of the design asks for.
+
+        :param column: must be :attr:`axis_column`, the prism's normal; any
+            other column raises :class:`GateError`.
+        :param low: lower bound, or ``None`` to leave that side open. The two
+            bounds are swapped if given in reverse.
+        :param high: upper bound, or ``None`` to leave that side open.
         """
         if column != self.axis_column:
             return super().with_threshold(column, low, high)
@@ -2038,7 +2114,12 @@ class PrismGate(Gate):
     def from_polygon(cls, polygon: "PolygonGate", axis_column: str, *,
                      axis_low: Optional[float] = None,
                      axis_high: Optional[float] = None) -> "PrismGate":
-        """Extrude a drawn polygon along ``axis_column``."""
+        """Extrude a drawn polygon along ``axis_column``.
+
+        :param polygon: the drawn polygon; its name, parent, columns and
+            vertices become the prism's cross-section.
+        :param axis_column: the measurement the polygon is extended along.
+        """
         return cls(name=polygon.name, parent=polygon.parent,
                    u_column=polygon.x_column, v_column=polygon.y_column,
                    axis_column=axis_column, vertices=polygon.vertices,
@@ -2264,6 +2345,10 @@ class CompositeGate(Gate):
     inside what you already kept -- which is always an intersection and
     always a tree. This is set algebra between siblings, which is neither.
     Both exist because both are asked for.
+
+    :param name: unique name within a :class:`GateSet`, by which the hierarchy
+        and the filter clause identify this gate; surrounding whitespace is
+        stripped and an empty name raises :class:`GateError`.
     """
 
     operation: str = "union"
@@ -2338,6 +2423,10 @@ class CompositeGate(Gate):
                   lookup: Mapping[str, "Gate"]) -> np.ndarray:
         """Evaluate against a name -> gate mapping.
 
+        :param frame: the measurements to test; one entry per row is returned.
+        :param lookup: operand name mapped to either a gate, masked on
+            ``frame``, or an already computed boolean array. Every operand must
+            be present.
         :raises GateError: naming any operand the mapping does not hold. A
             composite whose operand was deleted must not quietly become the
             union of what is left.
@@ -2384,7 +2473,11 @@ class CompositeGate(Gate):
 
     def translated(self, dx: float, dy: float) -> "CompositeGate":
         """Unchanged: moving a composite would have to move its operands,
-        and those are other gates with their own users."""
+        and those are other gates with their own users.
+
+        :param dx: horizontal shift; ignored.
+        :param dy: vertical shift; ignored.
+        """
         return self
 
     def scaled(self, factor: float, *,
@@ -2827,6 +2920,9 @@ def cluster_gates(frame: pd.DataFrame, x_column: str, y_column: str, *,
 def gate_from_dict(payload: Mapping[str, Any]) -> Gate:
     """Rebuild one gate from :meth:`Gate.to_dict`.
 
+    :param payload: mapping as written by :meth:`Gate.to_dict`; its ``kind``
+        selects the gate class and every other key must be a field of that
+        class.
     :raises GateError: on an unknown or missing ``kind``, naming what was
         found — a gate file written by a newer build must fail with a sentence
         rather than a ``KeyError``.
@@ -2873,6 +2969,9 @@ class GateClause:
     same column (``area ≥ 100`` and its child ``area ≤ 500``) would otherwise
     replace each other under ``DataFilter.add``'s replace-by-column rule and
     silently widen the population.
+
+    :param gates: the chain from the outermost gate down to the one whose
+        population is selected; at least one gate is required.
     """
 
     gates: Tuple[Gate, ...]
@@ -2932,8 +3031,12 @@ class GateClause:
 class GateStats:
     """One row of the gating hierarchy: how many survived, and out of what.
 
+    :param name: the gate's name.
+    :param depth: how deeply the gate is nested; a root gate is 0.
+    :param n_total: number of rows in the whole table.
     :param n_parent: the population this gate was drawn *inside*. For a root
         gate, the whole table.
+    :param n_in: number of rows inside the gate and every gate above it.
     :param of_parent: the fraction of that population, in ``[0, 1]``.
     :param of_total: the fraction of the whole table. Both are reported
         because 90% of a parent that is 2% of the table is 1.8% of the objects.
@@ -3010,6 +3113,8 @@ class GateSet:
         edit: the children keep pointing at the name, so adjusting a threshold
         moves everything below it rather than orphaning it.
 
+        :param gate: the gate to add; its parent, if any, must already be in
+            the set.
         :raises GateError: if the parent does not exist, or if the gate would
             close a cycle.
         """
@@ -3114,13 +3219,18 @@ class GateSet:
         return str(name) in self.names
 
     def children(self, name: Optional[str]) -> Tuple[Gate, ...]:
-        """The gates drawn directly inside ``name`` (``None`` for the roots)."""
+        """The gates drawn directly inside ``name`` (``None`` for the roots).
+
+        :param name: the parent gate's name, or ``None`` (or an empty name) for
+            the root gates.
+        """
         return tuple(g for g in self.gates
                      if g.parent == (str(name) if name else None))
 
     def path(self, name: str) -> Tuple[Gate, ...]:
         """The chain from the outermost gate down to ``name``, inclusive.
 
+        :param name: the name of the innermost gate of the chain.
         :raises GateError: on a cycle, naming the gates in it — a hierarchy
             that loops would otherwise hang whatever walked it.
         """
@@ -3164,6 +3274,9 @@ class GateSet:
     def mask(self, frame: pd.DataFrame, name: str) -> np.ndarray:
         """The rows of ``frame`` inside ``name`` **and every gate above it**.
 
+        :param frame: the measurements to test; it must carry every column the
+            chain reads.
+        :param name: the gate whose chain is applied.
         :raises GateError: naming the missing column if ``frame`` does not
             carry what the chain needs — a gate re-applied to a table without
             the measurement is a mistake worth an exception, not a silently
@@ -3203,11 +3316,19 @@ class GateSet:
         return gate.mask_with(frame, lookup)
 
     def population(self, frame: pd.DataFrame, name: str) -> pd.DataFrame:
-        """``frame`` narrowed to the gate and its ancestors."""
+        """``frame`` narrowed to the gate and its ancestors.
+
+        :param frame: the measurements to narrow.
+        :param name: the gate whose chain selects the rows.
+        """
         return frame.loc[self.mask(frame, name)]
 
     def clause_for(self, name: str) -> GateClause:
-        """The whole chain as one filter clause."""
+        """The whole chain as one filter clause.
+
+        :param name: the gate whose chain, from :meth:`path`, becomes the
+            clause.
+        """
         return GateClause(self.path(name))
 
     def filter_for(self, name: str,
@@ -3226,7 +3347,10 @@ class GateSet:
         return data_filter.add(self.clause_for(name))
 
     def stats(self, frame: pd.DataFrame) -> Tuple[GateStats, ...]:
-        """Count and percentages for every gate, parents first."""
+        """Count and percentages for every gate, parents first.
+
+        :param frame: the measurements every gate is counted on.
+        """
         total = int(len(frame))
         counts: Dict[str, int] = {}
         out: List[GateStats] = []
@@ -3239,7 +3363,11 @@ class GateSet:
         return tuple(out)
 
     def report(self, frame: pd.DataFrame) -> str:
-        """The hierarchy as text, one gate per line, indented by depth."""
+        """The hierarchy as text, one gate per line, indented by depth.
+
+        :param frame: the measurements every gate is counted on; its row count
+            heads the report.
+        """
         rows = self.stats(frame)
         if not rows:
             return "no gates"
@@ -3293,14 +3421,21 @@ class GateSet:
         return cls.from_dict(payload)
 
     def save(self, path: str) -> str:
-        """Write the gates to ``path`` as JSON. Returns the path."""
+        """Write the gates to ``path`` as JSON. Returns the path.
+
+        :param path: destination file, overwritten with the UTF-8 JSON of
+            :meth:`to_json`.
+        """
         with open(path, "w", encoding="utf-8") as handle:
             handle.write(self.to_json())
         return path
 
     @classmethod
     def load(cls, path: str) -> "GateSet":
-        """Read a gate file written by :meth:`save`."""
+        """Read a gate file written by :meth:`save`.
+
+        :param path: a UTF-8 JSON gate file.
+        """
         with open(path, "r", encoding="utf-8") as handle:
             return cls.from_json(handle.read())
 

@@ -1,33 +1,35 @@
 {
   "lesson": "35_converter",
+  "english_sha256": "ebc9da9b1151232bc9d3f3ef39943821bd6d61b512039da9278febd7d3afaebe",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "es",
-  "english_sha256": "1421e92b000cf817acdc77701e253d0dc5f85cae67edcd6abb0c5058935d24eb",
-  "review": {"kind": "Editorial translation checked against English and the actual captured Format Converter workflow", "native_speaker_signoff": false},
-  "title": "Format Converter: revise los identificadores antes de escribir imágenes reales",
-  "description": "Acceda a Format Converter desde Import, previsualice las correspondencias de dos imágenes reales, escriba en un destino separado y verifique la reutilización mediante un punto de control sin modificar los originales.",
+  "title": "Format Converter: previsualizar y convertir archivos de imagen",
+  "description": "Selecciona una carpeta de origen, comprueba los nombres de destino y las asignaciones de canales, convierte las imágenes y reanuda el trabajo ya completado.",
   "objectives": [
-    "Distinguir la conversión de formatos de imagen de la importación de mediciones y máscaras de etiquetas.",
-    "Revisar el origen, el destino y los identificadores de adquisición antes de escribir.",
-    "Conservar juntos las imágenes de origen, el CSV de correspondencias y el punto de control por campo.",
-    "Interpretar correctamente una ejecución de Resume sin escrituras, sin considerarla una garantía de integridad de los píxeles."
+    "Elegir las carpetas de origen y destino con la disposición de adquisición correcta.",
+    "Previsualizar los nombres de destino, los campos y las asignaciones de canales.",
+    "Convertir los archivos y usar Resume para los campos ya completados."
   ],
-  "prerequisite": "Reutilice los dos TIFF de un solo canal preparados a partir de imágenes reales ya medidas en el tutorial Import Project. Cada uno contiene exactamente el segundo plano de imagen de su matriz original; los nombres neutros fov01_C1.tif y fov02_C1.tif ya no contienen los identificadores originales de placa o pocillo. Este ejemplo, deliberadamente acotado, demuestra la conversión de TIFF bidimensionales, no los lectores de formatos de fabricantes, la adquisición multicanal, la proyección Z ni las series temporales. Format Converter no tiene controles independientes para descargar un ejemplo, Plot, Live preview ni AI.",
+  "prerequisite": "Prepara una carpeta de archivos de imagen compatibles y conserva sus metadatos de adquisición. Puedes practicar con las dos imágenes TIFF del tutorial de Import Project. Define la disposición y el tratamiento de Z según tu propia adquisición.",
   "scenes": [
-    "Abra Import en la categoría Data de Home y elija Format Converter entre sus herramientas integradas. Esta herramienta convierte formatos de imagen y nombres de archivo. Import Project realiza otra tarea: reunir imágenes, máscaras de etiquetas y tablas de mediciones. No confunda los controles de la pantalla principal con los del convertidor que contiene.",
-    "La pestaña Format Converter tiene sus propios controles Source, Destination, Preview y Convert. Su vista previa es una tabla de correspondencias entre origen y destino, no una imagen de microscopía en vivo ni una vista previa de segmentación. El destino de Import en la pantalla principal y el botón Import situado debajo de la pestaña pertenecen al otro flujo de trabajo.",
-    "Elija una carpeta de origen, no una imagen individual. Este ejemplo reutiliza los dos TIFF reales de un solo canal de la lección Import. Sus píxeles proceden de imágenes de microscopía ya medidas, pero los nombres neutros de los campos son nombres de demostración, no las coordenadas originales de adquisición.",
-    "Elija una carpeta de destino nueva y vacía, distinta de la de origen. Mantenga intactas las imágenes originales y la información sobre su procedencia. La conversión crea nuevos TIFF y un archivo de correspondencias; no reconstruye los metadatos experimentales que se eliminaron al asignar nombres a estos archivos de demostración.",
-    "Establezca Layout en images directly in src, porque ambos archivos están en una misma carpeta. En Plate names, utilice la numeración plate1, plate2, … y deje Resume desactivado en esta primera ejecución. Si tiene una estructura real de carpetas por placa y pocillo, seleccione la disposición correspondiente y compruebe las asignaciones resultantes, en lugar de copiar esta opción de carpeta única.",
-    "Conserve todos los planos Z con Keep every plane (one file per Z). Las opciones Max-project Z (planes are discarded) y First plane only (planes are discarded) descartan deliberadamente información Z; aquí no se demuestra ninguna de ellas. Cada entrada contiene un solo canal bidimensional, por lo que esta grabación no establece cómo se interpretará un archivo concreto de un fabricante, una serie temporal o una adquisición multicanal.",
-    "Pulse el botón Preview del convertidor. El plan real muestra dos salidas a partir de dos archivos de origen, y el destino sigue vacío. Examine la correspondencia completa entre origen y destino antes de pulsar Convert; una vista previa terminada no demuestra que las asignaciones de pocillo y canal coincidan con su experimento.",
-    "Aquí, los nombres generados utilizan plate1, el pocillo A01, los campos uno y dos y el canal uno. Son identificadores asignados para la demostración. Las imágenes de origen procedían de distintos pocillos adquiridos, por lo que esta correspondencia no debe presentarse como metadatos de placa recuperados ni utilizarse para combinar sus tratamientos.",
-    "Compruebe las columnas From field y From channel junto con los nombres generados. El único plano del TIFF tiene el índice de matriz cero, aunque sus píxeles conservados se extrajeron del canal con índice uno de la matriz original de siete planos. El canal uno del nombre de archivo de salida sigue una numeración que comienza en uno; estos tres contextos de numeración no son intercambiables.",
-    "La tabla de vista previa es de solo lectura. Si los identificadores son incorrectos, corrija la estructura de origen o la configuración de conversión y vuelva a previsualizar; esta pantalla no permite editar filas individuales ni tiene selectores independientes de serie y tiempo. Mantenga disponibles los metadatos originales al revisar las asignaciones automáticas.",
-    "Pulse Convert y lea su resumen. Esta ejecución real escribe dos TIFF nuevos, sin correspondencias fallidas ni omitidas. Comparamos de forma independiente cada píxel de salida, las dimensiones y el tipo de datos con el origen, y verificamos los identificadores de origen, campo y canal en el archivo de correspondencias. Los originales permanecen intactos.",
-    "Conserve conversion_map.csv junto con las imágenes convertidas y el manifiesto original de adquisición. El archivo de correspondencias conserva las rutas de origen y destino, los identificadores asignados, los metadatos del canal de origen y el estado de conversión. Un archivo de estado de ejecución independiente registra la operación, y un punto de control oculto por campo permite utilizar Resume más adelante.",
-    "Active Resume y vuelva a pulsar Convert con el mismo origen, plan y destino. La aplicación comprueba la compatibilidad del punto de control por campo y que los metadatos TIFF se puedan leer antes de reutilizar campos completados. No compara cada píxel con el origen original; no describa Resume como una auditoría completa de corrupción de datos.",
-    "La segunda ejecución indica cero archivos convertidos y dos destinos que ya existían. Aquí es lo esperado: ambas salidas planificadas están presentes y no han cambiado. La tabla sigue mostrando el estado planned de la vista previa, por lo que debe consultar el resumen de la operación y el archivo de correspondencias para conocer el resultado real, no solo esa columna de la tabla.",
-    "Desplácese por el resumen para ver que se reutilizaron dos campos completados. La entrada más reciente del registro de ejecuciones indica empty porque ningún origen necesitaba conversión; la primera entrada complete se conserva. Solo aceptamos este resultado concreto sin escrituras después de verificar de forma independiente ambas salidas reutilizadas y sus identificadores exactos.",
-    "En Python, spacr.convert.scan lee las descripciones de origen, plan construye las correspondencias revisadas y convert escribe las salidas. convert_folder es el punto de entrada que recibe un diccionario de configuración. Mantenga la conversión separada de la segmentación y la medición, y valide las dimensiones de su propia adquisición antes de pasar sus imágenes a Mask o Measure."
+    "Desde Home, abre Import Project y elige Format Converter. Úsalo para preparar archivos de imagen y nombres de archivo para el siguiente paso del análisis.",
+    "El conversor trabaja en una sola dirección: de Source, pasando por Preview, a Destination. Preview muestra dónde irá cada archivo de origen antes de escribir nada, para que puedas comprobar las asignaciones; después, Convert los escribe.",
+    "Elige la carpeta que contiene tus imágenes de origen. Este ejemplo usa dos TIFF de un solo canal. Ten a mano los metadatos de adquisición originales para comprobar los nombres convertidos.",
+    "Elige una carpeta de destino nueva. El conversor escribe allí las imágenes nuevas junto con un archivo de correspondencias; conserva tus imágenes originales por separado.",
+    "Ajusta Layout a la estructura de tus carpetas. Para la carpeta plana del ejemplo, elige la opción de imágenes directamente en la carpeta de origen y selecciona la regla de nombres de placa que necesites. Para un árbol de directorios por placa y pocillo, elige la disposición correspondiente.",
+    "Elige cómo tratar los planos Z. Conserva todos los planos si necesitas la pila completa, usa la proyección de máximos para obtener una imagen proyectada, o elige el primer plano cuando esa sea la entrada prevista. Este ejemplo contiene un plano por archivo.",
+    "Pulsa Preview. Revisa cada asignación de origen a destino, incluidos la placa, el pocillo, el campo y el canal. Los nombres indexados son identidades asignadas; usa los metadatos originales para confirmar a qué condiciones experimentales corresponden.",
+    "Revisa From field y From channel junto con los nombres de destino. Los índices de canal en los arreglos y los números de canal en los nombres de archivo pueden seguir convenciones distintas. Comprueba que cada destino contiene el plano de imagen que quieres analizar.",
+    "Si una correspondencia es incorrecta, cambia la disposición de origen o los ajustes de conversión y vuelve a previsualizar. La tabla de previsualización es de solo lectura.",
+    "Pulsa Convert y lee el resumen final de archivos convertidos, fallidos y omitidos. Abre una imagen convertida para revisar sus dimensiones y canales antes de pasar a la segmentación o la medición.",
+    "Guarda conversion_map.csv junto con las imágenes convertidas. Registra las rutas de origen y destino, las identidades asignadas y el estado de la conversión. Conserva a su lado los metadatos de adquisición originales.",
+    "Para una ejecución posterior con el mismo origen, el mismo plan y el mismo destino, activa Resume. Los campos completados compatibles se pueden reutilizar. Lee el resumen para ver qué archivos se convirtieron y cuáles ya estaban presentes."
   ]
 }

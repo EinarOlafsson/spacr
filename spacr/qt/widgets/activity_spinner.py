@@ -249,6 +249,9 @@ class ActivitySpinner(QWidget):
 
         For work that does not go through ``make_thread`` -- a bare
         ``QThread`` subclass, a ``QRunnable`` -- and for tests.
+
+        :param busy: true to force the spinner on, false to leave it to the
+            registry; coerced to ``bool``.
         """
         self._manual_busy = bool(busy)
         self._sync()
@@ -259,7 +262,11 @@ class ActivitySpinner(QWidget):
 
     def set_delay_ms(self, value: int) -> None:
         """Change the appearance delay. Applies from the next idle-to-busy
-        edge; it never yanks a spinner that is already up off the screen."""
+        edge; it never yanks a spinner that is already up off the screen.
+
+        :param value: the appearance delay in milliseconds; converted to
+            ``int``, and negative values become 0.
+        """
         self._delay_ms = max(0, int(value))
 
     def is_waiting(self) -> bool:
@@ -357,6 +364,9 @@ class ActivitySpinner(QWidget):
 
         The pending appearance delay goes with it, for the same reason: a
         screen the user has left should not schedule itself back on.
+
+        :param event: the hide event; passed on to the base class after the
+            animation and delay timers are stopped.
         """
         self._timer.stop()
         self._delay.stop()
@@ -370,6 +380,9 @@ class ActivitySpinner(QWidget):
         screen would restart the animation for work that started three
         milliseconds ago, which is precisely the flicker the delay exists to
         prevent.
+
+        :param event: the show event; passed on to the base class before the
+            animation is resumed.
         """
         super().showEvent(event)
         if self._due and self.is_busy() and not self._timer.isActive():
@@ -382,6 +395,8 @@ class ActivitySpinner(QWidget):
         Two ``QPolygonF`` objects of :data:`BRAID_POINTS` points each plus one
         ellipse. No pixmap, no cache to invalidate on a theme change, and
         nothing to scale.
+
+        :param event: the paint event; not read, the whole widget is redrawn.
         """
         self.frames_painted += 1
         palette = active_palette()

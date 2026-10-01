@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26, sixth pass 2026-09-27, seventh pass 2026-09-29: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "n2v_denoise",
+      "source": "Self-supervised denoising: train a Noise2Void (N2V2) network per segmentation channel on this run's own noisy fields, with no clean images, and denoise every field with it after illumination correction and before the PSF and the enhancement chain. Needs the CAREamics backend from the Model Zoo; training wants a GPU. The models' hashes and training losses are recorded with the run. Default False.",
+      "source_sha256": "efc3b7b0dc720a3935d90ad2379074396b6ebc091ebc11480954a3a10c59cc45",
+      "translation": "자기 지도 노이즈 제거: 이 실행 자체의 노이즈 있는 시야로 분할 채널마다 Noise2Void(N2V2) 네트워크를 깨끗한 이미지 없이 학습하고, 조명 보정 뒤와 PSF 및 향상 체인 앞에서 모든 시야의 노이즈를 제거합니다. 모델 라이브러리의 CAREamics 백엔드가 필요하며 학습에는 GPU가 필요합니다. 모델 해시와 학습 손실은 실행과 함께 기록됩니다. 기본값 False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "n2v_epochs",
+      "source": "Training passes over the Noise2Void patches, at least 1. More epochs denoise better up to a point and take longer: on a CPU, 30 epochs over ten 512 x 512 crops took under four minutes, and eight full 2000 x 2000 fields take about twelve times as long per epoch, so train on a GPU. Changing it trains new models. Ignored when n2v_model names trained models. Default 20.",
+      "source_sha256": "8f357aff7eee3f55efe583a9c8da3e25f4d88a4a74b8f77080465b96229c23ca",
+      "translation": "Noise2Void 패치에 대한 학습 횟수로 최소 1입니다. 에포크가 많을수록 어느 정도까지는 노이즈 제거가 좋아지고 시간이 더 걸립니다. CPU에서 512 x 512 크롭 10개로 30 에포크는 4분이 안 걸렸고, 2000 x 2000 전체 시야 8개는 에포크당 약 12배가 걸리므로 GPU에서 학습하세요. 바꾸면 새 모델을 학습합니다. n2v_model 설정이 학습된 모델을 가리키면 무시됩니다. 기본값 20."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "n2v_model",
+      "source": "Folder of trained Noise2Void models, one channel_<c>.ckpt per segmentation channel, such as the n2v folder of an earlier run on the same microscope. Blank trains new models on up to eight of this run's fields into its own n2v folder and reuses them when the run is resumed. Ignored unless n2v_denoise is on. Default blank.",
+      "source_sha256": "52a63c9477812252033191ae738f531aab048877758f24e624baf39c5bd01e8a",
+      "translation": "학습된 Noise2Void 모델 폴더로, 분할 채널마다 channel_<c>.ckpt 파일이 하나씩 있습니다. 같은 현미경에서 이전 실행의 n2v 폴더 등이 해당합니다. 비워 두면 이 실행의 시야 최대 8개로 새 모델을 학습해 자체 n2v 폴더에 두고, 실행을 재개할 때 재사용합니다. n2v_denoise 설정이 켜져 있지 않으면 무시됩니다. 기본값은 비어 있음."
+    }
+  ]
+}

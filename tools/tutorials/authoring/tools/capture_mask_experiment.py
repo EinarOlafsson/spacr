@@ -132,6 +132,19 @@ def union_rect(*rectangles):
     return [left, top, right - left, bottom - top]
 
 
+def refuse_alpha_features() -> None:
+    """Refuse a frame while Preferences -> Show alpha features is on.
+
+    Alpha features get no tutorials; see ``tools/tutorials/capture_policy.py``.
+    """
+    policy = str(Path(__file__).resolve().parents[2])
+    if policy not in sys.path:
+        sys.path.insert(0, policy)
+    from capture_policy import verify_alpha_features_off
+
+    verify_alpha_features_off()
+
+
 class CaptureSession:
     def __init__(self, app, window, output: Path):
         self.app = app
@@ -167,6 +180,7 @@ class CaptureSession:
         from PySide6.QtGui import QPainter
 
         settle(self.app, 20)
+        refuse_alpha_features()
         pixmap = self.window.grab()
         scale = float(pixmap.devicePixelRatio())
         root_origin = self.window.mapToGlobal(QPoint(0, 0))

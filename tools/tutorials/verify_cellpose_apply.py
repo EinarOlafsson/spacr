@@ -20,6 +20,8 @@ from cellpose_apply_evidence import normalize_field,require_pixels
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('capture',type=Path)
+    parser.add_argument('--device',choices=('cuda','cpu'),default='cuda',
+        help='The device the native capture ran on; CPU recordings (CUDA hidden) are checked on the CPU')
     args=parser.parse_args()
     proof=json.loads((args.capture/'scientific_acceptance.json').read_text())
     work=Path(proof['private_folder'])
@@ -33,9 +35,12 @@ def main():
     import torch
     from cellpose.models import CellposeModel
     torch.set_num_threads(2)
-    if not torch.cuda.is_available():raise ValueError('This recorded reference requires the same CUDA device')
-    torch.cuda.set_per_process_memory_fraction(.25)
-    model=CellposeModel(pretrained_model='cpsam',gpu=True,device=torch.device('cuda'))
+    if args.device=='cuda':
+        if not torch.cuda.is_available():raise ValueError('This recorded reference requires the same CUDA device')
+        torch.cuda.set_per_process_memory_fraction(.25)
+        model=CellposeModel(pretrained_model='cpsam',gpu=True,device=torch.device('cuda'))
+    else:
+        model=CellposeModel(pretrained_model='cpsam',gpu=False,device=torch.device('cpu'))
     result=dict(accepted=False,scope='input/output attribution, not segmentation accuracy',
         checkpoint=str(model.pretrained_model),checkpoint_sha256=sha(model.pretrained_model),
         files=[],figures=[])

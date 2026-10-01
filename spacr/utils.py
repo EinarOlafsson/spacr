@@ -604,14 +604,36 @@ def _validated_intensity_bounds(minimum, maximum):
     return bounds
 
 
-def _filter_objects(label_img, intensity_img=None, min_area=0, max_area=0,
-                    remove_border=False, *, min_intensity=0, max_intensity=0):
-    """Remove objects by area, absolute mean intensity and border contact.
+def _describe_object_filters(filters):
+    """The filter list as one line of text, for the run log."""
+    parts = []
+    for entry in filters:
+        low, high = entry["min"], entry["max"]
+        if low is not None and high is not None:
+            parts.append(f"{low:g} <= {entry['property']} <= {high:g}")
+        elif low is not None:
+            parts.append(f"{entry['property']} >= {low:g}")
+        elif high is not None:
+            parts.append(f"{entry['property']} <= {high:g}")
+    return ", ".join(parts)
 
-    Intensity bounds use the object's own-channel plane, in the units of
+
+def _filter_objects(label_img, intensity_img=None, min_area=0, max_area=0,
+                    remove_border=False, *, min_intensity=0, max_intensity=0,
+                    filters=None):
+    """Remove objects by the object filter list and border contact.
+
+    ONE FILTER SYSTEM (item 511). The legacy area and absolute mean
+    intensity bounds are migrated into filter-list entries by
+    :func:`spacr.qt.mask_engine.legacy_filters` and judged together with
+    ``filters`` -- any scalar scikit-image regionprop the user added -- by
+    :func:`spacr.qt.mask_engine.filter_removals`, the engine Make Masks
+    runs, in one ``regionprops_table`` pass per mask.
+
+    Intensity properties use the object's own-channel plane, in the units of
     that plane. The caller must supply the original pixel values, not a
-    display-normalized image. Unlike the percentile quota removed in 391,
-    these bounds can retain every object or remove every object in a field.
+    display-normalized image. These bounds can retain every object or remove
+    every object in a field.
 
     Parameters
     ----------
@@ -619,7 +641,8 @@ def _filter_objects(label_img, intensity_img=None, min_area=0, max_area=0,
         Label image.
     intensity_img : ndarray or None
         Own-channel intensity plane, with exactly the label image's shape.
-        Required only when an intensity bound is enabled and objects exist.
+        Required only when an intensity bound or intensity filter is set and
+        objects exist.
     min_area : int
         Remove objects with area < min_area. 0 = disabled.
     max_area : int
@@ -630,14 +653,24 @@ def _filter_objects(label_img, intensity_img=None, min_area=0, max_area=0,
         Remove objects whose mean is below/above the respective bound.
         Equality is retained; 0 disables that side. Object means must be
         finite; nonfinite background pixels do not contribute to a mean.
+    filters : list of dict or None
+        Filter entries ``{"property", "min", "max"}``; an object is kept
+        when ``min <= value <= max`` for each, and a None side is off.
 
     Returns
     -------
     ndarray (uint16)
         Filtered and relabelled image.
     """
+    from .qt.mask_engine import filter_removals, legacy_filters, normalise_filters
+
     min_intensity, max_intensity = _validated_intensity_bounds(
         min_intensity, max_intensity)
+    by_area_rules = legacy_filters(min_area=min_area, max_area=max_area)
+    by_intensity_rules = legacy_filters(min_intensity=min_intensity,
+                                        max_intensity=max_intensity)
+    listed = normalise_filters(filters)
+    rules = by_area_rules + by_intensity_rules + listed
     labels_present = np.unique(label_img)
     labels_present = labels_present[labels_present > 0]
 
@@ -645,44 +678,34 @@ def _filter_objects(label_img, intensity_img=None, min_area=0, max_area=0,
         return label_img
 
     remove = set()
-    
-    areas = {}
-    for lbl in labels_present:
-        areas[int(lbl)] = int(np.sum(label_img == lbl))
+    if rules:
+        removals = filter_removals(label_img, rules, intensity_img,
+                                   require_finite_intensity=True)
+        first_intensity = len(by_area_rules)
+        first_listed = first_intensity + len(by_intensity_rules)
 
-    removed_by_area = 0
-    if min_area > 0:
-        for lbl, area in areas.items():
-            if area < min_area:
-                remove.add(lbl)
-                removed_by_area += 1
-    if max_area > 0:
-        for lbl, area in areas.items():
-            if area > max_area:
-                remove.add(lbl)
-                removed_by_area += 1
-    if removed_by_area > 0:
-        print(f"  Area filter: removed {removed_by_area}/{len(labels_present)} objects "
-              f"(min_area={min_area}, max_area={max_area})")
+        def _failed_in(low, high):
+            """Labels failing an entry whose index is in ``[low, high)``."""
+            return {removal.label for removal in removals
+                    if any(low <= failed.index < high for failed in removal.failed)}
 
-    if min_intensity > 0 or max_intensity > 0:
-        if intensity_img is None or np.shape(intensity_img) != label_img.shape:
-            raise ValueError("An intensity plane with the same shape as the mask is required")
-        means = ndi.mean(np.asarray(intensity_img, dtype=np.float64),
-                         labels=label_img, index=labels_present)
-        if not np.all(np.isfinite(means)):
-            raise ValueError("Intensity filtering requires finite object mean intensities")
-        rejected = np.zeros(len(labels_present), dtype=bool)
-        if min_intensity > 0:
-            rejected |= means < min_intensity
-        if max_intensity > 0:
-            rejected |= means > max_intensity
-        intensity_labels = set(labels_present[rejected].tolist())
-        additional = len(intensity_labels - remove)
-        remove.update(intensity_labels)
+        by_area = _failed_in(0, first_intensity)
+        if by_area:
+            print(f"  Area filter: removed {len(by_area)}/{len(labels_present)} objects "
+                  f"(min_area={min_area}, max_area={max_area})")
+        remove.update(by_area)
+        by_intensity = _failed_in(first_intensity, first_listed)
+        additional = len(by_intensity - remove)
+        remove.update(by_intensity)
         if additional:
             print(f"  Intensity filter: removed {additional} additional objects "
                   f"(min_intensity={min_intensity}, max_intensity={max_intensity})")
+        by_list = _failed_in(first_listed, len(rules))
+        additional = len(by_list - remove)
+        remove.update(by_list)
+        if additional:
+            print(f"  Object filters: removed {additional} additional objects "
+                  f"({_describe_object_filters(listed)})")
 
     if remove_border:
         border_labels = set()
@@ -712,7 +735,8 @@ def _process_single_fov_in_memory(mask, intensity_img=None, intensity_channel=No
                                   do_perimeter_merge=False, perimeter_fraction=0.5,
                                   min_area=0, max_area=0, remove_border_objects=False,
                                   progress_callback=None, fov_index=0, total_fovs=0,
-                                  op_name='', *, min_intensity=0, max_intensity=0):
+                                  op_name='', *, min_intensity=0, max_intensity=0,
+                                  filters=None):
     """Copy one label field, merge by perimeter, then apply shared object filters.
 
     Intensity input is an original own-channel plane or an explicitly
@@ -734,8 +758,11 @@ def _process_single_fov_in_memory(mask, intensity_img=None, intensity_channel=No
         print(f"  FOV {fov_index}: empty mask, skipping")
         return label_img
 
+    from .qt.mask_engine import filters_need_intensity
+
     intensity_img_use = None
-    if (min_intensity > 0 or max_intensity > 0) and intensity_img is not None:
+    if ((min_intensity > 0 or max_intensity > 0 or filters_need_intensity(filters))
+            and intensity_img is not None):
         intensity_img_use = np.asarray(intensity_img)
         if intensity_img_use.ndim == label_img.ndim + 1:
             if intensity_channel is None:
@@ -745,17 +772,16 @@ def _process_single_fov_in_memory(mask, intensity_img=None, intensity_channel=No
     all_labels = np.unique(label_img)
     all_labels = all_labels[all_labels > 0]
 
-    if len(all_labels) > 0:
-        parent = {int(l): int(l) for l in all_labels}
-        n_before_merge = len(all_labels)
+    parent = {int(l): int(l) for l in all_labels}
+    n_before_merge = len(all_labels)
 
-        if do_perimeter_merge:
-            _merge_by_perimeter(label_img, perimeter_fraction, parent)
+    if do_perimeter_merge:
+        _merge_by_perimeter(label_img, perimeter_fraction, parent)
 
-        label_img = _apply_union_find(label_img, parent)
-        n_after_merge = len(np.unique(label_img[label_img > 0]))
-        if n_after_merge != n_before_merge:
-            print(f"  FOV {fov_index} merge: {n_before_merge} → {n_after_merge} objects")
+    label_img = _apply_union_find(label_img, parent)
+    n_after_merge = len(np.unique(label_img[label_img > 0]))
+    if n_after_merge != n_before_merge:
+        print(f"  FOV {fov_index} merge: {n_before_merge} → {n_after_merge} objects")
 
     label_img = _filter_objects(
         label_img,
@@ -765,6 +791,7 @@ def _process_single_fov_in_memory(mask, intensity_img=None, intensity_channel=No
         remove_border=remove_border_objects,
         min_intensity=min_intensity,
         max_intensity=max_intensity,
+        filters=filters,
     )
 
     duration = time.time() - start
@@ -777,7 +804,7 @@ def merge_split_objects(mask_src, intensity_img_src=None, intensity_channel=None
                         perimeter_fraction=0.5,
                         min_area=0, max_area=0, remove_border_objects=False,
                         n_jobs=1, progress_callback=None, op_name='', *,
-                        min_intensity=0, max_intensity=0):
+                        min_intensity=0, max_intensity=0, filters=None):
     """Merge by perimeter and filter labeled objects across a directory of masks.
 
     Runs the shared in-memory merge/filter pipeline on each mask file in
@@ -799,6 +826,8 @@ def merge_split_objects(mask_src, intensity_img_src=None, intensity_channel=None
         raw-image value; equality is kept and 0 disables the lower bound.
     :param max_intensity: remove objects whose own-channel mean is above this
         raw-image value; equality is kept and 0 disables the upper bound.
+    :param filters: object filter entries (any scalar regionprop with a
+        minimum and a maximum), judged with the bounds above in one pass.
     :returns: None.
     """
     valid_ext = ('.tif', '.tiff', '.npy')
@@ -826,6 +855,7 @@ def merge_split_objects(mask_src, intensity_img_src=None, intensity_channel=None
             min_area, max_area, remove_border_objects,
             progress_callback, idx, total, op_name,
             min_intensity=min_intensity, max_intensity=max_intensity,
+            filters=filters,
         )
         for idx, (mp, ip) in enumerate(zip(mask_paths, intensity_paths))
     )
@@ -834,8 +864,10 @@ def _process_single_fov(mask_path, intensity_path, intensity_channel,
                         do_perimeter_merge, perimeter_fraction,
                         min_area, max_area, remove_border_objects,
                         progress_callback=None, fov_index=0, total_fovs=0, op_name='', *,
-                        min_intensity=0, max_intensity=0):
+                        min_intensity=0, max_intensity=0, filters=None):
     """Load one field and save the result of the same filter used in memory."""
+    from .qt.mask_engine import filters_need_intensity
+
     start = time.time()
     label_img = _load_image(mask_path)
     if label_img is None:
@@ -843,13 +875,15 @@ def _process_single_fov(mask_path, intensity_path, intensity_channel,
     intensity_img = None
     min_intensity, max_intensity = _validated_intensity_bounds(
         min_intensity, max_intensity)
-    if (min_intensity > 0 or max_intensity > 0) and intensity_path is not None:
+    if ((min_intensity > 0 or max_intensity > 0 or filters_need_intensity(filters))
+            and intensity_path is not None):
         intensity_img = _load_image(intensity_path)
     filtered = _process_single_fov_in_memory(
         label_img, intensity_img, intensity_channel,
         do_perimeter_merge, perimeter_fraction, min_area, max_area,
         remove_border_objects, None, fov_index, total_fovs, op_name,
         min_intensity=min_intensity, max_intensity=max_intensity,
+        filters=filters,
     )
     _save_image(mask_path, filtered)
     if progress_callback:
@@ -6177,6 +6211,13 @@ def _run_test_mode(src, regex, timelapse=False, test_images=10, random_test=True
     the point of a test run there is a complete sequence, and ten partial
     sequences test nothing.
 
+    Raw images are sampled from ``orig/`` AND from the plate folder itself,
+    which is where the full pipeline reads them from. A plate that a killed
+    run left half moved into ``orig/``, or one given new images after an
+    earlier run, holds raw images in both, and sampling only ``orig/`` tested
+    a plate the real run would not see. A name present in both is taken once,
+    from ``orig/``.
+
     :param src: the folder to sample from.
     :param regex: the filename pattern.
     :param timelapse: treat the source as a timelapse.
@@ -6193,16 +6234,24 @@ def _run_test_mode(src, regex, timelapse=False, test_images=10, random_test=True
     os.makedirs(test_folder_path, exist_ok=True)
     regular_expression = re.compile(regex)
 
-    if os.path.exists(os.path.join(src, 'orig')):
-        src = os.path.join(src, 'orig')
-        
-    all_filenames = [filename for filename in _listdir_visible(src) if regular_expression.match(filename)]
+    folders = [src]
+    if os.path.isdir(os.path.join(src, 'orig')):
+        folders = [os.path.join(src, 'orig'), src]
+    found_in = {}
+    for folder in folders:
+        listed = [filename for filename in _listdir_visible(folder) if regular_expression.match(filename)]
+        for filename in listed:
+            if (filename not in found_in
+                    and os.path.isfile(os.path.join(folder, filename))):
+                found_in[filename] = folder
+    all_filenames = list(found_in)
     print(f'Found {len(all_filenames)} files')
     images_by_set = defaultdict(list)
+    fallback_plate = os.path.basename(folders[0])
 
     for filename in all_filenames:
         match = regular_expression.match(filename)
-        plate = match.group('plateID') if 'plateID' in match.groupdict() else os.path.basename(src)
+        plate = match.group('plateID') if 'plateID' in match.groupdict() else fallback_plate
         well = match.group('wellID')
         field = match.group('fieldID')
         set_identifier = (plate, well, field)
@@ -6219,7 +6268,8 @@ def _run_test_mode(src, regex, timelapse=False, test_images=10, random_test=True
 
     for set_identifier in selected_sets:
         for filename in images_by_set[set_identifier]:
-            shutil.copy(os.path.join(src, filename), test_folder_path)
+            shutil.copy(os.path.join(found_in[filename], filename),
+                        test_folder_path)
 
     return test_folder_path
 
@@ -8954,6 +9004,71 @@ def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nucle
     end = time.perf_counter()
     return end - start
 
+#: The record, beside the cell masks, of which ones :func:`adjust_cell_masks`
+#: already adjusted in place, as ``{file name: sha256 of the adjusted file}``.
+ADJUSTED_CELLS_LEDGER = '.cell_masks_adjusted.json'
+
+
+def _file_sha256(path):
+    """The SHA-256 of a file's bytes, or None when it cannot be read.
+
+    :param path: the file.
+    :returns: the hex digest, or None.
+    """
+    import hashlib
+
+    digest = hashlib.sha256()
+    try:
+        with open(path, 'rb') as handle:
+            for block in iter(lambda: handle.read(1 << 20), b''):
+                digest.update(block)
+    except OSError:
+        return None
+    return digest.hexdigest()
+
+
+def _read_adjusted_cells(cell_folder):
+    """The in-place adjustment record for ``cell_folder``.
+
+    :param cell_folder: the folder of cell masks.
+    :returns: ``{file name: sha256}``; empty when there is no record or it
+        cannot be read, which means every mask is adjusted, as before the
+        record existed.
+    """
+    import json
+
+    path = os.path.join(cell_folder, ADJUSTED_CELLS_LEDGER)
+    try:
+        with open(path, encoding='utf-8') as handle:
+            record = json.load(handle)
+    except (OSError, ValueError):
+        return {}
+    if not isinstance(record, dict):
+        return {}
+    return {str(name): str(digest) for name, digest in record.items()}
+
+
+def _write_adjusted_cells(cell_folder, record):
+    """Replace the in-place adjustment record atomically.
+
+    :param cell_folder: the folder of cell masks.
+    :param record: ``{file name: sha256}`` to write.
+    """
+    import json
+    import tempfile
+
+    path = os.path.join(cell_folder, ADJUSTED_CELLS_LEDGER)
+    fd, temporary = tempfile.mkstemp(prefix='.spacr_tmp_', suffix='.json',
+                                     dir=cell_folder)
+    try:
+        with os.fdopen(fd, 'w', encoding='utf-8') as handle:
+            json.dump(record, handle, indent=0, sort_keys=True)
+        os.replace(temporary, path)
+    finally:
+        if os.path.exists(temporary):
+            os.remove(temporary)
+
+
 def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_folder=None, overlap_threshold=5, perimeter_threshold=30, n_jobs=None, *, output_folder=None):
     """Run :func:`process_mask_file_adjust_cell` in parallel across matching mask files.
 
@@ -8969,6 +9084,12 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
         preserves the historical in-place behavior. A separate folder keeps
         all source masks byte-identical, and every selected field is rebuilt
         from its source on each invocation, including after interrupted work.
+        In place, each adjusted mask's SHA-256 is recorded in
+        :data:`ADJUSTED_CELLS_LEDGER` as it lands, and a mask whose bytes
+        still match its record is left alone on the next run: adjusting an
+        adjusted mask merges it again, so a re-run used to change the result
+        every time. A cell mask segmented again no longer matches and is
+        adjusted afresh.
     :returns: None.
     :raises ValueError: if the three folders contain different numbers of files
         or mismatched filenames, or a mask is truncated, nonnumeric, empty,
@@ -9037,6 +9158,21 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
                                  f'{path} has {shape}, expected {expected_shape}')
             expected_shape = shape
 
+    record = None
+    if output_folder is None:
+        record = _read_adjusted_cells(cell_folder)
+        already = {name for name in parasite_files
+                   if name in record and record[name] == _file_sha256(
+                       os.path.join(cell_folder, name))}
+        if already:
+            print(f'{len(already)} of {len(parasite_files)} cell masks were '
+                  'already adjusted by an earlier run and are left as they are.')
+        record = {name: digest for name, digest in record.items()
+                  if name in already}
+        parasite_files = [name for name in parasite_files if name not in already]
+        if not parasite_files:
+            return
+
     if n_jobs is None:
         n_jobs = max(1, cpu_count() - 2)
     else:
@@ -9055,15 +9191,21 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
 
     if n_jobs == 1:
         durations = map(process_fn, parasite_files)
-        for i, duration in enumerate(durations, 1):
+        for i, (name, duration) in enumerate(zip(parasite_files, durations), 1):
             time_ls.append(duration)
+            if record is not None:
+                record[name] = _file_sha256(os.path.join(cell_folder, name))
+                _write_adjusted_cells(cell_folder, record)
             print_progress(i, files_to_process, n_jobs=n_jobs, time_ls=time_ls, batch_size=None, operation_type='adjust_cell_masks')
         return
 
     with Pool(n_jobs) as pool:
-        for i, duration in enumerate(
-                pool.imap_unordered(process_fn, parasite_files), 1):
+        for i, (name, duration) in enumerate(
+                zip(parasite_files, pool.imap(process_fn, parasite_files)), 1):
             time_ls.append(duration)
+            if record is not None:
+                record[name] = _file_sha256(os.path.join(cell_folder, name))
+                _write_adjusted_cells(cell_folder, record)
             print_progress(i, files_to_process, n_jobs=n_jobs, time_ls=time_ls,
                            batch_size=None,
                            operation_type='adjust_cell_masks')
@@ -9660,27 +9802,25 @@ def add_column_to_database(settings):
     print(f"Updated '{new_column_name}' in '{settings['table_name']}' using '{settings['match_column']}'.")
 
 def fill_holes_in_mask(mask):
-    """
-    Fill holes in each object in the mask while keeping objects separated.
-    
+    """Fill the holes inside each object of a label mask, keeping every id.
+
+    Delegates to :func:`spacr.qt.mask_engine.fill_label_holes`, the one hole
+    filler for label images. This used to run ``ndimage.label`` over the
+    mask first, which made every pair of touching objects one object: with
+    Cellpose ``fill_in`` on (its default in Apply), a field of 74 adjacent
+    cells was saved as 8 (item 588). Now no object is merged or renumbered,
+    and a hole takes the id of the object that encloses it.
+
     Args:
         mask (np.ndarray): A labeled mask where each object has a unique integer value.
-    
+            A boolean mask is labelled by connectivity first.
+
     Returns:
-        np.ndarray: A mask with holes filled and original labels preserved.
+        np.ndarray: The mask with holes filled and the original labels preserved,
+        in the input's dtype.
     """
-    labeled_mask, num_features = ndimage.label(mask)
-
-    filled_mask = np.zeros_like(labeled_mask)
-
-    for i in range(1, num_features + 1):
-        object_mask = (labeled_mask == i)
-
-        filled_object = binary_fill_holes(object_mask)
-
-        filled_mask[filled_object] = i
-
-    return filled_mask
+    from .qt.mask_engine import fill_label_holes
+    return fill_label_holes(mask)
 
 def correct_metadata_column_names(df):
     """Renamed legacy metadata columns. **Defined in** :mod:`spacr.schema`.

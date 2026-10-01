@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (GPT-6), no native-speaker signoff",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "image_qc_classifier",
+      "source": "Image QC classifier",
+      "source_sha256": "531a47394a1d7c49b9cd589d10df4f7057d5bdbd4a6f8f82690cde75f3a02092",
+      "translation": "छवि गुणवत्ता (QC) वर्गीकारक"
+    },
+    {
+      "table": "setting_labels",
+      "key": "image_qc_classifier_model",
+      "source": "Image QC classifier model",
+      "source_sha256": "f165ac20974fa6d98a9f6c6e93b63854f45f78207322a8829cb41964d3d65c8b",
+      "translation": "छवि गुणवत्ता (QC) वर्गीकारक मॉडल"
+    },
+    {
+      "table": "setting_labels",
+      "key": "image_qc_classifier_labels",
+      "source": "Image QC classifier labels",
+      "source_sha256": "943c322ed4a5b86e28ad37c5598759f48ad71da1e5a868238becc5eefd8a86ea",
+      "translation": "छवि गुणवत्ता (QC) वर्गीकारक के लेबल"
+    },
+    {
+      "table": "setting_labels",
+      "key": "image_qc_classifier_threshold",
+      "source": "Image QC classifier threshold",
+      "source_sha256": "69b945ee7598e93b26c4d41ebcbbfff0942284494920042e630c7025a7d10aa8",
+      "translation": "छवि गुणवत्ता (QC) वर्गीकारक की सीमा"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_classifier",
+      "source": "Also screen each field with a small neural network that flags out-of-focus, saturated, debris-covered, bubble and empty fields, alongside the focus and saturation rules. Flags go into the image-quality report with a probability per class; in exclude mode a flagged field is kept out of segmentation like any other. Runs on the CPU. The built-in model is trained once on synthetic fields with planted defects and cached. Ignored when image_qc_mode is off. Default False.",
+      "source_sha256": "a4278479156447351631aebe25cd9eb4f3ce12479723607300c85da00364afb8",
+      "translation": "फोकस और संतृप्ति के नियमों के साथ-साथ एक छोटे न्यूरल नेटवर्क से हर दृश्य क्षेत्र की जाँच भी करें। यह फोकस से बाहर, संतृप्त, मलबे से ढके, बुलबुले वाले और खाली दृश्य क्षेत्रों को चिह्नित करता है। चिह्न प्रत्येक वर्ग की प्रायिकता के साथ छवि गुणवत्ता रिपोर्ट में लिखे जाते हैं; exclude मोड में चिह्नित दृश्य क्षेत्र अन्य चिह्नित क्षेत्रों की तरह विभाजन से बाहर रखा जाता है। यह CPU पर चलता है। अंतर्निहित मॉडल को जानबूझकर जोड़े गए दोषों वाले कृत्रिम दृश्य क्षेत्रों पर एक बार प्रशिक्षित करके कैश में रखा जाता है। image_qc_mode के off होने पर इस सेटिंग को अनदेखा किया जाता है। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_classifier_model",
+      "source": "A classifier saved by an earlier run (qc/image_qc_model.pt) to use instead of the built-in one. It is read as tensors only. Blank uses the built-in model. Default None.",
+      "source_sha256": "bf40849d0c7891c8abb3ad319f807c7113eac5fbdb5dedd2d85c6d22f3817056",
+      "translation": "अंतर्निहित वर्गीकारक के बजाय पहले के रन में सहेजा गया वर्गीकारक (qc/image_qc_model.pt) इस्तेमाल करें। इसे केवल टेंसर के रूप में पढ़ा जाता है। खाली मान होने पर अंतर्निहित मॉडल इस्तेमाल होता है। डिफ़ॉल्ट None।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_classifier_labels",
+      "source": "Table of hand-labelled fields to fine-tune the classifier on, with a field column (the raw file name) and a label column: good, or out_of_focus, saturated, debris, bubble or empty, several separated by semicolons; an optional channel column picks the channel. With 10 or more fields, cross-validated precision and recall against the rule metrics go to qc/image_qc_benchmark.csv; the tuned model is saved as qc/image_qc_model.pt. Default None.",
+      "source_sha256": "70d32bc87f65993cdc22720a190b3cd911a7e423c594db0a3d113799e6ab4a32",
+      "translation": "वर्गीकारक को फ़ाइन-ट्यून करने के लिए हाथ से लेबल किए गए दृश्य क्षेत्रों की तालिका। इसमें field कॉलम (मूल फ़ाइल का नाम) और label कॉलम होते हैं: good, या out_of_focus, saturated, debris, bubble या empty; कई लेबल अर्धविराम से अलग किए जाते हैं। वैकल्पिक channel कॉलम चैनल चुनता है। 10 या अधिक दृश्य क्षेत्र होने पर क्रॉस-वैलिडेशन से प्राप्त प्रिसीजन और रिकॉल, नियम-आधारित मेट्रिक्स से तुलना सहित, qc/image_qc_benchmark.csv में लिखे जाते हैं; फ़ाइन-ट्यून किया गया मॉडल qc/image_qc_model.pt के रूप में सहेजा जाता है। डिफ़ॉल्ट None।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_classifier_threshold",
+      "source": "Smallest class probability, from 0 to 1, at which the classifier flags a field. Raise it to flag fewer fields, lower it to miss fewer defects. Default 0.5.",
+      "source_sha256": "72435294f7c4860f3dbd890c3f06dce9befa3f0fe732a61595ec4bc2676609d8",
+      "translation": "वर्ग की न्यूनतम प्रायिकता, 0 से 1 तक, जिस पर वर्गीकारक किसी दृश्य क्षेत्र को चिह्नित करता है। कम क्षेत्रों को चिह्नित करने के लिए इसे बढ़ाएँ और कम दोष छूटने के लिए इसे घटाएँ। डिफ़ॉल्ट 0.5।"
+    }
+  ]
+}

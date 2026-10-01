@@ -579,39 +579,44 @@
       "translation": "``regression_type='mixed'`` wird EINMAL angepasst und gibt einen Eintrag zurück, ``'gene'``: Dieses Modell enthält bereits beide Ebenen, das Gen als festen Effekt und den Guide als im Gen verschachtelten Zufallseffekt. Die Guide-Ausgabe besteht aus BLUPs, weshalb sie nicht in zwei Testfamilien aufgeteilt werden kann."
     },
     {
-      "label": "spacr.ml.regression_levels#6",
+      "label": "spacr.ml.regression_levels#8",
       "source": "``'both'`` (default), ``'grna'`` or ``'gene'``.",
       "context": "``'both'`` (default), ``'grna'`` or ``'gene'``.",
       "source_sha256": "6e604094dd6249e5ec74de6194cb8e755d06002d16daece0305d65250ad8416c",
-      "translation": "``'both'`` (Standard), ``'grna'`` oder ``'gene'``."
-    },
-    {
-      "label": "spacr.ml.regression_levels#7",
-      "source": "the run folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.",
-      "context": "the processing-session folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.",
-      "source_sha256": "d6e2314b337e5f80daf1545218f9a69cc2ce5fe0e9f3b17cf230e30ce81ce32b",
-      "translation": "der Ordner des Laufs. Bei mehr als einer Anpassung werden die ABBILDUNGEN jeder Ebene in ``<dst>/<level>/`` geschrieben, sodass sie einander nicht überschreiben können; die Tabellen bleiben in ``<dst>``, wo alle Verbraucher nach ihnen suchen."
-    },
-    {
-      "label": "spacr.ml.regression_levels#8",
-      "source": "passed straight through to :func:`regression`.",
-      "context": "passed straight through to :func:`regression`.",
-      "source_sha256": "de9c3a99bb37bbfba0afc84bf1eefaa355aef8c5bd6e33ca6211864ca20b4549",
-      "translation": "wird unverändert an :func:`regression` weitergegeben."
+      "translation": "``'both'`` (Standard), ``'grna'`` oder ``'gene'``.",
+      "rebound_from": "spacr.ml.regression_levels#6"
     },
     {
       "label": "spacr.ml.regression_levels#9",
-      "source": "``dict`` mapping level to ``(model, coef_df, regression_type)``, in fit order.",
-      "context": "``dict`` mapping level to ``(model, coef_df, regression_type)``, in fit order.",
-      "source_sha256": "36503a405d36248422633e175b415fcbd2d82a4d800883972900db5f9253247b",
-      "translation": "``dict``, das in Anpassungsreihenfolge jede Ebene auf ``(model, coef_df, regression_type)`` abbildet."
+      "source": "the run folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.",
+      "context": "the processing-session folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.",
+      "source_sha256": "d6e2314b337e5f80daf1545218f9a69cc2ce5fe0e9f3b17cf230e30ce81ce32b",
+      "translation": "der Ordner des Laufs. Bei mehr als einer Anpassung werden die ABBILDUNGEN jeder Ebene in ``<dst>/<level>/`` geschrieben, sodass sie einander nicht überschreiben können; die Tabellen bleiben in ``<dst>``, wo alle Verbraucher nach ihnen suchen.",
+      "rebound_from": "spacr.ml.regression_levels#7"
     },
     {
       "label": "spacr.ml.regression_levels#10",
+      "source": "passed straight through to :func:`regression`.",
+      "context": "passed straight through to :func:`regression`.",
+      "source_sha256": "de9c3a99bb37bbfba0afc84bf1eefaa355aef8c5bd6e33ca6211864ca20b4549",
+      "translation": "wird unverändert an :func:`regression` weitergegeben.",
+      "rebound_from": "spacr.ml.regression_levels#8"
+    },
+    {
+      "label": "spacr.ml.regression_levels#11",
+      "source": "``dict`` mapping level to ``(model, coef_df, regression_type)``, in fit order.",
+      "context": "``dict`` mapping level to ``(model, coef_df, regression_type)``, in fit order.",
+      "source_sha256": "36503a405d36248422633e175b415fcbd2d82a4d800883972900db5f9253247b",
+      "translation": "``dict``, das in Anpassungsreihenfolge jede Ebene auf ``(model, coef_df, regression_type)`` abbildet.",
+      "rebound_from": "spacr.ml.regression_levels#9"
+    },
+    {
+      "label": "spacr.ml.regression_levels#12",
       "source": "for a level that is not one of :data:`LEVEL_CHOICES`.",
       "context": "for a level that is not one of :data:`LEVEL_CHOICES`.",
       "source_sha256": "865eaa1be2505059a461326afa1015fd8bef1631ba5eb0764cada93b6024d342",
-      "translation": "für eine Ebene, die nicht in :data:`LEVEL_CHOICES` enthalten ist."
+      "translation": "für eine Ebene, die nicht in :data:`LEVEL_CHOICES` enthalten ist.",
+      "rebound_from": "spacr.ml.regression_levels#10"
     },
     {
       "label": "spacr.ml.resolve_auto_inference#0",
@@ -649,11 +654,12 @@
       "translation": "Alles außer ``inference='auto'`` wird unverändert zurückgegeben, sodass eine explizite Auswahl niemals überschrieben wird."
     },
     {
-      "label": "spacr.ml.resolve_auto_inference#5",
+      "label": "spacr.ml.resolve_auto_inference#9",
       "source": "``(analysis_mode, reason)``. ``reason`` is a sentence naming the counts, suitable for the log and for the Methods section.",
       "context": "``(analysis_mode, reason)``. ``reason`` is a sentence naming the counts, suitable for the log and for the Methods section.",
       "source_sha256": "11380b9e5f6bcf7fb4065e9e1ff8cd68a01aff3c9eede1fc3158890a49297f92",
-      "translation": "``(analysis_mode, reason)``. ``reason`` ist ein Satz, der die Anzahlen nennt und sich für das Protokoll sowie den Methodenteil eignet."
+      "translation": "``(analysis_mode, reason)``. ``reason`` ist ein Satz, der die Anzahlen nennt und sich für das Protokoll sowie den Methodenteil eignet.",
+      "rebound_from": "spacr.ml.resolve_auto_inference#5"
     },
     {
       "label": "spacr.ml.results_folder_kind#0",

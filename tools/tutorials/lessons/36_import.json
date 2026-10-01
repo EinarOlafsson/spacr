@@ -21,7 +21,7 @@
     },
     {
       "visual": "02_fold_import_images",
-      "narration": "The header also opens Import Images, Format Converter and External Masks. Choose the tool that matches your starting files; this walkthrough uses images, masks and an existing measurement table together.",
+      "narration": "Pick the import tool by what you start with: Import Images or Format Converter for images alone, External Masks for images with masks. This screen takes images, masks and a measurement table together.",
       "hold_after": 0.7,
       "focus_buttons": "FoldButton",
       "related_lessons": [

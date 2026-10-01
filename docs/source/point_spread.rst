@@ -10,12 +10,33 @@ keep object-label masks separate.
 Use the desktop controls
 ------------------------
 
-In **Make Masks**, open the enhancement controls and select **Convolve (blur)**
-or **Deconvolve (Richardson–Lucy)** under **Point spread function**. Enter the
-image pixel height and width in micrometres. Choose **Measured kernel
-(TIFF/NPY)** and load your calibrated two-dimensional PSF, or choose
-**Gaussian approximation** and enter the Y/X full widths at half maximum.
-For a measured kernel, enter its pixel spacing too; it must match the image.
+In **Make Masks**, open **Image enhancement** and select **Convolve (blur)**
+or **Deconvolve (Richardson–Lucy)** under **Point spread function**. Choose
+your **Objective**, or use **Infer from images…** to read the current image's
+optical metadata. With no image open, the button asks you to choose a TIFF.
+The summary shows pixel spacing, Gaussian width and where those values came
+from.
+
+Open **PSF optics and kernel** to inspect the remaining controls. **Camera**
+sets the camera pixel pitch; **Fluorophore** sets the emission wavelength.
+Magnification, numerical aperture, immersion refractive index, wavelength,
+pixel spacing and Gaussian widths remain editable. Labels identify metadata,
+objective-table values, calculations, defaults and values you entered.
+Review these after using **Infer from images…**, which repopulates the
+optics and recalculates Gaussian widths.
+
+Without image-specific information, the starting approximation uses a
+20×/0.75 air objective, a 6.5 µm camera pixel and 520 nm emission. It gives
+0.325 µm image pixels and approximately 0.354 µm Gaussian FWHM. Pixel spacing
+is camera pixel pitch divided by magnification; the lateral Gaussian FWHM
+is approximated by 0.51 × emission wavelength / numerical aperture.
+These defaults permit a calculation; they are not measured calibration or
+proof of your microscope's resolution. Check them against the acquisition.
+
+In the same fold, choose **Measured kernel (TIFF/NPY)** and load your
+calibrated two-dimensional PSF, or keep **Gaussian approximation**. For a
+measured kernel, enter its pixel spacing too; it must match the image.
+Neither mode silently resamples a mismatched kernel.
 
 Wait for the kernel to load, then use **Compare** to inspect its effect.
 Set **Deconvolution iterations** when using Richardson–Lucy and choose
@@ -34,48 +55,18 @@ the integrated intensity. This illustrates convolution with a Gaussian
 approximation. For your microscope, enter measured calibration values and
 inspect the resulting image with **Compare**.
 
-For a batch in **Mask** or **Timelapse**, open the **Point Spread Function**
-settings category. Set ``psf_operation`` to ``convolve`` or ``deconvolve`` and
-``psf_image_sampling_um`` to your calibrated ``[Y, X]`` pixel spacing.
-For ``psf_source="measured"``, select ``psf_path`` and matching
-``psf_kernel_sampling_um``. For ``psf_source="gaussian"``, supply
-``psf_fwhm_um`` instead. ``psf_iterations`` controls deconvolution work.
-
-Run preprocessing to rebuild the segmentation inputs after changing these
-settings. One kernel is applied independently to each selected segmentation
-channel, after illumination correction and before normalization. Check that
-its calibration is appropriate for all selected channels. The batch operates
-on two-dimensional projected fields; time-series frames are processed
-independently. Original image intensities remain unchanged for measurement.
-Keep ``psf/segmentation_application.json`` with the results: it identifies the
-kernel and processing settings. Reusing existing preprocessing requires an
-exact completed match. See :func:`spacr.psf_pipeline.prepare_psf`.
-
-Inspect Mask Live preview
--------------------------
-
-After setting up the PSF, open **Live** in Mask and choose a representative
-field. The preview applies the selected kernel before background thresholding
-and model normalization. Inspect the mask boundaries and processing details,
-then try another field before running the batch. Raw-intensity object filters
-continue to use the original intensities.
-
-Live preview normalizes the selected field and does not apply the full
-pipeline's illumination correction. A full Mask run may normalize across a
-batch, so review its saved masks as well as the preview. Changing settings
-requires a new detection; processing details describe the accepted result.
-
 Choose the intensities used by Measure
 --------------------------------------
 
-In **Measure**, open **Point Spread Function** and set
-``psf_measurement_source``. Keep ``original`` for the standard measurement
+In **Measure**, open **Image Preprocessing → Image Deconvolution (PSF)** and
+set ``psf_measurement_source``. Keep ``original`` for the standard measurement
 intensities, including Measure's normal rescaling and preprocessing, without
 additional PSF processing. Choose ``processed`` to measure intensities after
 convolution or deconvolution, then configure ``psf_operation``, the kernel
 source and its calibration.
 
-For a two-dimensional field, enter image sampling and Gaussian widths in
+Measure does not infer optics from image metadata: enter the calibration
+explicitly. For a two-dimensional field, enter image sampling and Gaussian widths in
 ``[Y, X]`` order. For a volume, use ``[Z, Y, X]`` and a matching
 three-dimensional kernel. Volume sampling must agree with Measure's voxel
 calibration or anisotropy settings. A measured kernel must have the same

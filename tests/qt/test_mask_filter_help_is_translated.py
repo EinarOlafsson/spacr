@@ -88,7 +88,16 @@ def _assert_rendered(key, label, body):
 
 @pytest.mark.parametrize("language", LANGUAGES)
 def test_mask_bounds_publish_current_labels_and_own_channel_help(language, reviewed):
+    # The maintainer, 2026-09-25 (item 511): cell, nucleus and pathogen's
+    # mean bounds are object_filters rows now, and their reviewed records
+    # were deleted with the settings; the organelle slots keep theirs.
     for role in ROLES:
+        if role in ("cell", "nucleus", "pathogen"):
+            for bound in ("min", "max"):
+                for table in ("setting_labels", "setting_tooltips"):
+                    assert (language, table,
+                            f"{role}_{bound}_intensity") not in reviewed
+            continue
         for bound in ("min", "max"):
             key = f"{role}_{bound}_intensity"
             label_source = english_label(key)

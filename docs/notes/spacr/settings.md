@@ -3171,3 +3171,88 @@ RENAMED at the maintainer's decision, 2026-09-19. The proposal was `image_size`,
 
 THE LINE USED TO SAY "until now the value was ignored and the default used". That was true of the renames 15fa72737 repaired on 2026-09-12 and false of every rename made since, `img_size` first: its value always worked. The line now says only what is true of all of them.
 
+
+
+---
+
+# Notes from `spacr/settings.py`
+
+Prose lifted out of `spacr/settings.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## Contents
+
+- [_ensure_bundled_barcode](#_ensure_bundled_barcode) (1 entry)
+- [set_default_plot_data_from_db](#set_default_plot_data_from_db) (1 entry)
+- [_advanced_family_members](#_advanced_family_members) (1 entry)
+- [_regroup_advanced](#_regroup_advanced) (1 entry)
+- [set_graph_importance_defaults](#set_graph_importance_defaults) (1 entry)
+- [get_plot_data_from_csv_default_settings](#get_plot_data_from_csv_default_settings) (1 entry)
+
+## _ensure_bundled_barcode
+
+### lines 323-324
+
+```python
+staging = f"{path}.partial"
+```
+
+Written whole and then moved, so an interrupted fetch cannot leave a half-written CSV that parses as a short barcode table.
+
+## set_default_plot_data_from_db
+
+### lines 1262-1264
+
+```python
+settings.setdefault(
+```
+
+293: the Default Graph Type setting decides what is drawn
+
+FIRST. The fallback is the literal this line used to hold, so a user who chose nothing sees what they saw.
+
+## _advanced_family_members
+
+### lines 5792-5797
+
+```python
+seen = set()
+```
+
+`seen` MIRRORS `found` ONLY TO BE ASKED. The list is the answer -- its order is the contract, object then suffix -- but `key in found` on a list is a linear scan, and this list grows to ~4,900 keys across 706 objects. That made the duplicate check quadratic: ~12 million string comparisons to file one family, which was most of the regroup's cost and all of it invisible, because nothing here looks expensive.
+
+## _regroup_advanced
+
+### lines 5820-5826
+
+```python
+by_family = [
+```
+
+COMPUTED ONCE PER FAMILY, NOT TWICE. The pass below that empties the per-object categories needs the same three member lists the pass at the bottom files under the family headings, and `out` is not modified between them in any way that changes which keys match -- so the second set of calls returned exactly the answers the first had already found. Three families over 706 objects is ~137 ms of pure Python, and doing it twice was ~137 ms of it for nothing.
+
+## set_graph_importance_defaults
+
+### lines 6670-6672
+
+```python
+settings.setdefault(
+```
+
+293: the Default Graph Type setting decides what is drawn
+
+FIRST. The fallback is the literal this line used to hold, so a user who chose nothing sees what they saw.
+
+## get_plot_data_from_csv_default_settings
+
+### lines 6858-6860
+
+```python
+settings.setdefault(
+```
+
+293: the Default Graph Type setting decides what is drawn
+
+FIRST. The fallback is the literal this line used to hold, so a user who chose nothing sees what they saw.

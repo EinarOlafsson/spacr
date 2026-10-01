@@ -133,6 +133,10 @@ KNOWN_LAYOUT_DEFECTS: dict = {
     # All earlier clipping and elision disappeared after the module folds and
     # the QSS/layout work; retaining those old entries would hide a real win.
     2: {"overflow": 1},
+    # Variant 01 LEFT again on 2026-09-29 (item 597): Home's side column now
+    # scrolls its panels above the size sliders, so its height no longer
+    # adds to the flat generated column. Its history, kept as a note:
+    #
     # Variant 01 joined on 2026-09-22, when Home's side column gained the
     # "Start a sample project…" button (GitHub #130: "I can't figure out what
     # do"). It is 25 px tall, and this variant's flat generated column was
@@ -140,7 +144,6 @@ KNOWN_LAYOUT_DEFECTS: dict = {
     # through a real MainWindow at 1440x900 the same day, HomePage's layout
     # minimum is 814x699, because the real screen scrolls its categories
     # where these generators draw them flat.
-    1: {"overflow": 1},
 }
 
 KNOWN_LAYOUT_DEFECT_PROFILES = (KNOWN_LAYOUT_DEFECTS,)

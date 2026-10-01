@@ -83,7 +83,10 @@ def record_curate(app, window, stage, captures, capture, settle, write_json, tim
                     raise ValueError('The real Curate file picker did not open')
                 dialog.accepted.connect(lambda: accepted.append(True))
                 dialog.resize(1500,1000)
-                fill(dialog.findChild(QLineEdit,'fileNameEdit'),path); capture(frame)
+                # Browse to the folder, then type the name: a typed absolute
+                # path races the picker's completer.
+                dialog.setDirectory(str(Path(path).parent)); settle(.4)
+                fill(dialog.findChild(QLineEdit,'fileNameEdit'),Path(path).name); capture(frame)
                 box = dialog.findChild(QDialogButtonBox)
                 buttons = [b for b in box.buttons() if box.buttonRole(b) == QDialogButtonBox.AcceptRole]
                 if len(buttons) != 1: raise ValueError('No unique actual picker accept button')
@@ -95,7 +98,7 @@ def record_curate(app, window, stage, captures, capture, settle, write_json, tim
             errors.append('Actual file picker timed out')
             if app.activeModalWidget() is not None: app.activeModalWidget().reject()
         timer.timeout.connect(handle); watchdog.timeout.connect(abort)
-        timer.start(300); watchdog.start(15000)
+        timer.start(300); watchdog.start(60000)
         try: click(button)
         finally: timer.stop(); watchdog.stop()
         if errors or not accepted: raise ValueError('; '.join(errors) or 'No accepted source file')

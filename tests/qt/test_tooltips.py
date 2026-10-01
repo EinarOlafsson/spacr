@@ -66,7 +66,7 @@ def test_a_self_registered_browser_does_not_become_a_pipeline_app():
 
 def test_type_hint_from_expected_types():
     from spacr.qt.screens.settings_model import _type_hint
-    assert _type_hint("cell_min_area") == "integer"
+    assert _type_hint("organelle_min_area") == "integer"
     assert _type_hint("plot") == "boolean"
     # `compression` was the string example and was deleted as an inert
     # setting -- one nothing read -- so the hint correctly came back empty

@@ -173,13 +173,46 @@ def test_every_lesson_keeps_its_video_and_its_poster(real_plan):
         f"missing playable media: {sorted(expected - set(lessons))}; "
         f"unknown media directories: {sorted(set(lessons) - known)}")
 
+    hosted = _hosted_web_copies()
     for lesson in lessons:
         videos = [p for p in kept
                   if p.parts[2:3] == (lesson,) and p.suffix == ".mp4"]
         posters = [p for p in kept
                    if p.parts[2:3] == (lesson,) and p.suffix == ".jpg"]
-        assert videos, f"{lesson}: no video survived the filter"
+        if lesson in hosted:
+            # A hosted web copy replaces the Pages video (never both); the
+            # copy must be on the read-back revision the page is pinned to.
+            assert not videos, f"{lesson}: hosted web copy and a Pages video"
+        else:
+            assert videos, f"{lesson}: no video survived the filter"
         assert posters, f"{lesson}: no poster survived the filter"
+
+
+def _hosted_web_copies():
+    """Lessons whose web copy the page plays from the verified media revision.
+
+    A lesson_catalog.js ``web`` entry counts only when the published receipt
+    read back that exact file at the revision ``data-web-root`` pins.
+    """
+    tutorials = _LIBRARY / "tutorials"
+    text = (tutorials / "lesson_catalog.js").read_text(encoding="utf-8")
+    catalog = json.loads(text[text.index("Object.freeze(") + len("Object.freeze("):text.rindex(");")])
+    flagged = {lesson["id"]: lesson["web"] for lesson in catalog["lessons"] if "web" in lesson}
+    if not flagged:
+        return {}
+    checkpoint = REPO_ROOT / "tools" / "tutorials" / "release_candidate"
+    receipt = json.loads((checkpoint / "publication-receipt.json").read_text())
+    manifest = json.loads((checkpoint / "release-manifest.json").read_text())
+    readback = receipt["readback"]
+    assert readback["passed"] is True and readback["commit"] == receipt["commit"]
+    assert readback["downloaded_sha256_matched"] == readback["files_expected"]
+    index = (tutorials / "index.html").read_text(encoding="utf-8")
+    assert f'data-web-root="{receipt["media_root"]}"' in index
+    hosted = {row["path"] for row in manifest["files"] if row["path"].startswith("media_host/")}
+    for identity, path in flagged.items():
+        assert path == f"{identity}/web/{identity}_silent.mp4", identity
+        assert "media_host/" + path in hosted, f"{identity}: hosted web copy not read back"
+    return flagged
 
 
 @requires_library
@@ -261,7 +294,23 @@ def test_narration_is_the_stable_mobile_clock():
     # candidate would report a site that has not been updated as updated.
     # ee43d8530 added native-script sentence boundaries to the shipped player
     # and bumped this source key. The frozen release candidate remains older.
-    assert 'app_v2.js?v=20260923-workflow78-learning-order' in index
+    # Since hosted web copies (2026-09-25) the publisher records the key it
+    # gave every versioned asset in the committed publication receipt, and
+    # issues a new key exactly when the player's bytes change. The page must
+    # carry that recorded key; a player change without a new key fails here.
+    receipt = json.loads((REPO_ROOT / "tools" / "tutorials" / "release_candidate"
+                          / "publication-receipt.json").read_text())
+    pages = receipt["pages"]
+    key = pages["versioned_assets"]["app_v2.js"]
+    assert f'app_v2.js?v={key}' in index
+    if "app_v2.js" not in pages["unchanged_versioned_assets"]:
+        assert key == pages["cache_key"]
+    manifest = json.loads((REPO_ROOT / "tools" / "tutorials" / "release_candidate"
+                           / "release-manifest.json").read_text())
+    player_record = next(r for r in manifest["files"] if r["path"] == "web/app_v2.js")
+    import hashlib
+    assert hashlib.sha256(player.encode("utf-8")).hexdigest() == player_record["sha256"]
+    assert 'app_v2.js?v=20260923-workflow78-learning-order' not in index
     assert 'app_v2.js?v=20260911-narration-captions' not in index
     assert "20260825-folded-routes" not in index
     assert "20260811-audio-end-park-captions" not in index

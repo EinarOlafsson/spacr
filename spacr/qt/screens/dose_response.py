@@ -184,19 +184,12 @@ def _fit_with_plates(frame, spec, plate_spec, plate_column=None,
         fitted_frame, reports = normalise_to_controls(
             frame, plate_spec, response=spec.response)
         fitted_spec = replace(spec, response=PERCENT_COLUMN)
-    # THE CURVES ARE THE FIRST COMPOUND ALONE when a second one is named.
-    # Combination wells are not a dose series of either agent, and fitting them
-    # into one would describe neither; the synergy surface is where they count.
     single = _alone(fitted_frame, second_dose)
     result = fit_frame(single, fitted_spec)
     pooled = (_pool_each_group(single, fitted_spec, plate_column)
               if plate_column else {})
     selectivity = {}
     if host_column:
-        # THE HOST READOUT IS FITTED RAW, on the table as loaded. Plate
-        # normalisation scales the RESPONSE by that response's own controls;
-        # a host readout has different controls, or none, and an EC50 does not
-        # need them -- it is a concentration, not a percentage.
         host = fit_frame(_alone(frame, second_dose),
                          replace(spec, response=host_column))
         for fit in result:
@@ -490,10 +483,6 @@ class DoseResponseScreen(QWidget):
             "this fits it anyway and keeps the warning on the result.")
         controls.addWidget(self.force_check)
 
-        # "FIT CURVE", NOT "FIT". The bare word is also zoom-to-fit in the
-        # ortho view, comparison grid and layer viewer, and a reviewed
-        # translation is keyed by its English source, so one string could
-        # never be translated right for both meanings.
         self.fit_button = QPushButton("Fit curve", self)
         self.fit_button.setObjectName("PrimaryButton")
         self.fit_button.clicked.connect(self.fit)
@@ -502,10 +491,6 @@ class DoseResponseScreen(QWidget):
         controls.addStretch(1)
         outer.addLayout(controls)
 
-        # THE PLATES ROW. Every caption on it already exists elsewhere in the
-        # application, so it adds no string a translator has not seen. Both
-        # column pickers start at "(none)", which keeps the default fit
-        # exactly the raw-response fit it always was.
         plates = QHBoxLayout()
         plates.setContentsMargins(0, 0, 0, 0)
         plates.setSpacing(SPACING["sm"])
@@ -531,11 +516,6 @@ class DoseResponseScreen(QWidget):
         plates.addStretch(1)
         outer.addLayout(plates)
 
-        # THE HOST READOUT. A second column from the same wells; with it, each
-        # group's host EC50 over its response EC50 is the selectivity index --
-        # the number that decides whether an anti-parasitic compound is worth
-        # anything, because killing the parasite at 1 uM means nothing if the
-        # host monolayer dies at 1.2.
         hosts = QHBoxLayout()
         hosts.setContentsMargins(0, 0, 0, 0)
         hosts.setSpacing(SPACING["sm"])
@@ -550,9 +530,6 @@ class DoseResponseScreen(QWidget):
         hosts.addStretch(1)
         outer.addLayout(hosts)
 
-        # THE SECOND COMPOUND. Naming its dose column turns the table into a
-        # checkerboard: the curves use the first compound alone, and the
-        # combination wells are scored against Bliss or Loewe.
         combos = QHBoxLayout()
         combos.setContentsMargins(0, 0, 0, 0)
         combos.setSpacing(SPACING["sm"])
@@ -623,6 +600,12 @@ class DoseResponseScreen(QWidget):
         The one call a host needs. It deliberately does **not** fit: which
         column is the dose is not guessable from a measurement table, and a
         curve through the wrong pair of columns is worse than an empty axis.
+
+        :param frame: the measurement table; its columns fill the
+            concentration, response, group, plate, control, host and
+            second-dose pickers.
+        :param label: the source line to show; empty shows the row and column
+            counts.
         """
         self._frame = frame
         self._set = None
@@ -850,6 +833,13 @@ class DoseResponseScreen(QWidget):
         before the read is dispatched, to know which table to read. The same
         shape :class:`spacr.qt.screens.trellis.TrellisScreen` uses, for the
         same reasons.
+
+        :param path: a CSV, TSV or TXT file (by extension), read as one table;
+            any other path is opened as a SQLite measurement database and its
+            tables are listed in the picker.
+        :param table: the database table to read, also selected in the picker
+            when the database has it; ``None`` reads the picker's current
+            table.
         """
         self._path = path
         names: List[str] = []
@@ -1005,7 +995,11 @@ class DoseResponseScreen(QWidget):
         self.show_group(sorted(rows)[0] if fit is None else int(fit))
 
     def show_group(self, index: int) -> None:
-        """Draw and describe the ``index``-th curve of the last fit."""
+        """Draw and describe the ``index``-th curve of the last fit.
+
+        :param index: position of the curve in the last fit's groups; out of
+            range, or with no fit yet, nothing happens.
+        """
         if self._set is None or not 0 <= index < len(self._set.fits):
             return
         fit = self._set.fits[index]

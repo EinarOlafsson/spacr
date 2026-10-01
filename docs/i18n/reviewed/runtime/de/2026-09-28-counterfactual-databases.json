@@ -1,0 +1,98 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI technical review (GPT-6), no native-speaker signoff",
+  "records": [
+    {
+      "table": "categories",
+      "key": "Copies a finished run's measurements into DuckDB or Parquet for very large screens, or into PostgreSQL for labs that share one server. measurements.db stays the working copy.",
+      "source": "Copies a finished run's measurements into DuckDB or Parquet for very large screens, or into PostgreSQL for labs that share one server. measurements.db stays the working copy.",
+      "source_sha256": "c6b2d1134cfbef98dd5a899c03594d06a3249fdd87e1ba210f09ff6958834da8",
+      "translation": "Kopiert die Messungen eines abgeschlossenen Laufs für sehr große Screens nach DuckDB oder Parquet oder für Labore mit gemeinsamem Server nach PostgreSQL. measurements.db bleibt die Arbeitskopie."
+    },
+    {
+      "table": "setting_labels",
+      "key": "counterfactual_crops",
+      "source": "Counterfactual crops",
+      "source_sha256": "1e377e2b752dfb5f8b4c4b1c4b3cac2b476a8abccbbc2db2c3243e64822e933e",
+      "translation": "Kontrafaktische Bildausschnitte"
+    },
+    {
+      "table": "setting_labels",
+      "key": "counterfactual_epochs",
+      "source": "Counterfactual epochs",
+      "source_sha256": "13ea116e0f4efddc4b7047966842520eee7cd11112664cc10520dd2543e57c0d",
+      "translation": "Kontrafaktische Epochen"
+    },
+    {
+      "table": "setting_labels",
+      "key": "counterfactuals",
+      "source": "Counterfactuals",
+      "source_sha256": "31791e3021fd87a745a0fb14619e6ec684bdc1e0e2ff928152f7791693b69cc8",
+      "translation": "Kontrafaktische Beispiele"
+    },
+    {
+      "table": "setting_labels",
+      "key": "measurement_backend",
+      "source": "Measurement backend",
+      "source_sha256": "931b190eeccd23c9fc750aba0ba476365b2b6206150f2db284e3b818021872e1",
+      "translation": "Messdaten-Backend"
+    },
+    {
+      "table": "setting_labels",
+      "key": "measurement_backend_target",
+      "source": "Measurement backend target",
+      "source_sha256": "668bf910a9e28fd1458cb0a81a38cb0fa073be5ac5d662c5ba864de7e73db94e",
+      "translation": "Ziel des Messdaten-Backends"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "counterfactual_crops",
+      "source": "How many crops, taken in dataset order, train and test the counterfactual generator; a quarter is held out for scoring. More crops give a steadier estimate and a slower run. Ignored unless counterfactuals is on. Default 256.",
+      "source_sha256": "f5cf67cdd8021849c067befc67830f006753f4c4883ea6ecbe5f293944d94481",
+      "translation": "Anzahl der Bildausschnitte in Datensatzreihenfolge zum Trainieren und Testen des kontrafaktischen Generators; ein Viertel bleibt für die Bewertung zurückgehalten. Mehr Bildausschnitte liefern eine stabilere Schätzung und verlängern den Lauf. Wird ignoriert, wenn counterfactuals nicht aktiviert ist. Standard: 256."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "counterfactual_epochs",
+      "source": "Training passes of the counterfactual generator over its crops. Ignored unless counterfactuals is on. Default 30.",
+      "source_sha256": "a7326aa8780add27f044e7e318579173a916bb631faf05376cd276ed1fc9a44b",
+      "translation": "Trainingsdurchläufe des kontrafaktischen Generators über seine Bildausschnitte. Wird ignoriert, wenn counterfactuals nicht aktiviert ist. Standard: 30."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "counterfactuals",
+      "source": "Also train a small class-conditional generator on the crops, guided by the loaded classifier, and morph held-out crops toward the other class in steps. Writes each crop's classifier score along its sequence, the flip rate, how far the edit moved the crop, a class-mean-shift baseline and a figure to counterfactuals/ next to the maps. The same classifier guides and scores the edits, so read the flip rate with the edit size. Default False.",
+      "source_sha256": "082b41d3b4b60689eb586adfb34fee82aeb80953ab854b828492f0bf0577eb49",
+      "translation": "Trainiert zusätzlich einen kleinen klassenbedingten Generator auf den Bildausschnitten, angeleitet vom geladenen Klassifikator, und verändert zurückgehaltene Ausschnitte schrittweise zur anderen Klasse hin. Speichert je Sequenz Klassifikatorwerte, Klassenwechselrate, Änderungsumfang, eine Baseline mit Verschiebung des Klassenmittelwerts und eine Abbildung unter counterfactuals/ neben den Karten. Derselbe Klassifikator steuert und bewertet die Änderungen; die Wechselrate daher zusammen mit dem Änderungsumfang lesen. Standard: False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measurement_backend",
+      "source": "Where a finished run's measurements are also stored. sqlite keeps only measurements.db. duckdb copies every table into a DuckDB file and parquet into a folder of Parquet files, both for very large screens; postgres copies them into a PostgreSQL database that several users can write at once. measurements.db stays the working copy every later step reads. Needs pip install spacr[databases]. Default sqlite.",
+      "source_sha256": "0874ac79f681027dbbae8c5660bb2f0ed81215ecdf5e0cbeb8fe1e4944ad8b94",
+      "translation": "Zusätzlicher Speicherort der Messungen eines abgeschlossenen Laufs. sqlite behält nur measurements.db. duckdb kopiert jede Tabelle in eine DuckDB-Datei, parquet in einen Ordner mit Parquet-Dateien, beide für sehr große Screens; postgres kopiert sie in eine PostgreSQL-Datenbank mit gleichzeitigem Schreibzugriff mehrerer Nutzer. measurements.db bleibt die Arbeitskopie, die jeder spätere Schritt liest. Erfordert pip install spacr[databases]. Standard: sqlite."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measurement_backend_target",
+      "source": "The DuckDB file, Parquet folder or PostgreSQL connection string the measurements are copied to. Blank puts measurements.duckdb or measurements.parquetdb beside measurements.db, and reaches PostgreSQL through the PGHOST, PGDATABASE, PGUSER and PGPASSWORD environment variables. Keep passwords in ~/.pgpass, not here. Ignored for sqlite. Default blank.",
+      "source_sha256": "098da339a4ecbd0da3aa01abbdf3735dbd898b4afb4676abbd253bebc4fb7c97",
+      "translation": "DuckDB-Datei, Parquet-Ordner oder PostgreSQL-Verbindungszeichenfolge als Kopierziel der Messungen. Leer legt measurements.duckdb oder measurements.parquetdb neben measurements.db ab und verbindet PostgreSQL über die Umgebungsvariablen PGHOST, PGDATABASE, PGUSER und PGPASSWORD. Passwörter in ~/.pgpass aufbewahren, nicht hier. Für sqlite ignoriert. Standard: leer."
+    },
+    {
+      "table": "ui",
+      "key": "Copies a finished run's measurements into DuckDB or Parquet for very large screens, or into PostgreSQL for labs that share one server. measurements.db stays the working copy.",
+      "source": "Copies a finished run's measurements into DuckDB or Parquet for very large screens, or into PostgreSQL for labs that share one server. measurements.db stays the working copy.",
+      "source_sha256": "c6b2d1134cfbef98dd5a899c03594d06a3249fdd87e1ba210f09ff6958834da8",
+      "translation": "Kopiert die Messungen eines abgeschlossenen Laufs für sehr große Screens nach DuckDB oder Parquet oder für Labore mit gemeinsamem Server nach PostgreSQL. measurements.db bleibt die Arbeitskopie."
+    },
+    {
+      "table": "ui",
+      "key": "Counterfactuals",
+      "source": "Counterfactuals",
+      "source_sha256": "31791e3021fd87a745a0fb14619e6ec684bdc1e0e2ff928152f7791693b69cc8",
+      "translation": "Kontrafaktische Beispiele"
+    }
+  ]
+}

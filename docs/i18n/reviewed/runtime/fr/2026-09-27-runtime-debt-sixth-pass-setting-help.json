@@ -1,0 +1,323 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26, sixth pass 2026-09-27: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "bleach_correction",
+      "source": "Photobleaching correction for a timelapse run, applied after measuring and per field and channel. ratio rescales each timepoint so the median object mean intensity equals the first timepoint's; exponential does the same with a fitted a*exp(-b*t)+c decay; histogram maps each timepoint's intensities onto the first timepoint's distribution. Writes <object>_bleach_corrected and the fits to measurements.db and plots the decay; the measured tables stay unchanged. Ignored unless timelapse. Default none.",
+      "source_sha256": "ee24d880108dc988e0e6b54d3c32337a59bfb4a801f0f952880ee3111aff76a3",
+      "translation": "Correction du photoblanchiment d’une exécution en série temporelle, appliquée après la mesure par champ et par canal. ratio remet à l’échelle chaque point temporel pour que la médiane de l’intensité moyenne des objets égale celle du premier point temporel ; exponential fait de même avec une décroissance ajustée a*exp(-b*t)+c ; histogram projette les intensités de chaque point temporel sur la distribution du premier. Écrit <object>_bleach_corrected et les ajustements dans measurements.db et trace la décroissance ; les tables mesurées restent inchangées. Ignoré sauf avec timelapse. Valeur par défaut : none."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cellprofiler_pipeline",
+      "source": "A CellProfiler pipeline (.cppipe) to run headless after measuring, in CellProfiler's own environment from the Model Zoo. Each field's channels are handed to it as <field>_ch<N>.tif, N from 0, and its masks as <field>_<object>_mask.tif; load the masks in NamesAndTypes as objects, and measure each object's Location. Its per-object measurements go to measurements.db:cellprofiler_<object>, matched to spaCR objects by prcfo. Blank skips it. Default blank.",
+      "source_sha256": "52880d7c9375453fd26121e2b585b283313f6076a705b62762303ff5f6e20bf1",
+      "translation": "Un pipeline CellProfiler (.cppipe) à exécuter sans interface après la mesure, dans l’environnement propre à CellProfiler issu de la Bibliothèque de modèles. Les canaux de chaque champ lui sont transmis sous la forme <field>_ch<N>.tif, N à partir de 0, et ses masques sous la forme <field>_<object>_mask.tif ; chargez les masques dans NamesAndTypes comme objets et mesurez la Location de chaque objet. Ses mesures par objet vont dans measurements.db:cellprofiler_<object>, associées aux objets spaCR par prcfo. Vide l’ignore. Valeur par défaut : vide."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_counting",
+      "source": "Count bacterial or fungal colonies on plate or dish photos instead of segmenting plaques. Each image is one plate, or one well per detected well when well_detection is on; the dish is found by its outline otherwise. Colonies are thresholded against the agar, touching ones are split, and the count, CFU/mL, colony areas and diameters go to colonies/colonies.db in src. No plaque model is loaded. Plaque mode only: Figure mode ignores it. Default False.",
+      "source_sha256": "7eb545a6acae426afeb9fa65161b482b2f8a1ce773d5a29e3fda38ee567d5236",
+      "translation": "Compte les colonies bactériennes ou fongiques sur des photos de boîtes au lieu de segmenter des plages de lyse. Chaque image est une boîte, ou un puits par puits détecté quand well_detection est activé ; sinon la boîte est repérée par son contour. Les colonies sont seuillées par rapport à la gélose, celles qui se touchent sont séparées, et le comptage, les UFC/mL, les aires et diamètres des colonies vont dans colonies/colonies.db dans src. Aucun modèle de plages n’est chargé. Mode plage uniquement : le mode figure l’ignore. Valeur par défaut : False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_dilution",
+      "source": "Dilution factor of the suspension that was plated, 10000 for a 10^-4 dilution; a fraction such as 0.0001 is read as the dilution and inverted. CFU/mL = colonies x dilution factor / plated volume. A dict from file name or stem to factor sets it per plate; a plate it does not name gets no CFU/mL. Default 1.",
+      "source_sha256": "eed70e28de941f15b8644d10b2edc4a594e7cd12b47ee95e3b99007cd45a7bf7",
+      "translation": "Facteur de dilution de la suspension étalée, 10000 pour une dilution 10^-4 ; une fraction comme 0.0001 est lue comme la dilution et inversée. UFC/mL = colonies x facteur de dilution / volume étalé. Un dictionnaire associant un nom ou une racine de fichier à un facteur le fixe par boîte ; une boîte non nommée ne reçoit pas d’UFC/mL. Valeur par défaut : 1."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_min_area_px",
+      "source": "Smallest colony counted, in pixels of the original photo. Raise it to ignore dust, bubbles and pinpoint artefacts; lower it for pinpoint colonies. Blank uses 0.4 % of the dish diameter, squared: about 36 pixels for a dish 1500 pixels across. Default None.",
+      "source_sha256": "d74b218d0b7c2a73174a52bc828bb0facfcab5c738269b1fd1b216e632131ba6",
+      "translation": "Plus petite colonie comptée, en pixels de la photo d’origine. Augmentez-la pour ignorer poussières, bulles et artefacts ponctuels ; baissez-la pour des colonies punctiformes. Vide utilise 0,4 % du diamètre de la boîte, au carré : environ 36 pixels pour une boîte de 1500 pixels de diamètre. Valeur par défaut : None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_plated_volume_ul",
+      "source": "Volume of the dilution spread on each plate, in microlitres, the denominator of CFU/mL. Change it with the plating protocol: 100 for a standard spread plate, 1000 for a pour plate of 1 mL. Default 100.",
+      "source_sha256": "1ad6dd774beedbf675d241fbd2ff5dc0a28318793a6bc87b37a01154853c0c4c",
+      "translation": "Volume de la dilution étalée sur chaque boîte, en microlitres, le dénominateur des UFC/mL. Adaptez-le au protocole d’ensemencement : 100 pour un étalement standard, 1000 pour une boîte coulée de 1 mL. Valeur par défaut : 100."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_polarity",
+      "source": "Whether colonies are brighter than the agar (bright: white or cream colonies on blood, chocolate or dark agar, or any plate photographed on a dark background) or darker (dark: on a light box or on pale agar). auto tries both and keeps the one whose round objects stand further above the agar. Set it when auto picks the wrong one on a sparse plate. Default auto.",
+      "source_sha256": "79af59ccc6b16e25c2001ae561fed0708ba4b0598f0fbb3053207a5bb439ec1f",
+      "translation": "Si les colonies sont plus claires que la gélose (bright : colonies blanches ou crème sur gélose au sang, chocolat ou sombre, ou toute boîte photographiée sur fond sombre) ou plus sombres (dark : sur une table lumineuse ou sur gélose pâle). auto essaie les deux et garde celle où les objets ronds ressortent le plus de la gélose. Fixez-la quand auto se trompe sur une boîte clairsemée. Valeur par défaut : auto."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_threshold",
+      "source": "How far above the agar a pixel must be to count as colony, in multiples of the agar's own noise. Lower finds faint, small or translucent colonies but also picks up agar texture, bubbles and glare; higher keeps only clear colonies. Default 4.0.",
+      "source_sha256": "fde2849693f9735f4b0c4b338a35977fabfc9d6b4bb4c620fe7a5d7734f97ddb",
+      "translation": "De combien un pixel doit dépasser la gélose pour compter comme colonie, en multiples du bruit propre de la gélose. Plus bas trouve les colonies pâles, petites ou translucides mais capte aussi la texture de la gélose, les bulles et les reflets ; plus haut ne garde que les colonies nettes. Valeur par défaut : 4.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_too_few",
+      "source": "Plates with fewer colonies than this are flagged 'too few to count' (TFTC) in per_plate: so few colonies carry a sampling error too large for the CFU/mL they imply. Their CFU/mL is still written, so filter on the flag. Blank turns the check off. Default 30.",
+      "source_sha256": "22a1f27046cc47225e5c8d368d898e7f4c5ca59df16551cdb82209a8b7e5f9b6",
+      "translation": "Les boîtes comptant moins de colonies que ce nombre sont marquées 'too few to count' (TFTC) dans per_plate : si peu de colonies entraînent une erreur d’échantillonnage trop grande pour les UFC/mL qui en découlent. Leurs UFC/mL sont tout de même écrites, filtrez donc sur l’indicateur. Vide désactive la vérification. Valeur par défaut : 30."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_too_many",
+      "source": "Plates with more colonies than this are flagged 'too many to count' (TNTC) in per_plate: neighbouring colonies merge and compete, so the count underestimates what was plated. Their CFU/mL is still written, so filter on the flag. Blank turns the check off. Default 300.",
+      "source_sha256": "240e0ace8fb64a9df61e39f397d69ddd0c83e7ecab187b8979ef92e8d1cecf93",
+      "translation": "Les boîtes comptant plus de colonies que ce nombre sont marquées 'too many to count' (TNTC) dans per_plate : les colonies voisines fusionnent et entrent en compétition, si bien que le comptage sous-estime ce qui a été étalé. Leurs UFC/mL sont tout de même écrites, filtrez donc sur l’indicateur. Vide désactive la vérification. Valeur par défaut : 300."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "illumination_vendor_profile",
+      "source": "Path to the flat-field correction the microscope software saved, used instead of estimating one from the fields: a Harmony Index.idx.xml or FFC profile (Operetta, Opera Phenix), or a shading reference image (.tif, .czi, .npy) from ZEN, Nikon or Olympus. Harmony profiles are applied at Harmony's own scale, so the corrected pixels match Harmony's corrected export. Empty means estimate. Default empty.",
+      "source_sha256": "528d4bc1e5926704a3a2daa88776d4b49742699aec7bf6d47b867183406b9aab",
+      "translation": "Chemin vers la correction de champ plat enregistrée par le logiciel du microscope, utilisée au lieu d’en estimer une à partir des champs : un Index.idx.xml ou un profil FFC de Harmony (Operetta, Opera Phenix), ou une image de référence d’ombrage (.tif, .czi, .npy) de ZEN, Nikon ou Olympus. Les profils Harmony sont appliqués à l’échelle propre de Harmony, de sorte que les pixels corrigés correspondent à l’export corrigé de Harmony. Vide signifie estimer. Valeur par défaut : vide."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration",
+      "source": "Calibrate intensities across imaging sessions before measuring: each plate is one session, the beads or reference wells imaged on every plate are measured, and every plate's intensity channels are scaled so its reference wells match the first plate's. This corrects exposure, lamp and detector drift between days at the image level, unlike batch correction of tables. The gains are recorded in measurements.db:intensity_rescale. Default False.",
+      "source_sha256": "2a0bb710f1b278e5440c1034f00e07fff92f82d110e722ad0b3f2f249a23f6df",
+      "translation": "Calibre les intensités entre sessions d’imagerie avant la mesure : chaque plaque est une session, les billes ou puits de référence imagés sur chaque plaque sont mesurés, et les canaux d’intensité de chaque plaque sont mis à l’échelle pour que ses puits de référence correspondent à ceux de la première plaque. Cela corrige la dérive d’exposition, de lampe et de détecteur d’un jour à l’autre au niveau de l’image, contrairement à une correction de lot des tables. Les gains sont enregistrés dans measurements.db:intensity_rescale. Valeur par défaut : False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_offset",
+      "source": "The camera's dark offset, in the intensity units Measure works in, removed before the reference statistic and kept when scaling: a pixel becomes offset + (value - offset) x gain. Read it from a dark frame; 100 is common on sCMOS cameras. Leave 0 when images are already offset-corrected. Default 0.",
+      "source_sha256": "44817c7b242d1370f93d13777898ede908aa1f06f89d26cc2c9ae0e839e7ddf3",
+      "translation": "Le décalage d’obscurité de la caméra, dans les unités d’intensité utilisées par Measure, retiré avant la statistique de référence et conservé lors de la mise à l’échelle : un pixel devient décalage + (valeur - décalage) x gain. Lisez-le sur une image d’obscurité ; 100 est courant sur les caméras sCMOS. Laissez 0 quand les images sont déjà corrigées. Valeur par défaut : 0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_statistic",
+      "source": "How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
+      "source_sha256": "18898b95481b93445deb13c8b4ed3fd3b873d79d2e872f90a228810591cd6410",
+      "translation": "Comment l’intensité de chaque champ de référence est résumée, après soustraction de intensity_calibration_offset. foreground : la médiane des pixels au-dessus d’un seuil d’Otsu, pour des billes éparses sur fond sombre. median : la médiane de tous les pixels, pour un puits de référence marqué uniformément. Chaque plaque utilise la médiane de ses champs de référence. Valeur par défaut : foreground."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_wells",
+      "source": "The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
+      "source_sha256": "7b5a101a3b0932d0cae21d7a63b7360ff2b381787ec937ce269a9b0d77df6c19",
+      "translation": "Les puits contenant l’échantillon de calibration, imagé sur chaque plaque avec le même échantillon : billes fluorescentes ou marquage de référence, par exemple ['A01'] ou ['A01', 'P24']. Chaque plaque doit y avoir au moins un champ, sinon l’exécution s’arrête. Ils sont mesurés et calibrés comme n’importe quel autre puits. Valeur par défaut : None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plate_barcode_column",
+      "source": "The column of the sample records that holds the plate barcode. Blank looks for barcode, plate_barcode or plate barcode. The other columns, apart from the well position, are copied into the plate map as they are. Default barcode.",
+      "source_sha256": "471f62de63882fb6b3c34f6fdc983a33a35cf68722e163376705ff9d177f7a9f",
+      "translation": "La colonne des fiches d’échantillons qui contient le code-barres de la plaque. Vide cherche barcode, plate_barcode ou plate barcode. Les autres colonnes, hormis la position du puits, sont copiées telles quelles dans le plan de plaque. Valeur par défaut : barcode."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plate_barcode_source",
+      "source": "Sample records to fill the plate map from, by plate barcode: a CSV, TSV, Excel or Parquet table with a barcode column, a well column (well such as A01, or rowID and columnID) and metadata such as strain, compound, concentration, passage and operator; or the http(s) address of a LIMS service that answers JSON well records for ?barcode=, or for {barcode} in the address. The filled map and a list of mismatches go to measurements. Blank links nothing. Default blank.",
+      "source_sha256": "ebfb4012bda5d4c5bfb88ab9d406d44da153312474eb67c12393ea93cde34748",
+      "translation": "Fiches d’échantillons à partir desquelles remplir le plan de plaque, selon le code-barres de la plaque : une table CSV, TSV, Excel ou Parquet avec une colonne de code-barres, une colonne de puits (well comme A01, ou rowID et columnID) et des métadonnées comme la souche, le composé, la concentration, le passage et l’opérateur ; ou l’adresse http(s) d’un service LIMS qui renvoie des fiches de puits JSON pour ?barcode=, ou pour {barcode} dans l’adresse. Le plan rempli et une liste des divergences vont dans measurements. Vide ne relie rien. Valeur par défaut : vide."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plate_barcode_token_env",
+      "source": "The name of the environment variable holding the LIMS access token, sent as a bearer token with each request. The token itself is never written to settings or results; set the variable before starting spaCR. Ignored for a table. Default SPACR_LIMS_TOKEN.",
+      "source_sha256": "5cc8b06777ea053507bd0bf3dbd36dc8de0a53417faaa0fa3c5cab7d02c904f9",
+      "translation": "Le nom de la variable d’environnement contenant le jeton d’accès au LIMS, envoyé comme jeton porteur avec chaque requête. Le jeton lui-même n’est jamais écrit dans les paramètres ni dans les résultats ; définissez la variable avant de lancer spaCR. Ignoré pour une table. Valeur par défaut : SPACR_LIMS_TOKEN."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plate_barcodes",
+      "source": "The barcode each plate was imported with, such as {'plate1': 'BC000123'}. A plate not named here takes the barcode in a barcode.txt file in its plate folder, or else its own plate name. Two plates given one barcode are reported as a mismatch. Default None.",
+      "source_sha256": "64d772f43f4d334469fe42cc4ad9a558ec63b4ab4d392cc2d1f6b17f51b8870a",
+      "translation": "Le code-barres avec lequel chaque plaque a été importée, par exemple {'plate1': 'BC000123'}. Une plaque non nommée ici prend le code-barres d’un fichier barcode.txt de son dossier de plaque, ou à défaut son propre nom. Deux plaques ayant le même code-barres sont signalées comme divergence. Valeur par défaut : None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event",
+      "source": "After measuring a timelapse, follow every tracked object to an event (death, lysis, egress, division, first detection) or to the end of its track, and compare conditions: Kaplan-Meier curves with 95% bands, median time to event per condition and well, log-rank tests and a Cox model. Writes measurements.db:time_to_event and four summary tables, and the curves and hazard ratios under results/time_to_event. Needs tracked objects measured with timelapse on. Default False.",
+      "source_sha256": "8b6a065f010e6e7dda83f77034b051fb0932bacd852b852b45507543eb2fa12e",
+      "translation": "Après la mesure d’une série temporelle, suit chaque objet suivi jusqu’à un événement (mort, lyse, sortie, division, première détection) ou jusqu’à la fin de sa trajectoire, et compare les conditions : courbes de Kaplan-Meier avec bandes à 95 %, temps médian jusqu’à l’événement par condition et par puits, tests du log-rank et un modèle de Cox. Écrit measurements.db:time_to_event et quatre tables de synthèse, ainsi que les courbes et les rapports de risques dans results/time_to_event. Nécessite des objets suivis mesurés avec timelapse activé. Valeur par défaut : False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_column",
+      "source": "The measurement the event is read from, a column of the object table such as cell_channel_2_mean_intensity, or an Annotate column of png_list holding labels for each object in each frame. Ignored by track_end. Default blank.",
+      "source_sha256": "a016ac65f42ed190e979bdeddeb84f3ab8434e1cdcbf82ed1fc20a58b4bb7a9e",
+      "translation": "La mesure dans laquelle l’événement est lu, une colonne de la table d’objets comme cell_channel_2_mean_intensity, ou une colonne Annotate de png_list contenant des étiquettes pour chaque objet dans chaque image. Ignoré par track_end. Valeur par défaut : vide."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_conditions",
+      "source": "Conditions named by their wells, as name=wells entries in the plate-map notation, such as ['mock=c1,c2', 'drug=c3,c4']. Objects in wells no entry names are left out. It replaces time_to_event_group. Blank uses time_to_event_group. Default None.",
+      "source_sha256": "a835639252dbabfec3dd8301fbee1061d5fc2a033e712d6f8046c6249de32d6f",
+      "translation": "Conditions désignées par leurs puits, sous forme d’entrées name=wells dans la notation du plan de plaque, par exemple ['mock=c1,c2', 'drug=c3,c4']. Les objets des puits qu’aucune entrée ne nomme sont écartés. Remplace time_to_event_group. Vide utilise time_to_event_group. Valeur par défaut : None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_covariates",
+      "source": "Columns of the object table adjusted for in the Cox model, each read at the track's first frame so it is measured before the event, such as ['cell_area']. Their hazard ratios are per unit of the column. Tracks missing a value are left out of the model only. Blank fits the conditions alone. Default None.",
+      "source_sha256": "a4f783f45f44932ba161fadc09f1d4f3aac828b34d581f1491927f2d41e0907f",
+      "translation": "Colonnes de la table d’objets prises en compte comme covariables dans le modèle de Cox, chacune lue à la première image de la trajectoire afin d’être mesurée avant l’événement, par exemple ['cell_area']. Leurs rapports de risques sont par unité de la colonne. Les trajectoires sans valeur sont écartées du modèle seulement. Vide ajuste les conditions seules. Valeur par défaut : None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_group",
+      "source": "How objects are grouped into the conditions compared, when time_to_event_conditions is blank: well, plate, row, column, field, or a column of the object table read at each track's first frame. Default well.",
+      "source_sha256": "f65babfedce03b0f57c3b06681cbb7665eeb8df76a94b2fc62b8a03f3f8e9c21",
+      "translation": "Comment les objets sont regroupés dans les conditions comparées, quand time_to_event_conditions est vide : well, plate, row, column, field, ou une colonne de la table d’objets lue à la première image de chaque trajectoire. Valeur par défaut : well."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_hours_per_frame",
+      "source": "Hours between consecutive frames, used to report times in hours; 0.25 for a frame every 15 minutes. It rescales the times and medians but not the tests or hazard ratios of conditions. Blank reports times in frames. Default None.",
+      "source_sha256": "219c85a7f69472939063efad197122693dd5c0605dd0a878a6de7ca1abb22eaf",
+      "translation": "Heures entre images consécutives, pour exprimer les temps en heures ; 0.25 pour une image toutes les 15 minutes. Cela remet à l’échelle les temps et les médianes, mais pas les tests ni les rapports de risques des conditions. Vide exprime les temps en images. Valeur par défaut : None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_min_frames",
+      "source": "Tracks with fewer observed frames are left out: a track seen once or twice is more often a segmentation or tracking fragment than an object, and with track_end every short fragment would be an event. Default 3.",
+      "source_sha256": "59c074223b17d55abbf82bd4bdbcc70f62c8a000f67d87bcaaf3f12a96c2bb38",
+      "translation": "Les trajectoires avec moins d’images observées sont écartées : une trajectoire vue une ou deux fois est plus souvent un fragment de segmentation ou de suivi qu’un objet, et avec track_end chaque fragment court serait un événement. Valeur par défaut : 3."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_mode",
+      "source": "What counts as the event. track_end: the object disappears before the movie ends (lysis, egress, detachment, and tracking loss too). annotated: time_to_event_column turns non-zero, or equals the threshold. above or below: the column reaches time_to_event_threshold, such as a death dye. fold_change: the column reaches threshold times its first value, such as a doubled parasite count. Tracks without the event are censored at their last frame. Default track_end.",
+      "source_sha256": "8ace74fb6d3786f222cdfc3ac3da12718d2fbf2831f66774e40d51aff633fe44",
+      "translation": "Ce qui compte comme événement. track_end : l’objet disparaît avant la fin du film (lyse, sortie, détachement, mais aussi perte de suivi). annotated : time_to_event_column devient non nul, ou égal au seuil. above ou below : la colonne atteint time_to_event_threshold, comme un colorant de mort. fold_change : la colonne atteint le seuil multiplié par sa première valeur, comme un nombre de parasites doublé. Les trajectoires sans l’événement sont censurées à leur dernière image. Valeur par défaut : track_end."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_object",
+      "source": "The measured object table whose tracks are followed: cell, nucleus, pathogen or cytoplasm. Each object label in a field is one track, since the timelapse module relabels tracked objects with their track ID. Follow host cells for host death or lysis, pathogens for egress or division. Default cell.",
+      "source_sha256": "7af4d875b43de8c77138afefd1820f2df203833398c95ddac749f40f1098c330",
+      "translation": "La table d’objets mesurée dont les trajectoires sont suivies : cell, nucleus, pathogen ou cytoplasm. Chaque étiquette d’objet d’un champ est une trajectoire, puisque le module de série temporelle réétiquette les objets suivis avec leur identifiant de trajectoire. Suivez les cellules hôtes pour la mort ou la lyse de l’hôte, les pathogènes pour la sortie ou la division. Valeur par défaut : cell."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_origin",
+      "source": "Where each object's clock starts. track: at the object's own first frame, so objects that appear later (daughters, cells moving in) count from when they are first seen. movie: at the movie's first frame, keeping only the objects present then, the cohort to use when time since infection or treatment matters. Default track.",
+      "source_sha256": "7bc99e166339c26e816a7554a21bad91791ae8229bce091a9da48e450ce224c1",
+      "translation": "Où démarre l’horloge de chaque objet. track : à la première image de l’objet lui-même, de sorte que les objets apparus plus tard (cellules filles, cellules entrantes) comptent à partir de leur première observation. movie : à la première image du film, en ne gardant que les objets alors présents, la cohorte à utiliser quand le temps depuis l’infection ou le traitement compte. Valeur par défaut : track."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_persist",
+      "source": "Consecutive observed frames the event must hold before it counts; it is dated to the first of them. Raise it to 2 or 3 when a noisy measurement crosses the threshold for one frame and back. Objects already showing the event in their first frame are left out. Default 1.",
+      "source_sha256": "6315cfe37944e195d17b6a5c5440970fd26bcb02168cacc677c2247823e6aea0",
+      "translation": "Nombre d’images observées consécutives pendant lesquelles l’événement doit se maintenir pour compter ; il est daté à la première d’entre elles. Montez à 2 ou 3 quand une mesure bruitée franchit le seuil pendant une image puis revient. Les objets qui présentent déjà l’événement à leur première image sont écartés. Valeur par défaut : 1."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_reference",
+      "source": "The condition the others are compared with: every log-rank pair and every hazard ratio is against it. It must be one of the conditions. Blank uses the first entry of time_to_event_conditions, or the first condition in sorted order. Default blank.",
+      "source_sha256": "c038dcb9424a340d0cd0a5226506ae24f06b0ecf8a8d8b1ba1dae254e235ceb7",
+      "translation": "La condition à laquelle les autres sont comparées : chaque paire du log-rank et chaque rapport de risques s’y rapportent. Elle doit faire partie des conditions. Vide utilise la première entrée de time_to_event_conditions, ou la première condition dans l’ordre trié. Valeur par défaut : vide."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "time_to_event_threshold",
+      "source": "The cut the event is read at. For above and below it is in the column's units; for fold_change it is a ratio to the track's first value, 2 for a doubling; for annotated it is the label that marks the event, blank for any non-zero label. Read it off a histogram of the column before trusting the curves. Default None.",
+      "source_sha256": "50a274bc3a5f1f08997dae718431df6ba897ce8f44931f242b007612f9666d36",
+      "translation": "La coupure à laquelle l’événement est lu. Pour above et below, dans les unités de la colonne ; pour fold_change, un rapport à la première valeur de la trajectoire, 2 pour un doublement ; pour annotated, l’étiquette qui marque l’événement, vide pour toute étiquette non nulle. Lisez-la sur un histogramme de la colonne avant de vous fier aux courbes. Valeur par défaut : None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage",
+      "source": "After tracking each field, build lineage trees from the tracker's division links: a tree figure coloured by timelapse_lineage_color_by, Newick trees, a per-cell segment table and per-lineage statistics (generation time in frames, sibling correlation), written to tracks/lineage. Trackastra division links are used as reported; for other trackers a division is inferred where new tracks start beside a mother. Default False.",
+      "source_sha256": "ecb6c75371a4125fba3524b9c4b45ef62a1890c24473960e4c1f8fd65b2a9f72",
+      "translation": "Après le suivi de chaque champ, construit des arbres de lignée à partir des liens de division du suivi : une figure d’arbre colorée selon timelapse_lineage_color_by, des arbres Newick, une table de segments par cellule et des statistiques par lignée (temps de génération en images, corrélation entre sœurs), écrits dans tracks/lineage. Les liens de division de Trackastra sont utilisés tels quels ; pour les autres suivis, une division est inférée là où de nouvelles trajectoires commencent à côté d’une mère. Valeur par défaut : False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage_color_by",
+      "source": "What colours each cell in the lineage trees: generation_time, generation, start_frame or n_frames, or the name of a numeric column of the tracks table, averaged over the cell's frames. An unknown name falls back to generation_time with a message. Ignored unless timelapse_lineage. Default generation_time.",
+      "source_sha256": "1bd4fa595b703657f0c044f166dd656279e0d28a4be5c12f52cdd50f67eeb132",
+      "translation": "Ce qui colore chaque cellule dans les arbres de lignée : generation_time, generation, start_frame ou n_frames, ou le nom d’une colonne numérique de la table des trajectoires, moyennée sur les images de la cellule. Un nom inconnu revient à generation_time avec un message. Ignoré sauf si timelapse_lineage est activé. Valeur par défaut : generation_time."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage_max_distance",
+      "source": "Largest distance in pixels between a mother's last position and a new track's first position for the new track to count as her daughter when divisions are inferred. Raise it for large cells or long frame intervals, lower it when neighbours are wrongly joined. Not used for division links the tracker reports. Ignored unless timelapse_lineage. Default 30.0.",
+      "source_sha256": "59c13199dd02b34939ee1f04d722456a8c870637d80fbe93bfbcfda67838906c",
+      "translation": "Plus grande distance en pixels entre la dernière position d’une mère et la première position d’une nouvelle trajectoire pour que celle-ci compte comme sa fille quand les divisions sont inférées. Augmentez-la pour les grandes cellules ou les longs intervalles entre images, baissez-la quand des voisines sont reliées à tort. Non utilisée pour les liens de division rapportés par le suivi. Ignoré sauf si timelapse_lineage est activé. Valeur par défaut : 30.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "unmix",
+      "source": "Spectral unmixing: estimate how much of each dye bleeds into the other channels from single-stain control wells, then unmix every field before it is segmented or measured. Make Masks unmixes each raw field across all its channels before illumination correction, the PSF and the enhancement chain; Measure unmixes the measured channels before its preprocessing. The matrix is printed and recorded with the run. Needs unmix_controls. Default False.",
+      "source_sha256": "b5df53b511ab7bfa389f4fca518c0f4593c4d5076e282d83744cb58dbe961a94",
+      "translation": "Démixage spectral : estime, à partir de puits témoins à marquage unique, la part de chaque colorant qui déborde dans les autres canaux, puis démixe chaque champ avant qu’il soit segmenté ou mesuré. Make Masks démixe chaque champ brut sur tous ses canaux avant la correction d’éclairage, la PSF et la chaîne d’amélioration ; Measure démixe les canaux mesurés avant son prétraitement. La matrice est affichée et enregistrée avec l’exécution. Nécessite unmix_controls. Valeur par défaut : False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "unmix_background_percentile",
+      "source": "Percentile of each channel's pixels taken as its background, from 0 up to but not including 100. It is set aside before each field is unmixed and added back after, so a channel with no dye stays at its own background level rather than being pulled below it. Keep it below the fraction of the field that is empty. Default 5.0.",
+      "source_sha256": "5f256dcc6e472acdf48c3f12b8a068ee16be78f7ea721f9e536b8991df6dcb1a",
+      "translation": "Percentile des pixels de chaque canal pris comme fond, de 0 jusqu’à 100 exclu. Il est mis de côté avant le démixage de chaque champ et rajouté ensuite, si bien qu’un canal sans colorant reste à son propre niveau de fond au lieu d’être poussé en dessous. Gardez-le sous la fraction vide du champ. Valeur par défaut : 5.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "unmix_controls",
+      "source": "The single-stain control wells, as channel:well[,well] entries separated by semicolons, for example 0:A01,A02; 1:B01. The channel is the dye's own channel, counted as in the stack or merged array; its wells hold that dye alone. Channels without controls are taken to bleed into nothing. Up to 24 fields per dye are read. Ignored unless unmix is on. Default blank.",
+      "source_sha256": "542c4c682db640c5a385fd68fedb5968bd6b8f5907b72afb2ba1051f738639a6",
+      "translation": "Les puits témoins à marquage unique, sous forme d’entrées canal:puits[,puits] séparées par des points-virgules, par exemple 0:A01,A02; 1:B01. Le canal est celui du colorant, compté comme dans la pile ou le tableau fusionné ; ses puits ne contiennent que ce colorant. Les canaux sans témoin sont considérés comme ne débordant sur aucun autre. Jusqu’à 24 champs par colorant sont lus. Ignoré sauf si unmix est activé. Valeur par défaut : vide."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "viability",
+      "source": "Call every cell live or dead after measuring, from a dead stain (propidium iodide, SYTOX, DAPI on unfixed cells), a live stain (calcein), both, or without either from nuclear morphology (pyknotic nuclei). Writes one row per nucleus to measurements.db:viability, per-well viability, live-cell and cytotoxicity index to viability_well, each plate's thresholds and control Z' to viability_qc, and with plot the threshold, plate, control and dose-response figures. Default False.",
+      "source_sha256": "bcacab601679bfb2b56cd37ff9d46294319dff9862f31c016f18e6a20a473ed5",
+      "translation": "Détermine après la mesure si chaque cellule est vivante ou morte, à partir d’un marqueur de mort (iodure de propidium, SYTOX, DAPI sur cellules non fixées), d’un marqueur de viabilité (calcéine), des deux, ou sans marqueur à partir de la morphologie nucléaire (noyaux pycnotiques). Écrit une ligne par noyau dans measurements.db:viability, la viabilité par puits, l’indice de cellules vivantes et l’indice de cytotoxicité dans viability_well, les seuils et le Z' des témoins de chaque plaque dans viability_qc, et avec plot les figures de seuil, de plaque, de témoins et de dose-réponse. Valeur par défaut : False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "viability_dead_channel",
+      "source": "The merged-array channel of the dead stain (propidium iodide, SYTOX, or DAPI added to unfixed cells), counted as in channels; it must be one of the measured channels. Each nucleus's background-subtracted mean intensity is split per plate into two populations, and above the cut is dead. Blank reads no dead stain; with neither stain channel set, dead cells are called from nuclear morphology instead. Default None.",
+      "source_sha256": "62393707b6e232560cf6bef6be5c650f45f06f608b454d1400fa94d734ced7c1",
+      "translation": "Le canal du tableau fusionné portant le marqueur de mort (iodure de propidium, SYTOX, ou DAPI ajouté à des cellules non fixées), compté comme dans channels ; il doit faire partie des canaux mesurés. L’intensité moyenne de chaque noyau, fond soustrait, est séparée par plaque en deux populations, et au-dessus de la coupure la cellule est morte. Vide ne lit aucun marqueur de mort ; si aucun canal de marquage n’est défini, les cellules mortes sont déterminées à partir de la morphologie nucléaire. Valeur par défaut : None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "viability_live_channel",
+      "source": "The merged-array channel of the live stain (calcein-AM), counted as in channels; it must be one of the measured channels. It is read on the nucleus, which calcein fills, split per plate, and above the cut is live. With a dead stain as well, a cell positive for neither is counted unstained, not live. Blank reads no live stain. Default None.",
+      "source_sha256": "c224b11929e887b35672ae0e9b435bdc6f2295162c5dddbd68134bd8e4eec25d",
+      "translation": "Le canal du tableau fusionné portant le marqueur de viabilité (calcéine-AM), compté comme dans channels ; il doit faire partie des canaux mesurés. Il est lu sur le noyau, que la calcéine remplit, séparé par plaque, et au-dessus de la coupure la cellule est vivante. Avec aussi un marqueur de mort, une cellule négative pour les deux est comptée non marquée, pas vivante. Vide ne lit aucun marqueur de viabilité. Valeur par défaut : None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "viability_negative_wells",
+      "source": "Untreated or vehicle wells, e.g. ['c1']; rows (r1), columns (c1) and wells (A01) all read. Their mean live-cell count is each plate's reference for the live-cell index, they read 0 on the cytotoxicity index and they are one side of its Z'. Blank leaves the index as the percentage of cells not live. Default None.",
+      "source_sha256": "e00531954697bd52eb43ed6b5346cde97470c3144bb3dcad0f203ff10a7ea006",
+      "translation": "Puits non traités ou véhicule, p. ex. ['c1'] ; rangées (r1), colonnes (c1) et puits (A01) sont tous lus. Leur nombre moyen de cellules vivantes est la référence de chaque plaque pour l’indice de cellules vivantes, ils valent 0 sur l’indice de cytotoxicité et forment un côté de son Z'. Vide laisse l’indice égal au pourcentage de cellules non vivantes. Valeur par défaut : None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "viability_plate_map",
+      "source": "A table (CSV or Excel) of each well's compound and concentration: a well column (well such as A01, rowID and columnID, or prc), compound or treatment, concentration or dose, and optionally plateID. With it, viability, the cytotoxicity index and the infection of live cells are fitted against concentration per compound, and the host CC50 over the parasite EC50 is written as a selectivity index. Blank skips dose-response. Default blank.",
+      "source_sha256": "62170bfb7aaab4d2c8b671e99a3e9c74098a18f34c6d59ce52689e917199b47e",
+      "translation": "Une table (CSV ou Excel) du composé et de la concentration de chaque puits : une colonne de puits (well comme A01, rowID et columnID, ou prc), compound ou treatment, concentration ou dose, et éventuellement plateID. Avec elle, la viabilité, l’indice de cytotoxicité et l’infection des cellules vivantes sont ajustés en fonction de la concentration par composé, et la CC50 de l’hôte sur l’EC50 du parasite est écrite comme indice de sélectivité. Vide ignore la dose-réponse. Valeur par défaut : vide."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "viability_positive_wells",
+      "source": "Wells given a cytotoxic control (for example digitonin, saponin or staurosporine), e.g. ['c12'], in the same notation as viability_negative_wells. They read 100 on the cytotoxicity index and, with the negative wells, give each plate's Z' in viability_qc; a Z' of 0.5 or more is a working assay. Blank scales the index to the negative wells alone. Default None.",
+      "source_sha256": "5e48d79fa76331495fd1dbbf6f324d93f0368b91a32e5ee77a243dc0cf3bdd51",
+      "translation": "Puits recevant un témoin cytotoxique (par exemple digitonine, saponine ou staurosporine), p. ex. ['c12'], dans la même notation que viability_negative_wells. Ils valent 100 sur l’indice de cytotoxicité et, avec les puits négatifs, donnent le Z' de chaque plaque dans viability_qc ; un Z' de 0,5 ou plus correspond à un essai fonctionnel. Vide rapporte l’indice aux seuls puits négatifs. Valeur par défaut : None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "viability_thresholds",
+      "source": "Manual cuts [dead, live] in background-subtracted mean intensity, for example [150, None], each replacing the automatic per-plate cut of its stain; None keeps that one automatic. Without stain channels the dead entry is the condensation ratio (intensity per area against the plate's typical nucleus, about 3) above which a nucleus is pyknotic. Read the automatic cuts in viability_qc or the threshold figures first. Default None.",
+      "source_sha256": "c7e8987839e53b5d232705c4f4aa9f017e8a437072ad0a260e340bc28bc26f47",
+      "translation": "Coupures manuelles [dead, live] en intensité moyenne après soustraction du fond, par exemple [150, None], chacune remplaçant la coupure automatique par plaque de son marqueur ; None garde celle-ci automatique. Sans canaux de marquage, l’entrée dead est le rapport de condensation (intensité par aire rapportée au noyau typique de la plaque, environ 3) au-dessus duquel un noyau est pycnotique. Lisez d’abord les coupures automatiques dans viability_qc ou les figures de seuil. Valeur par défaut : None."
+    }
+  ]
+}

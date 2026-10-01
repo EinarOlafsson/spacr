@@ -1,0 +1,35 @@
+{
+  "lesson": "85_host_pathogen",
+  "english_sha256": "e744c3949f480b452dc13cdc04ea44b00e1872b977979c44f5e21d1c9fff7b18",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Host–Pathogen: koble vakuolemarkører og parasittantall",
+  "description": "Last inn mikroskopieksemplet, velg inndata for markører og telling, undersøk forhåndsvisningen og eksporter koblede sammendrag for vakuoler, vertsceller og brønner.",
+  "objectives": [
+    "Laste inn eksempelprosjektet og identifisere målingene av vert og vakuole.",
+    "Velge markørkanaler og undersøke rekruttering per vakuole i Live-forhåndsvisningen.",
+    "Kjøre analysen og lese utdatatabellene med riktige nevnere."
+  ],
+  "prerequisite": "Bruk Load test data for det medfølgende THP-1-mikroskopieksemplet, eller velg et målt prosjekt med vertsceller, vakuoler og referanseintensiteter for verten. Behold uinfiserte vertsceller i Measure når du trenger en nevner for infeksjon. Tellinger av enkeltparasitter krever en koblet parasitt-tabell eller en målt tellekolonne.",
+  "scenes": [
+    "Host–Pathogen knytter markørene og parasittantallet i hver vakuole til vertscellen og brønnen. For å komme dit åpner du Toxoplasma fra Home og velger deretter Host–Pathogen.",
+    "Den enkleste måten å begynne på er eksemplet. Load test data laster ned et lite mikroskopiprosjekt og fyller inn innstillingene: to synsfelt med bilder, masker for vert og vakuole og måletabeller. Øv her før du går over til ditt eget målte prosjekt.",
+    "Alt modulen leser, kommer gjennom Source, som skal peke på prosjektet med measurements/measurements.db. Den kan også lese en database direkte, eller kombinere flere prosjekter og holde identiteten til hvert av dem atskilt.",
+    "Angi nå hvor vakuolene og vertene ligger i databasen: vakuoletabellen og prefikset for intensitetskolonnene, deretter vertens referansetabell og prefikset for den. Eksemplet bruker pathogen og cytoplasm. Objektkoblingene knytter hver vakuole til vertscellen, så kontroller at de er riktige.",
+    "Marker channels angir hvilke intensiteter som skal sammenlignes, regnet fra 0. Eksemplet velger kanal 1, markøren RNF213. Kanalen du velger, trenger intensitetsmålinger både i vakuolen og i referansekompartmentet, fordi forholdstallet beregnes fra begge.",
+    "La først Marker thresholds stå tomt og se bare på rekrutteringsforholdene. Når kontrollene viser hvor positivt begynner, skriver du inn kanalnummeret og denne forholdsterskelen; alt på eller over den regnes som positivt. Mangler en referansemåling eller er den ugyldig, forblir tilstanden ukjent i stedet for å bli gjettet.",
+    "Parasittantall kommer fra ett av to steder: en parasitt-tabell der radene lenker til vakuolen de tilhører, eller en tellekolonne målt på hver vakuole. Mikroskopieksemplet har ingen av delene, så la begge stå tomme her; parasittantall og replikasjonsverdier forblir ukjente.",
+    "Prøv ett synsfelt før du kjører alt. Slå på Live, velg et synsfelt og klikk på Run preview. Vakuoletabellen vises ved siden av bildet; merk en rad eller klikk på en vakuole for å se markørmålingene og eventuelt parasittantallet.",
+    "Når forhåndsvisningen ser riktig ut, slår du av Live og åpner Actions hvis det er lukket. La Save være på og trykk på Run. Konsollen skriver ut utdatabanen når kjøringen er ferdig, og resultatene havner i results/host_pathogen i det første valgte prosjektet.",
+    "Resultatene bygges fra små til store enheter. vacuoles.csv har én rad per vakuole: vertskoblingen, markørforholdene, markørtilstanden og eventuelt parasittantallet. cells.csv samler dem til infeksjon og antall vakuoler per vertscelle, og wells.csv oppsummerer dem per brønn.",
+    "To tabeller til svarer på det biologiske spørsmålet. marker_states.csv viser kombinerte markørtilstander, og replication_distribution.csv parasittantallet per talt vakuole. Parasitter uten brukbar kobling til en vakuole havner i orphan_parasites.csv. Oppbevar settings.json sammen med dem, slik at valgene dine av kanaler og terskler følger med.",
+    "En siste kontroll før du sammenligner betingelser: nevnerne. Infeksjonsandeler bruker de målte vertscellene som ble beholdt, så uinfiserte verter teller bare hvis Measure beholdt dem. Fordelinger av antall bruker bare vakuoler med kjent parasittantall, og ukjent blir aldri stille til null."
+  ]
+}

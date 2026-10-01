@@ -68,13 +68,6 @@
     },
     {
       "table": "ui",
-      "key": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
-      "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
-      "source_sha256": "ab5f08eb17068239c0ef031c98a33aeeeec51c7c6ce4060cc659597618c288bc",
-      "translation": "실제 특징/좌표 열에 임계값 또는 다각형 게이트를 정의한 뒤, 저장한 게이트를 호환되는 객체에 적용하세요. Annotate를 사용해 표시된 게이트를 어노테이션 열에 기록하세요. 선택된 객체를 검토하고 이진 또는 다중 클래스 레이블을 선택하세요."
-    },
-    {
-      "table": "ui",
       "key": "Design conditions, controls, replicates and plate assignments before acquisition. Use Power / Design to explore sampling needs under explicit effect-size and variability assumptions; pilot measurements can inform these assumptions. The design handoff is a planning dependency, not an automatically executed experiment.",
       "source": "Design conditions, controls, replicates and plate assignments before acquisition. Use Power / Design to explore sampling needs under explicit effect-size and variability assumptions; pilot measurements can inform these assumptions. The design handoff is a planning dependency, not an automatically executed experiment.",
       "source_sha256": "f4df2fba7df0893839a5641cf1a4cb59d69357bd65990f825fd57a5df3c6edeb",
@@ -297,5 +290,15 @@
       "source_sha256": "58db35103d61222a13953662b624c7ea7a0cb41d637097998392b51e007aabe8",
       "translation": "검토된 올가미 선택을 해당 객체 데이터베이스의 어노테이션 열에 기록한 뒤 Classify에서 그 열을 선택하세요. 잘라낸 이미지를 확인하고 레이블을 검증하세요. 임베딩 클러스터는 정답 데이터가 아닙니다."
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source_sha256": "ab5f08eb17068239c0ef031c98a33aeeeec51c7c6ce4060cc659597618c288bc",
+      "translation": "실제 특징/좌표 열에 임계값 또는 다각형 게이트를 정의한 뒤, 저장한 게이트를 호환되는 객체에 적용하세요. Annotate를 사용해 표시된 게이트를 어노테이션 열에 기록하세요. 선택된 객체를 검토하고 이진 또는 다중 클래스 레이블을 선택하세요."
+    }
+  ],
+  "retirement_2026_10_01": "Source text changed during priority implementation. Prior source-bound reviews are retained here for history and are not reused as reviews of replacement text."
 }

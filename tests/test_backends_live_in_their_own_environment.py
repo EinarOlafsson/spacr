@@ -356,6 +356,27 @@ def test_the_torch_index_reads_spacrs_torch_or_none(monkeypatch):
     assert SB._torch_index_url() is None
 
 
+def test_a_plain_torch_version_uses_the_build_it_states(monkeypatch, tmp_path):
+    """Item 557: conda's torch records 2.6.0 while it is a cu124 build."""
+    import importlib.metadata as metadata
+    import importlib.util
+
+    folder = tmp_path / "torch"
+    folder.mkdir()
+    spec = type("S", (), {"submodule_search_locations": [str(folder)]})()
+    monkeypatch.delenv(SB._TORCH_INDEX_ENV, raising=False)
+    monkeypatch.setattr(metadata, "version", lambda name: "2.6.0")
+    monkeypatch.setattr(importlib.util, "find_spec", lambda name: spec)
+    (folder / "version.py").write_text("__version__ = '2.6.0+cu124'\n")
+    assert SB._torch_index_url() == SB._TORCH_WHEELS + "cu124"
+    (folder / "version.py").write_text(
+        "__version__ = '2.6.0'\ncuda: Optional[str] = '12.8'\n")
+    assert SB._torch_index_url() == SB._TORCH_WHEELS + "cu128"
+    (folder / "version.py").write_text(
+        "__version__ = '2.6.0'\ncuda: Optional[str] = None\n")
+    assert SB._torch_index_url() is None
+
+
 def test_the_plan_runs_pip_only_inside_the_environment():
     spec = SB._SPECS["dinocell"]
     env = "/b/dinocell"
@@ -486,11 +507,27 @@ def test_every_module_an_adapter_imports_is_in_its_self_test():
     exempt = {"torch", "numpy"}
     sources = {
         "cellpose3": (SB._Cellpose3Adapter,),
+        "cellpose_dino": (SB._CellposeDinoAdapter,),
         "dinocell": (SB._import_dinocell, SB._DinoCellBackend),
         "samcell": (SB._import_samcell, SB._SamCellBackend,
                     SB._samcell_weights_path),
         "papers": (SB._worker_detect, SB._worker_read_text),
         "spotnet": (SB._worker_detect_spots,),
+        "microsam": (SB._sam_predictor, SB._worker_sam_embed,
+                     SB._worker_sam_prompt),
+        # + sam2 (item 556, 2026-09-27): SAM2's video predictor, which
+        # follows objects through a movie as timelapse_mode='sam2'.
+        "sam2": (SB._sam2_video_predictor, SB._sam2_write_frames,
+                 SB._worker_sam2_propagate),
+        "stardist": (SB._StarDistAdapter, SB._tensorflow_device),
+        "instanseg": (SB._InstanSegAdapter,),
+        "omnipose": (SB._OmniposeAdapter, SB._omnipose_shape),
+        "careamics": (SB._worker_n2v_train, SB._N2VLosses,
+                      SB._worker_n2v_denoise),
+        "spotiflow": (SB._SpotiflowAdapter, SB._spotiflow_network,
+                      SB._worker_spotiflow_spots),
+        "cellprofiler": (SB._cellprofiler_started,
+                         SB._worker_run_cellprofiler),
     }
     assert set(sources) == set(SB._SPECS), (
         "a backend was added or removed without its adapter being listed "
@@ -1059,6 +1096,8 @@ class _Base:
             os._exit(3)
         if marker == 8.0:
             time.sleep(60)
+        if marker == 5.0:
+            time.sleep(2)
         if marker == 9.0:
             raise RuntimeError("the stand-in refused this image")
         if marker == 6.0:
@@ -1429,6 +1468,44 @@ def test_a_cancelled_request_stops_its_worker(faked):
                    len(asked) > 2)
     assert time.monotonic() - started < 30
     assert not SB._WORKERS["cellpose3"].alive
+
+
+def test_a_request_sent_to_be_kept_leaves_its_worker_running(
+        faked, monkeypatch):
+    """Item 507: restoration abandons a cancelled request instead of
+    killing the worker, which keeps its loaded models; the next request is
+    answered by the same worker once the abandoned one has finished."""
+    real = SB._WorkerProcess.request
+
+    def keep(self, op, **kw):
+        if op == "segment":
+            kw["keep_on_cancel"] = True
+        return real(self, op, **kw)
+
+    monkeypatch.setattr(SB._WorkerProcess, "request", keep)
+    slow = _field()
+    slow[0, 0] = 5.0
+    model = SB._RemoteBackend("cellpose3", model="cyto3")
+    asked = []
+    with pytest.raises(SB._BackendCancelled):
+        model.eval([slow], should_cancel=lambda: asked.append(1) or
+                   len(asked) > 1)
+    worker = SB._WORKERS["cellpose3"]
+    assert worker.alive, "a kept request does not stop its worker"
+    assert worker.busy, "an abandoned request still owes its reply"
+    masks, _flows, _ = model.eval([_field()])
+    assert SB._WORKERS["cellpose3"] is worker and masks[0].max() > 0
+    assert not worker._abandoned and not worker.busy
+
+
+def test_a_cancelled_request_still_queued_is_never_started(stub_cellpose):
+    replies = _ask([
+        {"protocol": SB._PROTOCOL, "id": 0, "op": "cancel", "target": 2},
+        _request("hello", 2), _request("hello", 3)])
+    assert [r["id"] for r in replies] == [2, 3]
+    assert replies[0]["ok"] is False
+    assert replies[0]["error"]["type"] == "Cancelled"
+    assert replies[1]["ok"] is True
 
 
 def test_a_worker_that_cannot_start_is_stopped(faked, monkeypatch):

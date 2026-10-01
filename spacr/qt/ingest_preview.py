@@ -142,7 +142,12 @@ def plan_folder_extraction(root: Any, plate: str = "plate1",
 
 
 def mapping_to_row(m: Any) -> Dict[str, Any]:
-    """Convert a :class:`spacr.qt.folder_metadata.NameMapping` to a row dict."""
+    """Convert a :class:`spacr.qt.folder_metadata.NameMapping` to a row dict.
+
+    :param m: mapping object, read by attribute; a missing attribute falls
+        back to ``""`` (paths, well), ``"plate1"`` or ``1`` (field, channel,
+        time). The row's keys are :data:`ROW_COLUMNS`.
+    """
     return {
         "original": getattr(m, "original_path", ""),
         "plate": getattr(m, "plate", "plate1"),
@@ -156,7 +161,12 @@ def mapping_to_row(m: Any) -> Dict[str, Any]:
 
 def rows_to_mappings(rows: Sequence[Dict[str, Any]]) -> List[Any]:
     """Convert edited table rows back into ``NameMapping`` objects ready
-    for :func:`spacr.qt.folder_metadata.save_filename_map`."""
+    for :func:`spacr.qt.folder_metadata.save_filename_map`.
+
+    :param rows: row dicts keyed by :data:`ROW_COLUMNS`; missing text keys
+        become ``""`` (``plate`` becomes ``"plate1"``) and a missing or empty
+        field, channel or time becomes ``1``.
+    """
     from .folder_metadata import NameMapping
     out: List[NameMapping] = []
     for r in rows:
@@ -173,7 +183,12 @@ def rows_to_mappings(rows: Sequence[Dict[str, Any]]) -> List[Any]:
 
 
 def summarize_rows(rows: Sequence[Dict[str, Any]]) -> str:
-    """One-line count summary of a preview (wells / fields / channels)."""
+    """One-line count summary of a preview (wells / fields / channels).
+
+    :param rows: preview row dicts; distinct ``well``, ``field``,
+        ``channel`` and ``time`` values are counted, and timepoints are only
+        mentioned when there is more than one.
+    """
     if not rows:
         return "no images to extract"
     wells = {r.get("well") for r in rows}

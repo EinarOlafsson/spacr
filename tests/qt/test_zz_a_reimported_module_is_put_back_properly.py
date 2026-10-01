@@ -85,6 +85,7 @@ _RESTORES = re.compile(
 KNOWN_REIMPORTERS = {
     "qt/test_cov_r8_fractal_travel_tails.py",
     "qt/test_cov_r8_settings_model_import_guards.py",
+    "qt/test_the_fractal_tour_and_shaders_at_their_edges.py",
     # ALREADY CORRECT WHEN THIS TEST WAS WRITTEN, and its `_rebind` helper
     # is the model the other two were fixed against -- including the part
     # that is easy to miss: the restore has to run UNCONDITIONALLY, because

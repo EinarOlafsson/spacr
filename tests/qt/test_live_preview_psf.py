@@ -75,9 +75,53 @@ def test_bad_calibration_fails_before_loading_model(monkeypatch):
     monkeypatch.setattr(lp, 'preview_cellpose_model',
                         lambda name: pytest.fail('model should not load'))
     config = settings()
-    config['psf_image_sampling_um'] = None
+    config['psf_image_sampling_um'] = [-1., 1.]
     with pytest.raises(ValueError, match='psf_image_sampling_um'):
         lp._segment_multi(lp.PreviewRequest(source(), preprocess_settings=config))
+
+
+def test_unset_calibration_is_inferred_as_the_plate_run_infers_it(monkeypatch):
+    """A PSF left at its defaults previews, with the plate run's values."""
+    from spacr.point_spread import fill_psf_settings
+    monkeypatch.setattr(lp, 'preview_cellpose_model', lambda name: Model())
+    config = settings()
+    config.update(psf_image_sampling_um=None, psf_fwhm_um=None)
+    plate = deepcopy(config)
+    fill_psf_settings(plate, None)
+    request = lp.PreviewRequest(source(), preprocess_settings=config)
+    lp._segment_multi(request)
+    assert config['psf_image_sampling_um'] == plate['psf_image_sampling_um']
+    assert config['psf_fwhm_um'] == plate['psf_fwhm_um']
+    assert request.provenance['processing']['image_sampling_um'] == \
+        plate['psf_image_sampling_um']
+    calibration = request.provenance['psf_calibration']
+    assert any(line.startswith('pixel_size_um') for line in calibration)
+    assert any('default' in line for line in calibration)
+
+
+def test_set_calibration_is_kept_and_recorded_as_set(monkeypatch):
+    monkeypatch.setattr(lp, 'preview_cellpose_model', lambda name: Model())
+    config = settings()
+    request = lp.PreviewRequest(source(), preprocess_settings=config)
+    lp._segment_multi(request)
+    assert config['psf_image_sampling_um'] == [1., 1.]
+    assert request.provenance['psf_calibration'] == 'as set'
+
+
+def test_preview_field_file_is_the_inference_source(monkeypatch, tmp_path):
+    """The loaded field's own metadata wins over the defaults."""
+    tifffile = pytest.importorskip('tifffile')
+    path = tmp_path / 'field.tif'
+    tifffile.imwrite(path, source()[..., 0], resolution=(1 / 0.5, 1 / 0.5),
+                     metadata={'unit': 'um'}, imagej=True)
+    monkeypatch.setattr(lp, 'preview_cellpose_model', lambda name: Model())
+    config = settings()
+    config.update(psf_image_sampling_um=None, psf_fwhm_um=None)
+    request = lp.PreviewRequest(source(), preprocess_settings=config,
+                                source_path=str(path))
+    lp._segment_multi(request)
+    assert config['psf_image_sampling_um'] == [0.5, 0.5]
+    assert any('field.tif' in line for line in request.provenance['psf_calibration'])
 
 
 def test_classical_uses_processed_pixels_without_constructing_cellpose(monkeypatch):
@@ -155,6 +199,11 @@ def test_request_snapshots_nested_settings(panel):
     assert panel._settings['psf_fwhm_um'] == [12, 2]
 
 
+def test_request_carries_the_loaded_field_path(panel):
+    panel._path_full = '/data/plate1/field.tif'
+    assert panel._build_request().source_path == '/data/plate1/field.tif'
+
+
 def test_cancel_between_metadata_and_masks_keeps_previous_identity(panel):
     old = {'model': 'old', 'processing': {'operation': 'none'}}
     panel._on_processing_provenance(old, panel._run_token)
@@ -188,7 +237,7 @@ def test_success_history_and_failed_rerun_keep_actual_provenance(panel, qtbot, m
     assert panel._history[-1]['processing_provenance'] == record
     assert 'PSF:' in panel._status.text()
     assert 'batch normalization' in panel._status.toolTip()
-    panel._settings['psf_image_sampling_um'] = None
+    panel._settings['psf_image_sampling_um'] = [0., 1.]
     panel.run_preview()
     qtbot.waitUntil(lambda: 'psf_image_sampling_um' in panel._status.text())
     qtbot.waitUntil(lambda: not panel.preview_running())

@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, eleventh pass 2026-10-01: the wound_threshold setting label and help (wound-healing assay), written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "wound_threshold",
+      "source": "Wound threshold",
+      "source_sha256": "409afe2cf64ce07ae1b98793428c1f701969d710d2ad8da03c2a1ccf34b97ebb",
+      "translation": "伤口阈值"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_threshold",
+      "source": "Sets the cut between open wound and monolayer by hand, on the scale of the wound_level column of the wound table: for texture the local variance over the field's median, for intensity a share of the frame's 95th percentile. Use it when the automatic cut misreads a series: run once, read wound_level, then set a value. Higher counts more of the field as open. Used on every frame, with no recalibration of later frames. Blank or 0 keeps the automatic cut. Ignored by the masks source. Default None.",
+      "source_sha256": "432e21916913adc355038e6fee1b0ffa7a2962cb487fda57830c2b9fc28e0f67",
+      "translation": "手动设定开放伤口与单层之间的分界，所用尺度与伤口表中 wound_level 列相同：纹理为局部方差除以视野中位数，强度为该帧第 95 百分位数的一个比例。当自动分界误读某个序列时使用：先运行一次，读取 wound_level，再设定一个值。数值越高，视野中被计为开放的部分越多。用于每一帧，后续帧不再重新校准。留空或 0 则保留自动分界。masks 来源会忽略此项。默认值 None。"
+    }
+  ]
+}

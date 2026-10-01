@@ -31,6 +31,17 @@ mirrors what the user sees in ~/.spacr/logs/.
 
 Marked ``@pytest.mark.slow`` + ``@pytest.mark.gpu`` so they only run
 when the user asks for them via ``pytest -m "slow and gpu"``.
+
+CPU VERSIONS, 2026-09-25 (item 237, "GPU-only e2e tests get CPU versions?
+-- build CPU versions where cheap"). The two ingest tests never touched
+Cellpose -- only the fixture demanded a card -- so they are no longer
+gpu-marked. The v1 mask test runs on one 128 px field without a card
+(four with one) -- about 80 s on the CPU, measured on a loaded machine --
+so it now runs wherever
+Cellpose is installed and uses the card when there is one; its gpu mark is
+gone and it keeps ``slow``. The organelle, v2 and measure tests stay
+GPU-only: they repeat the mask stage with more object types or a second
+pipeline, and on the CPU they cost minutes for no new coverage.
 """
 from __future__ import annotations
 
@@ -46,6 +57,12 @@ import pytest
 # ---------------------------------------------------------------------------
 # Skip guards
 # ---------------------------------------------------------------------------
+
+def _require_cellpose():
+    """Skip when Cellpose is not installed; the device does not matter."""
+    pytest.importorskip("torch")
+    pytest.importorskip("cellpose")
+
 
 def _require_gpu_cellpose():
     # importorskip, not `except Exception`: "the package is not installed"
@@ -100,7 +117,6 @@ def _make_stub_dataset(dst: Path,
 
 @pytest.fixture(scope="module")
 def _stub_plate(tmp_path_factory):
-    _require_gpu_cellpose()
     root = tmp_path_factory.mktemp("real_module_tests", numbered=True)
     return _make_stub_dataset(root / "data")
 
@@ -146,7 +162,6 @@ def _mask_settings_for(src: Path) -> dict:
 # ---------------------------------------------------------------------------
 
 @pytest.mark.slow
-@pytest.mark.gpu
 def test_module_ingest_organizes_channels(_stub_plate, caplog):
     """_rename_and_organize_image_files builds the merged stack/ arrays
     directly from an in-memory channel dict — NO per-channel sub-folders are
@@ -177,15 +192,25 @@ def test_module_ingest_organizes_channels(_stub_plate, caplog):
 # ---------------------------------------------------------------------------
 
 @pytest.mark.slow
-@pytest.mark.gpu
 def test_module_preprocess_generate_masks_writes_cell_masks(
         tmp_path, caplog):
     """End-to-end v1 mask pipeline — assert cell masks land on disk
-    and the run journal records the pipeline function's entry."""
+    and the run journal records the pipeline function's entry.
+
+    Runs on the CPU when there is no card (see the module docstring), on
+    one field instead of four: the assertions are per field, and the CPU
+    cost is the Cellpose inference per field."""
+    _require_cellpose()
+    import torch
+
     from spacr.core import preprocess_generate_masks
     from spacr.run_journal import open_run
 
-    plate = _make_stub_dataset(tmp_path / "v1_full")
+    on_card = torch.cuda.is_available()
+    plate = _make_stub_dataset(
+        tmp_path / "v1_full",
+        wells=("A01", "A02") if on_card else ("A01",),
+        fields=(1, 2) if on_card else (1,))
     settings = _mask_settings_for(plate)
 
     caplog.set_level(logging.INFO, logger="spacr")
@@ -340,7 +365,6 @@ def test_module_measure_crop_writes_measurements_db(tmp_path):
 # ---------------------------------------------------------------------------
 
 @pytest.mark.slow
-@pytest.mark.gpu
 def test_module_ingest_writes_to_persistent_log(_stub_plate, tmp_path,
                                                     monkeypatch):
     """When a module runs, records should end up in ~/.spacr/logs/

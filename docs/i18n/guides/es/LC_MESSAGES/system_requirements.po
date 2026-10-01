@@ -1,0 +1,408 @@
+# spaCR user guide translation (es).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: es\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "System requirements"
+msgstr "Requisitos del sistema"
+
+msgid "Choose hardware for the largest images, number of concurrent fields and models you plan to run. These are planning recommendations, not measured minimums or speed guarantees. A GPU is optional for CPU-capable workflows; the acceleration matrix below identifies where particular hardware can help. See the :doc:`installer guide <installer_guide>` for installation and package compatibility."
+msgstr "Elija el hardware en función de las imágenes más grandes, el número de campos simultáneos y los modelos que tenga previsto ejecutar. Son recomendaciones de planificación, no mínimos medidos ni garantías de velocidad. La GPU es opcional en los flujos de trabajo que pueden usar la CPU; la matriz de aceleración siguiente indica dónde puede ayudar un hardware concreto. Consulte la :doc:`guía de instalación <installer_guide>` para la instalación y la compatibilidad de paquetes."
+
+msgid "General hardware recommendations"
+msgstr "Recomendaciones generales de hardware"
+
+msgid "Suggested workstation configurations"
+msgstr "Configuraciones de estación de trabajo sugeridas"
+
+msgid "Resource"
+msgstr "Recurso"
+
+msgid "Low: learning and small experiments"
+msgstr "Bajo: aprendizaje y experimentos pequeños"
+
+msgid "Medium: routine microscopy plates"
+msgstr "Medio: placas de microscopía rutinarias"
+
+msgid "High: large screens and model training"
+msgstr "Alto: cribados grandes y entrenamiento de modelos"
+
+msgid "CPU"
+msgstr "CPU"
+
+msgid "4–8 modern cores; about 2.5–3.5 GHz sustained on x86"
+msgstr "4–8 núcleos modernos; unos 2,5–3,5 GHz sostenidos en x86"
+
+msgid "8–16 cores; about 3–4 GHz sustained on x86"
+msgstr "8–16 núcleos; unos 3–4 GHz sostenidos en x86"
+
+msgid "16–32 cores; about 3–4 GHz sustained on x86"
+msgstr "16–32 núcleos; unos 3–4 GHz sostenidos en x86"
+
+msgid "RAM"
+msgstr "RAM"
+
+msgid "16 GB; process a few fields at a time"
+msgstr "16 GB; procesar pocos campos a la vez"
+
+msgid "32–64 GB"
+msgstr "32–64 GB"
+
+msgid "128 GB or more"
+msgstr "128 GB o más"
+
+msgid "GPU memory"
+msgstr "Memoria GPU"
+
+msgid "CPU operation, or a compatible GPU with 8 GB for modest tiled inference"
+msgstr "Funcionamiento en CPU, o una GPU compatible con 8 GB para una inferencia moderada por mosaicos"
+
+msgid "Compatible GPU with 12–16 GB dedicated VRAM; Apple silicon with 32–64 GB unified memory"
+msgstr "GPU compatible con 12–16 GB de VRAM dedicada; Apple Silicon con 32–64 GB de memoria unificada"
+
+msgid "Compatible GPU with 24–48 GB or more dedicated VRAM; Apple silicon with 64–128 GB or more unified memory for MPS-capable work"
+msgstr "GPU compatible con 24–48 GB o más de VRAM dedicada; Apple Silicon con 64–128 GB o más de memoria unificada para trabajo compatible con MPS"
+
+msgid "Storage"
+msgstr "Almacenamiento"
+
+msgid "SSD; reserve 30 GB for the environment, caches and initial models, plus project space"
+msgstr "SSD; reserve 30 GB para el entorno, las cachés y los modelos iniciales, además del espacio de los proyectos"
+
+msgid "1–2 TB NVMe SSD; reserve 50 GB for software and model caches"
+msgstr "SSD NVMe de 1–2 TB; reserve 50 GB para el software y las cachés de modelos"
+
+msgid "2–4 TB NVMe scratch storage, separate archive storage; reserve 100 GB for multiple model environments and caches"
+msgstr "Almacenamiento de trabajo NVMe de 2–4 TB y almacenamiento de archivo separado; reserve 100 GB para varios entornos de modelos y cachés"
+
+msgid "Typical use"
+msgstr "Uso típico"
+
+msgid "Tutorials, annotation, classical segmentation and small CPU analyses"
+msgstr "Tutoriales, anotación, segmentación clásica y análisis pequeños en CPU"
+
+msgid "Mask, Measure, phenotype inference and moderate embeddings"
+msgstr "Máscaras, Medición, inferencia fenotípica e incrustaciones moderadas"
+
+msgid "Larger training batches, many channels, larger volumes and concurrent plate analysis"
+msgstr "Lotes de entrenamiento más grandes, muchos canales, volúmenes mayores y análisis simultáneo de placas"
+
+msgid "CPU clock figures are rough x86 purchasing targets, not requirements; GHz is not comparable across architectures. Count physical cores separately from threads, and distinguish performance from efficiency cores on hybrid CPUs. Apple unified memory is shared by the OS, CPU and GPU and is not equivalent to the same quantity of dedicated VRAM. Available memory, image dimensions and batch size determine whether a workload fits. Training usually needs more memory than inference; large 3-D images may exceed any of these examples."
+msgstr "Las cifras de frecuencia de la CPU son objetivos de compra aproximados para x86, no requisitos; los GHz no son comparables entre arquitecturas. Cuente los núcleos físicos por separado de los hilos, y distinga los núcleos de rendimiento de los de eficiencia en las CPU híbridas. La memoria unificada de Apple la comparten el sistema operativo, la CPU y la GPU, y no equivale a la misma cantidad de VRAM dedicada. La memoria disponible, las dimensiones de las imágenes y el tamaño de lote determinan si una carga de trabajo cabe. El entrenamiento suele necesitar más memoria que la inferencia; las imágenes 3D grandes pueden superar cualquiera de estos ejemplos."
+
+msgid "Use a 64-bit OS and Python environment. The desktop installers target Windows 10/11 x86-64, Linux x86-64 and Intel/Apple-silicon macOS; their advertised OS floor does not guarantee that a newer GPU framework supports that same OS. Python 3.12 is the practical starting point for the broadest spaCR extras. spaCR's declared Python range is 3.9–3.14, excluding 3.14.1, but optional packages and individual hardware backends narrow that range. Current Apple MPS requirements include macOS 14 or later; use the requirements for the specific PyTorch build you install. `Apple's PyTorch requirements <https://developer.apple.com/metal/pytorch/>`_ describe the current native Apple-silicon route."
+msgstr "Use un sistema operativo y un entorno de Python de 64 bits. Los instaladores de escritorio están dirigidos a Windows 10/11 x86-64, Linux x86-64 y macOS en Intel/Apple Silicon; la versión mínima de sistema que anuncian no garantiza que un framework de GPU más reciente admita ese mismo sistema. Python 3.12 es el punto de partida práctico para la mayor variedad de extras de spaCR. El rango de Python declarado por spaCR es 3.9–3.14, excepto 3.14.1, pero los paquetes opcionales y algunos backends de hardware lo reducen. Los requisitos actuales de Apple MPS incluyen macOS 14 o posterior; use los requisitos de la versión concreta de PyTorch que instale. Los `requisitos de PyTorch de Apple <https://developer.apple.com/metal/pytorch/>`_ describen la vía nativa actual para Apple Silicon."
+
+msgid "GPU support by chip and framework"
+msgstr "Compatibilidad de GPU por chip y framework"
+
+msgid "**Available** means spaCR has a dispatch route when the matching framework, driver and model operators work. It does not mean every configuration in the row has been tested. **Conditional** means an optional or legacy stack needs verification with the intended module. **No** means that framework does not provide that acceleration route; CPU execution may still be available."
+msgstr "**Available** significa que spaCR tiene una vía de despacho cuando el framework, el controlador y los operadores del modelo correspondientes funcionan. No significa que se haya probado cada configuración de la fila. **Conditional** significa que una pila opcional o antigua debe verificarse con el módulo previsto. **No** significa que ese framework no ofrece esa vía de aceleración; la ejecución en CPU puede seguir disponible."
+
+msgid "Compute compatibility, checked 23 September 2026"
+msgstr "Compatibilidad de cálculo, comprobada el 23 de septiembre de 2026"
+
+msgid "Hardware"
+msgstr "Hardware"
+
+msgid "PyTorch neural workflows"
+msgstr "Flujos de trabajo neuronales de PyTorch"
+
+msgid "Cellpose 4 / Cellpose-SAM"
+msgstr "Cellpose 4 / Cellpose-SAM"
+
+msgid "CuPy array operations"
+msgstr "Operaciones de matrices de CuPy"
+
+msgid "RAPIDS / cuML embeddings"
+msgstr "Incrustaciones de RAPIDS / cuML"
+
+msgid "Apple M1 family, including Pro, Max and Ultra where offered"
+msgstr "Familia Apple M1, incluidos Pro, Max y Ultra cuando existen"
+
+msgid "Available: Metal/MPS on compatible macOS"
+msgstr "Available: Metal/MPS en un macOS compatible"
+
+msgid "Available: MPS network; some flow operations use CPU"
+msgstr "Available: red en MPS; algunas operaciones de flujo usan la CPU"
+
+msgid "No"
+msgstr "No"
+
+msgid "Apple M2 family, including Pro, Max and Ultra where offered"
+msgstr "Familia Apple M2, incluidos Pro, Max y Ultra cuando existen"
+
+msgid "Available: Metal/MPS"
+msgstr "Available: Metal/MPS"
+
+msgid "Apple M3 family, including Pro, Max and Ultra where offered"
+msgstr "Familia Apple M3, incluidos Pro, Max y Ultra cuando existen"
+
+msgid "Apple M4 family, including Pro and Max"
+msgstr "Familia Apple M4, incluidos Pro y Max"
+
+msgid "Newer Apple silicon"
+msgstr "Apple Silicon más reciente"
+
+msgid "Conditional on the installed macOS/PyTorch supporting the GPU"
+msgstr "Conditional: según si el macOS/PyTorch instalado admite la GPU"
+
+msgid "Same MPS and operator requirements"
+msgstr "Mismos requisitos de MPS y de operadores"
+
+msgid "Intel Mac CPU with Intel integrated graphics"
+msgstr "CPU de Mac Intel con gráficos integrados Intel"
+
+msgid "CPU; Intel integrated graphics is not the MPS route"
+msgstr "CPU; los gráficos integrados Intel no son la vía MPS"
+
+msgid "Intel Mac with a compatible AMD discrete GPU"
+msgstr "Mac Intel con una GPU dedicada AMD compatible"
+
+msgid "Conditional: legacy x86 PyTorch MPS build"
+msgstr "Conditional: compilación MPS antigua de PyTorch para x86"
+
+msgid "Conditional: legacy MPS stack; spaCR can use float32 weights and CPU flows"
+msgstr "Conditional: pila MPS antigua; spaCR puede usar pesos float32 y flujos en CPU"
+
+msgid "No supported spaCR macOS route"
+msgstr "No hay una vía de spaCR compatible en macOS"
+
+msgid "Intel Arc A/B discrete GPUs, supported Core Ultra Arc integrated GPUs, Data Center GPU Max"
+msgstr "GPU dedicadas Intel Arc A/B, GPU integradas Arc compatibles de Core Ultra, Data Center GPU Max"
+
+msgid "Available: XPU with a compatible PyTorch build and Intel driver"
+msgstr "Available: XPU con una compilación de PyTorch y un controlador Intel compatibles"
+
+msgid "Conditional: explicit XPU device; verify Cellpose operators and build"
+msgstr "Conditional: dispositivo XPU explícito; verifique los operadores y la compilación de Cellpose"
+
+msgid "Older Intel HD/UHD/Iris integrated GPUs on Windows"
+msgstr "GPU integradas Intel HD/UHD/Iris más antiguas en Windows"
+
+msgid "Conditional: DirectML on DirectX 12 hardware; otherwise CPU"
+msgstr "Conditional: DirectML en hardware DirectX 12; en caso contrario, CPU"
+
+msgid "Conditional and unvalidated via DirectML; CPU is the baseline"
+msgstr "Conditional y no validado mediante DirectML; la CPU es la referencia"
+
+msgid "AMD Radeon RX 7900 / supported RX 9000 models, supported Radeon PRO and Instinct GPUs"
+msgstr "AMD Radeon RX 7900 / modelos RX 9000 compatibles, GPU Radeon PRO e Instinct compatibles"
+
+msgid "Available: ROCm on explicitly supported GPU/OS combinations; Windows routes are version-specific"
+msgstr "Available: ROCm en combinaciones de GPU/sistema explícitamente compatibles; las vías de Windows dependen de la versión"
+
+msgid "Available on compatible Linux ROCm; verify other OS combinations"
+msgstr "Available en Linux ROCm compatible; verifique otras combinaciones de sistema"
+
+msgid "Experimental ROCm upstream; not installed by spaCR's CUDA extra"
+msgstr "ROCm experimental en el proyecto original; no lo instala el extra CUDA de spaCR"
+
+msgid "Other AMD integrated or discrete GPUs"
+msgstr "Otras GPU AMD integradas o dedicadas"
+
+msgid "Conditional: only if named in AMD's ROCm matrix, or DirectML on Windows; otherwise CPU"
+msgstr "Conditional: solo si figura en la matriz ROCm de AMD, o DirectML en Windows; en caso contrario, CPU"
+
+msgid "Conditional on the selected backend and operators"
+msgstr "Conditional: según el backend y los operadores seleccionados"
+
+msgid "Experimental only for ROCm-supported hardware"
+msgstr "Experimental solo para hardware compatible con ROCm"
+
+msgid "NVIDIA GeForce RTX 20/30/40/50, compatible RTX workstation and data-center GPUs"
+msgstr "NVIDIA GeForce RTX 20/30/40/50, GPU RTX para estaciones de trabajo y centros de datos compatibles"
+
+msgid "Available: CUDA on Linux/Windows with a matching wheel and driver"
+msgstr "Available: CUDA en Linux/Windows con una wheel y un controlador correspondientes"
+
+msgid "Available: CUDA; batch/image size must fit VRAM"
+msgstr "Available: CUDA; el tamaño de lote/imagen debe caber en la VRAM"
+
+msgid "Available: matching CUDA CuPy package"
+msgstr "Available: paquete CuPy para CUDA correspondiente"
+
+msgid "Available on supported Linux/WSL2; release-specific compute capability and CUDA requirements"
+msgstr "Available en Linux/WSL2 compatibles; capacidad de cálculo y requisitos de CUDA específicos de cada versión"
+
+msgid "Intel/AMD CPUs without a supported GPU"
+msgstr "CPU Intel/AMD sin GPU compatible"
+
+msgid "CPU, not GPU acceleration"
+msgstr "CPU, sin aceleración por GPU"
+
+msgid "No; use NumPy/SciPy fallbacks"
+msgstr "No; use las alternativas de NumPy/SciPy"
+
+msgid "No; use CPU embedding implementations"
+msgstr "No; use las implementaciones de incrustación en CPU"
+
+msgid "The processor brand does not determine CUDA availability: an AMD Ryzen or Intel Core host can both use an NVIDIA GPU. Likewise, an NPU or Apple Neural Engine is not a PyTorch GPU device in spaCR. Detection of such hardware is not a claim that Mask or Classify uses it."
+msgstr "La marca del procesador no determina la disponibilidad de CUDA: tanto un equipo con AMD Ryzen como uno con Intel Core pueden usar una GPU NVIDIA. Del mismo modo, una NPU o el Apple Neural Engine no es un dispositivo GPU de PyTorch en spaCR. Detectar ese hardware no implica que Máscaras o Clasificar lo usen."
+
+msgid "The Apple rows share the MPS route; increasing the chip generation does not add CUDA or CuPy support. spaCR's device resolver checks the actual runtime and selects float32 Cellpose weights when bfloat16 is unavailable. The current Apple guidance targets Apple silicon; Intel Mac/AMD support is a legacy path with older compatible PyTorch wheels, not a recommendation to buy an Intel Mac. `PyTorch MPS documentation <https://docs.pytorch.org/docs/stable/notes/mps.html>`_ and `Cellpose installation documentation <https://cellpose.readthedocs.io/en/latest/installation.html>`_ explain their backend requirements."
+msgstr "Las filas de Apple comparten la vía MPS; una generación de chip más reciente no añade compatibilidad con CUDA ni CuPy. El resolvedor de dispositivos de spaCR comprueba el entorno de ejecución real y selecciona pesos float32 de Cellpose cuando bfloat16 no está disponible. Las indicaciones actuales de Apple se dirigen a Apple Silicon; la compatibilidad con Mac Intel/AMD es una vía antigua con wheels de PyTorch compatibles más antiguas, no una recomendación de comprar un Mac Intel. La `documentación de MPS de PyTorch <https://docs.pytorch.org/docs/stable/notes/mps.html>`_ y la `documentación de instalación de Cellpose <https://cellpose.readthedocs.io/en/latest/installation.html>`_ explican sus requisitos de backend."
+
+msgid "Intel's supported devices and OS combinations differ by generation. Check the `PyTorch XPU hardware table <https://docs.pytorch.org/docs/stable/notes/get_start_xpu.html>`_ for the exact Arc/Core Ultra model; an Intel logo alone is insufficient. DirectML is a separate optional Windows backend with its own package and operator limits; Microsoft labels the PyTorch integration public preview. See `PyTorch with DirectML <https://learn.microsoft.com/en-us/windows/ai/directml/pytorch-windows>`_."
+msgstr "Los dispositivos y combinaciones de sistema que admite Intel varían según la generación. Consulte la `tabla de hardware XPU de PyTorch <https://docs.pytorch.org/docs/stable/notes/get_start_xpu.html>`_ para el modelo Arc/Core Ultra exacto; un logotipo de Intel no basta. DirectML es un backend opcional de Windows independiente, con su propio paquete y sus propios límites de operadores; Microsoft califica la integración con PyTorch de versión preliminar pública. Consulte `PyTorch con DirectML <https://learn.microsoft.com/en-us/windows/ai/directml/pytorch-windows>`_."
+
+msgid "For AMD, select the exact GPU, OS and PyTorch release in the `ROCm compatibility matrix <https://rocm.docs.amd.com/en/latest/compatibility/compatibility-matrix.html>`_. Support for one RX 7000 or RX 9000 model does not imply support for every card in that series. spaCR recognizes ROCm through PyTorch's CUDA-compatible API and reports it separately from NVIDIA CUDA."
+msgstr "Para AMD, seleccione la GPU, el sistema y la versión de PyTorch exactos en la `matriz de compatibilidad de ROCm <https://rocm.docs.amd.com/en/latest/compatibility/compatibility-matrix.html>`_. Que un modelo RX 7000 o RX 9000 sea compatible no implica que lo sean todas las tarjetas de esa serie. spaCR reconoce ROCm mediante la API compatible con CUDA de PyTorch y lo notifica por separado de NVIDIA CUDA."
+
+msgid "For NVIDIA, check the `GPU compute-capability table <https://developer.nvidia.com/cuda/gpus>`_ and use the matching build from the `PyTorch installation selector <https://pytorch.org/get-started/locally/>`_. New GPU generations may require newer CUDA wheels; an older installation can fail despite the card being CUDA-capable. CuPy and RAPIDS are independent of PyTorch: installing a CUDA-enabled torch wheel alone does not install them. `CuPy's installation guide <https://docs.cupy.dev/en/stable/install.html>`_ describes CUDA packages and the experimental AMD path. The `RAPIDS platform requirements <https://docs.rapids.ai/install/>`_ impose their own GPU architecture, CUDA and OS restrictions; native Windows is not the standard RAPIDS route. spaCR's ``rapids`` extra currently requests CUDA 12 packages on Python 3.11–3.12. Check the selected RAPIDS release rather than assuming every CUDA GPU works."
+msgstr "Para NVIDIA, consulte la `tabla de capacidad de cálculo de las GPU <https://developer.nvidia.com/cuda/gpus>`_ y use la compilación correspondiente del `selector de instalación de PyTorch <https://pytorch.org/get-started/locally/>`_. Las nuevas generaciones de GPU pueden requerir wheels de CUDA más recientes; una instalación antigua puede fallar aunque la tarjeta sea compatible con CUDA. CuPy y RAPIDS son independientes de PyTorch: instalar una wheel de torch con CUDA no los instala. La `guía de instalación de CuPy <https://docs.cupy.dev/en/stable/install.html>`_ describe los paquetes para CUDA y la vía experimental para AMD. Los `requisitos de plataforma de RAPIDS <https://docs.rapids.ai/install/>`_ imponen sus propias restricciones de arquitectura de GPU, CUDA y sistema; Windows nativo no es la vía estándar de RAPIDS. El extra ``rapids`` de spaCR solicita actualmente paquetes CUDA 12 en Python 3.11–3.12. Compruebe la versión de RAPIDS seleccionada en lugar de suponer que funciona cualquier GPU con CUDA."
+
+msgid "Which spaCR operations use these backends?"
+msgstr "¿Qué operaciones de spaCR usan estos backends?"
+
+msgid "Runtime paths"
+msgstr "Rutas de ejecución"
+
+msgid "Operation"
+msgstr "Operación"
+
+msgid "Acceleration"
+msgstr "Aceleración"
+
+msgid "Practical limit or fallback"
+msgstr "Límite práctico o alternativa"
+
+msgid "Mask / Make Masks / live Cellpose preview"
+msgstr "Máscaras / Crear máscaras / vista previa en vivo de Cellpose"
+
+msgid "PyTorch through spaCR's device resolver and Cellpose 4"
+msgstr "PyTorch mediante el resolvedor de dispositivos de spaCR y Cellpose 4"
+
+msgid "Network, flow reconstruction and image preprocessing can use different devices; CPU remains usable"
+msgstr "La red, la reconstrucción del flujo y el preprocesamiento de imágenes pueden usar dispositivos distintos; la CPU sigue siendo utilizable"
+
+msgid "Phenotype classification, training and neural inference"
+msgstr "Clasificación de fenotipos, entrenamiento e inferencia neuronal"
+
+msgid "PyTorch CUDA, ROCm, MPS, XPU or optional DirectML, as resolved"
+msgstr "PyTorch CUDA, ROCm, MPS, XPU o DirectML opcional, según se resuelva"
+
+msgid "Model-specific operators, precision and training memory may narrow support"
+msgstr "Los operadores específicos del modelo, la precisión y la memoria de entrenamiento pueden reducir la compatibilidad"
+
+msgid "Optional isolated segmentation backends"
+msgstr "Backends de segmentación aislados opcionales"
+
+msgid "Their own environment's torch build; automatic worker selection currently checks CUDA/ROCm, then MPS, then CPU"
+msgstr "La compilación de torch de su propio entorno; la selección automática de procesos de trabajo comprueba actualmente CUDA/ROCm, después MPS y después la CPU"
+
+msgid "Host detection does not install a matching worker stack; do not assume automatic XPU/DirectML worker dispatch"
+msgstr "La detección del equipo no instala una pila de procesos de trabajo correspondiente; no suponga un despacho automático de procesos de trabajo XPU/DirectML"
+
+msgid "OPS registration, peak finding, unmixing and matching primitives"
+msgstr "Primitivas de OPS de registro, detección de picos, desmezcla y emparejamiento"
+
+msgid "PyTorch where available, optional CuPy operations, then CPU implementations"
+msgstr "PyTorch cuando está disponible, operaciones opcionales de CuPy y, después, implementaciones en CPU"
+
+msgid "``ops_gpu`` and operation-specific backend options govern use; not every registration step is a GPU operation"
+msgstr "``ops_gpu`` y las opciones de backend específicas de cada operación rigen el uso; no todos los pasos de registro son operaciones de GPU"
+
+msgid "Optional accelerated dimensionality reduction"
+msgstr "Reducción de dimensionalidad acelerada opcional"
+
+msgid "RAPIDS/cuML with CUDA and CuPy"
+msgstr "RAPIDS/cuML con CUDA y CuPy"
+
+msgid "Explicit opt-in; CPU fallback when unavailable or when deterministic behavior requires it"
+msgstr "Activación explícita; alternativa en CPU cuando no está disponible o cuando lo requiere un comportamiento determinista"
+
+msgid "Measurement tables, image I/O and many classical statistics"
+msgstr "Tablas de mediciones, E/S de imágenes y muchas estadísticas clásicas"
+
+msgid "Predominantly CPU, RAM and disk throughput"
+msgstr "Principalmente el rendimiento de la CPU, la RAM y el disco"
+
+msgid "Adding VRAM does not replace host RAM or speed up every module"
+msgstr "Añadir VRAM no sustituye la RAM del equipo ni acelera todos los módulos"
+
+msgid "The matrix is based on spaCR's ``accelerator``, ``object``, ``ops_accel``, ``gpu_reduce`` and isolated-backend dispatch code as well as the linked upstream documentation. Framework capability is broader than a tested spaCR workflow. Verify the device reported by the intended module with a small representative field before scheduling a whole plate."
+msgstr "La matriz se basa en el código de despacho de spaCR para ``accelerator``, ``object``, ``ops_accel``, ``gpu_reduce`` y los backends aislados, así como en la documentación original enlazada. La capacidad de un framework es más amplia que un flujo de trabajo de spaCR probado. Verifique el dispositivo que indica el módulo previsto con un campo pequeño y representativo antes de programar una placa completa."
+
+msgid "Servers and shared compute"
+msgstr "Servidores y recursos de cálculo compartidos"
+
+msgid "Suggested server planning ranges"
+msgstr "Intervalos de planificación sugeridos para servidores"
+
+msgid "One active analysis job"
+msgstr "Un trabajo de análisis activo"
+
+msgid "Several independent jobs / larger training"
+msgstr "Varios trabajos independientes / entrenamiento mayor"
+
+msgid "16–32 physical cores; approximately 2.5–3.5 GHz sustained x86 clock"
+msgstr "16–32 núcleos físicos; frecuencia x86 sostenida de aproximadamente 2,5–3,5 GHz"
+
+msgid "32–64 or more physical cores; approximately 2.5–3.5 GHz sustained, with adequate memory bandwidth"
+msgstr "32–64 o más núcleos físicos; aproximadamente 2,5–3,5 GHz sostenidos, con un ancho de banda de memoria suficiente"
+
+msgid "128 GB; more for large 3-D fields or large measurement tables"
+msgstr "128 GB; más para campos 3D grandes o tablas de mediciones grandes"
+
+msgid "256–512 GB or more, apportioned per job"
+msgstr "256–512 GB o más, repartidos por trabajo"
+
+msgid "GPU"
+msgstr "GPU"
+
+msgid "One compatible GPU with 24–48 GB VRAM for a broadly useful training/inference node"
+msgstr "Una GPU compatible con 24–48 GB de VRAM para un nodo de entrenamiento/inferencia de uso general"
+
+msgid "Multiple compatible GPUs, typically 48–80 GB or more each for larger jobs; assign jobs explicitly"
+msgstr "Varias GPU compatibles, normalmente con 48–80 GB o más cada una para trabajos mayores; asigne los trabajos explícitamente"
+
+msgid "Local disk"
+msgstr "Disco local"
+
+msgid "2–4 TB NVMe scratch, plus 50–100 GB for environments and model caches"
+msgstr "Almacenamiento de trabajo NVMe de 2–4 TB, más 50–100 GB para entornos y cachés de modelos"
+
+msgid "4–8 TB or more NVMe scratch; size for all simultaneously active projects"
+msgstr "Almacenamiento de trabajo NVMe de 4–8 TB o más; dimensionado para todos los proyectos activos a la vez"
+
+msgid "Archive / network storage"
+msgstr "Almacenamiento de archivo / en red"
+
+msgid "Capacity for raw data, retained results and an independent backup"
+msgstr "Capacidad para los datos sin procesar, los resultados conservados y una copia de seguridad independiente"
+
+msgid "Shared storage sized for aggregate throughput; 10 GbE or faster is a useful planning target when moving large plates"
+msgstr "Almacenamiento compartido dimensionado para el rendimiento agregado; 10 GbE o más es un objetivo de planificación útil para mover placas grandes"
+
+msgid "These ranges are recommendations, not a guarantee that a particular volume or model will fit. Several GPUs do not automatically combine their VRAM into a single larger GPU. Independent job scheduling is distinct from distributed model training; use a module's documented multi-GPU capability when available. Limit worker counts and library threads to the scheduler allocation and leave RAM for the OS, caches and the parent process. Begin with one GPU worker per allocated GPU, then measure utilization before increasing concurrency."
+msgstr "Estos intervalos son recomendaciones, no una garantía de que un volumen o modelo concreto vaya a caber. Varias GPU no combinan automáticamente su VRAM en una sola GPU mayor. La planificación de trabajos independientes es distinta del entrenamiento distribuido de modelos; use la capacidad multi-GPU documentada de un módulo cuando exista. Limite el número de procesos de trabajo y de hilos de las bibliotecas a la asignación del planificador y deje RAM para el sistema operativo, las cachés y el proceso principal. Empiece con un proceso de trabajo de GPU por cada GPU asignada y mida la utilización antes de aumentar la concurrencia."
+
+msgid "Run headless jobs through ``spacr-run`` without launching a desktop or display server; ``spacr-run --list`` shows the available pipelines. Install the correct GPU framework in the environment actually running the job. Containers still require a compatible host driver and access to the assigned GPU. Use local scratch for active array processing and stage completed artifacts to shared storage, with a distinct writable project/output directory for each job."
+msgstr "Ejecute los trabajos sin interfaz gráfica mediante ``spacr-run`` sin iniciar un escritorio ni un servidor de pantalla; ``spacr-run --list`` muestra las canalizaciones disponibles. Instale el framework de GPU correcto en el entorno que realmente ejecuta el trabajo. Los contenedores siguen necesitando un controlador compatible en el equipo anfitrión y acceso a la GPU asignada. Use almacenamiento de trabajo local para el procesamiento activo de matrices y traslade los artefactos terminados al almacenamiento compartido, con una carpeta de proyecto/salida con permiso de escritura distinta para cada trabajo."
+
+msgid "Disk and memory budgeting"
+msgstr "Presupuesto de disco y memoria"
+
+msgid "Budget from uncompressed data, not only the compressed microscope files. An array needs approximately ``Y × X × Z × channels × bytes_per_value`` bytes, multiplied by the number of fields held at once. A 2048 × 2048, four-channel uint16 field is 32 MiB before masks or working copies; float32 doubles that image allocation. Normalized copies, intermediate arrays, masks, crops, training tensors and tables add separate allocations, and model activations can dominate GPU memory."
+msgstr "Haga el presupuesto a partir de los datos sin comprimir, no solo de los archivos comprimidos del microscopio. Una matriz necesita aproximadamente ``Y × X × Z × channels × bytes_per_value`` bytes, multiplicados por el número de campos que se mantienen a la vez. Un campo uint16 de 2048 × 2048 con cuatro canales ocupa 32 MiB antes de máscaras o copias de trabajo; float32 duplica esa asignación de imagen. Las copias normalizadas, las matrices intermedias, las máscaras, los recortes, los tensores de entrenamiento y las tablas añaden asignaciones propias, y las activaciones del modelo pueden dominar la memoria de la GPU."
+
+msgid "As an initial disk reservation, allow 3–5 times the uncompressed input size for an active project, in addition to software/model space and backups. This is a planning allowance, not an upper bound: extensive object crops, many retained checkpoints, volumes or repeated runs can require substantially more. Process a representative subset, measure the actual output multiplier, and reserve free space before expanding to the whole screen. Keep backups outside the working-space allowance. Each optional model environment and its weights can add gigabytes independently of the main spaCR installation."
+msgstr "Como reserva inicial de disco, prevea entre 3 y 5 veces el tamaño de la entrada sin comprimir para un proyecto activo, además del espacio para software/modelos y copias de seguridad. Es un margen de planificación, no un límite superior: muchos recortes de objetos, muchos puntos de control conservados, volúmenes o ejecuciones repetidas pueden requerir bastante más. Procese un subconjunto representativo, mida el multiplicador de salida real y reserve espacio libre antes de ampliar al cribado completo. Mantenga las copias de seguridad fuera del espacio de trabajo previsto. Cada entorno de modelo opcional y sus pesos pueden añadir varios gigabytes independientemente de la instalación principal de spaCR."
+

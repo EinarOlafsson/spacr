@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import functools
+import hashlib
 import http.server
 import json
 from pathlib import Path
@@ -25,9 +26,11 @@ from urllib.parse import urlparse
 
 from playwright.sync_api import sync_playwright
 
+from append_staged_lessons import parse_javascript
 from check_completed_matrix import digest
-from coming_soon import COPY, first_placeholder
+from coming_soon import COPY
 from stage_lesson import read, write
+from stage_web_renditions import web_dimensions
 from validate_candidate import validate
 from verify_staged_lesson import Handler
 
@@ -42,14 +45,25 @@ def check_sentence_cues(page):
     cases = []
     for sentence in sentences:
         requested = (sentence['speech_start'] + sentence['speech_end']) / 2
-        page.wait_for_function('!videoClockCorrectionPending && !elements.video.seeking && !elements.audio.seeking')
-        page.evaluate('(seconds) => seekTo(seconds)', requested)
-        page.wait_for_timeout(300)
-        page.evaluate('elements.video.pause()')
-        page.wait_for_timeout(150)
-        actual = page.evaluate('''() => ({audio: elements.audio.currentTime,
-            video: elements.video.currentTime,
-            cues: [...(elements.captionTrack.track.activeCues || [])].map(c => c.text)})''')
+        # A hosted seek can still be fetching when a fixed delay ends; the cue
+        # list then describes the previous position, and narration keeps
+        # playing while the picture loads. Pause right after the seek, as a
+        # viewer would (the player's pause handler stops both clocks), then
+        # read only once both elements have finished seeking. Repeat the seek
+        # if narration still drifted past the unchanged one-second tolerance.
+        for attempt in range(4):
+            page.wait_for_function('!videoClockCorrectionPending && !elements.video.seeking && !elements.audio.seeking',
+                                   timeout=30000)
+            page.evaluate('(seconds) => { seekTo(seconds); elements.video.pause(); }', requested)
+            page.wait_for_function('!elements.video.seeking && !elements.audio.seeking && elements.video.readyState >= 2',
+                                   timeout=90000)
+            page.wait_for_timeout(150)
+            actual = page.evaluate('''() => ({audio: elements.audio.currentTime,
+                video: elements.video.currentTime,
+                cues: [...(elements.captionTrack.track.activeCues || [])].map(c => c.text)})''')
+            if abs(actual['audio'] - requested) < 1:
+                break
+        actual['seek_attempts'] = attempt + 1
         assert abs(actual['audio'] - requested) < 1, (requested, actual)
         assert sentence['text'] in actual['cues'], (sentence, actual)
         cases.append({'requested_audio_time': requested, 'text': sentence['text'], **actual})
@@ -59,7 +73,7 @@ def check_sentence_cues(page):
 def published_tree(root, pages):
     """Return the pinned media root after proving the tree is the candidate's web bytes."""
     index = (pages / 'index.html').read_text(encoding='utf-8')
-    roots = set(re.findall(r'data-(?:audio|video4k)-root="([^"]+)"', index))
+    roots = set(re.findall(r'data-(?:audio|video4k|web)-root="([^"]+)"', index))
     if len(roots) != 1 or not re.fullmatch(PINNED_ROOT, next(iter(roots))):
         raise ValueError(f'The published index must pin one immutable media root, found {roots}')
     for record in read(root / 'release-manifest.json')['files']:
@@ -73,6 +87,8 @@ def verify(root, *, placeholders_only=False, published=None):
     root = Path(root).resolve()
     validate(root, include_hosted_media=published is None)
     records = {r['path']: r for r in read(root / 'release-manifest.json')['files']}
+    hosted_web = {lesson['id']: lesson['web'] for lesson in parse_javascript(
+        (root / 'web/lesson_catalog.js').read_text())['lessons'] if 'web' in lesson}
     if published is None:
         served, entry, media_root = root, '/web/', None
     else:
@@ -90,7 +106,9 @@ def verify(root, *, placeholders_only=False, published=None):
     english = read(root / 'web/catalog/lessons_en.json')
     ready = [l for l in english['lessons'] if l.get('status') != 'coming_soon']
     placeholders = [l['id'] for l in english['lessons'] if l.get('status') == 'coming_soon']
-    unavailable = first_placeholder(english['lessons'])
+    # Once every route is ready there is no Coming soon screen to check; the
+    # player's guards are then exercised by check_placeholder_mutations' probe.
+    unavailable = placeholders[0] if placeholders else None
 
     def allowed_remote(url):
         if not media_root:
@@ -100,7 +118,9 @@ def verify(root, *, placeholders_only=False, published=None):
 
     try:
         with sync_playwright() as engine:
-            browser = engine.chromium.launch(executable_path='/opt/google/chrome/chrome', headless=True)
+            browser = engine.chromium.launch(
+                executable_path='/opt/google/chrome/chrome', headless=True,
+                args=['--disable-gpu', '--disable-accelerated-video-decode'])
             def context(language='en', width=1440):
                 ctx = browser.new_context(viewport={'width': width, 'height': 1100})
                 def no_remote(route):
@@ -124,7 +144,7 @@ def verify(root, *, placeholders_only=False, published=None):
                                     ').forEach(([k,v]) => localStorage.setItem(k,v));')
                 return ctx
 
-            for language in COPY:
+            for language in (COPY if placeholders else ()):
                 ctx = context(language)
                 page = ctx.new_page()
                 page.on('pageerror', lambda error: errors.append(str(error)))
@@ -176,11 +196,17 @@ def verify(root, *, placeholders_only=False, published=None):
                 page.on('pageerror', lambda error: errors.append(str(error)))
                 requested_urls = []
                 page.on('request', lambda req: requested_urls.append(req.url))
-                page.goto(origin + entry + '#lesson=' + unavailable, wait_until='networkidle')
-                for lesson in ready:
+                page.goto(origin + entry + '#lesson=' + (unavailable or ready[0]['id']), wait_until='networkidle')
+                for position, lesson in enumerate(ready):
                     identity = lesson['id']
                     page.evaluate('(id) => selectLesson(id)', identity)
-                    page.wait_for_function('narrationAudioAvailable && elements.audio.readyState >= 1 && chapterData.length > 0', timeout=60000)
+                    # Wait for THIS lesson's narration and chapters: on a slow
+                    # host the previous lesson's state can satisfy a generic check.
+                    page.wait_for_function('''([identity, scenes]) => activeLesson?.id === identity &&
+                        narrationAudioAvailable && elements.audio.readyState >= 1 &&
+                        chapterData.length === scenes &&
+                        document.querySelectorAll('.chapter-button').length === scenes''',
+                        arg=[identity, len(lesson['scenes'])], timeout=60000 if media_root is None else 180000)
                     assert page.locator('#ready-player').is_visible()
                     assert not page.locator('#planned-card').is_visible()
                     assert page.locator('#complete-button').is_visible()
@@ -214,11 +240,30 @@ def verify(root, *, placeholders_only=False, published=None):
                     # A cold seek may still be loading media or decoding a frame,
                     # including local files while other media jobs are active.
                     # Keep the clock tolerance unchanged while waiting for it.
-                    page.wait_for_function('''!videoClockCorrectionPending &&
-                        !elements.video.seeking && !elements.audio.seeking &&
-                        Math.abs(elements.video.currentTime -
-                            videoTimeFromAudio(elements.audio.currentTime)) < .5''',
-                        timeout=15000, polling=50)
+                    # A hosted seek waits on the media host, which can take
+                    # well over 15 s when it is congested (the player holds
+                    # narration meanwhile); the agreement is still < 0.5 s.
+                    try:
+                        page.wait_for_function('''!videoClockCorrectionPending &&
+                            !elements.video.seeking && !elements.audio.seeking &&
+                            Math.abs(elements.video.currentTime -
+                                videoTimeFromAudio(elements.audio.currentTime)) < .5''',
+                            timeout=15000 if media_root is None else 90000, polling=50)
+                    except Exception:
+                        # Keep the failure's state for diagnosis; the check still fails.
+                        state = page.evaluate('''() => ({lesson: activeLesson?.id,
+                            correctionPending: videoClockCorrectionPending,
+                            audio: {time: elements.audio.currentTime, seeking: elements.audio.seeking,
+                                    ready: elements.audio.readyState, paused: elements.audio.paused,
+                                    network: elements.audio.networkState, src: elements.audio.currentSrc},
+                            video: {time: elements.video.currentTime, seeking: elements.video.seeking,
+                                    ready: elements.video.readyState, paused: elements.video.paused,
+                                    network: elements.video.networkState, src: elements.video.currentSrc},
+                            expectedVideo: videoTimeFromAudio(elements.audio.currentTime)})''')
+                        state['seek_elapsed_seconds'] = time.monotonic() - seek_started
+                        write(output / f'clock-failure-{identity}.json', state)
+                        print(json.dumps(state), flush=True)
+                        raise
                     clocks = page.evaluate('''() => ({audio: elements.audio.currentTime,
                         video: elements.video.currentTime, expected: videoTimeFromAudio(elements.audio.currentTime),
                         width: elements.video.videoWidth, height: elements.video.videoHeight,
@@ -228,7 +273,12 @@ def verify(root, *, placeholders_only=False, published=None):
                     clocks['seek_elapsed_seconds'] = time.monotonic() - seek_started
                     assert requested - .25 <= clocks['audio'] < requested + clocks['seek_elapsed_seconds'] + .5, (identity, clocks)
                     assert abs(clocks['video'] - clocks['expected']) < .5, (identity, clocks)
-                    assert (clocks['width'], clocks['height']) == (2560, 1440), (identity, clocks)
+                    assert (clocks['width'], clocks['height']) == web_dimensions(identity), (identity, clocks)
+                    if identity in hosted_web:
+                        source = page.evaluate('elements.video.currentSrc')
+                        host = media_root if media_root else origin + '/media_host'
+                        assert source == f'{host}/{hosted_web[identity]}', (identity, source)
+                        clocks['hosted_web_copy'] = source
                     for _ in range(2):
                         page.evaluate('renderCaptions()')
                         page.wait_for_function('elements.captionTrack.readyState === 2 && !captionTrackLoading')
@@ -237,8 +287,17 @@ def verify(root, *, placeholders_only=False, published=None):
                         '04_platform_installers', '12_map_barcodes', '21_model_compare', '22_model_zoo', '76_ops', '77_embeddings'} else []
                     # The positive playable counterpart is followed by a real
                     # transition back to unavailable, cancelling active audio.
-                    page.evaluate('(identity) => selectLesson(identity)', unavailable)
-                    assert page.evaluate('elements.audio.paused && !elements.audio.getAttribute("src")')
+                    if unavailable:
+                        page.evaluate('(identity) => selectLesson(identity)', unavailable)
+                        assert page.evaluate('elements.audio.paused && !elements.audio.getAttribute("src")')
+                    else:
+                        # No unavailable route remains: leaving for another ready
+                        # lesson must likewise stop and replace this lesson's audio.
+                        other = ready[(position + 1) % len(ready)]['id']
+                        page.evaluate('(identity) => selectLesson(identity)', other)
+                        page.wait_for_function('(identity) => activeLesson?.id === identity', arg=other)
+                        assert page.evaluate('''(identity) => elements.audio.paused &&
+                            !(elements.audio.getAttribute("src") || "").includes("/" + identity + "/")''', identity)
                     playback.append({'lesson': identity, 'audio_sha256': loaded, 'clocks': clocks,
                                      'chapter_text_matches_audio': True, 'native_caption_reloads': 2,
                                      'sentence_cue_checks': sentence_cues, 'passed': True})
@@ -268,15 +327,154 @@ def verify(root, *, placeholders_only=False, published=None):
         server.server_close()
 
 
+MOBILE_LESSONS = ('01_pypi_github', '04_platform_installers', '14_make_masks', '19_train_cellpose',
+                  '53_prediction_profiler', '76_ops', '85_host_pathogen')
+
+
+def verify_live_mobile(url, *, width=390, height=844, lessons=MOBILE_LESSONS):
+    """Play lessons on the LIVE Pages site at a phone viewport (touch, 3x DPR).
+
+    Reads nothing local: the deployed index must pin one immutable media root,
+    every media request must go to that root (or the host's download
+    redirects), each lesson's narration bytes must hash to its own sidecar's
+    ``media_sha256``, a tap on the video must start playback with narration
+    advancing, a chapter seek must keep video and narration within the
+    unchanged 0.5 s tolerance, and the page must not scroll sideways with the
+    video inside the viewport.
+    """
+    import urllib.request
+    url = url.rstrip('/') + '/'
+    index = urllib.request.urlopen(url, timeout=60).read().decode('utf-8')
+    roots = set(re.findall(r'data-(?:audio|video4k|web)-root="([^"]+)"', index))
+    if len(roots) != 1 or not re.fullmatch(PINNED_ROOT, next(iter(roots))):
+        raise ValueError(f'The live index must pin one immutable media root, found {roots}')
+    media_root = next(iter(roots))
+    site = urlparse(url).hostname
+    errors, foreign, hosted, cases = [], [], [], []
+
+    def route(r):
+        target = r.request.url
+        host = urlparse(target).hostname or ''
+        if host == site or target.startswith(('data:', 'blob:')):
+            r.continue_()
+        elif target.startswith(media_root + '/') or (host != 'huggingface.co' and host.endswith(REDIRECT_HOSTS)):
+            hosted.append(target)
+            r.continue_()
+        else:
+            foreign.append(target)
+            r.abort()
+
+    with sync_playwright() as engine:
+        browser = engine.chromium.launch(executable_path='/opt/google/chrome/chrome', headless=True,
+                                         args=['--disable-gpu', '--disable-accelerated-video-decode'])
+        ctx = browser.new_context(viewport={'width': width, 'height': height}, is_mobile=True,
+                                  has_touch=True, device_scale_factor=3)
+        ctx.route('**/*', route)
+        ctx.add_init_script("localStorage.setItem('spacr-tutorial-language-v2','en');"
+                            "localStorage.setItem('spacr-tutorial-voice-v2','af_heart');")
+        page = ctx.new_page()
+        page.on('pageerror', lambda error: errors.append(str(error)))
+        requested_urls = []
+        page.on('request', lambda req: requested_urls.append(req.url))
+        page.goto(url + '#lesson=' + lessons[0], wait_until='networkidle', timeout=120000)
+        for identity in lessons:
+            page.evaluate('(id) => selectLesson(id)', identity)
+            page.wait_for_function("""(identity) => activeLesson?.id === identity &&
+                narrationAudioAvailable && elements.audio.readyState >= 1 && chapterData.length > 0 &&
+                document.querySelectorAll('.chapter-button').length === chapterData.length""",
+                arg=identity, timeout=180000)
+            page.evaluate('closeSidebar()')
+            page.wait_for_timeout(400)
+            layout = page.evaluate("""() => {
+                const r = elements.video.getBoundingClientRect();
+                return {scroll_width: document.documentElement.scrollWidth, inner_width: innerWidth,
+                        video_box: [r.x, r.y, r.width, r.height], player_visible: !elements.player.hidden};
+            }""")
+            assert layout['scroll_width'] <= layout['inner_width'], (identity, layout)
+            x, _, w, h = layout['video_box']
+            assert layout['player_visible'] and w > 0 and h > 0 and x >= 0 and x + w <= width + .5, (identity, layout)
+            loaded = page.evaluate("""async () => {
+                const bytes = await (await fetch(elements.audio.src)).arrayBuffer();
+                const hash = await crypto.subtle.digest('SHA-256', bytes);
+                return Array.from(new Uint8Array(hash), b => b.toString(16).padStart(2,'0')).join('');
+            }""")
+            paired = page.evaluate('() => ({voice: audioTimings.voice, hash: audioTimings.media_sha256, src: elements.audio.currentSrc})')
+            assert paired['voice'] == 'af_heart' and paired['hash'] == loaded, (identity, paired, loaded)
+            # The player plays narration from a blob it fetched from the pinned host.
+            narration_url = f'{media_root}/{identity}/audio/en/af_heart.m4a'
+            assert narration_url in requested_urls, (identity, 'narration not loaded from the pinned host')
+            # A real touch on the video, as a phone viewer starts a lesson.
+            page.locator('#tutorial-video').scroll_into_view_if_needed()
+            page.tap('#tutorial-video')
+            start = 'tap'
+            try:
+                page.wait_for_function('!elements.audio.paused && elements.audio.currentTime > 1.0', timeout=90000)
+            except Exception:
+                page.evaluate('elements.video.play()')
+                start = 'video.play() after the tap did not start playback'
+                page.wait_for_function('!elements.audio.paused && elements.audio.currentTime > 1.0', timeout=90000)
+            playing = page.evaluate("""() => ({audio: elements.audio.currentTime, video: elements.video.currentTime,
+                expected: videoTimeFromAudio(elements.audio.currentTime), video_paused: elements.video.paused})""")
+            requested = page.evaluate('chapterData[Math.min(2, chapterData.length - 1)].start')
+            seek_started = time.monotonic()
+            page.evaluate('(seconds) => seekTo(seconds)', requested)
+            page.wait_for_timeout(1500)
+            page.wait_for_function("""!videoClockCorrectionPending && !elements.video.seeking && !elements.audio.seeking &&
+                Math.abs(elements.video.currentTime - videoTimeFromAudio(elements.audio.currentTime)) < .5""",
+                timeout=90000, polling=50)
+            clocks = page.evaluate("""() => ({audio: elements.audio.currentTime, video: elements.video.currentTime,
+                expected: videoTimeFromAudio(elements.audio.currentTime),
+                width: elements.video.videoWidth, height: elements.video.videoHeight,
+                error: elements.video.error?.message || elements.audio.error?.message || null,
+                video_src: elements.video.currentSrc})""")
+            clocks['requested_audio_time'] = requested
+            clocks['seek_elapsed_seconds'] = time.monotonic() - seek_started
+            assert clocks['error'] is None and clocks['width'] > 0, (identity, clocks)
+            assert abs(clocks['video'] - clocks['expected']) < .5, (identity, clocks)
+            assert clocks['video_src'].startswith(media_root + '/'), (identity, clocks)
+            page.evaluate('elements.video.pause()')
+            cases.append({'lesson': identity, 'audio_sha256': loaded, 'narration_url': narration_url, 'start': start,
+                          'playing_after_start': playing, 'clocks_after_seek': clocks,
+                          'layout': layout, 'passed': True})
+            print(identity, f'live mobile {width}x{height} playback PASS', flush=True)
+            assert not errors, errors
+        ctx.close()
+        browser.close()
+    if foreign or errors:
+        raise ValueError(f'Unexpected external requests/errors: {foreign}, {errors}')
+    return {'scope': f'Live Pages playback at a {width}x{height} phone viewport (touch, 3x DPR) against '
+                     'the deployed index and its pinned hosted media; not a listening review',
+            'url': url, 'index_sha256': hashlib.sha256(index.encode('utf-8')).hexdigest(),
+            'media_root': media_root,
+            'viewport': {'width': width, 'height': height, 'is_mobile': True,
+                         'has_touch': True, 'device_scale_factor': 3},
+            'hosted_requests': len(hosted), 'hosted_hosts': sorted({urlparse(u).hostname for u in hosted}),
+            'cases': cases, 'passed': True}
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('candidate', type=Path)
+    parser.add_argument('candidate', type=Path, nargs='?')
     parser.add_argument('--placeholders-only', action='store_true')
     parser.add_argument('--published', type=Path,
                         help='Pages tree pinned to hosted media; plays it against the host')
     parser.add_argument('--serve', action='store_true', help='Preview locally until Ctrl-C; never uploads')
+    parser.add_argument('--live-mobile', metavar='URL',
+                        help='Play lessons on the live Pages site at a phone viewport; needs no candidate')
+    parser.add_argument('--viewport', default='390x844', help='WIDTHxHEIGHT for --live-mobile')
+    parser.add_argument('--lessons', default=','.join(MOBILE_LESSONS), help='Comma-separated lessons for --live-mobile')
+    parser.add_argument('--receipt', type=Path, help='Where --live-mobile writes its JSON receipt')
     args = parser.parse_args()
-    if args.serve:
+    if args.live_mobile:
+        width, height = (int(v) for v in args.viewport.lower().split('x'))
+        result = verify_live_mobile(args.live_mobile, width=width, height=height,
+                                    lessons=tuple(args.lessons.split(',')))
+        if args.receipt:
+            write(args.receipt, result)
+        print(json.dumps({k: v for k, v in result.items() if k != 'cases'}))
+    elif args.candidate is None:
+        parser.error('candidate is required unless --live-mobile is given')
+    elif args.serve:
         root = args.candidate.resolve()
         manifest = read(root / 'release-manifest.json')
         for record in manifest['files']:

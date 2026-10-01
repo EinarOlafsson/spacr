@@ -43,7 +43,11 @@ def forget() -> None:
 
 
 def remembered(key: str) -> Optional[str]:
-    """What was already answered for ``key``, if anything."""
+    """What was already answered for ``key``, if anything.
+
+    :param key: the key an ``ask_for_...`` call remembered its answer under.
+        Returns ``None`` when nothing was answered for it in this run.
+    """
     return _ANSWERED.get(key)
 
 
@@ -157,6 +161,9 @@ def tables_in(database: str) -> list:
     Never raises: a path the user chose is a path that may be anything, and
     "this file holds no tables" is the sentence the form needs rather than
     an exception it would have to catch anyway.
+
+    :param database: path to the file to read, opened read-only as SQLite. Any
+        failure to open or query it yields an empty list.
     """
     from ..database_concurrency import connect
 
@@ -177,6 +184,11 @@ def columns_in(database: str, table: str) -> list:
     SQLite escapes a quote inside a quoted identifier by doubling it, and a
     table really can be named ``cell"s`` -- unescaped, the identifier ends
     early and the whole table reads as having no columns at all.
+
+    :param database: path to the SQLite file, opened read-only; any failure
+        yields an empty list.
+    :param table: name of the table whose columns are listed; embedded double
+        quotes are escaped before it is quoted into the ``PRAGMA``.
     """
     from ..database_concurrency import connect
 

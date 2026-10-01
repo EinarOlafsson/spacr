@@ -4,7 +4,7 @@ Workflow inputs and outputs
 Graph Builder
 ~~~~~~~~~~~~~
 
-Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context.
+Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context.
 
 **Open:** Home → Graph Builder.
 

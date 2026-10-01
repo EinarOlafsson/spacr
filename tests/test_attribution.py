@@ -182,6 +182,8 @@ def _fast_kwargs(name):
         return {"n_steps": 4}
     if name == "occlusion":
         return {"window": 6, "stride": 4}
+    if name == "gradient_shap":
+        return {"shap_samples": 4}
     if name == "feature_ablation":
         return {"block": 8}
     if name == "scorecam":
@@ -189,9 +191,10 @@ def _fast_kwargs(name):
     return {}
 
 
-#: Every method that works on a plain CNN — i.e. all but attention rollout.
+#: Every method that works on a plain CNN — i.e. all but the attention
+#: family (rollout and Chefer relevance), which need a transformer.
 CNN_METHODS = [n for n in sorted(ATTRIBUTION_METHODS)
-               if n != "attention_rollout"]
+               if ATTRIBUTION_METHODS[n].family != "attention"]
 TORCHCAM_METHODS = {
     name for name, spec in ATTRIBUTION_METHODS.items()
     if spec.backend == "torchcam"
@@ -219,22 +222,24 @@ def _skip_uninstalled_parametrized_backend(request):
 class TestRegistry:
     def test_every_family_the_item_asked_for_is_present(self):
         families = methods_by_family()
-        assert set(families) == {"cam", "gradient", "perturbation", "attention"}
+        assert set(families) == {"cam", "gradient", "shap", "perturbation",
+                                 "attention"}
         assert set(families["cam"]) == {
             "gradcam", "gradcam_pp", "scorecam", "xgradcam", "layercam",
-            "eigencam"}
+            "eigencam", "hirescam", "ablation_cam"}
+        assert set(families["shap"]) == {"gradient_shap", "deeplift_shap"}
         assert set(families["gradient"]) == {
             "saliency", "integrated_gradients", "guided_backprop",
             "input_x_gradient", "deeplift"}
         assert set(families["perturbation"]) == {"occlusion",
                                                  "feature_ablation"}
-        assert families["attention"] == ["attention_rollout"]
+        assert families["attention"] == ["attention_rollout", "chefer"]
 
     def test_the_libraries_do_the_maths_not_this_module(self):
         """Everything that torchcam or captum already implements is theirs.
 
-        Only Eigen-CAM (absent from torchcam 0.4) and attention rollout are
-        implemented here, and both say so.
+        Only Eigen-CAM, HiRes-CAM and Ablation-CAM (absent from torchcam
+        0.4), attention rollout and Chefer relevance are implemented here.
         """
         by_backend = {}
         for name, spec in ATTRIBUTION_METHODS.items():
@@ -243,8 +248,10 @@ class TestRegistry:
                                           "xgradcam", "layercam"}
         assert by_backend["captum"] == {
             "saliency", "integrated_gradients", "guided_backprop",
-            "input_x_gradient", "deeplift", "occlusion", "feature_ablation"}
-        assert by_backend["spacr"] == {"eigencam", "attention_rollout"}
+            "input_x_gradient", "deeplift", "occlusion", "feature_ablation",
+            "gradient_shap", "deeplift_shap"}
+        assert by_backend["spacr"] == {"eigencam", "attention_rollout",
+                                       "hirescam", "ablation_cam", "chefer"}
 
     def test_list_methods_can_be_filtered_by_family(self):
         assert "gradcam" in list_methods("cam")

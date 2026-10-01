@@ -1,21 +1,33 @@
 {
-  "lesson": "75_regression_diagnostics", "language": "sv",
-  "english_sha256": "636adada0750d87b67747ee847c26351442e9bb4bd9d98063728b6c302af4b33",
-  "review": {"kind": "Editorial caption translation checked against English and recorded diagnostic evidence", "native_speaker_signoff": false, "corrections": ["Preserve the distinction between design warnings, permutation inference and software errors.", "Retain numerical limits and explain why this run has no fitted residuals."]},
-  "title": "Regression Diagnostics: förstå underlaget bakom resultaten",
-  "description": "Öppna diagnostikfiler från en verklig analys av exempelscreeningen, skilj varningar om försöksdesignen från permutationsresultat och förstå begränsningarna med en kort demonstration.",
-  "objectives": ["Öppna Diagnostics i Regression och kontrollera resultatmappen som granskas.", "Tolka designens identifierbarhet, guidernas förekomst och inferenspanelerna i den valda analysens sammanhang.", "Förstå avsaknaden av anpassningsresidualer och den begränsade permutationsupplösningen utan att förutsätta att en modell har anpassats."],
-  "prerequisite": "Slutför Regression-exemplet med de fyra nedladdningsbara paren av poäng- och antalsfiler. Inspelningen granskar en avgränsad icke-parametrisk körning med 199 permutationer, minst två brunnar och resultat för både guider och gener. Den demonstrerar programvaran och diagnostiken, inte slutlig inferens för tillförlitliga fynd.",
+  "lesson": "75_regression_diagnostics",
+  "english_sha256": "f5063f20ac388e58f2c086d2c3d555de7b543c91ae100f8274c1fcf161aa402c",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Regression Diagnostics: granska de sparade analysrapporterna",
+  "description": "Öppna design- och inferensrapporterna för en slutförd körning, granska stöd och beroenden och använd fynden när du väljer nästa analys.",
+  "objectives": [
+    "Öppna diagnostikmappen för den avsedda Regression-körningen.",
+    "Läsa sammanfattningarna av designstöd, identifierbarhet och inferens.",
+    "Behålla diagnostiken med dess inställningar och köra om efter att ha ändrat en analys."
+  ],
+  "prerequisite": "Slutför Regression-exemplet med dess fyra par av poäng och antal. Den visade permutationskörningen använder 199 permutationer och minst två brunnar. Håll ihop inställningarna och resultatfamiljerna när du tolkar diagnostikpanelerna.",
   "scenes": [
-    "Håll pekaren över Diagnostics i Regression och öppna det efter att analysen är klar. Knappen läser sparade resultat; den anpassar ingen ny modell. Den öppnar projektets senaste diagnostikmapp, så kontrollera sökvägen om det finns flera körningar.",
-    "Systemets filhanterare visar de verkliga filerna från analysen av den nedladdade exempelscreeningen. Figurformatet var här inställt på PNG. Mappen innehåller designens identifierbarhet, designdiagnostik, inferensdiagnostik, en sammanfattningstabell och en tabell över kollineära guidepar.",
-    "Designen har 606 brunnar, 793 parametrar och rang 599. Den kan inte bestämma en unik koefficient för varje guide samtidigt. Varningen förklarar varför vi använde permutationsanalys; den betyder inte att en simultan modell har anpassats framgångsrikt.",
-    "Guiderna är ojämnt representerade: 355 förekommer bara i en brunn i denna design. Få förekomster begränsar vad försöket kan fastställa. Undersök täckningen innan du tolkar effekter och skilj hela designen från den filtrerade familj av guider som faktiskt testades.",
-    "Designpanelen hjälper till att hitta låg täckning och beroenden mellan guideprediktorer. Guider som alltid förekommer tillsammans är svåra att skilja statistiskt. Granska specifika par i kollinearitetstabellen i stället för att betrakta en varningssymbol som en fullständig förklaring.",
-    "Inferenspanelen sammanfattar 434 guidetester: p-värdenas fördelning, jämförelsen med en likformig nollfördelning och fynd vid olika korrigerade trösklar. Den korta körningen har inga fynd vid den visade tröskeln. En kalibreringsvarning uppmanar till undersökning, inte till att dra slutsatsen att biologiska effekter finns.",
-    "Vi använde bara 199 permutationer för att hålla demonstrationen kort. Det minsta möjliga empiriska p-värdet är därför 0,005. Upplösningen kan vara otillräcklig efter korrigering för multipla tester. Planera ett lämpligt antal permutationer för den egentliga analysen.",
-    "Denna permutationskörning har ingen panel med anpassningsresidualer eftersom den inte anpassade den simultana regressionsmodellen. Jämförelsen av p-värden var inte residualdiagnostik. Andra analyslägen kan skriva residualpaneler när de tillhandahåller observerade och anpassade värden.",
-    "Sammanfattningen registrerar varje panels bedömning och den sämsta bedömningen för hela diagnostiken. Läs bedömningarna i sitt sammanhang i stället för att tolka den övergripande symbolen som ett programfel. Python-API:t för regressionsdiagnostik skriver samma slags paneler utifrån de indata det får.",
-    "Återgå till Regression för att undersöka indata eller medvetet ändra ett analysval. En ändring kräver en ny körning och ny diagnostik; att öppna mappen uppdaterar aldrig gamla resultat. Regression-handledningen visar hela datamängden, konsolen, interaktiva resultat och hjälpfunktionerna."
+    "Från Home öppnar du Regression. När en analys är klar klickar du på Diagnostics. Kontrollera mappsökvägen: genvägen öppnar den senaste diagnostikmapp den hittar i projektet.",
+    "Läs diagnostikfilerna i mappen i ordning: först designens identifierbarhet, sedan designdiagnostiken med de kollinjära guideparen, därefter inferensdiagnostiken och sist sammanfattningen som knyter ihop dem.",
+    "Börja med Design identifiability. Jämför antalet brunnar, antalet parametrar och designens rang. Exemplet har fler parametrar än rangen stöder, så det kan inte identifiera en unik samtidig koefficient för varje guide.",
+    "Granska varje guides stöd över brunnarna. Exemplet innehåller många guider som bara finns i en brunn. Skilj den fullständiga designen från den filtrerade familjen av guider som faktiskt testades.",
+    "Öppna Design diagnostics och tabellen över kollinjära par. Identifiera prediktorer som alltid förekommer tillsammans eller har svagt stöd innan du tillskriver dem separata effekter.",
+    "Öppna Inference diagnostics. Granska fördelningen av P-värden, jämförelsen med nollhypotesen och upptäckterna vid olika justerade trösklar. Exemplet har inga upptäckter vid den visade tröskeln.",
+    "Kontrollera antalet permutationer när du tolkar P-värden. Med 199 permutationer är det minsta uppnåeliga empiriska P-värdet 0,005. Planera den upplösning som din korrektion för multipla tester behöver.",
+    "En permutationsanalys ger inga anpassade residualer från en samtidig regressionsmodell. Leta efter residualpaneler när du använder ett läge som ger observerade och anpassade värden.",
+    "Läs sammanfattningen tillsammans med de enskilda panelerna. Dess helhetsbedömning speglar den sämsta panelbedömningen, så öppna motsvarande rapport för att förstå orsaken.",
+    "Gå tillbaka till Regression för att medvetet ändra indata eller analysinställningar. Kör den reviderade analysen och granska dess nya diagnostik. Håll tidigare utdatamappar åtskilda så att varje rapport förblir kopplad till sina inställningar."
   ]
 }

@@ -1,0 +1,314 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Codex), no native-speaker signoff",
+  "note": "Feature 411, API delta 3, 2026-09-27. Written directly from the current English docstring blocks and technically reviewed by Codex against each source and its translation context. Protected literals, units, parameter meaning, negations and processing order were checked. No machine-translation decode was used for this delta. AI technical review only; no human or native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.cli_plugins#0",
+      "source": "Command-line diagnostics and catalogue installs for the spaCR plugin SDK.",
+      "source_sha256": "aea71f009932cf1bf3f231026f48dec7b3a7c9dbabdf261f93c9563f099dead6",
+      "context": "Command-line diagnostics and catalogue installs for the spaCR plugin SDK.",
+      "translation": "spaCR प्लगइन SDK के लिए कमांड-लाइन निदान और कैटलॉग से इंस्टॉलेशन।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.cli_plugins#1",
+      "source": "``spacr-plugins list`` and ``doctor`` report what is installed and what failed to load. ``catalogue`` browses a plugin and recipe catalogue (a JSON file, its folder or an address, or ``SPACR_PLUGIN_CATALOGUE``), and ``install``, ``update`` and ``uninstall`` manage one entry of it by key.",
+      "source_sha256": "7f2a3c4e41e7a9abf0527572473f58cb0e6a581853ebdcf2db9bca49bc050fe4",
+      "context": "``spacr-plugins list`` and ``doctor`` report what is installed and what failed to load. ``catalogue`` browses a plugin and recipe catalogue (a JSON file, its folder or an address, or ``SPACR_PLUGIN_CATALOGUE``), and ``install``, ``update`` and ``uninstall`` manage one entry of it by structured-data name.",
+      "translation": "``spacr-plugins list`` और ``doctor`` बताते हैं कि क्या इंस्टॉल है और क्या लोड नहीं हो सका। ``catalogue`` से प्लगइन और रेसिपी कैटलॉग (JSON फ़ाइल, उसका फ़ोल्डर या कोई पता, या ``SPACR_PLUGIN_CATALOGUE``) देखा जाता है; ``install``, ``update`` और ``uninstall`` उसमें किसी प्रविष्टि को उसकी कुंजी से प्रबंधित करते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.cli_plugins.main#0",
+      "source": "Run ``spacr-plugins`` and return a shell exit code.",
+      "source_sha256": "b7a9c0957c17bd777d240e22be87701e9ba27ffd053396503ad9eb79e0276c42",
+      "context": "Run ``spacr-plugins`` and return a shell exit code.",
+      "translation": "``spacr-plugins`` चलाएँ और शेल का एग्ज़िट कोड लौटाएँ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.cli_plugins.main#1",
+      "source": "arguments without the program name; ``sys.argv`` when None.",
+      "source_sha256": "cda06509c0d8be2ac6c17e26acf86e342d272a1240f0b2e6c8924d18d5a29b7e",
+      "context": "arguments without the program name; ``sys.argv`` when None.",
+      "translation": "प्रोग्राम के नाम के बिना आर्ग्युमेंट; None होने पर ``sys.argv``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.cli_repro#5",
+      "source": "``--export snakemake|nextflow --out DIR`` writes the run as a workflow that runs the same module once per plate with ``spacr-run``, locally, on a cluster, or inside the spaCR Docker/Apptainer image.",
+      "source_sha256": "a11ad98ba22bb1ce6fe275dd7791c1b3a49a308c33453956154c6ed34848ed1d",
+      "context": "``--export snakemake|nextflow --out DIR`` writes the processing session as a workflow that executes the same module once per plate with ``spacr-run``, locally, on a cluster, or inside the spaCR Docker/Apptainer image.",
+      "translation": "``--export snakemake|nextflow --out DIR`` रन को ऐसे कार्यप्रवाह के रूप में लिखता है जो ``spacr-run`` से हर प्लेट के लिए उसी मॉड्यूल को एक बार चलाता है—स्थानीय रूप से, क्लस्टर पर या spaCR की Docker/Apptainer इमेज के अंदर।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.core.preprocess_generate_masks#13",
+      "source": "``robustness_report`` — after the masks exist, re-segment a few sampled fields over a small grid of diameters, thresholds and contrast enhancement and write a stability report per object to ``qc/segmentation_robustness_<object>.csv``, flagging the settings the results are fragile to.",
+      "source_sha256": "c17527dde2936037401da9b251bee988446fcbc033796dbfea243442c461ae63",
+      "context": "``robustness_report`` — after the masks exist, re-segment a few sampled microscope fields of view over a small grid of diameters, thresholds and contrast enhancement and write a stability report per object to ``qc/segmentation_robustness_<object>.csv``, flagging the settings the results are fragile to.",
+      "translation": "``robustness_report`` — मास्क बन जाने के बाद, व्यास, थ्रेशोल्ड और कंट्रास्ट वृद्धि के छोटे पैरामीटर ग्रिड पर कुछ चुने गए दृश्य क्षेत्रों का दोबारा विभाजन करता है और ``qc/segmentation_robustness_<object>.csv`` में प्रति ऑब्जेक्ट स्थिरता रिपोर्ट लिखता है। यह उन सेटिंगों को चिह्नित करता है जिनके प्रति परिणाम संवेदनशील हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.core.preprocess_generate_masks#16",
+      "source": "``microscope_feedback`` — during a ``watch_folder`` run with ``watch_pipeline='mask_measure'``, send the objects matching ``microscope_event_query`` back to the microscope named by ``microscope_driver`` to be imaged again, at stage positions worked out from ``microscope_positions`` and ``microscope_stage_transform``.",
+      "source_sha256": "61226e080db4eced080f864b14c884ba5fd2cc8684078ebdb574905b217c9522",
+      "context": "``microscope_feedback`` — during a ``watch_folder`` run with ``watch_pipeline='mask_measure'``, send the objects matching ``microscope_event_query`` back to the microscope named by ``microscope_driver`` to be imaged again, at stage positions worked out from ``microscope_positions`` and ``microscope_stage_transform``.",
+      "translation": "``microscope_feedback`` — ``watch_folder`` रन के दौरान, जब ``watch_pipeline='mask_measure'`` हो, ``microscope_event_query`` से मेल खाने वाले ऑब्जेक्ट को ``microscope_driver`` द्वारा बताए गए माइक्रोस्कोप को वापस भेजता है, ताकि ``microscope_positions`` और ``microscope_stage_transform`` से निकाली गई स्टेज स्थितियों पर उनकी फिर से इमेजिंग हो सके।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.curation_queue.order_items#5",
+      "source": "``uncertain`` Most uncertain segmentation first, the key being ``-probs.get(stem, -1.0)`` with ``probs`` carrying each field's uncertainty from ``curate_uncertainty.csv``. An unscored field sorts last.",
+      "source_sha256": "54615bc3606b4ad70caf137bd7d1bc748c162eb7c5f61b1affe60ae32525d475",
+      "context": "``uncertain`` Most uncertain segmentation first, the structured-data name being ``-probs.get(stem, -1.0)`` with ``probs`` carrying each field's uncertainty from ``curate_uncertainty.csv``. An unscored field sorts last.",
+      "translation": "``uncertain`` सबसे अधिक अनिश्चित विभाजन पहले आता है; कुंजी ``-probs.get(stem, -1.0)`` है और ``probs`` में ``curate_uncertainty.csv`` से मिला हर दृश्य क्षेत्र का अनिश्चितता मान होता है। बिना स्कोर वाला दृश्य क्षेत्र अंत में आता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.curation_queue.order_items#9",
+      "source": "``{stem: probability}``, or a callable returning one, or ``None`` for none available; for ``uncertain``, ``{stem: uncertainty}``.",
+      "source_sha256": "318a2b5428f1fc0f007f3170cb945eccfbc4d1f87d50424a4aab4fa3775cf7dd",
+      "context": "``{stem: probability}``, or a callable returning one, or ``None`` for none available; for ``uncertain``, ``{stem: uncertainty}``.",
+      "translation": "``{stem: probability}``, ऐसा मैपिंग लौटाने वाला कॉल करने योग्य ऑब्जेक्ट, या कोई मैपिंग उपलब्ध न होने पर ``None``; ``uncertain`` के लिए ``{stem: uncertainty}``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.embeddings.embed_array#4",
+      "source": "a callable taking ``(n, height, width, 3)`` float32 in [0, 1] and returning ``(n, dims)``. An encoder with an ``in_channels`` attribute takes that many planes instead, and one whose ``in_channels`` is ``None`` takes any number: each channel alone under the per-channel policy, every encoded channel in one pass under the projection policy. Injected by the tests so the wiring can be exercised without downloading a backbone; production callers leave it ``None``.",
+      "source_sha256": "1ce695814ba5d53929f1cfdbd20ca84d708d47090b58be77e869eda0976af31d",
+      "context": "a callable taking ``(n, height, width, 3)`` float32 in [0, 1] and returning ``(n, dims)``. An encoder with an ``in_channels`` attribute takes that many image layers instead, and one whose ``in_channels`` is ``None`` takes any number: each image data channel alone under the per-image data channel policy, every encoded image data channel in one pass under the projection policy. Injected by the tests so the wiring can be exercised without downloading a backbone; production callers leave it ``None``.",
+      "translation": "एक कॉल करने योग्य ऑब्जेक्ट जो [0, 1] की सीमा में ``(n, height, width, 3)`` आकार का float32 डेटा लेता है और ``(n, dims)`` लौटाता है। ``in_channels`` एट्रिब्यूट वाला एनकोडर इसके बजाय उतने इमेज प्लेन लेता है; जिसका ``in_channels`` मान ``None`` है, वह किसी भी संख्या में प्लेन लेता है: प्रति-चैनल नीति में हर चैनल अलग से, और प्रोजेक्शन नीति में सभी एनकोड किए गए चैनल एक ही पास में। परीक्षण इसे इंजेक्ट करते हैं ताकि बैकबोन नेटवर्क डाउनलोड किए बिना घटकों के संयोजन की जाँच की जा सके; प्रोडक्शन में कॉल करने वाले इसका मान ``None`` ही रखते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.illumination.IlluminationField#10",
+      "source": "optional ``(C, Y, X)`` spatial background subtracted on top of ``dark``. Only a vendor profile that ships its own background surface carries one; an estimated field never does.",
+      "source_sha256": "039a30663b5f4970510ce6cc321f7f878dc3309b6ea3e1143ac2da8df2611709",
+      "context": "optional ``(C, Y, X)`` spatial background subtracted on top of ``dark``. Only a vendor profile that ships its own background surface carries one; an estimated field never does.",
+      "translation": "वैकल्पिक ``(C, Y, X)`` स्थानिक पृष्ठभूमि, जिसे ``dark`` के अतिरिक्त घटाया जाता है। केवल अपनी पृष्ठभूमि सतह के साथ आने वाली निर्माता प्रोफ़ाइल में यह होती है; अनुमानित फ़ील्ड में कभी नहीं होती।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.illumination.prepare_illumination_correction#3",
+      "source": "a ``measure_crop`` settings dict. Reads ``illumination_correction``, ``illumination_model``, ``illumination_estimator``, ``illumination_degree``, ``illumination_per_plate``, ``illumination_max_fields``, ``illumination_dark``, ``illumination_on_missing``, ``illumination_qc``, ``illumination_vendor_profile``, plus ``src`` and ``channels``.",
+      "source_sha256": "7d9732d503d6b69caa62264f3a6bd65ab5017c8f993c6941d0edffce64708fe0",
+      "context": "a ``measure_crop`` settings key-value mapping. Reads ``illumination_correction``, ``illumination_model``, ``illumination_estimator``, ``illumination_degree``, ``illumination_per_plate``, ``illumination_max_fields``, ``illumination_dark``, ``illumination_on_missing``, ``illumination_qc``, ``illumination_vendor_profile``, plus ``src`` and ``channels``.",
+      "translation": "``measure_crop`` की सेटिंग डिक्शनरी। ``illumination_correction``, ``illumination_model``, ``illumination_estimator``, ``illumination_degree``, ``illumination_per_plate``, ``illumination_max_fields``, ``illumination_dark``, ``illumination_on_missing``, ``illumination_qc``, ``illumination_vendor_profile`` के साथ ``src`` और ``channels`` पढ़ता है।",
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
+    },
+    {
+      "label": "spacr.illumination.prepare_illumination_model#1",
+      "source": "This is the direct consumer of all ten ``illumination_*`` settings.  It estimates, loads or reads a vendor flat-field profile into the model once, ensures a fitted model is saved, hashes the exact saved bytes, optionally writes stage-labelled QC, and builds a corrector.  Applying that corrector belongs to the caller's stage.",
+      "source_sha256": "773830a7a23aa85f476671c8e45ec3da7b95d915d90333b4cce647ef79435fb0",
+      "context": "This is the direct consumer of all ten ``illumination_*`` settings.  It estimates, loads or reads a vendor flat-field profile into the model once, ensures a fitted model is saved, hashes the exact saved bytes, optionally writes stage-labelled QC, and builds a corrector.  Applying that corrector belongs to the caller's stage.",
+      "translation": "यह सभी दस ``illumination_*`` सेटिंगों का सीधे उपयोग करता है। एक बार मॉडल का अनुमान लगाता है, उसे लोड करता है या निर्माता की फ्लैट-फ़ील्ड प्रोफ़ाइल उसमें पढ़ता है; सुनिश्चित करता है कि फ़िट किया गया मॉडल सहेजा जाए; सहेजे गए सटीक बाइटों का हैश निकालता है; वैकल्पिक रूप से प्रसंस्करण चरण के नाम वाला गुणवत्ता नियंत्रण (QC) परिणाम लिखता है; और एक सुधारक बनाता है। उस सुधारक को लागू करना कॉल करने वाले के चरण का काम है।",
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
+    },
+    {
+      "label": "spacr.illumination.prepare_illumination_model#2",
+      "source": "settings carrying the ten illumination controls. A non-empty ``illumination_vendor_profile`` replaces the estimate with the vendor's own flat field; ``illumination_model`` still wins over both.",
+      "source_sha256": "b124e1d708fb5d05f93655d2e0e52c96accc228232e17046edeedc56c7e460b6",
+      "context": "settings carrying the ten illumination controls. A non-empty ``illumination_vendor_profile`` replaces the estimate with the vendor's own flat field; ``illumination_model`` still wins over both.",
+      "translation": "प्रकाश के दस नियंत्रणों वाली सेटिंगें। गैर-रिक्त ``illumination_vendor_profile`` अनुमान की जगह निर्माता का अपना फ्लैट-फ़ील्ड रखता है; ``illumination_model`` को फिर भी दोनों पर प्राथमिकता मिलती है।",
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
+    },
+    {
+      "label": "spacr.illumination.register_illumination_settings#3",
+      "source": "The ten keys ARE filed under a heading -- \"Illumination Correction\" in ``spacr.settings.categories`` -- and Measure's panel offers every one of them, because ``measure_crop`` calls :func:`prepare_illumination_correction` itself and these are the keys that call reads. The heading is written in that map by hand for the reason above: it has to exist for every process that groups the Measure settings, not only for one that happened to import this module.",
+      "source_sha256": "65be833d95e3dad52244c02a72fe958c040dd2693c0dc9e3fcaf80ff5ad94985",
+      "context": "The ten structured-data names ARE filed under a heading -- \"Illumination Correction\" in ``spacr.settings.categories`` -- and Measure's panel offers every one of them, because ``measure_crop`` calls :func:`prepare_illumination_correction` itself and these are the structured-data names that call reads. The heading is written in that map by hand for the reason above: it has to exist for every process that groups the Measure settings, not only for one that happened to import this module.",
+      "translation": "दसों कुंजियाँ वास्तव में एक शीर्षक के अंतर्गत दर्ज हैं -- ``spacr.settings.categories`` में \"Illumination Correction\" -- और मापन पैनल उन सभी को उपलब्ध कराता है, क्योंकि ``measure_crop`` स्वयं :func:`prepare_illumination_correction` को कॉल करता है और वह कॉल इन्हीं कुंजियों को पढ़ती है। ऊपर दिए कारण से यह शीर्षक उस मैप में हाथ से लिखा गया है: मापन सेटिंगों को समूहित करने वाली हर प्रक्रिया के लिए यह मौजूद होना चाहिए, केवल उस प्रक्रिया के लिए नहीं जिसने संयोग से यह मॉड्यूल आयात किया हो।",
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
+    },
+    {
+      "label": "spacr.pipeline_v2.stream_masks_from_stack#10",
+      "source": "optional captured PSF session. Unmixes each whole field first when unmixing is on, then processes selected intensities after illumination and before normalization, padding or Cellpose. Stored image channels stay raw; only the appended labels depend on PSF processing.",
+      "source_sha256": "73a797dd6762183eb99c4eda98ad78306b37f293bd697e9662dbbcea878fa976",
+      "context": "optional captured PSF session. Unmixes each whole microscope field of view first when unmixing is on, then processes selected intensities after illumination and before normalization, padding or Cellpose. Stored image data channels stay raw; only the appended labels depend on PSF processing.",
+      "translation": "वैकल्पिक कैप्चर किया गया PSF सत्र। स्पेक्ट्रल पृथक्करण चालू होने पर पहले प्रत्येक पूरे दृश्य क्षेत्र का पृथक्करण करता है, फिर प्रकाश सुधार के बाद और सामान्यीकरण, पैडिंग या Cellpose से पहले चुने हुए तीव्रता मानों को संसाधित करता है। संग्रहीत इमेज चैनल कच्चे ही रहते हैं; केवल जोड़े गए लेबल PSF प्रसंस्करण पर निर्भर होते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plot.plot_image_grid#1",
+      "source": "Each tile carries its source file and the per-channel display range it was stretched to, so a checked export (see :func:`save_figure`) can say when tiles are scaled differently and write a provenance sidecar that rebuilds every tile from its file.",
+      "source_sha256": "7ec13439fda1359947fa838f7385b6e4c5e6b2fe0d0b4ae151c785bf8c320dd9",
+      "context": "Each tile carries its source file and the per-channel display range it was stretched to, so a checked export (see :func:`save_figure`) can say when tiles are scaled differently and write a provenance sidecar that rebuilds every tile from its file.",
+      "translation": "हर टाइल अपनी स्रोत फ़ाइल और प्रत्येक चैनल की वह प्रदर्शन सीमा रखती है जिस तक उसे फैलाया गया था, ताकि जाँचा गया निर्यात (:func:`save_figure` देखें) टाइलों के अलग-अलग स्केल होने की सूचना दे सके और एक साथ रखी जाने वाली स्रोत-इतिहास फ़ाइल लिख सके, जिससे हर टाइल उसकी फ़ाइल से दोबारा बनाई जा सके।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plot.save_figure#14",
+      "source": "check the figure's image panels before writing -- display ranges that differ between panels meant for comparison, saturated or clipped pixels, repeated panels, a lossy format, and panels written with fewer pixels than they hold -- print any warning, stamp the provenance (source files, display settings, processing steps, spaCR version) into the PNG or PDF metadata and write it to a ``<file>.provenance.json`` sidecar beside the figure. None follows ``SPACR_FIGURE_INTEGRITY`` and then the Preferences toggle, which is off by default. A figure without image panels is written unchanged either way.",
+      "source_sha256": "eab2c7e944337e92601d4193eb6a95a8a9a14b44bf63851398481f8bf597237a",
+      "context": "check the figure's image panels before writing -- display ranges that differ between panels meant for comparison, saturated or clipped pixels, repeated panels, a lossy format, and panels written with fewer pixels than they hold -- print any warning, stamp the provenance (source files, display settings, processing steps, spaCR version) into the PNG or PDF metadata and write it to a ``<file>.provenance.json`` sidecar beside the figure. None follows ``SPACR_FIGURE_INTEGRITY`` and then the Preferences toggle, which is off by default. A figure without image panels is written unchanged either way.",
+      "translation": "लिखने से पहले चित्र के इमेज पैनलों की जाँच करता है -- तुलना के लिए रखे पैनलों की अलग प्रदर्शन सीमाएँ, संतृप्त या क्लिप किए पिक्सेल, दोहराए गए पैनल, हानिपूर्ण प्रारूप और मूल से कम पिक्सेल में लिखे गए पैनल --, चेतावनियाँ दिखाता है, स्रोत-इतिहास (स्रोत फ़ाइलें, प्रदर्शन सेटिंगें, प्रसंस्करण चरण, spaCR संस्करण) को PNG या PDF मेटाडेटा में जोड़ता है और चित्र के पास ``<file>.provenance.json`` सहायक फ़ाइल में लिखता है। None पहले ``SPACR_FIGURE_INTEGRITY`` और फिर प्राथमिकताएं के टॉगल का अनुसरण करता है; यह टॉगल डिफ़ॉल्ट रूप से बंद है। बिना इमेज पैनल वाला चित्र दोनों स्थितियों में बिना बदलाव लिखा जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plugins#3",
+      "source": "Plugins and assay recipes can also be installed from a catalogue, a JSON file listing each entry's version, author and licence. A catalogue plugin is installed into its own folder under ``~/.spacr/plugins`` (or ``SPACR_PLUGIN_HOME``), together with the libraries it asks for, so it never replaces or upgrades a package spaCR itself uses; it is discovered like any other plugin until it is uninstalled.",
+      "source_sha256": "52954824d7f15d9bc6e0607035172f86060e2844ac2bb53b20479675d3cc3f81",
+      "context": "Plugins and assay recipes can also be installed from a catalogue, a JSON file listing each entry's version, author and licence. A catalogue plugin is installed into its own folder under ``~/.spacr/plugins`` (or ``SPACR_PLUGIN_HOME``), together with the libraries it asks for, so it never replaces or upgrades a package spaCR itself uses; it is discovered like any other plugin until it is uninstalled.",
+      "translation": "प्लगइन और परख विधियाँ कैटलॉग से भी इंस्टॉल की जा सकती हैं। यह एक JSON फ़ाइल है जो हर प्रविष्टि का संस्करण, लेखक और लाइसेंस बताती है। कैटलॉग का प्लगइन अपनी आवश्यक लाइब्रेरी के साथ ``~/.spacr/plugins`` या ``SPACR_PLUGIN_HOME`` के अंतर्गत अपने अलग फ़ोल्डर में इंस्टॉल होता है, इसलिए वह spaCR द्वारा उपयोग किए जाने वाले किसी पैकेज को कभी बदलता या अपग्रेड नहीं करता; अनइंस्टॉल होने तक उसे अन्य प्लगइन की तरह ही खोजा जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_pipeline#3",
+      "source": "SPECTRAL UNMIXING COMES FIRST. With ``unmix`` on, a bleed-through matrix is estimated from the single-stain control wells ``unmix_controls`` names and every raw field is unmixed across all its channels before illumination correction, the PSF and the chain; the matrix joins the same record. Measure estimates its own over the measured channels and unmixes each field before its preprocessing hooks, recording the matrix in the saved run settings and ``measurements/bleed_through.json``.",
+      "source_sha256": "f222dfd579604639ea1be03958180542182f5d8d6067ae15c7456f53c881b158",
+      "context": "Spectral unmixing comes first. With ``unmix`` on, a bleed-through matrix is estimated from the single-stain control microplate sample positions ``unmix_controls`` names and every raw microscope field of view is unmixed across all its image data channels before illumination correction, the PSF and the chain; the matrix joins the same record. Measure estimates its own over the measured image data channels and unmixes each microscope field of view before its preprocessing hooks, recording the matrix in the saved processing-session settings and ``measurements/bleed_through.json``.",
+      "translation": "स्पेक्ट्रल पृथक्करण सबसे पहले होता है। ``unmix`` चालू होने पर, ``unmix_controls`` द्वारा बताए गए एकल-रंजन नियंत्रण वेलों से चैनलों के बीच रिसाव का मैट्रिक्स अनुमानित किया जाता है और प्रकाश सुधार, PSF तथा श्रृंखला से पहले हर कच्चे दृश्य क्षेत्र के सभी चैनलों का पृथक्करण किया जाता है; मैट्रिक्स उसी रिकॉर्ड में जुड़ता है। मापन मापे गए चैनलों पर अपना मैट्रिक्स अनुमानित करता है और अपने पूर्व-प्रसंस्करण हुक से पहले हर दृश्य क्षेत्र का पृथक्करण करता है। मैट्रिक्स सहेजी गई रन सेटिंगों और ``measurements/bleed_through.json`` में दर्ज होता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_pipeline.processing_requested#2",
+      "source": "the run's ``psf_*``, ``enhance_*`` and ``unmix`` settings.",
+      "source_sha256": "020ed299519d4a96466f449c51fce3e7ded116aa8465c8f16223cc082a25e525",
+      "context": "the processing session's ``psf_*``, ``enhance_*`` and ``unmix`` settings.",
+      "translation": "रन की ``psf_*``, ``enhance_*`` और ``unmix`` सेटिंगें।",
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-28: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
+    },
+    {
+      "label": "spacr.psf_pipeline.processing_requested#3",
+      "source": "True when any is switched on or the chain cannot be read.",
+      "source_sha256": "a0d4a87dc2658f77c707a59b0b867d4323ad037fa23627efc1dd99eb0ed09634",
+      "context": "True when any is switched on or the chain cannot be read.",
+      "translation": "इनमें से कोई भी चालू हो या श्रृंखला पढ़ी न जा सके तो True।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_pipeline.validate_psf_resume#1",
+      "source": "requested PSF, ``enhance_*`` and ``unmix`` settings; off also checks a prior PSF, chain or unmixing run.",
+      "source_sha256": "261d6a01b40b8d08812f74e3c949c869c8598ea8f8a1fbd88d12301caffd92c5",
+      "context": "requested PSF, ``enhance_*`` and ``unmix`` settings; off also checks a prior PSF, chain or unmixing run.",
+      "translation": "अनुरोधित PSF, ``enhance_*`` और ``unmix`` सेटिंगें; बंद स्थिति में भी पिछले PSF, श्रृंखला या स्पेक्ट्रल पृथक्करण रन की जाँच होती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt#0",
+      "source": "PySide6 (Qt 6) desktop interface for spaCR.",
+      "source_sha256": "9bf9570ddb9b1d1b600c85d8eaa69ae816440aab5d37fdff48b050f93fc9bdfb",
+      "context": "PySide6 (Qt 6) desktop interface for spaCR.",
+      "translation": "spaCR के लिए PySide6 (Qt 6) डेस्कटॉप इंटरफ़ेस।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt#1",
+      "source": "Launch the application with ``spacr``, ``spacr-qt``, ``python -m spacr.qt`` or ``python -m spacr``. The last command also accepts subcommands such as ``mask`` and ``measure`` to open a specific application tab.",
+      "source_sha256": "6797c54a8ab1291fb675e05a6622391cf568f71960020bb5220882f672f88bc9",
+      "context": "Launch the application with ``spacr``, ``spacr-qt``, ``python -m spacr.qt`` or ``python -m spacr``. The last command also accepts subcommands such as ``mask`` and ``measure`` to open a specific application tab.",
+      "translation": "एप्लिकेशन को ``spacr``, ``spacr-qt``, ``python -m spacr.qt`` या ``python -m spacr`` से शुरू करें। अंतिम कमांड एप्लिकेशन का कोई विशिष्ट टैब खोलने के लिए ``mask`` और ``measure`` जैसे सबकमांड भी स्वीकार करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt#2",
+      "source": "The interface uses ``theme.py`` for its palette and QSS stylesheet, ``widgets/`` for reusable widgets, ``screens/`` for application screens, and ``app.py`` for the main window and QApplication bootstrap.",
+      "source_sha256": "9c46c7fdb48ed42b63a69495757410e7a56586a9ffc95ae5add49604ff68881e",
+      "context": "The interface uses ``theme.py`` for its palette and QSS stylesheet, ``widgets/`` for reusable widgets, ``screens/`` for application application views, and ``app.py`` for the main window and QApplication bootstrap.",
+      "translation": "इंटरफ़ेस अपने पैलेट और QSS स्टाइलशीट के लिए ``theme.py``, पुनः उपयोग योग्य विजेट के लिए ``widgets/``, एप्लिकेशन स्क्रीन के लिए ``screens/`` और मुख्य विंडो तथा QApplication के आरंभीकरण के लिए ``app.py`` का उपयोग करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.assay_examples#1",
+      "source": "Replication, Invasion, Recruitment and Host–Pathogen offer published datasets through Load test data. Host–Pathogen contains two real THP-1 RNF213 fields, prepared host/nucleus/vacuole masks and fresh measurements of those fields. Replication and Recruitment contain slices of measured screens. Invasion's images are synthetic and explicitly labelled before downloading. Its masks are Cellpose-SAM segmentations from Mask, and its ground truth describes the objects originally drawn into those images.",
+      "source_sha256": "d9028b7fdac83815961076bc13b8dd74941c017e8923e0e2ea72a5c8115f8716",
+      "context": "Replication, Invasion, Recruitment and Host–Pathogen offer published datasets through Load test data. Host–Pathogen contains two real THP-1 RNF213 microscope fields of view, prepared host/nucleus/vacuole masks and fresh measurements of those microscope fields of view. Replication and Recruitment contain slices of measured screens. Invasion's images are synthetic and explicitly labelled before downloading. Its masks are Cellpose-SAM segmentations from Mask, and its ground truth describes the objects originally drawn into those images.",
+      "translation": "Replication, Invasion, Recruitment और Host–Pathogen, परीक्षण डेटा लोड करें के माध्यम से प्रकाशित डेटासेट उपलब्ध कराते हैं। Host–Pathogen में दो वास्तविक THP-1 RNF213 दृश्य क्षेत्र, तैयार मेज़बान/नाभिक/रिक्तिका मास्क और उन क्षेत्रों के नए मापन हैं। Replication और Recruitment में मापी गई स्क्रीनिंग के उपसमूह हैं। Invasion की इमेज कृत्रिम हैं और डाउनलोड से पहले स्पष्ट रूप से चिह्नित की जाती हैं। उनके मास्क Mask से प्राप्त Cellpose-SAM विभाजन हैं, और संदर्भ-सत्य डेटा उन ऑब्जेक्ट का वर्णन करता है जो मूल रूप से इन इमेज में बनाए गए थे।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo#0",
+      "source": "The OPS module's ``ops_spot_detector``: spaCR's own, SpotNet or Spotiflow.",
+      "source_sha256": "2e58d90f1d78f2c874eab21583e4b66e901d8fceae7a0d1a3707de3b637f4a0b",
+      "context": "The OPS module's ``ops_spot_detector``: spaCR's own, SpotNet or Spotiflow.",
+      "translation": "OPS मॉड्यूल का ``ops_spot_detector``: spaCR का अपना डिटेक्टर, SpotNet या Spotiflow।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo#1",
+      "source": "spaCR's own detector is first, the default and always usable. SpotNet and Spotiflow are listed whether or not they can run; when one's environment (or SpotNet's DeepCell token) is missing its row is disabled and its tooltip says which. SpotNet's tooltip states its non-commercial licence either way, because this box is where a person chooses it. A saved Spotiflow choice is kept even while its row is disabled or hidden, so the run receives it and says why it cannot run rather than detecting with another detector.",
+      "source_sha256": "866dbed554577f5a929820cb939f1244a6a768efcbe77e1cbb3123173a8fd856",
+      "context": "spaCR's own detector is first, the default and always usable. SpotNet and Spotiflow are listed whether or not they can run; when one's environment (or SpotNet's DeepCell token) is missing its row is disabled and its tooltip says which. SpotNet's tooltip states its non-commercial licence either way, because this box is where a person chooses it. A saved Spotiflow choice is kept even while its row is disabled or hidden, so the run receives it and says why it cannot run rather than detecting with another detector.",
+      "translation": "spaCR का अपना डिटेक्टर पहले स्थान पर है, डिफ़ॉल्ट है और हमेशा उपयोग योग्य है। SpotNet और Spotiflow चल सकें या नहीं, दोनों सूची में रहते हैं; किसी का परिवेश या SpotNet का DeepCell टोकन न होने पर उसकी पंक्ति निष्क्रिय होती है और टूलटिप बताती है कि क्या उपलब्ध नहीं है। SpotNet की टूलटिप दोनों स्थितियों में उसका गैर-व्यावसायिक लाइसेंस बताती है, क्योंकि उपयोगकर्ता इसी बॉक्स में उसे चुनता है। Spotiflow का सहेजा हुआ चयन उसकी पंक्ति निष्क्रिय या छिपी होने पर भी बना रहता है, ताकि रन उसी चयन को प्राप्त करे और दूसरा डिटेक्टर उपयोग करने के बजाय बताए कि वह क्यों नहीं चल सकता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo#2",
+      "source": "the value to start on, ``'native'``, ``'spotnet'`` or ``'spotiflow'``.",
+      "source_sha256": "056d075c0e27a53a3d1d9a85aa60e6902626cb7a83e9e4055c0be5cbb7d84633",
+      "context": "the value to start on, ``'native'``, ``'spotnet'`` or ``'spotiflow'``.",
+      "translation": "आरंभिक मान: ``'native'``, ``'spotnet'`` या ``'spotiflow'``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo#5",
+      "source": "the same for Spotiflow.",
+      "source_sha256": "4aaf51ad0c3403798e1019ea6eeffa21dcbde599bf2441d866130ec211a2a6b8",
+      "context": "the same for Spotiflow.",
+      "translation": "Spotiflow के लिए भी वही।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo#6",
+      "source": "List the detectors, disable those that cannot run, select.",
+      "source_sha256": "f1d015992d365fe4c611675c97087ca7120c370e2fe774683535e0628c5d2eb7",
+      "context": "List the detectors, disable those that cannot run, select.",
+      "translation": "डिटेक्टरों की सूची बनाता है, जो नहीं चल सकते उन्हें निष्क्रिय करता है, और चयन करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo.refresh#0",
+      "source": "Enable SpotNet's and Spotiflow's rows only when each can run, and say why not.",
+      "source_sha256": "c2294f35fd965873573b02cb78eddbfa4971d12bf566c978920675c35d4df12a",
+      "context": "Enable SpotNet's and Spotiflow's rows only when each can run, and say why not.",
+      "translation": "SpotNet और Spotiflow की पंक्तियाँ केवल तभी सक्रिय करता है जब संबंधित डिटेक्टर चल सकता हो; अन्यथा कारण बताता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo.setCurrentText#1",
+      "source": "a caption or stored value; a row that is not installed (disabled), or no match, leaves the selection alone, except Spotiflow's, which is selected whatever its state.",
+      "source_sha256": "b580b4d6fef151dd5bf86ea4c305908b0efa8d79005fd741ed8211fd398bcde5",
+      "context": "a caption or stored value; a row that is not installed (disabled), or no match, leaves the selection alone, except Spotiflow's, which is selected whatever its state.",
+      "translation": "दिखाई देने वाला पाठ या संग्रहीत मान; इंस्टॉल न की गई निष्क्रिय पंक्ति या कोई मेल न मिलने पर चयन नहीं बदलता। अपवाद Spotiflow है, जिसे उसकी स्थिति चाहे जो हो चुना जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.map_barcodes.install_folds#0",
+      "source": "Put Map Barcodes' fold strip, its live barcode search and its spatial transcriptomics panel on ``screen``.",
+      "source_sha256": "ddd5058a3c8d3ac5faaafc87609dedaa57a0f859aa9cacea2cd780d78ca969e8",
+      "context": "Put Map Barcodes' fold strip, its live barcode search and its spatial transcriptomics panel on ``screen``.",
+      "translation": "Map Barcodes की मोड़ने योग्य खंड पट्टी, उसकी तत्काल बारकोड खोज और उसके स्थानिक ट्रांसक्रिप्टोमिक्स पैनल को ``screen`` पर रखता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.analyze_plaques#7",
+      "source": "``colony_counting`` -- in plaque mode, counts bacterial or fungal colonies on plate photos instead of segmenting plaques (:func:`_analyze_colony_plates`), writing ``<src>/colonies/colonies.db``.",
+      "source_sha256": "7c8578008fd59f34eecf8753379a12ad7b400dea521e27c4f189e3d24550f6cd",
+      "context": "``colony_counting`` -- in plaque mode, counts bacterial or fungal colonies on plate photos instead of segmenting plaques (:func:`_analyze_colony_plates`), writing ``<src>/colonies/colonies.db``.",
+      "translation": "``colony_counting`` -- प्लाक मोड में प्लाक का विभाजन करने के बजाय कल्चर प्लेट की तस्वीरों में जीवाणु या कवक कॉलोनियाँ गिनता है (:func:`_analyze_colony_plates`), और ``<src>/colonies/colonies.db`` लिखता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.analyze_plaques#8",
+      "source": "None. Writes ``<src>/masks/plaques_analysis.db``. With ``colony_counting`` it returns the per-plate colony table instead.",
+      "source_sha256": "619f4ae9b94537eb28274a3c6d6794b741a7b5722bd34b2bfbfbf7491a595a0d",
+      "context": "None. Writes ``<src>/masks/plaques_analysis.db``. With ``colony_counting`` it returns the per-plate colony table instead.",
+      "translation": "None। ``<src>/masks/plaques_analysis.db`` लिखता है। ``colony_counting`` होने पर इसके बजाय प्रति कल्चर प्लेट कॉलोनी तालिका लौटाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}

@@ -136,6 +136,12 @@ def evaluate(expression: str, frame: Optional[pd.DataFrame]) -> str:
 
     Errors come back as text rather than exceptions: this is a question box,
     and a typo is a normal thing to do in one.
+
+    :param expression: a Python expression, stripped; empty returns ``""``.
+        It is evaluated with ``df``, ``pd``, ``np`` and every column whose
+        name is an identifier in scope, and a restricted set of builtins.
+    :param frame: the table to question; ``None`` or an empty frame returns
+        ``"no table loaded"``.
     """
     text = str(expression or "").strip()
     if not text:
@@ -256,6 +262,10 @@ class GateConsole(QWidget):
         Without one it says it is not configured rather than staying silent:
         a chat box that ignores you is worse than one that is honestly
         unavailable.
+
+        :param responder: a callable taking the question text and returning
+            the answer, or ``None`` to remove it. An exception it raises is
+            shown as the answer.
         """
         self._responder = responder
 
@@ -275,7 +285,12 @@ class GateConsole(QWidget):
         self.log.append(f"{prefix}{line}" if prefix else line)
 
     def run(self, expression: str) -> str:
-        """Evaluate ``expression`` and record both halves."""
+        """Evaluate ``expression`` and record both halves.
+
+        :param expression: a Python expression over the loaded table, as
+            :func:`evaluate` takes it; stripped, and empty does nothing and
+            returns ``""``.
+        """
         text = str(expression or "").strip()
         if not text:
             return ""
@@ -294,7 +309,12 @@ class GateConsole(QWidget):
             self.input.clear()
 
     def ask(self, question: str) -> str:
-        """Put a question to the assistant, or say there is not one."""
+        """Put a question to the assistant, or say there is not one.
+
+        :param question: the question text, stripped; empty does nothing and
+            returns ``""``. It is written to the console, emitted on
+            :attr:`asked` and passed to the responder, if one is set.
+        """
         text = str(question or "").strip()
         if not text:
             return ""
@@ -318,5 +338,9 @@ class GateConsole(QWidget):
             self.chat.clear()
 
     def reply(self, answer: str) -> None:
-        """Record an answer that arrived later, from an async host."""
+        """Record an answer that arrived later, from an async host.
+
+        :param answer: the answer text, written to the console as given
+            (converted with ``str``).
+        """
         self.write(str(answer))

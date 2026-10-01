@@ -164,7 +164,12 @@ def _setting_row_contract(screen: AppScreen, qapp) -> None:
     # Render one representative row per module.  Structural QSS assertions
     # alone missed the original black rectangle: only the composed screenshot
     # proves a transparent wrapper actually shows its SectionCard through.
-    section, label, _field = rows[0]
+    # Not an alpha category of an otherwise ordinary module: 591 tints those
+    # cards with the alpha hue (and puts Mask's first), so the colour their
+    # wrapper shows through is that tint rather than the plain surface. A
+    # module whose every section is alpha paints its cards plainly.
+    ordinary = [row for row in rows if row[0].maturity() != "alpha"]
+    section, label, _field = (ordinary or rows)[0]
     section.show()
     section.set_expanded(True)
 

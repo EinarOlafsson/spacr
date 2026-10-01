@@ -69,6 +69,230 @@ def _eval_diameter(raw, object_type=""):
         return None
 
 
+def _cellpose3_eval_settings(settings, object_type, default_diameter):
+    """The legacy Cellpose 3 settings, as the keywords Cellpose 3 takes.
+
+    Read here and nowhere else, so what Mask generation sends a Cellpose 3
+    model is one function's answer. The object's own flow and cell
+    probability thresholds are the ones used: they mean the same thing to
+    both Cellposes.
+
+    THE DIAMETER IS A NUMBER UNLESS THE SIZE MODEL IS ASKED FOR. A blank
+    object diameter means native scale to Cellpose-SAM but "estimate it" to
+    a named Cellpose 3 model, and the estimate is both slow and poor on
+    Toxoplasma vacuoles: on plate1_A02_12 (item 507, 2026-09-25) cyto3 at
+    diameter 44 took 11.9 s on the CPU and matched 24 of 33 objects, and at
+    diameter 0 took 153 s and matched 7. So a blank diameter becomes the
+    object's magnification default, and 0 is sent only when
+    ``cellpose3_size_model`` is on.
+
+    :param settings: the run's settings, defaults already filled.
+    :param object_type: ``'cell'``, ``'nucleus'``, ``'pathogen'``, ...
+    :param default_diameter: the object's magnification-derived diameter.
+    :returns: ``(eval keywords, use the nucleus channel)``.
+    :raises ValueError: for percentiles that are not ``0 <= low < high <=
+        100``.
+    """
+    low = float(settings.get('cellpose3_percentile_low', 1.0))
+    high = float(settings.get('cellpose3_percentile_high', 99.0))
+    if not 0.0 <= low < high <= 100.0:
+        raise ValueError(
+            f"cellpose3_percentile_low={low} and cellpose3_percentile_high="
+            f"{high} must satisfy 0 <= low < high <= 100")
+    if settings.get('cellpose3_size_model', False):
+        diameter = 0.0
+    else:
+        diameter = (_eval_diameter(settings.get(f'{object_type}_diameter'),
+                                   object_type)
+                    or float(default_diameter))
+    keywords = dict(
+        diameter=diameter,
+        flow_threshold=settings.get(f'{object_type}_flow_threshold', 0.4),
+        cellprob_threshold=settings.get(
+            f'{object_type}_cellprob_threshold', 0.0),
+        resample=bool(settings.get('cellpose3_resample', True)),
+        augment=bool(settings.get('cellpose3_augment', False)),
+        normalize={'normalize': True, 'percentile': [low, high]},
+    )
+    return keywords, bool(settings.get('cellpose3_add_nucleus_channel', True))
+
+
+def _cellpose3_masks(model, images, settings, object_type, *, min_size,
+                     default_diameter, batch_size=8, probabilities=False):
+    """Segment a batch with a Cellpose 3 model; return what Cellpose-SAM does.
+
+    Mask generation's own function for Cellpose 3 (item 503). What differs
+    from Cellpose-SAM is decided here and only here:
+
+    * INPUT SHAPE. Cellpose-SAM reads every channel it is given. Cellpose 3
+      reads ``channels=[cyto, nucleus]``: a cell batch holds the cell plane
+      then the nucleus plane, so each image is sent as ``(H, W, 2)`` -- the
+      backend maps that to ``[1, 2]`` -- or, when ``cellpose3_add_nucleus_channel``
+      is off or there is one plane, as the 2-D first plane with ``[0, 0]``.
+    * SETTINGS. :func:`_cellpose3_eval_settings`: a real diameter, the
+      object's thresholds, resample, augment, and percentile normalization.
+    * OUTPUT SHAPE. Cellpose 3 answers per image with masks, flows, styles
+      and diameters; the backend returns ``(masks, flows, None)`` and
+      :func:`spacr.spacr_cellpose.parse_cellpose4_output` turns that into the
+      per-image masks and flows the Cellpose-SAM path produces, so every
+      line after this call -- merge/split/filter, tracking, the database,
+      the saved ``.npy`` masks and Measure -- is the same code.
+
+    :param model: what ``_load_backend('cellpose3', ...)`` returned; any
+        Cellpose 3 name or weights file, see
+        :func:`spacr._segmentation_backends._cellpose3_model`.
+    :param images: ``(H, W, C)`` arrays as ``prepare_batch_for_segmentation``
+        leaves them.
+    :param settings: the run's settings.
+    :param object_type: the object being segmented.
+    :param min_size: smallest object Cellpose 3 keeps, in pixels.
+    :param default_diameter: the object's magnification-derived diameter.
+    :param batch_size: tiles per network pass.
+    :param probabilities: also return each image's cell probability, for
+        the Live preview's cell probability view.
+    :returns: ``(masks, flows)``: one 2-D label image per input, and
+        per-image flows in :func:`parse_cellpose4_output`'s layout; with
+        ``probabilities``, ``(masks, flows, cell probabilities)``, one
+        ``H x W`` array (or None) per image.
+    """
+    from .spacr_cellpose import parse_cellpose4_output
+
+    keywords, use_nucleus = _cellpose3_eval_settings(
+        settings, object_type, default_diameter)
+    shaped = []
+    for image in images:
+        image = np.asarray(image)
+        if image.ndim == 3 and image.shape[-1] >= 2 and use_nucleus:
+            shaped.append(image[..., :2])
+        elif image.ndim == 3:
+            shaped.append(image[..., 0])
+        else:
+            shaped.append(image)
+    output = model.eval(x=shaped, batch_size=int(batch_size),
+                        channel_axis=-1, min_size=min_size, **keywords)
+    masks, flows, _, probability, _ = parse_cellpose4_output(output)
+    if probabilities:
+        return list(masks), flows, list(probability)
+    return list(masks), flows
+
+
+def _cellpose_dino_masks(model, images, settings, object_type, *, min_size,
+                         default_diameter, batch_size=8,
+                         probabilities=False):
+    """Segment a batch with a Cellpose-DINO model, as V1 does (item 525).
+
+    The Cellpose-DINO backend answers the very ``eval`` call a Cellpose-SAM
+    model takes, so this makes V1's Cellpose-SAM call and nothing else:
+    ``normalize=False`` and ``channel_axis=-1`` on the prepared images,
+    the object's own diameter (blank lets the model keep its scale, which
+    is what V1 sends), its flow and cell probability thresholds, and
+    ``resample`` as :func:`spacr.settings._get_object_settings` sets it --
+    off for a pathogen, on for the rest. A 2-D image is given a channel
+    axis of one, so the preview's single planes read as V1's images do.
+
+    :param model: what ``_load_backend('cellpose_dino', ...)`` returned.
+    :param images: ``(H, W, C)`` or ``(H, W)`` arrays.
+    :param settings: the run's settings.
+    :param object_type: the object being segmented.
+    :param min_size: smallest object kept, in pixels.
+    :param default_diameter: taken for the route table's shared signature;
+        V1's Cellpose-SAM call does not read the magnification diameter.
+    :param batch_size: taken for the same reason; V1 and v2 send
+        Cellpose-SAM one batch of all the images, and so does this.
+    :param probabilities: also return each image's cell probability, for
+        the Live preview's cell probability view.
+    :returns: ``(masks, flows)``, or ``(masks, flows, cell probabilities)``
+        with ``probabilities``, as :func:`_cellpose3_masks` returns them.
+    """
+    from .spacr_cellpose import parse_cellpose4_output
+
+    shaped = []
+    for image in images:
+        image = np.asarray(image)
+        shaped.append(image[..., np.newaxis] if image.ndim == 2 else image)
+    output = model.eval(
+        x=shaped,
+        batch_size=len(shaped),
+        normalize=False,
+        channel_axis=-1,
+        min_size=min_size,
+        progress=True,
+        diameter=_eval_diameter(settings.get(f'{object_type}_diameter'),
+                                object_type),
+        flow_threshold=settings.get(f'{object_type}_flow_threshold', 0.4),
+        cellprob_threshold=settings.get(
+            f'{object_type}_cellprob_threshold', 0.0),
+        resample=object_type != 'pathogen')
+    masks, flows, _, probability, _ = parse_cellpose4_output(output)
+    if probabilities:
+        return list(masks), flows, list(probability)
+    return list(masks), flows
+
+
+def _prefixed_masks(model, images, settings, object_type, *, min_size,
+                    default_diameter, batch_size=8, probabilities=False):
+    """Segment a batch with StarDist, InstanSeg or Omnipose (items 551-553).
+
+    Each of those backends answers the ``eval`` call a Cellpose-SAM model
+    takes and returns its shapes, so this is V1's Cellpose-SAM call, made
+    exactly as :func:`_cellpose_dino_masks` makes it; what each model does
+    with each setting is its worker's to say, and it names the settings it
+    cannot honour.
+
+    :param model: what ``_load_backend(<backend>, ...)`` returned.
+    :returns: what :func:`_cellpose_dino_masks` returns.
+    """
+    return _cellpose_dino_masks(
+        model, images, settings, object_type, min_size=min_size,
+        default_diameter=default_diameter, batch_size=batch_size,
+        probabilities=probabilities)
+
+
+def _prefixed_model_route(model_name, settings=None):
+    """Where a model setting that names its backend by prefix is segmented.
+
+    One table for every caller -- Mask generation's ``pipeline_style``
+    'v2', the Live preview and the Timelapse preview -- so a model value is
+    read the same way everywhere. Each row is ``(backend, reads the prefix,
+    masks function)``; the masks function takes :func:`_cellpose3_masks`'
+    arguments and returns what it returns. ``cellpose3:`` goes to Cellpose
+    3 (item 503), ``cellpose_dino:`` to Cellpose-DINO (item 525), and
+    each backend whose spec has a prefix of its own -- ``stardist:`` and
+    the rest (items 551-553) -- to that backend through
+    :func:`_prefixed_masks`.
+
+    A prefix wins over ``segmentation_backend``, as it does in V1: a
+    ``cellpose_dino:`` object in a run whose backend is ``cellpose3`` is
+    still segmented by Cellpose-DINO.
+
+    :param model_name: an object's model setting, e.g. ``'cellpose3:cyto3'``.
+    :param settings: the run's settings; ``segmentation_backend`` naming a
+        row's backend routes there as well, as it does in V1.
+    :returns: ``(backend name, masks function)``, or None for a model
+        Cellpose-SAM segments.
+    """
+    from functools import partial
+
+    from ._segmentation_backends import (_CELLPOSE3, _CELLPOSE_DINO,
+                                         _cellpose3_choice,
+                                         _cellpose_dino_choice,
+                                         _prefixed_choice, _prefixed_names)
+
+    backend = str((settings or {}).get('segmentation_backend')
+                  or '').strip().lower()
+    routes = ((_CELLPOSE3, _cellpose3_choice, _cellpose3_masks),
+              (_CELLPOSE_DINO, _cellpose_dino_choice, _cellpose_dino_masks),
+              *((name, partial(_prefixed_choice, name), _prefixed_masks)
+                for name in _prefixed_names()))
+    for name, choice, masks in routes:
+        if choice(model_name) is not None:
+            return name, masks
+    for name, _choice, masks in routes:
+        if backend == name:
+            return name, masks
+    return None
+
+
 def _remove_objects_smaller_than(binary, min_size):
     """Remove components with area strictly below ``min_size``.
 
@@ -124,10 +348,12 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
     minimum, maximum = _validated_intensity_bounds(
         settings.get(f'{object_type}_min_intensity', 0),
         settings.get(f'{object_type}_max_intensity', 0))
+    from .qt.mask_engine import settings_filters
+    object_filters = settings_filters(settings, object_type)
 
     needs_work = (
         pf > 0 or mna > 0 or (mxa and mxa > 0) or rb or
-        minimum > 0 or maximum > 0
+        minimum > 0 or maximum > 0 or bool(object_filters)
     )
 
     if not needs_work:
@@ -140,7 +366,8 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
     print(f"merge_split_filter_masks({object_type}): "
           f"perimeter_merge={pf > 0}(frac={pf}), "
           f"min_area={mna}, max_area={mxa}, remove_border={rb}, "
-          f"min_intensity={minimum}, max_intensity={maximum}")
+          f"min_intensity={minimum}, max_intensity={maximum}, "
+          f"object_filters={object_filters}")
 
     if isinstance(masks, np.ndarray):
         if masks.ndim == 2:
@@ -202,6 +429,7 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
             remove_border_objects=rb,
             min_intensity=minimum,
             max_intensity=maximum,
+            filters=object_filters,
             progress_callback=_progress,
             fov_index=idx,
             total_fovs=total,
@@ -268,6 +496,165 @@ def _run_seg_qc(src, settings, object_type, *, mask_folder=None):
     if result is not None and result.get('mode') == 'flag':
         settings.setdefault('seg_qc_flags', {})[object_type] = result['flags']
     return result
+
+
+def _robustness_sample(src, settings, object_type):
+    """The fields the robustness report re-segments, cut from the ``.npz`` batches.
+
+    ``robustness_fields`` fields are drawn at random (seeded by
+    ``random_seed``) from every batch under ``src``, keeping the channels
+    ``object_type`` is segmented from, scaled to 0..1 as the generator scales
+    them, and centre-cropped to ``robustness_crop`` pixels a side when that is
+    set, so the grid stays fast.
+
+    :returns: ``(name, image)`` pairs, ``image`` ``(Y, X, C)`` float32.
+    """
+    from .utils import _get_cellpose_channels, prepare_batch_for_segmentation
+
+    _fill_cellpose_channel_positions(settings)
+    _, cellpose_channels = _get_cellpose_channels(settings)
+    channels = cellpose_channels.get(object_type, [])
+    if not channels:
+        return []
+    paths = sorted(os.path.join(src, f) for f in os.listdir(src) if f.endswith('.npz'))
+    rng = np.random.default_rng(int(settings.get('random_seed') or 0))
+    wanted = max(1, int(settings.get('robustness_fields') or 4))
+    crop = int(settings.get('robustness_crop') or 0)
+    chosen = []
+    for path in rng.permutation(paths) if paths else []:
+        with np.load(path) as data:
+            stack, names = data['data'], data['filenames']
+            for index in rng.permutation(len(stack)):
+                if len(chosen) >= wanted:
+                    break
+                field = stack[index]
+                if field.ndim != 3:
+                    continue
+                field = field[..., [0]] if field.shape[-1] == 1 else field[..., channels]
+                if crop > 0:
+                    y0 = max(0, (field.shape[0] - crop) // 2)
+                    x0 = max(0, (field.shape[1] - crop) // 2)
+                    field = field[y0:y0 + crop, x0:x0 + crop]
+                image = prepare_batch_for_segmentation(np.array(field[None]))[0]
+                chosen.append((str(names[index]), image))
+        if len(chosen) >= wanted:
+            break
+    return chosen
+
+
+def _robustness_segmenter(settings, object_type):
+    """A ``segment(image, point)`` that runs the run's Cellpose model at one grid point.
+
+    Loads the model the generator would load for ``object_type`` (stock
+    Cellpose-SAM or the checkpoint its model setting names) once, and calls
+    it as the generator does, with the grid point's diameter, thresholds and,
+    when ``point['enhance']``, CLAHE applied to each channel first.
+
+    :raises ValueError: for a model served by another backend, whose
+        environment the report does not start.
+    """
+    from .settings import _get_object_settings
+    from .utils import _resolve_cellpose_pretrained
+    from ._segmentation_backends import (_backend_name, _cellpose3_choice,
+                                         _cellpose_dino_choice, _prefixed_backend)
+
+    object_settings = _get_object_settings(object_type, settings)
+    model_name = object_settings['model_name']
+    if object_type == 'pathogen' and settings.get('pathogen_model') is not None:
+        model_name = settings['pathogen_model']
+    if (_backend_name(settings.get('segmentation_backend', 'cellpose')) != 'cellpose'
+            or _cellpose3_choice(model_name) is not None
+            or _cellpose_dino_choice(model_name) is not None
+            or _prefixed_backend(model_name) is not None):
+        raise ValueError(f"the robustness report runs Cellpose-SAM models only, "
+                         f"not {model_name!r}")
+    model = cp_models.CellposeModel(
+        pretrained_model=_resolve_cellpose_pretrained(model_name, object_type=object_type),
+        **accelerator.cellpose_kwargs())
+    return partial(_robustness_segment, model, object_settings, object_type)
+
+
+def _robustness_segment(model, object_settings, object_type, image, point):
+    """Segment one field at one robustness grid point with a loaded Cellpose model.
+
+    With ``point['enhance']`` each channel is contrast-enhanced (CLAHE)
+    first; the diameter and thresholds are the grid point's.
+
+    :returns: the label mask.
+    """
+    from .qt.detect_chain import Chain, prepare
+    from .spacr_cellpose import parse_cellpose4_output
+
+    if point.get('enhance'):
+        clahe = Chain(clahe=True)
+        image = np.stack([prepare(image[..., c], clahe) for c in range(image.shape[-1])],
+                         axis=-1).astype(np.float32)
+    output = model.eval(
+        x=[image], batch_size=1, normalize=False, channel_axis=-1,
+        min_size=object_settings['min_size'], progress=False,
+        diameter=_eval_diameter(point.get('diameter'), object_type),
+        flow_threshold=point['flow_threshold'],
+        cellprob_threshold=point['cellprob_threshold'],
+        resample=object_settings['resample'])
+    return np.asarray(parse_cellpose4_output(output)[0][0])
+
+
+def _run_robustness_report(src, settings, object_type, *, segment=None):
+    """Re-segment a sample of fields over a small parameter grid and report how stable the results are.
+
+    Runs only with ``robustness_report`` on. A few fields
+    (:func:`_robustness_sample`) are segmented again at the run's own
+    settings and with the diameter, the flow and cell-probability thresholds
+    and contrast enhancement each moved alone
+    (:func:`spacr.seg_qc._robustness_grid`); object count, median area, mean
+    object intensity and the fraction of the run's objects found again are
+    compared, and a grid point whose median change exceeds
+    ``robustness_tolerance`` is flagged fragile. Writes
+    ``<plate>/qc/segmentation_robustness_<object_type>.csv`` (one row per
+    grid point), ``..._fields.csv`` (one row per field and grid point) and a
+    heatmap, and prints the summary. Two-dimensional fields only.
+
+    :param src: the mask source folder holding the ``.npz`` batches.
+    :param settings: the mask-generation settings.
+    :param object_type: the object whose segmentation is tested.
+    :param segment: ``segment(image, point)`` -> labels, instead of the run's
+        Cellpose model.
+    :returns: the per-grid-point summary DataFrame, or None when the report is
+        off, has nothing to sample or failed. Never raises into the run.
+    """
+    if not settings.get('robustness_report'):
+        return None
+    try:
+        from .seg_qc import (CARD_DIR, _format_robustness, _robustness_figure,
+                             _robustness_grid, _score_robustness)
+        from .plot import save_figure
+        from .tabular import write_table
+
+        if _z_stack_plan(settings) is not None or _t_stack_plan(settings) is not None:
+            print(f"Segmentation robustness skipped for {object_type}: "
+                  f"it re-segments two-dimensional fields only.")
+            return None
+        fields = _robustness_sample(src, settings, object_type)
+        if not fields:
+            print(f"Segmentation robustness found no {object_type} fields to sample in {src}.")
+            return None
+        tolerance = float(settings.get('robustness_tolerance') or 0.2)
+        grid = _robustness_grid(settings, object_type)
+        if segment is None:
+            segment = _robustness_segmenter(settings, object_type)
+        per_field, summary = _score_robustness(fields, segment, grid, tolerance)
+        out_dir = os.path.join(os.path.dirname(os.fspath(src)) or os.fspath(src), CARD_DIR)
+        stem = os.path.join(out_dir, f'segmentation_robustness_{object_type}')
+        write_table(summary, stem + '.csv')
+        write_table(per_field, stem + '_fields.csv')
+        save_figure(_robustness_figure(summary, tolerance, object_type), stem + '.pdf',
+                    close=True)
+        print(_format_robustness(summary, object_type, tolerance))
+        print(f"Segmentation robustness written to {stem}.csv")
+        return summary
+    except Exception as exc:
+        print(f"Segmentation robustness skipped for {object_type}: {type(exc).__name__}: {exc}")
+        return None
 
 
 
@@ -654,6 +1041,29 @@ def _raw_filter_images(src, filenames, model_inputs, masks, channel, *,
     return result
 
 
+def _fill_cellpose_channel_positions(settings):
+    """Record each role's dense archive channel as ``cellpose_<role>_channel``.
+
+    Explicit values are kept. Shared by both Cellpose generators and the
+    parallel coordinator, so a run records the same settings on every path.
+    """
+    from .utils import dense_mask_channel_positions
+
+    dense = dense_mask_channel_positions(settings)
+    for role in ('nucleus', 'cell', 'pathogen', 'organelle'):
+        if settings.get(f'cellpose_{role}_channel') is not None:
+            continue
+        raw = settings.get(f'{role}_channel')
+        if raw is None:
+            continue
+        try:
+            raw = int(raw)
+        except (TypeError, ValueError):
+            continue
+        settings[f'cellpose_{role}_channel'] = dense[raw]
+    return settings
+
+
 def _assigned_mask_archives(src, batch_paths):
     """Validate an explicit worker assignment without changing output roots."""
     if isinstance(batch_paths, (str, bytes, os.PathLike)):
@@ -693,6 +1103,18 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
     belongs to :func:`spacr.core.preprocess_generate_masks` after all object
     masks have been merged with their images; this generator does not run it.
 
+    An object whose model setting reads ``cellpose3:<model or weights
+    path>``, or any object when ``segmentation_backend`` is ``'cellpose3'``,
+    is segmented by ``_cellpose3_masks`` in the Cellpose 3 backend's own
+    environment; what it returns enters the same lines as a Cellpose-SAM
+    result, so the saved masks and the database rows are written the same.
+    One whose model setting reads ``cellpose_dino:<checkpoint path>`` is
+    segmented by the Cellpose-DINO backend's worker, which takes the very
+    ``eval`` call a Cellpose-SAM model takes and returns its shapes (item
+    525). So is one whose model setting carries a StarDist, InstanSeg or
+    Omnipose prefix (``stardist:<model>`` and the rest, items 551-553),
+    each in its own backend's worker.
+
     :param src: Directory containing the pre-batched ``.npz`` image stacks.
     :param settings: Pipeline settings dict; canonicalized via
         :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.
@@ -714,7 +1136,8 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                      _listdir_visible, _save_array_atomic,
                      _save_object_counts_to_database)
     from .timelapse import (_npz_to_movie, _btrack_track_cells, _trackpy_track_cells,
-                            _trackastra_track_cells, _ultrack_track_cells)
+                            _trackastra_track_cells, _ultrack_track_cells,
+                            _timeflows_track_cells, _sam2_track_cells)
     from .plot import plot_cellpose4_output
     from .settings import set_default_settings_preprocess_generate_masks, _get_object_settings
     from .spacr_cellpose import parse_cellpose4_output
@@ -769,7 +1192,10 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
     intensity_bounds = _validated_intensity_bounds(
         settings.get(f'{object_type}_min_intensity', 0),
         settings.get(f'{object_type}_max_intensity', 0))
-    filter_by_raw_intensity = any(value > 0 for value in intensity_bounds)
+    from .qt.mask_engine import filters_need_intensity, settings_filters
+    object_filters = settings_filters(settings, object_type)
+    filter_by_raw_intensity = (any(value > 0 for value in intensity_bounds)
+                               or filters_need_intensity(object_filters))
 
     if t_plan is not None:
         beta_mode = None if t_plan.z_axis is None else t_plan.z_mode
@@ -778,20 +1204,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
     else:
         beta_mode = None
 
-    from .utils import dense_mask_channel_positions
-
-    _dense = dense_mask_channel_positions(settings)
-    for _role in ('nucleus', 'cell', 'pathogen', 'organelle'):
-        if settings.get(f'cellpose_{_role}_channel') is not None:
-            continue
-        _raw = settings.get(f'{_role}_channel')
-        if _raw is None:
-            continue
-        try:
-            _raw = int(_raw)
-        except (TypeError, ValueError):
-            continue
-        settings[f'cellpose_{_role}_channel'] = _dense[_raw]
+    _fill_cellpose_channel_positions(settings)
 
     channels_to_extract, cellpose_channels = _get_cellpose_channels(settings)
     channels = cellpose_channels.get(object_type, [])
@@ -805,11 +1218,18 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
     model_name = object_settings['model_name']
     if object_type == 'pathogen' and settings.get('pathogen_model') is not None:
         model_name = settings['pathogen_model']
-    # Items 404/405: DINOCell and SAMCell answer the same model.eval call and
-    # return Cellpose's (masks, flows, styles), so this is the only dispatch.
-    from ._segmentation_backends import _backend_name, _load_backend
+    from ._segmentation_backends import (_backend_name, _load_backend,
+                                         _cellpose3_choice, _CELLPOSE3,
+                                         _cellpose_dino_choice, _CELLPOSE_DINO,
+                                         _prefixed_backend)
     segmentation_backend = _backend_name(
         settings.get('segmentation_backend', 'cellpose'))
+    if _cellpose3_choice(model_name) is not None:
+        segmentation_backend = _CELLPOSE3
+    elif _cellpose_dino_choice(model_name) is not None:
+        segmentation_backend = _CELLPOSE_DINO
+    elif _prefixed_backend(model_name) is not None:
+        segmentation_backend = _prefixed_backend(model_name)
     if segmentation_backend == 'cellpose':
         pretrained = _resolve_cellpose_pretrained(model_name, object_type=object_type)
         model = cp_models.CellposeModel(
@@ -838,10 +1258,6 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
             stack = data['data']
             filenames = data['filenames']
 
-        # Filename selection, resume and batching all operate on timepoints.
-        # Canonicalize each archive with the original acquisition plan, then
-        # give the segmenter a local plan for this view. Mutating t_plan here
-        # would interpret later ZTYX archives as if they were already TZYX.
         archive_t_plan = t_plan
         if t_plan is not None:
             _require_t_axis(stack, t_plan, path)
@@ -880,6 +1296,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                     print(f'Cut batch at indecies: {timelapse_frame_limits}, New batch_size: {batch_size} ')
 
         if len(stack) == 0:
+            del stack, filenames
             if on_batch_done is not None:
                 on_batch_done(path)
             continue
@@ -887,12 +1304,9 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
         for i in range(0, stack.shape[0], batch_size):
             cancellation_checkpoint()
             mask_stack = []
-            if z_plan is not None or t_plan is not None:
-                batch = stack[i: i+batch_size][..., channels].astype(stack.dtype)
-            elif stack.shape[3] == 1:
-                batch = stack[i: i+batch_size, :, :, [0]].astype(stack.dtype)
-            else:
-                batch = stack[i: i+batch_size, :, :, channels].astype(stack.dtype)
+            selected_channels = (channels if z_plan is not None or t_plan is not None
+                                 or stack.shape[-1] != 1 else [0])
+            batch = np.take(stack[i:i + batch_size], selected_channels, axis=-1)
 
 
             batch_filenames = filenames[i: i+batch_size].tolist()
@@ -904,6 +1318,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                     batch, batch_filenames, output_folder,
                     resume=settings.get('resume', False))
             if batch.size == 0:
+                del batch
                 continue
             
             cp_batch = prepare_batch_for_segmentation(batch)
@@ -916,7 +1331,14 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                 _npz_to_movie(cp_batch, batch_filenames, save_path, fps=2)
                 
             
-            if z_plan is None and t_plan is None:
+            beta_intensity = t_result = z_results = result = None
+            if z_plan is None and t_plan is None and segmentation_backend == _CELLPOSE3:
+                masks, flows = _cellpose3_masks(
+                    model, batch_list, settings, object_type,
+                    min_size=object_settings['min_size'],
+                    default_diameter=object_settings['diameter'],
+                    batch_size=max(8, len(batch_list)))
+            elif z_plan is None and t_plan is None:
                 output = model.eval(
                     x=batch_list,
                     batch_size=len(batch_list),
@@ -932,7 +1354,8 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                     resample=object_settings['resample']
                     )
 
-                masks, flows, _, _, _ = parse_cellpose4_output(output)
+                masks, flows = parse_cellpose4_output(output)[:2]
+                del output
             else:
                 z_eval_kwargs = dict(
                     batch_size=1,
@@ -996,12 +1419,15 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                     f"applied per z plane, breaking the 3-D labels that "
                     f"z_segmentation_mode='{beta_mode}' just produced"
                 )
-                if filter_by_raw_intensity:
+                if filter_by_raw_intensity or object_filters:
                     from .utils import _filter_objects
+                    planes = (filter_images if filter_images is not None
+                              else [None] * len(masks))
                     masks = [_filter_objects(
                         np.asarray(mask).copy(), plane,
-                        min_intensity=intensity_bounds[0], max_intensity=intensity_bounds[1])
-                        for mask, plane in zip(masks, filter_images)]
+                        min_intensity=intensity_bounds[0], max_intensity=intensity_bounds[1],
+                        filters=object_filters)
+                        for mask, plane in zip(masks, planes)]
             
             if timelapse:
                 if settings['plot']:
@@ -1068,6 +1494,33 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                             contour_sigma=settings.get('ultrack_contour_sigma', 0.0),
                             n_workers=settings.get('ultrack_n_workers', 1))
 
+                    elif timelapse_mode == 'timeflows':
+                        mask_stack = _timeflows_track_cells(
+                            src=src,
+                            name=name,
+                            batch_filenames=batch_filenames,
+                            object_type=object_type,
+                            masks=masks,
+                            images=batch,
+                            timelapse_remove_transient=timelapse_remove_transient,
+                            plot=settings['plot'],
+                            save=settings['save'],
+                            mode=timelapse_mode,
+                            model_path=settings.get('timeflows_model'))
+
+                    elif timelapse_mode == 'sam2':
+                        mask_stack = _sam2_track_cells(
+                            src=src,
+                            name=name,
+                            batch_filenames=batch_filenames,
+                            object_type=object_type,
+                            masks=masks,
+                            images=batch,
+                            timelapse_remove_transient=timelapse_remove_transient,
+                            plot=settings['plot'],
+                            save=settings['save'],
+                            mode=timelapse_mode)
+
                     if timelapse_mode == 'trackpy' or timelapse_mode == 'iou':
                         if timelapse_mode == 'iou':
                             track_by_iou = True
@@ -1086,6 +1539,12 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                                                           save=settings['save'],
                                                           mode=timelapse_mode,
                                                           track_by_iou=track_by_iou)
+                    if settings.get('timelapse_lineage'):
+                        from .timelapse import _run_lineage_step
+                        _run_lineage_step(src, name, object_type, timelapse_mode, settings)
+                    if settings.get('timelapse_events'):
+                        from .timelapse import _run_event_features_step
+                        _run_event_features_step(src, name, object_type, mask_stack, batch, timelapse_mode, settings)
                 else:
                     mask_stack = _masks_to_masks_stack(masks)
             else:
@@ -1125,6 +1584,10 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                 mask_stack = []
                 batch_filenames = []
 
+            del batch, cp_batch, batch_list, masks, flows, filter_images, mask_stack
+            beta_intensity = t_result = z_results = result = mask = planes = None
+
+        del stack, filenames
         gc.collect()
         if on_batch_done is not None:
             on_batch_done(path)
@@ -1199,20 +1662,7 @@ def generate_cellpose_masks(src, settings, object_type):
     
     model_name = object_settings['model_name']
     
-    from .utils import dense_mask_channel_positions
-
-    _dense = dense_mask_channel_positions(settings)
-    for _role in ('nucleus', 'cell', 'pathogen', 'organelle'):
-        if settings.get(f'cellpose_{_role}_channel') is not None:
-            continue
-        _raw = settings.get(f'{_role}_channel')
-        if _raw is None:
-            continue
-        try:
-            _raw = int(_raw)
-        except (TypeError, ValueError):
-            continue
-        settings[f'cellpose_{_role}_channel'] = _dense[_raw]
+    _fill_cellpose_channel_positions(settings)
 
     channels_to_extract, cellpose_channels = _get_cellpose_channels(settings)
 
@@ -1370,6 +1820,12 @@ def generate_cellpose_masks(src, settings, object_type):
                                                           save=settings['save'],
                                                           mode=timelapse_mode,
                                                           track_by_iou=track_by_iou)
+                    if settings.get('timelapse_lineage'):
+                        from .timelapse import _run_lineage_step
+                        _run_lineage_step(src, name, object_type, timelapse_mode, settings)
+                    if settings.get('timelapse_events'):
+                        from .timelapse import _run_event_features_step
+                        _run_event_features_step(src, name, object_type, mask_stack, batch, timelapse_mode, settings)
                 else:
                     mask_stack = _masks_to_masks_stack(masks)
             else:
@@ -1475,7 +1931,12 @@ def generate_organelle_masks_sam(src, settings, object_type):
     intensity_bounds = _validated_intensity_bounds(
         settings.get('organelle_min_intensity', 0),
         settings.get('organelle_max_intensity', 0))
-    filter_by_raw_intensity = any(value > 0 for value in intensity_bounds)
+    from .qt.mask_engine import filters_need_intensity, settings_filters
+    slot_filters = settings_filters(settings, object_type)
+    filter_by_raw_intensity = (any(value > 0 for value in intensity_bounds)
+                               or filters_need_intensity(slot_filters))
+    if object_type != 'organelle':
+        settings['object_filters'] = {'organelle': slot_filters}
     settings['organelle_remove_border_objects'] = bool(
         settings.get('organelle_remove_border_objects', False)
         or settings.get('organelle_remove_border', False))
@@ -2071,7 +2532,17 @@ def _spots_dog(img, settings, use_watershed):
 
 
 def _blobs_to_labels(blobs, img_norm, use_watershed):
-    """Convert ``(y, x, sigma)`` blob coordinates to a 2-D label image."""
+    """Convert ``(y, x, sigma)`` blob coordinates to a 2-D label image.
+
+    Without the watershed each blob is painted as a disc of radius
+    ``sigma * sqrt(2)``. With it, each blob is grown from its centre over the
+    smoothed image and kept where it stands at least half as high above the
+    local background (a white top-hat a few blob radii wide) as its own
+    centre does, so a spot is outlined at half maximum. Until 2026-09-26 the
+    watershed was bounded only by the image's 20th intensity percentile, so
+    every spot flooded out to meet its neighbours and a field of lipid
+    droplets became a mosaic tiling most of the image.
+    """
     shape = img_norm.shape
     markers = np.zeros(shape, dtype=np.int32)
     for i, (y, x, sigma) in enumerate(blobs, start=1):
@@ -2089,8 +2560,19 @@ def _blobs_to_labels(blobs, img_norm, use_watershed):
         return labeled
 
     smooth = gaussian(img_norm, sigma=1)
-    labeled = watershed(-smooth, markers, mask=(smooth > np.percentile(smooth, 20)))
-    return labeled
+    largest = max(float(np.max(blobs[:, 2])), 1.0)
+    radius = max(3, int(np.ceil(3 * largest * np.sqrt(2))))
+    foreground = white_tophat(smooth, disk(radius))
+    labeled = watershed(-smooth, markers,
+                        mask=(foreground > 0) | (markers > 0))
+    seed_height = np.zeros(len(blobs) + 1, dtype=np.float64)
+    seeded = markers > 0
+    seed_height[markers[seeded]] = foreground[seeded]
+    labeled[foreground < 0.5 * seed_height[labeled]] = 0
+    labeled[seeded] = markers[seeded]
+    pieces = sk_label(labeled, background=0, connectivity=1)
+    labeled[~np.isin(pieces, np.unique(pieces[seeded]))] = 0
+    return labeled.astype(np.int32)
 
 
 def _circle_coords(cy, cx, radius, shape):
@@ -2394,7 +2876,12 @@ def _watershed_split(binary, intensity):
 
 
 def _postprocess_masks(masks, min_size=10, max_size=None, remove_border=False):
-    """Return each label mask with size filtering and optional border-object removal."""
+    """Return each label mask with size filtering and optional border-object removal.
+
+    The survivors are renumbered 1..N by value, through a lookup table, not
+    by connectivity: ``label(mask > 0)`` made touching objects one object,
+    the same merge item 588 removed from hole filling.
+    """
     processed = []
     for mask in masks:
         mask = mask.copy()
@@ -2417,7 +2904,11 @@ def _postprocess_masks(masks, min_size=10, max_size=None, remove_border=False):
                 elif max_size is not None and prop.area > max_size:
                     mask[mask == prop.label] = 0
 
-        mask = sk_label(mask > 0)
+        values = np.unique(mask)
+        values = values[values > 0]
+        lookup = np.zeros(int(values.max()) + 1 if values.size else 1, dtype=np.int32)
+        lookup[values] = np.arange(1, values.size + 1, dtype=np.int32)
+        mask = lookup[np.where(mask > 0, mask, 0)]
         processed.append(mask)
 
     return processed

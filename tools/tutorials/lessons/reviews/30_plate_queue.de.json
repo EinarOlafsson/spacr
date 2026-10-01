@@ -1,23 +1,33 @@
 {
   "lesson": "30_plate_queue",
-  "english_sha256": "d2d89e7731cbc26bd8a3e6ba45c0fcce624c7559ba73145109dd8ed5dbf79371",
-  "review": {"kind": "Parent editorial translation against frozen English and verified GUI; visible English controls retained", "independent_peer_review": false, "native_speaker_signoff": false},
+  "english_sha256": "eb4beef71da36ce5936175783b37122fd029a5af93e937fe4797c0fa03344477",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "de",
-  "title": "Plate Queue: ausführen, zwischen Aufträgen stoppen und fortsetzen",
-  "description": "Zwei getrennte Wiederholungen des geprüften Recruitment-Beispiels ausführen, gespeicherte Ergebnisse prüfen und einen kontrollierten Stopp von ungeprüfter Absturzwiederherstellung unterscheiden.",
-  "objectives": ["Eine geprüfte Konfiguration importieren und Plate queue unter Help öffnen.", "Aktuelle Einstellungen und einen vorbereiteten Projektordner als getrennte Aufträge hinzufügen.", "Die sequenzielle Verarbeitung beobachten, zwischen Aufträgen stoppen und ohne Wiederholung erfolgreicher Aufträge fortsetzen.", "Zahlen prüfen und fertige Warteschlangeneinträge entfernen, ohne Projekte zu löschen."],
-  "prerequisite": "Zuerst das Recruitment-Tutorial abschließen. Dessen geprüfter Messdatenausschnitt aus vier Bildfeldern wird in zwei Ordner kopiert: dieselben aufgenommenen Daten, keine unabhängigen Platten oder biologischen Replikate. Jeder Ordner enthält measurements/measurements.db und settings/recruitment_settings.csv. Die erste CSV wird im echten Dateidialog importiert, der zweite Ordner in die Warteschlange gezogen. Kein Ersatz-Ausführer, Modelllauf oder AI-Aufruf. Plate Queue besitzt kein eigenes Load test data und keine Live-Vorschau. Import CSV wird nicht demonstriert: derzeit erzeugt es Mask-Aufträge, keine beliebigen Modulaufträge. Lange Beschriftungen können abgeschnitten sein; vollständige Pfade und Einstellungen vor dem Hinzufügen prüfen. Absturzwiederherstellung und Wiederholung fehlgeschlagener Aufträge sind nicht geprüft.",
+  "title": "Plate Queue: mehrere vorbereitete Projekte ausführen",
+  "description": "Fügen Sie das aktuelle Projekt hinzu oder legen Sie vorbereitete Ordner in eine Warteschlange, führen Sie Jobs der Reihe nach aus und setzen Sie nach einem kontrollierten Stopp fort.",
+  "objectives": [
+    "Vorbereitete Projekte mit ihren gespeicherten Moduleinstellungen hinzufügen.",
+    "Die Warteschlange ausführen und zwischen Jobs anhalten.",
+    "Die Ergebnisse jedes Projekts finden und abgeschlossene Einträge entfernen."
+  ],
+  "prerequisite": "Bereiten Sie ein Projekt und seine gespeicherten Moduleinstellungen vor. Verwenden Sie zum Üben zwei Kopien des Recruitment-Beispiels in getrennten Ordnern; sie enthalten dieselben Daten und sind keine biologischen Replikate.",
   "scenes": [
-    "Beginnen Sie mit dem geprüften Recruitment-Beispiel. Wir kopierten die Messdatenbank aus vier Bildfeldern in zwei getrennte Projektordner mit jeweils eigener Einstellungsdatei. Das sind zwei Wiederholungen derselben realen Daten, keine unabhängigen Platten. In Recruitment wählen Sie Import settings und öffnen die CSV des ersten Ordners.",
-    "Die Konsole bestätigt geladene Einstellungen. Prüfen Sie Quelle und Kanalzuordnung vor dem Einreihen; jede angeforderte Einstellung wurde nach dem Import abgeglichen. Abbildungen, Konsole und Vorschau zeigt das Recruitment-Tutorial. Die Warteschlange prüft nicht die biologische Angemessenheit Ihrer Entscheidungen.",
-    "Öffnen Sie Help und dann Plate queue. Dieses gemeinsame Werkzeug erreichen Sie im Menü, nicht über eine neue Home-Kachel. Der aktuelle Ausführer verarbeitet einen Auftrag nach dem anderen; hier gibt es weder eine Auswahl der Worker-Anzahl noch der Wiederaufnahmerichtlinie.",
-    "Wählen Sie Add current plate. Die erste Zeile enthält eine Kopie der gerade geladenen Recruitment-Konfiguration. Prüfen Sie Modul und Quelle vor dem Start. Die Tabelle zeigt Kennung, Modul, Beschriftung, Status und Laufzeit; sie ist kein vollständiger Einstellungseditor.",
-    "Ziehen Sie den zweiten vorbereiteten Projektordner in die Warteschlange. Seine gespeicherten Recruitment-Einstellungen bestimmen das Modul, der abgelegte Ordner wird zur Quelle. Beide Zeilen zeigen queued. Getrennte Ordner trennen die Ausgaben; denselben Ordner zweimal hinzuzufügen würde diese Trennung nicht schaffen.",
-    "Wählen Sie Run queue. Der erste Auftrag wechselt zu running, der zweite bleibt queued. Hier läuft die echte Recruitment-Verarbeitung, keine simulierte Fortschrittsanzeige. Die Liste verfolgt Aufträge, zeigt aber nicht jedes Zwischenbild oder jeden Verarbeitungsschritt.",
-    "Drücken Sie während des ersten Auftrags Stop. Der Ausführer beendet den aktuellen Auftrag und stoppt vor dem nächsten. Das ist kein sofortiger Abbruch: Warten Sie auf das Ende des aktiven Auftrags, statt anzunehmen, seine Ausgaben änderten sich bereits nicht mehr.",
-    "Jetzt zeigt die erste Zeile success, die zweite weiterhin queued. Wählen Sie erneut Run queue, um nur den verbleibenden Auftrag auszuführen. Die Zeitstempel des ersten blieben nachweislich unverändert. Dieser kontrollierte Stopp belegt keine Wiederherstellung nach einem Computerabsturz.",
-    "Beide Aufträge zeigen success. Jedes Projekt enthält Zell- und Well-Ergebnisse als CSV: zweihundertdreiundzwanzig verbleibende Zellen in vier Wells. Objektkennungen und Recruitment-Verhältnisse wurden unabhängig mit den Messungen abgeglichen; ein grüner Status allein beweist keine korrekten Zahlen.",
-    "Plot war in den gespeicherten Einstellungen aktiv, doch dieser Ausführer zeigt oder speichert die Recruitment-Abbildungen nicht. Den Abbildungsablauf erklärt das Modultutorial. Die Warteschlange besitzt auch kein AI-Gesprächsfeld; hier waren weder AI-Aufruf noch Modelllauf nötig.",
-    "Clear finished entfernt fertige Warteschlangeneinträge, nicht Projektordner oder Ergebnisse. Wir sicherten die Aufzeichnungen vorher und prüften, dass beide Projekte erhalten blieben. Für Skripte verwaltet PlateQueue im Qt-Plattenwarteschlangenmodul dauerhaft gespeicherte Auftragsdaten; es ist nicht selbst die Recruitment-Analysefunktion."
+    "Bereiten Sie das erste Projekt in seinem Analysemodul vor. Wählen Sie in Recruitment Import settings und öffnen Sie die Einstellungs-CSV des Projekts. Das Beispiel verwendet zwei getrennte Kopien derselben Messdaten, um das Ausführen mehrerer Jobs zu üben.",
+    "Prüfen Sie Source, Kanalzuordnung und Bedingungslabels. Speichern Sie die Einstellungen, die die Warteschlange verwenden soll, und lassen Sie dieses Projekt geöffnet.",
+    "Öffnen Sie Help und dann Plate queue. Die Warteschlange führt jeweils einen Eintrag in der angezeigten Reihenfolge aus.",
+    "Wählen Sie Add current plate. Eine neue Zeile speichert das aktuelle Modul und die aktuellen Einstellungen. Prüfen Sie Modul, Quelle und Label, bevor Sie die Warteschlange starten.",
+    "Ziehen Sie einen weiteren vorbereiteten Projektordner auf die Warteschlange. Seine gespeicherten Einstellungen bestimmen das Modul, und der abgelegte Ordner wird zur Quelle. Verwenden Sie getrennte Projektordner, wenn jeder Job eigene Ausgabedateien braucht.",
+    "Wählen Sie Run queue. Die erste Zeile wechselt zu running, während spätere Einträge queued bleiben. Verfolgen Sie Status und verstrichene Zeit, um den Fortschritt zu sehen.",
+    "Drücken Sie Stop, wenn die Warteschlange den aktuellen Eintrag abschließen und vor dem nächsten anhalten soll. Warten Sie, bis der aktive Job fertig ist.",
+    "Die abgeschlossene Zeile zeigt jetzt success, und die nächste bleibt queued. Wählen Sie erneut Run queue, um mit dem verbleibenden Eintrag fortzufahren.",
+    "Wenn beide Jobs abgeschlossen sind, öffnen Sie den Ausgabeordner jedes Projekts. Prüfen Sie bei Recruitment die CSV-Ergebnisse für Zellen und Wells. Verwenden Sie Recruitment direkt, wenn Sie dessen Abbildungsablauf möchten; diese Warteschlange zeigt und speichert diese Diagramme nicht.",
+    "Wählen Sie Clear finished, um abgeschlossene Einträge aus der Liste zu entfernen. Ihre Projektordner und gespeicherten Ergebnisse bleiben erhalten."
   ]
 }

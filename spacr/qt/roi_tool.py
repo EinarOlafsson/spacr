@@ -150,7 +150,14 @@ class RoiPen(CanvasTool, QObject):
 
     def press(self, view: LayerCanvas, world: Dict[str, float],
               event: Any) -> bool:
-        """Place a vertex (left button) or take the last one back (right)."""
+        """Place a vertex (left button) or take the last one back (right).
+
+        :param view: the canvas that received the press; unused.
+        :param world: the press position as ``{axis: world coordinate}``, added
+            as a vertex on a left-button press.
+        :param event: the mouse event; only its ``button()`` is read, and an
+            event without one counts as a left click.
+        """
         button = event.button() if hasattr(event, "button") else Qt.LeftButton
         if button == Qt.RightButton:
             self.undo()
@@ -162,12 +169,22 @@ class RoiPen(CanvasTool, QObject):
 
     def double_click(self, view: LayerCanvas, world: Dict[str, float],
                      event: Any) -> bool:
-        """Close the polygon. The second click of the pair is not a vertex."""
+        """Close the polygon. The second click of the pair is not a vertex.
+
+        :param view: the canvas that received the double-click; unused.
+        :param world: the click position as ``{axis: world coordinate}``;
+            unused, because the double-click only closes the shape.
+        :param event: the mouse event; unused.
+        """
         self.close_shape()
         return True
 
     def key(self, view: LayerCanvas, event: Any) -> bool:
-        """Escape abandons, Return closes, Backspace undoes."""
+        """Escape abandons, Return closes, Backspace undoes.
+
+        :param view: the canvas that received the key press; unused.
+        :param event: the key event; only its ``key()`` is read.
+        """
         key = event.key()
         if key == Qt.Key_Escape:
             self.cancel()
@@ -188,6 +205,9 @@ class RoiPen(CanvasTool, QObject):
         """Add one vertex given as ``{axis: world}``; returns the vertex count.
 
         A rectangle or an ellipse closes itself on the second vertex.
+
+        :param world: the vertex position as ``{axis: world coordinate}``,
+            converted to data coordinates through the layer's spacing.
         """
         self._pending.append(list(self._layer.spacing.data_from_map(world)))
         if self._kind in ("rectangle", "ellipse") and len(self._pending) >= 2:
@@ -383,7 +403,10 @@ class RoiPanel(QWidget):
         return self._roi_path
 
     def set_roi_path(self, path: str) -> str:
-        """Choose where the ROI file is written; returns the absolute path."""
+        """Choose where the ROI file is written; returns the absolute path.
+
+        :param path: where the ROI file should be written; it is made absolute.
+        """
         self._roi_path = os.path.abspath(str(path))
         self._refresh_status()
         return self._roi_path
@@ -565,6 +588,10 @@ class RoiPanel(QWidget):
         style.polish(self.status)
 
     def closeEvent(self, event) -> None:
-        """Take the pen off the canvas so it does not outlive this panel."""
+        """Take the pen off the canvas so it does not outlive this panel.
+
+        :param event: the close event; it is passed on to the base class
+            unchanged.
+        """
         self.stop_drawing()
         super().closeEvent(event)

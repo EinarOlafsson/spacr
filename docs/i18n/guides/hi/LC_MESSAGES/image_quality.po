@@ -1,0 +1,81 @@
+# spaCR user guide translation (hi).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: hi\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Image quality before segmentation"
+msgstr "विभाजन से पहले छवि गुणवत्ता"
+
+msgid "From **Home → Core → Mask**, open the **Image Quality** settings category before running segmentation. The same settings apply when Mask's **Timelapse** switch is on. Screening measures the raw, unnormalized image channels. Start in ``report`` mode to inspect acquisition problems before deciding which fields to exclude."
+msgstr "विभाजन चलाने से पहले **मुखपृष्ठ → मुख्य → मास्क** से **छवि गुणवत्ता** सेटिंग श्रेणी खोलें। मास्क का **टाइमलैप्स** स्विच चालू होने पर भी यही सेटिंग्स लागू होती हैं। जाँच कच्चे, असामान्यीकृत छवि चैनलों को मापती है। किन फ़ील्ड को बाहर रखना है यह तय करने से पहले अधिग्रहण संबंधी समस्याओं की जाँच के लिए ``report`` मोड से शुरुआत करें।"
+
+msgid "The policy"
+msgstr "नीति"
+
+msgid "``image_qc_mode``: ``off`` (default), ``report`` (flag fields but process them), or ``exclude`` (skip flagged fields downstream)."
+msgstr "``image_qc_mode``: ``off`` (डिफ़ॉल्ट), ``report`` (फ़ील्ड को चिह्नित करें पर संसाधित करें) या ``exclude`` (चिह्नित फ़ील्ड को आगे के चरणों में छोड़ें)।"
+
+msgid "``image_qc_channels``: acquisition-channel indices to screen; an empty list screens every available channel."
+msgstr "``image_qc_channels``: जाँचे जाने वाले अधिग्रहण चैनल सूचकांक; खाली सूची सभी उपलब्ध चैनलों की जाँच करती है।"
+
+msgid "``image_qc_min_focus``: channel-to-threshold mapping for minimum Laplacian variance. A stack uses its best plane's score; an out-of-focus plane alone does not reject an otherwise usable stack. Choose thresholds from controls acquired with the same intensity scale and optics."
+msgstr "``image_qc_min_focus``: न्यूनतम लाप्लासियन प्रसरण के लिए चैनल-से-सीमा मैपिंग। स्टैक अपने सर्वश्रेष्ठ तल का स्कोर उपयोग करता है; केवल एक धुंधला तल किसी अन्यथा उपयोगी स्टैक को अस्वीकार नहीं करता। समान तीव्रता पैमाने और प्रकाशिकी से प्राप्त नियंत्रणों के आधार पर सीमाएँ चुनें।"
+
+msgid "``image_qc_max_saturation``: channel-to-threshold mapping for the maximum fraction of saturated pixels, from zero to one."
+msgstr "``image_qc_max_saturation``: संतृप्त पिक्सेल के अधिकतम अंश (शून्य से एक) के लिए चैनल-से-सीमा मैपिंग।"
+
+msgid "``image_qc_saturation_level``: channel-to-intensity mapping for the acquisition saturation ceiling. For example, a 12-bit acquisition stored in ``uint16`` normally needs its acquisition ceiling rather than the ``uint16`` ceiling. Integer data otherwise use the dtype maximum; floating data require an explicit level when a saturation threshold is enabled."
+msgstr "``image_qc_saturation_level``: अधिग्रहण संतृप्ति सीमा के लिए चैनल-से-तीव्रता मैपिंग। उदाहरण के लिए, ``uint16`` में संग्रहीत 12-बिट अधिग्रहण को सामान्यतः ``uint16`` सीमा के बजाय अपनी अधिग्रहण सीमा की आवश्यकता होती है। अन्यथा पूर्णांक डेटा dtype अधिकतम का उपयोग करता है; संतृप्ति सीमा सक्षम होने पर फ़्लोटिंग डेटा के लिए स्पष्ट स्तर आवश्यक है।"
+
+msgid "``image_qc_max_nonfinite``: maximum fraction of nonfinite pixels, from zero to one; defaults to zero."
+msgstr "``image_qc_max_nonfinite``: अपरिमित पिक्सेल का अधिकतम अंश, शून्य से एक; डिफ़ॉल्ट शून्य है।"
+
+msgid "Focus thresholds use raw intensity units squared. These are acquisition checks: low object counts do not cause exclusion. The brightest observed pixel is never substituted for a calibrated saturation level."
+msgstr "फ़ोकस सीमाएँ कच्ची तीव्रता इकाइयों के वर्ग का उपयोग करती हैं। ये अधिग्रहण जाँचें हैं: ऑब्जेक्ट की कम संख्या बहिष्करण का कारण नहीं बनती। सबसे चमकीला प्रेक्षित पिक्सेल कभी भी अंशांकित संतृप्ति स्तर का स्थान नहीं लेता।"
+
+msgid "Review and outputs"
+msgstr "समीक्षा और आउटपुट"
+
+msgid "Open **Home → Data → QC** and choose **Review image quality** for a local thumbnail gallery. Flagged fields appear first, with at most 64 previews. Display contrast is stretched for inspection; the metrics still use raw intensities. Stack thumbnails are maximum projections."
+msgstr "स्थानीय थंबनेल गैलरी के लिए **मुखपृष्ठ → डेटा → QC** खोलें और **छवि गुणवत्ता की समीक्षा करें** चुनें। चिह्नित फ़ील्ड पहले दिखाई देते हैं, अधिकतम 64 पूर्वावलोकनों के साथ। निरीक्षण के लिए प्रदर्शन कंट्रास्ट खींचा जाता है; मेट्रिक्स फिर भी कच्ची तीव्रताओं का उपयोग करते हैं। स्टैक थंबनेल अधिकतम प्रक्षेपण होते हैं।"
+
+msgid "The project's ``qc`` directory contains:"
+msgstr "प्रोजेक्ट की ``qc`` निर्देशिका में ये होते हैं:"
+
+msgid "``image_quality.csv``: every screened field and channel, its focus variance, saturation level/fraction, nonfinite fraction, status and reasons;"
+msgstr "``image_quality.csv``: हर जाँचा गया फ़ील्ड और चैनल, उसका फ़ोकस प्रसरण, संतृप्ति स्तर/अंश, अपरिमित अंश, स्थिति और कारण;"
+
+msgid "``image_quality.json``: the exact policy and excluded field identities;"
+msgstr "``image_quality.json``: सटीक नीति और बाहर किए गए फ़ील्ड की पहचान;"
+
+msgid "``image_quality.html``: the review gallery."
+msgstr "``image_quality.html``: समीक्षा गैलरी।"
+
+msgid "Exclusion retains the original inputs. Segmentation, merge and Measure respect the saved exclusions; excluded fields are not represented as successful zero-object detections."
+msgstr "बहिष्करण मूल इनपुट को सुरक्षित रखता है। विभाजन, संयोजन और मापन सहेजे गए बहिष्करणों का पालन करते हैं; बाहर किए गए फ़ील्ड को शून्य ऑब्जेक्ट की सफल पहचान के रूप में नहीं दिखाया जाता।"
+
+msgid "Revisiting an analyzed project"
+msgstr "विश्लेषित प्रोजेक्ट पर दोबारा काम करना"
+
+msgid "New exclusions are refused if the affected fields already have retained measurement rows. Use ``report`` to inspect that project without changing its inclusion policy, or run the exclusion policy in a fresh project. Existing measurements and the previous policy are retained when this check refuses a change. Turning screening ``off`` clears the active exclusion policy."
+msgstr "यदि प्रभावित फ़ील्ड की मापन पंक्तियाँ पहले से सुरक्षित हैं, तो नए बहिष्करण अस्वीकार कर दिए जाते हैं। उस प्रोजेक्ट की समावेशन नीति बदले बिना उसकी जाँच के लिए ``report`` का उपयोग करें, या बहिष्करण नीति किसी नए प्रोजेक्ट में चलाएँ। जब यह जाँच परिवर्तन अस्वीकार करती है तो मौजूदा मापन और पिछली नीति बनी रहती हैं। जाँच को ``off`` करने से सक्रिय बहिष्करण नीति साफ़ हो जाती है।"
+
+msgid "The Python entry points are :func:`spacr.image_quality.quality_policy`, :func:`spacr.image_quality.assess_image` and :func:`spacr.image_quality.screen_fields`."
+msgstr "Python प्रवेश बिंदु :func:`spacr.image_quality.quality_policy`, :func:`spacr.image_quality.assess_image` और :func:`spacr.image_quality.screen_fields` हैं।"
+

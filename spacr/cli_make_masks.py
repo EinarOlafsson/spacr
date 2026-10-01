@@ -10,14 +10,15 @@ the session. This module is the session::
     spacr-make-masks --folder <dir>
     spacr-make-masks --folder <dir> --order value --limit 25
     spacr-make-masks --folder <dir> --dry-run      # no display needed
+    spacr-make-masks --folder <dir> --compute-uncertainty --save-uncertainty-maps
 
 :mod:`spacr.curation_queue` does the thinking — which fields are waiting,
 in what order, and what was already decided about each one. This module is
 the thin part: parse four arguments, build the queue, say what the session
 is, and only then start Qt.
 
-Nothing is imported from :mod:`spacr.qt` until the folder has been read and
-accepted. That order is the point of the module rather than a detail of it:
+The optional uncertainty computation uses pure image I/O without starting
+Qt. The graphical interface is imported only after the folder is accepted. That order is the point of the module rather than a detail of it:
 a folder that does not exist, or that holds no layout spaCR recognises, is
 answered with a sentence on a login node with no display, not with a Qt
 crash after a ten-second import.
@@ -48,7 +49,7 @@ Exit codes::
 
     0   the editor ran, or --dry-run printed the queue, or there was
         nothing left to curate
-    1   the Qt interface could not start
+    1   the Qt interface could not start, or uncertainty computation failed
     2   bad arguments, a folder that is not there, or a folder holding no
         recognisable layout
 """
@@ -136,7 +137,9 @@ def build_parser() -> argparse.ArgumentParser:
              f"prob read <folder>/{SCORES_FILENAME}, or "
              f"<folder>{EXTERNAL_SCORES_SUFFIX} beside it (a stem column and "
              f"a prob column); without either they sort by value and say "
-             f"so.")
+             f"so. uncertain: the most uncertain segmentation first, read "
+             f"from <folder>/curate_uncertainty.csv, which Make Masks' "
+             f"Uncertainty ranking writes.")
     parser.add_argument(
         "--limit", type=int, default=None, metavar="N",
         help="end the session after N fields. Applied AFTER ordering, so it "
@@ -145,6 +148,19 @@ def build_parser() -> argparse.ArgumentParser:
         "--dry-run", action="store_true",
         help="print the session and the fields it would offer, in order, "
              "and exit. Needs no display, and works for every layout.")
+    parser.add_argument(
+        "--compute-uncertainty", action="store_true",
+        help="compute uncertainty for the selected pending fields, save their "
+             "ranking and exit without opening Qt (alpha; CPU by default).")
+    parser.add_argument("--uncertainty-model", default="cpsam", metavar="MODEL",
+                        help="primary model/checkpoint for uncertainty scoring")
+    parser.add_argument("--uncertainty-second-model", default=None, metavar="MODEL",
+                        help="optional distinct ensemble model; runs four additional passes")
+    parser.add_argument("--uncertainty-device", default="cpu", metavar="DEVICE",
+                        help="explicit inference device (default: cpu)")
+    parser.add_argument("--save-uncertainty-maps", nargs="?", const="auto", default=None,
+                        metavar="DIR", help="save float32 TIFF maps with provenance; "
+                        "default directory is <folder>/uncertainty")
     return parser
 
 
@@ -257,6 +273,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         parser.error("--limit takes a positive number of fields; a session "
                      "of none is the same as not starting one")
 
+    if args.save_uncertainty_maps and not args.compute_uncertainty:
+        parser.error("--save-uncertainty-maps requires --compute-uncertainty")
+    if args.uncertainty_second_model and not args.compute_uncertainty:
+        parser.error("--uncertainty-second-model requires --compute-uncertainty")
     folder = Path(args.folder).expanduser()
     if not folder.exists():
         print(f"no such folder: {folder}", file=sys.stderr)
@@ -282,6 +302,25 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     if args.dry_run:
         for line in _session_lines(queue):
             print(line)
+        return EXIT_OK
+
+    if args.compute_uncertainty:
+        from .segmentation_uncertainty import compute_queue_uncertainty
+
+        maps = args.save_uncertainty_maps
+        if maps == "auto":
+            maps = folder / "uncertainty"
+        try:
+            scores = compute_queue_uncertainty(
+                queue, model=args.uncertainty_model,
+                second_model=args.uncertainty_second_model,
+                device=args.uncertainty_device, map_folder=maps,
+                progress=lambda stem: print(f"Scored uncertainty: {stem}"))
+        except Exception as exc:
+            print(f"uncertainty scoring failed: {exc}", file=sys.stderr)
+            return EXIT_NO_GUI
+        print(f"Saved uncertainty scores for {len(scores)} fields to "
+              f"{queue.folder / 'curate_uncertainty.csv'}")
         return EXIT_OK
 
     return open_editor(queue)

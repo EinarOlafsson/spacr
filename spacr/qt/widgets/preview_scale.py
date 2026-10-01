@@ -31,6 +31,14 @@ The slider itself is exempt: at 10 % the thing that brings the preview back
 must still be there to grab, and double-clicking its value returns to 100 %.
 ``Ctrl+Alt+0`` resets every preview (:func:`reset_all_preview_scales`).
 
+A WINDOW OPENED FROM THE PREVIEW IS NOT THE PREVIEW (item 522). A dialog
+parented to the panel is a window of its own, yet Qt cascades the panel's
+scaled sheet into it, and the walk found it among the panel's children: at
+150 % a settings dialog's buttons were 59 px tall, not the 40 px of every
+other dialog. Such a window and everything in it are kept at 100 %, and the
+window's own sheet re-states, at 100 %, the sizes it would otherwise inherit
+scaled -- set as it is polished, so before it is first laid out.
+
 Each preview remembers its own scale, under ``prefs/preview_scale/<name>``.
 """
 from __future__ import annotations
@@ -134,13 +142,15 @@ def set_preview_scale(name: str, scale: float) -> None:
     _settings().setValue(_KEY.format(name=name), clamp_preview_scale(scale))
 
 
-def _scaled_px(match, factor: float) -> str:
-    """One ``Npx`` scaled, never rounding a non-zero size to nothing."""
-    value = float(match.group(1))
-    if value == 0:
-        return match.group(0)
-    scaled = int(round(abs(value) * factor)) or 1
-    return f"{-scaled if value < 0 else scaled}px"
+def _scaled_px(match, factor: float, prop: str = "") -> str:
+    """One ``Npx`` scaled, never rounding a non-zero size to nothing.
+
+    A radius rounds down, as in :func:`spacr.qt.gui_scale._scaled_px`, so a
+    circle's radius never outgrows half of its rounded side.
+    """
+    from ..gui_scale import _scaled_px as scaled_px
+
+    return scaled_px(match, factor, prop)
 
 
 def scale_qss(text: str, factor: float, *, sizes_only: bool = False) -> str:
@@ -172,7 +182,7 @@ def scale_qss(text: str, factor: float, *, sizes_only: bool = False) -> str:
             name, value = declaration.split(":", 1)
             prop = name.strip().lower()
             if prop in SCALED_QSS_PROPERTIES and "px" in value:
-                value = _PX.sub(lambda m: _scaled_px(m, factor), value)
+                value = _PX.sub(lambda m: _scaled_px(m, factor, prop), value)
                 changed = True
                 kept.append(f"{name.strip()}: {value.strip()}")
             elif not sizes_only:
@@ -197,8 +207,9 @@ def _scale_bare_declarations(text: str, factor: float) -> str:
                 parts.append(declaration.strip())
             continue
         name, value = declaration.split(":", 1)
-        if name.strip().lower() in SCALED_QSS_PROPERTIES:
-            value = _PX.sub(lambda m: _scaled_px(m, factor), value)
+        prop = name.strip().lower()
+        if prop in SCALED_QSS_PROPERTIES:
+            value = _PX.sub(lambda m: _scaled_px(m, factor, prop), value)
         parts.append(f"{name.strip()}: {value.strip()}")
     return "; ".join(parts)
 
@@ -342,7 +353,9 @@ class PreviewScaler(QObject):
         if (timer is not None and not getattr(self, "_applying", True)
                 and abs(scale - 1.0) > 1e-9):
             kind = event.type()
-            if kind in (QEvent.ChildAdded, QEvent.StyleChange,
+            if kind == QEvent.ChildPolished:
+                self._window_polished(event.child(), scale)
+            elif kind in (QEvent.ChildAdded, QEvent.StyleChange,
                         QEvent.Show):
                 try:
                     timer.start()
@@ -361,6 +374,83 @@ class PreviewScaler(QObject):
                 return False
         return False
 
+    def _window_of(self, widget):
+        """The outermost window between ``widget`` and the preview, if any.
+
+        A dialog parented to the panel, or to anything in it, is its own
+        window: it and its contents are not the preview's to scale.
+        """
+        window = None
+        while widget is not None and widget is not self._root:
+            try:
+                if widget.isWindow():
+                    window = widget
+                widget = widget.parentWidget()
+            except RuntimeError:
+                return window
+        return window
+
+    def _window_polished(self, child, scale: float) -> None:
+        """Re-state a new window's sizes before it is first laid out.
+
+        Its parent reports it polished from inside ``show()``, before the
+        window takes its size; waiting for the next :meth:`apply` would lay
+        it out once at the preview's scale.
+        """
+        try:
+            if (not isinstance(child, QWidget) or not child.isWindow()
+                    or self._window_of(child) is not child):
+                return
+        except RuntimeError:
+            return
+        self._applying = True
+        try:
+            self._unscale_window(child, scale)
+            child.installEventFilter(self)
+        except RuntimeError:
+            pass
+        finally:
+            self._applying = False
+
+    def _unscale_window(self, window, factor: float) -> None:
+        """Give a window under the preview the sizes of every other window.
+
+        Its own sheet is the preview's cascade re-stated at 100 %, then the
+        sheet the window set on itself, which still wins where they differ.
+        At 100 % the window's own sheet is given back untouched.
+        """
+        current = window.styleSheet() or ""
+        base = window.property(_P_SHEET_BASE)
+        applied = window.property(_P_SHEET_SET)
+        if base is None or (applied is not None and current != applied):
+            base = current
+        if abs(factor - 1.0) < 1e-9:
+            if applied is not None and current != base:
+                window.setStyleSheet(base)
+            _forget(window, _P_SHEET_BASE, _P_SHEET_SET)
+            return
+        chain = []
+        widget = window.parentWidget()
+        while widget is not None:
+            chain.append(widget)
+            if widget is self._root:
+                break
+            widget = widget.parentWidget()
+        parts = [scale_qss(self._inherited_sheet(), 1.0, sizes_only=True)]
+        for widget in reversed(chain):
+            own = widget.property(_P_SHEET_BASE)
+            if own is None:
+                own = widget.styleSheet() or ""
+            if own:
+                parts.append(scale_qss(own, 1.0, sizes_only=True))
+        if base:
+            parts.append(base)
+        wanted = "\n".join(part for part in parts if part)
+        window.setProperty(_P_SHEET_BASE, base)
+        window.setProperty(_P_SHEET_SET, wanted)
+        if current != wanted:
+            window.setStyleSheet(wanted)
+
     def apply(self) -> None:
         """Put the current scale on every widget of the preview."""
         if self._applying:
@@ -374,20 +464,30 @@ class PreviewScaler(QObject):
         factor = self._scale
         try:
             widgets = [root] + list(root.findChildren(QWidget))
+            windows = []
             for widget in widgets:
                 if widget is not root and self._exempt(widget):
                     continue
-                if widget is not root:
-                    self._scale_own_sheet(widget, factor)
-                self._scale_geometry(widget, factor)
-                layout = widget.layout()
-                if layout is not None:
-                    self._scale_layout(layout, factor)
-                if widget is not root and abs(factor - 1.0) > 1e-9:
-                    widget.installEventFilter(self)
+                window = self._window_of(widget)
+                own = factor if window is None else 1.0
+                if widget is window:
+                    windows.append(widget)
                 elif widget is not root:
+                    self._scale_own_sheet(widget, own)
+                self._scale_geometry(widget, own)
+                layout = widget.layout()
+                if isinstance(layout, QLayout):
+                    self._scale_layout(layout, own)
+                if widget is root:
+                    continue
+                if (abs(factor - 1.0) > 1e-9
+                        and (window is None or widget is window)):
+                    widget.installEventFilter(self)
+                else:
                     widget.removeEventFilter(self)
             self._scale_root_sheet(factor)
+            for window in windows:
+                self._unscale_window(window, factor)
             self._pin_the_control_text(factor)
         except RuntimeError:
             pass
@@ -576,11 +676,10 @@ class PreviewScaler(QObject):
                     layout.setVerticalSpacing(wanted[1])
                 else:
                     layout.setSpacing(wanted[0])
-        for index in range(layout.count()):
-            item = layout.itemAt(index)
-            child = item.layout() if item is not None else None
-            if child is not None:
-                self._scale_layout(child, factor)
+        from ..gui_scale import _child_layouts
+
+        for child in _child_layouts(layout):
+            self._scale_layout(child, factor)
 
 
 def _qsize(pair):

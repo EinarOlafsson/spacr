@@ -87,7 +87,7 @@ def _reveal(tooltip, anchor, html: str = HTML):
     has to ask. The assertion in the middle is what stops this helper from
     quietly passing if the default ever flips back.
     """
-    tooltip.show_for(anchor, html)
+    tooltip.show_for(anchor, html, immediate=True)
     assert not tooltip.animation_view().isVisible(), (
         "the animation was already showing; the reveal proves nothing")
     tooltip.animation_link().clicked.emit()
@@ -265,7 +265,7 @@ def test_the_anchor_keeps_its_tooltip_text_for_screen_readers(tooltip, qtbot):
     """
     anchor = _anchor(qtbot)
     anchor.setToolTip("<b>Cell diameter</b> — accessible help")
-    tooltip.show_for(anchor, HTML)
+    tooltip.show_for(anchor, HTML, immediate=True)
     assert anchor.toolTip(), "the anchor's accessible tooltip text was erased"
 
 
@@ -289,7 +289,7 @@ def test_claiming_the_same_anchor_twice_installs_one_suppressor(
         calls.append(("remove", f)), real_remove(f))[1]
 
     for _ in range(4):
-        tooltip.show_for(anchor, HTML)
+        tooltip.show_for(anchor, HTML, immediate=True)
 
     suppressor = tooltip._tooltip_suppressor
     ours = [action for action, f in calls if f is suppressor]
@@ -316,7 +316,7 @@ def _boxed(tooltip, content_height: int) -> int:
 
 
 def test_a_text_only_popup_is_exactly_as_tall_as_its_text(tooltip, qtbot):
-    tooltip.show_for(_anchor(qtbot, key=""), "<b>Some section</b><br>Short.")
+    tooltip.show_for(_anchor(qtbot, key=""), "<b>Some section</b><br>Short.", immediate=True)
 
     label = tooltip.text_label()
     assert not tooltip.animation_view().isVisible()
@@ -363,7 +363,7 @@ def test_every_packaged_animation_keeps_its_text_inside_the_square(
                 for key, text in get_tooltips().items()
                 if (animation := animation_for_setting(key)) is not None]
     for _animation, key, text in sorted(animated, key=lambda row: (str(row[0].path), row[1])):
-        tooltip.show_for(_anchor(qtbot, key), format_tooltip(text, "mask", key))
+        tooltip.show_for(_anchor(qtbot, key), format_tooltip(text, "mask", key), immediate=True)
         assert tooltip.animation_view().isVisible(), f"{key}: no animation"
         heights.append((_inner_height(tooltip), key))
         column = tooltip.text_column().height()
@@ -392,11 +392,11 @@ def test_every_packaged_animation_keeps_its_text_inside_the_square(
 def test_the_column_only_widens_when_the_prose_needs_it(tooltip, qtbot):
     """Short help keeps the neat pair of equal columns."""
     prefs.set_setting_animations_enabled(True)
-    tooltip.show_for(_anchor(qtbot), "<b>Cell diameter</b><br>Short.")
+    tooltip.show_for(_anchor(qtbot), "<b>Cell diameter</b><br>Short.", immediate=True)
     assert tooltip.text_column().width() == HoverTooltip.ANIMATION_SIZE
 
     long_text = "<b>Cell diameter</b><br>" + ("Long help. " * 40)
-    tooltip.show_for(_anchor(qtbot), long_text)
+    tooltip.show_for(_anchor(qtbot), long_text, immediate=True)
     assert tooltip.text_column().width() > HoverTooltip.ANIMATION_SIZE
     assert tooltip.text_column().width() <= HoverTooltip.TEXT_WIDTH
     # The square if the prose fits at the widest step, and the prose's own
@@ -448,7 +448,7 @@ def test_the_animation_square_has_rounded_corners(tooltip, qtbot):
 
 def test_the_animation_word_reveals_the_square_and_folds_it_back(
         tooltip, qtbot):
-    tooltip.show_for(_anchor(qtbot), HTML)
+    tooltip.show_for(_anchor(qtbot), HTML, immediate=True)
     view = tooltip.animation_view()
     narrow, short = tooltip.width(), tooltip.height()
     assert not view.isVisible(), "a plain hover is text only"
@@ -484,7 +484,7 @@ def test_the_reveal_does_not_survive_a_move_to_the_next_setting(
     _reveal(tooltip, _anchor(qtbot))
     assert tooltip.animations_shown()
 
-    tooltip.show_for(_anchor(qtbot, "cell_cellprob_threshold"), HTML)
+    tooltip.show_for(_anchor(qtbot, "cell_cellprob_threshold"), HTML, immediate=True)
     assert not tooltip.animation_view().isVisible(), (
         "the second setting inherited the first one's reveal")
     assert tooltip.animation() is None
@@ -501,7 +501,7 @@ def test_the_reveal_is_this_popup_and_not_the_next_process(tooltip, qtbot):
 
     fresh = HoverTooltip()
     qtbot.addWidget(fresh)
-    fresh.show_for(_anchor(qtbot), HTML)
+    fresh.show_for(_anchor(qtbot), HTML, immediate=True)
     assert fresh.animations_shown() is False
     assert not fresh.animation_view().isVisible()
 
@@ -516,7 +516,7 @@ def test_the_reveal_does_not_touch_the_global_preference(tooltip, qtbot):
 def test_the_preference_on_reveals_without_a_click(tooltip, qtbot):
     """The one place to say "always" — and it means "stop asking me"."""
     prefs.set_setting_animations_enabled(True)
-    tooltip.show_for(_anchor(qtbot), HTML)
+    tooltip.show_for(_anchor(qtbot), HTML, immediate=True)
     assert tooltip.animations_shown() is True
     assert tooltip.animation_view().isVisible()
     # And the word is still there, to fold this one away.
@@ -524,7 +524,7 @@ def test_the_preference_on_reveals_without_a_click(tooltip, qtbot):
 
 
 def test_a_setting_without_an_animation_hides_the_word(tooltip, qtbot):
-    tooltip.show_for(_anchor(qtbot, key="src"), HTML)
+    tooltip.show_for(_anchor(qtbot, key="src"), HTML, immediate=True)
     assert not tooltip.animation_link().isVisible()
     assert tooltip.api_link().isVisible(), "the API word went with it"
 
@@ -536,7 +536,7 @@ def test_a_setting_without_an_animation_hides_the_word(tooltip, qtbot):
 def test_the_footer_is_two_marks_and_not_a_sentence(tooltip, qtbot):
     from spacr.qt.widgets.hover_tooltip import ANIMATION_MARK, API_MARK
 
-    tooltip.show_for(_anchor(qtbot), HTML)
+    tooltip.show_for(_anchor(qtbot), HTML, immediate=True)
     assert tooltip.api_link().text() == API_MARK
     assert tooltip.animation_link().text() == ANIMATION_MARK
     # The words moved to where a reader can still get them.
@@ -549,7 +549,7 @@ def test_the_footer_is_two_marks_and_not_a_sentence(tooltip, qtbot):
 
 
 def test_api_is_left_of_animation(tooltip, qtbot):
-    tooltip.show_for(_anchor(qtbot), HTML)
+    tooltip.show_for(_anchor(qtbot), HTML, immediate=True)
     api = tooltip.api_link().mapTo(tooltip, QPoint(0, 0)).x()
     word = tooltip.animation_link().mapTo(tooltip, QPoint(0, 0)).x()
     assert api < word, "the words are not in the order 'API Animation'"
@@ -568,7 +568,7 @@ def test_the_two_marks_render_in_the_declared_colours(tooltip, qtbot):
     """
     from spacr.qt.widgets.hover_tooltip import PURPLE
 
-    tooltip.show_for(_anchor(qtbot), HTML)
+    tooltip.show_for(_anchor(qtbot), HTML, immediate=True)
     background = _background(_grab(tooltip))
 
     for word, declared, other in ((tooltip.api_link(), TEAL, PURPLE),
@@ -617,7 +617,7 @@ def test_neither_mark_is_underlined(tooltip, qtbot):
     against a real ``<a href>`` that Qt does underline. That control is what
     stops this file quietly losing the ability to detect one.
     """
-    tooltip.show_for(_anchor(qtbot), HTML)
+    tooltip.show_for(_anchor(qtbot), HTML, immediate=True)
 
     for mark in (tooltip.api_link(), tooltip.animation_link()):
         assert not mark.font().underline()
@@ -643,7 +643,7 @@ def test_clicking_api_opens_the_documentation(tooltip, qtbot, monkeypatch):
         "spacr.qt.widgets.hover_tooltip.QDesktopServices.openUrl",
         lambda url: opened.append(url.toString()) or True,
     )
-    tooltip.show_for(_anchor(qtbot), HTML)
+    tooltip.show_for(_anchor(qtbot), HTML, immediate=True)
     qtbot.mouseClick(tooltip.api_link(), Qt.LeftButton)
     assert opened == [API_URL]
 
@@ -655,7 +655,7 @@ def test_clicking_animation_toggles_instead_of_opening_a_browser(
         "spacr.qt.widgets.hover_tooltip.QDesktopServices.openUrl",
         lambda url: opened.append(url.toString()) or True,
     )
-    tooltip.show_for(_anchor(qtbot), HTML)
+    tooltip.show_for(_anchor(qtbot), HTML, immediate=True)
     assert not tooltip.animation_view().isVisible()
     qtbot.mouseClick(tooltip.animation_link(), Qt.LeftButton)
     assert opened == []
@@ -663,7 +663,7 @@ def test_clicking_animation_toggles_instead_of_opening_a_browser(
 
 
 def test_a_body_with_no_link_hides_the_api_word(tooltip, qtbot):
-    tooltip.show_for(_anchor(qtbot, key=""), "<b>Some section</b><br>Text.")
+    tooltip.show_for(_anchor(qtbot, key=""), "<b>Some section</b><br>Text.", immediate=True)
     assert not tooltip.api_link().isVisible()
     assert tooltip.api_url() == ""
 
@@ -744,7 +744,7 @@ def test_the_popup_is_one_surface_with_no_black_box_inside_it(
     have caught it: the rule that produced the black was in a different sheet.
     """
     themed_app(opacity)
-    tooltip.show_for(_anchor(qtbot), HTML)
+    tooltip.show_for(_anchor(qtbot), HTML, immediate=True)
 
     container = _rgb(active_palette()["surface_alt"])
     commonest, count = _interior_colours(tooltip)[0]
@@ -769,7 +769,7 @@ def test_every_layout_container_inside_the_popup_paints_nothing(
     black and the rest were right, so each one is read at its own corners.
     """
     themed_app(1.0)
-    tooltip.show_for(_anchor(qtbot), HTML)
+    tooltip.show_for(_anchor(qtbot), HTML, immediate=True)
     tooltip.animation_link().clicked.emit()      # the widest layout there is
 
     image = _grab(tooltip)
@@ -798,7 +798,7 @@ def test_the_probe_can_see_a_box_that_really_is_there(tooltip, qtbot,
                                                       themed_app):
     """The control: paint the container black on purpose and measure again."""
     themed_app(1.0)
-    tooltip.show_for(_anchor(qtbot), HTML)
+    tooltip.show_for(_anchor(qtbot), HTML, immediate=True)
     tooltip.text_column().setStyleSheet(
         "QWidget#HoverTooltipTextColumn { background: #000000; }")
     tooltip.text_column().setAttribute(Qt.WA_StyledBackground, True)

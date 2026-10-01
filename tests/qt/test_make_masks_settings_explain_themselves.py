@@ -199,34 +199,14 @@ def _awaiting_translation(screen) -> set:
     the moment the lane has done one, so the list empties itself rather
     than becoming a permanent hole.
 
-    Owed since 2026-09-22 by item 473 (Make Masks offers every detection
-    method): the detection button, most organelle-method and propagation
-    parameters, and the Image enhancement card. The Method, Local k,
-    correction, Classes, adaptive Offset and Grow until help have source-bound
-    translations in all nine languages and are no longer excluded here.
-    The Apply and Compare enhancement help also have source-bound translations.
+    The remaining 13 detection, propagation, enhancement and prompt
+    captions have exact rows in every shipped catalog as of 2026-09-27.
+    None are exempt now; the panel-wide exact-row check covers them too.
+
+    :param screen: the constructed panel, available for identifying any
+        future explicitly deferred captions.
     """
-    widgets = [screen._btn_otsu]
-    widgets += [widget for key, widget in getattr(screen, "_method_widgets", {}).items()
-                if key != "adaptive_offset"]
-    widgets += [widget for key, widget in getattr(screen, "_propagate_widgets", {}).items()
-                if key != "propagate_stop"]
-    for name in ("_enh_background", "_enh_background_radius",
-                 "_enh_background_scale", "_enh_denoise",
-                 "_enh_denoise_strength", "_enh_gamma", "_enh_clahe",
-                 "_enh_clahe_tile", "_enh_clahe_clip", "_enh_equalize",
-                 "_enh_sharpen", "_enh_sharpen_radius", "_enh_sharpen_amount",
-                 "_enh_morphology", "_enh_morphology_radius", "_enh_split"):
-        widget = getattr(screen, name, None)
-        if widget is not None:
-            widgets.append(widget)
-    owed = set()
-    for widget in widgets:
-        owed.add(widget.property("apiTooltipDescriptionSource") or widget.toolTip())
-        label = _sibling_label_for(widget)
-        if label is not None:
-            owed.add(label.property("apiTooltipDescriptionSource") or label.toolTip())
-    return {text for text in owed if text}
+    return set()
 
 
 def test_every_help_string_on_the_panel_has_an_exact_catalog_row(screen):

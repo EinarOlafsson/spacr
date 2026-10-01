@@ -77,4 +77,4 @@ def test_the_filter_is_still_application_wide(qapp):
     from spacr.qt.widgets import feature_dictionary as fd
 
     source = inspect.getsource(fd.install_context_menu_filter)
-    assert "app.installEventFilter" in source
+    assert "_watch_application_events(app, _FILTER" in source

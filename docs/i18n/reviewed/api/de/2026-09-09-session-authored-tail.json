@@ -3,10 +3,11 @@
   "records": [
     {
       "context": "how many unannotated extracted image regions to draw at random and fit as the ABSENT class when only one class has been annotated. ``None`` (default) refuses instead, as before.",
-      "label": "spacr.active_learning.retrain_round#26",
+      "label": "spacr.active_learning.retrain_round#27",
       "source": "how many unannotated crops to draw at random and fit as the ABSENT class when only one class has been annotated. ``None`` (default) refuses instead, as before.",
       "source_sha256": "63847984f20d1551c402a08e99b8d8bebc463bf61ed94005e01c23ead6eb6311",
-      "translation": "wie viele nicht annotierte Bildausschnitte zufällig gezogen und als die Klasse ABWESEND angepasst werden, wenn nur eine Klasse annotiert wurde. ``None`` (Vorgabe) verweigert das stattdessen, wie bisher."
+      "translation": "wie viele nicht annotierte Bildausschnitte zufällig gezogen und als die Klasse ABWESEND angepasst werden, wenn nur eine Klasse annotiert wurde. ``None`` (Vorgabe) verweigert das stattdessen, wie bisher.",
+      "rebound_from": "spacr.active_learning.retrain_round#26"
     },
     {
       "context": "morphology-feature columns used by the cross-fitted machine-learning classification model.",

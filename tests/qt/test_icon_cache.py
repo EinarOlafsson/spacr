@@ -178,3 +178,60 @@ class TestItNeverBreaksIcons:
         that every later launch reads as corrupt."""
         iconset.themed_array(icon, "dark")
         assert list(cache.glob("*.part")) == []
+
+
+class TestTheWarmUpOffTheGuiThread:
+    """Item 284: first opens stopped paying icon decoding inside their freeze."""
+
+    def test_a_worker_thread_fills_both_caches(self, cache, icon,
+                                              monkeypatch):
+        """The icons a fold strip asks for later come from memory, and the
+        PNG is on disk for the next launch, without the GUI thread doing
+        the decode."""
+        import threading
+
+        monkeypatch.setattr(iconset, "bundled_icon_paths", lambda: (icon,))
+        worker = threading.Thread(
+            target=iconset._warm_the_bundled_icons, args=("dark",))
+        worker.start()
+        worker.join(timeout=30)
+        assert not worker.is_alive()
+        assert iconset._themed_array.cache_info().currsize == 1
+        assert list(cache.glob("*.png"))
+        hits = iconset._themed_array.cache_info().hits
+        assert iconset.themed_array(icon, "dark") is not None
+        assert iconset._themed_array.cache_info().hits == hits + 1
+
+    def test_an_unreadable_file_does_not_stop_the_rest(self, cache, icon,
+                                                       tmp_path, monkeypatch):
+        broken = tmp_path / "broken.png"
+        broken.write_bytes(b"not a png")
+        monkeypatch.setattr(iconset, "bundled_icon_paths",
+                            lambda: (str(broken), icon))
+        assert iconset._warm_the_bundled_icons("dark") == 1
+
+    def test_two_writers_of_one_icon_never_share_a_temporary_file(
+            self, cache, icon):
+        """The warm-up and the GUI thread may re-ink the same icon at once;
+        a shared ``.part`` name would let one rename the other's half-written
+        file."""
+        import threading
+
+        errors = []
+
+        def ink():
+            try:
+                iconset._themed_array.__wrapped__(
+                    iconset._file_stamp(icon), "dark")
+            except Exception as error:
+                errors.append(error)
+
+        workers = [threading.Thread(target=ink) for _ in range(4)]
+        for worker in workers:
+            worker.start()
+        for worker in workers:
+            worker.join(timeout=30)
+        assert errors == []
+        assert list(cache.glob("*.part")) == []
+        iconset._themed_array.cache_clear()
+        assert iconset.themed_array(icon, "dark") is not None

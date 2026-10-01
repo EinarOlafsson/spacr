@@ -1,36 +1,33 @@
 {
   "lesson": "11_classify_ml",
-  "english_sha256": "d042a85fceacc953e4c9f14cf04f6287ac61958c4f2931bf18802b6912439aab",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
-  "language": "pt-BR",
-  "title": "Classify: aprendizado de máquina tabular",
-  "description": "Use Classify com células medidas disponíveis para download, rótulos explícitos de metadados, uma floresta aleatória pequena, a saída real do console e previsões salvas.",
-  "objectives": [
-    "Escolher a família tabular e carregar o exemplo medido pelo seletor de dados.",
-    "Definir classes por coluna da placa e distinguir a fração solicitada dos poços realmente reservados.",
-    "Inspecionar gráficos, valores sem pontuação e saídas sem confundir a acurácia de demonstração com validação biológica."
-  ],
-  "prerequisite": "Esta gravação usa spaCR 1.5.0.8. Em Classify, escolha Load test data e depois Load, não Stream. O exemplo tem 2.341 objetos em quatro poços; 2.153 são mantidos e 188 ficam sem pontuação por falta de dados nucleares. c1 define a classe zero e c2 a classe um: são colunas da placa, não fenótipos verificados. Configuração: random_forest, channel_of_interest=1, n_estimators=16, n_jobs=2, n_repeats=1, top_features=10, batch_correction=none, prune_features=False, cross_validation=False, plot=True. Defina test_size=0.1 para este pequeno exemplo; o despachante ML atual respeita essa configuração. Confirme o projeto carregado com Choose source data antes de executar. Dois poços e 1.035 objetos ficam reservados, sem sobreposição de poços. A filtragem de características precede a divisão; a importância por permutação usa os dados de treinamento. Acurácia: 0.6202898551; referência da classe majoritária: 0.5632850242. Nove métricas e 2.153 previsões salvas foram verificadas independentemente. API: spacr.classify.classify chama spacr.ml.generate_ml_scores. Saídas: results/random_forest/channel_1; predictions contém a classe binária e ml_pred a probabilidade da classe um. Apenas três gráficos reais são apresentados, sem alegar resultados SHAP, calibração, causalidade ou validação biológica. Nenhuma pergunta foi enviada à IA.",
-  "scenes": [
-    "Abra Classify pela Home e escolha Tabular Machine Learning como família do classificador. Ela aprende com medidas salvas por objeto. As configurações de visão computacional podem continuar visíveis, mas desativadas, porque pertencem à outra família.",
-    "Clique em Load test data e escolha Load. Isso carrega o exemplo medido, baixando-o se necessário, e prepara seus caminhos; Stream é outra opção. No seu próprio projeto, conclua Measure primeiro e selecione a pasta do projeto. Não presuma que qualquer pasta de imagens já contém o banco de dados de medidas necessário.",
-    "Confirme o projeto baixado com Choose source data. Selecione a pasta da placa que contém o diretório measurements. Nesta gravação, confirmar essa pasta remove o aviso de fonte vazia que permaneceu depois de carregar o exemplo. A fonte deve conter objetos medidos antes que o modelo tabular possa ser executado.",
-    "Use a base de metadados e defina duas Classes a partir de columnID: c1 e c2. Aqui são rótulos de colunas da placa usados para ensinar o procedimento, não células saudáveis e afetadas verificadas independentemente. O treinamento por anotações exige rótulos genuínos de Annotate. Nunca transforme anotações ausentes em verdade inventada.",
-    "Channel of interest seleciona as características medidas. Usamos o canal um sem atribuir a ele um significado biológico não verificado. Confira as configurações de aquisição e medição antes de escolher um canal para seus dados. Selecionar um canal de características aqui não segmenta nem mede as imagens novamente.",
-    "Escolha Random Forest e dezesseis estimadores para esta pequena demonstração, com dois processos de trabalho. Não é uma recomendação de modelo otimizado. Deixamos a seleção supervisionada de características e a validação cruzada desativadas. Desativar a validação cruzada não remove o conjunto de teste separado reservado nesta execução.",
-    "Defina o tamanho do teste como um décimo e mantenha o agrupamento por poço. Uma fração solicitada não é uma contagem exata de objetos: este exemplo com quatro poços reserva dois inteiros, cerca de quarenta e oito por cento dos objetos mantidos. As duas classes aparecem em cada lado, e nenhum poço real aparece tanto no treinamento quanto no teste.",
-    "Ative Plot, limpe a busca e pressione Run. O console registra as configurações resolvidas, a filtragem, a divisão e o relatório do modelo. Guarde esse registro com os resultados. Um indicador de conclusão não comprova que seus rótulos, desenho de validação ou interpretação biológica eram adequados.",
-    "Esta execução pontua dois mil cento e cinquenta e três objetos. Cento e oitenta e oito não têm dados nucleares correspondentes e ficam sem pontuação, não negativos. A acurácia de teste salva é de aproximadamente sessenta e dois por cento, contra cinquenta e seis por cento da classe majoritária. Quatro poços em uma única placa não demonstram generalização para outro experimento.",
-    "Há três gráficos: importância por permutação, importância das características das árvores e este mapa de calor da placa. Com Predictions e agrupamento pela média, o mapa calcula a média das classes binárias previstas, não das probabilidades. Importância não significa causalidade; a permutação usa dados de treinamento. Examine as tabelas salvas antes de tirar conclusões de um gráfico colorido.",
-    "O botão AI permite perguntas sobre o procedimento com assistência de um provedor. Este é um rascunho não enviado, não uma resposta gerada. Guarde os resultados com suas configurações e verifique qualquer conselho. As ferramentas aninhadas têm requisitos próprios: o tutorial Explain usa pontuações de visão computacional, não estas saídas ML. A IA não substitui a verificação dos rótulos e das identidades da divisão."
-  ],
+  "english_sha256": "92e4828684b94f5fecd03ac4fe73b16a0b457fbdddbb462025d73f7df608675e",
   "review": {
-    "kind": "AI-assisted technical review",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "corrections": [
-      "2026-09-21: current eleven-scene native ML recording. Remove merged/older-application framing; describe conditional download; add explicit Choose source data confirmation. Prerequisites name spaCR 1.5.0.8 and the respected test_size=0.1 setting. Eight retained narration scenes preserve all measured results and scientific limitations."
-    ]
-  }
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Classify: aprender com características medidas",
+  "description": "Carregue medições, defina classes, treine um classificador tabular e inspecione as pontuações dos objetos e os resumos por placa.",
+  "objectives": [
+    "Selecionar a família tabular e um projeto medido.",
+    "Definir classes e escolher os canais de características, o tamanho do modelo e os poços reservados.",
+    "Encontrar as saídas do modelo, as previsões por objeto e as figuras de resumo."
+  ],
+  "prerequisite": "Use Load test data no Classify e escolha Load; depois confirme a pasta da placa baixada com Choose source data. Para o seu próprio projeto, execute o Measure primeiro. O exemplo usa os valores c1 e c2 de columnID como duas classes; com seus próprios dados, use rótulos adequados ao seu experimento.",
+  "scenes": [
+    "Na tela Home, abra Classify e escolha Tabular Machine Learning. Esta família usa as medições de objetos salvas pelo Measure. Ela produz um modelo ajustado e uma pontuação para cada objeto que tenha as medições necessárias.",
+    "Clique em Load test data e escolha Load. Aguarde o download do exemplo medido. Com seus próprios dados, selecione a pasta do projeto criada pelo Measure, incluindo o banco de dados de medições.",
+    "Use Choose source data para confirmar a pasta da placa baixada. Selecione a pasta que contém as medições. Assim o classificador tem acesso às tabelas de objetos e aos metadados usados para definir as classes.",
+    "Escolha os metadados como base das classes e defina duas Classes com os valores c1 e c2 de column I D. Esses rótulos distinguem as duas colunas da placa do exemplo. Para treinar com suas próprias anotações de células, escolha a base de anotação e a coluna de rótulos que você criou no Annotate.",
+    "Defina Channel of interest como um para o exemplo. Isso controla quais características medidas de cada canal entram no modelo. No seu experimento, selecione o canal que contém o sinal relevante para as suas classes.",
+    "Escolha Random Forest, dezesseis estimadores e dois processos de trabalho. Os estimadores definem o número de árvores. Mais árvores aumentam o trabalho de ajuste. Deixe a poda de características e a validação cruzada desativadas nesta primeira passada; você pode comparar essas opções depois de ter uma referência que funcione.",
+    "Defina Test size como um décimo e mantenha o agrupamento por poço. O spaCR reserva poços inteiros, então a fração final de objetos pode ser diferente da solicitada. Leia a divisão resultante no console e confirme que ela serve para o seu experimento.",
+    "Ative Plot, limpe a busca e pressione Run. O console mostra a filtragem de características, a divisão entre treinamento e teste, o ajuste do modelo e os caminhos de saída salvos. Aguarde o fim da execução antes de comparar as pontuações.",
+    "Encontre os resultados em results, random_forest, channel sublinhado um. O banco de dados guarda a classe prevista em predictions e a probabilidade da classe um em ml_pred. Objetos sem as medições necessárias podem ficar sem pontuação; confira os valores ausentes ao exportar um resumo.",
+    "Percorra as figuras de importância das características e o mapa de calor da placa. Com Predictions e o agrupamento pela média, o valor de um poço é a média das classes previstas binárias dele. Use as pontuações salvas por objeto para uma revisão detalhada e compare o desempenho nos poços reservados antes de aplicar o classificador a outro experimento."
+  ]
 }

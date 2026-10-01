@@ -5,48 +5,6 @@
   "records": [
     {
       "table": "setting_labels",
-      "key": "cell_min_intensity",
-      "source_sha256": "b68dd69e77c7d29f9cfbce12120c02d5f276ded1ef95be72c9707a231ca1da20",
-      "source": "Cell min intensity",
-      "translation": "Lágmarksstyrkur frumna"
-    },
-    {
-      "table": "setting_labels",
-      "key": "cell_max_intensity",
-      "source_sha256": "bbb79089090e99292c8bc1278fda189cfaf7756ca7927660dbb9d83df656532b",
-      "source": "Cell max intensity",
-      "translation": "Hámarksstyrkur frumna"
-    },
-    {
-      "table": "setting_labels",
-      "key": "nucleus_min_intensity",
-      "source_sha256": "438e489b5b23d47278c1722786288223ea5aa6f3750aa2de2a005099190a7fcc",
-      "source": "Nucleus min intensity",
-      "translation": "Lágmarksstyrkur frumukjarna"
-    },
-    {
-      "table": "setting_labels",
-      "key": "nucleus_max_intensity",
-      "source_sha256": "d368b0ff375ab4026a6344d3b3af967f29fd7ee8696d32aabc4b20ad936d0ec3",
-      "source": "Nucleus max intensity",
-      "translation": "Hámarksstyrkur frumukjarna"
-    },
-    {
-      "table": "setting_labels",
-      "key": "pathogen_min_intensity",
-      "source_sha256": "aca7095fd0b18d9668efe62254f505d5f4c94dd99c5a139770ec525bafdc8f68",
-      "source": "Pathogen min intensity",
-      "translation": "Lágmarksstyrkur sýkla"
-    },
-    {
-      "table": "setting_labels",
-      "key": "pathogen_max_intensity",
-      "source_sha256": "80852ead2ab46166386e6fc734b7213f6c20937040439d288e60798082a6295c",
-      "source": "Pathogen max intensity",
-      "translation": "Hámarksstyrkur sýkla"
-    },
-    {
-      "table": "setting_labels",
       "key": "organelle_min_intensity",
       "source_sha256": "981462a2376bccbf97a10e8cb32020e83bd66817548263994291dafcb529eafd",
       "source": "Organelle 1 — Min intensity",
@@ -100,48 +58,6 @@
       "source_sha256": "976d29c9b54dc0b60739f728f136fca9674f1d212fa9c83b636ad65a992c8f16",
       "source": "Organelle 4 — Max intensity",
       "translation": "Frumulíffæri 4 — Hámarksstyrkur"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "cell_min_intensity",
-      "source_sha256": "68aad2538c67164612d23f8d32c17f003acda8738d497e0b1b944f57f3d4bb7c",
-      "source": "Delete cell objects whose mean pixel intensity in cell_channel is below this value, measured in the original image's raw units. Equality is retained. Raise it to reject dim objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-      "translation": "Fjarlægir frumur þar sem meðalstyrkur pixla, reiknaður yfir allan hlutinn í eigin rás hans cell_channel, er lægri en þetta gildi. Styrkurinn er mældur í hráum einingum upprunalegu myndarinnar. Hlutir með meðalgildi sem er nákvæmlega jafnt viðmiðunargildinu eru varðveittir. Hækkaðu mörkin til að útiloka hluti með veikt merki. Síunni er beitt eftir myndskiptingu, bæði í Mask-keyrslum og í Live Preview. 0 slekkur aðeins á þessum mörkum. Sjálfgefið: 0."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "cell_max_intensity",
-      "source_sha256": "f94400c9c8d7904d7bbb51e08e54eeca8bf537f9cd6c2c2337df04a7893ba5e5",
-      "source": "Delete cell objects whose mean pixel intensity in cell_channel is above this value, measured in the original image's raw units. Equality is retained. Lower a positive bound to reject more bright objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-      "translation": "Fjarlægir frumur þar sem meðalstyrkur pixla, reiknaður yfir allan hlutinn í eigin rás hans cell_channel, er hærri en þetta gildi. Styrkurinn er mældur í hráum einingum upprunalegu myndarinnar. Hlutir með meðalgildi sem er nákvæmlega jafnt viðmiðunargildinu eru varðveittir. Lækkaðu jákvæð mörk til að útiloka fleiri bjarta hluti. Síunni er beitt eftir myndskiptingu, bæði í Mask-keyrslum og í Live Preview. 0 slekkur aðeins á þessum mörkum. Sjálfgefið: 0."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "nucleus_min_intensity",
-      "source_sha256": "49e3fbe983ff2bd7ecc6b7ec3023f35a57ba7ccaff37f61ad33eadabce30a02b",
-      "source": "Delete nucleus objects whose mean pixel intensity in nucleus_channel is below this value, measured in the original image's raw units. Equality is retained. Raise it to reject dim objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-      "translation": "Fjarlægir frumukjarna þar sem meðalstyrkur pixla, reiknaður yfir allan hlutinn í eigin rás hans nucleus_channel, er lægri en þetta gildi. Styrkurinn er mældur í hráum einingum upprunalegu myndarinnar. Hlutir með meðalgildi sem er nákvæmlega jafnt viðmiðunargildinu eru varðveittir. Hækkaðu mörkin til að útiloka hluti með veikt merki. Síunni er beitt eftir myndskiptingu, bæði í Mask-keyrslum og í Live Preview. 0 slekkur aðeins á þessum mörkum. Sjálfgefið: 0."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "nucleus_max_intensity",
-      "source_sha256": "e545f1e4ae2b0768ad5965e3a194dba4a20fc56dc2fed02e37246e74c163c3af",
-      "source": "Delete nucleus objects whose mean pixel intensity in nucleus_channel is above this value, measured in the original image's raw units. Equality is retained. Lower a positive bound to reject more bright objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-      "translation": "Fjarlægir frumukjarna þar sem meðalstyrkur pixla, reiknaður yfir allan hlutinn í eigin rás hans nucleus_channel, er hærri en þetta gildi. Styrkurinn er mældur í hráum einingum upprunalegu myndarinnar. Hlutir með meðalgildi sem er nákvæmlega jafnt viðmiðunargildinu eru varðveittir. Lækkaðu jákvæð mörk til að útiloka fleiri bjarta hluti. Síunni er beitt eftir myndskiptingu, bæði í Mask-keyrslum og í Live Preview. 0 slekkur aðeins á þessum mörkum. Sjálfgefið: 0."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "pathogen_min_intensity",
-      "source_sha256": "6edf30d7b7cabc061a168cb5d37e2e9ea66314683277b8f034f469288ce8ce27",
-      "source": "Delete pathogen objects whose mean pixel intensity in pathogen_channel is below this value, measured in the original image's raw units. Equality is retained. Raise it to reject dim objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-      "translation": "Fjarlægir sýkla þar sem meðalstyrkur pixla, reiknaður yfir allan hlutinn í eigin rás hans pathogen_channel, er lægri en þetta gildi. Styrkurinn er mældur í hráum einingum upprunalegu myndarinnar. Hlutir með meðalgildi sem er nákvæmlega jafnt viðmiðunargildinu eru varðveittir. Hækkaðu mörkin til að útiloka hluti með veikt merki. Síunni er beitt eftir myndskiptingu, bæði í Mask-keyrslum og í Live Preview. 0 slekkur aðeins á þessum mörkum. Sjálfgefið: 0."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "pathogen_max_intensity",
-      "source_sha256": "a412cdbc074156beeb0642913f4d3255982c7b10ce4a64886dd84cf86bc563e3",
-      "source": "Delete pathogen objects whose mean pixel intensity in pathogen_channel is above this value, measured in the original image's raw units. Equality is retained. Lower a positive bound to reject more bright objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-      "translation": "Fjarlægir sýkla þar sem meðalstyrkur pixla, reiknaður yfir allan hlutinn í eigin rás hans pathogen_channel, er hærri en þetta gildi. Styrkurinn er mældur í hráum einingum upprunalegu myndarinnar. Hlutir með meðalgildi sem er nákvæmlega jafnt viðmiðunargildinu eru varðveittir. Lækkaðu jákvæð mörk til að útiloka fleiri bjarta hluti. Síunni er beitt eftir myndskiptingu, bæði í Mask-keyrslum og í Live Preview. 0 slekkur aðeins á þessum mörkum. Sjálfgefið: 0."
     },
     {
       "table": "setting_tooltips",

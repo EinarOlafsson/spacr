@@ -985,6 +985,13 @@ class _SoundPlayer(QObject):
             self._quietly(_delete_now, self._fade_timer)
             self._fade_timer = None
 
+
+_INPUT_SOUND_MOMENTS = frozenset({
+    QEvent.Type.MouseButtonPress, QEvent.Type.MouseButtonRelease,
+    QEvent.Type.Enter, QEvent.Type.Leave,
+})
+
+
 class InputSoundFilter(QObject):
     """Application-wide filter that hears presses and hovers on controls.
 
@@ -1230,11 +1237,14 @@ class SoundEngine(QObject):
         if wanted and not self._filter_on and app is not None:
             if self._filter is None:
                 self._filter = InputSoundFilter(self)
-            app.installEventFilter(self._filter)
+            from .gil_priority import _watch_application_events
+
+            _watch_application_events(app, self._filter, _INPUT_SOUND_MOMENTS)
             self._filter_on = True
         elif not wanted and self._filter_on:
-            if app is not None:
-                app.removeEventFilter(self._filter)
+            from .gil_priority import _stop_watching_application_events
+
+            _stop_watching_application_events(app, self._filter)
             self._filter_on = False
 
     def play(self, event: str) -> bool:

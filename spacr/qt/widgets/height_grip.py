@@ -116,6 +116,10 @@ class HeightGrip(QWidget):
         applies its font scale through the application stylesheet, so what
         arrives here is a style or font change rather than an explicit call --
         which is why this listens for the event instead of waiting to be told.
+
+        :param event: the change event; a font, application-font or style
+            change re-fits the height limits, and every event is passed on to
+            the base class.
         """
         if (event.type() in (QEvent.FontChange, QEvent.ApplicationFontChange,
                              QEvent.StyleChange)
@@ -146,6 +150,9 @@ class HeightGrip(QWidget):
 
         Public because it is the whole behaviour, and a test that drives it
         directly is testing the clamp rather than Qt's event delivery.
+
+        :param height: wanted height in device pixels, clamped between the
+            grip's minimum and maximum and applied with ``setFixedHeight``.
         """
         from ..preferences import get_font_scale
 
@@ -179,13 +186,21 @@ class HeightGrip(QWidget):
         menu.exec(self.mapToGlobal(where))
 
     def nudge(self, delta: int) -> int:
-        """Move the border by ``delta`` device px. Returns the new height."""
+        """Move the border by ``delta`` device px. Returns the new height.
+
+        :param delta: change in the target's height, in device pixels;
+            positive grows it. The result is clamped by :meth:`resize_target`
+            and emitted on ``height_changed``.
+        """
         height = self.resize_target(self._target.height() + int(delta))
         self.height_changed.emit(height)
         return height
 
     def paintEvent(self, event):                # noqa: N802 - Qt naming
-        """One thin line, blue under the pointer, during dragging or focus."""
+        """One thin line, blue under the pointer, during dragging or focus.
+
+        :param event: the paint event; not read, the whole grip is redrawn.
+        """
         P = active_palette()
         painter = QPainter(self)
         lit = self._hovered or self.hasFocus() or self._from_y is not None
@@ -235,6 +250,10 @@ class HeightGrip(QWidget):
         Global, because this widget MOVES while the drag is happening -- it
         sits under the widget being resized, so growing the target by 40 px
         slides the grip 40 px down and a local y would double every step.
+
+        :param event: the mouse press event; a left press records its global
+            y position and the target's height, and other buttons go to the
+            base class.
         """
         if event.button() != Qt.LeftButton:
             return super().mousePressEvent(event)
@@ -273,6 +292,10 @@ class HeightGrip(QWidget):
 
         Passed on matters as much as handled: swallowing Tab would trap focus
         on the one control whose whole purpose is to be reachable.
+
+        :param event: the key event; Up/Down, +/-/=, Page Up/Down and
+            Home/End resize and are accepted, and any other key goes to the
+            base class.
         """
         from ..preferences import scaled_px
 

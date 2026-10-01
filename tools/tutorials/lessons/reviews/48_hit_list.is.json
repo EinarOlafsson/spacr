@@ -1,29 +1,34 @@
 {
   "lesson": "48_hit_list",
-  "english_sha256": "0739d12c16e4f2cbf17c485b4f84447f95f7d1c3c7a6dffdd2cf8c8ecfb206e8",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "725dbe48aa9ba7956c69806111ba283950734449a30162bf99095a7ff2109f87",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "is",
-  "title": "Hit List: skoðið mögulega niðurstöðukosti í skýrt merktum hjálparglugga",
-  "description": "Notið óbreyttar Regression-niðurstöður til að prófa raunverulegar síur og útflutning Hit List með skýrt lýstri hjáleið fram hjá falda spjaldinu.",
+  "title": "Hit List: síaðu kandídata og fluttu út stuttan lista",
+  "description": "Hlaðu inn niðurstöðum úr Regression, síaðu eftir q-gildi, fjölda leiðaraða og samræmi og fluttu svo út valda kandídata.",
   "objectives": [
-    "Greina bilaða innbyggða flýtileið frá ytra hjálparforritinu.",
-    "Túlka raðaða lista án þess að fullyrða um marktækar uppgötvanir.",
-    "Sía, endurheimta og flytja út raunverulegar raðir."
+    "Opna dæmaniðurstöður Regression með meðfylgjandi hjálparskriftu.",
+    "Sía kandídata og lesa áhrif þeirra og samræmi leiðaraða.",
+    "Flytja valdar línur út sem CSV, Markdown eða HTML."
   ],
-  "prerequisite": "Afþjappið Hit_List_real_results_companion.zip, virkið spaCR-umhverfið, keyrið python hit_list_companion.py og veljið results með Browse. Forritið notar óbreytt HitListScreen; það lagar ekki leiðsögnina og tengir ekki Investigate. Safnið geymir upprunalegar niðurstöður, ekki heilt verkefni: 325 gen, 434 raðir leiðsagnar-RNA og ekkert gen með q <= .05. Stöðluð jaðarhrif eru ekki stuðlar margbreytulíkans metnir samtímis. Öryggisbil sem vantar eru ekki tiltæk. n_obs=0 segir ekki til um raunverulegan fjölda hola: wells_with_gene í results_gene.csv er frá 2 til 48. Samtenging lýsigagna, röðun með refsilið og Investigate eru utan sýnikennslunnar. Hvorki þjálfun, ný aðhvarfsgreining, GPU né fyrirspurn til gervigreindarþjónustu er nauðsynleg. API: spacr.hits.build_hit_list og HitList.filter/write_csv/to_markdown/to_html.",
+  "prerequisite": "Dragðu út Hit_List_real_results_companion.zip og virkjaðu spaCR-umhverfið þitt. Núverandi Hits-flýtileið í Regression sýnir ekki spjaldið; keyrðu í staðinn python hit_list_companion.py og notaðu Browse til að fara í útdregnu niðurstöðumöppuna. Hjálparskriftan tengist ekki Investigate. Notaðu wells_with_gene úr results_gene.csv fyrir fjölda styðjandi brunna: útflutta n_obs=0 er ekki raunverulegur stuðningur. Dæmið inniheldur engin gen sem uppfylla q <= 0.05.",
   "scenes": [
-    "Hit List tilheyrir Regression. Í þessari útgáfu velur smellur á Hits síðu inni í földu spjaldi, svo listinn birtist ekki. Kennslan sýnir þessa takmörkun skýrt. Næsti gluggi er ytra hjálparforrit, ekki sönnun þess að innbyggða flýtileiðin hafi verið löguð.",
-    "Afþjappið tengda dæminu, virkið spaCR-umhverfið og keyrið meðfylgjandi Hit List-hjálparskriftu. Merkti glugginn opnar fyrirliggjandi viðmótshluta spaCR án þess að breyta útreikningum. Smellið á Browse og veljið results. Aðhvarfsgreiningin er ekki endurtekin og Investigate er ekki tengt hér.",
-    "Upprunalega dæmið hleður 325 genum. Tvísmellið á dálkamörk ef gildi skerðast. Lesið stefnu áhrifa, óleiðrétt P, leiðrétt q og samræmi leiðsagnar-RNA hvert fyrir sig. Öryggisbil sem vantar eru ekki tiltæk. Þetta eru stöðluð jaðarhrif; núll í útfluttum athuganafjölda er ekki raunverulegur fjöldi hola sem styður niðurstöðuna.",
-    "Stillið Max q á 0,05. Ekkert gen verður eftir því lægsta q-gildi gens er um 0,271. Tóm síuð tafla merkir ekki innflutningsvillu. Stillið Max q aftur á einn til að endurheimta allan listann, án þess að lýsa genunum sem uppgötvunum.",
-    "Minimum guides stillt á tvo heldur eftir 117 genum með að minnsta kosti tveimur prófuðum leiðsagnar-RNA-röðum. Það telur tiltæk gögn, ekki allar leiðsagnir sem upphaflega voru hannaðar. Sían breytir sýndu hlutmengi án þess að endurreikna leiðréttingu fyrir mörgum prófum.",
-    "Minimum agreement stillt á einn heldur síðan eftir 57 genum þar sem allar prófaðar leiðsagnir hafa sama formerki og áhrif gensins. Samræmi sannar hvorki marktækni né orsakasamband. Samantektin sýnir enn núll marktæk gen með samhljóða stuðningi, þótt þessar raðir hafi samhljóða leiðsagnir.",
-    "Hide controls fjarlægir eina viðmiðunarröð og skilur eftir 56 gen á listanum. Endurheimtið hana fyrir útflutning. Að fela viðmið endurmetur ekki líkanið og breytir ekki leiðréttingarfjölskyldunni; haldið utan um auðkenni þeirra við túlkun.",
-    "Þegar aðrar síur hafa verið hreinsaðar sýnir Direction up jákvæð áhrif. Lágmark algildra áhrifa 0,1 skilur eftir 16 raðir. Þetta eru dæmi um birtingarval, ekki ráðlögð þröskuldsgildi. Endurstillið stefnu og áhrif áður en leitað er eða annað hlutmengi borið saman.",
-    "Leitið að skráðu auðkenni til að skoða raunverulega röð. Leit án samsvörunar tæmir töfluna; þekkta auðkennið endurheimtir röðina og tóm leit allan listann. Síunin er afturkræf. Innflutningur skýringa og Investigate-ferlið þurfa eigin prófanir.",
-    "Fyrir útflutning veljið aftur tvær leiðsagnir, fullt samræmi, viðmið með og tóma leit. Allar þrjár útflutningsleiðir geyma sömu 57 gen í þessu dæmi. Markdown og HTML námunda tölur; CSV varðveitir töluleg smáatriði. Geymið síuval sérstaklega því skrárnar skrá ekki allar stillingar.",
-    "Hreinsið síurnar til að endurheimta öll 325 genin. Haldið útfluttum hlutmengjum aðskildum frá óbreyttum frumgögnum og kallið ekki ómarktæk gen staðfestar niðurstöður. Python býður sama lesara og síur; athugið raðafjöldamörk hvers sniðs við útflutning stærri lista."
+    "Frá Home opnarðu Regression og velur Hits. Ef spjaldið helst falið notarðu hjálparskriftuna sem fylgir þessari kennslustund til að opna Hit List.",
+    "Dragðu tengda dæmið út og virkjaðu spaCR-umhverfið. Keyrðu python hit_list_companion.py. Í glugga hjálparskriftunnar smellirðu á Browse og velur útdregnu niðurstöðumöppuna.",
+    "Dæmið hleður inn 325 genum. Breikkaðu dálkana til að lesa áhrif, P, q og samræmi leiðaraða. Áhrifin eru stöðluð jaðaráhrif. Fyrir fjölda styðjandi brunna lestu wells_with_gene í results_gene.csv; útflutt athuganafjöldi 0 þýðir að stuðningur er ekki tiltækur.",
+    "Stilltu Max q á 0,05. Ekkert gen í dæminu stenst það, svo taflan verður tóm. Settu Max q aftur á 1 til að skoða alla kandídata.",
+    "Stilltu Minimum guides á 2. Eftir standa 117 gen með að minnsta kosti tvær prófaðar leiðaraðalínur. Þessi sía heldur upprunalegu q-gildunum.",
+    "Stilltu Minimum agreement á 1. Eftir standa 57 kandídatar þar sem allar prófaðar leiðaraðir deila formerki genaáhrifanna. Lestu samræmið ásamt q: þessir kandídatar standast samt ekki marktektarþröskuldinn.",
+    "Virkjaðu Hide controls til að fjarlægja viðmiðunarlínuna úr þessari sýn, og eftir standa 56 kandídatar. Slökktu aftur á því til að taka línuna með í síðari útflutningi.",
+    "Hreinsaðu hinar síurnar, veldu Direction up og stilltu Minimum absolute effect á 0,1. Eftir standa 16 línur. Veldu þröskulda fyrir greininguna og settu þessar stýringar svo aftur í fyrra horf fyrir næsta skref.",
+    "Sláðu inn auðkenni í Search til að finna línu þess. Leit án samsvörunar tæmir töfluna. Hreinsaðu Search til að fá núverandi síaða safnið aftur.",
+    "Fyrir útflutning stillirðu tvær leiðaraðir, fullt samræmi, viðmið með og tóma leit. Fluttu þær 57 valdar línur út sem CSV, Markdown eða HTML. CSV varðveitir töluleg smáatriði. Vistaðu síuvalið með skránum.",
+    "Hreinsaðu síurnar til að fara aftur í öll 325 genin. Haltu útflutningi stuttra lista aðskildum frá upprunalegu niðurstöðunum. Í Python notarðu build_hit_list, svo filter og skrifföllin fyrir CSV, Markdown eða HTML; athugaðu línumörk hvers sniðs."
   ]
 }

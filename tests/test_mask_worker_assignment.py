@@ -112,3 +112,47 @@ def test_assignment_is_checked_before_model_loading(
         with pytest.raises(ValueError):
             objects.generate_cellpose_masks_sam(str(src), _mask_settings(src), 'cell',
                                                 batch_paths=selected)
+
+
+def test_an_assignment_may_name_archives_relative_to_src(
+        tmp_path, sam_pipeline):
+    from spacr import object as objects
+
+    src = tmp_path / 'masks'
+    paths = _batches(src)
+    done = []
+    objects.generate_cellpose_masks_sam(str(src), _mask_settings(src), 'cell',
+        batch_paths=['batch1.npz'], on_batch_done=done.append, run_qc=False)
+    assert done == [str(paths[1])]
+    assert np.load(src / 'cell_mask_stack' / 'plate1_A01_2.npy').max() == 1
+    assert not (src / 'cell_mask_stack' / 'plate1_A01_1.npy').exists()
+
+
+def test_a_completion_callback_that_cannot_be_called_is_refused_first(
+        tmp_path, monkeypatch, sam_pipeline):
+    from spacr import object as objects
+
+    src = tmp_path / 'masks'
+    _batches(src)
+    monkeypatch.setattr(objects.cp_models, 'CellposeModel',
+                        lambda **kwargs: pytest.fail('model loaded before the check'))
+    with pytest.raises(ValueError, match='on_batch_done must be callable'):
+        objects.generate_cellpose_masks_sam(str(src), _mask_settings(src), 'cell',
+            on_batch_done='not a function')
+
+
+def test_an_archive_with_no_images_is_still_reported_complete(
+        tmp_path, sam_pipeline):
+    from spacr import object as objects
+
+    src = tmp_path / 'masks'
+    src.mkdir()
+    empty = src / 'batch0.npz'
+    np.savez(empty, data=np.ones((0, 32, 32, 2), dtype=np.float32),
+             filenames=np.array([], dtype=str))
+    done = []
+    objects.generate_cellpose_masks_sam(str(src), _mask_settings(src), 'cell',
+        batch_paths=[empty], on_batch_done=done.append, run_qc=False)
+    assert done == [str(empty)]
+    stack = src / 'cell_mask_stack'
+    assert not stack.exists() or not list(stack.glob('*.npy'))

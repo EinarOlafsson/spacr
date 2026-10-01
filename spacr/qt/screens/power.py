@@ -70,13 +70,16 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QColor, QFontMetrics, QPainter, QPainterPath, QPen
 from PySide6.QtWidgets import (
     QAbstractItemView,
+    QCheckBox,
     QComboBox,
     QDoubleSpinBox,
+    QFileDialog,
     QFormLayout,
     QGroupBox,
     QHBoxLayout,
     QHeaderView,
     QLabel,
+    QLineEdit,
     QPushButton,
     QScrollArea,
     QSizePolicy,
@@ -87,6 +90,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..app_catalog import declared_app, register_declared
+from ..i18n import tr
 from ..theme import (
     SPACING,
     active_palette,
@@ -788,6 +792,7 @@ class PowerScreen(QWidget):
         buttons.addWidget(self._btn_run)
         buttons.addWidget(self._btn_stop)
         layout.addLayout(buttons)
+        layout.addWidget(self._build_arrayed_planner(inner))
         layout.addStretch(1)
 
         for widget in (self._genes, self._grnas, self._plates, self._reads,
@@ -857,6 +862,405 @@ class PowerScreen(QWidget):
                             persist_key="power/Power table")
         return panel
 
+    def _build_arrayed_planner(self, parent: QWidget) -> QGroupBox:
+        """Build the arrayed-assay planner: pilot table in, designs out.
+
+        The planner reads a per-cell pilot table, splits its variance into
+        replicate, well, field and cell components and lists the cheapest
+        replicate, well and field counts that reach the target power for a
+        two-condition comparison, with the top design checked by simulation.
+
+        :param parent: the form the box sits in, so hiding it sticks.
+        :returns: the planner group box.
+        """
+        box = QGroupBox(tr("Arrayed-assay planner"), parent)
+        box.setObjectName("PowerArrayedPlanner")
+        form = QFormLayout(box)
+        path_row = QHBoxLayout()
+        self._pilot_path = QLineEdit()
+        self._pilot_path.setToolTip(tr(
+            "Per-cell measurements from a pilot plate: a CSV, Parquet, Excel "
+            "or spaCR measurement database. Default empty."))
+        self._pilot_path.editingFinished.connect(self._refresh_pilot_columns)
+        browse = QPushButton(tr("Browse…"))
+        browse.clicked.connect(self._browse_pilot)
+        path_row.addWidget(self._pilot_path, 1)
+        path_row.addWidget(browse)
+        form.addRow(tr("Pilot table"), path_row)
+        self._pilot_table = QLineEdit("cell")
+        self._pilot_table.setToolTip(tr(
+            "Table to read when the pilot is a database. Default cell."))
+        form.addRow(tr("Database table"), self._pilot_table)
+        self._pilot_columns: Dict[str, QComboBox] = {}
+        for key, label, default, tip in (
+                ("value", tr("Measurement"), "",
+                 tr("Per-cell column the experiment will compare. "
+                    "Default empty.")),
+                ("well", tr("Well column"), "prc",
+                 tr("Column naming each well, unique across plates. "
+                    "Default prc.")),
+                ("field", tr("Field column"), "fieldID",
+                 tr("Column naming the field within its well. "
+                    "Default fieldID.")),
+                ("replicate", tr("Replicate column"), "",
+                 tr("Column naming the biological replicate, such as "
+                    "plateID when each plate is one; leave empty when the "
+                    "pilot has one replicate and the replicate variance "
+                    "cannot be estimated. Default empty.")),
+                ("condition", tr("Condition column"), "",
+                 tr("Column naming the treatment when the pilot holds more "
+                    "than one: components are pooled within conditions, "
+                    "and with a replicate column the replicate-by-condition "
+                    "variance, which pairing does not cancel, is estimated. "
+                    "Default empty."))):
+            combo = QComboBox()
+            combo.setEditable(True)
+            combo.setEditText(default)
+            combo.setToolTip(tip)
+            self._pilot_columns[key] = combo
+            form.addRow(label, combo)
+        self._plan_readout = QComboBox()
+        for key, label in (("continuous", tr("Continuous")),
+                           ("proportion", tr("Proportion (0 or 1 per cell)")),
+                           ("count", tr("Count per cell"))):
+            self._plan_readout.addItem(label, key)
+        self._plan_readout.setToolTip(tr(
+            "How the measurement behaves. A proportion's or a count's cell "
+            "variance follows its mean, so the effect is the signed change "
+            "from the pilot mean. Default Continuous."))
+        form.addRow(tr("Readout"), self._plan_readout)
+        # 585, 2026-09-30: the effect may be negative, since a proportion's
+        # or a count's power depends on the direction of the change.
+        self._plan_effect = self._float_box(-1e12, 1e12, 0.0, decimals=4)
+        self._plan_effect.setToolTip(tr(
+            "Difference between the two condition means to detect, in the "
+            "measurement's units. Default 0."))
+        form.addRow(tr("Effect to detect"), self._plan_effect)
+        self._plan_power = self._float_box(0.5, 0.99, 0.8, step=0.05)
+        self._plan_power.setToolTip(tr(
+            "Probability of a significant result the design must reach. "
+            "Default 0.8."))
+        form.addRow(tr("Target power"), self._plan_power)
+        self._plan_alpha = self._float_box(0.001, 0.2, 0.05, decimals=3,
+                                           step=0.01)
+        self._plan_alpha.setToolTip(tr(
+            "Two-sided significance level of the t-test on replicate means. "
+            "Default 0.05."))
+        form.addRow(tr("Significance level"), self._plan_alpha)
+        self._plan_paired = QCheckBox(tr("Both conditions on every replicate"))
+        self._plan_paired.setToolTip(tr(
+            "Analyse replicates as pairs, so replicate-to-replicate "
+            "variation cancels. Default off."))
+        form.addRow(self._plan_paired)
+        self._plan_costs: Dict[str, QDoubleSpinBox] = {}
+        for key, label, default in (
+                ("replicate", tr("Replicate cost"), 20.0),
+                ("well", tr("Well cost"), 1.0),
+                ("field", tr("Field cost"), 0.1)):
+            cost = self._float_box(0.0, 1e6, default, decimals=3)
+            cost.setToolTip(tr(
+                "Relative cost per condition: one replicate, one well "
+                "within a replicate, or one field within a well. Use common "
+                "units; zero ignores this cost. Default {default:g}.",
+                default=default))
+            self._plan_costs[key] = cost
+            form.addRow(label, cost)
+        self._plan_limits: Dict[str, QSpinBox] = {}
+        for key, label, low, high, default in (
+                ("replicates", tr("Maximum replicates"), 2, 24, 12),
+                ("wells", tr("Maximum wells per condition"), 1, 24, 12),
+                ("fields", tr("Maximum fields per well"), 1, 50, 25)):
+            limit = self._int_box(low, high, default)
+            limit.setToolTip(tr(
+                "Largest count considered: biological replicates per "
+                "condition, wells per condition per replicate, or fields "
+                "per well. Default {default}.", default=default))
+            self._plan_limits[key] = limit
+            form.addRow(label, limit)
+        plan = QPushButton(tr("Plan the design"))
+        plan.clicked.connect(self._plan_from_pilot)
+        form.addRow(plan)
+        self._plan_summary = QLabel("")
+        self._plan_summary.setWordWrap(True)
+        self._plan_summary.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        form.addRow(self._plan_summary)
+        headers = [tr("Replicates"), tr("Wells"), tr("Fields"), tr("Power"),
+                   tr("Cost")]
+        self._plan_table = QTableWidget(0, len(headers))
+        install_sorting(self._plan_table)
+        self._plan_table.setHorizontalHeaderLabels(headers)
+        self._plan_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self._plan_table.verticalHeader().setVisible(False)
+        self._plan_table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.ResizeToContents)
+        self._plan_table.setMinimumHeight(120)
+        form.addRow(self._plan_table)
+        self._arrayed_plan = None
+        self._save_plan = QPushButton(tr("Save plan…"))
+        self._save_plan.setEnabled(False)
+        self._save_plan.clicked.connect(self._save_arrayed_plan)
+        self._load_plan = QPushButton(tr("Load plan…"))
+        self._load_plan.clicked.connect(self._load_arrayed_plan)
+        plan_files = QHBoxLayout()
+        plan_files.addWidget(self._save_plan)
+        plan_files.addWidget(self._load_plan)
+        form.addRow(plan_files)
+        from ..preferences import _apply_alpha_widgets
+
+        _apply_alpha_widgets(box)
+        self._arrayed_planner = box
+        return box
+
+    def _browse_pilot(self) -> None:
+        """Ask for the pilot table and list its columns."""
+        path, _ = QFileDialog.getOpenFileName(self, tr("Pilot table"))
+        if path:
+            self._pilot_path.setText(path)
+            self._refresh_pilot_columns()
+
+    def _refresh_pilot_columns(self) -> None:
+        """Offer the pilot table's columns in the column pickers."""
+        from ...tabular import table_columns
+
+        path = self._pilot_path.text().strip()
+        if not path:
+            return
+        try:
+            columns = table_columns(path,
+                                    table=self._pilot_table.text().strip())
+        except Exception:
+            return
+        for key, combo in self._pilot_columns.items():
+            current = combo.currentText()
+            combo.clear()
+            if key in ("replicate", "condition"):
+                combo.addItem("")
+            combo.addItems(list(columns))
+            combo.setEditText(current)
+
+    def _plan_from_pilot(self):
+        """Estimate the pilot's variance components and list reachable designs.
+
+        :returns: the design table, cheapest first, or None when the pilot
+            could not be read or the effect is impossible for the readout;
+            the summary line says why.
+        """
+        from ...sp_stats import (_default_cells, _nested_variance_components,
+                                 _plan_arrayed_design,
+                                 _simulate_arrayed_power)
+        from ...tabular import read_table
+        from pathlib import Path
+
+        self._arrayed_plan = None
+        self._save_plan.setEnabled(False)
+        column = {k: c.currentText().strip()
+                  for k, c in self._pilot_columns.items()}
+        pilot_path = self._pilot_path.text().strip()
+        pilot_table = self._pilot_table.text().strip()
+        try:
+            pilot = read_table(pilot_path, table=pilot_table, report=None)
+            components = _nested_variance_components(
+                pilot, column["value"], well=column["well"],
+                field=column["field"],
+                replicate=column["replicate"] or None,
+                condition=column["condition"] or None)
+        except Exception as exc:
+            self._plan_summary.setText(
+                tr("Could not read the pilot: {error}", error=exc))
+            self._plan_table.setRowCount(0)
+            return None
+        effect = self._plan_effect.value()
+        paired = self._plan_paired.isChecked()
+        alpha = self._plan_alpha.value()
+        readout = self._plan_readout.currentData() or "continuous"
+        inputs = dict(effect=effect, power=self._plan_power.value(),
+                      alpha=alpha, paired=paired, cells=None,
+                      max_replicates=self._plan_limits["replicates"].value(),
+                      max_wells=self._plan_limits["wells"].value(),
+                      max_fields=self._plan_limits["fields"].value(),
+                      costs=tuple(self._plan_costs[key].value()
+                                  for key in ("replicate", "well", "field")),
+                      readout=readout)
+        try:
+            designs = _plan_arrayed_design(components, **inputs)
+        except ValueError as exc:
+            self._plan_summary.setText(
+                tr("Could not plan the design: {error}", error=exc))
+            self._plan_table.setRowCount(0)
+            return None
+        variances = tr(
+            "Mean {mean:.4g}; variance between replicates {rep}, wells "
+            "{well:.4g}, fields {field:.4g}, cells {cell:.4g}; "
+            "{cells:.0f} cells per field.",
+            mean=components["mean"],
+            rep=(f"{components['replicate']:.4g}"
+                 if components["estimated"]["replicate"]
+                 else tr("not estimated (taken as 0)")),
+            well=components["well"], field=components["field"],
+            cell=components["cell"], cells=components["cells_per_field"])
+        variances += " " + tr(
+            "Replicate-by-condition variance {value}.",
+            value=(f"{components['replicate_condition']:.4g}"
+                   if components["estimated"]["replicate_condition"]
+                   else tr("not estimated (taken as 0)")))
+        simulation = None
+        if designs.empty:
+            summary = variances + " " + tr(
+                "No design within {replicates} replicates, {wells} wells "
+                "per condition and {fields} fields per well reaches the "
+                "target power.", replicates=inputs["max_replicates"],
+                wells=inputs["max_wells"], fields=inputs["max_fields"])
+            self._show_arrayed_designs(designs, summary)
+            return designs
+        best = designs.iloc[0]
+        cells = max(1, int(round(_default_cells(components))))
+        simulated = _simulate_arrayed_power(
+            components, effect, replicates=int(best.replicates),
+            wells=int(best.wells), fields=int(best.fields), alpha=alpha,
+            paired=paired, n_sim=500, seed=0, readout=readout)
+        summary = variances + " " + tr(
+            "Cheapest design: {replicates} replicates, {wells} wells per "
+            "condition, {fields} fields per well; power {power:.2f}, "
+            "{simulated:.2f} in 500 simulated experiments.",
+            replicates=int(best.replicates), wells=int(best.wells),
+            fields=int(best.fields), power=best.power,
+            simulated=simulated)
+        simulation = {"design_index": 0, "n_sim": 500, "seed": 0,
+                      "cells_per_field": cells, "power": simulated}
+        self._show_arrayed_designs(designs, summary)
+        self._arrayed_plan = {
+            "schema": "spacr-arrayed-plan-v1",
+            "pilot": {"path": str(Path(pilot_path).expanduser().resolve()),
+                      "table": pilot_table,
+                      "columns": {**column,
+                                  "condition": column["condition"] or None}},
+            "variance_components": {
+                key: None if isinstance(value, float) and not math.isfinite(value)
+                else value for key, value in components.items()},
+            "design_inputs": inputs,
+            "designs": designs.to_dict(orient="records"),
+            "recommendation_index": 0,
+            "simulation": simulation,
+            "summary": summary,
+        }
+        self._save_plan.setEnabled(True)
+        return designs
+
+    def _show_arrayed_designs(self, designs, summary: str) -> None:
+        """Fill the design table with the ten cheapest rows and the summary.
+
+        :param designs: the design table, cheapest first.
+        :param summary: the summary line under the form.
+        """
+        self._plan_table.setRowCount(0)
+        self._plan_table.setRowCount(min(10, len(designs)))
+        for row, design in enumerate(designs.head(10).itertuples()):
+            for col, text in enumerate((
+                    str(design.replicates), str(design.wells),
+                    str(design.fields), f"{design.power:.3f}",
+                    f"{design.cost:.4g}")):
+                self._plan_table.setItem(row, col, table_item(text))
+        self._plan_summary.setText(summary)
+
+    def _load_arrayed_plan(self, path: Optional[str] = None) -> bool:
+        """Open a saved plan and put it back on the form and the table.
+
+        The form gets the plan's pilot, columns, readout, effect, power,
+        significance level, pairing, costs and search limits; the table and
+        summary show its saved designs as computed, without re-reading the
+        pilot, and the plan can be saved again as it was. A file that is not
+        a saved plan changes nothing and says why.
+
+        :param path: the plan to open; asks for one when None.
+        :returns: True when the plan was loaded.
+        """
+        import json
+
+        import pandas as pd
+
+        if not path:
+            path, _ = QFileDialog.getOpenFileName(
+                self, tr("Load plan…"), "", "JSON (*.json);;All files (*)")
+        if not path:
+            return False
+        try:
+            with open(path, encoding="utf-8") as handle:
+                plan = json.load(handle)
+            if plan.get("schema") != "spacr-arrayed-plan-v1":
+                raise ValueError(f"not a saved arrayed plan: {path}")
+            inputs = plan["design_inputs"]
+            pilot = plan["pilot"]
+            designs = pd.DataFrame(plan["designs"])
+            for key in ("replicates", "wells", "fields", "power", "cost"):
+                if key not in designs.columns and len(designs):
+                    raise ValueError(f"designs lack {key!r}")
+            readout = inputs.get("readout", "continuous")
+            index = self._plan_readout.findData(readout)
+            if index < 0:
+                raise ValueError(f"unknown readout {readout!r}")
+            values = [(self._plan_effect, float(inputs["effect"])),
+                      (self._plan_power, float(inputs["power"])),
+                      (self._plan_alpha, float(inputs["alpha"]))]
+            values += [(self._plan_costs[key], float(cost)) for key, cost in
+                       zip(("replicate", "well", "field"), inputs["costs"])]
+            values += [(self._plan_limits[key], int(inputs["max_" + key]))
+                       for key in ("replicates", "wells", "fields")]
+            columns = dict(pilot.get("columns") or {})
+        except (OSError, KeyError, TypeError, ValueError) as exc:
+            self._plan_summary.setText(
+                tr("Could not load the plan: {error}", error=exc))
+            return False
+        self._pilot_path.setText(str(pilot.get("path") or ""))
+        self._pilot_table.setText(str(pilot.get("table") or ""))
+        for key, combo in self._pilot_columns.items():
+            combo.setEditText(str(columns.get(key) or ""))
+        self._plan_readout.setCurrentIndex(index)
+        for control, value in values:
+            control.setValue(value)
+        self._plan_paired.setChecked(bool(inputs.get("paired", False)))
+        self._show_arrayed_designs(designs, str(plan.get("summary", ""))
+                                   + "\n" + path)
+        self._arrayed_plan = plan
+        self._save_plan.setEnabled(True)
+        return True
+
+    def _save_arrayed_plan(self) -> bool:
+        """Choose a JSON destination and atomically save the computed snapshot.
+
+        Unestimated variances are null with their estimation flags retained;
+        design inputs and candidate rows describe the completed computation,
+        even after the form changes. Cancelling or having no result writes
+        nothing. Write failures leave any existing destination intact.
+
+        :returns: True when the complete plan was saved.
+        """
+        import json
+        from PySide6.QtCore import QIODevice, QSaveFile
+
+        if self._arrayed_plan is None:
+            return False
+        path, _ = QFileDialog.getSaveFileName(
+            self, tr("Save plan…"), "arrayed_plan.json",
+            "JSON (*.json);;All files (*)")
+        if not path:
+            return False
+        try:
+            payload = (json.dumps(self._arrayed_plan, indent=2,
+                                  allow_nan=False) + "\n").encode("utf-8")
+            output = QSaveFile(path)
+            if not output.open(QIODevice.WriteOnly):
+                raise OSError(output.errorString())
+            if output.write(payload) != len(payload):
+                output.cancelWriting()
+                raise OSError(output.errorString())
+            if not output.commit():
+                raise OSError(output.errorString())
+        except (OSError, TypeError, ValueError) as exc:
+            self._plan_summary.setText(tr("Export failed") + ": " + str(exc))
+            return False
+        self._plan_summary.setText(self._arrayed_plan["summary"] + "\n" + path)
+        return True
+
     @staticmethod
     def _int_box(low: int, high: int, value: int) -> QSpinBox:
         """Build a bounded integer spin box.
@@ -925,6 +1329,9 @@ class PowerScreen(QWidget):
         spec round-trips: ``screen.set_spec(s); screen.spec() == s``. Dropping
         them would quietly re-simulate a different screen from the one asked
         for, with no visible difference on the form.
+
+        :param spec: the design to load; its shown fields fill the form and the
+            fields the form does not show are kept for :meth:`spec` to return.
         """
         self._held = {name: getattr(spec, name) for name in _HELD_FIELDS}
         self._genes.setValue(int(spec.n_genes))
@@ -1332,7 +1739,12 @@ class PowerScreen(QWidget):
 
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
-        """Let every in-flight sweep stop before the widget dies."""
+        """Let every in-flight sweep stop before the widget dies.
+
+        :param event: the close event; it is passed on to the base class after
+            the sweep is cancelled and running threads are waited on for up to
+            10 s each.
+        """
         self.cancel()
         for thread, _worker in list(self._jobs):
             try:

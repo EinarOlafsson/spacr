@@ -44,11 +44,12 @@ from __future__ import annotations
 import logging
 from typing import Dict, List, Optional, Tuple
 
-from PySide6.QtCore import QObject, Qt, QTimer
+from PySide6.QtCore import QObject, QSize, Qt, QTimer
 from PySide6.QtWidgets import (
     QFormLayout,
     QHBoxLayout,
     QLabel,
+    QLayout,
     QLineEdit,
     QMainWindow,
     QScrollArea,
@@ -116,7 +117,12 @@ def disclosure_for(app_key: str) -> str:
 
 
 def remember_disclosure(app_key: str, level: str) -> None:
-    """Persist the disclosure level chosen for ``app_key``."""
+    """Persist the disclosure level chosen for ``app_key``.
+
+    :param app_key: application key the level is stored under.
+    :param level: disclosure level; ``'all'`` is stored as is and any other
+        value as ``'essentials'``.
+    """
     _settings().setValue(f"{_KEY_DISCLOSURE}/{app_key}",
                          ALL if level == ALL else ESSENTIALS)
 
@@ -257,6 +263,17 @@ class SettingsSearchBar(QWidget):
         self._disclosure.toggled.connect(self._on_disclosure_toggled)
         row.addWidget(self._disclosure, 0)
         self._controls_row = row
+        self._controls: List[QWidget] = [self._modified_label, self._modified,
+                                         self._disclosure]
+        self._compact = False
+        from .widgets.flow import FlowHost, FlowLayout
+
+        self._wrap_host = FlowHost(self)
+        self._wrap_host.setObjectName(BAR_NAME + "Wrap")
+        self._wrap_row = FlowLayout(self._wrap_host, spacing=6)
+        self._wrap_host.hide()
+        column.addWidget(self._wrap_host)
+        column.setSizeConstraint(QLayout.SetNoConstraint)
 
         self._count = QLabel(self)
         self._count.setObjectName(COUNT_NAME)
@@ -272,7 +289,10 @@ class SettingsSearchBar(QWidget):
         return self._input.text()
 
     def set_query(self, text: str) -> None:
-        """Type ``text`` into the search box, filtering as it goes."""
+        """Type ``text`` into the search box, filtering as it goes.
+
+        :param text: search text for the box; ``None`` or empty clears it.
+        """
         self._input.setText(str(text or ""))
 
     def level(self) -> str:
@@ -280,7 +300,11 @@ class SettingsSearchBar(QWidget):
         return self._level
 
     def set_level(self, level: str) -> None:
-        """Switch disclosure level and remember the choice."""
+        """Switch disclosure level and remember the choice.
+
+        :param level: disclosure level: ``'all'`` shows every setting; any
+            other value selects ``'essentials'``.
+        """
         self._disclosure.setChecked(level == ALL)
 
     def _show_all_without_remembering(self) -> None:
@@ -316,7 +340,11 @@ class SettingsSearchBar(QWidget):
         return self._modified.isChecked()
 
     def set_modified_only(self, on: bool) -> None:
-        """Turn the Modified filter on or off."""
+        """Turn the Modified filter on or off.
+
+        :param on: ``True`` to show only settings changed from their defaults;
+            coerced with ``bool()``.
+        """
         self._modified.setChecked(bool(on))
 
     def visible_keys(self) -> List[str]:
@@ -471,7 +499,95 @@ class SettingsSearchBar(QWidget):
         :param widget: any widget; it keeps its own size policy.
         """
         widget.setParent(self)
-        self._controls_row.addWidget(widget, 0)
+        self._controls.append(widget)
+        if self._compact:
+            self._wrap_row.addWidget(widget)
+        else:
+            self._controls_row.addWidget(widget, 0)
+        self._fit(self.width())
+
+    def _one_line_width(self) -> int:
+        """The width the box and every control need side by side.
+
+        The box is counted at its minimum, so the strip keeps the one line
+        it always had for as long as that line fits.
+        """
+        spacing = self._controls_row.spacing()
+        margins = self.layout().contentsMargins()
+        shown = [w for w in self._controls if not w.isHidden()]
+        return (self._input.minimumSizeHint().width()
+                + sum(w.sizeHint().width() + spacing for w in shown)
+                + margins.left() + margins.right())
+
+    def _fit(self, width: int) -> None:
+        """Put the controls beside the box, or under it when they do not fit.
+
+        Beside it while the whole row fits; under it, wrapping onto as many
+        lines as the width needs, when it does not. The strip's minimum
+        width is then the widest single control rather than the whole row,
+        which is what lets the Settings column be narrowed so the right-hand
+        column can be widened on a laptop screen.
+
+        :param width: the strip's width in pixels.
+        """
+        compact = 0 < int(width) < self._one_line_width()
+        if compact == self._compact:
+            return
+        self._compact = compact
+        source = self._controls_row if compact else self._wrap_row
+        for widget in self._controls:
+            source.removeWidget(widget)
+        for widget in self._controls:
+            if compact:
+                self._wrap_row.addWidget(widget)
+            else:
+                self._controls_row.addWidget(widget, 0)
+        self._wrap_host.setVisible(compact)
+        self._wrap_row.invalidate()
+        self.updateGeometry()
+
+    def minimumSizeHint(self) -> QSize:
+        """As narrow as the widest single control, or the Modified switch
+        with its caption, or the box's own minimum.
+
+        Not the whole row: when the strip is narrower than that, the
+        controls move under the box (:meth:`_fit`). The switch keeps its
+        caption beside it, so the two never wrap apart.
+        """
+        margins = self.layout().contentsMargins()
+        pair = (self._modified_label.sizeHint().width()
+                + self._modified.sizeHint().width()
+                + self._controls_row.spacing())
+        widest = max([self._input.minimumSizeHint().width(), pair]
+                     + [w.sizeHint().width() for w in self._controls
+                        if not w.isHidden()])
+        return QSize(widest + margins.left() + margins.right(),
+                     super().minimumSizeHint().height())
+
+    def sizeHint(self) -> QSize:
+        """The one-line hint, or, with the controls under the box, the
+        height every wrapped line needs at the current width.
+
+        The strip's height is fixed at its hint, so a hint that did not
+        follow the wrapping would let the lines overlap the count below.
+        """
+        hint = super().sizeHint()
+        layout = self.layout()
+        if self._compact and self.width() > 0 and layout.hasHeightForWidth():
+            hint.setHeight(layout.totalHeightForWidth(self.width()))
+        return hint
+
+    def resizeEvent(self, event) -> None:
+        """Re-decide where the controls go for the new width.
+
+        :param event: the resize event; its new width is read.
+        """
+        was = self._compact
+        self._fit(event.size().width())
+        super().resizeEvent(event)
+        if was and self._compact \
+                and event.size().width() != event.oldSize().width():
+            self.updateGeometry()
 
     def count_text(self) -> str:
         """The sentence under the controls. Public so tests read what users
@@ -777,6 +893,14 @@ class SettingsSearchBar(QWidget):
         for key, section in waiting.items():
             if key not in self._index or self._index[key][1] is None:
                 self._index[key] = (section, None)
+        from .preferences import _is_alpha_visible
+
+        if not _is_alpha_visible():
+            from ..settings import _alpha_names
+
+            app_key = getattr(self._screen, "app_key", None)
+            for key in _alpha_names("settings", app_key):
+                self._index.pop(key, None)
 
     def _apply_section_state(self, shown: Dict[int, int],
                              narrowing: bool, reopen: bool = True) -> None:
@@ -938,14 +1062,6 @@ def install(screen: QWidget) -> Optional[SettingsSearchBar]:
         return None
     try:
         index = parent.indexOf(scroll)
-        # THE SIZES ARE ONLY WORTH KEEPING ONCE THERE ARE SOME. A splitter
-        # that has never been laid out answers `sizes()` with pre-layout
-        # defaults, so restoring them after the insert would WRITE those
-        # defaults over the layout the first show is about to compute --
-        # this file's own WATCH list warns about reading geometry before
-        # the layout settles. Installing before the screen is shown is the
-        # point of doing it early (item 380), so the unlaid case is the
-        # common one now rather than the exception.
         sizes = list(parent.sizes()) if scroll.isVisible() else []
         bar = SettingsSearchBar(screen)
         container = QWidget()
@@ -1015,6 +1131,8 @@ def install_window_hooks(window: QMainWindow) -> Optional[_StackWatcher]:
     lazily on first navigation, so this cannot be a one-shot sweep; it
     connects to the stack and also installs into anything already built.
 
+    :param window: the main window; nothing is installed unless it has a
+        ``_stack`` screen stack, and a watcher already on it is returned.
     :returns: the watcher, kept alive by the window, or ``None``.
     """
     stack = getattr(window, "_stack", None)

@@ -146,3 +146,70 @@ Hormesis has no control at all. It is not a mode a user selects — it is a
 diagnosis the engine reaches when the low-dose end of a series departs from
 control against the trend, and the screen shows it exactly where a refusal
 already appears: in the Note cell, its tooltip, and the report pane.
+
+
+---
+
+# Notes from `spacr/qt/screens/dose_response.py`
+
+Prose lifted out of `spacr/qt/screens/dose_response.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## Contents
+
+- [_fit_with_plates](#_fit_with_plates) (2 entries)
+- [DoseResponseScreen.__init__](#doseresponsescreen__init__) (4 entries)
+
+## _fit_with_plates
+
+### lines 187-189
+
+```python
+single = _alone(fitted_frame, second_dose)
+```
+
+THE CURVES ARE THE FIRST COMPOUND ALONE when a second one is named. Combination wells are not a dose series of either agent, and fitting them into one would describe neither; the synergy surface is where they count.
+
+### lines 196-199
+
+```python
+host = fit_frame(_alone(frame, second_dose),
+```
+
+THE HOST READOUT IS FITTED RAW, on the table as loaded. Plate normalisation scales the RESPONSE by that response's own controls; a host readout has different controls, or none, and an EC50 does not need them -- it is a concentration, not a percentage.
+
+## DoseResponseScreen.__init__
+
+### lines 493-496
+
+```python
+self.fit_button = QPushButton("Fit curve", self)
+```
+
+"FIT CURVE", NOT "FIT". The bare word is also zoom-to-fit in the ortho view, comparison grid and layer viewer, and a reviewed translation is keyed by its English source, so one string could never be translated right for both meanings.
+
+### lines 505-508
+
+```python
+plates = QHBoxLayout()
+```
+
+THE PLATES ROW. Every caption on it already exists elsewhere in the application, so it adds no string a translator has not seen. Both column pickers start at "(none)", which keeps the default fit exactly the raw-response fit it always was.
+
+### lines 534-538
+
+```python
+hosts = QHBoxLayout()
+```
+
+THE HOST READOUT. A second column from the same wells; with it, each group's host EC50 over its response EC50 is the selectivity index the number that decides whether an anti-parasitic compound is worth anything, because killing the parasite at 1 uM means nothing if the host monolayer dies at 1.2.
+
+### lines 553-555
+
+```python
+combos = QHBoxLayout()
+```
+
+THE SECOND COMPOUND. Naming its dose column turns the table into a checkerboard: the curves use the first compound alone, and the combination wells are scored against Bliss or Loewe.

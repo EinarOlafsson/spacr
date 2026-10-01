@@ -3,11 +3,12 @@
   "language": "pt",
   "records": [
     {
-      "label": "spacr.active_learning.retrain_round#26",
+      "label": "spacr.active_learning.retrain_round#27",
       "source_sha256": "63847984f20d1551c402a08e99b8d8bebc463bf61ed94005e01c23ead6eb6311",
       "source": "how many unannotated crops to draw at random and fit as the ABSENT class when only one class has been annotated. ``None`` (default) refuses instead, as before.",
       "context": "how many unannotated extracted image regions to draw at random and fit as the ABSENT class when only one class has been annotated. ``None`` (default) refuses instead, as before.",
-      "translation": "quantos recortes de imagem não anotados sortear ao acaso e ajustar como a classe AUSENTE quando apenas uma classe foi anotada. ``None`` (padrão) recusa-se a fazê-lo, como antes."
+      "translation": "quantos recortes de imagem não anotados sortear ao acaso e ajustar como a classe AUSENTE quando apenas uma classe foi anotada. ``None`` (padrão) recusa-se a fazê-lo, como antes.",
+      "rebound_from": "spacr.active_learning.retrain_round#26"
     },
     {
       "label": "spacr.hit_attribution.HitInvestigationResult#2",

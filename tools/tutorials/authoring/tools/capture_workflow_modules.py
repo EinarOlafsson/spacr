@@ -455,6 +455,10 @@ def main() -> int:
         mark_seen(lesson.get("host_app_key") or lesson["app_key"])
 
     app = QApplication.instance() or QApplication([])
+    # Alpha features get no tutorials: record with Show alpha features off.
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+    from capture_policy import force_alpha_features_off
+    force_alpha_features_off()
     window = app_module.MainWindow()
     window.apply_dock_mode("locked")
     window.resize(3840, 2160)

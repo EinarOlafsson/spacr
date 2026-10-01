@@ -19,8 +19,11 @@ What is dropped, and what is not
 
 Dropped: every narration ``.m4a`` and voice timing ``.json`` under a lesson.
 
-Kept, in full: every lesson, every silent ``.mp4``, every poster, every caption
-catalog, and the player itself. Narration and timing sidecars come from the
+Kept, in full: every lesson, every silent ``.mp4`` still in the Pages tree,
+every poster, every caption catalog, and the player itself. A lesson whose
+``lesson_catalog.js`` entry names a ``web`` copy has that copy on the same
+immutable media revision as its 4K master instead; the publisher removes its
+Pages copy, so it never reaches this staging. Narration and timing sidecars come from the
 configured Hugging Face dataset. Caption-only languages never had audio.
 
 With :data:`NARRATION_HOST` configured, ``voice_catalog.js`` remains complete
@@ -58,7 +61,7 @@ from typing import Dict, List, Sequence, Tuple
 #: is what actually points the player at it, and this constant is what stops
 #: the build shipping a second copy nothing would request.
 NARRATION_HOST = (
-    "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/e35b2c12f00260629d9d5353b86dcd4577b9b617")
+    "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d")
 
 #: :data:`VOICES_PER_LANGUAGE` sentinel: publish no narration at all.
 NARRATION_EXTERNAL = -1

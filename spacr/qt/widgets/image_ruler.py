@@ -15,9 +15,11 @@ class ImageRuler(QObject):
 
     Hosts pass their widget-to-image mapping to :meth:`handle` and inverse
     mapping to :meth:`paint`. Zoom and pan never change the measured length.
-    Pixel units are always shown. Physical units require explicit, validated
-    calibration through :meth:`set_spacing`; camera magnification is never
-    guessed. Right-click clears while the tool is active.
+    Pixel units are always shown. Physical units require validated
+    calibration, either explicit through :meth:`set_spacing` or stated by the
+    image file's own header through :meth:`calibrate_from_file`; camera
+    magnification is never guessed. Right-click clears while the tool is
+    active.
     """
 
     changed = Signal()
@@ -72,6 +74,48 @@ class ImageRuler(QObject):
             self.spacing = spacing
         self.unit = str(unit)
         self.changed.emit()
+
+    def calibrate_from_file(self, path, shape=None):
+        """Take the pixel spacing the shown image's own file header states.
+
+        Only a size the file states counts (OME ``PhysicalSizeX/Y``, an
+        ImageJ micron calibration or centimetre resolution tags, read by
+        :func:`spacr.point_spread.image_optics_metadata`); a magnification
+        in the file name, an objective table or a default never calibrates
+        the ruler. Calibration is cleared first, so a file that states
+        nothing leaves the ruler in pixels.
+
+        :param path: the image file being shown; None or '' only clears.
+        :param shape: the displayed array's shape; defaults to None, which
+            skips the check. When given, the header's (Y, X) must equal its
+            first two or last two dimensions, so a resampled or cropped
+            display is never measured with the file's spacing.
+        :returns: the (x, y) spacing in µm now set, or None when the ruler
+            stays uncalibrated.
+        """
+        self.set_spacing()
+        if not path:
+            return None
+        from ...point_spread import image_optics_metadata
+        try:
+            stated = image_optics_metadata(path)
+        except Exception:
+            return None
+        size = stated.get('pixel_size_um')
+        if size is None:
+            return None
+        if shape is not None:
+            header = stated.get('image_shape')
+            dims = tuple(int(n) for n in shape)
+            if header is None or tuple(int(n) for n in header.value) not in (dims[:2], dims[-2:]):
+                return None
+        try:
+            y, x = size.value
+            self.set_spacing(x, y, unit='µm')
+        except (TypeError, ValueError):
+            self.set_spacing()
+            return None
+        return self.spacing
 
     def length(self, physical=False):
         """Return the line length, or None before a line exists.

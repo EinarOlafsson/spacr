@@ -76,9 +76,22 @@ ROOT = Path(__file__).resolve().parents[2]
 # "spaCR mode" gives e0b2c63f3e43a544..., the previous pin byte for byte.
 # Its `_ROWS` row stays; this test only requires a row per caption, not the
 # converse.
-COMPACT_CAPTION_COUNT = 208
+# 208 -> 243 on 2026-09-25, +39/-4, instruction 316. MEASURED BY SET
+# DIFFERENCE against this pin's own commit (89094e3c4), whose tree reproduces
+# 4663f4f0... byte for byte. Arrived with rows written here, AI technical
+# review (Claude Opus 5.5), no native-speaker signoff: 34 captions -- the
+# setup installer and GitHub CLI prompts (13), the ten night-theme names and
+# the Resonance backdrop (11), "Test data and walkthroughs" and its body on
+# the first-run tour (2), two Help shortcuts, Annotate's "Confirm/Reject the
+# suggested label" (item 512), "Install", "Keep installing", "Stop it and
+# close" and "Signing in to {label}…". Arrived with their nine rows already
+# written by the items that added them (5): "Candida spp.", "Plasmodium
+# spp.", "Toxoplasma", "Host–Pathogen Analysis" and the rewritten issue-filing
+# privacy note. Retired (4): "Demos menu", its one-click demo blurb,
+# "Settings recipes" and the old privacy note. Their `_ROWS` rows stay.
+COMPACT_CAPTION_COUNT = 243
 COMPACT_CAPTION_SHA256 = (
-    "4663f4f0872bf921d343da2b9909a56e6b8697ccb832936b011b144566b64eb2"
+    "6ad2ef9e9b4495a569d1011d594d21fa93f12c8ff161b4a0776369819db42618"
 )
 
 # The complementary source-bound layer is pinned separately.  Keys are
@@ -325,6 +338,34 @@ COMPACT_CAPTION_SHA256 = (
 # retain their keys and therefore do not change this identity fingerprint.
 # This is a measured source inventory, not verification of translations.
 # Catalog equality and locale-quality checks remain pending the catalog pass.
+#
+# 316, 2026-09-25: the runtime catalog pass. MEASURED by SET DIFFERENCE of
+# the identities against c0b2c5227, where the previous counts and digest
+# reproduce exactly (476736243f...): +2304/-122 across the five tables,
+# SETTING_LABELS 982 -> 1086 (+110/-6), SETTING_TOOLTIPS 977 -> 1108
+# (+137/-6), CATEGORY_HELP 193 -> 211 (+21/-3), UI 3547 -> 5472
+# (+2032/-107), MODULE_SUMMARIES 68 -> 72 (+4/-0: candida, host_pathogen,
+# plasmodium, toxoplasma). These are the features merged between 418 and
+# item 530 while no catalog was rebuilt. Every catalog is now regenerated
+# without a model from reviewed records, and every identity has a
+# source-bound translation in all nine languages except 35 Hindi UI captions
+# (first-pass IDs 821-855), whose translator output a safety classifier
+# stopped; they show in English and nothing machine-generated replaced them.
+# 316, 2026-09-27: all nine regenerated catalogs passed the canonical audit.
+# Measured against 6ba9eba0f: +813/-37 identities, including the 11 newly
+# extracted captions. Exact diff and review scope are recorded in
+# features/data/316_runtime_inventory_delta_2026-09-27.json.
+# AI technical review (Codex), no native-speaker signoff.
+# 316, 2026-09-28: +19/-0 identities (559: four labels and four tooltips;
+# 558: eight UI captions; 556: three SAM2 UI captions). All nine locales
+# have source-bound AI technical review, no native-speaker signoff.
+# Every existing translation is preserved; exact additions and prior
+# fingerprint: features/data/316_runtime_alpha_delta_2026-09-28.json.
+# 316, 2026-09-28: +14/-0 identities (564/576: five labels, five tooltips;
+# one category help and three UI captions). All nine locales
+# have source-bound AI technical review, no native-speaker signoff.
+# Every existing translation is preserved; exact additions and prior
+# fingerprint: features/data/316_runtime_counterfactual_databases_delta_2026-09-28.json.
 EXTERNAL_SOURCE_COUNTS = {
     # 2026-09-15, the old OPS engine deleted (372): -116 / +0 by SET
     # DIFFERENCE of the identities against the tree before the deletion,
@@ -335,15 +376,15 @@ EXTERNAL_SOURCE_COUNTS = {
     # to the fingerprint below.
     # `recursive` keeps its row: its English now comes from
     # spacr.external_masks, which reads it, so its identity is unchanged.
-    "SETTING_LABELS": 982,
-    "SETTING_TOOLTIPS": 977,
+    "SETTING_LABELS": 1203,
+    "SETTING_TOOLTIPS": 1225,
     # 192 -> 201 on 2026-09-08, +9/-0: the nine OPS section headings that
     # fold onto Align & Stitch. Each needed a curated CATEGORY_TOOLTIPS
     # entry or its panel drew the generic fallback -- a heading whose
     # tooltip says nothing about the settings under it, which costs the
     # reader the hover and tells them nothing. 201 -> 200 on 2026-09-11
     # with `save_to_db`, whose help text was one of them.
-    "CATEGORY_HELP": 193,
+    "CATEGORY_HELP": 231,
     # 2,988 -> 3,291 on 2026-09-14, and reviewed record by record against
     # 49c1189f7, where every count in this dict still reproduces exactly.
     # +304 / -1, NOT a flat +303: the four other tables did not move at all,
@@ -449,8 +490,8 @@ EXTERNAL_SOURCE_COUNTS = {
     # plus the product names DINOCell/SAMCell arrive; five old tooltips leave.
     # Every new prose row has a reviewed record in each of the nine locales.
     # The runtime pass preserved every pre-existing translated value.
-    "UI": 3547,
-    "MODULE_SUMMARIES": 68,
+    "UI": 6049,
+    "MODULE_SUMMARIES": 72,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
 # invented-negatives notice replaced "{n} outstanding suggestions thrown away
@@ -552,10 +593,16 @@ EXTERNAL_SOURCE_COUNTS = {
 # 6408b9e46d4b7478430257a6f632bbb12ec43a279df807213c4433b8e37d6a72, the
 # previous pin byte for byte.
 EXTERNAL_SOURCE_KEY_SHA256 = (
+    # Mask cloud category: Cloud heading (+1 UI), its curated help
+    # (+1 UI and +1 CATEGORY_HELP), and no removed identities.
     # 418: 0f21cbfb3's English identities reproduce the previous pin exactly:
     # b4d1896bbc1135f9f4098b3473ac4163d9cf36bf3d58c7447daeb652dacf725f.
-    # The +32/-84 identities named above give this current source digest.
-    "476736243fbfe6359464c3ce219efe4a66f17dbec4f596710050a29595b9a5ac"
+    # The +32/-84 identities named above gave 476736243f...a5ac.
+    # 316, 2026-09-25: the +2304/-122 identities named over
+    # EXTERNAL_SOURCE_COUNTS give this current source digest.
+    # 47: one reviewed UI arrival, "Checking compatible GPUs…", no removals.
+    # Exact subtraction reproduces the preceding 5a560d33...ef0091b pin.
+    'dd0cf27603efe193d0102d0e63f734d27fe464a66a2a9478617dac212891b9b3'
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the
@@ -1110,6 +1157,81 @@ def test_spanish_compact_rows_use_consistent_formal_register():
     assert not offenders, f"informal Spanish compact captions: {offenders}"
 
 
+#: Captions written by a feature branch that the catalog lane has not built
+#: rows for yet; spacr/qt/i18n_catalogs is regenerated only by that lane.
+#: Owed since 2026-09-25 by item 508 (the enhancement chain reaches Mask
+#: generation) and item 509 (PSF optics infer themselves). Self-emptying: a caption already in en.UI_SOURCES fails
+#: below and must leave this set.
+# 316, 2026-09-25: empty. The catalog pass built rows for every caption
+# 508 and 509 left here, and they are in en.UI_SOURCES now.
+# 493, 2026-09-26: the parallel GPU mask controls, their greyed-out
+# reasons, the Cluster Distribution profile and the per-GPU progress line.
+# 569, 2026-09-26: the Show alpha features switch and its tooltip.
+# 548, 2026-09-26: the folder-watch progress line on Make Masks.
+# 570, 2026-09-26: the Control Charts hit-scoring option (alpha).
+# 550, 2026-09-26: the cloud-storage button on the src field of Make Masks
+# and Measure, and its browser dialog (alpha).
+# 577, 2026-09-26: the Preferences Notifications tab (alpha).
+# 572, 2026-09-26: the figure integrity toggle on the Preferences Figures
+# tab and its tooltip (alpha).
+# 574, 2026-09-27: the Report screen's Archive package button and form.
+# 579, 2026-09-27: the Report screen's Deposit on Zenodo button and form.
+# 316, 2026-09-27: all 76 resolved through their explicit owners.
+# 593, 2026-09-28: Make Masks' Consolidate folders and Sort into channels
+# buttons, their prompts and console lines, and the channel-sort dialog,
+# regex window and example-sets check (spacr/qt/widgets/channel_sort_dialog.py).
+# 316, 2026-09-27 (sixth pass): empty again; the catalog pass built rows
+# for every caption left here.
+# 600, 2026-09-29: Make Masks' "Organize for Measure…" button and popup
+# (spacr/qt/widgets/organize_for_measure.py) and the drop-classification
+# console lines and mask-pairing prompt on the Make Masks screen.
+# 600b, 2026-09-29: the popup table's Text / Image / Image + text view,
+# overlay colour, slot-drag tooltip and the ×'s tooltip.
+# 316, 2026-09-30 (eighth pass): empty again; the catalog pass built rows
+# for every caption left here.
+# 600c, 2026-09-30: the popup's empty-table drop hint and Size slider.
+# 316, 2026-09-30 (eighth pass follow-up): 600c's two captions have rows;
+# empty again.
+# 598, 2026-09-30: the contribute dialogs' dataset-link caption and the
+# thank-you caption before the pull request's link.
+# 316, 2026-09-30 (tenth pass): 598's two captions have rows; empty again.
+# 563, 2026-09-30: the Control Charts anomaly table's Control percentile
+# column (alpha), after the real-screen check ranked wells by it.
+# 573, 2026-09-30: the analysis lock dialog's Gate files row and its
+# placeholder (alpha).
+# 422, 2026-09-30: the Help search result-row templates in help_index.py,
+# now extractable through `_template`. The list's new "and {count} more" row
+# reuses a caption the catalogs already carry, so it owes nothing.
+# 585, 2026-09-30: the arrayed-assay planner's readout and condition
+# pickers and its plan/load error lines (alpha); "Load plan…" already has
+# a row.
+# 603, 2026-09-30: Preferences' Tooltip delay row and its explanation.
+# 610, 2026-10-01: Annotate's Suggest run -- its step n of N line and step
+# names, the Cancel button's tooltip and cancel lines, and the console note
+# for a round checked on a random split.
+_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    "Control percentile",
+    "Cancelling the suggestion run after its current step…",
+    "Stop the suggestion run at its next step. Nothing is written if it "
+    "stops before the writing step; your annotations are never touched. "
+    "Shown only while a run is going.",
+    "Suggest cancelled.",
+    "Suggest cancelled. Suggestions already in the column were cleared; no "
+    "new ones were written.",
+    "Suggest: step {n} of {total} — {what}…",
+    "The labels so far do not span enough wells to hold whole wells out, so "
+    "this round was checked on a random split and its accuracy reads high. "
+    "The suggestions are unaffected. Label crops from more wells for a "
+    "well-separated check. ({why})",
+    "clearing the outstanding suggestions",
+    "fitting on the labels so far",
+    "ranking the proposals",
+    "reading the measurements",
+    "writing the suggestions",
+})
+
+
+
 def test_every_generated_catalog_candidate_has_a_source_hash():
     """The non-compact UI surface is complete in the external registry."""
     tools_dir = str(ROOT / "tools")
@@ -1122,6 +1244,8 @@ def test_every_generated_catalog_candidate_has_a_source_hash():
     from spacr.qt.i18n_catalogs import en
 
     candidates = set(builder.extract_static_ui_sources())
+    assert not _AWAITING_CATALOG_REBUILD & set(en.UI_SOURCES)
+    candidates -= _AWAITING_CATALOG_REBUILD
     missing_sources = sorted(candidates - set(en.UI_SOURCES))
     assert not missing_sources, (
         "generated UI candidates missing from en.UI_SOURCES:\n  "
@@ -1218,7 +1342,7 @@ def test_custom_widgets_and_indirect_registries_enter_one_i18n_layer():
     discovered = set(builder.extract_static_ui_sources())
     independently_expected = (
         _custom_widget_literal_captions() | _indirect_registry_captions()
-    )
+    ) - _AWAITING_CATALOG_REBUILD
     compact = set(_ROWS) | set(_TERM_ROWS)
     missing_ownership = sorted(
         independently_expected

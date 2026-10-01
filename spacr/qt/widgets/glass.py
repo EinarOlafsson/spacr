@@ -32,13 +32,16 @@ from __future__ import annotations
 import logging
 from typing import Optional
 
-from PySide6.QtCore import QEvent, QObject, QRect, Qt
+from PySide6.QtCore import QEvent, QLineF, QObject, QRect, Qt
 from PySide6.QtGui import QColor, QMouseEvent, QPainter, QPen
 from PySide6.QtWidgets import (QAbstractButton, QAbstractItemView,
                                QAbstractSpinBox, QAbstractSlider, QGraphicsView, QPlainTextEdit, QApplication,
                                QComboBox, QDialog, QSplitterHandle, QTabBar,
                                QDialogButtonBox, QLineEdit, QPushButton,
                                QTextEdit, QWidget)
+
+from ..gil_priority import (_stop_watching_application_events,
+                            _watch_application_events)
 
 LOG = logging.getLogger("spacr.qt.glass")
 
@@ -121,6 +124,10 @@ def button_direction(button: QAbstractButton) -> Optional[bool]:
     THE ROLE FIRST. A `QDialogButtonBox` already knows which of its buttons
     accepts and which rejects, and that answer is better than any reading
     of the label -- it survives translation, which the words below do not.
+
+    :param button: the button to classify: by its role in an enclosing
+        ``QDialogButtonBox`` when it has one, otherwise by the words of its
+        text.
     """
     box = button.parentWidget()
     while box is not None and not isinstance(box, QDialogButtonBox):
@@ -153,6 +160,12 @@ def spin_on_every_button(dialog: QDialog, card) -> int:
     Show, and a second connection would send the light round twice on one
     click -- which, since the two laps run down together, reads as a rim
     moving at double speed rather than as a bug.
+
+    :param dialog: the dialog whose descendant buttons are wired; a button
+        already wired, or whose direction :func:`button_direction` cannot tell,
+        is skipped.
+    :param card: the card whose ``circuit(clockwise=...)`` runs on each click,
+        clockwise for a forward button.
     """
     wired = 0
     for button in dialog.findChildren(QAbstractButton):
@@ -179,6 +192,10 @@ def wants_glass(widget: QWidget) -> bool:
 
     Checked by looking rather than by asking, so anything else that builds
     its own card is covered without having to remember to say so.
+
+    :param widget: the widget to test; only a ``QDialog`` without the opt-out
+        or already-glassed property and without its own ``SetupCard``
+        qualifies.
     """
     if not isinstance(widget, QDialog):
         return False
@@ -202,6 +219,9 @@ def clear_the_containers(dialog: QWidget) -> int:
     tab widget is covered as well: "every tab of every popup panel" is a
     page that is itself a plain QWidget, and one of those is enough to bury
     the card under a black rectangle.
+
+    :param dialog: the dialog whose descendant widgets, other than opaque
+        controls and their children, are made transparent.
     """
     try:
         from ..theme import make_transparent
@@ -232,6 +252,43 @@ def _ancestors(widget: QWidget, stop: QWidget):
     while parent is not None and parent is not stop:
         yield parent
         parent = parent.parentWidget()
+
+
+def _glass_a_part_that_came_later(dialog: QWidget, part: QWidget) -> int:
+    """Give ``part`` what :func:`glass` gave the rest of ``dialog``.
+
+    For a piece put into a dialog after it was glassed -- a Preferences page
+    that waited outside the window until its tab was chosen. :func:`glass`
+    walks the dialog once, so a piece that was not in it then has opaque
+    containers over the card and buttons that do not send the rim round.
+    What is done per widget as it is polished (the resize edges' mouse
+    tracking) needs nothing here.
+
+    :param dialog: the glassed dialog; one that is not glassed is left alone.
+    :param part: the widget just put into it, with everything under it.
+    :returns: how many containers were made transparent.
+    """
+    if not dialog.property(GLASSED):
+        return 0
+    cleared = clear_the_containers(part)
+    if not isinstance(part, OPAQUE):
+        try:
+            from ..theme import make_transparent
+
+            make_transparent(part)
+            cleared += 1
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("a late part would not go transparent", exc_info=True)
+    try:
+        from .setup_card import SetupCard
+
+        cards = dialog.findChildren(
+            SetupCard, options=Qt.FindChildOption.FindDirectChildrenOnly)
+    except Exception:                                        # noqa: BLE001
+        cards = []
+    if cards:
+        spin_on_every_button(part, cards[0])
+    return cleared
 
 
 #: How far inside an edge a press still counts as a grab, in pixels.
@@ -289,7 +346,7 @@ def _blue_resize_cursor(edges):
 
 
 class _ResizeEdgeHint(QWidget):
-    """Paint a one-pixel blue line on the edges available for dragging."""
+    """Paint a one-pixel blue line across the middle half of each active edge."""
 
     def __init__(self, window):
         """Create an initially hidden edge overlay that never intercepts mouse input."""
@@ -310,18 +367,20 @@ class _ResizeEdgeHint(QWidget):
             self.update()
 
     def paintEvent(self, event):
-        """Paint thin blue guides along active edges while leaving the corners unobscured."""
+        """Centre half-length guides on active edges without changing the grab band."""
         painter = QPainter(self)
         painter.setPen(QPen(QColor('#168cff'), 1))
         left, top, right, bottom = 1, 1, self.width() - 2, self.height() - 2
+        inset_x = max(7.0, (right - left) * 0.25)
+        inset_y = max(7.0, (bottom - top) * 0.25)
         for edge, line in (
-            (Qt.LeftEdge, (left, 8, left, bottom - 7)),
-            (Qt.RightEdge, (right, 8, right, bottom - 7)),
-            (Qt.TopEdge, (8, top, right - 7, top)),
-            (Qt.BottomEdge, (8, bottom, right - 7, bottom)),
+            (Qt.LeftEdge, (left, top + inset_y, left, bottom - inset_y)),
+            (Qt.RightEdge, (right, top + inset_y, right, bottom - inset_y)),
+            (Qt.TopEdge, (left + inset_x, top, right - inset_x, top)),
+            (Qt.BottomEdge, (left + inset_x, bottom, right - inset_x, bottom)),
         ):
             if self.edges & edge:
-                painter.drawLine(*line)
+                painter.drawLine(QLineF(*line))
 
 
 def _owns_mouse_gesture(widget, window):
@@ -442,6 +501,9 @@ def let_the_user_resize(window) -> bool:
 
     Idempotent: a window that already carries the filter keeps the one it
     has, so a dialog shown, closed and shown again does not collect two.
+
+    :param window: the top-level widget that gets an edge-drag resize filter;
+        ``None`` or a window that already has one returns ``False``.
     """
     if window is None:
         return False
@@ -529,16 +591,46 @@ def _paint_nothing_behind_the_card(dialog: QDialog) -> bool:
     must not replace it. Appended, so it wins over an earlier `QDialog`
     rule in the same sheet, and the application-wide sheet loses to a
     widget sheet by Qt's own precedence.
+
+    AS ONE OF THE DIALOG'S OWN RULES, through
+    :func:`spacr.qt.theme._add_to_a_windows_own_rules`, so it joins the
+    window sheet's styling pass instead of costing a second one.
     """
     try:
         existing = dialog.styleSheet() or ""
         if NO_BACKGROUND in existing:
             return False
-        dialog.setStyleSheet(f"{existing}\n{NO_BACKGROUND}".strip())
-        return True
+        from ..theme import _add_to_a_windows_own_rules
+
+        return _add_to_a_windows_own_rules(dialog, NO_BACKGROUND)
     except Exception:                                        # noqa: BLE001
         LOG.debug("a dialog would not drop its background", exc_info=True)
         return False
+
+
+def _ensure_alpha_surface(dialog: QWidget) -> bool:
+    """Repair a native surface created before translucent window polishing.
+
+    Qt can create the platform window before sending Polish. Merely setting
+    WA_TranslucentBackground afterwards leaves that existing X11 surface
+    opaque (alphaBufferSize=-1). Recreate its platform resources with an
+    explicit alpha format before it is mapped; keep the QWidget, QWindow,
+    geometry, parentage and all child state intact.
+
+    :param dialog: window whose existing native surface must support alpha.
+    :returns: true when alpha is requested, or no native window exists yet.
+    """
+    window = dialog.windowHandle()
+    if window is None:
+        return True
+    if window.format().alphaBufferSize() >= 8:
+        return True
+    surface_format = window.format()
+    surface_format.setAlphaBufferSize(8)
+    window.destroy()
+    window.setFormat(surface_format)
+    window.create()
+    return window.format().alphaBufferSize() >= 8
 
 
 def make_frameless(dialog: QDialog) -> bool:
@@ -560,6 +652,10 @@ def make_frameless(dialog: QDialog) -> bool:
     from the filter below, which fires while a dialog is being shown -- so
     without the restore, opening Preferences hid Preferences, and an
     `exec()` sat on an invisible modal window with no way to dismiss it.
+
+    :param dialog: the dialog made translucent, frameless, draggable by its
+        background and resizable by its edges; it is shown again if changing
+        its flags hid it.
     """
     try:
         was_showing = not dialog.isHidden()
@@ -568,6 +664,7 @@ def make_frameless(dialog: QDialog) -> bool:
                                & ~Qt.WindowType.Dialog)
                               | Qt.WindowType.Window
                               | Qt.FramelessWindowHint)
+        _ensure_alpha_surface(dialog)
         dialog.setProperty(DETACHED, True)
         _paint_nothing_behind_the_card(dialog)
         if getattr(dialog, "_spacr_background_drag", None) is None:
@@ -582,19 +679,19 @@ def make_frameless(dialog: QDialog) -> bool:
 
 
 def round_the_corners(dialog: QWidget, radius: int = CARD_RADIUS) -> bool:
-    """Cut the window itself to the card's rounded shape. True if applied.
+    """Keep antialiased alpha edges on translucent windows.
 
-    TRANSLUCENCY IS NOT ENOUGH, AND THAT IS THE WHOLE POINT OF THIS.
-    `WA_TranslucentBackground` asks the window manager to composite the
-    corner pixels away; a mask REMOVES them from the window's shape, so
-    the corners are gone whether or not anything is compositing, and
-    whether or not the surface came back with an alpha channel after its
-    flags were rewritten. It is the one way to be sure no square is left
-    round a rounded card, which is what kept coming back.
+    A QRegion is binary and quantizes its outline to logical pixels, even
+    on high-DPI screens. Cutting the antialiased card to that shape erased
+    partially covered edge pixels, producing a jagged white/dark fringe
+    against the desktop. Translucent windows already carry the card's
+    exact per-pixel alpha only when their native format has an alpha buffer.
+    Clear the mask in that case; the QWidget attribute alone is not proof.
+    Until a native alpha surface exists, retain the rounded platform mask.
 
-    The mask is rebuilt on every resize -- see :class:`_Backdrop` -- and
-    it follows the same radius the card paints, so the cut edge sits
-    under the rim rather than beside it.
+    :param dialog: window carrying the shared rounded card.
+    :param radius: corner radius in logical pixels for the opaque fallback.
+    :returns: false for an empty or deleted widget, true after adjustment.
     """
     try:
         from PySide6.QtCore import QRectF
@@ -605,6 +702,12 @@ def round_the_corners(dialog: QWidget, radius: int = CARD_RADIUS) -> bool:
         rect = dialog.rect()
         if rect.width() <= 0 or rect.height() <= 0:
             return False
+        window = dialog.windowHandle()
+        if (dialog.testAttribute(Qt.WA_TranslucentBackground)
+                and window is not None
+                and window.format().alphaBufferSize() >= 8):
+            dialog.clearMask()
+            return True
         step = 4.0
         path = QPainterPath()
         path.addRoundedRect(
@@ -679,6 +782,9 @@ def glass(dialog: QDialog) -> bool:
 
     Idempotent: a dialog that already carries :data:`GLASSED` is left alone,
     so a dialog shown, closed and shown again does not accumulate cards.
+
+    :param dialog: the dialog to decorate; it is left alone unless
+        :func:`wants_glass` accepts it.
     """
     if not wants_glass(dialog):
         return False
@@ -897,13 +1003,15 @@ def install_glass_everywhere(application=None) -> bool:
         if _INSTALLED is not None:
             try:
                 if _INSTALLED_APP is not None:
-                    _INSTALLED_APP.removeEventFilter(_INSTALLED)
+                    _stop_watching_application_events(
+                        _INSTALLED_APP, _INSTALLED)
             except Exception:                                # noqa: BLE001
                 LOG.debug("the old glass filter would not come off",
                           exc_info=True)
 
         installed = _GlassInstaller(application)
-        application.installEventFilter(installed)
+        _watch_application_events(
+            application, installed, _GLASS_MOMENTS | _DRAG_MOMENTS)
         _INSTALLED = installed
         _INSTALLED_APP = application
         return True
@@ -937,7 +1045,7 @@ def uninstall_glass_everywhere(application=None) -> bool:
 
         application = _INSTALLED_APP or application or QApplication.instance()
         if application is not None:
-            application.removeEventFilter(_INSTALLED)
+            _stop_watching_application_events(application, _INSTALLED)
     except Exception:                                        # noqa: BLE001
         LOG.debug("the glass filter would not come off", exc_info=True)
     finally:

@@ -1,0 +1,87 @@
+# spaCR user guide translation (ko).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: ko\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Python API quickstart"
+msgstr "Python API 빠른 시작"
+
+msgid "Use the Python API when a workflow needs to run from a notebook, a reusable script, a server or a scheduler. The desktop application and the Python API call the same pipeline functions and use the same setting names."
+msgstr "워크플로를 노트북, 재사용 가능한 스크립트, 서버 또는 스케줄러에서 실행해야 할 때 Python API를 사용합니다. 데스크톱 애플리케이션과 Python API는 같은 파이프라인 함수를 호출하고 같은 설정 이름을 사용합니다."
+
+msgid "Install the headless package"
+msgstr "헤드리스 패키지 설치"
+
+msgid "Add ``[qt]`` only when the same environment also needs the desktop interface."
+msgstr "같은 환경에서 데스크톱 인터페이스도 필요할 때만 ``[qt]`` 를 추가합니다."
+
+msgid "Use the typed workflow configuration"
+msgstr "타입이 지정된 워크플로 구성 사용"
+
+msgid "The top-level API contains a small, stable interface for the principal workflows. Typed fields cover the choices most scripts make; ``extra`` accepts advanced settings while refusing a second value for an existing typed field."
+msgstr "최상위 API는 주요 워크플로를 위한 작고 안정적인 인터페이스를 제공합니다. 타입이 지정된 필드는 대부분의 스크립트가 내리는 선택을 다루며, ``extra`` 는 고급 설정을 받지만 이미 있는 타입 필드에 두 번째 값을 주는 것은 거부합니다."
+
+msgid "Call ``mask.to_settings()`` when a complete dictionary is needed for a saved settings file. It expands through the same defaults used by the GUI."
+msgstr "저장할 설정 파일에 완전한 딕셔너리가 필요하면 ``mask.to_settings()`` 를 호출합니다. GUI와 같은 기본값으로 확장됩니다."
+
+msgid "Validate before a long run"
+msgstr "긴 실행 전에 검증하기"
+
+msgid "Set ``dry_run`` to inspect the input and return a list of problems without loading a model, using the GPU or writing results."
+msgstr "``dry_run`` 을 설정하면 모델을 불러오거나 GPU를 사용하거나 결과를 쓰지 않고 입력을 검사하여 문제 목록을 반환합니다."
+
+msgid "An empty list means that the preflight checks passed. A preflight check cannot guarantee model quality; inspect the segmentation preview before processing a full screen."
+msgstr "빈 목록은 사전 점검을 통과했다는 뜻입니다. 사전 점검으로 모델 품질을 보장할 수는 없으므로, 전체 스크린을 처리하기 전에 분할 미리보기를 검사합니다."
+
+msgid "Generate masks"
+msgstr "마스크 생성"
+
+msgid "A normal run returns ``None`` and writes masks, overlays, object counts and the resolved settings below ``src``. Invalid required inputs raise ``ValueError``; runtime progress and recoverable field failures are written to the spaCR log."
+msgstr "정상 실행은 ``None`` 을 반환하고 ``src`` 아래에 마스크, 오버레이, 객체 수, 확정된 설정을 씁니다. 필수 입력이 유효하지 않으면 ``ValueError`` 가 발생하며, 실행 진행 상황과 복구 가능한 시야 오류는 spaCR 로그에 기록됩니다."
+
+msgid "Measure objects and save crops"
+msgstr "객체 측정 및 크롭 저장"
+
+msgid "Measure writes ``measurements/measurements.db`` and the resolved settings. If ``save_png`` is enabled, it also writes one crop set for each ``crop_mode``."
+msgstr "측정 모듈은 ``measurements/measurements.db`` 와 확정된 설정을 씁니다. ``save_png`` 가 켜져 있으면 각 ``crop_mode`` 마다 크롭 세트도 하나씩 씁니다."
+
+msgid "Run the same contract from a shell"
+msgstr "셸에서 같은 규약 실행하기"
+
+msgid "The headless command is useful in a scheduler because it validates setting names and values before importing the heavy pipeline stack."
+msgstr "헤드리스 명령은 무거운 파이프라인 스택을 가져오기 전에 설정 이름과 값을 검증하므로 스케줄러에서 유용합니다."
+
+msgid "Command-line overrides are applied after the file:"
+msgstr "명령줄 재정의는 파일 다음에 적용됩니다."
+
+msgid "Unknown settings and values that cannot be converted are refused with a suggestion. Use ``spacr-doctor`` when the problem is the environment rather than a setting."
+msgstr "알 수 없는 설정과 변환할 수 없는 값은 제안과 함께 거부됩니다. 문제가 설정이 아니라 환경에 있을 때는 ``spacr-doctor`` 를 사용합니다."
+
+msgid "Continue from notebooks"
+msgstr "노트북에서 계속하기"
+
+msgid "The repository's ``Notebooks/`` directory contains complete Mask, Measure, Classify, barcode and regression examples. Treat the settings helpers and the :doc:`curated API reference <api/index>` as authoritative for the installed version; notebooks are worked examples rather than a compatibility contract."
+msgstr "저장소의 ``Notebooks/`` 디렉터리에는 마스크, 측정, 분류, 바코드, 회귀의 완전한 예제가 있습니다. 설치된 버전에 대해서는 설정 도우미와 :doc:`엄선된 API 참조 <api/index>` 를 기준으로 삼습니다. 노트북은 예제일 뿐 호환성 규약이 아닙니다."
+
+msgid "Export measured objects to AnnData"
+msgstr "측정된 객체를 AnnData로 내보내기"
+
+msgid "Follow :doc:`anndata_export` to export the measurement database through the same entry point used by the desktop application, choose a missing-value policy, and inspect the resulting object-by-feature matrix."
+msgstr ":doc:`anndata_export` 를 따라 데스크톱 애플리케이션과 같은 진입점으로 측정 데이터베이스를 내보내고, 누락값 정책을 선택하고, 생성된 객체×특징 행렬을 검사합니다."
+

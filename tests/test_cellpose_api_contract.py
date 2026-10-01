@@ -337,6 +337,34 @@ def test_every_converted_double_declares_the_installed_signature():
     """
     wrong = []
     for rel, cls, lineno, fn in _eval_doubles():
+        if (rel, cls) == ('test_prefixed_backends_run_in_their_own_environment.py',
+                          '_FakeOmniModel'):
+            # Omnipose's isolated backend uses cellpose_omni, not Cellpose 4.
+            # Pin the actual omnipose==1.1.4 wheel's CellposeModel.eval API,
+            # including loader_batch_size (missing from the online API page).
+            expected = dict(batch_size=8, indices=None, channels=None,
+                channel_axis=None, z_axis=None, normalize=True, invert=False,
+                rescale=None, diameter=None, do_3D=False, anisotropy=None,
+                net_avg=True, augment=False, tile=False, tile_overlap=0.1,
+                bsize=224, num_workers=8, loader_batch_size=1, resample=True,
+                interp=True, cluster=False, hdbscan=False, suppress=None,
+                boundary_seg=False, affinity_seg=False, despur=False,
+                flow_threshold=0.4, mask_threshold=0.0, diam_threshold=12.0,
+                niter=None, cellprob_threshold=None, dist_threshold=None,
+                flow_factor=5.0, compute_masks=True, min_size=15, max_size=None,
+                stitch_threshold=0.0, progress=None, show_progress=True,
+                omni=False, calc_trace=False, verbose=False, transparency=False,
+                loop_run=False, model_loaded=False, hysteresis=True)
+            names = [arg.arg for arg in fn.args.args[2:]]
+            defaults = [None if isinstance(value, ast.Name)
+                        and value.id == 'MISSING_CHANNEL_AXIS'
+                        and name == 'channel_axis' else ast.literal_eval(value)
+                        for name, value in zip(names, fn.args.defaults)]
+            assert names == list(expected)
+            assert defaults == list(expected.values())
+            assert fn.args.kwarg is None and fn.args.vararg is None
+            assert not fn.args.kwonlyargs and not fn.args.posonlyargs
+            continue
         if (rel, cls) == ('test_restoration_backend.py', 'Cellpose3DenoiseModel'):
             # DenoiseModel restores pixels; it is not CellposeModel's
             # segmentation API. Pin its separate isolated 3.1.1.3 API:
@@ -350,6 +378,24 @@ def test_every_converted_double_declares_the_installed_signature():
             assert defaults == list(expected.values())
             assert fn.args.kwarg is None and fn.args.vararg is None
             assert not fn.args.kwonlyargs
+            continue
+        if (rel, cls) == ('test_608_bundled_plaque_checkpoint_runs_through_cellpose3.py',
+                          '_Backend'):
+            # Stands in for spaCR's own _RemoteBackend (the Cellpose 3
+            # worker's proxy), not CellposeModel: pin that class's named
+            # parameters and defaults, in order, without its catch-all.
+            from spacr._segmentation_backends import _RemoteBackend
+
+            remote = [parameter for parameter in inspect.signature(
+                _RemoteBackend.eval).parameters.values()
+                if parameter.name != 'self'
+                and parameter.kind is not inspect.Parameter.VAR_KEYWORD]
+            names = [arg.arg for arg in fn.args.args[1:]]
+            defaults = [ast.literal_eval(value) for value in fn.args.defaults]
+            assert names == [parameter.name for parameter in remote]
+            assert defaults == [parameter.default for parameter in remote
+                                if parameter.default is not inspect.Parameter.empty]
+            assert fn.args.kwarg is None and fn.args.vararg is None
             continue
         if PARTIAL_SIGNATURE_RATCHET.get((rel, cls)):
             continue

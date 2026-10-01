@@ -76,6 +76,9 @@ def resolve_crop_path(path: str, db_path: str = "") -> str:
     this borrows it rather than growing a third copy of that rule, and falls
     back to the stored path when the Annotate screen is not importable (a
     headless test, a trimmed install).
+
+    :param path: crop path as stored in ``png_list``; returned unchanged when
+        it is empty or already exists as a file.
     """
     text = str(path or "")
     if not text or os.path.isfile(text) or not db_path:
@@ -156,6 +159,8 @@ class CropThumbnails:
         The call a mouse-move handler makes. Returning ``None`` means "not
         yet", not "there is no crop" — ask :meth:`pixmap` for that, off the
         hover path.
+
+        :param path: path of the crop image; an empty value returns ``None``.
         """
         if not path:
             return None
@@ -170,6 +175,8 @@ class CropThumbnails:
     def pixmap(self, path: str) -> Optional[QPixmap]:
         """The thumbnail, decoding it if this is the first time.
 
+        :param path: path of the crop image to decode; an empty value returns
+            ``None``.
         :returns: the ``QPixmap``, or ``None`` when the crop cannot be read.
             A failure is *cached* as ``None`` rather than raised: a missing
             file under the cursor must not throw out of a mouse handler, and
@@ -250,7 +257,12 @@ class CropThumbnails:
         ]
 
     def drop_cache_budget_entry(self, key) -> bool:
-        """Evict one decoded thumbnail selected by the memory policy."""
+        """Evict one decoded thumbnail selected by the memory policy.
+
+        :param key: cache key of the entry to evict, an
+            ``(abspath, mtime_ns, size, px)`` tuple; an unknown key is ignored
+            and ``False`` is returned.
+        """
         existed = key in self._cache
         self._cache.pop(key, None)
         self._last_used.pop(key, None)
@@ -264,6 +276,9 @@ class CropThumbnails:
         call site is different — this is what a debounce timer runs, and
         reading it as "prime the cache" rather than "get the pixmap" is what
         stops it drifting back onto the hover path.
+
+        :param path: path of the crop image to decode and cache, as for
+            :meth:`pixmap`.
         """
         return self.pixmap(path)
 

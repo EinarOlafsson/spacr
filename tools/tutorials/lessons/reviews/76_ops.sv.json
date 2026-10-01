@@ -1,19 +1,35 @@
 {
-  "lesson": "76_ops", "language": "sv", "english_sha256": "4b52abe939abc1c32a7649c513ce93adb3d4eeabeb9e9bf32e6e65a2a869c385",
-  "review_type": "source-pinned editorial translation", "native_speaker_reviewed": false, "listening_reviewed": false,
-  "title": "OPS: den aktuella sidan och inpassning av fyra bildfält",
-  "description": "Hitta OPS under Mask och följ ett kontrollerat exempel på inpassning och sammansättning av fyra verkliga bildfält. Detta är inte ett fullständigt platt-, segmenterings- eller avkodningsflöde.",
-  "objectives": ["Hitta den nästlade OPS-sidan och förstå exemplets begränsningar.", "Passa in fyra angränsande bildfält med ursprungliga bildtagningskoordinater.", "Granska överlapp, täckning och sparade uppgifter om datakällan."],
-  "prerequisite": "Inspelningen använder Python-API:erna ops_layout, ops_stitch och ops_compose i spaCR 1.5.0.7 nightly på CPU. Run i gränssnittet använder en annan äldre motor som inte körs här. Privat NAS-källa: screenA/20200202_6W-LaC024A, sequencing/images/input/c1, positionerna 0, 1, 10 och 11. Behörig åtkomst krävs; det är ingen offentlig testnedladdning och ger ingen rätt till vidare spridning. Varje uint16-TIFF har fem plan med 1480 × 1480 pixlar; DAPI ligger i plan noll. Den ursprungliga layouten med 333 positioner behålls. Återanvänd inte layout, överlapp eller gränser på en annan bildserie utan mätning. Välj en ny utdatamapp utanför originalen. Hela brunnen, segmentering, inpassning mellan cykler, avkodning och biologisk analys demonstreras inte.",
+  "lesson": "76_ops",
+  "english_sha256": "e01d6ab4d06f98d5235b4224d0d34f56b130816c1b19bd85f15fe7e94772fab3",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "OPS: från sekvenseringsbilder till cellstreckkoder",
+  "description": "Läs in OPS-testdata, välj bild- och avkodningsinställningar, kör analysen och hitta streckkodstilldelningarna i utdatabasen.",
+  "objectives": [
+    "Öppna OPS i Mask och läsa in exempelbilderna och streckkodsbiblioteket.",
+    "Välja in- och utdatamappar och förstå de viktigaste inställningarna för justering och avkodning.",
+    "Köra OPS och granska cellkärnornas streckkodstilldelningar i utdatabasen."
+  ],
+  "prerequisite": "Öppna spaCR. Använd Load test data i OPS för exemplets sekvenseringsbilder och guidebibliotek. För ditt eget experiment förbereder du TIFF-filer för sekvenseringscyklerna med deras insamlingsfilnamn och en matchande CSV-fil med streckkodsbiblioteket.",
   "scenes": [
-    "Optisk poolad screening börjar med bilder från angränsande fält och upprepade bildtagningscykler. Öppna Mask i spaCR för att hitta den nästlade OPS-sidan. Den här lektionen visar var den finns och ett litet, kontrollerat exempel på bildinpassning.",
-    "Använd OPS-reglaget i åtgärdsraden i Mask. Det öppnar en separat sida inuti värdmodulen. OPS är inte ytterligare en Home-panel och inte heller Map Barcodes-flödet för filer med sekvenseringsläsningar.",
-    "Den aktuella OPS-sidan har inställningar för indata, sammanfogning, mosaik, inpassning och kvalitetskontroll. Run-knappen använder en annan äldre motor. Vi startar den inte och hävdar inte att ett helt screeningflöde är validerat. Nästa steg använder geometri-API:erna direkt.",
-    "Detta CPU-exempel passar in och sätter samman fyra verkliga bildfält från en befintlig bildtagning. Det segmenterar inte celler, avkodar inte streckkoder och bearbetar inte en hel platta. Originalen ingår inte som testnedladdning; exakt upprepning kräver behörig åtkomst till filerna.",
-    "Välj positionerna noll, ett, tio och elva från den första bildcykeln. Varje originalfil har fem plan; plan noll innehåller kärnfärgningen. Behåll den ursprungliga layouten med trehundratrettiotre positioner och deras nummer. Fyra utvalda fält definierar inte en ny brunn med bara fyra fält.",
-    "Hjälpskriptet anropar stitch_well, kontrollerar de fyra angränsande överlappen och anropar sedan compose_window. Alla fyra fält placeras. Det sammansatta området är tvåtusensjuhundrafemtiosex pixlar på varje sida. I denna bildtagning sluts den geometriska slingan inom en kvarts pixel; det är ingen allmän noggrannhetsgaranti.",
-    "Lita inte enbart på placeringen. Jämför de faktiskt överlappande pixlarna oberoende av registreringspoängen. Här är korrelationerna efter inpassning mycket starkare än efter att medvetet förskjuta någon av axlarna sjutton pixlar. Sådana felplaceringskontroller hjälper till att hitta en rimlig men felaktig placering.",
-    "Granska bilden och täckningskartan som faktiskt sparats. Vänster panel visar den sammansatta kärnbilden; höger räknar bidragande bildfält. Noll täckning betyder att bildtagningspixlar saknas, inte biologisk bakgrund. Här kombineras rumsliga grannar i ett plan, aldrig olika sekvenseringscykler.",
-    "Spara array, täckning, placeringar, källfilernas kontrollsummor och körningsrapport tillsammans. Skriptet öppnar resultaten igen och bekräftar att alla fyra originalfiler är oförändrade. Detta är ett reproducerbart geometriskt kontrollsteg. En fullständig optisk screeninghandledning kräver fortfarande separat validering av senare steg."
+    "Från Home öppnar du Mask och slår sedan på OPS. Sidan tar emot bilder från sekvenseringscykler och tilldelar avkodade streckkoder till cellkärnor.",
+    "Klicka på Load test data. Exemplet innehåller två bildpositioner över elva sekvenseringscykler och ett matchande streckkodsbibliotek. När inläsningen är klar fyller spaCR i fälten för indata, bibliotek, platta och utdata.",
+    "Under OPS input kontrollerar du mappen med sekvenseringsbilder och CSV-filen med streckkodsbiblioteket. Välj en plats för resultaten. Exemplet skriver till mappen ops_output i det nedladdade projektet.",
+    "Lämna mappen för fenotypbilder tom i det här exemplet. När du har en matchande fenotypinsamling väljer du dess mapp här för att registrera hur dess synfält passar ihop med sekvenseringsbilderna.",
+    "Under OPS alignment väljer du modellen för kärnsegmentering. Diameter anger den förväntade kärnstorleken i pixlar. Raster overlap beskriver överlappet mellan intilliggande insamlade rutor; använd värdet från din insamling. Behåll exemplets inställningar i den här första körningen.",
+    "Window overlap styr hur mycket intilliggande segmenteringsfönster delar. Värdet ska vara större än den största kärnan så att objekt vid fönsterkanterna kan tas med hela. Att öka det förlänger bearbetningstiden.",
+    "Under OPS decoding anger du de fyra baskanalerna i ordningen G, T, A, C. Exemplet använder CY3, A594, CY5 och CY7. För dina egna bilder matchar du namnen mot kanalnamnen i TIFF-filnamnen.",
+    "Read threshold styr hur ljus en fläck måste vara för att räknas som en läsning. Höjer du den väljs starkare fläckar; sänker du den tas svagare fläckar och mer bakgrund med. Footprint styr hur långt utanför en kärna en läsning kan ligga och ändå bidra till dess streckkod.",
+    "Slå på Store reads om du vill granska de enskilda läsningarna senare. Det sparar en extra tabell och tar mer diskutrymme. Låt det vara avstängt för en kompakt första körning.",
+    "Kontrollera OPS performance och tryck sedan på Run. GPU aktiverar acceleration där den finns. Workers styr hur många synfält som avkodas samtidigt; sänk värdet om minnet är begränsat. Följ förloppet i Console.",
+    "När Console visar Finished öppnar du Help, sedan Database Browser, och väljer measurements.db i den valda utdatamappen. Bredvid har varje brunn en mapp, här A1, med dess OPS-rapport med avkodningssammanfattning och eventuella varningar.",
+    "Tabellen ops_barcodes ger varje kärna dess streckkod, läsningsstöd och matchade guide; ops_objects innehåller samma kärnidentifierare med deras bildkoordinater. Identifierarna är bron till resten av din screening: koppla streckkoderna till dina fenotypmätningar via dem och aggregera sedan för Regression. Håll ihop databasen, rapporterna och inställningarna."
   ]
 }

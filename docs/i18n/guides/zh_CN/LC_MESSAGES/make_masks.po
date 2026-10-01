@@ -1,0 +1,759 @@
+# spaCR user guide translation (zh_CN).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 21:19-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: zh_CN\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Make Masks: editing, detection and measurement"
+msgstr "创建掩膜：编辑、检测与测量"
+
+msgid "Open **Home → Tools → Make Masks** to inspect an image, correct its integer label mask and save the result. Each positive label identifies one object; zero is background. This screen can also propose objects with a detector, grow cell masks from existing nucleus masks, and organize curated images and masks for Measure with **Organize for Measure…**."
+msgstr "打开 **主页 → 工具 → 创建掩膜**，可检查图像、校正其整数标签掩膜并保存结果。每个正标签标识一个对象；零为背景。此屏幕还可以用检测器提出候选对象，根据现有的细胞核掩膜生长出细胞掩膜，并通过 **为 Measure 整理…** 为测量整理已校正的图像和掩膜。"
+
+msgid "For the inputs and outputs of the surrounding workflow, see :ref:`Make Masks in the module map <workflow-module-make_masks>` and the `Make Masks tutorial <tutorials/#lesson=14_make_masks>`_. The :doc:`screen API <api/spacr/qt/screens/make_masks/index>` documents the implementation and :mod:`spacr.qt.mask_engine` documents the editing routines."
+msgstr "关于上下游工作流程的输入和输出，请参阅 :ref:`模块图中的创建掩膜 <workflow-module-make_masks>` 和 `创建掩膜教程 <tutorials/#lesson=14_make_masks>`_。:doc:`屏幕 API <api/spacr/qt/screens/make_masks/index>` 记录了实现细节，:mod:`spacr.qt.mask_engine` 记录了编辑例程。"
+
+msgid "Hover a setting or its label to read the explanation and follow its API help link. Controls with a matching animation also offer an animation in that popup; each control remembers its own reveal state. Image-enhancement help links to the detection-chain documentation. A control without a matching animation still keeps its written explanation and API link."
+msgstr "将鼠标悬停在某个设置或其标签上，即可阅读说明并打开其 API 帮助链接。具有对应动画的控件还会在该弹出窗口中提供动画；每个控件会记住自己的显示状态。图像增强的帮助链接到检测链文档。没有对应动画的控件仍保留其文字说明和 API 链接。"
+
+msgid "Open a field and save an edit"
+msgstr "打开视野并保存编辑"
+
+msgid "Choose **Open folder…** and select the image folder. The ordinary layout keeps corresponding masks in its ``masks/`` subfolder. A saved TIFF mask uses the image's filename stem; a missing mask starts empty. The loader also supports the sibling masks layout and Cellpose ``_seg.npy`` bundles."
+msgstr "选择 **打开文件夹** 并选择图像文件夹。常规布局将对应的掩膜放在其 ``masks/`` 子文件夹中。保存的 TIFF 掩膜使用图像的文件名主干；缺少掩膜时从空掩膜开始。加载器还支持同级掩膜文件夹布局和 Cellpose ``_seg.npy`` 文件包。"
+
+msgid "Inspect the image and labels. Images and masks must have matching spatial dimensions. An ordinary colour image is converted to grayscale; prepare the intended channel as a separate image when channel identity matters."
+msgstr "检查图像和标签。图像与掩膜的空间尺寸必须一致。普通彩色图像会被转换为灰度；当通道标识很重要时，请将目标通道准备为单独的图像。"
+
+msgid "Correct an object with a tool, or choose a detection method and inspect its preview before accepting objects. **Undo** and **Redo** apply to mask edits."
+msgstr "使用工具校正对象，或选择一种检测方法并在接受对象之前检查其预览。**撤销** 和 **重做** 适用于掩膜编辑。"
+
+msgid "Press **Save mask** or **Ctrl+S** before moving to another field. Saving writes a ``uint16`` label TIFF in the ordinary layout; a Cellpose bundle is updated as a bundle. The source image is preserved."
+msgstr "切换到另一个视野之前，请按 **保存掩膜** 或 **Ctrl+S**。保存会在常规布局中写入一个 ``uint16`` 标签 TIFF；Cellpose 文件包会作为文件包更新。源图像保持不变。"
+
+msgid "Use **Keep** or **Discard** to record a field-level curation verdict and advance. These verdicts go to ``csv/keep_discard.csv``; Discard records a decision without deleting the image or its mask. Save edits separately."
+msgstr "使用 **保留** 或 **放弃** 记录视野级的整理结论并前进到下一个视野。这些结论写入 ``csv/keep_discard.csv``；放弃只记录决定，不会删除图像或其掩膜。编辑需要单独保存。"
+
+msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on."
+msgstr "如需在没有自己数据的情况下试用此屏幕，**加载测试数据...** 会下载十个未分割的弓形虫纳虫泡视野（其整理后的掩膜单独保存在 ``ground_truth_masks/`` 中），并打开第一个视野。同一按钮上的箭头可打开每个已发布模型所用训练数据集中的视野样本。"
+
+msgid "Drop images and folders"
+msgstr "拖放图像和文件夹"
+
+msgid "You can also drop files and folders onto the screen. Make Masks works out what the drop is:"
+msgstr "您也可以将文件和文件夹拖放到屏幕上。创建掩膜会判断拖放的内容："
+
+msgid "images are queued in the order dropped; one folder of images opens as a folder;"
+msgstr "图像按拖放顺序排队；包含图像的单个文件夹作为文件夹打开；"
+
+msgid "images dropped together with their masks open with those masks. A ``masks`` folder is used as it is; other mask files are copied, after a question, to ``masks/<image stem>.tif`` beside their images, keeping any mask already there;"
+msgstr "与其掩膜一起拖放的图像会连同这些掩膜一起打开。``masks`` 文件夹按原样使用；其他掩膜文件在询问后会被复制到其图像旁的 ``masks/<image stem>.tif``，已存在的掩膜会被保留；"
+
+msgid "images kept in subfolders prompt an offer to consolidate them: their images are copied into one folder, each renamed with its folder path so no name is lost, and a ``rename_manifest.csv`` records the original names;"
+msgstr "位于子文件夹中的图像会触发合并提议：其图像会被复制到一个文件夹中，每个文件以其文件夹路径重命名以免丢失名称，并由 ``rename_manifest.csv`` 记录原始名称；"
+
+msgid "subfolders named like channels (DAPI, GFP, ``ch1``, ``C01``…), or several image folders, open **Organize for Measure** with a channel column per folder. Cancelling it opens the drop as an ordinary folder;"
+msgstr "以通道命名的子文件夹（DAPI、GFP、``ch1``、``C01``…）或多个图像文件夹会打开 **为 Measure 整理**，每个文件夹对应一个通道列。取消后，拖放内容会作为普通文件夹打开；"
+
+msgid "a spaCR output folder, such as ``merged/`` or ``sorted_channels``, opens its images."
+msgstr "spaCR 输出文件夹（例如 ``merged/`` 或 ``sorted_channels``）会打开其中的图像。"
+
+msgid "Anything not used is listed in the console with the reason."
+msgstr "未被使用的内容都会连同原因列在控制台中。"
+
+msgid "A saved edit history is stored beside the mask as ``<mask>.curation.json``. Opening an image without editing it does not create evidence of manual curation. Existing history is retained when editing a previously curated mask. See :func:`spacr.qt.mask_engine.save_mask` and :class:`spacr.curation.CurationLog` for the file contract."
+msgstr "保存的编辑历史存储在掩膜旁的 ``<mask>.curation.json`` 中。只打开图像而不编辑不会产生手动整理的记录。编辑先前整理过的掩膜时，已有历史会被保留。文件约定请参阅 :func:`spacr.qt.mask_engine.save_mask` 和 :class:`spacr.curation.CurationLog`。"
+
+msgid "The saved format has at most 65,535 positive labels. Saving refuses a binary mask with more connected objects, or an existing multi-label mask whose IDs exceed that range; it does not wrap oversized IDs into smaller numbers. A refused save preserves an existing TIFF or Cellpose bundle and its metadata. In ordinary mode, a mask with one foreground value is interpreted as binary and its connected components receive separate IDs. For primary/secondary relationships, use the exact-ID path described below. See :func:`spacr.qt.mask_engine.canonical_labels` for these distinct conventions."
+msgstr "保存格式最多支持 65,535 个正标签。对于连通对象更多的二值掩膜，或 ID 超出该范围的现有多标签掩膜，保存会被拒绝；它不会把过大的 ID 回绕成较小的数字。被拒绝的保存会保留现有的 TIFF 或 Cellpose 文件包及其元数据。在常规模式下，只有一个前景值的掩膜会被解释为二值掩膜，其连通分量会分别获得 ID。对于初级/次级关系，请使用下文所述的精确 ID 路径。关于这些不同的约定，请参阅 :func:`spacr.qt.mask_engine.canonical_labels`。"
+
+msgid "Canvas tools and navigation"
+msgstr "画布工具与导航"
+
+msgid "Tool"
+msgstr "工具"
+
+msgid "Action"
+msgstr "操作"
+
+msgid "Brush"
+msgstr "画笔"
+
+msgid "Paint disks along the pointer path using the active label."
+msgstr "使用当前标签沿指针路径绘制圆盘。"
+
+msgid "Erase"
+msgstr "橡皮擦"
+
+msgid "Remove pixels under the brush."
+msgstr "移除画笔下的像素。"
+
+msgid "Erase object"
+msgstr "Erase object"
+
+msgid "Remove the complete label clicked."
+msgstr "移除单击的整个标签。"
+
+msgid "Wand + / Wand −"
+msgstr "Wand + / Wand −"
+
+msgid "Flood from the clicked pixel within the chosen intensity tolerance; add or remove the resulting region."
+msgstr "从单击的像素开始，在所选强度容差内进行漫水填充；添加或移除所得区域。"
+
+msgid "Draw"
+msgstr "Draw"
+
+msgid "Trace an outline and fill its interior as one object."
+msgstr "描绘一个轮廓，并将其内部填充为一个对象。"
+
+msgid "Divide"
+msgstr "Divide"
+
+msgid "Draw a cut through a merged object. The larger component retains its ID; the smaller receives a new ID."
+msgstr "在合并的对象上画一条切割线。较大的部分保留其 ID；较小的部分获得新 ID。"
+
+msgid "Zoom"
+msgstr "缩放"
+
+msgid "Drag a rectangle to change the view without changing labels."
+msgstr "拖出一个矩形以改变视图，而不改变标签。"
+
+msgid "Recrop"
+msgstr "Recrop"
+
+msgid "Write a cropped image/mask pair as another field, then retire the original when leaving the field after recropping."
+msgstr "将裁剪后的图像/掩膜对写为另一个视野，然后在重新裁剪后离开该视野时将原视野移出。"
+
+msgid "Ruler"
+msgstr "标尺"
+
+msgid "Drag a line to measure image-pixel distance. Right-click with Ruler selected to clear it. Zooming and panning preserve the measurement."
+msgstr "拖出一条线以测量图像像素距离。选中标尺时右键单击可清除它。缩放和平移会保留该测量。"
+
+msgid "**Shift or Alt + drag** pans. The wheel zooms about the cursor; **Esc** resets zoom. **Left/Right** selects the previous/next field. **Ctrl+Z/Ctrl+Y** undoes or redoes an edit. **Ctrl + left click** splits an object at its waist; **Ctrl + right click** removes the object under the cursor. The shortcut panel beside the view lists the current gestures, including magnifier controls."
+msgstr "**Shift 或 Alt + 拖动** 用于平移。滚轮以光标为中心缩放；**Esc** 重置缩放。**Left/Right** 选择上一个/下一个视野。**Ctrl+Z/Ctrl+Y** 撤销或重做编辑。**Ctrl + 左键单击** 在对象的最窄处将其分开；**Ctrl + 右键单击** 移除光标下的对象。视图旁的快捷键面板列出当前的手势，包括放大镜控件。"
+
+msgid "Recrop creates files and changes the field queue. Objects cut by a crop's boundary are omitted, and retained objects are renumbered within the new crop. Very small crops and near-duplicates are refused. Completed originals move into ``recropped_originals/``. Use the original image and mask when maintaining primary/secondary IDs across the full field; a renumbered crop is a different pairing context. The precise limits and paths are documented by :func:`spacr.qt.mask_engine.write_recrop`."
+msgstr "Recrop 会创建文件并更改视野队列。被裁剪边界切到的对象会被省略，保留的对象会在新裁剪图内重新编号。过小的裁剪和几乎重复的裁剪会被拒绝。处理完成的原图会移入 ``recropped_originals/``。在整个视野范围内维护初级/次级 ID 时，请使用原始图像和掩膜；重新编号的裁剪图是另一种配对上下文。确切的限制和路径记录在 :func:`spacr.qt.mask_engine.write_recrop` 中。"
+
+msgid "Wand tolerance and leaking regions"
+msgstr "Wand 容差与泄漏区域"
+
+msgid "The Wand's relative tolerance is a fraction of the image intensity range; absolute tolerance uses the processed image's intensity units. The optional runaway detector looks for sudden widening as the flood leaves the clicked object. **Growth ratio**, **Warm-up**, **Min baseline** and **Confirmation** control how much widening is required, where checking begins, the minimum object width and how long widening must persist."
+msgstr "Wand 的相对容差是图像强度范围的一个比例；绝对容差使用处理后图像的强度单位。可选的失控检测器会在漫水离开单击的对象时查找突然的变宽。**生长比例**、**Warm-up**、**Min baseline** 和 **Confirmation** 控制需要多大程度的变宽、从何处开始检查、对象的最小宽度，以及变宽必须持续多久。"
+
+msgid "**Re-flood below the escape** searches for a lower tolerance whose region stays inside the object. **Search steps** controls that search's precision. **Taper onto the gradient** refines a provisional cut using the intensity boundary; smoothing, transition-band width and foreground inset determine where the edge may move. These controls help with a bright object connected to another region by a weak bridge; inspect the resulting edge when the bridge and object have similar intensity."
+msgstr "**在溢出水位以下重新注水** 会搜索一个较低的容差，使其区域保持在对象内部。**搜索步数** 控制该搜索的精度。**渐变过渡到梯度** 使用强度边界细化临时的切割；平滑程度、过渡带宽度和前景内缩决定边缘可以移动到哪里。当一个明亮对象通过一座微弱的桥与另一个区域相连时，这些控件会有所帮助；当桥与对象强度相近时，请检查所得的边缘。"
+
+msgid "The Wand uses the currently applied image enhancement. If enhancement is still being calculated, wait for its completion before trying the click again. Post-detection morphology and splitting belong to detector output, not to the manual Wand gesture."
+msgstr "Wand 使用当前已应用的图像增强。如果增强仍在计算中，请等待其完成后再重新单击。检测后的形态学处理和分割属于检测器输出，而不属于手动的 Wand 手势。"
+
+msgid "Display, Levels and intensity units"
+msgstr "显示、色阶与强度单位"
+
+msgid "**Lower %** and **Upper %** set the percentiles drawn as black and white. **Levels…** opens a full-field histogram: drag either marker or enter a black/white intensity cutoff. Changes update the percentile controls. A constant-intensity image has no range to stretch. **Reset levels** uses the full range, 0–100 percentiles."
+msgstr "**下限 %** 和 **上限百分位 %** 设置绘制为黑色和白色的百分位。**色阶…** 打开整个视野的直方图：拖动任一标记，或输入黑/白强度截止值。更改会更新百分位控件。强度恒定的图像没有可拉伸的范围。**重置色阶** 使用完整范围，即 0–100 百分位。"
+
+msgid "With **Detect on the normalized image** off, these levels affect display. With it on, detectors use the stretched image before any applied enhancement. The normalization is computed for the whole field before extracting a magnifier crop, so moving the magnifier does not redefine the percentile levels. The setting changes future proposals; it does not modify existing labels or rewrite the loaded image."
+msgstr "关闭 **在归一化图像上检测** 时，这些色阶只影响显示。开启时，检测器会在任何已应用的增强之前使用拉伸后的图像。归一化在提取放大镜裁剪区域之前针对整个视野计算，因此移动放大镜不会重新定义百分位水平。该设置会改变之后的建议；它不会修改现有标签，也不会改写已加载的图像。"
+
+msgid "**Invert image** affects both the picture and detector input. It normalizes the field to 0–1 and takes its complement, so an absolute detection threshold must be interpreted on that scale. The pixel value in the corner readout follows inversion and detection normalization; object mean intensity and the **Filter** intensity bounds use the original loaded values. Changing contrast or inversion therefore does not change the meaning of a measured object's original mean intensity."
+msgstr "**反相图像** 同时影响图片和检测器输入。它将视野归一化到 0–1 并取其补值，因此绝对检测阈值必须在该尺度上理解。角落读数中的像素值会跟随反相和检测归一化；对象平均强度和 **过滤器** 的强度范围使用最初加载的值。因此，更改对比度或反相不会改变已测量对象原始平均强度的含义。"
+
+msgid "**Swap object and background**, under Object operations, changes the label mask. Use it only when that label transformation is intended; it does not perform image inversion."
+msgstr "对象操作下的 **交换对象和背景** 会改变标签掩膜。仅当确实需要这种标签变换时才使用它；它并不执行图像反相。"
+
+msgid "Choose a detection method"
+msgstr "选择检测方法"
+
+msgid "The method selector controls the detector used by the live preview and the corresponding whole-image detection action. Only applicable method controls are shown. Model methods require their model or backend; the Model Zoo indicates installation and download state."
+msgstr "方法选择器控制实时预览以及相应的整图检测操作所使用的检测器。只显示适用的方法控件。模型方法需要其模型或后端；模型库会显示安装和下载状态。"
+
+msgid "The **Object detection** toolbar action runs model loading, inference and postprocessing in a worker so the window remains responsive. It captures the current input and settings when started. If you switch fields or change the image or mask before it finishes, the result is discarded; run detection again on the intended field. Closing the window does not wait for that result. The Python method :meth:`spacr.qt.screens.make_masks.MakeMasksScreen.run_cellpose` remains synchronous and returns zero if another detection is already running."
+msgstr "工具栏操作 **对象检测** 在工作线程中运行模型加载、推理和后处理，以使窗口保持响应。它在启动时捕获当前的输入和设置。如果在其完成之前切换视野或更改图像或掩膜，结果会被丢弃；请在目标视野上重新运行检测。关闭窗口不会等待该结果。Python 方法 :meth:`spacr.qt.screens.make_masks.MakeMasksScreen.run_cellpose` 仍为同步方法，如果已有另一个检测正在运行，则返回零。"
+
+msgid "CPU Cellpose inference uses float32 weights through the shared device policy. Supported GPU precision depends on the backend and device. Different precision can produce different predictions, so inspect the masks instead of assuming identical output across devices. This inference policy does not change training precision. See :func:`spacr.accelerator.cellpose_kwargs`. Live Cellpose previews also use float32 when explicitly forced to CPU or when accelerator detection falls back to CPU. A Cellpose 3 checkpoint rejected by Cellpose 4 produces a preview-specific compatibility message; choose a checkpoint supported by the installed preview runtime. See :func:`spacr.qt.widgets.preview_contract.preview_cellpose_model`."
+msgstr "CPU 上的 Cellpose 推理通过共享的设备策略使用 float32 权重。GPU 上支持的精度取决于后端和设备。不同精度可能产生不同的预测，因此请检查掩膜，而不要假定不同设备上的输出完全相同。此推理策略不会改变训练精度。参见 :func:`spacr.accelerator.cellpose_kwargs`。当被显式强制使用 CPU 或加速器检测回退到 CPU 时，实时 Cellpose 预览也使用 float32。被 Cellpose 4 拒绝的 Cellpose 3 检查点会产生预览专用的兼容性消息；请选择所安装的预览运行时支持的检查点。参见 :func:`spacr.qt.widgets.preview_contract.preview_cellpose_model`。"
+
+msgid "Method"
+msgstr "方法"
+
+msgid "What to inspect and adjust"
+msgstr "检查和调整的内容"
+
+msgid "Otsu"
+msgstr "Otsu（大津法）"
+
+msgid "A global threshold for foreground/background populations. Adjust correction, blur, bright/dark foreground, hole filling, touching-object splitting, border exclusion and minimum area. Local Otsu is an additional option for whole-image detection."
+msgstr "针对前景/背景群体的全局阈值。可调整校正、模糊、亮/暗前景、孔洞填充、接触对象分离、边界排除和最小面积。局部 Otsu 是整图检测的附加选项。"
+
+msgid "Li, Yen, Triangle, IsoData, Mean, Minimum"
+msgstr "Li, Yen, Triangle, IsoData, Mean, Minimum"
+
+msgid "Alternative global levels with the shared threshold cleanup controls. Minimum can refuse a histogram without two separable peaks. An algorithm name alone does not establish accuracy on a new image."
+msgstr "使用共享阈值清理控件的其他全局水平。Minimum 可能会拒绝没有两个可分离峰的直方图。仅凭算法名称并不能确定其在新图像上的准确性。"
+
+msgid "Multi-Otsu"
+msgstr "多级 Otsu 阈值法"
+
+msgid "Choose the number of intensity classes and the foreground band."
+msgstr "选择强度类别数和前景区间。"
+
+msgid "Sauvola, Niblack"
+msgstr "Sauvola, Niblack"
+
+msgid "Local-window statistics with window size and contrast weight ``k``. Niblack uses ``mean - k*standard_deviation``. Sauvola uses a default ``R=1`` on float input without rescaling its range; check the detector input scale when transferring settings."
+msgstr "基于局部窗口统计，参数为窗口大小和对比度权重 ``k``。Niblack 使用 ``mean - k*standard_deviation``。Sauvola 在浮点输入上使用默认值 ``R=1``，且不会重新缩放其范围；迁移设置时请检查检测器输入的尺度。"
+
+msgid "Maxima + propagate"
+msgstr "极大值 + 传播"
+
+msgid "Find bright centres after Gaussian blur, then grow watershed basins using intensity and a stop rule. Centre spacing and seed level govern proposed seeds; a seed can disappear during subsequent filtering."
+msgstr "在高斯模糊后查找明亮的中心，然后利用强度和停止规则生长分水岭盆地。中心间距和种子水平决定建议的种子；种子可能在后续过滤中消失。"
+
+msgid "Secondary objects from primary masks"
+msgstr "从初级掩膜生成次级对象"
+
+msgid "Grow from every pixel of each labelled primary object while retaining its ID. See the pairing walkthrough below."
+msgstr "从每个已标记初级对象的每个像素开始生长，并保留其 ID。请参阅下方的配对说明。"
+
+msgid "Adaptive threshold"
+msgstr "自适应阈值"
+
+msgid "Local Gaussian-weighted threshold, offset and morphological cleanup through the irregular-organelle engine."
+msgstr "通过不规则细胞器引擎进行局部高斯加权阈值、偏移和形态学清理。"
+
+msgid "LoG blobs, DoG blobs"
+msgstr "LoG blobs, DoG blobs"
+
+msgid "Spot detection over Gaussian scales. Inspect scale range, response threshold and whether spots grow by watershed rather than disk stamps."
+msgstr "在多个高斯尺度上进行斑点检测。请检查尺度范围、响应阈值，以及斑点是通过分水岭生长还是以圆盘盖印。"
+
+msgid "Ridge filter"
+msgstr "脊线滤波器"
+
+msgid "Frangi, Sato or Meijering response for network-like structures; select response scales and global or adaptive response threshold."
+msgstr "针对网状结构的 Frangi、Sato 或 Meijering 响应；选择响应尺度以及全局或自适应响应阈值。"
+
+msgid "Hysteresis"
+msgstr "滞后阈值"
+
+msgid "Grow from strong response through connected weaker response. Values below 1 are interpreted as percentile fractions by this engine."
+msgstr "从强响应开始，经由相连的较弱响应生长。该引擎将小于 1 的值解释为百分位比例。"
+
+msgid "U-Net"
+msgstr "U-Net"
+
+msgid "Load a compatible ``.pt``/``.pth`` checkpoint and choose its sigmoid probability cutoff; optional skeletonization applies to the result."
+msgstr "加载兼容的 ``.pt``/``.pth`` 检查点，并选择其 sigmoid 概率截止值；可选的骨架化应用于结果。"
+
+msgid "Cellpose and other installed backends"
+msgstr "Cellpose 及其他已安装的后端"
+
+msgid "Use the corresponding model controls. Cellpose exposes diameter, flow-error threshold, cell-probability threshold and normalization. Inspect its cell-probability and flow panes alongside accepted labels."
+msgstr "使用相应的模型控件。Cellpose 提供直径、流场误差阈值、细胞概率阈值和归一化。请将其细胞概率窗格和流场窗格与已接受的标签一起检查。"
+
+msgid "Ordinary Otsu retains a legacy magnifier preprocessing path. Its cropped preview and whole-field detection are not guaranteed to be pixel-identical. Other threshold modes run the shared engine on the requested crop; a crop can still have a different histogram from the whole field. Tune on several representative fields and inspect the final whole-image output."
+msgstr "普通 Otsu 保留了一条旧版的放大镜预处理路径。其裁剪预览与整个视野的检测结果不保证逐像素一致。其他阈值模式在所请求的裁剪区域上运行共享引擎；裁剪区域的直方图仍可能与整个视野不同。请在多个具有代表性的视野上进行调整，并检查最终的整图输出。"
+
+msgid "Enhancement before and after detection"
+msgstr "检测前后的增强"
+
+msgid "**Compare** previews the configured enhancement; **Apply** enables it for detection and display. The order is percentile stretch, background subtraction, optional point-spread processing, optional restoration, denoise, contrast, sharpen, detection, morphology, then split. Disabled steps leave their input unchanged. Background estimation radius should exceed the structures you want to retain. Denoising and the separate Maxima/secondary blur can compound, so check both settings."
+msgstr "**比较** 预览所配置的增强；**应用** 将其启用于检测和显示。顺序为：百分位拉伸、背景扣除、可选的点扩散处理、可选的恢复、降噪、对比度、锐化、检测、形态学处理，然后是分割。禁用的步骤保持其输入不变。背景估计半径应大于您希望保留的结构。降噪与单独的 Maxima/次级模糊可能叠加，因此请检查这两项设置。"
+
+msgid "Compare opens with a pending result while enhancement runs. Wait for the right-hand image before judging the effect. Normalization uses the whole field before extracting the displayed crop. If you change the field or settings, open a new comparison for that selection. **Cancel** closes the comparison; an enhancement already running finishes in the background and its abandoned result is discarded."
+msgstr "增强运行时，比较会以待定结果打开。请等右侧图像出现后再判断效果。归一化在提取显示的裁剪区域之前使用整个视野。如果更改了视野或设置，请为该选择打开新的比较。**取消** 会关闭比较；已在运行的增强会在后台完成，其被放弃的结果会被丢弃。"
+
+msgid "Post-detection opening/closing and splitting modify label shapes. These steps are bypassed for paired secondary objects to retain primary IDs. Make Masks enhancement is configured separately from the batch Mask pipeline; transfer the intended preprocessing explicitly when training or running a model elsewhere. See :mod:`spacr.qt.detect_chain`."
+msgstr "检测后的开运算/闭运算和分割会修改标签形状。对于配对的次级对象，这些步骤会被跳过，以保留初级 ID。创建掩膜的增强与批量掩膜流程分开配置；在其他地方训练或运行模型时，请显式迁移所需的预处理。参见 :mod:`spacr.qt.detect_chain`。"
+
+msgid "For calibrated optical processing, choose **Convolve (blur)** or **Deconvolve (Richardson–Lucy)** under **Point spread function**. Enter the image pixel height and width in micrometres, then choose a measured TIFF/NPY kernel with matching spacing or a Gaussian approximation with explicit Y/X full widths at half maximum. Use **Reload** after changing a kernel file. Compare the result before applying it; more deconvolution iterations can amplify noise. The original image intensities stay available for measurement. See :doc:`point_spread` for the complete workflow and Measure settings."
+msgstr "如需进行校准的光学处理，请在 **点扩散函数** 下选择 **Convolve (blur)** 或 **Deconvolve (Richardson–Lucy)**。输入以微米为单位的图像像素高度和宽度，然后选择间距匹配的实测 TIFF/NPY 卷积核，或具有显式 Y/X 半高全宽的高斯近似。更改卷积核文件后请使用 **重新加载**。应用之前请先比较结果；反卷积迭代次数越多，噪声可能被放大得越厉害。原始图像强度仍可用于测量。完整的工作流程和测量设置请参阅 :doc:`point_spread`。"
+
+msgid "Restore an image with Cellpose 3"
+msgstr "使用 Cellpose 3 恢复图像"
+
+msgid "Under **Image enhancement**, choose **Denoise**, **Deblur**, or **One-click restoration** in **Deep image enhancement**. The default is **Off**. If needed, select **Install Cellpose 3…** to install its separate backend environment; this does not replace spaCR's own Cellpose installation. First use may download the selected model's weights."
+msgstr "在 **图像增强** 下，于 **深度学习图像增强** 中选择 **降噪**、**去模糊** 或 **一键恢复**。默认为 **关闭**。如有需要，请选择 **安装 Cellpose 3…** 以安装其独立的后端环境；这不会替换 spaCR 自身的 Cellpose 安装。首次使用时可能会下载所选模型的权重。"
+
+msgid "Open **Restoration model settings** and choose **Cells (cyto3)**, **Cells (cyto2)**, or **Nuclei**, according to the structures in the selected intensity channel. Set their approximate diameter in pixels. This controls model rescaling, not microscope calibration. **Load / retry model** reloads the current choice. Wait for the ready message before comparing or applying it; that message identifies the device used by the isolated backend."
+msgstr "打开 **Restoration model settings**，并根据所选强度通道中的结构选择 **细胞 (cyto3)**、**细胞 (cyto2)** 或 **细胞核**。以像素为单位设置其大致直径。这控制的是模型的重新缩放，而不是显微镜校准。**加载模型 / 重试** 会重新加载当前的选择。在比较或应用之前，请等待就绪消息；该消息会指明隔离后端所使用的设备。"
+
+msgid "Loading and restoration run in the background. On a CPU, a whole field can take tens of seconds; a small magnifier region is quicker. Timing depends on the image, model and computer. A backend installed with supported GPU acceleration can use it, but the workflow also runs on a CPU."
+msgstr "加载和恢复在后台运行。在 CPU 上，整个视野可能需要数十秒；放大镜中的小区域会更快。耗时取决于图像、模型和计算机。安装了受支持 GPU 加速的后端可以使用 GPU，但该工作流程也可在 CPU 上运行。"
+
+msgid "Use **Compare** to inspect several representative regions before choosing **Apply**. Restoration follows background and PSF processing and precedes classical denoising and contrast adjustments. Apply feeds the restored floating-point intensities to detection and the Wand while keeping display scaling separate. The image dimensions and loaded source pixels stay unchanged; upsampling models are not offered here."
+msgstr "在选择 **应用** 之前，请使用 **比较** 检查几个具有代表性的区域。恢复位于背景和 PSF 处理之后，经典降噪和对比度调整之前。应用会将恢复后的浮点强度提供给检测和 Wand，同时保持显示缩放独立。图像尺寸和已加载的源像素保持不变；此处不提供上采样模型。"
+
+msgid "Restored values are normalized model output, not calibrated fluorescence; they can be negative or exceed one. Measurements retain the original intensities. A clearer-looking image does not establish recovered structure or more accurate masks, and these weights are not validated for every organelle or acquisition. Inspect the resulting masks as well as the image. Keep the saved enhancement record with the masks: it identifies the model, Cellpose version, checkpoint hash, device, diameter and processing settings. CARE and Noise2Void are not supplied as ready restoration engines."
+msgstr "恢复后的值是归一化的模型输出，而不是经过校准的荧光；它们可能为负或大于一。测量保留原始强度。看起来更清晰的图像并不能证明恢复了真实结构或得到了更准确的掩膜，而且这些权重并未针对每种细胞器或采集方式进行验证。请同时检查所得的掩膜和图像。请将保存的增强记录与掩膜一起保存：它标明了模型、Cellpose 版本、检查点哈希、设备、直径和处理设置。CARE 和 Noise2Void 未作为现成的恢复引擎提供。"
+
+msgid "Grow secondary objects from a primary mask"
+msgstr "从初级掩膜生长次级对象"
+
+msgid "Open the image channel in which the secondary objects should grow, such as a cell channel, then select **Secondary objects from primary masks**."
+msgstr "打开次级对象应在其中生长的图像通道（例如细胞通道），然后选择 **从初级掩膜生成次级对象**。"
+
+msgid "Choose different **Primary object class** and **Secondary object class** values, for example Nucleus and Cell. Custom class names can be entered."
+msgstr "为 **初级对象类别** 和 **次级对象类别** 选择不同的值，例如 Nucleus 和 Cell。也可以输入自定义的类别名称。"
+
+msgid "Use **File…** for a primary label mask belonging to this field, or **Folder…** for masks matched to successive image filename stems. An explicitly selected file is bound to the current field; it is not reused silently when moving to another image."
+msgstr "使用 **文件...** 选择属于此视野的初级标签掩膜，或使用 **文件夹…** 选择按连续图像文件名主干匹配的掩膜。显式选择的文件绑定到当前视野；切换到另一张图像时，它不会被悄悄重用。"
+
+msgid "Wait for the primary-object count. The primary mask must match the image's height and width and contain valid nonnegative integer IDs within ``uint16`` capacity. Its path must differ from the editable output mask, including aliases. Primary data are read-only."
+msgstr "等待初级对象计数。初级掩膜必须与图像的高度和宽度一致，并且包含在 ``uint16`` 容量范围内的有效非负整数 ID。其路径（包括别名）必须不同于可编辑的输出掩膜。初级数据是只读的。"
+
+msgid "Choose **Intensity watershed** or **Distance watershed** under Growth. Intensity follows the negative blurred image; Distance floods a flat surface outward from primary pixels. Both retain the primary labels."
+msgstr "在生长下选择 **强度分水岭** 或 **距离分水岭**。强度沿着模糊图像的负值进行；距离则从初级像素向外漫过一个平坦的表面。两者都会保留初级标签。"
+
+msgid "Select a stop rule and inspect the preview. A global threshold is the screen's initial secondary setting. It is useful when primary objects, such as nuclei, are dark in the secondary channel. The separate Maxima mode starts with a fraction-of-peak rule."
+msgstr "选择一条停止规则并检查预览。全局阈值是此屏幕中次级对象的初始设置。当初级对象（例如细胞核）在次级通道中较暗时，它很有用。单独的 Maxima 模式以峰值比例规则开始。"
+
+msgid "Use whole-image **Replace** when starting a new paired output. Adding to an unrelated existing mask is refused even if some numeric IDs happen to match. Clear the existing objects or replace the whole image first."
+msgstr "开始新的配对输出时，请使用整图 **替换**。向无关的现有掩膜中添加会被拒绝，即使某些数字 ID 恰好匹配。请先清除现有对象或替换整张图像。"
+
+msgid "Inspect relationship diagnostics, correct errors and save. A source changed after loading or an output path that would overwrite a primary source is refused; reload the source and inspect a new preview."
+msgstr "检查关系诊断，校正错误并保存。加载后被更改的来源，或会覆盖初级来源的输出路径，都会被拒绝；请重新加载来源并检查新的预览。"
+
+msgid "The four stop rules are **Fraction of the primary object's peak**, **A threshold algorithm's level**, **Absolute intensity** and **Percentile of the image**. Common threshold, absolute and percentile rules constrain four-connected growth paths. Fraction-of-peak trims each basin after growth; it does not constrain those paths during the flood. The fraction is a ratio of intensity, not an image quantile. Neither Growth option implements CellProfiler's Propagation algorithm."
+msgstr "四种停止规则为 **初级对象峰值的比例**、**阈值算法给出的水平**、**绝对强度** 和 **图像的百分位**。常见的阈值、绝对值和百分位规则会约束四连通的生长路径。峰值比例在生长后修剪每个盆地；它不会在漫水过程中约束这些路径。该比例是强度之比，而不是图像分位数。两种生长选项都没有实现 CellProfiler 的 Propagation 算法。"
+
+msgid "**Matched** reports IDs present in both masks; **Missing secondary** identifies primaries without a secondary label; **No primary** identifies secondary IDs without a primary; **Primary not enclosed** identifies matched secondary labels that do not fully contain their primary pixels. **Not expanded** identifies matched labels that have not grown beyond their own primary. These are relationship checks, not a claim that the cell boundary is biologically correct. Do not use consecutive relabeling to repair a pairing: it changes the association. In this mode, clicking accepts objects and dragging does not merge distinct primary IDs."
+msgstr "**已匹配** 报告同时存在于两个掩膜中的 ID；**缺少次级对象** 标识没有次级标签的初级对象；**无初级对象** 标识没有初级对象的次级 ID；**初级对象未被包含** 标识未完全包含其初级像素的已匹配次级标签。**未扩展** 标识尚未生长到其自身初级对象之外的已匹配标签。这些是关系检查，而不是声称细胞边界在生物学上正确。不要使用连续重新编号来修复配对：它会改变对应关系。在此模式下，单击会接受对象，拖动不会合并不同的初级 ID。"
+
+msgid "See :func:`spacr.qt.mask_engine.secondary_object_instances`, :class:`spacr.qt.secondary_masks.PrimaryMaskSource` and :class:`spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector` for label, source and diagnostic contracts."
+msgstr "关于标签、来源和诊断约定，请参阅 :func:`spacr.qt.mask_engine.secondary_object_instances`、:class:`spacr.qt.secondary_masks.PrimaryMaskSource` 和 :class:`spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector`。"
+
+msgid "Live magnifier, filtering and measurement"
+msgstr "实时放大镜、过滤与测量"
+
+msgid "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before accepting its objects."
+msgstr "切换 **放大镜** 或按 **M**，可检查指针周围的候选对象。其滚轮改变框的缩放；**Shift + wheel** 改变框的大小。**Ctrl+L+右键单击** 锁定或解锁该框。请等待正在更新的预览完成后再接受其对象。"
+
+msgid "**Objects added** selects every object in the zoom area or only objects under the mouse. In ordinary modes, dragging can join encountered pieces into one object. Whole-image preview accepts objects under the pointer; secondary mode preserves primary identities instead of joining them."
+msgstr "**添加的对象** 选择缩放区域内的所有对象，或仅选择鼠标下的对象。在常规模式下，拖动可以将经过的碎片连接成一个对象。整图预览接受指针下的对象；次级模式会保留初级标识，而不是将它们连接起来。"
+
+msgid "The corner readout identifies the pixel and object under the cursor. The **Filter** category starts empty: choose a property and **Add a filter** to add a row with a minimum and a maximum. Every scalar :func:`skimage.measure.regionprops` property is offered, such as area, eccentricity or solidity; intensity statistics are offered only while an intensity image is open and use the original loaded values. A blank bound is off. The list applies as you edit it and when a field opens; the log below it names each hidden object and the bound that hid it, and removing a row brings back what it hid. The same list is the ``object_filters`` setting of Mask generation. See :func:`spacr.qt.mask_engine.filter_properties`. Object operations also offer hole filling, dilation, shrinking, relabeling and clearing; shrinking can remove thin or small objects entirely."
+msgstr "角落读数标识光标下的像素和对象。**过滤器** 类别起初为空：选择一个属性并使用 **添加过滤器** 添加一行，其中包含最小值和最大值。提供所有标量 :func:`skimage.measure.regionprops` 属性，例如面积、偏心率或实心度；强度统计仅在打开强度图像时提供，并使用最初加载的值。空白边界表示不限制。列表在您编辑时以及打开视野时生效；其下方的日志会列出每个被隐藏的对象以及隐藏它的边界，删除一行会恢复该行隐藏的内容。同一个列表就是掩膜生成的 ``object_filters`` 设置。参见 :func:`spacr.qt.mask_engine.filter_properties`。对象操作还提供孔洞填充、膨胀、收缩、重新编号和清除；收缩可能会完全移除细小的对象。"
+
+msgid "Organize images and masks for Measure"
+msgstr "为测量整理图像和掩膜"
+
+msgid "A folder of images and standalone TIFF masks is not itself a Measure dataset. **Organize for Measure…** arranges it into the layout Measure reads. Fill its table in any of three ways, each on its own:"
+msgstr "包含图像和独立 TIFF 掩膜的文件夹本身并不是测量数据集。**为 Measure 整理…** 会将其排列成测量模块读取的布局。可以通过以下三种方式中的任意一种单独填写其表格："
+
+msgid "give a **Source folder** and choose a filename convention in the **Regex** box — the same conventions as Mask generation, with a custom regex — then press **Sort by regex**. **Auto regex** proposes one and **Detect sets** pairs images into fields and shows example sets to confirm;"
+msgstr "指定 **源文件夹**，并在 **Regex** 框中选择文件名约定——与掩膜生成相同的约定，外加自定义正则表达式——然后按 **按正则表达式排序**。**自动正则表达式** 会提出一个表达式，**检测图像组** 会将图像配对成视野并显示示例组供确认；"
+
+msgid "drop files or folders into the table's columns, one column per channel. Dropped files sort by name and are matched across columns into rows, one row per field;"
+msgstr "将文件或文件夹拖放到表格的列中，每个通道一列。拖放的文件按名称排序，并跨列匹配成行，每个视野一行；"
+
+msgid "choose **Teach me…** and answer \"Which channel is this?\" for one image at a time. spaCR learns a regex from the answers and asks again only about a name it cannot yet read."
+msgstr "选择 **教我…**，一次针对一张图像回答“这是哪个通道？”。spaCR 会根据回答学习一个正则表达式，并且只在遇到尚无法识别的名称时再次询问。"
+
+msgid "**Add channel** and **Add mask** add columns; each mask column names its object class (cell, nucleus, pathogen or organelle) and the channel whose images it outlines. A consolidated folder is read under its files' original names. Rows missing an image block **Apply** and say how to fix them; RGB images and z-stacks are offered for conversion to one grey plane, keeping the originals. Nothing moves before **Apply**. The images are then moved into ``sorted_channels/`` inside the source folder, with a folder per channel, the masks and ``merged/``, and every move is recorded in ``channel_sorting_manifest.csv``. Point Measure's ``src`` at that ``sorted_channels`` folder. See :func:`spacr.channel_sorting.build_plan` and :ref:`Measure inputs and outputs <workflow-module-measure>`."
+msgstr "**添加通道** 和 **添加掩膜** 用于添加列；每个掩膜列都会注明其对象类别（细胞、细胞核、病原体或细胞器）以及其勾勒的图像所在的通道。合并后的文件夹按其文件的原始名称读取。缺少图像的行会阻止 **应用** 并说明如何修复；RGB 图像和 z 栈可转换为单个灰度平面，原始文件会被保留。在 **应用** 之前不会移动任何内容。之后，图像会被移入源文件夹内的 ``sorted_channels/``，每个通道一个文件夹，另有掩膜和 ``merged/``，每次移动都记录在 ``channel_sorting_manifest.csv`` 中。将测量模块的 ``src`` 指向该 ``sorted_channels`` 文件夹。参见 :func:`spacr.channel_sorting.build_plan` 和 :ref:`测量的输入和输出 <workflow-module-measure>`。"
+
+msgid "Upload data"
+msgstr "上传数据"
+
+msgid "**Upload data…** sends the image on screen with its mask, every curated image in the folder with its saved mask, or a chosen images folder and masks folder, to spaCR's community datasets on Hugging Face for training future models. Every image needs a saved mask of the same name and size. Name the dataset, add notes, and agree to the licence; the dialog shows the destination as a link you can open, select and copy. A new dataset appears with its first upload, and each contribution is reviewed before it is used."
+msgstr "**上传数据…** 会将屏幕上的图像及其掩膜、文件夹中每张已整理的图像及其保存的掩膜，或所选的图像文件夹和掩膜文件夹，发送到 spaCR 在 Hugging Face 上的社区数据集，用于训练未来的模型。每张图像都需要一个同名且尺寸相同的已保存掩膜。为数据集命名、添加说明并同意许可协议；对话框会将目标位置显示为一个可以打开、选择和复制的链接。新数据集会随其第一次上传而出现，每份贡献在使用前都会经过审查。"
+
+msgid "The masthead also opens Cellpose Workbench, Mask the whole folder, Model Compare, Model Zoo, Curate and Napari Bridge. Their input/output contracts are linked from the :ref:`module map <workflow-module-make_masks>`."
+msgstr "标题栏还可打开 Cellpose 工作台、为整个文件夹生成掩膜、模型比较、模型库、校正和 napari 桥接。它们的输入/输出约定链接自 :ref:`模块图 <workflow-module-make_masks>`。"
+
+msgid "Engine parameter reference"
+msgstr "引擎参数参考"
+
+msgid "The following definitions are generated from the same parameter docstrings as the API pages. They include programmatic field names for reproducing a configuration in code. The GUI shows only the subset used by the selected method. Secondary growth has its own controls, independent of Maxima + propagate, and defaults to a global threshold in the screen."
+msgstr "以下定义由与 API 页面相同的参数 docstring 生成。其中包括用于在代码中复现配置的程序化字段名。图形界面只显示所选方法使用的子集。次级生长有自己的控件，独立于极大值 + 传播，在此屏幕中默认使用全局阈值。"
+
+msgid "CPU detectors"
+msgstr "CPU 检测器"
+
+msgid "Engine settings: :class:`spacr.qt.cpu_modes.CpuParams`. These are programmatic defaults; the screen can use mode-specific defaults or restore values from the current session."
+msgstr "引擎设置：:class:`spacr.qt.cpu_modes.CpuParams`。这些是程序化默认值；屏幕可以使用特定于模式的默认值，或从当前会话中恢复值。"
+
+msgid "``local_k`` — default ``0.2``"
+msgstr "``local_k`` — 默认值 ``0.2``"
+
+msgid "dimensionless local contrast weight; default 0.2 for both modes. Niblack uses ``T = m - k*s``: increasing k lowers the threshold, admitting more bright pixels and fewer dark pixels. Sauvola uses ``T = m*(1 + k*(s/R - 1))``. The engine passes floats without range rescaling, giving scikit-image's default ``R = 1``. Its response to k depends on the local mean m and deviation s; positive k does not guarantee rejection of a flat background."
+msgstr "无量纲的局部对比度权重；两种模式的默认值均为 0.2。Niblack 使用 ``T = m - k*s``：增大 k 会降低阈值，纳入更多亮像素、排除更多暗像素。Sauvola 使用 ``T = m*(1 + k*(s/R - 1))``。引擎在不重新缩放范围的情况下传入浮点数，因此使用 scikit-image 的默认值 ``R = 1``。其对 k 的响应取决于局部均值 m 和标准差 s；正的 k 并不能保证排除平坦背景。"
+
+msgid "``propagate_sigma`` — default ``2.0``"
+msgstr "``propagate_sigma`` — 默认值 ``2.0``"
+
+msgid "the Gaussian blur before the maxima are found, in pixels. SEPARATE FROM THE IMAGE ENHANCEMENT CHAIN'S DENOISE, which has already run by the time a detector sees the image: this one exists because the blur that makes one object have one centre is usually far stronger than the blur anyone wants the object's EDGE measured through, and the propagation measures the edge on the same blurred image. Leave the chain's denoise off unless the field is genuinely noisy, or the two blurs compound."
+msgstr "在查找极大值之前进行的高斯模糊，单位为像素。它独立于图像增强链的降噪（在检测器看到图像时后者已经运行）：之所以单独存在，是因为让一个对象只有一个中心所需的模糊通常远强于任何人希望用来测量对象边缘的模糊，而传播正是在同一张模糊图像上测量边缘。除非视野确实噪声很大，否则请关闭增强链的降噪，否则两种模糊会叠加。"
+
+msgid "``propagate_min_distance`` — default ``10``"
+msgstr "``propagate_min_distance`` — 默认值 ``10``"
+
+msgid "the smallest gap between two seeds, in pixels; about one object radius."
+msgstr "两个种子之间的最小间距，单位为像素；约为一个对象的半径。"
+
+msgid "``propagate_seed_level`` — default ``90.0``"
+msgstr "``propagate_seed_level`` — 默认值 ``90.0``"
+
+msgid "how bright a maximum must be to be a seed."
+msgstr "一个极大值要成为种子需要多亮。"
+
+msgid "``propagate_seed_percentile`` — default ``True``"
+msgstr "``propagate_seed_percentile`` — 默认值 ``True``"
+
+msgid "read the seed level as a percentile of the blurred image rather than as an absolute intensity."
+msgstr "将种子水平解读为模糊图像的百分位，而不是绝对强度。"
+
+msgid "``propagate_exclude_border`` — default ``False``"
+msgstr "``propagate_exclude_border`` — 默认值 ``False``"
+
+msgid "drop seeds near the edge."
+msgstr "丢弃靠近边缘的种子。"
+
+msgid "``propagate_stop`` — default ``'seed_fraction'``"
+msgstr "``propagate_stop`` — 默认值 ``'seed_fraction'``"
+
+msgid "a key of :data:`spacr.qt.mask_engine.PROPAGATE_STOPS`."
+msgstr ":data:`spacr.qt.mask_engine.PROPAGATE_STOPS` 中的一个键。"
+
+msgid "``propagate_stop_value`` — default ``0.4``"
+msgstr "``propagate_stop_value`` — 默认值 ``0.4``"
+
+msgid "the fraction, intensity or percentile the stop rule reads."
+msgstr "停止规则读取的比例、强度或百分位。"
+
+msgid "``propagate_stop_algorithm`` — default ``'otsu'``"
+msgstr "``propagate_stop_algorithm`` — 默认值 ``'otsu'``"
+
+msgid "which global threshold provides the floor under the ``threshold`` stop rule."
+msgstr "在 ``threshold`` 停止规则下提供下限的全局阈值算法。"
+
+msgid "``secondary_growth`` — default ``'intensity'``"
+msgstr "``secondary_growth`` — 默认值 ``'intensity'``"
+
+msgid "``intensity`` or ``distance`` watershed for secondary objects; maxima detection ignores this setting."
+msgstr "次级对象使用 ``intensity`` 或 ``distance`` 分水岭；极大值检测会忽略此设置。"
+
+msgid "Organelle detectors"
+msgstr "细胞器检测器"
+
+msgid "Engine settings: :class:`spacr.qt.organelle_modes.MethodParams`. These are programmatic defaults; the screen can use mode-specific defaults or restore values from the current session."
+msgstr "引擎设置：:class:`spacr.qt.organelle_modes.MethodParams`。这些是程序化默认值；屏幕可以使用特定于模式的默认值，或从当前会话中恢复值。"
+
+msgid "``adaptive_block`` — default ``51``"
+msgstr "``adaptive_block`` — 默认值 ``51``"
+
+msgid "the local threshold's window, in pixels, forced odd by the engine. Read by ``adaptive`` and by ``ridge`` when its threshold is adaptive."
+msgstr "局部阈值的窗口大小，单位为像素，引擎会将其强制为奇数。由 ``adaptive`` 读取，当 ``ridge`` 的阈值为自适应时也由其读取。"
+
+msgid "``adaptive_offset`` — default ``5.0``"
+msgstr "``adaptive_offset`` — 默认值 ``5.0``"
+
+msgid "subtracted from the Gaussian-weighted local mean before the bright-foreground comparison. Increasing it lowers the threshold and admits more pixels before cleanup; a negative offset raises the threshold. Units are those of the processed detector image: smoothed image intensity for ``adaptive``, ridge response for ``ridge`` with an adaptive threshold. Default 5.0; an offset suitable for raw intensities can overwhelm a response whose values lie between 0 and 1."
+msgstr "在与明亮前景比较之前从高斯加权局部均值中减去的值。增大它会降低阈值，并在清理前纳入更多像素；负偏移会提高阈值。单位与处理后的检测图像相同：对于 ``adaptive`` 是平滑后的图像强度，对于使用自适应阈值的 ``ridge`` 是脊线响应。默认 5.0；适合原始强度的偏移可能会压倒取值在 0 到 1 之间的响应。"
+
+msgid "``morph_radius`` — default ``3``"
+msgstr "``morph_radius`` — 默认值 ``3``"
+
+msgid "the cleanup disk, in pixels. ``adaptive`` also pre-smooths with half of it; the network branches close with half."
+msgstr "清理用的圆盘半径，单位为像素。``adaptive`` 还会用其一半进行预平滑；网状分支用其一半进行闭运算。"
+
+msgid "``fill_holes`` — default ``64``"
+msgstr "``fill_holes`` — 默认值 ``64``"
+
+msgid "holes up to this area, in square pixels, are filled. ``adaptive`` only."
+msgstr "面积不超过此值（单位为平方像素）的孔洞会被填充。仅适用于 ``adaptive``。"
+
+msgid "``watershed_spots`` — default ``True``"
+msgstr "``watershed_spots`` — 默认值 ``True``"
+
+msgid "whether ``log`` and ``dog`` grow a watershed from each blob centre rather than stamping a disk."
+msgstr "``log`` 和 ``dog`` 是否从每个斑点中心生长分水岭，而不是盖印一个圆盘。"
+
+msgid "``log_min_sigma`` — default ``1.0``"
+msgstr "``log_min_sigma`` — 默认值 ``1.0``"
+
+msgid "smallest Gaussian scale LoG searches, in pixels; a blob's radius is about sigma times root two."
+msgstr "LoG 搜索的最小高斯尺度，单位为像素；斑点半径约为 sigma 乘以根号二。"
+
+msgid "``log_max_sigma`` — default ``10.0``"
+msgstr "``log_max_sigma`` — 默认值 ``10.0``"
+
+msgid "the largest."
+msgstr "最大尺度。"
+
+msgid "``log_num_sigma`` — default ``10``"
+msgstr "``log_num_sigma`` — 默认值 ``10``"
+
+msgid "how many scales between the two."
+msgstr "两者之间的尺度数量。"
+
+msgid "``log_threshold`` — default ``0.01``"
+msgstr "``log_threshold`` — 默认值 ``0.01``"
+
+msgid "the blob-response cut-off, read by ``log`` AND by ``dog``, which has no threshold of its own."
+msgstr "斑点响应截止值，由 ``log`` 以及没有自身阈值的 ``dog`` 共同读取。"
+
+msgid "``dog_sigma_low`` — default ``1.0``"
+msgstr "``dog_sigma_low`` — 默认值 ``1.0``"
+
+msgid "DoG's smallest scale, in pixels."
+msgstr "DoG 的最小尺度，单位为像素。"
+
+msgid "``dog_sigma_high`` — default ``3.0``"
+msgstr "``dog_sigma_high`` — 默认值 ``3.0``"
+
+msgid "DoG's largest."
+msgstr "DoG 的最大尺度。"
+
+msgid "``ridge_filter`` — default ``'frangi'``"
+msgstr "``ridge_filter`` — 默认值 ``'frangi'``"
+
+msgid "``frangi``, ``sato`` or ``meijering``."
+msgstr "``frangi``、``sato`` 或 ``meijering``。"
+
+msgid "``ridge_sigmas`` — default ``(1.0, 2.0, 3.0)``"
+msgstr "``ridge_sigmas`` — 默认值 ``(1.0, 2.0, 3.0)``"
+
+msgid "the filament half-widths to look for, in pixels."
+msgstr "要查找的丝状结构半宽，单位为像素。"
+
+msgid "``ridge_threshold`` — default ``'otsu'``"
+msgstr "``ridge_threshold`` — 默认值 ``'otsu'``"
+
+msgid "``otsu`` or ``adaptive``, how the ridge response is cut."
+msgstr "``otsu`` 或 ``adaptive``，即脊线响应的切割方式。"
+
+msgid "``skeletonize`` — default ``False``"
+msgstr "``skeletonize`` — 默认值 ``False``"
+
+msgid "reduce a network to a one-pixel skeleton and label that, so area measures length rather than thickness."
+msgstr "将网络缩减为单像素骨架并对其标记，使面积度量的是长度而不是粗细。"
+
+msgid "``hysteresis_low`` — default ``0.2``"
+msgstr "``hysteresis_low`` — 默认值 ``0.2``"
+
+msgid "the weak level; under 1.0 it is read as a fraction and becomes that percentile of the smoothed image."
+msgstr "弱水平；小于 1.0 时被解读为比例，并成为平滑图像的相应百分位。"
+
+msgid "``hysteresis_high`` — default ``0.6``"
+msgstr "``hysteresis_high`` — 默认值 ``0.6``"
+
+msgid "the seeding level, read the same way."
+msgstr "播种水平，以相同方式解读。"
+
+msgid "``unet_model_path`` — default ``''``"
+msgstr "``unet_model_path`` — 默认值 ``''``"
+
+msgid "the ``.pt``/``.pth`` file to load."
+msgstr "要加载的 ``.pt``/``.pth`` 文件。"
+
+msgid "``unet_threshold`` — default ``0.5``"
+msgstr "``unet_threshold`` — 默认值 ``0.5``"
+
+msgid "the probability the sigmoid output is cut at."
+msgstr "对 sigmoid 输出进行切割的概率值。"
+
+msgid "Image enhancement"
+msgstr "图像增强"
+
+msgid "Engine settings: :class:`spacr.qt.detect_chain.Chain`. These are programmatic defaults; the screen can use mode-specific defaults or restore values from the current session."
+msgstr "引擎设置：:class:`spacr.qt.detect_chain.Chain`。这些是程序化默认值；屏幕可以使用特定于模式的默认值，或从当前会话中恢复值。"
+
+msgid "``background`` — default ``'none'``"
+msgstr "``background`` — 默认值 ``'none'``"
+
+msgid "one of :data:`BACKGROUND_METHODS`."
+msgstr ":data:`BACKGROUND_METHODS` 之一。"
+
+msgid "``background_radius`` — default ``50``"
+msgstr "``background_radius`` — 默认值 ``50``"
+
+msgid "the ball's or the top-hat disk's radius, in pixels. Set it comfortably larger than the largest object: a radius under the object size eats the objects along with the background."
+msgstr "滚球或顶帽圆盘的半径，单位为像素。请将其设置得明显大于最大的对象：小于对象尺寸的半径会把对象连同背景一起去除。"
+
+msgid "``background_scale`` — default ``0.5``"
+msgstr "``background_scale`` — 默认值 ``0.5``"
+
+msgid "the fraction of full size the background is ESTIMATED at, 0.1 to 1.0. See :func:`background_surface` for what that buys and what it costs; 1.0 is scikit-image's own answer, exactly."
+msgstr "估计（ESTIMATED）背景时所用的全尺寸比例，0.1 到 1.0。关于它带来的好处和代价，请参阅 :func:`background_surface`；1.0 即 scikit-image 本身的结果。"
+
+msgid "``denoise`` — default ``'none'``"
+msgstr "``denoise`` — 默认值 ``'none'``"
+
+msgid "one of :data:`DENOISE_METHODS`."
+msgstr ":data:`DENOISE_METHODS` 之一。"
+
+msgid "``denoise_strength`` — default ``1.0``"
+msgstr "``denoise_strength`` — 默认值 ``1.0``"
+
+msgid "the Gaussian's sigma in pixels, the median's and the bilateral's disk radius, or the non-local means' cut-off in multiples of the estimated noise."
+msgstr "高斯滤波的 sigma（像素），中值滤波和双边滤波的圆盘半径，或非局部均值以估计噪声倍数表示的截止值。"
+
+msgid "``gamma`` — default ``1.0``"
+msgstr "``gamma`` — 默认值 ``1.0``"
+
+msgid "the exponent the intensities are raised to on 0..1. Below 1 lifts the dim end (faint objects become visible), above 1 pushes it down. 1.0 is off."
+msgstr "将 0..1 上的强度提升到的指数。小于 1 提亮暗端（暗淡对象变得可见），大于 1 压暗暗端。1.0 表示关闭。"
+
+msgid "``clahe`` — default ``False``"
+msgstr "``clahe`` — 默认值 ``False``"
+
+msgid "contrast-limited adaptive histogram equalisation."
+msgstr "限制对比度的自适应直方图均衡化。"
+
+msgid "``clahe_tile`` — default ``64``"
+msgstr "``clahe_tile`` — 默认值 ``64``"
+
+msgid "the side of one CLAHE tile, in pixels."
+msgstr "单个 CLAHE 图块的边长，单位为像素。"
+
+msgid "``clahe_clip`` — default ``0.01``"
+msgstr "``clahe_clip`` — 默认值 ``0.01``"
+
+msgid "CLAHE's clip limit, 0..1. Higher is more contrast and more amplified noise."
+msgstr "CLAHE 的截断限制，0..1。值越高，对比度越强，噪声也被放大得越多。"
+
+msgid "``equalize`` — default ``False``"
+msgstr "``equalize`` — 默认值 ``False``"
+
+msgid "global histogram equalisation."
+msgstr "全局直方图均衡化。"
+
+msgid "``sharpen`` — default ``False``"
+msgstr "``sharpen`` — 默认值 ``False``"
+
+msgid "an unsharp mask."
+msgstr "一个反锐化掩膜（unsharp mask）。"
+
+msgid "``sharpen_radius`` — default ``1.0``"
+msgstr "``sharpen_radius`` — 默认值 ``1.0``"
+
+msgid "the blur radius the mask is built from, in pixels: about the scale of the edges to sharpen."
+msgstr "构建掩膜所用的模糊半径，单位为像素：大约为要锐化的边缘的尺度。"
+
+msgid "``sharpen_amount`` — default ``1.0``"
+msgstr "``sharpen_amount`` — 默认值 ``1.0``"
+
+msgid "how much of the mask is added back."
+msgstr "将掩膜加回的程度。"
+
+msgid "``morphology`` — default ``'none'``"
+msgstr "``morphology`` — 默认值 ``'none'``"
+
+msgid "one of :data:`MORPHOLOGY_OPS`, applied to what was detected. ``open`` separates objects joined by a thin bridge, ``close`` joins objects broken into pieces, ``open_close`` does both in that order."
+msgstr ":data:`MORPHOLOGY_OPS` 之一，应用于检测到的内容。``open`` 分开由细桥相连的对象，``close`` 连接断裂成碎片的对象，``open_close`` 依次执行两者。"
+
+msgid "``morphology_radius`` — default ``1``"
+msgstr "``morphology_radius`` — 默认值 ``1``"
+
+msgid "the disk radius, in pixels."
+msgstr "圆盘半径，单位为像素。"
+
+msgid "``split`` — default ``False``"
+msgstr "``split`` — 默认值 ``False``"
+
+msgid "a distance-transform watershed on what was detected, cutting an object with two centres in two. It is the Otsu mode's \"Split objects that touch\", offered to every other method."
+msgstr "对检测结果进行距离变换分水岭，将具有两个中心的对象切成两个。这就是 Otsu 模式的 “Split objects that touch”，现提供给所有其他方法。"
+
+msgid "``psf_operation`` — default ``'none'``"
+msgstr "``psf_operation`` — 默认值 ``'none'``"
+
+msgid "``none``, ``convolve`` or ``deconvolve``. Runs after background subtraction and before denoising. Off by default."
+msgstr "``none``、``convolve`` 或 ``deconvolve``。在背景扣除之后、降噪之前运行。默认关闭。"
+
+msgid "``psf`` — default ``None``"
+msgstr "``psf`` — 默认值 ``None``"
+
+msgid "immutable calibrated two-dimensional kernel. Required when PSF processing is enabled; missing/invalid kernels stop detection."
+msgstr "不可变的已校准二维卷积核。启用 PSF 处理时必需；卷积核缺失或无效会停止检测。"
+
+msgid "``psf_sampling_um`` — default ``(1.0, 1.0)``"
+msgstr "``psf_sampling_um`` — 默认值 ``(1.0, 1.0)``"
+
+msgid "image pixel spacing in YX order, in micrometers. Must match the kernel; no implicit resampling is performed."
+msgstr "YX 顺序的图像像素间距，单位为微米。必须与卷积核一致；不会进行隐式重采样。"
+
+msgid "``psf_iterations`` — default ``20``"
+msgstr "``psf_iterations`` — 默认值 ``20``"
+
+msgid "Richardson–Lucy iterations, 1..200."
+msgstr "Richardson–Lucy 迭代次数，1..200。"
+
+msgid "``psf_error`` — default ``''``"
+msgstr "``psf_error`` — 默认值 ``''``"
+
+msgid "actionable loading/validation error when no kernel is ready."
+msgstr "尚无可用卷积核时，可据以处理的加载/验证错误。"
+
+msgid "``restoration`` — default ``False``"
+msgstr "``restoration`` — 默认值 ``False``"
+
+msgid "enable isolated Cellpose 3 restoration after PSF and before classical denoising. Off by default. Run preparation on a worker."
+msgstr "在 PSF 之后、经典降噪之前启用隔离的 Cellpose 3 恢复。默认关闭。请在工作线程中运行准备工作。"
+
+msgid "``restoration_plan`` — default ``None``"
+msgstr "``restoration_plan`` — 默认值 ``None``"
+
+msgid "immutable loaded model identity and diameter in pixels. Model output uses normalized units, not calibrated fluorescence."
+msgstr "不可变的已加载模型标识和以像素为单位的直径。模型输出使用归一化单位，而不是经过校准的荧光。"
+
+msgid "``restoration_error`` — default ``''``"
+msgstr "``restoration_error`` — 默认值 ``''``"
+
+msgid "loading error shown instead of silently using unprocessed data when restoration was explicitly requested."
+msgstr "显式请求恢复时显示的加载错误，而不是悄悄使用未处理的数据。"
+
+msgid "``percentile_clip`` — default ``False``"
+msgstr "``percentile_clip`` — 默认值 ``False``"
+
+msgid "clip each plane to two percentiles of its own intensities before the contrast curves, so a hot pixel or a dead one cannot define the interval the curves are drawn on. The intensities keep their units; nothing is stretched."
+msgstr "在绘制对比度曲线之前，按每个平面自身强度的两个百分位进行截断，使热像素或坏像素无法决定曲线所用的区间。强度保持其单位；不做任何拉伸。"
+
+msgid "``percentile_low`` — default ``1.0``"
+msgstr "``percentile_low`` — 默认值 ``1.0``"
+
+msgid "the lower percentile, 0..100."
+msgstr "较低的百分位，0..100。"
+
+msgid "``percentile_high`` — default ``99.0``"
+msgstr "``percentile_high`` — 默认值 ``99.0``"
+
+msgid "the upper percentile, 0..100, above the lower."
+msgstr "较高的百分位，0..100，需大于较低值。"
+
+msgid "``log`` — default ``False``"
+msgstr "``log`` — 默认值 ``False``"
+
+msgid "a logarithmic transform on 0..1, ``log(1 + gain·x) / log(1 + gain)``: it compresses the bright end and lifts the dim one, more strongly than a gamma below 1 does near zero."
+msgstr "在 0..1 上的对数变换 ``log(1 + gain·x) / log(1 + gain)``：它压缩亮端并提亮暗端，在接近零处比小于 1 的 gamma 更强。"
+
+msgid "``log_gain`` — default ``10.0``"
+msgstr "``log_gain`` — 默认值 ``10.0``"
+
+msgid "the factor the unit-interval intensities are scaled by before the logarithm. Larger compresses harder; as it goes to zero the curve goes to the identity."
+msgstr "取对数之前对单位区间强度进行缩放的系数。越大压缩越强；当其趋于零时，曲线趋于恒等变换。"
+
+msgid "``sqrt`` — default ``False``"
+msgstr "``sqrt`` — 默认值 ``False``"
+
+msgid "a square root on 0..1, the curve gamma 0.5 draws, offered by name."
+msgstr "0..1 上的平方根，即 gamma 0.5 所绘制的曲线，以名称形式提供。"
+

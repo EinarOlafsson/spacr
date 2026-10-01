@@ -1,0 +1,314 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Codex), no native-speaker signoff",
+  "note": "Feature 411, API delta 3, 2026-09-27. Written directly from the current English docstring blocks and technically reviewed by Codex against each source and its translation context. Protected literals, units, parameter meaning, negations and processing order were checked. No machine-translation decode was used for this delta. AI technical review only; no human or native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.cli_plugins#0",
+      "source": "Command-line diagnostics and catalogue installs for the spaCR plugin SDK.",
+      "source_sha256": "aea71f009932cf1bf3f231026f48dec7b3a7c9dbabdf261f93c9563f099dead6",
+      "context": "Command-line diagnostics and catalogue installs for the spaCR plugin SDK.",
+      "translation": "spaCR 插件 SDK 的命令行诊断和目录安装功能。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.cli_plugins#1",
+      "source": "``spacr-plugins list`` and ``doctor`` report what is installed and what failed to load. ``catalogue`` browses a plugin and recipe catalogue (a JSON file, its folder or an address, or ``SPACR_PLUGIN_CATALOGUE``), and ``install``, ``update`` and ``uninstall`` manage one entry of it by key.",
+      "source_sha256": "7f2a3c4e41e7a9abf0527572473f58cb0e6a581853ebdcf2db9bca49bc050fe4",
+      "context": "``spacr-plugins list`` and ``doctor`` report what is installed and what failed to load. ``catalogue`` browses a plugin and recipe catalogue (a JSON file, its folder or an address, or ``SPACR_PLUGIN_CATALOGUE``), and ``install``, ``update`` and ``uninstall`` manage one entry of it by structured-data name.",
+      "translation": "``spacr-plugins list`` 和 ``doctor`` 报告已安装的项目以及加载失败的项目。``catalogue`` 用于浏览插件和配方目录（JSON 文件、其所在文件夹或地址，或 ``SPACR_PLUGIN_CATALOGUE``），而 ``install``、``update`` 和 ``uninstall`` 通过键管理其中的某个条目。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.cli_plugins.main#0",
+      "source": "Run ``spacr-plugins`` and return a shell exit code.",
+      "source_sha256": "b7a9c0957c17bd777d240e22be87701e9ba27ffd053396503ad9eb79e0276c42",
+      "context": "Run ``spacr-plugins`` and return a shell exit code.",
+      "translation": "运行 ``spacr-plugins`` 并返回 shell 退出码。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.cli_plugins.main#1",
+      "source": "arguments without the program name; ``sys.argv`` when None.",
+      "source_sha256": "cda06509c0d8be2ac6c17e26acf86e342d272a1240f0b2e6c8924d18d5a29b7e",
+      "context": "arguments without the program name; ``sys.argv`` when None.",
+      "translation": "不含程序名称的参数；为 None 时使用 ``sys.argv``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.cli_repro#5",
+      "source": "``--export snakemake|nextflow --out DIR`` writes the run as a workflow that runs the same module once per plate with ``spacr-run``, locally, on a cluster, or inside the spaCR Docker/Apptainer image.",
+      "source_sha256": "a11ad98ba22bb1ce6fe275dd7791c1b3a49a308c33453956154c6ed34848ed1d",
+      "context": "``--export snakemake|nextflow --out DIR`` writes the processing session as a workflow that executes the same module once per plate with ``spacr-run``, locally, on a cluster, or inside the spaCR Docker/Apptainer image.",
+      "translation": "``--export snakemake|nextflow --out DIR`` 将本次运行写成工作流，通过 ``spacr-run`` 对每块微孔板运行同一模块一次，可在本地、集群或 spaCR 的 Docker/Apptainer 镜像内运行。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.core.preprocess_generate_masks#13",
+      "source": "``robustness_report`` — after the masks exist, re-segment a few sampled fields over a small grid of diameters, thresholds and contrast enhancement and write a stability report per object to ``qc/segmentation_robustness_<object>.csv``, flagging the settings the results are fragile to.",
+      "source_sha256": "c17527dde2936037401da9b251bee988446fcbc033796dbfea243442c461ae63",
+      "context": "``robustness_report`` — after the masks exist, re-segment a few sampled microscope fields of view over a small grid of diameters, thresholds and contrast enhancement and write a stability report per object to ``qc/segmentation_robustness_<object>.csv``, flagging the settings the results are fragile to.",
+      "translation": "``robustness_report`` — 掩膜生成后，在一个由直径、阈值和对比度增强设置组成的小型参数网格上重新分割若干抽样视野，将各对象的稳定性报告写入 ``qc/segmentation_robustness_<object>.csv``，并标记结果对哪些设置较为敏感。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.core.preprocess_generate_masks#16",
+      "source": "``microscope_feedback`` — during a ``watch_folder`` run with ``watch_pipeline='mask_measure'``, send the objects matching ``microscope_event_query`` back to the microscope named by ``microscope_driver`` to be imaged again, at stage positions worked out from ``microscope_positions`` and ``microscope_stage_transform``.",
+      "source_sha256": "61226e080db4eced080f864b14c884ba5fd2cc8684078ebdb574905b217c9522",
+      "context": "``microscope_feedback`` — during a ``watch_folder`` run with ``watch_pipeline='mask_measure'``, send the objects matching ``microscope_event_query`` back to the microscope named by ``microscope_driver`` to be imaged again, at stage positions worked out from ``microscope_positions`` and ``microscope_stage_transform``.",
+      "translation": "``microscope_feedback`` — 在 ``watch_folder`` 运行期间，采用 ``watch_pipeline='mask_measure'`` 时，将符合 ``microscope_event_query`` 的对象发送回 ``microscope_driver`` 指定的显微镜，以便在根据 ``microscope_positions`` 和 ``microscope_stage_transform`` 计算出的载物台位置重新成像。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.curation_queue.order_items#5",
+      "source": "``uncertain`` Most uncertain segmentation first, the key being ``-probs.get(stem, -1.0)`` with ``probs`` carrying each field's uncertainty from ``curate_uncertainty.csv``. An unscored field sorts last.",
+      "source_sha256": "54615bc3606b4ad70caf137bd7d1bc748c162eb7c5f61b1affe60ae32525d475",
+      "context": "``uncertain`` Most uncertain segmentation first, the structured-data name being ``-probs.get(stem, -1.0)`` with ``probs`` carrying each field's uncertainty from ``curate_uncertainty.csv``. An unscored field sorts last.",
+      "translation": "``uncertain`` 优先排列分割不确定性最高的视野，排序键为 ``-probs.get(stem, -1.0)``，其中 ``probs`` 包含从 ``curate_uncertainty.csv`` 获取的各视野不确定性。未评分的视野排在最后。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.curation_queue.order_items#9",
+      "source": "``{stem: probability}``, or a callable returning one, or ``None`` for none available; for ``uncertain``, ``{stem: uncertainty}``.",
+      "source_sha256": "318a2b5428f1fc0f007f3170cb945eccfbc4d1f87d50424a4aab4fa3775cf7dd",
+      "context": "``{stem: probability}``, or a callable returning one, or ``None`` for none available; for ``uncertain``, ``{stem: uncertainty}``.",
+      "translation": "``{stem: probability}``、返回这种映射的可调用对象，或在没有可用映射时使用 ``None``；对于 ``uncertain``，使用 ``{stem: uncertainty}``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.embeddings.embed_array#4",
+      "source": "a callable taking ``(n, height, width, 3)`` float32 in [0, 1] and returning ``(n, dims)``. An encoder with an ``in_channels`` attribute takes that many planes instead, and one whose ``in_channels`` is ``None`` takes any number: each channel alone under the per-channel policy, every encoded channel in one pass under the projection policy. Injected by the tests so the wiring can be exercised without downloading a backbone; production callers leave it ``None``.",
+      "source_sha256": "1ce695814ba5d53929f1cfdbd20ca84d708d47090b58be77e869eda0976af31d",
+      "context": "a callable taking ``(n, height, width, 3)`` float32 in [0, 1] and returning ``(n, dims)``. An encoder with an ``in_channels`` attribute takes that many image layers instead, and one whose ``in_channels`` is ``None`` takes any number: each image data channel alone under the per-image data channel policy, every encoded image data channel in one pass under the projection policy. Injected by the tests so the wiring can be exercised without downloading a backbone; production callers leave it ``None``.",
+      "translation": "可调用对象，接受取值范围为 [0, 1]、形状为 ``(n, height, width, 3)`` 的 float32 数据，并返回 ``(n, dims)``。若编码器具有 ``in_channels`` 属性，则改为接受该属性指定数量的图像平面；若其 ``in_channels`` 为 ``None``，则接受任意数量：逐通道策略下分别处理各通道，投影策略下在一次处理中处理所有编码通道。由测试注入，以便无需下载骨干网络即可检查组件连接；生产环境中的调用方将其保留为 ``None``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.illumination.IlluminationField#10",
+      "source": "optional ``(C, Y, X)`` spatial background subtracted on top of ``dark``. Only a vendor profile that ships its own background surface carries one; an estimated field never does.",
+      "source_sha256": "039a30663b5f4970510ce6cc321f7f878dc3309b6ea3e1143ac2da8df2611709",
+      "context": "optional ``(C, Y, X)`` spatial background subtracted on top of ``dark``. Only a vendor profile that ships its own background surface carries one; an estimated field never does.",
+      "translation": "可选的 ``(C, Y, X)`` 空间背景，在扣除 ``dark`` 的基础上额外扣除。只有随附自身背景曲面的厂商配置才包含它；估计得到的场绝不包含它。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.illumination.prepare_illumination_correction#3",
+      "source": "a ``measure_crop`` settings dict. Reads ``illumination_correction``, ``illumination_model``, ``illumination_estimator``, ``illumination_degree``, ``illumination_per_plate``, ``illumination_max_fields``, ``illumination_dark``, ``illumination_on_missing``, ``illumination_qc``, ``illumination_vendor_profile``, plus ``src`` and ``channels``.",
+      "source_sha256": "7d9732d503d6b69caa62264f3a6bd65ab5017c8f993c6941d0edffce64708fe0",
+      "context": "a ``measure_crop`` settings key-value mapping. Reads ``illumination_correction``, ``illumination_model``, ``illumination_estimator``, ``illumination_degree``, ``illumination_per_plate``, ``illumination_max_fields``, ``illumination_dark``, ``illumination_on_missing``, ``illumination_qc``, ``illumination_vendor_profile``, plus ``src`` and ``channels``.",
+      "translation": "``measure_crop`` 设置字典。读取 ``illumination_correction``、``illumination_model``、``illumination_estimator``、``illumination_degree``、``illumination_per_plate``、``illumination_max_fields``、``illumination_dark``、``illumination_on_missing``、``illumination_qc``、``illumination_vendor_profile``，以及 ``src`` 和 ``channels``。",
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
+    },
+    {
+      "label": "spacr.illumination.prepare_illumination_model#1",
+      "source": "This is the direct consumer of all ten ``illumination_*`` settings.  It estimates, loads or reads a vendor flat-field profile into the model once, ensures a fitted model is saved, hashes the exact saved bytes, optionally writes stage-labelled QC, and builds a corrector.  Applying that corrector belongs to the caller's stage.",
+      "source_sha256": "773830a7a23aa85f476671c8e45ec3da7b95d915d90333b4cce647ef79435fb0",
+      "context": "This is the direct consumer of all ten ``illumination_*`` settings.  It estimates, loads or reads a vendor flat-field profile into the model once, ensures a fitted model is saved, hashes the exact saved bytes, optionally writes stage-labelled QC, and builds a corrector.  Applying that corrector belongs to the caller's stage.",
+      "translation": "直接使用全部十项 ``illumination_*`` 设置。一次性估计、加载或将厂商平场配置读入模型，确保拟合后的模型已保存，对实际保存的原始字节计算哈希，可选地写出标注处理阶段的质量控制（QC）结果，并构建校正器。应用该校正器属于调用方的处理阶段。",
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
+    },
+    {
+      "label": "spacr.illumination.prepare_illumination_model#2",
+      "source": "settings carrying the ten illumination controls. A non-empty ``illumination_vendor_profile`` replaces the estimate with the vendor's own flat field; ``illumination_model`` still wins over both.",
+      "source_sha256": "b124e1d708fb5d05f93655d2e0e52c96accc228232e17046edeedc56c7e460b6",
+      "context": "settings carrying the ten illumination controls. A non-empty ``illumination_vendor_profile`` replaces the estimate with the vendor's own flat field; ``illumination_model`` still wins over both.",
+      "translation": "包含十项照明控制参数的设置。非空的 ``illumination_vendor_profile`` 用厂商自身的平场替代估计值；``illumination_model`` 仍优先于这两者。",
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
+    },
+    {
+      "label": "spacr.illumination.register_illumination_settings#3",
+      "source": "The ten keys ARE filed under a heading -- \"Illumination Correction\" in ``spacr.settings.categories`` -- and Measure's panel offers every one of them, because ``measure_crop`` calls :func:`prepare_illumination_correction` itself and these are the keys that call reads. The heading is written in that map by hand for the reason above: it has to exist for every process that groups the Measure settings, not only for one that happened to import this module.",
+      "source_sha256": "65be833d95e3dad52244c02a72fe958c040dd2693c0dc9e3fcaf80ff5ad94985",
+      "context": "The ten structured-data names ARE filed under a heading -- \"Illumination Correction\" in ``spacr.settings.categories`` -- and Measure's panel offers every one of them, because ``measure_crop`` calls :func:`prepare_illumination_correction` itself and these are the structured-data names that call reads. The heading is written in that map by hand for the reason above: it has to exist for every process that groups the Measure settings, not only for one that happened to import this module.",
+      "translation": "这十个键确实归在一个标题下 -- 即 ``spacr.settings.categories`` 中的 \"Illumination Correction\" -- 而且“测量”面板提供全部十项，因为 ``measure_crop`` 自行调用 :func:`prepare_illumination_correction`，该调用读取的就是这些键。基于上述原因，此标题手动写入该映射：所有对“测量”设置进行分组的进程都必须能找到它，而不仅是碰巧导入了本模块的进程。",
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
+    },
+    {
+      "label": "spacr.pipeline_v2.stream_masks_from_stack#10",
+      "source": "optional captured PSF session. Unmixes each whole field first when unmixing is on, then processes selected intensities after illumination and before normalization, padding or Cellpose. Stored image channels stay raw; only the appended labels depend on PSF processing.",
+      "source_sha256": "73a797dd6762183eb99c4eda98ad78306b37f293bd697e9662dbbcea878fa976",
+      "context": "optional captured PSF session. Unmixes each whole microscope field of view first when unmixing is on, then processes selected intensities after illumination and before normalization, padding or Cellpose. Stored image data channels stay raw; only the appended labels depend on PSF processing.",
+      "translation": "可选的已捕获 PSF 会话。开启光谱解混时，首先对整个视野解混，然后在照明校正之后、归一化、填充或 Cellpose 之前处理选定的强度数据。存储的图像通道保持原始状态；只有追加的标签取决于 PSF 处理。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plot.plot_image_grid#1",
+      "source": "Each tile carries its source file and the per-channel display range it was stretched to, so a checked export (see :func:`save_figure`) can say when tiles are scaled differently and write a provenance sidecar that rebuilds every tile from its file.",
+      "source_sha256": "7ec13439fda1359947fa838f7385b6e4c5e6b2fe0d0b4ae151c785bf8c320dd9",
+      "context": "Each tile carries its source file and the per-channel display range it was stretched to, so a checked export (see :func:`save_figure`) can say when tiles are scaled differently and write a provenance sidecar that rebuilds every tile from its file.",
+      "translation": "每个图块都携带源文件及各通道拉伸后采用的显示范围，因此经检查的导出（见 :func:`save_figure`）可指出图块间的缩放差异，并写出溯源附属文件，以便从各自文件重建所有图块。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plot.save_figure#14",
+      "source": "check the figure's image panels before writing -- display ranges that differ between panels meant for comparison, saturated or clipped pixels, repeated panels, a lossy format, and panels written with fewer pixels than they hold -- print any warning, stamp the provenance (source files, display settings, processing steps, spaCR version) into the PNG or PDF metadata and write it to a ``<file>.provenance.json`` sidecar beside the figure. None follows ``SPACR_FIGURE_INTEGRITY`` and then the Preferences toggle, which is off by default. A figure without image panels is written unchanged either way.",
+      "source_sha256": "eab2c7e944337e92601d4193eb6a95a8a9a14b44bf63851398481f8bf597237a",
+      "context": "check the figure's image panels before writing -- display ranges that differ between panels meant for comparison, saturated or clipped pixels, repeated panels, a lossy format, and panels written with fewer pixels than they hold -- print any warning, stamp the provenance (source files, display settings, processing steps, spaCR version) into the PNG or PDF metadata and write it to a ``<file>.provenance.json`` sidecar beside the figure. None follows ``SPACR_FIGURE_INTEGRITY`` and then the Preferences toggle, which is off by default. A figure without image panels is written unchanged either way.",
+      "translation": "在写入前检查图中的图像面板 -- 用于比较的面板之间显示范围是否不同、是否有饱和或截断像素、重复面板、有损格式，以及写出像素数少于原有像素数的面板 -- 打印所有警告，将溯源信息（源文件、显示设置、处理步骤、spaCR 版本）嵌入 PNG 或 PDF 元数据，并写入图文件旁的 ``<file>.provenance.json`` 附属文件。None 先遵循 ``SPACR_FIGURE_INTEGRITY``，再遵循“偏好”中的开关，该开关默认关闭。没有图像面板的图在两种情况下均原样写出。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plugins#3",
+      "source": "Plugins and assay recipes can also be installed from a catalogue, a JSON file listing each entry's version, author and licence. A catalogue plugin is installed into its own folder under ``~/.spacr/plugins`` (or ``SPACR_PLUGIN_HOME``), together with the libraries it asks for, so it never replaces or upgrades a package spaCR itself uses; it is discovered like any other plugin until it is uninstalled.",
+      "source_sha256": "52954824d7f15d9bc6e0607035172f86060e2844ac2bb53b20479675d3cc3f81",
+      "context": "Plugins and assay recipes can also be installed from a catalogue, a JSON file listing each entry's version, author and licence. A catalogue plugin is installed into its own folder under ``~/.spacr/plugins`` (or ``SPACR_PLUGIN_HOME``), together with the libraries it asks for, so it never replaces or upgrades a package spaCR itself uses; it is discovered like any other plugin until it is uninstalled.",
+      "translation": "插件和实验分析配方也可从目录安装；目录是列出每个条目的版本、作者和许可证的 JSON 文件。目录中的插件会连同其所需库安装到 ``~/.spacr/plugins``（或 ``SPACR_PLUGIN_HOME``）下的独立文件夹中，因此绝不会替换或升级 spaCR 本身使用的软件包；在卸载前，它与其他插件一样被发现和识别。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_pipeline#3",
+      "source": "SPECTRAL UNMIXING COMES FIRST. With ``unmix`` on, a bleed-through matrix is estimated from the single-stain control wells ``unmix_controls`` names and every raw field is unmixed across all its channels before illumination correction, the PSF and the chain; the matrix joins the same record. Measure estimates its own over the measured channels and unmixes each field before its preprocessing hooks, recording the matrix in the saved run settings and ``measurements/bleed_through.json``.",
+      "source_sha256": "f222dfd579604639ea1be03958180542182f5d8d6067ae15c7456f53c881b158",
+      "context": "Spectral unmixing comes first. With ``unmix`` on, a bleed-through matrix is estimated from the single-stain control microplate sample positions ``unmix_controls`` names and every raw microscope field of view is unmixed across all its image data channels before illumination correction, the PSF and the chain; the matrix joins the same record. Measure estimates its own over the measured image data channels and unmixes each microscope field of view before its preprocessing hooks, recording the matrix in the saved processing-session settings and ``measurements/bleed_through.json``.",
+      "translation": "首先进行光谱解混。开启 ``unmix`` 时，根据 ``unmix_controls`` 指定的单染对照孔估计串色矩阵，并在照明校正、PSF 和处理链之前，对每个原始视野的所有通道进行解混；矩阵加入同一记录。“测量”针对所测通道自行估计矩阵，并在预处理钩子之前对每个视野解混，将矩阵记录在已保存的运行设置及 ``measurements/bleed_through.json`` 中。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_pipeline.processing_requested#2",
+      "source": "the run's ``psf_*``, ``enhance_*`` and ``unmix`` settings.",
+      "source_sha256": "020ed299519d4a96466f449c51fce3e7ded116aa8465c8f16223cc082a25e525",
+      "context": "the processing session's ``psf_*``, ``enhance_*`` and ``unmix`` settings.",
+      "translation": "本次运行的 ``psf_*``、``enhance_*`` 和 ``unmix`` 设置。",
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-28: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
+    },
+    {
+      "label": "spacr.psf_pipeline.processing_requested#3",
+      "source": "True when any is switched on or the chain cannot be read.",
+      "source_sha256": "a0d4a87dc2658f77c707a59b0b867d4323ad037fa23627efc1dd99eb0ed09634",
+      "context": "True when any is switched on or the chain cannot be read.",
+      "translation": "任一设置开启或无法读取处理链时为 True。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_pipeline.validate_psf_resume#1",
+      "source": "requested PSF, ``enhance_*`` and ``unmix`` settings; off also checks a prior PSF, chain or unmixing run.",
+      "source_sha256": "261d6a01b40b8d08812f74e3c949c869c8598ea8f8a1fbd88d12301caffd92c5",
+      "context": "requested PSF, ``enhance_*`` and ``unmix`` settings; off also checks a prior PSF, chain or unmixing run.",
+      "translation": "请求的 PSF、``enhance_*`` 和 ``unmix`` 设置；关闭状态也会检查先前采用 PSF、处理链或解混的运行。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt#0",
+      "source": "PySide6 (Qt 6) desktop interface for spaCR.",
+      "source_sha256": "9bf9570ddb9b1d1b600c85d8eaa69ae816440aab5d37fdff48b050f93fc9bdfb",
+      "context": "PySide6 (Qt 6) desktop interface for spaCR.",
+      "translation": "用于 spaCR 的 PySide6 (Qt 6) 桌面界面。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt#1",
+      "source": "Launch the application with ``spacr``, ``spacr-qt``, ``python -m spacr.qt`` or ``python -m spacr``. The last command also accepts subcommands such as ``mask`` and ``measure`` to open a specific application tab.",
+      "source_sha256": "6797c54a8ab1291fb675e05a6622391cf568f71960020bb5220882f672f88bc9",
+      "context": "Launch the application with ``spacr``, ``spacr-qt``, ``python -m spacr.qt`` or ``python -m spacr``. The last command also accepts subcommands such as ``mask`` and ``measure`` to open a specific application tab.",
+      "translation": "使用 ``spacr``、``spacr-qt``、``python -m spacr.qt`` 或 ``python -m spacr`` 启动应用程序。最后一个命令还接受 ``mask`` 和 ``measure`` 等子命令，以打开指定的应用程序选项卡。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt#2",
+      "source": "The interface uses ``theme.py`` for its palette and QSS stylesheet, ``widgets/`` for reusable widgets, ``screens/`` for application screens, and ``app.py`` for the main window and QApplication bootstrap.",
+      "source_sha256": "9c46c7fdb48ed42b63a69495757410e7a56586a9ffc95ae5add49604ff68881e",
+      "context": "The interface uses ``theme.py`` for its palette and QSS stylesheet, ``widgets/`` for reusable widgets, ``screens/`` for application application views, and ``app.py`` for the main window and QApplication bootstrap.",
+      "translation": "界面使用 ``theme.py`` 定义调色板和 QSS 样式表，使用 ``widgets/`` 存放可复用的控件，使用 ``screens/`` 存放应用程序界面，并使用 ``app.py`` 实现主窗口和 QApplication 的初始化。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.assay_examples#1",
+      "source": "Replication, Invasion, Recruitment and Host–Pathogen offer published datasets through Load test data. Host–Pathogen contains two real THP-1 RNF213 fields, prepared host/nucleus/vacuole masks and fresh measurements of those fields. Replication and Recruitment contain slices of measured screens. Invasion's images are synthetic and explicitly labelled before downloading. Its masks are Cellpose-SAM segmentations from Mask, and its ground truth describes the objects originally drawn into those images.",
+      "source_sha256": "d9028b7fdac83815961076bc13b8dd74941c017e8923e0e2ea72a5c8115f8716",
+      "context": "Replication, Invasion, Recruitment and Host–Pathogen offer published datasets through Load test data. Host–Pathogen contains two real THP-1 RNF213 microscope fields of view, prepared host/nucleus/vacuole masks and fresh measurements of those microscope fields of view. Replication and Recruitment contain slices of measured screens. Invasion's images are synthetic and explicitly labelled before downloading. Its masks are Cellpose-SAM segmentations from Mask, and its ground truth describes the objects originally drawn into those images.",
+      "translation": "Replication、Invasion、Recruitment 和 Host–Pathogen 通过“加载测试数据”提供已发表的数据集。Host–Pathogen 包含两个真实的 THP-1 RNF213 视野、预先制作的宿主/细胞核/液泡掩膜，以及对这些视野重新生成的测量结果。Replication 和 Recruitment 包含已测量筛选数据的子集。Invasion 的图像为合成图像，下载前会明确标注。其掩膜来自 Mask 中的 Cellpose-SAM 分割，其真值描述最初绘入这些图像的对象。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo#0",
+      "source": "The OPS module's ``ops_spot_detector``: spaCR's own, SpotNet or Spotiflow.",
+      "source_sha256": "2e58d90f1d78f2c874eab21583e4b66e901d8fceae7a0d1a3707de3b637f4a0b",
+      "context": "The OPS module's ``ops_spot_detector``: spaCR's own, SpotNet or Spotiflow.",
+      "translation": "OPS 模块的 ``ops_spot_detector``：spaCR 自带检测器、SpotNet 或 Spotiflow。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo#1",
+      "source": "spaCR's own detector is first, the default and always usable. SpotNet and Spotiflow are listed whether or not they can run; when one's environment (or SpotNet's DeepCell token) is missing its row is disabled and its tooltip says which. SpotNet's tooltip states its non-commercial licence either way, because this box is where a person chooses it. A saved Spotiflow choice is kept even while its row is disabled or hidden, so the run receives it and says why it cannot run rather than detecting with another detector.",
+      "source_sha256": "866dbed554577f5a929820cb939f1244a6a768efcbe77e1cbb3123173a8fd856",
+      "context": "spaCR's own detector is first, the default and always usable. SpotNet and Spotiflow are listed whether or not they can run; when one's environment (or SpotNet's DeepCell token) is missing its row is disabled and its tooltip says which. SpotNet's tooltip states its non-commercial licence either way, because this box is where a person chooses it. A saved Spotiflow choice is kept even while its row is disabled or hidden, so the run receives it and says why it cannot run rather than detecting with another detector.",
+      "translation": "spaCR 自带检测器列在首位，为默认选项，且始终可用。无论能否运行，SpotNet 和 Spotiflow 都会列出；若缺少相应环境或 SpotNet 的 DeepCell 令牌，其选项行会禁用，工具提示会说明缺少什么。无论哪种情况，SpotNet 的工具提示都会注明其非商业许可证，因为用户在此框中作出选择。即使 Spotiflow 的选项行被禁用或隐藏，已保存的 Spotiflow 选择仍会保留，让运行接收该选择并说明无法运行的原因，而不是改用其他检测器进行检测。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo#2",
+      "source": "the value to start on, ``'native'``, ``'spotnet'`` or ``'spotiflow'``.",
+      "source_sha256": "056d075c0e27a53a3d1d9a85aa60e6902626cb7a83e9e4055c0be5cbb7d84633",
+      "context": "the value to start on, ``'native'``, ``'spotnet'`` or ``'spotiflow'``.",
+      "translation": "初始值：``'native'``、``'spotnet'`` 或 ``'spotiflow'``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo#5",
+      "source": "the same for Spotiflow.",
+      "source_sha256": "4aaf51ad0c3403798e1019ea6eeffa21dcbde599bf2441d866130ec211a2a6b8",
+      "context": "the same for Spotiflow.",
+      "translation": "对 Spotiflow 使用相同设置。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo#6",
+      "source": "List the detectors, disable those that cannot run, select.",
+      "source_sha256": "f1d015992d365fe4c611675c97087ca7120c370e2fe774683535e0628c5d2eb7",
+      "context": "List the detectors, disable those that cannot run, select.",
+      "translation": "列出检测器，禁用无法运行的检测器，然后选择。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo.refresh#0",
+      "source": "Enable SpotNet's and Spotiflow's rows only when each can run, and say why not.",
+      "source_sha256": "c2294f35fd965873573b02cb78eddbfa4971d12bf566c978920675c35d4df12a",
+      "context": "Enable SpotNet's and Spotiflow's rows only when each can run, and say why not.",
+      "translation": "仅在各自可运行时启用 SpotNet 和 Spotiflow 的选项行，否则说明原因。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo.setCurrentText#1",
+      "source": "a caption or stored value; a row that is not installed (disabled), or no match, leaves the selection alone, except Spotiflow's, which is selected whatever its state.",
+      "source_sha256": "b580b4d6fef151dd5bf86ea4c305908b0efa8d79005fd741ed8211fd398bcde5",
+      "context": "a caption or stored value; a row that is not installed (disabled), or no match, leaves the selection alone, except Spotiflow's, which is selected whatever its state.",
+      "translation": "显示文本或已存储值；未安装（禁用）的选项行或无匹配项时保持当前选择不变，但 Spotiflow 除外，无论其状态如何都会被选中。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.map_barcodes.install_folds#0",
+      "source": "Put Map Barcodes' fold strip, its live barcode search and its spatial transcriptomics panel on ``screen``.",
+      "source_sha256": "ddd5058a3c8d3ac5faaafc87609dedaa57a0f859aa9cacea2cd780d78ca969e8",
+      "context": "Put Map Barcodes' fold strip, its live barcode search and its spatial transcriptomics panel on ``screen``.",
+      "translation": "将 Map Barcodes 的折叠分区栏、实时条形码搜索和空间转录组学面板放到 ``screen`` 上。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.analyze_plaques#7",
+      "source": "``colony_counting`` -- in plaque mode, counts bacterial or fungal colonies on plate photos instead of segmenting plaques (:func:`_analyze_colony_plates`), writing ``<src>/colonies/colonies.db``.",
+      "source_sha256": "7c8578008fd59f34eecf8753379a12ad7b400dea521e27c4f189e3d24550f6cd",
+      "context": "``colony_counting`` -- in plaque mode, counts bacterial or fungal colonies on plate photos instead of segmenting plaques (:func:`_analyze_colony_plates`), writing ``<src>/colonies/colonies.db``.",
+      "translation": "``colony_counting`` -- 在噬斑模式下，对培养皿照片中的细菌或真菌菌落计数，而不是分割噬斑（:func:`_analyze_colony_plates`），并写入 ``<src>/colonies/colonies.db``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.analyze_plaques#8",
+      "source": "None. Writes ``<src>/masks/plaques_analysis.db``. With ``colony_counting`` it returns the per-plate colony table instead.",
+      "source_sha256": "619f4ae9b94537eb28274a3c6d6794b741a7b5722bd34b2bfbfbf7491a595a0d",
+      "context": "None. Writes ``<src>/masks/plaques_analysis.db``. With ``colony_counting`` it returns the per-plate colony table instead.",
+      "translation": "None。写入 ``<src>/masks/plaques_analysis.db``。启用 ``colony_counting`` 时，改为返回按培养皿整理的菌落表。",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}

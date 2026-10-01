@@ -1,36 +1,35 @@
 {
   "lesson": "07_mask",
-  "english_sha256": "d988500d3e72fecd4b8c77b883b5355c5de3e59b413d46f093e2c762876087d4",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "f3857bc3da727e332cd16993840b67e8b1e444fcfe523266922653700cf7e5e4",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "es",
-  "title": "Mask: filtros en vivo, una ejecución real y exportación verificada de superposiciones",
-  "description": "Use el ejemplo real descargable, compare área y diámetro en vivo, ejecute dos campos con Plot activado y recupere una superposición mediante un paso explícito en Python.",
+  "title": "Mask: segmentar imágenes y revisar los resultados",
+  "description": "Carga imágenes de microscopio, elige los ajustes de segmentación, previsualiza los objetos y guarda las máscaras para la medición.",
   "objectives": [
-    "Encontrar Mask en Home y sus controles integrados Live, Time, 3D y OPS.",
-    "Comprobar metadatos y canales antes de segmentar.",
-    "Distinguir filtrado reversible y nueva inferencia con otro parámetro.",
-    "Inspeccionar resultados reales, conservar el aviso de superposición parcial y exportar ambos arrays explícitamente.",
-    "Separar limitaciones de QC, datos originales y una pregunta AI no enviada de la validación científica."
+    "Cargar el ejemplo de microscopía e identificar sus canales de intensidad.",
+    "Comparar ajustes del modelo y filtros de tamaño de objeto en la vista previa Live.",
+    "Ejecutar la segmentación, revisar las superposiciones y encontrar las salidas combinadas."
   ],
-  "prerequisite": "Use la descarga real de Mask y conserve identidades de canales y metadatos. La vista previa Live se grabó en 1.5.0.7 con los ajustes del ejemplo en una copia nueva y solo se reutiliza mientras live_preview.py y preview_contract.py sigan idénticos byte a byte a esa grabación: los arrays verifican 105→52→105 con área mínima 510 y 36 tras diámetro 30→60. El nuevo lote de dos campos es otro ejemplo, no una comparación directa: Plot=True, test_images=2, batch_size=2, n_jobs=2, diámetros 30/30/15 y umbrales de flujo 0.4 para los tres objetos. El 100 del archivo desactiva el filtrado y no se recomienda como predeterminado. El bucle nativo AÚN falla con .spacr_plane_layout.json: falta una de dos superposiciones aunque diga Finished. No borre el metadato ni active pickle. El helper usa spacr.plot.plot_image_mask_overlay solo con .npy regulares; exige cuatro canales y máscaras célula/núcleo/patógeno en 4/5/6. Escribe PNG opacos en una carpeta nueva, sin modificar arrays ni reparar la GUI. Sus hashes coinciden con el diario nativo. Etiquetas finales: 25/19/8 y 52/50/58; QC del primer campo avisa near_empty_field. QC celular precede al ajuste de máscaras. Se comprobaron 95,424,864 valores RGB de paneles y 7,952,072 píxeles de cobertura combinada, no exactitud biológica. Se conservan fallos y pruebas transparentes, sin presentarlos como completos. Sin petición AI, entrenamiento, aprobación ni publicación. API: spacr.core.preprocess_generate_masks y spacr.plot.plot_image_mask_overlay. OPS es una página aparte que se abre desde la fila de acciones de Mask y tiene su propia lección; esta lección no lo ejecuta.",
+  "prerequisite": "Abre Mask y elige Load test data. Para tus propias imágenes, prepara una carpeta de origen con nombres de archivo coherentes y canales conocidos. Este ejemplo usa el canal de núcleos 0, el canal de células 1 y el canal de patógenos 2, con un canal de intensidad adicional 3.",
   "scenes": [
-    "Abra Mask desde Home. Es un módulo principal; su fila de acciones contiene los interruptores Live, Time, tridimensional y OPS. Time y OPS tienen cada uno su tutorial enlazado bajo Mask en los submódulos. Esta lección muestra un ejemplo bidimensional, comparaciones en vivo y una solución alternativa de trazado, no una segmentación validada automáticamente.",
-    "Pulse Load test data y espere a que termine la descarga del ejemplo real de microscopía. Conserve la estructura de carpetas y las imágenes originales. Grabamos una copia privada nueva para evitar resultados de ejecuciones anteriores. Para sus datos, compruebe metadatos de nombres y canales antes de copiar ajustes.",
-    "Aquí la intensidad nuclear es el canal cero, la celular el uno y la del patógeno el dos. El ejemplo también contiene el canal tres. Son identidades de canales de intensidad, no índices de planos de máscaras en el resultado combinado. Compruebe las imágenes y conserve los metadatos de disposición al mover resultados.",
-    "Active Live y seleccione un campo. La vista previa permite comparar la imagen con las máscaras propuestas antes de una ejecución mayor. Esta vista previa usa un campo distinto de los dos campos del lote posterior. No compare directamente un recuento de vista previa con el total de un lote.",
-    "Abra Live settings y examine los controles celulares. Aquí se usa el modelo CPSAM instalado; las opciones disponibles dependen de su instalación. Ejecute la vista previa antes de interpretar contornos. Diámetro y filtros son operaciones distintas; ni el nombre del modelo ni una máscara vistosa garantizan exactitud.",
-    "El resultado inicial tiene ciento cinco etiquetas celulares. Al elevar el área mínima a quinientos diez píxeles quedan cincuenta y dos visibles. Es un filtro reversible del resultado existente: la máscara original no cambia ni se vuelve a ejecutar el modelo. El umbral demuestra el control, no un corte biológico óptimo.",
-    "Restaure el límite de área original y regresan las ciento cinco etiquetas. Antes de adoptar un filtro, examine qué objetos desaparecen y por qué. Los objetos pequeños pueden ser reales o errores de segmentación; eliminarlos no resuelve esa cuestión. Mantenga identificables por separado el resultado original y los valores del filtro.",
-    "Cambiar el diámetro de treinta a sesenta píxeles y ejecutar de nuevo compara un parámetro del modelo, no solo un filtro visual. En el campo grabado produce treinta y seis etiquetas. Compare límites con la imagen, no solo recuentos. Menos etiquetas no demuestran un modelo mejor ni estos ajustes son universales.",
-    "Para el lote separado, use dos imágenes de prueba y deje Plot activado. Aquí los tres umbrales de flujo son explícitamente cero coma cuatro. La descarga indicaba cien, que desactiva el filtrado de flujo; no lo recomendamos como predeterminado. Revise los mensajes de dispositivo y procesamiento de la consola en lugar de suponer cómo se ejecutó.",
-    "Lea toda la consola. Aunque el proceso diga Finished, el registro de superposiciones indica que falta una de dos: intentó cargar el JSON de disposición como imagen. Los arrays de máscaras combinados existen, pero el trazado nativo no está completo. Conserve la advertencia; no lo trate silenciosamente como éxito.",
-    "La solución alternativa es un paso externo explícito. Conserve el JSON: describe planos de intensidad y máscaras, no es una imagen. Nunca active pickle para silenciar este error. Descargue y examine el helper enlazado; use la carpeta merged de esta ejecución concreta, no resultados antiguos.",
-    "Ejecute el helper con la fuente merged y un destino nuevo. Llama a la API real de trazado para cada array numérico y guarda ambas superposiciones. Rechaza otra disposición de planos o una carpeta de salida existente. Evita el escaneo defectuoso para esta exportación; no repara el bucle de trazado de la aplicación.",
-    "Estos gráficos guardados se muestran en un visor externo, no se insertaron en spaCR. El primer campo tiene veinticinco etiquetas celulares, diecinueve nucleares y ocho de patógeno tras el ajuste. Su QC aún advierte que ocho objetos no bastan para las comprobaciones de tamaño por campo. Una imagen legible no elimina esa limitación.",
-    "El segundo campo tiene cincuenta y dos etiquetas celulares, cincuenta nucleares y cincuenta y ocho de patógeno. Los cuatro primeros paneles muestran canales de intensidad y contornos; el último combina las máscaras. La normalización por percentiles aquí es solo visual. Los arrays originales no cambian, y estos recuentos no miden exactitud frente a una referencia.",
-    "Conserve las comprobaciones, el diario original, los ajustes y los archivos QC juntos. Verificamos independientemente los arrays de los paneles, la cobertura combinada y los hashes originales intactos. El QC celular se registró antes del ajuste de máscaras y sus recuentos pueden diferir de los finales. Revise la segmentación antes de pasar a Measure.",
-    "El control opcional spaCR AI de la consola puede ayudar a hablar de ajustes, pero esta pregunta no se ha enviado ni se muestra respuesta de un proveedor. Contraste cualquier consejo con archivos y avisos reales. La canalización Python y la API de trazado usan los mismos contratos de datos; las lecciones enlazadas cubren Measure y Time."
+    "Desde Home, abre Mask. Usa este módulo para delimitar células, núcleos y patógenos en imágenes de microscopio. Este recorrido procesa imágenes bidimensionales. Los flujos de Time, tridimensional y OPS tienen sus propios tutoriales.",
+    "Haz clic en Load test data y espera a que se cargue el ejemplo de microscopía. Comprueba Source antes de continuar. Para tus propias imágenes, selecciona su carpeta y confirma que los nombres de archivo identifican la placa, el pocillo, el campo y el canal.",
+    "Compara las asignaciones de canales con las imágenes. En este ejemplo, la intensidad de los núcleos es el canal cero, la de las células es el canal uno y la de los patógenos es el canal dos. El canal tres es una imagen de intensidad adicional. Elige solo los tipos de objeto presentes en tu experimento.",
+    "Activa Live y selecciona un campo. Revisa la imagen y las máscaras propuestas juntas antes de procesar toda la carpeta. Prueba varios campos que representen el rango de calidad de imagen de tu experimento.",
+    "Abre Live settings y elige el modelo para el objeto que quieres segmentar. Define el diámetro aproximado del objeto y ejecuta la vista previa. Compara los contornos con la imagen, fijándote en los objetos que se pierden y en los que quedan unidos.",
+    "Usa el filtro de área mínima para ocultar los objetos más pequeños que el número de píxeles elegido. Al aumentarlo desaparecen las etiquetas pequeñas de la vista previa. Este filtro actualiza un resultado de máscara ya existente, así que puedes comparar límites de tamaño rápidamente.",
+    "Cambia el diámetro cuando el modelo divida o una objetos a una escala equivocada y vuelve a ejecutar la vista previa. Revisa los bordes además del recuento de objetos. Restablece los ajustes que quieras usar antes de pasar a la ejecución por lotes.",
+    "Para una primera ejecución pequeña, selecciona dos imágenes de prueba, deja Plot activado y revisa los umbrales de flujo de células, núcleos y patógenos. Aquí son de cero coma cuatro. Comprueba los ajustes de salida y de conservación de las imágenes originales y haz clic en Run.",
+    "Sigue la consola y revisa los campos que fallen o los gráficos que falten. La carpeta merged contiene las intensidades de imagen y las etiquetas finales de los objetos. Conserva sus metadatos de disposición de planos junto a los arreglos para que Measure pueda identificar cada canal y cada máscara.",
+    "Si falta una exportación de superposición, la herramienta de gráficos enlazada puede exportar por separado los arreglos guardados. Extrae la herramienta y elige la carpeta merged de esta ejecución. Deja el archivo de disposición en su sitio; la herramienta lo usa para comprobar los planos de intensidad y de máscara.",
+    "Ejecuta la herramienta con la carpeta merged como origen y una carpeta de salida nueva como destino. Guarda una superposición separada para cada arreglo de imagen. Abre los archivos PNG guardados para revisar los resultados.",
+    "Revisa los contornos en cada canal de intensidad y en la vista combinada de máscaras. Comprueba los objetos pequeños, las células que se tocan y las regiones perdidas. Guarda juntos las imágenes de entrada, los ajustes, las máscaras y los informes de calidad, y continúa con Measure para extraer las características y los recortes de los objetos."
   ]
 }

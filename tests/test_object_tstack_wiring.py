@@ -618,6 +618,37 @@ def test_the_volumetric_4d_modes_skip_the_2d_merge_split_filter_step(
     assert "z_segmentation_mode='volumetric'" in out
 
 
+def test_the_volumetric_4d_modes_still_apply_object_filters_in_3d(
+        tmp_path, fake_model, capsys):
+    """The 2-D merge/split step is skipped, but object filters are not.
+
+    A filter is a property of the labelled object, so it is applied to the
+    3-D labels as they are rather than plane by plane: a minimum every object
+    passes keeps them all, and one no object reaches removes every object.
+    """
+    def run(name, minimum):
+        src = tmp_path / name
+        _write_npz(src, (2, 4, 32, 32, 2))
+        O.generate_cellpose_masks_sam(str(src), _base_settings(
+            src, t_stack=True, t_axis_order="TZYX",
+            z_segmentation_mode="volumetric", anisotropy=2.0,
+            object_filters={"cell": [{"property": "area", "min": minimum}]},
+        ), "cell")
+        return [np.load(path)
+                for path in sorted((src / "cell_mask_stack").iterdir())]
+
+    kept = run("kept", 1)
+    assert kept and all(mask.max() > 0 for mask in kept)
+
+    removed = run("removed", 10 ** 7)
+
+    out = capsys.readouterr().out
+    assert "merge_split_filter_masks(cell): skipped" in out
+    assert len(removed) == len(kept)
+    assert all(mask.shape == other.shape and not mask.any()
+               for mask, other in zip(removed, kept))
+
+
 def test_plotting_is_skipped_rather_than_crashing_in_4d(tmp_path, fake_model,
                                                         capsys):
     """The 4-D path calls eval per timepoint and collects no flow field."""

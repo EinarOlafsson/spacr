@@ -232,7 +232,10 @@ class PlateGridWidget(QWidget):
         self.set_plate(None)
 
     def set_placeholder(self, text: str) -> None:
-        """Text shown when there is no plate to draw."""
+        """Text shown when there is no plate to draw.
+
+        :param text: the message painted in place of the grid.
+        """
         self._placeholder = text
         self.update()
 
@@ -245,11 +248,19 @@ class PlateGridWidget(QWidget):
         return self._n_rows > 0 and self._n_cols > 0
 
     def well_value(self, row_index: int, column_index: int) -> Optional[float]:
-        """Value behind a well, or ``None`` when the well is blank."""
+        """Value behind a well, or ``None`` when the well is blank.
+
+        :param row_index: 1-based plate row.
+        :param column_index: 1-based plate column.
+        """
         return self._values.get((int(row_index), int(column_index)))
 
     def well_count(self, row_index: int, column_index: int) -> int:
-        """Objects behind a well; ``0`` when nothing survived filtering."""
+        """Objects behind a well; ``0`` when nothing survived filtering.
+
+        :param row_index: 1-based plate row.
+        :param column_index: 1-based plate column.
+        """
         return self._counts.get((int(row_index), int(column_index)), 0)
 
     def selected_well(self) -> Optional[Tuple[int, int]]:
@@ -258,7 +269,11 @@ class PlateGridWidget(QWidget):
 
     def select(self, row_index: Optional[int],
                column_index: Optional[int] = None) -> None:
-        """Highlight a well (or clear the highlight with ``None``)."""
+        """Highlight a well (or clear the highlight with ``None``).
+
+        :param row_index: 1-based plate row, or ``None`` to clear.
+        :param column_index: 1-based plate column; ``None`` also clears.
+        """
         if row_index is None or column_index is None:
             self._selected = None
         else:
@@ -280,6 +295,9 @@ class PlateGridWidget(QWidget):
         Public because it is what makes a click testable: a test can aim
         at the centre of ``cell_rect(3, 7)`` instead of guessing at pixel
         arithmetic that would have to be kept in sync by hand.
+
+        :param row_index: 1-based plate row.
+        :param column_index: 1-based plate column.
         """
         size = self._cell_size()
         x = _GRID_PAD + _ROW_LABEL_W + (int(column_index) - 1) * size
@@ -469,6 +487,9 @@ class PlateViewScreen(LinkedView, QWidget):
 
         Silent when nothing is loaded: a filter change is not a reason to
         show an error on a screen the user has not pointed at a database yet.
+
+        :param data_filter: the filter that was published; not read here, as
+            the redraw reads the link's current filter itself.
         """
         if self._frame is not None:
             self.recompute()
@@ -481,6 +502,8 @@ class PlateViewScreen(LinkedView, QWidget):
         silent, but during interpreter teardown the C++ side of the
         process-wide `LinkedSelection` can be gone before this widget's
         `closeEvent` runs, and PySide raises on the disconnect then.
+
+        :param event: the close event; passed on unchanged to the base class.
         """
         try:
             self.unlink_selection()
@@ -782,7 +805,11 @@ class PlateViewScreen(LinkedView, QWidget):
         return self._value_combo.currentText()
 
     def set_table(self, table: str) -> None:
-        """Select ``table`` and reload its numeric columns."""
+        """Select ``table`` and reload its numeric columns.
+
+        :param table: name of a table in the table box, converted with
+            ``str``.
+        """
         self._table_combo.setCurrentText(str(table))
         self._on_table_changed()
 
@@ -794,6 +821,8 @@ class PlateViewScreen(LinkedView, QWidget):
         then switches to a table that does not have it. Rendering then
         fails with an inline explanation rather than the combo silently
         snapping back to something the user did not choose.
+
+        :param column: the measurement column name, converted with ``str``.
         """
         name = str(column)
         if self._value_combo.findText(name) < 0:

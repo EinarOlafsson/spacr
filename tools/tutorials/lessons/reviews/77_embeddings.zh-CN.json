@@ -1,29 +1,32 @@
 {
-  "title": "Embeddings：当前界面与真实的Python示例",
-  "description": "了解新模块，通过API编码真实图像，并区分界面限制、探索性展示与生物学验证。",
-  "objectives": [
-    "区分当前界面和可用的API。",
-    "用十六张图像比较两种通道策略。",
-    "保留标识信息并理解图表的局限。"
-  ],
-  "prerequisite": "安装带embeddings附加依赖的spaCR 1.5.0.7；录制使用timm 1.0.29和CPU上的预训练ResNet18。下载Annotate示例和链接中的ZIP，使用README指定的cell_png目录及新的输出目录。文件名不是已验证的数据库关联键。当前界面没有图像加载控件，成功操作通过API完成。不声称生物学验证、母语审校或GPU运行已完成。",
-  "scenes": [
-    "Embeddings是spaCR首页的新模块。它将裁剪图像转换为数值向量，不需要用您的标注进行训练。本课展示当前界面，以及使用真实下载图像的可运行Python示例。",
-    "在一点五点零点七版本中，这个界面没有裁剪图像加载控件，Embed按钮保持禁用。我们不会模拟一次成功的图形界面运行。接下来真正的编码操作由受支持的Python API完成。",
-    "Per channel分别编码每个已保存的通道，再拼接向量。Project to three则编码组合后的图像。这改变的是表示方式，不只是速度。PNG中的一个通道位置并不自动代表已验证的染色标记。",
-    "在spaCR环境中安装可选的embeddings附加依赖。默认的ResNet十八使用ImageNet监督学习权重，并非以细胞图像训练的自监督模型。这个小示例使用CPU，不需要GPU或远程人工智能服务。",
-    "使用Annotate提供的下载示例和说明中指定的裁剪图像目录。链接中的脚本按文件名排序选取十六张现有图像。每张图像边长二百二十四像素，含三个已保存的通道。不改变尺寸，也不重新分割。",
-    "指定新的输出目录运行脚本。脚本以真实的预训练编码器调用embed_array，每批四张。逐通道编码得到十六行、一千五百三十六个维度。保存的矩阵会重新打开，并逐个核对数值。",
-    "现在选择project和另一个输出目录。同样的图像得到十六行、五百一十二个维度。这些组合通道列不能与之前的逐通道列互换。请有意识地比较两种策略，并保存每次运行的设置。",
-    "在图像查看器中检查真实输入图像的拼图。编号与输出行顺序一致。解释向量前，先检查裁剪质量和导出时的通道对应关系。文件名用于标识本例；与测量数据库关联前，请验证对象键。",
-    "这张保存的图将逐通道向量投影到两个主成分上。编号点对应同一批裁剪图像。这只是极小样本的探索性可视化，不是不同表型存在的证明。一个嵌入维度并不是一种生物学测量。",
-    "组合通道向量有自己的投影。不要把两张独立拟合的图中的坐标当作来自同一个变换而直接比较。这些图都没有测量检索准确率，也不能证明嵌入优于人工设计的测量特征集合。",
-    "保留向量、来源标识、权重校验和、设置及软件包版本。脚本检查源图像未被修改，并拒绝已存在的输出位置。比较时应保持输入裁剪、归一化和通道对应关系一致。请按链接中的说明复现这个API示例。"
-  ],
   "lesson": "77_embeddings",
+  "english_sha256": "fa2d38e241cdc746d2971e944f97e9f10198b0c9615f3fd3ea439452efa44871",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "zh-CN",
-  "english_sha256": "f5415671d988cad7353067d0a764a519bf90cb6134d0de803b90d50060678172",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false
+  "title": "Embeddings：加载裁剪图像并比较通道策略",
+  "description": "从Home加载裁剪图像，选择编码器和通道策略，运行Embed并检查特征预览。",
+  "objectives": [
+    "通过Embeddings界面加载裁剪图像文件夹。",
+    "选择骨干网络、批大小和通道策略。",
+    "检查向量预览，并通过提供的Python辅助脚本保存完整结果。"
+  ],
+  "prerequisite": "安装带有embeddings附加组件的spaCR。下载Annotate示例，找到plate1/data/single_nucleus/uninfected/plate1_E02/cell_png。对于这里演示的小示例，请按文件名排序把前十六个PNG复制到新文件夹。如果预训练权重尚未缓存，编码器第一次运行时会下载它们。可选的Embeddings_API_example.zip提供了用于保存完整矩阵的辅助脚本。",
+  "scenes": [
+    "从Home打开Data中的Embeddings。您将加载裁剪图像，选择通道的编码方式，并为每个对象生成一个数值特征向量。",
+    "在Crops from中选择crop folder。如果想按对象类别、板或条件进行选择，也可以使用测量数据库。本演示使用Annotate可下载示例中的裁剪图像文件夹。",
+    "把十六个示例PNG复制到一个工作文件夹。输入该文件夹的路径并按Enter，或使用Browse。把At most设为十六，然后点击Load crops。",
+    "阅读已加载的裁剪图像数量、尺寸和通道数。示例包含十六张边长两百二十四像素的图像，每张保存了三个通道。比较结果之前，请检查裁剪图像导出时的通道映射。",
+    "选择Per channel，分别编码每个通道并拼接其特征。Backbone保持为resnet18，并为这次小规模运行把Batch设为四。较小的批次可以减少内存占用。",
+    "点击Embed并等待预览。本例生成十六个对象向量，每个有一千五百三十六维。表中只显示前几维；运行规模较大时，最多显示五十个对象。",
+    "选择Project to three并再次点击Embed。这样会编码合成后的图像，而不是分别编码每个通道。比较两种策略时，请使用相同的裁剪图像和骨干网络。",
+    "投影后的示例每个对象有五百一十二维。请把通道策略和编码器设置与结果放在一起。后续分析请使用完整向量；单个维度并不是生物学测量值。",
+    "目前该界面只提供预览，没有导出按钮。要保存完整矩阵，请下载链接中的Python辅助脚本并按照其README操作。它会把向量、对象文件名、设置和探索性图写入一个新的输出文件夹。"
+  ]
 }

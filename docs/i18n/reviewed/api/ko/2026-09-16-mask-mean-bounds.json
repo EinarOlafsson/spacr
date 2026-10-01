@@ -20,28 +20,33 @@
       "source": "Loads the ``cpsam`` pretrained model — or, when ``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint the user trained, that checkpoint — iterates over each pre-batched ``.npz`` file, applies perimeter merging and area/border filtering to 2-D masks, and optionally filters objects by their absolute mean intensity in the original own-channel image. It then optionally tracks timelapse objects, saves per-image ``.npy`` masks, and records per-object counts to the run's SQLite database. Time-stack archives must contain one filename per timepoint, regardless of the declared time-axis position; each raw filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its ``(Y, X, C)`` image for a flat ``TYX`` series.",
       "source_sha256": "4e378f5852d67604e49d42c5f742f45a092961a6e463e6c2c8bd12390e2c8141",
       "context": "Loads the ``cpsam`` pretrained model — or, when ``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint the user trained, that checkpoint — iterates over each pre-batched ``.npz`` file, applies perimeter merging and area/border filtering to 2-D masks, and optionally filters objects by their absolute mean intensity in the original own-image data channel image. It then optionally tracks timelapse objects, saves per-image ``.npy`` masks, and records per-object counts to the run's SQLite database. Time-stack archives must contain one filename per timepoint, regardless of the declared time-axis position; each raw filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its ``(Y, X, C)`` image for a flat ``TYX`` series.",
-      "translation": "사전 학습된 ``cpsam`` 모델을 로드합니다. 단, ``<object_type>_model_name``(또는 ``pathogen_model``)이 사용자가 학습한 체크포인트를 지정하면 해당 체크포인트를 로드합니다. 미리 배치로 나눈 각 ``.npz`` 파일을 순회하면서 2-D 마스크에 둘레 기반 병합과 면적/경계 필터링을 적용하고, 선택적으로 객체 자체 채널의 원본 영상에서 측정한 절대 평균 강도로 객체를 필터링합니다. 이어서 선택적으로 타임랩스 객체를 추적하고, 영상별 ``.npy`` 마스크를 저장하며, 실행의 SQLite 데이터베이스에 객체 유형별 개수를 기록합니다. 시간 스택 아카이브에는 선언된 시간 축의 위치와 관계없이 시점마다 하나의 파일명이 있어야 합니다. 각 원본 파일명은 해당 시점의 ``(Z, Y, X, C)`` 볼륨 또는 ``(Y, X, C)`` 영상을 가리키며, 후자는 평면 ``TYX`` 시계열에 해당합니다."
-    },
-    {
-      "label": "spacr.object.generate_cellpose_masks_sam#2",
-      "source": "Directory containing the pre-batched ``.npz`` image stacks.",
-      "source_sha256": "29a1be2f9f32ead343bd5c3da14a47365d88f0bd7ef59e19650b57b940afc727",
-      "context": "Directory containing the pre-batched ``.npz`` image stacks.",
-      "translation": "미리 배치로 나눈 ``.npz`` 영상 스택이 들어 있는 디렉터리입니다."
+      "translation": "사전 학습된 ``cpsam`` 모델을 로드합니다. 단, ``<object_type>_model_name``(또는 ``pathogen_model``)이 사용자가 학습한 체크포인트를 지정하면 해당 체크포인트를 로드합니다. 미리 배치로 나눈 각 ``.npz`` 파일을 순회하면서 2-D 마스크에 둘레 기반 병합과 면적/경계 필터링을 적용하고, 선택적으로 객체 자체 채널의 원본 영상에서 측정한 절대 평균 강도로 객체를 필터링합니다. 이어서 선택적으로 타임랩스 객체를 추적하고, 영상별 ``.npy`` 마스크를 저장하며, 실행의 SQLite 데이터베이스에 객체 유형별 개수를 기록합니다. 시간 스택 아카이브에는 선언된 시간 축의 위치와 관계없이 시점마다 하나의 파일명이 있어야 합니다. 각 원본 파일명은 해당 시점의 ``(Z, Y, X, C)`` 볼륨 또는 ``(Y, X, C)`` 영상을 가리키며, 후자는 평면 ``TYX`` 시계열에 해당합니다.",
+      "retired": true,
+      "retired_reason": "2026-09-25: the English block this record translated is no longer in the docstring (the :param: pass or a later edit rewrote it); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object.generate_cellpose_masks_sam#3",
-      "source": "Pipeline settings dict; canonicalized via :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.",
-      "source_sha256": "3b4741714fe14d6366d7ad3a28496a310ee4670705a5cfe56a6640d41a835468",
-      "context": "Workflow settings key-value mapping; canonicalized via :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.",
-      "translation": "파이프라인 설정 딕셔너리이며, :func:`spacr.settings.set_default_settings_preprocess_generate_masks`를 통해 표준 형식으로 정리됩니다."
+      "source": "Directory containing the pre-batched ``.npz`` image stacks.",
+      "source_sha256": "29a1be2f9f32ead343bd5c3da14a47365d88f0bd7ef59e19650b57b940afc727",
+      "context": "Directory containing the pre-batched ``.npz`` image stacks.",
+      "translation": "미리 배치로 나눈 ``.npz`` 영상 스택이 들어 있는 디렉터리입니다.",
+      "rebound_from": "spacr.object.generate_cellpose_masks_sam#2"
     },
     {
       "label": "spacr.object.generate_cellpose_masks_sam#4",
+      "source": "Pipeline settings dict; canonicalized via :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.",
+      "source_sha256": "3b4741714fe14d6366d7ad3a28496a310ee4670705a5cfe56a6640d41a835468",
+      "context": "Workflow settings key-value mapping; canonicalized via :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.",
+      "translation": "파이프라인 설정 딕셔너리이며, :func:`spacr.settings.set_default_settings_preprocess_generate_masks`를 통해 표준 형식으로 정리됩니다.",
+      "rebound_from": "spacr.object.generate_cellpose_masks_sam#3"
+    },
+    {
+      "label": "spacr.object.generate_cellpose_masks_sam#5",
       "source": "``'cell'``, ``'nucleus'``, ``'pathogen'`` or ``'organelle'``; drives channel/threshold lookups and output folder name.",
       "source_sha256": "ff0e2dc365436dd7787b99f3fcab7443eac3792d34e42fa13f9efb206d7b8c64",
       "context": "``'cell'``, ``'nucleus'``, ``'pathogen'`` or ``'organelle'``; drives channel/threshold lookups and output folder name.",
-      "translation": "``'cell'``, ``'nucleus'``, ``'pathogen'`` 또는 ``'organelle'``이며, 채널/임계값 조회와 출력 폴더 이름을 결정합니다."
+      "translation": "``'cell'``, ``'nucleus'``, ``'pathogen'`` 또는 ``'organelle'``이며, 채널/임계값 조회와 출력 폴더 이름을 결정합니다.",
+      "rebound_from": "spacr.object.generate_cellpose_masks_sam#4"
     },
     {
       "label": "spacr.object.merge_split_filter_masks#0",

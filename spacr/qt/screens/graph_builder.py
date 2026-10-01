@@ -16,7 +16,16 @@ redraws as each one lands.
 
 **What it needs.** One table of a ``measurements.db`` or a CSV or TSV file,
 chosen with Load table. The object tables and ``png_list`` are offered first;
-every other table in the database stays available.
+every other table in the database stays available. Use **Merge tables** beside
+that picker to combine tables at a cell/cytoplasm observation level. The popup
+shows the shared spaCR aggregation rules, per-column overrides and a validated
+preview. **Customize merging** supplies explicit composite keys, relationships
+and join types for external schemas, with acknowledgment and reset controls.
+Named results persist beside the database in ``.spacr-merges.json`` and are
+revalidated on reuse. **Save chart** includes the chart channels and merge
+definition; **Load chart** reconstructs the data before plotting. External
+results without verified image provenance support plotting and tabular
+filtering, while the image navigation action explains why it is unavailable.
 
 **What it produces.** A chart with six drop zones: x, y, colour, size, facet
 row and facet column. Only x and y decide the chart type -- one continuous
@@ -45,12 +54,15 @@ hand it a frame, and everything below works.
 """
 from __future__ import annotations
 
+import copy
+import json
 import logging
 import os
 import sqlite3
+import tempfile
 import traceback
-from typing import (TYPE_CHECKING, Callable, Dict, List, NamedTuple,
-                    Optional, Tuple)
+from pathlib import Path
+from typing import TYPE_CHECKING, Callable, Dict, List, NamedTuple, Optional, Tuple
 
 import pandas as pd
 
@@ -58,20 +70,31 @@ if TYPE_CHECKING:
     from ..widgets.fold_strip import FoldStrip
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
-    QComboBox, QFileDialog, QHBoxLayout, QLabel, QPushButton,
-    QVBoxLayout, QWidget,
+    QComboBox,
+    QDialog,
+    QFileDialog,
+    QHBoxLayout,
+    QInputDialog,
+    QLabel,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
 )
 
+from ...condition_annotations import apply_conditions, source_context
+from ..app_catalog import declared_app, register_declared
+from ..i18n import tr
 from ..job_runner import JobRunner
 from ..theme import SPACING
 from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.data_filter_panel import DataFilterPanel
+from ..widgets.derived_table_source import DerivedTableSource
 from ..widgets.graph_builder import GraphBuilderPanel
 from ..widgets.measurements_example import (
-    EXAMPLE_TABLE, install_test_data_button,
+    EXAMPLE_TABLE,
+    install_test_data_button,
 )
 from .app_screen import ModuleHeader
-from ..app_catalog import declared_app, register_declared
 
 LOG = logging.getLogger("spacr.qt.screens.graph_builder")
 
@@ -90,14 +113,21 @@ _PREFERRED_TABLES = ("object", "cell", "nucleus", "pathogen", "cytoplasm",
 
 
 def table_names(path: str) -> List[str]:
-    """Every user table in the SQLite file at ``path``, in a useful order."""
+    """Every user table in the SQLite file at ``path``, in a useful order.
+
+    :param path: path to a SQLite measurement database, opened read-only;
+        the preferred tables (``object``, ``cell``, ``nucleus``, …) come
+        first, then the rest alphabetically, with ``sqlite_`` internals left
+        out.
+    """
     with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
         rows = db.execute(
             "SELECT name FROM sqlite_master WHERE type='table' "
             "AND name NOT LIKE 'sqlite_%' ORDER BY name").fetchall()
     found = [row[0] for row in rows]
     ranked = [name for name in _PREFERRED_TABLES if name in found]
-    return ranked + [name for name in found if name not in ranked]
+    from ...derived_tables import load_definitions
+    return ranked + [name for name in found if name not in ranked] + list(load_definitions(path))
 
 
 def read_table(path: str, table: Optional[str] = None,
@@ -115,11 +145,25 @@ def read_table(path: str, table: Optional[str] = None,
         sep = "\t" if str(path).lower().endswith(".tsv") else ","
         return pd.read_csv(path, sep=sep, nrows=limit)
     name = table or (table_names(path) or ["object"])[0]
-    query = f'SELECT * FROM "{name}"'
+    from ...derived_tables import execute, load_definitions
+    definitions = load_definitions(path)
+    if name in definitions:
+        frame, _report = execute(path, definitions[name])
+        return frame.head(limit) if limit else frame
+    query = 'SELECT * FROM "' + name.replace('"', '""') + '"'
     if limit:
         query += f" LIMIT {int(limit)}"
     with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
-        return pd.read_sql_query(query, db)
+        frame = pd.read_sql_query(query, db)
+    if not limit:
+        from ...condition_annotations import saved_table_annotation
+        try:
+            annotation = saved_table_annotation(path, name, frame)
+            if annotation:
+                frame.attrs["saved_condition_definition"] = annotation
+        except ValueError as exc:
+            frame.attrs["condition_annotation_problem"] = str(exc)
+    return frame
 
 
 def _one_line(exc: BaseException) -> str:
@@ -169,7 +213,7 @@ class _Loaded(NamedTuple):
     problem: Optional[str]
 
 
-class GraphBuilderScreen(QWidget):
+class GraphBuilderScreen(DerivedTableSource, QWidget):
     """Drag columns onto channels; the chart follows.
 
     :param link: a private :class:`~spacr.qt.linked_selection.LinkedSelection`
@@ -204,6 +248,11 @@ class GraphBuilderScreen(QWidget):
         self.app_key = "graph_builder"
         self._frame: Optional[pd.DataFrame] = None
         self._path: Optional[str] = None
+        self._annotation_base_frame = None
+        self._condition_source = None
+        self._condition_definition = None
+        self._condition_definitions = {}
+        self._threaded = threaded
         self._jobs = JobRunner(self, threaded=threaded, app_key="graph_builder")
         self._jobs.job_failed.connect(self._on_load_failed)
 
@@ -234,12 +283,31 @@ class GraphBuilderScreen(QWidget):
         self._table_picker.setVisible(False)
         self._table_picker.currentTextChanged.connect(self._on_table_picked)
         head.addWidget(self._table_picker)
+        self._install_merge_button(head)
 
         load = QPushButton("Load table…", self)
         load.setObjectName("PrimaryButton")
         load.setToolTip("A measurements.db, or a CSV of measurements")
         load.clicked.connect(self.choose_table)
         head.addWidget(load)
+        save_graph = QPushButton("Save chart…", self)
+        save_graph.clicked.connect(self.choose_save_chart)
+        head.addWidget(save_graph)
+        load_graph = QPushButton("Load chart…", self)
+        load_graph.clicked.connect(self.choose_load_chart)
+        head.addWidget(load_graph)
+        self._conditions_button = QPushButton(tr("Annotate conditions"), self)
+        self._conditions_button.setEnabled(False)
+        self._conditions_button.clicked.connect(self.open_condition_dialog)
+        head.addWidget(self._conditions_button)
+        self._export_table_button = QPushButton(tr("Export table…"), self)
+        self._export_table_button.setEnabled(False)
+        self._export_table_button.clicked.connect(self.choose_export_table)
+        head.addWidget(self._export_table_button)
+        self._save_annotated_button = QPushButton(tr("Save annotated table…"), self)
+        self._save_annotated_button.setEnabled(False)
+        self._save_annotated_button.clicked.connect(self.choose_save_annotated_table)
+        head.addWidget(self._save_annotated_button)
         install_test_data_button(
             self, head, lambda _folder, db: self.load_path(
                 str(db), table=EXAMPLE_TABLE),
@@ -274,12 +342,39 @@ class GraphBuilderScreen(QWidget):
         retarget_field_tooltips(self)
 
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
-        """Plot ``frame``. The one call a host needs."""
+        """Plot ``frame``. The one call a host needs.
+
+        :param frame: the table to chart; handed to the graph builder and
+            the filter panel, and its row and column counts label the source
+            unless ``label`` is given.
+        """
+        saved_annotation = frame.attrs.get("saved_condition_definition")
+        annotation_problem = frame.attrs.get("condition_annotation_problem")
+        if saved_annotation:
+            frame = frame.drop(columns=[saved_annotation["column"]])
+            saved_key = json.dumps(saved_annotation["source"], sort_keys=True)
+            self._condition_definitions.setdefault(saved_key, copy.deepcopy(saved_annotation))
+        self._annotation_base_frame = frame
+        self._condition_source = source_context(
+            self._path, self._table_picker.currentText(), frame.attrs.get("merge_definition"))
+        key = json.dumps(self._condition_source, sort_keys=True)
+        self._condition_definition = None
+        definition = self._condition_definitions.get(key)
+        if definition:
+            try:
+                frame = apply_conditions(frame, definition, self._condition_source)
+                self._condition_definition = copy.deepcopy(definition)
+            except ValueError as exc:
+                annotation_problem = tr("Saved conditions were not applied: {error}", error=str(exc))
         self._frame = frame
+        self._conditions_button.setEnabled(True)
+        self._export_table_button.setEnabled(True)
+        self._update_save_annotated_button()
+        self._derived_frame_loaded(frame)
         self.builder.set_frame(frame)
         self.filters.set_frame(frame)
         self._source.setText(
-            label or f"{len(frame):,} rows × {len(frame.columns)} columns")
+            annotation_problem or label or f"{len(frame):,} rows × {len(frame.columns)} columns")
 
     def choose_table(self) -> None:
         """Ask which table in the project to use."""
@@ -316,6 +411,9 @@ class GraphBuilderScreen(QWidget):
         comes back as data in the :class:`_Loaded` rather than as an
         exception, so that it is dropped along with everything else when the
         load it belongs to has been superseded.
+
+        :param path: a ``.csv``, ``.tsv`` or ``.txt`` file, read as delimited
+            text, or any other file, opened read-only as a SQLite database.
         """
         self._path = path
         self._jobs.cancel()
@@ -414,7 +512,8 @@ class GraphBuilderScreen(QWidget):
         :param _data: the render payload; the selection is re-read from the
             canvas, so it is not used.
         """
-        self._to_annotate.setEnabled(self.builder.canvas.selected_count() > 0)
+        self._to_annotate.setEnabled(self._has_merge_image_provenance() and
+                                     self.builder.canvas.selected_count() > 0)
 
     def _open_selection(self) -> None:
         """Send the brushed objects to whatever shows crops.
@@ -422,6 +521,9 @@ class GraphBuilderScreen(QWidget):
         Routed through :func:`spacr.qt.linked_selection.open_objects`, so this
         screen never imports Annotate and Annotate grows no method for it.
         """
+        if not self._has_merge_image_provenance():
+            self._source.setText("This merge has no verified image/object provenance.")
+            return
         from ..linked_selection import has_object_opener
         canvas = self.builder.canvas
         selection = canvas.link.selection
@@ -440,6 +542,214 @@ class GraphBuilderScreen(QWidget):
         except Exception as exc:
             LOG.info("could not open the brushed objects", exc_info=True)
             self._source.setText(f"could not open those objects: {exc}")
+
+    def open_condition_dialog(self):
+        """Reopen conditions for the current physical, merged or imported table."""
+        if self._annotation_base_frame is None:
+            return
+        from ..widgets.condition_annotation_dialog import ConditionAnnotationDialog
+        base = self._annotation_base_frame
+        source = copy.deepcopy(self._condition_source)
+        dialog = ConditionAnnotationDialog(
+            base, source, self, definition=self._condition_definition, threaded=self._threaded)
+        try:
+            if dialog.exec() == QDialog.Accepted:
+                if base is not self._annotation_base_frame or source != self._condition_source:
+                    self._source.setText(tr("The current table changed while conditions were open; reopen the editor."))
+                    return
+                self._install_condition_frame(dialog.definition, dialog.result_frame)
+                dialog.result_frame = None
+        finally:
+            dialog.deleteLater()
+
+    def apply_condition_definition(self, definition):
+        """Apply validated labels to the working table while preserving the source.
+
+        :param definition: Source-bound condition rules from the annotation editor.
+        :returns: Working frame including the requested output column.
+        """
+        if self._annotation_base_frame is None:
+            raise ValueError("Load a source table before annotating conditions.")
+        frame = apply_conditions(self._annotation_base_frame, definition, self._condition_source)
+        return self._install_condition_frame(definition, frame)
+
+    def _install_condition_frame(self, definition, frame):
+        """Install a validated worker result without copying the full table again."""
+        self._condition_definition = copy.deepcopy(definition)
+        key = json.dumps(self._condition_source, sort_keys=True)
+        self._condition_definitions[key] = copy.deepcopy(definition)
+        self._frame = frame
+        self._update_save_annotated_button()
+        self.builder.set_frame(frame)
+        self.filters.set_frame(frame)
+        self._source.setText(tr("Conditions applied to {rows} rows in {column}.",
+                                rows=f"{len(frame):,}", column=definition["column"]))
+        return frame
+
+    def _update_save_annotated_button(self):
+        """Allow physical annotation saves only for annotated SQLite sources."""
+        path = (self._condition_source or {}).get("path")
+        self._save_annotated_button.setEnabled(bool(
+            path and self._condition_definition and
+            not path.lower().endswith((".csv", ".tsv", ".txt"))))
+
+    def choose_save_annotated_table(self):
+        """Ask for a new physical table name in the current SQLite database."""
+        current = (self._condition_source or {}).get("table") or "table"
+        name, accepted = QInputDialog.getText(
+            self, tr("Save annotated table"),
+            tr("New table name (existing tables are preserved)"), text=current + "_annotated")
+        if accepted and name.strip():
+            self.save_annotated_table(name)
+
+    def save_annotated_table(self, name):
+        """Create a new physical table and provenance atomically on a worker.
+
+        :param name: New table name in the current SQLite source database.
+        """
+        from ...condition_annotations import save_annotated_table
+        if not self._save_annotated_button.isEnabled():
+            raise ValueError("Apply conditions to a SQLite table before saving it.")
+        path = self._condition_source["path"]
+        frame = self._frame
+        definition = copy.deepcopy(self._condition_definition)
+        source = copy.deepcopy(self._condition_source)
+        merge = copy.deepcopy(self._merge_definition)
+        self._jobs.cancel()
+        self._source.setText(tr("Saving annotated table…"))
+        self._jobs.submit(
+            lambda: save_annotated_table(path, name, frame, definition, source, merge_definition=merge),
+            lambda saved: self.load_path(path, table=saved))
+
+    def choose_export_table(self):
+        """Choose a CSV destination for the current working table and its rules."""
+        path, _ = QFileDialog.getSaveFileName(
+            self, tr("Export table"), "annotated-table.csv", tr("Tables (*.csv)"))
+        if path:
+            try:
+                self.export_table(path)
+                self._source.setText(tr("Table exported to {path}", path=path))
+            except (OSError, ValueError) as exc:
+                self._source.setText(tr("Could not export table: {error}", error=str(exc)))
+
+    def export_table(self, path):
+        """Export working values and reproducible conditions without replacing input.
+
+        :param path: Destination CSV file. A .conditions.json sidecar stores rules.
+        :returns: Destination path.
+        """
+        if self._frame is None:
+            raise ValueError("Load a table before exporting.")
+        destination = Path(path).resolve()
+        source_path = (self._condition_source or {}).get("path")
+        if source_path and destination == Path(source_path).resolve():
+            raise ValueError("Choose a new export path to preserve the source table.")
+        sidecar = destination.with_suffix(destination.suffix + ".conditions.json")
+        payload = {"source": self._condition_source,
+                   "merge_definition": self._merge_definition,
+                   "condition_annotation": self._condition_definition}
+        # Prepare both files before replacing either destination; a failed CSV
+        # conversion never leaves a receipt describing an export that did not run.
+        temporary = []
+        try:
+            for target in (destination, sidecar):
+                with tempfile.NamedTemporaryFile(dir=target.parent, delete=False) as handle:
+                    temporary.append(Path(handle.name))
+            self._frame.to_csv(temporary[0], index=False)
+            temporary[1].write_text(json.dumps(payload, indent=2), encoding="utf-8")
+            os.replace(temporary[0], destination)
+            os.replace(temporary[1], sidecar)
+        finally:
+            for candidate in temporary:
+                candidate.unlink(missing_ok=True)
+        return str(destination)
+
+    def choose_save_chart(self):
+        """Choose a file for the chart and its reproducible data-source definition."""
+        path, _ = QFileDialog.getSaveFileName(self, "Save chart", "chart.json", "Charts (*.json)")
+        if path:
+            try:
+                self.save_chart(path)
+            except (OSError, ValueError) as exc:
+                self._source.setText(f"Could not save chart: {exc}")
+
+    def choose_load_chart(self):
+        """Choose a saved chart and revalidate its source before plotting."""
+        path, _ = QFileDialog.getOpenFileName(self, "Load chart", "", "Charts (*.json)")
+        if path:
+            try:
+                self.load_chart(path)
+            except (OSError, ValueError) as exc:
+                self._source.setText(f"Could not load chart: {exc}")
+
+    def save_chart(self, path):
+        """Save chart channels and a source-bound merge definition when applicable.
+
+        :param path: Destination JSON file.
+        :returns: Saved path.
+        """
+        source_path = (self._condition_source or {}).get("path")
+        if not source_path:
+            raise ValueError("Load a source table before saving a chart.")
+        if Path(path).resolve() == Path(source_path).resolve():
+            raise ValueError("Choose a new chart path to preserve the source table.")
+        payload = {"source": source_path,
+                   "table": self._condition_source["table"],
+                   "chart": self.builder.spec.to_dict(),
+                   "merge_definition": self._merge_definition,
+                   "condition_annotation": self._condition_definition}
+        Path(path).write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        return path
+
+    def load_chart(self, path):
+        """Reconstruct a saved chart, validating any embedded merge configuration.
+
+        :param path: Saved chart JSON file.
+        """
+        from ...derived_tables import execute, save_definition
+        from ..widgets.graph_spec import GraphSpec
+        payload = json.loads(Path(path).read_text(encoding="utf-8"))
+        source, table = payload["source"], payload.get("table")
+        definition = payload.get("merge_definition")
+        annotation = payload.get("condition_annotation")
+        spec = GraphSpec.from_dict(payload["chart"])
+        self._jobs.cancel()
+        self._source.setText("Loading chart…")
+
+        def work():
+            """Reconstruct saved data on the worker before the chart is restored."""
+            if definition:
+                frame, _report = execute(source, definition)
+            else:
+                frame = read_table(source, table)
+            resolved_definition = frame.attrs.get("merge_definition", definition)
+            if annotation:
+                annotation_base = frame
+                saved = frame.attrs.get("saved_condition_definition")
+                if saved:
+                    annotation_base = frame.drop(columns=[saved["column"]])
+                apply_conditions(annotation_base, annotation, source_context(source, table, resolved_definition))
+            if resolved_definition:
+                save_definition(source, resolved_definition)
+            names = table_names(source) if not source.lower().endswith((".csv", ".tsv", ".txt")) else []
+            return _Loaded(names, table, frame, None)
+
+        def done(loaded):
+            """Apply source and chart only after successful reconstruction.
+
+            :param loaded: Revalidated source frame and available table names.
+            """
+            self._path = source
+            resolved_definition = loaded.frame.attrs.get("merge_definition", definition)
+            key = json.dumps(source_context(source, table, resolved_definition), sort_keys=True)
+            if annotation:
+                self._condition_definitions[key] = copy.deepcopy(annotation)
+            else:
+                self._condition_definitions.pop(key, None)
+            self._on_frame_loaded(loaded)
+            self.builder.set_spec(spec)
+
+        self._jobs.submit(work, done)
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
         """Stop background work and unlink before going away.

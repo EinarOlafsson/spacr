@@ -60,7 +60,10 @@ def test_conda_and_pypi_are_separate_install_routes(path: Path):
     text = path.read_text(encoding="utf-8")
 
     assert text.count(CONDA_COMMAND) == 1
-    assert text.count(PIP_COMMAND) == (2 if path == README else 1)
+    # Every README, translated or not, carries the pip command twice: once in
+    # the quick start and once in the PyPI section. The translations gained
+    # the quick start when they were brought level with the English one.
+    assert text.count(PIP_COMMAND) == 2
     if path == README:
         quick_start = text.split("Try spaCR\n", 1)[1].split("Hardware support\n", 1)[0]
         assert quick_start.count(PIP_COMMAND) == 1
@@ -107,7 +110,8 @@ def test_installer_guide_covers_install_update_and_removal_by_source():
         PACKAGE_URL,
         CONDA_COMMAND,
         "conda update conda-forge::spacr",
-        "conda install conda-forge::spacr=1.5.0.4",
+        "conda install conda-forge::spacr=VERSION",
+        'python -m pip install "spacr[qt]==VERSION"',
         "conda remove spacr",
         PIP_COMMAND,
         "python -m pip uninstall spacr",

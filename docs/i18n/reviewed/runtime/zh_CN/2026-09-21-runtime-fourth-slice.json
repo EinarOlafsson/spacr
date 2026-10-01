@@ -60,27 +60,6 @@
     },
     {
       "table": "ui",
-      "key": "Install",
-      "source": "Install",
-      "translation": "安装",
-      "source_sha256": "569ca49f4aaf7846e952c1d4aeca72febd0b79fa1c4f9db08fd3127551218572"
-    },
-    {
-      "table": "ui",
-      "key": "Install runs:\n    {command}",
-      "source": "Install runs:\n    {command}",
-      "translation": "安装将运行：\n    {command}",
-      "source_sha256": "6d8b5ca3c0064ca2e3ad2b27b656ed809eb18cc311545404760286e28cb7ade3"
-    },
-    {
-      "table": "ui",
-      "key": "Install runs:\n    {command}\n\nThen GitHub's own sign-in starts.",
-      "source": "Install runs:\n    {command}\n\nThen GitHub's own sign-in starts.",
-      "translation": "安装将运行：\n    {command}\n\n随后启动 GitHub 自身的登录流程。",
-      "source_sha256": "fa7e1854defad9fb6c3967104f7293ecf4850f390b49c2ba55136484637ac22e"
-    },
-    {
-      "table": "ui",
       "key": "Install {name}",
       "source": "Install {name}",
       "translation": "安装 {name}",
@@ -113,20 +92,6 @@
       "source": "Keep",
       "translation": "保留",
       "source_sha256": "183f00f483d3844e875d26eac74c676054383aef38ed5a8e4d1505ef21008585"
-    },
-    {
-      "table": "ui",
-      "key": "Keep installing",
-      "source": "Keep installing",
-      "translation": "继续安装",
-      "source_sha256": "4f6f0dad95d8f7a3c3e22def2900bdbcba480e34da28114877aae6cba0b79c7d"
-    },
-    {
-      "table": "ui",
-      "key": "Keep the screen open until it finishes, or stop it and install later from Help > Set spaCR up again…",
-      "source": "Keep the screen open until it finishes, or stop it and install later from Help > Set spaCR up again…",
-      "translation": "请保持界面打开，直到安装完成；也可停止安装，稍后通过 Help > Set spaCR up again… 安装。",
-      "source_sha256": "66756402c8ebea2e3d38897d2df455b480a2499312a3e082a2d770824329343f"
     },
     {
       "table": "ui",
@@ -207,13 +172,6 @@
     },
     {
       "table": "ui",
-      "key": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
-      "source": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
-      "translation": "测量您绘制的掩膜。打开一个表格，其中每行对应一个视野，每列对应一个通道或掩膜类型；运行由 Measure 模块本身执行，因此输出文件夹和测量数据库与正常 Measure 运行生成的一致。",
-      "source_sha256": "86d3eb9598ad455ef91762b1c2f06387310120a4c2b4fec1362d90ddd3c40986"
-    },
-    {
-      "table": "ui",
       "key": "Midnight",
       "source": "Midnight",
       "translation": "午夜",
@@ -237,6 +195,58 @@
         "source_sha256": "930cf911c5d5409e3384477338313d80e1772ed1799ceaa56ee1b587b74e6a48"
       },
       "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
+    }
+  ],
+  "retired_records": [
+    {
+      "record": {
+        "table": "ui",
+        "key": "Install",
+        "source": "Install",
+        "translation": "安装",
+        "source_sha256": "569ca49f4aaf7846e952c1d4aeca72febd0b79fa1c4f9db08fd3127551218572"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Install runs:\n    {command}",
+        "source": "Install runs:\n    {command}",
+        "translation": "安装将运行：\n    {command}",
+        "source_sha256": "6d8b5ca3c0064ca2e3ad2b27b656ed809eb18cc311545404760286e28cb7ade3"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Install runs:\n    {command}\n\nThen GitHub's own sign-in starts.",
+        "source": "Install runs:\n    {command}\n\nThen GitHub's own sign-in starts.",
+        "translation": "安装将运行：\n    {command}\n\n随后启动 GitHub 自身的登录流程。",
+        "source_sha256": "fa7e1854defad9fb6c3967104f7293ecf4850f390b49c2ba55136484637ac22e"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Keep installing",
+        "source": "Keep installing",
+        "translation": "继续安装",
+        "source_sha256": "4f6f0dad95d8f7a3c3e22def2900bdbcba480e34da28114877aae6cba0b79c7d"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Keep the screen open until it finishes, or stop it and install later from Help > Set spaCR up again…",
+        "source": "Keep the screen open until it finishes, or stop it and install later from Help > Set spaCR up again…",
+        "translation": "请保持界面打开，直到安装完成；也可停止安装，稍后通过 Help > Set spaCR up again… 安装。",
+        "source_sha256": "66756402c8ebea2e3d38897d2df455b480a2499312a3e082a2d770824329343f"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
     }
   ]
 }

@@ -1,32 +1,35 @@
 {
   "lesson": "55_image_scatter",
-  "english_sha256": "798823e2d35d57282c656576ef4db433b8b8688539b72fe7c1230c5c14d01b40",
+  "english_sha256": "695e0f965dd1e3c92a6dfd5ce337981d5df0ac777aab824d81cd0e39ea67a401",
   "review": {
-    "kind": "Parent editorial translation against frozen English and independently verified real cell identities, native axis choices, exact RGB crop previews and single-cell Annotate handoff; visible controls and API identifiers retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
-    "native_speaker_signoff": false
+    "native_speaker_signoff": false,
+    "listening_review": false
   },
   "language": "pt-BR",
-  "title": "Image Scatter: medidas reais e a imagem de cada ponto",
-  "description": "Explore Image Scatter dentro de Image UMAP com medidas celulares baixadas, prévias verificadas e o envio exato de uma célula para Annotate.",
+  "title": "Image Scatter: inspecionar medições e seus recortes",
+  "description": "Plote duas colunas de medições, pré-visualize recortes de objetos e envie um objeto selecionado para o Annotate.",
   "objectives": [
-    "Encontrar Image Scatter dentro de Image UMAP e carregar a tabela cell correta.",
-    "Examinar pares de medidas brutas e entender coordenadas ausentes ou constantes.",
-    "Relacionar uma célula do gráfico à sua imagem sem mudar rótulos nem dados."
+    "Carregar medições e escolher os eixos.",
+    "Inspecionar o recorte por trás de um ponto.",
+    "Enviar um objeto selecionado para o Annotate."
   ],
-  "prerequisite": "Reutilize o exemplo baixável de Annotate com banco de medidas, recortes celulares e marcadores de formato. A cópia privada idêntica contém 2.341 células e todos os 2.341 PNGs. As verificações independentes por SQLite abrangem cada valor original, identidade celular completa e caminho; coordenadas exibidas e pixels RGB das miniaturas também são verificados. Apenas recortes celulares são validados, não os de núcleos ou patógenos. Um ponto incomum não demonstra fenótipo, infecção, tratamento nem precisão da segmentação. Não há ajuste UMAP, treinamento, cálculo GPU, exportação nem alteração de rótulos. A tela não tem download próprio, seletor de coluna de imagem, controles de cor ou agrupamento, transformação dos eixos, exportação ou console de IA. Plot carrega a tabela; os eixos a redesenham. O limite de 200.000 linhas não é amostragem aleatória nem garantia de preservar toda a informação. Filtros compartilhados não são validados aqui. API: spacr.qt.screens.image_scatter.load_scatter_frame, ImageScatterScreen.set_frame e ScatterCanvas.point_position.",
+  "prerequisite": "Use um banco de dados de medições do spaCR com os recortes de objetos e os arquivos de formato de recorte correspondentes. O exemplo para download do Annotate fornece essas entradas.",
   "scenes": [
-    "Abra Image UMAP pela Home e escolha Image Scatter. Essa visualização aninhada plota duas medidas existentes; ela não ajusta uma projeção UMAP. Reutilizamos o exemplo real baixável de Annotate, mantendo juntos o banco de medidas e os recortes celulares. O tutorial de Annotate mostra onde obtê-lo.",
-    "Escolha Browse e abra a cópia do banco de medidas. Ao mover um projeto, mantenha a pasta data e os marcadores de formato dos recortes, porque a tabela sozinha não contém as imagens. Este exemplo usa cópias privadas; medidas e pixels originais permanecem intactos.",
-    "Escolha cell no seletor de tabelas e depois Plot. Plot lê essa tabela; não é uma tarefa de segmentação ou treinamento. O exemplo tem duas mil trezentas e quarenta e uma células com recortes correspondentes. Outra tabela exige clicar em Plot novamente; mudar apenas o seletor não carrega suas linhas.",
-    "Defina x como cell_area e y como cell_channel_1_mean_intensity. Mudar os eixos redesenha imediatamente as linhas carregadas. São medidas brutas, não coordenadas transformadas de uma projeção. Os pontos descrevem células individuais, não réplicas experimentais independentes, e um padrão visual não é um teste estatístico.",
-    "Deixe o ponteiro sobre a célula mais à direita. Seu recorte aparece ao lado do gráfico com a identidade completa de placa, linha, coluna, campo e célula. É um recorte salvo, não o campo microscópico inteiro nem uma segmentação nova. Uma aparência incomum não estabelece, por si só, um fenótipo.",
-    "Mova o ponteiro para fora do gráfico: a prévia temporária desaparece. Volte ao mesmo ponto e o recorte em cache reaparece sem nova decodificação. Passar o ponteiro permite uma inspeção temporária, não uma anotação ou seleção persistente. Nenhum rótulo original muda.",
-    "Troque as duas medidas entre x e y. A célula conserva sua identidade e seu recorte, mesmo mudando de posição. Escolha eixos relevantes em vez de aceitar automaticamente as primeiras colunas numéricas; os seletores também oferecem identificadores numéricos e metadados de aquisição.",
-    "Restaure cell_area em x e escolha cell_channel_0_homogeneity_distance_32 em y. Sete células não têm essa medida, então só podem ser desenhados dois mil trezentos e trinta e quatro pares de coordenadas. O contador de linhas carregadas continua em duas mil trezentas e quarenta e uma. Valores ausentes não são zeros, e coordenadas ocultas não renumeram identidades.",
-    "Escolha measurement_ndim em y. Todas as linhas têm valor dois, formando uma linha horizontal de pontos. É uma coluna constante de metadados, não concordância biológica. Restaure cell_channel_1_mean_intensity antes de examinar outra célula.",
-    "Para inspecionar em Annotate a imagem de um ponto clicado, abra primeiro Annotate e carregue este mesmo projeto copiado. Volte pela Home, Image UMAP e a aba Image Scatter já aberta. A página de anotação precisa conhecer o projeto certo; um gráfico e outro dataset sem relação não formam um envio válido.",
-    "Clique no próprio ponto e depois mude para Annotate. Passar o ponteiro apenas mostra a prévia. O clique envia a chave exata da célula e os nomes dos dois eixos à visualização de anotação. Ele não muda de página automaticamente, não atribui rótulo nem prova que o objeto seja atípico.",
-    "Annotate agora mostra exatamente a célula clicada, com o mesmo recorte salvo. Examine a imagem antes de decidir anotá-la; esta demonstração mantém todos os rótulos. Image Scatter não tem exportação própria do gráfico ou da seleção. Use Database Browser para exportar tabelas, ou o tutorial de PCA para analisar componentes e seus CSVs documentados."
+    "Abra o Image UMAP e depois o Image Scatter para plotar duas medições existentes. Pratique com o banco de dados do exemplo do Annotate e os recortes de células correspondentes.",
+    "Clique em Browse e abra measurements.db. Mantenha a pasta data do projeto e os arquivos de formato de recorte junto com o banco de dados para que as miniaturas sejam encontradas.",
+    "Selecione cell no seletor de tabelas e clique em Plot. Ao trocar para outra tabela, clique em Plot de novo para carregar as linhas dela.",
+    "Defina x como a área celular e y como a intensidade média do canal um da célula. A escolha dos eixos redesenha na hora as linhas carregadas.",
+    "Passe o ponteiro sobre um ponto para ver o recorte salvo e a identidade completa do objeto. Use a imagem para entender a medição por trás do ponto.",
+    "Afaste o ponteiro para limpar a pré-visualização temporária e depois passe sobre outro ponto para inspecioná-lo.",
+    "Troque as medições de x e y para explorar a relação por outro ângulo. Escolha características que façam sentido e confira as unidades.",
+    "Selecione outra medição, como a característica de homogeneidade. Linhas sem coordenadas ficam fora do gráfico, então a contagem plotada pode ser diferente da contagem da tabela carregada.",
+    "Uma coluna constante, como a dimensão da medição neste exemplo, coloca os pontos numa linha. Volte para uma característica com variação útil para inspecionar objetos.",
+    "Para inspecionar um recorte selecionado no Annotate, abra antes o Annotate e carregue o mesmo projeto. Depois volte à visualização existente do Image Scatter.",
+    "Clique no próprio ponto para enviar a identidade do objeto para o Annotate e depois mude para essa página. Passar o ponteiro só pré-visualiza o recorte.",
+    "Inspecione o objeto selecionado no Annotate antes de atribuir um rótulo. Use o Database Browser para exportar tabelas, ou o PCA para análise de componentes."
   ]
 }

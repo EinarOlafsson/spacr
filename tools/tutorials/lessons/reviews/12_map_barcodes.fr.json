@@ -1,0 +1,35 @@
+{
+  "lesson": "12_map_barcodes",
+  "english_sha256": "7402e3485399ce5b847c3b955761c012fc92be1c2bf6d5bae1e2db305d6ab139",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Map Barcodes : des lectures de séquençage aux comptages",
+  "description": "Chargez des lectures appariées et les références de la banque, trouvez les positions des codes-barres, appliquez les paramètres et enregistrez les comptages de guides.",
+  "objectives": [
+    "Télécharger un petit exemple de lectures appariées et sélectionner les tables de référence correspondantes.",
+    "Examiner les positions et l’orientation des codes-barres avant d’appliquer une proposition.",
+    "Lancer l’assignation et examiner les comptages et les sorties de contrôle qualité."
+  ],
+  "prerequisite": "Choisissez Load test data dans Map Barcodes. L’exemple utilise les lectures SRR33531217, les tables de colonnes et de lignes primers_3 correspondantes et les références de guides. Utilisez des tables de référence adaptées à votre propre banque pour traiter d’autres lectures.",
+  "scenes": [
+    "Depuis Home, ouvrez Map Barcodes. Les entrées sont des lectures de séquençage et des tables de référence qui nomment les codes-barres de votre banque. La sortie compte chaque combinaison observée, prête pour le contrôle qualité du séquençage et l’analyse en aval.",
+    "Cliquez sur Load test data et sélectionnez les deux lectures appariées de la première exécution de l’archive. Limitez chaque fichier à dix mille lectures pour cet exemple, puis attendez le téléchargement de l’échantillon apparié.",
+    "Sélectionnez les tables de référence de colonnes, de lignes et de guides correspondantes. Chaque table associe des noms de codes-barres à des séquences. Gardez ces noms cohérents avec le plan de plaque et les identifiants de guides utilisés dans le reste de votre analyse.",
+    "Ouvrez Find barcodes et lancez la recherche. L’aperçu échantillonne les deux lectures de la paire et vérifie les positions et les orientations des codes-barres. Attendez les résultats avant de modifier le formulaire principal.",
+    "Comparez Observed et By chance, puis examinez l’orientation, le décalage et le verdict proposés pour chaque code-barres. Privilégiez les positions soutenues par de nombreuses lectures et par des références attendues bien distinctes. Ouvrez l’explication du verdict si le résultat est incertain.",
+    "Examinez les résultats du guide pour les deux lectures de la paire. Dans cet exemple, la lecture un soutient la séquence du guide en complément inverse, et la lecture deux soutient l’orientation enregistrée. Choisissez l’orientation d’après les résultats obtenus pour votre banque et votre paire de lectures.",
+    "Vérifiez aussi le code-barres de ligne. Ici, la lecture un soutient son complément inverse et la lecture deux soutient la séquence enregistrée. Examinez ensemble colonne, guide et ligne, afin que la combinaison complète identifie le bon puits et le bon guide.",
+    "Ouvrez la visionneuse de lectures pour examiner des lectures individuelles. Utilisez la légende des couleurs pour repérer les segments de colonne, de guide, de ligne et d’ancrage. Vérifiez que les positions proposées correspondent à la structure attendue de la banque.",
+    "Examinez les paramètres d’extraction proposés, puis cliquez sur Apply these settings pour les copier dans le formulaire. L’exemple utilise une fenêtre d’extraction de quatre-vingt-neuf bases. Vérifiez les champs mis à jour avant de lancer l’exécution.",
+    "Suivez les notes d’orientation pour choisir vos fichiers de référence définitifs. Dans cet exemple, sélectionnez des copies en complément inverse des références de lignes et de guides, et gardez la référence de colonnes telle qu’elle est enregistrée. Conservez tous les noms de codes-barres en préparant ces copies.",
+    "Choisissez la paire de lectures téléchargée, deux processus de calcul et des blocs de mille lectures. Activez l’enregistrement des lectures annotées si vous voulez examiner les assignations individuelles. Cliquez sur Run ; ce flux d’assignation utilise le CPU.",
+    "Une fois l’assignation terminée, examinez unique_combinations.csv et les sorties de contrôle qualité. La table de comptage relie les noms de colonne, de ligne et de guide aux nombres de lectures. Examinez les assignations sans correspondance et ambiguës dans Barcode QC, puis associez ces comptages aux scores de phénotype dans Regression."
+  ]
+}

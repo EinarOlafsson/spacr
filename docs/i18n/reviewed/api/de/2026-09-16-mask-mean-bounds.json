@@ -41,21 +41,25 @@
       "source": "Loads the ``cpsam`` pretrained model — or, when ``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint the user trained, that checkpoint — iterates over each pre-batched ``.npz`` file, applies perimeter merging and area/border filtering to 2-D masks, and optionally filters objects by their absolute mean intensity in the original own-channel image. It then optionally tracks timelapse objects, saves per-image ``.npy`` masks, and records per-object counts to the run's SQLite database. Time-stack archives must contain one filename per timepoint, regardless of the declared time-axis position; each raw filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its ``(Y, X, C)`` image for a flat ``TYX`` series.",
       "source_sha256": "4e378f5852d67604e49d42c5f742f45a092961a6e463e6c2c8bd12390e2c8141",
       "context": "Loads the ``cpsam`` pretrained model — or, when ``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint the user trained, that checkpoint — iterates over each pre-batched ``.npz`` file, applies perimeter merging and area/border filtering to 2-D masks, and optionally filters objects by their absolute mean intensity in the original own-image data channel image. It then optionally tracks timelapse objects, saves per-image ``.npy`` masks, and records per-object counts to the run's SQLite database. Time-stack archives must contain one filename per timepoint, regardless of the declared time-axis position; each raw filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its ``(Y, X, C)`` image for a flat ``TYX`` series.",
-      "translation": "Lädt das vortrainierte Modell ``cpsam`` — oder den vom Benutzer trainierten Checkpoint, wenn ``<object_type>_model_name`` (oder ``pathogen_model``) einen solchen angibt —, durchläuft jede bereits in Batches organisierte ``.npz``-Datei, wendet umfangsbasierte Zusammenführung und Flächen-/Randfilterung auf 2-D-Masken an und filtert Objekte optional anhand ihrer absoluten mittleren Intensität im Originalbild ihres eigenen Kanals. Anschließend verfolgt die Funktion optional Objekte über die Zeit, speichert pro Bild ``.npy``-Masken und schreibt die Objektanzahlen in die SQLite-Datenbank des Verarbeitungslaufs. Zeitstapelarchive müssen unabhängig von der angegebenen Position der Zeitachse einen Dateinamen pro Zeitpunkt enthalten; jeder Rohbilddateiname bezeichnet das ``(Z, Y, X, C)``-Volumen dieses Zeitpunkts oder dessen ``(Y, X, C)``-Bild bei einer flachen ``TYX``-Serie."
+      "translation": "Lädt das vortrainierte Modell ``cpsam`` — oder den vom Benutzer trainierten Checkpoint, wenn ``<object_type>_model_name`` (oder ``pathogen_model``) einen solchen angibt —, durchläuft jede bereits in Batches organisierte ``.npz``-Datei, wendet umfangsbasierte Zusammenführung und Flächen-/Randfilterung auf 2-D-Masken an und filtert Objekte optional anhand ihrer absoluten mittleren Intensität im Originalbild ihres eigenen Kanals. Anschließend verfolgt die Funktion optional Objekte über die Zeit, speichert pro Bild ``.npy``-Masken und schreibt die Objektanzahlen in die SQLite-Datenbank des Verarbeitungslaufs. Zeitstapelarchive müssen unabhängig von der angegebenen Position der Zeitachse einen Dateinamen pro Zeitpunkt enthalten; jeder Rohbilddateiname bezeichnet das ``(Z, Y, X, C)``-Volumen dieses Zeitpunkts oder dessen ``(Y, X, C)``-Bild bei einer flachen ``TYX``-Serie.",
+      "retired": true,
+      "retired_reason": "2026-09-25: the English block this record translated is no longer in the docstring (the :param: pass or a later edit rewrote it); kept verbatim as evidence, not loaded."
     },
     {
-      "label": "spacr.object.generate_cellpose_masks_sam#2",
+      "label": "spacr.object.generate_cellpose_masks_sam#3",
       "source": "Directory containing the pre-batched ``.npz`` image stacks.",
       "source_sha256": "29a1be2f9f32ead343bd5c3da14a47365d88f0bd7ef59e19650b57b940afc727",
       "context": "Directory containing the pre-batched ``.npz`` image stacks.",
-      "translation": "Verzeichnis mit den bereits in Batches organisierten ``.npz``-Bildstapeln."
+      "translation": "Verzeichnis mit den bereits in Batches organisierten ``.npz``-Bildstapeln.",
+      "rebound_from": "spacr.object.generate_cellpose_masks_sam#2"
     },
     {
-      "label": "spacr.object.generate_cellpose_masks_sam#4",
+      "label": "spacr.object.generate_cellpose_masks_sam#5",
       "source": "``'cell'``, ``'nucleus'``, ``'pathogen'`` or ``'organelle'``; drives channel/threshold lookups and output folder name.",
       "source_sha256": "ff0e2dc365436dd7787b99f3fcab7443eac3792d34e42fa13f9efb206d7b8c64",
       "context": "``'cell'``, ``'nucleus'``, ``'pathogen'`` or ``'organelle'``; drives channel/threshold lookups and output folder name.",
-      "translation": "``'cell'``, ``'nucleus'``, ``'pathogen'`` oder ``'organelle'``; bestimmt das Nachschlagen von Kanal-/Schwellenwerteinstellungen und den Namen des Ausgabeordners."
+      "translation": "``'cell'``, ``'nucleus'``, ``'pathogen'`` oder ``'organelle'``; bestimmt das Nachschlagen von Kanal-/Schwellenwerteinstellungen und den Namen des Ausgabeordners.",
+      "rebound_from": "spacr.object.generate_cellpose_masks_sam#4"
     },
     {
       "label": "spacr.pipeline_v2.stream_masks_from_stack#3",

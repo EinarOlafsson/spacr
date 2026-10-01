@@ -297,7 +297,11 @@ def _encoded_channels(available: int, spec: EmbeddingSpec) -> Tuple[int, ...]:
             raise EmbeddingError(
                 f"channel {channel} is not in the crops, which have "
                 f"{available}")
-    if spec.channel_policy == CHANNEL_PROJECT and len(channels) > 3:
+    adaptive = spec.backbone.startswith(_DINO_PREFIX) or (
+        spec.backbone in _FOUNDATION_MODELS
+        and _FOUNDATION_MODELS[spec.backbone]["in_channels"] is None)
+    if (spec.channel_policy == CHANNEL_PROJECT and len(channels) > 3
+            and not adaptive):
         raise EmbeddingError(
             f"{len(channels)} channels cannot be projected onto three "
             "without choosing which to drop; name three in "
@@ -475,7 +479,11 @@ def embed_array(crops: np.ndarray, spec: Optional[EmbeddingSpec] = None, *,
         :mod:`spacr.crops` already produces.
     :param spec: how to embed; the default is per-channel resnet18.
     :param encoder: a callable taking ``(n, height, width, 3)`` float32 in
-        [0, 1] and returning ``(n, dims)``. Injected by the tests so the
+        [0, 1] and returning ``(n, dims)``. An encoder with an
+        ``in_channels`` attribute takes that many planes instead, and one
+        whose ``in_channels`` is ``None`` takes any number: each channel
+        alone under the per-channel policy, every encoded channel in one
+        pass under the projection policy. Injected by the tests so the
         wiring can be exercised without downloading a backbone; production
         callers leave it ``None``.
     :returns: an :class:`EmbeddingResult`.
@@ -496,20 +504,21 @@ def embed_array(crops: np.ndarray, spec: Optional[EmbeddingSpec] = None, *,
         spec = replace(spec, channel_scale=scale)
     scales: Tuple[Optional[float], ...] = (
         spec.channel_scale if spec.normalize else (None,) * len(channels))
-    run = encoder if encoder is not None else _timm_encoder(spec)
+    run = encoder if encoder is not None else _backbone_encoder(spec)
+    width = getattr(run, "in_channels", 3)
 
     if spec.channel_policy == CHANNEL_PROJECT:
         planes = [_scaled(array[..., c], s) for c, s in zip(channels, scales)]
-        while len(planes) < 3:
+        while width is not None and len(planes) < width:
             planes.append(np.zeros_like(planes[0]))
-        stack = np.stack(planes[:3], axis=-1)
+        stack = np.stack(planes if width is None else planes[:width], axis=-1)
         values = np.asarray(run(stack), dtype=np.float32)
         per_channel = values.shape[1]
     else:
         blocks = []
         for channel, scale in zip(channels, scales):
             plane = _scaled(array[..., channel], scale)
-            stack = np.repeat(plane[..., None], 3, axis=-1)
+            stack = np.repeat(plane[..., None], width or 1, axis=-1)
             blocks.append(np.asarray(run(stack), dtype=np.float32))
         widths = {block.shape[1] for block in blocks}
         if len(widths) != 1:
@@ -564,6 +573,999 @@ def _timm_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
 
     return run
 
+
+
+_FOUNDATION_MODELS: Dict[str, Dict[str, Any]] = {
+    "openphenom": {
+        "label": "OpenPhenom (Recursion, channel-agnostic MAE ViT-S/16)",
+        "repo": "recursionpharma/OpenPhenom",
+        "revision": "0f92333685f6e9f031b804c70fe246f9b05ae90d",
+        "in_channels": None,
+        "size": 256,
+        "license": "Recursion non-commercial",
+    },
+    "chada_vit": {
+        "label": "ChAda-ViT (channel-adaptive ViT-T/16, IDRCell100k)",
+        "repo": "nicoboou/chadavit16-moyen",
+        "revision": "91a41123650ccff12f590364fec95d76af36cc93",
+        "in_channels": None,
+        "size": 224,
+        "license": "see the model card",
+    },
+    "subcell": {
+        "label": "SubCell (CZI / Lundberg lab ViT-B/16, DNA + protein)",
+        "url": ("https://czi-subcell-public.s3.amazonaws.com/models/"
+                "DNA-Protein_ViT-ProtS-Pool.pth"),
+        "in_channels": 2,
+        "size": 448,
+        "license": "MIT",
+    },
+    "cell_dino": {
+        "label": "Cell-DINO (Meta FAIR DINOv2 on the Human Protein Atlas)",
+        "in_channels": None,
+        "size": 224,
+        "license": "FAIR non-commercial research",
+    },
+}
+
+
+def _foundation_names() -> Tuple[str, ...]:
+    """The single-cell foundation models :func:`embed_array` can load by name.
+
+    They are offered beside the ``timm`` backbones. OpenPhenom and ChAda-ViT
+    are channel-adaptive and take any number of channels; SubCell takes two,
+    DNA then the stain of interest; Cell-DINO is listed so a request for it
+    gets a reason rather than an unknown-name error.
+    """
+    return tuple(_FOUNDATION_MODELS)
+
+
+def _backbone_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
+    """The encoder ``spec.backbone`` names: a DINO checkpoint, a foundation
+    model or a timm backbone."""
+    if spec.backbone.startswith(_DINO_PREFIX):
+        return _dino_encoder(spec)
+    if spec.backbone in _FOUNDATION_MODELS:
+        return _foundation_encoder(spec)
+    return _timm_encoder(spec)
+
+
+def _foundation_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
+    """Load one single-cell foundation model and wrap it as an encoder.
+
+    The returned callable takes ``(n, height, width, k)`` float32 in [0, 1]
+    and returns ``(n, dims)``; its ``in_channels`` attribute tells
+    :func:`embed_array` how many planes ``k`` it wants, ``None`` meaning any.
+    Crops are resized to the size the model was trained at. Weights are
+    downloaded once, at a pinned revision, into the Hugging Face or torch
+    hub cache.
+
+    :raises EmbeddingError: when torch or transformers is missing, or the
+        model's weights are not published.
+    """
+    try:
+        import torch
+    except ImportError as exc:
+        raise EmbeddingError(
+            "foundation-model embeddings need torch; install the "
+            "`spacr[embeddings]` extra") from exc
+    info = _FOUNDATION_MODELS[spec.backbone]
+    device = spec.device or ("cuda" if torch.cuda.is_available() else "cpu")
+    if spec.backbone == "cell_dino":
+        raise EmbeddingError(
+            "Cell-DINO's weights are not published yet (Meta FAIR, "
+            "facebookresearch/dinov2 README_CELL_DINO.md). Choose openphenom, "
+            "chada_vit or subcell, or a timm DINOv2 backbone such as "
+            "vit_small_patch14_dinov2.lvd142m.")
+    if spec.backbone == "subcell":
+        model, forward = _subcell_model(info, torch)
+    else:
+        model, forward = _hub_model(spec.backbone, info, torch)
+    model.eval().to(device)
+    size = int(info["size"])
+
+    def run(stack: np.ndarray) -> np.ndarray:
+        """Encode ``(n, h, w, k)`` crops in batches, resized to the model's size.
+
+        :param stack: float32 in [0, 1], channels last.
+        :returns: ``(n, dims)`` float32 features.
+        """
+        out: List[np.ndarray] = []
+        with torch.no_grad():
+            for start in range(0, stack.shape[0], spec.batch_size):
+                chunk = torch.from_numpy(np.ascontiguousarray(
+                    stack[start:start + spec.batch_size].transpose(0, 3, 1, 2)
+                )).float().to(device)
+                if chunk.shape[-2:] != (size, size):
+                    chunk = torch.nn.functional.interpolate(
+                        chunk, size=(size, size), mode="bilinear",
+                        align_corners=False)
+                out.append(forward(model, chunk).detach().float().cpu().numpy())
+        return np.concatenate(out, axis=0)
+
+    run.in_channels = info["in_channels"]
+    return run
+
+
+def _hub_model(name: str, info: Mapping[str, Any], torch: Any):
+    """A Hugging Face remote-code model and its forward pass.
+
+    :returns: ``(model, forward)``, where ``forward(model, x)`` maps a
+        ``(n, k, h, w)`` tensor in [0, 1] to ``(n, dims)``.
+    """
+    try:
+        from transformers import AutoModel
+    except ImportError as exc:
+        raise EmbeddingError(
+            f"{name} needs the transformers package; pip install "
+            "transformers") from exc
+    model = AutoModel.from_pretrained(info["repo"], revision=info["revision"],
+                                      trust_remote_code=True)
+    if name == "openphenom":
+        model.return_channelwise_embeddings = False
+
+        def forward(net, x):
+            """OpenPhenom's mean patch token; it rescales 0-255 itself."""
+            return net.predict(x * 255.0)
+
+        return model, forward
+    model.return_all_tokens = False
+
+    def forward(net, x):
+        """ChAda-ViT's class token, each crop's channels as one sequence."""
+        n, k, h, w = x.shape
+        flat = torch.nn.functional.instance_norm(x).reshape(n * k, 1, h, w)
+        return net(flat, index=0, list_num_channels=[[k] * n])
+
+    return model, forward
+
+
+def _subcell_model(info: Mapping[str, Any], torch: Any):
+    """SubCell's DNA + protein ViT encoder with its gated attention pooling.
+
+    The published checkpoint holds a Hugging Face ViT under ``encoder.`` and
+    a two-head gated attention pooler under ``pool_model.``; both are loaded
+    strictly, so a changed checkpoint is refused rather than half-loaded.
+    Each crop channel is min-max scaled, as SubCell's own loader does.
+    """
+    try:
+        from transformers import ViTConfig, ViTModel
+    except ImportError as exc:
+        raise EmbeddingError(
+            "subcell needs the transformers package; pip install "
+            "transformers") from exc
+    nn = torch.nn
+    target = os.path.join(torch.hub.get_dir(), "checkpoints",
+                          os.path.basename(info["url"]))
+    if not os.path.exists(target):
+        os.makedirs(os.path.dirname(target), exist_ok=True)
+        torch.hub.download_url_to_file(info["url"], target)
+    state = torch.load(target, map_location="cpu", weights_only=False)
+    config = ViTConfig(hidden_size=768, num_hidden_layers=12,
+                       num_attention_heads=12, intermediate_size=3072,
+                       hidden_dropout_prob=0.0,
+                       attention_probs_dropout_prob=0.0,
+                       layer_norm_eps=1e-12, image_size=448, patch_size=16,
+                       num_channels=2, qkv_bias=True)
+
+    class Pooled(nn.Module):
+        """The ViT's tokens pooled by two gated attention heads."""
+
+        def __init__(self):
+            """Build the ViT and the pooler the checkpoint expects."""
+            super().__init__()
+            self.encoder = ViTModel(config, add_pooling_layer=False)
+            self.attention_v = nn.Sequential(nn.Linear(768, 512), nn.Tanh())
+            self.attention_u = nn.Sequential(nn.Linear(768, 512), nn.GELU())
+            self.attention = nn.Linear(512, 2)
+
+        def forward(self, x):
+            """``(n, 2, h, w)`` to ``(n, 1536)``, the two heads joined."""
+            tokens = self.encoder(
+                x, interpolate_pos_encoding=True).last_hidden_state
+            gate = self.attention(self.attention_v(tokens)
+                                  * self.attention_u(tokens))
+            weights = torch.softmax(gate.permute(0, 2, 1), dim=-1)
+            return torch.bmm(weights, tokens).reshape(x.shape[0], -1)
+
+    model = Pooled()
+    model.load_state_dict({
+        k.replace("pool_model.", "").replace("_v.1.", "_v.0.")
+        .replace("_u.1.", "_u.0."): v for k, v in state.items()})
+
+    def forward(net, x):
+        """Min-max scale each crop channel, then encode."""
+        low = x.amin(dim=(2, 3), keepdim=True)
+        high = x.amax(dim=(2, 3), keepdim=True)
+        return net((x - low) / (high - low).clamp_min(1e-6))
+
+    return model, forward
+
+
+def _retrieval_scorecard(features: Any, labels: Mapping[Any, Any],
+                         k: int = 10) -> Dict[str, float]:
+    """How well one feature matrix separates known phenotypes.
+
+    Every labelled crop is a query against all the others, compared by
+    cosine similarity after the same median-centring, SD-scaling and row
+    normalisation "find cells like this" uses. Three numbers come back,
+    each against the chance a random ordering would give:
+
+    - ``knn_accuracy``: share of crops whose ``k`` nearest neighbours'
+      majority label (ties to the nearer neighbour) is their own.
+    - ``map``: mean average precision of retrieving same-label crops over
+      the full ranking, averaged over queries.
+    - ``precision_at_k``: share of the ``k`` nearest that share the label.
+
+    The whole similarity matrix is held at once, so this is meant for a
+    labelled set of up to a few tens of thousands of crops.
+
+    :param features: numeric frame indexed by crop key, such as
+        :meth:`EmbeddingResult.to_frame` or the measured features.
+    :param labels: crop key to class; blanks are dropped.
+    :param k: neighbours per query.
+    :returns: the metrics, ``chance_map``, ``chance_precision``, ``n`` and
+        ``classes``.
+    :raises ValueError: with fewer than two labelled crops or one class.
+    """
+    from .active_learning import _SimilarityIndex
+
+    index = _SimilarityIndex(features, backend="numpy")
+    pairs = [(str(key), str(value)) for key, value in labels.items()
+             if value is not None and str(value) != "" and str(key) in index]
+    classes = np.asarray([p[1] for p in pairs], dtype=object)
+    if len(pairs) < 2 or len(set(classes)) < 2:
+        raise ValueError(
+            "a scorecard needs at least two labelled crops in two classes")
+    rows = np.asarray([index._position[p[0]] for p in pairs], dtype=np.int64)
+    sub = index._matrix[rows].astype(np.float64)
+    scores = sub @ sub.T
+    np.fill_diagonal(scores, -np.inf)
+    order = np.argsort(-scores, axis=1, kind="stable")[:, :-1]
+    same = classes[order] == classes[:, None]
+    k = max(1, min(int(k), len(pairs) - 1))
+    correct = 0
+    for i in range(len(pairs)):
+        near = list(classes[order[i, :k]])
+        counts = {c: near.count(c) for c in near}
+        best = max(counts.values())
+        vote = next(c for c in near if counts[c] == best)
+        correct += vote == classes[i]
+    ranks = np.arange(1, same.shape[1] + 1)
+    positives = same.sum(axis=1)
+    precision = np.cumsum(same, axis=1) / ranks
+    ap = (precision * same).sum(axis=1) / np.maximum(positives, 1)
+    kept = positives > 0
+    freq = {c: float(np.mean(classes == c)) for c in set(classes)}
+    chance = np.asarray([(freq[c] * len(pairs) - 1) / (len(pairs) - 1)
+                         for c in classes])
+    return {
+        "knn_accuracy": float(correct / len(pairs)),
+        "map": float(ap[kept].mean()),
+        "precision_at_k": float(same[:, :k].mean()),
+        "chance_map": float(chance[kept].mean()),
+        "chance_precision": float(chance.mean()),
+        "n": float(len(pairs)),
+        "classes": float(len(freq)),
+    }
+
+
+_DINO_PREFIX = "dino:"
+
+
+def _dino_planes(crops: Any, channel_policy: str,
+                 channels: Optional[Sequence[int]] = None
+                 ) -> Tuple[np.ndarray, Tuple[float, ...]]:
+    """The training images DINO sees, laid out as :func:`embed_array` feeds them.
+
+    Each encoded channel is divided by the plate's fixed scale and clipped to
+    [0, 1]. Under the per-channel policy every channel of every crop is its
+    own one-plane image, so the backbone learns one stain at a time, as it is
+    later used; under the projection policy each crop is one image with all
+    its encoded channels.
+
+    :returns: ``(images, scale)``: ``(m, k, h, w)`` float32 and the scale
+        per encoded channel.
+    """
+    spec = EmbeddingSpec(backbone=_DINO_PREFIX, channel_policy=channel_policy,
+                         channels=None if channels is None else tuple(channels))
+    array, chosen = _prepare(crops, spec)
+    scale = _estimate_channel_scale(array, chosen)
+    planes = [_scaled(array[..., c], s) for c, s in zip(chosen, scale)]
+    if channel_policy == CHANNEL_PROJECT:
+        images = np.stack(planes, axis=1)
+    else:
+        images = np.concatenate([p[:, None] for p in planes], axis=0)
+    return np.ascontiguousarray(images, dtype=np.float32), tuple(scale)
+
+
+def _dino_views(batch: Any, size: int, scale: Tuple[float, float],
+                generator: Any, torch: Any) -> Any:
+    """One randomly augmented view of every image in ``batch``.
+
+    A random crop covering ``scale`` of the image's area, turned by a random
+    angle (cells have no up), mirrored half the time, resampled to ``size``
+    pixels, then given a random gain and offset per channel and a little
+    noise. Done with an affine grid so it runs batched on the training device.
+
+    :param batch: ``(b, k, h, w)`` tensor in [0, 1].
+    :returns: ``(b, k, size, size)`` tensor in [0, 1].
+    """
+    b, k = batch.shape[:2]
+    dev = batch.device
+
+    def uniform(low, high, *shape):
+        """Uniform draws from the run's generator, on the batch's device."""
+        return (torch.rand(*shape, generator=generator) * (high - low)
+                + low).to(dev)
+
+    side = torch.sqrt(uniform(scale[0], scale[1], b))
+    angle = uniform(0.0, 2 * np.pi, b)
+    flip = (torch.rand(b, generator=generator) < 0.5).float().to(dev) * 2 - 1
+    shift = (1 - side)[:, None] * uniform(-1.0, 1.0, b, 2)
+    cos, sin = torch.cos(angle) * side, torch.sin(angle) * side
+    theta = torch.stack([
+        torch.stack([cos * flip, -sin, shift[:, 0]], dim=1),
+        torch.stack([sin * flip, cos, shift[:, 1]], dim=1)], dim=1)
+    grid = torch.nn.functional.affine_grid(theta, (b, k, size, size),
+                                           align_corners=False)
+    view = torch.nn.functional.grid_sample(batch, grid, mode="bilinear",
+                                           padding_mode="zeros",
+                                           align_corners=False)
+    gain = uniform(0.6, 1.4, b, k, 1, 1)
+    offset = uniform(-0.1, 0.1, b, k, 1, 1)
+    noise = torch.randn(view.shape, generator=generator).to(dev) * 0.02
+    return (view * gain + offset + noise).clamp(0.0, 1.0)
+
+
+def _dino_network(arch: str, in_chans: int, size: int, pretrained: bool,
+                  out_dim: int, torch: Any):
+    """A timm backbone and the DINO projection head that sits on it.
+
+    The head is a three-layer MLP to a 128-dimensional bottleneck, L2
+    normalised, then a weight-normalised linear layer onto ``out_dim``
+    prototypes, as in DINO.
+
+    :returns: ``(backbone, head)`` modules.
+    """
+    try:
+        import timm
+    except ImportError as exc:
+        raise EmbeddingError(
+            "DINO pretraining needs torch and timm; install the "
+            "`spacr[embeddings]` extra") from exc
+    nn = torch.nn
+    kwargs: Dict[str, Any] = {"pretrained": pretrained, "num_classes": 0,
+                              "in_chans": in_chans}
+    if arch.startswith(("vit", "deit")):
+        kwargs.update(img_size=size, dynamic_img_size=True)
+    backbone = timm.create_model(arch, **kwargs)
+    dim = backbone.num_features
+
+    class Head(nn.Module):
+        """MLP, L2 normalisation, then cosine scores against prototypes."""
+
+        def __init__(self):
+            """Build the MLP and the prototype layer."""
+            super().__init__()
+            self.mlp = nn.Sequential(nn.Linear(dim, 512), nn.GELU(),
+                                     nn.Linear(512, 512), nn.GELU(),
+                                     nn.Linear(512, 128))
+            self.prototypes = nn.Parameter(torch.randn(out_dim, 128) * 0.02)
+
+        def forward(self, x):
+            """``(n, dim)`` features to ``(n, out_dim)`` prototype scores."""
+            z = nn.functional.normalize(self.mlp(x), dim=-1)
+            return z @ nn.functional.normalize(self.prototypes, dim=-1).T
+
+    return backbone, Head()
+
+
+def _dino_pretrain(crops: Any, path: str, *, arch: str = "resnet18",
+                   channel_policy: str = CHANNEL_PER_CHANNEL,
+                   channels: Optional[Sequence[int]] = None, size: int = 64,
+                   epochs: int = 10, batch_size: int = 64,
+                   lr: float = 5e-4, out_dim: int = 1024, n_local: int = 4,
+                   momentum: float = 0.996, teacher_temp: float = 0.04,
+                   student_temp: float = 0.1, pretrained: bool = False,
+                   device: Optional[str] = None, seed: int = 0,
+                   progress: Optional[Callable[[int, int, float], None]] = None
+                   ) -> Dict[str, Any]:
+    """Pretrain a backbone on unlabelled crops by self-distillation (DINO).
+
+    A student network learns to match, from small local views and large
+    global views of a crop, what a teacher -- its own slowly moving average
+    -- outputs on the global views. The teacher's outputs are centred and
+    sharpened so the two cannot agree by collapsing to one answer. No labels
+    are used. The teacher's backbone is what is kept: pass
+    ``"dino:" + path`` as :attr:`EmbeddingSpec.backbone` to embed with it.
+
+    Training is resumable: the checkpoint at ``path`` is rewritten after
+    every epoch, and a later call with the same ``path`` continues from the
+    last finished epoch up to ``epochs`` (a finished run returns at once).
+    A checkpoint made with another architecture, input width, crop size or
+    channel policy is refused rather than overwritten.
+
+    :param crops: ``(n, height, width, channels)``, channels last.
+    :param path: the checkpoint file to write, and to resume from.
+    :param arch: a timm architecture, e.g. ``resnet18`` or
+        ``vit_tiny_patch16_224``.
+    :param channel_policy: :data:`CHANNEL_PER_CHANNEL` trains on one stain
+        at a time; :data:`CHANNEL_PROJECT` on all encoded channels together.
+    :param channels: the channels to train on; all when ``None``.
+    :param size: side of the global views in pixels; local views are half.
+    :param pretrained: start from the architecture's ImageNet weights rather
+        than from random ones.
+    :param progress: called with ``(epoch, epochs, mean_loss)`` after each
+        epoch.
+    :returns: ``path``, ``epochs`` done, the per-epoch ``loss`` list and the
+        seconds this call trained.
+    :raises EmbeddingError: when torch or timm is missing, or ``path`` holds
+        an incompatible checkpoint.
+    """
+    try:
+        import torch
+    except ImportError as exc:
+        raise EmbeddingError(
+            "DINO pretraining needs torch; install the `spacr[embeddings]` "
+            "extra") from exc
+    import time
+
+    images, scale = _dino_planes(crops, channel_policy, channels)
+    in_chans = int(images.shape[1])
+    device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+    trained = {"arch": arch, "in_chans": in_chans, "size": int(size),
+              "channel_policy": channel_policy, "out_dim": int(out_dim)}
+    state = None
+    if os.path.exists(path):
+        state = torch.load(path, map_location="cpu", weights_only=False)
+        mismatch = {k: (state["setup"].get(k), v) for k, v in trained.items()
+                    if state["setup"].get(k) != v}
+        if mismatch:
+            raise EmbeddingError(
+                f"{path} holds a DINO run with different settings "
+                f"({mismatch}); choose another file to start a new run")
+        if state["epoch"] >= epochs:
+            return {"path": path, "epochs": state["epoch"],
+                    "loss": list(state["loss"]), "seconds": 0.0}
+
+    torch.manual_seed(seed)
+    student, s_head = _dino_network(arch, in_chans, size, pretrained,
+                                    out_dim, torch)
+    teacher, t_head = _dino_network(arch, in_chans, size, False, out_dim,
+                                    torch)
+    teacher.load_state_dict(student.state_dict())
+    t_head.load_state_dict(s_head.state_dict())
+    for module in (student, s_head, teacher, t_head):
+        module.to(device)
+    for p in list(teacher.parameters()) + list(t_head.parameters()):
+        p.requires_grad_(False)
+    params = list(student.parameters()) + list(s_head.parameters())
+    optimizer = torch.optim.AdamW(params, lr=lr, weight_decay=0.04)
+    center = torch.zeros(1, out_dim, device=device)
+    losses: List[float] = []
+    start = 0
+    generator = torch.Generator().manual_seed(seed)
+    if state is not None:
+        student.load_state_dict(state["student"])
+        s_head.load_state_dict(state["student_head"])
+        teacher.load_state_dict(state["teacher"])
+        t_head.load_state_dict(state["teacher_head"])
+        optimizer.load_state_dict(state["optimizer"])
+        center = state["center"].to(device)
+        losses = list(state["loss"])
+        start = int(state["epoch"])
+        generator.set_state(state["generator"])
+
+    data = torch.from_numpy(images)
+    steps = max(1, int(np.ceil(len(data) / batch_size)))
+    total = steps * epochs
+    began = time.time()
+    for epoch in range(start, epochs):
+        student.train()
+        s_head.train()
+        order = torch.randperm(len(data), generator=generator)
+        running = 0.0
+        for step in range(steps):
+            done = epoch * steps + step
+            rate = lr * min(1.0, (done + 1) / max(1, steps))
+            rate *= 0.5 * (1 + np.cos(np.pi * done / total))
+            for group in optimizer.param_groups:
+                group["lr"] = rate
+            batch = data[order[step * batch_size:(step + 1) * batch_size]]
+            batch = batch.to(device)
+            globals_ = [_dino_views(batch, size, (0.4, 1.0), generator, torch)
+                        for _ in range(2)]
+            locals_ = [_dino_views(batch, max(8, size // 2), (0.1, 0.4),
+                                   generator, torch) for _ in range(n_local)]
+            with torch.no_grad():
+                t_out = [t_head(teacher(v)) for v in globals_]
+                t_prob = [torch.softmax((t - center) / teacher_temp, dim=-1)
+                          for t in t_out]
+            s_out = [s_head(student(v)) for v in globals_ + locals_]
+            loss, pairs = 0.0, 0
+            for ti, tp in enumerate(t_prob):
+                for si, so in enumerate(s_out):
+                    if si == ti:
+                        continue
+                    loss = loss + torch.sum(
+                        -tp * torch.log_softmax(so / student_temp, dim=-1),
+                        dim=-1).mean()
+                    pairs += 1
+            loss = loss / pairs
+            optimizer.zero_grad()
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(params, 3.0)
+            optimizer.step()
+            with torch.no_grad():
+                m = 1 - (1 - momentum) * (np.cos(np.pi * done / total) + 1) / 2
+                for net_s, net_t in ((student, teacher), (s_head, t_head)):
+                    for ps, pt in zip(net_s.parameters(), net_t.parameters()):
+                        pt.mul_(m).add_(ps.detach(), alpha=1 - m)
+                center = 0.9 * center + 0.1 * torch.cat(t_out).mean(
+                    dim=0, keepdim=True)
+            running += float(loss.detach())
+        losses.append(running / steps)
+        payload = {"setup": trained, "epoch": epoch + 1, "loss": losses,
+                   "scale": scale, "student": student.state_dict(),
+                   "student_head": s_head.state_dict(),
+                   "teacher": teacher.state_dict(),
+                   "teacher_head": t_head.state_dict(),
+                   "optimizer": optimizer.state_dict(),
+                   "center": center.cpu(), "generator": generator.get_state()}
+        os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+        torch.save(payload, path + ".part")
+        os.replace(path + ".part", path)
+        if progress is not None:
+            progress(epoch + 1, epochs, losses[-1])
+    return {"path": path, "epochs": epochs, "loss": losses,
+            "seconds": time.time() - began}
+
+
+def _dino_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
+    """The teacher backbone of a :func:`_dino_pretrain` checkpoint, as an encoder.
+
+    ``spec.backbone`` is ``"dino:"`` followed by the checkpoint's path. The
+    encoder takes as many planes as the backbone was trained on (one under
+    the per-channel policy) and resizes crops to the training size.
+
+    :raises EmbeddingError: when the checkpoint is missing or was trained
+        under the other channel policy.
+    """
+    import torch
+
+    path = spec.backbone[len(_DINO_PREFIX):]
+    if not os.path.exists(path):
+        raise EmbeddingError(f"no DINO checkpoint at {path}")
+    state = torch.load(path, map_location="cpu", weights_only=False)
+    trained = state["setup"]
+    if trained["channel_policy"] != spec.channel_policy:
+        raise EmbeddingError(
+            f"{path} was trained under the {trained['channel_policy']} "
+            f"policy; embed with that policy")
+    size = int(trained["size"])
+    model, _head = _dino_network(trained["arch"], trained["in_chans"], size,
+                                 False, trained["out_dim"], torch)
+    model.load_state_dict(state["teacher"])
+    device = spec.device or ("cuda" if torch.cuda.is_available() else "cpu")
+    model.eval().to(device)
+
+    def run(stack: np.ndarray) -> np.ndarray:
+        """Encode ``(n, h, w, k)`` crops in batches at the training size.
+
+        :param stack: float32 in [0, 1], channels last.
+        :returns: ``(n, dims)`` float32 features.
+        """
+        out: List[np.ndarray] = []
+        with torch.no_grad():
+            for begin in range(0, stack.shape[0], spec.batch_size):
+                chunk = torch.from_numpy(np.ascontiguousarray(
+                    stack[begin:begin + spec.batch_size].transpose(0, 3, 1, 2)
+                )).float().to(device)
+                if chunk.shape[-2:] != (size, size):
+                    chunk = torch.nn.functional.interpolate(
+                        chunk, size=(size, size), mode="bilinear",
+                        align_corners=False)
+                out.append(model(chunk).detach().float().cpu().numpy())
+        return np.concatenate(out, axis=0)
+
+    run.in_channels = int(trained["in_chans"])
+    return run
+
+
+def _backbone_scorecards(crops: Any, labels: Sequence[Any],
+                         specs: Mapping[str, EmbeddingSpec], *,
+                         k: int = 10) -> Any:
+    """Embed one labelled crop stack with several backbones and score each.
+
+    Every backbone sees the same crops scaled by the same per-channel scale,
+    and is scored by :func:`_retrieval_scorecard` on the same labels, so the
+    rows compare like with like -- e.g. a :func:`_dino_pretrain` checkpoint
+    against the ImageNet backbone it started from.
+
+    :param crops: ``(n, height, width, channels)``.
+    :param labels: one class per crop, in order.
+    :param specs: row name to the spec to embed with.
+    :returns: a frame with one row per backbone: ``dims``, the scorecard
+        metrics and ``seconds``.
+    """
+    import time
+
+    import pandas as pd
+
+    array = np.asarray(crops, dtype=np.float32)
+    keys = [f"crop{i}" for i in range(array.shape[0])]
+    named = dict(zip(keys, labels))
+    rows = []
+    for name, spec in specs.items():
+        began = time.time()
+        if spec.normalize and spec.channel_scale is None:
+            chosen = _encoded_channels(array.shape[3], spec)
+            spec = replace(spec, channel_scale=_estimate_channel_scale(
+                array, chosen))
+        result = embed_array(array, spec)
+        frame = pd.DataFrame(result.values, index=keys,
+                             columns=list(result.columns))
+        card = _retrieval_scorecard(frame, named, k=k)
+        rows.append({"backbone": name, "dims": result.values.shape[1],
+                     **card, "seconds": round(time.time() - began, 1)})
+    return pd.DataFrame(rows).set_index("backbone")
+
+
+_MIL_WELL_COLUMN = "wellID"
+_MIL_LABEL_COLUMN = "well_label"
+
+
+def _mil_well_column(frame: Any, well_column: str) -> str:
+    """The well column to use.
+
+    The one named, or a plain ``well`` column when the default is asked for
+    and only that spelling is present.
+    """
+    if (well_column not in frame.columns and well_column == _MIL_WELL_COLUMN
+            and "well" in frame.columns):
+        return "well"
+    return well_column
+
+
+def _mil_bags(frame: Any, *, well_column: str = _MIL_WELL_COLUMN,
+              label_column: str = _MIL_LABEL_COLUMN,
+              feature_columns: Optional[Sequence[str]] = None,
+              positive: Any = None):
+    """Group a per-cell table into one bag of cells per well.
+
+    Feature columns default to the embedding columns when the table has any,
+    else to every numeric column other than the well and label columns.
+    Cells with a missing feature are dropped. Every cell of a well must carry
+    the same label.
+
+    :param frame: one row per cell.
+    :param well_column: column naming each cell's well.
+    :param label_column: column carrying the well's label on every row.
+    :param feature_columns: the columns to learn from.
+    :param positive: the label value that marks a positive well; defaults to
+        1 or True when the labels are 0/1 or boolean.
+    :returns: ``(bags, labels, wells, rows, cells)``: one float32 array
+        per well, a 0/1 array, the well names, each bag's row positions in
+        ``cells``, and the rows that were kept.
+    :raises ValueError: for a missing column, a well with two labels, labels
+        that are not two classes, or fewer than two wells in each class.
+    """
+    import pandas as pd
+
+    well_column = _mil_well_column(frame, well_column)
+    for column in (well_column, label_column):
+        if column not in frame.columns:
+            raise ValueError(f"the table has no {column!r} column")
+    if feature_columns is None:
+        feature_columns = [c for c in frame.columns
+                           if str(c).startswith(EMBEDDING_PREFIX)]
+        if not feature_columns:
+            feature_columns = [
+                c for c in frame.select_dtypes("number").columns
+                if c not in (well_column, label_column)]
+    feature_columns = list(feature_columns)
+    if not feature_columns:
+        raise ValueError("the table has no numeric feature columns")
+    kept = frame.dropna(
+        subset=feature_columns + [well_column, label_column]
+    ).reset_index(drop=True)
+    values = kept[label_column]
+    classes = set(values.unique().tolist())
+    if positive is None:
+        if classes <= {0, 1} or classes <= {True, False}:
+            positive = 1
+        else:
+            raise ValueError(
+                f"{label_column} holds {sorted(map(str, classes))}; give "
+                "0/1, or name the positive label")
+    if len(classes) != 2 or positive not in classes:
+        raise ValueError(
+            f"{label_column} must hold two classes, one of them {positive!r}")
+    bags, labels, wells, rows = [], [], [], []
+    matrix = kept[feature_columns].to_numpy(dtype=np.float32)
+    for well, group in kept.groupby(well_column, sort=True):
+        seen = group[label_column].unique()
+        if len(seen) != 1:
+            raise ValueError(f"well {well!r} carries more than one label")
+        bags.append(matrix[group.index.to_numpy()])
+        labels.append(int(seen[0] == positive))
+        wells.append(well)
+        rows.append(group.index.to_numpy())
+    labels = np.asarray(labels, dtype=np.int64)
+    if min(labels.sum(), len(labels) - labels.sum()) < 2:
+        raise ValueError("well labels need at least two wells in each class")
+    return bags, labels, wells, rows, kept
+
+
+def _mil_fit(bags: Sequence[np.ndarray], labels: Sequence[int], *,
+             hidden: int = 32, epochs: int = 60, batch: int = 8,
+             lr: float = 5e-3, weight_decay: float = 1e-3,
+             dropout: float = 0.1, seed: int = 0):
+    """Train a gated-attention multiple-instance classifier on CPU.
+
+    Each cell passes through one small layer; a gated attention head weighs
+    the cells of a well and the weighted mean is classified (Ilse, Tomczak
+    and Welling 2018). Features are standardised on the training cells.
+    Only the well label is used; which cells carry it is learned.
+
+    :param bags: one ``(cells, features)`` array per well.
+    :param labels: 0/1 per well.
+    :param hidden: width of the cell layer and the attention head.
+    :param epochs: passes over the wells.
+    :param batch: wells per step, padded and masked.
+    :param lr: Adam learning rate.
+    :param weight_decay: Adam weight decay.
+    :param dropout: dropout on the cell layer while training.
+    :param seed: seeds torch and the well order.
+    :returns: a fitted model for :func:`_mil_predict`.
+    """
+    import torch
+    from torch import nn
+
+    torch.manual_seed(int(seed))
+    stacked = np.concatenate(list(bags), axis=0).astype(np.float64)
+    centre = stacked.mean(axis=0)
+    scale = stacked.std(axis=0)
+    scale[scale < 1e-8] = 1.0
+    width = stacked.shape[1]
+
+    class _Attention(nn.Module):
+        """Pool cell embeddings into a well score with gated attention."""
+
+        def __init__(self):
+            """Build the cell projection, attention gate and binary well head."""
+            super().__init__()
+            self.cell = nn.Sequential(nn.Linear(width, hidden), nn.ReLU(),
+                                      nn.Dropout(dropout))
+            self.value = nn.Linear(hidden, hidden)
+            self.gate = nn.Linear(hidden, hidden)
+            self.weight = nn.Linear(hidden, 1)
+            self.head = nn.Linear(hidden, 1)
+
+        def forward(self, x, mask):
+            """Return well logits, attention and cell evidence, excluding padding."""
+            h = self.cell(x)
+            logits = self.weight(torch.tanh(self.value(h))
+                                 * torch.sigmoid(self.gate(h))).squeeze(-1)
+            logits = logits.masked_fill(~mask, float("-inf"))
+            attention = torch.softmax(logits, dim=1)
+            pooled = (attention.unsqueeze(-1) * h).sum(dim=1)
+            evidence = (self.head(h).squeeze(-1) - self.head.bias)
+            return self.head(pooled).squeeze(-1), attention, evidence
+
+    model = _Attention()
+    tensors = [torch.from_numpy(((b - centre) / scale).astype(np.float32))
+               for b in bags]
+    target = torch.as_tensor(np.asarray(labels), dtype=torch.float32)
+    optimiser = torch.optim.Adam(model.parameters(), lr=lr,
+                                 weight_decay=weight_decay)
+    loss_fn = nn.BCEWithLogitsLoss()
+    rng = np.random.default_rng(int(seed))
+    model.train()
+    for _ in range(int(epochs)):
+        order = rng.permutation(len(tensors))
+        for start in range(0, len(order), max(1, int(batch))):
+            chunk = order[start:start + max(1, int(batch))]
+            x, mask = _mil_pad([tensors[i] for i in chunk], torch)
+            optimiser.zero_grad()
+            logit, _, _ = model(x, mask)
+            loss_fn(logit, target[chunk]).backward()
+            optimiser.step()
+    model.eval()
+    return {"model": model, "centre": centre, "scale": scale}
+
+
+def _mil_pad(tensors, torch):
+    """Stack bags of different sizes into one padded batch and its mask."""
+    longest = max(int(t.shape[0]) for t in tensors)
+    x = torch.zeros(len(tensors), longest, int(tensors[0].shape[1]))
+    mask = torch.zeros(len(tensors), longest, dtype=torch.bool)
+    for i, t in enumerate(tensors):
+        x[i, :t.shape[0]] = t
+        mask[i, :t.shape[0]] = True
+    return x, mask
+
+
+def _mil_predict(fitted: Mapping[str, Any], bags: Sequence[np.ndarray]):
+    """Well probabilities, per-cell attention and per-cell evidence.
+
+    Attention is returned as each cell's weight times the number of cells
+    in its well, so 1 is an equal share and values are comparable between
+    wells of different sizes. Because the well classifier is linear, a
+    well's score is the attention-weighted sum of each cell's evidence: the
+    classifier applied to the cell alone, positive toward the positive
+    label. Attention says which cells the model looked at; evidence says
+    which way each of them pointed.
+
+    :returns: ``(probabilities, attention, evidence)``: one probability per
+        well, and one attention and one evidence array per well.
+    """
+    import torch
+
+    model = fitted["model"]
+    probabilities, attention, evidence = [], [], []
+    with torch.no_grad():
+        for bag in bags:
+            x = torch.from_numpy(((np.asarray(bag, dtype=np.float64)
+                                   - fitted["centre"]) / fitted["scale"])
+                                 .astype(np.float32)).unsqueeze(0)
+            mask = torch.ones(1, x.shape[1], dtype=torch.bool)
+            logit, weights, score = model(x, mask)
+            probabilities.append(float(torch.sigmoid(logit)[0]))
+            attention.append(weights[0].numpy() * x.shape[1])
+            evidence.append(score[0].numpy())
+    return np.asarray(probabilities), attention, evidence
+
+
+def _mil_summaries(bags: Sequence[np.ndarray], spread: bool = False):
+    """Each well's mean cell, with the per-feature SD appended if asked."""
+    rows = []
+    for bag in bags:
+        bag = np.asarray(bag, dtype=np.float64)
+        parts = [bag.mean(axis=0)]
+        if spread:
+            parts.append(bag.std(axis=0))
+        rows.append(np.concatenate(parts))
+    return np.asarray(rows)
+
+
+def _mil_scorecard(bags: Sequence[np.ndarray], labels: Sequence[int], *,
+                   responders: Optional[Sequence[np.ndarray]] = None,
+                   folds: int = 4, seed: int = 0,
+                   **fit: Any) -> Dict[str, float]:
+    """Cross-validated well AUROC for attention MIL against mean baselines.
+
+    Wells are split into stratified folds; each fold is predicted by a
+    model trained on the others. The baselines are an L2 logistic
+    regression on each well's mean cell, and on its mean and SD. When the
+    truly responding cells are known (a planted or annotated set), the
+    held-out attention is also scored as a ranking of responders above the
+    other cells of the positive wells.
+
+    :param bags: one ``(cells, features)`` array per well.
+    :param labels: 0/1 per well.
+    :param responders: optional boolean array per well marking responders.
+    :param folds: cross-validation folds, capped by the smaller class.
+    :param seed: fold split and model seed.
+    :param fit: passed to :func:`_mil_fit`.
+    :returns: ``mil_auroc``, ``mean_auroc``, ``mean_sd_auroc``, ``wells``
+        and, with ``responders``, ``attention_auroc`` and
+        ``evidence_auroc``.
+    """
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.metrics import roc_auc_score
+    from sklearn.model_selection import StratifiedKFold
+    from sklearn.pipeline import make_pipeline
+    from sklearn.preprocessing import StandardScaler
+
+    labels = np.asarray(labels, dtype=np.int64)
+    folds = max(2, min(int(folds), int(labels.sum()),
+                       int(len(labels) - labels.sum())))
+    split = StratifiedKFold(folds, shuffle=True, random_state=int(seed))
+    mil = np.zeros(len(labels))
+    base = {False: np.zeros(len(labels)), True: np.zeros(len(labels))}
+    attention: List[Optional[np.ndarray]] = [None] * len(labels)
+    evidence: List[Optional[np.ndarray]] = [None] * len(labels)
+    for train, test in split.split(np.zeros(len(labels)), labels):
+        fitted = _mil_fit([bags[i] for i in train], labels[train],
+                          seed=seed, **fit)
+        probs, weights, scores = _mil_predict(fitted,
+                                              [bags[i] for i in test])
+        mil[test] = probs
+        for i, w, e in zip(test, weights, scores):
+            attention[i] = w
+            evidence[i] = e
+        for spread in (False, True):
+            clf = make_pipeline(StandardScaler(),
+                                LogisticRegression(max_iter=2000))
+            clf.fit(_mil_summaries([bags[i] for i in train], spread),
+                    labels[train])
+            base[spread][test] = clf.predict_proba(
+                _mil_summaries([bags[i] for i in test], spread))[:, 1]
+    card = {"mil_auroc": float(roc_auc_score(labels, mil)),
+            "mean_auroc": float(roc_auc_score(labels, base[False])),
+            "mean_sd_auroc": float(roc_auc_score(labels, base[True])),
+            "wells": float(len(labels))}
+    if responders is not None:
+        truth = np.concatenate([np.asarray(responders[i], dtype=bool)
+                                for i in np.flatnonzero(labels)])
+        positive = np.flatnonzero(labels)
+        if 0 < truth.sum() < len(truth):
+            for name, values in (("attention", attention),
+                                 ("evidence", evidence)):
+                score = np.concatenate([values[i] for i in positive])
+                card[f"{name}_auroc"] = float(roc_auc_score(truth, score))
+    return card
+
+
+def _synthetic_mil_bags(wells: int = 24, cells: int = 60,
+                        features: int = 16, fraction: float = 0.15,
+                        shift: float = 3.0, well_noise: float = 0.5,
+                        seed: int = 0):
+    """Wells of Gaussian cells with responders planted in the positive half.
+
+    Every cell is standard normal plus a per-well offset of SD
+    ``well_noise``; in positive wells a ``fraction`` of cells is moved by
+    ``shift`` along one fixed direction. The well mean moves only by
+    ``fraction * shift``, so a mean-feature classifier has to find a small
+    shift under well-to-well noise while the responders stand out.
+
+    :returns: ``(bags, labels, responders)``.
+    """
+    rng = np.random.default_rng(int(seed))
+    direction = rng.normal(size=features)
+    direction /= np.linalg.norm(direction)
+    bags, labels, responders = [], [], []
+    for well in range(int(wells)):
+        positive = well % 2
+        bag = (rng.normal(size=(cells, features))
+               + rng.normal(scale=well_noise, size=features))
+        hit = np.zeros(cells, dtype=bool)
+        if positive:
+            hit[rng.choice(cells, max(1, int(round(fraction * cells))),
+                           replace=False)] = True
+            bag[hit] += shift * direction
+        bags.append(bag.astype(np.float32))
+        labels.append(positive)
+        responders.append(hit)
+    return bags, np.asarray(labels, dtype=np.int64), responders
+
+
+def _mil_from_table(frame: Any, *, folds: int = 4, seed: int = 0,
+                    well_column: str = _MIL_WELL_COLUMN,
+                    label_column: str = _MIL_LABEL_COLUMN,
+                    feature_columns: Optional[Sequence[str]] = None,
+                    positive: Any = None, **fit: Any):
+    """Learn which cells carry a well-level label, from a per-cell table.
+
+    A model trained on every well gives each cell its attention and each
+    well its probability; the scorecard comes from cross-validation, so the
+    AUROCs are for wells the model did not see.
+
+    :param frame: one row per cell, as :func:`_mil_bags` reads it.
+    :returns: ``(cells, wells, scorecard)``: the input rows that were used,
+        with ``mil_attention`` and ``mil_evidence`` added (see
+        :func:`_mil_predict`); one row per well with its label and
+        ``mil_probability``; and :func:`_mil_scorecard`'s numbers.
+    """
+    import pandas as pd
+
+    well_column = _mil_well_column(frame, well_column)
+    bags, labels, wells, rows, kept = _mil_bags(
+        frame, well_column=well_column, label_column=label_column,
+        feature_columns=feature_columns, positive=positive)
+    card = _mil_scorecard(bags, labels, folds=folds, seed=seed, **fit)
+    fitted = _mil_fit(bags, labels, seed=seed, **fit)
+    probs, attention, evidence = _mil_predict(fitted, bags)
+    index = np.concatenate(rows)
+    cells = kept.iloc[index].reset_index(drop=True)
+    cells["mil_attention"] = np.concatenate(attention)
+    cells["mil_evidence"] = np.concatenate(evidence)
+    well_frame = pd.DataFrame({well_column: wells, label_column: labels,
+                               "mil_probability": probs,
+                               "cells": [len(b) for b in bags]})
+    return cells, well_frame, card
 
 
 #: Key prefix for an encoder's model-zoo entry. Distinct from a checkpoint's

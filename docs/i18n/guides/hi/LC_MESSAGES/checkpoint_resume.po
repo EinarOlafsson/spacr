@@ -1,0 +1,78 @@
+# spaCR user guide translation (hi).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: hi\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Checkpoint and resume"
+msgstr "चेकपॉइंट और फिर से शुरू करना"
+
+msgid "spaCR checkpoints long work only after a safe unit has finished. A checkpoint never means killing a write halfway through: it means that a later invocation can prove which fields, trials, or plate jobs settled and continue after them. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
+msgstr "spaCR लंबे काम में चेकपॉइंट केवल तब बनाता है जब कोई सुरक्षित इकाई पूरी हो जाए। चेकपॉइंट का अर्थ कभी भी लिखने की प्रक्रिया को बीच में रोकना नहीं है: इसका अर्थ है कि बाद का आह्वान यह सिद्ध कर सकता है कि कौन-से फ़ील्ड, परीक्षण या प्लेट कार्य पूरे हो चुके हैं और उनके बाद से जारी रख सकता है। Qt का **रोकें** बटन भी इन्हीं सीमाओं का उपयोग करता है: यह सहयोगात्मक रद्दीकरण का अनुरोध करता है, वर्तमान सुरक्षित इकाई को पूरा होने देता है और अगले रन के लिए चेकपॉइंट बनाए रखता है। :doc:`threading_cancellation_audit` देखें।"
+
+msgid "Supported workflows"
+msgstr "समर्थित कार्यप्रवाह"
+
+msgid "Mask"
+msgstr "मास्क"
+
+msgid "Masks are matched to fields by exact filename. An object role is skipped only when every ``.npy`` field in ``stack/`` has a structurally complete mask of the same name; a missing, empty, or truncated mask sends the role back through segmentation. An unrelated mask cannot stand in for a missing field, and extra masks do not force complete fields to run again. Enable ``resume`` under **Workflow & Test Run** to also keep verified ``merged/*.npy`` fields instead of rebuilding them. New mask arrays are written with temporary-file plus atomic replace semantics. Cell adjustment first checks that the pathogen, cell, and nucleus folders hold the same field filenames with complete masks of matching dimensions; if they differ, it stops before changing any mask. With ``timelapse`` and ``motility_analysis`` on, the motility assay runs once per plate, after every object role and merged frame is complete, and rebuilds its measurements from the current masks rather than reusing an earlier table."
+msgstr "मास्क सटीक फ़ाइल नाम से फ़ील्ड से मिलाए जाते हैं। किसी ऑब्जेक्ट भूमिका को केवल तब छोड़ा जाता है जब ``stack/`` के हर ``.npy`` फ़ील्ड के लिए उसी नाम का संरचनात्मक रूप से पूर्ण मास्क मौजूद हो; अनुपस्थित, खाली या कटे हुए मास्क से वह भूमिका फिर से विभाजन में जाती है। असंबंधित मास्क किसी अनुपस्थित फ़ील्ड की जगह नहीं ले सकता, और अतिरिक्त मास्क पूर्ण फ़ील्ड को दोबारा चलाने के लिए बाध्य नहीं करते। सत्यापित ``merged/*.npy`` फ़ील्ड को दोबारा बनाने के बजाय बनाए रखने के लिए **कार्यप्रवाह और परीक्षण रन** के अंतर्गत ``resume`` भी सक्षम करें। नए मास्क ऐरे अस्थायी फ़ाइल और परमाणु प्रतिस्थापन के साथ लिखे जाते हैं। कोशिका समायोजन पहले जाँचता है कि रोगजनक, कोशिका और केंद्रक फ़ोल्डरों में समान फ़ील्ड फ़ाइल नाम और मेल खाते आयामों वाले पूर्ण मास्क हैं; यदि वे भिन्न हों तो यह किसी भी मास्क को बदलने से पहले रुक जाता है। ``timelapse`` और ``motility_analysis`` चालू होने पर गतिशीलता परीक्षण हर ऑब्जेक्ट भूमिका और संयुक्त फ़्रेम के पूरा होने के बाद प्रति प्लेट एक बार चलता है, और किसी पुरानी तालिका को दोबारा उपयोग करने के बजाय वर्तमान मास्क से अपने मापन फिर से बनाता है।"
+
+msgid "Measure"
+msgstr "मापन"
+
+msgid "Enable ``resume`` under **Postprocessing → Runtime & Reliability**. A field is skipped only when every Measure-owned table in ``measurements.db`` is complete. Partial field rows are cleared in one transaction before remeasurement, while tables owned by conversion, alignment, or other modules are never deleted."
+msgstr "**Postprocessing → रनटाइम और विश्वसनीयता** के अंतर्गत ``resume`` सक्षम करें। किसी फ़ील्ड को केवल तब छोड़ा जाता है जब ``measurements.db`` में मापन मॉड्यूल की हर तालिका पूर्ण हो। पुनर्मापन से पहले आंशिक फ़ील्ड पंक्तियाँ एक ही लेनदेन में साफ़ की जाती हैं, जबकि रूपांतरण, संरेखण या अन्य मॉड्यूल की तालिकाएँ कभी हटाई नहीं जातीं।"
+
+msgid "Format Converter"
+msgstr "प्रारूप परिवर्तक"
+
+msgid "Enable the Apple-style **Resume** switch. The converter writes ``.spacr_conversion.checkpoint.json`` after a whole field is complete. Resume reopens each target's TIFF metadata before accepting the field and atomically repairs a missing or corrupt target. Source identity and the full mapping plan must match."
+msgstr "Apple-शैली का **फिर से शुरू करें** स्विच सक्षम करें। पूरा फ़ील्ड पूर्ण होने के बाद रूपांतरक ``.spacr_conversion.checkpoint.json`` लिखता है। फिर से शुरू करने पर फ़ील्ड स्वीकार करने से पहले हर लक्ष्य का TIFF मेटाडेटा दोबारा खोला जाता है और अनुपस्थित या दूषित लक्ष्य की परमाणु रूप से मरम्मत की जाती है। स्रोत की पहचान और पूरी मैपिंग योजना मेल खानी चाहिए।"
+
+msgid "Image UMAP search"
+msgstr "इमेज UMAP खोज"
+
+msgid "Open **UMAP settings**, then enable **Resume checkpoint**. Trial metadata is written after every trial and embeddings are stored as adjacent NumPy artifacts. Grid searches skip completed configurations. Adaptive 2×2 searches also persist their centre, best score, completed-round count, and partial-round corners, so only missing corners run after an interruption."
+msgstr "**UMAP settings** खोलें, फिर **चेकपॉइंट से फिर शुरू करें** सक्षम करें। हर परीक्षण के बाद परीक्षण मेटाडेटा लिखा जाता है और एम्बेडिंग पास की NumPy फ़ाइलों के रूप में संग्रहीत होती हैं। ग्रिड खोज पूर्ण विन्यासों को छोड़ देती है। अनुकूली 2×2 खोज अपना केंद्र, सर्वश्रेष्ठ स्कोर, पूर्ण दौरों की संख्या और आंशिक दौरों के कोने भी सहेजती है, ताकि रुकावट के बाद केवल अनुपस्थित कोने चलें।"
+
+msgid "Batch Runner"
+msgstr "बैच रनर"
+
+msgid "A saved queue is written after every job transition. Loading and resuming it leaves successful jobs alone. A Mask, Measure, or Format Converter job that was running when the machine stopped is restarted with ``resume=True``, so its own verified field boundary is reused. Other jobs restart at the job boundary."
+msgstr "सहेजी गई कतार हर कार्य स्थिति परिवर्तन के बाद लिखी जाती है। इसे लोड करके फिर से शुरू करने पर सफल कार्यों को नहीं छुआ जाता। मशीन रुकने के समय चल रहा मास्क, मापन या प्रारूप परिवर्तक कार्य ``resume=True`` के साथ फिर से शुरू किया जाता है, ताकि उसकी अपनी सत्यापित फ़ील्ड सीमा दोबारा उपयोग हो। अन्य कार्य कार्य-सीमा से फिर से शुरू होते हैं।"
+
+msgid "Interrupted normalization archives"
+msgstr "बाधित सामान्यीकरण संग्रह"
+
+msgid "Mask also checks the normalized ``masks/*.npz`` archives before segmentation. It checks ZIP member extents, a readable numeric ``data.npy`` header, enough declared pixel bytes for the shape and dtype, and one filename per batch field. This structural check does not inflate every pixel array or perform a full pixel CRC scan."
+msgstr "मास्क मॉड्यूल विभाजन से पहले सामान्यीकृत ``masks/*.npz`` संग्रहों की भी जाँच करता है। यह ZIP सदस्यों का विस्तार, पढ़ने योग्य संख्यात्मक ``data.npy`` हेडर, आकार और dtype के लिए पर्याप्त घोषित पिक्सेल बाइट, और हर बैच फ़ील्ड के लिए एक फ़ाइल नाम जाँचता है। यह संरचनात्मक जाँच हर पिक्सेल ऐरे को खोलकर नहीं देखती और न ही पूरा पिक्सेल CRC स्कैन करती है।"
+
+msgid "Damaged archives are set aside as ``<name>.damaged``. With preprocessing disabled, the run stops and explains how to recover them. The same quarantine still prevents a later run from silently omitting those fields. It is resolved by a valid same-name replacement, or by readable archives covering every existing field in ``stack/``. Legacy object-valued filename arrays cannot prove that coverage. Enabling preprocessing lets recoverable fields be rebuilt from the available source data; valid archives and quarantined evidence are preserved."
+msgstr "क्षतिग्रस्त संग्रहों को ``<name>.damaged`` के रूप में अलग रख दिया जाता है। पूर्वप्रसंस्करण बंद होने पर रन रुक जाता है और बताता है कि उन्हें कैसे पुनर्प्राप्त करें। यही पृथक्करण बाद के रन को भी उन फ़ील्ड को चुपचाप छोड़ने से रोकता है। इसे उसी नाम के वैध प्रतिस्थापन से, या ``stack/`` के हर मौजूदा फ़ील्ड को कवर करने वाले पढ़ने योग्य संग्रहों से हल किया जाता है। पुराने ऑब्जेक्ट-मान वाले फ़ाइल नाम ऐरे यह कवरेज सिद्ध नहीं कर सकते। पूर्वप्रसंस्करण सक्षम करने पर उपलब्ध स्रोत डेटा से पुनर्प्राप्त किए जा सकने वाले फ़ील्ड दोबारा बनाए जा सकते हैं; वैध संग्रह और पृथक किए गए साक्ष्य सुरक्षित रहते हैं।"
+
+msgid "Safety rules"
+msgstr "सुरक्षा नियम"
+
+msgid "Checkpoint files are atomic JSON documents with a workflow name, format version, boundary, timestamps, input/settings signature, status, completed units, and workflow state. spaCR refuses a resume when this signature differs; start with Resume disabled to create a fresh checkpoint. A corrupt checkpoint is reported and preserved for diagnosis rather than silently discarded."
+msgstr "चेकपॉइंट फ़ाइलें परमाणु JSON दस्तावेज़ होती हैं जिनमें कार्यप्रवाह का नाम, प्रारूप संस्करण, सीमा, टाइमस्टैम्प, इनपुट/सेटिंग्स हस्ताक्षर, स्थिति, पूर्ण इकाइयाँ और कार्यप्रवाह की अवस्था होती है। यह हस्ताक्षर भिन्न होने पर spaCR फिर से शुरू करने से इनकार करता है; नया चेकपॉइंट बनाने के लिए फिर से शुरू करें को बंद रखकर प्रारंभ करें। दूषित चेकपॉइंट की सूचना दी जाती है और उसे चुपचाप हटाने के बजाय निदान के लिए सुरक्षित रखा जाता है।"
+
+msgid "The persistence API is :class:`spacr.checkpoint.CheckpointStore`. Conversion uses :func:`spacr.convert.convert`, UMAP search uses :func:`spacr.hyperparam.umap_search`, Measure uses :func:`spacr.resume.plan_measure_resume`, and queues use :func:`spacr.batch.resume_queue`."
+msgstr "स्थायित्व API :class:`spacr.checkpoint.CheckpointStore` है। रूपांतरण :func:`spacr.convert.convert` का, UMAP खोज :func:`spacr.hyperparam.umap_search` का, मापन :func:`spacr.resume.plan_measure_resume` का और कतारें :func:`spacr.batch.resume_queue` का उपयोग करती हैं।"
+

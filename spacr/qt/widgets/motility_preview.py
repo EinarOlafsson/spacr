@@ -132,6 +132,8 @@ def resolve_merged_dir(path) -> str:
     folder itself, which is what a user dragging a folder in will most
     likely grab.
 
+    :param path: a plate folder holding ``merged/``, the ``merged`` folder
+        itself, or a file inside either (its parent folder is used).
     :raises MotilityInputError: when neither exists or it holds no ``.npy``.
     """
     p = Path(path)
@@ -155,6 +157,9 @@ def group_merged_files(merged_dir: str) -> "Dict[tuple, List[dict]]":
     Shares the lightweight parser behind
     :func:`spacr.timelapse._parse_merged_filename`, so grouping agrees with
     the assay without importing plotting or model dependencies.
+
+    :param merged_dir: folder of merged ``.npy`` arrays; only groups with at
+        least two time points are returned.
     """
     from spacr._merged_names import parse_merged_filename
     groups: "Dict[tuple, List[dict]]" = {}
@@ -176,6 +181,9 @@ def default_plane_layout(n_planes: int, n_channels: int) -> "Tuple[int, Optional
     documents: intensity channels first, then the cell mask, then optionally
     a nucleus mask, then optionally the pathogen mask.
 
+    :param n_planes: number of planes in a merged array.
+    :param n_channels: number of intensity channels stored before the mask
+        planes; values below 1 count as 1.
     :returns: ``(cell_plane, pathogen_plane_or_None)``.
     """
     n_channels = max(1, int(n_channels))
@@ -206,6 +214,14 @@ def build_point_table(merged_dir: str, metas: "List[dict]", n_channels: int,
     the Timelapse module are already relabelled by track id, which is the
     same assumption the assay makes.
 
+    :param merged_dir: folder holding the merged ``.npy`` arrays.
+    :param metas: parsed file names of one (plate, well, field) group in time
+        order; each supplies ``filename``, ``plateID``, ``wellID`` and
+        ``fieldID``, and its position becomes ``frame``.
+    :param n_channels: number of intensity channels, used to orient each array.
+    :param tracked_plane: index of the label plane whose objects are tracked.
+    :param pathogen_plane: index of the pathogen mask plane; an object
+        overlapping it is ``infected``. ``None`` marks every object uninfected.
     :returns: DataFrame with ``plateID``, ``wellID``, ``fieldID``,
         ``cellID``, ``frame``, ``x``, ``y``, ``area`` and ``infected``.
     """
@@ -258,6 +274,10 @@ def smooth_and_filter_tracks(points, max_displacement: float):
     track links two different objects, and the assay drops the whole track.
     This reproduces both, so the preview's track count matches a run's.
 
+    :param points: point table as returned by :func:`build_point_table`, one
+        row per object per frame; tracks are keyed by plate, well, field and
+        ``cellID``. ``None`` or empty is returned as is.
+    :param max_displacement: largest plausible step between frames, in pixels.
     :returns: ``(points, n_glitches_fixed, n_tracks_dropped)``.
     """
     import pandas as pd
@@ -311,6 +331,11 @@ def track_metrics(points, calibration: Calibration, min_length: int = 3):
     Tracks shorter than ``min_length`` frames are kept in the table and
     flagged ``too_short`` rather than silently dropped, so the length
     distribution plot can show what the cutoff is discarding.
+
+    :param points: point table as returned by :func:`build_point_table`, one
+        row per object per frame.
+    :param calibration: pixel size and frame interval; its factor converts
+        px/frame to the reported velocity unit.
     """
     import pandas as pd
     cols = TRACK_KEYS + ["n_frames", "v_px_per_frame", "velocity",
@@ -395,7 +420,17 @@ class MotilitySummary:
 def summarise(tracks, calibration: Calibration, min_length: int,
               straightness_threshold: float, glitches: int = 0,
               dropped: int = 0) -> MotilitySummary:
-    """Reduce a per-track table to the numbers shown under the plots."""
+    """Reduce a per-track table to the numbers shown under the plots.
+
+    :param tracks: per-track table as returned by :func:`track_metrics`; tracks
+        flagged ``too_short`` are left out of the means.
+    :param calibration: supplies the velocity unit and whether it is
+        calibrated.
+    :param min_length: the minimum track length in frames, recorded in the
+        summary.
+    :param straightness_threshold: straightness at or above which a used track
+        counts as highly straight.
+    """
     s = MotilitySummary(min_length=int(min_length), unit=calibration.unit,
                         calibrated=calibration.known,
                         straightness_threshold=float(straightness_threshold),
@@ -438,6 +473,17 @@ def render_motility_figure(points, tracks, calibration: Calibration,
        be trusted.
     3. **Velocity and straightness**, split by infection state, with the
        unit in the axis label so ``px/frame`` is never mistaken for µm/s.
+
+    :param points: point table as returned by :func:`build_point_table`, one
+        row per object per frame; drawn as tracks from the origin.
+    :param tracks: per-track table as returned by :func:`track_metrics`, for
+        the length histogram and the velocity panel.
+    :param calibration: supplies the velocity axis unit; an uncalibrated one is
+        labelled px/frame on the plot.
+    :param min_length: minimum track length in frames, drawn as the cutoff on
+        the length histogram.
+    :param straightness_threshold: straightness threshold of the current
+        settings; not drawn.
     """
     from matplotlib.backends.backend_agg import FigureCanvasAgg
     from matplotlib.figure import Figure
@@ -539,7 +585,11 @@ class MotilityRequest:
 
 
 def run_motility_pass(req: MotilityRequest):
-    """Build the cached point table for one (plate, well, field) group."""
+    """Build the cached point table for one (plate, well, field) group.
+
+    :param req: the merged folder, group file names, channel count, plane
+        indices and frame cap passed to :func:`build_point_table`.
+    """
     return build_point_table(
         req.merged_dir, req.metas, req.n_channels, req.tracked_plane,
         req.pathogen_plane, max_frames=req.max_frames)
@@ -588,6 +638,8 @@ def scan_plate_payload(path) -> Dict[str, Any]:
     candidate folder and ``group_merged_files`` reads every name in
     ``merged/`` and parses it -- thousands of entries on a 384-well plate.
 
+    :param path: a plate folder or its ``merged`` folder; any failure is caught
+        and reported in the ``error`` entry.
     :returns: ``{path, merged, groups, error}``.
     """
     out: Dict[str, Any] = {"path": str(path), "merged": None,
@@ -987,6 +1039,8 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
         Both GUI entry points -- the drop handler and the Choose-plate dialog
         -- come through here.
 
+        :param path: a plate or ``merged`` folder; ``None`` or an empty path
+            submits nothing and returns ``False``.
         :returns: ``True`` when a job was submitted.
         """
         text = os.fspath(path).strip() if path is not None else ""
@@ -1061,6 +1115,10 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
 
         For programmatic callers and tests, mirroring
         ``LivePreviewPanel.load_image``. The GUI uses :meth:`load_folder_async`.
+
+        :param path: a plate or ``merged`` folder, scanned with
+            :func:`scan_plate_payload`; a failure or a plate with no time
+            series is shown in the status line.
         """
         payload = scan_plate_payload(path)
         if payload["error"]:
@@ -1148,7 +1206,11 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
                 self.sample_note()[:1].upper() + self.sample_note()[1:])
 
     def set_propagate_callback(self, cb) -> None:
-        """Register a ``callback(dict)`` used to push tuned settings back."""
+        """Register a ``callback(dict)`` used to push tuned settings back.
+
+        :param cb: callable taking one settings dict, or ``None`` to push
+            nothing.
+        """
         self._propagate_cb = cb
 
     def calibration(self) -> Calibration:
@@ -1190,7 +1252,14 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
                 LOG.debug("propagate_settings failed", exc_info=True)
 
     def apply_settings(self, settings: dict) -> None:
-        """Seed the preview from the main Motility settings dict."""
+        """Seed the preview from the main Motility settings dict.
+
+        :param settings: the Motility settings dict. ``tracked_object``,
+            ``max_displacement``, ``straightness_threshold``,
+            ``drop_straight_tracks``, ``channels``, ``pixels_per_um`` and
+            ``seconds_per_frame`` are read when present; errors are logged, not
+            raised.
+        """
         try:
             obj = settings.get("tracked_object")
             if obj and self._tracked_object.findText(str(obj)) >= 0:
@@ -1618,6 +1687,9 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
 
         A ``QThread`` collected while running aborts the process; the worker
         outlives the emit that produced its result by a few instructions.
+
+        :param event: the close event, passed on to the base class after any
+            running worker has been waited for (up to five seconds each).
         """
         self.shutdown()
         for worker in (self._worker, getattr(self, "_retired_worker", None)):

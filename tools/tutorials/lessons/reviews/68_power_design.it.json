@@ -1,29 +1,34 @@
 {
   "lesson": "68_power_design",
-  "english_sha256": "c70c0ea4d037c92883296dfc5b72dcc4e9cf5e7c331311afabbe1c56618147b6",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "50ffe28cafc59c00ff0e0552315128c1e4cd478a2a41e9ac0ebe3d151410882c",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "it",
-  "title": "Power / Design: leggere il simulatore e i suoi limiti",
-  "description": "Comprendi controlli, curve simulate e avvisi senza scambiare una piccola dimostrazione o un riepilogo contraddittorio per consigli di progettazione validati.",
+  "title": "Power & Design: esplorare curve di rilevamento simulate",
+  "description": "Imposta le ipotesi su libreria e disegno, esegui simulazioni ed esamina le frazioni di rilevamento, gli adattamenti falliti e le avvertenze.",
   "objectives": [
-    "Distinguere ipotesi simulate e dati sperimentali acquisiti.",
-    "Leggere correttamente fit utilizzabili, frazioni di rilevamento e incertezza.",
-    "Riconoscere il consiglio errato sullo stesso disegno e conservare le evidenze."
+    "Impostare la libreria, l’unità di punteggio e le ipotesi di disegno.",
+    "Eseguire scansioni del numero di cellule e di pozzetti con impostazioni registrate.",
+    "Leggere le frazioni di rilevamento e le avvertenze prima di interpretare un disegno."
   ],
-  "prerequisite": "Revisione critica del simulatore registrato, non potenza statistica calibrata o consiglio sulla numerosità campionaria. Power_recorded_simulation_review.zip conserva JSON originale e revisione; non è un'esecuzione importabile né una dimostrazione di esportazione GUI. Schermata, adattatore, simulatore e codice di fit registrati con spaCR 1.5.0.4 sono identici al codice attuale. Due scansioni marginali hanno prodotto 18 fit e nove punti, due repliche ciascuno; quattro fit non convergenti rimangono nel denominatore. Due simulazioni hanno troncato probabilità. Lo stesso disegno nominale con estrazioni diverse produce 1/2 e 2/2 rilevamenti. Il consiglio di aumentare fino al numero di pozzetti già presente è respinto e resta irrisolto. Alcune etichette finali sono tagliate; la tabella verificata ha tutte le nove coordinate. Nessuna nuova simulazione, dato acquisito, calibrazione biologica, attività GPU, richiesta IA o pubblicazione è dichiarata. API: spacr.qt.widgets.power_design.DesignSpec/simulator_kwargs/power_curve e spacr.qt.screens.power.run_power_sweep; spacr.power_simulate e spacr.power_model simulano ed eseguono i fit.",
+  "prerequisite": "Prepara le ipotesi su dimensione della libreria, guide per gene, fondo, effetto e prevalenza. Questo modulo simula dati. L’esempio collegato usa solo due repliche per punto per mostrare i comandi; per pianificare usa abbastanza ripetizioni e ipotesi appropriate. In questa versione, esamina la tabella invece di fidarti di un titolo che può raccomandare il numero di pozzetti di partenza invariato.",
   "scenes": [
-    "Power e Design esplora ipotesi con dati simulati. Non carica un esperimento acquisito e non stabilisce che le ipotesi corrispondano alle tue. La lezione esamina una vera esecuzione registrata, inclusi avvisi e un consiglio fuorviante. Non usare questa piccola dimostrazione come consiglio validato sulla numerosità campionaria.",
-    "Inizia dalla libreria e dall'unità valutata. Passare da guida a gene cambia ciò che il modello valuta: quaranta geni con quattro guide ciascuno danno centosessanta unità in modalità guida. La modalità gene raggruppa le informazioni delle guide. Sono ipotesi didattiche, non nuove misure biologiche.",
-    "I controlli di piastra ed effetto descrivono il disegno ipotizzato. Il tasso di classificazioni positive è una probabilità simulata, non un conteggio di organismi né un tasso d'infezione misurato. Esamina insieme fondo, effetto e prevalenza; le ipotesi mostrate non validano il modello.",
-    "Un effetto inferiore a uno attiva l'avviso nativo di direzione non supportata e disabilita Run. La registrazione ripristina poi un valore supportato e i controlli recuperano. È una protezione software, non un'affermazione di impossibilità biologica. Non aggirare l'avviso per ottenere una curva conveniente.",
-    "La dimostrazione usa solo due repliche per punto. Il rilevamento richiede un fit utilizzabile che raggiunga la soglia scelta dell'area sotto la curva ROC. Non è una soglia P per un test d'ipotesi. Seme e backend sono registrati; scegliere Torch non prova l'esecuzione su GPU.",
-    "Run avvia il vero simulatore in un thread di lavoro. Varia separatamente gli assi del numero di cellule e pozzetti, non tutte le combinazioni. La registrazione ha completato diciotto fit su nove punti. Conserva impostazioni e repliche grezze insieme per collegare ogni frazione tracciata ai fit che l'hanno prodotta.",
-    "Leggi i rilevamenti rispetto a tutte le repliche richieste. Quattro fit non convergenti rimangono nel denominatore come mancati rilevamenti, senza esclusioni nascoste. Qui cento per cento significa solo due su due. Un campione così piccolo non stabilisce una probabilità di rilevamento precisa.",
-    "La tabella separa frazioni di rilevamento e prestazioni medie dei fit utilizzabili. Una media indisponibile non è zero. La precisione media richiede anche il riferimento di prevalenza. Leggi la tabella quando un'etichetta finale è tagliata e controlla le mancate convergenze, non soltanto la linea blu.",
-    "Il riepilogo contiene un errore. Entrambe le stime di riferimento usano già novantasei pozzetti, ma estrazioni casuali diverse producono uno su due rilevamenti in una scansione e due su due nell'altra. Passare agli stessi novantasei pozzetti non migliora il disegno. Rifiuta il consiglio; il tutorial non lo ripara.",
-    "Espandi gli altri avvertimenti. Due screening simulati hanno troncato probabilità maggiori di uno, quindi l'occupazione realizzata differisce da quella richiesta. Il modello ha altre ipotesi e limitazioni: elencarle non equivale a validarlo. Esamina avvisi e fit falliti prima di trarre conclusioni.",
-    "L'archivio collegato conserva specifica registrata, repliche, curve, tabella e riepilogo errato. È un download esterno di evidenze, non un'esportazione nativa né un risultato importato. Adattatore e API Python espongono lo stesso flusso, ma la pianificazione reale richiede una validazione separata di ipotesi e incertezza."
+    "Da Home, apri Power & Design. Parti dalle ipotesi che vuoi esplorare, poi usa le curve di rilevamento simulate per confrontare le scelte di numero di cellule e di pozzetti mostrate.",
+    "Imposta la dimensione della libreria e le guide per gene, poi scegli l’unità di punteggio. Con quaranta geni e quattro guide per gene, il punteggio per guida usa centosessanta unità; il punteggio per gene raccoglie le informazioni delle guide.",
+    "Esamina insieme i comandi di piastra, fondo, effetto e prevalenza. Il tasso di chiamate positive è una probabilità di classificazione ipotizzata. Scegli valori che descrivano l’analisi che hai in programma.",
+    "Se un effetto inferiore a uno disattiva Run, leggi l’avviso sulla direzione non supportata. Ripristina un valore supportato per continuare; questo simulatore non copre tutte le possibili direzioni dell’effetto.",
+    "Imposta ripetizioni, seme, motore di calcolo e soglia di rilevamento. La soglia usa l’area sotto la curva ROC. L’esempio usa due repliche per punto per un’esecuzione breve; scegli più ripetizioni quando stimi la probabilità di rilevamento.",
+    "Fai clic su Run e segui l’avanzamento. Il simulatore esplora separatamente il numero di cellule e il numero di pozzetti. Conserva le impostazioni insieme ai risultati completati.",
+    "Leggi i conteggi di rilevamento insieme ai loro denominatori. Gli adattamenti falliti o non convergenti restano come mancati rilevamenti. Con due repliche richieste, cento per cento significa solo due rilevamenti su due.",
+    "Usa la tabella dei risultati per esaminare le frazioni di rilevamento, le prestazioni medie tra gli adattamenti utilizzabili e la mancata convergenza. I valori medi non disponibili sono risultati mancanti. Interpreta la precisione media in relazione alla prevalenza ipotizzata.",
+    "Confronta direttamente i valori di disegno richiesti. Questa versione può raccomandare di salire allo stesso numero di pozzetti di partenza, perché le due scansioni usano estrazioni casuali diverse. Ignora quel titolo e usa la tabella e l’incertezza per valutare il confronto.",
+    "Espandi le avvertenze ed esamina gli adattamenti falliti o le probabilità troncate. Modifica le ipotesi quando producono risultati incoerenti con l’esperimento che vuoi modellare.",
+    "Conserva insieme le impostazioni e i risultati delle repliche. L’archivio collegato contiene l’esecuzione d’esempio da esaminare. Per un output da programma, usa l’adattatore di disegno e le API di simulazione; valuta ipotesi e incertezza prima di scegliere un disegno sperimentale."
   ]
 }

@@ -189,7 +189,14 @@ class MetadataColumnDialog(QDialog):
 def resolve_metadata_with_dialog(
         frame, required: Iterable[str], *, parent: Optional[QWidget] = None,
         cache_key: Optional[str] = None) -> ResolutionResult:
-    """Resolve a frame interactively; cancellation remains an explicit stop."""
+    """Resolve a frame interactively; cancellation remains an explicit stop.
+
+    :param frame: source metadata frame, passed to
+        :func:`spacr.metadata_resolution.resolve_metadata_columns`.
+    :param required: canonical columns that must be present in the result; a
+        dialog asks for the mapping of each one that cannot be resolved, and
+        cancelling it raises :class:`MetadataResolutionRequired`.
+    """
     def prompt(request: MetadataRequest) -> MetadataDecision:
         """Ask the user how to map one metadata column."""
         dialog = MetadataColumnDialog(request, parent)

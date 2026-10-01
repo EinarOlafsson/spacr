@@ -25,7 +25,7 @@
     },
     {
       "visual": "01_current_training_runs_fold",
-      "narration": "Training Runs provides a folder selector, run list, Metric menu, Folds menu and Overlay selected button. Begin by choosing the parent folder containing the runs you want to compare.",
+      "narration": "Work through the screen in order: choose a folder to find runs, pick them in the list, then choose a Metric and Folds and click Overlay selected. Begin with the parent folder that holds your runs.",
       "hold_after": 0.7,
       "focus": [
         465,

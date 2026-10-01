@@ -165,6 +165,9 @@ def split_api_link(html: str) -> Tuple[str, str]:
     Only a link that really is the last thing in the body is taken; a link
     inside a sentence stays where the author put it.
 
+    :param html: the tooltip body as rich text; the last ``<a href>`` anchor
+        is removed only when nothing but whitespace follows it, along with
+        the line breaks before it.
     :returns: ``(body_without_the_link, url)``; ``url`` is ``""`` when there
         was no trailing link.
     """
@@ -500,6 +503,9 @@ class HoverTooltip(QFrame):
         lay.addWidget(self._text_column, 0, Qt.AlignTop)
         lay.addWidget(self._animation_view, 0, Qt.AlignTop)
 
+        from ..tooltip_policy import HoverDelay
+        self._hover_delay = HoverDelay(self)
+        self._hover_delay.invalidated.connect(self.hide)
         self._hide_timer = QTimer(self)
         self._hide_timer.setSingleShot(True)
         self._hide_timer.timeout.connect(self._maybe_hide)
@@ -546,7 +552,8 @@ class HoverTooltip(QFrame):
             cls._INSTANCE = HoverTooltip()
         return cls._INSTANCE
 
-    def show_for(self, anchor: QWidget, html: str, animation=_DERIVE) -> None:
+    def show_for(self, anchor: QWidget, html: str, animation=_DERIVE,
+                 *, immediate: bool = False) -> None:
         """Show the tooltip beneath ``anchor`` with body ``html``.
 
         :param anchor: widget the popup docks to (clamped to its screen).
@@ -558,9 +565,20 @@ class HoverTooltip(QFrame):
             is derived from the anchor's ``settingKey`` property — every
             caller that attaches setting help already sets that, so none of
             them had to change.
+        :param immediate: show now for an explicit click or an already delayed
+            hover callback; ordinary hover callers leave this false.
         """
         if not html:
             return
+        if not immediate:
+            self.hide()
+            self._claim_anchor(anchor)
+            self._hover_delay.schedule(
+                anchor, lambda: self.show_for(anchor, html, animation,
+                                               immediate=True))
+            return
+        self._hover_delay.cancel()
+        self.cancel_hide()
         self._apply_theme()
         self._anchor = anchor
         self._claim_anchor(anchor)
@@ -590,6 +608,7 @@ class HoverTooltip(QFrame):
         ``0`` means :data:`HIDE_DELAY_MS` -- the default is named rather than
         written into the signature so every caller moves together.
         """
+        self._hover_delay.cancel()
         self._hide_timer.start(int(delay_ms) or self.HIDE_DELAY_MS)
 
     def cancel_hide(self) -> None:
@@ -818,11 +837,17 @@ class HoverTooltip(QFrame):
         """
         if anchor is None:
             return
+        from ..tooltip_policy import OPT_OUT_PROPERTY, tooltip_policy
+
         try:
             anchor.removeEventFilter(self._tooltip_suppressor)
             anchor.installEventFilter(self._tooltip_suppressor)
+            anchor.setProperty(OPT_OUT_PROPERTY, True)
         except RuntimeError:
             return
+        policy = tooltip_policy()
+        if policy is not None:
+            policy.hide_now()
         QToolTip.hideText()
 
     def _pointer_is_on_me(self) -> bool:
@@ -880,18 +905,30 @@ class HoverTooltip(QFrame):
         The popup is a singleton, so without this its timer would keep
         swapping pixmaps into an invisible label for the rest of the session
         after the last hover.
+
+        :param event: the hide event; passed to the base class after the
+            animation stops.
         """
+        self._hover_delay.cancel()
         self._animation_view.stop()
         super().hideEvent(event)
 
     def showEvent(self, event):
-        """Resume the loaded animation when the popup comes back."""
+        """Resume the loaded animation when the popup comes back.
+
+        :param event: the show event; passed to the base class and otherwise
+            not read.
+        """
         super().showEvent(event)
         if self._animation is not None:
             self._animation_view.play()
 
     def enterEvent(self, event):
-        """Cancel the hide timer when the cursor enters the popup."""
+        """Cancel the hide timer when the cursor enters the popup.
+
+        :param event: the enter event; passed to the base class and otherwise
+            not read.
+        """
         self.cancel_hide()
         super().enterEvent(event)
 
@@ -901,6 +938,9 @@ class HoverTooltip(QFrame):
         Shorter than the anchor's grace period on purpose: leaving the popup
         is a deliberate act, where leaving the label may just be the journey
         towards it.
+
+        :param event: the leave event; passed to the base class and otherwise
+            not read.
         """
         self.start_hide(delay_ms=250)
         super().leaveEvent(event)

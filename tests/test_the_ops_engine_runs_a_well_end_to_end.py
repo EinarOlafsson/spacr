@@ -365,3 +365,132 @@ def test_a_refusal_is_explained_against_the_objects_that_were_numbered(
     # message's "raise the overlap" remedy is actually for.
     assert found["wider_than_the_overlap"] == found["groups"]
     assert objects["strict_refusal"].startswith(f"{found['groups']} group(s)")
+
+
+def test_spotnet_positions_feed_the_same_assignment(engine_run, tmp_path,
+                                                    monkeypatch):
+    """Item 475: with ``ops_spot_detector='spotnet'`` the reads are called at
+    SpotNet's positions and go through the same bases, calls and assignment.
+
+    SpotNet itself is a stand-in here -- the brightest pixels of the image
+    the engine hands it, returned off-pixel as SpotNet's floats are -- so
+    this checks the plumbing, not the model. Asking for two workers decodes
+    in one, since SpotNet runs in a single worker of its own.
+    """
+    import pandas as pd
+
+    from spacr import _segmentation_backends as backends
+    from spacr.ops_sbs import find_peaks
+
+    result, settings, library = engine_run[0], engine_run[5], engine_run[6]
+    calls = []
+
+    def fake_spotnet(image, threshold=0.95, **_):
+        calls.append(image.shape)
+        peaks = find_peaks(ndimage.gaussian_filter(image, 1.0), min_distance=2)
+        if not peaks.size:
+            return peaks.astype(float)
+        keep = image[peaks[:, 0], peaks[:, 1]] > 0.5
+        return peaks[keep].astype(float) + 0.3
+
+    monkeypatch.setattr(backends, "_spotnet_readiness", lambda: (True, ""))
+    monkeypatch.setattr(backends, "_detect_spots", fake_spotnet)
+    out = tmp_path / "spotnet"
+    again = ops_engine.run_ops({**settings, "dst_root": str(out),
+                                "ops_spot_detector": "spotnet",
+                                "n_workers": 2}, library=library)
+    decode = again["wells"]["A1"]["decode"]
+    assert decode["spot_detector"] == "spotnet"
+    assert decode["workers"] == 1
+    assert calls and decode["spots"] > 0
+    with sqlite3.connect(result["db"]) as conn:
+        native = pd.read_sql_query("SELECT object_id, barcode FROM ops_barcodes",
+                                   conn).set_index("object_id")["barcode"]
+    with sqlite3.connect(again["db"]) as conn:
+        spotnet = pd.read_sql_query("SELECT object_id, barcode FROM ops_barcodes",
+                                    conn).set_index("object_id")["barcode"]
+    shared = native.index.intersection(spotnet.index)
+    assert len(shared) >= 0.9 * len(native)
+    assert (native[shared] == spotnet[shared]).mean() >= 0.9
+
+
+def test_spotnet_that_cannot_run_stops_the_run_before_it_starts(
+        engine_run, tmp_path, monkeypatch):
+    """Refused with the reason before anything is written, never swapped."""
+    from spacr import _segmentation_backends as backends
+
+    settings = engine_run[5]
+    monkeypatch.setattr(backends, "_spotnet_readiness",
+                        lambda: (False, "SpotNet is not installed"))
+    with pytest.raises(ValueError, match="SpotNet is not installed"):
+        ops_engine.run_ops({**settings, "dst_root": str(tmp_path / "x"),
+                            "ops_spot_detector": "spotnet"})
+    assert not (tmp_path / "x" / "measurements.db").exists()
+
+
+def test_two_wells_with_stored_reads_resume_without_rerunning(engine_run,
+                                                              tmp_path,
+                                                              monkeypatch):
+    """Each well's decode report counts that well's reads, so a resume keeps both.
+
+    The plate driver skips a completed well with stored reads only when the
+    report's ``ops_reads_rows`` equals the rows ``ops_reads`` holds for that
+    plate and well. A count of the whole table matched the first well and
+    never the second, which then ran again on every resume.
+    """
+    import importlib.util
+    import json
+    import shutil
+    from pathlib import Path
+
+    settings, library = engine_run[5], engine_run[6]
+    raw = tmp_path / "raw"
+    shutil.copytree(settings["genotype_source"], raw)
+    for path in sorted(raw.rglob("*_A1_*")):
+        shutil.copyfile(path, path.with_name(path.name.replace("_A1_", "_A2_")))
+    out = tmp_path / "out"
+    result = ops_engine.run_ops(
+        {**settings, "genotype_source": str(raw), "dst_root": str(out),
+         "ops_store_reads": True},
+        wells=["A1", "A2"], phases=("stitch", "objects", "decode"),
+        library=library)
+    assert result["db"] == str(out / "measurements.db")
+
+    spec = importlib.util.spec_from_file_location(
+        "ops_plate_driver",
+        Path(__file__).resolve().parents[1] / "tools" / "run_ops_plate.py")
+    driver = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(driver)
+
+    results = out / "results"
+    results.mkdir()
+    with sqlite3.connect(result["db"]) as conn:
+        stored = dict(conn.execute(
+            "SELECT well, COUNT(*) FROM ops_reads WHERE plate = ? GROUP BY well",
+            (settings["plate"],)).fetchall())
+    assert set(stored) == {"A1", "A2"} and all(stored.values())
+    for well in ("A1", "A2"):
+        report = result["wells"][well]
+        (results / f"{well}.json").write_text(json.dumps({
+            "plate": settings["plate"], "well": well, "complete": True,
+            "settings": {"ops_store_reads": True}, "report": report,
+            "row": driver.well_row(report)}, default=str))
+
+    rerun = []
+
+    def run_again(settings, wells, **_):
+        """Record a rerun and hand back the report the well already has."""
+        rerun.extend(wells)
+        return result
+
+    monkeypatch.setattr(ops_engine, "run_ops", run_again)
+    design = tmp_path / "design.csv"
+    design.write_text("dialout,sgRNA,prefix_length\n0,ACGTACGT,4\n")
+    code = driver.main([
+        "--plate", str(tmp_path / settings["plate"]), "--design", str(design),
+        "--out", str(out), "--wells", "A1", "A2", "--no-gpu",
+        "--store-reads", "a1", "a2"])
+    assert rerun == []
+    assert code == 0
+    assert {well: result["wells"][well]["decode"]["ops_reads_rows"]
+            for well in stored} == stored

@@ -215,11 +215,15 @@ def test_the_banner_is_reached_through_the_registered_factory(qtbot, registered)
     assert isinstance(found, prerun.SegQCBanner)
     assert found.objectName() == prerun.QC_OBJECT_NAME
 
-    # Immediately above the Run row: the last thing the eye crosses on its
-    # way to the button. A panel the user has to go and open is a panel
-    # nobody opens.
-    layout = screen._actions_row.parentWidget().layout()
-    assert layout.indexOf(found) == layout.indexOf(screen._actions_row) - 1
+    # Opt in: a QC switch just left of the 3D and Time switches opens the
+    # verdict in a popup, so the Run row never moves for it.
+    row = screen._actions_row.layout()
+    toggle = screen._seg_qc_toggle
+    switches = [row.indexOf(screen.dimension_switch(d)) for d in ("z", "t")
+                if screen.dimension_switch(d) is not None]
+    assert switches and row.indexOf(toggle) == min(switches) - 1
+    assert prerun._qc_dialog(screen).isAncestorOf(found)
+    assert screen._runtime_wrap.layout().indexOf(found) < 0
 
 
 @pytest.mark.parametrize("order", ["chaining_first", "prerun_first"])
@@ -267,8 +271,11 @@ def test_unregistering_hands_the_screen_back_to_whoever_had_it(qtbot):
 
     chaining.register()
     before = APP_FACTORIES.get("measure")
+    before_mask = APP_FACTORIES.get("mask")
     prerun.register()
-    assert prerun.unregister() == 2
+    assert APP_FACTORIES.get("mask") is before_mask, (
+        "the Mask screen carries nothing of this module's any more")
+    assert prerun.unregister() == 1
     assert APP_FACTORIES.get("measure") is before
 
 
@@ -493,17 +500,22 @@ def image_source(tmp_path):
 
 @pytest.fixture
 def panel(qtbot, registered):
+    """The panel in the popup the Model zoo opens for the Mask screen."""
     screen = _screen(qtbot, "mask")
-    found = prerun.diameter_panel(screen)
-    assert found is not None
-    return found
+    dialog = prerun.diameter_dialog(screen)
+    assert dialog is not None
+    qtbot.addWidget(dialog)
+    yield dialog.panel
 
 
-def test_the_panel_is_on_the_mask_screen_above_the_run_row(panel):
+def test_the_panel_is_in_its_popup_and_not_on_the_mask_screen(panel):
+    """Item 533: the estimate moved off the main screen into a popup."""
     screen = panel._screen
+    assert screen.app_key == prerun.DIAMETER_APP
+    assert isinstance(panel.window(), prerun.DiameterDialog)
+    assert screen.findChildren(prerun.DiameterPanel) == []
     layout = screen._actions_row.parentWidget().layout()
-    assert layout.indexOf(panel) >= 0
-    assert layout.indexOf(panel) < layout.indexOf(screen._actions_row)
+    assert layout.indexOf(panel) < 0
     assert panel.objectName() == prerun.DIAMETER_OBJECT_NAME
     # Why the number matters, on screen, next to the button that measures it.
     assert "30/diameter" in _texts(panel)
@@ -567,7 +579,9 @@ def test_an_unusable_estimate_is_never_written(qtbot, registered):
     from spacr.diameter import DiameterEstimate
 
     screen = _screen(qtbot, "mask")
-    panel = prerun.diameter_panel(screen)
+    dialog = prerun.diameter_dialog(screen)
+    qtbot.addWidget(dialog)
+    panel = dialog.panel
     panel._estimates = {"cell": DiameterEstimate(
         object_type="cell", diameter=float("nan"), low=float("nan"),
         high=float("nan"), n_objects=0, n_fields=0, method="none",
@@ -666,3 +680,76 @@ def test_the_panel_stylesheet_is_in_the_sheet_at_launch(qt_theme_applied):
     # the CYCLE instead: register() must put the block back.
     prerun.register()
     assert "MeasureQCBanner" in theme.stylesheet()
+
+
+# ---------------------------------------------------------------------------
+# the QC switch: opt in, in a popup, and the Run row stays put
+# ---------------------------------------------------------------------------
+
+def _laid_out_measure(qtbot, *, with_qc, src=None, size=(1400, 900)):
+    """A Measure screen shown at a fixed size, with or without the QC switch."""
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen("measure")
+    qtbot.addWidget(screen)
+    banner = None
+    if with_qc:
+        banner = prerun.install_qc_banner(screen, threaded=False)
+        assert banner is not None
+    if src is not None:
+        _set(screen, "src", src)
+    if banner is not None:
+        banner.refresh()
+    screen.resize(*size)
+    screen.show()
+    qtbot.waitExposed(screen)
+    qtbot.wait(50)
+    return screen, banner
+
+
+def _action_bar_geometry(screen):
+    """Where Run, Stop and the action row sit, in screen coordinates."""
+    from PySide6.QtCore import QRect
+
+    def rect(widget):
+        return QRect(widget.mapTo(screen, widget.rect().topLeft()),
+                     widget.size())
+
+    return {"row": rect(screen._actions_row), "run": rect(screen._btn_run),
+            "stop": rect(screen._btn_stop)}
+
+
+@pytest.mark.parametrize("size", [(1200, 720), (1400, 900)])
+def test_a_verdict_no_longer_moves_the_run_row(qtbot, stepped_project, size):
+    """The verdict used to sit above the Run row and push it up the panel."""
+    plain, _ = _laid_out_measure(qtbot, with_qc=False, src=stepped_project,
+                                 size=size)
+    before = _action_bar_geometry(plain)
+
+    screen, banner = _laid_out_measure(qtbot, with_qc=True,
+                                       src=stepped_project, size=size)
+    assert banner.digest is not None and banner.digest.verdict == "fail"
+    after = _action_bar_geometry(screen)
+
+    assert after["row"].height() == before["row"].height()
+    for name in ("row", "run", "stop"):
+        assert after[name].topLeft() == before[name].topLeft(), name
+        assert after[name].size() == before[name].size(), name
+    assert not banner.isVisibleTo(screen)
+
+
+def test_the_qc_switch_opens_and_closes_the_popup(qtbot, stepped_project):
+    screen, banner = _laid_out_measure(qtbot, with_qc=True,
+                                       src=stepped_project)
+    toggle, dialog = screen._seg_qc_toggle, prerun._qc_dialog(screen)
+    assert toggle.text() == "QC"
+    assert not dialog.isVisible()
+
+    toggle.setChecked(True)
+    qtbot.waitUntil(dialog.isVisible)
+    assert banner.isVisible() and dialog._empty.isHidden()
+    assert "failed" in _texts(banner)
+
+    dialog.close()
+    assert not dialog.isVisible()
+    assert not toggle.isChecked()

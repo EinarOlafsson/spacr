@@ -121,3 +121,23 @@ def mark_folded_sections(key: str, sections: Iterable[QWidget]
 The other half of the icon: the settings the module left behind
 
 A fold that becomes a BUTTON keeps its picture -- the button is the picture. A fold that becomes SETTINGS CATEGORIES has no button and so nowhere obvious to put it, and a group of settings that arrived from somewhere else says nothing about where. The mark goes on the heading: the same icon, beside the category name, on the host's own form.
+
+
+---
+
+# Notes from `spacr/qt/widgets/fold_strip.py`
+
+Prose lifted out of `spacr/qt/widgets/fold_strip.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## _host_declarations
+
+### lines 239-240
+
+```python
+_HOST_DECLARATION_CACHE[module_name] = None
+```
+
+Cached too: a host that cannot be read cannot start being readable, and re-parsing to fail again costs the same as parsing to succeed.

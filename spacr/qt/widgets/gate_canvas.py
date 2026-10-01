@@ -74,7 +74,12 @@ class AxisCutoff:
         return self.low is not None or self.high is not None
 
     def limits(self, low: float, high: float) -> Tuple[float, float]:
-        """``(low, high)`` with the unpinned ends filled from the data."""
+        """``(low, high)`` with the unpinned ends filled from the data.
+
+        :param low: the data's lower end, used when :attr:`low` is not pinned.
+        :param high: the data's upper end, used when :attr:`high` is not
+            pinned.
+        """
         return (low if self.low is None else self.low,
                 high if self.high is None else self.high)
 
@@ -133,6 +138,9 @@ class AxisCutoffs:
         Callers ask this on every render, so returning an empty cutoff rather
         than ``None`` keeps the ``if cutoff is None`` branch out of the
         drawing path.
+
+        :param column: the measurement column, or None; None or empty gives an
+            empty cutoff.
         """
         if not column:
             return AxisCutoff()
@@ -144,6 +152,8 @@ class AxisCutoffs:
 
         Setting both ends to ``None`` clears the column rather than storing an
         empty cutoff, so a cleared measurement stops reporting as cut off.
+
+        :param column: the measurement column, converted to a string.
         """
         cutoff = AxisCutoff(low, high)
         name = str(column)
@@ -154,7 +164,10 @@ class AxisCutoffs:
         return cutoff
 
     def clear(self, column: str) -> bool:
-        """Forget ``column``'s cutoff. Returns whether there was one."""
+        """Forget ``column``'s cutoff. Returns whether there was one.
+
+        :param column: the measurement column, converted to a string.
+        """
         return self._by_column.pop(str(column), None) is not None
 
     def clear_all(self) -> int:
@@ -171,6 +184,8 @@ def parse_cutoff(text: str) -> Optional[float]:
     "cut the bottom off and let the top follow the data", so it is a value
     rather than an error.
 
+    :param text: what was typed in the cutoff box; stripped, and blank means
+        None.
     :raises CutoffError: for text that is neither blank nor a number, naming
         what was typed -- a silent fall back to "the data decides" would look
         exactly like the cutoff having been applied and done nothing.

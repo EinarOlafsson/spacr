@@ -1,0 +1,186 @@
+{
+  "item": "07/447",
+  "date": "2026-09-27",
+  "lesson": "73_parameter_sweep",
+  "accepted": false,
+  "execution_verification": {
+    "lesson": "73_parameter_sweep",
+    "source_commit": "85fdd27f2e094652c1b12fb1ebfd4b1bb5dd29cd",
+    "capture": "/tmp/spacr-tutorials/captures/parameter_sweep_neutral_20260927",
+    "accepted": true,
+    "scope": "saved execution and display consistency only",
+    "inference_validated": false,
+    "published": false,
+    "new_fits_requested": true,
+    "display": {
+      "rows": 2,
+      "columns": 18,
+      "cells": 36,
+      "passed": true
+    },
+    "trial_set": {
+      "passed": true,
+      "trials": 2,
+      "penalties": [
+        0.01,
+        0.1
+      ]
+    },
+    "trials": [
+      {
+        "trial_id": "1",
+        "alpha": 0.01,
+        "results_sha256": "bb5b9c3eaa3ce190bf891d9ce590d14927bcafe030195b33a07dc79957f2e51e",
+        "counts": {
+          "n_results": 1174,
+          "n_below_alpha": 10
+        },
+        "qc_inference": "fail",
+        "qc_verdict": "fail",
+        "fitted_support": {
+          "passed": true,
+          "prepared": {
+            "n_rows_fitted": 2955,
+            "n_wells": 620,
+            "n_guides": 791,
+            "n_genes": 381
+          },
+          "fitted": {
+            "grna": {
+              "n_rows_fitted": 2955,
+              "n_wells": 620,
+              "n_guides": 791,
+              "n_genes": 381,
+              "n_design_columns": 792
+            },
+            "gene": {
+              "n_rows_fitted": 2955,
+              "n_wells": 620,
+              "n_guides": 791,
+              "n_genes": 381,
+              "n_design_columns": 382
+            }
+          },
+          "qc_levels": [],
+          "saved_fit_records_checked": true,
+          "inference_validated": false
+        },
+        "prepared_data_sha256": "2f28496019f31071836798de1b363ee9357bdd200bf10620e2d31e1ba2c0d0ce",
+        "qc_sha256": {},
+        "fit_designs_sha256": "160813f7bcb082a0b0176f234753d7dcac9c4467d0e55e0908905f5fdf93a7c9",
+        "actual_settings_sha256": "0c2afea4edc6592f793cb315719a0f2dded1a22d353cb8e4e548a07b67c712cd",
+        "requested_settings_sha256": "b22c9c82ba5fc78fb9c3448deede6ccc70c680a0d94531c29f5664dde4539fc2"
+      },
+      {
+        "trial_id": "2",
+        "alpha": 0.1,
+        "results_sha256": "f9c8a29f1d522a37af60d42df7442a562c1e9dd99e28916537b589f342b07595",
+        "counts": {
+          "n_results": 1174,
+          "n_below_alpha": 5
+        },
+        "qc_inference": "fail",
+        "qc_verdict": "fail",
+        "fitted_support": {
+          "passed": true,
+          "prepared": {
+            "n_rows_fitted": 2955,
+            "n_wells": 620,
+            "n_guides": 791,
+            "n_genes": 381
+          },
+          "fitted": {
+            "grna": {
+              "n_rows_fitted": 2955,
+              "n_wells": 620,
+              "n_guides": 791,
+              "n_genes": 381,
+              "n_design_columns": 792
+            },
+            "gene": {
+              "n_rows_fitted": 2955,
+              "n_wells": 620,
+              "n_guides": 791,
+              "n_genes": 381,
+              "n_design_columns": 382
+            }
+          },
+          "qc_levels": [],
+          "saved_fit_records_checked": true,
+          "inference_validated": false
+        },
+        "prepared_data_sha256": "2f28496019f31071836798de1b363ee9357bdd200bf10620e2d31e1ba2c0d0ce",
+        "qc_sha256": {},
+        "fit_designs_sha256": "160813f7bcb082a0b0176f234753d7dcac9c4467d0e55e0908905f5fdf93a7c9",
+        "actual_settings_sha256": "12eef2c1e310ae9f668db1fe4e666668776d2d51135eee0752ac3c6af57eb537",
+        "requested_settings_sha256": "ba9e4da82af61492fe099fac9536461a852399fa1cfee14139005bc404d51cfd"
+      }
+    ],
+    "family_checks": {
+      "10_saved_guide_family": {
+        "passed": true,
+        "level": "grna",
+        "table": {
+          "rows": 792,
+          "columns": 11,
+          "cells": 8712,
+          "passed": true
+        },
+        "plotted_points": 791,
+        "maximum_coordinate_error": 1.7275070263167436e-13,
+        "inference_validated": false
+      },
+      "11_saved_gene_family": {
+        "passed": true,
+        "level": "gene",
+        "table": {
+          "rows": 382,
+          "columns": 11,
+          "cells": 4202,
+          "passed": true
+        },
+        "plotted_points": 381,
+        "maximum_coordinate_error": 1.98507876802978e-13,
+        "inference_validated": false
+      },
+      "12_saved_guide_family_restored": {
+        "passed": true,
+        "level": "grna",
+        "table": {
+          "rows": 792,
+          "columns": 11,
+          "cells": 8712,
+          "passed": true
+        },
+        "plotted_points": 791,
+        "maximum_coordinate_error": 1.7275070263167436e-13,
+        "inference_validated": false
+      }
+    },
+    "original_inputs_preserved": true,
+    "trial_table_geometry": {
+      "height": 181,
+      "viewport_height": 127,
+      "row_height": 31,
+      "both_rows_visible": true
+    },
+    "checked_result_cells": 21626,
+    "checked_plot_points": 1963
+  },
+  "fresh_cpu_trials": 2,
+  "visual_review": {
+    "reviewer": "Codex",
+    "reviewed_frames": [
+      "03_count_file_picker",
+      "08_actual_sweep_finished",
+      "13_actual_saved_model_summary"
+    ],
+    "personal_host_paths_observed": false,
+    "ready_for_staging": false,
+    "remaining": "The trial table must scroll to show fitted-row and unique-well counts during the corresponding narration. Replay the saved run without another fit."
+  },
+  "media_rendered": false,
+  "published": false,
+  "native_speaker_signoff": false,
+  "human_listening_signoff": false
+}

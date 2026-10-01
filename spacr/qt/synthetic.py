@@ -84,6 +84,12 @@ class DemoLayout:
     folder of standalone label tiffs, and the measure/crop demos now ship the
     ``merged/*.npy`` stacks measure_crop actually opens — the label planes are
     the trailing planes of those arrays.
+
+    :param src: absolute path of the demo folder, the value the demo's settings
+        use as ``src``.
+    :param image_dir: absolute path of the folder holding the generated raw
+        images; the same as ``src`` except for demos that put them in a
+        ``data`` subfolder.
     """
     src: Path
     image_dir: Path
@@ -462,6 +468,8 @@ def generate_mask_demo(
         dst/
           <plateID>_<wellID>_T01F<field>L01A01Z01C<chan>.tif
           settings_mask.csv
+
+    :param dst: destination folder; made absolute and created if absent.
     """
     dst = Path(dst).absolute()
     dst.mkdir(parents=True, exist_ok=True)
@@ -604,6 +612,8 @@ def generate_measure_demo(
        can hold it — without a widget, ``apply_settings_dict`` drops it and
        ``collect()`` never emits it, so a CSV key would change what a CLI run
        measures and nothing about a GUI run.
+
+    :param dst: destination folder; made absolute and created if absent.
     """
     dst, channels, files, merged = _build_measure_dataset(
         dst, plate, wells, fields, channels)
@@ -837,6 +847,8 @@ def generate_timelapse_demo(
           attempts`` — a message about displacement for a bug about a type.
           Coercing once at the top of ``_trackpy_track_cells``
           (``masks = np.asarray(masks)``) clears both.
+
+    :param dst: destination folder; made absolute and created if absent.
     """
     dst = Path(dst).absolute()
     dst.mkdir(parents=True, exist_ok=True)
@@ -1333,7 +1345,13 @@ def generate_map_barcodes_demo(
 
 def save_settings_csv(path: Path, settings: Dict[str, Any]) -> Path:
     """Write `settings` in the two-column Key,Value format that
-    `spacr.utils.load_settings` reads."""
+    `spacr.utils.load_settings` reads.
+
+    :param path: CSV file to write; made absolute, its parent folder is
+        created, and an existing file is overwritten.
+    :param settings: settings to write, one ``Key,Value`` row each; ``None`` is
+        written as an empty value and everything else with ``str()``.
+    """
     path = Path(path).absolute()
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w", newline="") as f:

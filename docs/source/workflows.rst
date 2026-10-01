@@ -27,7 +27,7 @@ Combine image-derived phenotypes with guide abundance to rank perturbations. Seg
 #. :ref:`Import <workflow-module-foreign>`: If segmentation already exists, import the matching images and external masks into a spaCR project and inspect the resulting object identities. Skip segmentation and proceed to Measure when its required arrays are present.
 #. :ref:`Measure <workflow-module-measure>`: Open Measure with the Mask project and create measurements and object crops.
 #. :ref:`Annotate <workflow-module-annotate>`: Open Annotate, inspect representative objects and save phenotype labels.
-#. :ref:`Gate Editor <workflow-module-gate_editor>`: Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.
+#. :ref:`Gate Editor <workflow-module-gate_editor>`: Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.
 #. :ref:`Image UMAP <workflow-module-umap>`: Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype.
 #. :ref:`Classify <workflow-module-classify_merged>`: Open Classify, choose images or measured features, and inspect held-out predictions.
 #. :ref:`Regression <workflow-module-regression>`: Open Regression with compatible phenotype scores and per-well guide counts; inspect hits and diagnostics.
@@ -263,7 +263,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 **Before this module**
 
 * :ref:`Mask <workflow-module-mask>`: Use the same project and the correct image/mask channel indices.
-* :ref:`Make Masks <workflow-module-make_masks>`: Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.
+* :ref:`Make Masks <workflow-module-make_masks>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays.
 * :ref:`External Masks <workflow-module-external_masks>`: Re-measure only when needed; External Masks can already perform measurement.
 * :ref:`Timelapse <workflow-module-timelapse>`: Use the time-series project with stable frame/object identities.
 * :ref:`Import <workflow-module-foreign>`: Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table.
@@ -1180,7 +1180,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 Make Masks
 ~~~~~~~~~~
 
-Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier.
+Curate image/mask pairs for segmentation training, or use Organize for Measure to merge images and their masks into arrays Measure reads. Saving a mask does not train a classifier.
 
 **Open:** Home → Make Masks.
 
@@ -1199,7 +1199,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 **After this module**
 
 * :ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Use independently checked image/mask pairs.
-* :ref:`Measure <workflow-module-measure>`: Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.
+* :ref:`Measure <workflow-module-measure>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays.
 * :ref:`Plaque Assay <workflow-module-analyze_plaques>`: Use plaque masks with matching source images; cell masks are not automatically plaque labels.
 
 :doc:`API reference </api/spacr/qt/screens/make_masks/index>`.
@@ -1300,7 +1300,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 Graph Builder
 ~~~~~~~~~~~~~
 
-Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context.
+Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context.
 
 **Open:** Home → Graph Builder.
 
@@ -1360,7 +1360,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 Gate Editor
 ~~~~~~~~~~~
 
-Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.
+Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.
 
 **Open:** Home → Gate Editor.
 

@@ -119,6 +119,10 @@ class ChannelMappingWidget(QWidget):
         actually asked for. It is translated the same way the pipeline
         translates it -- entry 0 is blue -- so the fields show the colours the
         run will produce, not a rearrangement of them.
+
+        :param value: ``None`` (the default mapping), a colour-slot mapping, a
+            legacy ``png_dims`` list, or the string form of either; an
+            unparseable string falls back to the default mapping.
         """
         mapping = self._coerce(value)
         for key, box in self._boxes.items():

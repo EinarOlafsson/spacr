@@ -297,7 +297,11 @@ class AppTile(QPushButton):
         return self._name_lbl.is_elided()
 
     def heightForWidth(self, width: int) -> int:   # noqa: N802
-        """At least the tile height, more if a child somehow needs it."""
+        """At least the tile height, more if a child somehow needs it.
+
+        :param width: proposed tile width in pixels, passed to the base
+            implementation.
+        """
         natural = super().heightForWidth(width)
         return max(self._size.height(), natural)
 
@@ -459,7 +463,10 @@ class Panel(QWidget):
         return word
 
     def action(self, text: str) -> Optional[QPushButton]:
-        """The action word named ``text``, or ``None``. For tests."""
+        """The action word named ``text``, or ``None``. For tests.
+
+        :param text: the action's label, matched case-insensitively.
+        """
         return self._actions.get(text.lower())
 
     def _clear_body(self) -> None:
@@ -468,11 +475,18 @@ class Panel(QWidget):
         The same six lines were written out in five panels; they are here
         because a panel that forgets the `deleteLater` leaks a widget on
         every Home revisit, and Home is revisited constantly.
+
+        Each row is hidden as it leaves, not only queued for deletion: a
+        queued row stays a child of the box, painted where it last stood,
+        until the event loop next empties its deletion queue. Above 100%
+        text size the new rows sit at new heights, so the old ones showed
+        through and the panel read as drawn twice.
         """
         while self.body_layout.count():
             item = self.body_layout.takeAt(0)
             widget = item.widget()
             if widget is not None:
+                widget.hide()
                 widget.deleteLater()
 
 
@@ -671,7 +685,11 @@ class RunningBanner(QFrame):
             pass
 
     def bind(self, handle) -> None:
-        """Show ``handle``'s job, or hide the banner when it is ``None``."""
+        """Show ``handle``'s job, or hide the banner when it is ``None``.
+
+        :param handle: the running job's handle, whose ``app_key`` sets the
+            icon and title; ``None`` hides the banner.
+        """
         self._handle = handle
         if handle is None:
             self.hide()
@@ -922,6 +940,9 @@ class RecentRunsPanel(Panel):
         ``_job`` and ``mask`` on the dashboard in the same typeface as each
         other. The names are already in Home; the panel just had no way to
         ask for them.
+
+        :param key: application key to name; returned unchanged when the name
+            registry does not know it.
         """
         value = self._registry()
         if isinstance(value, dict):
@@ -1331,6 +1352,9 @@ class StageLegend(Panel):
 
         The same function the stylesheet builds the hover rules from, so
         the swatch and the tile it explains cannot come apart.
+
+        :param stage: maturity stage name; an unknown stage gets the
+            ``'stable'`` colour.
         """
         from ..theme import stage_hover
         return stage_hover(stage)
@@ -1347,14 +1371,29 @@ class StageLegend(Panel):
 class NewsPanel(Panel):
     """Every spaCR release, with links, in a box the reader can resize.
 
-    THE NOTES ARE BUNDLED, not fetched. They come from
+    THE NOTES ARE BUNDLED, and the bundle is what draws. They come from
     ``spacr/resources/release_notes.json``, which
-    ``tools/build_release_notes.py`` writes from the GitHub releases before
-    a tag. This panel is on the first screen the application shows, so
-    making its content depend on api.github.com would mean a dashboard that
-    is empty offline, throttled behind a shared NAT, and slower to draw than
-    the window it is in. The notes also belong to the release: what shipped
-    in 1.5.0.4 does not change afterwards.
+    ``tools/build_release_notes.py`` writes from the GitHub releases and
+    which ``.github/workflows/release.yml`` refreshes on every release.
+    This panel is on the first screen the application shows, so making its
+    CONTENT depend on api.github.com would mean a dashboard that is empty
+    offline, throttled behind a shared NAT, and slower to draw than the
+    window it is in. The bundled file therefore remains the offline source
+    of truth and the panel is complete before anything touches a socket.
+
+    AND THEN IT CATCHES UP. The wheel for a release cannot contain its own
+    release note -- the note is written when the GitHub release is
+    published, which is after that wheel is on PyPI -- so a bundled file is
+    always one release behind the build carrying it, and that is what went
+    wrong: "im on 1.5.1.0 and the news only goes to 1.5.0.7. the news
+    section should always automatically reflect the latest spacr release
+    news." So after the page is shown,
+    :attr:`refresh_requested` asks the window to read the public releases
+    list on a worker thread, and :meth:`apply_releases` merges whatever
+    comes back in front of the bundled list. Nothing here opens a socket:
+    the panel only asks, and a fetch that fails, is rate-limited, is
+    switched off in Preferences, or simply finds nothing newer leaves the
+    bundled list exactly as it was drawn.
 
     There was previously no feed at all and this panel said so -- "No
     release notes bundled with this build" -- which was honest and useless.
@@ -1369,8 +1408,8 @@ class NewsPanel(Panel):
     edge that drags the box taller or shorter. The height is remembered
     between sessions -- a reader who made it tall wants it tall next time.
 
-    The update check stays a BUTTON. It is the one thing here that does
-    touch the network, and it does so only when pressed.
+    The update check stays a BUTTON. Offering to install something is a
+    decision, so it is still made only when pressed.
 
     :param version: the build to name in the heading. Empty leaves the
         heading as the translated word alone -- the two are kept separate
@@ -1381,6 +1420,14 @@ class NewsPanel(Panel):
     """
 
     check_requested = Signal()
+
+    #: Emitted once, after the panel has been shown, to ask the window for
+    #: a newer release list than the one in this wheel. It carries nothing
+    #: and it opens nothing: the window answers it on a worker thread and
+    #: hands the result back through :meth:`apply_releases`. A panel built
+    #: in a test, or on a window that does not connect it, simply never
+    #: gets an answer and keeps drawing the bundled list.
+    refresh_requested = Signal()
 
     #: Height of the scrolling list in px at 100 % font scale: the default,
     #: and how far the grip may drag it. The floor has to show a heading and
@@ -1412,6 +1459,7 @@ class NewsPanel(Panel):
         P = active_palette()
         self.content: Optional[QWidget] = None
         self._releases = self.read_releases()
+        self._refresh_asked = False
 
         self._notes = QScrollArea()
         self._notes.setObjectName("HomeNewsScroll")
@@ -1435,11 +1483,7 @@ class NewsPanel(Panel):
         self._placeholder.setStyleSheet(
             f"color: {P['fg_muted']}; font-size: {font_px(11)}px;"
             "font-style: italic; background: transparent;")
-        self._notes_column.addWidget(self._placeholder)
-        self._placeholder.setVisible(not self._releases)
-        for entry in self._releases:
-            self._notes_column.addWidget(self._release_block(entry))
-        self._notes_column.addStretch(1)
+        self._fill()
 
         self._grip = _HeightGrip(self._notes, self.NOTES_H_MIN,
                                  self.NOTES_H_MAX,
@@ -1473,6 +1517,104 @@ class NewsPanel(Panel):
             return [r for r in releases if isinstance(r, dict)]
         except Exception:                                        # noqa: BLE001
             return []
+
+    def _fill(self) -> None:
+        """Draw :attr:`_releases` into the scrolling column.
+
+        Called once while the panel is built and again whenever a fetched
+        list arrives, so the two paths cannot diverge. The placeholder is
+        kept rather than rebuilt: it is what a build with no bundled
+        resource shows, and :meth:`set_content` holds a reference to it.
+        """
+        while self._notes_column.count():
+            item = self._notes_column.takeAt(0)
+            widget = item.widget()
+            if widget is not None and widget is not self._placeholder:
+                widget.setParent(None)
+                widget.deleteLater()
+        self._notes_column.addWidget(self._placeholder)
+        self._placeholder.setVisible(not self._releases
+                                     and self.content is None)
+        for entry in self._releases:
+            self._notes_column.addWidget(self._release_block(entry))
+        self._notes_column.addStretch(1)
+
+    def showEvent(self, event):                                  # noqa: N802
+        """Ask for a refresh the first time the panel is shown.
+
+        AFTER the page exists and ON THE EVENT LOOP, not during
+        construction: the single-shot timer means the emit lands on a later
+        turn than this show, so Home's first paint is never waiting on it.
+        Once per panel, because a page that is shown again -- a tab
+        revisited, a font-scale rebuild -- is not news.
+
+        :param event: the Qt show event.
+        """
+        super().showEvent(event)
+        if self._refresh_asked:
+            return
+        self._refresh_asked = True
+        QTimer.singleShot(0, self._ask_for_newer_releases)
+
+    def _ask_for_newer_releases(self) -> None:
+        """Emit :attr:`refresh_requested`, unless the panel is already gone."""
+        try:
+            self.refresh_requested.emit()
+        except RuntimeError:                                     # noqa: BLE001
+            pass
+
+    def apply_releases(self, fetched) -> None:
+        """Merge a fetched release list into the list on screen.
+
+        Silence is the contract. An empty list, a list of rubbish, or a
+        list that says nothing the bundled file did not already say leaves
+        the panel untouched and says nothing to the reader -- the failure
+        of an unasked-for background fetch is not the reader's problem.
+
+        :param fetched: release records from
+            :func:`spacr.updater.fetch_release_notes`, or anything at all.
+        """
+        try:
+            merged = self.merge_releases(self._releases, fetched)
+        except Exception:                                        # noqa: BLE001
+            return
+        if merged == self._releases:
+            return
+        self._releases = merged
+        self._fill()
+
+    @staticmethod
+    def merge_releases(bundled, fetched) -> list:
+        """The bundled and fetched lists as one, newest first.
+
+        One record per tag, and a fetched record wins: the same release can
+        have its notes edited on GitHub after it ships, and the live copy
+        is then the true one. Ordering is by publication date and then by
+        the version in the tag, so a release published on the same day as
+        the one before it still lands above it.
+
+        :param bundled: the records read from the wheel.
+        :param fetched: the records read from GitHub, or ``None``.
+        :returns: a new list; neither argument is modified.
+        """
+        by_tag = {}
+        for entry in list(bundled or []) + list(fetched or []):
+            if not isinstance(entry, dict):
+                continue
+            tag = str(entry.get("tag") or entry.get("name") or "").strip()
+            if not tag:
+                continue
+            by_tag[tag] = entry
+        return sorted(by_tag.values(), key=NewsPanel._newest_first,
+                      reverse=True)
+
+    @staticmethod
+    def _newest_first(entry: dict) -> tuple:
+        """Sort key: publication date, then the version the tag names."""
+        digits = re.findall(r"\d+", str(entry.get("tag") or ""))[:4]
+        version = tuple(int(d) for d in digits)
+        return (str(entry.get("published") or ""),
+                version + (0,) * (4 - len(version)))
 
     def _release_block(self, entry: dict) -> QWidget:
         """One release: its name, its date, and its notes with links live."""
@@ -1532,6 +1674,11 @@ class NewsPanel(Panel):
         escaping after would escape the anchors too and show the reader
         their own tags; escaping after building the HTML is the mistake that
         turns a release note into an injection.
+
+        :param body: release-note text in GitHub-flavoured markdown; it is
+            HTML-escaped before bare URLs, ``**bold**``, ``##`` headings and
+            bullet lines are turned into tags.
+        :param link_colour: CSS colour for the generated links.
         """
         text = escape(body or "").strip()
         if not text:
@@ -1570,6 +1717,11 @@ class NewsPanel(Panel):
         set_news_height(int(round(px / scale)))
 
     @property
+    def releases(self) -> list:
+        """The release records currently drawn, newest first."""
+        return list(self._releases)
+
+    @property
     def notes_view(self) -> QScrollArea:
         """The scrolling list of releases. For tests."""
         return self._notes
@@ -1585,6 +1737,10 @@ class NewsPanel(Panel):
         The escape hatch :meth:`HomePage.set_reserved_content` exposes. It
         hides the bundled notes rather than deleting them, so a caller that
         drops content in has not thrown the feed away.
+
+        :param widget: the widget to insert at the top of the panel body; any
+            previous content widget is deleted and the bundled notes are
+            hidden.
         """
         self._placeholder.hide()
         self._notes.hide()
@@ -1603,6 +1759,61 @@ class NewsPanel(Panel):
 #: A second implementation would be a second set of bugs.
 _HeightGrip = HeightGrip
 
+
+
+#: Bounds of the Home right-hand column's text slider, as factors of the
+#: designed size.
+_ASIDE_TEXT_RANGE = (0.7, 1.6)
+
+#: The right-hand column's pane in Home's splitter: its name, where its
+#: dragged width is stored, and where its folded state is.
+_ASIDE_PANE = "Widgets"
+_ASIDE_PERSIST_KEY = "home::body"
+_ASIDE_FOLD_KEY = "home/Widgets"
+
+#: Dynamic properties holding a label's own sheet as it was built, and the
+#: sheet last written from it, so a rebuilt sheet is taken as the new base.
+_BASE_SHEET = "_spacrAsideBaseSheet"
+_SCALED_SHEET = "_spacrAsideScaledSheet"
+
+
+def _scale_text_under(root: QWidget, ratio: float,
+                      exempt: Optional[QWidget] = None) -> None:
+    """Size the text inside ``root`` by ``ratio`` of what it was built with.
+
+    :param root: the container; its descendants follow.
+    :param ratio: 1.0 for the built size.
+    :param exempt: a descendant whose own text keeps its built size.
+    """
+    from ..live_zoom import _FONT_SIZE, _MIN_PX, _MIN_PT, ColumnTextScale
+    from ..live_zoom import scaled_font_sheet
+
+    def scaled(sheet: str) -> str:
+        """``sheet`` with every font-size in it multiplied by ``ratio``."""
+        def one(match):
+            """One ``font-size`` declaration, scaled and floored."""
+            size = float(match.group(1)) * ratio
+            if match.group(2).lower() == "px":
+                return f"font-size: {max(_MIN_PX, int(round(size)))}px"
+            return f"font-size: {max(_MIN_PT, round(size, 2))}pt"
+        return _FONT_SIZE.sub(one, sheet)
+
+    host = scaled_font_sheet(ColumnTextScale._inherited_sheet(root), ratio)
+    if str(root.styleSheet() or "") != host:
+        root.setStyleSheet(host)
+    for widget in root.findChildren(QWidget):
+        own = str(widget.styleSheet() or "")
+        if not own or (exempt is not None and (
+                widget is exempt or exempt.isAncestorOf(widget))):
+            continue
+        base = widget.property(_BASE_SHEET)
+        if base is None or own != widget.property(_SCALED_SHEET):
+            base = own
+        new = scaled(str(base))
+        widget.setProperty(_BASE_SHEET, str(base))
+        widget.setProperty(_SCALED_SHEET, new)
+        if new != own:
+            widget.setStyleSheet(new)
 
 
 class HomePage(QWidget):
@@ -1640,6 +1851,11 @@ class HomePage(QWidget):
     sample_project_requested = Signal()
     #: Emitted when the page wants the window to run its update check.
     update_check_requested = Signal()
+    #: Emitted once, after the News panel has been shown, to ask the window
+    #: for a release list newer than the one bundled in this wheel. The
+    #: window answers it on a worker thread; see
+    #: :meth:`spacr.qt.app.MainWindow._refresh_news`.
+    news_refresh_requested = Signal()
 
     #: Declared on the class so a paint that arrives mid-construction —
     #: a nested layout activation delivers one on some styles — finds an
@@ -1700,6 +1916,8 @@ class HomePage(QWidget):
         self._categories = self._grouping(categories)
         self._bands = self._grouping(bands)
         self._names = {k: n for k, n, _d, _s in self._apps}
+        from ..tooltip_policy import HoverDelay
+        self._tile_hover_delay = HoverDelay(self)
         self._tile_hints: dict = {}
         #: (holder, grid, tiles, tile_width) per grid, so a resize can
         #: rewrap each one at its own column width.
@@ -1725,12 +1943,19 @@ class HomePage(QWidget):
         self._banner = self._new_running_banner()
         col.addWidget(self._running_host)
 
-        split = QHBoxLayout()
-        split.setContentsMargins(0, 0, 0, 0)
-        split.setSpacing(SPACING["lg"])
-        split.addWidget(self._build_tabs(), 1)
-        split.addWidget(self._build_aside())
-        col.addLayout(split, 1)
+        from .collapsible_splitter import EDGE, CollapsibleSplitter
+        from ..preferences import scaled_px
+        split = CollapsibleSplitter(Qt.Horizontal,
+                                    persist_key=_ASIDE_PERSIST_KEY)
+        split.setChildrenCollapsible(False)
+        split.add_pane(self._build_tabs(), "Apps", stretch=1)
+        split.add_pane(self._build_aside(), _ASIDE_PANE, mode=EDGE,
+                       fold_key=_ASIDE_FOLD_KEY, stretch=0,
+                       extent=scaled_px(self.ASIDE_W))
+        split.splitterMoved.connect(lambda *_a: self._rewrap_grids())
+        split.pane_toggled.connect(lambda *_a: self._rewrap_grids())
+        self._aside_split = split
+        col.addWidget(split, 1)
 
         outer.addWidget(body, 1)
 
@@ -1755,6 +1980,7 @@ class HomePage(QWidget):
         self._install_ambient()
 
         self._clear_page_surfaces()
+        self._apply_aside_text()
 
     def page_fill(self):
         """The flat colour Home paints itself, or ``None``.
@@ -1787,6 +2013,9 @@ class HomePage(QWidget):
         Does not chain to ``super()`` when it fills: the base
         implementation is what draws the stylesheet background, and that
         background is the slab being replaced.
+
+        :param event: the paint event; passed to the base class only when no
+            page fill colour is set.
         """
         colour = self.page_fill()
         if colour is None:
@@ -2292,7 +2521,14 @@ class HomePage(QWidget):
         growing a horizontal scrollbar.
         """
         from ..preferences import scaled_px
-        available = max(1, width - scaled_px(self.ASIDE_W)
+        aside = getattr(self, "_aside", None)
+        if aside is None:
+            aside_w = scaled_px(self.ASIDE_W)
+        elif aside.isHidden() or self._aside_collapsed():
+            aside_w = 0
+        else:
+            aside_w = max(aside.width(), aside.minimumWidth())
+        available = max(1, width - aside_w
                         - SPACING["xl"] * 2 - SPACING["lg"]
                         - SPACING["md"] * 2 - 4)
         return max(1, available // (tile_w + SPACING["xs"]))
@@ -2314,22 +2550,34 @@ class HomePage(QWidget):
             return 1.0
 
     def _build_aside(self) -> QWidget:
-        """Build the right-hand column of status panels."""
-        from ..preferences import scaled_px
+        """Build the right-hand column: status panels, then the text slider.
+
+        The column is an EDGE pane of Home's splitter, the same handle the
+        module screens give their settings column: drag it to resize, click
+        its arrow to hide or show the column; both are remembered. The panels
+        and the slider under the lowest one sit in a scroll area, so large
+        text scrolls instead of squeezing a card.
+        """
+        from ..preferences import _KEY_HOME_ASIDE_TEXT, _home_aside_scale
         from ..theme import make_transparent
         aside = QWidget()
+        aside.setObjectName("HomeAside")
         make_transparent(aside)
-        aside.setFixedWidth(scaled_px(self.ASIDE_W))
-        col = QVBoxLayout(aside)
+        self._aside = aside
+        outer = QVBoxLayout(aside)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.setSpacing(0)
+
+        panels = QWidget()
+        panels.setObjectName("HomeAsidePanels")
+        self._aside_panels = panels
+        col = QVBoxLayout(panels)
         col.setContentsMargins(0, 0, 0, 0)
         col.setSpacing(SPACING["md"])
 
         from ..i18n import tr
 
-        # GitHub #130: Home said what spaCR can do and nothing about where to
-        # begin. First in the column, above the panels, because it is the
-        # answer to the first question a new user has.
-        start = QPushButton(tr("Pipeline overviews"), aside)
+        start = QPushButton(tr("Pipeline overviews"), panels)
         start.setObjectName("PrimaryButton")
         start.setToolTip(tr(
             "Explore pipeline flowcharts, their modules, inputs and outputs, "
@@ -2345,15 +2593,132 @@ class HomePage(QWidget):
         self._recent.cleared.connect(self.refresh)
         self._news = NewsPanel(self._version())
         self._news.check_requested.connect(self.update_check_requested)
+        self._news.refresh_requested.connect(self.news_refresh_requested)
         self._totals = TotalsPanel()
         self._system = SystemPanel()
-        self._legend = StageLegend()
+        self._legend = StageLegend(self)
+        self._legend.hide()
 
         for panel in (self._queued, self._recent, self._news,
                       self._totals, self._system):
             col.addWidget(panel)
+        self._aside_text = _home_aside_scale(
+            _KEY_HOME_ASIDE_TEXT, *_ASIDE_TEXT_RANGE)
+        col.addWidget(self._build_aside_slider())
         col.addStretch(1)
+
+        scroll = self._scrolled(panels)
+        scroll.setObjectName("HomeAsideScroll")
+        self._aside_scroll = scroll
+        outer.addWidget(scroll, 1)
+        self._fit_aside_minimum()
         return aside
+
+    def _build_aside_slider(self) -> QWidget:
+        """The compact Text size slider under the lowest panel."""
+        from PySide6.QtWidgets import QSlider
+
+        from ..i18n import tr
+
+        box = QWidget()
+        box.setObjectName("HomeAsideScaleControls")
+        make_transparent(box)
+        self._aside_controls = box
+        row = QHBoxLayout(box)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(SPACING["sm"])
+        tip = tr("Make the text in this column's panels larger or smaller. "
+                 "The setting is remembered. Default 100%.")
+        P = self._P
+        label = QLabel(tr("Text size"), box)
+        label.setStyleSheet(f"color: {P['fg_muted']};"
+                            f" font-size: {font_px(11)}px;"
+                            " background: transparent;")
+        slider = QSlider(Qt.Horizontal, box)
+        slider.setObjectName("HomeAsideTextSlider")
+        slider.setRange(int(round(_ASIDE_TEXT_RANGE[0] * 100)),
+                        int(round(_ASIDE_TEXT_RANGE[1] * 100)))
+        slider.setSingleStep(5)
+        slider.setPageStep(10)
+        slider.setValue(int(round(self._aside_text * 100)))
+        readout = QLabel(f"{slider.value()}%", box)
+        readout.setProperty("i18nSkipText", True)
+        readout.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        readout.setStyleSheet(label.styleSheet())
+        readout.setMinimumWidth(QLabel("200%").sizeHint().width())
+        for widget in (label, slider, readout):
+            widget.setToolTip(tip)
+        slider.valueChanged.connect(lambda v: readout.setText(f"{v}%"))
+        slider.valueChanged.connect(self._on_aside_text)
+        row.addWidget(label)
+        row.addWidget(slider, 1)
+        row.addWidget(readout)
+        self._homeAsideTextSlider = slider
+        return box
+
+    def _aside_collapsed(self) -> bool:
+        """Whether the right-hand column is folded away by its handle."""
+        split = getattr(self, "_aside_split", None)
+        return bool(split is not None and split.is_collapsed(_ASIDE_PANE))
+
+    def _on_aside_text(self, percent: int) -> None:
+        """Resize the right-hand column's text and remember the size."""
+        from ..preferences import _KEY_HOME_ASIDE_TEXT, _set_home_aside_scale
+        self._aside_text = _set_home_aside_scale(
+            _KEY_HOME_ASIDE_TEXT, percent / 100.0, *_ASIDE_TEXT_RANGE)
+        self._apply_aside_text()
+
+    def _apply_aside_text(self) -> None:
+        """Give the panels' text the stored size, then refit the width.
+
+        Two passes, because the panels take their sizes from two places:
+        the window's sheet, re-declared on the panel host at the new size by
+        :func:`spacr.qt.live_zoom.scaled_font_sheet` (the same pass the
+        module screens' Ctrl + wheel uses), and each label's own sheet, whose
+        sizes are rewritten from the size it was built with. Panels rebuild
+        rows on refresh, so this runs again after every refresh.
+        """
+        panels = getattr(self, "_aside_panels", None)
+        if panels is None:
+            return
+        if self._aside_text == 1.0 and not getattr(
+                self, "_aside_text_applied", False):
+            return
+        self._aside_text_applied = True
+        _scale_text_under(panels, self._aside_text,
+                          exempt=getattr(self, "_aside_controls", None))
+        self._fit_aside_minimum()
+
+    def _fit_aside_minimum(self) -> None:
+        """Keep the column at least as wide as its content needs.
+
+        Large text raises the floor, so a row widens the column instead of
+        clipping; dragging the handle past the floor folds the column away,
+        as it does the module screens' settings column.
+        """
+        aside = getattr(self, "_aside", None)
+        panels = getattr(self, "_aside_panels", None)
+        if aside is None or panels is None:
+            return
+        layout = panels.layout()
+        layout.activate()
+        floor = layout.totalMinimumSize().width()
+        scroll = getattr(self, "_aside_scroll", None)
+        if scroll is not None:
+            floor += scroll.verticalScrollBar().sizeHint().width()
+        if aside.minimumWidth() != floor:
+            aside.setMinimumWidth(floor)
+            split = getattr(self, "_aside_split", None)
+            pane = split.pane(_ASIDE_PANE) if split is not None else None
+            if pane is not None:
+                pane.minimum = floor
+            self._rewrap_grids()
+
+    def _rewrap_grids(self) -> None:
+        """Re-flow every tile grid for the page's width and the column's."""
+        for _holder, grid, tiles, tile_w in self._grids:
+            self._fill_grid(grid, tiles,
+                            self._columns_for(self.width(), tile_w))
 
     def _on_run_clicked(self, key: str) -> None:
         """Open the module a Recent runs row names, if it still exists.
@@ -2417,6 +2782,7 @@ class HomePage(QWidget):
         self._queued.refresh()
         self._system.refresh()
         self._on_runs_changed()
+        self._apply_aside_text()
         recent, totals = self._recent, self._totals
         self._journal_jobs.cancel()
         self._journal_jobs.submit(
@@ -2428,14 +2794,38 @@ class HomePage(QWidget):
         runs, totals = payload
         self._recent.refresh(runs)
         self._totals.refresh(totals)
+        self._apply_aside_text()
 
     def active_jobs(self) -> int:
         """How many journal-reading threads are still winding down."""
         return self._journal_jobs.active_jobs()
 
     def set_reserved_content(self, widget: QWidget) -> None:
-        """Fill the featured/news surface with real content."""
+        """Fill the featured/news surface with real content.
+
+        :param widget: the widget to show in the featured/news panel in place
+            of the release notes.
+        """
         self._news.set_content(widget)
+        self._apply_aside_text()
+
+    def apply_release_news(self, releases) -> None:
+        """Hand a fetched release list to the News panel.
+
+        The answer to :attr:`news_refresh_requested`, and the only way in:
+        the window never reaches into the panel, so a page rebuilt at a new
+        font scale simply asks again.
+
+        :param releases: records from
+            :func:`spacr.updater.fetch_release_notes`, or anything at all.
+        """
+        self._news.apply_releases(releases)
+        self._apply_aside_text()
+
+    @property
+    def news_panel(self) -> "NewsPanel":
+        """The News panel. For tests and for the window's own wiring."""
+        return self._news
 
     @property
     def _reserved_content(self) -> Optional[QWidget]:
@@ -2448,9 +2838,7 @@ class HomePage(QWidget):
         :param event: the Qt resize event.
         """
         super().resizeEvent(event)
-        for _holder, grid, tiles, tile_w in self._grids:
-            self._fill_grid(grid, tiles,
-                            self._columns_for(self.width(), tile_w))
+        self._rewrap_grids()
 
     def show_module_hint(self, key: str, summary: str = "") -> bool:
         """Explain ``key`` in the strip. Called by the DOCK as well as Home.
@@ -2498,8 +2886,10 @@ class HomePage(QWidget):
                 summary = module_summary(key, source)
                 mark = STAGE_LABEL.get(
                     str(obj.property("stage") or "stable"), "")
-                self._hint_bar.show_module(key, summary, mark)
+                self._tile_hover_delay.schedule(
+                    obj, lambda: self._hint_bar.show_module(key, summary, mark))
         elif event.type() == QEvent.Leave:
+            self._tile_hover_delay.cancel_for(obj)
             if not self._hint_bar.is_holding():
                 self._hint_bar.release()
         return super().eventFilter(obj, event)
@@ -2511,6 +2901,9 @@ class HomePage(QWidget):
         and stop the refresh ticker before delegating to the base close
         handler. This prevents pending work from invoking a page that Qt is
         destroying.
+
+        :param event: the close event; it is passed on to the base class after
+            background activity stops.
         """
         self._journal_jobs.shutdown()
         try:

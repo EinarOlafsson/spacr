@@ -1,0 +1,207 @@
+# spaCR user guide translation (hi).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: hi\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Classifier evaluation workbench"
+msgstr "वर्गीकारक मूल्यांकन वर्कबेंच"
+
+msgid "Classifier cross-validation retains every out-of-fold probability instead of reducing a fold to one accuracy number. The workbench has no tile of its own: it opens from the **Classify** masthead, because judging a classifier is the sentence after training one. Press **Classifier Evaluation** there and drop a model/results folder onto the page. The scan runs in the background and finds every ``evaluation_manifest.json`` below that folder."
+msgstr "वर्गीकारक क्रॉस-वैलिडेशन किसी फ़ोल्ड को एक सटीकता संख्या में समेटने के बजाय हर फ़ोल्ड-से-बाहर (out-of-fold) संभावना को सुरक्षित रखता है। वर्कबेंच की अपनी कोई टाइल नहीं है: यह **वर्गीकरण** शीर्षपट्टी से खुलता है, क्योंकि किसी वर्गीकारक का आकलन उसे प्रशिक्षित करने के तुरंत बाद का चरण है। वहाँ **वर्गीकारक मूल्यांकन** दबाएँ और किसी मॉडल/परिणाम फ़ोल्डर को पेज पर छोड़ें। स्कैन बैकग्राउंड में चलता है और उस फ़ोल्डर के अंतर्गत हर ``evaluation_manifest.json`` खोजता है।"
+
+msgid "The workbench shows:"
+msgstr "वर्कबेंच ये दिखाता है:"
+
+msgid "overall accuracy, balanced accuracy, macro precision/recall/F1, log loss, and expected calibration error;"
+msgstr "समग्र सटीकता, संतुलित सटीकता, मैक्रो परिशुद्धता/रिकॉल/F1, लॉग हानि और अपेक्षित अंशांकन त्रुटि;"
+
+msgid "raw counts and row-normalized confusion matrices for any number of classes;"
+msgstr "किसी भी संख्या के वर्गों के लिए कच्ची गिनती और पंक्ति-सामान्यीकृत भ्रम मैट्रिक्स;"
+
+msgid "the same metrics separately for every plate;"
+msgstr "हर प्लेट के लिए अलग से वही मेट्रिक्स;"
+
+msgid "cross-fitted calibration curves and per-class reliability bins;"
+msgstr "क्रॉस-फ़िट अंशांकन वक्र और प्रति-वर्ग विश्वसनीयता बिन;"
+
+msgid "searchable held-out predictions with plate, well, field, object, confidence, and raw/calibrated class probabilities; and"
+msgstr "प्लेट, कूप, फ़ील्ड, ऑब्जेक्ट, विश्वास और कच्ची/अंशांकित वर्ग संभावनाओं के साथ खोजने योग्य अलग रखे गए पूर्वानुमान; और"
+
+msgid "an explicit leakage report for every outer and inner split."
+msgstr "हर बाहरी और आंतरिक विभाजन के लिए स्पष्ट रिसाव रिपोर्ट।"
+
+msgid "Crop decoding and existing models"
+msgstr "क्रॉप डिकोडिंग और मौजूदा मॉडल"
+
+msgid "Image classifiers must see the same channel order and intensity conversion during training and prediction. New training runs use ``declared_uint8_v1`` and save it in the checkpoint's ``preprocessing.crop_loading_policy`` record. Folder and tar inputs use the same decoder: crop formats 1 and 3 already have declared channel order; format 2 has its channels reversed. EXIF orientation is applied before decoding."
+msgstr "छवि वर्गीकारकों को प्रशिक्षण और पूर्वानुमान के दौरान एक ही चैनल क्रम और तीव्रता रूपांतरण देखना चाहिए। नए प्रशिक्षण रन ``declared_uint8_v1`` का उपयोग करते हैं और इसे चेकपॉइंट के ``preprocessing.crop_loading_policy`` रिकॉर्ड में सहेजते हैं। फ़ोल्डर और tar इनपुट एक ही डिकोडर का उपयोग करते हैं: क्रॉप प्रारूप 1 और 3 में चैनल क्रम पहले से घोषित है; प्रारूप 2 में चैनल उलटे होते हैं। डिकोडिंग से पहले EXIF अभिविन्यास लागू किया जाता है।"
+
+msgid "For unsigned 16-bit crops, decoding keeps the high byte instead of clipping every value above 255. For example, intensities ``[0, 256, 1024, 32768, 65535]`` become ``[0, 1, 4, 128, 255]``. This converts the classifier input to eight bits; it does not preserve the full precision of the original scientific image or modify that source file."
+msgstr "अचिह्नित 16-बिट क्रॉप के लिए डिकोडिंग 255 से ऊपर के हर मान को काटने के बजाय उच्च बाइट रखती है। उदाहरण के लिए, तीव्रताएँ ``[0, 256, 1024, 32768, 65535]`` बदलकर ``[0, 1, 4, 128, 255]`` हो जाती हैं। यह वर्गीकारक इनपुट को आठ बिट में बदलता है; यह मूल वैज्ञानिक छवि की पूरी परिशुद्धता को सुरक्षित नहीं रखता और न ही उस स्रोत फ़ाइल को बदलता है।"
+
+msgid "Existing checkpoints without a decoding record keep ``stored_pil_v1``, the historical PIL RGB conversion and stored channel order. spaCR reports this fallback when loading the model. This policy can clip high-bit-depth crops, but changing it for an already trained model would change its inputs. Retrain and evaluate a new model to adopt the new decoding policy. Resuming or fine-tuning retains the checkpoint's policy. Training and validation policies must agree, and fusion or teacher models with conflicting policies cannot be combined."
+msgstr "डिकोडिंग रिकॉर्ड के बिना मौजूदा चेकपॉइंट ``stored_pil_v1`` रखते हैं, जो ऐतिहासिक PIL RGB रूपांतरण और संग्रहीत चैनल क्रम है। मॉडल लोड करते समय spaCR इस वैकल्पिक व्यवहार की सूचना देता है। यह नीति उच्च बिट-गहराई वाले क्रॉप को काट सकती है, लेकिन पहले से प्रशिक्षित मॉडल के लिए इसे बदलने से उसके इनपुट बदल जाएँगे। नई डिकोडिंग नीति अपनाने के लिए एक नया मॉडल प्रशिक्षित करें और उसका मूल्यांकन करें। फिर से शुरू करना या फ़ाइन-ट्यूनिंग चेकपॉइंट की नीति बनाए रखते हैं। प्रशिक्षण और सत्यापन नीतियाँ मेल खानी चाहिए, और परस्पर विरोधी नीतियों वाले फ़्यूज़न या शिक्षक मॉडल को जोड़ा नहीं जा सकता।"
+
+msgid "When constructing loaders through the API, pass the checkpoint policy to ``crop_loading_policy`` in :func:`spacr.io.generate_loaders` or :func:`spacr.io.generate_cv_loaders`. Use :func:`spacr.classification_pixels.checkpoint_policy` to read that contract; :func:`spacr.classification_pixels.read_classification_image` and :func:`spacr.crops.decode_crop_image` document the decoding operations."
+msgstr "API के माध्यम से लोडर बनाते समय :func:`spacr.io.generate_loaders` या :func:`spacr.io.generate_cv_loaders` में ``crop_loading_policy`` को चेकपॉइंट नीति दें। उस अनुबंध को पढ़ने के लिए :func:`spacr.classification_pixels.checkpoint_policy` का उपयोग करें; :func:`spacr.classification_pixels.read_classification_image` और :func:`spacr.crops.decode_crop_image` डिकोडिंग संक्रियाओं का दस्तावेज़ीकरण करते हैं।"
+
+msgid "Grouped and nested cross-validation"
+msgstr "समूहित और नेस्टेड क्रॉस-वैलिडेशन"
+
+msgid "``cross_validation_folds`` controls the outer folds and ``cv_group_by`` keeps related fields, wells, or plates together. The default is well-grouped CV. Set ``nested_cv_inner_folds`` to two or more to enable true nested CV."
+msgstr "``cross_validation_folds`` बाहरी फ़ोल्ड नियंत्रित करता है और ``cv_group_by`` संबंधित फ़ील्ड, कूपों या प्लेटों को एक साथ रखता है। डिफ़ॉल्ट कूप-समूहित क्रॉस-वैलिडेशन है। वास्तविक नेस्टेड क्रॉस-वैलिडेशन सक्षम करने के लिए ``nested_cv_inner_folds`` को दो या अधिक पर सेट करें।"
+
+msgid "In ordinary CV, the outer validation fold is used for checkpoint selection and reported performance. This is fast and useful for routine comparisons, but can give a slightly optimistic estimate when many choices are made against that fold."
+msgstr "सामान्य क्रॉस-वैलिडेशन में बाहरी सत्यापन फ़ोल्ड का उपयोग चेकपॉइंट चयन और प्रदर्शन की सूचना दोनों के लिए होता है। यह तेज़ है और नियमित तुलनाओं के लिए उपयोगी है, लेकिन जब उस फ़ोल्ड के विरुद्ध कई विकल्प चुने जाते हैं तो अनुमान थोड़ा आशावादी हो सकता है।"
+
+msgid "In nested CV, each outer training partition is split again. Models select checkpoints only against an inner validation fold; the untouched outer fold is used once for final scoring. The inner models form an ensemble for that outer fold. This costs ``cross_validation_folds * nested_cv_inner_folds`` training runs, but keeps model selection separate from performance estimation."
+msgstr "नेस्टेड क्रॉस-वैलिडेशन में हर बाहरी प्रशिक्षण विभाजन को फिर से बाँटा जाता है। मॉडल केवल आंतरिक सत्यापन फ़ोल्ड के विरुद्ध चेकपॉइंट चुनते हैं; अछूता बाहरी फ़ोल्ड अंतिम स्कोरिंग के लिए एक बार उपयोग होता है। आंतरिक मॉडल उस बाहरी फ़ोल्ड के लिए एक समूह (ensemble) बनाते हैं। इसके लिए ``cross_validation_folds * nested_cv_inner_folds`` प्रशिक्षण रन लगते हैं, लेकिन मॉडल चयन प्रदर्शन अनुमान से अलग रहता है।"
+
+msgid "Leakage protection"
+msgstr "रिसाव से सुरक्षा"
+
+msgid "Before training, spaCR checks exact paths, augmentation families, objects and the configured grouping level on both sides of every split. With ``evaluation_fail_on_leakage=True`` (the default), any protected overlap raises an actionable error before model fitting. Augmentations are generated after splitting so transformed copies cannot enter a held-out fold."
+msgstr "प्रशिक्षण से पहले spaCR हर विभाजन के दोनों ओर सटीक पथ, संवर्धन परिवार, ऑब्जेक्ट और विन्यस्त समूहन स्तर की जाँच करता है। ``evaluation_fail_on_leakage=True`` (डिफ़ॉल्ट) के साथ कोई भी संरक्षित अधिव्यापन मॉडल फ़िट करने से पहले कार्रवाई योग्य त्रुटि उत्पन्न करता है। संवर्धन विभाजन के बाद उत्पन्न किए जाते हैं ताकि रूपांतरित प्रतियाँ किसी अलग रखे गए फ़ोल्ड में न जा सकें।"
+
+msgid "Temperature calibration"
+msgstr "तापमान अंशांकन"
+
+msgid "``evaluation_calibration=temperature`` fits a scalar temperature without using a prediction to calibrate itself. For each held-out outer fold, the temperature is fit only from the other folds. Set it to ``none`` to retain raw model probabilities. ``evaluation_bins`` controls the reliability table and expected calibration error resolution."
+msgstr "``evaluation_calibration=temperature`` एक अदिश तापमान फ़िट करता है, बिना किसी पूर्वानुमान को स्वयं को अंशांकित करने दिए। हर अलग रखे गए बाहरी फ़ोल्ड के लिए तापमान केवल अन्य फ़ोल्डों से फ़िट किया जाता है। मॉडल की कच्ची संभावनाएँ बनाए रखने के लिए इसे ``none`` पर सेट करें। ``evaluation_bins`` विश्वसनीयता तालिका और अपेक्षित अंशांकन त्रुटि के विभेदन को नियंत्रित करता है।"
+
+msgid "Evaluation bundle"
+msgstr "मूल्यांकन संग्रह"
+
+msgid "The ``evaluation`` folder contains:"
+msgstr "``evaluation`` फ़ोल्डर में ये होते हैं:"
+
+msgid "``oof_predictions.csv``"
+msgstr "``oof_predictions.csv``"
+
+msgid "One held-out row per crop, including identities and class probabilities."
+msgstr "हर क्रॉप के लिए अलग रखे गए डेटा की एक पंक्ति, जिसमें पहचान और वर्ग संभावनाएँ शामिल हैं।"
+
+msgid "``confusion_counts.csv`` and ``confusion_normalized.csv``"
+msgstr "``confusion_counts.csv`` और ``confusion_normalized.csv``"
+
+msgid "Arbitrary-class confusion matrices."
+msgstr "किसी भी संख्या के वर्गों के भ्रम मैट्रिक्स।"
+
+msgid "``per_plate_metrics.csv`` and ``calibration.csv``"
+msgstr "``per_plate_metrics.csv`` और ``calibration.csv``"
+
+msgid "Plate-specific quality and reliability-bin statistics."
+msgstr "प्लेट-विशिष्ट गुणवत्ता और विश्वसनीयता-बिन आँकड़े।"
+
+msgid "``leakage.json``"
+msgstr "``leakage.json``"
+
+msgid "The auditable split checks, overlap counts, examples and warnings."
+msgstr "ऑडिट योग्य विभाजन जाँचें, अधिव्यापन गिनतियाँ, उदाहरण और चेतावनियाँ।"
+
+msgid "``summary.json`` and ``evaluation_manifest.json``"
+msgstr "``summary.json`` और ``evaluation_manifest.json``"
+
+msgid "Machine-readable overall results and the stable bundle schema."
+msgstr "मशीन-पठनीय समग्र परिणाम और स्थिर संग्रह स्कीमा।"
+
+msgid "The Python entry points are :func:`spacr.classifier_evaluation.evaluate_predictions`, :func:`spacr.classifier_evaluation.audit_split_leakage`, :func:`spacr.classifier_evaluation.nested_group_folds`, :func:`spacr.classifier_evaluation.write_evaluation_bundle`, and :func:`spacr.classifier_evaluation.load_evaluation_bundle`."
+msgstr "Python प्रवेश बिंदु :func:`spacr.classifier_evaluation.evaluate_predictions`, :func:`spacr.classifier_evaluation.audit_split_leakage`, :func:`spacr.classifier_evaluation.nested_group_folds`, :func:`spacr.classifier_evaluation.write_evaluation_bundle` और :func:`spacr.classifier_evaluation.load_evaluation_bundle` हैं।"
+
+msgid "Orientation stability during inference"
+msgstr "अनुमान के दौरान अभिविन्यास स्थिरता"
+
+msgid "In **Classify**, with ``classifier_family`` set to ``cv``, the **Test-time augmentation** settings apply selected rotations and reflections when scoring phenotype crops. This is an inference option; it does not change training augmentation or the held-out evaluation procedure described above. Leave it disabled when orientation is biologically meaningful."
+msgstr "**वर्गीकरण** में, ``classifier_family`` को ``cv`` पर सेट करने पर **अनुमान के समय डेटा संवर्धन** सेटिंग्स फ़ेनोटाइप क्रॉप को स्कोर करते समय चुने गए घुमाव और परावर्तन लागू करती हैं। यह एक अनुमान विकल्प है; यह प्रशिक्षण संवर्धन या ऊपर वर्णित अलग रखे गए मूल्यांकन की प्रक्रिया को नहीं बदलता। जब अभिविन्यास जैविक रूप से सार्थक हो तो इसे बंद रखें।"
+
+msgid "Enable ``tta_enabled`` and choose the transformations to evaluate:"
+msgstr "``tta_enabled`` सक्षम करें और मूल्यांकन के लिए रूपांतरण चुनें:"
+
+msgid "``tta_rotations`` adds 90, 180 and 270 degree rotations without pixel interpolation."
+msgstr "``tta_rotations`` पिक्सेल अंतर्वेशन के बिना 90, 180 और 270 डिग्री घुमाव जोड़ता है।"
+
+msgid "``tta_horizontal_flip`` adds horizontal reflections of the selected rotations; ``tta_vertical_flip`` adds vertical reflections."
+msgstr "``tta_horizontal_flip`` चुने गए घुमावों के क्षैतिज परावर्तन जोड़ता है; ``tta_vertical_flip`` ऊर्ध्वाधर परावर्तन जोड़ता है।"
+
+msgid "The original orientation is always included. Equivalent orientations are evaluated once, giving at most eight views when all options are enabled. Enabling the feature without selecting transformations evaluates only the original view."
+msgstr "मूल अभिविन्यास हमेशा शामिल होता है। समतुल्य अभिविन्यासों का एक बार मूल्यांकन होता है, जिससे सभी विकल्प सक्षम होने पर अधिकतम आठ दृश्य मिलते हैं। रूपांतरण चुने बिना सुविधा सक्षम करने पर केवल मूल दृश्य का मूल्यांकन होता है।"
+
+msgid "``tta_aggregation=probability_mean`` selects a label from the mean class probabilities. ``majority_vote`` instead counts the labels of individual views; ties prefer the higher mean probability, then the lower class index. For binary predictions, ``score_threshold`` labels each view before agreement and voting are calculated."
+msgstr "``tta_aggregation=probability_mean`` औसत वर्ग संभावनाओं से लेबल चुनता है। ``majority_vote`` इसके बजाय अलग-अलग दृश्यों के लेबल गिनता है; बराबरी की स्थिति में उच्च औसत संभावना को, फिर निम्न वर्ग सूचकांक को प्राथमिकता दी जाती है। द्विआधारी पूर्वानुमानों के लिए ``score_threshold`` सहमति और मतदान की गणना से पहले हर दृश्य को लेबल करता है।"
+
+msgid "The enabled output retains both the original prediction and the aggregated result:"
+msgstr "सक्षम आउटपुट मूल पूर्वानुमान और समेकित परिणाम दोनों को बनाए रखता है:"
+
+msgid "Column"
+msgstr "स्तंभ"
+
+msgid "Meaning"
+msgstr "अर्थ"
+
+msgid "``pred``, ``prediction_mean``"
+msgstr "``pred``, ``prediction_mean``"
+
+msgid "Mean positive-class probability for binary output, or mean probability of the selected class for multiclass output."
+msgstr "द्विआधारी आउटपुट के लिए धनात्मक-वर्ग की औसत संभावना, या बहु-वर्ग आउटपुट के लिए चुने गए वर्ग की औसत संभावना।"
+
+msgid "``predicted_label``"
+msgstr "``predicted_label``"
+
+msgid "Class selected by the configured aggregation method. The tar workflow's ``cv_predictions`` uses this label too."
+msgstr "विन्यस्त समेकन विधि द्वारा चुना गया वर्ग। tar कार्यप्रवाह का ``cv_predictions`` भी इसी लेबल का उपयोग करता है।"
+
+msgid "``original_pred``, ``original_predicted_label``"
+msgstr "``original_pred``, ``original_predicted_label``"
+
+msgid "Score and label from the original orientation before aggregation."
+msgstr "समेकन से पहले मूल अभिविन्यास का स्कोर और लेबल।"
+
+msgid "``prediction_std``"
+msgstr "``prediction_std``"
+
+msgid "Population standard deviation across views of the positive-class probability for binary output, or the selected-class probability for multiclass output."
+msgstr "द्विआधारी आउटपुट के लिए धनात्मक-वर्ग संभावना का, या बहु-वर्ग आउटपुट के लिए चुने गए वर्ग की संभावना का, दृश्यों के पार जनसंख्या मानक विचलन।"
+
+msgid "``transform_agreement``"
+msgstr "``transform_agreement``"
+
+msgid "Fraction of view labels matching the selected label."
+msgstr "चुने गए लेबल से मेल खाने वाले दृश्य लेबलों का अंश।"
+
+msgid "``review_flag``, ``tta_views``"
+msgstr "``review_flag``, ``tta_views``"
+
+msgid "Whether the stability thresholds request review, and the number of distinct views scored."
+msgstr "क्या स्थिरता सीमाएँ समीक्षा का अनुरोध करती हैं, और स्कोर किए गए अलग-अलग दृश्यों की संख्या।"
+
+msgid "``prob_class_<i>``, ``original_prob_class_<i>``, ``prob_class_<i>_std``"
+msgstr "``prob_class_<i>``, ``original_prob_class_<i>``, ``prob_class_<i>_std``"
+
+msgid "Mean probability, original probability and population standard deviation for each class index."
+msgstr "हर वर्ग सूचकांक के लिए औसत संभावना, मूल संभावना और जनसंख्या मानक विचलन।"
+
+msgid "With majority voting, retain ``predicted_label`` or ``cv_predictions`` as the selected result. Thresholding ``pred`` again can produce a different label because ``pred`` still stores a mean probability."
+msgstr "बहुमत मतदान के साथ चुने गए परिणाम के रूप में ``predicted_label`` या ``cv_predictions`` रखें। ``pred`` पर फिर से सीमा लगाने से भिन्न लेबल मिल सकता है, क्योंकि ``pred`` अब भी औसत संभावना संग्रहीत करता है।"
+
+msgid "An object is flagged when agreement is below ``tta_min_agreement`` (default 0.75) or probability standard deviation exceeds ``tta_max_std`` (default 0.15). Agreement measures stability across orientations, not calibrated confidence or accuracy on independent data. Compare results on a separate validation set before choosing these options for an experiment."
+msgstr "जब सहमति ``tta_min_agreement`` (डिफ़ॉल्ट 0.75) से कम हो या संभावना का मानक विचलन ``tta_max_std`` (डिफ़ॉल्ट 0.15) से अधिक हो, तो ऑब्जेक्ट चिह्नित किया जाता है। सहमति अभिविन्यासों के पार स्थिरता मापती है, अंशांकित विश्वास या स्वतंत्र डेटा पर सटीकता नहीं। किसी प्रयोग के लिए ये विकल्प चुनने से पहले अलग सत्यापन सेट पर परिणामों की तुलना करें।"
+
+msgid "For directory input, pass the options as keyword arguments to :func:`spacr.deep_spacr.apply_model`. For tar input, supply the same keys in the settings passed to :func:`spacr.deep_spacr.apply_model_to_tar`. :func:`spacr.inference_augmentation.transforms_for` defines the distinct views and :func:`spacr.inference_augmentation.predict_augmented` documents the aggregation contract. Disabled augmentation preserves ordinary inference."
+msgstr "निर्देशिका इनपुट के लिए विकल्पों को :func:`spacr.deep_spacr.apply_model` को कीवर्ड तर्कों के रूप में दें। tar इनपुट के लिए :func:`spacr.deep_spacr.apply_model_to_tar` को दी गई सेटिंग्स में वही कुंजियाँ दें। :func:`spacr.inference_augmentation.transforms_for` अलग-अलग दृश्यों को परिभाषित करता है और :func:`spacr.inference_augmentation.predict_augmented` समेकन अनुबंध का दस्तावेज़ीकरण करता है। संवर्धन बंद होने पर सामान्य अनुमान अपरिवर्तित रहता है।"
+

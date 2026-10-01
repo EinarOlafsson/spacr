@@ -1,24 +1,37 @@
 {
-  "lesson": "67_experiment_design", "language": "is", "english_sha256": "fff27aa35c1e4dd012aae5f4240143f8a33cb0e1125da2dc7959d7d4688d9ed2",
-  "review": {"kind": "Editorial caption translation checked against English and the actual planning/export workflow", "native_speaker_signoff": false},
-  "title": "Experiment Design: endurgeranleg plötuáætlun og nákvæmur útflutningur",
-  "description": "Breyttu fyrirhugaðri skipan plötu með raunverulegum stjórntækjum, skoðaðu viðvaranir um afkastagetu og endurtekningar, endurgerðu slembiskipan og flyttu út nákvæma holutöflu.",
-  "objectives": ["Skipuleggðu skilyrði og hlutverk viðmiða áður en myndataka hefst.", "Sýndu viðvaranir og leiðréttingar án þess að jafna athugun á skipan við líffræðilega staðfestingu.", "Endurgerðu sömu slembiskipan og greindu á milli valinna hola og úthlutaðra skilyrða.", "Flyttu út og varðveittu nákvæma holutöflu þegar stillingar fyrir raðir eða dálka geta ekki lýst tilraunasniðinu."],
-  "prerequisite": "Þessi skipulagseining þarf hvorki teknar myndir né niðurhalað gagnasafn. Upptakan notar raunveruleg drög forritsins með sex neikvæðum viðmiðunarholum, sex jákvæðum viðmiðunarholum og tólf meðferðarholum, nefnd tutorial_plan. Fjöldinn er til að sýna viðmótið, ekki niðurstaða aflgreiningar eða mældrar tilraunar.",
+  "lesson": "67_experiment_design",
+  "english_sha256": "dcdd47c45e3948d1277938465185a3ca85f2a743d264d0ce8492f8b7a01477c8",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Experiment Design: skipuleggðu plötu og fluttu út brunnakort hennar",
+  "description": "Stilltu skilyrði og endurtekningar, veldu uppsetningu, farðu yfir viðvaranir og fluttu út úthlutanir fyrir myndatöku og greiningu.",
+  "objectives": [
+    "Slá inn skilyrði, fjölda endurtekninga og hlutverk viðmiða.",
+    "Velja plötusnið, jaðarreglu og endurtakanlega slembiuppsetningu.",
+    "Flytja út nákvæmar brunnaúthlutanir til að tengja síðar við mælingar."
+  ],
+  "prerequisite": "Undirbúðu heiti skilyrða, hlutverk viðmiða og fyrirhugaðan fjölda brunna fyrir myndatöku. Dæmið biður um sex brunna með neikvæðu viðmiði, sex með jákvæðu viðmiði og tólf meðferðarbrunna; veldu endurtekningar fyrir eigin tilraun. Haltu auðkenni plötunnar samræmdu við síðari myndir og mælingar.",
   "scenes": [
-    "Opnaðu Experiment Design í flokknum Data á Home áður en myndataka hefst. Einingin býr til tillögu að skipan plötu, ekki mældar líffræðilegar niðurstöður. Heitin negative, positive og treatment eru bráðabirgðamerkingar; veldu lýsandi heiti og viðmið fyrir þína tilraun.",
-    "Nefndu plötuna þannig að auðkenni hennar passi síðar við myndir og mælingar. Ef dálkur er mjór má tvísmella á mörk dálkahaussins til að laga breiddina að innihaldinu. Skoðaðu Condition, Replicates og Role saman. Sex, sex og tólf holur sýna viðmótið en eru ekki rökstudd úrtaksstærð.",
-    "Sex holu snið gefur villu um afkastagetu þegar óskað er eftir tuttugu og fjórum holum. Kortið sleppir ekki umframendurtekningum án viðvörunar. Lestu skilaboðin og breyttu sniðinu eða tilraunaáætluninni; tómt kort er ekki gild úthlutun.",
-    "Þegar farið er aftur í níutíu og sex holur koma allar tuttugu og fjórar úthlutanirnar aftur. Plötukortið fylgir gildandi töflu. Add condition og Remove selected stjórna línum með tilraunaskilyrðum; ferhyrndu holurnar neðar eru sérstakt valsvæði, ekki þessar töflulínur.",
-    "Veldu reit fyrir fjölda endurtekninga og ýttu á F2 til að breyta honum. Ein neikvæð viðmiðunarhola kallar fram viðvörun; sex holur fjarlægja hana aftur. Margar frumur í sömu holu koma ekki í stað sjálfstæðra tilraunaendurtekninga.",
-    "Block-skipan hópar skilyrði saman og varar við að áhrif staðsetningar og skilyrða geti ruglast saman. Þetta er hvatning til að skoða sniðið, ekki sjálfvirk líffræðileg niðurstaða. Ljósfræðileg leiðrétting lýsingar lagar hvorki uppgufunar- né hitaáhrif; skipan tilraunar og ójöfn lýsing mynda eru ólík vandamál.",
-    "Veldu random-skipan, leave edge empty og slembifræ fjörutíu og tvö. Án ysta hringsins eru sextíu nothæfar holur á þessari níutíu og sex holu plötu; áætlunin úthlutar tuttugu og fjórum. Auður jaðar minnkar rýmið og tryggir ekki að öll staðbundin áhrif hverfi.",
-    "Slembifræ fjörutíu og þrjú breytir raunverulegum úthlutunum en heldur umbeðnum fjölda fyrir hvert skilyrði. Slembun dregur úr kerfisbundinni staðsetningarskekkju en hverja slembiskipan þarf samt að skoða. Ekki velja fræ til að hygla fyrirfram óskaðri niðurstöðu.",
-    "Fjörutíu og tvö endurheimtir nákvæmlega sömu tengingu hola og skilyrða. Skráðu fræið ásamt plötusniði, jaðarreglu og skilyrðatöflu. Fræið eitt skilgreinir ekki tilraunasniðið ef hin inntökin breytast.",
-    "Dragðu frá B02 til C04 til að velja sex holur. Útlínur valsins breytast en ekki skilyrðin: Hreyfingin velur holur en úthlutar ekki meðferð. Skoðaðu skilyrðatöfluna og birt kort þegar úthlutun er breytt.",
-    "Notaðu Export plate map og veldu sérstaka möppu. Raunverulegi útflutningurinn skrifar plate_map.csv, plate_map.json og plate_map_settings.json. Geymdu skrárnar þrjár saman; að velja áfangamöppu jafngildir ekki því að framkvæma fyrirhugaða tilraun.",
-    "CSV-skráin hefur eina línu fyrir hverja úthlutaða holu: hér tuttugu og fjórar, með nákvæmlega sömu skilyrðum og hlutverkum og birtast. Hún er tengd við mælingar með plateID, rowID og columnID saman. JSON-skráin geymir fræið, sniðið og niðurstöður athugana, þar á meðal viðvaranirnar.",
-    "Ekki er hægt að lýsa þessari slembiskipan með meðferðarstillingum fyrir heilar raðir eða dálka. Stillingaskráin tilgreinir sérstaklega expressible sem false; hún er ekki fullbúin greiningarstilling. Notaðu nákvæmu útfluttu holutöfluna og skýra samtengingu í stað þess að nálga blandaðar holur með merkingum fyrir heilar raðir.",
-    "Python-viðmótið er í spacr.qt.widgets.plate_layout: Condition og PlateDesign lýsa áætluninni; assign_wells, check_design og write_design úthluta, skoða og vista. Athuganir á skipan staðfesta hvorki tölfræðilegt afl né líffræðilegt réttmæti. Farðu yfir sniðið fyrir myndatöku og varðveittu nákvæma kortið fyrir síðari greiningu."
+    "Frá Home opnarðu Data og velur Experiment Design. Byrjaðu á að slá inn skilyrðin og viðmiðin sem eiga að fara á plötuna.",
+    "Nefndu plötuna með auðkenninu sem þú notar við myndatökuna. Farðu yfir Condition, Replicates og Role í töflunni. Tvísmelltu á dálkaskil til að breikka dálkinn ef þarf.",
+    "Veldu plötusnið með nógu mörgum brunnum fyrir umbeðnar endurtekningar. Ef sex brunnar eru valdir fyrir þessa 24 brunna áætlun birtist villa um rými. Breyttu sniðinu eða umbeðnum fjölda til að halda áfram.",
+    "Veldu 96 brunna til að endurheimta uppsetninguna. Notaðu Add condition og Remove selected til að breyta línum skilyrða og athugaðu svo uppfært plötukort.",
+    "Til að breyta fjölda endurtekninga velurðu reitinn og ýtir á F2. Einn stakur brunnur með neikvæðu viðmiði kallar fram viðvörun. Veldu óháðar tilraunaendurtekningar sem henta greiningunni.",
+    "Veldu Block layout til að hópa skilyrðin saman. Lestu staðsetningarviðvaranirnar og skoðaðu kortið með tilliti til mögulegrar blöndunar skilyrða og staðsetningar.",
+    "Veldu Random layout, virkjaðu Leave edge empty og stilltu Seed á 42. Þessi 96 brunna plata hefur 60 innri brunna tiltæka og dæmisáætlunin úthlutar 24 þeirra.",
+    "Breyttu Seed í 43 til að búa til aðra röðun með sama fjölda fyrir hvert skilyrði. Farðu yfir staðsetningu viðmiða og meðferða á plötunni.",
+    "Settu Seed aftur á 42 til að fá fyrri röðun aftur. Vistaðu fræið ásamt sniði, jaðarreglu og töflu skilyrða.",
+    "Dragðu yfir brunnana B02 til C04 til að velja þá. Þetta velur brunna til skoðunar; notaðu töflu skilyrða og stýringar uppsetningar til að breyta úthlutunum.",
+    "Smelltu á Export plate map og veldu möppu. Geymdu plate_map.csv, plate_map.json og plate_map_settings.json saman.",
+    "Opnaðu CSV-skrána til að sjá eina línu fyrir hvern úthlutaðan brunn. Tengdu hana síðari mælingum með plateID, rowID og columnID saman. JSON-skráin geymir hönnunina og viðvaranir hennar.",
+    "Fyrir þessa slembiuppsetningu gefur stillingaskráin expressible sem false. Notaðu nákvæmt brunnakort CSV-skrárinnar fyrir merki skilyrða: meðferðarstillingar fyrir heilar raðir eða dálka geta ekki lýst þessum blönduðu úthlutunum.",
+    "Farðu yfir lokakortið fyrir myndatöku og geymdu það með tilrauninni. Í Python notarðu Condition og PlateDesign og svo assign_wells, check_design og write_design úr spacr.qt.widgets.plate_layout."
   ]
 }

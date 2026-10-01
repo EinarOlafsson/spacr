@@ -286,6 +286,7 @@ def c4(n: int) -> float:
     with the published ones to every digit they print: ``c4(2) = 0.7979``,
     ``c4(5) = 0.9400``, ``c4(10) = 0.9727``.
 
+    :param n: the subgroup size, converted to int; must be at least 2.
     :raises ControlChartError: for ``n < 2``. A subgroup of one has no spread
         to unbias, which is the whole reason the I-MR chart exists.
     """
@@ -556,6 +557,9 @@ def candidate_value_columns(frame: pd.DataFrame) -> Tuple[str, ...]:
     re-read. Reused rather than re-derived: the Graph Builder, the PCA screen
     and this one must agree about what ``cell_count`` is, or the same table
     presents three different mental models depending on which screen is open.
+
+    :param frame: the per-well table whose columns are classified by
+        :func:`spacr.qt.widgets.graph_spec.column_kinds`.
     """
     return tuple(sorted(name for name, kind in column_kinds(frame).items()
                         if kind == CONTINUOUS))
@@ -569,6 +573,10 @@ def candidate_key_columns(frame: pd.DataFrame) -> Tuple[str, ...]:
     the classifier calls it a key and skips it — and a key is exactly what is
     wanted here. This is the one place in spaCR where "identifies rather than
     describes" is a recommendation rather than a disqualification.
+
+    :param frame: the per-well table whose columns are classified by
+        :func:`spacr.qt.widgets.graph_spec.column_kinds`. Columns named like a
+        plate, date, time, batch, run or order are added.
     """
     kinds = column_kinds(frame)
     wanted = {name for name, kind in kinds.items() if kind == CATEGORICAL}
@@ -716,15 +724,27 @@ class ControlChartSpec:
 
     def with_control(self, column: Optional[str],
                      levels: Sequence[str]) -> "ControlChartSpec":
-        """A copy charting a different control."""
+        """A copy charting a different control.
+
+        :param column: the column holding the control labels, or None.
+        :param levels: the labels in that column that mark control wells.
+        """
         return replace(self, control_column=column, control_levels=tuple(levels))
 
     def with_rules(self, rules: Sequence[int]) -> "ControlChartSpec":
-        """A copy running a different rule set."""
+        """A copy running a different rule set.
+
+        :param rules: the rule numbers (1 to 8) to run.
+        """
         return replace(self, rules=tuple(rules))
 
     def with_estimator(self, estimator: str) -> "ControlChartSpec":
-        """A copy using a different sigma estimator."""
+        """A copy using a different sigma estimator.
+
+        :param estimator: the sigma estimator name, e.g. ``'auto'``,
+            ``'moving_range'``, ``'subgroup_s'``, ``'robust'`` or ``'mad'``;
+            stored without checking.
+        """
         return replace(self, estimator=estimator)
 
     def with_baseline(self, *, n: Optional[int] = None,
@@ -765,6 +785,9 @@ class ControlChartSpec:
         Unknown keys ignored, missing keys defaulted, so a configuration
         written by another build still opens: a QC chart nobody can reload is
         a QC chart nobody re-runs.
+
+        :param payload: a mapping as written by :meth:`to_dict`; unknown keys
+            are ignored and missing ones take their defaults.
         """
         fields = {"value", "plate", "order", "control_column",
                   "control_levels", "positive_levels", "negative_levels",
@@ -783,7 +806,10 @@ class ControlChartSpec:
 
     @classmethod
     def from_json(cls, text: str) -> "ControlChartSpec":
-        """Rebuild from :meth:`to_json`."""
+        """Rebuild from :meth:`to_json`.
+
+        :param text: a JSON string as written by :meth:`to_json`.
+        """
         return cls.from_dict(json.loads(text))
 
     def describe(self) -> str:
@@ -910,6 +936,8 @@ def sd_reference_limits(values: Sequence[float]
     Uses the sample SD (``ddof=1``) over every value given, which is exactly
     the mistake being illustrated — limits computed from all the data,
     including the excursion they are supposed to detect.
+
+    :param values: the plotted values; non-finite ones are ignored.
     """
     array = np.asarray(list(values), dtype=float)
     finite = array[np.isfinite(array)]
@@ -950,6 +978,8 @@ class ControlChartResult:
     :param baseline_excluded: plates dropped from Phase I by a re-estimation.
     :param violations: every rule firing, in run order then rule order.
     :param rules: the rule set that was run.
+    :param value_column: the column the plotted value was read from.
+    :param plate_column: the column that identifies each plate.
     :param order_inferred: the order was guessed from the plate id.
     :param degenerate: sigma came out zero — see :meth:`caveats`.
     :param sd_reference: ``(centre, sigma, lower, upper)`` from
@@ -1012,6 +1042,9 @@ class ControlChartResult:
         end of a two-of-three-beyond-2-sigma window — and reporting only the
         first would hide that the same plate is evidence for two different
         failures.
+
+        :param index: the point's position in run order; outside ``0 ..
+            len(self) - 1`` raises :class:`ControlChartError`.
         """
         if not 0 <= int(index) < len(self):
             raise ControlChartError(
@@ -1025,6 +1058,9 @@ class ControlChartResult:
 
         0 is inside 1 sigma, 3 is beyond 3 sigma. Signed nowhere — the side is
         the sign of ``z``. What a renderer colours a marker by.
+
+        :param index: the point's position in run order; outside ``0 ..
+            len(self) - 1`` raises :class:`ControlChartError`.
         """
         if not 0 <= int(index) < len(self):
             raise ControlChartError(
@@ -1643,6 +1679,8 @@ def control_chart(frame: pd.DataFrame,
     from a stated baseline and applied forward, and every rule that fires is
     reported by number, in words, and with the plates it fired on.
 
+    :param frame: the per-well table holding the spec's value, plate, order and
+        control columns.
     :raises ControlChartError: whenever the chart would be meaningless — with
         the reason and the way out in the message.
     """
@@ -1766,6 +1804,10 @@ def zprime_frame(frame: pd.DataFrame, spec: ControlChartSpec) -> pd.DataFrame:
     plate with a single positive well produces no Z' and is left out rather
     than given a zero.
 
+    :param frame: the per-well table holding the spec's value, plate, order and
+        control columns.
+    :param spec: the chart settings; must name ``control_column``,
+        ``positive_levels`` and ``negative_levels``.
     :returns: columns ``plate``, ``order``, ``order_index``, ``zprime``,
         ``separation``, and the per-control means, SDs and n.
     :raises ControlChartError: when the spec does not name both controls.
@@ -1855,6 +1897,12 @@ def zprime_chart(frame: pd.DataFrame,
     :func:`control_chart` already is. The order is carried as an explicit
     integer column, so the Z' chart never reports an inferred order — the
     ordering decision was taken once, upstream.
+
+    :param frame: the per-well table holding the spec's value, plate, order and
+        control columns.
+    :param spec: the chart settings; must name ``control_column``,
+        ``positive_levels`` and ``negative_levels``. Its estimator, rules and
+        baseline are reused for the Z' chart.
     """
     series = zprime_frame(frame, spec)
     return control_chart(series, replace(

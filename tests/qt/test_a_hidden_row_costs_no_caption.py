@@ -118,8 +118,14 @@ def test_the_panel_builds_one_caption_per_row_it_can_show(qtbot):
     screen, model = _screen(qtbot)
     hidden = model.keys_whose_object_the_run_lacks()
     shown = set(model._widgets) - set(hidden)
+    # The per-object grid, Mask's only layout since 592, is mounted as a
+    # prose row with an empty caption (`add_prose_row("", grid)`): a host
+    # holding no text, which captions no setting.
+    from PySide6.QtWidgets import QLabel
+
     hosts = [widget for widget in screen.findChildren(QWidget)
-             if widget.objectName() == "SettingLabelWithInfo"]
+             if widget.objectName() == "SettingLabelWithInfo"
+             and any(label.text() for label in widget.findChildren(QLabel))]
 
     assert len(hosts) == len(shown), (len(hosts), len(shown))
     # Which is the saving: two widgets and two style repolishes each for the
@@ -149,13 +155,20 @@ def test_a_waiting_row_is_still_a_row_on_the_form(qtbot):
 
 def test_the_search_strip_still_indexes_every_setting(qtbot):
     """The strip indexes the RENDERED FORM, so an unrendered row is one it
-    cannot show. Every row is rendered; only the captions wait."""
+    cannot show. Every row is rendered; only the captions wait.
+
+    Less the alpha settings (item 569), which the strip leaves out while
+    Preferences -> Show alpha features is off, as it is by default --
+    including those alpha on this module's form only (591's Mask
+    preprocessing categories), so the module is named."""
     from spacr.qt.settings_search import SettingsSearchBar
+    from spacr.settings import _alpha_names
 
     screen, model = _screen(qtbot)
     bar = SettingsSearchBar(screen)
     qtbot.addWidget(bar)
-    assert set(bar.indexed_keys()) == set(model._widgets)
+    assert set(bar.indexed_keys()) == set(model._widgets) - _alpha_names(
+        "settings", "mask")
 
 
 def test_reading_a_headings_rows_back_captions_them_all(qtbot):
@@ -189,17 +202,27 @@ def test_reading_a_headings_rows_back_captions_them_all(qtbot):
 # ---------------------------------------------------------------------------
 
 def test_a_shape_built_for_seven_captions_the_seven_slots(qtbot):
-    """A committed count rebuilds the optimized panel at its new shape."""
+    """A committed count rebuilds the optimized panel at its new shape.
+
+    Since 592 the per-object table is Mask's only layout of the per-object
+    questions: the seven slots are seven of its columns, and their flat rows
+    stay off the form.
+    """
     from spacr.organelle_types import ALL_ORGANELLE_ROLES
 
     screen, _model = _screen(
         qtbot, current={"number_of_organelles": 7})
-    shown = [role for role in ALL_ORGANELLE_ROLES
-             if screen.setting_row_is_visible(f"{role}_channel")]
-    assert len(shown) == 7, shown
-    for role in shown:
-        key = f"{role}_channel"
-        assert key in _captioned(screen), f"{key} was shown with no caption"
+    # 2026-09-29 (item 592, "hide unset objects"): a slot's column is drawn
+    # only once its channel is set, so the seven slots are seven CLAIMED
+    # columns, and each slot's channel is a form row the count reveals.
+    claimed = {obj for row in screen._object_grid._claimed_table().values()
+               for obj in row}
+    columns = [role for role in ALL_ORGANELLE_ROLES if role in claimed]
+    assert columns == list(ALL_ORGANELLE_ROLES[:7]), columns
+    for index, role in enumerate(ALL_ORGANELLE_ROLES):
+        assert screen.setting_row_is_visible(f"{role}_channel") is (
+            index < 7), role
+        assert role not in screen._object_grid.objects(), role
 
 
 def test_a_revealed_row_keeps_the_place_it_was_declared_in(qtbot):
@@ -224,9 +247,12 @@ def test_a_revealed_row_carries_the_help_its_caption_holds(qtbot):
     """The caption is the hover target for a setting's documentation, so a
     row that got one late has to get the whole of it."""
     screen, model = _screen(qtbot)
-    key = "remove_background_nucleus"
+    # A Cellpose 3 row: since 592 the per-object rows (the nucleus's among
+    # them) are answered in the per-object table and never revealed on the
+    # form; the Cellpose 3 rows still wait until that backend is chosen.
+    key = "cellpose3_augment"
     assert key not in _captioned(screen)
-    model._widgets["nucleus_channel"].setText("1")
+    model.set_value_for_key("segmentation_backend", "cellpose3")
     model.refresh_object_visibility()
     qtbot.wait(1)
 
@@ -264,8 +290,8 @@ def test_a_late_caption_is_not_left_in_english(qtbot, monkeypatch):
     screen, model = _screen(qtbot)
     retranslate_widget_tree(screen)
 
-    key = "remove_background_nucleus"
-    model._widgets["nucleus_channel"].setText("1")
+    key = "cellpose3_augment"
+    model.set_value_for_key("segmentation_backend", "cellpose3")
     model.refresh_object_visibility()
     qtbot.wait(1)
 

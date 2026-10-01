@@ -223,3 +223,23 @@ pass
 ```
 
 A fault that is not about this setting -- a missing x column, say -- is already reported against the setting it belongs to.
+
+
+---
+
+# Notes from `spacr/volcano_style.py`
+
+Prose lifted out of `spacr/volcano_style.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## render_volcano
+
+### lines 404-406
+
+```python
+with mpl.rc_context(font_rc(style)):
+```
+
+`font_rc`, not a hand-written `font.family`: naming a family matplotlib has not been given the FILE for falls back to DejaVu Sans without failing, so the faces spaCR ships have to be registered first.

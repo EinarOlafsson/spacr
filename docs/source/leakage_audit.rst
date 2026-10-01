@@ -2,7 +2,7 @@ Train/test leakage audit
 ========================
 
 Classifier accuracy is invalid when related crops occur on both sides of an
-evaluation boundary. spaCR now audits the permanent ``train/``/``test/``
+evaluation boundary. spaCR audits the permanent ``train/``/``test/``
 split, the ordinary train/validation holdout, every outer and inner CV
 boundary, and the CV partition as a whole before fitting.
 
@@ -26,7 +26,7 @@ Filename identities follow spaCR's
 its requested identity fails the audit; an unknown relationship is not
 reported as independent.
 
-Ordinary validation is now group-aware too. ``cv_group_by='well'`` uses the
+Ordinary validation is group-aware too. ``cv_group_by='well'`` uses the
 same group-stratified partitioner as CV and selects the candidate fold closest
 to ``val_split`` and the full dataset's class distribution. Augmentation is
 applied only after the split and only to training.

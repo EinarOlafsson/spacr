@@ -32,7 +32,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..i18n import tr
-from ..theme import SPACING, STAGE_LABEL, STAGE_NOTE
+from ..theme import ALPHA_MARK, SPACING, STAGE_LABEL, STAGE_NOTE
 
 #: Edge of the module mark drawn beside a category heading, in logical px.
 #:
@@ -435,6 +435,10 @@ class Section(QFrame):
         above and below it -- which is the point: a row of buttons floating in
         the middle of the section reads as unrelated to the settings it acts
         on, and one aligned with them reads as part of the same form.
+
+        :param label: the row label: text (shown elided, with the full text as
+            tooltip) or a ready-made widget.
+        :param widget: the widget placed in the field column of the row.
         """
         form_label = QWidget(self._body)
         form_label.setObjectName("SettingLabelWithInfo")
@@ -457,7 +461,11 @@ class Section(QFrame):
             self._form.addRow(form_label, widget)
 
     def add_widget(self, widget: QWidget) -> None:
-        """Add a full-width (label-less) widget to the section's form body."""
+        """Add a full-width (label-less) widget to the section's form body.
+
+        :param widget: the widget added as a full-width row, coloured by the
+            section's maturity.
+        """
         self._form.addRow(widget)
         self._row_widgets.append((None, widget))
         self._apply_maturity(widget, setting=True)
@@ -578,6 +586,10 @@ class Section(QFrame):
 
         ``stable``/``beta``/``alpha`` use the exact hues shown in Home's
         maturity legend. Unknown values deliberately fall back to stable.
+
+        :param stage: maturity stage, ``'stable'``, ``'beta'`` or ``'alpha'``
+            (case-insensitive); empty or unknown values are treated as
+            ``'stable'``.
         """
         stage = str(stage or "stable").lower()
         if stage not in STAGE_LABEL:
@@ -599,7 +611,10 @@ class Section(QFrame):
         return self._maturity
 
     def set_expanded(self, on: bool) -> None:
-        """Expand or collapse the section body programmatically."""
+        """Expand or collapse the section body programmatically.
+
+        :param on: ``True`` to expand the body, ``False`` to collapse it.
+        """
         self._header.setChecked(on)
         self._on_toggle(on)
 
@@ -626,14 +641,38 @@ class Section(QFrame):
         """Rebuild the header caption from its translated parts.
 
         The caption is composed -- the category name, plus a badge for beta or
-        alpha -- so the generic language pass would look up the finished line as
-        one key and never find it. That pass is kept off the button and the
-        caption rebuilt here whenever the language changes.
+        an ``α`` for alpha -- so the generic language pass would look up the
+        finished line as one key and never find it. That pass is kept off the
+        button and the caption rebuilt here whenever the language changes.
+
+        An alpha heading reads "CONFLUENCY α": the name upper-cased and the
+        mark kept lower-case, because an upper-cased ``α`` is the Greek
+        capital, which is indistinguishable from a Latin A. A spelled-out
+        "(Alpha)" in the name is dropped in favour of the mark, and the
+        heading's colour (the theme's alpha ink) says the rest.
 
         :param language: the language to build for; ``None`` uses the current
             one.
         """
-        text = tr(self._title_source, language).upper()
+        source = self._title_source.strip()
+        text = tr(source, language).strip()
+        if source.endswith(ALPHA_MARK) and text == source:
+            text = self._translated_alpha_name(source, language)
+        if self._maturity == "alpha" or text.endswith(ALPHA_MARK):
+            base = text[:-len(ALPHA_MARK)] if text.endswith(ALPHA_MARK) else text
+            base = base.upper().strip()
+            stage = tr(STAGE_LABEL["alpha"], language).upper()
+            for badge in dict.fromkeys((stage, STAGE_LABEL["alpha"].upper())):
+                base = re.sub(
+                    rf"\s*(?:\(\s*{re.escape(badge)}\s*\)|{re.escape(badge)})\s*$",
+                    "",
+                    base,
+                    flags=re.IGNORECASE,
+                ).strip()
+            text = f"{base} {ALPHA_MARK}" if base else ALPHA_MARK
+            self._header.setText(text.replace("&", "&&"))
+            return
+        text = text.upper()
         if self._maturity != "stable":
             stage = tr(STAGE_LABEL[self._maturity], language).upper()
             for badge in dict.fromkeys(
@@ -648,6 +687,30 @@ class Section(QFrame):
         text = text.replace("&", "&&")
         self._header.setText(text)
 
+    @staticmethod
+    def _translated_alpha_name(source: str, language: Optional[str]) -> str:
+        """``"Cloud α"`` in ``language`` from the rows its name already has.
+
+        An alpha category's catalog row may not exist yet, but the plain
+        name ("Cloud") or the name it had before the mark replaced
+        "(Alpha)" ("Confluency (Alpha)") usually does; either is used, with
+        the badge dropped, before falling back to the English title.
+
+        :param source: the English title, ending with the alpha mark.
+        :param language: the language to translate into; ``None`` is the
+            current one.
+        :returns: the translated name followed by the mark.
+        """
+        base = source[:-len(ALPHA_MARK)].strip()
+        for candidate in (base, f"{base} (Alpha)"):
+            translated = tr(candidate, language).strip()
+            if translated != candidate:
+                translated = re.sub(r"\s*[(\uff08][^()\uff08\uff09]*[)\uff09]\s*$",
+                                    "", translated).strip() \
+                    if candidate.endswith("(Alpha)") else translated
+                return f"{translated} {ALPHA_MARK}"
+        return source
+
     def eventFilter(self, watched, event):                   # noqa: N802
         """Swallow the header's tooltip request; pass everything else on.
 
@@ -659,9 +722,6 @@ class Section(QFrame):
         :param event: the event.
         :returns: True to stop a tooltip from being shown.
         """
-        # getattr, not attribute access: Qt can deliver an event to this
-        # filter while __init__ is still building the header, and on CI
-        # that raised AttributeError inside the event loop.
         if watched is getattr(self, "_header", None):
             if event.type() == QEvent.ToolTip:
                 return True
@@ -705,6 +765,9 @@ class Section(QFrame):
         else re-computes it. Only ``StyleChange`` is answered -- setting the
         body's palette posts ``PaletteChange`` back here, and answering that
         one would be a loop.
+
+        :param event: the change event; it is passed to the base class, and a
+            ``QEvent.StyleChange`` also re-seals the body.
         """
         super().changeEvent(event)
         if event.type() == QEvent.StyleChange:

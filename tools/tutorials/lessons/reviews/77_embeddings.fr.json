@@ -1,29 +1,32 @@
 {
-  "title": "Embeddings : interface actuelle et exemple Python réel",
-  "description": "Découvrez le module et encodez des images réelles avec l’API, sans prétendre que l’interface est réparée ou qu’un phénotype est validé.",
-  "objectives": [
-    "Distinguer l’interface de l’API opérationnelle.",
-    "Comparer les politiques de canaux sur seize images.",
-    "Préserver les identités et interpréter les figures avec prudence."
-  ],
-  "prerequisite": "spaCR 1.5.0.7 avec l’option embeddings ; enregistrement avec timm 1.0.29 et ResNet18 préentraîné sur CPU. Téléchargez l’exemple Annotate et le ZIP associé. Utilisez le dossier cell_png indiqué dans README et de nouveaux dossiers de sortie. Les noms de fichiers ne sont pas des clés de base vérifiées. L’écran ne propose pas de chargement ; les opérations réussies utilisent l’API. Aucune validation biologique, révision par locuteur natif ou exécution GPU n’est revendiquée.",
-  "scenes": [
-    "Embeddings est un nouveau module de Home dans spaCR. Il transforme des recadrages d’images en vecteurs numériques sans apprentissage sur vos annotations. Cette leçon présente l’écran actuel et un exemple Python fonctionnel utilisant de vraies images téléchargées.",
-    "Dans la version un point cinq point zéro point sept, cet écran ne comporte pas de commande de chargement des recadrages et Embed reste désactivé. Nous ne simulerons pas une exécution graphique réussie. L’API Python effectue l’encodage réel montré ensuite.",
-    "Per channel encode séparément chaque canal stocké puis concatène les vecteurs. Project to three encode plutôt l’image combinée. Cela change la représentation, pas seulement la vitesse. Un emplacement de canal PNG n’identifie pas automatiquement un marquage vérifié.",
-    "Installez l’option embeddings dans votre environnement spaCR. Le ResNet dix-huit par défaut utilise des poids supervisés ImageNet, pas un modèle auto-supervisé entraîné sur des cellules. Ce petit exemple utilise le CPU ; aucun GPU ni service distant d’intelligence artificielle n’est nécessaire.",
-    "Utilisez l’exemple téléchargeable d’Annotate et le dossier de recadrages indiqué. Le script lié sélectionne seize images existantes par ordre de nom de fichier. Chacune fait deux cent vingt-quatre pixels de côté avec trois canaux stockés. Aucun redimensionnement ni nouvelle segmentation n’est effectué.",
-    "Exécutez le script avec un nouveau dossier de sortie. Il appelle embed_array avec le véritable encodeur préentraîné et des lots de quatre. L’encodage par canal produit seize lignes et mille cinq cent trente-six dimensions. La matrice enregistrée est rouverte et contrôlée valeur par valeur.",
-    "Choisissez maintenant project et un autre dossier de sortie. Les mêmes images produisent seize lignes et cinq cent douze dimensions. Ces colonnes combinant les canaux ne sont pas interchangeables avec les précédentes. Comparez les politiques consciemment et conservez les paramètres de chaque exécution.",
-    "Examinez le montage des vraies images d’entrée dans le visualiseur. Les numéros suivent l’ordre des lignes de sortie. Vérifiez la qualité des recadrages et la correspondance des canaux exportés avant d’interpréter les vecteurs. Les noms identifient cet exemple ; validez les clés avant une jointure avec une base de mesures.",
-    "Cette figure enregistrée projette les vecteurs par canal sur deux composantes principales. Les points numérotés correspondent aux mêmes images. C’est une visualisation exploratoire d’un très petit échantillon, pas une preuve de phénotypes distincts. Une dimension d’un vecteur n’est pas une mesure biologique.",
-    "Les vecteurs de canaux combinés ont leur propre projection. Ne comparez pas les coordonnées entre ces graphiques comme s’ils partageaient une même transformation ajustée. Aucun ne mesure la précision de recherche ni ne démontre une supériorité sur le panel de caractéristiques mesurées.",
-    "Conservez les vecteurs, les identités, l’empreinte des poids, les paramètres et les versions. Le script vérifie que les images sources restent inchangées et refuse les destinations existantes. Faites correspondre recadrages, normalisation et canaux entre comparaisons. Suivez les instructions liées pour reproduire cet exemple API."
-  ],
   "lesson": "77_embeddings",
+  "english_sha256": "fa2d38e241cdc746d2971e944f97e9f10198b0c9615f3fd3ea439452efa44871",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "fr",
-  "english_sha256": "f5415671d988cad7353067d0a764a519bf90cb6134d0de803b90d50060678172",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false
+  "title": "Embeddings : charger des vignettes et comparer les politiques de canaux",
+  "description": "Chargez des vignettes d’images depuis Home, choisissez l’encodeur et la politique de canaux, lancez Embed et examinez l’aperçu des caractéristiques.",
+  "objectives": [
+    "Charger un dossier de vignettes depuis l’écran Embeddings.",
+    "Choisir le réseau de base, la taille de lot et la politique de canaux.",
+    "Examiner l’aperçu des vecteurs et enregistrer les résultats complets avec le script Python fourni."
+  ],
+  "prerequisite": "Installez spaCR avec son extra embeddings. Téléchargez l’exemple Annotate et repérez plate1/data/single_nucleus/uninfected/plate1_E02/cell_png. Pour le petit exemple présenté ici, copiez les seize premiers PNG, triés par nom de fichier, dans un nouveau dossier. La première exécution de l’encodeur télécharge les poids pré-entraînés s’ils ne sont pas en cache. L’archive facultative Embeddings_API_example.zip fournit un script d’aide pour enregistrer les matrices complètes.",
+  "scenes": [
+    "Depuis Home, ouvrez Embeddings dans Data. Vous allez charger des vignettes d’images, choisir comment leurs canaux sont encodés et produire un vecteur numérique de caractéristiques par objet.",
+    "Choisissez crop folder sous Crops from. Vous pouvez aussi utiliser une base de mesures pour sélectionner une classe d’objets, une plaque ou une condition. Cette démonstration utilise le dossier de vignettes de l’exemple Annotate téléchargeable.",
+    "Copiez seize PNG d’exemple dans un dossier de travail. Saisissez le chemin de ce dossier et appuyez sur Entrée, ou utilisez Browse. Réglez At most sur seize, puis cliquez sur Load crops.",
+    "Lisez le nombre de vignettes chargées, leur taille et leur nombre de canaux. L’exemple contient seize images de deux cent vingt-quatre pixels de côté, avec trois canaux enregistrés. Vérifiez la correspondance des canaux de l’export de vignettes avant de comparer des résultats.",
+    "Choisissez Per channel pour encoder chaque canal séparément et concaténer ses caractéristiques. Gardez resnet18 comme Backbone et réglez Batch sur quatre pour ce petit calcul. Des lots plus petits réduisent l’utilisation de la mémoire.",
+    "Cliquez sur Embed et attendez l’aperçu. L’exemple produit seize vecteurs d’objets de mille cinq cent trente-six dimensions. La table n’affiche que les premières dimensions et, pour des calculs plus grands, jusqu’à cinquante objets.",
+    "Sélectionnez Project to three et cliquez de nouveau sur Embed. L’image combinée est alors encodée au lieu de chaque canal séparément. Utilisez les mêmes vignettes et le même réseau de base pour comparer les deux politiques.",
+    "L’exemple projeté compte cinq cent douze dimensions par objet. Conservez la politique de canaux et les réglages de l’encodeur avec vos résultats. Utilisez les vecteurs complets pour l’analyse en aval ; les dimensions prises isolément ne sont pas des mesures biologiques.",
+    "L’écran fournit pour l’instant un aperçu sans bouton d’export. Pour enregistrer les matrices complètes, téléchargez le script d’aide Python associé et suivez son README. Il écrit les vecteurs, les noms de fichiers des objets, les réglages et des graphiques exploratoires dans un nouveau dossier de sortie."
+  ]
 }

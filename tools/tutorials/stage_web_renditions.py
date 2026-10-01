@@ -19,19 +19,42 @@ import time
 from check_completed_matrix import digest
 from stage_lesson import DEFAULT_STAGE, REPO, read, write
 
+WEB_DIMENSIONS = (2560, 1440)
+# The long pathway overviews are Home/module navigation tours. Their 1080p web
+# copy keeps the tutorial library inside its Pages budget; the 4K master stays
+# available through the player's 4K choice. Every other lesson keeps 1440p.
+REDUCED_WEB_DIMENSIONS = {identity: (1920, 1080) for identity in (
+    '78_spacr_screens', '79_module_inputs_outputs', '80_image_analysis_pathways',
+    '81_sequencing_pathways')}
+
+
+def web_dimensions(lesson):
+    """Exact web-copy geometry for a lesson; the 4K master is always 3840x2160."""
+    return REDUCED_WEB_DIMENSIONS.get(lesson, WEB_DIMENSIONS)
+
+
+def encoder_arguments(publisher, lesson):
+    """The publisher's arguments with only the scale width set for this lesson."""
+    width = web_dimensions(lesson)[0]
+    scale = "scale='min(2560,iw)':-2"
+    if publisher.ENCODE_ARGS.count(scale) != 1:
+        raise ValueError('The publisher scale filter changed; review the web geometry')
+    return [f"scale='min({width},iw)':-2" if value == scale else value
+            for value in publisher.ENCODE_ARGS]
+
 
 def probe(path):
     return json.loads(subprocess.check_output([
         'ffprobe', '-v', 'error', '-show_streams', '-show_format', '-of', 'json', str(path)]))
 
 
-def require_video(source, target):
+def require_video(source, target, dimensions=WEB_DIMENSIONS):
     if len(source['streams']) != 1 or len(target['streams']) != 1:
         raise ValueError('Expected one silent video stream in each file')
     before, after = source['streams'][0], target['streams'][0]
     if (before.get('codec_type') != 'video' or after.get('codec_type') != 'video'
             or [before.get('width'), before.get('height')] != [3840, 2160]
-            or [after.get('width'), after.get('height')] != [2560, 1440]
+            or [after.get('width'), after.get('height')] != list(dimensions)
             or before.get('r_frame_rate') != '30/1' or after.get('r_frame_rate') != '30/1'
             or int(before.get('nb_frames', 0)) <= 0
             or before.get('nb_frames') != after.get('nb_frames')):
@@ -67,6 +90,7 @@ def stage_one(stage, item, publisher):
     target = folder / 'video' / master.name
     receipt = folder / 'rendition-checks.json'
     encoder_hash = digest(Path(publisher.__file__))
+    arguments = publisher.ENCODE_ARGS if retained else encoder_arguments(publisher, lesson)
     published_source = REPO / 'docs/source/_extra/tutorials/production' / lesson / 'video' / master.name
     retained_hash = digest(published_source) if retained else None
     if receipt.exists() and target.exists():
@@ -74,7 +98,7 @@ def stage_one(stage, item, publisher):
         if (old.get('accepted') is True and old.get('master_sha256') == expected
                 and old.get('rendition_sha256') == digest(target)
                 and old.get('publisher_sha256') == encoder_hash
-                and old.get('encoder_arguments') == publisher.ENCODE_ARGS
+                and old.get('encoder_arguments') == arguments
                 and old.get('retained_published_sha256') == retained_hash):
             print(lesson, 'already checked', flush=True)
             return old
@@ -86,11 +110,11 @@ def stage_one(stage, item, publisher):
         if digest(target) != retained_hash:
             raise ValueError('Retained web media copy differs')
     else:
-        ok, note = publisher.encode_1440p(master, target)
+        ok, note = publisher.encode_1440p(master, target, arguments)
         if not ok:
             raise RuntimeError(note)
     original_probe, web_probe = probe(master), probe(target)
-    require_video(original_probe, web_probe)
+    require_video(original_probe, web_probe, WEB_DIMENSIONS if retained else web_dimensions(lesson))
     frames = int(web_probe['streams'][0]['nb_frames'])
     before, after = timestamps(master), timestamps(target)
     require_timestamps(before, after, frames)
@@ -100,9 +124,9 @@ def stage_one(stage, item, publisher):
         raise ValueError('Master changed while preparing its rendition')
     result = {'lesson': lesson, 'accepted': True, 'master_sha256': expected,
               'rendition_sha256': digest(target), 'bytes': target.stat().st_size,
-              'frames': frames, 'dimensions': [2560, 1440],
+              'frames': frames, 'dimensions': list(WEB_DIMENSIONS if retained else web_dimensions(lesson)),
               'all_frame_presentation_times_match': True, 'full_decode_passed': True,
-              'publisher_sha256': encoder_hash, 'encoder_arguments': publisher.ENCODE_ARGS,
+              'publisher_sha256': encoder_hash, 'encoder_arguments': arguments,
               'retained_published_sha256': retained_hash,
               'elapsed_seconds': round(time.monotonic() - started, 2),
               'visual_review_complete': False, 'narration_regenerated': False,

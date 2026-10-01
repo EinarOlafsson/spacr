@@ -63,7 +63,7 @@ def test_the_strip_still_holds_the_setting_after_the_pointer_leaves(
     scr = _screen(qtbot)
     widget = _a_setting_widget(scr)
 
-    scr.eventFilter(widget, QEvent(QEvent.Type.Enter))
+    scr._show_hover_hint(widget)
     held = scr._hint_strip.text()
     assert held and held != scr._default_hint(), (
         "hovering a setting did not write it to the strip")
@@ -79,7 +79,7 @@ def test_the_hold_is_ten_seconds_and_is_running(qtbot, qt_theme_applied):
     scr = _screen(qtbot)
     widget = _a_setting_widget(scr)
 
-    scr.eventFilter(widget, QEvent(QEvent.Type.Enter))
+    scr._show_hover_hint(widget)
     timer = scr._hint_hold_timer
 
     assert timer.isActive(), "no hold was started, so nothing will clear it"
@@ -93,9 +93,9 @@ def test_the_hold_restarts_on_the_next_setting(qtbot, qt_theme_applied):
     scr = _screen(qtbot)
     widget = _a_setting_widget(scr)
 
-    scr.eventFilter(widget, QEvent(QEvent.Type.Enter))
+    scr._show_hover_hint(widget)
     scr._hint_hold_timer.setInterval(9_000)          # pretend time passed
-    scr.eventFilter(widget, QEvent(QEvent.Type.Enter))
+    scr._show_hover_hint(widget)
 
     assert scr._hint_hold_timer.interval() == 10_000
 
@@ -105,7 +105,7 @@ def test_the_strip_comes_back_to_its_prompt_when_the_hold_runs_out(
     scr = _screen(qtbot)
     widget = _a_setting_widget(scr)
 
-    scr.eventFilter(widget, QEvent(QEvent.Type.Enter))
+    scr._show_hover_hint(widget)
     scr._release_the_hint()
 
     assert scr._hint_strip.text() == scr._default_hint()
@@ -118,7 +118,7 @@ def test_releasing_does_not_restart_its_own_hold(qtbot, qt_theme_applied):
     scr = _screen(qtbot)
     widget = _a_setting_widget(scr)
 
-    scr.eventFilter(widget, QEvent(QEvent.Type.Enter))
+    scr._show_hover_hint(widget)
     scr._release_the_hint()
 
     assert not scr._hint_hold_timer.isActive()
@@ -146,7 +146,7 @@ def test_the_bottom_strip_obeys_its_switch(qtbot, qt_theme_applied,
     widget = _a_setting_widget(scr)
     before = scr._hint_strip.text()
 
-    scr.eventFilter(widget, QEvent(QEvent.Type.Enter))
+    scr._show_hover_hint(widget)
 
     assert scr._hint_strip.text() == before
 

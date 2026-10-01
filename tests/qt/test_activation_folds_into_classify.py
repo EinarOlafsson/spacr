@@ -171,7 +171,7 @@ def test_the_button_opens_the_module_as_a_page_beside_the_training_form(
 
 def test_the_attribution_settings_arrive_and_the_host_never_had_them(
         qtbot, qt_theme_applied):
-    """The nineteen settings that make this a different run, on the page.
+    """The settings that make this a different run, on the page.
 
     This is the measurement that says the fold could not have been a few
     categories on the host's form: asserted as a set difference, both
@@ -189,7 +189,10 @@ def test_the_attribution_settings_arrive_and_the_host_never_had_them(
             "ig_steps", "ig_baseline", "attribution_steps",
             "attribution_baseline", "sanity_check", "overlay",
             "normalize_input", "object_type"} <= only_here
-    assert len(only_here) == 19
+    # 564 (2026-09-28, alpha) put its three counterfactual settings here too.
+    assert {"counterfactuals", "counterfactual_crops",
+            "counterfactual_epochs"} <= only_here
+    assert len(only_here) == 22
     assert page._btn_run is not None, "the page cannot run anything"
 
 

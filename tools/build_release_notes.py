@@ -1,16 +1,30 @@
 #!/usr/bin/env python
 """Bundle the GitHub release notes into ``spacr/resources/release_notes.json``.
 
-WHY BUNDLED AND NOT FETCHED. Home's News panel draws this file, and Home is
-the first thing a user sees. A panel that fetched from api.github.com would
-make the dashboard's content depend on the network being up, on a rate limit
-shared with every other spaCR install behind the same NAT, and on a token the
-user does not have; offline it would show nothing at all. The notes also
-belong to the release: what shipped in 1.5.0.4 does not change after 1.5.0.4
-is out, so a file in the wheel is the honest representation and a live fetch
-would only ever tell the user about releases they do not have.
+WHY BUNDLED. Home's News panel draws this file, and Home is the first thing a
+user sees. A panel whose CONTENT came from api.github.com would depend on the
+network being up, on a rate limit shared with every other spaCR install behind
+the same NAT, and on a token the user does not have; offline it would show
+nothing at all. So the bundle is the offline source of truth and the panel is
+complete before anything touches a socket.
 
-RUN THIS BEFORE TAGGING, after the release notes are written on GitHub:
+THE WHEEL CANNOT CONTAIN ITS OWN RELEASE NOTE, and this tool will not pretend
+otherwise. The note for version X is written when the GitHub release for X is
+published, and by then the wheel for X has been built, uploaded and made
+immutable on PyPI. Nothing run before tagging can put X's note into X. What
+``.github/workflows/release.yml`` does is run this tool AFTER
+``gh release create`` and commit the result to main and nightly, so the
+resource is current from that moment on and the NEXT wheel carries X. A user
+on X therefore has a bundled list that stops at X-1, which is exactly the
+staleness reported on 2026-09-24 ("im on 1.5.1.0 and the news only goes to
+1.5.0.7"). The gap is closed at runtime instead: Home's News panel asks the
+releases API once a day, on a worker thread, after the page is drawn, and
+merges anything newer in front of the bundle -- see
+:class:`spacr.qt.widgets.home.NewsPanel` and
+:func:`spacr.updater.fetch_release_notes`.
+
+RUN THIS AFTER THE RELEASE IS PUBLISHED, which the release workflow now does
+for you. By hand, to refresh the resource on a working branch:
 
     python tools/build_release_notes.py
 

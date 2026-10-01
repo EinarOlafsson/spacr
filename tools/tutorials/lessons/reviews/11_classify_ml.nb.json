@@ -1,36 +1,33 @@
 {
   "lesson": "11_classify_ml",
-  "english_sha256": "d042a85fceacc953e4c9f14cf04f6287ac61958c4f2931bf18802b6912439aab",
-  "review_type": "source-pinned editorial caption translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
-  "language": "nb",
-  "title": "Classify: maskinlæring på tabelldata",
-  "description": "Bruk Classify med nedlastbare cellemålinger, tydelige metadataetiketter, en liten random forest, den faktiske konsollen og lagrede prediksjoner.",
-  "objectives": [
-    "Velg tabellfamilien og last det målte eksemplet gjennom datavelgeren.",
-    "Definer klasser etter platekolonne og skill mellom ønsket andel og faktisk tilbakeholdte brønner.",
-    "Undersøk figurer, manglende skårer og resultater uten å tolke demonstrasjonsnøyaktighet som biologisk validering."
-  ],
-  "prerequisite": "Dette opptaket bruker spaCR 1.5.0.8. Velg Load test data og deretter Load i Classify, ikke Stream. Eksemplet har 2 341 objekter i fire brønner; 2 153 beholdes, og 188 står uten skår fordi tilhørende kjernedata mangler. c1 er klasse null og c2 klasse én: platekolonner, ikke bekreftede fenotyper. Innstillinger: random_forest, channel_of_interest=1, n_estimators=16, n_jobs=2, n_repeats=1, top_features=10, batch_correction=none, prune_features=False, cross_validation=False, plot=True. Sett test_size=0.1 for dette lille eksemplet; den gjeldende ML-dispatcheren følger innstillingen. Bekreft det innlastede prosjektet med Choose source data før kjøring. To brønner og 1 035 objekter holdes tilbake uten felles brønner mellom trening og test. Egenskapsfiltrering skjer før deling; permutasjonsviktighet bruker treningsdata. Nøyaktighet: 0.6202898551; flertallsklassens referanse: 0.5632850242. Ni måleverdier og 2 153 lagrede prediksjoner er kontrollert uavhengig. API: spacr.classify.classify kaller spacr.ml.generate_ml_scores. Resultater: results/random_forest/channel_1; predictions er binær klasse, ml_pred sannsynligheten for klasse én. Bare tre faktiske figurer vises; ingen påstand om SHAP, kalibrering, årsakssammenheng eller biologisk validering. Ingen KI-forespørsel ble sendt.",
-  "scenes": [
-    "Åpne Classify fra Home og velg Tabular Machine Learning som klassifikatorfamilie. Den lærer fra lagrede målinger per objekt. Innstillinger for datasyn kan fortsatt være synlige, men nedtonet, fordi de tilhører den andre familien.",
-    "Klikk Load test data og velg Load. Det målte eksemplet lastes inn, lastes ned ved behov, og filbanene klargjøres; Stream er en annen vei. For ditt eget prosjekt fullfører du først Measure og velger prosjektmappen. Ikke anta at en vilkårlig bildemappe allerede inneholder den nødvendige måledatabasen.",
-    "Bekreft det nedlastede prosjektet med Choose source data. Velg platemappen som inneholder measurements-mappen. I dette opptaket fjerner bekreftelsen av mappen meldingen om manglende kilde som sto igjen etter innlasting av eksemplet. Kilden må inneholde målte objekter før tabellmodellen kan kjøres.",
-    "Bruk metadata som grunnlag og definer to Classes fra columnID: c1 og c2. Her er de etiketter for platekolonner som forklarer arbeidsflyten, ikke uavhengig bekreftede friske og påvirkede celler. Annotasjonsbasert trening krever ekte etiketter fra Annotate. Gjør aldri manglende annotasjoner til oppdiktede fasitetiketter.",
-    "Channel of interest velger de målte egenskapene. Vi bruker kanal én uten å tillegge den en ubekreftet biologisk betydning. Kontroller innstillingene for bildeopptak og måling før du velger kanal for egne data. Å velge en egenskapskanal her segmenterer eller måler ikke bildene på nytt.",
-    "Velg Random Forest og seksten estimatorer for denne lille demonstrasjonen, med to arbeidsprosesser. Dette er ikke en anbefaling av en optimalisert modell. Vi lar veiledet egenskapsutvalg og kryssvalidering være avslått. Avslått kryssvalidering fjerner ikke det separate testsettet som holdes tilbake i denne kjøringen.",
-    "Sett teststørrelsen til en tidel og behold gruppering etter brønn. En ønsket andel er ikke et nøyaktig antall objekter: dette eksemplet med fire brønner holder tilbake to hele brønner, omtrent førtiåtte prosent av de beholdte objektene. Begge klassene finnes på hver side, og ingen faktisk brønn er med i både trening og test.",
-    "Slå på Plot, tøm søket og trykk Run. Konsollen registrerer de avklarte innstillingene, filtreringen, delingen og modellrapporten. Ta vare på loggen sammen med resultatene. Et ferdigmerke dokumenterer ikke at etikettene, valideringsopplegget eller den biologiske tolkningen var passende.",
-    "Denne kjøringen gir skår til to tusen ett hundre og femtitre objekter. Ett hundre og åttiåtte mangler tilhørende kjernedata og forblir uten skår, ikke negative. Lagret testnøyaktighet er omtrent sekstito prosent, mot femtiseks prosent for flertallsklassen. Fire brønner på én plate dokumenterer ikke generalisering til et nytt forsøk.",
-    "Tre figurer er tilgjengelige: permutasjonsviktighet, trærnes egenskapsviktighet og dette varmekartet over platen. Med Predictions og gjennomsnittsgruppering viser kartet gjennomsnittet av binære predikerte klasser, ikke sannsynlighetene deres. Viktighet er ikke årsakssammenheng; permutasjonen bruker treningsdata. Undersøk lagrede tabeller før du trekker slutninger fra en fargerik figur.",
-    "AI-bryteren åpner for spørsmål om arbeidsflyten med hjelp fra en leverandør. Dette er en usendt kladd, ikke et generert svar. Behold resultater sammen med innstillinger, og kontroller alle råd. Underverktøyene har egne inndatakrav: Explain-veiledningen bruker datasynsskårer, ikke disse ML-resultatene. KI erstatter ikke kontroll av etiketter og identiteter i delingen."
-  ],
+  "english_sha256": "92e4828684b94f5fecd03ac4fe73b16a0b457fbdddbb462025d73f7df608675e",
   "review": {
-    "kind": "AI-assisted technical review",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "corrections": [
-      "2026-09-21: current eleven-scene native ML recording. Remove merged/older-application framing; describe conditional download; add explicit Choose source data confirmation. Prerequisites name spaCR 1.5.0.8 and the respected test_size=0.1 setting. Eight retained narration scenes preserve all measured results and scientific limitations."
-    ]
-  }
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Classify: lær av målte egenskaper",
+  "description": "Last inn målinger, definer klasser, tren en tabellklassifikator og undersøk objektpoeng og plateoppsummeringer.",
+  "objectives": [
+    "Velge tabellfamilien og et målt prosjekt.",
+    "Definere klasser og velge egenskapskanaler, modellstørrelse og holdt-ut-brønner.",
+    "Finne modellutdata, prediksjoner per objekt og oppsummeringsfigurer."
+  ],
+  "prerequisite": "Bruk Load test data i Classify og velg Load, og bekreft deretter den nedlastede platemappen med Choose source data. For ditt eget prosjekt kjører du Measure først. Eksemplet bruker columnID-verdiene c1 og c2 som to klasser; bruk merkelapper som passer eksperimentet ditt når du arbeider med egne data.",
+  "scenes": [
+    "Fra Home åpner du Classify og velger Tabular Machine Learning. Denne familien bruker objektmålingene som Measure har lagret. Den gir en tilpasset modell og en poengsum for hvert objekt som har de nødvendige målingene.",
+    "Klikk på Load test data og velg Load. Vent til det målte eksemplet er lastet ned. For egne data velger du prosjektmappen som Measure opprettet, inkludert måledatabasen.",
+    "Bruk Choose source data for å bekrefte den nedlastede platemappen. Velg mappen som inneholder målingene. Da får klassifikatoren tilgang til objekttabellene og metadataene som brukes til å definere klassene.",
+    "Velg metadata som klassegrunnlag og definer to Classes med columnID-verdiene c1 og c2. Disse merkelappene skiller de to platekolonnene i eksemplet. For å trene på dine egne celleannoteringer velger du annoteringsgrunnlaget og merkelappkolonnen du opprettet i Annotate.",
+    "Sett Channel of interest til 1 for eksemplet. Dette styrer hvilke kanalspesifikke måleegenskaper som går inn i modellen. I ditt eget eksperiment velger du kanalen som inneholder signalet som er relevant for klassene dine.",
+    "Velg Random Forest, 16 estimatorer og to arbeidsjobber. Antall estimatorer styrer antall trær. Flere trær gir mer tilpasningsarbeid. La egenskapsbeskjæring og kryssvalidering være av i denne første runden; du kan sammenligne disse valgene når du har en fungerende grunnlinje.",
+    "Sett Test size til 0,1 og behold grupperingen etter brønn. spaCR holder ut hele brønner, så den endelige andelen objekter kan avvike fra den forespurte. Les den endelige oppdelingen i konsollen og kontroller at den passer eksperimentet ditt.",
+    "Aktiver Plot, tøm søket og trykk på Run. Konsollen viser egenskapsfiltrering, oppdelingen i trening og test, modelltilpasning og de lagrede utdatabanene. Vent til kjøringen er ferdig før du sammenligner poengene.",
+    "Resultatene ligger under results/random_forest/channel_1. Databasen lagrer den predikerte klassen i predictions og sannsynligheten for klasse 1 i ml_pred. Objekter som mangler nødvendige målinger, kan stå uten poeng; undersøk manglende verdier når du eksporterer en oppsummering.",
+    "Bla gjennom figurene for egenskapsbetydning og platens varmekart. Med Predictions og gjennomsnittsgruppering er verdien for en brønn gjennomsnittet av dens binære predikerte klasser. Bruk de lagrede objektpoengene til detaljert gjennomgang, og sammenlign ytelsen på de holdt-ut brønnene før du bruker klassifikatoren på et annet eksperiment."
+  ]
 }

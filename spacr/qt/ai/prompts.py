@@ -71,7 +71,11 @@ def error_explainer_prompt() -> str:
 
 
 def wrap_error_for_prompt(traceback_text: str, active_app: str = "") -> str:
-    """Turn a raw traceback into the user message body sent to the model."""
+    """Turn a raw traceback into the user message body sent to the model.
+
+    :param traceback_text: the raw traceback text; surrounding whitespace is
+        stripped and the rest is placed inside a fenced code block.
+    """
     app_line = f"Active app: {active_app}\n\n" if active_app else ""
     return (
         f"{app_line}Traceback:\n"

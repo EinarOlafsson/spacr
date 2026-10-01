@@ -591,10 +591,84 @@
     }
   }
 
+  // ---- Translated user guides ------------------------------------------
+  // Guide pages are rendered per language by Sphinx (gettext) into
+  // <site>/<lang>/. The selector on a guide page moves between those trees;
+  // the API selector above translates docstrings in place instead.
+  const GUIDE_SELECT_LABELS = Object.freeze({
+    en: "Language", sv: "Språk", de: "Sprache", es: "Idioma", zh_CN: "语言",
+    pt: "Idioma", hi: "भाषा", ko: "언어", is: "Tungumál", fr: "Langue",
+  });
+
+  function guideLanguages() {
+    return (script.dataset.guideLanguages || "").split(/\s+/)
+      .map((code) => normalizedLanguage(code, false))
+      .filter((code, index, all) =>
+        code && code !== "en" && all.indexOf(code) === index);
+  }
+
+  function guideTarget(current, target) {
+    // The script is <tree>/_static/api_i18n.js; translated trees sit one
+    // level below the English site root.
+    const treeRoot = new URL("../", scriptUrl);
+    const siteRoot = current === "en" ? treeRoot : new URL("../", treeRoot);
+    const here = new URL(location.href);
+    if (here.origin !== treeRoot.origin ||
+        !here.pathname.startsWith(treeRoot.pathname)) return null;
+    const page = here.pathname.slice(treeRoot.pathname.length);
+    const url = new URL((target === "en" ? "" : `${target}/`) + page, siteRoot);
+    url.hash = here.hash;
+    return url;
+  }
+
+  function setupGuideSelector(article) {
+    const available = guideLanguages();
+    if (!available.length) return;
+    const current = normalizedLanguage(document.documentElement.lang, false) || "en";
+    if (current !== "en" && !available.includes(current)) return;
+    const requested = queryLanguage();
+    if (current === "en" && requested && available.includes(requested)) {
+      const url = guideTarget(current, requested);
+      if (url) {
+        location.replace(url.href);
+        return;
+      }
+    }
+    const wrapper = document.createElement("label");
+    wrapper.className = "spacr-api-language spacr-guide-language";
+    const label = document.createElement("span");
+    label.className = "spacr-api-language__label";
+    label.textContent = GUIDE_SELECT_LABELS[current] || GUIDE_SELECT_LABELS.en;
+    wrapper.append(label);
+    const select = document.createElement("select");
+    ["en", ...available].forEach((code) => {
+      const option = document.createElement("option");
+      option.value = code;
+      option.textContent = LANGUAGES[code];
+      select.append(option);
+    });
+    select.value = current;
+    select.addEventListener("change", () => {
+      const url = guideTarget(current, select.value);
+      if (!url) {
+        select.value = current;
+        return;
+      }
+      safeStorageSet(select.value);
+      location.assign(url.href);
+    });
+    wrapper.append(select);
+    article.prepend(wrapper);
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     apiArticle = document.querySelector('article[role="main"]');
-    if (!apiArticle || (!apiArticle.querySelector("dl.py dt[id]") &&
-        !/\/api(?:\/|$)/.test(location.pathname))) return;
+    if (!apiArticle) return;
+    if (!apiArticle.querySelector("dl.py dt[id]") &&
+        !/\/api(?:\/|$)/.test(location.pathname)) {
+      setupGuideSelector(apiArticle);
+      return;
+    }
 
     if (script.dataset.apiLanguage === "english") {
       const notice = document.createElement("p");

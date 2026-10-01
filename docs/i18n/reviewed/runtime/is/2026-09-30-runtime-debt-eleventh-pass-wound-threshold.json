@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, eleventh pass 2026-10-01: the wound_threshold setting label and help (wound-healing assay), written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "wound_threshold",
+      "source": "Wound threshold",
+      "source_sha256": "409afe2cf64ce07ae1b98793428c1f701969d710d2ad8da03c2a1ccf34b97ebb",
+      "translation": "Sáraþröskuldur"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_threshold",
+      "source": "Sets the cut between open wound and monolayer by hand, on the scale of the wound_level column of the wound table: for texture the local variance over the field's median, for intensity a share of the frame's 95th percentile. Use it when the automatic cut misreads a series: run once, read wound_level, then set a value. Higher counts more of the field as open. Used on every frame, with no recalibration of later frames. Blank or 0 keeps the automatic cut. Ignored by the masks source. Default None.",
+      "source_sha256": "432e21916913adc355038e6fee1b0ffa7a2962cb487fda57830c2b9fc28e0f67",
+      "translation": "Setur skilin milli opins sárs og einlags handvirkt, á kvarða dálksins wound_level í sáratöflunni: fyrir áferð staðbundna dreifni yfir miðgildi sviðsins, fyrir styrk hlutfall af 95. hundraðshlutamarki rammans. Notaðu þetta þegar sjálfvirku skilin lesa röð rangt: keyrðu einu sinni, lestu wound_level og settu svo gildi. Hærra telur meira af sviðinu sem opið. Notað á hvern ramma, án endurkvörðunar síðari ramma. Autt eða 0 heldur sjálfvirku skilunum. Uppsprettan masks hunsar þetta. Sjálfgefið None."
+    }
+  ]
+}

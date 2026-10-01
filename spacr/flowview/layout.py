@@ -251,6 +251,11 @@ def layout_graph(
     Inputs are always assigned to layer zero and outputs to the common final
     layer.  All ties are resolved by node identifier, making the result
     independent of dictionary insertion order and edge-list order.
+
+    :param graph: run snapshot to lay out; every edge must join two of its
+        nodes and the edges must form no directed cycle, otherwise
+        :class:`ValueError` is raised. An empty graph yields an empty layout of
+        ``2 * margin`` on each side.
     """
 
     if min(card_width, column_gap, row_gap, margin) < 0 or card_width == 0:

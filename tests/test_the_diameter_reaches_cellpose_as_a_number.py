@@ -51,16 +51,67 @@ def test_an_unparseable_value_is_reported_and_treated_as_blank(capsys):
     assert "nucleus_diameter" in capsys.readouterr().out
 
 
-def test_both_segmentation_call_sites_coerce():
-    """A source check: the 2-D and z-stack eval paths must not diverge, which
-    is exactly how one of them came to be fixed and the other not."""
+#: Every function in spacr/object.py that reads the user's diameter setting
+#: for a Cellpose model, and how many times. The 2-D and z-stack eval calls
+#: in the Cellpose-SAM generator, the Cellpose-DINO route (item 525) and the
+#: Cellpose 3 route (item 503), whose eval keywords are built in
+#: ``_cellpose3_eval_settings``. A new route fails here until it is listed,
+#: and a listed one fails if any of its reads skips the coercion.
+_DIAMETER_ROUTES = {
+    "generate_cellpose_masks_sam": 2,
+    "_cellpose_dino_masks": 1,
+    "_cellpose3_eval_settings": 1,
+}
+
+
+def _diameter_reads(function):
+    """``(coerced, total)`` reads of ``settings.get(f'{object_type}_diameter')``."""
+    import ast
+
+    parents = {child: parent for parent in ast.walk(function)
+               for child in ast.iter_child_nodes(parent)}
+    coerced = total = 0
+    for node in ast.walk(function):
+        if not (isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Attribute)
+                and node.func.attr == "get"
+                and isinstance(node.func.value, ast.Name)
+                and node.func.value.id == "settings"
+                and node.args
+                and ast.unparse(node.args[0]) == "f'{object_type}_diameter'"):
+            continue
+        total += 1
+        parent = parents.get(node)
+        if (isinstance(parent, ast.Call)
+                and isinstance(parent.func, ast.Name)
+                and parent.func.id == "_eval_diameter"
+                and parent.args and parent.args[0] is node):
+            coerced += 1
+    return coerced, total
+
+
+def test_every_segmentation_route_coerces():
+    """A source check: the eval paths must not diverge, which is exactly how
+    one of them came to be fixed and the other not -- and there are four
+    of them now, not the two this test was written for."""
+    import ast
     from pathlib import Path
 
     import spacr.object as object_module
 
     source = Path(object_module.__file__).read_text(encoding="utf-8")
-    assert source.count("diameter=_eval_diameter(") == 2
     assert "diameter=settings.get(f'{object_type}_diameter')" not in source
+    reads = {node.name: _diameter_reads(node)
+             for node in ast.parse(source).body
+             if isinstance(node, ast.FunctionDef)}
+    readers = {name for name, (_coerced, total) in reads.items() if total}
+    assert readers == set(_DIAMETER_ROUTES), (
+        "the functions reading the diameter setting are "
+        f"{sorted(readers)}, not {sorted(_DIAMETER_ROUTES)}")
+    for name, expected in _DIAMETER_ROUTES.items():
+        assert reads[name] == (expected, expected), (
+            f"{name}: {reads[name][0]} of {reads[name][1]} reads coerced, "
+            f"expected {expected} of {expected}")
 
 
 def test_the_v2_route_coerces_too():

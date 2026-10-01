@@ -7,6 +7,7 @@ import pandas as pd
 import pytest
 from PIL import Image
 from PySide6.QtGui import QPixmap
+from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from image_scatter_evidence import identity, verify, verify_preview
@@ -22,7 +23,15 @@ def view():
     paths={identity(r):f'/example/{i}.png' for i,r in enumerate(rows)}
     screen=ImageScatterScreen(threaded=False);screen.resize(1200,700)
     screen.set_frame(pd.DataFrame(rows),keys=list(paths),paths=paths,x='cell_area',y='cell_signal')
-    screen.show();app.processEvents()
+    screen.show()
+    # The canvas projects points when it paints. Offscreen that is at once; on
+    # a real display (DISPLAY=:0) the window maps later, so wait until it is
+    # exposed and has painted, or verify() reads an unpainted canvas.
+    assert QTest.qWaitForWindowExposed(screen)
+    for _ in range(500):
+        if len(screen.canvas._px) == len(rows):
+            break
+        QTest.qWait(10)
     yield app,screen,rows,paths
     screen.close();app.processEvents()
 

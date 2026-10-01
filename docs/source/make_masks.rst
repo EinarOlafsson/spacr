@@ -4,8 +4,8 @@ Make Masks: editing, detection and measurement
 Open **Home → Tools → Make Masks** to inspect an image, correct its integer
 label mask and save the result. Each positive label identifies one object;
 zero is background. This screen can also propose objects with a detector,
-grow cell masks from existing nucleus masks, and send curated image/mask
-pairs to **Features** for measurement.
+grow cell masks from existing nucleus masks, and organize curated images
+and masks for Measure with **Organize for Measure…**.
 
 For the inputs and outputs of the surrounding workflow, see
 :ref:`Make Masks in the module map <workflow-module-make_masks>` and the
@@ -18,6 +18,20 @@ link. Controls with a matching animation also offer an animation in that
 popup; each control remembers its own reveal state. Image-enhancement help
 links to the detection-chain documentation. A control without a matching
 animation still keeps its written explanation and API link.
+
+Thumbnail display quality
+-------------------------
+
+Choose **Thumbnail quality** in **Display** or **Organize for Measure…**.
+**Low** retains the original 64-pixel source sampling. **Medium** uses up to
+256 pixels and **High** up to 1024 pixels on the longest side, capped by the
+source resolution. These choices read the source image and mask again;
+they do not enlarge a Low-quality bitmap. The separate **Size** control
+sets the logical cell size.
+
+The choice is remembered and updates open thumbnail views. Only visible
+organizer cells are loaded, with a bounded cache. Changing quality affects
+display only; saved images, masks and measurements are unchanged.
 
 Open a field and save an edit
 -----------------------------
@@ -37,6 +51,39 @@ Open a field and save an edit
 #. Use **Keep** or **Discard** to record a field-level curation verdict and
    advance. These verdicts go to ``csv/keep_discard.csv``; Discard records a
    decision without deleting the image or its mask. Save edits separately.
+
+**Save mask**, **Previous image** and **Next image** share the top action
+row with the editing tools. Scroll that row horizontally on a narrow window
+to reach controls outside the visible area.
+
+To try the screen without your own data, **Load test data…** downloads ten
+unsegmented Toxoplasma vacuole fields, with their curated masks kept apart
+in ``ground_truth_masks/``, and opens the first. The arrow on the same
+button offers a sample of fields from the dataset each published model was
+trained on.
+
+Drop images and folders
+~~~~~~~~~~~~~~~~~~~~~~~
+
+You can also drop files and folders onto the screen. Make Masks works out
+what the drop is:
+
+* images are queued in the order dropped; one folder of images opens as a
+  folder;
+* images dropped together with their masks open with those masks. A
+  ``masks`` folder is used as it is; other mask files are copied, after a
+  question, to ``masks/<image stem>.tif`` beside their images, keeping any
+  mask already there;
+* images kept in subfolders prompt an offer to consolidate them: their
+  images are copied into one folder, each renamed with its folder path so no
+  name is lost, and a ``rename_manifest.csv`` records the original names;
+* subfolders named like channels (DAPI, GFP, ``ch1``, ``C01``…), or several
+  image folders, open **Organize for Measure** with a channel column per
+  folder. Cancelling it opens the drop as an ordinary folder;
+* a spaCR output folder, such as ``merged/`` or ``sorted_channels``, opens
+  its images.
+
+Anything not used is listed in the console with the reason.
 
 A saved edit history is stored beside the mask as ``<mask>.curation.json``.
 Opening an image without editing it does not create evidence of manual
@@ -238,7 +285,8 @@ Enhancement before and after detection
 
 **Compare** previews the configured enhancement; **Apply** enables it for
 detection and display. The order is percentile stretch, background
-subtraction, optional point-spread processing, denoise, contrast, sharpen,
+subtraction, optional point-spread processing, optional restoration, denoise,
+contrast, sharpen,
 detection, morphology, then split.
 Disabled steps leave their input unchanged. Background estimation radius
 should exceed the structures you want to retain. Denoising and the separate
@@ -264,7 +312,44 @@ kernel with matching spacing or a Gaussian approximation with explicit
 Y/X full widths at half maximum. Use **Reload** after changing a kernel file.
 Compare the result before applying it; more deconvolution iterations can
 amplify noise. The original image intensities stay available for measurement.
-See :doc:`point_spread` for the complete workflow and batch settings.
+See :doc:`point_spread` for the complete workflow and Measure settings.
+
+Restore an image with Cellpose 3
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Under **Image enhancement**, choose **Denoise**, **Deblur**, or
+**One-click restoration** in **Deep image enhancement**. The default is
+**Off**. If needed, select **Install Cellpose 3…** to install its separate
+backend environment; this does not replace spaCR's own Cellpose installation.
+First use may download the selected model's weights.
+
+Open **Restoration model settings** and choose **Cells (cyto3)**,
+**Cells (cyto2)**, or **Nuclei**, according to the structures in the selected
+intensity channel. Set their approximate diameter in pixels. This controls
+model rescaling, not microscope calibration. **Load / retry model** reloads
+the current choice. Wait for the ready message before comparing or applying
+it; that message identifies the device used by the isolated backend.
+
+Loading and restoration run in the background. On a CPU, a whole field can
+take tens of seconds; a small magnifier region is quicker. Timing depends
+on the image, model and computer. A backend installed with supported GPU
+acceleration can use it, but the workflow also runs on a CPU.
+
+Use **Compare** to inspect several representative regions before choosing
+**Apply**. Restoration follows background and PSF processing and precedes
+classical denoising and contrast adjustments. Apply feeds the restored
+floating-point intensities to detection and the Wand while keeping display
+scaling separate. The image dimensions and loaded source pixels stay
+unchanged; upsampling models are not offered here.
+
+Restored values are normalized model output, not calibrated fluorescence;
+they can be negative or exceed one. Measurements retain the original
+intensities. A clearer-looking image does not establish recovered structure
+or more accurate masks, and these weights are not validated for every
+organelle or acquisition. Inspect the resulting masks as well as the image.
+Keep the saved enhancement record with the masks: it identifies the model,
+Cellpose version, checkpoint hash, device, diameter and processing settings.
+CARE and Noise2Void are not supplied as ready restoration engines.
 
 Grow secondary objects from a primary mask
 ------------------------------------------
@@ -331,22 +416,93 @@ under the mouse. In ordinary modes, dragging can join encountered pieces
 into one object. Whole-image preview accepts objects under the pointer;
 secondary mode preserves primary identities instead of joining them.
 
-The corner readout identifies the pixel and object under the cursor. Use
-object area and original mean intensity to choose **Filter** bounds. A bound
-of zero is disabled. Inspect the removal report and use Undo if a filter
-removes wanted objects. Object operations also offer hole filling,
+The corner readout identifies the pixel and object under the cursor. The
+**Filter** category starts empty: choose a property and **Add a filter** to
+add a row with a minimum and a maximum. Every scalar
+:func:`skimage.measure.regionprops` property is offered, such as area,
+eccentricity or solidity; intensity statistics are offered only while an
+intensity image is open and use the original loaded values. A blank bound is
+off. The list applies as you edit it and when a field opens; the log below it
+names each hidden object and the bound that hid it, and removing a row brings
+back what it hid. The same list is the ``object_filters`` setting of Mask
+generation. See :func:`spacr.qt.mask_engine.filter_properties`. Object
+operations also offer hole filling,
 dilation, shrinking, relabeling and clearing; shrinking can remove thin or
 small objects entirely.
 
-Choose **Features** to pair image channels and mask classes in the measurement
-input table. It runs the Measure workflow and produces its project folders
-and measurements database. A folder of standalone TIFF masks is not itself
-a Measure ``merged/`` dataset: the Features handoff supplies the pairing.
-See :ref:`Measure inputs and outputs <workflow-module-measure>`.
+Organize images and masks for Measure
+-------------------------------------
+
+A folder of images and standalone TIFF masks is not itself a Measure
+dataset. **Organize for Measure…** arranges it into the layout Measure reads.
+Fill its table in any of three ways, each on its own:
+
+* give a **Source folder** and choose a filename convention in the **Regex**
+  box — the same conventions as Mask generation, with a custom regex — then
+  press **Sort by regex**. **Auto regex** proposes one and **Detect sets**
+  pairs images into fields and shows example sets to confirm;
+* drop files or folders into the table's columns, one column per channel.
+  Dropped files sort by name and are matched across columns into rows, one
+  row per field;
+* choose **Teach me…** and answer "Which channel is this?" for one image at
+  a time. spaCR learns a regex from the answers and asks again only about a
+  name it cannot yet read.
+
+**Add channel** and **Add mask** add columns; each mask column names its
+object class (cell, nucleus, pathogen or organelle) and the channel whose
+images it outlines. A consolidated folder is read under its files' original
+names. Rows missing an image block **Apply** and say how to fix them; RGB
+images and z-stacks are offered for conversion to one grey plane, keeping
+the originals. Nothing moves before **Apply**. The images are then moved
+into ``sorted_channels/`` inside the source folder, with a folder per
+channel, the masks and ``merged/``, and every move is recorded in
+``channel_sorting_manifest.csv``. Point Measure's ``src`` at that
+``sorted_channels`` folder. See :func:`spacr.channel_sorting.build_plan`
+and :ref:`Measure inputs and outputs <workflow-module-measure>`.
+
+Upload data
+-----------
+
+**Upload data…** sends the image on screen with its mask,
+every curated image in the folder with its saved mask, or a chosen images
+folder and masks folder, to spaCR's community datasets on Hugging Face for
+training future models. Every image needs a saved mask of the same name and
+size. Name the dataset, add notes, and agree to the licence; the dialog shows
+the destination as a link you can open, select and copy. A new dataset
+appears with its first upload, and each contribution is reviewed before it
+is used.
 
 The masthead also opens Cellpose Workbench, Mask the whole folder, Model
 Compare, Model Zoo, Curate and Napari Bridge. Their input/output contracts
 are linked from the :ref:`module map <workflow-module-make_masks>`.
+
+Large plates in Mask generation
+-------------------------------
+
+The **Mask** batch-generation module processes a plate; **Make Masks** edits
+the field currently open. For a crash while processing a raw plate, check
+the batch module's console and saved ``settings/gen_mask_settings.json``
+to identify the stage and settings used.
+
+In the V1 batch pipeline, raw-file preprocessing projects and writes one
+field at a time to ``stack/``. It retains filenames across the plate, not
+every field's pixel data. Z planes are combined incrementally. Completed
+field stacks are published atomically and can be reused when preprocessing
+resumes. This stage's pixel memory therefore follows the size and channels
+of a field, rather than the number of fields in the plate.
+
+Normalization and segmentation still need working memory for a batch and
+the model. Completed segmentation input, mask and flow buffers are released
+before the next batch; reducing plate-wide retention does not make an
+individual very large image or model cost-free. The V1 ``batch_size`` also
+sets the normalization pool, so changing it can change normalized values
+and subsequent masks. Retain it when reproducing a previous analysis.
+
+If memory still rises unexpectedly, record whether the last console stage
+was preprocessing filenames, normalization or model evaluation, together
+with image dimensions, channel count and the saved settings. Existing
+``stack/`` files help distinguish a completed ingestion stage from a failure
+before the first field was written.
 
 Engine parameter reference
 --------------------------

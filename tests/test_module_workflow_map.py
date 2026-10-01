@@ -169,11 +169,22 @@ def test_screen_script_keeps_both_regression_inputs_and_classifier_alternatives(
     lesson = workflow.lesson_document(workflow.load(), "78_spacr_screens")
     scenes = {scene["visual"]: scene for scene in lesson["scenes"]}
     regression = scenes["module_regression"]["narration"]
-    assert "Classify to Regression" in regression
-    assert "Map Barcodes to Regression" in regression
+    assert "phenotype scores from Classify" in regression
+    assert "guide counts from Map Barcodes" in regression
     classifier = scenes["module_classify_merged"]["narration"]
     assert "Computer Vision" in classifier
     assert "Tabular Machine Learning" in classifier
+
+
+def test_written_story_must_name_every_handoff_it_replaces():
+    data = copy.deepcopy(workflow.load())
+    story = data["tutorials"]["78_spacr_screens"]["scenes"]
+    story["regression"] = story["regression"].replace("Map Barcodes", "the sequencer")
+    with pytest.raises(ValueError, match="omits"):
+        workflow.validate(data, live=False)
+    del story["regression"]
+    with pytest.raises(ValueError, match="story scenes differ"):
+        workflow.validate(data, live=False)
 
 
 def test_reference_lesson_explains_every_artifact_location():

@@ -1,0 +1,162 @@
+# spaCR user guide translation (sv).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: sv\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Train a Cellpose model"
+msgstr "Träna en Cellpose-modell"
+
+msgid "Use your corrected image masks to fine-tune Cellpose-SAM, then apply the saved model to another image folder. From **Home → Tools → Make Masks**, open **Cellpose Workbench** and choose **Train**."
+msgstr "Använd dina korrigerade bildmasker för att finjustera Cellpose-SAM och tillämpa sedan den sparade modellen på en annan bildmapp. Från **Hem → Verktyg → Skapa masker** öppnar du **Cellpose-verkstad** och väljer **Träna**."
+
+msgid "To follow along, download the `six example image/mask pairs <tutorials/examples/Cellpose_training_images_masks.zip>`__ and extract them. Set Source to the extracted ``training`` folder. Review the supplied cell masks in Make Masks, then follow the settings and Run steps below. The archive's ``apply`` folder holds three more images from wells that are not in the training set; use it to try the trained checkpoint in Apply."
+msgstr "För att följa med kan du ladda ner de `sex exempelparen av bild och mask <tutorials/examples/Cellpose_training_images_masks.zip>`__ och packa upp dem. Sätt Källa till den uppackade mappen ``training``. Granska de medföljande cellmaskerna i Skapa masker och följ sedan stegen för inställningar och körning nedan. Arkivets mapp ``apply`` innehåller ytterligare tre bilder från brunnar som inte ingår i träningsuppsättningen; använd den för att prova den tränade kontrollpunkten i Apply."
+
+msgid "Prepare images and masks"
+msgstr "Förbered bilder och masker"
+
+msgid "Place training images in one folder and their masks in its ``masks`` subfolder::"
+msgstr "Placera träningsbilderna i en mapp och deras masker i dess undermapp ``masks``::"
+
+msgid "Each mask must have the same height and width as its image. Use integer object labels: zero for background and a different positive number for each object. A mask filename can match its image or add ``_masks`` before the extension, such as ``field_01_masks.tif``. Keep one matching mask per image."
+msgstr "Varje mask måste ha samma höjd och bredd som sin bild. Använd heltalsetiketter för objekten: noll för bakgrund och ett eget positivt tal för varje objekt. Ett maskfilnamn kan vara detsamma som bildens eller lägga till ``_masks`` före filändelsen, till exempel ``field_01_masks.tif``. Behåll en matchande mask per bild."
+
+msgid "Use Make Masks to inspect and correct object boundaries before training. Keep separate fields for validation. You can reuse a legacy project containing ``train/images`` and ``train/masks`` by selecting that project as Source."
+msgstr "Använd Skapa masker för att granska och korrigera objektgränser före träningen. Håll separata fält för validering. Du kan återanvända ett äldre projekt som innehåller ``train/images`` och ``train/masks`` genom att välja det projektet som Källa."
+
+msgid "Choose inputs and settings"
+msgstr "Välj indata och inställningar"
+
+msgid "Set **Source** (``src``) to the training image folder."
+msgstr "Sätt **Källa** (``src``) till mappen med träningsbilder."
+
+msgid "Leave ``mask_src`` empty to use ``<src>/masks``, or select another mask folder."
+msgstr "Lämna ``mask_src`` tomt för att använda ``<src>/masks``, eller välj en annan maskmapp."
+
+msgid "For validation, set ``test_src`` to a separate image folder. Its masks belong in ``<test_src>/masks`` unless you select ``test_mask_src``."
+msgstr "För validering sätter du ``test_src`` till en separat bildmapp. Dess masker hör hemma i ``<test_src>/masks`` om du inte väljer ``test_mask_src``."
+
+msgid "Choose ``base_model``: ``cpsam`` starts from Cellpose-SAM; a model-zoo key or checkpoint path continues training an existing model."
+msgstr "Välj ``base_model``: ``cpsam`` utgår från Cellpose-SAM; en nyckel i modellbiblioteket eller en sökväg till en kontrollpunkt fortsätter träningen av en befintlig modell."
+
+msgid "Enter ``model_name`` as a filename prefix. Use ``save_path`` to choose an output folder, or leave it empty to save under the training project."
+msgstr "Ange ``model_name`` som prefix för filnamnet. Använd ``save_path`` för att välja en utdatamapp, eller lämna den tom för att spara under träningsprojektet."
+
+msgid "For multichannel images, ``channels`` selects up to three zero-based channel indices. For example, ``[0, 2]`` selects the first and third channels. Leave ``channel_axis`` empty for automatic detection, or set it explicitly when the image layout is ambiguous. Training accepts two-dimensional images with optional channels."
+msgstr "För flerkanalsbilder väljer ``channels`` upp till tre nollbaserade kanalindex. Till exempel väljer ``[0, 2]`` den första och den tredje kanalen. Lämna ``channel_axis`` tom för automatisk identifiering, eller sätt den uttryckligen när bildens layout är tvetydig. Träningen accepterar tvådimensionella bilder med valfria kanaler."
+
+msgid "Main training controls"
+msgstr "Viktigaste träningskontrollerna"
+
+msgid "Setting"
+msgstr "Inställning"
+
+msgid "Default"
+msgstr "Standard"
+
+msgid "What it controls"
+msgstr "Vad den styr"
+
+msgid "``n_epochs``"
+msgstr "``n_epochs``"
+
+msgid "100"
+msgstr "100"
+
+msgid "Number of training epochs."
+msgstr "Antal träningsepoker."
+
+msgid "``batch_size``"
+msgstr "``batch_size``"
+
+msgid "1"
+msgstr "1"
+
+msgid "Images per training minibatch. Larger batches require more memory."
+msgstr "Bilder per minibatch under träningen. Större batcher kräver mer minne."
+
+msgid "``learning_rate``"
+msgstr "``learning_rate``"
+
+msgid "0.00001"
+msgstr "0.00001"
+
+msgid "Size of the model's training updates."
+msgstr "Storleken på modellens träningsuppdateringar."
+
+msgid "``weight_decay``"
+msgstr "``weight_decay``"
+
+msgid "0.1"
+msgstr "0.1"
+
+msgid "Strength of weight regularization during training."
+msgstr "Styrkan i viktregulariseringen under träningen."
+
+msgid "``normalize`` / ``percentiles``"
+msgstr "``normalize`` / ``percentiles``"
+
+msgid "On / [1, 99]"
+msgstr "På / [1, 99]"
+
+msgid "Percentile normalization of each image channel."
+msgstr "Percentilnormalisering av varje bildkanal."
+
+msgid "``min_train_masks``"
+msgstr "``min_train_masks``"
+
+msgid "5"
+msgstr "5"
+
+msgid "Minimum labelled objects in an image included in training."
+msgstr "Minsta antal märkta objekt i en bild för att den ska ingå i träningen."
+
+msgid "``scale_range``"
+msgstr "``scale_range``"
+
+msgid "0.5"
+msgstr "0.5"
+
+msgid "Variation in image scale during training augmentation."
+msgstr "Variation i bildskala under träningsaugmenteringen."
+
+msgid "``save_every`` / ``save_each``"
+msgstr "``save_every`` / ``save_each``"
+
+msgid "100 / Off"
+msgstr "100 / Av"
+
+msgid "Checkpoint interval and whether periodic checkpoints get separate names."
+msgstr "Intervall för kontrollpunkter och om periodiska kontrollpunkter får separata namn."
+
+msgid "For a smaller initial run, ``max_train_images`` limits the loaded training images. ``nimg_per_epoch`` and ``nimg_test_per_epoch`` limit how many images are used per epoch. Leave these limits empty to use all available images."
+msgstr "För en mindre första körning begränsar ``max_train_images`` antalet inlästa träningsbilder. ``nimg_per_epoch`` och ``nimg_test_per_epoch`` begränsar hur många bilder som används per epok. Lämna dessa gränser tomma för att använda alla tillgängliga bilder."
+
+msgid "Run and use the output"
+msgstr "Kör och använd resultatet"
+
+msgid "Click **Run** and follow progress in the console. When training finishes, the console reports the saved checkpoint path. With the default output location, checkpoints are under ``<src>/models/cellpose_model/models``. With a chosen ``save_path``, they are under ``<save_path>/models``."
+msgstr "Klicka på **Kör** och följ förloppet i konsolen. När träningen är klar rapporterar konsolen sökvägen till den sparade kontrollpunkten. Med standardplatsen för utdata ligger kontrollpunkterna under ``<src>/models/cellpose_model/models``. Med en vald ``save_path`` ligger de under ``<save_path>/models``."
+
+msgid "Open **Apply**, select a separate image folder, such as the example's ``apply`` folder, and check that **Custom model** points to the checkpoint you want. Turn on **Save**, which is off by default. Inspect a preview before processing the folder. Apply writes label masks into that image folder's ``masks`` subfolder. Use separate labelled images to evaluate segmentation before applying the model to an entire experiment."
+msgstr "Öppna **Verkställ**, välj en separat bildmapp, till exempel exemplets mapp ``apply``, och kontrollera att **Anpassad modell** pekar på den kontrollpunkt du vill använda. Slå på **Spara**, som är avstängt som standard. Granska en förhandsvisning innan du bearbetar mappen. Apply skriver etikettmasker i bildmappens undermapp ``masks``. Använd separata märkta bilder för att utvärdera segmenteringen innan du tillämpar modellen på ett helt experiment."
+
+msgid "The Python entry point :func:`spacr.submodules.train_cellpose` accepts the same settings and returns the checkpoint path, training losses and validation losses. Continue with :doc:`Make Masks <make_masks>` to inspect or edit masks, or :ref:`Mask <workflow-module-mask>` to use the model in an image pipeline."
+msgstr "Ingångspunkten i Python, :func:`spacr.submodules.train_cellpose`, accepterar samma inställningar och returnerar sökvägen till kontrollpunkten, träningsförluster och valideringsförluster. Fortsätt med :doc:`Skapa masker <make_masks>` för att granska eller redigera masker, eller med :ref:`Masker <workflow-module-mask>` för att använda modellen i en bildpipeline."
+

@@ -1,0 +1,33 @@
+{
+  "lesson": "33_plate_viewer",
+  "english_sha256": "bf218ea49218a8edb7e4e993cab83bd97c96daa3cb82b53175e7a5288113444e",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Plate Viewer: inspecionar poços e exportar uma tabela de mapa de calor",
+  "description": "Carregue as medições de exemplo, compare características e contagens por poço, inspecione poços individuais e exporte a tabela filtrada.",
+  "objectives": [
+    "Abrir o Plate Viewer pelo Graph Builder e carregar as medições de exemplo.",
+    "Escolher uma característica, uma agregação e uma contagem mínima de objetos.",
+    "Inspecionar os detalhes dos poços e exportar a grade de poços atual."
+  ],
+  "prerequisite": "Use Load test data no Plate Viewer para o exemplo disponível para download, ou abra o measurements.db do seu projeto medido. O exemplo contém 2.341 células em quatro poços; use medições que cubram a sua própria placa ao avaliar padrões espaciais.",
+  "scenes": [
+    "Na tela Home, abra Graph Builder em Data e escolha Plate Viewer. Use-o para resumir as medições de objetos por poço e inspecionar como elas se distribuem na placa.",
+    "Clique em Load test data para abrir o exemplo disponível para download. Para os seus dados, escolha um banco de dados de medições ou a pasta da execução e clique em Open. O exemplo contém quatro poços medidos.",
+    "Escolha cell como Table, cell_area como Measurement e plate1 como Plate. Defina Per well como mean para exibir a área celular média. A mediana reduz a influência de objetos excepcionalmente grandes ou pequenos.",
+    "Escolha uma escala de cores. A faixa robusta usa do segundo ao nonagésimo oitavo percentil, o que impede que um poço extremo comprima as cores dos outros.",
+    "Clique em Render e compare os poços coloridos. Leia o relatório de efeito de borda ao lado do mapa de calor, conferindo o layout da placa e a cobertura medida. Use medições de toda a placa ao avaliar padrões de borda, de linha ou de coluna.",
+    "Clique em um poço medido para ver o identificador, a contagem de objetos e o valor exibido. Use esses identificadores para encontrar o mesmo poço nas suas imagens ou nos resultados exportados.",
+    "Defina Per well como count para comparar o número de objetos. Essa visualização ajuda a encontrar poços com menos objetos segmentados antes de interpretar diferenças nas características.",
+    "Aumente Min objects per well para excluir poços com poucos objetos para a sua comparação. Com seiscentos e um, restam dois dos quatro poços deste exemplo. Os poços excluídos aparecem em branco, e não como medições iguais a zero.",
+    "Clique em Export well grid CSV, escolha um nome de arquivo e salve. O CSV contém os poços mantidos pelo filtro atual, com identificadores, contagens, valores exibidos e anotações espaciais.",
+    "Guarde a tabela exportada com as configurações de medição e agregação. Diminua a contagem mínima para ver de novo os poços excluídos, ou escolha outra medição para a próxima comparação."
+  ]
+}

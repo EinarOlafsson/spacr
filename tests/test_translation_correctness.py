@@ -60,7 +60,6 @@ DELIBERATELY_UNTRANSLATED = {
     "Bokeh": {"de", "es", "fr", "is", "pt", "sv"},
     "Console": {"fr", "pt"},
     "Data": {"sv"},
-    "Demos": {"de"},
     "Design": {"sv"},
     # Storage, in the resource row. "Disk" is the Swedish word too.
     "Disk": {"sv"},

@@ -47,8 +47,10 @@ from __future__ import annotations
 from typing import Callable, Dict, Iterable, List, Optional, Tuple
 
 from PySide6.QtCore import QEvent, Qt, Signal
+from PySide6.QtGui import QColor, QPainter
 from PySide6.QtWidgets import QFrame, QLabel, QScrollArea, QSizePolicy, QVBoxLayout, QWidget
 
+from ..i18n import tr
 from ..theme import active_palette
 from .eliding import ElidingPushButton
 
@@ -188,6 +190,12 @@ class Dock(QWidget):
     WIDTH_MIN = 220
     WIDTH_MAX = 320
 
+    #: How far the user may drag the column's edge (item 529), before the
+    #: font scale. Narrower than ``WIDTH_MIN`` is allowed: a long name elides
+    #: rather than pushing the page.
+    DRAG_MIN = 150
+    DRAG_MAX = 520
+
     def __init__(self, rows: Iterable[Row],
                  icon_for: Optional[Callable[[str], object]] = None,
                  is_visible: Optional[Callable[[str], bool]] = None,
@@ -308,8 +316,15 @@ class Dock(QWidget):
         pointer.
         """
         self._light_only(key if entered else None)
-        if entered:
-            self.module_hovered.emit(key)
+        from ..tooltip_policy import HoverDelay
+        if not hasattr(self, "_hover_help_delay"):
+            self._hover_help_delay = HoverDelay(self)
+        row = next((row for row in self._rows if row.key == key), None)
+        if entered and row is not None:
+            self._hover_help_delay.schedule(
+                row, lambda: self.module_hovered.emit(key))
+        elif row is not None:
+            self._hover_help_delay.cancel_for(row)
 
     def _light_only(self, key) -> None:
         """Ink the row named by ``key`` and no other. ``None`` clears all.
@@ -335,6 +350,9 @@ class Dock(QWidget):
         covers one that leaves the dock altogether, including straight off
         the bottom row onto the empty stretch below it, where no other row
         will ever be entered.
+
+        :param event: the leave event, passed to the base class after every row
+            is unlit.
         """
         self._light_only(None)
         super().leaveEvent(event)
@@ -349,6 +367,11 @@ class Dock(QWidget):
         The hover state is a PROPERTY rather than a colour set from here,
         because the stylesheet is the one place that decides what the dock
         looks like.
+
+        :param watched: the object the event is for; only a
+            :class:`SectionHeader` is handled here.
+        :param event: the event; Enter and Leave set the header's ``hovered``
+            property, and a left-button release toggles its section.
         """
 
         if isinstance(watched, SectionHeader):
@@ -389,11 +412,17 @@ class Dock(QWidget):
         return list(self._rows)
 
     def section_is_open(self, section: str) -> bool:
-        """Whether ``section``'s rows are currently shown."""
+        """Whether ``section``'s rows are currently shown.
+
+        :param section: the category name.
+        """
         return section in self._open
 
     def toggle_section(self, section: str) -> bool:
-        """Open a closed category or close an open one. Returns the new state."""
+        """Open a closed category or close an open one. Returns the new state.
+
+        :param section: the category name to open or close.
+        """
         if section in self._open:
             self._open.discard(section)
         else:
@@ -408,11 +437,16 @@ class Dock(QWidget):
         that opened a host on navigation do not have to know that, and
         because a method that quietly disappeared would fail at the call
         site rather than here, where the reason is written down.
+
+        :param host_key: the app key of the host; ignored.
         """
         return None
 
     def host_is_expanded(self, host_key: str) -> bool:
-        """Always ``False``: there are no folded child rows to expand."""
+        """Always ``False``: there are no folded child rows to expand.
+
+        :param host_key: the app key of the host; ignored.
+        """
         return False
 
     def refresh_visibility(self) -> None:
@@ -438,7 +472,57 @@ class Dock(QWidget):
             header.setProperty("open", section in self._open)
             header.style().unpolish(header)
             header.style().polish(header)
-        self.setFixedWidth(self.fitting_width())
+        self.setFixedWidth(self.column_width())
+
+    def column_width(self) -> int:
+        """The width the column wears: the one the user dragged, else fitting.
+
+        Item 529. A width the user chose is kept through every refresh, every
+        hide and show, and every session; with none stored the column fits
+        its longest name, as :meth:`fitting_width` has always done.
+        """
+        try:
+            from ..preferences import get_dock_width
+
+            wanted = get_dock_width()
+        except Exception:                                        # noqa: BLE001
+            wanted = 0
+        if wanted <= 0:
+            return self.fitting_width()
+        return self.clamp_width(wanted)
+
+    def clamp_width(self, width: int) -> int:
+        """``width`` held between :attr:`DRAG_MIN` and :attr:`DRAG_MAX`.
+
+        :param width: logical pixels.
+        """
+        from ..preferences import scaled_px
+
+        return max(scaled_px(self.DRAG_MIN),
+                   min(int(width), scaled_px(self.DRAG_MAX)))
+
+    def set_column_width(self, width: int, *, remember: bool = True) -> int:
+        """Give the column ``width`` within its bounds and maybe remember it.
+
+        :param width: logical pixels; 0 or less goes back to the fitting
+            width and forgets the dragged one.
+        :param remember: store it for the next session.
+        :returns: the width applied.
+        """
+        if width is None or int(width) <= 0:
+            applied = self.fitting_width()
+            stored = 0
+        else:
+            applied = stored = self.clamp_width(width)
+        self.setFixedWidth(applied)
+        if remember:
+            try:
+                from ..preferences import set_dock_width
+
+                set_dock_width(stored)
+            except Exception:                                    # noqa: BLE001
+                pass
+        return applied
 
     def refresh_icons(self) -> None:
         """Re-ask the provider for every row's icon.
@@ -537,3 +621,184 @@ class Dock(QWidget):
         Empty in a healthy layout, and a test asserts that.
         """
         return [r for r in self._rows if r.is_elided()]
+
+
+class DockEdge(QWidget):
+    """The strip along the dock's right edge that drags its width (item 529).
+
+    Dragging it sets the width of the dock while the dock is shown. A
+    sibling of the dock's slot rather than a
+    splitter handle, because the dock is a fixed-width layout member and
+    everything that measures it (the drawer, the backdrop, the fitting width)
+    reads that fixed width. Dragging sets it; releasing stores it; a
+    double-click forgets it and the column fits its names again. It is
+    shown and hidden with the dock, so a hidden dock has no edge to catch.
+
+    :param dock: the :class:`Dock` it resizes.
+    :param parent: parent widget; ownership only.
+    """
+
+    #: The grab area, in pixels: matches the arrow-bearing splitter handle.
+    GRIP_PX = 12
+    collapsedChanged = Signal(bool)
+
+    def __init__(self, dock: "Dock", parent=None):
+        """Build the edge for ``dock``; hidden until the dock is shown."""
+        super().__init__(parent)
+        self._dock = dock
+        self._collapsed = False
+        self._dragged = False
+        self._pressed_x = None
+        self._start_width = 0
+        self.setObjectName("DockEdge")
+        self.setStyleSheet(
+            "QWidget#DockEdge { background: transparent; border: none; }")
+        self.setAttribute(Qt.WA_Hover, True)
+        self.setFixedWidth(self.GRIP_PX)
+        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        self.setCursor(Qt.SizeHorCursor)
+        self.setFocusPolicy(Qt.StrongFocus)
+        self.setAccessibleName(tr("Dock width"))
+        self.retranslate_dynamic_content()
+        self.hide()
+
+    def retranslate_dynamic_content(self, language=None) -> None:
+        """Explain the current collapse action and the resize gesture."""
+        action = (tr("Click to show {name} again.", language, name=tr("Dock"))
+                  if self._collapsed else
+                  tr("Click to hide {name}.", language, name=tr("Dock")))
+        self.setToolTip(action + " " + tr(
+            "Drag to make the dock wider or narrower. "
+            "Double-click to fit it to the names again.", language))
+        self.setAccessibleDescription(self.toolTip())
+
+    def is_collapsed(self) -> bool:
+        """Whether the dock slot is collapsed; the handle stays visible."""
+        return self._collapsed
+
+    def set_collapsed(self, collapsed: bool) -> None:
+        """Hide or restore the slot without changing its dock's saved width.
+
+        :param collapsed: true hides the slot; false restores its contents.
+        """
+        collapsed = bool(collapsed)
+        if collapsed == self._collapsed:
+            return
+        self._collapsed = collapsed
+        self.retranslate_dynamic_content()
+        self.update()
+        self.collapsedChanged.emit(collapsed)
+
+    def keyPressEvent(self, event) -> None:  # noqa: N802
+        """Let a keyboard user activate the same collapse control.
+
+        :param event: key press; Space, Return and Enter toggle the dock.
+        """
+        if event.key() in (Qt.Key_Space, Qt.Key_Return, Qt.Key_Enter):
+            self.set_collapsed(not self._collapsed)
+            event.accept()
+            return
+        super().keyPressEvent(event)
+
+    def enterEvent(self, event) -> None:                     # noqa: N802
+        """Light the line up under the pointer.
+
+        :param event: the event.
+        """
+        self.update()
+        super().enterEvent(event)
+
+    def leaveEvent(self, event) -> None:                     # noqa: N802
+        """Put the line back.
+
+        :param event: the event.
+        """
+        self.update()
+        super().leaveEvent(event)
+
+    def mousePressEvent(self, event) -> None:                # noqa: N802
+        """Begin a drag from the dock's present width.
+
+        :param event: the event.
+        """
+        if event.button() != Qt.LeftButton:
+            super().mousePressEvent(event)
+            return
+        self._dragged = False
+        self._pressed_x = event.globalPosition().x()
+        self._start_width = self._dock.width()
+        self.update()
+        event.accept()
+
+    def mouseMoveEvent(self, event) -> None:                 # noqa: N802
+        """Follow the pointer, within the dock's bounds; stored on release.
+
+        :param event: the event.
+        """
+        if self._pressed_x is None:
+            super().mouseMoveEvent(event)
+            return
+        moved = event.globalPosition().x() - self._pressed_x
+        if abs(moved) > 4:
+            self._dragged = True
+            self.set_collapsed(False)
+        if not self._dragged:
+            return
+        self._dock.set_column_width(self._dragged_to(moved),
+                                    remember=False)
+        event.accept()
+
+    def mouseReleaseEvent(self, event) -> None:              # noqa: N802
+        """End the drag and remember the width it left.
+
+        :param event: the event.
+        """
+        if self._pressed_x is None:
+            super().mouseReleaseEvent(event)
+            return
+        moved = event.globalPosition().x() - self._pressed_x
+        self._pressed_x = None
+        if self._dragged:
+            self._dock.set_column_width(self._dragged_to(moved))
+        else:
+            self.set_collapsed(not self._collapsed)
+        self.update()
+        event.accept()
+
+    def _dragged_to(self, moved: float) -> int:
+        """The width a drag of ``moved`` pixels asks for, never below 1.
+
+        Never 0 or less: to :meth:`Dock.set_column_width` that means
+        "forget the dragged width", and a drag past the left bound is the
+        user asking for the narrowest dock, not the fitting one.
+        """
+        return max(1, int(round(self._start_width + moved)))
+
+    def mouseDoubleClickEvent(self, event) -> None:          # noqa: N802
+        """Forget the dragged width; the column fits its names again.
+
+        :param event: the event.
+        """
+        self._pressed_x = None
+        self.set_collapsed(False)
+        self._dock.set_column_width(0)
+        self.update()
+        event.accept()
+
+    def paintEvent(self, _event) -> None:                    # noqa: N802
+        """Draw the one-pixel line a splitter handle draws.
+
+        :param _event: the paint event; the whole strip is drawn.
+        """
+        palette = active_palette() or {}
+        hovered = self.underMouse() or self._pressed_x is not None
+        line = QColor(palette.get("accent" if hovered else "border_soft",
+                                  "#4c8dff" if hovered else "#3a3f4b"))
+        painter = QPainter(self)
+        rect = self.rect()
+        painter.fillRect(rect.center().x(), rect.top(), 1, rect.height(), line)
+        from .collapse_arrow import paint_collapse_arrow
+        paint_collapse_arrow(painter, rect, Qt.Horizontal,
+                             not self._collapsed, palette,
+                             hovered or self.hasFocus())
+        painter.end()

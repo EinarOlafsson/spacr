@@ -353,7 +353,7 @@ def test_the_filter_runs_on_load_and_drops_the_object_below_min_area(
         qtbot, qt_theme_applied, folder: Path):
     s = MakeMasksScreen()
     qtbot.addWidget(s)
-    s._filter_min_area.setValue(50)
+    s._filter_list.set_filter("area", 50)
     s._open_folder(str(folder))
     assert sorted(int(v) for v in np.unique(s._canvas.mask) if v) == [3, 11], \
         "the 16-pixel object should have been filtered out on load"
@@ -362,21 +362,20 @@ def test_the_filter_runs_on_load_and_drops_the_object_below_min_area(
 
 def test_every_bound_is_off_at_zero(screen):
     """Zero is the off switch, not a rejection threshold."""
-    assert screen._filter_min_area.value() == 0
-    assert screen._filter_max_int.value() == 0.0
+    assert screen._filter_list.filters() == []
     before = screen._canvas.mask.copy()
     assert screen.apply_object_filter() == 0
     assert (screen._canvas.mask == before).all()
 
 
-@pytest.mark.parametrize("field, value, survivors", [
-    ("_filter_min_area", 50, [3, 11]),
-    ("_filter_max_area", 120, [3, 7]),
-    ("_filter_min_int", 20000.0, [3, 7]),
-    ("_filter_max_int", 20000.0, [11]),
+@pytest.mark.parametrize("prop, low, high, survivors", [
+    ("area", 50, None, [3, 11]),
+    ("area", None, 120, [3, 7]),
+    ("intensity_mean", 20000.0, None, [3, 7]),
+    ("intensity_mean", None, 20000.0, [11]),
 ])
-def test_each_bound_picks_out_its_own_object(screen, field, value, survivors):
-    getattr(screen, field).setValue(value)
+def test_each_bound_picks_out_its_own_object(screen, prop, low, high, survivors):
+    screen._filter_list.set_filter(prop, low, high)
     screen._btn_filter.click()
     assert sorted(int(v) for v in np.unique(screen._canvas.mask) if v) \
         == survivors
@@ -387,13 +386,13 @@ def test_the_intensity_bound_reads_the_raw_image_not_the_display(screen):
     reproducible, so the mean is taken on the raw data."""
     screen._norm_lo.setValue(0.0)
     screen._norm_hi.setValue(50.0)          # a wildly different stretch
-    screen._filter_min_int.setValue(20000.0)
+    screen._filter_list.set_filter("intensity_mean", 20000.0)
     screen._btn_filter.click()
     assert sorted(int(v) for v in np.unique(screen._canvas.mask) if v) == [3, 7]
 
 
 def test_a_filter_that_removes_nothing_says_so_and_edits_nothing(screen):
-    screen._filter_min_area.setValue(2)
+    screen._filter_list.set_filter("area", 2)
     before = screen._canvas.mask.copy()
     assert screen.apply_object_filter() == 0
     assert (screen._canvas.mask == before).all()
@@ -401,7 +400,7 @@ def test_a_filter_that_removes_nothing_says_so_and_edits_nothing(screen):
 
 
 def test_the_filter_is_one_undo_step_and_one_ledger_entry(screen):
-    screen._filter_min_area.setValue(50)
+    screen._filter_list.set_filter("area", 50)
     screen._btn_filter.click()
     assert screen._btn_undo.isEnabled()
     screen._on_undo()

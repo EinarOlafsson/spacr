@@ -16,7 +16,15 @@ where the object tables are offered first, or a CSV or TSV file. Several
 databases can be loaded as one table; plate identifiers that collide between
 them are reported rather than silently pooled. Database tables are read as a
 sample set by ``sample_fraction`` and capped by ``max_points``, both in the
-Gate Editor settings.
+Gate Editor settings. **Merge tables** beside the table picker opens the same
+validated default/custom merge workflow as Graph Builder. Name the result,
+inspect row counts, unmatched records and the aggregation preview, then create
+it. Multiple child tables are aggregated independently onto composite image,
+time and object keys. Saved gates embed the derived-table definition and
+reconstruct it against the same source/schema. Export evaluates the full merged
+table and writes gates using the original base object's identity. External
+tabular merges remain gateable; image annotation/export are unavailable when
+image/object provenance cannot be verified.
 
 **What it produces.** Threshold, rectangle, oval, polygon and wand gates on
 one or two measurements, box, cylinder and prism gates in the 3D view, and
@@ -24,7 +32,11 @@ combinations of other gates. Publishing a gate narrows every linked view to
 that population. The gating strategy saves to and loads from a JSON file
 (``gates.json`` by default) so that the next plate is gated the same way;
 Export writes each gate as a column of the ``filters`` table in the
-measurements database, and the graph saves as PNG or PDF.
+measurements database, and the graph saves as PNG or PDF. Exports compare the
+live gates (including unsaved edits) with analysis locks holding their saved
+strategy and record gate-specific verdicts in ``filter_export_provenance``.
+A missing lock never implies verification. This receipt covers exported gates;
+unrecorded merge definitions and unrelated pipeline settings are not verified.
 
 **What to do next.** Look at the gated population in the views that follow
 the shared filter, such as Image UMAP, Graph Builder and the crop grid, and
@@ -45,6 +57,7 @@ Assembles:
 """
 from __future__ import annotations
 
+import json
 import logging
 import os
 from pathlib import Path
@@ -53,33 +66,52 @@ from typing import List, Optional, Tuple
 import pandas as pd
 from PySide6.QtCore import QEvent, Qt, QTimer
 from PySide6.QtWidgets import (
-    QComboBox, QDialog, QDialogButtonBox, QFileDialog, QFormLayout,
-    QHBoxLayout, QLabel, QLineEdit, QPushButton, QScrollArea, QSizePolicy,
-    QVBoxLayout, QWidget, QTabWidget,
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QFileDialog,
+    QFormLayout,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QScrollArea,
+    QSizePolicy,
+    QTabWidget,
+    QVBoxLayout,
+    QWidget,
 )
 
+from ..app_catalog import declared_app, register_declared
+from ..i18n import tr
 from ..job_runner import JobRunner
 from ..theme import SPACING, page_tabs_qss, register_widget_qss
 from ..widgets.collapsible_splitter import EDGE, CollapsibleSplitter
 from ..widgets.data_filter_panel import DataFilterPanel
-from ..widgets.gate_search_panel import GateSearchPanel
+from ..widgets.derived_table_source import DerivedTableSource
 from ..widgets.formula_editor import FormulaPanel
 from ..widgets.gate_canvas import (
-    AxisCutoffs, CutoffError, apply_cutoffs, axis_at, axis_menu_items,
-    parse_cutoff, AXIS_NAMES,
+    AXIS_NAMES,
+    AxisCutoffs,
+    CutoffError,
+    apply_cutoffs,
+    axis_at,
+    axis_menu_items,
+    parse_cutoff,
 )
-from ..widgets.gate_editor import GateEditorPanel
-from ..widgets.gate_spec import GateError, GateSet
-from ..widgets.gate_settings import GateEditorSettings, GateSettingsDialog
-from ..widgets.graph_spec import GraphSpec, plottable_columns
 from ..widgets.gate_console import GateConsole
-from ..widgets.table_chip import TableChip
+from ..widgets.gate_editor import GateEditorPanel
+from ..widgets.gate_search_panel import GateSearchPanel
+from ..widgets.gate_settings import GateEditorSettings, GateSettingsDialog
+from ..widgets.gate_spec import GateError, GateSet
+from ..widgets.graph_spec import GraphSpec, plottable_columns
 from ..widgets.measurements_example import (
-    EXAMPLE_TABLE, install_test_data_button,
+    EXAMPLE_TABLE,
+    install_test_data_button,
 )
-from .graph_builder import read_table, table_names
+from ..widgets.table_chip import TableChip
 from .app_screen import ModuleHeader
-from ..app_catalog import declared_app, register_declared
+from .graph_builder import read_table, table_names
 
 LOG = logging.getLogger("spacr.qt.screens.gate_editor")
 
@@ -234,7 +266,7 @@ class _AxisCutoffDialog(QDialog):
                 parse_cutoff(self._high.text()))
 
 
-class GateEditorScreen(QWidget):
+class GateEditorScreen(DerivedTableSource, QWidget):
     """A table, two axis pickers, the gating surface, and save/load.
 
     :param parent: parent widget.
@@ -262,6 +294,10 @@ class GateEditorScreen(QWidget):
         #: The plan for a multi-database load, or None for a single file.
         #: Kept so the screen can say what the merge cost -- which columns
         #: were dropped and which plates were qualified.
+        self._gate_strategy_path = ""
+        self._gate_edit_last_state = None
+        self._gate_edit_lock_notes = []
+        self._gate_file_note_suffix = ""
         self._merge_plan = None
         #: The working set: every table whose measurements are on offer.
         self._tables: List[str] = []
@@ -312,6 +348,7 @@ class GateEditorScreen(QWidget):
             "and a nuclear one on another.")
         self._table_picker.activated.connect(self._on_table_added)
         head.addWidget(self._table_picker)
+        self._install_merge_button(head)
 
         load = QPushButton("Load table…", self)
         load.setObjectName("PrimaryButton")
@@ -551,6 +588,7 @@ class GateEditorScreen(QWidget):
         :param frame: the rows, or None to clear.
         """
         self._frame = frame
+        self._derived_frame_loaded(frame)
         self.formulas.set_frame(frame)
         self._push_frame()
         self._source.setText(
@@ -630,13 +668,34 @@ class GateEditorScreen(QWidget):
                 box.setCurrentIndex(index)
 
     def _on_gates_changed(self) -> None:
-        """Update the gate count on the source label.
+        """Record first-seen live gate edits and replace the displayed gate count.
 
-        The previous count is stripped first, so repeated edits replace the
-        suffix rather than stacking more of them.
+        The panel emits this after committed threshold/tree/drawing edits, not
+        for pointer motion. Checking immediately preserves edit timing relative
+        to unblinding. Repeated identical signals reuse their displayed notes;
+        unsaved strategies claim no lock coverage. Only the canonical saved
+        strategy is compared, without rereading its remote source file.
         """
-        self._source.setText(self._source.text().split(" · gates")[0]
-                             + f" · gates: {len(self.gates.gates)}")
+        base = self._source.text().split(" · gates")[0]
+        if self._gate_file_note_suffix and base.endswith(self._gate_file_note_suffix):
+            base = base[:-len(self._gate_file_note_suffix)]
+        base = base.split("; Analysis lock ")[0]
+        text = base + f" · gates: {len(self.gates.gates)}"
+        strategy = self._gate_strategy_path
+        if not strategy:
+            self._source.setText(text)
+            return
+        state = (strategy, json.dumps(self.gates.gates.to_dict(), sort_keys=True))
+        if state != self._gate_edit_last_state:
+            try:
+                verdicts = _gate_export_lock_verdicts(
+                    strategy, self.gates.gates, scope="live_gating_strategy", resolved=True)
+                self._gate_edit_lock_notes = [verdict["summary"] for verdict in verdicts]
+                self._gate_edit_last_state = state
+            except Exception as exc:
+                LOG.warning("could not check live gate edit against analysis locks", exc_info=True)
+                self._gate_edit_lock_notes = [tr("Gate lock check failed: {error}", error=str(exc))]
+        self._source.setText("; ".join([text, *self._gate_edit_lock_notes]))
 
     def choose_table(self) -> None:
         """Ask which table in the project to gate."""
@@ -661,9 +720,13 @@ class GateEditorScreen(QWidget):
         compute every per-well number over both at once with nothing on screen
         to say so. The user is told which plate ids clash, because they are
         the only one who can say whether they are the same plate.
+
+        :param paths: the SQLite measurement databases to merge, as paths; each
+            is converted to ``str``, and an empty list does nothing.
+        :param table: the table to read from every database; ``None`` uses the
+            first table of the first database.
         """
-        from ...multi_database import (
-            SOURCE_COLUMN, MergeRefused, describe_merge, read_merged)
+        from ...multi_database import SOURCE_COLUMN, MergeRefused, describe_merge, read_merged
 
         paths = [str(p) for p in paths]
         if not paths:
@@ -730,8 +793,7 @@ class GateEditorScreen(QWidget):
         The record preserves collision resolutions that cannot be recovered
         from the merged table itself.
         """
-        from ...multi_database import (MergeDecision, decision_for,
-                                       record_decision)
+        from ...multi_database import MergeDecision, decision_for, record_decision
 
         try:
             if plan is not None:
@@ -751,7 +813,16 @@ class GateEditorScreen(QWidget):
 
     def load_path(self, path: str, table: Optional[str] = None) -> None:
         """Read a CSV or one table of a measurement database, off the GUI
-        thread."""
+        thread.
+
+        :param path: a CSV, TSV or TXT file (by extension), read as one table;
+            any other path is opened as a SQLite measurement database and its
+            tables are listed in the picker. It becomes the only database in
+            the working set.
+        :param table: the database table to read, also selected in the picker
+            when the database has it; ``None`` reads the picker's current
+            table.
+        """
         self._path = path
         if self._paths != [path]:
             self._paths = [path]
@@ -778,7 +849,9 @@ class GateEditorScreen(QWidget):
             f"loading {os.path.basename(path)}"
             + (f" · {chosen}" if chosen else "") + "…")
         self._table = chosen
-        if chosen and chosen not in self._tables:
+        from ...derived_tables import load_definitions
+        derived = bool(names and chosen in load_definitions(path))
+        if chosen and (chosen not in self._tables or derived):
             self._tables = [chosen]
             self._rebuild_chips()
         fraction = self._settings.sample_fraction
@@ -798,6 +871,14 @@ class GateEditorScreen(QWidget):
         """
         if str(path).lower().endswith((".csv", ".tsv", ".txt")) or not table:
             return read_table(path, table, limit=cap)
+        from ...derived_tables import load_definitions
+        if table in load_definitions(path):
+            frame = read_table(path, table)
+            if cap and len(frame) > cap:
+                return frame.iloc[::max(1, len(frame) // int(cap))].head(int(cap))
+            if fraction < 1:
+                return frame.iloc[::max(2, int(round(1.0 / fraction)))]
+            return frame
         from ...filters import read_sampled
         return read_sampled(path, table, fraction=fraction, limit=cap)
 
@@ -873,7 +954,11 @@ class GateEditorScreen(QWidget):
         return items
 
     def axis_column(self, axis: str) -> str:
-        """The measurement drawn on ``"x"`` or ``"y"``, or ``""``."""
+        """The measurement drawn on ``"x"`` or ``"y"``, or ``""``.
+
+        :param axis: ``"x"`` or ``"y"``; converted to ``str``, and any other
+            value gives ``""``.
+        """
         box = {"x": self._x, "y": self._y}.get(str(axis))
         return "" if box is None else box.currentText()
 
@@ -889,6 +974,9 @@ class GateEditorScreen(QWidget):
 
         Returns ``None`` for a click inside the plotting rectangle, which is
         where the plot's own menu belongs.
+
+        :param point: the click position as a ``QPoint`` in the gate canvas
+            widget's own coordinates.
         """
         canvas = getattr(self.gates, "canvas", None)
         if canvas is None:
@@ -915,6 +1003,9 @@ class GateEditorScreen(QWidget):
         Separated from the QMenu for the same reason
         :meth:`graph_menu_items` is: an offscreen Qt cannot grab for a popup,
         so a test that builds a real menu hangs.
+
+        :param axis: ``"x"`` or ``"y"``; the menu is built for the measurement
+            currently drawn on it.
         """
         column = self.axis_column(axis)
         return axis_menu_items(
@@ -948,6 +1039,12 @@ class GateEditorScreen(QWidget):
         The menu is a second ROUTE to the scale the settings window already
         holds, never a second copy of it: this writes the same field, so the
         two cannot come to disagree about how the plot is drawn.
+
+        :param axis: ``"x"`` or ``"y"``; it names the ``<axis>_scale`` settings
+            field, and a value with no such field does nothing.
+        :param scale: a matplotlib axis scale, one of
+            :data:`~spacr.qt.widgets.gate_settings.AXIS_SCALES` (``"linear"``,
+            ``"log"``, ``"symlog"`` or ``"logit"``).
         """
         field = f"{axis}_scale"
         if not hasattr(self._settings, field):
@@ -984,6 +1081,9 @@ class GateEditorScreen(QWidget):
 
         Returns the pair that was applied, or ``None`` when the request was
         cancelled or could not be read.
+
+        :param axis: ``"x"`` or ``"y"``; an axis with no measurement chosen
+            returns ``None`` without asking.
         """
         column = self.axis_column(axis)
         if not column:
@@ -1009,6 +1109,10 @@ class GateEditorScreen(QWidget):
 
         Either end may be ``None``, meaning the data decides it.
 
+        :param axis: ``"x"`` or ``"y"``; an axis with no measurement chosen
+            does nothing.
+        :param low: the lowest value to show, or ``None``.
+        :param high: the highest value to show, or ``None``.
         :raises spacr.qt.widgets.gate_canvas.CutoffError: when the low end is
             not below the high one.
         """
@@ -1022,7 +1126,11 @@ class GateEditorScreen(QWidget):
         self._redraw_for_cutoffs()
 
     def clear_axis_cutoffs(self, axis: str) -> bool:
-        """Let ``axis`` follow the data again. Returns whether it was cut."""
+        """Let ``axis`` follow the data again. Returns whether it was cut.
+
+        :param axis: ``"x"`` or ``"y"``; an axis with no measurement chosen, or
+            with no cutoffs set, returns False.
+        """
         column = self.axis_column(axis)
         if not column or not self._cutoffs.clear(column):
             return False
@@ -1217,6 +1325,11 @@ class GateEditorScreen(QWidget):
         Two settings cost a read -- the sample fraction and the row cap. The
         rest are drawing, and re-reading a large table because the user
         nudged a colour map is the lag this dialog exists to remove.
+
+        :param settings: the complete new
+            :class:`~spacr.qt.widgets.gate_settings.GateEditorSettings`; it
+            replaces the current settings and is passed to the gate canvas and
+            the search panel.
         """
         previous, self._settings = self._settings, settings
         self.gates.apply_settings(settings)
@@ -1242,9 +1355,8 @@ class GateEditorScreen(QWidget):
 
         :returns: an error to show, or None on success.
         """
-        from ...merge_tables import ReductionError, reduce_dimensions
-
         from ...column_groups import resolve
+        from ...merge_tables import ReductionError, reduce_dimensions
 
         frame = self._frame
         if frame is None or frame.empty:
@@ -1361,6 +1473,7 @@ class GateEditorScreen(QWidget):
     def show_aggregation_rules(self) -> None:
         """The per-column merge rules, for the columns actually loaded."""
         from PySide6.QtWidgets import QMessageBox
+
         from ..widgets.aggregation_rules import AggregationRulesDialog
 
         frame = self._frame
@@ -1410,14 +1523,13 @@ class GateEditorScreen(QWidget):
         its fonts embedded as TrueType. Calling matplotlib directly would
         give none of that.
 
-        WHAT IT DOES NOT DO IS RESTYLE FOR PRINT. The colours it applies
-        are the ones the preferences resolve to, and the "auto" halves
-        follow the app theme -- so under a dark theme the text is white on
-        a transparent page, which disappears on paper. That is deliberate
-        where it is decided (`_export_vector_pdf` explains why the export
-        and the on-screen refinement have to agree), and the way to get a
-        print-ready file is to set the figure background and text colours
-        explicitly rather than leaving them on "follow the theme".
+        THE FILE GETS THE PRINT STYLE. Decision 2026-09-25 (item 50):
+        "saved graphs (PDF/PNG) get a WHITE PRINT STYLE (white background,
+        dark text/axes/lines) whatever the screen theme". The render passes
+        ``for_print=True``, which styles a detached copy white with dark ink,
+        so the graph on screen keeps the theme's colours. The extension the
+        user picked decides whether the PDF is written, so choosing PDF in
+        the dialog under a PNG preference still gives a PDF.
 
         :param path: destination. Empty opens a file dialog.
         :returns: the path written, or "" when cancelled or nothing is
@@ -1448,7 +1560,9 @@ class GateEditorScreen(QWidget):
         from ..widgets.figure_queue import render_figure_to_png
         png_path = target.with_suffix(".png")
         try:
-            ok = render_figure_to_png(figure, str(png_path))
+            ok = render_figure_to_png(
+                figure, str(png_path), for_print=True,
+                write_pdf=target.suffix.lower() == ".pdf")
         except Exception as exc:
             LOG.info("saving the gate graph failed: %s", exc, exc_info=True)
             self.console.write(f"Could not save the graph: {exc}")
@@ -1465,6 +1579,9 @@ class GateEditorScreen(QWidget):
         """Write every gate to the database as a column of ``filters``."""
         from PySide6.QtWidgets import QMessageBox
 
+        if not self._has_merge_image_provenance():
+            self._source.setText("This merge has no verified image/object provenance; save the gating strategy for tabular reuse.")
+            return
         gates = self.gates.gates
         if gates.is_empty:
             QMessageBox.information(self, "No gates",
@@ -1487,8 +1604,11 @@ class GateEditorScreen(QWidget):
 
         self._source.setText(f"exporting {len(gates)} gate(s)…")
         self._jobs.cancel()
+        gate_snapshot = GateSet.from_dict(gates.to_dict())
         self._jobs.submit(
-            lambda p=path, t=table, g=gates: self._write_gates(p, t, g),
+            lambda p=path, t=table, g=gate_snapshot,
+                   strategy=self._gate_strategy_path:
+                self._write_gates_checked(p, t, g, strategy),
             self._on_exported)
 
     @staticmethod
@@ -1504,19 +1624,47 @@ class GateEditorScreen(QWidget):
         formula the database does not have must not cost the user the other
         five.
         """
+        from ...derived_tables import execute, load_definitions
         from ...filters import FilterError, export_gate, gate_mask_over_table
-
+        definition = load_definitions(path).get(table)
+        derived_frame = execute(path, definition)[0] if definition else None
+        if definition and not derived_frame.attrs.get("image_provenance"):
+            return [], [(g.name, "No verified image/object provenance") for g in gates.gates]
         written, failed = [], []
         for gate in gates.gates:
             try:
-                frame, mask = gate_mask_over_table(path, table, gates, gate.name)
+                if derived_frame is not None:
+                    frame = derived_frame
+                    mask = gates.mask(frame, gate.name)
+                else:
+                    frame, mask = gate_mask_over_table(path, table, gates, gate.name)
                 column, marked = export_gate(
-                    path, frame, mask, gate.name, object_type=table)
+                    path, frame, mask, gate.name, object_type=definition["base"] if definition else table)
                 written.append((column, marked))
             except (FilterError, Exception) as exc:
                 LOG.info("could not export gate %r", gate.name, exc_info=True)
                 failed.append((gate.name, str(exc)))
         return written, failed
+
+    @staticmethod
+    def _write_gates_checked(path: str, table: str, gates: GateSet, strategy: str):
+        """Check live gates and record provenance only for successful writes.
+
+        :param path: Destination measurement database.
+        :param table: Source table or saved derived-table name.
+        :param gates: Snapshot of the live gates actually being exported.
+        :param strategy: Saved strategy path used to identify applicable locks.
+        :returns: Written columns, failures, and gate-specific lock verdicts.
+        """
+        verdicts = _gate_export_lock_verdicts(strategy, gates)
+        written, failed = GateEditorScreen._write_gates(path, table, gates)
+        if written:
+            try:
+                _record_gate_export_provenance(path, table, gates, strategy, written, verdicts)
+            except Exception as exc:
+                LOG.exception("gate columns written but export provenance could not be saved")
+                failed.append(("export provenance", str(exc)))
+        return written, failed, verdicts
 
     def annotate_from_gates(self) -> None:
         """Label every object from the gates currently shown.
@@ -1526,8 +1674,12 @@ class GateEditorScreen(QWidget):
         be asking a question they have already answered.
         """
         from PySide6.QtWidgets import QInputDialog, QMessageBox
+
         from ...filters import ANNOTATION_MODES, FilterError, annotate_from_gates
 
+        if not self._has_merge_image_provenance():
+            self._source.setText("This merge has no verified image/object provenance.")
+            return
         names = list(self.gates.canvas.enabled_gates)
         if not names:
             QMessageBox.information(
@@ -1568,10 +1720,11 @@ class GateEditorScreen(QWidget):
                                  f"(not written: this table came from a file)")
             return
 
+        annotation_column = column.strip()
         self._jobs.submit(
-            lambda p=path, f=frame, l=labels, c=column.strip(),
-                   t=(self._table or ""):
-                self._write_annotation(p, f, l, c, t),
+            lambda p=path, f=frame, labels_=labels, c=annotation_column,
+                   t=(self._merge_definition["base"] if self._merge_definition else self._table or ""):
+                self._write_annotation(p, f, labels_, c, t),
             lambda payload: self._source.setText(
                 f"wrote {payload[0]} — {summary}"))
 
@@ -1601,12 +1754,17 @@ class GateEditorScreen(QWidget):
         :param payload: the worker's ``(written, failed)`` pair -- ``written`` as
             ``(column, n_marked)`` and ``failed`` as ``(name, reason)``.
         """
-        written, failed = payload
+        written, failed = payload[:2]
+        verdicts = payload[2] if len(payload) > 2 else []
         parts = [f"{column} ({marked:,} objects)" for column, marked in written]
         message = ("wrote " + ", ".join(parts)) if parts else "nothing written"
         if failed:
             message += " · could not export " + ", ".join(
                 f"{name} ({why})" for name, why in failed)
+        if written and verdicts:
+            from ..i18n import tr
+            message += " · " + "; ".join(tr("Gate export: {summary}", summary=verdict["summary"])
+                                         for verdict in verdicts)
         self._source.setText(message)
 
     def _on_load_failed(self, message: str) -> None:
@@ -1622,6 +1780,17 @@ class GateEditorScreen(QWidget):
     def _on_table_added(self, _index: int) -> None:
         """Picking a table ADDS it to the working set."""
         name = self._table_picker.currentText()
+        from ...derived_tables import load_definitions
+        if self._path and name in load_definitions(self._path):
+            self._tables = [name]
+            self.load_path(self._path, table=name)
+            self._rebuild_chips()
+            return
+        if self._merge_definition and name:
+            self._tables = [name]
+            self.load_path(self._path, table=name)
+            self._rebuild_chips()
+            return
         if not name or name in self._tables:
             return
         self._tables.append(name)
@@ -1634,6 +1803,9 @@ class GateEditorScreen(QWidget):
         The last one cannot be dropped: a gate editor with no table is a
         screen with nothing on it, and the user's next move would be to load
         the same table again.
+
+        :param name: the table name. A table not in the working set, or the
+            last remaining table, does nothing.
         """
         if name not in self._tables or len(self._tables) == 1:
             return
@@ -1712,6 +1884,9 @@ class GateEditorScreen(QWidget):
         inside its own id, where nothing can block on it or colour by it.
         Dropping one of the two databases keeps every remaining number
         meaning what it says.
+
+        :param name: the database's chip label or its path. An unknown name, or
+            the last remaining database, does nothing.
         """
         labels = self.database_labels()
         target = None
@@ -1762,8 +1937,8 @@ class GateEditorScreen(QWidget):
             paths = list(self._paths)
             labels = self.database_labels()
             self._jobs.submit(
-                lambda p=paths, l=labels, t=tables, c=cap, m=policy:
-                    (t[0], self._read_across_databases(p, l, t, c, m)),
+                lambda p=paths, labels_=labels, t=tables, c=cap, m=policy:
+                    (t[0], self._read_across_databases(p, labels_, t, c, m)),
                 self._on_frame_loaded)
             return
         self._jobs.submit(
@@ -1850,7 +2025,11 @@ class GateEditorScreen(QWidget):
             self.save_filters(path)
 
     def save_filters(self, path: str) -> str:
-        """Write the current filter set to ``path``."""
+        """Write the current filter set to ``path``.
+
+        :param path: the file to write the current filter set to, as JSON; an
+            existing file is overwritten.
+        """
         self.filters.save(path)
         self._source.setText(f"filters saved to {os.path.basename(path)}")
         return path
@@ -1870,6 +2049,10 @@ class GateEditorScreen(QWidget):
         one plate and loaded against another is an ordinary thing to do, and
         a set that half-applies selects the wrong rows while looking like it
         worked.
+
+        :param path: a JSON filter-set file written by :meth:`save_filters`. A
+            file that cannot be read is reported on the source line and gives
+            an empty list.
         """
         try:
             missing = self.filters.load(path)
@@ -1895,9 +2078,20 @@ class GateEditorScreen(QWidget):
             self.save_gates(path)
 
     def save_gates(self, path: str) -> str:
-        """Write the gating strategy to ``path``."""
-        self.gates.gates.save(path)
-        self._source.setText(f"gates saved to {os.path.basename(path)}")
+        """Write the gating strategy to ``path``.
+
+        :param path: the file to write the gating strategy to, as JSON; an
+            existing file is overwritten.
+        """
+        payload = self.gates.gates.to_dict()
+        if self._merge_definition:
+            payload["merge_definition"] = self._merge_definition
+        Path(path).write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        self._gate_strategy_path = str(Path(path).resolve())
+        text = f"gates saved to {os.path.basename(path)}"
+        noted = _with_lock_notes(text, path)
+        self._gate_file_note_suffix = noted[len(text):]
+        self._source.setText(noted)
         return path
 
     def choose_load_gates(self) -> None:
@@ -1914,15 +2108,45 @@ class GateEditorScreen(QWidget):
         A strategy naming a measurement this table does not carry loads anyway
         and reports the problem: the gates are still there to look at and fix,
         which is more use than refusing the file.
+
+        :param path: a JSON gate file written by :meth:`save_gates`. A file
+            that cannot be read is reported on the source line and gives False.
         """
         try:
-            self.gates.set_gates(GateSet.load(path))
+            payload = json.loads(Path(path).read_text(encoding="utf-8"))
+            definition = payload.get("merge_definition")
+            loaded_gates = GateSet.from_dict(payload)
+            if definition:
+                from ...derived_tables import execute, save_definition
+                if not self._path:
+                    raise ValueError("Open the strategy's source database before loading its merged table.")
+                frame, _report = execute(self._path, definition)
+                save_definition(self._path, definition)
+                self._jobs.cancel()
+                self._table = definition["name"]
+                self._tables = [self._table]
+                self._table_picker.blockSignals(True)
+                if self._table_picker.findText(self._table) < 0:
+                    self._table_picker.addItem(self._table)
+                self._table_picker.setCurrentText(self._table)
+                self._table_picker.blockSignals(False)
+                self._rebuild_chips()
+                self.set_frame(frame)
+            previous_strategy = self._gate_strategy_path
+            self._gate_strategy_path = str(Path(path).resolve())
+            try:
+                self.gates.set_gates(loaded_gates)
+            except Exception:
+                self._gate_strategy_path = previous_strategy
+                raise
         except (GateError, OSError, ValueError) as exc:
             LOG.info("could not load gates from %s: %s", path, exc)
             self._source.setText(f"could not load those gates: {exc}")
             return False
-        self._source.setText(
-            f"{len(self.gates.gates)} gate(s) from {os.path.basename(path)}")
+        text = f"{len(self.gates.gates)} gate(s) from {os.path.basename(path)}"
+        noted = _with_lock_notes(text, path)
+        self._gate_file_note_suffix = noted[len(text):]
+        self._source.setText(noted)
         return True
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
@@ -1933,6 +2157,100 @@ class GateEditorScreen(QWidget):
         self._jobs.shutdown()
         self.gates.close()
         super().closeEvent(event)
+
+
+def _gate_export_lock_verdicts(strategy: str, gates: GateSet, *,
+                              scope="exported_gating_strategy", resolved=False) -> list:
+    """Compare a live strategy against locks holding its saved path.
+
+    This checks gating-strategy coverage, not unrelated pipeline settings or
+    unrecorded merge definitions. Existing journal helpers retain lock digest,
+    first-seen edit timing and post-hoc semantics. No applicable lock produces
+    no verification claim.
+
+    :param strategy: Last successfully saved or loaded strategy path.
+    :param gates: Live gates, including unsaved edits.
+    :param scope: Whether this check describes an edit or an exported strategy.
+    :param resolved: Strategy path was already canonicalized at save/load time;
+        avoid touching a potentially remote filesystem during live edits.
+    :returns: Gate-specific verdicts for every applicable analysis lock.
+    """
+    if not strategy:
+        return []
+    from ...run_journal import _gate_deviations, _lock_verdict, _locks_root
+    label = str(strategy) if resolved else str(Path(strategy).resolve())
+    verdicts = []
+    for lock_path in sorted(_locks_root().glob("*.json")):
+        try:
+            record = json.loads(lock_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            LOG.warning("could not read analysis lock %s during gate export", lock_path)
+            continue
+        if not isinstance(record, dict) or label not in (record.get("gates") or {}):
+            continue
+        # Restrict gate comparison before calling the journal helper, so another
+        # locked strategy on a remote filesystem is never opened by this edit.
+        target = {**record, "gates": {label: record["gates"][label]}}
+        deviations = _gate_deviations(target, {label: gates})
+        verdict = _lock_verdict(record, deviations)
+        verdict["scope"] = scope
+        verdicts.append(verdict)
+    return verdicts
+
+
+def _record_gate_export_provenance(path: str, table: str, gates: GateSet,
+                                   strategy: str, written: list, verdicts: list) -> None:
+    """Attach an atomic provenance receipt for successfully written gate columns.
+
+    Filters are written by the established writer before this separate receipt
+    transaction. Failed gate writes never receive a receipt; a receipt failure
+    is reported to the user without claiming the successful filter writes failed.
+
+    :param path: Destination measurement database.
+    :param table: Physical or derived source name.
+    :param gates: Exact gate definitions used for export.
+    :param strategy: Saved strategy path, or empty for unsaved gates.
+    :param written: Successfully exported column/count pairs.
+    :param verdicts: Applicable gate-specific analysis lock verdicts.
+    """
+    import sqlite3
+
+    from ...derived_tables import load_definitions
+    from ...run_journal import _utc_now
+    receipt = {"schema": 1, "exported_utc": _utc_now(), "source_table": table,
+               "strategy_path": strategy or None, "gates": gates.to_dict(),
+               "merge_definition": load_definitions(path).get(table),
+               "analysis_locks": verdicts,
+               "lock_coverage": "checked" if verdicts else "no_applicable_strategy_lock",
+               "written": [{"column": column, "marked_objects": count} for column, count in written]}
+    with sqlite3.connect(path) as db:
+        db.execute("CREATE TABLE IF NOT EXISTS filter_export_provenance "
+                   "(exported_utc TEXT NOT NULL, source_table TEXT NOT NULL, "
+                   "gate_column TEXT NOT NULL, receipt_json TEXT NOT NULL)")
+        db.executemany("INSERT INTO filter_export_provenance VALUES (?, ?, ?, ?)",
+                       [(receipt["exported_utc"], table, column,
+                         json.dumps(receipt, sort_keys=True)) for column, _count in written])
+
+
+def _with_lock_notes(text: str, path: str) -> str:
+    """``text``, followed by how the gate file stands against analysis locks.
+
+    A gate file an analysis lock (item 573) holds is compared with the lock
+    whenever it is saved or loaded, so moving a locked gate is seen here and
+    not first in the report. A file no lock holds adds nothing.
+
+    :param text: what the source line says about the save or load.
+    :param path: the gate file.
+    :returns: the source line text.
+    """
+    try:
+        from ...run_journal import _gate_file_lock_notes
+        notes = _gate_file_lock_notes(path)
+    except Exception:
+        LOG.debug("could not compare %s with the analysis locks", path,
+                  exc_info=True)
+        notes = []
+    return "; ".join([text, *notes])
 
 
 def make_gate_editor_screen(app_key: Optional[str] = None) -> QWidget:

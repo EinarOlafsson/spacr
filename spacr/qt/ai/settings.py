@@ -174,7 +174,12 @@ def get_auto_file_issues() -> bool:
 
 
 def set_auto_file_issues(enabled: bool) -> None:
-    """Store the GitHub issue-filing preference."""
+    """Store the GitHub issue-filing preference.
+
+    :param enabled: whether reports may be filed as GitHub issues
+        automatically; coerced with ``bool()`` and saved under
+        ``ai/auto_file_issues`` in spaCR's ``QSettings``.
+    """
     _settings().setValue(_KEY_AUTO_ISSUE, bool(enabled))
 
 
@@ -247,7 +252,12 @@ def get_route_errors_through_ai() -> bool:
 
 
 def set_route_errors_through_ai(enabled: bool) -> None:
-    """Store the pipeline-error routing preference."""
+    """Store the pipeline-error routing preference.
+
+    :param enabled: whether pipeline errors are routed through the AI
+        assistant; coerced with ``bool()`` and saved under
+        ``ai/route_errors_through_ai`` in spaCR's ``QSettings``.
+    """
     _settings().setValue(_KEY_ROUTE_ERRORS, bool(enabled))
 
 
@@ -265,5 +275,10 @@ def get_console_aware() -> bool:
 
 
 def set_console_aware(enabled: bool) -> None:
-    """Store the console-context sharing preference."""
+    """Store the console-context sharing preference.
+
+    :param enabled: whether console context may be shared with the AI
+        assistant; coerced with ``bool()`` and saved under ``ai/console_aware``
+        in spaCR's ``QSettings``.
+    """
     _settings().setValue(_KEY_CONSOLE_AWARE, bool(enabled))

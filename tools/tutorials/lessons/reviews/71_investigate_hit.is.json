@@ -1,0 +1,41 @@
+{
+  "lesson": "71_investigate_hit",
+  "english_sha256": "33c50f8138627fad82401bb62af5f6e386536045275074685bcd5bc13bf13620",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Investigate Hit: rektu gen úr Regression aftur til mældra frumna",
+  "description": "Sendu gen úr Hit List í Investigate Hit, bættu við mæligagnagrunninum, spám fyrir hverja frumu og hlutföllum leiðsagnar-RNA og lestu svo vísbendingarnar á brunnastigi.",
+  "objectives": [
+    "Opna Regression-keyrslu í Hit List, athuga q-gildi og senda eitt gen í Investigate Hit.",
+    "Velja mæligagnagrunn, frumuspár, hlutföll leiðsagnar-RNA og stigadálk.",
+    "Lesa flipana fyrir vísbendingar, brunna, leiðsagnar-RNA og þröskuld og finna vistuðu töflurnar."
+  ],
+  "prerequisite": "Afþjappaðu Investigate_Hit_real_screen_example.zip. Allt í því kemur úr einni raunverulegri skimun: Regression-keyrslunni á prófunargögnum Regression (stillingunum úr Regression-kennslunni), samsvarandi CV-spám fyrir hverja frumu og mæligagnagrunni með raunverulegum mælingum á lögun, stærð og styrk sömu frumna. Til að halda niðurhalinu litlu inniheldur gagnagrunnurinn 52 brunna: alla greinda brunna með leiðsagnar-RNA fyrir gen 225160 og, fyrir hvern þeirra, þrjá brunna án þess af sömu plötu. Ekkert gen í þessari fljótlegu Regression-keyrslu stenst q ≤ 0,05. Líttu á rannsóknina sem útreiknað dæmi, ekki staðfestan smell.",
+  "scenes": [
+    "Frá Home opnarðu Regression. Investigate Hit byrjar á lokinni Regression-keyrslu. Það spyr hvort mældar frumur í brunnunum á bak við eitt gen líti öðruvísi út en frumur í brunnum án þess gens.",
+    "Veldu Hits til að opna Hit List. Afþjappaðu fyrst dæmasafnið. Það inniheldur Regression-keyrslu á prófunargögnunum, samsvarandi CV-spár fyrir hverja frumu og mæligagnagrunn fyrir sömu frumur. Allt þrennt kemur úr einni raunverulegri skimun.",
+    "Smelltu á Browse og veldu möppuna guide_permutation í regression_run, results. Þetta er úttak keyrslunnar á prófunargögnunum í Regression-kennslunni.",
+    "Hit List raðar 325 genum. Lestu áhrifin, P-gildið og q-gildið í hverri línu saman, ásamt fjölda leiðsagnar-RNA og hversu mörg þeirra eru samstíga.",
+    "Stilltu Max q á 0,05. Taflan tæmist því ekkert gen í þessari keyrslu nær q-gildi upp á 0,05 eða lægra. Með 199 umröðunum er minnsta mögulega P-gildið 0,005 og lægsta q-gildið um 0,27. Það sem á eftir fer skoðar því raðaðan kandídat, ekki staðfestan smell.",
+    "Stilltu Max q aftur á 1, leitaðu að 225160 og veldu línuna. Það hefur áhrifin 0,34, q-gildið 0,27 og þrjú leiðsagnar-RNA sem öll vísa í sömu átt.",
+    "Smelltu á Investigate selected. Investigate Hit opnast með niðurstöðumöppunni, geninu, þremur leiðsagnar-RNA þess og jákvæðri áhrifastefnu sem þegar hafa verið fyllt út úr línunni.",
+    "Við hliðina á Measurements database smellirðu á Browse og velur measurements.db úr dæminu. Hann geymir lögun, stærð og meðalstyrk rása fyrir 8.915 frumur í 52 brunnum.",
+    "Fyrir Existing CV predictions velurðu cv_predictions.csv. Hver lína er vistað CV-stig einnar frumu, tengt sama mælda hlutnum. Smelltu á slóðina og ýttu á Enter svo stigadálkarnir séu lesnir og haltu svo pred sem stigadálki svipgerðar.",
+    "Fyrir Well/guide fractions velurðu regression_data.csv í sömu niðurstöðumöppu. Regression skrifaði þessa töflu. Hún gefur hlutfall hvers leiðsagnar-RNA í hverjum greindum brunni.",
+    "Hafðu Independent morphology features tómt. Þá notar einingin 13 tölulegar frumumælingar gagnagrunnsins og sleppir auðkennum, hlutföllum leiðsagnar-RNA og CV-stiginu, svo þessi athugun endurnýti ekki stigið. Fyrir eigin gagnagrunn tilgreinirðu aðeins mælidálka án gilda sem vantar.",
+    "Smelltu á Investigate hit. Líkanið er aðlagað þannig að ein plata er haldin utan í einu, svo engin fruma fær stig frá líkani sem var þjálfað á hennar eigin plötu. Hlutfall leiðsagnar-RNA í brunni ákvarðar aðeins upphafsvæntingu fyrir frumur hans. Það merkir aldrei frumu sem bera leiðsagnar-RNA-ið. Þetta dæmi tekur nokkrar mínútur.",
+    "Evidence sýnir niðurstöðuna. Markbrunnar hafa smell-líka tíðni sem er aðeins 0,01 hærri en í viðmiðunarbrunnum. Ræsiúrtaksbilið eftir brunnum nær frá mínus 0,04 til plús 0,06, og P-gildi blokkaðrar umröðunar er um 0,63. Frumurnar styðja ekki þennan kandídat.",
+    "Wells sýnir hlutfall leiðsagnar-RNA, meðallíkur á smell-líkri svipgerð, tíðni og fjölda frumna fyrir hvern brunn. Hver brunnur telst ein óháð eining, svo samanburðurinn notar 13 markbrunna og 39 viðmiðunarbrunna, ekki einstakar frumur.",
+    "Guides sýnir hvert markleiðsagnar-RNA fyrir sig. Skammtasvörun þeirra vísar í ólíkar áttir, sem er enn ein ástæða til að líta ekki á þetta gen sem smell.",
+    "Threshold sensitivity endurtekur samanburðinn við líkindamörk frá 0,5 upp í 0,9. Við hver mörk helst munurinn nálægt 0,01, svo niðurstaðan veltur ekki á mörkunum.",
+    "Candidate cells raðar frumunum eftir smell-líkum líkum, með upprunalega stiginu og brotinu sem gaf hverri frumu stig. Þessar líkur lýsa smell-líkri lögun, ekki því hvaða leiðsagnar-RNA fruma bar. Færðu flokkanir aðeins yfir í merkingu þegar vísbendingarnar á brunnastigi eru sannfærandi. Undo afturkallar færslu.",
+    "Töflurnar vistast í niðurstöðumöppunni undir hit_investigation og svo 225160. Þær innihalda þessa innfellingu og upptalningarskrá, og hver keyrsla er líka geymd sem ný útgáfa í gagnagrunninum. Dæmið hefur engar úrklippumyndir, svo yfirferðarsafnið er tómt. Næst skaltu rannsaka gen sem stenst þröskuldinn þinn í Regression-keyrslu með fleiri umröðunum."
+  ]
+}

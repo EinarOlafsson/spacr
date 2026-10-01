@@ -1316,7 +1316,12 @@ class TestPanelSettings:
         s = p._compartment_settings()
         for comp in LP.COMPARTMENTS:
             for suffix, *_ in LP.COMPARTMENT_FIELDS:
-                assert f"{comp}_{suffix}" in s
+                key = f"{comp}_{suffix}"
+                if LP._retired_bound(key):
+                    assert key not in s
+                else:
+                    assert key in s
+        assert s["object_filters"] == {}
         assert s["adjust_cells"] is False
         assert s["remove_background_cell"] is False
 
@@ -1330,8 +1335,14 @@ class TestPanelSettings:
         for comp in LP.COMPARTMENTS:
             for suffix, *_ in LP.COMPARTMENT_FIELDS:
                 key = f"{comp}_{suffix}"
+                if LP._retired_bound(key):
+                    # Item 511, 2026-09-25: the bound is an object_filters
+                    # row, and the run's default is no row at all.
+                    assert key not in pipeline and key not in live
+                    continue
                 assert key in pipeline, f"the run does not define {key}"
                 assert live[key] == pipeline[key], f"{key} drifted"
+        assert live["object_filters"] == pipeline["object_filters"] == {}
 
     def test_default_filters_are_neutral_so_a_preview_shows_raw_masks(
             self, qtbot):
@@ -1654,6 +1665,89 @@ class TestWorkerLifecycle:
         assert threads[0] is p.thread()
         assert threads[0] is QThread.currentThread()
 
+    def test_all_worker_handlers_keep_gui_affinity_with_plain_spies(
+            self, qtbot, monkeypatch, gray_tif):
+        """Keep delivery and real rendering on the GUI thread through spies.
+
+        :param qtbot: Qt event loop and widget lifetime helper.
+        :param monkeypatch: temporary segmenter and handler instrumentation.
+        :param gray_tif: the preview image path.
+        :returns: None.
+        """
+        p = _panel(qtbot)
+        p.load_image(gray_tif)
+        mask = np.zeros((48, 48), np.int32)
+        mask[8:24, 8:24] = 1
+        flow = np.full((48, 48, 3), 175, np.uint8)
+        cellprob = np.full((48, 48), 0.25, np.float32)
+        compute_threads = []
+
+        def segment(req):
+            """Return identifiable results from the actual worker thread.
+
+            :param req: the worker's preview request.
+            :returns: masks, flow images and probability maps.
+            """
+            compute_threads.append(QThread.currentThread())
+            req.provenance = {"identity": "thread-regression"}
+            return {"cell": mask}, {"cell": flow}, {"cell": cellprob}
+
+        monkeypatch.setattr(LP, "_segment_multi", segment)
+        handlers = ("_on_processing_provenance", "_on_worker_done",
+                    "_on_flows_ready", "_on_cellprob_ready",
+                    "_on_worker_finished")
+        seen = []
+        for name in handlers:
+            handler = getattr(p, name)
+
+            def spy(*args, _name=name, _handler=handler):
+                """Observe the delivery thread and run the original handler.
+
+                :param args: the worker signal's payload.
+                :param _name: the handler being observed.
+                :param _handler: the original bound handler.
+                :returns: the original handler's return value.
+                """
+                seen.append((_name, QThread.currentThread(), args))
+                return _handler(*args)
+
+            monkeypatch.setattr(p, name, spy)
+        overlay_threads = []
+        overlay = LP.overlay_masks
+
+        def render(*args, **kwargs):
+            """Observe real overlay rendering without replacing its result.
+
+            :param args: positional overlay inputs.
+            :param kwargs: overlay display settings.
+            :returns: the rendered RGB overlay.
+            """
+            overlay_threads.append(QThread.currentThread())
+            return overlay(*args, **kwargs)
+
+        monkeypatch.setattr(LP, "overlay_masks", render)
+        ready = []
+        p.preview_ready.connect(ready.append)
+        p.run_preview()
+        qtbot.waitUntil(lambda: len(seen) == len(handlers), timeout=5000)
+        assert compute_threads == [p._worker]
+        assert p._worker is not p.thread()
+        assert [name for name, _thread, _args in seen] == list(handlers)
+        assert all(thread is p.thread() for _name, thread, _args in seen)
+        assert overlay_threads and all(
+            thread is p.thread() for thread in overlay_threads)
+        assert all(args[-1] == p._run_token for _name, _thread, args in seen[:-1])
+        assert seen[-1][2] == ()
+        assert len(ready) == 1 and ready[0] is p._masks
+        assert p._raw_masks["cell"] is mask
+        np.testing.assert_array_equal(p._masks["cell"], mask)
+        assert p._flows["cell"] is flow
+        assert p._cellprob["cell"] is cellprob
+        assert p._processing_provenance["identity"] == "thread-regression"
+        assert p._history[-1]["processing_provenance"] == p._processing_provenance
+        assert _pixmap_pixel(p._mask_view, 8, 8) == p._auto_outline_colour("cell")
+        assert p._run_btn.isEnabled()
+
     def test_workers_do_not_accumulate_across_runs(self, qtbot, monkeypatch,
                                                    gray_tif):
         """Each worker is parented to the panel, so without an explicit
@@ -1828,7 +1922,9 @@ class TestPropagation:
         p.propagate_settings()
         assert len(seen) == 1
         assert seen[0]["model_name"] == "cpsam"
-        assert seen[0]["cell_min_area"] == 321
+        assert "cell_min_area" not in seen[0]
+        assert seen[0]["object_filters"]["cell"] == [
+            {"property": "area", "min": 321.0, "max": None}]
 
     def test_a_throwing_callback_is_swallowed(self, qtbot):
         p = _panel(qtbot)
@@ -1864,7 +1960,8 @@ class TestPropagation:
             assert seen[-1]["cell_diameter"] == pytest.approx(55.0)
 
             p._compartment_widgets["nucleus"]["min_area"].setValue(77)
-            assert seen[-1]["nucleus_min_area"] == 77
+            assert LP._bound_from_filters(
+                seen[-1], "nucleus", "min_area") == 77
 
             n = len(seen)
             dlg._propagate_btn.setChecked(False)

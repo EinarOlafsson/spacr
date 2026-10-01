@@ -149,13 +149,6 @@
       "translation": "{name} स्थापित करें"
     },
     {
-      "key": "Install",
-      "source": "Install",
-      "source_sha256": "569ca49f4aaf7846e952c1d4aeca72febd0b79fa1c4f9db08fd3127551218572",
-      "table": "ui",
-      "translation": "स्थापित करें"
-    },
-    {
       "key": "Uninstall",
       "source": "Uninstall",
       "source_sha256": "fe199528850a4e24c14d9ece87a07b40bdcfa5fe504c175c117b997c29259ca6",
@@ -318,5 +311,17 @@
     }
   ],
   "review_kind": "AI-assisted source/target and technical review of backend descriptions, licence/provenance notes and installer controls. Bibliographic titles, reported scores, package names, versions and licence identifiers are retained. Two model names remain literal identities. No independent score verification or native-speaker sign-off.",
-  "schema": 1
+  "schema": 1,
+  "retired_records": [
+    {
+      "record": {
+        "key": "Install",
+        "source": "Install",
+        "source_sha256": "569ca49f4aaf7846e952c1d4aeca72febd0b79fa1c4f9db08fd3127551218572",
+        "table": "ui",
+        "translation": "स्थापित करें"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    }
+  ]
 }

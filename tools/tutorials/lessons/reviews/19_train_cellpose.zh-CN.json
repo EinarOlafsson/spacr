@@ -1,31 +1,36 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "524f011def972d4ba17df823927da3ab8f2c84e0301df7903737e67717246384",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "1bc761b3425b075ebda076f50b4a7aafb5e76b855a1e57b2b75853650546765f",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "zh-CN",
-  "title": "Train Cellpose：经核查的配对数据与明确的API替代步骤",
-  "description": "找到Cellpose Workbench内的Train，识别当前来源导入缺陷，并用六组可下载细胞图像和掩膜完成真实的两轮Python训练演示。",
+  "title": "训练Cellpose模型",
+  "description": "准备图像与掩膜对，在Cellpose Workbench中微调分割模型，并应用保存的检查点。",
   "objectives": [
-    "在Make Masks内找到Train和Apply，而不是寻找独立Home入口。",
-    "核对配对文件名，区分现有标签和经复核的真实参考。",
-    "识别部分导入，将API流程与有缺陷的GUI区分。",
-    "检查真实输入、预热学习率、权重变化和已验证路径。",
-    "区分训练损失、测试占位值、权重读取和独立准确性评估。"
+    "在Make Masks中检查图像及其对应的对象标签掩膜。",
+    "选择训练文件夹、起始模型、训练计划和输出位置。",
+    "运行训练，找到检查点，并将其应用到其他图像。"
   ],
-  "prerequisite": "使用链接中的六组配对数据、录制脚本和来源清单。真实视野保留细胞强度通道1和细胞掩膜平面4；平面6是病原体。现有标签及边缘截断物体未经独立人工复核，不能称作已确认真实标签。Train虽然导入数值，仍丢弃src并保留model_name=new_model，因此不启动GUI训练。明确调用spacr.submodules.train_cellpose，使用全新目录、两轮、minibatch 1、learning_rate=1e-5、weight_decay=1e-5、target_size=512，关闭spaCR额外扩增。normalize=False只关闭spaCR百分位预处理，不关闭除以最大值或Cellpose内部归一化。Cellpose仍旋转和缩放，内部块为256像素。入口种子19，内部随机过程仍存在。录像RTX 3090的CUDA上限65%，100GiB内存保护仅适用于该工作站。核查3,145,728个输入值及十二个展示数组，六组都保留在训练中。实际学习率为0和1.1111111111111112e-6，347个可训练参数张量中345个改变。损失从1.496740683913231升至1.5215517828861873。未提供测试数据，测试零值仅为占位。实际检查点在models/cellpose_model/models下，以weights_only=True读取；一般日志省略第二个models。读取不是推理或准确性验证。真实图在外部查看器显示，不插入GUI。保留原始数据、失败录像及原GUI阻塞证据。没有AI请求、服务回答、科学批准或发布。",
+  "prerequisite": "下载并解压链接中的示例：六张带掩膜的训练图像，另有三张单独用于Apply的图像。或者准备您自己的图像及对应的整数标签掩膜，并在训练前于Make Masks中检查。",
   "scenes": [
-    "打开Make Masks，再进入内部的Cellpose Workbench。Train和Apply是其中的标签页，不是独立Home入口。本课展示当前路径、设置导入问题以及明确的Python替代步骤。训练前如何检查和编辑掩膜，请参阅链接中的Make Masks课程。",
-    "在Train中查看起点和训练计划。不要把初始轮数或学习率当作建议照抄。训练需要配对图像和实例掩膜、来源目录以及输出名称。仅仅看到表单，不代表这些要求已经满足。",
-    "真实的Import settings选择器打开包含小规模示例设置的CSV。导入后显示两轮、批量一和较小学习率，但必需的来源被丢弃，指定名称仍为new model。这是部分导入，不是可运行配置，请勿按Run。",
-    "下面的Python流程与GUI缺陷是分开的。它不会暗中设置隐藏来源，也不会修复表单。请在新文件夹使用链接中的示例包。脚本拒绝已存在的目标，保留原始配对数据，并明确记录使用的API实现及输入。",
-    "共有六组真实的五百一十二像素图像和掩膜，文件名一一对应。原始设置标明细胞强度为通道一，细胞掩膜为平面四，平面六是病原体。这些现有标签未经独立复核。用于正式训练前，应检查边界以及被裁切的物体。",
-    "这是API运行保存的真实六组配对图，在外部查看器中打开，并未插入spaCR。每张上方图像对应正下方掩膜。我们核对了所有输入图像和标签值，以及十二个显示数组与原数据的一致性。这证明对应关系，不证明标注质量。",
-    "向脚本提供数据来源及新目标目录。这个小规模CUDA示例使用全部六组、两轮和批量一。输入目标为五百一十二像素，而Cellpose内部以二百五十六像素块训练。关闭spaCR额外扩增，不会关闭Cellpose自己的归一化、旋转和缩放。",
-    "第一轮预热学习率为零，第二轮使用较小正值，使权重能够实际更新。将保存检查点与初始可训练权重比较后，三百四十七个参数张量中三百四十五个发生变化。仅改变直径设置无法通过检查。权重改变仍不能证明模型好。",
-    "训练损失从约一点四九七略升至一点五二二。没有提供测试集，测试损失中的零只是占位，不代表完美表现。这是简短的运行机制演示，不说明收敛、分割改善或独立数据准确率。独立评估应与训练分开。",
-    "请使用验证文件中的检查点路径。它包含一般日志省略的第二个models目录。检查点应与设置、来源清单和检查记录一起保留。安全读取张量只验证文件可读，不是推理结果；下载包提供数据对和脚本，而非获认证模型。",
-    "Apply有独立来源目录、自定义模型字段和实时预览。打开标签页不会自动选择外部检查点，也不会运行推理。请先阅读链接教程，并用独立图像验证。本例未使用可选spaCR AI，任何问题或服务回答都不能代替检查真实证据。"
+    "从Home打开Tools，然后选择Make Masks。从其工具栏打开Cellpose Workbench；它会打开在Train选项卡上。您将用图像及其对象标签掩膜进行训练，然后在Apply中使用保存的模型。",
+    "解压链接中的示例。其training文件夹包含六张图像和一个masks子文件夹，apply文件夹包含三张留待之后使用的单独图像。点击Image source folder旁的文件夹按钮并选择training。让Mask source folder保持为空即可使用masks子文件夹，也可以选择其他掩膜文件夹。",
+    "每张图像都需要一个高度和宽度相同的掩膜。零表示背景，每个对象都有自己的正数编号。训练之前，请在Make Masks中打开训练文件夹，检查并修正标签。这张图像有九十五个已标注的细胞。",
+    "本例是灰度图像，因此让Channels保持为空。对于多通道图像，最多添加三个从零开始编号的通道，例如用零和二表示第一和第三个通道。只有在自动检测找不到通道维度时，才设置Channel axis。",
+    "让Base model保持为cpsam，即从Cellpose-SAM开始；也可以输入检查点路径，继续训练之前的模型。输入Model name；这里是tutorial cells。让Checkpoint folder保持为空即保存在源文件夹内，或选择其他文件夹。",
+    "设置N epochs和Batch size。这次快速运行使用十轮，批大小为一。轮数越多，模型得到的训练更新越多；批越大，占用的内存越多。开始时请保留显示的学习率。",
+    "保持Normalize开启，并以第一和第九十九百分位数作为起点。它们决定每个通道使用的强度范围。Scale range会在训练中改变图像尺寸，Min train masks会跳过标注对象较少的图像。",
+    "如需跟踪验证损失，请选择单独的Validation image folder及其Validation mask folder。切勿在其中重复使用训练图像。如果像本例一样没有单独的标注集，请让两者都保持为空。",
+    "检查文件夹、模型名称和输出位置，然后按Run。Figures面板把训练图像显示在其掩膜上方，控制台显示进度。在这块GPU上，用六张图像训练十轮不到一分钟就完成了。",
+    "训练结束后，控制台会给出检查点路径。使用默认位置时，它位于源文件夹中的models、cellpose model、models下。文件名会在模型名称后加上架构和轮数。请把它与训练设置放在一起。",
+    "打开Apply选项卡。Custom model现在指向您训练的检查点。把Source设为示例的apply文件夹，其中的图像来自未用于训练的孔。把Channels设为零，Percentiles设为二和九十九。关闭Fill in，让相互接触的细胞保持分开，并开启Save和Verbose。",
+    "打开Live preview，选择一张图像，并用相同的通道和百分位数按Run preview。它会用您的检查点分割这张图像，这里找到七十六个细胞。在处理整个文件夹之前，请在这里调整设置。",
+    "按Run。Apply会为每张图像写一个掩膜，放在这些图像旁边的masks子文件夹中，Verbose会把每个结果显示为一幅图。这里三个掩膜分别包含七十六、四十八和五十五个细胞。在把模型用于整个实验之前，请将其掩膜与单独标注的视野进行比较。"
   ]
 }

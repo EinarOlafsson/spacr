@@ -1,19 +1,35 @@
 {
-  "lesson": "76_ops", "language": "es", "english_sha256": "4b52abe939abc1c32a7649c513ce93adb3d4eeabeb9e9bf32e6e65a2a869c385",
-  "review_type": "source-pinned editorial translation", "native_speaker_reviewed": false, "listening_reviewed": false,
-  "title": "OPS: pantalla actual y alineación de cuatro campos de imagen",
-  "description": "Encuentre OPS dentro de Mask y siga un ejemplo verificado de alineación y composición de cuatro campos reales. No es un flujo completo de placa, segmentación ni decodificación.",
-  "objectives": ["Localizar la pantalla anidada de OPS y entender los límites del ejemplo.", "Alinear cuatro campos vecinos conservando las coordenadas de adquisición originales.", "Inspeccionar las superposiciones, la cobertura y la procedencia guardada."],
-  "prerequisite": "Grabación con las API ops_layout, ops_stitch y ops_compose de spaCR 1.5.0.7 nightly, en CPU. Run en la interfaz usa otro motor heredado y no se ejecuta aquí. Fuente NAS privada: screenA/20200202_6W-LaC024A, sequencing/images/input/c1, sitios 0, 1, 10 y 11. Se necesita acceso autorizado; no es una descarga pública ni se conceden derechos de redistribución. Cada TIFF es uint16, con cinco planos de 1480 por 1480 píxeles; DAPI ocupa el plano cero. Se conserva la distribución original de 333 sitios. No reutilice la distribución, la superposición ni los umbrales para otra adquisición sin medirla. Use una carpeta de salida nueva fuera de los originales. No se demuestra el pozo completo, la segmentación, la alineación entre ciclos, la decodificación ni el análisis biológico.",
+  "lesson": "76_ops",
+  "english_sha256": "e01d6ab4d06f98d5235b4224d0d34f56b130816c1b19bd85f15fe7e94772fab3",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "OPS: de las imágenes de secuenciación a los códigos de barras de las células",
+  "description": "Carga los datos de prueba de OPS, elige los ajustes de imagen y de decodificación, ejecuta el análisis y encuentra las asignaciones de códigos de barras en la base de datos de salida.",
+  "objectives": [
+    "Abrir OPS dentro de Mask y cargar sus imágenes de ejemplo y su biblioteca de códigos de barras.",
+    "Elegir las carpetas de entrada y salida y entender los principales ajustes de alineación y decodificación.",
+    "Ejecutar OPS y revisar las asignaciones de códigos de barras a los núcleos en la base de datos de salida."
+  ],
+  "prerequisite": "Abre spaCR. Usa Load test data dentro de OPS para obtener las imágenes de secuenciación de ejemplo y la biblioteca de guías. Para tu propio experimento, prepara los TIFF de los ciclos de secuenciación con sus nombres de archivo de adquisición y un CSV de la biblioteca de códigos de barras correspondiente.",
   "scenes": [
-    "El cribado óptico agrupado comienza con imágenes adquiridas en campos vecinos y ciclos de imagen repetidos. En spaCR, abra Mask para encontrar la pantalla anidada de OPS. Esta lección muestra su ubicación y un pequeño ejemplo verificado de alineación de imágenes.",
-    "Use el interruptor OPS de la fila de acciones de Mask. Abre una página independiente dentro del módulo principal. OPS no es otra tarjeta de Home ni el flujo Map Barcodes para archivos de lecturas de secuenciación.",
-    "La página actual de OPS ofrece ajustes de entrada, unión de campos, mosaico, alineación y control de calidad. Su botón Run utiliza un motor heredado diferente. No lo iniciamos ni afirmamos haber validado un flujo de cribado completo. Los siguientes pasos utilizan directamente las API de geometría.",
-    "Esta demostración en CPU alinea y compone cuatro campos reales de una adquisición existente. No segmenta células, decodifica códigos de barras ni procesa una placa completa. La adquisición original no es una descarga de prueba incluida; reproducirla exactamente exige acceso autorizado a los archivos.",
-    "Seleccione los sitios cero, uno, diez y once del primer ciclo de imagen. Cada archivo original tiene cinco planos; el plano cero contiene la tinción nuclear. Conserve la distribución original de trescientos treinta y tres sitios y sus números. Elegir cuatro campos no define un pozo nuevo de cuatro campos.",
-    "El script llama a stitch_well, comprueba las cuatro superposiciones vecinas y después llama a compose_window. Los cuatro campos quedan colocados. La región compuesta mide dos mil setecientos cincuenta y seis píxeles por lado. En esta adquisición, el ciclo geométrico cierra con un error máximo de un cuarto de píxel; no es una garantía universal de precisión.",
-    "No confíe solo en la colocación. Compare los píxeles de las superposiciones independientemente de la puntuación de alineación. Aquí las correlaciones alineadas superan ampliamente las obtenidas al desplazar deliberadamente cualquiera de los ejes diecisiete píxeles. Estos controles ayudan a detectar una colocación plausible pero incorrecta.",
-    "Inspeccione la imagen y el mapa de cobertura realmente guardados. El panel izquierdo muestra la imagen nuclear compuesta; el derecho cuenta los campos que contribuyen. Cobertura cero significa que no hay píxel adquirido, no fondo biológico. Se combinan vecinos espaciales de un mismo plano, nunca ciclos de secuenciación diferentes.",
-    "Conserve juntos la matriz, la cobertura, las posiciones, las sumas de comprobación de los originales y el informe. El script reabre los resultados y confirma que los cuatro archivos originales no cambiaron. Es un paso de geometría reproducible. Un tutorial óptico completo aún requiere validar por separado las etapas posteriores."
+    "Desde Home, abre Mask y activa OPS. Esta página recibe imágenes de los ciclos de secuenciación y asigna códigos de barras decodificados a los núcleos.",
+    "Haz clic en Load test data. El ejemplo incluye dos posiciones de imagen a lo largo de once ciclos de secuenciación y una biblioteca de códigos de barras correspondiente. Cuando termina la carga, spaCR rellena los campos de entrada, biblioteca, placa y salida.",
+    "En OPS input, comprueba la carpeta de imágenes de secuenciación y el CSV de la biblioteca de códigos de barras. Elige un destino para los resultados. El ejemplo escribe en la carpeta ops_output dentro de su proyecto descargado.",
+    "Deja vacía la carpeta de imágenes de fenotipo en este ejemplo. Cuando tengas una adquisición de fenotipo correspondiente, selecciona aquí su carpeta para registrar cómo se alinean sus campos con las imágenes de secuenciación.",
+    "En OPS alignment, elige el modelo de segmentación de núcleos. Diameter fija el tamaño esperado del núcleo en píxeles. Raster overlap describe el solapamiento entre mosaicos adquiridos vecinos; usa el valor de tu adquisición. Mantén los ajustes del ejemplo en esta primera ejecución.",
+    "Window overlap controla cuánto comparten las ventanas de segmentación vecinas. Debe ser mayor que el núcleo más grande, para que los objetos en los bordes de las ventanas puedan incluirse enteros. Aumentarlo alarga el procesamiento.",
+    "En OPS decoding, define los cuatro canales de bases en el orden G, T, A, C. El ejemplo usa CY3, A594, CY5 y CY7. Para tus propias imágenes, haz coincidir estos nombres con los nombres de canal de los nombres de archivo TIFF.",
+    "Read threshold controla lo brillante que debe ser un punto para contar como lectura. Subirlo selecciona puntos más intensos; bajarlo incluye puntos más débiles y más fondo. Footprint controla a qué distancia de un núcleo puede estar una lectura y seguir contribuyendo a su código de barras.",
+    "Activa Store reads si quieres revisar después las lecturas individuales. Así se guarda una tabla adicional y se usa más espacio en disco. Déjalo desactivado para una primera ejecución compacta.",
+    "Revisa OPS performance y pulsa Run. GPU activa la aceleración cuando está disponible. Workers controla cuántos campos se decodifican a la vez; bájalo si la memoria es limitada. Sigue el progreso en Console.",
+    "Cuando Console muestre Finished, abre Help, después Database Browser, y elige measurements.db en la carpeta de salida seleccionada. A su lado, cada pocillo tiene una carpeta, aquí A1, con su informe de OPS que incluye el resumen de la decodificación y cualquier advertencia.",
+    "La tabla ops_barcodes asigna a cada núcleo su código de barras, el respaldo de lecturas y la guía correspondiente; ops_objects contiene los mismos identificadores de núcleo con sus coordenadas en la imagen. Esos identificadores son el puente con el resto de tu cribado: une a través de ellos los códigos de barras con tus mediciones de fenotipo y después agrega los datos para Regression. Guarda juntos la base de datos, los informes y los ajustes."
   ]
 }

@@ -271,7 +271,12 @@ class ClassEditorWidget(QWidget):
         retarget_field_tooltips(self)
 
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
-        """Offer this table's columns."""
+        """Offer this table's columns.
+
+        :param frame: the table whose column names are offered (filtered by
+            the basis), or ``None`` when no table is loaded, which disables
+            adding a class and shows a hint.
+        """
         self._frame = frame
         columns = candidate_columns(
             {"dataset_mode": self._basis},
@@ -322,6 +327,11 @@ class ClassEditorWidget(QWidget):
 
         Under metadata these become plate / row / column / field / well, which
         is what replaces location_column plus the two control settings.
+
+        :param basis: the dataset basis, passed on as the ``dataset_mode``
+            setting: ``"metadata"`` offers the plate coordinates,
+            ``"annotation"`` the table's annotation columns. The column list
+            is refilled.
         """
         self._basis = basis
         self.set_frame(self._frame)
@@ -339,6 +349,11 @@ class ClassEditorWidget(QWidget):
         legacy-translation branch too, so nothing downstream recovered them.
         Every other list-shaped key survived that round trip; this was the one
         that decides what gets trained.
+
+        :param value: a mapping of class name to ``{column, value,
+            random_complement}``, a legacy list or tuple of class names, or
+            the text of either; anything else leaves the table empty.
+            Malformed entries are skipped.
         """
         self._rules = []
         if isinstance(value, str):
@@ -456,7 +471,11 @@ class ClassEditorWidget(QWidget):
         self._say(f"added {name}")
 
     def remove_at(self, index: int) -> None:
-        """Remove the class a chip's close mark belongs to."""
+        """Remove the class a chip's close mark belongs to.
+
+        :param index: zero-based position of the class; out of range does
+            nothing.
+        """
         if 0 <= int(index) < len(self._rules):
             del self._rules[int(index)]
             self._rebuild()

@@ -1,0 +1,130 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third and fourth passes 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "confluency",
+      "source": "Measure confluency, the fraction of each field covered by cells, and write it to measurements.db: one row per field in the confluency table and one per well in confluency_well, with a monolayer_ok flag the plaque and infection assays can filter on or divide by. Works for any channel (brightfield, phase or a fluorescent stain) or straight from the cell masks, as confluency_source decides. With plot on, each field also gets an overlay of the covered area. Default False.",
+      "source_sha256": "a2d567ea9c3689df6fcf52ce2e970c5fde2dfc20e67b2e86305fb7e84f3b7bb3",
+      "translation": "Mesure la confluence, la part de chaque champ couverte par des cellules, et l’écrit dans measurements.db : une ligne par champ dans la table confluency et une par puits dans confluency_well, avec un indicateur monolayer_ok sur lequel les tests de plages et d’infection peuvent filtrer ou diviser. Fonctionne avec n’importe quel canal (fond clair, phase ou marquage fluorescent) ou directement à partir des masques de cellules, selon confluency_source. Avec plot activé, chaque champ reçoit aussi une superposition de l’aire couverte. Valeur par défaut : False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_qc_threshold",
+      "source": "Lowest covered fraction, from 0 to 1, at which a field or well passes monolayer QC. Fields and wells below it get monolayer_ok 0 in measurements.db, so plaque and infection results from a thin or torn monolayer can be dropped or divided by the covered fraction. Blank passes every well. Default 0.8.",
+      "source_sha256": "fc1aa1ad92c9e5014c42bd4ff5e7120944b42209f611bb33f4a2b43748890c05",
+      "translation": "Fraction couverte la plus basse, de 0 à 1, à laquelle un champ ou un puits réussit le QC de monocouche. Les champs et puits en dessous reçoivent monolayer_ok 0 dans measurements.db, de sorte que les résultats de plages et d’infection issus d’une monocouche mince ou déchirée peuvent être écartés ou divisés par la fraction couverte. Vide fait réussir tous les puits. Valeur par défaut : 0.8."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_clahe",
+      "source": "Contrast-limited adaptive histogram equalisation, per tile rather than over the whole field. Brings out objects in a dim corner without saturating the bright middle, and amplifies noise in empty tiles, which the clip limit bounds. Default False.",
+      "source_sha256": "90d6473ba37b1f946dfef57546245408551042ea9aaeb9f1bd1947418510156d",
+      "translation": "Égalisation adaptative d’histogramme à contraste limité, par tuile plutôt que sur tout le champ. Fait ressortir les objets dans un coin sombre sans saturer le centre lumineux, et amplifie le bruit dans les tuiles vides, ce que borne la limite d’écrêtage. Valeur par défaut : False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "fill_in",
+      "source": "Fill the holes inside each object of every mask Cellpose Masks (Apply) writes. Each object is filled on its own and keeps its id, so touching objects stay separate and a hole never takes pixels from a neighbour. Default True in Cellpose Masks.",
+      "source_sha256": "44b9e0519c2e8b51d8258f580e717ce8764d61833839384949ae279b2f7fcafc",
+      "translation": "Remplit les trous à l’intérieur de chaque objet de chaque masque écrit par Cellpose Masks (Apply). Chaque objet est rempli séparément et garde son identifiant, si bien que les objets qui se touchent restent séparés et qu’un trou ne prend jamais de pixels à un voisin. Valeur par défaut : True dans Cellpose Masks."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "mask_gpu_indices",
+      "source": "GPUs used when mask_parallel is on, as comma-separated numbers such as 0,1. Blank uses every GPU the process can see, which on a cluster means the GPUs allocated to the job; with fewer than two the run uses one device. Default blank.",
+      "source_sha256": "23cff63eedc09cc6269f47ee10c179ce024950a7c66e48cf0e31bd39e7db1751",
+      "translation": "GPUs utilisés quand mask_parallel est activé, sous forme de nombres séparés par des virgules comme 0,1. Vide utilise tous les GPU que le processus voit, ce qui sur un cluster signifie les GPUs attribués à la tâche ; avec moins de deux, l’exécution utilise un seul appareil. Valeur par défaut : vide."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "mask_parallel",
+      "source": "Segment the prepared cell, nucleus and pathogen batches on several GPUs at once, one model process per GPU. Each batch goes to exactly one GPU, finished batches are kept and a rerun with the same settings resumes the rest. Masks match the single-GPU run. Needs two or more CUDA or ROCm GPUs and the Cellpose backend; not for timelapse or t_stack runs. With adjust_cells, adjusted cells are written to masks/adjusted_cell_mask_stack and the raw cell masks are kept. Default False.",
+      "source_sha256": "4aa8f84644320895f9113991c3dbbb6b1aab52debce1dbee651af7486e84efff",
+      "translation": "Segmente les batchs préparés de cellules, de noyaux et de pathogènes sur plusieurs GPUs à la fois, un processus de modèle par GPU. Chaque batch va à exactement un GPU, les batchs terminés sont conservés et une nouvelle exécution avec les mêmes paramètres reprend le reste. Les masques sont identiques à ceux d’une exécution sur un seul GPU. Nécessite au moins deux GPUs CUDA ou ROCm et le moteur Cellpose ; pas pour les exécutions en série temporelle ou t_stack. Avec adjust_cells, les cellules ajustées sont écrites dans masks/adjusted_cell_mask_stack et les masques de cellules bruts sont conservés. Valeur par défaut : False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "percentiles",
+      "source": "Two percentiles [low, high] used to rescale each channel of each image to 0-1 before segmentation, e.g. [2, 98]. Narrowing the window boosts contrast on dim objects but clips bright ones. Set None to derive them automatically: low fixed at 2, high the first of 98/99/99.9/99.99/99.999 exceeding background * Signal_to_noise. In Cellpose Masks (Apply), None instead lets Cellpose normalise each image itself, as the live preview does. Default None in the Cellpose steps.",
+      "source_sha256": "33c1b48bceefd01eb2a0ef3020e40ce4084df287aaf66905a2e99c57d6b5ce2d",
+      "translation": "Deux percentiles [low, high] utilisés pour remettre chaque canal de chaque image à l’échelle 0-1 avant la segmentation, p. ex. [2, 98]. Resserrer la fenêtre renforce le contraste des objets faibles mais écrête les objets brillants. Indiquez None pour les déduire automatiquement : low fixé à 2, high le premier de 98/99/99.9/99.99/99.999 dépassant background * Signal_to_noise. Dans Cellpose Masks (Apply), None laisse plutôt Cellpose normaliser chaque image lui-même, comme le fait l’aperçu en direct. Valeur par défaut : None dans les étapes Cellpose."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_mode",
+      "source": "Tracking backend used to link objects between frames. 'trackastra' is a pretrained transformer with division-aware linking; 'ultrack' jointly optimizes segmentation and linking and supports dense or 3D data at a higher computational cost; 'trackpy' uses a configurable search radius and frame memory; 'btrack' uses a motion model; 'iou' links masks by overlap and may fail when objects move far between frames; 'timeflows' is spaCR's experimental temporal Cellpose, needs a trained checkpoint in timeflows_model and has not yet beaten 'iou' on held-out movies. Default 'trackastra'.",
+      "source_sha256": "2d47849b1fbbb707e98557c645739ce7cd01d0cbbece48f621148506c42f09e5",
+      "translation": "Moteur de suivi qui relie les objets d’une image à l’autre. 'trackastra' est un transformer pré-entraîné avec une liaison tenant compte des divisions ; 'ultrack' optimise conjointement la segmentation et la liaison et prend en charge des données denses ou 3D, au prix d’un coût de calcul accru ; 'trackpy' utilise un rayon de recherche configurable et une mémoire d’images ; 'btrack' utilise un modèle de mouvement ; 'iou' relie les masques par chevauchement et peut échouer quand les objets se déplacent loin d’une image à l’autre ; 'timeflows' est le Cellpose temporel expérimental de spaCR, nécessite un point de contrôle entraîné dans timeflows_model et n’a pas encore fait mieux que 'iou' sur des films réservés. Valeur par défaut : 'trackastra'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "watch_folder",
+      "source": "Keep Make Masks running on src and analyse each field as its images arrive, for a plate the microscope is still writing. A file is taken once it has stopped changing for watch_settle_seconds and reads whole, and a field once a file for every entry of channels is in. Images already in src go first. Each field is analysed alone, as a batch run with batch_size 1 would, and results gather in src/spacr_watch, whose watch_ledger.json lets a restart skip fields already analysed. Not for timelapse, z_stack or t_stack runs. Default False.",
+      "source_sha256": "e1945b9b02af0ec5552ba3fa6349595a7267daca13fb78d3480b2d33938926be",
+      "translation": "Laisse Make Masks tourner sur src et analyse chaque champ à mesure que ses images arrivent, pour une plaque que le microscope écrit encore. Un fichier est pris une fois qu’il n’a plus changé pendant watch_settle_seconds et se lit en entier, et un champ une fois qu’un fichier est présent pour chaque entrée de channels. Les images déjà présentes dans src passent en premier. Chaque champ est analysé seul, comme le ferait une exécution par lots avec batch_size 1, et les résultats se rassemblent dans src/spacr_watch, dont le watch_ledger.json permet à un redémarrage de sauter les champs déjà analysés. Pas pour les exécutions en série temporelle, z_stack ou t_stack. Valeur par défaut : False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "watch_idle_minutes",
+      "source": "Stop watching once nothing in src has changed for this many minutes, and list the fields that never became complete. 0 watches until Stop is pressed. Default 0.",
+      "source_sha256": "f8b6c2105fec08f67339f572ae5e5d563bd70b47c1ce54eb6ea8e112efb3fb1b",
+      "translation": "Arrêter la surveillance quand rien n’a changé dans src pendant ce nombre de minutes, et lister les champs qui ne sont jamais devenus complets. 0 surveille jusqu’à ce que vous appuyiez sur Arrêter. Valeur par défaut : 0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "watch_measure_settings",
+      "source": "A Measure settings file (.csv or .json, as the Measure screen saves them) that watch_pipeline 'mask_measure' measures every field with. Blank uses Measure's defaults with this run's channels. Default blank.",
+      "source_sha256": "18280c253b0a2c1ddc164ded85c620d8bd3c37fb37ba782c5bdbd742defdb3c1",
+      "translation": "Un fichier de paramètres Measure (.csv ou .json, tel que l’écran Measure les enregistre) avec lequel watch_pipeline 'mask_measure' mesure chaque champ. Vide utilise les valeurs par défaut de Measure avec les canaux de cette exécution. Valeur par défaut : vide."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "watch_pipeline",
+      "source": "What watch_folder runs on each arriving field. 'mask' runs Make Masks; 'mask_measure' then runs Measure on the field's merged stacks and appends its rows to src/spacr_watch/measurements/measurements.db. Default 'mask'.",
+      "source_sha256": "74bbca66d83197ea90d44e01e1c8dac8a91f5f80ae0c2de27239e58632ff853c",
+      "translation": "Ce que watch_folder exécute sur chaque champ qui arrive. 'mask' exécute Make Masks ; 'mask_measure' exécute ensuite Measure sur les piles fusionnées du champ et ajoute ses lignes à src/spacr_watch/measurements/measurements.db. Valeur par défaut : 'mask'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "watch_poll_seconds",
+      "source": "How often watch_folder looks in src for new or changed images. A field is picked up about watch_settle_seconds plus this long after its last file stops changing, once the fields before it are done. Default 5.",
+      "source_sha256": "171a24ef2d4d63b4d839a3777115de8a2d18fd75a394dd7f85c0302ff96b5764",
+      "translation": "Fréquence à laquelle watch_folder cherche dans src des images nouvelles ou modifiées. Un champ est pris environ watch_settle_seconds plus ce délai après que son dernier fichier a cessé de changer, une fois les champs précédents terminés. Valeur par défaut : 5."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "watch_settle_seconds",
+      "source": "How long an image must keep the same size and modification time before watch_folder reads it, so a file the microscope is still writing is not taken half-written. Raise it for slow network shares. Default 10.",
+      "source_sha256": "7e40a4562581b1f508a919a4a548d5cfddaf1990175beae1c55f90e51fb72f0a",
+      "translation": "Durée pendant laquelle une image doit garder la même taille et la même date de modification avant que watch_folder la lise, afin qu’un fichier que le microscope écrit encore ne soit pas pris à moitié écrit. Augmentez-la pour les partages réseau lents. Valeur par défaut : 10."
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_channel",
+      "source": "The merged-array channel that the texture and intensity confluency sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, or the cytoplasm or membrane stain for intensity. Ignored when confluency_source resolves to masks. Default None.",
+      "source_sha256": "7147e89cfc25f7f1091cc5ee93542723ed6b6e8b285fa10644784164403d765b",
+      "translation": "Le canal du tableau fusionné que lisent les sources de confluence texture et intensité, compté comme dans channels. Vide utilise la première entrée de channels. Choisissez le plan en fond clair ou en phase pour la texture, ou le marquage du cytoplasme ou de la membrane pour l’intensité. Ignoré quand confluency_source se résout en masques. Valeur par défaut : None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_source",
+      "source": "How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold, for brightfield and phase. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.",
+      "source_sha256": "cc761c6fcbe3b047f13a45397efe2679f6c3d3f4c73fbcc605b9e48dd6bafa59",
+      "translation": "Manière de décider la confluence. auto utilise les masques de cellules quand l’exécution en a, et la texture sinon. masks est l’union de toutes les cellules segmentées, avant les filtres de taille de Measure. texture lit la variation locale de confluency_channel avec un seuil automatique, pour le fond clair et la phase. intensity seuille automatiquement confluency_channel, pour les marquages fluorescents du cytoplasme ou de la membrane. Valeur par défaut : auto."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_window",
+      "source": "Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. Ignored by the masks and intensity sources. Default 15.",
+      "source_sha256": "c36dc65f120988bf82b56a3467e86491b7a16da88ea8f1a289d0784a23778d89",
+      "translation": "Côté de la fenêtre carrée, en pixels, sur laquelle la source de confluence texture mesure la variation locale. À peu près la largeur du plus fin prolongement cellulaire qui doit compter comme couvert : plus petite, elle suit les bords de plus près mais laisse l’intérieur lisse des cellules comme des trous ; plus grande, elle comble les espaces étroits. Ignoré par les sources masques et intensité. Valeur par défaut : 15."
+    }
+  ],
+  "retired_note": "2026-09-30: item 536's phase confluency source rewrote the English of the confluency_channel, confluency_source and confluency_window tooltips; the replacements are in 2026-09-30-runtime-debt-eleventh-pass-confluency-phase.json. Kept verbatim as evidence, not loaded."
+}

@@ -322,7 +322,7 @@ def registry_sandbox():
     app_mod._refresh_sections()
 
 
-def test_importing_the_module_does_not_touch_the_registry():
+def test_importing_the_module_does_not_touch_the_registry(monkeypatch):
     """The row that switches this app on lives in ``spacr/qt/__init__.py``.
 
     Importing the screen — which a test, a notebook or another screen may do
@@ -345,7 +345,7 @@ def test_importing_the_module_does_not_touch_the_registry():
     import importlib
     import sys
 
-    from spacr.qt import SELF_REGISTERING_MODULES
+    from spacr.qt import SELF_REGISTERING_MODULES, screens
     from spacr.qt.app import APPS
 
     assert "spacr.qt.screens.dose_response" in SELF_REGISTERING_MODULES, (
@@ -353,21 +353,14 @@ def test_importing_the_module_does_not_touch_the_registry():
         "add the row to spacr.qt.SELF_REGISTERING_MODULES")
 
     before = list(APPS)
-    original = sys.modules.pop("spacr.qt.screens.dose_response", None)
-    try:
+    original = sys.modules["spacr.qt.screens.dose_response"]
+    with monkeypatch.context() as isolated:
+        isolated.delitem(sys.modules, "spacr.qt.screens.dose_response")
+        isolated.delattr(screens, "dose_response")
         importlib.import_module("spacr.qt.screens.dose_response")
         assert list(APPS) == before
-    finally:
-        # PUT THE MODULE BACK. Dropping it and importing again is how this
-        # forces a fresh execution, and leaving the fresh copy in place
-        # leaves a second `make_dose_response_screen`, a second
-        # `DoseResponseScreen` and a second of everything else this module
-        # defines. This file imports those at its top and later compares
-        # them with what the registry holds BY IDENTITY, so the leak turned
-        # a passing assertion into a name that no longer means what the
-        # registry means.
-        if original is not None:
-            sys.modules["spacr.qt.screens.dose_response"] = original
+    assert sys.modules["spacr.qt.screens.dose_response"] is original
+    assert screens.dose_response is original
 
 
 def test_registering_the_screen_reaches_every_reader_of_the_registry(

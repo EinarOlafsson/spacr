@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "categories",
+      "key": "Cloud storage access, local cache, selected wells and fields, image resolution, and result uploads. Use these settings when the source is a remote storage address.",
+      "source_sha256": "24a001745dccbfe5d65f0701b9abed5fd2c35297fbd1139c0102ff0445896aa6",
+      "source": "Cloud storage access, local cache, selected wells and fields, image resolution, and result uploads. Use these settings when the source is a remote storage address.",
+      "translation": "클라우드 저장소 접근, 로컬 캐시, 선택한 웰과 시야, 이미지 해상도 및 결과 업로드를 설정합니다. 원본이 원격 저장소 주소인 경우 이 설정을 사용하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Cloud storage access, local cache, selected wells and fields, image resolution, and result uploads. Use these settings when the source is a remote storage address.",
+      "source_sha256": "24a001745dccbfe5d65f0701b9abed5fd2c35297fbd1139c0102ff0445896aa6",
+      "source": "Cloud storage access, local cache, selected wells and fields, image resolution, and result uploads. Use these settings when the source is a remote storage address.",
+      "translation": "클라우드 저장소 접근, 로컬 캐시, 선택한 웰과 시야, 이미지 해상도 및 결과 업로드를 설정합니다. 원본이 원격 저장소 주소인 경우 이 설정을 사용하세요."
+    }
+  ]
+}

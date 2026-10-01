@@ -85,6 +85,152 @@ class _Window:
         self.closed = True
 
 
+@pytest.fixture
+def frozen_window(qtbot, monkeypatch, tmp_path):
+    from types import SimpleNamespace
+    from PySide6.QtWidgets import QMainWindow
+    from spacr.qt import bridge
+
+    class _FrozenWindow(qt_app.MainWindow):
+        """Use the real closeEvent without building unrelated desktop screens."""
+
+        resizeEvent = QMainWindow.resizeEvent
+        changeEvent = QMainWindow.changeEvent
+
+        def __init__(self):
+            QMainWindow.__init__(self)
+            self._closing = False
+            self._screens = {}
+            self._update_version = "1.5.1.1"
+
+        def _confirm_old_installs(self, records):
+            return ()
+
+        def _release_update_workers(self):
+            assert (work / "approved.json").exists() or self._frozen_update_handshake is None
+            events.append("teardown")
+
+    work = tmp_path / "helper"
+    work.mkdir(mode=0o700)
+    record = install_cleanup.InstallRecord(
+        "installer", "macos-app", "macos", str(tmp_path / "spaCR.app"), running=True)
+    plan = {"adapter": "macos-frozen-v1", "command": ["inert-helper"],
+            "version": "1.5.1.1", "pid": 123, "workdir": str(work),
+            "records": [install_cleanup.asdict(record)], "ticked": [],
+            "handshake": {"schema": 1, "token": "a" * 64,
+                          "expires": install_cleanup.time.time() + 3600}}
+    events = []
+    messages = _Messages(monkeypatch)
+    monkeypatch.setattr(bridge, "registry", lambda: SimpleNamespace(
+        cancel_all=lambda **kwargs: events.append("veto checks") or []))
+    monkeypatch.setattr(qt_app, "QApplication", SimpleNamespace(
+        instance=lambda: SimpleNamespace(quit=lambda: events.append("quit"))))
+    monkeypatch.setattr(install_cleanup, "start_update_helper", lambda *args, **kwargs: plan)
+    window = _FrozenWindow()
+    qtbot.addWidget(window)
+    window.show()
+    window._on_old_installs_found([record])
+    handshake = window._frozen_update_handshake
+    yield SimpleNamespace(window=window, handshake=handshake, plan=plan,
+                          work=work, events=events, messages=messages)
+    window._cancel_frozen_update()
+
+
+@pytest.mark.parametrize("failure", ["refused", "timeout", "wrong-plan"])
+def test_frozen_preparation_failure_keeps_the_window_alive(frozen_window, monkeypatch, failure):
+    state = frozen_window
+    assert state.window.isVisible()
+    assert not state.messages.informations
+    if failure == "refused":
+        state.handshake.failed("the official DMG has no positive published digest")
+    elif failure == "timeout":
+        monkeypatch.setattr(install_cleanup.time, "time", lambda: state.handshake.expires + 1)
+    else:
+        other = dict(state.plan, version="another version")
+        install_cleanup._FrozenUpdateHandshake(other).ready()
+    state.window._poll_frozen_update()
+    assert state.window.isVisible() and not state.window._closing
+    assert state.messages.warnings
+    assert state.events == []
+    assert not (state.work / "approved.json").exists()
+    assert (state.work / "cancelled.json").exists()
+
+
+def test_frozen_readiness_cancel_rejects_a_late_ready_message(frozen_window, monkeypatch):
+    state = frozen_window
+    state.handshake.ready()
+    monkeypatch.setattr(qt_app.QMessageBox, "information", lambda *a, **k: qt_app.QMessageBox.Cancel)
+    state.window._poll_frozen_update()
+    state.handshake._write("readiness.json", "ready")
+    state.window._poll_frozen_update()
+    assert state.window.isVisible() and not state.window._closing
+    assert not (state.work / "approved.json").exists()
+    with pytest.raises(RuntimeError, match="cancelled"):
+        state.handshake.wait_for_shutdown(lambda pid: pytest.fail("late readiness authorized shutdown"))
+
+
+def test_ordinary_close_during_preparation_never_authorizes_replacement(frozen_window):
+    state = frozen_window
+    assert state.window.close()
+    assert (state.work / "cancelled.json").exists()
+    assert not (state.work / "approved.json").exists()
+
+
+@pytest.mark.parametrize("failure", ["busy-worker", "expiry-during-close", "approval-write"])
+def test_frozen_close_veto_or_approval_failure_preserves_the_gui(
+        frozen_window, monkeypatch, failure):
+    from types import SimpleNamespace
+    from spacr.qt import bridge
+
+    state = frozen_window
+    state.handshake.ready()
+    deadline = state.handshake.status()["expires"]
+    monkeypatch.setattr(qt_app.QMessageBox, "information", lambda *a, **k: qt_app.QMessageBox.Ok)
+
+    def drain(**kwargs):
+        if failure == "busy-worker":
+            return [SimpleNamespace(app_key="measure")]
+        if failure == "expiry-during-close":
+            monkeypatch.setattr(install_cleanup.time, "time", lambda: deadline + 1)
+        return []
+
+    monkeypatch.setattr(bridge, "registry", lambda: SimpleNamespace(cancel_all=drain))
+    write = state.handshake._write
+
+    def publish(name, *args, **kwargs):
+        if failure == "approval-write" and name == "approved.json":
+            raise OSError("approval disk write failed")
+        return write(name, *args, **kwargs)
+
+    monkeypatch.setattr(state.handshake, "_write", publish)
+    state.window._poll_frozen_update()
+    assert state.window.isVisible() and not state.window._closing
+    assert not (state.work / "approved.json").exists()
+    assert (state.work / "cancelled.json").exists()
+    assert "teardown" not in state.events and "quit" not in state.events
+    assert state.messages.warnings
+
+
+def test_frozen_accepted_close_approves_after_vetoes_before_teardown(frozen_window, monkeypatch):
+    state = frozen_window
+    state.handshake.ready()
+    monkeypatch.setattr(qt_app.QMessageBox, "information", lambda *a, **k: qt_app.QMessageBox.Ok)
+    approve = state.handshake.approve
+
+    def approval():
+        assert state.window.isVisible() and not state.window._closing
+        assert state.events == ["veto checks"]
+        approve()
+        state.events.append("approved")
+
+    monkeypatch.setattr(state.handshake, "approve", approval)
+    state.window._poll_frozen_update()
+    assert state.events == ["veto checks", "approved", "teardown", "quit"]
+    assert not state.window.isVisible() and state.window._closing
+    assert not (state.work / "cancelled.json").exists()
+    state.handshake.wait_for_shutdown(lambda pid: True)
+
+
 def _record(tmp_path, kind, name, running=False):
     return install_cleanup.InstallRecord(
         kind=kind, layout="test", platform="linux", root=str(tmp_path / name),

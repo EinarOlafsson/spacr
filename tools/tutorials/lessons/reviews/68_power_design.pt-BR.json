@@ -1,29 +1,34 @@
 {
   "lesson": "68_power_design",
-  "english_sha256": "c70c0ea4d037c92883296dfc5b72dcc4e9cf5e7c331311afabbe1c56618147b6",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "50ffe28cafc59c00ff0e0552315128c1e4cd478a2a41e9ac0ebe3d151410882c",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "pt-BR",
-  "title": "Power / Design: interpretar o simulador e suas limitações",
-  "description": "Entenda controles, curvas simuladas e avisos sem confundir uma pequena demonstração ou um resumo contraditório com orientação de desenho validada.",
+  "title": "Power & Design: explorar curvas de detecção simuladas",
+  "description": "Defina premissas de biblioteca e de desenho, execute simulações e inspecione as frações de detecção, os ajustes que falharam e as ressalvas.",
   "objectives": [
-    "Distinguir hipóteses de simulação de dados experimentais adquiridos.",
-    "Ler corretamente ajustes utilizáveis, frações de detecção e incerteza.",
-    "Reconhecer a recomendação errada para o mesmo desenho e preservar as evidências."
+    "Definir a biblioteca, a unidade de pontuação e as premissas de desenho.",
+    "Executar varreduras de número de células e de poços com as configurações registradas.",
+    "Ler as frações de detecção e as ressalvas antes de interpretar um desenho."
   ],
-  "prerequisite": "Revisão crítica do simulador registrado, não poder estatístico calibrado nem orientação de tamanho amostral. Power_recorded_simulation_review.zip preserva o JSON original e sua revisão; não é uma execução importável nem uma demonstração de exportação da GUI. Tela, adaptador, simulador e código de ajuste gravados com spaCR 1.5.0.4 continuam idênticos ao código atual. Duas varreduras marginais produziram 18 ajustes e nove pontos, duas réplicas por ponto; quatro ajustes sem convergência permanecem no denominador. Duas simulações limitaram probabilidades. O mesmo desenho nominal com sorteios diferentes produziu 1/2 e 2/2 detecções. A recomendação de aumentar até o número de poços já existente é rejeitada e permanece sem correção. Alguns rótulos nas extremidades estão cortados; a tabela verificada contém as nove coordenadas. Não se afirma nova simulação, dado adquirido, calibração biológica, tarefa GPU, pedido a IA ou publicação. API: spacr.qt.widgets.power_design.DesignSpec/simulator_kwargs/power_curve e spacr.qt.screens.power.run_power_sweep; spacr.power_simulate e spacr.power_model simulam e ajustam.",
+  "prerequisite": "Prepare premissas sobre o tamanho da biblioteca, guias por gene, fundo, efeito e prevalência. Este módulo simula dados. O exemplo indicado usa só duas réplicas por ponto para mostrar os controles; use repetições suficientes e premissas adequadas para planejar. Nesta versão, inspecione a tabela em vez de confiar em um título que pode recomendar o mesmo número de poços de referência.",
   "scenes": [
-    "Power e Design explora hipóteses usando dados simulados. Não carrega um experimento adquirido nem estabelece que as hipóteses correspondam às suas. Esta aula examina uma execução real gravada, incluindo avisos e uma recomendação enganosa. Não use esta pequena demonstração como orientação validada de tamanho amostral.",
-    "Comece pela biblioteca e pela unidade avaliada. Alternar entre guia e gene muda o que o modelo avalia: quarenta genes e quatro guias por gene dão cento e sessenta unidades no modo guia. O modo gene reúne as informações das guias. São hipóteses didáticas, não novas medições biológicas.",
-    "Os controles de placa e efeito descrevem o desenho presumido. A taxa de classificações positivas é uma probabilidade simulada, não uma contagem de organismos nem uma taxa de infecção medida. Examine fundo, efeito e prevalência juntos; as hipóteses exibidas não validam o modelo.",
-    "Um efeito abaixo de um ativa o aviso nativo de direção não suportada e desabilita Run. A gravação restaura depois um valor suportado e os controles se recuperam. É uma proteção do software, não uma afirmação de impossibilidade biológica. Não contorne o aviso para obter uma curva conveniente.",
-    "A demonstração usa apenas duas réplicas por ponto. A detecção exige um ajuste utilizável que alcance o limiar escolhido de área sob a curva ROC. Isso não é um corte de valor P para teste de hipótese. Semente e backend são registrados; selecionar Torch não prova execução em GPU.",
-    "Run inicia o simulador real em uma thread de trabalho. Varia separadamente os eixos de células e poços, sem avaliar todas as combinações. A gravação completou dezoito ajustes em nove pontos. Guarde configurações e registros brutos das réplicas juntos para vincular cada fração aos ajustes que a produziram.",
-    "Leia detecções como contagens sobre todas as réplicas solicitadas. Quatro ajustes não convergiram e permanecem no denominador como não detecções; não são descartados silenciosamente. Aqui, cem por cento significa apenas dois de dois. Uma amostra tão pequena não estabelece uma probabilidade de detecção precisa.",
-    "A tabela separa frações de detecção e desempenho médio dos ajustes utilizáveis. Uma média indisponível não é zero. A precisão média também exige a referência de prevalência. Leia a tabela quando o rótulo da extremidade estiver cortado e confira a falta de convergência, em vez de julgar apenas a linha azul.",
-    "O resumo contém um erro. As duas estimativas de referência já usam noventa e seis poços, mas sorteios diferentes produzem uma detecção em duas numa varredura e duas em duas na outra. Ir para os mesmos noventa e seis poços não melhora o desenho. Rejeite a recomendação; o tutorial não a corrige.",
-    "Expanda os outros avisos. Duas triagens simuladas limitaram probabilidades acima de um, então a ocupação realizada difere da solicitada. O modelo tem outras hipóteses e limitações; listá-las não equivale a validá-lo. Revise avisos e ajustes malsucedidos antes de concluir algo de uma simulação.",
-    "O arquivo vinculado preserva especificação registrada, réplicas, curvas, tabela e resumo incorreto. É um download externo de evidências, não uma exportação nativa nem um resultado importado. O adaptador e as APIs Python expõem o mesmo fluxo, mas o planejamento real exige validar separadamente hipóteses e incerteza."
+    "Na tela Home, abra Power & Design. Comece pelas premissas que você quer explorar e depois use as curvas de detecção simuladas para comparar as opções de número de células e de poços exibidas.",
+    "Defina o tamanho da biblioteca e as guias por gene e escolha a unidade de pontuação. Com quarenta genes e quatro guias por gene, a pontuação por guia usa cento e sessenta unidades; a pontuação por gene reúne as informações das guias.",
+    "Revise juntos os controles de placa, fundo, efeito e prevalência. A taxa de chamadas positivas é uma probabilidade de classificação assumida. Escolha valores que descrevam a análise que você planeja.",
+    "Se um efeito menor que um desativar Run, leia o aviso de direção não suportada. Restaure um valor suportado para continuar; este simulador não cobre todas as direções de efeito possíveis.",
+    "Defina repetições, semente, mecanismo de cálculo e limiar de detecção. O limiar usa a área sob a curva ROC. O exemplo usa duas réplicas por ponto para uma execução curta; escolha mais repetições ao estimar a probabilidade de detecção.",
+    "Clique em Run e acompanhe o progresso. O simulador varre separadamente o número de células e o número de poços. Guarde as configurações junto com os resultados concluídos.",
+    "Leia as contagens de detecção junto com os denominadores. Ajustes que falharam ou não convergiram contam como não detecções. Com duas réplicas pedidas, cem por cento significa apenas duas detecções em duas.",
+    "Use a tabela de resultados para inspecionar as frações de detecção, o desempenho médio entre os ajustes utilizáveis e a falta de convergência. Valores médios indisponíveis são resultados ausentes. Interprete a precisão média em relação à prevalência assumida.",
+    "Compare diretamente os valores de desenho pedidos. Esta versão pode recomendar aumentar para o mesmo número de poços de referência, porque as duas varreduras usam sorteios aleatórios diferentes. Ignore esse título e use a tabela e a incerteza para avaliar a comparação.",
+    "Expanda as ressalvas e inspecione os ajustes que falharam ou as probabilidades cortadas. Ajuste as premissas quando elas gerarem resultados incompatíveis com o experimento que você quer modelar.",
+    "Mantenha juntas as configurações e os resultados das réplicas. O arquivo indicado contém a execução de exemplo para inspeção. Para saída por programa, use o adaptador de desenho e as APIs de simulação; avalie as premissas e a incerteza antes de escolher um desenho experimental."
   ]
 }

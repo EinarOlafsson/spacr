@@ -127,10 +127,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "ingen upptäckt", "keine erkannt", "ninguno detectado", "未检测到", "nenhum detectado", "कोई नहीं मिला", "감지되지 않음", "ekkert greindist", "aucun détecté"),
     "detected, not used by spaCR": _row(
         "upptäckt, används inte av spaCR", "erkannt, wird von spaCR nicht verwendet", "detectado, no utilizado por spaCR", "已检测到，spaCR 未使用", "detectado, não utilizado pelo spaCR", "पाया गया, spaCR द्वारा उपयोग नहीं किया गया", "감지됨, spaCR에서 사용하지 않음", "greind, ekki notuð af spaCR", "détecté, non utilisé par spaCR"),
-    # The GPU slide's table captions. They reach `tr` through the loop over
-    # `setup_slides.GPU_TABLE_ROWS`, where no extractor rule can follow them,
-    # so four of them were English in every language (and "Torch models" came
-    # out of the composite as "Torch Modelle").
     "Torch models": _row(
         "Torch-modeller", "Torch-Modelle", "Modelos de Torch", "Torch 模型", "Modelos Torch", "Torch मॉडल", "Torch 모델", "Torch-líkön", "Modèles Torch"),
     "Live backdrop": _row(
@@ -155,9 +151,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
     "Quit": _row(
         "Avsluta", "Beenden", "Salir", "退出", "Sair",
         "बाहर निकलें", "종료", "Hætta", "Quitter"),
-    "Demos": _row(
-        "Demon", "Demos", "Demostraciones", "演示", "Demonstrações",
-        "डेमो", "데모", "Sýnishorn", "Démonstrations"),
     "Help": _row(
         "Hjälp", "Hilfe", "Ayuda", "帮助", "Ajuda",
         "सहायता", "도움말", "Hjálp", "Aide"),
@@ -2089,10 +2082,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Stjärnfält", "Sternenfeld", "Campo estelar", "星空",
         "Campo estelar", "तारों का क्षेत्र", "별빛", "Stjörnusvið",
         "Champ d’étoiles"),
-    "Demos menu": _row(
-        "Demomeny", "Demo-Menü", "Menú de demostraciones", "演示菜单",
-        "Menu de demonstrações", "डेमो मेनू", "데모 메뉴",
-        "Sýnishornavalmynd", "Menu Démonstrations"),
     "protanopia": _row(
         "protanopi", "Protanopie", "protanopía", "红色盲", "protanopia",
         "प्रोटैनोपिया", "제1색맹", "rauðblinda", "protanopie"),
@@ -2258,8 +2247,8 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Les rapports de plantage sont envoyés au dépôt GitHub PUBLIC de spaCR. Ils sont lisibles partout, indexés et ne peuvent pas être retirés de manière fiable. Le rapport est expurgé, affiché dans un aperçu modifiable et envoyé uniquement lorsque vous cliquez sur Envoyer pour ce rapport précis. La configuration des comptes utilise les interfaces en ligne de commande officielles de GitHub, Claude, Codex (GPT) et Gemini ; spaCR ne conserve ni mots de passe ni jetons. Tous les choix sont facultatifs et révocables dans les Préférences."),
 
     "Hit List": _row(
-        "Träfflista", "Trefferliste", "Lista de aciertos", "命中列表",
-        "Lista de acertos", "हिट सूची", "히트 목록", "Niðurstöðulisti",
+        "Träfflista", "Trefferliste", "Lista de candidatos", "命中列表",
+        "Lista de candidatos", "हिट सूची", "히트 목록", "Niðurstöðulisti",
         "Liste des résultats"),
     "Methods & Results": _row(
         "Metod och resultat", "Methoden und Ergebnisse",
@@ -2308,7 +2297,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
     "Timelapse demo…": _row("Tidsseriedemo…", "Zeitraffer-Demo…", "Demo de lapso de tiempo…", "延时演示…", "Demonstração de time-lapse…", "टाइमलैप्स डेमो…", "타임랩스 데모…", "Tímaraðarsýnishorn…", "Démo time-lapse…"),
     "Sequencing demo…": _row("Sekvenseringsdemo…", "Sequenzierungs-Demo…", "Demo de secuenciación…", "测序演示…", "Demonstração de sequenciação…", "सीक्वेंसिंग डेमो…", "시퀀싱 데모…", "Raðgreiningarsýnishorn…", "Démo de séquençage…"),
     "Choose source data": _row("Välj källdata", "Quelldaten wählen", "Elegir datos de origen", "选择源数据", "Escolher dados de origem", "स्रोत डेटा चुनें", "소스 데이터 선택", "Velja upprunagögn", "Choisir les données source"),
-    "Open Demos menu": _row("Öppna Demo-menyn", "Demos-Menü öffnen", "Abrir el menú Demostraciones", "打开演示菜单", "Abrir o menu Demonstrações", "डेमो मेनू खोलें", "데모 메뉴 열기", "Opna Sýnishorn-valmynd", "Ouvrir le menu Démonstrations"),
 
     "Showing {shown} of {total} settings": _row("Visar {shown} av {total} inställningar", "{shown} von {total} Einstellungen angezeigt", "Mostrando {shown} de {total} ajustes", "显示 {total} 项设置中的 {shown} 项", "A mostrar {shown} de {total} definições", "{total} में से {shown} सेटिंग दिख रही हैं", "설정 {total}개 중 {shown}개 표시", "Sýni {shown} af {total} stillingum", "Affichage de {shown} réglages sur {total}"),
     "Showing all {total} settings.": _row("Visar alla {total} inställningar.", "Alle {total} Einstellungen werden angezeigt.", "Mostrando los {total} ajustes.", "显示全部 {total} 项设置。", "A mostrar todas as {total} definições.", "सभी {total} सेटिंग दिख रही हैं।", "설정 {total}개 모두 표시.", "Sýni allar {total} stillingarnar.", "Affichage des {total} réglages."),
@@ -2923,26 +2911,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "이미지 폴더를 이 창 아무 곳에나 끌어다 놓거나, {offer}. 아래의 소스 필드에 경로를 직접 입력할 수도 있습니다.",
         "Slepptu möppu með myndum hvar sem er í þessum glugga, eða {offer}. Þú getur líka slegið slóð inn í Uppruni-reitinn hér fyrir neðan.",
         "Déposez un dossier d’images n’importe où sur cette fenêtre, ou {offer}. Vous pouvez aussi saisir un chemin dans le champ Source ci-dessous."),
-    "use Demos → {demo} for a synthetic dataset": _row(
-        "använd Demon → {demo} för en syntetisk datauppsättning",
-        "verwenden Sie Demos → {demo} für einen synthetischen Datensatz",
-        "utilice Demostraciones → {demo} para un conjunto de datos sintético",
-        "使用“演示 → {demo}”获取合成数据集",
-        "use Demonstrações → {demo} para um conjunto de dados sintético",
-        "सिंथेटिक डेटासेट के लिए डेमो → {demo} का उपयोग करें",
-        "합성 데이터셋이 필요하면 데모 → {demo}를 사용하세요",
-        "notaðu Sýnishorn → {demo} fyrir tilbúið gagnasafn",
-        "utilisez Démonstrations → {demo} pour un ensemble de données synthétique"),
-    "pick a dataset from the Demos menu": _row(
-        "välj en datauppsättning i menyn Demon",
-        "wählen Sie einen Datensatz aus dem Demos-Menü",
-        "elija un conjunto de datos del menú Demostraciones",
-        "从“演示”菜单中选择一个数据集",
-        "escolha um conjunto de dados no menu Demonstrações",
-        "डेमो मेनू से कोई डेटासेट चुनें",
-        "데모 메뉴에서 데이터셋을 선택하세요",
-        "veldu gagnasafn úr Sýnishorn-valmyndinni",
-        "choisissez un ensemble de données dans le menu Démonstrations"),
     "Remove {value}": _row(
         "Ta bort {value}",
         "{value} entfernen",
@@ -3290,6 +3258,40 @@ _ROWS: Dict[str, tuple[str, ...]] = {
     "percentile": _row(
         "percentil", "Perzentil", "percentil", "百分位", "percentil",
         "प्रतिशतक", "백분위수", "hundraðsmark", "centile"),
+    "An install is still running": _row("En installation körs fortfarande", "Eine Installation läuft noch", "Una instalación todavía se está ejecutando", "安装仍在运行", "Uma instalação ainda está em execução", "एक इंस्टॉलेशन अभी भी चल रहा है", "설치가 아직 진행 중입니다", "Uppsetning er enn í gangi", "Une installation est toujours en cours d'exécution"),
+    "Another install is still running. Wait for it to finish, or press Cancel under the marks.": _row("En annan installation pågår fortfarande. Vänta tills den är klar, eller tryck på Avbryt under logotyperna.", "Eine andere Installation läuft noch. Warten Sie, bis sie abgeschlossen ist, oder klicken Sie unter den Logos auf „Abbrechen“.", "Otra instalación sigue en curso. Espere a que termine o pulse Cancelar debajo de los logotipos.", "另一个安装仍在进行。请等待其完成，或点击标志下方的“取消”。", "Outra instalação ainda está em andamento. Aguarde a conclusão ou clique em Cancelar abaixo dos logotipos.", "एक अन्य इंस्टॉलेशन अभी भी चल रहा है। उसके पूरा होने की प्रतीक्षा करें, या लोगो के नीचे रद्द करें दबाएँ।", "다른 설치가 아직 진행 중입니다. 완료될 때까지 기다리거나 로고 아래의 취소를 누르세요.", "Önnur uppsetning er enn í gangi. Bíddu þar til henni lýkur eða ýttu á Hætta við undir merkjunum.", "Une autre installation est toujours en cours. Attendez qu’elle se termine ou cliquez sur Annuler sous les logos."),
+    "Aphelion": _row("Afelium", "Aphel", "Afelio", "远日点", "Afélio", "अपसौर", "원일점", "Sólfirð", "Aphélie"),
+    "Cirrus": _row("Fjädermoln", "Zirrus", "Cirro", "卷云", "Cirro", "पक्षाभ मेघ", "권운", "Klósigi", "Cirrus"),
+    "Confirm the suggested label": _row("Bekräfta den föreslagna etiketten", "Vorgeschlagenes Label bestätigen", "Confirmar la etiqueta sugerida", "确认建议的标签", "Confirmar o rótulo sugerido", "सुझाया गया लेबल स्वीकार करें", "제안된 레이블 확인", "Staðfesta tillögu að merki", "Confirmer l’étiquette suggérée"),
+    "Create a GitHub account": _row("Skapa ett GitHub-konto", "GitHub-Konto erstellen", "Crear una cuenta de GitHub", "创建一个 GitHub 帐户", "Criar uma conta no GitHub", "GitHub खाता बनाएँ", "GitHub 계정 만들기", "Stofna GitHub-aðgang", "Créer un compte GitHub"),
+    "GitHub's sign-in ended before it was finished. Press Sign in to try again.": _row("Inloggningen till GitHub avbröts innan den var klar. Tryck på Logga in för att försöka igen.", "Die GitHub-Anmeldung wurde vorzeitig beendet. Klicken Sie auf Anmelden, um es erneut zu versuchen.", "El inicio de sesión en GitHub se interrumpió antes de completarse. Pulse Iniciar sesión para volver a intentarlo.", "GitHub 登录尚未完成就已结束。请按下 Sign in（登录）重试。", "A entrada no GitHub foi interrompida antes de ser concluída. Pressione Entrar para tentar novamente.", "GitHub का साइन-इन पूरा होने से पहले ही समाप्त हो गया। फिर से प्रयास करने के लिए साइन इन करें दबाएँ।", "GitHub 로그인이 완료되기 전에 종료되었습니다. 다시 시도하려면 로그인을 누르세요.", "Innskráningu hjá GitHub lauk áður en hún kláraðist. Ýttu á Skrá inn til að reyna aftur.", "La connexion à GitHub a été interrompue avant d'être terminée. Appuyez sur Se connecter pour réessayer."),
+    "Halcyon": _row("Halkyon", "Halkyon", "Alción", "宁静", "Alcíone", "शांत दिन", "평온", "Kyrrð", "Alcyon"),
+    "Install": _row("Installera", "Installieren", "Instalar", "安装", "Instalar", "स्थापित करें", "설치", "Setja upp", "Installer"),
+    "Install runs:\n    {command}": _row("Installationen kör:\n    {command}", "Die Installation führt Folgendes aus:\n    {command}", "La instalación ejecuta:\n    {command}", "安装将运行：\n    {command}", "A instalação executa:\n    {command}", "इंस्टॉल करें यह चलाता है:\n    {command}", "설치 시 실행되는 명령:\n    {command}", "Setja upp keyrir:\n    {command}", "L'installation exécute :\n    {command}"),
+    "Install runs:\n    {command}\n\nThen GitHub's own sign-in starts.": _row("Installationen kör:\n    {command}\n\nDärefter startar inloggningen hos GitHub.", "Die Installation führt Folgendes aus:\n    {command}\n\nAnschließend startet die Anmeldung von GitHub.", "La instalación ejecuta:\n    {command}\n\nDespués comienza el inicio de sesión propio de GitHub.", "安装将运行：\n    {command}\n\n随后启动 GitHub 自身的登录流程。", "A instalação executa:\n    {command}\n\nEm seguida, começa o processo de entrada do próprio GitHub.", "इंस्टॉल करें यह चलाता है:\n    {command}\n\nइसके बाद GitHub का अपना साइन-इन शुरू होता है।", "설치 시 실행되는 명령:\n    {command}\n\n그런 다음 GitHub 자체 로그인이 시작됩니다.", "Setja upp keyrir:\n    {command}\n\nSíðan hefst innskráning GitHub sjálfs.", "L'installation exécute :\n    {command}\n\nLa procédure de connexion de GitHub démarre ensuite."),
+    "Keep installing": _row("Fortsätt installera", "Installation fortsetzen", "Continuar la instalación", "继续安装", "Continuar instalando", "इंस्टॉल करना जारी रखें", "계속 설치", "Halda uppsetningu áfram", "Poursuivre l'installation"),
+    "Keep the screen open until it finishes, or stop it and install later from Help > Set spaCR up again…": _row("Låt skärmen vara öppen tills installationen är klar, eller stoppa den och installera senare via Hjälp > Konfigurera spaCR igen…", "Lassen Sie diese Ansicht bis zum Abschluss geöffnet oder stoppen Sie den Vorgang und installieren Sie später über Hilfe > spaCR erneut einrichten…", "Mantenga esta pantalla abierta hasta que termine, o detenga la instalación y reanúdela después desde Ayuda > Configurar spaCR de nuevo…", "请保持此界面打开直到安装完成，或停止安装，稍后通过“帮助 > 重新设置 spaCR…”进行安装。", "Mantenha a tela aberta até a conclusão ou interrompa a instalação e instale depois em Ajuda > Configurar spaCR novamente…", "इसके पूरा होने तक स्क्रीन खुली रखें, या इसे रोकें और बाद में सहायता > spaCR फिर से सेट अप करें… से इंस्टॉल करें।", "완료될 때까지 화면을 열어 두거나, 중지하고 나중에 도움말 > spaCR 다시 설정…에서 설치하세요.", "Hafðu skjáinn opinn þar til henni lýkur, eða stöðvaðu hana og settu upp síðar úr Hjálp > Setja spaCR upp aftur…", "Gardez la fenêtre ouverte jusqu'à la fin, ou arrêtez l'installation et reprenez-la plus tard depuis Aide > Reconfigurer spaCR…"),
+    "Lantern": _row("Lykta", "Laterne", "Farol", "灯笼", "Lanterna", "लालटेन", "등불", "Lukt", "Lanterne"),
+    "Meridian": _row("Meridian", "Meridian", "Meridiano", "子午线", "Meridiano", "याम्योत्तर", "자오선", "Hádegisbaugur", "Méridien"),
+    "Nocturne": _row("Nattstycke", "Nocturne", "Nocturno", "夜曲", "Noturno", "रात्रि-गीत", "야상곡", "Næturljóð", "Nocturne"),
+    "Pulsar": _row("Pulsar", "Pulsar", "Púlsar", "脉冲星", "Pulsar", "पल्सर", "펄서", "Tifstjarna", "Pulsar"),
+    "Reject the suggested label": _row("Avvisa den föreslagna etiketten", "Vorgeschlagenes Label ablehnen", "Rechazar la etiqueta sugerida", "拒绝建议的标签", "Rejeitar o rótulo sugerido", "सुझाया गया लेबल अस्वीकार करें", "제안된 레이블 거부", "Hafna tillögu að merki", "Rejeter l’étiquette suggérée"),
+    "Reset GUI scale and font scale to 100%": _row("Återställ gränssnittets skala och teckenskala till 100%", "GUI-Skalierung und Schriftskalierung auf 100% zurücksetzen", "Restablecer la escala de la interfaz y de la fuente al 100%", "将界面缩放和字体缩放重置为 100%", "Redefinir a escala da interface e da fonte para 100%", "GUI स्केल और फ़ॉन्ट स्केल को 100% पर रीसेट करें", "GUI 배율과 글꼴 배율을 100%로 재설정", "Endurstilla kvarða viðmóts og leturs á 100%", "Réinitialiser l’échelle de l’interface et du texte à 100%"),
+    "Resonance": _row("Resonans", "Resonanz", "Resonancia", "共振", "Ressonância", "अनुनाद", "공명", "Ómun", "Résonance"),
+    "Search spaCR from the Help bar": _row("Sök i spaCR från hjälpfältet", "spaCR über die Hilfeleiste durchsuchen", "Buscar en spaCR desde la barra de Ayuda", "从帮助栏搜索 spaCR", "Pesquisar no spaCR pela barra de Ajuda", "सहायता बार से spaCR में खोजें", "도움말 표시줄에서 spaCR 검색", "Leita í spaCR úr hjálparstikunni", "Rechercher dans spaCR depuis la barre d’aide"),
+    "Set up the GitHub CLI": _row("Ställ in GitHub CLI", "GitHub CLI einrichten", "Configurar la CLI de GitHub", "设置 GitHub CLI", "Configurar o GitHub CLI", "GitHub CLI सेट अप करें", "GitHub CLI 설정", "Setja upp GitHub CLI", "Configurer GitHub CLI"),
+    "Signing in to {label}…": _row("Loggar in på {label}…", "Anmeldung bei {label}…", "Iniciando sesión en {label}…", "正在登录 {label}…", "Entrando em {label}…", "{label} में साइन इन हो रहा है…", "{label}에 로그인 중…", "Skrái inn á {label}…", "Connexion à {label}…"),
+    "Solstice": _row("Solstånd", "Sonnenwende", "Solsticio", "至日", "Solstício", "संक्रांति", "동지", "Sólstöður", "Solstice"),
+    "Stop it and close": _row("Stoppa och stäng", "Stoppen und schließen", "Detener y cerrar", "停止并关闭", "Interromper e fechar", "रोकें और बंद करें", "중지하고 닫기", "Stöðva og loka", "Arrêter et fermer"),
+    "Test data and walkthroughs": _row("Testdata och genomgångar", "Testdaten und Rundgänge", "Datos de prueba y recorridos", "测试数据与分步导览", "Dados de teste e percursos guiados", "परीक्षण डेटा और मार्गदर्शिकाएँ", "테스트 데이터와 안내 둘러보기", "Prófunargögn og leiðsagnir", "Données de test et visites guidées"),
+    "The GitHub CLI is not installed.\n\nWith it, spaCR files a report under your GitHub account without opening the browser. Without it, reports still open in your browser.": _row("GitHub CLI är inte installerat.\n\nMed det kan spaCR skicka en rapport från ditt GitHub-konto utan att öppna webbläsaren. Utan det öppnas rapporterna fortfarande i webbläsaren.", "Die GitHub CLI ist nicht installiert.\n\nMit ihr erstellt spaCR einen Bericht unter Ihrem GitHub-Konto, ohne den Browser zu öffnen. Ohne sie öffnen sich Berichte weiterhin im Browser.", "La CLI de GitHub no está instalada.\n\nCon ella, spaCR envía informes desde su cuenta de GitHub sin abrir el navegador. Sin ella, los informes se siguen abriendo en el navegador.", "尚未安装 GitHub CLI。\n\n安装后，spaCR 可使用您的 GitHub 帐户提交报告，无需打开浏览器。未安装时，报告仍会在浏览器中打开。", "O GitHub CLI não está instalado.\n\nCom ele, spaCR envia um relatório usando sua conta do GitHub sem abrir o navegador. Sem ele, os relatórios continuam abrindo no navegador.", "GitHub CLI इंस्टॉल नहीं है।\n\nइसके साथ spaCR ब्राउज़र खोले बिना आपके GitHub खाते से रिपोर्ट दर्ज करता है। इसके बिना भी रिपोर्ट आपके ब्राउज़र में खुलती हैं।", "GitHub CLI가 설치되어 있지 않습니다.\n\n설치하면 spaCR이 브라우저를 열지 않고 GitHub 계정으로 보고서를 제출합니다. 설치하지 않아도 보고서는 브라우저에서 열립니다.", "GitHub CLI er ekki uppsett.\n\nMeð því sendir spaCR skýrslu inn undir GitHub-aðganginum þínum án þess að opna vafrann. Án þess opnast skýrslur áfram í vafranum.", "GitHub CLI n'est pas installé.\n\nAvec cet outil, spaCR dépose un rapport sous votre compte GitHub sans ouvrir le navigateur. Sans lui, les rapports s'ouvrent dans votre navigateur."),
+    "The installer for {tools} is still running. Closing this screen now stops it.": _row("Installationsprogrammet för {tools} körs fortfarande. Om du stänger skärmen nu stoppas det.", "Das Installationsprogramm für {tools} läuft noch. Wenn Sie diese Ansicht jetzt schließen, wird es gestoppt.", "El instalador de {tools} sigue ejecutándose. Si cierra esta ventana ahora, se detendrá.", "{tools} 的安装程序仍在运行。现在关闭此窗口会停止安装。", "O instalador de {tools} ainda está em execução. Fechar esta tela agora interrompe a instalação.", "{tools} का इंस्टॉलर अभी भी चल रहा है। अभी यह स्क्रीन बंद करने से वह रुक जाएगा।", "{tools} 설치 프로그램이 아직 실행 중입니다. 지금 이 화면을 닫으면 설치가 중지됩니다.", "Uppsetningarforritið fyrir {tools} er enn í gangi. Ef þú lokar þessum skjá núna stöðvast það.", "Le programme d'installation de {tools} est encore en cours. Fermer cette fenêtre maintenant l'arrêtera."),
+    "Undertow": _row("Underström", "Sog", "Resaca", "暗流", "Ressaca", "अंतर्धारा", "역류", "Undirtog", "Ressac"),
+    "Use Load test data in a module to load its example dataset and settings. Pipeline overviews on Home explains the inputs and outputs and opens the matching walkthrough.": _row("Använd Ladda testdata i en modul för att läsa in dess exempeldata och inställningar. Flödesöversikter på Hem förklarar in- och utdata och öppnar motsvarande genomgång.", "Verwenden Sie „Testdaten laden“ in einem Modul, um dessen Beispieldatensatz und Einstellungen zu laden. „Pipeline-Übersichten“ auf der Startseite erklärt Ein- und Ausgaben und öffnet den passenden Rundgang.", "Use Cargar datos de prueba en un módulo para cargar su conjunto de datos de ejemplo y su configuración. Resúmenes de flujos, en Inicio, explica las entradas y salidas y abre el recorrido correspondiente.", "在模块中使用“加载测试数据”可载入其示例数据集和设置。主页上的“流程概览”会说明输入和输出，并打开相应的分步导览。", "Use Carregar dados de teste em um módulo para carregar o conjunto de dados de exemplo e as configurações dele. Visões gerais dos fluxos, no Início, explica as entradas e saídas e abre o percurso guiado correspondente.", "किसी मॉड्यूल में परीक्षण डेटा लोड करें का उपयोग करके उसका उदाहरण डेटासेट और सेटिंग्स लोड करें। मुखपृष्ठ पर पाइपलाइन अवलोकन इनपुट और आउटपुट समझाता है और संबंधित मार्गदर्शिका खोलता है।", "모듈에서 테스트 데이터 불러오기를 사용하면 해당 예제 데이터셋과 설정을 불러옵니다. 홈의 파이프라인 개요는 입력과 출력을 설명하고 해당 안내 둘러보기를 엽니다.", "Notaðu Hlaða prófunargögnum í einingu til að hlaða sýnigagnasafni hennar og stillingum. Yfirlit vinnslukeðja á Heim útskýrir inntak og úttak og opnar samsvarandi leiðsögn.", "Utilisez Charger les données de test dans un module pour charger son jeu de données d’exemple et ses réglages. Vue d’ensemble des traitements, sur l’Accueil, explique les entrées et sorties et ouvre la visite guidée correspondante."),
+    "Vesper": _row("Aftonstjärna", "Abendstern", "Véspero", "晚星", "Véspero", "संध्या तारा", "저녁별", "Kvöldstjarna", "Étoile du soir"),
+    "spaCR cannot install it here by itself: it needs {needs}, and none was found. Install with:\n    {command}": _row("spaCR kan inte installera detta här automatiskt: {needs} krävs men hittades inte. Installera med:\n    {command}", "spaCR kann dies hier nicht selbst installieren: {needs} wird benötigt, wurde aber nicht gefunden. Installieren mit:\n    {command}", "spaCR no puede instalarlo aquí automáticamente: necesita {needs} y no lo ha encontrado. Instálelo con:\n    {command}", "spaCR 无法在此自行安装：需要 {needs}，但未找到。请使用以下命令安装：\n    {command}", "spaCR não consegue instalar isso aqui por conta própria: precisa de {needs}, mas nenhum foi encontrado. Instale com:\n    {command}", "spaCR इसे यहाँ स्वयं इंस्टॉल नहीं कर सकता: इसके लिए {needs} आवश्यक है, और कोई नहीं मिला। इससे इंस्टॉल करें:\n    {command}", "spaCR이 여기서 직접 설치할 수 없습니다. {needs}이(가) 필요하지만 찾지 못했습니다. 다음 명령으로 설치하세요:\n    {command}", "spaCR getur ekki sett þetta upp hér sjálft: það þarf {needs} og ekkert fannst. Settu upp með:\n    {command}", "spaCR ne peut pas l'installer seul ici : {needs} est nécessaire, mais introuvable. Installez avec :\n    {command}"),
+    "spaCR cannot run this itself here: it needs {needs}, and none was found.": _row("spaCR kan inte köra detta här automatiskt: {needs} krävs men hittades inte.", "spaCR kann dies hier nicht selbst ausführen: {needs} wird benötigt, wurde aber nicht gefunden.", "spaCR no puede ejecutarlo aquí automáticamente: necesita {needs} y no lo ha encontrado.", "spaCR 无法在此自行运行：需要 {needs}，但未找到。", "spaCR não consegue executar isso aqui por conta própria: precisa de {needs}, mas nenhum foi encontrado.", "spaCR इसे यहाँ स्वयं नहीं चला सकता: इसके लिए {needs} आवश्यक है, और कोई नहीं मिला।", "spaCR이 여기서 직접 실행할 수 없습니다. {needs}이(가) 필요하지만 찾지 못했습니다.", "spaCR getur ekki keyrt þetta sjálft hér: það þarf {needs} og ekkert fannst.", "spaCR ne peut pas exécuter cette commande seul ici : {needs} est nécessaire, mais introuvable."),
+    "{label} is not installed yet.\n\nInstall runs the command below on this computer: it downloads the vendor's own installer and runs it, then starts the sign-in. spaCR never sees your credentials.": _row("{label} är inte installerat ännu.\n\nInstallera kör kommandot nedan på denna dator: det laddar ner och kör leverantörens eget installationsprogram och startar sedan inloggningen. spaCR får aldrig tillgång till dina autentiseringsuppgifter.", "{label} ist noch nicht installiert.\n\nInstallieren führt den folgenden Befehl auf diesem Rechner aus: Das Installationsprogramm des Anbieters wird heruntergeladen und gestartet; anschließend beginnt die Anmeldung. spaCR erhält niemals Ihre Zugangsdaten.", "{label} aún no está instalado.\n\nInstalar ejecuta el comando de abajo en este equipo: descarga y ejecuta el instalador del proveedor y después inicia la autenticación. spaCR nunca ve sus credenciales.", "{label} 尚未安装。\n\n“安装”会在本机运行下方命令：下载并运行供应商自己的安装程序，然后启动登录。spaCR 绝不会看到您的凭据。", "{label} ainda não está instalado.\n\nInstalar executa o comando abaixo neste computador: baixa e executa o instalador do próprio fornecedor e depois inicia a entrada na conta. spaCR nunca vê suas credenciais.", "{label} अभी इंस्टॉल नहीं है।\n\nइंस्टॉल करें इस कंप्यूटर पर नीचे दिया गया कमांड चलाता है: यह विक्रेता का अपना इंस्टॉलर डाउनलोड करके चलाता है, फिर साइन-इन शुरू करता है। spaCR आपके क्रेडेंशियल कभी नहीं देखता।", "{label}이(가) 아직 설치되지 않았습니다.\n\n설치를 누르면 이 컴퓨터에서 아래 명령이 실행됩니다. 공급업체의 자체 설치 프로그램을 내려받아 실행한 다음 로그인을 시작합니다. spaCR은 사용자의 자격 증명을 절대 보지 않습니다.", "{label} er ekki uppsett enn.\n\nSetja upp keyrir skipunina hér fyrir neðan á þessari tölvu: hún sækir eigið uppsetningarforrit framleiðandans, keyrir það og hefur síðan innskráninguna. spaCR sér aldrei innskráningarupplýsingarnar þínar.", "{label} n'est pas encore installé.\n\nInstaller exécute la commande ci-dessous sur cet ordinateur : elle télécharge le programme d'installation du fournisseur, l'exécute, puis lance la connexion. spaCR n'a jamais accès à vos identifiants d'accès."),
 }
 
 
@@ -3331,17 +3333,6 @@ _TERM_ROWS: Dict[str, tuple[str, ...]] = {
     "Advanced": _row("Avancerat", "Erweitert", "Avanzado", "高级", "Avançado", "उन्नत", "고급", "Ítarlegt", "Avancé"),
     "General": _row("Allmänt", "Allgemein", "General", "常规", "Geral", "सामान्य", "일반", "Almennt", "Général"),
     "Paths": _row("Sökvägar", "Pfade", "Rutas", "路径", "Caminhos", "पथ", "경로", "Slóðir", "Chemins"),
-    # EXPERIMENTAL CONTROLS, NOT INTERFACE CONTROLS. This row is reached by
-    # exactly two kinds of text on screen, and both mean positive/negative
-    # controls: the exact caption -- the regression screen's "Controls" tab,
-    # its filtered-family tab name and its live tile, all ControlSeparation --
-    # and the word inside the section headings "Plate Layout & Controls",
-    # "Controls & Filters" and "Controls & Minimum Counts". No drawn caption
-    # uses "Controls" for widgets, yet zh_CN/ko/is carried the widget sense
-    # (控件, 컨트롤, Stýringar), so a Chinese reader saw "widgets" over the
-    # assay-window plot. They now match the singular "Control" row below,
-    # except Icelandic: the maintainer chose "Viðmiðunarsýni" (control
-    # samples) for this plural on 2026-09-15, asked with the question tool.
     "Controls": _row("Kontroller", "Kontrollen", "Controles", "对照", "Controles", "नियंत्रण", "대조군", "Viðmiðunarsýni", "Contrôles"),
     "Plate": _row("Platta", "Platte", "Placa", "孔板", "Placa", "प्लेट", "플레이트", "Plata", "Plaque"),
     "Plates": _row("Plattor", "Platten", "Placas", "板", "Placas", "प्लेट", "플레이트", "Plötur", "Plaques"),
@@ -3475,6 +3466,11 @@ def normalize_language(code: object) -> str:
     Locale-shaped values such as ``pt_BR`` and ``zh-CN`` resolve to their
     bundled base/catalog variants. This also makes a manually edited
     ``QSettings`` file harmless.
+
+    :param code: any value; converted with ``str`` (``None`` and other falsy
+        values count as empty), hyphens read as underscores and matched
+        case-insensitively. Anything unrecognised returns
+        ``DEFAULT_LANGUAGE``.
     """
     raw = str(code or "").strip().replace("-", "_")
     if raw in LANGUAGE_BY_CODE:
@@ -3739,6 +3735,11 @@ def tr(text: object, language: Optional[str] = None, **values: object) -> str:
     Missing entries intentionally remain English. Keyword values are applied
     with ``str.format`` *after* translation, allowing catalogs to reorder
     placeholders safely.
+
+    :param text: the English UI string, converted with ``str``.
+    :param language: language code; ``None`` uses the current language.
+    :param values: placeholder values for ``str.format``; a template the
+        values do not fit is returned unformatted.
     """
     source = str(text)
     code = normalize_language(language or current_language())
@@ -3757,7 +3758,13 @@ def tr(text: object, language: Optional[str] = None, **values: object) -> str:
 
 
 def has_translation(text: object, language: Optional[str] = None) -> bool:
-    """Return whether ``text`` has an exact or conservative term translation."""
+    """Return whether ``text`` has an exact or conservative term translation.
+
+    :param text: the English UI string, converted with ``str``. For English
+        itself the answer is whether the string is a catalog row.
+    :param language: language code to check; ``None`` uses the current
+        language.
+    """
     source = str(text)
     code = normalize_language(language or current_language())
     if code == DEFAULT_LANGUAGE:
@@ -3769,7 +3776,13 @@ def has_translation(text: object, language: Optional[str] = None) -> bool:
 def catalog_coverage(
     sources: Iterable[str], language: Optional[str] = None,
 ) -> tuple[int, int]:
-    """Return ``(translated, total)`` for an iterable of source strings."""
+    """Return ``(translated, total)`` for an iterable of source strings.
+
+    :param sources: English UI strings; each is converted with ``str`` and
+        duplicates are counted once.
+    :param language: language code to check; ``None`` uses the current
+        language.
+    """
     items = tuple(dict.fromkeys(str(source) for source in sources))
     code = normalize_language(language or current_language())
     return sum(has_translation(item, code) for item in items), len(items)
@@ -3823,6 +3836,13 @@ def set_translatable_text(
     This is for application chrome such as ``Connecting to {provider}…``.
     User text, AI replies, worker output and scientific results must not use
     this helper because they intentionally remain untouched by localization.
+
+    :param widget: a widget with ``setText``; the template and values are
+        stored on it so a later language pass can re-render the text.
+    :param source: the English template, translated with :func:`tr`.
+    :param language: language code; ``None`` uses the current language.
+    :param values: placeholder values applied with ``str.format`` after
+        translation.
     """
     widget.setProperty("_spacr_i18n_text_template", str(source))
     widget._spacr_i18n_text_values = dict(values)
@@ -3986,6 +4006,14 @@ def retranslate_widget_tree(root, language: Optional[str] = None, *,
     widget is not compared. The one caller that asks for it is
     `_LateCaptionTranslator`, where three near-root passes an event turn
     apart re-walk the same tree while a module screen is being assembled.
+
+    :param root: the widget (or other ``QObject``) whose child widgets and
+        actions are walked; it is included itself when it is a ``QWidget``.
+        ``None`` does nothing.
+    :param language: language code to translate into; ``None`` uses the
+        current language.
+    :param only_new: skip widgets already stamped for this language and
+        catalog generation, as described above.
     """
     if root is None:
         return
@@ -4206,6 +4234,11 @@ def install_qt_translations(app, language: Optional[str] = None) -> bool:
     Idempotent: a translator installed by an earlier call is removed
     first, so switching language twice does not leave the first one
     underneath answering for strings the second does not carry.
+
+    :param app: the ``QApplication`` the ``qtbase`` translator is installed
+        on; ``None`` returns ``False``.
+    :param language: language code to load; ``None`` uses the current
+        language. English and languages without a Qt catalog install nothing.
     """
     if app is None:
         return False
@@ -4248,6 +4281,10 @@ def install_dialog_translation(app) -> None:
     top-level ``QDialog`` show events and applies the same conservative exact
     catalog translation to their title, labels, buttons and accessible text.
     Dynamic paths, table data and user text remain outside that traversal.
+
+    :param app: the ``QApplication`` to install the event filter on. ``None``
+        does nothing, and an application that already has the filter is left
+        as it is.
     """
     if app is None or getattr(app, "_spacr_dialog_i18n_filter", None) is not None:
         return
@@ -4283,7 +4320,9 @@ def install_dialog_translation(app) -> None:
 
     event_filter = _DialogTranslationFilter(app)
     app._spacr_dialog_i18n_filter = event_filter
-    app.installEventFilter(event_filter)
+    from .gil_priority import _watch_application_events
+
+    _watch_application_events(app, event_filter, (shown,))
 
 
 __all__ = [

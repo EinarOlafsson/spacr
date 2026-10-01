@@ -88,7 +88,18 @@ def test_the_umbrella_draws_a_section_for_every_family_and_object(qtbot):
 
 
 def test_a_family_holds_its_rows_under_the_object_they_belong_to(qtbot):
-    """The rows sit in the sub-heading that owns them, not in the umbrella."""
+    """The rows sit in the sub-heading that owns them, not in the umbrella.
+
+    A family heading itself holds only a setting that applies to every
+    object at once and so has no object sub-heading to sit under:
+    ``object_filters`` is one mapping carrying each object type's filter
+    list, filed once on "Object filtration" beside the per-object bounds it
+    extends (``spacr.settings._FAMILY_SHARED_KEYS``). Any other row on a
+    family is one a sub-heading should own.
+    """
+    from spacr.settings import _FAMILY_SHARED_KEYS
+
+    shared = {key for keys in _FAMILY_SHARED_KEYS.values() for key in keys}
     screen = _screen(qtbot)
     drawn = _sections_by_source(screen)
     umbrella = drawn["Advanced settings"]
@@ -96,8 +107,11 @@ def test_a_family_holds_its_rows_under_the_object_they_belong_to(qtbot):
     assert umbrella._row_widgets == [], (
         "the umbrella still holds rows itself; the tree is being flattened")
     for family in _nested_sections(umbrella):
-        assert family._row_widgets == [], (
-            f"{family.title()} holds rows a sub-heading owns")
+        own = {field.property("settingKey")
+               for _label, field in family._row_widgets}
+        assert own <= shared, (
+            f"{family.title()} holds rows a sub-heading owns: "
+            f"{sorted(own - shared)}")
         for objects in _nested_sections(family):
             assert objects._row_widgets, (
                 f"{objects.title()} was drawn with nothing in it")
@@ -208,7 +222,11 @@ def test_every_heading_of_the_tree_has_an_exact_translation(code):
                 "word-by-word fallback will half-translate it")
 
 
-@pytest.mark.parametrize("app_key", ["measure", "regression", "umap"])
+# 2026-09-29 (item 595): Measure is no longer flat -- its settings were
+# regrouped into Input & Experiment, Image Preprocessing, Features and
+# Postprocessing with sub-headings, as the maintainer asked -- so it left this
+# list; tests/qt/test_measure_settings_regrouped.py holds its tree.
+@pytest.mark.parametrize("app_key", ["regression", "umap"])
 def test_a_module_with_no_nesting_is_drawn_exactly_as_before(qtbot, app_key):
     """The tree is additive: a flat module gains no headings from it."""
     screen = _screen(qtbot, app_key)

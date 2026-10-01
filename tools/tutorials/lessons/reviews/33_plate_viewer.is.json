@@ -1,0 +1,33 @@
+{
+  "lesson": "33_plate_viewer",
+  "english_sha256": "bf218ea49218a8edb7e4e993cab83bd97c96daa3cb82b53175e7a5288113444e",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Plate Viewer: skoðaðu brunna og fluttu út hitakortstöflu",
+  "description": "Hlaðu inn sýnimælingunum, berðu saman eiginleika og fjölda eftir brunnum, skoðaðu einstaka brunna og fluttu út síuðu töfluna.",
+  "objectives": [
+    "Opna Plate Viewer úr Graph Builder og hlaða inn sýnimælingum.",
+    "Velja eiginleika, samantekt og lágmarksfjölda hluta.",
+    "Skoða upplýsingar um brunna og flytja út núverandi brunnanet."
+  ],
+  "prerequisite": "Notaðu Load test data í Plate Viewer fyrir niðurhalanlega dæmið, eða opnaðu measurements.db úr mælda verkefninu þínu. Dæmið inniheldur 2.341 frumu í fjórum brunnum; notaðu mælingar sem ná yfir alla plötuna þína þegar þú metur rúmfræðileg mynstur.",
+  "scenes": [
+    "Frá Home opnarðu Graph Builder undir Data og velur síðan Plate Viewer. Notaðu það til að taka saman mælingar hluta eftir brunnum og skoða dreifingu þeirra yfir plötuna.",
+    "Smelltu á Load test data til að opna niðurhalanlega dæmið. Fyrir eigin gögn velurðu mæligagnagrunn eða keyrslumöppu hans og smellir á Open. Dæmið inniheldur fjóra mælda brunna.",
+    "Veldu cell sem Table, cell_area sem Measurement og plate1 sem Plate. Stilltu Per well á mean til að sýna meðalflatarmál frumna. Miðgildi dregur úr áhrifum óvenju stórra eða lítilla hluta.",
+    "Veldu litakvarða. Trausta bilið notar 2. til 98. hundraðsmark, svo einn öfgabrunnur þjappi ekki litum hinna saman.",
+    "Smelltu á Render og berðu saman lituðu brunnana. Lestu skýrsluna um jaðaráhrif við hlið hitakortsins og athugaðu uppsetningu plötunnar og mælda þekju. Notaðu mælingar af allri plötunni þegar þú metur mynstur við jaðar, í röðum eða dálkum.",
+    "Smelltu á mældan brunn til að sjá auðkenni hans, fjölda hluta og birta gildið. Notaðu þessi auðkenni til að finna sama brunn í myndunum þínum eða útfluttum niðurstöðum.",
+    "Stilltu Per well á count til að bera saman fjölda hluta. Þessi sýn hjálpar þér að finna brunna með færri aðgreindum hlutum áður en þú túlkar mun á eiginleikum.",
+    "Hækkaðu Min objects per well til að útiloka brunna með of fáa hluti fyrir samanburðinn. Við 601 eru tveir af fjórum brunnum dæmisins eftir. Útilokaðir brunnar birtast auðir í stað þess að sýna mælinguna núll.",
+    "Smelltu á Export well grid CSV, veldu skráarheiti og vistaðu. CSV-skráin inniheldur brunnana sem núverandi sía heldur, með auðkennum, fjölda, birtum gildum og rúmfræðilegum athugasemdum.",
+    "Geymdu útfluttu töfluna með stillingum mælingar og samantektar. Lækkaðu lágmarksfjöldann til að sjá útilokaða brunna aftur, eða veldu aðra mælingu fyrir næsta samanburð."
+  ]
+}

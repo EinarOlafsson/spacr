@@ -29,3 +29,23 @@ default_limit = 4
 ```
 
 Slots above the four default organelles reuse the primary slot's reviewed translation.  Materialising all 26 otherwise copies the same 53 labels and tooltips 22 extra times into every language catalog.  Accept the alias only when both its key and its exact generated English label match; edited prose must still fall back to English instead of displaying a stale translation.
+
+
+---
+
+# Notes from `spacr/qt/i18n_catalogs/__init__.py`
+
+Prose lifted out of `spacr/qt/i18n_catalogs/__init__.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## _numbered_background_value
+
+### lines 110-111
+
+```python
+template_key = "remove_background_organelleb"
+```
+
+Slot two's prose explicitly names its channel; the primary prose does not carry a number, so appending a number to it would be ambiguous.

@@ -487,3 +487,71 @@ def test_the_training_modes_drive_the_panel_and_are_not_a_label(qtbot,
     assert combo.currentData() == TRAINING_LOAD_IMAGES
     assert not stream_only.isEnabled(), (
         "going back to LOAD IMAGES left the streaming settings editable")
+
+
+# ------------- a file older than image_source: crop_source alone (171) ---
+
+OLD_FILE_SPELLINGS = [("on_demand", TRAINING_STREAM_IMAGES),
+                      ("merged", TRAINING_STREAM_IMAGES),
+                      ("merged_db", TRAINING_STREAM_IMAGES),
+                      ("pre_generated", TRAINING_LOAD_IMAGES),
+                      ("png", TRAINING_LOAD_IMAGES)]
+
+
+@pytest.mark.parametrize("stored,selects", OLD_FILE_SPELLINGS)
+def test_a_file_with_only_crop_source_opens_on_the_mode_the_run_reads(
+        qtbot, stored, selects):
+    """The panel and the headless run read the same old file the same way.
+
+    `deep_spacr_defaults` seeds `image_source` from `crop_source`; the panel
+    used to read `image_source` alone, and `crop_source` is hidden on it, so
+    a file saying 'on_demand' opened on LOAD IMAGES while the run streamed.
+    """
+    pytest.importorskip("PySide6")
+    from spacr.qt.screens.settings_model import SettingsWidgets
+    from spacr.settings import deep_spacr_defaults
+
+    model = SettingsWidgets("classify", current={"crop_source": stored})
+    widget = model._widget_for("entry", None,
+                               model._defaults.get("image_source"),
+                               "image_source")
+    qtbot.addWidget(widget)
+    assert widget.currentData() == selects, stored
+    headless = deep_spacr_defaults({"crop_source": stored})
+    assert headless["image_source"] == selects, stored
+
+
+def test_image_source_wins_over_crop_source_as_it_does_headlessly(qtbot):
+    pytest.importorskip("PySide6")
+    from spacr.qt.screens.settings_model import SettingsWidgets
+    from spacr.settings import deep_spacr_defaults
+
+    both = {"crop_source": "on_demand", "image_source": "load_images"}
+    model = SettingsWidgets("classify", current=both)
+    assert model._defaults["image_source"] == TRAINING_LOAD_IMAGES
+    assert deep_spacr_defaults(dict(both))["image_source"] == \
+        TRAINING_LOAD_IMAGES
+
+
+def test_an_imported_settings_file_is_seeded_before_it_reaches_a_widget():
+    """Import settings CSV goes through `_translate_legacy_setting_keys`."""
+    pytest.importorskip("PySide6")
+    from spacr.qt.screens.app_screen import _translate_legacy_setting_keys
+
+    out = _translate_legacy_setting_keys({"crop_source": "on_demand"})
+    assert out["image_source"] == TRAINING_STREAM_IMAGES
+    kept = _translate_legacy_setting_keys(
+        {"crop_source": "on_demand", "image_source": "load_images"})
+    assert kept["image_source"] == "load_images"
+    assert "image_source" not in _translate_legacy_setting_keys(
+        {"crop_source": ""})
+
+
+def test_the_database_stream_is_a_stream_to_training():
+    """`crops.STREAM_FROM_DB` must not fall into the LOAD IMAGES fallback."""
+    from spacr import crops
+    from spacr.settings import _IMAGE_SOURCES, _canonical_image_source
+
+    assert crops.STREAM_FROM_DB in _IMAGE_SOURCES
+    assert _canonical_image_source(crops.STREAM_FROM_DB) == \
+        TRAINING_STREAM_IMAGES

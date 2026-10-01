@@ -118,7 +118,7 @@ def test_cli_trains_with_pair_weights_and_records_them(tmp_path, monkeypatch, mi
     import types
 
     pairs = _independent_pairs(mixed_sizes)
-    monkeypatch.setattr(tm, "ctc_pairs", lambda movie, sequence, max_pairs: pairs if sequence == "01" else [])
+    monkeypatch.setattr(tm, "ctc_pairs", lambda movie, sequence, max_pairs, gaps=(1,): pairs if sequence == "01" and list(gaps) == [1] else [])
     monkeypatch.setitem(sys.modules, "cellpose", types.SimpleNamespace(
         models=types.SimpleNamespace(CellposeModel=lambda **kwargs: types.SimpleNamespace(net=None))))
     monkeypatch.setattr(tm, "CellposeSamFeatures", lambda net: None)

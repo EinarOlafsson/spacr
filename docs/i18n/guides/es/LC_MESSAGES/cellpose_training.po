@@ -1,0 +1,162 @@
+# spaCR user guide translation (es).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: es\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Train a Cellpose model"
+msgstr "Entrenar un modelo de Cellpose"
+
+msgid "Use your corrected image masks to fine-tune Cellpose-SAM, then apply the saved model to another image folder. From **Home → Tools → Make Masks**, open **Cellpose Workbench** and choose **Train**."
+msgstr "Use sus máscaras de imagen corregidas para ajustar Cellpose-SAM y, después, aplique el modelo guardado a otra carpeta de imágenes. Desde **Inicio → Herramientas → Crear máscaras**, abra **Banco de trabajo Cellpose** y elija **Entrenar**."
+
+msgid "To follow along, download the `six example image/mask pairs <tutorials/examples/Cellpose_training_images_masks.zip>`__ and extract them. Set Source to the extracted ``training`` folder. Review the supplied cell masks in Make Masks, then follow the settings and Run steps below. The archive's ``apply`` folder holds three more images from wells that are not in the training set; use it to try the trained checkpoint in Apply."
+msgstr "Para seguir el ejemplo, descargue los `seis pares de ejemplo de imagen y máscara <tutorials/examples/Cellpose_training_images_masks.zip>`__ y extráigalos. Establezca el origen en la carpeta ``training`` extraída. Revise las máscaras celulares incluidas en Crear máscaras y, a continuación, siga los pasos de configuración y ejecución que se indican abajo. La carpeta ``apply`` del archivo contiene otras tres imágenes de pocillos que no forman parte del conjunto de entrenamiento; úsela para probar el punto de control entrenado en Aplicar."
+
+msgid "Prepare images and masks"
+msgstr "Preparar imágenes y máscaras"
+
+msgid "Place training images in one folder and their masks in its ``masks`` subfolder::"
+msgstr "Coloque las imágenes de entrenamiento en una carpeta y sus máscaras en la subcarpeta ``masks``::"
+
+msgid "Each mask must have the same height and width as its image. Use integer object labels: zero for background and a different positive number for each object. A mask filename can match its image or add ``_masks`` before the extension, such as ``field_01_masks.tif``. Keep one matching mask per image."
+msgstr "Cada máscara debe tener la misma altura y anchura que su imagen. Use etiquetas de objeto enteras: cero para el fondo y un número positivo distinto para cada objeto. El nombre de un archivo de máscara puede coincidir con el de su imagen o añadir ``_masks`` antes de la extensión, como ``field_01_masks.tif``. Mantenga una sola máscara correspondiente por imagen."
+
+msgid "Use Make Masks to inspect and correct object boundaries before training. Keep separate fields for validation. You can reuse a legacy project containing ``train/images`` and ``train/masks`` by selecting that project as Source."
+msgstr "Use Crear máscaras para revisar y corregir los contornos de los objetos antes del entrenamiento. Reserve campos separados para la validación. Puede reutilizar un proyecto antiguo que contenga ``train/images`` y ``train/masks`` seleccionándolo como origen."
+
+msgid "Choose inputs and settings"
+msgstr "Elegir entradas y configuración"
+
+msgid "Set **Source** (``src``) to the training image folder."
+msgstr "Establezca **Origen** (``src``) en la carpeta de imágenes de entrenamiento."
+
+msgid "Leave ``mask_src`` empty to use ``<src>/masks``, or select another mask folder."
+msgstr "Deje ``mask_src`` vacío para usar ``<src>/masks``, o seleccione otra carpeta de máscaras."
+
+msgid "For validation, set ``test_src`` to a separate image folder. Its masks belong in ``<test_src>/masks`` unless you select ``test_mask_src``."
+msgstr "Para la validación, establezca ``test_src`` en una carpeta de imágenes separada. Sus máscaras van en ``<test_src>/masks``, salvo que seleccione ``test_mask_src``."
+
+msgid "Choose ``base_model``: ``cpsam`` starts from Cellpose-SAM; a model-zoo key or checkpoint path continues training an existing model."
+msgstr "Elija ``base_model``: ``cpsam`` parte de Cellpose-SAM; una clave de la biblioteca de modelos o una ruta de punto de control continúa el entrenamiento de un modelo existente."
+
+msgid "Enter ``model_name`` as a filename prefix. Use ``save_path`` to choose an output folder, or leave it empty to save under the training project."
+msgstr "Escriba ``model_name`` como prefijo del nombre de archivo. Use ``save_path`` para elegir una carpeta de salida, o déjelo vacío para guardar dentro del proyecto de entrenamiento."
+
+msgid "For multichannel images, ``channels`` selects up to three zero-based channel indices. For example, ``[0, 2]`` selects the first and third channels. Leave ``channel_axis`` empty for automatic detection, or set it explicitly when the image layout is ambiguous. Training accepts two-dimensional images with optional channels."
+msgstr "En imágenes multicanal, ``channels`` selecciona hasta tres índices de canal basados en cero. Por ejemplo, ``[0, 2]`` selecciona el primer y el tercer canal. Deje ``channel_axis`` vacío para la detección automática, o establézcalo explícitamente cuando la disposición de la imagen sea ambigua. El entrenamiento acepta imágenes bidimensionales con canales opcionales."
+
+msgid "Main training controls"
+msgstr "Controles principales del entrenamiento"
+
+msgid "Setting"
+msgstr "Ajuste"
+
+msgid "Default"
+msgstr "Valor predeterminado"
+
+msgid "What it controls"
+msgstr "Qué controla"
+
+msgid "``n_epochs``"
+msgstr "``n_epochs``"
+
+msgid "100"
+msgstr "100"
+
+msgid "Number of training epochs."
+msgstr "Número de épocas de entrenamiento."
+
+msgid "``batch_size``"
+msgstr "``batch_size``"
+
+msgid "1"
+msgstr "1"
+
+msgid "Images per training minibatch. Larger batches require more memory."
+msgstr "Imágenes por minilote de entrenamiento. Los lotes más grandes requieren más memoria."
+
+msgid "``learning_rate``"
+msgstr "``learning_rate``"
+
+msgid "0.00001"
+msgstr "0.00001"
+
+msgid "Size of the model's training updates."
+msgstr "Tamaño de las actualizaciones del modelo durante el entrenamiento."
+
+msgid "``weight_decay``"
+msgstr "``weight_decay``"
+
+msgid "0.1"
+msgstr "0.1"
+
+msgid "Strength of weight regularization during training."
+msgstr "Intensidad de la regularización de los pesos durante el entrenamiento."
+
+msgid "``normalize`` / ``percentiles``"
+msgstr "``normalize`` / ``percentiles``"
+
+msgid "On / [1, 99]"
+msgstr "Activado / [1, 99]"
+
+msgid "Percentile normalization of each image channel."
+msgstr "Normalización por percentiles de cada canal de imagen."
+
+msgid "``min_train_masks``"
+msgstr "``min_train_masks``"
+
+msgid "5"
+msgstr "5"
+
+msgid "Minimum labelled objects in an image included in training."
+msgstr "Número mínimo de objetos etiquetados en una imagen incluida en el entrenamiento."
+
+msgid "``scale_range``"
+msgstr "``scale_range``"
+
+msgid "0.5"
+msgstr "0.5"
+
+msgid "Variation in image scale during training augmentation."
+msgstr "Variación de la escala de imagen durante el aumento de datos de entrenamiento."
+
+msgid "``save_every`` / ``save_each``"
+msgstr "``save_every`` / ``save_each``"
+
+msgid "100 / Off"
+msgstr "100 / Desactivado"
+
+msgid "Checkpoint interval and whether periodic checkpoints get separate names."
+msgstr "Intervalo entre puntos de control y si los puntos de control periódicos reciben nombres distintos."
+
+msgid "For a smaller initial run, ``max_train_images`` limits the loaded training images. ``nimg_per_epoch`` and ``nimg_test_per_epoch`` limit how many images are used per epoch. Leave these limits empty to use all available images."
+msgstr "Para una primera ejecución más pequeña, ``max_train_images`` limita las imágenes de entrenamiento cargadas. ``nimg_per_epoch`` y ``nimg_test_per_epoch`` limitan cuántas imágenes se usan por época. Deje estos límites vacíos para usar todas las imágenes disponibles."
+
+msgid "Run and use the output"
+msgstr "Ejecutar y usar la salida"
+
+msgid "Click **Run** and follow progress in the console. When training finishes, the console reports the saved checkpoint path. With the default output location, checkpoints are under ``<src>/models/cellpose_model/models``. With a chosen ``save_path``, they are under ``<save_path>/models``."
+msgstr "Haga clic en **Ejecutar** y siga el progreso en la consola. Cuando termina el entrenamiento, la consola indica la ruta del punto de control guardado. Con la ubicación de salida predeterminada, los puntos de control están en ``<src>/models/cellpose_model/models``. Con un ``save_path`` elegido, están en ``<save_path>/models``."
+
+msgid "Open **Apply**, select a separate image folder, such as the example's ``apply`` folder, and check that **Custom model** points to the checkpoint you want. Turn on **Save**, which is off by default. Inspect a preview before processing the folder. Apply writes label masks into that image folder's ``masks`` subfolder. Use separate labelled images to evaluate segmentation before applying the model to an entire experiment."
+msgstr "Abra **Aplicar**, seleccione una carpeta de imágenes separada, como la carpeta ``apply`` del ejemplo, y compruebe que **Modelo personalizado** apunta al punto de control deseado. Active **Guardar**, que está desactivado de forma predeterminada. Revise una vista previa antes de procesar la carpeta. Aplicar escribe máscaras de etiquetas en la subcarpeta ``masks`` de esa carpeta de imágenes. Use imágenes etiquetadas separadas para evaluar la segmentación antes de aplicar el modelo a un experimento completo."
+
+msgid "The Python entry point :func:`spacr.submodules.train_cellpose` accepts the same settings and returns the checkpoint path, training losses and validation losses. Continue with :doc:`Make Masks <make_masks>` to inspect or edit masks, or :ref:`Mask <workflow-module-mask>` to use the model in an image pipeline."
+msgstr "El punto de entrada de Python :func:`spacr.submodules.train_cellpose` acepta la misma configuración y devuelve la ruta del punto de control, las pérdidas de entrenamiento y las pérdidas de validación. Continúe con :doc:`Crear máscaras <make_masks>` para revisar o editar máscaras, o con :ref:`Máscaras <workflow-module-mask>` para usar el modelo en una canalización de imágenes."
+

@@ -586,39 +586,44 @@
       "translation": "``regression_type='mixed'`` 只拟合一次，并返回一个条目 ``'gene'``：该模型已同时包含两个层级，基因是固定效应，引导是嵌套在基因内的随机效应。其引导输出是 BLUPs，因此不能拆成两个检验族。"
     },
     {
-      "label": "spacr.ml.regression_levels#6",
+      "label": "spacr.ml.regression_levels#8",
       "source_sha256": "6e604094dd6249e5ec74de6194cb8e755d06002d16daece0305d65250ad8416c",
       "source": "``'both'`` (default), ``'grna'`` or ``'gene'``.",
       "context": "``'both'`` (default), ``'grna'`` or ``'gene'``.",
-      "translation": "``'both'``（默认）、``'grna'`` 或 ``'gene'``。"
-    },
-    {
-      "label": "spacr.ml.regression_levels#7",
-      "source_sha256": "d6e2314b337e5f80daf1545218f9a69cc2ce5fe0e9f3b17cf230e30ce81ce32b",
-      "source": "the run folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.",
-      "context": "the processing-session folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.",
-      "translation": "运行文件夹。若拟合多于一次，每个层级的图形写入 ``<dst>/<level>/`` 以免相互覆盖；表仍保存在 ``<dst>``，所有使用者都在那里查找。"
-    },
-    {
-      "label": "spacr.ml.regression_levels#8",
-      "source_sha256": "de9c3a99bb37bbfba0afc84bf1eefaa355aef8c5bd6e33ca6211864ca20b4549",
-      "source": "passed straight through to :func:`regression`.",
-      "context": "passed straight through to :func:`regression`.",
-      "translation": "直接传递给 :func:`regression`。"
+      "translation": "``'both'``（默认）、``'grna'`` 或 ``'gene'``。",
+      "rebound_from": "spacr.ml.regression_levels#6"
     },
     {
       "label": "spacr.ml.regression_levels#9",
-      "source_sha256": "36503a405d36248422633e175b415fcbd2d82a4d800883972900db5f9253247b",
-      "source": "``dict`` mapping level to ``(model, coef_df, regression_type)``, in fit order.",
-      "context": "``dict`` mapping level to ``(model, coef_df, regression_type)``, in fit order.",
-      "translation": "``dict``，按拟合顺序将层级映射到 ``(model, coef_df, regression_type)``。"
+      "source_sha256": "d6e2314b337e5f80daf1545218f9a69cc2ce5fe0e9f3b17cf230e30ce81ce32b",
+      "source": "the run folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.",
+      "context": "the processing-session folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.",
+      "translation": "运行文件夹。若拟合多于一次，每个层级的图形写入 ``<dst>/<level>/`` 以免相互覆盖；表仍保存在 ``<dst>``，所有使用者都在那里查找。",
+      "rebound_from": "spacr.ml.regression_levels#7"
     },
     {
       "label": "spacr.ml.regression_levels#10",
+      "source_sha256": "de9c3a99bb37bbfba0afc84bf1eefaa355aef8c5bd6e33ca6211864ca20b4549",
+      "source": "passed straight through to :func:`regression`.",
+      "context": "passed straight through to :func:`regression`.",
+      "translation": "直接传递给 :func:`regression`。",
+      "rebound_from": "spacr.ml.regression_levels#8"
+    },
+    {
+      "label": "spacr.ml.regression_levels#11",
+      "source_sha256": "36503a405d36248422633e175b415fcbd2d82a4d800883972900db5f9253247b",
+      "source": "``dict`` mapping level to ``(model, coef_df, regression_type)``, in fit order.",
+      "context": "``dict`` mapping level to ``(model, coef_df, regression_type)``, in fit order.",
+      "translation": "``dict``，按拟合顺序将层级映射到 ``(model, coef_df, regression_type)``。",
+      "rebound_from": "spacr.ml.regression_levels#9"
+    },
+    {
+      "label": "spacr.ml.regression_levels#12",
       "source_sha256": "865eaa1be2505059a461326afa1015fd8bef1631ba5eb0764cada93b6024d342",
       "source": "for a level that is not one of :data:`LEVEL_CHOICES`.",
       "context": "for a level that is not one of :data:`LEVEL_CHOICES`.",
-      "translation": "当层级不属于 :data:`LEVEL_CHOICES` 时。"
+      "translation": "当层级不属于 :data:`LEVEL_CHOICES` 时。",
+      "rebound_from": "spacr.ml.regression_levels#10"
     },
     {
       "label": "spacr.ml.resolve_auto_inference#0",
@@ -656,11 +661,12 @@
       "translation": "除 ``inference='auto'`` 外的值原样返回，因此显式选择绝不会被覆盖。"
     },
     {
-      "label": "spacr.ml.resolve_auto_inference#5",
+      "label": "spacr.ml.resolve_auto_inference#9",
       "source_sha256": "11380b9e5f6bcf7fb4065e9e1ff8cd68a01aff3c9eede1fc3158890a49297f92",
       "source": "``(analysis_mode, reason)``. ``reason`` is a sentence naming the counts, suitable for the log and for the Methods section.",
       "context": "``(analysis_mode, reason)``. ``reason`` is a sentence naming the counts, suitable for the log and for the Methods section.",
-      "translation": "``(analysis_mode, reason)``。``reason`` 是包含这些计数的句子，适合用于日志和方法部分。"
+      "translation": "``(analysis_mode, reason)``。``reason`` 是包含这些计数的句子，适合用于日志和方法部分。",
+      "rebound_from": "spacr.ml.resolve_auto_inference#5"
     },
     {
       "label": "spacr.ml.results_folder_kind#0",

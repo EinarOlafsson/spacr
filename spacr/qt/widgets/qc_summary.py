@@ -48,7 +48,12 @@ _MAX_FLAGS = 6
 
 
 def worst_verdict(verdicts: Sequence[str]) -> str:
-    """The worst of several verdicts, by :data:`VERDICT_ORDER`."""
+    """The worst of several verdicts, by :data:`VERDICT_ORDER`.
+
+    :param verdicts: verdict strings, each one of :data:`VERDICT_ORDER`
+        (``"ok"`` best to ``"error"`` worst); unknown strings are ignored,
+        and none known gives ``"missing"``.
+    """
     known = [v for v in verdicts if v in VERDICT_ORDER]
     if not known:
         return "missing"
@@ -123,7 +128,11 @@ class Dashboard:
         return any(card.stale for card in self.cards)
 
     def card(self, key: str) -> Optional[QCCard]:
-        """The card with this key, or ``None``."""
+        """The card with this key, or ``None``.
+
+        :param key: a card identifier such as ``"segmentation"``,
+            ``"leakage"``, ``"units"``, ``"plate"`` or ``"agreement"``.
+        """
         for card in self.cards:
             if card.key == key:
                 return card
@@ -348,8 +357,7 @@ def _read_units(src: Any) -> QCCard:
                        connection.execute(f'PRAGMA table_info("{table}")')}
             present = [c for c in MEASUREMENT_STAMP_COLUMNS if c in columns]
             if not present:
-                if columns:
-                    unstamped.append(table)
+                unstamped.append(table)
                 continue
             checked.append(table)
             selected = ", ".join(f'"{c}"' for c in present)
@@ -565,7 +573,12 @@ def read_dashboard(src: Any, *, segmentation_reader=None) -> Dashboard:
 
 
 def format_dashboard(dashboard: Dashboard) -> str:
-    """The dashboard as plain text, for a log or a copy-paste."""
+    """The dashboard as plain text, for a log or a copy-paste.
+
+    :param dashboard: the dashboard to format: its verdict and headline
+        first, then one line per card with that card's details indented
+        under it.
+    """
     lines = [f"{dashboard.verdict.upper()}: {dashboard.headline}"]
     if dashboard.root:
         lines.append(f"  {dashboard.root}")

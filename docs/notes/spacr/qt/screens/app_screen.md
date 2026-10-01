@@ -67,9 +67,8 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [AppScreen.set_dimension](#appscreenset_dimension) (1 entry)
 - [AppScreen._dimension_rows](#appscreen_dimension_rows) (1 entry)
 - [AppScreen._attach_column_picker](#appscreen_attach_column_picker) (2 entries)
-- [AppScreen._build_empty_state_banner](#appscreen_build_empty_state_banner) (7 entries)
+- [AppScreen._build_empty_state_banner](#appscreen_build_empty_state_banner) (5 entries)
 - [AppScreen.choose_source_folder](#appscreenchoose_source_folder) (1 entry)
-- [AppScreen._open_demos_menu](#appscreen_open_demos_menu) (1 entry)
 - [AppScreen.eventFilter](#appscreeneventfilter) (7 entries)
 - [AppScreen._default_hint](#appscreen_default_hint) (1 entry)
 - [AppScreen._build_runtime_panel](#appscreen_build_runtime_panel) (93 entries)
@@ -953,7 +952,7 @@ THE MODEL ASKS THE PANEL FOR A ROW IT IS ABOUT TO SHOW. The rule decides visibil
 self._empty_state_card = self._build_empty_state_banner()
 ```
 
-Empty-state banner — shown ONLY when the src widget is empty. It's a compact "Drop a plate folder here or pick a Demo dataset" card that sits above the settings form; it auto-hides as soon as the user sets src (drag/drop or typing). Users who load settings via Import don't see it a second time.
+Empty-state banner — shown ONLY when the src widget is empty. The compact card above the settings form points to a source folder, the module's Load test data control, and Home's Pipeline overviews; it auto-hides as soon as the user sets src (drag/drop or typing). Users who load settings via Import don't see it a second time.
 
 ### lines 2447-2451
 
@@ -1991,31 +1990,13 @@ title = tr(
 
 Human-friendly title varies per app; the body is the same. THE MODULE NAME IS A VALUE, NOT PART OF THE KEY: baking it into the sentence first asks the catalog for "Point measure at some data" and every other module's variant of it, none of which any catalog can hold. The sentence is looked up as a template and the name itself translated -- put in afterwards.
 
-### lines 5630-5636
-
-```python
-try:
-```
-
-...and so does the demo. This named "Demos → Mask demo…" on every screen, so Measure, Timelapse, Classify and Sequencing all offered a dataset that opens a DIFFERENT module: following the hint on the Measure screen generates raw images, navigates away to Mask, and leaves the empty screen the user was trying to fill exactly as empty. Ask which demo lands HERE, and say nothing specific when none does.
-
-### lines 5642-5645
-
-```python
-offer = (
-```
-
-Same reason as the title above: the clause and the sentence are each looked up on their own, so the demo's name is the only part that is interpolated and the catalog is never asked for a key that contains it.
-
 ### lines 5657-5663
 
 ```python
 cta_label="Choose source data",
 ```
 
-THE BUTTON DOES THE THING THE CARD IS ABOUT. It opened the
-
-Demos menu, which is one way to get data and not the way most people arrive: somebody who already has images wanted the card to take them to their images, and instead it offered them a synthetic dataset. The demo is still offered -- in the sentence above, which names the one that lands on THIS screen -- and the button now sets the source folder.
+The button opens the source-folder picker. The card also points to the module's Load test data control and the Pipeline overviews walkthroughs on Home.
 
 ### lines 5667-5670
 
@@ -2042,16 +2023,6 @@ setter = getattr(self._settings_model, "set_value_for_key", None)
 ```
 
 THROUGH THE MODEL, not by poking the widget. `src` is a plain line edit on most screens and a list of plates on Classify, and the model is what knows the difference -- writing text into the second one would put a folder where a set of databases goes.
-
-## AppScreen._open_demos_menu
-
-### line 5798  _(unsure)_
-
-```python
-m.exec(mw.mapToGlobal(mw.rect().topLeft()))
-```
-
-Show the menu at the top-left of the window
 
 ## AppScreen.eventFilter
 
@@ -4182,3 +4153,100 @@ _REPORTS_BEING_FILED: dict = {}
 The in-flight record was a set, and only `_on_report_filed_automatically` took anything out of it. `JobRunner` drops a result -- never calls `on_done` -- when `cancel()` has bumped the generation or the worker reports not-ok, which is what closing a screen does to a report in flight. The fingerprint then stayed in a module-level set for the rest of the process, and every later failure with that traceback, in any screen, printed "[issue] This error is being reported already" and filed nothing. The `submit() == False` fallback covered only a submit the runner refused outright.
 
 It now records when each report started and treats anything older than `REPORT_IN_FLIGHT_SECONDS` as gone. Two minutes: `gh auth token` is capped at 8 s and each API call at 20 s, so a report that has not come back inside that is not coming back, and the cost of being wrong is one duplicate search that finds the open issue and comments on it.
+
+
+---
+
+# Notes from `spacr/qt/screens/app_screen.py`
+
+Prose lifted out of `spacr/qt/screens/app_screen.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## Contents
+
+- [AppScreen.__init__](#appscreen__init__) (1 entry)
+- [AppScreen._mount_the_object_grid](#appscreen_mount_the_object_grid) (1 entry)
+- [AppScreen.apply_settings_that_came_with](#appscreenapply_settings_that_came_with) (4 entries)
+- [AppScreen.showEvent](#appscreenshowevent) (1 entry)
+
+## AppScreen.__init__
+
+### lines 1981-1983
+
+```python
+if self._ambient is None:
+```
+
+THE SWEEP IS UNCONDITIONAL (item 381). With no backdrop behind the containers, `page_fill` gives the page its own colour, so a transparent container shows the page and never the window's `bg`.
+
+## AppScreen._mount_the_object_grid
+
+### lines 2641-2646
+
+```python
+from ..theme import clear_container_surfaces
+```
+
+TAG WHAT WAS JUST MOUNTED (item 408). While the panel is being built the screen's own sweep comes later and covers this, but a Preferences save mounts it on a screen already on show, after every sweep: the table's viewport then painted `QPalette.Base`, opaque black, over the backdrop until the next show. Only this subtree -- the whole-screen sweep re-polishes 201 settings.
+
+## AppScreen.apply_settings_that_came_with
+
+### lines 5240-5241  _(unsure)_
+
+```python
+owner = self.window() if hasattr(self, "window") else None
+```
+
+A form rebuild detaches this widget before bulk application returns. Keep its owner so the report can reach the replacement's console.
+
+### lines 5243-5261
+
+```python
+roots = []
+```
+
+THE SHIPPED PACK FIRST, THEN THE PLATE'S OWN FOLDER.
+
+A completed run writes `<src>/settings/<name>.csv`
+
+`utils.save_settings`, with name='gen_mask_settings' for Mask -- and that is the same folder and the same filename this search looks in. `_EXAMPLE_SETTINGS_FILES` even lists the run's spelling FIRST, which its own comment says out loud: "a mask run saves `gen_mask_settings.csv`, the older pack shipped `gen_masks_settings.csv`".
+
+So on a cached example, once the user has run the module once, their own output sits under the preferred name and wins forever, because a cached example is never re-fetched. It cannot happen until you have used the thing once, which is why it only bites returning users.
+
+The download already separates them -- the plate unpacks to
+
+`<dest>/plate1` and the pack to `<dest>/settings`, a SIBLING that no run writes into -- so the fix is to look there first rather than to guess between two files with the same name.
+
+### lines 5270-5271
+
+```python
+loaded, report = settings_from_pack(self.app_key, root)
+```
+
+Do not override src here: Measure's pack points at /merged, which reanchor_example_paths preserves below the local plate.
+
+### lines 5275-5277
+
+```python
+supplied = set(report.applied)
+```
+
+The reader returns defaults too; an example import must not reset values the pack never supplied. A found pack remains authoritative even when all its keys were dropped.
+
+## AppScreen.showEvent
+
+### lines 8261-8277
+
+```python
+if not getattr(self, "_surfaces_cleared_on_show", False):
+```
+
+ONCE, ON THE FIRST SHOW, AND THIS IS THE BLACK BOX. `_clear_page_surfaces` runs during construction, and it tags what exists THEN. Anything a screen builds afterwards -- a section that mounts on demand, a grid the preferences turn on -- is never tagged, inherits the blanket ``QWidget { background-color: bg }`` rule, and paints the window colour as a solid rectangle over the backdrop.
+
+It looked intermittent because the repair was accidental:
+
+`refresh_ambient_background` re-tags, but only when the ambient preference actually CHANGED, and its docstring says so. Leaving the screen and coming back happened to take that path, so the box appeared on first open and was gone on the second -- which reads like a paint race and is not one.
+
+Guarded by a flag rather than run on every show: tagging walks every child and re-polishes it, and Mask carries 201 settings.

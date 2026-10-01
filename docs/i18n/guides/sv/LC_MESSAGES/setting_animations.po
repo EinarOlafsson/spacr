@@ -1,0 +1,774 @@
+# spaCR user guide translation (sv).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: sv\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Setting animation gallery"
+msgstr "Galleri med inställningsanimationer"
+
+msgid "spaCR includes short, deterministic GIFs for settings whose effect is easier to understand visually. In the desktop interface, hovering a setting shows its explanation; pressing the teal **Animation** word in that tooltip's footer reveals the corresponding animation to the right of the text. It is revealed for that setting only — the next setting is text again until its own **Animation** is pressed, and nothing is decoded until it is. Set *Setting animations* in Preferences to show them without asking."
+msgstr "spaCR innehåller korta, deterministiska GIF-animationer för inställningar vars effekt är lättare att förstå visuellt. När du i skrivbordsgränssnittet håller pekaren över en inställning visas dess förklaring; om du trycker på det blågröna ordet **Animation** i verktygstipsets fot visas motsvarande animation till höger om texten. Den visas bara för den inställningen — nästa inställning visar text igen tills dess egen **Animation** trycks in, och ingenting avkodas förrän den gör det. Aktivera *Animeringar i inställningar* i Inställningar för att visa dem utan att fråga."
+
+msgid "The diagrams use a shared biological grammar: white fibroblast or motile immune-cell outlines, blue nuclei with unequal nucleoli, teal Toxoplasma tachyzoites inside an outline-only parasitophorous vacuole, and soft-magenta Golgi cisternae. Filled regions are translucent and the rounded field perimeter remains white on black."
+msgstr "Diagrammen använder en gemensam biologisk grammatik: vita konturer av fibroblaster eller rörliga immunceller, blå kärnor med olika stora nukleoler, blågröna Toxoplasma-takyzoiter inuti en parasitofor vakuol som bara visas som kontur, och mjukt magentafärgade Golgicisterner. Fyllda områden är genomskinliga och fältets rundade kant förblir vit mot svart."
+
+msgid "The cell, nucleus and nucleoli, two-parasite vacuole, and Golgi use the reviewed, artist-authored SVG paths checked into ``tools/``. Qt renders those exact Bezier paths at high resolution before each animation frame is composited, keeping the outlines smooth at small sizes. Source-template SHA-256 hashes are recorded in the manifest."
+msgstr "Cellen, kärnan med nukleoler, vakuolen med två parasiter och Golgiapparaten använder de granskade, konstnärsritade SVG-banor som finns incheckade i ``tools/``. Qt återger exakt dessa Bézierbanor i hög upplösning innan varje animationsbildruta sätts samman, så att konturerna förblir mjuka även i små storlekar. SHA-256-hashar för källmallarna registreras i manifestet."
+
+msgid "Animations are resolved by setting key, with numbered organelle slots reusing the primary slot's animation through :mod:`spacr.setting_animations`; the assets and manifest are generated reproducibly by ``tools/generate_setting_animations.py``."
+msgstr "Animationer slås upp via inställningsnyckel, där numrerade organellplatser återanvänder den primära platsens animation genom :mod:`spacr.setting_animations`; resurserna och manifestet genereras reproducerbart av ``tools/generate_setting_animations.py``."
+
+msgid "Mask filtering"
+msgstr "Maskfiltrering"
+
+msgid "Cell — Remove border objects"
+msgstr "Cell — Ta bort kantobjekt"
+
+msgid "Cell — Remove border objects setting animation"
+msgstr "Inställningsanimation: Cell — Ta bort kantobjekt"
+
+msgid "**Settings:** ``cell_remove_border_objects``"
+msgstr "**Inställningar:** ``cell_remove_border_objects``"
+
+msgid "Cell — Minimum object area"
+msgstr "Cell — Minsta objektarea"
+
+msgid "Cell — Minimum object area setting animation"
+msgstr "Inställningsanimation: Cell — Minsta objektarea"
+
+msgid "**Settings:** ``cell_min_size``, ``object_filters``"
+msgstr "**Inställningar:** ``cell_min_size``, ``object_filters``"
+
+msgid "Nucleus — Remove border objects"
+msgstr "Kärna — Ta bort kantobjekt"
+
+msgid "Nucleus — Remove border objects setting animation"
+msgstr "Inställningsanimation: Kärna — Ta bort kantobjekt"
+
+msgid "**Settings:** ``nucleus_remove_border_objects``"
+msgstr "**Inställningar:** ``nucleus_remove_border_objects``"
+
+msgid "Nucleus — Minimum object area"
+msgstr "Kärna — Minsta objektarea"
+
+msgid "Nucleus — Minimum object area setting animation"
+msgstr "Inställningsanimation: Kärna — Minsta objektarea"
+
+msgid "**Settings:** ``nucleus_min_size``"
+msgstr "**Inställningar:** ``nucleus_min_size``"
+
+msgid "Pathogen — Remove border objects"
+msgstr "Patogen — Ta bort kantobjekt"
+
+msgid "Pathogen — Remove border objects setting animation"
+msgstr "Inställningsanimation: Patogen — Ta bort kantobjekt"
+
+msgid "**Settings:** ``pathogen_remove_border_objects``"
+msgstr "**Inställningar:** ``pathogen_remove_border_objects``"
+
+msgid "Pathogen — Minimum object area"
+msgstr "Patogen — Minsta objektarea"
+
+msgid "Pathogen — Minimum object area setting animation"
+msgstr "Inställningsanimation: Patogen — Minsta objektarea"
+
+msgid "**Settings:** ``pathogen_min_size``"
+msgstr "**Inställningar:** ``pathogen_min_size``"
+
+msgid "Organelle — Remove border objects"
+msgstr "Organell — Ta bort kantobjekt"
+
+msgid "Organelle — Remove border objects setting animation"
+msgstr "Inställningsanimation: Organell — Ta bort kantobjekt"
+
+msgid "**Settings:** ``organelle_remove_border_objects``, ``organelle_remove_border``"
+msgstr "**Inställningar:** ``organelle_remove_border_objects``, ``organelle_remove_border``"
+
+msgid "Organelle — Minimum object area"
+msgstr "Organell — Minsta objektarea"
+
+msgid "Organelle — Minimum object area setting animation"
+msgstr "Inställningsanimation: Organell — Minsta objektarea"
+
+msgid "**Settings:** ``organelle_min_area``"
+msgstr "**Inställningar:** ``organelle_min_area``"
+
+msgid "Organelle — Maximum object area"
+msgstr "Organell — Största objektarea"
+
+msgid "Organelle — Maximum object area setting animation"
+msgstr "Inställningsanimation: Organell — Största objektarea"
+
+msgid "**Settings:** ``organelle_max_area``"
+msgstr "**Inställningar:** ``organelle_max_area``"
+
+msgid "Organelle — Minimum mean intensity"
+msgstr "Organell — Lägsta medelintensitet"
+
+msgid "Organelle — Minimum mean intensity setting animation"
+msgstr "Inställningsanimation: Organell — Lägsta medelintensitet"
+
+msgid "**Settings:** ``organelle_min_intensity``"
+msgstr "**Inställningar:** ``organelle_min_intensity``"
+
+msgid "Organelle — Maximum mean intensity"
+msgstr "Organell — Högsta medelintensitet"
+
+msgid "Organelle — Maximum mean intensity setting animation"
+msgstr "Inställningsanimation: Organell — Högsta medelintensitet"
+
+msgid "**Settings:** ``organelle_max_intensity``"
+msgstr "**Inställningar:** ``organelle_max_intensity``"
+
+msgid "Mask repair"
+msgstr "Maskreparation"
+
+msgid "Merge edge-pathogen cells"
+msgstr "Sammanfogade kantpatogenceller"
+
+msgid "Merge edge-pathogen cells setting animation"
+msgstr "Inställningsanimation: Sammanfogade kantpatogenceller"
+
+msgid "**Settings:** ``merge_edge_pathogen_cells``"
+msgstr "**Inställningar:** ``merge_edge_pathogen_cells``"
+
+msgid "Adjust fragmented cells"
+msgstr "Justera fragmenterade celler"
+
+msgid "Adjust fragmented cells setting animation"
+msgstr "Inställningsanimation: Justera fragmenterade celler"
+
+msgid "**Settings:** ``adjust_cells``"
+msgstr "**Inställningar:** ``adjust_cells``"
+
+msgid "Cell perimeter merge"
+msgstr "Sammanslagning via cellperimeter"
+
+msgid "Cell perimeter merge setting animation"
+msgstr "Inställningsanimation: Sammanslagning via cellperimeter"
+
+msgid "**Settings:** ``cell_perimeter_fraction``"
+msgstr "**Inställningar:** ``cell_perimeter_fraction``"
+
+msgid "Nucleus perimeter merge"
+msgstr "Sammanslagning via kärnperimeter"
+
+msgid "Nucleus perimeter merge setting animation"
+msgstr "Inställningsanimation: Sammanslagning via kärnperimeter"
+
+msgid "**Settings:** ``nucleus_perimeter_fraction``"
+msgstr "**Inställningar:** ``nucleus_perimeter_fraction``"
+
+msgid "Pathogen perimeter merge"
+msgstr "Sammanslagning via patogenperimeter"
+
+msgid "Pathogen perimeter merge setting animation"
+msgstr "Inställningsanimation: Sammanslagning via patogenperimeter"
+
+msgid "**Settings:** ``pathogen_perimeter_fraction``"
+msgstr "**Inställningar:** ``pathogen_perimeter_fraction``"
+
+msgid "Organelle perimeter merge"
+msgstr "Sammanslagning via organellperimeter"
+
+msgid "Organelle perimeter merge setting animation"
+msgstr "Inställningsanimation: Sammanslagning via organellperimeter"
+
+msgid "**Settings:** ``organelle_perimeter_fraction``"
+msgstr "**Inställningar:** ``organelle_perimeter_fraction``"
+
+msgid "Fill holes in masks"
+msgstr "Fyll hål i masker"
+
+msgid "Fill holes in masks setting animation"
+msgstr "Inställningsanimation: Fyll hål i masker"
+
+msgid "**Settings:** ``fill_in``"
+msgstr "**Inställningar:** ``fill_in``"
+
+msgid "Segmentation"
+msgstr "Segmentering"
+
+msgid "Cell probability threshold"
+msgstr "Tröskelvärde för cellsannolikhet"
+
+msgid "Cell probability threshold setting animation"
+msgstr "Inställningsanimation: Tröskelvärde för cellsannolikhet"
+
+msgid "**Settings:** ``cell_cellprob_threshold``"
+msgstr "**Inställningar:** ``cell_cellprob_threshold``"
+
+msgid "Cell flow threshold"
+msgstr "Tröskelvärde för cellflöde"
+
+msgid "Cell flow threshold setting animation"
+msgstr "Inställningsanimation: Tröskelvärde för cellflöde"
+
+msgid "**Settings:** ``cell_flow_threshold``"
+msgstr "**Inställningar:** ``cell_flow_threshold``"
+
+msgid "Cell diameter"
+msgstr "Celldiameter"
+
+msgid "Cell diameter setting animation"
+msgstr "Inställningsanimation: Celldiameter"
+
+msgid "**Settings:** ``cell_diameter``"
+msgstr "**Inställningar:** ``cell_diameter``"
+
+msgid "Nucleus probability threshold"
+msgstr "Tröskelvärde för nukleussannolikhet"
+
+msgid "Nucleus probability threshold setting animation"
+msgstr "Inställningsanimation: Tröskelvärde för nukleussannolikhet"
+
+msgid "**Settings:** ``nucleus_cellprob_threshold``"
+msgstr "**Inställningar:** ``nucleus_cellprob_threshold``"
+
+msgid "Nucleus flow threshold"
+msgstr "Tröskelvärde för nukleusflöde"
+
+msgid "Nucleus flow threshold setting animation"
+msgstr "Inställningsanimation: Tröskelvärde för nukleusflöde"
+
+msgid "**Settings:** ``nucleus_flow_threshold``"
+msgstr "**Inställningar:** ``nucleus_flow_threshold``"
+
+msgid "Nucleus diameter"
+msgstr "Nukleusdiameter"
+
+msgid "Nucleus diameter setting animation"
+msgstr "Inställningsanimation: Nukleusdiameter"
+
+msgid "**Settings:** ``nucleus_diameter``"
+msgstr "**Inställningar:** ``nucleus_diameter``"
+
+msgid "Pathogen probability threshold"
+msgstr "Tröskelvärde för patogensannolikhet"
+
+msgid "Pathogen probability threshold setting animation"
+msgstr "Inställningsanimation: Tröskelvärde för patogensannolikhet"
+
+msgid "**Settings:** ``pathogen_cellprob_threshold``"
+msgstr "**Inställningar:** ``pathogen_cellprob_threshold``"
+
+msgid "Pathogen flow threshold"
+msgstr "Tröskelvärde för patogenflöde"
+
+msgid "Pathogen flow threshold setting animation"
+msgstr "Inställningsanimation: Tröskelvärde för patogenflöde"
+
+msgid "**Settings:** ``pathogen_flow_threshold``"
+msgstr "**Inställningar:** ``pathogen_flow_threshold``"
+
+msgid "Pathogen diameter"
+msgstr "Patogendiameter"
+
+msgid "Pathogen diameter setting animation"
+msgstr "Inställningsanimation: Patogendiameter"
+
+msgid "**Settings:** ``pathogen_diameter``"
+msgstr "**Inställningar:** ``pathogen_diameter``"
+
+msgid "Organelle diameter"
+msgstr "Organelldiameter"
+
+msgid "Organelle diameter setting animation"
+msgstr "Inställningsanimation: Organelldiameter"
+
+msgid "**Settings:** ``organelle_diameter``"
+msgstr "**Inställningar:** ``organelle_diameter``"
+
+msgid "Organelle probability threshold"
+msgstr "Tröskelvärde för organellsannolikhet"
+
+msgid "Organelle probability threshold setting animation"
+msgstr "Inställningsanimation: Tröskelvärde för organellsannolikhet"
+
+msgid "**Settings:** ``organelle_cellprob_threshold``"
+msgstr "**Inställningar:** ``organelle_cellprob_threshold``"
+
+msgid "Organelle flow threshold"
+msgstr "Tröskelvärde för organellflöde"
+
+msgid "Organelle flow threshold setting animation"
+msgstr "Inställningsanimation: Tröskelvärde för organellflöde"
+
+msgid "**Settings:** ``organelle_flow_threshold``"
+msgstr "**Inställningar:** ``organelle_flow_threshold``"
+
+msgid "Image preprocessing"
+msgstr "Bildförbehandling"
+
+msgid "Cell background subtraction"
+msgstr "Bakgrundssubtraktion för celler"
+
+msgid "Cell background subtraction setting animation"
+msgstr "Inställningsanimation: Bakgrundssubtraktion för celler"
+
+msgid "**Settings:** ``remove_background_cell``, ``cell_background``"
+msgstr "**Inställningar:** ``remove_background_cell``, ``cell_background``"
+
+msgid "Cell signal-to-noise"
+msgstr "Signal-brusförhållande för celler"
+
+msgid "Cell signal-to-noise setting animation"
+msgstr "Inställningsanimation: Signal-brusförhållande för celler"
+
+msgid "**Settings:** ``cell_signal_to_noise``"
+msgstr "**Inställningar:** ``cell_signal_to_noise``"
+
+msgid "Nucleus background subtraction"
+msgstr "Bakgrundssubtraktion för kärnor"
+
+msgid "Nucleus background subtraction setting animation"
+msgstr "Inställningsanimation: Bakgrundssubtraktion för kärnor"
+
+msgid "**Settings:** ``remove_background_nucleus``, ``nucleus_background``"
+msgstr "**Inställningar:** ``remove_background_nucleus``, ``nucleus_background``"
+
+msgid "Nucleus signal-to-noise"
+msgstr "Signal-brusförhållande för kärnor"
+
+msgid "Nucleus signal-to-noise setting animation"
+msgstr "Inställningsanimation: Signal-brusförhållande för kärnor"
+
+msgid "**Settings:** ``nucleus_signal_to_noise``"
+msgstr "**Inställningar:** ``nucleus_signal_to_noise``"
+
+msgid "Pathogen background subtraction"
+msgstr "Bakgrundssubtraktion för patogener"
+
+msgid "Pathogen background subtraction setting animation"
+msgstr "Inställningsanimation: Bakgrundssubtraktion för patogener"
+
+msgid "**Settings:** ``remove_background_pathogen``, ``pathogen_background``"
+msgstr "**Inställningar:** ``remove_background_pathogen``, ``pathogen_background``"
+
+msgid "Pathogen signal-to-noise"
+msgstr "Signal-brusförhållande för patogener"
+
+msgid "Pathogen signal-to-noise setting animation"
+msgstr "Inställningsanimation: Signal-brusförhållande för patogener"
+
+msgid "**Settings:** ``pathogen_signal_to_noise``"
+msgstr "**Inställningar:** ``pathogen_signal_to_noise``"
+
+msgid "Image normalization percentiles"
+msgstr "Percentiler för bildnormalisering"
+
+msgid "Image normalization percentiles setting animation"
+msgstr "Inställningsanimation: Percentiler för bildnormalisering"
+
+msgid "**Settings:** ``normalization_percentiles``, ``normalize``"
+msgstr "**Inställningar:** ``normalization_percentiles``, ``normalize``"
+
+msgid "Organelle preprocessing"
+msgstr "Förbehandling av organeller"
+
+msgid "Fill small organelle holes"
+msgstr "Fyll små hål i organeller"
+
+msgid "Fill small organelle holes setting animation"
+msgstr "Inställningsanimation: Fyll små hål i organeller"
+
+msgid "**Settings:** ``organelle_fill_holes``"
+msgstr "**Inställningar:** ``organelle_fill_holes``"
+
+msgid "Split touching organelle spots"
+msgstr "Dela organellfläckar som nuddar varandra"
+
+msgid "Split touching organelle spots setting animation"
+msgstr "Inställningsanimation: Dela organellfläckar som nuddar varandra"
+
+msgid "**Settings:** ``organelle_watershed_spots``"
+msgstr "**Inställningar:** ``organelle_watershed_spots``"
+
+msgid "Skeletonize organelle networks"
+msgstr "Skelettera organellnätverk"
+
+msgid "Skeletonize organelle networks setting animation"
+msgstr "Inställningsanimation: Skelettera organellnätverk"
+
+msgid "**Settings:** ``organelle_skeletonize``"
+msgstr "**Inställningar:** ``organelle_skeletonize``"
+
+msgid "Rolling-ball background correction"
+msgstr "Bakgrundskorrigering med rullande boll"
+
+msgid "Rolling-ball background correction setting animation"
+msgstr "Inställningsanimation: Bakgrundskorrigering med rullande boll"
+
+msgid "**Settings:** ``organelle_rolling_ball``, ``organelle_rolling_ball_radius``"
+msgstr "**Inställningar:** ``organelle_rolling_ball``, ``organelle_rolling_ball_radius``"
+
+msgid "Organelle local contrast (CLAHE)"
+msgstr "Lokal kontrast för organeller (CLAHE)"
+
+msgid "Organelle local contrast (CLAHE) setting animation"
+msgstr "Inställningsanimation: Lokal kontrast för organeller (CLAHE)"
+
+msgid "**Settings:** ``organelle_clahe``, ``organelle_clahe_clip_limit``"
+msgstr "**Inställningar:** ``organelle_clahe``, ``organelle_clahe_clip_limit``"
+
+msgid "Mask organelles within cells"
+msgstr "Maskera organeller inom celler"
+
+msgid "Mask organelles within cells setting animation"
+msgstr "Inställningsanimation: Maskera organeller inom celler"
+
+msgid "**Settings:** ``organelle_mask_within_cells``"
+msgstr "**Inställningar:** ``organelle_mask_within_cells``"
+
+msgid "Organelle segmentation threshold"
+msgstr "Tröskelvärde för organellsegmentering"
+
+msgid "Organelle segmentation threshold setting animation"
+msgstr "Inställningsanimation: Tröskelvärde för organellsegmentering"
+
+msgid "**Settings:** ``organelle_log_threshold``, ``organelle_unet_threshold``"
+msgstr "**Inställningar:** ``organelle_log_threshold``, ``organelle_unet_threshold``"
+
+msgid "Plot appearance"
+msgstr "Diagrammets utseende"
+
+msgid "Mask outline thickness"
+msgstr "Tjocklek på maskkonturer"
+
+msgid "Mask outline thickness setting animation"
+msgstr "Inställningsanimation: Tjocklek på maskkonturer"
+
+msgid "**Settings:** ``outline_thickness``"
+msgstr "**Inställningar:** ``outline_thickness``"
+
+msgid "Crop output"
+msgstr "Utsnittsutdata"
+
+msgid "Keep bounding-box context"
+msgstr "Behåll sammanhanget i den omslutande rektangeln"
+
+msgid "Keep bounding-box context setting animation"
+msgstr "Inställningsanimation: Behåll sammanhanget i den omslutande rektangeln"
+
+msgid "**Settings:** ``use_bounding_box``"
+msgstr "**Inställningar:** ``use_bounding_box``"
+
+msgid "Dilate crop masks"
+msgstr "Utvidga bildutsnittens masker"
+
+msgid "Dilate crop masks setting animation"
+msgstr "Inställningsanimation: Utvidga bildutsnittens masker"
+
+msgid "**Settings:** ``dialate_pngs``, ``dialate_png_ratios``"
+msgstr "**Inställningar:** ``dialate_pngs``, ``dialate_png_ratios``"
+
+msgid "Choose crop target"
+msgstr "Välj mål för utsnitt"
+
+msgid "Choose crop target setting animation"
+msgstr "Inställningsanimation: Välj mål för utsnitt"
+
+msgid "**Settings:** ``crop_mode``"
+msgstr "**Inställningar:** ``crop_mode``"
+
+msgid "Crop canvas size"
+msgstr "Storlek på utsnittets duk"
+
+msgid "Crop canvas size setting animation"
+msgstr "Inställningsanimation: Storlek på utsnittets duk"
+
+msgid "**Settings:** ``png_size``"
+msgstr "**Inställningar:** ``png_size``"
+
+msgid "Measurement"
+msgstr "Mätning"
+
+msgid "Derive cytoplasm compartment"
+msgstr "Härled cytoplasmakompartment"
+
+msgid "Derive cytoplasm compartment setting animation"
+msgstr "Inställningsanimation: Härled cytoplasmakompartment"
+
+msgid "**Settings:** ``cytoplasm``"
+msgstr "**Inställningar:** ``cytoplasm``"
+
+msgid "Radial-distance shells"
+msgstr "Skal efter radiellt avstånd"
+
+msgid "Radial-distance shells setting animation"
+msgstr "Inställningsanimation: Skal efter radiellt avstånd"
+
+msgid "**Settings:** ``radial_dist``, ``distance_gaussian_sigma``"
+msgstr "**Inställningar:** ``radial_dist``, ``distance_gaussian_sigma``"
+
+msgid "Keep or remove uninfected cells"
+msgstr "Behåll eller ta bort oinfekterade celler"
+
+msgid "Keep or remove uninfected cells setting animation"
+msgstr "Inställningsanimation: Behåll eller ta bort oinfekterade celler"
+
+msgid "**Settings:** ``uninfected``"
+msgstr "**Inställningar:** ``uninfected``"
+
+msgid "Tracking & volumetric"
+msgstr "Spårning och volymetri"
+
+msgid "Remove transient tracks"
+msgstr "Ta bort kortvariga spår"
+
+msgid "Remove transient tracks setting animation"
+msgstr "Inställningsanimation: Ta bort kortvariga spår"
+
+msgid "**Settings:** ``timelapse_remove_transient``, ``timelapse_frame_limits``"
+msgstr "**Inställningar:** ``timelapse_remove_transient``, ``timelapse_frame_limits``"
+
+msgid "Maximum linking displacement"
+msgstr "Största länkningsförflyttning"
+
+msgid "Maximum linking displacement setting animation"
+msgstr "Inställningsanimation: Största länkningsförflyttning"
+
+msgid "**Settings:** ``timelapse_displacement``, ``ultrack_max_distance``, ``t_max_displacement_px``, ``t_max_displacement_um``"
+msgstr "**Inställningar:** ``timelapse_displacement``, ``ultrack_max_distance``, ``t_max_displacement_px``, ``t_max_displacement_um``"
+
+msgid "Tracking memory"
+msgstr "Spårningsminne"
+
+msgid "Tracking memory setting animation"
+msgstr "Inställningsanimation: Spårningsminne"
+
+msgid "**Settings:** ``timelapse_memory``"
+msgstr "**Inställningar:** ``timelapse_memory``"
+
+msgid "Timepoint overlap threshold"
+msgstr "Överlappströskel mellan tidpunkter"
+
+msgid "Timepoint overlap threshold setting animation"
+msgstr "Inställningsanimation: Överlappströskel mellan tidpunkter"
+
+msgid "**Settings:** ``t_link_threshold``"
+msgstr "**Inställningar:** ``t_link_threshold``"
+
+msgid "Z-plane stitch threshold"
+msgstr "Tröskel för sammanfogning av Z-plan"
+
+msgid "Z-plane stitch threshold setting animation"
+msgstr "Inställningsanimation: Tröskel för sammanfogning av Z-plan"
+
+msgid "**Settings:** ``stitch_threshold``"
+msgstr "**Inställningar:** ``stitch_threshold``"
+
+msgid "Z projection"
+msgstr "Z-projektion"
+
+msgid "Z projection setting animation"
+msgstr "Inställningsanimation: Z-projektion"
+
+msgid "**Settings:** ``z_projection``"
+msgstr "**Inställningar:** ``z_projection``"
+
+msgid "Project volumes for tracking"
+msgstr "Projicera volymer för spårning"
+
+msgid "Project volumes for tracking setting animation"
+msgstr "Inställningsanimation: Projicera volymer för spårning"
+
+msgid "**Settings:** ``t_project_for_tracking``"
+msgstr "**Inställningar:** ``t_project_for_tracking``"
+
+msgid "Remove overly straight tracks"
+msgstr "Ta bort alltför raka spår"
+
+msgid "Remove overly straight tracks setting animation"
+msgstr "Inställningsanimation: Ta bort alltför raka spår"
+
+msgid "**Settings:** ``drop_straight_tracks``, ``straightness_threshold``"
+msgstr "**Inställningar:** ``drop_straight_tracks``, ``straightness_threshold``"
+
+msgid "Smooth per-track outliers"
+msgstr "Jämna ut extremvärden per spår"
+
+msgid "Smooth per-track outliers setting animation"
+msgstr "Inställningsanimation: Jämna ut extremvärden per spår"
+
+msgid "**Settings:** ``track_outlier_zscore``"
+msgstr "**Inställningar:** ``track_outlier_zscore``"
+
+msgid "Cell-division linking"
+msgstr "Länkning vid celldelning"
+
+msgid "Cell-division linking setting animation"
+msgstr "Inställningsanimation: Länkning vid celldelning"
+
+msgid "**Settings:** ``ultrack_division_weight``"
+msgstr "**Inställningar:** ``ultrack_division_weight``"
+
+msgid "Contour smoothing"
+msgstr "Utjämning av konturer"
+
+msgid "Contour smoothing setting animation"
+msgstr "Inställningsanimation: Utjämning av konturer"
+
+msgid "**Settings:** ``ultrack_contour_sigma``"
+msgstr "**Inställningar:** ``ultrack_contour_sigma``"
+
+msgid "Image UMAP"
+msgstr "Bild-UMAP"
+
+msgid "UMAP neighborhood size"
+msgstr "UMAP-grannskapsstorlek"
+
+msgid "UMAP neighborhood size setting animation"
+msgstr "Inställningsanimation: UMAP-grannskapsstorlek"
+
+msgid "**Settings:** ``n_neighbors``"
+msgstr "**Inställningar:** ``n_neighbors``"
+
+msgid "UMAP minimum distance"
+msgstr "UMAP-minsta avstånd"
+
+msgid "UMAP minimum distance setting animation"
+msgstr "Inställningsanimation: UMAP-minsta avstånd"
+
+msgid "**Settings:** ``min_dist``"
+msgstr "**Inställningar:** ``min_dist``"
+
+msgid "Show object images"
+msgstr "Visa objektbilder"
+
+msgid "Show object images setting animation"
+msgstr "Inställningsanimation: Visa objektbilder"
+
+msgid "**Settings:** ``plot_images``"
+msgstr "**Inställningar:** ``plot_images``"
+
+msgid "Remove image canvas"
+msgstr "Ta bort bildduk"
+
+msgid "Remove image canvas setting animation"
+msgstr "Inställningsanimation: Ta bort bildduk"
+
+msgid "**Settings:** ``remove_image_canvas``"
+msgstr "**Inställningar:** ``remove_image_canvas``"
+
+msgid "Show cluster outlines"
+msgstr "Visa klusterkonturer"
+
+msgid "Show cluster outlines setting animation"
+msgstr "Inställningsanimation: Visa klusterkonturer"
+
+msgid "**Settings:** ``plot_outlines``"
+msgstr "**Inställningar:** ``plot_outlines``"
+
+msgid "Show embedding points"
+msgstr "Visa inbäddningspunkter"
+
+msgid "Show embedding points setting animation"
+msgstr "Inställningsanimation: Visa inbäddningspunkter"
+
+msgid "**Settings:** ``plot_points``"
+msgstr "**Inställningar:** ``plot_points``"
+
+msgid "Smooth cluster outlines"
+msgstr "Jämna ut klusterkonturer"
+
+msgid "Smooth cluster outlines setting animation"
+msgstr "Inställningsanimation: Jämna ut klusterkonturer"
+
+msgid "**Settings:** ``smooth_lines``"
+msgstr "**Inställningar:** ``smooth_lines``"
+
+msgid "Remove cluster noise"
+msgstr "Ta bort klusterbuller"
+
+msgid "Remove cluster noise setting animation"
+msgstr "Inställningsanimation: Ta bort klusterbuller"
+
+msgid "**Settings:** ``remove_cluster_noise``"
+msgstr "**Inställningar:** ``remove_cluster_noise``"
+
+msgid "Sample images by cluster"
+msgstr "Sampla bilder per kluster"
+
+msgid "Sample images by cluster setting animation"
+msgstr "Inställningsanimation: Sampla bilder per kluster"
+
+msgid "**Settings:** ``plot_by_cluster``"
+msgstr "**Inställningar:** ``plot_by_cluster``"
+
+msgid "Embedding point size"
+msgstr "Punktstorlek i inbäddningen"
+
+msgid "Embedding point size setting animation"
+msgstr "Inställningsanimation: Punktstorlek i inbäddningen"
+
+msgid "**Settings:** ``dot_size``"
+msgstr "**Inställningar:** ``dot_size``"
+
+msgid "Embedding image zoom"
+msgstr "Bildzoom i inbäddningen"
+
+msgid "Embedding image zoom setting animation"
+msgstr "Inställningsanimation: Bildzoom i inbäddningen"
+
+msgid "**Settings:** ``img_zoom``"
+msgstr "**Inställningar:** ``img_zoom``"
+
+msgid "Density clustering radius"
+msgstr "Radie för densitetsklustring"
+
+msgid "Density clustering radius setting animation"
+msgstr "Inställningsanimation: Radie för densitetsklustring"
+
+msgid "**Settings:** ``eps``, ``min_samples``, ``clustering``"
+msgstr "**Inställningar:** ``eps``, ``min_samples``, ``clustering``"
+
+msgid "Alignment & stitching"
+msgstr "Registrering och sammanfogning"
+
+msgid "Tile overlap"
+msgstr "Överlapp mellan plattor"
+
+msgid "Tile overlap setting animation"
+msgstr "Inställningsanimation: Överlapp mellan plattor"
+
+msgid "**Settings:** ``overlap``"
+msgstr "**Inställningar:** ``overlap``"
+
+msgid "Tile seam blending"
+msgstr "Blandning vid plattsömmar"
+
+msgid "Tile seam blending setting animation"
+msgstr "Inställningsanimation: Blandning vid plattsömmar"
+
+msgid "**Settings:** ``blend``"
+msgstr "**Inställningar:** ``blend``"
+
+msgid "Point spread function"
+msgstr "Punktspridningsfunktion"
+
+msgid "PSF — Gaussian convolution width"
+msgstr "PSF — Gaussisk faltningsbredd"
+
+msgid "PSF — Gaussian convolution width setting animation"
+msgstr "Inställningsanimation: PSF — Gaussisk faltningsbredd"
+
+msgid "**Settings:** ``psf_fwhm_um``"
+msgstr "**Inställningar:** ``psf_fwhm_um``"
+

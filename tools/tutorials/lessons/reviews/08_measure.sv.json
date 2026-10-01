@@ -1,32 +1,34 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "b38108290d13c808c7abbafa7d550bde4e0e57279232f4e7063fe6b309cbb543",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "abd85a81d3554dfa4cacb1616aa17d54e0ddde2000c8f54937e38b2ed8a40630",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "sv",
-  "title": "Measure: livevisning, faktiska mätningar och sparade resultat",
-  "description": "Använd de sexton nedladdningsbara bildfälten för att granska livefält och kanaler, återställa råa utsnittsinställningar, läsa kvalitetsvarningar och kontrollera en körning med Plot.",
+  "title": "Measure: ta fram objektegenskaper och utsnitt",
+  "description": "Läs in bilder med masker, granska objekt, välj utsnittsinställningar och spara mätningar för annotering och klassificering.",
   "objectives": [
-    "Ladda exemplet och skilj intensitetskanaler från maskplan.",
-    "Granska fält och kanaler live, skilj visningsvalet från gemensamma utsnittsinställningar och återställ normaliseringen före körningen.",
-    "Kör hela exemplet, granska verkliga figurer och konsol och hitta databas och utsnitt.",
-    "Hitta underordnade verktyg och förstå begränsningar hos AI och varningen för inaktuella resultat."
+    "Identifiera intensitetskanaler och maskplan i exemplet.",
+    "Granska synfält och välja normaliseringen av sparade utsnitt medvetet.",
+    "Köra Measure och hitta databasen, objektutsnitten och figurerna."
   ],
-  "prerequisite": "Inspelat med spaCR 1.5.0.8. Home/Core → Measure → Load test data. Den uppmätta delmängden är sexton 1994x1994 uint16-arrayer: intensiteter 0–3 och cell-/kärn-/patogenmasker 4/5/6. Slå på huvudinställningen Normalize före första Live; startkontrasten använder percentiler 1/99. Tryck inte Run i det läget. Kanal noll ändrar bara visningen, men Normalize gäller också sparade utsnitt. Stäng av Live och Normalize före körningen. E02_1_1 visar 27 kandidater och E02_9_1 visar 15. Kanalbyten bevarar identitet, area och kategori; All channels återställer originalpixlarna. Förhandsvisningens och körningens arrayer är identiska byte för byte. Den här lektionen använder de synliga huvudinställningarna och Live-reglagen; den demonstrerar inte dialogrutan Crop settings. QC flaggar 3 fel och 16 varningar bland 156 objekttyp-/fältposter från masker i 52 nedladdade fält, inte bara de 16 sammanslagna fält som mäts. Data är inte certifierade som felfria. Full körning: Plot, save_measurements och save_png på; Test mode och normalize av; en arbetsprocess; RGB-utsnitt 224x224. Utan voxelkalibrering är arean kvadratpixlar. Alla 16 fält lyckades. Oberoende kontrollerat: 5409 area-/intensitetsvärden och fem källstödda sammanslagningar, inte alla egenskaper eller biologisk riktighet. Resultat: 601 celler och utsnitt, 622 kärnor, 373 patogenobjekt, 48 sparade figurer och 48 i GUI-kön. De insamlade inställningarna är oförändrade före och efter körningen, men varningen om inaktuella resultat är fortfarande synlig. Kontrollen av dessa sparade resultat validerar varken varningen eller den automatiska överlämningen. API: spacr.measure.measure_crop. Se Illumination, Motility och AnnData Export separat; AnnData visar en uttrycklig API-omväg, inte en reparerad GUI. Ingen AI-fråga skickad eller något svar demonstrerat, inget mänskligt lyssningsgodkännande eller publicering.",
+  "prerequisite": "Använd de sammanslagna utdata från Mask eller välj Load test data i Measure. Exemplet innehåller sexton synfält med intensitetsplanen 0–3 och masker för celler, kärnor och patogener i planen 4, 5 och 6.",
   "scenes": [
-    "Öppna Measure under Core. Det omvandlar befintliga bildarrayer och objektmasker till mätningar och utsnitt; det skapar ingen ny segmentering. Illumination, AnnData Export och Motility är underordnade arbetsflöden i huvudmodulen. Deras egna lektioner finns under Measure i tutorialnavigeringen.",
-    "Välj Load test data och vänta tills den verkliga inläsningen är klar. Nedladdningen ger sexton sammansatta bildfält. Kontrollera källmapp och kanalmappning: intensiteter noll till tre, cellmask fyra, kärnmask fem och patogenmask sex. Masketiketter är inte intensitetsmätningar.",
-    "Innan du öppnar Live första gången, sök efter Normalize i huvudinställningarna och slå på det. Det gör förhandsvisningen läsbar eftersom de råa sextonbitarsutsnitten ser mörka ut. Detta gäller också sparade utsnitt, inte bara visningen. Tryck inte Run; vi återställer inställningen först.",
-    "Slå på Live och klistra in sökvägen till den sammanslagna arrayen för fält E noll två, ett, ett. Rutnätet visar tjugosju kandidater grupperade efter maskernas relationer; rulla för att granska övriga kategorier. Namnen är inte oberoende granskade biologiska annoteringar, och kandidatantalet garanterar inte det slutliga antalet uppmätta celler.",
-    "Välj kanal noll i väljaren för visad kanal. Samma tjugosju objekt visas i gråskala; etiketter, areor och kategorier är oförändrade. Till skillnad från huvudinställningen Normalize ändrar denna väljare bara förhandsvisningen. Gå tillbaka till All channels för att återställa färgpixlarna utan att ändra körningsinställningarna.",
-    "Öppna E noll två, nio, ett med fältväljaren. Fältet visar femton kandidater: granska flera fält innan du litar på en vacker bild. Läs också den röda varningen om segmenteringskvalitet. De flaggade maskerna kommer från den större nedladdningen; en fungerande förhandsvisning löser inte varningarna och certifierar inte felfria data.",
-    "Stäng av Live, sök efter Normalize igen och stäng av den före körningen. Vi har kontrollerat att alla batchinställningar återgår till sina ursprungliga värden och att båda källarrayerna är oförändrade. Normalisering av varje utsnitt kan ta bort intensitetsskillnader från sparade bilder. Behåll originalarrayerna så att senare mätningar fortfarande kan använda deras oförändrade intensiteter.",
-    "Låt Plot vara på, spara mätningar och utsnitt och använd en arbetsprocess i den här demonstrationen. Test mode är av: alla sexton exempelfält bearbetas till projektets huvudsakliga utdata. Behåll de insamlade inställningarna tillsammans med de sparade resultaten så att du kan upprepa körningen.",
-    "Tryck Run och följ konsolen. Kontrollera antalet försök, lyckade bearbetningar och fel, inte bara att det finns ett färdigmeddelande. Här lyckades alla sexton fält. Läs också varningarna. En lyckad beräkning är inget certifikat på biologisk kvalitet.",
-    "Granska de verkliga vyerna före och efter filtrering i figurlistan. Dra avdelaren för att ge figurerna plats. Storleksfilter och förälder-barn-sammanslagningar kan ändra vilka etiketter som mäts. Här förenar fem sparade cellobjekt källetiketter som binds ihop av en gemensam kärn- eller patogenmask.",
-    "Granska även utsnittsfiguren och behåll mätdatabas och bildsökvägar tillsammans. Körningen sparade sexhundraen cellposter och motsvarande utsnitt. Oberoende pixelkontroller bekräftade area samt summor och medelvärden för fyra kanaler inklusive sammanslagningarna; inte varje egenskap eller segmenteringens biologiska riktighet.",
-    "Den här inspelningen visar fortfarande en varning om inaktuella resultat efter en lyckad körning med oförändrade insamlade inställningar. Vi har kontrollerat de sparade uppgifterna oberoende, men har inte validerat varningen eller den automatiska överlämningen. Behåll de sparade inställningarna med resultaten och undersök varningar innan du fortsätter. Här innehåller figurkön alla fyrtioåtta sparade diagram.",
-    "Konsolen erbjuder också valfri spaCR AI-hjälp. Här aktiverar vi reglaget och förbereder en fråga utan att skicka den; inget svar eller extern analys demonstreras. Betrakta senare svar som råd att kontrollera mot inställningar, API och sparade resultat. Använd de egna lektionerna om underordnade arbetsflöden för nästa uppgift."
+    "Från Home öppnar du Measure. Börja med bilder som redan har objektmasker. Measure tar fram egenskaper som area och intensitet, kopplar ihop relaterade objekt och kan spara enskilda objektutsnitt för Annotate och Classify.",
+    "Klicka på Load test data och vänta tills exemplet har lästs in, eller välj ditt eget sammanslagna projekt. Kontrollera planmappningen: exemplet har fyra intensitetskanaler följda av masker för celler, kärnor och patogener i planen 4, 5 och 6.",
+    "För att granska de här 16-bitars exempelutsnitten slår du på Normalize innan du öppnar Live. Då blir förhandsvisningen lättare att se. Kom ihåg att den här huvudinställningen också påverkar sparade utsnitt; vi stänger av den före batchkörningen.",
+    "Slå på Live och välj ett synfält. Granska objektutsnitten och hur deras masker hänger ihop. Bläddra igenom kategorierna och förstora förhandsvisningen vid behov för att se gränserna tydligt.",
+    "Använd väljaren för visad kanal för att granska en intensitetskanal i taget. Kanal 0 visar en gråskalevy; All channels återställer den kombinerade vyn. Väljaren ändrar förhandsvisningen utan att ändra etiketterna eller batchens kanalmappning.",
+    "Välj ett annat synfält och jämför dess objekt. Granska meddelandet om segmenteringskvalitet innan du mäter projektet. Om masker saknas eller är felaktigt sammanslagna rättar du dem eller justerar Mask innan du fortsätter.",
+    "Stäng av Live och återställ Normalize till av för det här exemplet. Välj normaliseringen medvetet när du sparar utsnitt: skalning per utsnitt ändrar de intensitetsskillnader som en senare bildklassificerare ser. Behåll de ursprungliga sammanslagna arrayerna för kvantitativa mätningar.",
+    "Aktivera sparande av mätningar och objektutsnitt, låt Plot vara på och välj utsnittsstorlek och utdatakanaler. Använd en arbetsprocess i det här exemplet. Låt Test mode vara avstängt för att bearbeta alla sexton medföljande synfält och klicka sedan på Run.",
+    "Följ konsolen tills körningen är klar. Kontrollera vilka synfält som lyckades och undersök eventuella fel innan du går vidare. Behåll de inställningar som sparats med körningen så att du kan återskapa mätningarna.",
+    "Använd figurlistan för att jämföra objekten före och efter filtrering. Storleksfilter och förälder-barn-relationer kan ändra vilka objekt som mäts. Dra i avdelaren för att ge figurerna mer utrymme och granska oväntade förändringar.",
+    "Granska utsnittsfiguren och leta sedan upp measurements.db i mappen measurements och de sparade objektbilderna i projektets utsnittsutdata. Håll ihop databasen och bildsökvägarna. Fortsätt till Annotate för att märka exempelobjekt, eller till Classify om du redan har märkta träningsdata."
   ]
 }

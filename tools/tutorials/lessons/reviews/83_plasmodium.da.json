@@ -1,0 +1,28 @@
+{
+  "lesson": "83_plasmodium",
+  "english_sha256": "1d8330c981fc355155d2c5c607b6d822714d2051d616d64111ffa9648c2b56f3",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "Plasmodium: udforsk organismeguiden",
+  "description": "Gennemse Plasmodium-guiden, udforsk celldiagrammet, og find tilgængelige generelle workflows til billedanalyse.",
+  "objectives": [
+    "Åbne siden fra Home og finde dens vigtigste kontroller.",
+    "Identificere tilgængelige input, handlinger og output.",
+    "Vælge den næste tilgængelige analyse eller reference."
+  ],
+  "prerequisite": "Åbn Home i spaCR. Guiden kræver ingen inputfiler. Plasmodium-specifikke analysefliser viser foreløbig Coming soon.",
+  "scenes": [
+    "Plasmodium har sin egen guide. Fra Home vælger du Plasmodium for at gennemse organismen, dens cellekompartmenter og de analyser, der er planlagt for den.",
+    "Informationsruden fortæller parasittens historie i afsnit, fra blodstadiet og leverstadiet til motilitet. Træk i skillelinjen for at få mere plads ved siden af modulfliserne.",
+    "På diagrammet over apikomplekse parasitter holder du markøren over et kompartment for at læse, hvad det er. Vælg flere for at fremhæve dem samlet, og Clear components bringer visningen tilbage.",
+    "Analysefliserne er stadig markeret Coming soon og kan ikke åbnes endnu, men deres beskrivelser viser, hvad hver af dem skal måle. For at analysere Plasmodium-billeder i dag går du tilbage til Home og åbner Mask eller Measure med dine egne billeder og passende kanalindstillinger.",
+    "Til yderligere læsning åbner linkene til PlasmoDB og UniProt ressourcer om organismen i din browser. Intet her kræver et datasæt eller Run, og guiden skriver ingen filer."
+  ]
+}

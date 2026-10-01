@@ -5,6 +5,17 @@ import pytest
 
 import spacr.qt.app as app_module
 from spacr.qt.widgets.section import Section, _sections_below
+from tests.qt.per_object_table import (grid_section, table_value,
+                                       the_table_answers)
+
+
+# Every nucleus row Mask builds at "All settings", nucleus_channel included.
+# Measured 2026-09-26 (item 43/288): 13 before item 511 (ed845f885^), 9 after.
+# 511 retired nucleus_{min,max}_{area,intensity} into object_filters rows,
+# which is exactly the four that went; the same 9 are there after one and
+# after two rebuilds, so no rebuild drops a row. This was "> 10" while those
+# four were still on the form.
+NUCLEUS_ROWS = 9
 
 
 @pytest.fixture(scope="module")
@@ -16,6 +27,7 @@ def mask(qapp):
     qapp.processEvents()
     yield win._screens["mask"]
     win.close()
+    win.deleteLater()
 
 
 def _categories(screen):
@@ -53,8 +65,15 @@ def test_the_control_itself_survives(mask):
 def test_no_category_is_empty(mask):
     """Asked for 2026-08-28, for every category and not only organelles."""
     empty = []
+    # 2026-09-29 (item 592): the "Per-object settings" heading holds the
+    # per-object table as a prose row -- deliberately not a setting row, see
+    # AppScreen._mount_the_object_grid -- so it is judged by the table.
+    table = grid_section(mask)
     for section in _sections_below(mask):
         if not isinstance(section, Section):
+            continue
+        if section is table:
+            assert mask._object_grid.objects(), "a table with no column"
             continue
         rows = getattr(section, "_row_widgets", None) or ()
         if any(w is not None for _label, w in rows):
@@ -197,32 +216,18 @@ def test_the_rule_is_decided_once_and_not_while_typing(mask, qapp):
 def test_a_committed_channel_brings_its_settings_back(qapp):
     """Hiding them was right; they have to come back when asked for.
 
-    THE FLAT FORM, deliberately: `DEFAULT_OBJECT_GRID` is False, so these
-    rows are the interface most users get, and this is the case that was
-    broken. This test was xfailed on 2026-09-08 because two of the
-    maintainer's instructions cancelled each other -- 356 asks a committed
-    channel to reveal its object's settings WITHOUT reloading the module,
-    and the fix for "i saw the object settings eaven when object channels
-    were all none" kept those rows out of the build, so there was nothing to
-    reveal.
+    2026-09-29 (item 592): the per-object table is Mask generation's only
+    layout of an object's settings, so "coming back" is the nucleus COLUMN
+    of the table showing the committed channel, and no flat nucleus row is
+    ever put back beside it -- the flat form this test used to count
+    (``DEFAULT_OBJECT_GRID`` False) was removed on request. What it still
+    holds from 356: a committed channel is answered WITHOUT reloading the
+    module, and clearing it again is answered too.
 
-    Both hold now. The rows are built and hidden; the search strip re-asks
-    the object rule through `rehide_the_rows_the_run_has_no_object_for`, so
-    "All settings" cannot put an absent object back; and the first pass runs
-    synchronously at the end of the panel build rather than on a zero-delay
-    timer, which is what left a freshly built panel showing every gated row
-    to anyone who looked before the event loop turned.
-
-    AT "ALL SETTINGS": since 8d7426b59 (GitHub #120) the settings search
-    re-applies its level after the object rule, so under Essentials a
-    committed nucleus channel brings back only the Nucleus Segmentation
-    category, and the preprocessing and filtration rows the level excludes
-    stay off the form. That half is held by
-    ``test_a_channel_brings_its_segmentation_settings.py``; this test counts
-    every nucleus row the object rule gates, which only "All settings" shows.
-    Every category is opened first: since 2026-09-22 a closed category's
-    rows are not built until it is, and a row that does not exist is
-    neither shown nor hidden.
+    AT "ALL SETTINGS", the level that used to show every gated row, and with
+    every category opened first: since 2026-09-22 a closed category's rows
+    are not built until it is, and a row that does not exist is neither
+    shown nor hidden.
     """
     from spacr.qt.settings_search import forget_disclosure, remember_disclosure
 
@@ -237,9 +242,16 @@ def test_a_committed_channel_brings_its_settings_back(qapp):
         qapp.processEvents()
         widgets = screen._settings_model._widgets
         nucleus = [k for k in widgets if k.startswith("nucleus_")]
-        assert len(nucleus) > 10, f"only {len(nucleus)} nucleus rows built"
+        assert len(nucleus) >= NUCLEUS_ROWS, (
+            f"only {len(nucleus)} nucleus rows built")
+        # 2026-09-29 (item 592, "hide unset objects"): the nucleus channel
+        # is the one nucleus row on the form -- it is what draws the
+        # nucleus column -- and the column is not drawn until it is set.
+        assert not widgets["nucleus_channel"].isHidden()
+        nucleus = [k for k in nucleus if k != "nucleus_channel"]
         shown = [k for k in nucleus if not widgets[k].isHidden()]
-        assert shown == ["nucleus_channel"], shown
+        assert shown == [], shown
+        assert "nucleus" not in screen._object_grid.objects()
 
         field = widgets["nucleus_channel"]
         field.setText("1")
@@ -251,22 +263,24 @@ def test_a_committed_channel_brings_its_settings_back(qapp):
         # uncommitted value, scroll position and expanded fold with it.
         assert win._screens["mask"] is screen, "the commit reloaded the module"
 
+        assert "nucleus" in screen._object_grid.objects()
+        assert all(the_table_answers(screen, k) for k in nucleus), [
+            k for k in nucleus if not the_table_answers(screen, k)]
         shown = [k for k in nucleus if not widgets[k].isHidden()]
-        assert len(shown) > 10, f"only {len(shown)} nucleus settings came back"
-        categories = _categories(screen)
-        assert any("Nucleus" in c for c in categories), categories
+        assert shown == [], f"flat nucleus rows beside the table: {shown}"
         assert str((screen._settings_model.collect() or {}).get(
             "nucleus_channel")) == "1"
 
-        # AND CLEARING IT PUTS THEM BACK AWAY, or the toggle is one-way and a
-        # mistyped channel leaves the form permanently wider.
+        # AND CLEARING IT IS ANSWERED TOO, or the toggle is one-way.
         field.setText("")
         field.editingFinished.emit()
         qapp.processEvents()
+        assert "nucleus" not in screen._object_grid.objects()
         shown = [k for k in nucleus if not widgets[k].isHidden()]
-        assert shown == ["nucleus_channel"], shown
+        assert shown == [], shown
     finally:
         win.close()
+        win.deleteLater()
         forget_disclosure("mask")
 
 
@@ -296,6 +310,7 @@ def test_a_raised_count_brings_the_organelle_rows_and_categories(qapp):
         assert len(channels) == 2, channels
     finally:
         win.close()
+        win.deleteLater()
 
 
 def test_two_rebuilds_keep_what_the_first_one_set(qapp):
@@ -324,9 +339,10 @@ def test_two_rebuilds_keep_what_the_first_one_set(qapp):
         values = screen._settings_model.collect() or {}
         assert str(values.get("nucleus_channel")) == "1"
         assert len([k for k in screen._settings_model._widgets
-                    if k.startswith("nucleus_")]) > 10
+                    if k.startswith("nucleus_")]) >= NUCLEUS_ROWS
     finally:
         win.close()
+        win.deleteLater()
 
 
 def test_the_rebuild_never_shows_the_home_screen(qapp):
@@ -357,6 +373,7 @@ def test_the_rebuild_never_shows_the_home_screen(qapp):
         assert type(stack.currentWidget()).__name__ == "AppScreen"
     finally:
         win.close()
+        win.deleteLater()
 
 
 def test_the_rebuild_reports_no_error(qapp, caplog):
@@ -379,3 +396,4 @@ def test_the_rebuild_reports_no_error(qapp, caplog):
         assert bad == [], [r.getMessage() for r in bad]
     finally:
         win.close()
+        win.deleteLater()

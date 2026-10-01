@@ -482,12 +482,18 @@ def is_valid_theme(name) -> bool:
 
     The predicate exists so a caller validating stored preferences does not
     have to catch :class:`ValueError` from the strict accessors below.
+
+    :param name: the value to test, typically a stored preference.
     """
     return name in AMBIENT_THEMES
 
 
 def is_valid_palette(theme, palette) -> bool:
-    """True when ``palette`` is offered by ``theme``. Never raises."""
+    """True when ``palette`` is offered by ``theme``. Never raises.
+
+    :param theme: the theme name; an unknown theme offers nothing.
+    :param palette: the palette name to look for among ``theme``'s palettes.
+    """
     return palette in _THEME_PALETTES.get(theme, ())
 
 
@@ -527,19 +533,30 @@ def _require_palette(theme: str, name: str) -> str:
 
 
 def theme_label(name: str) -> str:
-    """Human label for ``name``, for a menu. Raises on an unknown theme."""
+    """Human label for ``name``, for a menu. Raises on an unknown theme.
+
+    :param name: a paintable theme name; any other raises
+        :class:`ValueError`.
+    """
     return _THEME_LABELS[_require_theme(name)]
 
 
 def theme_note(name: str) -> str:
-    """One-line description of ``name``, for a tooltip."""
+    """One-line description of ``name``, for a tooltip.
+
+    :param name: a paintable theme name; any other raises
+        :class:`ValueError`.
+    """
     return _THEME_NOTES[_require_theme(name)]
 
 
 def is_animation_choice(name) -> bool:
     """True for anything the Animation preference may hold — including
     :data:`NO_ANIMATION`, which :func:`is_valid_theme` rejects because it
-    cannot be painted."""
+    cannot be painted.
+
+    :param name: the value to test, typically a stored preference.
+    """
     return name in ANIMATION_CHOICES
 
 
@@ -548,6 +565,9 @@ def animation_label(name: str) -> str:
 
     "None" rather than "Off": the row is called Animation and this is one of
     the animations it can be set to, the way a font size can be set to zero.
+
+    :param name: :data:`NO_ANIMATION` or a paintable theme name; any other
+        name raises :class:`ValueError`.
     """
     if name == NO_ANIMATION:
         return "None"
@@ -561,6 +581,9 @@ def animation_note(name: str) -> str:
     reader picks it — and the claim is asserted rather than advertised: see
     ``tests/qt/test_ambient_none.py``, which counts painted frames over a
     real second instead of trusting this sentence.
+
+    :param name: :data:`NO_ANIMATION` or a paintable theme name; any other
+        name raises :class:`ValueError`.
     """
     if name == NO_ANIMATION:
         return ("No backdrop at all: nothing is drawn behind the module "
@@ -576,29 +599,50 @@ def palettes_for(theme: str) -> Tuple[str, ...]:
     Never empty. Raises :class:`ValueError` on an unknown theme rather than
     returning ``()``, because an empty tuple reads as "this theme has no
     palettes" and would quietly leave a settings menu blank.
+
+    :param theme: a paintable theme name.
     """
     return _THEME_PALETTES[_require_theme(theme)]
 
 
 def default_palette_for(theme: str) -> str:
     """The palette ``theme`` falls back to — :data:`DEFAULT_PALETTE` when it
-    is on offer, otherwise the first one listed."""
+    is on offer, otherwise the first one listed.
+
+    :param theme: a paintable theme name; an unknown one raises
+        :class:`ValueError`.
+    """
     offered = palettes_for(theme)
     return DEFAULT_PALETTE if DEFAULT_PALETTE in offered else offered[0]
 
 
 def palette_label(theme: str, palette: str) -> str:
-    """Human label for ``palette`` as offered by ``theme``."""
+    """Human label for ``palette`` as offered by ``theme``.
+
+    :param theme: a paintable theme name.
+    :param palette: a palette ``theme`` offers; an unknown theme, or a
+        palette the theme does not offer, raises :class:`ValueError`.
+    """
     return PALETTE_SETS[_require_palette(theme, palette)].label
 
 
 def palette_note(theme: str, palette: str) -> str:
-    """One-line description of ``palette``, for a tooltip."""
+    """One-line description of ``palette``, for a tooltip.
+
+    :param theme: a paintable theme name.
+    :param palette: a palette ``theme`` offers; an unknown theme, or a
+        palette the theme does not offer, raises :class:`ValueError`.
+    """
     return PALETTE_SETS[_require_palette(theme, palette)].note
 
 
 def palette_colors(theme: str, palette: str) -> Tuple[str, ...]:
-    """The ``#rrggbb`` colours behind ``palette``, for ``theme``."""
+    """The ``#rrggbb`` colours behind ``palette``, for ``theme``.
+
+    :param theme: a paintable theme name.
+    :param palette: a palette ``theme`` offers; an unknown theme, or a
+        palette the theme does not offer, raises :class:`ValueError`.
+    """
     return PALETTE_SETS[_require_palette(theme, palette)].colors
 
 
@@ -624,6 +668,10 @@ def dressed(theme: str, palette: str) -> Tuple[str, str]:
 
     Standard launches preserve the requested pair. Spaceout launches return
     :data:`SPACEOUT_THEME` and :data:`SPACEOUT_PALETTE`.
+
+    :param theme: the requested theme name; returned as given unless the
+        spaceout dressing is on. It is not validated here.
+    :param palette: the requested palette name, treated the same way.
     """
     if spaceout_enabled():
         return SPACEOUT_THEME, SPACEOUT_PALETTE
@@ -792,7 +840,10 @@ _DRIFT_DIRECTION_NOTES = {
 
 
 def is_valid_drift_direction(name) -> bool:
-    """True when ``name`` is one of :data:`DRIFT_DIRECTIONS`. Never raises."""
+    """True when ``name`` is one of :data:`DRIFT_DIRECTIONS`. Never raises.
+
+    :param name: the value to test.
+    """
     return name in DRIFT_DIRECTIONS
 
 
@@ -813,12 +864,20 @@ def _require_drift_direction(name: str) -> str:
 
 
 def drift_direction_label(name: str) -> str:
-    """Human label for a starfield direction, for a menu."""
+    """Human label for a starfield direction, for a menu.
+
+    :param name: one of :data:`DRIFT_DIRECTIONS`; any other value raises
+        :class:`ValueError`.
+    """
     return _DRIFT_DIRECTION_LABELS[_require_drift_direction(name)]
 
 
 def drift_direction_note(name: str) -> str:
-    """One-line description of a starfield direction, for a tooltip."""
+    """One-line description of a starfield direction, for a tooltip.
+
+    :param name: one of :data:`DRIFT_DIRECTIONS`; any other value raises
+        :class:`ValueError`.
+    """
     return _DRIFT_DIRECTION_NOTES[_require_drift_direction(name)]
 
 #: A background at or below this WCAG relative luminance is treated as dark,
@@ -4534,6 +4593,17 @@ class Motion(NamedTuple):
     A named tuple rather than five arguments because the set grows: it went
     from three to five in one change, and every install site that had
     unpacked a plain tuple would have broken.
+
+    :param blur: softness of the painted shapes; the widget clamps it to
+        :data:`BLUR_RANGE`.
+    :param speed: animation-clock multiplier, clamped to :data:`SPEED_RANGE`.
+    :param size: element-size multiplier, clamped to :data:`SIZE_RANGE`.
+    :param resolution: detail (render buffer) multiplier, clamped to
+        :data:`RESOLUTION_RANGE`.
+    :param density: element-count multiplier, clamped to
+        :data:`DENSITY_RANGE`.
+    :param direction: starfield drift direction, one of
+        :data:`DRIFT_DIRECTIONS`; an unknown name falls back to the default.
     """
 
     blur: float
@@ -4899,12 +4969,13 @@ class AmbientWidget(QWidget):
         self._timer.setTimerType(Qt.CoarseTimer)
         self._timer.setInterval(max(1, 1000 // self._fps))
         self._timer.timeout.connect(self._on_tick)
-        # WEAK, or the window and this widget form a reference cycle; see
-        # docs/notes/spacr/qt/widgets/ambient.md for what the collector does.
         self._watched: Optional[weakref.ReferenceType] = None
 
     def focusInEvent(self, event) -> None:  # noqa: N802 (Qt override)
-        """Reject even programmatic focus; this widget is decorative only."""
+        """Reject even programmatic focus; this widget is decorative only.
+
+        :param event: the focus event; it is ignored and focus is cleared.
+        """
         event.ignore()
         self.clearFocus()
 
@@ -4943,6 +5014,8 @@ class AmbientWidget(QWidget):
         :func:`spacr.qt.preferences.apply_ambient_preferences`, which calls
         this with the *stored* animation on every settings save. See
         :func:`dressed`.
+
+        :param name: a paintable theme name.
         """
         name, palette = dressed(name, self._palette)
         name = _require_theme(name)
@@ -4960,6 +5033,8 @@ class AmbientWidget(QWidget):
         silently substitute. The one exception is the ``spaceout`` dressing,
         where the request is replaced rather than refused, for the reason
         given in :func:`dressed`.
+
+        :param name: a palette the current theme offers.
         """
         name = dressed(self._theme, name)[1]
         name = _require_palette(self._theme, name)
@@ -5044,7 +5119,10 @@ class AmbientWidget(QWidget):
         return self._blur
 
     def set_blur(self, value: float) -> None:
-        """Set the softening. Clamped to :data:`BLUR_RANGE`."""
+        """Set the softening. Clamped to :data:`BLUR_RANGE`.
+
+        :param value: the blur amount, converted with ``float``.
+        """
         self._blur = _clamp(value, *BLUR_RANGE)
         self._mutate_engine(lambda: self._engine.set_blur(self._blur))
 
@@ -5053,7 +5131,10 @@ class AmbientWidget(QWidget):
         return self._resolution
 
     def set_resolution(self, value: float) -> None:
-        """Set the detail multiplier. Clamped to :data:`RESOLUTION_RANGE`."""
+        """Set the detail multiplier. Clamped to :data:`RESOLUTION_RANGE`.
+
+        :param value: the resolution multiplier, converted with ``float``.
+        """
         self._resolution = _clamp(value, *RESOLUTION_RANGE)
         self._mutate_engine(
             lambda: self._engine.set_resolution(self._resolution))
@@ -5064,7 +5145,10 @@ class AmbientWidget(QWidget):
 
     def set_density(self, value: float) -> None:
         """Set the element-count multiplier. Clamped to
-        :data:`DENSITY_RANGE`."""
+        :data:`DENSITY_RANGE`.
+
+        :param value: the density multiplier, converted with ``float``.
+        """
         self._density = _clamp(value, *DENSITY_RANGE)
         self._mutate_engine(lambda: self._engine.set_density(self._density))
 
@@ -5074,7 +5158,10 @@ class AmbientWidget(QWidget):
         return self._direction
 
     def set_direction(self, name: str) -> None:
-        """Set the starfield direction. An unknown name is ignored."""
+        """Set the starfield direction. An unknown name is ignored.
+
+        :param name: one of :data:`DRIFT_DIRECTIONS`.
+        """
         if not is_valid_drift_direction(name):
             return
         self._direction = name
@@ -5088,6 +5175,8 @@ class AmbientWidget(QWidget):
         """Set the motion multiplier. Clamped to :data:`SPEED_RANGE`.
 
         Takes effect on the next step, so nothing already on screen moves.
+
+        :param value: the speed multiplier, converted with ``float``.
         """
         self._speed = _clamp(value, *SPEED_RANGE)
         with self._engine_lock:
@@ -5102,7 +5191,10 @@ class AmbientWidget(QWidget):
         return self._size
 
     def set_size_scale(self, value: float) -> None:
-        """Set the element-size multiplier. Clamped to :data:`SIZE_RANGE`."""
+        """Set the element-size multiplier. Clamped to :data:`SIZE_RANGE`.
+
+        :param value: the size multiplier, converted with ``float``.
+        """
         self._size = _clamp(value, *SIZE_RANGE)
         self._mutate_engine(lambda: self._engine.set_size(self._size))
 
@@ -5122,6 +5214,10 @@ class AmbientWidget(QWidget):
         or a light page, which picks additive versus multiply compositing —
         so it must be called on a live theme switch, or a dark-tuned frame
         ends up on a white page.
+
+        :param color: a ``QColor`` or any string ``QColor`` accepts; an
+            invalid colour keeps the current one, and alpha is forced opaque.
+            The widget then stops following the application theme.
         """
         self._apply_background(color, explicit=True)
 
@@ -5153,6 +5249,10 @@ class AmbientWidget(QWidget):
         The animation composites (adds on dark, multiplies on light), so a
         wallpaper handed in here shows *through* it rather than being
         replaced. ``None`` goes back to the flat fill.
+
+        :param source: an image path, ``QPixmap`` or ``QImage``, or ``None``;
+            anything that does not load as a non-null pixmap also gives the
+            flat fill.
         """
         self._backdrop = _as_pixmap(source)
         self.update()
@@ -5164,6 +5264,9 @@ class AmbientWidget(QWidget):
         expected to re-set it (that is what ``app_screen`` does, because it
         also has to re-resolve the wallpaper). A host that did not gets this
         for free instead of a stale dark rectangle on a white page.
+
+        :param event: the change event; it goes to the base class first, and
+            only an ``ApplicationPaletteChange`` is acted on.
         """
         super().changeEvent(event)
         if event.type() == QEvent.ApplicationPaletteChange \
@@ -5183,7 +5286,11 @@ class AmbientWidget(QWidget):
     def set_fps(self, fps: int) -> None:
         """Cap the frame rate. Caps the shading thread with it, so a lowered
         cap actually reduces the work rather than just how much of it is
-        shown."""
+        shown.
+
+        :param fps: frames per second, converted with ``int`` and clamped to
+            :data:`MIN_FPS` to :data:`MAX_FPS`.
+        """
         self._fps = _clamp_int(fps, MIN_FPS, MAX_FPS)
         self._timer.setInterval(max(1, 1000 // self._fps))
         producer = self._producer_box[0]
@@ -5206,6 +5313,8 @@ class AmbientWidget(QWidget):
         Preferences toggle when the user wants the colours but not the
         motion — turning the feature off entirely is the install site's job,
         not this widget's.
+
+        :param on: truthy to animate, falsy to pause.
         """
         on = bool(on)
         if on == self._animating:
@@ -5353,17 +5462,25 @@ class AmbientWidget(QWidget):
     def hideEvent(self, event):
         """The whole performance story: a screen the user is not looking at
         costs nothing. Qt sends this to the children of a hidden parent too,
-        so switching tabs stops the animation on the tab you left."""
+        so switching tabs stops the animation on the tab you left.
+
+        :param event: the hide event; passed on to the base class before the
+            animation stops.
+        """
         super().hideEvent(event)
-        # Absent when the collector cleared this wrapper before its window
-        # was destroyed: nothing is left to stop.
         if getattr(self, "_timer", None) is not None:
             self.stop()
 
     def eventFilter(self, obj, event):
-        """Follow the parent's size; pause when the window is minimised."""
+        """Follow the parent's size; pause when the window is minimised.
+
+        :param obj: the object the event is for — the parent (whose resize
+            this widget follows) or the watched top-level window.
+        :param event: the event; resize, window-state, hide, show, move and
+            screen-change types are acted on, and every event is still passed
+            on to the base-class filter.
+        """
         etype = event.type()
-        # getattr for the same teardown as hideEvent: nothing watched.
         ref = getattr(self, "_watched", None)
         watched = ref() if ref is not None else None
         if etype == QEvent.Resize and obj is self.parent():
@@ -5421,6 +5538,9 @@ class AmbientWidget(QWidget):
         the next paint shows the frame that was asked for rather than
         whatever the shading thread last finished — the timer does not come
         through here for exactly that reason (:meth:`_on_tick`).
+
+        :param dt: seconds to step; the engine scales the step by its speed,
+            and a step that is not positive leaves the clock where it is.
         """
         self._mutate_engine(lambda: self._engine.advance(dt))
 
@@ -5429,7 +5549,11 @@ class AmbientWidget(QWidget):
         return self._engine.time
 
     def set_time(self, seconds: float) -> None:
-        """Jump the animation clock and repaint."""
+        """Jump the animation clock and repaint.
+
+        :param seconds: the new clock value, in animation seconds (the clock
+            :meth:`advance_frame` steps, already scaled by speed).
+        """
         self._mutate_engine(lambda: self._engine.set_time(seconds))
 
     def _paint_base(self, painter: QPainter, rect: QRect) -> None:
@@ -5495,6 +5619,10 @@ class AmbientWidget(QWidget):
         cap suggests: shading it cost 1.7 ms idle and 22 ms under a Python
         worker, and blitting an already-shaded frame costs 0.24-0.32 ms at
         every load measured.
+
+        :param event: the paint event; a new frame is taken from the shading
+            thread only when its ``rect()`` covers the whole widget, otherwise
+            the current frame is repainted.
         """
         global _TOTAL_FRAMES
         self.frames_painted += 1
@@ -5639,35 +5767,215 @@ def _the_spaceout_fractal(host):
 
     try:
         from ..preferences import get_fractal_settings
-        from .fractal_travel import (
-            _HeavyImportInProgress, RuntimeControls, Settings,
-            create_fractal_widget)
+        from .fractal_travel import _HeavyImportInProgress
 
-        values = get_fractal_settings()
-        widget = create_fractal_widget(
-            Settings(pattern=values["pattern"], backend=values["backend"],
-                     quality=values["quality"], scale=values["scale"]),
-            RuntimeControls(speed=values["speed"], dream=values["dream"],
-                            variable_speed=values["variable_speed"],
-                            speed_min=values["speed_min"],
-                            speed_max=values["speed_max"],
-                            speed_period=values["speed_period"],
-                            follow_pointer=bool(values["pointer_gravity"]),
-                            pointer_size=values["pointer_size"],
-                            pointer_strength=values["pointer_strength"],
-                            zoom_rate=values["zoom_rate"]),
-        )
-        widget.setParent(host)
-        widget.setGeometry(host.rect())
-        widget.lower()
-        widget.show()
-        host.installEventFilter(_FractalTracksItsHost(widget, host))
+        widget = _build_the_spaceout_fractal(get_fractal_settings())
+        _place_the_spaceout_fractal(widget, host)
         return widget
     except _HeavyImportInProgress:
         raise
     except Exception:                                        # noqa: BLE001
         LOG.exception("Could not install the spaceout fractal")
         return None
+
+
+_BUILT_FROM_SETTINGS = ("pattern", "backend", "quality", "scale",
+                       "supersampling", "max_iterations", "precision_digits")
+"""The fractal settings a spaceout backdrop is BUILT from.
+
+The pattern picks the shader and the backend picks GPU or CPU; quality and
+scale go into the frozen `Settings` the renderer sizes itself from;
+supersampling is compiled into the shader's sample grid and sizes the CPU
+engine's (item 531); the Mandelbrot reference orbit is iterated once, at construction, to
+`max_iterations` at `precision_digits`. Every other setting is either on the
+`RuntimeControls` the canvas reads each frame or read from the store each
+frame, so it needs no rebuild. See item 530.
+"""
+
+
+def _built_from(values: dict) -> tuple:
+    """The construction-time part of ``values``, comparable with ``==``."""
+    return tuple(values.get(name) for name in _BUILT_FROM_SETTINGS)
+
+
+def _build_the_spaceout_fractal(values: dict, controls=None):
+    """Construct the spaceout backdrop from ``values``, unparented.
+
+    :param values: :func:`~spacr.qt.preferences.get_fractal_settings`.
+    :param controls: the `RuntimeControls` to hand it, or ``None`` for new
+        ones made from ``values``. A rebuild passes the old backdrop's, so
+        a zoom rate nudged with the arrow keys survives a pattern change.
+    :returns: the widget, remembering what it was built from.
+    """
+    from .fractal_travel import (RuntimeControls, Settings,
+                                 create_fractal_widget)
+
+    if controls is None:
+        controls = RuntimeControls(
+            speed=values["speed"], dream=values["dream"],
+            variable_speed=values["variable_speed"],
+            speed_min=values["speed_min"],
+            speed_max=values["speed_max"],
+            speed_period=values["speed_period"],
+            follow_pointer=bool(values["pointer_gravity"]),
+            pointer_size=values["pointer_size"],
+            pointer_strength=values["pointer_strength"],
+            magnifier_size=values["magnifier_size"],
+            zoom_rate=values["zoom_rate"])
+    widget = create_fractal_widget(
+        Settings(pattern=values["pattern"], backend=values["backend"],
+                 quality=values["quality"], scale=values["scale"],
+                 supersampling=values.get("supersampling", 2)),
+        controls,
+    )
+    widget._spaceout_controls = controls
+    widget._spaceout_built_from = _built_from(values)
+    return widget
+
+
+def _place_the_spaceout_fractal(widget, host) -> None:
+    """Parent ``widget`` to ``host``, fill it, lower it and keep it filling."""
+    widget.setParent(host)
+    widget.setGeometry(host.rect())
+    widget.lower()
+    widget.show()
+    host.installEventFilter(_FractalTracksItsHost(widget, host))
+
+
+def _live_spaceout_fractals() -> list:
+    """Every spaceout backdrop currently parented to something."""
+    from PySide6.QtWidgets import QApplication
+
+    if QApplication.instance() is None:
+        return []
+    found = []
+    for widget in QApplication.allWidgets():
+        try:
+            if (getattr(widget, "_spaceout_built_from", None) is not None
+                    and widget.parentWidget() is not None):
+                found.append(widget)
+        except Exception:                                    # noqa: BLE001
+            continue
+    return found
+
+
+def _point_holders_at(old, new, host) -> int:
+    """Swap every attribute that held ``old`` on ``host`` or its window.
+
+    The screens keep their backdrop as ``_ambient`` and the main window as
+    ``_dock_backdrop``; pausing it for a run, retiring it and the screens'
+    "is there one already" guard all go through those names, so a rebuild
+    that left them on the retired widget would be a backdrop nothing can
+    pause and a second one built on top of it.
+
+    :returns: how many attributes were moved.
+    """
+    moved = 0
+    holders = [host]
+    try:
+        window = host.window()
+        if window is not None and window is not host:
+            holders.append(window)
+    except Exception:                                        # noqa: BLE001
+        pass
+    for holder in holders:
+        try:
+            names = [name for name, value in vars(holder).items()
+                     if value is old]
+        except TypeError:
+            continue
+        for name in names:
+            setattr(holder, name, new)
+            moved += 1
+    return moved
+
+
+def _retire_one_fractal(old, host) -> None:
+    """Stop ``old``, drop the filter that sized it, and let Qt free it."""
+    try:
+        old.shutdown()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not stop an old fractal", exc_info=True)
+    try:
+        for follower in host.findChildren(_FractalTracksItsHost):
+            if follower._widget is old:
+                host.removeEventFilter(follower)
+                follower._widget = None
+                follower.deleteLater()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not drop an old fractal's filter", exc_info=True)
+    try:
+        old.setParent(None)
+        old.deleteLater()
+    except Exception:                                        # noqa: BLE001
+        pass
+
+
+def rebuild_the_spaceout_backdrops() -> int:
+    """Rebuild every running spaceout backdrop whose build settings changed.
+
+    :returns: how many were rebuilt.
+
+    WHY A SAVED PATTERN USED TO WAIT FOR A RESTART (item 530). The window
+    builds ONE backdrop behind the dock and the page and keeps it for the
+    session. Saving Preferences pushed the runtime numbers into it
+    (`apply_saved_controls`) but the pattern, backend, quality and scale are
+    fixed when it is constructed, and nothing constructed it again -- the
+    old note that "changing a screen" would do it stopped being true when
+    the backdrop moved from the screens to the window.
+
+    The replacement is built BEFORE the old one is retired, so a GPU that
+    cannot be had right now leaves the running backdrop on screen rather
+    than none. It inherits the old one's `RuntimeControls`, its paused
+    state and its visibility, and every reference to the old one on its
+    host or window is moved to it. A heavy import holding the GL lock is
+    waited out on a timer, as at startup.
+    """
+    try:
+        from ..theme import spaceout_enabled
+
+        if not spaceout_enabled():
+            return 0
+        from ..preferences import get_fractal_settings
+        from .fractal_travel import _HeavyImportInProgress
+
+        values = get_fractal_settings()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not read the fractal settings", exc_info=True)
+        return 0
+
+    wanted = _built_from(values)
+    rebuilt = 0
+    for old in _live_spaceout_fractals():
+        if getattr(old, "_spaceout_built_from", None) == wanted:
+            continue
+        host = old.parentWidget()
+        try:
+            paused = bool(old.is_paused())
+        except Exception:                                    # noqa: BLE001
+            paused = False
+        hidden = old.isHidden()
+        try:
+            new = _build_the_spaceout_fractal(
+                values, getattr(old, "_spaceout_controls", None))
+        except _HeavyImportInProgress:
+            QTimer.singleShot(400, rebuild_the_spaceout_backdrops)
+            continue
+        except Exception:                                    # noqa: BLE001
+            LOG.exception("Could not rebuild the spaceout fractal")
+            continue
+        _retire_one_fractal(old, host)
+        _place_the_spaceout_fractal(new, host)
+        if hidden:
+            new.hide()
+        if paused:
+            try:
+                new.pause()
+            except Exception:                                # noqa: BLE001
+                pass
+        _point_holders_at(old, new, host)
+        rebuilt += 1
+    return rebuilt
 
 
 class _FractalTracksItsHost(QObject):

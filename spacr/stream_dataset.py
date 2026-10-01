@@ -18,11 +18,6 @@ import pandas as pd
 
 LOG = logging.getLogger("spacr.stream_dataset")
 
-# THE SELECTION TABLES LIVE IN `_stream_selection`, which imports nothing
-# but typing: `spacr.settings` reads them while a settings panel is being
-# laid out, and must not pay for pandas to read two dictionaries. They are
-# re-exported here, and the two lookups below stay this module's public API
-# and delegate, so there is one implementation and nothing moved for a caller.
 from . import _stream_selection  # noqa: E402
 from ._stream_selection import (COORDINATE_COLUMNS, METHOD_SETTINGS,  # noqa: E402,F401
                                 SELECTION_COLUMNS, SELECTION_FILE,
@@ -52,6 +47,12 @@ def coordinate_column(object_array: str) -> str:
 
 def settings_for_method(method: str) -> Tuple[str, ...]:
     """Return settings used by a dataset-selection method.
+
+    Parameters
+    ----------
+    method : str
+        Selection method name (``'column'`` or ``'array'``), matched
+        case-insensitively after stripping whitespace.
 
     Raises
     ------
@@ -249,6 +250,12 @@ def build_selection(dst: str, *, objects: Optional[pd.DataFrame] = None,
     An available object table is preferred; otherwise labels are read from
     merged arrays.
 
+    Parameters
+    ----------
+    dst : str
+        Output folder; created if missing, and ``stream_selection.csv`` is
+        written into it.
+
     Returns
     -------
     pandas.DataFrame
@@ -279,6 +286,14 @@ def crop_name(field_stem: str, object_id, *, crop_mode: str = "cell",
 
     Naming is delegated to :func:`spacr.utils._generate_names`, ensuring that
     streamed and pre-exported crops from the same object are compatible.
+
+    Parameters
+    ----------
+    field_stem : str
+        File stem of the image field the object comes from; escaped, it
+        begins the crop name.
+    object_id : int
+        Label id of the object; it follows the stem in the name.
     """
     from .utils import _generate_names
 

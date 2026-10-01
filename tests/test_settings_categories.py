@@ -148,7 +148,7 @@ KEYS_BEFORE_REGROUP = frozenset({
     "summarize_organelles_by", "tables", "target", "target_height", "target_intensity_min",
     "target_layer", "target_sequence", "target_unique_count", "target_width", "test",
     "test_images", "test_mode", "test_nr", "test_size", "test_split", "threshold_method",
-    "threshold_multiplier", "timelapse", "timelapse_displacement", "timelapse_frame_limits",
+    "threshold_multiplier", "timeflows_model", "timelapse", "timelapse_displacement", "timelapse_frame_limits",
     "timelapse_memory", "timelapse_mode", "timelapse_objects", "timelapse_remove_transient",
     "top_features", "toxo", "trackastra_linking", "trackastra_model", "tracked_object",
     "train", "train_channels", "transform", "treatment_loc", "treatment_plate_metadata",
@@ -180,6 +180,15 @@ KEYS_RETIRED = frozenset({
     "pathogen_intensity_threshold", "pathogen_intensity_merge", "pathogen_intensity_split",
     "organelle_minimum_area_to_split", "organelle_min_watershed_distance",
     "organelle_intensity_threshold", "organelle_intensity_merge", "organelle_intensity_split",
+    # RETIRED into `object_filters` rows on 2026-09-25, item 511: "RETIRE
+    # Mask's old per-object {obj}_min_area, _max_area, _min_intensity,
+    # _max_intensity settings from the form" (the maintainer). An old file's
+    # values become `area` / `intensity_mean` rows when it is loaded.
+    "cell_min_area", "cell_max_area", "cell_min_intensity", "cell_max_intensity",
+    "nucleus_min_area", "nucleus_max_area", "nucleus_min_intensity",
+    "nucleus_max_intensity",
+    "pathogen_min_area", "pathogen_max_area", "pathogen_min_intensity",
+    "pathogen_max_intensity",
     # RENAMED to `nontargeting_control_grnas` on 2026-09-10, instruction
     # 364, and the last of the seven. `controls` is a common word doing
     # four jobs -- a figure panel key, a sweep payload field, a dependency
@@ -340,6 +349,7 @@ KEYS_RETIRED = frozenset({
 
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    "object_filters",
     "psf_measurement_source",
     "mask_src", "test_src", "test_mask_src", "save_path", "channel_axis",
     "min_train_masks", "max_train_images", "nimg_per_epoch", "nimg_test_per_epoch",
@@ -349,12 +359,28 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "hp_parasite_table", "hp_parasite_parent", "hp_count_column",
     "image_qc_mode", "image_qc_channels", "image_qc_min_focus",
     "image_qc_max_saturation", "image_qc_saturation_level", "image_qc_max_nonfinite",
+    # NEW SETTINGS, not a regrouping (item 559, 2026-09-27): the learned
+    # image-quality classifier, appended to the Image Quality category.
+    "image_qc_classifier", "image_qc_classifier_model",
+    "image_qc_classifier_labels", "image_qc_classifier_threshold",
+    # NEW SETTINGS, not a regrouping (item 564, 2026-09-28): the generative
+    # counterfactuals, appended to the Activation Maps category.
+    "counterfactuals", "counterfactual_crops", "counterfactual_epochs",
     "plaque_pixels_per_um", "plaque_formation_hours", "plaque_estimate_growth",
     "plaque_growth_reference_um", "plaque_growth_reference_hours",
     "replication_method", "tta_enabled", "tta_rotations", "tta_horizontal_flip",
     "tta_vertical_flip", "tta_aggregation", "tta_min_agreement", "tta_max_std",
     "psf_operation", "psf_source", "psf_path", "psf_image_sampling_um",
     "psf_kernel_sampling_um", "psf_fwhm_um", "psf_iterations",
+    # 509, 2026-09-25: the objective missing PSF calibration is inferred from.
+    "psf_objective",
+    # 508, 2026-09-25: the Make Masks enhancement chain as Mask settings.
+    "enhance_background", "enhance_background_radius", "enhance_background_scale",
+    "enhance_denoise", "enhance_denoise_strength",
+    "enhance_percentile_clip", "enhance_percentile_low", "enhance_percentile_high",
+    "enhance_gamma", "enhance_log", "enhance_log_gain", "enhance_sqrt",
+    "enhance_clahe", "enhance_clahe_tile", "enhance_clahe_clip", "enhance_equalize",
+    "enhance_sharpen", "enhance_sharpen_radius", "enhance_sharpen_amount",
     # 468, 2026-09-21: Plaque Assay's Plaque/Figure mode and the Figure
     # mode's detector, text reading and review switch.
     "plaque_mode", "figure_detector", "figure_imgsz", "figure_confidence",
@@ -363,6 +389,10 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "base_model",
     # 468, 2026-09-21: Figure mode's text-detection knobs.
     "text_reach_above", "text_reach_left", "text_reach_below", "text_use_above", "text_use_left", "text_use_below", "text_panel_reach", "text_min_confidence", "text_ignore", "text_order", "text_separator", "text_reread", "text_reread_scale",
+    # 503, 2026-09-25: the legacy Cellpose 3 settings group.
+    "cellpose3_add_nucleus_channel", "cellpose3_size_model",
+    "cellpose3_resample", "cellpose3_augment", "cellpose3_percentile_low",
+    "cellpose3_percentile_high",
     # Feature 418: absolute object-mean intensity bounds in each own channel.
     # Numbered organelle slots use the existing dynamic registry expansion.
     "cell_min_intensity", "cell_max_intensity",
@@ -422,6 +452,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "phenotype_source", "ops_library", "ops_base_channels",
     "ops_read_threshold", "ops_raster_overlap", "ops_window_overlap",
     "ops_footprint", "ops_store_reads",
+    # `ops_spot_detector`, native or the opt-in SpotNet (475, 2026-09-25).
+    "ops_spot_detector",
     # `window_length`, the new name for `expected_end` (364, 2026-09-09).
     "window_length",
     # and `min_observations_per_hit`, the new name for `min_n`.
@@ -717,6 +749,12 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "anndata_tables", "anndata_dtype", "anndata_row_limit",
     "anndata_compute_umap", "anndata_compression",
     "anndata_register_artifact",
+    # 581, alpha: what the export writes (h5ad, Parquet tables, R loader)
+    # and the folder the tables go to.
+    "anndata_format", "anndata_tidy_dir",
+    # 543, alpha: a vendor flat-field profile (Harmony XML, ZEN shading
+    # reference) read in place of the estimated illumination field.
+    "illumination_vendor_profile",
     # The robust and regularised regression fits: knobs that belong to one
     # estimator rather than to all of them.
     "l1_ratio", "quantile", "huber_t",
@@ -735,6 +773,151 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # channel and mask-dimension keys it applies to, rather than under
     # Cell/Nucleus/Pathogen, because one value serves all three objects.
     "segmentation_backend",
+    # A NEW SETTING PAIR, not a regrouping: Make Masks splits its fields
+    # across two or more GPUs when `mask_parallel` is on, on the GPUs named
+    # by `mask_gpu_indices` (blank means every visible one). Both sit in Mask's
+    # Runtime & Reliability group beside `n_jobs` and `batch_size`.
+    "mask_parallel", "mask_gpu_indices",
+    # NEW SETTINGS, not a regrouping (item 541, 2026-09-26): Measure's
+    # confluency switch, its source, channel, texture window and monolayer
+    # QC cut, under their own "Confluency α" heading.
+    "confluency", "confluency_source", "confluency_channel",
+    "confluency_window", "confluency_qc_threshold",
+    # NEW SETTINGS, not a regrouping (item 538, 2026-09-26): spectral
+    # unmixing's switch, its single-stain control wells and background
+    # percentile, under a "Spectral Unmixing α" heading in Mask,
+    # Timelapse and Measure.
+    "unmix", "unmix_controls", "unmix_background_percentile",
+    # NEW SETTINGS, not a regrouping (item 557, 2026-09-27): Noise2Void
+    # denoising's switch, its model folder and training epochs, under a
+    # "Self-Supervised Denoising α" heading in Mask and Timelapse.
+    "n2v_denoise", "n2v_model", "n2v_epochs",
+    # NEW SETTINGS, not a regrouping (item 547, 2026-09-26): image-based
+    # profiling at the end of Measure -- the switch, plate map, treatment
+    # and control, normalisation, feature selection and its correlation
+    # cut, phenotype label and further plates -- under their own
+    # "Profiling α" heading.
+    "profiling", "profiling_metadata", "profiling_treatment_column",
+    "profiling_negative_control", "profiling_normalization",
+    "profiling_feature_selection", "profiling_correlation_threshold",
+    "profiling_phenotype_column", "profiling_databases",
+    # NEW SETTINGS, not a regrouping (item 535, 2026-09-26): Measure's
+    # cell-cycle phase call -- the switch, the method, the DNA channel, the
+    # gates, the mitotic cut, FUCCI, the training labels, a trained model
+    # and the torch epochs -- under their own "Cell Cycle α" heading.
+    "cell_cycle", "cell_cycle_method", "cell_cycle_channel",
+    "cell_cycle_gates", "cell_cycle_mitotic_ratio",
+    "cell_cycle_fucci_channels", "cell_cycle_labels", "cell_cycle_model",
+    "cell_cycle_epochs",
+    # A NEW SETTING, not a regrouping (item 539, 2026-09-26): photobleaching
+    # correction of a timelapse run's intensities, under its own
+    # "Bleach Correction α" heading.
+    "bleach_correction",
+    # A NEW SETTING, not a regrouping (item 566, 2026-09-27): per-object
+    # measurement on a CUDA GPU, under its own "GPU Measurement α"
+    # heading.
+    "measure_gpu",
+    # NEW SETTINGS, not a regrouping (item 576, 2026-09-28): a DuckDB,
+    # Parquet or PostgreSQL copy of the measurements, under their own
+    # "Measurement Backend α" heading.
+    "measurement_backend", "measurement_backend_target",
+    # A NEW SETTING GROUP, not a regrouping (item 537, 2026-09-27): lineage
+    # trees from the tracker's division links, appended to the Timelapse
+    # category and shown under "Lineage Trees α" on the Timelapse app.
+    "timelapse_lineage", "timelapse_lineage_color_by",
+    "timelapse_lineage_max_distance",
+    # A NEW SETTING GROUP, not a regrouping (item 567, 2026-09-27): event
+    # detection on tracks, appended to the Timelapse category and shown under
+    # "Event Detection α" on the Timelapse app.
+    "timelapse_events", "timelapse_events_annotations",
+    "timelapse_events_model", "timelapse_events_window",
+    "timelapse_events_threshold", "timelapse_events_conditions",
+    # NEW SETTINGS, not a regrouping (item 536, 2026-09-26): Measure's
+    # scratch-wound closure switch, its source, channel, texture window,
+    # frame interval and well-to-condition map, under their own "Wound
+    # Closure (Alpha)" heading.
+    "wound_closure", "wound_source", "wound_channel", "wound_window",
+    "wound_hours_per_frame", "wound_conditions",
+    # NEW SETTING, not a regrouping (item 536, 2026-10-01): the hand-set
+    # wound cut, under the same "Wound Closure α" heading.
+    "wound_threshold",
+    # NEW SETTINGS, not a regrouping (item 580, 2026-09-27): Measure's
+    # cross-plate intensity calibration from beads or reference wells -- the
+    # switch, the reference wells, the statistic and the camera offset --
+    # under their own "Intensity Calibration α" heading.
+    "intensity_calibration", "intensity_calibration_wells",
+    "intensity_calibration_statistic", "intensity_calibration_offset",
+    # NEW SETTINGS, not a regrouping (item 583, 2026-09-27): Measure's
+    # plate map filled from sample records by plate barcode -- the records
+    # table or LIMS address, the plate barcodes, the barcode column and the
+    # token's environment variable -- under their own "Plate Barcode
+    # Linkage (Alpha)" heading.
+    "plate_barcode_source", "plate_barcodes", "plate_barcode_column",
+    "plate_barcode_token_env",
+    # NEW SETTINGS, not a regrouping (item 571, 2026-09-26): Measure's
+    # time-to-event analysis of tracked objects -- the switch, the object
+    # table, the event mode, its column, threshold and persistence, the
+    # clock's origin, the shortest track, the frame interval, the grouping,
+    # the named conditions, the reference and the Cox covariates -- under
+    # their own "Time To Event α" heading.
+    "time_to_event", "time_to_event_object", "time_to_event_mode",
+    "time_to_event_column", "time_to_event_threshold",
+    "time_to_event_persist", "time_to_event_origin",
+    "time_to_event_min_frames", "time_to_event_hours_per_frame",
+    "time_to_event_group", "time_to_event_conditions",
+    "time_to_event_reference", "time_to_event_covariates",
+    # NEW SETTINGS, not a regrouping (item 540, 2026-09-26): Measure's
+    # live/dead call -- the switch, the dead and live stain channels, manual
+    # thresholds, the negative and positive control wells and a plate map
+    # for dose-response -- under their own "Viability α" heading.
+    "viability", "viability_dead_channel", "viability_live_channel",
+    "viability_thresholds", "viability_negative_wells",
+    "viability_positive_wells", "viability_plate_map",
+    # A NEW SETTING, not a regrouping (item 546, 2026-09-27): a CellProfiler
+    # pipeline run on Measure's fields, under "CellProfiler α".
+    "cellprofiler_pipeline",
+    # A NEW SETTING GROUP, not a regrouping: Make Masks can keep watching
+    # `src` and analyse each field as it arrives (`watch_folder`), with the
+    # pipeline, Measure settings file, settle time, poll interval and idle
+    # stop beside it in Mask's Workflow & Test Run group.
+    "watch_folder", "watch_pipeline", "watch_measure_settings",
+    "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes",
+    # A NEW SETTING GROUP, not a regrouping: a folder watch can send the
+    # objects it finds back to the microscope (`microscope_feedback`), with
+    # the driver, simulated image folder, field positions, pixel-to-stage
+    # transform, event table, query, cap and timelapse beside the watch keys.
+    "microscope_feedback", "microscope_driver", "microscope_simulated_folder",
+    "microscope_positions", "microscope_stage_transform",
+    "microscope_event_table", "microscope_event_query",
+    "microscope_max_events", "microscope_timepoints",
+    "microscope_interval_seconds",
+    # A NEW SETTING GROUP, not a regrouping: `src` of Make Masks and Measure
+    # may name cloud storage. Where credentials come from, the cache folder,
+    # the OME-Zarr wells, fields and level to fetch, and where results are
+    # copied back sit beside `src` in Input & Metadata / Input & Experiment.
+    "cloud_anonymous", "cloud_profile", "cloud_endpoint", "cloud_cache",
+    "cloud_wells", "cloud_fields", "cloud_level", "cloud_results",
+    # NEW SETTINGS, not a regrouping (item 542, 2026-09-27): Plaque Assay's
+    # colony-counting switch, the dilution and plated volume that turn a
+    # count into CFU/mL, the too-many and too-few flags, and the polarity,
+    # threshold and minimum area of the colony segmentation, under their own
+    # "Colony Counting α" heading.
+    "colony_counting", "colony_dilution", "colony_plated_volume_ul",
+    "colony_too_many", "colony_too_few", "colony_polarity",
+    "colony_threshold", "colony_min_area_px",
+    # NEW SETTING, not a regrouping (item 542, 2026-09-30): the colony
+    # detector checkpoint that replaces thresholding, under the same
+    # "Colony Counting α" heading.
+    "colony_detector",
+    # NEW SETTINGS, not a regrouping (item 578, 2026-09-27): Make Masks'
+    # segmentation-robustness report switch, its sample size and crop, the
+    # diameter factors, flow and cell-probability thresholds and enhancement
+    # it tries, and the tolerance beyond which a setting is fragile, under
+    # their own "Segmentation Robustness α" heading.
+    "robustness_report", "robustness_fields", "robustness_crop",
+    "robustness_diameter_factors", "robustness_flow_thresholds",
+    "robustness_cellprob_thresholds", "robustness_enhancement",
+    "robustness_tolerance",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six
@@ -1311,6 +1494,18 @@ def test_every_qt_section_hint_names_a_real_category():
     # the advanced families, so they appear on no module's category map and
     # would read as dead blurbs without this.
     known.update(p.upper().strip() for p in S.CATEGORY_PARENTS.values())
+    # Items 591-593: umbrellas one module declares for itself.
+    from spacr.qt.screens.settings_model import _APP_CATEGORY_PARENTS
+    known.update(p.upper().strip() for parents in
+                 _APP_CATEGORY_PARENTS.values() for p in parents.values())
+    # Item 591, 2026-09-28: an alpha heading ("CLOUD α") falls back to the
+    # blurb of its plain name, so that name is live through it.
+    # Item 592: Mask generation's per-object table has its own heading,
+    # drawn by AppScreen rather than by a category.
+    known.add("PER-OBJECT SETTINGS")
+    mark = "\u0391"
+    known.update(k[:-len(mark)].strip() for k in list(known)
+                 if k.endswith(mark))
     dead = sorted(set(hints) - known)
     assert not dead, (
         f"SECTION_HINTS entries that match no settings section: {dead}"
@@ -1378,21 +1573,41 @@ def _rendered_sections(app_key):
             "Runtime & Reliability",
         ]),
             ("mask", [
-                "Input & Metadata", "Workflow & Test Run", "Image Preprocessing",
+                # Item 591, 2026-09-28: Cloud is alpha; illumination
+                # correction, the PSF (as Image Deconvolution) and the
+                # enhancement chain are alpha sub-categories that
+                # `build_sections` nests under Image Preprocessing.
+                "Input & Metadata", "Cloud α", "Workflow & Test Run", "Image Preprocessing",
+                # Item 596, 2026-09-29: unmixing runs on the raw field, so it
+                # is the first sub-category of Image Preprocessing.
+                "Spectral Unmixing α",
+                "Illumination Correction α",
+                # Item 557: Noise2Void denoises before the PSF and the chain.
+                "Self-Supervised Denoising α",
+                "Image Deconvolution α",
+                "Image Enhancement α",
                 'Image Quality',
-                "Illumination Correction", "Point Spread Function",
                 "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
             "Organelle Segmentation (advanced)",
+            # 503, 2026-09-25: the legacy Cellpose 3 settings, shown only
+            # once an object's model setting names a Cellpose 3 model.
+            "Cellpose 3",
             # The two advanced families, in the order the layout writes
             # them. They nest under one "Advanced settings" umbrella in
             # `build_sections`; this mirror is the FLAT category map, which
             # is where they are declared.
             "Image Preprocessing (per object)",
             "Object Filtration (all objects)",
-            "Quality Control", "Volumetric Processing (Beta)",
+            "Quality Control",
+            # Item 578, 2026-09-27: the robustness report re-segments after
+            # the masks and their QC exist.
+            "Segmentation Robustness α",
+            "Volumetric Processing (Beta)",
+            # Item 592, 2026-09-28: Output & Storage and Runtime &
+            # Reliability merged into Quality Control, which also holds the
+            # robustness report as a nested alpha sub-category.
             "Time Axes & Tracking (Beta)", "Visualization & Diagnostics",
-            "Output & Storage", "Runtime & Reliability",
         ]),
         # "Illumination Correction" joined the Measure panel when the
         # illumination settings were folded into the measure defaults. The
@@ -1402,20 +1617,44 @@ def _rendered_sections(app_key):
         # `prepare_illumination_correction` returned None on every GUI run.
         # It sits after the channel mapping and before the features for the
         # same reason: that is the order the run executes them in.
+        # Item 595, 2026-09-28: the maintainer's regroup. Cloud nests under
+        # Input & Experiment; the corrections nest under Image
+        # Preprocessing, the assays under Features, and Runtime,
+        # Profiling and the backend under Postprocessing
+        # (_APP_CATEGORY_PARENTS). This is the flat order they are drawn
+        # in; Image Enhancement offers no measure key, so it is not drawn.
         ("measure", [
-            "Input & Experiment", "Mask & Channel Mapping",
-            "Illumination Correction", "Point Spread Function",
-            "Measurement Features", "Object Filtering", "Crop Output",
-            "Preview & Diagnostics", "3D Calibration (Beta)",
-            "Runtime & Reliability",
+            "Input & Experiment", "Cloud α", "Mask & Channel Mapping",
+            "Bleach Correction α", "Spectral Unmixing α",
+            "Image Deconvolution (PSF)", "Illumination Correction",
+            "Intensity Calibration α", "Plate Barcode Linkage α",
+            "Features",
+            "Confluency α", "Cell Cycle α",
+            "Wound Closure α", "Viability α",
+            "CellProfiler α", "GPU Measurement α",
+            "Time To Event α",
+            "Object Filtering", "Crop Output", "3D Calibration (Beta)",
+            "Runtime & Reliability", "Profiling α",
+            "Measurement Backend α",
         ]),
             ("timelapse", [
                 "Input & Metadata", "Acquisition & Axes", "Image Preprocessing",
+                # Item 596, 2026-09-29: unmixing runs on the raw field, so it
+                # is the first sub-category of Image Preprocessing.
+                "Spectral Unmixing α",
+                # Item 591, 2026-09-28: as on Mask generation.
+                "Illumination Correction α",
+                # Item 557: Noise2Void denoises before the PSF and the chain.
+                "Self-Supervised Denoising α",
+                "Image Deconvolution α",
+                "Image Enhancement α",
                 'Image Quality',
-                "Illumination Correction", "Point Spread Function",
                 "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
             "Organelle Segmentation (advanced)",
+            # 503, 2026-09-25: the legacy Cellpose 3 settings, shown only
+            # once an object's model setting names a Cellpose 3 model.
+            "Cellpose 3",
             # The two advanced families, in the order the layout writes
             # them. They nest under one "Advanced settings" umbrella in
             # `build_sections`; this mirror is the FLAT category map, which
@@ -1423,6 +1662,11 @@ def _rendered_sections(app_key):
             "Image Preprocessing (per object)",
             "Object Filtration (all objects)",
             "Quality Control", "Tracking Setup", "Tracking Backends",
+            # Item 537, 2026-09-27: lineage trees are built from the tracks
+            # the backends above produce.
+            "Lineage Trees α",
+            # Item 567, 2026-09-27: events are detected on the same tracks.
+            "Event Detection α",
             "Visualization & Diagnostics", "Output & Storage",
             "Runtime & Reliability",
         ]),
@@ -1466,7 +1710,9 @@ def _rendered_sections(app_key):
         ]),
         ("activation", [
             "Model & Data", "Attribution Method", "Attribution Validation",
-            "Map Display", "Map Quantification", "Output & Runtime",
+            "Map Display", "Map Quantification",
+            # item 564 (2026-09-28): alpha-only heading, hidden with the gate.
+            "Counterfactuals", "Output & Runtime",
         ]),
         ("replication", [
             "Replication Method", "Assay Inputs", "Size Proxy (Legacy)",

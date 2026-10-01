@@ -80,6 +80,9 @@ def source_paths(source) -> list[Path]:
     a run folder, its ``measurements`` subfolder, or the database itself.
     Paths that do not exist are dropped rather than reported: this feeds
     a dropdown, and a half-typed ``src`` is not an error.
+
+    :param source: a path, a list or tuple of paths, or the text of such a
+        list; empty entries are skipped and ``~`` is expanded.
     """
     if isinstance(source, str):
         text = source.strip()
@@ -153,6 +156,12 @@ def distinct_values(sources: Iterable[tuple[Path, str]], column: str,
     commits but does **not** close, so a session of typing in the column
     box leaked one file descriptor onto a multi-hundred-megabyte database
     per keystroke.
+
+    :param sources: ``(database path, table name)`` pairs to read; a
+        database or table that cannot be read is skipped.
+    :param column: the column name; empty returns ``[]``. ``NULL`` values
+        are left out.
+    :param limit: stop after this many distinct values.
     """
     if not column:
         return []
@@ -418,6 +427,11 @@ class RowExclusionEditor(QWidget):
         keep whatever they are showing until the worker delivers — a
         list that is half a second stale beats a frozen window, and on
         the first call they are showing nothing anyway.
+
+        :param source: anything :func:`source_paths` accepts: a run folder,
+            its ``measurements`` folder, a ``.db`` file, or a list of them.
+        :param tables: restrict the columns to these table names; ``None``
+            reads every table.
         """
         self._value_cache.clear()
         self._pending.clear()
@@ -582,6 +596,9 @@ class RowExclusionEditor(QWidget):
         QThreads are unparented and retire themselves, and
         ``JobRunner._relay`` catches the ``RuntimeError`` PySide6 raises
         when a worker settles after its runner's C++ half has gone.
+
+        :param event: the close event; passed on unchanged to the base class
+            after the workers are shut down.
         """
         self.shutdown()
         super().closeEvent(event)

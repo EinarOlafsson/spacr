@@ -1,32 +1,34 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "b38108290d13c808c7abbafa7d550bde4e0e57279232f4e7063fe6b309cbb543",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "abd85a81d3554dfa4cacb1616aa17d54e0ddde2000c8f54937e38b2ed8a40630",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "da",
-  "title": "Measure: livevisning, faktiske målinger og gemte resultater",
-  "description": "Brug de seksten billedfelter til at undersøge livefelter og kanaler, gendanne indstillinger for rå udsnit, læse kvalitetsadvarsler og kontrollere en kørsel med Plot.",
+  "title": "Measure: udtræk objektegenskaber og udsnit",
+  "description": "Indlæs billeder med masker, undersøg objekter, vælg indstillinger for udsnit, og gem målinger til annotering og klassifikation.",
   "objectives": [
-    "Indlæs eksemplet, og skeln mellem intensitetskanaler og maskeplaner.",
-    "Undersøg felter og kanaler live, skeln visningsvalget fra fælles udsnitsindstillinger, og gendan normaliseringen før kørslen.",
-    "Kør hele eksemplet, kontrollér faktiske figurer og konsol, og find database og udsnit.",
-    "Find de indlejrede værktøjer, og forstå begrænsninger ved AI og forældelsesadvarslen."
+    "Identificere intensitetskanaler og maskeplaner i eksemplet.",
+    "Undersøge synsfelter og vælge normaliseringen af gemte udsnit bevidst.",
+    "Køre Measure og finde databasen, objektudsnittene og figurerne."
   ],
-  "prerequisite": "Optaget med spaCR 1.5.0.8. Home/Core → Measure → Load test data. Det målte udsnit består af seksten 1994x1994 uint16-arrays: intensiteter 0–3 og celle-/kerne-/patogenmasker 4/5/6. Slå hovedindstillingen Normalize til før første Live; startkontrasten bruger percentiler 1/99. Tryk ikke Run sådan. Kanal nul ændrer kun visningen, men Normalize gælder også gemte udsnit. Slå Live og Normalize fra før kørslen. E02_1_1 viser 27 kandidater og E02_9_1 viser 15. Kanalskift bevarer identitet, areal og kategori; All channels gendanner de oprindelige pixels. Preview- og kørselsarrays er byte-identiske. Denne lektion bruger de synlige hovedindstillinger og Live-kontroller; den demonstrerer ikke dialogen Crop settings. QC markerer 3 fejl og 16 advarsler blandt 156 objekttype-/feltposter fra det større download med masker fra 52 felter, ikke kun de 16 målte sammenlagte felter. Data er ikke godkendt som fejlfri. Fuld kørsel: Plot, save_measurements og save_png til; Test mode og normalize fra; én arbejdsproces; RGB-udsnit 224x224. Uden voxelkalibrering er arealet kvadratpixels. Alle 16 felter lykkedes. Uafhængigt kontrolleret: 5409 areal-/intensitetsværdier og fem kildeunderstøttede sammenlægninger, ikke alle egenskaber eller biologisk rigtighed. Resultater: 601 celler og udsnit, 622 kerner, 373 patogenobjekter, 48 gemte figurer og 48 i GUI-køen. De indsamlede indstillinger er uændrede før og efter kørslen, men advarslen om forældede resultater er stadig synlig. Kontrollen af disse gemte resultater validerer hverken advarslen eller den automatiske overdragelse. API: spacr.measure.measure_crop. Se Illumination, Motility og AnnData Export separat; AnnData viser en udtrykkelig API-omvej, ikke en repareret GUI. Ingen AI-forespørgsel sendt eller svar vist, ingen menneskelig lyttegodkendelse eller udgivelse.",
+  "prerequisite": "Brug de sammenlagte output fra Mask, eller vælg Load test data i Measure. Eksemplet indeholder seksten synsfelter med intensitetsplanerne 0–3 og masker for celler, kerner og patogener i planerne 4, 5 og 6.",
   "scenes": [
-    "Åbn Measure under Core. Det omsætter eksisterende billedarrays og objektmasker til målinger og udsnit; det laver ikke en ny segmentering. Illumination, AnnData Export og Motility er indlejret under dette hovedmodul. Deres særskilte lektioner står under Measure i tutorialnavigationen.",
-    "Vælg Load test data, og vent på den faktiske indlæsning. Downloaden indeholder seksten sammenlagte billedfelter. Kontrollér kildemappe og kanalvalg: intensiteter nul til tre, cellemaske fire, kernemaske fem og patogenmaske seks. Maskelabels er ikke intensitetsmålinger.",
-    "Før du åbner Live første gang, søg efter Normalize i hovedindstillingerne og slå den til. Det gør forhåndsvisningen læselig, fordi de rå seksten-bit-udsnit ser mørke ud. Dette er også en indstilling for gemte udsnit, ikke kun for visningen. Tryk ikke Run; vi gendanner den først.",
-    "Slå Live til, og indsæt stien til det sammenlagte array for felt E nul to, et, et. Gitteret viser syvogtyve kandidater grupperet efter maskernes relationer; rul for at undersøge resten af kategorierne. Navnene er ikke uafhængigt gennemgåede biologiske annotationer, og antallet af kandidater garanterer ikke det endelige antal målte celler.",
-    "Vælg kanal nul i vælgeren for den viste kanal. De samme syvogtyve objekter vises i gråtoner; etiketter, arealer og kategorier er uændrede. I modsætning til hovedindstillingen Normalize ændrer denne vælger kun forhåndsvisningen. Gå tilbage til All channels for at gendanne farvepixels uden at ændre kørselsindstillingerne.",
-    "Brug feltvælgeren til at åbne E nul to, ni, et. Dette felt viser femten kandidater: undersøg flere felter, før du stoler på et flot billede. Læs også det røde banner om segmenteringskvalitet. De markerede masker stammer fra det større download; en fungerende forhåndsvisning løser ikke advarslerne eller godkender data som fejlfri.",
-    "Slå Live fra, søg efter Normalize igen, og slå den fra før kørslen. Vi har kontrolleret, at alle batchindstillinger vender tilbage til deres oprindelige værdier, og at begge kildearrays er uændrede. Normalisering af hvert udsnit kan fjerne intensitetsforskelle fra de gemte billeder. Bevar de oprindelige arrays, så senere målinger stadig kan bruge deres uændrede intensiteter.",
-    "Lad Plot være slået til, gem målinger og udsnit, og brug én arbejdsproces til denne demonstration. Test mode er slået fra: alle seksten eksempelfelter behandles i projektets primære output. Bevar de indsamlede indstillinger sammen med de gemte resultater, så kørslen kan gentages.",
-    "Tryk Run, og følg konsollen. Kontroller antallet af forsøg, succeser og fejl, ikke blot om der står færdig. Her lykkedes alle seksten felter. Læs også advarslerne. En vellykket beregning er ikke et certifikat for biologisk kvalitet.",
-    "Brug figurlisten til at se de faktiske billeder før og efter filtrering. Træk skillelinjen for mere plads. Størrelsesfiltre og sammenlægning af forælder/barn kan ændre de målte labels. Her samler fem gemte celleobjekter kildelabels, der forbindes af en fælles kerne- eller patogenmaske.",
-    "Undersøg også udsnitsfiguren, og opbevar måledatabase og billedstier sammen. Kørslen gemte seks hundrede og én celleposter og tilhørende udsnit. Uafhængige pixelkontroller bekræftede areal, summer og gennemsnit for fire kanaler inklusive sammenlægninger; ikke alle egenskaber eller segmenteringens biologiske rigtighed.",
-    "Denne optagelse viser stadig en advarsel om forældede resultater efter en vellykket kørsel med uændrede indsamlede indstillinger. Vi har kontrolleret de gemte data uafhængigt, men har ikke valideret advarslen eller den automatiske overdragelse. Bevar de gemte indstillinger med resultaterne, og undersøg advarsler før du fortsætter. Her indeholder figurkøen alle otteogfyrre gemte diagrammer.",
-    "Konsollen tilbyder også valgfri spaCR AI-hjælp. Her aktiverer vi knappen og forbereder et spørgsmål uden at sende det; ingen svar eller ekstern analyse demonstreres. Betragt senere svar som råd, der skal kontrolleres mod indstillinger, API og gemte resultater. Brug de særskilte lektioner om indlejrede værktøjer til næste opgave."
+    "Fra Home åbner du Measure. Begynd med billeder, der allerede har objektmasker. Measure udtrækker egenskaber som areal og intensitet, parrer relaterede objekter og kan gemme udsnit af enkelte objekter til Annotate og Classify.",
+    "Klik på Load test data, og vent, til eksemplet er indlæst, eller vælg dit eget sammenlagte projekt. Kontrollér plantilknytningen: eksemplet har fire intensitetskanaler efterfulgt af masker for celler, kerner og patogener i planerne 4, 5 og 6.",
+    "For at undersøge disse 16-bit-eksempeludsnit slår du Normalize til, før du åbner Live. Så bliver forhåndsvisningen lettere at se. Husk, at denne hovedindstilling også påvirker gemte udsnit; vi slår den fra før denne batchkørsel.",
+    "Slå Live til, og vælg et synsfelt. Undersøg objektudsnittene og sammenhængen mellem deres masker. Rul gennem kategorierne, og forstør forhåndsvisningen efter behov for at se grænserne tydeligt.",
+    "Brug vælgeren til den viste kanal til at undersøge én intensitetskanal ad gangen. Kanal 0 viser en gråtonevisning; All channels gendanner den kombinerede visning. Vælgeren ændrer forhåndsvisningen uden at ændre labels eller batchens kanaltilknytning.",
+    "Vælg et andet synsfelt, og sammenlign dets objekter. Gennemgå meddelelsen om segmenteringskvalitet, før du måler projektet. Hvis masker mangler eller er forkert sammenlagt, retter du dem eller justerer Mask, før du fortsætter.",
+    "Slå Live fra, og sæt Normalize tilbage til fra for dette eksempel. Vælg normaliseringen bevidst, når du gemmer udsnit: skalering pr. udsnit ændrer de intensitetsforskelle, som en senere billedklassifikator ser. Bevar de oprindelige sammenlagte arrays til kvantitative målinger.",
+    "Slå lagring af målinger og objektudsnit til, lad Plot være slået til, og vælg udsnitsstørrelse og outputkanaler. Brug én arbejdsproces i dette eksempel. Lad Test mode være slået fra for at behandle alle seksten medfølgende synsfelter, og klik derefter på Run.",
+    "Følg konsollen, indtil kørslen er færdig. Kontrollér, hvilke synsfelter der lykkedes, og undersøg eventuelle fejl, før du fortsætter. Behold de indstillinger, der blev gemt med kørslen, så du kan genskabe målingerne.",
+    "Brug figurlisten til at sammenligne objekterne før og efter filtrering. Størrelsesfiltre og forælder-barn-relationer kan ændre, hvilke objekter der måles. Træk i skillelinjen for at give figurerne mere plads, og undersøg uventede ændringer.",
+    "Undersøg udsnitsfiguren, og find derefter measurements.db i mappen measurements og de gemte objektbilleder i projektets udsnitsoutput. Hold databasen og billedstierne samlet. Fortsæt til Annotate for at mærke eksempelobjekter, eller til Classify, hvis du allerede har mærkede træningsdata."
   ]
 }

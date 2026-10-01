@@ -7,8 +7,8 @@ Entries are grouped by the function or class they sat in and carry the line they
 
 ## Contents
 
-- [_find_menu](#_find_menu) (3 entries)
-- [_menu_target](#_menu_target) (2 entries)
+- [_find_menu](#_find_menu) (1 entry)
+- [_menu_target](#_menu_target) (1 entry)
 - [_top_level_menu_containing](#_top_level_menu_containing) (3 entries)
 - [_build_classify_steps](#_build_classify_steps) (4 entries)
 - [_build_map_barcodes_steps](#_build_map_barcodes_steps) (1 entry)
@@ -18,47 +18,19 @@ Entries are grouped by the function or class they sat in and carry the line they
 
 ## _find_menu
 
-### lines 173-176
-
 ```python
-if title == "Demos":
+return find_menu(window, title)
 ```
 
-Demos is a Help submenu and MainWindow deliberately retains the QMenu wrapper that owns its actions. Qt may reparent that submenu when it is inserted under Help, so it is not reliably returned by the menu bar's child walk on every PySide6 version. Use the retained owner first.
-
-### lines 180-183
-
-```python
-if menu is not None:
-```
-
-``_demo_menu`` is the semantic owner, independent of the currently selected language. Comparing its rendered title to the English lookup key made the tutorial lose the menu after a retranslation within the same application session.
-
-### line 185, trailing  _(unsure)_
-
-```python
-menu.title()
-```
-
-prove that the retained Qt wrapper is live
+Tutorial menu lookup uses the shared `first_run.find_menu` implementation. It finds menu-bar-owned wrappers, whose lifetime follows the window, and ignores mnemonic markers in their titles.
 
 ## _menu_target
-
-### lines 218-221
 
 ```python
 parent = _top_level_menu_containing(window, menu)
 ```
 
-A SUBMENU HAS NO PLACE ON THE BAR. Demos moved under Help on 2026-08-23, so its own geometry is empty and the cursor would aim at (0, 0). Point at the top-level menu you actually click to reach it, which is where a user's hand goes.
-
-### lines 227-232
-
-```python
-actions = list(mb.actions())
-```
-
-The target users click is Help, not the submenu itself. During a long tutorial-test session Qt can briefly detach the submenu action while pages are being rebuilt even though ``_demo_menu`` remains live. Target the stable top-level Help action directly in that state. The final-action fallback is language-independent; spaCR and Help are the only top-level menus in the current compact bar.
+A submenu has no rectangle on the menu bar. Aim at its actual containing top-level menu when that menu has visible geometry. Missing, detached or hidden destinations return no target; an unrelated Help action cannot stand in for them.
 
 ## _top_level_menu_containing
 

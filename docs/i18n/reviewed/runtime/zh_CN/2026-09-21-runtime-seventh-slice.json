@@ -123,13 +123,6 @@
     },
     {
       "table": "ui",
-      "key": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
-      "source": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
-      "translation": "上次筛选移除的对象，每个对象占一行：包括对象 ID、判定时使用的面积和平均强度，以及导致移除的界限。这里的 ID 与悬停读数中显示的 ID 相同。",
-      "source_sha256": "5ab02ba4a4ecdd20bb4b81d638d2a7551284dbcb51f7477f178c23c2ec0c2cd2"
-    },
-    {
-      "table": "ui",
       "key": "What the run writes appears here.",
       "source": "What the run writes appears here.",
       "translation": "运行输出会显示在这里。",

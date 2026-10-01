@@ -70,3 +70,31 @@ def test_module_reference_repair_is_limited_to_its_measured_heart_track():
                      ('80_image_analysis_pathways', 'en', 'af_heart'),
                      ('81_sequencing_pathways', 'en', 'af_heart')]:
         assert select(*identity) == baseline
+
+
+def test_hindi_run_compare_repair_is_limited_to_its_measured_track():
+    ns, _ = namespace()
+    select, baseline = ns['mastering_config'], ns['MASTERING_CONFIG']
+    repaired = select('50_run_compare', 'hi', 'hf_beta')
+    assert repaired['filters'] == baseline['filters'] + [baseline['filters'][-1] + ',volume=-2dB']
+    assert repaired['maximum_decoded_true_peak_dbfs'] == -1.0
+    for identity in [('50_run_compare', 'hi', 'hf_alpha'),
+                     ('50_run_compare', 'es', 'ef_dora'),
+                     ('49_methods_results', 'hi', 'hf_beta')]:
+        assert select(*identity) == baseline
+
+
+def test_a_true_peak_failure_is_reported_without_aborting_the_matrix():
+    _, tree = namespace()
+    render = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'render_track')
+    raised = [ast.unparse(n.exc.func) for n in ast.walk(render)
+              if isinstance(n, ast.Raise) and isinstance(n.exc, ast.Call)
+              and 'true peak' in ast.unparse(n.exc).lower() and 'exceeds' in ast.unparse(n.exc)]
+    assert raised == ['TruePeakError']
+    main = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'main')
+    handlers = [h for n in ast.walk(main) if isinstance(n, ast.Try) for h in n.handlers]
+    assert [ast.unparse(h.type) for h in handlers] == ['TruePeakError']
+    returns = [ast.unparse(n.value) for n in ast.walk(main) if isinstance(n, ast.Return)]
+    assert returns[-1] == '1 if peak_failures else 0'
+    peak_class = next(n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == 'TruePeakError')
+    assert [ast.unparse(b) for b in peak_class.bases] == ['RuntimeError']

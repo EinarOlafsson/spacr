@@ -126,6 +126,8 @@ def resolve_source(settings: Mapping[str, Any]) -> str:
     from any panel spaCR has shipped answers this question. Unset means LOAD
     IMAGES, which is the default everywhere the question is asked.
 
+    :param settings: the settings mapping; its ``crop_source`` value is looked
+        up in :data:`CROP_SOURCE_ALIASES`, and an empty value means ``png``.
     :raises CropSourceError: an unrecognised source. Guessing would train on a
         different set of images than was asked for and report success.
     """
@@ -152,6 +154,10 @@ def inapplicable_settings(source: str) -> Tuple[str, ...]:
     Any spelling :data:`CROP_SOURCE_ALIASES` knows is accepted, because what a
     panel has in hand is the value stored in the settings file, not the name
     this module resolved it to.
+
+    :param source: the crop source whose settings stay active; any spelling in
+        :data:`CROP_SOURCE_ALIASES`, matched case-insensitively. An unknown
+        source raises :class:`CropSourceError`.
     """
     key = CROP_SOURCE_ALIASES.get(str(source).strip().lower(), "")
     if key not in SOURCE_SETTINGS:
@@ -171,6 +177,9 @@ def normalise_extension(file_type: Any) -> str:
     name, duplicating ``png_type``. Now it is an extension and only that, so
     ``'.TIF'``, ``'tif'`` and ``'tiff'`` all mean what they look like.
 
+    :param file_type: an extension such as ``'.TIF'``, ``'tif'`` or
+        ``'cell_png'`` (only the part after the last underscore is kept); empty
+        or None gives ``''``.
     :raises CropSourceError: an extension spaCR cannot read, named alongside
         the ones it can.
     """
@@ -194,6 +203,9 @@ def matches_path(path: str, *, path_string: str = "",
     OBJECT the crop is of (a substring of its path, e.g. ``cell_png``) and
     WHAT FORMAT it is in (its extension). One setting could never express
     "every nucleus crop, whatever format" or "every TIFF, whatever object".
+
+    :param path: the crop's file path, tested as a string for the
+        ``path_string`` substring and for its extension.
     """
     text = str(path)
     if path_string and str(path_string) not in text:
@@ -208,7 +220,12 @@ def matches_path(path: str, *, path_string: str = "",
 
 def select_crops(paths: Iterable[str], settings: Mapping[str, Any]
                  ) -> List[str]:
-    """The crops a settings dict selects, in the order given."""
+    """The crops a settings dict selects, in the order given.
+
+    :param paths: candidate crop file paths.
+    :param settings: the settings mapping; ``path_string`` (or, failing that,
+        ``png_type``) and ``file_type`` are passed to :func:`matches_path`.
+    """
     path_string = settings.get("path_string") or settings.get("png_type") or ""
     return [p for p in paths
             if matches_path(p, path_string=path_string,
@@ -251,6 +268,9 @@ def object_bounds(mask: np.ndarray, label: int) -> Optional[Tuple[int, int, int,
 
     Half-open on the far edge, like every other slice in Python, so the caller
     can index with it directly rather than remembering to add one.
+
+    :param mask: 2-D label image holding the object.
+    :param label: the label value of the object to bound.
     """
     rows, cols = np.nonzero(mask == label)
     if rows.size == 0:
@@ -382,6 +402,10 @@ def mask_plane_for(object_array: str, settings: Mapping[str, Any]) -> int:
     Read from the ``*_mask_dim`` settings the mask step already writes, so the
     two cannot disagree about which plane is which.
 
+    :param object_array: the object name (e.g. ``cell``, ``nucleus``);
+        lower-cased and used to build the ``<name>_mask_dim`` setting key.
+    :param settings: the settings mapping the ``<name>_mask_dim`` plane index
+        is read from.
     :raises CropSourceError: the object has no mask plane, naming the setting
         that would give it one.
     """
@@ -444,6 +468,8 @@ def stream_planes(settings: Mapping[str, Any]) -> List[int]:
     settings files, so both are read here. The current spelling wins when a
     file carries both, because that is the one the panel is editing.
 
+    :param settings: the settings mapping; ``channel_arrays`` is read first,
+        then ``extract_channels``.
     :raises CropSourceError: neither is set, naming the one to set.
     """
     for name in ("channel_arrays", "extract_channels"):
@@ -461,6 +487,9 @@ def validate(settings: Mapping[str, Any]) -> str:
     were never named after an hour of dataset building is a worse failure than
     refusing at the start, and the message here names the setting to fix.
 
+    :param settings: the training settings mapping to check: the crop source,
+        plus ``file_type`` for ``png`` or the plane, crop-shape, coordinate and
+        mask settings for a streamed source.
     :raises CropSourceError: with what to change.
     """
     source = resolve_source(settings)

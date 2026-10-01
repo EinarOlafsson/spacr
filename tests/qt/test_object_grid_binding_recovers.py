@@ -55,9 +55,11 @@ def test_failed_form_read_preserves_cells_and_next_signal_updates_them(bound):
 def test_missing_form_key_keeps_its_cell_while_other_cells_follow(bound):
     grid, panel, binding = bound
     del panel.values['cell_diameter']
-    panel._widgets['cell_channel'].setText('2')
+    # 2026-09-29 (item 592, "hide unset objects"): the channel is no table
+    # cell any more, so the following cell is the nucleus diameter.
+    panel._widgets['nucleus_diameter'].setText('14')
     assert grid.settings()['cell_diameter'] == 16
-    assert grid.settings()['cell_channel'] == 2
+    assert grid.settings()['nucleus_diameter'] == 14
     assert binding._busy is False
 
 
@@ -85,25 +87,31 @@ def test_an_editor_without_change_signals_does_not_prevent_other_connections(bou
     assert id(panel._widgets['cell_diameter']) not in binding._followed
 
 
-def test_visibility_refresh_failure_does_not_lose_the_committed_channel(bound):
+def test_a_channel_on_the_form_hides_and_shows_its_column(bound):
+    """2026-09-29 (item 592, "hide unset objects"): the channel is not a
+    table cell; the form's channel field hides and shows the column, and
+    the hidden column's answers come back with it."""
     grid, panel, binding = bound
-    panel.refresh_object_visibility = Mock(side_effect=RuntimeError('view is closing'))
-    assert grid.set_value('channel', 'cell', '2')
-    assert panel.collect()['cell_channel'] == 2
-    assert panel.refresh_object_visibility.call_count == 1
+    assert 'channel' not in grid.questions()
+    assert 'nucleus' in grid.objects()
+    panel.collect = lambda: {
+        key: (None if panel._widgets[key].text() in ('', 'None')
+              else int(panel._widgets[key].text()))
+        for key in panel.values}
+    panel._widgets['nucleus_channel'].setText('None')
+    assert grid.objects() == ('cell',)
+    assert grid.settings()['nucleus_diameter'] == 12
+    panel._widgets['nucleus_channel'].setText('3')
+    assert 'nucleus' in grid.objects()
+    assert grid.table()['diameter']['nucleus'] == 12
     assert binding._busy is False
-    panel.refresh_object_visibility.side_effect = None
-    assert grid.set_value('channel', 'cell', '3')
-    assert panel.collect()['cell_channel'] == 3
-    assert panel.refresh_object_visibility.call_count == 2
 
 
-def test_a_form_without_visibility_refresh_still_accepts_channel_edits(bound):
+def test_the_channels_are_followed_but_not_claimed(bound):
+    """The grid never writes a channel, it only reads one (item 592)."""
     grid, panel, binding = bound
-    assert not hasattr(panel, 'refresh_object_visibility')
-    assert grid.set_value('channel', 'cell', '4')
-    assert panel.collect()['cell_channel'] == 4
-    assert binding._busy is False
+    assert 'cell_channel' not in binding.owned_keys()
+    assert 'nucleus_channel' in binding._switch_keys()
 
 
 def test_an_unreadable_seed_releases_the_guard_for_a_later_retry(bound):

@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "module_summaries",
+      "key": "candida",
+      "source": "Image-analysis modules for Candida species",
+      "source_sha256": "9d562eef2a67639309954501bd59712a75229bc187d69d2d5bfc38a1e16f317a",
+      "translation": "Módulos de análise de imagens para espécies de Candida"
+    },
+    {
+      "table": "module_summaries",
+      "key": "host_pathogen",
+      "source": "Link vacuole recruitment and replication to host infection measurements",
+      "source_sha256": "5fe9cc0b63400a964141cbf3ce318883b83baeb0a08adfbb99df90cd1a248b07",
+      "translation": "Relaciona o recrutamento e a replicação em vacúolos às medições de infecção do hospedeiro"
+    },
+    {
+      "table": "module_summaries",
+      "key": "plasmodium",
+      "source": "Image-analysis modules for malaria parasites",
+      "source_sha256": "5270241274cf83699dee15ac9e493e100b07b47672b6f3ae4e43c36fe8085bda",
+      "translation": "Módulos de análise de imagens para parasitas da malária"
+    },
+    {
+      "table": "module_summaries",
+      "key": "toxoplasma",
+      "source": "Image-analysis assays for Toxoplasma gondii",
+      "source_sha256": "66cee4dc49b7328b8f4550597f3893a1d17e6eed80a1843e1a1c2715262cc459",
+      "translation": "Ensaios de análise de imagens para Toxoplasma gondii"
+    }
+  ]
+}

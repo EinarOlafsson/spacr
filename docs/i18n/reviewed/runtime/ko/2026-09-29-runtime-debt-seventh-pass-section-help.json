@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26, sixth pass 2026-09-27, seventh pass 2026-09-29: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "categories",
+      "key": "Automatic pass/fail checks on the finished masks, what the run keeps on disk, and how it behaves when something fails: object count, size and border checks, the files and intermediates saved, error handling, workers, batch size, GPUs and the random seed. Tighten the checks once you know what a good field looks like.",
+      "source": "Automatic pass/fail checks on the finished masks, what the run keeps on disk, and how it behaves when something fails: object count, size and border checks, the files and intermediates saved, error handling, workers, batch size, GPUs and the random seed. Tighten the checks once you know what a good field looks like.",
+      "source_sha256": "0328eb9975be8f0f5f6427d13c1a061101d7206a75e15c8cfcc03b7f6bdabd11",
+      "translation": "완료된 마스크에 대한 자동 통과/실패 검사, 실행이 디스크에 남기는 것, 실패 시 동작입니다. 객체 수, 크기, 경계 검사, 저장되는 파일과 중간 결과, 오류 처리, 워커, 배치 크기, GPUs, 난수 시드가 포함됩니다. 좋은 시야가 어떤지 알게 되면 검사를 강화하세요."
+    },
+    {
+      "table": "categories",
+      "key": "Deconvolution or convolution with the microscope's point spread function, applied to the segmentation channels before normalization: a calibrated measured PSF, one inferred from the objective, or an explicit Gaussian. Richardson-Lucy deconvolution sharpens and can amplify noise. Raw images and measurement intensities remain unchanged.",
+      "source": "Deconvolution or convolution with the microscope's point spread function, applied to the segmentation channels before normalization: a calibrated measured PSF, one inferred from the objective, or an explicit Gaussian. Richardson-Lucy deconvolution sharpens and can amplify noise. Raw images and measurement intensities remain unchanged.",
+      "source_sha256": "7cc5d1d59638d155c5b90c414adab0826063f8a6cbd31646c284ac2d16f7f43e",
+      "translation": "정규화 전에 분할 채널에 적용하는 현미경 점 확산 함수의 디컨볼루션 또는 컨볼루션입니다. 보정된 측정 PSF, 대물렌즈에서 추론한 PSF, 또는 명시적 가우시안을 씁니다. Richardson-Lucy 디컨볼루션은 선명하게 하지만 노이즈를 증폭할 수 있습니다. 원본 이미지와 측정 강도는 바뀌지 않습니다."
+    },
+    {
+      "table": "categories",
+      "key": "Noise2Void denoising trained on the run's own noisy images, with no clean targets: one model per segmentation channel, applied after illumination correction and before the PSF and the enhancement chain. Needs the CAREamics backend from the Model Zoo.",
+      "source": "Noise2Void denoising trained on the run's own noisy images, with no clean targets: one model per segmentation channel, applied after illumination correction and before the PSF and the enhancement chain. Needs the CAREamics backend from the Model Zoo.",
+      "source_sha256": "05072f9978f4f7a438fbfc269f81553fea5d09750038ae29de5c3f984610d534",
+      "translation": "실행 자체의 노이즈 있는 이미지로 학습하는 Noise2Void 노이즈 제거로, 깨끗한 목표 이미지가 필요 없습니다. 분할 채널마다 모델 하나를 쓰며, 조명 보정 뒤와 PSF 및 향상 체인 앞에 적용합니다. 모델 라이브러리의 CAREamics 백엔드가 필요합니다."
+    },
+    {
+      "table": "categories",
+      "key": "One column per object -- cell, nucleus, pathogen, cytoplasm -- and one row per question: channel, model, diameter, thresholds, remove background, adjust cells, and any filters added with Add a filter. Fill a column for every object the run segments.",
+      "source": "One column per object -- cell, nucleus, pathogen, cytoplasm -- and one row per question: channel, model, diameter, thresholds, remove background, adjust cells, and any filters added with Add a filter. Fill a column for every object the run segments.",
+      "source_sha256": "56a21ef6fc343f2f81c8032c7f78cdb7624042157a0913c2027c04e788c2e3a8",
+      "translation": "객체마다 한 열(세포, 핵, 병원체, 세포질), 질문마다 한 행(채널, 모델, 직경, 임계값, 배경 제거, 세포 조정, 필터 추가로 넣은 모든 필터)입니다. 실행이 분할하는 모든 객체의 열을 채우세요."
+    },
+    {
+      "table": "categories",
+      "key": "Read the plate straight from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Leave it alone for a plate on local disk.",
+      "source": "Read the plate straight from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Leave it alone for a plate on local disk.",
+      "source_sha256": "34babb31a1abe0efed53f7756c9d2080fae0afb90ed65a68a73f053bdad980ea",
+      "translation": "클라우드 저장소에서 플레이트를 직접 읽습니다. 자격 증명, 엔드포인트, 로컬 캐시, 그리고 실행이 끝나면 측정값을 복사할 클라우드 폴더를 설정합니다. 로컬 디스크의 플레이트라면 그대로 두세요."
+    },
+    {
+      "table": "categories",
+      "key": "The folder holding the masked images, the experiment name the measurements are filed under, and the small test run and plots used to check a configuration before committing to a whole plate.",
+      "source": "The folder holding the masked images, the experiment name the measurements are filed under, and the small test run and plots used to check a configuration before committing to a whole plate.",
+      "source_sha256": "03814a8777e690d1aad1793b7b81835892878929c1bf04c9ad238edf00c8d79f",
+      "translation": "마스크 처리된 이미지가 있는 폴더, 측정값을 보관할 실험 이름, 그리고 플레이트 전체를 돌리기 전에 설정을 확인하는 작은 테스트 실행과 그래프입니다."
+    },
+    {
+      "table": "categories",
+      "key": "What happens around and after the measurement: how the run recovers from failures and how many workers it uses, profiling of the finished tables, and copying them to a database backend.",
+      "source": "What happens around and after the measurement: how the run recovers from failures and how many workers it uses, profiling of the finished tables, and copying them to a database backend.",
+      "source_sha256": "ca6fff8808c134c26c36828f1ed7a6539f1e6cdbbd34365c6f0f5c8414762aa0",
+      "translation": "측정 전후에 일어나는 일입니다. 실행이 실패에서 복구하는 방식과 사용하는 워커 수, 완료된 표의 프로파일링, 그리고 표를 데이터베이스 백엔드로 복사하는 작업입니다."
+    },
+    {
+      "table": "categories",
+      "key": "What is done to the pixels of each field before a single feature is measured -- bleach, spectral and illumination correction, deconvolution with a point spread function and cross-plate intensity calibration -- and which barcode links each plate to its plate map. The masks are not changed.",
+      "source": "What is done to the pixels of each field before a single feature is measured -- bleach, spectral and illumination correction, deconvolution with a point spread function and cross-plate intensity calibration -- and which barcode links each plate to its plate map. The masks are not changed.",
+      "source_sha256": "72a3eb42ea282a4243dfefb3c6e0b69feae21b8046fa694ab8018bb18a5e21ed",
+      "translation": "특징을 하나라도 측정하기 전에 각 시야의 픽셀에 하는 처리(광표백, 스펙트럼, 조명 보정, 점 확산 함수를 이용한 디컨볼루션, 플레이트 간 강도 보정)와 각 플레이트를 플레이트 맵에 연결하는 바코드입니다. 마스크는 바뀌지 않습니다."
+    },
+    {
+      "table": "categories",
+      "key": "Which families of measurement are computed for every object -- intensity, morphology, texture, radial distribution and colocalisation -- and the assays read from them, such as confluency, cell cycle, wound closure, viability and time to event. More features means a wider table and a longer run.",
+      "source": "Which families of measurement are computed for every object -- intensity, morphology, texture, radial distribution and colocalisation -- and the assays read from them, such as confluency, cell cycle, wound closure, viability and time to event. More features means a wider table and a longer run.",
+      "source_sha256": "3acf56bad6bcc69406fc99cb3a64854cd0070e8578eb7284f3c5920d0707eeab",
+      "translation": "각 객체에 대해 계산하는 측정 계열(강도, 형태, 질감, 방사 분포, 공동 국재)과 거기서 읽어 내는 분석(컨플루언시, 세포 주기, 상처 봉합, 생존율, 사건 발생 시간 등)입니다. 특징이 많을수록 표가 넓어지고 실행이 길어집니다."
+    }
+  ]
+}

@@ -591,7 +591,9 @@ def _trackastra_track_cells(src, name, batch_filenames, object_type, masks, imag
     It consumes exactly what spaCR already has — the raw intensity stack and
     the label masks — so nothing upstream changes.
 
-    :param src: run folder; the tracks CSV lands in ``<dirname(src)>/tracks``.
+    :param src: run folder; the tracks CSV lands in ``<dirname(src)>/tracks``,
+        with the mother's track id in ``parent_track_id`` (0 for none) when
+        Trackastra reports its division links.
     :param name: batch name used in the output filename.
     :param batch_filenames: filenames of the frames, for the track visualiser.
     :param object_type: 'cell' / 'nucleus' / 'pathogen' / 'organelle'.
@@ -637,6 +639,9 @@ def _trackastra_track_cells(src, name, batch_filenames, object_type, masks, imag
     ctc_df, masks_tracked = graph_to_ctc(track_graph, masks, outdir=None)
 
     tracks_df = _trackastra_graph_to_tracks_df(track_graph, masks_tracked)
+    if isinstance(ctc_df, pd.DataFrame) and {'label', 'parent'} <= set(ctc_df.columns):
+        mothers = dict(zip(ctc_df['label'].astype(int), ctc_df['parent'].astype(int)))
+        tracks_df['parent_track_id'] = tracks_df['track_id'].map(mothers).fillna(0).astype(int)
 
     if timelapse_remove_transient:
         n_frames = masks_tracked.shape[0]
@@ -652,6 +657,246 @@ def _trackastra_track_cells(src, name, batch_filenames, object_type, masks, imag
     tracks_df.to_csv(
         os.path.join(tracks_path, f'trackastra_tracks_{object_type}_{name}.csv'),
         index=False)
+
+    if plot or save:
+        _visualize_and_save_timelapse_stack_with_tracks(
+            masks_tracked, tracks_df, save, src, name, plot,
+            batch_filenames, object_type, mode)
+
+    return _masks_to_masks_stack(masks_tracked)
+
+
+def _timeflows_track_cells(src, name, batch_filenames, object_type, masks, images=None,
+                           timelapse_remove_transient=False, plot=False, save=False,
+                           mode='timeflows', model_path=None, device=None,
+                           min_successor=0.5, max_distance=1.0, net=None):
+    """Track objects with Timeflows, spaCR's experimental temporal Cellpose.
+
+    Timeflows predicts, for every pixel of an object in frame t, where that
+    object's centre is in frame t+1, plus whether it has a successor at all.
+    Those votes are assigned to the next frame's masks, and the links are
+    stitched into whole-movie track ids that are identical on every re-run
+    (:func:`spacr.timeflows_model._stitch_links`). A daughter after a division
+    starts a new track; parent/child lineage is not recorded yet.
+
+    It is opt-in and experimental: on the held-out movies measured so far it
+    does not beat overlap linking ('iou'), so it is never the default. It
+    needs a trained checkpoint (``timeflows_model``); none is downloaded.
+
+    :param src: run folder; the tracks CSV lands in ``<dirname(src)>/tracks``.
+    :param name: batch name used in the output filename.
+    :param batch_filenames: filenames of the frames, for the track visualiser.
+    :param object_type: 'cell' / 'nucleus' / 'pathogen' / 'organelle'.
+    :param masks: (T, Y, X) integer label stack.
+    :param images: (T, Y, X) or (T, Y, X, C) intensity stack; required,
+        because the model reads the images, not only the masks.
+    :param timelapse_remove_transient: drop tracks not present in every frame.
+    :param model_path: the Timeflows checkpoint to load.
+    :param device: 'cuda', 'cpu' or None for CUDA when available. On CPU the
+        encoder runs in float32, which is much faster there than bfloat16.
+    :param min_successor: successor probability an object needs to be linked.
+    :param max_distance: the furthest link, in the object's own diameters.
+    :param net: an already loaded network; used instead of ``model_path``.
+    :returns: the relabelled mask stack, ids consistent across frames.
+    :raises ValueError: no checkpoint or images, or mismatched shapes.
+    """
+    from .plot import _visualize_and_save_timelapse_stack_with_tracks
+    from .qt.i18n import tr
+    from .utils import _masks_to_masks_stack
+    from . import timeflows_model
+
+    masks = np.asarray(masks)
+    if masks.ndim != 3:
+        raise ValueError(tr("Timeflows needs a (T, Y, X) mask stack, got shape {shape}.",
+                            shape=masks.shape))
+    if masks.shape[0] < 2:
+        print(tr("Timeflows: only {count} frame(s) for {object_type}; nothing to link.",
+                 count=masks.shape[0], object_type=object_type))
+        return _masks_to_masks_stack(masks)
+    if images is None:
+        raise ValueError(tr("timelapse_mode='timeflows' needs the image stack, not only the masks."))
+    images = np.asarray(images)
+    if images.shape[:3] != masks.shape:
+        raise ValueError(tr("Image stack shape {images} does not match mask stack shape {masks}.",
+                            images=images.shape, masks=masks.shape))
+    if net is None:
+        if not model_path or not os.path.isfile(str(model_path)):
+            raise ValueError(tr("timelapse_mode='timeflows' needs timeflows_model set to a trained "
+                                "Timeflows checkpoint file; none was found at {path}.",
+                                path=model_path))
+        if device is None:
+            import torch
+            device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        net = timeflows_model._load_timeflows(
+            str(model_path), device=device,
+            precision='float32' if str(device).startswith('cpu') else 'checkpoint')
+    masks_tracked, _links = timeflows_model._track_movie(
+        net, list(images), masks, device=device or 'cpu',
+        min_successor=min_successor, max_distance=max_distance)
+
+    tracks_df = _relabelled_stack_to_tracks_df(masks_tracked)
+    if timelapse_remove_transient and not tracks_df.empty:
+        n_frames = masks_tracked.shape[0]
+        keep = tracks_df.groupby('track_id')['frame'].nunique() == n_frames
+        kept_ids = set(keep[keep].index)
+        before = len(tracks_df)
+        tracks_df = tracks_df[tracks_df['track_id'].isin(kept_ids)].copy()
+        print(tr("Removed {count} objects that were not present in all frames",
+                 count=before - len(tracks_df)))
+        masks_tracked = np.where(np.isin(masks_tracked, list(kept_ids)), masks_tracked, 0)
+
+    tracks_path = os.path.join(os.path.dirname(src), 'tracks')
+    os.makedirs(tracks_path, exist_ok=True)
+    from .tabular import write_table
+
+    write_table(tracks_df, os.path.join(
+        tracks_path, f'timeflows_tracks_{object_type}_{name}.csv'))
+
+    if plot or save:
+        _visualize_and_save_timelapse_stack_with_tracks(
+            masks_tracked, tracks_df, save, src, name, plot,
+            batch_filenames, object_type, mode)
+
+    return _masks_to_masks_stack(masks_tracked)
+
+
+def _sam2_new_seeds(masks, followed, next_id):
+    """Objects spaCR segmented that SAM2 is not following, as new seeds.
+
+    An object on frame t is new when less than
+    ``_SAM2_NEW_OBJECT_COVER`` of it lies under SAM2's objects on that
+    frame. A new object overlapping one found new on the frame before is
+    the same object and is not seeded again, so each is seeded once, on the
+    first frame it was found.
+
+    :param masks: spaCR's ``T x H x W`` per-frame labels.
+    :param followed: SAM2's ``T x H x W`` labels from the seeds so far.
+    :param next_id: the first id free for a new object.
+    :returns: ``{frame: H x W labels}`` of the new objects, ids from
+        ``next_id`` up.
+    """
+    from ._segmentation_backends import (_SAM2_NEW_OBJECT_COVER,
+                                         _SAM2_SAME_NEW_OBJECT_IOU)
+
+    seeds = {}
+    previous = None
+    for frame in range(1, len(masks)):
+        labels = np.asarray(masks[frame])
+        covered = np.asarray(followed[frame]) > 0
+        new = np.zeros(labels.shape, dtype=np.int32)
+        seeded = np.zeros(labels.shape, dtype=np.int32)
+        for label in np.unique(labels):
+            if not label:
+                continue
+            region = labels == label
+            area = int(region.sum())
+            if (covered & region).sum() >= _SAM2_NEW_OBJECT_COVER * area:
+                continue
+            new[region] = label
+            same = False
+            if previous is not None:
+                for other in np.unique(previous[region]):
+                    if not other:
+                        continue
+                    before = previous == other
+                    union = (before | region).sum()
+                    if union and (before & region).sum() / union >= _SAM2_SAME_NEW_OBJECT_IOU:
+                        same = True
+                        break
+            if not same:
+                seeded[region] = next_id
+                next_id += 1
+        if seeded.any():
+            seeds[frame] = seeded
+        previous = new
+    return seeds
+
+
+def _sam2_track_cells(src, name, batch_filenames, object_type, masks, images=None,
+                      timelapse_remove_transient=False, plot=False, save=False,
+                      mode='sam2', model=None, device=None, propagate=None):
+    """Segment and track in one step with SAM2's video predictor.
+
+    spaCR's masks on the first frame with objects seed SAM2, which follows
+    each object through the movie with a memory of its appearance, so each
+    keeps one id. Objects spaCR finds later that SAM2 is not following --
+    cells entering the field, or daughters of a division -- are seeded on
+    the frame they were first found and the movie is followed once more
+    with every seed. The masks returned are SAM2's, not spaCR's per-frame
+    masks. A daughter after a division starts a new track; parent/child
+    lineage is not recorded.
+
+    SAM2 runs in an environment of its own, installed from the Model Zoo.
+
+    :param src: run folder; the tracks CSV lands in ``<dirname(src)>/tracks``.
+    :param name: batch name used in the output filename.
+    :param batch_filenames: filenames of the frames, for the track visualiser.
+    :param object_type: 'cell' / 'nucleus' / 'pathogen' / 'organelle'.
+    :param masks: (T, Y, X) integer label stack from spaCR's segmentation.
+    :param images: (T, Y, X) or (T, Y, X, C) intensity stack; required,
+        because SAM2 follows appearance. With channels, the first is used.
+    :param timelapse_remove_transient: drop tracks not present in every frame.
+    :param model: a SAM2.1 checkpoint name; the smallest when None.
+    :param device: 'cuda', 'cpu' or None for the backend's own choice.
+    :param propagate: the SAM2 call; the backend's own when None.
+    :returns: the relabelled mask stack, ids consistent across frames.
+    :raises ValueError: no images, or mismatched shapes.
+    :raises ImportError: SAM2 is not installed.
+    """
+    from .plot import _visualize_and_save_timelapse_stack_with_tracks
+    from .qt.i18n import tr
+    from .utils import _masks_to_masks_stack
+    from ._segmentation_backends import _sam2_frames, _sam2_propagate
+
+    masks = np.asarray(masks)
+    if masks.ndim != 3:
+        raise ValueError(tr("SAM2 needs a (T, Y, X) mask stack, got shape {shape}.",
+                            shape=masks.shape))
+    if images is None:
+        raise ValueError(tr("timelapse_mode='sam2' needs the image stack, not only the masks."))
+    images = np.asarray(images)
+    if images.shape[:3] != masks.shape:
+        raise ValueError(tr("Image stack shape {images} does not match mask stack shape {masks}.",
+                            images=images.shape, masks=masks.shape))
+    occupied = [t for t in range(masks.shape[0]) if masks[t].any()]
+    if not occupied:
+        print(tr("SAM2: no {object_type} objects in any frame; nothing to follow.",
+                 object_type=object_type))
+        return _masks_to_masks_stack(masks)
+    propagate = propagate or _sam2_propagate
+    frames = _sam2_frames(images)
+    start = occupied[0]
+    seeds = {start: masks[start].astype(np.int32)}
+    masks_tracked, reply = propagate(frames, seeds, model=model, device=device)
+    later = masks.copy()
+    later[:start + 1] = 0
+    extra = _sam2_new_seeds(later, masks_tracked, int(masks[start].max()) + 1)
+    if extra:
+        seeds.update(extra)
+        masks_tracked, reply = propagate(frames, seeds, model=model, device=device)
+    print(tr("SAM2 followed {count} {object_type} objects through {frames} frames "
+             "in {seconds:.1f} s on {device}.",
+             count=reply.get('objects'), object_type=object_type,
+             frames=masks.shape[0], seconds=float(reply.get('seconds') or 0.0),
+             device=reply.get('device')))
+
+    tracks_df = _relabelled_stack_to_tracks_df(masks_tracked)
+    if timelapse_remove_transient and not tracks_df.empty:
+        n_frames = masks_tracked.shape[0]
+        keep = tracks_df.groupby('track_id')['frame'].nunique() == n_frames
+        kept_ids = set(keep[keep].index)
+        before = len(tracks_df)
+        tracks_df = tracks_df[tracks_df['track_id'].isin(kept_ids)].copy()
+        print(tr("Removed {count} objects that were not present in all frames",
+                 count=before - len(tracks_df)))
+        masks_tracked = np.where(np.isin(masks_tracked, list(kept_ids)), masks_tracked, 0)
+
+    tracks_path = os.path.join(os.path.dirname(src), 'tracks')
+    os.makedirs(tracks_path, exist_ok=True)
+    from .tabular import write_table
+
+    write_table(tracks_df, os.path.join(
+        tracks_path, f'sam2_tracks_{object_type}_{name}.csv'))
 
     if plot or save:
         _visualize_and_save_timelapse_stack_with_tracks(
@@ -1345,6 +1590,1308 @@ def _btrack_track_cells(src, name, batch_filenames, object_type, plot, save, mas
     return mask_stack
 
 
+_LINEAGE_SEGMENT_STATS = ('generation_time', 'generation', 'start_frame',
+                          'n_frames')
+
+
+def _lineage_explicit_parents(df, spans):
+    """Read the tracker's own division links from a ``parent_track_id`` column.
+
+    Trackers that link divisions natively (Trackastra) write the mother's
+    track id on every row of a daughter track; 0, blank or an id that is not a
+    track in the table means no parent.
+
+    :param df: one field's tracks table.
+    :param spans: first and last frame per track, indexed by track id.
+    :returns: ``{daughter_track_id: mother_track_id}``.
+    """
+    if 'parent_track_id' not in df.columns:
+        return {}
+    links = {}
+    firsts = df.dropna(subset=['parent_track_id']).groupby('track_id')['parent_track_id'].first()
+    for track, parent in firsts.items():
+        parent = int(parent)
+        if parent > 0 and parent != int(track) and parent in spans.index:
+            links[int(track)] = parent
+    return links
+
+
+def _lineage_inferred_parents(df, spans, max_distance, skip):
+    """Infer division links from where new tracks start.
+
+    A track that starts after the field's first frame is a daughter of the
+    object nearest its first position in the frame before, within
+    ``max_distance`` pixels. The event is kept as a division when that mother
+    track goes on (the tracker kept one daughter under the mother's id) or
+    when at least two tracks start beside the mother as it ends (both
+    daughters got new ids). One new track beside an ending one is a broken
+    track rather than a division and is left as its own tree.
+
+    :param df: one field's tracks table with ``frame``, ``track_id``, ``x``
+        and ``y``.
+    :param spans: first and last frame per track, indexed by track id.
+    :param max_distance: largest mother-to-daughter distance in pixels.
+    :param skip: track ids whose parent is already known.
+    :returns: ``{daughter_track_id: mother_track_id}``.
+    """
+    first_frame = spans['start'].min()
+    starts = df.sort_values('frame').groupby('track_id').first()
+    candidates = {}
+    for track, row in starts.iterrows():
+        track = int(track)
+        if track in skip or row['frame'] <= first_frame:
+            continue
+        before = df[(df['frame'] == row['frame'] - 1) & (df['track_id'] != track)]
+        if before.empty:
+            continue
+        dist = np.hypot(before['x'].to_numpy() - row['x'],
+                        before['y'].to_numpy() - row['y'])
+        nearest = int(np.argmin(dist))
+        if dist[nearest] <= max_distance:
+            candidates.setdefault((int(before['track_id'].iloc[nearest]),
+                                   int(row['frame'])), []).append(track)
+    links = {}
+    for (mother, frame), daughters in candidates.items():
+        continues = spans.loc[mother, 'end'] >= frame
+        if continues or len(daughters) >= 2:
+            links.update({d: mother for d in daughters})
+    return links
+
+
+def _lineage_segments(tracks, max_distance=30.0):
+    """Cut one field's tracks into cell-cycle segments linked by divisions.
+
+    A segment is one cell from its birth, or its first frame, to its last
+    frame before it divides, or its last frame. Division links come from a
+    ``parent_track_id`` column where the tracker wrote one and are otherwise
+    inferred (see :func:`_lineage_inferred_parents`). When the tracker kept
+    one daughter under the mother's id, that track is cut at the division
+    and its remainder becomes a daughter segment.
+
+    The generation time of a segment is the number of frames from its birth
+    to its division (the first frame of its daughters minus its own first
+    frame). Only segments born by a division that divide again have one; a
+    tree's root and its leaves are incomplete cycles and get NaN.
+
+    :param tracks: tracks table with ``frame``, ``track_id``, ``x`` and ``y``.
+    :param max_distance: largest mother-to-daughter distance in pixels for an
+        inferred division.
+    :returns: one row per segment with ``segment_id``, ``track_id``,
+        ``parent_segment_id`` (0 for a root), ``lineage_id`` (the root's
+        segment id), ``generation``, ``start_frame``, ``end_frame``,
+        ``n_frames``, ``n_daughters``, ``generation_time`` and
+        ``division_source`` (tracker, inferred or blank).
+    """
+    df = tracks.dropna(subset=['track_id', 'frame', 'x', 'y']).copy()
+    columns = ['segment_id', 'track_id', 'parent_segment_id', 'lineage_id',
+               'generation', 'start_frame', 'end_frame', 'n_frames',
+               'n_daughters', 'generation_time', 'division_source']
+    if df.empty:
+        return pd.DataFrame(columns=columns)
+    df['track_id'] = df['track_id'].astype(int)
+    df['frame'] = df['frame'].astype(int)
+    spans = df.groupby('track_id')['frame'].agg(start='min', end='max')
+
+    explicit = _lineage_explicit_parents(df, spans)
+    inferred = _lineage_inferred_parents(df, spans, float(max_distance),
+                                         set(explicit))
+    parents = {**inferred, **explicit}
+
+    segments = {}
+    by_track = {}
+    for sid, (track, span) in enumerate(spans.iterrows(), start=1):
+        segments[sid] = {'segment_id': sid, 'track_id': int(track),
+                         'parent_segment_id': 0,
+                         'start_frame': int(span['start']),
+                         'end_frame': int(span['end']),
+                         'division_source': ''}
+        by_track[int(track)] = [sid]
+
+    def covering(track, frame):
+        """The segment of ``track`` alive at ``frame``, else its last one before."""
+        chosen = by_track[track][0]
+        for sid in by_track[track]:
+            if segments[sid]['start_frame'] <= frame:
+                chosen = sid
+        return chosen
+
+    for daughter in sorted(parents, key=lambda d: spans.loc[d, 'start']):
+        mother = parents[daughter]
+        birth = int(spans.loc[daughter, 'start'])
+        if spans.loc[mother, 'start'] >= birth:
+            continue
+        msid = covering(mother, birth - 1)
+        mseg = segments[msid]
+        if mseg['end_frame'] >= birth:
+            nsid = max(segments) + 1
+            segments[nsid] = {'segment_id': nsid, 'track_id': mother,
+                              'parent_segment_id': msid, 'start_frame': birth,
+                              'end_frame': mseg['end_frame'],
+                              'division_source': ''}
+            mseg['end_frame'] = birth - 1
+            by_track[mother] = sorted(by_track[mother] + [nsid],
+                                      key=lambda s: segments[s]['start_frame'])
+        dsid = by_track[daughter][0]
+        segments[dsid]['parent_segment_id'] = msid
+        mseg['division_source'] = ('tracker' if daughter in explicit
+                                   else 'inferred')
+
+    seg = pd.DataFrame(list(segments.values()))
+    seg['n_frames'] = seg['end_frame'] - seg['start_frame'] + 1
+    parent_of = dict(zip(seg['segment_id'], seg['parent_segment_id']))
+    children = seg[seg['parent_segment_id'] > 0].groupby('parent_segment_id')
+    seg['n_daughters'] = seg['segment_id'].map(children.size()).fillna(0).astype(int)
+    division_at = children['start_frame'].min()
+
+    def root_and_depth(sid):
+        """The root segment of ``sid`` and how many divisions separate them."""
+        depth = 0
+        while parent_of.get(sid, 0):
+            sid = parent_of[sid]
+            depth += 1
+        return sid, depth
+
+    rooted = [root_and_depth(s) for s in seg['segment_id']]
+    seg['lineage_id'] = [r for r, _ in rooted]
+    seg['generation'] = [d for _, d in rooted]
+    complete = (seg['parent_segment_id'] > 0) & (seg['n_daughters'] > 0)
+    seg['generation_time'] = np.where(
+        complete, seg['segment_id'].map(division_at) - seg['start_frame'],
+        np.nan)
+    return seg[columns].sort_values(['lineage_id', 'start_frame', 'segment_id']).reset_index(drop=True)
+
+
+def _lineage_colour_values(segments, tracks, color_by, measurements=None):
+    """The value each segment is coloured by.
+
+    A segment statistic (``generation_time``, ``generation``,
+    ``start_frame``, ``n_frames``) is used as it is. Any other name is a
+    measurement column, averaged over the segment's frames, looked up first
+    in ``measurements`` (keyed by ``frame`` and ``track_id``) and then in the
+    tracks table.
+
+    :returns: a float Series aligned with ``segments``, NaN where unknown.
+    :raises KeyError: when ``color_by`` is found nowhere.
+    """
+    if color_by in _LINEAGE_SEGMENT_STATS:
+        return segments[color_by].astype(float)
+    source = None
+    for frame in (measurements, tracks):
+        if frame is not None and color_by in frame.columns:
+            source = frame[['frame', 'track_id', color_by]].dropna()
+            break
+    if source is None:
+        raise KeyError(
+            f"color_by {color_by!r} is neither a segment statistic "
+            f"({', '.join(_LINEAGE_SEGMENT_STATS)}) nor a column of the "
+            f"tracks or measurements")
+    values = []
+    for _, row in segments.iterrows():
+        rows = source[(source['track_id'] == row['track_id'])
+                      & source['frame'].between(row['start_frame'], row['end_frame'])]
+        values.append(float(pd.to_numeric(rows[color_by], errors='coerce').mean())
+                      if len(rows) else np.nan)
+    return pd.Series(values, index=segments.index, dtype=float)
+
+
+def _sibling_correlation(segments):
+    """Pearson correlation of sister generation times.
+
+    Sisters are complete-cycle segments with the same mother; every ordered
+    pair counts once each way, so the correlation is symmetric.
+
+    :returns: ``(number_of_sister_pairs, r)``; r is NaN below three pairs.
+    """
+    done = segments.dropna(subset=['generation_time'])
+    a, b = [], []
+    for _, sisters in done.groupby('parent_segment_id'):
+        times = sisters['generation_time'].to_numpy(dtype=float)
+        for i in range(len(times)):
+            for j in range(i + 1, len(times)):
+                a += [times[i], times[j]]
+                b += [times[j], times[i]]
+    pairs = len(a) // 2
+    if pairs < 3 or np.std(a) == 0:
+        return pairs, np.nan
+    return pairs, float(np.corrcoef(a, b)[0, 1])
+
+
+def _lineage_statistics(segments):
+    """Per-lineage statistics, with a last row over every lineage.
+
+    :returns: one row per lineage with ``lineage_id``, ``root_track_id``,
+        ``n_cells``, ``n_divisions``, ``max_generation``,
+        ``n_complete_cycles``, the mean, median and standard deviation of
+        ``generation_time`` in frames, ``sibling_pairs`` and
+        ``sibling_correlation``; the ``all`` row pools every lineage.
+    """
+    rows = []
+    groups = [(lid, g) for lid, g in segments.groupby('lineage_id')]
+    groups.append(('all', segments))
+    for lid, g in groups:
+        times = g['generation_time'].dropna()
+        pairs, r = _sibling_correlation(g)
+        roots = g[g['parent_segment_id'] == 0]
+        rows.append({
+            'lineage_id': lid,
+            'root_track_id': (int(roots['track_id'].iloc[0])
+                              if lid != 'all' and len(roots) else np.nan),
+            'n_cells': len(g),
+            'n_divisions': int((g['n_daughters'] > 0).sum()),
+            'max_generation': int(g['generation'].max()) if len(g) else 0,
+            'n_complete_cycles': len(times),
+            'generation_time_mean': float(times.mean()) if len(times) else np.nan,
+            'generation_time_median': float(times.median()) if len(times) else np.nan,
+            'generation_time_sd': float(times.std()) if len(times) > 1 else np.nan,
+            'sibling_pairs': pairs,
+            'sibling_correlation': r,
+        })
+    return pd.DataFrame(rows)
+
+
+def _lineage_newick(segments):
+    """Write each lineage as a Newick tree, one tree per line.
+
+    Nodes are named ``t<track_id>_f<start_frame>`` and branch lengths are the
+    segment's length in frames.
+
+    :returns: the Newick text, each tree ending in ``;``.
+    """
+    kids = {sid: g['segment_id'].tolist()
+            for sid, g in segments.groupby('parent_segment_id')}
+    by_id = segments.set_index('segment_id')
+
+    def node(sid):
+        """The Newick text of ``sid`` and everything below it."""
+        row = by_id.loc[sid]
+        label = f"t{int(row['track_id'])}_f{int(row['start_frame'])}:{int(row['n_frames'])}"
+        below = kids.get(sid, [])
+        if not below:
+            return label
+        return '(' + ','.join(node(k) for k in below) + ')' + label
+
+    roots = segments.loc[segments['parent_segment_id'] == 0, 'segment_id']
+    return ''.join(node(int(r)) + ';\n' for r in roots)
+
+
+def _lineage_tree_figure(segments, values, color_by, title='', max_lineages=40):
+    """Draw lineages as trees on a frame axis, coloured by ``values``.
+
+    Each segment is a horizontal line from its first frame to where it
+    divides or ends; a vertical line joins sisters at the division. Lineages
+    with divisions are drawn first, at most ``max_lineages`` of them.
+
+    :returns: a :class:`matplotlib.figure.Figure`.
+    """
+    from matplotlib import colormaps
+    from matplotlib.colors import Normalize
+    from matplotlib.cm import ScalarMappable
+
+    seg = segments.assign(_value=values.to_numpy())
+    kids = {sid: g.sort_values('segment_id')['segment_id'].tolist()
+            for sid, g in seg.groupby('parent_segment_id')}
+    by_id = seg.set_index('segment_id')
+    divided = seg.groupby('lineage_id')['n_daughters'].sum().sort_values(ascending=False)
+    lineages = divided.index.tolist()[:max_lineages]
+
+    finite = seg['_value'][np.isfinite(seg['_value'])]
+    norm = Normalize(finite.min(), finite.max()) if len(finite) else Normalize(0, 1)
+    if len(finite) and norm.vmin == norm.vmax:
+        norm = Normalize(norm.vmin - 0.5, norm.vmax + 0.5)
+    cmap = colormaps['viridis']
+
+    leaves = int(sum((seg['lineage_id'].isin(lineages)) & (seg['n_daughters'] == 0)))
+    fig = Figure(figsize=(7.0, max(2.5, 0.22 * leaves + 1.2)), dpi=100)
+    ax = fig.subplots()
+    cursor = [0.0]
+
+    def place(sid):
+        """Draw ``sid`` and its descendants; return the y it was drawn at."""
+        row = by_id.loc[sid]
+        below = kids.get(sid, [])
+        if below:
+            ys = [place(k) for k in below]
+            y = float(np.mean(ys))
+            x_div = min(by_id.loc[k, 'start_frame'] for k in below)
+            ax.plot([x_div, x_div], [min(ys), max(ys)], lw=0.8,
+                    color=ROLES['reference'])
+            x_end = x_div
+        else:
+            y = cursor[0]
+            cursor[0] += 1.0
+            x_end = row['end_frame'] + 1
+        value = row['_value']
+        colour = cmap(norm(value)) if np.isfinite(value) else ROLES['data']
+        ax.plot([row['start_frame'], x_end], [y, y], lw=2.0, color=colour,
+                solid_capstyle='butt')
+        return y
+
+    for lid in lineages:
+        place(int(lid))
+        cursor[0] += 0.8
+    ax.set_yticks([])
+    ax.invert_yaxis()
+    ax.set_xlabel('frame')
+    ax.set_title(title or 'lineage trees')
+    if not lineages:
+        ax.text(0.5, 0.5, 'no tracks', ha='center', va='center',
+                transform=ax.transAxes)
+    mappable = ScalarMappable(norm=norm, cmap=cmap)
+    fig.colorbar(mappable, ax=ax, label=color_by, fraction=0.04)
+    fig.tight_layout()
+    return fig
+
+
+def _lineage_trees_from_tracks(tracks_path, out_dir=None, *,
+                               color_by='generation_time', max_distance=30.0,
+                               measurements=None, plot=True):
+    """Build lineage trees from one tracks table and write them beside it.
+
+    Reads a tracks CSV written by any spaCR tracker (one field per file),
+    cuts it into cell-cycle segments linked by divisions
+    (:func:`_lineage_segments`) and writes, under ``out_dir``, the
+    ``<stem>_segments.csv`` table with each segment's colour value,
+    ``<stem>_lineage_stats.csv`` with per-lineage generation times and
+    sibling correlation, ``<stem>.nwk`` with one Newick tree per lineage and,
+    with ``plot``, the ``<stem>_lineage`` figure.
+
+    :param tracks_path: a ``*_tracks_<object>_<field>.csv`` file.
+    :param out_dir: output folder; ``<tracks folder>/lineage`` when None.
+    :param color_by: segment statistic or measurement column to colour by.
+    :param max_distance: largest mother-to-daughter distance in pixels for an
+        inferred division.
+    :param measurements: optional table keyed by ``frame`` and ``track_id``
+        to take ``color_by`` from.
+    :param plot: save the tree figure.
+    :returns: dict with the ``segments`` and ``statistics`` frames and the
+        ``paths`` written.
+    """
+    from .tabular import read_table, write_table
+
+    tracks = read_table(tracks_path, report=None)
+    stem = os.path.splitext(os.path.basename(tracks_path))[0]
+    out_dir = out_dir or os.path.join(os.path.dirname(os.path.abspath(tracks_path)), 'lineage')
+    os.makedirs(out_dir, exist_ok=True)
+
+    segments = _lineage_segments(tracks, max_distance=max_distance)
+    try:
+        values = _lineage_colour_values(segments, tracks, color_by, measurements)
+    except KeyError as exc:
+        print(f"{exc.args[0]}; colouring by generation_time instead.")
+        color_by = 'generation_time'
+        values = segments['generation_time'].astype(float)
+    segments[f'color_{color_by}'] = values.to_numpy()
+    stats = _lineage_statistics(segments)
+
+    paths = {
+        'segments': write_table(segments, os.path.join(out_dir, f'{stem}_segments.csv')),
+        'statistics': write_table(stats, os.path.join(out_dir, f'{stem}_lineage_stats.csv')),
+    }
+    newick = os.path.join(out_dir, f'{stem}.nwk')
+    with open(newick, 'w', encoding='utf-8') as handle:
+        handle.write(_lineage_newick(segments))
+    paths['newick'] = newick
+    if plot:
+        fig = _lineage_tree_figure(segments, values, color_by, title=stem)
+        paths['figure'] = save_figure_to_path(
+            fig, os.path.join(out_dir, f'{stem}_lineage.pdf'), close=True)
+    return {'segments': segments, 'statistics': stats, 'paths': paths}
+
+
+def _run_lineage_step(src, name, object_type, mode, settings):
+    """Draw lineage trees from the tracks one field just produced.
+
+    Looks for ``<dirname(src)>/tracks/<tracker>_tracks_<object>_<name>.csv``
+    and passes it to :func:`_lineage_trees_from_tracks` with the
+    ``timelapse_lineage_color_by`` and ``timelapse_lineage_max_distance``
+    settings. A failure is reported and does not stop the run.
+
+    :returns: the result of :func:`_lineage_trees_from_tracks`, or None.
+    """
+    prefix = 'trackpy' if mode == 'iou' else mode
+    tracks_path = os.path.join(os.path.dirname(src), 'tracks',
+                               f'{prefix}_tracks_{object_type}_{name}.csv')
+    if not os.path.isfile(tracks_path):
+        print(f"Lineage trees skipped: no tracks table at {tracks_path}")
+        return None
+    try:
+        result = _lineage_trees_from_tracks(
+            tracks_path,
+            color_by=settings.get('timelapse_lineage_color_by') or 'generation_time',
+            max_distance=float(settings.get('timelapse_lineage_max_distance') or 30.0),
+            plot=bool(settings.get('save', True) or settings.get('plot', False)))
+    except Exception as exc:
+        print(f"Lineage trees could not be built for {tracks_path}: {exc}")
+        return None
+    overall = result['statistics'].iloc[-1]
+    print(f"Lineage trees ({object_type}, {name}): "
+          f"{int(overall['n_divisions'])} divisions, "
+          f"{int(overall['n_complete_cycles'])} complete cycles; "
+          f"written to {os.path.dirname(result['paths']['segments'])}")
+    return result
+
+
+_EVENT_BACKGROUND = 'none'
+_EVENT_CROP = 16
+_EVENT_SHAPE_COLUMNS = ('area', 'eccentricity', 'solidity')
+
+
+def _event_frame_features(mask_stack, images=None, crop=_EVENT_CROP):
+    """Shape and intensity of every tracked object in every frame, with crops.
+
+    :param mask_stack: ``(T, H, W)`` labels, each object labelled with its
+        track id.
+    :param images: ``(T, H, W)`` or ``(T, H, W, C)`` intensities, or None.
+    :param crop: side of the stored crop; the crop covers twice this many
+        pixels around the object's centre and is averaged down two-fold.
+    :returns: ``(features, crops)``: one row per object and frame with
+        ``frame``, ``track_id``, ``x``, ``y``, ``area``, ``eccentricity``,
+        ``solidity`` and, with images, ``intensity_mean_c<k>`` and
+        ``intensity_max_c<k>``; and a ``(rows, C, crop, crop)`` float16
+        array in the same order, or None without images. Intensities are
+        divided by each channel's 99.5th percentile over the movie.
+    """
+    masks = np.asarray(mask_stack)
+    imgs = None
+    if images is not None:
+        imgs = np.asarray(images, dtype=np.float32)
+        if imgs.ndim == 3:
+            imgs = imgs[..., None]
+        scale = np.percentile(imgs.reshape(-1, imgs.shape[-1]), 99.5, axis=0)
+        imgs = imgs / np.where(scale > 0, scale, 1.0)
+    rows, crops = [], []
+    for t in range(masks.shape[0]):
+        lab = masks[t].astype(np.int32)
+        if not lab.any():
+            continue
+        properties = ['label', 'centroid', 'area', 'eccentricity', 'solidity']
+        if imgs is not None:
+            properties += ['intensity_mean', 'intensity_max']
+        props = pd.DataFrame(regionprops_table(
+            lab, intensity_image=None if imgs is None else imgs[t],
+            properties=properties))
+        props = props.rename(columns={'label': 'track_id', 'centroid-0': 'y',
+                                      'centroid-1': 'x'})
+        props = props.rename(columns=lambda c: re.sub(
+            r'^(intensity_(?:mean|max))-(\d+)$', r'\1_c\2', c))
+        props.insert(0, 'frame', t)
+        rows.append(props)
+        if imgs is not None:
+            half = crop
+            padded = np.pad(imgs[t], ((half, half), (half, half), (0, 0)))
+            for y, x in zip(props['y'], props['x']):
+                r, c = int(round(y)) + half, int(round(x)) + half
+                patch = padded[r - half:r + half, c - half:c + half]
+                patch = patch.reshape(crop, 2, crop, 2, -1).mean(axis=(1, 3))
+                crops.append(np.moveaxis(patch, -1, 0).astype(np.float16))
+    if not rows:
+        return pd.DataFrame(columns=['frame', 'track_id', 'x', 'y']), None
+    features = pd.concat(rows, ignore_index=True)
+    return features, (np.stack(crops) if crops else None)
+
+
+def _event_track_table(tracks, features=None, radius=30.0):
+    """Per-frame inputs of the event detector for one field's tracks.
+
+    Joins the tracks with the frame features of
+    :func:`_event_frame_features` where there are any and adds what the
+    tracks themselves say: speed, the log change in area, whether the track
+    starts or ends in this frame (other than at the movie's first or last
+    frame), how many other tracks end within ``radius`` pixels in the same
+    frame and how many new tracks start within ``radius`` pixels in the
+    next frame.
+
+    :param tracks: tracks table with ``frame``, ``track_id``, ``x`` and ``y``.
+    :param features: optional frame features keyed by ``frame`` and
+        ``track_id``.
+    :param radius: neighbourhood radius in pixels.
+    :returns: the table, sorted by track and frame.
+    """
+    df = tracks.dropna(subset=['track_id', 'frame', 'x', 'y']).copy()
+    df['track_id'] = df['track_id'].astype(int)
+    df['frame'] = df['frame'].astype(int)
+    if features is not None and len(features):
+        extra = features.drop(columns=[c for c in ('x', 'y') if c in features.columns])
+        extra = extra.astype({'frame': int, 'track_id': int})
+        keep = [c for c in df.columns if c in ('frame', 'track_id', 'x', 'y',
+                                               'parent_track_id')]
+        df = df[keep].merge(extra, on=['frame', 'track_id'], how='left')
+    df = df.drop_duplicates(['track_id', 'frame']).sort_values(['track_id', 'frame'])
+    first, last = df['frame'].min(), df['frame'].max()
+    group = df.groupby('track_id')
+    step = np.hypot(group['x'].diff(), group['y'].diff()) / group['frame'].diff()
+    df['speed'] = step.fillna(0.0)
+    if 'area' in df.columns:
+        df['log_area_change'] = np.log(df['area'].clip(lower=1)).groupby(
+            df['track_id']).diff().fillna(0.0)
+    starts = group['frame'].transform('min')
+    ends = group['frame'].transform('max')
+    df['track_starts'] = ((df['frame'] == starts) & (df['frame'] > first)).astype(float)
+    df['track_ends'] = ((df['frame'] == ends) & (df['frame'] < last)).astype(float)
+    born = df[df['track_starts'] > 0]
+    dying = df[df['track_ends'] > 0]
+    new_near, end_near = [], []
+    for frame, x, y, track in zip(df['frame'], df['x'], df['y'], df['track_id']):
+        b = born[(born['frame'] == frame + 1) & (born['track_id'] != track)]
+        d = dying[(dying['frame'] == frame) & (dying['track_id'] != track)]
+        new_near.append(int((np.hypot(b['x'] - x, b['y'] - y) <= radius).sum()))
+        end_near.append(int((np.hypot(d['x'] - x, d['y'] - y) <= radius).sum()))
+    df['new_tracks_near'] = new_near
+    df['ended_tracks_near'] = end_near
+    return df.reset_index(drop=True)
+
+
+def _event_columns(table):
+    """The numeric inputs of the detector found in a track table.
+
+    :param table: from :func:`_event_track_table`.
+    :returns: column names, in a fixed order.
+    """
+    fixed = ['speed', 'track_starts', 'track_ends', 'new_tracks_near',
+             'ended_tracks_near', 'log_area_change', *_EVENT_SHAPE_COLUMNS]
+    found = [c for c in fixed if c in table.columns]
+    found += sorted(c for c in table.columns if c.startswith('intensity_'))
+    return found
+
+
+def _event_windows(table, columns, window, mean, std, crops=None):
+    """Cut every track into windows centred on each of its frames.
+
+    :param table: from :func:`_event_track_table`, one field.
+    :param columns: detector inputs; one missing from the table reads 0.
+    :param window: frames per window (odd; an even value is raised by one).
+    :param mean: per-column mean used to standardise.
+    :param std: per-column spread used to standardise.
+    :param crops: optional ``{(frame, track_id): (C, P, P) array}``.
+    :returns: ``(inputs, crop_windows, index)``: a ``(n, len(columns) + 1,
+        window)`` float32 array whose last row marks frames where the track
+        is present; a ``(n, window, C, P, P)`` array or None; and the
+        ``track_id`` and ``frame`` of each window's centre.
+    """
+    half = int(window) // 2
+    window = 2 * half + 1
+    values = np.zeros((len(table), len(columns)), dtype=np.float32)
+    for k, name in enumerate(columns):
+        if name in table.columns:
+            values[:, k] = pd.to_numeric(table[name], errors='coerce').to_numpy(dtype=np.float32)
+    values = (values - np.asarray(mean, dtype=np.float32)) / np.asarray(std, dtype=np.float32)
+    values = np.nan_to_num(values)
+    sample = next(iter(crops.values())) if crops else None
+    inputs, crop_windows, index = [], [], []
+    frames_all = table['frame'].to_numpy()
+    for track, rows in table.groupby('track_id', sort=False).indices.items():
+        frames = frames_all[rows]
+        start, stop = frames.min() - half, frames.max() + half
+        dense = np.zeros((stop - start + 1, len(columns) + 1), dtype=np.float32)
+        dense[frames - start, :-1] = values[rows]
+        dense[frames - start, -1] = 1.0
+        view = np.lib.stride_tricks.sliding_window_view(dense, window, axis=0)
+        inputs.append(view[frames - frames.min()])
+        index.extend((int(track), int(f)) for f in frames)
+        if sample is not None:
+            stack = np.zeros((stop - start + 1,) + sample.shape, dtype=np.float32)
+            for f in range(start, stop + 1):
+                patch = crops.get((f, int(track)))
+                if patch is not None:
+                    stack[f - start] = patch
+            crop_windows.append(np.stack([stack[f - frames.min():f - frames.min() + window]
+                                          for f in frames]))
+    if not inputs:
+        return (np.zeros((0, len(columns) + 1, window), np.float32), None,
+                pd.DataFrame(columns=['track_id', 'frame']))
+    return (np.concatenate(inputs).astype(np.float32),
+            np.concatenate(crop_windows) if crop_windows else None,
+            pd.DataFrame(index, columns=['track_id', 'frame']))
+
+
+def _event_network(n_inputs, n_classes, channels=0):
+    """The event classifier: a small image encoder and a temporal convolution.
+
+    Each frame's crop, when there are crops, is encoded by two convolutions
+    to 16 numbers that join the frame's track features; two temporal
+    convolutions over the window, pooled by mean and maximum, feed a linear
+    layer with one output per class.
+
+    :param n_inputs: track inputs per frame, the presence mark included.
+    :param n_classes: event classes, background included.
+    :param channels: crop channels, 0 for none.
+    :returns: a ``torch.nn.Module`` called as ``net(inputs, crops=None)``.
+    """
+    import torch
+    from torch import nn
+
+    class _EventNet(nn.Module):
+        """Temporal convolutional classifier of track windows."""
+
+        def __init__(self):
+            """Build temporal features and the optional per-frame crop encoder."""
+            super().__init__()
+            self.encoder = None
+            width = n_inputs
+            if channels:
+                self.encoder = nn.Sequential(
+                    nn.Conv2d(channels, 8, 3, padding=1), nn.ReLU(),
+                    nn.MaxPool2d(2), nn.Conv2d(8, 16, 3, padding=1), nn.ReLU(),
+                    nn.AdaptiveAvgPool2d(1), nn.Flatten())
+                width += 16
+            self.temporal = nn.Sequential(
+                nn.Conv1d(width, 32, 3, padding=1), nn.ReLU(),
+                nn.Conv1d(32, 32, 3, padding=1), nn.ReLU())
+            self.head = nn.Linear(64, n_classes)
+
+        def forward(self, inputs, crops=None):
+            """Class scores for a batch of windows."""
+            if self.encoder is not None and crops is not None:
+                b, w = crops.shape[:2]
+                code = self.encoder(crops.reshape((b * w,) + crops.shape[2:]))
+                inputs = torch.cat([inputs, code.reshape(b, w, -1).transpose(1, 2)], dim=1)
+            hidden = self.temporal(inputs)
+            return self.head(torch.cat([hidden.mean(dim=2), hidden.amax(dim=2)], dim=1))
+
+    return _EventNet()
+
+
+def _event_labels(index, field, annotations, classes, radius=1):
+    """Training label of each window: the event at its centre, else background.
+
+    A window within ``radius`` frames of an annotated event is labelled with
+    it; windows one frame further out are given weight 0, so the detector
+    is not taught that the frames just around an event are background.
+
+    :param index: ``track_id`` and ``frame`` of each window's centre.
+    :param field: the field these windows come from.
+    :param annotations: ``field``, ``track_id``, ``frame``, ``event``.
+    :param classes: class names, background first.
+    :param radius: frames either side labelled as the event.
+    :returns: ``(labels, weights)`` arrays.
+    """
+    labels = np.zeros(len(index), dtype=np.int64)
+    weights = np.ones(len(index), dtype=np.float32)
+    ann = annotations[annotations['field'] == field]
+    code = {name: k for k, name in enumerate(classes)}
+    lookup = index.reset_index(drop=True)
+    for track, frame, event in zip(ann['track_id'], ann['frame'], ann['event']):
+        near = (lookup['track_id'] == int(track)).to_numpy()
+        offset = np.abs(lookup['frame'].to_numpy() - int(frame))
+        labels[near & (offset <= radius)] = code[event]
+        weights[near & (offset == radius + 1) & (labels == 0)] = 0.0
+    return labels, weights
+
+
+def _event_train(samples, classes, columns, *, window, channels=0,
+                 epochs=25, seed=0):
+    """Train the event classifier on windows from annotated fields.
+
+    :param samples: list of ``(inputs, crops, labels, weights)`` per field.
+    :param classes: class names, background first.
+    :param columns: the track inputs, stored with the model.
+    :param window: frames per window.
+    :param channels: crop channels, 0 for none.
+    :param epochs: passes over the windows.
+    :param seed: random seed. Training uses at most four CPU threads, which
+        is faster for a network this small than many.
+    :returns: the model as a dict: ``state`` (weights), ``classes``,
+        ``columns``, ``mean``, ``std``, ``window`` and ``channels``.
+    """
+    import torch
+
+    torch.manual_seed(seed)
+    rng = np.random.default_rng(seed)
+    inputs = np.concatenate([s[0] for s in samples])
+    crops = (np.concatenate([s[1] for s in samples]).astype(np.float32)
+             if channels else None)
+    labels = np.concatenate([s[2] for s in samples])
+    weights = np.concatenate([s[3] for s in samples])
+    counts = np.bincount(labels[weights > 0], minlength=len(classes)).astype(float)
+    class_weight = np.where(counts > 0, (counts.sum() / np.maximum(counts, 1)) ** 0.5, 0.0)
+    net = _event_network(inputs.shape[1], len(classes), channels)
+    optimiser = torch.optim.Adam(net.parameters(), lr=3e-3, weight_decay=1e-4)
+    loss_fn = torch.nn.CrossEntropyLoss(
+        weight=torch.tensor(class_weight, dtype=torch.float32), reduction='none')
+    x_all = torch.from_numpy(inputs)
+    c_all = torch.from_numpy(crops) if crops is not None else None
+    y_all = torch.from_numpy(labels)
+    w_all = torch.from_numpy(weights)
+    net.train()
+    threads = torch.get_num_threads()
+    torch.set_num_threads(min(threads, 4))
+    try:
+        for _ in range(int(epochs)):
+            order = rng.permutation(len(labels))
+            for start in range(0, len(order), 256):
+                pick = torch.from_numpy(order[start:start + 256])
+                scores = net(x_all[pick], None if c_all is None else c_all[pick])
+                loss = ((loss_fn(scores, y_all[pick]) * w_all[pick]).sum()
+                        / w_all[pick].sum().clamp(min=1.0))
+                optimiser.zero_grad()
+                loss.backward()
+                optimiser.step()
+    finally:
+        torch.set_num_threads(threads)
+    return {'state': {k: v.detach().clone() for k, v in net.state_dict().items()},
+            'classes': list(classes), 'columns': list(columns),
+            'window': int(window), 'channels': int(channels)}
+
+
+def _event_probabilities(model, inputs, crops=None):
+    """Class probabilities of each window.
+
+    :param model: from :func:`_event_train` or :func:`_event_load_model`.
+    :param inputs: windows from :func:`_event_windows`.
+    :param crops: their crops, or None.
+    :returns: ``(n, classes)`` array.
+    """
+    import torch
+
+    net = _event_network(inputs.shape[1], len(model['classes']), model['channels'])
+    net.load_state_dict(model['state'])
+    net.eval()
+    out = []
+    with torch.no_grad():
+        for start in range(0, len(inputs), 1024):
+            x = torch.from_numpy(inputs[start:start + 1024])
+            c = None
+            if model['channels'] and crops is not None:
+                c = torch.from_numpy(crops[start:start + 1024].astype(np.float32))
+            out.append(torch.softmax(net(x, c), dim=1).numpy())
+    return np.concatenate(out) if out else np.zeros((0, len(model['classes'])))
+
+
+def _event_peaks(index, probabilities, classes, threshold=0.5, tolerance=2):
+    """Time-stamp events from per-frame class probabilities.
+
+    An event is a frame where its class's probability reaches ``threshold``
+    and is the highest of that track within ``tolerance`` frames. A class
+    that can happen to a cell only once (its name contains ``death`` or
+    ``lysis``) keeps only its most probable peak per track: a dead cell
+    stays in the field and would otherwise be called dead again and again.
+
+    :param index: ``track_id`` and ``frame`` of each window.
+    :param probabilities: from :func:`_event_probabilities`.
+    :param classes: class names, background first.
+    :param threshold: smallest probability kept.
+    :param tolerance: frames either side a peak must beat.
+    :returns: one row per event: ``track_id``, ``frame``, ``event`` and
+        ``probability``.
+    """
+    events = []
+    frame = index.reset_index(drop=True).assign(_row=np.arange(len(index)))
+    for track, rows in frame.groupby('track_id'):
+        rows = rows.sort_values('frame')
+        frames = rows['frame'].to_numpy()
+        for k, name in enumerate(classes[1:], start=1):
+            p = probabilities[rows['_row'].to_numpy(), k]
+            for i in np.flatnonzero(p >= threshold):
+                near = np.abs(frames - frames[i]) <= tolerance
+                if p[i] >= p[near].max() and not (
+                        (p[near] == p[i]) & (frames[near] < frames[i])).any():
+                    events.append({'track_id': int(track), 'frame': int(frames[i]),
+                                   'event': name, 'probability': float(p[i])})
+    found = pd.DataFrame(events, columns=['track_id', 'frame', 'event', 'probability'])
+    once = found['event'].map(_event_is_terminal).astype(bool)
+    if once.any():
+        best = found[once].sort_values(['probability', 'frame'], ascending=[False, True])
+        best = best.drop_duplicates(['track_id', 'event'])
+        found = pd.concat([found[~once], best]).sort_values(['track_id', 'frame'])
+        found = found.reset_index(drop=True)
+    return found
+
+
+def _event_is_terminal(name):
+    """Whether an event class can happen to one tracked object only once.
+
+    :param name: the class name.
+    :returns: True for names containing ``death`` or ``lysis``.
+    """
+    text = str(name).lower()
+    return 'death' in text or 'lysis' in text
+
+
+def _event_scores(detected, annotations, classes, tolerance=2):
+    """Precision, recall and timing error of detected against annotated events.
+
+    A detection matches the nearest unmatched annotation of the same field,
+    track and class within ``tolerance`` frames, most probable detection
+    first.
+
+    :param detected: ``field``, ``track_id``, ``frame``, ``event``,
+        ``probability``.
+    :param annotations: ``field``, ``track_id``, ``frame``, ``event``.
+    :param classes: event classes to score.
+    :param tolerance: largest timing error of a match, in frames.
+    :returns: one row per class and an ``all`` row: ``annotated``,
+        ``detected``, ``true_positives``, ``precision``, ``recall``, ``f1``,
+        ``mean_abs_timing_error`` and ``max_abs_timing_error`` in frames.
+    """
+    rows, all_errors, totals = [], [], np.zeros(3, dtype=int)
+    for name in classes:
+        det = detected[detected['event'] == name].sort_values('probability', ascending=False)
+        ann = annotations[annotations['event'] == name]
+        free = {key: sorted(g['frame'].astype(int)) for key, g in
+                ann.groupby(['field', 'track_id'])}
+        errors = []
+        for field, track, frame in zip(det['field'], det['track_id'], det['frame']):
+            pool = free.get((field, int(track)), [])
+            if pool:
+                best = min(pool, key=lambda a: abs(a - int(frame)))
+                if abs(best - int(frame)) <= tolerance:
+                    pool.remove(best)
+                    errors.append(abs(best - int(frame)))
+        counts = np.array([len(ann), len(det), len(errors)])
+        totals += counts
+        all_errors += errors
+        rows.append(_event_score_row(name, counts, errors))
+    rows.append(_event_score_row('all', totals, all_errors))
+    return pd.DataFrame(rows)
+
+
+def _event_score_row(name, counts, errors):
+    """One row of :func:`_event_scores`."""
+    annotated, detected, hits = (int(c) for c in counts)
+    precision = hits / detected if detected else np.nan
+    recall = hits / annotated if annotated else np.nan
+    f1 = (2 * precision * recall / (precision + recall)
+          if hits else (0.0 if annotated or detected else np.nan))
+    return {'event': name, 'annotated': annotated, 'detected': detected,
+            'true_positives': hits, 'precision': precision, 'recall': recall,
+            'f1': f1,
+            'mean_abs_timing_error': float(np.mean(errors)) if errors else np.nan,
+            'max_abs_timing_error': float(np.max(errors)) if errors else np.nan}
+
+
+def _event_read_annotations(path):
+    """Read an annotated events table.
+
+    :param path: a table with ``field``, ``track_id``, ``frame`` and
+        ``event`` columns, and optionally ``object``.
+    :returns: the table with the event names stripped and lower-cased.
+    :raises ValueError: a missing column.
+    """
+    from .tabular import read_table
+
+    ann = read_table(path, canonicalise=False, report=None)
+    if 'field' not in ann.columns and 'fieldID' in ann.columns:
+        ann = ann.rename(columns={'fieldID': 'field'})
+    missing = {'field', 'track_id', 'frame', 'event'} - set(ann.columns)
+    if missing:
+        raise ValueError(f"Setting: timelapse_events_annotations {path} lacks "
+                         f"the column(s) {', '.join(sorted(missing))}.")
+    ann = ann.dropna(subset=['field', 'track_id', 'frame', 'event']).copy()
+    ann['field'] = ann['field'].astype(str)
+    ann['track_id'] = ann['track_id'].astype(int)
+    ann['frame'] = ann['frame'].astype(int)
+    ann['event'] = ann['event'].astype(str).str.strip().str.lower()
+    return ann[ann['event'] != _EVENT_BACKGROUND].reset_index(drop=True)
+
+
+def _event_fields(tracks_dir, object_type, prefix):
+    """The tracks tables of one object and tracker, by field name.
+
+    :returns: ``{field: path}``.
+    """
+    marker = f'{prefix}_tracks_{object_type}_'
+    found = {}
+    for path in sorted(glob.glob(os.path.join(tracks_dir, f'{marker}*.csv'))):
+        found[os.path.splitext(os.path.basename(path))[0][len(marker):]] = path
+    return found
+
+
+def _event_field_inputs(tracks_path, radius):
+    """The detector's track table and crops of one field.
+
+    Reads ``events/<stem>_features.csv`` and ``events/<stem>_crops.npz``
+    beside the tracks table when the tracking step wrote them.
+
+    :returns: ``(table, crops)``; ``crops`` maps ``(frame, track_id)`` to
+        the crop, or is None.
+    """
+    from .tabular import read_table
+
+    tracks = read_table(tracks_path, report=None)
+    stem = os.path.splitext(os.path.basename(tracks_path))[0]
+    base = os.path.join(os.path.dirname(tracks_path), 'events', stem)
+    features = crops = None
+    if os.path.isfile(base + '_features.csv'):
+        features = read_table(base + '_features.csv', report=None)
+    if os.path.isfile(base + '_crops.npz'):
+        with np.load(base + '_crops.npz') as store:
+            crops = {(int(f), int(t)): c for (f, t), c in
+                     zip(store['index'], store['crops'])}
+    return _event_track_table(tracks, features, radius=radius), crops
+
+
+def _event_fit(tables, annotations, *, window=9, epochs=25, seed=0):
+    """Fit the detector on annotated fields.
+
+    :param tables: ``{field: (table, crops)}`` from
+        :func:`_event_field_inputs`.
+    :param annotations: events of these fields; every event of a field
+        that has any annotation is taken to be annotated.
+    :returns: the model dict of :func:`_event_train` with ``mean`` and
+        ``std``.
+    """
+    classes = [_EVENT_BACKGROUND] + sorted(pd.unique(annotations['event']))
+    columns = _event_columns(pd.concat([t for t, _ in tables.values()]))
+    stacked = pd.concat([t for t, _ in tables.values()])
+    mean, std = [], []
+    for name in columns:
+        v = pd.to_numeric(stacked[name], errors='coerce') if name in stacked else pd.Series([0.0])
+        mean.append(float(np.nan_to_num(v.mean())))
+        std.append(float(v.std()) if np.isfinite(v.std()) and v.std() > 0 else 1.0)
+    use_crops = all(c for _, c in tables.values())
+    channels = next(iter(next(iter(tables.values()))[1].values())).shape[0] if use_crops else 0
+    samples = []
+    for field, (table, crops) in tables.items():
+        x, c, index = _event_windows(table, columns, window, mean, std,
+                                     crops if use_crops else None)
+        y, w = _event_labels(index, field, annotations, classes)
+        samples.append((x, c, y, w))
+    model = _event_train(samples, classes, columns, window=window,
+                         channels=channels, epochs=epochs, seed=seed)
+    model['mean'], model['std'] = mean, std
+    return model
+
+
+def _event_detect(model, table, crops=None, *, threshold=0.5, tolerance=2):
+    """Detect and time-stamp events on one field.
+
+    :returns: ``track_id``, ``frame``, ``event``, ``probability`` per event.
+    """
+    x, c, index = _event_windows(table, model['columns'], model['window'],
+                                 model['mean'], model['std'],
+                                 crops if model['channels'] else None)
+    if not len(index):
+        return pd.DataFrame(columns=['track_id', 'frame', 'event', 'probability'])
+    p = _event_probabilities(model, x, c)
+    return _event_peaks(index, p, model['classes'], threshold, tolerance)
+
+
+def _event_cross_validate(tables, annotations, *, window=9, threshold=0.5,
+                          tolerance=2, epochs=25, seed=0, folds=5):
+    """Precision, recall and timing error on held-out annotated data.
+
+    With two or more annotated fields each fold holds out whole fields (at
+    most ``folds`` folds); with one, it holds out every third track.
+
+    :returns: ``(scores, detections)``: :func:`_event_scores` of the pooled
+        held-out detections, and those detections.
+    """
+    fields = list(tables)
+    detections = []
+    if len(fields) >= 2:
+        groups = np.array_split(np.array(fields, dtype=object), min(folds, len(fields)))
+        for held in groups:
+            train = {f: tables[f] for f in fields if f not in set(held)}
+            model = _event_fit(train, annotations[annotations['field'].isin(train)],
+                               window=window, epochs=epochs, seed=seed)
+            for field in held:
+                found = _event_detect(model, *tables[field], threshold=threshold,
+                                      tolerance=tolerance)
+                detections.append(found.assign(field=field))
+    else:
+        field = fields[0]
+        table, crops = tables[field]
+        tracks = np.array(sorted(pd.unique(table['track_id'])))
+        for k in range(3):
+            held = set(tracks[k::3])
+            train = {field: (table[~table['track_id'].isin(held)], crops)}
+            model = _event_fit(train, annotations[~annotations['track_id'].isin(held)],
+                               window=window, epochs=epochs, seed=seed)
+            found = _event_detect(model, table[table['track_id'].isin(held)], crops,
+                                  threshold=threshold, tolerance=tolerance)
+            detections.append(found.assign(field=field))
+    detected = pd.concat(detections, ignore_index=True) if detections else pd.DataFrame(
+        columns=['track_id', 'frame', 'event', 'probability', 'field'])
+    classes = sorted(pd.unique(annotations['event']))
+    return _event_scores(detected, annotations, classes, tolerance), detected
+
+
+def _event_correct_divisions(tracks, events, *, mitosis='mitosis',
+                             max_distance=30.0, tolerance=2):
+    """Division links taken from detected mitoses.
+
+    For every detected mitosis of a mother track, each track that starts
+    within ``tolerance`` + 1 frames after it, within ``max_distance`` pixels
+    of the mother's position at the mitosis, is linked to her in
+    ``parent_track_id``. Links the tracker reported itself are kept; a new
+    track beside no detected mitosis gets no parent, which removes the
+    divisions that would otherwise be inferred from broken tracks.
+
+    :param tracks: one field's tracks table.
+    :param events: that field's detected events.
+    :returns: ``(corrected, links)``: the tracks with ``parent_track_id`` and
+        a table of the links added (``track_id``, ``parent_track_id``,
+        ``mitosis_frame``).
+    """
+    df = tracks.copy()
+    if 'parent_track_id' not in df.columns:
+        df['parent_track_id'] = 0
+    df['parent_track_id'] = pd.to_numeric(df['parent_track_id'], errors='coerce').fillna(0).astype(int)
+    starts = df.sort_values('frame').groupby('track_id').first()
+    has_parent = set(starts.index[starts['parent_track_id'] > 0].astype(int))
+    links = []
+    for mother, frame in zip(*(events.loc[events['event'] == mitosis, c]
+                               for c in ('track_id', 'frame'))):
+        where = df[(df['track_id'] == mother) & (df['frame'] <= frame)].sort_values('frame')
+        if where.empty:
+            continue
+        mx, my = where['x'].iloc[-1], where['y'].iloc[-1]
+        new = starts[(starts['frame'] > frame - 1) & (starts['frame'] <= frame + tolerance + 1)
+                     & (starts.index != mother)]
+        near = np.hypot(new['x'] - mx, new['y'] - my) <= max_distance
+        for daughter in new.index[near].astype(int):
+            if daughter in has_parent:
+                continue
+            has_parent.add(daughter)
+            df.loc[df['track_id'] == daughter, 'parent_track_id'] = int(mother)
+            links.append({'track_id': daughter, 'parent_track_id': int(mother),
+                          'mitosis_frame': int(frame)})
+    return df, pd.DataFrame(links, columns=['track_id', 'parent_track_id', 'mitosis_frame'])
+
+
+def _event_cycles(spans, marks):
+    """Split tracks into the intervals between repeated events such as mitoses.
+
+    A mitosis is stamped on the mother's last frame before her daughters
+    appear; when the tracker carries one daughter on under the mother's id,
+    the track holds several cell cycles. Each interval runs from its first
+    frame to the frame after its mitosis (the event) or to the track's last
+    frame (censored), so consecutive intervals add up to the track.
+
+    :param spans: one row per track with ``field``, ``track_id``, ``start``
+        and ``end``.
+    :param marks: ``{(field, track_id): sorted event frames}``.
+    :returns: one row per interval with the columns of ``spans`` (``start``
+        moved to the interval's first frame), ``event_frame``, ``event`` and
+        ``duration`` in frames.
+    """
+    rows = []
+    for span in spans.to_dict('records'):
+        start, end = int(span['start']), int(span['end'])
+        for frame in marks.get((span['field'], span['track_id']), []):
+            if start <= frame <= end:
+                rows.append(dict(span, start=start, event_frame=float(frame),
+                                 event=1, duration=float(frame + 1 - start)))
+                start = frame + 1
+        if start <= end:
+            rows.append(dict(span, start=start, event_frame=np.nan, event=0,
+                             duration=float(end - start)))
+    return pd.DataFrame(rows)
+
+
+def _event_timing(tables, events, conditions=None):
+    """Time to each kind of event, per track or, for mitosis, per cell cycle.
+
+    For every event but mitosis this is the time from each track's first
+    frame to its first event of that kind, censored at the track's last
+    frame. Mitosis repeats and a tracker often carries one daughter on
+    under her mother's id, so a track is split at each detected mitosis
+    (:func:`_event_cycles`) and every interval is one cell cycle: the time
+    from its first frame to its division, or censored where the track ends.
+
+    :param tables: ``{field: track table}``.
+    :param events: detected events with ``field``.
+    :param conditions: ``name=wells`` entries; fields are otherwise grouped
+        by well.
+    :returns: ``{event: objects}`` in the form
+        :func:`spacr.measure._time_to_event_statistics` reads: one row per
+        track (per cell cycle for mitosis) with ``duration`` (frames),
+        ``event`` (1 or 0), ``condition`` and ``well``, plus the order of
+        conditions under key ``'_order'`` per event.
+    """
+    from .measure import _time_to_event_groups
+
+    spans = []
+    for field, table in tables.items():
+        try:
+            key = schema.parse_prcf(field)
+            ids = (key.plateID, key.rowID, key.columnID, key.fieldID)
+        except Exception:
+            ids = (field, 'r0', 'c0', 'f0')
+        span = table.groupby('track_id')['frame'].agg(start='min', end='max').reset_index()
+        span['field'] = field
+        span['plateID'], span['rowID'], span['columnID'], span['fieldID'] = ids
+        spans.append(span)
+    spans = pd.concat(spans, ignore_index=True)
+    config = {'time_to_event_group': 'well', 'time_to_event_reference': '',
+              'time_to_event_conditions': list(conditions or []),
+              'time_to_event_covariates': []}
+    result = {}
+    for name in sorted(pd.unique(events['event'])) if len(events) else []:
+        found = events[events['event'] == name]
+        if name == 'mitosis':
+            marks = {key: sorted(int(f) for f in pd.unique(group['frame']))
+                     for key, group in found.groupby(['field', 'track_id'])}
+            objects = _event_cycles(spans, marks)
+        else:
+            first = (found.groupby(['field', 'track_id'])['frame']
+                     .min().rename('event_frame').reset_index())
+            objects = spans.merge(first, on=['field', 'track_id'], how='left')
+            objects['event'] = objects['event_frame'].notna().astype(int)
+            objects['duration'] = np.where(objects['event'] == 1,
+                                           objects['event_frame'] - objects['start'],
+                                           objects['end'] - objects['start']).astype(float)
+        objects['time_unit'] = 'frames'
+        grouped, order = _time_to_event_groups(objects, config)
+        if len(grouped):
+            result[name] = (grouped, order)
+    return result
+
+
+def _event_detection(tracks_dir, object_type, prefix, *, annotations=None,
+                     model_path=None, window=9, threshold=0.5, tolerance=2,
+                     conditions=None, max_distance=30.0, epochs=25, plot=True):
+    """Detect events on every tracked field of a run and write the results.
+
+    With ``annotations``, the detector is scored by cross-validation on the
+    annotated fields (``events/event_detection_scores.csv``), trained on all
+    of them and saved as ``events/event_model.pt``; otherwise the model at
+    ``model_path`` is used. Every field's events go to
+    ``events/<stem>_events.csv`` and together to ``events/events.csv``. With
+    a ``mitosis`` class the tracks are re-linked from the detected mitoses
+    (``events/<stem>_corrected.csv``) and lineage trees are drawn from them
+    under ``events/lineage``. The time to each kind of event is compared
+    across conditions with Kaplan-Meier curves and log-rank tests
+    (``events/event_timing_<event>_*.csv`` and figure).
+
+    :param tracks_dir: the run's ``tracks`` folder.
+    :param object_type: the tracked object.
+    :param prefix: the tracker's file prefix.
+    :returns: dict with ``scores`` (or None), ``events`` and ``paths``.
+    :raises ValueError: neither annotations nor a model.
+    """
+    import torch
+    from .measure import _time_to_event_figure, _time_to_event_statistics
+    from .tabular import write_table
+
+    out = os.path.join(tracks_dir, 'events')
+    os.makedirs(out, exist_ok=True)
+    fields = _event_fields(tracks_dir, object_type, prefix)
+    if not fields:
+        raise ValueError(f"No {prefix} tracks of {object_type} in {tracks_dir}.")
+    inputs = {f: _event_field_inputs(p, max_distance) for f, p in fields.items()}
+    paths, scores = {}, None
+    if annotations is not None:
+        ann = _event_read_annotations(annotations) if isinstance(annotations, str) else annotations
+        if 'object' in ann.columns:
+            ann = ann[ann['object'].astype(str).isin([object_type, 'nan', ''])]
+        ann = ann[ann['field'].isin(inputs)]
+        if ann.empty:
+            raise ValueError(f"Setting: timelapse_events_annotations names no "
+                             f"event on the {object_type} tracks of this run.")
+        annotated = {f: inputs[f] for f in pd.unique(ann['field'])}
+        scores, _ = _event_cross_validate(annotated, ann, window=window,
+                                          threshold=threshold, tolerance=tolerance,
+                                          epochs=epochs)
+        scores['tolerance_frames'] = tolerance
+        paths['scores'] = write_table(scores, os.path.join(out, 'event_detection_scores.csv'))
+        model = _event_fit(annotated, ann, window=window, epochs=epochs)
+        paths['model'] = os.path.join(out, 'event_model.pt')
+        torch.save(model, paths['model'])
+    elif model_path:
+        model = torch.load(model_path, map_location='cpu', weights_only=True)
+    else:
+        raise ValueError("Setting: timelapse_events needs annotated events in "
+                         "timelapse_events_annotations or a trained model in "
+                         "timelapse_events_model.")
+    found, corrected = [], {}
+    for field, (table, crops) in inputs.items():
+        events = _event_detect(model, table, crops, threshold=threshold,
+                               tolerance=tolerance).assign(field=field)
+        stem = os.path.splitext(os.path.basename(fields[field]))[0]
+        write_table(events, os.path.join(out, f'{stem}_events.csv'), canonicalise=False)
+        found.append(events)
+        if 'mitosis' in model['classes']:
+            fixed, _links = _event_correct_divisions(
+                table[['frame', 'track_id', 'x', 'y'] + (
+                    ['parent_track_id'] if 'parent_track_id' in table else [])],
+                events, max_distance=max_distance, tolerance=tolerance)
+            corrected[field] = write_table(fixed, os.path.join(out, f'{stem}_corrected.csv'))
+    events = pd.concat(found, ignore_index=True)
+    paths['events'] = write_table(events, os.path.join(out, 'events.csv'), canonicalise=False)
+    for field, path in corrected.items():
+        _lineage_trees_from_tracks(path, os.path.join(out, 'lineage'),
+                                   max_distance=-1.0, plot=plot)
+    if corrected:
+        paths['lineage'] = os.path.join(out, 'lineage')
+    timing = _event_timing({f: t for f, (t, _) in inputs.items()}, events, conditions)
+    for name, (objects, order) in timing.items():
+        stats = _time_to_event_statistics(objects, order, {'time_to_event_covariates': []})
+        for part in ('curves', 'summary', 'tests'):
+            paths[f'{name}_{part}'] = write_table(
+                stats[part], os.path.join(out, f'event_timing_{name}_{part}.csv'))
+        if plot:
+            fig = _time_to_event_figure(stats['curves'], stats['summary'],
+                                        stats['tests'], f'Time to {name}')
+            paths[f'{name}_figure'] = save_figure_to_path(
+                fig, os.path.join(out, f'event_timing_{name}.pdf'), close=True)
+    return {'scores': scores, 'events': events, 'paths': paths}
+
+
+def _run_event_features_step(src, name, object_type, mask_stack, images, mode, settings):
+    """Store the frame features and crops event detection reads, for one field.
+
+    Writes ``tracks/events/<tracker>_tracks_<object>_<name>_features.csv``
+    and ``..._crops.npz`` beside the tracks table. A failure is reported and
+    does not stop the run.
+    """
+    from .tabular import write_table
+
+    prefix = 'trackpy' if mode == 'iou' else mode
+    out = os.path.join(os.path.dirname(src), 'tracks', 'events')
+    stem = f'{prefix}_tracks_{object_type}_{name}'
+    try:
+        os.makedirs(out, exist_ok=True)
+        features, crops = _event_frame_features(mask_stack, images)
+        write_table(features, os.path.join(out, f'{stem}_features.csv'))
+        if crops is not None:
+            np.savez_compressed(os.path.join(out, f'{stem}_crops.npz'),
+                                index=features[['frame', 'track_id']].to_numpy(),
+                                crops=crops)
+    except Exception as exc:
+        print(f"Event features could not be stored for {name}: {exc}")
+
+
+def _run_event_detection_step(src, settings):
+    """Detect events on the tracks of a finished timelapse run.
+
+    Runs :func:`_event_detection` for every object in ``timelapse_objects``
+    with the ``timelapse_events_*`` settings. A failure is reported and does
+    not stop the run.
+
+    :param src: the run's source folder, holding ``tracks``.
+    :returns: ``{object: result}``.
+    """
+    mode = settings.get('timelapse_mode') or 'trackastra'
+    prefix = 'trackpy' if mode == 'iou' else mode
+    tracks_dir = os.path.join(src, 'tracks')
+    results = {}
+    for object_type in settings.get('timelapse_objects') or ['cell']:
+        try:
+            result = _event_detection(
+                tracks_dir, object_type, prefix,
+                annotations=settings.get('timelapse_events_annotations') or None,
+                model_path=settings.get('timelapse_events_model') or None,
+                window=int(settings.get('timelapse_events_window') or 9),
+                threshold=float(settings.get('timelapse_events_threshold') or 0.5),
+                conditions=settings.get('timelapse_events_conditions') or None,
+                max_distance=float(settings.get('timelapse_lineage_max_distance') or 30.0),
+                plot=bool(settings.get('save', True) or settings.get('plot', False)))
+        except Exception as exc:
+            print(f"Event detection ({object_type}) failed: {exc}")
+            continue
+        results[object_type] = result
+        counts = result['events']['event'].value_counts().to_dict()
+        print(f"Events ({object_type}): {counts or 'none'}; written to "
+              f"{os.path.join(tracks_dir, 'events')}")
+        if result['scores'] is not None:
+            overall = result['scores'].iloc[-1]
+            print(f"Held-out precision {overall['precision']:.2f}, recall "
+                  f"{overall['recall']:.2f}, mean timing error "
+                  f"{overall['mean_abs_timing_error']:.2f} frames")
+    return results
+
+
 def exponential_decay(x, a, b, c):
     """Return ``a * exp(-b * x) + c`` for curve fitting.
 
@@ -1421,6 +2968,420 @@ def _object_group_keys(df, object_key):
             f"Got: {list(df.columns)[:12]}"
             + (" ..." if len(df.columns) > 12 else ""))
     return keys
+
+
+#: The bleach-correction methods Measure offers, ``'none'`` first.
+_BLEACH_METHODS = ('none', 'ratio', 'exponential', 'histogram')
+
+#: The per-object intensity statistics that scale with the illumination and
+#: are therefore corrected: levels, sums and percentiles. Spread and shape
+#: statistics (``cv``, ``skew``, ``gini`` ...) are ratios or unitless and are
+#: left as measured.
+_BLEACH_LEVEL_PATTERN = (
+    r'(?:mean|median|max|min|integrated|mode)_intensity|percentile_\d+')
+
+
+def _bleach_channel_columns(df, object_type):
+    """Return the intensity columns of each channel that bleach correction rescales.
+
+    :param df: an object table from ``measurements.db``.
+    :param object_type: the table's object prefix, e.g. ``'cell'``.
+    :returns: ``{channel: [column, ...]}`` for every channel whose
+        ``<object>_channel_<n>_mean_intensity`` is present; that column is the
+        channel's reference trend and is listed first.
+    """
+    pattern = re.compile(
+        rf'^{re.escape(object_type)}_channel_(\d+)_(?:{_BLEACH_LEVEL_PATTERN})$')
+    channels = {}
+    for column in df.columns:
+        match = pattern.match(str(column))
+        if match:
+            channels.setdefault(int(match.group(1)), []).append(column)
+    result = {}
+    for channel in sorted(channels):
+        reference = f'{object_type}_channel_{channel}_mean_intensity'
+        if reference in channels[channel]:
+            rest = [c for c in channels[channel] if c != reference]
+            result[channel] = [reference] + rest
+    return result
+
+
+def _bleach_times(values):
+    """Timepoint numbers from a ``timeID`` column such as ``t4``, ``t04`` or ``4``.
+
+    Measure writes ``timeID`` as text (``t12``), which neither sorts nor
+    fits as a number; the trailing integer is the frame.
+
+    :param values: the timepoint column.
+    :returns: a float Series on the same index, NaN where no number ends
+        the value.
+    """
+    series = pd.Series(values)
+    if pd.api.types.is_numeric_dtype(series):
+        return series.astype(float)
+    text = series.astype(str).str.extract(r'(-?\d+(?:\.\d+)?)\s*$')[0]
+    return pd.to_numeric(text, errors='coerce')
+
+
+def _bleach_ring_column(df, object_type, channel):
+    """The ring-background column Measure wrote for one channel, if any.
+
+    :returns: ``<object>_channel_<n>_outside_percentile_50`` or
+        ``..._outside_mean`` when present, else None.
+    """
+    for stat in ('outside_percentile_50', 'outside_mean'):
+        name = f'{object_type}_channel_{channel}_{stat}'
+        if name in df.columns:
+            return name
+    return None
+
+
+def _bleach_signal(frame, column, ring=None):
+    """One level column, less the object's ring background when there is one.
+
+    :param frame: object rows.
+    :param column: the level column.
+    :param ring: the ring-background column, or None.
+    :returns: a float Series.
+    """
+    values = pd.to_numeric(frame[column], errors='coerce').astype(float)
+    if ring is not None:
+        values = values - pd.to_numeric(frame[ring], errors='coerce')
+    return values
+
+
+def _bleach_trend(frame, time_key, column, ring=None):
+    """Return the median of ``column`` at each timepoint, in time order.
+
+    The median over every object in the frame is the background trend a
+    bleaching series shows: one bright or dying object does not move it.
+    With ``ring``, each object's ring background is subtracted first, so
+    the trend follows the fluorescence that bleaches rather than the
+    camera offset under it.
+
+    :returns: ``pandas.Series`` indexed by timepoint number, NaN frames
+        dropped.
+    """
+    values = _bleach_signal(frame, column, ring)
+    trend = values.groupby(_bleach_times(frame[time_key]).to_numpy()).median().sort_index()
+    return trend.dropna()
+
+
+def _fit_bleach_decay(times, trend):
+    """Fit ``a * exp(-b * t) + c`` to a background trend.
+
+    Time is counted from the first timepoint. ``a`` and ``b`` are held
+    non-negative so the fit describes a decay, never a growth.
+
+    :param times: timepoints, numeric.
+    :param trend: the trend value at each timepoint.
+    :returns: ``(a, b, c)``, or ``None`` when there are fewer than three
+        timepoints or the fit does not converge.
+    """
+    t = np.asarray(times, dtype=float)
+    y = np.asarray(trend, dtype=float)
+    if t.size < 3 or not np.all(np.isfinite(y)):
+        return None
+    t = t - t.min()
+    span = float(t.max()) or 1.0
+    amplitude = max(float(y.max() - y.min()), 1e-12)
+    try:
+        params, _ = curve_fit(
+            exponential_decay, t, y,
+            p0=[amplitude, 1.0 / span, float(y.min())],
+            bounds=([0.0, 0.0, -np.inf], [np.inf, np.inf, np.inf]),
+            maxfev=10000)
+    except (RuntimeError, ValueError):
+        return None
+    if not np.all(np.isfinite(params)):
+        return None
+    return tuple(float(p) for p in params)
+
+
+def _bleach_factors(trend, method):
+    """Return the multiplicative correction at each timepoint of one series.
+
+    ``ratio`` divides each timepoint by its own trend value and multiplies by
+    the first: the simple ratio method. Bleaching only dims, so a timepoint
+    whose trend is above the first is left as measured (factor 1) rather
+    than darkened: a rise of the median is biology, focus or illumination,
+    and dividing it away would erase it. ``exponential`` rescales by the
+    fitted decay in place of the measured trend, which ignores
+    frame-to-frame noise and, being a decay, never darkens either; when
+    the fit fails or the curve reaches zero it falls back to the ratio and
+    reports ``ratio_fallback``.
+
+    :param trend: ``pandas.Series`` of the background trend by timepoint.
+    :param method: ``'ratio'`` or ``'exponential'``.
+    :returns: ``(factors, applied, params)``: a Series of factors by
+        timepoint, the method actually applied, and the fitted
+        ``(a, b, c)`` or ``None``.
+    """
+    times = np.asarray(trend.index, dtype=float)
+    params = None
+    if method == 'exponential':
+        params = _fit_bleach_decay(times, trend.to_numpy())
+        if params is not None:
+            model = exponential_decay(times - times.min(), *params)
+            if np.all(model > 0):
+                return (pd.Series(model[0] / model, index=trend.index),
+                        'exponential', params)
+        method = 'ratio_fallback'
+    reference = trend.to_numpy(dtype=float)
+    with np.errstate(divide='ignore', invalid='ignore'):
+        factors = np.where(reference > 0, np.maximum(reference[0] / reference, 1.0),
+                           np.nan)
+    return pd.Series(factors, index=trend.index), method, params
+
+
+def _histogram_match(values, reference):
+    """Map ``values`` onto the distribution of ``reference`` rank for rank.
+
+    :returns: an array the length of ``values``; NaN stays NaN.
+    """
+    values = np.asarray(values, dtype=float)
+    reference = np.asarray(reference, dtype=float)
+    reference = reference[np.isfinite(reference)]
+    out = np.full(values.shape, np.nan)
+    finite = np.isfinite(values)
+    if not finite.any() or reference.size == 0:
+        return out
+    ranks = pd.Series(values[finite]).rank(method='average').to_numpy()
+    quantiles = (ranks - 0.5) / finite.sum()
+    out[finite] = np.quantile(reference, quantiles)
+    return out
+
+
+def _bleach_correct_table(df, object_type, method):
+    """Correct every intensity level of one timelapse object table for bleaching.
+
+    Each field (plate, row, column, field) is its own bleaching series and
+    each channel is corrected on its own, in timepoint order (``t2`` before
+    ``t10``). The background trend of a channel is the per-timepoint median
+    of ``<object>_channel_<n>_mean_intensity``; ``ratio`` and
+    ``exponential`` rescale every level column of that channel by the
+    factor that brings the trend back to its first timepoint.
+    ``histogram`` instead maps each column at each timepoint onto that
+    column's distribution at the first timepoint.
+
+    When Measure wrote a ring background for the channel
+    (``outside_percentile_50``, else ``outside_mean``), the trend and the
+    correction work on the signal above it: each level less the ring
+    (the ring times the area for an integrated intensity) is corrected and
+    the ring is added back. A camera offset, which does not bleach, is then
+    neither counted in the trend nor rescaled, so the ratio between two
+    objects' signals in one frame is kept. Without a ring the levels are
+    rescaled whole.
+
+    :param df: the object table as Measure wrote it, with a timepoint column.
+    :param object_type: its object prefix, e.g. ``'cell'``.
+    :param method: one of ``'ratio'``, ``'exponential'``, ``'histogram'``.
+    :returns: ``(corrected, fits)``. ``corrected`` has the identifier
+        columns, every corrected column under its measured name, and
+        ``bleach_correction_method``. ``fits`` has one row per field and
+        channel: the method applied, the ring column used (``background``,
+        empty without one), the timepoints, the trend at the first and last
+        timepoint before and after correction, how far the trend ever rises
+        above its first value (``trend_peak_rise``, a fraction; bleaching
+        alone never raises it), and for an exponential fit
+        ``decay_a``, ``decay_b``, ``decay_c`` and ``half_life`` in timepoint
+        units.
+    :raises ValueError: an unknown method, or a table with no timepoint column.
+    """
+    if method not in _BLEACH_METHODS[1:]:
+        raise ValueError(
+            f"bleach_correction must be one of {list(_BLEACH_METHODS)}, "
+            f"got {method!r}")
+    time_key = _resolve_time_key(df)
+    if time_key is None:
+        raise ValueError(
+            f"the {object_type} table has no timepoint column; bleach "
+            f"correction needs a timelapse measurement")
+    channels = _bleach_channel_columns(df, object_type)
+    ids = [c for c in ('object_label', 'cell_id', *_OBJECT_WELL_KEYS,
+                       time_key, 'prcf', 'file_name') if c in df.columns]
+    corrected = df[ids].copy()
+    times = _bleach_times(df[time_key])
+    area_column = f'{object_type}_area'
+    area = (pd.to_numeric(df[area_column], errors='coerce')
+            if area_column in df.columns else None)
+    fields = [k for k in _OBJECT_WELL_KEYS if k in df.columns]
+    groups = (df.groupby(fields, sort=True, dropna=False).groups if fields
+              else {(): df.index})
+    fit_rows = []
+    for channel, columns in channels.items():
+        reference = columns[0]
+        ring_column = _bleach_ring_column(df, object_type, channel)
+        for column in columns:
+            corrected[column] = np.nan
+        for key, index in groups.items():
+            frame = df.loc[index]
+            when = times.loc[index]
+            ring = (pd.to_numeric(frame[ring_column], errors='coerce')
+                    if ring_column else None)
+            offsets = {}
+            for column in columns:
+                if ring is None:
+                    offsets[column] = 0.0
+                elif column.endswith('_integrated_intensity'):
+                    offsets[column] = (ring * area.loc[index]
+                                       if area is not None else None)
+                else:
+                    offsets[column] = ring
+            trend = _bleach_trend(frame, time_key, reference, ring_column)
+            if trend.empty:
+                continue
+            key = key if isinstance(key, tuple) else (key,)
+            row = dict(zip(fields, key), object_type=object_type,
+                       channel=channel, background=ring_column or '',
+                       n_timepoints=int(len(trend)),
+                       trend_first=float(trend.iloc[0]),
+                       trend_last=float(trend.iloc[-1]),
+                       trend_peak_rise=(float(trend.max() / trend.iloc[0] - 1.0)
+                                        if trend.iloc[0] > 0 else np.nan),
+                       decay_a=np.nan, decay_b=np.nan, decay_c=np.nan,
+                       half_life=np.nan)
+            if method == 'histogram':
+                first = (when == trend.index[0]).to_numpy()
+                for column in columns:
+                    offset = offsets[column]
+                    values = pd.to_numeric(frame[column], errors='coerce').astype(float)
+                    if offset is not None:
+                        values = values - offset
+                    target = values.to_numpy()[first]
+                    matched = values.copy()
+                    for _, part in values.groupby(when.to_numpy()):
+                        matched.loc[part.index] = _histogram_match(
+                            part.to_numpy(), target)
+                    corrected.loc[index, column] = (
+                        matched + offset if offset is not None else matched)
+                row['method'] = 'histogram'
+            else:
+                factors, applied, params = _bleach_factors(trend, method)
+                scale = when.map(factors).astype(float)
+                for column in columns:
+                    values = pd.to_numeric(frame[column], errors='coerce')
+                    offset = offsets[column]
+                    if offset is None:
+                        corrected.loc[index, column] = values * scale
+                    else:
+                        corrected.loc[index, column] = (
+                            (values - offset) * scale + offset)
+                row['method'] = applied
+                if params is not None:
+                    a, b, c = params
+                    row.update(decay_a=a, decay_b=b, decay_c=c,
+                               half_life=(np.log(2) / b) if b > 0 else np.inf)
+            after = corrected.loc[index].copy()
+            if ring_column:
+                after[ring_column] = frame[ring_column]
+            after = _bleach_trend(after, time_key, reference, ring_column)
+            row['corrected_first'] = float(after.iloc[0]) if len(after) else np.nan
+            row['corrected_last'] = float(after.iloc[-1]) if len(after) else np.nan
+            fit_rows.append(row)
+    corrected['bleach_correction_method'] = method
+    return corrected, pd.DataFrame(fit_rows)
+
+
+def _bleach_decay_figure(df, corrected, fits, object_type, time_key,
+                         max_fields=12):
+    """Draw each channel's background trend, the fitted decay and the corrected trend.
+
+    One panel per channel; one series per field, at most ``max_fields`` of
+    them. The trend is the signal above the ring background when the fit
+    used one. The measured trend is drawn as points, the fitted exponential (or,
+    for the ratio and histogram methods, the measured trend) as a line, and
+    the corrected trend dashed in the highlight colour.
+
+    :returns: a :class:`matplotlib.figure.Figure`.
+    """
+    channels = sorted(fits['channel'].unique()) if not fits.empty else []
+    fig = Figure(figsize=(3.2 * max(len(channels), 1), 2.8), dpi=100)
+    axes = fig.subplots(1, max(len(channels), 1), squeeze=False)[0]
+    fields = [k for k in _OBJECT_WELL_KEYS if k in df.columns]
+    for ax, channel in zip(axes, channels):
+        reference = f'{object_type}_channel_{channel}_mean_intensity'
+        rows = fits[fits['channel'] == channel].head(max_fields)
+        for _, row in rows.iterrows():
+            mask = np.ones(len(df), dtype=bool)
+            for k in fields:
+                mask &= (df[k] == row[k]).to_numpy()
+            ring = row.get('background') or None
+            raw = _bleach_trend(df[mask], time_key, reference, ring)
+            after = corrected[mask].copy()
+            if ring:
+                after[ring] = df.loc[mask, ring].to_numpy()
+            fixed = _bleach_trend(after, time_key, reference, ring)
+            t = np.asarray(raw.index, dtype=float)
+            ax.plot(t, raw.to_numpy(), 'o', ms=2.5, color=ROLES['data'])
+            if np.isfinite(row['decay_b']):
+                grid = np.linspace(t.min(), t.max(), 100)
+                ax.plot(grid, exponential_decay(
+                    grid - t.min(), row['decay_a'], row['decay_b'],
+                    row['decay_c']), '-', lw=1, color=ROLES['reference'])
+            else:
+                ax.plot(t, raw.to_numpy(), '-', lw=0.8,
+                        color=ROLES['reference'])
+            ax.plot(np.asarray(fixed.index, dtype=float), fixed.to_numpy(),
+                    '--', lw=1, color=ROLES['highlight'])
+        ax.set_title(f'{object_type} channel {channel}')
+        ax.set_xlabel(time_key)
+        above = bool(rows['background'].astype(str).str.len().gt(0).any()) if 'background' in rows else False
+        ax.set_ylabel('median mean intensity above ring' if above else 'median mean intensity')
+    fig.tight_layout()
+    return fig
+
+
+def _correct_timelapse_bleaching(db_path, method, *, plot=True,
+                                 tables=('cell', 'nucleus', 'pathogen',
+                                         'cytoplasm')):
+    """Correct every timelapse object table in ``db_path`` for photobleaching.
+
+    For each object table present, writes
+    ``measurements.db:<object>_bleach_corrected`` (the corrected intensity
+    levels under their measured names, keyed like the source table, with the
+    method in ``bleach_correction_method``) and writes the per-field,
+    per-channel fits of every table to ``measurements.db:bleach_correction``.
+    The measured tables are left untouched. With ``plot``, the trends and
+    fitted decay of each table are saved to
+    ``results/bleach_correction/<object>.pdf`` beside the ``measurements``
+    folder.
+
+    :param db_path: a timelapse ``measurements.db``.
+    :param method: ``'ratio'``, ``'exponential'`` or ``'histogram'``.
+    :param plot: save the decay figures.
+    :param tables: the object tables to correct, where present.
+    :returns: the fits of every table, as one DataFrame.
+    :raises ValueError: an unknown method, or no table with a timepoint
+        column and channel intensities.
+    """
+    from .tabular import database_tables, read_table, write_database
+
+    present = [t for t in tables if t in database_tables(db_path)]
+    all_fits = []
+    for table in present:
+        df = read_table(db_path, table=table, report=None)
+        time_key = _resolve_time_key(df)
+        if time_key is None or not _bleach_channel_columns(df, table):
+            continue
+        corrected, fits = _bleach_correct_table(df, table, method)
+        write_database(corrected, db_path, f'{table}_bleach_corrected',
+                       if_exists='replace', canonicalise=False)
+        all_fits.append(fits)
+        if plot and not fits.empty:
+            root = os.path.dirname(os.path.dirname(os.path.abspath(db_path)))
+            fig = _bleach_decay_figure(df, corrected, fits, table, time_key)
+            save_figure_to_path(fig, os.path.join(
+                root, 'results', 'bleach_correction', f'{table}.pdf'),
+                close=True)
+    if not all_fits:
+        raise ValueError(
+            f"{db_path} has no timelapse object table with channel "
+            f"intensities to correct")
+    fits = pd.concat(all_fits, ignore_index=True)
+    write_database(fits, db_path, 'bleach_correction', if_exists='replace',
+                   canonicalise=False)
+    return fits
 
 
 def preprocess_pathogen_data(pathogen_df):

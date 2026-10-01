@@ -1,0 +1,194 @@
+{
+ "item": "447",
+ "date": "2026-09-29",
+ "acceptance": "\"A grep of every narration script for \\\"pype\\\" is covered by the pronunciation rule, and the rendered audio is re-checked.\" (447 acceptance)",
+ "scope": "Automatic speech recognition over the rendered English narration that says PyPI, as a machine re-check of the rendered audio. Not a human listening review.",
+ "published_media": {
+  "root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/5e9dad5f417724c6de265659e3f65ad097c3fc96",
+  "note": "The same af_heart track (sha256 ae049364...) is also what the older roots cd1de23e and f0ded2a7 (main Pages) serve for lesson 01."
+ },
+ "search": {
+  "method": "Fetched the hosted en/af_heart.json timing sidecar of all 85 lessons and matched PyPI/pype in each scene text and speech_text.",
+  "lessons_checked": 85,
+  "scenes_saying_pypi": [
+   {
+    "lesson": "01_pypi_github",
+    "scene": 2,
+    "text": "On PyPI, find spaCR and read the installation command beside the current release"
+   }
+  ]
+ },
+ "rule": {
+  "version": "2026-08-28-pype-v11",
+  "english_spoken_form": "[pype](/pˈIp/)",
+  "intended": "one syllable with the vowel and final consonant of \"pipe\"; never \"pie pee\", PyPy, pypie or letters"
+ },
+ "asr": {
+  "engine": "faster-whisper 1.2.1, CPU int8, beam 5, language en, no prompt, condition_on_previous_text false; clip = the scene speech window only",
+  "run_with": "tools/run_capped.sh 12G",
+  "results": [
+   {
+    "model": "small.en",
+    "source": "hosted_5e9dad5f",
+    "audio_sha256": "ae049364ab85c9ca88afc9b6070ed5c67048b328c5a8b9e55275372510e40d10",
+    "scene": 2,
+    "window_s": [
+     13.695,
+     27.755000000000003
+    ],
+    "speech_text": "On [pype](/pˈIp/), find spacer and read the installation command beside the current release. Copy that command when you are ready to install into your Python environment. The pip tutorial shows how to create and activate that environment first.",
+    "transcript": "On pipe, find spacer and read the installation command beside the current release. Copy that command when you are ready to install into your Python environment. The pip tutorial shows how to create and activate that environment first.",
+    "first_words": [
+     [
+      "On",
+      13.7,
+      13.98,
+      0.956
+     ],
+     [
+      "pipe,",
+      13.98,
+      14.22,
+      0.604
+     ],
+     [
+      "find",
+      14.62,
+      14.74,
+      0.974
+     ],
+     [
+      "spacer",
+      14.74,
+      15.22,
+      0.892
+     ]
+    ]
+   },
+   {
+    "model": "small.en",
+    "source": "control_local_stale",
+    "audio_sha256": "00f5c34265a2d06c2bcf7ab8ec794815a2781dc970c9c832bcc3ee7962c5fd79",
+    "scene": 2,
+    "window_s": [
+     14.25,
+     24.45
+    ],
+    "speech_text": "The spacer page on pie pee shows the current stable release and the command pip install spacer. Release files include a Python wheel and a source archive.",
+    "transcript": "The spacer page on PyP shows the current stable release and the command pip install spacer. Release files include a python wheel and a source archive.",
+    "first_words": [
+     [
+      "The",
+      14.25,
+      14.65,
+      0.974
+     ],
+     [
+      "spacer",
+      14.65,
+      15.05,
+      0.903
+     ],
+     [
+      "page",
+      15.05,
+      15.31,
+      0.999
+     ],
+     [
+      "on",
+      15.31,
+      15.53,
+      0.989
+     ]
+    ]
+   },
+   {
+    "model": "medium.en",
+    "source": "hosted_5e9dad5f",
+    "audio_sha256": "ae049364ab85c9ca88afc9b6070ed5c67048b328c5a8b9e55275372510e40d10",
+    "scene": 2,
+    "window_s": [
+     13.695,
+     27.755000000000003
+    ],
+    "speech_text": "On [pype](/pˈIp/), find spacer and read the installation command beside the current release. Copy that command when you are ready to install into your Python environment. The pip tutorial shows how to create and activate that environment first.",
+    "transcript": "On pipe, find spacer and read the installation command beside the current release. Copy that command when you are ready to install into your Python environment. The pip tutorial shows how to create and activate that environment first.",
+    "first_words": [
+     [
+      "On",
+      13.7,
+      13.96,
+      0.982
+     ],
+     [
+      "pipe,",
+      13.96,
+      14.3,
+      0.857
+     ],
+     [
+      "find",
+      14.62,
+      14.76,
+      0.995
+     ],
+     [
+      "spacer",
+      14.76,
+      15.22,
+      0.878
+     ]
+    ]
+   },
+   {
+    "model": "medium.en",
+    "source": "control_local_stale",
+    "audio_sha256": "00f5c34265a2d06c2bcf7ab8ec794815a2781dc970c9c832bcc3ee7962c5fd79",
+    "scene": 2,
+    "window_s": [
+     14.25,
+     24.45
+    ],
+    "speech_text": "The spacer page on pie pee shows the current stable release and the command pip install spacer. Release files include a Python wheel and a source archive.",
+    "transcript": "The Spacer page on PyP shows the current stable release and the command pip install spacer. Release files include a Python wheel and a source archive.",
+    "first_words": [
+     [
+      "The",
+      14.25,
+      14.69,
+      0.974
+     ],
+     [
+      "Spacer",
+      14.69,
+      15.05,
+      0.621
+     ],
+     [
+      "page",
+      15.05,
+      15.35,
+      0.971
+     ],
+     [
+      "on",
+      15.35,
+      15.53,
+      0.993
+     ]
+    ]
+   }
+  ]
+ },
+ "control": "A tracked but unserved legacy copy (docs/source/_extra/tutorials/production/01_pypi_github/audio/en/af_heart.m4a, 2026-08-04 render, speech_text \"pie pee\") transcribes as \"PyP\", so the ASR does separate the two-syllable form from the single-syllable \"pipe\".",
+ "verdict": {
+  "pype_renders_as_intended": true,
+  "summary": "Both small.en and medium.en hear the hosted lesson 01 scene 2 as \"On pipe, find spacer ...\" : one syllable, the pipe vowel and final p, as the v11 rule intends."
+ },
+ "legacy_note": "docs/source/_extra/tutorials/production/01_pypi_github/audio/en/ still tracks 27 other 2026-08 English voices whose sidecars say \"pie pee\". They are not served (Pages 404, not in the release manifest, which has af_heart only); _REJECTED_PYPI_ALIAS does not match \"pie pee\", so a future re-use of those files would not be caught by the rule.",
+ "not_covered": [
+  "A human listening review (maintainer).",
+  "Lesson 02 \"nested setup\" wording confirmation (maintainer)."
+ ]
+}

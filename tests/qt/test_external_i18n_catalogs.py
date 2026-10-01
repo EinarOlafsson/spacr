@@ -223,6 +223,25 @@ def test_reviewed_ui_rows_are_exact_in_regenerated_runtime_catalogs():
         )
 
 
+#: Settings whose tooltips are in spacr.settings but not yet in the generated
+#: catalogs, which only the catalog lane rebuilds. The list empties itself: a
+#: key the catalogs already carry fails below and must leave it. Item 508's
+#: nineteen enhance_* settings arrived with the catalog lane's 2026-09-25
+#: rebuild (316) and left it. Owed since 2026-09-26 by item 493 (Make Masks
+#: splits its fields across GPUs): the two mask GPU keys.
+# 316, 2026-09-26 (fourth pass): the catalog rebuild carries both mask GPU
+# keys now, so the list is empty.
+_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset()
+
+
+def _assert_setting_tooltip_inventory(sources, en):
+    """The catalogs carry every setting tooltip except the ones owed."""
+    catalogued = set(en.SETTING_TOOLTIPS)
+    assert not _AWAITING_CATALOG_REBUILD & catalogued
+    assert _AWAITING_CATALOG_REBUILD <= set(sources["setting_tooltips"])
+    assert set(sources["setting_tooltips"]) - _AWAITING_CATALOG_REBUILD == catalogued
+
+
 def test_runtime_source_inventory_is_complete_before_optional_module_imports():
     tools_dir = str(ROOT / "tools")
     sys.path.insert(0, tools_dir)
@@ -242,7 +261,7 @@ def test_runtime_source_inventory_is_complete_before_optional_module_imports():
         "Score the masks now",
     } <= short_surface
     from spacr.qt.i18n_catalogs import en
-    assert set(sources["setting_tooltips"]) == set(en.SETTING_TOOLTIPS)
+    _assert_setting_tooltip_inventory(sources, en)
 
 
 def test_runtime_source_inventory_is_stable_after_runctx_import():
@@ -258,7 +277,7 @@ def test_runtime_source_inventory_is_stable_after_runctx_import():
 
     from spacr.qt.i18n_catalogs import en
     sources = builder.canonical_sources()
-    assert set(sources["setting_tooltips"]) == set(en.SETTING_TOOLTIPS)
+    _assert_setting_tooltip_inventory(sources, en)
     assert "on_error" in sources["setting_tooltips"]
 
 
@@ -337,7 +356,13 @@ def test_form_labels_and_detector_help_enter_the_runtime_source_inventory():
     from spacr.qt import cpu_modes, organelle_modes
     from spacr.qt.i18n import _ROWS, _TERM_ROWS
 
-    known = set(builder.extract_static_ui_sources()) | set(_ROWS) | set(_TERM_ROWS)
+    # canonical_sources as well as the AST pass: a method name kept exact in
+    # every language ("U-Net", item 316's identity set) is inventoried there
+    # as an identity row, and _looks_translatable keeps it out of the AST
+    # pass on purpose.
+    known = (set(builder.extract_static_ui_sources())
+             | set(builder.canonical_sources()["ui"])
+             | set(_ROWS) | set(_TERM_ROWS))
     assert "Method" in known
     for modes in (cpu_modes, organelle_modes):
         assert set(modes.MODE_LABELS.values()) <= known
@@ -873,7 +898,10 @@ def test_transient_dialogs_translate_when_shown(qapp, monkeypatch):
     from spacr.qt.i18n import install_dialog_translation
     from spacr.qt.i18n_catalogs import ui_text
 
-    source = "Choose folder for the demo dataset"
+    # A folder-picker title the Convert screen still shows. The one used
+    # before, "Choose folder for the demo dataset", left the catalogs with
+    # the retired Demos handlers, and ui_text then returned None.
+    source = "Choose source folder"
     expected = ui_text(source, "de")
     assert expected and expected != source
     monkeypatch.setenv("SPACR_LANGUAGE", "de")
@@ -991,6 +1019,7 @@ def test_runtime_catalogs_resolve_all_reviewed_false_friend_variants():
 
 def test_chinese_and_scientific_runtime_terms_are_contextual():
     from spacr.qt.i18n_catalogs import de, en, es, fr, zh_CN
+    from tools.build_i18n_catalogs import _DOCUMENTATION_GUIDE_SOURCE
 
     for key, source in en.SETTING_LABELS.items():
         value = zh_CN.SETTING_LABELS[key]
@@ -1014,7 +1043,12 @@ def test_chinese_and_scientific_runtime_terms_are_contextual():
             if re.search(r"\bplates?\b", source, re.IGNORECASE):
                 assert "板块" not in value
             if re.search(r"\bguides?\b", source, re.IGNORECASE):
-                assert "指南" not in value and "向导 RNA" not in value
+                assert "向导 RNA" not in value
+                # Informational guides are legitimately 指南; only molecular
+                # guides require the RNA sense. Match the documented source
+                # boundary instead of rejecting correct organism-help prose.
+                if not re.search(_DOCUMENTATION_GUIDE_SOURCE, source, re.IGNORECASE):
+                    assert "指南" not in value
 
     power_labels = [
         es.SETTING_LABELS[key]

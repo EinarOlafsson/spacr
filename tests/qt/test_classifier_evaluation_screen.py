@@ -89,7 +89,7 @@ EVALUATION_SETTINGS = [
     "leakage_require_identity",
 ]
 
-EVALUATION_GROUP = "Evaluation & Results"
+EVALUATION_GROUP = "Evaluation"
 
 
 def test_registration_metadata_matches_app_registry():

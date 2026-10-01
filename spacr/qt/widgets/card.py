@@ -76,6 +76,29 @@ class Card(QFrame):
                                         persist_key=fold_key)
         self._outer = outer
         self._title_row = None
+        if self.folder is not None:
+            self.follow_fold(self.folder)
+
+    def follow_fold(self, folder) -> None:
+        """Let the card shrink to its heading while ``folder`` is shut.
+
+        The body is laid out with a stretch, and a layout counts that stretch
+        even while the body is hidden, so a folded card still asked for room
+        and shared it evenly with the stretch that locks a folded heading to
+        the bottom of its pane (item 515): the folded Console came out half
+        the pane tall. Folded, the body gives its stretch up; opened, it takes
+        it back.
+
+        :param folder: the :class:`~spacr.qt.widgets.foldable.Folder` that
+            folds :attr:`body`.
+        """
+        def apply(shut: bool, _by_user: bool = True) -> None:
+            """Match the body's stretch to the fold."""
+            self._outer.setStretchFactor(self.body, 0 if shut else 1)
+
+        folder.add_listener(apply)
+        apply(folder.shut)
+
     def add_title_action(self, widget: QWidget) -> None:
         """Put ``widget`` at the right-hand end of the title row.
 

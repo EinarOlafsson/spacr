@@ -1,0 +1,35 @@
+{
+  "lesson": "85_host_pathogen",
+  "english_sha256": "e744c3949f480b452dc13cdc04ea44b00e1872b977979c44f5e21d1c9fff7b18",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Host–Pathogen：关联液泡标记物和寄生虫计数",
+  "description": "加载显微示例，选择标记物和计数输入，检查预览，并导出相互关联的液泡、宿主细胞和孔汇总。",
+  "objectives": [
+    "加载示例项目，识别宿主和液泡的测量数据。",
+    "选择标记物通道，并在Live预览中检查每个液泡的募集情况。",
+    "运行分析，并用正确的分母阅读输出表。"
+  ],
+  "prerequisite": "使用Load test data加载提供的THP-1显微示例，或者选择一个包含宿主细胞、液泡和宿主参考强度的已测量项目。如果需要感染分母，请在Measure中保留未感染的宿主细胞。单个寄生虫计数需要关联的寄生虫表或已测量的计数列。",
+  "scenes": [
+    "Host–Pathogen把每个液泡的标记物和寄生虫计数关联回其宿主细胞和所在的孔。要打开它，请从Home打开Toxoplasma，然后选择Host–Pathogen。",
+    "最简单的入门方式是使用示例。Load test data会下载一个小型显微项目并填好设置：两个视野，包含图像、宿主和液泡掩膜以及测量表。在换用您自己的已测量项目之前，先在这里练习。",
+    "模块读取的所有内容都通过Source进入，Source应指向包含measurements/measurements.db的项目。它也可以直接读取数据库，或者在保持各自标识的前提下合并多个项目。",
+    "接下来告诉它液泡和宿主在该数据库中的位置：液泡表及其强度列前缀，然后是宿主参考表及其前缀。示例使用pathogen和cytoplasm。对象链接把每个液泡与其宿主细胞连接起来，请检查它们是否正确。",
+    "Marker channels指定要比较哪些强度，从零开始计数。示例选择通道一，即RNF213标记物。无论选择哪个通道，液泡和参考区室中都需要有它的强度测量值，因为比值由这两者计算得出。",
+    "一开始请把Marker thresholds留空，只观察募集比值。当对照显示出阳性从哪里开始后，输入通道编号和该比值阈值；达到或超过阈值的都计为阳性。如果参考测量缺失或无效，状态会保持未知，而不会被猜测。",
+    "寄生虫计数来自两个来源之一：行与其所属液泡相关联的寄生虫表，或者在每个液泡上测量的计数列。显微示例两者都没有，所以这里都留空，其寄生虫计数和复制读数保持未知。",
+    "在运行全部数据之前，先试一个视野。打开Live，选择一个视野，然后点击Run preview。液泡表会显示在图像旁边；选择一行或点击一个液泡，即可查看其标记物测量值以及寄生虫计数（如果有）。",
+    "预览看起来正确后，关闭Live；如果Actions是折叠的，请展开它。保持Save开启，然后按Run。完成后控制台会打印输出路径，结果保存在第一个所选项目中的results/host_pathogen里。",
+    "结果从小到大逐层构建。vacuoles.csv每个液泡一行：包含其宿主链接、标记物比值、标记物状态以及寄生虫计数（如果有）。cells.csv把这些汇总为宿主细胞的感染情况和液泡数量，wells.csv则按孔进行汇总。",
+    "另外两张表回答生物学问题。marker_states.csv显示标记物的联合状态，replication_distribution.csv显示每个已计数液泡中的寄生虫数量。没有可用所属链接的寄生虫会进入orphan_parasites.csv。请把settings.json与它们放在一起，让您的通道和阈值选择随结果一起保存。",
+    "比较不同条件之前，最后检查一下分母。感染比例使用的是被保留下来的已测量宿主细胞，因此只有当Measure保留了未感染宿主时，它们才会被计入。计数分布只使用寄生虫计数已知的液泡，未知值永远不会被悄悄当作零。"
+  ]
+}

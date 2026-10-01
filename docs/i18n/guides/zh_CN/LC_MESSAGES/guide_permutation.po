@@ -1,0 +1,48 @@
+# spaCR user guide translation (zh_CN).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: zh_CN\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Plate-aware guide permutation analysis"
+msgstr "考虑孔板的向导置换分析"
+
+msgid "Use the guide permutation analysis when the independent experimental unit is a well and a simultaneous guide model is not identifiable because there are more guide columns than wells or because guide fractions are highly correlated.  ``inference='nonparametric'`` (the default) runs it, and ``inference='auto'`` chooses it whenever the simultaneous fit would be unidentifiable; either way the run records ``analysis_mode='guide_permutation'``.  The mode uses the same paired per-cell score and sequencing-count CSV inputs (``paired_data``) as :func:`spacr.ml.perform_regression`."
+msgstr "当独立实验单元是孔，并且由于向导列多于孔或向导比例高度相关而无法识别同时拟合的向导模型时，请使用向导置换分析。``inference='nonparametric'`` （默认值）会运行此分析，``inference='auto'`` 会在同时拟合不可识别时自动选择它；无论哪种方式，运行都会记录 ``analysis_mode='guide_permutation'``。该模式使用与 :func:`spacr.ml.perform_regression` 相同的配对单细胞评分和测序计数 CSV 输入（``paired_data``）。"
+
+msgid "Each guide is tested separately after its well-level fraction and the well-level phenotype have both been adjusted for plate (and any optional measured nuisance columns).  Two-sided empirical P values come from Freedman--Lane residual permutations restricted within plate.  Multiple-test correction is then applied separately within each requested minimum-support family.  These are marginal associations: co-occurring guides may share a signal, so the output is not a set of mutually adjusted causal coefficients."
+msgstr "在孔水平的向导比例和孔水平的表型都针对孔板（以及任何可选的已测量干扰列）进行校正之后，逐一检验每个向导。双侧经验 P 值来自限制在孔板内的 Freedman--Lane 残差置换。随后在每个请求的最小支持度族内分别进行多重检验校正。这些是边际关联：同时出现的向导可能共享同一信号，因此输出并不是一组相互校正后的因果系数。"
+
+msgid "Example"
+msgstr "示例"
+
+msgid "The important output columns are ``wells_with_guide``, ``standardized_marginal_effect``, ``permutation_p_value``, ``adjusted_p_value`` and ``significant``.  ``guide_min_wells`` accepts either one positive integer or a list.  The empirical P value for a guide is computed once at the smallest requested threshold; only the multiple-testing family and adjusted value change across support thresholds. ``guide_primary_min_wells`` selects which requested family is returned in ``output['significant']``; when it is ``None``, spaCR uses the smallest family so the primary correction retains every tested guide."
+msgstr "重要的输出列包括 ``wells_with_guide``、``standardized_marginal_effect``、``permutation_p_value``、``adjusted_p_value`` 和 ``significant``。``guide_min_wells`` 接受一个正整数或一个列表。每个向导的经验 P 值只在请求的最小阈值下计算一次；在不同支持度阈值之间，只有多重检验族和校正后的值会变化。``guide_primary_min_wells`` 选择在 ``output['significant']`` 中返回哪个请求的族；当其为 ``None`` 时，spaCR 使用最小的族，使主要校正保留所有被检验的向导。"
+
+msgid "Multiple-testing choices"
+msgstr "多重检验的选择"
+
+msgid "``multiple_testing_method`` accepts ``fdr_bh`` (Benjamini--Hochberg), ``fdr_by``, ``bonferroni``, ``holm`` or ``none``.  ``fdr_bh`` is the default. For reproducibility, record the requested support families, permutation count, seed, blocking column, nuisance columns, presence threshold, correction method and alpha together with the input-file checksums."
+msgstr "``multiple_testing_method`` 接受 ``fdr_bh`` （Benjamini--Hochberg）、``fdr_by``、``bonferroni``、``holm`` 或 ``none``。``fdr_bh`` 为默认值。为了可重复性，请将请求的支持度族、置换次数、随机种子、分块列、干扰列、存在阈值、校正方法和 alpha 与输入文件的校验和一起记录。"
+
+msgid "Direct analysis of an existing long table"
+msgstr "直接分析现有的长表"
+
+msgid "If a previous run already produced ``regression_data.csv``, it can be analyzed without re-reading the per-cell and sequencing inputs:"
+msgstr "如果之前的运行已经生成了 ``regression_data.csv``，则无需重新读取单细胞输入和测序输入即可对其进行分析："
+

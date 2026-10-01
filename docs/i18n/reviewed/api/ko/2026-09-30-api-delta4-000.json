@@ -1,0 +1,608 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.channel_sorting.build_plan#7",
+      "source": "``{image: mask path}`` naming each image's mask outright (item 600's mask columns); an image missing from it has none. None looks each mask up with :func:`mask_for`.",
+      "source_sha256": "6467c122ba95cbd8a1ce59c9da016c3861359485632fdaefee0b661778576c4e",
+      "context": "``{image: mask path}`` naming each image's mask outright (item 600's mask columns); an image missing from it has none. None looks each mask up with :func:`mask_for`.",
+      "translation": "``{image: mask path}`` 로 각 이미지의 마스크를 직접 지정합니다(item 600 의 마스크 열). 여기에 없는 이미지에는 마스크가 없습니다. None 이면 각 마스크를 :func:`mask_for` 로 찾습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.mask_for#1",
+      "source": "Make Masks saves every mask as ``<masks folder>/<stem>.tif`` (:func:`spacr.qt.mask_engine.mask_save_path`). An image named by an absolute path outside ``folder`` -- one dropped into the sort dialog from elsewhere, or a channel subfolder's -- has its mask in its own folder's ``masks/``.",
+      "source_sha256": "2024a32aad49966055d3f9c20062bc546394f12034822774a95726a749aedd53",
+      "context": "Make Masks saves every mask as ``<masks folder>/<stem>.tif`` (:func:`spacr.qt.mask_engine.mask_save_path`). An image named by an absolute path outside ``folder`` -- one dropped into the sort dialog from elsewhere, or an image data channel subfolder's -- has its mask in its own folder's ``masks/``.",
+      "translation": "Make Masks 는 모든 마스크를 ``<masks folder>/<stem>.tif`` 로 저장합니다(:func:`spacr.qt.mask_engine.mask_save_path`). ``folder`` 밖의 절대 경로로 지정된 이미지(다른 곳에서 정렬 대화 상자로 끌어 놓은 이미지나 채널 하위 폴더의 이미지)는 마스크가 자기 폴더의 ``masks/`` 에 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.mask_for#3",
+      "source": "the image file name, or an absolute path.",
+      "source_sha256": "b7cf1b59b49693743ff79dacf8fff5f4e7fc9810df50ed5073dd0a9ddceb3276",
+      "context": "the image file name, or an absolute path.",
+      "translation": "이미지 파일 이름 또는 절대 경로.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.mask_for#4",
+      "source": "an explicit masks folder, for images in ``folder``.",
+      "source_sha256": "41ed8cb0f3b3cde8d616b01fa25b490b0bcfad7b341bb4705b15ffdec64b07c1",
+      "context": "an explicit masks folder, for images in ``folder``.",
+      "translation": "명시적으로 지정한 마스크 폴더로, ``folder`` 에 있는 이미지에 사용합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.parse_names#2",
+      "source": "image file names, or absolute paths for images outside the folder; the regex reads the file name alone.",
+      "source_sha256": "9968bd6109910b5855971d698697622f2348350e802cb613b81fdfcd062994b6",
+      "context": "image file names, or absolute paths for images outside the folder; the regex reads the file name alone.",
+      "translation": "이미지 파일 이름, 또는 폴더 밖 이미지의 절대 경로. 정규식은 파일 이름만 읽습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification#0",
+      "source": "What was dropped on Make Masks, decided before anything is opened.",
+      "source_sha256": "ad9a9cf4fda80d7d095ebfafa9a6942726431b812f474cc00e614e3b89c22901",
+      "context": "What was dropped on Make Masks, decided before anything is opened.",
+      "translation": "Make Masks 에 무엇을 끌어 놓았는지를 무엇이든 열기 전에 판정합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification#1",
+      "source": "Item 600. Make Masks takes a drop of files, folders or both, and what the user means depends on what they dropped. :func:`classify_drop` reads the paths -- names, folder layout and, for a few TIFFs, their pixels -- and says which of these it is, without a single question or widget:",
+      "source_sha256": "b24e354801f91a030e12c0d067448976a7fc8906225a1cd2e76972b5968436cb",
+      "context": "Item 600. Make Masks takes a drop of files, folders or both, and what the user means depends on what they dropped. :func:`classify_drop` reads the paths -- names, folder layout and, for a few TIFFs, their pixels -- and says which of these it is, without a single question or widget:",
+      "translation": "Item 600. Make Masks 는 파일, 폴더 또는 둘 다를 끌어 놓기로 받으며, 사용자의 의도는 무엇을 끌어 놓았는지에 따라 달라집니다. :func:`classify_drop` 는 경로(이름, 폴더 구조, 그리고 일부 TIFFs 의 경우 픽셀)를 읽고, 질문이나 위젯 하나 없이 다음 중 어느 경우인지 알려 줍니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification#2",
+      "source": "``images`` Image files (and possibly folders) to open as one queue, in drop order. ``folder`` One folder of images, opened as it is (masks in its ``masks/``). ``nested`` One folder whose images sit in subfolders: when the subfolders look like channels (:attr:`channel_like`), \"Organize for Measure\" with one channel column per subfolder; otherwise the consolidation question. ``folders`` Several folders, each holding images: Make Masks opens \"Organize for Measure\" with one channel column per folder. ``images_with_masks`` Images dropped together with their masks (a masks folder, files whose name says mask, or integer label TIFFs named after a dropped image): :attr:`masks` pairs them. ``spacr_output`` A folder spaCR wrote (``merged/*.npy``, a ``sorted_channels`` folder, or a ``merged`` folder itself): :attr:`description` says what it is and :attr:`open_folder` is the images folder to open, if any. ``nothing`` Nothing Make Masks can use.",
+      "source_sha256": "8a7bb619524ce62d6abd7f064acc35f22a4ba1ca6725cf90381ab1fb7fc51c91",
+      "context": "``images`` Image files (and possibly folders) to open as one work list, in drop order. ``folder`` One folder of images, opened as it is (masks in its ``masks/``). ``nested`` One folder whose images sit in subfolders: when the subfolders look like image data channels (:attr:`channel_like`), \"Organize for Measure\" with one image data channel column per subfolder; otherwise the consolidation question. ``folders`` Several folders, each holding images: Make Masks opens \"Organize for Measure\" with one image data channel column per folder. ``images_with_masks`` Images dropped together with their masks (a masks folder, files whose name says mask, or integer label TIFFs named after a dropped image): :attr:`masks` pairs them. ``spacr_output`` A folder spaCR wrote (``merged/*.npy``, a ``sorted_channels`` folder, or a ``merged`` folder itself): :attr:`description` says what it is and :attr:`open_folder` is the images folder to open, if any. ``nothing`` Nothing Make Masks can use.",
+      "translation": "``images`` 끌어 놓은 순서대로 하나의 대기열로 여는 이미지 파일(폴더가 포함될 수도 있음). ``folder`` 있는 그대로 여는 이미지 폴더 하나(마스크는 그 ``masks/`` 에 있음). ``nested`` 이미지가 하위 폴더에 들어 있는 폴더 하나: 하위 폴더가 채널처럼 보이면(:attr:`channel_like`) 하위 폴더마다 채널 열 하나로 \"Organize for Measure\" 를 열고, 그렇지 않으면 통합 여부를 묻습니다. ``folders`` 각각 이미지를 담은 여러 폴더: Make Masks 는 폴더마다 채널 열 하나로 \"Organize for Measure\" 를 엽니다. ``images_with_masks`` 마스크와 함께 끌어 놓은 이미지(마스크 폴더, 이름에 mask 가 들어간 파일, 또는 끌어 놓은 이미지의 이름을 딴 정수 레이블 TIFFs): :attr:`masks` 가 이들을 짝지어 줍니다. ``spacr_output`` spaCR 가 쓴 폴더(``merged/*.npy``, ``sorted_channels`` 폴더 또는 ``merged`` 폴더 자체): :attr:`description` 은 그것이 무엇인지 알려 주고 :attr:`open_folder` 는 열 이미지 폴더입니다(있는 경우). ``nothing`` Make Masks 가 사용할 수 있는 것이 없습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification#3",
+      "source": "Whatever the drop held that is none of these -- a ``.npy``, a text file, an empty folder, a mask no image claims -- is in :attr:`unrecognised` or :attr:`unpaired_masks`, so the screen can list it instead of losing it.",
+      "source_sha256": "ea98616928439da96f4e5fa522ec7301974f265f312e34516a250ae766edc46a",
+      "context": "Whatever the drop held that is none of these -- a ``.npy``, a text file, an empty folder, a mask no image claims -- is in :attr:`unrecognised` or :attr:`unpaired_masks`, so the screen can list it instead of losing it.",
+      "translation": "끌어 놓은 것 중 위의 어느 것에도 해당하지 않는 항목(``.npy``, 텍스트 파일, 빈 폴더, 어떤 이미지도 차지하지 않는 마스크)은 :attr:`unrecognised` 또는 :attr:`unpaired_masks` 에 들어가므로, 화면이 이를 잃어버리지 않고 목록으로 보여 줄 수 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification.DropClassification#0",
+      "source": "What a drop on Make Masks is, and everything needed to act on it.",
+      "source_sha256": "c390879ae8d79d0cbc295f392c8bc8b28fec7a992819f21f16cb86a3d7470b2d",
+      "context": "What a drop on Make Masks is, and everything needed to act on it.",
+      "translation": "Make Masks 에 끌어 놓은 것이 무엇인지, 그리고 그에 따라 처리하는 데 필요한 모든 정보.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification.DropClassification#1",
+      "source": "one of ``images``, ``folder``, ``nested``, ``folders``, ``images_with_masks``, ``spacr_output`` or ``nothing``.",
+      "source_sha256": "7414bbfc5dddcef62f69d9f0876244d84980fd437b704f273c898a2d7eade8a7",
+      "context": "one of ``images``, ``folder``, ``nested``, ``folders``, ``images_with_masks``, ``spacr_output`` or ``nothing``.",
+      "translation": "``images``, ``folder``, ``nested``, ``folders``, ``images_with_masks``, ``spacr_output`` 또는 ``nothing`` 중 하나.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification.DropClassification#10",
+      "source": "dropped paths used for nothing, each with the reason.",
+      "source_sha256": "29cdf3f85d5a93da2d533c501d758624b87f861ae7eb7f089b664e92a1bae790",
+      "context": "dropped paths used for nothing, each with the reason.",
+      "translation": "아무 데도 쓰이지 않은 끌어 놓은 경로와 각각의 이유.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification.DropClassification#2",
+      "source": "image files, absolute, in drop order (``images`` and ``images_with_masks``).",
+      "source_sha256": "72b95df792c0743d0d49bcfccd2d6d59dab0800cee69d123097e2a5044a171d2",
+      "context": "image files, absolute, in drop order (``images`` and ``images_with_masks``).",
+      "translation": "끌어 놓은 순서대로의 이미지 파일 절대 경로(``images`` 및 ``images_with_masks``).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification.DropClassification#3",
+      "source": "the folder dropped (``folder``, ``nested``), the folders (``folders``) or the folders dropped with loose images (``images``).",
+      "source_sha256": "a4b77b71e707cbcb74eec0f1cbdd74d7c1592f140ef1d2ed7acf53812280bc20",
+      "context": "the folder dropped (``folder``, ``nested``), the folders (``folders``) or the folders dropped with loose images (``images``).",
+      "translation": "끌어 놓은 폴더(``folder``, ``nested``), 폴더들(``folders``) 또는 개별 이미지와 함께 끌어 놓은 폴더들(``images``).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification.DropClassification#4",
+      "source": "the subfolders of a ``nested`` folder that hold images, naturally sorted; for ``folders``, the dropped folders.",
+      "source_sha256": "b52d9daaf5cf388035188c1bfbb6dd47d235a333ce79c6d29534c3eabe34081d",
+      "context": "the subfolders of a ``nested`` folder that hold images, naturally sorted; for ``folders``, the dropped folders.",
+      "translation": "이미지를 담고 있는 ``nested`` 폴더의 하위 폴더들로, 자연 순서로 정렬됩니다. ``folders`` 의 경우 끌어 놓은 폴더들입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification.DropClassification#5",
+      "source": "whether :attr:`channel_folders` look like one channel each -- names such as DAPI or ch1, or the same fields in every one.",
+      "source_sha256": "1dae919a6e8bca76ab74a1c4e39a77ab57b2a301150733107652e17697152d85",
+      "context": "whether :attr:`channel_folders` look like one image data channel each -- names such as DAPI or ch1, or the same microscope fields of view in every one.",
+      "translation": ":attr:`channel_folders` 가 각각 하나의 채널처럼 보이는지 여부. DAPI 나 ch1 같은 이름이거나 모든 폴더에 같은 시야가 있는 경우입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification.DropClassification#6",
+      "source": "``{image path: mask path}`` for ``images_with_masks``.",
+      "source_sha256": "c14f0b6bc13c0be7cd085787def914566656f6facc0bef24cc6774e7cbe8bda6",
+      "context": "``{image path: mask path}`` for ``images_with_masks``.",
+      "translation": "``{image path: mask path}``, ``images_with_masks`` 용.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification.DropClassification#7",
+      "source": "masks that no dropped image claims.",
+      "source_sha256": "4020a1877a88a9f9dad51ea8eec2e4076ddb6e8d787383e28a2c8ea7890b9895",
+      "context": "masks that no dropped image claims.",
+      "translation": "끌어 놓은 어떤 이미지도 차지하지 않는 마스크.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification.DropClassification#8",
+      "source": "for ``spacr_output``, the image folder to open, or None when there is none.",
+      "source_sha256": "64da7e723f1d23c072e2c7138c88aa6bb3271e922c93123cf61eb5e4377ab28b",
+      "context": "for ``spacr_output``, the image folder to open, or None when there is none.",
+      "translation": "``spacr_output`` 의 경우 열 이미지 폴더이며, 없으면 None.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification.DropClassification#9",
+      "source": "one plain sentence saying what a ``spacr_output`` drop is.",
+      "source_sha256": "c3d5dec4df2fe348a03c039a640574353a73745c8949f9593a7d96b3ff165ea1",
+      "context": "one plain sentence saying what a ``spacr_output`` drop is.",
+      "translation": "``spacr_output`` 끌어 놓기가 무엇인지 말해 주는 평이한 문장 하나.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification.classify_drop#0",
+      "source": "Say what a drop on Make Masks is, without asking or opening anything.",
+      "source_sha256": "7cb2a9f3c889ee1826224517d43a6d8f2a2e513eda16a6643bcbe47851ff40df",
+      "context": "Say what a drop on Make Masks is, without asking or opening anything.",
+      "translation": "Make Masks 에 끌어 놓은 것이 무엇인지 묻거나 열지 않고 판정합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification.classify_drop#1",
+      "source": "the dropped files and folders, in drop order.",
+      "source_sha256": "6670706f8db19a67a59025bd2be84af4f25d6446a507927474c16f987977c5e4",
+      "context": "the dropped files and folders, in drop order.",
+      "translation": "끌어 놓은 순서대로의 파일과 폴더.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MakeMasksDropHandler.can_accept#0",
+      "source": "An image file, a ``.npy``, or a folder with images or spaCR output.",
+      "source_sha256": "66c961c2404c26e30cbb9dc2a374f3adb6d22dc64ac1c66005179ef33fa79ed9",
+      "context": "An image file, a ``.npy``, or a folder with images or spaCR output.",
+      "translation": "이미지 파일, ``.npy``, 또는 이미지나 spaCR 출력이 있는 폴더.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MakeMasksDropHandler.can_accept#1",
+      "source": "Item 600: a folder whose images sit only in subfolders, and a folder spaCR wrote (``merged/*.npy``, ``sorted_channels``), are taken too, and a ``.npy`` so the screen can say what it is; :func:`spacr.drop_classification.classify_drop` decides what the drop means. Pairs are found later, not required here.",
+      "source_sha256": "0b463bfe023187936515c9f5f78594a1a516a222e11fa84d56c3f93baa7d842b",
+      "context": "Item 600: a folder whose images sit only in subfolders, and a folder spaCR wrote (``merged/*.npy``, ``sorted_channels``), are taken too, and a ``.npy`` so the screen can say what it is; :func:`spacr.drop_classification.classify_drop` decides what the drop means. Pairs are found later, not required here.",
+      "translation": "Item 600: 이미지가 하위 폴더에만 있는 폴더와 spaCR 가 쓴 폴더(``merged/*.npy``, ``sorted_channels``)도 받으며, ``.npy`` 도 받아서 화면이 그것이 무엇인지 알려 줄 수 있게 합니다. 끌어 놓은 것의 의미는 :func:`spacr.drop_classification.classify_drop` 가 결정합니다. 짝은 나중에 찾으며 여기서는 필요하지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#0",
+      "source": "Open a drop the way its contents say, asking where there is a choice.",
+      "source_sha256": "6b0579156a6c584df9096cab9f7b7211c548aaa35b80fbb997ea450b5476e1a9",
+      "context": "Open a drop the way its contents say, asking where there is a choice.",
+      "translation": "끌어 놓은 내용이 가리키는 방식대로 열고, 선택지가 있는 곳에서는 묻습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#1",
+      "source": "Item 600. :func:`spacr.drop_classification.classify_drop` says what was dropped, and:",
+      "source_sha256": "69334d1a082d3f29421c9886c5b3eaffe80c893614f2310e735a8415bf32cc75",
+      "context": "Item 600. :func:`spacr.drop_classification.classify_drop` says what was dropped, and:",
+      "translation": "Item 600. :func:`spacr.drop_classification.classify_drop` 가 무엇을 끌어 놓았는지 알려 주고, 그에 따라",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#11",
+      "source": "whether something was opened or a job started.",
+      "source_sha256": "cd563a28ad5739f67a3a5a5f193336cf4f639280ab55ddd5a51a1fe479d5cbc7",
+      "context": "whether something was opened or a job started.",
+      "translation": "무언가를 열었거나 작업을 시작했는지 여부.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#2",
+      "source": "image files (with or without folders) open as one queue, in drop order, each field edited where it lies with its mask in its own ``<folder>/masks`` -- :meth:`_open_queue`;",
+      "source_sha256": "20bc27c6efd19fd2293d239b2032995610f1090b591b2f0055f945f87742e346",
+      "context": "image files (with or without folders) open as one work list, in drop order, each microscope field of view edited where it lies with its mask in its own ``<folder>/masks`` -- :meth:`_open_queue`;",
+      "translation": "이미지 파일(폴더 포함 여부와 관계없이)은 끌어 놓은 순서대로 하나의 대기열로 열리며, 각 시야는 있는 자리에서 편집되고 마스크는 자기 ``<folder>/masks`` 에 있습니다 -- :meth:`_open_queue`;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#3",
+      "source": "one folder of images opens as it is;",
+      "source_sha256": "e8345bf2a6043263e97fc76701af792bf6a6a7c7c1bfab70711470f4fd8eb3c7",
+      "context": "one folder of images opens as it is;",
+      "translation": "이미지 폴더 하나는 있는 그대로 열립니다;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#4",
+      "source": "one folder whose subfolders look like channels (DAPI/, GFP/..., or the same fields in each) opens \"Organize for Measure\" with a channel column per subfolder; any other folder whose images sit in subfolders is offered for consolidation (item 593);",
+      "source_sha256": "d6cfe7dc8f5efd9740d06ece07a39d601c18295bf1f4f87dbbe487802815feab",
+      "context": "one folder whose subfolders look like image data channels (DAPI/, GFP/..., or the same microscope fields of view in each) opens \"Organize for Measure\" with an image data channel column per subfolder; any other folder whose images sit in subfolders is offered for consolidation (item 593);",
+      "translation": "하위 폴더가 채널처럼 보이는 폴더 하나(DAPI/, GFP/..., 또는 각 하위 폴더에 같은 시야)는 하위 폴더마다 채널 열 하나로 \"Organize for Measure\" 를 엽니다. 이미지가 하위 폴더에 들어 있는 그 밖의 폴더는 통합을 제안합니다(item 593);",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#5",
+      "source": "several folders of images open \"Organize for Measure\" with a channel column per folder;",
+      "source_sha256": "83b830594fc1c09a8572c7800550ccea8ad86e430a4c1cbf45127014f0c2d624",
+      "context": "several folders of images open \"Organize for Measure\" with an image data channel column per folder;",
+      "translation": "여러 이미지 폴더는 폴더마다 채널 열 하나로 \"Organize for Measure\" 를 엽니다;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#6",
+      "source": "when that popup is cancelled (or nobody can see it), the drop opens as it always did: the folder as it is, or a queue;",
+      "source_sha256": "eb8b8981479f0c97da1cfd8abd5a38ef8b31ffe10d80ad6e636ca4ced9d72923",
+      "context": "when that popup is cancelled (or nobody can see it), the drop opens as it always did: the folder as it is, or a work list;",
+      "translation": "그 팝업이 취소되면(또는 아무도 볼 수 없으면) 끌어 놓은 것은 늘 하던 대로 열립니다. 폴더는 있는 그대로, 아니면 대기열로 열립니다;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#7",
+      "source": "images dropped with their masks open with those masks (:meth:`_open_with_masks`);",
+      "source_sha256": "2fedcff00ed01718e70950e47986bcd38b062c74019d0a8647cb9abf473c3655",
+      "context": "images dropped with their masks open with those masks (:meth:`_open_with_masks`);",
+      "translation": "마스크와 함께 끌어 놓은 이미지는 그 마스크와 함께 열립니다(:meth:`_open_with_masks`);",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#8",
+      "source": "a folder spaCR wrote is named in the console and its images, if any, open -- a ``.npy`` is never opened as an image.",
+      "source_sha256": "12013c1dad79f5e94c4de1e807050e6ae5e3f427773748601c9a5df2a1e16d84",
+      "context": "a folder spaCR wrote is named in the console and its images, if any, open -- a ``.npy`` is never opened as an image.",
+      "translation": "spaCR 가 쓴 폴더는 콘솔에 이름이 표시되고, 이미지가 있으면 열립니다 -- ``.npy`` 는 결코 이미지로 열리지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#9",
+      "source": "Everything the drop held that is used for nothing is listed in the console.",
+      "source_sha256": "76ddbfea745401621562b270d01fbe8ea4d1a133e0e085ab1a545bdcc37c4d40",
+      "context": "Everything the drop held that is used for nothing is listed in the console.",
+      "translation": "끌어 놓은 것 중 아무 데도 쓰이지 않은 것은 모두 콘솔에 나열됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure#0",
+      "source": "Make Masks' \"Organize for Measure…\" popup: images and masks into merged/.",
+      "source_sha256": "6cb4ef09b5cdf634a7b8d12853f34f8e76ea887498be2266b929e2bec41f6796",
+      "context": "Make Masks' \"Organize for Measure…\" popup: images and masks into merged/.",
+      "translation": "Make Masks 의 \"Organize for Measure…\" 팝업: 이미지와 마스크를 merged/ 로 정리합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure#1",
+      "source": "Item 600, replacing item 593's string of prompts and its separate \"Sort into channels\" dialog as the entry point. ONE popup puts images and their masks into the layout Measure reads -- Yokogawa-named channel folders, the masks, and ``merged/*.npy`` -- through :mod:`spacr.channel_sorting` and :mod:`spacr.folder_consolidation`, which hold every decision:",
+      "source_sha256": "4145d60284cd1c41324b691b5ceb3a7b1e50f5918b463f4cdfb711ecf8072e33",
+      "context": "Item 600, replacing item 593's string of prompts and its separate \"Sort into channels\" dialog as the entry point. ONE popup puts images and their masks into the layout Measure reads -- Yokogawa-named image data channel folders, the masks, and ``merged/*.npy`` -- through :mod:`spacr.channel_sorting` and :mod:`spacr.folder_consolidation`, which hold every decision:",
+      "translation": "Item 600 으로, item 593 의 연속된 프롬프트와 별도의 \"Sort into channels\" 대화 상자를 진입점으로서 대체합니다. 팝업 단 하나가 이미지와 그 마스크를 Measure 가 읽는 구조(Yokogawa 이름의 채널 폴더, 마스크, ``merged/*.npy``)로 배치하며, 모든 결정은 :mod:`spacr.channel_sorting` 과 :mod:`spacr.folder_consolidation` 이 내립니다:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure#2",
+      "source": "a SOURCE folder (typed, browsed or dropped), optionally consolidated first (its subfolders' images copied into one folder, named after their folders);",
+      "source_sha256": "9d111e1d9a8ee2f9eef5767008047ac51afa9eb6bc97e1c337baf45afedfce9f",
+      "context": "a SOURCE folder (typed, browsed or dropped), optionally consolidated first (its subfolders' images copied into one folder, named after their folders);",
+      "translation": "소스 폴더(직접 입력, 찾아보기 또는 끌어 놓기). 선택적으로 먼저 통합할 수 있습니다(하위 폴더의 이미지를 한 폴더로 복사하고 원래 폴더 이름을 붙임);",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure#3",
+      "source": "the REGEX box: Mask generation's own ``metadata_type`` field -- the same grouped convention menu, example and \"Test on my folder\" -- with its ``custom_regex``, plus \"Sort by regex\", \"Auto regex\" and \"Detect sets\";",
+      "source_sha256": "6d8587d4ae76e72a79c7014dee17ff01439a7f2b577816891e0a85f00c4bec42",
+      "context": "the REGEX box: Mask generation's own ``metadata_type`` microscope field of view -- the same grouped convention menu, example and \"Test on my folder\" -- with its ``custom_regex``, plus \"Sort by regex\", \"Auto regex\" and \"Detect sets\";",
+      "translation": "정규식 상자: 마스크 생성 자체의 ``metadata_type`` 필드(같은 그룹별 명명 규칙 메뉴, 예시, \"Test on my folder\")와 그 ``custom_regex``, 그리고 \"Sort by regex\", \"Auto regex\", \"Detect sets\";",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure#4",
+      "source": "the DIMENSIONS: which columns are image channels and which are masks, each mask with its role (cell, nucleus, pathogen) and the channel whose images it outlines;",
+      "source_sha256": "4ff01b34b6bfcb85a3de600d0806f7aeef29b14e0550bddcc26aed63c2284865",
+      "context": "the DIMENSIONS: which columns are image data channels and which are masks, each mask with its role (cell, nucleus, pathogen) and the image data channel whose images it outlines;",
+      "translation": "차원: 어떤 열이 이미지 채널이고 어떤 열이 마스크인지, 그리고 각 마스크의 역할(세포, 핵, 병원체)과 그 마스크가 윤곽을 그리는 이미지의 채널;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure#5",
+      "source": "a TABLE with one column per channel and per mask and one row per field. Every column takes files and folders dropped from the file manager (a folder brings its images, recursively) and cells dragged from another column. Dropped files sort themselves by name and are matched across the columns the way Detect sets pairs images -- file-name tokens, then order, never two images of different size (:func:`spacr.channel_sorting. _match_columns`). A cell nothing matched stays empty and flagged.",
+      "source_sha256": "41ea8b601e3b5fa7c1b65944416e770f4909ab6bcbb0e5111b0175b5475732b1",
+      "context": "a TABLE with one column per image data channel and per mask and one row per microscope field of view. Every column takes files and folders dropped from the file manager (a folder brings its images, recursively) and cells dragged from another column. Dropped files sort themselves by name and are matched across the columns the way Detect sets pairs images -- file-name tokens, then order, never two images of different size (:func:`spacr.channel_sorting. _match_columns`). A cell nothing matched stays empty and flagged.",
+      "translation": "채널마다, 마스크마다 열이 하나씩 있고 시야마다 행이 하나씩 있는 표. 모든 열은 파일 관리자에서 끌어 놓은 파일과 폴더(폴더는 그 안의 이미지를 재귀적으로 가져옴), 그리고 다른 열에서 끌어 온 셀을 받습니다. 끌어 놓은 파일은 이름순으로 저절로 정렬되고, Detect sets 가 이미지를 짝짓는 방식대로 열 사이에서 매칭됩니다. 먼저 파일 이름 토큰, 그다음 순서로 매칭하며, 크기가 다른 두 이미지는 절대 매칭하지 않습니다(:func:`spacr.channel_sorting. _match_columns`). 아무것도 매칭되지 않은 셀은 비어 있는 채로 표시됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure#6",
+      "source": "Mode 1: fill the source, choose or test the regex, press \"Sort by regex\", Apply. Mode 2: fill the columns by dropping, Apply. Mode 3, \"Teach me…\": answer \"Which channel is this?\" for one image at a time while spaCR learns a regex from the answers (:func:`spacr.channel_sorting._teach_step`), until every image is placed. Each works without the others. A folder made by folder consolidation is read under its files' ORIGINAL names, from its ``rename_manifest.csv``, because the copies' names may have lost what told the channels apart. Apply builds a :class:`spacr.channel_sorting.SortPlan`; incomplete rows block it (the regex box is where to fix them), RGB images and z-stacks are offered for conversion, and detected sets are shown three at a time before they are used. Nothing moves before Apply; the screen applies the plan off the GUI thread and every move is written to the manifest.",
+      "source_sha256": "d94e3d62d3ee1ba13d3fa35dfd88a2560d6e07f69cdabe851e4d0453a237ae2d",
+      "context": "Mode 1: fill the source, choose or test the regex, press \"Sort by regex\", Apply. Mode 2: fill the columns by dropping, Apply. Mode 3, \"Teach me…\": answer \"Which image data channel is this?\" for one image at a time while spaCR learns a regex from the answers (:func:`spacr.channel_sorting._teach_step`), until every image is placed. Each works without the others. A folder made by folder consolidation is read under its files' ORIGINAL names, from its ``rename_manifest.csv``, because the copies' names may have lost what told the image data channels apart. Apply builds a :class:`spacr.channel_sorting.SortPlan`; incomplete rows block it (the regex box is where to fix them), RGB images and z-stacks are offered for conversion, and detected sets are shown three at a time before they are used. Nothing moves before Apply; the application view applies the plan off the main GUI execution path and every move is written to the manifest.",
+      "translation": "모드 1: 소스를 채우고, 정규식을 고르거나 테스트한 뒤 \"Sort by regex\" 를 누르고 Apply 합니다. 모드 2: 끌어 놓기로 열을 채우고 Apply 합니다. 모드 3, \"Teach me…\": spaCR 가 답변에서 정규식을 학습하는 동안(:func:`spacr.channel_sorting._teach_step`) 한 번에 이미지 하나씩 \"이것은 어느 채널입니까?\" 에 답하며, 모든 이미지가 배치될 때까지 계속합니다. 각 모드는 다른 모드 없이도 작동합니다. 폴더 통합으로 만든 폴더는 ``rename_manifest.csv`` 에서 가져온 파일의 원래 이름으로 읽습니다. 복사본의 이름에서는 채널을 구분하던 정보가 사라졌을 수 있기 때문입니다. Apply 는 :class:`spacr.channel_sorting.SortPlan` 을 만듭니다. 불완전한 행이 있으면 만들 수 없고(정규식 상자에서 고칩니다), RGB 이미지와 z 스택은 변환을 제안하며, 감지된 세트는 사용하기 전에 한 번에 세 개씩 보여 줍니다. Apply 전에는 아무것도 이동하지 않습니다. 화면은 GUI 스레드 밖에서 계획을 적용하고 모든 이동을 매니페스트에 기록합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog#0",
+      "source": "Put images and masks into channel folders and ``merged/`` for Measure.",
+      "source_sha256": "1f5bb1a631f9832bcc2f85b17cea30bd164acf5c5a713bb14bc83476d81a79e4",
+      "context": "Put images and masks into image data channel folders and ``merged/`` for Measure.",
+      "translation": "Measure 를 위해 이미지와 마스크를 채널 폴더와 ``merged/`` 에 배치합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog#2",
+      "source": "the table's columns, in order.",
+      "source_sha256": "d6aafdbd667cab426269e95e66de4be7299cca05461ec6c06b06721f1a58d59c",
+      "context": "the table's columns, in order.",
+      "translation": "표의 열들(순서대로).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog#3",
+      "source": "one list per field, one path or None per column.",
+      "source_sha256": "0bb4337e35954672b73822e6318891bf40672273437bc4ec06979d012695be80",
+      "context": "one list per field, one path or None per column.",
+      "translation": "시야마다 목록 하나, 열마다 경로 하나 또는 None.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog#4",
+      "source": "Build the popup, prefilled from a drop when there was one.",
+      "source_sha256": "c0d50783d54de8fe4ef572ca6834debeece4b21278651c1f86d0f4b05178dec2",
+      "context": "Build the popup, prefilled from a drop when there was one.",
+      "translation": "팝업을 만들고, 끌어 놓은 것이 있으면 그것으로 미리 채웁니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog#5",
+      "source": "the source folder, if known.",
+      "source_sha256": "4d4eda03aac613dbdc47dfafe4fcd371e521bfd627313feecb6471f8abf1d7b2",
+      "context": "the source folder, if known.",
+      "translation": "소스 폴더(알고 있는 경우).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog#7",
+      "source": "folders to put in the table, one channel column each (their masks from each folder's ``masks/``) -- the Make Masks drop of several folders or of channel-like subfolders.",
+      "source_sha256": "2facb0e5ff8aad94c303616963c1b9c26fa93314472c23b42414a9934b267838",
+      "context": "folders to put in the table, one image data channel column each (their masks from each folder's ``masks/``) -- the Make Masks drop of several folders or of image data channel-like subfolders.",
+      "translation": "표에 넣을 폴더로, 각각 채널 열 하나가 됩니다(마스크는 각 폴더의 ``masks/`` 에서 가져옴). 여러 폴더나 채널처럼 보이는 하위 폴더를 Make Masks 에 끌어 놓은 경우입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog#8",
+      "source": "the source's masks folder, when not its ``masks/``.",
+      "source_sha256": "a29ee4e01cd895f219234770e0346394dc467bac4021ee201a27a54c9e15a04a",
+      "context": "the source's masks folder, when not its ``masks/``.",
+      "translation": "소스의 마스크 폴더로, 소스의 ``masks/`` 가 아닐 때 사용합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_column#0",
+      "source": "Add a channel or mask column at the end.",
+      "source_sha256": "2641b634df46e3385037ab7d8a77569cf1039dbfa65a56576d08d2ce50e7ce67",
+      "context": "Add an image data channel or mask column at the end.",
+      "translation": "채널 열 또는 마스크 열을 끝에 추가합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_column#1",
+      "source": "``\"channel\"`` or ``\"mask\"``.",
+      "source_sha256": "864b7ee05625d04120c4ffc847149a370175bd329cf45805d0e35f4690773607",
+      "context": "``\"channel\"`` or ``\"mask\"``.",
+      "translation": "``\"channel\"`` 또는 ``\"mask\"``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_column#2",
+      "source": "a mask's role; default the first role no mask has.",
+      "source_sha256": "7a6d1b0d485bddb32e9057db9dabcf738354442c717e2f2534161f6b545f4b2b",
+      "context": "a mask's role; default the first role no mask has.",
+      "translation": "마스크의 역할. 기본값은 아직 어떤 마스크도 갖지 않은 첫 번째 역할입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_column#3",
+      "source": "a mask's channel; default the first channel with no mask column, else 1.",
+      "source_sha256": "f019173af7e388dcab2b4f00269989de516de9433e0ee1b4a3f0d80ac4d995b1",
+      "context": "a mask's image data channel; default the first image data channel with no mask column, else 1.",
+      "translation": "마스크의 채널. 기본값은 마스크 열이 없는 첫 번째 채널이며, 없으면 1 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_column#4",
+      "source": "the new column's index.",
+      "source_sha256": "540fb85407c8b0d458f43d9964400a8fda7f08ca91846dcf3f7d3326c6d00e30",
+      "context": "the new column's index.",
+      "translation": "새 열의 인덱스.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_files#0",
+      "source": "Put dropped files and folders into a column, and match the rows.",
+      "source_sha256": "50ebb0e149d514dcf3cda6d7ebb396cee7f9a65345063815713762a74870d54d",
+      "context": "Put dropped files and folders into a column, and match the rows.",
+      "translation": "끌어 놓은 파일과 폴더를 열에 넣고 행을 매칭합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_files#1",
+      "source": "A folder brings its images, recursively, not its ``masks/``. Images dropped into a channel column bring the masks Make Masks saved for them (``<their folder>/masks/<stem>.tif``) into that channel's mask column, which is made when there is none. A file already in the table moves to this column. Nothing on disk changes.",
+      "source_sha256": "2cceb8ec59a9aa679d44e507771b2650a34e09cfc64506e731de7ada4074ad5a",
+      "context": "A folder brings its images, recursively, not its ``masks/``. Images dropped into an image data channel column bring the masks Make Masks saved for them (``<their folder>/masks/<stem>.tif``) into that image data channel's mask column, which is made when there is none. A file already in the table moves to this column. Nothing on disk changes.",
+      "translation": "폴더는 그 안의 이미지를 재귀적으로 가져오지만 ``masks/`` 는 가져오지 않습니다. 채널 열에 끌어 놓은 이미지는 Make Masks 가 저장해 둔 마스크(``<their folder>/masks/<stem>.tif``)를 그 채널의 마스크 열로 가져오며, 마스크 열이 없으면 새로 만듭니다. 이미 표에 있는 파일은 이 열로 이동합니다. 디스크에서는 아무것도 바뀌지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_files#2",
+      "source": "the column index.",
+      "source_sha256": "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
+      "context": "the column index.",
+      "translation": "열 인덱스.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_files#3",
+      "source": "files and folders.",
+      "source_sha256": "0c0e0d1bf62e16a58806f2b6ba607ddfae14596fa5873316930dd850310f4346",
+      "context": "files and folders.",
+      "translation": "파일과 폴더.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_files#4",
+      "source": "match the rows afterwards (off while prefilling).",
+      "source_sha256": "257ee22b60c38f1f6f06e9426816c63e55450a4322172495f7d803963259cb0f",
+      "context": "match the rows afterwards (off while prefilling).",
+      "translation": "나중에 행을 매칭할지 여부(미리 채우는 동안에는 꺼 둠).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_files#5",
+      "source": "the image files added.",
+      "source_sha256": "9c509e9a13c633b3381d27774e7ce1c2b4c5cf2058a268a89c8164ffdb124b28",
+      "context": "the image files added.",
+      "translation": "추가된 이미지 파일.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.auto_regex#0",
+      "source": "Propose a regex, put it in custom_regex, and sort by it.",
+      "source_sha256": "e375aa07c953c6e44115664a813acd061bee5445c7f0fa12da10a4a52d6134b3",
+      "context": "Propose a regex, put it in custom_regex, and sort by it.",
+      "translation": "정규식을 제안하여 custom_regex 에 넣고, 그 정규식으로 정렬합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.detect_sets#0",
+      "source": "Match the columns' files by name, order and size, and check three.",
+      "source_sha256": "de00bf943a71e8f1ecc988e5eff7126ce2c3eb10dab495a4ee72cba4a4870a40",
+      "context": "Match the columns' files by name, order and size, and check three.",
+      "translation": "열의 파일을 이름, 순서, 크기로 매칭하고 세 개를 확인합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.detect_sets#1",
+      "source": "With an empty table and a source folder, the source is sorted by the regex first, for its channels. The sets are shown three at a time (:class:`spacr.qt.widgets.channel_sort_dialog.ExampleSetsDialog`) and kept only when the user says they are right.",
+      "source_sha256": "19fe6675bc9ab8c20dfc3f07ee94d1b247bfcddea2addb9af12145607041c555",
+      "context": "With an empty table and a source folder, the source is sorted by the regex first, for its channels. The sets are shown three at a time (:class:`spacr.qt.widgets.channel_sort_dialog.ExampleSetsDialog`) and kept only when the user says they are right.",
+      "translation": "표가 비어 있고 소스 폴더가 있으면, 채널을 얻기 위해 먼저 정규식으로 소스를 정렬합니다. 세트는 한 번에 세 개씩 표시되며(:class:`spacr.qt.widgets.channel_sort_dialog.ExampleSetsDialog`) 사용자가 맞다고 확인한 경우에만 유지됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.detect_sets#2",
+      "source": "whether the detected sets were kept.",
+      "source_sha256": "b75284420f01f5b0606735b93f9a794d9f0d9ab18da07518e9c3ab44218cec81",
+      "context": "whether the detected sets were kept.",
+      "translation": "감지된 세트가 유지되었는지 여부.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.prepare_plan#0",
+      "source": "Build the plan from the table, or None while rows are incomplete.",
+      "source_sha256": "7565a3846eac9b1e672b01183b9d19900a09aa3ff4bda2449edd55234fe25b5d",
+      "context": "Build the plan from the table, or None while rows are incomplete.",
+      "translation": "표에서 계획을 만듭니다. 불완전한 행이 있는 동안에는 None 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.remove_column#0",
+      "source": "Remove a column and its files from the table.",
+      "source_sha256": "9d07705f2db4150a8646bbce1bdd3012a374243e90a0de1b9b94fde2c049cb76",
+      "context": "Remove a column and its files from the table.",
+      "translation": "열과 그 파일을 표에서 제거합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.remove_column#1",
+      "source": "the column.",
+      "source_sha256": "1292b0b4037eddcee0242184c4b73a894c7b993d634f028768e10593fd984a6c",
+      "context": "the column.",
+      "translation": "해당 열.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.sort_by_regex#0",
+      "source": "Fill the table from the regex: chanID is the column, the rest the row.",
+      "source_sha256": "8b0f39440497d1c599b815a9a795730da94ec11c270acb8345423011053573c1",
+      "context": "Fill the table from the regex: chanID is the column, the rest the row.",
+      "translation": "정규식으로 표를 채웁니다. chanID 가 열이고 나머지가 행입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.sort_by_regex#1",
+      "source": "With a source folder its images are read (consolidated first when asked), and their masks found where Make Masks saves them; with none, the files already in the channel columns are re-sorted, keeping the column each is in. Masks go into a mask column per channel. A mask two images share (two files with one stem) is left out and named.",
+      "source_sha256": "7c2f533c4c899b17ab32b3f0ff84b402b90792be327b6cd6d8892fed5313d128",
+      "context": "With a source folder its images are read (consolidated first when asked), and their masks found where Make Masks saves them; with none, the files already in the image data channel columns are re-sorted, keeping the column each is in. Masks go into a mask column per image data channel. A mask two images share (two files with one stem) is left out and named.",
+      "translation": "소스 폴더가 있으면 그 이미지를 읽고(요청하면 먼저 통합), Make Masks 가 마스크를 저장하는 위치에서 마스크를 찾습니다. 소스 폴더가 없으면 이미 채널 열에 있는 파일을 다시 정렬하되 각 파일은 원래 열에 그대로 둡니다. 마스크는 채널마다 마스크 열 하나에 들어갑니다. 두 이미지가 공유하는 마스크(stem 이 같은 두 파일)는 제외되고 이름이 표시됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.sort_by_regex#2",
+      "source": "the regex; default what the regex box stands for.",
+      "source_sha256": "7a48da9dc7a2ecce085f8ceb9bc8ab2e2a0fa861b4061f06eddd500b16ca80a2",
+      "context": "the regex; default what the regex box stands for.",
+      "translation": "정규식. 기본값은 정규식 상자가 나타내는 식입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.sort_by_regex#3",
+      "source": "``{chanID value: label}`` learned by \"Teach me\", a label being ``(\"channel\", n)`` or ``(\"mask\", n, role)``; by default the regex's chanID values are channels in natural order.",
+      "source_sha256": "ab0376b6557e1870089c7de4ce9e67825cd5ab16df97984dae13d62623583689",
+      "context": "``{chanID value: label}`` learned by \"Teach me\", a label being ``(\"channel\", n)`` or ``(\"mask\", n, role)``; by default the regex's chanID values are channels in natural order.",
+      "translation": "\"Teach me\" 로 학습한 ``{chanID value: label}`` 이며, 레이블은 ``(\"channel\", n)`` 또는 ``(\"mask\", n, role)`` 입니다. 기본적으로 정규식의 chanID 값은 자연 순서의 채널입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.sort_by_regex#4",
+      "source": "the set report, or None when there was nothing to read.",
+      "source_sha256": "56214aaa5e6d9ecb5b3ced90b75fb16011476abec1dd20375ef5333af5b97015",
+      "context": "the set report, or None when there was nothing to read.",
+      "translation": "세트 보고서. 읽을 것이 없었으면 None 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.teach#0",
+      "source": "\"Teach me\": ask what images are until a regex places all of them.",
+      "source_sha256": "d25a2ecbec156ca244d1a52aed362848f4c6bd4c165513e91f7bede06b37516c",
+      "context": "\"Teach me\": ask what images are until a regex places all of them.",
+      "translation": "\"Teach me\": 정규식이 모든 이미지를 배치할 수 있을 때까지 이미지가 무엇인지 묻습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.teach#1",
+      "source": "One image is shown at a time with \"Which channel is this?\" (:attr:`ask_label`). From the answers :func:`spacr.channel_sorting._teach_step` learns what in the names marks each channel or mask and writes a regex; each new marker is confirmed with :attr:`ask_marker` (a channel, a mask, or only part of the field's name). The table fills as it goes, and the regex is put in custom_regex, where it can be edited. It ends when every image is placed, or when the user says stop.",
+      "source_sha256": "f7d2dd8c178d87a019144521ac33a3c2c1ec36effa3fd4138ea514ebb17f0b2b",
+      "context": "One image is shown at a time with \"Which image data channel is this?\" (:attr:`ask_label`). From the answers :func:`spacr.channel_sorting._teach_step` learns what in the names marks each image data channel or mask and writes a regex; each new marker is confirmed with :attr:`ask_marker` (an image data channel, a mask, or only part of the microscope field of view's name). The table fills as it goes, and the regex is put in custom_regex, where it can be edited. It ends when every image is placed, or when the user says stop.",
+      "translation": "한 번에 이미지 하나를 \"이것은 어느 채널입니까?\" 와 함께 보여 줍니다(:attr:`ask_label`). 답변으로부터 :func:`spacr.channel_sorting._teach_step` 가 이름에서 각 채널이나 마스크를 표시하는 부분을 학습하여 정규식을 작성합니다. 새 표지는 각각 :attr:`ask_marker` 로 확인합니다(채널, 마스크, 또는 시야 이름의 일부일 뿐인지). 진행하면서 표가 채워지고, 정규식은 custom_regex 에 들어가 편집할 수 있습니다. 모든 이미지가 배치되거나 사용자가 중지하라고 하면 끝납니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.teach#2",
+      "source": "the learned regex, or None when none was learned.",
+      "source_sha256": "a781a71325a8e99dddb2a81975c4fd4a59f8120ec64619494e2e317ee4efe511",
+      "context": "the learned regex, or None when none was learned.",
+      "translation": "학습된 정규식. 학습된 것이 없으면 None 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}

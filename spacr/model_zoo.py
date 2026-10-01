@@ -155,6 +155,7 @@ from typing import (
 import numpy as np
 
 from ._segmentation_backends import _SPECS as _BACKEND_SPECS
+from ._segmentation_backends import _BACKEND_NAMES as _SEGMENTATION_BACKEND_NAMES
 
 LOG = logging.getLogger(__name__)
 
@@ -234,8 +235,19 @@ UNKNOWN = "unknown"
 #: cyto3, cyto2, cyto and nuclei models, and Cellpose-format checkpoints from
 #: bioimage.io. It is a kind of its own because spaCR's Cellpose 4 loads such
 #: a checkpoint without complaint and then segments nonsense with it.
+#:
+#: ``cellpose_dino`` is a Cellpose-DINO checkpoint, which runs through the
+#: Cellpose-DINO backend (item 525): spaCR's own Cellpose 4 has no DINOv3,
+#: and without it Cellpose 4 cannot build the network the weights are for.
+#:
+#: Each backend an object chooses by a model-setting prefix of its own --
+#: StarDist, InstanSeg, Omnipose (items 551-553) -- is a kind named after
+#: it (:data:`PREFIXED_KINDS`): its models run in that backend and nowhere
+#: else.
+PREFIXED_KINDS = tuple(_name for _name, _spec in _BACKEND_SPECS.items()
+                       if _spec.prefix)
 KINDS = ("cellpose", "classifier", "detector", "encoder", "backend",
-         "cellpose3")
+         "cellpose3", "cellpose_dino") + PREFIXED_KINDS
 #: "backend" is not a checkpoint: it is a segmentation PACKAGE the zoo
 #: lists so a user learns it exists and can install it from inside spaCR.
 
@@ -331,11 +343,6 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         "metrics": {'n_train': '229', 'train_objects': 'not recorded', 'n_test': '11 wells', 'test_objects': 'not recorded', 'cv': 'no', 'f1': '0.8640', 'aji': '0.8090', 'dice': 'not recorded', 'stock_f1': '0.7130', 'stock_aji': '0.4260', 'stock_dice': 'not recorded', 'train_loss': 'not recorded', 'val_loss': 'not recorded', 'best_epoch': '100 / 100'},
         "display_name": "Toxoplasma PV v1",
         "architecture": "Cellpose-SAM (cpsam_v2)",
-        # ROUND 2, CORRECTED 2026-09-15 (item 370). Until then this row
-        # quoted ROUND 1 -- 115 images, 104 train / 11 test, F1 0.867 --
-        # while the sha256 above has always been round 2's checkpoint. Every
-        # figure below is from round 2's own run: round2.log for the split and
-        # the stock baseline, round2_vs_round1.csv for the scores.
         "dataset": "anti-Toxoplasma-biotin and DsRed PV lumen; 229 images "
                    "from 2 datasets, 104 round-1 and 125 newly curated",
         "versus_stock": "F1 0.864 against 0.713 for stock cpsam on 11 "
@@ -400,10 +407,6 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         "kind": "cellpose",
         "repo_id": "einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5",
         "repo_type": "model",
-        # THE WEIGHT IS UNDER weights/ IN THIS REPO, unlike the older plaque and PV
-        # repos which put it at the root, so the URL is given rather than built from
-        # `name`: hf_uri(repo_id, "cpsam_plaque_r5") would 404 on a repo that has it
-        # one directory down, and a 404 here reads as "the model is gone".
         "uri": "https://huggingface.co/einarolafsson/"
                "toxoplasma-plaque-segmentation-cpsam-r5/resolve/main/"
                "weights/cpsam_plaque_r5?download=true",
@@ -627,6 +630,45 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         ),
     },
     {
+        "key": "toxoplasma_pv_v4",
+        "name": "cpsam_v2_toxo_r7",
+        "kind": "cellpose",
+        "repo_id": "einarolafsson/toxoplasma-pv-segmentation-cpsam-r7",
+        "repo_type": "model",
+        "uri": "https://huggingface.co/einarolafsson/"
+               "toxoplasma-pv-segmentation-cpsam-r7/resolve/main/"
+               "weights/cpsam_v2_toxo_r7",
+        "sha256":
+            "621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2",
+        "metrics": {'n_train': '502 fields', 'train_objects': '23,340', 'n_test': '11 anchor wells', 'test_objects': '683', 'cv': '5-fold, grouped by source', 'f1': '0.8536', 'aji': '0.7755', 'dice': '0.8905', 'stock_f1': '0.7648', 'stock_aji': '0.5050', 'stock_dice': '0.6431', 'train_loss': '0.0424', 'val_loss': '0.0796', 'best_epoch': '55 / 100'},
+        "display_name": "Toxoplasma PV v4 (round 7)",
+        "architecture": "Cellpose-SAM (cpsam_v2)",
+        "dataset": "round 6's 556 curated fields plus 80 hand-curated fields of "
+                   "a new plate (Anu revision, Replication09182026 plate 1); "
+                   "502 train / 123 validation / 11 test; training data at "
+                   "einarolafsson/toxoplasma-pv-segmentation-dataset-r7",
+        "versus_stock": "F1 0.854 against stock cpsam_v2's 0.765 on the 11 "
+                        "anchor wells at IoU 0.5; AJI 0.776 against 0.505",
+        "trained_on": (
+            "Toxoplasma tachyzoite parasitophorous vacuoles: round 6's DsRed and "
+            "anti-Toxoplasma-biotin fields plus the Toxoplasma channel of a new "
+            "384-well plate. Round 7, cellpose 4.2.1.1, 100 epochs, base cpsam_v2"
+        ),
+        "trained_by": "einarolafsson",
+        "notes": (
+            "NEWEST IS NOT BEST HERE: on 20 held-out fields of the new plate it "
+            "was trained on, round 7 scores F1 0.748 against 0.899 for round 6 "
+            "(recall 0.636 against 0.829) -- prefer toxoplasma_pv_v3 on that plate",
+            "on the 11 anchor wells it ties round 6 (0.8536 against 0.8602); "
+            "5-fold cross-validation F1 0.8142 +/- 0.015 against round 6's 0.8168",
+            "it traces the vacuoles it finds more tightly than round 6 (AJI 0.827 "
+            "against 0.786 on the new plate) but finds fewer of them",
+            "the drop on the new plate is under investigation: round 7 also "
+            "under-fits that plate's own training fields, which points at how "
+            "those fields entered training rather than at generalisation",
+        ),
+    },
+    {
         "key": "live_cell_v1",
         "name": "live_cell_v1",
         "kind": "cellpose",
@@ -772,6 +814,46 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "rather than an independent test set",
             "accuracy falls above IoU 0.8 -- suited to counting, occupancy and "
             "area rather than precise morphometry",
+        ),
+    },
+    {
+        "key": "colony_yolo11n_makrai_v1",
+        "name": "colony_yolo11n_makrai_v1.pt",
+        "kind": "detector",
+        "repo_id": HF_MODELS_REPO,
+        "repo_type": "dataset",
+        "uri": "https://huggingface.co/datasets/einarolafsson/models/"
+               "resolve/main/colony_detector/v1/"
+               "colony_yolo11n_makrai_v1.pt?download=true",
+        "sha256":
+            "1bd99599c1d78fb0841216b798cfc61665be7c2aa8b356b970d0d06ae4b57557",
+        "size_bytes": 5641114,
+        "metrics": {'n_train': '369 photos (train/val/test split)', 'train_objects': '56,865 colony boxes in all', 'n_test': '39 held-out plates with 30-300 colonies', 'test_objects': 'not recorded', 'cv': 'no (one split)', 'f1': 'median count error 2.4%', 'aji': '69% of plates within 5%', 'dice': '87% of plates within 10%', 'stock_f1': 'thresholding: median count error 16.5%', 'stock_aji': 'not recorded', 'stock_dice': 'not recorded', 'train_loss': 'not recorded', 'val_loss': 'not recorded', 'best_epoch': 'not recorded'},
+        "display_name": "Colony Detector v1 (alpha)",
+        "architecture": "YOLO11n (ultralytics), one class 'colony'",
+        "dataset": "smartphone plate photos of 24 bacterial and fungal "
+                   "species; 369 photos, 56,865 colony boxes, from Makrai "
+                   "et al. 2023 (Scientific Data, CC BY 4.0)",
+        "versus_stock": "median count error 2.4% on 39 held-out plates with "
+                        "30-300 colonies, against 16.5% for spaCR's "
+                        "thresholding counter on the same plates",
+        "trained_on": (
+            "plate photos from Makrai et al. 2023, Scientific Data, figshare "
+            "doi:10.6084/m9.figshare.22022540 (CC BY 4.0): 369 smartphone "
+            "photos of 24 species with 56,865 colony boxes"
+        ),
+        "trained_by": "einarolafsson",
+        "licence": "CC BY 4.0",
+        "notes": (
+            "counts colonies for colony_counting when colony_detector names "
+            "this key; ultralytics is needed",
+            "69% of held-out plates within 5% of the hand count and 87% "
+            "within 10%",
+            "one dataset and one split: photos from another lab, agar or "
+            "species may score worse, and confluent swarming colonies stay "
+            "hard",
+            "published in the einarolafsson/models dataset repo under "
+            "colony_detector/v1/",
         ),
     },
 )
@@ -2020,10 +2102,6 @@ def stock_cellpose_entries() -> List["ModelEntry"]:
     I segment with" rather than "what has Einar trained", which is the
     question a new user actually has.
     """
-    # Deliberately does NOT import cellpose: importing this module must stay
-    # free of torch and cellpose (there is a test for it, and the GUI lists
-    # models long before anything segments). If cellpose is already loaded its
-    # own list is authoritative; otherwise the names above are the fallback.
     import sys
 
     loaded = sys.modules.get("cellpose.models")
@@ -2056,8 +2134,61 @@ BIOIMAGEIO_COLLECTION = ("https://hypha.aicell.io/bioimage-io/artifacts/"
 BIOIMAGEIO_COMPATIBLE = ("cellpose sam", "cpsam", "cellposedino",
                          "cellpose dino", "cpdino")
 
+#: The words that make a Cellpose 4 model a Cellpose-DINO one, which runs
+#: through the Cellpose-DINO backend: the Cellpose spaCR installs builds a
+#: DINO network only when the ``dinov3`` package is there, and it is not.
+_BIOIMAGEIO_DINO = ("cellposedino", "cellpose dino", "cpdino")
+
 #: How long a fetched collection is trusted before it is fetched again.
 BIOIMAGEIO_CACHE_HOURS = 24
+
+#: The smallest weights file that can hold a Cellpose network. Cellpose 3's
+#: is 26 MB and Cellpose-SAM's 1.2 GB. At least one bioimage.io Cellpose
+#: package (OC1 Project 11, happy-elephant) publishes a 1596-byte stand-in
+#: instead, and its own code downloads the real checkpoint from
+#: GitHub when it runs; a row offering that file would download it, load it
+#: and fail, or worse.
+_BIOIMAGEIO_MIN_WEIGHTS = 1 << 20
+
+#: How the note saying spaCR cannot run a bioimage.io row begins. The picker
+#: finds it by this, shows it in place of Download and Use, and says it.
+_CANNOT_RUN = "spaCR cannot run this model: "
+
+#: The run settings a bioimage.io Cellpose package names, which its row
+#: reports so a user can compare them with the ones spaCR will use.
+_BIOIMAGEIO_RUN_KWARGS = ("diameter", "diam_mean", "flow_threshold",
+                          "cellprob_threshold", "channels")
+
+#: Where bioimage.io serves an artifact's files.
+_BIOIMAGEIO_FILES = ("https://hypha.aicell.io/bioimage-io/artifacts/{alias}/"
+                     "files/{name}")
+
+#: What a Cellpose 3-format row says about how to use it.
+_CELLPOSE3_USE = (
+    "runs through the Cellpose 3 backend exactly as a stock Cellpose 3 model "
+    "does: install that backend from this list, download this model, and "
+    "press Use this model, which puts cellpose3:<its path> in the object's "
+    "model setting")
+
+#: What a Cellpose-SAM row says about how to use it.
+_CELLPOSE4_USE = (
+    "runs through spaCR's own Cellpose 4: download it and press Use this "
+    "model, which puts its path in the object's model setting")
+
+#: What a Cellpose-DINO row says about how to use it.
+_CELLPOSE_DINO_USE = (
+    "runs through the Cellpose-DINO backend, Cellpose 4 with DINOv3 in an "
+    "environment of its own: install that backend from this list, download "
+    "this model, and press Use this model, which puts cellpose_dino:<its "
+    "path> in the object's model setting")
+
+
+def _bioimageio_text(manifest: Mapping[str, Any]) -> str:
+    """A manifest's name, description and tags, lower case, words spaced."""
+    parts = [str(manifest.get("name") or ""),
+             str(manifest.get("description") or "")]
+    parts += [str(t) for t in (manifest.get("tags") or ())]
+    return " ".join(parts).lower().replace("-", " ").replace("_", " ")
 
 
 def _looks_like_cellpose_sam(manifest: Mapping[str, Any]) -> bool:
@@ -2069,90 +2200,287 @@ def _looks_like_cellpose_sam(manifest: Mapping[str, Any]) -> bool:
     """
     if str(manifest.get("type") or "") != "model":
         return False
-    parts = [str(manifest.get("name") or ""), str(manifest.get("description") or "")]
-    parts += [str(t) for t in (manifest.get("tags") or ())]
-    text = " ".join(parts).lower().replace("-", " ").replace("_", " ")
+    text = _bioimageio_text(manifest)
     return any(key in text for key in BIOIMAGEIO_COMPATIBLE)
+
+
+def _looks_like_cellpose_dino(manifest: Mapping[str, Any]) -> bool:
+    """Whether a Cellpose 4 manifest is a Cellpose-DINO model."""
+    text = _bioimageio_text(manifest)
+    return any(key in text for key in _BIOIMAGEIO_DINO)
+
+
+def _bioimageio_cache(name: str) -> Path:
+    """Where a bioimage.io cache file lives: ``~/.spacr/<name>``."""
+    return Path.home() / ".spacr" / name
+
+
+def _bioimageio_payload(timeout: float, url: Optional[str],
+                        allow_network: bool) -> Tuple[Any, bool]:
+    """bioimage.io's collection: the cache while it is fresh, bioimage.io
+    when allowed, and the stale cache when bioimage.io cannot be reached.
+
+    A stale collection is still bioimage.io's own list, a day or more old,
+    and an empty category is the worse answer. :func:`catalogue` must not
+    touch the network -- it is called on offline paths and from the GUI
+    thread -- so the fetch happens in the picker's background warm-up and
+    this reads what that left behind.
+
+    :returns: ``(payload or None, whether it was fetched just now)``.
+    """
+    import urllib.request
+
+    cache = _bioimageio_cache("bioimageio_children.json")
+    stale = None
+    try:
+        if cache.is_file():
+            stale = json.loads(cache.read_text())
+            if (time.time() - cache.stat().st_mtime
+                    < BIOIMAGEIO_CACHE_HOURS * 3600):
+                return stale, False
+    except Exception:
+        stale = None
+    if not allow_network:
+        return stale, False
+    try:
+        with urllib.request.urlopen(url or BIOIMAGEIO_COLLECTION,
+                                    timeout=timeout) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+        cache.parent.mkdir(parents=True, exist_ok=True)
+        cache.write_text(json.dumps(payload))
+        return payload, True
+    except Exception:
+        return stale, False
+
+
+def _bioimageio_sizes() -> Dict[str, int]:
+    """The weights sizes measured so far, by URL; empty when none were."""
+    try:
+        sizes = json.loads(
+            _bioimageio_cache("bioimageio_weight_sizes.json").read_text())
+    except Exception:
+        return {}
+    if not isinstance(sizes, Mapping):
+        return {}
+    return {str(k): int(v) for k, v in sizes.items()
+            if isinstance(v, int) and not isinstance(v, bool)}
+
+
+def _weights_size(uri: str, timeout: float) -> int:
+    """The size of the file at ``uri``, asking for its first byte only.
+
+    bioimage.io answers HEAD with 405, and a ranged GET with the total in
+    ``Content-Range``. A 1.2 GB checkpoint is measured without being read.
+
+    :returns: bytes, or 0 when the server does not say.
+    """
+    import urllib.request
+
+    request = urllib.request.Request(uri, headers={"Range": "bytes=0-0"})
+    with urllib.request.urlopen(request, timeout=timeout) as response:
+        total = str(response.headers.get("Content-Range") or "").rpartition("/")[2]
+        if total.isdigit():
+            return int(total)
+        length = str(response.headers.get("Content-Length") or "")
+        return int(length) if length.isdigit() and response.status == 200 else 0
+
+
+def _measure_bioimageio_weights(uris: Iterable[str], sizes: Dict[str, int],
+                                timeout: float) -> Dict[str, int]:
+    """Measure the weights files not measured yet, and remember them.
+
+    A failed measurement is kept as 0, so a server that will not say is asked
+    again only when the collection itself is fetched again.
+    """
+    sizes = dict(sizes)
+    for uri in uris:
+        try:
+            sizes[uri] = _weights_size(uri, timeout)
+        except Exception:
+            sizes[uri] = 0
+    try:
+        cache = _bioimageio_cache("bioimageio_weight_sizes.json")
+        cache.parent.mkdir(parents=True, exist_ok=True)
+        cache.write_text(json.dumps(sizes))
+    except Exception:
+        pass
+    return sizes
 
 
 def bioimageio_entries(timeout: float = 5.0,
                        url: Optional[str] = None,
                        allow_network: bool = False) -> List["ModelEntry"]:
-    """Cellpose models published on bioimage.io, or an empty list.
+    """Every Cellpose model bioimage.io publishes, as zoo rows.
 
-    Two kinds of row. A Cellpose-SAM or Cellpose-DINO model, which spaCR's
-    own Cellpose 4 loads, is a ``cellpose`` row pointing at its bioimage.io
-    page. A Cellpose 3-format checkpoint is a ``cellpose3`` row that
-    downloads the weights file itself, checked against the SHA-256 the
-    manifest publishes, for the Cellpose 3 backend to run.
+    Read from bioimage.io's own collection, so the category cannot go stale
+    the way a typed list would. Three kinds of row:
+
+    * a Cellpose-SAM or Cellpose-DINO model, which spaCR's own Cellpose 4
+      loads: a ``cellpose`` row that downloads its weights;
+    * a Cellpose 3-format checkpoint: a ``cellpose3`` row that downloads its
+      weights for the Cellpose 3 backend, which runs it as it runs cyto3;
+    * one of either that spaCR cannot run, which says why in its first note
+      (:func:`_bioimageio_cannot_run`) and offers nothing to download.
+
+    Each weights file is checked against the SHA-256 its manifest publishes,
+    and carries the licence the uploader chose and what it was trained on.
 
     Best effort and never raises: no network, a slow mirror or a changed
-    schema all mean "no extra rows", never a zoo that fails to open. The
-    response is cached so opening the dialog repeatedly is not repeatedly a
-    network call.
+    schema all mean fewer rows, never a zoo that fails to open. With
+    ``allow_network`` the collection is refreshed once it is a day old, and
+    the weights files are measured, so a stand-in file is refused before
+    anyone downloads it.
     """
-    import json as _json
-    import time as _time
-    import urllib.request
-
-    cache = Path.home() / ".spacr" / "bioimageio_children.json"
-    payload = None
-    try:
-        fresh = (cache.is_file() and
-                 _time.time() - cache.stat().st_mtime
-                 < BIOIMAGEIO_CACHE_HOURS * 3600)
-        if fresh:
-            payload = _json.loads(cache.read_text())
-    except Exception:                                        # noqa: BLE001
-        payload = None
-    if payload is None and not allow_network:
-        # Cache only. catalogue() must not touch the network -- it is called on
-        # offline paths and from the GUI thread -- so the fetch happens in the
-        # background warm-up and this reads what that left behind.
-        return []
+    payload, fetched = _bioimageio_payload(timeout, url, allow_network)
     if payload is None:
-        try:
-            with urllib.request.urlopen(url or BIOIMAGEIO_COLLECTION,
-                                        timeout=timeout) as response:
-                payload = _json.loads(response.read().decode("utf-8"))
-            cache.parent.mkdir(parents=True, exist_ok=True)
-            cache.write_text(_json.dumps(payload))
-        except Exception:                                    # noqa: BLE001
-            return []
+        return []
+    sizes = _bioimageio_sizes()
+    rows = _bioimageio_rows(payload, sizes)
+    if allow_network:
+        unmeasured = [r.uri for r in rows if r.uri and (
+            r.uri not in sizes or (fetched and not sizes[r.uri]))]
+        if unmeasured:
+            sizes = _measure_bioimageio_weights(unmeasured, sizes, timeout)
+            rows = _bioimageio_rows(payload, sizes)
+    return rows
 
-    items = payload if isinstance(payload, list) else payload.get("items", [])
+
+def _bioimageio_rows(payload: Any, sizes: Mapping[str, int]) -> List["ModelEntry"]:
+    """The rows a bioimage.io collection makes, in its order."""
+    if isinstance(payload, list):
+        items = payload
+    elif isinstance(payload, Mapping):
+        items = payload.get("items", [])
+    else:
+        items = []
     out = []
-    for item in items:
-        if not isinstance(item, Mapping):
-            continue
-        manifest = item.get("manifest") or {}
-        if not isinstance(manifest, Mapping):
-            continue
-        cellpose3 = _cellpose3_weights(manifest)
-        if cellpose3 is None and not _looks_like_cellpose_sam(manifest):
-            continue
-        alias = str(item.get("alias") or "")
-        if not alias:
-            continue
-        # Named after the model, not its bioimage.io alias: a row reading
-        # "idealistic-eagle" tells the reader nothing.
-        title = str(manifest.get("name") or alias)
-        slug = re.sub(r"[^a-z0-9]+", "_", title.lower()).strip("_") or alias
-        authors = ", ".join(
-            str(a.get("name")) for a in (manifest.get("authors") or ())
-            if isinstance(a, Mapping))
-        if cellpose3 is not None:
-            out.append(_cellpose3_download_entry(
-                alias, slug, title, manifest, authors, *cellpose3))
-            continue
-        out.append(ModelEntry(
-            key=slug, name=alias, path="", kind="cellpose",
-            source="bioimage.io",
-            uri=f"https://bioimage.io/#/artifacts/{alias}",
-            sha256="", size_bytes=0,
-            trained_on=f"{title} — {manifest.get('description') or ''}"[:300],
-            trained_by=authors or "bioimage.io"))
+    for item in items if isinstance(items, list) else []:
+        row = _bioimageio_row(item, sizes)
+        if row is not None:
+            out.append(row)
     return out
+
+
+def _bioimageio_row(item: Any, sizes: Mapping[str, int]) -> Optional["ModelEntry"]:
+    """One collection item as a row, or None when it is no Cellpose model."""
+    if not isinstance(item, Mapping):
+        return None
+    manifest = item.get("manifest") or {}
+    if not isinstance(manifest, Mapping):
+        return None
+    if str(manifest.get("type") or "") != "model":
+        return None
+    alias = str(item.get("alias") or "")
+    if not alias:
+        return None
+    cellpose3 = _cellpose3_weights(manifest)
+    cellpose4 = cellpose3 is None and _looks_like_cellpose_sam(manifest)
+    if (cellpose3 is None and not cellpose4
+            and "cellpose" not in _bioimageio_text(manifest).replace(" ", "")):
+        return None
+    title = str(manifest.get("name") or alias)
+    slug = re.sub(r"[^a-z0-9]+", "_", title.lower()).strip("_") or alias
+    authors = ", ".join(
+        str(a.get("name")) for a in (manifest.get("authors") or ())
+        if isinstance(a, Mapping))
+    if cellpose3 is not None:
+        row = _cellpose3_download_entry(
+            alias, slug, title, manifest, authors, *cellpose3)
+    else:
+        row = _cellpose4_download_entry(alias, slug, title, manifest, authors)
+    size = int(sizes.get(row.uri) or 0) if row.uri else 0
+    if size:
+        row = replace(row, size_bytes=size)
+    reason = _bioimageio_refusal(manifest, row, size,
+                                 known=cellpose3 is not None or cellpose4)
+    if reason:
+        row = replace(row, uri="", notes=(
+            _CANNOT_RUN + reason, f"bioimage.io model {alias}"))
+    return row
+
+
+def _bioimageio_refusal(manifest: Mapping[str, Any], row: "ModelEntry",
+                        size: int, *, known: bool) -> str:
+    """Why spaCR cannot run a bioimage.io row, or ``''`` when it can.
+
+    :param known: whether the manifest names a Cellpose 3 or a Cellpose 4
+        network at all.
+    :param size: the measured size of its weights file, 0 when unmeasured.
+    """
+    if not known:
+        called = _bioimageio_architecture(manifest) or "no network named"
+        return (f"its package runs a network of its own ({called}), neither "
+                f"Cellpose 3's nor Cellpose-SAM's, and those are the two "
+                f"Cellpose networks spaCR runs.")
+    if not row.uri:
+        return "its package names no weights file to download."
+    if 0 < size < _BIOIMAGEIO_MIN_WEIGHTS:
+        return (f"the weights file bioimage.io publishes for it is a "
+                f"{size}-byte stand-in, not a Cellpose network. The package's "
+                f"own code downloads the real checkpoint from elsewhere when "
+                f"it runs, and spaCR runs only the weights bioimage.io "
+                f"publishes and checksums.")
+    return ""
+
+
+def _bioimageio_cannot_run(entry: Any) -> str:
+    """The sentence saying spaCR cannot run this row, or ``''``.
+
+    :param entry: any zoo row; only a bioimage.io row can carry one.
+    """
+    for note in getattr(entry, "notes", ()) or ():
+        if str(note).startswith(_CANNOT_RUN):
+            return str(note)
+    return ""
+
+
+def _bioimageio_architecture(manifest: Mapping[str, Any]) -> str:
+    """The network a manifest's PyTorch weights name, or ``''``."""
+    weights = manifest.get("weights")
+    state = weights.get("pytorch_state_dict") if isinstance(weights, Mapping) else None
+    architecture = state.get("architecture") if isinstance(state, Mapping) else None
+    return (str(architecture.get("callable") or "")
+            if isinstance(architecture, Mapping) else "")
+
+
+def _bioimageio_trained_on(title: str, manifest: Mapping[str, Any]) -> str:
+    """What a bioimage.io model was trained on, as its package says.
+
+    ``training_data`` comes first when the package names it, so the cap on
+    the cell cuts the description rather than the data.
+    """
+    data = manifest.get("training_data")
+    ident = str((data.get("id") if isinstance(data, Mapping) else data) or "")
+    if ident.startswith("10."):
+        ident = f"https://doi.org/{ident}"
+    described = str(manifest.get("description") or "").strip()
+    text = title
+    if ident:
+        text += f" — trained on {ident}."
+    if described:
+        text += f" — {described}" if not ident else f" {described}"
+    return text[:300]
+
+
+def _bioimageio_run_settings(manifest: Mapping[str, Any]) -> Tuple[str, ...]:
+    """What the package itself runs the model with, as a note, or nothing.
+
+    spaCR runs a bioimage.io model with the object's Mask generation settings,
+    as it runs every other model, so the two can differ; the note says so.
+    """
+    weights = manifest.get("weights")
+    state = weights.get("pytorch_state_dict") if isinstance(weights, Mapping) else None
+    architecture = state.get("architecture") if isinstance(state, Mapping) else None
+    kwargs = architecture.get("kwargs") if isinstance(architecture, Mapping) else None
+    if not isinstance(kwargs, Mapping):
+        return ()
+    named = [f"{key}={kwargs[key]}" for key in _BIOIMAGEIO_RUN_KWARGS
+             if kwargs.get(key) is not None]
+    if not named:
+        return ()
+    return (f"Its bioimage.io package runs it with {', '.join(named)}; spaCR "
+            f"runs it with the object's Mask generation settings instead, as "
+            f"it runs every other model.",)
 
 
 #: The architectures a Cellpose 3-format bioimage.io model names.
@@ -2160,16 +2488,6 @@ def bioimageio_entries(timeout: float = 5.0,
 #: is Cellpose's own export of one; either way the ``pytorch_state_dict``
 #: weights ARE the checkpoint, which Cellpose 3's ``CellposeModel`` loads.
 _BIOIMAGEIO_CELLPOSE3_ARCHITECTURES = ("CellPoseWrapper", "CPnetBioImageIO")
-
-#: Where bioimage.io serves an artifact's files.
-_BIOIMAGEIO_FILES = ("https://hypha.aicell.io/bioimage-io/artifacts/{alias}/"
-                     "files/{name}")
-
-#: What a Cellpose 3-format row says about how to use it.
-_CELLPOSE3_USE = (
-    "runs through the Cellpose 3 backend: install that from this list, set "
-    "segmentation_backend to cellpose3, and put this model's path in the "
-    "object's model setting")
 
 
 def _cellpose3_weights(manifest: Mapping[str, Any]) -> Optional[Tuple[str, str]]:
@@ -2189,13 +2507,20 @@ def _cellpose3_weights(manifest: Mapping[str, Any]) -> Optional[Tuple[str, str]]
     state = weights.get("pytorch_state_dict") if isinstance(weights, Mapping) else None
     if not isinstance(state, Mapping):
         return None
-    architecture = state.get("architecture")
-    called = (str(architecture.get("callable") or "")
-              if isinstance(architecture, Mapping) else "")
+    called = _bioimageio_architecture(manifest)
     source = str(state.get("source") or "").strip()
     if called not in _BIOIMAGEIO_CELLPOSE3_ARCHITECTURES or not source:
         return None
     return source, str(state.get("sha256") or "").strip().lower()
+
+
+def _bioimageio_uri(alias: str, source: str) -> str:
+    """Where a manifest's weights file is downloaded from."""
+    if not source:
+        return ""
+    if source.startswith(("http://", "https://")):
+        return source
+    return _BIOIMAGEIO_FILES.format(alias=alias, name=source)
 
 
 def _cellpose3_download_entry(alias: str, slug: str, title: str,
@@ -2207,18 +2532,42 @@ def _cellpose3_download_entry(alias: str, slug: str, title: str,
     the SHA-256 its manifest publishes, like any other zoo download, and the
     licence the uploader chose travels with the row.
     """
-    if source.startswith(("http://", "https://")):
-        uri = source
-    else:
-        uri = _BIOIMAGEIO_FILES.format(alias=alias, name=source)
     suffix = Path(source).suffix if Path(source).suffix in (".pth", ".pt") else ".pth"
     return ModelEntry(
         key=f"bioimageio_{slug}", name=f"{slug}{suffix}", path="",
-        kind="cellpose3", source="bioimage.io", uri=uri, sha256=sha256,
-        trained_on=f"{title} — {manifest.get('description') or ''}"[:300],
+        kind="cellpose3", source="bioimage.io",
+        uri=_bioimageio_uri(alias, source), sha256=sha256,
+        trained_on=_bioimageio_trained_on(title, manifest),
         trained_by=authors or "bioimage.io",
         licence=str(manifest.get("license") or ""),
-        notes=(f"bioimage.io model {alias}; {_CELLPOSE3_USE}",))
+        notes=(f"bioimage.io model {alias}; {_CELLPOSE3_USE}",)
+        + _bioimageio_run_settings(manifest))
+
+
+def _cellpose4_download_entry(alias: str, slug: str, title: str,
+                              manifest: Mapping[str, Any],
+                              authors: str) -> "ModelEntry":
+    """A bioimage.io Cellpose-SAM or Cellpose-DINO model as a row that
+    downloads it: a Cellpose-SAM one for spaCR's own Cellpose 4 to load from
+    its path, a Cellpose-DINO one (kind ``cellpose_dino``) for the
+    Cellpose-DINO backend."""
+    weights = manifest.get("weights")
+    state = weights.get("pytorch_state_dict") if isinstance(weights, Mapping) else None
+    state = state if isinstance(state, Mapping) else {}
+    source = str(state.get("source") or "").strip()
+    suffix = Path(source).suffix if Path(source).suffix in (".pth", ".pt") else ""
+    dino = _looks_like_cellpose_dino(manifest)
+    return ModelEntry(
+        key=f"bioimageio_{slug}", name=f"{slug}{suffix}", path="",
+        kind="cellpose_dino" if dino else "cellpose", source="bioimage.io",
+        uri=_bioimageio_uri(alias, source),
+        sha256=str(state.get("sha256") or "").strip().lower(),
+        trained_on=_bioimageio_trained_on(title, manifest),
+        trained_by=authors or "bioimage.io",
+        licence=str(manifest.get("license") or ""),
+        notes=(f"bioimage.io model {alias}; "
+               f"{_CELLPOSE_DINO_USE if dino else _CELLPOSE4_USE}",)
+        + _bioimageio_run_settings(manifest))
 
 
 #: What each Cellpose 3 model is, for its zoo row.
@@ -2257,27 +2606,68 @@ def _cellpose3_model_entries() -> List["ModelEntry"]:
     return out
 
 
+def _mask_model_kinds() -> Tuple[str, ...]:
+    """The kinds an object's model setting in Mask generation can run:
+    Cellpose-SAM, Cellpose 3, Cellpose-DINO and each prefixed backend's
+    models. What every Model zoo button beside such a setting asks for."""
+    return ("cellpose", "cellpose3", "cellpose_dino") + PREFIXED_KINDS
+
+
+def _prefixed_model_entries() -> List["ModelEntry"]:
+    """The models of each prefixed backend (StarDist, InstanSeg, Omnipose),
+    listed whether or not the backend is here.
+
+    As for Cellpose 3's own models the name is the path: Use this model
+    writes ``<prefix><name>`` into the object's model setting. Until the
+    backend is installed the row has no path, says what it needs, and
+    choosing it offers the install.
+    """
+    from ._segmentation_backends import _backend_state
+
+    out = []
+    for name in PREFIXED_KINDS:
+        spec = _BACKEND_SPECS[name]
+        ready = _backend_state(name).ready
+        for model in spec.models:
+            out.append(ModelEntry(
+                key=f"{name}_{model}", name=model, kind=name,
+                source="stock", path=model if ready else "",
+                uri=f"backend:{name}", sha256="", size_bytes=0,
+                trained_on=(f"{spec.label}'s own {model} model. Runs "
+                            f"through the {spec.label} backend."),
+                trained_by=spec.label, licence=spec.licence,
+                notes=() if ready else (
+                    f"needs the {spec.label} backend, which installs from "
+                    f"this list into an environment of its own",)))
+    return out
+
+
 def _backend_for(entry: Any) -> str:
     """The optional segmentation backend a zoo row needs, or ``''``.
 
     A backend row names itself in its ``backend:<name>`` uri; every
-    ``cellpose3`` model needs the Cellpose 3 backend.
+    ``cellpose3`` model needs the Cellpose 3 backend, and every
+    ``cellpose_dino`` model the Cellpose-DINO one.
     """
     uri = str(getattr(entry, "uri", "") or "")
     if uri.startswith("backend:"):
         return uri.split(":", 1)[1]
-    if getattr(entry, "kind", "") == "cellpose3":
-        return "cellpose3"
+    kind = getattr(entry, "kind", "")
+    if kind in ("cellpose3", "cellpose_dino") + PREFIXED_KINDS:
+        return kind
     return ""
 
 
 #: ``name -> (label, install uri, import name, what it is)`` for every
-#: optional segmentation backend. These are PACKAGES, not checkpoints: the zoo
-#: lists them so a user learns they exist, and each installs into an
-#: environment of its own, never into spaCR's.
+#: optional ``segmentation_backend``. These are PACKAGES, not checkpoints: the
+#: zoo lists them so a user learns they exist, and each installs into an
+#: environment of its own, never into spaCR's. Cellpose-DINO segments but is
+#: no ``segmentation_backend`` value -- a model setting chooses it -- so the
+#: backend box that reads this does not offer it.
 INSTALLABLE_BACKENDS = {
     _name: (_spec.label, f"backend:{_name}", _spec.module, _spec.blurb)
-    for _name, _spec in _BACKEND_SPECS.items() if _spec.segments
+    for _name, _spec in _BACKEND_SPECS.items()
+    if _spec.segments and _name in _SEGMENTATION_BACKEND_NAMES
 }
 
 
@@ -2291,7 +2681,7 @@ def installable_backend_entries() -> List["ModelEntry"]:
     builds it an environment of its own under ``~/.spacr/backends`` and
     leaves spaCR's own environment alone.
     """
-    from ._segmentation_backends import _backend_state
+    from ._segmentation_backends import _backend_state, _credential_note
 
     out = []
     for name, spec in _BACKEND_SPECS.items():
@@ -2303,7 +2693,8 @@ def installable_backend_entries() -> List["ModelEntry"]:
             sha256="", size_bytes=0, trained_on=spec.blurb,
             trained_by=spec.label, licence=spec.licence,
             notes=tuple(note for note in (f"{state.state}: {state.reason}",
-                                          spec.licence_note, spec.published)
+                                          spec.licence_note, spec.published,
+                                          _credential_note(name))
                         if note)))
     return out
 
@@ -2340,9 +2731,6 @@ def community_entries(allow_network: bool = False,
     cache = Path.home() / ".spacr" / "community_models.json"
     records = None
     try:
-        # allow_network means the user just asked to see these, so the cache is
-        # skipped: a cached empty list from before the first submission would
-        # otherwise hide it for hours, which is exactly how this was found.
         if (not allow_network and cache.is_file()
                 and _time.time() - cache.stat().st_mtime < 6 * 3600):
             records = _json.loads(cache.read_text())
@@ -2367,9 +2755,6 @@ def community_entries(allow_network: bool = False,
                         meta = _json.loads(Path(hf_hub_download(repo, sub)).read_text())
                     except Exception:                        # noqa: BLE001
                         meta = {}
-                # The checkpoint, not the README beside it: match on the
-                # extensions a model actually has, or a folder with a README
-                # listed first offers the README as the download.
                 inside = [f for f in files
                           if f.startswith(f"{COMMUNITY_PREFIX}{folder}/")]
                 weights = [f for f in inside
@@ -2474,7 +2859,8 @@ def source_of(entry: Any) -> str:
         return "cellpose3"
     if kind == "cellpose" and source == "stock":
         return "cellposeSAM"
-    if kind == "backend" or source in _SPACR_OWN_SOURCES:
+    if (kind == "backend" or kind in PREFIXED_KINDS
+            or source in _SPACR_OWN_SOURCES):
         return "spaCR"
     LOG.warning(
         "model zoo: %r (kind=%r, source=%r) matches no source heading; "
@@ -2550,6 +2936,7 @@ def catalogue(include_bundled: bool = True, remote: bool = True,
     entries.extend(stock_cellpose_entries())
     entries.extend(installable_backend_entries())
     entries.extend(_cellpose3_model_entries())
+    entries.extend(_prefixed_model_entries())
     if remote:
         entries.extend(bioimageio_entries())
     if remote:
@@ -2672,8 +3059,7 @@ def versioned_path(dest: Any, filename: str) -> Path:
     base = match.group("base") if match else p.stem
     n = int(match.group("n")) if match else 1
 
-    candidate = folder / (f"{base}{suffix}" if n == 1
-                          else f"{base}_v{n}{suffix}")
+    candidate = folder / p.name
     while candidate.exists():
         n += 1
         candidate = folder / f"{base}_v{n}{suffix}"
@@ -2705,7 +3091,8 @@ def open_uri(uri: str, timeout: int = DEFAULT_TIMEOUT,
         response = requests.get(text, stream=True, timeout=timeout)
         response.raise_for_status()
         total = int(response.headers.get("content-length") or 0)
-        return response.iter_content(chunk_size=chunk_size), total
+        return _resumed_chunks(text, response, total, timeout,
+                               chunk_size), total
 
     if text.startswith("file://"):
         local = Path(text[len("file://"):])
@@ -2718,6 +3105,45 @@ def open_uri(uri: str, timeout: int = DEFAULT_TIMEOUT,
     if not local.is_file():
         raise ModelUnreadable(f"no such model file: {local}")
     return _read_chunks(local, chunk_size), local.stat().st_size
+
+
+#: How many times a dropped download picks up where it stopped.
+_RESUMES = 5
+
+
+def _resumed_chunks(url: str, response: Any, total: int, timeout: int,
+                    chunk_size: int) -> Iterator[bytes]:
+    """A download's chunks, resumed with a ``Range`` request when the
+    server drops the connection part-way.
+
+    bioimage.io's file server dropped two of three 1.2 GB Cellpose-SAM
+    downloads part-way on 2026-09-25 ("Response ended prematurely"), each
+    after minutes of transfer. A server that answers a range with 206 and
+    the offset asked for is resumed from the last byte received; any other
+    answer ends the download as before. The checksum :func:`fetch` checks
+    covers the joined file, so a bad join is refused like any bad file.
+    """
+    import requests
+
+    done = 0
+    resumes = _RESUMES
+    while True:
+        try:
+            for block in response.iter_content(chunk_size=chunk_size):
+                done += len(block)
+                yield block
+            return
+        except (requests.exceptions.ChunkedEncodingError,
+                requests.exceptions.ConnectionError) as dropped:
+            resumes -= 1
+            if resumes < 0 or (total and done >= total):
+                raise
+            response = requests.get(url, stream=True, timeout=timeout,
+                                    headers={"Range": f"bytes={done}-"})
+            span = str(response.headers.get("content-range") or "")
+            if response.status_code != 206 or not span.startswith(
+                    f"bytes {done}-"):
+                raise dropped
 
 
 def _read_chunks(path: Path, chunk_size: int) -> Iterator[bytes]:
@@ -2833,6 +3259,15 @@ def fetch(entry: ModelEntry, dest: Any,
             raise ModelZooError(
                 f"{entry.uri} returned no data for {entry.name} — nothing was "
                 f"written to {folder}")
+        if (entry.source == "bioimage.io"
+                and entry.kind in ("cellpose", "cellpose3", "cellpose_dino")
+                and done < _BIOIMAGEIO_MIN_WEIGHTS):
+            raise ModelZooError(
+                f"{entry.name} from {entry.uri} is {done} bytes, too small to "
+                f"be a Cellpose network, and was NOT installed in {folder}. "
+                f"Its bioimage.io package publishes a stand-in and fetches "
+                f"the real weights from elsewhere when it runs, which spaCR "
+                f"does not do.")
 
         got = sha256_file(temp)
         if want and got != want:

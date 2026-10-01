@@ -87,7 +87,12 @@ _INSTALL_WORDS = {
 
 
 def install_word_for(action) -> str:
-    """The link word for an offer's ``action``; ``''`` when there is none."""
+    """The link word for an offer's ``action``; ``''`` when there is none.
+
+    :param action: the offer's action, ``"install"``, ``"elsewhere"``,
+        ``"impossible"`` or ``"ready"`` (which gives ``''``); any other value
+        gives ``"What it needs"``.
+    """
     return _INSTALL_WORDS.get(str(action), "What it needs")
 
 
@@ -198,6 +203,10 @@ class AvailabilityPanel(QFrame):
         column.addWidget(self._body)
         column.addWidget(self._links)
 
+        from ..tooltip_policy import HoverDelay
+        self._hover_delay = HoverDelay(self)
+        self._hover_delay.invalidated.connect(self._cancel_hover)
+        self._hover_identity = None
         self._hide_timer = QTimer(self)
         self._hide_timer.setSingleShot(True)
         self._hide_timer.timeout.connect(self._maybe_hide)
@@ -221,6 +230,9 @@ class AvailabilityPanel(QFrame):
         eventually run the regression picker's install AND the Image UMAP's;
         a plain ``disconnect()`` warns when nothing is connected yet. Holding
         the current slot and replacing it does neither.
+
+        :param slot: callable taking the current entry's ``offer``, or
+            ``None`` to leave the signal with no receiver.
         """
         previous = self._install_handler
         if previous is not None:
@@ -292,7 +304,7 @@ class AvailabilityPanel(QFrame):
 
     def show_for(self, anchor: QWidget, entries, index: int = 0, *,
                  anchor_rect: Optional[QRect] = None,
-                 pinned: bool = False) -> None:
+                 pinned: bool = False, immediate: bool = False) -> None:
         """Show the panel for ``entries[index]``, docked under ``anchor``.
 
         :param anchor: the widget the panel belongs to. Used for placement
@@ -306,10 +318,25 @@ class AvailabilityPanel(QFrame):
             when the thing being explained is smaller than the widget -- a
             single row of an open combo popup, for instance.
         :param pinned: opened by keyboard. See :meth:`open_for`.
+        :param immediate: explicit click/keyboard request, bypassing hover delay.
         """
         items = [dict(entry) for entry in (entries or [])]
         if not items:
             return
+        identity = (anchor, int(index), repr(items),
+                    (anchor_rect.x(), anchor_rect.y(), anchor_rect.width(),
+                     anchor_rect.height()) if anchor_rect else None)
+        if not (immediate or pinned):
+            if identity == self._hover_identity and (
+                    self._hover_delay._timer.isActive() or self.isVisible()):
+                return
+            self.hide()
+            self._hover_identity = identity
+            self._hover_delay.schedule(anchor, lambda: self.show_for(
+                anchor, items, index, anchor_rect=anchor_rect, immediate=True))
+            return
+        self._hover_delay.cancel()
+        self._hover_identity = identity
         self._entries = items
         self._index = max(0, min(int(index), len(items) - 1))
         self._anchor = anchor
@@ -334,6 +361,12 @@ class AvailabilityPanel(QFrame):
         the panel takes it from there: Tab moves between **API** and
         **Install**, Enter presses one, Up/Down move to the next unavailable
         entry, Escape closes and hands focus back.
+
+        :param anchor: the widget the panel is docked under; see
+            :meth:`show_for`.
+        :param entries: availability mappings (``{title, reason, url,
+            offer}``) as :meth:`show_for` takes them; an empty list shows
+            nothing.
         """
         self._return_focus = QApplication.focusWidget()
         self.show_for(anchor, entries, index, anchor_rect=anchor_rect,
@@ -343,7 +376,11 @@ class AvailabilityPanel(QFrame):
         self._api_link.setFocus(Qt.TabFocusReason)
 
     def show_entry(self, index: int) -> None:
-        """Move to another of the entries without moving the panel."""
+        """Move to another of the entries without moving the panel.
+
+        :param index: entry position; wraps around modulo the number of
+            entries, so ``-1`` is the last one.
+        """
         if not self._entries:
             return
         self._index = int(index) % len(self._entries)
@@ -426,8 +463,14 @@ class AvailabilityPanel(QFrame):
         return QRect(top_left, anchor.size())
 
 
+    def _cancel_hover(self) -> None:
+        """Cancel hover help when preferences change; keep explicit help."""
+        if not self._pinned:
+            self.hide()
+
     def start_hide(self, delay_ms: Optional[int] = None) -> None:
         """Schedule the hide the pointer is allowed to interrupt."""
+        self._hover_delay.cancel()
         if self._pinned:
             return
         if not self._hide_timer.isActive():
@@ -507,17 +550,30 @@ class AvailabilityPanel(QFrame):
 
 
     def enterEvent(self, event):
-        """The pointer arrived: the panel stays."""
+        """The pointer arrived: the panel stays.
+
+        :param event: the enter event, passed on to the base class after any
+            pending hide is cancelled.
+        """
         self.cancel_hide()
         super().enterEvent(event)
 
     def leaveEvent(self, event):
-        """The pointer left: start the interruptible hide."""
+        """The pointer left: start the interruptible hide.
+
+        :param event: the leave event, passed on to the base class after a
+            100 ms hide is scheduled.
+        """
         self.start_hide(100)
         super().leaveEvent(event)
 
     def keyPressEvent(self, event):
-        """Escape closes; Up/Down move between the entries."""
+        """Escape closes; Up/Down move between the entries.
+
+        :param event: the key event; Escape, Up/Left and Down/Right are
+            accepted here (the arrows only with more than one entry), and any
+            other key goes to the base class.
+        """
         key = event.key()
         if key == Qt.Key_Escape:
             self.dismiss()
@@ -537,18 +593,29 @@ class AvailabilityPanel(QFrame):
         """Start watching the application for events, if not already watching."""
         app = QApplication.instance()
         if app is not None and not self._filtering:
-            app.installEventFilter(self)
+            from ..gil_priority import _watch_application_events
+
+            _watch_application_events(app, self, (QEvent.MouseButtonPress,))
             self._filtering = True
 
     def _remove_filter(self) -> None:
         """Stop watching the application for events."""
         app = QApplication.instance()
         if app is not None and self._filtering:
-            app.removeEventFilter(self)
+            from ..gil_priority import _stop_watching_application_events
+
+            _stop_watching_application_events(app, self)
         self._filtering = False
 
     def eventFilter(self, obj, event):
-        """A press anywhere outside the panel dismisses it."""
+        """A press anywhere outside the panel dismisses it.
+
+        :param obj: the watched object; the filter is installed on the
+            application, so this is whatever received the event. Not read.
+        :param event: the event; only a mouse press while the panel is
+            visible is acted on, using its global position. Always returns
+            ``False`` so the press still reaches its target.
+        """
         if event.type() == QEvent.MouseButtonPress and self.isVisible():
             try:
                 inside = self.geometry().contains(event.globalPosition()
@@ -560,7 +627,11 @@ class AvailabilityPanel(QFrame):
         return False
 
     def hideEvent(self, event):
-        """Drop the app filter whenever the panel leaves the screen."""
+        """Drop the app filter whenever the panel leaves the screen.
+
+        :param event: the hide event, passed on to the base class.
+        """
+        self._hover_delay.cancel()
         self._remove_filter()
         super().hideEvent(event)
 
@@ -816,5 +887,6 @@ def explain(anchor, entries, index: int = 0, *, pinned: bool = False,
     if pinned:
         panel.open_for(anchor, entries, index, anchor_rect=anchor_rect)
     else:
-        panel.show_for(anchor, entries, index, anchor_rect=anchor_rect)
+        panel.show_for(anchor, entries, index, anchor_rect=anchor_rect,
+                       immediate=True)
     return panel

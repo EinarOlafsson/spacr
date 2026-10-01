@@ -16,62 +16,62 @@
   "scenes": [
     {
       "visual": "00_home",
-      "narration": "From Home, open Toxoplasma, then choose Host–Pathogen. This module joins vacuole marker measurements and parasite counts to their host cells and well summaries.",
+      "narration": "Host–Pathogen ties every vacuole's markers and parasite count back to its host cell and its well. To get there, open Toxoplasma from Home, then choose Host–Pathogen.",
       "hold_after": 0.7
     },
     {
       "visual": "01_test_data",
-      "narration": "Choose Load test data to download the microscopy example and fill in its settings. It contains two fields with images, host and vacuole masks, and measurement tables. Use it to practise the controls before selecting your own measured project.",
+      "narration": "The easiest way in is the example. Load test data downloads a small microscopy project and fills in the settings: two fields with images, host and vacuole masks, and measurement tables. Practise here before switching to your own measured project.",
       "hold_after": 0.7
     },
     {
       "visual": "02_source",
-      "narration": "Check Source. It should point to the project containing measurements/measurements.db. The module can also read a database directly or combine several project sources while keeping their identities separate.",
+      "narration": "Everything the module reads comes through Source, which should point at the project holding measurements/measurements.db. It can also read a database directly, or combine several projects while keeping each one's identity separate.",
       "hold_after": 0.7
     },
     {
       "visual": "03_compartments",
-      "narration": "Choose the vacuole table and its intensity-column prefix, then the host-reference table and prefix. The example uses pathogen for vacuoles and cytoplasm for the host reference. The object links must associate each vacuole with the correct host cell.",
+      "narration": "Now tell it where vacuoles and hosts live in that database: the vacuole table and its intensity-column prefix, then the host-reference table and its prefix. The example uses pathogen and cytoplasm. The object links connect each vacuole to its host cell, so check they are right.",
       "hold_after": 0.7
     },
     {
       "visual": "04_markers",
-      "narration": "Set Marker channels to the zero-based intensity channels you want to compare. The example selects channel one for the RNF213 marker. Each selected channel needs intensity measurements in both the vacuole and reference compartments.",
+      "narration": "Marker channels says which intensities to compare, counted from zero. The example picks channel one, the RNF213 marker. Whatever you pick needs intensity measurements in both the vacuole and the reference compartment, because the ratio is built from the two.",
       "hold_after": 0.7
     },
     {
       "visual": "05_thresholds",
-      "narration": "Leave Marker thresholds empty to inspect recruitment ratios first. To classify a marker as positive or negative, enter its channel number and a ratio threshold chosen from your assay controls. A ratio at or above the threshold is positive. Missing or invalid reference measurements remain unknown.",
+      "narration": "At first, leave Marker thresholds empty and simply look at the recruitment ratios. Once your controls show where positive begins, enter the channel number and that ratio threshold; anything at or above it counts as positive. If a reference measurement is missing or invalid, the state stays unknown rather than guessed.",
       "hold_after": 0.7
     },
     {
       "visual": "06_counts",
-      "narration": "For parasite counts, choose either a parasite table with explicit parent-vacuole links or a measured count column on each vacuole. The microscopy example has neither, so keep both choices empty. Its parasite counts and replication readouts remain unknown.",
+      "narration": "Parasite counts come from one of two places: a parasite table whose rows link to their parent vacuole, or a count column measured on each vacuole. The microscopy example has neither, so leave both empty here, and its parasite counts and replication readouts stay unknown.",
       "hold_after": 0.7
     },
     {
       "visual": "07_preview",
-      "narration": "Turn on Live, choose a field and click Run preview. Inspect the vacuole table beside the image. Select a row or click a vacuole to inspect the corresponding marker measurements and any available parasite count.",
+      "narration": "Before running everything, try one field. Turn on Live, choose a field and click Run preview. The vacuole table appears beside the image; select a row, or click a vacuole, to see its marker measurements and any parasite count.",
       "hold_after": 0.7
     },
     {
       "visual": "08_run",
-      "narration": "Turn off Live and expand Actions if it is folded. Keep Save enabled, then press Run. Wait for the output path in the console. Results are written to results/host_pathogen in the first selected project.",
+      "narration": "When the preview looks right, turn Live off and expand Actions if it is folded. Keep Save on and press Run. The console prints the output path when it finishes, and the results land in results/host_pathogen inside the first selected project.",
       "hold_after": 0.7
     },
     {
       "visual": "09_vacuoles",
-      "narration": "Open vacuoles.csv for one row per vacuole, including its host link, marker ratios, marker state and available parasite count. Open cells.csv for host-cell infection and vacuole counts, then wells.csv for their well summaries.",
+      "narration": "The results build from small to large. vacuoles.csv has one row per vacuole: its host link, marker ratios, marker state and any parasite count. cells.csv rolls those up into host-cell infection and vacuole counts, and wells.csv summarises them per well.",
       "hold_after": 0.7
     },
     {
       "visual": "10_summaries",
-      "narration": "Use marker_states.csv to inspect joint marker states and replication_distribution.csv for parasite counts per counted vacuole. orphan_parasites.csv lists parasites without a usable parent link. Keep settings.json with these tables so the channel and threshold choices remain available.",
+      "narration": "Two more tables answer the biology. marker_states.csv shows joint marker states, and replication_distribution.csv the parasite counts per counted vacuole. Parasites without a usable parent link land in orphan_parasites.csv. Keep settings.json with them so your channel and threshold choices travel along.",
       "hold_after": 0.7
     },
     {
       "visual": "11_denominators",
-      "narration": "Check the denominators before comparing conditions. Infection fractions use retained measured host cells, including uninfected hosts only when Measure retained them. Count distributions use vacuoles with known parasite counts; unknown values remain distinct from zero.",
+      "narration": "One last check before comparing conditions: the denominators. Infection fractions use the measured host cells that were kept, so uninfected hosts count only if Measure retained them. Count distributions use only vacuoles with a known parasite count, and unknown never quietly becomes zero.",
       "hold_after": 0.7
     }
   ],

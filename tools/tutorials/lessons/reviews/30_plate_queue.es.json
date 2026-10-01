@@ -1,23 +1,33 @@
 {
   "lesson": "30_plate_queue",
-  "english_sha256": "d2d89e7731cbc26bd8a3e6ba45c0fcce624c7559ba73145109dd8ed5dbf79371",
-  "review": {"kind": "Parent editorial translation against frozen English and verified GUI; visible English controls retained", "independent_peer_review": false, "native_speaker_signoff": false},
+  "english_sha256": "eb4beef71da36ce5936175783b37122fd029a5af93e937fe4797c0fa03344477",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "es",
-  "title": "Plate Queue: ejecutar, detener entre tareas y continuar",
-  "description": "Encola dos repeticiones aisladas del ejemplo verificado de Recruitment, comprueba los resultados guardados y distingue una parada controlada de una recuperación tras fallo que no se ha probado.",
-  "objectives": ["Importar una configuración validada y encontrar Plate queue en Help.", "Añadir los ajustes actuales y una carpeta preparada como tareas separadas.", "Observar el procesamiento secuencial, detener entre tareas y continuar sin repetir las completadas.", "Comprobar los resultados numéricos y borrar registros terminados sin eliminar los proyectos."],
-  "prerequisite": "Completa primero el tutorial de Recruitment. Se copia su subconjunto verificado de cuatro campos de imagen en dos carpetas: son los mismos datos adquiridos, no placas independientes ni réplicas biológicas. Cada carpeta contiene measurements/measurements.db y settings/recruitment_settings.csv. El primer CSV se importa mediante el selector real; la segunda carpeta se arrastra a la cola. No se sustituye el ejecutor ni se usa un modelo o una solicitud de AI. Plate Queue no tiene Load test data ni vista previa propios. No se demuestra Import CSV: actualmente crea tareas de Mask, no de cualquier módulo. Las etiquetas largas pueden aparecer truncadas; verifica las rutas completas y los ajustes antes de añadir tareas. No se verifica la recuperación tras un fallo ni el reintento de tareas fallidas.",
+  "title": "Plate Queue: ejecutar varios proyectos preparados",
+  "description": "Añade el proyecto actual o arrastra carpetas preparadas a una cola, ejecuta los trabajos en orden y continúa después de una parada controlada.",
+  "objectives": [
+    "Añadir proyectos preparados con sus ajustes de módulo guardados.",
+    "Ejecutar la cola y detenerla entre trabajos.",
+    "Encontrar los resultados de cada proyecto y quitar de la cola las entradas terminadas."
+  ],
+  "prerequisite": "Prepara un proyecto y sus ajustes de módulo guardados. Para practicar, usa dos copias del ejemplo de Recruitment en carpetas separadas; contienen los mismos datos y no son réplicas biológicas.",
   "scenes": [
-    "Empieza con el ejemplo validado de Recruitment. Copiamos su base de mediciones de cuatro campos de imagen en dos carpetas separadas, cada una con sus ajustes. Son dos repeticiones de los mismos datos reales, no placas independientes. En Recruitment, elige Import settings y abre el CSV de la primera carpeta.",
-    "La consola confirma que se cargaron los ajustes. Comprueba el origen y los canales antes de añadir la tarea; verificamos todos los valores solicitados después de importar. Consulta el tutorial de Recruitment para sus figuras, consola y vista previa. La cola no determina si tus decisiones biológicas son adecuadas.",
-    "Abre Help y después Plate queue. Esta herramienta compartida se abre desde el menú, no desde una nueva tarjeta de Home. El ejecutor actual procesa una tarea cada vez; aquí no hay selector del número de trabajadores ni de política de reanudación.",
-    "Elige Add current plate. La primera fila guarda una copia de la configuración de Recruitment recién cargada. Comprueba el módulo y el origen antes de ejecutar. La tabla muestra identificador, módulo, etiqueta, estado y tiempo transcurrido; no es un editor completo de ajustes.",
-    "Arrastra la segunda carpeta preparada a la cola. Sus ajustes guardados de Recruitment identifican el módulo y esa carpeta pasa a ser el origen. Ambas filas indican queued. Las carpetas separadas aíslan los resultados; añadir dos veces la misma carpeta no proporcionaría ese aislamiento.",
-    "Elige Run queue. La primera tarea indica running y la segunda sigue en queued. Se ejecuta el procesamiento real de Recruitment, no una simulación del progreso. La lista sigue las tareas, pero no muestra todas las imágenes o etapas intermedias.",
-    "Pulsa Stop durante la primera tarea. El ejecutor terminará la tarea actual y se detendrá antes de comenzar otra. No es una cancelación inmediata: espera a que termine la tarea activa, sin suponer que sus resultados ya han dejado de cambiar.",
-    "Ahora la primera fila indica success y la segunda sigue en queued. Elige otra vez Run queue para procesar solo la pendiente. Verificamos que no cambiaron las marcas temporales de la primera tarea. Esta parada controlada no demuestra recuperación tras un fallo del ordenador.",
-    "Ambas tareas indican success. Cada proyecto contiene los resultados CSV de células y pocillos: doscientas veintitrés células retenidas en cuatro pocillos. Verificamos de forma independiente las identidades y las razones de reclutamiento frente a las mediciones; el estado verde por sí solo no demostraría que los números son correctos.",
-    "Plot estaba activado, pero este ejecutor no muestra ni guarda las figuras de Recruitment. Consulta el tutorial del módulo para ese flujo con figuras. La cola tampoco tiene un panel de conversación AI; aquí no se necesitó ninguna solicitud de AI ni ejecutar un modelo.",
-    "Clear finished elimina registros terminados de la cola, no sus carpetas ni resultados. Conservamos el registro antes de borrar y comprobamos que ambos proyectos seguían presentes. Para scripts, PlateQueue en el módulo de cola de placas de Qt gestiona registros persistentes; no es la función de análisis de Recruitment."
+    "Prepara el primer proyecto en su módulo de análisis. En Recruitment, elige Import settings y abre el CSV de ajustes del proyecto. El ejemplo usa dos copias separadas de los mismos datos medidos para practicar la ejecución de varios trabajos.",
+    "Comprueba Source, la asignación de canales y las etiquetas de condición. Guarda los ajustes que quieres que use la cola y deja este proyecto abierto.",
+    "Abre Help y luego Plate queue. La cola ejecuta un elemento cada vez, en el orden de la lista.",
+    "Elige Add current plate. Una fila nueva guarda el módulo y los ajustes actuales. Comprueba su módulo, su origen y su etiqueta antes de iniciar la cola.",
+    "Arrastra otra carpeta de proyecto preparada a la cola. Sus ajustes guardados identifican el módulo, y la carpeta arrastrada pasa a ser su origen. Usa carpetas de proyecto separadas cuando cada trabajo necesite sus propios archivos de salida.",
+    "Elige Run queue. La primera fila cambia a running mientras los elementos siguientes siguen en queued. Observa el estado y el tiempo transcurrido para seguir el avance.",
+    "Pulsa Stop cuando quieras que la cola termine el elemento actual y se detenga antes del siguiente. Espera a que termine el trabajo activo.",
+    "La fila terminada muestra ahora success y la siguiente sigue en queued. Elige de nuevo Run queue para continuar con el elemento restante.",
+    "Cuando terminen los dos trabajos, abre la carpeta de salida de cada proyecto. En Recruitment, revisa los resultados CSV de células y de pozos. Usa Recruitment directamente cuando quieras su flujo de figuras; esta cola no muestra ni guarda esos gráficos.",
+    "Elige Clear finished para quitar de la lista las entradas terminadas. Sus carpetas de proyecto y los resultados guardados siguen disponibles."
   ]
 }

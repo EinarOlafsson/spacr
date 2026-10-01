@@ -113,8 +113,10 @@ from __future__ import annotations
 import logging
 import math
 import os
+import re
 import threading
 import time
+import weakref
 from collections import deque
 from functools import partial
 from importlib.util import find_spec
@@ -122,6 +124,7 @@ from typing import Any, List, NamedTuple, Optional
 
 import numpy as np
 from PySide6.QtCore import (
+    QEvent,
     QObject,
     QPoint,
     QPointF,
@@ -153,8 +156,10 @@ from PySide6.QtWidgets import (
     QFormLayout,
     QGroupBox,
     QHBoxLayout,
+    QInputDialog,
     QLabel,
     QLineEdit,
+    QMenu,
     QMessageBox,
     QPlainTextEdit,
     QProgressBar,
@@ -181,7 +186,7 @@ from .. import wand_rescue
 from ..hidpi import follow_device_ratio, logical_size, scaled_for
 from ..theme import (SPACING, active_palette, block_surface,
                      ensure_widget_qss_applied, mark_surface,
-                     register_widget_qss)
+                     register_widget_qss, set_a_sheeted_widgets_own_rule)
 from ..widgets import Card, Divider, EmptyState
 from ..widgets.fold_strip import FoldStrip
 from ..widgets.section import Section
@@ -408,6 +413,8 @@ SETTINGS_GAP = 12
 #: column was doing when this was measured on a rendered screen.
 SHORTCUTS_WIDTH = 230
 
+RESTORATION_SETTLE_MS = 400
+
 #: Where the settings panel's folded categories are remembered, as the titles
 #: folded away -- :func:`spacr.qt.preferences.get_section_layout` keyed by
 #: this name.
@@ -584,6 +591,418 @@ class _MaskLoadWorker(QThread):
                 self.filename,
                 self.folder,
             )
+
+
+#: Subfolders a dropped folder may hold that are not images to consolidate:
+#: masks, the pipeline's raw-image backup and an earlier channel sort.
+_NOT_CONSOLIDATED = ("masks", "orig", "sorted_channels")
+
+
+def _copy_mask_as_tiff(source: str, target: str) -> None:
+    """Copy a dropped mask to where Make Masks looks for it.
+
+    A TIFF is copied as it is; a mask saved in another format is read and
+    written as a TIFF, because Make Masks keeps every mask as
+    ``<masks folder>/<stem>.tif``.
+
+    :param source: the dropped mask.
+    :param target: ``<image folder>/masks/<image stem>.tif``.
+    :raises OSError: when it cannot be read or written.
+    """
+    import shutil
+
+    os.makedirs(os.path.dirname(target), exist_ok=True)
+    if source.lower().endswith((".tif", ".tiff")):
+        shutil.copy2(source, target)
+        return
+    from PIL import Image
+
+    from ...tiff_io import write_tiff
+
+    with Image.open(source) as image:
+        write_tiff(target, np.asarray(image))
+
+
+class _FolderJobWorker(QThread):
+    """Run one folder job -- consolidating or sorting -- off the GUI thread.
+
+    Item 593. Copying a folder tree or moving and merging a plate can take
+    minutes; the screen stays responsive and the job's lines go to the Make
+    Masks console, which accepts them from any thread.
+    """
+
+    def __init__(self, job, parent=None):
+        """Remember the job.
+
+        :param job: a callable taking no arguments; its return value is kept
+            as :attr:`result`, an exception it raises as :attr:`error`.
+        :param parent: parent object.
+        """
+        super().__init__(parent)
+        self.job = job
+        self.result = None
+        self.error: Optional[Exception] = None
+
+    def run(self) -> None:
+        """Run the job, keeping its result or the exception it raised."""
+        try:
+            self.result = self.job()
+        except Exception as exc:
+            self.error = exc
+            LOG.exception("Make Masks folder job failed")
+
+
+class _SplitMenuButton(QPushButton):
+    """A push button that also opens a menu from an arrow on its right.
+
+    Pressing the body does what the button always did -- ``clicked`` fires,
+    and :meth:`click` still presses it -- while the arrow, a right-click or
+    Alt+Down opens the menu. Unlike ``QPushButton.setMenu`` the body press
+    is never swallowed by the menu, so the button keeps its own action.
+    """
+
+    #: Width of the arrow zone on the right, in pixels.
+    ARROW = 18
+
+    def __init__(self, text: str = "", parent=None):
+        """A button reading ``text``, with no menu until one is set."""
+        super().__init__(text, parent)
+        self._split_menu: Optional[QMenu] = None
+
+    def set_split_menu(self, menu: QMenu) -> None:
+        """Offer ``menu`` from the arrow."""
+        self._split_menu = menu
+
+    def split_menu(self) -> Optional[QMenu]:
+        """The menu the arrow opens, or ``None``."""
+        return self._split_menu
+
+    def sizeHint(self):
+        """The push button's size, widened by the arrow zone."""
+        hint = super().sizeHint()
+        hint.setWidth(hint.width() + self.ARROW)
+        return hint
+
+    def _pop_menu(self) -> None:
+        """Open the menu under the button, if there is one and it is enabled."""
+        if self._split_menu is not None and self.isEnabled():
+            self._split_menu.popup(self.mapToGlobal(self.rect().bottomLeft()))
+
+    def mousePressEvent(self, event):
+        """A press on the arrow opens the menu; anywhere else presses."""
+        if (self._split_menu is not None and event.button() == Qt.LeftButton
+                and event.position().x() >= self.width() - self.ARROW - 4):
+            event.accept()
+            self._pop_menu()
+            return
+        super().mousePressEvent(event)
+
+    def contextMenuEvent(self, event):
+        """A right-click opens the menu too."""
+        if self._split_menu is None:
+            return super().contextMenuEvent(event)
+        event.accept()
+        self._pop_menu()
+
+    def keyPressEvent(self, event):
+        """Alt+Down opens the menu from the keyboard."""
+        if (event.key() == Qt.Key_Down
+                and event.modifiers() & Qt.AltModifier):
+            event.accept()
+            self._pop_menu()
+            return
+        super().keyPressEvent(event)
+
+    def paintEvent(self, event):
+        """Paint the button, then the down arrow in its right-hand zone."""
+        super().paintEvent(event)
+        if self._split_menu is None:
+            return
+        from PySide6.QtWidgets import QStyle, QStyleOption
+
+        option = QStyleOption()
+        option.initFrom(self)
+        size = 8
+        option.rect.setRect(self.width() - self.ARROW - 2,
+                            (self.height() - size) // 2, size + 4, size)
+        painter = QPainter(self)
+        self.style().drawPrimitive(QStyle.PE_IndicatorArrowDown, option,
+                                   painter, self)
+        painter.end()
+
+
+class _StatusLabel(QLabel):
+    """The corner readout: one short line here, every line in the console.
+
+    Item 507. About a hundred places in this screen set the corner's text,
+    and some of them set a whole failure -- a backend's message and the
+    last forty lines it printed -- which piled up in the bottom right. The
+    corner now shows the first line, cut short, with the whole text as its
+    tooltip, and :attr:`said` hands every new text to the screen, which
+    puts it in its console.
+
+    :ivar said: ``(text,)``, each time the text changes to something new.
+    """
+
+    said = Signal(str)
+
+    LIMIT = 160
+
+    def __init__(self, text: str = "", parent=None):
+        """Start with ``text``, which is not reported."""
+        super().__init__(parent)
+        self._full = ""
+        self._quiet = False
+        self._show(text)
+
+    def text(self) -> str:
+        """The whole text last set, not the shortened line shown."""
+        return self._full
+
+    def setText(self, text: str) -> None:
+        """Show ``text``'s first line and report the whole of it once."""
+        text = str(text or "")
+        owner_ref = getattr(self, "_blind_owner", None)
+        owner = owner_ref() if owner_ref is not None else None
+        if owner is not None:
+            text = owner._blind_text(text)
+        changed = text != self._full
+        self._show(text)
+        if changed and text.strip() and not self._quiet:
+            self.said.emit(text)
+
+    def set_quietly(self, text: str) -> None:
+        """Show ``text`` without reporting it; its sender already did."""
+        self._quiet = True
+        try:
+            self.setText(text)
+        finally:
+            self._quiet = False
+
+    def _show(self, text: str) -> None:
+        """Put the first line, shortened, on screen; the rest in the tooltip."""
+        self._full = text
+        lines = text.strip().splitlines()
+        line = lines[0] if lines else ""
+        if len(line) > self.LIMIT:
+            line = line[:self.LIMIT - 1].rstrip() + "…"
+        elif len(lines) > 1:
+            line = line.rstrip() + " …"
+        super().setText(line)
+        self.setToolTip(text if line != text else "")
+
+
+class _MasksConsole(QWidget):
+    """Make Masks' console: every status, progress, warning and failure line.
+
+    Item 507. It sits under the shortcut list, right of the image, in a
+    section that folds (item 471's :class:`FoldSection`). It is a
+    :class:`~spacr.qt.widgets.console_panel.ConsolePanel` without the chat
+    and without the application-wide log, so it carries this screen's own
+    lines, and under it ONE :class:`~spacr.qt.widgets.eliding.ProgressLine`
+    for the task that is running now: a task that reports a hundred steps
+    rewrites that line a hundred times rather than stacking a hundred lines.
+    When the task ends, its last words go into the scrollback and the line
+    hides.
+
+    A line identical to the one before it is not written again, so a
+    message repeated on every mouse move reads once.
+
+    STREAMED OUTPUT. A backend worker's progress bars (tqdm redrawing itself
+    with a carriage return, ``\\r``, during Cellpose 3 restoration,
+    segmentation or a model download) and an install's pip lines arrive
+    faster than anyone reads, on threads that must not wait.
+    :meth:`stream` keeps only the newest state
+    and draws it on the progress line at most every :attr:`STREAM_MS`
+    milliseconds; a bar's finished state goes into the scrollback once. The
+    console listens to every worker from the moment it is built
+    (:func:`spacr._segmentation_backends._listen_to_workers`).
+
+    :ivar console: the scrollback.
+    :ivar progress: the in-place progress line; hidden while nothing runs.
+    :ivar stream_updates: how many times streamed output redrew the
+        progress line.
+    """
+
+    _relay = Signal(str, str)
+    _stream_kick = Signal()
+
+    PERCENT = re.compile(r"(\d{1,3}(?:\.\d+)?)\s?%")
+
+    STREAM_MS = 100
+
+    def __init__(self, parent=None):
+        """Build the scrollback and the hidden progress line."""
+        super().__init__(parent)
+        from ..widgets.console_panel import ConsolePanel
+        from ..widgets.eliding import ProgressLine
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(SPACING["xs"])
+        self.console = ConsolePanel(active_app_label="",
+                                    follow_log=False, chat=False)
+        layout.addWidget(self.console, 1)
+        self.progress = ProgressLine(self, detail=True, count_below=True)
+        self.progress.setVisible(False)
+        layout.addWidget(self.progress)
+        self._last = None
+        self._relay.connect(self.post)
+        self.stream_updates = 0
+        self._stream_lock = threading.Lock()
+        self._stream_pending = None
+        self._stream_finals = []
+        self._stream_bars = {}
+        self._stream_armed = False
+        self._stream_timer = QTimer(self)
+        self._stream_timer.setSingleShot(True)
+        self._stream_timer.setInterval(self.STREAM_MS)
+        self._stream_timer.timeout.connect(self._flush_stream)
+        self._stream_kick.connect(self._arm_stream)
+        from ... import _segmentation_backends as backends
+
+        stop = backends._listen_to_workers(self._worker_said)
+        self.destroyed.connect(lambda *_args: stop())
+
+    def post(self, text: str, kind: str = "info") -> None:
+        """Write one line.
+
+        :param text: what to say; blank is ignored.
+        :param kind: ``progress`` rewrites the progress line; ``stream`` is
+            one line of a command's running output and rewrites it at most
+            every :attr:`STREAM_MS` ms (see :meth:`stream`); ``info``,
+            ``warning`` and ``error`` go into the scrollback, in the
+            console's colours for each, and end any progress shown.
+        """
+        if kind == "stream":
+            self.stream(str(text or ""))
+            return
+        if QThread.currentThread() is not self.thread():
+            self._relay.emit(str(text or ""), str(kind or "info"))
+            return
+        text = str(text or "").rstrip()
+        if not text.strip():
+            return
+        if kind == "progress":
+            self.show_progress(text)
+            return
+        self._settle_stream()
+        self._write(text, kind)
+
+    def _write(self, text: str, kind: str) -> None:
+        """Put one line into the scrollback and hide the progress line."""
+        self.progress.setVisible(False)
+        if (text, kind) == self._last:
+            return
+        self._last = (text, kind)
+        if kind == "error":
+            self.console.append_error(text)
+        elif kind == "warning":
+            self.console.append_warning(text)
+        else:
+            self.console.append_stdout(text + "\n")
+
+    def stream(self, line: str, source: str = "") -> None:
+        """Take one line of running output; safe from any thread, never waits.
+
+        A line ending in a bare ``\\r`` is a progress bar's redraw, and a line
+        with no ending (an install's output, already split) is one state of
+        the task: either becomes the newest state of the progress line,
+        replacing any not yet drawn. A line ending in a newline right after a
+        redraw is the bar's finished state and goes into the scrollback
+        once. Any other ended line is the worker's own chatter, kept in the
+        log and not shown.
+
+        :param line: the raw line, with its ending if it had one.
+        :param source: whose output it is, e.g. ``Cellpose 3``; it prefixes
+            the line, and each source's bar is followed on its own.
+        """
+        line = str(line or "")
+        ended = line.endswith("\n")
+        redraw = line.endswith("\r") and not ended
+        parts = [part for part in line.rstrip("\r\n").split("\r")
+                 if part.strip()]
+        text = parts[-1].strip() if parts else ""
+        shown = "{}: {}".format(source, text) if source and text else text
+        with self._stream_lock:
+            in_bar = self._stream_bars.get(source, False)
+            if redraw or not ended:
+                if shown:
+                    self._stream_pending = shown
+                self._stream_bars[source] = redraw or in_bar
+            else:
+                self._stream_bars[source] = False
+                if not (in_bar or len(parts) > 1) or not shown:
+                    return
+                self._stream_pending = None
+                self._stream_finals.append(shown)
+            kick = not self._stream_armed
+            self._stream_armed = True
+        if kick:
+            try:
+                self._stream_kick.emit()
+            except RuntimeError:
+                pass
+
+    def _worker_said(self, label: str, line: str) -> None:
+        """A backend worker printed ``line``; stream it under its name."""
+        self.stream(line, source=label)
+
+    def _arm_stream(self) -> None:
+        """Draw the streamed output once the throttle interval is up."""
+        if not self._stream_timer.isActive():
+            self._stream_timer.start()
+
+    def _take_stream(self):
+        """The newest undrawn state and the finished lines, emptied."""
+        with self._stream_lock:
+            pending, finals = self._stream_pending, self._stream_finals
+            self._stream_pending, self._stream_finals = None, []
+            self._stream_armed = False
+        return pending, finals
+
+    def _flush_stream(self) -> None:
+        """Draw what streamed since the last draw: finished lines into the
+        scrollback, then the newest state on the progress line."""
+        pending, finals = self._take_stream()
+        for text in finals:
+            self._write(text, "info")
+        if pending:
+            self.show_progress(pending)
+            self.stream_updates += 1
+
+    def _settle_stream(self) -> None:
+        """A line for the scrollback is coming: write the finished bars
+        before it and drop the state not yet drawn, which it supersedes."""
+        self._stream_timer.stop()
+        _pending, finals = self._take_stream()
+        for text in finals:
+            self._write(text, "info")
+
+    def show_progress(self, text: str) -> None:
+        """Rewrite the one progress line with ``text``.
+
+        A percentage in the text moves the bar; without one the bar is busy.
+        """
+        found = self.PERCENT.findall(text)
+        if found:
+            self.progress.setRange(0, 100)
+            self.progress.setValue(int(min(100.0, float(found[-1]))))
+        else:
+            self.progress.setRange(0, 0)
+        self.progress.set_detail(text)
+        self.progress.setToolTip(text)
+        self.progress.setVisible(True)
+
+    def progress_text(self) -> str:
+        """What the progress line says, or ``''`` while it is hidden."""
+        if not self.progress.isVisibleTo(self):
+            return ""
+        return self.progress.toolTip()
+
+    def text(self) -> str:
+        """The scrollback as plain text."""
+        return self.console.as_text()
 
 
 class _MethodGroup(QWidget):
@@ -777,6 +1196,12 @@ class _MaskCanvas(QLabel):
         #: while one is running does not ask again.
         self._enhance_worker = None
         self._enhance_cancel = threading.Event()
+        self._enhance_pending = None
+        self._enhance_started = None
+        self._enhance_timer = QTimer(self)
+        self._enhance_timer.setSingleShot(True)
+        self._enhance_timer.setInterval(RESTORATION_SETTLE_MS)
+        self._enhance_timer.timeout.connect(self._submit_pending_enhance)
         self._enhance_asked: Optional[tuple] = None
         self.enhanced_ready.connect(self._take_enhanced)
         self.wand_tolerance: float = 1000.0
@@ -862,6 +1287,11 @@ class _MaskCanvas(QLabel):
         #: wheel zooms the box instead of the view; the right-button sweep
         #: and Shift/Alt pan work as they do from any tool.
         self.magnifier: Optional["_LiveMagnifier"] = None
+        #: Prompt-based segmentation the screen gives this canvas, or None.
+        #: While it is on, a left click, a right click and a left drag are
+        #: prompts (:class:`_PromptSession`); Shift/Alt pan and the Ctrl
+        #: edits work as they do from any tool.
+        self.prompter: Optional["_PromptSession"] = None
 
     def set_image_and_mask(self, image: np.ndarray, mask: np.ndarray) -> None:
         """Load a new image + mask pair and rerender at full-image zoom.
@@ -885,6 +1315,8 @@ class _MaskCanvas(QLabel):
         self.readout = None
         if self.magnifier is not None:
             self.magnifier.forget()
+        if self.prompter is not None:
+            self.prompter.forget()
         self.reset_zoom(silent=True)
         self.refresh()
 
@@ -1050,6 +1482,13 @@ class _MaskCanvas(QLabel):
         (:class:`_NewestRequestWorker`): dragging the background radius
         makes a request per step, and every one but the last is about a
         picture nobody will see.
+
+        A CHAIN WITH CELLPOSE 3 RESTORATION WAITS TO SETTLE (item 507). One
+        restoration of a whole field is tens of seconds on a CPU, and a
+        cancelled one still finishes in the worker before the next can
+        start, so a request is sent only after the chain has stood still
+        for :data:`RESTORATION_SETTLE_MS`; each change in between replaces
+        the waiting request rather than sending it.
         """
         asked = self._enhance_asked
         if asked is not None and asked[0] is base and asked[1] == chain:
@@ -1062,9 +1501,29 @@ class _MaskCanvas(QLabel):
             self._enhance_worker = _NewestRequestWorker(
                 _enhanced_picture_for, self._enhanced_done,
                 name="spacr-enhance")
-        self._enhance_worker.submit(
-            _EnhanceRequest(key=(id(base), chain, id(self._enhance_cancel)),
-                            image=base, chain=chain, cancelled=self._enhance_cancel))
+        request = _EnhanceRequest(
+            key=(id(base), chain, id(self._enhance_cancel)),
+            image=base, chain=chain, cancelled=self._enhance_cancel)
+        if getattr(chain, "restoration", False):
+            self._enhance_pending = request
+            self._enhance_timer.start()
+            return
+        self._enhance_pending = None
+        self._enhance_timer.stop()
+        self._enhance_worker.submit(request)
+
+    def _submit_pending_enhance(self) -> None:
+        """Send the request that waited for the chain to settle, if still wanted."""
+        request, self._enhance_pending = self._enhance_pending, None
+        worker = self._enhance_worker
+        if (request is None or worker is None
+                or request.cancelled is None or request.cancelled.is_set()):
+            return
+        from ..i18n import tr
+
+        self._enhance_started = (request.image, request.chain, time.monotonic())
+        self.status.emit(tr("Cellpose 3 restoration is running on the whole field…"))
+        worker.submit(request)
 
     def _enhanced_done(self, request, result, error) -> None:
         """Deliver the finished picture or exception to Qt from the worker."""
@@ -1093,9 +1552,15 @@ class _MaskCanvas(QLabel):
             return
         if isinstance(picture, Exception):
             self._enhance_failure = (base, chain, str(picture))
+            self._enhance_started = None
             self.status.emit(tr('Image enhancement failed: {error}', error=str(picture)))
             return
         self._enhance_failure = None
+        started = self._enhance_started
+        if started is not None and started[0] is base and started[1] == chain:
+            self._enhance_started = None
+            self.status.emit(tr("Cellpose 3 restoration finished in {seconds} s.",
+                                seconds=round(time.monotonic() - started[2], 1)))
         if isinstance(picture, _EnhancedImage):
             self._enhanced_cache = (base, chain, picture.prepared)
             picture = picture.picture
@@ -1106,6 +1571,8 @@ class _MaskCanvas(QLabel):
     def close_enhancer(self) -> bool:
         """Stop the enhanced-picture worker; True when none is left running."""
         self._enhance_cancel.set()
+        self._enhance_timer.stop()
+        self._enhance_pending = None
         worker = self._enhance_worker
         self._enhance_worker = None
         self._enhance_asked = None
@@ -1388,6 +1855,7 @@ class _MaskCanvas(QLabel):
         super().paintEvent(event)
         self._paint_recrop_boxes()
         self._paint_magnifier()
+        self._paint_prompter()
         self._paint_drag()
         self._paint_readout()
         if self.ruler.start is not None:
@@ -1623,6 +2091,40 @@ class _MaskCanvas(QLabel):
         finally:
             painter.end()
 
+    def _paint_prompter(self) -> None:
+        """Draw the prompt and the mask it gave, while prompting is on."""
+        prompter = self.prompter
+        if prompter is None or not prompter.enabled:
+            return
+        painter = QPainter(self)
+        try:
+            prompter.paint(painter)
+        finally:
+            painter.end()
+
+    def event(self, event):
+        """Keep Enter, Backspace and Escape for a prompt that wants them.
+
+        The screen binds Escape to resetting the zoom; while a prompt is on
+        the canvas, Escape discards the prompt instead, and the canvas says
+        so to Qt before the shortcut is looked up.
+        """
+        prompter = getattr(self, "prompter", None)
+        if (event.type() == QEvent.ShortcutOverride and prompter is not None
+                and prompter.wants_key(event.key())):
+            event.accept()
+            return True
+        return super().event(event)
+
+    def keyPressEvent(self, event):
+        """Hand Enter, Backspace and Escape to a prompt that wants them."""
+        prompter = getattr(self, "prompter", None)
+        if prompter is not None and prompter.key(event.key()):
+            event.accept()
+            self.update()
+            return
+        super().keyPressEvent(event)
+
     def _paint_recrop_boxes(self) -> None:
         """Mark every region already cut out of this field, with its name.
 
@@ -1832,6 +2334,11 @@ class _MaskCanvas(QLabel):
         :attr:`_ctrl_click` is still rewritten by every press that arrives
         alone, so a release that never came -- a grab lost to a dialog --
         cannot leave it standing and swallow the next drag.
+
+        WITH PROMPTING ON (:attr:`prompter`) a left press, a right press and
+        a left drag are prompts. They are read after the Ctrl edits and
+        before everything else except a Shift/Alt pan, so the right button
+        adds a point off the object instead of sweeping objects away.
         """
         if self.mask is None:
             return super().mousePressEvent(event)
@@ -1871,6 +2378,15 @@ class _MaskCanvas(QLabel):
         elif (self._ctrl_click is not None
               or event.modifiers() & Qt.ControlModifier):
             self._swallowed.add(event.button())
+            return
+
+        prompter = self.prompter
+        if (prompter is not None and prompter.enabled
+                and not (event.button() == Qt.LeftButton
+                         and event.modifiers() & PAN_MODIFIERS)
+                and prompter.press(event.button(), event.position())):
+            self.setFocus(Qt.MouseFocusReason)
+            self.update()
             return
 
         if (event.button() == Qt.RightButton and self.magnifier is not None
@@ -1980,6 +2496,9 @@ class _MaskCanvas(QLabel):
                             measure=event.buttons() == Qt.NoButton)
         if self._ctrl_click is not None:
             return
+        if self.prompter is not None and self.prompter.move(event.position()):
+            self.update()
+            return
         if self._sweeping and event.buttons() & Qt.RightButton:
             self._sweep_delete_at(
                 self._canvas_to_image(event.position().x(),
@@ -2053,6 +2572,10 @@ class _MaskCanvas(QLabel):
             return
         if event.button() in self._swallowed:
             self._swallowed.discard(event.button())
+            return
+        if self.prompter is not None and self.prompter.release(
+                event.button(), event.position()):
+            self.update()
             return
         if event.button() == Qt.RightButton and self._sweeping:
             self._sweeping = False
@@ -2232,6 +2755,11 @@ def stretch_to_uint8(array: np.ndarray,
     same footing as the contrast-stretched intensity image the canvas
     already draws, which is the only way the panes can be compared with
     it by eye.
+
+    :param array: any numeric array; it is read as float32, and an empty array
+        gives an empty uint8 array.
+    :param lower_pct: percentile mapped to 0.
+    :param upper_pct: percentile mapped to 255.
     """
     values = np.asarray(array, dtype=np.float32)
     if not values.size:
@@ -2254,6 +2782,9 @@ def cellprob_heatmap(cellprob: np.ndarray) -> np.ndarray:
     Matplotlib's ``magma`` is used where it is importable, and a plain
     black-to-white ramp stands in where it is not, so the pane is never
     the thing that fails.
+
+    :param cellprob: Cellpose's cell-probability map, a 2-D float array; it is
+        percentile-stretched with :func:`stretch_to_uint8` before colouring.
     """
     scaled = stretch_to_uint8(cellprob).astype(np.float32) / 255.0
     try:
@@ -2273,6 +2804,10 @@ def flow_rgb(flow: np.ndarray) -> Optional[np.ndarray]:
     vector field. This takes the picture where it is given one and builds
     an equivalent from the vectors otherwise, so the pane fills whichever
     entry a caller passes.
+
+    :param flow: either Cellpose's RGB flow picture, an array of shape (H, W, 3
+        or more), or the raw vector field of shape (2, H, W); ``None`` or any
+        other shape gives ``None``.
     """
     if flow is None:
         return None
@@ -2328,6 +2863,74 @@ _ZOO_PENDING_ROLE = int(Qt.UserRole) + 18
 def _zoo_cellpose_models() -> List[tuple]:
     """``(key, path or None, entry)`` for every Cellpose model in the zoo.
 
+    :func:`_zoo_models_of_kind` for the ``cellpose`` kind.
+    """
+    return _zoo_models_of_kind("cellpose")
+
+
+def _zoo_cellpose_dino_models() -> List[tuple]:
+    """``(model setting, caption)`` for each Cellpose-DINO model downloaded.
+
+    Item 525. The setting is ``cellpose_dino:<path>``, which
+    :func:`load_cellpose_model` and :func:`_backend_model` run in the
+    Cellpose-DINO backend, and the caption is the one the Model zoo...
+    button gives such a model. A row that is not downloaded is left out:
+    the Model zoo picker is where one is downloaded, next to its backend's
+    install.
+    """
+    from ..i18n import tr
+    from ..._segmentation_backends import _cellpose_dino_value
+
+    return [(_cellpose_dino_value(path),
+             tr("Cellpose-DINO · {model}", model=os.path.basename(path)))
+            for _key, path, _entry in _zoo_models_of_kind("cellpose_dino")
+            if path]
+
+
+def _zoo_prefixed_models() -> List[tuple]:
+    """``(model setting, caption)`` for each model of each installed
+    prefixed backend -- StarDist, InstanSeg, Omnipose (items 551-553).
+
+    The setting is ``<prefix><model>``, which :func:`load_cellpose_model`
+    and :func:`_backend_model` run in that backend; the caption is
+    "<backend> · <model>". A backend that is not installed lists nothing
+    here: the Mode box offers its install.
+    """
+    from ..i18n import tr
+    from ..._segmentation_backends import (_SPECS, _prefixed_names,
+                                           _prefixed_value)
+
+    out = []
+    for name in _prefixed_names():
+        if not _state_ready(name):
+            continue
+        spec = _SPECS[name]
+        out.extend((_prefixed_value(name, model),
+                    tr("{backend} · {model}", backend=spec.label,
+                       model=model))
+                   for model in spec.models
+                   if not _prefixed_alpha_hidden(name, model))
+    return out
+
+
+def _prefixed_alpha_hidden(name: str, model: str) -> bool:
+    """Whether the alpha gate hides backend ``name``'s ``model`` (item 569).
+
+    The model is hidden when its Model Zoo row (``<name>_<model>``) or its
+    backend's row (``<name>_v1``) is registered in
+    ``spacr.settings.ALPHA_FEATURES`` and Show alpha features is off -- the
+    same rows the Model Zoo folds away, so the Mode box and the Model list
+    offer exactly what the zoo shows.
+    """
+    from ..preferences import _is_alpha_visible
+
+    return not (_is_alpha_visible("models", f"{name}_{model}")
+                and _is_alpha_visible("models", f"{name}_v1"))
+
+
+def _zoo_models_of_kind(kind: str) -> List[tuple]:
+    """``(key, path or None, entry)`` for every zoo model of ``kind``.
+
     ``path`` is where the model is on this machine -- the entry's own path,
     or its file in the folder the Model zoo picker downloads into -- and None
     for one not downloaded. ``entry`` is the zoo's own record, which is what
@@ -2341,6 +2944,8 @@ def _zoo_cellpose_models() -> List[tuple]:
     they do not want those models, and a Mode box that listed them anyway
     would be the one place that ignored them. So the same persisted headings
     filter this list.
+
+    :param kind: the zoo kind, ``cellpose`` or ``cellpose_dino``.
     """
     try:
         from ... import model_zoo
@@ -2355,7 +2960,7 @@ def _zoo_cellpose_models() -> List[tuple]:
         return []
     found = []
     for entry in entries:
-        if getattr(entry, "kind", "") != "cellpose":
+        if getattr(entry, "kind", "") != kind:
             continue
         if model_zoo.source_of(entry) not in sources:
             continue
@@ -2385,8 +2990,31 @@ def load_cellpose_model(model_name: str):
     the difference between most of an hour and most of a day. On a GPU
     nothing changes: :func:`spacr.accelerator.cellpose_kwargs` decides
     there, as it does for the pipeline.
+
+    A ``cellpose3:<name or path>`` model -- a stock Cellpose 3 model or a
+    bioimage.io Cellpose 3 checkpoint -- is not a Cellpose 4 model at all:
+    Cellpose 4 would load such a checkpoint and segment nonsense with it. It
+    is loaded by :func:`_backend_model`, in the Cellpose 3 backend's own
+    environment, as Mask generation loads it. A ``cellpose_dino:<path>``
+    model, a Cellpose-DINO checkpoint, is loaded the same way in the
+    Cellpose-DINO backend (item 525), and a ``stardist:``, ``instanseg:``
+    or ``omnipose:`` model in its own backend (items 551-553).
+
+    :param model_name: a Cellpose model name, the path of a fine-tuned
+        checkpoint, resolved by
+        :func:`spacr.utils._resolve_cellpose_pretrained`, or
+        ``cellpose3:<name or path>``.
     """
     import inspect
+
+    from ..._segmentation_backends import (_cellpose3_choice,
+                                           _cellpose_dino_choice,
+                                           _prefixed_backend)
+
+    if (_cellpose3_choice(model_name) is not None
+            or _cellpose_dino_choice(model_name) is not None
+            or _prefixed_backend(model_name) is not None):
+        return _backend_model(str(model_name).strip())
 
     import torch
     from cellpose import models as cp_models
@@ -2434,6 +3062,28 @@ def cellpose_detect(image: np.ndarray, model, *,
     :returns: ``(labels, cellprob, flow_rgb)`` — an int32 label image, and
         the two maps as :func:`cellpose_intermediates` reads them.
     """
+    return _cellpose_detect_with_vectors(
+        image, model, diameter=diameter, normalize=normalize,
+        flow_threshold=flow_threshold,
+        cellprob_threshold=cellprob_threshold, min_size=min_size)[:3]
+
+
+def _cellpose_detect_with_vectors(image: np.ndarray, model, *,
+                                  diameter: int = 0,
+                                  normalize: bool = True,
+                                  flow_threshold: float = FLOW_THRESHOLD,
+                                  cellprob_threshold: float =
+                                  CELLPROB_THRESHOLD,
+                                  min_size: int = 0) -> tuple:
+    """:func:`cellpose_detect` with the network's flow vectors fourth.
+
+    The vectors are the ``(2, H, W)`` float32 flows a flow-error check
+    compares an outline with, or None when this Cellpose gave none.
+
+    :param image: one 2-D field.
+    :param model: a loaded ``CellposeModel`` or anything with its ``eval``.
+    :returns: ``(labels, cellprob, flow_rgb, vectors)``.
+    """
     import inspect
 
     from ...spacr_cellpose import cellpose_channel_axis, parse_cellpose4_output
@@ -2463,7 +3113,12 @@ def cellpose_detect(image: np.ndarray, model, *,
         [flows0[0] if flows0 else None,
          flows1[0] if flows1 else None,
          flows2[0] if flows2 else None])
-    return labels, cellprob, rgb
+    vectors = flows1[0] if flows1 else None
+    if vectors is not None:
+        vectors = np.asarray(vectors, dtype=np.float32)
+        if vectors.shape != (2,) + labels.shape:
+            vectors = None
+    return labels, cellprob, rgb, vectors
 
 
 
@@ -2766,6 +3421,60 @@ def _counting_tiles(model, ticket):
 #: END, beside the same name in :meth:`_LiveMagnifier._model_settings`: a
 #: request key is this tuple positionally, and an insertion in the middle
 #: would make every key already cached mean something else.
+def _cellpose3_auto_diameter_note() -> str:
+    """Why a Cellpose 3 run with Diameter 0 over a whole field is slow.
+
+    Measured for item 507 on a real 1994 x 1994 Toxoplasma field: Cellpose 3
+    estimated 16 px for vacuoles whose median is 44 px, rescaled the field
+    by 30/16 and took 153 s on the CPU, matching 7 of 33 objects; Diameter
+    44 took 12 s and matched 24.
+    """
+    from ..i18n import tr
+
+    return tr(
+        "Cellpose 3 with Diameter 0 first estimates the object size and "
+        "rescales the whole field to it. On a 1994 x 1994 Toxoplasma field on "
+        "the CPU that took 153 s and guessed 16 px for vacuoles of 44 px; with "
+        "Diameter 44 it took 12 s. Set Diameter to the objects' size in pixels "
+        "to skip the estimate.")
+
+
+def _diameter_zero_estimates(model) -> bool:
+    """Whether Diameter 0 makes ``model`` estimate the object size first.
+
+    Decided by the route each model setting runs, not by its spelling, and
+    checked against the code on each route (2026-09-26). A named Cellpose 3
+    model -- ``cellpose3:cyto3``, ``cyto2``, ``cyto``, ``nuclei``, or a bare
+    ``cellpose3:``, which runs cyto3 -- is a ``models.Cellpose`` whose size
+    model estimates the diameter when it is 0. Every other Cellpose route
+    has no size model and no estimate: a ``cellpose3:`` checkpoint runs
+    ``CellposeModel`` at the diameter it was trained at, and
+    ``cellpose_dino:`` checkpoints and Cellpose-SAM run Cellpose 4, whose
+    ``eval`` leaves the field at its own scale when the diameter is 0.
+
+    :param model: a model setting or magnifier mode, e.g. ``"cellpose3:cyto3"``.
+    :returns: True when a whole-field run with Diameter 0 pays for the
+        estimate, so :func:`_cellpose3_auto_diameter_note` is true of it.
+    """
+    from ..._segmentation_backends import _CELLPOSE3_MODELS, _cellpose3_choice
+
+    chosen = _cellpose3_choice(model)
+    return chosen is not None and (chosen or "cyto3") in _CELLPOSE3_MODELS
+
+
+def _magnifier_route_model(values) -> str:
+    """The model a magnifier request really runs, for :func:`_diameter_zero_estimates`.
+
+    A backend mode names its model itself; the ``cellpose`` mode runs the
+    Object detection model setting, which may be a Cellpose 3 one chosen
+    from the model zoo.
+
+    :param values: the request's settings by :data:`_MODEL_SETTING_FIELDS`.
+    """
+    mode = canonical_magnifier_mode(values.get("mode"))
+    return str(values.get("model_name") or "") if mode == "cellpose" else mode
+
+
 _MODEL_SETTING_FIELDS = ("mode", "sensitivity", "bright", "min_area",
                          "model_name", "diameter", "flow_threshold",
                          "cellprob_threshold", "normalize", "otsu_correction",
@@ -2874,6 +3583,66 @@ _MAGNIFIER_BACKENDS = {
     "dinocell": ("dinocell", "DINOCell"),
     "samcell": ("samcell", "SAMCell"),
 }
+
+def _offer_cellpose_dino_modes() -> List[str]:
+    """Make each downloaded Cellpose-DINO model a magnifier mode (item 525).
+
+    Unlike Cellpose 3's four stock models, a Cellpose-DINO model is a
+    checkpoint the user downloaded, so its modes are found when the Mode box
+    is built rather than written here: ``cellpose_dino:<path>`` joins
+    :data:`_MAGNIFIER_BACKENDS` under its backend and caption, and
+    :data:`_MAGNIFIER_SEGMENTERS` with :func:`_backend_segmenter`, which
+    loads it through :func:`_backend_model`. Greying and the install offer
+    then treat it as every other backend mode.
+
+    :returns: the modes added, in the zoo's order.
+    """
+    added = []
+    for mode, label in _zoo_cellpose_dino_models():
+        if mode in _MAGNIFIER_BACKENDS:
+            continue
+        _MAGNIFIER_BACKENDS[mode] = ("cellpose_dino", label)
+        _MAGNIFIER_SEGMENTERS[mode] = _backend_segmenter
+        added.append(mode)
+    return added
+
+
+def _offer_prefixed_modes() -> List[str]:
+    """Make each StarDist, InstanSeg and Omnipose model a magnifier mode.
+
+    Items 551-553. ``<prefix><model>`` joins :data:`_MAGNIFIER_BACKENDS`
+    under its backend and the caption "<backend> · <model>", and
+    :data:`_MAGNIFIER_SEGMENTERS` with :func:`_backend_segmenter`, whose
+    :func:`_backend_model` loads it. Every model is listed whether or not
+    its backend is installed; greying and the install offer are the
+    per-backend code every backend mode already has. A model the alpha
+    gate hides (:func:`_prefixed_alpha_hidden`) is not listed, and one
+    listed before Show alpha features was turned off is taken out again
+    the next time the Mode box is built.
+
+    :returns: the modes added, in the backends' order.
+    """
+    from ..i18n import tr
+    from ..._segmentation_backends import (_SPECS, _prefixed_names,
+                                           _prefixed_value)
+
+    added = []
+    for name in _prefixed_names():
+        spec = _SPECS[name]
+        for model in spec.models:
+            mode = _prefixed_value(name, model)
+            if _prefixed_alpha_hidden(name, model):
+                _MAGNIFIER_BACKENDS.pop(mode, None)
+                _MAGNIFIER_SEGMENTERS.pop(mode, None)
+                continue
+            if mode in _MAGNIFIER_BACKENDS:
+                continue
+            _MAGNIFIER_BACKENDS[mode] = (name, tr(
+                "{backend} · {model}", backend=spec.label, model=model))
+            _MAGNIFIER_SEGMENTERS[mode] = _backend_segmenter
+            added.append(mode)
+    return added
+
 
 #: Loaded DINOCell and SAMCell models, by backend name, for the life of the
 #: process. Building one loads a ViT checkpoint, and the box asks on every
@@ -3671,7 +4440,12 @@ def _single_object(result: _MagnifierResult, label: int) -> _MagnifierResult:
 
 
 def _detect_cellpose_snapshot(request, models):
-    """Prepare and segment a captured field without reading any Qt object."""
+    """Prepare and segment a captured field without reading any Qt object.
+
+    Returns what :func:`cellpose_detect` returns, the labels after the
+    detection chain's finishing steps; with ``request['vectors']`` set, the
+    flow vectors come fourth.
+    """
     image = request['image']
     if request['invert']:
         image = engine.invert_normalized(image)
@@ -3682,9 +4456,120 @@ def _detect_cellpose_snapshot(request, models):
         name = request['model']
         if name not in models:
             models[name] = load_cellpose_model(name)
-        labels, cellprob, flow = cellpose_detect(image, models[name], **request['parameters'])
-    labels = detect_chain.finish(labels, request['chain'], intensity=image)
-    return labels, cellprob, flow
+        detect = (_cellpose_detect_with_vectors if request.get('vectors')
+                  else cellpose_detect)
+        output = detect(image, models[name], **request['parameters'])
+    labels = detect_chain.finish(output[0], request['chain'], intensity=image)
+    return (labels,) + tuple(output[1:])
+
+
+def _uncertainty_snapshot(request, models):
+    """Segment captured fields under flips and a turn, and score the spread.
+
+    Each field is segmented once per test-time transform of
+    :func:`spacr.active_learning._tta_passes` with the detection settings
+    captured in ``request['detect']``, keeping Cellpose's cell probability
+    and flow vectors, or with ``request['segment']`` when one is given, and
+    the passes are scored by
+    :func:`spacr.active_learning._segmentation_uncertainty`: disagreement
+    area plus near misses per field, disagreement or flow error per
+    object. Reads no Qt object, so it runs on a worker thread.
+
+    :param request: ``kind`` is ``field`` (with ``image``) or ``rank`` (with
+        ``fields``, ``(folder, file name)`` pairs, and ``layout``, the mask
+        loader's keywords).
+    :param models: the screen's loaded Cellpose models, shared with
+        detection.
+    :returns: for ``field``, the score dictionary with its map; for
+        ``rank``, ``{(folder, file name): score dictionary}`` without the
+        maps, a field that cannot be read or segmented being left out.
+    """
+    from ...segmentation_uncertainty import compute_uncertainty
+
+    segment = request.get('segment')
+    threshold = 0.0
+    if segment is None:
+        threshold = float(request['detect'].get('parameters', {}).get(
+            'cellprob_threshold', 0.0))
+
+        def segment(image):
+            """:param image: one transformed field.
+
+            :returns: its labels, cell probability and flow vectors under
+                the captured detection settings.
+            """
+            labels, cellprob, _rgb, vectors = _detect_cellpose_snapshot(
+                dict(request['detect'], image=image, vectors=True), models)
+            return labels, cellprob, vectors
+
+    secondary = request.get('second_segment')
+    second_model = request.get('second_model')
+    if second_model and secondary is None:
+        if second_model == request['detect']['model']:
+            raise ValueError("The ensemble model must differ from the primary model.")
+
+        def secondary(image):
+            """Segment a transform with the captured second model.
+
+            :param image: one transformed field.
+            :returns: labels, cell probability and vectors.
+            """
+            labels, cellprob, _rgb, vectors = _detect_cellpose_snapshot(
+                dict(request['detect'], model=second_model, image=image, vectors=True), models)
+            return labels, cellprob, vectors
+
+    def _score(image):
+        """Score primary TTA and the optional second model in one frame.
+
+        :param image: one field.
+        :returns: its uncertainty over four or eight aligned passes.
+        """
+        return compute_uncertainty(image, segment, second_segment=secondary,
+                                   probability_threshold=threshold)
+
+    if request['kind'] == 'field':
+        return _score(request['image'])
+    scores = {}
+    for folder, name in request['fields']:
+        try:
+            image, _mask = engine.load_image_and_mask(folder, name,
+                                                      **request['layout'])
+            result = _score(image)
+        except Exception:                                    # noqa: BLE001
+            LOG.warning("uncertainty of %s could not be scored", name,
+                        exc_info=True)
+            continue
+        result.pop('map', None)
+        scores[(folder, name)] = result
+    return scores
+
+
+def _uncertainty_heatmap(uncertainty: np.ndarray,
+                         image: Optional[np.ndarray] = None) -> np.ndarray:
+    """An uncertainty map in colour over the field in grey, ``(H, W, 3)``.
+
+    The map is already in ``[0, 1]`` and is coloured without stretching, so
+    one colour means one uncertainty on every field. It is blended over the
+    field so the uncertain objects can be found on it.
+
+    :param uncertainty: the per-pixel map, values in ``[0, 1]``.
+    :param image: the field it was computed on, or None for the map alone.
+    :returns: uint8 RGB.
+    """
+    scaled = np.clip(np.asarray(uncertainty, dtype=np.float32), 0.0, 1.0)
+    try:
+        import matplotlib
+        colour = np.asarray(matplotlib.colormaps["magma"](scaled))[..., :3]
+    except Exception:                                        # noqa: BLE001
+        colour = np.repeat(scaled[..., None], 3, axis=2)
+    if image is not None and np.asarray(image).shape[:2] == scaled.shape:
+        field = np.asarray(image)
+        if field.ndim == 3:
+            field = field.mean(axis=2)
+        grey = stretch_to_uint8(field).astype(np.float32)[..., None] / 255.0
+        weight = 0.35 + 0.65 * scaled[..., None]
+        colour = weight * colour + (1.0 - weight) * grey
+    return (np.clip(colour, 0.0, 1.0) * 255).astype(np.uint8)
 
 
 class _NewestRequestWorker:
@@ -3830,6 +4715,456 @@ class _NewestRequestWorker:
                     self._thread = None
 
 
+#: How far, in widget pixels, a press on the canvas must travel before
+#: prompting reads it as a box rather than a point.
+_PROMPT_DRAG_PX = 5
+
+
+def _prompt_image(source, low: float, high: float) -> np.ndarray:
+    """The field as micro-SAM is shown it: the canvas's own stretch, 8-bit.
+
+    micro-SAM stretches whatever it is given from its minimum to its
+    maximum, which on a 16-bit field with a few hot pixels leaves every
+    cell nearly black. The field is therefore stretched here between the
+    same two percentiles the canvas draws it with, per channel, so the model
+    sees the contrast the curator sees.
+
+    :param source: the field, ``H x W`` or ``H x W x C``.
+    :param low: the lower percentile, 0 to 100.
+    :param high: the upper percentile, 0 to 100.
+    :returns: a ``uint8`` array of the same shape.
+    """
+    array = np.asarray(source, dtype=np.float32)
+    bottom = np.percentile(array, float(low), axis=(0, 1), keepdims=True)
+    top = np.percentile(array, float(high), axis=(0, 1), keepdims=True)
+    span = np.where(top > bottom, top - bottom, 1.0)
+    out = np.clip((array - bottom) / span, 0.0, 1.0)
+    return np.round(out * 255.0).astype(np.uint8)
+
+
+class _PromptRequest(NamedTuple):
+    """One prompt on one field, as the worker thread runs it.
+
+    :param key: the prompt itself, so an identical one is not run twice.
+    :param generation: the session's generation it was made in; a request
+        from an earlier one is abandoned.
+    :param field: the field's name, for the ledger.
+    :param source: the field's pixels, as the canvas draws them.
+    :param low: the canvas's lower percentile.
+    :param high: the canvas's upper percentile.
+    :param points: ``((y, x, on_object), ...)`` in image pixels.
+    :param box: ``(y0, x0, y1, x1)`` in image pixels, or None.
+    """
+
+    key: tuple
+    generation: int
+    field: str
+    source: Any
+    low: float
+    high: float
+    points: tuple
+    box: Optional[tuple]
+
+
+class _PromptSession(QObject):
+    """Prompt-based segmentation on the canvas, one object at a time.
+
+    While it is on, a left click on the canvas puts a point on the object,
+    a right click puts one off it, and a left drag draws a box round it.
+    Every prompt goes to micro-SAM, in its own environment, and the mask it
+    returns is drawn over the field; more points refine it. Enter accepts it
+    (:attr:`accept_requested`, which the screen turns into one undoable
+    edit), Backspace takes the last point or the box back, and Escape
+    discards the prompt.
+
+    THE SLOW PART IS PAID ONCE PER FIELD. The worker embeds a field the
+    first time it is prompted and answers every later prompt on it from
+    that embedding, so only the first click on a field waits for the image
+    encoder. The field is identified by its content as the model sees it,
+    so going back to a field, or back to its contrast, finds its embedding
+    still there.
+
+    THE WINDOW NEVER WAITS. Prompts run on a background thread through
+    :class:`_NewestRequestWorker`, so a click made while the model is busy
+    replaces the one still waiting instead of queueing behind it. Moving to
+    another field, switching prompting off or Escape abandons what is
+    running; the worker, and the model it has loaded, stay up.
+
+    :param canvas: the canvas prompts are drawn on and read from.
+    :param client: what answers a prompt, with the
+        :class:`spacr._segmentation_backends._PromptClient` interface; built
+        on first use when None.
+    :param gate: returns whether prompting may run now; the screen passes
+        whether its card is shown.
+    :param field_name: returns the name of the field on screen.
+    :param parent: the owning object.
+    """
+
+    #: Something on the canvas needs repainting.
+    changed = Signal()
+    #: ``(text, kind)`` for the console, kinds as :meth:`_MasksConsole.post`,
+    #: or ``status`` for the corner line, which the console copies.
+    said = Signal(str, str)
+    #: Enter was pressed on the canvas with a mask shown.
+    accept_requested = Signal()
+    _delivered = Signal(object, object, object)
+
+    def __init__(self, canvas, *, client=None, gate=None, field_name=None,
+                 parent=None):
+        """Build an idle session; nothing runs until the first prompt."""
+        super().__init__(parent)
+        self._canvas = canvas
+        self._client = client
+        self._gate = gate or (lambda: True)
+        self._field_name = field_name or (lambda: "")
+        self._enabled = False
+        self._closed = False
+        #: ``[(y, x, on_object), ...]`` in image pixels.
+        self.points: List[tuple] = []
+        #: ``(y0, x0, y1, x1)`` in image pixels, or None.
+        self.box: Optional[tuple] = None
+        #: The newest answer: the client's reply plus the prompt behind it.
+        self.pending: Optional[dict] = None
+        self.busy = False
+        self.generation = 0
+        self._press = None
+        self._drag = None
+        self._overlay = None
+        self._prepared = None
+        self._prepared_lock = threading.Lock()
+        self._worker = _NewestRequestWorker(
+            self._work, self._handover, name="spacr-sam-prompt")
+        self._delivered.connect(self._take)
+
+    @property
+    def enabled(self) -> bool:
+        """Whether clicks on the canvas are prompts right now."""
+        return self._enabled and not self._closed and bool(self._gate())
+
+    def client(self):
+        """What answers prompts, built the first time it is needed."""
+        if self._client is None:
+            from ... import _segmentation_backends as backends
+
+            self._client = backends._PromptClient()
+        return self._client
+
+    def set_enabled(self, on: bool) -> None:
+        """Start or stop reading canvas clicks as prompts.
+
+        Stopping discards the prompt and whatever mask it had; nothing was
+        in the label image until it was accepted.
+        """
+        self._enabled = bool(on)
+        if not on:
+            self.forget()
+        self._canvas.setFocusPolicy(Qt.ClickFocus if on else Qt.NoFocus)
+        if on:
+            self._canvas.setCursor(Qt.CrossCursor)
+        else:
+            self._canvas.unsetCursor()
+        self.changed.emit()
+
+    def forget(self) -> None:
+        """Discard the prompt and its mask, and abandon a prompt still running."""
+        self.generation += 1
+        self._worker.drop_waiting()
+        self.points = []
+        self.box = None
+        self.pending = None
+        self.busy = False
+        self._overlay = None
+        self._press = self._drag = None
+        self.changed.emit()
+
+    def close(self) -> None:
+        """Stop for good: the screen is going."""
+        self._closed = True
+        self.generation += 1
+        self._worker.close(timeout=0)
+
+    def press(self, button, pos) -> bool:
+        """A mouse button went down on the canvas.
+
+        :param button: the Qt mouse button.
+        :param pos: where, in widget pixels.
+        :returns: True when the press was a prompt's and nothing else's.
+        """
+        if button not in (Qt.LeftButton, Qt.RightButton):
+            return False
+        point = self._canvas._canvas_to_image(pos.x(), pos.y())
+        self._press = (button, QPointF(pos), point)
+        self._drag = None
+        return True
+
+    def move(self, pos) -> bool:
+        """The mouse moved: a left press dragged far enough draws a box.
+
+        :returns: True when a prompt's press is under way.
+        """
+        if self._press is None:
+            return False
+        button, start, _point = self._press
+        if button == Qt.LeftButton and (
+                self._drag is not None
+                or math.hypot(pos.x() - start.x(), pos.y() - start.y())
+                > _PROMPT_DRAG_PX):
+            self._drag = QPointF(pos)
+            self.changed.emit()
+        return True
+
+    def release(self, button, pos) -> bool:
+        """A button came up: add the point, or the box that was dragged.
+
+        :returns: True when the release belonged to a prompt's press.
+        """
+        if self._press is None or button != self._press[0]:
+            return self._press is not None
+        pressed, _start, point = self._press
+        dragged, self._press, self._drag = self._drag, None, None
+        if point is None:
+            self.changed.emit()
+            return True
+        if dragged is not None:
+            end = self._canvas._canvas_to_image(pos.x(), pos.y())
+            if end is not None:
+                (x0, y0), (x1, y1) = point, end
+                self.box = (min(y0, y1), min(x0, x1),
+                            max(y0, y1) + 1, max(x0, x1) + 1)
+                self._submit()
+            return True
+        self.points.append((int(point[1]), int(point[0]),
+                            pressed == Qt.LeftButton))
+        self._submit()
+        return True
+
+    def undo_prompt(self) -> bool:
+        """Take back the last point, or the box when no point is left.
+
+        :returns: False when there was nothing to take back.
+        """
+        if self.points:
+            self.points.pop()
+        elif self.box is not None:
+            self.box = None
+        else:
+            return False
+        if self._has_object():
+            self._submit()
+        else:
+            self.generation += 1
+            self._worker.drop_waiting()
+            self.pending = None
+            self._overlay = None
+            self.busy = False
+            self.changed.emit()
+        return True
+
+    def key(self, key) -> bool:
+        """Enter accepts, Backspace takes a prompt back, Escape discards.
+
+        :param key: a ``Qt.Key``.
+        :returns: True when the key did something here.
+        """
+        if not self.enabled:
+            return False
+        if key in (Qt.Key_Return, Qt.Key_Enter):
+            if self.pending is None:
+                return False
+            self.accept_requested.emit()
+            return True
+        if key == Qt.Key_Backspace:
+            return self.undo_prompt()
+        if key == Qt.Key_Escape:
+            if not (self.points or self.box is not None or self.pending):
+                return False
+            self.forget()
+            return True
+        return False
+
+    def wants_key(self, key) -> bool:
+        """Whether ``key`` would do something here, so the canvas keeps it
+        from the screen's own shortcuts (Escape resets the zoom there)."""
+        if not self.enabled:
+            return False
+        if key in (Qt.Key_Return, Qt.Key_Enter):
+            return self.pending is not None
+        if key in (Qt.Key_Backspace, Qt.Key_Escape):
+            return bool(self.points or self.box is not None or self.pending)
+        return False
+
+    def _has_object(self) -> bool:
+        """Whether the prompt says where the object is: a box or a point on it."""
+        return self.box is not None or any(on for _y, _x, on in self.points)
+
+    def _submit(self) -> None:
+        """Send the whole prompt as it now stands; the newest one wins."""
+        from ..i18n import tr
+
+        if not self._has_object():
+            self.said.emit(tr(
+                "Put a point on the object, or drag a box round it, before "
+                "points off it."), "info")
+            self.changed.emit()
+            return
+        source = self._canvas.displayed_source()
+        if source is None:
+            return
+        request = _PromptRequest(
+            key=(self.generation, tuple(self.points), self.box),
+            generation=self.generation, field=str(self._field_name() or ""),
+            source=source, low=float(self._canvas.norm_lo),
+            high=float(self._canvas.norm_hi), points=tuple(self.points),
+            box=self.box)
+        self.busy = True
+        self._worker.submit(request)
+        self.changed.emit()
+
+    def _prepare(self, request):
+        """The field as the model sees it and the key its embedding is kept
+        under, computed once per field and contrast."""
+        import hashlib
+
+        stamp = (id(request.source), request.low, request.high)
+        with self._prepared_lock:
+            cached = self._prepared
+        if cached is not None and cached[0] == stamp \
+                and cached[1] is request.source:
+            return cached[2], cached[3]
+        image = _prompt_image(request.source, request.low, request.high)
+        digest = hashlib.blake2b(image.tobytes(), digest_size=16)
+        digest.update(repr(image.shape).encode())
+        key = digest.hexdigest()
+        with self._prepared_lock:
+            self._prepared = (stamp, request.source, image, key)
+        return image, key
+
+    def _work(self, request):
+        """Run one prompt; on the worker thread."""
+        from ..i18n import tr
+
+        image, key = self._prepare(request)
+        started = time.monotonic()
+        result = self.client().segment(
+            key, image, points=[(y, x) for y, x, _on in request.points],
+            labels=[1 if on else 0 for _y, _x, on in request.points],
+            box=request.box,
+            should_cancel=lambda: (self._closed
+                                   or request.generation != self.generation),
+            on_start=lambda: self.said.emit(tr(
+                "micro-SAM is starting in its own environment…"),
+                "progress"),
+            on_embed=lambda: self.said.emit(tr(
+                "micro-SAM is embedding this field; the first prompt on a "
+                "field waits for it…"), "progress"))
+        result = dict(result)
+        result["total_seconds"] = time.monotonic() - started
+        result["key"] = key
+        return result
+
+    def _handover(self, request, result, error) -> None:
+        """Carry a finished prompt to the GUI thread."""
+        self._delivered.emit(request, result, error)
+
+    def _take(self, request, result, error) -> None:
+        """Show a finished prompt's mask, or say why there is none."""
+        from ..i18n import tr
+
+        if self._closed or request.generation != self.generation:
+            return
+        self.busy = not self._worker.idle()
+        if error is not None:
+            from ... import _segmentation_backends as backends
+
+            if not isinstance(error, backends._BackendCancelled):
+                self.said.emit(tr("micro-SAM could not segment: {error}",
+                                  error=error), "error")
+            self.changed.emit()
+            return
+        mask = np.asarray(result.get("mask"), dtype=bool)
+        canvas_mask = self._canvas.mask
+        if canvas_mask is None or mask.shape != tuple(canvas_mask.shape[:2]):
+            self.changed.emit()
+            return
+        self.pending = dict(result, points=request.points, box=request.box,
+                            field=request.field)
+        self._overlay = self._render(mask)
+        pixels = int(mask.sum())
+        embed = result.get("embed_seconds")
+        if embed is not None:
+            self.said.emit(tr(
+                "micro-SAM embedded this field in {embed:.1f} s on {device}; "
+                "the prompt then took {prompt:.2f} s.", embed=float(embed),
+                device=result.get("device") or "?",
+                prompt=float(result.get("seconds") or 0.0)), "info")
+        self.said.emit(tr(
+            "micro-SAM outlined {pixels} px in {seconds:.2f} s. Enter adds "
+            "it, Backspace takes the last prompt back, Escape discards it.",
+            pixels=pixels,
+            seconds=float(result.get("total_seconds") or 0.0)), "status")
+        self.changed.emit()
+
+    def _render(self, mask: np.ndarray):
+        """The mask as a translucent picture over its bounding box.
+
+        :returns: ``(QImage, x0, y0, x1, y1)`` in image pixels, or None for
+            an empty mask.
+        """
+        rows = np.flatnonzero(mask.any(axis=1))
+        cols = np.flatnonzero(mask.any(axis=0))
+        if not rows.size:
+            return None
+        y0, y1 = int(rows[0]), int(rows[-1]) + 1
+        x0, x1 = int(cols[0]), int(cols[-1]) + 1
+        crop = mask[y0:y1, x0:x1]
+        padded = np.pad(crop, 1)
+        inner = (padded[:-2, 1:-1] & padded[2:, 1:-1]
+                 & padded[1:-1, :-2] & padded[1:-1, 2:])
+        edge = crop & ~inner
+        colour = QColor(active_palette()["accent"])
+        rgba = np.zeros(crop.shape + (4,), dtype=np.uint8)
+        rgba[..., 0] = colour.red()
+        rgba[..., 1] = colour.green()
+        rgba[..., 2] = colour.blue()
+        rgba[..., 3] = np.where(edge, 255, np.where(crop, 96, 0))
+        height, width = crop.shape
+        picture = QImage(rgba.data, width, height, 4 * width,
+                         QImage.Format_RGBA8888).copy()
+        return picture, x0, y0, x1, y1
+
+    def paint(self, painter) -> None:
+        """Draw the mask, the box, the box being dragged and the points."""
+        canvas = self._canvas
+        if self._overlay is not None:
+            picture, x0, y0, x1, y1 = self._overlay
+            top_left = canvas._image_to_canvas(x0, y0)
+            bottom_right = canvas._image_to_canvas(x1, y1)
+            if top_left is not None and bottom_right is not None:
+                painter.drawImage(QRectF(QPointF(top_left),
+                                         QPointF(bottom_right)), picture)
+        palette = active_palette()
+        pen = QPen(QColor(palette["accent"]))
+        pen.setWidth(2)
+        pen.setStyle(Qt.DashLine)
+        painter.setPen(pen)
+        painter.setBrush(Qt.NoBrush)
+        if self.box is not None:
+            y0, x0, y1, x1 = self.box
+            a = canvas._image_to_canvas(x0, y0)
+            b = canvas._image_to_canvas(x1, y1)
+            if a is not None and b is not None:
+                painter.drawRect(QRect(a, b).normalized())
+        if self._drag is not None and self._press is not None:
+            painter.drawRect(QRectF(self._press[1], self._drag).normalized())
+        painter.setPen(QPen(QColor(palette["bg"]), 1))
+        for y, x, on in self.points:
+            where = canvas._image_to_canvas(x + 0.5, y + 0.5)
+            if where is None:
+                continue
+            painter.setBrush(QColor(palette["success" if on else "error"]))
+            painter.drawEllipse(QPointF(where), 5.0, 5.0)
+
+
 class _LiveMagnifier(QObject):
     """A box under the mouse that shows its region magnified and segmented.
 
@@ -3917,6 +5252,8 @@ class _LiveMagnifier(QObject):
         self.segment = partial(_segment_region, load_model=load_model)
         self._context = context
         self._field = 0
+        self._said_error: Optional[str] = None
+        self._said_diameter_note = False
         self._cursor: Optional[tuple] = None
         self._anchor: Optional[QPointF] = None
         self._requested_key: Optional[tuple] = None
@@ -4188,6 +5525,8 @@ class _LiveMagnifier(QObject):
         self._cursor = None
         self._anchor = None
         self._field += 1
+        self._said_error = None
+        self._said_diameter_note = False
         self._shown = None
         self._shown_image = None
         self._waiting.clear()
@@ -4754,6 +6093,11 @@ class _LiveMagnifier(QObject):
         image = self.canvas.image
         height, width = (int(v) for v in image.shape[:2])
         values = dict(zip(_MODEL_SETTING_FIELDS, key[2:]))
+        if (_diameter_zero_estimates(_magnifier_route_model(values))
+                and not values.get("diameter")
+                and not self._said_diameter_note):
+            self._said_diameter_note = True
+            self.status.emit(_cellpose3_auto_diameter_note())
         primary = self._primary_request_values((0, 0, width, height), values)
         if primary is None:
             from ..i18n import tr
@@ -5166,6 +6510,12 @@ class _LiveMagnifier(QObject):
         which is the whole picture and not a layer over the outlines: it IS
         the outlines, with what the Overlap rule would not add faded. One
         QImage is built per result either way.
+
+        A FAILURE IS SAID ONCE (item 507). While a whole-field enhancement
+        runs, every region fails with the same "enhancement is updating"
+        reason, and the magnifier asks for a region on every mouse move; the
+        reason used to be said, and logged, each time. It is said again only
+        when it changes, after a region succeeds, or on a new field.
         """
         from ..i18n import tr
 
@@ -5181,12 +6531,15 @@ class _LiveMagnifier(QObject):
                 self._shown = None
                 self._shown_image = None
                 self.canvas.update()
-            LOG.warning("magnifier could not segment %s: %s",
-                        request.box, error)
-            self.status.emit(tr(
-                "Magnifier could not segment this region: {error}",
-                error=error))
+            if str(error) != self._said_error:
+                self._said_error = str(error)
+                LOG.warning("magnifier could not segment %s: %s",
+                            request.box, error)
+                self.status.emit(tr(
+                    "Magnifier could not segment this region: {error}",
+                    error=error))
             return
+        self._said_error = None
         self._note_fallback(request, result)
         self._shown = result
         self._shown_image = _rgba_qimage(
@@ -6000,6 +7353,7 @@ class _OtsuHistogramDialog(QDialog):
         layout.addWidget(self.caption)
         self.progress = QProgressBar()
         self.progress.setRange(0, 0)
+        self.progress.setTextVisible(False)
         self.progress.setVisible(pending)
         layout.addWidget(self.progress)
         self.plot = _OtsuHistogramPlot(counts, edges, levels, self)
@@ -6271,6 +7625,9 @@ def fold_description(key: str) -> tuple:
     row has been dropped — which is what folding a module ends in — the
     answer comes from :data:`FOLD_FALLBACK`, so the button goes on carrying
     the name, the sentence and the maturity colour its tile had.
+
+    :param key: the app registry key of the folded module; an unknown key gives
+        empty strings.
     """
     from .. import app as app_module
 
@@ -6502,7 +7859,12 @@ class NapariBridgeScreen(QWidget):
         return self._image_edit.text().strip()
 
     def say(self, text: str, *, append: bool = False) -> str:
-        """Display a status message and return the complete displayed text."""
+        """Display a status message and return the complete displayed text.
+
+        :param text: the message; converted to ``str``.
+        :param append: add the message below the current text, after a blank
+            line, instead of replacing it.
+        """
         text = str(text)
         if append and self.status.toPlainText():
             self.status.setPlainText(
@@ -6626,6 +7988,233 @@ class NapariBridgeScreen(QWidget):
 
 
 
+class ObjectFilterList(QWidget):
+    """Make Masks' object filters: one row per regionprop the user added.
+
+    Item 511. The Filter category used to hold four fixed boxes -- minimum
+    and maximum area, minimum and maximum mean intensity. It now starts
+    EMPTY, and "Add a filter" offers every scalar property
+    :func:`skimage.measure.regionprops` computes (see
+    :func:`mask_engine.filter_properties`); each added row carries the
+    property, a minimum, a maximum and a Remove button. A blank bound is
+    off. The old four are two of the rows a user can add: ``area`` and
+    ``intensity_mean``.
+
+    The intensity statistics are offered only while an intensity image is
+    open (:meth:`set_intensity_available`), so a property that cannot be
+    measured is never offered, rather than offered and refused later.
+
+    :meth:`filters` is the serialised list -- the same one Mask generation
+    reads from ``object_filters`` -- and :attr:`changed` fires whenever it
+    may have changed, which is what applies the list live.
+    """
+
+    changed = Signal()
+    row_added = Signal(object)
+
+    def __init__(self, parent=None):
+        """Build the Add control and the empty row list."""
+        from ..i18n import tr
+
+        super().__init__(parent)
+        self._rows: List[dict] = []
+        self._intensity = False
+        column = QVBoxLayout(self)
+        column.setContentsMargins(0, 0, 0, 0)
+        column.setSpacing(SPACING["xs"])
+        self._rows_layout = QVBoxLayout()
+        self._rows_layout.setSpacing(SPACING["xs"])
+        column.addLayout(self._rows_layout)
+        adder = QHBoxLayout()
+        self.property_box = QComboBox()
+        self.property_box.setToolTip(tr(
+            "The scikit-image regionprop the next filter row judges objects "
+            "by. Intensity statistics are listed only while an image is "
+            "open, since they read the raw pixel values."))
+        self.add_button = QPushButton(tr("Add a filter"))
+        self.add_button.setCursor(Qt.PointingHandCursor)
+        self.add_button.setToolTip(tr(
+            "Add a row for the property on the left, with a minimum and a "
+            "maximum. A blank bound is off; an object outside a bound is "
+            "hidden, and removing the row brings it back."))
+        self.add_button.clicked.connect(self._on_add)
+        adder.addWidget(self.property_box, 1)
+        adder.addWidget(self.add_button)
+        column.addLayout(adder)
+        self._offer()
+
+    def set_intensity_available(self, available: bool) -> None:
+        """Offer the intensity properties only when an image is open.
+
+        :param available: whether an intensity image is open.
+        """
+        self._intensity = bool(available)
+        self._offer()
+
+    def _offer(self) -> None:
+        """Fill the property box with what can be measured right now."""
+        chosen = self.property_box.currentText()
+        names = engine.filter_properties(intensity=self._intensity)
+        self.property_box.blockSignals(True)
+        self.property_box.clear()
+        self.property_box.addItems(list(names))
+        if chosen in names:
+            self.property_box.setCurrentText(chosen)
+        self.property_box.blockSignals(False)
+        self.add_button.setEnabled(bool(names))
+
+    def offered(self) -> List[str]:
+        """The properties the Add control offers now."""
+        return [self.property_box.itemText(i)
+                for i in range(self.property_box.count())]
+
+    def _on_add(self) -> None:
+        """Add a row for the property the box shows."""
+        name = self.property_box.currentText()
+        if name:
+            self.add_filter(name)
+
+    def _bound_edit(self, value, placeholder: str) -> QLineEdit:
+        """One bound's box: a number or blank, with blank meaning off."""
+        from PySide6.QtCore import QLocale
+        from PySide6.QtGui import QDoubleValidator
+
+        edit = QLineEdit()
+        validator = QDoubleValidator(edit)
+        validator.setLocale(QLocale.c())
+        validator.setNotation(QDoubleValidator.StandardNotation)
+        edit.setValidator(validator)
+        edit.setPlaceholderText(placeholder)
+        edit.setText("" if value is None else format(float(value), ".12g"))
+        edit.editingFinished.connect(self.changed.emit)
+        return edit
+
+    def add_filter(self, name, minimum=None, maximum=None, *,
+                   notify: bool = True) -> dict:
+        """Add one row; return it as ``{widget, property, min, max, remove}``.
+
+        :param name: the regionprop the row filters on.
+        :param minimum: the lower bound, or ``None`` for none.
+        :param maximum: the upper bound, or ``None`` for none.
+        :param notify: emit ``changed`` once the row is added.
+        :raises ValueError: when ``name`` is not a scalar regionprop, or is an
+            intensity property while no intensity image is open.
+        """
+        from ..i18n import tr
+
+        name = engine.canonical_property(name)
+        if name not in self.offered():
+            raise ValueError(tr(
+                "{name} measures pixel values, and no intensity image is "
+                "open, so it cannot filter this mask.", name=name))
+        widget = QWidget()
+        line = QHBoxLayout(widget)
+        line.setContentsMargins(0, 0, 0, 0)
+        line.setSpacing(SPACING["xs"])
+        label = QLabel(name)
+        label.setToolTip(tr(
+            "The regionprop this row judges each object by, measured once "
+            "per mask together with every other row."))
+        low = self._bound_edit(minimum, tr("no minimum"))
+        low.setToolTip(tr(
+            "Hide objects whose value is below this. Blank is no minimum; "
+            "an object equal to the bound is kept."))
+        high = self._bound_edit(maximum, tr("no maximum"))
+        high.setToolTip(tr(
+            "Hide objects whose value is above this. Blank is no maximum; "
+            "an object equal to the bound is kept."))
+        remove = QPushButton(tr("Remove"))
+        remove.setCursor(Qt.PointingHandCursor)
+        remove.setToolTip(tr(
+            "Remove this filter. The objects only it was hiding come back."))
+        line.addWidget(label, 1)
+        line.addWidget(low)
+        line.addWidget(high)
+        line.addWidget(remove)
+        row = {"widget": widget, "property": name, "min": low, "max": high,
+               "remove": remove}
+        remove.clicked.connect(lambda: self.remove_filter(self._rows.index(row)))
+        self._rows.append(row)
+        self._rows_layout.addWidget(widget)
+        self.row_added.emit(widget)
+        if notify:
+            self.changed.emit()
+        return row
+
+    def set_bounds(self, index: int, minimum=None, maximum=None) -> None:
+        """Set row ``index``'s bounds as if typed, and apply them.
+
+        :param index: the row, in the order rows were added.
+        :param minimum: the lower bound, or ``None`` to clear it.
+        :param maximum: the upper bound, or ``None`` to clear it.
+        """
+        row = self._rows[index]
+        row["min"].setText("" if minimum is None else format(float(minimum), ".12g"))
+        row["max"].setText("" if maximum is None else format(float(maximum), ".12g"))
+        self.changed.emit()
+
+    def set_filter(self, name, minimum=None, maximum=None) -> None:
+        """Set the bounds of the first row for ``name``, adding it if absent.
+
+        :param name: the regionprop, current or legacy spelling.
+        :param minimum: the lower bound, or ``None`` to clear it.
+        :param maximum: the upper bound, or ``None`` to clear it.
+        """
+        name = engine.canonical_property(name)
+        index = next((i for i, row in enumerate(self._rows)
+                      if row["property"] == name), None)
+        if index is None:
+            self.add_filter(name, notify=False)
+            index = len(self._rows) - 1
+        self.set_bounds(index, minimum, maximum)
+
+    def remove_filter(self, index: int) -> None:
+        """Remove row ``index``; the objects only it hid come back.
+
+        :param index: the row, in the order rows were added.
+        """
+        row = self._rows.pop(index)
+        row["widget"].hide()
+        row["widget"].setParent(None)
+        row["widget"].deleteLater()
+        self.changed.emit()
+
+    def rows(self) -> List[dict]:
+        """The rows, in the order they were added."""
+        return list(self._rows)
+
+    def filters(self) -> List[dict]:
+        """The rows as the serialised filter list the engine and a run read.
+
+        :raises ValueError: when a row's minimum is above its maximum.
+        """
+        return engine.normalise_filters([
+            {"property": row["property"], "min": row["min"].text(),
+             "max": row["max"].text()} for row in self._rows])
+
+    def set_filters(self, filters) -> None:
+        """Replace every row with ``filters``, a list or a legacy bounds dict.
+
+        A dict of the old four bounds (``min_area`` and the rest) is migrated
+        by :func:`mask_engine.legacy_filters`, so a saved state from before
+        item 511 opens as the rows it meant.
+
+        :param filters: a filter list in any form
+            :func:`mask_engine.normalise_filters` accepts, or the legacy dict.
+        """
+        if isinstance(filters, dict) and set(filters) <= set(engine.FILTER_BOUNDS):
+            filters = engine.legacy_filters(**filters)
+        entries = engine.normalise_filters(filters)
+        while self._rows:
+            row = self._rows.pop()
+            row["widget"].setParent(None)
+            row["widget"].deleteLater()
+        for entry in entries:
+            self.add_filter(entry["property"], entry["min"], entry["max"],
+                            notify=False)
+        self.changed.emit()
+
+
 class MakeMasksScreen(QWidget):
     """Qt widget for the Make Masks app — the successor to Tk ModifyMaskApp.
 
@@ -6638,6 +8227,7 @@ class MakeMasksScreen(QWidget):
     _histogram_delivered = Signal(object)
     _detection_delivered = Signal(object)
     _comparison_delivered = Signal(object)
+    _uncertainty_delivered = Signal(object)
 
     def __init__(self, parent: Optional[QWidget] = None):
         """Build the editor, its canvas and its tool panel.
@@ -6647,11 +8237,18 @@ class MakeMasksScreen(QWidget):
         super().__init__(parent)
         self._folder: str = ""
         self._image_files: List[str] = []
+        self._field_folders: Optional[List[str]] = None
         #: The terminal-built session this screen is working through, or
         #: ``None`` when the folder was opened from the file dialog. Set by
         #: :meth:`open_queue`; what makes a save reach
         #: ``curate_status.csv``.
         self._queue = None
+        self._blind: Optional[dict] = None
+        #: A copy of the mask the current field opened with, and whether it
+        #: was read from the file a save would write. Together they are what
+        #: lets a save that changed nothing leave that file alone.
+        self._loaded_mask: Optional[np.ndarray] = None
+        self._loaded_from_save_path = False
         #: The masks folder of a sibling-layout session, which is beside the
         #: images rather than beneath them; ``None`` means ``<folder>/masks``.
         #: Set with the folder by :meth:`_open_folder`, so no field of one
@@ -6682,6 +8279,11 @@ class MakeMasksScreen(QWidget):
         self._detection_worker = None
         self._detection_request = None
         self._detection_delivered.connect(self._take_detection)
+        self._uncertainty_worker = None
+        self._uncertainty_request = None
+        self._uncertainty_pane = None
+        self._uncertainty_result = None
+        self._uncertainty_delivered.connect(self._take_uncertainty)
         self._comparison_worker = None
         self._comparison_request = None
         self._comparison_serial = 0
@@ -6699,6 +8301,7 @@ class MakeMasksScreen(QWidget):
         #: the generic settings form and carries no registry key to be
         #: looked up by.
         self._fold_page_title = HEADER_TITLE
+        set_a_sheeted_widgets_own_rule(self, "")
         ensure_widget_qss_applied(MAKE_MASKS_QSS_NAME, root=self)
         self._build_ui()
         self._install_shortcuts()
@@ -6786,6 +8389,7 @@ class MakeMasksScreen(QWidget):
         if not self._open_folder(folder, files=files, masks_dir=masks_dir):
             return False
         self._queue = queue
+        self._sync_button_states()
         notices = tuple(getattr(queue, "notices", ()) or ())
         self._src_label.setText(
             f"{queue.folder}  --  {len(files)} to curate this session, "
@@ -6918,10 +8522,20 @@ class MakeMasksScreen(QWidget):
         self._levels_dialog = None
         self._histogram_worker = None
         self._histogram_delivered.connect(self._take_histogram)
+        self._masks_console = _MasksConsole()
         self._magnifier.status.connect(
             lambda text: self._status_label.setText(text))
         self._canvas.status.connect(
             lambda text: self._status_label.setText(text))
+        self._prompt_card = None
+        self._prompter = _PromptSession(
+            self._canvas, gate=self._prompt_card_shown,
+            field_name=self._current_field_name, parent=self)
+        self._canvas.prompter = self._prompter
+        self._prompter.changed.connect(self._canvas.update)
+        self._prompter.changed.connect(self._sync_prompt_buttons)
+        self._prompter.said.connect(self._on_prompt_said)
+        self._prompter.accept_requested.connect(self._accept_prompt)
         self._view_tabs = self._build_view_tabs()
 
         self._settings_scroll = QScrollArea()
@@ -6947,6 +8561,9 @@ class MakeMasksScreen(QWidget):
             self._settings_scroll, "Settings", mode=EDGE, stretch=1,
             extent=SETTINGS_WIDTH, fold_key="make_masks/Settings",
             hint="or drag to make the settings wider or narrower")
+        from .. import screens as _screens_package
+
+        _screens_package._breathe_while_a_window_opens()
         self._body_splitter.add_pane(self._build_view_pane(), "Masks",
                                      stretch=3, extent=900)
         self._body_stack.addWidget(self._body_splitter)
@@ -6956,70 +8573,130 @@ class MakeMasksScreen(QWidget):
 
         outer.addWidget(self._body_stack, 1)
 
+        # The maintainer's layout (2026-09-30). The bottom row is the
+        # toolbar on the left -- Open folder, Organize for Measure, Load
+        # test data, Uncertainty -- and the curation buttons on the right,
+        # under the console: Discard, Keep, Skip, Blind, ROIs, Upload data.
+        # Save mask, Prev and Next share the editor action toolbar above.
+        from ..i18n import tr
+
         nav = QWidget()
-        nav_row = QHBoxLayout(nav)
-        nav_row.setContentsMargins(0, 0, 0, 0)
-        nav_row.setSpacing(SPACING["sm"])
-        self._btn_open = QPushButton("Open folder…")
+        outer_row = QHBoxLayout(nav)
+        outer_row.setContentsMargins(0, 0, 0, 0)
+        outer_row.setSpacing(SPACING["sm"])
+        from .app_screen import _WrappingButtonStrip
+
+        nav_row = _WrappingButtonStrip(SPACING["sm"])
+        outer_row.addLayout(nav_row, 1)
+        self._btn_open = QPushButton(tr("Open folder…"))
         self._btn_open.setObjectName("PrimaryButton")
         self._btn_open.setIcon(iconset.contrast_icon("open"))
         self._btn_open.setCursor(Qt.PointingHandCursor)
         self._btn_open.clicked.connect(self._on_pick_folder)
         nav_row.addWidget(self._btn_open)
-        from ..make_masks_demo import install_test_data_button
-        nav_row.addWidget(install_test_data_button(self))
-        from ..make_masks_datasets import install_dataset_button
-        nav_row.addWidget(install_dataset_button(self))
+        nav_row.addWidget(self._build_organize_button())
+        nav_row.addWidget(self._build_test_data_button())
+        nav_row.addWidget(self._build_uncertainty_button())
 
-        self._btn_prev = QPushButton("Prev image")
+        # Curation stays on the bottom row; save/navigation use the same
+        # scrolling horizontal action row as detection, undo and redo.
+        self._nav_curate_group, curate_row = self._nav_button_group()
+        self._btn_prev = QPushButton(tr("Prev image"))
         self._btn_prev.setIcon(iconset.icon("prev"))
         self._btn_prev.setCursor(Qt.PointingHandCursor)
         self._btn_prev.clicked.connect(self._on_prev)
-        nav_row.addWidget(self._btn_prev)
 
-        self._btn_next = QPushButton("Next image")
+        self._btn_next = QPushButton(tr("Next image"))
         self._btn_next.setIcon(iconset.icon("next"))
         self._btn_next.setLayoutDirection(Qt.RightToLeft)
         self._btn_next.setCursor(Qt.PointingHandCursor)
         self._btn_next.clicked.connect(self._on_next)
-        nav_row.addWidget(self._btn_next)
 
-        self._btn_discard = QPushButton("Discard")
+        self._btn_discard = QPushButton(tr("Discard"))
         self._btn_discard.setIcon(iconset.icon("trash"))
         self._btn_discard.setCheckable(True)
         self._btn_discard.setCursor(Qt.PointingHandCursor)
-        self._btn_discard.setToolTip(
+        self._btn_discard.setToolTip(tr(
             "Mark this field as one to discard and move to the next. "
             "Nothing is deleted: the verdict goes to csv/keep_discard.csv "
             "beside the images, and the field, its mask and its objects "
-            "stay as they are.")
+            "stay as they are."))
         self._btn_discard.clicked.connect(lambda: self._on_curate(False))
-        nav_row.addWidget(self._btn_discard)
+        curate_row.addWidget(self._btn_discard)
 
-        self._btn_keep = QPushButton("Keep")
+        self._btn_keep = QPushButton(tr("Keep"))
         self._btn_keep.setIcon(iconset.icon("check"))
         self._btn_keep.setCheckable(True)
         self._btn_keep.setCursor(Qt.PointingHandCursor)
-        self._btn_keep.setToolTip(
+        self._btn_keep.setToolTip(tr(
             "Mark this field as one to keep and move to the next. The "
             "verdict is written to csv/keep_discard.csv beside the images, "
             "with the image, its mask and the number of objects the mask "
-            "holds right now.")
+            "holds right now."))
         self._btn_keep.clicked.connect(lambda: self._on_curate(True))
-        nav_row.addWidget(self._btn_keep)
+        curate_row.addWidget(self._btn_keep)
 
-        self._btn_save = QPushButton("Save mask")
+        self._btn_save = QPushButton(tr("Save mask"))
         self._btn_save.setObjectName("PrimaryButton")
         self._btn_save.setIcon(iconset.contrast_icon("save"))
         self._btn_save.setCursor(Qt.PointingHandCursor)
         self._btn_save.clicked.connect(self._on_save)
-        nav_row.addWidget(self._btn_save)
+        for button in (self._btn_save, self._btn_prev, self._btn_next):
+            button.setMinimumHeight(32)
+            self.add_toolbar_action(button)
 
-        nav_row.addStretch(1)
-        self._status_label = QLabel("Ready.")
+        self._btn_skip = QPushButton(tr("Skip"))
+        self._btn_skip.setIcon(iconset.icon("next"))
+        self._btn_skip.setCursor(Qt.PointingHandCursor)
+        self._btn_skip.setToolTip(tr(
+            "Record this field as one that cannot be curated and move to the "
+            "next. It is written to the session's curate_status.csv as skip, "
+            "so the next session does not offer it again. No mask is written."))
+        self._btn_skip.clicked.connect(self._on_skip)
+        curate_row.addWidget(self._btn_skip)
+        curate_row.addWidget(self._build_blind_toggle())
+        curate_row.addWidget(self._build_roi_button())
+        curate_row.addWidget(self._build_contribute_button())
+
+        outer_row.addWidget(self._nav_curate_group, 0, Qt.AlignBottom)
+
+        self._status_label = _StatusLabel("Ready.")
+        self._status_label._blind_owner = weakref.ref(self)
         self._status_label.setObjectName("SubtitleSmall")
-        nav_row.addWidget(self._status_label)
+        self._status_label.said.connect(self._report_status)
+        # Under the image the line must never widen the pane: a long status
+        # would otherwise push the splitter and resize the canvas mid-edit.
+        self._status_label.setSizePolicy(QSizePolicy.Ignored,
+                                         QSizePolicy.Preferred)
+        self._status_label.setMinimumWidth(0)
+        self._image_nav_row.addWidget(self._status_label, 1)
         outer.addWidget(nav)
+
+    def _nav_button_group(self, separated: bool = False):
+        """A widget holding a row of navigation buttons that never wraps apart.
+
+        The navigation strip wraps widget by widget, so buttons that must stay
+        on one line are put in one of these and the group is added instead.
+        With ``separated`` the group opens with a gap and a vertical line.
+
+        :param separated: lead the group with a visible gap and separator.
+        :returns: ``(widget, layout)``; add the buttons to ``layout``.
+        """
+        from PySide6.QtWidgets import QFrame
+
+        group = QWidget()
+        row = QHBoxLayout(group)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(SPACING["sm"])
+        if separated:
+            row.addSpacing(SPACING["lg"])
+            line = QFrame(group)
+            line.setObjectName("NavGroupSeparator")
+            line.setFrameShape(QFrame.Shape.VLine)
+            line.setFrameShadow(QFrame.Shadow.Sunken)
+            row.addWidget(line)
+            row.addSpacing(SPACING["lg"])
+        return group, row
 
     def _build_fold_strip(self) -> FoldStrip:
         """The masthead's strip of folded modules.
@@ -7262,6 +8939,13 @@ class MakeMasksScreen(QWidget):
             self._status_label.setText(
                 "Open a folder of images before masking it.")
             return False
+        if self._field_folders:
+            from ..i18n import tr
+
+            self._status_label.setText(tr(
+                "Mask the whole folder works on one folder, and this queue "
+                "was dropped from several, so it was not started."))
+            return False
         if self._masks_dir or any(engine.is_seg_bundle(name)
                                   for name in self._image_files):
             self._status_label.setText(
@@ -7292,6 +8976,1216 @@ class MakeMasksScreen(QWidget):
         Cellpose.
         """
         screen._on_run()
+
+    def _build_test_data_button(self):
+        """The "Load test data…" button, with the training datasets on its menu.
+
+        One split button (:class:`_SplitMenuButton`): pressing it loads the
+        Toxoplasma test data, as it always did
+        (:func:`spacr.qt.make_masks_demo.load_the_test_data`), and its arrow
+        opens a menu offering the test data again and a sample of
+        each training dataset a published model was trained on
+        (:func:`spacr.qt.make_masks_datasets.open_a_training_dataset`). It
+        replaces the separate "Training datasets…" button, so the screen
+        keeps it as both ``_btn_test_data`` and ``_btn_training_datasets``
+        and either download disables it while it runs.
+
+        :returns: the button, with its menu.
+        """
+        from ..i18n import tr
+        from .. import make_masks_datasets as datasets
+        from ..make_masks_demo import load_the_test_data
+
+        button = _SplitMenuButton(tr("Load test data…"), self)
+        button.setObjectName("MakeMasksTestDataButton")
+        button.setAccessibleName(tr("Load test data"))
+        button.setCursor(Qt.PointingHandCursor)
+        button.setToolTip(tr(
+            "Download ten example images of Toxoplasma vacuoles (about 40 MB) and "
+            "open the first one. Their curated masks come too, in the "
+            "ground_truth_masks folder, which the editor does not read. Cached "
+            "after the first download.") + " " + tr(
+            "The arrow offers a sample of each training dataset a published "
+            "model was trained on, with its masks, to edit here."))
+        button.clicked.connect(
+            lambda _checked=False: load_the_test_data(self))
+        menu = QMenu(button)
+        self._test_data_actions = {}
+        action = menu.addAction(tr("Toxoplasma vacuoles (test data)"))
+        action.triggered.connect(
+            lambda _checked=False: load_the_test_data(self))
+        self._test_data_actions["test_data"] = action
+        menu.addSeparator()
+        for dataset in datasets.datasets_for("mask"):
+            action = menu.addAction(tr("Training dataset: {name}",
+                                       name=dataset.title))
+            action.setToolTip(dataset.title)
+            action.triggered.connect(
+                lambda _checked=False, chosen=dataset:
+                datasets.open_a_training_dataset(
+                    self, pick=lambda _screen: chosen))
+            self._test_data_actions[dataset.key] = action
+        button.set_split_menu(menu)
+        self._btn_test_data = button
+        self._btn_training_datasets = button
+        return button
+
+    def _build_contribute_button(self) -> QPushButton:
+        """The "Upload data…" button: send images and masks to a community set.
+
+        It was "Contribute images and masks…"; the object name and the
+        dialog it opens are unchanged.
+        """
+        from ..i18n import tr
+        from ..widgets.model_share_dialog import contribute_masks_tooltip
+
+        button = QPushButton(tr("Upload data…"), self)
+        button.setObjectName("MakeMasksUploadDataButton")
+        button.setAccessibleName(tr("Upload data"))
+        button.setCursor(Qt.PointingHandCursor)
+        button.setToolTip(tr(
+            "Upload data: send images and their masks to a community "
+            "training dataset.") + "\n\n" + contribute_masks_tooltip())
+        button.clicked.connect(
+            lambda _checked=False: self.contribute_images_and_masks())
+        self._btn_contribute = button
+        return button
+
+    def _contribution_sources(self) -> tuple:
+        """The image on screen and the folder's curated images, as items.
+
+        :returns: ``(current, curated)`` for
+            :class:`~spacr.qt.widgets.model_share_dialog.ContributeMasksDialog`:
+            ``current`` is the field on screen with the mask being edited,
+            ``curated`` every field with a saved mask (the one on screen
+            with the mask on screen). Both ``None`` when no folder is open;
+            Cellpose ``_seg.npy`` bundles are left out, having no image file
+            of their own to send.
+        """
+        files = list(getattr(self, "_image_files", None) or [])
+        if not files:
+            return None, None
+        index = getattr(self, "_current_index", 0)
+        current = None
+        curated = []
+        for i, filename in enumerate(files):
+            if engine.is_seg_bundle(filename):
+                continue
+            folder = (self._field_folders[i] if self._field_folders
+                      else self._folder)
+            source = os.path.join(folder, filename)
+            if i == index:
+                labels = getattr(self._canvas, "mask", None)
+                current = {"name": filename, "source": source,
+                           "labels": None if labels is None
+                           else np.array(labels, copy=True)}
+                if labels is not None and np.any(labels):
+                    curated.append(dict(current))
+                continue
+            mask = engine.mask_save_path(folder, filename,
+                                         **self._layout_kwargs())
+            if os.path.isfile(mask):
+                curated.append({"name": filename, "source": source,
+                                "mask": mask})
+        return current, curated
+
+    def contribute_images_and_masks(self, *, show: bool = True,
+                                    upload=None, threaded: bool = True):
+        """Open the dialog that sends images and masks to a community dataset.
+
+        One click from curation: the dialog opens on the image on screen
+        and its mask, with every curated image of the folder one choice
+        away, and an images folder plus a masks folder as the third way in.
+
+        :param show: show the dialog; False only builds it (tests).
+        :param upload: ``fn(folder, target) -> url`` in place of the real
+            upload (tests).
+        :param threaded: send on a worker thread.
+        :returns: the dialog.
+        """
+        from ..widgets.model_share_dialog import ContributeMasksDialog
+
+        current, curated = self._contribution_sources()
+        dialog = ContributeMasksDialog(
+            current=current, curated=curated, upload=upload,
+            threaded=threaded, parent=self)
+        dialog.setAttribute(Qt.WA_DeleteOnClose, show)
+        self._contribute_dialog = dialog
+        if show:
+            dialog.show()
+        return dialog
+
+    def _build_roi_button(self) -> QPushButton:
+        """The "ROIs" button: masks out to and in from QuPath, Fiji and COCO.
+
+        An ALPHA feature (item 545): the button is registered as
+        ``MakeMasksRoisButton`` in :data:`spacr.settings.ALPHA_FEATURES`, so
+        it is shown only while Preferences -> "Show alpha features" is on.
+        Its menu exports the
+        field on screen or every field of the folder or queue, and imports a
+        file back into the field on screen or into every field, through
+        :func:`spacr.mask_io.export_rois` and
+        :func:`spacr.mask_io.import_rois`.
+
+        :returns: the button, with its menu.
+        """
+        from ..i18n import tr
+        from ..preferences import _apply_alpha_widgets
+
+        button = QPushButton(tr("ROIs…"), self)
+        button.setCursor(Qt.PointingHandCursor)
+        button.setToolTip(tr(
+            "Export the masks as QuPath GeoJSON, an ImageJ RoiSet or COCO "
+            "JSON, one outline per object with its id and class, or import "
+            "one of those files back as masks."))
+        menu = QMenu(button)
+        self._roi_actions = {}
+        entries = (
+            ("export_field_geojson", tr("Export this field as QuPath GeoJSON…"),
+             lambda: self._on_export_field_rois("geojson")),
+            ("export_field_imagej", tr("Export this field as an ImageJ RoiSet…"),
+             lambda: self._on_export_field_rois("imagej")),
+            ("export_field_coco", tr("Export this field as COCO JSON…"),
+             lambda: self._on_export_field_rois("coco")),
+            None,
+            ("export_all_geojson",
+             tr("Export every field as QuPath GeoJSON…"),
+             lambda: self._on_export_all_rois("geojson")),
+            ("export_all_imagej", tr("Export every field as ImageJ RoiSets…"),
+             lambda: self._on_export_all_rois("imagej")),
+            ("export_all_coco", tr("Export every field as one COCO JSON…"),
+             lambda: self._on_export_all_rois("coco")),
+            None,
+            ("import_field", tr("Import ROIs into this field…"),
+             self._on_import_field_rois),
+            ("import_all_geojson", tr("Import QuPath GeoJSON for every field…"),
+             lambda: self._on_import_all_rois("geojson")),
+            ("import_all_imagej", tr("Import ImageJ RoiSets for every field…"),
+             lambda: self._on_import_all_rois("imagej")),
+            ("import_all_coco", tr("Import COCO JSON for every field…"),
+             lambda: self._on_import_all_rois("coco")),
+        )
+        for entry in entries:
+            if entry is None:
+                menu.addSeparator()
+                continue
+            key, text, slot = entry
+            action = menu.addAction(text)
+            action.triggered.connect(
+                lambda _checked=False, run=slot: run())
+            self._roi_actions[key] = action
+        button.setMenu(menu)
+        button.setObjectName("MakeMasksRoisButton")
+        _apply_alpha_widgets(button)
+        self._btn_rois = button
+        return button
+
+    def _build_blind_toggle(self) -> QPushButton:
+        """The Blind switch: curate fields without knowing where they are from.
+
+        On, the open fields are shuffled under a blinding key
+        (:func:`spacr.run_journal.start_blinding`) and every field is named
+        on screen by its code, never by its file name or folder. Off asks
+        first, then unblinds through :func:`spacr.run_journal.unblind`,
+        which records who did it and when, and puts the fields back in
+        their own order. An alpha feature, registered as
+        ``MakeMasksBlindToggle`` in :data:`spacr.settings.ALPHA_FEATURES`.
+
+        :returns: the checkable button.
+        """
+        from ..i18n import tr
+        from ..preferences import _apply_alpha_widgets
+
+        button = QPushButton(tr("Blind"), self)
+        button.setObjectName("MakeMasksBlindToggle")
+        button.setCheckable(True)
+        button.setCursor(Qt.PointingHandCursor)
+        button.setToolTip(tr(
+            "Curate blind: name every field by a code instead of its file "
+            "name and folder, and show the fields in a shuffled order. The "
+            "key is kept beside the run journal, outside the data folder. "
+            "Turning it off unblinds, and the journal records who unblinded "
+            "and when. Default off."))
+        button.toggled.connect(self._on_blind_toggled)
+        _apply_alpha_widgets(button)
+        self._btn_blind = button
+        return button
+
+    def _build_uncertainty_button(self) -> QPushButton:
+        """The "Uncertainty" button: where the segmentation is least sure.
+
+        Its menu maps the field on screen, or ranks every open field and
+        offers the most uncertain first. Both segment each field four
+        times, as it is and flipped two ways and turned a quarter, with the
+        Object detection settings, and measure how much the four disagree.
+        An alpha feature, registered as ``MakeMasksUncertaintyButton`` in
+        :data:`spacr.settings.ALPHA_FEATURES`.
+
+        :returns: the button, with its menu.
+        """
+        from ..i18n import tr
+        from ..preferences import _apply_alpha_widgets
+
+        button = QPushButton(tr("Uncertainty…"), self)
+        button.setObjectName("MakeMasksUncertaintyButton")
+        button.setCursor(Qt.PointingHandCursor)
+        button.setToolTip(tr(
+            "Segment each field four times, as it is, flipped two ways and "
+            "turned a quarter, with the Object detection settings, and "
+            "measure where the four disagree. Map this field shows the "
+            "disagreement as a heat map on its own tab; Rank the fields puts "
+            "the most uncertain fields first and saves the scores as "
+            "curate_uncertainty.csv for spacr-make-masks --order uncertain. "
+            "Takes four detection runs per field, or eight when an optional "
+            "ensemble model is selected in Detection method."))
+        button.setMenu(self._uncertainty_menu())
+        _apply_alpha_widgets(button)
+        self._btn_uncertainty = button
+        return button
+
+    def _uncertainty_menu(self) -> QMenu:
+        """The one Map / Rank menu both Uncertainty buttons open.
+
+        Built on first use and shared, so the toolbar button and the one in
+        the Object operations settings run the same two actions.
+        """
+        menu = getattr(self, "_uncertainty_menu_widget", None)
+        if menu is not None:
+            return menu
+        from ..i18n import tr
+
+        menu = QMenu(self)
+        self._uncertainty_actions = {}
+        for key, text, slot in (
+                ("map", tr("Map this field's uncertainty"),
+                 self._on_map_uncertainty),
+                ("rank", tr("Rank the fields, most uncertain first"),
+                 self._on_rank_uncertainty),
+                ("save", tr("Save uncertainty map…"),
+                 self._on_save_uncertainty)):
+            action = menu.addAction(text)
+            action.triggered.connect(lambda _checked=False, run=slot: run())
+            self._uncertainty_actions[key] = action
+        menu.aboutToShow.connect(self._sync_uncertainty_export)
+        self._uncertainty_menu_widget = menu
+        return menu
+
+    def _build_uncertainty_setting(self) -> QPushButton:
+        """Uncertainty in the Object operations settings, after Swap.
+
+        The same control as the toolbar's Uncertainty button: it opens the
+        same Map / Rank menu, and :meth:`_set_uncertainty_enabled` disables
+        and re-enables both together while a run is under way. Alpha-gated
+        with it, as ``MakeMasksUncertaintySetting`` under item 568 in
+        :data:`spacr.settings.ALPHA_FEATURES`.
+
+        :returns: the button, with the shared menu.
+        """
+        from ..i18n import tr
+        from ..preferences import _apply_alpha_widgets
+
+        button = QPushButton(tr("Uncertainty…"), self)
+        button.setObjectName("MakeMasksUncertaintySetting")
+        button.setAccessibleName(tr("Uncertainty"))
+        button.setCursor(Qt.PointingHandCursor)
+        button.setToolTip(tr(
+            "Map where the segmentation of this field is least sure, or rank "
+            "the open fields with the most uncertain first. The same menu as "
+            "the Uncertainty button on the bottom row; four detection "
+            "runs per field, or eight with the optional ensemble model."))
+        button.setMenu(self._uncertainty_menu())
+        _apply_alpha_widgets(button)
+        self._btn_uncertainty_setting = button
+        return button
+
+    def _set_uncertainty_enabled(self, enabled: bool) -> None:
+        """Enable or disable both Uncertainty buttons together."""
+        for button in (getattr(self, "_btn_uncertainty", None),
+                       getattr(self, "_btn_uncertainty_setting", None)):
+            if button is not None:
+                button.setEnabled(enabled)
+
+    def _build_uncertainty_ensemble_setting(self) -> QWidget:
+        """Offer an optional second model for alpha uncertainty scoring.
+
+        This display-side choice is persisted independently of segmentation
+        settings and never changes the model used to create or save masks.
+        """
+        from ..i18n import tr
+        from ..preferences import _apply_alpha_widgets
+        from ..prefs import _s
+
+        row = QWidget(self)
+        row.setObjectName("MakeMasksUncertaintyEnsembleSetting")
+        layout = QVBoxLayout(row)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(QLabel(tr("Uncertainty ensemble model (optional)")))
+        controls = QHBoxLayout()
+        self._uncertainty_ensemble = QComboBox(row)
+        self._uncertainty_ensemble.setEditable(True)
+        self._uncertainty_ensemble.addItem(tr("None"), "")
+        for index in range(self._cp_model.count()):
+            value = self._cp_model.itemData(index)
+            if value:
+                self._uncertainty_ensemble.addItem(self._cp_model.itemText(index), value)
+        value = str(_s().value("make_masks/uncertainty_second_model", "") or "")
+        index = self._uncertainty_ensemble.findData(value)
+        if index >= 0:
+            self._uncertainty_ensemble.setCurrentIndex(index)
+        else:
+            self._uncertainty_ensemble.setEditText(value)
+        self._uncertainty_ensemble.setToolTip(tr(
+            "Optional second model for uncertainty only. Blank or None uses "
+            "four primary-model passes. A different model adds four passes "
+            "and can reveal errors both flips and rotations repeat. "
+            "Saved masks and ordinary detection are unchanged."))
+        self._uncertainty_ensemble.currentTextChanged.connect(self._remember_uncertainty_ensemble)
+        controls.addWidget(self._uncertainty_ensemble, 1)
+        browse = QPushButton(tr("Browse…"), row)
+        browse.clicked.connect(self._pick_uncertainty_ensemble)
+        controls.addWidget(browse)
+        layout.addLayout(controls)
+        _apply_alpha_widgets(row)
+        return row
+
+    def _uncertainty_ensemble_model(self) -> str:
+        """Return the optional second model's stable name or checkpoint path."""
+        combo = self._uncertainty_ensemble
+        index = combo.currentIndex()
+        value = (combo.currentData() if index >= 0
+                 and combo.currentText() == combo.itemText(index) else None)
+        return str(value if value is not None else combo.currentText()).strip()
+
+    def _remember_uncertainty_ensemble(self, _text):
+        """Persist the model choice without starting inference.
+
+        :param _text: changed combo caption; stable item data is read instead.
+        """
+        from ..prefs import _s
+
+        _s().setValue("make_masks/uncertainty_second_model", self._uncertainty_ensemble_model())
+
+    def _pick_uncertainty_ensemble(self):
+        """Select a local checkpoint for the second uncertainty model."""
+        from ..i18n import tr
+
+        path, _filter = QFileDialog.getOpenFileName(self, tr("Choose ensemble model"))
+        if path:
+            self._uncertainty_ensemble.setEditText(path)
+
+    def _sync_uncertainty_export(self):
+        """Enable export only for a completed map of the field still in view."""
+        current = self._uncertainty_result
+        valid = (current is not None and self._blind is None
+                 and current[0]['token'] == self._load_token
+                 and current[0]['image_reference'] is self._canvas.image)
+        self._uncertainty_actions['save'].setEnabled(valid)
+
+    def _on_save_uncertainty(self, path=None) -> bool:
+        """Save the current lossless map, with captured model/source provenance.
+
+        :param path: optional destination for scripted use; None opens a picker.
+        :returns: whether a map was saved successfully.
+        """
+        from ..i18n import tr
+        from ...segmentation_uncertainty import save_uncertainty_map
+
+        self._sync_uncertainty_export()
+        if not self._uncertainty_actions['save'].isEnabled():
+            self._status_label.setText(tr("Map the current field before saving uncertainty, and leave blind mode first."))
+            return False
+        request, result = self._uncertainty_result
+        source = request.get('source') or 'field'
+        if path is None:
+            default = os.path.join(os.path.dirname(source), 'uncertainty',
+                                   engine.field_stem(os.path.basename(source)) + '_uncertainty.tif')
+            path, _filter = QFileDialog.getSaveFileName(
+                self, tr("Save uncertainty map"), default, tr("TIFF image (*.tif *.tiff)"))
+        if not path:
+            return False
+        detect = request['detect']
+        provenance = dict(source=source, primary_model=detect['model'],
+                          second_model=request.get('second_model') or None,
+                          parameters=detect['parameters'], invert=detect['invert'],
+                          percentiles=detect['percentiles'], preprocessing=str(detect['chain']),
+                          transforms=['identity', 'flip_lr', 'flip_ud', 'rot90'])
+        try:
+            target = save_uncertainty_map(path, result, provenance=provenance,
+                                          protected_paths=(source, request.get('mask_path')))
+        except (OSError, ValueError) as exc:
+            self._warn(tr("Uncertainty map not saved"), str(exc))
+            return False
+        self._status_label.setText(tr("Uncertainty map saved to {path}.", path=str(target)))
+        return True
+
+    def _uncertainty_detect_request(self) -> dict:
+        """The Object detection settings, captured for a worker thread.
+
+        :returns: what :func:`_detect_cellpose_snapshot` reads, without the
+            image, which each test-time pass supplies.
+        """
+        parameters = dict(diameter=int(self._cp_diameter.value()),
+                          normalize=bool(self._cp_normalize.isChecked()),
+                          flow_threshold=float(self._cp_flow.value()),
+                          cellprob_threshold=float(self._cp_cellprob.value()),
+                          min_size=self._detect_min_area())
+        return dict(model=self._cp_model.currentData() or 'cpsam',
+                    parameters=parameters, chain=self._detect_chain(),
+                    invert=bool(self._cp_invert.isChecked()),
+                    percentiles=(float(self._canvas.norm_lo),
+                                 float(self._canvas.norm_hi))
+                    if self._canvas.detect_on_normalized else None)
+
+    def _start_uncertainty(self, request: dict, threaded: bool) -> bool:
+        """Run one uncertainty request, on the worker unless told not to.
+
+        :param request: what :func:`_uncertainty_snapshot` reads.
+        :param threaded: False runs it here and delivers at once (tests).
+        :returns: whether it started; not while another one runs.
+        """
+        if self._uncertainty_request is not None:
+            return False
+        self._uncertainty_request = request
+        self._set_uncertainty_enabled(False)
+        work = partial(_uncertainty_snapshot, models=self._cp_loaded)
+        if not threaded:
+            try:
+                result, error = work(request), None
+            except Exception as exc:                         # noqa: BLE001
+                result, error = None, exc
+            self._take_uncertainty((request, result, error))
+            return True
+        if self._uncertainty_worker is None:
+            self._uncertainty_worker = _NewestRequestWorker(
+                work, self._uncertainty_done, name='spacr-uncertainty')
+        self._uncertainty_worker.submit(request)
+        return True
+
+    def _uncertainty_done(self, request, result, error) -> None:
+        """Hand a finished uncertainty run to Qt's thread."""
+        try:
+            self._uncertainty_delivered.emit((request, result, error))
+        except RuntimeError:
+            pass
+
+    def _on_map_uncertainty(self, *, segment=None,
+                            threaded: bool = True) -> bool:
+        """Map where the segmentation of the field on screen is unsure.
+
+        :param segment: ``image -> labels`` in place of Object detection
+            (tests).
+        :param threaded: run on a worker thread.
+        :returns: whether a run started.
+        """
+        from ..i18n import tr
+
+        if self._canvas.image is None:
+            self._status_label.setText(tr(
+                "Open a folder before mapping segmentation uncertainty."))
+            return False
+        request = dict(kind='field', segment=segment,
+                       image=np.array(self._canvas.image, copy=True),
+                       image_reference=self._canvas.image,
+                       token=self._load_token,
+                       detect=self._uncertainty_detect_request(),
+                       second_model=self._uncertainty_ensemble_model(),
+                       source=self._curation_paths()[0], mask_path=self._curation_paths()[1])
+        if not self._start_uncertainty(request, threaded):
+            return False
+        self._status_label.setText(tr(
+            "Mapping segmentation uncertainty: {passes} detection runs…",
+            passes=8 if request.get("second_model") else 4))
+        return True
+
+    def _on_rank_uncertainty(self, *, segment=None,
+                             threaded: bool = True) -> bool:
+        """Score every open field's uncertainty and offer the worst first.
+
+        Refused while curating blind, whose shuffled order is the point.
+
+        :param segment: ``image -> labels`` in place of Object detection
+            (tests).
+        :param threaded: run on a worker thread.
+        :returns: whether a run started.
+        """
+        from ..i18n import tr
+
+        if not self._image_files:
+            self._status_label.setText(tr(
+                "Open a folder before ranking fields by uncertainty."))
+            return False
+        if self._blind is not None:
+            self._status_label.setText(tr(
+                "Ranking by uncertainty would undo the blind order. Unblind "
+                "first."))
+            return False
+        pairs = self._field_pairs()
+        request = dict(kind='rank', segment=segment, fields=pairs,
+                       layout=self._layout_kwargs(),
+                       detect=self._uncertainty_detect_request(),
+                       second_model=self._uncertainty_ensemble_model())
+        if not self._start_uncertainty(request, threaded):
+            return False
+        self._status_label.setText(tr(
+            "Ranking {count} fields by segmentation uncertainty: {passes} "
+            "detection runs each…", count=len(pairs),
+            passes=8 if request.get("second_model") else 4))
+        return True
+
+    def _take_uncertainty(self, payload) -> None:
+        """Show a finished map, or reorder the fields by a finished ranking."""
+        from ..i18n import tr
+
+        request, result, error = payload
+        if request is not self._uncertainty_request:
+            return
+        self._uncertainty_request = None
+        self._set_uncertainty_enabled(True)
+        if error is not None:
+            self._warn(tr("Uncertainty failed"), str(error))
+            return
+        if request['kind'] == 'field':
+            if (request['token'] != self._load_token
+                    or request['image_reference'] is not self._canvas.image):
+                self._status_label.setText(tr(
+                    "Uncertainty map discarded because the field changed."))
+                return
+            self._uncertainty_result = (request, result)
+            self._show_uncertainty_map(result, request['image'])
+            return
+        model = ' + '.join(filter(None, (request['detect']['model'],
+                                          request.get('second_model'))))
+        self._apply_uncertainty_ranking(request['fields'], result, model=model)
+
+    def _show_uncertainty_map(self, result: dict, image) -> None:
+        """Put the map on an Uncertainty tab, made the first time it is used.
+
+        :param result: :func:`spacr.active_learning._segmentation_uncertainty`
+            output for the field on screen.
+        :param image: the field it was computed on.
+        """
+        from ..i18n import tr
+
+        if self._uncertainty_pane is None:
+            self._uncertainty_pane = _FlowPane()
+            self._view_tabs.addTab(self._uncertainty_pane, tr("Uncertainty"))
+        self._uncertainty_pane.show_rgb(
+            _uncertainty_heatmap(result['map'], image))
+        self._view_tabs.setCurrentWidget(self._uncertainty_pane)
+        objects = result['objects']
+        worst = max(objects, key=objects.get) if objects else None
+        text = tr("Segmentation uncertainty {value} over {count} objects.",
+                  value=f"{result['field']:.2f}", count=result['n_objects'])
+        if worst is not None:
+            text += " " + tr("The least certain is object {label} ({value}).",
+                             label=worst, value=f"{objects[worst]:.2f}")
+        self._status_label.setText(text)
+
+    def _apply_uncertainty_ranking(self, pairs, scores, *, model=None) -> None:
+        """Save the scores and offer the most uncertain field first.
+
+        The scores are merged into ``curate_uncertainty.csv`` in the queue's
+        folder, or in the open folder, where ``spacr-make-masks --order
+        uncertain`` reads them. A field that could not be scored is offered
+        after every scored one.
+
+        :param pairs: the ``(folder, file name)`` pairs that were ranked.
+        :param scores: ``{pair: score dictionary}``.
+        :param model: captured model identity; defaults to the current selection.
+        """
+        from ..i18n import tr
+        from ...curation_queue import SEG_SUFFIX, _write_uncertainty
+
+        def stem(name: str) -> str:
+            """:param name: a field's file name.
+
+            :returns: its stem, as the curation queue names it.
+            """
+            if name.endswith(SEG_SUFFIX):
+                return name[:-len(SEG_SUFFIX)]
+            return os.path.splitext(name)[0]
+
+        model = model or self._cp_model.currentData() or 'cpsam'
+        rows = {stem(name): dict(uncertainty=round(score['field'], 4),
+                                 n_objects=score['n_objects'],
+                                 passes=score['n_passes'], model=model)
+                for (_folder, name), score in scores.items()}
+        target = (str(self._queue.folder) if self._queue is not None
+                  else self._folder)
+        try:
+            if rows and target:
+                _write_uncertainty(target, rows)
+        except OSError as exc:
+            self._report(tr("Uncertainty scores not saved: {error}",
+                            error=str(exc)), "warning")
+        if self._blind is not None:
+            self._status_label.setText(tr(
+                "Uncertainty saved; blind order was preserved."))
+            return
+        if self._field_pairs() != list(pairs):
+            self._status_label.setText(tr(
+                "Uncertainty saved; the open fields changed while ranking, "
+                "so their order was left alone."))
+            return
+        ordered = sorted(pairs, key=lambda pair: -scores[tuple(pair)]['field']
+                         if tuple(pair) in scores else 1.0)
+        self._set_field_pairs(ordered)
+        self._current_index = 0
+        self._load_current()
+        self._sync_button_states()
+        self._status_label.setText(tr(
+            "Ranked {count} fields by segmentation uncertainty, the most "
+            "uncertain first.", count=len(scores)))
+
+    def _set_blind_checked(self, on: bool) -> None:
+        """Move the Blind switch without asking it to act."""
+        button = getattr(self, "_btn_blind", None)
+        if button is None:
+            return
+        button.blockSignals(True)
+        button.setChecked(bool(on))
+        button.blockSignals(False)
+
+    def _on_blind_toggled(self, checked: bool) -> None:
+        """Start blinding, or ask to unblind; undo the click if refused."""
+        if checked and self._blind is None:
+            if not self._start_blind():
+                self._set_blind_checked(False)
+        elif not checked and self._blind is not None:
+            if not self._end_blind():
+                self._set_blind_checked(True)
+
+    def _field_pairs(self) -> list:
+        """``(folder, file name)`` of every open field, in the order offered."""
+        folders = self._field_folders or [self._folder] * len(
+            self._image_files)
+        return list(zip(folders, self._image_files))
+
+    def _set_field_pairs(self, pairs) -> None:
+        """Offer ``pairs`` of ``(folder, file name)`` as the open fields."""
+        self._image_files = [name for _folder, name in pairs]
+        if self._field_folders is not None:
+            self._field_folders = [folder for folder, _name in pairs]
+
+    def _blind_label(self, path: str) -> str:
+        """How a field is named on screen: its code while blinded.
+
+        :param path: the field's image path.
+        :returns: the code, a placeholder for a field made after blinding
+            started, or the file name when not blinded.
+        """
+        if self._blind is None:
+            return os.path.basename(str(path))
+        from ..i18n import tr
+
+        code = self._blind["codes"].get(os.path.abspath(str(path)))
+        return code or tr("uncoded field")
+
+    def _blind_text(self, text: str) -> str:
+        """Replace known source identifiers in displayed messages while blinded.
+
+        :param text: status, warning or confirmation text; stored paths are untouched.
+        :returns: text with field paths/names replaced by their codes and source
+            folders hidden. Identical names in different folders use a placeholder.
+        """
+        if self._blind is None:
+            return str(text)
+        from ..i18n import tr
+
+        replacements = {}
+        folders = set()
+        for path, code in self._blind["codes"].items():
+            folders.add(os.path.dirname(path))
+            for identifier in (path, os.path.basename(path),
+                               os.path.splitext(os.path.basename(path))[0]):
+                previous = replacements.get(identifier, code)
+                replacements[identifier] = (code if previous == code
+                                            else tr("uncoded field"))
+        for folder in folders:
+            for identifier in (folder, os.path.basename(folder)):
+                if identifier and identifier != os.path.sep:
+                    replacements[identifier] = tr("Blind")
+        if not replacements:
+            return str(text)
+        pattern = "|".join(re.escape(value) for value in
+                           sorted(replacements, key=len, reverse=True) if value)
+        return re.sub(pattern, lambda match: replacements[match.group()], str(text))
+
+    def _start_blind(self) -> bool:
+        """Shuffle the open fields under a new blinding key.
+
+        :returns: whether blinding started; not without open fields.
+        """
+        from ..i18n import tr
+
+        if not self._image_files:
+            self._status_label.setText(tr(
+                "Open a folder of images before curating it blind."))
+            return False
+        self.finish_recrop()
+        pairs = self._field_pairs()
+        paths = [os.path.abspath(os.path.join(folder, name))
+                 for folder, name in pairs]
+        from ...run_journal import start_blinding
+
+        try:
+            src = os.path.commonpath([os.path.dirname(p) for p in paths])
+        except ValueError:
+            src = self._folder
+        key = start_blinding(paths, scope="make_masks", src=src)
+        rank = {item: index for index, item in enumerate(key["order"])}
+        order = sorted(range(len(pairs)),
+                       key=lambda i: rank.get(paths[i], len(rank)))
+        self._blind = {"key_id": key["key_id"], "codes": key["codes"],
+                       "original": paths}
+        self._console_section.setProperty(
+            "_spacr_blind_visible", not self._console_section.isHidden())
+        self._console_section.hide()
+        self._blind_lock_rois(True)
+        self._set_field_pairs([pairs[i] for i in order])
+        self._current_index = 0
+        self._set_blind_checked(True)
+        self._src_label.setText(tr(
+            "Blinded: {count} fields, named by code and in a shuffled order.",
+            count=len(pairs)))
+        self._load_current()
+        self._sync_button_states()
+        return True
+
+    def _end_blind(self, *, ask=None) -> bool:
+        """Unblind, after asking; record who did it and when; restore the order.
+
+        :param ask: returns whether to go ahead; a Yes/No question when
+            omitted.
+        :returns: whether the session was unblinded.
+        """
+        if self._blind is None:
+            return True
+        from ..i18n import tr
+
+        if ask is None:
+            def ask():
+                """Confirm revealing field paths and recording the unblind event."""
+                return self._confirm(
+                    tr("Unblind?"),
+                    tr("Unblinding shows every field's file name and folder "
+                       "again, and the run journal records who unblinded and "
+                       "when. An analysis lock on this folder treats any "
+                       "later change as post-hoc. Unblind now?"))
+        if not ask():
+            return False
+        from ...run_journal import unblind
+
+        unblind(self._blind["key_id"], reason="make_masks")
+        self._restore_blind_order()
+        self._load_current()
+        return True
+
+    def _leave_blind_unopened(self, reason: str) -> None:
+        """End a blinded session without unblinding it, and log that it ended.
+
+        :param reason: why it ended, kept in the key's log.
+        """
+        if self._blind is None:
+            return
+        from ...run_journal import _close_blinding
+
+        _close_blinding(self._blind["key_id"], reason=reason)
+        self._restore_blind_order()
+
+    def _blind_lock_rois(self, on: bool) -> None:
+        """Disable the ROIs menu while blinded, and give it back afterwards.
+
+        Its exports are named after the field (``<stem>.geojson``,
+        ``<stem>_RoiSet.zip``) and carry the image's file name inside, and
+        its file pickers open in the source folder, so each would show the
+        name blinding hides.
+
+        :param on: true when blinding starts.
+        """
+        button = getattr(self, "_btn_rois", None)
+        if button is None:
+            return
+        if on:
+            button.setProperty("_spacr_blind_was", button.isEnabled())
+            button.setEnabled(False)
+        elif button.property("_spacr_blind_was") is not None:
+            button.setEnabled(bool(button.property("_spacr_blind_was")))
+            button.setProperty("_spacr_blind_was", None)
+
+    def _restore_blind_order(self) -> None:
+        """Put the fields back in their own order and show their names again.
+
+        A field made while blinded (a recrop) follows the field it came
+        after. The field on screen stays on screen.
+        """
+        original = {path: index for index, path
+                    in enumerate(self._blind["original"])}
+        self._blind = None
+        self._console_section.setVisible(bool(
+            self._console_section.property("_spacr_blind_visible")))
+        self._console_section.setProperty("_spacr_blind_visible", None)
+        self._blind_lock_rois(False)
+        self._set_blind_checked(False)
+        pairs = self._field_pairs()
+        current = (pairs[self._current_index]
+                   if 0 <= self._current_index < len(pairs) else None)
+        keyed = []
+        last = -1
+        for seq, (folder, name) in enumerate(pairs):
+            at = original.get(os.path.abspath(os.path.join(folder, name)))
+            if at is not None:
+                last = at
+                keyed.append(((at, 0, seq), (folder, name)))
+            else:
+                keyed.append(((last, 1, seq), (folder, name)))
+        restored = [pair for _key, pair in sorted(keyed)]
+        self._set_field_pairs(restored)
+        if current is not None:
+            self._current_index = restored.index(current)
+        if self._queue is not None:
+            self._src_label.setText(
+                f"{self._queue.folder}  --  {len(restored)} to curate this "
+                f"session, {self._queue.order_phrase}")
+        elif self._folder:
+            self._src_label.setText(
+                f"{self._folder}  —  {len(restored)} images")
+
+    def _roi_object_type(self) -> str:
+        """The object type the masks of this folder are exported as.
+
+        A masks folder named for its objects -- ``cell_mask_stack``,
+        ``nucleus_masks`` -- gives that name; anything else gives
+        :data:`spacr.mask_io.DEFAULT_OBJECT_TYPE`.
+
+        :returns: the object type.
+        """
+        from ...mask_io import DEFAULT_OBJECT_TYPE
+
+        folder = engine.masks_folder(self._folder or "", self._masks_dir)
+        name = os.path.basename(os.path.normpath(folder))
+        match = re.match(r"^(.+?)_masks?(?:_stack)?$", name)
+        return match.group(1) if match else DEFAULT_OBJECT_TYPE
+
+    def _roi_fields(self) -> List[tuple]:
+        """Every field of the folder or queue, as ``(index, folder, name)``.
+
+        :returns: the fields, in queue order.
+        """
+        return [(i, self._field_folders[i] if self._field_folders
+                 else self._folder, name)
+                for i, name in enumerate(self._image_files or [])]
+
+    def _roi_field_labels(self, index: int, folder: str, name: str):
+        """The labels of one field: on screen for the current one, else saved.
+
+        :param index: the field's place in the queue.
+        :param folder: the folder the field lies in.
+        :param name: the field's image file name.
+        :returns: the label mask; zeros for a field with no saved mask.
+        """
+        if index == self._current_index and self._canvas.mask is not None:
+            return np.array(self._canvas.mask, copy=True)
+        _image, mask = engine.load_image_and_mask(folder, name,
+                                                  **self._layout_kwargs())
+        return mask
+
+    def export_field_rois(self, path: str, fmt: Optional[str] = None) -> str:
+        """Write the mask on screen as QuPath GeoJSON, a RoiSet or COCO JSON.
+
+        :param path: the file to write.
+        :param fmt: ``"geojson"``, ``"imagej"`` or ``"coco"``; default from
+            the suffix of ``path``.
+        :returns: the path written, or ``""`` when no field is open.
+        """
+        from ...mask_io import export_rois
+
+        if not self._image_files or self._canvas.mask is None:
+            return ""
+        name = self._image_files[self._current_index]
+        written = export_rois(self._canvas.mask, path, fmt,
+                              object_type=self._roi_object_type(),
+                              file_name=name)
+        return str(written)
+
+    def export_all_rois(self, target: str, fmt: str) -> List[str]:
+        """Write every field's mask as ROIs.
+
+        GeoJSON and ImageJ are one file per field in the folder ``target``
+        (``<stem>.geojson``, ``<stem>_RoiSet.zip``), the way QuPath and Fiji
+        open them beside the image; COCO is one dataset file, ``target``,
+        holding every field. The field on screen is exported as it is on
+        screen; the others as saved. Fields without objects are left out.
+
+        :param target: the folder (GeoJSON, ImageJ) or file (COCO).
+        :param fmt: ``"geojson"``, ``"imagej"`` or ``"coco"``.
+        :returns: the files written.
+        """
+        from ... import mask_io
+
+        fmt = mask_io.roi_format(target, fmt)
+        kind = self._roi_object_type()
+        written: List[str] = []
+        dataset = None
+        for index, folder, name in self._roi_fields():
+            labels = self._roi_field_labels(index, folder, name)
+            if labels is None or not np.any(labels):
+                continue
+            stem = os.path.splitext(os.path.basename(name))[0]
+            if fmt == "coco":
+                dataset = mask_io.masks_to_coco(labels, file_name=name,
+                                                object_type=kind,
+                                                dataset=dataset)
+                continue
+            suffix = ".geojson" if fmt == "geojson" else "_RoiSet.zip"
+            out = mask_io.export_rois(labels, os.path.join(target, stem + suffix),
+                                      fmt, object_type=kind, file_name=name)
+            written.append(str(out))
+        if fmt == "coco" and dataset is not None:
+            import json
+
+            os.makedirs(os.path.dirname(os.path.abspath(target)), exist_ok=True)
+            with open(target, "w", encoding="utf-8") as handle:
+                json.dump(dataset, handle)
+            written.append(str(target))
+        return written
+
+    def _pick_roi_type(self, masks: dict, object_type: Optional[str]):
+        """The one object type an import puts on the single-layer canvas.
+
+        :param masks: the imported masks by object type.
+        :param object_type: the type asked for, or ``None``.
+        :returns: the chosen type, or ``None`` when the user cancelled.
+        """
+        from ..i18n import tr
+
+        if object_type in masks:
+            return object_type
+        names = list(masks)
+        if self._roi_object_type() in masks:
+            names.remove(self._roi_object_type())
+            names.insert(0, self._roi_object_type())
+        if len(names) == 1 or is_headless() or object_type is not None:
+            return names[0]
+        chosen, accepted = QInputDialog.getItem(
+            self, tr("Import ROIs"),
+            tr("The file holds several object types. Which one goes on "
+               "this field?"), names, 0, False)
+        return chosen if accepted else None
+
+    def import_field_rois(self, path: str, fmt: Optional[str] = None,
+                          object_type: Optional[str] = None) -> int:
+        """Replace the mask on screen with the objects of a ROI file.
+
+        One edit on the undo stack and in the curation ledger; nothing is
+        written until the mask is saved. A file of several object types puts
+        ``object_type`` on the canvas, else the folder's own type, else the
+        user's choice.
+
+        :param path: the GeoJSON, RoiSet or COCO file.
+        :param fmt: its format; default from the file.
+        :param object_type: the object type to take.
+        :returns: the number of objects on screen afterwards, or ``-1`` when
+            nothing was imported.
+        """
+        from ...mask_io import import_rois
+
+        if not self._image_files or self._canvas.mask is None:
+            return -1
+        current = self._canvas.mask
+        name = self._image_files[self._current_index]
+        masks = import_rois(path, current.shape, fmt, file_name=name)
+        if not masks:
+            return -1
+        kind = self._pick_roi_type(masks, object_type)
+        if kind is None:
+            return -1
+        labels = masks[kind]
+        dtype = current.dtype
+        if labels.size and int(labels.max()) > np.iinfo(dtype).max:
+            dtype = labels.dtype
+        new = labels.astype(dtype, copy=False)
+        self._apply_op(lambda _mask: new, "import_rois",
+                       source=os.path.basename(str(path)), object_type=kind)
+        return int(np.count_nonzero(np.unique(new)))
+
+    def _roi_file_for(self, source: str, fmt: str, name: str) -> str:
+        """The file in ``source`` that holds one field's ROIs, or ``""``.
+
+        :param source: the folder the ROI files are in.
+        :param fmt: ``"geojson"`` or ``"imagej"``.
+        :param name: the field's image file name.
+        :returns: the first of the usual names that exists.
+        """
+        stem = os.path.splitext(os.path.basename(name))[0]
+        suffixes = ((".geojson", ".json") if fmt == "geojson"
+                    else ("_RoiSet.zip", ".zip", ".roi"))
+        for suffix in suffixes:
+            candidate = os.path.join(source, stem + suffix)
+            if os.path.isfile(candidate):
+                return candidate
+        return ""
+
+    def import_all_rois(self, source: str, fmt: str,
+                        object_type: Optional[str] = None) -> List[str]:
+        """Import ROIs for every field that has them and save them as masks.
+
+        GeoJSON and ImageJ files are found in the folder ``source`` by the
+        field's stem (``<stem>.geojson``, ``<stem>_RoiSet.zip`` ...); a COCO
+        ``source`` is one file matched on ``file_name``. Each matched field's
+        mask is written as :meth:`_on_save` writes it; the field on screen is
+        replaced on the canvas instead, as one undoable edit, and saved with
+        the rest when the user saves it.
+
+        :param source: the folder (GeoJSON, ImageJ) or file (COCO).
+        :param fmt: ``"geojson"``, ``"imagej"`` or ``"coco"``.
+        :param object_type: the object type to take from files of several;
+            default the folder's own type, else the first in the file.
+        :returns: the names of the fields that were given masks.
+        """
+        from ... import mask_io
+
+        fmt = mask_io.roi_format(source, fmt)
+        coco_names = mask_io.coco_image_names(source) if fmt == "coco" else []
+        done: List[str] = []
+        for index, folder, name in self._roi_fields():
+            if fmt == "coco":
+                base = os.path.basename(name)
+                stems = {os.path.splitext(os.path.basename(n))[0]
+                         for n in coco_names}
+                if (base not in {os.path.basename(n) for n in coco_names}
+                        and os.path.splitext(base)[0] not in stems):
+                    continue
+                path = source
+            else:
+                path = self._roi_file_for(source, fmt, name)
+                if not path:
+                    continue
+            if index == self._current_index and self._canvas.mask is not None:
+                if self.import_field_rois(path, fmt, object_type
+                                          or self._roi_object_type()) >= 0:
+                    done.append(name)
+                continue
+            _image, mask = engine.load_image_and_mask(folder, name,
+                                                      **self._layout_kwargs())
+            masks = mask_io.import_rois(path, mask.shape, fmt, file_name=name)
+            if not masks:
+                continue
+            wanted = object_type or self._roi_object_type()
+            labels = masks.get(wanted, next(iter(masks.values())))
+            engine.save_mask(folder, name, labels, **self._layout_kwargs())
+            done.append(name)
+        return done
+
+    def _roi_filter(self, fmt: str) -> str:
+        """The file-dialog filter for one ROI format.
+
+        :param fmt: ``"geojson"``, ``"imagej"`` or ``"coco"``.
+        :returns: the filter text.
+        """
+        from ..i18n import tr
+
+        return {"geojson": tr("QuPath GeoJSON (*.geojson)"),
+                "imagej": tr("ImageJ RoiSet (*.zip)"),
+                "coco": tr("COCO JSON (*.json)")}[fmt]
+
+    def _on_export_field_rois(self, fmt: str) -> None:
+        """Ask where, then export the field on screen."""
+        from ...mask_io import roi_suffix
+        from ..i18n import tr
+
+        if not self._image_files:
+            return
+        name = self._image_files[self._current_index]
+        stem = os.path.splitext(os.path.basename(name))[0]
+        default = stem + ("_RoiSet.zip" if fmt == "imagej" else roi_suffix(fmt))
+        path, _filter = QFileDialog.getSaveFileName(
+            self, tr("Export ROIs"),
+            os.path.join(self._folder or os.getcwd(), default),
+            self._roi_filter(fmt))
+        if not path:
+            return
+        try:
+            written = self.export_field_rois(path, fmt)
+        except (ImportError, ValueError, OSError) as exc:
+            self._warn(tr("Export failed"), str(exc))
+            return
+        self._status_label.setText(tr("ROIs exported → {path}", path=written))
+
+    def _on_export_all_rois(self, fmt: str) -> None:
+        """Ask where, then export every field."""
+        from ..i18n import tr
+
+        if not self._image_files:
+            return
+        start = self._folder or os.getcwd()
+        if fmt == "coco":
+            target, _filter = QFileDialog.getSaveFileName(
+                self, tr("Export ROIs"),
+                os.path.join(start, "annotations_coco.json"),
+                self._roi_filter(fmt))
+        else:
+            target = QFileDialog.getExistingDirectory(
+                self, tr("Folder for the ROI files"), start)
+        if not target:
+            return
+        try:
+            written = self.export_all_rois(target, fmt)
+        except (ImportError, ValueError, OSError) as exc:
+            self._warn(tr("Export failed"), str(exc))
+            return
+        self._status_label.setText(tr(
+            "{n} ROI file(s) written → {path}", n=len(written), path=target))
+
+    def _on_import_field_rois(self) -> None:
+        """Ask for a ROI file, then import it into the field on screen."""
+        from ..i18n import tr
+
+        if not self._image_files:
+            return
+        filters = ";;".join([
+            tr("ROI files (*.geojson *.json *.zip *.roi)"),
+            self._roi_filter("geojson"), self._roi_filter("imagej"),
+            self._roi_filter("coco")])
+        path, _filter = QFileDialog.getOpenFileName(
+            self, tr("Import ROIs"), self._folder or os.getcwd(), filters)
+        if not path:
+            return
+        try:
+            count = self.import_field_rois(path)
+        except (ImportError, ValueError, OSError, KeyError) as exc:
+            self._warn(tr("Import failed"), str(exc))
+            return
+        if count >= 0:
+            self._status_label.setText(tr(
+                "{n} object(s) imported from {path}; save to keep them",
+                n=count, path=os.path.basename(path)))
+
+    def _on_import_all_rois(self, fmt: str) -> None:
+        """Ask for the ROI files, confirm, then import them for every field."""
+        from ..i18n import tr
+
+        if not self._image_files:
+            return
+        start = self._folder or os.getcwd()
+        if fmt == "coco":
+            source, _filter = QFileDialog.getOpenFileName(
+                self, tr("Import ROIs"), start, self._roi_filter(fmt))
+        else:
+            source = QFileDialog.getExistingDirectory(
+                self, tr("Folder of ROI files"), start)
+        if not source or not self._confirm(
+                tr("Import ROIs"),
+                tr("Replace the saved mask of every field that has ROIs in "
+                   "{path}?", path=os.path.basename(source))):
+            return
+        try:
+            done = self.import_all_rois(source, fmt)
+        except (ImportError, ValueError, OSError, KeyError) as exc:
+            self._warn(tr("Import failed"), str(exc))
+            return
+        self._status_label.setText(tr(
+            "ROIs imported for {n} field(s)", n=len(done)))
 
     def save_curated_mask(self) -> str:
         """Write the labels Curate corrected back to the mask file.
@@ -7372,14 +10266,21 @@ class MakeMasksScreen(QWidget):
         method. Actions that are not modes come in through
         :meth:`add_toolbar_action` and land in the same row.
 
-        The row ends with the Magnifier and, directly right of it, the
-        settings toggle, which is checkable because it reports a state
-        rather than firing an action: it stays lit for as long as the
-        settings are on screen. A stretch after the toggle keeps the row
-        against the left edge, above the settings it hides.
+        The Magnifier and, directly right of it, the settings toggle are
+        PINNED at the right end, outside the part that scrolls. The
+        toggle is checkable because it reports a state rather than firing
+        an action: it stays lit for as long as the settings are on
+        screen. The tools wider than the window scroll; the pair does
+        not, so the way back to the settings is never scrolled out of
+        sight. A
+        stretch after the last tool keeps the tools against the left
+        edge, above the settings they sit over.
+
+        :returns: The strip that holds the scrolling tools and the pinned
+            pair, kept as ``self._tool_row``.
         """
         bar = QWidget()
-        bar.setObjectName("MakeMasksToolRow")
+        bar.setObjectName("MakeMasksToolTools")
         row = QHBoxLayout(bar)
         row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(SPACING["sm"])
@@ -7433,18 +10334,6 @@ class MakeMasksScreen(QWidget):
         self._btn_redo.clicked.connect(self._on_redo)
         row.addWidget(self._btn_redo)
 
-        self._btn_features = QPushButton("Features")
-        self._btn_features.setIcon(iconset.icon("run"))
-        self._btn_features.setMinimumHeight(32)
-        self._btn_features.setCursor(Qt.PointingHandCursor)
-        self._btn_features.setToolTip(
-            "Measure the masks you drew. Opens a table where each row is a "
-            "field and each column is a channel or a mask type; the run "
-            "goes through the Measure module itself, so the folders and the "
-            "measurements database are the ones a Measure run produces.")
-        self._btn_features.clicked.connect(self._on_open_features)
-        row.addWidget(self._btn_features)
-
         self._btn_settings = QPushButton("Settings")
         self._btn_settings.setIcon(iconset.icon("settings"))
         self._btn_settings.setCheckable(True)
@@ -7457,8 +10346,16 @@ class MakeMasksScreen(QWidget):
             "up.")
         self._btn_settings.setChecked(True)
         self._btn_settings.toggled.connect(self._on_toggle_settings)
-        row.addWidget(self._btn_settings)
         row.addStretch(1)
+
+        pinned = QWidget()
+        pinned.setObjectName("MakeMasksToolPin")
+        pin = QHBoxLayout(pinned)
+        pin.setContentsMargins(SPACING["sm"], 0, 0, 0)
+        pin.setSpacing(SPACING["sm"])
+        pin.addWidget(self._btn_settings)
+        self._tool_pin_layout = pin
+        self._tool_pin = pinned
 
         scroller = QScrollArea()
         scroller.setObjectName("MakeMasksToolScroll")
@@ -7471,22 +10368,17 @@ class MakeMasksScreen(QWidget):
             bar.sizeHint().height()
             + scroller.horizontalScrollBar().sizeHint().height())
         scroller.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-        return scroller
+        self._tool_scroll = scroller
 
-    def _on_open_features(self, _checked: bool = False):
-        """Open the measurement-input window on the folder being drawn in.
-
-        The whole of this screen's part in measuring: the window, the
-        table and the run live in
-        :mod:`spacr.qt.screens.measure_inputs`, so Make Masks holds a button
-        and a folder and nothing else about measuring.
-
-        :param _checked: Qt's toggled flag, unused.
-        :returns: the window, so a test can drive it.
-        """
-        from .measure_inputs import open_measure_inputs
-
-        return open_measure_inputs(self, folder=self._folder or None)
+        strip = QWidget()
+        strip.setObjectName("MakeMasksToolRow")
+        line = QHBoxLayout(strip)
+        line.setContentsMargins(0, 0, 0, 0)
+        line.setSpacing(0)
+        line.addWidget(scroller, 1)
+        line.addWidget(pinned, 0, Qt.AlignTop)
+        strip.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        return strip
 
     def _curation_paths(self):
         """The field being judged and the mask it is judged with.
@@ -7526,13 +10418,13 @@ class MakeMasksScreen(QWidget):
         except OSError as exc:
             LOG.warning("Could not record the curation verdict: %s", exc)
             self._warn("Verdict not recorded",
-                       f"{os.path.basename(image_path)} could not be marked: "
-                       f"{exc}")
+                       f"{self._blind_label(image_path)} could not be "
+                       f"marked: {exc}")
             self._show_curation_verdict(
                 engine.curation_verdict(self._folder, image_path))
             return None
         self._show_curation_verdict(keep)
-        self._advance_after_verdict(keep, os.path.basename(image_path))
+        self._advance_after_verdict(keep, self._blind_label(image_path))
         return written
 
     def _advance_after_verdict(self, keep: bool, judged: str) -> bool:
@@ -7563,7 +10455,8 @@ class MakeMasksScreen(QWidget):
         self._on_next()
         moved = self._current_index != was
         if moved:
-            now = os.path.basename(self._image_files[self._current_index])
+            now = self._blind_label(os.path.join(
+                self._folder or "", self._image_files[self._current_index]))
             self._status_label.setText(f"{judged} {said}  —  now on {now}")
         elif (self._image_files
                 and self._current_index >= len(self._image_files) - 1):
@@ -7607,18 +10500,16 @@ class MakeMasksScreen(QWidget):
     def add_toolbar_action(self, button: QPushButton) -> QPushButton:
         """Insert a non-mode action into the editor toolbar.
 
-        The button is placed with the other actions, before the Magnifier and
-        the settings toggle, so that pair stays together at the end of the
-        row whatever is added after them.
+        The button is placed after the other actions in the part of the row
+        that scrolls. The Magnifier and the settings toggle are pinned
+        outside it, so nothing added here can come between them or push
+        them out of sight.
 
         :param button: Action button to insert.
         :returns: The same button.
         """
         row = self._tool_row_layout
-        anchor = getattr(self, "_btn_magnifier", None)
-        if anchor is None or row.indexOf(anchor) < 0:
-            anchor = self._btn_settings
-        row.insertWidget(row.indexOf(anchor), button)
+        row.insertWidget(row.count() - 1, button)
         return button
 
     def _sync_tool_row_visibility(self, *_args) -> None:
@@ -7907,6 +10798,10 @@ class MakeMasksScreen(QWidget):
 
         norm_card = self._settings_category("Display")
         norm_form = QFormLayout()
+        from ..mask_thumbnail_quality import quality_combo
+
+        self._thumbnail_quality = quality_combo(self)
+        norm_form.addRow(tr("Thumbnail quality"), self._thumbnail_quality)
         self._norm_lo = QDoubleSpinBox()
         self._norm_lo.setDecimals(PERCENTILE_DECIMALS)
         self._norm_lo.setRange(0.0, 100.0)
@@ -7979,45 +10874,23 @@ class MakeMasksScreen(QWidget):
 
         filter_card = self._settings_category(
             "Filter",
-            "Every bound is off at 0. Filter applies the ones that are on, "
-            "and so does opening a field; each object removed is listed "
-            "below.",
+            tr("Add a filter for any regionprop scikit-image measures. "
+               "The list applies as you edit it and when a field opens; "
+               "each object it hides is listed below, and removing a row "
+               "brings back what it hid."),
         )
-        filter_form = QFormLayout()
-        self._filter_min_area = QSpinBox()
-        self._filter_min_area.setRange(0, 100_000_000)
-        self._filter_min_area.setToolTip(
-            "Drop objects smaller than this many pixels. 0 = no minimum.")
-        self._filter_max_area = QSpinBox()
-        self._filter_max_area.setRange(0, 100_000_000)
-        self._filter_max_area.setToolTip(
-            "Drop objects larger than this many pixels. 0 = no maximum.")
-        self._filter_min_int = QDoubleSpinBox()
-        self._filter_min_int.setDecimals(2)
-        self._filter_min_int.setRange(0.0, 65535.0)
-        self._filter_min_int.setSingleStep(1.0)
-        self._filter_min_int.setToolTip(
-            "Drop objects whose MEAN value on the raw image is below this. "
-            "Measured on the raw data, not on the contrast-stretched "
-            "display, so changing the percentiles above cannot move it. "
-            "0 = no minimum.")
-        self._filter_max_int = QDoubleSpinBox()
-        self._filter_max_int.setDecimals(2)
-        self._filter_max_int.setRange(0.0, 65535.0)
-        self._filter_max_int.setSingleStep(1.0)
-        self._filter_max_int.setToolTip(
-            "Drop objects whose MEAN raw value is above this. 0 = no maximum.")
-        filter_form.addRow("Min area (px)", self._filter_min_area)
-        filter_form.addRow("Max area (px)", self._filter_max_area)
-        filter_form.addRow("Min mean intensity", self._filter_min_int)
-        filter_form.addRow("Max mean intensity", self._filter_max_int)
-        filter_card.body_layout.addLayout(filter_form)
+        self._filter_list = ObjectFilterList()
+        self._filter_list.changed.connect(self._on_filters_changed)
+        self._filter_list.row_added.connect(self._on_filter_row_added)
+        self._filter_add = self._filter_list.add_button
+        self._filter_property = self._filter_list.property_box
+        filter_card.body_layout.addWidget(self._filter_list)
         self._btn_filter = QPushButton("Filter")
         self._btn_filter.setCursor(Qt.PointingHandCursor)
-        self._btn_filter.setToolTip(
-            "Apply the bounds that are on to the mask on screen. Every "
-            "object it removes is listed below it, with the area and the "
-            "mean intensity it was judged on. One undo step.")
+        self._btn_filter.setToolTip(tr(
+            "Apply the filter list to the mask on screen again. Every "
+            "object it hides is listed below it, with the value that hid "
+            "it. One undo step."))
         self._btn_filter.clicked.connect(self._on_apply_filter)
         filter_card.body_layout.addWidget(self._btn_filter)
         self._filter_log = QPlainTextEdit()
@@ -8026,10 +10899,11 @@ class MakeMasksScreen(QWidget):
         self._filter_log.setLineWrapMode(QPlainTextEdit.NoWrap)
         self._filter_log.setFixedHeight(
             self._filter_log.fontMetrics().lineSpacing() * FILTER_LOG_ROWS + 12)
-        self._filter_log.setToolTip(
-            "What the last filter removed, one row per object: its id, the "
-            "area and mean intensity it was judged on, and the bound that "
-            "removed it. The ids are the ones the hover readout shows.")
+        self._filter_log.setToolTip(tr(
+            "What the filter list hides, one row per object: its id, its "
+            "area and mean intensity, and each bound that hid it with the "
+            "value it was judged on. The ids are the ones the hover readout "
+            "shows."))
         self._set_filter_log([])
         filter_card.body_layout.addWidget(self._filter_log)
         col.addWidget(filter_card)
@@ -8057,6 +10931,7 @@ class MakeMasksScreen(QWidget):
             btn.setToolTip(hint)
             btn.clicked.connect(cb)
             ops_col.addWidget(btn)
+        ops_col.addWidget(self._build_uncertainty_setting())
         remove_row = QHBoxLayout()
         remove_row.setSpacing(SPACING["sm"])
         self._min_area = QSpinBox()
@@ -8150,11 +11025,16 @@ class MakeMasksScreen(QWidget):
         obj_card.body_layout.addWidget(obj_ops_wrap)
         col.addWidget(obj_card)
 
+        from .. import screens as _screens_package
+
+        _screens_package._breathe_while_a_window_opens()
         self._methods_card = self._build_detection_card()
         col.addWidget(self._methods_card)
         self._sync_method_controls()
+        _screens_package._breathe_while_a_window_opens()
         col.addWidget(self._build_enhance_card())
         col.addWidget(self._build_magnifier_card())
+        col.addWidget(self._build_prompt_card())
 
         col.addStretch(1)
         return wrap
@@ -8599,6 +11479,9 @@ class MakeMasksScreen(QWidget):
             return None
         if kind != "filter":
             self._set_filter_log([])
+        if kind in ("undo", "redo"):
+            self._filter_baseline = None
+            self._filter_shown = None
         if self._log is None:
             return None
         if getattr(self._canvas, 'preserve_ids', False):
@@ -8731,43 +11614,55 @@ class MakeMasksScreen(QWidget):
         """
         return self._diff(self._history.head(), after)
 
-    def _filter_bounds(self) -> dict:
-        """The four filter bounds as :func:`mask_engine.filter_objects` wants."""
-        return {
-            "min_area": int(self._filter_min_area.value()),
-            "max_area": int(self._filter_max_area.value()),
-            "min_intensity": float(self._filter_min_int.value()),
-            "max_intensity": float(self._filter_max_int.value()),
-        }
+    def _filter_rules(self) -> list:
+        """The filter list as the rows say, serialised for the engine."""
+        return self._filter_list.filters()
 
-    def _filter_removal_line(self, removal, bounds: dict) -> str:
-        """One removed object as the Filter category's ledger prints it.
+    @staticmethod
+    def _filter_number(name: str, value: float) -> str:
+        """A bound or a measurement, as the ledger prints it."""
+        value = float(value)
+        if name.startswith("intensity_"):
+            return f"{value:.2f}"
+        if value.is_integer():
+            return f"{int(value)}"
+        return f"{value:.4g}"
 
-        The line reads like "object 22 with area x and intensity y was
-        removed by minimum intensity", with the bound's own number in it: a row saying only which bound removed
-        an object leaves the reader looking for the box it came from.
+    def _filter_removal_line(self, removal) -> str:
+        """One hidden object as the Filter category's ledger prints it.
+
+        The line reads like "Object 22 with area 31 px and intensity 12.50
+        was removed by minimum area 40", with each bound the object fell
+        outside and the bound's own number: a row saying only which filter
+        removed an object leaves the reader looking for the row it came
+        from. A property other than area and mean intensity also gives the
+        object's own value, since that is what the bound judged.
 
         The id is :func:`mask_engine.canonical_labels`' id, which is the id
-        the hover readout showed for the same object, so a user who read an
-        object's numbers off the corner of the image can find it here.
+        the hover readout showed for the same object.
 
-        :param removal: a :class:`mask_engine.FilterRemoval`.
-        :param bounds: the bounds the run used, as :meth:`_filter_bounds`
-            gives them.
+        :param removal: a :class:`mask_engine.ObjectRemoval`.
         """
-        names = {"min_area": "minimum area",
-                  "max_area": "maximum area",
-                  "min_intensity": "minimum intensity",
-                  "max_intensity": "maximum intensity"}
+        from ..i18n import tr
+
+        names = {"area": tr("area"), "intensity_mean": tr("intensity")}
         reasons = []
-        for bound in removal.bounds:
-            value = bounds.get(bound, 0)
-            shown = (f"{int(value)}" if bound.endswith("area")
-                     else f"{float(value):.2f}")
-            reasons.append(f"{names[bound]} {shown}")
-        return (f"Object {removal.label} with area {removal.area} px and "
-                f"intensity {removal.mean_intensity:.2f} was removed by "
-                + " and ".join(reasons))
+        for failed in removal.failed:
+            side = tr("minimum") if failed.side == "min" else tr("maximum")
+            label = names.get(failed.property, failed.property)
+            reason = f"{side} {label} {self._filter_number(failed.property, failed.bound)}"
+            if failed.property not in names:
+                reason += " " + tr("(was {value})", value=self._filter_number(
+                    failed.property, failed.value))
+            reasons.append(reason)
+        area = int(round(removal.values.get("area", 0)))
+        mean = removal.values.get("intensity_mean")
+        head = tr("Object {label} with area {area} px", label=removal.label,
+                  area=area)
+        if mean is not None:
+            head += " " + tr("and intensity {mean}", mean=f"{mean:.2f}")
+        return (head + " " + tr("was removed by") + " "
+                + (" " + tr("and") + " ").join(reasons))
 
     def _set_filter_log(self, lines) -> None:
         """Show ``lines`` in the Filter category's removal ledger.
@@ -8777,64 +11672,128 @@ class MakeMasksScreen(QWidget):
         the last field's rows into the next field would name objects that
         are not there.
         """
+        from ..i18n import tr
+
         self._filter_log.setPlainText("\n".join(str(line) for line in lines))
-        self._filter_log.setPlaceholderText(
-            "Nothing has been removed. Set a bound above and press Filter.")
+        self._filter_log.setPlaceholderText(tr(
+            "Nothing is hidden. Add a filter above and set a bound."))
+
+    def _refresh_filter_properties(self) -> None:
+        """Offer the intensity properties only while an image is open."""
+        self._filter_list.set_intensity_available(
+            self._canvas.image is not None)
+
+    def _on_filter_row_added(self, _widget) -> None:
+        """Give a new filter row the linked help every other control has."""
+        if getattr(self, "_api_tooltip_filter", None) is None:
+            return
+        from ..widgets.make_masks_help import install_make_masks_help
+        install_make_masks_help(self)
+
+    def _on_filters_changed(self) -> None:
+        """Apply the edited filter list live to the field on screen."""
+        if self._canvas.mask is None or self._canvas.image is None:
+            return
+        self.apply_object_filter(on_load=False)
+
+    def _filter_base(self):
+        """The mask the filter list is applied to, with later edits folded in.
+
+        The list HIDES objects rather than deleting them for good: it is
+        applied to the mask as it stood before any filter ran, so removing a
+        row, or loosening a bound, brings back what that row hid. Edits made
+        since the last run (a stroke, a detect, a merge) are carried into
+        that baseline pixel for pixel, so re-applying the list does not
+        undo them. Undo, redo and opening a field start a new baseline from
+        the mask on screen.
+        """
+        mask = self._canvas.mask
+        base = getattr(self, "_filter_baseline", None)
+        shown = getattr(self, "_filter_shown", None)
+        if (base is None or shown is None or base.shape != mask.shape
+                or shown.shape != mask.shape):
+            base = np.array(mask, copy=True)
+        else:
+            edited = shown != mask
+            if edited.any():
+                base = base.copy()
+                base[edited] = mask[edited]
+        self._filter_baseline = base
+        return base
 
     def apply_object_filter(self, *, on_load: bool = False) -> int:
-        """Drop objects outside the size/intensity bounds; return how many.
+        """Apply the filter list to the field on screen; return how many it hides.
 
-        Runs itself when a field loads — a draft segmentation usually
-        arrives with the same class of junk in every field, and clearing it
-        by hand once per field is the work this exists to remove — and again
-        whenever the user asks, since the bounds are tuned by looking at
-        what the last run left behind.
+        Runs itself when a field loads -- a draft segmentation usually
+        arrives with the same class of junk in every field -- whenever the
+        list is edited, and when the user presses Filter.
 
-        The result is one undo step and one ledger entry naming every object
-        it removed, so an automatic edit is as traceable and as reversible
-        as a click.
+        One engine: :func:`mask_engine.apply_filters`, the same one Mask
+        generation's ``object_filters`` setting runs, with one
+        ``regionprops_table`` pass for every property the list names. The
+        result is one undo step and one ledger entry that records the whole
+        list, so the mask's provenance says which filters shaped it.
 
-        Every removal is also written into the Filter category's ledger, one
-        red row each. The rows are cleared at the START of
-        every run, including the run that found nothing and the one that had
-        no field: they describe the mask on screen, and a row left over from
-        the last field names an object that is not there.
+        Every hidden object is written into the Filter category's ledger,
+        one red row each, cleared at the start of every run.
 
-        :param on_load: True when this is the automatic run. It only changes
-            what the status line says and what the ledger entry records; a
-            filter that removed nothing stays quiet on load rather than
-            reporting a non-event over the name of the field just opened.
+        :param on_load: True when this is the automatic run on opening a
+            field. It starts a fresh baseline and keeps a run that hid
+            nothing quiet.
         """
+        from ..i18n import tr
+
         self._set_filter_log([])
+        self._refresh_filter_properties()
+        if on_load:
+            self._filter_baseline = None
+            self._filter_shown = None
         if self._canvas.mask is None or self._canvas.image is None:
             return 0
-        bounds = self._filter_bounds()
-        out, removals = engine.filter_report(
-            self._canvas.mask, self._canvas.image,
-            preserve_ids=getattr(self._canvas, 'preserve_ids', False), **bounds)
+        try:
+            rules = self._filter_rules()
+        except ValueError as error:
+            self._status_label.setText(str(error))
+            return 0
+        if not rules and getattr(self, "_filter_baseline", None) is None:
+            if not on_load:
+                self._status_label.setText(
+                    tr("Object filters: nothing outside the bounds."))
+            return 0
+        base = self._filter_base()
+        try:
+            out, removals = engine.apply_filters(
+                base, self._canvas.image, rules,
+                preserve_ids=getattr(self._canvas, 'preserve_ids', False))
+        except ValueError as error:
+            self._status_label.setText(str(error))
+            return 0
+        if out is base:
+            out = np.array(base, copy=True)
+        changed = int(np.count_nonzero(self._canvas.mask != out))
+        self._set_filter_log(
+            self._filter_removal_line(removal) for removal in removals)
+        if changed:
+            dropped = [removal.label for removal in removals]
+            self._canvas.mask = out
+            self._canvas.refresh()
+            self._record("filter", dropped, changed, n_objects=len(dropped),
+                         automatic=bool(on_load), filters=rules)
+            self._history.push(out)
+            self._refresh_history_buttons()
+        self._filter_shown = np.array(self._canvas.mask, copy=True)
         if not removals:
             if not on_load:
                 self._status_label.setText(
-                    "Size/intensity filter: nothing outside the bounds.")
+                    tr("Object filters: nothing outside the bounds."))
             return 0
-        dropped = [removal.label for removal in removals]
-        changed = int(np.count_nonzero(self._canvas.mask != out))
-        self._canvas.mask = out
-        self._canvas.refresh()
-        self._set_filter_log(
-            self._filter_removal_line(removal, bounds) for removal in removals)
-        self._record("filter", dropped, changed, n_objects=len(dropped),
-                      automatic=bool(on_load), **bounds)
-        self._history.push(out)
-        self._refresh_history_buttons()
-        self._status_label.setText(
-            f"Size/intensity filter removed {len(dropped)} object(s) — "
-            "Ctrl+Z to undo"
-        )
-        return len(dropped)
+        self._status_label.setText(tr(
+            "Object filter removed {count} object(s) — Ctrl+Z to undo",
+            count=len(removals)))
+        return len(removals)
 
     def _on_apply_filter(self):
-        """Apply the object filter to the mask on screen."""
+        """Apply the object filter list to the mask on screen."""
         self.apply_object_filter(on_load=False)
 
     def _cpu_detect(self, image, method: str, otsu: dict) -> tuple:
@@ -9088,21 +12047,71 @@ class MakeMasksScreen(QWidget):
         it. It hides independently as an EDGE pane of its own splitter. Its handle
         folds it to the right edge and drags it wider, and the image takes
         the room it leaves.
+
+        THE CONSOLE IS UNDER THE LIST (item 507), in the same right-hand
+        column, where it was asked for: "to the right of the image and
+        below the hot key map". The column is a vertical splitter of the
+        list and the console's :class:`FoldSection`, so the console folds to
+        its heading at the bottom of the column and drags taller, and the
+        whole column still folds away as the one "Shortcuts" pane.
         """
         from ..widgets.collapsible_splitter import CollapsibleSplitter, EDGE
 
         pane = CollapsibleSplitter(Qt.Horizontal,
                                    persist_key="make_masks::views")
         pane.setObjectName("MakeMasksViewPane")
-        self._shortcut_panel = self._build_shortcut_panel()
-        pane.add_pane(self._view_tabs, "Views", stretch=1, extent=900)
-        pane.add_pane(self._shortcut_panel, "Shortcuts", mode=EDGE, stretch=0,
+        self._shortcut_card = self._build_shortcut_panel()
+        column = CollapsibleSplitter(Qt.Vertical,
+                                     persist_key="make_masks::side")
+        column.setObjectName("MakeMasksSideColumn")
+        column.add_pane(self._shortcut_card, "Shortcut list", stretch=1)
+        self._console_section = column.add_section(
+            self._masks_console, "Console", persist_key="make_masks/Console",
+            stretch=1, extent=240, minimum=120)
+        self._shortcut_panel = column
+        # Under the image: the status line, filled in by _build_ui.
+        views = QWidget()
+        views.setObjectName("MakeMasksViewsColumn")
+        views_col = QVBoxLayout(views)
+        views_col.setContentsMargins(0, 0, 0, 0)
+        views_col.setSpacing(SPACING["sm"])
+        views_col.addWidget(self._view_tabs, 1)
+        self._image_nav_row = QHBoxLayout()
+        self._image_nav_row.setContentsMargins(0, 0, 0, 0)
+        self._image_nav_row.setSpacing(SPACING["sm"])
+        views_col.addLayout(self._image_nav_row)
+        pane.add_pane(views, "Views", stretch=1, extent=900)
+        pane.add_pane(column, "Shortcuts", mode=EDGE, stretch=0,
                       extent=SHORTCUTS_WIDTH, minimum=SHORTCUTS_WIDTH,
                       fold_key="make_masks/Shortcuts",
                       hint="or drag to make the shortcut list wider")
-        #: The splitter's right-hand child: the views and the shortcut list.
         self._view_pane = pane
         return pane
+
+    def _report(self, text: str, kind: str = "info") -> None:
+        """Say ``text`` in the console and show it in the corner.
+
+        :param text: the line.
+        :param kind: ``progress``, ``stream``, ``info``, ``warning`` or
+            ``error``; see :meth:`_MasksConsole.post`. A ``stream`` line (an
+            install's own output) goes to the console only, which throttles
+            it; the corner keeps the task's own words.
+        """
+        text = self._blind_text(text)
+        self._masks_console.post(text, kind)
+        if kind != "stream":
+            self._status_label.set_quietly(text)
+
+    def _report_status(self, text: str) -> None:
+        """Copy a new corner text into the console.
+
+        A text that ends in an ellipsis says that something is under way,
+        and rewrites the console's one progress line; anything else is a
+        line of the scrollback and ends that progress.
+        """
+        stripped = str(text or "").rstrip()
+        running = stripped.endswith(("…", "..."))
+        self._masks_console.post(stripped, "progress" if running else "info")
 
     def _build_shortcut_panel(self) -> QWidget:
         """The gestures, one terse line each.
@@ -9236,8 +12245,9 @@ class MakeMasksScreen(QWidget):
             lambda _checked=False: self._choose_cellpose_model_from_zoo())
         model_row_layout.addWidget(self._cp_model_zoo_btn)
         form.addRow("Model", model_row)
-        self._cp_download_bar = QProgressBar()
-        self._cp_download_bar.setTextVisible(True)
+        from ..widgets.eliding import ProgressLine
+
+        self._cp_download_bar = ProgressLine(count_below=True)
         self._cp_download_bar.hide()
         form.addRow(self._cp_download_bar)
 
@@ -9794,6 +12804,8 @@ class MakeMasksScreen(QWidget):
         if _cellpose_installed():
             self._mag_mode.addItem("Cellpose", "cellpose")
         self._mag_uninstalled = set()
+        _offer_cellpose_dino_modes()
+        _offer_prefixed_modes()
         for mode, (_backend, label) in _MAGNIFIER_BACKENDS.items():
             self._mag_mode.addItem(label, mode)
         self._resync_magnifier_modes()
@@ -9825,6 +12837,7 @@ class MakeMasksScreen(QWidget):
         }
         for group in self._method_groups.values():
             card.body_layout.addWidget(group)
+        card.body_layout.addWidget(self._build_uncertainty_ensemble_setting())
         return card
 
     def _mode_guidance(self, mode: str) -> str:
@@ -10152,9 +13165,11 @@ class MakeMasksScreen(QWidget):
         switch for it on this card.
 
         Apply enables the configured chain for image display and detection;
-        Compare previews it independently. This configures Make Masks only.
-        The Mask module uses its own preprocessing settings. Training and
-        inference on enhanced images require matching preprocessing there.
+        Compare previews it independently. "Use in Mask generation" writes
+        the configured chain and PSF into the Mask module's settings as the
+        ``enhance_*`` and ``psf_*`` keys (:meth:`mask_settings`), so a plate
+        run applies the steps tuned here; see
+        :func:`spacr.psf_pipeline.prepare_chain`.
         """
         from ..i18n import tr
         from ..widgets.psf_controls import _PSFControls
@@ -10216,9 +13231,10 @@ class MakeMasksScreen(QWidget):
             "illumination that changes over a short distance.")
         form.addRow("Background scale", self._enh_background_scale)
 
-        self._psf_controls = _PSFControls()
+        self._psf_controls = _PSFControls(image_paths=self._current_image_paths)
         form.addRow(self._psf_controls)
         self._restoration_controls = _RestorationControls()
+        self._restoration_controls.said.connect(self._report)
         form.addRow(self._restoration_controls)
 
         self._enh_denoise = QComboBox()
@@ -10227,6 +13243,7 @@ class MakeMasksScreen(QWidget):
         self._enh_denoise.addItem("Median", "median")
         self._enh_denoise.addItem("Bilateral", "bilateral")
         self._enh_denoise.addItem("Non-local means", "nlm")
+        self._enh_denoise.addItem(tr("Total variation"), "tv")
         self._enh_denoise.setToolTip(
             "Smooth the noise before the contrast step amplifies it. "
             "Gaussian is a blur and softens edges with the noise; Median "
@@ -10259,16 +13276,70 @@ class MakeMasksScreen(QWidget):
         form.addRow("Gamma", self._enh_gamma)
         card.body_layout.addLayout(form)
 
+        self._enh_percentile_clip = Toggle(tr("Percentile clip"))
+        self._enh_percentile_clip.setToolTip(tr(
+            "Clip the image to two percentiles of its own intensities before "
+            "the contrast curves, so a hot or dead pixel cannot set the range "
+            "they are drawn on. Nothing is stretched; intensities keep their "
+            "units."))
+        card.body_layout.addWidget(self._enh_percentile_clip)
+        curve_body = QWidget()
+        curve_form = QFormLayout(curve_body)
+        curve_form.setContentsMargins(0, 0, 0, 0)
+        self._enh_percentile_low = QDoubleSpinBox()
+        self._enh_percentile_low.setRange(0.0, 99.9)
+        self._enh_percentile_low.setValue(1.0)
+        self._enh_percentile_low.setToolTip(tr(
+            "The lower percentile of the clip, 0 to 100, below the upper."))
+        curve_form.addRow(tr("Clip low percentile"), self._enh_percentile_low)
+        self._enh_percentile_high = QDoubleSpinBox()
+        self._enh_percentile_high.setRange(0.1, 100.0)
+        self._enh_percentile_high.setValue(99.0)
+        self._enh_percentile_high.setToolTip(tr(
+            "The upper percentile of the clip, 0 to 100, above the lower."))
+        curve_form.addRow(tr("Clip high percentile"), self._enh_percentile_high)
+        self._enh_percentile_details = self._folded_rows(
+            curve_body, "Percentile clip settings", "make_masks/percentile_details")
+        card.body_layout.addWidget(self._enh_percentile_details)
+
+        self._enh_log = Toggle(tr("Logarithm"))
+        self._enh_log.setToolTip(tr(
+            "A logarithmic curve on 0..1, log(1 + gain x) / log(1 + gain): "
+            "it compresses the bright end and lifts the dim one, more "
+            "strongly near zero than a gamma below 1."))
+        card.body_layout.addWidget(self._enh_log)
+        log_body = QWidget()
+        log_form = QFormLayout(log_body)
+        log_form.setContentsMargins(0, 0, 0, 0)
+        self._enh_log_gain = QDoubleSpinBox()
+        self._enh_log_gain.setRange(0.01, 1000.0)
+        self._enh_log_gain.setValue(10.0)
+        self._enh_log_gain.setToolTip(tr(
+            "What the intensities are multiplied by before the logarithm. "
+            "Larger compresses the bright end harder."))
+        log_form.addRow(tr("Logarithm gain"), self._enh_log_gain)
+        self._enh_log_details = self._folded_rows(
+            log_body, "Logarithm settings", "make_masks/log_details")
+        card.body_layout.addWidget(self._enh_log_details)
+
+        self._enh_sqrt = Toggle(tr("Square root"))
+        self._enh_sqrt.setToolTip(tr(
+            "A square-root curve on 0..1, the curve a gamma of 0.5 draws: "
+            "it lifts the dim end."))
+        card.body_layout.addWidget(self._enh_sqrt)
+
         self._enh_clahe = Toggle("CLAHE (local histogram equalisation)")
         self._enh_clahe.setToolTip(
             "Equalise the histogram inside each tile rather than over the "
             "whole field, with a limit on how much any one level may be "
             "stretched. It is what brings out objects in a dim corner "
-            "without blowing out the bright middle. It also amplifies "
+            "without saturating the bright middle. It also amplifies "
             "noise in empty tiles, which is what the clip limit is for.")
         card.body_layout.addWidget(self._enh_clahe)
 
-        clahe_form = QFormLayout()
+        clahe_body = QWidget()
+        clahe_form = QFormLayout(clahe_body)
+        clahe_form.setContentsMargins(0, 0, 0, 0)
         self._enh_clahe_tile = QSpinBox()
         self._enh_clahe_tile.setRange(8, 1024)
         self._enh_clahe_tile.setValue(64)
@@ -10290,7 +13361,9 @@ class MakeMasksScreen(QWidget):
             "contrast and more amplified noise in tiles that hold only "
             "background.")
         clahe_form.addRow("CLAHE clip limit", self._enh_clahe_clip)
-        card.body_layout.addLayout(clahe_form)
+        self._enh_clahe_details = self._folded_rows(
+            clahe_body, "CLAHE settings", "make_masks/clahe_details")
+        card.body_layout.addWidget(self._enh_clahe_details)
 
         self._enh_equalize = Toggle("Histogram equalisation (whole image)")
         self._enh_equalize.setToolTip(
@@ -10309,7 +13382,9 @@ class MakeMasksScreen(QWidget):
             "every object and a dark moat outside it.")
         card.body_layout.addWidget(self._enh_sharpen)
 
-        sharpen_form = QFormLayout()
+        sharpen_body = QWidget()
+        sharpen_form = QFormLayout(sharpen_body)
+        sharpen_form.setContentsMargins(0, 0, 0, 0)
         self._enh_sharpen_radius = QDoubleSpinBox()
         self._enh_sharpen_radius.setDecimals(2)
         self._enh_sharpen_radius.setRange(0.1, 50.0)
@@ -10328,7 +13403,9 @@ class MakeMasksScreen(QWidget):
             "How much of the mask is added back. 1 is a normal sharpen; "
             "above 2 the halos start to become objects of their own.")
         sharpen_form.addRow("Sharpen amount", self._enh_sharpen_amount)
-        card.body_layout.addLayout(sharpen_form)
+        self._enh_sharpen_details = self._folded_rows(
+            sharpen_body, "Unsharp mask settings", "make_masks/sharpen_details")
+        card.body_layout.addWidget(self._enh_sharpen_details)
 
         after_form = QFormLayout()
         self._enh_morphology = QComboBox()
@@ -10397,7 +13474,21 @@ class MakeMasksScreen(QWidget):
         self._enh_show = self._btn_apply
         self._btn_apply.toggled.connect(self._on_show_enhanced)
         actions.addWidget(self._btn_apply)
+        self._btn_to_mask = QPushButton(tr("Use in Mask generation"))
+        self._btn_to_mask.setCursor(Qt.PointingHandCursor)
+        self._btn_to_mask.setToolTip(tr(
+            "Write the configured chain and PSF into the Mask module's "
+            "Image Enhancement and Point Spread Function settings, so a "
+            "plate run applies these steps to every selected channel after "
+            "illumination correction and before normalization. Morphology "
+            "and split reshape a detector's labels and stay here."))
+        self._btn_to_mask.setObjectName("MakeMasksUseInMaskGeneration")
+        self._btn_to_mask.clicked.connect(self._send_chain_to_mask)
+        actions.addWidget(self._btn_to_mask)
         card.body_layout.addLayout(actions)
+        from ..preferences import _apply_alpha_widgets
+
+        _apply_alpha_widgets(self._btn_to_mask)
 
         for widget in (self._enh_background, self._enh_denoise,
                        self._enh_morphology):
@@ -10407,15 +13498,41 @@ class MakeMasksScreen(QWidget):
                        self._enh_denoise_strength, self._enh_clahe_tile,
                        self._enh_clahe_clip, self._enh_sharpen_radius,
                        self._enh_sharpen_amount,
-                       self._enh_morphology_radius):
+                       self._enh_morphology_radius,
+                       self._enh_percentile_low, self._enh_percentile_high,
+                       self._enh_log_gain):
             widget.valueChanged.connect(self._on_chain_changed)
         for widget in (self._enh_clahe, self._enh_equalize,
-                       self._enh_sharpen, self._enh_split):
+                       self._enh_sharpen, self._enh_split,
+                       self._enh_percentile_clip, self._enh_log,
+                       self._enh_sqrt):
             widget.toggled.connect(self._on_chain_changed)
         self._psf_controls.changed.connect(self._on_chain_changed)
         self._restoration_controls.changed.connect(self._on_chain_changed)
         self._on_chain_changed()
         return card
+
+    @staticmethod
+    def _folded_rows(body: QWidget, name: str, key: str) -> QWidget:
+        """Put a step's parameter rows under a fold that starts shut (item 509).
+
+        The step's own switch stays visible above it; the fold remembers
+        being opened.
+        """
+        from ..widgets.collapsible_splitter import FoldSection
+
+        section = FoldSection(body, name, persist_key=key, follow_body=False,
+                              stretch=0, folded=True)
+        section.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
+        return section
+
+    def _current_image_paths(self) -> list:
+        """The open field's file, which "Infer from images…" reads first."""
+        files = getattr(self, "_image_files", None) or []
+        index = getattr(self, "_current_index", 0)
+        if not files or not 0 <= index < len(files):
+            return []
+        return [os.path.join(self._folder, files[index])]
 
     def _detect_chain(self) -> "detect_chain.Chain":
         """The applied enhancement chain, or no changes while Apply is off."""
@@ -10438,6 +13555,12 @@ class MakeMasksScreen(QWidget):
             denoise=str(self._enh_denoise.currentData()),
             denoise_strength=float(self._enh_denoise_strength.value()),
             gamma=float(self._enh_gamma.value()),
+            percentile_clip=bool(self._enh_percentile_clip.isChecked()),
+            percentile_low=float(self._enh_percentile_low.value()),
+            percentile_high=float(self._enh_percentile_high.value()),
+            log=bool(self._enh_log.isChecked()),
+            log_gain=float(self._enh_log_gain.value()),
+            sqrt=bool(self._enh_sqrt.isChecked()),
             clahe=bool(self._enh_clahe.isChecked()),
             clahe_tile=int(self._enh_clahe_tile.value()),
             clahe_clip=float(self._enh_clahe_clip.value()),
@@ -10451,6 +13574,58 @@ class MakeMasksScreen(QWidget):
             **self._psf_controls._chain_fields(),
             **self._restoration_controls._chain_fields(),
         )
+
+    def mask_settings(self) -> dict:
+        """The configured chain and PSF as the Mask module's settings.
+
+        :func:`spacr.qt.detect_chain.chain_settings` writes the image steps
+        as ``enhance_*`` keys and the PSF controls write the ``psf_*`` keys,
+        which is exactly what :func:`spacr.psf_pipeline.prepare_chain` reads
+        back, so the chain a plate run applies is the chain configured here
+        -- whether or not Apply is on, since Apply is this screen's switch.
+        """
+        settings = detect_chain.chain_settings(self._enhancement_chain())
+        controls = getattr(self, "_psf_controls", None)
+        if controls is not None:
+            settings.update(controls.mask_settings())
+        return settings
+
+    def _send_chain_to_mask(self) -> None:
+        """Write :meth:`mask_settings` into the Mask module and show it.
+
+        The Mask screen gets the values if it is built, and is built for
+        them otherwise; a Timelapse screen already built gets them too, since
+        it runs the same preprocessing. Standalone, with no application
+        window around this screen, there is nowhere to write and the status
+        line says so.
+        """
+        from ..i18n import tr
+
+        settings = self.mask_settings()
+        window = self.window()
+        screens = getattr(window, "_screens", None)
+        written = []
+        for key in ("mask", "timelapse"):
+            screen = screens.get(key) if isinstance(screens, dict) else None
+            apply = getattr(screen, "apply_settings_dict", None)
+            if callable(apply):
+                apply(settings)
+                written.append(key)
+        rebuild = getattr(window, "rebuild_app_screen", None)
+        if "mask" not in written and callable(rebuild):
+            rebuild("mask", settings)
+            written.append("mask")
+        if not written:
+            self._status_label.setText(tr(
+                "Open spaCR's Mask module to receive the enhancement chain."))
+            return
+        self._status_label.setText(tr(
+            "Enhancement chain written to the Mask settings: {steps}.",
+            steps=detect_chain.describe(self._enhancement_chain())
+            or tr("every step off")))
+        navigate = getattr(window, "_on_nav_selected", None)
+        if callable(navigate):
+            navigate("mask")
 
     def _chain_provenance(self) -> dict:
         """The chain as a mask's ledger entry records it.
@@ -10681,6 +13856,11 @@ class MakeMasksScreen(QWidget):
         after the picker closes or a download ends, the zoo rows are rebuilt
         -- so a model just downloaded becomes selectable -- and the model
         chosen stays chosen, without a change signal when it did not change.
+        Each Cellpose-DINO model downloaded follows, as
+        ``cellpose_dino:<path>`` under "Cellpose-DINO · <file>" (item 525),
+        which :func:`load_cellpose_model` runs in its backend, and then
+        each model of an installed StarDist, InstanSeg or Omnipose backend
+        (:func:`_zoo_prefixed_models`, items 551-553).
         """
         from ..i18n import tr
         from ..model_install import UNINSTALLED_GREY
@@ -10712,6 +13892,14 @@ class MakeMasksScreen(QWidget):
                         "from the model zoo and selects it.", name=key),
                         Qt.ToolTipRole)
                 combo.setItemData(combo.count() - 1, True, _ZOO_ROLE)
+            for value, label in (_zoo_cellpose_dino_models()
+                                 + _zoo_prefixed_models()):
+                if combo.findData(value) >= 0:
+                    continue
+                combo.addItem(label, value)
+                row = combo.count() - 1
+                combo.setItemData(row, value, Qt.ToolTipRole)
+                combo.setItemData(row, True, _ZOO_ROLE)
             index = combo.findData(chosen) if chosen is not None else -1
             combo.setCurrentIndex(max(index, 0))
         finally:
@@ -10787,7 +13975,8 @@ class MakeMasksScreen(QWidget):
         job.progressed.connect(self._on_model_download_progress)
         job.finished.connect(self._on_model_downloaded)
         self._cp_download_bar.setRange(0, 0)
-        self._cp_download_bar.setFormat(tr("Downloading {name}…", name=name))
+        self._cp_download_bar.setFormat("")
+        self._cp_download_bar.set_detail(tr("Downloading {name}…", name=name))
         self._cp_download_bar.show()
         self._status_label.setText(tr(
             "Downloading {name} in the background.", name=name))
@@ -10797,8 +13986,12 @@ class MakeMasksScreen(QWidget):
         """Move the download bar; a server that sent no size keeps it busy."""
         bar = self._cp_download_bar
         if total > 0:
+            from ... import model_zoo as zoo
+
             bar.setRange(0, 1000)
             bar.setValue(int(1000 * min(done, total) / total))
+            bar.setFormat(f"{zoo._human_bytes(min(done, total))} / "
+                          f"{zoo._human_bytes(total)} (%p%)")
 
     def _on_model_downloaded(self, worked: bool, message: str) -> None:
         """Select the model just downloaded, or say why it did not arrive."""
@@ -10832,23 +14025,49 @@ class MakeMasksScreen(QWidget):
     def _choose_cellpose_model_from_zoo(self) -> Optional[str]:
         """Open the model zoo on its Cellpose models and select what is picked.
 
-        The same picker, and the same ``kinds=("cellpose",)`` rule, as the live
-        preview's Model zoo… button: the zoo also holds a YOLO well detector,
-        which Cellpose cannot load. A picked path the list does not hold is
-        added to it, under its file name.
+        Cellpose-SAM and Cellpose 3 models, not the zoo's YOLO well detector,
+        which no Cellpose can load. A Cellpose 3 model comes back as
+        ``cellpose3:<name or path>`` -- a bioimage.io Cellpose 3 checkpoint
+        among them -- and :func:`load_cellpose_model` runs it through the
+        Cellpose 3 backend, as Mask generation does. A picked model the list
+        does not hold is added to it, under its file name.
 
-        :returns: the path chosen, or None when the picker was cancelled.
+        :returns: the model setting chosen, or None when the picker was
+            cancelled.
         """
+        from ..i18n import tr
         from ..widgets import model_zoo_picker
+        from ... import model_zoo
+        from ..._segmentation_backends import (_SPECS, _cellpose3_choice,
+                                               _cellpose_dino_choice,
+                                               _prefixed_backend,
+                                               _prefixed_choice)
 
-        path = model_zoo_picker.choose_model(self, kinds=("cellpose",))
+        path = model_zoo_picker.choose_model(
+            self, kinds=model_zoo._mask_model_kinds())
         if not path:
             return None
         path = str(path)
         self._fill_zoo_models()
         index = self._cp_model.findData(path)
         if index < 0:
-            self._cp_model.addItem(os.path.basename(path) or path, path)
+            chosen = _cellpose3_choice(path)
+            dino = _cellpose_dino_choice(path)
+            if chosen is not None:
+                label = tr("Cellpose 3 · {model}",
+                           model=os.path.basename(chosen) or chosen)
+            elif dino is not None:
+                label = tr("Cellpose-DINO · {model}",
+                           model=os.path.basename(dino) or dino)
+            elif _prefixed_backend(path) is not None:
+                backend = _prefixed_backend(path)
+                model = _prefixed_choice(backend, path)
+                label = tr("{backend} · {model}",
+                           backend=_SPECS[backend].label,
+                           model=os.path.basename(model) or model)
+            else:
+                label = os.path.basename(path) or path
+            self._cp_model.addItem(label, path)
             self._cp_model.setItemData(self._cp_model.count() - 1, path,
                                        Qt.ToolTipRole)
             index = self._cp_model.count() - 1
@@ -10993,6 +14212,8 @@ class MakeMasksScreen(QWidget):
                                     **self._chain_provenance()))
         self._detection_request = request
         self._btn_cellpose.setEnabled(False)
+        if _diameter_zero_estimates(model) and not parameters.get('diameter'):
+            self._report(_cellpose3_auto_diameter_note(), "warning")
         self._status_label.setText(tr("Object detection ({model}) running…", model=model))
         if self._detection_worker is None:
             self._detection_worker = _NewestRequestWorker(
@@ -11171,7 +14392,9 @@ class MakeMasksScreen(QWidget):
         card.body_layout.addLayout(form)
 
         progress = QHBoxLayout()
-        self._mag_progress = QProgressBar()
+        from ..widgets.eliding import ProgressLine
+
+        self._mag_progress = ProgressLine(detail=False, count_below=True)
         self._mag_progress.setRange(0, 0)
         self._mag_progress.setTextVisible(False)
         self._mag_progress.hide()
@@ -11201,8 +14424,8 @@ class MakeMasksScreen(QWidget):
             "clicked — one undo step per click. While it is on, the mouse "
             "wheel changes the box's zoom rather than the view's.")
         self._btn_magnifier.toggled.connect(self._on_toggle_magnifier)
-        row = self._tool_row_layout
-        row.insertWidget(row.indexOf(self._btn_settings), self._btn_magnifier)
+        pin = self._tool_pin_layout
+        pin.insertWidget(pin.indexOf(self._btn_settings), self._btn_magnifier)
         return card
 
     def _build_magnifier_save_mode(self, form: QFormLayout) -> None:
@@ -11338,6 +14561,56 @@ class MakeMasksScreen(QWidget):
             previous = self._mag_mode.findData("otsu")
         self._mag_mode.setCurrentIndex(max(previous, 0))
         self._offer_backend_install(mode)
+
+    def _refresh_alpha_visibility(self) -> None:
+        """Refresh alpha model choices immediately after Preferences changes.
+
+        The app already calls this hook on open screens. Hidden rows remain
+        in the model so an explicitly selected backend keeps its value and
+        remains executable; they cannot be chosen from the popup or keyboard.
+        """
+        from ..._segmentation_backends import _prefixed_backend
+        from ..preferences import _apply_alpha_widgets, _get_show_alpha_features
+
+        if _get_show_alpha_features():
+            _offer_prefixed_modes()
+            _offer_cellpose_dino_modes()
+            self._mag_mode.blockSignals(True)
+            try:
+                for mode, (_backend, label) in _MAGNIFIER_BACKENDS.items():
+                    if self._mag_mode.findData(mode) < 0:
+                        self._mag_mode.addItem(label, mode)
+            finally:
+                self._mag_mode.blockSignals(False)
+            self._fill_zoo_models()
+            ensemble = getattr(self, '_uncertainty_ensemble', None)
+            if ensemble is not None:
+                ensemble.blockSignals(True)
+                try:
+                    for index in range(self._cp_model.count()):
+                        value = self._cp_model.itemData(index)
+                        if value and ensemble.findData(value) < 0:
+                            ensemble.addItem(self._cp_model.itemText(index), value)
+                finally:
+                    ensemble.blockSignals(False)
+        for combo in (self._mag_mode, self._cp_model,
+                      getattr(self, '_uncertainty_ensemble', None)):
+            if combo is None:
+                continue
+            for index in range(combo.count()):
+                value = str(combo.itemData(index) or '')
+                backend = _prefixed_backend(value)
+                if backend is None:
+                    continue
+                model = value.partition(':')[2]
+                hidden = _prefixed_alpha_hidden(backend, model)
+                combo.view().setRowHidden(index, hidden)
+                item = combo.model().item(index)
+                if item is not None:
+                    item.setEnabled(not hidden)
+                    item.setSelectable(not hidden)
+        self._resync_magnifier_modes()
+        _apply_alpha_widgets(self)
 
     def _resync_magnifier_modes(self) -> None:
         """Re-read where each backend stands and redraw the Mode box.
@@ -11525,6 +14798,254 @@ class MakeMasksScreen(QWidget):
         """
         self._magnifier.refresh()
 
+    def _build_prompt_card(self) -> QWidget:
+        """Prompt-based segmentation: click or box one object, micro-SAM
+        outlines it.
+
+        An ALPHA feature: the category sits in a holder registered as
+        ``MakeMasksPromptCategory`` in :data:`spacr.settings.ALPHA_FEATURES`,
+        so it is shown only while Preferences -> "Show alpha features" is
+        on, and prompting runs only while it is shown. The holder, and not
+        the category, carries the name, because the category's own name is
+        the one every folding section is styled by.
+
+        :returns: the holder, with the category in it.
+        """
+        from ..i18n import tr
+        from ..preferences import _is_alpha_visible
+
+        card = self._settings_category(
+            "Segment by prompt",
+            tr("Click on one object, or drag a box round it, and micro-SAM "
+               "outlines it. Right-click marks what is not the object. Enter "
+               "adds the outline as a new object."))
+        holder = QWidget()
+        holder.setObjectName("MakeMasksPromptCategory")
+        line = QVBoxLayout(holder)
+        line.setContentsMargins(0, 0, 0, 0)
+        line.addWidget(card)
+        self._prompt_section = card
+        self._prompt_card = holder
+
+        self._btn_prompt = QPushButton(tr("Prompt with micro-SAM"))
+        self._btn_prompt.setObjectName("MakeMasksPromptToggle")
+        self._btn_prompt.setCheckable(True)
+        self._btn_prompt.setCursor(Qt.PointingHandCursor)
+        self._btn_prompt.setToolTip(tr(
+            "While on, a left click on the image marks the object, a right "
+            "click marks what is not the object and a left drag draws a box "
+            "round it. micro-SAM runs in an environment of its own; the "
+            "first click on a field waits while it embeds the field, and "
+            "later clicks reuse that embedding. If micro-SAM is not "
+            "installed, turning this on offers to install it. The Live "
+            "magnifier is turned off while this is on. Default off."))
+        self._btn_prompt.toggled.connect(self._on_toggle_prompt)
+        card.body_layout.addWidget(self._btn_prompt)
+
+        form = QFormLayout()
+        self._prompt_overlap = QComboBox()
+        self._prompt_overlap.addItem(tr("Clip"), "clip")
+        self._prompt_overlap.addItem(tr("Skip"), "skip")
+        self._prompt_overlap.addItem(tr("Replace"), "replace")
+        self._prompt_overlap.setToolTip(tr(
+            "What the accepted object does where the mask already has an "
+            "object. Clip keeps only its unlabelled pixels, so no existing "
+            "object loses a pixel. Skip adds nothing if it touches an "
+            "existing object. Replace lets it take every pixel it covers, "
+            "which is how an object a model split into pieces is made one "
+            "again. Default Clip."))
+        form.addRow(tr("Overlap"), self._prompt_overlap)
+        card.body_layout.addLayout(form)
+
+        row = QHBoxLayout()
+        row.setSpacing(SPACING["sm"])
+        self._btn_prompt_accept = QPushButton(tr("Add object"))
+        self._btn_prompt_accept.setCursor(Qt.PointingHandCursor)
+        self._btn_prompt_accept.setToolTip(tr(
+            "Add the outline micro-SAM drew as one new object: one edit, "
+            "undone by one Ctrl+Z, written by Save mask and recorded in the "
+            "field's curation ledger with the prompt, the model and the "
+            "micro-SAM version. Enter on the image does the same. "
+            "Default unavailable until an outline is shown."))
+        self._btn_prompt_accept.clicked.connect(self._accept_prompt)
+        row.addWidget(self._btn_prompt_accept)
+        self._btn_prompt_discard = QPushButton(tr("Discard"))
+        self._btn_prompt_discard.setCursor(Qt.PointingHandCursor)
+        self._btn_prompt_discard.setToolTip(tr(
+            "Throw away the points, the box and the outline, and start "
+            "again on another object. Nothing had been added to the mask. "
+            "Escape on the image does the same. Default unavailable until "
+            "there is a prompt."))
+        self._btn_prompt_discard.clicked.connect(
+            lambda _checked=False: self._prompter.forget())
+        row.addWidget(self._btn_prompt_discard)
+        wrap = QWidget()
+        wrap.setLayout(row)
+        card.body_layout.addWidget(wrap)
+        self._sync_prompt_buttons()
+        if not _is_alpha_visible("widgets", holder.objectName()):
+            holder.setProperty("_spacr_alpha_hid", True)
+            holder.setVisible(False)
+        return holder
+
+    def _prompt_card_shown(self) -> bool:
+        """Whether the prompt category is on screen, not hidden as alpha."""
+        card = getattr(self, "_prompt_card", None)
+        return card is not None and not card.isHidden()
+
+    def _current_field_name(self) -> str:
+        """The file name of the field on screen, or ``''``."""
+        files = getattr(self, "_image_files", None) or []
+        index = getattr(self, "_current_index", 0)
+        return str(files[index]) if 0 <= index < len(files) else ""
+
+    def _sync_prompt_buttons(self) -> None:
+        """Enable Add object and Discard only when they have something."""
+        prompter = self._prompter
+        accept = getattr(self, "_btn_prompt_accept", None)
+        if accept is not None:
+            accept.setEnabled(prompter.enabled and prompter.pending is not None)
+        discard = getattr(self, "_btn_prompt_discard", None)
+        if discard is not None:
+            discard.setEnabled(prompter.enabled and bool(
+                prompter.points or prompter.box is not None
+                or prompter.pending is not None))
+
+    def _on_prompt_said(self, text: str, kind: str) -> None:
+        """Put what prompting says in the corner or the console."""
+        if kind == "status":
+            self._status_label.setText(text)
+        else:
+            self._report(text, kind)
+
+    def _prompt_ready(self) -> bool:
+        """Whether micro-SAM can answer prompts now; file checks only."""
+        try:
+            return bool(self._prompter.client().readiness()[0])
+        except (OSError, ValueError):
+            return False
+
+    def _offer_prompt_install(self) -> bool:
+        """Offer to install micro-SAM, the way the Model Zoo installs it.
+
+        Into an environment of its own under the backends folder, off the
+        GUI thread, with its progress in this screen's console.
+
+        :returns: True when micro-SAM can answer prompts afterwards.
+        """
+        from ..i18n import tr
+        from ..widgets import model_zoo_picker
+
+        label = "micro-SAM"
+
+        def watch(dialog):
+            """Put the install's progress and its ending in the console."""
+            dialog.job_started.connect(lambda: self._report(
+                tr("Installing {name}…", name=label), "progress"))
+            dialog.job_progressed.connect(lambda text: self._report(
+                "{}: {}".format(tr("Installing {name}…", name=label), text),
+                "stream"))
+            dialog.job_failed.connect(lambda message: self._report(
+                "{} {}".format(tr("Installing {name} failed. Nothing was "
+                                  "left half-built.", name=label), message),
+                "error"))
+            dialog.job_cancelled.connect(lambda: self._report(
+                tr("Cancelled. Nothing was left behind."), "info"))
+
+        installed = bool(model_zoo_picker.install_backend(
+            self, "microsam", watch=watch, why=tr(
+                "Prompt-based segmentation runs micro-SAM, which is not "
+                "installed yet.")))
+        if installed:
+            self._report(tr("{name} is installed", name=label), "info")
+        return installed and self._prompt_ready()
+
+    def _on_toggle_prompt(self, on: bool) -> None:
+        """Turn prompting on or off; on offers the install when it is missing."""
+        from ..i18n import tr
+
+        if on and not self._prompt_ready() \
+                and not self._offer_prompt_install():
+            blocked = self._btn_prompt.blockSignals(True)
+            self._btn_prompt.setChecked(False)
+            self._btn_prompt.blockSignals(blocked)
+            self._status_label.setText(tr(
+                "Prompting needs micro-SAM, which is not installed."))
+            return
+        if on:
+            if self._btn_magnifier.isChecked():
+                self._btn_magnifier.setChecked(False)
+            if self._canvas.ruler.active:
+                self._set_mode(MODE_NONE)
+            self._status_label.setText(tr(
+                "Prompting on: click the object, right-click what is not "
+                "it, or drag a box round it; Enter adds the outline."))
+        else:
+            self._status_label.setText(tr(
+                "Prompting off. The objects it added stay in the mask."))
+        self._prompter.set_enabled(on)
+        self._sync_prompt_buttons()
+
+    def _accept_prompt(self) -> List[int]:
+        """Add the outline micro-SAM drew to the mask as one new object.
+
+        One edit: one ledger entry, ``prompt``, that names the new id and
+        keeps the prompt (points, box), the model, its score, the device
+        and the environment's package versions, and one undo step. Nothing
+        is written until Save mask. The overlap rule is read from the
+        category's Overlap box (:func:`spacr.qt.mask_engine.
+        _paste_region_objects`); an outline the rule leaves nothing of adds
+        nothing.
+
+        :returns: the ids added; empty when nothing was.
+        """
+        from ..i18n import tr
+
+        pending = self._prompter.pending
+        mask = self._canvas.mask
+        if pending is None or mask is None:
+            return []
+        region = np.asarray(pending.get("mask"), dtype=bool)
+        if region.shape != tuple(mask.shape[:2]):
+            return []
+        rows = np.flatnonzero(region.any(axis=1))
+        cols = np.flatnonzero(region.any(axis=0))
+        if not rows.size:
+            self._status_label.setText(tr(
+                "micro-SAM outlined nothing; add a point or draw a box."))
+            return []
+        y0, y1 = int(rows[0]), int(rows[-1]) + 1
+        x0, x1 = int(cols[0]), int(cols[-1]) + 1
+        overlap = self._prompt_overlap.currentData() or "clip"
+        out, added = engine._paste_region_objects(
+            mask, region[y0:y1, x0:x1].astype(np.uint8), (x0, y0),
+            overlap=overlap, min_area=0)
+        if not added:
+            self._status_label.setText(tr(
+                "Nothing was added: under the Overlap rule the outline "
+                "leaves nothing that is not already an object."))
+            return []
+        changed = self._pixels_changed(out)
+        self._canvas.mask = out
+        self._canvas.refresh()
+        self._record(
+            "prompt", list(added), changed, tool="micro-SAM",
+            model=pending.get("model"), overlap=overlap,
+            points=[[int(y), int(x), bool(on)]
+                    for y, x, on in pending.get("points") or ()],
+            box=(None if pending.get("box") is None
+                 else [int(v) for v in pending["box"]]),
+            score=pending.get("score"), device=pending.get("device"),
+            versions=dict(pending.get("versions") or {}),
+            embedding=pending.get("key"), n_objects=len(added))
+        self._history.push(out)
+        self._refresh_history_buttons()
+        self._prompter.forget()
+        self._status_label.setText(tr(
+            "micro-SAM added object {ids} — Ctrl+Z to undo",
+            ids=", ".join(str(v) for v in added)))
+        return added
+
     def _on_toggle_magnifier(self, on: bool) -> None:
         """Turn the live magnifier on or off from the tool row.
 
@@ -11535,6 +15056,9 @@ class MakeMasksScreen(QWidget):
 
         if on and self._canvas.ruler.active:
             self._set_mode(MODE_NONE)
+        button = getattr(self, "_btn_prompt", None)
+        if on and button is not None and button.isChecked():
+            button.setChecked(False)
         if on and self._magnifier.scope == "image":
             self._status_label.setText(tr(
                 "Magnifier on: a click adds the object under it and a "
@@ -11730,6 +15254,7 @@ class MakeMasksScreen(QWidget):
         message goes to the status line and the log, because a modal box
         under the offscreen/minimal platform plugin never returns.
         """
+        title, text = self._blind_text(title), self._blind_text(text)
         self._status_label.setText(f"{title}: {text}")
         if is_headless():
             LOG.warning("%s: %s", title, text)
@@ -11742,6 +15267,7 @@ class MakeMasksScreen(QWidget):
         Returns False when headless: with nobody to answer, the safe
         answer for an irreversible operation is "no".
         """
+        title, text = self._blind_text(title), self._blind_text(text)
         if is_headless():
             LOG.warning("%s: no display to confirm on — not proceeding", title)
             self._status_label.setText(
@@ -11752,15 +15278,379 @@ class MakeMasksScreen(QWidget):
 
     def _on_pick_folder(self):
         """Ask for a folder of images and open it."""
-        d = QFileDialog.getExistingDirectory(self, "Pick images folder",
-                                              self._folder or os.getcwd())
+        # Blinded, the picker opens at home: in the source its path bar would
+        # name the plate.
+        start = (os.path.expanduser("~") if self._blind is not None
+                 else self._folder or os.getcwd())
+        d = QFileDialog.getExistingDirectory(self, "Pick images folder", start)
         if not d:
+            return
+        if self._offer_consolidation(d):
             return
         self._open_folder(d)
 
+
+    def _build_organize_button(self) -> QPushButton:
+        """The "Organize for Measure…" button beside "Open folder…"."""
+        from ..i18n import tr
+
+        button = QPushButton(tr("Organize for Measure…"), self)
+        button.setObjectName("MakeMasksOrganizeButton")
+        button.setCursor(Qt.PointingHandCursor)
+        button.setToolTip(tr(
+            "Put images and their masks into the layout Measure reads: one "
+            "popup with the source folder, Mask generation's regex options "
+            "and a table with a column per channel and per mask, which takes "
+            "dropped files and folders. Apply moves them into Yokogawa-named "
+            "channel folders and merges them into merged/."))
+        button.clicked.connect(lambda _checked=False: self._on_organize())
+        self._btn_organize = button
+        return button
+
+    def _folder_job_running(self) -> bool:
+        """Whether a consolidation or channel sort is still running."""
+        worker = getattr(self, "_folder_job", None)
+        return worker is not None and worker.isRunning()
+
+    def _offer_consolidation(self, folder: str) -> bool:
+        """Ask whether to consolidate ``folder`` when its images sit in subfolders.
+
+        Folders in :data:`_NOT_CONSOLIDATED` are not counted or copied: they
+        hold masks, raw originals or an earlier sort, not images to edit.
+
+        :param folder: the folder dropped or picked.
+        :returns: True when a consolidation was started, and the new folder
+            will open when it ends; False to open ``folder`` as it is.
+        """
+        from ..i18n import tr
+        from ... import folder_consolidation as fc
+
+        try:
+            files, folders = fc.nested_file_count(
+                folder, engine.IMAGE_EXTS, _NOT_CONSOLIDATED)
+        except OSError:
+            return False
+        if not files:
+            return False
+        if not self._confirm(
+                tr("Consolidate folders?"),
+                tr("{folder} has {n} image(s) in {m} subfolder(s). Copy them "
+                   "into one new folder, each named after the folders it was "
+                   "in (for example exp_nucleus_2.tif)? The originals are not "
+                   "touched. No opens the folder as it is.",
+                   folder=folder, n=files, m=folders)):
+            return False
+        return self._start_consolidation(folder)
+
+    def _start_consolidation(self, folder: str) -> bool:
+        """Copy ``folder``'s tree into one new folder off the GUI thread.
+
+        :param folder: the folder to consolidate.
+        :returns: False when another folder job is still running.
+        """
+        from ..i18n import tr
+        from ... import folder_consolidation as fc
+
+        if self._folder_job_running():
+            self._warn(tr("Busy"), tr("A folder job is still running."))
+            return False
+        post = self._masks_console.post
+        output = fc.default_output_folder(folder)
+        post(tr("Consolidating {folder} into {output}…", folder=folder,
+                output=str(output)))
+        worker = _FolderJobWorker(lambda: fc.consolidate_folder(
+            folder, output, extensions=engine.IMAGE_EXTS,
+            skip_dirs=_NOT_CONSOLIDATED,
+            log=post), self)
+        worker.finished.connect(lambda: self._on_consolidated(worker))
+        self._folder_job = worker
+        worker.start()
+        return True
+
+    def _on_consolidated(self, worker: _FolderJobWorker) -> None:
+        """Open the consolidated folder, or say why there is none.
+
+        :param worker: the finished job.
+        """
+        from ..i18n import tr
+
+        if worker.error is not None or worker.result is None:
+            self._warn(tr("Consolidation failed"), str(worker.error))
+            return
+        result = worker.result
+        self._masks_console.post(tr(
+            "Copied {n} image(s) into {output}; the mapping is in {manifest}.",
+            n=result.copied, output=str(result.output),
+            manifest=str(result.manifest)))
+        if result.failed:
+            self._masks_console.post(tr(
+                "{n} file(s) could not be copied; see the manifest.",
+                n=result.failed), "warning")
+        self._open_folder(str(result.output))
+
+    def _on_organize(self):
+        """Open "Organize for Measure" on the open folder, if one is open.
+
+        :returns: the dialog.
+        """
+        folder = self._folder if self._folder and not self._field_folders else ""
+        return self._open_organize(folder, masks_dir=self._masks_dir)
+
+    def _open_organize(self, source: str = "", channel_folders=None,
+                       masks_dir: Optional[str] = None):
+        """Open the "Organize for Measure" popup and apply what it plans.
+
+        :param source: the source folder to prefill, or ``""``.
+        :param channel_folders: folders to prefill as one channel column
+            each, from a drop.
+        :param masks_dir: the source's masks folder, when not its ``masks/``.
+        :returns: the dialog when it was accepted and its plan started, else
+            None. It is kept as :attr:`_organize_dialog` either way.
+        """
+        from ..widgets.organize_for_measure import OrganizeForMeasureDialog
+
+        dialog = OrganizeForMeasureDialog(source, self,
+                                          channel_folders=channel_folders,
+                                          masks_dir=masks_dir)
+        self._organize_dialog = dialog
+        if not self._run_organize(dialog) or dialog.plan is None:
+            return None
+        self._start_channel_sort(dialog.plan)
+        return dialog
+
+    def _run_organize(self, dialog) -> bool:
+        """Show the popup modally; headless nobody can, so it is not run.
+
+        :param dialog: the popup.
+        :returns: whether it was accepted.
+        """
+        if is_headless():
+            return False
+        return dialog.exec() == QDialog.Accepted
+
+    def _start_channel_sort(self, plan) -> bool:
+        """Move, rename and merge as ``plan`` says, off the GUI thread.
+
+        :param plan: a confirmed :class:`spacr.channel_sorting.SortPlan`.
+        :returns: False when another folder job is still running.
+        """
+        from ..i18n import tr
+        from ... import channel_sorting as cs
+
+        if self._folder_job_running():
+            self._warn(tr("Busy"), tr("A folder job is still running."))
+            return False
+        post = self._masks_console.post
+        post(tr("Sorting {n} image(s) into channels under {dest}…",
+                n=len(plan.rows), dest=plan.dest))
+        worker = _FolderJobWorker(lambda: cs.apply_plan(plan, log=post), self)
+        worker.finished.connect(lambda: self._on_channels_sorted(worker))
+        self._folder_job = worker
+        worker.start()
+        return True
+
+    def _on_channels_sorted(self, worker: _FolderJobWorker) -> None:
+        """Report the sort and open the first channel folder.
+
+        :param worker: the finished job.
+        """
+        from ..i18n import tr
+
+        if worker.error is not None or worker.result is None:
+            self._warn(tr("Sorting failed"), tr(
+                "{error}\nEvery move made before the failure is listed in "
+                "the manifest.", error=str(worker.error)))
+            return
+        result = worker.result
+        self._masks_console.post(tr(
+            "Moved {moved} file(s); {stacks} stack(s) and {merged} merged "
+            "array(s) written under {dest}. Every move is in {manifest}.",
+            moved=result.moved, stacks=len(result.stacks),
+            merged=len(result.merged), dest=result.dest,
+            manifest=result.manifest))
+        # Point Measure at the result, so features are one step away.
+        prefs.push_recent_source("measure", str(result.dest))
+        self._masks_console.post(tr(
+            "Ready for Measure: open Measure and use {dest} as its source (it "
+            "is first in Measure's recent sources). Its merged arrays hold the "
+            "images first, then the mask planes in the order cell, nucleus, "
+            "pathogen, organelle.", dest=result.dest))
+        first = os.path.join(result.dest, "C01")
+        if os.path.isdir(first):
+            self._open_folder(first)
+
+    def open_paths(self, paths) -> bool:
+        """Open a drop the way its contents say, asking where there is a choice.
+
+        Item 600. :func:`spacr.drop_classification.classify_drop` says what
+        was dropped, and:
+
+        * image files (with or without folders) open as one queue, in drop
+          order, each field edited where it lies with its mask in its own
+          ``<folder>/masks`` -- :meth:`_open_queue`;
+        * one folder of images opens as it is;
+        * one folder whose subfolders look like channels (DAPI/, GFP/..., or
+          the same fields in each) opens "Organize for Measure" with a
+          channel column per subfolder; any other folder whose images sit in
+          subfolders is offered for consolidation (item 593);
+        * several folders of images open "Organize for Measure" with a
+          channel column per folder;
+        * when that popup is cancelled (or nobody can see it), the drop
+          opens as it always did: the folder as it is, or a queue;
+        * images dropped with their masks open with those masks
+          (:meth:`_open_with_masks`);
+        * a folder spaCR wrote is named in the console and its images, if
+          any, open -- a ``.npy`` is never opened as an image.
+
+        Everything the drop held that is used for nothing is listed in the
+        console.
+
+        :param paths: the dropped files and folders, in the order dropped.
+        :returns: whether something was opened or a job started.
+        """
+        from ..i18n import tr
+        from ... import drop_classification as dc
+
+        paths = [os.path.abspath(str(p)) for p in paths]
+        found = dc.classify_drop(paths)
+        for line in found.unrecognised:
+            self._masks_console.post(
+                tr("Not used from this drop: {item}", item=line), "warning")
+        if found.description:
+            self._masks_console.post(found.description)
+        if found.kind == "spacr_output":
+            if found.open_folder:
+                return self._open_folder(found.open_folder)
+            self._warn(tr("Nothing to open"), found.description)
+            return False
+        if found.kind == "images_with_masks":
+            return self._open_with_masks(found)
+        if found.kind in ("folder", "nested"):
+            folder = found.folders[0]
+            if found.channel_like and len(found.channel_folders) > 1:
+                if self._open_organize(folder, found.channel_folders):
+                    return True
+            elif self._offer_consolidation(folder):
+                return True
+            return self._open_folder(folder)
+        if found.kind == "folders":
+            if self._open_organize("", found.folders):
+                return True
+        wanted = set(found.images) | set(found.folders)
+        return self._open_queue([p for p in paths if p in wanted])
+
+    def _open_with_masks(self, found) -> bool:
+        """Open dropped images with the masks dropped with them.
+
+        When the images share one folder and the masks one folder, named as
+        Make Masks names masks (``<stem>.tif``), that masks folder is used
+        as it is. Otherwise the user is asked to copy each mask into
+        ``masks/`` beside its image under that name -- a mask already there
+        is kept -- and the images open either way.
+
+        :param found: an ``images_with_masks``
+            :class:`spacr.drop_classification.DropClassification`.
+        :returns: whether the images were opened.
+        """
+        from ..i18n import tr
+        from ... import channel_sorting as cs
+
+        post = self._masks_console.post
+        for mask in found.unpaired_masks:
+            post(tr("Not used from this drop: {item}",
+                    item=tr("{path} (no dropped image has this name)",
+                            path=mask)), "warning")
+        images, masks = list(found.images), dict(found.masks)
+        folders = {os.path.dirname(image) for image in images}
+        mask_dirs = {os.path.dirname(mask) for mask in masks.values()}
+        named = all(os.path.basename(mask)
+                    == cs.split_extension(os.path.basename(image))[0] + ".tif"
+                    for image, mask in masks.items())
+        if len(folders) == 1 and len(mask_dirs) == 1 and named:
+            folder, masks_dir = folders.pop(), mask_dirs.pop()
+            if os.path.normpath(masks_dir) == os.path.normpath(
+                    os.path.join(folder, "masks")):
+                masks_dir = None
+            post(tr("Opening {n} image(s) with {k} dropped mask(s).",
+                    n=len(images), k=len(masks)))
+            return self._open_folder(
+                folder, files=[os.path.basename(i) for i in images],
+                masks_dir=masks_dir)
+        copies = []
+        for image, mask in masks.items():
+            target = os.path.join(
+                os.path.dirname(image), "masks",
+                cs.split_extension(os.path.basename(image))[0] + ".tif")
+            if os.path.normpath(target) != os.path.normpath(mask):
+                copies.append((mask, target))
+        kept = [target for _mask, target in copies if os.path.exists(target)]
+        if copies and self._confirm(
+                tr("Use the dropped masks?"),
+                tr("{n} dropped mask(s) belong to dropped images. Copy them "
+                   "into masks/ beside their images, named as Make Masks "
+                   "names masks, so they open with them? {k} image(s) already "
+                   "have a mask there, which is kept. No opens the images "
+                   "without them.", n=len(copies), k=len(kept))):
+            copied = 0
+            for mask, target in copies:
+                if os.path.exists(target):
+                    continue
+                try:
+                    _copy_mask_as_tiff(mask, target)
+                    copied += 1
+                except (OSError, ValueError) as exc:
+                    post(tr("Could not copy {mask}: {error}", mask=mask,
+                            error=str(exc)), "warning")
+            post(tr("Copied {n} mask(s) beside their images.", n=copied))
+        return self._open_queue(images)
+
+    def _open_queue(self, paths) -> bool:
+        """Open image files and folders as one queue, in the order given.
+
+        One folder alone opens as a folder; anything else becomes a queue of
+        the fields named, a folder standing for its images, each field
+        edited where it lies. Nothing is copied.
+
+        :param paths: absolute image files and folders.
+        :returns: whether a queue was opened.
+        """
+        from ..i18n import tr
+
+        if len(paths) == 1 and os.path.isdir(paths[0]):
+            return self._open_folder(paths[0])
+        fields: list = []
+        for path in paths:
+            if os.path.isdir(path):
+                found = [(path, name) for name in engine.list_images(path)]
+            elif (os.path.isfile(path)
+                  and path.lower().endswith(engine.IMAGE_EXTS)):
+                found = [(os.path.dirname(path), os.path.basename(path))]
+            else:
+                found = []
+            for field in found:
+                if field not in fields:
+                    fields.append(field)
+        if not fields:
+            self._warn(tr("No images"),
+                       tr("None of the dropped items is an image Make Masks "
+                          "can open."))
+            return False
+        folders = [folder for folder, _name in fields]
+        spans = list(dict.fromkeys(folders))
+        if not self._open_folder(
+                folders[0], files=[name for _folder, name in fields],
+                field_folders=folders if len(spans) > 1 else None):
+            return False
+        if len(spans) > 1:
+            self._src_label.setText(tr(
+                "{n} images from {k} folders, in the order dropped",
+                n=len(fields), k=len(spans)))
+        return True
+
     def _open_folder(self, folder: str,
                      files: Optional[List[str]] = None,
-                     masks_dir: Optional[str] = None) -> bool:
+                     masks_dir: Optional[str] = None,
+                     field_folders: Optional[List[str]] = None) -> bool:
         """List the folder's images and load the first.
 
         :param folder: the folder to open.
@@ -11773,6 +15663,8 @@ class MakeMasksScreen(QWidget):
         :param masks_dir: the masks folder when it is not ``<folder>/masks``
             -- a sibling session's. Set BEFORE the first field loads, so the
             first draft shown is the set's own.
+        :param field_folders: the folder of each of ``files``, when a drop
+            queued fields from more than one folder; see :meth:`open_paths`.
         :returns: whether a folder was opened. ``False`` means there was
             nothing in it to edit, which the user has been told about.
         """
@@ -11780,11 +15672,14 @@ class MakeMasksScreen(QWidget):
         if not files:
             self._warn("No images", f"Found no image files in: {folder}")
             return False
+        self._leave_blind_unopened("another folder was opened")
         self._queue = None
         self._session_notice = ""
         self._masks_dir = masks_dir
         self._folder = folder
         self._image_files = files
+        self._field_folders = (list(field_folders)
+                               if field_folders is not None else None)
         self._current_index = 0
         self._src_label.setText(f"{folder}  —  {len(files)} images")
         self._load_current()
@@ -11797,6 +15692,8 @@ class MakeMasksScreen(QWidget):
         """Show the current field and whatever mask it already has."""
         if not self._image_files:
             return
+        if self._field_folders:
+            self._folder = self._field_folders[self._current_index]
         self._primary_selector.clear_field()
         self._load_token += 1
         token = self._load_token
@@ -11806,7 +15703,8 @@ class MakeMasksScreen(QWidget):
             request = (self._folder, filename, token)
             if self._load_worker is not None:
                 self._pending_load = request
-                self._status_label.setText(f"Waiting to load {filename}…")
+                self._status_label.setText(
+                    f"Waiting to load {self._blind_label(image_path)}…")
                 return
             self._start_background_load(*request)
             return
@@ -11840,7 +15738,8 @@ class MakeMasksScreen(QWidget):
     ) -> None:
         """Start one retained image loader and disable edit controls."""
         self._loading = True
-        self._status_label.setText(f"Loading {filename}…")
+        self._status_label.setText(
+            f"Loading {self._blind_label(os.path.join(folder, filename))}…")
         self._sync_button_states()
         worker = _MaskLoadWorker(folder, filename, token, self,
                                  layout=self._layout_kwargs())
@@ -11884,13 +15783,27 @@ class MakeMasksScreen(QWidget):
         be told to stop rather than be collected out from under Qt. A model
         download is cancelled; a backend install is left to finish, because
         ``pip`` stopped half way can leave the environment broken.
+
+        :param event: the close event; it is passed on to the base class once
+            the workers and folded modules have been stopped.
         """
         from ..bridge import drain_thread
 
+        if self._blind is not None:
+            try:
+                from ...run_journal import _close_blinding
+
+                _close_blinding(self._blind["key_id"],
+                                reason="the screen was closed")
+            except Exception:
+                LOG.debug("could not log the end of a blinded session",
+                          exc_info=True)
+            self._blind = None
         download, self._cp_download = self._cp_download, None
         if download is not None:
             download.cancel()
         self._magnifier.close()
+        self._prompter.close()
         self._primary_selector.shutdown()
         self._psf_controls._shutdown()
         self._restoration_controls._shutdown()
@@ -11931,6 +15844,8 @@ class MakeMasksScreen(QWidget):
         self._canvas.clear()
         self._history.clear()
         self._log = None
+        self._loaded_mask = None
+        self._loaded_from_save_path = False
         self._refresh_history_buttons()
         self._btn_reset_zoom.setEnabled(False)
         self._warn("Load failed", str(error))
@@ -11956,6 +15871,11 @@ class MakeMasksScreen(QWidget):
         self._magnifier.set_field(os.path.join(self._folder or "", filename))
         self._close_levels()
         self._canvas.set_image_and_mask(image, mask)
+        self._canvas.ruler.calibrate_from_file(
+            os.path.join(self._folder or "", filename), image.shape)
+        self._loaded_mask = np.array(mask, copy=True)
+        self._loaded_from_save_path = os.path.isfile(engine.mask_save_path(
+            self._folder, filename, **self._layout_kwargs()))
         self._recrop_children = []
         self._reset_flow_panes()
         self._history.clear()
@@ -11975,7 +15895,7 @@ class MakeMasksScreen(QWidget):
         if record:
             self._primary_selector.restore_source(record)
         self._status_label.setText(
-            f"{filename}  "
+            f"{self._blind_label(os.path.join(self._folder or '', filename))}  "
             f"({self._current_index + 1}/{len(self._image_files)})"
         )
         self.apply_object_filter(on_load=True)
@@ -12017,9 +15937,20 @@ class MakeMasksScreen(QWidget):
         field in the queue, and marked on the canvas. Rejected selections are
         reported in the status label without modifying the queue.
 
+        :param x0: x of the first selection corner, in image pixels.
+        :param y0: y of the first selection corner, in image pixels.
+        :param x1: x of the opposite corner, in image pixels. The corners may
+            come in either order and are clipped to the image.
+        :param y1: y of the opposite corner, in image pixels.
         :returns: Filename of the recropped field, or ``None`` if the
             selection was rejected or could not be written.
         """
+        if self._blind is not None:
+            from ..i18n import tr
+            self._status_label.setText(tr(
+                "Recrop is off while blinded, because the new fields are "
+                "named after the field they are cut from."))
+            return None
         if getattr(self._canvas, 'preserve_ids', False):
             from ..i18n import tr
 
@@ -12049,6 +15980,10 @@ class MakeMasksScreen(QWidget):
         self._canvas.update()
         self._image_files.insert(
             self._current_index + len(self._recrop_children) + 1, written.name)
+        if self._field_folders:
+            self._field_folders.insert(
+                self._current_index + len(self._recrop_children) + 1,
+                self._folder)
         self._recrop_children.append(written.name)
         area = (box[2] - box[0]) * (box[3] - box[1])
         self._record(engine.RECROP_KIND, written.name, area,
@@ -12093,6 +16028,8 @@ class MakeMasksScreen(QWidget):
             self._warn("Recrop failed", str(exc))
             return False
         self._image_files.pop(self._current_index)
+        if self._field_folders:
+            self._field_folders.pop(self._current_index)
         self._recrop_children = []
         self._canvas.recrop_boxes = []
         if not self._image_files:
@@ -12131,10 +16068,88 @@ class MakeMasksScreen(QWidget):
         self._current_index += 1
         self._load_current()
 
+    def _save_would_change_nothing(self) -> bool:
+        """Whether the file a save would write already holds the canvas mask.
+
+        True only when the field's mask was read from that very file, the
+        file is still there, and the canvas holds exactly the labels it
+        opened with. Writing anyway is not neutral: every save goes through
+        :func:`spacr.qt.mask_engine.canonical_labels`, which splits a label
+        lying in two separated pieces, so "open, look, save" used to add an
+        object the curator never drew.
+
+        :returns: whether the save may leave the file untouched.
+        """
+        loaded = self._loaded_mask
+        mask = self._canvas.mask
+        if loaded is None or mask is None or not self._loaded_from_save_path:
+            return False
+        path = engine.mask_save_path(
+            self._folder, self._image_files[self._current_index],
+            **self._layout_kwargs())
+        return (os.path.isfile(path) and loaded.shape == mask.shape
+                and bool(np.array_equal(loaded, mask)))
+
+    def _on_skip(self) -> None:
+        """Record the field on screen as skipped and move to the next one.
+
+        Skip is not a lesser done. It records that this field cannot be
+        curated, so the next session does not offer it again, and it writes
+        no mask: whatever is on disk for the field stays exactly as it was.
+        Only a queue has a record to write it to, so the control does
+        nothing for a folder opened from the file dialog.
+        """
+        from ..i18n import tr
+
+        if self._queue is None or not self._image_files:
+            return
+        from ...curation_queue import mark_state
+
+        filename = self._image_files[self._current_index]
+        stem = engine.field_stem(filename)
+        try:
+            mark_state(self._queue.folder, stem, "skip")
+        except Exception as exc:                              # noqa: BLE001
+            LOG.warning("could not record %s as skipped", stem, exc_info=True)
+            self._warn(tr("Skip failed"), str(exc))
+            return
+        judged = os.path.basename(filename)
+        was = self._current_index
+        self._on_next()
+        if self._current_index != was:
+            now = os.path.basename(self._image_files[self._current_index])
+            self._status_label.setText(
+                tr("{judged} skipped, and will not be offered again  —  now on {now}").format(
+                    judged=judged, now=now))
+        else:
+            self._status_label.setText(
+                tr("{judged} skipped, and will not be offered again  —  that was the last field in this session").format(
+                    judged=judged))
+
     def _on_save(self):
-        """Write the mask for the field on screen."""
+        """Write the mask for the field on screen.
+
+        A save that changed nothing writes nothing: the field is still
+        recorded as done, with the object count of the file already on disk,
+        but that file is left byte for byte as it was. An edited save
+        records the object count of the labels as written, after
+        :func:`spacr.qt.mask_engine.canonical_labels` has split any label
+        lying in separated pieces, so the count matches the file.
+        """
         if not self._image_files or self._canvas.mask is None:
             return
+        if self._save_would_change_nothing():
+            from ..i18n import tr
+
+            filename = self._image_files[self._current_index]
+            objects = int(np.count_nonzero(np.unique(self._canvas.mask)))
+            self._note_curated(filename, n_objects=objects)
+            path = engine.mask_save_path(self._folder, filename,
+                                         **self._layout_kwargs())
+            self._status_label.setText(
+                tr("Unchanged, nothing rewritten → {path}").format(path=path))
+            return
+        preserve_ids = getattr(self._canvas, 'preserve_ids', False)
         try:
             self._validate_secondary_save()
             path = engine.save_mask(
@@ -12142,7 +16157,7 @@ class MakeMasksScreen(QWidget):
                 self._image_files[self._current_index],
                 self._canvas.mask,
                 log=self._log,
-                preserve_ids=getattr(self._canvas, 'preserve_ids', False),
+                preserve_ids=preserve_ids,
                 **self._layout_kwargs(),
             )
         except Exception as e:
@@ -12150,7 +16165,9 @@ class MakeMasksScreen(QWidget):
             return
         edits = len(self._log) if self._log is not None else 0
         note = f"  ({edits} edit(s) recorded)" if edits else ""
-        objects = int(np.count_nonzero(np.unique(self._canvas.mask)))
+        written = engine.canonical_labels(self._canvas.mask,
+                                          preserve_ids=preserve_ids)
+        objects = int(np.count_nonzero(np.unique(written)))
         self._note_curated(self._image_files[self._current_index],
                            n_objects=objects)
         self._status_label.setText(f"Saved → {path}{note}")
@@ -12335,3 +16352,5 @@ class MakeMasksScreen(QWidget):
                    self._btn_levels,
                    *self._mode_buttons.values()):
             b.setEnabled(editable)
+        self._btn_skip.setEnabled(editable and self._queue is not None)
+        self._btn_prompt.setEnabled(editable)

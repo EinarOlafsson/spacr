@@ -50,14 +50,17 @@
       "label": "spacr.qt.detect_chain#6",
       "source": "The Mask pipeline has separate preprocessing. :func:`spacr.object._preprocess_batch` applies rolling ball then CLAHE to organelle batches using ``organelle_rolling_ball`` and ``organelle_clahe``. The Mask settings ``remove_background``, ``background`` and ``signal_to_noise`` instead apply per-channel intensity floors. This Make Masks chain configures neither route.",
       "source_sha256": "33c80637d028a0791efe572c97b5b1108f0bf808c9a8b23a449ddfd79bdb5ad8",
-      "translation": "Mask 파이프라인은 별도의 전처리를 사용합니다. :func:`spacr.object._preprocess_batch`는 ``organelle_rolling_ball``과 ``organelle_clahe``를 사용하여 세포소기관 배치에 롤링 볼을 적용한 뒤 CLAHE를 적용합니다. 반면 Mask 설정 ``remove_background``, ``background``, ``signal_to_noise``는 채널별 강도 하한을 적용합니다. 이 Make Masks 체인은 두 경로 모두 구성하지 않습니다."
+      "translation": "Mask 파이프라인은 별도의 전처리를 사용합니다. :func:`spacr.object._preprocess_batch`는 ``organelle_rolling_ball``과 ``organelle_clahe``를 사용하여 세포소기관 배치에 롤링 볼을 적용한 뒤 CLAHE를 적용합니다. 반면 Mask 설정 ``remove_background``, ``background``, ``signal_to_noise``는 채널별 강도 하한을 적용합니다. 이 Make Masks 체인은 두 경로 모두 구성하지 않습니다.",
+      "retired": true,
+      "retired_reason": "2026-09-25: the English block this record translated is no longer in the docstring (the :param: pass or a later edit rewrote it); kept verbatim as evidence, not loaded."
     },
     {
       "context": "Enhancement changes the objects proposed for curation. Models trained on enhanced images require matching preprocessing at inference; this module does not configure the training or inference workflow.",
-      "label": "spacr.qt.detect_chain#7",
+      "label": "spacr.qt.detect_chain#9",
       "source": "Enhancement changes the objects proposed for curation. Models trained on enhanced images require matching preprocessing at inference; this module does not configure the training or inference pipeline.",
       "source_sha256": "814d002b8299c15c5ec9f976ca2a97626da81481bb6f258ae7a11a3d70f57b87",
-      "translation": "영상 향상은 검토 대상으로 제안되는 객체를 바꿉니다. 향상된 영상으로 학습한 모델은 추론 시에도 일치하는 전처리가 필요합니다. 이 모듈은 학습 또는 추론 파이프라인을 구성하지 않습니다."
+      "translation": "영상 향상은 검토 대상으로 제안되는 객체를 바꿉니다. 향상된 영상으로 학습한 모델은 추론 시에도 일치하는 전처리가 필요합니다. 이 모듈은 학습 또는 추론 파이프라인을 구성하지 않습니다.",
+      "rebound_from": "spacr.qt.detect_chain#7"
     },
     {
       "context": "The slowly varying background under ``image``, at ``image``'s size.",

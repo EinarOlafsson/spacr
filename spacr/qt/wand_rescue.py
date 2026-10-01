@@ -79,6 +79,15 @@ def flood_region(image: np.ndarray, seed_x: int, seed_y: int,
     Uncapped on purpose: the runaway detector has to see how far the leak
     went to recognise it as one. A flood truncated at the budget looks
     like a large compact object, which is exactly what a leak is not.
+
+    :param image: 2-D greyscale image, or a colour image with channels last;
+        pixel values are compared as float32.
+    :param seed_x: column of the click in pixels; a seed outside the image
+        yields an all-False mask.
+    :param seed_y: row of the click in pixels.
+    :param tolerance: largest distance from the seed's value a pixel may have
+        and still join, in the image's intensity units; negative values count
+        as 0.
     """
     from skimage.segmentation import flood as _sk_flood
 
@@ -120,6 +129,10 @@ def trim_directional_runaway(region: np.ndarray, seed_yx: Tuple[int, int],
     * ``confirm`` requires the expansion to persist, so a single noisy row
       cannot cut the object in half.
 
+    :param region: boolean mask of the flood, shape (H, W).
+    :param seed_yx: ``(row, column)`` of the click in pixels; the width
+        profiles are walked outward from it, and a seed outside the mask's
+        bounds returns an untouched copy with no cuts.
     :returns: ``(trimmed, cuts)``. ``cuts`` maps each direction that leaked
         to the image coordinate the cut was made at, and is empty when
         nothing leaked -- which is how a caller knows the flood was clean.
@@ -185,6 +198,10 @@ def cap_region_from_seed(region: np.ndarray, seed_yx: Tuple[int, int],
 
     Returns ``region`` unchanged when it already fits, and an empty mask
     when the seed is not inside it.
+
+    :param region: boolean mask of the flood, shape (H, W).
+    :param seed_yx: ``(row, column)`` of the click in pixels.
+    :param max_pixels: pixel budget; values below 1 are treated as 1.
     """
     region = np.asarray(region, dtype=bool)
     y, x = int(seed_yx[0]), int(seed_yx[1])
@@ -235,6 +252,15 @@ def taper_region_to_intensity(image: np.ndarray, flooded_region: np.ndarray,
     connected piece the click is in. If the discarded part is thinner than
     ``margin`` there is no room for a band, so its deepest quarter is used
     rather than giving up and leaving the straight edge.
+
+    :param image: greyscale image, or a colour image with channels last that is
+        averaged to grey; its smoothed gradient drives the watershed.
+    :param flooded_region: boolean mask of the original, uncapped flood; the
+        result never leaves it.
+    :param provisional: boolean mask produced by the earlier rescue (a straight
+        cut or a cap); it is clipped to ``flooded_region`` and returned as is
+        when the seed is outside it.
+    :param seed_yx: ``(row, column)`` of the click in pixels.
     """
     from scipy.ndimage import (binary_erosion, distance_transform_edt,
                                gaussian_filter, label)
@@ -293,6 +319,13 @@ def wand_region(image: np.ndarray, seed_x: int, seed_y: int,
     ``settings`` accepts the keys of :data:`RESCUE_DEFAULTS`; anything
     missing takes the default.
 
+    :param image: 2-D greyscale image, or a colour image with channels last;
+        pixel values are compared as float32.
+    :param seed_x: column of the click in pixels.
+    :param seed_y: row of the click in pixels.
+    :param tolerance: flood tolerance in the image's intensity units, as in
+        :func:`flood_region`; it is also the upper bound of the
+        intensity-border search.
     :returns: ``(region, report)``. ``report`` names what happened --
         ``cuts`` (the directions that leaked), ``intensity_border`` and the
         ``refined_tolerance`` it settled on, ``tapered``, ``capped``, and
@@ -389,6 +422,16 @@ def magic_wand(image: np.ndarray, mask: np.ndarray, seed_x: int, seed_y: int,
     ``action="erase"``, matching
     :func:`spacr.qt.mask_engine.magic_wand`, and returns the report beside
     the new mask. A rejected flood leaves the mask untouched.
+
+    :param image: 2-D greyscale image, or a colour image with channels last;
+        pixel values are compared as float32. None returns ``mask`` unchanged
+        with a rejected report.
+    :param mask: 2-D mask of shape (H, W) that is copied and written into;
+        None is returned as is with a rejected report.
+    :param seed_x: column of the click in pixels.
+    :param seed_y: row of the click in pixels.
+    :param tolerance: flood tolerance in the image's intensity units, as in
+        :func:`flood_region`.
     """
     if mask is None or image is None:
         return mask, {"flooded_px": 0, "kept_px": 0, "cuts": [],

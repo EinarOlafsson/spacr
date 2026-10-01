@@ -60,6 +60,10 @@ def set_stored_token(token: str) -> None:
     The GUI no longer exposes this function. It remains for API callers and
     offline transport tests that need to inject a credential for one process.
     Interactive users authenticate with ``gh auth login``.
+
+    :param token: the GitHub token to hold in memory for this process;
+        surrounding whitespace is stripped, and an empty value or ``None``
+        clears it. Any token left in ``QSettings`` by older builds is removed.
     """
     global _EPHEMERAL_TOKEN
     token = (token or "").strip()

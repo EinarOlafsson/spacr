@@ -5,6 +5,7 @@ held-out accuracy validation. No historic, incorrectly paired training model
 is selected: the actual stock CPSAM checkpoint is used instead.
 """
 import json
+import os
 from pathlib import Path
 import shutil
 import tempfile
@@ -21,7 +22,8 @@ from cellpose_apply_evidence import minimum_area_labels,require_pixels
 def prepare(stage):
     audit = json.loads((Path(__file__).parent / 'evidence' /
         '2026-09-09_model_zoo_provenance_and_assembly_audit.json').read_text())
-    source = stage.parent / 'derived/cellpose_masks'
+    # SPACR_TUTORIAL_MODEL_FIELDS keeps the verified crops inside the stage.
+    source = Path(os.environ.get('SPACR_TUTORIAL_MODEL_FIELDS', str(stage.parent / 'derived/cellpose_masks')))
     parent = stage / 'cellpose_apply_runs'
     parent.mkdir(exist_ok=True)
     work = Path(tempfile.mkdtemp(prefix='REAL-stock-model-', dir=parent))
@@ -182,11 +184,19 @@ def record_preview(app,window,screen,work,captures,capture,settle,write_json,tim
     from PySide6.QtWidgets import QFileDialog,QLineEdit,QDialogButtonBox
 
     # Use the native fold controls, not hidden widgets or changed size limits.
+    # The batch figures stay listed; fold them so the preview has the height.
     for folder,heading in ((screen._usage_card.folder,screen._usage_card.title_label),
-                           (screen._console_folder,screen._console_header)):
+                           (screen._console_folder,screen._console_header),
+                           (screen._figures_card.folder,screen._figures_card.title_label)):
         if not folder.shut:
             QTest.mouseClick(heading,Qt.LeftButton);settle(.3)
         if not folder.shut:raise ValueError('The real runtime fold did not close')
+    # A run folds the Settings pane to give the figures room; open it again
+    # with its own splitter handle, as a user clicks the chevron.
+    body=screen._body_splitter
+    if body.is_collapsed('Settings'):
+        QTest.mouseClick(body.handle(1),Qt.LeftButton);settle(.6)
+    if body.is_collapsed('Settings'):raise ValueError('The Settings pane did not reopen')
     host=screen._registry_preview
     QTest.mouseClick(host.toggle,Qt.LeftButton);settle(.5)
     panel=host.panel
@@ -200,9 +210,13 @@ def record_preview(app,window,screen,work,captures,capture,settle,write_json,tim
             if not isinstance(dialog,QFileDialog):raise ValueError('The actual preview picker did not open')
             dialog.accepted.connect(lambda:accepted.append(True))
             dialog.resize(1500,1000)
+            # Browse to the folder, then type the file name: a typed absolute
+            # path races the picker's completer.
+            dialog.setDirectory(str(work));settle(.4)
             field=dialog.findChild(QLineEdit,'fileNameEdit');field.setFocus()
             QTest.keyClick(field,Qt.Key_A,Qt.ControlModifier)
-            QTest.keyClicks(field,str(work/'cell_pair_02.tif'));settle(.2)
+            QTest.keyClicks(field,'cell_pair_02.tif');settle(.2)
+            if field.text()!='cell_pair_02.tif':raise ValueError(f'The picker holds {field.text()!r}')
             capture('17_actual_preview_image_picker')
             QTest.mouseClick(dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Open),Qt.LeftButton)
         except Exception as error:

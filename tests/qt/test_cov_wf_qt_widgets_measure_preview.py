@@ -14,6 +14,8 @@ about something not happening cannot pass on code that never ran.
 """
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 import pytest
 from PySide6.QtWidgets import QLabel, QSizePolicy, QSpacerItem, QWidget
@@ -279,6 +281,7 @@ def test_a_click_on_a_thumbnail_that_is_gone_is_ignored(panel, tmp_path):
     entry = panel._crops[0]
     described = panel._status.text()
     assert described == (
+        f"{Path(entry['source_path']).name} · "
         f"label {entry['label']} · {entry['area']} px² · "
         f"{entry['category']} · 1 selected")
 

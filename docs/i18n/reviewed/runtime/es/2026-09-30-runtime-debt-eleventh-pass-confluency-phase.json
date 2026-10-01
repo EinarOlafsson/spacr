@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, eleventh pass 2026-09-30: the confluency_channel, confluency_source and confluency_window tooltips that item 536's phase confluency source rewrote, re-translated from the earlier reviewed wording and technically reviewed by AI against the new English. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_channel",
+      "source": "The merged-array channel that the texture, intensity and phase confluency sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture or phase, or the cytoplasm or membrane stain for intensity. Ignored when confluency_source resolves to masks. Default None.",
+      "source_sha256": "7578bb1f6d42093da1b5b6e361d10e7890278a20b883516e0dcd7bd6deb80adf",
+      "translation": "El canal de la matriz fusionada que leen las fuentes de confluencia de textura, intensidad y fase, contado como en channels. En blanco usa la primera entrada de channels. Elija el plano de campo claro o de fase para textura o fase, o la tinción de citoplasma o de membrana para intensidad. Se ignora cuando confluency_source se resuelve en máscaras. Valor predeterminado: None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_source",
+      "source": "How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold. phase classifies every pixel of confluency_channel with a small model, for phase contrast and brightfield; weights trained on LIVECell, CC BY-NC 4.0, non-commercial use. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.",
+      "source_sha256": "1ad7c53391ca65eafe218c43afc1b78b597ef9635c7d5c63fed1de29970f4436",
+      "translation": "Cómo se decide la confluencia. auto usa las máscaras de células cuando la ejecución las tiene, y la textura en caso contrario. masks es la unión de todas las células segmentadas, antes de los filtros de tamaño de Measure. texture lee la variación local de confluency_channel con un umbral automático. phase clasifica cada píxel de confluency_channel con un modelo pequeño entrenado con imágenes de contraste de fase de ocho líneas celulares, para contraste de fase y campo claro. intensity umbraliza confluency_channel automáticamente, para tinciones fluorescentes de citoplasma o de membrana. Valor predeterminado: auto."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_window",
+      "source": "Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. For phase, the field is first resized by 15/window, so raise it in proportion when cells are more pixels across than in the classifier's training images. Ignored by the masks and intensity sources. Default 15.",
+      "source_sha256": "b67b9aee3ea6ab1b6d9cfa65b4f72c2567c5d6d012d87cbce7c7b17169830eed",
+      "translation": "Lado de la ventana cuadrada, en píxeles, sobre la que la fuente de confluencia de textura mide la variación local. Aproximadamente el ancho de la prolongación celular más fina que debe contar como cubierta: una ventana menor sigue los bordes más de cerca pero deja como huecos el interior liso de las células, una mayor salva huecos estrechos. Para fase, el campo se reescala primero por 15/ventana, así que auméntela en proporción cuando las células ocupen más píxeles que en las imágenes de entrenamiento del clasificador. Las fuentes de máscaras e intensidad lo ignoran. Valor predeterminado: 15."
+    }
+  ]
+}

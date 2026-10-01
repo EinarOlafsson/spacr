@@ -119,9 +119,53 @@ def remembered_sources() -> tuple:
     except Exception:                                       # noqa: BLE001
         stored = None
     if stored is None:
-        return tuple(model_zoo.DEFAULT_ZOO_SOURCES)
-    chosen = {name.strip() for name in stored.split(",") if name.strip()}
+        chosen = set(model_zoo.DEFAULT_ZOO_SOURCES)
+    else:
+        chosen = {name.strip() for name in stored.split(",") if name.strip()}
+    if _cellpose3_heading_turns_on(chosen):
+        chosen.add("cellpose3")
     return tuple(name for name in model_zoo.ZOO_SOURCES if name in chosen)
+
+
+#: QSettings key recording that the cellpose3 heading was turned on for an
+#: installed Cellpose 3 backend, so it is turned on once and not again.
+_CELLPOSE3_SHOWN_SETTING = "model_zoo/cellpose3_shown_after_install"
+
+
+def _cellpose3_heading_turns_on(chosen) -> bool:
+    """Whether the cellpose3 heading comes on now, the backend being here.
+
+    Item 503. The heading is off by default, so a user who installed the
+    Cellpose 3 backend found cyto, cyto2, cyto3 and nuclei nowhere -- they
+    were in the catalogue, under a heading folded away. The first time the
+    headings are read with the backend installed, cellpose3 is turned on and
+    that is remembered; a user who turns it off afterwards has said so, and
+    it stays off.
+
+    :param chosen: the headings that are on; not changed here.
+    :returns: True when cellpose3 should be added to them.
+    """
+    if "cellpose3" in chosen:
+        return False
+    try:
+        from PySide6.QtCore import QSettings
+
+        from ... import _segmentation_backends as backends
+
+        settings = QSettings()
+        if str(settings.value(_CELLPOSE3_SHOWN_SETTING, "") or "") == "1":
+            return False
+        if not backends._backend_state(backends._CELLPOSE3).ready:
+            return False
+        from ... import model_zoo
+
+        settings.setValue(_CELLPOSE3_SHOWN_SETTING, "1")
+        settings.setValue(_SOURCES_SETTING, ",".join(
+            name for name in model_zoo.ZOO_SOURCES
+            if name in chosen or name == "cellpose3"))
+    except Exception:                                       # noqa: BLE001
+        return False
+    return True
 
 
 def _remember_sources(names) -> None:
@@ -261,11 +305,19 @@ class SourceStrip(QWidget):
         row.addStretch(1)
 
     def heading(self, name: str) -> _SourceHeading:
-        """The label for one source, for a test or a tooltip retarget."""
+        """The label for one source, for a test or a tooltip retarget.
+
+        :param name: a source name from :data:`spacr.model_zoo.ZOO_SOURCES`;
+            converted to ``str``. An unknown name raises :class:`KeyError`.
+        """
         return self._headings[str(name)]
 
     def is_on(self, name: str) -> bool:
-        """Whether one heading is on."""
+        """Whether one heading is on.
+
+        :param name: a source name from :data:`spacr.model_zoo.ZOO_SOURCES`;
+            converted to ``str``, and an unknown name gives False.
+        """
         heading = self._headings.get(str(name))
         return bool(heading is not None and heading.is_on())
 
@@ -414,8 +466,8 @@ def _human_bytes_local(size: float) -> str:
     second.
     """
     value = float(size)
-    for unit in ("B", "kB", "MB", "GB"):
-        if value < 1024 or unit == "GB":
+    for unit in ("B", "kB", "MB"):
+        if value < 1024:
             return f"{value:.1f} {unit}" if unit != "B" else f"{int(value)} B"
         value /= 1024.0
     return f"{value:.1f} GB"
@@ -423,8 +475,8 @@ def _human_bytes_local(size: float) -> str:
 
 def _human_rate(bytes_per_second: float) -> str:
     """A transfer rate a person can read."""
-    for unit in ("B/s", "kB/s", "MB/s", "GB/s"):
-        if bytes_per_second < 1024 or unit == "GB/s":
+    for unit in ("B/s", "kB/s", "MB/s"):
+        if bytes_per_second < 1024:
             return f"{bytes_per_second:.1f} {unit}"
         bytes_per_second /= 1024.0
     return f"{bytes_per_second:.1f} GB/s"
@@ -501,16 +553,51 @@ class BackendInstallDialog(QDialog):
     command's own output, verbatim.
 
     :param name: the backend, e.g. ``'cellpose3'``.
-    :param parent: the widget that opened it.
+    :param parent: the widget that opened it; the dialog's parent is its
+        window.
     :param uninstall: remove the backend's environment instead.
     :param job: ``job(progress=..., cancel=...)``; the real install or
         uninstall when None. Tests pass their own.
+    :param reinstall: build an installed backend's environment again
+        (item 518), for a backend installed before a package it now needs
+        was pinned; the dialog says so and its button says Reinstall.
+    :param why: a sentence saying why the install is offered, shown first
+        in the description.
+    :ivar error: the last failure's message, verbatim; empty until one.
+
+    THE SCREEN BEHIND IT CAN FOLLOW IT. :attr:`job_started`,
+    :attr:`job_progressed`, :attr:`job_failed` and :attr:`job_cancelled`
+    tell the widget that opened the dialog what the install is doing, so a
+    button can say "installing" while it runs and a console can say why it
+    failed after the dialog has gone.
+
+    IT BELONGS TO THE WINDOW, NOT THE WIDGET THAT ASKED (item 521). A dialog
+    inherits the style sheet of every widget above it, and Plaque Assay asks
+    from its preview, whose own scale slider re-states the application sheet
+    at that preview's scale: at 150 % Install and Cancel were 59 px tall,
+    not the 40 px of every other button. Parented to ``parent.window()`` it
+    is themed like every other dialog and still centred on, and modal to,
+    the window that opened it.
+
+    THE BAR SITS ON THE BUTTONS. The progress line is the last thing above
+    the buttons and the status keeps four lines' room while a job runs, so
+    the bar does not move as the status line grows and shrinks.
     """
 
+    #: The job started on its worker thread.
+    job_started = Signal()
+    #: The line the dialog now shows, already translated.
+    job_progressed = Signal(str)
+    #: The job failed; its message, verbatim.
+    job_failed = Signal(str)
+    #: The job was cancelled and nothing was left behind.
+    job_cancelled = Signal()
+
     def __init__(self, name: str, parent: Optional[QWidget] = None, *,
-                 uninstall: bool = False, job=None):
+                 uninstall: bool = False, job=None, reinstall: bool = False,
+                 why: str = ""):
         """Describe the backend and wait for the button."""
-        super().__init__(parent)
+        super().__init__(parent.window() if parent is not None else None)
         from ... import _segmentation_backends as backends
         from ..preferences import scaled_px
 
@@ -534,22 +621,29 @@ class BackendInstallDialog(QDialog):
         self.state = None
         self.installed = False
         self.removed = False
+        self.error = ""
         if job is None:
             if self._uninstall:
                 def job(progress=None, cancel=None, _name=spec.name):
                     """Remove the environment; there is nothing to cancel."""
                     return backends._uninstall_backend(_name)
             else:
-                def job(progress=None, cancel=None, _name=spec.name):
+                def job(progress=None, cancel=None, _name=spec.name,
+                        _again=bool(reinstall)):
                     """Build the environment and install into it."""
+                    extra = {"reinstall": True} if _again else {}
                     return backends._install_backend(
-                        _name, progress=progress, cancel=cancel)
+                        _name, progress=progress, cancel=cancel, **extra)
         self._job = job
+        self._reinstall = bool(reinstall) and not self._uninstall
 
         state = backends._backend_state(spec.name)
-        verb = tr("Uninstall") if self._uninstall else tr("Install")
-        self.setWindowTitle(tr("Uninstall {name}", name=self._label)
-                            if self._uninstall else tr("Install {name}", name=self._label))
+        verb = tr("Uninstall") if self._uninstall else (
+            tr("Reinstall") if self._reinstall else tr("Install"))
+        self.setWindowTitle(
+            tr("Uninstall {name}", name=self._label) if self._uninstall else
+            tr("Reinstall {name}", name=self._label) if self._reinstall else
+            tr("Install {name}", name=self._label))
         self.setMinimumWidth(scaled_px(560))
         layout = QVBoxLayout(self)
 
@@ -559,7 +653,8 @@ class BackendInstallDialog(QDialog):
                       "is not touched, and you can install it again at any time.",
                       name=self._label, environment=state.env)
         else:
-            packages = ", ".join(spec.torch + spec.requirements)
+            packages = ", ".join(spec.torch + spec.requirements
+                                  + spec.without_dependencies)
             text = "\n\n".join((tr(spec.blurb), tr(
                 "It installs into an environment of its own, {environment}, and "
                 "spaCR's own environment is not changed. Downloads: {packages}. Allow about "
@@ -569,6 +664,14 @@ class BackendInstallDialog(QDialog):
                 "unfinished environment.", environment=state.env,
                 packages=packages, size_gb=spec.size_gb),
                 tr("Licence: {licence}", licence=tr(spec.licence_note))))
+            if self._reinstall:
+                text = "\n\n".join((tr(
+                    "Reinstalling deletes {name}'s environment, {environment}, "
+                    "and builds it again with what spaCR pins for it now. If "
+                    "it fails, nothing is left and it can be installed again.",
+                    name=self._label, environment=state.env), text))
+            if why:
+                text = "\n\n".join((str(why), text))
         self.blurb = QLabel(text, self)
         self.blurb.setWordWrap(True)
         self.blurb.setTextInteractionFlags(Qt.TextSelectableByMouse)
@@ -578,10 +681,6 @@ class BackendInstallDialog(QDialog):
         self.reason.setWordWrap(True)
         self.reason.setTextInteractionFlags(Qt.TextSelectableByMouse)
         layout.addWidget(self.reason)
-
-        self.progress = QProgressBar(self)
-        self.progress.setVisible(False)
-        layout.addWidget(self.progress)
 
         self.status = QLabel("", self)
         self.status.setWordWrap(True)
@@ -595,6 +694,12 @@ class BackendInstallDialog(QDialog):
         self.details.setVisible(False)
         self.details.setMinimumHeight(scaled_px(160))
         layout.addWidget(self.details, 1)
+
+        from .eliding import ProgressLine
+
+        self.progress = ProgressLine(self, detail=False)
+        self.progress.setVisible(False)
+        layout.addWidget(self.progress)
 
         buttons = QDialogButtonBox(self)
         self.start_button = buttons.addButton(verb, QDialogButtonBox.AcceptRole)
@@ -629,6 +734,7 @@ class BackendInstallDialog(QDialog):
         self.details.setVisible(False)
         self.details.setPlainText("")
         self.reason.setText("")
+        self.status.setMinimumHeight(self.status.fontMetrics().lineSpacing() * 4)
         self.progress.setVisible(True)
         self.progress.setRange(0, 0)
         self.start_button.setEnabled(False)
@@ -643,6 +749,7 @@ class BackendInstallDialog(QDialog):
         self._worker.failed.connect(self._on_failed)
         self._worker.cancelled.connect(self._on_cancelled)
         self._thread.start()
+        self.job_started.emit()
 
     def _on_progress(self, step: int, steps: int, text: str) -> None:
         """Show which step it is on, and the latest line it printed."""
@@ -657,6 +764,11 @@ class BackendInstallDialog(QDialog):
                 shown = translated + text[len(source):]
                 break
         self.status.setText(shown[:300])
+        if steps > 1:
+            shown = "{}  ({})".format(shown, tr(
+                "step {step} of {steps}", step=min(step + 1, steps),
+                steps=steps))
+        self.job_progressed.emit(shown[:300])
 
     def _join(self) -> None:
         """Retire the worker thread."""
@@ -688,6 +800,8 @@ class BackendInstallDialog(QDialog):
             tr("Installing {name} failed. Nothing was left half-built.", name=self._label))
         self.details.setPlainText(message)
         self.details.setVisible(True)
+        self.error = message
+        self.job_failed.emit(message)
         self.start_button.setText(tr("Try again"))
         self.start_button.setEnabled(True)
         self.cancel_button.setEnabled(True)
@@ -699,6 +813,7 @@ class BackendInstallDialog(QDialog):
         """Cancelled: the half-built environment is already gone."""
         self._join()
         self.status.setText(tr("Cancelled. Nothing was left behind."))
+        self.job_cancelled.emit()
         self.start_button.setEnabled(True)
         self.cancel_button.setEnabled(True)
         self.cancel_button.setText(tr("Close"))
@@ -718,7 +833,12 @@ class BackendInstallDialog(QDialog):
         super().reject()
 
     def closeEvent(self, event):                            # noqa: N802
-        """Closing the window is Cancel; it never leaves a thread behind."""
+        """Closing the window is Cancel; it never leaves a thread behind.
+
+        :param event: the close event; while a job is running it is ignored
+            and :meth:`reject` is called instead, otherwise it is passed on to
+            the base class.
+        """
         if self.running:
             self.reject()
             event.ignore()
@@ -726,19 +846,210 @@ class BackendInstallDialog(QDialog):
         super().closeEvent(event)
 
 
-def install_backend(parent, name: str) -> bool:
+def install_backend(parent, name: str, *, watch=None, reinstall: bool = False,
+                    why: str = "") -> bool:
     """Open the install dialog for one backend. True when it is ready after.
 
-    Shared by the Model Zoo screen, the Model Zoo button and the Make Masks
-    Mode box, so the three places that can start an install say the same
-    thing about it and run the same install.
+    Shared by the Model Zoo screen, the Model Zoo button, the Make Masks
+    Mode box and Plaque Assay's Figure mode, so the places that can start an
+    install say the same thing about it and run the same install.
 
     :param parent: the widget asking.
     :param name: the backend.
+    :param watch: ``watch(dialog)``, called before the dialog opens, so the
+        caller can connect to its ``job_*`` signals and follow the install.
+    :param reinstall: build an installed backend again (item 518).
+    :param why: a sentence saying why it is offered, shown in the dialog.
     """
-    dialog = BackendInstallDialog(name, parent)
+    dialog = BackendInstallDialog(name, parent, reinstall=reinstall, why=why)
+    if watch is not None:
+        watch(dialog)
     dialog.exec()
     return dialog.installed
+
+
+_POLL_MS = 2000
+_NOT_INSTALLED = "not installed"
+_INSTALLING_FACE = "installing"
+_INSTALLED_FACE = "installed"
+
+
+def _disk_state(name: str):
+    """Where ``name`` stands on disk, or None when that cannot be read."""
+    from ... import _segmentation_backends as backends
+
+    try:
+        return backends._backend_state(name)
+    except (OSError, ValueError):
+        return None
+
+
+class _BackendInstallButton(QPushButton):
+    """Install one backend; the caption always says where it stands.
+
+    Item 507. Pressing "Install Cellpose 3…" opened a dialog, and after
+    Install nothing said anything more: not that it was
+    installing, not that it had finished, and not that Cellpose 3 was already
+    there. This button has three faces, and each is read from the backend's
+    environment ON DISK (:func:`spacr._segmentation_backends._backend_state`
+    -- the marker the installer writes and the environment's own Python),
+    never from a flag this widget keeps:
+
+    * not installed -- "Install Cellpose 3…", enabled;
+    * installing -- "Installing Cellpose 3…", greyed, from the moment the job
+      starts until it ends, and also while ANOTHER window's install holds the
+      backend's lock;
+    * installed -- "Cellpose 3 is installed", greyed.
+
+    A failure is said in words by :attr:`said`, with the installer's own
+    message, so the screen can put it in its console after the dialog has
+    closed. The install itself is :func:`install_backend`, unchanged.
+
+    THE TOOLTIP IS ITS OWNER'S. Make Masks gives the button an API-linked
+    tooltip, and a caption that changes must not overwrite it; the caption
+    carries the state and :attr:`said` carries the reasons.
+
+    :param name: the backend, e.g. ``'cellpose3'``.
+    :param parent: parent widget.
+    :param probe: ``probe(name) -> state`` with ``.state``, ``.reason`` and
+        ``.env`` as :class:`spacr._segmentation_backends._BackendState` has
+        them; the real on-disk check when None. Tests pass a fake.
+    :param installer: ``installer(parent, name, watch=...) -> bool``;
+        :func:`install_backend` when None.
+    :param captions: ``(install, installing, installed)``, already
+        translated, for an owner whose captions have reviewed translations
+        of their own; built from the backend's name when None.
+    :ivar said: ``(text, kind)`` for the screen's console. ``kind`` is
+        ``progress`` (one line, rewritten while the install runs),
+        ``stream`` (one line of the install's own output, pip's included,
+        for a console that redraws it in place and throttles it), ``info``,
+        ``warning`` or ``error``.
+    :ivar installed: the backend became ready through this button.
+    """
+
+    said = Signal(str, str)
+    installed = Signal()
+
+    def __init__(self, name: str, parent=None, *, probe=None, installer=None,
+                 captions=None):
+        """Build the button and read where the backend stands."""
+        super().__init__(parent)
+        from ... import _segmentation_backends as backends
+
+        self._name = str(name)
+        self._label = tr(backends._spec(self._name).label)
+        self._captions = tuple(captions) if captions else (
+            tr("Install {name}…", name=self._label),
+            tr("Installing {name}…", name=self._label),
+            tr("{name} is installed", name=self._label))
+        self._probe = probe or _disk_state
+        self._installer = installer
+        self._running = False
+        self._face = ""
+        self._poll = QTimer(self)
+        self._poll.setInterval(_POLL_MS)
+        self._poll.timeout.connect(self.sync)
+        self.clicked.connect(self._install)
+        self.sync()
+
+    def face(self) -> str:
+        """Which of the three faces the button shows now."""
+        return self._face
+
+    def sync(self) -> str:
+        """Read the backend's state from disk and show it.
+
+        :returns: the face now shown.
+        """
+        from ... import _segmentation_backends as backends
+
+        state = None if self._running else self._probe(self._name)
+        kind = getattr(state, "state", "")
+        if self._running or kind == backends._INSTALLING:
+            face = _INSTALLING_FACE
+            self.setText(self._captions[1])
+        elif kind == backends._INSTALLED:
+            face = _INSTALLED_FACE
+            self.setText(self._captions[2])
+        else:
+            face = _NOT_INSTALLED
+            self.setText(self._captions[0])
+        self.setEnabled(face == _NOT_INSTALLED)
+        polling = face == _INSTALLING_FACE and not self._running
+        if polling and not self._poll.isActive():
+            self._poll.start()
+        elif not polling:
+            self._poll.stop()
+        self._face = face
+        return face
+
+    def showEvent(self, event) -> None:
+        """Re-read the disk whenever the button comes on screen: the backend
+        may have been installed or removed from the Model Zoo meanwhile."""
+        super().showEvent(event)
+        self.sync()
+
+    def _install(self) -> None:
+        """Open the installer, follow it, and say how it ended."""
+        installer = self._installer or install_backend
+        failed = []
+        try:
+            ready = bool(installer(self, self._name,
+                                   watch=lambda dialog: self._watch(dialog,
+                                                                    failed)))
+        finally:
+            self._running = False
+        face = self.sync()
+        if ready or face == _INSTALLED_FACE:
+            self.said.emit(tr("{name} is installed", name=self._label), "info")
+            self.installed.emit()
+        elif not failed:
+            self.said.emit(tr("{name} was not installed.", name=self._label),
+                           "info")
+
+    def _watch(self, dialog, failed: list) -> None:
+        """Follow ``dialog``'s job: the caption while it runs, the words after.
+
+        :param dialog: the install dialog, before it opens.
+        :param failed: gets the failure message, so :meth:`_install` does not
+            also say "not installed" over it.
+        """
+        def started():
+            """The job began: the button says so and is greyed."""
+            self._running = True
+            self.sync()
+            self.said.emit(tr("Installing {name}…", name=self._label),
+                           "progress")
+
+        def progressed(text):
+            """One line of the install's output (pip's included), rewritten
+            in place and throttled by whoever shows it."""
+            self.said.emit("{}: {}".format(
+                tr("Installing {name}…", name=self._label), text), "stream")
+
+        def stopped():
+            """Cancelled or failed: the button is back to what the disk says."""
+            self._running = False
+            self.sync()
+
+        def failure(message):
+            """Say why, in the installer's own words."""
+            failed.append(message)
+            stopped()
+            self.said.emit("{} {}".format(
+                tr("Installing {name} failed. Nothing was left half-built.",
+                   name=self._label), message), "error")
+
+        def cancelled():
+            """Say that nothing was installed and nothing was left."""
+            stopped()
+            failed.append("")
+            self.said.emit(tr("Cancelled. Nothing was left behind."), "info")
+
+        dialog.job_started.connect(started)
+        dialog.job_progressed.connect(progressed)
+        dialog.job_failed.connect(failure)
+        dialog.job_cancelled.connect(cancelled)
 
 
 def uninstall_backend(parent, name: str) -> bool:
@@ -775,6 +1086,10 @@ class ModelZooPicker(QDialog):
 
     #: Emitted with the local path when the user accepts a model.
     model_chosen = Signal(str)
+
+    #: Emitted from the bioimage.io warm-up thread when its rows changed;
+    #: queued onto the GUI thread, where it redraws the table.
+    _bioimageio_warmed = Signal()
 
     def __init__(self, kinds: Optional[tuple] = None, parent: Optional[QWidget] = None):
         """Build the model zoo dialog.
@@ -813,9 +1128,6 @@ class ModelZooPicker(QDialog):
         self.table.horizontalHeader().setSectionResizeMode(
             2, QHeaderView.Stretch)
         self.table.itemSelectionChanged.connect(self._selection_changed)
-        # A CLICK offers the install, the same as the Make Masks Mode box.
-        # itemClicked fires only for a person, so restoring a selection in
-        # code never opens a modal.
         self.table.itemClicked.connect(self._row_clicked)
         layout.addWidget(self.table, 1)
 
@@ -823,9 +1135,6 @@ class ModelZooPicker(QDialog):
         self.sources.changed.connect(self._sources_changed)
         layout.insertWidget(layout.indexOf(self.table), self.sources)
 
-        # The scorecard sits between the list and the controls, at a fixed
-        # height: a box that grew and shrank with the selected model would
-        # move the Download button under the pointer between clicks.
         self.card = QTextBrowser(self)
         self.card.setOpenExternalLinks(True)
         self.card.setFixedHeight(200)
@@ -845,7 +1154,9 @@ class ModelZooPicker(QDialog):
         folder_row.addWidget(add)
         layout.addLayout(folder_row)
 
-        self.progress = QProgressBar(self)
+        from .eliding import ProgressLine
+
+        self.progress = ProgressLine(self, detail=False)
         self.progress.setVisible(False)
         layout.addWidget(self.progress)
 
@@ -868,10 +1179,33 @@ class ModelZooPicker(QDialog):
         buttons.addButton(QDialogButtonBox.Cancel)
         buttons.rejected.connect(self.reject)
         buttons.accepted.connect(self._accept_selected)
-        layout.addWidget(buttons)
+
+        from ..prerun import diameter_screen_of
+
+        self._diameter_screen = diameter_screen_of(parent)
+        self._diameter_dialog = None
+        self.diameter_button = None
+        if self._diameter_screen is None:
+            layout.addWidget(buttons)
+        else:
+            bottom = QHBoxLayout()
+            self.diameter_button = QPushButton(tr("Measure diameters…"), self)
+            self.diameter_button.setObjectName("DiameterButton")
+            self.diameter_button.setAutoDefault(False)
+            self.diameter_button.setToolTip(tr(
+                "Measure the cell, nucleus and pathogen diameters from a few "
+                "fields of your own images, and write them into Mask "
+                "generation's settings. API: spacr.qt.prerun.DiameterDialog."))
+            self.diameter_button.clicked.connect(self._measure_diameters)
+            bottom.addWidget(self.diameter_button)
+            bottom.addStretch(1)
+            bottom.addWidget(buttons)
+            layout.addLayout(bottom)
 
         self.refresh()
         self._warm_the_community_catalogue()
+        self._bioimageio_warmed.connect(self.refresh)
+        self._warm_bioimageio()
         self._probe_backends()
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
@@ -900,6 +1234,26 @@ class ModelZooPicker(QDialog):
         notes=(),
     )
 
+    def _measure_diameters(self) -> None:
+        """Open the diameter popup for the Mask generation screen (item 533).
+
+        One popup per zoo window, opened again rather than rebuilt, and
+        window-modal on the zoo so the zoo is where the user returns. What
+        it measures is also kept on the screen, so a later zoo window shows
+        it too.
+        """
+        dialog = self._diameter_dialog
+        if dialog is None:
+            from ..prerun import diameter_dialog
+
+            dialog = diameter_dialog(self._diameter_screen, parent=self)
+            if dialog is None:
+                self.status.setText(tr("Could not open the diameter estimate."))
+                return
+            self._diameter_dialog = dialog
+        dialog.open()
+        dialog.raise_()
+
     def _warm_the_community_catalogue(self) -> None:
         """Fetch the community rows off the GUI thread, then redraw.
 
@@ -927,17 +1281,38 @@ class ModelZooPicker(QDialog):
             lambda: model_zoo.shared_catalogue(block=True),
             lambda _entries: self.refresh())
 
-        def _warm_bioimageio():
-            """Fill the bioimage.io cache on the same background pass, so the
-            listing has its rows without catalogue() ever making a network call.
-            """
+    def _warm_bioimageio(self) -> None:
+        """Refresh bioimage.io's collection off the GUI thread, then redraw.
+
+        :func:`spacr.model_zoo.catalogue` reads bioimage.io's rows from the
+        cache only, so the fetch happens here. It used to run only when the
+        community catalogue was stale, and the table was not redrawn when it
+        landed, so a first opening showed an empty bioimage.io category.
+        """
+        def _warm():
+            """Fetch the collection on this worker thread; signal a redraw
+            only when what the table would show changed. Any failure is
+            silent: the cached rows stay on screen."""
             try:
                 from ... import model_zoo
-                model_zoo.bioimageio_entries(allow_network=True)
-            except Exception:                                # noqa: BLE001
-                pass
 
-        threading.Thread(target=_warm_bioimageio, daemon=True).start()
+                def seen(rows):
+                    """What the table shows of ``rows``: one
+                    ``(key, uri, notes, size_bytes)`` tuple per entry, so
+                    two fetches compare by what a user would see."""
+                    return [(e.key, e.uri, e.notes, e.size_bytes) for e in rows]
+
+                before = seen(model_zoo.bioimageio_entries())
+                after = seen(model_zoo.bioimageio_entries(allow_network=True))
+            except Exception:
+                return
+            if after != before:
+                try:
+                    self._bioimageio_warmed.emit()
+                except RuntimeError:
+                    pass
+
+        threading.Thread(target=_warm, daemon=True).start()
 
     def _probe_backends(self) -> None:
         """Check the network for the backends that are not installed, off
@@ -987,10 +1362,6 @@ class ModelZooPicker(QDialog):
 
         try:
             entries = [self.STOCK_MODEL]
-            # The catalogue lists the Cellpose stock models too. Duplicates
-            # are collapsed per version label by group_entries, which catches
-            # the stock row whose key and name disagree -- name "cpsam", key
-            # "cpsam_v2" -- where a name comparison here did not.
             entries += list(model_zoo.catalogue(remote=True, block=False))
             if self.sources.is_on("spaCR community"):
                 entries += list(model_zoo.community_entries())
@@ -998,11 +1369,11 @@ class ModelZooPicker(QDialog):
             self.status.setText(f"Could not read the model list: {exc}")
             entries = [self.STOCK_MODEL]
         if self._kinds:
-            # Installable backends survive the kind filter: they are listed so
-            # a user learns they exist, which is the whole point of showing a
-            # thing that is not installed.
             entries = [e for e in entries
                        if e.kind in self._kinds or e.kind == "backend"]
+        from ..screens.model_zoo import _model_is_alpha_hidden
+
+        entries = [e for e in entries if not _model_is_alpha_hidden(e)]
         self._entries = entries
 
         self._rebuild(entries)
@@ -1017,9 +1388,6 @@ class ModelZooPicker(QDialog):
 
         self._entries = list(entries)
 
-        # Tear the old rows down FIRST. A combo box from the previous refresh
-        # is still wired to _version_picked, and setRowCount destroying it can
-        # emit currentIndexChanged against groups that no longer exist.
         self._rebuilding = True
         self.table.clearContents()
         self.table.setRowCount(0)
@@ -1278,8 +1646,6 @@ class ModelZooPicker(QDialog):
         if not installed:
             self.status.setText("")
             return
-        # Leave the row the user just installed selected, so "install it and
-        # use it" is one action rather than install-then-hunt-for-the-row.
         for group, (stem, pairs) in enumerate(self._groups):
             if any(getattr(e, "name", "") == label for _l, e in pairs):
                 row = self._row_of_group(group)
@@ -1328,18 +1694,24 @@ class ModelZooPicker(QDialog):
         knowingly.
         """
         entry = self.selected_entry()
-        local = self._local_path(entry) if entry else None
-        installs = entry is not None and _needs_install(entry)
+        refused = _cannot_run(entry) if entry is not None else ""
+        local = self._local_path(entry) if entry and not refused else None
+        installs = entry is not None and not refused and _needs_install(entry)
         backend_row = getattr(entry, "kind", "") == "backend"
-        self.use_button.setEnabled(bool(local) and not backend_row)
+        self.use_button.setEnabled(bool(local) and not backend_row
+                                   and not installs)
         self.download_button.setText("Install" if installs else "Download")
         self.download_button.setEnabled(
-            bool(entry) and not local and not backend_row or installs)
+            bool(entry) and not local and not backend_row and not refused
+            or installs)
         self.uninstall_button.setEnabled(_removable(entry))
         self.use_button.setToolTip(
-            _where_a_backend_is_chosen(entry) if backend_row else "")
+            _where_a_backend_is_chosen(entry) if backend_row
+            else tr(refused) if refused else "")
         self._show_card(entry)
-        if backend_row:
+        if refused:
+            self.status.setText(tr(refused))
+        elif backend_row:
             self.status.setText(_where_a_backend_is_chosen(entry))
         elif installs:
             self.status.setText("")
@@ -1368,8 +1740,6 @@ class ModelZooPicker(QDialog):
         if backend_row:
             html += _backend_card(entry)
         if not html:
-            # The stock model is a SimpleNamespace, not a ModelEntry, so it has
-            # no describe(); fall back to what any entry-shaped object has.
             describe = getattr(entry, "describe", None)
             if callable(describe):
                 html = f"<p>{describe()}</p>"
@@ -1382,8 +1752,18 @@ class ModelZooPicker(QDialog):
 
             html += (f"<p><b style='color:#b45309'>{_zoo.COMMUNITY_WARNING}"
                      "</b></p>")
-        if getattr(entry, "kind", "") == "cellpose3":
+        refused = _cannot_run(entry)
+        if refused:
+            import html as _html
+
+            html += ("<p><b style='color:#b45309'>"
+                     + _html.escape(tr(refused)) + "</b></p>")
+        elif getattr(entry, "kind", "") == "cellpose3":
             html += _cellpose3_card(entry)
+        elif getattr(entry, "kind", "") == "cellpose_dino":
+            html += _cellpose_dino_card(entry)
+        elif _prefixed_kind(entry):
+            html += _prefixed_card(entry)
         url = getattr(entry, "model_card_url", "")
         if url:
             html += f'<p><a href="{url}">{url}</a></p>'
@@ -1404,7 +1784,7 @@ class ModelZooPicker(QDialog):
         from ... import model_zoo
 
         entry = self.selected_entry()
-        if entry is None:
+        if entry is None or _cannot_run(entry):
             return
         if _needs_install(entry) or getattr(entry, "kind", "") == "backend":
             self._install_backend(entry)
@@ -1531,12 +1911,32 @@ class ModelZooPicker(QDialog):
         """Announce the selected model's local path and close.
 
         A model that is not on this machine yet does nothing: there is no path
-        to hand back.
+        to hand back. A Cellpose 3 model or checkpoint is handed back as
+        ``cellpose3:<name or path>`` (item 503): that is what sends the object
+        to the Cellpose 3 backend, where a bare ``cyto3`` would be read as a
+        retired Cellpose name and run as cpsam. A Cellpose-DINO checkpoint is
+        handed back as ``cellpose_dino:<path>`` (item 525), which sends the
+        object to the Cellpose-DINO backend. A StarDist, InstanSeg or
+        Omnipose model is handed back as ``<prefix><name>`` (items 551-553),
+        e.g. ``stardist:2D_versatile_fluo``.
         """
         entry = self.selected_entry()
-        local = self._local_path(entry) if entry else None
+        local = (self._local_path(entry)
+                 if entry and not _cannot_run(entry) else None)
         if not local:
             return
+        if getattr(entry, "kind", "") == "cellpose3":
+            from ..._segmentation_backends import _cellpose3_value
+
+            local = _cellpose3_value(local)
+        elif getattr(entry, "kind", "") == "cellpose_dino":
+            from ..._segmentation_backends import _cellpose_dino_value
+
+            local = _cellpose_dino_value(local)
+        elif _prefixed_kind(entry):
+            from ..._segmentation_backends import _prefixed_value
+
+            local = _prefixed_value(_prefixed_kind(entry), local)
         self._chosen_path = local
         self.model_chosen.emit(local)
         self.accept()
@@ -1564,7 +1964,11 @@ class ModelZooPicker(QDialog):
         self._worker = None
 
     def closeEvent(self, event):                            # noqa: N802
-        """Join the download before the dialog goes away."""
+        """Join the download before the dialog goes away.
+
+        :param event: the close event; passed on to the base class after any
+            download is stopped.
+        """
         self._stop_any_download()
         super().closeEvent(event)
 
@@ -1589,6 +1993,12 @@ class ModelZooPicker(QDialog):
         timer = getattr(self, "_probe_timer", None)
         if timer is not None:
             timer.stop()
+        diameters = getattr(self, "_diameter_dialog", None)
+        if diameters is not None:
+            try:
+                diameters.close()
+            except RuntimeError:
+                pass
         super().done(result)
 
     def chosen_path(self) -> Optional[str]:
@@ -1615,8 +2025,15 @@ def _status_text(entry, local) -> str:
     source = getattr(entry, "source", "")
     if kind == "backend":
         return _BACKEND_STATUS.get(source, source)
+    if _cannot_run(entry):
+        return tr("spaCR cannot run this")
     if kind == "cellpose3" and source == "stock" and not local:
         return "needs the Cellpose 3 backend"
+    if kind == "cellpose_dino" and not _cellpose_dino_ready():
+        return tr("needs the Cellpose-DINO backend")
+    if _prefixed_kind(entry) and source == "stock" and not local:
+        return tr("needs the {backend} backend",
+                  backend=_prefixed_label(entry))
     return "on this machine" if local else "not downloaded"
 
 
@@ -1642,6 +2059,17 @@ def _where_a_backend_is_chosen(entry) -> str:
     except Exception:                                        # noqa: BLE001
         spec = None
     installed = str(getattr(entry, "source", "")) == "installed"
+    if backend == "cellpose_dino":
+        return i18n.tr(
+            "{name} is a backend, not a checkpoint file. Install it here, "
+            "then download a Cellpose-DINO model from the bioimage.io "
+            "heading and press Use this model on it.", name=name)
+    if spec is not None and spec.prefix:
+        return i18n.tr(
+            "{name} is a backend, not a checkpoint file. Install it here, "
+            "then choose one of its models listed with it and press Use "
+            "this model, which writes {prefix}<model> into the object's "
+            "model setting.", name=name, prefix=spec.prefix)
     if spec is not None and not spec.segments:
         return i18n.tr(
             "{name} is not a segmentation model, so no model field takes it. "
@@ -1658,18 +2086,34 @@ def _where_a_backend_is_chosen(entry) -> str:
         "in Mask generation; this field takes a checkpoint.", name=name)
 
 
+def _cannot_run(entry) -> str:
+    """Why spaCR cannot run this row, or ``''``: a bioimage.io package
+    whose weights no Cellpose of spaCR's loads, said in place of Download
+    and Use rather than offered and then failing."""
+    from ... import model_zoo
+
+    return model_zoo._bioimageio_cannot_run(entry)
+
+
 def _needs_install(entry) -> bool:
     """Whether choosing this row should offer a backend install first.
 
-    True for a backend that is not installed, and for a Cellpose 3 model of
-    the backend's own while the backend is not installed. A bioimage.io
-    Cellpose 3 checkpoint downloads like any other model; the card says what
-    it needs to run.
+    True for a backend that is not installed, for a Cellpose 3 model of
+    the backend's own while the backend is not installed, and for a
+    Cellpose-DINO model while the Cellpose-DINO backend is not (item 525):
+    nothing spaCR has can run one without it. So is a StarDist,
+    InstanSeg or Omnipose model while its backend is not installed (items
+    551-553). A bioimage.io Cellpose 3
+    checkpoint downloads like any other model; the card says what it needs
+    to run.
     """
     kind = getattr(entry, "kind", "")
     if kind == "backend":
         return getattr(entry, "source", "") not in ("installed", "installing")
-    return (kind == "cellpose3" and getattr(entry, "source", "") == "stock"
+    if kind == "cellpose_dino":
+        return not _cellpose_dino_ready()
+    return ((kind == "cellpose3" or bool(_prefixed_kind(entry)))
+            and getattr(entry, "source", "") == "stock"
             and not getattr(entry, "path", ""))
 
 
@@ -1717,14 +2161,97 @@ def _cellpose3_card(entry) -> str:
     from ... import _segmentation_backends as backends
 
     ready = backends._backend_state("cellpose3").ready
-    out = ("<p><i>Runs through the Cellpose 3 backend, which is "
-           + ("installed" if ready else
-              "not installed — press Install to install it")
-           + ". Set segmentation_backend to cellpose3 to segment with it."
-           "</i></p>")
+    out = ("<p><i>" + _html.escape(
+        tr("Runs through the Cellpose 3 backend, which is installed. "
+           "Choosing it writes cellpose3:{name} into the object's model "
+           "setting, which runs that object through Cellpose 3 and shows "
+           "the Cellpose 3 settings in Mask generation.",
+           name=getattr(entry, "name", "") or "")
+        if ready else
+        tr("Runs through the Cellpose 3 backend, which is not installed "
+           "— press Install to install it.")) + "</i></p>")
     licence = getattr(entry, "licence", "")
     if licence:
         out += f"<p>Licence: {_html.escape(licence)}</p>"
+    return out
+
+
+def _cellpose_dino_ready() -> bool:
+    """Whether the Cellpose-DINO backend can segment now.
+
+    A backend being installed counts as not ready: its row keeps saying what
+    it needs until the install has finished.
+    """
+    state = _disk_state("cellpose_dino")
+    return bool(state is not None and state.ready)
+
+
+def _cellpose_dino_card(entry) -> str:
+    """A Cellpose-DINO model's card: whether its backend is here, and the
+    DINOv3 licence that reaches the weights whatever their page says."""
+    import html as _html
+
+    from ..._segmentation_backends import _CELLPOSE_DINO, _SPECS
+
+    ready = _cellpose_dino_ready()
+    out = ("<p><i>" + _html.escape(
+        tr("Runs through the Cellpose-DINO backend, which is installed. "
+           "Download it, then Use this model writes cellpose_dino:<its "
+           "path> into the object's model setting, which runs that object "
+           "through Cellpose-DINO with its usual Mask generation settings.")
+        if ready else
+        tr("Needs the Cellpose-DINO backend, Cellpose 4 with DINOv3 in an "
+           "environment of its own, which is not installed — press Install "
+           "to install it.")) + "</i></p>")
+    licence = getattr(entry, "licence", "")
+    if licence:
+        out += "<p>" + _html.escape(
+            tr("Licence: {licence}", licence=licence)) + "</p>"
+    out += "<p>" + _html.escape(tr(_SPECS[_CELLPOSE_DINO].licence_note)) \
+        + "</p>"
+    return out
+
+
+def _prefixed_kind(entry) -> str:
+    """The prefixed backend (StarDist, InstanSeg, Omnipose) a model row
+    runs in, or ``''`` for every other row."""
+    from ... import model_zoo
+
+    kind = str(getattr(entry, "kind", "") or "")
+    return kind if kind in model_zoo.PREFIXED_KINDS else ""
+
+
+def _prefixed_label(entry) -> str:
+    """The name of the backend a prefixed model row runs in."""
+    from ..._segmentation_backends import _SPECS
+
+    return _SPECS[_prefixed_kind(entry)].label
+
+
+def _prefixed_card(entry) -> str:
+    """A StarDist, InstanSeg or Omnipose model's card: whether its backend
+    is here, what Use this model writes, and the backend's licence."""
+    import html as _html
+
+    from ..._segmentation_backends import _SPECS
+
+    name = _prefixed_kind(entry)
+    spec = _SPECS[name]
+    state = _disk_state(name)
+    ready = bool(state is not None and state.ready)
+    out = ("<p><i>" + _html.escape(
+        tr("Runs through the {backend} backend, which is installed. Use "
+           "this model writes {prefix}{model} into the object's model "
+           "setting, which runs that object through {backend} with its "
+           "usual Mask generation settings.", backend=spec.label,
+           prefix=spec.prefix, model=getattr(entry, "name", "") or "")
+        if ready else
+        tr("Needs the {backend} backend, which runs in an environment of "
+           "its own and is not installed — press Install to install it.",
+           backend=spec.label)) + "</i></p>")
+    out += "<p>" + _html.escape(
+        tr("Licence: {licence}", licence=spec.licence)) + "</p>"
+    out += "<p>" + _html.escape(tr(spec.licence_note)) + "</p>"
     return out
 
 

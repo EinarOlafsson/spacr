@@ -1,0 +1,28 @@
+{
+  "lesson": "84_candida",
+  "english_sha256": "a66cc4038560ff519d72efde7f80a708ada8801988a58c4f54f61f07ae1406ce",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Candida: utforska organismguiden",
+  "description": "Bläddra i Candida-guiden, utforska jästdiagrammet och hitta tillgängliga allmänna arbetsflöden för bildanalys.",
+  "objectives": [
+    "Öppna sidan från Home och hitta dess viktigaste kontroller.",
+    "Identifiera tillgängliga indata, åtgärder och utdata.",
+    "Välja nästa tillgängliga analys eller referens."
+  ],
+  "prerequisite": "Öppna Home i spaCR. Guiden behöver inga indatafiler. Candida-specifika analysrutor visar för närvarande Coming soon.",
+  "scenes": [
+    "Från Home väljer du Candida. Guiden tar upp morfologi, filamentbildning, biofilmer och hur jästen samverkar med värdceller.",
+    "Läs informationspanelen med modulbeskrivningarna bredvid, och dra i avdelaren för att bredda den sida du läser.",
+    "Diagrammet över knoppande jäst fungerar som i de andra guiderna. Håll pekaren över en komponent för att läsa dess beskrivning, markera flera för att hålla dem framhävda, och Clear components återställer markeringen.",
+    "De Candida-specifika analysrutorna är märkta Coming soon än så länge, men du kan ändå analysera dina bilder med de allmänna verktygen. Gå tillbaka till Home, segmentera dem i Mask och mät dem i Measure, med kanaler och masker som passar din art och ditt experiment.",
+    "För detaljer om gener och proteiner öppnas länkarna till Candida Genome Database och UniProt i webbläsaren. Guiden behöver inga indatafiler och skriver inga utdata, så när du är redo att bearbeta bilder följer du handledningen för en körbar modul."
+  ]
+}

@@ -392,3 +392,44 @@ if self._last_directory and path_probe.isdir(self._last_directory,
 ```
 
 `wait=True`: this answer chooses where a dialog the user is opening RIGHT NOW will land, so an unknown path must not silently mean "not a directory" and drop them at the default location.
+
+
+---
+
+# Notes from `spacr/qt/widgets/file_list.py`
+
+Prose lifted out of `spacr/qt/widgets/file_list.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## Contents
+
+- [FilePathListWidget](#filepathlistwidget) (1 entry)
+- [FilePathListWidget.__init__](#filepathlistwidget__init__) (1 entry)
+
+## FilePathListWidget
+
+### lines 1122-1127
+
+```python
+contents_changed = Signal()
+```
+
+ANY change to what the list holds, including one made by `set_value`. `value_changed` is deliberately the USER's edit: it is what marks a screen dirty and re-writes a settings file, so a load must not emit it. That leaves a listener which has to follow the value itself -- Map Barcodes' live search -- deaf to a settings file replacing a path. This is that listener's signal, and every user edit emits it too.
+
+## FilePathListWidget.__init__
+
+### lines 1175-1193
+
+```python
+self._single_line = None
+```
+
+ONE ROW FOR A SETTING THAT NAMES ONE FILE.
+
+Reported 2026-09-15: "the barcode references in map barcodes should be one line or row each now they are large fields for some reason." Measured on the live screen: `grna_csv`, `row_csv` and `column_csv` each came to a sizeHint height of 240 against 30-33 for every other field on that form -- eight rows of furniture for one path.
+
+`single=True` already existed and was not enough: it shrank the list from 96 to 48 and left the list, the hint and the button on three separate rows. A setting that holds exactly one path has no order to show, no selection to make and nothing to scroll.
+
+THE LIST STAYS AND STAYS THE VALUE. `paths()` reads it, every mutation goes through it, and the drop target and the path probes are wired to it. Hiding it and mirroring its one row into a read-only field changes what the user sees and nothing about what the widget IS -- which is why this is a presentation change and not a rewrite of the value logic.

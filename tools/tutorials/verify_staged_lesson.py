@@ -175,7 +175,9 @@ def main():
                 'uploaded': False, 'translation_or_listening_review': False}
     try:
         with sync_playwright() as engine:
-            browser = engine.chromium.launch(executable_path='/opt/google/chrome/chrome', headless=True)
+            browser = engine.chromium.launch(
+                executable_path='/opt/google/chrome/chrome', headless=True,
+                args=['--disable-gpu', '--disable-accelerated-video-decode'])
             context = browser.new_context(viewport={'width': 1440, 'height': 1100})
             base = f'http://127.0.0.1:{server.server_port}'
             context.route(base + '/web/', lambda route: route.fulfill(body=source, content_type='text/html'))
@@ -332,7 +334,8 @@ def main():
                             width: elements.video.videoWidth, height: elements.video.videoHeight};
                 }''')
                 assert video['sha256'] == rendition['rendition_sha256'], video
-                assert [video['width'], video['height']] == [2560, 1440], video
+                from stage_web_renditions import web_dimensions
+                assert [video['width'], video['height']] == list(web_dimensions(args.lesson)), video
                 evidence['checked_web_rendition'] = video
             page.evaluate('elements.audio.pause(); elements.video.pause()')
             # Chapter navigation can leave the viewport halfway down the page.

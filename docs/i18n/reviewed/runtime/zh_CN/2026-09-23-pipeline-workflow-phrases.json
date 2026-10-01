@@ -5,13 +5,6 @@
   "records": [
     {
       "table": "ui",
-      "key": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
-      "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
-      "source_sha256": "ab5f08eb17068239c0ef031c98a33aeeeec51c7c6ce4060cc659597618c288bc",
-      "translation": "在实际特征列或坐标列上定义阈值门控或多边形门控，然后将保存的门控规则应用于兼容对象。使用 Annotate 将显示的门控结果写入注释列；检查所选对象，并选择二分类或多分类标签。"
-    },
-    {
-      "table": "ui",
       "key": "For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input.",
       "source": "For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input.",
       "source_sha256": "b78763615b15475f7bd02edaab46851014fe03a329dd244c900660fd59835e97",
@@ -59,5 +52,15 @@
       "source_sha256": "be0aa19bd2abd30b969eaa6418cb304235d465f0abc206fea610a9279fc59d33",
       "translation": "Toxoplasma 与寄生虫成像分析"
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source_sha256": "ab5f08eb17068239c0ef031c98a33aeeeec51c7c6ce4060cc659597618c288bc",
+      "translation": "在实际特征列或坐标列上定义阈值门控或多边形门控，然后将保存的门控规则应用于兼容对象。使用 Annotate 将显示的门控结果写入注释列；检查所选对象，并选择二分类或多分类标签。"
+    }
+  ],
+  "retirement_2026_10_01": "Source text changed during priority implementation. Prior source-bound reviews are retained here for history and are not reused as reviews of replacement text."
 }

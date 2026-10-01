@@ -70,6 +70,56 @@ pytest_plugins = ["tools.pytest_translation_compatibility"]
 #: for a run that genuinely needs more.
 _MEMORY_CEILING_GB = float(os.environ.get("SPACR_TEST_MEMORY_GB", "6"))
 
+#: The pytest capture manager, kept by ``pytest_configure`` so the guard can
+#: take fd 2 back from it before writing why the process is ending.
+_CAPTURE = None
+
+
+def _cgroup_memory_limit():
+    """The kernel memory cap on this process's cgroup, in bytes, or None.
+
+    Instruction 47, 2026-09-26: a full SERIAL ``pytest tests/qt`` run under
+    ``tools/run_capped.sh 16G`` was ended at 28% by the 6 GB ceiling below,
+    with 10 GB of its own kernel cap unused. The ceiling is about
+    CONCURRENCY -- a dozen uncapped processes at once -- and a process the
+    kernel already caps cannot be one of the dozen that take the machine
+    down. So under a cap the guard fires just below THAT, where it can still
+    say why, instead of at a number meant for uncapped runs.
+    """
+    try:
+        with open(os.path.join("/proc", "self", "cgroup"),
+                  encoding="ascii") as handle:
+            lines = handle.read().splitlines()
+    except OSError:
+        return None
+    for line in lines:
+        parts = line.split(":", 2)
+        if len(parts) != 3 or parts[0] != "0":
+            continue
+        limit = os.path.join("/sys", "fs", "cgroup", parts[2].lstrip("/"),
+                             "memory.max")
+        try:
+            with open(limit, encoding="ascii") as handle:
+                text = handle.read().strip()
+        except OSError:
+            return None
+        return int(text) if text.isdigit() else None
+    return None
+
+
+def _memory_ceiling_bytes() -> float:
+    """The RSS at which the guard ends this pytest.
+
+    ``SPACR_TEST_MEMORY_GB`` wins when it is set. Otherwise 90% of a kernel
+    cap on this process's cgroup when there is one, else the 6 GB default.
+    """
+    if "SPACR_TEST_MEMORY_GB" in os.environ:
+        return _MEMORY_CEILING_GB * 1024 ** 3
+    capped = _cgroup_memory_limit()
+    if capped:
+        return 0.9 * capped
+    return _MEMORY_CEILING_GB * 1024 ** 3
+
 
 def _stop_before_the_machine_does() -> None:
     """End this pytest if its own RSS passes the ceiling."""
@@ -77,6 +127,7 @@ def _stop_before_the_machine_does() -> None:
 
     if _MEMORY_CEILING_GB <= 0:            # explicitly disabled
         return
+    ceiling = _memory_ceiling_bytes()
 
     def watch() -> None:
         import time
@@ -86,7 +137,6 @@ def _stop_before_the_machine_does() -> None:
         # test_conftest_hard_codes_no_absolute_path_at_all as a hard-coded
         # absolute path that is not a kernel interface.
         statm = os.path.join("/proc", str(os.getpid()), "statm")
-        ceiling = _MEMORY_CEILING_GB * 1024 ** 3
         while True:
             time.sleep(2.0)
             try:
@@ -104,10 +154,19 @@ def _stop_before_the_machine_does() -> None:
             message = (
                 f"\n\nspaCR test guard: this pytest reached "
                 f"{rss / 1024 ** 3:.1f} GB, over the "
-                f"{_MEMORY_CEILING_GB:.0f} GB ceiling, and is being ended "
+                f"{ceiling / 1024 ** 3:.1f} GB ceiling, and is being ended "
                 f"before it takes the machine with it.\n"
                 f"Raise it deliberately with SPACR_TEST_MEMORY_GB=<n> if a "
                 f"run genuinely needs more.\n\n")
+            # FD 2 IS NOT THE TERMINAL WHILE A TEST RUNS: pytest's fd capture
+            # has pointed it at a temporary file, so the first serial run of
+            # instruction 47 exited 3 with nothing in its log. The capture is
+            # suspended first, which gives fd 2 back.
+            try:
+                if _CAPTURE is not None:
+                    _CAPTURE.suspend_global_capture(in_=False)
+            except Exception:              # noqa: BLE001 - exiting anyway
+                pass
             try:
                 os.write(2, message.encode("utf-8", "replace"))
             except OSError:
@@ -380,6 +439,8 @@ def pytest_configure(config):
     is collected, and a conftest hook only reaches nodes at or below its own
     directory, which is one level too late to keep ``tests`` itself stable.
     """
+    global _CAPTURE
+    _CAPTURE = config.pluginmanager.getplugin("capturemanager")
     # SettingWithCopyWarning, ONLY WHERE IT STILL EXISTS. Writing through a
     # slice is a real bug and this suite promotes it to an error -- but
     # pandas 3 DELETED the class, because copy-on-write made the warning
@@ -550,11 +611,32 @@ def _the_widget_tree_does_not_outgrow_the_session(_isolated_qsettings_store):
 
     Nothing is reached across. ``sendPostedEvents`` delivers only deletions
     their owners already requested, at SETUP where the previous test's
-    teardown is complete. Do not run Python's cycle collector here: a wrapper
+    teardown is complete. Do not run a FULL ``gc.collect`` here: a wrapper
     can be unreachable while its C++ QThread is still running, and CI proved
     that collecting such a live Qt heap can segfault inside ``gc.collect``.
     Qt objects must instead be registered with ``qtbot`` or explicitly call
     ``deleteLater``; this boundary only completes that ownership protocol.
+
+    WHAT IT DOES RUN is one tick of :func:`spacr.qt.gc_policy.collect_once`
+    -- the GUI-thread collector the application runs every second, with
+    CPython's own thresholds, at most one generation per tick. The
+    ``qapp`` fixture installs that policy, and installing it turns
+    automatic collection OFF; the application's event loop then ticks it
+    once a second, but a test suite spins its loop for milliseconds at a
+    time, so in a serial ``pytest tests/qt`` the tick almost never came and
+    no reference cycle was ever freed. A parentless widget owned by its
+    Python wrapper lives exactly as long as that wrapper, so every settings
+    editor, menu and frame caught in a cycle stayed a LIVE top-level
+    window: 460 of them, 9,162 widgets, by a third of the way through the
+    suite, every one restyled by each theme change and each preferences
+    save. That is what took the serial run past its memory ceiling
+    (features/new/47). One tick per test boundary is the application's
+    own cadence, measured in tests instead of seconds.
+
+    No additional full sweep is forced at a fixed test count. Reference
+    cycles follow the application's thresholds; persistent widget trees
+    must be fixed at their owners rather than by collecting live wrappers
+    more aggressively in the test harness.
 
     Ordered behind the QSettings sandbox, and depending on it by name rather
     than by where it sits in this file, because destroying a widget can run
@@ -573,9 +655,127 @@ def _the_widget_tree_does_not_outgrow_the_session(_isolated_qsettings_store):
                 gc_policy.install(app)
                 module.QApplication.sendPostedEvents(
                     None, QEvent.DeferredDelete)
+                if gc_policy.is_installed():
+                    gc_policy.collect_once()
         except Exception:                                        # noqa: BLE001
             pass
     yield
+
+
+def _application_policies(app=None):
+    """The application-wide spaCR policies on the running QApplication.
+
+    :param app: the application to read, when the caller already holds it.
+        Otherwise it is asked of whatever ``sys.modules`` holds as
+        ``PySide6.QtWidgets``.
+    :returns: ``(app, {"glass": ..., "tooltips": ..., "cursor": ...})``, or
+        ``None`` when no Qt application is running or none can be asked
+        for. Nothing is imported: a policy whose module was never loaded
+        cannot be on.
+
+    Asking can raise. This runs at teardown, and a test that monkeypatches
+    ``sys.modules["PySide6.QtWidgets"]`` with a stand-in whose
+    ``QApplication.instance()`` raises (``test_cov_r5_resource_cleanup``
+    does, on purpose) still has it patched here whenever an earlier autouse
+    fixture instantiated the shared ``monkeypatch``, since that is undone
+    after this fixture's teardown. 2026-09-26: that raise surfaced as a
+    teardown ERROR in CI run 36276973443.
+    """
+    if app is None:
+        module = sys.modules.get("PySide6.QtWidgets")
+        if module is None:
+            return None
+        try:
+            app = module.QApplication.instance()
+        except Exception:                                        # noqa: BLE001
+            return None
+    if app is None:
+        return None
+    glass = sys.modules.get("spacr.qt.widgets.glass")
+    tips = sys.modules.get("spacr.qt.tooltip_policy")
+    return app, {
+        "glass": getattr(glass, "_INSTALLED", None),
+        "tooltips": getattr(tips, "_filter", None),
+        "cursor": getattr(app, "_spacr_cursor_policy", None),
+    }
+
+
+def _take_off_the_policies_put_on_since(before) -> None:
+    """Remove each application-wide policy that was not on at ``before``.
+
+    :param before: what :func:`_application_policies` said at setup.
+    """
+    now = _application_policies()
+    if now is None and before is not None:
+        try:
+            now = _application_policies(before[0])
+        except RuntimeError:
+            return
+    if now is None:
+        return
+    app, after = now
+    was = before[1] if before is not None else {}
+    try:
+        if after["glass"] is not None and was.get("glass") is None:
+            sys.modules["spacr.qt.widgets.glass"].uninstall_glass_everywhere(
+                app)
+        if after["tooltips"] is not None and was.get("tooltips") is None:
+            sys.modules["spacr.qt.tooltip_policy"].uninstall_tooltip_policy(
+                app)
+        policy = after["cursor"]
+        if policy is not None and was.get("cursor") is None:
+            from spacr.qt.gil_priority import _stop_watching_application_events
+
+            _stop_watching_application_events(app, policy)
+            app._spacr_cursor_policy = None
+            policy.deleteLater()
+    except RuntimeError:
+        pass
+
+
+@pytest.fixture(autouse=True, scope="module")
+def _no_module_leaves_an_application_policy_on():
+    """The module-scoped half of the fixture below.
+
+    A module-scoped fixture that installs the glass sweep for a whole file
+    takes the sweep off at the end but not the cursor policy the sweep put
+    on with it, and nothing takes off the tooltip policy that applying the
+    preferences installs.
+    """
+    before = _application_policies()
+    yield
+    _take_off_the_policies_put_on_since(before)
+
+
+@pytest.fixture(autouse=True)
+def _no_test_leaves_an_application_policy_on():
+    """Take off the glass, tooltip and cursor policies a test put on.
+
+    Each is RIGHT FOR THE APPLICATION AND WRONG FOR THE NEXT TEST. The glass
+    sweep dresses every dialog on its first polish, the tooltip policy takes
+    every ``ToolTip`` event to show the tip itself after a delay, and the
+    cursor policy turns every cursor a widget sets back into the arrow. Left
+    on by one test they decide what every later test in that process sees,
+    and which test that is depends on how xdist shared out the files.
+
+    Measured on 2026-09-26 (item 43), on a CI order replayed locally, with
+    and without 284's event hub: `test_ambient_motion.py` (applying the
+    preferences) left the tooltip policy on and
+    `test_cov_w2_6_shortcuts.py::test_a_parentless_caller_gets_a_dialog_
+    rather_than_an_overlay` (the workflow diagram) left the glass sweep and
+    the cursor policy on; a native tooltip then never fired in
+    `test_setting_tooltip_footer.py` and the column headings of
+    `test_the_measurements_columns_say_what_they_control.py` came back as
+    arrows. The same three decided `test_console_ui.py`'s resize handle
+    cursor and whether `test_the_features_window_wears_spacrs_dress.py`
+    found an undressed dialog.
+
+    A policy that was already on when the test began is left alone, so a
+    module-scoped fixture that installs one for its file keeps it.
+    """
+    before = _application_policies()
+    yield
+    _take_off_the_policies_put_on_since(before)
 
 
 @pytest.fixture(autouse=True)
@@ -685,6 +885,14 @@ def _isolated_dot_spacr_store(monkeypatch):
         monkeypatch.setattr(run_journal, "unsandboxed_runs_root",
                             run_journal.runs_root, raising=False)
         monkeypatch.setattr(run_journal, "runs_root", lambda: root,
+                            raising=False)
+        # Run-finished notification secrets: never the real OS keyring, and
+        # never the real ~/.spacr file.
+        monkeypatch.setattr(
+            run_journal, "_notify_secrets_path",
+            lambda: _DOT_SPACR_SANDBOX / "notification_secrets.json",
+            raising=False)
+        monkeypatch.setattr(run_journal, "_notify_keyring", lambda: None,
                             raising=False)
     try:
         from spacr.qt import plate_queue
@@ -865,6 +1073,73 @@ def _no_room_on_the_gpu():
         return ""
     return (f"the GPU is busy: {free_mb:.0f} MiB free of {total_mb:.0f}, "
             f"and this needs about {GPU_ROOM_MB}")
+
+
+class _LiveQtWidgetRef:
+    """A pytest-qt widget reference that forgets a widget Qt already deleted.
+
+    pytest-qt keeps a weak reference to each ``qtbot.addWidget`` widget and,
+    at teardown, calls ``close()`` on whatever the reference still returns.
+    A ``WA_DeleteOnClose`` dialog the test closed on purpose (Escape on the
+    QC field browser, the user closing a text report) is destroyed by the
+    ``DeferredDelete`` pytest-qt delivers just before that loop. Its Python
+    wrapper lives on only while an uncollected reference cycle holds it, and
+    with automatic collection off (``spacr.qt.gc_policy``) that depends on
+    which tests the worker ran before. When it does live on, ``close()``
+    raises "Internal C++ object already deleted" and the next test's setup
+    reports "previous item was not torn down properly". A widget whose C++
+    side is gone has nothing left to close, so it resolves to ``None`` here,
+    which is exactly what pytest-qt does for a collected wrapper.
+    """
+
+    def __init__(self, ref):
+        self._ref = ref
+
+    def __call__(self):
+        widget = self._ref()
+        if widget is None:
+            return None
+        if _REAL_QT_IS_VALID is None:
+            return widget
+        return widget if _REAL_QT_IS_VALID(widget) else None
+
+
+def _real_qt_is_valid():
+    """``shiboken6.isValid`` as imported, before any test can replace it.
+
+    pytest-qt resolves the widget references during teardown, while a
+    test's ``monkeypatch`` is still in force. A test that replaces
+    ``shiboken6.isValid`` to exercise a fallback
+    (``tests/qt/test_live_zoom_endings.py`` makes it raise ImportError)
+    would otherwise have that replacement answer for pytest-qt too, and
+    the error it raises lands in teardown and fails the next test's setup
+    with "previous item was not torn down properly".
+    """
+    try:
+        from shiboken6 import isValid
+    except ImportError:
+        return None
+    return isValid
+
+
+_REAL_QT_IS_VALID = _real_qt_is_valid()
+
+
+@pytest.hookimpl(wrapper=True, tryfirst=True)
+def pytest_runtest_teardown(item):
+    """Let pytest-qt close only the registered widgets Qt has not deleted.
+
+    ``tryfirst`` puts this outside pytest-qt's own ``trylast`` teardown
+    wrapper, so the references are replaced before pytest-qt reads them. The
+    check itself is lazy: it runs when pytest-qt resolves each reference,
+    after it has delivered the pending deletions.
+    """
+    widgets = getattr(item, "qt_widgets", None)
+    if widgets:
+        item.qt_widgets = [
+            (_LiveQtWidgetRef(ref), before_close)
+            for ref, before_close in widgets]
+    return (yield)
 
 
 def pytest_runtest_setup(item):

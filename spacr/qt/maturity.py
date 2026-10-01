@@ -316,6 +316,10 @@ def reason_for(app_key: str) -> str:
     An empty string is a real answer here and the UI is entitled to say it
     plainly: this module is alpha because nobody has checked it, not because
     somebody checked it and concluded alpha.
+
+    :param app_key: the app's registry key, e.g. ``"align"``; converted to
+        ``str`` and looked up in :data:`PROMOTIONS`, then :data:`AFFIRMED`,
+        then :data:`RETIREMENTS`.
     """
     entry = PROMOTIONS.get(str(app_key)) or AFFIRMED.get(str(app_key))
     if entry is not None:

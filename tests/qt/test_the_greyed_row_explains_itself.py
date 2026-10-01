@@ -114,7 +114,7 @@ def test_disable_combo_row_survives_a_model_with_no_items(qtbot):
 def test_install_sits_to_the_right_of_the_api_link(qtbot, panel):
     anchor = QLabel("anchor")
     qtbot.addWidget(anchor)
-    panel.show_for(anchor, [_entry("install")])
+    panel.show_for(anchor, [_entry("install")], immediate=True)
     assert panel.api_link().isVisible()
     assert panel.install_link().isVisible()
     assert panel.install_link().x() > panel.api_link().x()
@@ -135,7 +135,7 @@ def test_the_explanation_carries_both_the_refusal_and_the_remedy(qtbot,
                                                                  panel):
     anchor = QLabel("anchor")
     qtbot.addWidget(anchor)
-    panel.show_for(anchor, [_entry("elsewhere")])
+    panel.show_for(anchor, [_entry("elsewhere")], immediate=True)
     body = panel.body_label().text()
     assert "greyed because" in body
     assert "needs 3.11" in body
@@ -145,7 +145,7 @@ def test_the_api_link_routes_and_install_routes_the_offer(qtbot, panel):
     anchor = QLabel("anchor")
     qtbot.addWidget(anchor)
     entry = _entry("install")
-    panel.show_for(anchor, [entry])
+    panel.show_for(anchor, [entry], immediate=True)
     seen = {}
     panel.api_requested.connect(lambda url: seen.setdefault("api", url))
     panel.set_install_handler(lambda offer: seen.setdefault("offer", offer))
@@ -159,7 +159,7 @@ def test_the_api_link_routes_and_install_routes_the_offer(qtbot, panel):
 def test_an_unknown_href_is_ignored_rather_than_routed(qtbot, panel):
     anchor = QLabel("anchor")
     qtbot.addWidget(anchor)
-    panel.show_for(anchor, [_entry("install")])
+    panel.show_for(anchor, [_entry("install")], immediate=True)
     fired = []
     panel.set_install_handler(fired.append)
     panel._on_link("javascript:alert(1)")
@@ -182,7 +182,7 @@ def test_the_panel_does_not_vanish_while_the_pointer_crosses_the_gap(
     qtbot.addWidget(anchor)
     anchor.show()
     panel.show_for(anchor, [_entry("install")],
-                   anchor_rect=QRect(100, 100, 200, 24))
+                   anchor_rect=QRect(100, 100, 200, 24), immediate=True)
     panel.move(100, 140)
     corridor = panel.corridor()
     assert corridor is not None
@@ -199,7 +199,7 @@ def test_the_panel_closes_once_the_pointer_leaves_the_corridor(
     qtbot.addWidget(anchor)
     anchor.show()
     panel.show_for(anchor, [_entry("install")],
-                   anchor_rect=QRect(100, 100, 200, 24))
+                   anchor_rect=QRect(100, 100, 200, 24), immediate=True)
     panel.move(100, 140)
     far = QPoint(panel.corridor().right() + 400, 4000)
     monkeypatch.setattr(type(panel), "_cursor_pos", lambda self: far)
@@ -215,7 +215,7 @@ def test_a_pointer_parked_in_the_corridor_still_lets_it_go(
     qtbot.addWidget(anchor)
     anchor.show()
     panel.show_for(anchor, [_entry("install")],
-                   anchor_rect=QRect(100, 100, 200, 24))
+                   anchor_rect=QRect(100, 100, 200, 24), immediate=True)
     panel.move(100, 140)
     gap = QPoint(panel.corridor().center().x(), 132)
     monkeypatch.setattr(type(panel), "_cursor_pos", lambda self: gap)
@@ -277,7 +277,7 @@ def test_the_link_words_are_keyboard_reachable_at_all(qtbot, panel):
     mouse-only control and the disabled row has no keyboard route at all."""
     anchor = QLabel("anchor")
     qtbot.addWidget(anchor)
-    panel.show_for(anchor, [_entry("install")])
+    panel.show_for(anchor, [_entry("install")], immediate=True)
     for link in (panel.api_link(), panel.install_link()):
         flags = link.textInteractionFlags()
         assert flags & Qt.LinksAccessibleByKeyboard
@@ -287,7 +287,7 @@ def test_the_link_words_are_keyboard_reachable_at_all(qtbot, panel):
 def test_showing_nothing_shows_nothing(qtbot, panel):
     anchor = QLabel("anchor")
     qtbot.addWidget(anchor)
-    panel.show_for(anchor, [])
+    panel.show_for(anchor, [], immediate=True)
     assert panel.isVisible() is False
     assert explain(anchor, []) is None
 
@@ -309,7 +309,7 @@ def test_the_install_handler_is_replaced_and_not_accumulated(qtbot, panel):
     calls = []
     panel.set_install_handler(lambda offer: calls.append("first"))
     panel.set_install_handler(lambda offer: calls.append("second"))
-    panel.show_for(anchor, [_entry("install")])
+    panel.show_for(anchor, [_entry("install")], immediate=True)
     panel._on_link("install")
     assert calls == ["second"]
 
@@ -466,7 +466,7 @@ def test_the_panel_paints_its_own_surface_and_not_the_black_slab(qtbot,
 
     anchor = QLabel("anchor")
     qtbot.addWidget(anchor)
-    panel.show_for(anchor, [_entry("install")])
+    panel.show_for(anchor, [_entry("install")], immediate=True)
     panel.adjustSize()
     image = QImage(panel.size(), QImage.Format_ARGB32)
     image.fill(0)
@@ -482,7 +482,7 @@ def test_the_panel_paints_its_own_surface_and_not_the_black_slab(qtbot,
 def test_the_panel_is_wide_enough_to_read_and_not_a_document(qtbot, panel):
     anchor = QLabel("anchor")
     qtbot.addWidget(anchor)
-    panel.show_for(anchor, [_entry("elsewhere")])
+    panel.show_for(anchor, [_entry("elsewhere")], immediate=True)
     panel.adjustSize()
     assert 200 <= panel.width() <= AvailabilityPanel.TEXT_WIDTH + 60
     assert panel.height() > 40

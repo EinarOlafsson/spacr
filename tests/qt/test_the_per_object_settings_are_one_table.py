@@ -22,7 +22,11 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from spacr.object_settings_table import to_table  # noqa: E402
+# 2026-09-29 (item 592): a cell names its key through _settings_key, since
+# "remove background" is spelled object-last (remove_background_cell) and
+# "adjust cells" names no object (adjust_cells).
+from spacr.object_settings_table import (  # noqa: E402
+    _SINGLE_OBJECT_QUESTIONS, _settings_key, to_table)
 from spacr.organelle_types import NUMBER_OF_ORGANELLES, organelle_role  # noqa: E402
 from spacr.qt.widgets.object_settings_grid import (  # noqa: E402
     AUTO_TEXT,
@@ -30,6 +34,19 @@ from spacr.qt.widgets.object_settings_grid import (  # noqa: E402
     ObjectSettingsGrid,
     _kind_of,
 )
+
+
+def _every_object_on(settings):
+    """``settings`` with every object's channel naming a plane.
+
+    2026-09-29 (item 592, "hide unset objects"): the table draws a column
+    only for an object whose channel is set (cell always), and the shipped
+    defaults set none. The tests about the table's shape need the columns.
+    """
+    for number, obj in enumerate(("cell", "nucleus", "pathogen",
+                                  "organelle")):
+        settings[f"{obj}_channel"] = number
+    return settings
 
 
 @pytest.fixture
@@ -47,7 +64,7 @@ def mask_settings():
 
     settings = get_timelapse_settings()
     settings[NUMBER_OF_ORGANELLES] = 1
-    return settings
+    return _every_object_on(settings)
 
 
 @pytest.fixture
@@ -102,11 +119,20 @@ def test_the_table_claims_only_what_more_than_one_kind_asks(
     """
     roles = {_kind_of(obj) for obj in grid.objects()}
     for question, row in grid.table().items():
+        if question in _SINGLE_OBJECT_QUESTIONS:
+            # 2026-09-29 (item 592): "adjust cells" is asked of the cell
+            # alone, and the maintainer asked for it in the table anyway.
+            assert set(row) == {"cell"}, (question, sorted(row))
+            continue
         asking = {_kind_of(obj) for obj in row}
         assert len(asking) > 1, (
             f"{question!r} is in the table but only {sorted(asking)} asks it")
     shown = to_table(mask_settings)
     for question, row in shown.items():
+        if question == "channel":
+            # 2026-09-29 (item 592, "hide unset objects"): the channel
+            # stays on the form, since it is what shows a hidden column.
+            continue
         asking = {_kind_of(obj) for obj in row}
         if len(asking & roles) > 1 and question not in grid.questions():
             raise AssertionError(f"{question!r} is shared and was dropped")
@@ -131,11 +157,11 @@ def test_nothing_the_table_drops_is_lost(grid, mask_settings):
 def test_an_edited_value_keeps_the_type_it_had(grid):
     """A table hands back strings. Writing "12" where 12 was is a settings
     file that has quietly changed meaning."""
-    assert grid.set_value("min_area", "cell", "42") is True
+    assert grid.set_value("background", "cell", "42") is True
 
     out = grid.settings()
-    assert out["cell_min_area"] == 42
-    assert type(out["cell_min_area"]) is int
+    assert out["cell_background"] == 42
+    assert type(out["cell_background"]) is int
 
 
 def test_a_float_setting_does_not_become_an_int(grid):
@@ -152,9 +178,9 @@ def test_clearing_a_cell_restores_auto_rather_than_an_empty_string(grid):
     """`None` means "work it out" -- a diameter of None is Cellpose
     estimating it. An empty string is not the same claim, and is not a
     number the pipeline can use."""
-    grid.set_value("min_area", "cell", "7")
-    assert grid.set_value("min_area", "cell", "") is True
-    assert grid.settings()["cell_min_area"] is None
+    grid.set_value("background", "cell", "7")
+    assert grid.set_value("background", "cell", "") is True
+    assert grid.settings()["cell_background"] is None
 
 
 def test_an_unset_value_reads_as_auto_and_not_as_blank(grid):
@@ -191,7 +217,7 @@ def test_a_question_an_object_does_not_ask_cannot_be_typed_into(grid):
 
     assert not (model.flags(index) & Qt.ItemIsEditable)
     assert grid.set_value(question, obj, "3") is False
-    assert f"{obj}_{question}" not in grid.settings()
+    assert _settings_key(obj, question) not in grid.settings()
 
 
 # ---------------------------------------------------------------------------
@@ -231,7 +257,8 @@ def test_a_new_organelle_starts_where_the_first_one_is(grid):
     grid.add_organelle()
 
     out = grid.settings()
-    assert out[f"organelleb_{question}"] == out[f"organelle_{question}"] == 11
+    assert (out[_settings_key("organelleb", question)]
+            == out[_settings_key("organelle", question)] == 11)
 
 
 def test_the_columns_are_numbered_and_never_lettered(grid):
@@ -357,6 +384,7 @@ class TestTheCountDecidesTheColumns:
         from spacr.settings import get_timelapse_settings
         settings = get_timelapse_settings()
         settings[NUMBER_OF_ORGANELLES] = count
+        _every_object_on(settings)
         grid = ObjectSettingsGrid()
         qtbot.addWidget(grid)
         grid.set_settings(settings)
@@ -384,15 +412,19 @@ class TestTheCountDecidesTheColumns:
         destructive edit disguised as a display change."""
         from spacr.organelle_types import NUMBER_OF_ORGANELLES
         grid = self._grid_at(qtbot, 2)
+        # A numeric question: since 592 the first row is the "remove
+        # background" check box, which a typed 17 does not fit.
         question = next(q for q in grid.questions()
-                        if grid._model.asks(q, "organelleb"))
+                        if grid._model.asks(q, "organelleb")
+                        and not isinstance(
+                            grid._model.value_at(q, "organelleb"), bool))
         grid.set_value(question, "organelleb", "17")
         kept = grid.settings()
 
         kept[NUMBER_OF_ORGANELLES] = 1
         grid.set_settings(kept)
         assert self._organelles(grid) == ["organelle"]
-        assert grid.settings()[f"organelleb_{question}"] == 17
+        assert grid.settings()[_settings_key("organelleb", question)] == 17
 
     def test_adding_an_organelle_raises_the_count(self, qtbot,
                                                   qt_theme_applied):
@@ -411,10 +443,12 @@ class TestTheCountDecidesTheColumns:
         reverts every cell the user has typed into."""
         grid = self._grid_at(qtbot, 1)
         question = next(q for q in grid.questions()
-                        if grid._model.asks(q, "cell"))
+                        if grid._model.asks(q, "cell")
+                        and not isinstance(
+                            grid._model.value_at(q, "cell"), bool))
         grid.set_value(question, "cell", "23")
         grid.add_organelle()
-        assert grid.settings()[f"cell_{question}"] == 23
+        assert grid.settings()[_settings_key("cell", question)] == 23
 
 
 # ---------------------------------------------------------------------------
@@ -426,13 +460,13 @@ class TestAnUnsetChannelSaysOffNotAuto:
     crops. Drawn as "auto" that reads as a promise to work a channel out,
     which is the opposite of what it does."""
 
-    def test_an_unset_channel_reads_off(self, grid):
-        from PySide6.QtCore import Qt
-        row = grid.questions().index("channel")
-        col = grid.objects().index("cell")
-        index = grid._model.index(row, col)
-        grid.set_value("channel", "cell", "")
-        assert grid._model.data(index, Qt.DisplayRole) == "off"
+    def test_the_channel_is_not_a_table_row(self, grid):
+        """2026-09-29 (item 592, "hide unset objects"): an object whose
+        channel is unset has no column, so the channel cannot be a cell --
+        it would be the one control that brings the column back, inside the
+        column it brings back. It stays on the ordinary form."""
+        assert "channel" not in grid.questions()
+        assert "cell_channel" in grid.settings()
 
     def test_an_unset_diameter_still_reads_auto(self, grid):
         """Most questions DO mean "work it out" -- a diameter of None is
@@ -447,10 +481,12 @@ class TestAnUnsetChannelSaysOffNotAuto:
                                 Qt.DisplayRole) == "auto"
 
     def test_typing_either_word_back_clears_the_cell(self, grid):
-        for word in ("off", "auto", "OFF", ""):
-            grid.set_value("channel", "cell", "2")
-            assert grid.set_value("channel", "cell", word) is True
-            assert grid.settings()["cell_channel"] is None
+        # 2026-09-29 (item 592): measured on the diameter, since the
+        # channel is no longer a cell.
+        for word in ("off", "auto", "AUTO", ""):
+            grid.set_value("diameter", "cell", "2")
+            assert grid.set_value("diameter", "cell", word) is True
+            assert grid.settings()["cell_diameter"] is None
 
     def test_every_cell_carries_the_help(self, grid):
         """Asked for: "all the rows need to have tooltips".
@@ -467,7 +503,7 @@ class TestAnUnsetChannelSaysOffNotAuto:
                 tip = str(grid._model.data(grid._model.index(row, column),
                                            Qt.ToolTipRole) or "")
                 if len(tip) <= 40:
-                    thin.append(f"{obj}_{question}")
+                    thin.append(_settings_key(obj, question))
         assert not thin, f"cells with no real help: {thin[:5]}"
 
     def test_the_row_header_does_not_repeat_the_cells(self, grid):
@@ -529,7 +565,7 @@ class TestTheModelZooIsPerColumn:
         opened = []
         monkeypatch.setattr(zoo, "choose_model",
                             lambda *a, **k: opened.append(1) or "/m/x.pt")
-        grid._table.clicked.emit(self._view_index(grid, "channel", "cell"))
+        grid._table.clicked.emit(self._view_index(grid, "diameter", "cell"))
         assert not opened
 
     def test_a_cancelled_picker_leaves_the_model_alone(self, grid,
@@ -577,8 +613,8 @@ class TestTheTooltipsMatchTheForm:
 
     def test_the_cell_under_the_pointer_names_its_setting(self, grid):
         grid.resize(900, 500)
-        rect = self._rect_of(grid, "channel", "cell")
-        assert grid._key_under(rect.center()) == "cell_channel"
+        rect = self._rect_of(grid, "diameter", "cell")
+        assert grid._key_under(rect.center()) == "cell_diameter"
 
     def test_the_hovered_cell_is_the_setting_the_band_explains(self, grid):
         """THE CELL DECIDES, which is the whole of the table's help contract.
@@ -599,27 +635,27 @@ class TestTheTooltipsMatchTheForm:
         grid.set_app_key("mask")
         grid.resize(900, 500)
         grid._hovered_key = ""
-        grid._offer_tooltip(self._rect_of(grid, "channel", "cell").center())
+        grid._offer_tooltip(self._rect_of(grid, "diameter", "cell").center())
         # The band waits for a rest before it writes; drive the delay.
         grid._help_show_timer.stop()
         grid._show_pending_help()
 
-        assert grid._hovered_key == "cell_channel"
+        assert grid._hovered_key == "cell_diameter"
         # The BODY, not the whole formatted string: the band lifts the
         # trailing documentation anchor out of the prose and into the teal
         # **API** word, exactly as every other surface does.
         from spacr.qt.widgets.hover_tooltip import split_api_link
 
         expected, url = split_api_link(format_tooltip(
-            str(get_tooltips().get("cell_channel") or ""), "mask",
-            "cell_channel"))
+            str(get_tooltips().get("cell_diameter") or ""), "mask",
+            "cell_diameter"))
         assert grid._help.text() == expected
         assert grid._help_api_url == url
 
     def test_the_help_carries_an_api_reference(self, grid):
         from spacr.qt.screens.settings_model import format_tooltip, get_tooltips
-        html = format_tooltip(str(get_tooltips().get("cell_channel") or ""),
-                              "mask", "cell_channel")
+        html = format_tooltip(str(get_tooltips().get("cell_diameter") or ""),
+                              "mask", "cell_diameter")
         assert "<a" in html and "href" in html, "no API reference in the help"
 
     def test_the_native_tooltip_is_swallowed(self, grid):
@@ -633,10 +669,10 @@ class TestTheTooltipsMatchTheForm:
         """Cytoplasm has no channel; a tooltip there would explain a setting
         that does not exist for it."""
         objects = [o for o in grid.objects()
-                   if not grid._model.asks("channel", o)]
+                   if not grid._model.asks("adjust_cells", o)]
         if not objects:
-            pytest.skip("every object in this settings dict asks for a channel")
-        rect = self._rect_of(grid, "channel", objects[0])
+            pytest.skip("every object asks it")
+        rect = self._rect_of(grid, "adjust_cells", objects[0])
         assert grid._key_under(rect.center()) == ""
 
 
@@ -712,20 +748,21 @@ class TestTheHelpSitsAboveTheTable:
         resting = grid._help.text()
 
         grid._hovered_key = ""
-        grid._offer_tooltip(self._point_on(grid, "channel", "cell"))
+        grid._offer_tooltip(self._point_on(grid, "diameter", "cell"))
 
         assert grid._help_show_timer.isActive()
         assert grid._help.text() == resting, (
             "the help arrived before the pointer had rested")
-        assert grid._help_show_timer.interval() == grid.HELP_SHOW_DELAY_MS
+        from spacr.qt.tooltip_policy import _preferred_delay_ms
+        assert grid._help_show_timer.interval() == _preferred_delay_ms()
 
     def test_hovering_a_cell_writes_that_setting_into_the_band(
             self, grid, qtbot):
         self._shown(grid, qtbot)
         resting = grid._help.text()
-        self._hover(grid, "channel", "cell")
+        self._hover(grid, "diameter", "cell")
 
-        assert grid._hovered_key == "cell_channel"
+        assert grid._hovered_key == "cell_diameter"
         assert grid._help.text() != resting
         assert grid._help.text().strip()
 
@@ -740,7 +777,7 @@ class TestTheHelpSitsAboveTheTable:
         from spacr.qt.widgets.hover_tooltip import API_MARK, TEAL
 
         self._shown(grid, qtbot)
-        self._hover(grid, "channel", "cell")
+        self._hover(grid, "diameter", "cell")
 
         assert grid._help_api.isVisible(), "no API word"
         assert grid._help_api.text() == API_MARK
@@ -760,7 +797,7 @@ class TestTheHelpSitsAboveTheTable:
         from PySide6.QtCore import QEvent
 
         self._shown(grid, qtbot)
-        self._hover(grid, "channel", "cell")
+        self._hover(grid, "diameter", "cell")
         shown = grid._help.text()
 
         grid.eventFilter(grid._table.viewport(), QEvent(QEvent.Type.Leave))
@@ -774,7 +811,7 @@ class TestTheHelpSitsAboveTheTable:
         from PySide6.QtCore import QEvent
 
         self._shown(grid, qtbot)
-        self._hover(grid, "channel", "cell")
+        self._hover(grid, "diameter", "cell")
         grid.eventFilter(grid._table.viewport(), QEvent(QEvent.Type.Leave))
         assert grid._help_hide_timer.isActive()
 
@@ -798,7 +835,7 @@ class TestTheHelpSitsAboveTheTable:
         question, obj = next(
             ((q, o) for q in grid.questions() for o in grid.objects()
              if grid._model.asks(q, o)
-             and animation_for_setting(f"{o}_{q}") is not None),
+             and animation_for_setting(_settings_key(o, q)) is not None),
             (None, None))
         if question is None:
             pytest.skip("no per-object setting in this panel has an animation")
@@ -823,7 +860,7 @@ class TestTheHelpSitsAboveTheTable:
         question, obj = next(
             ((q, o) for q in grid.questions() for o in grid.objects()
              if grid._model.asks(q, o)
-             and animation_for_setting(f"{o}_{q}") is None),
+             and animation_for_setting(_settings_key(o, q)) is None),
             (None, None))
         if question is None:
             pytest.skip("every per-object setting has an animation")
@@ -838,7 +875,7 @@ class TestTheHelpSitsAboveTheTable:
         """A band that grew would push the table under the pointer."""
         self._shown(grid, qtbot)
         before = grid._help_band.height()
-        self._hover(grid, "channel", "cell")
+        self._hover(grid, "diameter", "cell")
         qtbot.wait(10)
 
         assert grid._help_band.height() == before
@@ -852,7 +889,62 @@ class TestTheHelpSitsAboveTheTable:
         self._shown(grid, qtbot)
         popup = HoverTooltip.instance()
         popup.hide()
-        self._hover(grid, "channel", "cell")
+        self._hover(grid, "diameter", "cell")
         qtbot.wait(10)
 
         assert not popup.isVisible(), "a popup answered a table hover as well"
+
+
+# ---------------------------------------------------------------------------
+# 2026-09-29 (item 592, the maintainer's decision "hide unset objects"): a
+# column is drawn only for an object whose channel is set; cell always.
+# ---------------------------------------------------------------------------
+
+class TestAnUnsetObjectIsHidden:
+    """Hide, never delete: a hidden column's answers survive."""
+
+    def _grid(self, qtbot, **channels):
+        from spacr.settings import get_timelapse_settings
+        settings = get_timelapse_settings()
+        settings[NUMBER_OF_ORGANELLES] = 1
+        settings.update(channels)
+        grid = ObjectSettingsGrid()
+        qtbot.addWidget(grid)
+        grid.set_settings(settings)
+        return grid
+
+    def test_an_unset_objects_column_is_hidden(self, qtbot, qt_theme_applied):
+        grid = self._grid(qtbot, nucleus_channel=1)
+        assert "nucleus" in grid.objects()
+        assert "pathogen" not in grid.objects()
+        assert "organelle" not in grid.objects()
+
+    def test_cell_always_shows(self, qtbot, qt_theme_applied):
+        grid = self._grid(qtbot)
+        assert grid.settings()["cell_channel"] is None
+        assert grid.objects() == ("cell",)
+        assert grid.questions(), "the cell column still asks its questions"
+
+    def test_setting_the_channel_shows_the_old_values(self, qtbot,
+                                                      qt_theme_applied):
+        grid = self._grid(qtbot, pathogen_channel=2)
+        grid.set_value("diameter", "pathogen", "57")
+        settings = grid.settings()
+        settings["pathogen_channel"] = None
+        grid.set_settings(settings)
+        assert "pathogen" not in grid.objects()
+        assert grid.settings()["pathogen_diameter"] == 57
+        settings = grid.settings()
+        settings["pathogen_channel"] = 3
+        grid.set_settings(settings)
+        assert "pathogen" in grid.objects()
+        assert grid.table()["diameter"]["pathogen"] == 57
+
+    def test_a_slot_needs_the_count_and_its_channel(self, qtbot,
+                                                    qt_theme_applied):
+        grid = self._grid(qtbot, organelle_channel=4)
+        assert "organelle" in grid.objects()
+        settings = grid.settings()
+        settings[NUMBER_OF_ORGANELLES] = 0
+        grid.set_settings(settings)
+        assert "organelle" not in grid.objects()

@@ -55,6 +55,8 @@ class HintBar(QLabel):
         :param parent: parent widget, or ``None``.
         """
         super().__init__(default, parent)
+        from ..tooltip_policy import HoverDelay
+        self._hover_delay = HoverDelay(self)
         self._default = default
         self._hints: Dict[QWidget, str] = {}
         self.setObjectName(BAR_NAME)
@@ -87,7 +89,11 @@ class HintBar(QLabel):
         return sentence
 
     def explains(self, widget: QWidget) -> str:
-        """What ``widget`` will write here, or ``""`` if it writes nothing."""
+        """What ``widget`` will write here, or ``""`` if it writes nothing.
+
+        :param widget: a control that may have been registered with
+            :meth:`explain`.
+        """
         return self._hints.get(widget, "")
 
     def count(self) -> int:
@@ -123,8 +129,10 @@ class HintBar(QLabel):
         if kind == QEvent.Enter:
             sentence = self._hints.get(obj)
             if sentence:
-                self.setText(self._translated(sentence))
+                self._hover_delay.schedule(
+                    obj, lambda: self.setText(self._translated(sentence)))
         elif kind in (QEvent.Leave, QEvent.HoverLeave):
+            self._hover_delay.cancel_for(obj)
             if self._hints.get(obj) and \
                     self.text() == self._translated(self._hints[obj]):
                 self.reset()
@@ -136,6 +144,9 @@ def hint_bar_of(widget: QWidget) -> Optional[HintBar]:
 
     Lets a helper deep in a form hand a sentence to the bar without the
     caller having to thread it down through every layer.
+
+    :param widget: any widget, or ``None``; its top-level window is searched
+        for a :class:`HintBar` child.
     """
     window = widget.window() if widget is not None else None
     if window is None:
@@ -150,6 +161,10 @@ def explain_through_the_bar(widget: QWidget, text: str = "") -> bool:
     The caller decides what to do without one -- usually leave the tooltip
     where it is, which is better than a control that explains itself
     nowhere.
+
+    :param widget: the control to register; its window's bar is found with
+        :func:`hint_bar_of`. Also returns False when the widget has nothing
+        to say.
     """
     bar = hint_bar_of(widget)
     if bar is None:

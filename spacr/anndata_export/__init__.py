@@ -1153,89 +1153,39 @@ def _relationships(tables: Sequence[str], anchor: str,
 
 
 
-def build_anndata(db_path: Union[str, os.PathLike],
-                  *,
-                  tables: Sequence[str] = DEFAULT_TABLES,
-                  single_table: Optional[str] = None,
-                  data_filter: Optional[DataFilter] = None,
-                  selection: Optional[Selection] = None,
-                  row_limit: Optional[int] = None,
-                  timelapse: bool = False,
-                  nan_policy: str = NAN_KEEP,
-                  missing_layer: Optional[bool] = None,
-                  dtype: str = "float32",
-                  exclude: Sequence[str] = (),
-                  embeddings: Optional[Mapping[str, Any]] = None,
-                  compute_umap: bool = False,
-                  umap_settings: Optional[Mapping[str, Any]] = None,
-                  condition_map: Optional[Mapping[str, str]] = None,
-                  condition_column: str = schema.COLUMN_KEY,
-                  attach_labels: bool = True,
-                  drop_redundant_identity: bool = True,
-                  settings: Optional[Mapping[str, Any]] = None,
-                  run_id: str = "",
-                  verbose: bool = True):
-    """Build an :class:`anndata.AnnData` from a spaCR measurements database.
+def _assemble_tables(db_path: Union[str, os.PathLike],
+                     *,
+                     tables: Sequence[str] = DEFAULT_TABLES,
+                     single_table: Optional[str] = None,
+                     data_filter: Optional[DataFilter] = None,
+                     selection: Optional[Selection] = None,
+                     row_limit: Optional[int] = None,
+                     timelapse: bool = False,
+                     nan_policy: str = NAN_KEEP,
+                     exclude: Sequence[str] = (),
+                     condition_map: Optional[Mapping[str, str]] = None,
+                     condition_column: str = schema.COLUMN_KEY,
+                     attach_labels: bool = True,
+                     drop_redundant_identity: bool = True,
+                     ) -> Dict[str, Any]:
+    """Read, filter and split a measurements database into export tables.
 
-    The mapping is described in full in the module docstring; in short,
-    ``X`` is the numeric measurements, ``obs`` is everything else about the
-    object, ``var`` is :mod:`spacr.feature_dict`'s description of each
-    feature, ``obsm`` holds embeddings and ``uns`` holds provenance.
+    The part of an export that does not depend on the file format: the
+    per-object metadata frame, the per-feature description, the float64
+    feature matrix after the NaN policy, and the counts and notes every
+    format records. :func:`build_anndata` wraps the result in an AnnData;
+    the Parquet and R exports write it as tables.
 
-    :param db_path: a ``measurements.db``.
-    :param tables: tables to join for the default cell-anchored export.
-    :param single_table: export exactly this object table instead, one row
-        per object of that type -- which is the only way to get a
-        nucleus-level or pathogen-level matrix, since the join averages
-        children onto their parent.
-    :param data_filter: a :class:`spacr.selection.DataFilter`. Declarative
-        and re-appliable; recorded in ``uns``.
-    :param selection: a :class:`spacr.selection.Selection` -- the keys a
-        view pointed at. Applied after ``data_filter``.
-    :param row_limit: hard cap on exported objects, applied last. A blunt
-        instrument on purpose, for "give me something I can open" without
-        inventing a filter that means something it does not.
-    :param timelapse: key each frame of an object separately.
-    :param nan_policy: one of :data:`NAN_POLICIES`; see the module
-        docstring. The default keeps NaN and reports it.
-    :param missing_layer: write ``layers['missing']``. Defaults to True for
-        the imputing policies and False otherwise.
-    :param dtype: ``X`` dtype. ``float32`` by default -- the scanpy
-        convention, half the memory, and far more precision than any
-        microscope measurement carries.
-    :param exclude: feature columns to keep out of ``X``.
-    :param embeddings: ``{name: array or DataFrame}``. Names are normalised
-        to the scanpy ``X_*`` convention, so ``'umap'`` becomes ``X_umap``.
-        A DataFrame carrying :data:`spacr.selection.OBJECT_KEY_COLUMNS` is
-        aligned **by key**, which is what makes an embedding computed on the
-        whole plate usable with a filtered export.
-    :param compute_umap: compute ``X_umap`` here, through the same
-        :func:`spacr.utils.reduction_and_clustering` call
-        :func:`spacr.core.generate_image_umap` makes. Off by default: it
-        imports the segmentation stack and costs minutes on a large table.
-    :param umap_settings: overrides for that computation.
-    :param condition_map: ``{column value: label}`` written to
-        ``obs['condition']``; :data:`DEFAULT_CONDITION_MAP` is the mapping
-        :func:`spacr.utils.map_condition` applies.
-    :param condition_column: which column ``condition_map`` reads.
-    :param attach_labels: bring the annotation and prediction columns back
-        out of ``png_list``, which the table join drops. On by default --
-        see :func:`_attach_png_labels`.
-    :param drop_redundant_identity: drop the join's suffixed copies of
-        identity columns (``plateID_nucleus``, ``object_label_pathogen``)
-        from ``obs``. On by default; see
-        :func:`_redundant_identity_columns` for why two of them are worse
-        than merely duplicated.
-    :param settings: the run settings, hashed into ``uns`` provenance.
-    :param run_id: the run this export belongs to.
-    :param verbose: print the summary and the missing-data warning.
-    :returns: ``(adata, result)`` -- the AnnData and an :class:`ExportResult`.
-    :raises AnnDataExtraMissing: when ``anndata`` is not installed.
+    Arguments are those of :func:`build_anndata`.
+
+    :returns: a dict with ``db_path``, ``frame``, ``obs``, ``var``,
+        ``matrix``, ``features``, ``missing_mask``, ``nan_report``,
+        ``notes``, ``n_before``, ``n_missing_before``, ``n_infinite``,
+        ``read_tables``, ``anchor``, ``joined``, ``units``,
+        ``annotations`` and ``predictions``.
     :raises DuplicateObjectKeys: when two rows claim one object key.
-    :raises ValueError: on an unknown ``nan_policy``, an unusable database,
-        or an embedding that cannot be aligned.
+    :raises ValueError: on an unknown ``nan_policy`` or an unusable database.
     """
-    anndata = require_anndata()
     db_path = os.path.abspath(os.path.expanduser(os.fspath(db_path)))
 
     frame, read_tables = _read_frame(
@@ -1335,6 +1285,172 @@ def build_anndata(db_path: Union[str, os.PathLike],
     obs = obs.copy()
     obs["n_missing_features"] = np.asarray(per_object_missing, dtype=np.int32)
 
+    return {
+        "db_path": db_path, "frame": frame, "obs": obs, "var": var,
+        "matrix": matrix, "features": list(features),
+        "missing_mask": missing_mask, "nan_report": nan_report,
+        "notes": notes, "n_before": int(n_before),
+        "n_missing_before": n_missing_before, "n_infinite": n_infinite,
+        "read_tables": tuple(read_tables), "anchor": anchor,
+        "joined": bool(joined), "units": units,
+        "annotations": list(annotations), "predictions": list(predictions),
+    }
+
+
+def _provenance_record(parts: Mapping[str, Any], *, n_objects: int,
+                       n_features: int,
+                       data_filter: Optional[DataFilter],
+                       selection: Optional[Selection],
+                       settings: Optional[Mapping[str, Any]],
+                       run_id: str, timelapse: bool) -> Dict[str, Any]:
+    """The provenance every export format records.
+
+    :param parts: the result of :func:`_assemble_tables`.
+    :param n_objects: objects written.
+    :param n_features: feature columns written.
+    :param data_filter: the filter applied, or ``None``.
+    :param selection: the selection applied, or ``None``.
+    :param settings: the run settings, hashed into the record.
+    :param run_id: the run this export belongs to; read from the database
+        when empty.
+    :param timelapse: whether each frame was keyed separately.
+    :returns: a dict of plain values: version, settings hash, run id,
+        source, filter, missing-value report, label columns, relationships,
+        notes and feature-dictionary coverage.
+    """
+    from ..artifacts import settings_hash
+    from ..feature_dict import coverage as feature_coverage
+    from ..version import get_version
+
+    db_path = parts["db_path"]
+    record: Dict[str, Any] = {
+        "spacr_version": get_version(),
+        "settings_hash": settings_hash(settings),
+        "run_id": str(run_id or _run_id_from_db(db_path)),
+        "source_database": db_path,
+        "source_tables": list(parts["read_tables"]),
+        "anchor_object": parts["anchor"],
+        "joined": bool(parts["joined"]),
+        "exported_utc": datetime.now(timezone.utc).isoformat(),
+        "object_key_columns": list(OBJECT_KEY_COLUMNS),
+        "timelapse": bool(timelapse),
+        "measurement_units": parts["units"] or "",
+        "n_objects": int(n_objects),
+        "n_objects_before_filter": int(parts["n_before"]),
+        "n_features": int(n_features),
+        "filter": _filter_record(data_filter, selection),
+        "nan": parts["nan_report"],
+        "annotation_columns": list(parts["annotations"]),
+        "prediction_columns": list(parts["predictions"]),
+        "relationships": _relationships(
+            parts["read_tables"], parts["anchor"], parts["joined"]),
+        "notes": list(parts["notes"]),
+    }
+    explained = feature_coverage(parts["features"], parts["units"])
+    record["feature_dictionary"] = {
+        "total": int(explained.total),
+        "explained": int(explained.explained),
+        "unknown": list(explained.unknown[:50]),
+    }
+    return record
+
+
+def build_anndata(db_path: Union[str, os.PathLike],
+                  *,
+                  tables: Sequence[str] = DEFAULT_TABLES,
+                  single_table: Optional[str] = None,
+                  data_filter: Optional[DataFilter] = None,
+                  selection: Optional[Selection] = None,
+                  row_limit: Optional[int] = None,
+                  timelapse: bool = False,
+                  nan_policy: str = NAN_KEEP,
+                  missing_layer: Optional[bool] = None,
+                  dtype: str = "float32",
+                  exclude: Sequence[str] = (),
+                  embeddings: Optional[Mapping[str, Any]] = None,
+                  compute_umap: bool = False,
+                  umap_settings: Optional[Mapping[str, Any]] = None,
+                  condition_map: Optional[Mapping[str, str]] = None,
+                  condition_column: str = schema.COLUMN_KEY,
+                  attach_labels: bool = True,
+                  drop_redundant_identity: bool = True,
+                  settings: Optional[Mapping[str, Any]] = None,
+                  run_id: str = "",
+                  verbose: bool = True):
+    """Build an :class:`anndata.AnnData` from a spaCR measurements database.
+
+    The mapping is described in full in the module docstring; in short,
+    ``X`` is the numeric measurements, ``obs`` is everything else about the
+    object, ``var`` is :mod:`spacr.feature_dict`'s description of each
+    feature, ``obsm`` holds embeddings and ``uns`` holds provenance.
+
+    :param db_path: a ``measurements.db``.
+    :param tables: tables to join for the default cell-anchored export.
+    :param single_table: export exactly this object table instead, one row
+        per object of that type -- which is the only way to get a
+        nucleus-level or pathogen-level matrix, since the join averages
+        children onto their parent.
+    :param data_filter: a :class:`spacr.selection.DataFilter`. Declarative
+        and re-appliable; recorded in ``uns``.
+    :param selection: a :class:`spacr.selection.Selection` -- the keys a
+        view pointed at. Applied after ``data_filter``.
+    :param row_limit: hard cap on exported objects, applied last. A blunt
+        instrument on purpose, for "give me something I can open" without
+        inventing a filter that means something it does not.
+    :param timelapse: key each frame of an object separately.
+    :param nan_policy: one of :data:`NAN_POLICIES`; see the module
+        docstring. The default keeps NaN and reports it.
+    :param missing_layer: write ``layers['missing']``. Defaults to True for
+        the imputing policies and False otherwise.
+    :param dtype: ``X`` dtype. ``float32`` by default -- the scanpy
+        convention, half the memory, and far more precision than any
+        microscope measurement carries.
+    :param exclude: feature columns to keep out of ``X``.
+    :param embeddings: ``{name: array or DataFrame}``. Names are normalised
+        to the scanpy ``X_*`` convention, so ``'umap'`` becomes ``X_umap``.
+        A DataFrame carrying :data:`spacr.selection.OBJECT_KEY_COLUMNS` is
+        aligned **by key**, which is what makes an embedding computed on the
+        whole plate usable with a filtered export.
+    :param compute_umap: compute ``X_umap`` here, through the same
+        :func:`spacr.utils.reduction_and_clustering` call
+        :func:`spacr.core.generate_image_umap` makes. Off by default: it
+        imports the segmentation stack and costs minutes on a large table.
+    :param umap_settings: overrides for that computation.
+    :param condition_map: ``{column value: label}`` written to
+        ``obs['condition']``; :data:`DEFAULT_CONDITION_MAP` is the mapping
+        :func:`spacr.utils.map_condition` applies.
+    :param condition_column: which column ``condition_map`` reads.
+    :param attach_labels: bring the annotation and prediction columns back
+        out of ``png_list``, which the table join drops. On by default --
+        see :func:`_attach_png_labels`.
+    :param drop_redundant_identity: drop the join's suffixed copies of
+        identity columns (``plateID_nucleus``, ``object_label_pathogen``)
+        from ``obs``. On by default; see
+        :func:`_redundant_identity_columns` for why two of them are worse
+        than merely duplicated.
+    :param settings: the run settings, hashed into ``uns`` provenance.
+    :param run_id: the run this export belongs to.
+    :param verbose: print the summary and the missing-data warning.
+    :returns: ``(adata, result)`` -- the AnnData and an :class:`ExportResult`.
+    :raises AnnDataExtraMissing: when ``anndata`` is not installed.
+    :raises DuplicateObjectKeys: when two rows claim one object key.
+    :raises ValueError: on an unknown ``nan_policy``, an unusable database,
+        or an embedding that cannot be aligned.
+    """
+    anndata = require_anndata()
+    parts = _assemble_tables(
+        db_path, tables=tables, single_table=single_table,
+        data_filter=data_filter, selection=selection, row_limit=row_limit,
+        timelapse=timelapse, nan_policy=nan_policy, exclude=exclude,
+        condition_map=condition_map, condition_column=condition_column,
+        attach_labels=attach_labels,
+        drop_redundant_identity=drop_redundant_identity)
+    obs, var, matrix = parts["obs"], parts["var"], parts["matrix"]
+    features = parts["features"]
+    missing_mask, nan_report = parts["missing_mask"], parts["nan_report"]
+    notes = parts["notes"]
+    n_before, n_infinite = parts["n_before"], parts["n_infinite"]
+    n_missing_before = parts["n_missing_before"]
     matrix = np.ascontiguousarray(matrix, dtype=np.dtype(dtype))
 
     adata = anndata.AnnData(X=matrix, obs=obs, var=var)
@@ -1367,51 +1483,23 @@ def build_anndata(db_path: Union[str, os.PathLike],
                                  "X itself is untouched"),
             }
 
-    from ..artifacts import material_settings, settings_hash
-    from ..version import get_version
+    from ..artifacts import material_settings
 
-    provenance: Dict[str, Any] = {
-        "spacr_version": get_version(),
-        "settings_hash": settings_hash(settings),
-        "run_id": str(run_id or _run_id_from_db(db_path)),
-        "source_database": db_path,
-        "source_tables": list(read_tables),
-        "anchor_object": anchor,
-        "joined": bool(joined),
-        "exported_utc": datetime.now(timezone.utc).isoformat(),
-        "object_key_columns": list(OBJECT_KEY_COLUMNS),
-        "timelapse": bool(timelapse),
-        "measurement_units": units or "",
-        "n_objects": int(adata.n_obs),
-        "n_objects_before_filter": int(n_before),
-        "n_features": int(adata.n_vars),
-        "filter": _filter_record(data_filter, selection),
-        "nan": nan_report,
-        "annotation_columns": list(annotations),
-        "prediction_columns": list(predictions),
-        "relationships": _relationships(read_tables, anchor, joined),
-        "notes": list(notes),
-        "artifact": {
-            "module": APP_KEY,
-            "kind": ANNDATA_KIND,
-            "role": "h5ad",
-            "note": ("the artifact id is derived from this file's content "
-                     "fingerprint and so cannot live inside it; find the "
-                     "record with spacr.artifacts.by_kind('anndata', "
-                     "project=<project root>)"),
-        },
+    provenance = _provenance_record(
+        parts, n_objects=int(adata.n_obs), n_features=int(adata.n_vars),
+        data_filter=data_filter, selection=selection, settings=settings,
+        run_id=run_id, timelapse=timelapse)
+    provenance["artifact"] = {
+        "module": APP_KEY,
+        "kind": ANNDATA_KIND,
+        "role": "h5ad",
+        "note": ("the artifact id is derived from this file's content "
+                 "fingerprint and so cannot live inside it; find the "
+                 "record with spacr.artifacts.by_kind('anndata', "
+                 "project=<project root>)"),
     }
     if obsm_notes:
         provenance["umap"] = obsm_notes.get("X_umap", {})
-
-    from ..feature_dict import coverage as feature_coverage
-
-    explained = feature_coverage(features, units)
-    provenance["feature_dictionary"] = {
-        "total": int(explained.total),
-        "explained": int(explained.explained),
-        "unknown": list(explained.unknown[:50]),
-    }
 
     adata.uns["spacr"] = _h5ad_safe(provenance)
     adata.uns["spacr_settings"] = _h5ad_safe(material_settings(settings))
@@ -1676,6 +1764,686 @@ def _stamp_parent_file(child_path: str, parent_path: str,
 
 
 
+_FORMAT_H5AD = "h5ad"
+_FORMAT_PARQUET = "parquet"
+_FORMAT_R = "r"
+_FORMAT_ALL = "all"
+
+#: Every accepted ``anndata_format``: the AnnData file alone, the Parquet
+#: tables alone, the Parquet tables with the R loader (and ``.rds`` data
+#: frames when pyreadr is installed), or all of them.
+_EXPORT_FORMATS: Tuple[str, ...] = (
+    _FORMAT_H5AD, _FORMAT_PARQUET, _FORMAT_R, _FORMAT_ALL)
+
+#: Name and version written into every table's Parquet schema metadata.
+_TABLES_FORMAT = "spacr-tables"
+_TABLES_FORMAT_VERSION = 1
+
+#: The artifact kind the objects table registers under.
+_TABLES_KIND = "parquet_tables"
+
+#: File name of the generated R loader.
+_R_LOADER_NAME = "load_spacr_export.R"
+
+#: How the per-well table summarises each feature.
+_WELL_STATISTICS: Tuple[str, ...] = ("mean", "median")
+
+#: The column every table joins on: :func:`spacr.selection.object_keys`.
+_OBJECT_KEY_COLUMN = "object_key"
+
+#: Column holding each well's object count in the per-well table.
+_WELL_COUNT_COLUMN = "n_objects"
+
+
+@dataclass(frozen=True)
+class _TablesResult:
+    """What one Parquet/R table export wrote.
+
+    :param directory: the folder written.
+    :param files: every file written, absolute paths, tables first.
+    :param n_objects: rows of the per-object table.
+    :param n_features: feature columns.
+    :param n_wells: rows of the per-well table; ``0`` when not written.
+    :param r_loader: the R loader script, or ``""``.
+    :param rds_files: ``.rds`` data frames written, if any.
+    :param artifact_id: the :mod:`spacr.artifacts` id of the per-object
+        table, or ``""``.
+    :param warnings: everything the export decided the user must know.
+    """
+
+    directory: str
+    files: Tuple[str, ...]
+    n_objects: int
+    n_features: int
+    n_wells: int = 0
+    r_loader: str = ""
+    rds_files: Tuple[str, ...] = ()
+    artifact_id: str = ""
+    warnings: Tuple[str, ...] = ()
+
+    def describe(self) -> str:
+        """One paragraph: shape, folder, files and what R needs."""
+        lines = [f"{self.n_objects} objects x {self.n_features} features "
+                 f"-> {self.directory}"]
+        if self.n_wells:
+            lines.append(f"  {self.n_wells} wells in wells.parquet")
+        lines.append("  files: " + ", ".join(
+            os.path.basename(path) for path in self.files))
+        if self.r_loader:
+            lines.append(
+                f"  in R: source('{os.path.basename(self.r_loader)}'); "
+                f"sce <- load_spacr_export()")
+        if self.artifact_id:
+            lines.append(f"  artifact {self.artifact_id}")
+        for note in self.warnings:
+            lines.append(f"  note: {note}")
+        return "\n".join(lines)
+
+
+def _well_names(rows: pd.Series, columns: pd.Series) -> pd.Series:
+    """Plate-map well names (``'C07'``) for row and column ids.
+
+    A pair with no well name, such as a positional passthrough, gets a
+    missing value rather than an invented name.
+    """
+    names: Dict[Tuple[str, str], Any] = {}
+    for row, column in set(zip(rows.astype(str), columns.astype(str))):
+        try:
+            names[(row, column)] = schema.well_id(row, column)
+        except (schema.KeyParseError, ValueError, TypeError):
+            names[(row, column)] = None
+    values = [names[(row, column)] for row, column in
+              zip(rows.astype(str), columns.astype(str))]
+    return pd.Series(pd.Categorical(values), index=rows.index)
+
+
+def _add_well_keys(frame: pd.DataFrame) -> pd.DataFrame:
+    """Add the ``prc`` well key and the plate-map well name when derivable.
+
+    Both are categoricals, as are the plate, row, column and field ids.
+    """
+    keys = (schema.PLATE_KEY, schema.ROW_KEY, schema.COLUMN_KEY)
+    if not all(key in frame.columns for key in keys):
+        return frame
+    frame = frame.copy()
+    if schema.PRC_KEY not in frame.columns:
+        frame[schema.PRC_KEY] = schema.compose_prc_column(frame)
+    if schema.WELL_KEY not in frame.columns:
+        frame[schema.WELL_KEY] = _well_names(
+            frame[schema.ROW_KEY], frame[schema.COLUMN_KEY])
+    for column in (*keys, schema.FIELD_KEY, schema.PRC_KEY, schema.WELL_KEY):
+        if column in frame.columns and not isinstance(
+                frame[column].dtype, pd.CategoricalDtype):
+            frame[column] = frame[column].astype("category")
+    return frame
+
+
+def _numeric_categoricals_as_values(frame: pd.DataFrame) -> pd.DataFrame:
+    """Store categoricals of numbers or booleans as their plain values.
+
+    Parquet reads a dictionary of numbers back as plain numbers, so a
+    numeric label such as a 0/1 annotation is written as a number in the
+    first place, and reads back with the type it was written with: integers
+    as ``int64`` (``Int64`` when a value is missing), floats as ``float64``,
+    booleans as ``bool`` (``boolean`` when a value is missing). Text
+    categoricals are left as they are.
+    """
+    frame = frame.copy()
+    for column in frame.columns:
+        values = frame[column]
+        if not isinstance(values.dtype, pd.CategoricalDtype):
+            continue
+        kind = values.cat.categories.dtype.kind
+        if kind not in "iufb":
+            continue
+        target: Any = values.cat.categories.dtype
+        if values.isna().any() and kind in "iu":
+            target = pd.Int64Dtype()
+        elif values.isna().any() and kind == "b":
+            target = pd.BooleanDtype()
+        frame[column] = values.astype(target)
+    return frame
+
+
+def _objects_table(parts: Mapping[str, Any], dtype: str) -> pd.DataFrame:
+    """One row per object: key, metadata, labels and every feature."""
+    obs = parts["obs"]
+    objects = obs.reset_index()
+    objects = objects.rename(
+        columns={objects.columns[0]: _OBJECT_KEY_COLUMN})
+    objects[_OBJECT_KEY_COLUMN] = objects[_OBJECT_KEY_COLUMN].astype(str)
+    for column in objects.columns:
+        values = objects[column]
+        if values.dtype == object and pd.api.types.infer_dtype(
+                values, skipna=True) not in ("string", "empty", "boolean"):
+            objects[column] = values.map(
+                lambda value: value if value is None or (
+                    isinstance(value, float) and np.isnan(value))
+                else str(value))
+    objects = _add_well_keys(_numeric_categoricals_as_values(objects))
+    if OBJECT_TYPE_COLUMN in objects.columns:
+        objects[OBJECT_TYPE_COLUMN] = objects[OBJECT_TYPE_COLUMN].astype(
+            "category")
+    features = pd.DataFrame(
+        np.asarray(parts["matrix"], dtype=np.dtype(dtype)),
+        columns=list(parts["features"]))
+    return pd.concat([objects.reset_index(drop=True), features], axis=1)
+
+
+def _well_key_columns(objects: pd.DataFrame, timelapse: bool) -> List[str]:
+    """The columns that identify a well, as present in ``objects``."""
+    keys = [schema.PLATE_KEY, schema.ROW_KEY, schema.COLUMN_KEY]
+    if not all(key in objects.columns for key in keys):
+        return []
+    if timelapse and schema.TIME_KEY in objects.columns:
+        keys.append(schema.TIME_KEY)
+    return keys
+
+
+def _wells_table(objects: pd.DataFrame, features: Sequence[str],
+                 keys: Sequence[str], statistic: str) -> pd.DataFrame:
+    """One row per well: its keys, object count and each feature's summary.
+
+    Missing values are skipped, so a well's summary is over the objects
+    that have the feature. ``condition`` is kept when it is the same for
+    every object in the well.
+    """
+    grouped = objects.groupby(list(keys), observed=True, sort=True)
+    wells = grouped[list(features)].agg(statistic)
+    wells.insert(0, _WELL_COUNT_COLUMN, grouped.size().astype(np.int64))
+    if "condition" in objects.columns:
+        conditions = grouped["condition"].agg(
+            lambda values: values.iloc[0]
+            if values.nunique(dropna=False) == 1 else None)
+        wells.insert(1, "condition", pd.Categorical(conditions))
+    wells = wells.reset_index()
+    return _add_well_keys(wells)
+
+
+def _embeddings_table(keys: pd.Index, parts: Mapping[str, Any],
+                      embeddings: Optional[Mapping[str, Any]],
+                      compute_umap: bool,
+                      umap_settings: Optional[Mapping[str, Any]],
+                      timelapse: bool, notes: List[str]
+                      ) -> Tuple[Optional[pd.DataFrame], Dict[str, List[str]]]:
+    """Object key plus one ``<name>_<k>`` column per embedding dimension."""
+    arrays: Dict[str, np.ndarray] = {}
+    for name, values in dict(embeddings or {}).items():
+        arrays[_obsm_name(name)] = _align_embedding(
+            values, keys, timelapse=timelapse, name=str(name))
+    if compute_umap and "X_umap" not in arrays:
+        if len(keys) < 3:
+            notes.append(
+                f"compute_umap was asked for but the export has {len(keys)} "
+                f"objects; UMAP needs at least 3. No X_umap was written.")
+        else:
+            arrays["X_umap"] = _compute_umap(
+                np.asarray(parts["matrix"], dtype=float), parts["features"],
+                dict(umap_settings or {}))
+    if not arrays:
+        return None, {}
+    table = pd.DataFrame({_OBJECT_KEY_COLUMN: [str(key) for key in keys]})
+    columns: Dict[str, List[str]] = {}
+    for name, array in arrays.items():
+        names = [f"{name}_{i + 1}" for i in range(array.shape[1])]
+        columns[name] = names
+        for i, column in enumerate(names):
+            table[column] = np.asarray(array[:, i], dtype=np.float64)
+    return table, columns
+
+
+def _provenance_table(provenance: Mapping[str, Any],
+                      settings: Optional[Mapping[str, Any]]) -> pd.DataFrame:
+    """Provenance and material settings as ``section``, ``key``, ``value``.
+
+    Every value is JSON text, so nested records keep their structure.
+    """
+    import json
+
+    from ..artifacts import material_settings
+
+    rows = [("export", str(key), json.dumps(value, default=str,
+                                            sort_keys=True))
+            for key, value in provenance.items()]
+    rows += [("settings", str(key), json.dumps(value, default=str,
+                                               sort_keys=True))
+             for key, value in sorted(material_settings(settings).items(),
+                                      key=lambda item: str(item[0]))]
+    frame = pd.DataFrame(rows, columns=["section", "key", "value"])
+    frame["section"] = frame["section"].astype("category")
+    return frame
+
+
+_R_LOADER_TEMPLATE = r'''## Load a spaCR table export into R.
+##
+## Written by spaCR {version} on {date} beside the Parquet tables it reads.
+##
+## In R:
+##   source("{loader}")
+##   sce <- load_spacr_export()      # a SingleCellExperiment
+##   tables <- read_spacr_tables()   # a list of data frames
+##
+## From a shell, to save the SingleCellExperiment as an .rds file:
+##   Rscript {loader} [export folder] [output.rds]
+##
+## Reading the tables needs the R package arrow (install.packages("arrow"))
+## or nanoparquet (install.packages("nanoparquet")). load_spacr_export()
+## also needs Bioconductor's SingleCellExperiment:
+##   install.packages("BiocManager"); BiocManager::install("SingleCellExperiment")
+## jsonlite, when installed, turns the provenance values into R lists.
+
+.spacr_export_dir <- local({{
+  sourced <- NULL
+  for (frame in rev(sys.frames())) {{
+    candidate <- frame$ofile
+    if (is.character(candidate) && length(candidate) == 1L) {{
+      sourced <- candidate
+      break
+    }}
+  }}
+  if (!is.null(sourced)) {{
+    dirname(normalizePath(sourced))
+  }} else {{
+    args <- commandArgs(trailingOnly = FALSE)
+    file_arg <- sub("^--file=", "", args[grep("^--file=", args)])
+    if (length(file_arg) == 1L) dirname(normalizePath(file_arg)) else getwd()
+  }}
+}})
+
+.spacr_read_parquet <- function(path) {{
+  if (requireNamespace("arrow", quietly = TRUE)) {{
+    return(as.data.frame(arrow::read_parquet(path)))
+  }}
+  if (requireNamespace("nanoparquet", quietly = TRUE)) {{
+    return(as.data.frame(nanoparquet::read_parquet(path)))
+  }}
+  stop("Reading a spaCR export needs the R package arrow ",
+       "(install.packages(\"arrow\")) or nanoparquet ",
+       "(install.packages(\"nanoparquet\")).", call. = FALSE)
+}}
+
+read_spacr_tables <- function(dir = .spacr_export_dir) {{
+  files <- c({files})
+  tables <- list()
+  for (name in names(files)) {{
+    path <- file.path(dir, files[[name]])
+    if (file.exists(path)) tables[[name]] <- .spacr_read_parquet(path)
+  }}
+  for (key in c({factors})) {{
+    for (name in c("objects", "wells")) {{
+      table <- tables[[name]]
+      if (!is.null(table) && key %in% names(table) && !is.factor(table[[key]])) {{
+        tables[[name]][[key]] <- factor(table[[key]])
+      }}
+    }}
+  }}
+  tables
+}}
+
+read_spacr_provenance <- function(dir = .spacr_export_dir) {{
+  table <- .spacr_read_parquet(file.path(dir, "{provenance}"))
+  parse <- if (requireNamespace("jsonlite", quietly = TRUE)) {{
+    function(text) jsonlite::fromJSON(text, simplifyVector = TRUE)
+  }} else {{
+    identity
+  }}
+  out <- list()
+  for (section in unique(as.character(table$section))) {{
+    rows <- table[as.character(table$section) == section, , drop = FALSE]
+    out[[section]] <- stats::setNames(
+      lapply(as.character(rows$value), parse), as.character(rows$key))
+  }}
+  out
+}}
+
+load_spacr_export <- function(dir = .spacr_export_dir) {{
+  if (!requireNamespace("SingleCellExperiment", quietly = TRUE)) {{
+    stop("load_spacr_export() needs Bioconductor's SingleCellExperiment: ",
+         "install.packages(\"BiocManager\"); ",
+         "BiocManager::install(\"SingleCellExperiment\"). ",
+         "read_spacr_tables() works without it.", call. = FALSE)
+  }}
+  tables <- read_spacr_tables(dir)
+  objects <- tables$objects
+  features <- as.character(tables$features${feature})
+  keys <- as.character(objects${key})
+  values <- as.matrix(objects[, features, drop = FALSE])
+  storage.mode(values) <- "double"
+  values <- t(values)
+  dimnames(values) <- list(features, keys)
+  col_data <- objects[, setdiff(names(objects), features), drop = FALSE]
+  rownames(col_data) <- keys
+  row_data <- tables$features
+  rownames(row_data) <- features
+  sce <- SingleCellExperiment::SingleCellExperiment(
+    assays = list(measurements = values),
+    colData = S4Vectors::DataFrame(col_data, check.names = FALSE),
+    rowData = S4Vectors::DataFrame(row_data, check.names = FALSE))
+  embeddings <- tables$embeddings
+  if (!is.null(embeddings)) {{
+    columns <- setdiff(names(embeddings), "{key}")
+    rows <- match(keys, as.character(embeddings${key}))
+    for (name in unique(sub("_[0-9]+$", "", columns))) {{
+      picked <- columns[sub("_[0-9]+$", "", columns) == name]
+      coords <- as.matrix(embeddings[rows, picked, drop = FALSE])
+      rownames(coords) <- keys
+      SingleCellExperiment::reducedDim(sce, name) <- coords
+    }}
+  }}
+  S4Vectors::metadata(sce) <- list(
+    spacr = read_spacr_provenance(dir),
+    wells = tables$wells)
+  sce
+}}
+
+if (!interactive() && sys.nframe() == 0L) {{
+  args <- commandArgs(trailingOnly = TRUE)
+  dir <- if (length(args) >= 1L) args[[1]] else .spacr_export_dir
+  out <- if (length(args) >= 2L) args[[2]] else file.path(dir, "{rds}")
+  sce <- load_spacr_export(dir)
+  saveRDS(sce, out)
+  cat("Wrote", out, "with", ncol(sce), "objects and", nrow(sce),
+      "features\n")
+}}
+'''
+
+
+def _r_loader_script(files: Mapping[str, str], version: str) -> str:
+    """The R loader for a table export.
+
+    :param files: ``{table name: file name}`` of the Parquet tables.
+    :param version: the spaCR version recorded in the header.
+    :returns: the script text.
+    """
+    listed = ", ".join(f'{name} = "{path}"' for name, path in files.items())
+    factors = ", ".join(f'"{key}"' for key in (
+        schema.PLATE_KEY, schema.ROW_KEY, schema.COLUMN_KEY,
+        schema.FIELD_KEY, schema.PRC_KEY, schema.WELL_KEY))
+    return _R_LOADER_TEMPLATE.format(
+        version=version,
+        date=datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+        loader=_R_LOADER_NAME, files=listed, factors=factors,
+        provenance=files.get("provenance", "provenance.parquet"),
+        feature="feature", key=_OBJECT_KEY_COLUMN,
+        rds="spacr_export_sce.rds")
+
+
+def _register_tables(objects_path: str, db_path: str,
+                     project: Union[str, os.PathLike, None],
+                     settings: Optional[Mapping[str, Any]], run_id: str,
+                     extra: Mapping[str, Any]) -> str:
+    """Register the per-object table, returning its artifact id or ``""``.
+
+    Never raises: a registry that cannot be opened must not lose a finished
+    export, whose provenance is already in every file it wrote.
+    """
+    try:
+        from .. import artifacts, ports
+
+        root = _project_root(db_path, project)
+        inputs: List[str] = []
+        try:
+            upstream = artifacts.latest(ports.MEASUREMENTS_DB, project=root)
+            if upstream is not None:
+                inputs.append(upstream.artifact_id)
+        except Exception:
+            pass
+        record = artifacts.register(
+            project=root, module=APP_KEY, kind=_TABLES_KIND, role="objects",
+            path=objects_path, settings=settings, inputs=inputs,
+            run_id=run_id, extra=dict(extra))
+        return record.artifact_id
+    except Exception as exc:
+        warnings.warn(
+            f"the table export at {objects_path} was written but could not "
+            f"be registered with spacr.artifacts ({exc}). Its provenance is "
+            f"still in provenance.parquet.", RuntimeWarning, stacklevel=2)
+        return ""
+
+
+def _export_tables(db_path: Union[str, os.PathLike],
+                   out_dir: Union[str, os.PathLike],
+                   *,
+                   r_loader: bool = False,
+                   rds: Optional[bool] = None,
+                   well_statistic: str = "mean",
+                   dtype: str = "float64",
+                   embeddings: Optional[Mapping[str, Any]] = None,
+                   compute_umap: bool = False,
+                   umap_settings: Optional[Mapping[str, Any]] = None,
+                   register: bool = True,
+                   project: Union[str, os.PathLike, None] = None,
+                   settings: Optional[Mapping[str, Any]] = None,
+                   run_id: str = "",
+                   timelapse: bool = False,
+                   data_filter: Optional[DataFilter] = None,
+                   selection: Optional[Selection] = None,
+                   verbose: bool = True,
+                   **kwargs: Any) -> _TablesResult:
+    """Write a measurements database as tidy Parquet tables, optionally for R.
+
+    The same objects, features, labels, filter and missing-value policy as
+    :func:`build_anndata`, written as tables into ``out_dir``:
+
+    ``objects.parquet``
+        one row per object: ``object_key`` (the key the other tables join
+        on), the plate, row, column and field ids, ``prc`` and ``wellID``
+        well keys, the metadata, annotation and prediction columns, and one
+        column per feature. Plate and well keys are categoricals.
+    ``features.parquet``
+        one row per feature column, keyed by ``feature``: the feature
+        dictionary's description, unit, source table and missing counts.
+    ``wells.parquet``
+        one row per well: its keys, ``n_objects`` and each feature's
+        ``well_statistic`` over the well's objects. Not written when the
+        objects carry no plate, row and column.
+    ``embeddings.parquet``
+        ``object_key`` plus ``<name>_<k>`` columns, when embeddings were
+        given or ``compute_umap`` is on.
+    ``provenance.parquet``
+        ``section``, ``key`` and JSON ``value`` rows: the version, run id,
+        source, filter, missing-value report and material settings.
+
+    Every file also carries a JSON description (table role, key columns,
+    feature columns and the provenance) in its Parquet schema metadata,
+    readable with :func:`spacr.tabular._parquet_metadata` or
+    ``pyarrow.parquet.read_schema``. With ``r_loader`` the folder also gets
+    ``load_spacr_export.R``, which reads the tables with arrow or
+    nanoparquet and builds a SingleCellExperiment (``measurements`` assay,
+    ``colData`` from the objects, ``rowData`` from the features, embeddings
+    as ``reducedDims``, provenance and wells in ``metadata``).
+
+    :param db_path: a ``measurements.db``.
+    :param out_dir: folder to write into; created if missing. Existing files
+        of the same names are replaced.
+    :param r_loader: write the R loader script.
+    :param rds: also write each table as an ``.rds`` data frame through
+        pyreadr. ``None`` (default) writes them when ``r_loader`` is on and
+        pyreadr is installed, and notes when it is not; ``True`` requires
+        pyreadr; ``False`` never writes them.
+    :param well_statistic: ``'mean'`` or ``'median'``.
+    :param dtype: dtype of the feature columns. ``float64`` keeps the
+        database's values exactly.
+    :param embeddings: as for :func:`build_anndata`.
+    :param compute_umap: as for :func:`build_anndata`.
+    :param umap_settings: as for :func:`build_anndata`.
+    :param register: record ``objects.parquet`` with :mod:`spacr.artifacts`.
+    :param project: the project root the artifact belongs to.
+    :param settings: the run settings, hashed and stored in the provenance.
+    :param run_id: the run this export belongs to.
+    :param timelapse: key each frame of an object separately; the per-well
+        table then has one row per well and time point.
+    :param data_filter: as for :func:`build_anndata`.
+    :param selection: as for :func:`build_anndata`.
+    :param verbose: print the summary.
+    :param kwargs: passed to the table assembly: ``tables``,
+        ``single_table``, ``row_limit``, ``nan_policy``, ``exclude``,
+        ``condition_map``, ``condition_column``, ``attach_labels`` and
+        ``drop_redundant_identity``.
+    :returns: a :class:`_TablesResult`.
+    :raises ImportError: with install instructions when pyarrow is missing,
+        or pyreadr when ``rds=True``.
+    :raises ValueError: on an unknown ``well_statistic`` and everything
+        :func:`build_anndata` raises it for.
+    """
+    from .. import tabular
+    from ..version import get_version
+
+    if well_statistic not in _WELL_STATISTICS:
+        raise ValueError(
+            f"well_statistic={well_statistic!r} is not one of "
+            f"{list(_WELL_STATISTICS)}.")
+    tabular._require_optional("pyarrow", tabular._PYARROW_MISSING_MESSAGE)
+    if rds:
+        tabular._require_optional("pyreadr", tabular._PYREADR_MISSING_MESSAGE)
+
+    out_dir = os.path.abspath(os.path.expanduser(os.fspath(out_dir)))
+    parts = _assemble_tables(db_path, timelapse=timelapse,
+                             data_filter=data_filter, selection=selection,
+                             **kwargs)
+    db_path = parts["db_path"]
+    notes: List[str] = list(parts["notes"])
+    features = list(parts["features"])
+
+    objects = _objects_table(parts, dtype)
+    keys = pd.Index(objects[_OBJECT_KEY_COLUMN])
+    embedding_table, embedding_columns = _embeddings_table(
+        keys, parts, embeddings, compute_umap, umap_settings, timelapse,
+        notes)
+    well_keys = _well_key_columns(objects, timelapse)
+    wells = (_wells_table(objects, features, well_keys, well_statistic)
+             if well_keys else None)
+    if wells is None:
+        notes.append(
+            "no wells.parquet: the objects carry no plateID, rowID and "
+            "columnID to group by.")
+
+    provenance = _provenance_record(
+        parts, n_objects=len(objects), n_features=len(features),
+        data_filter=data_filter, selection=selection, settings=settings,
+        run_id=run_id, timelapse=timelapse)
+    provenance["notes"] = list(notes)
+    names = {"objects": "objects.parquet", "features": "features.parquet"}
+    if wells is not None:
+        names["wells"] = "wells.parquet"
+    if embedding_table is not None:
+        names["embeddings"] = "embeddings.parquet"
+    names["provenance"] = "provenance.parquet"
+    provenance["tables"] = {
+        "format": _TABLES_FORMAT,
+        "format_version": _TABLES_FORMAT_VERSION,
+        "files": dict(names),
+        "object_key": _OBJECT_KEY_COLUMN,
+        "well_key_columns": list(well_keys),
+        "well_statistic": well_statistic,
+        "embeddings": embedding_columns,
+    }
+    provenance = _h5ad_safe(provenance)
+
+    features_table = parts["var"].copy()
+    features_table.index = pd.Index(features, name="feature")
+    features_table = features_table.reset_index()
+    for column in features_table.columns:
+        if features_table[column].dtype == object:
+            features_table[column] = features_table[column].astype(str)
+
+    metadata_columns = [c for c in objects.columns if c not in set(features)]
+    frames = {
+        "objects": (objects, {
+            "feature_columns": features,
+            "metadata_columns": metadata_columns,
+            "annotation_columns": list(parts["annotations"]),
+            "prediction_columns": list(parts["predictions"]),
+        }),
+        "features": (features_table, {"key_column": "feature"}),
+    }
+    if wells is not None:
+        frames["wells"] = (wells, {
+            "feature_columns": features, "statistic": well_statistic,
+            "count_column": _WELL_COUNT_COLUMN})
+    if embedding_table is not None:
+        frames["embeddings"] = (embedding_table,
+                                {"embeddings": embedding_columns})
+    frames["provenance"] = (_provenance_table(provenance, settings), {
+        "columns": {"section": "'export' or 'settings'",
+                    "key": "the provenance field or settings key",
+                    "value": "JSON text"}})
+
+    written: List[str] = []
+    for name, (frame, extra) in frames.items():
+        description = {
+            "format": _TABLES_FORMAT,
+            "format_version": _TABLES_FORMAT_VERSION,
+            "table": name,
+            "object_key": _OBJECT_KEY_COLUMN,
+            "well_key_columns": list(well_keys),
+            **extra,
+            "provenance": provenance,
+        }
+        written.append(tabular._write_parquet(
+            frame, os.path.join(out_dir, names[name]),
+            metadata=description,
+            canonicalise=name in ("objects", "wells")))
+
+    loader = ""
+    if r_loader:
+        loader = os.path.join(out_dir, _R_LOADER_NAME)
+        with open(loader, "w", encoding="utf-8", newline="\n") as handle:
+            handle.write(_r_loader_script(names, get_version()))
+        written.append(loader)
+
+    rds_files: List[str] = []
+    want_rds = r_loader if rds is None else bool(rds)
+    if want_rds:
+        try:
+            tabular._require_optional(
+                "pyreadr", tabular._PYREADR_MISSING_MESSAGE)
+        except ImportError as exc:
+            notes.append(str(exc).splitlines()[0] + " No .rds data frames "
+                         "were written; load_spacr_export.R reads the "
+                         "Parquet tables instead.")
+        else:
+            for name, (frame, _extra) in frames.items():
+                rds_files.append(tabular._write_rds(
+                    frame, os.path.join(out_dir, f"{name}.rds"),
+                    canonicalise=name in ("objects", "wells")))
+            written.extend(rds_files)
+
+    artifact_id = ""
+    if register:
+        artifact_id = _register_tables(
+            written[0], db_path, project, settings,
+            str(provenance.get("run_id", "")),
+            {"n_objects": len(objects), "n_features": len(features),
+             "n_wells": 0 if wells is None else len(wells),
+             "files": [os.path.basename(path) for path in written],
+             "source_database": db_path})
+
+    result = _TablesResult(
+        directory=out_dir, files=tuple(written), n_objects=len(objects),
+        n_features=len(features),
+        n_wells=0 if wells is None else len(wells), r_loader=loader,
+        rds_files=tuple(rds_files), artifact_id=artifact_id,
+        warnings=tuple(notes))
+    if verbose:
+        print(result.describe())
+    return result
+
+
+def _default_tables_dir(src: Union[str, os.PathLike],
+                        single_table: str = "") -> str:
+    """Where the tables land when ``anndata_tidy_dir`` is empty.
+
+    ``<project>/results/<project name>_tables``, with the object table
+    appended to the name for a single-table export.
+    """
+    root = _project_root(resolve_db_path(src), None)
+    name = os.path.basename(root.rstrip(os.sep)) or "spacr"
+    if single_table:
+        name = f"{name}_{single_table}"
+    return os.path.join(root, "results", f"{name}_tables")
+
+
 def anndata_export_settings(settings: Optional[Mapping[str, Any]] = None
                             ) -> Dict[str, Any]:
     """Return this module's settings, filling in anything absent.
@@ -1694,6 +2462,8 @@ def anndata_export_settings(settings: Optional[Mapping[str, Any]] = None
     resolved.setdefault("anndata_compute_umap", False)
     resolved.setdefault("anndata_compression", "gzip")
     resolved.setdefault("anndata_register_artifact", True)
+    resolved.setdefault("anndata_format", _FORMAT_H5AD)
+    resolved.setdefault("anndata_tidy_dir", "")
     return resolved
 
 
@@ -1738,7 +2508,7 @@ def default_out_path(src: Union[str, os.PathLike],
 
 
 def run_anndata_export(settings: Optional[Mapping[str, Any]] = None
-                       ) -> ExportResult:
+                       ) -> Union[ExportResult, "_TablesResult"]:
     """Run the export from a settings dict. The headless entry point.
 
     The ``fn(settings)`` shape ``spacr-run``, the Qt Run button and
@@ -1751,14 +2521,26 @@ def run_anndata_export(settings: Optional[Mapping[str, Any]] = None
     :func:`register_anndata_settings` gave a type and a tooltip, so the form
     the GUI draws and the keys honoured here are the same list.
 
+    ``anndata_format`` chooses what is written: ``'h5ad'`` the AnnData
+    file, ``'parquet'`` the tidy Parquet tables of :func:`_export_tables`
+    in ``anndata_tidy_dir``, ``'r'`` those tables with the R loader script
+    (and ``.rds`` data frames when pyreadr is installed), and ``'all'``
+    every one of them. The tables keep float64 features whatever
+    ``anndata_dtype`` says, which sets the AnnData matrix only.
+
     :param settings: the run settings. ``src`` is the project root (or the
         database); everything else falls back to
         :func:`anndata_export_settings`.
-    :returns: the :class:`ExportResult`, whose ``describe()`` is what the
+    :returns: the :class:`ExportResult` when an ``.h5ad`` was written, and
+        otherwise the tables result; ``describe()`` on either is what the
         console prints.
     :raises ValueError: when ``src`` is empty -- there is nothing to export
-        and no path to name in the message otherwise.
-    :raises AnnDataExtraMissing: when ``anndata`` is not installed.
+        and no path to name in the message otherwise -- or
+        ``anndata_format`` is not a known format.
+    :raises AnnDataExtraMissing: when ``anndata`` is not installed and the
+        format includes ``.h5ad``.
+    :raises ImportError: when pyarrow is not installed and the format
+        includes the tables.
     """
     resolved = anndata_export_settings(settings)
     src = str(resolved.get("src") or "").strip()
@@ -1779,18 +2561,41 @@ def run_anndata_export(settings: Optional[Mapping[str, Any]] = None
 
     row_limit = int(resolved.get("anndata_row_limit") or 0)
     compression = str(resolved.get("anndata_compression") or "").strip()
-
-    return export_anndata(
-        db_path, out_path,
-        compression=compression or None,
-        register=bool(resolved.get("anndata_register_artifact", True)),
-        settings=resolved,
+    export_format = str(
+        resolved.get("anndata_format") or _FORMAT_H5AD).strip().lower()
+    if export_format not in _EXPORT_FORMATS:
+        raise ValueError(
+            f"anndata_format={export_format!r} is not one of "
+            f"{list(_EXPORT_FORMATS)}.")
+    writes_h5ad = export_format in (_FORMAT_H5AD, _FORMAT_ALL)
+    if writes_h5ad:
+        require_anndata()
+    register = bool(resolved.get("anndata_register_artifact", True))
+    common = dict(
         tables=tuple(tables),
         single_table=single_table or None,
         row_limit=row_limit or None,
         nan_policy=str(resolved.get("anndata_nan_policy") or NAN_KEEP),
-        dtype=str(resolved.get("anndata_dtype") or "float32"),
         compute_umap=bool(resolved.get("anndata_compute_umap", False)),
+    )
+
+    tables_result = None
+    if export_format != _FORMAT_H5AD:
+        tables_dir = str(resolved.get("anndata_tidy_dir") or "").strip()
+        tables_result = _export_tables(
+            db_path, tables_dir or _default_tables_dir(src, single_table),
+            r_loader=export_format in (_FORMAT_R, _FORMAT_ALL),
+            register=register, settings=resolved, **common)
+    if not writes_h5ad:
+        return tables_result
+
+    return export_anndata(
+        db_path, out_path,
+        compression=compression or None,
+        register=register,
+        settings=resolved,
+        dtype=str(resolved.get("anndata_dtype") or "float32"),
+        **common,
     )
 
 
@@ -1804,6 +2609,8 @@ _TYPES = {
     "anndata_compute_umap": bool,
     "anndata_compression": str,
     "anndata_register_artifact": bool,
+    "anndata_format": str,
+    "anndata_tidy_dir": str,
 }
 
 _TOOLTIPS = {
@@ -1842,6 +2649,18 @@ _TOOLTIPS = {
     "anndata_register_artifact": (
         "(bool) - Record the written file with spacr.artifacts, so a re-run "
         "of Measure marks the export stale. Default True."),
+    "anndata_format": (
+        "(str) - What the export writes. 'h5ad' writes the AnnData file; "
+        "'parquet' writes tidy Parquet tables (objects, features, wells, "
+        "embeddings, provenance) that pandas, arrow and R read with their "
+        "types kept; 'r' adds load_spacr_export.R, which builds a "
+        "SingleCellExperiment in R, and .rds data frames when pyreadr is "
+        "installed; 'all' writes every one. The tables need pyarrow. "
+        "Default 'h5ad'."),
+    "anndata_tidy_dir": (
+        "(str) - Folder for the Parquet tables and the R loader when "
+        "anndata_format is 'parquet', 'r' or 'all'. Files of the same "
+        "names in it are replaced. Default <src>/results/<project>_tables."),
 }
 
 _DESCRIPTION = (
@@ -1871,11 +2690,12 @@ def register_anndata_settings(replace: bool = False) -> bool:
         expected_types=_TYPES, tooltips=_TOOLTIPS,
         categories={
             "General": ["anndata_out", "anndata_single_table",
-                        "anndata_nan_policy"],
+                        "anndata_nan_policy", "anndata_format"],
             "Advanced": ["anndata_tables", "anndata_dtype",
                          "anndata_row_limit", "anndata_compute_umap",
                          "anndata_compression",
-                         "anndata_register_artifact"],
+                         "anndata_register_artifact",
+                         "anndata_tidy_dir"],
         },
         description=_DESCRIPTION)
     return True

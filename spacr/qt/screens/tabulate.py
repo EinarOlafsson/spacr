@@ -191,7 +191,11 @@ class TabulateScreen(QWidget):
         retarget_field_tooltips(self)
 
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
-        """Pivot ``frame``. The one call a host needs."""
+        """Pivot ``frame``. The one call a host needs.
+
+        :param frame: the table to filter and pivot; it replaces the current
+            one.
+        """
         self._frame = frame
         self.filters.set_frame(frame)
         self.pivot.set_frame(self._filtered())
@@ -234,6 +238,11 @@ class TabulateScreen(QWidget):
 
         Returns as soon as the read is dispatched;
         :meth:`_on_frame_loaded` finishes on the GUI thread.
+
+        :param path: a ``.csv``, ``.tsv`` or ``.txt`` file, or any other suffix
+            as a SQLite database whose table names fill the table picker. A
+            database that cannot be listed is reported in the source line and
+            nothing is read.
         """
         self._path = path
         names: List[str] = []

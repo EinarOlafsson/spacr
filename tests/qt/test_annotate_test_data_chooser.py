@@ -21,10 +21,13 @@ def screen(qtbot):
 
 
 @pytest.fixture
-def chooser(qtbot):
+def chooser(qtbot, monkeypatch):
     from spacr.qt.screens.annotate import TestDataChooser
     d = TestDataChooser()
     qtbot.addWidget(d)
+    # Exercise descriptions/actions here; real hover timing has its own test.
+    monkeypatch.setattr(d._hover_delay, "schedule",
+                        lambda anchor, callback: callback())
     return d
 
 

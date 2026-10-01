@@ -22,9 +22,30 @@ PAGE = ROOT / "docs" / "source" / "model_zoo.rst"
 
 
 def _catalogue():
-    from spacr.model_zoo import BUNDLED_REMOTE_MODELS
+    """The catalogue rows the page shows: every one not registered alpha.
 
-    return BUNDLED_REMOTE_MODELS
+    2026-09-30: alpha models (``ALPHA_FEATURES`` kind ``models``) are left
+    off the guide page, which describes only what the app shows by default.
+    """
+    from spacr.model_zoo import BUNDLED_REMOTE_MODELS
+    from spacr.settings import _is_alpha
+
+    return [entry for entry in BUNDLED_REMOTE_MODELS
+            if not _is_alpha("models", str(entry.get("key") or ""))]
+
+
+def test_no_alpha_model_is_on_the_page():
+    """An alpha model is hidden in the app, so the guide does not list it."""
+    from spacr.model_zoo import BUNDLED_REMOTE_MODELS
+    from spacr.settings import _is_alpha
+
+    text = "".join((GENERATED / name).read_text(encoding="utf-8")
+                   for name in ("model_zoo_table.rst",
+                                "model_zoo_sections.rst"))
+    for entry in BUNDLED_REMOTE_MODELS:
+        key = str(entry.get("key") or "")
+        if key and _is_alpha("models", key):
+            assert f"``{key}``" not in text, f"alpha model {key} is listed"
 
 
 def test_the_page_exists_and_is_in_the_toctree():
@@ -58,7 +79,8 @@ def test_every_section_links_to_hugging_face():
         repo = str(entry.get("repo_id") or "")
         if not repo:
             continue
-        assert f"https://huggingface.co/{repo}" in text, (
+        where = "datasets/" if entry.get("repo_type") == "dataset" else ""
+        assert f"https://huggingface.co/{where}{repo}" in text, (
             f"{repo} is not linked, so a reader cannot check the model")
 
 

@@ -27,7 +27,18 @@ Choosing a method
 
 ``zscore``
    Align both plate means and standard deviations. This is the strongest
-   correction and should be used only when plate composition is comparable.
+   of the per-plate rescalings and should be used only when plate composition
+   is comparable.
+
+``combat``
+   Empirical-Bayes ComBat (Johnson, Li & Rabinovich, 2007). Each feature is
+   modelled on batch *and* on the biology named in ``batch_covariate_column``,
+   and only the batch part is removed; per-batch estimates are shrunk across
+   features, which keeps small plates usable. It refuses to run until the
+   covariate is answered: name the column(s) to preserve, or pass
+   ``no_covariate`` to record that every batch holds the same mixture of
+   conditions. ``batch_combat_mean_only=True`` corrects only the additive
+   shift and leaves each batch's spread alone.
 
 Settings
 --------
@@ -39,7 +50,9 @@ unstable estimates from undersized batches.
 For ``control_center``, ``batch_control_column`` identifies the metadata field
 that contains the controls and ``batch_control_values`` selects one or more
 reference values. When blank, Image UMAP follows ``col_to_compare``/``neg``
-and Classify's ML family follows ``location_column``/``negative_control``.
+and Classify's ML family follows ``location_column`` (or
+``annotation_column`` when annotations define the classes) and
+``negative_control_id``.
 Regression requires an explicit reference value.
 ``batch_missing_control=error`` is the safe default;
 ``skip`` leaves an affected plate unchanged and records a warning.

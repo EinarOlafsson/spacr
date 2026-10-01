@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "categories",
+      "key": "Settings read only when an object is segmented by a legacy Cellpose 3 model -- cyto, cyto2, cyto3, nuclei or a Cellpose 3 weights file -- chosen from the model zoo's cellpose3 heading, which writes cellpose3:<model> into the object's model setting. They stay hidden until one is chosen. The object's diameter, flow and cell probability thresholds still apply.",
+      "source": "Settings read only when an object is segmented by a legacy Cellpose 3 model -- cyto, cyto2, cyto3, nuclei or a Cellpose 3 weights file -- chosen from the model zoo's cellpose3 heading, which writes cellpose3:<model> into the object's model setting. They stay hidden until one is chosen. The object's diameter, flow and cell probability thresholds still apply.",
+      "source_sha256": "bb16dfc3cce467afa5bc2d1399699e182c9ce11869a5c80ef7b58161748b27a8",
+      "translation": "ये सेटिंग्स केवल तब पढ़ी जाती हैं जब किसी ऑब्जेक्ट का विभाजन पुराने Cellpose 3 मॉडल से होता है -- cyto, cyto2, cyto3, nuclei या कोई Cellpose 3 वेट फ़ाइल -- जिसे मॉडल संग्रह के cellpose3 शीर्षक से चुना जाता है, और जो ऑब्जेक्ट की मॉडल सेटिंग में cellpose3:<model> लिखता है। कोई मॉडल चुने जाने तक ये छिपी रहती हैं। ऑब्जेक्ट का व्यास, फ़्लो थ्रेशोल्ड और कोशिका प्रायिकता थ्रेशोल्ड अब भी लागू होते हैं।"
+    },
+    {
+      "table": "categories",
+      "key": "The image enhancement chain Make Masks tunes, applied unchanged to every selected segmentation channel after illumination correction and before normalization: background subtraction, the PSF, denoising, the contrast curves and sharpening, in that fixed order. Every step is off by default. Raw images and measurement intensities remain unchanged; the mask provenance records which steps ran, and a resumed run refuses inputs made with a different chain.",
+      "source": "The image enhancement chain Make Masks tunes, applied unchanged to every selected segmentation channel after illumination correction and before normalization: background subtraction, the PSF, denoising, the contrast curves and sharpening, in that fixed order. Every step is off by default. Raw images and measurement intensities remain unchanged; the mask provenance records which steps ran, and a resumed run refuses inputs made with a different chain.",
+      "source_sha256": "18ed875c964abc8cb6f32f6e27fc59d69e6117b66baf69cf124a8c94ea6fd514",
+      "translation": "Make Masks द्वारा समायोजित छवि संवर्धन शृंखला, जो प्रदीप्ति सुधार के बाद और सामान्यीकरण से पहले हर चुने गए विभाजन चैनल पर बिना बदलाव लागू होती है: पृष्ठभूमि घटाना, PSF, शोर हटाना, कंट्रास्ट वक्र और शार्पनिंग, इसी निश्चित क्रम में। डिफ़ॉल्ट रूप से हर चरण बंद है। कच्ची छवियाँ और मापन तीव्रताएँ अपरिवर्तित रहती हैं; मास्क का उद्गम रिकॉर्ड दर्ज करता है कि कौन-से चरण चले, और फिर से शुरू किया गया रन किसी अलग शृंखला से बने इनपुट अस्वीकार करता है।"
+    }
+  ]
+}

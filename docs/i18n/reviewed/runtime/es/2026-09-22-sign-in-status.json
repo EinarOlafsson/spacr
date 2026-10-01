@@ -1,14 +1,18 @@
 {
   "language": "es",
-  "records": [
-    {
-      "key": "Signing in to {label}…",
-      "source": "Signing in to {label}…",
-      "source_sha256": "f46524a477333bffbe911ff367d4093c69bf82618e40eebb7224391fc3100949",
-      "table": "ui",
-      "translation": "Iniciando sesión en {label}…"
-    }
-  ],
+  "records": [],
   "review_kind": "AI-assisted linguistic review; no native-speaker sign-off",
-  "schema": 1
+  "schema": 1,
+  "retired_records": [
+    {
+      "record": {
+        "key": "Signing in to {label}…",
+        "source": "Signing in to {label}…",
+        "source_sha256": "f46524a477333bffbe911ff367d4093c69bf82618e40eebb7224391fc3100949",
+        "table": "ui",
+        "translation": "Iniciando sesión en {label}…"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    }
+  ]
 }

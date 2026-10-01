@@ -1,0 +1,35 @@
+{
+  "lesson": "85_host_pathogen",
+  "english_sha256": "e744c3949f480b452dc13cdc04ea44b00e1872b977979c44f5e21d1c9fff7b18",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Host–Pathogen: Vakuolenmarker und Parasitenzahlen verknüpfen",
+  "description": "Laden Sie das Mikroskopiebeispiel, wählen Sie Marker- und Zähleingaben, prüfen Sie die Vorschau und exportieren Sie verknüpfte Zusammenfassungen für Vakuolen, Wirtszellen und Wells.",
+  "objectives": [
+    "Das Beispielprojekt laden und die Wirts- und Vakuolenmessungen erkennen.",
+    "Markerkanäle wählen und die Rekrutierung pro Vakuole in der Live-Vorschau prüfen.",
+    "Die Analyse ausführen und die Ausgabetabellen mit den richtigen Nennern lesen."
+  ],
+  "prerequisite": "Verwenden Sie Load test data für das mitgelieferte THP-1-Mikroskopiebeispiel, oder wählen Sie ein gemessenes Projekt mit Wirtszellen, Vakuolen und Wirts-Referenzintensitäten. Behalten Sie nicht infizierte Wirtszellen in Measure, wenn Sie einen Infektionsnenner brauchen. Einzelne Parasitenzählungen erfordern eine verknüpfte Parasitentabelle oder eine gemessene Zählspalte.",
+  "scenes": [
+    "Host–Pathogen verknüpft die Marker und die Parasitenzahl jeder Vakuole mit ihrer Wirtszelle und ihrem Well. Dazu öffnen Sie von Home aus Toxoplasma und wählen dann Host–Pathogen.",
+    "Am einfachsten beginnen Sie mit dem Beispiel. Load test data lädt ein kleines Mikroskopieprojekt herunter und füllt die Einstellungen aus: zwei Bildfelder mit Bildern, Wirts- und Vakuolenmasken sowie Messtabellen. Üben Sie hier, bevor Sie zu Ihrem eigenen gemessenen Projekt wechseln.",
+    "Alles, was das Modul liest, kommt über Source, das auf das Projekt mit measurements/measurements.db zeigen sollte. Es kann auch eine Datenbank direkt lesen oder mehrere Projekte kombinieren und dabei die Identität jedes Projekts getrennt halten.",
+    "Geben Sie nun an, wo Vakuolen und Wirte in dieser Datenbank liegen: die Vakuolentabelle und das Präfix ihrer Intensitätsspalten, dann die Wirts-Referenztabelle und ihr Präfix. Das Beispiel verwendet pathogen und cytoplasm. Die Objektverknüpfungen ordnen jede Vakuole ihrer Wirtszelle zu; prüfen Sie daher, dass sie stimmen.",
+    "Marker channels legt fest, welche Intensitäten verglichen werden, gezählt ab 0. Das Beispiel wählt Kanal 1, den RNF213-Marker. Der gewählte Kanal braucht Intensitätsmessungen sowohl in der Vakuole als auch im Referenzkompartiment, weil das Verhältnis aus beiden gebildet wird.",
+    "Lassen Sie Marker thresholds anfangs leer und betrachten Sie einfach die Rekrutierungsverhältnisse. Sobald Ihre Kontrollen zeigen, wo positiv beginnt, geben Sie die Kanalnummer und diesen Verhältnis-Schwellenwert ein; alles, was ihn erreicht oder übersteigt, zählt als positiv. Fehlt eine Referenzmessung oder ist sie ungültig, bleibt der Zustand unbekannt, statt geraten zu werden.",
+    "Parasitenzahlen stammen aus einer von zwei Quellen: einer Parasitentabelle, deren Zeilen auf ihre übergeordnete Vakuole verweisen, oder einer an jeder Vakuole gemessenen Zählspalte. Das Mikroskopiebeispiel hat keines von beiden; lassen Sie hier also beide leer, und seine Parasitenzahlen und Replikationswerte bleiben unbekannt.",
+    "Probieren Sie vor dem vollständigen Lauf ein Bildfeld aus. Schalten Sie Live ein, wählen Sie ein Bildfeld und klicken Sie auf Run preview. Die Vakuolentabelle erscheint neben dem Bild; wählen Sie eine Zeile oder klicken Sie auf eine Vakuole, um ihre Markermessungen und gegebenenfalls ihre Parasitenzahl zu sehen.",
+    "Wenn die Vorschau stimmt, schalten Sie Live aus und klappen Actions auf, falls es eingeklappt ist. Lassen Sie Save eingeschaltet und drücken Sie Run. Nach Abschluss zeigt die Konsole den Ausgabepfad an, und die Ergebnisse landen in results/host_pathogen im ersten ausgewählten Projekt.",
+    "Die Ergebnisse bauen von klein nach groß auf. vacuoles.csv hat eine Zeile pro Vakuole: ihre Wirtsverknüpfung, Markerverhältnisse, Markerzustand und gegebenenfalls die Parasitenzahl. cells.csv fasst diese zu Infektion und Vakuolenzahl pro Wirtszelle zusammen, und wells.csv fasst sie pro Well zusammen.",
+    "Zwei weitere Tabellen beantworten die biologische Frage. marker_states.csv zeigt kombinierte Markerzustände und replication_distribution.csv die Parasitenzahlen pro gezählter Vakuole. Parasiten ohne brauchbare Elternverknüpfung landen in orphan_parasites.csv. Bewahren Sie settings.json dazu auf, damit Ihre Kanal- und Schwellenwertwahl mitgeführt wird.",
+    "Eine letzte Prüfung vor dem Vergleich von Bedingungen: die Nenner. Infektionsanteile verwenden die behaltenen gemessenen Wirtszellen; nicht infizierte Wirte zählen also nur, wenn Measure sie behalten hat. Zählverteilungen verwenden nur Vakuolen mit bekannter Parasitenzahl, und Unbekanntes wird nie stillschweigend zu null."
+  ]
+}

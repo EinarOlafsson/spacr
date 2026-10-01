@@ -37,6 +37,8 @@ DOCUMENT_HEADING = "spaCR RUN SUMMARY"
 def split_sections(text: str) -> Tuple[str, List[Tuple[str, str]]]:
     """Split ``text`` into the preamble and its ``(heading, body)`` sections.
 
+    :param text: the whole summary text; a heading is a line underlined by
+        ``-`` or ``=`` of the same length. None counts as empty.
     :returns: everything before the first section, then the sections. A text
         with no headings comes back as ``(text, [])`` -- which is the signal
         to show it unchanged.
@@ -76,6 +78,9 @@ def split_rows(body: str) -> list:
     file output. This parser recovers those rows so the Qt view can reflow the
     value column to the available width. The label width is inferred from the
     first labelled row for compatibility with summaries from other versions.
+
+    :param body: one section's body text, as written by ``format_run_summary``;
+        None counts as empty.
     """
     lines = [line for line in str(body or "").splitlines() if line.strip()]
     if not lines:
@@ -233,6 +238,8 @@ class FoldingSummaryView(QScrollArea):
         Kept so this stays a drop-in for the QPlainTextEdit it replaced: a
         caller that sets what is already true should not have to know which
         widget it got.
+
+        :param read_only: ignored; the view is always read-only.
         """
 
     def font(self):

@@ -902,7 +902,7 @@ A value of `None` counts as one the slot does not carry, rather than as the slot
 
 The slots and their channels are read once per call, before the channel loop, because `enabled_organelle_roles` walks all 702 slots.
 
-`remove_background_<slot>` is declared for the first slot only (`remove_background_organelle`, in the Mask factory's generic block). Slots 2 onward have a declared floor and anchor but no declared switch, so from the interface their channel keeps the generic `remove_background` (False), as it did before. The loop reads the switch under the name the first slot uses, so a settings file that writes `remove_background_organelleb` is honoured. Declaring it for every slot is a new setting per slot, with a type, a tooltip, a category and a translation each. That needs the maintainer to accept the name, and is recorded in item 364.
+Each slot has its own background switch (item 364 declared them on 2026-09-21; item 76 renamed them on 2026-09-30 to the maintainer's name). Slot 1 is `remove_background_organelle` and slot N is `remove_background_organelle_N`, numbered the way the user counts. The lettered spelling, `remove_background_organelleb`, was used from 2026-09-21 to 2026-09-30. A settings file is folded onto the new name before the run reads it (`spacr.settings.surviving_setting_name`), and the loop still reads the lettered key for a caller that passes unfolded settings. The Mask factory defaults an enabled slot's switch to the generic `remove_background`, so a file that names no switch keeps the old shared behaviour.
 
 ### line 1777  _(unsure)_
 

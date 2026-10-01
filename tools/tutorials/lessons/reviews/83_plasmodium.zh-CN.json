@@ -1,0 +1,28 @@
+{
+  "lesson": "83_plasmodium",
+  "english_sha256": "1d8330c981fc355155d2c5c607b6d822714d2051d616d64111ffa9648c2b56f3",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Plasmodium：浏览该生物的指南",
+  "description": "浏览Plasmodium指南，探索细胞示意图，并找到可用的通用图像分析流程。",
+  "objectives": [
+    "从Home打开页面并找到主要控件。",
+    "识别可用的输入、操作和输出。",
+    "选择下一个可用的分析或参考资料。"
+  ],
+  "prerequisite": "打开spaCR的Home。指南不需要任何输入文件。Plasmodium专用的检测磁贴目前显示Coming soon。",
+  "scenes": [
+    "Plasmodium有自己的指南。在Home中选择Plasmodium，即可浏览该生物、它的细胞区室以及为它规划的检测。",
+    "信息面板分节讲述这种寄生虫的故事，从血液期、肝脏期一直到运动性。拖动分隔条，可以在模块磁贴旁边留出更多空间。",
+    "在顶复门示意图上，把指针悬停在某个区室上即可了解它是什么。选择多个区室可以同时高亮，点击Clear components即可恢复视图。",
+    "这些检测磁贴仍标记为Coming soon，暂时无法打开，但它们的说明介绍了各自将要测量的内容。如果现在就要分析Plasmodium图像，请回到Home，用您自己的图像和合适的通道设置打开Mask或Measure。",
+    "如需深入阅读，PlasmoDB和UniProt链接会在浏览器中打开关于该生物的资源。这里不需要数据集，也不需要Run，指南也不会写出任何文件。"
+  ]
+}

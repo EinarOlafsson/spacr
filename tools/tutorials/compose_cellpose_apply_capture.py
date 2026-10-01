@@ -33,9 +33,10 @@ def require_closed_dialogs(frames):
             raise ValueError('A dialog covers the narrated unobstructed filter result')
 
 
-def compose(stage=DEFAULT_STAGE):
-    stage=Path(stage); source=stage/'captures/cellpose_apply_native_zoom_v2'
-    destination=stage/'captures/cellpose_apply_disclosed_verified_v2'
+def compose(stage=DEFAULT_STAGE,source_name='cellpose_apply_native_zoom_v2',
+            destination_name='cellpose_apply_disclosed_verified_v2'):
+    stage=Path(stage); source=stage/'captures'/source_name
+    destination=stage/'captures'/destination_name
     if destination.exists():raise FileExistsError('Preserve the previous composition')
     hashes={}
     proof=_read(source/'scientific_acceptance.json',hashes)
@@ -87,4 +88,6 @@ def compose(stage=DEFAULT_STAGE):
     return accepted
 
 
-if __name__=='__main__':compose()
+if __name__=='__main__':
+    import sys
+    compose(*sys.argv[1:4]) if len(sys.argv)>1 else compose()

@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26, sixth pass 2026-09-27: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "categories",
+      "key": "Bleed-through correction: how much of each dye is read in the other channels is estimated from single-stain control wells, and every field is unmixed with that matrix before it is segmented or measured. The matrix is printed and recorded with the run.",
+      "source": "Bleed-through correction: how much of each dye is read in the other channels is estimated from single-stain control wells, and every field is unmixed with that matrix before it is segmented or measured. The matrix is printed and recorded with the run.",
+      "source_sha256": "f5e7e48285987029493179a04179a0c023793048e6295e2e4c11204263108e38",
+      "translation": "번짐 보정: 단일 염색 대조군 웰로 각 염료가 다른 채널에서 얼마나 읽히는지 추정하고, 분할이나 측정 전에 모든 시야를 그 행렬로 분리합니다. 행렬은 출력되고 실행과 함께 기록됩니다."
+    },
+    {
+      "table": "categories",
+      "key": "Count bacterial or fungal colonies on plate or dish photos instead of plaques: the dish is found, colonies are thresholded against the agar and touching ones split, and each plate gets a count, CFU/mL from the dilution and plated volume, a too-many or too-few flag, and colony areas and diameters, in millimetres when Scale & Time says how large the dish is.",
+      "source": "Count bacterial or fungal colonies on plate or dish photos instead of plaques: the dish is found, colonies are thresholded against the agar and touching ones split, and each plate gets a count, CFU/mL from the dilution and plated volume, a too-many or too-few flag, and colony areas and diameters, in millimetres when Scale & Time says how large the dish is.",
+      "source_sha256": "76eb8b2793a9f91cb04ba1b04eb907cf3bb8b0c9b6a8e9e9ff0c07d98b4136a4",
+      "translation": "플라크 대신 평판 또는 페트리 디시 사진에서 세균이나 진균 집락을 셉니다. 디시를 찾고, 한천에 대해 집락에 임계값을 적용하고 맞닿은 집락을 나누며, 각 평판에 계수, 희석 배수와 도말 부피로 구한 CFU/mL, 너무 많음 또는 너무 적음 플래그, 집락 면적과 직경을 기록합니다. 척도 및 시간에 디시 크기가 있으면 밀리미터로 나타냅니다."
+    },
+    {
+      "table": "categories",
+      "key": "Fill the plate map from sample records by plate barcode: each imaged plate is looked up by its barcode in a table or a LIMS service, its wells get the strain, compound, concentration, passage and operator recorded there, and every mismatch between the records and the images is listed.",
+      "source": "Fill the plate map from sample records by plate barcode: each imaged plate is looked up by its barcode in a table or a LIMS service, its wells get the strain, compound, concentration, passage and operator recorded there, and every mismatch between the records and the images is listed.",
+      "source_sha256": "4232c929e0899a6d43296819fd16fc01bf88d09e5120b49e9ea5c2cf3501dd2a",
+      "translation": "플레이트 바코드로 시료 기록에서 플레이트 맵을 채웁니다. 촬영한 각 플레이트를 표나 LIMS 서비스에서 바코드로 찾아, 그 웰에 기록된 균주, 화합물, 농도, 계대 수, 작업자를 넣고, 기록과 이미지 사이의 불일치를 모두 나열합니다."
+    },
+    {
+      "table": "categories",
+      "key": "How long each tracked object of a timelapse lasts until an event such as death, lysis, egress, division or first detection, with objects still waiting at the end of their track censored there. Conditions are compared with Kaplan-Meier curves, median times, log-rank tests and a Cox model, written to measurements.db and drawn under results/time_to_event.",
+      "source": "How long each tracked object of a timelapse lasts until an event such as death, lysis, egress, division or first detection, with objects still waiting at the end of their track censored there. Conditions are compared with Kaplan-Meier curves, median times, log-rank tests and a Cox model, written to measurements.db and drawn under results/time_to_event.",
+      "source_sha256": "aa277bc2e420b64be5bc3a24e1fac3f6ab09c5d6a9516412f531eb73e3c66a48",
+      "translation": "타임랩스의 추적된 각 객체가 사멸, 용해, 탈출, 분열, 첫 검출 같은 사건까지 얼마나 지속되는지를 나타내며, 궤적 끝까지 사건이 없는 객체는 그 시점에서 중도 절단됩니다. 조건은 Kaplan-Meier 곡선, 중앙값 시간, log-rank 검정, Cox 모델로 비교되고, measurements.db 파일에 기록되며 results/time_to_event 폴더에 그려집니다."
+    },
+    {
+      "table": "categories",
+      "key": "Lineage trees drawn from the tracker's division links after each field is tracked, coloured by a measurement, with Newick and CSV export and per-lineage generation times and sibling correlation.",
+      "source": "Lineage trees drawn from the tracker's division links after each field is tracked, coloured by a measurement, with Newick and CSV export and per-lineage generation times and sibling correlation.",
+      "source_sha256": "9c33e6c38d5c971aa4059f3acceee0967e9b313887cf38fec2e76d74dfe591d7",
+      "translation": "각 시야를 추적한 뒤 추적기의 분열 연결로 그린 계보 트리로, 측정값에 따라 색을 입히며 Newick 및 CSV 내보내기와 계보별 세대 시간 및 자매 세포 상관을 제공합니다."
+    },
+    {
+      "table": "categories",
+      "key": "Live and dead cells, called after measuring from a dead stain, a live stain, both, or nuclear morphology, with thresholds fitted per plate or set by hand. Writes per-well viability, a live-cell index and a cytotoxicity index scaled to the control wells, each plate's Z', and with a plate map the dose-response of viability beside that of infection, so parasite killing can be told from host toxicity.",
+      "source": "Live and dead cells, called after measuring from a dead stain, a live stain, both, or nuclear morphology, with thresholds fitted per plate or set by hand. Writes per-well viability, a live-cell index and a cytotoxicity index scaled to the control wells, each plate's Z', and with a plate map the dose-response of viability beside that of infection, so parasite killing can be told from host toxicity.",
+      "source_sha256": "4988e2697695151faeaec691a5c2667f117954ec9446e3762e84457b5aa73255",
+      "translation": "측정 후 사멸 염색, 생존 염색, 둘 다 또는 핵 형태로 생존 세포와 사멸 세포를 판정하며, 임계값은 플레이트별로 적합하거나 직접 설정합니다. 웰별 생존율, 생존 세포 지수와 대조군 웰에 맞춘 세포독성 지수, 각 플레이트의 Z'를 기록하고, 플레이트 맵이 있으면 생존율의 용량–반응을 감염의 용량–반응과 나란히 보여 주어 기생충 사멸과 숙주 독성을 구별할 수 있습니다."
+    },
+    {
+      "table": "categories",
+      "key": "Photobleaching correction for timelapse intensities, per field and channel: a simple ratio to the first timepoint, a fitted exponential decay, or histogram matching. Corrected intensities are written beside the measured ones with the method, and the fitted decay is plotted.",
+      "source": "Photobleaching correction for timelapse intensities, per field and channel: a simple ratio to the first timepoint, a fitted exponential decay, or histogram matching. Corrected intensities are written beside the measured ones with the method, and the fitted decay is plotted.",
+      "source_sha256": "b183cae1c7dbf185cb1e89b3d086ef73c073c220755143c226df5da2aada3e17",
+      "translation": "시야와 채널별 타임랩스 강도의 광표백 보정: 첫 시점에 대한 단순 비율, 적합한 지수 감쇠 또는 히스토그램 매칭을 씁니다. 보정된 강도는 방법과 함께 측정된 강도 옆에 기록되고, 적합한 감쇠 곡선이 그려집니다."
+    },
+    {
+      "table": "categories",
+      "key": "Runs a lab's own CellProfiler pipeline on this run's fields after measuring, headless in CellProfiler's own environment from the Model Zoo, and writes its per-object measurements beside spaCR's, matched to spaCR's objects, so existing pipelines keep working.",
+      "source": "Runs a lab's own CellProfiler pipeline on this run's fields after measuring, headless in CellProfiler's own environment from the Model Zoo, and writes its per-object measurements beside spaCR's, matched to spaCR's objects, so existing pipelines keep working.",
+      "source_sha256": "ca161d26ab03972b7aa57bc1771b5a98cbc49568b949dbc42b47c77c0847f7b4",
+      "translation": "측정 후 이 실행의 시야에 실험실 자체 CellProfiler 파이프라인을 모델 라이브러리의 CellProfiler 전용 환경에서 화면 없이 실행하고, 객체별 측정값을 spaCR 측정값 옆에 spaCR 객체와 짝지어 기록하므로 기존 파이프라인을 계속 쓸 수 있습니다."
+    },
+    {
+      "table": "categories",
+      "key": "Scale every imaging session to the same intensities before measuring, from fluorescent beads or reference wells imaged on every plate: each plate's intensity channels are multiplied by the gain that makes its reference wells match the first plate's, and the gains are recorded in measurements.db.",
+      "source": "Scale every imaging session to the same intensities before measuring, from fluorescent beads or reference wells imaged on every plate: each plate's intensity channels are multiplied by the gain that makes its reference wells match the first plate's, and the gains are recorded in measurements.db.",
+      "source_sha256": "c678642b44dfcad096bb609026e20e69d01592d4029527e92be265d31c0ab761",
+      "translation": "측정 전에 모든 플레이트에서 촬영한 형광 비드나 기준 웰을 이용해 촬영 세션마다 같은 강도로 맞춥니다. 각 플레이트의 강도 채널에 기준 웰이 첫 번째 플레이트와 같아지도록 하는 이득을 곱하며, 이득은 measurements.db 파일에 기록됩니다."
+    }
+  ]
+}

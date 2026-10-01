@@ -115,7 +115,12 @@ def _overlap_matrix(truth: np.ndarray, pred: np.ndarray
 
 def iou_matrix(truth: np.ndarray, pred: np.ndarray
                ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """``(iou, truth ids, pred ids)``. IoU of every overlapping pair."""
+    """``(iou, truth ids, pred ids)``. IoU of every overlapping pair.
+
+    :param truth: the ground-truth label image, 0 for background and one
+        integer id per object.
+    :param pred: the predicted label image, the same shape as ``truth``.
+    """
     inter, t_ids, p_ids = _overlap_matrix(truth, pred)
     if inter.size == 0:
         return inter.astype(float), t_ids, p_ids
@@ -222,6 +227,9 @@ def match_objects(truth: np.ndarray, pred: np.ndarray,
                   threshold: float = 0.5) -> Match:
     """Match predicted objects to labelled ones, one to one and optimally.
 
+    :param truth: the ground-truth label image, 0 for background and one
+        integer id per object.
+    :param pred: the predicted label image, the same shape as ``truth``.
     :param threshold: minimum IoU for a pair to count as the same object.
 
     Uses ``linear_sum_assignment`` rather than a greedy pass so the result
@@ -250,6 +258,10 @@ def dice(truth: np.ndarray, pred: np.ndarray,
     outlined; the pixel-wise figure ignores objects entirely and is
     dominated by the largest ones, so a model that misses ten small cells
     and nails one big one scores well on it and badly on the other.
+
+    :param truth: the ground-truth label image, 0 for background and one
+        integer id per object.
+    :param pred: the predicted label image, the same shape as ``truth``.
     """
     matched = match_objects(truth, pred, threshold)
     per_object = [2 * i / (1 + i) for i in matched.ious]
@@ -266,7 +278,12 @@ def dice(truth: np.ndarray, pred: np.ndarray,
 def average_precision(truth: np.ndarray, pred: np.ndarray,
                       thresholds: Sequence[float] = DEFAULT_IOU_THRESHOLDS
                       ) -> Dict[str, float]:
-    """AP at each IoU in the sweep, and the mean across it."""
+    """AP at each IoU in the sweep, and the mean across it.
+
+    :param truth: the ground-truth label image, 0 for background and one
+        integer id per object.
+    :param pred: the predicted label image, the same shape as ``truth``.
+    """
     per = {}
     for threshold in thresholds:
         per[f"ap_{threshold:g}"] = match_objects(
@@ -293,6 +310,10 @@ def boundary_f1(truth: np.ndarray, pred: np.ndarray,
     not slack for the model's benefit: two people labelling the same cell
     disagree by a pixel or two, so a zero-tolerance boundary score measures
     the annotator as much as the model.
+
+    :param truth: the ground-truth label image, 0 for background and one
+        integer id per object.
+    :param pred: the predicted label image, the same shape as ``truth``.
     """
     from scipy.ndimage import binary_dilation
 
@@ -316,6 +337,9 @@ def splits_and_merges(truth: np.ndarray, pred: np.ndarray,
                       minimum_overlap: float = 0.1) -> Dict[str, int]:
     """How many labelled objects were split, and how many were merged.
 
+    :param truth: the ground-truth label image, 0 for background and one
+        integer id per object.
+    :param pred: the predicted label image, the same shape as ``truth``.
     :param minimum_overlap: fraction of the truth object a prediction must
         cover to count as overlapping it, so a one-pixel graze is not a
         split.
@@ -345,6 +369,10 @@ def counts_and_areas(truth: np.ndarray, pred: np.ndarray,
     SIGNED, because the direction is the diagnosis: a model that finds too
     many objects is over-segmenting and one that finds too few is merging or
     missing, and an absolute count error says neither.
+
+    :param truth: the ground-truth label image, 0 for background and one
+        integer id per object.
+    :param pred: the predicted label image, the same shape as ``truth``.
     """
     matched = match_objects(truth, pred, threshold)
     errors: List[float] = []
@@ -372,6 +400,9 @@ def score_segmentation(truth: np.ndarray, pred: np.ndarray, *,
                        = DEFAULT_BOUNDARY_TOLERANCES) -> Dict[str, float]:
     """Every segmentation metric the published table reports, on one field.
 
+    :param truth: the ground-truth label image, 0 for background and one
+        integer id per object.
+    :param pred: the predicted label image, the same shape as ``truth``.
     :param threshold: the IoU at which precision, recall, F1, Dice and the
         area error are matched. Reported in the result as ``match_iou`` so a
         published number can never be read without it.
@@ -404,6 +435,10 @@ def compare_against_baseline(truth: np.ndarray, finetuned: np.ndarray,
                              ) -> Dict[str, Dict[str, float]]:
     """Score two models on the same truth and report the difference.
 
+    :param truth: the ground-truth label image, 0 for background and one
+        integer id per object.
+    :param finetuned: the finetuned model's label image for the same field.
+    :param vanilla: the vanilla model's label image for the same field.
     :returns: ``{"finetuned": ..., "vanilla": ..., "delta": ...}``.
 
     THE DELTA IS THE ANSWER THE TABLE EXISTS FOR. The table compares the
@@ -566,6 +601,12 @@ def compare_classifier_against_baseline(labels: Sequence[int],
     the counts are dropped from it -- a difference in `n` is not a result,
     it is a sign the two were scored on different data, which this signature
     makes impossible.
+
+    :param labels: ground truth per object, 0 or 1.
+    :param finetuned: the finetuned classifier's predicted probability of the
+        positive class, one per label.
+    :param vanilla: the vanilla classifier's predicted probability of the
+        positive class, one per label.
     """
     a = score_classifier(labels, finetuned, **kwargs)
     b = score_classifier(labels, vanilla, **kwargs)
@@ -608,6 +649,8 @@ def score_holdout(pairs: Sequence[Tuple[np.ndarray, np.ndarray]], *,
     """Score a model over a whole held-out set.
 
     :param pairs: ``(truth, prediction)`` per field.
+    :param name: the held-out set's name, carried into the result.
+    :param version: the held-out set's version, carried into the result.
 
     POOLED FROM THE COUNTS, NOT AVERAGED FROM THE RATIOS. A field with three
     objects and a field with three hundred are not equal evidence, and a mean
@@ -672,6 +715,9 @@ def scorecard_rows(finetuned: HoldoutScore, vanilla: HoldoutScore
     can disagree, they eventually will. This is the
     one place a number is computed; everything else formats these rows.
 
+    :param finetuned: the finetuned model's score.
+    :param vanilla: the vanilla model's score, on the same set name and
+        version.
     :raises ValueError: when the two were scored on different sets. That is
         not a defensive check for its own sake: a table headed "finetuned
         against vanilla" whose two columns came from different data is
@@ -710,7 +756,11 @@ _NOT_A_SCORE = frozenset({
 
 
 def scorecard_csv(rows: Sequence[Dict[str, object]]) -> str:
-    """The rows as CSV text. Written by the caller, wherever it belongs."""
+    """The rows as CSV text. Written by the caller, wherever it belongs.
+
+    :param rows: the table rows, as from :func:`scorecard_rows`; the first
+        row's keys are the CSV columns, and no rows gives ``""``.
+    """
     import csv
     import io
 
@@ -771,6 +821,8 @@ class HoldoutSet:
 def load_holdout(manifest_path) -> HoldoutSet:
     """Read a hold-out manifest.
 
+    :param manifest_path: path to the hold-out manifest JSON, which must
+        declare ``name``, ``version`` and ``fields``.
     :raises ValueError: when the manifest lacks a name, a version or any
         field. All three are refusals rather than defaults, and the version
         most of all: a set that does not say which version it is cannot be
@@ -810,6 +862,7 @@ def load_holdout(manifest_path) -> HoldoutSet:
 def verify_holdout(holdout: HoldoutSet) -> List[str]:
     """Check every truth mask is present and matches its digest.
 
+    :param holdout: the hold-out set whose truth masks are checked on disk.
     :returns: one line per problem; empty when the set is intact.
 
     A DIGEST IS OPTIONAL AND ITS ABSENCE IS REPORTED. A set published without
@@ -840,6 +893,8 @@ def score_model_on_holdout(holdout: HoldoutSet, predict, *,
                            read_mask=None, **kwargs) -> HoldoutScore:
     """Run ``predict`` over a hold-out set and score it against the truth.
 
+    :param holdout: the hold-out set whose fields' images are predicted and
+        whose truth masks are read.
     :param predict: ``image path -> label array``. Injected rather than
         imported: this module must keep importing without torch, and a
         segmentation model is the one thing that cannot.

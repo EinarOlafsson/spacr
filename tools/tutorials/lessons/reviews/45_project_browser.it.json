@@ -1,32 +1,34 @@
 {
   "lesson": "45_project_browser",
-  "english_sha256": "75865602cfab56c396641c9b94e5b9629f5ae3ba968a5ce441a733c32324aa98",
+  "english_sha256": "208c8a5dd5c9ccc6722844b31fe174655526038d88b386f7f231f2859b4cb0fa",
   "review": {
-    "kind": "Parent editorial translation against frozen English and verified real GUI; visible controls and API identifiers retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
-    "native_speaker_signoff": false
+    "native_speaker_signoff": false,
+    "listening_review": false
   },
   "language": "it",
-  "title": "Project Browser: trovare progetti reali e interpretarne le evidenze",
-  "description": "Trova esempi registrati e non registrati, controlla la profondità, ordina lo spazio occupato e leggi le evidenze senza avviare analisi o cancellare file.",
+  "title": "Project Browser: trovare ed esaminare progetti",
+  "description": "Cerca cartelle di progetto, esamina le fasi registrate e individua lo strumento successivo da aprire.",
   "objectives": [
-    "Aprire Project browser da Help e scegliere cartelle di ricerca circoscritte.",
-    "Usare Depth e Scan e ordinare i byte effettivamente misurati.",
-    "Distinguere provenienza assente e fasi basate sugli output dichiarati dalla cronologia reale.",
-    "Leggere i dettagli, rimuovere solo radici di ricerca e usare gli strumenti dedicati."
+    "Trovare progetti tramite radici e profondità di ricerca.",
+    "Esaminare artefatti e fasi registrate.",
+    "Scegliere lo strumento pertinente successivo."
   ],
-  "prerequisite": "Usa gli esempi completati di External Masks e Batch Runner. La registrazione confronta una copia privata verificata del progetto misurato su due campi con una copia di una conversione a quattro canali, incluso il checkpoint nascosto e altri due record. Sono esempi diversi, non un prima e dopo. I 131 file originali del progetto misurato e i sette della conversione restano invariati. Solo nel processo isolato i percorsi originali degli artefatti puntano alla copia misurata; la provenienza non viene riscritta. Project Browser non ha download, anteprima dal vivo, comando Plot o pannello AI propri. Scan legge le evidenze del progetto, non tutti i diari delle esecuzioni. Ordinamento, profondità e rimozione delle cartelle usano controlli reali; non vengono avviate analisi, cancellazioni, gestori esterni o passaggi automatici. SQLite rimuove soltanto il WAL vuoto e lo SHM di 32768 byte del registro privato. Database e altri file mantengono i propri byte.",
+  "prerequisite": "Scegli cartelle che contengono i tuoi progetti spaCR. Per esercitarti puoi usare gli esempi completati di External Masks e Format Converter.",
   "scenes": [
-    "Apri Help e poi Project browser. Questa schermata condivisa trova cartelle di progetti e riassume quanto è registrato o presente sul disco. Usiamo copie private di output reali di External Masks e Batch Runner. È uno strumento d’inventario, non un’esecuzione di analisi delle immagini.",
-    "Add folder sceglie dove cercare. Con Depth a zero viene controllata solo quella cartella. La cartella superiore scelta contiene un progetto un livello più in basso, quindi la tabella è vuota. Un risultato vuoto a questa profondità non significa che manchino il progetto o le immagini.",
-    "Imposta Depth a uno e scegli Scan. Compare la cartella convertita: circa trentadue megabyte in sette file. Sono quattro immagini di canali acquisite, una mappa di conversione, un record di stato e un checkpoint nascosto. Il numero di file non è il numero di cellule o di esperimenti indipendenti.",
-    "State indica unknown, nothing recorded perché la cartella non ha un registro degli artefatti. Stage mostra nothing run e Last run never, anche se la conversione è davvero terminata. Queste colonne riflettono output dichiarati e artefatti registrati, non tutta la cronologia delle conversioni. Unknown non dimostra che i dati siano di buona qualità o non elaborati.",
-    "Aggiungi il progetto misurato come seconda radice di ricerca. La riga mostra Measure, circa novantuno megabyte, centoventinove file e una data del registro. Se dopo una scansione i dettagli della riga selezionata restano vuoti, scegli un’altra riga e torna indietro. Mostriamo questa alternativa senza modificare l’applicazione.",
-    "Seleziona il progetto misurato e trascina il divisore per allargare i dettagli. I tre artefatti registrati risultano current, ma circa ottantasette megabyte restano non registrati. Current descrive il confronto registrato, non provenienza completa o validità scientifica. Last run specifica che la data viene dal registro.",
-    "Leggi Stages prima di interpretare una dicitura di completamento. Qui gli output di Mask risultano completi perché esistono matrici, conteggi e maschere importati; non prova che sia stata eseguita la segmentazione Mask. What could run next elenca suggerimenti, non pulsanti né conferme che ogni analisi sia adatta a questi dati sperimentali.",
-    "Clicca sull’intestazione Size per cambiare ordine. Abbiamo verificato entrambi gli ordini rispetto ai byte reali e la selezione continua a indicare il progetto giusto. Non ci sono filtri separati per fase, età, stato del modulo o risultati obsoleti: usa le colonne ordinabili e le radici di ricerca effettivamente presenti.",
-    "Con entrambe le radici, Depth zero trova ancora il progetto misurato scelto direttamente, ma non la conversione annidata sotto la cartella superiore. Tornare a Depth uno ripristina entrambe le righe. La profondità cambia l’ambito della ricerca, non rimuove dati né cambia quanta analisi è stata completata.",
-    "Remove interrompe la ricerca nella radice selezionata; non cancella la cartella. Rimuoviamo la radice misurata e riaggiungiamo il progetto invariato. In questa versione il doppio clic emette la selezione ma resta in Project Browser: non aspettarti l’apertura automatica del progetto o dell’ultima esecuzione.",
-    "Per i diari reali usa Run History, per le tabelle delle misure Database Browser e per pulizia o archiviazione Data Manager. In Python, spacr.projects offre discover, scan e browse. Tutti i file originali restano invariati e non è stata avviata alcuna analisi. Segui la lezione del flusso pertinente prima di eseguire un passaggio suggerito."
+    "Apri Help e poi Project browser per trovare cartelle di progetto ed esaminarne gli output registrati.",
+    "Fai clic su Add folder e scegli una radice di ricerca. La profondità zero controlla solo quella cartella; aumentala quando i progetti sono in sottocartelle.",
+    "Imposta Depth su uno e fai clic su Scan per includere le cartelle subito sotto la radice. Esamina le righe di progetto ottenute.",
+    "Leggi State e Stage insieme ai file trovati sul disco. Una cartella senza registro degli artefatti può mostrare unknown anche se contiene immagini convertite.",
+    "Aggiungi altre radici di ricerca per includere altri progetti. Seleziona una riga per esaminarla; se dopo una nuova scansione i dettagli sono vuoti, seleziona un’altra riga e torna indietro.",
+    "Trascina il divisore per allargare i dettagli. Esamina gli artefatti registrati, i file non registrati e l’origine dell’orario dell’ultima esecuzione.",
+    "Apri Stages per vedere quali output attesi sono presenti. Usa What could run next per scegliere un flusso adatto, poi controlla gli input richiesti da quel modulo.",
+    "Fai clic sull’intestazione di una colonna, come Size, per ordinare i progetti. Fai di nuovo clic per invertire l’ordine.",
+    "Regola Depth ed esegui di nuovo la scansione quando ti serve una ricerca più ristretta o più ampia. Un progetto selezionato direttamente resta individuabile a profondità zero.",
+    "Seleziona una radice e fai clic su Remove per smettere di cercarvi. La posizione di ricerca viene tolta dall’elenco mentre i file restano sul disco.",
+    "Apri Run History per i record dei lavori, Database Browser per le misure o Data Manager per pulizia e archiviazione. Usa il tutorial del modulo pertinente per proseguire l’analisi."
   ]
 }

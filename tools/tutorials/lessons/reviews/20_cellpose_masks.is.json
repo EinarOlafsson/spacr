@@ -1,31 +1,34 @@
 {
   "lesson": "20_cellpose_masks",
-  "english_sha256": "a064e4d7ebc483b8020a43543e3ea982b1ab58a04af4fc9b72a08ca94350076f",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "8bb9d92ad26ef058c3b456df2ba6c86ea46c336cc677f6135bf111d8ea853754",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "is",
-  "title": "Nota Cellpose: vistaðar grímur og lifandi síur",
-  "description": "Notaðu CPSAM á þrjár raunverulegar myndir sem hægt er að sækja, skoðaðu myndrit og keyrsluskilaboð og greindu forskoðun frá lotuvinnslu.",
+  "title": "Beittu Cellpose: aðgreindu möppu og skoðaðu grímur",
+  "description": "Veldu aðgreiningarlíkan, keyrðu meðfylgjandi myndir og skoðaðu vistaðar grímur og stærðarsíur í rauntíma.",
   "objectives": [
-    "Finna Apply í Make Masks og Cellpose Workbench.",
-    "Nota varðveitt myndafrit og skráðar stillingar staðallíkans.",
-    "Skoða þrjár grímur og myndir af frumgögnum, útlínum og flæði.",
-    "Sýna afturkræfar síur og samstilltan aðdrátt.",
-    "Þekkja mældan mun á forskoðun og lotu án fullyrðinga um nákvæmni."
+    "Velja myndir, vigta líkans og stillingar aðgreiningar.",
+    "Keyra Apply og finna vistuðu TIFF-grímurnar.",
+    "Skoða niðurstöður í rauntíma og bera saman síur fyrir stærð hluta."
   ],
-  "prerequisite": "Afþjappaðu myndunum þremur í nýja möppu og settu src á images. recorded_settings.json geymir söguleg gildi, ekki sönnun á flytjanlegum innflutningi í viðmóti. Raunverulegir eins-rása frumumyndbútar, uint16, 512×512; ekki viðmiðun um rétta skiptingu. Staðlað CPSAM, ekki Train-líkanið. channels=[0], normalize=True, percentiles=[2,99], diameter=30, CP_prob=0, flow_threshold=0.4, batch_size=1, save=True, verbose=True; rescale, resample, resize, fill_in, invert og remove_background eru False. CUDA vistar 9/94/46 hluti og þrjú myndrit. Óháð köll endurskapa alla grímupunkta og myndafylki. Ytri útlínur skilja ekki öll aðliggjandi tilvik; flæði er ein birtingarrás, ekki mæld hreyfing. Forskoðun myndar 02 gefur 95, ekki 94: sjálfgefin Cellpose-vinnsla hrámyndar, ekki forvinnsla og endursýnataka lotunnar. Sýnileg 2/99 sanna ekki jafngildi. Lágmarksflatarmál 1838 gefur 95→47→95 án nýrrar líkanakeyrslu; allir endurheimtir myndpunktar eru staðfestir og vistaðar TIFF-skrár óbreyttar. Samstilltur aðdráttur skerðir sjónsviðið og lagar ekki mjóa forskoðunarkortið. Eldri stöðvanir og frumgögn varðveitt. Engin staðfesting á líffræðilegri nákvæmni, gervigreindarbeiðni, útgáfa eða breyting á forriti.",
+  "prerequisite": "Dragðu tengda Apply Cellpose-dæmið út í nýja möppu. Það inniheldur þrjár einrása frumumyndir og tilvísun í stillingar. Veldu möppuna images sem Source. Þessi yfirferð notar staðlaða líkanið cpsam; fyrir eigið líkan velurðu vigta og stillingar sem henta myndunum þínum.",
   "scenes": [
-    "Opnaðu Cellpose Workbench innan Make Masks og veldu Apply. Train og Apply eru flipar í sömu vinnuaðstöðu; Apply er ekki sérstakur reitur á heimaskjá. Hér er staðallíkanið notað á þrjár raunverulegar myndir, ekki sýnilíkanið úr tengdu Train-kennslunni.",
-    "Afþjappaðu tengda dæminu í nýja möppu. Veldu images-möppuna sem uppruna og varðveittu upprunalega niðurhalið. Þetta eru þrjár eins-rása frumumyndir, 512 myndpunktar á hlið, ekki viðmiðun um rétta skiptingu. Notaðu skráðu stillingarnar til hliðsjónar og skiptu sögulegu slóðinni út fyrir þína eigin.",
-    "Veldu CPSAM og hafðu sérsniðið líkan autt. Fyrir þessar myndir er rásin 0, stöðlun notar 2. og 99. hundraðshlutamark, þvermál er 30, flæðisþröskuldur 0,4 og frumulíkur 0. Þetta eru afmörkuð dæmisgildi, ekki ráðleggingar fyrir allar tilraunir.",
-    "Kveiktu á Save og Verbose, veldu lotustærð 1 og keyrðu Apply. Þessi leið býr til myndrit án sérstaks Plot-rofa. Raunverulegu skilaboðin sýna RTX 3090 með CUDA og ljúka myndunum þremur. Athugaðu uppruna og vistaðar stillingar; Finished eitt og sér mælir ekki nákvæmni.",
-    "Þrjár samnefndar grímu-TIFF-skrár vistast í undirmöppunni masks. Fjöldarnir eru 9, 94 og 46. Myndritin sýna inntak, rauðar ytri forgrunnsútlínur og flæði. Útlínurnar aðskilja ekki öll snertandi tilvik; flæðislitir tákna hvorki líkamlega hreyfingu né nákvæmni skiptingar.",
-    "Kveiktu á Live preview og veldu cell_pair_02 með raunverulega myndavalinu. Felldu Console og System saman til að fá meira pláss. Forskoðun hefur eigin stjórntæki: Athugaðu rás 0 og birt hundraðshlutamörk í Live settings, ekki gera ráð fyrir að allar Apply-stillingar hafi verið afritaðar.",
-    "Forskoðunin finnur 95 hluti en vistuð lotugríma sömu myndar hefur 94. Óháðar athuganir endurskapa hvort tveggja: Forskoðun notar sjálfgefin Cellpose-gildi á hrámynd, ekki skýra forvinnslu og endursýnatöku lotunnar. Hún er til könnunar, ekki trygging fyrir eins vistuðum grímum.",
-    "Forskoðunarkortið er enn mjótt í þessari útgáfu. Músarhjólið stækkar smáatriði í báðum sýnum samtímis, ekki kortið sjálft; heildarmyndin er nú skorin. Þetta hjálpar við staðbundnar útlínur en kemur ekki í stað skoðunar alls myndsviðsins.",
-    "Opnaðu Live settings og settu lágmarksflatarmál frumu á 1838 myndpunkta. Þetta er sýniþröskuldur, ekki líffræðilegt kjörgildi. Lokaðu glugganum til að sjá niðurstöðuna. Sían fjarlægir 48 hluti og skilur 47 eftir án þess að keyra Cellpose aftur eða breyta hráu skiptingunni.",
-    "Hér er síuð forskoðun með glugganum lokuðum og aðdrætti beitt aftur. Frummyndin er óbreytt en litlir grímuhlutir hverfa. Teljarinn sýnir 47. Breytingarnar eiga við forskoðunina og yfirskrifa ekki þrjár lotu-TIFF-skrár sem þegar eru vistaðar.",
-    "Settu lágmarksflatarmál aftur á 0, lokaðu glugganum og skoðaðu aftur. 95 hlutir koma til baka og hver endurheimtur merkimiðapunktur samsvarar upphafinu. Varðveittu inntak, stillingar og auðkenni líkans með grímunum. Valfrjálsa spaCR AI-stjórnlínan er ekki notuð hér; óháð sannprófun þarf áður en vísindalegar ályktanir eru dregnar."
+    "Frá Home opnarðu Make Masks og svo Cellpose Workbench þess. Veldu Apply til að aðgreina myndir með fyrirliggjandi líkani. Notaðu Train þegar þú vilt læra nýja vigta af yfirförnum pörum mynda og grímna.",
+    "Dragðu tengda dæmið út og stilltu Source á möppuna images. Hún inniheldur þrjár einrása frumumyndir, hver 512 × 512 dílar. Ef þú notar skráðu stillingaskrána sem tilvísun skiptirðu upprunaslóð hennar út fyrir útdregnu möppuna þína.",
+    "Veldu cpsam og hafðu Custom model tómt í þessu dæmi. Stilltu Channels á 0, hundraðshluta stöðlunar á 2 og 99, Diameter á 30, Flow threshold á 0,4 og Cell probability á 0. Aðlagaðu þessar stillingar eftir að hafa skoðað nokkur dæmigerð sjónsvið úr þinni eigin tilraun.",
+    "Virkjaðu Save og Verbose, veldu runustærð 1 og smelltu á Run í Apply. Fylgstu með stjórnborðinu meðan unnið er úr hverri mynd. Farðu yfir villur áður en þú heldur áfram í mælingar.",
+    "Opnaðu undirmöppuna masks í Source. Hver mynd hefur TIFF-grímu með sama stofni skráarheitis. Skoðaðu myndritin við hlið upprunalegu myndanna og taktu eftir hlutum sem misstust og samrunnum frumum. Flæðispjaldið sýnir stefnurnar sem líkanið notar við aðgreininguna.",
+    "Kveiktu á Live preview og veldu mynd með myndavalinu. Opnaðu Live settings og athugaðu stýringar fyrir rás og stöðlun. Leggðu saman Console og System til að gefa forskoðuninni meira pláss ef þörf er á.",
+    "Berðu forskoðunina saman við vistuðu grímuna úr rununni. Forskoðunin og Apply nota ólíkar vinnsluleiðir í þessu dæmi, svo mörk og fjöldi geta verið ólík. Skoðaðu vistuðu TIFF-skrárnar þegar þú metur hvort úttak rununnar henti til mælinga.",
+    "Notaðu músarhjólið til að stækka svæði á báðum forskoðunarflötunum. Skoðaðu hluti sem snertast og dauf mörk og þysjaðu svo út til að athuga allt sjónsviðið.",
+    "Opnaðu Live settings og hækkaðu Minimum cell area til að fjarlægja litla hluti úr forskoðuninni. Mörkin eru í dílum; veldu þau eftir stærð hlutanna. Lokaðu glugganum til að skoða síuðu niðurstöðuna.",
+    "Berðu síuðu útlínurnar saman við upprunalegu myndina. Breyting á þessari rauntímasíu uppfærir forskoðunina án þess að skrifa yfir grímur sem Apply hefur þegar vistað. Keyrðu rununa aftur með réttu stillingunum þegar þú þarft nýtt vistað úttak.",
+    "Settu Minimum cell area aftur á 0 til að fá ósíuðu forskoðunina aftur. Haltu inntaksmyndunum, auðkenni líkansins, stillingunum og vistuðu grímunum saman. Notaðu Make Masks til leiðréttinga eða Measure til að draga út eiginleika hluta úr yfirförnum grímum."
   ]
 }

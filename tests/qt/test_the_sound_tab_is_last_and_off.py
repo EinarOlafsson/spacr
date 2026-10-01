@@ -145,6 +145,9 @@ def _press(qtbot, widget):
 def test_sound_is_the_last_tab(dialog):
     tabs = dialog.findChild(QTabWidget, "PreferencesTabs")
     assert tabs.tabText(tabs.count() - 1) == "Sound"
+    # Chosen first: since 284 a tab's page waits outside the window until
+    # its tab is chosen, and this asks the tab itself what it holds.
+    tabs.setCurrentIndex(tabs.count() - 1)
     page = tabs.widget(tabs.count() - 1)
     assert page.findChild(QWidget, "PreferencesTabSound") is not None
 

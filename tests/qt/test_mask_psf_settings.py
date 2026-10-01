@@ -5,13 +5,20 @@ from PySide6.QtWidgets import QWidget
 from spacr.qt.screens.settings_model import SettingsWidgets, api_docs_url
 
 
+def _titles(sections):
+    """Every heading title, nested sub-categories included."""
+    return [node.title for section in sections for node in section.walk()]
+
+
 @pytest.mark.parametrize('app', ['mask', 'timelapse'])
 def test_mask_psf_settings_are_grouped_and_round_trip(qtbot, app):
     parent = QWidget()
     qtbot.addWidget(parent)
     form = SettingsWidgets(app, parent)
     sections = form.build_sections()
-    assert any(title == 'Point Spread Function' for title, _ in sections)
+    # 2026-09-29 (item 591): the PSF settings are "Image Deconvolution α",
+    # an alpha sub-category of Image Preprocessing on Mask and Timelapse.
+    assert 'Image Deconvolution \u03b1' in _titles(sections)
     assert form.collect()['psf_operation'] == 'none'
     operation = form._widgets['psf_operation']
     operation.setCurrentText('deconvolve')
@@ -32,7 +39,9 @@ def test_measure_has_explicit_original_or_processed_choice(qtbot):
     qtbot.addWidget(parent)
     form = SettingsWidgets('measure', parent)
     sections = form.build_sections()
-    assert any(title == 'Point Spread Function' for title, _ in sections)
+    # 2026-09-29 (item 595): Measure's PSF settings are "Image Deconvolution
+    # (PSF)" under Image Preprocessing, and stay stable (not alpha) there.
+    assert 'Image Deconvolution (PSF)' in _titles(sections)
     assert form.collect()['psf_measurement_source'] == 'original'
     form._widgets['psf_measurement_source'].setCurrentText('processed')
     form._widgets['psf_operation'].setCurrentText('convolve')

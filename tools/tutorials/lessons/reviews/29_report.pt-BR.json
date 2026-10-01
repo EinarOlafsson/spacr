@@ -1,26 +1,35 @@
 {
-  "lesson": "29_report", "language": "pt-BR",
-  "english_sha256": "52964f24e8fcce5bb7a34b3ffb5cbafd7898d648ce8344a6c8403bca17894867",
-  "review": {"kind": "Parent editorial translation checked against frozen English and actual capture", "independent_peer_review": false, "native_speaker_signoff": false},
-  "title": "Report: examinar e compartilhar resultados registrados sem repetir a análise",
-  "description": "Gere um relatório a partir do exemplo real de External Masks, diferencie a conclusão do processamento da ausência de evidências de controle de qualidade e examine o HTML autossuficiente antes de compartilhá-lo.",
-  "objectives": ["Encontrar Report em Help e examinar uma cópia separada de um projeto existente.", "Distinguir registros de processamento, controles de qualidade indisponíveis e ausência de procedência da execução.", "Gerar HTML com os controles reais de formato, limite de figuras e saída.", "Examinar tabelas registradas, figuras vetoriais listadas e configurações salvas sem afirmar que houve nova análise ou ocultação automática de dados privados."],
-  "prerequisite": "Use o projeto real de dois campos produzido em External Masks, com 103 células e rótulos celulares fornecidos. A gravação usa uma cópia privada completa, verificada byte a byte, para proteger o projeto aceito. Uma inspeção anterior diretamente na origem criou um WAL SQLite vazio e um arquivo auxiliar de memória compartilhada sem modificar dados existentes; uma análise somente para leitura não garante que o SQLite não crie arquivos auxiliares. Nenhuma análise do pipeline ou controle de qualidade é executado novamente. Não há diário de execução correspondente à cópia privada. As 103 linhas de citoplasma duplicam regiões celulares, não um compartimento independente. Esta demonstração de Report não inclui download separado de dados de teste, prévia de segmentação ao vivo nem interação com AI.",
+  "lesson": "29_report",
+  "english_sha256": "e797ec0ba215dd19707c9fc92c56844d43e6659bdea9b44fdff9d9e960d7db1b",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Report: criar um documento com os resultados de um projeto",
+  "description": "Escolha um projeto concluído, selecione o formato de saída e o limite de figuras e depois gere e leia o relatório.",
+  "objectives": [
+    "Escolher um projeto concluído e inspecionar as seções de relatório disponíveis.",
+    "Definir o formato, o limite de figuras e o nome do arquivo de saída.",
+    "Gerar o relatório e inspecionar os resultados, as configurações e a procedência."
+  ],
+  "prerequisite": "Comece com um projeto concluído do spaCR que contenha as configurações salvas, as medições e as figuras. Você pode reutilizar o projeto do tutorial External Masks. O Report reúne arquivos que já estão no projeto.",
   "scenes": [
-    "Abra Help e depois Report. Este utilitário reúne arquivos e resultados existentes do projeto em um documento; ele não executa novamente segmentação, medições ou análises de controle de qualidade. É um fluxo acessível por Help, não um bloco separado de Home.",
-    "Clique em Choose run folder… e selecione a cópia privada do projeto concluído de External Masks. Ela contém dois campos de imagem adquiridos e seus resultados medidos. A cópia preserva todos os arquivos originais e o projeto de origem aceito permanece intacto durante a gravação.",
-    "Após a inspeção, leia atentamente a mensagem verde Complete. Ela informa que cada etapa de processamento registrada processou todos os seus itens. Isso declara a conclusão do processamento, não prova que a segmentação esteja correta nem que o controle de qualidade tenha sido aprovado.",
-    "A lista de seções indica disponibilidade; não permite escolher quais incluir. Cinco das oito seções estão presentes. A procedência da execução, Segmentation QC e Plate QC não estão disponíveis, e suas explicações permanecem no relatório gerado em vez de desaparecer.",
-    "As opções reais de Format são HTML, PDF e Both. Mantenha HTML nesta demonstração. PDF é descrito como uma transcrição com matplotlib; não promete uma diagramação idêntica à página do navegador. Somente HTML é gerado e examinado nesta gravação.",
-    "Defina Embed at most como três figuras. Esse limite se aplica às figuras rasterizadas incorporadas. Nosso projeto contém seis PDFs vetoriais, que Report lista sem incorporar. Aumentar o limite não transformaria esses PDFs em prévias de imagens.",
-    "Clique em Choose output… e escolha um novo nome de arquivo HTML fora do projeto de origem. Esta interface não oferece controles de título, autoria ou exclusão de dados privados. Examine caminhos e metadados antes de compartilhar; Report não os oculta automaticamente.",
-    "Clique em Generate report e espere a confirmação de gravação do arquivo. Esta execução cria apenas o HTML selecionado no diretório de saída. Open pode enviá-lo ao visualizador do computador; aqui examinamos exatamente esse arquivo diretamente no Chrome, sem clicar em Open.",
-    "O documento real abre como um único arquivo HTML local, sem solicitar recursos externos. Os links do sumário identificam as oito seções. O aviso mantém a declaração de conclusão e informa que zero de seis figuras estão incorporadas; ele não esconde as evidências ausentes.",
-    "Run status reproduz o registro real de measure_crop: dois itens tentados, dois concluídos com sucesso e zero falhas. Não fabricamos um registro de conclusão. Essas contagens descrevem campos processados, não o número de células nem uma pontuação de validação científica.",
-    "Nenhuma execução do diário identifica esta pasta copiada. O relatório explica que as versões exibidas na ausência desse registro descrevem a máquina que gera o relatório, não uma reconstrução da procedência da análise. As seções ausentes de controle de qualidade da segmentação e da placa também continuam visíveis: indisponível não significa aprovado.",
-    "Key figures lista os seis PDFs de origem e explica por que não estão incorporados. Seus caminhos identificam as figuras anteriores e posteriores à filtragem e as de recortes dos dois campos. Consulte External Masks para ver essas figuras reais; este relatório não as rasteriza.",
-    "Statistics and result tables informa cento e três linhas de células, a mesma quantidade de linhas de citoplasma e de links PNG. Neste exemplo com apenas máscaras celulares, o citoplasma duplica as regiões das células. Não some essas tabelas como se fossem células independentes. Os totais do banco incluem configurações e outras linhas auxiliares.",
-    "Expanda a seção real de configurações salvas para examinar sua prévia. Os valores vêm do arquivo de configurações do projeto, não de um diário de execução recuperado. A quantidade de linhas não demonstra que cada configuração seja distinta, e esta gravação não lê todas as linhas em voz alta.",
-    "Em Python, spacr.report.collect_report reúne um objeto Report. build_report reúne os dados e grava o formato solicitado, retornando uma lista de caminhos de saída. Use a interface ou a API para compartilhar evidências registradas com suas limitações; nenhuma substitui controles de qualidade ausentes, estabelece validade biológica ou remove metadados sensíveis por você."
+    "Abra Help e depois Report. Use esta ferramenta para reunir num documento os resultados, as figuras e as configurações de um projeto concluído.",
+    "Clique em Choose run folder e selecione seu projeto. Neste exemplo, use o projeto de dois campos do External Masks, mantendo juntas as medições, as configurações e as figuras.",
+    "Leia o status do processamento depois da varredura. Complete significa que as etapas de processamento registradas terminaram. Revise separadamente os resultados de controle de qualidade disponíveis ao avaliar a análise.",
+    "Confira a lista de seções para ver quais itens do projeto estão disponíveis. Uma seção ausente continua identificada no relatório. Adicione ao projeto as saídas de análise correspondentes se precisar dessa seção.",
+    "Escolha HTML, PDF ou Both em Format. O HTML abre num navegador; o PDF oferece uma versão em documento. Este exemplo usa HTML.",
+    "Defina Embed at most para limitar o número de figuras rasterizadas incluídas no documento. PDFs vetoriais aparecem como arquivos de origem, não como pré-visualizações incorporadas. Use um limite menor para um relatório compacto.",
+    "Clique em Choose output e informe o nome do arquivo de destino. Confira se o formato escolhido e a extensão correspondem. Antes de compartilhar o relatório, revise os caminhos do projeto e os metadados que ele inclui.",
+    "Pressione Generate report e aguarde a confirmação de que o arquivo foi gravado. Abra o arquivo HTML salvo num navegador para inspecionar o resultado.",
+    "Use os links do sumário para pular entre as seções. Comece pelo resumo do processamento e depois revise as figuras, as tabelas de resultados e as configurações salvas.",
+    "Abra Key figures para encontrar as figuras do projeto. Siga os locais de arquivo indicados para os PDFs vetoriais, ou inspecione as pré-visualizações rasterizadas incorporadas quando estiverem disponíveis.",
+    "Revise Statistics and result tables para ver as tabelas de objetos disponíveis e o número de linhas delas. Este exemplo só com células tem regiões de célula e de citoplasma coincidentes; trate-as como medições das mesmas células.",
+    "Expanda Saved settings para inspecionar a configuração mantida com o projeto. Mantenha o relatório junto com os arquivos do projeto ao compartilhar uma análise que faz referência a figuras externas."
   ]
 }

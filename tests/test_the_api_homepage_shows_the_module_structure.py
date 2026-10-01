@@ -113,12 +113,23 @@ def _bands(text: str, underline: str, prefix: str) -> "list[tuple[str, list]]":
 
 
 def _targets(text: str, prefix: str) -> "dict[str, str]":
-    """``{tile key: destination}`` from a grid's substitution definitions."""
+    """``{tile key: destination}`` from a grid's substitution definitions.
+
+    The homepage writes each tile as an ``image::`` with ``:target:``; the
+    README writes it as a ``raw:: html`` anchor (366, c4cb0e3a6, so GitHub
+    and PyPI keep the alignment). Both spellings are read.
+    """
     pattern = re.compile(
         rf"(?m)^\.\. \|{prefix}_(?P<key>[a-z0-9_]+)\| image::[^\n]*\n"
         rf"(?:   :[^\n]*\n)*?   :target: (?P<target>[^\n]+)$")
-    return {m.group("key"): m.group("target").strip()
-            for m in pattern.finditer(text)}
+    raw = re.compile(
+        rf"(?m)^\.\. \|{prefix}_(?P<key>[a-z0-9_]+)\| raw:: html\n\n"
+        rf"   <a href=\"(?P<target>[^\"]+)\">")
+    targets = {m.group("key"): m.group("target").strip()
+               for m in pattern.finditer(text)}
+    targets.update((m.group("key"), m.group("target").strip())
+                   for m in raw.finditer(text))
+    return targets
 
 
 def test_the_homepage_groups_its_tiles_by_the_sections_home_has(generator):

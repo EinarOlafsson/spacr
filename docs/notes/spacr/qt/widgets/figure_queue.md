@@ -1114,3 +1114,23 @@ self._umap_settings.flush()
 ```
 
 A value still sitting on the debounce timer is a value the user typed and would otherwise lose by pressing OK promptly.
+
+
+---
+
+# Notes from `spacr/qt/widgets/figure_queue.py`
+
+Prose lifted out of `spacr/qt/widgets/figure_queue.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## FigureQueue.eventFilter
+
+### lines 795-798
+
+```python
+view = getattr(self, "_view", None)
+```
+
+Qt can deliver an event here while the queue has no view -- before `_build_ui` made one, or while a teardown takes the widget apart and an unguarded `self._view` raised inside the event loop. With no view there is nothing to debounce.

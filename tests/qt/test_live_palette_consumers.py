@@ -125,7 +125,7 @@ def test_hover_tooltip_refreshes_after_theme_change(qtbot, monkeypatch):
     current["accent"] = "#0a63c4"
     anchor = hover_tooltip.QWidget()
     qtbot.addWidget(anchor)
-    tip.show_for(anchor, "Help")
+    tip.show_for(anchor, "Help", immediate=True)
     assert "#445566" in tip.styleSheet(), (
         "the popup kept the old theme's surface")
 

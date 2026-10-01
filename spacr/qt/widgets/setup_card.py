@@ -9,8 +9,9 @@ from __future__ import annotations
 import math
 from typing import Optional
 
-from PySide6.QtCore import QPointF, QRectF, Qt, QTimer
-from PySide6.QtGui import QColor, QPainter, QPainterPath, QPen
+from PySide6.QtCore import QLineF, QPointF, QRectF, Qt, QTimer
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QPainter,
+                           QPainterPath, QPen, QPolygonF)
 from PySide6.QtWidgets import QWidget
 
 #: Corner order: top-left, top-right, bottom-right, bottom-left.
@@ -74,18 +75,18 @@ class SetupCard(QWidget):
     #: segment being switched on.
     FADE = 0.5
 
-    #: Rim pixels per drawn segment.
+    #: Rim pixels between two samples of the lit run.
     #:
-    #: The stroke is many short lines because a QPen carries ONE colour and
-    #: this run has to fade along its length. Below about six pixels the
-    #: steps are past what the eye resolves against an anti-aliased edge;
-    #: four is comfortably under it.
+    #: The run is ONE filled band shaded by one gradient, and the samples
+    #: are where its outline bends and where the gradient takes a colour.
+    #: Below about six pixels a chord is past what the eye resolves against
+    #: an anti-aliased edge; four is comfortably under it.
     STEP_PX = 4.0
 
-    #: Never more segments than this, however large the card.
+    #: Never more samples than this, however large the card.
     #:
     #: A ceiling rather than a guess: at sixty frames a second the cost is
-    #: paid every frame, and past this the extra lines are drawing detail
+    #: paid every frame, and past this the extra samples are drawing detail
     #: finer than the anti-aliasing that is already smoothing them.
     MAX_STEPS = 320
 
@@ -157,6 +158,8 @@ class SetupCard(QWidget):
 
         Ties go to the earlier corner, which only happens at the exact
         centre and is therefore never seen.
+
+        :param point: position in the card's own widget coordinates.
         """
         rect = QRectF(self.rect())
         points = (rect.topLeft(), rect.topRight(),
@@ -241,6 +244,8 @@ class SetupCard(QWidget):
         long, and paying for exact arc length here would buy an accuracy no
         eye can see on a value that is chasing a mouse anyway.
 
+        :param point: position in the card's own widget coordinates; it may lie
+            outside the card.
         :returns: the fraction, or None when the pointer is exactly at the
             centre and no direction can be read from it.
         """
@@ -275,6 +280,9 @@ class SetupCard(QWidget):
 
         A point at the exact centre names no direction and is ignored too,
         rather than being read as the top-left corner.
+
+        :param point: position in the card's own widget coordinates; it may lie
+            outside the card.
         """
         if self._laps:
             return
@@ -483,12 +491,20 @@ class SetupCard(QWidget):
             self._timer.start()
 
     def showEvent(self, event):                 # noqa: N802 - Qt naming
-        """Start following as soon as there is something to follow."""
+        """Start following as soon as there is something to follow.
+
+        :param event: the show event; it is not inspected, only passed on to
+            the base class before following starts.
+        """
         super().showEvent(event)
         self._start()
 
     def hideEvent(self, event):                 # noqa: N802 - Qt naming
-        """A card nobody is looking at does not need sixty frames a second."""
+        """A card nobody is looking at does not need sixty frames a second.
+
+        :param event: the hide event; it is not inspected, only passed on to
+            the base class before the animation timer stops.
+        """
         super().hideEvent(event)
         self._timer.stop()
 
@@ -580,6 +596,10 @@ class SetupCard(QWidget):
         window and two fifths of a small popup, and the short one reads as
         a thick bright band -- "the rim is to thick and bright. make the
         rim and window look exactly like the setup spacr window."
+
+        :param rect: the card's drawing rectangle; not read, because the
+            fraction is measured on the reference card size so every card's rim
+            looks alike.
         """
         key = (self._radius, self._arc)
         cached = self._span_cache
@@ -609,6 +629,9 @@ class SetupCard(QWidget):
 
         Both ends fall to zero, so neither has an edge to arrive or leave
         by. Where the peak sits is :meth:`accent_peak`.
+
+        :param along: position along the lit run, 0 at the tail and 1 at the
+            head; clamped to that range.
         """
         along = min(max(float(along), 0.0), 1.0)
         peak = self.accent_peak()
@@ -625,6 +648,9 @@ class SetupCard(QWidget):
         :attr:`position`, which is what puts the light on the pointer
         rather than beside it; with ``head`` the run ends there and trails
         backwards.
+
+        :param span: length of the lit run as a fraction of the rim, as
+            returned by :meth:`accent_span`.
         """
         if self.alignment() == "centre":
             return self.position - span / 2.0
@@ -672,6 +698,12 @@ class SetupCard(QWidget):
 
         Under an ordinary start with the shipped mode this returns the
         theme's accent and returns it unchanged, frame after frame.
+
+        :param along: position along the lit run, 0 at the tail and 1 at the
+            head.
+        :param accent: the theme's accent colour; returned as a copy in the
+            plain modes, and its saturation and value set the floor for the
+            spectral ones.
         """
         if self.spaceout():
             spectral = QColor()
@@ -716,7 +748,17 @@ class SetupCard(QWidget):
         return 0.45 + 0.55 * (0.5 + 0.5 * cycle)
 
     def _paint_accent(self, painter, colour: QColor, rect: QRectF) -> None:
-        """Stroke the lit run as segments that fade towards both ends.
+        """Fill the lit run as one band under one gradient.
+
+        A BAND, NOT SEGMENTS. The run fades in width and in opacity along
+        its length, and a pen carries one colour, so it used to be stroked
+        as hundreds of short lines with round caps. Each cap overlapped its
+        neighbour, the overlap was painted twice, and the rim read as a row
+        of small boxes. Here the outline of the whole run is one polygon,
+        so no pixel is painted twice, and its colour comes from a conical
+        gradient centred on the card: along a convex rim the angle about
+        the centre only ever grows, so every sample of the run is one stop
+        and the shading between stops is continuous.
 
         WHERE THE RUN SITS ON THE POINTER is :meth:`accent_start`, and it
         is a setting: centred puts the middle of the light on the pointer,
@@ -729,24 +771,31 @@ class SetupCard(QWidget):
         run_px = max(1.0, span * rim_px)
         steps = int(min(self.MAX_STEPS,
                         max(24.0, run_px / self.STEP_PX)))
-        previous = rim.pointAtPercent(start % 1.0)
-        previous_alpha = self.accent_alpha(0.0)
-        previous_along = 0.0
-        for index in range(1, steps + 1):
+        centre = rect.center()
+        dark = rim.pointAtPercent((start + span + (1.0 - span) / 2.0) % 1.0)
+        origin = QLineF(centre, dark).angle()
+        outer, inner, stops = [], [], []
+        for index in range(steps + 1):
             along = index / steps
-            point = rim.pointAtPercent((start + span * along) % 1.0)
+            at = (start + span * along) % 1.0
+            point = rim.pointAtPercent(at)
             alpha = self.accent_alpha(along)
-            if alpha > 0.004 or previous_alpha > 0.004:
-                middle = (alpha + previous_alpha) / 2.0
-                ink = self.ink_at((along + previous_along) / 2.0, colour)
-                ink.setAlpha(int(round(235 * middle * pulse)))
-                pen = QPen(ink, 1.2 + 2.2 * middle, Qt.SolidLine,
-                           Qt.RoundCap, Qt.RoundJoin)
-                painter.setPen(pen)
-                painter.drawLine(previous, point)
-            previous = point
-            previous_alpha = alpha
-            previous_along = along
+            tangent = math.radians(rim.angleAtPercent(at))
+            half = (1.2 + 2.2 * alpha) / 2.0
+            normal = QPointF(math.sin(tangent) * half,
+                             math.cos(tangent) * half)
+            outer.append(point + normal)
+            inner.append(point - normal)
+            turn = ((QLineF(centre, point).angle() - origin) % 360.0) / 360.0
+            ink = self.ink_at(along, colour)
+            ink.setAlpha(int(round(235 * alpha * pulse)))
+            stops.append((min(max(turn, 0.0), 1.0), ink))
+        stops.sort(key=lambda stop: stop[0])
+        gradient = QConicalGradient(centre, origin)
+        gradient.setStops(stops)
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(QBrush(gradient))
+        painter.drawPolygon(QPolygonF(outer + inner[::-1]))
 
     def _corner_path(self, rect: QRectF) -> QPainterPath:
         """The two edge runs meeting at the current corner, with its arc."""

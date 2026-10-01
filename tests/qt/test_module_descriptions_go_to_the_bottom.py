@@ -420,4 +420,6 @@ def test_installing_puts_the_filter_on_the_application_not_the_widgets(
         assert hints.eventFilter(later, _tooltip_event(later)) is True
         assert window.hinted == ["measure"]
     finally:
-        QApplication.instance().removeEventFilter(hints)
+        from spacr.qt.gil_priority import _stop_watching_application_events
+
+        _stop_watching_application_events(QApplication.instance(), hints)

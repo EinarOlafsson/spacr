@@ -90,7 +90,7 @@ class TestTheMapsAreReal:
 
     def test_the_families_are_the_four_it_documents(self):
         assert set(methods_by_family()) == {"attention", "gradient", "cam",
-                                            "perturbation"}
+                                            "shap", "perturbation"}
 
 
 class TestAttentionRollout:

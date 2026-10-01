@@ -1,0 +1,78 @@
+# spaCR user guide translation (is).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: is\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Checkpoint and resume"
+msgstr "Vistunarpunktar og framhald"
+
+msgid "spaCR checkpoints long work only after a safe unit has finished. A checkpoint never means killing a write halfway through: it means that a later invocation can prove which fields, trials, or plate jobs settled and continue after them. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
+msgstr "spaCR vistar vistunarpunkta í langri vinnu aðeins eftir að örugg eining hefur klárast. Vistunarpunktur þýðir aldrei að ritun sé stöðvuð í miðjum klíðum: hann þýðir að síðari keyrsla getur sannað hvaða sjónsvið, tilraunir eða plötuverk lauk og haldið áfram á eftir þeim. Hnappurinn **Stöðva** í Qt notar sömu mörk: hann biður um samvinnuþýða afturköllun, leyfir núverandi öruggu einingu að klárast og heldur vistunarpunktinum fyrir næstu keyrslu. Sjá :doc:`threading_cancellation_audit`."
+
+msgid "Supported workflows"
+msgstr "Studd verkflæði"
+
+msgid "Mask"
+msgstr "Grímur"
+
+msgid "Masks are matched to fields by exact filename. An object role is skipped only when every ``.npy`` field in ``stack/`` has a structurally complete mask of the same name; a missing, empty, or truncated mask sends the role back through segmentation. An unrelated mask cannot stand in for a missing field, and extra masks do not force complete fields to run again. Enable ``resume`` under **Workflow & Test Run** to also keep verified ``merged/*.npy`` fields instead of rebuilding them. New mask arrays are written with temporary-file plus atomic replace semantics. Cell adjustment first checks that the pathogen, cell, and nucleus folders hold the same field filenames with complete masks of matching dimensions; if they differ, it stops before changing any mask. With ``timelapse`` and ``motility_analysis`` on, the motility assay runs once per plate, after every object role and merged frame is complete, and rebuilds its measurements from the current masks rather than reusing an earlier table."
+msgstr "Grímur eru paraðar við sjónsvið eftir nákvæmu skráarheiti. Hlutverki hlutar er aðeins sleppt þegar hvert ``.npy``-sjónsvið í ``stack/`` hefur byggingarlega heila grímu með sama heiti; gríma sem vantar, er tóm eða stýfð sendir hlutverkið aftur í gegnum hlutun. Óskyld gríma getur ekki komið í stað sjónsviðs sem vantar og aukagrímur neyða ekki heil sjónsvið til að keyra aftur. Virkjaðu ``resume`` undir **Verkflæði og prufukeyrsla** til að halda einnig staðfestum ``merged/*.npy``-sjónsviðum í stað þess að endurbyggja þau. Ný grímufylki eru skrifuð með bráðabirgðaskrá og frumeindarlegri (atomic) útskiptingu. Frumuaðlögun athugar fyrst að möppur sýkils, frumu og kjarna geymi sömu skráarheiti sjónsviða með heilum grímum af samsvarandi víddum; ef þær eru ólíkar stöðvast hún áður en nokkurri grímu er breytt. Með ``timelapse`` og ``motility_analysis`` virk keyrir hreyfanleikaprófið einu sinni á hverja plötu, eftir að hvert hlutverk hlutar og samsettur rammi er fullgert, og endurbyggir mælingar sínar úr núverandi grímum í stað þess að endurnýta eldri töflu."
+
+msgid "Measure"
+msgstr "Mæling"
+
+msgid "Enable ``resume`` under **Postprocessing → Runtime & Reliability**. A field is skipped only when every Measure-owned table in ``measurements.db`` is complete. Partial field rows are cleared in one transaction before remeasurement, while tables owned by conversion, alignment, or other modules are never deleted."
+msgstr "Virkjaðu ``resume`` undir **Postprocessing → Keyrsla og áreiðanleiki**. Sjónsviði er aðeins sleppt þegar hver tafla í eigu Mælingar í ``measurements.db`` er fullgerð. Hlutaraðir sjónsviða eru hreinsaðar í einni færslu fyrir endurmælingu, en töflum í eigu umbreytingar, jöfnunar eða annarra eininga er aldrei eytt."
+
+msgid "Format Converter"
+msgstr "Sniðbreytir"
+
+msgid "Enable the Apple-style **Resume** switch. The converter writes ``.spacr_conversion.checkpoint.json`` after a whole field is complete. Resume reopens each target's TIFF metadata before accepting the field and atomically repairs a missing or corrupt target. Source identity and the full mapping plan must match."
+msgstr "Virkjaðu **Halda áfram**-rofann í Apple-stíl. Umbreytirinn skrifar ``.spacr_conversion.checkpoint.json`` eftir að heilt sjónsvið er fullgert. Framhald opnar aftur TIFF-lýsigögn hvers markskjals áður en sjónsviðið er samþykkt og lagfærir frumeindarlega markskrá sem vantar eða er skemmd. Auðkenni uppruna og heildarvörpunaráætlunin verða að passa."
+
+msgid "Image UMAP search"
+msgstr "Leit í Mynda-UMAP"
+
+msgid "Open **UMAP settings**, then enable **Resume checkpoint**. Trial metadata is written after every trial and embeddings are stored as adjacent NumPy artifacts. Grid searches skip completed configurations. Adaptive 2×2 searches also persist their centre, best score, completed-round count, and partial-round corners, so only missing corners run after an interruption."
+msgstr "Opnaðu **UMAP settings** og virkjaðu síðan **Halda áfram frá vistunarpunkti**. Lýsigögn tilrauna eru skrifuð eftir hverja tilraun og innfellingar eru geymdar sem aðliggjandi NumPy-afurðir. Grindarleit sleppir fullgerðum stillingum. Aðlögunarhæf 2×2-leit vistar einnig miðju sína, besta skor, fjölda fullgerðra umferða og horn ófullgerðra umferða, þannig að aðeins horn sem vantar keyra eftir truflun."
+
+msgid "Batch Runner"
+msgstr "Lotukeyrsla"
+
+msgid "A saved queue is written after every job transition. Loading and resuming it leaves successful jobs alone. A Mask, Measure, or Format Converter job that was running when the machine stopped is restarted with ``resume=True``, so its own verified field boundary is reused. Other jobs restart at the job boundary."
+msgstr "Vistuð röð er skrifuð eftir hverja stöðubreytingu verks. Þegar hún er hlaðin og haldið áfram eru vel heppnuð verk látin í friði. Verk í Grímur, Mæling eða Sniðbreytir sem var í gangi þegar vélin stöðvaðist er endurræst með ``resume=True``, þannig að eigin staðfestu sjónsviðsmörk þess eru endurnýtt. Önnur verk endurræsast við verkmörkin."
+
+msgid "Interrupted normalization archives"
+msgstr "Truflaðar stöðlunarsafnskrár"
+
+msgid "Mask also checks the normalized ``masks/*.npz`` archives before segmentation. It checks ZIP member extents, a readable numeric ``data.npy`` header, enough declared pixel bytes for the shape and dtype, and one filename per batch field. This structural check does not inflate every pixel array or perform a full pixel CRC scan."
+msgstr "Einingin Grímur athugar einnig stöðluðu ``masks/*.npz``-safnskrárnar fyrir hlutun. Hún athugar umfang ZIP-meðlima, læsilegan tölulegan ``data.npy``-haus, nægilega marga uppgefna pixlabæti fyrir lögun og dtype og eitt skráarheiti á hvert sjónsvið lotunnar. Þessi byggingarathugun þenur ekki út hvert pixlafylki né framkvæmir fulla CRC-skönnun á pixlum."
+
+msgid "Damaged archives are set aside as ``<name>.damaged``. With preprocessing disabled, the run stops and explains how to recover them. The same quarantine still prevents a later run from silently omitting those fields. It is resolved by a valid same-name replacement, or by readable archives covering every existing field in ``stack/``. Legacy object-valued filename arrays cannot prove that coverage. Enabling preprocessing lets recoverable fields be rebuilt from the available source data; valid archives and quarantined evidence are preserved."
+msgstr "Skemmdar safnskrár eru settar til hliðar sem ``<name>.damaged``. Ef forvinnsla er óvirk stöðvast keyrslan og útskýrir hvernig á að endurheimta þær. Sama sóttkví kemur samt í veg fyrir að síðari keyrsla sleppi þeim sjónsviðum án þess að láta vita. Hún er leyst með gildri útskiptingu með sama heiti eða með læsilegum safnskrám sem ná yfir hvert fyrirliggjandi sjónsvið í ``stack/``. Eldri fylki skráarheita með hlutagildum geta ekki sannað slíka þekju. Ef forvinnsla er virkjuð er hægt að endurbyggja endurheimtanleg sjónsvið úr tiltækum upprunagögnum; gildar safnskrár og sönnunargögn í sóttkví eru varðveitt."
+
+msgid "Safety rules"
+msgstr "Öryggisreglur"
+
+msgid "Checkpoint files are atomic JSON documents with a workflow name, format version, boundary, timestamps, input/settings signature, status, completed units, and workflow state. spaCR refuses a resume when this signature differs; start with Resume disabled to create a fresh checkpoint. A corrupt checkpoint is reported and preserved for diagnosis rather than silently discarded."
+msgstr "Vistunarpunktaskrár eru frumeindarleg JSON-skjöl með heiti verkflæðis, sniðútgáfu, mörkum, tímastimplum, undirskrift inntaka/stillinga, stöðu, fullgerðum einingum og stöðu verkflæðisins. spaCR hafnar framhaldi þegar þessi undirskrift er önnur; byrjaðu með framhald óvirkt til að búa til nýjan vistunarpunkt. Tilkynnt er um skemmdan vistunarpunkt og hann varðveittur til greiningar í stað þess að honum sé hent án þess að láta vita."
+
+msgid "The persistence API is :class:`spacr.checkpoint.CheckpointStore`. Conversion uses :func:`spacr.convert.convert`, UMAP search uses :func:`spacr.hyperparam.umap_search`, Measure uses :func:`spacr.resume.plan_measure_resume`, and queues use :func:`spacr.batch.resume_queue`."
+msgstr "Varðveislu-API-ið er :class:`spacr.checkpoint.CheckpointStore`. Umbreyting notar :func:`spacr.convert.convert`, UMAP-leit notar :func:`spacr.hyperparam.umap_search`, Mæling notar :func:`spacr.resume.plan_measure_resume` og raðir nota :func:`spacr.batch.resume_queue`."
+

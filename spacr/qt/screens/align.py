@@ -75,6 +75,12 @@ def confidence_colour(confidence: float, method: str) -> QColor:
     kind of fact from "we matched, weakly". Registered tiles ramp from the
     muted surface at confidence 0.3 to full accent at 1.0, so a weak match
     reads as pale rather than as a different category.
+
+    :param confidence: registration confidence from 0 to 1; values outside
+        0.3-1.0 are clamped to the ends of the ramp.
+    :param method: placement method, one of the ``spacr.align.METHOD_*``
+        values; ``"nominal"`` gives the warning colour and ``"unreadable"``
+        the error colour regardless of confidence.
     """
     if method == align_mod.METHOD_NOMINAL:
         return QColor(active_palette()["warning"])
@@ -113,7 +119,11 @@ class TileLayoutWidget(QWidget):
         make_transparent(self)
 
     def set_plan(self, plan) -> None:
-        """Show ``plan`` (an :class:`spacr.align.AlignPlan`), or ``None``."""
+        """Show ``plan`` (an :class:`spacr.align.AlignPlan`), or ``None``.
+
+        :param plan: the plan whose placements are drawn; ``None`` shows the
+            empty-state hint.
+        """
         self._plan = plan
         self.update()
 
@@ -150,7 +160,10 @@ class TileLayoutWidget(QWidget):
         return out
 
     def paintEvent(self, event) -> None:  # noqa: N802  (Qt naming)
-        """Draw the tile rectangles, or the empty-state hint."""
+        """Draw the tile rectangles, or the empty-state hint.
+
+        :param event: the paint event; not read, the whole widget is redrawn.
+        """
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
         palette = active_palette()
@@ -184,7 +197,11 @@ class TileLayoutWidget(QWidget):
         painter.end()
 
     def mousePressEvent(self, event) -> None:  # noqa: N802  (Qt naming)
-        """Emit :attr:`tile_clicked` for whatever was under the cursor."""
+        """Emit :attr:`tile_clicked` for whatever was under the cursor.
+
+        :param event: the mouse press event; only its position is read. A
+            press outside every tile emits ``-1``.
+        """
         point = event.position() if hasattr(event, "position") else event.pos()
         for index, rect in self.tile_rects():
             if rect.contains(point):
@@ -531,7 +548,12 @@ class AlignScreen(QWidget):
         })
 
     def apply_settings(self, settings: Dict[str, Any]) -> None:
-        """Load a settings dict back into the controls."""
+        """Load a settings dict back into the controls.
+
+        :param settings: partial or full Align settings; missing keys are
+            filled from :func:`spacr.align.default_settings` before the
+            controls are set.
+        """
         resolved = align_mod.default_settings(settings)
         self._src_edit.setText(str(resolved.get('src') or ''))
         self._dst_edit.setText(str(resolved.get('dst') or ''))

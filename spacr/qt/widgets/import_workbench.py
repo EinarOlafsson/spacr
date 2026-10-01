@@ -270,6 +270,10 @@ class ImportWorkbench(QWidget):
         refresh, they ask DIFFERENT questions, and coalescing them would
         lose a plate. Nothing here is shared mutable state -- both answers
         arrive on the GUI thread and both are kept.
+
+        :param paths: files and folders from a drop or the file picker; each is
+            converted to ``str``, folders are walked recursively on the worker,
+            and an empty sequence or ``None`` does nothing.
         """
         wanted = [str(p) for p in paths or ()]
         if not wanted:
@@ -551,6 +555,10 @@ class ImportWorkbenchDialog(QDialog):
         Ok, Cancel and the window's close button all arrive here, and a
         dialog dismissed while the share is still being walked is the
         ordinary case -- it is why the user gave up on it.
+
+        :param result: the dialog result code (``QDialog.Accepted`` or
+            ``QDialog.Rejected``), passed on to ``QDialog.done`` after the
+            workbench's worker is shut down.
         """
         self.workbench.shutdown()
         super().done(result)

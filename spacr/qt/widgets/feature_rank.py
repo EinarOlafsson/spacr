@@ -139,6 +139,11 @@ def auc_of(a: np.ndarray, b: np.ndarray) -> float:
 
     Computed from the Mann–Whitney U statistic, so it is exact for ties and
     costs one sort rather than ``len(a) × len(b)`` comparisons.
+
+    :param a: 1-D array of the reference group's values; an empty array gives
+        NaN.
+    :param b: 1-D array of the compared group's values; an empty array gives
+        NaN.
     """
     n_a, n_b = len(a), len(b)
     if not n_a or not n_b:
@@ -151,7 +156,11 @@ def auc_of(a: np.ndarray, b: np.ndarray) -> float:
 
 def cohen_d_of(a: np.ndarray, b: np.ndarray) -> float:
     """``(mean(b) − mean(a)) / pooled SD``, ddof 1. NaN when either group is
-    smaller than two or the pooled SD is zero."""
+    smaller than two or the pooled SD is zero.
+
+    :param a: 1-D array of the reference group's values.
+    :param b: 1-D array of the compared group's values.
+    """
     n_a, n_b = len(a), len(b)
     if n_a < 2 or n_b < 2:
         return float("nan")
@@ -168,6 +177,11 @@ def ks_of(a: np.ndarray, b: np.ndarray) -> float:
 
     Evaluated only at the *end* of each run of tied values, so a tie cannot
     produce a gap that neither CDF actually has.
+
+    :param a: 1-D array of the reference group's values; an empty array gives
+        NaN.
+    :param b: 1-D array of the compared group's values; an empty array gives
+        NaN.
     """
     n_a, n_b = len(a), len(b)
     if not n_a or not n_b:
@@ -191,6 +205,10 @@ def mutual_info_of(a: np.ndarray, b: np.ndarray, bins: int = 16) -> float:
     Equal-*frequency* bins over the pooled values, so the binning adapts to the
     distribution instead of putting 99% of a skewed feature in one bin.
 
+    :param a: 1-D array of the reference group's values; an empty array gives
+        NaN.
+    :param b: 1-D array of the compared group's values; an empty array gives
+        NaN.
     :returns: ``I(feature; class) / H(class)`` in ``[0, 1]`` — the fraction of
         the class label this one feature explains. Biased upward at small n;
         see :data:`STATISTIC_FAILURE_MODES`.
@@ -245,6 +263,8 @@ def candidate_labels(frame: pd.DataFrame) -> Tuple[str, ...]:
     eleven distinct values is a measurement that happens to be coarse, and
     offering it as "the thing to separate by" is how someone ends up ranking
     every feature against ``cell_eccentricity``.
+
+    :param frame: measurement table whose columns are screened.
     """
     kinds = column_kinds(frame)
     out = []
@@ -280,6 +300,8 @@ def candidate_features(frame: pd.DataFrame,
     included too, deliberately: if ``plateID`` ranks near the top, the classes
     are separated by which plate they were on, and that is the most useful
     thing this screen can tell anyone.
+
+    :param frame: measurement table whose columns are screened.
     """
     kinds = column_kinds(frame)
     out = []
@@ -425,7 +447,17 @@ class ExplorerSpec:
 
 @dataclass(frozen=True)
 class ClassSummary:
-    """One class's distribution of one feature — what the panel draws."""
+    """One class's distribution of one feature — what the panel draws.
+
+    :param level: the class name.
+    :param n: how many objects of that class have a value; 0 makes every
+        statistic below NaN.
+    :param median: median of the class's values.
+    :param q25: 25th percentile of the class's values.
+    :param q75: 75th percentile of the class's values.
+    :param low: smallest value in the class.
+    :param high: largest value in the class.
+    """
 
     level: str
     n: int
@@ -460,10 +492,24 @@ class ClassSummary:
 class FeatureScore:
     """One feature's separation, every statistic, and the caveats.
 
+    :param feature: the column that was scored.
+    :param statistic: the ranking statistic used, one of :data:`STATISTICS`.
     :param score: the ranking statistic's value, bigger meaning more
         separated. For :data:`AUC` this is ``|2·AUC − 1|``, not the AUC.
     :param auc: the directed AUC, so ``> 0.5`` means :attr:`higher_in` scores
         above the rest.
+    :param cohen_d: Cohen's d of the comparison that separated best, positive
+        when the compared class has the larger mean.
+    :param ks: Kolmogorov–Smirnov distance between the two compared groups, in
+        ``[0, 1]``.
+    :param mutual_info: binned mutual information of that comparison,
+        normalised by the class entropy, in ``[0, 1]``.
+    :param higher_in: the side of the comparison whose values run higher: the
+        compared class when :attr:`auc` is at least 0.5, otherwise
+        :attr:`against`.
+    :param against: what the best-separated class was compared with: the other
+        class when there are two, ``"rest"`` when there are more.
+    :param n_by_class: number of scored objects in each class level.
     :param is_shape_not_shift: the rank test is near a coin flip while the
         CDFs are far apart — a difference in spread, which the default
         statistic cannot see. See the module docstring.
@@ -540,7 +586,12 @@ class FeatureScore:
 class ExplorerResult:
     """A ranking, and everything that qualifies it.
 
+    :param spec: the :class:`ExplorerSpec` the ranking was made with.
+    :param label: the class column the features were ranked against.
+    :param classes: the class levels found in that column, sorted.
     :param scores: the kept features, most separated first.
+    :param n_rows: number of rows in the table that was ranked, before any row
+        was dropped.
     :param n_considered: how many features were scored, including the ones
         below :attr:`ExplorerSpec.top`.
     :param skipped: ``{feature: why}`` for columns that could not be scored —
@@ -786,6 +837,8 @@ def rank_features(frame: pd.DataFrame,
                   spec: Optional[ExplorerSpec] = None) -> ExplorerResult:
     """Score every feature against ``spec.label`` and sort by separation.
 
+    :param frame: measurement table, one row per object, holding the class
+        column ``spec.label`` and the features to score.
     :raises ExplorerError: when there is no usable class column, or when none
         of the features can be scored — each with the reason.
     """
@@ -866,6 +919,12 @@ def distributions(frame: pd.DataFrame, feature: str, label: str, *,
     histograms are comparable — the same rule
     :func:`spacr.qt.widgets.graph_spec.scales_for` applies to facets, and for
     the same reason.
+
+    :param frame: measurement table holding both columns.
+    :param feature: column to histogram; values that are not numeric count as
+        missing, and an all-missing column gives empty edges and no counts.
+    :param label: class column that splits the rows; :class:`ExplorerError` is
+        raised when it is absent or has fewer than two classes.
     """
     values = pd.to_numeric(frame[feature], errors="coerce").to_numpy(float)
     keys, levels = _class_levels(frame, label)

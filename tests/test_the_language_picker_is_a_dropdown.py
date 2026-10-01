@@ -5,14 +5,15 @@ WHAT THIS FILE PINS, and why it is a rule rather than a preference.
 The maintainer asked for the ten language links to be a dropdown menu instead
 of a row of links (instruction 361). On GitHub a dropdown means one thing --
 ``<details>`` with a ``<summary>`` -- and that element cannot exist in
-``README.rst``. GitHub renders reStructuredText through docutils with
-github/markup's settings, and those settings disable raw HTML, so:
+``README.rst``. The same README is rendered twice, by GitHub and, as the
+package description, by PyPI:
 
-* ``.. raw:: html`` is refused. Locally it renders as a "raw directive
-  disabled" system message; on github.com the whole block is printed as an
-  escaped ``<pre>``, which was checked on a real rendered page (dask/dask's
-  ``docs/source/index.rst``, fetched through the contents API with
-  ``Accept: application/vnd.github.html`` -- the renderer the site uses).
+* ``.. raw:: html`` is refused by PyPI, whose readme_renderer disables raw
+  HTML; there it renders as a "raw directive disabled" system message.
+  GitHub's rest2html enables it (measured 2026-09-28: the nightly README's
+  raw-html module tiles, 366, come back from the contents API with
+  ``Accept: application/vnd.github.html`` as real ``<img>`` elements), but a
+  menu that exists on only one of the two pages is not the menu.
 * ``<details>`` typed straight into RST is escaped to visible
   ``&lt;details&gt;`` text, because docutils does not treat it as HTML.
 
@@ -66,14 +67,18 @@ def _generator():
     return module
 
 
-def _render(text: str) -> "tuple[str, str]":
-    """Return ``(html, messages)`` for github/markup's own docutils settings."""
+def _render(text: str, **overrides) -> "tuple[str, str]":
+    """Return ``(html, messages)`` for github/markup's own docutils settings.
+
+    ``raw_enabled=False`` gives PyPI's readme_renderer behaviour for raw HTML.
+    """
     from docutils.core import publish_parts
 
     warnings = io.StringIO()
     parts = publish_parts(
         source=text, writer_name="html",
-        settings_overrides=dict(GITHUB_RST_SETTINGS, warning_stream=warnings))
+        settings_overrides=dict(GITHUB_RST_SETTINGS, **overrides,
+                                warning_stream=warnings))
     return parts["html_body"], warnings.getvalue()
 
 
@@ -103,11 +108,15 @@ def test_a_details_menu_in_reStructuredText_is_thrown_away_by_github():
         "   <details>\n   <summary>Language</summary>\n   </details>\n\n"
         "Body.\n"
     )
-    html, messages = _render(raw_directive)
+    html, messages = _render(raw_directive, raw_enabled=False)
     assert "<details" not in html
     assert "raw" in messages and "disabled" in messages
     assert "system-message" in html, (
-        "a raw:: html block is refused, and the refusal is visible on the page")
+        "PyPI refuses a raw:: html block, and the refusal is visible there")
+    github_html, _github_messages = _render(raw_directive)
+    assert "<details>" in github_html, (
+        "github/markup enables raw HTML, so the two renderers disagree and "
+        "the menu cannot rely on it")
 
     inline = (
         "spaCR\n=====\n\n<details><summary>Language</summary>\n\n"
@@ -234,14 +243,8 @@ def test_the_menu_offers_every_shipped_language_and_each_link_resolves():
         assert (PICKER_PAGE.parent / target).resolve().is_file(), (name, target)
 
 
-def test_the_menu_says_which_translations_nobody_has_read():
-    """Instruction 316: the claim has to be honest per locale.
-
-    Offering ten languages with nothing said about them is itself a claim
-    that all ten are equally good. Three were sampled by a fluent speaker;
-    six are machine drafts nobody who speaks them has checked.
-    """
-    generator = _generator()
+def test_the_menu_labels_ai_review_without_native_speaker_signoff():
+    """Current AI review must not inherit claims of native-speaker approval."""
     from spacr.qt.i18n import LANGUAGES
 
     text = PICKER_PAGE.read_text(encoding="utf-8")
@@ -251,15 +254,13 @@ def test_the_menu_says_which_translations_nobody_has_read():
         for line in menu.splitlines()
         if line.startswith("| [")
     }
-    assert set(generator.SPOT_CHECKED_LOCALES) == {"sv", "de", "is"}
+    assert "A fluent speaker read a sample" not in menu
     for language in LANGUAGES:
         row = rows[language.native_name]
         if language.code == "en":
             assert "Source text" in row
-        elif language.code in generator.SPOT_CHECKED_LOCALES:
-            assert "A fluent speaker read a sample" in row
         else:
-            assert "No fluent-speaker review" in row
+            assert "AI technical review (Codex), no native-speaker signoff" in row
 
 
 def test_the_page_and_the_readmes_are_regenerated_not_hand_written(tmp_path):

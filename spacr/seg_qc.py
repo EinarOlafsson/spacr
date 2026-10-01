@@ -1279,7 +1279,7 @@ FLAG_GUIDANCE: Dict[str, FlagGuidance] = {
             "the whole plate is like this seg_qc already demotes it to a "
             "warning, because it is the assay and not a defect",
             "size or probability filters removing most of what was found "
-            "(cell_min_area, the *_cellprob_threshold thresholds)",
+            "(an area row in object_filters, the *_cellprob_threshold thresholds)",
             "a field that is largely outside the well",
         ),
         fix=(
@@ -1333,8 +1333,9 @@ FLAG_GUIDANCE: Dict[str, FlagGuidance] = {
         ),
         fix=(
             "Inspect raw images and boundaries; check focus and model settings. "
-            "Measure diameter if the backend uses it. Adjust <object>_min_area "
-            "only after confirming that excluded specks are not real objects."
+            "Measure diameter if the backend uses it. Raise the object's area "
+            "minimum in object_filters only after confirming that excluded "
+            "specks are not real objects."
         ),
     ),
     FLAG_LOW_COUNT: FlagGuidance(
@@ -1428,7 +1429,7 @@ FLAG_GUIDANCE: Dict[str, FlagGuidance] = {
         ),
         fix=(
             "Review raw images and assay controls before changing "
-            "<object>_min_area / <object>_max_area; filtering may remove a "
+            "the object's area bounds in object_filters; filtering may remove a "
             "real biological population. "
             f"{ILLUMINATION_ADVICE}"
         ),
@@ -1768,7 +1769,7 @@ def _gradient_findings(
                         f"Compare the experimental layout and controls first. "
                         f"{ILLUMINATION_ADVICE} Inspect raw images with their "
                         f"mask overlays before adjusting <object>_cellprob_threshold, "
-                        f"<object>_min_area or the model's diameter setting."
+                        f"the object's area row in object_filters or the model's diameter setting."
                     ),
                     plate=plate,
                     object_type=object_type,
@@ -2405,3 +2406,238 @@ def format_digest(digest: QCDigest) -> str:
         lines.append("")
         lines.append(format_findings(digest.findings))
     return "\n".join(lines)
+
+
+_ROBUSTNESS_METRICS = ("object_count", "median_area", "mean_intensity")
+
+_NOMINAL_DIAMETER = 30.0
+
+
+def _number_list(value: Any, default: Sequence[float] = ()) -> List[float]:
+    """Read a list of numbers from a list, a tuple or text such as ``"0.5, 2"``.
+
+    Brackets, commas, semicolons and spaces all separate; anything that is not
+    a number is dropped. Blank or ``None`` gives ``default``.
+    """
+    if value is None:
+        return [float(v) for v in default]
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return [float(value)]
+    if isinstance(value, str):
+        value = re.split(r"[\s,;]+", value.strip().strip("[]()"))
+    numbers = []
+    for item in value:
+        number = _as_number(item)
+        if number is not None and math.isfinite(number):
+            numbers.append(number)
+    return numbers if numbers else [float(v) for v in default]
+
+
+def _robustness_grid(settings: Mapping[str, Any], object_type: str) -> List[Dict[str, Any]]:
+    """The re-segmentation grid: the run's own setting, then each key parameter moved alone.
+
+    One-at-a-time rather than every combination, so a change in the results
+    is attributable to the one parameter that moved and the grid stays small
+    enough to run on a CPU: the diameter is multiplied by each of
+    ``robustness_diameter_factors`` (a blank diameter is Cellpose's nominal
+    30 pixels), the flow and cell-probability thresholds are set to each of
+    ``robustness_flow_thresholds`` and ``robustness_cellprob_thresholds``,
+    and, with ``robustness_enhancement`` on, the field is contrast-enhanced
+    (CLAHE) before it is segmented.
+
+    :returns: one dict per grid point with ``parameter``, ``value``,
+        ``diameter``, ``flow_threshold``, ``cellprob_threshold`` and
+        ``enhance``; the first is the baseline.
+    """
+    diameter = _as_number(settings.get(f"{object_type}_diameter"))
+    flow = _as_number(settings.get(f"{object_type}_flow_threshold"))
+    cellprob = _as_number(settings.get(f"{object_type}_cellprob_threshold"))
+    base = dict(diameter=diameter if diameter and diameter > 0 else None,
+                flow_threshold=0.4 if flow is None else flow,
+                cellprob_threshold=0.0 if cellprob is None else cellprob,
+                enhance=False)
+    grid = [dict(base, parameter="baseline", value="run settings")]
+    reference = base["diameter"] or _NOMINAL_DIAMETER
+    for factor in _number_list(settings.get("robustness_diameter_factors"), (0.75, 1.25)):
+        if factor > 0 and abs(factor - 1.0) > 1e-9:
+            grid.append(dict(base, parameter="diameter", value=f"x{factor:g}",
+                             diameter=round(reference * factor, 3)))
+    for key, name in (("flow_threshold", "robustness_flow_thresholds"),
+                      ("cellprob_threshold", "robustness_cellprob_thresholds")):
+        default = (0.2, 0.6) if key == "flow_threshold" else (-2.0, 2.0)
+        for value in _number_list(settings.get(name), default):
+            if abs(value - base[key]) > 1e-9:
+                grid.append(dict(base, parameter=key, value=f"{value:g}", **{key: value}))
+    if settings.get("robustness_enhancement", True) not in (False, "False", "false", 0, None):
+        grid.append(dict(base, parameter="enhancement", value="CLAHE", enhance=True))
+    return grid
+
+
+def _robustness_stats(labels: np.ndarray, intensity: Optional[np.ndarray]) -> Dict[str, float]:
+    """Object count, median object area and mean per-object intensity of one mask."""
+    labels = _as_labels(labels)
+    areas = np.bincount(labels.ravel())
+    present = np.flatnonzero(areas[1:]) + 1 if areas.size > 1 else np.array([], int)
+    stats = {"object_count": float(present.size),
+             "median_area": float(np.median(areas[present])) if present.size else float("nan"),
+             "mean_intensity": float("nan")}
+    if intensity is not None and present.size:
+        sums = np.bincount(labels.ravel(), weights=np.asarray(intensity, float).ravel(),
+                           minlength=areas.size)
+        stats["mean_intensity"] = float(np.mean(sums[present] / areas[present]))
+    return stats
+
+
+def _match_fraction(reference: np.ndarray, labels: np.ndarray, iou: float = 0.5) -> float:
+    """Fraction of the reference mask's objects found again at IoU >= ``iou``.
+
+    ``nan`` when the reference has no object and the other mask has some;
+    1.0 when both are empty.
+    """
+    a = _as_labels(reference).ravel().astype(np.int64)
+    b = _as_labels(labels).ravel().astype(np.int64)
+    area_a = np.bincount(a)
+    area_b = np.bincount(b)
+    n_ref = int(np.count_nonzero(area_a[1:]))
+    if n_ref == 0:
+        return 1.0 if not np.count_nonzero(area_b[1:]) else float("nan")
+    both = (a > 0) & (b > 0)
+    if not both.any():
+        return 0.0
+    width = int(b.max()) + 1
+    pairs, overlap = np.unique(a[both] * width + b[both], return_counts=True)
+    ia, ib = pairs // width, pairs % width
+    ratio = overlap / (area_a[ia] + area_b[ib] - overlap)
+    return float(np.unique(ia[ratio >= iou]).size) / n_ref
+
+
+def _relative_change(value: float, reference: float) -> float:
+    """``(value - reference) / reference``; 0 when both are 0 or undefined, inf from 0 to more."""
+    if not math.isfinite(reference) and not math.isfinite(value):
+        return 0.0
+    if not math.isfinite(reference) or not math.isfinite(value):
+        return float("inf")
+    if reference == 0:
+        return 0.0 if value == 0 else float("inf")
+    return (value - reference) / abs(reference)
+
+
+def _score_robustness(fields, segment, grid: Sequence[Mapping[str, Any]],
+                      tolerance: float = 0.2):
+    """Re-segment every field at every grid point and say which settings are fragile.
+
+    :param fields: ``(name, image)`` pairs; ``image`` is ``(Y, X)`` or
+        ``(Y, X, C)`` and its first channel is the one whose intensity is
+        measured in each object.
+    :param segment: ``segment(image, point)`` -> label mask, for one field
+        and one grid point from :func:`_robustness_grid`.
+    :param grid: the grid points; the first is the baseline.
+    :param tolerance: the largest median relative change in object count,
+        median area or mean intensity, and the largest loss of matched
+        baseline objects (IoU 0.5), that still counts as stable.
+    :returns: ``(per_field, summary)`` DataFrames. ``summary`` has one row per
+        grid point with the median absolute relative change of each metric
+        over the fields, the mean fraction of baseline objects matched, the
+        worst of these, and ``fragile`` with its ``reason``.
+    """
+    import pandas as pd
+
+    rows = []
+    for name, image in fields:
+        image = np.asarray(image)
+        intensity = image if image.ndim == 2 else image[..., 0]
+        baseline = None
+        base_stats = None
+        for index, point in enumerate(grid):
+            labels = _as_labels(segment(image, point))
+            stats = _robustness_stats(labels, intensity)
+            if index == 0:
+                baseline, base_stats = labels, stats
+            row = dict(field=str(name), parameter=point["parameter"],
+                       value=str(point["value"]), **stats,
+                       matched_fraction=_match_fraction(baseline, labels))
+            for metric in _ROBUSTNESS_METRICS:
+                row[f"{metric}_change"] = _relative_change(stats[metric], base_stats[metric])
+            rows.append(row)
+    per_field = pd.DataFrame(rows)
+    summary = []
+    for point in grid:
+        part = per_field[(per_field["parameter"] == point["parameter"])
+                         & (per_field["value"] == str(point["value"]))]
+        entry = dict(parameter=point["parameter"], value=str(point["value"]),
+                     n_fields=int(len(part)))
+        worst, reason = 0.0, ""
+        for metric in _ROBUSTNESS_METRICS:
+            changes = np.abs(part[f"{metric}_change"].to_numpy(float))
+            change = float(np.median(changes)) if changes.size else float("nan")
+            entry[f"{metric}_change"] = change
+            if not math.isnan(change) and change > worst:
+                worst, reason = change, (f"{metric} changes by {_pct(change)}" if math.isfinite(change)
+                                         else "no objects left at one of the two settings")
+        matched = part["matched_fraction"].to_numpy(float)
+        matched = float(np.nanmean(matched)) if np.isfinite(matched).any() else float("nan")
+        entry["matched_fraction"] = matched
+        loss = 1.0 - matched if math.isfinite(matched) else 0.0
+        if loss > worst:
+            worst, reason = loss, f"only {_pct(matched)} of baseline objects found again"
+        entry["worst_change"] = worst
+        entry["fragile"] = bool(worst > tolerance)
+        entry["reason"] = reason if entry["fragile"] else ""
+        summary.append(entry)
+    return per_field, pd.DataFrame(summary)
+
+
+def _change_pct(value: float) -> str:
+    """A relative change as a percentage; ``'all'`` when it is unbounded."""
+    return "all" if value == float("inf") else _pct(value)
+
+
+def _format_robustness(summary, object_type: str, tolerance: float) -> str:
+    """The robustness summary as text: one line per grid point, fragile ones marked."""
+    lines = [f"Segmentation robustness ({object_type}): stable within "
+             f"{_pct(tolerance)}, one parameter moved at a time"]
+    for row in summary.itertuples(index=False):
+        mark = "FRAGILE" if row.fragile else "stable "
+        lines.append(f"  {mark} {row.parameter:<18} {row.value:<12} "
+                     f"count {_change_pct(row.object_count_change)}, "
+                     f"area {_change_pct(row.median_area_change)}, "
+                     f"intensity {_change_pct(row.mean_intensity_change)}, "
+                     f"matched {_pct(row.matched_fraction)}"
+                     + (f" -- {row.reason}" if row.fragile else ""))
+    fragile = summary[summary["fragile"]]
+    if len(fragile):
+        names = sorted(set(fragile["parameter"]))
+        lines.append("Fragile: results depend on " + ", ".join(names)
+                     + "; check these settings before trusting the measurements.")
+    else:
+        lines.append("No setting in the grid moved the results beyond the tolerance.")
+    return "\n".join(lines)
+
+
+def _robustness_figure(summary, tolerance: float, object_type: str):
+    """A heatmap of each grid point's change in each metric, fragile rows marked."""
+    from .figures.style import _figure_axes
+
+    columns = [f"{metric}_change" for metric in _ROBUSTNESS_METRICS]
+    values = np.abs(summary[columns].to_numpy(float))
+    loss = 1.0 - summary["matched_fraction"].to_numpy(float)
+    values = np.column_stack([values, loss])
+    shown = np.where(np.isfinite(values), values, 2.0 * tolerance)
+    labels = [f"{'! ' if f else ''}{p} {v}" for p, v, f in
+              zip(summary["parameter"], summary["value"], summary["fragile"])]
+    with _figure_axes(figsize=(6, 0.4 * len(labels) + 1.6)) as (figure, axis):
+        image = axis.imshow(shown, cmap="magma_r", vmin=0, vmax=max(2.0 * tolerance, 1e-6),
+                            aspect="auto")
+        axis.set_xticks(range(4))
+        axis.set_xticklabels(["count", "median area", "mean intensity", "objects lost"])
+        axis.set_yticks(range(len(labels)))
+        axis.set_yticklabels(labels, fontsize=8)
+        for (row, col), value in np.ndenumerate(values):
+            text = _change_pct(value)
+            axis.text(col, row, text, ha="center", va="center", fontsize=7,
+                      color="white" if shown[row, col] > tolerance else "black")
+        figure.colorbar(image, ax=axis, label="change from the run's settings")
+        axis.set_title(f"{object_type} segmentation robustness (! = over {_pct(tolerance)})",
+                       fontsize=9)
+        figure.tight_layout()
+    return figure

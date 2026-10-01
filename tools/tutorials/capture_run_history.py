@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 import time
 
@@ -25,6 +26,9 @@ def record_history(app, window, stage, captures, capture, settle, write_json, ti
     if (root.stat().st_dev, root.stat().st_ino) != (actual_root.stat().st_dev, actual_root.stat().st_ino):
         raise ValueError('History is not bound to the isolated tutorial journal')
     before = snapshot(root)
+    if os.environ.get('SPACR_TUTORIAL_HISTORY_MODE') == 'restore_latest':
+        return _record_restore_latest(app, window, root, actual_root, before, captures,
+                                      capture, settle, write_json, timeout)
     records = {rid: read_record(root, rid) for rid in (*BATCH, RECRUITMENT, REGRESSION, FAILED)}
     proof = {'lesson': '40_run_history', 'accepted': False, 'published': False,
              'app_source_modified': False, 'journal_before': before,
@@ -104,7 +108,7 @@ def record_history(app, window, stage, captures, capture, settle, write_json, ti
     try:
         help_action = next(a for a in window.menuBar().actions() if a.text().replace('&', '') == 'Help')
         menu = help_action.menu()
-        choices = [a for a in menu.actions() if a.text().replace('&', '') == 'Run history']
+        choices = [a for a in menu.actions() if a.text().replace('&', '').lower() == 'run history']
         if len(choices) != 1:
             raise ValueError('No unique Help -> Run history route')
         QTest.mouseClick(window.menuBar(), Qt.LeftButton,
@@ -224,6 +228,86 @@ def record_history(app, window, stage, captures, capture, settle, write_json, ti
         proof['journal_preservation'] = verify_preserved(root, before)
         proof['remaining_refresh_workers'] = len(screen._jobs)
         proof['accepted'] = True
+    finally:
+        write_json(path, proof)
+        if screen is not None:
+            screen.close()
+
+
+def _record_restore_latest(app, window, root, actual_root, before, captures, capture,
+                           settle, write_json, timeout):
+    """Help -> Run history over Home, then restore the newest recruitment run.
+
+    Uses whatever genuine journals the neutral recording profile holds (for
+    example a recruitment run recorded in the same stage), so no run ID or
+    maintainer path is baked into the recording.
+    """
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+
+    proof = {'lesson': '40_run_history', 'mode': 'restore_latest', 'accepted': False,
+             'published': False, 'app_source_modified': False, 'analysis_run': False,
+             'deleted_runs': 0, 'journal_before': before}
+    path = Path(captures) / 'history_acceptance.json'
+    deadline = time.monotonic() + timeout
+
+    def wait_for(predicate):
+        while not predicate():
+            if time.monotonic() > deadline:
+                raise TimeoutError('Bounded Run History capture timed out')
+            settle(.05)
+
+    def click(widget):
+        if not widget.isVisible() or not widget.isEnabled():
+            raise ValueError('Requested History control is not usable')
+        QTest.mouseClick(widget, Qt.LeftButton, pos=widget.rect().center())
+        settle(.12)
+
+    screen = None
+    try:
+        help_action = next(a for a in window.menuBar().actions() if a.text().replace('&', '') == 'Help')
+        menu = help_action.menu()
+        choices = [a for a in menu.actions() if a.text().replace('&', '').lower() == 'run history']
+        if len(choices) != 1:
+            raise ValueError('No unique Help -> Run history route')
+        QTest.mouseClick(window.menuBar(), Qt.LeftButton,
+                         pos=window.menuBar().actionGeometry(help_action).center())
+        settle(.2)
+        capture('01_help_history')
+        QTest.mouseClick(menu, Qt.LeftButton, pos=menu.actionGeometry(choices[0]).center())
+        wait_for(lambda: window._screens.get('run_history') is not None)
+        screen = window._screens['run_history']
+        wait_for(lambda: screen._loaded_once and not screen._busy and not screen._jobs)
+        if screen.last_error:
+            raise ValueError('History refresh failed')
+        combo = screen._module
+        index = combo.findData('recruitment')
+        if index < 0:
+            raise ValueError('No recruitment run in the neutral journal')
+        combo.setCurrentIndex(index)
+        settle(.4)
+        rows = screen._table.rowCount()
+        if rows < 1:
+            raise ValueError('No recruitment row to restore')
+        screen._table.selectRow(0)
+        settle(.4)
+        rid = screen._table.item(0, 0).data(Qt.UserRole)
+        record = read_record(root, rid)
+        bar = screen._tabs.tabBar()
+        QTest.mouseClick(bar, Qt.LeftButton, pos=bar.tabRect(1).center())
+        settle(.3)
+        capture('17_ready_to_restore')
+        click(screen._load_settings)
+        wait_for(lambda: window._screens.get('recruitment') is not None)
+        target = window._screens['recruitment']
+        wait_for(lambda: getattr(target, '_settings_model', None) is not None)
+        settle(.8)
+        collected = target._settings_model.collect()
+        if collected.get('src') != record['settings'].get('src'):
+            raise ValueError('Load settings did not restore the source')
+        capture('18_restored_recruitment')
+        proof.update(run_id=rid, restored_src=collected.get('src'),
+                     journal_preservation=verify_preserved(root, before), accepted=True)
     finally:
         write_json(path, proof)
         if screen is not None:

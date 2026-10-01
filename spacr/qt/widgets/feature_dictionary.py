@@ -79,6 +79,8 @@ from ...feature_dict import (
 
 from ...object_roles import ORGANELLE_ROLES
 from ...schema import object_type_summary
+from ..gil_priority import (_stop_watching_application_events,
+                            _watch_application_events)
 from ..i18n import tr
 from .workflow_diagram import DiagramDialog
 
@@ -343,7 +345,11 @@ class FeatureDictionaryPanel(QWidget):
 
 
     def set_query(self, text: str) -> None:
-        """Type ``text`` into the search box and re-run the search."""
+        """Type ``text`` into the search box and re-run the search.
+
+        :param text: the search text; ``None`` is read as empty. Any column
+            pinned by :meth:`show_column` is released.
+        """
         self._column = None
         text = str(text or "")
         if text == self._search.text():
@@ -360,6 +366,10 @@ class FeatureDictionaryPanel(QWidget):
 
         A name the dictionary cannot explain is reported as unknown. It is
         never approximated to the nearest-looking entry.
+
+        :param column: the measurement column name, e.g. as it appears in a
+            table header; stripped, and ``None`` or empty is reported as not in
+            the dictionary.
         """
         column = str(column or "").strip()
         self._column = column or None
@@ -510,7 +520,11 @@ class FeatureDictionaryDialog(DiagramDialog):
         layout.addLayout(footer)
 
     def show_column(self, column: str) -> None:
-        """Forward to the panel."""
+        """Forward to the panel.
+
+        :param column: the measurement column name to explain, passed to
+            :meth:`FeatureDictionaryPanel.show_column`.
+        """
         self.panel.show_column(column)
 
 
@@ -656,6 +670,10 @@ def install_help_action(window: QMainWindow) -> Optional[QAction]:
 
     Returns the action, or ``None`` when there is no Help menu (a bare
     QMainWindow in a test) or one is already installed.
+
+    :param window: the main window whose **Help** menu gets the action; the
+        action is inserted before the menu's first separator, or appended when
+        it has none.
     """
     menu = _find_menu(window, "Help")
     if menu is None:
@@ -688,6 +706,12 @@ def column_name_at(widget: QObject, pos) -> Optional[str]:
 
     Handles both halves of the gesture: a right-click on a header section and
     a right-click on a cell.
+
+    :param widget: the widget the right-click landed on: a horizontal
+        ``QHeaderView``, an item view, or an item view's viewport. Anything
+        else gives ``None``.
+    :param pos: the click position as a ``QPoint`` in ``widget``'s own
+        coordinates.
     """
     if isinstance(widget, QHeaderView):
         if widget.orientation() != Qt.Horizontal:
@@ -786,7 +810,12 @@ _MENU_RUNNER = _default_menu_runner
 
 
 def set_menu_runner(runner) -> None:
-    """Replace the context-menu runner. ``None`` restores the default."""
+    """Replace the context-menu runner. ``None`` restores the default.
+
+    :param runner: a callable ``runner(menu, global_pos)`` that shows the
+        ``QMenu`` at that global position, or ``None`` for the default, which
+        calls ``menu.exec``.
+    """
     global _MENU_RUNNER
     _MENU_RUNNER = runner or _default_menu_runner
 
@@ -893,7 +922,7 @@ def install_context_menu_filter(app: Optional[QApplication] = None
         return None
     if _FILTER is None:
         _FILTER = FeatureHelpFilter()
-        app.installEventFilter(_FILTER)
+        _watch_application_events(app, _FILTER, (QEvent.Type.ContextMenu,))
     return _FILTER
 
 
@@ -904,7 +933,7 @@ def remove_context_menu_filter(app: Optional[QApplication] = None) -> bool:
     if _FILTER is None:
         return False
     if app is not None:
-        app.removeEventFilter(_FILTER)
+        _stop_watching_application_events(app, _FILTER)
     _FILTER = None
     return True
 
@@ -915,6 +944,9 @@ def install_window_hooks(window: QMainWindow) -> None:
     Called from :func:`spacr.qt.shortcuts.install`, which runs once from
     ``MainWindow.__init__`` after the menu bar exists. Every failure is
     logged and swallowed: a missing help entry must not cost anyone a window.
+
+    :param window: the main window; its Help menu gets the dictionary action,
+        and the process-wide context-menu filter is installed.
     """
     try:
         install_help_action(window)

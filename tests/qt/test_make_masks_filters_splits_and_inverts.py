@@ -174,11 +174,11 @@ def category(screen, title: str):
 # 7. The Filter category
 # ---------------------------------------------------------------------------
 
-def test_the_category_is_called_filter_and_holds_the_four_bounds(screen):
+def test_the_category_is_called_filter_and_holds_the_filter_list(screen):
     card = category(screen, "Filter")
-    for box in (screen._filter_min_area, screen._filter_max_area,
-                screen._filter_min_int, screen._filter_max_int,
-                screen._btn_filter, screen._filter_log):
+    for box in (screen._filter_list, screen._filter_add,
+                screen._filter_property, screen._btn_filter,
+                screen._filter_log):
         assert card.isAncestorOf(box), f"{box} is not in the Filter category"
 
 
@@ -187,11 +187,8 @@ def test_the_filter_button_is_called_filter(screen):
 
 
 def test_every_bound_starts_off(screen):
-    """"these should default to off" -- and 0 is what off is."""
-    assert screen._filter_min_area.value() == 0
-    assert screen._filter_max_area.value() == 0
-    assert screen._filter_min_int.value() == 0.0
-    assert screen._filter_max_int.value() == 0.0
+    """"these should default to off" -- and item 511 made filters opt-in."""
+    assert screen._filter_list.filters() == []
     before = ids_of(screen._canvas.mask)
     screen._btn_filter.click()
     assert ids_of(screen._canvas.mask) == before
@@ -218,13 +215,13 @@ def test_a_layout_that_folded_the_old_category_folds_the_new_one(
 
 
 def test_only_the_bounds_that_are_on_are_applied(screen):
-    screen._filter_min_area.setValue(20)
+    screen._filter_list.set_filter("area", 20)
     screen._btn_filter.click()
     assert ids_of(screen._canvas.mask) == [PAIR, ROUND]
 
 
 def test_every_removed_object_gets_its_own_row(screen):
-    screen._filter_min_int.setValue(1_000.0)
+    screen._filter_list.set_filter("intensity_mean", 1_000.0)
     screen._btn_filter.click()
     rows = log_rows(screen)
     assert len(rows) == 2
@@ -234,7 +231,7 @@ def test_every_removed_object_gets_its_own_row(screen):
 def test_a_row_names_the_object_its_area_its_intensity_and_the_bound(screen):
     lookup = engine.ObjectLookup(screen._canvas.mask, screen._canvas.image)
     area, mean = lookup.measure(SPECK)
-    screen._filter_min_area.setValue(20)
+    screen._filter_list.set_filter("area", 20)
     screen._btn_filter.click()
     row = log_rows(screen)[0]
     assert row == (f"Object {SPECK} with area {area} px and intensity "
@@ -242,8 +239,8 @@ def test_a_row_names_the_object_its_area_its_intensity_and_the_bound(screen):
 
 
 def test_a_row_names_both_bounds_when_an_object_misses_on_two(screen):
-    screen._filter_min_area.setValue(20)
-    screen._filter_min_int.setValue(500.0)
+    screen._filter_list.set_filter("area", 20)
+    screen._filter_list.set_filter("intensity_mean", 500.0)
     screen._btn_filter.click()
     row = next(r for r in log_rows(screen) if r.startswith(f"Object {SPECK} "))
     assert row.endswith(
@@ -255,7 +252,7 @@ def test_the_rows_are_the_ids_the_readout_shows(screen):
     screen._canvas.update_readout(QPointF(*canvas_xy(3, 3)), measure=True)
     readout = screen._canvas.readout
     assert readout is not None and readout.label == SPECK
-    screen._filter_min_area.setValue(20)
+    screen._filter_list.set_filter("area", 20)
     screen._btn_filter.click()
     assert log_rows(screen)[0].startswith(f"Object {readout.label} ")
     assert f"area {readout.area} px" in log_rows(screen)[0]
@@ -263,11 +260,11 @@ def test_the_rows_are_the_ids_the_readout_shows(screen):
 
 
 def test_a_run_that_removes_nothing_clears_the_last_run_s_rows(screen):
-    screen._filter_min_area.setValue(20)
+    screen._filter_list.set_filter("area", 20)
     screen._btn_filter.click()
     assert log_rows(screen)
     screen._on_undo()
-    screen._filter_min_area.setValue(1)
+    screen._filter_list.set_filter("area", 1)
     screen._btn_filter.click()
     assert log_rows(screen) == []
     assert "nothing outside the bounds" in screen._status_label.text()
@@ -275,10 +272,10 @@ def test_a_run_that_removes_nothing_clears_the_last_run_s_rows(screen):
 
 def test_the_rows_go_when_the_next_field_arrives(qtbot, screen, one_field):
     """They name objects in the mask ON SCREEN, so they cannot outlive it."""
-    screen._filter_min_area.setValue(20)
+    screen._filter_list.set_filter("area", 20)
     screen._btn_filter.click()
     assert log_rows(screen)
-    screen._filter_min_area.setValue(0)
+    screen._filter_list.set_filter("area", None)
     image, mask = field_and_mask()
     imageio.imwrite(one_field / "b.tif", image)
     imageio.imwrite(one_field / "masks" / "b.tif", mask)
@@ -290,7 +287,7 @@ def test_the_rows_go_when_the_next_field_arrives(qtbot, screen, one_field):
 def test_the_rows_of_the_field_on_screen_are_that_fields_own(qtbot, screen,
                                                               one_field):
     """A bound left on re-runs on the new field and lists ITS objects."""
-    screen._filter_min_area.setValue(20)
+    screen._filter_list.set_filter("area", 20)
     screen._btn_filter.click()
     first = log_rows(screen)
     image, mask = field_and_mask()
@@ -313,7 +310,7 @@ def test_the_rows_are_the_themes_error_colour(qtbot, screen):
 def test_the_filter_is_one_undo_step_and_one_ledger_entry(screen):
     before = ids_of(screen._canvas.mask)
     written = len(screen._log.edits)
-    screen._filter_min_area.setValue(20)
+    screen._filter_list.set_filter("area", 20)
     screen._btn_filter.click()
     assert len(screen._log.edits) == written + 1
     assert screen._log.edits[-1].kind == "filter"
@@ -328,7 +325,7 @@ def test_undo_clears_the_rows_because_the_object_is_back(screen):
     named it, Ctrl+Z put it back and the red row went on saying it was
     gone.
     """
-    screen._filter_min_area.setValue(20)
+    screen._filter_list.set_filter("area", 20)
     screen._btn_filter.click()
     removed = [int(v) for v in ids_of(screen._canvas.mask)]
     assert log_rows(screen)
@@ -340,7 +337,7 @@ def test_undo_clears_the_rows_because_the_object_is_back(screen):
 
 def test_any_other_edit_clears_the_rows_too(screen):
     """Not only undo: a detect in replace mode rebuilds the mask as well."""
-    screen._filter_min_area.setValue(20)
+    screen._filter_list.set_filter("area", 20)
     screen._btn_filter.click()
     assert log_rows(screen)
     ctrl_click(screen, 45, 45, button=Qt.RightButton)
@@ -349,7 +346,7 @@ def test_any_other_edit_clears_the_rows_too(screen):
 
 def test_an_edit_that_moves_nothing_leaves_the_rows_alone(screen):
     """A Ctrl+click on background changed no pixels, so nothing went stale."""
-    screen._filter_min_area.setValue(20)
+    screen._filter_list.set_filter("area", 20)
     screen._btn_filter.click()
     rows = log_rows(screen)
     assert rows
@@ -745,7 +742,7 @@ def test_the_filter_keeps_the_fields_real_values_while_inverted(screen):
     assert inverted.intensity != plain.intensity, (
         "the pixel under the mouse must follow the picture")
 
-    screen._filter_min_area.setValue(20)
+    screen._filter_list.set_filter("area", 20)
     screen._btn_filter.click()
     assert f"intensity {plain.mean_intensity:.2f}" in log_rows(screen)[0]
 

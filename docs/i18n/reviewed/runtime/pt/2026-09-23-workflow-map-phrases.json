@@ -175,13 +175,6 @@
     },
     {
       "table": "ui",
-      "key": "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context.",
-      "source": "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context.",
-      "source_sha256": "29413490e3eaa63db5861f8b248a5a53bbafa8b28c784195c322ca1597ed9ced",
-      "translation": "Escolha variáveis, grupos e configurações gráficas na tabela carregada; depois exporte a figura com seu contexto de análise."
-    },
-    {
-      "table": "ui",
       "key": "Classifier evaluation bundle",
       "source": "Classifier evaluation bundle",
       "source_sha256": "89adad7599d0938534d8d4406f3b4cfa8c6bc70d9664d88c81e4bbfe818fd3a5",
@@ -270,13 +263,6 @@
       "source": "Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole.",
       "source_sha256": "b57de04dadae3fef67d4258c76fc74a71c5b5d5817c77f364d9f5084ced9a315",
       "translation": "Conte parasitas usando identidades explícitas dos vacúolos e compare distribuições por condição; a identidade da célula hospedeira sozinha não define um vacúolo."
-    },
-    {
-      "table": "ui",
-      "key": "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier.",
-      "source": "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier.",
-      "source_sha256": "6b280f37f6408974d163e2f64b1d927f90df5040f44e2ee5f826b9bc4980eae0",
-      "translation": "Prepare pares de imagens e máscaras para treinar a segmentação, ou use FEATURES para associar imagens e máscaras e iniciar a medição. Salvar uma máscara não treina um classificador."
     },
     {
       "table": "ui",
@@ -1309,13 +1295,6 @@
     },
     {
       "table": "ui",
-      "key": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.",
-      "source": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.",
-      "source_sha256": "1dcfc668277f3ad92f63af925cd1b0e11f7d50018061dfc730a409c59d3de3d9",
-      "translation": "Use FEATURES para associar imagens e máscaras e gravar um projeto medido; máscaras isoladas não são matrizes combinadas."
-    },
-    {
-      "table": "ui",
       "key": "Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios.",
       "source": "Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios.",
       "source_sha256": "37a5defe6fe790bc6edd314bf62dc3c5b454174fe25f3dc4542e76c26fb25d73",
@@ -1495,6 +1474,29 @@
       },
       "reason": "2026-09-23: c94a48cd7 replaced this workflow-map prose. Original source-bound translation retained; new source requires separate review.",
       "source_change_commit": "c94a48cd778b035ea9d95637329c5db6eefa8c79"
+    },
+    {
+      "table": "ui",
+      "key": "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier.",
+      "source": "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier.",
+      "source_sha256": "6b280f37f6408974d163e2f64b1d927f90df5040f44e2ee5f826b9bc4980eae0",
+      "translation": "Prepare pares de imagens e máscaras para treinar a segmentação, ou use FEATURES para associar imagens e máscaras e iniciar a medição. Salvar uma máscara não treina um classificador."
+    },
+    {
+      "table": "ui",
+      "key": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.",
+      "source": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.",
+      "source_sha256": "1dcfc668277f3ad92f63af925cd1b0e11f7d50018061dfc730a409c59d3de3d9",
+      "translation": "Use FEATURES para associar imagens e máscaras e gravar um projeto medido; máscaras isoladas não são matrizes combinadas."
+    },
+    {
+      "table": "ui",
+      "key": "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context.",
+      "source": "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context.",
+      "source_sha256": "29413490e3eaa63db5861f8b248a5a53bbafa8b28c784195c322ca1597ed9ced",
+      "translation": "Escolha variáveis, grupos e configurações gráficas na tabela carregada; depois exporte a figura com seu contexto de análise."
     }
-  ]
+  ],
+  "retired_note": "2026-10-01: the Make Masks re-layout replaced the FEATURES button with Organize for Measure and rewrote this English; the replacement is in 2026-09-30-runtime-debt-eleventh-pass-organize-phrases.json. Kept verbatim as evidence, not loaded.",
+  "retirement_2026_10_01": "Source text changed during priority implementation. Prior source-bound reviews are retained here for history and are not reused as reviews of replacement text."
 }

@@ -1279,8 +1279,8 @@ def _under_todays_names(settings: Dict[str, Any],
         moved, in which case nothing is logged. None logs, as before.
     :returns: the same mapping, for chaining.
     """
-    from .settings import (_fold_gradient_accumulation, _fold_renamed_settings,
-                           _fold_toxoplasma)
+    from .settings import (_fold_gradient_accumulation, _fold_object_bounds,
+                           _fold_renamed_settings, _fold_toxoplasma)
     from .validate import _check_retired_keys
 
     before = set(settings)
@@ -1289,6 +1289,7 @@ def _under_todays_names(settings: Dict[str, Any],
     _fold_renamed_settings(settings)
     _fold_toxoplasma(settings)
     _fold_gradient_accumulation(settings)
+    _fold_object_bounds(settings)
     for key in sorted(before - set(settings), key=str):
         problem = said.get(key)
         if problem is None:
@@ -1741,15 +1742,14 @@ def cmd_run(args: argparse.Namespace) -> int:
     try:
         from .figure_font import _open_sans_is_the_default
         from .run_journal import open_run
-        # 291 ("Global in the app only"): a pipeline run draws every figure,
-        # a plain `Figure()` included, in Open Sans. Held for the run rather
-        # than set bare, because `main` is also called in-process -- by
-        # `spacr.batch.inprocess_runner` and by tests -- and the caller gets
-        # its matplotlib back when the run ends.
         with _NoShow(), _open_sans_is_the_default():
             log.info("recording reproducibility input hashes")
             with open_run(module.key, settings) as run:
                 log.info("reproducibility manifest %s", run.dir)
+                lock = getattr(run, "_analysis_lock", None)
+                if lock:
+                    (log.info if lock.get("status") == "verified"
+                     else log.warning)("%s", lock.get("summary"))
                 _call_entry(module, func, settings)
     except SettingsError as exc:
         print(f"error: {exc}", file=sys.stderr)

@@ -148,10 +148,32 @@ def test_readme_keeps_the_feature_catalog_curated_and_points_to_detail():
     # same conflict the code-block carve-out below already records, so it
     # is resolved the same way: measure the thing the test was written to
     # measure.
+    #
+    # THE LIST OF WORK CITING spaCR IS A REFERENCE LIST, NOT PROSE, added
+    # 2026-09-26. Its length is chosen by how many papers cite spaCR, just
+    # as the model zoo's is chosen by how many models are published: the
+    # four entries the maintainer listed on 2026-09-24 put main at 1806
+    # words, and the only way back under the ceiling would have been to
+    # delete an explanation -- or a citation. So it is measured the way the
+    # generated tables are, and the carve-out is fenced below so that it
+    # can hold references and nothing else.
+    citing = (".. spacr-citing-papers-begin", ".. spacr-citing-papers-end")
+    _, marker, rest = text.partition(citing[0])
+    assert marker, f"the README has lost its {citing[0]} marker"
+    references, marker, _ = rest.partition(citing[1])
+    assert marker, f"{citing[0]} is not closed by {citing[1]}"
+    entries = [line for line in references.splitlines() if line.strip()]
+    assert entries, "the citing-papers list is empty"
+    for line in entries:
+        assert re.fullmatch(r"\* `[^`<>]+ <https://[^\s>]+>`_", line), (
+            f"only one-line linked references belong between the "
+            f"citing-papers markers, which the prose ceiling skips; "
+            f"found {line!r}")
     generated = (
         (".. spacr-workflow-begin", ".. spacr-workflow-end"),
         (".. spacr-hardware-begin", ".. spacr-hardware-end"),
         (".. spacr-model-zoo-begin", ".. spacr-model-zoo-end"),
+        citing,
     )
     kept = text
     for begin, end in generated:
@@ -464,12 +486,9 @@ def test_every_module_is_one_tile_of_one_size_in_one_grid():
         assert f"{section}\n{underline * len(section)}\n" in block, (
             f"the grid does not head its {section!r} band")
 
-    # A LINE BLOCK, so every row starts "| ". Measured on the real GitHub
-    # page on 2026-09-02: with each row as its own PARAGRAPH the gap between
-    # rows was 2.5 to 3 times the gap between columns, because the horizontal
-    # gutter is two tile canvases meeting and the vertical one was GitHub's
-    # paragraph margin stacked on top of the same padding. A line block has
-    # no paragraph margin, so both gutters become the same measurement.
+    # A line block fixes the row length and removes paragraph margins.
+    # Middle alignment must also survive GitHub sanitization: baseline
+    # images left a measured six-pixel vertical surplus on 2026-09-27.
     rows = [line for line in text.splitlines()
             if line.startswith("| |Module_")]
     assert rows, "the grid emitted no rows"
@@ -512,6 +531,41 @@ def test_every_module_is_one_tile_of_one_size_in_one_grid():
     visible_gap = generator.BUTTON_SIZE - generator.TILE_SIZE
     assert visible_gap == 2 * generator.TILE_PADDING
     assert visible_gap > 0
+
+    # GitHub retains the align attribute but strips docutils' alignment
+    # class. Parse the generated raw substitutions with the same HTML4
+    # writer family GitHub uses, then verify actual image/link attributes.
+    from html.parser import HTMLParser
+    from docutils.core import publish_parts
+
+    class Tiles(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.images = []
+            self.links = []
+
+        def handle_starttag(self, tag, attrs):
+            if tag == "img":
+                self.images.append(dict(attrs))
+            elif tag == "a" and "href" in dict(attrs):
+                self.links.append(dict(attrs)["href"])
+
+    parsed = Tiles()
+    parsed.feed(publish_parts(
+        block, writer_name="html4css1",
+        settings_overrides={"raw_enabled": True, "halt_level": 2},
+    )["fragment"])
+    assert len(parsed.images) == len(grid)
+    assert parsed.links == [generator._api_urls()[key] for key, _, _ in grid]
+    for attrs, (_key, label, image) in zip(parsed.images, grid):
+        assert attrs == {
+            "src": f"spacr/resources/icons/{image}",
+            "width": generator.TILE_DISPLAY_WIDTH,
+            "align": "middle", "alt": f"Open the {label} API",
+        }
+    sphinx = generator._documentation_workflow()
+    assert "raw:: html" not in sphinx
+    assert sphinx.count(":align: middle") == len(grid)
 
     # No leftover artwork for a module that is no longer tiled, and none
     # of the old two-sizes machinery still around to be picked back up.
@@ -752,8 +806,13 @@ def test_setting_animations_are_wired_into_readme_and_docs():
     # 86 referenced GIFs are present, no GIF is left unreferenced, and
     # the README links the gallery and registry pages rather than any
     # GIF, so nothing on the front page is broken by the deletion.
-    assert gallery.count(".. _setting-animation-") == 87
-    assert gallery.count(".. image:: ../../spacr/resources/") == 87
+    # 87 -> 78 on 2026-09-26, both counts: item 511 retired the twelve
+    # per-object {cell,nucleus,pathogen}_{min,max}_{area,intensity} settings
+    # into object_filters rows, and the nine animations that named only
+    # those keys were removed with them (the three min-area ones now name
+    # *_min_size). The gallery is generated, so both numbers move together.
+    assert gallery.count(".. _setting-animation-") == 78
+    assert gallery.count(".. image:: ../../spacr/resources/") == 78
     assert "**Settings:** ``psf_fwhm_um``" in gallery
     assert ":mod:`spacr.setting_animations`" in gallery
 

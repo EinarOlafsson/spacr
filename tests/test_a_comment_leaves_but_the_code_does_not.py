@@ -222,6 +222,17 @@ class TestWhatIsNotAComment:
         ("# noqa: E501", "noqa"),
         ("# type: ignore[arg-type]", "type"),
         ("# pragma: no cover", "pragma"),
+        ("# fmt: off", "fmt"),
+        ("# fmt: on", "fmt"),
+        ("# fmt: skip", "fmt"),
+        ("# keep aligned # fmt: skip", "fmt"),
+        ("# keep aligned; fmt: skip", "fmt"),
+        ("# isort: skip_file", "isort"),
+        ("# import order # isort: skip", "isort"),
+        ("# nosec", "nosec"),
+        ("# nosec B602, B607", "nosec"),
+        ("# yapf: disable", "yapf"),
+        ("# yapf: enable", "yapf"),
         ("#: an attribute doc", "sphinx"),
     ])
     def test_the_directives_are_named_and_kept(self, line, kind):
@@ -231,6 +242,44 @@ class TestWhatIsNotAComment:
         """A coding declaration on line 90 is prose about encodings."""
         assert esn.classify_directive("# -*- coding: utf-8 -*-", 90) is None
         assert esn.classify_directive("#!/usr/bin/env python3", 7) is None
+
+    @pytest.mark.parametrize("directive", [
+        "# noqa", "# noqa: E402,F401", "# pragma: no cover",
+        "# pragma: no branch", "# type: ignore", "# type: ignore[arg-type]",
+        "# type: int", "# fmt: off", "# fmt: on", "# fmt: skip",
+        "# keep aligned # fmt: skip", "# keep aligned; fmt: skip",
+        "# isort: skip", "# isort: skip_file", "# isort: off",
+        "# isort: on", "# isort: split", "# import order # isort: skip",
+        "# pylint: disable=invalid-name", "# mypy: ignore-errors",
+        "# ruff: noqa", "# flake8: noqa", "# pyright: strict",
+        "# nosec", "# nosec B602, B607", "# yapf: disable",
+        "# yapf: enable", "#: published attribute documentation",
+    ])
+    @pytest.mark.parametrize("trailing", [False, True])
+    def test_execute_preserves_tool_and_documentation_instructions(
+            self, tmp_path, directive, trailing):
+        protected = (f"VALUE = 1  {directive}\n" if trailing
+                     else f"{directive}\nVALUE = 1\n")
+        module = write(tmp_path, "m.py",
+                       "# Measured at 12 ms before this change.\n" + protected)
+        before = module.read_text()
+        notes = tmp_path / "notes"
+        report = esn.process_file(module, tmp_path, notes, execute=True)
+        assert module.read_text() == protected
+        assert esn.verify_ast(before, module.read_text())
+        assert sum(report.preserved.values()) == 1
+        assert [block.texts for block in report.blocks] == [
+            ["# Measured at 12 ms before this change."]]
+        assert "Measured at 12 ms before this change." in (notes / "m.md").read_text()
+
+    def test_execute_preserves_the_shebang_encoding_and_encoded_source(self, tmp_path):
+        module = tmp_path / "m.py"
+        protected = ("#!/usr/bin/env python3\n# -*- coding: latin-1 -*-\n"
+                     "VALUE = 'café'\n")
+        module.write_bytes((protected + "# Measured at 12 ms.\n").encode("latin-1"))
+        report = esn.process_file(module, tmp_path, tmp_path / "notes", execute=True)
+        assert module.read_bytes() == protected.encode("latin-1")
+        assert report.preserved == {"shebang": 1, "coding": 1}
 
     def test_the_preserved_directives_are_counted_for_the_report(self, tmp_path):
         """The maintainer is shown that they survived, not told."""
@@ -501,6 +550,31 @@ class TestTheDryRun:
 
     def test_a_missing_path_is_an_error_not_an_empty_report(self, tmp_path):
         assert esn.main(["--root", str(tmp_path), "nowhere"]) == 1
+
+    def test_rerunning_preserves_old_notes_and_adds_only_new_source_prose(self, tmp_path):
+        module = write(tmp_path, "pkg/m.py", "# First cost measured at 12 ms.\nX = 1\n")
+        notes = tmp_path / "notes"
+        esn.process_file(module, tmp_path, notes, execute=True)
+        note_path = notes / "pkg" / "m.md"
+        previous = note_path.read_text()
+        module.write_text(module.read_text() + "# Second cost measured at 24 ms.\n")
+        esn.process_file(module, tmp_path, notes, execute=True)
+        combined = note_path.read_text()
+        assert combined.startswith(previous)
+        assert combined.count("First cost measured at 12 ms.") == 1
+        assert combined.count("Second cost measured at 24 ms.") == 1
+        assert module.read_text() == "X = 1\n"
+        esn.process_file(module, tmp_path, notes, execute=True)
+        assert note_path.read_text() == combined
+
+    def test_a_failed_notes_write_keeps_the_original_source(self, tmp_path):
+        module = write(tmp_path, "pkg/m.py", "# Measured at 12 ms.\nX = 1\n")
+        before = module.read_text()
+        notes = tmp_path / "notes"
+        notes.write_text("a file cannot contain a module's notes")
+        with pytest.raises(OSError):
+            esn.process_file(module, tmp_path, notes, execute=True)
+        assert module.read_text() == before
 
     def test_unsure_blocks_can_be_left_in_the_source(self, tmp_path):
         """``--unsure keep`` is the cautious run: only what the classifier

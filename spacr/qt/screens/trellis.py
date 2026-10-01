@@ -143,7 +143,12 @@ class TrellisScreen(QWidget):
         retarget_field_tooltips(self)
 
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
-        """Plot ``frame``. The one call a host needs."""
+        """Plot ``frame``. The one call a host needs.
+
+        :param frame: the table to plot; it is also handed to the formula
+            panel.
+        :param label: source caption; empty shows the row and column counts.
+        """
         self._frame = frame
         self.formulas.set_frame(frame)
         self._push_frame()
@@ -183,6 +188,12 @@ class TrellisScreen(QWidget):
         :class:`spacr.qt.job_runner.JobRunner`; listing the table names stays
         inline because the picker has to be populated before the read is
         dispatched, to know which table to read.
+
+        :param path: a ``.csv``, ``.tsv`` or ``.txt`` table, or any other file
+            treated as a measurement database whose table names fill the
+            table picker.
+        :param table: the database table to read; ``None`` reads the table
+            currently chosen in the picker.
         """
         self._path = path
         names: List[str] = []

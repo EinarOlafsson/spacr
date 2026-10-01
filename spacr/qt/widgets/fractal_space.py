@@ -41,6 +41,238 @@ STAR_LAYERS: Final[int] = 6
 #: read as sparse: at 0.87 the grid becomes a texture rather than stars.
 STAR_THRESHOLD: Final[float] = 0.935
 
+#: The most galaxies on screen at once. Each slot holds one galaxy from far
+#: away until it has passed, so this caps both what a frame costs and how
+#: crowded the sky gets -- far sparser than the stars.
+GALAXY_SLOTS: Final[int] = 4
+
+#: Distinct galaxy pictures, drawn once and reused with a different size,
+#: tilt, turn, colour and brightness every time one passes.
+_GALAXY_SPRITES: Final[int] = 8
+
+#: Side of one galaxy picture, in texels.
+_GALAXY_SPRITE_SIZE: Final[int] = 128
+
+#: The galaxy pictures' kinds, in atlas order: two-armed spirals, barred
+#: spirals, a three-armed one, a many-armed flocculent one and ellipticals.
+_GALAXY_KINDS: Final[tuple] = ("spiral", "barred", "spiral", "elliptical",
+                               "spiral", "barred", "elliptical", "flocculent")
+
+#: Seconds of flight, at speed 1, from a galaxy appearing to its passing.
+_GALAXY_LIFETIME: Final[float] = 70.0
+
+#: Depths a galaxy starts and ends its approach at, in the scene's units.
+_GALAXY_FAR: Final[float] = 7.0
+_GALAXY_NEAR: Final[float] = 0.35
+
+
+def _galaxy_sprite(kind: str, seed: int,
+                   size: int = _GALAXY_SPRITE_SIZE) -> np.ndarray:
+    """One galaxy, face on, as soft light on black.
+
+    :param kind: ``"spiral"``, ``"barred"``, ``"flocculent"`` or
+        ``"elliptical"``.
+    :param seed: picks the arms' pitch, phase, star-forming knots and the
+        rest, so the same seed always draws the same galaxy.
+    :param size: side in texels.
+    :returns: ``(size, size, 3)`` float32, fading to black before the edge.
+
+    A spiral is an exponential disc with logarithmic arms, a dust lane on
+    each arm's inner side, a bright bulge, and blue knots strung along the
+    arms; a barred one adds a bar the arms leave from. An elliptical is a
+    de Vaucouleurs glow, warmer and smoother. Light is tone-mapped, so a
+    core is bright without being clipped flat.
+    """
+    rng = np.random.default_rng(int(seed))
+    axis = (np.arange(size, dtype=np.float64) + 0.5) / size * 2.0 - 1.0
+    x, y = np.meshgrid(axis, axis)
+    r = np.hypot(x, y)
+    theta = np.arctan2(y, x)
+    fade = np.clip((0.98 - r) / 0.3, 0.0, 1.0)
+    fade = fade * fade * (3.0 - 2.0 * fade)
+
+    if kind == "elliptical":
+        flattening = rng.uniform(0.6, 1.0)
+        effective = rng.uniform(0.24, 0.32)
+        stretched = np.hypot(x, y / flattening)
+        light = np.exp(-7.67 * ((stretched / effective + 1e-9) ** 0.25
+                                - 1.0))
+        warm = np.array([1.0, 0.8, 0.55])
+        core = np.array([1.0, 0.93, 0.8])
+        mix = np.exp(-(stretched / (0.5 * effective)) ** 2)[..., None]
+        colour = light[..., None] * (warm * (1.0 - mix) + core * mix)
+        rgb = 1.0 - np.exp(-0.16 * colour)
+        return (rgb * fade[..., None]).astype(np.float32)
+
+    arms = 4 if kind == "flocculent" else int(rng.choice((2, 2, 3)))
+    pitch = math.radians(rng.uniform(13.0, 24.0))
+    winding = 1.0 / math.tan(pitch)
+    start = rng.uniform(0.0, 2.0 * math.pi)
+    scale = rng.uniform(0.17, 0.24)
+    sharpness = 1.6 if kind == "flocculent" else rng.uniform(3.0, 5.0)
+    inner = 0.22 if kind == "barred" else 0.06
+
+    phase = arms * (theta - winding * np.log(r + 0.03)) + start
+    disc = np.exp(-r / scale)
+    arm = (0.5 + 0.5 * np.cos(phase)) ** sharpness
+    lane = (0.5 + 0.5 * np.cos(phase - 0.7)) ** 8
+    begins = np.clip((r - 0.5 * inner) / max(inner, 1e-3), 0.0, 1.0)
+    arm_light = disc * (0.18 + 1.7 * arm * begins)
+    arm_light *= 1.0 - 0.5 * lane * begins * np.clip(r / 0.15, 0.0, 1.0)
+    if kind == "flocculent":
+        grain = rng.normal(0.0, 1.0, (size, size))
+        for _ in range(3):
+            grain = (grain + np.roll(grain, 1, 0) + np.roll(grain, -1, 0)
+                     + np.roll(grain, 1, 1) + np.roll(grain, -1, 1)) / 5.0
+        arm_light *= np.clip(1.0 + 1.6 * grain, 0.2, 2.0)
+
+    bulge_size = rng.uniform(0.05, 0.085)
+    bulge = 1.6 * np.exp(-(r / bulge_size) ** 2) \
+        + 0.35 * np.exp(-r / (1.6 * bulge_size))
+    if kind == "barred":
+        turn = start / arms
+        along = x * math.cos(turn) + y * math.sin(turn)
+        across = -x * math.sin(turn) + y * math.cos(turn)
+        bulge = bulge + 0.55 * np.exp(-(along / inner) ** 2
+                                      - (across / 0.04) ** 2)
+
+    knots = np.zeros_like(r)
+    for _ in range(int(rng.integers(26, 44))):
+        radius = rng.uniform(0.1, 0.62)
+        branch = int(rng.integers(0, arms))
+        angle = (winding * math.log(radius + 0.03)
+                 + (2.0 * math.pi * branch - start) / arms
+                 + rng.normal(0.0, 0.08))
+        cx, cy = radius * math.cos(angle), radius * math.sin(angle)
+        width = rng.uniform(0.008, 0.018)
+        knots += rng.uniform(0.4, 1.1) * np.exp(
+            -((x - cx) ** 2 + (y - cy) ** 2) / (width * width))
+
+    bulge_colour = np.array([1.0, 0.84, 0.6])
+    arm_colour = np.array([0.6, 0.73, 1.0])
+    knot_colour = (np.array([0.72, 0.8, 1.0]) if seed % 2
+                   else np.array([1.0, 0.62, 0.8]))
+    colour = (bulge[..., None] * bulge_colour
+              + arm_light[..., None] * arm_colour
+              + 0.8 * knots[..., None] * knot_colour
+              * disc[..., None] ** 0.3)
+    rgb = 1.0 - np.exp(-1.1 * colour)
+    return (rgb * fade[..., None]).astype(np.float32)
+
+
+_ATLAS_CACHE: list = []
+
+
+def _galaxy_atlas() -> np.ndarray:
+    """Every galaxy picture side by side, drawn once per process.
+
+    :returns: ``(size, size * count, 3)`` float32, sprite ``i`` in columns
+        ``i * size`` to ``(i + 1) * size``.
+
+    Built on first use and kept: the pictures cost a few tenths of a second
+    to draw, which is fine once and not every frame.
+    """
+    if not _ATLAS_CACHE:
+        _ATLAS_CACHE.append(np.ascontiguousarray(np.concatenate(
+            [_galaxy_sprite(kind, 7919 * (index + 1))
+             for index, kind in enumerate(_GALAXY_KINDS[:_GALAXY_SPRITES])],
+            axis=1)))
+    return _ATLAS_CACHE[0]
+
+
+def _galaxy_hash(value: float, salt: float) -> float:
+    """A deterministic 0-1 value, the same shader-idiom hash as the stars.
+
+    :param value: which galaxy.
+    :param salt: which of its properties.
+    """
+    raw = math.sin(value * 127.1 + salt * 311.7) * 43758.5453123
+    return raw - math.floor(raw)
+
+
+def _galaxy_texture() -> np.ndarray:
+    """The atlas as the shader reads it: RGBA bytes holding sqrt(light).
+
+    :returns: ``(size, size * count, 4)`` uint8. The square root spends the
+        eight bits where the eye needs them -- on the faint outer disc -- and
+        the shader squares it back.
+    """
+    atlas = _galaxy_atlas()
+    texture = np.empty(atlas.shape[:2] + (4,), dtype=np.uint8)
+    texture[..., :3] = np.round(
+        255.0 * np.sqrt(np.clip(atlas, 0.0, 1.0))).astype(np.uint8)
+    texture[..., 3] = 255
+    return texture
+
+
+def _galaxy_uniforms(rows: np.ndarray) -> dict:
+    """The shader's per-galaxy uniforms for rows from :func:`_galaxies_at`.
+
+    :param rows: ``(GALAXY_SLOTS, 12)`` galaxy rows.
+    :returns: ``{"u_galaxy0_place": (x, y, half, brightness), ...}`` with a
+        ``_shape`` and a ``_tint`` entry for each slot.
+    """
+    values = {}
+    for slot in range(GALAXY_SLOTS):
+        row = [float(value) for value in rows[slot]]
+        values[f"u_galaxy{slot}_place"] = tuple(row[0:4])
+        values[f"u_galaxy{slot}_shape"] = tuple(row[4:8])
+        values[f"u_galaxy{slot}_tint"] = tuple(row[8:11])
+    return values
+
+def _galaxies_at(t: float, speed: float) -> np.ndarray:
+    """Where every galaxy slot is at ``t``, for both renderers.
+
+    :param t: the flight's clock.
+    :param speed: multiplier on the flight's forward motion.
+    :returns: ``(GALAXY_SLOTS, 12)`` float64 rows of ``x, y, half_size,
+        brightness, cos_turn, sin_turn, squash, sprite, red, green, blue,
+        depth`` in scene coordinates. A row whose brightness is 0 is empty.
+
+    Each slot carries one galaxy from far ahead to past the camera, then a
+    new one. Its depth falls steadily, so its place on screen -- its
+    sideways offset divided by depth -- moves outward ever faster and its
+    size grows the same way: perspective. Galaxies at different offsets and
+    depths cross at different rates, which is the parallax. It fades in
+    from the distance and out as it passes. Like the stars, the position is
+    the clock: nothing is stored between frames.
+    """
+    rows = np.zeros((GALAXY_SLOTS, 12), dtype=np.float64)
+    pace = (0.35 + 1.05 * float(speed)) / (1.4 * _GALAXY_LIFETIME)
+    for slot in range(GALAXY_SLOTS):
+        travel = float(t) * pace + (slot + 0.37) / GALAXY_SLOTS
+        epoch = math.floor(travel)
+        phase = travel - epoch
+        which = epoch * GALAXY_SLOTS + slot + 11.0
+        if _galaxy_hash(which, 2.9) < 0.18:
+            continue
+        depth = _GALAXY_FAR + (_GALAXY_NEAR - _GALAXY_FAR) * phase
+        angle = 2.0 * math.pi * _galaxy_hash(which, 1.3)
+        offset = 0.5 + 1.3 * _galaxy_hash(which, 4.1)
+        size = 0.3 + 0.6 * _galaxy_hash(which, 6.7) ** 1.5
+        enter = min(1.0, max(0.0, phase / 0.18))
+        enter = enter * enter * (3.0 - 2.0 * enter)
+        leave = min(1.0, max(0.0, (1.0 - phase) / 0.16))
+        leave = leave * leave * (3.0 - 2.0 * leave)
+        turn = 2.0 * math.pi * _galaxy_hash(which, 8.3) + 0.04 * phase
+        tint = _galaxy_hash(which, 9.7)
+        warmth = 0.75 + 0.5 * _galaxy_hash(which, 3.3)
+        rows[slot] = (
+            offset * math.cos(angle) / depth,
+            offset * math.sin(angle) / depth,
+            size / depth,
+            (0.75 + 0.6 * _galaxy_hash(which, 5.9)) * enter * leave,
+            math.cos(turn), math.sin(turn),
+            0.22 + 0.78 * _galaxy_hash(which, 7.1),
+            float(int(_galaxy_hash(which, 0.7) * _GALAXY_SPRITES)
+                  % _GALAXY_SPRITES),
+            min(1.2, warmth * (1.0 + 0.15 * tint)),
+            0.95 + 0.05 * tint,
+            min(1.2, (2.0 - warmth) * (1.0 - 0.1 * tint)),
+            depth,
+        )
+    return rows
+
 
 FRAGMENT_SHADER: Final[str] = r"""
 uniform vec2 u_resolution;
@@ -48,6 +280,7 @@ uniform float u_pointer_x;
 uniform float u_pointer_y;
 uniform float u_pull;
 uniform float u_push;
+uniform float u_lens;
 uniform float u_time;
 uniform float u_speed;
 uniform float u_intensity;
@@ -60,6 +293,34 @@ uniform float u_shear_y;
 uniform float u_stretch_x;
 uniform float u_stretch_y;
 uniform int u_detail;
+uniform sampler2D u_galaxies;
+uniform vec4 u_galaxy0_place;
+uniform vec4 u_galaxy0_shape;
+uniform vec3 u_galaxy0_tint;
+uniform vec4 u_galaxy1_place;
+uniform vec4 u_galaxy1_shape;
+uniform vec3 u_galaxy1_tint;
+uniform vec4 u_galaxy2_place;
+uniform vec4 u_galaxy2_shape;
+uniform vec3 u_galaxy2_tint;
+uniform vec4 u_galaxy3_place;
+uniform vec4 u_galaxy3_shape;
+uniform vec3 u_galaxy3_tint;
+
+// ONE PASSING GALAXY, read from the atlas of pictures drawn once on the
+// CPU. `place` is centre, half-size and brightness; `shape` is the turn's
+// cosine and sine, the tilt's squash and which picture. The texels hold the
+// square root of the light, so eight bits do not band a faint disc.
+vec3 galaxy_light(vec2 p, vec4 place, vec4 shape, vec3 tint) {
+    if (place.w <= 0.0 || place.z <= 0.0) return vec3(0.0);
+    vec2 d = (p - place.xy) / place.z;
+    vec2 local = vec2(shape.x * d.x + shape.y * d.y,
+                      (-shape.y * d.x + shape.x * d.y) / max(shape.z, 0.05));
+    if (abs(local.x) >= 1.0 || abs(local.y) >= 1.0) return vec3(0.0);
+    vec2 at = vec2((shape.w + 0.5 + 0.5 * local.x) / 8.0, 0.5 + 0.5 * local.y);
+    vec3 texel = texture2D(u_galaxies, at).rgb;
+    return texel * texel * tint * place.w;
+}
 
 float hash21(vec2 p) {
     p = fract(p * vec2(123.34, 456.21));
@@ -188,12 +449,13 @@ vec2 toward_pointer(vec2 uv) {
     // firm under the cursor and gone by the far corner. Distant pixels
     // stay where they were, so there is no global shift to spring back
     // from. A click reverses it.
+    float lens = u_lens > 0.0 ? max(u_lens, 0.05) : 1.0;
     vec2 target = vec2(u_pointer_x, u_pointer_y);
-    vec2 to_pointer = target - uv;
+    vec2 to_pointer = (target - uv) / lens;
     float distance2 = dot(to_pointer, to_pointer) + 0.05;
     float strength = (0.55 * u_pull - 0.95 * u_push) / distance2;
     strength = clamp(strength, -1.4, 0.9);
-    return uv + strength * to_pointer;
+    return uv + strength * to_pointer * lens;
 }
 
 vec3 render_sample(vec2 fragment_position) {
@@ -212,6 +474,10 @@ vec3 render_sample(vec2 fragment_position) {
     vec3 color = mix(vec3(0.0015, 0.0022, 0.0060),
                      vec3(0.0055, 0.0028, 0.0105), hue);
     color += space_star_field(p, depth);
+    color += galaxy_light(p, u_galaxy0_place, u_galaxy0_shape, u_galaxy0_tint);
+    color += galaxy_light(p, u_galaxy1_place, u_galaxy1_shape, u_galaxy1_tint);
+    color += galaxy_light(p, u_galaxy2_place, u_galaxy2_shape, u_galaxy2_tint);
+    color += galaxy_light(p, u_galaxy3_place, u_galaxy3_shape, u_galaxy3_tint);
 
     float object_travel = u_time * (0.35 + 1.05 * u_speed) / 520.0;
     color += space_object(p, 0.0, object_travel);
@@ -328,6 +594,14 @@ if njit is not None:
         When Numba is unavailable, the public ``sample_space`` name instead
         accepts arbitrary positional and keyword arguments and raises
         ``RuntimeError``.
+
+        :param x: horizontal scene coordinate; ``0`` is the frame centre and
+            the shorter frame edge lies at about ``±1.08``.
+        :param y: vertical scene coordinate, positive upwards, on the same
+            scale.
+        :param t: elapsed animation time used to advance the flight.
+        :param speed: multiplier applied to the flight's forward motion.
+        :returns: ``(red, green, blue)``, each clamped to ``[0, 1]``.
         """
         depth = t * speed / 14.0
         roll = 0.025 * math.sin(0.009 * t)
@@ -398,6 +672,19 @@ if njit is not None:
         When Numba is unavailable, the public ``render_space_frame`` name
         instead accepts arbitrary positional and keyword arguments and raises
         ``RuntimeError``.
+
+        :param width: frame width in pixels.
+        :param height: frame height in pixels.
+        :param t: elapsed animation time used to advance the flight.
+        :param speed: multiplier applied to the flight's forward motion.
+        :param offset_x: horizontal shift added to every pixel's scene
+            coordinate, which steers the flight's heading.
+        :param offset_y: vertical shift added likewise.
+        :param samples: ``1`` or less takes one sample at each pixel centre;
+            anything larger averages a ``samples`` x ``samples`` grid of
+            samples per pixel (item 531: it used to be 2 x 2 whatever the
+            number said).
+        :returns: ``(height, width, 3)`` uint8 RGB array.
         """
         out = np.empty((height, width, 3), dtype=np.uint8)
         denominator = float(min(width, height))
@@ -413,8 +700,11 @@ if njit is not None:
                     out[row, col, 2] = int(255.0 * b)
                 else:
                     ar = ag = ab = 0.0
-                    for oy in (0.25, 0.75):
-                        for ox in (0.25, 0.75):
+                    step = 1.0 / samples
+                    for sy in range(samples):
+                        for sx in range(samples):
+                            ox = step * (sx + 0.5)
+                            oy = step * (sy + 0.5)
                             x = (2.0 * (col + ox) - width) / denominator * 1.08
                             y = (height - 2.0 * (row + oy)) / denominator * 1.08
                             r, g, b = sample_space(x + offset_x,
@@ -422,10 +712,114 @@ if njit is not None:
                             ar += r
                             ag += g
                             ab += b
-                    out[row, col, 0] = int(255.0 * ar / 4.0)
-                    out[row, col, 1] = int(255.0 * ag / 4.0)
-                    out[row, col, 2] = int(255.0 * ab / 4.0)
+                    out[row, col, 0] = int(255.0 * ar / float(samples * samples))
+                    out[row, col, 1] = int(255.0 * ag / float(samples * samples))
+                    out[row, col, 2] = int(255.0 * ab / float(samples * samples))
         return out
+
+    @njit(cache=True, fastmath=True, inline="always")
+    def _atlas_texel(atlas, column: float, row: float, channel: int) -> float:
+        """Bilinear read of one channel of the galaxy atlas.
+
+        :param atlas: ``(size, size * count, 3)`` float32.
+        :param column: horizontal texel coordinate, pixel centres at ``.5``
+            removed by the caller.
+        :param row: vertical texel coordinate, likewise.
+        :param channel: 0, 1 or 2.
+        """
+        height = atlas.shape[0]
+        width = atlas.shape[1]
+        left = int(math.floor(column))
+        top = int(math.floor(row))
+        across = column - left
+        down = row - top
+        left = min(max(left, 0), width - 1)
+        top = min(max(top, 0), height - 1)
+        right = min(left + 1, width - 1)
+        bottom = min(top + 1, height - 1)
+        upper = (atlas[top, left, channel] * (1.0 - across)
+                 + atlas[top, right, channel] * across)
+        lower = (atlas[bottom, left, channel] * (1.0 - across)
+                 + atlas[bottom, right, channel] * across)
+        return upper * (1.0 - down) + lower * down
+
+    @njit(cache=True, parallel=True, fastmath=True, nogil=True)
+    def _add_galaxies(frame, t: float, offset_x: float, offset_y: float,
+                      galaxies, atlas) -> None:
+        """Lay the passing galaxies over a finished frame, in place.
+
+        Only each galaxy's own box of pixels is visited, so a frame with
+        four small galaxies costs almost nothing beyond the star field. The
+        pixel-to-scene mapping, the roll and the drift are the ones
+        `sample_space` uses, so a galaxy sits in the same sky as the stars.
+
+        :param frame: ``(height, width, 3)`` uint8, from `render_space_frame`.
+        :param t: the flight's clock.
+        :param offset_x: the pointer's horizontal heading offset.
+        :param offset_y: its vertical one.
+        :param galaxies: rows from :func:`_galaxies_at`.
+        :param atlas: the pictures, from :func:`_galaxy_atlas`.
+        """
+        height, width, _channels = frame.shape
+        denominator = float(min(width, height))
+        roll = 0.025 * math.sin(0.009 * t)
+        cs = math.cos(roll)
+        sn = math.sin(roll)
+        drift_x = 0.025 * math.sin(0.006 * t)
+        drift_y = 0.025 * math.cos(0.005 * t + 0.7)
+        size = atlas.shape[0]
+        for index in range(galaxies.shape[0]):
+            centre_x = galaxies[index, 0]
+            centre_y = galaxies[index, 1]
+            half = galaxies[index, 2]
+            brightness = galaxies[index, 3]
+            if brightness <= 0.0 or half <= 0.0:
+                continue
+            turn_cos = galaxies[index, 4]
+            turn_sin = galaxies[index, 5]
+            squash = max(galaxies[index, 6], 0.05)
+            sprite = galaxies[index, 7]
+            reach = 1.42 * half
+            back_x = centre_x - drift_x
+            back_y = centre_y - drift_y
+            screen_x = cs * back_x + sn * back_y
+            screen_y = -sn * back_x + cs * back_y
+            first_col = int(math.floor(((screen_x - reach - offset_x) / 1.08
+                                        * denominator + width) / 2.0 - 1.0))
+            last_col = int(math.ceil(((screen_x + reach - offset_x) / 1.08
+                                      * denominator + width) / 2.0))
+            first_row = int(math.floor((height - (screen_y + reach - offset_y)
+                                        / 1.08 * denominator) / 2.0 - 1.0))
+            last_row = int(math.ceil((height - (screen_y - reach - offset_y)
+                                      / 1.08 * denominator) / 2.0))
+            first_col = max(first_col, 0)
+            last_col = min(last_col, width - 1)
+            first_row = max(first_row, 0)
+            last_row = min(last_row, height - 1)
+            if first_col > last_col or first_row > last_row:
+                continue
+            for row in prange(first_row, last_row + 1):
+                y = (height - 2.0 * (row + 0.5)) / denominator * 1.08 \
+                    + offset_y
+                for col in range(first_col, last_col + 1):
+                    x = (2.0 * (col + 0.5) - width) / denominator * 1.08 \
+                        + offset_x
+                    px = cs * x - sn * y + drift_x
+                    py = sn * x + cs * y + drift_y
+                    dx = (px - centre_x) / half
+                    dy = (py - centre_y) / half
+                    local_x = turn_cos * dx + turn_sin * dy
+                    local_y = (-turn_sin * dx + turn_cos * dy) / squash
+                    if abs(local_x) >= 1.0 or abs(local_y) >= 1.0:
+                        continue
+                    column = (sprite + 0.5 + 0.5 * local_x) * size - 0.5
+                    texel_row = (0.5 + 0.5 * local_y) * size - 0.5
+                    for channel in range(3):
+                        light = _atlas_texel(atlas, column, texel_row,
+                                             channel)
+                        value = frame[row, col, channel] + 255.0 * light \
+                            * galaxies[index, 8 + channel] * brightness
+                        frame[row, col, channel] = min(255, int(value))
 
 else:
     def sample_space(*_args, **_kwargs):
@@ -452,6 +846,11 @@ class SpaceEngine:
 
     :param thread_count: worker threads numba may use.
 
+    `samples` is how many samples a side each pixel takes, set by the
+    widget from the Supersampling setting (item 531). ``None`` -- an engine
+    nobody configured -- keeps the old rule of two on a small frame and one
+    on a large one.
+
     The widget builds and calls every pattern engine the same way, so this
     takes the same arguments even where the scene has no use for one. A
     pattern that needed a different call would put a branch in the one place
@@ -466,6 +865,7 @@ class SpaceEngine:
             still works, it just shares the default pool.
         """
         self.thread_count = max(1, int(thread_count))
+        self.samples = None
         try:
             from numba import set_num_threads
 
@@ -501,9 +901,25 @@ class SpaceEngine:
         """
         offset_x = float(pointer_x) * float(pull) * 0.22 - float(push) * float(pointer_x) * 0.35
         offset_y = float(pointer_y) * float(pull) * 0.22 - float(push) * float(pointer_y) * 0.35
-        return render_space_frame(
+        frame = render_space_frame(
             max(1, int(width)), max(1, int(height)), float(t), float(speed),
-            float(offset_x), float(offset_y), self._samples(width, height))
+            float(offset_x), float(offset_y), self._samples_for(width, height))
+        galaxies = _galaxies_at(float(t), float(speed))
+        if (galaxies[:, 3] > 0.0).any():
+            _add_galaxies(frame, float(t), float(offset_x), float(offset_y),
+                          galaxies, _galaxy_atlas())
+        return frame
+
+    def _samples_for(self, width: int, height: int) -> int:
+        """The saved samples a side, or the size rule when none was given.
+
+        :param width: frame width in pixels.
+        :param height: frame height in pixels.
+        :returns: samples a side, at least one.
+        """
+        if self.samples is None:
+            return self._samples(width, height)
+        return max(1, int(self.samples))
 
     @staticmethod
     def _samples(width: int, height: int) -> int:

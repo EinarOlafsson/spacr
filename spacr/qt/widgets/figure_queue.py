@@ -14,6 +14,7 @@ figure required about 815 ms to rasterize synchronously.
 """
 from __future__ import annotations
 
+import functools
 import logging
 import shutil
 import sys
@@ -82,6 +83,10 @@ PDF_ZOOM_REFINE_RATIO = 1.6
 FIGURE_TEXT_SIZE_ATTR = "_spacr_text_size"
 
 
+PRINT_BACKGROUND = "#ffffff"
+PRINT_INK = "#000000"
+
+
 def figure_text_items(fig):
     """Return every text object attached to a Matplotlib figure.
 
@@ -109,7 +114,12 @@ def figure_text_items(fig):
 
 
 def figure_text_size_override(fig) -> int:
-    """The text size the user set on THIS figure, or 0 for "no override"."""
+    """The text size the user set on THIS figure, or 0 for "no override".
+
+    :param fig: a Matplotlib figure; the size is read from an attribute set
+        by :func:`set_figure_text_size_override`, and a missing or unreadable
+        value gives 0.
+    """
     try:
         return max(0, int(getattr(fig, FIGURE_TEXT_SIZE_ATTR, 0) or 0))
     except (TypeError, ValueError):
@@ -124,6 +134,11 @@ def set_figure_text_size_override(fig, size: int) -> None:
     :func:`render_figure_to_png`, which is the whole point: without it the
     next full render puts the global preference straight back over the user's
     choice, which is issue #108's "the font size has been returned to 10".
+
+    :param fig: the Matplotlib figure to tag; a figure that refuses the
+        attribute is logged and left alone.
+    :param size: text size in points; ``0`` (or a negative value) clears the
+        override.
     """
     try:
         setattr(fig, FIGURE_TEXT_SIZE_ATTR, max(0, int(size or 0)))
@@ -239,17 +254,24 @@ def _export_vector_pdf(fig, pdf_path: Path, dpi: int, bg: str) -> bool:
     user chose, and silently substituting a smaller one is the bug this
     function is fixing.
 
-    **The background stays the app theme's**, i.e. black under a dark theme.
-    That looks wrong for an export and is nevertheless right here. The PDF is
-    not only the export: :meth:`FigureQueue._request_pdf_refinement`
+    **The background is whatever the caller passes.** A graph the user SAVES
+    does not come here: :func:`render_figure_to_png` with ``for_print=True``
+    restyles a detached copy white-on-dark-ink (:data:`PRINT_BACKGROUND`,
+    :data:`PRINT_INK`) and writes it through :func:`spacr.plot.save_figure`
+    (:func:`_write_print_file`), the one writer for a file a user keeps. The
+    gallery's own sibling page written here keeps the app theme's colours, i.e. black
+    under a dark theme. That looks wrong for an export and is nevertheless
+    right for THAT page, because it is not an export: it :meth:`FigureQueue._request_pdf_refinement`
     rasterises this same file at 2200 px and swaps it in as the on-screen
     pixmap, so a white page would make every figure flash from dark to light a
     moment after it appeared. And a white page would not fix anything on its
     own — :func:`_style_figure_colors` has already painted the axes black and
     the labels white *on the Figure object*, so ``facecolor="white"`` alone
     yields black panels and white-on-white text, which is worse than a
-    consistent dark page. Restyling every artist for print is what the
-    "Figure settings…" dialog does, and it re-renders both files.
+    consistent dark page. That is why the print style works on a copy and
+    never on the figure the gallery or a canvas is showing: a print page is
+    written to the path the user chose, never beside a gallery PNG, so the pixmap
+    swap in :meth:`FigureQueue._request_pdf_refinement` can never pick one up.
 
     Returns True if the page was written.
     """
@@ -288,7 +310,82 @@ def _retry_on_a_fresh_canvas(fig, png_path, dpi, bg) -> bool:
         return False
 
 
-def render_figure_to_png(fig, png_path: str) -> bool:
+def _write_print_file(figure, path, fmt: str, dpi: int) -> str:
+    """Write one print-styled file through :func:`spacr.plot.save_figure`.
+
+    A graph the user saves is a file they keep, so it goes through the one
+    writer every kept figure goes through: TrueType fonts in a PDF, the DPI
+    passed even to a vector page, and the print mode that names a data
+    colour the white page has made illegible. The format and DPI are the
+    ones this save was asked for rather than the preference's, because the
+    save dialog has already chosen them. ``figure`` is already styled white
+    with dark ink, so the print repaint finds nothing to move.
+
+    :param figure: the detached, print-styled copy (or the figure itself
+        when it could not be copied).
+    :param path: destination; ``.png`` or ``.pdf``.
+    :param fmt: ``"png"`` or ``"pdf"``.
+    :param dpi: the resolution asked for, with no display cap.
+    :returns: the path written.
+    """
+    from ...plot import save_figure
+
+    return save_figure(figure, path, fmt=fmt, dpi=dpi, save_mode="print",
+                       announce_colours=False, bbox_inches="tight",
+                       facecolor=PRINT_BACKGROUND, transparent=False)
+
+
+def _render_print_copy(fig, png_path: str, dpi: int, text_size: int,
+                       write_pdf: bool, screen: tuple) -> bool:
+    """Write ``fig`` to ``png_path`` (and its sibling PDF) in the print style.
+
+    The styling happens on a detached copy (the same pickle round trip the
+    save-figure dialog uses), so the figure on screen is not touched at all.
+    A figure that cannot be copied is styled in place, written, and then put
+    back to ``screen`` -- the ``(bg, fg, line)`` the screen path would apply --
+    so the canvas is left as the screen path would leave it.
+
+    The PNG is written at the requested DPI with no display cap and an opaque
+    white page: the cap exists to keep a screen raster quick to decode, and
+    this file is not a screen raster.
+    """
+    from .save_figure_dialog import copy_figure
+
+    copy = copy_figure(fig)
+    target = copy if copy is not None else fig
+    try:
+        _style_figure_colors(target, PRINT_BACKGROUND, PRINT_INK, text_size,
+                             PRINT_INK)
+        try:
+            _write_print_file(target, png_path, "png", dpi)
+        except Exception as exc:
+            try:
+                from matplotlib.backends.backend_agg import FigureCanvasAgg
+                FigureCanvasAgg(target)
+                _write_print_file(target, png_path, "png", dpi)
+            except Exception:
+                LOG.info("print render failed: %s", exc)
+                return False
+        if write_pdf:
+            pdf_path = _sibling_pdf(png_path)
+            try:
+                _write_print_file(target, pdf_path, "pdf", dpi)
+            except Exception as exc:
+                LOG.warning("print PDF export failed for %s: %s",
+                            pdf_path, exc)
+                try:
+                    Path(pdf_path).unlink()
+                except OSError:
+                    pass
+        return True
+    finally:
+        if copy is None:
+            bg, fg, line = screen
+            _style_figure_colors(fig, bg, fg, text_size, line)
+
+
+def render_figure_to_png(fig, png_path: str, *, for_print: bool = False,
+                         write_pdf: Optional[bool] = None) -> bool:
     """Style ``fig`` per the app theme and save it as a display-capped PNG —
     plus, in PDF mode, a genuinely vector ``.pdf`` beside it
     (:func:`_export_vector_pdf`). Pure matplotlib — no Qt — so it is
@@ -310,6 +407,23 @@ def render_figure_to_png(fig, png_path: str) -> bool:
     its own results directory: those go through ``savefig`` calls in
     :mod:`spacr.plot`, :mod:`spacr.submodules` and friends, which hard-code
     their own format and DPI and never consult preferences at all.
+
+    :param fig: the Matplotlib figure; it is restyled in place with the
+        theme's colours and text size before saving.
+    :param png_path: destination PNG path; in PDF mode the ``.pdf`` is
+        written beside it with the same stem.
+    :param for_print: True for a graph the user is SAVING to a file. The
+        files get the white print style (:data:`PRINT_BACKGROUND`,
+        :data:`PRINT_INK`) whatever the screen theme, are written from a
+        detached copy so the figure on screen keeps its colours, and the PNG
+        is not display-capped. False (every gallery and canvas render) is
+        unchanged: theme colours, applied to ``fig`` itself. Decision
+        2026-09-25 (item 50): "saved graphs (PDF/PNG) get a WHITE PRINT STYLE
+        (white background, dark text/axes/lines) whatever the screen theme";
+        a file is opened by a PDF reader, a printer or a journal, and white
+        text on a transparent page disappears on every one of them.
+    :param write_pdf: whether to write the sibling PDF. ``None`` follows the
+        figure-format preference; a save dialog passes the user's choice.
     """
     with FIGURE_LOCK:
         try:
@@ -326,6 +440,10 @@ def render_figure_to_png(fig, png_path: str) -> bool:
             bg, fg, text_size = "#ffffff", "#000000", 0
             line = fg
         text_size = figure_text_size_override(fig) or text_size
+        pdf_wanted = (fmt == "pdf") if write_pdf is None else bool(write_pdf)
+        if for_print:
+            return _render_print_copy(fig, png_path, dpi, text_size,
+                                      pdf_wanted, (bg, fg, line))
         _style_figure_colors(fig, bg, fg, text_size, line)
         try:
             w_in, h_in = fig.get_size_inches()
@@ -342,7 +460,7 @@ def render_figure_to_png(fig, png_path: str) -> bool:
             if not _retry_on_a_fresh_canvas(fig, png_path, display_dpi, bg):
                 LOG.info("figure render failed: %s", e)
                 return False
-        if fmt == "pdf":
+        if pdf_wanted:
             _export_vector_pdf(fig, _sibling_pdf(png_path), dpi, bg)
         return True
 
@@ -373,6 +491,9 @@ def render_pdf_to_image(pdf_path: str, max_px: int = PDF_DISPLAY_MAX_PX,
     and is not an error: :class:`FigureQueue` deletes its temp directory when
     it closes, and a render already in flight is expected to survive that
     rather than raise on the worker thread.
+
+    :param pdf_path: path to the PDF; only its first page is rendered, scaled
+        so its longer side is ``max_px`` pixels.
     """
     try:
         from PySide6.QtCore import QEventLoop, QSize as _QSize, QTimer
@@ -481,7 +602,19 @@ class _ClearFiguresLabel(QLabel):
         """Light the text briefly, then return it to its resting colour."""
         self._flash.trigger()
         self._restyle()
-        QTimer.singleShot(FLASH_MS + 10, self._restyle)
+        QTimer.singleShot(FLASH_MS + 10, self._restyle_after_flash)
+
+    def _restyle_after_flash(self) -> None:
+        """Return to the resting colour once the flash has gone out.
+
+        Qt's coarse timers may fire this before the flash's own end timer,
+        which would repaint the accent again and leave it lit; until the
+        flash reports it is over, look again shortly.
+        """
+        if self._flash.active:
+            QTimer.singleShot(20, self._restyle_after_flash)
+            return
+        self._restyle()
 
     def mouseReleaseEvent(self, event):        # noqa: N802 (Qt naming)
         """Clear the figures on a click inside the label.
@@ -507,6 +640,39 @@ class _ClearFiguresLabel(QLabel):
             self.clicked.emit()
             return
         super().keyPressEvent(event)
+
+
+def _close_pyplot_figures(figures) -> None:
+    """Release Figures from pyplot's registry, which otherwise keeps them.
+
+    ``plt.figure`` registers every Figure with pyplot, and pyplot holds it
+    until ``plt.close`` -- long after the queue that showed it is gone.
+
+    :param figures: the Figures to release; errors on any one are ignored.
+    """
+    figures = tuple(figures)
+    if not figures:
+        return
+    try:
+        import matplotlib.pyplot as plt
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not import pyplot to close queued figures",
+                  exc_info=True)
+        return
+    for figure in figures:
+        try:
+            with FIGURE_LOCK:
+                plt.close(figure)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not close a queued figure", exc_info=True)
+
+
+def _release_queue_figures(figures, *_args) -> None:
+    """Release every Figure a destroyed queue still held.
+
+    :param figures: the queue's own ``{index: Figure}`` mapping.
+    """
+    _close_pyplot_figures(figures.values())
 
 
 class FigureQueue(QWidget):
@@ -540,6 +706,8 @@ class FigureQueue(QWidget):
         self._fig_index: Dict[int, int] = {}
         self._png_paths: Dict[int, str] = {}
         self._figures: "OrderedDict[int, object]" = OrderedDict()
+        self.destroyed.connect(
+            functools.partial(_release_queue_figures, self._figures))
         self._figure_last_used: Dict[int, float] = {}
         self._figure_bytes: Dict[int, int] = {}
         self._titles: Dict[int, str] = {}
@@ -666,11 +834,12 @@ class FigureQueue(QWidget):
         self._refresh_nav()
 
     def eventFilter(self, obj, event):
-        """Debounce the view's resizes into one re-render."""
-        # Qt can deliver an event here while the queue has no view -- before
-        # `_build_ui` made one, or while a teardown takes the widget apart --
-        # and an unguarded `self._view` raised inside the event loop. With no
-        # view there is nothing to debounce.
+        """Debounce the view's resizes into one re-render.
+
+        :param obj: the watched object; only the figure view is acted on.
+        :param event: the filtered event; a ``Resize`` of the view restarts
+            the resize timer, and every event is passed on to the base class.
+        """
         view = getattr(self, "_view", None)
         if view is not None and obj is view and event.type() == QEvent.Resize:
             timer = getattr(self, "_resize_timer", None)
@@ -743,6 +912,10 @@ class FigureQueue(QWidget):
         is saved with the run instead of living in a dialog that is about to
         close. Optional: a queue built in a test has none, and the button
         says so rather than doing nothing.
+
+        :param callback: called with a dict of setting key to value when the
+            figure settings window's Propagate is pressed; ``None`` (or any
+            non-callable) leaves Propagate with nothing to call.
         """
         self._propagate_cb = callback
 
@@ -795,6 +968,9 @@ class FigureQueue(QWidget):
 
         The view is deliberately not touched: the whole point of editing from
         the grid is that the grid stays put.
+
+        :param index: zero-based figure index in the queue; the figure on
+            screen is refreshed through :meth:`refresh_current_figure`.
         """
         index = int(index)
         if index == self._current:
@@ -909,7 +1085,11 @@ class FigureQueue(QWidget):
         ``prerendered_png`` is a PNG the pipeline bridge already rendered in a
         WORKER thread — when supplied we just adopt it (a fast file move + a
         cheap QPixmap load) instead of doing the expensive savefig on the GUI
-        thread, so the UI stays responsive while many figures stream in."""
+        thread, so the UI stays responsive while many figures stream in.
+
+        :param fig: the Matplotlib figure to append; recognised by object
+            identity, so the same object is never queued twice.
+        """
         if id(fig) in self._fig_index:
             idx = self._fig_index[id(fig)]
             if idx in self._figures:
@@ -1141,7 +1321,12 @@ class FigureQueue(QWidget):
                 out[index - count if index >= end else index] = value
             return out
 
-        self._figures = _shift(self._figures)
+        dropped = [figure for index, figure in self._figures.items()
+                   if start <= index < end]
+        shifted = _shift(self._figures)
+        self._figures.clear()
+        self._figures.update(shifted)
+        _close_pyplot_figures(dropped)
         self._titles = _shift(self._titles)
         self._png_paths = _shift(self._png_paths)
         self._ram = _shift(self._ram)
@@ -1269,18 +1454,7 @@ class FigureQueue(QWidget):
         """Drop everything and delete the temp dir."""
         self._shutdown_jobs()
         self._show_raster()
-        if self._figures:
-            try:
-                import matplotlib.pyplot as plt
-                for figure in tuple(self._figures.values()):
-                    try:
-                        plt.close(figure)
-                    except Exception:                         # noqa: BLE001
-                        LOG.debug("could not close a queued figure",
-                                  exc_info=True)
-            except Exception:                                # noqa: BLE001
-                LOG.debug("could not import pyplot to close queued figures",
-                          exc_info=True)
+        _close_pyplot_figures(self._figures.values())
         self._list.clear()
         self._ram.clear()
         self._ram_last_used.clear()
@@ -1482,6 +1656,9 @@ class FigureQueue(QWidget):
         at the widget's device resolution every time it changes size or zoom,
         so there is never a raster being stretched to fit. It is also what
         makes it fast -- looking at a figure costs no render at all.
+
+        :param fig: the Matplotlib figure to embed in a Qt canvas with its
+            navigation toolbar; the canvas already showing it is just redrawn.
         """
         if not self._live_canvas_enabled:
             return False
@@ -1535,6 +1712,9 @@ class FigureQueue(QWidget):
         or loaded from a PDF has no Figure to draw and can only be a picture.
         This makes that path reachable on demand, so the machinery that keeps
         it off the GUI thread stays under test.
+
+        :param enabled: ``False`` switches the view to the raster at once;
+            ``True`` allows the live canvas for the next figure shown.
         """
         self._live_canvas_enabled = bool(enabled)
         if not enabled:
@@ -1905,7 +2085,13 @@ class FigureQueue(QWidget):
         return rows
 
     def drop_cache_budget_entry(self, record_key) -> bool:
-        """Evict one policy-selected entry, rechecking its live-use pin."""
+        """Evict one policy-selected entry, rechecking its live-use pin.
+
+        :param record_key: ``(kind, index)`` pair, where kind is ``"figure"``
+            (a live Figure, spilled to disk) or ``"pixmap"`` (a cached
+            raster); the figure on screen, or a figure while a render is
+            running, is never evicted.
+        """
         kind, idx = record_key
         idx = int(idx)
         if idx == self._current:
@@ -2002,11 +2188,17 @@ class FigureQueue(QWidget):
 
         A query, not a use: it does not promote the entry, so asking whether
         something is live cannot change what gets evicted next.
+
+        :param idx: zero-based figure index in the queue.
         """
         return idx in self._figures
 
     def is_restorable(self, idx: int) -> bool:
-        """Whether ``idx`` can be made editable again from its spill."""
+        """Whether ``idx`` can be made editable again from its spill.
+
+        :param idx: zero-based figure index; true when it is live or its
+            pickled spill file exists.
+        """
         if idx in self._figures:
             return True
         path = self._spill_path(idx)
@@ -2022,6 +2214,9 @@ class FigureQueue(QWidget):
         thumbnail) has to be pointed at the new one together or the menu
         looks broken while the tile keeps the old picture.
 
+        :param idx: zero-based index of an existing figure in the queue;
+            out of range swaps nothing.
+        :param fig: the new Matplotlib figure; ``None`` swaps nothing.
         :returns: whether the swap happened.
         """
         index = int(idx)
@@ -2055,6 +2250,8 @@ class FigureQueue(QWidget):
         window is returned directly; one past it is unpickled, put back into
         the live set (so repeated edits do not re-read the disk) and the cap
         re-applied. Returns ``None`` only when the figure was never spillable.
+
+        :param idx: zero-based figure index in the queue.
         """
         if idx in self._figures:
             self._figures.move_to_end(idx)
@@ -2222,6 +2419,7 @@ class FigureQueue(QWidget):
         self._teardown_canvas()
         self._shutdown_jobs()
         self._delete_tempdir()
+        _close_pyplot_figures(self._figures.values())
         super().closeEvent(event)
 
     def __del__(self):

@@ -50,14 +50,17 @@
       "label": "spacr.qt.detect_chain#6",
       "source": "The Mask pipeline has separate preprocessing. :func:`spacr.object._preprocess_batch` applies rolling ball then CLAHE to organelle batches using ``organelle_rolling_ball`` and ``organelle_clahe``. The Mask settings ``remove_background``, ``background`` and ``signal_to_noise`` instead apply per-channel intensity floors. This Make Masks chain configures neither route.",
       "source_sha256": "33c80637d028a0791efe572c97b5b1108f0bf808c9a8b23a449ddfd79bdb5ad8",
-      "translation": "Mask-vinnslukeðjan hefur sérstaka forvinnslu. :func:`spacr.object._preprocess_batch` beitir rúllandi kúlu og síðan CLAHE á runur frumulíffæra með ``organelle_rolling_ball`` og ``organelle_clahe``. Mask-stillingarnar ``remove_background``, ``background`` og ``signal_to_noise`` beita hins vegar neðri styrkleikamörkum fyrir hverja rás. Þessi Make Masks-keðja stillir hvoruga þessara leiða."
+      "translation": "Mask-vinnslukeðjan hefur sérstaka forvinnslu. :func:`spacr.object._preprocess_batch` beitir rúllandi kúlu og síðan CLAHE á runur frumulíffæra með ``organelle_rolling_ball`` og ``organelle_clahe``. Mask-stillingarnar ``remove_background``, ``background`` og ``signal_to_noise`` beita hins vegar neðri styrkleikamörkum fyrir hverja rás. Þessi Make Masks-keðja stillir hvoruga þessara leiða.",
+      "retired": true,
+      "retired_reason": "2026-09-25: the English block this record translated is no longer in the docstring (the :param: pass or a later edit rewrote it); kept verbatim as evidence, not loaded."
     },
     {
       "context": "Enhancement changes the objects proposed for curation. Models trained on enhanced images require matching preprocessing at inference; this module does not configure the training or inference workflow.",
-      "label": "spacr.qt.detect_chain#7",
+      "label": "spacr.qt.detect_chain#9",
       "source": "Enhancement changes the objects proposed for curation. Models trained on enhanced images require matching preprocessing at inference; this module does not configure the training or inference pipeline.",
       "source_sha256": "814d002b8299c15c5ec9f976ca2a97626da81481bb6f258ae7a11a3d70f57b87",
-      "translation": "Myndbæting breytir hlutunum sem lagðir eru til yfirferðar. Líkön sem eru þjálfuð á bættum myndum þurfa samsvarandi forvinnslu við ályktun; þessi eining stillir hvorki þjálfunar- né ályktunarferlið."
+      "translation": "Myndbæting breytir hlutunum sem lagðir eru til yfirferðar. Líkön sem eru þjálfuð á bættum myndum þurfa samsvarandi forvinnslu við ályktun; þessi eining stillir hvorki þjálfunar- né ályktunarferlið.",
+      "rebound_from": "spacr.qt.detect_chain#7"
     },
     {
       "context": "The slowly varying background under ``image``, at ``image``'s size.",

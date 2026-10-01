@@ -99,7 +99,7 @@ def gini(x):
     """Return the Gini coefficient of ``x`` via the ranked-sum formulation.
 
     Reference: StatsDirect non-parametric methods
-    (http://www.statsdirect.com/help/default.htm#nonparametric_methods/gini.htm).
+    (https://www.statsdirect.com/help/nonparametric_methods/gini.htm).
 
     :param x: 1-D array-like; all values treated equally.
     :returns: Gini coefficient in ``[0, 1]``.

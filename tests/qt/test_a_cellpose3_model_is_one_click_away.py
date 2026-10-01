@@ -28,6 +28,12 @@ fails minutes after the click.
 """
 from __future__ import annotations
 
+from spacr.model_zoo import _mask_model_kinds
+
+#: What a Mask-generation model field asks the zoo for: Cellpose-SAM,
+#: Cellpose 3, Cellpose-DINO and each prefixed backend (items 551-553).
+MASK_KINDS = _mask_model_kinds()
+
 import pytest
 
 import spacr._segmentation_backends as SB
@@ -113,10 +119,10 @@ def test_the_per_object_model_cell_asks_for_the_cellpose3_kind():
 
 
 @pytest.mark.parametrize("key,expected", [
-    ("cell_model_name", ("cellpose", "cellpose3")),
-    ("nucleus_model_name", ("cellpose", "cellpose3")),
-    ("pathogen_model_name", ("cellpose", "cellpose3")),
-    ("organelleb_model_name", ("cellpose", "cellpose3")),
+    ("cell_model_name", MASK_KINDS),
+    ("nucleus_model_name", MASK_KINDS),
+    ("pathogen_model_name", MASK_KINDS),
+    ("organelleb_model_name", MASK_KINDS),
     ("plaque_model", ("cellpose",)),
     ("custom_model", ("cellpose",)),
     ("pathogen_model", ("cellpose",)),
@@ -187,7 +193,8 @@ def test_clicking_the_model_cell_and_pressing_use_writes_cyto3(
         qapp, qtbot, qt_theme_applied, monkeypatch, installed_cellpose3):
     """End to end through the real dialog: click the cell, the real picker
     opens with the real catalogue, cyto3's row is selected, "Use this model"
-    is pressed, and the setting the pipeline reads holds ``cyto3``."""
+    is pressed, and the setting the pipeline reads holds ``cellpose3:cyto3``
+    (item 503)."""
     from spacr.organelle_types import NUMBER_OF_ORGANELLES
     from spacr.settings import get_timelapse_settings
 
@@ -216,10 +223,12 @@ def test_clicking_the_model_cell_and_pressing_use_writes_cyto3(
     mapper = getattr(grid._table.model(), "mapFromSource", None)
     grid._table.clicked.emit(mapper(source) if mapper else source)
 
-    assert grid.settings()["cell_model_name"] == "cyto3"
-    assert seen["kinds"] == ObjectSettingsGrid.MODEL_KINDS
+    assert grid.settings()["cell_model_name"] == "cellpose3:cyto3", (
+        "item 503: a bare cyto3 is a retired Cellpose name that runs as "
+        "cpsam; the prefix is what sends the object to Cellpose 3")
+    assert seen["kinds"] == MASK_KINDS
     assert ("cyto3", "cellpose3") in seen["rows"]
-    assert grid.settings()["nucleus_model_name"] != "cyto3", (
+    assert grid.settings()["nucleus_model_name"] != "cellpose3:cyto3", (
         "picking for one object changed another")
 
 
@@ -276,9 +285,9 @@ def test_the_mask_panels_model_zoo_button_writes_cyto2(
     button.click()
 
     value = field.text() if hasattr(field, "text") else field.get_value()
-    assert value == "cyto2"
-    assert seen["kinds"] == ("cellpose", "cellpose3")
-    assert screen._settings_model.collect()["cell_model_name"] == "cyto2"
+    assert value == "cellpose3:cyto2"
+    assert seen["kinds"] == MASK_KINDS
+    assert screen._settings_model.collect()["cell_model_name"] == "cellpose3:cyto2"
 
 
 def test_the_plaque_panels_button_is_unchanged(qapp, qtbot, monkeypatch,

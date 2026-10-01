@@ -89,7 +89,9 @@ class StarplastInstallDialog(QDialog):
         self.status.setWordWrap(True)
         self.status.setTextFormat(Qt.PlainText)
         layout.addWidget(self.status)
-        self.progress = QProgressBar(self)
+        from .widgets.eliding import ProgressLine
+
+        self.progress = ProgressLine(self, detail=False)
         self.progress.hide()
         layout.addWidget(self.progress)
         self.details = QPlainTextEdit(self)
@@ -146,6 +148,9 @@ class StarplastInstallDialog(QDialog):
         """Display command output as plain text while retaining a bounded history."""
         self.progress.setRange(0, total)
         self.progress.setValue(step)
+        if total:
+            self.progress.setFormat(tr("step {step} of {steps}",
+                                       step=min(step + 1, total), steps=total))
         label, separator, output = text.partition(": ")
         self.status.setText((tr(label) + separator + output)[:300])
         self.details.appendPlainText(text)
@@ -213,6 +218,7 @@ class StarplastUpdateCheckDialog(QDialog):
         layout.addWidget(self.status)
         progress = QProgressBar(self)
         progress.setRange(0, 0)
+        progress.setTextVisible(False)
         layout.addWidget(progress)
         self.skip = QPushButton(tr("Open without checking"), self)
         self.skip.clicked.connect(self.reject)

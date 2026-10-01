@@ -39,6 +39,19 @@ Consumers of the journal:
   when present so bug reports are self-contained.
 * Home screen "Recent runs" list — enumerated from
   :func:`recent_runs` newest first.
+
+Beside the runs, the journal keeps two records for blinded work.
+:func:`start_blinding` writes a blinding key (coded names and a shuffled
+order) to ``~/.spacr/blinding`` and :func:`unblind` logs who opened it and
+when. :func:`lock_analysis` freezes an analysis plan, hashed and timestamped,
+in ``~/.spacr/analysis_locks`` (settings of one or more pipelines, Gate
+Editor gating strategies, models and files); every later run of a locked
+pipeline on its ``src`` is checked against it by
+:func:`check_analysis_lock`, every model the run records is checked as it is
+recorded, and the
+verdict is written into that run's ``manifest.json`` under
+``analysis_lock``, with any difference also listed in
+``provenance_warnings``.
 """
 from __future__ import annotations
 
@@ -586,6 +599,26 @@ class Run:
         default_factory=dict, repr=False,
     )
     _start_cpu_s: float = field(default_factory=time.process_time, repr=False)
+    _ledgers: List[Dict[str, Any]] = field(default_factory=list, repr=False)
+
+    def _note_ledger(self, ledger: Any) -> None:
+        """Remember a finished item ledger's counts for the run's summary.
+
+        Called when a :class:`spacr.errors.RunLedger` is finalized while this
+        run is open; the counts feed the run-finished notification. Never
+        raises: a summary line must not replace a result.
+
+        :param ledger: the finalized ledger.
+        """
+        try:
+            self._ledgers.append({
+                "name": str(getattr(ledger, "name", "run")),
+                "attempted": int(ledger.n_attempted),
+                "succeeded": int(ledger.n_succeeded),
+                "failed": int(ledger.n_failed),
+            })
+        except Exception:
+            LOG.debug("could not note an item ledger", exc_info=True)
 
     def record_model(self, name: str, checkpoint_path: Any) -> None:
         """Fingerprint ``checkpoint_path`` and remember it under ``name``.
@@ -597,6 +630,9 @@ class Run:
         checkpoint is only logged and leaves no entry at all; any other
         failure is also appended to ``provenance_warnings``, so it reaches
         ``manifest.json`` — model logging must never itself fail a run.
+        When an analysis lock applies to the run, the model is also checked
+        against it (see :func:`lock_analysis`), and the run's verdict is
+        updated.
         """
         try:
             p = Path(checkpoint_path)
@@ -607,6 +643,7 @@ class Run:
             if record:
                 record["path"] = str(p.resolve(strict=False))
                 self.model_files[name] = record
+            _check_model_for_run(self, name, p)
         except Exception as exc:
             warning = f"model {name!r} could not be recorded: {exc}"
             self.provenance_warnings.append(warning)
@@ -980,6 +1017,9 @@ class Run:
             "n_settings":    len(self.settings),
             "traceback":     self.error_traceback or None,
         }
+        lock = getattr(self, "_analysis_lock", None)
+        if lock:
+            manifest["analysis_lock"] = lock
         _atomic_write_text(
             self.dir / "manifest.json",
             json.dumps(manifest, indent=2, default=str, sort_keys=True),
@@ -1078,6 +1118,7 @@ def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
     run = Run(app_key=app_key, settings=dict(settings or {}),
                 dir=_new_run_dir(app_key))
     run.environment = _env_snapshot()
+    _check_lock_for_run(run)
     run._write_settings()
     run._capture_initial_provenance()
     run._write_manifest()
@@ -1119,8 +1160,596 @@ def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
         finish_recording(macro, status=run.status, settings=run.settings)
         LOG.info("run closed [%s] in %.1fs → %s",
                   run.status, run.end_ts - run.start_ts, run.dir)
+        _notify_run_finished(run)
 
 
+
+_NOTIFY_KEYRING_SERVICE = "spacr-notifications"
+"""Service name the run-finished notification secrets use in the OS keyring."""
+
+_NOTIFY_SECRET_NAMES = ("smtp_password", "slack_webhook", "ntfy_topic",
+                        "ntfy_token", "teams_webhook", "webhook_url",
+                        "webhook_token")
+"""The notification settings that are secrets and never leave the store."""
+
+_NOTIFY_TIMEOUT_S = 10.0
+"""Seconds any one notification channel may take before it is abandoned."""
+
+_DESKTOP_NOTIFIER: List[Any] = [None]
+"""The desktop sender the Qt app installs: ``fn(title, body, failed)``."""
+
+
+def _notify_secrets_path() -> Path:
+    """Return ``~/.spacr/notification_secrets.json``, the keyring fallback."""
+    return Path.home() / ".spacr" / "notification_secrets.json"
+
+
+def _notify_keyring() -> Any:
+    """The ``keyring`` module when a working OS keyring backs it, else None.
+
+    The fail and null backends, which keyring picks when the system has no
+    secret service, count as no keyring.
+    """
+    try:
+        import keyring
+
+        backend = keyring.get_keyring()
+        if float(getattr(backend, "priority", 1) or 0) <= 0:
+            return None
+        if type(backend).__module__.endswith((".fail", ".null")):
+            return None
+        return keyring
+    except Exception:
+        return None
+
+
+def _read_notify_secret_file(path: Optional[Path] = None) -> Dict[str, str]:
+    """The secrets in a mode-600 secret file, or an empty dict.
+
+    :param path: the file; the notification secret file when ``None``.
+    """
+    try:
+        path = Path(path) if path is not None else _notify_secrets_path()
+        if not path.is_file():
+            return {}
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(data, dict):
+            return {}
+        return {str(k): str(v) for k, v in data.items() if v}
+    except Exception:
+        LOG.debug("could not read the notification secret file")
+        return {}
+
+
+def _write_notify_secret_file(values: Dict[str, str],
+                              path: Optional[Path] = None) -> None:
+    """Write a secret file readable by its owner only (mode 600).
+
+    The file is created with mode 600 before anything is written to it and
+    replaces the old one in one step; with nothing left to keep it is
+    removed.
+
+    :param values: secret name to value.
+    :param path: the file; the notification secret file when ``None``.
+    """
+    path = Path(path) if path is not None else _notify_secrets_path()
+    kept = {k: v for k, v in values.items() if v}
+    if not kept:
+        try:
+            path.unlink()
+        except FileNotFoundError:
+            pass
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(f".{path.name}.{uuid.uuid4().hex[:8]}")
+    descriptor = os.open(str(temporary),
+                         os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+            json.dump(kept, handle)
+        os.chmod(temporary, 0o600)
+        os.replace(temporary, path)
+    except BaseException:
+        try:
+            temporary.unlink()
+        except OSError:
+            pass
+        raise
+
+
+def _store_notify_secret(name: str, value: str) -> str:
+    """Keep one notification secret, in the OS keyring when there is one.
+
+    Without a usable keyring the secret goes to
+    ``~/.spacr/notification_secrets.json``, mode 600. An empty value forgets
+    the secret in both places. The value is never logged.
+
+    :param name: one of ``_NOTIFY_SECRET_NAMES``.
+    :param value: the secret.
+    :returns: ``"keyring"``, ``"file"`` or ``"forgotten"``.
+    :raises ValueError: for a name that is not a notification secret.
+    """
+    if name not in _NOTIFY_SECRET_NAMES:
+        raise ValueError(f"unknown notification secret {name!r}")
+    value = str(value or "")
+    stored = _read_notify_secret_file()
+    ring = _notify_keyring()
+    if not value:
+        if stored.pop(name, None) is not None:
+            _write_notify_secret_file(stored)
+        if ring is not None:
+            try:
+                ring.delete_password(_NOTIFY_KEYRING_SERVICE, name)
+            except Exception:
+                LOG.debug("no keyring entry to forget")
+        return "forgotten"
+    if ring is not None:
+        try:
+            ring.set_password(_NOTIFY_KEYRING_SERVICE, name, value)
+            if stored.pop(name, None) is not None:
+                _write_notify_secret_file(stored)
+            return "keyring"
+        except Exception as exc:
+            LOG.info("the OS keyring refused a notification secret (%s); "
+                     "keeping it in %s", type(exc).__name__,
+                     _notify_secrets_path())
+    stored[name] = value
+    _write_notify_secret_file(stored)
+    return "file"
+
+
+def _load_notify_secret(name: str) -> str:
+    """Read one notification secret: the OS keyring first, then the file.
+
+    :param name: one of ``_NOTIFY_SECRET_NAMES``.
+    :returns: the secret, or an empty string when none is stored.
+    """
+    ring = _notify_keyring()
+    if ring is not None:
+        try:
+            value = ring.get_password(_NOTIFY_KEYRING_SERVICE, name)
+            if value:
+                return str(value)
+        except Exception:
+            LOG.debug("the OS keyring could not be read")
+    return _read_notify_secret_file().get(name, "")
+
+
+def _notification_config() -> Optional[Dict[str, Any]]:
+    """The run-finished notification settings from Preferences, or None.
+
+    None when notifications are off, when no channel is ready, when the
+    Show alpha features gate hides them, and when this install cannot read
+    Preferences at all.
+    """
+    try:
+        from .qt.preferences import _run_notification_config
+    except Exception:
+        LOG.debug("no Preferences to read notification settings from")
+        return None
+    try:
+        return _run_notification_config()
+    except Exception:
+        LOG.debug("could not read the notification settings", exc_info=True)
+        return None
+
+
+def _notify_duration(seconds: float) -> str:
+    """Say a run's wall time the way a person would, e.g. ``1 h 02 min``."""
+    seconds = max(0.0, float(seconds or 0.0))
+    if seconds < 60:
+        return f"{seconds:.0f} s"
+    minutes, secs = divmod(int(round(seconds)), 60)
+    if minutes < 60:
+        return f"{minutes} min {secs:02d} s"
+    hours, minutes = divmod(minutes, 60)
+    return f"{hours} h {minutes:02d} min"
+
+
+def _notify_output_pointer(run: "Run") -> str:
+    """Where the run's results are: its report, destination or source."""
+    settings = run.settings or {}
+    for key in ("report_path", "dst", "src"):
+        value = settings.get(key)
+        if isinstance(value, (list, tuple)):
+            value = value[0] if value else None
+        if value not in (None, ""):
+            return str(value)
+    return ""
+
+
+def _run_qc_summary(run: "Run") -> List[str]:
+    """Short QC lines for a run: items processed, failures and key numbers.
+
+    Read from what the run recorded -- finalized item ledgers, stage states
+    and numeric stage metrics, warnings and hashed outputs; nothing is
+    recomputed.
+
+    :param run: the finished run.
+    :returns: lines of text, possibly none.
+    """
+    lines: List[str] = []
+    for ledger in run._ledgers[:6]:
+        lines.append(
+            f"{ledger['name']}: {ledger['succeeded']} of "
+            f"{ledger['attempted']} items processed, "
+            f"{ledger['failed']} failed")
+    if run.stages:
+        states: Dict[str, int] = {}
+        for stage in run.stages:
+            state = str(stage.get("state") or "pending")
+            states[state] = states.get(state, 0) + 1
+        lines.append("Stages: " + ", ".join(
+            f"{count} {state}" for state, count in sorted(states.items())))
+        numbers = []
+        for stage in run.stages:
+            for name, value in (stage.get("metrics") or {}).items():
+                if isinstance(value, bool) or not isinstance(
+                        value, (int, float)):
+                    continue
+                label = stage.get("label") or stage.get("id")
+                shown = (f"{value:g}" if isinstance(value, float)
+                         else str(value))
+                numbers.append(f"{label} {name}: {shown}")
+        lines.extend(numbers[:6])
+    if run.run_warnings:
+        lines.append(f"Warnings: {len(run.run_warnings)}")
+    if run.output_hashes:
+        lines.append(f"Output files recorded: {len(run.output_hashes)}")
+    return lines
+
+
+def _run_notification_message(run: "Run") -> Dict[str, Any]:
+    """The title and body a finished or failed run is announced with.
+
+    :param run: the closed run.
+    :returns: ``{"title", "body", "failed"}``.
+    """
+    failed = run.status == "failed"
+    outcome = "failed" if failed else "finished"
+    name = run.app_key or "run"
+    elapsed = (run.end_ts or time.time()) - run.start_ts
+    lines = [
+        f"Run: {name} ({run.dir.name})",
+        f"Outcome: {outcome}",
+        f"Duration: {_notify_duration(elapsed)}",
+    ]
+    if failed:
+        error = [line.strip() for line in
+                 (run.error_traceback or "").splitlines() if line.strip()]
+        if error:
+            lines.append(f"Error: {error[-1][:300]}")
+    lines.extend(_run_qc_summary(run))
+    output = _notify_output_pointer(run)
+    if output:
+        lines.append(f"Output: {output}")
+    lines.append(f"Run record: {run.dir}")
+    return {"title": f"spaCR run {outcome}: {name}",
+            "body": "\n".join(lines), "failed": failed}
+
+
+def _notify_scrub(text: Any, secrets: Iterable[str]) -> str:
+    """``text`` with every secret replaced by ``***``, for a log line."""
+    out = str(text)
+    for secret in secrets:
+        if secret and len(secret) >= 3:
+            out = out.replace(secret, "***")
+    return out
+
+
+def _notify_http_post(url: str, data: bytes,
+                      headers: Dict[str, str]) -> int:
+    """POST ``data`` to an http(s) ``url`` and return the status code.
+
+    :raises ValueError: for any other scheme.
+    :raises RuntimeError: for a response outside 2xx.
+    """
+    import urllib.request
+    from urllib.parse import urlparse
+
+    if urlparse(url).scheme not in ("http", "https"):
+        raise ValueError("the address must start with http:// or https://")
+    request = urllib.request.Request(url, data=data, headers=headers,
+                                     method="POST")
+    with urllib.request.urlopen(request, timeout=_NOTIFY_TIMEOUT_S) as reply:
+        status = int(getattr(reply, "status", 200) or 200)
+    if not 200 <= status < 300:
+        raise RuntimeError(f"the server answered {status}")
+    return status
+
+
+def _notify_by_email(message: Dict[str, Any], notify: Dict[str, Any],
+                     password: str) -> None:
+    """Send the message over SMTP (STARTTLS, SSL or plain, as configured)."""
+    import smtplib
+    import ssl
+    from email.message import EmailMessage
+
+    host = str(notify.get("smtp_host") or "").strip()
+    recipients = [part.strip() for part in
+                  re.split(r"[,;\s]+", str(notify.get("email_to") or ""))
+                  if part.strip()]
+    if not host or not recipients:
+        raise ValueError("an SMTP server and a recipient are needed")
+    port = int(notify.get("smtp_port") or 587)
+    security = str(notify.get("smtp_security") or "starttls")
+    user = str(notify.get("smtp_user") or "").strip()
+    sender = (str(notify.get("email_from") or "").strip() or user
+              or recipients[0])
+    mail = EmailMessage()
+    mail["Subject"] = message["title"]
+    mail["From"] = sender
+    mail["To"] = ", ".join(recipients)
+    mail.set_content(message["body"])
+    context = ssl.create_default_context()
+    if security == "ssl":
+        server = smtplib.SMTP_SSL(host, port, timeout=_NOTIFY_TIMEOUT_S,
+                                  context=context)
+    else:
+        server = smtplib.SMTP(host, port, timeout=_NOTIFY_TIMEOUT_S)
+    with server:
+        if security == "starttls":
+            server.starttls(context=context)
+        if user and password:
+            server.login(user, password)
+        server.send_message(mail)
+
+
+def _notify_by_slack(message: Dict[str, Any], webhook: str) -> None:
+    """Post the message to a Slack incoming webhook."""
+    if not webhook:
+        raise ValueError("no Slack webhook address is saved")
+    payload = {"text": f"*{message['title']}*\n{message['body']}"}
+    _notify_http_post(webhook, json.dumps(payload).encode("utf-8"),
+                      {"Content-Type": "application/json"})
+
+
+def _notify_by_teams(message: Dict[str, Any], webhook: str) -> None:
+    """Post an Adaptive Card to a Microsoft Teams workflow webhook.
+
+    :param message: the notification's ``title``, ``body`` and ``failed``.
+    :param webhook: the URL of a workflow allowing anyone to call it.
+    :returns: ``None`` after the server accepts the card.
+    :raises ValueError: when no webhook address is supplied.
+    """
+    if not webhook:
+        raise ValueError("no Teams webhook address is saved")
+    body = [{"type": "TextBlock", "text": message["title"],
+             "weight": "Bolder", "wrap": True}]
+    body.extend({"type": "TextBlock", "text": line, "wrap": True,
+                 "spacing": "Small"}
+                for line in message["body"].splitlines() if line)
+    payload = {
+        "type": "message",
+        "attachments": [{
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "contentUrl": None,
+            "content": {
+                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                "type": "AdaptiveCard", "version": "1.2", "body": body,
+            },
+        }],
+    }
+    _notify_http_post(webhook, json.dumps(payload).encode("utf-8"),
+                      {"Content-Type": "application/json"})
+
+
+def _notify_by_webhook(message: Dict[str, Any], webhook: str,
+                       token: str) -> None:
+    """POST the notification as JSON to a generic webhook.
+
+    :param message: the notification's ``title``, ``body`` and ``failed``.
+    :param webhook: the receiving HTTP or HTTPS URL.
+    :param token: optional bearer token for the receiving service.
+    :returns: ``None`` after the server accepts the notification.
+    :raises ValueError: when no webhook address is supplied.
+    """
+    if not webhook:
+        raise ValueError("no webhook address is saved")
+    payload = {"title": message["title"], "body": message["body"],
+               "failed": bool(message["failed"])}
+    headers = {"Content-Type": "application/json"}
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    _notify_http_post(webhook, json.dumps(payload).encode("utf-8"), headers)
+
+
+def _notify_by_ntfy(message: Dict[str, Any], notify: Dict[str, Any],
+                    topic: str, token: str) -> None:
+    """Publish the message to an ntfy topic."""
+    from email.header import Header
+    from urllib.parse import quote
+
+    if not topic:
+        raise ValueError("no ntfy topic is saved")
+    server = str(notify.get("ntfy_server") or "https://ntfy.sh").rstrip("/")
+    title = message["title"]
+    if not title.isascii():
+        title = Header(title, "utf-8").encode()
+    headers = {
+        "Title": title,
+        "Tags": "x" if message["failed"] else "white_check_mark",
+        "Priority": "high" if message["failed"] else "default",
+        "Content-Type": "text/plain; charset=utf-8",
+    }
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    _notify_http_post(f"{server}/{quote(topic, safe='')}",
+                      message["body"].encode("utf-8"), headers)
+
+
+def _desktop_os_notify(title: str, body: str) -> None:
+    """Show a desktop notification without Qt: notify-send or osascript.
+
+    :raises RuntimeError: when this system offers neither.
+    """
+    if sys.platform.startswith("linux"):
+        program = shutil.which("notify-send")
+        if program:
+            subprocess.run([program, "--app-name=spaCR", title, body],
+                           stdin=subprocess.DEVNULL, capture_output=True,
+                           timeout=_NOTIFY_TIMEOUT_S, check=False)
+            return
+    if sys.platform == "darwin":
+        def quoted(text: str) -> str:
+            """``text`` as an AppleScript string literal on one line."""
+            text = text.replace("\\", "\\\\").replace('"', '\\"')
+            return '"' + " ".join(text.splitlines()) + '"'
+
+        subprocess.run(
+            ["osascript", "-e",
+             f"display notification {quoted(body)} with title {quoted(title)}"],
+            stdin=subprocess.DEVNULL, capture_output=True,
+            timeout=_NOTIFY_TIMEOUT_S, check=False)
+        return
+    raise RuntimeError("no desktop notification service on this system")
+
+
+def _notify_by_desktop(message: Dict[str, Any]) -> None:
+    """Show the message on this computer's desktop.
+
+    In the app, the notifier it installed shows it from the tray; elsewhere
+    the operating system's own notification command is used.
+    """
+    notifier = _DESKTOP_NOTIFIER[0]
+    if notifier is not None:
+        notifier(message["title"], message["body"], bool(message["failed"]))
+        return
+    _desktop_os_notify(message["title"], message["body"])
+
+
+def _send_notification(message: Dict[str, Any],
+                       notify: Dict[str, Any]) -> Dict[str, str]:
+    """Send one message by every channel ``notify`` switches on.
+
+    Every channel is tried whatever happened to the ones before it. A
+    failure is logged with every secret masked, and is returned rather than
+    raised.
+
+    :param message: ``{"title", "body", "failed"}``.
+    :param notify: the notification settings, as
+        :func:`_notification_config` returns them; an optional ``secrets``
+        dict supplies secrets to try instead of the stored ones.
+    :returns: channel name to ``"sent"`` or a short failure reason.
+    """
+    secrets: Dict[str, str] = {}
+    results: Dict[str, str] = {}
+
+    def secret(name: str) -> str:
+        """The secret supplied to try, else the stored one."""
+        if name not in secrets:
+            given = (notify.get("secrets") or {}).get(name)
+            secrets[name] = str(given) if given else _load_notify_secret(name)
+        return secrets[name]
+
+    channels = []
+    if notify.get("desktop"):
+        channels.append(("desktop", lambda: _notify_by_desktop(message)))
+    if notify.get("email"):
+        channels.append(("email", lambda: _notify_by_email(
+            message, notify, secret("smtp_password"))))
+    if notify.get("slack"):
+        channels.append(("slack", lambda: _notify_by_slack(
+            message, secret("slack_webhook"))))
+    if notify.get("ntfy"):
+        channels.append(("ntfy", lambda: _notify_by_ntfy(
+            message, notify, secret("ntfy_topic"), secret("ntfy_token"))))
+    if notify.get("teams"):
+        channels.append(("teams", lambda: _notify_by_teams(
+            message, secret("teams_webhook"))))
+    if notify.get("webhook"):
+        channels.append(("webhook", lambda: _notify_by_webhook(
+            message, secret("webhook_url"), secret("webhook_token"))))
+    for name, send in channels:
+        try:
+            send()
+            results[name] = "sent"
+        except Exception as exc:
+            reason = _notify_scrub(f"{type(exc).__name__}: {exc}",
+                                   secrets.values())
+            results[name] = reason
+            LOG.warning("run notification by %s failed: %s", name, reason)
+    return results
+
+
+def _dispatch_notification(message: Dict[str, Any],
+                           notify: Dict[str, Any]) -> threading.Thread:
+    """Send ``message`` on a thread of its own and return that thread.
+
+    Not a daemon thread: a command-line run that has just finished waits
+    for its notification, each channel for at most ``_NOTIFY_TIMEOUT_S``,
+    rather than exiting before it is sent. The results land on the
+    thread's ``results`` dict.
+
+    :param message: ``{"title", "body", "failed"}``.
+    :param notify: the notification settings.
+    :returns: the started thread.
+    """
+    results: Dict[str, str] = {}
+
+    def work() -> None:
+        """Send, and keep what happened."""
+        try:
+            results.update(_send_notification(message, notify))
+        except Exception:
+            LOG.debug("the notification thread failed", exc_info=True)
+
+    thread = threading.Thread(target=work, name="spacr-run-notification")
+    thread.results = results
+    thread.start()
+    return thread
+
+
+def _notify_run_finished(run: "Run") -> Optional[threading.Thread]:
+    """Announce a finished or failed run, if Preferences asks for it.
+
+    A cancelled run is not announced: the person who stopped it knows. A
+    run shorter than the configured minimum is not either, and neither is
+    a finished run when only failures are asked for. Nothing here raises
+    or waits for the network: the sending happens on its own thread.
+
+    :param run: the run :func:`open_run` has just closed.
+    :returns: the sending thread, or None when nothing is sent.
+    """
+    try:
+        if run.status not in ("success", "failed"):
+            return None
+        notify = _notification_config()
+        if not notify:
+            return None
+        if run.status == "success" and notify.get("when") == "failed":
+            return None
+        elapsed = (run.end_ts or time.time()) - run.start_ts
+        if elapsed < float(notify.get("min_minutes") or 0) * 60.0:
+            return None
+        return _dispatch_notification(_run_notification_message(run),
+                                      notify)
+    except Exception:
+        LOG.debug("could not send the run-finished notification",
+                  exc_info=True)
+        return None
+
+
+
+def _note_ledger_on_the_open_run(ledger: Any) -> None:
+    """Hand a finalized item ledger to the run open on this thread, if any."""
+    run = current_run()
+    if run is not None:
+        run._note_ledger(ledger)
+
+
+def _listen_for_ledgers() -> None:
+    """Have every finalized :class:`spacr.errors.RunLedger` reach the run."""
+    try:
+        from .errors import _FINALIZE_LISTENERS
+
+        if _note_ledger_on_the_open_run not in _FINALIZE_LISTENERS:
+            _FINALIZE_LISTENERS.append(_note_ledger_on_the_open_run)
+    except Exception:
+        LOG.debug("could not listen for item ledgers", exc_info=True)
+
+
+_listen_for_ledgers()
 
 def _run_dir_names(root: Path) -> List[str]:
     """Every run-folder name under ``root``, from ONE directory read.
@@ -1974,3 +2603,951 @@ def format_run_diff(diff: Dict[str, Any], max_drift_names: int = 6) -> str:
     else:
         lines.append("Schema drift: none — both runs share the same keys")
     return "\n".join(lines)
+
+
+_BLIND_CODE_PREFIX = "B"
+_LOCK_IGNORED_KEYS = frozenset({"hash_inputs"})
+_LOCK_FILE_KEY_PARTS = ("model", "gate", "checkpoint", "weights", "threshold")
+#: A JSON file larger than this is not read as a Gate Editor gating strategy.
+_GATE_FILE_MAX_BYTES = 16 * 1024 * 1024
+_LOCK_STATUS_WORDS = {
+    "verified": "verified, the run matches it",
+    "deviation": "DEVIATION, changed since the lock",
+    "post_hoc": "POST-HOC, changed after the key was unblinded",
+    "tampered": "TAMPERED, the lock file no longer matches its own hash",
+    "not_preregistered": "NOT PREREGISTERED, locked after the key had "
+                         "been unblinded",
+}
+
+
+def _blinding_root() -> Path:
+    """Where blinding keys and their logs live, beside the run journal."""
+    root = runs_root().parent / "blinding"
+    root.mkdir(parents=True, exist_ok=True)
+    return root
+
+
+def _locks_root() -> Path:
+    """Where preregistered analysis locks live, beside the run journal."""
+    root = runs_root().parent / "analysis_locks"
+    root.mkdir(parents=True, exist_ok=True)
+    return root
+
+
+def _who() -> str:
+    """``user@host`` for the person at this computer, as far as it is known."""
+    try:
+        import getpass
+        user = getpass.getuser()
+    except Exception:
+        user = os.environ.get("USER") or os.environ.get("USERNAME") or ""
+    host = platform.node() or ""
+    return f"{user or 'unknown'}@{host}" if host else (user or "unknown")
+
+
+def _utc_now() -> str:
+    """The current time as an ISO 8601 UTC string, to the microsecond."""
+    return datetime.now(timezone.utc).isoformat(timespec="microseconds")
+
+
+def _record_id() -> str:
+    """A sortable, unique name for a key or a lock file."""
+    return (datetime.now(timezone.utc).strftime("%Y-%m-%d_%H%M%S_%f")
+            + "_" + uuid.uuid4().hex[:8])
+
+
+def _scope_path(src: Any) -> str:
+    """``src`` as an absolute, normalised path, or empty when there is none."""
+    text = str(src or "").strip()
+    if not text:
+        return ""
+    return os.path.normcase(os.path.abspath(os.path.expanduser(text)))
+
+
+def _paths_overlap(a: str, b: str) -> bool:
+    """Whether two scope paths are the same folder or one holds the other."""
+    if not a or not b:
+        return False
+    if a == b:
+        return True
+    return a.startswith(b.rstrip(os.sep) + os.sep) or b.startswith(
+        a.rstrip(os.sep) + os.sep)
+
+
+def _append_blinding_event(key_id: str, event: Dict[str, Any]) -> None:
+    """Append one event to a key's log, one JSON object per line."""
+    path = _blinding_root() / f"{key_id}.log.jsonl"
+    with open(path, "a", encoding="utf-8") as handle:
+        handle.write(json.dumps(event, sort_keys=True, default=str) + "\n")
+
+
+def _blinding_events(key_id: str) -> List[Dict[str, Any]]:
+    """Every event recorded for a blinding key, oldest first.
+
+    :param key_id: the key's id, as :func:`start_blinding` returned it.
+    :returns: dicts with ``event`` (``blinded``, ``unblinded`` or
+        ``closed``), ``utc`` and ``who``, plus whatever the event carried;
+        an empty list for a key without a log.
+    """
+    path = _blinding_root() / f"{Path(str(key_id)).name}.log.jsonl"
+    events: List[Dict[str, Any]] = []
+    if not path.is_file():
+        return events
+    for line in path.read_text(encoding="utf-8").splitlines():
+        try:
+            event = json.loads(line)
+        except ValueError:
+            continue
+        if isinstance(event, dict):
+            events.append(event)
+    return events
+
+
+def _read_blinding_key(key_id: str) -> Dict[str, Any]:
+    """The stored key, or ``FileNotFoundError`` naming the id."""
+    path = _blinding_root() / f"{Path(str(key_id)).name}.json"
+    if not path.is_file():
+        raise FileNotFoundError(f"no blinding key {key_id!r} in {path.parent}")
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def start_blinding(items: Iterable[Any], *, scope: str, src: Any = "",
+                   seed: Optional[int] = None) -> Dict[str, Any]:
+    """Shuffle ``items`` under coded names and keep the key away from them.
+
+    Blind scoring: the person scoring sees each item only by its code
+    (``B0001``, ``B0002`` and so on, numbered in the shuffled order) and in
+    that order, so neither a name nor its neighbours say which plate, well
+    or condition it came from. The key that maps codes back to items is
+    written to ``~/.spacr/blinding/<key id>.json``, outside the data
+    folder, and every later event on it (unblinding, closing) is appended
+    to ``<key id>.log.jsonl`` with who did it and when.
+
+    :param items: the things being scored, such as crop paths or image
+        files; repeats are kept once, in first-seen order.
+    :param scope: what is being scored, such as ``"annotate"``; stored with
+        the key.
+    :param src: the experiment folder the items belong to. Analysis locks
+        on the same folder read this key's unblinding record.
+    :param seed: the shuffle's seed; a random one is drawn and stored when
+        omitted, so the order can be rebuilt from the key.
+    :returns: ``key_id``, ``order`` (the items, shuffled) and ``codes``
+        (``{item: code}``).
+    """
+    order = list(dict.fromkeys(str(item) for item in items))
+    if seed is None:
+        seed = random.SystemRandom().randrange(2 ** 32)
+    random.Random(int(seed)).shuffle(order)
+    width = max(4, len(str(len(order))))
+    codes = {item: f"{_BLIND_CODE_PREFIX}{index + 1:0{width}d}"
+             for index, item in enumerate(order)}
+    key_id = _record_id()
+    record = {
+        "key_id": key_id,
+        "scope": str(scope),
+        "src": _scope_path(src),
+        "created_utc": _utc_now(),
+        "created_by": _who(),
+        "seed": int(seed),
+        "n_items": len(order),
+        "order": order,
+        "codes": codes,
+    }
+    _atomic_write_text(_blinding_root() / f"{key_id}.json",
+                       json.dumps(record, indent=1, sort_keys=True))
+    _append_blinding_event(key_id, {
+        "event": "blinded", "utc": record["created_utc"],
+        "who": record["created_by"], "scope": record["scope"],
+        "src": record["src"], "n_items": len(order)})
+    return {"key_id": key_id, "order": order, "codes": codes}
+
+
+def unblind(key_id: str, *, reason: str = "") -> Dict[str, str]:
+    """Open a blinding key, and record who opened it and when.
+
+    The record is appended to the key's log before the key is returned, so
+    the identities cannot be read through this call without leaving the
+    record. An analysis lock on the same folder treats a difference found
+    after this moment as post-hoc.
+
+    :param key_id: the key's id, as :func:`start_blinding` returned it.
+    :param reason: why it was opened; stored with the record.
+    :returns: ``{code: item}``.
+    :raises FileNotFoundError: when there is no such key.
+    """
+    record = _read_blinding_key(key_id)
+    _append_blinding_event(record["key_id"], {
+        "event": "unblinded", "utc": _utc_now(), "who": _who(),
+        "reason": str(reason or ""), "scope": record.get("scope", ""),
+        "src": record.get("src", "")})
+    return {code: item for item, code in (record.get("codes") or {}).items()}
+
+
+def _close_blinding(key_id: str, *, reason: str = "") -> None:
+    """Record that a blinded session ended without opening the key."""
+    try:
+        record = _read_blinding_key(key_id)
+    except (FileNotFoundError, ValueError):
+        return
+    _append_blinding_event(record["key_id"], {
+        "event": "closed", "utc": _utc_now(), "who": _who(),
+        "reason": str(reason or ""), "src": record.get("src", "")})
+
+
+def _unblinding_times(src: Any) -> List[str]:
+    """When any key on ``src``, or on a folder in or around it, was unblinded.
+
+    :param src: the experiment folder.
+    :returns: ISO UTC times, oldest first.
+    """
+    scope = _scope_path(src)
+    times: List[str] = []
+    if not scope:
+        return times
+    for path in sorted(_blinding_root().glob("*.log.jsonl")):
+        key_id = path.name[:-len(".log.jsonl")]
+        for event in _blinding_events(key_id):
+            if (event.get("event") == "unblinded"
+                    and _paths_overlap(scope, str(event.get("src") or ""))):
+                times.append(str(event.get("utc") or ""))
+    return sorted(t for t in times if t)
+
+
+def _lock_settings(settings: Dict[str, Any]) -> Dict[str, Any]:
+    """The settings a lock records: JSON-safe, without run-only switches."""
+    kept = {str(k): v for k, v in (settings or {}).items()
+            if not str(k).startswith("_") and str(k) not in _LOCK_IGNORED_KEYS}
+    return json.loads(json.dumps(kept, sort_keys=True, default=str))
+
+
+def _existing_file(value: Any) -> Optional[Path]:
+    """``value`` as a path to an existing file, or ``None``.
+
+    :param value: a string or path, possibly starting with ``~``.
+    :returns: the path, not resolved, when it names a regular file.
+    """
+    if not isinstance(value, (str, Path)) or not str(value).strip():
+        return None
+    path = Path(os.path.expanduser(str(value)))
+    try:
+        return path if path.is_file() else None
+    except OSError:
+        return None
+
+
+def _gate_payload(value: Any) -> Optional[Dict[str, Any]]:
+    """A gating strategy as canonical plain data, or ``None`` if not one.
+
+    Accepts what the Gate Editor keeps and saves: a gate set object (anything
+    with ``to_dict()``, such as ``spacr.qt.widgets.gate_spec.GateSet``), the
+    dict it turns into, or a ``.json`` gate file. Comparing the parsed gates
+    rather than the file bytes means re-saving the same gates, or reformatting
+    the file, is not a change.
+
+    :param value: the candidate gate set.
+    :returns: ``{"gates": [...]}`` with sorted keys, or ``None``.
+    """
+    if hasattr(value, "to_dict") and callable(getattr(value, "to_dict")):
+        try:
+            data = value.to_dict()
+        except Exception:
+            return None
+    elif isinstance(value, dict):
+        data = value
+    else:
+        path = _existing_file(value)
+        if path is None or path.suffix.lower() != ".json":
+            return None
+        try:
+            if path.stat().st_size > _GATE_FILE_MAX_BYTES:
+                return None
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return None
+    if not isinstance(data, dict):
+        return None
+    rows = data.get("gates")
+    if not isinstance(rows, list) or not all(
+            isinstance(row, dict) and "kind" in row for row in rows):
+        return None
+    return json.loads(json.dumps({"gates": rows}, sort_keys=True, default=str))
+
+
+def _gate_record(payload: Dict[str, Any], source: str) -> Dict[str, Any]:
+    """What a lock keeps about one gating strategy.
+
+    :param payload: the canonical gates, from :func:`_gate_payload`.
+    :param source: ``"file"`` for a gate file, ``"memory"`` for gates handed
+        over as an object.
+    :returns: the source, the digest of the whole strategy, and one digest
+        per gate by name, so a later change can say which gate moved.
+    """
+    per_gate = {}
+    for index, row in enumerate(payload.get("gates") or []):
+        name = str(row.get("name") or f"#{index + 1}")
+        per_gate[name] = _json_digest(row)
+    return {"source": source, "sha256": _json_digest(payload),
+            "gates": per_gate}
+
+
+def _gate_items(gates: Any) -> List[Tuple[str, Any]]:
+    """Name each gating strategy handed to a lock or a check.
+
+    :param gates: one gate set, gate file or gate dict; a list of them; or a
+        mapping from a label of your choice to one.
+    :returns: ``(label, item)`` pairs; a gate file's label is its resolved
+        path, so the lock and a later check agree on it.
+    """
+    if gates is None:
+        return []
+    if isinstance(gates, dict) and "gates" not in gates:
+        pairs = [(str(label), item) for label, item in gates.items()]
+    elif isinstance(gates, (list, tuple)):
+        pairs = [("", item) for item in gates]
+    else:
+        pairs = [("", gates)]
+    named: List[Tuple[str, Any]] = []
+    for index, (label, item) in enumerate(pairs):
+        path = _existing_file(item) if isinstance(item, (str, Path)) else None
+        if path is not None:
+            label = str(path.resolve(strict=False))
+        elif not label:
+            label = "gates" if len(pairs) == 1 else f"gates[{index}]"
+        named.append((label, item))
+    return named
+
+
+def _lock_gates(settings: Dict[str, Any], gates: Any) -> Dict[str, Dict[str, Any]]:
+    """Every gating strategy a plan depends on, keyed by path or label.
+
+    :param settings: the settings; any value that is a gate file is taken,
+        whatever its key is called.
+    :param gates: gating strategies handed over outright (see
+        :func:`_gate_items`).
+    :returns: ``{path or label: record}`` (:func:`_gate_record`).
+    :raises ValueError: when something handed over is not a gating strategy.
+    """
+    found: Dict[str, Dict[str, Any]] = {}
+    for value in (settings or {}).values():
+        for candidate in (value if isinstance(value, (list, tuple))
+                          else [value]):
+            path = _existing_file(candidate)
+            payload = _gate_payload(path) if path is not None else None
+            if payload is not None:
+                found[str(path.resolve(strict=False))] = _gate_record(
+                    payload, "file")
+    for label, item in _gate_items(gates):
+        payload = _gate_payload(item)
+        if payload is None:
+            raise ValueError(f"{label!r} is not a gating strategy")
+        source = "file" if _existing_file(label) is not None else "memory"
+        found[label] = _gate_record(payload, source)
+    return found
+
+
+def _lock_files(settings: Dict[str, Any], extra: Iterable[Any]) -> Dict[str, str]:
+    """Full SHA-256 of every model, gate or threshold file the plan names.
+
+    Gate files are left to :func:`_lock_gates`, which compares the gates
+    rather than the bytes.
+
+    :param settings: the settings; a value is hashed when its key names a
+        model, gate, checkpoint, weights or threshold and it is a file.
+    :param extra: further file paths the plan names outright.
+    :returns: ``{absolute path: sha256}``.
+    """
+    paths = []
+    for key, value in (settings or {}).items():
+        lowered = str(key).lower()
+        if not any(part in lowered for part in _LOCK_FILE_KEY_PARTS):
+            continue
+        for candidate in (value if isinstance(value, (list, tuple))
+                          else [value]):
+            if isinstance(candidate, (str, Path)) and str(candidate).strip():
+                paths.append(str(candidate))
+    paths.extend(str(p) for p in (extra or ()) if str(p or "").strip())
+    files: Dict[str, str] = {}
+    for text in paths:
+        path = _existing_file(text)
+        if path is None or _gate_payload(path) is not None:
+            continue
+        digest = hash_file(path, full=True)
+        if digest:
+            files[str(path.resolve(strict=False))] = digest
+    return files
+
+
+def _lock_models(models: Any) -> Dict[str, Dict[str, str]]:
+    """The models a plan names, as :meth:`Run.record_model` will see them.
+
+    :param models: ``{name: checkpoint path}``, the names being those the
+        pipeline records its models under.
+    :returns: ``{name: {"path", "sha256"}}``.
+    :raises FileNotFoundError: when a named checkpoint is not a file.
+    """
+    locked: Dict[str, Dict[str, str]] = {}
+    for name, value in dict(models or {}).items():
+        path = _existing_file(value)
+        digest = hash_file(path, full=True) if path is not None else None
+        if not digest:
+            raise FileNotFoundError(f"model {name!r}: no file at {value!r}")
+        locked[str(name)] = {"path": str(path.resolve(strict=False)),
+                             "sha256": digest}
+    return locked
+
+
+def _recorded_models(app_key: str, src: Any, limit: int = 200) -> Dict[str, str]:
+    """The models the newest journalled run of a pipeline on a folder used.
+
+    Lets a lock made from the settings screen carry the models the analysis
+    actually loads, which the settings alone do not always name (a built-in
+    model resolves to a cached file).
+
+    :param app_key: the pipeline.
+    :param src: the folder its runs were on.
+    :param limit: how many of the newest run folders to look through.
+    :returns: ``{name: checkpoint path}`` for the files that still exist;
+        empty when no such run recorded a model.
+    """
+    scope = _scope_path(src)
+    root = runs_root()
+    try:
+        names = sorted((p.name for p in root.iterdir() if p.is_dir()),
+                       reverse=True)[:limit]
+    except OSError:
+        return {}
+    for name in names:
+        folder = root / name
+        try:
+            manifest = json.loads((folder / "manifest.json").read_text(
+                encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if not isinstance(manifest, dict) or str(
+                manifest.get("app_key")) != str(app_key):
+            continue
+        try:
+            settings = load_run_settings(folder)
+        except Exception:
+            continue
+        if _scope_path(settings.get("src")) != scope:
+            continue
+        models = {str(k): str(v.get("path")) for k, v in (
+            manifest.get("model_files") or {}).items()
+            if isinstance(v, dict) and _existing_file(v.get("path"))}
+        if models:
+            return models
+    return {}
+
+
+def _lock_digest(record: Dict[str, Any]) -> str:
+    """The hash a lock carries: over everything in it but the hash itself."""
+    return _json_digest({k: v for k, v in record.items() if k != "sha256"})
+
+
+def _lock_entries(record: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
+    """The pipelines a lock covers, each with its ``src`` and settings.
+
+    A lock written before locks could span pipelines (schema 1) covers the
+    one pipeline named at its top level.
+
+    :param record: the lock.
+    :returns: ``{app_key: {"src", "settings"}}``.
+    """
+    entries = record.get("pipelines")
+    if isinstance(entries, dict) and entries:
+        return {str(k): v for k, v in entries.items() if isinstance(v, dict)}
+    return {str(record.get("app_key")): {
+        "src": record.get("src") or "",
+        "settings": record.get("settings") or {}}}
+
+
+def _lock_unblindings(record: Dict[str, Any]) -> List[str]:
+    """Every unblinding on any folder the lock covers, oldest first."""
+    times: Set[str] = set()
+    for entry in _lock_entries(record).values():
+        times.update(_unblinding_times(entry.get("src")))
+    return sorted(times)
+
+
+def lock_analysis(settings: Dict[str, Any], *, app_key: str,
+                  hypotheses: str = "", thresholds: Any = None,
+                  files: Iterable[Any] = (), note: str = "",
+                  gates: Any = None, models: Any = None,
+                  pipelines: Optional[Dict[str, Dict[str, Any]]] = None
+                  ) -> Dict[str, Any]:
+    """Freeze an analysis plan before its results are seen.
+
+    The settings, the stated hypotheses and thresholds, the SHA-256 of every
+    model, gate or threshold file the settings name (plus ``files``), the
+    gating strategies and the models are written with the time and the user
+    to ``~/.spacr/analysis_locks/<lock id>.json`` and hashed. From then on
+    every journalled run of a locked pipeline on its ``src`` is checked
+    against the newest lock by :func:`check_analysis_lock`, and every model a
+    run records is checked as it is recorded; the verdict goes into the
+    run's ``manifest.json``, and a difference is listed in the manifest's
+    warnings, the report and the methods text.
+
+    A lock made after a blinding key on a folder it covers was unblinded is
+    marked as such, because it was not made blind.
+
+    :param settings: the settings the analysis will run with.
+    :param app_key: the pipeline it will run in, such as ``"classify"``.
+    :param hypotheses: the hypotheses, in words.
+    :param thresholds: the decision thresholds and gates, in any
+        JSON-compatible form.
+    :param files: further files the plan depends on.
+    :param note: anything else worth keeping with the plan.
+    :param gates: Gate Editor gating strategies the plan depends on: a gate
+        set, its dict, a saved gate file, a list of these, or a mapping from
+        a label to one. Gate files named by any setting are taken as well.
+        A gate file is checked on every run; gates handed over as objects
+        are checked when :func:`check_analysis_lock` is given them under the
+        same label.
+    :param models: ``{name: checkpoint path}`` for the models the analysis
+        loads, under the names the pipeline records them by.
+    :param pipelines: further pipelines of the same plan, as
+        ``{app_key: settings}``; each is checked against its own settings on
+        its own ``src``, and one unblinding on any of their folders counts
+        for the whole plan.
+    :returns: the stored lock, including ``lock_id``, ``locked_utc`` and
+        ``sha256``.
+    :raises ValueError: when ``pipelines`` repeats ``app_key``, or ``gates``
+        holds something that is not a gating strategy.
+    :raises FileNotFoundError: when a model in ``models`` is not a file.
+    """
+    plan = {str(app_key): settings or {}}
+    for other, other_settings in dict(pipelines or {}).items():
+        if str(other) in plan:
+            raise ValueError(f"pipeline {other!r} is locked twice")
+        plan[str(other)] = other_settings or {}
+    entries = {key: {"src": _scope_path(value.get("src")),
+                     "settings": _lock_settings(value)}
+               for key, value in plan.items()}
+    locked_files: Dict[str, str] = {}
+    locked_gates: Dict[str, Dict[str, Any]] = {}
+    for value in plan.values():
+        locked_files.update(_lock_files(value, ()))
+        locked_gates.update(_lock_gates(value, None))
+    locked_files.update(_lock_files({}, files))
+    locked_gates.update(_lock_gates({}, gates))
+    record = {
+        "schema": 2,
+        "lock_id": _record_id(),
+        "app_key": str(app_key),
+        "src": entries[str(app_key)]["src"],
+        "locked_utc": _utc_now(),
+        "locked_by": _who(),
+        "settings": entries[str(app_key)]["settings"],
+        "pipelines": entries,
+        "plan": json.loads(json.dumps({
+            "hypotheses": str(hypotheses or ""),
+            "thresholds": thresholds,
+            "note": str(note or ""),
+        }, sort_keys=True, default=str)),
+        "files": locked_files,
+        "gates": locked_gates,
+        "models": _lock_models(models),
+    }
+    record["unblinded_before_lock"] = _lock_unblindings(record)
+    record["sha256"] = _lock_digest(record)
+    _atomic_write_text(_locks_root() / f"{record['lock_id']}.json",
+                       json.dumps(record, indent=1, sort_keys=True))
+    return record
+
+
+def _find_lock(app_key: str, src: Any) -> Optional[Dict[str, Any]]:
+    """The newest lock covering ``app_key`` on ``src``, or ``None``."""
+    scope = _scope_path(src)
+    newest = None
+    for path in sorted(_locks_root().glob("*.json")):
+        try:
+            record = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if not isinstance(record, dict):
+            continue
+        entry = _lock_entries(record).get(str(app_key))
+        if entry is not None and str(entry.get("src") or "") == scope:
+            newest = record
+    return newest
+
+
+def _gate_changes(locked: Dict[str, Any], now: Optional[Dict[str, Any]]
+                  ) -> List[str]:
+    """Which gates were added, removed or changed since the lock.
+
+    :param locked: the lock's record of the strategy.
+    :param now: the strategy's record now, or ``None`` when it is gone.
+    :returns: phrases such as ``"changed CD4+"``, in gate-name order.
+    """
+    before = locked.get("gates") or {}
+    after = (now or {}).get("gates") or {}
+    changes = []
+    for name in sorted(set(before) | set(after)):
+        if name not in after:
+            changes.append(f"removed {name}")
+        elif name not in before:
+            changes.append(f"added {name}")
+        elif before[name] != after[name]:
+            changes.append(f"changed {name}")
+    return changes
+
+
+def _gate_deviations(record: Dict[str, Any], gates: Any
+                     ) -> List[Dict[str, Any]]:
+    """What differs between the gates a lock holds and the gates now.
+
+    A locked gate file is re-read every time. Gates locked as objects are
+    compared only when ``gates`` hands over a strategy under the same label;
+    a handed-over strategy the lock does not hold is a change too.
+
+    :param record: the lock.
+    :param gates: gating strategies in use now (see :func:`_gate_items`).
+    :returns: deviations keyed ``gates:<path or label>``, each with the
+        gates that moved under ``detail``.
+    """
+    locked = record.get("gates") or {}
+    given = {}
+    for label, item in _gate_items(gates):
+        payload = _gate_payload(item)
+        given[label] = (_gate_record(payload, "memory")
+                        if payload is not None else None)
+    changed = []
+    for label in sorted(set(locked) | set(given)):
+        before = locked.get(label)
+        if before is None:
+            now = given[label]
+            changed.append({"key": f"gates:{label}", "locked": None,
+                            "now": (now or {}).get("sha256", "")[:16]
+                            or "not a gating strategy",
+                            "detail": "not in the lock"})
+            continue
+        if label in given:
+            now = given[label]
+        elif before.get("source") == "file":
+            payload = _gate_payload(label)
+            now = _gate_record(payload, "file") if payload is not None else None
+        else:
+            continue
+        if now is not None and now.get("sha256") == before.get("sha256"):
+            continue
+        changes = _gate_changes(before, now)
+        changed.append({
+            "key": f"gates:{label}",
+            "locked": str(before.get("sha256") or "")[:16],
+            "now": (now or {}).get("sha256", "")[:16] or "missing",
+            "detail": ", ".join(changes) if now is not None
+            else "the gate file is gone or no longer a gating strategy"})
+    return changed
+
+
+def _lock_deviations(record: Dict[str, Any], settings: Dict[str, Any],
+                     app_key: Optional[str] = None,
+                     gates: Any = None) -> List[Dict[str, Any]]:
+    """What differs between a lock and a run of one of its pipelines now.
+
+    :param record: the lock.
+    :param settings: the settings of the run.
+    :param app_key: the pipeline running them; the lock's own top-level
+        pipeline when omitted or not in the lock.
+    :param gates: gating strategies in use, for gates locked as objects.
+    :returns: dicts with ``key``, ``locked`` and ``now``.
+    """
+    entry = _lock_entries(record).get(str(app_key)) if app_key else None
+    if entry is None:
+        entry = {"settings": record.get("settings") or {}}
+    locked = entry.get("settings") or {}
+    current = _lock_settings(settings)
+    changed = []
+    for key in sorted(set(locked) | set(current)):
+        before, after = locked.get(key), current.get(key)
+        if values_equal(before, after):
+            continue
+        changed.append({"key": key, "locked": before, "now": after})
+    for path, digest in sorted((record.get("files") or {}).items()):
+        now = hash_file(Path(path), full=True) if Path(path).is_file() else None
+        if now != digest:
+            changed.append({"key": f"file:{path}",
+                            "locked": str(digest)[:16],
+                            "now": (now or "missing")[:16]})
+    changed.extend(_gate_deviations(record, gates))
+    return changed
+
+
+def _seen_log(record: Dict[str, Any]) -> Path:
+    """The file recording when each difference from a lock was first seen."""
+    name = Path(str(record.get("lock_id") or "unnamed")).name
+    return _locks_root() / f"{name}.seen.jsonl"
+
+
+def _note_first_seen(record: Dict[str, Any],
+                     deviations: List[Dict[str, Any]]) -> None:
+    """Stamp each difference with when it was first seen, and keep that.
+
+    The first check that meets a difference (a run, or the lock dialog
+    reading the form) appends it to the lock's ``.seen.jsonl`` log; later
+    checks read the time back. That is how an edit made before the key was
+    opened is told from one made after it, whatever order the runs came in.
+
+    :param record: the lock.
+    :param deviations: its differences now; each gains ``first_seen_utc``.
+    """
+    if not deviations:
+        return
+    path = _seen_log(record)
+    seen: Dict[Tuple[str, str], str] = {}
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        lines = []
+    for line in lines:
+        try:
+            event = json.loads(line)
+            seen.setdefault((str(event["key"]), str(event["value"])),
+                            str(event["utc"]))
+        except (ValueError, KeyError, TypeError):
+            continue
+    new_events = []
+    for deviation in deviations:
+        ident = (str(deviation.get("key")), _json_digest(deviation.get("now")))
+        if ident not in seen:
+            seen[ident] = _utc_now()
+            new_events.append({"key": ident[0], "value": ident[1],
+                               "utc": seen[ident], "who": _who()})
+        deviation["first_seen_utc"] = seen[ident]
+    if new_events:
+        with open(path, "a", encoding="utf-8") as handle:
+            for event in new_events:
+                handle.write(json.dumps(event, sort_keys=True) + "\n")
+
+
+def _lock_summary(result: Dict[str, Any]) -> str:
+    """One sentence saying how a run stands against its lock."""
+    status = result.get("status", "unlocked")
+    if status == "unlocked":
+        return "No analysis lock applies to this run."
+    text = (f"Analysis lock {str(result.get('sha256') or '')[:16]} "
+            f"(locked {result.get('locked_utc')}): "
+            f"{_LOCK_STATUS_WORDS.get(status, status)}")
+    if result.get("unblinded_utc"):
+        text += f" at {result['unblinded_utc']}"
+    deviations = list(result.get("deviations") or ())
+    mixed = status == "post_hoc" and not all(
+        d.get("post_hoc") for d in deviations)
+    names = [str(d.get("key")) + (
+        (" (after unblinding)" if d.get("post_hoc") else " (before unblinding)")
+        if mixed else "") for d in deviations]
+    if names:
+        text += ": " + ", ".join(names[:8]) + (" …" if len(names) > 8 else "")
+    uncovered = list(result.get("uncovered_models") or ())
+    if uncovered:
+        text += "; models not covered by the lock: " + ", ".join(uncovered)
+    return text + "."
+
+
+def _lock_verdict(record: Dict[str, Any],
+                  deviations: List[Dict[str, Any]],
+                  uncovered_models: Iterable[str] = ()) -> Dict[str, Any]:
+    """Judge a set of differences from a lock.
+
+    :param record: the lock.
+    :param deviations: its differences now; stamped with ``first_seen_utc``
+        and ``post_hoc`` here.
+    :param uncovered_models: models the run recorded that the lock does not
+        name.
+    :returns: the verdict :func:`check_analysis_lock` documents.
+    """
+    locked_utc = str(record.get("locked_utc") or "")
+    after = [t for t in _lock_unblindings(record) if t > locked_utc]
+    _note_first_seen(record, deviations)
+    for deviation in deviations:
+        deviation["post_hoc"] = bool(
+            after and str(deviation.get("first_seen_utc") or "") > after[0])
+    if record.get("sha256") != _lock_digest(record):
+        status = "tampered"
+    elif any(d["post_hoc"] for d in deviations):
+        status = "post_hoc"
+    elif deviations:
+        status = "deviation"
+    elif record.get("unblinded_before_lock"):
+        status = "not_preregistered"
+    else:
+        status = "verified"
+    result = {
+        "status": status,
+        "lock_id": record.get("lock_id"),
+        "sha256": record.get("sha256"),
+        "locked_utc": locked_utc,
+        "locked_by": record.get("locked_by"),
+        "pipelines": sorted(_lock_entries(record)),
+        "deviations": deviations,
+        "unblinded_utc": after[0] if after else None,
+    }
+    uncovered = sorted(set(uncovered_models))
+    if uncovered:
+        result["uncovered_models"] = uncovered
+    result["summary"] = _lock_summary(result)
+    return result
+
+
+def check_analysis_lock(settings: Dict[str, Any], *, app_key: str,
+                        lock: Optional[Dict[str, Any]] = None,
+                        gates: Any = None) -> Dict[str, Any]:
+    """Check a run's settings against its preregistered analysis lock.
+
+    The lock is the newest one :func:`lock_analysis` made covering
+    ``app_key`` on the settings' ``src``, unless one is passed. The lock is
+    first checked against its own hash, so an edited lock file is caught;
+    then every setting, every hashed file and every locked gating strategy
+    is compared.
+
+    Each difference is stamped with when it was first seen (kept beside the
+    lock), and it is post-hoc only when it was first seen after a blinding
+    key on a folder of the plan was opened: an edit made while still blind
+    stays a deviation even when the run that uses it comes later.
+
+    :param settings: the settings of the run being checked.
+    :param app_key: the pipeline running them.
+    :param lock: a lock record to check against instead of the newest one.
+    :param gates: the Gate Editor gating strategies in use, for gates the
+        lock took as objects (see :func:`lock_analysis`).
+    :returns: ``status`` -- ``"unlocked"`` (no lock applies),
+        ``"verified"`` (nothing changed), ``"deviation"`` (changed, every
+        change first seen while still blind), ``"post_hoc"`` (a change first
+        seen after a key on the plan's folders was unblinded),
+        ``"not_preregistered"`` (unchanged, but the lock was made after an
+        unblinding) or ``"tampered"`` (the lock no longer matches its hash)
+        -- with ``lock_id``, ``sha256``, ``locked_utc``, ``locked_by``,
+        ``pipelines``, ``deviations`` (``key``, ``locked``, ``now``,
+        ``first_seen_utc``, ``post_hoc``, and ``detail`` for gates),
+        ``unblinded_utc`` and a one-sentence ``summary``.
+    """
+    record = lock if lock is not None else _find_lock(
+        app_key, (settings or {}).get("src"))
+    if not record:
+        result: Dict[str, Any] = {"status": "unlocked", "deviations": []}
+        result["summary"] = _lock_summary(result)
+        return result
+    return _lock_verdict(
+        record, _lock_deviations(record, settings, app_key, gates))
+
+
+def _gate_file_lock_notes(path: Any, gates: Any = None) -> List[str]:
+    """How a saved gate file stands against every lock that holds it.
+
+    What the Gate Editor says after saving or loading a gating strategy.
+    Verdicts use the same first-seen timing, lock-integrity and unblinding
+    policy as runs and exports. Only this strategy is compared; other locked
+    gate files are not opened just to produce its note.
+
+    :param path: the gate file.
+    :param gates: the gates to compare, when they are not what the file
+        holds; the file's own gates otherwise.
+    :returns: one sentence per lock holding the file, oldest lock first;
+        empty when no lock holds it.
+    """
+    target = _existing_file(path)
+    if target is None:
+        return []
+    label = str(target.resolve(strict=False))
+    payload = _gate_payload(gates if gates is not None else target)
+    notes = []
+    for lock_path in sorted(_locks_root().glob("*.json")):
+        try:
+            record = json.loads(lock_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        locked = (record.get("gates") or {}).get(label) if isinstance(
+            record, dict) else None
+        if not locked:
+            continue
+        scoped = {**record, "gates": {label: locked}}
+        deviations = _gate_deviations(scoped, {label: payload})
+        verdict = _lock_verdict(record, deviations)
+        sha = str(record.get("sha256") or "")[:16]
+        if verdict["status"] == "verified":
+            notes.append(f"these gates match analysis lock {sha}")
+        elif verdict["status"] in ("deviation", "post_hoc"):
+            changes = ", ".join(change["detail"] for change in deviations) or "changed"
+            word = "post-hoc, after unblinding" if verdict["status"] == "post_hoc" else "a deviation"
+            notes.append(f"these gates differ from analysis lock {sha} "
+                         f"({changes}): {word}")
+        else:
+            notes.append(verdict["summary"])
+    return notes
+
+
+def _check_lock_for_run(run: "Run") -> None:
+    """Stamp a run with its lock verdict; a failed check never fails a run."""
+    try:
+        record = _find_lock(run.app_key, (run.settings or {}).get("src"))
+        result = check_analysis_lock(run.settings, app_key=run.app_key,
+                                     lock=record) if record else None
+    except Exception as exc:
+        run.provenance_warnings.append(f"analysis lock check failed: {exc}")
+        return
+    if not result or result.get("status") == "unlocked":
+        return
+    run._analysis_lock_record = record
+    _set_run_lock_verdict(run, result)
+
+
+def _set_run_lock_verdict(run: "Run", result: Dict[str, Any]) -> None:
+    """Put a lock verdict on a run, replacing the warning of an older one."""
+    old = getattr(run, "_analysis_lock", None)
+    if old and old.get("summary") in run.provenance_warnings:
+        run.provenance_warnings.remove(old["summary"])
+    run._analysis_lock = result
+    if result.get("status") != "verified":
+        run.provenance_warnings.append(result["summary"])
+
+
+def _check_model_for_run(run: "Run", name: str, path: Any) -> None:
+    """Check a model a run just recorded against the run's lock.
+
+    Models are recorded while the pipeline runs, after the settings were
+    checked, so this re-judges the run: a locked model whose file differs,
+    or a model the lock does not name when the lock names models, is a
+    difference like any other. A model the lock cannot speak to (the lock
+    names no models, and the file is not among its hashed files) is listed
+    as not covered, without changing the verdict. A failure here is only
+    logged: checking a model must never fail a run.
+
+    :param run: the run, already checked by :func:`_check_lock_for_run`.
+    :param name: the name the model was recorded under.
+    :param path: its checkpoint file.
+    """
+    record = getattr(run, "_analysis_lock_record", None)
+    result = getattr(run, "_analysis_lock", None)
+    if not record or not result:
+        return
+    try:
+        now = (run.model_files.get(name) or {}).get("sha256")
+        resolved = str(Path(str(path)).resolve(strict=False))
+        models = record.get("models") or {}
+        deviations = [d for d in result.get("deviations") or ()
+                      if d.get("key") != f"model:{name}"]
+        uncovered = list(result.get("uncovered_models") or ())
+        if name in models:
+            locked = models[name].get("sha256")
+            if locked and locked == now:
+                return
+        elif (resolved in (record.get("files") or {})
+              or (now and now in {m.get("sha256") for m in models.values()})):
+            return
+        elif not models:
+            uncovered.append(str(name))
+            _set_run_lock_verdict(run, _lock_verdict(
+                record, list(result.get("deviations") or ()), uncovered))
+            return
+        else:
+            locked = None
+        deviations.append({"key": f"model:{name}",
+                           "locked": str(locked)[:16] if locked else None,
+                           "now": (now or "unreadable")[:16]})
+        _set_run_lock_verdict(run, _lock_verdict(record, deviations,
+                                                 uncovered))
+    except Exception as exc:
+        LOG.warning("model %r could not be checked against the analysis "
+                    "lock: %s", name, exc)

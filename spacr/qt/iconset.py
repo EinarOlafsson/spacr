@@ -37,6 +37,7 @@ from __future__ import annotations
 
 import hashlib
 import os
+import threading
 from functools import lru_cache
 from pathlib import Path
 from typing import Optional, Tuple
@@ -175,6 +176,9 @@ def icon(name: str, color: Optional[str] = None, size: int = 16,
     default fill follows the active theme rather than the dark palette,
     which is why a light-theme sidebar no longer draws pale-grey icons
     on white.
+
+    :param name: semantic icon key looked up in the module's glyph table,
+        e.g. ``"open"`` or ``"run"``.
     """
     qta = _try_qta()
     if qta is None:
@@ -191,13 +195,19 @@ def icon(name: str, color: Optional[str] = None, size: int = 16,
 
 
 def accent_icon(name: str, theme: Optional[str] = None) -> QIcon:
-    """Icon painted in the accent color (used for primary buttons)."""
+    """Icon painted in the accent color (used for primary buttons).
+
+    :param name: semantic icon key, as for :func:`icon`.
+    """
     return icon(name, color=_theme_palette(theme)["accent"], theme=theme)
 
 
 def contrast_icon(name: str, theme: Optional[str] = None) -> QIcon:
     """Icon painted for use inside a filled (PrimaryButton) button,
-    where the button background IS the accent fill."""
+    where the button background IS the accent fill.
+
+    :param name: semantic icon key, as for :func:`icon`.
+    """
     return icon(name, color=_theme_palette(theme)["button_accent_ink"],
                 theme=theme)
 
@@ -215,7 +225,12 @@ def _blend(a: str, b: str, t: float) -> str:
 
 
 def hardest_surface(theme: str) -> str:
-    """The surface colour an icon has the least contrast against."""
+    """The surface colour an icon has the least contrast against.
+
+    :param theme: theme name, one of :data:`spacr.qt.theme.THEMES`; the
+        theme's ``fg`` ink is compared against each role in
+        :data:`ICON_SURFACES`.
+    """
     palette = _theme_palette(theme)
     ink = palette["fg"]
     return min((effective_surface(theme, role) for role in ICON_SURFACES),
@@ -231,6 +246,9 @@ def veil_color(theme: str) -> str:
     :data:`MIN_ICON_CONTRAST`. That way the shadow end of an icon's
     tonal range is still a visible shape, and the answer tracks the
     palette instead of being a magic grey someone eyeballed once.
+
+    :param theme: theme name, one of :data:`spacr.qt.theme.THEMES`; the
+        result is cached per theme.
     """
     palette = _theme_palette(theme)
     ink = palette["fg"]
@@ -269,8 +287,6 @@ def _load_rgba(path: str):
                 return None
             size = renderer.defaultSize().scaled(
                 MAX_WORK_SIZE, MAX_WORK_SIZE, Qt.KeepAspectRatio)
-            if size.isEmpty():
-                return None
             image = QImage(size, QImage.Format_RGBA8888)
             image.fill(0)
             painter = QPainter(image)
@@ -358,6 +374,10 @@ def carries_tonal_structure(rgba) -> bool:
     destroy the picture. The discriminator is whether the visible-pixel
     luminance spans a meaningful fraction of the range — 2 % of
     variation is noise from whatever exported the file, not shading.
+
+    :param rgba: RGBA pixel array of shape (H, W, 4) with 0-255 values;
+        only pixels whose alpha exceeds 2 % are measured, and a fully
+        transparent array gives ``False``.
     """
     import numpy as np
     alpha = rgba[:, :, 3] / 255.0
@@ -485,7 +505,7 @@ def _write_cached_icon(path: Path, array) -> None:
     try:
         from PIL import Image
         path.parent.mkdir(parents=True, exist_ok=True)
-        tmp = path.with_suffix(".part")
+        tmp = path.with_suffix(f".{os.getpid()}.{threading.get_ident()}.part")
         Image.fromarray(array, "RGBA").save(tmp, format="PNG", optimize=False)
         os.replace(tmp, path)
     except Exception:
@@ -516,14 +536,46 @@ def _themed_array(stamp, theme: str):
     if rgba is None:
         return None
     inked = reink(rgba, theme)
-    if inked is not None:
-        _write_cached_icon(path, inked)
+    _write_cached_icon(path, inked)
     return inked
 
 
 def themed_array(path: str, theme: Optional[str] = None):
-    """Re-inked ``(h, w, 4)`` uint8 array for ``path``, or ``None``."""
+    """Re-inked ``(h, w, 4)`` uint8 array for ``path``, or ``None``.
+
+    :param path: path to the icon artwork (PNG or SVG); its modification
+        time and size key both the in-memory and the on-disk cache.
+    """
     return _themed_array(_file_stamp(path), theme or active_theme())
+
+
+def _warm_the_bundled_icons(theme: str) -> int:
+    """Re-ink every bundled PNG for ``theme`` into both caches, off the GUI.
+
+    FOR A WORKER THREAD, started once the window is up. A module's fold
+    strip, an organism page and the command palette each ask for app icons
+    Home never drew, and on a first run -- or after a theme change -- each
+    one was decoded, downscaled and re-inked on the GUI thread inside the
+    module's opening freeze: 15-25 % of the worst event-loop gap on Mask,
+    Classify, Regression and Toxoplasma, measured. Nothing here touches a
+    widget: it fills :func:`_themed_array`'s ``lru_cache`` and the on-disk
+    icon cache, which the GUI then reads.
+
+    SVG artwork is left for the GUI thread, since it is rendered through
+    Qt's painter rather than PIL.
+
+    :param theme: the theme to ink for, resolved by the caller on the GUI
+        thread (:func:`active_theme` reads preferences).
+    :returns: how many icons were warmed.
+    """
+    warmed = 0
+    for path in bundled_icon_paths():
+        try:
+            if _themed_array(_file_stamp(path), theme) is not None:
+                warmed += 1
+        except Exception:                                    # noqa: BLE001
+            continue
+    return warmed
 
 
 def themed_qimage(path: str, theme: Optional[str] = None):
@@ -532,6 +584,9 @@ def themed_qimage(path: str, theme: Optional[str] = None):
     ``None`` when the file can't be read. Returns a ``QImage``, which
     (unlike ``QPixmap``) needs no running QGuiApplication, so this is
     safe to call from a headless test.
+
+    :param path: path to the icon artwork (PNG or SVG); its modification
+        time and size key both the in-memory and the on-disk cache.
     """
     import numpy as np
     from PySide6.QtGui import QImage
@@ -546,7 +601,11 @@ def themed_qimage(path: str, theme: Optional[str] = None):
 
 
 def themed_pixmap(path: str, theme: Optional[str] = None):
-    """:func:`themed_qimage` as a ``QPixmap``, or ``None``."""
+    """:func:`themed_qimage` as a ``QPixmap``, or ``None``.
+
+    :param path: path to the icon artwork (PNG or SVG); its modification
+        time and size key both the in-memory and the on-disk cache.
+    """
     from PySide6.QtGui import QPixmap
     img = themed_qimage(path, theme)
     if img is None:
@@ -560,6 +619,9 @@ def icon_ink_color(path: str, theme: Optional[str] = None) -> Optional[str]:
 
     This is the colour the eye integrates when the icon is small, which
     is what makes it the right thing to measure contrast on.
+
+    :param path: path to the icon artwork (PNG or SVG); its modification
+        time and size key both the in-memory and the on-disk cache.
     """
     import numpy as np
 
@@ -579,6 +641,9 @@ def icon_contrast(path: str, theme: Optional[str] = None) -> float:
     """Worst-case contrast of a themed icon against the theme's surfaces.
 
     ``0.0`` when the file can't be read or is fully transparent.
+
+    :param path: path to the icon artwork (PNG or SVG); its modification
+        time and size key both the in-memory and the on-disk cache.
     """
     theme = theme or active_theme()
     ink = icon_ink_color(path, theme)
@@ -713,7 +778,12 @@ def _fallback_icon(name: str, theme: Optional[str] = None, *,
 def app_icon(key: str, override: Optional[str] = None,
              theme: Optional[str] = None) -> QIcon:
     """Icon for an app key: the bundled PNG re-inked for the theme,
-    falling back to the themed qtawesome glyph."""
+    falling back to the themed qtawesome glyph.
+
+    :param key: application registry key; resolved to bundled artwork by
+        :func:`bundled_icon_path`, and used as the :func:`icon` name when no
+        artwork is found or it cannot be read.
+    """
     path = bundled_icon_path(key, override)
     if path is not None:
         pix = themed_pixmap(path, theme)

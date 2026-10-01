@@ -337,3 +337,50 @@ def test_a_screen_that_is_not_a_module_is_not_walked_through(qtbot):
     W.mark_seen("mask")
     W._WalkthroughHandler(window).on_current_changed(0)
     assert window.findChildren(W._TourOverlay) == []
+
+
+def test_the_first_visit_offer_waits_for_the_switch_to_finish(qtbot,
+                                                             monkeypatch):
+    """Item 284: the overlay is built a moment after the stack switch, not
+    inside it, so its cost is not added to the screen's first show."""
+    offered = []
+    monkeypatch.setattr(W, "maybe_show",
+                        lambda window, app_key: offered.append(app_key))
+    stack = QStackedWidget()
+    qtbot.addWidget(stack)
+    screen = QWidget()
+    screen.app_key = "mask"
+    screen._settings_model = object()
+    stack.addWidget(screen)
+    stack.setCurrentWidget(screen)
+    window = _Window(stack=stack)
+    qtbot.addWidget(window)
+
+    W._WalkthroughHandler(window).on_current_changed(0)
+    assert offered == []
+    qtbot.waitUntil(lambda: offered == ["mask"], timeout=2000)
+
+
+def test_a_module_left_before_the_offer_is_not_walked_through(qtbot,
+                                                             monkeypatch):
+    """The user moved on in the moment between the switch and the offer."""
+    offered = []
+    monkeypatch.setattr(W, "maybe_show",
+                        lambda window, app_key: offered.append(app_key))
+    stack = QStackedWidget()
+    qtbot.addWidget(stack)
+    screen = QWidget()
+    screen.app_key = "mask"
+    screen._settings_model = object()
+    other = QWidget()
+    other.app_key = "measure"
+    stack.addWidget(screen)
+    stack.addWidget(other)
+    stack.setCurrentWidget(screen)
+    window = _Window(stack=stack)
+    qtbot.addWidget(window)
+
+    W._WalkthroughHandler(window).on_current_changed(0)
+    stack.setCurrentWidget(other)
+    qtbot.wait(W._OFFER_AFTER_MS * 4)
+    assert offered == []

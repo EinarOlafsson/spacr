@@ -90,8 +90,8 @@ from __future__ import annotations
 import os
 import sqlite3
 from collections import OrderedDict
-from typing import (Any, Callable, Dict, Iterable, List, Optional, Sequence,
-                    Tuple)
+from typing import (Any, Callable, Dict, Iterable, List, Mapping, Optional,
+                    Sequence, Tuple)
 from urllib.parse import quote as _urlquote
 
 import numpy as np
@@ -1621,7 +1621,7 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
         con.close()
 
     from .selection import (KEY_ESCAPED_CHARACTERS, escape_key_component,
-                            untyped_object_key)
+                            key_object_type, untyped_object_key)
 
     index = {c: i for i, c in enumerate(select)}
     id_columns = [c for c in PNG_ID_COLUMN_TYPES if c in index]
@@ -1631,6 +1631,8 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
 
     by_key: Dict[str, Tuple[str, Optional[int]]] = {}
     by_escaped_key: Dict[str, Tuple[str, Optional[int]]] = {}
+    untyped_rows: Dict[str, Tuple[str, Optional[int]]] = {}
+    escaped_untyped_rows: Dict[str, Tuple[str, Optional[int]]] = {}
 
     def _register(target: Dict[str, Tuple[str, Optional[int]]],
                   composed: List[str], label: str, object_type: Optional[str],
@@ -1654,12 +1656,15 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
         stated = [(column, _object_label(row[index[column]]))
                   for column in id_columns]
         stated = [(column, value) for column, value in stated if value]
+        declared = [column for column in id_columns
+                    if row[index[column]] is not None
+                    and str(row[index[column]]).strip().lower()
+                    not in ("", "nan", "none", "null")]
         object_type = None
         label = ""
-        if len(stated) == 1:
-            label = stated[0][1]
-            object_type = PNG_ID_COLUMN_TYPES[stated[0][0]]
-        elif stated:
+        if len(declared) == 1:
+            object_type = PNG_ID_COLUMN_TYPES[declared[0]]
+        if stated:
             label = stated[0][1]
         prcfo = (str(row[index["prcfo"]])
                  if "prcfo" in index and row[index["prcfo"]] is not None
@@ -1669,16 +1674,28 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
         if label and all(c in index for c in meta_columns):
             parts = [str(row[index[c]]) for c in meta_columns]
             _register(by_key, parts, label, object_type, entry)
+            if not declared:
+                _register(untyped_rows, parts, label, None, entry)
             if any(c in p for p in parts for c in KEY_ESCAPED_CHARACTERS):
                 _register(by_escaped_key,
                           [escape_key_component(p) for p in parts],
                           label, object_type, entry)
+                if not declared:
+                    _register(escaped_untyped_rows,
+                              [escape_key_component(p) for p in parts],
+                              label, None, entry)
         file_name = (str(row[index["file_name"]])
                      if "file_name" in index and
                      row[index["file_name"]] is not None else "")
         for candidate in (path, prcfo, file_name):
             if candidate:
+                candidate_type = key_object_type(candidate)
+                if (candidate_type is not None and declared
+                        and candidate_type != object_type):
+                    continue
                 by_key.setdefault(candidate, entry)
+                if not declared:
+                    untyped_rows.setdefault(candidate, entry)
 
     def _resolve(name: str) -> Optional[Tuple[str, Optional[int]]]:
         """The escaped spelling first — it is the one a producer emits today."""
@@ -1692,7 +1709,9 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
         if entry is None:
             reduced = untyped_object_key(wanted_key)
             if reduced != wanted_key:
-                entry = _resolve(reduced)
+                entry = escaped_untyped_rows.get(reduced)
+                if entry is None:
+                    entry = untyped_rows.get(reduced)
         if entry is None or entry[0] in seen:
             continue
         seen.add(entry[0])
@@ -2429,6 +2448,297 @@ def round_features(db_path: str, table: str = PNG_TABLE,
     return joined.drop(columns=["prcfo"]).set_index(key)
 
 
+_SIMILAR_K = 100
+
+_SIMILAR_ID_NAMES = frozenset({
+    "row", "col", "column", "field", "plate", "well", "rowid", "columnid",
+    "fieldid", "plateid", "time", "timeid", "frame", "label", "object_label",
+    "track_id", "index", "level_0", "prcfo", "prcf",
+})
+
+_SIMILAR_ID_PARTS = ("centroid", "bbox", "coords")
+
+
+def _similarity_columns(columns: Sequence[str]) -> List[str]:
+    """The columns of a feature matrix that describe a cell, not its place.
+
+    Position and bookkeeping columns (well, field, frame, object label,
+    centroid, bounding box, anything ending in ``_id``) are numeric, so
+    they survive a numeric filter, and a search over them returns the
+    query's neighbours on the plate rather than cells that look like it.
+
+    :param columns: candidate column names.
+    :returns: the names kept, in their original order.
+    """
+    kept = []
+    for name in columns:
+        low = str(name).lower()
+        if low in _SIMILAR_ID_NAMES or low.endswith("_id"):
+            continue
+        if any(part in low for part in _SIMILAR_ID_PARTS):
+            continue
+        kept.append(name)
+    return kept
+
+
+class _SimilarityIndex:
+    """Cosine nearest-neighbour search over one feature vector per crop.
+
+    Columns are centred on their median and scaled by their standard
+    deviation so no single measurement's units dominate; a missing value
+    becomes the column's median, and constant or empty columns are dropped.
+    Rows are then scaled to unit length, so the inner product is the cosine
+    similarity and 1.0 means the same direction in feature space.
+
+    The search runs in FAISS (an exact inner-product index, moved to every
+    visible GPU when FAISS was built with GPU support) when FAISS is
+    installed, and otherwise as a blocked matrix product in NumPy. Both are
+    exact, so they return the same neighbours; FAISS is faster on large
+    query batches.
+
+    :param features: numeric features indexed by crop key, one row per
+        crop. Measurement features and embedding columns both work.
+    :param backend: ``'auto'`` (FAISS when importable, else NumPy),
+        ``'faiss'`` or ``'numpy'``.
+    :param block: rows scored per NumPy block, which bounds memory.
+    :raises ValueError: on an empty matrix or one with no usable column.
+    :raises ImportError: for ``backend='faiss'`` without FAISS installed.
+    """
+
+    def __init__(self, features: pd.DataFrame, *, backend: str = "auto",
+                 block: int = 262144):
+        """Standardise ``features``, normalise its rows and build the index."""
+        numeric = features.select_dtypes(include=[np.number])
+        numeric = numeric.loc[~numeric.index.duplicated(keep="first")]
+        if numeric.empty:
+            raise ValueError(
+                "No crop has numeric features, so there is nothing to compare "
+                "cells by. Run Measure first.")
+        matrix = numeric.to_numpy(dtype=np.float32, copy=True)
+        matrix[~np.isfinite(matrix)] = np.nan
+        import warnings
+
+        with np.errstate(all="ignore"), warnings.catch_warnings():
+            warnings.simplefilter("ignore", RuntimeWarning)
+            if np.isnan(matrix).any():
+                centre = np.nanmedian(matrix, axis=0)
+                spread = np.nanstd(matrix, axis=0)
+            else:
+                centre = np.median(matrix, axis=0)
+                spread = matrix.std(axis=0)
+        usable = np.isfinite(centre) & np.isfinite(spread) & (spread > 0)
+        if not usable.any():
+            raise ValueError(
+                "Every feature column is constant or empty, so no two cells "
+                "can be told apart.")
+        matrix = matrix[:, usable]
+        centre = centre[usable]
+        spread = spread[usable]
+        missing = np.isnan(matrix)
+        if missing.any():
+            matrix[missing] = np.take(centre, np.nonzero(missing)[1])
+        matrix -= centre
+        matrix /= spread
+        norms = np.linalg.norm(matrix, axis=1, keepdims=True)
+        norms[norms == 0] = 1.0
+        matrix /= norms
+        self.keys = np.asarray([str(k) for k in numeric.index], dtype=object)
+        self.columns = [str(c) for c, ok in zip(numeric.columns, usable) if ok]
+        self._position = {key: i for i, key in enumerate(self.keys)}
+        self._matrix = np.ascontiguousarray(matrix, dtype=np.float32)
+        self._block = max(1, int(block))
+        self._faiss = None
+        self.backend = self._build(str(backend or "auto").lower())
+
+    def _build(self, backend: str) -> str:
+        """Build the FAISS index when asked or available; name the backend."""
+        if backend not in ("auto", "faiss", "numpy"):
+            raise ValueError(
+                f"unknown similarity backend {backend!r}; expected 'auto', "
+                f"'faiss' or 'numpy'")
+        if backend == "numpy":
+            return "numpy"
+        try:
+            import faiss
+        except ImportError:
+            if backend == "faiss":
+                raise ImportError(
+                    "FAISS is not installed. Install it with "
+                    "'pip install faiss-cpu' (or 'conda install -c pytorch "
+                    "faiss-gpu' for the GPU build), or use backend='numpy'.")
+            return "numpy"
+        index = faiss.IndexFlatIP(self._matrix.shape[1])
+        name = "faiss"
+        try:
+            if (os.environ.get("CUDA_VISIBLE_DEVICES", None) != ""
+                    and hasattr(faiss, "get_num_gpus")
+                    and faiss.get_num_gpus() > 0):
+                index = faiss.index_cpu_to_all_gpus(index)
+                name = "faiss-gpu"
+        except Exception:
+            name = "faiss"
+        index.add(self._matrix)
+        self._faiss = index
+        return name
+
+    def __len__(self) -> int:
+        """Return the number of crops indexed."""
+        return int(self._matrix.shape[0])
+
+    def __contains__(self, key: Any) -> bool:
+        """Whether crop ``key`` has a row in the index."""
+        return str(key) in self._position
+
+    def vector(self, key: Any) -> np.ndarray:
+        """The normalised feature vector of crop ``key``.
+
+        :raises KeyError: when the crop has no row in the index.
+        """
+        at = self._position.get(str(key))
+        if at is None:
+            raise KeyError(
+                f"{key!r} has no measured features, so there is nothing to "
+                f"compare it by")
+        return self._matrix[at]
+
+    def search(self, queries: np.ndarray, k: int
+               ) -> Tuple[np.ndarray, np.ndarray]:
+        """The ``k`` most similar rows for each query vector, best first.
+
+        :param queries: ``(n, d)`` or ``(d,)`` normalised vectors, as
+            :meth:`vector` returns them.
+        :param k: neighbours per query, capped at the index size.
+        :returns: ``(similarity, row)`` arrays of shape ``(n, k)``.
+        """
+        queries = np.ascontiguousarray(
+            np.atleast_2d(np.asarray(queries, dtype=np.float32)))
+        k = max(1, min(int(k), len(self)))
+        if self._faiss is not None:
+            scores, rows = self._faiss.search(queries, k)
+            return scores, rows.astype(np.int64)
+        best_s = np.full((queries.shape[0], 0), -np.inf, dtype=np.float32)
+        best_i = np.zeros((queries.shape[0], 0), dtype=np.int64)
+        for start in range(0, len(self), self._block):
+            chunk = self._matrix[start:start + self._block]
+            scores = queries @ chunk.T
+            take = min(k, scores.shape[1])
+            part = np.argpartition(-scores, take - 1, axis=1)[:, :take]
+            best_s = np.concatenate(
+                [best_s, np.take_along_axis(scores, part, axis=1)], axis=1)
+            best_i = np.concatenate([best_i, part + start], axis=1)
+            if best_s.shape[1] > k:
+                keep = np.argpartition(-best_s, k - 1, axis=1)[:, :k]
+                best_s = np.take_along_axis(best_s, keep, axis=1)
+                best_i = np.take_along_axis(best_i, keep, axis=1)
+        order = np.argsort(-best_s, axis=1, kind="stable")
+        return (np.take_along_axis(best_s, order, axis=1),
+                np.take_along_axis(best_i, order, axis=1))
+
+    def like(self, key: Any, k: int = _SIMILAR_K, *,
+             exclude: Optional[Iterable[Any]] = None) -> pd.DataFrame:
+        """The crops most like crop ``key``, most similar first.
+
+        :param key: the query crop.
+        :param k: how many to return, the query itself not counted.
+        :param exclude: crop keys to leave out of the answer, such as the
+            ones already annotated.
+        :returns: a frame with ``key``, ``similarity`` (cosine, 1.0 is the
+            same direction) and ``rank`` (1 is the closest).
+        :raises KeyError: when ``key`` has no row in the index.
+        """
+        skip = {str(key)}
+        skip.update(str(x) for x in (() if exclude is None else exclude))
+        want = int(k) + len(skip)
+        scores, rows = self.search(self.vector(key), want)
+        out = [(self.keys[r], float(s)) for s, r in zip(scores[0], rows[0])
+               if r >= 0 and self.keys[r] not in skip][:max(0, int(k))]
+        frame = pd.DataFrame(out, columns=["key", "similarity"])
+        frame["rank"] = np.arange(1, len(frame) + 1)
+        return frame
+
+
+def _similarity_index(db_path: str, *, features: Optional[pd.DataFrame] = None,
+                      image_type: Optional[str] = None,
+                      backend: str = "auto") -> _SimilarityIndex:
+    """Index every crop of a database for "find cells like this".
+
+    :param db_path: path to ``measurements.db``.
+    :param features: the vectors to compare by, indexed by ``png_path``,
+        such as an embedding from :func:`spacr.embeddings.embed_array`.
+        Read from the measurement tables with :func:`round_features` when
+        omitted.
+    :param image_type: substring filter on the crop key.
+    :param backend: passed to :class:`_SimilarityIndex`.
+    :returns: the index.
+    :raises ValueError: when no crop has usable features.
+    """
+    if features is None:
+        features = round_features(db_path)
+        features = features[_similarity_columns(features.columns)]
+    if image_type:
+        keep = features.index.astype(str).str.contains(str(image_type),
+                                                       regex=False)
+        features = features.loc[keep]
+    return _SimilarityIndex(features, backend=backend)
+
+
+def _similarity_agreement(index: _SimilarityIndex, labels: Mapping[Any, Any],
+                          k: int = 10) -> pd.DataFrame:
+    """How often a labelled crop's nearest neighbours share its label.
+
+    The check that similarity search finds the same kind of cell rather
+    than the same well: every labelled crop is a query, its ``k`` nearest
+    labelled neighbours (itself excluded) are compared with its own label,
+    and the share that agree is set beside the share a random draw would
+    give, the class's frequency among the labelled crops.
+
+    :param index: the index to evaluate.
+    :param labels: crop key to class label; suggestions and blanks should
+        already be removed.
+    :param k: neighbours per query.
+    :returns: one row per class with ``n``, ``precision_at_k``,
+        ``chance`` and ``lift``, then an ``all`` row, micro-averaged.
+    :raises ValueError: when fewer than two labelled crops are indexed.
+    """
+    pairs = [(str(key), value) for key, value in labels.items()
+             if str(key) in index and value is not None]
+    if len(pairs) < 2:
+        raise ValueError(
+            "Fewer than two labelled crops have features, so agreement "
+            "cannot be measured.")
+    keys = np.asarray([p[0] for p in pairs], dtype=object)
+    classes = np.asarray([str(p[1]) for p in pairs], dtype=object)
+    rows = np.asarray([index._position[key] for key in keys], dtype=np.int64)
+    sub = index._matrix[rows]
+    k = max(1, min(int(k), len(keys) - 1))
+    hits = np.empty(len(keys), dtype=np.float64)
+    for start in range(0, len(keys), 2048):
+        scores = sub[start:start + 2048] @ sub.T
+        own = np.arange(scores.shape[0])
+        scores[own, own + start] = -np.inf
+        near = np.argpartition(-scores, k - 1, axis=1)[:, :k]
+        hits[start:start + scores.shape[0]] = (
+            classes[near] == classes[start:start + scores.shape[0], None]
+        ).mean(axis=1)
+    counts = pd.Series(classes).value_counts()
+    records = []
+    for name in sorted(counts.index, key=str):
+        mask = classes == name
+        chance = float((counts[name] - 1) / max(1, len(keys) - 1))
+        precision = float(hits[mask].mean())
+        records.append({"class": name, "n": int(mask.sum()),
+                        "precision_at_k": precision, "chance": chance,
+                        "lift": precision / chance if chance > 0 else np.nan})
+    chance_all = float(((counts * (counts - 1)).sum())
+                       / max(1, len(keys) * (len(keys) - 1)))
+    records.append({"class": "all", "n": int(len(keys)),
+                    "precision_at_k": float(hits.mean()),
+                    "chance": chance_all,
+                    "lift": (float(hits.mean()) / chance_all
+                             if chance_all > 0 else np.nan)})
+    return pd.DataFrame(records)
+
+
 class RoundResult:
     """What one retrain round produced.
 
@@ -2521,7 +2831,9 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
                   measure: Any = DEFAULT_MEASURE,
                   diversity: Any = "well",
                   balance: str = "none",
-                  synthetic_negatives: Optional[int] = None) -> RoundResult:
+                  synthetic_negatives: Optional[int] = None,
+                  rejections: Optional[Mapping[Any, Any]] = None
+                  ) -> RoundResult:
     """Fit a model on the labels so far, score every crop, close the loop.
 
     This is the half of active learning that has been missing: the queue put
@@ -2582,6 +2894,15 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
         probabilities -- so the round records which was in force, in
         ``notes`` and on the model card. The smaller
         class ("if there is class imbalance use the class with fewer").
+    :param rejections: ``{crop key: rejected class}`` -- suggestions the
+        annotator REJECTED (:func:`spacr.suggest.rejected_suggestions`). In
+        a two-class column a rejection of class 1 is an example of class 2,
+        and it is fitted as one; a crop that has since been labelled is
+        left to its label, and in a column with any other classes the
+        rejection cannot be turned into a label and is counted in the notes
+        instead. A rejection is information, not silence: without this the
+        model that proposed the wrong class would be fitted on exactly the
+        same evidence next round and propose it again.
     :param synthetic_negatives: how many unannotated crops to draw at random
         and fit as the ABSENT class when only one class has been annotated.
         ``None`` (default) refuses instead, as before.
@@ -2651,6 +2972,24 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
     raw_labels = list(crops.loc[train_index, annotation_column].to_numpy())
     class_values = sorted({_class_value(v) for v in raw_labels})
 
+    rejected_index: List[Any] = []
+    if rejections:
+        rejected_index, rejected_labels, unusable = _rejections_as_labels(
+            rejections, class_values, set(train_index), set(matrix.index))
+        if rejected_index:
+            train_index = train_index.append(pd.Index(rejected_index))
+            raw_labels = raw_labels + rejected_labels
+            class_values = sorted({_class_value(v) for v in raw_labels})
+            notes.append(
+                f"{len(rejected_index)} rejected suggestions were fitted as "
+                f"the other class: in a two-class column a rejection of "
+                f"class 1 is an example of class 2.")
+        if unusable:
+            notes.append(
+                f"{unusable} rejected suggestions could not be fitted: only "
+                f"a column whose classes are 1 and 2 has an 'other class' "
+                f"to fit a rejection as.")
+
     synthetic_index: List[Any] = []
     if len(class_values) == 1 and synthetic_negatives:
         present = class_values[0]
@@ -2661,8 +3000,9 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
                 f"{annotation_column!r}, and synthetic negatives are defined "
                 f"for the binary classes 1 and 2 only. Annotate an example "
                 f"of the other class instead.")
+        already = set(rejected_index)
         pool = [i for i in crops.index[crops[annotation_column].isna()]
-                if i in matrix.index]
+                if i in matrix.index and i not in already]
         if len(pool) < int(synthetic_negatives):
             raise ValueError(
                 f"Asked for {int(synthetic_negatives)} synthetic negatives "
@@ -2775,6 +3115,7 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
                 model_type, n_labels, n_new, notes,
                 {"balance": str(balance),
                  "synthetic_negatives": len(synthetic_index),
+                 "rejections_fitted": len(rejected_index),
                  "class_weight_balanced": _model_reweights(model_type)},
                 table=table, key=key, image_type=image_type)
 
@@ -2845,6 +3186,37 @@ def _model_reweights(model_type: str) -> bool:
     name = str(model_type).lower().replace("-", "_")
     return name in ("logistic_regression", "logistic", "lr",
                     "random_forest", "rf")
+
+
+def _rejections_as_labels(rejections: Mapping[Any, Any],
+                          class_values: Sequence[Any],
+                          labelled: set, scored: set):
+    """Turn rejected suggestions into rows the round can fit.
+
+    :param rejections: ``{crop key: rejected class}``.
+    :param class_values: the classes the annotator's own labels hold.
+    :param labelled: crop keys that already carry a label. Those win: the
+        label is the stronger statement and is already in the fit.
+    :param scored: crop keys that have a row in the feature matrix.
+    :returns: ``(keys, labels, unusable)`` -- the crops to add, the class
+        each is fitted as, and how many rejections had no "other class".
+    """
+    binary = set(_class_value(v) for v in class_values) <= {1, 2}
+    keys: List[Any] = []
+    labels: List[Any] = []
+    unusable = 0
+    seen = set()
+    for key, refused in dict(rejections).items():
+        if key in labelled or key not in scored or key in seen:
+            continue
+        other = _absent_binary_class(refused) if binary else None
+        if other is None:
+            unusable += 1
+            continue
+        seen.add(key)
+        keys.append(key)
+        labels.append(other)
+    return keys, labels, unusable
 
 
 def _absent_binary_class(present: Any) -> Optional[int]:
@@ -3036,3 +3408,306 @@ def _write_round_card(model_path: str, report: Dict[str, Any],
     except Exception as exc:
         notes.append(f"Round model card could not be written ({exc}).")
         return ""
+
+
+_TTA_TRANSFORMS: Tuple[str, ...] = ("identity", "flip_lr", "flip_ud", "rot90")
+
+_UNCERTAINTY_MATCH_IOU = 0.5
+
+_UNCERTAIN_PIXEL = 0.5
+
+_NEAR_MISS_MARGIN = 2.0
+
+_NEAR_MISS_RING = 2
+
+_FLOW_ERROR_LIMIT = 0.4
+
+
+def _spatial_axes(image: np.ndarray) -> Tuple[int, int]:
+    """The two image axes a flip or a rotation acts on.
+
+    A channel-first stack, a leading axis of four or fewer planes in front
+    of a larger last axis, is turned on its last two axes; every other
+    array on its first two, which covers a plain field and a channel-last
+    one.
+
+    :param image: a 2-D field, or a 3-D field with a channel axis.
+    :returns: the pair of axes.
+    """
+    if image.ndim == 3 and image.shape[0] <= 4 < image.shape[-1]:
+        return (1, 2)
+    return (0, 1)
+
+
+def _tta_forward(image: np.ndarray, name: str) -> np.ndarray:
+    """``image`` with one test-time transform applied.
+
+    :param image: the field.
+    :param name: one of ``identity``, ``flip_lr``, ``flip_ud`` or ``rot90``.
+    :returns: the transformed field, as a contiguous copy.
+    :raises ValueError: for a transform name not listed.
+    """
+    rows, cols = _spatial_axes(image)
+    if name == "identity":
+        out = image
+    elif name == "flip_lr":
+        out = np.flip(image, axis=cols)
+    elif name == "flip_ud":
+        out = np.flip(image, axis=rows)
+    elif name == "rot90":
+        out = np.rot90(image, 1, axes=(rows, cols))
+    else:
+        raise ValueError(f"unknown test-time transform {name!r}; expected "
+                         f"one of {list(_TTA_TRANSFORMS)}")
+    return np.ascontiguousarray(out)
+
+
+def _tta_inverse(labels: np.ndarray, name: str) -> np.ndarray:
+    """A label image segmented under ``name``, turned back onto the field.
+
+    :param labels: the 2-D label image the model returned.
+    :param name: the transform the image was segmented under.
+    :returns: the label image in the field's own orientation.
+    """
+    labels = np.asarray(labels)
+    if name == "identity":
+        return labels
+    if name == "flip_lr":
+        return np.ascontiguousarray(labels[:, ::-1])
+    if name == "flip_ud":
+        return np.ascontiguousarray(labels[::-1, :])
+    if name == "rot90":
+        return np.ascontiguousarray(np.rot90(labels, -1))
+    raise ValueError(f"unknown test-time transform {name!r}")
+
+
+def _tta_label_sets(image: Any, segment: Callable[[np.ndarray], Any],
+                    transforms: Sequence[str] = _TTA_TRANSFORMS
+                    ) -> List[np.ndarray]:
+    """Segment one field once per test-time transform, all in its frame.
+
+    Flips and a quarter turn change nothing about the biology, so a model
+    that is sure of an object draws it the same way every time; where the
+    passes disagree, the model was guessing. The first transform is the
+    reference whose objects are scored, so it should be ``identity``.
+
+    :param image: the field, 2-D or with one channel axis.
+    :param segment: ``image -> labels``, any segmenter at all (Cellpose, a
+        threshold, another backend), called once per transform.
+    :param transforms: the transforms to run, from ``identity``,
+        ``flip_lr``, ``flip_ud`` and ``rot90``.
+    :returns: one int32 label image per transform, each in the field's own
+        orientation.
+    """
+    return _tta_passes(image, segment, transforms)["labels"]
+
+
+def _tta_passes(image: Any, segment: Callable[[np.ndarray], Any],
+                transforms: Sequence[str] = _TTA_TRANSFORMS
+                ) -> Dict[str, Any]:
+    """Every test-time pass of one field, with Cellpose's maps when given.
+
+    As :func:`_tta_label_sets`, but a segmenter that returns
+    ``(labels, cell probability)`` or ``(labels, cell probability, flow
+    vectors)`` has those kept too: each probability map turned back onto
+    the field, and the flow vectors of the first pass only, since turning
+    vectors back would also mean turning the vectors themselves.
+
+    :param image: the field, 2-D or with one channel axis.
+    :param segment: ``image -> labels`` or a tuple as above.
+    :param transforms: the transforms to run; the first is the reference.
+    :returns: ``{"labels": [...], "probabilities": [...] or None,
+        "vectors": (2, H, W) array or None}``.
+    """
+    field = np.asarray(image)
+    labels_out: List[np.ndarray] = []
+    probabilities: List[np.ndarray] = []
+    vectors = None
+    for index, name in enumerate(transforms):
+        output = segment(_tta_forward(field, name))
+        parts = output if isinstance(output, tuple) else (output,)
+        labels = _tta_inverse(np.asarray(parts[0]), name).astype(np.int32)
+        labels_out.append(labels)
+        if len(parts) > 1 and parts[1] is not None:
+            probability = _tta_inverse(np.asarray(parts[1], np.float32), name)
+            if probability.shape == labels.shape:
+                probabilities.append(probability)
+        if index == 0 and len(parts) > 2 and parts[2] is not None:
+            flow = np.asarray(parts[2], np.float32)
+            if flow.shape == (2,) + labels.shape:
+                vectors = flow
+    return {"labels": labels_out,
+            "probabilities": (probabilities if len(probabilities)
+                              == len(labels_out) else None),
+            "vectors": vectors}
+
+
+def _flow_errors(labels: np.ndarray, vectors: np.ndarray
+                 ) -> Dict[int, float]:
+    """Cellpose's own flow error of every object, by label.
+
+    The flows an object's outline implies are compared with the flows the
+    network predicted, as Cellpose does before discarding an object at its
+    flow threshold (0.4 by default).
+
+    :param labels: the reference label image.
+    :param vectors: the network's ``(2, H, W)`` flow vectors for it.
+    :returns: ``{label: error}``, empty when Cellpose is not importable or
+        there are no objects.
+    """
+    ids = np.unique(labels)
+    ids = ids[ids != 0]
+    if not ids.size:
+        return {}
+    try:
+        import torch
+        from cellpose.dynamics import flow_error
+    except Exception:                                        # noqa: BLE001
+        return {}
+    compact = np.searchsorted(np.concatenate([[0], ids]), labels)
+    errors, _ = flow_error(compact.astype(np.int32), np.asarray(vectors),
+                           device=torch.device("cpu"))
+    return {int(label): float(error) for label, error in zip(ids, errors)}
+
+
+def _segmentation_uncertainty(label_sets: Sequence[Any],
+                              match_iou: float = _UNCERTAINTY_MATCH_IOU,
+                              probabilities: Optional[Sequence[Any]] = None,
+                              vectors: Optional[Any] = None,
+                              probability_threshold: float = 0.0
+                              ) -> Dict[str, Any]:
+    """How much repeated segmentations of one field disagree.
+
+    The passes may be test-time transforms of one model or several models
+    (an ensemble); a model can repeat an error under every transform, and
+    only another model, or its own cell probability, can show it.
+
+    ``map``
+        Per pixel, in ``[0, 1]``: the largest of how split the passes are
+        on foreground against background (``4 p (1 - p)``, 1 when half the
+        passes call a pixel an object), the uncertainty of the reference
+        object the pixel belongs to and, with ``probabilities``, ``4 q (1 -
+        q)`` of the cell probability ``q`` of a near miss (below).
+    ``objects``
+        Per object of the first (reference) pass: one minus its mean best
+        IoU with any object of each other pass (0 is an object every pass
+        drew identically, 1 one no other pass drew), or, with ``vectors``,
+        its Cellpose flow error divided by 0.4 (Cellpose's own discard
+        threshold, capped at 1) when that is larger.
+    ``area``
+        The fraction of the foreground (every pixel any pass drew) whose
+        disagreement, the first two readings of ``map``, is at least 0.5.
+    ``missed``
+        With ``probabilities`` (one cell-probability logit map per pass),
+        the pixels whose mean logit is above ``probability_threshold``
+        less 2 and that lie more than 2 pixels from anything a pass drew,
+        as a fraction of the foreground (capped at 1): objects every pass
+        missed the same way, which disagreement cannot see. 0 without
+        probabilities.
+    ``field``
+        ``area + missed``, the field score the curation queue sorts on.
+    ``spread``
+        One minus the mean panoptic quality of each other pass against the
+        reference, matching objects one to one at ``match_iou``.
+
+    These are orderings, not probabilities of error: use them to rank
+    objects and fields for review.
+
+    :param label_sets: two or more label images of one field, same shape.
+    :param match_iou: the IoU at which two passes' objects are one object.
+    :param probabilities: optional cell-probability logit maps, one per pass
+        or any number, each the field's shape.
+    :param vectors: optional ``(2, H, W)`` Cellpose flow vectors of the
+        reference pass.
+    :param probability_threshold: the cell-probability threshold the passes
+        were drawn at. Default 0.0.
+    :returns: ``{"map", "objects", "area", "missed", "field", "spread",
+        "flow_errors", "n_objects", "n_passes"}``, ``objects`` and
+        ``flow_errors`` being ``{label: value}`` for the reference pass.
+    :raises ValueError: for fewer than two passes or mismatched shapes.
+    """
+    from scipy import ndimage as ndi
+
+    from .scorecard import iou_matrix, match_objects
+
+    sets = [np.asarray(labels) for labels in label_sets]
+    if len(sets) < 2:
+        raise ValueError("segmentation uncertainty needs at least two passes")
+    shape = sets[0].shape
+    if any(labels.shape != shape for labels in sets):
+        raise ValueError("every pass must have the field's shape")
+    reference = sets[0]
+    others = sets[1:]
+    foreground = np.mean([labels > 0 for labels in sets], axis=0)
+    pixel = (4.0 * foreground * (1.0 - foreground)).astype(np.float32)
+
+    ref_ids = np.unique(reference)
+    ref_ids = ref_ids[ref_ids != 0]
+    best = np.zeros((ref_ids.size, len(others)), dtype=float)
+    qualities = []
+    for column, other in enumerate(others):
+        ious, t_ids, _p_ids = iou_matrix(reference, other)
+        if ious.size and t_ids.size:
+            best[:, column] = ious.max(axis=1)
+        match = match_objects(reference, other, threshold=match_iou)
+        matched = len(match.pairs)
+        misses = (match.n_truth - matched) + (match.n_pred - matched)
+        denominator = matched + 0.5 * misses
+        qualities.append(sum(match.ious) / denominator if denominator
+                         else 1.0)
+    per_object = 1.0 - best.mean(axis=1) if ref_ids.size else np.zeros(0)
+
+    def _paint(values: np.ndarray) -> np.ndarray:
+        """:param values: one value per reference object, in id order.
+
+        :returns: each object's pixels set to its value, 0 elsewhere.
+        """
+        if not ref_ids.size:
+            return np.zeros(shape, dtype=np.float32)
+        lookup = np.zeros(int(reference.max()) + 1, dtype=np.float32)
+        lookup[ref_ids] = values
+        return lookup[np.where(reference > 0, reference, 0)] * (reference > 0)
+
+    disagreement = np.maximum(pixel, _paint(per_object))
+    drawn = foreground > 0
+    extent = int(drawn.sum())
+    area = (float((disagreement >= _UNCERTAIN_PIXEL).sum() / extent)
+            if extent else 0.0)
+
+    flows = _flow_errors(reference, vectors) if vectors is not None else {}
+    if flows:
+        flow_score = np.array([min(1.0, flows.get(int(label), 0.0)
+                                   / _FLOW_ERROR_LIMIT) for label in ref_ids])
+        per_object = np.maximum(per_object, flow_score)
+    objects = {int(label): float(value)
+               for label, value in zip(ref_ids, per_object)}
+    uncertainty = np.maximum(pixel, _paint(per_object))
+
+    missed = 0.0
+    if probabilities is not None and len(probabilities):
+        logit = np.mean([np.asarray(p, np.float32) for p in probabilities],
+                        axis=0)
+        if logit.shape != shape:
+            raise ValueError("every probability map must have the field's "
+                             "shape")
+        cut = float(probability_threshold)
+        near = ((logit > cut - _NEAR_MISS_MARGIN)
+                & ~ndi.binary_dilation(drawn, iterations=_NEAR_MISS_RING))
+        count = int(near.sum())
+        if count:
+            missed = float(count / max(extent, count))
+            q = 1.0 / (1.0 + np.exp(-(logit - cut)))
+            uncertainty = np.where(
+                near, np.maximum(uncertainty, 4.0 * q * (1.0 - q)),
+                uncertainty).astype(np.float32)
+    return {
+        "map": uncertainty.astype(np.float32),
+        "objects": objects,
+        "area": area,
+        "missed": missed,
+        "field": float(area + missed),
+        "spread": float(1.0 - np.mean(qualities)),
+        "flow_errors": flows,
+        "n_objects": int(ref_ids.size),
+        "n_passes": len(sets),
+    }

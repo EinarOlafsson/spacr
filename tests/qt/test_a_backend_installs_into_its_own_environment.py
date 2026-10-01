@@ -505,6 +505,8 @@ def test_the_screen_says_each_backends_state(screen):
 
 def test_the_screen_installs_and_uninstalls_from_its_buttons(screen,
                                                              monkeypatch):
+    # DINOCell, not SAMCell: SAMCell's zoo row is an alpha feature (405) and
+    # is hidden from the screen while "Show alpha features" is off.
     asked, removed, scanned = [], [], []
     monkeypatch.setattr(mzp, "install_backend_package",
                         lambda parent, entry: asked.append(entry.name) or True)
@@ -513,7 +515,7 @@ def test_the_screen_installs_and_uninstalls_from_its_buttons(screen,
     monkeypatch.setattr(screen, "scan",
                         lambda *a, **k: scanned.append(k) or True)
     screen.set_entries([_backend_row("cellpose3", "installable"),
-                        _backend_row("samcell", "installed", "/env"),
+                        _backend_row("dinocell", "installed", "/env"),
                         _cellpose3_row("cyto2", ready=False)])
     screen.select(0)
     assert screen._btn_download.text() == "Install"
@@ -529,8 +531,8 @@ def test_the_screen_installs_and_uninstalls_from_its_buttons(screen,
     assert screen._btn_uninstall.isEnabled()
     assert not screen._btn_download.isEnabled()
     assert screen.uninstall_selected() is True
-    assert removed == ["samcell"]
-    assert "SAMCell was uninstalled." in screen.status_text()
+    assert removed == ["dinocell"]
+    assert "DINOCell was uninstalled." in screen.status_text()
     screen.select(0)
     assert screen.uninstall_selected() is False
     assert len(scanned) == 4

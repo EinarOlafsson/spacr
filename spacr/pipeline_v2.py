@@ -482,6 +482,41 @@ def _cellpose_channel_indices(
     return tuple(dict.fromkeys(indices)) or (0,)
 
 
+def _backend_mask_settings(settings: Optional[Dict[str, Any]],
+                           object_type: str, *, diameter: Optional[float],
+                           flow_threshold: float,
+                           cellprob_threshold: float) -> Dict[str, Any]:
+    """The settings a prefixed model's masks function reads, as V1 has them.
+
+    V1 hands the run's settings to :func:`spacr.object._cellpose3_masks`
+    and the object's magnification diameter as its default. The same run's
+    settings arrive here as ``postprocess_settings``; the thresholds and
+    diameter this pass was called with win over them, and the magnification
+    default is kept under ``_default_diameter``.
+
+    :param settings: the run's settings, or None.
+    :param object_type: the object being segmented.
+    :param diameter: the diameter this pass was called with; None keeps the
+        object's own setting.
+    :param flow_threshold: this pass's flow threshold.
+    :param cellprob_threshold: this pass's cell probability threshold.
+    :returns: a new settings dict.
+    """
+    merged = dict(settings or {})
+    merged[f"{object_type}_flow_threshold"] = float(flow_threshold)
+    merged[f"{object_type}_cellprob_threshold"] = float(cellprob_threshold)
+    if diameter is not None:
+        merged[f"{object_type}_diameter"] = diameter
+    default = 30.0
+    if merged.get("magnification") is not None:
+        from .utils import _get_diam
+        default = _get_diam(merged["magnification"], obj=object_type)
+    elif diameter:
+        default = float(diameter)
+    merged["_default_diameter"] = default
+    return merged
+
+
 @timed
 def stream_masks_from_stack(
     stacks: List[StackFile],
@@ -529,9 +564,9 @@ def stream_masks_from_stack(
         normalisation/Cellpose; persisted intensity planes and scratch NPZs
         remain raw, and completion is recorded only after the combined stack
         has been atomically replaced.
-    :param psf_session: optional captured PSF session. Processes selected
-        intensities after illumination and before normalization, padding or
-        Cellpose. Stored image channels stay raw; only the appended labels
+    :param psf_session: optional captured PSF session. Unmixes each whole
+        field first when unmixing is on, then processes selected intensities
+        after illumination and before normalization, padding or Cellpose. Stored image channels stay raw; only the appended labels
         depend on PSF processing.
     :returns: the same list, with each :class:`StackFile.shape` /
         ``.channels`` updated to reflect the appended mask channel.
@@ -546,27 +581,48 @@ def stream_masks_from_stack(
         intensity_settings.get(f"{object_type}_min_intensity", 0),
         intensity_settings.get(f"{object_type}_max_intensity", 0),
     )
-    filter_by_raw_intensity = minimum > 0 or maximum > 0
+    from .qt.mask_engine import filters_need_intensity, settings_filters
+    filter_by_raw_intensity = (minimum > 0 or maximum > 0 or filters_need_intensity(
+        settings_filters(intensity_settings, object_type)))
 
     scratch = Path(npz_dir) if npz_dir else stacks[0].path.parent / "_scratch"
     scratch.mkdir(parents=True, exist_ok=True)
 
     try:
-        from cellpose import models as cp_models   # type: ignore
-    except Exception as e:
+        from .object import _prefixed_model_route
+    except ImportError as e:
         raise RuntimeError(
-            "cellpose is required for v2 mask streaming"
+            "cellpose is required for v2 mask streaming: spacr.object, "
+            f"which routes a model setting to its backend, could not be "
+            f"imported ({e})"
         ) from e
+    route = _prefixed_model_route(model_name, postprocess_settings)
+    if route is not None:
+        from . import _segmentation_backends
+        backend, backend_masks = route
+        model = _segmentation_backends._load_backend(
+            backend, model_name=model_name, object_type=object_type)
+        backend_settings = _backend_mask_settings(
+            postprocess_settings, object_type, diameter=diameter,
+            flow_threshold=flow_threshold,
+            cellprob_threshold=cellprob_threshold)
+    else:
+        try:
+            from cellpose import models as cp_models   # type: ignore
+        except Exception as e:
+            raise RuntimeError(
+                "cellpose is required for v2 mask streaming"
+            ) from e
 
-    from .accelerator import cellpose_kwargs
-    pretrained = _resolve_cellpose_pretrained(
-        model_name, object_type=object_type)
-    model = cp_models.CellposeModel(
-        pretrained_model=pretrained,
-        **cellpose_kwargs(),
-    )
+        from .accelerator import cellpose_kwargs
+        pretrained = _resolve_cellpose_pretrained(
+            model_name, object_type=object_type)
+        model = cp_models.CellposeModel(
+            pretrained_model=pretrained,
+            **cellpose_kwargs(),
+        )
 
-    _record_cellpose_hash(model, model_name)
+        _record_cellpose_hash(model, model_name)
 
     for batch_start in range(0, len(stacks), batch_fields):
         batch = stacks[batch_start:batch_start + batch_fields]
@@ -589,7 +645,9 @@ def stream_masks_from_stack(
                 channels_for_cellpose, arr.shape[-1])
             if filter_by_raw_intensity:
                 raw_intensity_per_field.append(arr[..., indices[0]])
-            selected = arr[..., list(indices)]
+            source = (psf_session.unmix(arr) if psf_session is not None
+                      else arr)
+            selected = source[..., list(indices)]
             if illumination_session is not None:
                 from .measure_hooks import PreprocessingContext
                 context = PreprocessingContext(
@@ -659,18 +717,26 @@ def stream_masks_from_stack(
             f"cellpose ({len(loaded)} fields)",
             logger="spacr.pipeline_v2",
         ):
-            out = model.eval(
-                cellpose_images,
-                batch_size=len(cellpose_images),
-                normalize=False,
-                channel_axis=-1,
-                min_size=int(min_size),
-                progress=True,
-                diameter=diameter,
-                flow_threshold=float(flow_threshold),
-                cellprob_threshold=float(cellprob_threshold),
-                resample=bool(resample),
-            )
+            if route is not None:
+                masks, _flows = backend_masks(
+                    model, cellpose_images, backend_settings, object_type,
+                    min_size=int(min_size),
+                    default_diameter=backend_settings['_default_diameter'],
+                    batch_size=max(8, len(cellpose_images)))
+                out = (masks,)
+            else:
+                out = model.eval(
+                    cellpose_images,
+                    batch_size=len(cellpose_images),
+                    normalize=False,
+                    channel_axis=-1,
+                    min_size=int(min_size),
+                    progress=True,
+                    diameter=diameter,
+                    flow_threshold=float(flow_threshold),
+                    cellprob_threshold=float(cellprob_threshold),
+                    resample=bool(resample),
+                )
             masks = out[0]
             if isinstance(masks, np.ndarray) and masks.ndim == 2:
                 masks = [masks]
@@ -682,8 +748,6 @@ def stream_masks_from_stack(
             from .object import merge_split_filter_masks
             filter_images = intensity_per_field
             if filter_by_raw_intensity:
-                # Match the padded segmentation canvas while retaining the
-                # original values, before illumination and normalization.
                 filter_images = [
                     np.pad(raw, (
                         (0, image.shape[0] - raw.shape[0]),
@@ -875,7 +939,8 @@ def run_v2(
     psf_session = _prepare_segmentation_psf(
         postprocess_settings or {}, src,
         _cellpose_channel_indices(channels_for_cellpose, len(stacks[0].channels)),
-        pipeline_style="v2")
+        pipeline_style="v2", stack_dir=stacks[0].path.parent,
+        load=lambda path: _as_hwc(np.load(path)))
     stream_masks_from_stack(
         stacks, model_name=model_name,
         channels_for_cellpose=channels_for_cellpose,
