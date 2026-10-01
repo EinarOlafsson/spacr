@@ -1019,11 +1019,12 @@ def _dilution_factor(dilution: Any) -> Optional[float]:
     """
     try:
         factor = float(dilution)
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, OverflowError):
         return None
     if not np.isfinite(factor) or factor <= 0:
         return None
-    return 1.0 / factor if factor < 1.0 else factor
+    factor = 1.0 / factor if factor < 1.0 else factor
+    return factor if np.isfinite(factor) else None
 
 
 def _cfu_per_ml(count: Any, dilution: Any, plated_volume_ul: Any
@@ -1042,12 +1043,13 @@ def _cfu_per_ml(count: Any, dilution: Any, plated_volume_ul: Any
     try:
         count = float(count)
         volume_ml = float(plated_volume_ul) / 1000.0
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, OverflowError):
         return None
-    if factor is None or count < 0 or not np.isfinite(volume_ml) \
+    if factor is None or not np.isfinite(count) or count < 0 or not np.isfinite(volume_ml) \
             or volume_ml <= 0:
         return None
-    return count * factor / volume_ml
+    titre = count * factor / volume_ml
+    return titre if np.isfinite(titre) else None
 
 
 def _colony_count_flag(count: int, too_many: Any = _COLONY_TOO_MANY,
