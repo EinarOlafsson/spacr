@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-09-30 21:19-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: es\n"
@@ -49,8 +49,8 @@ msgstr "Pulse **Guardar máscara** o **Ctrl+S** antes de pasar a otro campo. Al 
 msgid "Use **Keep** or **Discard** to record a field-level curation verdict and advance. These verdicts go to ``csv/keep_discard.csv``; Discard records a decision without deleting the image or its mask. Save edits separately."
 msgstr "Use **Mantener** o **Descartar** para registrar un veredicto de curación a nivel de campo y avanzar. Estos veredictos se escriben en ``csv/keep_discard.csv``; Descartar registra una decisión sin eliminar la imagen ni su máscara. Guarde las ediciones por separado."
 
-msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. **Training datasets…** opens a sample of fields from the dataset each published model was trained on."
-msgstr "Para probar la pantalla sin datos propios, **Cargar datos de prueba...** descarga diez campos sin segmentar de vacuolas de Toxoplasma, con sus máscaras curadas guardadas aparte en ``ground_truth_masks/``, y abre el primero. **Conjuntos de datos de entrenamiento…** abre una muestra de campos del conjunto de datos con el que se entrenó cada modelo publicado."
+msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on."
+msgstr "Para probar la pantalla sin datos propios, **Cargar datos de prueba...** descarga diez campos sin segmentar de vacuolas de Toxoplasma, con sus máscaras curadas guardadas aparte en ``ground_truth_masks/``, y abre el primero. La flecha del mismo botón ofrece una muestra de campos del conjunto de datos con el que se entrenó cada modelo publicado."
 
 msgid "Drop images and folders"
 msgstr "Soltar imágenes y carpetas"
@@ -370,11 +370,11 @@ msgstr "elija **Enséñame…** y responda «¿Qué canal es este?» para una im
 msgid "**Add channel** and **Add mask** add columns; each mask column names its object class (cell, nucleus, pathogen or organelle) and the channel whose images it outlines. A consolidated folder is read under its files' original names. Rows missing an image block **Apply** and say how to fix them; RGB images and z-stacks are offered for conversion to one grey plane, keeping the originals. Nothing moves before **Apply**. The images are then moved into ``sorted_channels/`` inside the source folder, with a folder per channel, the masks and ``merged/``, and every move is recorded in ``channel_sorting_manifest.csv``. Point Measure's ``src`` at that ``sorted_channels`` folder. See :func:`spacr.channel_sorting.build_plan` and :ref:`Measure inputs and outputs <workflow-module-measure>`."
 msgstr "**Añadir canal** y **Añadir máscara** añaden columnas; cada columna de máscara indica su clase de objeto (célula, núcleo, patógeno u orgánulo) y el canal cuyas imágenes delimita. Una carpeta consolidada se lee con los nombres originales de sus archivos. Las filas a las que les falta una imagen bloquean **Aplicar** e indican cómo corregirlas; las imágenes RGB y las pilas z se ofrecen para convertirlas a un solo plano en gris, conservando los originales. Nada se mueve antes de **Aplicar**. Después, las imágenes se trasladan a ``sorted_channels/`` dentro de la carpeta de origen, con una carpeta por canal, las máscaras y ``merged/``, y cada traslado se registra en ``channel_sorting_manifest.csv``. Apunte el ``src`` de Medición a esa carpeta ``sorted_channels``. Consulte :func:`spacr.channel_sorting.build_plan` y :ref:`entradas y salidas de Medición <workflow-module-measure>`."
 
-msgid "Contribute images and masks"
-msgstr "Aportar imágenes y máscaras"
+msgid "Upload data"
+msgstr "Subir datos"
 
-msgid "**Contribute images and masks…** sends the image on screen with its mask, every curated image in the folder with its saved mask, or a chosen images folder and masks folder, to spaCR's community datasets on Hugging Face for training future models. Every image needs a saved mask of the same name and size. Name the dataset, add notes, and agree to the licence; the dialog shows the destination as a link you can open, select and copy. A new dataset appears with its first upload, and each contribution is reviewed before it is used."
-msgstr "**Aportar imágenes y máscaras…** envía la imagen en pantalla con su máscara, cada imagen curada de la carpeta con su máscara guardada, o una carpeta de imágenes y otra de máscaras elegidas, a los conjuntos de datos comunitarios de spaCR en Hugging Face para entrenar modelos futuros. Cada imagen necesita una máscara guardada con el mismo nombre y tamaño. Asigne un nombre al conjunto de datos, añada notas y acepte la licencia; el cuadro de diálogo muestra el destino como un enlace que puede abrir, seleccionar y copiar. Un conjunto de datos nuevo aparece con su primera subida, y cada contribución se revisa antes de usarse."
+msgid "**Upload data…** sends the image on screen with its mask, every curated image in the folder with its saved mask, or a chosen images folder and masks folder, to spaCR's community datasets on Hugging Face for training future models. Every image needs a saved mask of the same name and size. Name the dataset, add notes, and agree to the licence; the dialog shows the destination as a link you can open, select and copy. A new dataset appears with its first upload, and each contribution is reviewed before it is used."
+msgstr "**Subir datos…** envía la imagen en pantalla con su máscara, cada imagen curada de la carpeta con su máscara guardada, o una carpeta de imágenes y otra de máscaras elegidas, a los conjuntos de datos comunitarios de spaCR en Hugging Face para entrenar modelos futuros. Cada imagen necesita una máscara guardada con el mismo nombre y tamaño. Asigne un nombre al conjunto de datos, añada notas y acepte la licencia; el cuadro de diálogo muestra el destino como un enlace que puede abrir, seleccionar y copiar. Un conjunto de datos nuevo aparece con su primera subida, y cada contribución se revisa antes de usarse."
 
 msgid "The masthead also opens Cellpose Workbench, Mask the whole folder, Model Compare, Model Zoo, Curate and Napari Bridge. Their input/output contracts are linked from the :ref:`module map <workflow-module-make_masks>`."
 msgstr "La cabecera también abre Banco de trabajo Cellpose, Generar máscaras para toda la carpeta, Comparar modelos, Biblioteca de modelos, Curación y Puente con napari. Sus contratos de entrada/salida están enlazados desde el :ref:`mapa de módulos <workflow-module-make_masks>`."
