@@ -1206,6 +1206,18 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # pickers and its plan/load error lines (alpha); "Load plan…" already has
 # a row.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    # The Make Masks button re-layout (2026-09-30); reviewed records exist
+    # (tenth-pass make-masks-layout), awaiting the catalog rebuild.
+    "Map where the segmentation of this field is least sure, or rank the "
+    "open fields with the most uncertain first. The same menu as the "
+    "Uncertainty button on the bottom row; four detection runs per field.",
+    "The arrow offers a sample of each training dataset a published model "
+    "was trained on, with its masks, to edit here.",
+    "Toxoplasma vacuoles (test data)",
+    "Training dataset: {name}",
+    "Upload data",
+    "Upload data: send images and their masks to a community training dataset.",
+    "Upload data…",
     "Control percentile",
     "Gate files",
     "Saved Gate Editor gate files, separated by semicolons.",
