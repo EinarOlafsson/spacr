@@ -71,7 +71,6 @@ WIDGET_LABELS = {
     "PlaqueEstimateScaleTime": ("Estimate scale / time (experimental)",
                                 "Experimental growth estimates"),
     "PlaqueEstimateScaleTimeNote": ("Published RH/HFF reference",),
-    "MakeMasksUseInMaskGeneration": ("Use in Mask generation",),
     "DistributedAllocatedGpus": ("segment batches on every GPU allocated",),
     "MaskGpuProgress": (),
     "MeasureConfluencyToggle": ("Confluency",),
@@ -245,14 +244,38 @@ def test_no_lesson_teaches_or_shows_an_alpha_feature(path):
         + "\n  ".join(found))
 
 
+#: Published references already fixed in the lesson source and waiting for
+#: the next publication, as {lesson id: {exact finding}}. Each entry must
+#: still be found in the published catalog: once the corrected lesson is
+#: published, the stale entry fails the test until it is removed.
+PUBLISHED_PENDING_REPUBLICATION = {
+    # 24_plaque scene 15 named 501's "Experimental growth estimates"; the
+    # source narration drops it and the re-recorded lesson awaits publication.
+    "24_plaque": {".scenes[14].narration: 501 widget PlaqueEstimateScaleTime "
+                  "('Experimental growth estimates')"},
+}
+
+
 def test_the_published_catalog_teaches_no_alpha_feature():
     catalog = json.loads(PUBLISHED_CATALOG.read_text(encoding="utf-8"))
-    found = {}
+    found, stale = {}, {}
     for lesson in catalog["lessons"]:
-        hits = alpha_references(lesson, alpha_apps=_alpha_apps())
-        if hits:
-            found[lesson.get("id")] = hits
+        hits = set(alpha_references(lesson, alpha_apps=_alpha_apps()))
+        pending = PUBLISHED_PENDING_REPUBLICATION.get(lesson.get("id"), set())
+        if hits - pending:
+            found[lesson.get("id")] = sorted(hits - pending)
+        if pending - hits:
+            stale[lesson.get("id")] = sorted(pending - hits)
     assert not found, found
+    assert not stale, ("Published and no longer found; remove from "
+                       f"PUBLISHED_PENDING_REPUBLICATION: {stale}")
+
+
+def test_pending_republication_entries_are_fixed_in_the_source():
+    for lesson_id in PUBLISHED_PENDING_REPUBLICATION:
+        path = REPO / "tools" / "tutorials" / "lessons" / f"{lesson_id}.json"
+        lesson = json.loads(path.read_text(encoding="utf-8"))
+        assert not alpha_references(lesson, alpha_apps=_alpha_apps()), lesson_id
 
 
 #: A fixed registry for the scanner's own tests, so they do not change as
