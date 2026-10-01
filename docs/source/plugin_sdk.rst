@@ -13,6 +13,26 @@ A malformed or failing plugin is isolated and reported by
 ``spacr-plugins doctor``; it cannot replace a built-in module or prevent spaCR
 from starting.
 
+Browse and install from a catalogue
+----------------------------------
+
+Enable **Show alpha features** in Preferences, then open its **Plugins** tab.
+Enter a catalogue JSON file, its containing folder, or an HTTP(S) address in
+**Catalogue** and press **List**. Select an entry to **Install or update** or
+**Uninstall** it. For an installed recipe, **Open** loads its saved settings
+into the corresponding module without starting analysis.
+
+Listing, installation and removal run in the background. The tab shows
+**Working…** and temporarily disables its catalogue controls while an action
+runs. Other interface controls remain usable. Closing Preferences does not
+cancel an installation; it finishes independently of the window. Reopen the
+tab to inspect the installed result. A failed catalogue refresh is reported
+separately from a successful installation or removal.
+
+Catalogue plugins use separate installation folders but share spaCR's Python
+interpreter. Separate environments for conflicting dependencies are not yet
+provided by this catalogue installer.
+
 Minimal plugin
 --------------
 
