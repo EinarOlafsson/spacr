@@ -1,6 +1,6 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "d51fa05ba532327fc646e562da8e3db892506bb674e8a72ceb207efe407dd489",
+  "english_sha256": "b4c906f3e36969867ebd6851facc35b0587dfeb98f6378a13df051f2f9b0814c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -28,9 +28,7 @@
     "Til að athuga gæði skiptingarinnar í öllu verkefninu fyrir mælingu skaltu kveikja á QC í Actions-röðinni, við hlið 3D og Time. Glugginn sýnir svið og brunna þar sem grímur virðast óvenjulegar, til dæmis með miklu færri hluti en restin af plötunni, með tenglum til að skoða þá. Athugunin er aðeins ráðgefandi og stöðvar aldrei Measure; þegar glugganum er lokað slokknar á rofanum.",
     "Undir All settings geymir Image Preprocessing leiðréttingarnar sem Measure getur beitt á hvert svið fyrir mælingu: Image Deconvolution með punktdreififalli og Illumination Correction með líkani sem þú mast áður. Þær breyta pixlunum sem mældir eru í þessari keyrslu; grímurnar og fylkin á diskinum breytast ekki.",
     "Slökktu á Live og settu Normalize aftur á óvirkt fyrir þetta dæmi. Veldu stöðlun af ásettu ráði þegar úrklipp eru vistuð: kvörðun fyrir hvert úrklipp breytir þeim styrkmun sem myndflokkari sér síðar. Haltu upprunalegu sameinuðu fylkjunum fyrir megindlegar mælingar.",
-    "Virkjaðu vistun mælinga og úrklippa hluta, hafðu kveikt á Plot og veldu stærð úrklippa og úttaksrásir. Notaðu eitt vinnsluferli í þessu dæmi. Hafðu slökkt á Test mode til að vinna úr öllum sextán sjónsviðunum og smelltu svo á Run.",
-    "Fylgstu með stjórnborðinu þar til keyrslunni lýkur. Athugaðu hvaða sjónsvið tókust og skoðaðu villur áður en þú heldur áfram. Haltu stillingunum sem vistaðar voru með keyrslunni svo þú getir endurtekið mælingarnar.",
-    "Notaðu myndritalistann til að bera hlutina saman fyrir og eftir síun. Stærðarsíur og tengsl foreldra og afkvæma geta breytt því hvaða hlutir eru mældir. Dragðu skilrúmið til að gefa myndritunum meira pláss og skoðaðu óvæntar breytingar.",
+    "Kveiktu á vistun mælinga og búta af hlutum, hafðu Plot á og veldu stærð búta og úttaksrásir. Í fyrstu keyrslu mælir Test mode eitt svið; slökktu á því til að vinna öll sextán sviðin sem fylgja. Smelltu á Run, fylgstu með stjórnborðinu þar til keyrslunni lýkur og athugaðu svo hvaða svið tókust áður en þú heldur áfram.",
     "Skoðaðu úrklippamyndritið og finndu svo measurements.db í möppunni measurements og vistuðu myndir hlutanna í úrklippaúttaki verkefnisins. Haltu gagnagrunninum og slóðum myndanna saman. Haltu áfram í Annotate til að merkja dæmahluti, eða í Classify ef þú ert þegar með merkt þjálfunargögn."
   ]
 }

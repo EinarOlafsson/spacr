@@ -1,6 +1,6 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "d51fa05ba532327fc646e562da8e3db892506bb674e8a72ceb207efe407dd489",
+  "english_sha256": "b4c906f3e36969867ebd6851facc35b0587dfeb98f6378a13df051f2f9b0814c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -28,9 +28,7 @@
     "要在测量前检查整个项目的分割质量，请打开 Actions 行中 3D 和 Time 旁边的 QC。弹出窗口会列出掩膜看起来异常的视野和孔，例如对象数量远少于板上其他部分，并提供可供检查的链接。该检查仅供参考，从不会阻止 Measure；关闭弹出窗口时开关会随之关闭。",
     "在 All settings 下，Image Preprocessing 汇集了 Measure 在测量前可对每个视野应用的校正：使用点扩散函数的 Image Deconvolution，以及使用先前估计模型的 Illumination Correction。它们会改变本次运行中被测量的像素；掩膜和磁盘上的数组不会改变。",
     "关闭Live，并在本例中把Normalize恢复为关闭。保存裁剪图像时请有意识地选择归一化方式：逐个裁剪图像进行缩放，会改变之后图像分类器看到的强度差异。定量测量请保留原始的合并数组。",
-    "开启测量数据和对象裁剪图像的保存，保持Plot开启，并选择裁剪尺寸和输出通道。本例使用一个工作进程。保持Test mode关闭，以处理提供的全部十六个视野，然后点击Run。",
-    "在控制台中跟踪，直到运行完成。检查哪些视野成功，继续之前先排查失败的视野。把与本次运行一起保存的设置留好，以便重现测量结果。",
-    "使用图列表比较过滤前后的对象。大小过滤和父子关系可能改变哪些对象被测量。拖动分隔条给图留出更多空间，并检查任何意外的变化。",
+    "开启测量值和对象裁剪图像的保存，保持 Plot 开启，并选择裁剪尺寸和输出通道。第一次运行时，Test mode 只测量一个视野；关闭它即可处理全部十六个附带视野。点击 Run，关注控制台直到运行完成，然后在继续之前检查哪些视野成功。",
     "检查裁剪图，然后在measurements文件夹中找到measurements.db，并在项目的裁剪输出中找到保存的对象图像。把数据库和图像路径放在一起。接下来可以用Annotate为示例对象加标签；如果已有带标签的训练数据，也可以直接使用Classify。"
   ]
 }

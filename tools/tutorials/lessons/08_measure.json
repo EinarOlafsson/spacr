@@ -73,17 +73,7 @@
     },
     {
       "visual": "batch_20_batch_settings",
-      "narration": "Enable saving measurements and object crops, keep Plot on, and choose the crop size and output channels. Use one worker for this example. Leave Test mode off to process all sixteen supplied fields, then click Run.",
-      "hold_after": 0.7
-    },
-    {
-      "visual": "batch_26_measure_console_complete",
-      "narration": "Follow the console until the run completes. Check which fields succeeded and inspect any failures before proceeding. Keep the settings saved with this run so you can reproduce the measurements.",
-      "hold_after": 0.7
-    },
-    {
-      "visual": "batch_25_measure_figure_00",
-      "narration": "Use the figure list to compare objects before and after filtering. Size filters and parent-child relationships can change which objects are measured. Drag the divider to give the figures more space and inspect any unexpected changes.",
+      "narration": "Enable saving measurements and object crops, keep Plot on, and choose the crop size and output channels. For a first run, Test mode measures one field; turn it off to process all sixteen supplied fields. Click Run and follow the console until the run completes, then check which fields succeeded before proceeding.",
       "hold_after": 0.7
     },
     {

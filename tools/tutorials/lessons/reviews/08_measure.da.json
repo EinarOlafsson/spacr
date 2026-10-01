@@ -1,6 +1,6 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "d51fa05ba532327fc646e562da8e3db892506bb674e8a72ceb207efe407dd489",
+  "english_sha256": "b4c906f3e36969867ebd6851facc35b0587dfeb98f6378a13df051f2f9b0814c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -28,9 +28,7 @@
     "For at kontrollere segmenteringskvaliteten i hele projektet før måling skal du slå QC til i Actions-rækken ved siden af 3D og Time. Vinduet viser felter og brønde, hvis masker ser usædvanlige ud, for eksempel med langt færre objekter end resten af pladen, med links til at undersøge dem. Kontrollen er kun vejledende og stopper aldrig Measure; når du lukker vinduet, slås kontakten fra.",
     "Under All settings rummer Image Preprocessing de korrektioner, Measure kan anvende på hvert felt før måling: Image Deconvolution med en punktspredningsfunktion og Illumination Correction med en model, du har estimeret tidligere. De ændrer de pixels, der måles i denne kørsel; maskerne og arrays på disken ændres ikke.",
     "Slå Live fra, og sæt Normalize tilbage til fra for dette eksempel. Vælg normaliseringen bevidst, når du gemmer udsnit: skalering pr. udsnit ændrer de intensitetsforskelle, som en senere billedklassifikator ser. Bevar de oprindelige sammenlagte arrays til kvantitative målinger.",
-    "Slå lagring af målinger og objektudsnit til, lad Plot være slået til, og vælg udsnitsstørrelse og outputkanaler. Brug én arbejdsproces i dette eksempel. Lad Test mode være slået fra for at behandle alle seksten medfølgende synsfelter, og klik derefter på Run.",
-    "Følg konsollen, indtil kørslen er færdig. Kontrollér, hvilke synsfelter der lykkedes, og undersøg eventuelle fejl, før du fortsætter. Behold de indstillinger, der blev gemt med kørslen, så du kan genskabe målingerne.",
-    "Brug figurlisten til at sammenligne objekterne før og efter filtrering. Størrelsesfiltre og forælder-barn-relationer kan ændre, hvilke objekter der måles. Træk i skillelinjen for at give figurerne mere plads, og undersøg uventede ændringer.",
+    "Slå lagring af målinger og objektudsnit til, lad Plot være slået til, og vælg udsnitsstørrelse og outputkanaler. Til en første kørsel måler Test mode ét felt; slå den fra for at behandle alle seksten medfølgende felter. Klik på Run, følg konsollen, til kørslen er færdig, og kontroller derefter, hvilke felter der lykkedes, før du fortsætter.",
     "Undersøg udsnitsfiguren, og find derefter measurements.db i mappen measurements og de gemte objektbilleder i projektets udsnitsoutput. Hold databasen og billedstierne samlet. Fortsæt til Annotate for at mærke eksempelobjekter, eller til Classify, hvis du allerede har mærkede træningsdata."
   ]
 }

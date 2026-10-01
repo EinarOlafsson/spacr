@@ -18,7 +18,10 @@ def record_invasion(app, window, screen, stage, captures, capture, settle, write
     proof = dict(accepted=False, synthetic=True, biological_effect_claim=False,
         actual_gui_run=False, app_source_modified=False, manifest=manifest, published=False)
     write_json(captures/'scientific_acceptance.json', proof)
-    settings = read(stage.parent/'catalog/26_invasion_settings.json')
+    catalog = stage.parent/'catalog/26_invasion_settings.json'
+    if not catalog.is_file():
+        catalog = Path(__file__).resolve().parent/'authoring/catalog/26_invasion_settings.json'
+    settings = read(catalog)
     settings['stain_baseline_wells'] = settings.pop('control_wells')
     settings['src'] = str(root)
     # The actual GUI field has six decimals; record its representable value,

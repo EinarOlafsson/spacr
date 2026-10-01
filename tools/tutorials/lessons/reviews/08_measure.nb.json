@@ -1,6 +1,6 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "d51fa05ba532327fc646e562da8e3db892506bb674e8a72ceb207efe407dd489",
+  "english_sha256": "b4c906f3e36969867ebd6851facc35b0587dfeb98f6378a13df051f2f9b0814c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -28,9 +28,7 @@
     "For å sjekke segmenteringskvaliteten i hele prosjektet før måling slår du på QC i Actions-raden, ved siden av 3D og Time. Vinduet viser felt og brønner der maskene ser uvanlige ut, for eksempel med langt færre objekter enn resten av platen, med lenker for å undersøke dem. Sjekken er bare veiledende og stopper aldri Measure; når du lukker vinduet, slås bryteren av.",
     "Under All settings holder Image Preprocessing korreksjonene Measure kan bruke på hvert felt før måling: Image Deconvolution med en punktspredningsfunksjon og Illumination Correction med en modell du har anslått tidligere. De endrer pikslene som måles i denne kjøringen; maskene og arrayene på disken endres ikke.",
     "Slå av Live og sett Normalize tilbake til av for dette eksemplet. Velg normaliseringen bevisst når du lagrer utsnitt: skalering per utsnitt endrer intensitetsforskjellene som en senere bildeklassifikator ser. Behold de opprinnelige sammenslåtte matrisene for kvantitative målinger.",
-    "Aktiver lagring av målinger og objektutsnitt, la Plot være på og velg utsnittsstørrelse og utdatakanaler. Bruk én arbeidsprosess i dette eksemplet. La Test mode være av for å behandle alle de seksten medfølgende synsfeltene, og klikk deretter på Run.",
-    "Følg konsollen til kjøringen er ferdig. Kontroller hvilke synsfelt som lyktes, og undersøk eventuelle feil før du går videre. Behold innstillingene som ble lagret med kjøringen, slik at du kan gjenskape målingene.",
-    "Bruk figurlisten til å sammenligne objektene før og etter filtrering. Størrelsesfiltre og forelder-barn-forhold kan endre hvilke objekter som måles. Dra skillelinjen for å gi figurene mer plass, og undersøk uventede endringer.",
+    "Slå på lagring av målinger og objektutsnitt, la Plot være på, og velg utsnittsstørrelse og utdatakanaler. I en første kjøring måler Test mode ett felt; slå det av for å behandle alle de seksten medfølgende feltene. Klikk Run, følg konsollen til kjøringen er ferdig, og sjekk deretter hvilke felt som lyktes før du går videre.",
     "Undersøk utsnittsfiguren, og finn deretter measurements.db i mappen measurements og de lagrede objektbildene i prosjektets utsnittsutdata. Hold databasen og bildebanene samlet. Fortsett til Annotate for å merke eksempelobjekter, eller til Classify hvis du allerede har merkede treningsdata."
   ]
 }

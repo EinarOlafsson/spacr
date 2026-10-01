@@ -1,6 +1,6 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "d51fa05ba532327fc646e562da8e3db892506bb674e8a72ceb207efe407dd489",
+  "english_sha256": "b4c906f3e36969867ebd6851facc35b0587dfeb98f6378a13df051f2f9b0814c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -28,9 +28,7 @@
     "Um die Segmentierungsqualität im ganzen Projekt vor dem Messen zu prüfen, schalten Sie QC in der Actions-Zeile neben 3D und Time ein. Das Fenster listet Felder und Wells, deren Masken ungewöhnlich wirken, etwa mit weit weniger Objekten als der Rest der Platte, und verlinkt sie zur Prüfung. Die Prüfung ist nur ein Hinweis und hält Measure nie an; wenn Sie das Fenster schließen, schaltet sich der Schalter aus.",
     "Unter All settings enthält Image Preprocessing die Korrekturen, die Measure vor dem Messen auf jedes Feld anwenden kann: Image Deconvolution mit einer Punktspreizfunktion und Illumination Correction mit einem zuvor geschätzten Modell. Sie verändern die Pixel, die in diesem Lauf gemessen werden; die Masken und die Arrays auf dem Datenträger bleiben unverändert.",
     "Schalten Sie Live aus und setzen Sie Normalize für dieses Beispiel wieder auf aus. Wählen Sie die Normalisierung beim Speichern von Ausschnitten bewusst: Eine Skalierung pro Ausschnitt verändert die Intensitätsunterschiede, die ein späterer Bildklassifikator sieht. Behalten Sie die ursprünglichen zusammengeführten Arrays für quantitative Messungen.",
-    "Aktivieren Sie das Speichern von Messwerten und Objektausschnitten, lassen Sie Plot eingeschaltet und wählen Sie Ausschnittgröße und Ausgabekanäle. Verwenden Sie für dieses Beispiel einen Worker. Lassen Sie Test mode ausgeschaltet, um alle sechzehn mitgelieferten Bildfelder zu verarbeiten, und klicken Sie dann auf Run.",
-    "Verfolgen Sie die Konsole, bis der Lauf abgeschlossen ist. Prüfen Sie, welche Bildfelder erfolgreich waren, und untersuchen Sie Fehler, bevor Sie fortfahren. Bewahren Sie die mit diesem Lauf gespeicherten Einstellungen auf, damit Sie die Messungen reproduzieren können.",
-    "Vergleichen Sie mit der Abbildungsliste die Objekte vor und nach dem Filtern. Größenfilter und Eltern-Kind-Beziehungen können ändern, welche Objekte gemessen werden. Ziehen Sie den Trenner, um den Abbildungen mehr Platz zu geben, und prüfen Sie unerwartete Änderungen.",
+    "Aktivieren Sie das Speichern von Messungen und Objektausschnitten, lassen Sie Plot an und wählen Sie Ausschnittgröße und Ausgabekanäle. Für einen ersten Lauf misst Test mode ein Feld; schalten Sie es aus, um alle sechzehn mitgelieferten Felder zu verarbeiten. Klicken Sie auf Run, verfolgen Sie die Konsole bis zum Ende des Laufs und prüfen Sie dann, welche Felder erfolgreich waren, bevor Sie weitermachen.",
     "Prüfen Sie die Ausschnittabbildung und finden Sie dann measurements.db im Ordner measurements sowie die gespeicherten Objektbilder in der Ausschnittausgabe des Projekts. Halten Sie Datenbank und Bildpfade zusammen. Fahren Sie mit Annotate fort, um Beispielobjekte zu beschriften, oder mit Classify, wenn Sie bereits beschriftete Trainingsdaten haben."
   ]
 }

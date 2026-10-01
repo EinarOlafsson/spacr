@@ -1,6 +1,6 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "d51fa05ba532327fc646e562da8e3db892506bb674e8a72ceb207efe407dd489",
+  "english_sha256": "b4c906f3e36969867ebd6851facc35b0587dfeb98f6378a13df051f2f9b0814c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -28,9 +28,7 @@
     "Pour vérifier la qualité de la segmentation de tout le projet avant de mesurer, activez QC dans la rangée Actions, à côté de 3D et Time. Sa fenêtre liste les champs et les puits dont les masques semblent inhabituels, par exemple avec bien moins d’objets que le reste de la plaque, avec des liens pour les examiner. Ce contrôle n’est qu’indicatif et n’arrête jamais Measure ; fermer la fenêtre désactive l’interrupteur.",
     "Dans All settings, Image Preprocessing regroupe les corrections que Measure peut appliquer à chaque champ avant la mesure : Image Deconvolution avec une fonction d’étalement du point et Illumination Correction avec un modèle estimé auparavant. Elles modifient les pixels mesurés dans cette exécution ; les masques et les tableaux sur le disque ne sont pas modifiés.",
     "Désactivez Live et remettez Normalize sur désactivé pour cet exemple. Choisissez la normalisation avec soin lorsque vous enregistrez des vignettes : une mise à l’échelle par vignette modifie les différences d’intensité que verra ensuite un classificateur d’images. Conservez les tableaux fusionnés d’origine pour les mesures quantitatives.",
-    "Activez l’enregistrement des mesures et des vignettes d’objets, laissez Plot activé et choisissez la taille des vignettes et les canaux de sortie. Utilisez un seul processus pour cet exemple. Laissez Test mode désactivé pour traiter les seize champs fournis, puis cliquez sur Run.",
-    "Suivez la console jusqu’à la fin de l’exécution. Vérifiez quels champs ont réussi et examinez les échecs avant de poursuivre. Conservez les paramètres enregistrés avec cette exécution afin de pouvoir reproduire les mesures.",
-    "Utilisez la liste des figures pour comparer les objets avant et après filtrage. Les filtres de taille et les relations parent-enfant peuvent changer les objets mesurés. Faites glisser le séparateur pour donner plus de place aux figures et examinez tout changement inattendu.",
+    "Activez l’enregistrement des mesures et des découpes d’objets, laissez Plot activé et choisissez la taille des découpes et les canaux de sortie. Pour un premier essai, Test mode mesure un seul champ ; désactivez-le pour traiter les seize champs fournis. Cliquez sur Run, suivez la console jusqu’à la fin de l’exécution, puis vérifiez quels champs ont réussi avant de continuer.",
     "Inspectez la figure des vignettes, puis repérez measurements.db dans le dossier measurements et les images d’objets enregistrées dans la sortie de vignettes du projet. Gardez ensemble la base de données et les chemins des images. Poursuivez avec Annotate pour étiqueter des objets d’exemple, ou avec Classify si vous disposez déjà de données d’entraînement étiquetées."
   ]
 }

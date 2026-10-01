@@ -1,6 +1,6 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "d51fa05ba532327fc646e562da8e3db892506bb674e8a72ceb207efe407dd489",
+  "english_sha256": "b4c906f3e36969867ebd6851facc35b0587dfeb98f6378a13df051f2f9b0814c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -28,9 +28,7 @@
     "Per controllare la qualità della segmentazione di tutto il progetto prima di misurare, attiva QC nella riga Actions, accanto a 3D e Time. La sua finestra elenca i campi e i pozzetti le cui maschere sembrano insolite, ad esempio con molti meno oggetti del resto della piastra, con collegamenti per esaminarli. Il controllo è solo indicativo e non ferma mai Measure; chiudendo la finestra l’interruttore si spegne.",
     "In All settings, Image Preprocessing raccoglie le correzioni che Measure può applicare a ogni campo prima di misurare: Image Deconvolution con una funzione di dispersione del punto e Illumination Correction con un modello stimato in precedenza. Cambiano i pixel misurati in questa esecuzione; le maschere e gli array su disco non vengono modificati.",
     "Disattiva Live e rimetti Normalize su disattivato per questo esempio. Scegli con cura la normalizzazione quando salvi i ritagli: il ridimensionamento per singolo ritaglio cambia le differenze di intensità che vedrà poi un classificatore di immagini. Conserva gli array uniti originali per le misure quantitative.",
-    "Attiva il salvataggio delle misure e dei ritagli degli oggetti, lascia attivo Plot e scegli la dimensione dei ritagli e i canali di output. Usa un solo processo per questo esempio. Lascia disattivato Test mode per elaborare tutti i sedici campi forniti, poi fai clic su Run.",
-    "Segui la console fino al termine dell’esecuzione. Controlla quali campi sono riusciti ed esamina eventuali errori prima di proseguire. Conserva le impostazioni salvate con questa esecuzione, così potrai riprodurre le misure.",
-    "Usa l’elenco delle figure per confrontare gli oggetti prima e dopo il filtraggio. I filtri di dimensione e le relazioni genitore-figlio possono cambiare quali oggetti vengono misurati. Trascina il divisore per dare più spazio alle figure ed esamina eventuali cambiamenti inattesi.",
+    "Attiva il salvataggio delle misurazioni e dei ritagli degli oggetti, lascia attivo Plot e scegli la dimensione dei ritagli e i canali di uscita. Per una prima esecuzione, Test mode misura un solo campo; disattivalo per elaborare tutti e sedici i campi forniti. Fai clic su Run, segui la console fino al termine dell’esecuzione, poi controlla quali campi sono riusciti prima di proseguire.",
     "Esamina la figura dei ritagli, poi individua measurements.db nella cartella measurements e le immagini degli oggetti salvate nell’output dei ritagli del progetto. Tieni insieme il database e i percorsi delle immagini. Prosegui con Annotate per etichettare oggetti di esempio, oppure con Classify se hai già dati di addestramento etichettati."
   ]
 }

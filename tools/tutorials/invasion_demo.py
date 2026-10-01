@@ -3,6 +3,7 @@
 No application functions calculate the reference. This validates plumbing and
 arithmetic, not actual stain quality, segmented images or treatment efficacy.
 """
+import os
 from collections import defaultdict
 import math
 from pathlib import Path
@@ -112,7 +113,9 @@ def check_preserved(manifest):
 
 def prepare(stage):
     stage = Path(stage)
-    source = stage.parent / 'synthetic/invasion/measurements/measurements.db'
+    # A neutral recording stage names its copied synthetic root instead.
+    root = os.environ.get('SPACR_TUTORIAL_SYNTHETIC_ROOT')
+    source = (Path(root) if root else stage.parent / 'synthetic') / 'invasion/measurements/measurements.db'
     source_hash = digest(source)
     with sqlite3.connect(source.as_uri() + '?mode=ro', uri=True) as db:
         db.row_factory = sqlite3.Row

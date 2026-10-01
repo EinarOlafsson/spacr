@@ -1,6 +1,6 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "d51fa05ba532327fc646e562da8e3db892506bb674e8a72ceb207efe407dd489",
+  "english_sha256": "b4c906f3e36969867ebd6851facc35b0587dfeb98f6378a13df051f2f9b0814c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -28,9 +28,7 @@
     "Para revisar la calidad de la segmentación en todo el proyecto antes de medir, active QC en la fila Actions, junto a 3D y Time. Su ventana enumera los campos y pocillos cuyas máscaras parecen inusuales, por ejemplo con muchos menos objetos que el resto de la placa, con enlaces para revisarlos. La revisión es solo orientativa y nunca detiene Measure; al cerrar la ventana, el interruptor se desactiva.",
     "En All settings, Image Preprocessing reúne las correcciones que Measure puede aplicar a cada campo antes de medir: Image Deconvolution con una función de dispersión de punto e Illumination Correction con un modelo estimado previamente. Cambian los píxeles que se miden en esta ejecución; las máscaras y los arrays en disco no se modifican.",
     "Desactiva Live y vuelve a desactivar Normalize para este ejemplo. Elige la normalización con cuidado al guardar recortes: el escalado por recorte cambia las diferencias de intensidad que verá después un clasificador de imágenes. Conserva los arreglos combinados originales para las mediciones cuantitativas.",
-    "Activa el guardado de mediciones y de recortes de objetos, deja Plot activado y elige el tamaño de recorte y los canales de salida. Usa un proceso de trabajo en este ejemplo. Deja Test mode desactivado para procesar los dieciséis campos incluidos y haz clic en Run.",
-    "Sigue la consola hasta que termine la ejecución. Comprueba qué campos se procesaron bien y revisa los fallos antes de continuar. Mantén los ajustes guardados con esta ejecución para poder reproducir las mediciones.",
-    "Usa la lista de figuras para comparar los objetos antes y después del filtrado. Los filtros de tamaño y las relaciones entre objetos padre e hijo pueden cambiar qué objetos se miden. Arrastra el divisor para dar más espacio a las figuras y revisa cualquier cambio inesperado.",
+    "Active el guardado de mediciones y recortes de objetos, deje Plot activado y elija el tamaño del recorte y los canales de salida. En una primera ejecución, Test mode mide un campo; desactívelo para procesar los dieciséis campos incluidos. Haga clic en Run, siga la consola hasta que termine la ejecución y compruebe qué campos se completaron antes de continuar.",
     "Revisa la figura de recortes y luego localiza measurements.db en la carpeta measurements y las imágenes de objetos guardadas en la salida de recortes del proyecto. Mantén juntas la base de datos y las rutas de las imágenes. Continúa con Annotate para etiquetar objetos de ejemplo, o con Classify si ya tienes datos de entrenamiento etiquetados."
   ]
 }

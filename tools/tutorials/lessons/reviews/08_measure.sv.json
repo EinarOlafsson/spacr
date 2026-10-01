@@ -1,6 +1,6 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "d51fa05ba532327fc646e562da8e3db892506bb674e8a72ceb207efe407dd489",
+  "english_sha256": "b4c906f3e36969867ebd6851facc35b0587dfeb98f6378a13df051f2f9b0814c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -28,9 +28,7 @@
     "För att kontrollera segmenteringskvaliteten i hela projektet före mätning slår du på QC i Actions-raden, bredvid 3D och Time. Fönstret listar fält och brunnar vars masker ser ovanliga ut, till exempel med betydligt färre objekt än resten av plattan, med länkar för att granska dem. Kontrollen är bara vägledande och stoppar aldrig Measure; när du stänger fönstret slås reglaget av.",
     "Under All settings samlar Image Preprocessing de korrigeringar som Measure kan tillämpa på varje fält före mätning: Image Deconvolution med en punktspridningsfunktion och Illumination Correction med en modell som du skattat tidigare. De ändrar pixlarna som mäts i den här körningen; maskerna och arrayerna på disken ändras inte.",
     "Stäng av Live och återställ Normalize till av för det här exemplet. Välj normaliseringen medvetet när du sparar utsnitt: skalning per utsnitt ändrar de intensitetsskillnader som en senare bildklassificerare ser. Behåll de ursprungliga sammanslagna arrayerna för kvantitativa mätningar.",
-    "Aktivera sparande av mätningar och objektutsnitt, låt Plot vara på och välj utsnittsstorlek och utdatakanaler. Använd en arbetsprocess i det här exemplet. Låt Test mode vara avstängt för att bearbeta alla sexton medföljande synfält och klicka sedan på Run.",
-    "Följ konsolen tills körningen är klar. Kontrollera vilka synfält som lyckades och undersök eventuella fel innan du går vidare. Behåll de inställningar som sparats med körningen så att du kan återskapa mätningarna.",
-    "Använd figurlistan för att jämföra objekten före och efter filtrering. Storleksfilter och förälder-barn-relationer kan ändra vilka objekt som mäts. Dra i avdelaren för att ge figurerna mer utrymme och granska oväntade förändringar.",
+    "Slå på sparande av mätningar och objektutsnitt, låt Plot vara på och välj utsnittsstorlek och utdatakanaler. Vid en första körning mäter Test mode ett fält; stäng av det för att bearbeta alla sexton medföljande fält. Klicka på Run, följ konsolen tills körningen är klar och kontrollera sedan vilka fält som lyckades innan du fortsätter.",
     "Granska utsnittsfiguren och leta sedan upp measurements.db i mappen measurements och de sparade objektbilderna i projektets utsnittsutdata. Håll ihop databasen och bildsökvägarna. Fortsätt till Annotate för att märka exempelobjekt, eller till Classify om du redan har märkta träningsdata."
   ]
 }
