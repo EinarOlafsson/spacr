@@ -970,7 +970,9 @@
       "source_sha256": "e63c383100ffb1f4997bc997b3a2b572782992547748ed2e7041138579ed6174",
       "context": "The body is laid out with a stretch, and a layout counts that stretch even while the body is hidden, so a folded card still asked for room and shared it evenly with the stretch that locks a folded heading to the bottom of its pane (item 515): the folded Console came out half the pane tall. Folded, the body gives its stretch up; opened, it takes it back.",
       "translation": "Innehållet läggs ut med en stretch, och en layout räknar den stretchen även medan innehållet är dolt, så att ett hopfällt kort ändå bad om utrymme och delade det lika med den stretch som låser en hopfälld rubrik mot botten av sin panel (punkt 515): den hopfällda Console blev halva panelens höjd. Hopfällt ger innehållet upp sin stretch; öppnat tar det tillbaka den.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.card.Card.follow_fold#2",
@@ -1362,7 +1364,9 @@
       "source_sha256": "3261c34ab91f1d2717ea490f506ec08d25c2fe5f09d53e9b2746cc101911ebd0",
       "context": "Item 471, slice B. Two requests that turn out to be one: every container collapses (\"whenever anything is collapsed it should auto lock to the bottom of the container it is in\"), and every container can be \"expanded or shrinkable by draging the edges\". A :class:`~PySide6.QtWidgets.QSplitter` already does both -- a handle to drag, and a child that can be taken down to nothing -- so both halves live here as ONE mechanism, and anything that collapses in a splitter also resizes, and the other way round.",
       "translation": "Punkt 471, del B. Två önskemål som visar sig vara ett: varje behållare fälls ihop (\"närhelst något fälls ihop ska det automatiskt låsas mot botten av den behållare det ligger i\"), och varje behållare kan \"förstoras eller krympas genom att dra i kanterna\". En :class:`~PySide6.QtWidgets.QSplitter` gör redan båda -- ett handtag att dra i, och ett barn som kan tas ned till ingenting -- så båda halvorna finns här som EN mekanism, och allt som fälls ihop i en delare kan också storleksändras, och tvärtom.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter#2",
@@ -1866,7 +1870,9 @@
       "source_sha256": "d4832655134edc2bd98d98f8baaa9ea71afc520147f331b1f390a9775eefbda5",
       "context": "Item 471: \"when a live preview opens, it takes the whole application view height: the console, the System container and the button section below System auto-collapse, and the settings collapse to the left\", and the same whenever figures appear.",
       "translation": "Punkt 471: \"när en realtidsförhandsvisning öppnas tar den hela skärmhöjden: konsolen, System-behållaren och knappavsnittet under System fälls automatiskt ihop, och inställningarna fälls ihop åt vänster\", och samma sak närhelst figurer visas.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#2",
@@ -2026,7 +2032,9 @@
       "source_sha256": "d7c96a305b7af08faf05d55e039bb388e2d301b27ed513a56c3e006de0b602fe",
       "context": "Item 471, slice C: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". This is the one way a section inside an application view gets a fold control, so every one of them looks and behaves alike: an arrow and a name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System use), a click folds it, and a folded section is its heading locked to the BOTTOM of whatever room it is given (:func:`lock_folded_to_bottom`).",
       "translation": "Punkt 471, del C: \"alla avsnitt i figur- eller realtidsförhandsvisningsbehållarna ska också gå att fälla ihop ... varje GUI-element, vare sig det är en figur eller en tabell\". Detta är det enda sättet som ett avsnitt i en programvy får en hopfällningskontroll, så att alla ser ut och beter sig likadant: en pil och ett namn ovanför innehållet (samma :class:`~spacr.qt.widgets.foldable.Folder` som konsolen och System använder), ett klick fäller ihop det, och ett hopfällt avsnitt är sin rubrik låst mot BOTTEN av det utrymme det får (:func:`lock_folded_to_bottom`).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#10",
@@ -2074,7 +2082,9 @@
       "source_sha256": "43b80d0f63a9a4c8798f2872cecbf15370b54233bef26ebc087517cd5bcd0277",
       "context": "The body's own visibility stays its owner's. The fold hides an inner holder, never the body, so unfolding cannot show a panel its owner hid or build a panel that is built on first show (items 284/380). The other way round, the section follows its body: while the owner keeps the body hidden the whole section -- heading included -- is hidden too, and it comes back when the owner shows the body. Only the body's hidden flag is read for that, so nothing is shown, measured or built to find out.",
       "translation": "INNEHÅLLETS EGEN SYNLIGHET FÖRBLIR DESS ÄGARES. Hopfällningen döljer en inre hållare, aldrig innehållet, så att utfällning inte kan visa en panel som dess ägare dolde eller bygga en panel som byggs vid första visningen (punkterna 284/380). Omvänt följer avsnittet sitt innehåll: medan ägaren håller innehållet dolt är hela avsnittet -- rubriken inräknad -- också dolt, och det kommer tillbaka när ägaren visar innehållet. Bara innehållets döljflagga läses för det, så ingenting visas, mäts eller byggs för att ta reda på det.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#3",
@@ -3106,7 +3116,9 @@
       "source_sha256": "c8e94f5cacf7fda58b3fa8d23e4f2e18af349831d3d7183e4b5c6f7b436cdf72",
       "context": "False when the program folds it on the user's behalf (item 471: a live preview opening). Such a fold is not remembered across a restart, and the listeners are told so.",
       "translation": "False när programmet fäller ihop den för användarens räkning (punkt 471: en direktförhandsvisning som öppnas). En sådan hopfällning sparas inte mellan omstarter, och lyssnarna får veta det.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.foldable.Folder.set_shut#3",
@@ -3130,7 +3142,9 @@
       "source_sha256": "ec2222cb59ae6cbb6c53b544638e73e8c58e2683108291f0ae4b306d857fa018",
       "context": "start folded unless the user opened this panel before (item 509: advanced rows that most people never change).",
       "translation": "börja hopfälld om inte användaren har öppnat den här panelen tidigare (punkt 509: avancerade rader som de flesta aldrig ändrar).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.folding_summary.FoldingSummaryView.setReadOnly#2",

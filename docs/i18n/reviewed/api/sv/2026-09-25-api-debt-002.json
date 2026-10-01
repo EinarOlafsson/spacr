@@ -3586,7 +3586,9 @@
       "source_sha256": "072bce659d2996778747500ba3c7bbe5e5376a6afff0328d9bad6e44f37ddfce",
       "context": "the column to write; the annotation column when omitted. The Annotate application view's judgements (item 512) go to the ``<column>_verdict`` column through this same writer rather than through a second connection: one writer, one annotation work list, one order. A batch for another column that cannot be written is kept in ``_failed_extra`` under its column, apart from ``_failed_batch``, so the annotation batch keeps the shape every reader of it expects.",
       "translation": "kolumnen att skriva till; annoteringskolumnen när den utelämnas. Annotate-vyns bedömningar (punkt 512) går till kolumnen ``<column>_verdict`` genom samma skrivare i stället för genom en andra anslutning: en skrivare, en kö, en ordning. En batch för en annan kolumn som inte kan skrivas behålls i ``_failed_extra`` under sin kolumn, skild från ``_failed_batch``, så att annoteringsbatchen behåller den form som varje läsare av den förväntar sig.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.annotate_engine.add_colored_border#2",

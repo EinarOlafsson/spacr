@@ -478,7 +478,9 @@
       "source_sha256": "bd92c5a8a636a6c26299ac17f3fff81857eb9dda91794caae4c676d6975a463c",
       "context": "A paper folder, or a folder of figure images, is read as it is. A folder that holds paper folders -- several PDFs read at once, each into a folder of its own (item 526) -- is read paper by paper: its own figure images first when it has any, then each paper folder by name.",
       "translation": "En artikelmapp, eller en mapp med figurbilder, läses som den är. En mapp som innehåller artikelmappar -- flera PDFs inlästa på en gång, var och en till en egen mapp (punkt 526) -- läses artikel för artikel: först dess egna figurbilder om den har några, sedan varje artikelmapp efter namn.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.figure_folders#2",
@@ -510,7 +512,9 @@
       "source_sha256": "ebfca499c127ca36d153e8dbb1f93a2834390ea0f10741cd27fa5a8f0ba275e2",
       "context": "It takes plaque images, folders of them, both mixed, and in Figure mode any number of PDFs (item 526); other files dropped with them are left aside quietly. Before this handler Plaque Assay was given Make Masks' policy, which refused a folder it could not use with Make Masks' sentence.",
       "translation": "Den tar emot plackbilder, mappar med sådana, båda blandade, och i Figure-läget valfritt antal PDFs (punkt 526); andra filer som släpps tillsammans med dem läggs tyst åt sidan. Innan denna hanterare fanns fick Plaque Assay samma policy som Make Masks, som avvisade en mapp den inte kunde använda med Make Masks mening.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.can_accept#0",
@@ -542,7 +546,9 @@
       "source_sha256": "12b7724d5e8f4393bf3d17b45f5200797f19fbfae31ce2475d5bba3bbddbc568",
       "context": "A file that is neither a plaque image nor a PDF, dropped or at the top of a dropped folder, is ignored rather than refused (item 526); hidden files are not counted, nor is what a paper folder holds.",
       "translation": "En fil som varken är en plackbild eller en PDF, släppt eller överst i en släppt mapp, ignoreras i stället för att avvisas (punkt 526); dolda filer räknas inte, och inte heller det som en artikelmapp innehåller.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.plaque_others#4",
@@ -816,7 +822,9 @@
       "source_sha256": "615bd642923f957d025255290ade03a8ca66eee789325bf0e3a40377206b296b",
       "context": "Let Ctrl + wheel over ``root`` size the text inside it (item 529).",
       "translation": "Låt Ctrl + mushjul över ``root`` ändra storleken på texten inuti (punkt 529).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.live_zoom.register_text_column#1",
@@ -992,7 +1000,9 @@
       "source_sha256": "60652ae47f42a76671a5c9e165ec4b2bb86c7b7397d8144e7ca2facec778471d",
       "context": "Item 529. Stored in logical pixels; the dock clamps it to its drag bounds when it applies it, see :meth:`spacr.qt.widgets.dock.Dock.column_width`.",
       "translation": "Punkt 529. Lagras i logiska pixlar; dockan begränsar värdet till sina draggränser när den tillämpar det, se :meth:`spacr.qt.widgets.dock.Dock.column_width`.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preferences.get_runtime_text_scale#0",
@@ -1064,7 +1074,9 @@
       "source_sha256": "5fe6dcb0cd577368cdd80761c4d0900ce9351f2e76a6059693436f7975514698",
       "context": "Asked for in item 533: \"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main application view. pressing the button should bring another pupup with all the information in the current container.\" So this holds the whole :class:`DiameterPanel` -- the measure button, one row per object type with its evidence and note, *Use* per row and *Use all* -- and the panel still writes into the settings of the application view that opened the zoo.",
       "translation": "Begärt i punkt 533: \"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main screen. pressing the button should bring another pupup with all the information in the current container.\" Så detta rymmer hela :class:`DiameterPanel` -- mätknappen, en rad per objekttyp med dess underlag och anteckning, *Use* per rad och *Use all* -- och panelen skriver fortfarande in i inställningarna för den vy som öppnade zoo-fönstret.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.prerun.DiameterDialog#2",
@@ -1532,7 +1544,9 @@
       "source_sha256": "dee2b0e9c6b69f58c76d953a98d369eda60fd293c28be1c60428a160552c4d3c",
       "context": "Why a saved pattern used to wait for a restart (item 530). The window builds ONE backdrop behind the dock and the page and keeps it for the session. Saving Preferences pushed the runtime numbers into it (`apply_saved_controls`) but the pattern, backend, quality and scale are fixed when it is constructed, and nothing constructed it again -- the old note that \"changing a screen\" would do it stopped being true when the backdrop moved from the application views to the window.",
       "translation": "VARFÖR ETT SPARAT MÖNSTER BRUKADE VÄNTA PÅ EN OMSTART (punkt 530). Fönstret bygger EN bakgrund bakom dockan och sidan och behåller den under sessionen. Att spara Preferences förde in körtidsvärdena i den (`apply_saved_controls`) men mönstret, backenden, kvaliteten och skalan bestäms när den konstrueras, och inget konstruerade den igen -- den gamla anteckningen om att \"changing a screen\" skulle göra det slutade stämma när bakgrunden flyttades från vyerna till fönstret.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops#3",
@@ -1548,7 +1562,9 @@
       "source_sha256": "fe3cbf5b4a074c22e0e00adfd8ea712983812acb1af9759c67465e519601d626",
       "context": "Size the console's text with the column it sits in (item 529).",
       "translation": "Ändra storleken på konsolens text tillsammans med kolumnen den sitter i (punkt 529).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.console_panel.ConsolePanel.apply_column_text_scale#1",
@@ -1588,7 +1604,9 @@
       "source_sha256": "355b92461558599fed53862ce5021bea77e82febc99c1f046d3a98c3920916e9",
       "context": "Item 529. A width the user chose is kept through every refresh, every hide and show, and every session; with none stored the column fits its longest name, as :meth:`fitting_width` has always done.",
       "translation": "Punkt 529. En bredd som användaren valt behålls genom varje uppdatering, varje döljning och visning och varje session; när ingen är sparad anpassar sig kolumnen efter sitt längsta namn, som :meth:`fitting_width` alltid har gjort.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dock.Dock.set_column_width#0",
@@ -1628,7 +1646,9 @@
       "source_sha256": "f3d58e9e35ff88a829521ea646d1fdfab3c41c3792227c19b955bce269f7ffaa",
       "context": "The strip along the dock's right edge that drags its width (item 529).",
       "translation": "Remsan längs dockans högra kant som drar dess bredd (punkt 529).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dock.DockEdge#1",
@@ -1752,7 +1772,9 @@
       "source_sha256": "e90427760c1087d342ec63026a99da6bbd15903adb586a28de6b1b4e884e911c",
       "context": "`samples` is how many samples a side each pixel takes, set by the widget from the Supersampling setting (item 531); two is the published 2x2, and an engine nobody configured keeps it. Create the cascade engine without allocating its buffer yet.",
       "translation": "`samples` är hur många sampel per sida varje pixel tar, satt av widgeten från inställningen Supersampling (punkt 531); två är det publicerade 2x2, och en motor som ingen har konfigurerat behåller det. Skapa kaskadmotorn utan att allokera dess buffert ännu.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.fractal_cascade.render_into#0",
@@ -1776,7 +1798,9 @@
       "source_sha256": "13ae3c6d85887f3cee6c9451c6745656fe22478840b0c5473126cf47297f8775",
       "context": "`samples` is how many samples a side each pixel takes, set by the widget from the Supersampling setting (item 531). ``None`` -- an engine nobody configured -- keeps the old rule of two on a small frame and one on a large one.",
       "translation": "`samples` är hur många sampel per sida varje pixel tar, satt av widgeten från inställningen Supersampling (punkt 531). ``None`` -- en motor som ingen har konfigurerat -- behåller den gamla regeln med två på en liten bildruta och ett på en stor.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.fractal_space.render_space_frame#9",
@@ -1784,7 +1808,9 @@
       "source_sha256": "5414c4d751eede660b968e9aec01104868442719f6b408f035ffa1db564d477d",
       "context": "``1`` or less takes one sample at each pixel centre; anything larger averages a ``samples`` x ``samples`` grid of samples per pixel (item 531: it used to be 2 x 2 whatever the number said).",
       "translation": "``1`` eller mindre tar ett sampel i varje pixels mittpunkt; allt större tar medelvärdet av ett rutnät med ``samples`` x ``samples`` sampel per pixel (punkt 531: det brukade vara 2 x 2 vad talet än sa).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.fractal_travel.OrbitEngine#2",
@@ -1792,7 +1818,9 @@
       "source_sha256": "46b3806160f3df28123793714b9061bb2be59ce72a830bb637e11fbbf85a18f8",
       "context": "Four is the published 2x2. `samples`, set by the widget from the Supersampling setting (item 531), makes it N x N phases walked over N * N frames; one a side keeps no history at all.",
       "translation": "Fyra är det publicerade 2x2. `samples`, satt av widgeten från inställningen Supersampling (punkt 531), gör det till N x N faser som gås igenom över N * N bildrutor; ett per sida behåller ingen historik alls.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.fractal_travel.Settings#1",
@@ -1800,7 +1828,9 @@
       "source_sha256": "02a2fc8b29ef07a7e1e0adb575498dc137dc8a55035197b01bbe5baceb8a0e39",
       "context": "`supersampling` is samples per pixel along each axis, the Fractal tab's Supersampling row. Every renderer used a fixed 2x2 whatever it said (item 531); now the shaders and the CPU kernels take an N x N grid from it. Two is the published grid, so a `Settings()` nobody filled in draws what it always drew.",
       "translation": "`supersampling` är sampel per pixel längs varje axel, raden Supersampling på fliken Fractal. Varje renderare använde ett fast 2x2 vad den än sa (punkt 531); nu tar shaders och CPU-kärnorna ett N x N-rutnät från den. Två är det publicerade rutnätet, så en `Settings()` som ingen fyllt i ritar det den alltid har ritat.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.fractal_travel.apply_saved_controls#3",
@@ -1808,7 +1838,9 @@
       "source_sha256": "08dba1ddd3af29c3553d22a2fff33e5440b0ff39a751e3f6436b78f12c704ce3",
       "context": "Everything that can change while a backdrop is on application view is pushed here. What cannot -- the pattern, the backend, the quality, the scale and the Mandelbrot reference orbit -- needs the backdrop rebuilding, which :func:`spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops` does when Preferences is saved (item 530).",
       "translation": "Allt som kan ändras medan en bakgrund visas skickas hit. Det som inte kan det -- mönstret, backenden, kvaliteten, skalan och Mandelbrots referensbana -- kräver att bakgrunden byggs om, vilket :func:`spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops` gör när Preferences sparas (punkt 530).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.image_ruler.ImageRuler#2",
@@ -1864,7 +1896,9 @@
       "source_sha256": "ed583203453911451f7e78d25390fc23e7ef616cefc590ba915b433825357431",
       "context": "Where each bound control of a Cellpose compartment lives in ``object_filters``. Mask's ``{object}_min_area`` family was retired on 2026-09-25 (item 511); for cell, nucleus and pathogen these four controls read and write the object's ``area`` and ``intensity_mean`` rows instead. The organelle slots keep their own settings.",
       "translation": "Var varje gränskontroll för ett Cellpose-fack finns i ``object_filters``. Masks ``{object}_min_area``-familj avvecklades 2026-09-25 (punkt 511); för cell, kärna och patogen läser och skriver dessa fyra kontroller i stället objektets rader ``area`` och ``intensity_mean``. Organellplatserna behåller sina egna inställningar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.apply_settings#3",
@@ -2376,7 +2410,9 @@
       "source_sha256": "73551fc681a8a39be630ae80a95031a5505ca3fbecc281444db06acbab5fc747",
       "context": "Also the consent step and the upload shared by every community training-data contribution (item 523), so each screen that contributes asks the same question once and sends the same way, and Make Masks' dialog for sending images with their masks to a community dataset the user names.",
       "translation": "Även samtyckessteget och uppladdningen som delas av varje bidrag av träningsdata till gemenskapen (punkt 523), så att varje vy som bidrar ställer samma fråga en gång och skickar på samma sätt, samt Make Masks dialog för att skicka bilder med deras masker till ett gemenskapsdataset som användaren namnger.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_share_dialog.ConsentDialog#0",
@@ -2736,7 +2772,9 @@
       "source_sha256": "54431e5fe8bf18c5487fd62154d6c0fee278f05af874baf7e54d27562aec8718",
       "context": "Open the annotate-then-upload window for this mode (item 523).",
       "translation": "Öppna fönstret för att annotera och sedan ladda upp för detta läge (punkt 523).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.contribute_training_data#1",
@@ -2784,7 +2822,9 @@
       "source_sha256": "99beb40523eeea98e7322760ad8cfd976fe6e502536a3d8bfc21a891f910a27c",
       "context": "Read several PDFs, one after another, off the main GUI execution path (item 526).",
       "translation": "Läs flera PDFs, en efter en, utanför GUI-tråden (punkt 526).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.fetch_papers#1",
@@ -2832,7 +2872,9 @@
       "source_sha256": "813c3eaf25f9c1e3870a43126887b9cf7f40d4dd080439bbcc51024e02f3cf31",
       "context": "Asked once per source and mode, and only while the application view is on application view. A ``src`` that names a PDF, or a folder of PDFs, in Figure mode -- already, or after the answer switched to it -- has every PDF read the way dropped ones are (item 526), so the preview and the processing session get the paper's figure folder rather than a PDF they cannot open.",
       "translation": "Frågas en gång per källa och läge, och bara medan vyn visas. En ``src`` som anger en PDF, eller en mapp med PDFs, i Figure-läget -- redan, eller efter att svaret bytte till det -- får varje PDF läst på samma sätt som släppta filer läses (punkt 526), så att förhandsvisningen och körningen får artikelns figurmapp i stället för en PDF som de inte kan öppna.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.images_in#2",

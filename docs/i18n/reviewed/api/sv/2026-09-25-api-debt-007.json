@@ -2088,7 +2088,9 @@
       "source_sha256": "514d99889366f19ab73e99610c4fb2bf4c88e0493e039613dd453d7b299a0cb1",
       "context": "Item 511. The Filter category used to hold four fixed boxes -- minimum and maximum area, minimum and maximum mean intensity. It now starts EMPTY, and \"Add a filter\" offers every scalar property :func:`skimage.measure.regionprops` computes (see :func:`mask_engine.filter_properties`); each added row carries the property, a minimum, a maximum and a Remove button. A blank bound is off. The old four are two of the rows a user can add: ``area`` and ``intensity_mean``.",
       "translation": "Punkt 511. Filter-kategorin brukade innehålla fyra fasta rutor -- minsta och största area, minsta och största medelintensitet. Nu börjar den TOM, och \"Add a filter\" erbjuder varje skalär egenskap som :func:`skimage.measure.regionprops` beräknar (se :func:`mask_engine.filter_properties`); varje tillagd rad bär egenskapen, ett minimum, ett maximum och en Remove-knapp. En tom gräns är avstängd. De gamla fyra är två av de rader som en användare kan lägga till: ``area`` och ``intensity_mean``.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.ObjectFilterList#2",
@@ -2256,7 +2258,9 @@
       "source_sha256": "a86a8067fdb3fa397a29ac228e7abc5b050582c25af080b5ad44e88c530a8404",
       "context": "A key-value mapping of the old four bounds (``min_area`` and the rest) is migrated by :func:`mask_engine.legacy_filters`, so a saved state from before item 511 opens as the rows it meant.",
       "translation": "En dict med de gamla fyra gränserna (``min_area`` och de övriga) migreras av :func:`mask_engine.legacy_filters`, så att ett sparat tillstånd från före punkt 511 öppnas som de rader det avsåg.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.ObjectFilterList.set_filters#2",
@@ -3244,7 +3248,9 @@
       "source_sha256": "b5d33d503c17395b6bb6224dc4cb5658d264808b5776fb30c00ed549fe49d21d",
       "context": "Item 509: the calibration fills itself. A microscope objective, camera and fluorophore chooser, or \"Infer from images…\", fills magnification, numerical aperture, refractive index, emission wavelength, camera pixel, image pixel size and Gaussian FWHM, each microscope field of view saying where its value came from. Only the operation and the objective row are shown; the rest sits in a fold that starts collapsed and remembers being opened.",
       "translation": "Punkt 509: kalibreringen fyller i sig själv. En väljare för mikroskopobjektiv, kamera och fluorofor, eller \"Infer from images…\", fyller i förstoring, numerisk apertur, brytningsindex, emissionsvåglängd, kamerapixel, bildens pixelstorlek och Gaussisk FWHM, där varje fält anger varifrån dess värde kom. Endast åtgärden och objektivraden visas; resten ligger i en hopfällning som börjar hopfälld och kommer ihåg att den öppnats.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.qc_field_browser.QCFieldBrowser.closeEvent#1",

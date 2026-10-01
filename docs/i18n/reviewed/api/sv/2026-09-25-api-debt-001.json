@@ -2390,7 +2390,9 @@
       "source_sha256": "e9ff59a619aaf56368f17e36a85317c5c38e787ea795b80921507e0c26c75c7c",
       "context": "An :class:`ImportError`, so every caller that already reported a missing reader still does; Plaque Assay catches this one to offer the install in place (item 518).",
       "translation": "Ett :class:`ImportError`, så att varje anropare som redan rapporterade en saknad läsare fortfarande gör det; Plaque Assay fångar just detta för att erbjuda installationen på plats (punkt 518).",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.ReaderNeedsInstall#2",
@@ -3884,7 +3886,9 @@
       "source_sha256": "d048cede84fa699b4cfbae74d3065d82b8e540d4748c6a350f3e18b266038874",
       "context": "The mode follows what was dropped (item 518): PDFs, or a folder of them, dropped in Plaque mode ask to switch to Figure mode; images dropped in Figure mode ask to switch to Plaque mode; PDFs and images together say that PDFs are read in Figure mode and images in Plaque mode, and ask which to read. Staying in Figure mode reads the images as figures; staying in Plaque mode leaves the PDFs unread.",
       "translation": "Läget följer det som släpptes (punkt 518): PDFs, eller en mapp med sådana, som släpps i plackläget ber om att byta till figurläget; bilder som släpps i figurläget ber om att byta till plackläget; PDFs och bilder tillsammans anger att PDFs läses i figurläget och bilder i plackläget, och frågar vilka som ska läsas. Att stanna i figurläget läser bilderna som figurer; att stanna i plackläget lämnar PDFs olästa.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.apply_all#4",

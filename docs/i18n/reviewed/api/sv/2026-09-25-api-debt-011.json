@@ -218,7 +218,9 @@
       "source_sha256": "4e2e6595cfbd138b4c4a186481d80353527e3fb0d5c4c000f1cf7cefdd2cb3cb",
       "context": "A folded panel given more room than its heading needs -- the last pane in a splitter, a section stretched by its column -- used to lay its heading out in the middle of that room, which is the bug item 471 names (\"when i collapse the console it collapses to the middle\"). A stretch put ABOVE the heading while it is folded takes the spare room instead.",
       "translation": "En hopfälld panel som fick mer utrymme än dess rubrik behöver -- den sista panelen i en delare, ett avsnitt som sträckts av sin kolumn -- lade tidigare ut sin rubrik mitt i det utrymmet, vilket är den bugg som punkt 471 namnger (\"när jag fäller ihop konsolen fälls den ihop till mitten\"). En stretch som placeras OVANFÖR rubriken medan den är hopfälld tar i stället det överblivna utrymmet.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.lock_folded_to_bottom#2",

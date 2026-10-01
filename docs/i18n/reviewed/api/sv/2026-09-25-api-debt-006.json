@@ -802,7 +802,9 @@
       "source_sha256": "4fdaae1db8987abfa8b9fd8d63c4aefc84a97dd1fd067712b35b38c46b27fc16",
       "context": "A suggestion is judged, not relabelled (item 512). An extracted image region Suggest proposed a class for wears an amber ``?`` badge beside its dashed ring. A click or ``Y`` confirms it (it becomes an ordinary label and wears a green tick); a right-click or ``N`` rejects it (it goes back to unanswered and wears a red cross); ``U`` undoes either. The bar above the structured-data name legend says so, and counts what the page and the column hold. Each judgement is written to the ``<column>_verdict`` column as ``+c`` or ``-c``, so it survives a restart, and the next Suggest round is handed the rejections to train on. See :meth:`AnnotateScreen._judge` and :func:`spacr.suggest.verdict_column`.",
       "translation": "ETT FÖRSLAG BEDÖMS, DET MÄRKS INTE OM (punkt 512). Ett utsnitt som Suggest föreslog en klass för bär ett bärnstensfärgat ``?``-märke bredvid sin streckade ring. Ett klick eller ``Y`` bekräftar det (det blir en vanlig etikett och bär en grön bock); ett högerklick eller ``N`` avvisar det (det går tillbaka till obesvarat och bär ett rött kryss); ``U`` ångrar båda. Raden ovanför tangentförklaringen säger det, och räknar vad sidan och kolumnen innehåller. Varje bedömning skrivs till kolumnen ``<column>_verdict`` som ``+c`` eller ``-c``, så att den överlever en omstart, och nästa Suggest-omgång får avvisningarna att träna på. Se :meth:`AnnotateScreen._judge` och :func:`spacr.suggest.verdict_column`.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.annotate#9",
@@ -810,7 +812,9 @@
       "source_sha256": "cae822239c94b804ff9338aa4d1846cf19ad53d231e49525ab832c099283b2bd",
       "context": "A page is what fits (item 512). The grid holds exactly the extracted image regions that fit the room the extracted image region pane gives it, at the extracted image region size the settings ask for, and it never scrolls: opening the console, folding a pane, changing the GUI scale or resizing the window recomputes the page and pushes the rest to the next one, the page counter follows, and the first extracted image region on application view stays where it was. See :func:`grid_that_fits` and :meth:`AnnotateScreen._refit_grid`.",
       "translation": "EN SIDA ÄR DET SOM FÅR PLATS (punkt 512). Rutnätet rymmer exakt de utsnitt som får plats i det utrymme som utsnittspanelen ger det, vid den utsnittsstorlek som inställningarna begär, och det rullar aldrig: att öppna konsolen, fälla ihop en panel, ändra GUI-skalan eller ändra fönstrets storlek beräknar om sidan och skjuter resten till nästa, sidräknaren följer med, och det första utsnittet på skärmen stannar där det var. Se :func:`grid_that_fits` och :meth:`AnnotateScreen._refit_grid`.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.annotate.AnnotateScreen.closeEvent#1",
@@ -874,7 +878,9 @@
       "source_sha256": "0c2206c2088e848e5484cc623481cf99006ab4f39513f371125b9f4fcd00950e",
       "context": "Item 512. A suggestion is amber, a confirmed suggestion green and a rejected one red -- the theme's own warning, success and error colours, so the badge follows a theme change the way the rest of the chrome does. The glyph is drawn in the theme's background colour, which is black on the dark theme and near-white on the light one; each of those fills was chosen against it and reads at better than 4.5:1 in both. None of the three is a class colour, so a badge is never read as a class.",
       "translation": "Punkt 512. Ett förslag är bärnstensfärgat, ett bekräftat förslag grönt och ett avvisat rött -- temats egna färger för varning, framgång och fel, så att märket följer ett temabyte på samma sätt som resten av gränssnittet. Glyfen ritas i temats bakgrundsfärg, som är svart i det mörka temat och nästan vit i det ljusa; var och en av fyllnadsfärgerna valdes mot den och läses bättre än 4.5:1 i båda. Ingen av de tre (None) är en klassfärg, så ett märke läses aldrig som en klass.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.annotate.badge_colors#2",
@@ -1810,7 +1816,9 @@
       "source_sha256": "ea2c524a335b5143cd5020eb02dde69bdd0ad5882bf127178d68721c59f05e5d",
       "context": "True when the fetch was started, or when a PDF that needs the figure reader was answered with its install (item 518).",
       "translation": "True när hämtningen startades, eller när en PDF som behöver figurläsaren besvarades med dess installation (punkt 518).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.fetch_paper#7",
@@ -2830,7 +2838,9 @@
       "source_sha256": "15261313469c9c3e67f145132d2fe6448057d81da96d40e0f7f2952dd4fc23ac",
       "context": "Item 518: PDFs are read in Figure mode and plaque images in Plaque mode, so input for the other mode asks to switch, and input for both asks which to read.",
       "translation": "Punkt 518: PDFs läses i figurläget och plackbilder i plackläget, så indata för det andra läget frågar om byte, och indata för båda frågar vilket som ska läsas.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.input_mode_question#3",
@@ -4198,7 +4208,9 @@
       "source_sha256": "ee8bf065edb400a30ce7dbc6e4720c9e272fc20a3e6afc71c7d19b68cc0404a8",
       "context": "One scale slider per live preview, scaling that preview alone (item 471).",
       "translation": "Ett skalreglage per direktförhandsvisning, som bara skalar den förhandsvisningen (punkt 471).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.preview_scale#1",
@@ -4214,7 +4226,9 @@
       "source_sha256": "4e9e46511a7bc261ae82185b1937bd36319e36dac451378ffb1e819acb20289d",
       "context": "A window opened from the preview is not the preview (item 522). A dialog parented to the panel is a window of its own, yet Qt cascades the panel's scaled sheet into it, and the walk found it among the panel's children: at 150 % a settings dialog's buttons were 59 px tall, not the 40 px of every other dialog. Such a window and everything in it are kept at 100 %, and the window's own sheet re-states, at 100 %, the sizes it would otherwise inherit scaled -- set as it is polished, so before it is first laid out.",
       "translation": "ETT FÖNSTER SOM ÖPPNAS FRÅN FÖRHANDSVISNINGEN ÄR INTE FÖRHANDSVISNINGEN (punkt 522). En dialog med panelen som förälder är ett eget fönster, men Qt låter panelens skalade stilmall kaskadera in i den, och genomgången hittade den bland panelens barn: vid 150 % var knapparna i en inställningsdialog 59 px höga, inte 40 px som i alla andra dialoger. Ett sådant fönster och allt i det hålls vid 100 %, och fönstrets egen stilmall anger på nytt, vid 100 %, de storlekar som det annars skulle ärva skalade -- satt när det poleras, alltså innan dess layout görs första gången.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.preview_scale#11",
